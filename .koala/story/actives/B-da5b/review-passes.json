@@ -8,6 +8,15 @@
       "reviewRound": "2026-05-25T16:01:39.881Z",
       "reviewRunId": "B-da5b:RR-004",
       "_hash": "2eae5a845bacb2157c0aefd7995564de3ab9c55e794929a6e81575005e4479b1"
+    },
+    {
+      "id": "B-da5b:RP-002",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: all 3 must-priority intents (happy/edge/adversarial) have concrete logic_test evidence with result=pass in assertPostDoneHeartbeatLandsInMainAfterWorktreeRemoval; tests pin KOALA_PROJECT_ROOT to the worktree — the exact failure discriminator — and assert no ghost worktree dir, no ghost .koala, no ghost activity.jsonl, and that the final DONE record lands in main .koala/activity.jsonl. Would fail on old resolveRoot() behavior. No waiver, no missing evidence.",
+      "createdAt": "2026-05-25T16:05:03.266Z",
+      "reviewRound": "2026-05-25T16:01:39.881Z",
+      "reviewRunId": "B-da5b:RR-002",
+      "_hash": "1047ac99f6af59892b563ea1928d3882ba96dd9e834f3da4737402ff58bf40c2"
     }
   ]
 }
