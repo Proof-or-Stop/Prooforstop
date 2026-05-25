@@ -44,6 +44,15 @@
       "reviewRound": "2026-05-25T17:33:22.041Z",
       "reviewRunId": "B-30b2:RR-008",
       "_hash": "470d66151fa23cb808af8549536e0897348ae34c2d9e6b62c8e7295ede7e4fab"
+    },
+    {
+      "id": "B-30b2:RP-006",
+      "agent": "koala-review-concept",
+      "note": "本次无概念删除/替换。B-30b2 为纯增量变更：新增 priorityElevatedFrom 字段（types.ts + story-create.ts + story-review.ts），以及 riskHint/advisory 文案更新。全仓 grep 确认 priorityElevatedFrom 仅在预期文件中出现（3 处 story-create.ts、3 处 story-review.ts、1 处 types.ts），无孤儿残留。F-001 为 quality 清理 finding（脚本函数），不涉及概念删除。无 blocker。",
+      "createdAt": "2026-05-25T17:34:36.371Z",
+      "reviewRound": "2026-05-25T17:33:22.041Z",
+      "reviewRunId": "B-30b2:RR-005",
+      "_hash": "36814f6fd69f81170be81444aa3d8a0c88794f02685dfa1a615a1c33817bcd79"
     }
   ]
 }
