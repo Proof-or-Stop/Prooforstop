@@ -26,6 +26,15 @@
       "reviewRound": "2026-05-25T15:29:45.523Z",
       "reviewRunId": "B-4622:RR-003",
       "_hash": "80dca52a8014f2ab0d9e9cd9e6de046997bf8c53155872af6678a587291c060f"
+    },
+    {
+      "id": "B-4622:RP-004",
+      "agent": "koala-review-quality",
+      "note": "Reviewed docs/requirements/decisions/story-lifecycle.md (new Scope evidence hygiene section) and packages/main/src/tasks/command-ownership-contract.ts (new section 4c). Both changes are additive, narrow, and follow existing file style. No dead code, no as any, no empty catch, no shell isolation issues. The adversarial assertions are technically redundant with the deepEqual pins but carry independent error messages consistent with this file's defensive documentation pattern.",
+      "createdAt": "2026-05-25T15:31:52.881Z",
+      "reviewRound": "2026-05-25T15:29:45.523Z",
+      "reviewRunId": "B-4622:RR-001",
+      "_hash": "7587950baa4f705b72f4ab562daab829d6d42f5acaed46d86a9de53392fc8bab"
     }
   ]
 }
