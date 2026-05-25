@@ -7,9 +7,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-25T15:49:59.705Z",
-      "endTime": "2026-05-25T16:01:10.351Z",
+      "endTime": "2026-05-25T16:10:11.482Z",
       "userSees": "After story_advance DONE, koala doctor --format=json shows \"orphanDirs\":[] and the removed story worktree path does not exist; final activity is written under the main repo .koala/activity.jsonl.",
       "files": {
         "modify": [
@@ -57,10 +57,10 @@
           "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
-          "note": "assertPostDoneHeartbeatLandsInMainAfterWorktreeRemoval runs story_advance DONE from the story worktree with KOALA_PROJECT_ROOT pinned to that worktree, then asserts main .koala/activity.jsonl contains the successful story_advance record.",
-          "headHash": "209455c11bafb42136c713b0fe9902a2cfa15ab0",
-          "materialHash": "c5447b9130c742b4fa3981e789023101a6dadd2270a1c8f2deac86718dd28453",
-          "timestamp": "2026-05-25T16:01:10.435Z"
+          "note": "After F-001 cleanup, assertPostDoneHeartbeatLandsInMainAfterWorktreeRemoval still runs story_advance DONE from the story worktree with KOALA_PROJECT_ROOT pinned to that worktree, then asserts main .koala/activity.jsonl contains the successful story_advance record.",
+          "headHash": "05ba5783412e01a41c2df1252b36a6d6bb5a9ba5",
+          "materialHash": "628b7fb8b61af6978db7fe8b42d5acc6663115c173805bdf40861b3576a343bf",
+          "timestamp": "2026-05-25T16:10:11.560Z"
         },
         {
           "intentRef": "deleted-worktree-not-recreated",
@@ -68,10 +68,10 @@
           "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
-          "note": "DONE success path and B-da5b regression both assert the removed .worktrees/<storyId> path, its .koala dir, and ghost activity.jsonl stay absent after activity logging.",
-          "headHash": "209455c11bafb42136c713b0fe9902a2cfa15ab0",
-          "materialHash": "c5447b9130c742b4fa3981e789023101a6dadd2270a1c8f2deac86718dd28453",
-          "timestamp": "2026-05-25T16:01:10.503Z"
+          "note": "After F-001 cleanup, the dedicated B-da5b regression asserts the removed .worktrees/<storyId> path, its .koala dir, and ghost activity.jsonl stay absent after activity logging.",
+          "headHash": "05ba5783412e01a41c2df1252b36a6d6bb5a9ba5",
+          "materialHash": "628b7fb8b61af6978db7fe8b42d5acc6663115c173805bdf40861b3576a343bf",
+          "timestamp": "2026-05-25T16:10:11.614Z"
         },
         {
           "intentRef": "no-ghost-activity-log-shell",
@@ -80,9 +80,9 @@
           "command": "npm --prefix packages/main run test:worktree-authority-smoke",
           "result": "pass",
           "note": "The regression pins the old ghost-path condition by setting KOALA_PROJECT_ROOT to the worktree; the test only passes when writeLog uses the pre-captured durable main-root fallback instead of recreating or losing a ghost worktree log.",
-          "headHash": "209455c11bafb42136c713b0fe9902a2cfa15ab0",
-          "materialHash": "c5447b9130c742b4fa3981e789023101a6dadd2270a1c8f2deac86718dd28453",
-          "timestamp": "2026-05-25T16:01:10.595Z"
+          "headHash": "05ba5783412e01a41c2df1252b36a6d6bb5a9ba5",
+          "materialHash": "628b7fb8b61af6978db7fe8b42d5acc6663115c173805bdf40861b3576a343bf",
+          "timestamp": "2026-05-25T16:10:11.664Z"
         }
       ]
     }
@@ -106,6 +106,16 @@
       "from": "done",
       "to": "in_progress",
       "reason": "Reopened to address verified low quality finding B-da5b:F-001 before final REVIEW/TEST."
+    },
+    {
+      "timestamp": "2026-05-25T16:10:11.482Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "F-001 cleanup committed by koala-implementer and independently verified by Codex with build and worktree authority smoke.",
+      "agent": "codex-verifier"
     }
   ]
 }
