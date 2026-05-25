@@ -32,8 +32,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-05-25T17:50:33.501Z",
       "endTime": null,
       "files": {
         "modify": [
@@ -91,6 +91,17 @@
         "create": [],
         "test": []
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-05-25T17:50:33.501Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting CHK-001 worktree dependency warning implementation via koala-implementer."
     }
   ]
 }
