@@ -95,7 +95,18 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "CLAUDE.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests"
+        ]
+      }
     }
   ]
 }
