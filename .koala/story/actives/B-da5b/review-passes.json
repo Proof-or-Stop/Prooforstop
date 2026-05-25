@@ -62,6 +62,15 @@
       "reviewRound": "2026-05-25T16:10:38.695Z",
       "reviewRunId": "B-da5b:RR-007",
       "_hash": "c2c0188267bc64c0a99c0dcc42a227bce46beef1158bc498232f03dd50fb973b"
+    },
+    {
+      "id": "B-da5b:RP-008",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: all 3 must verificationIntents (activity-log-main-root-after-done, deleted-worktree-not-recreated, no-ghost-activity-log-shell) have valid logic_test evidence with result=pass. Smoke test npm --prefix packages/main run test:worktree-authority-smoke confirmed green after F-001 cleanup. No coverage gaps.",
+      "createdAt": "2026-05-25T16:12:09.436Z",
+      "reviewRound": "2026-05-25T16:10:38.695Z",
+      "reviewRunId": "B-da5b:RR-008",
+      "_hash": "438c7b91715fd842453ffcebe75de81686099b07a06fde6da6965149d1659cce"
     }
   ]
 }
