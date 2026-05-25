@@ -659,6 +659,14 @@ auth / password / token / migration / destructive / state machine / guard / gate
 
 该 elevate 使用**有效 priority** 覆盖原始输入；即使调用方传 `priority:"low"`，命中 `hotfix` / `incident` / 破坏性 git 等关键词也按 high-risk story 处理，并触发 decision + ≥3 preMortem 等 gate。
 
+**mention-vs-modify 限制与误报回退（B-30b2）**：检测是纯关键词扫描，**无法区分"提及"与"修改"该领域**（设计如此，不做语义分析）。所以一个只是在 description / checklist 里**提及**风险领域、并不实际改动它的 story 也会被 elevate——这是已知误报。命中时 `story_create`（stderr riskHint）和 `story_review`（`risk_signals` advisory）都会显式输出消解引导：若为误报，用
+
+```bash
+koala story_review_dismiss '{"storyId":"B-xxx","category":"<命中的分类>","reason":"为何是误报（≥5 字符）"}'
+```
+
+驳回。**当全部 auto-elevated 的 riskSignal 都被 dismiss 后**，`priority` 自动回退到 `priorityElevatedFrom`、高风险 gate（missing_decision / ≥3 preMortem）解除（CHK-001 行为）；仅 dismiss 部分分类则保持 elevated。用户显式设置的 high/critical **不受 dismiss 影响**（不写 `priorityElevatedFrom` 标记，不会被误降）。未命中 riskSignal 时不输出该引导（不制造噪音）。
+
 ### story_create 重复 / 并发警告走 stderr（B-6812）
 
 `story_create` 的全部 advisory 文本——keyword 重叠 `dupWarning`、高风险 `riskHint`、最近并发 story 提示——走 `process.stderr.write`，**不**拼进 stdout 返回值。stdout 只保留创建结论（`Story B-xxxx created ...`）+ 非 advisory 引导（INIT reviewer 提示等）。原因：`koala story_create | tail` 这类管道只消费 stdout，advisory 拼进 stdout 会被静默吃掉；走 stderr 后即使被管道也仍可见。

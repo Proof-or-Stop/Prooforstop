@@ -153,10 +153,16 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
       const isHighRisk = story.priority === 'high' || story.priority === 'critical'
         || activeRiskSignals.length > 0;
       if (activeRiskSignals.length > 0) {
+        // B-30b2 CHK-002: keyword detection cannot distinguish "mentions a risky
+        // domain" from "modifies it". When the story merely mentions the domain,
+        // this advisory is a false positive — surface the CHK-001 dismiss path so
+        // the auto-elevation can be fully rolled back. Only promise CHK-001
+        // behavior: dismissing all auto-elevated categories rolls priority back.
         issues.push({
           type: 'risk_signals',
           severity: 'advisory',
-          message: `story 命中 ${activeRiskSignals.length} 个高风险信号: ${activeRiskSignals.map((r: any) => r.category).join(', ')}。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）`,
+          message: `story 命中 ${activeRiskSignals.length} 个高风险信号: ${activeRiskSignals.map((r: any) => r.category).join(', ')}。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）。`
+            + ` 若本 story 只是提及而非修改该领域（误报），可 koala story_review_dismiss '{"storyId":"${args.storyId}","category":"<分类>","reason":"..."}' 完整回退 auto-elevation（全部 auto-elevated riskSignal 被 dismiss 后 priority 自动回退、高风险 gate 解除）。`,
         });
       }
       if (dismissedCats.size > 0) {

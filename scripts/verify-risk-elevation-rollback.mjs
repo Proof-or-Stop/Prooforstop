@@ -19,7 +19,7 @@
  * Each scenario prints `ok <mode>` on success so the fixture can assert on it.
  */
 
-import { execFileSync } from 'child_process';
+import { execFileSync, spawnSync } from 'child_process';
 import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
@@ -63,6 +63,16 @@ function runExpectFail(projectRoot, command, payload) {
     return [e?.stdout?.toString?.() ?? '', e?.stderr?.toString?.() ?? '', e?.message ?? ''].join('\n');
   }
   throw new Error(`${command} should have failed but succeeded`);
+}
+
+// B-30b2 CHK-002: capture BOTH stdout and stderr. The mention-vs-modify
+// guidance (riskHint) is written to stderr, so execFileSync (stdout-only) cannot
+// see it — spawnSync surfaces both streams.
+function runCapture(projectRoot, command, payload) {
+  const args = [cli, '--root', projectRoot, command];
+  if (payload !== undefined) args.push(JSON.stringify(payload));
+  const r = spawnSync('node', args, { cwd: root, encoding: 'utf8' });
+  return { stdout: r.stdout ?? '', stderr: r.stderr ?? '', combined: (r.stdout ?? '') + (r.stderr ?? '') };
 }
 
 function storyPath(projectRoot, storyId) {
@@ -244,12 +254,103 @@ function scenarioAdversarial() {
   console.log('ok adversarial');
 }
 
+// === B-30b2 CHK-002: mention-vs-modify guidance is discoverable + honest ===
+
+const STORY_CREATE_GUIDANCE = '若为误报（仅提及未修改），可 koala story_review_dismiss 完整回退';
+
+// CHK-002 happy: a story_create that HITS a riskSignal surfaces the dismiss
+// escape hatch on stderr (must contain the exact discoverable phrase + the
+// story_review_dismiss command form with the freshly minted storyId).
+function scenarioGuidanceHit() {
+  const p = createProject('koala-guide-hit-');
+  const { stderr, combined } = runCapture(p, 'story_create', {
+    name: 'guide-hit',
+    title: 'Guide hit',
+    description: 'Refactor the state machine guard logic so phase flow is correct.',
+    background: background('guide-hit'),
+    type: 'feature',
+    priority: 'low',
+    checklist: [
+      { title: 'do the thing', context: 'implement the change.' },
+      { title: 'cover it', context: 'add coverage.' },
+      { title: 'wire it', context: 'wire the change.' },
+    ],
+    forceNew: true,
+  });
+  const id = combined.match(/B-[a-f0-9]+/)?.[0];
+  assert(id, `guide-hit: story id not found in: ${combined}`);
+  assert(stderr.includes(STORY_CREATE_GUIDANCE), `guide-hit: stderr must contain dismiss guidance, got: ${stderr}`);
+  assert(stderr.includes('story_review_dismiss'), `guide-hit: stderr must reference story_review_dismiss command, got: ${stderr}`);
+  assert(stderr.includes(id), `guide-hit: dismiss guidance should embed the storyId ${id}, got: ${stderr}`);
+  console.log('ok guide-hit');
+}
+
+// CHK-002 edge: a story_create that does NOT hit any riskSignal must NOT emit the
+// guidance (no false-positive noise on benign stories).
+function scenarioGuidanceMiss() {
+  const p = createProject('koala-guide-miss-');
+  const { stderr, combined } = runCapture(p, 'story_create', {
+    name: 'guide-miss',
+    title: 'Guide miss',
+    description: 'Update the greeting copy in the welcome banner so it reads nicer.',
+    background: background('guide-miss'),
+    type: 'feature',
+    priority: 'low',
+    checklist: [
+      { title: 'tweak the copy', context: 'edit the banner string.' },
+      { title: 'review wording', context: 'confirm tone.' },
+    ],
+    forceNew: true,
+  });
+  const id = combined.match(/B-[a-f0-9]+/)?.[0];
+  assert(id, `guide-miss: story id not found in: ${combined}`);
+  const story = readStory(p, id);
+  assert(!story.riskSignals || story.riskSignals.length === 0, `guide-miss: precondition no riskSignals, got ${JSON.stringify(story.riskSignals)}`);
+  assert(!stderr.includes(STORY_CREATE_GUIDANCE), `guide-miss: benign story must NOT emit dismiss guidance, got: ${stderr}`);
+  assert(!combined.includes(STORY_CREATE_GUIDANCE), `guide-miss: guidance must not appear on any stream, got: ${combined}`);
+  console.log('ok guide-miss');
+}
+
+// CHK-002 adversarial: the guidance must match CHK-001's ACTUAL behavior, never
+// promise more. The story_review advisory must (a) carry the dismiss path and
+// (b) the promised "all auto-elevated dismissed -> rollback" must hold while a
+// partial dismiss does NOT roll back (claim "仅 dismiss 部分则不回退" is honest).
+function scenarioGuidanceHonest() {
+  const p = createProject('koala-guide-honest-');
+  // Two distinct categories so we can test partial vs full dismiss.
+  const id = createStory(p, 'guide-honest', 'low', 'Change the state machine guard logic and also the koala validate fixture runner.');
+  let story = readStory(p, id);
+  const cats = (story.riskSignals || []).map(r => r.category);
+  assert(cats.length >= 2, `guide-honest: expected >=2 categories, got ${JSON.stringify(cats)}`);
+  assert(story.priority === 'high' && story.priorityElevatedFrom === 'low', 'guide-honest: precondition auto-elevated');
+
+  // story_review advisory must surface the dismiss escape hatch.
+  const review = runCapture(p, 'story_review', { storyId: id });
+  assert(/story_review_dismiss/.test(review.combined), `guide-honest: story_review must mention story_review_dismiss, got: ${review.combined}`);
+  assert(/提及.*修改|mention/i.test(review.combined), `guide-honest: story_review must explain mention-vs-modify, got: ${review.combined}`);
+
+  // Partial dismiss (one of two) -> NOT rolled back (matches "仅 dismiss 部分则不回退").
+  run(p, 'story_review_dismiss', { storyId: id, category: cats[0], reason: 'first category is mention-only here' });
+  story = readStory(p, id);
+  assert(story.priority === 'high', `guide-honest: partial dismiss must NOT roll back (honest claim), got ${story.priority}`);
+
+  // Full dismiss (all auto-elevated) -> rolled back (matches "全部...自动回退").
+  run(p, 'story_review_dismiss', { storyId: id, category: cats[1], reason: 'second category is mention-only here too' });
+  story = readStory(p, id);
+  assert(story.priority === 'low', `guide-honest: full dismiss must roll back to low (honest claim), got ${story.priority}`);
+  assert(story.priorityElevatedFrom === undefined, 'guide-honest: marker cleared after full rollback');
+  console.log('ok guide-honest');
+}
+
 const scenarios = {
   happy: scenarioHappy,
   'edge-high': scenarioEdgeHigh,
   'edge-critical': scenarioEdgeCritical,
   multi: scenarioMulti,
   adversarial: scenarioAdversarial,
+  'guide-hit': scenarioGuidanceHit,
+  'guide-miss': scenarioGuidanceMiss,
+  'guide-honest': scenarioGuidanceHonest,
 };
 
 if (mode === 'all') {
