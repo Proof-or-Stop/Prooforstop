@@ -1,0 +1,35 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-05-25T15:46:05.439Z",
+      "issueCount": 2,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story 命中 1 个高风险信号: 状态机/门禁。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "未跑 scope check。请先启动 koala-review-scope-plan agent，agent 会自动调 scope_check_save 写入结果"
+        }
+      ],
+      "_hash": "55a35333a588b7e80a06d2d1778d9abe2b60ae5e972d11aaed25e513ad7bcf6f"
+    },
+    {
+      "timestamp": "2026-05-25T15:48:03.220Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story 命中 1 个高风险信号: 状态机/门禁。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）"
+        }
+      ],
+      "_hash": "e1f014ee117b1b11b5451017ba9b5e6f6ba95811ab7c2c0e4c12c44ea2ebbb9e"
+    }
+  ]
+}

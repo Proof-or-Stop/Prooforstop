@@ -1,0 +1,76 @@
+{
+  "passes": [
+    {
+      "id": "B-da5b:RP-001",
+      "agent": "koala-review-concept",
+      "note": "No concept deletions or replacements in this diff. resolveMainRootFromWorktreeRoot is pre-existing and used additively; resolveRoot() retained as secondary fallback; no symbols deleted. assertPostDoneHeartbeatLandsInMainAfterWorktreeRemoval added, invoked at bottom. Docs bullet additive. Zero residual references to check.",
+      "createdAt": "2026-05-25T16:04:43.140Z",
+      "reviewRound": "2026-05-25T16:01:39.881Z",
+      "reviewRunId": "B-da5b:RR-004",
+      "_hash": "2eae5a845bacb2157c0aefd7995564de3ab9c55e794929a6e81575005e4479b1"
+    },
+    {
+      "id": "B-da5b:RP-002",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: all 3 must-priority intents (happy/edge/adversarial) have concrete logic_test evidence with result=pass in assertPostDoneHeartbeatLandsInMainAfterWorktreeRemoval; tests pin KOALA_PROJECT_ROOT to the worktree — the exact failure discriminator — and assert no ghost worktree dir, no ghost .koala, no ghost activity.jsonl, and that the final DONE record lands in main .koala/activity.jsonl. Would fail on old resolveRoot() behavior. No waiver, no missing evidence.",
+      "createdAt": "2026-05-25T16:05:03.266Z",
+      "reviewRound": "2026-05-25T16:01:39.881Z",
+      "reviewRunId": "B-da5b:RR-002",
+      "_hash": "1047ac99f6af59892b563ea1928d3882ba96dd9e834f3da4737402ff58bf40c2"
+    },
+    {
+      "id": "B-da5b:RP-003",
+      "agent": "koala-review-docs",
+      "note": "Checked new bullet in story-lifecycle.md (B-da5b section): (1) problem description matches code — resolveRoot() returns KOALA_PROJECT_ROOT ghost path after worktree removal; (2) fix description accurate — mainRootFallback captured before command execution via resolveMainRootFromWorktreeRoot(root), preferred over resolveRoot() when root/koala.config.json gone; (3) test function reference assertPostDoneHeartbeatLandsInMainAfterWorktreeRemoval exists in tasks/worktree-authority-smoke.ts and is called; (4) test assertions match doc requirements (no worktree dir recreation, DONE record in main activity.jsonl); (5) no duplication. Step 1: 8 symbols extracted (none exported). Step 2: story-lifecycle.md paragraph checked — all claims verified against cli-engine.ts and worktree-authority-smoke.ts diffs.",
+      "createdAt": "2026-05-25T16:05:47.826Z",
+      "reviewRound": "2026-05-25T16:01:39.881Z",
+      "reviewRunId": "B-da5b:RR-003",
+      "_hash": "3187668b1526e9524312bd02bb2d61b021590ff1b04f820e6a87358d9e526c8a"
+    },
+    {
+      "id": "B-da5b:RP-004",
+      "agent": "koala-review-quality",
+      "note": "Reviewed cli-engine.ts and worktree-authority-smoke.ts diff. Core fix (mainRootFallback captured before DONE removes worktree) is correct and covers both KOALA_PROJECT_ROOT-pinned and cwd-walk scenarios. resolveMainRootFromWorktreeRoot is safe for main repos (returns null, caught). writeLog fallback chain is correct: mainRootFallback → resolveRoot() → skip. Test coverage is complete: assertDoneSuccessPathOutputAndOrdering adds regression assertions in-band, assertPostDoneHeartbeatLandsInMainAfterWorktreeRemoval is the discriminating test with KOALA_PROJECT_ROOT pinned to worktree. No dead imports, no unguarded as-any, no shell/fn.ts isolation violation. One low finding filed for misleading failure message from duplicate assertion at line 814.",
+      "createdAt": "2026-05-25T16:06:44.193Z",
+      "reviewRound": "2026-05-25T16:01:39.881Z",
+      "reviewRunId": "B-da5b:RR-001",
+      "_hash": "05f75232c0c7c115b47de70a5e454ad61170468a2f92ece5483649d316e466e2"
+    },
+    {
+      "id": "B-da5b:RP-005",
+      "agent": "koala-review-docs",
+      "note": "Step 1: 1 exported symbol change (resolveMainRootFromWorktreeRoot usage in cli-engine.ts). Step 2: grep found 1 doc reference in story-lifecycle.md new bullet. Step 3: compared new bullet claims vs diff — all 4 claims verified: (1) main-root fallback captured at command start before worktree removal, (2) fallback used when root lacks koala.config.json, (3) resolveRoot() NOT called first, (4) regression test assertPostDoneHeartbeatLandsInMainAfterWorktreeRemoval exists at worktree-authority-smoke.ts:889. No doc-code drift found. Reviewed intentRefs: activity-log-main-root-after-done, deleted-worktree-not-recreated, no-ghost-activity-log-shell.",
+      "createdAt": "2026-05-25T16:11:49.088Z",
+      "reviewRound": "2026-05-25T16:10:38.695Z",
+      "reviewRunId": "B-da5b:RR-005",
+      "_hash": "12d0f009b46f222dcef95cc1d43c244b322ce13a83caa42f03c7e83826e6626c"
+    },
+    {
+      "id": "B-da5b:RP-006",
+      "agent": "koala-review-concept",
+      "note": "Concept scope confirmed clean after F-001 fix. The three reviewedIntentRefs (activity-log-main-root-after-done, deleted-worktree-not-recreated, no-ghost-activity-log-shell) are all implemented: mainRootFallback captured before DONE removes the worktree (cli-engine.ts:1962), post-command writeLog prefers mainRootFallback over resolveRoot() cwd-walk (cli-engine.ts:2033-2042), regression test assertPostDoneHeartbeatLandsInMainAfterWorktreeRemoval pins KOALA_PROJECT_ROOT to worktree and asserts no ghost dir recreated + DONE record lands in main. No deleted/replaced concept residuals: old phrase fall-back-to-fresh-resolveRoot fully replaced by durable-main-root-fallback pattern. Zero blocker.",
+      "createdAt": "2026-05-25T16:11:49.881Z",
+      "reviewRound": "2026-05-25T16:10:38.695Z",
+      "reviewRunId": "B-da5b:RR-006",
+      "_hash": "7ce4a51cfaa9d1b0adc6f8015b5deb34d5a51601be54d590b0ba87bbea55e5af"
+    },
+    {
+      "id": "B-da5b:RP-007",
+      "agent": "koala-review-quality",
+      "note": "F-001 fix verified: assertDoneSuccessPathOutputAndOrdering now checks finer-grained sub-paths (.koala dir, activity.jsonl) instead of repeating the top-level worktreePath check — the duplicate/masked assertion issue is resolved. cli-engine.ts change is clean: mainRootFallback captured before command runs, used as preferred fallback in writeLog, well-commented, no dead code or type safety issues. New assertPostDoneHeartbeatLandsInMainAfterWorktreeRemoval function is well-structured. No new quality issues found.",
+      "createdAt": "2026-05-25T16:11:56.249Z",
+      "reviewRound": "2026-05-25T16:10:38.695Z",
+      "reviewRunId": "B-da5b:RR-007",
+      "_hash": "c2c0188267bc64c0a99c0dcc42a227bce46beef1158bc498232f03dd50fb973b"
+    },
+    {
+      "id": "B-da5b:RP-008",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: all 3 must verificationIntents (activity-log-main-root-after-done, deleted-worktree-not-recreated, no-ghost-activity-log-shell) have valid logic_test evidence with result=pass. Smoke test npm --prefix packages/main run test:worktree-authority-smoke confirmed green after F-001 cleanup. No coverage gaps.",
+      "createdAt": "2026-05-25T16:12:09.436Z",
+      "reviewRound": "2026-05-25T16:10:38.695Z",
+      "reviewRunId": "B-da5b:RR-008",
+      "_hash": "438c7b91715fd842453ffcebe75de81686099b07a06fde6da6965149d1659cce"
+    }
+  ]
+}

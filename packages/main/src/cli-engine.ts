@@ -1953,6 +1953,14 @@ export async function runCli(opts?: {
 
   // Execute
   const root = resolveRootForCommand(cmd, rootOverride);
+  // Durable main-root fallback for post-command activity logging.
+  // story_advance --phase=DONE removes the current story worktree mid-command.
+  // Once removed, root/.git is gone, so resolveMainRootFromWorktreeRoot() can no
+  // longer recover the main project root, and resolveRoot()'s cwd-walk may land
+  // on (and appendActivityLog may recreate) the now-deleted ghost worktree dir.
+  // Capture the main root NOW, while root/.git still exists, so writeLog can fall
+  // back to a durable path that survives the deletion.
+  const mainRootFallback = resolveMainRootFromWorktreeRoot(root);
   const store = new StoryStore(root);
   const _cliStart = Date.now();
   let log: (msg: string) => void = (msg) => {
@@ -2022,16 +2030,24 @@ export async function runCli(opts?: {
       // path, we re-create dirs and leave a dangling audit log that
       // masquerades as an active worktree.
       //
-      // Detect this by checking if `root` still has koala.config.json. If
-      // not (the worktree was removed), fall back to a fresh resolveRoot()
-      // which walks up past the ghost to the real main project. If that
-      // also lacks koala.config.json, skip logging entirely rather than
-      // pollute the filesystem.
+      // Detect this by checking if `root` still has koala.config.json. If not
+      // (the worktree was removed), prefer the durable main-root fallback
+      // captured at command start — it was computed while root/.git still
+      // existed, so it points at the real main project even after the worktree
+      // is gone. Do NOT fall back to resolveRoot() first: its cwd-walk may
+      // resolve to (and appendActivityLog would then recreate) the now-deleted
+      // ghost worktree dir. Only use resolveRoot() if the durable fallback is
+      // unavailable/stale, and skip logging entirely if neither has
+      // koala.config.json rather than pollute the filesystem.
       let effectiveRoot = root;
       if (!existsSync(join(effectiveRoot, 'koala.config.json'))) {
-        effectiveRoot = resolveRoot();
-        if (!existsSync(join(effectiveRoot, 'koala.config.json'))) {
-          return;
+        if (mainRootFallback && existsSync(join(mainRootFallback, 'koala.config.json'))) {
+          effectiveRoot = mainRootFallback;
+        } else {
+          effectiveRoot = resolveRoot();
+          if (!existsSync(join(effectiveRoot, 'koala.config.json'))) {
+            return;
+          }
         }
       }
       const record: Record<string, unknown> = {

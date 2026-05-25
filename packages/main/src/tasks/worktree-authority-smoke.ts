@@ -807,6 +807,32 @@ function assertDoneSuccessPathOutputAndOrdering(): void {
     assert.doesNotMatch(git(root, ['worktree', 'list', '--porcelain']), new RegExp(`story/${storyId}`), 'Step4 must deregister the worktree');
     assert.equal(existsSync(worktreePath), false, 'Step4 must remove the canonical worktree directory');
 
+    // B-da5b regression — post-DONE activity heartbeat must NOT recreate the
+    // removed worktree dir, and the final successful story_advance DONE record
+    // must land in the MAIN repo .koala/activity.jsonl (not a ghost worktree log).
+    // 1) The removed worktree path stays absent — no .koala (re)created under it.
+    //    The worktree-dir absence itself is already asserted by the Step4 check
+    //    above; the dedicated assertPostDoneHeartbeatLandsInMainAfterWorktreeRemoval
+    //    test is the discriminating B-da5b regression guard. Here we only add the
+    //    finer-grained sub-path checks so a ghost recreation surfaces with B-da5b
+    //    diagnostics rather than being masked by the older Step4 message.
+    assert.equal(existsSync(join(worktreePath, '.koala')), false, 'post-DONE activity logging must not recreate a .koala dir inside the removed worktree');
+    assert.equal(existsSync(join(worktreePath, '.koala', 'activity.jsonl')), false, 'post-DONE activity logging must not write activity.jsonl into the removed worktree');
+    // 2) The main repo activity log holds the final successful story_advance DONE.
+    const mainActivityLog = join(root, '.koala', 'activity.jsonl');
+    assert.equal(existsSync(mainActivityLog), true, 'main repo .koala/activity.jsonl must exist after DONE');
+    const activityRecords = readFileSync(mainActivityLog, 'utf-8')
+      .split('\n')
+      .filter((l) => l.trim())
+      .map((l) => JSON.parse(l) as Record<string, unknown>);
+    const doneRecord = activityRecords.find(
+      (r) => r.tool === 'story_advance' && r.storyId === storyId && r.status === 'ok',
+    );
+    assert.ok(
+      doneRecord,
+      'main repo activity.jsonl must contain the final successful story_advance DONE record for this story',
+    );
+
     // CHK-003 ④ — structural assertion: story-advance.ts is a thin shell with
     // no inline DONE merge implementation. B-6974 (Story 3c): story-advance.ts
     // no longer references done-effects directly — it delegates one whole
@@ -838,6 +864,63 @@ function assertDoneSuccessPathOutputAndOrdering(): void {
       inlineMergeImpl,
       'transition-orchestrator.ts must not carry an inline git merge / git worktree remove implementation',
     );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+/**
+ * B-da5b CHK-001 — post-DONE activity heartbeat must land in the MAIN repo
+ * .koala/activity.jsonl and must NOT recreate the removed story worktree dir.
+ *
+ * Failure mode this discriminates: when KOALA_PROJECT_ROOT points at the story
+ * worktree (the realistic agent setup — they cd into the worktree and the env
+ * var pins the root there), story_advance --phase=DONE removes that worktree
+ * mid-command. The post-command writeLog then sees root/koala.config.json gone
+ * and, in the old code, fell back to resolveRoot() — which returns the now-ghost
+ * worktree path again (KOALA_PROJECT_ROOT wins), so the final successful DONE
+ * record was silently dropped (heartbeat lost) instead of landing in main.
+ *
+ * The fix captures a durable main-root fallback at command start (while
+ * root/.git still exists). This test pins KOALA_PROJECT_ROOT to the worktree so
+ * the old fallback would drop the record; the assertions require the DONE
+ * heartbeat to be present in main and the worktree dir to stay absent.
+ */
+function assertPostDoneHeartbeatLandsInMainAfterWorktreeRemoval(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-post-done-heartbeat-'));
+  try {
+    const storyId = 'B-heartbeat';
+    const { worktreePath } = buildDoneReadyStory(root, storyId);
+
+    // Run DONE with cwd AND KOALA_PROJECT_ROOT pinned to the worktree — this is
+    // the env that made the old resolveRoot() fallback return the ghost path.
+    const output = execFileSync(
+      process.execPath,
+      [cliPath, 'story_advance', JSON.stringify({ storyId, phase: 'DONE' })],
+      {
+        cwd: worktreePath,
+        env: { ...process.env, KOALA_PROJECT_ROOT: worktreePath },
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+      },
+    );
+    assert.ok(output.includes(`Story ${storyId} advanced to DONE`), 'DONE must succeed with KOALA_PROJECT_ROOT on the worktree');
+
+    // The removed worktree must stay absent — activity logging must not recreate
+    // it (no resurrected dir / .koala / activity.jsonl under the ghost path).
+    assert.equal(existsSync(worktreePath), false, 'post-DONE heartbeat must not recreate the removed worktree directory');
+    assert.equal(existsSync(join(worktreePath, '.koala')), false, 'post-DONE heartbeat must not recreate a .koala dir under the removed worktree');
+    assert.equal(existsSync(join(worktreePath, '.koala', 'activity.jsonl')), false, 'post-DONE heartbeat must not write activity.jsonl into the removed worktree');
+
+    // The final successful story_advance DONE record must land in main's log.
+    const mainActivityLog = join(root, '.koala', 'activity.jsonl');
+    assert.equal(existsSync(mainActivityLog), true, 'main repo .koala/activity.jsonl must exist after DONE');
+    const doneRecord = readFileSync(mainActivityLog, 'utf-8')
+      .split('\n')
+      .filter((l) => l.trim())
+      .map((l) => JSON.parse(l) as Record<string, unknown>)
+      .find((r) => r.tool === 'story_advance' && r.storyId === storyId && r.status === 'ok');
+    assert.ok(doneRecord, 'main repo activity.jsonl must contain the final successful story_advance DONE record');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -1338,6 +1421,9 @@ assertDoneRejectsMismatchedStoryBranchBeforeMutation();
 assertDoneRejectsNonStoryLinkedWorktreeBeforeMutation();
 // B-9027 CHK-002 / CHK-003 regression coverage for the done-effects.ts extraction.
 assertDoneSuccessPathOutputAndOrdering();
+// B-da5b CHK-001 — post-DONE activity heartbeat lands in main, never recreates
+// the removed worktree (KOALA_PROJECT_ROOT-on-worktree discriminating case).
+assertPostDoneHeartbeatLandsInMainAfterWorktreeRemoval();
 assertDoneOracleGateFailureKeepsStoryTest();
 assertStrayFileOffenderKeepsStoryTest();
 assertMergeConflictPreMergeGateKeepsStoryTest();
