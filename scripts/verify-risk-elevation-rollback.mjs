@@ -56,15 +56,6 @@ function run(projectRoot, command, payload) {
   return execFileSync('node', args, { cwd: root, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] });
 }
 
-function runExpectFail(projectRoot, command, payload) {
-  try {
-    run(projectRoot, command, payload);
-  } catch (e) {
-    return [e?.stdout?.toString?.() ?? '', e?.stderr?.toString?.() ?? '', e?.message ?? ''].join('\n');
-  }
-  throw new Error(`${command} should have failed but succeeded`);
-}
-
 // B-30b2 CHK-002: capture BOTH stdout and stderr. The mention-vs-modify
 // guidance (riskHint) is written to stderr, so execFileSync (stdout-only) cannot
 // see it — spawnSync surfaces both streams.
