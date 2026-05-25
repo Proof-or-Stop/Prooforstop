@@ -53,6 +53,15 @@
       "reviewRound": "2026-05-25T14:22:48.120Z",
       "reviewRunId": "B-4bd4:RR-005",
       "_hash": "dc7ddf8c494c9946ddfd78dde7c03537e1f68621c79d1722e5193a6dda32a9b1"
+    },
+    {
+      "id": "B-4bd4:RP-007",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: 已检查全部 9 条 must verificationIntent 与 verificationEvidence 覆盖关系，无 blocker。CHK-001/002/003 三栏 (happy/edge/adversarial) 各有对应 docs_check 或 manual_transcript evidence，result 全部 pass，无 fail、无 waiver 缺 note。headHash 偏移来自 docs-fix 文本精度修正 (camelCase fieldname、\"not yet created\"→\"now created\") 及 koala 元数据 commit，不影响意图覆盖有效性；CHK-002/003 primary file (authority-client-role.md) 在证据记录后未变更。",
+      "createdAt": "2026-05-25T14:26:30.122Z",
+      "reviewRound": "2026-05-25T14:22:48.120Z",
+      "reviewRunId": "B-4bd4:RR-007",
+      "_hash": "3068f2443a0fac93fd764f43f82c27b4f3ba438932a6d88912d6ad0c2538c7e0"
     }
   ]
 }
