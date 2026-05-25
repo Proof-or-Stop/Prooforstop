@@ -26,6 +26,15 @@
       "reviewRound": "2026-05-25T16:01:39.881Z",
       "reviewRunId": "B-da5b:RR-003",
       "_hash": "3187668b1526e9524312bd02bb2d61b021590ff1b04f820e6a87358d9e526c8a"
+    },
+    {
+      "id": "B-da5b:RP-004",
+      "agent": "koala-review-quality",
+      "note": "Reviewed cli-engine.ts and worktree-authority-smoke.ts diff. Core fix (mainRootFallback captured before DONE removes worktree) is correct and covers both KOALA_PROJECT_ROOT-pinned and cwd-walk scenarios. resolveMainRootFromWorktreeRoot is safe for main repos (returns null, caught). writeLog fallback chain is correct: mainRootFallback → resolveRoot() → skip. Test coverage is complete: assertDoneSuccessPathOutputAndOrdering adds regression assertions in-band, assertPostDoneHeartbeatLandsInMainAfterWorktreeRemoval is the discriminating test with KOALA_PROJECT_ROOT pinned to worktree. No dead imports, no unguarded as-any, no shell/fn.ts isolation violation. One low finding filed for misleading failure message from duplicate assertion at line 814.",
+      "createdAt": "2026-05-25T16:06:44.193Z",
+      "reviewRound": "2026-05-25T16:01:39.881Z",
+      "reviewRunId": "B-da5b:RR-001",
+      "_hash": "05f75232c0c7c115b47de70a5e454ad61170468a2f92ece5483649d316e466e2"
     }
   ]
 }
