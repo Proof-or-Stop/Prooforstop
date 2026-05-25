@@ -150,9 +150,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-25T17:24:07.671Z",
-      "endTime": "2026-05-25T17:27:12.752Z",
+      "endTime": "2026-05-25T17:32:34.873Z",
       "files": {
         "modify": [
           "packages/main/src/handlers/story-create.ts",
@@ -171,10 +171,10 @@
           "file": "scripts/verify-risk-elevation-rollback.mjs",
           "command": "node scripts/verify-risk-elevation-rollback.mjs guide-hit",
           "result": "pass",
-          "note": "guide-hit verifies story_create output includes mention-vs-modify false-positive dismissal guidance when a riskSignal is detected.",
-          "headHash": "a832ae5ae00febe9468017c3dbfde294f488bbde",
-          "materialHash": "e49c9833252ba2a250dacb233725e1fc040965e45c501a2f3009a8f893901512",
-          "timestamp": "2026-05-25T17:27:12.798Z"
+          "note": "guide-hit still verifies story_create output includes mention-vs-modify false-positive dismissal guidance when a riskSignal is detected after F-001 cleanup.",
+          "headHash": "c4aeef2d2df4dd3aac41c26782457e5089bec8c0",
+          "materialHash": "b92943e764d4bafb128a66a3a207ade7fae05cbd2d09a131c911029e582197eb",
+          "timestamp": "2026-05-25T17:32:34.915Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -182,10 +182,10 @@
           "file": "scripts/verify-risk-elevation-rollback.mjs",
           "command": "node scripts/verify-risk-elevation-rollback.mjs guide-miss",
           "result": "pass",
-          "note": "guide-miss verifies stories without riskSignals do not emit the dismissal guidance noise.",
-          "headHash": "a832ae5ae00febe9468017c3dbfde294f488bbde",
-          "materialHash": "e49c9833252ba2a250dacb233725e1fc040965e45c501a2f3009a8f893901512",
-          "timestamp": "2026-05-25T17:27:12.828Z"
+          "note": "guide-miss still verifies stories without riskSignals do not emit dismissal guidance noise after F-001 cleanup.",
+          "headHash": "c4aeef2d2df4dd3aac41c26782457e5089bec8c0",
+          "materialHash": "b92943e764d4bafb128a66a3a207ade7fae05cbd2d09a131c911029e582197eb",
+          "timestamp": "2026-05-25T17:32:34.941Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -193,10 +193,10 @@
           "file": "scripts/verify-risk-elevation-rollback.mjs",
           "command": "node scripts/verify-risk-elevation-rollback.mjs guide-honest",
           "result": "pass",
-          "note": "guide-honest verifies guidance text only promises the CHK-001 behavior: full rollback after all auto-elevated riskSignals are dismissed, not broader semantic detection.",
-          "headHash": "a832ae5ae00febe9468017c3dbfde294f488bbde",
-          "materialHash": "e49c9833252ba2a250dacb233725e1fc040965e45c501a2f3009a8f893901512",
-          "timestamp": "2026-05-25T17:27:12.858Z"
+          "note": "guide-honest still verifies guidance text only promises the implemented CHK-001 all-auto-riskSignals-dismissed rollback behavior.",
+          "headHash": "c4aeef2d2df4dd3aac41c26782457e5089bec8c0",
+          "materialHash": "b92943e764d4bafb128a66a3a207ade7fae05cbd2d09a131c911029e582197eb",
+          "timestamp": "2026-05-25T17:32:34.966Z"
         }
       ]
     }
@@ -230,6 +230,16 @@
       "from": "done",
       "to": "in_progress",
       "reason": "Reopened to address review finding B-30b2:F-001 dead helper cleanup."
+    },
+    {
+      "timestamp": "2026-05-25T17:32:34.873Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "F-001 cleanup committed by koala-implementer and independently verified with build plus full rollback guidance smoke.",
+      "agent": "codex-verifier"
     }
   ]
 }
