@@ -44,6 +44,15 @@
       "reviewRound": "2026-05-25T12:57:51.311Z",
       "reviewRunId": "B-0f04:RR-007",
       "_hash": "243a093ea6cc92a1a59a6e8227db016c0b2c7489dd834b507e0ab724f957968c"
+    },
+    {
+      "id": "B-0f04:RP-006",
+      "agent": "koala-review-quality",
+      "note": "Quality re-review after Codex verification status reconciliation (fd43eff8); audit material unchanged at materialHash 34d4866. (1) No stale wording: report section flipped PENDING/not-yet-performed to COMPLETE; grep finds zero remaining stale markers (PENDING/outstanding/not-been-written/Codex-PM-later); codex-verification.md now exists. (2) Claims not overstated: each HV keeps its qualifier - HV-1 CONFIRMED conditional on PD-1=enforce-mode CLI, HV-2 CONFIRMED with Python-stricter caveat, HV-3 CONFIRMED; blocker-only-if-PD-1 framing preserved, no unconditional blocker assertion. (3) Codex support accurate: every line citation in the reconciled report matches codex-verification.md; CLI-side cites spot-checked against source (authority-submit.ts:68-88 minimal buildEnvelope, authority-contracts.ts:476-483 receipt?:unknown, authority-client.ts:138-158 parse-only). (4) Scope clean: git diff main...HEAD touches only .koala/story/actives/B-0f04/ evidence+metadata, no production code. No blocker.",
+      "createdAt": "2026-05-25T12:59:32.670Z",
+      "reviewRound": "2026-05-25T12:57:51.311Z",
+      "reviewRunId": "B-0f04:RR-009",
+      "_hash": "5c7004c8f16629be74d8ba5f1288fdb2bad155128299145279f158fdeef0b65c"
     }
   ]
 }
