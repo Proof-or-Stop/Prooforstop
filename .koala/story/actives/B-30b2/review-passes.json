@@ -35,6 +35,15 @@
       "reviewRound": "2026-05-25T17:28:02.841Z",
       "reviewRunId": "B-30b2:RR-003",
       "_hash": "645b732979aefedb1012b80a10d3978f2d826677980aa022700a3dbd2169d928"
+    },
+    {
+      "id": "B-30b2:RP-005",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: 已检查全部 8 条 verificationIntent（CHK-001: 5 must, CHK-002: 2 must + 1 should）。所有 must evidence 均为 logic_test / manual_transcript result=pass，脚本 node scripts/verify-risk-elevation-rollback.mjs all 全绿 (9/9)，无 must 缺口，无 waiver。",
+      "createdAt": "2026-05-25T17:34:28.009Z",
+      "reviewRound": "2026-05-25T17:33:22.041Z",
+      "reviewRunId": "B-30b2:RR-008",
+      "_hash": "470d66151fa23cb808af8549536e0897348ae34c2d9e6b62c8e7295ede7e4fab"
     }
   ]
 }
