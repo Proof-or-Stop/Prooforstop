@@ -67,9 +67,9 @@
           "command": "node scripts/verify-risk-elevation-rollback.mjs all",
           "result": "pass",
           "note": "happy scenario verifies a low-priority story auto-elevates on riskSignal, full dismiss rolls priority back via priorityElevatedFrom, and high-risk review pressure is removed.",
-          "headHash": "5a0d29b0f60fbfcd399d84ddc39291bffb3aec5d",
-          "materialHash": "01577de5c9db9a9e343aa6529f65d26367628db7962450a6b697e5040d648a0c",
-          "timestamp": "2026-05-25T17:23:56.433Z"
+          "headHash": "633223ab5dd5c94182a291557304ca0b6e73c2b2",
+          "materialHash": "e49c9833252ba2a250dacb233725e1fc040965e45c501a2f3009a8f893901512",
+          "timestamp": "2026-05-25T17:27:33.698Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -78,9 +78,9 @@
           "command": "node scripts/verify-risk-elevation-rollback.mjs all",
           "result": "pass",
           "note": "edge-high scenario verifies user explicit priority=high has no auto-elevation marker and is not downgraded by story_review_dismiss.",
-          "headHash": "5a0d29b0f60fbfcd399d84ddc39291bffb3aec5d",
-          "materialHash": "01577de5c9db9a9e343aa6529f65d26367628db7962450a6b697e5040d648a0c",
-          "timestamp": "2026-05-25T17:23:56.474Z"
+          "headHash": "633223ab5dd5c94182a291557304ca0b6e73c2b2",
+          "materialHash": "e49c9833252ba2a250dacb233725e1fc040965e45c501a2f3009a8f893901512",
+          "timestamp": "2026-05-25T17:27:33.698Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -89,9 +89,9 @@
           "command": "node scripts/verify-risk-elevation-rollback.mjs all",
           "result": "pass",
           "note": "edge-critical scenario verifies user explicit priority=critical is not downgraded by story_review_dismiss.",
-          "headHash": "5a0d29b0f60fbfcd399d84ddc39291bffb3aec5d",
-          "materialHash": "01577de5c9db9a9e343aa6529f65d26367628db7962450a6b697e5040d648a0c",
-          "timestamp": "2026-05-25T17:23:56.515Z"
+          "headHash": "633223ab5dd5c94182a291557304ca0b6e73c2b2",
+          "materialHash": "e49c9833252ba2a250dacb233725e1fc040965e45c501a2f3009a8f893901512",
+          "timestamp": "2026-05-25T17:27:33.698Z"
         },
         {
           "intentRef": "CHK-001:edge:2",
@@ -100,9 +100,9 @@
           "command": "node scripts/verify-risk-elevation-rollback.mjs all",
           "result": "pass",
           "note": "multi scenario verifies dismissing one risk category while another remains active preserves elevated priority and high-risk status.",
-          "headHash": "5a0d29b0f60fbfcd399d84ddc39291bffb3aec5d",
-          "materialHash": "01577de5c9db9a9e343aa6529f65d26367628db7962450a6b697e5040d648a0c",
-          "timestamp": "2026-05-25T17:23:56.551Z"
+          "headHash": "633223ab5dd5c94182a291557304ca0b6e73c2b2",
+          "materialHash": "e49c9833252ba2a250dacb233725e1fc040965e45c501a2f3009a8f893901512",
+          "timestamp": "2026-05-25T17:27:33.698Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -111,9 +111,9 @@
           "command": "node scripts/verify-risk-elevation-rollback.mjs all",
           "result": "pass",
           "note": "adversarial scenario verifies forged or missing priorityElevatedFrom cannot downgrade user-set high/critical stories.",
-          "headHash": "5a0d29b0f60fbfcd399d84ddc39291bffb3aec5d",
-          "materialHash": "01577de5c9db9a9e343aa6529f65d26367628db7962450a6b697e5040d648a0c",
-          "timestamp": "2026-05-25T17:23:56.587Z"
+          "headHash": "633223ab5dd5c94182a291557304ca0b6e73c2b2",
+          "materialHash": "e49c9833252ba2a250dacb233725e1fc040965e45c501a2f3009a8f893901512",
+          "timestamp": "2026-05-25T17:27:33.698Z"
         }
       ]
     },
