@@ -56,14 +56,53 @@
       "title": "Write the PD-1 authority client role decision artifact",
       "context": "Create a decision artifact under the B story evidence directory that compares thin local/shadow CLI vs first-class enforce-mode CLI. It must state the chosen/recommended option, consequences for trustLevel/L2+, and what the CLI may or may not claim before later milestones.",
       "relatedDocs": [
+        "docs/requirements/decisions/authority-client-role.md",
         "docs/requirements/decisions/role-separation.md",
         "docs/requirements/decisions/truth-source.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "userSees": "Decision artifact clearly answers whether Koala CLI is a thin client or enforce-mode client, plus what that means for L2+ evidence and future stories.",
+      "userSees": "docs/requirements/decisions/authority-client-role.md clearly answers whether Koala CLI is a thin client or enforce-mode client, plus what that means for L2+ evidence and future stories.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          ".koala/story/actives/B-4bd4/evidence/authority-client-role-decision.md"
+        ],
+        "create": [
+          "docs/requirements/decisions/authority-client-role.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "pd1-decision-explicit",
+            "desc": "Truth-source doc explicitly chooses or recommends one PD-1 role and states whether Koala CLI can submit/certify L2+ authority evidence.",
+            "type": "docs",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "story-evidence-and-truth-source-linked",
+            "desc": "Story evidence links to the durable truth-source doc and the truth-source doc links back to B-4bd4/B-0f04 evidence for derivation.",
+            "type": "docs",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "no-guarantee-before-implementation",
+            "desc": "Decision doc states which guarantees are not implemented yet and cannot be assumed until Milestone 2-6 stories land.",
+            "type": "manual",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
