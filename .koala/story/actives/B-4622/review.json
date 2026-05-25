@@ -1,0 +1,40 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-05-25T15:16:50.483Z",
+      "issueCount": 5,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees 可能太抽象（未包含引号括起来的具体输出文本）。应该写用户看到的精确文字，不是\"功能正常工作\"这类描述"
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 userSees 可能太抽象（未包含引号括起来的具体输出文本）。应该写用户看到的精确文字，不是\"功能正常工作\"这类描述"
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002（\"Add command-policy regression coverage for scope evidence split\"）在 PLAN 阶段被新增: Split B-4622 into documentation decision plus mechanical command-policy regression coverage."
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 个 checklist item，请检查是否有组合场景遗漏（如：Analyze whether scope_check_save should stay PLAN-only or split into planning-scope vs later-phase acknowledgment + Add command-policy regression coverage for scope evidence split 同时操作会怎样？）"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "未跑 scope check。请先启动 koala-review-scope-plan agent，agent 会自动调 scope_check_save 写入结果"
+        }
+      ],
+      "_hash": "1c6afda42dc8ded385ac5b04c136fed1b6aa6ac88235cf165c21a020b09dd5b7"
+    }
+  ]
+}
