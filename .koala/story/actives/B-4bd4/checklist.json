@@ -57,9 +57,9 @@
           "file": ".koala/story/actives/B-4bd4/evidence/authority-client-role-decision.md",
           "result": "pass",
           "note": "Verified the CHK-001 evidence captures PD-1 inputs from prior audit artifacts and existing requirements docs without introducing new implementation claims.",
-          "headHash": "60017e1d85b41b02ffb90765239b6dea84cd3e71",
-          "materialHash": "34d4866130a71cc1152b8d65ec1e6011922f2e33071694e4597426a0685ab3ee",
-          "timestamp": "2026-05-25T14:04:30.944Z"
+          "headHash": "d22ccd40c2b98dbc22392492355b29ea562d7906",
+          "materialHash": "e4fecc080c37fcb0508c1abc63b9957092304c59a192c21e541dec560570d4fb",
+          "timestamp": "2026-05-25T14:16:06.170Z"
         },
         {
           "intentRef": "terms-defined-inline",
@@ -67,9 +67,9 @@
           "file": ".koala/story/actives/B-4bd4/evidence/authority-client-role-decision.md",
           "result": "pass",
           "note": "Verified PD-1/FU-1/FU-2/FU-3, L2+, thin local/shadow client, and first-class enforce-mode authority client are defined inline for later decision review.",
-          "headHash": "60017e1d85b41b02ffb90765239b6dea84cd3e71",
-          "materialHash": "34d4866130a71cc1152b8d65ec1e6011922f2e33071694e4597426a0685ab3ee",
-          "timestamp": "2026-05-25T14:04:30.993Z"
+          "headHash": "d22ccd40c2b98dbc22392492355b29ea562d7906",
+          "materialHash": "e4fecc080c37fcb0508c1abc63b9957092304c59a192c21e541dec560570d4fb",
+          "timestamp": "2026-05-25T14:16:06.170Z"
         },
         {
           "intentRef": "no-new-implementation-claims",
@@ -78,9 +78,9 @@
           "command": "git show --stat --oneline 60017e1d && test -e docs/requirements/decisions/authority-client-role.md",
           "result": "pass",
           "note": "Verified commit 60017e1d only added the CHK-001 story evidence file; the durable authority-client-role decision doc is still absent and reserved for CHK-002.",
-          "headHash": "60017e1d85b41b02ffb90765239b6dea84cd3e71",
-          "materialHash": "34d4866130a71cc1152b8d65ec1e6011922f2e33071694e4597426a0685ab3ee",
-          "timestamp": "2026-05-25T14:04:31.039Z"
+          "headHash": "d22ccd40c2b98dbc22392492355b29ea562d7906",
+          "materialHash": "e4fecc080c37fcb0508c1abc63b9957092304c59a192c21e541dec560570d4fb",
+          "timestamp": "2026-05-25T14:16:06.170Z"
         }
       ]
     },
@@ -143,9 +143,9 @@
           "file": "docs/requirements/decisions/authority-client-role.md",
           "result": "pass",
           "note": "Verified the durable decision doc has an explicit PD-1 answer: Koala CLI remains thin local/shadow and must not claim or certify L2+ authority evidence.",
-          "headHash": "9f797fcab9838bb1644a05172d898c7d4240ed42",
-          "materialHash": "9966fc7ef6416582a7e17c33f59b5ab3b85a8ba85e57419497ec793bd38cd3c1",
-          "timestamp": "2026-05-25T14:08:23.440Z"
+          "headHash": "d22ccd40c2b98dbc22392492355b29ea562d7906",
+          "materialHash": "e4fecc080c37fcb0508c1abc63b9957092304c59a192c21e541dec560570d4fb",
+          "timestamp": "2026-05-25T14:16:06.170Z"
         },
         {
           "intentRef": "story-evidence-and-truth-source-linked",
@@ -153,9 +153,9 @@
           "file": ".koala/story/actives/B-4bd4/evidence/authority-client-role-decision.md",
           "result": "pass",
           "note": "Verified the story evidence links to docs/requirements/decisions/authority-client-role.md as the canonical truth source and keeps the story evidence as derivation only.",
-          "headHash": "9f797fcab9838bb1644a05172d898c7d4240ed42",
-          "materialHash": "9966fc7ef6416582a7e17c33f59b5ab3b85a8ba85e57419497ec793bd38cd3c1",
-          "timestamp": "2026-05-25T14:08:23.489Z"
+          "headHash": "d22ccd40c2b98dbc22392492355b29ea562d7906",
+          "materialHash": "e4fecc080c37fcb0508c1abc63b9957092304c59a192c21e541dec560570d4fb",
+          "timestamp": "2026-05-25T14:16:06.170Z"
         },
         {
           "intentRef": "no-guarantee-before-implementation",
@@ -164,9 +164,9 @@
           "command": "git show --stat --oneline --name-only 9f797fca && git diff --check HEAD~1 HEAD",
           "result": "pass",
           "note": "Verified CHK-002 changed only the durable decision doc plus B-4bd4 evidence, and the doc states enforce-mode client capabilities are deferred to future dedicated stories.",
-          "headHash": "9f797fcab9838bb1644a05172d898c7d4240ed42",
-          "materialHash": "9966fc7ef6416582a7e17c33f59b5ab3b85a8ba85e57419497ec793bd38cd3c1",
-          "timestamp": "2026-05-25T14:08:23.536Z"
+          "headHash": "d22ccd40c2b98dbc22392492355b29ea562d7906",
+          "materialHash": "e4fecc080c37fcb0508c1abc63b9957092304c59a192c21e541dec560570d4fb",
+          "timestamp": "2026-05-25T14:16:06.170Z"
         }
       ]
     },
