@@ -4,7 +4,7 @@
   "title": "Post-merge validation and cross-end authority contract audit",
   "description": "Run a Koala-managed audit after B-ca8f to verify Koala CLI main convergence and compare authority/evidence contract alignment across Koala CLI, Cord Team Python authority, and Koala Mac/Swift surfaces. Claude Code performs the audit; Codex validates evidence and lifecycle gates.",
   "type": "chore",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "source": "user-request-2026-05-25",
   "keywords": [
@@ -27,6 +27,19 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-05-25T12:25:43.630Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-0f04",
+    "branch": "story/B-0f04",
+    "createdAt": "2026-05-25T12:25:43.851Z"
+  }
 }
