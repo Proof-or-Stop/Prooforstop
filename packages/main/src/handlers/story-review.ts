@@ -16,6 +16,7 @@
  */
 
 import type { HandlerContext } from './context.js';
+import type { StoryInfo } from '../core/types.js';
 import { assertCwdInWorktree } from './context.js';
 import { loadConfig } from '../core/config.js';
 import { computeChannel, resolveWorkflowPolicy } from '../core/workflow-policy.js';
@@ -152,10 +153,16 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
       const isHighRisk = story.priority === 'high' || story.priority === 'critical'
         || activeRiskSignals.length > 0;
       if (activeRiskSignals.length > 0) {
+        // B-30b2 CHK-002: keyword detection cannot distinguish "mentions a risky
+        // domain" from "modifies it". When the story merely mentions the domain,
+        // this advisory is a false positive — surface the CHK-001 dismiss path so
+        // the auto-elevation can be fully rolled back. Only promise CHK-001
+        // behavior: dismissing all auto-elevated categories rolls priority back.
         issues.push({
           type: 'risk_signals',
           severity: 'advisory',
-          message: `story 命中 ${activeRiskSignals.length} 个高风险信号: ${activeRiskSignals.map((r: any) => r.category).join(', ')}。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）`,
+          message: `story 命中 ${activeRiskSignals.length} 个高风险信号: ${activeRiskSignals.map((r: any) => r.category).join(', ')}。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）。`
+            + ` 若本 story 只是提及而非修改该领域（误报），可 koala story_review_dismiss '{"storyId":"${args.storyId}","category":"<分类>","reason":"..."}' 完整回退 auto-elevation（全部 auto-elevated riskSignal 被 dismiss 后 priority 自动回退、高风险 gate 解除）。`,
         });
       }
       if (dismissedCats.size > 0) {
@@ -601,19 +608,48 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
           message: `category "${args.category}" 已经被驳回过，无需重复操作`,
         };
       }
-      const updated = {
+      const updated: StoryInfo = {
         ...story,
         riskSignalsDismissed: [
           ...existing,
           { category: args.category, reason: args.reason.trim(), at: new Date().toISOString() },
         ],
       };
+
+      // B-30b2 CHK-001: if this dismissal clears the LAST active riskSignal AND the story's
+      // priority was auto-elevated by story_create (priorityElevatedFrom marker present), roll
+      // priority back to the pre-elevation value so the auto-elevation no longer keeps
+      // isHighRisk=true. Runtime-validate the marker (Handler 编码约定): only roll back to a
+      // valid priority strictly below 'high'. This guarantees:
+      //   - user explicit high/critical (no marker) is never downgraded;
+      //   - a missing / tampered / non-priority / >= high marker never triggers a downgrade.
+      const dismissedAfter = new Set(updated.riskSignalsDismissed!.map(d => d.category));
+      const remainingActive = (story.riskSignals || []).filter(r => !dismissedAfter.has(r.category));
+      const order = ['low', 'medium', 'high', 'critical'];
+      const elevatedFrom = typeof story.priorityElevatedFrom === 'string'
+        ? story.priorityElevatedFrom.trim()
+        : '';
+      const elevatedFromIdx = order.indexOf(elevatedFrom);
+      let rolledBackTo: string | undefined;
+      if (
+        remainingActive.length === 0 &&
+        elevatedFromIdx !== -1 &&
+        elevatedFromIdx < order.indexOf('high')
+      ) {
+        updated.priority = elevatedFrom;
+        delete updated.priorityElevatedFrom;
+        rolledBackTo = elevatedFrom;
+      }
+
       store.writeStory(args.storyId, updated);
       return {
         ok: true,
         dismissed: args.category,
         reason: args.reason.trim(),
-        message: `已驳回 riskSignal "${args.category}"，story_review 将不再 advisory 提示此分类`,
+        ...(rolledBackTo !== undefined ? { priorityRolledBackTo: rolledBackTo } : {}),
+        message: rolledBackTo !== undefined
+          ? `已驳回 riskSignal "${args.category}"。无 active riskSignal 残留，priority 已从 auto-elevated 回退到 "${rolledBackTo}"，高风险 gate（missing_decision / ≥3 preMortem）不再强制。`
+          : `已驳回 riskSignal "${args.category}"，story_review 将不再 advisory 提示此分类`,
       };
     },
   };

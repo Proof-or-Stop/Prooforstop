@@ -4,7 +4,7 @@
   "title": "riskSignal 误报全链路可消解：dismiss 解除 auto-elevate 代价 + 收窄提及非修改误报 (F-001/F-002)",
   "description": "源 finding: B-META-framework-audit:F-001 (low) + F-002 (medium)。\n\nF-001：detectRiskSignals 对 description+checklist 文本做纯关键词正则匹配，story 只要『提及』 story_advance / verifier / guard 等词就被 elevate 到 high-risk，即使该 story 根本不修改那块代码（mention vs modify 无法在 create 时区分）。\n\nF-002：story_review_dismiss 把误报的 riskSignal 降为 advisory 后，并不解除 high-risk 衍生的 gate 代价。根因：story_create 命中 riskSignal 时把 story.priority 永久 elevate 到 high（story-create.ts:408-420），而 isHighRisk = story.priority===high || activeRiskSignals.length>0（story-review.ts:152 与 decision.ts:97）。dismiss 只 append riskSignalsDismissed、过滤 activeRiskSignals，但 elevated priority 一项仍把 isHighRisk 钉死为 true → missing_decision blocker + decision_set 仍强制 ≥3 preMortem。computeChannel 已正确按 activeRisk 过滤（workflow-policy.ts:144），只有 isHighRisk 的 priority 项没跟着 dismiss 回退，导致 dismiss 价值打折。\n\n目标：让误报可被一条命令完整消解——dismiss 后既不再 advisory，也解除 auto-elevate 衍生的 decision/preMortem 强制门槛；同时为 mention-vs-modify 限制提供清晰的消解引导。",
   "type": "refactor",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "riskSignal",
@@ -24,7 +24,7 @@
   ],
   "createdAt": "2026-05-25T16:57:20.638Z",
   "startedAt": "2026-05-25T16:57:20.638Z",
-  "endedAt": null,
+  "endedAt": "2026-05-25T17:38:51.521Z",
   "events": [
     {
       "phase": "INIT",
@@ -41,11 +41,63 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-05-25T17:10:52.074Z",
+      "branch": "story/B-30b2",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-25T17:16:27.327Z",
+      "branch": "story/B-30b2",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-25T17:28:02.841Z",
+      "branch": "story/B-30b2",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-25T17:31:13.534Z",
+      "branch": "story/B-30b2",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-25T17:33:22.041Z",
+      "branch": "story/B-30b2",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-05-25T17:35:37.064Z",
+      "branch": "story/B-30b2",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-05-25T17:38:51.521Z",
+      "branch": "story/B-30b2",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-30b2",
-    "branch": "story/B-30b2",
-    "createdAt": "2026-05-25T17:10:36.247Z"
-  }
+  "currentReviewRound": "2026-05-25T17:33:22.041Z"
 }

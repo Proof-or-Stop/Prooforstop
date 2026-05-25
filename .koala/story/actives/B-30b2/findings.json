@@ -1,0 +1,20 @@
+{
+  "findings": [
+    {
+      "id": "B-30b2:F-001",
+      "desc": "quality-cleanup: scripts/verify-risk-elevation-rollback.mjs:59 function runExpectFail is defined but never called — dead code. It should either be called in one of the adversarial scenarios (e.g. to assert that story_review_dismiss rejects a bad reason) or removed.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-25T17:30:18.978Z",
+      "reviewRound": "2026-05-25T17:28:02.841Z",
+      "reviewRunId": "B-30b2:RR-003",
+      "_hash": "14c1b99ee74d3b5f5d428068963f5adddf59d009551e9d4a372d5c075dd524b7",
+      "files": [
+        "scripts/verify-risk-elevation-rollback.mjs"
+      ]
+    }
+  ]
+}

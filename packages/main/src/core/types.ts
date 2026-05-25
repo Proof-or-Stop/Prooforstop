@@ -58,6 +58,14 @@ export interface StoryInfo {
    * category。dismiss 是 append-only，不支持撤销（复盘时能看到驳回理由）。
    */
   riskSignalsDismissed?: Array<{ category: string; reason: string; at: string }>;
+  /**
+   * B-30b2 CHK-001: 记录 story_create 因 riskSignals 命中而自动抬升 priority 时的
+   * 原始（抬升前）priority。仅在「自动抬升真实改变了 priority」时写入；用户显式设置的
+   * high/critical 不写此字段。story_review_dismiss 在 dismiss 后若无 active riskSignal
+   * 残留，会把 priority 回退到此值（仅当其为合法且 < high 的 priority），借此解除
+   * auto-elevation 衍生的高风险 gate 代价，且不会误降用户显式设定的 high/critical。
+   */
+  priorityElevatedFrom?: string;
 
   // Parallel policy fields (B-c622)
   lane?: 'mainline' | 'supporting' | 'exploratory';

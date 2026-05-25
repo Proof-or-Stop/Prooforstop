@@ -247,11 +247,16 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         const scanText = [draftIndex.description, ...draftChecklist.items.map((c: any) => c.title + ' ' + (c.context ?? ''))].join('\n');
         const riskSignals = detectRiskSignals(scanText);
         let priority = draftIndex.priority || 'medium';
+        const draftOriginalPriority = priority;
         if (riskSignals.length > 0) {
           const order = ['low', 'medium', 'high', 'critical'];
           const curIdx = order.indexOf(priority);
           if (curIdx < order.indexOf('high')) priority = 'high';
         }
+        // B-30b2 CHK-001: record auto-elevation source only when elevation actually changed priority.
+        const draftPriorityElevatedFrom = riskSignals.length > 0 && priority !== draftOriginalPriority
+          ? draftOriginalPriority
+          : undefined;
 
         // Write story to actives
         const story: StoryInfo = {
@@ -264,6 +269,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
           priority,
           ...(draftIndex.keywords?.length > 0 ? { keywords: draftIndex.keywords } : {}),
           ...(riskSignals.length > 0 ? { riskSignals } : {}),
+          ...(draftPriorityElevatedFrom !== undefined ? { priorityElevatedFrom: draftPriorityElevatedFrom } : {}),
           createdAt: now,
           startedAt: now,
           endedAt: null,
@@ -430,6 +436,16 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         lines.push('  - understanding_set 落 task 理解快照（unknowns/touchpoints 必填）');
         lines.push('  - decision_set 必须包含 ≥3 preMortem 场景');
         lines.push('  - story_review 通过（缺 decision 或 preMortem < 3 视为 blocker）');
+        // B-30b2 CHK-002: mention-vs-modify false-positive escape hatch. The
+        // keyword scan cannot tell "merely mentions a risky domain" from
+        // "actually modifies it" (by design — no semantic analysis), so surface
+        // the CHK-001 rollback path as a discoverable escape. Only promise what
+        // CHK-001 implements: dismissing every auto-elevated category rolls the
+        // priority back and clears the high-risk gate; partial dismiss does not.
+        lines.push('误报消解（mention vs modify）：关键词检测无法区分"提及"与"修改"该领域。');
+        lines.push('  若为误报（仅提及未修改），可 koala story_review_dismiss 完整回退：');
+        lines.push(`    koala story_review_dismiss '{"storyId":"${storyId}","category":"<上面命中的分类>","reason":"说明为何是误报"}'`);
+        lines.push('  当全部 auto-elevated 的 riskSignal 都被 dismiss 后，priority 自动回退、高风险 gate 解除（仅 dismiss 部分则不回退）。');
         riskHint = lines.join('\n');
       }
 
@@ -515,6 +531,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
           ...(args.depends && args.depends.length > 0 ? { depends: args.depends } : {}),
           ...(args.keywords && args.keywords.length > 0 ? { keywords: args.keywords } : {}),
           ...(riskSignals.length > 0 ? { riskSignals } : {}),
+          ...(riskSignals.length > 0 && elevatedPriority !== args.priority ? { priorityElevatedFrom: args.priority } : {}),
           createdAt: now,
           startedAt: args.phase !== 'IDEA' ? now : null,
           endedAt: args.phase === 'DONE' ? now : null,
@@ -565,6 +582,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         ...(args.depends && args.depends.length > 0 ? { depends: args.depends } : {}),
         ...(args.keywords && args.keywords.length > 0 ? { keywords: args.keywords } : {}),
         ...(riskSignals.length > 0 ? { riskSignals } : {}),
+        ...(riskSignals.length > 0 && elevatedPriority !== args.priority ? { priorityElevatedFrom: args.priority } : {}),
         createdAt: now,
         startedAt: hasChecklist ? now : null,
         endedAt: null,
