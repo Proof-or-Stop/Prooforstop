@@ -9,8 +9,9 @@ PM/verifier.
 
 Scope of this checklist item (CHK-001): collect the **source-backed decision inputs**
 needed to make the call. The actual recommended role lands in CHK-002
-(`docs/requirements/decisions/authority-client-role.md`, not yet created) and the
-Milestone 2-6 routing table lands in CHK-003.
+(`docs/requirements/decisions/authority-client-role.md`, now created) and the
+Milestone 2-6 routing table lands in CHK-003 (recorded in that durable doc's
+§Milestone Routing section).
 
 All facts below are extracted from existing sources — nothing here is re-derived by
 fresh code inspection:
@@ -109,8 +110,8 @@ not frozen offsets. This story did not re-inspect production code.
 These are explicitly **absent** per the cited evidence — this story claims none of them
 as implemented in the CLI:
 
-- **No CLI handshake.** The CLI sends none of `client_name` / `client_version` /
-  `command_catalog_digest` / `evidence_schema_digest` / `authority_mode`, and
+- **No CLI handshake.** The CLI sends none of `clientName` / `clientVersion` /
+  `commandCatalogDigest` / `evidenceSchemaDigest` / `authorityMode`, and
   `EvidenceEnvelopeContract` does not even model them. (AUDIT B1 / matrix #8; CODEX HV-1.)
 - **No CLI actor-key registration, runner heartbeat, or envelope signature.** The CLI
   POSTs a minimal **unsigned** envelope (`authority-submit.ts`,
