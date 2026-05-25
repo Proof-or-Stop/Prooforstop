@@ -91,7 +91,7 @@
       "desc": "gap_log / B-META finding 写入入口缺并发去重与 idempotency：gap_log 不对相似 desc/source/category 做去重，两个并发 session 在数秒内 log 同一个观察到的 gap 会产生重复 finding；B-META 也没有 finding 的 duplicate-of lifecycle 支持。",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-gap-log",
       "createdAt": "2026-05-17T11:39:52.217Z",

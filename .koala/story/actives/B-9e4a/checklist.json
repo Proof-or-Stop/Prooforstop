@@ -1,0 +1,76 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "worktree 创建后检测 node_modules 缺失并在成功输出给出明确补救提示",
+      "context": "F-003 底线修复。worktree.ts:588-598 成功返回前，检测 worktree 根（及关键子包如 packages/main）是否存在 node_modules；缺失时在返回文本追加明确提示，指出需在 worktree 根 npm install 或 symlink 主仓 node_modules，并说明否则 tsc/koala validate 会因解析不到依赖而失败。不要再让『开发环境已就绪』在缺依赖时单独出现。",
+      "relatedDocs": [
+        "CLAUDE.md#Worktree 生命周期",
+        "packages/main/src/handlers/worktree.ts"
+      ],
+      "userSees": "story_advance INIT_CHECK 创建 worktree 后，若缺 node_modules，输出含 \"⚠ worktree 缺 node_modules\" 及补救命令提示（npm install 或 symlink），而非仅 \"开发环境已就绪\"",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node_modules 缺失的 worktree 创建后输出包含缺依赖警告与补救提示",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "node_modules 已存在（symlink 或已 install）时不输出该警告",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "检测逻辑不因 worktree 路径含空格/特殊字符或权限问题崩溃，最多降级为提示",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "评估并按可行性实现自动 symlink 主仓 node_modules 到新 worktree（可选优化）",
+      "context": "F-003 可选优化。在 CHK-001 提示底线之上，评估创建 worktree 后自动 symlink 主仓 node_modules（root 及 packages/* 关键子包）到 worktree，使其即开即用。需处理：跨平台 symlink（win32 junction）、monorepo 多层 node_modules、symlink 已存在/失败时安全降级回 CHK-001 的提示路径。若 PLAN/decision 判定 symlink 过脆则本 item 降级为文档化推荐 npm install 的标准流程。",
+      "relatedDocs": [
+        "CLAUDE.md#Worktree 生命周期",
+        "packages/main/src/handlers/worktree.ts"
+      ],
+      "userSees": "（若实现 symlink）worktree 创建后 node_modules 自动可用，cd 进 worktree 直接跑 koala validate 不报缺依赖；（若降级）CLAUDE.md Worktree 段落记录推荐的依赖准备步骤",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "symlink 实现后，新 worktree 中 require/import xstate 等 workspace-local 依赖可解析",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "symlink 已存在或目标不可写时安全降级到 CHK-001 提示路径，不抛错中断 worktree 创建",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "symlink 不会指回仓库自身造成递归，也不污染主仓 node_modules",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "story_create 记录 auto-elevation 来源，dismiss 解除 auto-elevate 衍生的 high-risk gate 代价",
+      "context": "F-002 核心。story-create.ts:408-420 命中 riskSignal 时把 priority elevate 到 high；需同时在 story 上记录原始 priority（如 priorityElevatedFrom）与触发抬升的 category 关联。story_review_dismiss（story-review.ts:584）在 dismiss 某 category 后，若该 category 是 auto-elevation 来源且不存在其它 active riskSignals，把 story.priority 回退到 priorityElevatedFrom。确保 isHighRisk 三个消费点（story-review.ts:152 / decision.ts:97 / 任何读 priority 的 gate）在完整 dismiss 后不再为 true。注意：用户显式设置的 high/critical 不受 dismiss 影响（只回退 auto-elevated 的部分）。",
+      "relatedDocs": [
+        "CLAUDE.md#高风险关键词自动检测",
+        "packages/main/src/handlers/story-create.ts",
+        "packages/main/src/handlers/story-review.ts",
+        "packages/main/src/handlers/decision.ts"
+      ],
+      "userSees": "dismiss 一个误报 category 且无其它 active 风险后，koala story_review 不再输出 missing_decision blocker，且 koala decision_set 不再因 high-risk 强制 ≥3 preMortem；story_review 输出含 \"已驳回 riskSignal\" 且不再提示高风险 decision 门槛",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "low-priority story 命中 riskSignal 被 elevate 到 high，dismiss 该 category 后 priority 回退、isHighRisk 变 false、story_review 无 missing_decision blocker",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "用户显式 priority=high 的 story dismiss riskSignal 后 priority 不被降级（区分 auto-elevated 与 user-set）",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "命中多个 category 时 dismiss 其中一个、仍有 active riskSignal → priority 不回退、isHighRisk 仍 true",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "伪造 riskSignalsDismissed 但 priorityElevatedFrom 缺失/被篡改时不会把 user-set high 误降",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "riskSignal 检测命中时输出 mention-vs-modify 消解引导，让 F-001 误报可低成本驳回",
+      "context": "F-001 缓解。纯关键词检测无法区分 mention 与 modify（设计限制，不做语义分析）。在 story_create 命中 riskSignal 的输出与 story_review 的 risk_signals advisory 中，显式说明『若本 story 只是提及而非修改该领域，可用 story_review_dismiss <category> 完整回退（含 priority）』，把 CHK-001 的回退能力暴露成可发现的逃生口。更新 CLAUDE.md 高风险检测段落记录该限制与消解路径。",
+      "relatedDocs": [
+        "CLAUDE.md#高风险关键词自动检测",
+        "packages/main/src/handlers/story-create.ts",
+        "packages/main/src/handlers/story-review.ts"
+      ],
+      "userSees": "koala story_create 命中 riskSignal 时 stderr 输出含 \"若为误报（仅提及未修改），可 koala story_review_dismiss 完整回退\"；CLAUDE.md 高风险段落记录 mention-vs-modify 限制与 dismiss 回退",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "命中 riskSignal 的 story_create 输出含 dismiss 消解引导文本",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "未命中 riskSignal 时不输出该引导（不误报噪音）",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "引导文本与 CHK-001 实际 dismiss 行为一致（不承诺未实现的回退）",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
