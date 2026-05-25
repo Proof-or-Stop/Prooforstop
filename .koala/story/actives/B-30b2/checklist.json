@@ -150,7 +150,7 @@
           }
         ]
       },
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-05-25T17:24:07.671Z",
       "endTime": "2026-05-25T17:27:12.752Z",
       "files": {
@@ -221,6 +221,15 @@
       "to": "done",
       "reason": "CHK-002 implementation committed by koala-implementer and independently verified with build plus guide-hit/guide-miss/guide-honest script scenarios.",
       "agent": "codex-verifier"
+    },
+    {
+      "timestamp": "2026-05-25T17:31:25.631Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Reopened to address review finding B-30b2:F-001 dead helper cleanup."
     }
   ]
 }
