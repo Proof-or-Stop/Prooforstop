@@ -384,6 +384,18 @@ project/
 
 **cwd 门禁**：PLAN 起所有 `story_advance` 都校验 cwd 是 story 的 worktree。
 
+**依赖准备（INIT_CHECK 后，F-003）**：git worktree **不**继承主仓 gitignored 的 `node_modules`，新 worktree 默认缺依赖，直接跑 tsc / `koala validate` 会因解析不到模块而失败。worktree 创建时若缺依赖会输出告警：
+
+```text
+⚠ worktree 缺 node_modules: worktree 根
+  缺依赖会导致 tsc / koala validate 解析不到模块而失败。
+  → 补救（推荐）：cd <worktree> && npm install
+  → 高级可选：手动 symlink 主仓 node_modules 到此 worktree
+```
+
+- **首选补救**：`cd .worktrees/B-xxx && npm install`（monorepo 子包同理，按告警列出的缺失路径分别安装）。这是默认且唯一推荐路径——每个 worktree 拥有独立、隔离的依赖副本。
+- **不默认 symlink**：框架**不**自动 symlink 主仓 `node_modules`（PLAN 决策）。手动 symlink 仅作为高级可选，且**会让多个 worktree 共享同一份可变依赖状态**——一个 worktree 里 `npm install` / 升级依赖会污染其它 worktree 与主仓，调试困难。仅在明确理解此风险、且磁盘 / 安装耗时是硬约束时才考虑，不要当默认做法。
+
 **DONE 门禁**：进入 DONE 前要求 story 分支已包含 main 的所有提交（`git merge-base --is-ancestor`）。DONE 必须在期望的 `story/<storyId>` 分支对应 worktree 中执行；若 linked worktree 当前分支不匹配或不是 story 分支，CLI 会在写入 DONE 状态、merge、删除分支或清理 worktree 前拒绝。有冲突在 worktree 里 `git merge main` 解决。
 
 **Sub agent 工作目录约定**：sub agent（koala-implementer 等）在主 agent 的 worktree 中工作，通过 `koala validate` 验证后提交。

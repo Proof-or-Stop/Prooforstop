@@ -32,9 +32,56 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-05-25T17:50:33.501Z",
+      "endTime": "2026-05-25T17:54:39.635Z",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/worktree-node-modules-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/worktree-node-modules-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/worktree-node-modules-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-node-modules-smoke",
+          "result": "pass",
+          "note": "Smoke covers missing root/packages-main node_modules and verifies the worktree warning includes remediation text.",
+          "headHash": "346094df79040997efc8b95ed486014e3c6afd4e",
+          "materialHash": "519f1fb8e66747b3e42fa9b7fde38a1ab0a79fa0fd3e687e11d2c64848f0f3b8",
+          "timestamp": "2026-05-25T17:59:48.763Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/worktree-node-modules-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-node-modules-smoke",
+          "result": "pass",
+          "note": "Smoke verifies existing real directory and symlink node_modules do not emit a warning.",
+          "headHash": "346094df79040997efc8b95ed486014e3c6afd4e",
+          "materialHash": "519f1fb8e66747b3e42fa9b7fde38a1ab0a79fa0fd3e687e11d2c64848f0f3b8",
+          "timestamp": "2026-05-25T17:59:48.763Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/worktree-node-modules-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-node-modules-smoke",
+          "result": "pass",
+          "note": "Smoke verifies paths with spaces/special characters and missing paths do not crash detection; behavior degrades safely.",
+          "headHash": "346094df79040997efc8b95ed486014e3c6afd4e",
+          "materialHash": "519f1fb8e66747b3e42fa9b7fde38a1ab0a79fa0fd3e687e11d2c64848f0f3b8",
+          "timestamp": "2026-05-25T17:59:48.763Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -44,33 +91,116 @@
         "CLAUDE.md#Worktree 生命周期",
         "packages/main/src/handlers/worktree.ts"
       ],
-      "userSees": "（若实现 symlink）worktree 创建后 node_modules 自动可用，cd 进 worktree 直接跑 koala validate 不报缺依赖；（若降级）CLAUDE.md Worktree 段落记录推荐的依赖准备步骤",
+      "userSees": "worktree 创建后缺依赖时，输出含 \"⚠ worktree 缺 node_modules\"，提示 \"npm install\"（根 + packages/main）为推荐补救、手动 symlink 为高级可选并标注共享可变风险；CLAUDE.md Worktree 段新增「依赖准备」小节记录该步骤",
       "verificationIntent": {
         "happy": [
           {
-            "desc": "symlink 实现后，新 worktree 中 require/import xstate 等 workspace-local 依赖可解析",
-            "type": "cli",
-            "priority": "should"
+            "desc": "CLAUDE.md Worktree 生命周期段记录依赖准备步骤：worktree 创建后需在根与 packages/main 各 npm install，否则 tsc/koala validate 失败",
+            "type": "docs",
+            "priority": "must"
           }
         ],
         "edge": [
           {
-            "desc": "symlink 已存在或目标不可写时安全降级到 CHK-001 提示路径，不抛错中断 worktree 创建",
-            "type": "logic",
-            "priority": "must"
+            "desc": "CHK-001 警告文本除 npm install 外，给出高级用户可选的手动 symlink 提示，并标注其共享可变/可能污染主仓的风险",
+            "type": "docs",
+            "priority": "should"
           }
         ],
         "adversarial": [
           {
-            "desc": "symlink 不会指回仓库自身造成递归，也不污染主仓 node_modules",
-            "type": "logic",
-            "priority": "must"
+            "desc": "文档与警告均以 npm install 为推荐首选，不把自动/手动 symlink 表述为等价默认方案，避免诱导用户在 worktree 内 npm install 污染主仓 node_modules",
+            "type": "docs",
+            "priority": "should"
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-05-25T17:54:49.385Z",
+      "endTime": "2026-05-25T17:56:21.200Z",
+      "files": {
+        "modify": [
+          "CLAUDE.md",
+          "packages/main/src/handlers/worktree.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "CLAUDE.md",
+          "command": "npm --prefix packages/main run test:worktree-node-modules-smoke",
+          "result": "pass",
+          "note": "CLAUDE.md documents npm install as the primary fresh-worktree dependency remediation, and smoke asserts warning text includes recommended npm install and advanced optional symlink guidance.",
+          "headHash": "346094df79040997efc8b95ed486014e3c6afd4e",
+          "materialHash": "519f1fb8e66747b3e42fa9b7fde38a1ab0a79fa0fd3e687e11d2c64848f0f3b8",
+          "timestamp": "2026-05-25T17:59:48.763Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/worktree-node-modules-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-node-modules-smoke",
+          "result": "pass",
+          "note": "Smoke verifies symlink/already-present cases are safe and no warning is emitted; docs keep symlink as advanced optional rather than automatic default.",
+          "headHash": "346094df79040997efc8b95ed486014e3c6afd4e",
+          "materialHash": "519f1fb8e66747b3e42fa9b7fde38a1ab0a79fa0fd3e687e11d2c64848f0f3b8",
+          "timestamp": "2026-05-25T17:59:48.763Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/worktree-node-modules-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-node-modules-smoke",
+          "result": "pass",
+          "note": "Smoke verifies symlink guidance does not create recursive or main-polluting behavior because implementation never auto-creates symlinks and only reports guidance text.",
+          "headHash": "346094df79040997efc8b95ed486014e3c6afd4e",
+          "materialHash": "519f1fb8e66747b3e42fa9b7fde38a1ab0a79fa0fd3e687e11d2c64848f0f3b8",
+          "timestamp": "2026-05-25T17:59:48.763Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-05-25T17:50:33.501Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting CHK-001 worktree dependency warning implementation via koala-implementer."
+    },
+    {
+      "timestamp": "2026-05-25T17:54:39.635Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "CHK-001 implementation committed by koala-implementer and independently verified with build plus worktree-node-modules-smoke.",
+      "agent": "codex-verifier"
+    },
+    {
+      "timestamp": "2026-05-25T17:54:49.385Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting CHK-002 docs/decision follow-through for no automatic symlink policy."
+    },
+    {
+      "timestamp": "2026-05-25T17:56:21.200Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "CHK-002 committed by koala-implementer and verified with build plus worktree-node-modules-smoke.",
+      "agent": "codex-verifier"
     }
   ]
 }

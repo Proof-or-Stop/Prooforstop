@@ -1,0 +1,107 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-05-25T17:48:38.773Z",
+      "issueCount": 4,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 userSees 可能太抽象（未包含引号括起来的具体输出文本）。应该写用户看到的精确文字，不是\"功能正常工作\"这类描述"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 个 checklist item，请检查是否有组合场景遗漏（如：worktree 创建后检测 node_modules 缺失并在成功输出给出明确补救提示 + 评估并按可行性实现自动 symlink 主仓 node_modules 到新 worktree（可选优化） 同时操作会怎样？）"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story 命中 2 个高风险信号: 状态机/门禁, 验证框架。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）"
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "checklist 所有 item 均未填写 files 字段（旧 story 兼容模式），无法对 understanding.touchpoints 做覆盖校验。请为至少一个 item 的 files.modify/create/test 列出改动文件，以启用 touchpoint→files 强校验"
+        }
+      ],
+      "_hash": "5d059a4c6880b850bcccb403815a626ab9ae07fe04772cd13967eba4419e38aa"
+    },
+    {
+      "timestamp": "2026-05-25T17:49:12.024Z",
+      "issueCount": 4,
+      "blockerCount": 2,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 个 checklist item，请检查是否有组合场景遗漏（如：worktree 创建后检测 node_modules 缺失并在成功输出给出明确补救提示 + 评估并按可行性实现自动 symlink 主仓 node_modules 到新 worktree（可选优化） 同时操作会怎样？）"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story 命中 2 个高风险信号: 状态机/门禁, 验证框架。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/tasks/ (新增或复用 worktree smoke) 未被任何 checklist item 的 files 字段覆盖（请为相应 item 的 files.modify/create/test 加上此路径或用 excludes 显式排除）"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: CLAUDE.md#Worktree 生命周期 未被任何 checklist item 的 files 字段覆盖（请为相应 item 的 files.modify/create/test 加上此路径或用 excludes 显式排除）"
+        }
+      ],
+      "_hash": "3a5c0b1709c2d30e0dda5d4e427ac7cd1cd53af0cae666635d66cdef3fd8f948"
+    },
+    {
+      "timestamp": "2026-05-25T17:49:19.146Z",
+      "issueCount": 4,
+      "blockerCount": 2,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 个 checklist item，请检查是否有组合场景遗漏（如：worktree 创建后检测 node_modules 缺失并在成功输出给出明确补救提示 + 评估并按可行性实现自动 symlink 主仓 node_modules 到新 worktree（可选优化） 同时操作会怎样？）"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story 命中 2 个高风险信号: 状态机/门禁, 验证框架。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/tasks/ (新增或复用 worktree smoke) 未被任何 checklist item 的 files 字段覆盖（请为相应 item 的 files.modify/create/test 加上此路径或用 excludes 显式排除）"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: CLAUDE.md#Worktree 生命周期 未被任何 checklist item 的 files 字段覆盖（请为相应 item 的 files.modify/create/test 加上此路径或用 excludes 显式排除）"
+        }
+      ],
+      "_hash": "776e6e2f59de0a66f0ccb6c943b1ddbd0f2244fb732d0d516e014999239989a3"
+    },
+    {
+      "timestamp": "2026-05-25T17:49:41.582Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 个 checklist item，请检查是否有组合场景遗漏（如：worktree 创建后检测 node_modules 缺失并在成功输出给出明确补救提示 + 评估并按可行性实现自动 symlink 主仓 node_modules 到新 worktree（可选优化） 同时操作会怎样？）"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story 命中 2 个高风险信号: 状态机/门禁, 验证框架。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）"
+        }
+      ],
+      "_hash": "81b278a725d61af295c4bfd5a3c3641de664ddbc8e845714f39e7d4e3f13219a"
+    }
+  ]
+}
