@@ -55,9 +55,9 @@
           "command": "npm --prefix packages/main run test:worktree-node-modules-smoke",
           "result": "pass",
           "note": "Smoke covers missing root/packages-main node_modules and verifies the worktree warning includes remediation text.",
-          "headHash": "25f361c7e6f2da93db8d84cd30c243a83f898240",
-          "materialHash": "75302a17c7024568a9e8df519fafe1e5954c9e0f180d26851af7a798663afbca",
-          "timestamp": "2026-05-25T17:56:41.761Z"
+          "headHash": "346094df79040997efc8b95ed486014e3c6afd4e",
+          "materialHash": "519f1fb8e66747b3e42fa9b7fde38a1ab0a79fa0fd3e687e11d2c64848f0f3b8",
+          "timestamp": "2026-05-25T17:59:48.763Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -66,9 +66,9 @@
           "command": "npm --prefix packages/main run test:worktree-node-modules-smoke",
           "result": "pass",
           "note": "Smoke verifies existing real directory and symlink node_modules do not emit a warning.",
-          "headHash": "25f361c7e6f2da93db8d84cd30c243a83f898240",
-          "materialHash": "75302a17c7024568a9e8df519fafe1e5954c9e0f180d26851af7a798663afbca",
-          "timestamp": "2026-05-25T17:56:41.761Z"
+          "headHash": "346094df79040997efc8b95ed486014e3c6afd4e",
+          "materialHash": "519f1fb8e66747b3e42fa9b7fde38a1ab0a79fa0fd3e687e11d2c64848f0f3b8",
+          "timestamp": "2026-05-25T17:59:48.763Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -77,9 +77,9 @@
           "command": "npm --prefix packages/main run test:worktree-node-modules-smoke",
           "result": "pass",
           "note": "Smoke verifies paths with spaces/special characters and missing paths do not crash detection; behavior degrades safely.",
-          "headHash": "25f361c7e6f2da93db8d84cd30c243a83f898240",
-          "materialHash": "75302a17c7024568a9e8df519fafe1e5954c9e0f180d26851af7a798663afbca",
-          "timestamp": "2026-05-25T17:56:41.761Z"
+          "headHash": "346094df79040997efc8b95ed486014e3c6afd4e",
+          "materialHash": "519f1fb8e66747b3e42fa9b7fde38a1ab0a79fa0fd3e687e11d2c64848f0f3b8",
+          "timestamp": "2026-05-25T17:59:48.763Z"
         }
       ]
     },
@@ -134,9 +134,9 @@
           "command": "npm --prefix packages/main run test:worktree-node-modules-smoke",
           "result": "pass",
           "note": "CLAUDE.md documents npm install as the primary fresh-worktree dependency remediation, and smoke asserts warning text includes recommended npm install and advanced optional symlink guidance.",
-          "headHash": "32b3431f3a7fb253d0ebfb289515d00c3efdfb43",
-          "materialHash": "75302a17c7024568a9e8df519fafe1e5954c9e0f180d26851af7a798663afbca",
-          "timestamp": "2026-05-25T17:56:21.244Z"
+          "headHash": "346094df79040997efc8b95ed486014e3c6afd4e",
+          "materialHash": "519f1fb8e66747b3e42fa9b7fde38a1ab0a79fa0fd3e687e11d2c64848f0f3b8",
+          "timestamp": "2026-05-25T17:59:48.763Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -145,9 +145,9 @@
           "command": "npm --prefix packages/main run test:worktree-node-modules-smoke",
           "result": "pass",
           "note": "Smoke verifies symlink/already-present cases are safe and no warning is emitted; docs keep symlink as advanced optional rather than automatic default.",
-          "headHash": "32b3431f3a7fb253d0ebfb289515d00c3efdfb43",
-          "materialHash": "75302a17c7024568a9e8df519fafe1e5954c9e0f180d26851af7a798663afbca",
-          "timestamp": "2026-05-25T17:56:21.275Z"
+          "headHash": "346094df79040997efc8b95ed486014e3c6afd4e",
+          "materialHash": "519f1fb8e66747b3e42fa9b7fde38a1ab0a79fa0fd3e687e11d2c64848f0f3b8",
+          "timestamp": "2026-05-25T17:59:48.763Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -156,9 +156,9 @@
           "command": "npm --prefix packages/main run test:worktree-node-modules-smoke",
           "result": "pass",
           "note": "Smoke verifies symlink guidance does not create recursive or main-polluting behavior because implementation never auto-creates symlinks and only reports guidance text.",
-          "headHash": "32b3431f3a7fb253d0ebfb289515d00c3efdfb43",
-          "materialHash": "75302a17c7024568a9e8df519fafe1e5954c9e0f180d26851af7a798663afbca",
-          "timestamp": "2026-05-25T17:56:21.302Z"
+          "headHash": "346094df79040997efc8b95ed486014e3c6afd4e",
+          "materialHash": "519f1fb8e66747b3e42fa9b7fde38a1ab0a79fa0fd3e687e11d2c64848f0f3b8",
+          "timestamp": "2026-05-25T17:59:48.763Z"
         }
       ]
     }
