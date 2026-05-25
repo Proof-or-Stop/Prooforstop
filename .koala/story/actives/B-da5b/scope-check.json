@@ -1,0 +1,59 @@
+{
+  "storyId": "B-da5b",
+  "checkedAt": "2026-05-25T15:47:47.943Z",
+  "features": [
+    {
+      "feature": "cli-engine.ts: redirect final activity heartbeat to precomputed main repo path when the starting worktree has been removed during DONE cleanup",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "worktree-authority-smoke.ts: end-to-end DONE regression asserting .worktrees/<storyId> stays absent and main .koala/activity.jsonl contains the final story_advance record",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "lifecycle doc note in story-lifecycle.md: terminal cleanup activity is recorded in the surviving main repo when a story worktree is removed",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "Changing DONE gate semantics or worktree deletion safety",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "plan.md Out of Scope: Changing DONE gate semantics or worktree deletion safety",
+      "source": "description"
+    },
+    {
+      "feature": "Reworking doctor repair behavior for orphan dirs",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "plan.md Out of Scope: Reworking doctor repair behavior",
+      "source": "description"
+    },
+    {
+      "feature": "Reintroducing legacy docs/story/activity.jsonl writes",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "plan.md Out of Scope: Reintroducing legacy docs/story/activity.jsonl writes",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "covered": 3,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "40e5a14d6185341b531d84d9832884559ce28a4e56a2efec0f2a60d6e8e591f0",
+  "openQuestions": []
+}
