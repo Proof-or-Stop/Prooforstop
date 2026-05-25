@@ -8,6 +8,15 @@
       "reviewRound": "2026-05-25T17:28:02.841Z",
       "reviewRunId": "B-30b2:RR-004",
       "_hash": "490928eab21fe305d34c05d0ea5839ee7dc556f219a35c5e8cd37d174a417a22"
+    },
+    {
+      "id": "B-30b2:RP-002",
+      "agent": "koala-review-docs",
+      "note": "Step 1: extracted 8 symbols (dismissedAfter, draftOriginalPriority, draftPriorityElevatedFrom, elevatedFrom, elevatedFromIdx, order, remainingActive, updated) — all internal vars, no exported symbols. Step 2/3: compared the new CLAUDE.md section mention-vs-modify 限制与误报回退（B-30b2） against story-create.ts and story-review.ts diffs. All 7 claims verified: (1) riskHint guidance output in story-create stderr ✓, (2) risk_signals advisory in story-review ✓, (3) story_review_dismiss command exists with ≥5 char reason validation ✓, (4) full rollback when remainingActive=0 and priorityElevatedFrom < high ✓, (5) partial dismiss keeps elevated ✓, (6) user explicit high/critical unaffected (no priorityElevatedFrom marker written) ✓, (7) no guidance output when no riskSignals ✓. No doc-code drift found.",
+      "createdAt": "2026-05-25T17:29:36.748Z",
+      "reviewRound": "2026-05-25T17:28:02.841Z",
+      "reviewRunId": "B-30b2:RR-001",
+      "_hash": "9e59a19f6fed1e16f7675223e614f57d8755cb7e220f0f05ec5fda5e763d14be"
     }
   ]
 }
