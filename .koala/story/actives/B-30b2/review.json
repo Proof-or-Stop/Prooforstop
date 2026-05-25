@@ -22,6 +22,24 @@
         }
       ],
       "_hash": "1e16fc6601a2e75f1280fd058294f552aad8f54f1e308607a1074d03a1e56cbc"
+    },
+    {
+      "timestamp": "2026-05-25T17:15:54.259Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 个 checklist item，请检查是否有组合场景遗漏（如：story_create 记录 auto-elevation 来源，dismiss 解除 auto-elevate 衍生的 high-risk gate 代价 + riskSignal 检测命中时输出 mention-vs-modify 消解引导，让 F-001 误报可低成本驳回 同时操作会怎样？）"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story 命中 2 个高风险信号: 状态机/门禁, 验证框架。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）"
+        }
+      ],
+      "_hash": "33fb596ed157829cb6086ca56a0c071f1ee2149aec2ebc232b681a00cfe5d6a6"
     }
   ]
 }
