@@ -16,6 +16,7 @@
  */
 
 import type { HandlerContext } from './context.js';
+import type { StoryInfo } from '../core/types.js';
 import { assertCwdInWorktree } from './context.js';
 import { loadConfig } from '../core/config.js';
 import { computeChannel, resolveWorkflowPolicy } from '../core/workflow-policy.js';
@@ -601,19 +602,48 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
           message: `category "${args.category}" 已经被驳回过，无需重复操作`,
         };
       }
-      const updated = {
+      const updated: StoryInfo = {
         ...story,
         riskSignalsDismissed: [
           ...existing,
           { category: args.category, reason: args.reason.trim(), at: new Date().toISOString() },
         ],
       };
+
+      // B-30b2 CHK-001: if this dismissal clears the LAST active riskSignal AND the story's
+      // priority was auto-elevated by story_create (priorityElevatedFrom marker present), roll
+      // priority back to the pre-elevation value so the auto-elevation no longer keeps
+      // isHighRisk=true. Runtime-validate the marker (Handler 编码约定): only roll back to a
+      // valid priority strictly below 'high'. This guarantees:
+      //   - user explicit high/critical (no marker) is never downgraded;
+      //   - a missing / tampered / non-priority / >= high marker never triggers a downgrade.
+      const dismissedAfter = new Set(updated.riskSignalsDismissed!.map(d => d.category));
+      const remainingActive = (story.riskSignals || []).filter(r => !dismissedAfter.has(r.category));
+      const order = ['low', 'medium', 'high', 'critical'];
+      const elevatedFrom = typeof story.priorityElevatedFrom === 'string'
+        ? story.priorityElevatedFrom.trim()
+        : '';
+      const elevatedFromIdx = order.indexOf(elevatedFrom);
+      let rolledBackTo: string | undefined;
+      if (
+        remainingActive.length === 0 &&
+        elevatedFromIdx !== -1 &&
+        elevatedFromIdx < order.indexOf('high')
+      ) {
+        updated.priority = elevatedFrom;
+        delete updated.priorityElevatedFrom;
+        rolledBackTo = elevatedFrom;
+      }
+
       store.writeStory(args.storyId, updated);
       return {
         ok: true,
         dismissed: args.category,
         reason: args.reason.trim(),
-        message: `已驳回 riskSignal "${args.category}"，story_review 将不再 advisory 提示此分类`,
+        ...(rolledBackTo !== undefined ? { priorityRolledBackTo: rolledBackTo } : {}),
+        message: rolledBackTo !== undefined
+          ? `已驳回 riskSignal "${args.category}"。无 active riskSignal 残留，priority 已从 auto-elevated 回退到 "${rolledBackTo}"，高风险 gate（missing_decision / ≥3 preMortem）不再强制。`
+          : `已驳回 riskSignal "${args.category}"，story_review 将不再 advisory 提示此分类`,
       };
     },
   };

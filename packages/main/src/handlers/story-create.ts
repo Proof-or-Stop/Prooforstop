@@ -247,11 +247,16 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         const scanText = [draftIndex.description, ...draftChecklist.items.map((c: any) => c.title + ' ' + (c.context ?? ''))].join('\n');
         const riskSignals = detectRiskSignals(scanText);
         let priority = draftIndex.priority || 'medium';
+        const draftOriginalPriority = priority;
         if (riskSignals.length > 0) {
           const order = ['low', 'medium', 'high', 'critical'];
           const curIdx = order.indexOf(priority);
           if (curIdx < order.indexOf('high')) priority = 'high';
         }
+        // B-30b2 CHK-001: record auto-elevation source only when elevation actually changed priority.
+        const draftPriorityElevatedFrom = riskSignals.length > 0 && priority !== draftOriginalPriority
+          ? draftOriginalPriority
+          : undefined;
 
         // Write story to actives
         const story: StoryInfo = {
@@ -264,6 +269,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
           priority,
           ...(draftIndex.keywords?.length > 0 ? { keywords: draftIndex.keywords } : {}),
           ...(riskSignals.length > 0 ? { riskSignals } : {}),
+          ...(draftPriorityElevatedFrom !== undefined ? { priorityElevatedFrom: draftPriorityElevatedFrom } : {}),
           createdAt: now,
           startedAt: now,
           endedAt: null,
@@ -515,6 +521,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
           ...(args.depends && args.depends.length > 0 ? { depends: args.depends } : {}),
           ...(args.keywords && args.keywords.length > 0 ? { keywords: args.keywords } : {}),
           ...(riskSignals.length > 0 ? { riskSignals } : {}),
+          ...(riskSignals.length > 0 && elevatedPriority !== args.priority ? { priorityElevatedFrom: args.priority } : {}),
           createdAt: now,
           startedAt: args.phase !== 'IDEA' ? now : null,
           endedAt: args.phase === 'DONE' ? now : null,
@@ -565,6 +572,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         ...(args.depends && args.depends.length > 0 ? { depends: args.depends } : {}),
         ...(args.keywords && args.keywords.length > 0 ? { keywords: args.keywords } : {}),
         ...(riskSignals.length > 0 ? { riskSignals } : {}),
+        ...(riskSignals.length > 0 && elevatedPriority !== args.priority ? { priorityElevatedFrom: args.priority } : {}),
         createdAt: now,
         startedAt: hasChecklist ? now : null,
         endedAt: null,
