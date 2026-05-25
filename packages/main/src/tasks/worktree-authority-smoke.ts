@@ -811,7 +811,11 @@ function assertDoneSuccessPathOutputAndOrdering(): void {
     // removed worktree dir, and the final successful story_advance DONE record
     // must land in the MAIN repo .koala/activity.jsonl (not a ghost worktree log).
     // 1) The removed worktree path stays absent — no .koala (re)created under it.
-    assert.equal(existsSync(worktreePath), false, 'post-DONE activity logging must not recreate the removed worktree directory');
+    //    The worktree-dir absence itself is already asserted by the Step4 check
+    //    above; the dedicated assertPostDoneHeartbeatLandsInMainAfterWorktreeRemoval
+    //    test is the discriminating B-da5b regression guard. Here we only add the
+    //    finer-grained sub-path checks so a ghost recreation surfaces with B-da5b
+    //    diagnostics rather than being masked by the older Step4 message.
     assert.equal(existsSync(join(worktreePath, '.koala')), false, 'post-DONE activity logging must not recreate a .koala dir inside the removed worktree');
     assert.equal(existsSync(join(worktreePath, '.koala', 'activity.jsonl')), false, 'post-DONE activity logging must not write activity.jsonl into the removed worktree');
     // 2) The main repo activity log holds the final successful story_advance DONE.
