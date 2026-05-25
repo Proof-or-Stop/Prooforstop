@@ -1,0 +1,138 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Run Koala CLI post-merge validation on main",
+      "context": "Claude Code must run the relevant Koala CLI post-merge validation commands on /Users/jek/Documents/Work/Orchestrate main and record exact outputs. Minimum checks: session_brief, convergence_check, cli-validate, npm test after ensuring build output exists, git status.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/annotation-system.md"
+      ],
+      "userSees": "Audit report records the raw post-merge command outputs for Koala CLI main, including convergence status, annotation validation status, npm test result, and git status; pass/fail is reported as observed rather than assumed.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "koala-cli-convergence-recorded",
+            "desc": "Koala CLI main convergence_check output is recorded exactly, whether pass or fail",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "koala-cli-validation-recorded",
+            "desc": "Koala CLI post-merge validation command outputs are recorded exactly and any failure is classified with evidence",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "no-active-story-confusion",
+            "desc": "Existing active INIT backlog is identified as unrelated and not mixed into this audit story",
+            "type": "manual",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "no-code-change-in-audit",
+            "desc": "The audit does not modify production code in any repository",
+            "type": "manual",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Map cross-end authority/evidence contract surfaces",
+      "context": "Claude Code must inspect Koala CLI (/Users/jek/Documents/Work/Orchestrate), Cord Team Python authority (/Users/jek/Documents/Work/Koala/cord-team), and Koala Mac/Swift (/Users/jek/Documents/Work/Koala/Koala). Confirm paths first. Produce a field/endpoint/command mapping for EvidenceEnvelope, receipts, trust level, provider/model/vendor/run ids, verification context pack, gate consumption, and authority modes.",
+      "relatedDocs": [
+        "docs/requirements/decisions/truth-source.md",
+        "docs/requirements/decisions/verification-context-pack.md",
+        "docs/requirements/decisions/role-separation.md"
+      ],
+      "userSees": "Audit report lists which side owns each evidence/authority contract responsibility and highlights exact mismatches with file references.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "cross-end-contract-map-complete",
+            "desc": "Audit maps Koala CLI, Cord Team Python authority, and Koala Mac/Swift contract surfaces with file references",
+            "type": "docs",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "path-role-confirmed",
+            "desc": "Audit explicitly confirms Cord Team path is Python authority and Koala/Koala path is Mac/Swift or explains otherwise from repo evidence",
+            "type": "manual",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "no-assumed-sync",
+            "desc": "Audit does not assume contract sync; every aligned/missing field is backed by source references",
+            "type": "manual",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Produce gap report and follow-up story recommendations",
+      "context": "Claude Code must produce a concise report artifact under the story evidence directory. It should separate blockers, non-blocking advisories, already-solved items, and recommended follow-up stories. Codex will independently verify the highest-risk claims before DONE.",
+      "relatedDocs": [
+        "docs/requirements/decisions/truth-source.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "Audit report gives a clear next-action list and explicitly marks which high-risk claims Codex independently re-verified before any follow-up development story is recommended.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "gap-report-actionable",
+            "desc": "Gap report is written and separates blockers, advisories, solved items, and follow-up stories",
+            "type": "docs",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "no-duplicate-existing-backlog",
+            "desc": "Report compares recommended follow-ups against currently active or known backlog and avoids duplicate recommendations",
+            "type": "manual",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "codex-verified-claims",
+            "desc": "Codex independently verifies the report claims that could trigger new development work and records that verification as manual transcript evidence",
+            "type": "manual",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
