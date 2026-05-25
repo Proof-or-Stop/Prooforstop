@@ -4,7 +4,7 @@
   "title": "Prevent post-DONE activity heartbeat from recreating removed story worktree directories",
   "description": "Fix the post-DONE activity heartbeat orphan-worktree bug observed during the B-c9f5 dirty-gate series wrap-up on 2026-05-15. The original field symptom was five DONE stories leaving .worktrees/<storyId>/ directories that contained only runtime activity logs after git worktree remove. The current implementation already has a partial guard; this story will make the guard explicit and regression-tested so story_advance DONE cannot recreate a removed worktree directory when the final activity log is written. Priority remains high because the story touches story_advance/worktree cleanup lifecycle behavior, even though the original observed severity was low and doctor can detect/repair old residue.",
   "type": "bug",
-  "phase": "PLAN",
+  "phase": "DEV",
   "priority": "high",
   "keywords": [
     "worktree",
@@ -43,6 +43,14 @@
       "phase": "PLAN",
       "action": "advance",
       "timestamp": "2026-05-25T15:40:31.349Z",
+      "branch": "story/B-da5b",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-25T15:49:51.258Z",
       "branch": "story/B-da5b",
       "user": "Harmonygo",
       "agent": "main"
