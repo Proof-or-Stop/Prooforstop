@@ -10,24 +10,165 @@
         "docs/requirements/decisions/truth-source.md",
         "docs/requirements/decisions/verification-context-pack.md"
       ],
-      "userSees": "Decision evidence section lists the concrete facts from B-0f04 that make PD-1 necessary, with source references and no new implementation claims.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "userSees": "The evidence artifact contains a section titled \"PD-1 Decision Inputs\" with source-backed bullets for CLI posture, Python authority requirements, Mac runner responsibilities, and FU-1/FU-3 dependency.",
+      "status": "done",
+      "startTime": "2026-05-25T13:57:33.589Z",
+      "endTime": "2026-05-25T14:04:30.881Z",
+      "files": {
+        "modify": [],
+        "create": [
+          ".koala/story/actives/B-4bd4/evidence/authority-client-role-decision.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "pd1-inputs-source-backed",
+            "desc": "Decision input section cites B-0f04 audit and Codex verification facts for CLI posture, Python enforce requirements, Mac runner responsibilities, and FU-1/FU-3 dependency.",
+            "type": "docs",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "terms-defined-inline",
+            "desc": "Artifact defines PD-1, FU-1/FU-3, L2+, trustLevel, thin client, and enforce-mode client enough for a new agent to read without chat context.",
+            "type": "docs",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "no-new-implementation-claims",
+            "desc": "Input section does not claim handshake/signing/receipt verification exists unless supported by B-0f04 source evidence.",
+            "type": "manual",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "pd1-inputs-source-backed",
+          "kind": "docs_check",
+          "file": ".koala/story/actives/B-4bd4/evidence/authority-client-role-decision.md",
+          "result": "pass",
+          "note": "Verified the CHK-001 evidence captures PD-1 inputs from prior audit artifacts and existing requirements docs without introducing new implementation claims.",
+          "headHash": "d22ccd40c2b98dbc22392492355b29ea562d7906",
+          "materialHash": "e4fecc080c37fcb0508c1abc63b9957092304c59a192c21e541dec560570d4fb",
+          "timestamp": "2026-05-25T14:16:06.170Z"
+        },
+        {
+          "intentRef": "terms-defined-inline",
+          "kind": "docs_check",
+          "file": ".koala/story/actives/B-4bd4/evidence/authority-client-role-decision.md",
+          "result": "pass",
+          "note": "Verified PD-1/FU-1/FU-2/FU-3, L2+, thin local/shadow client, and first-class enforce-mode authority client are defined inline for later decision review.",
+          "headHash": "d22ccd40c2b98dbc22392492355b29ea562d7906",
+          "materialHash": "e4fecc080c37fcb0508c1abc63b9957092304c59a192c21e541dec560570d4fb",
+          "timestamp": "2026-05-25T14:16:06.170Z"
+        },
+        {
+          "intentRef": "no-new-implementation-claims",
+          "kind": "manual_transcript",
+          "file": ".koala/story/actives/B-4bd4/evidence/authority-client-role-decision.md",
+          "command": "git show --stat --oneline 60017e1d && test -e docs/requirements/decisions/authority-client-role.md",
+          "result": "pass",
+          "note": "Verified commit 60017e1d only added the CHK-001 story evidence file; the durable authority-client-role decision doc is still absent and reserved for CHK-002.",
+          "headHash": "d22ccd40c2b98dbc22392492355b29ea562d7906",
+          "materialHash": "e4fecc080c37fcb0508c1abc63b9957092304c59a192c21e541dec560570d4fb",
+          "timestamp": "2026-05-25T14:16:06.170Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Write the PD-1 authority client role decision artifact",
       "context": "Create a decision artifact under the B story evidence directory that compares thin local/shadow CLI vs first-class enforce-mode CLI. It must state the chosen/recommended option, consequences for trustLevel/L2+, and what the CLI may or may not claim before later milestones.",
       "relatedDocs": [
+        "docs/requirements/decisions/authority-client-role.md",
         "docs/requirements/decisions/role-separation.md",
         "docs/requirements/decisions/truth-source.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "userSees": "Decision artifact clearly answers whether Koala CLI is a thin client or enforce-mode client, plus what that means for L2+ evidence and future stories.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "userSees": "docs/requirements/decisions/authority-client-role.md displays \"PD-1 Decision\", \"Current Decision\", and \"L2+ Evidence Boundary\" sections with the chosen CLI role.",
+      "status": "done",
+      "startTime": "2026-05-25T14:04:51.620Z",
+      "endTime": "2026-05-25T14:08:23.367Z",
+      "files": {
+        "modify": [
+          ".koala/story/actives/B-4bd4/evidence/authority-client-role-decision.md"
+        ],
+        "create": [
+          "docs/requirements/decisions/authority-client-role.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "pd1-decision-explicit",
+            "desc": "Truth-source doc explicitly chooses or recommends one PD-1 role and states whether Koala CLI can submit/certify L2+ authority evidence.",
+            "type": "docs",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "story-evidence-and-truth-source-linked",
+            "desc": "Story evidence links to the durable truth-source doc and the truth-source doc links back to B-4bd4/B-0f04 evidence for derivation.",
+            "type": "docs",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "no-guarantee-before-implementation",
+            "desc": "Decision doc states which guarantees are not implemented yet and cannot be assumed until Milestone 2-6 stories land.",
+            "type": "manual",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "pd1-decision-explicit",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/authority-client-role.md",
+          "result": "pass",
+          "note": "Verified the durable decision doc has an explicit PD-1 answer: Koala CLI remains thin local/shadow and must not claim or certify L2+ authority evidence.",
+          "headHash": "d22ccd40c2b98dbc22392492355b29ea562d7906",
+          "materialHash": "e4fecc080c37fcb0508c1abc63b9957092304c59a192c21e541dec560570d4fb",
+          "timestamp": "2026-05-25T14:16:06.170Z"
+        },
+        {
+          "intentRef": "story-evidence-and-truth-source-linked",
+          "kind": "docs_check",
+          "file": ".koala/story/actives/B-4bd4/evidence/authority-client-role-decision.md",
+          "result": "pass",
+          "note": "Verified the story evidence links to docs/requirements/decisions/authority-client-role.md as the canonical truth source and keeps the story evidence as derivation only.",
+          "headHash": "d22ccd40c2b98dbc22392492355b29ea562d7906",
+          "materialHash": "e4fecc080c37fcb0508c1abc63b9957092304c59a192c21e541dec560570d4fb",
+          "timestamp": "2026-05-25T14:16:06.170Z"
+        },
+        {
+          "intentRef": "no-guarantee-before-implementation",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/authority-client-role.md",
+          "command": "git show --stat --oneline --name-only 9f797fca && git diff --check HEAD~1 HEAD",
+          "result": "pass",
+          "note": "Verified CHK-002 changed only the durable decision doc plus B-4bd4 evidence, and the doc states enforce-mode client capabilities are deferred to future dedicated stories.",
+          "headHash": "d22ccd40c2b98dbc22392492355b29ea562d7906",
+          "materialHash": "e4fecc080c37fcb0508c1abc63b9957092304c59a192c21e541dec560570d4fb",
+          "timestamp": "2026-05-25T14:16:06.170Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -37,10 +178,81 @@
         ".koala/story/actives/B-0f04/evidence/cross-end-contract-audit.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "userSees": "A follow-up routing table says exactly which repo/story should do Milestone 2-6 and which work is blocked until the user approves it.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "userSees": "The decision artifact contains a \"Milestone Routing\" table with rows for Milestone 2 through Milestone 6, each naming repo, status, prerequisite, and validation.",
+      "status": "done",
+      "startTime": "2026-05-25T14:08:40.482Z",
+      "endTime": "2026-05-25T14:15:40.704Z",
+      "files": {
+        "modify": [
+          ".koala/story/actives/B-4bd4/evidence/authority-client-role-decision.md",
+          "docs/requirements/decisions/authority-client-role.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "milestone-routing-complete",
+            "desc": "Routing table covers Milestones 2 through 6 with owning repo, required/deferred/docs-only status, prerequisite, and validation expectation.",
+            "type": "docs",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "pd1-dependent-work-blocked",
+            "desc": "Routing table clearly marks work that must not begin until user approves the PD-1 recommendation.",
+            "type": "manual",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "no-duplicate-backlog-routing",
+            "desc": "Routing compares next milestones against B-4622/B-da5b/B-0f04 and does not re-propose unrelated parked backlog as authority work.",
+            "type": "manual",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "milestone-routing-complete",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/authority-client-role.md",
+          "result": "pass",
+          "note": "Verified the Milestone Routing table covers M2-M6 with owner repo/component, status under PD-1 thin-client, prerequisite, validation expectation, and user approval column.",
+          "headHash": "989284d383b9a197aeb60c5902e4eae4699418ae",
+          "materialHash": "e4fecc080c37fcb0508c1abc63b9957092304c59a192c21e541dec560570d4fb",
+          "timestamp": "2026-05-25T14:15:40.766Z"
+        },
+        {
+          "intentRef": "pd1-dependent-work-blocked",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/authority-client-role.md",
+          "command": "sed -n '125,166p' docs/requirements/decisions/authority-client-role.md",
+          "result": "pass",
+          "note": "Verified M3/FU-2 and M4/FU-1 are deferred until explicit enforce-mode product approval, while FU-3 is docs-only/resolved under the thin-client decision.",
+          "headHash": "989284d383b9a197aeb60c5902e4eae4699418ae",
+          "materialHash": "e4fecc080c37fcb0508c1abc63b9957092304c59a192c21e541dec560570d4fb",
+          "timestamp": "2026-05-25T14:15:40.817Z"
+        },
+        {
+          "intentRef": "no-duplicate-backlog-routing",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/authority-client-role.md",
+          "command": "rg -n \"Deduplication|B-4622|B-da5b|B-0f04\" docs/requirements/decisions/authority-client-role.md .koala/story/actives/B-4bd4/evidence/authority-client-role-decision.md",
+          "result": "pass",
+          "note": "Verified the routing explicitly compares B-4622, B-da5b, and B-0f04 and states B-4622/B-da5b are unrelated parked framework/lifecycle items, not authority work.",
+          "headHash": "989284d383b9a197aeb60c5902e4eae4699418ae",
+          "materialHash": "e4fecc080c37fcb0508c1abc63b9957092304c59a192c21e541dec560570d4fb",
+          "timestamp": "2026-05-25T14:15:40.863Z"
+        }
+      ]
     }
   ]
 }

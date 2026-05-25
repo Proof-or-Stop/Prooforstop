@@ -1,0 +1,28 @@
+{
+  "task": "Decide and document the Koala CLI authority-client role before any enforce-mode implementation milestones begin.",
+  "outcome": "User opens docs/requirements/decisions/authority-client-role.md and sees a clear PD-1 decision: whether Koala CLI is a thin local/shadow client or a first-class enforce-mode authority client, what L2+ evidence it may claim, and which Milestone 2-6 stories should run next.",
+  "facts": [
+    "B-0f04 audit found FU-1/FU-2/FU-3 depend on PD-1 before implementation should start.",
+    "Current Koala CLI has authority POST plumbing but minimal unsigned EvidenceEnvelope submission and local lifecycle gates.",
+    "Cord Team Python authority can require production enforce handshake, signed actor payloads, run bindings, provider diversity, and server receipts.",
+    "Koala Mac/Swift runner already has actor-key registration, runner registration/heartbeat, and signed evidence submission paths.",
+    "INIT reviewers passed B-4bd4 but advised defining terms, durable decision location, and Milestone 2-6 routing explicitly."
+  ],
+  "constraints": [
+    "This story is decision-only; no production TS/Python/Swift implementation changes.",
+    "Claude Code CLI performs decision artifact drafting; Codex acts as PM/verifier.",
+    "Do not imply L2+ authority guarantees from local JSON or natural-language conclusions.",
+    "Decision must be durable enough for future Koala CLI, Python authority, and Mac runner stories to reference.",
+    "High-risk story requires decision_set with at least three preMortem scenarios before DEV."
+  ],
+  "unknowns": [
+    "Which PD-1 option will the evidence support as the recommended near-term choice.",
+    "Whether Koala CLI should ever submit L2+ evidence directly or only request/attach runner-generated receipts.",
+    "Which follow-up milestones become required, deferred, or documentation-only after PD-1 is chosen."
+  ],
+  "touchpoints": [
+    ".koala/story/actives/B-4bd4/evidence/authority-client-role-decision.md",
+    "docs/requirements/decisions/authority-client-role.md"
+  ],
+  "timestamp": "2026-05-25T13:56:11.227Z"
+}
