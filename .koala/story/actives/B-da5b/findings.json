@@ -1,0 +1,20 @@
+{
+  "findings": [
+    {
+      "id": "B-da5b:F-001",
+      "desc": "quality-cleanup: worktree-authority-smoke.ts:814 — assertion `existsSync(worktreePath) === false` is checked on line 808 (Step4 label) and again on line 814 (heartbeat label) in `assertDoneSuccessPathOutputAndOrdering`. Both run after the subprocess exits, evaluating the same boolean at the same instant; if writeLog recreated the dir the first assertion fails with the wrong message (\"Step4 must remove...\" instead of heartbeat). Mitigation: reorder so the heartbeat assertion runs first, or drop the duplicate and rely on the dedicated `assertPostDoneHeartbeatLandsInMainAfterWorktreeRemoval` test for the heartbeat-specific regression.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-25T16:06:34.392Z",
+      "reviewRound": "2026-05-25T16:01:39.881Z",
+      "reviewRunId": "B-da5b:RR-001",
+      "_hash": "fb7c1d97aee97f0a36e548abee6d4924bed52304c97879ed0638e34dbefbdb8f",
+      "files": [
+        "packages/main/src/tasks/worktree-authority-smoke.ts"
+      ]
+    }
+  ]
+}
