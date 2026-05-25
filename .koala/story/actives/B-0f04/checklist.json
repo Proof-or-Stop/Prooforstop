@@ -8,7 +8,7 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/annotation-system.md"
       ],
-      "userSees": "Audit report records the raw post-merge command outputs for Koala CLI main, including convergence status, annotation validation status, npm test result, and git status; pass/fail is reported as observed rather than assumed.",
+      "userSees": "Audit report section \"Post-merge validation\" includes quoted rows for \"convergence_check\", \"cli-validate\", \"npm test\", and \"git status --short\", each with observed pass/fail output rather than assumed green status.",
       "verificationIntent": {
         "happy": [
           {
