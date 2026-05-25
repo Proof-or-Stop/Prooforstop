@@ -17,6 +17,15 @@
       "reviewRound": "2026-05-25T15:29:45.523Z",
       "reviewRunId": "B-4622:RR-004",
       "_hash": "4925144858e4dc1d1d6075e0059af3b8c1f2fbd8899a37a99435fb4471784116"
+    },
+    {
+      "id": "B-4622:RP-003",
+      "agent": "koala-review-docs",
+      "note": "Step 1: 0 exported symbols from code diff (only internal test assertions). Step 2: scope_check_save and scope_contract_acknowledge referenced only in new doc section — no prior doc references needed updating. Step 3: 4 doc claims verified against code: (1) scope_check_save PLAN-only reviewerWrite matches command-policy.ts; (2) scope_contract_acknowledge DEV/REVIEW storyScopedMutating matches command-policy.ts; (3) scope-check.json consumed only at PLAN→DEV by story_review confirmed in story-review.ts; (4) both commands are real registered implementations with handlers and smoke tests. No blocker. No doc-code drift found.",
+      "createdAt": "2026-05-25T15:31:38.248Z",
+      "reviewRound": "2026-05-25T15:29:45.523Z",
+      "reviewRunId": "B-4622:RR-003",
+      "_hash": "80dca52a8014f2ab0d9e9cd9e6de046997bf8c53155872af6678a587291c060f"
     }
   ]
 }
