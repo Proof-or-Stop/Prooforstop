@@ -40,6 +40,10 @@ try {
     assert.match(warning!, /worktree 根/, 'warning must name the worktree root');
     assert.match(warning!, /npm install/, 'warning must offer npm install as primary remediation');
     assert.match(warning!, /symlink/, 'warning must mention symlink as advanced option');
+    // CHK-002: npm install is presented as the recommended/primary path,
+    // symlink only as advanced/optional — never as the default.
+    assert.match(warning!, /补救（推荐）：[^\n]*npm install/, 'npm install must be marked the recommended remediation');
+    assert.match(warning!, /高级可选：[^\n]*symlink/, 'symlink must be marked advanced/optional, not default');
   }
 
   // ── happy: missing node_modules in key subpackage packages/main ─────────────
