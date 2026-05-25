@@ -1,0 +1,77 @@
+{
+  "principles": [
+    "只回退机器自动抬升的代价，绝不改动用户显式意图（auto-elevated vs explicit 严格区分）",
+    "回退依据必须是不可伪造的来源标记：priorityElevatedFrom 仅在抬升真实发生时才写",
+    "复用既有 story_review_dismiss 通道，不新增 CLI 命令（YAGNI）",
+    "引导文案与代码行为单一真相源一致，不承诺未实现的回退能力",
+    "遵循 Handler 编码约定：rollback 判定在 handler 与每个消费 priorityElevatedFrom 的点做同标准 runtime 校验"
+  ],
+  "drivers": [
+    "误报触发的 high-risk gate 代价（强制 decision + ≥3 preMortem）阻塞合理的小改动",
+    "必须防止把用户显式 high/critical 误降级（安全不变量）",
+    "逃生口要可发现：agent 当前不知道 dismiss 能连带回退 priority"
+  ],
+  "options": [
+    {
+      "name": "A: priorityElevatedFrom 来源标记 + dismiss 后按「无 active risk 且有标记」回退",
+      "pros": [
+        "来源可审计、可机械区分 auto vs explicit",
+        "user-set high/critical 天然无标记，回退逻辑天然不触及",
+        "最小改动：复用 dismiss 通道，无新命令"
+      ],
+      "cons": [
+        "需在 story-create 两处写路径都落标记",
+        "需补 adversarial 测试覆盖伪造 dismissed 无标记场景"
+      ]
+    },
+    {
+      "name": "B: 改 isHighRisk 消费点为 activeRiskSignals 为空即非高风险（忽略 priority）",
+      "pros": [
+        "不需新字段"
+      ],
+      "cons": [
+        "破坏用户显式 high/critical 语义：显式 high 也会被 dismiss 绕过",
+        "多个读 priority 的 gate 行为不一致、污染面大"
+      ]
+    },
+    {
+      "name": "C: dismiss 时无条件把 priority 降到 medium",
+      "pros": [
+        "实现最简单"
+      ],
+      "cons": [
+        "丢失用户显式意图",
+        "不可逆且危险，可能静默抹掉真实高风险"
+      ]
+    }
+  ],
+  "chosen": "A: priorityElevatedFrom 来源标记 + dismiss 后按「无 active risk 且有标记」回退",
+  "rationale": "选 A：priorityElevatedFrom 只在自动抬升真实改变 priority 时写，使 auto-elevated 与用户显式 high/critical 机械可区分；回退严格 gated on 该标记存在 + dismiss 后 activeRiskSignals 为空，既解除误报代价又保住安全不变量；复用 dismiss 通道无新命令。B/C 都会破坏用户显式高风险意图。",
+  "preMortem": [
+    {
+      "scenario": "用户显式 priority=high 的 story 在 dismiss 后被误降级",
+      "trigger": "rollback 只检查 dismiss 后 activeRiskSignals 为空，没校验 priorityElevatedFrom 存在",
+      "consequence": "用户显式的高风险意图被静默抹掉，high-risk gate 失效",
+      "mitigation": "rollback 严格 gated on priorityElevatedFrom 字段存在；user-set 写路径不写该字段；adversarial logic test 构造「伪造 riskSignalsDismissed 但无 priorityElevatedFrom」断言 user-set high/critical 不被降"
+    },
+    {
+      "scenario": "多 category 命中，dismiss 一个后 priority 被过早回退",
+      "trigger": "回退条件只检查被 dismiss 的是来源 category，未检查剩余 active risk",
+      "consequence": "仍有真实 riskSignal 时 high-risk gate 被绕过",
+      "mitigation": "回退条件为「dismiss 后重算 activeRiskSignals 为空」才回退；logic test 覆盖多 category 部分 dismiss 仍 high-risk"
+    },
+    {
+      "scenario": "CHK-002 引导文案承诺 priority 回退，但 CHK-001 实现不一致（如只回退 riskSignals 未回退 priority）",
+      "trigger": "文案先于或独立于 CHK-001 行为编写",
+      "consequence": "agent 按引导 dismiss 后发现仍卡 gate，对系统信任受损",
+      "mitigation": "CHK-002 DependsOn CHK-001；CHK-002 adversarial intent 校验文案与实际 dismiss 行为一致"
+    },
+    {
+      "scenario": "priorityElevatedFrom 只在正常写路径(563)落、漏改 phase 直指路径(513)",
+      "trigger": "只改一处写 story 的代码",
+      "consequence": "onboard/直接 phase 创建的 story 回退失效",
+      "mitigation": "plan.md Files 明确列出两处写路径；DoneWhen 要求两路径均落标记"
+    }
+  ],
+  "timestamp": "2026-05-25T17:13:32.531Z"
+}
