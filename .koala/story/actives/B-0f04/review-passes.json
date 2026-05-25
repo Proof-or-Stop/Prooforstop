@@ -17,6 +17,15 @@
       "reviewRound": "2026-05-25T12:53:28.534Z",
       "reviewRunId": "B-0f04:RR-002",
       "_hash": "f6961d36c72447da18555db9c096a28086a29a6627759017d5b835b62781de5f"
+    },
+    {
+      "id": "B-0f04:RP-003",
+      "agent": "koala-review-docs",
+      "note": "Docs lane reviewed plan.md, cross-end-contract-audit.md, codex-verification.md. Audit-only story: git diff main...HEAD touches only .koala/story/actives/B-0f04 artifacts, zero production code/CLAUDE.md/README/decisions changes, so no product docs need updating. User-facing documentation obligation is satisfied because the audit report + codex verification ARE the deliverables and no production behavior shipped; implementation gaps are correctly deferred to follow-up stories FU-1..FU-6 per plan.md guardrail. Non-blocking: report Codex-PENDING section is now superseded by the existing codex-verification.md but its self-resolving marker routes readers to the real evidence. No blocking docs issue.",
+      "createdAt": "2026-05-25T12:55:53.214Z",
+      "reviewRound": "2026-05-25T12:53:28.534Z",
+      "reviewRunId": "B-0f04:RR-003",
+      "_hash": "443c6ae1d2e35ac2d4ad2af8e0959f8312911834e8a98bf58bfe85cce3ae76e3"
     }
   ]
 }
