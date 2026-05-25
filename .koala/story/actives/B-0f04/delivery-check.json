@@ -1,0 +1,64 @@
+{
+  "storyId": "B-0f04",
+  "checkedAt": "2026-05-25T13:03:54.543Z",
+  "reviewRound": "2026-05-25T12:57:51.311Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "plan.md#Guardrails",
+      "promise": "No production code changes are allowed in Orchestrate, cord-team, or Koala; only B-0f04 story metadata/evidence artifacts may be written.",
+      "status": "verified",
+      "verifiedBy": "git diff main...HEAD --name-only",
+      "evidence": "git diff main...HEAD touches only 17 files, all under .koala/story/actives/B-0f04/ (checklist/decision/index/plan/process/review/scope/summary/test-evidence/understanding + evidence/*.md). Zero production code in any of the three repos. Codex report-quality check (codex-verification.md L108-118) independently confirms the three implementer commits 772e9ffd/04b23702/933bf32e changed only the audit evidence report."
+    },
+    {
+      "docPath": "plan.md#CHK-001",
+      "promise": "Record Koala CLI post-merge health without assuming a green result; record raw output/status for session_brief, convergence_check, annotation validator, npm test after build, git status --short; classify any failure.",
+      "status": "verified",
+      "verifiedBy": "read cross-end-contract-audit.md Post-merge validation + Raw command appendix",
+      "evidence": "cross-end-contract-audit.md L17-98 records all six commands verbatim with verdicts: session_brief exit0, convergence_check converged:false classified as expected in-flight (only failing row names B-0f04 itself), cli-validate errors=0/2 advisory warnings, npm run build exit0, npm test ALL PASS, git status clean. Raw appendix L281-388 preserves verbatim output."
+    },
+    {
+      "docPath": "plan.md#CHK-002",
+      "promise": "Map cross-end authority/evidence contract surfaces across the three repos with file references; mark each row aligned/partial/missing/follow-up-needed; do not infer alignment from naming similarity.",
+      "status": "verified",
+      "verifiedBy": "read cross-end-contract-audit.md Cross-end contract matrix",
+      "evidence": "cross-end-contract-audit.md L100-133 confirms repo roles by file evidence (not name) and gives a 9-row matrix (EvidenceEnvelope, receipts, trustLevel/presets, run bindings, provider heterogeneity, VCP, gate consumption, handshake/enforce, runner responsibilities), each with file:line refs across CLI/PY/MAC and a partial/aligned/follow-up-needed status."
+    },
+    {
+      "docPath": "plan.md#CHK-003",
+      "promise": "Produce an actionable gap report separating solved items/blockers/advisories/follow-ups, each follow-up names owning repo, dedup vs B-4622/B-da5b, and Codex independently verifies high-risk claims recorded in codex-verification.md.",
+      "status": "verified",
+      "verifiedBy": "read cross-end-contract-audit.md Gaps section + codex-verification.md",
+      "evidence": "cross-end-contract-audit.md L135-236 separates Already-solved, PD-1 product decision, conditional Blockers B1/B2/B3, advisories A1-A4, and FU-1..FU-6 each naming its owning repo, with explicit B-4622/B-da5b subsystem-boundary dedup. codex-verification.md L28-129 records Codex PM independent re-run confirming HV-1/HV-2/HV-3 with line-specific evidence."
+    },
+    {
+      "docPath": "transcript-diff.md#Difference",
+      "promise": "Stale 'Codex verification PENDING' wording was reconciled; the audit report Codex section reflects completed verification.",
+      "status": "verified",
+      "verifiedBy": "grep PENDING/COMPLETE in evidence/",
+      "evidence": "grep finds zero stale PENDING markers inside cross-end-contract-audit.md; its Codex section header is now '### Codex independent verification (COMPLETE)' (L238) with HV-1/HV-2/HV-3 marked CONFIRMED (L248/256/264). The only remaining 'PENDING' string repo-wide is transcript-diff.md L64 narrating the fix history. review-passes RP-005/RP-006/RP-007 (round 2) all confirm the PENDING->COMPLETE reconciliation (commit fd43eff8)."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "On main post-merge HEAD: `npm run build` exit0 (tsc, no diagnostics); `npm test` -> test:e2e -> cli-e2e.js: story-lifecycle (5 steps) + gap-convergence (4 steps) -> ✓ ALL PASS; `cli-validate.js` exit0 errors=0 warnings=2 -> PASSED: All task annotations are valid; `convergence_check` converged:false with the sole failing row naming B-0f04 itself (expected in-flight); `git status --short` clean. All preserved verbatim in cross-end-contract-audit.md Raw command appendix L281-388."
+    },
+    {
+      "featureId": "B-0f04",
+      "transcript": "`koala validate --story=B-0f04 --json` -> provider koala-verifier-fallback-commands, status pass, allPass true; npm test command code 0 -> ✓ ALL PASS; Verification intent coverage 10/10 covered (0 required missing). Recorded in test-evidence.json (result PASS, headHash db3fc88a, materialHash 34d4866, timestamp 2026-05-25T13:01:05Z). TEST transcript captured in transcript-diff.md L18-37."
+    },
+    {
+      "featureId": "CHK-002-CHK-003",
+      "transcript": "REVIEW evidence: 2 rounds, 8 review passes (review-passes.json RP-001..RP-008) from koala-review-concept/quality/docs/test-coverage, all PASS with signed _hash and reviewRound; `finding_list B-0f04` returns findings:[] (zero open findings). review-runs.json records 9 signed reviewer runs across both rounds. test-coverage pass confirms all 10 must verificationIntents (happy/edge/adversarial across CHK-001/002/003) map to verificationEvidence with verdict success."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Audit-only B-0f04 delivered: all plan.md promises landed (post-merge health, 9-row cross-end contract matrix with file refs, actionable gap report by owning repo, Codex HV-1/2/3 independently confirmed), zero production code changed (git diff confined to .koala/story/actives/B-0f04/), koala validate PASS with 10/10 verification intent coverage, npm test ALL PASS, stale PENDING wording reconciled to COMPLETE, and all reviewers passed with zero open findings. PD-1 is a flagged cross-repo product decision, not an unresolved TODO."
+  },
+  "_hash": "77c6d5f99a25687e034d1a0bf2b78457056eeee64d884bb85a9c170bfdfb3176"
+}
