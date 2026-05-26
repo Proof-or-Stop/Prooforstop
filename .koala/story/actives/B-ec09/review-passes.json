@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-ec09:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Concept review pass: M1 scope only (classifier + authority-submit wrapper + adversarial smoke + authority-client-role.md). Koala CLI remains workflow/thin-client; classifyAuthorityEvidence + classifyCliAuthoritySubmission mechanically refuse receipt-backed-l2-plus for CLI envelopes (hardcoded receiptVerified:false, missing run bindings/provider/model/vendor/signature/hashes). Docstrings explicitly distinguish transport accepted=true from signed AuthorityReceipt verification. authority-client-role.md routes M2/M5-FU4 to Python/Mac repos as not-authority-work, M3/M4 deferred behind enforce-mode product approval, M5/FU-3 docs-only. Adversarial smoke covers forged partial fields, same-run collapsed verifier, missing command/transcript/diff hashes, wrapper agreement. No runner/Mac/Python production code touched.",
+      "createdAt": "2026-05-26T02:43:02.499Z",
+      "reviewRound": "2026-05-26T02:41:01.626Z",
+      "reviewRunId": "B-ec09:RR-002",
+      "_hash": "46259aa73b36a1ddbc408fbb6036c2bffa29008a82f6a60dfb739e6aa6ed27ec"
+    }
+  ]
+}
