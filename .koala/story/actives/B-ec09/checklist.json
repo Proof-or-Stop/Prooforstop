@@ -49,9 +49,9 @@
           "command": "rg -n \"Koala CLI — workflow client|Koala Runner CLI / Mac Runner — execution plane|Python Authority — receipt authority\" docs/requirements/decisions/authority-client-role.md",
           "result": "pass",
           "note": "Lines 53/57/61 define CLI as workflow client, Runner/Mac as execution plane, and Python Authority as receipt authority.",
-          "headHash": "ead8ba4e118f47886f5aca1be8f40337a7a0089c",
-          "materialHash": "78bd7a3db1a7dedf583c0662dd65e4b0cc9f6e1508a2ab4489c190ed1df7cbc6",
-          "timestamp": "2026-05-26T02:39:07.923Z"
+          "headHash": "b4e77191fbce8cd354fd24ce75eb18fc8723ba87",
+          "materialHash": "1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6",
+          "timestamp": "2026-05-26T02:49:49.619Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -60,9 +60,9 @@
           "command": "rg -n \"No overclaim by colocation|does not make CLI-shaped evidence authoritative\" docs/requirements/decisions/authority-client-role.md",
           "result": "pass",
           "note": "Doc includes the explicit no-overclaim-by-colocation boundary.",
-          "headHash": "ead8ba4e118f47886f5aca1be8f40337a7a0089c",
-          "materialHash": "78bd7a3db1a7dedf583c0662dd65e4b0cc9f6e1508a2ab4489c190ed1df7cbc6",
-          "timestamp": "2026-05-26T02:39:07.975Z"
+          "headHash": "b4e77191fbce8cd354fd24ce75eb18fc8723ba87",
+          "materialHash": "1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6",
+          "timestamp": "2026-05-26T02:49:49.619Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -71,9 +71,9 @@
           "command": "rg -n \"Transport acceptance is NOT receipt verification|not L2\\+ authority|receipt-backed-l2-plus\" docs/requirements/decisions/authority-client-role.md",
           "result": "pass",
           "note": "Doc forbids treating accepted-only transport or CLI local/shadow evidence as L2+ receipt-backed authority.",
-          "headHash": "ead8ba4e118f47886f5aca1be8f40337a7a0089c",
-          "materialHash": "78bd7a3db1a7dedf583c0662dd65e4b0cc9f6e1508a2ab4489c190ed1df7cbc6",
-          "timestamp": "2026-05-26T02:39:08.026Z"
+          "headHash": "b4e77191fbce8cd354fd24ce75eb18fc8723ba87",
+          "materialHash": "1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6",
+          "timestamp": "2026-05-26T02:49:49.619Z"
         }
       ]
     },
@@ -124,9 +124,9 @@
           "command": "rg -n \"classifyAuthorityEvidence|thin-client-transport-accepted|independentVerifierRunId|commandDigest|transcriptHash|diffHash\" packages/main/src/core/authority-boundary.ts packages/main/src/core/authority-submit.ts",
           "result": "pass",
           "note": "Classifier and authority-submit wrapper expose local-only/thin-client/receipt-backed classes with L2+ requirements including independent verifier run and command/transcript/diff hashes.",
-          "headHash": "ead8ba4e118f47886f5aca1be8f40337a7a0089c",
-          "materialHash": "78bd7a3db1a7dedf583c0662dd65e4b0cc9f6e1508a2ab4489c190ed1df7cbc6",
-          "timestamp": "2026-05-26T02:39:35.314Z"
+          "headHash": "b4e77191fbce8cd354fd24ce75eb18fc8723ba87",
+          "materialHash": "1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6",
+          "timestamp": "2026-05-26T02:49:49.619Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -135,9 +135,9 @@
           "command": "npm run test:authority-client",
           "result": "pass",
           "note": "Existing authority client smoke remains compatible; authority-submit comment and wrapper label accepted=true as transport acceptance, not receipt verification.",
-          "headHash": "ead8ba4e118f47886f5aca1be8f40337a7a0089c",
-          "materialHash": "78bd7a3db1a7dedf583c0662dd65e4b0cc9f6e1508a2ab4489c190ed1df7cbc6",
-          "timestamp": "2026-05-26T02:39:35.362Z"
+          "headHash": "b4e77191fbce8cd354fd24ce75eb18fc8723ba87",
+          "materialHash": "1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6",
+          "timestamp": "2026-05-26T02:49:49.619Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -146,9 +146,9 @@
           "command": "npm run test:authority-boundary-smoke",
           "result": "pass",
           "note": "Smoke proves missing run/provider/model/vendor/hash/signature/receipt fields, same-run verifier collapse, and accepted=true cannot upgrade CLI evidence to receipt-backed L2+. Output: ✓ authority boundary smoke passed: CLI evidence is local/shadow/thin-client, not receipt-backed L2+ authority.",
-          "headHash": "ead8ba4e118f47886f5aca1be8f40337a7a0089c",
-          "materialHash": "78bd7a3db1a7dedf583c0662dd65e4b0cc9f6e1508a2ab4489c190ed1df7cbc6",
-          "timestamp": "2026-05-26T02:39:35.456Z"
+          "headHash": "b4e77191fbce8cd354fd24ce75eb18fc8723ba87",
+          "materialHash": "1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6",
+          "timestamp": "2026-05-26T02:49:49.619Z"
         }
       ]
     },
@@ -199,9 +199,9 @@
           "command": "npm run test:authority-boundary-smoke",
           "result": "pass",
           "note": "Smoke covers off mode as local-only and prints the user-visible non-receipt-backed thin-client boundary line.",
-          "headHash": "ead8ba4e118f47886f5aca1be8f40337a7a0089c",
-          "materialHash": "78bd7a3db1a7dedf583c0662dd65e4b0cc9f6e1508a2ab4489c190ed1df7cbc6",
-          "timestamp": "2026-05-26T02:39:54.976Z"
+          "headHash": "b4e77191fbce8cd354fd24ce75eb18fc8723ba87",
+          "materialHash": "1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6",
+          "timestamp": "2026-05-26T02:49:49.619Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -210,9 +210,9 @@
           "command": "npm run test:authority-evidence-flow",
           "result": "pass",
           "note": "Existing shadow/enforce authority evidence flow smoke still passes, preserving transport behavior while new wording prevents receipt-backed overclaim.",
-          "headHash": "ead8ba4e118f47886f5aca1be8f40337a7a0089c",
-          "materialHash": "78bd7a3db1a7dedf583c0662dd65e4b0cc9f6e1508a2ab4489c190ed1df7cbc6",
-          "timestamp": "2026-05-26T02:39:55.079Z"
+          "headHash": "b4e77191fbce8cd354fd24ce75eb18fc8723ba87",
+          "materialHash": "1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6",
+          "timestamp": "2026-05-26T02:49:49.619Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -221,9 +221,9 @@
           "command": "npm run test:authority-boundary-smoke",
           "result": "pass",
           "note": "Adversarial cases prove forged partial fields, missing hashes, same-run verifier collapse, and accepted=true do not pass receipt-backed L2+ classification.",
-          "headHash": "ead8ba4e118f47886f5aca1be8f40337a7a0089c",
-          "materialHash": "78bd7a3db1a7dedf583c0662dd65e4b0cc9f6e1508a2ab4489c190ed1df7cbc6",
-          "timestamp": "2026-05-26T02:39:55.132Z"
+          "headHash": "b4e77191fbce8cd354fd24ce75eb18fc8723ba87",
+          "materialHash": "1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6",
+          "timestamp": "2026-05-26T02:49:49.619Z"
         }
       ]
     },
@@ -272,9 +272,9 @@
           "command": "npm run build && npm run test:authority-boundary-smoke && npm run test:authority-client && npm run test:authority-evidence-flow",
           "result": "pass",
           "note": "Build plus focused boundary/client/evidence-flow smokes pass and prove the boundary classification.",
-          "headHash": "ead8ba4e118f47886f5aca1be8f40337a7a0089c",
-          "materialHash": "78bd7a3db1a7dedf583c0662dd65e4b0cc9f6e1508a2ab4489c190ed1df7cbc6",
-          "timestamp": "2026-05-26T02:40:27.469Z"
+          "headHash": "b4e77191fbce8cd354fd24ce75eb18fc8723ba87",
+          "materialHash": "1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6",
+          "timestamp": "2026-05-26T02:49:49.619Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -283,9 +283,9 @@
           "command": "rg -n \"Milestone 1 scope|M2 \\(Koala Runner CLI\\)|not auto-opened|M3–M7\" docs/requirements/decisions/authority-client-role.md .koala/story/actives/B-ec09/plan.md",
           "result": "pass",
           "note": "Docs and plan state this story completes only M1; M2 belongs to the Mac/Runner repo and M3-M7 remain future work.",
-          "headHash": "ead8ba4e118f47886f5aca1be8f40337a7a0089c",
-          "materialHash": "78bd7a3db1a7dedf583c0662dd65e4b0cc9f6e1508a2ab4489c190ed1df7cbc6",
-          "timestamp": "2026-05-26T02:40:27.520Z"
+          "headHash": "b4e77191fbce8cd354fd24ce75eb18fc8723ba87",
+          "materialHash": "1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6",
+          "timestamp": "2026-05-26T02:49:49.619Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -294,9 +294,9 @@
           "command": "koala scope_contract_check --storyId=B-ec09 --json && git status --short",
           "result": "pass",
           "note": "Scope contract passes with no violations; git status was clean before metadata-only checklist updates, proving no external Mac/Python/Runner scope was modified.",
-          "headHash": "ead8ba4e118f47886f5aca1be8f40337a7a0089c",
-          "materialHash": "78bd7a3db1a7dedf583c0662dd65e4b0cc9f6e1508a2ab4489c190ed1df7cbc6",
-          "timestamp": "2026-05-26T02:40:27.570Z"
+          "headHash": "b4e77191fbce8cd354fd24ce75eb18fc8723ba87",
+          "materialHash": "1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6",
+          "timestamp": "2026-05-26T02:49:49.619Z"
         }
       ]
     }
