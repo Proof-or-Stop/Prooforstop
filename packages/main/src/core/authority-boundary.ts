@@ -70,6 +70,9 @@ export type AuthorityL2Requirement =
   | 'provider'
   | 'model'
   | 'vendor'
+  | 'commandDigest'
+  | 'transcriptHash'
+  | 'diffHash'
   | 'envelopeSignature'
   | 'verifiedAuthorityReceipt';
 
@@ -79,6 +82,9 @@ const L2_REQUIREMENTS: ReadonlyArray<AuthorityL2Requirement> = [
   'provider',
   'model',
   'vendor',
+  'commandDigest',
+  'transcriptHash',
+  'diffHash',
   'envelopeSignature',
   'verifiedAuthorityReceipt',
 ];
@@ -102,6 +108,9 @@ export function missingL2Requirements(
   if (!isNonEmptyString(env.provider)) missing.push('provider');
   if (!isNonEmptyString(env.model)) missing.push('model');
   if (!isNonEmptyString(env.vendor)) missing.push('vendor');
+  if (!isNonEmptyString(env.commandDigest)) missing.push('commandDigest');
+  if (!isNonEmptyString(env.transcriptHash)) missing.push('transcriptHash');
+  if (!isNonEmptyString(env.diffHash)) missing.push('diffHash');
   if (!isNonEmptyString(env.signature)) missing.push('envelopeSignature');
   if (input.receiptVerified !== true) missing.push('verifiedAuthorityReceipt');
   return missing;
@@ -130,7 +139,7 @@ export function classifyAuthorityEvidence(
       label: 'receipt-backed L2+ authority',
       missing,
       reason:
-        'envelope has run bindings, provider/model/vendor, signature, and a verified Python authority receipt',
+        'envelope has run bindings, provider/model/vendor, command/transcript/diff hashes, signature, and a verified Python authority receipt',
     };
   }
 

@@ -66,11 +66,13 @@ Three roles, named so the boundary is cold-readable without prior context:
 
 > **L2+ authority evidence** is production-grade authority evidence that is (a)
 > bound to an independent actor / run identity (`producerRunId`,
-> `verifierRunId`, `provider`, `model`, `vendor`), (b) carries an ed25519
-> signature from a registered runner actor key, and (c) is acknowledged by the
-> Python authority via a signed `AuthorityReceipt` whose signature has been
-> cryptographically verified by the consumer. Anything missing **any** of (a),
-> (b), or (c) is not L2+ authority.
+> `verifierRunId`, `provider`, `model`, `vendor`) and to the artifacts the run
+> produced (`commandDigest`, `transcriptHash`, `diffHash`), (b) carries an
+> ed25519 signature from a registered runner actor key, and (c) is acknowledged
+> by the Python authority via a signed `AuthorityReceipt` whose signature has
+> been cryptographically verified by the consumer. Anything missing **any** of
+> (a), (b), or (c) — including any of the command/transcript/diff hash
+> bindings — is not L2+ authority.
 
 The Koala CLI envelope (`buildEnvelope` in
 [`packages/main/src/core/authority-submit.ts`](../../../packages/main/src/core/authority-submit.ts))
@@ -78,8 +80,9 @@ is a strict subset that lacks (a), (b), and (c) by design under PD-1. The
 boundary classifier
 [`packages/main/src/core/authority-boundary.ts`](../../../packages/main/src/core/authority-boundary.ts)
 enumerates the required fields (`producerRunId`, `verifierRunId`, `provider`,
-`model`, `vendor`, `envelopeSignature`, `verifiedAuthorityReceipt`) and is the
-mechanical truth source for "is this submission L2+?".
+`model`, `vendor`, `commandDigest`, `transcriptHash`, `diffHash`,
+`envelopeSignature`, `verifiedAuthorityReceipt`) and is the mechanical truth
+source for "is this submission L2+?".
 
 ### Transport acceptance is NOT receipt verification
 

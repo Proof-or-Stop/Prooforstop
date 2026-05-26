@@ -116,7 +116,7 @@ function caseAdversarialForgedPartialFields(): void {
       vendor: 'anthropic',
       producerRunId: 'forged-run',
       verifierRunId: 'forged-run',
-      // signature omitted on purpose
+      // signature + command/transcript/diff hashes omitted on purpose
     }),
     receiptVerified: false,
     transportAccepted: true,
@@ -136,6 +136,50 @@ function caseAdversarialForgedPartialFields(): void {
   });
   assert.ok(missing.includes('envelopeSignature'), 'missing must include envelopeSignature');
   assert.ok(missing.includes('verifiedAuthorityReceipt'), 'missing must include verifiedAuthorityReceipt');
+  assert.ok(missing.includes('commandDigest'), 'missing must include commandDigest');
+  assert.ok(missing.includes('transcriptHash'), 'missing must include transcriptHash');
+  assert.ok(missing.includes('diffHash'), 'missing must include diffHash');
+}
+
+function caseAdversarialMissingHashBindingsNotBypassedByAccepted(): void {
+  // CHK-002 adversarial intent: missing command/transcript/diff hashes cannot
+  // be upgraded by transport accepted=true. Even with run bindings, provider,
+  // model, vendor, signature, AND a "verifiedReceipt" claim, omitting any one
+  // of commandDigest / transcriptHash / diffHash MUST classify as thin-client,
+  // never receipt-backed L2+.
+  const fullExceptHashes = {
+    provider: 'anthropic',
+    model: 'claude-opus-4-7',
+    vendor: 'anthropic',
+    producerRunId: 'run-1',
+    verifierRunId: 'run-1',
+    signature: 'ed25519:forged',
+  };
+  for (const omit of ['commandDigest', 'transcriptHash', 'diffHash'] as const) {
+    const env = cliShapedEnvelope({
+      ...fullExceptHashes,
+      commandDigest: 'sha256:cmd',
+      transcriptHash: 'sha256:tx',
+      diffHash: 'sha256:diff',
+      [omit]: undefined,
+    });
+    const c = classifyAuthorityEvidence({
+      mode: 'enforce',
+      envelope: env,
+      receiptVerified: true, // even forging receiptVerified=true must not bypass
+      transportAccepted: true,
+    });
+    assert.notEqual(
+      c.klass,
+      'receipt-backed-l2-plus',
+      `omitting ${omit} must NOT classify as receipt-backed L2+ even with accepted=true and receiptVerified=true`,
+    );
+    assert.ok(
+      c.missing.includes(omit),
+      `missing must include ${omit} when omitted on CLI-shaped envelope`,
+    );
+    expectThinClient(c, `adversarial omit ${omit}`);
+  }
 }
 
 function caseAuthoritySubmitWrapperAgrees(): void {
@@ -156,8 +200,8 @@ function caseRequirementsFrozenList(): void {
   // L2+ requirement list must be non-empty and stable — used by docs/tests as
   // the canonical missing-fields list under the current PD-1 decision.
   const reqs = l2PlusRequirements();
-  assert.ok(reqs.length >= 7, 'l2PlusRequirements must enumerate >=7 requirements');
-  for (const r of ['producerRunId', 'verifierRunId', 'provider', 'model', 'vendor', 'envelopeSignature', 'verifiedAuthorityReceipt'] as const) {
+  assert.ok(reqs.length >= 10, 'l2PlusRequirements must enumerate >=10 requirements');
+  for (const r of ['producerRunId', 'verifierRunId', 'provider', 'model', 'vendor', 'commandDigest', 'transcriptHash', 'diffHash', 'envelopeSignature', 'verifiedAuthorityReceipt'] as const) {
     assert.ok(reqs.includes(r), `l2PlusRequirements must include ${r}`);
   }
 }
@@ -167,6 +211,7 @@ function main(): void {
   caseShadowObservational();
   caseEnforceAcceptedTransportNotReceipt();
   caseAdversarialForgedPartialFields();
+  caseAdversarialMissingHashBindingsNotBypassedByAccepted();
   caseAuthoritySubmitWrapperAgrees();
   caseRequirementsFrozenList();
   console.log(PASS_LINE);
