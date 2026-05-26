@@ -263,7 +263,7 @@
       },
       "status": "done",
       "startTime": "2026-05-26T02:40:13.446Z",
-      "endTime": "2026-05-26T02:40:27.404Z",
+      "endTime": "2026-05-26T02:50:39.832Z",
       "verificationEvidence": [
         {
           "intentRef": "CHK-004:happy:0",
@@ -272,20 +272,20 @@
           "command": "npm run build && npm run test:authority-boundary-smoke && npm run test:authority-client && npm run test:authority-evidence-flow",
           "result": "pass",
           "note": "Build plus focused boundary/client/evidence-flow smokes pass and prove the boundary classification.",
-          "headHash": "b4e77191fbce8cd354fd24ce75eb18fc8723ba87",
+          "headHash": "b10728346c1cd0a94742a73f403b575dad48fe0c",
           "materialHash": "1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6",
-          "timestamp": "2026-05-26T02:49:49.619Z"
+          "timestamp": "2026-05-26T02:50:39.907Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/authority-client-role.md",
-          "command": "rg -n \"Milestone 1 scope|M2 \\(Koala Runner CLI\\)|not auto-opened|M3–M7\" docs/requirements/decisions/authority-client-role.md .koala/story/actives/B-ec09/plan.md",
+          "command": "rg -n \"Milestone 1 scope|M2 \\(Python authority|M5/FU-4|M3–M6|not auto-opened|enforce-mode product approval\" docs/requirements/decisions/authority-client-role.md .koala/story/actives/B-ec09/plan.md",
           "result": "pass",
-          "note": "Docs and plan state this story completes only M1; M2 belongs to the Mac/Runner repo and M3-M7 remain future work.",
-          "headHash": "b4e77191fbce8cd354fd24ce75eb18fc8723ba87",
+          "note": "Docs state B-ec09 completes only M1; M2 is Python authority policy discovery, M5/FU-4 is Mac/Runner work, M3-M6 remain routed in the table, and no follow-up is auto-opened.",
+          "headHash": "b10728346c1cd0a94742a73f403b575dad48fe0c",
           "materialHash": "1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6",
-          "timestamp": "2026-05-26T02:49:49.619Z"
+          "timestamp": "2026-05-26T02:50:39.962Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -294,9 +294,9 @@
           "command": "koala scope_contract_check --storyId=B-ec09 --json && git status --short",
           "result": "pass",
           "note": "Scope contract passes with no violations; git status was clean before metadata-only checklist updates, proving no external Mac/Python/Runner scope was modified.",
-          "headHash": "b4e77191fbce8cd354fd24ce75eb18fc8723ba87",
+          "headHash": "b10728346c1cd0a94742a73f403b575dad48fe0c",
           "materialHash": "1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6",
-          "timestamp": "2026-05-26T02:49:49.619Z"
+          "timestamp": "2026-05-26T02:50:40.013Z"
         }
       ]
     }
