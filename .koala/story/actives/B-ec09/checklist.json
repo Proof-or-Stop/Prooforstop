@@ -261,9 +261,44 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-26T02:40:13.446Z",
-      "endTime": null
+      "endTime": "2026-05-26T02:40:27.404Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/authority-boundary-smoke.ts",
+          "command": "npm run build && npm run test:authority-boundary-smoke && npm run test:authority-client && npm run test:authority-evidence-flow",
+          "result": "pass",
+          "note": "Build plus focused boundary/client/evidence-flow smokes pass and prove the boundary classification.",
+          "headHash": "ead8ba4e118f47886f5aca1be8f40337a7a0089c",
+          "materialHash": "78bd7a3db1a7dedf583c0662dd65e4b0cc9f6e1508a2ab4489c190ed1df7cbc6",
+          "timestamp": "2026-05-26T02:40:27.469Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/authority-client-role.md",
+          "command": "rg -n \"Milestone 1 scope|M2 \\(Koala Runner CLI\\)|not auto-opened|M3–M7\" docs/requirements/decisions/authority-client-role.md .koala/story/actives/B-ec09/plan.md",
+          "result": "pass",
+          "note": "Docs and plan state this story completes only M1; M2 belongs to the Mac/Runner repo and M3-M7 remain future work.",
+          "headHash": "ead8ba4e118f47886f5aca1be8f40337a7a0089c",
+          "materialHash": "78bd7a3db1a7dedf583c0662dd65e4b0cc9f6e1508a2ab4489c190ed1df7cbc6",
+          "timestamp": "2026-05-26T02:40:27.520Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": ".koala/story/actives/B-ec09/scope-contract.json",
+          "command": "koala scope_contract_check --storyId=B-ec09 --json && git status --short",
+          "result": "pass",
+          "note": "Scope contract passes with no violations; git status was clean before metadata-only checklist updates, proving no external Mac/Python/Runner scope was modified.",
+          "headHash": "ead8ba4e118f47886f5aca1be8f40337a7a0089c",
+          "materialHash": "78bd7a3db1a7dedf583c0662dd65e4b0cc9f6e1508a2ab4489c190ed1df7cbc6",
+          "timestamp": "2026-05-26T02:40:27.570Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -295,6 +330,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Gate/status warning surface is the focused authority-boundary smoke plus compatibility smoke; no live authority server required.",
+      "agent": "Codex supervisor"
+    },
+    {
+      "timestamp": "2026-05-26T02:40:27.404Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Milestone 1 validation, routing, and scope evidence recorded after supervisor verification.",
       "agent": "Codex supervisor"
     }
   ]
