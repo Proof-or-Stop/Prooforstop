@@ -17,6 +17,15 @@
       "reviewRound": "2026-05-26T02:41:01.626Z",
       "reviewRunId": "B-ec09:RR-004",
       "_hash": "fecbb4c9a43f0f87530404b24db63edf2d1b2e705f7e54ad119c07ff9d39e789"
+    },
+    {
+      "id": "B-ec09:RP-003",
+      "agent": "koala-review-test-coverage",
+      "note": "All 12/12 verificationIntent refs (CHK-001..004 × happy/edge/adversarial) have pass evidence with real files/commands. Adversarial coverage solid: authority-boundary-smoke proves missing producerRunId/verifierRunId/provider/model/vendor/hash/receipt fields, same-run verifier collapse, and accepted=true cannot upgrade to L2+; scope_contract_check proves no out-of-scope modification. Docs evidence cites concrete rg patterns. No missing must-evidence; no waiver needed.",
+      "createdAt": "2026-05-26T02:45:57.860Z",
+      "reviewRound": "2026-05-26T02:41:01.626Z",
+      "reviewRunId": "B-ec09:RR-005",
+      "_hash": "17b634435c3d5702dc2db7849f5f6aee213aa4e72e1face66d79c40b57011016"
     }
   ]
 }
