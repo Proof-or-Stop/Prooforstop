@@ -188,9 +188,44 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-26T02:39:41.864Z",
-      "endTime": null
+      "endTime": "2026-05-26T02:39:54.914Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/authority-boundary-smoke.ts",
+          "command": "npm run test:authority-boundary-smoke",
+          "result": "pass",
+          "note": "Smoke covers off mode as local-only and prints the user-visible non-receipt-backed thin-client boundary line.",
+          "headHash": "ead8ba4e118f47886f5aca1be8f40337a7a0089c",
+          "materialHash": "78bd7a3db1a7dedf583c0662dd65e4b0cc9f6e1508a2ab4489c190ed1df7cbc6",
+          "timestamp": "2026-05-26T02:39:54.976Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/authority-evidence-flow-smoke.ts",
+          "command": "npm run test:authority-evidence-flow",
+          "result": "pass",
+          "note": "Existing shadow/enforce authority evidence flow smoke still passes, preserving transport behavior while new wording prevents receipt-backed overclaim.",
+          "headHash": "ead8ba4e118f47886f5aca1be8f40337a7a0089c",
+          "materialHash": "78bd7a3db1a7dedf583c0662dd65e4b0cc9f6e1508a2ab4489c190ed1df7cbc6",
+          "timestamp": "2026-05-26T02:39:55.079Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-boundary-smoke.ts",
+          "command": "npm run test:authority-boundary-smoke",
+          "result": "pass",
+          "note": "Adversarial cases prove forged partial fields, missing hashes, same-run verifier collapse, and accepted=true do not pass receipt-backed L2+ classification.",
+          "headHash": "ead8ba4e118f47886f5aca1be8f40337a7a0089c",
+          "materialHash": "78bd7a3db1a7dedf583c0662dd65e4b0cc9f6e1508a2ab4489c190ed1df7cbc6",
+          "timestamp": "2026-05-26T02:39:55.132Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -250,6 +285,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Authority classifier and submission wrapper verified after supervisor caught and fixed hash/run-independence gaps.",
+      "agent": "Codex supervisor"
+    },
+    {
+      "timestamp": "2026-05-26T02:39:54.914Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Gate/status warning surface is the focused authority-boundary smoke plus compatibility smoke; no live authority server required.",
       "agent": "Codex supervisor"
     }
   ]
