@@ -8,6 +8,15 @@
       "reviewRound": "2026-05-26T02:41:01.626Z",
       "reviewRunId": "B-ec09:RR-002",
       "_hash": "46259aa73b36a1ddbc408fbb6036c2bffa29008a82f6a60dfb739e6aa6ed27ec"
+    },
+    {
+      "id": "B-ec09:RP-002",
+      "agent": "koala-review-quality",
+      "note": "authority-boundary.ts is pure (no I/O / network), uses readonly types and a stable L2_REQUIREMENTS list exposed via l2PlusRequirements(); independentVerifierRunId check uses trim() comparison consistent with isNonEmptyString. authority-submit.ts diff is strictly additive — classifyCliAuthoritySubmission is a thin wrapper with hardcoded receiptVerified=false and JSDoc tying back to authority-client-role.md; decideFromSingle/decideFromBatch/createAuthoritySubmitter behavior unchanged. Smoke task is in-process (assert/strict only, no fs/network), covers off/shadow/enforce-accepted/forged-partial/same-run-collapsed/missing-hash/wrapper-agreement/frozen-list, exits 1 on violation. Package script entries follow existing test:* pattern. Doc link to docs/requirements/decisions/authority-client-role.md present. No quality blockers.",
+      "createdAt": "2026-05-26T02:44:43.851Z",
+      "reviewRound": "2026-05-26T02:41:01.626Z",
+      "reviewRunId": "B-ec09:RR-004",
+      "_hash": "fecbb4c9a43f0f87530404b24db63edf2d1b2e705f7e54ad119c07ff9d39e789"
     }
   ]
 }
