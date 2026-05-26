@@ -1,0 +1,20 @@
+{
+  "findings": [
+    {
+      "id": "B-ec09:F-001",
+      "desc": "docs/requirements/decisions/authority-client-role.md §Milestone 1 scope (lines 118-121, added by B-ec09) contradicts the §Milestone Routing table immediately below it. (1) The new paragraph says \"M2 (Koala Runner CLI) is owned by the Mac/Runner repo\", but the routing table defines M2 as \"Python authority policy discovery (FU-5)\" owned by the Cord Team Python authority — the Runner CLI work is M5/FU-4 in the table, not M2. (2) The new paragraph says \"M3–M7 remain routed per the table below\", but the table only enumerates M2–M6; there is no M7. Either the paragraph mis-numbered the milestones or the table is missing M7. This drift was introduced in this story (commit 14949175) and will mis-route any future reader who relies on the new cold-read paragraph instead of the table. Fix: correct the paragraph to (a) reference M5/FU-4 (or the relevant milestone) for Runner CLI ownership and (b) state \"M3–M6\" (or add the missing M7 row).",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-05-26T02:47:11.544Z",
+      "reviewRound": "2026-05-26T02:41:01.626Z",
+      "reviewRunId": "B-ec09:RR-006",
+      "_hash": "58e392113b831b459958087e2113b453ebc0e57b917e0fc040eee9424a80e8b2",
+      "files": [
+        "docs/requirements/decisions/authority-client-role.md"
+      ]
+    }
+  ]
+}
