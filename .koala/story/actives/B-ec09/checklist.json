@@ -1,0 +1,164 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Authority trust boundary truth source is explicit and non-overclaiming",
+      "context": "Review docs/requirements/decisions/authority-client-role.md and related lifecycle docs, then update or add the smallest durable truth source that says Koala CLI is workflow client only; Runner CLI/Mac runner executes; Python authority issues receipts. Do not imply repo colocation solves trust.",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-client-role.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/truth-source.md"
+      ],
+      "userSees": "文档中能看到 “Koala CLI is workflow client, not authority; Runner executes; Python Authority issues receipts” 这类明确边界说明。",
+      "excludes": [
+        "No koala-runner CLI implementation in this story",
+        "No Python authority server code changes",
+        "No Mac Runner code changes"
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Truth source clearly separates Koala CLI, Runner CLI/Mac runner, and Python Authority responsibilities.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Docs explain that putting CLI and runner in one repo/package does not by itself make evidence authoritative.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Docs forbid claiming CLI local/shadow evidence or accepted-only POST responses as L2+ production authority receipts.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "CLI authority submission contract labels thin-client evidence as non-authoritative",
+      "context": "Harden authority-submit / authority-contract semantics so CLI-generated authority POST envelopes cannot be mistaken for L2+ production authority unless a future enforce-mode product track supplies required runner/receipt fields. Prefer explicit metadata/helpers and smoke tests over broad refactors.",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-client-role.md",
+        "docs/requirements/decisions/verification-context-pack.md"
+      ],
+      "userSees": "测试输出显示 CLI evidence remains local/shadow/thin-client and cannot certify L2+ authority without runner identity and receipt verification.",
+      "excludes": [
+        "Do not add full EvidenceEnvelope FU-1/FU-2/FU-3 implementation",
+        "Do not fake server receipts in local JSON"
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Authority envelope or submission decision exposes a local/shadow/thin-client classification that downstream code/tests can assert.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Enforce transport success based only on accepted=true is not described or typed as verified server receipt authority.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A smoke test proves missing producerRunId/verifierRunId/provider/model/vendor/hash/receipt fields cannot be upgraded to a production L2+ claim.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Gate and status surfaces warn before CLI-only authority overclaim",
+      "context": "Add or harden the minimal gate/status/doctor/smoke surface that tells agents and users when they are in local/shadow CLI-only mode versus authority-backed mode. The point is not a pretty UX command; it is a mechanical warning and regression test preventing “CLI alone proved DONE”.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/authority-client-role.md"
+      ],
+      "userSees": "运行相关 smoke/doctor/status 测试时，能看到本地 CLI-only evidence 是 advisory/local/shadow，不是 production receipt authority。",
+      "excludes": [
+        "Do not block all local development; local mode must remain usable",
+        "Do not require live Python server secrets for this milestone"
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Local/off mode remains usable and clearly classified as local evidence.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Shadow/enforce transport failures keep existing behavior but warning/error text does not overclaim receipt-backed authority.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A forged/local-only authority success path cannot pass a smoke assertion that requires server receipt-backed authority.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Milestone 1 validation and next-milestone routing are recorded",
+      "context": "Add focused tests and final docs explaining that this milestone only closes the CLI trust-boundary overclaim risk. Explicitly route Milestone 2 to Koala Runner CLI in the Mac/Runner repo and avoid opening or implementing it inside Orchestrate.",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-client-role.md"
+      ],
+      "userSees": "Story summary says Milestone 1 is complete, what remains for Milestone 2, and which repo owns it.",
+      "excludes": [
+        "No automatic creation of Milestone 2 implementation story unless user approves after DONE"
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Focused authority/client smoke tests pass and prove the boundary classification.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The story output explicitly says Runner CLI/Mac and Python authority work are separate follow-up stories.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Reviewer can verify no files outside CLI Milestone 1 scope were modified and no external repo was changed.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
