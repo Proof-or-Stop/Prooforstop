@@ -1,0 +1,68 @@
+{
+  "storyId": "B-ec09",
+  "checkedAt": "2026-05-26T02:59:16.269Z",
+  "reviewRound": "2026-05-26T02:51:08.559Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/authority-client-role.md#trust-boundary-b-ec09-milestone-1-hardening",
+      "promise": "Three roles named: Koala CLI = workflow client; Koala Runner CLI / Mac Runner = execution plane; Python Authority = receipt authority. CLI never produces production-grade authority evidence.",
+      "status": "met",
+      "verifiedBy": "grep+read",
+      "evidence": "authority-client-role.md lines 49-63 enumerate the three roles cold-readably; matches summary.json and classifier scope."
+    },
+    {
+      "docPath": "docs/requirements/decisions/authority-client-role.md#cold-read-definition-of-l2-authority",
+      "promise": "L2+ authority requires producerRunId, verifierRunId distinct from producerRunId (independentVerifierRunId), provider, model, vendor, commandDigest, transcriptHash, diffHash, ed25519 envelope signature, and verified AuthorityReceipt — missing any one disqualifies L2+.",
+      "status": "met",
+      "verifiedBy": "grep+code",
+      "evidence": "Doc lines 65-94 enumerate the requirements including same-run envelope rejection; authority-boundary.ts L2_REQUIREMENTS (lines 80-92) lists exactly these 11 fields and missingL2Requirements() (lines 103-131) enforces independentVerifierRunId when producerRunId === verifierRunId."
+    },
+    {
+      "docPath": "docs/requirements/decisions/authority-client-role.md#transport-acceptance-is-not-receipt-verification",
+      "promise": "Server accepted=true is transport acceptance, not signed receipt verification; classifier returns thin-client-transport-accepted, never receipt-backed-l2-plus.",
+      "status": "met",
+      "verifiedBy": "grep+code",
+      "evidence": "Doc lines 96-103 state the contract; authority-boundary.ts classifyAuthorityEvidence() (lines 169-176) returns 'thin-client-transport-accepted' when transportAccepted=true and missing.length>0; receipt-backed-l2-plus branch (lines 150-158) requires missing.length===0."
+    },
+    {
+      "docPath": "docs/requirements/decisions/authority-client-role.md#milestone-1-scope",
+      "promise": "Milestone 1 scope corrected: M2 = Python authority policy discovery (Cord Team), M5/FU-4 runner work = Mac/Swift repo, M3-M6 routed per the table (no M7).",
+      "status": "met",
+      "verifiedBy": "grep+commit",
+      "evidence": "Doc lines 114-124 now reference 'M2 (Python authority policy discovery, FU-5)', 'M5/FU-4 (Mac/Runner ...)', and 'M3-M6 remain routed per the table below'; commit 45212b2c (F-001 resolution) fixed the earlier mis-routing flagged by koala-review-docs."
+    },
+    {
+      "docPath": ".koala/story/actives/B-ec09/evidence/transcript-diff.md",
+      "promise": "Smoke command npm run test:authority-boundary-smoke is available and prints the visible pass line.",
+      "status": "met",
+      "verifiedBy": "grep+transcript",
+      "evidence": "package.json:64 + packages/main/package.json:56 wire the script to node dist/tasks/authority-boundary-smoke.js; transcript-diff.md lines 21-29 capture the exact visible pass line; tasks/authority-boundary-smoke.ts present (307 lines) covering happy + adversarial same-run-envelope cases."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "authority-boundary.ts classifier implemented with 11-field L2_REQUIREMENTS and same-run independentVerifierRunId guard; verified by reading source and via npm run test:authority-boundary-smoke printing '✓ authority boundary smoke passed: CLI evidence is local/shadow/thin-client, not receipt-backed L2+ authority' (see transcript-diff.md)."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "authority-submit.ts adds classifyCliAuthoritySubmission wrapper labeling CLI submissions; smoke run captured in transcript-diff.md exercises both transport-accepted and same-run adversarial paths and confirms neither classifies as receipt-backed-l2-plus."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "authority-client-role.md trust boundary + L2+ definition + transport-vs-receipt section landed (commit 14949175) and routing-table paragraph drift corrected (commit 45212b2c); grep verified doc references match classifier field set."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "koala validate --story=B-ec09 --json => status=pass, allPass=true, verification intent coverage 12/12 covered, 0 required missing (DONE pre-check Test evidence PASS @ 2026-05-26T02:56:52.863Z, session_brief)."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Milestone 1 hardening delivered: durable trust-boundary docs, mechanical 11-field L2+ classifier (including independentVerifierRunId same-run guard), labeled CLI submission wrapper, and adversarial authority-boundary smoke; M2/M5 cross-repo work and M3-M6 CLI follow-ups remain explicitly out-of-scope per routing table."
+  },
+  "_hash": "08de60a2e48119ceb49089a288cb538532deb9efa5b9b2fce637fbd762d311f2"
+}
