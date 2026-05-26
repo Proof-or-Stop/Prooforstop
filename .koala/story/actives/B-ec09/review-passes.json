@@ -35,6 +35,15 @@
       "reviewRound": "2026-05-26T02:51:08.559Z",
       "reviewRunId": "B-ec09:RR-007",
       "_hash": "4a950fa0827545396780f3b0028fc783b597a9bc85b9708170dce8232d845ea5"
+    },
+    {
+      "id": "B-ec09:RP-005",
+      "agent": "koala-review-quality",
+      "note": "Quality re-review after F-001 docs fix: authority-boundary.ts is pure (no I/O, well-typed, frozen L2_REQUIREMENTS, isNonEmptyString guard, independentVerifierRunId collapse covers whitespace via trim). authority-submit.ts isolates I/O behind injectable AuthoritySubmitter; classifyCliAuthoritySubmission is a pure wrapper with hardcoded receiptVerified=false matching CLAUDE.md handler convention; degradeThrow/handleMissingURL keep shadow non-blocking and enforce gating consistent. authority-boundary-smoke.ts is pure in-process (no fs/network), covers off/shadow/enforce-accepted/forged-partial/same-run/whitespace-collapse/missing-hash-bindings/wrapper-agrees/frozen-list. package.json + packages/main/package.json scripts wired symmetrically with sibling tests. Docs paragraph (lines 47-122 of authority-client-role.md) is consistent with the routing table after F-001 fix and references concrete code paths. No dead code, no type holes, no I/O leaking into core. No blockers.",
+      "createdAt": "2026-05-26T02:53:29.703Z",
+      "reviewRound": "2026-05-26T02:51:08.559Z",
+      "reviewRunId": "B-ec09:RR-008",
+      "_hash": "37717913e1fe5042deac129477a15415e6894781408f32ab779c5d8933a1134a"
     }
   ]
 }
