@@ -46,6 +46,68 @@ runner identity, and server receipt verification are implemented and reviewed in
 
 ---
 
+## Trust Boundary (B-ec09 / Milestone 1 hardening)
+
+Three roles, named so the boundary is cold-readable without prior context:
+
+1. **Koala CLI — workflow client** (`@koala-agent/core`, this repo). Drives the
+   Story lifecycle, runs local validations, and may POST observational evidence
+   in `shadow` mode or transport-only evidence in `enforce` mode. **The CLI
+   never produces production-grade authority evidence.**
+2. **Koala Runner CLI / Mac Runner — execution plane** (separate Mac/Swift repo
+   and forthcoming Runner CLI). Owns actor-key registration, runner heartbeat,
+   ed25519-signed evidence envelopes, and the run identity that L2+ evidence
+   binds to.
+3. **Python Authority — receipt authority** (separate Python repo). Owns the
+   authoritative receipt: only a signed `AuthorityReceipt` whose signature is
+   verified against a registered actor key counts as production authority.
+
+### Cold-read definition of L2+ authority
+
+> **L2+ authority evidence** is production-grade authority evidence that is (a)
+> bound to an independent actor / run identity (`producerRunId`,
+> `verifierRunId`, `provider`, `model`, `vendor`), (b) carries an ed25519
+> signature from a registered runner actor key, and (c) is acknowledged by the
+> Python authority via a signed `AuthorityReceipt` whose signature has been
+> cryptographically verified by the consumer. Anything missing **any** of (a),
+> (b), or (c) is not L2+ authority.
+
+The Koala CLI envelope (`buildEnvelope` in
+[`packages/main/src/core/authority-submit.ts`](../../../packages/main/src/core/authority-submit.ts))
+is a strict subset that lacks (a), (b), and (c) by design under PD-1. The
+boundary classifier
+[`packages/main/src/core/authority-boundary.ts`](../../../packages/main/src/core/authority-boundary.ts)
+enumerates the required fields (`producerRunId`, `verifierRunId`, `provider`,
+`model`, `vendor`, `envelopeSignature`, `verifiedAuthorityReceipt`) and is the
+mechanical truth source for "is this submission L2+?".
+
+### Transport acceptance is NOT receipt verification
+
+When the authority server returns `accepted: true` to a CLI POST, that is
+**transport acceptance** of the submission. It is **not** verification of a
+signed `AuthorityReceipt`. The CLI does not verify receipt signatures today and
+must not present transport-accepted submissions as authoritative. The
+classifier returns `thin-client-transport-accepted` for this case — never
+`receipt-backed-l2-plus`.
+
+### No overclaim by colocation
+
+Colocating the CLI, runner, or authority code in one repo or one npm package
+**does not** make CLI-shaped evidence authoritative. Authority is determined by
+the mechanical L2+ requirements above, not by repository layout, package name,
+build pipeline, or process boundary. A future Runner CLI shipped from this same
+monorepo would still need to satisfy (a)+(b)+(c) before any of its evidence
+counts as L2+.
+
+### Milestone 1 scope
+
+B-ec09 lands only this hardening: durable trust-boundary docs, the mechanical
+classifier, a labeled transport-acceptance helper in `authority-submit.ts`, and
+the `test:authority-boundary-smoke` adversarial test. M2 (Koala Runner CLI) is
+owned by the Mac/Runner repo and is **not** auto-opened by this story. M3–M7
+remain routed per the table below and require an explicit enforce-mode product
+approval before any CLI authority-client code lands.
+
 ## L2+ Evidence Boundary
 
 **Koala CLI must not claim or certify L2+ authority evidence** until the following gaps are

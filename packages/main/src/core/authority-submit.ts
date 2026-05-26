@@ -6,6 +6,7 @@ import {
   type AuthorityEvidenceSubmissionResult,
   type EvidenceEnvelopeContract,
 } from './authority-contracts.js';
+import { classifyAuthorityEvidence, type AuthorityClassification } from './authority-boundary.js';
 import {
   authorityModeEnabled,
   loadAuthoritySettings,
@@ -100,7 +101,32 @@ function describeOutcome(outcome: AuthorityClientOutcome<unknown>): string {
  *            single stderr warning. Local write is never blocked (Blocker 3).
  * - enforce: success -> proceed=true; any failure -> proceed=false + error
  *            (pre-POST gating, zero local write, Blocker 4).
+ *
+ * Trust-boundary note (B-ec09 / authority-client-role.md §L2+ Evidence Boundary):
+ * an `accepted=true` outcome here is **transport acceptance** of the POST by the
+ * Python authority server. It is NOT verification of a signed AuthorityReceipt
+ * and does NOT promote a CLI submission to receipt-backed L2+ authority. The
+ * CLI envelope is a strict subset (no run bindings / provider / model / vendor /
+ * actor signature), so `classifyAuthorityEvidence` will return one of the
+ * `thin-client-*` / `local-only` classes for every CLI submission today.
  */
+export function classifyCliAuthoritySubmission(
+  mode: AuthorityMode,
+  envelope: EvidenceEnvelopeContract,
+  transportAccepted: boolean,
+): AuthorityClassification {
+  // CLI never verifies the AuthorityReceipt signature today (advisory A1 /
+  // matrix #2 in the cross-end audit). Hardcoded false until a dedicated
+  // receipt-verification story lands.
+  return classifyAuthorityEvidence({
+    mode,
+    envelope,
+    receiptVerified: false,
+    transportAccepted,
+  });
+}
+
+
 function decideFromSingle(
   mode: AuthorityMode,
   outcome: AuthorityClientOutcome<AuthorityEvidenceSubmissionResult>,
