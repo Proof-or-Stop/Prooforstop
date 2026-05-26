@@ -113,9 +113,44 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-26T02:39:19.402Z",
-      "endTime": null
+      "endTime": "2026-05-26T02:39:35.249Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/authority-boundary.ts",
+          "command": "rg -n \"classifyAuthorityEvidence|thin-client-transport-accepted|independentVerifierRunId|commandDigest|transcriptHash|diffHash\" packages/main/src/core/authority-boundary.ts packages/main/src/core/authority-submit.ts",
+          "result": "pass",
+          "note": "Classifier and authority-submit wrapper expose local-only/thin-client/receipt-backed classes with L2+ requirements including independent verifier run and command/transcript/diff hashes.",
+          "headHash": "ead8ba4e118f47886f5aca1be8f40337a7a0089c",
+          "materialHash": "78bd7a3db1a7dedf583c0662dd65e4b0cc9f6e1508a2ab4489c190ed1df7cbc6",
+          "timestamp": "2026-05-26T02:39:35.314Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/authority-submit.ts",
+          "command": "npm run test:authority-client",
+          "result": "pass",
+          "note": "Existing authority client smoke remains compatible; authority-submit comment and wrapper label accepted=true as transport acceptance, not receipt verification.",
+          "headHash": "ead8ba4e118f47886f5aca1be8f40337a7a0089c",
+          "materialHash": "78bd7a3db1a7dedf583c0662dd65e4b0cc9f6e1508a2ab4489c190ed1df7cbc6",
+          "timestamp": "2026-05-26T02:39:35.362Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/authority-boundary-smoke.ts",
+          "command": "npm run test:authority-boundary-smoke",
+          "result": "pass",
+          "note": "Smoke proves missing run/provider/model/vendor/hash/signature/receipt fields, same-run verifier collapse, and accepted=true cannot upgrade CLI evidence to receipt-backed L2+. Output: ✓ authority boundary smoke passed: CLI evidence is local/shadow/thin-client, not receipt-backed L2+ authority.",
+          "headHash": "ead8ba4e118f47886f5aca1be8f40337a7a0089c",
+          "materialHash": "78bd7a3db1a7dedf583c0662dd65e4b0cc9f6e1508a2ab4489c190ed1df7cbc6",
+          "timestamp": "2026-05-26T02:39:35.456Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -205,6 +240,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Docs implemented and independently rg-verified after Claude Code commits.",
+      "agent": "Codex supervisor"
+    },
+    {
+      "timestamp": "2026-05-26T02:39:35.249Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Authority classifier and submission wrapper verified after supervisor caught and fixed hash/run-independence gaps.",
       "agent": "Codex supervisor"
     }
   ]
