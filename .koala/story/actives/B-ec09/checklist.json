@@ -38,9 +38,44 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-05-26T02:25:52.699Z",
+      "endTime": "2026-05-26T02:39:07.852Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/authority-client-role.md",
+          "command": "rg -n \"Koala CLI — workflow client|Koala Runner CLI / Mac Runner — execution plane|Python Authority — receipt authority\" docs/requirements/decisions/authority-client-role.md",
+          "result": "pass",
+          "note": "Lines 53/57/61 define CLI as workflow client, Runner/Mac as execution plane, and Python Authority as receipt authority.",
+          "headHash": "b4e77191fbce8cd354fd24ce75eb18fc8723ba87",
+          "materialHash": "1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6",
+          "timestamp": "2026-05-26T02:49:49.619Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/authority-client-role.md",
+          "command": "rg -n \"No overclaim by colocation|does not make CLI-shaped evidence authoritative\" docs/requirements/decisions/authority-client-role.md",
+          "result": "pass",
+          "note": "Doc includes the explicit no-overclaim-by-colocation boundary.",
+          "headHash": "b4e77191fbce8cd354fd24ce75eb18fc8723ba87",
+          "materialHash": "1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6",
+          "timestamp": "2026-05-26T02:49:49.619Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/authority-client-role.md",
+          "command": "rg -n \"Transport acceptance is NOT receipt verification|not L2\\+ authority|receipt-backed-l2-plus\" docs/requirements/decisions/authority-client-role.md",
+          "result": "pass",
+          "note": "Doc forbids treating accepted-only transport or CLI local/shadow evidence as L2+ receipt-backed authority.",
+          "headHash": "b4e77191fbce8cd354fd24ce75eb18fc8723ba87",
+          "materialHash": "1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6",
+          "timestamp": "2026-05-26T02:49:49.619Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -78,9 +113,44 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-05-26T02:39:19.402Z",
+      "endTime": "2026-05-26T02:39:35.249Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/authority-boundary.ts",
+          "command": "rg -n \"classifyAuthorityEvidence|thin-client-transport-accepted|independentVerifierRunId|commandDigest|transcriptHash|diffHash\" packages/main/src/core/authority-boundary.ts packages/main/src/core/authority-submit.ts",
+          "result": "pass",
+          "note": "Classifier and authority-submit wrapper expose local-only/thin-client/receipt-backed classes with L2+ requirements including independent verifier run and command/transcript/diff hashes.",
+          "headHash": "b4e77191fbce8cd354fd24ce75eb18fc8723ba87",
+          "materialHash": "1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6",
+          "timestamp": "2026-05-26T02:49:49.619Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/authority-submit.ts",
+          "command": "npm run test:authority-client",
+          "result": "pass",
+          "note": "Existing authority client smoke remains compatible; authority-submit comment and wrapper label accepted=true as transport acceptance, not receipt verification.",
+          "headHash": "b4e77191fbce8cd354fd24ce75eb18fc8723ba87",
+          "materialHash": "1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6",
+          "timestamp": "2026-05-26T02:49:49.619Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/authority-boundary-smoke.ts",
+          "command": "npm run test:authority-boundary-smoke",
+          "result": "pass",
+          "note": "Smoke proves missing run/provider/model/vendor/hash/signature/receipt fields, same-run verifier collapse, and accepted=true cannot upgrade CLI evidence to receipt-backed L2+. Output: ✓ authority boundary smoke passed: CLI evidence is local/shadow/thin-client, not receipt-backed L2+ authority.",
+          "headHash": "b4e77191fbce8cd354fd24ce75eb18fc8723ba87",
+          "materialHash": "1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6",
+          "timestamp": "2026-05-26T02:49:49.619Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -118,9 +188,44 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-05-26T02:39:41.864Z",
+      "endTime": "2026-05-26T02:39:54.914Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/authority-boundary-smoke.ts",
+          "command": "npm run test:authority-boundary-smoke",
+          "result": "pass",
+          "note": "Smoke covers off mode as local-only and prints the user-visible non-receipt-backed thin-client boundary line.",
+          "headHash": "b4e77191fbce8cd354fd24ce75eb18fc8723ba87",
+          "materialHash": "1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6",
+          "timestamp": "2026-05-26T02:49:49.619Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/authority-evidence-flow-smoke.ts",
+          "command": "npm run test:authority-evidence-flow",
+          "result": "pass",
+          "note": "Existing shadow/enforce authority evidence flow smoke still passes, preserving transport behavior while new wording prevents receipt-backed overclaim.",
+          "headHash": "b4e77191fbce8cd354fd24ce75eb18fc8723ba87",
+          "materialHash": "1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6",
+          "timestamp": "2026-05-26T02:49:49.619Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-boundary-smoke.ts",
+          "command": "npm run test:authority-boundary-smoke",
+          "result": "pass",
+          "note": "Adversarial cases prove forged partial fields, missing hashes, same-run verifier collapse, and accepted=true do not pass receipt-backed L2+ classification.",
+          "headHash": "b4e77191fbce8cd354fd24ce75eb18fc8723ba87",
+          "materialHash": "1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6",
+          "timestamp": "2026-05-26T02:49:49.619Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -156,9 +261,86 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-05-26T02:40:13.446Z",
+      "endTime": "2026-05-26T02:50:39.832Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/authority-boundary-smoke.ts",
+          "command": "npm run build && npm run test:authority-boundary-smoke && npm run test:authority-client && npm run test:authority-evidence-flow",
+          "result": "pass",
+          "note": "Build plus focused boundary/client/evidence-flow smokes pass and prove the boundary classification.",
+          "headHash": "b10728346c1cd0a94742a73f403b575dad48fe0c",
+          "materialHash": "1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6",
+          "timestamp": "2026-05-26T02:50:39.907Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/authority-client-role.md",
+          "command": "rg -n \"Milestone 1 scope|M2 \\(Python authority|M5/FU-4|M3–M6|not auto-opened|enforce-mode product approval\" docs/requirements/decisions/authority-client-role.md .koala/story/actives/B-ec09/plan.md",
+          "result": "pass",
+          "note": "Docs state B-ec09 completes only M1; M2 is Python authority policy discovery, M5/FU-4 is Mac/Runner work, M3-M6 remain routed in the table, and no follow-up is auto-opened.",
+          "headHash": "b10728346c1cd0a94742a73f403b575dad48fe0c",
+          "materialHash": "1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6",
+          "timestamp": "2026-05-26T02:50:39.962Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": ".koala/story/actives/B-ec09/scope-contract.json",
+          "command": "koala scope_contract_check --storyId=B-ec09 --json && git status --short",
+          "result": "pass",
+          "note": "Scope contract passes with no violations; git status was clean before metadata-only checklist updates, proving no external Mac/Python/Runner scope was modified.",
+          "headHash": "b10728346c1cd0a94742a73f403b575dad48fe0c",
+          "materialHash": "1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6",
+          "timestamp": "2026-05-26T02:50:40.013Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-05-26T02:39:07.852Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Docs implemented and independently rg-verified after Claude Code commits.",
+      "agent": "Codex supervisor"
+    },
+    {
+      "timestamp": "2026-05-26T02:39:35.249Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Authority classifier and submission wrapper verified after supervisor caught and fixed hash/run-independence gaps.",
+      "agent": "Codex supervisor"
+    },
+    {
+      "timestamp": "2026-05-26T02:39:54.914Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Gate/status warning surface is the focused authority-boundary smoke plus compatibility smoke; no live authority server required.",
+      "agent": "Codex supervisor"
+    },
+    {
+      "timestamp": "2026-05-26T02:40:27.404Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Milestone 1 validation, routing, and scope evidence recorded after supervisor verification.",
+      "agent": "Codex supervisor"
     }
   ]
 }

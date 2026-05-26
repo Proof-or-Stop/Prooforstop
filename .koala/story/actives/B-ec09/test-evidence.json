@@ -1,0 +1,255 @@
+{
+  "command": "koala validate --story=B-ec09 --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.3 test\",\"  > npm run test:e2e\",\"  > koala@0.3.3 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 12/12 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/docs] covered via docs_check (docs/requirements/decisions/authority-client-role.md) — Truth source clearly separates Koala CLI, Runner CLI/Mac runner, and Python Authority responsibilities.\",\"  ✓ CHK-001:edge:0 [edge/must/docs] covered via docs_check (docs/requirements/decisions/authority-client-role.md) — Docs explain that putting CLI and runner in one repo/package does not by itself make evidence authoritative.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/docs] covered via docs_check (docs/requirements/decisions/authority-client-role.md) — Docs forbid claiming CLI local/shadow evidence or accepted-only POST responses as L2+ production authority receipts.\",\"  ✓ CHK-002:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/core/authority-boundary.ts) — Authority envelope or submission decision exposes a local/shadow/thin-client classification that downstream code/tests can assert.\",\"  ✓ CHK-002:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/core/authority-submit.ts) — Enforce transport success based only on accepted=true is not described or typed as verified server receipt authority.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via manual_transcript (packages/main/src/tasks/authority-boundary-smoke.ts) — A smoke test proves missing producerRunId/verifierRunId/provider/model/vendor/hash/receipt fields cannot be upgraded to a production L2+ claim.\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via manual_transcript (packages/main/src/tasks/authority-boundary-smoke.ts) — Local/off mode remains usable and clearly classified as local evidence.\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via manual_transcript (packages/main/src/tasks/authority-evidence-flow-smoke.ts) — Shadow/enforce transport failures keep existing behavior but warning/error text does not overclaim receipt-backed authority.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/authority-boundary-smoke.ts) — A forged/local-only authority success path cannot pass a smoke assertion that requires server receipt-backed authority.\",\"  ✓ CHK-004:happy:0 [happy/must/cli] covered via manual_transcript (packages/main/src/tasks/authority-boundary-smoke.ts) — Focused authority/client smoke tests pass and prove the boundary classification.\",\"  ✓ CHK-004:edge:0 [edge/must/docs] covered via docs_check (docs/requirements/decisions/authority-client-role.md) — The story output explicitly says Runner CLI/Mac and Python authority work are separate follow-up stories.\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/logic] covered via logic_test (.koala/story/actives/B-ec09/scope-contract.json) — Reviewer can verify no files outside CLI Milestone 1 scope were modified and no external repo was changed.\"],\"warnings\":[],\"timestamp\":\"2026-05-26T02:56:52.256Z\",\"headSha\":\"bc21320dcb5e5b4f79feca61f34e321f8677054a\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.3 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.3 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":2004}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":12,\"reason\":\"verificationIntent entries present (12)\"},\"verificationCoverage\":{\"total\":12,\"required\":12,\"covered\":12,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Truth source clearly separates Koala CLI, Runner CLI/Mac runner, and Python Authority responsibilities.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/authority-client-role.md\",\"command\":\"rg -n \\\"Koala CLI — workflow client|Koala Runner CLI / Mac Runner — execution plane|Python Authority — receipt authority\\\" docs/requirements/decisions/authority-client-role.md\",\"result\":\"pass\",\"note\":\"Lines 53/57/61 define CLI as workflow client, Runner/Mac as execution plane, and Python Authority as receipt authority.\",\"headHash\":\"b4e77191fbce8cd354fd24ce75eb18fc8723ba87\",\"materialHash\":\"1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6\",\"timestamp\":\"2026-05-26T02:49:49.619Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Docs explain that putting CLI and runner in one repo/package does not by itself make evidence authoritative.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/authority-client-role.md\",\"command\":\"rg -n \\\"No overclaim by colocation|does not make CLI-shaped evidence authoritative\\\" docs/requirements/decisions/authority-client-role.md\",\"result\":\"pass\",\"note\":\"Doc includes the explicit no-overclaim-by-colocation boundary.\",\"headHash\":\"b4e77191fbce8cd354fd24ce75eb18fc8723ba87\",\"materialHash\":\"1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6\",\"timestamp\":\"2026-05-26T02:49:49.619Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Docs forbid claiming CLI local/shadow evidence or accepted-only POST responses as L2+ production authority receipts.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/authority-client-role.md\",\"command\":\"rg -n \\\"Transport acceptance is NOT receipt verification|not L2\\\\+ authority|receipt-backed-l2-plus\\\" docs/requirements/decisions/authority-client-role.md\",\"result\":\"pass\",\"note\":\"Doc forbids treating accepted-only transport or CLI local/shadow evidence as L2+ receipt-backed authority.\",\"headHash\":\"b4e77191fbce8cd354fd24ce75eb18fc8723ba87\",\"materialHash\":\"1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6\",\"timestamp\":\"2026-05-26T02:49:49.619Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"Authority envelope or submission decision exposes a local/shadow/thin-client classification that downstream code/tests can assert.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/core/authority-boundary.ts\",\"command\":\"rg -n \\\"classifyAuthorityEvidence|thin-client-transport-accepted|independentVerifierRunId|commandDigest|transcriptHash|diffHash\\\" packages/main/src/core/authority-boundary.ts packages/main/src/core/authority-submit.ts\",\"result\":\"pass\",\"note\":\"Classifier and authority-submit wrapper expose local-only/thin-client/receipt-backed classes with L2+ requirements including independent verifier run and command/transcript/diff hashes.\",\"headHash\":\"b4e77191fbce8cd354fd24ce75eb18fc8723ba87\",\"materialHash\":\"1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6\",\"timestamp\":\"2026-05-26T02:49:49.619Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Enforce transport success based only on accepted=true is not described or typed as verified server receipt authority.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/core/authority-submit.ts\",\"command\":\"npm run test:authority-client\",\"result\":\"pass\",\"note\":\"Existing authority client smoke remains compatible; authority-submit comment and wrapper label accepted=true as transport acceptance, not receipt verification.\",\"headHash\":\"b4e77191fbce8cd354fd24ce75eb18fc8723ba87\",\"materialHash\":\"1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6\",\"timestamp\":\"2026-05-26T02:49:49.619Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"A smoke test proves missing producerRunId/verifierRunId/provider/model/vendor/hash/receipt fields cannot be upgraded to a production L2+ claim.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/src/tasks/authority-boundary-smoke.ts\",\"command\":\"npm run test:authority-boundary-smoke\",\"result\":\"pass\",\"note\":\"Smoke proves missing run/provider/model/vendor/hash/signature/receipt fields, same-run verifier collapse, and accepted=true cannot upgrade CLI evidence to receipt-backed L2+. Output: ✓ authority boundary smoke passed: CLI evidence is local/shadow/thin-client, not receipt-backed L2+ authority.\",\"headHash\":\"b4e77191fbce8cd354fd24ce75eb18fc8723ba87\",\"materialHash\":\"1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6\",\"timestamp\":\"2026-05-26T02:49:49.619Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Local/off mode remains usable and clearly classified as local evidence.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/src/tasks/authority-boundary-smoke.ts\",\"command\":\"npm run test:authority-boundary-smoke\",\"result\":\"pass\",\"note\":\"Smoke covers off mode as local-only and prints the user-visible non-receipt-backed thin-client boundary line.\",\"headHash\":\"b4e77191fbce8cd354fd24ce75eb18fc8723ba87\",\"materialHash\":\"1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6\",\"timestamp\":\"2026-05-26T02:49:49.619Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Shadow/enforce transport failures keep existing behavior but warning/error text does not overclaim receipt-backed authority.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/src/tasks/authority-evidence-flow-smoke.ts\",\"command\":\"npm run test:authority-evidence-flow\",\"result\":\"pass\",\"note\":\"Existing shadow/enforce authority evidence flow smoke still passes, preserving transport behavior while new wording prevents receipt-backed overclaim.\",\"headHash\":\"b4e77191fbce8cd354fd24ce75eb18fc8723ba87\",\"materialHash\":\"1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6\",\"timestamp\":\"2026-05-26T02:49:49.619Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"A forged/local-only authority success path cannot pass a smoke assertion that requires server receipt-backed authority.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/authority-boundary-smoke.ts\",\"command\":\"npm run test:authority-boundary-smoke\",\"result\":\"pass\",\"note\":\"Adversarial cases prove forged partial fields, missing hashes, same-run verifier collapse, and accepted=true do not pass receipt-backed L2+ classification.\",\"headHash\":\"b4e77191fbce8cd354fd24ce75eb18fc8723ba87\",\"materialHash\":\"1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6\",\"timestamp\":\"2026-05-26T02:49:49.619Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"Focused authority/client smoke tests pass and prove the boundary classification.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/src/tasks/authority-boundary-smoke.ts\",\"command\":\"npm run build && npm run test:authority-boundary-smoke && npm run test:authority-client && npm run test:authority-evidence-flow\",\"result\":\"pass\",\"note\":\"Build plus focused boundary/client/evidence-flow smokes pass and prove the boundary classification.\",\"headHash\":\"b10728346c1cd0a94742a73f403b575dad48fe0c\",\"materialHash\":\"1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6\",\"timestamp\":\"2026-05-26T02:50:39.907Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"The story output explicitly says Runner CLI/Mac and Python authority work are separate follow-up stories.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/authority-client-role.md\",\"command\":\"rg -n \\\"Milestone 1 scope|M2 \\\\(Python authority|M5/FU-4|M3–M6|not auto-opened|enforce-mode product approval\\\" docs/requirements/decisions/authority-client-role.md .koala/story/actives/B-ec09/plan.md\",\"result\":\"pass\",\"note\":\"Docs state B-ec09 completes only M1; M2 is Python authority policy discovery, M5/FU-4 is Mac/Runner work, M3-M6 remain routed in the table, and no follow-up is auto-opened.\",\"headHash\":\"b10728346c1cd0a94742a73f403b575dad48fe0c\",\"materialHash\":\"1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6\",\"timestamp\":\"2026-05-26T02:50:39.962Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"Reviewer can verify no files outside CLI Milestone 1 scope were modified and no external repo was changed.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"logic_test\",\"file\":\".koala/story/actives/B-ec09/scope-contract.json\",\"command\":\"koala scope_contract_check --storyId=B-ec09 --json && git status --short\",\"result\":\"pass\",\"note\":\"Scope contract passes with no violations; git status was clean before metadata-only checklist updates, proving no external Mac/Python/Runner scope was modified.\",\"headHash\":\"b10728346c1cd0a94742a73f403b575dad48fe0c\",\"materialHash\":\"1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6\",\"timestamp\":\"2026-05-26T02:50:40.013Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-05-26T02:56:52.863Z",
+  "headHash": "bc21320dcb5e5b4f79feca61f34e321f8677054a",
+  "verificationCoverage": {
+    "total": 12,
+    "required": 12,
+    "covered": 12,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "Truth source clearly separates Koala CLI, Runner CLI/Mac runner, and Python Authority responsibilities.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/authority-client-role.md",
+          "command": "rg -n \"Koala CLI — workflow client|Koala Runner CLI / Mac Runner — execution plane|Python Authority — receipt authority\" docs/requirements/decisions/authority-client-role.md",
+          "result": "pass",
+          "note": "Lines 53/57/61 define CLI as workflow client, Runner/Mac as execution plane, and Python Authority as receipt authority.",
+          "headHash": "b4e77191fbce8cd354fd24ce75eb18fc8723ba87",
+          "materialHash": "1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6",
+          "timestamp": "2026-05-26T02:49:49.619Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Docs explain that putting CLI and runner in one repo/package does not by itself make evidence authoritative.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/authority-client-role.md",
+          "command": "rg -n \"No overclaim by colocation|does not make CLI-shaped evidence authoritative\" docs/requirements/decisions/authority-client-role.md",
+          "result": "pass",
+          "note": "Doc includes the explicit no-overclaim-by-colocation boundary.",
+          "headHash": "b4e77191fbce8cd354fd24ce75eb18fc8723ba87",
+          "materialHash": "1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6",
+          "timestamp": "2026-05-26T02:49:49.619Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Docs forbid claiming CLI local/shadow evidence or accepted-only POST responses as L2+ production authority receipts.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/authority-client-role.md",
+          "command": "rg -n \"Transport acceptance is NOT receipt verification|not L2\\+ authority|receipt-backed-l2-plus\" docs/requirements/decisions/authority-client-role.md",
+          "result": "pass",
+          "note": "Doc forbids treating accepted-only transport or CLI local/shadow evidence as L2+ receipt-backed authority.",
+          "headHash": "b4e77191fbce8cd354fd24ce75eb18fc8723ba87",
+          "materialHash": "1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6",
+          "timestamp": "2026-05-26T02:49:49.619Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "Authority envelope or submission decision exposes a local/shadow/thin-client classification that downstream code/tests can assert.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/authority-boundary.ts",
+          "command": "rg -n \"classifyAuthorityEvidence|thin-client-transport-accepted|independentVerifierRunId|commandDigest|transcriptHash|diffHash\" packages/main/src/core/authority-boundary.ts packages/main/src/core/authority-submit.ts",
+          "result": "pass",
+          "note": "Classifier and authority-submit wrapper expose local-only/thin-client/receipt-backed classes with L2+ requirements including independent verifier run and command/transcript/diff hashes.",
+          "headHash": "b4e77191fbce8cd354fd24ce75eb18fc8723ba87",
+          "materialHash": "1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6",
+          "timestamp": "2026-05-26T02:49:49.619Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Enforce transport success based only on accepted=true is not described or typed as verified server receipt authority.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/authority-submit.ts",
+          "command": "npm run test:authority-client",
+          "result": "pass",
+          "note": "Existing authority client smoke remains compatible; authority-submit comment and wrapper label accepted=true as transport acceptance, not receipt verification.",
+          "headHash": "b4e77191fbce8cd354fd24ce75eb18fc8723ba87",
+          "materialHash": "1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6",
+          "timestamp": "2026-05-26T02:49:49.619Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "A smoke test proves missing producerRunId/verifierRunId/provider/model/vendor/hash/receipt fields cannot be upgraded to a production L2+ claim.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/authority-boundary-smoke.ts",
+          "command": "npm run test:authority-boundary-smoke",
+          "result": "pass",
+          "note": "Smoke proves missing run/provider/model/vendor/hash/signature/receipt fields, same-run verifier collapse, and accepted=true cannot upgrade CLI evidence to receipt-backed L2+. Output: ✓ authority boundary smoke passed: CLI evidence is local/shadow/thin-client, not receipt-backed L2+ authority.",
+          "headHash": "b4e77191fbce8cd354fd24ce75eb18fc8723ba87",
+          "materialHash": "1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6",
+          "timestamp": "2026-05-26T02:49:49.619Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Local/off mode remains usable and clearly classified as local evidence.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/authority-boundary-smoke.ts",
+          "command": "npm run test:authority-boundary-smoke",
+          "result": "pass",
+          "note": "Smoke covers off mode as local-only and prints the user-visible non-receipt-backed thin-client boundary line.",
+          "headHash": "b4e77191fbce8cd354fd24ce75eb18fc8723ba87",
+          "materialHash": "1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6",
+          "timestamp": "2026-05-26T02:49:49.619Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Shadow/enforce transport failures keep existing behavior but warning/error text does not overclaim receipt-backed authority.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/authority-evidence-flow-smoke.ts",
+          "command": "npm run test:authority-evidence-flow",
+          "result": "pass",
+          "note": "Existing shadow/enforce authority evidence flow smoke still passes, preserving transport behavior while new wording prevents receipt-backed overclaim.",
+          "headHash": "b4e77191fbce8cd354fd24ce75eb18fc8723ba87",
+          "materialHash": "1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6",
+          "timestamp": "2026-05-26T02:49:49.619Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "A forged/local-only authority success path cannot pass a smoke assertion that requires server receipt-backed authority.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-boundary-smoke.ts",
+          "command": "npm run test:authority-boundary-smoke",
+          "result": "pass",
+          "note": "Adversarial cases prove forged partial fields, missing hashes, same-run verifier collapse, and accepted=true do not pass receipt-backed L2+ classification.",
+          "headHash": "b4e77191fbce8cd354fd24ce75eb18fc8723ba87",
+          "materialHash": "1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6",
+          "timestamp": "2026-05-26T02:49:49.619Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "Focused authority/client smoke tests pass and prove the boundary classification.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/authority-boundary-smoke.ts",
+          "command": "npm run build && npm run test:authority-boundary-smoke && npm run test:authority-client && npm run test:authority-evidence-flow",
+          "result": "pass",
+          "note": "Build plus focused boundary/client/evidence-flow smokes pass and prove the boundary classification.",
+          "headHash": "b10728346c1cd0a94742a73f403b575dad48fe0c",
+          "materialHash": "1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6",
+          "timestamp": "2026-05-26T02:50:39.907Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "The story output explicitly says Runner CLI/Mac and Python authority work are separate follow-up stories.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/authority-client-role.md",
+          "command": "rg -n \"Milestone 1 scope|M2 \\(Python authority|M5/FU-4|M3–M6|not auto-opened|enforce-mode product approval\" docs/requirements/decisions/authority-client-role.md .koala/story/actives/B-ec09/plan.md",
+          "result": "pass",
+          "note": "Docs state B-ec09 completes only M1; M2 is Python authority policy discovery, M5/FU-4 is Mac/Runner work, M3-M6 remain routed in the table, and no follow-up is auto-opened.",
+          "headHash": "b10728346c1cd0a94742a73f403b575dad48fe0c",
+          "materialHash": "1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6",
+          "timestamp": "2026-05-26T02:50:39.962Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "Reviewer can verify no files outside CLI Milestone 1 scope were modified and no external repo was changed.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": ".koala/story/actives/B-ec09/scope-contract.json",
+          "command": "koala scope_contract_check --storyId=B-ec09 --json && git status --short",
+          "result": "pass",
+          "note": "Scope contract passes with no violations; git status was clean before metadata-only checklist updates, proving no external Mac/Python/Runner scope was modified.",
+          "headHash": "b10728346c1cd0a94742a73f403b575dad48fe0c",
+          "materialHash": "1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6",
+          "timestamp": "2026-05-26T02:50:40.013Z"
+        }
+      }
+    ]
+  }
+}
