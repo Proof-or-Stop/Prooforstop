@@ -113,12 +113,15 @@ counts as L2+.
 
 ### Milestone 1 scope
 
-B-ec09 lands only this hardening: durable trust-boundary docs, the mechanical
+B-ec09 completes only M1: durable trust-boundary docs, the mechanical
 classifier, a labeled transport-acceptance helper in `authority-submit.ts`, and
-the `test:authority-boundary-smoke` adversarial test. M2 (Koala Runner CLI) is
-owned by the Mac/Runner repo and is **not** auto-opened by this story. M3–M7
-remain routed per the table below and require an explicit enforce-mode product
-approval before any CLI authority-client code lands.
+the `test:authority-boundary-smoke` adversarial test. M2 (Python authority
+policy discovery, FU-5) is owned by the Cord Team Python authority repo, and
+M5/FU-4 (Mac/Runner actor-key, heartbeat, runner identity) is owned by the
+Koala Mac/Swift repo; both live in separate repos with their own Koala stories
+and are **not** auto-opened by this story. M3–M6 remain routed per the table
+below — M3 and M4 are CLI-side deferred follow-ups that require an explicit
+enforce-mode product approval before any CLI authority-client code lands.
 
 ## L2+ Evidence Boundary
 
