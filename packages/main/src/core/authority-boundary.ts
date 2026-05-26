@@ -67,6 +67,7 @@ export interface AuthorityClassification {
 export type AuthorityL2Requirement =
   | 'producerRunId'
   | 'verifierRunId'
+  | 'independentVerifierRunId'
   | 'provider'
   | 'model'
   | 'vendor'
@@ -79,6 +80,7 @@ export type AuthorityL2Requirement =
 const L2_REQUIREMENTS: ReadonlyArray<AuthorityL2Requirement> = [
   'producerRunId',
   'verifierRunId',
+  'independentVerifierRunId',
   'provider',
   'model',
   'vendor',
@@ -105,6 +107,18 @@ export function missingL2Requirements(
   const missing: AuthorityL2Requirement[] = [];
   if (!isNonEmptyString(env.producerRunId)) missing.push('producerRunId');
   if (!isNonEmptyString(env.verifierRunId)) missing.push('verifierRunId');
+  // L2+ requires the verifier to be an independent run from the producer.
+  // A same-run envelope (producerRunId === verifierRunId) collapses the
+  // producer/verifier separation that the cold-read L2+ definition requires
+  // and must not be upgradable to receipt-backed-l2-plus even if every other
+  // field is populated and receiptVerified=true.
+  if (
+    isNonEmptyString(env.producerRunId) &&
+    isNonEmptyString(env.verifierRunId) &&
+    env.producerRunId.trim() === env.verifierRunId.trim()
+  ) {
+    missing.push('independentVerifierRunId');
+  }
   if (!isNonEmptyString(env.provider)) missing.push('provider');
   if (!isNonEmptyString(env.model)) missing.push('model');
   if (!isNonEmptyString(env.vendor)) missing.push('vendor');
@@ -139,7 +153,7 @@ export function classifyAuthorityEvidence(
       label: 'receipt-backed L2+ authority',
       missing,
       reason:
-        'envelope has run bindings, provider/model/vendor, command/transcript/diff hashes, signature, and a verified Python authority receipt',
+        'envelope has independent producer/verifier run bindings, provider/model/vendor, command/transcript/diff hashes, signature, and a verified Python authority receipt',
     };
   }
 

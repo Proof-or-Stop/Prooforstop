@@ -141,6 +141,84 @@ function caseAdversarialForgedPartialFields(): void {
   assert.ok(missing.includes('diffHash'), 'missing must include diffHash');
 }
 
+function caseAdversarialSameRunCollapsedVerifier(): void {
+  // Cold-read L2+ definition (authority-client-role.md §"Cold-read definition
+  // of L2+ authority") requires the verifier to be an INDEPENDENT run from the
+  // producer. A forged envelope that fills every other field but reuses the
+  // same run id for producer and verifier (collapsing the separation) MUST NOT
+  // classify as receipt-backed-l2-plus, even with receiptVerified=true and
+  // transportAccepted=true.
+  const sameRun = 'run-collapsed';
+  const env = cliShapedEnvelope({
+    producerRunId: sameRun,
+    verifierRunId: sameRun,
+    provider: 'anthropic',
+    model: 'claude-opus-4-7',
+    vendor: 'anthropic',
+    signature: 'ed25519:forged',
+    commandDigest: 'sha256:cmd',
+    transcriptHash: 'sha256:tx',
+    diffHash: 'sha256:diff',
+  });
+  const c = classifyAuthorityEvidence({
+    mode: 'enforce',
+    envelope: env,
+    receiptVerified: true,
+    transportAccepted: true,
+  });
+  assert.notEqual(
+    c.klass,
+    'receipt-backed-l2-plus',
+    'same-run producer/verifier MUST NOT classify as receipt-backed L2+ even with every other field present and receiptVerified=true',
+  );
+  assert.ok(
+    c.missing.includes('independentVerifierRunId'),
+    'missing must include independentVerifierRunId when producerRunId === verifierRunId',
+  );
+  expectThinClient(c, 'adversarial same-run collapsed verifier');
+
+  // Whitespace-only difference must still collapse.
+  const envWs = cliShapedEnvelope({
+    producerRunId: 'run-x',
+    verifierRunId: '  run-x  ',
+    provider: 'anthropic',
+    model: 'claude-opus-4-7',
+    vendor: 'anthropic',
+    signature: 'ed25519:forged',
+    commandDigest: 'sha256:cmd',
+    transcriptHash: 'sha256:tx',
+    diffHash: 'sha256:diff',
+  });
+  const cWs = classifyAuthorityEvidence({
+    mode: 'enforce',
+    envelope: envWs,
+    receiptVerified: true,
+    transportAccepted: true,
+  });
+  assert.ok(
+    cWs.missing.includes('independentVerifierRunId'),
+    'whitespace-only difference between producer/verifier run ids must still collapse to non-independent',
+  );
+  expectThinClient(cWs, 'adversarial same-run (whitespace variant)');
+
+  // Sanity: distinct, non-empty run ids should NOT trip the independence
+  // requirement (so this check only fires on actual collapse).
+  const envOk = cliShapedEnvelope({
+    producerRunId: 'producer-run',
+    verifierRunId: 'verifier-run',
+  });
+  const missingOk = missingL2Requirements({
+    mode: 'enforce',
+    envelope: envOk,
+    receiptVerified: false,
+    transportAccepted: true,
+  });
+  assert.ok(
+    !missingOk.includes('independentVerifierRunId'),
+    'distinct producer/verifier run ids must not be flagged as collapsed',
+  );
+}
+
 function caseAdversarialMissingHashBindingsNotBypassedByAccepted(): void {
   // CHK-002 adversarial intent: missing command/transcript/diff hashes cannot
   // be upgraded by transport accepted=true. Even with run bindings, provider,
@@ -158,6 +236,8 @@ function caseAdversarialMissingHashBindingsNotBypassedByAccepted(): void {
   for (const omit of ['commandDigest', 'transcriptHash', 'diffHash'] as const) {
     const env = cliShapedEnvelope({
       ...fullExceptHashes,
+      verifierRunId: 'run-2', // ensure independence from producerRunId; this
+                              // case targets hash bindings, not run identity.
       commandDigest: 'sha256:cmd',
       transcriptHash: 'sha256:tx',
       diffHash: 'sha256:diff',
@@ -200,8 +280,8 @@ function caseRequirementsFrozenList(): void {
   // L2+ requirement list must be non-empty and stable — used by docs/tests as
   // the canonical missing-fields list under the current PD-1 decision.
   const reqs = l2PlusRequirements();
-  assert.ok(reqs.length >= 10, 'l2PlusRequirements must enumerate >=10 requirements');
-  for (const r of ['producerRunId', 'verifierRunId', 'provider', 'model', 'vendor', 'commandDigest', 'transcriptHash', 'diffHash', 'envelopeSignature', 'verifiedAuthorityReceipt'] as const) {
+  assert.ok(reqs.length >= 11, 'l2PlusRequirements must enumerate >=11 requirements (incl. independentVerifierRunId)');
+  for (const r of ['producerRunId', 'verifierRunId', 'independentVerifierRunId', 'provider', 'model', 'vendor', 'commandDigest', 'transcriptHash', 'diffHash', 'envelopeSignature', 'verifiedAuthorityReceipt'] as const) {
     assert.ok(reqs.includes(r), `l2PlusRequirements must include ${r}`);
   }
 }
@@ -211,6 +291,7 @@ function main(): void {
   caseShadowObservational();
   caseEnforceAcceptedTransportNotReceipt();
   caseAdversarialForgedPartialFields();
+  caseAdversarialSameRunCollapsedVerifier();
   caseAdversarialMissingHashBindingsNotBypassedByAccepted();
   caseAuthoritySubmitWrapperAgrees();
   caseRequirementsFrozenList();

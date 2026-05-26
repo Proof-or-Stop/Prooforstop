@@ -65,24 +65,33 @@ Three roles, named so the boundary is cold-readable without prior context:
 ### Cold-read definition of L2+ authority
 
 > **L2+ authority evidence** is production-grade authority evidence that is (a)
-> bound to an independent actor / run identity (`producerRunId`,
-> `verifierRunId`, `provider`, `model`, `vendor`) and to the artifacts the run
+> bound to an independent actor / run identity — `producerRunId` and
+> `verifierRunId` must both be present AND refer to **different** runs (a
+> same-run envelope collapses the producer/verifier separation and is not L2+)
+> — together with `provider`, `model`, `vendor`, and the artifacts the run
 > produced (`commandDigest`, `transcriptHash`, `diffHash`), (b) carries an
 > ed25519 signature from a registered runner actor key, and (c) is acknowledged
 > by the Python authority via a signed `AuthorityReceipt` whose signature has
 > been cryptographically verified by the consumer. Anything missing **any** of
 > (a), (b), or (c) — including any of the command/transcript/diff hash
-> bindings — is not L2+ authority.
+> bindings, or a verifier run id equal to the producer run id — is not L2+
+> authority.
 
 The Koala CLI envelope (`buildEnvelope` in
 [`packages/main/src/core/authority-submit.ts`](../../../packages/main/src/core/authority-submit.ts))
 is a strict subset that lacks (a), (b), and (c) by design under PD-1. The
 boundary classifier
 [`packages/main/src/core/authority-boundary.ts`](../../../packages/main/src/core/authority-boundary.ts)
-enumerates the required fields (`producerRunId`, `verifierRunId`, `provider`,
-`model`, `vendor`, `commandDigest`, `transcriptHash`, `diffHash`,
+enumerates the required fields (`producerRunId`, `verifierRunId`,
+`independentVerifierRunId` — i.e., `verifierRunId !== producerRunId`,
+`provider`, `model`, `vendor`, `commandDigest`, `transcriptHash`, `diffHash`,
 `envelopeSignature`, `verifiedAuthorityReceipt`) and is the mechanical truth
-source for "is this submission L2+?".
+source for "is this submission L2+?". A submission where `producerRunId` and
+`verifierRunId` are both non-empty but equal is reported as missing the
+`independentVerifierRunId` requirement and cannot classify as
+`receipt-backed-l2-plus`, even if every other field is populated and
+`receiptVerified=true` — the adversarial "same-run envelope" case is covered
+by the `test:authority-boundary-smoke` adversarial test.
 
 ### Transport acceptance is NOT receipt verification
 
