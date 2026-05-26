@@ -292,6 +292,54 @@
         "bindingHash": "61af0b551e45462b0626934a2aaf8ce666a190814daf0be3b9c1d1494707437c"
       },
       "_hash": "4937fe204a9076df38f09318e63b9242ba9604df6c787079da6f811138a0f69a"
+    },
+    {
+      "reviewRunId": "B-ec09:RR-009",
+      "storyId": "B-ec09",
+      "agent": "koala-review-test-coverage",
+      "lane": "koala-review-test-coverage",
+      "reviewRound": "2026-05-26T02:51:08.559Z",
+      "startedAt": "2026-05-26T02:54:10.821Z",
+      "headHash": "a65d006f0e1cf14f64e530f7364a93c51abcbb36",
+      "materialHash": "1c64cf94efa5f32218792c6628ce6f48376f240f6f31ab40d7858e9f08e207c6",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "e1266a39249e48888177494bde51ebbb39ed3746407c98057c75bb0ef9a9e7ce",
+        "diffPackHash": "a27f3787dd0aff704ed882fcec9762bc8e742b7b434ced850342dab169cd8d0d",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/authority-client-role.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/authority-boundary.ts",
+          "packages/main/src/core/authority-submit.ts",
+          "packages/main/src/tasks/authority-boundary-smoke.ts"
+        ],
+        "reviewedIntentRefs": [
+          "CHK-001:adversarial:0",
+          "CHK-001:edge:0",
+          "CHK-001:happy:0",
+          "CHK-002:adversarial:0",
+          "CHK-002:edge:0",
+          "CHK-002:happy:0",
+          "CHK-003:adversarial:0",
+          "CHK-003:edge:0",
+          "CHK-003:happy:0",
+          "CHK-004:adversarial:0",
+          "CHK-004:edge:0",
+          "CHK-004:happy:0"
+        ],
+        "reviewedHunkDigests": [
+          "3c1a70b86b91bfc21fec525e463d1f9ce3a7be7e231a967d6a182323d36f7a8f",
+          "9b3b8a23e3e6f7456a53ee02bbd1d19369d2979ca4d2149cba82f92d09baf877",
+          "a108e67753ff55e9ce24f6828bed539d6bbc3bd71b3592b8a61aa554b78bc3f4",
+          "ab3b5923288068ffad9cc0ebc246423ac7eb6b8d4f1ecd96962680464d572de7",
+          "bdce23d751e2bd699bc1f458f9e5dc51128826b661927fe4856ccbc0d5bbd489",
+          "c996e74747d998385b9d68d5399c0b65c98e6ca0f733b706b2f5509153fcb781",
+          "ccea3bc9137a48b7847903cc38ceae17875936781a6e5a262cc0679fc72c28dc"
+        ],
+        "bindingHash": "ab095115559b6b68ad6066ffebb757fbb2ee47fab3efbcbaeda8074d2ca1985a"
+      },
+      "_hash": "9f289d03ef02c6651d3aebd26923bb4095cb6f78fdd44ddd838c4cc094877e11"
     }
   ]
 }
