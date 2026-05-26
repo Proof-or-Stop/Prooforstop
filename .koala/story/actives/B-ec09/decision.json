@@ -1,0 +1,80 @@
+{
+  "principles": [
+    "Trust boundaries must be enforced by code/tests, not only prose.",
+    "Koala CLI remains a workflow client unless an explicit future product decision promotes it to an enforce-mode authority client.",
+    "Normal local/off development must continue to work; this milestone should prevent overclaiming, not block all local evidence.",
+    "Mac/Runner and Python authority ownership must remain in their own repos and stories."
+  ],
+  "drivers": [
+    "User concern: CLI-only workflow can fabricate process if it is allowed to certify itself.",
+    "PD-1 current decision: CLI is thin local/shadow and lacks runner identity, receipt verification, and full envelope fields.",
+    "Milestone 1 must be small and reviewable before Runner CLI / authority-backed DONE gates are implemented."
+  ],
+  "options": [
+    {
+      "name": "docs-only clarification",
+      "pros": [
+        "Fastest and lowest risk",
+        "Improves future agent understanding"
+      ],
+      "cons": [
+        "Does not mechanically stop tests or code from overclaiming authority",
+        "Fails the process-fact principle that gate-relevant facts need handler/test backing"
+      ]
+    },
+    {
+      "name": "full enforce-mode CLI authority client now",
+      "pros": [
+        "Would make CLI more self-contained",
+        "Could eventually reduce components"
+      ],
+      "cons": [
+        "Violates PD-1 deferred decision",
+        "Requires runner identity, signing, receipt verification, and full envelope work outside Milestone 1",
+        "Risks rebuilding Mac Runner responsibilities inside CLI"
+      ]
+    },
+    {
+      "name": "boundary hardening with explicit classification and smoke tests",
+      "pros": [
+        "Adds mechanical protection against authority overclaiming",
+        "Keeps local/off behavior usable",
+        "Preserves Runner/Python ownership for later milestones",
+        "Small enough for one story"
+      ],
+      "cons": [
+        "Does not yet provide true server receipt-backed DONE",
+        "Requires follow-up milestones for Runner CLI and authority-backed gate"
+      ]
+    }
+  ],
+  "chosen": "boundary hardening with explicit classification and smoke tests",
+  "rationale": "This option directly addresses the user concern without pretending Milestone 1 can solve runner execution or server receipts. It makes the CLI boundary visible in docs, code semantics, and tests while preserving PD-1 thin-client scope.",
+  "preMortem": [
+    {
+      "scenario": "Smoke tests pass but wording still lets agents say CLI accepted=true is production receipt authority.",
+      "trigger": "Warnings or docs use authority/enforce language without local/shadow/thin-client qualifiers.",
+      "consequence": "Future agents overclaim DONE or L2+ evidence based on local JSON.",
+      "mitigation": "Add assertions for explicit non-authoritative classification and no receipt-backed claim in the focused smoke output."
+    },
+    {
+      "scenario": "Implementation drifts into full runner/client work.",
+      "trigger": "Developer adds actor keys, signing, full envelope, or Python/Mac contract changes inside Orchestrate.",
+      "consequence": "Milestone 1 becomes too large and duplicates Runner/Python responsibilities.",
+      "mitigation": "Scope contract protects external repos and excludes full FU-1/FU-2/FU-3 implementation; reviewer checks diff."
+    },
+    {
+      "scenario": "Local development breaks because off/shadow evidence becomes blocked.",
+      "trigger": "Boundary guard treats all local evidence as invalid instead of advisory/local.",
+      "consequence": "Existing Koala workflows fail without live authority secrets.",
+      "mitigation": "Tests must prove local/off remains usable and classified rather than blocked."
+    },
+    {
+      "scenario": "Story claims seven-milestone progress without routing later milestones.",
+      "trigger": "DONE summary only says M1 completed and omits M2-M7 ownership.",
+      "consequence": "Next agent restarts or implements the wrong repo work.",
+      "mitigation": "CHK-004 requires a routing record in summary/docs and no automatic M2 story creation."
+    }
+  ],
+  "timestamp": "2026-05-26T02:20:18.266Z"
+}
