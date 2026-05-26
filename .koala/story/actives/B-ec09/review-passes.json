@@ -53,6 +53,15 @@
       "reviewRound": "2026-05-26T02:51:08.559Z",
       "reviewRunId": "B-ec09:RR-009",
       "_hash": "8863f3fbd4b27af23459c5039c96fcb2af5e6cf912a0431c2b9d0f182a223b62"
+    },
+    {
+      "id": "B-ec09:RP-007",
+      "agent": "koala-review-docs",
+      "note": "Step 1: 11 exported symbols extracted. Step 2: authority-client-role.md §Trust Boundary and §Milestone 1 scope paragraphs compared against diff. Step 3: all doc claims verified — L2_REQUIREMENTS array matches the 11 fields enumerated in doc (producerRunId/verifierRunId/independentVerifierRunId/provider/model/vendor/commandDigest/transcriptHash/diffHash/envelopeSignature/verifiedAuthorityReceipt); classifyCliAuthoritySubmission helper exists in authority-submit.ts as described; classifier file path correct; transport-acceptance vs receipt-verification distinction accurately described; F-001 fix confirmed (commit 45212b2c removed spurious M7 ref and aligned Milestone 1 para with routing table). No doc-code drift found.",
+      "createdAt": "2026-05-26T02:55:41.557Z",
+      "reviewRound": "2026-05-26T02:51:08.559Z",
+      "reviewRunId": "B-ec09:RR-010",
+      "_hash": "080b9bf8513bc64d62328e1dbeb1d7da8f85ace8dce0f9687c08b4387af9895f"
     }
   ]
 }
