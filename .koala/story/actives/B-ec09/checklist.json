@@ -38,9 +38,44 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-26T02:25:52.699Z",
-      "endTime": null
+      "endTime": "2026-05-26T02:39:07.852Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/authority-client-role.md",
+          "command": "rg -n \"Koala CLI — workflow client|Koala Runner CLI / Mac Runner — execution plane|Python Authority — receipt authority\" docs/requirements/decisions/authority-client-role.md",
+          "result": "pass",
+          "note": "Lines 53/57/61 define CLI as workflow client, Runner/Mac as execution plane, and Python Authority as receipt authority.",
+          "headHash": "ead8ba4e118f47886f5aca1be8f40337a7a0089c",
+          "materialHash": "78bd7a3db1a7dedf583c0662dd65e4b0cc9f6e1508a2ab4489c190ed1df7cbc6",
+          "timestamp": "2026-05-26T02:39:07.923Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/authority-client-role.md",
+          "command": "rg -n \"No overclaim by colocation|does not make CLI-shaped evidence authoritative\" docs/requirements/decisions/authority-client-role.md",
+          "result": "pass",
+          "note": "Doc includes the explicit no-overclaim-by-colocation boundary.",
+          "headHash": "ead8ba4e118f47886f5aca1be8f40337a7a0089c",
+          "materialHash": "78bd7a3db1a7dedf583c0662dd65e4b0cc9f6e1508a2ab4489c190ed1df7cbc6",
+          "timestamp": "2026-05-26T02:39:07.975Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/authority-client-role.md",
+          "command": "rg -n \"Transport acceptance is NOT receipt verification|not L2\\+ authority|receipt-backed-l2-plus\" docs/requirements/decisions/authority-client-role.md",
+          "result": "pass",
+          "note": "Doc forbids treating accepted-only transport or CLI local/shadow evidence as L2+ receipt-backed authority.",
+          "headHash": "ead8ba4e118f47886f5aca1be8f40337a7a0089c",
+          "materialHash": "78bd7a3db1a7dedf583c0662dd65e4b0cc9f6e1508a2ab4489c190ed1df7cbc6",
+          "timestamp": "2026-05-26T02:39:08.026Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -159,6 +194,18 @@
       "status": "pending",
       "startTime": null,
       "endTime": null
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-05-26T02:39:07.852Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Docs implemented and independently rg-verified after Claude Code commits.",
+      "agent": "Codex supervisor"
     }
   ]
 }
