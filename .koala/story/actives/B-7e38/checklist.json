@@ -1,0 +1,147 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Record PD-2 isolated enforce subsystem decision",
+      "context": "Update docs/requirements/decisions/authority-client-role.md to say ordinary koala remains workflow thin client while only future koala authority enforce may become a headless authority runner.",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-client-role.md",
+        "docs/requirements/decisions/truth-source.md"
+      ],
+      "userSees": "Future agents can cold-read why koala authority enforce is allowed but ordinary koala evidence is still not L2+.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "PD-2 section names ordinary koala workflow client, koala authority enforce headless runner client, Python authority receipt authority, and Mac Runner separately.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The doc states PD-2 does not replace Mac Runner and does not make existing local/shadow evidence authoritative.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The doc explicitly forbids treating transport accepted or local JSON as verified authority receipt evidence.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Harden mechanical boundary classification for future enforce namespace",
+      "context": "Extend the existing authority boundary tests so normal CLI submissions remain thin-client even if future enforce subsystem terms are present in docs, and only explicit signed envelope plus verified receipt can classify as L2+.",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-client-role.md"
+      ],
+      "userSees": "Tests guard against agents claiming the whole CLI became authority-capable after PD-2.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A fixture with complete run bindings, provider metadata, digests, envelope signature, and verified receipt classifies as receipt-backed L2+.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A submission using the existing workflow CLI authority transport path with accepted true but no verified receipt stays thin-client transport accepted.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A same producer/verifier run or missing receipt signature cannot classify as L2+ even if labeled enforce in prose.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Reserve enforce subsystem command boundary without implementing runner behavior",
+      "context": "Add or document a command/catalog boundary for the future koala authority enforce namespace so Milestone 1 can add policy discovery without silently wiring production evidence submission.",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-client-role.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "The CLI surface makes clear that runner behavior is future gated and currently unavailable or documented as planned, not partially active.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The boundary artifact names Milestone 1 as policy discovery only and Milestone 2+ as actor/job/evidence work.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing authority off/shadow/enforce transport behavior remains unchanged for workflow evidence handlers.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No command introduced by this story can submit production L2+ evidence or bypass the existing receipt boundary.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Create Milestone 0 validation record and next-story handoff",
+      "context": "Capture verification evidence and a concise handoff that says what Milestone 1 may implement next and what remains forbidden until later milestones.",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-client-role.md",
+        "docs/requirements/decisions/verification-context-pack.md"
+      ],
+      "userSees": "The next Claude/Codex session knows exactly what to build next without rereading the whole discussion.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Validation evidence includes the boundary smoke tests and authority client smoke tests.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The handoff preserves PD-2 constraints when future Milestone 1 starts policy discovery.",
+            "type": "docs",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The story outcome does not claim actor key, job claim, provider execution, full envelope, or receipt verification are implemented.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
