@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-6894:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Purely additive warning-only change. No symbol deletions or renames — zero residual reference risk. Confirms: (1) boundaryLine in init_check_repair output is factually accurate and scoped correctly; (2) session_brief INIT fallback warning section is conditional on attestation=fallback, does not appear for independent reviewer stories; (3) initCheckFallbackWarning field in story_get follows same conditional — absent on independent path; (4) no gate logic, phase transitions, or lifecycle semantics changed; (5) cross-project authorization language is appropriate for the fallback-in-CI scenario it targets; (6) smoke tests cover happy/edge/adversarial intent refs including negative paths. No blocker.",
+      "createdAt": "2026-05-27T22:31:46.283Z",
+      "reviewRound": "2026-05-27T22:29:10.416Z",
+      "reviewRunId": "B-6894:RR-003",
+      "_hash": "1c124e4017754fd46586b750f485a94101cea1b3bfd0b262c9d64893fefd5ce0"
+    }
+  ]
+}
