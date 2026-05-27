@@ -110,7 +110,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/authority-client-role.md"
       ],
-      "userSees": "Existing authority evidence flow smoke still prints its pass line after the policy discovery command is added.",
+      "userSees": "Existing authority evidence flow smoke prints: authority evidence flow smoke passed. Existing boundary smoke prints: ✓ authority boundary smoke passed: CLI evidence is local/shadow/thin-client, not receipt-backed L2+ authority.",
       "verificationIntent": {
         "happy": [
           {
@@ -136,7 +136,19 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/tasks/authority-enforce-policy-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/authority-boundary-smoke.ts",
+          "packages/main/src/tasks/authority-client-smoke.ts",
+          "packages/main/src/tasks/authority-evidence-flow-smoke.ts",
+          "packages/main/src/tasks/authority-enforce-policy-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-004",
