@@ -4,7 +4,7 @@
   "title": "Fix authority policy smoke task annotation compliance",
   "description": "After B-ea92 DONE, koala convergence_check reports one code annotation error: packages/main/src/tasks/authority-enforce-policy-smoke.ts is missing the required @changes field in its structured @task header. Fix only that annotation metadata so convergence can return to clean without changing runtime behavior.",
   "type": "bug",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "keywords": [
     "annotation",
@@ -52,6 +52,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-05-27T19:18:30.689Z",
+      "branch": "story/B-3da7",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-05-27T19:19:37.009Z",
       "branch": "story/B-3da7",
       "user": "Harmonygo",
       "agent": "main"
