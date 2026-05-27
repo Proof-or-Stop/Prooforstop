@@ -32,9 +32,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-27T17:57:52.775Z",
-      "endTime": null,
+      "endTime": "2026-05-27T17:59:43.317Z",
       "files": {
         "modify": [
           "docs/requirements/decisions/authority-client-role.md"
@@ -43,7 +43,42 @@
         "test": [
           "packages/main/src/tasks/authority-boundary-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/authority-client-role.md",
+          "command": "grep -n PD-2 docs/requirements/decisions/authority-client-role.md",
+          "result": "pass",
+          "note": "PD-2 section names ordinary koala workflow client, koala authority enforce headless runner, Python authority receipt authority, and Mac Runner execution plane",
+          "headHash": "8d19a8a754d66517e99b928081e73b8e0ae6372e",
+          "materialHash": "52b23e1439d3350c6c4a333ebba5c8bfbc4a92d44c7ad33191be0deeee6ab52b",
+          "timestamp": "2026-05-27T17:59:43.361Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/authority-client-role.md",
+          "command": "grep -n Mac Runner docs/requirements/decisions/authority-client-role.md",
+          "result": "pass",
+          "note": "PD-2 explicitly states it does not replace Mac Runner and does not make existing local/shadow evidence authoritative",
+          "headHash": "8d19a8a754d66517e99b928081e73b8e0ae6372e",
+          "materialHash": "52b23e1439d3350c6c4a333ebba5c8bfbc4a92d44c7ad33191be0deeee6ab52b",
+          "timestamp": "2026-05-27T17:59:43.390Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/authority-client-role.md",
+          "command": "grep -n transport docs/requirements/decisions/authority-client-role.md",
+          "result": "pass",
+          "note": "PD-2 explicitly forbids treating transport accepted or local JSON as verified authority receipt evidence",
+          "headHash": "8d19a8a754d66517e99b928081e73b8e0ae6372e",
+          "materialHash": "52b23e1439d3350c6c4a333ebba5c8bfbc4a92d44c7ad33191be0deeee6ab52b",
+          "timestamp": "2026-05-27T17:59:43.419Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
