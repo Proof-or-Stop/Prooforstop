@@ -32,7 +32,7 @@
           }
         ]
       },
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-05-27T18:21:09.044Z",
       "endTime": "2026-05-27T18:31:47.287Z",
       "files": {
@@ -244,6 +244,17 @@
           "packages/main/src/tasks/authority-evidence-flow-smoke.ts"
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-05-27T18:34:17.465Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Codex verification found TS policy schema does not match Python authority-policy.v1: compatibility must be object and requiredAuthorityMode must be top-level."
     }
   ]
 }
