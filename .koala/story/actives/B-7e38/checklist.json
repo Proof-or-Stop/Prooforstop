@@ -272,9 +272,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-27T18:00:08.518Z",
-      "endTime": null,
+      "endTime": "2026-05-27T18:00:09.686Z",
       "files": {
         "modify": [
           "docs/requirements/decisions/authority-client-role.md"
@@ -285,7 +285,42 @@
           "packages/main/src/tasks/authority-client-smoke.ts",
           "packages/main/src/tasks/authority-evidence-flow-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-boundary-smoke.ts",
+          "command": "npm --prefix packages/main run test:authority-boundary-smoke && npm --prefix packages/main run test:authority-client",
+          "result": "pass",
+          "note": "Validation evidence includes boundary smoke and authority client smoke tests; both pass exit 0",
+          "headHash": "c15b1863f67e61ea778f1eacd1da4cfd27b63244",
+          "materialHash": "52b23e1439d3350c6c4a333ebba5c8bfbc4a92d44c7ad33191be0deeee6ab52b",
+          "timestamp": "2026-05-27T18:00:09.727Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/authority-client-role.md",
+          "command": "grep -n Milestone 1 docs/requirements/decisions/authority-client-role.md",
+          "result": "pass",
+          "note": "Milestone 0 validation record and handoff section preserves PD-2 constraints for Milestone 1 policy discovery",
+          "headHash": "c15b1863f67e61ea778f1eacd1da4cfd27b63244",
+          "materialHash": "52b23e1439d3350c6c4a333ebba5c8bfbc4a92d44c7ad33191be0deeee6ab52b",
+          "timestamp": "2026-05-27T18:00:09.770Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/authority-client-role.md",
+          "command": "grep -n unimplemented docs/requirements/decisions/authority-client-role.md",
+          "result": "pass",
+          "note": "Milestone 0 validation record explicitly lists actor key, job claim, provider execution, full envelope, and receipt verification as unimplemented",
+          "headHash": "c15b1863f67e61ea778f1eacd1da4cfd27b63244",
+          "materialHash": "52b23e1439d3350c6c4a333ebba5c8bfbc4a92d44c7ad33191be0deeee6ab52b",
+          "timestamp": "2026-05-27T18:00:09.811Z"
+        }
+      ]
     }
   ]
 }
