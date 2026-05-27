@@ -57,9 +57,9 @@
           "command": "npm --prefix packages/main run test:authority-enforce-policy",
           "result": "pass",
           "note": "Smoke uses a fake authority-policy.v1 body matching the Python route contract and asserts parsing of contractVersion, requiredAuthorityMode, digests, supportedAuthorityModes, compatibility object, and evidencePolicy.preset.",
-          "headHash": "28503f037991f62e34c0fdcfea4fba895410661d",
-          "materialHash": "864afbffdf7168f20736f752666cb3fed7b028eab223212a1f485625b3387554",
-          "timestamp": "2026-05-27T18:50:54.144Z"
+          "headHash": "d7c5d0af7a809f3e6f4aec0d5eab6f4b3186ba4f",
+          "materialHash": "699a6674d9c783dd08033412fa93198284ef171e93758b48163a96d96d2e1588",
+          "timestamp": "2026-05-27T19:02:58.260Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -68,9 +68,9 @@
           "command": "npm --prefix packages/main run test:authority-enforce-policy",
           "result": "pass",
           "note": "Smoke covers HTTP errors, connection failures, timeout, non-JSON body, incomplete schema, and empty 2xx body as non-success policy discovery outcomes.",
-          "headHash": "28503f037991f62e34c0fdcfea4fba895410661d",
-          "materialHash": "864afbffdf7168f20736f752666cb3fed7b028eab223212a1f485625b3387554",
-          "timestamp": "2026-05-27T18:50:54.144Z"
+          "headHash": "d7c5d0af7a809f3e6f4aec0d5eab6f4b3186ba4f",
+          "materialHash": "699a6674d9c783dd08033412fa93198284ef171e93758b48163a96d96d2e1588",
+          "timestamp": "2026-05-27T19:02:58.260Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -79,9 +79,9 @@
           "command": "npm --prefix packages/main run test:authority-enforce-policy",
           "result": "pass",
           "note": "Smoke iterates receipt, receiptId, gatePassed, and accepted overclaim keys and asserts each produces non-success with no evidence POST.",
-          "headHash": "28503f037991f62e34c0fdcfea4fba895410661d",
-          "materialHash": "864afbffdf7168f20736f752666cb3fed7b028eab223212a1f485625b3387554",
-          "timestamp": "2026-05-27T18:50:54.144Z"
+          "headHash": "d7c5d0af7a809f3e6f4aec0d5eab6f4b3186ba4f",
+          "materialHash": "699a6674d9c783dd08033412fa93198284ef171e93758b48163a96d96d2e1588",
+          "timestamp": "2026-05-27T19:02:58.260Z"
         }
       ]
     },
@@ -145,9 +145,9 @@
           "command": "manual CLI policy discovery check with local HTTP server: node packages/main/dist/cli.js authority_enforce_policy --authorityURL=<server> and node packages/main/dist/cli.js authority enforce policy --authorityURL=<server>",
           "result": "pass",
           "note": "Manual child-process CLI check passed for both flat and nested aliases, printing disclaimer, contractVersion authority-policy.v1, requiredAuthorityMode enforce, and evidencePolicy.preset anti-hallucination.",
-          "headHash": "28503f037991f62e34c0fdcfea4fba895410661d",
-          "materialHash": "864afbffdf7168f20736f752666cb3fed7b028eab223212a1f485625b3387554",
-          "timestamp": "2026-05-27T18:50:54.144Z"
+          "headHash": "d7c5d0af7a809f3e6f4aec0d5eab6f4b3186ba4f",
+          "materialHash": "699a6674d9c783dd08033412fa93198284ef171e93758b48163a96d96d2e1588",
+          "timestamp": "2026-05-27T19:02:58.260Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -156,9 +156,9 @@
           "command": "node packages/main/dist/cli.js authority_enforce_policy with no KOALA_AUTHORITY_URL",
           "result": "pass",
           "note": "Manual child-process check confirmed missing authority URL exits non-zero and includes the discovery-only disclaimer.",
-          "headHash": "28503f037991f62e34c0fdcfea4fba895410661d",
-          "materialHash": "864afbffdf7168f20736f752666cb3fed7b028eab223212a1f485625b3387554",
-          "timestamp": "2026-05-27T18:50:54.144Z"
+          "headHash": "d7c5d0af7a809f3e6f4aec0d5eab6f4b3186ba4f",
+          "materialHash": "699a6674d9c783dd08033412fa93198284ef171e93758b48163a96d96d2e1588",
+          "timestamp": "2026-05-27T19:02:58.260Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -167,9 +167,9 @@
           "command": "npm --prefix packages/main run test:authority-enforce-policy",
           "result": "pass",
           "note": "Smoke fetch spy asserts policy discovery uses GET /v1/authority/policy and never POSTs to /v1/evidence or /v1/evidence/batch; command exposes no evidence-submission path.",
-          "headHash": "28503f037991f62e34c0fdcfea4fba895410661d",
-          "materialHash": "864afbffdf7168f20736f752666cb3fed7b028eab223212a1f485625b3387554",
-          "timestamp": "2026-05-27T18:50:54.144Z"
+          "headHash": "d7c5d0af7a809f3e6f4aec0d5eab6f4b3186ba4f",
+          "materialHash": "699a6674d9c783dd08033412fa93198284ef171e93758b48163a96d96d2e1588",
+          "timestamp": "2026-05-27T19:02:58.260Z"
         }
       ]
     },
@@ -227,9 +227,9 @@
           "command": "npm --prefix packages/main run test:authority-evidence-flow",
           "result": "pass",
           "note": "Existing authority evidence flow smoke still passes after adding policy discovery.",
-          "headHash": "28503f037991f62e34c0fdcfea4fba895410661d",
-          "materialHash": "864afbffdf7168f20736f752666cb3fed7b028eab223212a1f485625b3387554",
-          "timestamp": "2026-05-27T18:50:54.144Z"
+          "headHash": "d7c5d0af7a809f3e6f4aec0d5eab6f4b3186ba4f",
+          "materialHash": "699a6674d9c783dd08033412fa93198284ef171e93758b48163a96d96d2e1588",
+          "timestamp": "2026-05-27T19:02:58.260Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -238,9 +238,9 @@
           "command": "npm --prefix packages/main run test:authority-boundary-smoke",
           "result": "pass",
           "note": "Authority boundary smoke still classifies transport accepted CLI evidence as thin-client rather than receipt-backed L2+ authority.",
-          "headHash": "28503f037991f62e34c0fdcfea4fba895410661d",
-          "materialHash": "864afbffdf7168f20736f752666cb3fed7b028eab223212a1f485625b3387554",
-          "timestamp": "2026-05-27T18:50:54.144Z"
+          "headHash": "d7c5d0af7a809f3e6f4aec0d5eab6f4b3186ba4f",
+          "materialHash": "699a6674d9c783dd08033412fa93198284ef171e93758b48163a96d96d2e1588",
+          "timestamp": "2026-05-27T19:02:58.260Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -249,9 +249,9 @@
           "command": "npm --prefix packages/main run test:authority-enforce-policy && npm --prefix packages/main run test:authority-boundary-smoke",
           "result": "pass",
           "note": "Policy discovery smoke and boundary smoke together prove koala authority enforce wording does not submit evidence or promote workflow evidence to receipt-backed L2+.",
-          "headHash": "28503f037991f62e34c0fdcfea4fba895410661d",
-          "materialHash": "864afbffdf7168f20736f752666cb3fed7b028eab223212a1f485625b3387554",
-          "timestamp": "2026-05-27T18:50:54.144Z"
+          "headHash": "d7c5d0af7a809f3e6f4aec0d5eab6f4b3186ba4f",
+          "materialHash": "699a6674d9c783dd08033412fa93198284ef171e93758b48163a96d96d2e1588",
+          "timestamp": "2026-05-27T19:02:58.260Z"
         }
       ]
     },
@@ -305,9 +305,9 @@
           "command": "rg -n \"authority_enforce_policy|koala authority enforce policy|/v1/authority/policy|contractVersion|requiredAuthorityMode|evidencePolicy\\.preset\" docs/requirements/decisions/authority-client-role.md",
           "result": "pass",
           "note": "Docs name both command syntaxes and the consumed Python policy fields.",
-          "headHash": "28503f037991f62e34c0fdcfea4fba895410661d",
-          "materialHash": "864afbffdf7168f20736f752666cb3fed7b028eab223212a1f485625b3387554",
-          "timestamp": "2026-05-27T18:50:54.144Z"
+          "headHash": "d7c5d0af7a809f3e6f4aec0d5eab6f4b3186ba4f",
+          "materialHash": "699a6674d9c783dd08033412fa93198284ef171e93758b48163a96d96d2e1588",
+          "timestamp": "2026-05-27T19:02:58.260Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -316,9 +316,9 @@
           "command": "rg -n \"Python server remains the owner|TS CLI only consumes\" docs/requirements/decisions/authority-client-role.md",
           "result": "pass",
           "note": "Docs distinguish Python server ownership of policy semantics from TS CLI consumption and display.",
-          "headHash": "28503f037991f62e34c0fdcfea4fba895410661d",
-          "materialHash": "864afbffdf7168f20736f752666cb3fed7b028eab223212a1f485625b3387554",
-          "timestamp": "2026-05-27T18:50:54.144Z"
+          "headHash": "d7c5d0af7a809f3e6f4aec0d5eab6f4b3186ba4f",
+          "materialHash": "699a6674d9c783dd08033412fa93198284ef171e93758b48163a96d96d2e1588",
+          "timestamp": "2026-05-27T19:02:58.260Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -327,9 +327,9 @@
           "command": "rg -n \"Milestone 1 implemented read-only policy discovery only; actor keys, jobs, provider execution, evidence submission, and receipt verification remain unimplemented\" docs/requirements/decisions/authority-client-role.md",
           "result": "pass",
           "note": "Docs include the exact boundary sentence and do not claim receipts, signatures, gate passes, or L2+ proof.",
-          "headHash": "28503f037991f62e34c0fdcfea4fba895410661d",
-          "materialHash": "864afbffdf7168f20736f752666cb3fed7b028eab223212a1f485625b3387554",
-          "timestamp": "2026-05-27T18:50:54.144Z"
+          "headHash": "d7c5d0af7a809f3e6f4aec0d5eab6f4b3186ba4f",
+          "materialHash": "699a6674d9c783dd08033412fa93198284ef171e93758b48163a96d96d2e1588",
+          "timestamp": "2026-05-27T19:02:58.260Z"
         }
       ]
     },
@@ -392,9 +392,9 @@
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:authority-enforce-policy && npm --prefix packages/main run test:authority-client && npm --prefix packages/main run test:command-ownership-contract && npm --prefix packages/main run test:authority-boundary-smoke && npm --prefix packages/main run test:authority-evidence-flow",
           "result": "pass",
           "note": "Codex supervisor validation record names passing build, policy discovery smoke, authority client smoke, command ownership contract, authority-boundary smoke, and authority-evidence-flow smoke; earlier koala validate failure was only missing CHK-005 coverage.",
-          "headHash": "9c84447bbeb8576bf44eacc5bea01e375146fb25",
-          "materialHash": "864afbffdf7168f20736f752666cb3fed7b028eab223212a1f485625b3387554",
-          "timestamp": "2026-05-27T18:54:47.649Z"
+          "headHash": "d7c5d0af7a809f3e6f4aec0d5eab6f4b3186ba4f",
+          "materialHash": "699a6674d9c783dd08033412fa93198284ef171e93758b48163a96d96d2e1588",
+          "timestamp": "2026-05-27T19:02:58.260Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -403,9 +403,9 @@
           "command": "rg -n \"Next Safe Milestone|explicit approval|Do not skip directly|signed authority handshake\" .koala/story/actives/B-ea92/evidence/transcript-diff.md",
           "result": "pass",
           "note": "Handoff names the next safe milestone as actor identity and signed authority handshake only, requiring explicit approval before evidence submission or receipt-backed gate promotion.",
-          "headHash": "93e09532680ac6ac6deeec7456e170e5cd9b201f",
-          "materialHash": "864afbffdf7168f20736f752666cb3fed7b028eab223212a1f485625b3387554",
-          "timestamp": "2026-05-27T18:54:53.072Z"
+          "headHash": "d7c5d0af7a809f3e6f4aec0d5eab6f4b3186ba4f",
+          "materialHash": "699a6674d9c783dd08033412fa93198284ef171e93758b48163a96d96d2e1588",
+          "timestamp": "2026-05-27T19:02:58.260Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -414,9 +414,9 @@
           "command": "rg -n \"does not implement production authority|no receipt, no gate pass, no evidence submission|Not Implemented In M1|L2\\+ gate evidence\" .koala/story/actives/B-ea92/evidence/transcript-diff.md",
           "result": "pass",
           "note": "Handoff explicitly states M1 did not implement production authority, L2+ evidence, receipts, EvidenceEnvelope submission, or gate promotion.",
-          "headHash": "159d40ac324298f80ef98b9d1c6a4b47342bb5fe",
-          "materialHash": "864afbffdf7168f20736f752666cb3fed7b028eab223212a1f485625b3387554",
-          "timestamp": "2026-05-27T18:54:58.890Z"
+          "headHash": "d7c5d0af7a809f3e6f4aec0d5eab6f4b3186ba4f",
+          "materialHash": "699a6674d9c783dd08033412fa93198284ef171e93758b48163a96d96d2e1588",
+          "timestamp": "2026-05-27T19:02:58.260Z"
         }
       ]
     }
