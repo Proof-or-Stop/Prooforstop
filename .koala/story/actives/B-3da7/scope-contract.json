@@ -25,9 +25,22 @@
     ".koala/story/actives/B-ea92/**"
   ],
   "scopeChangeReason": "Only the structured @task header in the smoke file may change to add @changes; runtime authority behavior and docs are out of scope.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Semantic anchor detector did not label the file-header @task hunk, but the acknowledged hunk is exactly the CHK-001 addition of the missing @changes comment field and contains no executable code changes.",
+      "timestamp": "2026-05-27T19:18:17.909Z",
+      "paths": [
+        "packages/main/src/tasks/authority-enforce-policy-smoke.ts"
+      ],
+      "anchors": [
+        "authority_enforce_policy_smoke_header"
+      ],
+      "hunkDigest": "84c540330bdc03c9070f679c52f64eae53376affe3a71d80f0ab6f8da0e814f2"
+    }
+  ],
   "createdAt": "2026-05-27T19:14:49.573Z",
-  "updatedAt": "2026-05-27T19:14:49.573Z",
+  "updatedAt": "2026-05-27T19:18:17.909Z",
   "fileRules": [
     {
       "path": "packages/main/src/tasks/authority-enforce-policy-smoke.ts",
