@@ -34,7 +34,20 @@
       },
       "status": "in_progress",
       "startTime": "2026-05-27T19:16:06.630Z",
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/authority-enforce-policy-smoke.ts",
+          "command": "node packages/main/dist/tasks/cli-validate.js",
+          "result": "pass",
+          "note": "Task annotation validator now reports Errors: 0; the previous missing @changes error for authority-enforce-policy-smoke.ts is gone.",
+          "headHash": "e4370c2c7d8a7db05ef37512b9a19d53359d2058",
+          "materialHash": "1463653573d2c2ece8b4ac85bf52aad72bfe45e380a826018ca5910f299e88da",
+          "timestamp": "2026-05-27T19:17:17.934Z"
+        }
+      ]
     }
   ],
   "auditLog": [
