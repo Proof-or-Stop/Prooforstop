@@ -7,9 +7,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-27T22:19:30.618Z",
-      "endTime": null,
+      "endTime": "2026-05-27T22:28:01.527Z",
       "userSees": "session_brief prints `INIT fallback warning` and says `manual fallback attestation, not independent reviewer approval`; story_get JSON includes initCheckAttestation=fallback and a continuation warning string.",
       "files": {
         "modify": [
@@ -43,7 +43,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:init-check-fallback-smoke",
+          "result": "pass",
+          "note": "Smoke asserts session_brief renders INIT fallback warning and the phrase manual fallback attestation, not independent reviewer approval.",
+          "headHash": "8e1a3d03611d4e47f9bba9f49f149d17a15adc9b",
+          "materialHash": "session=1735c8ff75e27e6983c67054f0ea086f9087dc64;smoke=955114d9e1f676bc68b3db8ddc65297a411fdf6c",
+          "timestamp": "2026-05-27T22:28:01.566Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:init-check-fallback-smoke",
+          "result": "pass",
+          "note": "Smoke asserts story_get exposes initCheckAttestation=fallback and initCheckFallbackWarning for fallback stories, while independent reviewer stories do not carry the warning field.",
+          "headHash": "8e1a3d03611d4e47f9bba9f49f149d17a15adc9b",
+          "materialHash": "story-query=48d5551e9c6dc20a9e712f5aa3e3c3e00e5e8dd7;smoke=955114d9e1f676bc68b3db8ddc65297a411fdf6c",
+          "timestamp": "2026-05-27T22:28:01.595Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:init-check-fallback-smoke",
+          "result": "pass",
+          "note": "Smoke asserts fallback warnings state later PLAN/DEV/REVIEW/TEST gates remain required and explicit user/project authorization is needed for continuation.",
+          "headHash": "8e1a3d03611d4e47f9bba9f49f149d17a15adc9b",
+          "materialHash": "session=1735c8ff75e27e6983c67054f0ea086f9087dc64;story-query=48d5551e9c6dc20a9e712f5aa3e3c3e00e5e8dd7;smoke=955114d9e1f676bc68b3db8ddc65297a411fdf6c",
+          "timestamp": "2026-05-27T22:28:01.623Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -163,6 +195,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Start fallback recovery-view warning implementation.",
+      "agent": "codex-supervisor"
+    },
+    {
+      "timestamp": "2026-05-27T22:28:01.527Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Claude implementation committed; Codex re-ran build, fallback smoke, and scope contract. Recovery-view fallback warning coverage is proven by smoke assertions.",
       "agent": "codex-supervisor"
     }
   ]
