@@ -353,8 +353,17 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
       const initCheck = store.readInitCheck(args.storyId);
       if (initCheck) {
         result.initCheck = initCheck;
-        result.initCheckAttestation = initCheckAttestationMode(initCheck);
+        const attestation = initCheckAttestationMode(initCheck);
+        result.initCheckAttestation = attestation;
         if (initCheck.fallback) result.initCheckFallback = initCheck.fallback;
+        // B-6894: human-readable warning for fallback stories only; independent
+        // reviewer stories must NOT carry this field.
+        if (attestation === 'fallback') {
+          result.initCheckFallbackWarning =
+            'INIT_CHECK was approved via manual fallback attestation, not independent reviewer approval. ' +
+            'Later PLAN/DEV/REVIEW/TEST gates remain required. ' +
+            'Implementation and continuation require explicit user/project authorization if this is not the requested project.';
+        }
       }
 
       if (args.detail) {

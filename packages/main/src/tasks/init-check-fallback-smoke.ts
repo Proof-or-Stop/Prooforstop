@@ -130,6 +130,12 @@ try {
   });
   assert.match(repaired, /init-check\.json 已生成/, 'repair should report init-check.json generated');
   assert.match(repaired, /审计事件/, 'repair should report an audit event was recorded');
+  // B-6894: repair success output must include the authorization boundary message.
+  assert.match(
+    repaired,
+    /Fallback only repairs INIT_CHECK.*does not authorize implementation.*does not replace later PLAN\/DEV\/REVIEW\/TEST reviewers/s,
+    'repair success output must include the authorization boundary message',
+  );
   assert.ok(existsSync(initCheckPath(root, diagStory)), 'successful repair must write init-check.json');
 
   const advanced = run(root, 'story_advance', { storyId: diagStory, phase: 'INIT_CHECK' });
@@ -145,6 +151,26 @@ try {
     'fallback block records the >=30 char reason',
   );
   assert.ok(fallbackView.initCheckFallback.attestedAt, 'fallback block records attestedAt timestamp');
+  // B-6894: fallback stories must carry a human-readable warning string.
+  assert.ok(
+    typeof fallbackView.initCheckFallbackWarning === 'string' && fallbackView.initCheckFallbackWarning.length > 0,
+    'fallback story_get must carry initCheckFallbackWarning string',
+  );
+  assert.match(
+    fallbackView.initCheckFallbackWarning,
+    /manual fallback attestation, not independent reviewer approval/,
+    'initCheckFallbackWarning must describe the attestation gap',
+  );
+  assert.match(
+    fallbackView.initCheckFallbackWarning,
+    /PLAN\/DEV\/REVIEW\/TEST gates remain required/,
+    'initCheckFallbackWarning must state later gates remain required',
+  );
+  assert.match(
+    fallbackView.initCheckFallbackWarning,
+    /explicit user\/project authorization/,
+    'initCheckFallbackWarning must name the authorization boundary',
+  );
 
   // independent reviewer path for contrast
   const indepStory = createStory(root, 'independent-review', 'Independent reviewer story');
@@ -153,8 +179,35 @@ try {
   const indepView = JSON.parse(run(root, 'story_get', { storyId: indepStory }));
   assert.equal(indepView.initCheckAttestation, 'independent', 'independent reviewer story_get must report attestation=independent');
   assert.ok(!indepView.initCheckFallback, 'independent path must NOT carry a fallback block');
+  // B-6894: independent reviewer stories must NOT carry the warning field.
+  assert.ok(!indepView.initCheckFallbackWarning, 'independent path must NOT carry initCheckFallbackWarning');
   const indepAdvanced = run(root, 'story_advance', { storyId: indepStory, phase: 'INIT_CHECK' });
   assert.match(indepAdvanced, /advanced to INIT_CHECK/, 'independent reviewer path still advances normally');
+
+  // B-6894: session_brief for fallback story must surface the authorization boundary warning.
+  // Run session_brief on the root (main branch has no story branch active) so the
+  // main-dashboard active-stories view is exercised.
+  const brief = run(root, 'session_brief', {});
+  assert.match(
+    brief,
+    /INIT fallback warning/,
+    'session_brief must render INIT fallback warning section when a fallback story is active',
+  );
+  assert.match(
+    brief,
+    /manual fallback attestation, not independent reviewer approval/,
+    'session_brief INIT fallback warning must include the attestation gap text',
+  );
+  assert.match(
+    brief,
+    /PLAN\/DEV\/REVIEW\/TEST gates remain required/,
+    'session_brief INIT fallback warning must state later gates remain required',
+  );
+  assert.match(
+    brief,
+    /explicit user\/project authorization/,
+    'session_brief INIT fallback warning must include the authorization boundary',
+  );
 
   // ── Test 3: tampering signed story content after repair still triggers tamper ─
   const tamperStory = createStory(root, 'fallback-tamper', 'Fallback tamper story');
