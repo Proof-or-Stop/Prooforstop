@@ -141,7 +141,7 @@
         "docs/requirements/decisions/authority-client-role.md",
         "docs/requirements/decisions/verification-context-pack.md"
       ],
-      "userSees": "The next Claude/Codex session knows exactly what to build next without rereading the whole discussion.",
+      "userSees": "Story summary says: \"Milestone 0 completed boundary docs and smoke tests only; next story is Milestone 1 policy discovery; actor key, job claim, provider execution, full envelope, and receipt verification remain unimplemented.\"",
       "verificationIntent": {
         "happy": [
           {
@@ -167,7 +167,18 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/authority-client-role.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/authority-boundary-smoke.ts",
+          "packages/main/src/tasks/authority-client-smoke.ts",
+          "packages/main/src/tasks/authority-evidence-flow-smoke.ts"
+        ]
+      }
     }
   ]
 }
