@@ -4,7 +4,7 @@
   "title": "Sync Koala runtime ignore managed assets",
   "description": "Resolve the remaining koala check managed asset drift by syncing the safe runtime ignore patterns into .gitignore. The expected change is limited to ignoring owner-lease and Koala lock runtime files so they cannot be accidentally committed.",
   "type": "chore",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "medium",
   "keywords": [
     "koala-check",
@@ -47,11 +47,20 @@
       "branch": "story/B-6375",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-27T20:19:45.585Z",
+      "branch": "story/B-6375",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-6375",
     "branch": "story/B-6375",
     "createdAt": "2026-05-27T19:36:08.164Z"
-  }
+  },
+  "currentReviewRound": "2026-05-27T20:19:45.585Z"
 }
