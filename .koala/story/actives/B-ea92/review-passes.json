@@ -35,6 +35,15 @@
       "reviewRound": "2026-05-27T19:00:54.260Z",
       "reviewRunId": "B-ea92:RR-008",
       "_hash": "63f429b6797bc20c116505ffb85ea62bbcb6fbe1f95567100d1b9e3e8a5d1453"
+    },
+    {
+      "id": "B-ea92:RP-005",
+      "agent": "koala-review-quality",
+      "note": "Re-review after cleanup commit d6cd8123. F-001 (unused imports + void suppression) and F-002 (as any on compatibility) are both fully removed from authority-enforce-policy-smoke.ts. New code in authority-enforce.ts, authority-client.ts, authority-contracts.ts, command-policy.ts, config.ts, cli-engine.ts, and registry.ts introduces no dead code, no unnecessary as any, and no empty catch blocks. All new as any in cli-engine.ts are pre-existing Zod-internal access patterns not touched by this story.",
+      "createdAt": "2026-05-27T19:02:09.830Z",
+      "reviewRound": "2026-05-27T19:00:54.260Z",
+      "reviewRunId": "B-ea92:RR-006",
+      "_hash": "058e66067825f1a60fb40e0790f886e70b9a0688346132cf34e9721d05686500"
     }
   ]
 }
