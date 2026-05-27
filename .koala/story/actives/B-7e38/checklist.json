@@ -52,7 +52,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/authority-client-role.md"
       ],
-      "userSees": "Test output says authority boundary smoke passed and proves accepted true without a verified receipt stays thin-client transport accepted, while complete signed envelope plus verified receipt is the only L2+ case.",
+      "userSees": "Test output includes the exact line: \"authority boundary smoke passed\" and the evidence matrix proves accepted true without verified receipt stays thin-client transport accepted, while complete signed envelope plus verified receipt is the only L2+ case.",
       "verificationIntent": {
         "happy": [
           {
@@ -83,6 +83,7 @@
         "modify": [],
         "create": [],
         "test": [
+          "packages/main/src/core/authority-boundary.ts",
           "packages/main/src/tasks/authority-boundary-smoke.ts",
           "packages/main/src/tasks/authority-client-smoke.ts"
         ]
