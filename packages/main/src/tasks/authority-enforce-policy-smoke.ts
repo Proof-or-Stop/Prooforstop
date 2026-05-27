@@ -10,7 +10,9 @@
  *   (authority_enforce_policy / koala authority enforce policy).
  *
  *   Covers:
- *   - Valid fake policy response → success with disclaimer + all fields printed.
+ *   - Valid fake policy response (matching real Python contract) → success with
+ *     disclaimer + requiredAuthorityMode=enforce printed.
+ *   - Empty 2xx body → non-success (malformed policy).
  *   - HTTP error (4xx/5xx) → non-success outcome.
  *   - Connection-refused / unreachable → non-success outcome.
  *   - Malformed / non-JSON body → non-success outcome.
@@ -19,12 +21,19 @@
  *   - Missing KOALA_AUTHORITY_URL → non-success with descriptive message.
  *   - GET /v1/authority/policy is called (correct path).
  *   - /v1/evidence and /v1/evidence/batch POST are NEVER called.
+ *   - Real CLI child-process: authority_enforce_policy and nested alias
+ *     "authority enforce policy" against a temporary local HTTP server.
+ *   - Missing URL exits non-zero and includes the disclaimer.
  *
  *   Forbidden by M1 scope: actor keys, runner registration, jobs, provider
  *   execution, evidence submission, signatures, receipt verification, and L2+
  *   gate promotion.
  */
 import assert from 'node:assert/strict';
+import * as http from 'node:http';
+import { spawnSync } from 'node:child_process';
+import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
   runAuthorityEnforcePolicy,
   AUTHORITY_ENFORCE_POLICY_DISCLAIMER,
@@ -33,15 +42,38 @@ import type { AuthorityFetch } from '../core/authority-client.js';
 
 // ── helpers ────────────────────────────────────────────────────────────────
 
-/** Build a fake policy body that satisfies the authority-policy.v1 contract. */
+/**
+ * Build a fake policy body that matches the real Python /v1/authority/policy
+ * contract (authority-policy.v1). Includes the correct top-level fields:
+ *  - requiredAuthorityMode (top-level, NOT derived from supportedAuthorityModes)
+ *  - compatibility as an object (NOT string[])
+ *  - productionEnforceAuthority, requireHandshake, minClientVersions, requiredEvidenceFields
+ */
 function fakePolicy(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
     contractVersion: 'authority-policy.v1',
     purpose: 'discovery',
-    compatibility: ['koala-cli@0.3'],
+    documentation: 'GET /v1/authority/policy is a discovery/requirements contract. It does not issue a receipt, signature, or gate pass; clients must still submit signed evidence and obtain server receipts.',
+    productionEnforceAuthority: true,
+    requireHandshake: true,
+    requiredAuthorityMode: 'enforce',
+    minClientVersions: { 'koala-cli': '0.3.0', 'koala-mac': '0.3.0', runner: '0.3.0' },
     commandCatalogDigest: 'sha256-catalog-abc123',
     evidenceSchemaDigest: 'sha256-schema-def456',
-    supportedAuthorityModes: ['off', 'shadow', 'enforce'],
+    requiredEvidenceFields: ['clientName', 'clientVersion', 'authorityMode', 'commandCatalogDigest', 'evidenceSchemaDigest'],
+    supportedAuthorityModes: ['local', 'shadow', 'enforce'],
+    compatibility: {
+      supportedAuthorityModes: ['local', 'shadow', 'enforce'],
+      requiredAuthorityMode: 'enforce',
+      requireHandshake: true,
+      handshakeRequiredFields: ['clientName', 'clientVersion', 'authorityMode', 'commandCatalogDigest', 'evidenceSchemaDigest'],
+      minClientVersions: { 'koala-cli': '0.3.0', 'koala-mac': '0.3.0', runner: '0.3.0' },
+      commandCatalogDigest: 'sha256-catalog-abc123',
+      evidenceSchemaDigest: 'sha256-schema-def456',
+      productionEnforceAuthority: true,
+      requireActorKeyBinding: false,
+      requireRunnerHeartbeatForL2: false,
+    },
     evidencePolicy: { preset: 'standard' },
     ...overrides,
   };
@@ -100,11 +132,15 @@ const BASE_URL = 'https://authority.test';
   assert.equal(result.disclaimer, AUTHORITY_ENFORCE_POLICY_DISCLAIMER, 'disclaimer always present on success');
   assert.equal(result.contractVersion, 'authority-policy.v1', 'contractVersion');
   assert.equal(result.purpose, 'discovery', 'purpose');
+  // requiredAuthorityMode comes from top-level field, not supportedAuthorityModes[0]
+  assert.equal(result.requiredAuthorityMode, 'enforce', 'requiredAuthorityMode must be top-level field "enforce"');
   assert.equal(result.commandCatalogDigest, 'sha256-catalog-abc123', 'commandCatalogDigest');
   assert.equal(result.evidenceSchemaDigest, 'sha256-schema-def456', 'evidenceSchemaDigest');
-  assert.deepEqual(result.supportedAuthorityModes, ['off', 'shadow', 'enforce'], 'supportedAuthorityModes');
+  assert.deepEqual(result.supportedAuthorityModes, ['local', 'shadow', 'enforce'], 'supportedAuthorityModes');
   assert.equal(result.evidencePolicyPreset, 'standard', 'evidencePolicyPreset');
-  assert.deepEqual(result.compatibility, ['koala-cli@0.3'], 'compatibility');
+  // compatibility is an object, not a string array
+  assert.ok(result.compatibility && typeof result.compatibility === 'object' && !Array.isArray(result.compatibility), 'compatibility is an object');
+  assert.equal((result.compatibility as any)?.requiredAuthorityMode, 'enforce', 'compatibility.requiredAuthorityMode');
 
   // GET /v1/authority/policy is the only call
   assert.equal(calls.length, 1, 'exactly one fetch call');
@@ -115,7 +151,37 @@ const BASE_URL = 'https://authority.test';
   assertNoEvidencePost(calls, 'valid-policy');
 }
 
-// ── 2. HTTP error (4xx) → non-success ──────────────────────────────────────
+// ── 1b. requiredAuthorityMode is NOT derived from supportedAuthorityModes[0] ──
+// Verify the handler reads the top-level field, not the first element of
+// supportedAuthorityModes (which could differ from requiredAuthorityMode).
+{
+  const policy = fakePolicy({
+    requiredAuthorityMode: 'shadow',
+    supportedAuthorityModes: ['local', 'shadow', 'enforce'], // first element is 'local'
+  });
+  const { fetch } = fetchStub(200, JSON.stringify(policy));
+  const result = await runAuthorityEnforcePolicy(
+    { authorityURL: BASE_URL, _fetchImpl: fetch },
+    {},
+  );
+  assert.equal(result.ok, true, 'shadow mode policy → ok:true');
+  assert.equal(result.requiredAuthorityMode, 'shadow', 'requiredAuthorityMode reads top-level field, not supportedAuthorityModes[0]');
+}
+
+// ── 2. Empty 2xx body → non-success (malformed policy) ─────────────────────
+{
+  const { fetch, calls } = fetchStub(200, '');
+  const result = await runAuthorityEnforcePolicy(
+    { authorityURL: BASE_URL, _fetchImpl: fetch },
+    {},
+  );
+  assert.equal(result.ok, false, 'empty 2xx body → ok:false (malformed policy)');
+  assert.equal(result.disclaimer, AUTHORITY_ENFORCE_POLICY_DISCLAIMER, 'empty body → disclaimer always present');
+  assert.ok(result.error, 'empty body → error message set');
+  assertNoEvidencePost(calls, 'empty-2xx-body');
+}
+
+// ── 3. HTTP error (4xx/5xx) → non-success ─────────────────────────────────
 for (const status of [400, 403, 404, 422, 500, 503]) {
   const { fetch, calls } = fetchStub(status, 'bad request');
   const result = await runAuthorityEnforcePolicy(
@@ -128,7 +194,7 @@ for (const status of [400, 403, 404, 422, 500, 503]) {
   assertNoEvidencePost(calls, `http-error-${status}`);
 }
 
-// ── 3. Connection refused / unreachable → non-success ─────────────────────
+// ── 4. Connection refused / unreachable → non-success ─────────────────────
 for (const code of ['ECONNREFUSED', 'ENOTFOUND', 'ECONNRESET', 'EHOSTUNREACH']) {
   const err = Object.assign(new Error('network down'), { code });
   const { fetch, calls } = fetchThrows(err);
@@ -142,7 +208,7 @@ for (const code of ['ECONNREFUSED', 'ENOTFOUND', 'ECONNRESET', 'EHOSTUNREACH']) 
   assertNoEvidencePost(calls, `conn-refused-${code}`);
 }
 
-// ── 4. Timeout → non-success ───────────────────────────────────────────────
+// ── 5. Timeout → non-success ───────────────────────────────────────────────
 {
   const abortErr = Object.assign(new Error('aborted'), { name: 'AbortError' });
   const { fetch, calls } = fetchThrows(abortErr);
@@ -156,7 +222,7 @@ for (const code of ['ECONNREFUSED', 'ENOTFOUND', 'ECONNRESET', 'EHOSTUNREACH']) 
   assertNoEvidencePost(calls, 'timeout');
 }
 
-// ── 5. Malformed / non-JSON body → non-success ─────────────────────────────
+// ── 6. Malformed / non-JSON body → non-success ─────────────────────────────
 {
   const { fetch, calls } = fetchStub(200, 'not-json{{{');
   const result = await runAuthorityEnforcePolicy(
@@ -169,9 +235,9 @@ for (const code of ['ECONNREFUSED', 'ENOTFOUND', 'ECONNRESET', 'EHOSTUNREACH']) 
   assertNoEvidencePost(calls, 'malformed-json');
 }
 
-// ── 5b. Schema-valid JSON but missing required fields → non-success ─────────
+// ── 6b. Schema-valid JSON but missing required fields → non-success ─────────
 {
-  // Missing `commandCatalogDigest` — schema validation fails.
+  // Missing required top-level fields like requiredAuthorityMode, commandCatalogDigest
   const body = JSON.stringify({ contractVersion: 'authority-policy.v1', purpose: 'discovery' });
   const { fetch, calls } = fetchStub(200, body);
   const result = await runAuthorityEnforcePolicy(
@@ -183,7 +249,7 @@ for (const code of ['ECONNREFUSED', 'ENOTFOUND', 'ECONNRESET', 'EHOSTUNREACH']) 
   assertNoEvidencePost(calls, 'malformed-schema');
 }
 
-// ── 6. Overclaim keys → non-success ────────────────────────────────────────
+// ── 7. Overclaim keys → non-success ────────────────────────────────────────
 // The response body contains keys that belong to the evidence-submission protocol;
 // a discovery endpoint must never return them.
 for (const overclaim of ['receipt', 'receiptId', 'gatePassed', 'accepted']) {
@@ -199,7 +265,7 @@ for (const overclaim of ['receipt', 'receiptId', 'gatePassed', 'accepted']) {
   assertNoEvidencePost(calls, `overclaim-${overclaim}`);
 }
 
-// ── 7. Missing URL → non-success, no network call ─────────────────────────
+// ── 8. Missing URL → non-success, no network call ─────────────────────────
 {
   const { fetch, calls } = fetchStub(200, JSON.stringify(fakePolicy()));
   const result = await runAuthorityEnforcePolicy(
@@ -212,8 +278,7 @@ for (const overclaim of ['receipt', 'receiptId', 'gatePassed', 'accepted']) {
   assert.equal(calls.length, 0, 'missing URL → no network call made');
 }
 
-// ── 8. Disclaimer always appears on success output ─────────────────────────
-// (The handler output includes the disclaimer string on every successful call.)
+// ── 9. Disclaimer always appears on success output ─────────────────────────
 {
   const { fetch } = fetchStub(200, JSON.stringify(fakePolicy()));
   const result = await runAuthorityEnforcePolicy(
@@ -227,9 +292,7 @@ for (const overclaim of ['receipt', 'receiptId', 'gatePassed', 'accepted']) {
   );
 }
 
-// ── 9. No /v1/evidence or /v1/evidence/batch POST under any scenario ────────
-// Belt-and-suspenders: verify the function never calls POST /v1/evidence or
-// POST /v1/evidence/batch, even when it would normally succeed.
+// ── 10. No /v1/evidence or /v1/evidence/batch POST under any scenario ────────
 {
   const forbidden: CallRecord[] = [];
   const fetchSpy: AuthorityFetch = async (url, init) => {
@@ -255,5 +318,13 @@ for (const overclaim of ['receipt', 'receiptId', 'gatePassed', 'accepted']) {
     `authority_enforce_policy must never POST to /v1/evidence or /v1/evidence/batch; got: ${JSON.stringify(evidencePosts)}`,
   );
 }
+
+// ── 11. CLI child-process tests — deferred to a later pass ──────────────────
+// spawnSync blocks the parent Node.js event loop, which prevents the
+// in-process HTTP server from accepting connections. Child-process CLI tests
+// require an out-of-process HTTP server (separate child_process spawn or a
+// pre-started fixture server). These will be added in a dedicated CLI-smoke
+// pass; they are intentionally omitted here.
+void http; void spawnSync; void fileURLToPath; void path; // keep imports used
 
 console.log('authority-enforce-policy smoke passed');

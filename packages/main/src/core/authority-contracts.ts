@@ -475,7 +475,12 @@ export const AUTHORITY_POLICY_OVERCLAIM_KEYS: readonly string[] = [
 
 /**
  * Typed shape of the Python authority server's /v1/authority/policy response
- * (authority-policy.v1 contract). All fields are required per the contract.
+ * (authority-policy.v1 contract). Matches the real Python route implementation.
+ *
+ * Key top-level fields (as returned by the Python server):
+ *  - requiredAuthorityMode  : the server's required mode ("enforce" / "shadow" / "local")
+ *  - compatibility          : object (NOT string[]) containing supportedAuthorityModes,
+ *                             requiredAuthorityMode, requireHandshake, minClientVersions, etc.
  *
  * SCOPE: read-only discovery. This type does NOT contain any evidence-submission
  * or receipt fields. If the server returns those keys they are treated as an
@@ -484,25 +489,64 @@ export const AUTHORITY_POLICY_OVERCLAIM_KEYS: readonly string[] = [
 export interface AuthorityPolicyContract {
   contractVersion: string;        // "authority-policy.v1"
   purpose: string;                // "discovery"
-  compatibility: string[];
+  documentation?: string;
+  /** The server's required authority mode ("enforce" / "shadow" / "local"). */
+  requiredAuthorityMode: string;
+  productionEnforceAuthority: boolean;
+  requireHandshake: boolean;
   commandCatalogDigest: string;
   evidenceSchemaDigest: string;
   supportedAuthorityModes: string[];
+  minClientVersions: Record<string, string>;
+  requiredEvidenceFields: string[];
   evidencePolicy: {
     preset: string;
+    [key: string]: unknown;
   };
+  /** Object containing compatibility metadata (supportedAuthorityModes, minClientVersions, etc.). */
+  compatibility: {
+    supportedAuthorityModes: string[];
+    requiredAuthorityMode: string;
+    requireHandshake: boolean;
+    handshakeRequiredFields?: string[];
+    minClientVersions: Record<string, string>;
+    commandCatalogDigest: string;
+    evidenceSchemaDigest: string;
+    productionEnforceAuthority: boolean;
+    requireActorKeyBinding: boolean;
+    requireRunnerHeartbeatForL2: boolean;
+    [key: string]: unknown;
+  };
+  [key: string]: unknown;
 }
 
 export const AuthorityPolicyContractSchema = z.object({
   contractVersion: z.string(),
   purpose: z.string(),
-  compatibility: z.array(z.string()),
+  documentation: z.string().optional(),
+  requiredAuthorityMode: z.string(),
+  productionEnforceAuthority: z.boolean(),
+  requireHandshake: z.boolean(),
   commandCatalogDigest: z.string(),
   evidenceSchemaDigest: z.string(),
   supportedAuthorityModes: z.array(z.string()),
+  minClientVersions: z.record(z.string(), z.string()),
+  requiredEvidenceFields: z.array(z.string()),
   evidencePolicy: z.object({
     preset: z.string(),
-  }),
+  }).passthrough(),
+  compatibility: z.object({
+    supportedAuthorityModes: z.array(z.string()),
+    requiredAuthorityMode: z.string(),
+    requireHandshake: z.boolean(),
+    handshakeRequiredFields: z.array(z.string()).optional(),
+    minClientVersions: z.record(z.string(), z.string()),
+    commandCatalogDigest: z.string(),
+    evidenceSchemaDigest: z.string(),
+    productionEnforceAuthority: z.boolean(),
+    requireActorKeyBinding: z.boolean(),
+    requireRunnerHeartbeatForL2: z.boolean(),
+  }).passthrough(),
 }).passthrough();
 
 /**

@@ -35,7 +35,7 @@ export interface AuthorityEnforcePolicyResult {
   evidenceSchemaDigest?: string;
   supportedAuthorityModes?: string[];
   evidencePolicyPreset?: string;
-  compatibility?: string[];
+  compatibility?: Record<string, unknown>;
   error?: string;
 }
 
@@ -82,11 +82,9 @@ export async function runAuthorityEnforcePolicy(
     disclaimer: AUTHORITY_ENFORCE_POLICY_DISCLAIMER,
     contractVersion: policy.contractVersion,
     purpose: policy.purpose,
-    // requiredAuthorityMode is not a top-level field in the contract; expose
-    // supportedAuthorityModes (the discovery field) instead.
-    requiredAuthorityMode: Array.isArray(policy.supportedAuthorityModes)
-      ? policy.supportedAuthorityModes[0]
-      : undefined,
+    // requiredAuthorityMode is a top-level field in the real Python contract
+    // (maps to policy.required_authority_mode on the server).
+    requiredAuthorityMode: policy.requiredAuthorityMode,
     commandCatalogDigest: policy.commandCatalogDigest,
     evidenceSchemaDigest: policy.evidenceSchemaDigest,
     supportedAuthorityModes: policy.supportedAuthorityModes,
@@ -101,11 +99,11 @@ export function createAuthorityEnforceHandlers(_ctx: HandlerContext) {
       const result = await runAuthorityEnforcePolicy(args);
 
       if (!result.ok) {
-        const lines: string[] = [
+        // Throw so runCli exits non-zero; include the disclaimer in the message.
+        throw new Error([
           `❌ ${result.error}`,
           result.disclaimer,
-        ];
-        return lines.join('\n');
+        ].join('\n'));
       }
 
       const lines: string[] = [
@@ -113,11 +111,11 @@ export function createAuthorityEnforceHandlers(_ctx: HandlerContext) {
         '',
         `contractVersion:        ${result.contractVersion}`,
         `purpose:                ${result.purpose}`,
+        `requiredAuthorityMode:  ${result.requiredAuthorityMode}`,
         `commandCatalogDigest:   ${result.commandCatalogDigest}`,
         `evidenceSchemaDigest:   ${result.evidenceSchemaDigest}`,
         `supportedModes:         ${(result.supportedAuthorityModes ?? []).join(', ')}`,
         `evidencePolicy.preset:  ${result.evidencePolicyPreset}`,
-        `compatibility:          ${(result.compatibility ?? []).join(', ')}`,
       ];
       return lines.join('\n');
     },

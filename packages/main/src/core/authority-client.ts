@@ -225,7 +225,12 @@ export class AuthorityClient {
     }
 
     if (!text) {
-      return { kind: 'success', ok: true, status: response.status, data: {} as T };
+      return {
+        kind: 'error',
+        ok: false,
+        status: response.status,
+        message: 'authority policy response body is empty (malformed policy)',
+      };
     }
 
     let parsed: unknown;
