@@ -1,0 +1,122 @@
+{
+  "storyId": "B-ea92",
+  "checkedAt": "2026-05-27T18:19:55.491Z",
+  "features": [
+    {
+      "feature": "GET /v1/authority/policy typed client contract (authority-policy.v1 schema)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/authority-client-role.md"
+    },
+    {
+      "feature": "Parse policy response fields: contractVersion, requiredAuthorityMode, commandCatalogDigest, evidenceSchemaDigest, evidencePolicy.preset",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/authority-client-role.md"
+    },
+    {
+      "feature": "Reject/flag overclaim policy responses containing receipt, receiptId, gatePassed, or accepted fields",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/authority-client-role.md"
+    },
+    {
+      "feature": "HTTP errors, timeouts, malformed policy bodies reported as non-success (not discovery success)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/authority-client-role.md"
+    },
+    {
+      "feature": "`koala authority enforce` CLI command stub — policy discovery only (M1 boundary)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/authority-client-role.md"
+    },
+    {
+      "feature": "Command must not call /v1/evidence or /v1/evidence/batch; no evidence submission flag",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/authority-client-role.md"
+    },
+    {
+      "feature": "Missing authority URL or unreachable server exits non-zero with clear policy discovery error; no local evidence write",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/authority-client-role.md"
+    },
+    {
+      "feature": "Preserve ordinary workflow thin-client authority behavior (verification_evidence_add off/shadow/enforce transport unaffected)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/authority-client-role.md"
+    },
+    {
+      "feature": "authority-boundary smoke still classifies accepted:true without verified receipt as thin-client-transport-accepted",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/authority-client-role.md"
+    },
+    {
+      "feature": "Mentioning enforce namespace must not promote workflow evidence to receipt-backed-l2-plus",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/authority-client-role.md"
+    },
+    {
+      "feature": "Update PD-2 docs with M1 actual command name/syntax and keep M2+ prohibitions explicit",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/authority-client-role.md"
+    },
+    {
+      "feature": "Docs distinguish Python server policy discovery ownership from TS CLI policy consumption",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/authority-client-role.md"
+    },
+    {
+      "feature": "Milestone 1 validation record and next-story handoff (for M2+ safety gate)",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/authority-client-role.md"
+    },
+    {
+      "feature": "M2+ forbidden items (actor keys, job claim, provider execution, full EvidenceEnvelope, receipt verification) must remain unimplemented",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/authority-client-role.md"
+    },
+    {
+      "feature": "VCP digest parity (digestVerificationContextPack alignment with Python authority) — external authority constraint, not M1 CLI scope",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "M1 is policy discovery only; VCP digest alignment is an M3/M4 concern under enforce-mode product approval gate (authority-client-role.md §Milestone Routing)",
+      "source": "decisions:decisions/verification-context-pack.md"
+    }
+  ],
+  "summary": {
+    "total": 15,
+    "covered": 14,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "587c18b5274671f591fd4680dec068205bf0227b9143f34ce3327bca84882b34",
+  "openQuestions": []
+}

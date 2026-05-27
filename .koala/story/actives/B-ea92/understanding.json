@@ -1,0 +1,36 @@
+{
+  "task": "Add Milestone 1 read-only policy discovery for the isolated koala authority enforce subsystem.",
+  "outcome": "User runs koala authority enforce policy --authorityURL=http://127.0.0.1:PORT against a fake Python authority endpoint and sees: Authority policy discovery only: no receipt, no gate pass, no evidence submission. contractVersion=authority-policy.v1 requiredAuthorityMode=enforce preset=anti-hallucination commandCatalogDigest=... evidenceSchemaDigest=...",
+  "facts": [
+    "B-7e38 recorded the subsystem boundary: ordinary Koala workflow remains a thin client, while future koala authority enforce work is isolated and opt-in.",
+    "PD-2 means the authority-client role decision that separates CLI discovery/transport from Python authority receipts and Mac Runner execution.",
+    "cord-team is the Python authority server repository whose GET /v1/authority/policy endpoint owns the authority-policy.v1 discovery contract.",
+    "Python authority policy discovery is read-only and explicitly does not issue receipts, signatures, gate passes, or evidence acceptance.",
+    "Existing Koala authority evidence flow supports POST /v1/evidence and /v1/evidence/batch; this story must not broaden that path into production L2+ authority."
+  ],
+  "constraints": [
+    "Follow Koala lifecycle: PLAN artifacts first, scope review before DEV, implementation by Claude Code CLI, Codex verifies.",
+    "Do not implement actor keys, runner registration, job claiming, provider execution, evidence submission, receipt verification, or gate promotion in this milestone.",
+    "The new command must be read-only from the Koala story perspective and must not write local evidence files.",
+    "The client must reject or flag overclaim policy responses containing receipt, receiptId, gatePassed, or accepted.",
+    "Existing authority-boundary, authority-client, and authority-evidence-flow smokes must keep passing."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/authority-client-role.md",
+    "packages/main/src/core/authority-contracts.ts",
+    "packages/main/src/core/authority-client.ts",
+    "packages/main/src/handlers/authority-enforce.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/tasks/authority-enforce-policy-smoke.ts",
+    "packages/main/src/tasks/authority-client-smoke.ts",
+    "packages/main/src/tasks/authority-boundary-smoke.ts",
+    "packages/main/src/tasks/authority-evidence-flow-smoke.ts",
+    "packages/main/src/tasks/command-ownership-contract.ts",
+    "packages/main/package.json"
+  ],
+  "timestamp": "2026-05-27T18:17:03.281Z"
+}
