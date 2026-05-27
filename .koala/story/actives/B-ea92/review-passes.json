@@ -53,6 +53,15 @@
       "reviewRound": "2026-05-27T19:00:54.260Z",
       "reviewRunId": "B-ea92:RR-005",
       "_hash": "332e48c9ae9eddd0249281ed1e226a7acb73e6c76f2f68608bb951e5722402e4"
+    },
+    {
+      "id": "B-ea92:RP-007",
+      "agent": "koala-review-docs",
+      "note": "Step 1: 7 exported symbols extracted (AuthorityEnforcePolicyArgs, AuthorityEnforcePolicyResult, AuthorityPolicyContract, AuthorityPolicyContractSchema, AUTHORITY_ENFORCE_POLICY_DISCLAIMER, AUTHORITY_POLICY_OVERCLAIM_KEYS, detectPolicyOverclaim). Step 2: docs/requirements/decisions/authority-client-role.md M1 section (lines 50-68) compared against implementation. All behavioral claims aligned: dual syntax (authority_enforce_policy / koala authority enforce policy) matches cli-engine.ts:1911 alias; field table (contractVersion, requiredAuthorityMode, commandCatalogDigest, evidenceSchemaDigest, evidencePolicy.preset, supportedAuthorityModes, compatibility) matches AuthorityPolicyContract schema; prohibition list (no evidence submission, no keys, no jobs, no receipts) matches handler docstring and AUTHORITY_ENFORCE_POLICY_DISCLAIMER constant. Internal symbols (detectPolicyOverclaim, AUTHORITY_POLICY_OVERCLAIM_KEYS) are runtime-only guards not requiring doc coverage. No doc-code drift found. No blockers.",
+      "createdAt": "2026-05-27T19:02:36.532Z",
+      "reviewRound": "2026-05-27T19:00:54.260Z",
+      "reviewRunId": "B-ea92:RR-007",
+      "_hash": "4a60479c048124039afc06f6ab5e1eb48f67db14b8eb8f58366d58d1a8f49908"
     }
   ]
 }
