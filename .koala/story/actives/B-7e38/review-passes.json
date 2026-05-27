@@ -17,6 +17,15 @@
       "reviewRound": "2026-05-27T18:03:30.708Z",
       "reviewRunId": "B-7e38:RR-002",
       "_hash": "361ae2ca8a236b95019500271c8241a04afb779a5db61160b29ad160414f0d24"
+    },
+    {
+      "id": "B-7e38:RP-003",
+      "agent": "koala-review-docs",
+      "note": "Doc diff adds PD-2 decision + M0 handoff sections to authority-client-role.md. No new commands introduced; koala authority enforce explicitly marked as not-yet-existing. authority-boundary.ts path reference verified correct. Smoke test file matches M0 record. No doc-code drift, no conflicting routing, no overclaim. Step1: 0 exported symbols in diff. Fallback1 applied: doc-only story, full added sections verified self-consistent.",
+      "createdAt": "2026-05-27T18:05:06.324Z",
+      "reviewRound": "2026-05-27T18:03:30.708Z",
+      "reviewRunId": "B-7e38:RR-001",
+      "_hash": "702c1aa6c3d8bc33eda221cb08f24d306b0eece16951293daa85175bf0ec3feb"
     }
   ]
 }
