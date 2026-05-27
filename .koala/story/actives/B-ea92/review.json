@@ -28,6 +28,30 @@
         }
       ],
       "_hash": "c28f97a9f28398a2156a84c4b1d5e68b4fed9865b2612bbde4270a6e54a175cb"
+    },
+    {
+      "timestamp": "2026-05-27T18:20:03.726Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 userSees 可能太抽象（未包含引号括起来的具体输出文本）。应该写用户看到的精确文字，不是\"功能正常工作\"这类描述"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 个 checklist item，请检查是否有组合场景遗漏（如：Add typed authority policy discovery client contract + Expose read-only koala authority enforce policy command boundary 同时操作会怎样？）"
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "checklist 所有 item 均未填写 files 字段（旧 story 兼容模式），无法对 understanding.touchpoints 做覆盖校验。请为至少一个 item 的 files.modify/create/test 列出改动文件，以启用 touchpoint→files 强校验"
+        }
+      ],
+      "_hash": "d8eccc6e65a88e87e04dce9d5fc7bb83d5f331198642105541013389de5954df"
     }
   ]
 }

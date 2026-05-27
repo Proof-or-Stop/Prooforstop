@@ -34,7 +34,21 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/authority-contracts.ts",
+          "packages/main/src/core/authority-client.ts",
+          "packages/main/src/tasks/authority-client-smoke.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/authority-enforce-policy-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/authority-client-smoke.ts",
+          "packages/main/src/tasks/authority-enforce-policy-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-002",
