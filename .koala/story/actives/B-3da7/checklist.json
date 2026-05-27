@@ -57,6 +57,17 @@
           "headHash": "3f92a21a81bbf3030e28c0755c330df1f7497c6a",
           "materialHash": "1463653573d2c2ece8b4ac85bf52aad72bfe45e380a826018ca5910f299e88da",
           "timestamp": "2026-05-27T19:17:23.797Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/authority-enforce-policy-smoke.ts",
+          "command": "koala convergence_check",
+          "result": "pass",
+          "note": "convergence_check reports code annotation compliance passed: 33 annotations all compliant; the only remaining false row is expected while B-3da7 is still active.",
+          "headHash": "8e8d2c8b616034c0a4ca223179ccb6883271f137",
+          "materialHash": "1463653573d2c2ece8b4ac85bf52aad72bfe45e380a826018ca5910f299e88da",
+          "timestamp": "2026-05-27T19:17:29.479Z"
         }
       ]
     }
