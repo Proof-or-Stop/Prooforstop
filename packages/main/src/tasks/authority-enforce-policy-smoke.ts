@@ -30,10 +30,6 @@
  *   gate promotion.
  */
 import assert from 'node:assert/strict';
-import * as http from 'node:http';
-import { spawnSync } from 'node:child_process';
-import * as path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import {
   runAuthorityEnforcePolicy,
   AUTHORITY_ENFORCE_POLICY_DISCLAIMER,
@@ -140,7 +136,7 @@ const BASE_URL = 'https://authority.test';
   assert.equal(result.evidencePolicyPreset, 'standard', 'evidencePolicyPreset');
   // compatibility is an object, not a string array
   assert.ok(result.compatibility && typeof result.compatibility === 'object' && !Array.isArray(result.compatibility), 'compatibility is an object');
-  assert.equal((result.compatibility as any)?.requiredAuthorityMode, 'enforce', 'compatibility.requiredAuthorityMode');
+  assert.equal(result.compatibility?.['requiredAuthorityMode'], 'enforce', 'compatibility.requiredAuthorityMode');
 
   // GET /v1/authority/policy is the only call
   assert.equal(calls.length, 1, 'exactly one fetch call');
@@ -325,6 +321,5 @@ for (const overclaim of ['receipt', 'receiptId', 'gatePassed', 'accepted']) {
 // require an out-of-process HTTP server (separate child_process spawn or a
 // pre-started fixture server). These will be added in a dedicated CLI-smoke
 // pass; they are intentionally omitted here.
-void http; void spawnSync; void fileURLToPath; void path; // keep imports used
 
 console.log('authority-enforce-policy smoke passed');
