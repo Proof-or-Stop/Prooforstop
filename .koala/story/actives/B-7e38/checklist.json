@@ -96,7 +96,7 @@
         "docs/requirements/decisions/authority-client-role.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "userSees": "The CLI surface makes clear that runner behavior is future gated and currently unavailable or documented as planned, not partially active.",
+      "userSees": "Docs show: \"Milestone 1 may add policy discovery only; Milestone 2+ owns actor keys, jobs, envelopes, and receipts; Milestone 0 introduces no evidence-submitting command.\"",
       "verificationIntent": {
         "happy": [
           {
@@ -122,7 +122,16 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/authority-client-role.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/authority-evidence-flow-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-004",
