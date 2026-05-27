@@ -1,0 +1,65 @@
+{
+  "storyId": "B-3da7",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/tasks/authority-enforce-policy-smoke.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/authority-enforce-policy-smoke.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/core/authority-contracts.ts",
+    "packages/main/src/core/authority-client.ts",
+    "packages/main/src/handlers/authority-enforce.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/registry.ts",
+    "docs/requirements/decisions/authority-client-role.md"
+  ],
+  "explicitExcludes": [
+    "packages/main/src/core/**",
+    "packages/main/src/handlers/**",
+    "docs/**",
+    ".koala/story/actives/B-ea92/**"
+  ],
+  "scopeChangeReason": "Only the structured @task header in the smoke file may change to add @changes; runtime authority behavior and docs are out of scope.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Semantic anchor detector did not label the file-header @task hunk, but the acknowledged hunk is exactly the CHK-001 addition of the missing @changes comment field and contains no executable code changes.",
+      "timestamp": "2026-05-27T19:18:17.909Z",
+      "paths": [
+        "packages/main/src/tasks/authority-enforce-policy-smoke.ts"
+      ],
+      "anchors": [
+        "authority_enforce_policy_smoke_header"
+      ],
+      "hunkDigest": "84c540330bdc03c9070f679c52f64eae53376affe3a71d80f0ab6f8da0e814f2"
+    }
+  ],
+  "createdAt": "2026-05-27T19:14:49.573Z",
+  "updatedAt": "2026-05-27T19:18:17.909Z",
+  "fileRules": [
+    {
+      "path": "packages/main/src/tasks/authority-enforce-policy-smoke.ts",
+      "allowedAnchors": [
+        "authority_enforce_policy_smoke_header"
+      ],
+      "deniedAnchors": [
+        "test_cases",
+        "runtime_assertions",
+        "policy_fixture_data",
+        "imports",
+        "handler_calls"
+      ],
+      "allowedChangeKinds": [
+        "add"
+      ],
+      "intentRefs": [
+        "CHK-001:edge:0"
+      ]
+    }
+  ]
+}

@@ -28,6 +28,12 @@
  *   Forbidden by M1 scope: actor keys, runner registration, jobs, provider
  *   execution, evidence submission, signatures, receipt verification, and L2+
  *   gate promotion.
+ * @changes
+ *   Adds read-only authority policy discovery smoke coverage: validates that
+ *   the authority_enforce_policy command correctly fetches and surfaces policy
+ *   data from a remote endpoint without performing production enforcement,
+ *   submitting evidence, handling receipts, requiring actor keys, or touching
+ *   L2+ gate promotion paths.
  */
 import assert from 'node:assert/strict';
 import {
