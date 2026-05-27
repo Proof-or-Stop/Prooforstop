@@ -46,6 +46,17 @@
           "headHash": "e4370c2c7d8a7db05ef37512b9a19d53359d2058",
           "materialHash": "1463653573d2c2ece8b4ac85bf52aad72bfe45e380a826018ca5910f299e88da",
           "timestamp": "2026-05-27T19:17:17.934Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/authority-enforce-policy-smoke.ts",
+          "command": "git show --unified=20 -- packages/main/src/tasks/authority-enforce-policy-smoke.ts && git diff --check",
+          "result": "pass",
+          "note": "Diff is comment-only: it adds only the @changes block to the file header; git diff --check passed and no executable code changed.",
+          "headHash": "3f92a21a81bbf3030e28c0755c330df1f7497c6a",
+          "materialHash": "1463653573d2c2ece8b4ac85bf52aad72bfe45e380a826018ca5910f299e88da",
+          "timestamp": "2026-05-27T19:17:23.797Z"
         }
       ]
     }
