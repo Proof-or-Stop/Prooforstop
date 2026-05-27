@@ -52,7 +52,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/authority-client-role.md"
       ],
-      "userSees": "Tests guard against agents claiming the whole CLI became authority-capable after PD-2.",
+      "userSees": "Test output says authority boundary smoke passed and proves accepted true without a verified receipt stays thin-client transport accepted, while complete signed envelope plus verified receipt is the only L2+ case.",
       "verificationIntent": {
         "happy": [
           {
@@ -78,7 +78,15 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/authority-boundary-smoke.ts",
+          "packages/main/src/tasks/authority-client-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-003",
