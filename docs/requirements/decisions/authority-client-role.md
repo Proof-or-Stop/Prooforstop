@@ -24,7 +24,7 @@ be named so the boundary is cold-readable?
 
 Key constraints recorded by this milestone:
 
-- Ordinary koala workflow commands (`koala story_advance`, `koala verify_evidence_add`, etc.)
+- Ordinary koala workflow commands (`koala story_advance`, `koala verification_evidence_add`, etc.)
   **must never** become or be treated as authority evidence submissions, regardless of future
   enforce subsystem wording in docs.
 - `koala authority enforce` **does not exist yet** as a command. Milestone 0 reserves the
