@@ -52,9 +52,9 @@
           "command": "grep -n PD-2 docs/requirements/decisions/authority-client-role.md",
           "result": "pass",
           "note": "PD-2 section names ordinary koala workflow client, koala authority enforce headless runner, Python authority receipt authority, and Mac Runner execution plane",
-          "headHash": "8d19a8a754d66517e99b928081e73b8e0ae6372e",
-          "materialHash": "52b23e1439d3350c6c4a333ebba5c8bfbc4a92d44c7ad33191be0deeee6ab52b",
-          "timestamp": "2026-05-27T17:59:43.361Z"
+          "headHash": "73b80735973f6143c2ddfdb238ade6a43333a385",
+          "materialHash": "28921cc5c37276f38de567b631179800b4e50a99c77428f9d509b17bc24f34ad",
+          "timestamp": "2026-05-27T18:03:01.624Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -63,9 +63,9 @@
           "command": "grep -n Mac Runner docs/requirements/decisions/authority-client-role.md",
           "result": "pass",
           "note": "PD-2 explicitly states it does not replace Mac Runner and does not make existing local/shadow evidence authoritative",
-          "headHash": "8d19a8a754d66517e99b928081e73b8e0ae6372e",
-          "materialHash": "52b23e1439d3350c6c4a333ebba5c8bfbc4a92d44c7ad33191be0deeee6ab52b",
-          "timestamp": "2026-05-27T17:59:43.390Z"
+          "headHash": "73b80735973f6143c2ddfdb238ade6a43333a385",
+          "materialHash": "28921cc5c37276f38de567b631179800b4e50a99c77428f9d509b17bc24f34ad",
+          "timestamp": "2026-05-27T18:03:01.624Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -74,9 +74,9 @@
           "command": "grep -n transport docs/requirements/decisions/authority-client-role.md",
           "result": "pass",
           "note": "PD-2 explicitly forbids treating transport accepted or local JSON as verified authority receipt evidence",
-          "headHash": "8d19a8a754d66517e99b928081e73b8e0ae6372e",
-          "materialHash": "52b23e1439d3350c6c4a333ebba5c8bfbc4a92d44c7ad33191be0deeee6ab52b",
-          "timestamp": "2026-05-27T17:59:43.419Z"
+          "headHash": "73b80735973f6143c2ddfdb238ade6a43333a385",
+          "materialHash": "28921cc5c37276f38de567b631179800b4e50a99c77428f9d509b17bc24f34ad",
+          "timestamp": "2026-05-27T18:03:01.624Z"
         }
       ]
     },
@@ -131,9 +131,9 @@
           "command": "npm --prefix packages/main run test:authority-boundary-smoke",
           "result": "pass",
           "note": "New caseEnforceNamespaceDocWordingDoesNotPromoteWorkflowSubmission covers enforce-namespace wording guard; existing happy path proves complete signed envelope + verified receipt is required for L2+",
-          "headHash": "680269fd1b33921107ecee2ab19e75c389271501",
-          "materialHash": "52b23e1439d3350c6c4a333ebba5c8bfbc4a92d44c7ad33191be0deeee6ab52b",
-          "timestamp": "2026-05-27T17:59:52.367Z"
+          "headHash": "73b80735973f6143c2ddfdb238ade6a43333a385",
+          "materialHash": "28921cc5c37276f38de567b631179800b4e50a99c77428f9d509b17bc24f34ad",
+          "timestamp": "2026-05-27T18:03:01.624Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -142,9 +142,9 @@
           "command": "npm --prefix packages/main run test:authority-boundary-smoke",
           "result": "pass",
           "note": "caseEnforceAcceptedTransportNotReceipt proves accepted=true without verified receipt stays thin-client-transport-accepted",
-          "headHash": "680269fd1b33921107ecee2ab19e75c389271501",
-          "materialHash": "52b23e1439d3350c6c4a333ebba5c8bfbc4a92d44c7ad33191be0deeee6ab52b",
-          "timestamp": "2026-05-27T17:59:52.403Z"
+          "headHash": "73b80735973f6143c2ddfdb238ade6a43333a385",
+          "materialHash": "28921cc5c37276f38de567b631179800b4e50a99c77428f9d509b17bc24f34ad",
+          "timestamp": "2026-05-27T18:03:01.624Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -153,9 +153,9 @@
           "command": "npm --prefix packages/main run test:authority-boundary-smoke",
           "result": "pass",
           "note": "caseAdversarialSameRunCollapsedVerifier proves same producer/verifier run cannot be L2+ even with receiptVerified=true",
-          "headHash": "680269fd1b33921107ecee2ab19e75c389271501",
-          "materialHash": "52b23e1439d3350c6c4a333ebba5c8bfbc4a92d44c7ad33191be0deeee6ab52b",
-          "timestamp": "2026-05-27T17:59:52.436Z"
+          "headHash": "73b80735973f6143c2ddfdb238ade6a43333a385",
+          "materialHash": "28921cc5c37276f38de567b631179800b4e50a99c77428f9d509b17bc24f34ad",
+          "timestamp": "2026-05-27T18:03:01.624Z"
         }
       ]
     },
@@ -212,9 +212,9 @@
           "command": "grep -n Milestone docs/requirements/decisions/authority-client-role.md",
           "result": "pass",
           "note": "koala authority enforce command boundary section names Milestone 1 as policy discovery only, Milestone 2+ as actor/job/evidence work",
-          "headHash": "315ecc7de298d5634835e9256e8c655d1600416c",
-          "materialHash": "52b23e1439d3350c6c4a333ebba5c8bfbc4a92d44c7ad33191be0deeee6ab52b",
-          "timestamp": "2026-05-27T18:00:01.110Z"
+          "headHash": "73b80735973f6143c2ddfdb238ade6a43333a385",
+          "materialHash": "28921cc5c37276f38de567b631179800b4e50a99c77428f9d509b17bc24f34ad",
+          "timestamp": "2026-05-27T18:03:01.624Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -223,9 +223,9 @@
           "command": "npm --prefix packages/main run test:authority-evidence-flow",
           "result": "pass",
           "note": "Existing authority off/shadow/enforce transport behavior unchanged; test passes confirming no regressions",
-          "headHash": "315ecc7de298d5634835e9256e8c655d1600416c",
-          "materialHash": "52b23e1439d3350c6c4a333ebba5c8bfbc4a92d44c7ad33191be0deeee6ab52b",
-          "timestamp": "2026-05-27T18:00:01.140Z"
+          "headHash": "73b80735973f6143c2ddfdb238ade6a43333a385",
+          "materialHash": "28921cc5c37276f38de567b631179800b4e50a99c77428f9d509b17bc24f34ad",
+          "timestamp": "2026-05-27T18:03:01.624Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -234,9 +234,9 @@
           "command": "grep -n forbidden docs/requirements/decisions/authority-client-role.md",
           "result": "pass",
           "note": "No command introduced by this story can submit production L2+ evidence; boundary section explicitly forbids bypassing receipt boundary",
-          "headHash": "315ecc7de298d5634835e9256e8c655d1600416c",
-          "materialHash": "52b23e1439d3350c6c4a333ebba5c8bfbc4a92d44c7ad33191be0deeee6ab52b",
-          "timestamp": "2026-05-27T18:00:01.172Z"
+          "headHash": "73b80735973f6143c2ddfdb238ade6a43333a385",
+          "materialHash": "28921cc5c37276f38de567b631179800b4e50a99c77428f9d509b17bc24f34ad",
+          "timestamp": "2026-05-27T18:03:01.624Z"
         }
       ]
     },
@@ -294,9 +294,9 @@
           "command": "npm --prefix packages/main run test:authority-boundary-smoke && npm --prefix packages/main run test:authority-client",
           "result": "pass",
           "note": "Validation evidence includes boundary smoke and authority client smoke tests; both pass exit 0",
-          "headHash": "c15b1863f67e61ea778f1eacd1da4cfd27b63244",
-          "materialHash": "52b23e1439d3350c6c4a333ebba5c8bfbc4a92d44c7ad33191be0deeee6ab52b",
-          "timestamp": "2026-05-27T18:00:09.727Z"
+          "headHash": "73b80735973f6143c2ddfdb238ade6a43333a385",
+          "materialHash": "28921cc5c37276f38de567b631179800b4e50a99c77428f9d509b17bc24f34ad",
+          "timestamp": "2026-05-27T18:03:01.624Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -305,9 +305,9 @@
           "command": "grep -n Milestone 1 docs/requirements/decisions/authority-client-role.md",
           "result": "pass",
           "note": "Milestone 0 validation record and handoff section preserves PD-2 constraints for Milestone 1 policy discovery",
-          "headHash": "c15b1863f67e61ea778f1eacd1da4cfd27b63244",
-          "materialHash": "52b23e1439d3350c6c4a333ebba5c8bfbc4a92d44c7ad33191be0deeee6ab52b",
-          "timestamp": "2026-05-27T18:00:09.770Z"
+          "headHash": "73b80735973f6143c2ddfdb238ade6a43333a385",
+          "materialHash": "28921cc5c37276f38de567b631179800b4e50a99c77428f9d509b17bc24f34ad",
+          "timestamp": "2026-05-27T18:03:01.624Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -316,9 +316,9 @@
           "command": "grep -n unimplemented docs/requirements/decisions/authority-client-role.md",
           "result": "pass",
           "note": "Milestone 0 validation record explicitly lists actor key, job claim, provider execution, full envelope, and receipt verification as unimplemented",
-          "headHash": "c15b1863f67e61ea778f1eacd1da4cfd27b63244",
-          "materialHash": "52b23e1439d3350c6c4a333ebba5c8bfbc4a92d44c7ad33191be0deeee6ab52b",
-          "timestamp": "2026-05-27T18:00:09.811Z"
+          "headHash": "73b80735973f6143c2ddfdb238ade6a43333a385",
+          "materialHash": "28921cc5c37276f38de567b631179800b4e50a99c77428f9d509b17bc24f34ad",
+          "timestamp": "2026-05-27T18:03:01.624Z"
         }
       ]
     }
