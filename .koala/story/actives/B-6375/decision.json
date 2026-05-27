@@ -1,0 +1,61 @@
+{
+  "principles": [
+    "Prefer Koala managed-asset repair commands over manual edits.",
+    "Keep this chore scoped to the reported drift only.",
+    "Make the verification observable from terminal commands."
+  ],
+  "drivers": [
+    "`koala check` currently blocks clean convergence because `.gitignore` is stale.",
+    "The expected change is limited to two runtime ignore patterns.",
+    "Story process must preserve auditability and avoid unrelated repo churn."
+  ],
+  "options": [
+    {
+      "name": "run-koala-check-apply",
+      "pros": [
+        "Uses the official managed asset sync path",
+        "Minimizes manual edit risk",
+        "Matches the remediation printed by `koala check`"
+      ],
+      "cons": [
+        "Must still inspect the diff to ensure only `.gitignore` changed"
+      ]
+    },
+    {
+      "name": "manual-gitignore-edit",
+      "pros": [
+        "Small direct text change"
+      ],
+      "cons": [
+        "Bypasses the managed asset repair path",
+        "More likely to drift from template expectations"
+      ]
+    },
+    {
+      "name": "leave-drift-as-advisory",
+      "pros": [
+        "No immediate file change"
+      ],
+      "cons": [
+        "Leaves `koala check` noisy and undermines convergence hygiene"
+      ]
+    }
+  ],
+  "chosen": "run-koala-check-apply",
+  "rationale": "Use the official Koala managed asset sync because this is exactly the safe drift category that `koala check --apply` is designed to repair, then verify the resulting diff.",
+  "preMortem": [
+    {
+      "scenario": "Apply command changes more than `.gitignore`.",
+      "trigger": "Managed assets include additional stale files.",
+      "consequence": "Story exceeds its intended scope.",
+      "mitigation": "Inspect `git status` and `git diff --stat`; revert/stop if anything besides `.gitignore` changes."
+    },
+    {
+      "scenario": "`koala check` still reports drift after apply.",
+      "trigger": "Template expectations changed or apply did not merge the runtime block.",
+      "consequence": "User still sees the original warning.",
+      "mitigation": "Capture the failure and do not mark CHK-001 done until drift is resolved."
+    }
+  ],
+  "timestamp": "2026-05-27T19:52:04.221Z"
+}

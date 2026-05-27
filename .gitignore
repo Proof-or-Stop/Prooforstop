@@ -39,3 +39,8 @@ Thumbs.db
 # pattern wins, so this re-ignores owner-lease.json under the story subtree.
 .koala/story/actives/*/owner-lease.json
 packages/koala-observer-cli/
+
+# koala runtime artifacts (managed)
+**/owner-lease.json
+.koala/locks/
+# /koala runtime artifacts (managed)
