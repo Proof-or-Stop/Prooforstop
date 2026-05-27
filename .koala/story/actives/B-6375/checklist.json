@@ -32,8 +32,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-05-27T20:16:40.733Z",
       "endTime": null,
       "files": {
         "modify": [
@@ -42,6 +42,18 @@
         "create": [],
         "test": []
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-05-27T20:16:40.733Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start managed asset sync implementation.",
+      "agent": "codex-supervisor"
     }
   ]
 }

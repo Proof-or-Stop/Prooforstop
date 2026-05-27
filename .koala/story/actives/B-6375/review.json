@@ -23,6 +23,37 @@
         }
       ],
       "_hash": "d90670b345eaf41f9f61c84cd5106c99c391855ca7516cf0cb2257d2bcdbc25f"
+    },
+    {
+      "timestamp": "2026-05-27T20:09:33.338Z",
+      "issueCount": 2,
+      "blockerCount": 2,
+      "issues": [
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: koala check 未被任何 checklist item 的 files 字段覆盖（请为相应 item 的 files.modify/create/test 加上此路径或用 excludes 显式排除）"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: koala convergence_check 未被任何 checklist item 的 files 字段覆盖（请为相应 item 的 files.modify/create/test 加上此路径或用 excludes 显式排除）"
+        }
+      ],
+      "_hash": "dddbcee538c5f56a6eb5de78925bb4ba74a284c6a1ed135bd05b67753270503f"
+    },
+    {
+      "timestamp": "2026-05-27T20:16:17.512Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "review_advisory",
+          "severity": "advisory",
+          "message": "审查未发现 blocker，但建议对照 _reviewPrompt 中的真相源文档人工复核 checklist 完整性"
+        }
+      ],
+      "_hash": "a42690ce8e6b617db3135b487104022b05e7b50b53dd47047059aad7b8b0bd6d"
     }
   ]
 }
