@@ -953,6 +953,13 @@ export const MAIN_TOOLS: ToolDef[] = [
     json: z.boolean().optional().describe('Output structured JSON'),
   }},
 
+  // B-ea92 M1: read-only authority policy discovery.
+  // Alias: koala authority enforce policy → authority_enforce_policy (resolved in runCli).
+  { name: 'authority_enforce_policy', description: 'Discover authority policy (GET /v1/authority/policy). Read-only: no receipt, no gate pass, no evidence submission. Alias: koala authority enforce policy', schema: {
+    authorityURL: z.string().optional().describe('Authority server base URL (overrides KOALA_AUTHORITY_URL)'),
+    authorityTimeoutMS: z.number().optional().describe('Request timeout in milliseconds (overrides KOALA_AUTHORITY_TIMEOUT_MS)'),
+  }},
+
 ];
 
 /**
@@ -1866,8 +1873,8 @@ export async function runCli(opts?: {
   const ri = argv.indexOf('--root');
   if (ri !== -1 && argv[ri + 1]) { rootOverride = argv[ri + 1]; argv.splice(ri, 2); }
 
-  const cmd = argv[0];
-  const arg = argv[1];
+  let cmd = argv[0];
+  let arg = argv[1];
 
   // Detect active story from git branch
   const root0 = resolveRootForCommand(cmd, rootOverride);
@@ -1894,6 +1901,15 @@ export async function runCli(opts?: {
     const { runDashboard } = await import('./dashboard.js');
     await runDashboard(dashArgs as { roots?: string; interval?: number });
     return;
+  }
+
+  // B-ea92 M1: normalize nested multi-word alias "authority enforce policy" →
+  // "authority_enforce_policy" without disturbing flat underscore dispatch.
+  // Mutates cmd/arg/argv[0] so all downstream code sees the canonical name.
+  if (cmd === 'authority' && argv[1] === 'enforce' && argv[2] === 'policy') {
+    argv.splice(0, 3, 'authority_enforce_policy');
+    cmd = 'authority_enforce_policy';
+    arg = argv[1]; // re-read: may be a JSON arg or '--help'
   }
 
   const tool = TOOLS.find(t => t.name === cmd);

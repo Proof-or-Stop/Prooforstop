@@ -60,6 +60,7 @@ import { createVerificationContextPackHandlers } from './handlers/verification-c
 import { createCapsuleHandlers } from './handlers/capsule.js';
 import { createScopeContractHandlers } from './handlers/scope-contract.js';
 import { createGuardSessionHandlers } from './handlers/guard-session.js';
+import { createAuthorityEnforceHandlers } from './handlers/authority-enforce.js';
 import { nextStoryId } from './handlers/context.js';
 
 export type HandlerFn = (...args: any[]) => any;
@@ -190,6 +191,10 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
 
   // B-6bfd CHK-004: guard session projection — guard_session_start/status/check
   registry.registerBatch(createGuardSessionHandlers(ctx));
+
+  // B-ea92 M1: authority_enforce_policy — read-only policy discovery command stub.
+  // Never submits evidence, claims jobs, registers actor keys, or verifies receipts.
+  registry.registerBatch(createAuthorityEnforceHandlers(ctx));
 
   // 内部辅助：返回下一个 story id（fixture/测试 runner 用）
   registry.register('_nextStoryId', (prefix?: string) => nextStoryId(ctx.store, prefix));

@@ -2,8 +2,12 @@ import type { ZodType } from 'zod';
 import {
   AuthorityEvidenceBatchSubmissionResultSchema,
   AuthorityEvidenceSubmissionResultSchema,
+  AuthorityPolicyContractSchema,
+  AUTHORITY_POLICY_OVERCLAIM_KEYS,
+  detectPolicyOverclaim,
   type AuthorityEvidenceBatchSubmissionResult,
   type AuthorityEvidenceSubmissionResult,
+  type AuthorityPolicyContract,
   type EvidenceEnvelopeContract,
   buildAuthorityEvidenceBatchSubmission,
   buildAuthorityEvidenceSubmission,
@@ -155,6 +159,108 @@ export class AuthorityClient {
       buildAuthorityEvidenceBatchSubmission(envelopes),
       AuthorityEvidenceBatchSubmissionResultSchema,
     );
+  }
+
+  /**
+   * GET /v1/authority/policy — read-only authority policy discovery (B-ea92 M1).
+   *
+   * Outcome taxonomy mirrors POST paths above, with two additional M1 guards:
+   *  - Overclaim guard: a 2xx body containing `receipt`, `receiptId`,
+   *    `gatePassed`, or `accepted` is rejected with `kind:'error'` (ok:false).
+   *    These keys belong to the evidence-submission protocol and must never
+   *    appear in a discovery response.
+   *  - Schema guard: identical to POST — a parseable-but-wrong-shape body maps
+   *    to `error` (ok:false) so callers never accept an unverified policy body.
+   *
+   * This method NEVER calls /v1/evidence or /v1/evidence/batch.
+   */
+  async discoverPolicy(): Promise<AuthorityClientOutcome<AuthorityPolicyContract>> {
+    return this.get<AuthorityPolicyContract>(
+      '/v1/authority/policy',
+      AuthorityPolicyContractSchema,
+    );
+  }
+
+  /**
+   * Generic GET helper — parallel to `post()` but reads no body and sends no
+   * request body. Returns the same outcome taxonomy (success / http_error /
+   * timeout / connection_refused / error).
+   *
+   * Additional M1 overclaim guard: if the response body contains any key from
+   * AUTHORITY_POLICY_OVERCLAIM_KEYS the outcome is `error` (ok:false).
+   */
+  private async get<T>(
+    path: string,
+    schema?: ZodType<T>,
+  ): Promise<AuthorityClientOutcome<T>> {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), this.timeoutMS);
+    let response: AuthorityFetchResponse;
+    try {
+      response = await this.fetchImpl(joinURL(this.baseURL, path), {
+        method: 'GET',
+        headers: { Accept: 'application/json' },
+        signal: controller.signal,
+      });
+    } catch (error) {
+      return classifyThrown<T>(error);
+    } finally {
+      clearTimeout(timer);
+    }
+
+    let text: string;
+    try {
+      text = await response.text();
+    } catch (error) {
+      return classifyThrown<T>(error);
+    }
+
+    if (!response.ok) {
+      return {
+        kind: 'http_error',
+        ok: false,
+        status: response.status,
+        message: `authority server rejected request (${response.status})${text ? `: ${text}` : ''}`,
+      };
+    }
+
+    if (!text) {
+      return { kind: 'success', ok: true, status: response.status, data: {} as T };
+    }
+
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(text);
+    } catch (error) {
+      return classifyThrown<T>(error);
+    }
+
+    // Overclaim guard (M1): reject if any overclaim key is present at top level.
+    const overclaim = detectPolicyOverclaim(parsed);
+    if (overclaim !== undefined) {
+      return {
+        kind: 'error',
+        ok: false,
+        status: response.status,
+        message: `authority policy response contains overclaim key "${overclaim}": policy discovery cannot include evidence-submission fields (${AUTHORITY_POLICY_OVERCLAIM_KEYS.join(', ')})`,
+      };
+    }
+
+    if (!schema) {
+      return { kind: 'success', ok: true, status: response.status, data: parsed as T };
+    }
+
+    const result = schema.safeParse(parsed);
+    if (!result.success) {
+      return {
+        kind: 'error',
+        ok: false,
+        status: response.status,
+        message: `authority policy response failed schema validation (malformed body): ${result.error.message}`,
+        cause: result.error,
+      };
+    }
+    return { kind: 'success', ok: true, status: response.status, data: result.data };
   }
 
   /**
