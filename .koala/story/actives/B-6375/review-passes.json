@@ -17,6 +17,15 @@
       "reviewRound": "2026-05-27T20:19:45.585Z",
       "reviewRunId": "B-6375:RR-001",
       "_hash": "66d1a05b8e88d465ad96d71b2f675b16a54414f2df0abffb07f1c00b865f28d4"
+    },
+    {
+      "id": "B-6375:RP-003",
+      "agent": "koala-review-quality",
+      "note": "Only .gitignore changed. Two new entries (**/owner-lease.json and .koala/locks/) are correct and within scope. Both are defensively redundant with existing rules but intentionally explicit. No dead code, type issues, or import isolation concerns (pure .gitignore change). No source/docs/package drift. Scope contract satisfied.",
+      "createdAt": "2026-05-27T20:20:59.859Z",
+      "reviewRound": "2026-05-27T20:19:45.585Z",
+      "reviewRunId": "B-6375:RR-003",
+      "_hash": "35262f3c6b0aa29a73e88cb6fa96c1215f6a967560bffe20bc0245272926b8af"
     }
   ]
 }
