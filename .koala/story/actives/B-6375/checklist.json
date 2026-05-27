@@ -8,7 +8,7 @@
         "docs/requirements/decisions/session-ownership-and-write-leases.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "userSees": "Running koala check prints no managed asset drift, and koala convergence_check remains converged true.",
+      "userSees": "Terminal output no longer includes `STALE_SAFE .gitignore: missing runtime ignore pattern(s): **/owner-lease.json, .koala/locks/`; after DONE, `koala convergence_check` prints `converged: true`.",
       "verificationIntent": {
         "happy": [
           {
@@ -34,7 +34,14 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          ".gitignore"
+        ],
+        "create": [],
+        "test": []
+      }
     }
   ]
 }

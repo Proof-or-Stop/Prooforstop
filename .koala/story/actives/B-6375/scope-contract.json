@@ -1,0 +1,42 @@
+{
+  "storyId": "B-6375",
+  "mode": "enforce",
+  "allowedModify": [
+    ".gitignore"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [],
+  "protectedFiles": [
+    "packages/**",
+    "docs/**",
+    "src/**",
+    "bin/**",
+    "scripts/**",
+    ".koala/story/actives/B-ea92/**",
+    ".koala/story/actives/B-3da7/**",
+    "package.json",
+    "package-lock.json",
+    "tsconfig.json"
+  ],
+  "explicitExcludes": [
+    "Any source/runtime code",
+    "Any docs outside B-6375 generated story artifacts",
+    "Any package/dependency metadata",
+    "Any evidence, authority, runner, or lifecycle behavior files"
+  ],
+  "scopeChangeReason": "B-6375 is a managed asset drift chore; the only intended product change is syncing Koala runtime ignore patterns into .gitignore.",
+  "acknowledgements": [],
+  "createdAt": "2026-05-27T19:53:28.158Z",
+  "updatedAt": "2026-05-27T19:53:28.158Z",
+  "fileRules": [
+    {
+      "path": ".gitignore",
+      "allowedChangeKinds": [
+        "add"
+      ],
+      "intentRefs": [
+        "CHK-001"
+      ]
+    }
+  ]
+}
