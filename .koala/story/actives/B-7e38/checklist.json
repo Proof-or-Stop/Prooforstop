@@ -8,7 +8,7 @@
         "docs/requirements/decisions/authority-client-role.md",
         "docs/requirements/decisions/truth-source.md"
       ],
-      "userSees": "Future agents can cold-read why koala authority enforce is allowed but ordinary koala evidence is still not L2+.",
+      "userSees": "Terminal/docs reviewer can quote: \"ordinary koala remains a workflow thin client; koala authority enforce is a future isolated headless runner path; Python authority remains the receipt authority; Mac Runner remains an execution plane.\"",
       "verificationIntent": {
         "happy": [
           {
@@ -34,7 +34,16 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/authority-client-role.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/authority-boundary-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-002",
