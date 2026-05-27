@@ -100,6 +100,29 @@
         }
       ],
       "_hash": "a982f88876473f8f539e5083ff5b3258e3f0b9ebf4c211d88e94ee9db66712fd"
+    },
+    {
+      "timestamp": "2026-05-27T17:55:14.085Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 个 checklist item，请检查是否有组合场景遗漏（如：Record PD-2 isolated enforce subsystem decision + Harden mechanical boundary classification for future enforce namespace 同时操作会怎样？）"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story 命中 1 个高风险信号: 生产环境/紧急。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）。 若本 story 只是提及而非修改该领域（误报），可 koala story_review_dismiss '{\"storyId\":\"B-7e38\",\"category\":\"<分类>\",\"reason\":\"...\"}' 完整回退 auto-elevation（全部 auto-elevated riskSignal 被 dismiss 后 priority 自动回退、高风险 gate 解除）。"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding 还有 2 个未消化的 unknowns: Whether later milestones will keep nested command syntax or use flat Koala command names depends on the current CLI command registry design.; The exact Python authority policy fields for Milestone 1 should be re-read from the live /v1/authority/policy contract before implementation."
+        }
+      ],
+      "_hash": "7b4f51b674f9411e8cd2a0fadda70cb6b407d76ef7558b04f48b1a4942f892ba"
     }
   ]
 }
