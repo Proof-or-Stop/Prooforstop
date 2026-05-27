@@ -48,6 +48,26 @@ Manual CLI verification used a temporary local HTTP server and confirmed:
 
 `koala validate --story=B-ea92 --json` was run before this handoff and showed project fallback validation passed while CHK-005 coverage was missing. This file and the linked CHK-005 evidence close that handoff coverage gap.
 
+## TEST Phase User-View Validation
+
+Expected user-visible outcome:
+
+- `authority_enforce_policy --authorityURL=<server>` succeeds against a reachable authority server.
+- `authority enforce policy --authorityURL=<server>` succeeds through the nested alias.
+- both successful commands print the discovery-only disclaimer and the parsed authority-policy fields.
+- a missing authority URL fails non-zero and still prints the discovery-only disclaimer.
+- the fake authority server only receives `GET /v1/authority/policy`; no evidence endpoint is called.
+
+Actual transcript from the TEST phase:
+
+```text
+manual TEST validation passed
+calls=GET /v1/authority/policy,GET /v1/authority/policy
+flat-status=0 nested-status=0 missing-url-status=nonzero
+```
+
+Diff against expected: no product behavior mismatch. The command output used aligned field formatting such as `contractVersion:        authority-policy.v1`; the verifier accepted that as equivalent to the expected field/value pair.
+
 ## Next Safe Milestone
 
 The next safe milestone should be actor identity and signed authority handshake only, after explicit approval. It should prove the CLI can identify the actor, bind it to authority policy requirements, and fail closed on missing or invalid handshake data.
