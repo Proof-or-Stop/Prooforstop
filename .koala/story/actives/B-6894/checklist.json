@@ -84,9 +84,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-27T22:19:30.354Z",
-      "endTime": null,
+      "endTime": "2026-05-27T22:28:18.764Z",
       "userSees": "init_check_repair success output ends with `Fallback only repairs INIT_CHECK; it does not authorize implementation and does not replace later PLAN/DEV/REVIEW/TEST reviewers.`",
       "files": {
         "modify": [
@@ -119,7 +119,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:init-check-fallback-smoke",
+          "result": "pass",
+          "note": "Smoke asserts successful init_check_repair output contains the authorization boundary sentence after the audit line.",
+          "headHash": "8e1a3d03611d4e47f9bba9f49f149d17a15adc9b",
+          "materialHash": "init-check=26d77b60d0e6d6fcdc37fca0dd9b50b4be6b3d1a;smoke=955114d9e1f676bc68b3db8ddc65297a411fdf6c",
+          "timestamp": "2026-05-27T22:28:18.798Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:init-check-fallback-smoke",
+          "result": "pass",
+          "note": "Smoke asserts refused init_check_repair paths write no init-check.json and do not emit the authorization boundary or story_advance continuation hint.",
+          "headHash": "8e1a3d03611d4e47f9bba9f49f149d17a15adc9b",
+          "materialHash": "init-check=26d77b60d0e6d6fcdc37fca0dd9b50b4be6b3d1a;smoke=955114d9e1f676bc68b3db8ddc65297a411fdf6c",
+          "timestamp": "2026-05-27T22:28:18.829Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:init-check-fallback-smoke",
+          "result": "pass",
+          "note": "Smoke asserts high/critical fallback output includes the authorization boundary and still does not emit the story_advance continuation hint.",
+          "headHash": "8e1a3d03611d4e47f9bba9f49f149d17a15adc9b",
+          "materialHash": "init-check=26d77b60d0e6d6fcdc37fca0dd9b50b4be6b3d1a;smoke=955114d9e1f676bc68b3db8ddc65297a411fdf6c",
+          "timestamp": "2026-05-27T22:28:18.854Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -205,6 +237,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Claude implementation committed; Codex re-ran build, fallback smoke, and scope contract. Recovery-view fallback warning coverage is proven by smoke assertions.",
+      "agent": "codex-supervisor"
+    },
+    {
+      "timestamp": "2026-05-27T22:28:18.764Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Claude implementation committed and test coverage was strengthened after supervisor review; Codex re-ran build, fallback smoke, and scope contract.",
       "agent": "codex-supervisor"
     }
   ]
