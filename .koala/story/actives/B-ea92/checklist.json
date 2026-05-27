@@ -84,7 +84,24 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/registry.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/handlers/authority-enforce.ts",
+          "packages/main/src/tasks/authority-enforce-policy-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/authority-enforce-policy-smoke.ts",
+          "packages/main/src/tasks/command-ownership-contract.ts"
+        ]
+      }
     },
     {
       "id": "CHK-003",
