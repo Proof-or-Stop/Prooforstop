@@ -32,16 +32,52 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-27T20:16:40.733Z",
-      "endTime": null,
+      "endTime": "2026-05-27T20:18:37.367Z",
       "files": {
         "modify": [
           ".gitignore"
         ],
         "create": [],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "koala check",
+          "result": "pass",
+          "note": "`koala check` now reports Koala managed asset check: OK (profile=all), Summary: OK=45, STALE_SAFE=0; the previous .gitignore missing runtime ignore patterns drift is gone.",
+          "headHash": "1c3c353e42eba426e419ddd2e4ad102cac7c445f",
+          "materialHash": "6e86c8d11a7f11b4d61fc235912c000785aedf3ccd3a85f1cfdeadd991b082e2",
+          "timestamp": "2026-05-27T20:18:37.523Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": ".gitignore",
+          "command": "git show --stat --oneline --name-only HEAD && git diff HEAD^ HEAD -- .gitignore",
+          "result": "pass",
+          "note": "Implementation commit 1c3c353e changes only .gitignore and adds the managed runtime block containing **/owner-lease.json and .koala/locks/.",
+          "headHash": "1c3c353e42eba426e419ddd2e4ad102cac7c445f",
+          "materialHash": "6e86c8d11a7f11b4d61fc235912c000785aedf3ccd3a85f1cfdeadd991b082e2",
+          "timestamp": "2026-05-27T20:18:37.607Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "koala convergence_check",
+          "result": "pass",
+          "note": "All convergence checks pass except the expected active-story row while B-6375 is not DONE yet; final main verification after DONE must report converged: true.",
+          "headHash": "1c3c353e42eba426e419ddd2e4ad102cac7c445f",
+          "materialHash": "6e86c8d11a7f11b4d61fc235912c000785aedf3ccd3a85f1cfdeadd991b082e2",
+          "timestamp": "2026-05-27T20:18:37.670Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -53,6 +89,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Start managed asset sync implementation.",
+      "agent": "codex-supervisor"
+    },
+    {
+      "timestamp": "2026-05-27T20:18:37.367Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementation commit 1c3c353e verified by Codex supervisor; marking CHK-001 done with happy, edge, and adversarial evidence.",
       "agent": "codex-supervisor"
     }
   ]
