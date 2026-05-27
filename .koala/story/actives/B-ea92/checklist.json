@@ -365,9 +365,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-27T18:51:42.098Z",
-      "endTime": null,
+      "endTime": "2026-05-27T18:55:03.358Z",
       "files": {
         "modify": [
           "docs/requirements/decisions/authority-client-role.md",
@@ -439,6 +439,15 @@
       "from": "done",
       "to": "in_progress",
       "reason": "Codex verification found real CLI command is blocked by phaseTools and non-success handler path must exit non-zero with discovery disclaimer."
+    },
+    {
+      "timestamp": "2026-05-27T18:55:03.358Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Validation record and next-milestone handoff evidence recorded; CHK-005 happy, edge, and adversarial intents are covered."
     }
   ]
 }
