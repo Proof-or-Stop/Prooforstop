@@ -406,6 +406,17 @@
           "headHash": "93e09532680ac6ac6deeec7456e170e5cd9b201f",
           "materialHash": "864afbffdf7168f20736f752666cb3fed7b028eab223212a1f485625b3387554",
           "timestamp": "2026-05-27T18:54:53.072Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "docs_check",
+          "file": ".koala/story/actives/B-ea92/evidence/transcript-diff.md",
+          "command": "rg -n \"does not implement production authority|no receipt, no gate pass, no evidence submission|Not Implemented In M1|L2\\+ gate evidence\" .koala/story/actives/B-ea92/evidence/transcript-diff.md",
+          "result": "pass",
+          "note": "Handoff explicitly states M1 did not implement production authority, L2+ evidence, receipts, EvidenceEnvelope submission, or gate promotion.",
+          "headHash": "159d40ac324298f80ef98b9d1c6a4b47342bb5fe",
+          "materialHash": "864afbffdf7168f20736f752666cb3fed7b028eab223212a1f485625b3387554",
+          "timestamp": "2026-05-27T18:54:58.890Z"
         }
       ]
     }
