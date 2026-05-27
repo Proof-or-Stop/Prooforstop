@@ -17,6 +17,15 @@
       "reviewRound": "2026-05-27T22:29:10.416Z",
       "reviewRunId": "B-6894:RR-002",
       "_hash": "c99ffa9d0e20d25148518a4c72fb81319556cad7bfd0eb2a276bc21b51d1c2a8"
+    },
+    {
+      "id": "B-6894:RP-003",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: 已检查全部 9 条 must verificationIntent（CHK-001/002/003 各 happy/edge/adversarial）与 verificationEvidence 的覆盖关系。smoke test 有具体 assert.match/doesNotMatch 断言覆盖所有必需短语；refused path 的 edge/adversarial 断言用 doesNotMatch 验证无授权提示；独立 reviewer 对比路径明确断言 warning 字段不存在；smoke 在当前 HEAD 重跑通过；evidence headHash 与 HEAD 之间无源码变动（stale 仅为 koala metadata 提交漂移）。无 blocker。",
+      "createdAt": "2026-05-27T22:32:25.933Z",
+      "reviewRound": "2026-05-27T22:29:10.416Z",
+      "reviewRunId": "B-6894:RR-001",
+      "_hash": "2038d0a22184a410c8915884b89760783c1e884a31ea4299faba2fdd60a85e6e"
     }
   ]
 }
