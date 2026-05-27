@@ -44,6 +44,15 @@
       "reviewRound": "2026-05-27T19:00:54.260Z",
       "reviewRunId": "B-ea92:RR-006",
       "_hash": "058e66067825f1a60fb40e0790f886e70b9a0688346132cf34e9721d05686500"
+    },
+    {
+      "id": "B-ea92:RP-006",
+      "agent": "koala-review-concept",
+      "note": "Cleanup commit d6cd8123 removed only unused Node.js built-in imports (http, spawnSync, path, fileURLToPath) and an as-any cast from authority-enforce-policy-smoke.ts. No domain concepts deleted or replaced. New symbols (authority_enforce_policy, AuthorityFetch, runAuthorityEnforcePolicy, AUTHORITY_ENFORCE_POLICY_DISCLAIMER) are purely additive. Zero concept residue to check. No blockers.",
+      "createdAt": "2026-05-27T19:02:11.139Z",
+      "reviewRound": "2026-05-27T19:00:54.260Z",
+      "reviewRunId": "B-ea92:RR-005",
+      "_hash": "332e48c9ae9eddd0249281ed1e226a7acb73e6c76f2f68608bb951e5722402e4"
     }
   ]
 }
