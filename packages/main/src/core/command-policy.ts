@@ -219,6 +219,8 @@ export const COMMAND_POLICIES = {
   workflow_set: { status: 'supported', ownershipClass: 'mainSharedMutating', allowedPhases: 'all', destructiveRisk: 'metadata-write', reason: 'Workflow profile configuration is shared project metadata, not single-story authoring state.' },
   workflow_show: { status: 'supported', ownershipClass: 'readOnly', allowedPhases: 'all', destructiveRisk: 'none', reason: 'Read-only workflow profile inspection.' },
   workflow_explain: { status: 'supported', ownershipClass: 'readOnly', allowedPhases: 'all', destructiveRisk: 'none', reason: 'Read-only effective workflow explanation.' },
+  // B-ea92 M1: read-only authority policy discovery — never submits evidence or claims jobs.
+  authority_enforce_policy: { status: 'supported', ownershipClass: 'readOnly', allowedPhases: 'all', destructiveRisk: 'none', reason: 'Read-only authority policy discovery command stub (M1). Queries GET /v1/authority/policy and prints discovered fields. Never submits evidence, claims jobs, registers actor keys, executes providers, signs envelopes, or verifies receipts.' },
 } as const satisfies Record<string, CommandPolicy>;
 
 export type KnownCommandName = keyof typeof COMMAND_POLICIES;

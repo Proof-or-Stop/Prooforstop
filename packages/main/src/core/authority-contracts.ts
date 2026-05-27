@@ -452,6 +452,120 @@ export function prepareEvidenceEnvelopeForSigning(
 // evidence submission shapes that authority-client.ts needs.
 // ===========================================================================
 
+// ===========================================================================
+// Authority policy discovery contract (B-ea92, additive, M1)
+//
+// Typed shapes for GET /v1/authority/policy. Kept intentionally separate from
+// evidence submission shapes (above). Policy discovery is read-only and never
+// produces receipts, gate passes, or evidence writes.
+//
+// OVERCLAIM guard: a policy response that contains `receipt`, `receiptId`,
+// `gatePassed`, or `accepted` at the top level is rejected with a non-success
+// outcome. These keys belong to the evidence-submission protocol (B-94a6) and
+// must never appear in a discovery response.
+// ===========================================================================
+
+/** Keys that must NOT appear at the top level of a policy discovery response. */
+export const AUTHORITY_POLICY_OVERCLAIM_KEYS: readonly string[] = [
+  'receipt',
+  'receiptId',
+  'gatePassed',
+  'accepted',
+] as const;
+
+/**
+ * Typed shape of the Python authority server's /v1/authority/policy response
+ * (authority-policy.v1 contract). Matches the real Python route implementation.
+ *
+ * Key top-level fields (as returned by the Python server):
+ *  - requiredAuthorityMode  : the server's required mode ("enforce" / "shadow" / "local")
+ *  - compatibility          : object (NOT string[]) containing supportedAuthorityModes,
+ *                             requiredAuthorityMode, requireHandshake, minClientVersions, etc.
+ *
+ * SCOPE: read-only discovery. This type does NOT contain any evidence-submission
+ * or receipt fields. If the server returns those keys they are treated as an
+ * overclaim and the discovery fails.
+ */
+export interface AuthorityPolicyContract {
+  contractVersion: string;        // "authority-policy.v1"
+  purpose: string;                // "discovery"
+  documentation?: string;
+  /** The server's required authority mode ("enforce" / "shadow" / "local"). */
+  requiredAuthorityMode: string;
+  productionEnforceAuthority: boolean;
+  requireHandshake: boolean;
+  commandCatalogDigest: string;
+  evidenceSchemaDigest: string;
+  supportedAuthorityModes: string[];
+  minClientVersions: Record<string, string>;
+  requiredEvidenceFields: string[];
+  evidencePolicy: {
+    preset: string;
+    [key: string]: unknown;
+  };
+  /** Object containing compatibility metadata (supportedAuthorityModes, minClientVersions, etc.). */
+  compatibility: {
+    supportedAuthorityModes: string[];
+    requiredAuthorityMode: string;
+    requireHandshake: boolean;
+    handshakeRequiredFields?: string[];
+    minClientVersions: Record<string, string>;
+    commandCatalogDigest: string;
+    evidenceSchemaDigest: string;
+    productionEnforceAuthority: boolean;
+    requireActorKeyBinding: boolean;
+    requireRunnerHeartbeatForL2: boolean;
+    [key: string]: unknown;
+  };
+  [key: string]: unknown;
+}
+
+export const AuthorityPolicyContractSchema = z.object({
+  contractVersion: z.string(),
+  purpose: z.string(),
+  documentation: z.string().optional(),
+  requiredAuthorityMode: z.string(),
+  productionEnforceAuthority: z.boolean(),
+  requireHandshake: z.boolean(),
+  commandCatalogDigest: z.string(),
+  evidenceSchemaDigest: z.string(),
+  supportedAuthorityModes: z.array(z.string()),
+  minClientVersions: z.record(z.string(), z.string()),
+  requiredEvidenceFields: z.array(z.string()),
+  evidencePolicy: z.object({
+    preset: z.string(),
+  }).passthrough(),
+  compatibility: z.object({
+    supportedAuthorityModes: z.array(z.string()),
+    requiredAuthorityMode: z.string(),
+    requireHandshake: z.boolean(),
+    handshakeRequiredFields: z.array(z.string()).optional(),
+    minClientVersions: z.record(z.string(), z.string()),
+    commandCatalogDigest: z.string(),
+    evidenceSchemaDigest: z.string(),
+    productionEnforceAuthority: z.boolean(),
+    requireActorKeyBinding: z.boolean(),
+    requireRunnerHeartbeatForL2: z.boolean(),
+  }).passthrough(),
+}).passthrough();
+
+/**
+ * Runtime overclaim guard: returns the first overclaim key found in `body`, or
+ * undefined when clean. Called BEFORE schema validation so a malicious server
+ * cannot sneak in overclaim data inside a schema-valid response.
+ *
+ * Per "Handler 编码约定": runtime re-validation beyond Zod, because the same
+ * body is read from network text that may bypass Zod on exceptional paths.
+ */
+export function detectPolicyOverclaim(body: unknown): string | undefined {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return undefined;
+  const record = body as Record<string, unknown>;
+  for (const key of AUTHORITY_POLICY_OVERCLAIM_KEYS) {
+    if (key in record) return key;
+  }
+  return undefined;
+}
+
 /** Single-evidence submission request body sent to the authority server. */
 export interface AuthorityEvidenceSubmission {
   evidence: EvidenceEnvelopeContract;

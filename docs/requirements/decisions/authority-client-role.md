@@ -47,6 +47,26 @@ Key constraints recorded by this milestone:
 | **M1** | Policy discovery | `koala authority enforce` command stub; policy query endpoint; no evidence submission | Actor key registration; job claim; execution; evidence signing; receipt verification |
 | **M2+** | Actor identity, execution, receipts | Actor key registration; runner heartbeat; job claim; provider execution; full `EvidenceEnvelope`; receipt signature verification | Must not land before explicit enforce-mode product approval |
 
+### M1: Policy Discovery Detail
+
+M1 adds a command with two equivalent syntaxes: `authority_enforce_policy` (underscore form, koala CLI dispatch style) and `koala authority enforce policy` (space-separated CLI form). Both invoke the same handler; the underscore form is the internal command name and the space form is the user-facing alias.
+
+**Ownership boundary**: the Python authority server **owns** policy discovery — it publishes `GET /v1/authority/policy` and defines the policy schema. The TypeScript CLI **consumes** that endpoint read-only; it has no authority to modify, sign, or version the policy.
+
+The command reads the following fields from the Python `GET /v1/authority/policy` response:
+
+| Field | Meaning |
+|-------|---------|
+| `contractVersion` | Policy schema version published by the Python server |
+| `requiredAuthorityMode` | Authority mode the server currently requires from clients |
+| `commandCatalogDigest` | Digest of the server's accepted command catalog |
+| `evidenceSchemaDigest` | Digest of the server's current evidence schema |
+| `evidencePolicy.preset` | Active evidence preset (e.g. `anti-hallucination`, `balanced-basic`) |
+| `supportedAuthorityModes` | List of authority modes the server accepts |
+| `compatibility` | Compatibility hints for negotiation between thin clients and the server |
+
+Milestone 1 implemented read-only policy discovery only; actor keys, jobs, provider execution, evidence submission, and receipt verification remain unimplemented.
+
 ---
 
 ## PD-1 Decision

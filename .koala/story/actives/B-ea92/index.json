@@ -4,7 +4,7 @@
   "title": "Milestone 1: add read-only authority enforce policy discovery",
   "description": "Implement the next koala authority enforce subsystem milestone in the Koala TS CLI: expose a read-only policy discovery command that fetches the Python authority GET /v1/authority/policy contract and prints compatibility requirements without submitting evidence, registering actors, claiming jobs, executing providers, signing envelopes, verifying receipts, or promoting ordinary koala workflow evidence to L2+ authority.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "authority",
@@ -14,7 +14,7 @@
   ],
   "createdAt": "2026-05-27T18:11:57.279Z",
   "startedAt": "2026-05-27T18:11:57.279Z",
-  "endedAt": null,
+  "endedAt": "2026-05-27T19:10:22.684Z",
   "events": [
     {
       "phase": "INIT",
@@ -31,11 +31,63 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-05-27T18:15:48.167Z",
+      "branch": "story/B-ea92",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-27T18:21:01.877Z",
+      "branch": "story/B-ea92",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-27T18:55:29.869Z",
+      "branch": "story/B-ea92",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-27T18:59:08.760Z",
+      "branch": "story/B-ea92",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-27T19:00:54.260Z",
+      "branch": "story/B-ea92",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-05-27T19:03:30.334Z",
+      "branch": "story/B-ea92",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-05-27T19:10:22.684Z",
+      "branch": "story/B-ea92",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-ea92",
-    "branch": "story/B-ea92",
-    "createdAt": "2026-05-27T18:15:29.484Z"
-  }
+  "currentReviewRound": "2026-05-27T19:00:54.260Z"
 }
