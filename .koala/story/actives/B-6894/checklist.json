@@ -52,8 +52,8 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-05-27T22:19:30.354Z",
       "endTime": null,
       "userSees": "init_check_repair success output ends with `Fallback only repairs INIT_CHECK; it does not authorize implementation and does not replace later PLAN/DEV/REVIEW/TEST reviewers.`",
       "files": {
@@ -143,6 +143,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Start fallback continuation guard smoke coverage.",
+      "agent": "codex-supervisor"
+    },
+    {
+      "timestamp": "2026-05-27T22:19:30.354Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start init_check_repair continuation-boundary implementation.",
       "agent": "codex-supervisor"
     }
   ]
