@@ -111,9 +111,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-27T17:59:51.345Z",
-      "endTime": null,
+      "endTime": "2026-05-27T17:59:52.326Z",
       "files": {
         "modify": [],
         "create": [],
@@ -122,7 +122,42 @@
           "packages/main/src/tasks/authority-boundary-smoke.ts",
           "packages/main/src/tasks/authority-client-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-boundary-smoke.ts",
+          "command": "npm --prefix packages/main run test:authority-boundary-smoke",
+          "result": "pass",
+          "note": "New caseEnforceNamespaceDocWordingDoesNotPromoteWorkflowSubmission covers enforce-namespace wording guard; existing happy path proves complete signed envelope + verified receipt is required for L2+",
+          "headHash": "680269fd1b33921107ecee2ab19e75c389271501",
+          "materialHash": "52b23e1439d3350c6c4a333ebba5c8bfbc4a92d44c7ad33191be0deeee6ab52b",
+          "timestamp": "2026-05-27T17:59:52.367Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-boundary-smoke.ts",
+          "command": "npm --prefix packages/main run test:authority-boundary-smoke",
+          "result": "pass",
+          "note": "caseEnforceAcceptedTransportNotReceipt proves accepted=true without verified receipt stays thin-client-transport-accepted",
+          "headHash": "680269fd1b33921107ecee2ab19e75c389271501",
+          "materialHash": "52b23e1439d3350c6c4a333ebba5c8bfbc4a92d44c7ad33191be0deeee6ab52b",
+          "timestamp": "2026-05-27T17:59:52.403Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-boundary-smoke.ts",
+          "command": "npm --prefix packages/main run test:authority-boundary-smoke",
+          "result": "pass",
+          "note": "caseAdversarialSameRunCollapsedVerifier proves same producer/verifier run cannot be L2+ even with receiptVerified=true",
+          "headHash": "680269fd1b33921107ecee2ab19e75c389271501",
+          "materialHash": "52b23e1439d3350c6c4a333ebba5c8bfbc4a92d44c7ad33191be0deeee6ab52b",
+          "timestamp": "2026-05-27T17:59:52.436Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
