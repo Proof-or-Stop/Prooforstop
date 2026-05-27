@@ -21,7 +21,7 @@
       "desc": "quality-cleanup: authority-enforce-policy-smoke.ts:534 — `(result.compatibility as any)?.requiredAuthorityMode` 使用了不必要的 `as any`。`AuthorityEnforcePolicyResult.compatibility` 已被类型化为 `Record<string, unknown>`，可以直接用 `result.compatibility?.[\"requiredAuthorityMode\"]` 做索引访问，无需 `as any`。",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-05-27T18:56:52.094Z",
