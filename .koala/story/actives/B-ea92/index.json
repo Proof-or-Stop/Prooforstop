@@ -4,7 +4,7 @@
   "title": "Milestone 1: add read-only authority enforce policy discovery",
   "description": "Implement the next koala authority enforce subsystem milestone in the Koala TS CLI: expose a read-only policy discovery command that fetches the Python authority GET /v1/authority/policy contract and prints compatibility requirements without submitting evidence, registering actors, claiming jobs, executing providers, signing envelopes, verifying receipts, or promoting ordinary koala workflow evidence to L2+ authority.",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "keywords": [
     "authority",
@@ -23,6 +23,19 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-05-27T18:15:29.393Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-ea92",
+    "branch": "story/B-ea92",
+    "createdAt": "2026-05-27T18:15:29.484Z"
+  }
 }
