@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add missing @changes field to authority policy smoke @task header",
+      "context": "Only edit packages/main/src/tasks/authority-enforce-policy-smoke.ts annotation metadata; no runtime code behavior should change.",
+      "relatedDocs": [
+        "docs/requirements/decisions/annotation-system.md",
+        "docs/requirements/decisions/authority-client-role.md"
+      ],
+      "userSees": "node packages/main/dist/tasks/cli-validate.js no longer reports missing @changes for authority-enforce-policy-smoke.ts.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Task annotation validator reports zero errors after adding @changes.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The diff changes only comment metadata and no executable behavior.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "convergence_check code annotation compliance row passes after the fix.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
