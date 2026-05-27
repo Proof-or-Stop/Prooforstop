@@ -1,0 +1,96 @@
+{
+  "runs": [
+    {
+      "reviewRunId": "B-ea92:RR-001",
+      "storyId": "B-ea92",
+      "agent": "koala-review-concept",
+      "lane": "koala-review-concept",
+      "reviewRound": "2026-05-27T18:55:29.869Z",
+      "startedAt": "2026-05-27T18:56:13.760Z",
+      "headHash": "632c9af320babcb73e518028ea78a9d752d025b9",
+      "materialHash": "864afbffdf7168f20736f752666cb3fed7b028eab223212a1f485625b3387554",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "c71a7640688afc00a679fddaa0562a01f23166bc96f75d1bb55db5d0ddd448e0",
+        "diffPackHash": "e1846e716c9e71e397ef3f3040f00f67b7e4806cd4215eaaaedf758ea70bfb85",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/authority-client-role.md",
+          "packages/main/package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/authority-client.ts",
+          "packages/main/src/core/authority-contracts.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/handlers/authority-enforce.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/authority-enforce-policy-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "09bab3cfa44dd1ee9954a01dcf80c24cba00f17b78ba3816decb1c398a19a97e",
+          "0f1c57aaf0f5bb1805286a6c1c849a60f04e7d6d0f0bdd998b07c5e60b7e5168",
+          "15714544f4fadc4beceb6f0014f6ecc5cd435250307fb491755280a4dee4130e",
+          "332aa66199590ebc9380a3940919783301ccb83246d117d857715ac603bf6c8d",
+          "3a08f4ffe3d5ec26226aff02b892acf972485665870bee925f88a7ae3abbc64c",
+          "3ed5a2d9d86fae4d136258df54547a611b227fcc7b0e07c286d06ca934c29dfc",
+          "5864557cdb47c733d76f51beeee38ee08b476b1e9d72708e2eb2c4985aacce89",
+          "613f24ac283065f9addba071b05d93c5831b0a3fb55648344b7cd579ab9044d8",
+          "9934d0167d3ce998e7ab9758e89cec255552459c30f11197b6491f7126ebe4e5",
+          "9c331a956a6a61aec6ac1d8890260368fc54335f48093a56227f5bf14ae29df1",
+          "a00477cebdd29a31d50e385b9e48e90be5e4d826f0abb4efa87d953eedbfa59a",
+          "a60136111f43eb567aa3f10148c6b9f25c5cc36cd71200afa4a484c5a6868fc0",
+          "ab1ae2a86642e332b8c2c3dc38b77c51b2209464187d3d6528838898984dbaa4",
+          "f0ef207de99177c068a20b1d1920c430652e69369031e9f175435e5c61839723"
+        ],
+        "bindingHash": "1c3aa076862581db5ec3aba8ca820d1fb764ef594c3d0f0b06c76373869eec9b"
+      },
+      "_hash": "f0912beae2a248fdb7b0a40cf77bcd6e64a5bcbba6d1bc10996293becaac0364"
+    },
+    {
+      "reviewRunId": "B-ea92:RR-002",
+      "storyId": "B-ea92",
+      "agent": "koala-review-docs",
+      "lane": "koala-review-docs",
+      "reviewRound": "2026-05-27T18:55:29.869Z",
+      "startedAt": "2026-05-27T18:56:18.588Z",
+      "headHash": "632c9af320babcb73e518028ea78a9d752d025b9",
+      "materialHash": "864afbffdf7168f20736f752666cb3fed7b028eab223212a1f485625b3387554",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "c71a7640688afc00a679fddaa0562a01f23166bc96f75d1bb55db5d0ddd448e0",
+        "diffPackHash": "e1846e716c9e71e397ef3f3040f00f67b7e4806cd4215eaaaedf758ea70bfb85",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/authority-client-role.md",
+          "packages/main/package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/authority-client.ts",
+          "packages/main/src/core/authority-contracts.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/handlers/authority-enforce.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/authority-enforce-policy-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "09bab3cfa44dd1ee9954a01dcf80c24cba00f17b78ba3816decb1c398a19a97e",
+          "0f1c57aaf0f5bb1805286a6c1c849a60f04e7d6d0f0bdd998b07c5e60b7e5168",
+          "15714544f4fadc4beceb6f0014f6ecc5cd435250307fb491755280a4dee4130e",
+          "332aa66199590ebc9380a3940919783301ccb83246d117d857715ac603bf6c8d",
+          "3a08f4ffe3d5ec26226aff02b892acf972485665870bee925f88a7ae3abbc64c",
+          "3ed5a2d9d86fae4d136258df54547a611b227fcc7b0e07c286d06ca934c29dfc",
+          "5864557cdb47c733d76f51beeee38ee08b476b1e9d72708e2eb2c4985aacce89",
+          "613f24ac283065f9addba071b05d93c5831b0a3fb55648344b7cd579ab9044d8",
+          "9934d0167d3ce998e7ab9758e89cec255552459c30f11197b6491f7126ebe4e5",
+          "9c331a956a6a61aec6ac1d8890260368fc54335f48093a56227f5bf14ae29df1",
+          "a00477cebdd29a31d50e385b9e48e90be5e4d826f0abb4efa87d953eedbfa59a",
+          "a60136111f43eb567aa3f10148c6b9f25c5cc36cd71200afa4a484c5a6868fc0",
+          "ab1ae2a86642e332b8c2c3dc38b77c51b2209464187d3d6528838898984dbaa4",
+          "f0ef207de99177c068a20b1d1920c430652e69369031e9f175435e5c61839723"
+        ],
+        "bindingHash": "1c3aa076862581db5ec3aba8ca820d1fb764ef594c3d0f0b06c76373869eec9b"
+      },
+      "_hash": "9c36ea65843d6c24642516e75bd593ffbf4b3dc73e20d8d423bceb4898ddf5b4"
+    }
+  ]
+}
