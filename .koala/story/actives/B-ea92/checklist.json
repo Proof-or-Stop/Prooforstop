@@ -1,0 +1,183 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add typed authority policy discovery client contract",
+      "context": "Extend the existing AuthorityClient/authority-contracts surface with a GET /v1/authority/policy read-only path based on the Python authority-policy.v1 contract.",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-client-role.md",
+        "docs/requirements/decisions/verification-context-pack.md"
+      ],
+      "userSees": "Test output includes: \"authority enforce policy discovery smoke passed\" and shows contractVersion authority-policy.v1 parsed from the fake authority response.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A valid authority-policy.v1 response with compatibility and digests parses and returns a discovery policy object.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "HTTP errors, timeouts, and malformed policy bodies are reported as non-success outcomes rather than discovery success.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A policy response containing receipt, receiptId, gatePassed, or accepted is rejected or flagged as overclaim and cannot be printed as success.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Expose read-only koala authority enforce policy command boundary",
+      "context": "Add a CLI command for the future enforce namespace that only discovers policy and makes discovery-only semantics visible.",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-client-role.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "Running the command against a fake policy prints: \"Authority policy discovery only: no receipt, no gate pass, no evidence submission.\"",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The CLI command can query a fake policy endpoint and print contractVersion, requiredAuthorityMode, commandCatalogDigest, evidenceSchemaDigest, and evidencePolicy.preset.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Missing authority URL or unreachable server exits non-zero with a clear policy discovery error and no local evidence write.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The command does not call /v1/evidence or /v1/evidence/batch and does not expose a flag that submits production evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Preserve ordinary workflow thin-client authority behavior",
+      "context": "Update or add smoke coverage proving the new discovery command does not alter verification_evidence_add off/shadow/enforce transport behavior.",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-client-role.md"
+      ],
+      "userSees": "Existing authority evidence flow smoke still prints its pass line after the policy discovery command is added.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "authority-evidence-flow smoke still passes after adding policy discovery.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "authority-boundary smoke still classifies accepted true without verified receipt as thin-client transport accepted.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Mentioning koala authority enforce in command names or policy output does not promote workflow evidence to receipt-backed L2+.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Update PD-2 docs with Milestone 1 actual command and next boundary",
+      "context": "Record the exact command name/syntax, state that M1 consumes policy discovery only, and keep M2+ prohibitions explicit.",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-client-role.md",
+        "docs/requirements/decisions/truth-source.md"
+      ],
+      "userSees": "Docs say: \"Milestone 1 implemented read-only policy discovery only; actor keys, jobs, provider execution, evidence submission, and receipt verification remain unimplemented.\"",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "authority-client-role.md names the actual M1 command syntax and the Python /v1/authority/policy contract fields consumed.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Docs distinguish Python server policy discovery ownership from TS CLI policy consumption.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Docs do not claim policy discovery issues receipts, signs evidence, passes gates, or proves L2+ authority.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Create Milestone 1 validation record and next-story handoff",
+      "context": "Capture validation evidence and concise handoff for Milestone 2+ so future work does not skip actor/signing/receipt gates.",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-client-role.md",
+        "docs/requirements/decisions/verification-context-pack.md"
+      ],
+      "userSees": "Story summary says: \"Milestone 1 completed read-only policy discovery; no evidence submission or runner behavior was implemented.\"",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Validation evidence includes build, policy discovery smoke, authority-boundary smoke, authority-client smoke, and authority-evidence-flow smoke.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Handoff names the next safe milestone and the remaining explicit approval gates.",
+            "type": "docs",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The story outcome does not claim production authority, L2+ evidence, or receipt verification was implemented.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
