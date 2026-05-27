@@ -51,9 +51,9 @@
           "command": "npm --prefix packages/main run test:init-check-fallback-smoke",
           "result": "pass",
           "note": "Smoke asserts session_brief renders INIT fallback warning and the phrase manual fallback attestation, not independent reviewer approval.",
-          "headHash": "8e1a3d03611d4e47f9bba9f49f149d17a15adc9b",
-          "materialHash": "session=1735c8ff75e27e6983c67054f0ea086f9087dc64;smoke=955114d9e1f676bc68b3db8ddc65297a411fdf6c",
-          "timestamp": "2026-05-27T22:28:01.566Z"
+          "headHash": "3e41166a048c6c1fff7b5fcc750a34106604bb9b",
+          "materialHash": "2638398a588b567774498ce7a2fc7544cec19ba95b0e237d112a649b3608a158",
+          "timestamp": "2026-05-27T22:28:52.854Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -61,9 +61,9 @@
           "command": "npm --prefix packages/main run test:init-check-fallback-smoke",
           "result": "pass",
           "note": "Smoke asserts story_get exposes initCheckAttestation=fallback and initCheckFallbackWarning for fallback stories, while independent reviewer stories do not carry the warning field.",
-          "headHash": "8e1a3d03611d4e47f9bba9f49f149d17a15adc9b",
-          "materialHash": "story-query=48d5551e9c6dc20a9e712f5aa3e3c3e00e5e8dd7;smoke=955114d9e1f676bc68b3db8ddc65297a411fdf6c",
-          "timestamp": "2026-05-27T22:28:01.595Z"
+          "headHash": "3e41166a048c6c1fff7b5fcc750a34106604bb9b",
+          "materialHash": "2638398a588b567774498ce7a2fc7544cec19ba95b0e237d112a649b3608a158",
+          "timestamp": "2026-05-27T22:28:52.854Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -71,9 +71,9 @@
           "command": "npm --prefix packages/main run test:init-check-fallback-smoke",
           "result": "pass",
           "note": "Smoke asserts fallback warnings state later PLAN/DEV/REVIEW/TEST gates remain required and explicit user/project authorization is needed for continuation.",
-          "headHash": "8e1a3d03611d4e47f9bba9f49f149d17a15adc9b",
-          "materialHash": "session=1735c8ff75e27e6983c67054f0ea086f9087dc64;story-query=48d5551e9c6dc20a9e712f5aa3e3c3e00e5e8dd7;smoke=955114d9e1f676bc68b3db8ddc65297a411fdf6c",
-          "timestamp": "2026-05-27T22:28:01.623Z"
+          "headHash": "3e41166a048c6c1fff7b5fcc750a34106604bb9b",
+          "materialHash": "2638398a588b567774498ce7a2fc7544cec19ba95b0e237d112a649b3608a158",
+          "timestamp": "2026-05-27T22:28:52.854Z"
         }
       ]
     },
@@ -127,9 +127,9 @@
           "command": "npm --prefix packages/main run test:init-check-fallback-smoke",
           "result": "pass",
           "note": "Smoke asserts successful init_check_repair output contains the authorization boundary sentence after the audit line.",
-          "headHash": "8e1a3d03611d4e47f9bba9f49f149d17a15adc9b",
-          "materialHash": "init-check=26d77b60d0e6d6fcdc37fca0dd9b50b4be6b3d1a;smoke=955114d9e1f676bc68b3db8ddc65297a411fdf6c",
-          "timestamp": "2026-05-27T22:28:18.798Z"
+          "headHash": "3e41166a048c6c1fff7b5fcc750a34106604bb9b",
+          "materialHash": "2638398a588b567774498ce7a2fc7544cec19ba95b0e237d112a649b3608a158",
+          "timestamp": "2026-05-27T22:28:52.854Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -137,9 +137,9 @@
           "command": "npm --prefix packages/main run test:init-check-fallback-smoke",
           "result": "pass",
           "note": "Smoke asserts refused init_check_repair paths write no init-check.json and do not emit the authorization boundary or story_advance continuation hint.",
-          "headHash": "8e1a3d03611d4e47f9bba9f49f149d17a15adc9b",
-          "materialHash": "init-check=26d77b60d0e6d6fcdc37fca0dd9b50b4be6b3d1a;smoke=955114d9e1f676bc68b3db8ddc65297a411fdf6c",
-          "timestamp": "2026-05-27T22:28:18.829Z"
+          "headHash": "3e41166a048c6c1fff7b5fcc750a34106604bb9b",
+          "materialHash": "2638398a588b567774498ce7a2fc7544cec19ba95b0e237d112a649b3608a158",
+          "timestamp": "2026-05-27T22:28:52.854Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -147,9 +147,9 @@
           "command": "npm --prefix packages/main run test:init-check-fallback-smoke",
           "result": "pass",
           "note": "Smoke asserts high/critical fallback output includes the authorization boundary and still does not emit the story_advance continuation hint.",
-          "headHash": "8e1a3d03611d4e47f9bba9f49f149d17a15adc9b",
-          "materialHash": "init-check=26d77b60d0e6d6fcdc37fca0dd9b50b4be6b3d1a;smoke=955114d9e1f676bc68b3db8ddc65297a411fdf6c",
-          "timestamp": "2026-05-27T22:28:18.854Z"
+          "headHash": "3e41166a048c6c1fff7b5fcc750a34106604bb9b",
+          "materialHash": "2638398a588b567774498ce7a2fc7544cec19ba95b0e237d112a649b3608a158",
+          "timestamp": "2026-05-27T22:28:52.854Z"
         }
       ]
     },
@@ -203,9 +203,9 @@
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:init-check-fallback-smoke",
           "result": "pass",
           "note": "Build succeeded and focused fallback smoke printed the expected pass line.",
-          "headHash": "8e1a3d03611d4e47f9bba9f49f149d17a15adc9b",
-          "materialHash": "smoke=955114d9e1f676bc68b3db8ddc65297a411fdf6c",
-          "timestamp": "2026-05-27T22:28:33.334Z"
+          "headHash": "3e41166a048c6c1fff7b5fcc750a34106604bb9b",
+          "materialHash": "2638398a588b567774498ce7a2fc7544cec19ba95b0e237d112a649b3608a158",
+          "timestamp": "2026-05-27T22:28:52.854Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -213,9 +213,9 @@
           "command": "npm --prefix packages/main run test:init-check-fallback-smoke",
           "result": "pass",
           "note": "Smoke asserts independent reviewer story_get does not carry initCheckFallbackWarning.",
-          "headHash": "8e1a3d03611d4e47f9bba9f49f149d17a15adc9b",
-          "materialHash": "smoke=955114d9e1f676bc68b3db8ddc65297a411fdf6c",
-          "timestamp": "2026-05-27T22:28:33.363Z"
+          "headHash": "3e41166a048c6c1fff7b5fcc750a34106604bb9b",
+          "materialHash": "2638398a588b567774498ce7a2fc7544cec19ba95b0e237d112a649b3608a158",
+          "timestamp": "2026-05-27T22:28:52.854Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -223,9 +223,9 @@
           "command": "npm --prefix packages/main run test:init-check-fallback-smoke",
           "result": "pass",
           "note": "Smoke asserts session_brief warns with explicit authorization boundary and refused/blocking repair paths cannot imply continuation.",
-          "headHash": "8e1a3d03611d4e47f9bba9f49f149d17a15adc9b",
-          "materialHash": "smoke=955114d9e1f676bc68b3db8ddc65297a411fdf6c",
-          "timestamp": "2026-05-27T22:28:33.392Z"
+          "headHash": "3e41166a048c6c1fff7b5fcc750a34106604bb9b",
+          "materialHash": "2638398a588b567774498ce7a2fc7544cec19ba95b0e237d112a649b3608a158",
+          "timestamp": "2026-05-27T22:28:52.854Z"
         },
         {
           "intentRef": "B-6894:scope",
