@@ -17,6 +17,15 @@
       "reviewRound": "2026-05-27T19:18:30.689Z",
       "reviewRunId": "B-3da7:RR-003",
       "_hash": "b86ed0935e72df99a56749529f2eebdc94bd2b1e37938f0975f4364a965f5120"
+    },
+    {
+      "id": "B-3da7:RP-003",
+      "agent": "koala-review-quality",
+      "note": "Diff is comment-only: a @changes JSDoc block added to authority-enforce-policy-smoke.ts. No executable code changed, tag is parser-compatible, and the @changes description contains no overclaim (correctly scopes to read-only discovery, explicitly excludes enforcement/evidence/receipts/actor keys/L2+). All .koala/ changes are story metadata. 0 findings.",
+      "createdAt": "2026-05-27T19:19:19.211Z",
+      "reviewRound": "2026-05-27T19:18:30.689Z",
+      "reviewRunId": "B-3da7:RR-002",
+      "_hash": "2f2e45d6a42ccd8a996bba0956f048558ed498f6625222923ec48069005ee571"
     }
   ]
 }
