@@ -39,6 +39,7 @@ import { renderCapsuleBrief, validateCapsuleRefs } from '../core/story-capsule.j
 import { buildScopeProtectionSummary, renderScopeProtectionSummary } from '../core/review-scope-binding.js';
 import { buildScopeDiffPack } from '../core/scope-diff-pack.js';
 import type { ScopeContractData, GuardSessionData, ScopeDiffPack, ReviewRun } from '../core/types.js';
+import { initCheckAttestationMode } from '../core/init-check-gate.js';
 
 interface ActiveStoryDetected {
   storyId: string;
@@ -657,6 +658,29 @@ export function createSessionHandlers(ctx: HandlerContext) {
           }
         }
 
+        // B-6894: INIT fallback warning — surface any active stories that used the
+        // manual init_check_repair fallback so operators see the authorization boundary.
+        const fallbackActiveStoryIds: string[] = [];
+        for (const s of activeStories) {
+          try {
+            const wt = worktrees[s.storyId];
+            const sourceStore = wt ? new StoryStore(wt) : ctx.store;
+            const initCheck = sourceStore.readInitCheck(s.storyId);
+            if (initCheck && initCheckAttestationMode(initCheck) === 'fallback') {
+              fallbackActiveStoryIds.push(s.storyId);
+            }
+          } catch { /* probe — skip unreadable */ }
+        }
+        if (fallbackActiveStoryIds.length > 0) {
+          lines.push('');
+          lines.push(`## ⚠ INIT fallback warning (${fallbackActiveStoryIds.length} story)`);
+          for (const id of fallbackActiveStoryIds) {
+            lines.push(`  ${id}: INIT_CHECK was approved via manual fallback attestation, not independent reviewer approval.`);
+          }
+          lines.push('  Later PLAN/DEV/REVIEW/TEST gates remain required.');
+          lines.push('  Implementation and continuation require explicit user/project authorization if this is not the requested project.');
+        }
+
         // B-a370: META containers (audit/finding flow) — listed separately,
         // never folded into the lifecycle/worktree suggestion ordering.
         if (metaContainerIds.length > 0) {
@@ -758,6 +782,19 @@ export function createSessionHandlers(ctx: HandlerContext) {
       const { storyId, story } = detected;
       lines.push(`**Story**: ${storyId} — ${story.title}`);
       lines.push(`**Phase**: ${story.phase}`);
+
+      // B-6894: INIT fallback warning — surface when this story passed INIT_CHECK
+      // via manual fallback attestation rather than an independent reviewer.
+      try {
+        const initCheck = ctx.store.readInitCheck(storyId);
+        if (initCheck && initCheckAttestationMode(initCheck) === 'fallback') {
+          lines.push('');
+          lines.push('## ⚠ INIT fallback warning');
+          lines.push('  This story passed INIT_CHECK via manual fallback attestation, not independent reviewer approval.');
+          lines.push('  Later PLAN/DEV/REVIEW/TEST gates remain required.');
+          lines.push('  Implementation and continuation require explicit user/project authorization if this is not the requested project.');
+        }
+      } catch { /* probe — never block session_brief on init-check read failure */ }
 
       // Checklist (kept: done/total + in_progress list).
       let checklistSummary: ChecklistSummary | null = null;

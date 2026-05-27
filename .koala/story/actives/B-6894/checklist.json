@@ -7,9 +7,75 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-05-27T22:19:30.618Z",
+      "endTime": "2026-05-27T22:28:01.527Z",
+      "userSees": "session_brief prints `INIT fallback warning` and says `manual fallback attestation, not independent reviewer approval`; story_get JSON includes initCheckAttestation=fallback and a continuation warning string.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/story-query.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/init-check-fallback-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A fallback story shown by session_brief includes an `INIT fallback warning` section and the phrase `manual fallback attestation, not independent reviewer approval`.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "story_get for a fallback story still exposes initCheckAttestation=fallback and also exposes a continuation warning without changing independent story output.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The warning explicitly says later PLAN/DEV/REVIEW/TEST gates remain required and that implementation needs explicit user/project authorization.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:init-check-fallback-smoke",
+          "result": "pass",
+          "note": "Smoke asserts session_brief renders INIT fallback warning and the phrase manual fallback attestation, not independent reviewer approval.",
+          "headHash": "3e41166a048c6c1fff7b5fcc750a34106604bb9b",
+          "materialHash": "2638398a588b567774498ce7a2fc7544cec19ba95b0e237d112a649b3608a158",
+          "timestamp": "2026-05-27T22:28:52.854Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:init-check-fallback-smoke",
+          "result": "pass",
+          "note": "Smoke asserts story_get exposes initCheckAttestation=fallback and initCheckFallbackWarning for fallback stories, while independent reviewer stories do not carry the warning field.",
+          "headHash": "3e41166a048c6c1fff7b5fcc750a34106604bb9b",
+          "materialHash": "2638398a588b567774498ce7a2fc7544cec19ba95b0e237d112a649b3608a158",
+          "timestamp": "2026-05-27T22:28:52.854Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:init-check-fallback-smoke",
+          "result": "pass",
+          "note": "Smoke asserts fallback warnings state later PLAN/DEV/REVIEW/TEST gates remain required and explicit user/project authorization is needed for continuation.",
+          "headHash": "3e41166a048c6c1fff7b5fcc750a34106604bb9b",
+          "materialHash": "2638398a588b567774498ce7a2fc7544cec19ba95b0e237d112a649b3608a158",
+          "timestamp": "2026-05-27T22:28:52.854Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -18,9 +84,74 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-05-27T22:19:30.354Z",
+      "endTime": "2026-05-27T22:28:18.764Z",
+      "userSees": "init_check_repair success output ends with `Fallback only repairs INIT_CHECK; it does not authorize implementation and does not replace later PLAN/DEV/REVIEW/TEST reviewers.`",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/init-check.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/init-check-fallback-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Successful init_check_repair output contains the continuation-boundary sentence after the audit line.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Refused repair paths still write no init-check.json and do not emit a misleading continuation hint.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "High/critical issue fallback still warns that INIT_CHECK gate blocks and still includes the no-implementation-authorization boundary.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:init-check-fallback-smoke",
+          "result": "pass",
+          "note": "Smoke asserts successful init_check_repair output contains the authorization boundary sentence after the audit line.",
+          "headHash": "3e41166a048c6c1fff7b5fcc750a34106604bb9b",
+          "materialHash": "2638398a588b567774498ce7a2fc7544cec19ba95b0e237d112a649b3608a158",
+          "timestamp": "2026-05-27T22:28:52.854Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:init-check-fallback-smoke",
+          "result": "pass",
+          "note": "Smoke asserts refused init_check_repair paths write no init-check.json and do not emit the authorization boundary or story_advance continuation hint.",
+          "headHash": "3e41166a048c6c1fff7b5fcc750a34106604bb9b",
+          "materialHash": "2638398a588b567774498ce7a2fc7544cec19ba95b0e237d112a649b3608a158",
+          "timestamp": "2026-05-27T22:28:52.854Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:init-check-fallback-smoke",
+          "result": "pass",
+          "note": "Smoke asserts high/critical fallback output includes the authorization boundary and still does not emit the story_advance continuation hint.",
+          "headHash": "3e41166a048c6c1fff7b5fcc750a34106604bb9b",
+          "materialHash": "2638398a588b567774498ce7a2fc7544cec19ba95b0e237d112a649b3608a158",
+          "timestamp": "2026-05-27T22:28:52.854Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -29,9 +160,146 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-05-27T22:19:30.113Z",
+      "endTime": "2026-05-27T22:28:33.298Z",
+      "userSees": "npm --prefix packages/main run test:init-check-fallback-smoke prints `✓ init check fallback/repair smoke passed` after asserting story_get warning, session_brief warning, and init_check_repair continuation boundary.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/init-check-fallback-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/init-check-fallback-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The focused fallback smoke test passes after build.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The smoke test asserts independent reviewer story_get does not carry fallback warning fields.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke test fails if session_brief resumes a fallback story without the explicit authorization boundary.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:init-check-fallback-smoke",
+          "result": "pass",
+          "note": "Build succeeded and focused fallback smoke printed the expected pass line.",
+          "headHash": "3e41166a048c6c1fff7b5fcc750a34106604bb9b",
+          "materialHash": "2638398a588b567774498ce7a2fc7544cec19ba95b0e237d112a649b3608a158",
+          "timestamp": "2026-05-27T22:28:52.854Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:init-check-fallback-smoke",
+          "result": "pass",
+          "note": "Smoke asserts independent reviewer story_get does not carry initCheckFallbackWarning.",
+          "headHash": "3e41166a048c6c1fff7b5fcc750a34106604bb9b",
+          "materialHash": "2638398a588b567774498ce7a2fc7544cec19ba95b0e237d112a649b3608a158",
+          "timestamp": "2026-05-27T22:28:52.854Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:init-check-fallback-smoke",
+          "result": "pass",
+          "note": "Smoke asserts session_brief warns with explicit authorization boundary and refused/blocking repair paths cannot imply continuation.",
+          "headHash": "3e41166a048c6c1fff7b5fcc750a34106604bb9b",
+          "materialHash": "2638398a588b567774498ce7a2fc7544cec19ba95b0e237d112a649b3608a158",
+          "timestamp": "2026-05-27T22:28:52.854Z"
+        },
+        {
+          "intentRef": "B-6894:scope",
+          "kind": "manual_transcript",
+          "command": "koala scope_contract_check --storyId=B-6894",
+          "result": "pass",
+          "note": "Scope and semantic scope gates passed with zero violations after implementation and smoke-test strengthening.",
+          "headHash": "8e1a3d03611d4e47f9bba9f49f149d17a15adc9b",
+          "materialHash": "scope-contract=.koala/story/actives/B-6894/scope-contract.json",
+          "timestamp": "2026-05-27T22:28:33.423Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-05-27T22:19:30.113Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start fallback continuation guard smoke coverage.",
+      "agent": "codex-supervisor"
+    },
+    {
+      "timestamp": "2026-05-27T22:19:30.354Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start init_check_repair continuation-boundary implementation.",
+      "agent": "codex-supervisor"
+    },
+    {
+      "timestamp": "2026-05-27T22:19:30.618Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start fallback recovery-view warning implementation.",
+      "agent": "codex-supervisor"
+    },
+    {
+      "timestamp": "2026-05-27T22:28:01.527Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Claude implementation committed; Codex re-ran build, fallback smoke, and scope contract. Recovery-view fallback warning coverage is proven by smoke assertions.",
+      "agent": "codex-supervisor"
+    },
+    {
+      "timestamp": "2026-05-27T22:28:18.764Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Claude implementation committed and test coverage was strengthened after supervisor review; Codex re-ran build, fallback smoke, and scope contract.",
+      "agent": "codex-supervisor"
+    },
+    {
+      "timestamp": "2026-05-27T22:28:33.298Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Focused fallback smoke test was extended, committed by Claude, and independently re-run by Codex after build.",
+      "agent": "codex-supervisor"
     }
   ]
 }

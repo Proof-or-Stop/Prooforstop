@@ -339,12 +339,13 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
         const blockers = blockingInitCheckIssues(data);
         const commitHint = autoCommitStoryMetadata(root, args.storyId, 'init_check_repair');
         const auditLine = `⚠ fallback 已记入审计事件（actor=${actor || '<unknown>'}, mode=${mode}${session ? `, session=${session}` : ''}），未绕过签名校验`;
+        const boundaryLine = `⚠ Fallback only repairs INIT_CHECK; it does not authorize implementation and does not replace later PLAN/DEV/REVIEW/TEST reviewers.`;
         if (blockers.length > 0) {
           // Operator attested blocking issues → gate still blocks. Be explicit.
           const lines = blockers.slice(0, 8).map(({ issue }) => `  - ${issue.severity} ${issue.id ? `${issue.id} ` : ''}${issue.desc}`);
-          return `✓ init-check.json 已生成（fallback 通道，签名域不变）\n${auditLine}\n⚠ 但记录了 high/critical issue，INIT_CHECK gate 仍会阻塞，请先修复并重跑：\n${lines.join('\n')}${commitHint}`;
+          return `✓ init-check.json 已生成（fallback 通道，签名域不变）\n${auditLine}\n${boundaryLine}\n⚠ 但记录了 high/critical issue，INIT_CHECK gate 仍会阻塞，请先修复并重跑：\n${lines.join('\n')}${commitHint}`;
         }
-        return `✓ init-check.json 已生成（fallback 通道，签名域不变）\n${auditLine}\n→ 现在可运行 koala story_advance --storyId=${args.storyId} --phase=INIT_CHECK${commitHint}`;
+        return `✓ init-check.json 已生成（fallback 通道，签名域不变）\n${auditLine}\n${boundaryLine}\n→ 现在可运行 koala story_advance --storyId=${args.storyId} --phase=INIT_CHECK${commitHint}`;
       });
     },
   };

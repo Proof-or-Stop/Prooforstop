@@ -1,0 +1,75 @@
+{
+  "storyId": "B-6894",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/handlers/story-query.ts",
+    "packages/main/src/handlers/init-check.ts",
+    "packages/main/src/tasks/init-check-fallback-smoke.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/init-check-fallback-smoke.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/core/init-check-gate.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/command-policy.ts",
+    "docs/**",
+    "package.json",
+    "package-lock.json"
+  ],
+  "explicitExcludes": [
+    "No lifecycle gate semantic changes",
+    "No init-check signature-domain changes",
+    "No authority/evidence/runner changes",
+    "No docs truth-source edits for this UX-only story"
+  ],
+  "scopeChangeReason": "B-6894 is a UX/guardrail story; product changes are limited to fallback warning rendering and focused smoke coverage.",
+  "acknowledgements": [],
+  "createdAt": "2026-05-27T22:17:36.934Z",
+  "updatedAt": "2026-05-27T22:17:36.934Z",
+  "fileRules": [
+    {
+      "path": "packages/main/src/handlers/session.ts",
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-001"
+      ]
+    },
+    {
+      "path": "packages/main/src/handlers/story-query.ts",
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-001"
+      ]
+    },
+    {
+      "path": "packages/main/src/handlers/init-check.ts",
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-002"
+      ]
+    },
+    {
+      "path": "packages/main/src/tasks/init-check-fallback-smoke.ts",
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-003"
+      ]
+    }
+  ]
+}

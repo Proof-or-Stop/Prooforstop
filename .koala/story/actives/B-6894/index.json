@@ -4,7 +4,7 @@
   "title": "Warn that INIT fallback does not authorize cross-project continuation",
   "description": "Improve Koala workflow UX after the B-4f98 analysis case: when a story uses init_check_repair fallback, Koala should clearly say that the INIT_CHECK gate was satisfied by a manual fallback attestation, not independent reviewers, and that this does not authorize the current agent to continue implementing an external story unless the user explicitly asked for that project. This is a guardrail against agents turning a process analysis into unintended cross-project development.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "medium",
   "keywords": [
     "init_check_repair",
@@ -15,7 +15,7 @@
   ],
   "createdAt": "2026-05-27T22:13:42.107Z",
   "startedAt": "2026-05-27T22:13:42.107Z",
-  "endedAt": null,
+  "endedAt": "2026-05-27T22:38:27.569Z",
   "events": [
     {
       "phase": "INIT",
@@ -32,11 +32,47 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-05-27T22:15:33.583Z",
+      "branch": "story/B-6894",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-27T22:19:16.245Z",
+      "branch": "story/B-6894",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-27T22:29:10.416Z",
+      "branch": "story/B-6894",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-05-27T22:33:31.743Z",
+      "branch": "story/B-6894",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-05-27T22:38:27.569Z",
+      "branch": "story/B-6894",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-6894",
-    "branch": "story/B-6894",
-    "createdAt": "2026-05-27T22:15:16.037Z"
-  }
+  "currentReviewRound": "2026-05-27T22:29:10.416Z"
 }
