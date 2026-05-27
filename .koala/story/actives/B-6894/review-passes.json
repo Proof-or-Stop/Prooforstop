@@ -8,6 +8,15 @@
       "reviewRound": "2026-05-27T22:29:10.416Z",
       "reviewRunId": "B-6894:RR-003",
       "_hash": "1c124e4017754fd46586b750f485a94101cea1b3bfd0b262c9d64893fefd5ce0"
+    },
+    {
+      "id": "B-6894:RP-002",
+      "agent": "koala-review-quality",
+      "note": "All changed files reviewed. init-check.ts: boundaryLine const cleanly extracted, used in both return branches, no dead code. session.ts: initCheckAttestationMode import used twice, try/catch probe blocks deliberate, worktrees in scope, no fn.ts shell violation. story-query.ts: initCheckFallbackWarning added only when attestation===fallback, no type unsafety. Smoke assertions: refused paths use doesNotMatch, success path uses match with dotAll /s flag, correct. No unused imports, no as-any, no protected gate semantics changed.",
+      "createdAt": "2026-05-27T22:31:53.833Z",
+      "reviewRound": "2026-05-27T22:29:10.416Z",
+      "reviewRunId": "B-6894:RR-002",
+      "_hash": "c99ffa9d0e20d25148518a4c72fb81319556cad7bfd0eb2a276bc21b51d1c2a8"
     }
   ]
 }
