@@ -17,6 +17,15 @@
       "reviewRound": "2026-05-27T18:55:29.869Z",
       "reviewRunId": "B-ea92:RR-003",
       "_hash": "d9e75432a64bcefb0734013d6930c555a147b1b880e7699dbcb10b52b84253ab"
+    },
+    {
+      "id": "B-ea92:RP-003",
+      "agent": "koala-review-docs",
+      "note": "Step 1 抽出 6 个相关 exported symbols (AUTHORITY_ENFORCE_POLICY_DISCLAIMER, AUTHORITY_POLICY_OVERCLAIM_KEYS, AuthorityPolicyContract, AuthorityPolicyContractSchema, detectPolicyOverclaim, createAuthorityEnforceHandlers). Step 2 在 docs/requirements/decisions/authority-client-role.md 中找到引用段落（M1 detail table、command syntax 说明、Milestone routing 节）。Step 3 比对结果：(1) 命令双语法 authority_enforce_policy / koala authority enforce policy 文档与 cli-engine.ts alias 逻辑一致；(2) 文档表格所列字段（contractVersion, requiredAuthorityMode, commandCatalogDigest, evidenceSchemaDigest, supportedAuthorityModes, evidencePolicy.preset, compatibility）均与 AuthorityPolicyContract 接口字段对应；(3) Milestone 1 声明的不实现项（actor keys, jobs, evidence submission, receipts）与代码实际空缺一致；(4) AUTHORITY_ENFORCE_POLICY_DISCLAIMER 常量值与文档 transcript-diff.md 及 plan.md 描述一致。无 blocker。",
+      "createdAt": "2026-05-27T18:58:52.645Z",
+      "reviewRound": "2026-05-27T18:55:29.869Z",
+      "reviewRunId": "B-ea92:RR-002",
+      "_hash": "1ee1a0c3bbc0782cdeb5b414165c681dcbefa0c25544da64f6695b4e0e73ea6d"
     }
   ]
 }
