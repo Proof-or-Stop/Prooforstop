@@ -4,7 +4,7 @@
   "title": "Warn that INIT fallback does not authorize cross-project continuation",
   "description": "Improve Koala workflow UX after the B-4f98 analysis case: when a story uses init_check_repair fallback, Koala should clearly say that the INIT_CHECK gate was satisfied by a manual fallback attestation, not independent reviewers, and that this does not authorize the current agent to continue implementing an external story unless the user explicitly asked for that project. This is a guardrail against agents turning a process analysis into unintended cross-project development.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "medium",
   "keywords": [
     "init_check_repair",
@@ -30,6 +30,14 @@
       "action": "advance",
       "timestamp": "2026-05-27T22:15:15.905Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-05-27T22:15:33.583Z",
+      "branch": "story/B-6894",
       "user": "Harmonygo",
       "agent": "main"
     }

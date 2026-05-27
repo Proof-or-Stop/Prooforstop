@@ -20,7 +20,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "init_check_repair success output ends with `Fallback only repairs INIT_CHECK; it does not authorize implementation and does not replace later PLAN/DEV/REVIEW/TEST reviewers.`",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/init-check.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/init-check-fallback-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Successful init_check_repair output contains the continuation-boundary sentence after the audit line.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Refused repair paths still write no init-check.json and do not emit a misleading continuation hint.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "High/critical issue fallback still warns that INIT_CHECK gate blocks and still includes the no-implementation-authorization boundary.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
