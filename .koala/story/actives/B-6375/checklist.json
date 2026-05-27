@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Sync runtime ignore patterns into .gitignore",
+      "context": "Run the managed asset sync for the STALE_SAFE .gitignore drift and verify only the expected runtime ignore patterns are added.",
+      "relatedDocs": [
+        "docs/requirements/decisions/session-ownership-and-write-leases.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "Running koala check prints no managed asset drift, and koala convergence_check remains converged true.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "koala check passes after .gitignore includes **/owner-lease.json and .koala/locks/.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The .gitignore diff is limited to Koala managed runtime ignore patterns and does not change source or story evidence behavior.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "koala convergence_check remains converged true after the ignore sync.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
