@@ -7,8 +7,8 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-05-27T22:19:30.618Z",
       "endTime": null,
       "userSees": "session_brief prints `INIT fallback warning` and says `manual fallback attestation, not independent reviewer approval`; story_get JSON includes initCheckAttestation=fallback and a continuation warning string.",
       "files": {
@@ -153,6 +153,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Start init_check_repair continuation-boundary implementation.",
+      "agent": "codex-supervisor"
+    },
+    {
+      "timestamp": "2026-05-27T22:19:30.618Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start fallback recovery-view warning implementation.",
       "agent": "codex-supervisor"
     }
   ]
