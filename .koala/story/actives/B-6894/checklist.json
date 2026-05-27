@@ -9,7 +9,41 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "session_brief prints `INIT fallback warning` and says `manual fallback attestation, not independent reviewer approval`; story_get JSON includes initCheckAttestation=fallback and a continuation warning string.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/story-query.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/init-check-fallback-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A fallback story shown by session_brief includes an `INIT fallback warning` section and the phrase `manual fallback attestation, not independent reviewer approval`.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "story_get for a fallback story still exposes initCheckAttestation=fallback and also exposes a continuation warning without changing independent story output.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The warning explicitly says later PLAN/DEV/REVIEW/TEST gates remain required and that implementation needs explicit user/project authorization.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
