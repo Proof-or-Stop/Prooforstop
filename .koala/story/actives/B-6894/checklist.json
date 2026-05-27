@@ -96,8 +96,8 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-05-27T22:19:30.113Z",
       "endTime": null,
       "userSees": "npm --prefix packages/main run test:init-check-fallback-smoke prints `✓ init check fallback/repair smoke passed` after asserting story_get warning, session_brief warning, and init_check_repair continuation boundary.",
       "files": {
@@ -132,6 +132,18 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-05-27T22:19:30.113Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start fallback continuation guard smoke coverage.",
+      "agent": "codex-supervisor"
     }
   ]
 }
