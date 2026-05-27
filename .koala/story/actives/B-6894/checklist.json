@@ -98,7 +98,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "npm --prefix packages/main run test:init-check-fallback-smoke prints `✓ init check fallback/repair smoke passed` after asserting story_get warning, session_brief warning, and init_check_repair continuation boundary.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/init-check-fallback-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/init-check-fallback-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The focused fallback smoke test passes after build.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The smoke test asserts independent reviewer story_get does not carry fallback warning fields.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke test fails if session_brief resumes a fallback story without the explicit authorization boundary.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
