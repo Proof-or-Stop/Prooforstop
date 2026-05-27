@@ -8,7 +8,7 @@
         "docs/requirements/decisions/authority-client-role.md",
         "docs/requirements/decisions/truth-source.md"
       ],
-      "userSees": "Future agents can cold-read why koala authority enforce is allowed but ordinary koala evidence is still not L2+.",
+      "userSees": "Terminal/docs reviewer can quote: \"ordinary koala remains a workflow thin client; koala authority enforce is a future isolated headless runner path; Python authority remains the receipt authority; Mac Runner remains an execution plane.\"",
       "verificationIntent": {
         "happy": [
           {
@@ -32,9 +32,53 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-05-27T17:57:52.775Z",
+      "endTime": "2026-05-27T17:59:43.317Z",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/authority-client-role.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/authority-boundary-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/authority-client-role.md",
+          "command": "grep -n PD-2 docs/requirements/decisions/authority-client-role.md",
+          "result": "pass",
+          "note": "PD-2 section names ordinary koala workflow client, koala authority enforce headless runner, Python authority receipt authority, and Mac Runner execution plane",
+          "headHash": "73b80735973f6143c2ddfdb238ade6a43333a385",
+          "materialHash": "28921cc5c37276f38de567b631179800b4e50a99c77428f9d509b17bc24f34ad",
+          "timestamp": "2026-05-27T18:03:01.624Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/authority-client-role.md",
+          "command": "grep -n Mac Runner docs/requirements/decisions/authority-client-role.md",
+          "result": "pass",
+          "note": "PD-2 explicitly states it does not replace Mac Runner and does not make existing local/shadow evidence authoritative",
+          "headHash": "73b80735973f6143c2ddfdb238ade6a43333a385",
+          "materialHash": "28921cc5c37276f38de567b631179800b4e50a99c77428f9d509b17bc24f34ad",
+          "timestamp": "2026-05-27T18:03:01.624Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/authority-client-role.md",
+          "command": "grep -n transport docs/requirements/decisions/authority-client-role.md",
+          "result": "pass",
+          "note": "PD-2 explicitly forbids treating transport accepted or local JSON as verified authority receipt evidence",
+          "headHash": "73b80735973f6143c2ddfdb238ade6a43333a385",
+          "materialHash": "28921cc5c37276f38de567b631179800b4e50a99c77428f9d509b17bc24f34ad",
+          "timestamp": "2026-05-27T18:03:01.624Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -43,7 +87,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/authority-client-role.md"
       ],
-      "userSees": "Tests guard against agents claiming the whole CLI became authority-capable after PD-2.",
+      "userSees": "Test output includes the exact line: \"authority boundary smoke passed\" and the evidence matrix proves accepted true without verified receipt stays thin-client transport accepted, while complete signed envelope plus verified receipt is the only L2+ case.",
       "verificationIntent": {
         "happy": [
           {
@@ -67,9 +111,53 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-05-27T17:59:51.345Z",
+      "endTime": "2026-05-27T17:59:52.326Z",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/core/authority-boundary.ts",
+          "packages/main/src/tasks/authority-boundary-smoke.ts",
+          "packages/main/src/tasks/authority-client-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-boundary-smoke.ts",
+          "command": "npm --prefix packages/main run test:authority-boundary-smoke",
+          "result": "pass",
+          "note": "New caseEnforceNamespaceDocWordingDoesNotPromoteWorkflowSubmission covers enforce-namespace wording guard; existing happy path proves complete signed envelope + verified receipt is required for L2+",
+          "headHash": "73b80735973f6143c2ddfdb238ade6a43333a385",
+          "materialHash": "28921cc5c37276f38de567b631179800b4e50a99c77428f9d509b17bc24f34ad",
+          "timestamp": "2026-05-27T18:03:01.624Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-boundary-smoke.ts",
+          "command": "npm --prefix packages/main run test:authority-boundary-smoke",
+          "result": "pass",
+          "note": "caseEnforceAcceptedTransportNotReceipt proves accepted=true without verified receipt stays thin-client-transport-accepted",
+          "headHash": "73b80735973f6143c2ddfdb238ade6a43333a385",
+          "materialHash": "28921cc5c37276f38de567b631179800b4e50a99c77428f9d509b17bc24f34ad",
+          "timestamp": "2026-05-27T18:03:01.624Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-boundary-smoke.ts",
+          "command": "npm --prefix packages/main run test:authority-boundary-smoke",
+          "result": "pass",
+          "note": "caseAdversarialSameRunCollapsedVerifier proves same producer/verifier run cannot be L2+ even with receiptVerified=true",
+          "headHash": "73b80735973f6143c2ddfdb238ade6a43333a385",
+          "materialHash": "28921cc5c37276f38de567b631179800b4e50a99c77428f9d509b17bc24f34ad",
+          "timestamp": "2026-05-27T18:03:01.624Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -79,7 +167,7 @@
         "docs/requirements/decisions/authority-client-role.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "userSees": "The CLI surface makes clear that runner behavior is future gated and currently unavailable or documented as planned, not partially active.",
+      "userSees": "Docs show: \"Milestone 1 may add policy discovery only; Milestone 2+ owns actor keys, jobs, envelopes, and receipts; Milestone 0 introduces no evidence-submitting command.\"",
       "verificationIntent": {
         "happy": [
           {
@@ -103,9 +191,54 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-05-27T18:00:00.084Z",
+      "endTime": "2026-05-27T18:00:01.072Z",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/authority-client-role.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/core/authority-submit.ts",
+          "packages/main/src/tasks/authority-evidence-flow-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/authority-client-role.md",
+          "command": "grep -n Milestone docs/requirements/decisions/authority-client-role.md",
+          "result": "pass",
+          "note": "koala authority enforce command boundary section names Milestone 1 as policy discovery only, Milestone 2+ as actor/job/evidence work",
+          "headHash": "73b80735973f6143c2ddfdb238ade6a43333a385",
+          "materialHash": "28921cc5c37276f38de567b631179800b4e50a99c77428f9d509b17bc24f34ad",
+          "timestamp": "2026-05-27T18:03:01.624Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-evidence-flow-smoke.ts",
+          "command": "npm --prefix packages/main run test:authority-evidence-flow",
+          "result": "pass",
+          "note": "Existing authority off/shadow/enforce transport behavior unchanged; test passes confirming no regressions",
+          "headHash": "73b80735973f6143c2ddfdb238ade6a43333a385",
+          "materialHash": "28921cc5c37276f38de567b631179800b4e50a99c77428f9d509b17bc24f34ad",
+          "timestamp": "2026-05-27T18:03:01.624Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/authority-client-role.md",
+          "command": "grep -n forbidden docs/requirements/decisions/authority-client-role.md",
+          "result": "pass",
+          "note": "No command introduced by this story can submit production L2+ evidence; boundary section explicitly forbids bypassing receipt boundary",
+          "headHash": "73b80735973f6143c2ddfdb238ade6a43333a385",
+          "materialHash": "28921cc5c37276f38de567b631179800b4e50a99c77428f9d509b17bc24f34ad",
+          "timestamp": "2026-05-27T18:03:01.624Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -115,7 +248,7 @@
         "docs/requirements/decisions/authority-client-role.md",
         "docs/requirements/decisions/verification-context-pack.md"
       ],
-      "userSees": "The next Claude/Codex session knows exactly what to build next without rereading the whole discussion.",
+      "userSees": "Story summary says: \"Milestone 0 completed boundary docs and smoke tests only; next story is Milestone 1 policy discovery; actor key, job claim, provider execution, full envelope, and receipt verification remain unimplemented.\"",
       "verificationIntent": {
         "happy": [
           {
@@ -139,9 +272,55 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-05-27T18:00:08.518Z",
+      "endTime": "2026-05-27T18:00:09.686Z",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/authority-client-role.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/authority-boundary-smoke.ts",
+          "packages/main/src/tasks/authority-client-smoke.ts",
+          "packages/main/src/tasks/authority-evidence-flow-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-boundary-smoke.ts",
+          "command": "npm --prefix packages/main run test:authority-boundary-smoke && npm --prefix packages/main run test:authority-client",
+          "result": "pass",
+          "note": "Validation evidence includes boundary smoke and authority client smoke tests; both pass exit 0",
+          "headHash": "73b80735973f6143c2ddfdb238ade6a43333a385",
+          "materialHash": "28921cc5c37276f38de567b631179800b4e50a99c77428f9d509b17bc24f34ad",
+          "timestamp": "2026-05-27T18:03:01.624Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/authority-client-role.md",
+          "command": "grep -n Milestone 1 docs/requirements/decisions/authority-client-role.md",
+          "result": "pass",
+          "note": "Milestone 0 validation record and handoff section preserves PD-2 constraints for Milestone 1 policy discovery",
+          "headHash": "73b80735973f6143c2ddfdb238ade6a43333a385",
+          "materialHash": "28921cc5c37276f38de567b631179800b4e50a99c77428f9d509b17bc24f34ad",
+          "timestamp": "2026-05-27T18:03:01.624Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/authority-client-role.md",
+          "command": "grep -n unimplemented docs/requirements/decisions/authority-client-role.md",
+          "result": "pass",
+          "note": "Milestone 0 validation record explicitly lists actor key, job claim, provider execution, full envelope, and receipt verification as unimplemented",
+          "headHash": "73b80735973f6143c2ddfdb238ade6a43333a385",
+          "materialHash": "28921cc5c37276f38de567b631179800b4e50a99c77428f9d509b17bc24f34ad",
+          "timestamp": "2026-05-27T18:03:01.624Z"
+        }
+      ]
     }
   ]
 }

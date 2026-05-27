@@ -1,0 +1,136 @@
+{
+  "storyId": "B-7e38",
+  "checkedAt": "2026-05-27T17:53:00.924Z",
+  "features": [
+    {
+      "feature": "Record PD-2: ordinary koala CLI remains workflow thin client (not promoted to production authority client)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Record PD-2: koala authority enforce is a future isolated headless runner path",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Record PD-2: Python authority remains receipt authority",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/authority-client-role.md"
+    },
+    {
+      "feature": "Record PD-2: Mac Runner remains execution plane",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/authority-client-role.md"
+    },
+    {
+      "feature": "PD-2 must state it does not replace Mac Runner and does not make existing local/shadow evidence authoritative",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/authority-client-role.md"
+    },
+    {
+      "feature": "Transport accepted=true is NOT receipt verification; classifier returns thin-client-transport-accepted for that case",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/authority-client-role.md"
+    },
+    {
+      "feature": "Mechanical boundary test: complete signed envelope + verified receipt = L2+ (receipt-backed-l2-plus)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/authority-client-role.md"
+    },
+    {
+      "feature": "Mechanical boundary test: accepted=true without verified receipt stays thin-client-transport-accepted",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/authority-client-role.md"
+    },
+    {
+      "feature": "Mechanical boundary test: same-run envelope (producerRunId == verifierRunId) cannot classify as L2+",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/authority-client-role.md"
+    },
+    {
+      "feature": "Trust boundary established before runner identity, job claim, full envelope, or receipt verification implementation",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Reserve enforce subsystem command boundary: Milestone 1 may add policy discovery only",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/authority-client-role.md"
+    },
+    {
+      "feature": "Reserve enforce subsystem command boundary: Milestone 2+ owns actor keys, jobs, envelopes, and receipts",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/authority-client-role.md"
+    },
+    {
+      "feature": "Milestone 0 introduces no evidence-submitting command",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Existing authority transport behavior (off/shadow/enforce path) remains unchanged for workflow evidence handlers",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/authority-client-role.md"
+    },
+    {
+      "feature": "Milestone 0 validation record: boundary smoke tests and authority client smoke tests as evidence",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Next-story handoff: Milestone 1 policy discovery is next; actor key/job/envelope/receipt remain unimplemented",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Story outcome must not claim actor key, job claim, provider execution, full envelope, or receipt verification are implemented",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/authority-client-role.md"
+    }
+  ],
+  "summary": {
+    "total": 17,
+    "covered": 17,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "e171c2bf7a285e75264eafec2d8f884c87d406777cb9b00811fe2e5f4618220c",
+  "openQuestions": []
+}

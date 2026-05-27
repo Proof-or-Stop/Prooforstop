@@ -1,9 +1,51 @@
-# Koala CLI Authority Client Role (PD-1 Decision)
+# Koala CLI Authority Client Role (PD-1 / PD-2 Decisions)
 
-> **Status**: Decision recorded — 2026-05-25
-> **Story**: B-4bd4 (decision-only; no production code changed)
+> **Status**: PD-1 decision recorded — 2026-05-25; PD-2 boundary recorded — 2026-05-27
+> **Stories**: B-4bd4 (PD-1, decision-only; no production code changed), B-7e38 (PD-2, docs + smoke tests only)
 > **Derivation**: `.koala/story/actives/B-4bd4/evidence/authority-client-role-decision.md`
 > **Source audit**: `.koala/story/actives/B-0f04/evidence/cross-end-contract-audit.md` (AUDIT), `.koala/story/actives/B-0f04/evidence/codex-verification.md` (CODEX)
+
+---
+
+## PD-2 Decision (Isolated Enforce Subsystem — B-7e38 Milestone 0)
+
+**Question**: If a future product track enables a CLI-side authority runner, must it be
+isolated from ordinary koala workflow commands, and how should the four subsystem roles
+be named so the boundary is cold-readable?
+
+**Answer**: **Yes — isolated, opt-in, headless.** The four subsystem roles are:
+
+| Role | Subsystem | L2+ evidence authority? |
+|------|-----------|------------------------|
+| **Ordinary koala** | Workflow thin client (`@koala-agent/core`, this repo) | **No** — transport / local only |
+| **`koala authority enforce`** | Future isolated opt-in headless runner path (this repo, future CLI command) | **Only after M2+ gates cleared** — see Milestone Routing below |
+| **Python authority** | Receipt authority (separate Python repo) | **Yes** — signed `AuthorityReceipt` |
+| **Mac Runner / Koala Runner CLI** | Execution plane (separate Mac/Swift + forthcoming Runner CLI repo) | **Yes** — actor key, heartbeat, signed envelope |
+
+Key constraints recorded by this milestone:
+
+- Ordinary koala workflow commands (`koala story_advance`, `koala verification_evidence_add`, etc.)
+  **must never** become or be treated as authority evidence submissions, regardless of future
+  enforce subsystem wording in docs.
+- `koala authority enforce` **does not exist yet** as a command. Milestone 0 reserves the
+  namespace only. No actor key, job claim, provider execution, full `EvidenceEnvelope`
+  submission, or receipt signature verification is introduced by this story.
+- PD-2 does **not** replace Mac Runner. The Mac Runner remains the sole execution plane
+  owner of actor-key registration, runner heartbeat, and ed25519-signed envelopes for L2+
+  evidence.
+- PD-2 does **not** make existing local/shadow evidence authoritative. A submission with
+  `accepted: true` from the transport remains `thin-client-transport-accepted`, never
+  `receipt-backed-l2-plus`.
+- Treating transport acceptance or local JSON as verified authority receipt evidence is
+  **explicitly forbidden** under both PD-1 and PD-2.
+
+### PD-2 Milestone sequence
+
+| Milestone | Name | What may be implemented | What remains forbidden |
+|-----------|------|------------------------|------------------------|
+| **M0 (B-7e38)** | Boundary docs + smoke | Docs, mechanical classifier tests | All runner behavior; actor keys; job claim; provider execution; full envelope; receipt verification |
+| **M1** | Policy discovery | `koala authority enforce` command stub; policy query endpoint; no evidence submission | Actor key registration; job claim; execution; evidence signing; receipt verification |
+| **M2+** | Actor identity, execution, receipts | Actor key registration; runner heartbeat; job claim; provider execution; full `EvidenceEnvelope`; receipt signature verification | Must not land before explicit enforce-mode product approval |
 
 ---
 
@@ -241,6 +283,68 @@ and only after the enforce-mode approval gate is cleared (M3, M4).
 
 ---
 
+## `koala authority enforce` Command Boundary (Milestone 1 Reserve)
+
+The `koala authority enforce` command namespace is **reserved** for a future isolated
+headless runner path. The following rules apply until Milestone 2+ approval:
+
+- **Milestone 0 (B-7e38)**: no command is introduced. This document and the boundary
+  classifier + smoke tests are the only artifacts.
+- **Milestone 1**: may add `koala authority enforce` as a command stub that queries the
+  authority policy endpoint only. It must not submit evidence, claim jobs, register actor
+  keys, execute providers, sign envelopes, or verify receipts.
+- **Milestone 2+**: actor key registration, runner heartbeat, job claim, provider
+  execution, full `EvidenceEnvelope` submission, and receipt signature verification may
+  be implemented only after an explicit enforce-mode product approval overrides PD-1.
+
+Any code added under the `koala authority enforce` namespace that bypasses this
+sequencing — including direct evidence submission, receipt claims, or L2+ classification
+without a full signed envelope + verified receipt — **must be rejected in code review**.
+
+The mechanical truth source for "is this submission L2+?" remains
+[`packages/main/src/core/authority-boundary.ts`](../../../packages/main/src/core/authority-boundary.ts).
+The adversarial smoke tests in `packages/main/src/tasks/authority-boundary-smoke.ts`
+guard against future wording changes silently promoting thin-client submissions.
+
+---
+
+## Milestone 0 Validation Record and Handoff (B-7e38)
+
+**Status**: Milestone 0 complete — 2026-05-27
+
+### What Milestone 0 completed
+
+- Docs: PD-2 boundary recorded in this file (four-role table, prohibited actions,
+  milestone sequence).
+- Docs: `koala authority enforce` command boundary reserved without implementing runner
+  behavior.
+- Smoke tests: `test:authority-boundary-smoke` adversarial suite guards the mechanical
+  L2+ classifier (`authority-boundary.ts`) — normal workflow submissions remain
+  `thin-client-*` even if future enforce-namespace wording exists in docs.
+- Smoke tests: `test:authority-client` and `test:authority-evidence-flow` pass and confirm
+  existing transport behavior is unchanged.
+- **No** actor key registration, runner heartbeat, job claim, provider execution, full
+  `EvidenceEnvelope` submission, or receipt signature verification was introduced.
+- **No** existing authority-submit enforce mode or `accepted: true` transport response was
+  promoted to L2+.
+
+### What Milestone 1 may implement next
+
+- A `koala authority enforce` command stub that queries `/v1/authority/policy` (policy
+  discovery only).
+- Milestone 1 must not submit evidence, claim jobs, register actor keys, execute
+  providers, sign envelopes, or verify receipts.
+
+### What remains unimplemented until Milestone 2+
+
+- Actor key registration and runner heartbeat (FU-3).
+- Job claim and provider execution (FU-4-runner, owned by Mac/Swift repo).
+- Full `EvidenceEnvelope` (`producerRunId`, `verifierRunId`, `provider`, `model`,
+  `vendor`, `commandDigest`, `transcriptHash`, `diffHash`, `envelopeSignature`) (FU-1).
+- `AuthorityReceipt` signature verification (FU-4-receipt, advisory A1).
+
+---
+
 ## Source Links
 
 | Source | Role | Location |
@@ -248,6 +352,7 @@ and only after the enforce-mode approval gate is cleared (M3, M4).
 | B-0f04 cross-end contract audit | Primary evidence for PD-1 inputs | `.koala/story/actives/B-0f04/evidence/cross-end-contract-audit.md` |
 | B-0f04 Codex PM re-verification | Independent PM confirmation of audit claims | `.koala/story/actives/B-0f04/evidence/codex-verification.md` |
 | B-4bd4 CHK-001 decision inputs | Derivation artifact (terms, citations, fact extraction) | `.koala/story/actives/B-4bd4/evidence/authority-client-role-decision.md` |
+| B-7e38 Milestone 0 | PD-2 boundary + enforce namespace reserve + handoff | `docs/requirements/decisions/authority-client-role.md` (this file) |
 | Verification Context Pack | Defines locally-landed vs external authority constraints | `docs/requirements/decisions/verification-context-pack.md` |
 | Truth-source management | Defines where human decisions must live | `docs/requirements/decisions/truth-source.md` |
 | Role separation doc | Koala multi-role architecture reference | `docs/requirements/decisions/role-separation.md` |

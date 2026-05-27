@@ -1,0 +1,57 @@
+{
+  "storyId": "B-7e38",
+  "checkedAt": "2026-05-27T18:08:11.863Z",
+  "reviewRound": "2026-05-27T18:03:30.708Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/authority-client-role.md#PD-2-Decision",
+      "promise": "PD-2 Decision section records four roles: ordinary koala, koala authority enforce, Python authority, Mac Runner — with enforce reserved as future namespace only",
+      "verifiedBy": "diff/grep",
+      "evidence": "Diff adds PD-2 Decision section with four-role table. grep confirms 31 occurrences of PD-2/ordinary koala/koala authority enforce/Mac Runner/thin-client/verifiedAuthorityReceipt in the doc."
+    },
+    {
+      "docPath": "docs/requirements/decisions/authority-client-role.md#PD-2-Milestone-sequence",
+      "promise": "Milestone sequence table: M0=docs+smoke only, M1=policy discovery only, M2+=actor/job/evidence/receipts",
+      "verifiedBy": "diff",
+      "evidence": "Diff adds Milestone sequence table explicitly listing what may and may not be implemented at each milestone."
+    },
+    {
+      "docPath": "docs/requirements/decisions/authority-client-role.md#koala-authority-enforce-Command-Boundary",
+      "promise": "koala authority enforce command namespace reserved; no command implementation introduced in M0",
+      "verifiedBy": "diff",
+      "evidence": "Diff adds command boundary section. No new koala command handler appears in the diff. authority-boundary.ts named as mechanical truth source; adversarial smoke guards wording changes."
+    },
+    {
+      "docPath": "docs/requirements/decisions/authority-client-role.md#Milestone-0-Validation-Record",
+      "promise": "Milestone 0 Validation Record lists all unimplemented items and M1 handoff guidance",
+      "verifiedBy": "diff",
+      "evidence": "Diff adds validation record section explicitly listing unimplemented: actor key, runner heartbeat, job claim, provider execution, full EvidenceEnvelope, receipt verification."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "docs_check: PD-2 section with four-role table present; does-not-replace-Mac-Runner edge case present; transport-accepted-not-receipt adversarial explicitly forbidden. koala validate --story=B-7e38 reported 12/12 covered per test-evidence.json."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "logic_test: caseEnforceNamespaceDocWordingDoesNotPromoteWorkflowSubmission added to authority-boundary-smoke.ts; asserts enforce-namespace wording in envelope metadata does NOT promote to receipt-backed L2+; checks missing envelopeSignature and verifiedAuthorityReceipt. test:authority-boundary-smoke passes per test-evidence.json."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "logic_test: test:authority-evidence-flow passes confirming no regression in existing transport behavior. docs_check confirms no command introduced by this story can submit L2+ evidence."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "logic_test: test:authority-boundary-smoke and test:authority-client both pass per transcript-diff.md. Handoff section in docs preserves PD-2 constraints for M1."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 4 docsPromises verified in diff. New adversarial smoke test guards enforce-namespace wording from silently promoting thin-client submissions. No unresolved TODOs. koala validate allPass=true, 12/12 intent covered, 0 required missing."
+  },
+  "_hash": "04953ce1241fb83f18519d10de1b0532df8e3aa2e234f72ba2e953eb68293415"
+}

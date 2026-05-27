@@ -286,6 +286,47 @@ function caseRequirementsFrozenList(): void {
   }
 }
 
+function caseEnforceNamespaceDocWordingDoesNotPromoteWorkflowSubmission(): void {
+  // PD-2 hardening (B-7e38 CHK-002): even if future docs describe a
+  // "koala authority enforce" subsystem, normal workflow CLI submissions that
+  // go through the existing transport path must remain thin-client.
+  //
+  // This case simulates the scenario where a workflow evidence handler calls
+  // the authority transport with mode='enforce' and the server returns
+  // accepted=true (same as caseEnforceAcceptedTransportNotReceipt), but
+  // the envelope explicitly carries future enforce-namespace metadata in its
+  // free-form fields. The boundary classifier must still refuse to promote this
+  // to receipt-backed L2+ because the structural requirements (run bindings,
+  // provider/model/vendor, signature, verified receipt) are absent.
+  const workflowEnvelope = cliShapedEnvelope({
+    // Simulate a workflow submission that happens to mention "authority enforce"
+    // in its evidence ID — this must not change classification.
+    evidenceId: 'koala-authority-enforce:M1:CHK-001:happy:0',
+    producerActorId: 'koala-authority-enforce-runner',
+    role: 'verifier',
+  });
+  const c = classifyAuthorityEvidence({
+    mode: 'enforce',
+    envelope: workflowEnvelope,
+    receiptVerified: false,
+    transportAccepted: true,
+  });
+  assert.equal(
+    c.klass,
+    'thin-client-transport-accepted',
+    'PD-2: enforce-namespace wording in envelope metadata must NOT promote workflow submission to receipt-backed L2+',
+  );
+  expectThinClient(c, 'PD-2 enforce namespace doc wording guard');
+  assert.ok(
+    c.missing.includes('envelopeSignature'),
+    'PD-2: missing envelopeSignature even when enforce namespace named in envelope',
+  );
+  assert.ok(
+    c.missing.includes('verifiedAuthorityReceipt'),
+    'PD-2: missing verifiedAuthorityReceipt even when enforce namespace named in envelope',
+  );
+}
+
 function main(): void {
   caseOffLocalOnly();
   caseShadowObservational();
@@ -295,6 +336,7 @@ function main(): void {
   caseAdversarialMissingHashBindingsNotBypassedByAccepted();
   caseAuthoritySubmitWrapperAgrees();
   caseRequirementsFrozenList();
+  caseEnforceNamespaceDocWordingDoesNotPromoteWorkflowSubmission();
   console.log(PASS_LINE);
 }
 
