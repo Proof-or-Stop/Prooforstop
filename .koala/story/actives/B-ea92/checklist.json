@@ -395,6 +395,17 @@
           "headHash": "9c84447bbeb8576bf44eacc5bea01e375146fb25",
           "materialHash": "864afbffdf7168f20736f752666cb3fed7b028eab223212a1f485625b3387554",
           "timestamp": "2026-05-27T18:54:47.649Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "docs_check",
+          "file": ".koala/story/actives/B-ea92/evidence/transcript-diff.md",
+          "command": "rg -n \"Next Safe Milestone|explicit approval|Do not skip directly|signed authority handshake\" .koala/story/actives/B-ea92/evidence/transcript-diff.md",
+          "result": "pass",
+          "note": "Handoff names the next safe milestone as actor identity and signed authority handshake only, requiring explicit approval before evidence submission or receipt-backed gate promotion.",
+          "headHash": "93e09532680ac6ac6deeec7456e170e5cd9b201f",
+          "materialHash": "864afbffdf7168f20736f752666cb3fed7b028eab223212a1f485625b3387554",
+          "timestamp": "2026-05-27T18:54:53.072Z"
         }
       ]
     }
