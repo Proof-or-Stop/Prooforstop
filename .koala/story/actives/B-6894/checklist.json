@@ -160,9 +160,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-27T22:19:30.113Z",
-      "endTime": null,
+      "endTime": "2026-05-27T22:28:33.298Z",
       "userSees": "npm --prefix packages/main run test:init-check-fallback-smoke prints `✓ init check fallback/repair smoke passed` after asserting story_get warning, session_brief warning, and init_check_repair continuation boundary.",
       "files": {
         "modify": [
@@ -195,7 +195,49 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:init-check-fallback-smoke",
+          "result": "pass",
+          "note": "Build succeeded and focused fallback smoke printed the expected pass line.",
+          "headHash": "8e1a3d03611d4e47f9bba9f49f149d17a15adc9b",
+          "materialHash": "smoke=955114d9e1f676bc68b3db8ddc65297a411fdf6c",
+          "timestamp": "2026-05-27T22:28:33.334Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:init-check-fallback-smoke",
+          "result": "pass",
+          "note": "Smoke asserts independent reviewer story_get does not carry initCheckFallbackWarning.",
+          "headHash": "8e1a3d03611d4e47f9bba9f49f149d17a15adc9b",
+          "materialHash": "smoke=955114d9e1f676bc68b3db8ddc65297a411fdf6c",
+          "timestamp": "2026-05-27T22:28:33.363Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:init-check-fallback-smoke",
+          "result": "pass",
+          "note": "Smoke asserts session_brief warns with explicit authorization boundary and refused/blocking repair paths cannot imply continuation.",
+          "headHash": "8e1a3d03611d4e47f9bba9f49f149d17a15adc9b",
+          "materialHash": "smoke=955114d9e1f676bc68b3db8ddc65297a411fdf6c",
+          "timestamp": "2026-05-27T22:28:33.392Z"
+        },
+        {
+          "intentRef": "B-6894:scope",
+          "kind": "manual_transcript",
+          "command": "koala scope_contract_check --storyId=B-6894",
+          "result": "pass",
+          "note": "Scope and semantic scope gates passed with zero violations after implementation and smoke-test strengthening.",
+          "headHash": "8e1a3d03611d4e47f9bba9f49f149d17a15adc9b",
+          "materialHash": "scope-contract=.koala/story/actives/B-6894/scope-contract.json",
+          "timestamp": "2026-05-27T22:28:33.423Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -247,6 +289,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Claude implementation committed and test coverage was strengthened after supervisor review; Codex re-ran build, fallback smoke, and scope contract.",
+      "agent": "codex-supervisor"
+    },
+    {
+      "timestamp": "2026-05-27T22:28:33.298Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Focused fallback smoke test was extended, committed by Claude, and independently re-run by Codex after build.",
       "agent": "codex-supervisor"
     }
   ]
