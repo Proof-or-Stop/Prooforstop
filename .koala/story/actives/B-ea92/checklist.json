@@ -383,7 +383,20 @@
           "packages/main/src/tasks/authority-client-smoke.ts",
           "packages/main/src/tasks/authority-evidence-flow-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "file": ".koala/story/actives/B-ea92/test-evidence.json",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:authority-enforce-policy && npm --prefix packages/main run test:authority-client && npm --prefix packages/main run test:command-ownership-contract && npm --prefix packages/main run test:authority-boundary-smoke && npm --prefix packages/main run test:authority-evidence-flow",
+          "result": "pass",
+          "note": "Codex supervisor validation record names passing build, policy discovery smoke, authority client smoke, command ownership contract, authority-boundary smoke, and authority-evidence-flow smoke; earlier koala validate failure was only missing CHK-005 coverage.",
+          "headHash": "9c84447bbeb8576bf44eacc5bea01e375146fb25",
+          "materialHash": "864afbffdf7168f20736f752666cb3fed7b028eab223212a1f485625b3387554",
+          "timestamp": "2026-05-27T18:54:47.649Z"
+        }
+      ]
     }
   ],
   "auditLog": [
