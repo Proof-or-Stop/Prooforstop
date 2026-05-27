@@ -32,9 +32,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-27T19:16:06.630Z",
-      "endTime": null,
+      "endTime": "2026-05-27T19:17:36.733Z",
       "verificationEvidence": [
         {
           "intentRef": "CHK-001:happy:0",
@@ -81,6 +81,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Begin annotation-only fix for missing @changes field."
+    },
+    {
+      "timestamp": "2026-05-27T19:17:36.733Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Missing @changes field fixed by Claude; cli-validate, diff-only check, smoke, build, and convergence annotation compliance verified."
     }
   ]
 }
