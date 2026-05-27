@@ -208,7 +208,23 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/authority-client-role.md",
+          ".koala/story/actives/B-ea92/checklist.json",
+          ".koala/story/actives/B-ea92/summary.json"
+        ],
+        "create": [
+          ".koala/story/actives/B-ea92/evidence/transcript-diff.md"
+        ],
+        "test": [
+          "packages/main/src/tasks/authority-enforce-policy-smoke.ts",
+          "packages/main/src/tasks/authority-boundary-smoke.ts",
+          "packages/main/src/tasks/authority-client-smoke.ts",
+          "packages/main/src/tasks/authority-evidence-flow-smoke.ts"
+        ]
+      }
     }
   ]
 }
