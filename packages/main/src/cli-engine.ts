@@ -1379,6 +1379,7 @@ const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'reviewer_list',
   'workflow_explain',
   'help',
+  'authority_enforce_policy',
 ]);
 
 function inferCodexEntrypoint(): string {

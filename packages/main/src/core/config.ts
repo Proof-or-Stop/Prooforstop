@@ -141,6 +141,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'story_draft_discard',
     'draft_check_set',      // B-9975 CHK-002: draft check 全阶段可用
     'draft_issue_resolve',
+    'authority_enforce_policy', // B-ea92 M1: read-only authority policy discovery, no side-effects
   ],
   INIT: [
     'story_update', 'checklist_update',
