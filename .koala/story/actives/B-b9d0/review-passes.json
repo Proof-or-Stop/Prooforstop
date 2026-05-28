@@ -26,6 +26,15 @@
       "reviewRound": "2026-05-28T03:49:52.071Z",
       "reviewRunId": "B-b9d0:RR-004",
       "_hash": "dd343e687de29a525428ee9e4a917c6ad03cda28dec70d1fdfd78ab5f5fe0a5a"
+    },
+    {
+      "id": "B-b9d0:RP-004",
+      "agent": "koala-review-docs",
+      "note": "lifecycle-artifact-scope.md is a focused policy doc (not a story-record dump): classifier described matches scope-contract.ts:280-315 ordering (classifyLifecycleArtifact → isRuntimeArtifactPath → fall-through), filename closed set matches KOALA_LIFECYCLE_ARTIFACT_FILENAMES in lifecycle-registry.ts:549-574, legacy-metadata kind matches lifecycle-registry.ts:648-668, scope_contract_acknowledge TEST-forbidden claim matches command-policy.ts:204 (allowedPhases=DEV,REVIEW), all three verification scripts referenced exist, runtime-artifact list (.koala/runtime|traces|locks, owner-lease.json, activity.jsonl, .koala-tmp-*, koala-debug.log, browser-test.log, .omx) matches runtime-artifact-registry.ts. Doc explicitly states classifier does not provide gate receipts (lines 64-67) and is not a substitute for evidence receipts (line 19), so it does not blur with done-oracle or signed *-check.json artifacts. No contradiction with story-lifecycle.md (scope evidence hygiene section unchanged), truth-source.md (decisions/ remains truth source), or session-ownership-and-write-leases.md (owner-lease.json runtime exclusion consistent). Adversarial invariant section locks in regression-test wording against reverting to blanket .koala/ exemption.",
+      "createdAt": "2026-05-28T03:56:15.239Z",
+      "reviewRound": "2026-05-28T03:49:52.071Z",
+      "reviewRunId": "B-b9d0:RR-005",
+      "_hash": "3b02be0ed43c1787412d1954afe1e47071f3b1117ff7698cb1393f5b41196ec7"
     }
   ]
 }
