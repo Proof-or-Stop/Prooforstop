@@ -44,6 +44,15 @@
       "reviewRound": "2026-05-28T03:49:52.071Z",
       "reviewRunId": "B-b9d0:RR-006",
       "_hash": "4082bfa55f82a98b8545721b7c07e2ec304897c77f798c78d1f4b9b5678e8c6f"
+    },
+    {
+      "id": "B-b9d0:RP-006",
+      "agent": "koala-review-quality",
+      "note": "Quality re-review after F-001 fix (commit 528cc1e9): the extension of the role-aware next-step token list in scripts/verify-session-brief-command-center.mjs (adding reviewer_list/finding_list/review_pass_set/story_advance --storyId=/--phase=) is maintainable and does not weaken the CHK-004 source-receipt assertions, which independently grep packages/main/src/handlers/session.ts for scopeBlocking, \"Scope gate: blocking\", \"DONE is not recommended while scope is blocking\", and the TEST-branch guard inside computeNextStep. Verifier now reaches and exercises those source-level checks in REVIEW phase; node scripts/verify-session-brief-command-center.mjs prints \"session brief command center verified\". Flat OR-chain is acceptable hot-fix shape; long-term a phase-aware allow-list would be cleaner but is not blocking. No blocker.",
+      "createdAt": "2026-05-28T04:01:05.793Z",
+      "reviewRound": "2026-05-28T03:49:52.071Z",
+      "reviewRunId": "B-b9d0:RR-007",
+      "_hash": "1eaea537113430bc965883a2eebad39c16deff9ff36627302b33c8389d09a41a"
     }
   ]
 }
