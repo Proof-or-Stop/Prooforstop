@@ -289,9 +289,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-28T02:44:27.977Z",
-      "endTime": null,
+      "endTime": "2026-05-28T03:29:57.776Z",
       "files": {
         "modify": [
           "packages/main/src/handlers/session.ts",
@@ -507,6 +507,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Implementation committed and verification evidence proves derived directory skipping plus symlink-loop convergence safety.",
+      "agent": "codex-supervisor"
+    },
+    {
+      "timestamp": "2026-05-28T03:29:57.776Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementation committed and verification evidence proves session_brief scope-blocking guidance prevents premature DONE recommendation.",
       "agent": "codex-supervisor"
     }
   ]
