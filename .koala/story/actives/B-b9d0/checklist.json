@@ -53,7 +53,42 @@
         "test": [
           "scripts/verify-process-fact-contract.mjs"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Confirms known story-scoped lifecycle artifacts are accepted as Koala-owned metadata.",
+          "headHash": "cfbbda4b042da2040740572fabd10df57b05701f",
+          "materialHash": "dbd14ef57010d65cefe76f7c9205b33ae3cc756cc0bc7dcd06e3fcb93a65a7a7",
+          "timestamp": "2026-05-28T03:28:59.076Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Confirms lifecycle artifact classification is story-scoped and filename-aware.",
+          "headHash": "cfbbda4b042da2040740572fabd10df57b05701f",
+          "materialHash": "dbd14ef57010d65cefe76f7c9205b33ae3cc756cc0bc7dcd06e3fcb93a65a7a7",
+          "timestamp": "2026-05-28T03:28:59.076Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Confirms arbitrary .koala files and product source files still fail unacknowledged enforce scope.",
+          "headHash": "cfbbda4b042da2040740572fabd10df57b05701f",
+          "materialHash": "dbd14ef57010d65cefe76f7c9205b33ae3cc756cc0bc7dcd06e3fcb93a65a7a7",
+          "timestamp": "2026-05-28T03:28:59.076Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -104,7 +139,42 @@
           "scripts/verify-process-fact-contract.mjs",
           "scripts/verify-main-branch-runtime-health.mjs"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Confirms delivery-check.json and summary.json are accepted lifecycle artifacts without scope expansion.",
+          "headHash": "cfbbda4b042da2040740572fabd10df57b05701f",
+          "materialHash": "dbd14ef57010d65cefe76f7c9205b33ae3cc756cc0bc7dcd06e3fcb93a65a7a7",
+          "timestamp": "2026-05-28T03:28:59.076Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Confirms TEST-phase lifecycle artifact allowance is narrow and does not rely on ordinary acknowledgement expansion.",
+          "headHash": "cfbbda4b042da2040740572fabd10df57b05701f",
+          "materialHash": "dbd14ef57010d65cefe76f7c9205b33ae3cc756cc0bc7dcd06e3fcb93a65a7a7",
+          "timestamp": "2026-05-28T03:28:59.076Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Confirms unrelated files still produce OUT_OF_SCOPE instead of being hidden by lifecycle metadata handling.",
+          "headHash": "cfbbda4b042da2040740572fabd10df57b05701f",
+          "materialHash": "dbd14ef57010d65cefe76f7c9205b33ae3cc756cc0bc7dcd06e3fcb93a65a7a7",
+          "timestamp": "2026-05-28T03:28:59.076Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -151,7 +221,42 @@
         "test": [
           "scripts/verify-gap-convergence.mjs"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-gap-convergence.mjs",
+          "command": "node scripts/verify-gap-convergence.mjs",
+          "result": "pass",
+          "note": "Confirms .build and derived runtime directories are skipped during convergence scanning.",
+          "headHash": "cfbbda4b042da2040740572fabd10df57b05701f",
+          "materialHash": "dbd14ef57010d65cefe76f7c9205b33ae3cc756cc0bc7dcd06e3fcb93a65a7a7",
+          "timestamp": "2026-05-28T03:28:59.076Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-gap-convergence.mjs",
+          "command": "node scripts/verify-gap-convergence.mjs",
+          "result": "pass",
+          "note": "Confirms symlink-loop fixture does not crash walkDir or scanTruth.",
+          "headHash": "cfbbda4b042da2040740572fabd10df57b05701f",
+          "materialHash": "dbd14ef57010d65cefe76f7c9205b33ae3cc756cc0bc7dcd06e3fcb93a65a7a7",
+          "timestamp": "2026-05-28T03:28:59.076Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-gap-convergence.mjs",
+          "command": "node scripts/verify-gap-convergence.mjs",
+          "result": "pass",
+          "note": "Confirms derived-dir skipping does not hide real docs/requirements truth sources or real source files.",
+          "headHash": "cfbbda4b042da2040740572fabd10df57b05701f",
+          "materialHash": "dbd14ef57010d65cefe76f7c9205b33ae3cc756cc0bc7dcd06e3fcb93a65a7a7",
+          "timestamp": "2026-05-28T03:28:59.076Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -199,7 +304,42 @@
           "scripts/verify-session-brief-command-center.mjs",
           "packages/main/src/tasks/flow-stability-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-session-brief-command-center.mjs",
+          "command": "node scripts/verify-session-brief-command-center.mjs",
+          "result": "pass",
+          "note": "Confirms session_brief contains scopeBlocking logic and blocks DONE recommendations while scope is blocking.",
+          "headHash": "cfbbda4b042da2040740572fabd10df57b05701f",
+          "materialHash": "dbd14ef57010d65cefe76f7c9205b33ae3cc756cc0bc7dcd06e3fcb93a65a7a7",
+          "timestamp": "2026-05-28T03:28:59.076Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-session-brief-command-center.mjs",
+          "command": "node scripts/verify-session-brief-command-center.mjs",
+          "result": "pass",
+          "note": "Confirms existing session_brief command-center hints still render normal next-step guidance when no blocking scope failure is asserted.",
+          "headHash": "cfbbda4b042da2040740572fabd10df57b05701f",
+          "materialHash": "dbd14ef57010d65cefe76f7c9205b33ae3cc756cc0bc7dcd06e3fcb93a65a7a7",
+          "timestamp": "2026-05-28T03:28:59.076Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-session-brief-command-center.mjs",
+          "command": "node scripts/verify-session-brief-command-center.mjs",
+          "result": "pass",
+          "note": "Confirms TEST branch consumes scopeBlocking before DONE guidance can be emitted.",
+          "headHash": "cfbbda4b042da2040740572fabd10df57b05701f",
+          "materialHash": "dbd14ef57010d65cefe76f7c9205b33ae3cc756cc0bc7dcd06e3fcb93a65a7a7",
+          "timestamp": "2026-05-28T03:28:59.076Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -251,7 +391,41 @@
           "koala convergence_check",
           "npm test -- --runInBand"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && node scripts/verify-process-fact-contract.mjs && node scripts/verify-gap-convergence.mjs && node scripts/verify-session-brief-command-center.mjs",
+          "result": "pass",
+          "note": "Combined regression tests cover lifecycle metadata scope, convergence symlink handling, and session_brief blocking behavior.",
+          "headHash": "cfbbda4b042da2040740572fabd10df57b05701f",
+          "materialHash": "dbd14ef57010d65cefe76f7c9205b33ae3cc756cc0bc7dcd06e3fcb93a65a7a7",
+          "timestamp": "2026-05-28T03:28:59.076Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "koala check && koala convergence_check",
+          "result": "pass",
+          "note": "Koala managed asset check passes and convergence_check returns JSON without ELOOP; converged=false only because B-b9d0 itself is still active.",
+          "headHash": "cfbbda4b042da2040740572fabd10df57b05701f",
+          "materialHash": "dbd14ef57010d65cefe76f7c9205b33ae3cc756cc0bc7dcd06e3fcb93a65a7a7",
+          "timestamp": "2026-05-28T03:28:59.076Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Policy doc and process-fact contract explicitly assert this does not weaken product source scope enforcement.",
+          "headHash": "cfbbda4b042da2040740572fabd10df57b05701f",
+          "materialHash": "dbd14ef57010d65cefe76f7c9205b33ae3cc756cc0bc7dcd06e3fcb93a65a7a7",
+          "timestamp": "2026-05-28T03:28:59.076Z"
+        }
+      ]
     }
   ],
   "auditLog": [
