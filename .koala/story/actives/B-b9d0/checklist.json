@@ -62,9 +62,9 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Confirms known story-scoped lifecycle artifacts are accepted as Koala-owned metadata.",
-          "headHash": "bbbf6b8387befbce4487785baf35ec5d4593e019",
-          "materialHash": "a39d371ae99657af60f3ef1ac3f10ff678a04026f8bfbe5e6db21f1a8c36249e",
-          "timestamp": "2026-05-28T03:50:41.834Z"
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.285Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -73,9 +73,9 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Confirms lifecycle artifact classification is story-scoped and filename-aware.",
-          "headHash": "bbbf6b8387befbce4487785baf35ec5d4593e019",
-          "materialHash": "a39d371ae99657af60f3ef1ac3f10ff678a04026f8bfbe5e6db21f1a8c36249e",
-          "timestamp": "2026-05-28T03:50:41.834Z"
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.287Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -84,9 +84,9 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Confirms arbitrary .koala files and product source files still fail unacknowledged enforce scope.",
-          "headHash": "bbbf6b8387befbce4487785baf35ec5d4593e019",
-          "materialHash": "a39d371ae99657af60f3ef1ac3f10ff678a04026f8bfbe5e6db21f1a8c36249e",
-          "timestamp": "2026-05-28T03:50:41.834Z"
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.287Z"
         }
       ]
     },
@@ -148,9 +148,9 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Confirms delivery-check.json and summary.json are accepted lifecycle artifacts without scope expansion.",
-          "headHash": "bbbf6b8387befbce4487785baf35ec5d4593e019",
-          "materialHash": "a39d371ae99657af60f3ef1ac3f10ff678a04026f8bfbe5e6db21f1a8c36249e",
-          "timestamp": "2026-05-28T03:50:41.834Z"
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.287Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -159,9 +159,9 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Confirms TEST-phase lifecycle artifact allowance is narrow and does not rely on ordinary acknowledgement expansion.",
-          "headHash": "bbbf6b8387befbce4487785baf35ec5d4593e019",
-          "materialHash": "a39d371ae99657af60f3ef1ac3f10ff678a04026f8bfbe5e6db21f1a8c36249e",
-          "timestamp": "2026-05-28T03:50:41.834Z"
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.287Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -170,9 +170,9 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Confirms unrelated files still produce OUT_OF_SCOPE instead of being hidden by lifecycle metadata handling.",
-          "headHash": "bbbf6b8387befbce4487785baf35ec5d4593e019",
-          "materialHash": "a39d371ae99657af60f3ef1ac3f10ff678a04026f8bfbe5e6db21f1a8c36249e",
-          "timestamp": "2026-05-28T03:50:41.834Z"
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.287Z"
         }
       ]
     },
@@ -230,9 +230,9 @@
           "command": "node scripts/verify-gap-convergence.mjs",
           "result": "pass",
           "note": "Confirms .build and derived runtime directories are skipped during convergence scanning.",
-          "headHash": "bbbf6b8387befbce4487785baf35ec5d4593e019",
-          "materialHash": "a39d371ae99657af60f3ef1ac3f10ff678a04026f8bfbe5e6db21f1a8c36249e",
-          "timestamp": "2026-05-28T03:50:41.834Z"
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.287Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -241,9 +241,9 @@
           "command": "node scripts/verify-gap-convergence.mjs",
           "result": "pass",
           "note": "Confirms symlink-loop fixture does not crash walkDir or scanTruth.",
-          "headHash": "bbbf6b8387befbce4487785baf35ec5d4593e019",
-          "materialHash": "a39d371ae99657af60f3ef1ac3f10ff678a04026f8bfbe5e6db21f1a8c36249e",
-          "timestamp": "2026-05-28T03:50:41.834Z"
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.287Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -252,9 +252,9 @@
           "command": "node scripts/verify-gap-convergence.mjs",
           "result": "pass",
           "note": "Confirms derived-dir skipping does not hide real docs/requirements truth sources or real source files.",
-          "headHash": "bbbf6b8387befbce4487785baf35ec5d4593e019",
-          "materialHash": "a39d371ae99657af60f3ef1ac3f10ff678a04026f8bfbe5e6db21f1a8c36249e",
-          "timestamp": "2026-05-28T03:50:41.834Z"
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.288Z"
         }
       ]
     },
@@ -313,9 +313,9 @@
           "command": "node scripts/verify-session-brief-command-center.mjs",
           "result": "pass",
           "note": "Confirms session_brief contains scopeBlocking logic and blocks DONE recommendations while scope is blocking.",
-          "headHash": "bbbf6b8387befbce4487785baf35ec5d4593e019",
-          "materialHash": "a39d371ae99657af60f3ef1ac3f10ff678a04026f8bfbe5e6db21f1a8c36249e",
-          "timestamp": "2026-05-28T03:50:41.834Z"
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.288Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -324,9 +324,9 @@
           "command": "node scripts/verify-session-brief-command-center.mjs",
           "result": "pass",
           "note": "Confirms existing session_brief command-center hints still render normal next-step guidance when no blocking scope failure is asserted.",
-          "headHash": "bbbf6b8387befbce4487785baf35ec5d4593e019",
-          "materialHash": "a39d371ae99657af60f3ef1ac3f10ff678a04026f8bfbe5e6db21f1a8c36249e",
-          "timestamp": "2026-05-28T03:50:41.834Z"
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.288Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -335,9 +335,9 @@
           "command": "node scripts/verify-session-brief-command-center.mjs",
           "result": "pass",
           "note": "Confirms TEST branch consumes scopeBlocking before DONE guidance can be emitted.",
-          "headHash": "bbbf6b8387befbce4487785baf35ec5d4593e019",
-          "materialHash": "a39d371ae99657af60f3ef1ac3f10ff678a04026f8bfbe5e6db21f1a8c36249e",
-          "timestamp": "2026-05-28T03:50:41.834Z"
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.288Z"
         }
       ]
     },
@@ -400,9 +400,9 @@
           "command": "npm --prefix packages/main run build && node scripts/verify-process-fact-contract.mjs && node scripts/verify-gap-convergence.mjs && node scripts/verify-session-brief-command-center.mjs",
           "result": "pass",
           "note": "Combined regression tests cover lifecycle metadata scope, convergence symlink handling, and session_brief blocking behavior.",
-          "headHash": "bbbf6b8387befbce4487785baf35ec5d4593e019",
-          "materialHash": "a39d371ae99657af60f3ef1ac3f10ff678a04026f8bfbe5e6db21f1a8c36249e",
-          "timestamp": "2026-05-28T03:50:41.834Z"
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.288Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -410,9 +410,9 @@
           "command": "koala check && koala convergence_check",
           "result": "pass",
           "note": "Koala managed asset check passes and convergence_check returns JSON without ELOOP; converged=false only because B-b9d0 itself is still active.",
-          "headHash": "bbbf6b8387befbce4487785baf35ec5d4593e019",
-          "materialHash": "a39d371ae99657af60f3ef1ac3f10ff678a04026f8bfbe5e6db21f1a8c36249e",
-          "timestamp": "2026-05-28T03:50:41.834Z"
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.288Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -421,9 +421,9 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Policy doc and process-fact contract explicitly assert this does not weaken product source scope enforcement.",
-          "headHash": "bbbf6b8387befbce4487785baf35ec5d4593e019",
-          "materialHash": "a39d371ae99657af60f3ef1ac3f10ff678a04026f8bfbe5e6db21f1a8c36249e",
-          "timestamp": "2026-05-28T03:50:41.834Z"
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.288Z"
         }
       ]
     }
