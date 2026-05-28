@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-b9d0:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Concept pass: lifecycle artifact classifier is narrow (storyId + path prefix + closed filename set) and adversarially proven to keep rejecting product source and arbitrary .koala/foo.json; strict-prefix branch returns null on unknown filenames so .koala/story/actives/<id>/secrets.json still fails. Convergence hardening anchors .build (and other derived dirs) by exact directory name and uses lstatSync + symlink skip in walkDir/scanTruth; symlink-loop fixture confirms no ELOOP and docs/requirements/docs/story remain visible. session_brief TEST-branch consumes scopeBlocking before recommending DONE with the required wording. TEST-phase scope_contract_acknowledge is forbidden via command-policy allowedPhases=[DEV,REVIEW]. No weakening of product-source scope enforcement observed.",
+      "createdAt": "2026-05-28T03:37:08.072Z",
+      "reviewRound": "2026-05-28T03:32:18.341Z",
+      "reviewRunId": "B-b9d0:RR-001",
+      "_hash": "c2512daf6a6b88c43232b4519ef110e3f22e2d1792457c058378885f55c5a1c7"
+    }
+  ]
+}
