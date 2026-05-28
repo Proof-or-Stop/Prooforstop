@@ -17,6 +17,15 @@
       "reviewRound": "2026-05-28T03:32:18.341Z",
       "reviewRunId": "B-b9d0:RR-002",
       "_hash": "03071db64ba23f8e75e5dac1fa8dbece720783852a2c6bd1b7b4aa8f5bbe8074"
+    },
+    {
+      "id": "B-b9d0:RP-003",
+      "agent": "koala-review-test-coverage",
+      "note": "F-001 resolved: verify-session-brief-command-center.mjs role-aware-next-step assertion (lines 35-48) now includes REVIEW-phase tokens (reviewer_list/finding_list/review_pass_set/story_advance --storyId=/--phase=), so the script no longer throws in REVIEW phase. End-to-end run completes (\"session brief command center verified\"), reaching the CHK-004 scopeBlocking source-receipt assertions on packages/main/src/handlers/session.ts (lines 71-94) and the CHK-005 combined regression chain (verify-process-fact-contract + verify-gap-convergence + verify-session-brief-command-center) all pass. CHK-004 happy/edge/adversarial and CHK-005:happy:0 evidence are now reproducible in REVIEW.",
+      "createdAt": "2026-05-28T03:52:48.435Z",
+      "reviewRound": "2026-05-28T03:49:52.071Z",
+      "reviewRunId": "B-b9d0:RR-004",
+      "_hash": "dd343e687de29a525428ee9e4a917c6ad03cda28dec70d1fdfd78ab5f5fe0a5a"
     }
   ]
 }
