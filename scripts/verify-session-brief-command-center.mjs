@@ -38,7 +38,12 @@ assert(
     || brief.includes('checklist_get')
     || brief.includes('checklist_update')
     || brief.includes('Resume: cd')
-    || brief.includes('story_create'),
+    || brief.includes('story_create')
+    || brief.includes('reviewer_list')
+    || brief.includes('finding_list')
+    || brief.includes('review_pass_set')
+    || brief.includes('story_advance --storyId=')
+    || brief.includes('story_advance --phase='),
   'session_brief missing role-aware next step',
 );
 
