@@ -9,7 +9,7 @@
         "docs/requirements/decisions/session-ownership-and-write-leases.md",
         "docs/requirements/decisions/truth-source.md"
       ],
-      "userSees": "Scope diagnostics say Koala lifecycle artifact instead of treating delivery-check.json and summary.json like ordinary product files.",
+      "userSees": "scope_contract_check / DONE gate output labels delivery-check.json and summary.json as Koala lifecycle artifact (command-generated metadata) rather than generic OUT_OF_SCOPE, while arbitrary files still show OUT_OF_SCOPE.",
       "verificationIntent": {
         "happy": [
           {
@@ -35,7 +35,21 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/scope-contract.ts",
+          "packages/main/src/core/dirty-worktree.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/types.ts"
+        ],
+        "create": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md"
+        ],
+        "test": [
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      }
     },
     {
       "id": "CHK-002",
