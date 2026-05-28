@@ -62,7 +62,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "userSees": "After delivery_check_set and summary_set in TEST, story_advance --phase=DONE no longer fails only because delivery-check.json or summary.json are out of scope.",
+      "userSees": "DONE pre-check no longer prints \"OUT_OF_SCOPE delivery-check.json\" or \"OUT_OF_SCOPE summary.json\" after delivery_check_set and summary_set generated those artifacts in TEST.",
       "verificationIntent": {
         "happy": [
           {
@@ -93,6 +93,7 @@
         "modify": [
           "packages/main/src/handlers/delivery-check.ts",
           "packages/main/src/handlers/summary.ts",
+          "packages/main/src/handlers/scope-contract.ts",
           "packages/main/src/core/scope-contract.ts",
           "packages/main/src/core/done-oracle.ts",
           "packages/main/src/core/process-fact-registry.ts",
