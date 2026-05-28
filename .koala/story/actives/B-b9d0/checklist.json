@@ -180,7 +180,19 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/core/done-oracle.ts",
+          "packages/main/src/core/review-scope-binding.ts"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-session-brief-command-center.mjs",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-005",
