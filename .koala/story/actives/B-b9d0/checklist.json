@@ -208,7 +208,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "userSees": "A new story can go through REVIEW, TEST, delivery-check, summary, DONE, koala check, and convergence_check without manual rollback solely for Koala lifecycle metadata.",
+      "userSees": "Final evidence includes \"does not weaken product source scope enforcement\" plus passing koala validate, koala check, and koala convergence_check transcripts.",
       "verificationIntent": {
         "happy": [
           {
@@ -240,7 +240,9 @@
           "scripts/verify-process-fact-contract.mjs",
           "scripts/verify-gap-convergence.mjs",
           "scripts/verify-session-brief-command-center.mjs",
-          "scripts/verify-main-branch-runtime-health.mjs"
+          "scripts/verify-main-branch-runtime-health.mjs",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/truth-source.md"
         ],
         "create": [],
         "test": [
