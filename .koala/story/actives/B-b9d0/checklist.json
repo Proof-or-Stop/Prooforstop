@@ -134,7 +134,18 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/gap-analyze.ts",
+          "packages/main/src/handlers/gap.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-gap-convergence.mjs"
+        ]
+      }
     },
     {
       "id": "CHK-004",
