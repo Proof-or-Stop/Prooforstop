@@ -372,9 +372,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-28T02:44:42.655Z",
-      "endTime": null,
+      "endTime": "2026-05-28T03:30:10.267Z",
       "files": {
         "modify": [
           "scripts/verify-process-fact-contract.mjs",
@@ -517,6 +517,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Implementation committed and verification evidence proves session_brief scope-blocking guidance prevents premature DONE recommendation.",
+      "agent": "codex-supervisor"
+    },
+    {
+      "timestamp": "2026-05-28T03:30:10.267Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementation committed and final regression evidence covers build, process fact contract, gap convergence, session_brief, koala check, and convergence_check.",
       "agent": "codex-supervisor"
     }
   ]
