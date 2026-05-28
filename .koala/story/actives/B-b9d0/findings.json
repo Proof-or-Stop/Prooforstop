@@ -5,7 +5,7 @@
       "desc": "verify-session-brief-command-center.mjs errors out at the role-aware-next-step assertion (lines 35-43) before reaching the CHK-004 source-receipt assertions (lines 66-89). The asserted keywords (testintent_check/story_review/checklist_get/checklist_update/Resume: cd/story_create) do not include any REVIEW-phase next-step terms (e.g. reviewer_list, story_advance --phase=TEST), so once this worktree advances to REVIEW the script throws \"session_brief missing role-aware next step\" and the CHK-004 scopeBlocking source-receipt is never executed. As a result, CHK-004 happy/edge/adversarial evidence and the CHK-005:happy:0 combined regression command (npm build && verify-process-fact-contract && verify-gap-convergence && verify-session-brief-command-center) are not currently reproducible in this worktree; the recorded pass result is stale (timestamp 2026-05-28T03:28:59Z, captured while still in DEV). Fix: extend the role-aware-next-step keyword list to include REVIEW-phase terms (reviewer_list / story_advance --phase=TEST), or guard the assertion by current story phase, so the CHK-004 source-receipt always runs.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-05-28T03:45:25.595Z",
