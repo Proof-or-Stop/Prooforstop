@@ -57,7 +57,9 @@ assert(
     || mainBrief.includes('story_advance --storyId=')
     || mainBrief.includes('No active story')
     || mainBrief.includes('All stories DONE')
-    || mainBrief.includes('checklist_update'),
+    || mainBrief.includes('checklist_update')
+    || mainBrief.includes('delivery_check_set')
+    || mainBrief.includes('summary_set'),
   'session_brief missing recovery or next-step hint',
 );
 
