@@ -35,6 +35,15 @@
       "reviewRound": "2026-05-28T03:49:52.071Z",
       "reviewRunId": "B-b9d0:RR-005",
       "_hash": "3b02be0ed43c1787412d1954afe1e47071f3b1117ff7698cb1393f5b41196ec7"
+    },
+    {
+      "id": "B-b9d0:RP-005",
+      "agent": "koala-review-concept",
+      "note": "Concept re-review after F-001 fix (commit 528cc1e9): F-001 was a test-script bug in verify-session-brief-command-center.mjs (role-aware next-step keyword list missed REVIEW tokens). The fix extends the keyword list to accept reviewer_list/finding_list/review_pass_set/story_advance tokens and preserves the CHK-004 source-receipt assertions (scopeBlocking, \"Scope gate: blocking\", DONE-not-recommended wording). It does not touch any conceptual model. The lifecycle-artifact-scope policy doc (docs/requirements/decisions/lifecycle-artifact-scope.md) still cleanly defines (1) narrow filename-aware story-scoped classifier, (2) runtime-artifact registry, (3) fall-through to normal scope enforcement, with an explicit adversarial invariant that product source + unknown .koala/*.json still fail when unacknowledged, and an explicit statement that this does not weaken product source scope enforcement. CHK-001 happy/edge/adversarial, CHK-002 happy/edge/adversarial, and CHK-005:adversarial:0 concept intents are all satisfied. No concept blocker remains.",
+      "createdAt": "2026-05-28T03:59:06.990Z",
+      "reviewRound": "2026-05-28T03:49:52.071Z",
+      "reviewRunId": "B-b9d0:RR-006",
+      "_hash": "4082bfa55f82a98b8545721b7c07e2ec304897c77f798c78d1f4b9b5678e8c6f"
     }
   ]
 }
