@@ -160,7 +160,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "userSees": "session_brief clearly says scope gate is blocking and names the repair path before recommending DONE.",
+      "userSees": "session_brief prints \"Scope gate: blocking\" and \"DONE is not recommended while scope is blocking\" before any DONE advance hint.",
       "verificationIntent": {
         "happy": [
           {
@@ -191,7 +191,8 @@
         "modify": [
           "packages/main/src/handlers/session.ts",
           "packages/main/src/core/done-oracle.ts",
-          "packages/main/src/core/review-scope-binding.ts"
+          "packages/main/src/core/review-scope-binding.ts",
+          "docs/requirements/decisions/story-lifecycle.md"
         ],
         "create": [],
         "test": [
