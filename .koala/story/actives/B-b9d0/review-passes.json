@@ -62,6 +62,15 @@
       "reviewRound": "2026-05-28T04:17:36.891Z",
       "reviewRunId": "B-b9d0:RR-008",
       "_hash": "66e1c1feabc54e7cd9cbc2a42207136a8d8d0e81cce5ec635a929f4591771149"
+    },
+    {
+      "id": "B-b9d0:RP-008",
+      "agent": "koala-review-quality",
+      "note": "Verified commit 70aa074f. The verifier expansion adds two koala command tokens (delivery_check_set, summary_set) to the disjunctive recovery-hint allow-list in mainBrief. Confirmed: (1) both tokens are canonical row.hint strings from packages/main/src/core/done-oracle.ts (delivery-check row at L448 emits delivery_check_set; story-summary row at L656 emits summary_set), surfaced by summarizeDonePrecheckActions when computeNextStep TEST branch hits c.donePrecheck.blocking; (2) scope-blocking guard is NOT masked — computeNextStep TEST case (session.ts:468) returns the scope-blocking message before the DONE-pre-check branch, and the verifier still locks the source-level markers scopeBlocking, Scope gate: blocking, DONE is not recommended while scope is blocking via the existing sessionMarkers/testBlock source-code receipt at script L73-96; (3) tokens are specific koala command names, no false-positive risk against unrelated brief content; (4) ran the verifier locally: session brief command center verified. The change is a narrow, legitimate test-script repair, not an over-broad assertion or scope-bypass.",
+      "createdAt": "2026-05-28T04:25:17.249Z",
+      "reviewRound": "2026-05-28T04:17:36.891Z",
+      "reviewRunId": "B-b9d0:RR-009",
+      "_hash": "e42b0ae51f5af7ce7335cdc4c55b3f0095d3d117bb9fb9b28fe5140bb9c2ea34"
     }
   ]
 }
