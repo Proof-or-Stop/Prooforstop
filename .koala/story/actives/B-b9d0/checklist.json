@@ -121,9 +121,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-05-28T02:44:26.531Z",
-      "endTime": null,
+      "endTime": "2026-05-28T03:29:29.736Z",
       "files": {
         "modify": [
           "packages/main/src/handlers/delivery-check.ts",
@@ -487,6 +487,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Implementation committed and verification evidence covers lifecycle artifact classifier happy/edge/adversarial intents.",
+      "agent": "codex-supervisor"
+    },
+    {
+      "timestamp": "2026-05-28T03:29:29.736Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementation committed and verification evidence proves lifecycle delivery/summary artifacts no longer require broad TEST scope expansion.",
       "agent": "codex-supervisor"
     }
   ]
