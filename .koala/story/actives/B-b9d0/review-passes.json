@@ -71,6 +71,15 @@
       "reviewRound": "2026-05-28T04:17:36.891Z",
       "reviewRunId": "B-b9d0:RR-009",
       "_hash": "e42b0ae51f5af7ce7335cdc4c55b3f0095d3d117bb9fb9b28fe5140bb9c2ea34"
+    },
+    {
+      "id": "B-b9d0:RP-009",
+      "agent": "koala-review-test-coverage",
+      "note": "Re-review after repair commit 70aa074f: node scripts/verify-session-brief-command-center.mjs passes; koala validate refresh (headHash c913c2c) reports 15/15 verification intents covered, 0 required missing — CHK-001..CHK-005 all PASS via verify-process-fact-contract.mjs / verify-gap-convergence.mjs / verify-session-brief-command-center.mjs. The assertion extension (delivery_check_set, summary_set) is a narrow, legitimate accept of TEST-phase next-step recovery tokens emitted when DONE pre-check is blocking — does not weaken CHK-004/CHK-005 coverage. No blocker.",
+      "createdAt": "2026-05-28T04:27:31.608Z",
+      "reviewRound": "2026-05-28T04:17:36.891Z",
+      "reviewRunId": "B-b9d0:RR-010",
+      "_hash": "89e86d87503707dd1cefcfba820204ba00f451ec0a92d04df111cafde61c0ebe"
     }
   ]
 }
