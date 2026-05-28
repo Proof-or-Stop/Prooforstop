@@ -1,0 +1,38 @@
+{
+  "task": "Fix Koala CLI lifecycle self-locks where Koala-generated delivery/summary metadata blocks DONE, convergence crashes on derived symlink loops, and session_brief can recommend DONE while scope is blocking.",
+  "outcome": "> koala session_brief\nScope gate: blocking — unresolved out-of-scope files: unexpected.txt\nNext step: fix the diff or acknowledge scope in DEV/REVIEW; DONE is not recommended while scope is blocking.\n\n> koala convergence_check\n{ \"converged\": true, \"checks\": [...] }\n\n> koala story_advance --phase=DONE\nStory B-xxxx advanced to DONE without rolling back only because delivery-check.json and summary.json were Koala-generated lifecycle artifacts with command provenance.",
+  "facts": [
+    "B-1261 in the Mac project exposed a real Koala CLI lifecycle self-lock: delivery_check_set and summary_set create required DONE artifacts in TEST, then scope gate can reject those same files as out-of-scope while scope_contract_acknowledge is unavailable in TEST.",
+    "scope_contract_acknowledge is intentionally limited to DEV/REVIEW and must not be broadly opened in TEST, otherwise Agent-created product scope expansion could bypass review discipline.",
+    "convergence_check currently can traverse derived SwiftPM .build content and fail with ELOOP on GRDB CustomSQLite symlink loops instead of returning a normal convergence report.",
+    "session_brief must prioritize blocking scope failures over generic phase-advance hints, otherwise agents are nudged into repeatedly trying DONE despite a known blocker.",
+    "Orchestrate owns the Koala CLI implementation; the Mac repo story B-3f23 was discarded because it was the wrong source repository."
+  ],
+  "constraints": [
+    "Only Koala command-generated lifecycle metadata may receive restricted automatic acknowledgement; product source, arbitrary JSON, and unknown files must still fail scope unless explicitly acknowledged in DEV/REVIEW.",
+    "Do not edit docs/story or tests/fixtures directly; use Koala CLI and fixture tooling where required.",
+    "Keep the fix small and mechanical: central policy/helper, command provenance, scanner ignore/symlink safety, session_brief next-step priority, and regression tests.",
+    "Preserve existing review, delivery, summary, process fact registry, and dirty gate semantics unless this story explicitly changes them.",
+    "Existing unrelated B-META audit working tree changes in main are not part of this story."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/scope-contract.ts",
+    "packages/main/src/handlers/scope-contract.ts",
+    "packages/main/src/handlers/delivery-check.ts",
+    "packages/main/src/handlers/summary.ts",
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/handlers/gap.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/core/dirty-worktree.ts",
+    "packages/main/src/core/runtime-artifact-registry.ts",
+    "scripts/verify-gap-convergence.mjs",
+    "scripts/verify-session-brief-command-center.mjs",
+    "scripts/verify-process-fact-contract.mjs",
+    "docs/requirements/decisions/story-lifecycle.md",
+    "docs/requirements/decisions/truth-source.md"
+  ],
+  "timestamp": "2026-05-28T02:29:57.219Z"
+}

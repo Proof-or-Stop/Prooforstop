@@ -13,6 +13,8 @@ import type {
   ChangeKind,
 } from './types.js';
 import { execFileSync } from 'node:child_process';
+import { classifyLifecycleArtifact } from './lifecycle-registry.js';
+import { isRuntimeArtifactPath } from './runtime-artifact-registry.js';
 
 // ── Validation ──
 
@@ -276,9 +278,21 @@ export function checkScopeContract(
   ];
 
   for (const file of changedFiles) {
-    // story metadata files are always allowed
-    if (file.startsWith('docs/story/')) continue;
-    if (file.startsWith('.koala/')) continue;
+    // B-b9d0 CHK-001/002: command-generated Koala lifecycle artifacts are
+    // recognized via lifecycle-artifact-scope. A strict `lifecycle` match
+    // means `<storyDir>/<storyId>/<known artifact filename>` — narrow,
+    // story-scoped, filename-aware. Legacy story-tree paths
+    // (`docs/story/.../B-xxx/...`, `.koala/story/.../B-xxx/...`) still pass
+    // for back-compat with PLAN-time files (plan.md, understanding.json, …).
+    //
+    // Runtime artifacts (`.koala/activity.jsonl`, `.koala/runtime/`,
+    // `.koala/traces/`, `.koala/locks/`, owner-lease.json, …) are skipped via
+    // the registry predicate — NOT a blanket `.koala/` exemption. An arbitrary
+    // unknown file like `.koala/foo.json` is NOT a runtime artifact and NOT a
+    // lifecycle artifact, so it falls through to normal scope enforcement
+    // (adversarial requirement: product source and arbitrary JSON still fail).
+    if (classifyLifecycleArtifact(file, { storyId: contract.storyId })) continue;
+    if (isRuntimeArtifactPath(file)) continue;
 
     const isProtected = contract.protectedFiles.some(p => pathMatchesPattern(file, p));
     const isExcluded = contract.explicitExcludes.some(p => pathMatchesPattern(file, p));

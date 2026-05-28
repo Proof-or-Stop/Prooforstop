@@ -1,0 +1,52 @@
+{
+  "storyId": "B-b9d0",
+  "checkedAt": "2026-05-28T02:41:20.894Z",
+  "features": [
+    {
+      "feature": "Narrow Koala-owned lifecycle artifact policy for command-generated story metadata",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan.md#CHK-001 + docs/requirements/decisions/story-lifecycle.md + new docs/requirements/decisions/lifecycle-artifact-scope.md: central helper/registry keyed on storyId+path+producing command+process artifact contract; lifecycle-registry.ts and process-fact-registry.ts modified; principle in decision.json forbids filename-only trust."
+    },
+    {
+      "feature": "TEST-phase delivery_check_set and summary_set artifacts no longer block DONE solely as out-of-scope metadata",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan.md#CHK-002 + docs/requirements/decisions/story-lifecycle.md: handlers/delivery-check.ts and handlers/summary.ts record provenance; core/scope-contract.ts + core/done-oracle.ts consume same narrow policy; verify lines assert OUT_OF_SCOPE delivery-check.json and summary.json disappear while unrelated TEST files still block."
+    },
+    {
+      "feature": "convergence_check ignores derived build dirs and survives symlink loops without hiding docs/story truth sources",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan.md#CHK-003 + docs/requirements/decisions/truth-source.md: tasks/gap-analyze.ts + handlers/gap.ts + core/runtime-artifact-registry.ts add anchored derived-dir ignores and symlink-aware traversal; verify-gap-convergence.mjs simulates .build symlink loop expecting JSON containing converged; adversarial intent confirms docs/story drift still detected."
+    },
+    {
+      "feature": "session_brief prioritizes blocking scope failures before DONE hints",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan.md#CHK-004 + docs/requirements/decisions/story-lifecycle.md: handlers/session.ts computes strongest blocking gate first via core/done-oracle.ts and core/review-scope-binding.ts; userSees asserts Scope gate: blocking and DONE is not recommended while scope is blocking appear before any DONE hint; edge intent preserves existing missing-delivery/summary hints."
+    },
+    {
+      "feature": "Plan preserves product source scope enforcement and does not allow arbitrary TEST acknowledgement",
+      "covered_by": "plan.md#Scope-Principles + CHK-002 + CHK-005",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan.md Scope Principles + CHK-002 + CHK-005 + docs/requirements/decisions/story-lifecycle.md: plan states story fixes self-locks without weakening product source scope enforcement and TEST gains no broad acknowledgement (only exact delivery and summary artifacts); CHK-002 implementation explicitly forbids scope_contract_acknowledge in TEST and unrelated files; CHK-005 mandates the phrase does not weaken product source scope enforcement plus passing koala validate / check / convergence_check transcripts."
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "covered": 5,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "c36c1c509897a69b564391377ac9317d8c0441446f9075f7433425ae44834490",
+  "openQuestions": []
+}

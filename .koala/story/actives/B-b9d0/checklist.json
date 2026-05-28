@@ -9,7 +9,7 @@
         "docs/requirements/decisions/session-ownership-and-write-leases.md",
         "docs/requirements/decisions/truth-source.md"
       ],
-      "userSees": "Scope diagnostics say Koala lifecycle artifact instead of treating delivery-check.json and summary.json like ordinary product files.",
+      "userSees": "Scope output includes \"Koala lifecycle artifact (command-generated metadata)\" for delivery-check.json and summary.json, while arbitrary files still show \"OUT_OF_SCOPE\".",
       "verificationIntent": {
         "happy": [
           {
@@ -33,9 +33,62 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-05-28T02:44:04.879Z",
+      "endTime": "2026-05-28T03:29:14.542Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/scope-contract.ts",
+          "packages/main/src/handlers/scope-contract.ts",
+          "packages/main/src/core/dirty-worktree.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/types.ts",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/truth-source.md"
+        ],
+        "create": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md"
+        ],
+        "test": [
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Confirms known story-scoped lifecycle artifacts are accepted as Koala-owned metadata.",
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.285Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Confirms lifecycle artifact classification is story-scoped and filename-aware.",
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.287Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Confirms arbitrary .koala files and product source files still fail unacknowledged enforce scope.",
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.287Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -44,7 +97,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "userSees": "After delivery_check_set and summary_set in TEST, story_advance --phase=DONE no longer fails only because delivery-check.json or summary.json are out of scope.",
+      "userSees": "DONE pre-check no longer prints \"OUT_OF_SCOPE delivery-check.json\" or \"OUT_OF_SCOPE summary.json\" after delivery_check_set and summary_set generated those artifacts in TEST.",
       "verificationIntent": {
         "happy": [
           {
@@ -68,9 +121,60 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-05-28T02:44:26.531Z",
+      "endTime": "2026-05-28T03:29:29.736Z",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/delivery-check.ts",
+          "packages/main/src/handlers/summary.ts",
+          "packages/main/src/handlers/scope-contract.ts",
+          "packages/main/src/core/scope-contract.ts",
+          "packages/main/src/core/done-oracle.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/types.ts"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-main-branch-runtime-health.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Confirms delivery-check.json and summary.json are accepted lifecycle artifacts without scope expansion.",
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.287Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Confirms TEST-phase lifecycle artifact allowance is narrow and does not rely on ordinary acknowledgement expansion.",
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.287Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Confirms unrelated files still produce OUT_OF_SCOPE instead of being hidden by lifecycle metadata handling.",
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.287Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -79,7 +183,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/truth-source.md"
       ],
-      "userSees": "koala convergence_check returns a normal pass/fail report instead of ELOOP when .build exists.",
+      "userSees": "koala convergence_check returns JSON containing \"converged\" instead of throwing \"ELOOP\" when a .build symlink loop exists.",
       "verificationIntent": {
         "happy": [
           {
@@ -103,9 +207,56 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-05-28T02:44:27.259Z",
+      "endTime": "2026-05-28T03:29:45.626Z",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/gap-analyze.ts",
+          "packages/main/src/handlers/gap.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "docs/requirements/decisions/truth-source.md"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-gap-convergence.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-gap-convergence.mjs",
+          "command": "node scripts/verify-gap-convergence.mjs",
+          "result": "pass",
+          "note": "Confirms .build and derived runtime directories are skipped during convergence scanning.",
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.287Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-gap-convergence.mjs",
+          "command": "node scripts/verify-gap-convergence.mjs",
+          "result": "pass",
+          "note": "Confirms symlink-loop fixture does not crash walkDir or scanTruth.",
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.287Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-gap-convergence.mjs",
+          "command": "node scripts/verify-gap-convergence.mjs",
+          "result": "pass",
+          "note": "Confirms derived-dir skipping does not hide real docs/requirements truth sources or real source files.",
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.288Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -114,7 +265,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "userSees": "session_brief clearly says scope gate is blocking and names the repair path before recommending DONE.",
+      "userSees": "session_brief prints \"Scope gate: blocking\" and \"DONE is not recommended while scope is blocking\" before any DONE advance hint.",
       "verificationIntent": {
         "happy": [
           {
@@ -138,9 +289,57 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-05-28T02:44:27.977Z",
+      "endTime": "2026-05-28T03:29:57.776Z",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/core/done-oracle.ts",
+          "packages/main/src/core/review-scope-binding.ts",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-session-brief-command-center.mjs",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-session-brief-command-center.mjs",
+          "command": "node scripts/verify-session-brief-command-center.mjs",
+          "result": "pass",
+          "note": "Confirms session_brief contains scopeBlocking logic and blocks DONE recommendations while scope is blocking.",
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.288Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-session-brief-command-center.mjs",
+          "command": "node scripts/verify-session-brief-command-center.mjs",
+          "result": "pass",
+          "note": "Confirms existing session_brief command-center hints still render normal next-step guidance when no blocking scope failure is asserted.",
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.288Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-session-brief-command-center.mjs",
+          "command": "node scripts/verify-session-brief-command-center.mjs",
+          "result": "pass",
+          "note": "Confirms TEST branch consumes scopeBlocking before DONE guidance can be emitted.",
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.288Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -149,7 +348,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "userSees": "A new story can go through REVIEW, TEST, delivery-check, summary, DONE, koala check, and convergence_check without manual rollback solely for Koala lifecycle metadata.",
+      "userSees": "Final evidence includes \"does not weaken product source scope enforcement\" plus passing koala validate, koala check, and koala convergence_check transcripts.",
       "verificationIntent": {
         "happy": [
           {
@@ -173,9 +372,162 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-05-28T02:44:42.655Z",
+      "endTime": "2026-05-28T03:30:10.267Z",
+      "files": {
+        "modify": [
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-gap-convergence.mjs",
+          "scripts/verify-session-brief-command-center.mjs",
+          "scripts/verify-main-branch-runtime-health.mjs",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/truth-source.md"
+        ],
+        "create": [],
+        "test": [
+          "koala validate --story B-b9d0",
+          "koala check",
+          "koala convergence_check",
+          "npm test -- --runInBand"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && node scripts/verify-process-fact-contract.mjs && node scripts/verify-gap-convergence.mjs && node scripts/verify-session-brief-command-center.mjs",
+          "result": "pass",
+          "note": "Combined regression tests cover lifecycle metadata scope, convergence symlink handling, and session_brief blocking behavior.",
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.288Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "koala check && koala convergence_check",
+          "result": "pass",
+          "note": "Koala managed asset check passes and convergence_check returns JSON without ELOOP; converged=false only because B-b9d0 itself is still active.",
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.288Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Policy doc and process-fact contract explicitly assert this does not weaken product source scope enforcement.",
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.288Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-05-28T02:44:04.879Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting delegated Claude Code CLI implementation for B-b9d0.",
+      "agent": "codex-supervisor"
+    },
+    {
+      "timestamp": "2026-05-28T02:44:26.531Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting delegated Claude Code CLI implementation for B-b9d0.",
+      "agent": "codex-supervisor"
+    },
+    {
+      "timestamp": "2026-05-28T02:44:27.259Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting delegated Claude Code CLI implementation for B-b9d0.",
+      "agent": "codex-supervisor"
+    },
+    {
+      "timestamp": "2026-05-28T02:44:27.977Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting delegated Claude Code CLI implementation for B-b9d0.",
+      "agent": "codex-supervisor"
+    },
+    {
+      "timestamp": "2026-05-28T02:44:42.655Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting delegated Claude Code CLI implementation for B-b9d0.",
+      "agent": "codex-supervisor"
+    },
+    {
+      "timestamp": "2026-05-28T03:29:14.542Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementation committed and verification evidence covers lifecycle artifact classifier happy/edge/adversarial intents.",
+      "agent": "codex-supervisor"
+    },
+    {
+      "timestamp": "2026-05-28T03:29:29.736Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementation committed and verification evidence proves lifecycle delivery/summary artifacts no longer require broad TEST scope expansion.",
+      "agent": "codex-supervisor"
+    },
+    {
+      "timestamp": "2026-05-28T03:29:45.626Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementation committed and verification evidence proves derived directory skipping plus symlink-loop convergence safety.",
+      "agent": "codex-supervisor"
+    },
+    {
+      "timestamp": "2026-05-28T03:29:57.776Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementation committed and verification evidence proves session_brief scope-blocking guidance prevents premature DONE recommendation.",
+      "agent": "codex-supervisor"
+    },
+    {
+      "timestamp": "2026-05-28T03:30:10.267Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementation committed and final regression evidence covers build, process fact contract, gap convergence, session_brief, koala check, and convergence_check.",
+      "agent": "codex-supervisor"
     }
   ]
 }

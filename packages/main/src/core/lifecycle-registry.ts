@@ -535,3 +535,152 @@ export function lifecycleArtifactsByTransition(): LifecycleTransitionArtifacts[]
     return { from: transition.from, to: transition.to, artifacts };
   });
 }
+
+// ── B-b9d0 CHK-001/002: lifecycle artifact scope classifier ──
+//
+// Narrow trust policy for command-generated story metadata. A path is
+// recognized as a Koala-owned lifecycle artifact only when it lives under a
+// known story directory prefix, the segment after that prefix is a valid
+// storyId, AND the terminal filename is in the closed set below. Arbitrary
+// JSON / unknown files under docs/story/ or .koala/ no longer pass scope
+// implicitly; legacy `docs/story/.../<storyId>/...` still resolves for
+// back-compat (returns kind 'legacy-metadata').
+
+export const KOALA_LIFECYCLE_ARTIFACT_FILENAMES: ReadonlySet<string> = new Set([
+  ...LIFECYCLE_ARTIFACTS,
+  'plan.md',
+  'background.md',
+  'understanding.json',
+  'decision.json',
+  'bug.json',
+  'verification-evidence.json',
+  'verification-coverage.json',
+  'scope-contract.json',
+  'guard-session.json',
+  'process-metrics.json',
+  'test-runs.json',
+  'owner-lease.json',
+  'gap-log.json',
+  'review-runs.json',
+  'cluster.json',
+  'context.json',
+  'reviewer-list.json',
+  'story-capsule.json',
+  'implementation-review.json',
+  'init-check-fallback.json',
+  'draft-check-fallback.json',
+  'risk-dismiss.json',
+  'exp.json',
+]);
+
+const STORY_ID_RE = /^(?:B-META-[A-Za-z0-9_-]+|B-[A-Za-z0-9_-]+|ADHOC-[A-Za-z0-9_-]+|TOOL-[A-Za-z0-9_-]+|META-[A-Za-z0-9_-]+)$/;
+
+const DEFAULT_STORY_DIR_PREFIXES = [
+  'docs/story/actives/',
+  '.koala/story/actives/',
+] as const;
+
+const LEGACY_STORY_DIR_PREFIX = 'docs/story/';
+
+function normalizeArtifactPath(path: string): string {
+  return path
+    .replace(/\\/g, '/')
+    .replace(/^\.\//, '')
+    .replace(/^\/+/, '')
+    .replace(/\/+$/, '');
+}
+
+function stripTrailingSlash(value: string): string {
+  return value.endsWith('/') ? value.slice(0, -1) : value;
+}
+
+function ensureTrailingSlash(value: string): string {
+  return value.endsWith('/') ? value : `${value}/`;
+}
+
+export interface LifecycleArtifactClassification {
+  kind: 'lifecycle' | 'legacy-metadata';
+  storyId: string;
+  fileName: string;
+  storyDir: string;
+  label: string;
+}
+
+export interface LifecycleArtifactClassifyOptions {
+  storyDir?: string;
+  storyId?: string;
+}
+
+export function classifyLifecycleArtifact(
+  path: string,
+  options: LifecycleArtifactClassifyOptions = {},
+): LifecycleArtifactClassification | null {
+  const normalized = normalizeArtifactPath(path);
+  if (!normalized) return null;
+  if (normalized.includes('..')) return null;
+
+  const customPrefix = options.storyDir
+    ? ensureTrailingSlash(normalizeArtifactPath(options.storyDir))
+    : null;
+  const prefixes = customPrefix
+    ? [customPrefix, ...DEFAULT_STORY_DIR_PREFIXES]
+    : [...DEFAULT_STORY_DIR_PREFIXES];
+
+  for (const prefix of prefixes) {
+    if (!normalized.startsWith(prefix)) continue;
+    const rest = normalized.slice(prefix.length);
+    const segments = rest.split('/');
+    if (segments.length < 2) return null;
+    const storyId = segments[0];
+    if (!STORY_ID_RE.test(storyId)) return null;
+    if (options.storyId && options.storyId !== storyId) return null;
+    const fileName = segments[segments.length - 1];
+    if (!KOALA_LIFECYCLE_ARTIFACT_FILENAMES.has(fileName)) return null;
+    return {
+      kind: 'lifecycle',
+      storyId,
+      fileName,
+      storyDir: stripTrailingSlash(prefix),
+      label: 'Koala lifecycle artifact (command-generated metadata)',
+    };
+  }
+
+  const legacyPrefixes = [
+    { prefix: LEGACY_STORY_DIR_PREFIX, storyDir: 'docs/story' },
+    { prefix: '.koala/story/', storyDir: '.koala/story' },
+  ];
+  for (const { prefix, storyDir } of legacyPrefixes) {
+    if (!normalized.startsWith(prefix)) continue;
+    const rest = normalized.slice(prefix.length);
+    const segments = rest.split('/');
+    if (segments.length < 2) continue;
+    const candidateStoryId = segments.find((seg) => STORY_ID_RE.test(seg));
+    if (!candidateStoryId) continue;
+    if (options.storyId && options.storyId !== candidateStoryId) return null;
+    const fileName = segments[segments.length - 1];
+    return {
+      kind: 'legacy-metadata',
+      storyId: candidateStoryId,
+      fileName,
+      storyDir,
+      label: 'Koala lifecycle artifact (legacy story-tree metadata)',
+    };
+  }
+
+  return null;
+}
+
+export function isKoalaLifecycleArtifactPath(
+  path: string,
+  options: LifecycleArtifactClassifyOptions = {},
+): boolean {
+  const result = classifyLifecycleArtifact(path, options);
+  return result?.kind === 'lifecycle';
+}
+
+export function isAnyKoalaStoryMetadataPath(
+  path: string,
+  options: LifecycleArtifactClassifyOptions = {},
+): boolean {
+  return classifyLifecycleArtifact(path, options) !== null;
+}
