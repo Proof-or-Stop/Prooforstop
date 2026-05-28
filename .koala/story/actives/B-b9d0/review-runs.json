@@ -390,6 +390,53 @@
         "bindingHash": "e186602b0ddc905ed8e60ba4d2759603a236f03f3eb084547975ec8d8b24d870"
       },
       "_hash": "4176c44d25c0e2962346f8b5fb199391093cc690ea97a8ec0b445641051ac945"
+    },
+    {
+      "reviewRunId": "B-b9d0:RR-008",
+      "storyId": "B-b9d0",
+      "agent": "koala-review-concept",
+      "lane": "koala-review-concept",
+      "reviewRound": "2026-05-28T04:17:36.891Z",
+      "startedAt": "2026-05-28T04:20:23.881Z",
+      "headHash": "09d68e0b648872722ffd2081d8af8f329b693348",
+      "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+      "promptHash": "b859953247f568928672967e9fe7a59cc3219e4b20dd23c7242aa6621ba332a5",
+      "scopeBinding": {
+        "scopeContractHash": "8e5330c31b74ed6fcf21e028dbf6e285e3edfaf51ef4bd277c9d2a8e42da07a0",
+        "diffPackHash": "495e1842c2b9f0ac7da24b6534bc5884946c0911d8a852e519b2d2f374e94160",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/scope-contract.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/tasks/extract.ts",
+          "packages/main/src/tasks/truth.ts",
+          "scripts/verify-gap-convergence.mjs",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-session-brief-command-center.mjs"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "2165bdc728d565df7d95091fcb70df4a57cbab98f9526b95244bd757feb25b9a",
+          "46b2af8eba8fddd2e0a469fd28e48c6b72ca722cdc4652448ba028bb4a290018",
+          "5105d8f70ec043a2cfe60c02700867bc325f96390d190373bb5c6c04f3fef1c3",
+          "567c904f5433e8bbe9a9780ae1d76e8deced7f3ba04d1caec91f5569cd97aafc",
+          "6c37a434f36073fafa969d680896c860576357e9342a740d26c429cf19498216",
+          "7a8dfa80ac8a0539853653752d4539fd96a69e5b37c533234e72ce9b54e71c0b",
+          "801a956be2fc11e2b862ed704d06f53941aed7784a4627c7471bf43d5c0b297f",
+          "8f4c24ee0fbf6e657f586051217a88039825925bf9034f3c457e6d740a27a5c9",
+          "abcf91bb3389a981339b8922f6f261bf466e044b9045a3300ef5990ebed621a6",
+          "ad178bb7f4420e9889f385e1bf4271958fb9c5a70c1e1bdb4e15081ce491e82b",
+          "b08782b2b7392919134c5de10b05d4403ce950109dd6f87bb7372f83b3c58b3f",
+          "ca52305d6ec4c59cd13cdd05a7810aad80ee750d41160a514ff2753034793974",
+          "d36ffb488213b8601145156fda3536647bad2922c037e8c6f63a2a90fd44d537",
+          "d9fdfd0b61e096868ffc4815a2d92ef691572ecbe332b2cda7141ad87981b069",
+          "f2a638ef19329cc494db36a684728724134fe6b097aaf28d40e234ea217deeeb"
+        ],
+        "bindingHash": "fe9f27d2553d3a08868b5d413112a9fe0f74c8263a84a1706d3388659d10e006"
+      },
+      "_hash": "4b4d2e341bc19722da9a6ca3414478b1a6fc7d5950a5141fde09803d311a09cc"
     }
   ]
 }

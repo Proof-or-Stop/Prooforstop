@@ -53,6 +53,15 @@
       "reviewRound": "2026-05-28T03:49:52.071Z",
       "reviewRunId": "B-b9d0:RR-007",
       "_hash": "1eaea537113430bc965883a2eebad39c16deff9ff36627302b33c8389d09a41a"
+    },
+    {
+      "id": "B-b9d0:RP-007",
+      "agent": "koala-review-concept",
+      "note": "70aa074f only widens scripts/verify-session-brief-command-center.mjs mainBrief recovery-hint assertion to accept delivery_check_set/summary_set; these tokens originate from done-oracle row hints (done-oracle.ts:448 delivery_check_set, :656 summary_set) surfaced by summarizeDonePrecheckActions, which session.ts:480-483 only reaches AFTER the scopeBlocking early return at :468-470. TEST→delivery→summary→DONE ordering is preserved and the scope-blocking refusal of DONE is unchanged (source-code receipt at scripts/verify-session-brief-command-center.mjs:66-96 still enforces scopeBlocking + 'Scope gate: blocking' + 'DONE is not recommended while scope is blocking' inside the TEST case). Concept-aligned, no blocker.",
+      "createdAt": "2026-05-28T04:21:36.219Z",
+      "reviewRound": "2026-05-28T04:17:36.891Z",
+      "reviewRunId": "B-b9d0:RR-008",
+      "_hash": "66e1c1feabc54e7cd9cbc2a42207136a8d8d0e81cce5ec635a929f4591771149"
     }
   ]
 }
