@@ -4,7 +4,7 @@
   "title": "Fix Koala lifecycle artifacts blocking DONE and convergence scanner symlink loops",
   "description": "Repair Koala CLI workflow bugs observed while completing B-1261 in the Mac project: required TEST-phase delivery and summary artifacts can block DONE as out-of-scope metadata, convergence_check can fail on SwiftPM .build symlink loops, and session_brief can suggest DONE while scope gate is still failing.",
   "type": "bug",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "source": "user-approved Koala workflow hardening after B-1261",
   "keywords": [
@@ -67,6 +67,14 @@
       "branch": "story/B-b9d0",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-28T03:49:52.071Z",
+      "branch": "story/B-b9d0",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
@@ -74,5 +82,5 @@
     "branch": "story/B-b9d0",
     "createdAt": "2026-05-28T02:25:37.205Z"
   },
-  "currentReviewRound": "2026-05-28T03:32:18.341Z"
+  "currentReviewRound": "2026-05-28T03:49:52.071Z"
 }
