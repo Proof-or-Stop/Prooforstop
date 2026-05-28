@@ -1,0 +1,181 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Define Koala-owned lifecycle artifact policy",
+      "context": "Add a central policy for story-scoped Koala-generated lifecycle artifacts and command provenance, so scope logic can distinguish metadata ledger files from product source changes.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md",
+        "docs/requirements/decisions/truth-source.md"
+      ],
+      "userSees": "Scope diagnostics say Koala lifecycle artifact instead of treating delivery-check.json and summary.json like ordinary product files.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A Koala command generated lifecycle artifact is classified as Koala-owned metadata with provenance.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The allowed lifecycle artifact list is narrow and story-scoped; unrelated files are not classified as lifecycle metadata.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A product source file or arbitrary unknown JSON still fails scope when unacknowledged.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Stop TEST-phase delivery and summary artifacts from blocking DONE",
+      "context": "delivery_check_set and summary_set should internally record a restricted metadata acknowledgement for the files they create, without enabling broad TEST-phase scope expansion.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "After delivery_check_set and summary_set in TEST, story_advance --phase=DONE no longer fails only because delivery-check.json or summary.json are out of scope.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A TEST story can generate delivery-check.json and summary.json and then pass DONE without rollback repair.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "TEST phase still rejects ordinary scope_contract_acknowledge or unrelated file expansion.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Manually adding an unrelated file in TEST still blocks DONE even if delivery and summary are allowed.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Make convergence_check ignore derived builds and survive symlink loops",
+      "context": "convergence_check must not crash on SwiftPM .build/checkouts symlink loops such as GRDB CustomSQLite, and should ignore common derived runtime folders by default.",
+      "relatedDocs": [
+        "docs/requirements/decisions/truth-source.md"
+      ],
+      "userSees": "koala convergence_check returns a normal pass/fail report instead of ELOOP when .build exists.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "convergence_check skips .build and derived runtime directories during scanning.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A fixture symlink loop does not crash convergence_check.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Ignoring derived directories does not hide real docs/story files from convergence checks.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Make session_brief next-step respect blocking scope failures",
+      "context": "When scope gate is failing, session_brief should not tell the agent to advance DONE before resolving the blocking scope condition.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "session_brief clearly says scope gate is blocking and names the repair path before recommending DONE.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "When scope gate fails, next-step prioritizes scope repair and does not recommend DONE.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "When only delivery or summary is missing, session_brief still recommends the correct reviewer or summary command.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "When all gates pass, session_brief may recommend DONE only after no blocking scope failure remains.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Prove the full Koala workflow regression path",
+      "context": "Add tests and transcript evidence proving the combined fixes prevent B-1261-style lifecycle self-lock while preserving out-of-scope protection.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "A new story can go through REVIEW, TEST, delivery-check, summary, DONE, koala check, and convergence_check without manual rollback solely for Koala lifecycle metadata.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Regression tests cover lifecycle artifact metadata acknowledgement, convergence symlink handling, and session_brief blocking next-step output.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "koala check and convergence_check pass on the final repository state.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The final evidence explicitly states this does not weaken product source scope enforcement.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

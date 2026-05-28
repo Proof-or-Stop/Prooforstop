@@ -1,0 +1,38 @@
+{
+  "storyId": "B-b9d0",
+  "checkedAt": "2026-05-28T02:25:21.124Z",
+  "reviewRound": "",
+  "agentId": "koala-review-story-init",
+  "issues": [
+    {
+      "severity": "low",
+      "desc": "CHK-001 userSees does not specify the exact diagnostic text string that will appear in scope output. Advisory: tighten the expected string during PLAN."
+    },
+    {
+      "severity": "low",
+      "desc": "CHK-001 to CHK-002 and CHK-005 to CHK-001-004 dependencies are implicit. Advisory: make these explicit with DependsOn fields in plan.md to prevent parallel assignment collisions during DEV."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-05-28T02:24:51.716Z",
+      "issues": []
+    },
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-05-28T02:25:21.124Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "CHK-001 userSees does not specify the exact diagnostic text string that will appear in scope output. Advisory: tighten the expected string during PLAN."
+        },
+        {
+          "severity": "low",
+          "desc": "CHK-001 to CHK-002 and CHK-005 to CHK-001-004 dependencies are implicit. Advisory: make these explicit with DependsOn fields in plan.md to prevent parallel assignment collisions during DEV."
+        }
+      ]
+    }
+  ],
+  "_hash": "94db27a498bf2d953fabaac310b02c9d06b0a8fbd73d873e57888ad9fc615d5a"
+}
