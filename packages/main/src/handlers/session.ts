@@ -286,6 +286,12 @@ interface NextStepCtx {
   gitReady: boolean;
   donePrecheck: DonePrecheckSummary | null;
   reviewerStatus: ReviewerStatusSummary | null;
+  /**
+   * B-b9d0 CHK-004: scope gate blocking signal. When the scope gate fails
+   * (path/semantic enforce-fail or guard violations), TEST-phase next-step
+   * must NOT recommend DONE before the blocker is resolved.
+   */
+  scopeBlocking?: { reason: string } | null;
 }
 
 interface DonePrecheckSummary {
@@ -455,6 +461,13 @@ function computeNextStep(c: NextStepCtx): string {
     case 'TEST_CASE_REVIEW':
       return `TEST_CASE_REVIEW 阶段（legacy）。建议 story_advance --phase=TEST 直接进入验证`;
     case 'TEST':
+      // B-b9d0 CHK-004: scope-gate blocking takes priority over the DONE
+      // hint — DONE is not recommended while scope is blocking. Out-of-scope
+      // diffs must be fixed or scope_contract_acknowledge'd in DEV/REVIEW
+      // (TEST acknowledgement is intentionally forbidden) before advancing.
+      if (c.scopeBlocking) {
+        return `TEST 阶段。Scope gate: blocking — ${c.scopeBlocking.reason}。DONE is not recommended while scope is blocking。下一步：回 DEV/REVIEW 修复 out-of-scope diff 或 scope_contract_acknowledge 后再 story_advance --phase=TEST`;
+      }
       if (openBugs.length > 0) {
         return `TEST 阶段，有 ${openBugs.length} 个 open bug：${openBugs.slice(0, 3).map(b => b.id).join(', ')}。修复后跑 koala validate 验证`;
       }
@@ -860,6 +873,10 @@ export function createSessionHandlers(ctx: HandlerContext) {
       // stay quiet so the summary never pretends protection that does not exist.
       // A corrupt scope-contract.json surfaces a fail-closed warning rather than
       // a silent downgrade (readScopeContract now throws on corrupt; see CHK-006).
+      //
+      // B-b9d0 CHK-004: also extract a blocking signal for computeNextStep so
+      // session_brief never recommends DONE while scope is blocking.
+      let scopeBlocking: { reason: string } | null = null;
       try {
         let contract: ScopeContractData | null = null;
         let contractCorrupt = false;
@@ -874,6 +891,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
         } catch { /* probe — corrupt guard projection must not break session_brief */ }
 
         if (contractCorrupt) {
+          scopeBlocking = { reason: 'scope-contract.json corrupt/unreadable — lifecycle gates fail closed until scope_contract_set / scope_contract_init_from_plan' };
           lines.push('');
           lines.push('## Scope protection summary');
           lines.push('  ERROR: scope-contract.json is unreadable/corrupt — lifecycle gates fail closed until it is fixed (scope_contract_set / scope_contract_init_from_plan).');
@@ -893,6 +911,16 @@ export function createSessionHandlers(ctx: HandlerContext) {
             currentReviewRound: story.currentReviewRound,
             phase: story.phase,
           });
+          // B-b9d0 CHK-004: derive next-step blocking signal from the same
+          // ScopeProtectionSummary the brief renders, so the "DONE recommended"
+          // hint in TEST never disagrees with the scope row shown above.
+          if (summary.pathGate === 'fail') {
+            scopeBlocking = { reason: 'path gate fail (out-of-scope diff)' };
+          } else if (summary.semanticGate === 'fail') {
+            scopeBlocking = { reason: 'semantic gate fail' };
+          } else if (summary.guardMode === 'violations detected') {
+            scopeBlocking = { reason: 'guard session recorded forbidden write(s)' };
+          }
           lines.push('');
           for (const l of renderScopeProtectionSummary(summary)) lines.push(l);
           // Guard state is already shown as the "guard mode" row inside
@@ -1088,6 +1116,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
         gitReady,
         donePrecheck,
         reviewerStatus,
+        scopeBlocking,
       });
 
       lines.push('');

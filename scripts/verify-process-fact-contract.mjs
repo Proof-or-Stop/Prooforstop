@@ -2349,6 +2349,123 @@ function assertProcessFactRegistryContract(cliToolNames, policyEntries, configTe
   );
 }
 
+/**
+ * B-b9d0 CHK-001/CHK-002/CHK-005: mechanical evidence that the scope-contract
+ * lifecycle-artifact classifier
+ *   (a) accepts known story-scoped lifecycle artifacts under the story id,
+ *   (b) rejects arbitrary `.koala/foo.json` (i.e. no blanket `.koala/` pass),
+ *   (c) rejects ordinary product source files when unacknowledged,
+ *   (d) still passes runtime artifacts via the runtime-artifact registry.
+ * The policy doc lives at docs/requirements/decisions/lifecycle-artifact-scope.md.
+ */
+async function assertLifecycleArtifactScopePolicy() {
+  const policyDocPath = 'docs/requirements/decisions/lifecycle-artifact-scope.md';
+  if (!existsSync(join(root, policyDocPath))) {
+    fail(`lifecycle artifact scope policy doc missing: ${policyDocPath}`);
+    return;
+  }
+  const policyDocText = read(policyDocPath);
+  const requiredPolicyMarkers = [
+    'isRuntimeArtifactPath',
+    'classifyLifecycleArtifact',
+    'does not weaken product source scope enforcement',
+    'arbitrary',
+  ];
+  for (const marker of requiredPolicyMarkers) {
+    if (!policyDocText.includes(marker)) {
+      fail(`${policyDocPath}: missing required marker "${marker}"`);
+    }
+  }
+
+  const scopeContractText = read('packages/main/src/core/scope-contract.ts');
+  if (scopeContractText.includes(`if (file.startsWith('.koala/')) continue;`)) {
+    fail('packages/main/src/core/scope-contract.ts: blanket `.koala/` exemption regressed — must use isRuntimeArtifactPath instead');
+  }
+  if (!scopeContractText.includes('isRuntimeArtifactPath')) {
+    fail('packages/main/src/core/scope-contract.ts: must import isRuntimeArtifactPath from runtime-artifact-registry');
+  }
+  if (!scopeContractText.includes('classifyLifecycleArtifact')) {
+    fail('packages/main/src/core/scope-contract.ts: must keep classifyLifecycleArtifact for story metadata');
+  }
+
+  const scopeMod = await import(pathToFileURL(join(root, 'packages/main/dist/core/scope-contract.js')).href);
+  const { checkScopeContract } = scopeMod;
+  if (typeof checkScopeContract !== 'function') {
+    fail('checkScopeContract export missing from packages/main/dist/core/scope-contract.js');
+    return;
+  }
+
+  const baseContract = {
+    storyId: 'B-scope',
+    mode: 'enforce',
+    allowedModify: ['src/in-scope.ts'],
+    allowedCreate: [],
+    allowedTest: [],
+    protectedFiles: [],
+    explicitExcludes: [],
+    acknowledgements: [],
+    createdAt: '2026-05-28T00:00:00.000Z',
+    updatedAt: '2026-05-28T00:00:00.000Z',
+  };
+  const probe = (files) => checkScopeContract(baseContract, files);
+  const isOop = (result, path) =>
+    Array.isArray(result.violations)
+      && result.violations.some((v) => v.path === path && v.rule === 'out_of_scope');
+  const isClean = (result) => result.violations.length === 0;
+
+  const lifecycleAccept = [
+    '.koala/story/actives/B-scope/delivery-check.json',
+    '.koala/story/actives/B-scope/summary.json',
+    '.koala/story/actives/B-scope/scope-contract.json',
+    '.koala/story/actives/B-scope/process-events.jsonl',
+    'docs/story/actives/B-scope/plan.md',
+  ];
+  for (const file of lifecycleAccept) {
+    const result = probe([file]);
+    if (!isClean(result)) {
+      fail(`lifecycle artifact unexpectedly rejected: ${file} → ${JSON.stringify(result.violations)}`);
+    }
+  }
+
+  const runtimeAccept = [
+    '.koala/activity.jsonl',
+    '.koala/runtime/cache.json',
+    '.koala/traces/abc.json',
+    '.koala/locks/main-write.lock/owner',
+    '.koala/story/actives/B-other/owner-lease.json',
+    'docs/story/activity.jsonl',
+  ];
+  for (const file of runtimeAccept) {
+    const result = probe([file]);
+    if (!isClean(result)) {
+      fail(`runtime artifact unexpectedly rejected: ${file} → ${JSON.stringify(result.violations)}`);
+    }
+  }
+
+  const adversarialReject = [
+    '.koala/foo.json',
+    '.koala/bar.txt',
+    '.koala/secrets.json',
+    'packages/main/src/handlers/unrelated.ts',
+    'src/handlers/random.ts',
+  ];
+  for (const file of adversarialReject) {
+    const result = probe([file]);
+    if (!isOop(result, file)) {
+      fail(`unauthorized file unexpectedly accepted (no out_of_scope violation): ${file} → ${JSON.stringify(result.violations)}`);
+    }
+  }
+
+  // unknown filenames under a story dir must still fall through scope —
+  // the lifecycle classifier is filename-aware (closed set), not a
+  // blanket pass on the story dir.
+  const unknownFilenameUnderStory = '.koala/story/actives/B-scope/secrets.json';
+  const unknownResult = probe([unknownFilenameUnderStory]);
+  if (!isOop(unknownResult, unknownFilenameUnderStory)) {
+    fail(`unknown filename under story dir unexpectedly accepted: ${unknownFilenameUnderStory} → ${JSON.stringify(unknownResult.violations)}`);
+  }
+}
+
 function assertProcessFactCommandInventory() {
   const cliText = read('packages/main/src/cli-engine.ts');
   const configText = read('packages/main/src/core/config.ts');
@@ -2884,6 +3001,7 @@ assertReviewRoundIsoDocs();
 assertEvidenceBoundaryDocs();
 assertPromptEvidenceBoundaries(promptMap);
 assertProcessFactCommandInventory();
+await assertLifecycleArtifactScopePolicy();
 printProcessFactLevelRegistrySummary();
 
 console.log(`Prompt drift scan: ${reviewerPromptCount} reviewer prompt files checked`);

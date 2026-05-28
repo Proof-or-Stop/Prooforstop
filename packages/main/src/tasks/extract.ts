@@ -1,5 +1,5 @@
 
-import { readFileSync, readdirSync, statSync, existsSync } from 'fs';
+import { readFileSync, readdirSync, statSync, existsSync, lstatSync } from 'fs';
 import { join, relative, extname, dirname } from 'path';
 import type { TaskAnnotation, ExtractFilters, FlowStep, FlowChain } from './types.js';
 import { loadConfig } from '../core/config.js';
@@ -10,7 +10,22 @@ export const CODE_EXTENSIONS = new Set([
   '.c', '.cc', '.cpp', '.cxx', '.h', '.hh', '.hpp', '.hxx',
   '.rs', '.rb',
 ]);
-const SKIP_DIRS = new Set(['node_modules', '.git', 'dist', 'build', 'coverage']);
+/**
+ * B-b9d0 CHK-003: derived runtime directories are anchored by exact directory
+ * name and skipped during walk. `.build` covers SwiftPM derived trees whose
+ * GRDB CustomSQLite checkouts contain symlink loops; the other entries match
+ * common toolchain output trees. `.worktrees` is excluded because nested
+ * worktrees of the same repo would otherwise be re-scanned recursively.
+ * docs/story and docs/requirements are NOT in this list — convergence must
+ * keep seeing real metadata drift.
+ */
+const SKIP_DIRS = new Set([
+  'node_modules', '.git', 'dist', 'build', 'coverage',
+  '.build',
+  '.next', '.turbo', '.cache', '.svelte-kit', '.parcel-cache',
+  '__pycache__',
+  '.worktrees',
+]);
 
 const SINGLE_FIELDS = new Set([
   'task', 'checklist', 'title', 'type', 'priority', 'version',
@@ -22,12 +37,36 @@ const MULTI_FIELDS = new Set(['description', 'changes', 'affected']);
 /** 递归遍历目录，收集常见语言源码文件 */
 export function walkDir(dir: string): string[] {
   const results: string[] = [];
-  for (const entry of readdirSync(dir)) {
+  let entries: string[];
+  try {
+    entries = readdirSync(dir);
+  } catch {
+    // B-b9d0 CHK-003: permission errors or transient races on derived trees
+    // (e.g. .build/checkouts swap targets) must not crash the gap scanner.
+    return results;
+  }
+  for (const entry of entries) {
     if (SKIP_DIRS.has(entry)) continue;
     const full = join(dir, entry);
-    const stat = statSync(full);
+    // B-b9d0 CHK-003: use lstatSync so we see the symlink itself rather than
+    // its (potentially looping) target. SwiftPM .build/checkouts ships with
+    // self-referential symlink trees (GRDB CustomSQLite) that would otherwise
+    // raise ELOOP and crash convergence_check.
+    let stat;
+    try {
+      stat = lstatSync(full);
+    } catch {
+      continue;
+    }
+    if (stat.isSymbolicLink()) continue;
     if (stat.isDirectory()) {
-      results.push(...walkDir(full));
+      try {
+        results.push(...walkDir(full));
+      } catch {
+        // Defensive: any unexpected error from a deeply nested derived tree
+        // is treated as "no annotations to collect" rather than aborting the
+        // whole scan.
+      }
     } else if (CODE_EXTENSIONS.has(extname(entry))) {
       results.push(full);
     }

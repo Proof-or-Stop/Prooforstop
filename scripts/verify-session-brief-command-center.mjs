@@ -3,6 +3,7 @@
 import { execFileSync } from 'child_process';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { readFileSync } from 'node:fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const worktreeRoot = dirname(dirname(__filename));
@@ -53,6 +54,38 @@ assert(
     || mainBrief.includes('All stories DONE')
     || mainBrief.includes('checklist_update'),
   'session_brief missing recovery or next-step hint',
+);
+
+// ── B-b9d0 CHK-004 / CHK-005: source-code receipt — TEST-phase next-step must
+// refuse DONE while scope is blocking. The actual TEST next-step branch is
+// gated behind a story being in phase=TEST with a blocking scope state, which
+// is non-trivial to synthesize in this smoke. So we lock the contract at the
+// source level: the literal handler must contain (a) the scopeBlocking field
+// on NextStepCtx, (b) the TEST-phase early return that consumes it, and (c)
+// the user-facing wording the policy doc promises.
+const sessionSrc = readFileSync(join(worktreeRoot, 'packages/main/src/handlers/session.ts'), 'utf8');
+const sessionMarkers = [
+  'scopeBlocking',
+  'Scope gate: blocking',
+  'DONE is not recommended while scope is blocking',
+];
+for (const marker of sessionMarkers) {
+  assert(
+    sessionSrc.includes(marker),
+    `packages/main/src/handlers/session.ts: missing CHK-004 scope-blocking marker "${marker}"`,
+  );
+}
+// And the branch must be inside the TEST case of computeNextStep, not just
+// dangling somewhere in the file.
+const computeNextStepIdx = sessionSrc.indexOf('function computeNextStep');
+assert(computeNextStepIdx >= 0, 'computeNextStep not found in session.ts');
+const testCaseIdx = sessionSrc.indexOf("case 'TEST':", computeNextStepIdx);
+assert(testCaseIdx > 0, "computeNextStep missing case 'TEST'");
+const testToDoneIdx = sessionSrc.indexOf("case 'DONE'", testCaseIdx);
+const testBlock = sessionSrc.slice(testCaseIdx, testToDoneIdx > 0 ? testToDoneIdx : testCaseIdx + 4000);
+assert(
+  testBlock.includes('scopeBlocking') && testBlock.includes('Scope gate: blocking'),
+  'computeNextStep TEST branch missing scope-blocking guard',
 );
 
 console.log('session brief command center verified');

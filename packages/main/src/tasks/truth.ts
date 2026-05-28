@@ -1,7 +1,20 @@
 
-import { readFileSync, readdirSync, statSync, writeFileSync, existsSync } from 'fs';
+import { readFileSync, readdirSync, statSync, writeFileSync, existsSync, lstatSync } from 'fs';
 import { join, relative, basename } from 'path';
 import { loadConfig } from '../core/config.js';
+
+/**
+ * B-b9d0 CHK-003: derived runtime directories that must be skipped while
+ * collecting markdown truth sources. docs/story and docs/requirements are
+ * intentionally absent — they must remain visible to convergence scanning.
+ */
+const TRUTH_SKIP_DIRS: ReadonlySet<string> = new Set([
+  'node_modules', '.git', 'dist', 'build', 'coverage',
+  '.build',
+  '.next', '.turbo', '.cache', '.svelte-kit', '.parcel-cache',
+  '__pycache__',
+  '.worktrees',
+]);
 
 /** 从 md 文件中提取的条目 */
 export interface TruthEntry {
@@ -27,12 +40,31 @@ export interface TruthScanResult {
 function collectMdFiles(dir: string): string[] {
   if (!existsSync(dir)) return [];
   const results: string[] = [];
-  for (const entry of readdirSync(dir)) {
+  let entries: string[];
+  try {
+    entries = readdirSync(dir);
+  } catch {
+    return results;
+  }
+  for (const entry of entries) {
     if (entry.startsWith('.')) continue;
+    if (TRUTH_SKIP_DIRS.has(entry)) continue;
     const full = join(dir, entry);
-    const stat = statSync(full);
+    // B-b9d0 CHK-003: lstatSync + symlink skip prevents ELOOP on derived
+    // .build/checkouts trees (SwiftPM GRDB CustomSQLite).
+    let stat;
+    try {
+      stat = lstatSync(full);
+    } catch {
+      continue;
+    }
+    if (stat.isSymbolicLink()) continue;
     if (stat.isDirectory()) {
-      results.push(...collectMdFiles(full));
+      try {
+        results.push(...collectMdFiles(full));
+      } catch {
+        // Defensive: keep scanning siblings if a derived tree raises an error.
+      }
     } else if (entry.endsWith('.md') && entry !== 'NAV.md') {
       results.push(full);
     }
