@@ -84,7 +84,22 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/delivery-check.ts",
+          "packages/main/src/handlers/summary.ts",
+          "packages/main/src/core/scope-contract.ts",
+          "packages/main/src/core/done-oracle.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/types.ts"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-main-branch-runtime-health.mjs"
+        ]
+      }
     },
     {
       "id": "CHK-003",
