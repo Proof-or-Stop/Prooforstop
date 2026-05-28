@@ -113,7 +113,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/truth-source.md"
       ],
-      "userSees": "koala convergence_check returns a normal pass/fail report instead of ELOOP when .build exists.",
+      "userSees": "koala convergence_check returns JSON containing \"converged\" instead of throwing \"ELOOP\" when a .build symlink loop exists.",
       "verificationIntent": {
         "happy": [
           {
@@ -144,7 +144,8 @@
         "modify": [
           "packages/main/src/tasks/gap-analyze.ts",
           "packages/main/src/handlers/gap.ts",
-          "packages/main/src/core/runtime-artifact-registry.ts"
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "docs/requirements/decisions/truth-source.md"
         ],
         "create": [],
         "test": [
