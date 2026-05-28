@@ -8,6 +8,15 @@
       "reviewRound": "2026-05-28T03:32:18.341Z",
       "reviewRunId": "B-b9d0:RR-001",
       "_hash": "c2512daf6a6b88c43232b4519ef110e3f22e2d1792457c058378885f55c5a1c7"
+    },
+    {
+      "id": "B-b9d0:RP-002",
+      "agent": "koala-review-quality",
+      "note": "Quality pass: classifyLifecycleArtifact is filename-aware + story-scoped with strict STORY_ID_RE; runtime-artifact registry consumed via isRuntimeArtifactPath (no blanket .koala/ exemption — explicitly asserted in verify-process-fact-contract.mjs). walkDir / collectMdFiles use lstatSync + isSymbolicLink skip and wrap readdirSync in try/catch with defensive nested catch on recursion — symlink-loop fixture proves no ELOOP and docs/requirements + real source remain visible. computeNextStep TEST branch consumes scopeBlocking derived from the same ScopeProtectionSummary that renders the brief row, so they cannot disagree; corrupt scope-contract.json also surfaces a fail-closed blocker. Source-receipt smoke checks in verify-gap-convergence.mjs and verify-session-brief-command-center.mjs are defensive contracts backed by real behavioural fixtures (and the session-brief receipt is explicitly justified because runtime synthesis of phase=TEST with a blocking scope is non-trivial) — not brittle enough to block. Pre-existing role-aware next-step assertion in verify-session-brief-command-center.mjs is brittle in REVIEW phase but it predates B-b9d0 and was not modified by this story; quality scope here is unchanged. No weakening of product-source scope enforcement observed.",
+      "createdAt": "2026-05-28T03:40:58.997Z",
+      "reviewRound": "2026-05-28T03:32:18.341Z",
+      "reviewRunId": "B-b9d0:RR-002",
+      "_hash": "03071db64ba23f8e75e5dac1fa8dbece720783852a2c6bd1b7b4aa8f5bbe8074"
     }
   ]
 }
