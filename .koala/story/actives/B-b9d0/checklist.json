@@ -204,7 +204,22 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-gap-convergence.mjs",
+          "scripts/verify-session-brief-command-center.mjs",
+          "scripts/verify-main-branch-runtime-health.mjs"
+        ],
+        "create": [],
+        "test": [
+          "koala validate --story B-b9d0",
+          "koala check",
+          "koala convergence_check",
+          "npm test -- --runInBand"
+        ]
+      }
     }
   ]
 }
