@@ -137,8 +137,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-05-28T02:44:27.259Z",
       "endTime": null,
       "files": {
         "modify": [
@@ -269,6 +269,16 @@
       "timestamp": "2026-05-28T02:44:26.531Z",
       "phase": "DEV",
       "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting delegated Claude Code CLI implementation for B-b9d0.",
+      "agent": "codex-supervisor"
+    },
+    {
+      "timestamp": "2026-05-28T02:44:27.259Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
       "action": "update",
       "from": "pending",
       "to": "in_progress",
