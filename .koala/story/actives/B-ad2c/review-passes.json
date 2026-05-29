@@ -80,6 +80,15 @@
       "reviewRound": "2026-05-29T14:27:59.858Z",
       "reviewRunId": "B-ad2c:RR-016",
       "_hash": "b0c01c42d117ece6b3245d85a287126fbf50d7b987981b47f586886cbb56af08"
+    },
+    {
+      "id": "B-ad2c:RP-010",
+      "agent": "koala-review-test-coverage",
+      "note": "verificationIntent coverage complete across CHK-001..CHK-005 — verify-dev-memory.mjs: 51/51 pass (sections 1-10 cover schema, path resolution, capture/list/search/preflight/finish, story candidates, agent wrappers, command policies, outside-Koala mode, active-story defaults, non-authoritative docs). F-005 regression coverage in flow-stability-smoke.ts: assertStoryAdvanceGuardIgnoresMainAgentDevFindings exercises BOTH paths — machine.getGuardFailureReason (live story_advance) AND legacyGetGuardFailureReason (guard-utils.ts mirror) — with realistic F-001 shape (main-agent, status=resolved, empty reviewRound, no reviewRunId) and negative arm that a koala-review-* finding without reviewRunId still blocks. assertNonReviewerFindingsDoNotCountAsReviewerEvidence covers collectReviewerEvidenceState findings+passes filters. Commands: build exit 0, verify-dev-memory 51/51 pass, flow-stability-smoke pass, git diff --check clean.",
+      "createdAt": "2026-05-29T14:31:08.483Z",
+      "reviewRound": "2026-05-29T14:27:59.858Z",
+      "reviewRunId": "B-ad2c:RR-015",
+      "_hash": "69457fd5f91a5f9598409f8e21f233cdf626b24b9ab1f72e95f23ca1241de887"
     }
   ]
 }
