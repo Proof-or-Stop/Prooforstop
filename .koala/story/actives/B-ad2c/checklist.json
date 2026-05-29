@@ -156,6 +156,17 @@
           "headHash": "281c9a3bcc0e6ef0d1bb9e1ce746e8baa3e82027",
           "materialHash": "1c1897eb2fc76ce22b0f2c2c82287817d09eb8ebea463f57b35fb8bd5c1c21f6",
           "timestamp": "2026-05-29T13:19:01.372Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-dev-memory.mjs",
+          "command": "node scripts/verify-dev-memory.mjs",
+          "result": "pass",
+          "note": "Section 8 passes: duplicate-like capture warns on possible duplicate instead of silently creating an untraceable authoritative-looking duplicate.",
+          "headHash": "d95b7f85894be82a54f5aa193d63d3b06f2a5dfe",
+          "materialHash": "1c1897eb2fc76ce22b0f2c2c82287817d09eb8ebea463f57b35fb8bd5c1c21f6",
+          "timestamp": "2026-05-29T13:19:01.716Z"
         }
       ]
     },
