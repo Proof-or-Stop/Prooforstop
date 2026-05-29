@@ -62,6 +62,15 @@
       "reviewRound": "2026-05-29T14:01:25.978Z",
       "reviewRunId": "B-ad2c:RR-011",
       "_hash": "777fb87fbdfb976b5ba54327d304bbf8a0d3e6788acc8a0f1631518a4d6255bf"
+    },
+    {
+      "id": "B-ad2c:RP-008",
+      "agent": "koala-review-docs",
+      "note": "docs/requirements/decisions/dev-memory.md is accurate and complete: (1) explicit non-authoritative disclaimer (L9) with itemized list of gate artifacts it cannot satisfy — delivery_check_set/verification_evidence_add/review_pass_set (L11-16); (2) dev_memory_finish section (L80-88) covers all three modes with --storyId framed as a target override within the story-candidate path, not a fourth mode (F-002 resolved); (3) dev_memory_start section (L90-94) explicitly labels it prompt-only, intentionally separate from Koala lifecycle, does not launch binaries, does not advance phase; cli-engine.ts description echoes the distinction (\"不是生命周期 dev_start，不创建 worktree 或推进 phase\") and verify-script Section 7+8 enforce all five distinction tokens (F-003 resolved). F-002/F-003 finding_list shows status=resolved, evidenceState=verified. node scripts/verify-dev-memory.mjs: 51 passed, 0 failed (covers schema, paths, JSONL, search/dedup, preflight, CLI smoke, docs check, active-story defaults, outside-Koala mode). git diff --check clean. Owner lease held by another session; relied on committed PASS validate evidence (last run 14:03:47Z PASS).",
+      "createdAt": "2026-05-29T14:14:40.923Z",
+      "reviewRound": "2026-05-29T14:01:25.978Z",
+      "reviewRunId": "B-ad2c:RR-012",
+      "_hash": "18a10c7c75b1c2b43ddb16134ede2d93dfa2a46954937de396fe23b18bfaf40c"
     }
   ]
 }
