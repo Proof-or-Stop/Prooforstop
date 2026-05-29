@@ -322,6 +322,17 @@
           "headHash": "ffe5daa4156dab0cd547fd66d5b6c5af9200701c",
           "materialHash": "1c1897eb2fc76ce22b0f2c2c82287817d09eb8ebea463f57b35fb8bd5c1c21f6",
           "timestamp": "2026-05-29T13:19:03.394Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/dev-memory.md",
+          "command": "node scripts/verify-dev-memory.mjs",
+          "result": "pass",
+          "note": "Sections 7 and 8 pass: story candidates remain non-authoritative and cannot satisfy delivery, review, summary, or test gates by themselves.",
+          "headHash": "4cf067e58db2134691d8cc726869faa6b2d44bb4",
+          "materialHash": "1c1897eb2fc76ce22b0f2c2c82287817d09eb8ebea463f57b35fb8bd5c1c21f6",
+          "timestamp": "2026-05-29T13:19:03.861Z"
         }
       ]
     },
