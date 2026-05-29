@@ -311,6 +311,17 @@
           "headHash": "3b386c280502f36c6ff579a8c9c6a17401f793df",
           "materialHash": "1c1897eb2fc76ce22b0f2c2c82287817d09eb8ebea463f57b35fb8bd5c1c21f6",
           "timestamp": "2026-05-29T13:19:03.051Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-dev-memory.mjs",
+          "command": "node scripts/verify-dev-memory.mjs",
+          "result": "pass",
+          "note": "Sections 9 and 10 pass: finish outside Koala needs no story directory, and --scope=global in an active story writes global memory without story candidates.",
+          "headHash": "ffe5daa4156dab0cd547fd66d5b6c5af9200701c",
+          "materialHash": "1c1897eb2fc76ce22b0f2c2c82287817d09eb8ebea463f57b35fb8bd5c1c21f6",
+          "timestamp": "2026-05-29T13:19:03.394Z"
         }
       ]
     },
