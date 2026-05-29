@@ -16,6 +16,22 @@
         "packages/main/src/handlers/worktree.ts",
         ".koala/story/actives/B-ad2c/index.json"
       ]
+    },
+    {
+      "id": "B-ad2c:F-002",
+      "desc": "docs reviewer: dev_memory_finish section says it works in three modes but then describes four behaviors by splitting explicit --storyId into its own mode; --storyId should read as a target override for the story-candidate path, not a separate operating mode.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-05-29T13:23:28.330Z",
+      "reviewRound": "2026-05-29T13:19:22.299Z",
+      "reviewRunId": "B-ad2c:RR-004",
+      "_hash": "adc4771d8df7c34ed1d1a48bca05a13bf4cea35a10f70bc7db8c79ef310668e5",
+      "files": [
+        "docs/requirements/decisions/dev-memory.md"
+      ]
     }
   ]
 }
