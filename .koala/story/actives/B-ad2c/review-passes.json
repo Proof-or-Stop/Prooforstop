@@ -26,6 +26,15 @@
       "reviewRound": "2026-05-29T13:31:59.258Z",
       "reviewRunId": "B-ad2c:RR-007",
       "_hash": "9884eb4fa1eaeff460be8de13c8bd57243bb5db9a18ed3399b19fa0401c67246"
+    },
+    {
+      "id": "B-ad2c:RP-004",
+      "agent": "koala-review-test-coverage",
+      "note": "Verification coverage adequate. scripts/verify-dev-memory.mjs runs 51 checks across 10 sections covering: (1) schema validation incl. gateEvidence=true and authority=authoritative rejection; (2) deterministic project/global/story-candidate path resolution under env overrides; (3) JSONL roundtrip + skip-invalid-line; (4) search by query/category/agent and findSimilar duplicate detection; (5) preflight empty-state, <=5 entries, 60-line budget, header; (6) CLI smoke for capture/list/search/preflight/finish/start; (7) docs non-authoritative disclaimer + delivery_check exclusion + lifecycle distinction; (8) command policy (capture=mainSharedMutating, finish=storyScopedMutating, readers=readOnly) + CLI engine description distinctions; (9) outside-Koala finish (no --storyId exits 0, no story dir created, --scope=global writes global with dedup, docs do not imply --storyId required); (10) active-story auto-injection + ownership boundary for --scope=global. checklist_get shows all 5 items have happy/edge/adversarial verificationEvidence with consistent headHash/materialHash. Build clean, 'node scripts/verify-dev-memory.mjs' = 51/51 PASS, 'koala validate' fallback = PASS, 'git diff --check' clean. Advisory (non-blocking): explicit '--storyId=B-x --scope=global' both-flags combination isn't behavior-tested (handler writes story candidates and ignores scope=global when storyId present); the ownership-gate side is covered via resolveEffectiveOwnershipClass tests but handler-output side is implicit. Low risk for a non-authoritative feature.",
+      "createdAt": "2026-05-29T13:53:37.872Z",
+      "reviewRound": "2026-05-29T13:31:59.258Z",
+      "reviewRunId": "B-ad2c:RR-008",
+      "_hash": "a6f88c50bdd45e1305dc642409b0dd7a99a4f866946a956105aa166de281080b"
     }
   ]
 }
