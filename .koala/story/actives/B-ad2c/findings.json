@@ -32,6 +32,23 @@
       "files": [
         "docs/requirements/decisions/dev-memory.md"
       ]
+    },
+    {
+      "id": "B-ad2c:F-003",
+      "desc": "docs reviewer: dev_memory_start is described as prompt-only but docs/CLI copy do not explicitly distinguish it from existing lifecycle dev_start; near-identical names leave naming-collision ambiguity for readers.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-05-29T13:23:28.792Z",
+      "reviewRound": "2026-05-29T13:19:22.299Z",
+      "reviewRunId": "B-ad2c:RR-004",
+      "_hash": "fa8e8116193b594d5d653c5867b04809ed8fc01a97bb66140c2764b3dfbbabe6",
+      "files": [
+        "docs/requirements/decisions/dev-memory.md",
+        "packages/main/src/cli-engine.ts"
+      ]
     }
   ]
 }
