@@ -406,6 +406,17 @@
           "headHash": "9c3331b387999adc1730521ce2108aa2cac072c9",
           "materialHash": "1c1897eb2fc76ce22b0f2c2c82287817d09eb8ebea463f57b35fb8bd5c1c21f6",
           "timestamp": "2026-05-29T13:19:04.614Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-dev-memory.mjs",
+          "command": "node scripts/verify-dev-memory.mjs",
+          "result": "pass",
+          "note": "Sections 6 and 7 pass: wrappers only add memory context/reminders and do not replace or bypass Koala lifecycle gates.",
+          "headHash": "321879f7dc9207a7eead1a8b34967d0a7218f70e",
+          "materialHash": "1c1897eb2fc76ce22b0f2c2c82287817d09eb8ebea463f57b35fb8bd5c1c21f6",
+          "timestamp": "2026-05-29T13:19:04.963Z"
         }
       ]
     }
