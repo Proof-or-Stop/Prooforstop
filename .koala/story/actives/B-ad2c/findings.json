@@ -55,7 +55,7 @@
       "desc": "REVIEW→TEST gate incorrectly treats main-agent authored findings as reviewer evidence because collectReviewerEvidenceState filters agent != main instead of requiring koala-review-* lanes. Existing resolved F-001 was created by main-agent during DEV and now blocks TEST due missing reviewRunId, even though it is not reviewer evidence. Fix gate classification and add regression coverage so only koala-review-* findings/passes require reviewRunId binding.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-05-29T13:55:30.550Z",
