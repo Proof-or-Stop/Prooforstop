@@ -98,6 +98,15 @@
       "reviewRound": "2026-05-29T14:27:59.858Z",
       "reviewRunId": "B-ad2c:RR-013",
       "_hash": "1b297bd554965440703434b27b2b51510746b7f6be45201ac8687803c5b59f46"
+    },
+    {
+      "id": "B-ad2c:RP-012",
+      "agent": "koala-review-quality",
+      "note": "F-005 quality review: legacy core/guard-utils.ts now uses the shared isReviewerAgent helper from core/review-run.ts (single-line classifier change at packages/main/src/core/guard-utils.ts:196) — identical predicate to collectReviewerEvidenceState (review-run.ts:451,464). Import added cleanly, rationale comment explains F-004 → F-005 narrowing and links to machine.ts canPassReview. No unrelated behavior changes in review-run.ts (only consumed via re-import) or dev-memory wiring (cli-engine.ts boundary rule 4, command-policy.ts entries, registry registration — all align with mainSharedMutating/storyScopedMutating/readOnly classification per dev-memory.md). Regression test assertStoryAdvanceGuardIgnoresMainAgentDevFindings (flow-stability-smoke.ts:1403-1490) exercises both positive arm (machine.ts + legacyGetGuardFailureReason both return null when main-agent F-001 with empty reviewRound coexists with bound reviewer lane evidence) and negative arm (real koala-review-quality finding without reviewRunId still surfaces missing_review_run_id / blocks REVIEW→TEST). tsc --noEmit clean; npm run test:flow-stability-smoke PASS; grep confirms zero remaining f.agent !== \"main\" reviewer-classification patterns in packages/main/src.",
+      "createdAt": "2026-05-29T14:31:46.993Z",
+      "reviewRound": "2026-05-29T14:27:59.858Z",
+      "reviewRunId": "B-ad2c:RR-014",
+      "_hash": "d6d32d8ff46ab0184f53c782f7f883258ecfd085a91e5da60ac264986b0794e9"
     }
   ]
 }
