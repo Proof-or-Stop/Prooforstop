@@ -35,6 +35,15 @@
       "reviewRound": "2026-05-29T13:31:59.258Z",
       "reviewRunId": "B-ad2c:RR-008",
       "_hash": "a6f88c50bdd45e1305dc642409b0dd7a99a4f866946a956105aa166de281080b"
+    },
+    {
+      "id": "B-ad2c:RP-005",
+      "agent": "koala-review-concept",
+      "note": "Concept/scope OK: dev-memory remains non-authoritative (docs/requirements/decisions/dev-memory.md lines 9-17 + schema gateEvidence:false / authority:non_authoritative); F-004 repair in packages/main/src/core/review-run.ts only narrows collectReviewerEvidenceState via isReviewerAgent (koala-review-* prefix) without weakening reviewRunId binding; regression assertNonReviewerFindingsDoNotCountAsReviewerEvidence in packages/main/src/tasks/flow-stability-smoke.ts covers positive + negative arms; no new lifecycle semantics. Commands run: node scripts/verify-dev-memory.mjs (51/51 pass), node packages/main/dist/tasks/flow-stability-smoke.js (PASS).",
+      "createdAt": "2026-05-29T14:07:38.587Z",
+      "reviewRound": "2026-05-29T14:01:25.978Z",
+      "reviewRunId": "B-ad2c:RR-009",
+      "_hash": "50f73b469c88cfd0ae752a299766eaf8ac16888eb0cb2371dfeff42ba4c29c8f"
     }
   ]
 }
