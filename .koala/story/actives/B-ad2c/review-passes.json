@@ -71,6 +71,15 @@
       "reviewRound": "2026-05-29T14:01:25.978Z",
       "reviewRunId": "B-ad2c:RR-012",
       "_hash": "18a10c7c75b1c2b43ddb16134ede2d93dfa2a46954937de396fe23b18bfaf40c"
+    },
+    {
+      "id": "B-ad2c:RP-009",
+      "agent": "koala-review-concept",
+      "note": "Concept-deletion scan clean: F-005 replaced `f.agent !== \"main\"` classifier in core/guard-utils.ts:196 with shared isReviewerAgent helper (koala-review-* prefix). rg `agent !== .main.|agent != .main.` over packages/main returns zero hits, so both REVIEW→TEST gate paths (machine.ts canPassReview + guard-utils.ts getGuardFailureReason) and core/review-run.ts collectReviewerEvidenceState classify identically. Dev-memory concept stays sealed off from gate paths: dev_memory_* symbols appear only in cli-engine.ts/command-policy.ts/registry.ts/core+handlers/dev-memory.ts — delivery-check and other signed-artifact handlers contain no dev_memory references. Schema literal-types gateEvidence:false and authority:non_authoritative are enforced at type and write sites, and docs/requirements/decisions/dev-memory.md§Purpose+§Non-Goals explicitly enumerate the gates dev-memory cannot satisfy. Prior F-001/F-003 already resolved the dev_start vs dev_memory_start naming overlap (dev-memory.md§dev_memory_start).",
+      "createdAt": "2026-05-29T14:31:00.748Z",
+      "reviewRound": "2026-05-29T14:27:59.858Z",
+      "reviewRunId": "B-ad2c:RR-016",
+      "_hash": "b0c01c42d117ece6b3245d85a287126fbf50d7b987981b47f586886cbb56af08"
     }
   ]
 }
