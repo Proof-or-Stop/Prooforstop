@@ -9,7 +9,7 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/framework.md"
       ],
-      "userSees": "Running koala dev_memory_list --scope=project in a project with no saved lessons prints: No dev-memory experience entries yet. Invalid experience JSON fails with a field-level schema error; docs explicitly say dev-memory is non-authoritative context, not gate evidence.",
+      "userSees": "Running koala dev_memory_list --scope=project in a project with no saved lessons prints exactly \"No dev-memory experience entries yet.\" Invalid experience JSON fails with a field-level schema error containing \"Invalid dev-memory experience\"; docs explicitly say \"Dev-memory is non-authoritative context, not Koala gate evidence.\"",
       "verificationIntent": {
         "happy": [
           {

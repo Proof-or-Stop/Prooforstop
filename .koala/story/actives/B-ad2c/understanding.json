@@ -7,7 +7,7 @@
     "Koala already has authoritative story/checklist/evidence/gate/process-events; dev-memory must complement these and must not become DONE evidence.",
     "Existing home-scoped file-backed precedent exists in ~/.koala/health.jsonl, and story capsule already separates current projection from authoritative evidence.",
     "CLI command schemas are declared in packages/main/src/cli-engine.ts and handlers are registered through packages/main/src/registry.ts.",
-    "PLAN unknowns were resolved during code inspection: commands will be Koala-native, storage will be project/global JSONL, and wrappers will default to prompt-only/dry-run output rather than launching agent binaries."
+    "PLAN unknowns were resolved during code inspection: commands will be Koala-native, storage will be project/global JSONL, wrappers will default to prompt-only/dry-run output, and dev-memory will not modify process-fact-registry because it is not gate evidence."
   ],
   "constraints": [
     "Experience memory is reusable context only, not authority evidence, not review pass, not validation evidence, and not a lifecycle gate input.",
@@ -25,10 +25,9 @@
     "packages/main/src/core/dev-memory.ts",
     "packages/main/src/handlers/dev-memory.ts",
     "packages/main/src/core/command-policy.ts",
-    "packages/main/src/core/process-fact-registry.ts",
     "scripts/verify-dev-memory.mjs",
     "docs/requirements/decisions/dev-memory.md",
     "bin/koala.js"
   ],
-  "timestamp": "2026-05-29T12:23:25.121Z"
+  "timestamp": "2026-05-29T12:24:26.408Z"
 }
