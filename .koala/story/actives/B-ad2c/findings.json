@@ -72,7 +72,7 @@
       "desc": "REVIEW→TEST gate still blocks on resolved main-agent F-001 after F-004 because legacy guard-utils path still classifies any agent != main as reviewer evidence. Source collectReviewerEvidenceState was narrowed, but story_advance path still reports F-001 reviewRound missing. Fix all REVIEW→TEST gate paths to use koala-review-* reviewer-lane classification and add a regression that exercises the real story_advance path, not only collectReviewerEvidenceState.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-05-29T14:15:55.620Z",
