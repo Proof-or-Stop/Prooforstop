@@ -48,7 +48,20 @@
         "test": [
           "scripts/verify-dev-memory.mjs"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/core/dev-memory.ts",
+          "command": "node scripts/verify-dev-memory.mjs",
+          "result": "pass",
+          "note": "Section 1-5 all pass: schema, path, JSONL IO, search, preflight",
+          "headHash": "7b6f624b787a489636b8f100730d60d2702d5696",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-29T12:43:31.318Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
