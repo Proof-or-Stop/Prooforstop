@@ -995,7 +995,7 @@ export const MAIN_TOOLS: ToolDef[] = [
   }},
   { name: 'dev_memory_finish', description: '将本会话的经验候选写入 story 目录供后续 review', schema: {
     storyId: z.string().describe('活动 story ID（如 B-xxx）'),
-    storyDir: z.string().optional().describe('story 目录根路径（默认 <root>/docs/story/actives）'),
+    storyDir: z.string().optional().describe('story 目录根路径（默认 <root>/.koala/story/actives）'),
     query: z.string().optional().describe('可选：相关性过滤词'),
   }},
   { name: 'dev_memory_start', description: '会话启动包装器：输出 dev-memory 预飞上下文 + 结束时调 dev_memory_finish 的提醒（不启动外部 agent 二进制）', schema: {

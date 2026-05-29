@@ -11,6 +11,7 @@ import {
   appendEntry,
   readEntries,
   searchEntries,
+  findSimilar,
   buildPreflightPack,
   formatEntryShort,
   formatPreflightPack,
@@ -74,9 +75,16 @@ export function createDevMemoryHandlers(ctx: HandlerContext) {
     const filePath = scope === 'global'
       ? resolveGlobalMemoryPath()
       : resolveProjectMemoryPath(root);
+    // Duplicate detection: check existing entries before appending
+    const existingEntries = readEntries(filePath);
+    const similar = findSimilar(existingEntries, input);
     appendEntry(filePath, entry);
     const tagsStr = entry.tags && entry.tags.length > 0 ? ` [${entry.tags.join(', ')}]` : '';
-    return `Captured dev-memory experience: ${entry.id} (${entry.category}${tagsStr})\n  Summary: ${entry.summary}`;
+    const lines = [`Captured dev-memory experience: ${entry.id} (${entry.category}${tagsStr})\n  Summary: ${entry.summary}`];
+    for (const dup of similar) {
+      lines.push(`  Possible duplicate: ${dup.id} (${dup.category}) — ${dup.summary}`);
+    }
+    return lines.join('\n');
   }
 
   // -------------------------------------------------------------------------
@@ -96,7 +104,8 @@ export function createDevMemoryHandlers(ctx: HandlerContext) {
       return readEntries(resolveProjectMemoryPath(root));
     })();
     const limit = args.limit ?? 50;
-    entries = entries.slice(-limit);
+    // Newest-first: reverse the full array, then take the first `limit` items
+    entries = entries.slice().reverse().slice(0, limit);
 
     if (args.json) {
       return JSON.stringify(entries, null, 2);
@@ -183,16 +192,19 @@ export function createDevMemoryHandlers(ctx: HandlerContext) {
     if (!args.storyId) {
       return 'dev_memory_finish: --storyId is required. Pass the active story ID (e.g. --storyId=B-xxx).';
     }
-    // Resolve story dir: either explicit or under <root>/docs/story/actives/
+    // Resolve story dir: either explicit or under <root>/.koala/story/actives/
     const storyDir = args.storyDir
       ? args.storyDir
-      : join(root, 'docs', 'story', 'actives');
+      : join(root, '.koala', 'story', 'actives');
     const candidatePath = resolveStoryCandidatePath(storyDir, args.storyId);
 
     // Read recent project-scoped entries (candidates for this session)
     const projectPath = resolveProjectMemoryPath(root);
     const allEntries = readEntries(projectPath);
-    const candidates = allEntries.slice(-20); // last 20 entries = session candidates
+    // If query provided, use it to filter candidates; otherwise take last 20
+    let candidates = args.query
+      ? searchEntries(allEntries, { query: args.query, limit: 20 })
+      : allEntries.slice(-20); // last 20 entries = session candidates
 
     if (candidates.length === 0) {
       return `dev_memory_finish: no experience entries found in project memory (${projectPath}). Nothing written.`;
@@ -205,10 +217,18 @@ export function createDevMemoryHandlers(ctx: HandlerContext) {
     }
 
     // Append candidates to story file (don't overwrite; idempotent)
+    // Write copies with scope="story-candidate", sourceStoryId set, non-authoritative markers preserved
     const existingIds = new Set(readEntries(candidatePath).map(e => e.id));
     const newCandidates = candidates.filter(e => !existingIds.has(e.id));
     for (const e of newCandidates) {
-      appendEntry(candidatePath, e);
+      const candidateCopy = {
+        ...e,
+        scope: 'story-candidate' as const,
+        sourceStoryId: args.storyId,
+        gateEvidence: false as const,
+        authority: 'non_authoritative' as const,
+      };
+      appendEntry(candidatePath, candidateCopy);
     }
 
     const lines = [

@@ -36,6 +36,14 @@ if (!existsSync(DIST)) {
 // Dynamically import the compiled module
 const dm = await import(DIST);
 
+const POLICY_DIST = join(ROOT, 'packages', 'main', 'dist', 'core', 'command-policy.js');
+if (!existsSync(POLICY_DIST)) {
+  console.error(`\n[FAIL] Build artefact not found: ${POLICY_DIST}`);
+  console.error('  Run: npm --prefix packages/main run build\n');
+  process.exit(1);
+}
+const policyMod = await import(POLICY_DIST);
+
 let passed = 0;
 let failed = 0;
 const tmpBase = join(tmpdir(), `koala-dev-memory-verify-${randomUUID()}`);
@@ -468,6 +476,197 @@ check('dev-memory.md explicitly states it cannot satisfy gate evidence', () => {
   // Should mention delivery_check or gate evidence
   if (!content.includes('delivery_check') && !content.includes('gate evidence') && !content.includes('gate receipt')) {
     throw new Error('doc should mention delivery_check or gate evidence');
+  }
+});
+
+check('dev-memory.md does NOT document koala dev_start for this feature', () => {
+  const docPath = join(ROOT, 'docs', 'requirements', 'decisions', 'dev-memory.md');
+  const content = readFileSync(docPath, 'utf-8');
+  // Must not use "koala dev_start" (without "memory_") as a command for this feature
+  if (content.includes('koala dev_start') || content.includes('### dev_start')) {
+    throw new Error('doc must not use "koala dev_start" or "### dev_start" — use dev_memory_start instead');
+  }
+  // Must mention dev_memory_start
+  if (!content.includes('dev_memory_start')) {
+    throw new Error('doc must mention dev_memory_start');
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Section 8: Review findings validation
+// ---------------------------------------------------------------------------
+
+console.log('\n--- Section 8: Review findings ---');
+
+check('dev_memory_finish default storyDir uses .koala/story/actives (not docs/story/actives)', () => {
+  // Check the compiled handler or source references the correct path
+  const handlerPath = join(ROOT, 'packages', 'main', 'src', 'handlers', 'dev-memory.ts');
+  if (!existsSync(handlerPath)) throw new Error(`handler not found: ${handlerPath}`);
+  const src = readFileSync(handlerPath, 'utf-8');
+  if (src.includes("'docs', 'story', 'actives'") || src.includes('"docs", "story", "actives"')) {
+    throw new Error('handler default storyDir must not use docs/story/actives — use .koala/story/actives');
+  }
+  if (!src.includes('.koala') || !src.includes('story') || !src.includes('actives')) {
+    throw new Error('handler must reference .koala/story/actives as default storyDir');
+  }
+});
+
+check('dev_memory_finish uses .koala/story/actives path in CLI smoke test', () => {
+  // Run finish and check the output path
+  const finishEnv = {
+    ...process.env,
+    KOALA_PROJECT_ROOT: join(tmpBase, 'finish-path-test'),
+    KOALA_GLOBAL_MEMORY_DIR: join(tmpBase, 'finish-path-global'),
+  };
+  // Capture something first
+  runKoala([
+    'dev_memory_capture',
+    '--category=pattern',
+    '--summary=Finish path test entry for candidate dir',
+    '--trigger=testing candidate dir path',
+    '--lesson=Test that finish uses dot koala story actives path',
+    '--reusePrompt=Check candidate dir path',
+  ], finishEnv);
+  const r = runKoala(['dev_memory_finish', '--storyId=B-pathtest'], finishEnv);
+  const out = r.stdout + r.stderr;
+  if (r.status !== 0) throw new Error(`Exit ${r.status}: ${out}`);
+  // Output path should contain .koala/story/actives
+  if (!out.includes('.koala') || !out.includes('story') || !out.includes('actives')) {
+    throw new Error(`finish output must reference .koala/story/actives path, got: ${out}`);
+  }
+  // Must NOT reference docs/story/actives
+  if (out.includes('docs/story/actives') || out.includes('docs\\story\\actives')) {
+    throw new Error(`finish output must not reference docs/story/actives, got: ${out}`);
+  }
+});
+
+check('dev_memory_capture warns on possible duplicate', () => {
+  const dupEnv = {
+    ...process.env,
+    KOALA_PROJECT_ROOT: join(tmpBase, 'dup-test-project'),
+    KOALA_GLOBAL_MEMORY_DIR: join(tmpBase, 'dup-test-global'),
+  };
+  const commonArgs = [
+    'dev_memory_capture',
+    '--category=pattern',
+    '--summary=Run build before tsc gate always first',
+    '--trigger=tsc gate skipping sub-packages',
+    '--lesson=The recursive tsc scan needs dist to exist first, run build',
+    '--reusePrompt=Did you run build before validate?',
+  ];
+  // Capture first entry
+  runKoala(commonArgs, dupEnv);
+  // Capture nearly identical entry — should warn
+  const r2 = runKoala(commonArgs, dupEnv);
+  const out2 = r2.stdout + r2.stderr;
+  if (r2.status !== 0) throw new Error(`Exit ${r2.status}: ${out2}`);
+  if (!out2.includes('Possible duplicate')) {
+    throw new Error(`capture should warn on duplicate, got: ${out2}`);
+  }
+});
+
+check('dev_memory_list returns newest-first order', () => {
+  const listEnv = {
+    ...process.env,
+    KOALA_PROJECT_ROOT: join(tmpBase, 'list-order-project'),
+    KOALA_GLOBAL_MEMORY_DIR: join(tmpBase, 'list-order-global'),
+  };
+  // Capture two entries with slight delay to ensure different timestamps
+  runKoala([
+    'dev_memory_capture', '--category=pattern',
+    '--summary=First entry for order test - oldest',
+    '--trigger=order test first', '--lesson=First lesson for order testing newest first',
+    '--reusePrompt=check order first',
+  ], listEnv);
+  // Small synchronous delay via spawnSync
+  execSync('node -e "const d=Date.now();while(Date.now()-d<50){}"');
+  runKoala([
+    'dev_memory_capture', '--category=workflow',
+    '--summary=Second entry for order test - newest',
+    '--trigger=order test second', '--lesson=Second lesson for order testing newest first',
+    '--reusePrompt=check order second',
+  ], listEnv);
+  const r = runKoala(['dev_memory_list', '--scope=project'], listEnv);
+  const out = r.stdout + r.stderr;
+  if (r.status !== 0) throw new Error(`Exit ${r.status}: ${out}`);
+  const firstIdx = out.indexOf('First entry for order test');
+  const secondIdx = out.indexOf('Second entry for order test');
+  if (firstIdx === -1 || secondIdx === -1) throw new Error(`missing entries in list output: ${out}`);
+  if (secondIdx >= firstIdx) {
+    throw new Error(`newest entry should appear BEFORE oldest in list output (newest-first). Got indexes: second=${secondIdx} first=${firstIdx}`);
+  }
+});
+
+check('dev_memory_finish writes story-candidate scope and sourceStoryId', () => {
+  const scEnv = {
+    ...process.env,
+    KOALA_PROJECT_ROOT: join(tmpBase, 'sc-test-project'),
+    KOALA_GLOBAL_MEMORY_DIR: join(tmpBase, 'sc-test-global'),
+  };
+  runKoala([
+    'dev_memory_capture', '--category=debugging',
+    '--summary=Story candidate scope field test entry for finish',
+    '--trigger=testing scope field in candidate file',
+    '--lesson=Finish should set scope to story-candidate and sourceStoryId',
+    '--reusePrompt=Check scope and sourceStoryId in candidate file',
+  ], scEnv);
+  const r = runKoala(['dev_memory_finish', '--storyId=B-sctest'], scEnv);
+  if (r.status !== 0) throw new Error(`Exit ${r.status}: ${r.stdout + r.stderr}`);
+
+  // Find the candidate file under .koala/story/actives
+  const candidateFile = join(scEnv.KOALA_PROJECT_ROOT, '.koala', 'story', 'actives', 'B-sctest', 'dev-memory-candidates.jsonl');
+  if (!existsSync(candidateFile)) throw new Error(`candidate file not found: ${candidateFile}`);
+
+  const lines = readFileSync(candidateFile, 'utf-8').trim().split('\n').filter(l => l.trim());
+  if (lines.length === 0) throw new Error('candidate file is empty');
+
+  for (const line of lines) {
+    const entry = JSON.parse(line);
+    if (entry.scope !== 'story-candidate') {
+      throw new Error(`entry scope should be "story-candidate", got "${entry.scope}"`);
+    }
+    if (entry.sourceStoryId !== 'B-sctest') {
+      throw new Error(`entry sourceStoryId should be "B-sctest", got "${entry.sourceStoryId}"`);
+    }
+    if (entry.gateEvidence !== false) {
+      throw new Error(`entry gateEvidence should be false, got ${entry.gateEvidence}`);
+    }
+    if (entry.authority !== 'non_authoritative') {
+      throw new Error(`entry authority should be "non_authoritative", got "${entry.authority}"`);
+    }
+  }
+});
+
+check('command policy: dev_memory_capture is mainSharedMutating with metadata-write risk', () => {
+  // Check the compiled policy module
+  const capturePolicy = policyMod.COMMAND_POLICIES?.dev_memory_capture;
+  if (!capturePolicy) throw new Error('dev_memory_capture not found in COMMAND_POLICIES');
+  if (capturePolicy.ownershipClass !== 'mainSharedMutating') {
+    throw new Error(`dev_memory_capture ownershipClass should be mainSharedMutating, got ${capturePolicy.ownershipClass}`);
+  }
+  if (capturePolicy.destructiveRisk !== 'metadata-write') {
+    throw new Error(`dev_memory_capture destructiveRisk should be metadata-write, got ${capturePolicy.destructiveRisk}`);
+  }
+});
+
+check('command policy: dev_memory_finish is storyScopedMutating with metadata-write risk', () => {
+  const finishPolicy = policyMod.COMMAND_POLICIES?.dev_memory_finish;
+  if (!finishPolicy) throw new Error('dev_memory_finish not found in COMMAND_POLICIES');
+  if (finishPolicy.ownershipClass !== 'storyScopedMutating') {
+    throw new Error(`dev_memory_finish ownershipClass should be storyScopedMutating, got ${finishPolicy.ownershipClass}`);
+  }
+  if (finishPolicy.destructiveRisk !== 'metadata-write') {
+    throw new Error(`dev_memory_finish destructiveRisk should be metadata-write, got ${finishPolicy.destructiveRisk}`);
+  }
+});
+
+check('command policy: dev_memory_list/search/preflight/start remain readOnly', () => {
+  for (const cmd of ['dev_memory_list', 'dev_memory_search', 'dev_memory_preflight', 'dev_memory_start']) {
+    const p = policyMod.COMMAND_POLICIES?.[cmd];
+    if (!p) throw new Error(`${cmd} not found in COMMAND_POLICIES`);
+    if (p.ownershipClass !== 'readOnly') {
+      throw new Error(`${cmd} ownershipClass should be readOnly, got ${p.ownershipClass}`);
+    }
   }
 });
 

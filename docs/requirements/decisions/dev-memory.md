@@ -75,11 +75,11 @@ Optional fields: `tags`, `sourceStoryId`, `evidenceRefs`.
 | `koala dev_memory_list` | List entries (newest first), with `--scope` filter |
 | `koala dev_memory_preflight` | Emit a bounded preflight context pack (≤60 lines) |
 | `koala dev_memory_finish` | Write story-scoped experience candidates |
-| `koala dev_start` | Wrapper: run preflight then emit agent startup guidance |
+| `koala dev_memory_start` | Wrapper: run preflight then emit agent startup guidance |
 
-### `dev_start` — prompt-only by default
+### `dev_memory_start` — prompt-only by default
 
-`koala dev_start --agent=claude|codex|gemini` runs preflight and emits startup guidance text. **It does not launch any binary** unless an explicit non-dry-run integration is added in a future story. Always safe to run.
+`koala dev_memory_start --agent=claude|codex|gemini` runs preflight and emits startup guidance text. **It does not launch any binary** unless an explicit non-dry-run integration is added in a future story. Always safe to run.
 
 ---
 
