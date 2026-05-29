@@ -79,7 +79,7 @@ Optional fields: `tags`, `sourceStoryId`, `evidenceRefs`.
 
 ### `dev_memory_finish` — `--storyId` is optional
 
-`koala dev_memory_finish` works in two modes:
+`koala dev_memory_finish` works in three modes:
 
 **Outside Koala (no `--storyId`)** — for ordinary non-Koala sessions. Does NOT require or create `.koala/story/actives`. Reads recent project dev-memory entries (filtered by `--query` when provided):
 
@@ -87,7 +87,11 @@ Optional fields: `tags`, `sourceStoryId`, `evidenceRefs`.
 - `--scope=global`: copies relevant project entries into global dev-memory, de-duped by id, as `scope: global`, non-authoritative. Useful for promoting cross-project lessons.
 - If no relevant entries exist, returns a clear empty-state message and does NOT touch story directories.
 
-**Inside Koala (with `--storyId`)**: writes session experience candidates to `<root>/.koala/story/actives/<storyId>/dev-memory-candidates.jsonl`, with `scope: story-candidate`, `sourceStoryId`, `gateEvidence: false`, `authority: non_authoritative`, de-duped by id.
+**Inside an active Koala story branch (no `--storyId`, no `--scope=global`)** — defaults to the active `story/<id>` branch and writes session experience candidates to `<root>/.koala/story/actives/<storyId>/dev-memory-candidates.jsonl`, with `scope: story-candidate`, `sourceStoryId`, `gateEvidence: false`, `authority: non_authoritative`, de-duped by id.
+
+**Inside Koala (with explicit `--storyId`)** — writes candidates to the specified story using the same story-candidate shape.
+
+**Global promotion (`--scope=global` without `--storyId`)** — writes global non-authoritative memory and does not create or append story candidates, even when run from an active story branch.
 
 ### `dev_memory_start` — prompt-only by default
 

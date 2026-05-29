@@ -13,7 +13,7 @@
  * Run `npm --prefix packages/main run build` before running this.
  */
 
-import { mkdirSync, rmSync, existsSync, readFileSync, appendFileSync } from 'fs';
+import { mkdirSync, rmSync, existsSync, readFileSync, appendFileSync, writeFileSync } from 'fs';
 import { join, resolve } from 'path';
 import { tmpdir } from 'os';
 import { randomUUID } from 'crypto';
@@ -43,6 +43,14 @@ if (!existsSync(POLICY_DIST)) {
   process.exit(1);
 }
 const policyMod = await import(POLICY_DIST);
+
+const CLI_ENGINE_DIST = join(ROOT, 'packages', 'main', 'dist', 'cli-engine.js');
+if (!existsSync(CLI_ENGINE_DIST)) {
+  console.error('\n[FAIL] Build artefact not found: ' + CLI_ENGINE_DIST);
+  console.error('  Run: npm --prefix packages/main run build\n');
+  process.exit(1);
+}
+const cliEngineMod = await import(CLI_ENGINE_DIST);
 
 let passed = 0;
 let failed = 0;
@@ -350,13 +358,59 @@ const cliEnv = {
   KOALA_GLOBAL_MEMORY_DIR: join(tmpBase, 'cli-test-global'),
 };
 
-function runKoala(args, env = cliEnv) {
+function runKoala(args, env = cliEnv, cwd = ROOT) {
   const result = spawnSync('node', [KOALA_CLI, ...args], {
+    cwd,
     encoding: 'utf-8',
     env,
     timeout: 15000,
   });
   return result;
+}
+
+function runGit(cwd, args) {
+  const result = spawnSync('git', args, { cwd, encoding: 'utf-8', timeout: 15000 });
+  if (result.status !== 0) {
+    throw new Error('git ' + args.join(' ') + ' failed in ' + cwd + ': ' + (result.stdout + result.stderr));
+  }
+  return result;
+}
+
+function createActiveStoryRepo(label, storyId = 'B-active') {
+  const root = join(tmpBase, label);
+  const storyDir = join(root, '.koala', 'story', 'actives', storyId);
+  mkdirSync(storyDir, { recursive: true });
+  writeFileSync(join(root, 'koala.config.json'), JSON.stringify({
+    scanRoot: '.',
+    storyDir: '.koala/story/actives',
+    phaseTools: { '*': ['dev_memory_*'] },
+  }, null, 2) + '\n', 'utf-8');
+  const now = new Date().toISOString();
+  writeFileSync(join(storyDir, 'index.json'), JSON.stringify({
+    storyId,
+    name: storyId,
+    title: 'Active dev-memory test story',
+    description: 'Fixture story used by dev-memory active story tests.',
+    type: 'feature',
+    phase: 'DEV',
+    priority: 'medium',
+    createdAt: now,
+    startedAt: now,
+    endedAt: null,
+    events: [],
+  }, null, 2) + '\n', 'utf-8');
+  writeFileSync(join(root, 'seed.txt'), 'seed\n', 'utf-8');
+  runGit(root, ['init']);
+  runGit(root, ['config', 'user.email', 'koala-test@noreply.local']);
+  runGit(root, ['config', 'user.name', 'Koala Test']);
+  runGit(root, ['add', '.']);
+  runGit(root, ['commit', '-m', 'init active story fixture']);
+  runGit(root, ['checkout', '-b', 'story/' + storyId]);
+  return root;
+}
+
+function readJsonl(filePath) {
+  return readFileSync(filePath, 'utf-8').trim().split('\n').filter(Boolean).map(line => JSON.parse(line));
 }
 
 check('dev_memory_list prints empty state when no entries', () => {
@@ -828,6 +882,88 @@ check('docs: dev-memory.md does not imply --storyId is mandatory for finish outs
   if (!content.includes('dev_memory_finish')) {
     throw new Error('docs must mention dev_memory_finish');
   }
+});
+
+// ---------------------------------------------------------------------------
+// Section 10: dev_memory_finish active-story defaults
+// ---------------------------------------------------------------------------
+
+console.log('\n--- Section 10: dev_memory_finish active-story defaults ---');
+
+check('effective ownership: global dev_memory_finish without explicit story is mainSharedMutating', () => {
+  const cls = cliEngineMod.resolveEffectiveOwnershipClass('dev_memory_finish', { scope: 'global' }, 'B-active');
+  if (cls !== 'mainSharedMutating') {
+    throw new Error('expected mainSharedMutating for global no-story finish, got ' + cls);
+  }
+});
+
+check('effective ownership: default dev_memory_finish remains storyScopedMutating', () => {
+  const cls = cliEngineMod.resolveEffectiveOwnershipClass('dev_memory_finish', {}, 'B-active');
+  if (cls !== 'storyScopedMutating') {
+    throw new Error('expected storyScopedMutating for default active-story finish, got ' + cls);
+  }
+});
+
+check('dev_memory_finish in active story defaults to story candidate file', () => {
+  const activeRoot = createActiveStoryRepo('active-story-default');
+  const env = {
+    ...process.env,
+    KOALA_PROJECT_ROOT: activeRoot,
+    KOALA_GLOBAL_MEMORY_DIR: join(tmpBase, 'active-story-default-global'),
+  };
+  const capture = runKoala(['dev_memory_capture', JSON.stringify({
+    category: 'workflow',
+    summary: 'Active story default finish writes candidate evidence refs',
+    trigger: 'finishing an active Koala story session',
+    lesson: 'Bare dev_memory_finish should target the active story branch',
+    reusePrompt: 'When in story branch, finish should write story candidates',
+    evidenceRefs: ['evidence/transcript.md', 'command:node scripts/verify-dev-memory.mjs'],
+  })], env, activeRoot);
+  if (capture.status !== 0) throw new Error('capture failed: ' + (capture.stdout + capture.stderr));
+
+  const finish = runKoala(['dev_memory_finish'], env, activeRoot);
+  if (finish.status !== 0) throw new Error('finish failed: ' + (finish.stdout + finish.stderr));
+  const candidateFile = join(activeRoot, '.koala', 'story', 'actives', 'B-active', 'dev-memory-candidates.jsonl');
+  if (!existsSync(candidateFile)) throw new Error('candidate file not written: ' + candidateFile);
+  const entries = readJsonl(candidateFile);
+  if (entries.length !== 1) throw new Error('expected 1 candidate entry, got ' + entries.length);
+  const entry = entries[0];
+  if (entry.scope !== 'story-candidate') throw new Error('expected story-candidate scope, got ' + entry.scope);
+  if (entry.sourceStoryId !== 'B-active') throw new Error('expected sourceStoryId B-active, got ' + entry.sourceStoryId);
+  if (entry.gateEvidence !== false) throw new Error('candidate gateEvidence must be false');
+  if (entry.authority !== 'non_authoritative') throw new Error('candidate authority must be non_authoritative');
+  if (!Array.isArray(entry.evidenceRefs) || !entry.evidenceRefs.includes('evidence/transcript.md')) {
+    throw new Error('candidate must preserve evidenceRefs: ' + JSON.stringify(entry.evidenceRefs));
+  }
+});
+
+check('dev_memory_finish --scope=global in active story does not write story candidates', () => {
+  const activeRoot = createActiveStoryRepo('active-story-global');
+  const env = {
+    ...process.env,
+    KOALA_PROJECT_ROOT: activeRoot,
+    KOALA_GLOBAL_MEMORY_DIR: join(tmpBase, 'active-story-global-memory'),
+  };
+  const capture = runKoala(['dev_memory_capture', JSON.stringify({
+    category: 'pattern',
+    summary: 'Active story global finish writes only global memory',
+    trigger: 'promoting active story lesson globally',
+    lesson: 'Global scope should not create a story candidate file',
+    reusePrompt: 'Use scope global for cross-project lessons',
+  })], env, activeRoot);
+  if (capture.status !== 0) throw new Error('capture failed: ' + (capture.stdout + capture.stderr));
+
+  const finish = runKoala(['dev_memory_finish', '--scope=global'], env, activeRoot);
+  if (finish.status !== 0) throw new Error('global finish failed: ' + (finish.stdout + finish.stderr));
+  const candidateFile = join(activeRoot, '.koala', 'story', 'actives', 'B-active', 'dev-memory-candidates.jsonl');
+  if (existsSync(candidateFile)) throw new Error('global finish must not create story candidates: ' + candidateFile);
+  const globalFile = join(env.KOALA_GLOBAL_MEMORY_DIR, 'experience.jsonl');
+  if (!existsSync(globalFile)) throw new Error('global memory file not created: ' + globalFile);
+  const entries = readJsonl(globalFile);
+  if (entries.length !== 1) throw new Error('expected 1 global entry, got ' + entries.length);
+  if (entries[0].scope !== 'global') throw new Error('expected global scope, got ' + entries[0].scope);
+  if (entries[0].gateEvidence !== false) throw new Error('global entry gateEvidence must be false');
+  if (entries[0].authority !== 'non_authoritative') throw new Error('global entry authority must be non_authoritative');
 });
 
 // ---------------------------------------------------------------------------
