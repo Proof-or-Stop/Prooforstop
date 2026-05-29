@@ -133,7 +133,20 @@
         "test": [
           "scripts/verify-dev-memory.mjs"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-dev-memory.mjs",
+          "command": "node scripts/verify-dev-memory.mjs",
+          "result": "pass",
+          "note": "Section 6 passes: dev_memory_capture writes an entry and dev_memory_list displays it newest-first.",
+          "headHash": "474b90986fea480e17e57a2aa385089c4508e3b8",
+          "materialHash": "1c1897eb2fc76ce22b0f2c2c82287817d09eb8ebea463f57b35fb8bd5c1c21f6",
+          "timestamp": "2026-05-29T13:19:01.024Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
