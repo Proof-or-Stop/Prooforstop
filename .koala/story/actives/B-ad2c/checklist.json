@@ -239,6 +239,17 @@
           "headHash": "12025c2c1f8822280c1cbd9e04c472364df2a3bb",
           "materialHash": "1c1897eb2fc76ce22b0f2c2c82287817d09eb8ebea463f57b35fb8bd5c1c21f6",
           "timestamp": "2026-05-29T13:19:02.396Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-dev-memory.mjs",
+          "command": "node scripts/verify-dev-memory.mjs",
+          "result": "pass",
+          "note": "Section 5 passes: preflight keeps output under the 60-line budget and does not dump unrelated full history.",
+          "headHash": "4b3f3100aec2ccbfeb613327bdc9902eb8dd673c",
+          "materialHash": "1c1897eb2fc76ce22b0f2c2c82287817d09eb8ebea463f57b35fb8bd5c1c21f6",
+          "timestamp": "2026-05-29T13:19:02.724Z"
         }
       ]
     },
