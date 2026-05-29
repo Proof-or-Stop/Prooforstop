@@ -71,6 +71,17 @@
           "headHash": "2e95c41765ff8faaf22ebdcc990fdb956920b6e5",
           "materialHash": "1c1897eb2fc76ce22b0f2c2c82287817d09eb8ebea463f57b35fb8bd5c1c21f6",
           "timestamp": "2026-05-29T13:19:00.299Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/dev-memory.md",
+          "command": "node scripts/verify-dev-memory.mjs",
+          "result": "pass",
+          "note": "Section 7 passes: docs state dev-memory is non-authoritative context and cannot satisfy Koala gate evidence.",
+          "headHash": "ccb99d2ecd35a111aeddf85d733954c90904d9e4",
+          "materialHash": "1c1897eb2fc76ce22b0f2c2c82287817d09eb8ebea463f57b35fb8bd5c1c21f6",
+          "timestamp": "2026-05-29T13:19:00.671Z"
         }
       ]
     },
