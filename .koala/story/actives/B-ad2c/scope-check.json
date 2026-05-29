@@ -1,0 +1,53 @@
+{
+  "storyId": "B-ad2c",
+  "checkedAt": "2026-05-29T12:29:36.569Z",
+  "features": [
+    {
+      "feature": "Schema and storage locations",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": ""
+    },
+    {
+      "feature": "Capture, search, and list commands",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": ""
+    },
+    {
+      "feature": "Preflight context pack generation",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": ""
+    },
+    {
+      "feature": "Finish and story-scoped experience candidates",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": ""
+    },
+    {
+      "feature": "Agent wrapper entrypoints for dev-start workflows",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": ""
+    },
+    {
+      "feature": "process-fact-registry integration",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Dev-memory is non-authoritative context not gate evidence; must not be wired into process-fact-registry"
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "covered": 5,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "10bc0afa8213594e5c0c052ba11b3992568960f631e769ad1a5bc129b02533f9",
+  "openQuestions": []
+}
