@@ -395,6 +395,17 @@
           "headHash": "854f8ce544c69f3a43402355a1adaaae0ec9f7e2",
           "materialHash": "1c1897eb2fc76ce22b0f2c2c82287817d09eb8ebea463f57b35fb8bd5c1c21f6",
           "timestamp": "2026-05-29T13:19:04.232Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-dev-memory.mjs",
+          "command": "node scripts/verify-dev-memory.mjs",
+          "result": "pass",
+          "note": "Section 6 passes: dev_memory_start defaults to dry-run/prompt-only mode and does not require an external agent binary.",
+          "headHash": "9c3331b387999adc1730521ce2108aa2cac072c9",
+          "materialHash": "1c1897eb2fc76ce22b0f2c2c82287817d09eb8ebea463f57b35fb8bd5c1c21f6",
+          "timestamp": "2026-05-29T13:19:04.614Z"
         }
       ]
     }
