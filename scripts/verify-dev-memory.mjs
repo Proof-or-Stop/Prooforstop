@@ -744,7 +744,7 @@ check('CLI engine: dev_memory_start description distinguishes it from lifecycle/
   const descIdx = src.indexOf('description:', nameIdx);
   const lineEnd = src.indexOf('\n', descIdx);
   const descLine = src.slice(descIdx, lineEnd);
-  // All four distinctions must be present simultaneously
+  // All five distinctions must be present simultaneously
   const required = [
     { label: 'dev_start reference',                          ok: descLine.includes('dev_start') },
     { label: 'worktree reference',                           ok: descLine.includes('worktree') },
