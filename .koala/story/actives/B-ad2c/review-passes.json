@@ -17,6 +17,15 @@
       "reviewRound": "2026-05-29T13:31:59.258Z",
       "reviewRunId": "B-ad2c:RR-006",
       "_hash": "c1c81f2a28ed4bafa1e2f87b2b5dd4ff2be52de61185099516bb9036f9f1d358"
+    },
+    {
+      "id": "B-ad2c:RP-003",
+      "agent": "koala-review-quality",
+      "note": "Quality review pass: core/dev-memory.ts + handlers/dev-memory.ts + command-policy.ts + cli-engine.ts boundary rule 4 are cohesive; schema validation enforces gateEvidence=false/authority=non_authoritative at every read/write; regex escape in search prevents injection; ownership classes correctly distinguish project-memory writes (mainSharedMutating) from story-candidate writes (storyScopedMutating) with dynamic promotion of --scope=global to mainSharedMutating; docs explicitly forbid gate-evidence use and separate dev_memory_start from lifecycle dev_start; npm --prefix packages/main run build clean; node scripts/verify-dev-memory.mjs 51/51 pass; git diff --check clean. Non-blocking advisories (not filed): (1) dev_memory_list --scope=story-candidate silently falls back to project memory instead of scanning candidate files; (2) generateId sha7 could collide on identical category/summary/trigger in same millisecond (would silently dedup on next read).",
+      "createdAt": "2026-05-29T13:50:13.731Z",
+      "reviewRound": "2026-05-29T13:31:59.258Z",
+      "reviewRunId": "B-ad2c:RR-007",
+      "_hash": "9884eb4fa1eaeff460be8de13c8bd57243bb5db9a18ed3399b19fa0401c67246"
     }
   ]
 }
