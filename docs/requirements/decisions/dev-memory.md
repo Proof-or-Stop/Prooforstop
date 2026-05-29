@@ -81,21 +81,17 @@ Optional fields: `tags`, `sourceStoryId`, `evidenceRefs`.
 
 `koala dev_memory_finish` works in three modes:
 
-**Outside Koala (no `--storyId`)** — for ordinary non-Koala sessions. Does NOT require or create `.koala/story/actives`. Reads recent project dev-memory entries (filtered by `--query` when provided):
+**Outside Koala (no active story, no `--scope=global`)** — for ordinary non-Koala sessions. Does NOT require or create `.koala/story/actives`. Reads recent project dev-memory entries (filtered by `--query` when provided). Returns a summary of retained entries, or a clear empty-state message when none exist. Does NOT touch story directories.
 
-- Default: reports how many entries are retained in project memory. No story directory required.
-- `--scope=global`: copies relevant project entries into global dev-memory, de-duped by id, as `scope: global`, non-authoritative. Useful for promoting cross-project lessons.
-- If no relevant entries exist, returns a clear empty-state message and does NOT touch story directories.
+**Story-candidate write (active story branch, no `--scope=global`)** — defaults to the current `story/<id>` branch and writes session experience candidates to `<root>/.koala/story/actives/<storyId>/dev-memory-candidates.jsonl`, with `scope: story-candidate`, `sourceStoryId`, `gateEvidence: false`, `authority: non_authoritative`, de-duped by id. Use `--storyId=<id>` to override the target story explicitly; this is a target override within this same path, not a separate mode.
 
-**Inside an active Koala story branch (no `--storyId`, no `--scope=global`)** — defaults to the active `story/<id>` branch and writes session experience candidates to `<root>/.koala/story/actives/<storyId>/dev-memory-candidates.jsonl`, with `scope: story-candidate`, `sourceStoryId`, `gateEvidence: false`, `authority: non_authoritative`, de-duped by id.
+**Global promotion (`--scope=global`)** — copies relevant project entries into global dev-memory, de-duped by id, as `scope: global`, non-authoritative. Does not create or append story candidates, even when run from an active story branch. Useful for promoting cross-project lessons.
 
-**Inside Koala (with explicit `--storyId`)** — writes candidates to the specified story using the same story-candidate shape.
+### `dev_memory_start` — prompt-only memory wrapper (not lifecycle worktree initialization)
 
-**Global promotion (`--scope=global` without `--storyId`)** — writes global non-authoritative memory and does not create or append story candidates, even when run from an active story branch.
+`koala dev_memory_start` is a **prompt-only memory wrapper**, intentionally separate from Koala's story lifecycle and worktree initialization. It is not a replacement for story phase transitions — the Koala story lifecycle remains unchanged. `dev_memory_start` runs preflight and emits startup guidance text only; **it does not launch any binary** and does not start or advance any story phase. Always safe to run.
 
-### `dev_memory_start` — prompt-only by default
-
-`koala dev_memory_start --agent=claude|codex|gemini` runs preflight and emits startup guidance text. **It does not launch any binary** unless an explicit non-dry-run integration is added in a future story. Always safe to run.
+`koala dev_memory_start --agent=claude|codex|gemini` adds per-agent startup guidance to the output.
 
 ---
 

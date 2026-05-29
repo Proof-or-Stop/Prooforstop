@@ -546,6 +546,19 @@ check('dev-memory.md does NOT document koala dev_start for this feature', () => 
   }
 });
 
+check('dev-memory.md explicitly distinguishes dev_memory_start from lifecycle/worktree initialization', () => {
+  const docPath = join(ROOT, 'docs', 'requirements', 'decisions', 'dev-memory.md');
+  const content = readFileSync(docPath, 'utf-8');
+  const hasDistinction =
+    content.includes('intentionally separate') ||
+    content.includes('not a replacement') ||
+    content.includes('not lifecycle') ||
+    content.includes('does not start or advance');
+  if (!hasDistinction) {
+    throw new Error('docs must explicitly state dev_memory_start is separate from lifecycle/worktree initialization');
+  }
+});
+
 // ---------------------------------------------------------------------------
 // Section 8: Review findings validation
 // ---------------------------------------------------------------------------
@@ -721,6 +734,18 @@ check('command policy: dev_memory_list/search/preflight/start remain readOnly', 
     if (p.ownershipClass !== 'readOnly') {
       throw new Error(`${cmd} ownershipClass should be readOnly, got ${p.ownershipClass}`);
     }
+  }
+});
+
+check('CLI engine: dev_memory_start description distinguishes it from lifecycle/worktree dev_start', () => {
+  const src = readFileSync(join(ROOT, 'packages', 'main', 'src', 'cli-engine.ts'), 'utf-8');
+  const nameIdx = src.indexOf("name: 'dev_memory_start'");
+  if (nameIdx === -1) throw new Error('dev_memory_start not found in cli-engine.ts');
+  const descIdx = src.indexOf('description:', nameIdx);
+  const lineEnd = src.indexOf('\n', descIdx);
+  const descLine = src.slice(descIdx, lineEnd);
+  if (!descLine.includes('lifecycle') && !descLine.includes('dev_start') && !descLine.includes('worktree')) {
+    throw new Error('dev_memory_start description in cli-engine.ts must distinguish it from lifecycle/worktree initialization: ' + descLine);
   }
 });
 

@@ -999,7 +999,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     query: z.string().optional().describe('可选：相关性过滤词'),
     scope: z.enum(['global']).optional().describe('无 storyId 时：global=将项目经验晋升到全局 dev-memory；即使在 active story 中也不写 story 候选'),
   }},
-  { name: 'dev_memory_start', description: '会话启动包装器：输出 dev-memory 预飞上下文 + 结束时调 dev_memory_finish 的提醒（不启动外部 agent 二进制）', schema: {
+  { name: 'dev_memory_start', description: '会话启动包装器：输出 dev-memory 预飞上下文 + 结束时调 dev_memory_finish 的提醒（不启动外部 agent 二进制；不是生命周期 dev_start，不创建 worktree 或推进 phase）', schema: {
     agent: z.string().optional().describe('agent 名称（如 claude / codex；仅用于显示，不启动进程）'),
     query: z.string().optional().describe('预飞相关性查询词'),
     maxEntries: z.number().optional().describe('预飞最多条目数（默认 5）'),
