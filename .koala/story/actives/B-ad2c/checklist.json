@@ -60,6 +60,17 @@
           "headHash": "a80eec74327ffd9b89c8793862a74b13d4230146",
           "materialHash": "1c1897eb2fc76ce22b0f2c2c82287817d09eb8ebea463f57b35fb8bd5c1c21f6",
           "timestamp": "2026-05-29T13:18:16.036Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-dev-memory.mjs",
+          "command": "node scripts/verify-dev-memory.mjs",
+          "result": "pass",
+          "note": "Section 2 passes: project/global memory paths and story candidate paths resolve deterministically without requiring active Koala.",
+          "headHash": "2e95c41765ff8faaf22ebdcc990fdb956920b6e5",
+          "materialHash": "1c1897eb2fc76ce22b0f2c2c82287817d09eb8ebea463f57b35fb8bd5c1c21f6",
+          "timestamp": "2026-05-29T13:19:00.299Z"
         }
       ]
     },
