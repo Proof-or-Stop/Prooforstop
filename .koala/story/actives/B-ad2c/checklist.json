@@ -1,0 +1,181 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Define experience memory schema and storage locations",
+      "context": "Milestone 1: create minimal JSONL schema, project/global storage rules, and story-scoped candidate relationship without treating memory as gate evidence.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/truth-source.md"
+      ],
+      "userSees": "dev-memory list or schema docs show workflow/failure_mode/success_pattern/open_issue/agent_tip entries with trigger, lesson, reusePrompt, scope, and sourceStoryId when available.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Experience entries validate with required trigger, lesson, reuse prompt, category, and scope fields.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Project memory and global memory paths resolve deterministically without requiring Koala to be active.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Experience memory is not accepted as Koala DONE evidence or signed gate receipt.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Implement capture, search, and list commands",
+      "context": "Milestone 2: add CLI commands to save, search, list, and dedupe experience entries with user-facing text output.",
+      "relatedDocs": [
+        "docs/requirements/decisions/truth-source.md"
+      ],
+      "userSees": "dev-memory capture can save a Claude CLI failure lesson; dev-memory search Claude finds it later; dev-memory list shows recent entries.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "capture writes a reusable entry and list displays it in newest-first order.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "search can find entries by agent, category, trigger, and lesson keywords.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "duplicate-like capture warns or marks related entries instead of silently creating untraceable duplicates.",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Implement preflight context pack generation",
+      "context": "Milestone 3: add dev-memory preflight task text that finds relevant experience by current project path, agent, and task keywords, then emits a short context pack for Claude/Codex/Gemini.",
+      "relatedDocs": [
+        "docs/requirements/decisions/verification-context-pack.md"
+      ],
+      "userSees": "dev-memory preflight \"delegate reviewer to Claude\" prints short warnings and reusable prompts such as using shorter Claude CLI prompts when prior attempts stalled.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "preflight returns relevant project and global experience for a task query.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "preflight degrades gracefully with a clear empty-state message when no memory exists.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "preflight output is concise and does not dump unrelated full history or private transcript bodies.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Implement finish and story-scoped experience candidates",
+      "context": "Milestone 4: add dev-memory finish that writes candidate experience into active Koala story when present, and can export confirmed reusable entries to project/global memory.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "Inside a Koala story, finish writes .koala/story/actives/<id>/experience-candidates.json and reports whether entries were exported to reusable memory.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "finish detects active story and writes story-scoped experience candidates with sourceStoryId and evidenceRefs.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "finish outside Koala writes directly to project/global memory without requiring story directories.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "story candidates remain references/candidates and cannot satisfy delivery, summary, review, or test gates by themselves.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Add agent wrapper entrypoints for dev-start workflows",
+      "context": "Milestone 5: add lightweight wrappers or prompt generators for dev-start codex/claude/gemini that run preflight first and remind users to finish afterward, without forcing Koala lifecycle.",
+      "relatedDocs": [
+        "docs/requirements/decisions/role-separation.md",
+        "docs/requirements/decisions/stack-layering.md"
+      ],
+      "userSees": "dev-start claude prints a preflight experience pack and the exact next command or prompt to start Claude with the retrieved lessons.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "dev-start claude/codex/gemini invokes preflight and emits agent-specific startup guidance.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "wrapper can run in dry-run/prompt-only mode when an agent binary is unavailable.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "wrappers do not bypass Koala story flow when a Koala story is active; they only add memory context.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

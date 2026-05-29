@@ -1,0 +1,62 @@
+{
+  "storyId": "B-ad2c",
+  "checkedAt": "2026-05-29T12:17:45.122Z",
+  "reviewRound": "",
+  "agentId": "koala-review-story-init",
+  "issues": [
+    {
+      "id": "I-1",
+      "severity": "low",
+      "desc": "Background captures the trigger and tradeoffs well, but lacks 1-2 concrete anchor failure cases (e.g. specific lessons that were lost between sessions). PLAN would benefit from at least one worked example so capture/preflight UX can be tuned against a real scenario instead of an abstract claim."
+    },
+    {
+      "id": "I-2",
+      "severity": "medium",
+      "desc": "CHK-003 adversarial intent says preflight output must be concise and must not dump unrelated history, but provides no measurable threshold. Recommend PLAN define a concrete budget (e.g. max N entries, max M lines, or token cap) so this becomes objectively verifiable rather than reviewer-subjective."
+    },
+    {
+      "id": "I-3",
+      "severity": "low",
+      "desc": "CHK-002 adversarial says duplicate-like capture warns OR marks related entries — two materially different behaviors. PLAN should pick one semantic (warn-and-skip, warn-and-link, or silent-link) and define the similarity trigger; otherwise dev/test can each pick their own interpretation."
+    },
+    {
+      "id": "I-4",
+      "severity": "low",
+      "desc": "CHK-004 finish and CHK-005 wrappers both depend on detecting an active Koala story, but neither item pins down the detection contract (env var? story index lookup? cwd marker?). Since both items share this primitive, PLAN should specify it once up front to avoid divergent implementations."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-05-29T12:17:16.822Z",
+      "issues": []
+    },
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-05-29T12:17:45.122Z",
+      "issues": [
+        {
+          "id": "I-1",
+          "severity": "low",
+          "desc": "Background captures the trigger and tradeoffs well, but lacks 1-2 concrete anchor failure cases (e.g. specific lessons that were lost between sessions). PLAN would benefit from at least one worked example so capture/preflight UX can be tuned against a real scenario instead of an abstract claim."
+        },
+        {
+          "id": "I-2",
+          "severity": "medium",
+          "desc": "CHK-003 adversarial intent says preflight output must be concise and must not dump unrelated history, but provides no measurable threshold. Recommend PLAN define a concrete budget (e.g. max N entries, max M lines, or token cap) so this becomes objectively verifiable rather than reviewer-subjective."
+        },
+        {
+          "id": "I-3",
+          "severity": "low",
+          "desc": "CHK-002 adversarial says duplicate-like capture warns OR marks related entries — two materially different behaviors. PLAN should pick one semantic (warn-and-skip, warn-and-link, or silent-link) and define the similarity trigger; otherwise dev/test can each pick their own interpretation."
+        },
+        {
+          "id": "I-4",
+          "severity": "low",
+          "desc": "CHK-004 finish and CHK-005 wrappers both depend on detecting an active Koala story, but neither item pins down the detection contract (env var? story index lookup? cwd marker?). Since both items share this primitive, PLAN should specify it once up front to avoid divergent implementations."
+        }
+      ]
+    }
+  ],
+  "_hash": "c45663c1ba2d3c70059efb019a21c6183339a5056dc43c084cedd847ab84fad3"
+}
