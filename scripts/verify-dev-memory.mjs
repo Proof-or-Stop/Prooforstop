@@ -744,8 +744,17 @@ check('CLI engine: dev_memory_start description distinguishes it from lifecycle/
   const descIdx = src.indexOf('description:', nameIdx);
   const lineEnd = src.indexOf('\n', descIdx);
   const descLine = src.slice(descIdx, lineEnd);
-  if (!descLine.includes('lifecycle') && !descLine.includes('dev_start') && !descLine.includes('worktree')) {
-    throw new Error('dev_memory_start description in cli-engine.ts must distinguish it from lifecycle/worktree initialization: ' + descLine);
+  // All four distinctions must be present simultaneously
+  const required = [
+    { label: 'dev_start reference',                          ok: descLine.includes('dev_start') },
+    { label: 'worktree reference',                           ok: descLine.includes('worktree') },
+    { label: 'lifecycle semantics (lifecycle or 生命周期)',  ok: descLine.includes('lifecycle') || descLine.includes('生命周期') },
+    { label: 'phase semantics (phase)',                      ok: descLine.includes('phase') },
+    { label: 'explicit negation (不是/不创建/does not/not)', ok: descLine.includes('不是') || descLine.includes('不创建') || descLine.includes('does not') || descLine.includes(' not ') },
+  ];
+  const missing = required.filter(r => !r.ok).map(r => r.label);
+  if (missing.length > 0) {
+    throw new Error(`dev_memory_start description missing required distinctions: ${missing.join(', ')}. Got: ${descLine}`);
   }
 });
 
