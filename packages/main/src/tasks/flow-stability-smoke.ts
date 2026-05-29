@@ -47,6 +47,7 @@ import {
   lifecycleForwardTransitionsByPhase,
 } from '../core/lifecycle-registry.js';
 import { getGuardFailureReason } from '../core/machine.js';
+import { getGuardFailureReason as legacyGetGuardFailureReason } from '../core/guard-utils.js';
 import { getProcessFactRegistryEntry, hasProcessFactSemantic, PROCESS_FACT_FLOW_POLICIES } from '../core/process-fact-registry.js';
 import {
   ACTIVE_PHASE_ORDER,
@@ -1381,6 +1382,107 @@ function assertNonReviewerFindingsDoNotCountAsReviewerEvidence(): void {
       stateWithReviewerMiss.invalid.some(issue => issue.agent === 'main-agent'),
       false,
       'main-agent findings must remain excluded even when a reviewer evidence issue is also present',
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// B-ad2c F-005 regression: a real story_advance-style guard path
+// (machine.ts getGuardFailureReason → canPassReview, the live REVIEW→TEST
+// gate) must NOT block when a resolved main-agent finding with EMPTY
+// reviewRound (the shape produced by finding_add during DEV, before the
+// story has a currentReviewRound) sits alongside complete reviewer-lane
+// evidence. F-004 narrowed collectReviewerEvidenceState; F-005 closes the
+// last hole: the legacy guard-utils.ts mirror path must classify reviewer
+// evidence by koala-review-* prefix too, not by `agent != main`.
+//
+// Negative arm: a real koala-review-* finding without reviewRunId in the
+// current round must STILL block the live path — proves the narrowing did
+// not weaken the reviewRunId binding requirement for real reviewer lanes.
+function assertStoryAdvanceGuardIgnoresMainAgentDevFindings(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-flow-dev-finding-gate-'));
+  try {
+    const { store, storyId, reviewRound } = createReviewStore(root);
+    const runIds = seedReviewRuns(root, store, storyId, reviewRound, [
+      'koala-review-concept',
+      'koala-review-quality',
+      'koala-review-test-coverage',
+    ]);
+
+    // Mirror live B-ad2c F-001 shape: main-agent authored, status=resolved,
+    // high severity, EMPTY reviewRound, no reviewRunId. Signed via the same
+    // legacy path that finding_add takes when the story has no currentReviewRound.
+    const devFindingId = `${storyId}:F-001`;
+    const devCreatedAt = '2026-04-27T13:30:00.000Z';
+    const devDesc = 'main-agent DEV-phase replan note (mirrors B-ad2c F-001)';
+    const devFinding: Finding = {
+      id: devFindingId,
+      desc: devDesc,
+      severity: 'high',
+      category: 'missing',
+      status: 'resolved',
+      agent: 'main-agent',
+      createdAt: devCreatedAt,
+      reviewRound: '',
+      _hash: signFinding(storyId, devFindingId, devDesc, 'high', devCreatedAt, ''),
+    };
+    // One bound reviewer finding per opt-in lane — covers the legacy
+    // guard-utils.ts gate (which reads findings only, not review passes).
+    const reviewerFindings: Finding[] = [
+      makeFinding(storyId, 'koala-review-concept', reviewRound, '821', runIds.get('koala-review-concept')!),
+      makeFinding(storyId, 'koala-review-quality', reviewRound, '822', runIds.get('koala-review-quality')!),
+      makeFinding(storyId, 'koala-review-test-coverage', reviewRound, '823', runIds.get('koala-review-test-coverage')!),
+    ];
+    store.writeFindings(storyId, { findings: [devFinding, ...reviewerFindings] });
+    // Add review passes too — covers machine.ts canPassReview's quorum check
+    // which reads valid evidence (findings ∪ passes) from collectReviewerEvidenceState.
+    store.writeReviewPasses(storyId, {
+      passes: [
+        makeReviewPass(storyId, 'koala-review-concept', reviewRound, '801', runIds.get('koala-review-concept')!),
+        makeReviewPass(storyId, 'koala-review-quality', reviewRound, '802', runIds.get('koala-review-quality')!),
+        makeReviewPass(storyId, 'koala-review-test-coverage', reviewRound, '803', runIds.get('koala-review-test-coverage')!),
+      ],
+    });
+
+    // Live story_advance guard path (machine.ts) — what `koala story_advance
+    // --phase=TEST` actually calls — must let the transition through.
+    assert.equal(
+      getGuardFailureReason(storyId, store, 'TEST', root),
+      null,
+      'machine.ts guard must ignore a main-agent DEV finding with empty reviewRound when reviewer lanes are covered',
+    );
+    // Legacy guard-utils.ts mirror — no source import today, but it exports
+    // the same `getGuardFailureReason` shape and must stay in sync so future
+    // code that wires it back in inherits the same isReviewerAgent
+    // classification. Without the F-005 fix this returned a "Cannot enter
+    // TEST" reason because main-agent F-001 was misclassified as a reviewer
+    // finding that lacked a current-round reviewRound.
+    assert.equal(
+      legacyGetGuardFailureReason(storyId, store, 'TEST', root),
+      null,
+      'guard-utils.ts mirror must ignore a main-agent DEV finding with empty reviewRound when reviewer lanes are covered',
+    );
+
+    // Negative arm: a real koala-review-* finding in the current round with
+    // no reviewRunId must still block the live path — the narrowing only
+    // changed agent classification, not the reviewRunId binding contract for
+    // real reviewer lanes.
+    const reviewerMiss = makeLegacyFindingWithoutRun(
+      storyId,
+      'koala-review-quality',
+      reviewRound,
+      '811',
+    );
+    store.writeFindings(storyId, { findings: [devFinding, ...reviewerFindings, reviewerMiss] });
+    const liveBlocked = getGuardFailureReason(storyId, store, 'TEST', root);
+    assert.ok(
+      liveBlocked && /Cannot enter TEST/.test(liveBlocked),
+      `machine.ts guard must still block when a real koala-review-* finding lacks reviewRunId, got: ${liveBlocked}`,
+    );
+    assert.ok(
+      liveBlocked && /missing_review_run_id|reviewer evidence/.test(liveBlocked),
+      `machine.ts block reason should reference the reviewRunId binding, got: ${liveBlocked}`,
     );
   } finally {
     rmSync(root, { recursive: true, force: true });
@@ -3330,6 +3432,7 @@ assertReviewRunBindingRejectsInvalidEvidence();
 assertSupersededReviewPassDoesNotBlockLatestReviewerRun();
 assertLegacyReviewEvidenceWithoutCurrentRoundStaysReadable();
 assertNonReviewerFindingsDoNotCountAsReviewerEvidence();
+assertStoryAdvanceGuardIgnoresMainAgentDevFindings();
 await assertStoryAdvanceReviewEchoOmitsRetiredChannel();
 assertReviewerStatusUsesMdFallback();
 assertSessionBriefStatusHintsMatchGates();
