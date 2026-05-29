@@ -299,7 +299,20 @@
         "test": [
           "scripts/verify-dev-memory.mjs"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-dev-memory.mjs",
+          "command": "node scripts/verify-dev-memory.mjs",
+          "result": "pass",
+          "note": "Section 10 passes: bare dev_memory_finish in an active story writes story-candidate entries with sourceStoryId and preserved evidenceRefs.",
+          "headHash": "3b386c280502f36c6ff579a8c9c6a17401f793df",
+          "materialHash": "1c1897eb2fc76ce22b0f2c2c82287817d09eb8ebea463f57b35fb8bd5c1c21f6",
+          "timestamp": "2026-05-29T13:19:03.051Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
