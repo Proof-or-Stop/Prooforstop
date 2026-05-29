@@ -44,6 +44,15 @@
       "reviewRound": "2026-05-29T14:01:25.978Z",
       "reviewRunId": "B-ad2c:RR-009",
       "_hash": "50f73b469c88cfd0ae752a299766eaf8ac16888eb0cb2371dfeff42ba4c29c8f"
+    },
+    {
+      "id": "B-ad2c:RP-006",
+      "agent": "koala-review-quality",
+      "note": "Quality scope: F-004 fix (isReviewerAgent helper + two-arm regression) + dev-memory module + cli-engine boundary rule 4. Verified: npm --prefix packages/main run build (ok), node packages/main/dist/tasks/flow-stability-smoke.js (passed incl new assertNonReviewerFindingsDoNotCountAsReviewerEvidence), git diff --check (clean), git log review-run.ts/flow-stability-smoke.ts (single focused commit adc4c4b6). Predicate mirrors handlers/finding.ts:237 pattern. Comments at review-run.ts:70 and :447 explain why. Test has positive+negative arms so fix did not weaken reviewRunId binding. Dev-memory has schema validation, deterministic paths, non-authoritative markers in every entry, sensible ownership classes. No risky abstraction, no drive-by refactors, no hand-edited Koala metadata.",
+      "createdAt": "2026-05-29T14:10:19.754Z",
+      "reviewRound": "2026-05-29T14:01:25.978Z",
+      "reviewRunId": "B-ad2c:RR-010",
+      "_hash": "efb4450df29149a0014f657375e2e3566a28bed5e4e8b5293e37a8d3c582de04"
     }
   ]
 }
