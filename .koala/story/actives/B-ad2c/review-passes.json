@@ -89,6 +89,15 @@
       "reviewRound": "2026-05-29T14:27:59.858Z",
       "reviewRunId": "B-ad2c:RR-015",
       "_hash": "69457fd5f91a5f9598409f8e21f233cdf626b24b9ab1f72e95f23ca1241de887"
+    },
+    {
+      "id": "B-ad2c:RP-011",
+      "agent": "koala-review-docs",
+      "note": "Docs review on docs/requirements/decisions/dev-memory.md + dev_memory_* CLI help confirms three clarity contracts: (1) Non-authoritative authority — doc L9 states \"Dev-memory is non-authoritative context, not Koala gate evidence\" and L11-15 enumerate the gate artifacts it cannot satisfy (delivery_check_set/verification_evidence_add/review_pass_set/signed artifacts); CLI help for dev_memory_capture mirrors with \"不能满足 Koala gate evidence\" and every entry hardcodes gateEvidence:false + authority:non_authoritative (doc L50-51). (2) dev_memory_start vs lifecycle dev_start — doc L90-94 carves out dev_memory_start as prompt-only memory wrapper (not lifecycle worktree initialization), and CLI help text explicitly says \"不是生命周期 dev_start，不创建 worktree 或推进 phase\"; lifecycle dev_start remains an internal handler invoked only by story_advance INIT_CHECK (cli-engine.ts L2310/L2367) — no user-facing collision. F-003 resolution holds. (3) dev_memory_finish three-mode framing — doc L80-88 lists exactly three modes (Outside Koala / Story-candidate write / Global promotion) and explicitly tags --storyId as \"target override within this same path, not a separate mode\", matching F-002 resolution. F-005 was a runtime classifier fix in guard-utils.ts/machine.ts with no docs surface to maintain; no doc section claimed the prior agent!=main classifier behavior, so no staleness from F-005. No blocker.",
+      "createdAt": "2026-05-29T14:31:08.920Z",
+      "reviewRound": "2026-05-29T14:27:59.858Z",
+      "reviewRunId": "B-ad2c:RR-013",
+      "_hash": "1b297bd554965440703434b27b2b51510746b7f6be45201ac8687803c5b59f46"
     }
   ]
 }
