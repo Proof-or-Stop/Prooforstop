@@ -66,6 +66,23 @@
         "packages/main/src/tasks/flow-stability-smoke.ts",
         ".koala/story/actives/B-ad2c/findings.json"
       ]
+    },
+    {
+      "id": "B-ad2c:F-005",
+      "desc": "REVIEW→TEST gate still blocks on resolved main-agent F-001 after F-004 because legacy guard-utils path still classifies any agent != main as reviewer evidence. Source collectReviewerEvidenceState was narrowed, but story_advance path still reports F-001 reviewRound missing. Fix all REVIEW→TEST gate paths to use koala-review-* reviewer-lane classification and add a regression that exercises the real story_advance path, not only collectReviewerEvidenceState.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-05-29T14:15:55.620Z",
+      "reviewRound": "2026-05-29T14:01:25.978Z",
+      "_hash": "c056c0bcd9d5348c1bb0bff617afb3807aff9c2f1d41f2a87f6d43b1821f2e46",
+      "files": [
+        "packages/main/src/core/guard-utils.ts",
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ]
     }
   ]
 }
