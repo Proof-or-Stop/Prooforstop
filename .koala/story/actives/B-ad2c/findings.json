@@ -1,0 +1,21 @@
+{
+  "findings": [
+    {
+      "id": "B-ad2c:F-001",
+      "desc": "DEV implementation discovered existing Koala lifecycle command dev_start is already used by INIT_CHECK/worktree bootstrap. CHK-005 currently specifies dev_start as the new agent wrapper, which would collide with lifecycle behavior. Re-plan required: preserve existing dev_start and rename wrapper to dev_memory_start or equivalent non-conflicting command.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-05-29T12:36:28.417Z",
+      "reviewRound": "",
+      "_hash": "0fd87ad85126298cb066ffce0a56946c9c5b13176fcad4d29eabe608900a0178",
+      "files": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/handlers/worktree.ts",
+        ".koala/story/actives/B-ad2c/index.json"
+      ]
+    }
+  ]
+}
