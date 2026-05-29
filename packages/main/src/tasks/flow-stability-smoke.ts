@@ -1291,6 +1291,102 @@ function assertLegacyReviewEvidenceWithoutCurrentRoundStaysReadable(): void {
   }
 }
 
+// B-ad2c F-004 regression: collectReviewerEvidenceState must classify
+// reviewer evidence by the koala-review-* lane prefix, NOT by `agent != main`.
+// Otherwise main-agent / koala-implementer / other non-reviewer actors that
+// recorded findings during DEV (e.g. plan-conflict notes) are incorrectly
+// treated as reviewer evidence and the missing reviewRunId blocks REVIEW→TEST.
+function assertNonReviewerFindingsDoNotCountAsReviewerEvidence(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-flow-non-reviewer-evidence-'));
+  try {
+    const { store, storyId, reviewRound } = createReviewStore(root);
+    const runIds = seedReviewRuns(root, store, storyId, reviewRound, [
+      'koala-review-concept',
+      'koala-review-quality',
+      'koala-review-test-coverage',
+    ]);
+
+    const nonReviewerAgents = ['main', 'main-agent', 'koala-implementer'];
+    const nonReviewerFindings = nonReviewerAgents.map((agent, idx) => {
+      const id = `${storyId}:F-${String(900 + idx).padStart(3, '0')}`;
+      const createdAt = `2026-04-27T13:00:${String(idx).padStart(2, '0')}.000Z`;
+      const desc = `${agent} DEV-phase note without reviewRunId`;
+      const severity = 'high';
+      return {
+        id,
+        desc,
+        severity: severity as Finding['severity'],
+        category: 'missing' as Finding['category'],
+        status: 'resolved' as Finding['status'],
+        agent,
+        createdAt,
+        reviewRound,
+        _hash: signFinding(storyId, id, desc, severity, createdAt, reviewRound),
+      };
+    });
+    store.writeFindings(storyId, { findings: nonReviewerFindings });
+    store.writeReviewPasses(storyId, {
+      passes: [
+        makeReviewPass(storyId, 'koala-review-concept', reviewRound, '901', runIds.get('koala-review-concept')!),
+        makeReviewPass(storyId, 'koala-review-quality', reviewRound, '902', runIds.get('koala-review-quality')!),
+        makeReviewPass(storyId, 'koala-review-test-coverage', reviewRound, '903', runIds.get('koala-review-test-coverage')!),
+      ],
+    });
+
+    const state = collectReviewerEvidenceState(store, storyId, root);
+    for (const agent of nonReviewerAgents) {
+      assert.equal(
+        state.invalid.some(issue => issue.agent === agent),
+        false,
+        `non-reviewer agent ${agent} must not appear in reviewer evidence issues (was treated as reviewer)`,
+      );
+      assert.equal(
+        state.valid.some(record => record.agent === agent),
+        false,
+        `non-reviewer agent ${agent} must not appear in valid reviewer evidence`,
+      );
+    }
+    assert.equal(
+      state.invalid.length,
+      0,
+      `clean reviewer passes + non-reviewer findings should produce no invalid issues, got: ${JSON.stringify(state.invalid)}`,
+    );
+    assert.equal(
+      getGuardFailureReason(storyId, store, 'TEST', root),
+      null,
+      'REVIEW→TEST gate must pass when only reviewer passes are bound and non-reviewer findings exist',
+    );
+
+    // Negative arm: a real koala-review-* finding without reviewRunId in the
+    // current round must STILL be rejected — proves the fix narrowed the
+    // classifier but did not weaken the reviewRunId requirement for real lanes.
+    const reviewerFindingWithoutRun = makeLegacyFindingWithoutRun(
+      storyId,
+      'koala-review-quality',
+      reviewRound,
+      '910',
+    );
+    store.writeFindings(storyId, {
+      findings: [...nonReviewerFindings, reviewerFindingWithoutRun],
+    });
+    const stateWithReviewerMiss = collectReviewerEvidenceState(store, storyId, root);
+    assert.equal(
+      stateWithReviewerMiss.invalid.some(issue =>
+        issue.agent === 'koala-review-quality' && issue.code === 'missing_review_run_id',
+      ),
+      true,
+      'a real koala-review-* finding without reviewRunId must still raise missing_review_run_id',
+    );
+    assert.equal(
+      stateWithReviewerMiss.invalid.some(issue => issue.agent === 'main-agent'),
+      false,
+      'main-agent findings must remain excluded even when a reviewer evidence issue is also present',
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 async function assertStoryAdvanceReviewEchoOmitsRetiredChannel(): Promise<void> {
   const root = mkdtempSync(join(tmpdir(), 'koala-flow-review-echo-'));
   const oldCwd = process.cwd();
@@ -3233,6 +3329,7 @@ assertReviewGateUsesOptIn();
 assertReviewRunBindingRejectsInvalidEvidence();
 assertSupersededReviewPassDoesNotBlockLatestReviewerRun();
 assertLegacyReviewEvidenceWithoutCurrentRoundStaysReadable();
+assertNonReviewerFindingsDoNotCountAsReviewerEvidence();
 await assertStoryAdvanceReviewEchoOmitsRetiredChannel();
 assertReviewerStatusUsesMdFallback();
 assertSessionBriefStatusHintsMatchGates();
