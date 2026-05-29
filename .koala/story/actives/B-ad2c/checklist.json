@@ -153,9 +153,10 @@
       "title": "Implement finish and story-scoped experience candidates",
       "context": "Milestone 4: add dev-memory finish that writes candidate experience into active Koala story when present, and can export confirmed reusable entries to project/global memory.",
       "relatedDocs": [
-        "docs/requirements/decisions/story-lifecycle.md"
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/truth-source.md"
       ],
-      "userSees": "Inside a Koala story, finish writes .koala/story/actives/<id>/experience-candidates.json and reports whether entries were exported to reusable memory.",
+      "userSees": "koala dev_memory_finish --storyId=B-xxxx prints Experience candidates written for B-xxxx and lists candidate ids. The generated story candidate file is clearly marked non-gate/non-authoritative unless the user explicitly exports a lesson into dev-memory.",
       "verificationIntent": {
         "happy": [
           {
@@ -181,7 +182,19 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/handlers/dev-memory.ts"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-dev-memory.mjs"
+        ]
+      }
     },
     {
       "id": "CHK-005",
