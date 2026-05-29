@@ -53,6 +53,15 @@
       "reviewRound": "2026-05-29T14:01:25.978Z",
       "reviewRunId": "B-ad2c:RR-010",
       "_hash": "efb4450df29149a0014f657375e2e3566a28bed5e4e8b5293e37a8d3c582de04"
+    },
+    {
+      "id": "B-ad2c:RP-007",
+      "agent": "koala-review-test-coverage",
+      "note": "Test-coverage round 3: verify-dev-memory.mjs 51/51 (10 sections cover schema validation, deterministic path resolution, JSONL roundtrip, search/dedup, preflight empty-state/≤5 entries/60-line budget, CLI capture/list/search/preflight/finish/start, non-authoritative docs, active-story candidate defaults), flow-stability-smoke.js PASS including F-004 regression assertNonReviewerFindingsDoNotCountAsReviewerEvidence (positive arm: main/main-agent/koala-implementer findings excluded from reviewer evidence and REVIEW→TEST passes; negative arm: real koala-review-quality finding without reviewRunId STILL raises missing_review_run_id), test-evidence.json shows verificationCoverage 15/15 covered 0 required missing, all 5 checklist items have happy/edge/adversarial evidence with consistent headHash 6b34bc0d. Commands run: koala session_brief, koala aux_doc_list, koala review_run_start, koala checklist_get, koala reviewer_list, node scripts/verify-dev-memory.mjs, node packages/main/dist/tasks/flow-stability-smoke.js, koala validate --story=B-ad2c --json (blocked by non-owner lease; previously persisted PASS evidence at headHash 2744eaf3 with same 15/15 coverage). Validate gate behavior surface (story-lifecycle + gap-convergence + verification intent coverage) covered by cli-e2e.js. No blocker.",
+      "createdAt": "2026-05-29T14:12:52.525Z",
+      "reviewRound": "2026-05-29T14:01:25.978Z",
+      "reviewRunId": "B-ad2c:RR-011",
+      "_hash": "777fb87fbdfb976b5ba54327d304bbf8a0d3e6788acc8a0f1631518a4d6255bf"
     }
   ]
 }
