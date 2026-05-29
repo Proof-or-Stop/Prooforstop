@@ -1,0 +1,35 @@
+{
+  "task": "Build a lightweight dev-memory CLI layer so users can preserve and reuse agent programming lessons even when not using Koala.",
+  "outcome": "User runs dev-memory capture to save a Claude CLI failure lesson, dev-memory preflight \"delegate reviewer to Claude\" shows the lesson before coding, and dev-start claude prints the same preflight guidance plus a finish reminder.",
+  "facts": [
+    "Users often accumulate workflow, failure-mode, and success-pattern knowledge in normal Claude/Codex/Gemini chats outside Koala.",
+    "If that knowledge stays only in chat context, the next agent session will not reliably read or reuse it.",
+    "When a Koala story is active, lessons should be linked to story evidence as candidates, not promoted to gate evidence.",
+    "INIT reviewers passed B-ad2c with advisory requirements for concrete examples, measurable preflight size, explicit dedupe behavior, and a shared active-story detection primitive."
+  ],
+  "constraints": [
+    "Do not make experience memory a Koala DONE gate receipt or substitute for signed evidence.",
+    "First version must stay simple: JSONL/Markdown and CLI output, no vector database or UI.",
+    "Preflight output must be concise: maximum 5 entries and maximum 60 rendered lines by default.",
+    "Duplicate handling must be warn-and-link: write the new entry but include relatedEntryIds and a duplicate warning in output.",
+    "Active story detection is shared: prefer explicit --storyId, then KOALA_STORY_ID, then current Koala session/story context from cwd."
+  ],
+  "unknowns": [
+    "Exact existing CLI registry files and command naming conventions must be inspected before implementation.",
+    "Whether project memory should default inside repository .koala/dev-memory or external user home must be decided in code after inspecting config helpers.",
+    "Whether wrappers should execute agent binaries or prompt-only dry-run by default must align with existing safety conventions."
+  ],
+  "touchpoints": [
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/handlers",
+    "packages/main/src/core",
+    "bin/koala-codex.js",
+    "docs/requirements/decisions/story-lifecycle.md",
+    "docs/requirements/decisions/truth-source.md",
+    "docs/requirements/decisions/verification-context-pack.md",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "timestamp": "2026-05-29T12:19:31.215Z"
+}
