@@ -960,6 +960,51 @@ export const MAIN_TOOLS: ToolDef[] = [
     authorityTimeoutMS: z.number().optional().describe('Request timeout in milliseconds (overrides KOALA_AUTHORITY_TIMEOUT_MS)'),
   }},
 
+  // B-ad2c: dev-memory — lightweight non-authoritative experience capture
+  { name: 'dev_memory_capture', description: '捕获一条非权威 dev-memory 经验条目到 file-backed JSONL 存储（不能满足 Koala gate evidence）', schema: {
+    category: z.enum(['failure-mode','pattern','anti-pattern','workflow','tool-quirk','guard-bypass','debugging','communication','other']).describe('经验类别'),
+    scope: z.enum(['project','global','story-candidate']).optional().describe('存储范围（默认 project）'),
+    summary: z.string().describe('一句话摘要（≥10 字符）'),
+    trigger: z.string().describe('触发场景（≥5 字符）'),
+    lesson: z.string().describe('可复用的教训（≥10 字符）'),
+    reusePrompt: z.string().describe('如何在下次会话中调出这条经验（≥5 字符）'),
+    tags: z.union([z.array(z.string()), z.string()]).optional().describe('关键词标签（逗号分隔字符串或数组）'),
+    sourceAgent: z.string().optional().describe('来源 agent（默认 koala-implementer）'),
+    sourceStoryId: z.string().optional().describe('来源 story ID'),
+    evidenceRefs: z.array(z.string()).optional().describe('证据引用（文件路径/commit sha）'),
+  }},
+  { name: 'dev_memory_list', description: '列出 dev-memory 经验条目', schema: {
+    scope: z.enum(['project','global','story-candidate']).optional().describe('存储范围（默认 project）'),
+    limit: z.number().optional().describe('最多返回条数（默认 50）'),
+    json: z.boolean().optional().describe('JSON 格式输出'),
+  }},
+  { name: 'dev_memory_search', description: '按 query/category/agent/tags 搜索 dev-memory 经验条目', schema: {
+    query: z.string().optional().describe('全文搜索关键词'),
+    category: z.string().optional().describe('按类别过滤'),
+    agent: z.string().optional().describe('按来源 agent 过滤'),
+    tags: z.union([z.array(z.string()), z.string()]).optional().describe('按标签过滤（逗号分隔字符串或数组）'),
+    limit: z.number().optional().describe('最多返回条数（默认 20）'),
+    global: z.boolean().optional().describe('同时搜索 global 存储'),
+    json: z.boolean().optional().describe('JSON 格式输出'),
+  }},
+  { name: 'dev_memory_preflight', description: '输出非权威 dev-memory 预飞上下文包（会话开始时调用）', schema: {
+    query: z.string().optional().describe('相关性查询词'),
+    maxEntries: z.number().optional().describe('最多包含条目数（默认 5）'),
+    maxLines: z.number().optional().describe('行数预算（默认 60）'),
+    json: z.boolean().optional().describe('JSON 格式输出'),
+  }},
+  { name: 'dev_memory_finish', description: '将本会话的经验候选写入 story 目录供后续 review', schema: {
+    storyId: z.string().describe('活动 story ID（如 B-xxx）'),
+    storyDir: z.string().optional().describe('story 目录根路径（默认 <root>/docs/story/actives）'),
+    query: z.string().optional().describe('可选：相关性过滤词'),
+  }},
+  { name: 'dev_memory_start', description: '会话启动包装器：输出 dev-memory 预飞上下文 + 结束时调 dev_memory_finish 的提醒（不启动外部 agent 二进制）', schema: {
+    agent: z.string().optional().describe('agent 名称（如 claude / codex；仅用于显示，不启动进程）'),
+    query: z.string().optional().describe('预飞相关性查询词'),
+    maxEntries: z.number().optional().describe('预飞最多条目数（默认 5）'),
+    dryRun: z.boolean().optional().describe('兼容参数，始终为 dry-run 模式（不启动外部进程）'),
+  }},
+
 ];
 
 /**

@@ -61,6 +61,7 @@ import { createCapsuleHandlers } from './handlers/capsule.js';
 import { createScopeContractHandlers } from './handlers/scope-contract.js';
 import { createGuardSessionHandlers } from './handlers/guard-session.js';
 import { createAuthorityEnforceHandlers } from './handlers/authority-enforce.js';
+import { createDevMemoryHandlers } from './handlers/dev-memory.js';
 import { nextStoryId } from './handlers/context.js';
 
 export type HandlerFn = (...args: any[]) => any;
@@ -195,6 +196,10 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   // B-ea92 M1: authority_enforce_policy — read-only policy discovery command stub.
   // Never submits evidence, claims jobs, registers actor keys, or verifies receipts.
   registry.registerBatch(createAuthorityEnforceHandlers(ctx));
+
+  // B-ad2c: dev_memory_* — lightweight experience capture outside Koala story gates.
+  // Non-authoritative: entries cannot satisfy Koala DONE gate evidence.
+  registry.registerBatch(createDevMemoryHandlers(ctx));
 
   // 内部辅助：返回下一个 story id（fixture/测试 runner 用）
   registry.register('_nextStoryId', (prefix?: string) => nextStoryId(ctx.store, prefix));
