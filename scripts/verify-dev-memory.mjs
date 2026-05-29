@@ -13,7 +13,7 @@
  * Run `npm --prefix packages/main run build` before running this.
  */
 
-import { mkdirSync, rmSync, existsSync, readFileSync } from 'fs';
+import { mkdirSync, rmSync, existsSync, readFileSync, appendFileSync } from 'fs';
 import { join, resolve } from 'path';
 import { tmpdir } from 'os';
 import { randomUUID } from 'crypto';
@@ -221,11 +221,9 @@ check('appendEntry + readEntries roundtrip', () => {
 });
 
 check('readEntries skips invalid lines without crashing', () => {
-  // Append a corrupt line
-  import('fs').then(fs => {
-    fs.appendFileSync(testFile, 'NOT_JSON\n', 'utf-8');
-    fs.appendFileSync(testFile, '{"id":"bad","missing":"required fields"}\n', 'utf-8');
-  });
+  // Append a corrupt line synchronously (dynamic import would run after cleanup)
+  appendFileSync(testFile, 'NOT_JSON\n', 'utf-8');
+  appendFileSync(testFile, '{"id":"bad","missing":"required fields"}\n', 'utf-8');
   // Re-read: should only get the valid entry
   const entries = dm.readEntries(testFile);
   if (entries.length < 1) throw new Error('should still return valid entries');
