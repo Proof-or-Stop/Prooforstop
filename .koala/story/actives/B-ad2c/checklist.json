@@ -55,9 +55,10 @@
       "title": "Implement capture, search, and list commands",
       "context": "Milestone 2: add CLI commands to save, search, list, and dedupe experience entries with user-facing text output.",
       "relatedDocs": [
-        "docs/requirements/decisions/truth-source.md"
+        "docs/requirements/decisions/truth-source.md",
+        "docs/requirements/decisions/framework.md"
       ],
-      "userSees": "dev-memory capture can save a Claude CLI failure lesson; dev-memory search Claude finds it later; dev-memory list shows recent entries.",
+      "userSees": "koala dev_memory_capture --kind=failure-mode --summary=... prints Captured dev-memory experience <id>. A duplicate capture prints Possible duplicate: <id> and does not silently create an authoritative-looking duplicate. koala dev_memory_search/list show id, scope, source agent, tags, summary, and lesson.",
       "verificationIntent": {
         "happy": [
           {
@@ -83,7 +84,21 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/core/command-policy.ts"
+        ],
+        "create": [
+          "packages/main/src/handlers/dev-memory.ts"
+        ],
+        "test": [
+          "scripts/verify-dev-memory.mjs"
+        ]
+      }
     },
     {
       "id": "CHK-003",
