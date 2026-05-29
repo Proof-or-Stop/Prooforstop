@@ -74,8 +74,20 @@ Optional fields: `tags`, `sourceStoryId`, `evidenceRefs`.
 | `koala dev_memory_search` | Search entries by query, category, agent, or tags |
 | `koala dev_memory_list` | List entries (newest first), with `--scope` filter |
 | `koala dev_memory_preflight` | Emit a bounded preflight context pack (≤60 lines) |
-| `koala dev_memory_finish` | Write story-scoped experience candidates |
+| `koala dev_memory_finish` | Finish a session: report/promote project entries, or write story candidates |
 | `koala dev_memory_start` | Wrapper: run preflight then emit agent startup guidance |
+
+### `dev_memory_finish` — `--storyId` is optional
+
+`koala dev_memory_finish` works in two modes:
+
+**Outside Koala (no `--storyId`)** — for ordinary non-Koala sessions. Does NOT require or create `.koala/story/actives`. Reads recent project dev-memory entries (filtered by `--query` when provided):
+
+- Default: reports how many entries are retained in project memory. No story directory required.
+- `--scope=global`: copies relevant project entries into global dev-memory, de-duped by id, as `scope: global`, non-authoritative. Useful for promoting cross-project lessons.
+- If no relevant entries exist, returns a clear empty-state message and does NOT touch story directories.
+
+**Inside Koala (with `--storyId`)**: writes session experience candidates to `<root>/.koala/story/actives/<storyId>/dev-memory-candidates.jsonl`, with `scope: story-candidate`, `sourceStoryId`, `gateEvidence: false`, `authority: non_authoritative`, de-duped by id.
 
 ### `dev_memory_start` — prompt-only by default
 

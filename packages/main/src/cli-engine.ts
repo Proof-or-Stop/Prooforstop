@@ -993,10 +993,11 @@ export const MAIN_TOOLS: ToolDef[] = [
     maxLines: z.number().optional().describe('行数预算（默认 60）'),
     json: z.boolean().optional().describe('JSON 格式输出'),
   }},
-  { name: 'dev_memory_finish', description: '将本会话的经验候选写入 story 目录供后续 review', schema: {
-    storyId: z.string().describe('活动 story ID（如 B-xxx）'),
+  { name: 'dev_memory_finish', description: '结束会话：--storyId 可选；有时写入 story 候选，无时报告/晋升项目条目（不需 story 目录）', schema: {
+    storyId: z.string().optional().describe('活动 story ID（如 B-xxx）；Koala 外部会话可省略'),
     storyDir: z.string().optional().describe('story 目录根路径（默认 <root>/.koala/story/actives）'),
     query: z.string().optional().describe('可选：相关性过滤词'),
+    scope: z.enum(['global']).optional().describe('无 storyId 时：global=将项目经验晋升到全局 dev-memory；缺省=报告项目条目'),
   }},
   { name: 'dev_memory_start', description: '会话启动包装器：输出 dev-memory 预飞上下文 + 结束时调 dev_memory_finish 的提醒（不启动外部 agent 二进制）', schema: {
     agent: z.string().optional().describe('agent 名称（如 claude / codex；仅用于显示，不启动进程）'),

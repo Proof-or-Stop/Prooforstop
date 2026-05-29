@@ -188,38 +188,75 @@ export function createDevMemoryHandlers(ctx: HandlerContext) {
     storyId?: string;
     storyDir?: string;
     query?: string;
+    scope?: string;
   }): string {
+    const projectPath = resolveProjectMemoryPath(root);
+    const allEntries = readEntries(projectPath);
+    const relevant = args.query
+      ? searchEntries(allEntries, { query: args.query, limit: 20 })
+      : allEntries.slice(-20);
+
+    // Without storyId: project-mode — no story directories required.
     if (!args.storyId) {
-      return 'dev_memory_finish: --storyId is required. Pass the active story ID (e.g. --storyId=B-xxx).';
+      if (relevant.length === 0) {
+        return [
+          `dev_memory_finish: no experience entries found in project memory (${projectPath}).`,
+          `  No story directory required for outside-Koala sessions.`,
+        ].join('\n');
+      }
+
+      if (args.scope === 'global') {
+        // Promote relevant project entries to global dev-memory, de-duped by id.
+        const globalPath = resolveGlobalMemoryPath();
+        const existingGlobalIds = new Set(readEntries(globalPath).map(e => e.id));
+        const newEntries = relevant.filter(e => !existingGlobalIds.has(e.id));
+        for (const e of newEntries) {
+          const globalCopy = {
+            ...e,
+            scope: 'global' as const,
+            gateEvidence: false as const,
+            authority: 'non_authoritative' as const,
+          };
+          appendEntry(globalPath, globalCopy);
+        }
+        const skipped = relevant.length - newEntries.length;
+        const lines = [
+          `Promoted ${newEntries.length} entr${newEntries.length === 1 ? 'y' : 'ies'} to global dev-memory: ${globalPath}`,
+          `  (scope: global, non-authoritative, de-duped by id)`,
+        ];
+        if (skipped > 0) {
+          lines.push(`  ${skipped} already present in global memory (skipped)`);
+        }
+        return lines.join('\n');
+      }
+
+      // Default: report that entries are retained in project memory.
+      return [
+        `Project dev-memory: ${relevant.length} relevant entr${relevant.length === 1 ? 'y' : 'ies'} retained in ${projectPath}`,
+        `  Entries are already in project dev-memory. No story directory required.`,
+        `  (Use --scope=global to promote to global dev-memory, or --storyId=<id> to write story candidates.)`,
+      ].join('\n');
     }
-    // Resolve story dir: either explicit or under <root>/.koala/story/actives/
+
+    // With storyId: write story candidate copies under .koala/story/actives/<storyId>/.
     const storyDir = args.storyDir
       ? args.storyDir
       : join(root, '.koala', 'story', 'actives');
     const candidatePath = resolveStoryCandidatePath(storyDir, args.storyId);
 
-    // Read recent project-scoped entries (candidates for this session)
-    const projectPath = resolveProjectMemoryPath(root);
-    const allEntries = readEntries(projectPath);
-    // If query provided, use it to filter candidates; otherwise take last 20
-    let candidates = args.query
-      ? searchEntries(allEntries, { query: args.query, limit: 20 })
-      : allEntries.slice(-20); // last 20 entries = session candidates
-
-    if (candidates.length === 0) {
+    if (relevant.length === 0) {
       return `dev_memory_finish: no experience entries found in project memory (${projectPath}). Nothing written.`;
     }
 
-    // Ensure story dir exists
+    // Ensure story subdir exists
     const storySubDir = join(storyDir, args.storyId);
     if (!existsSync(storySubDir)) {
       mkdirSync(storySubDir, { recursive: true });
     }
 
-    // Append candidates to story file (don't overwrite; idempotent)
-    // Write copies with scope="story-candidate", sourceStoryId set, non-authoritative markers preserved
+    // Append candidates to story file (idempotent — de-duped by id).
     const existingIds = new Set(readEntries(candidatePath).map(e => e.id));
-    const newCandidates = candidates.filter(e => !existingIds.has(e.id));
+    const newCandidates = relevant.filter(e => !existingIds.has(e.id));
     for (const e of newCandidates) {
       const candidateCopy = {
         ...e,
@@ -263,10 +300,12 @@ export function createDevMemoryHandlers(ctx: HandlerContext) {
       ``,
       `Dev session starting (agent: ${agentName})`,
       ``,
-      `When the session ends, run:`,
-      `  koala dev_memory_finish --storyId=<your-story-id>`,
+      `When the session ends, run one of:`,
+      `  koala dev_memory_finish                    # report project entries (no story required)`,
+      `  koala dev_memory_finish --scope=global     # promote to global dev-memory`,
+      `  koala dev_memory_finish --storyId=<id>     # write story-scoped candidates`,
       ``,
-      `This will write session experience candidates to the story dir for review.`,
+      `Project entries are retained automatically. --storyId is optional.`,
     ].join('\n');
     return preflightText + reminder;
   }

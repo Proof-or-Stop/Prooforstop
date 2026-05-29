@@ -671,6 +671,166 @@ check('command policy: dev_memory_list/search/preflight/start remain readOnly', 
 });
 
 // ---------------------------------------------------------------------------
+// Section 9: dev_memory_finish without --storyId (outside-Koala mode)
+// ---------------------------------------------------------------------------
+
+console.log('\n--- Section 9: dev_memory_finish outside-Koala mode ---');
+
+check('dev_memory_finish without --storyId succeeds (exit 0)', () => {
+  const noStoryEnv = {
+    ...process.env,
+    KOALA_PROJECT_ROOT: join(tmpBase, 'nostory-test-project'),
+    KOALA_GLOBAL_MEMORY_DIR: join(tmpBase, 'nostory-test-global'),
+  };
+  // Capture an entry first so there is something to report
+  runKoala([
+    'dev_memory_capture',
+    '--category=pattern',
+    '--summary=Outside-Koala session experience for finish test',
+    '--trigger=testing finish without storyId',
+    '--lesson=dev_memory_finish should work without a story context',
+    '--reusePrompt=Run dev_memory_finish without storyId',
+  ], noStoryEnv);
+  const r = runKoala(['dev_memory_finish'], noStoryEnv);
+  if (r.status !== 0) {
+    throw new Error(`dev_memory_finish without --storyId must exit 0, got exit ${r.status}: ${r.stdout + r.stderr}`);
+  }
+});
+
+check('dev_memory_finish without --storyId does NOT create .koala/story/actives', () => {
+  const noStoryEnv = {
+    ...process.env,
+    KOALA_PROJECT_ROOT: join(tmpBase, 'nostory-no-dir-project'),
+    KOALA_GLOBAL_MEMORY_DIR: join(tmpBase, 'nostory-no-dir-global'),
+  };
+  runKoala([
+    'dev_memory_capture',
+    '--category=workflow',
+    '--summary=Check that finish never creates story actives dir outside Koala',
+    '--trigger=outside-Koala session with no storyId',
+    '--lesson=finish without storyId must not create story directories',
+    '--reusePrompt=Verify no story dirs created',
+  ], noStoryEnv);
+  runKoala(['dev_memory_finish'], noStoryEnv);
+  const storyActivesDir = join(noStoryEnv.KOALA_PROJECT_ROOT, '.koala', 'story', 'actives');
+  if (existsSync(storyActivesDir)) {
+    throw new Error(`dev_memory_finish without --storyId must NOT create .koala/story/actives, but found: ${storyActivesDir}`);
+  }
+});
+
+check('dev_memory_finish without --storyId empty state does not touch story dirs', () => {
+  const emptyEnv = {
+    ...process.env,
+    KOALA_PROJECT_ROOT: join(tmpBase, 'nostory-empty-project'),
+    KOALA_GLOBAL_MEMORY_DIR: join(tmpBase, 'nostory-empty-global'),
+  };
+  // No capture first — project memory is empty
+  const r = runKoala(['dev_memory_finish'], emptyEnv);
+  if (r.status !== 0) {
+    throw new Error(`dev_memory_finish (empty state) must exit 0, got ${r.status}: ${r.stdout + r.stderr}`);
+  }
+  const out = r.stdout + r.stderr;
+  if (!out.includes('no experience entries')) {
+    throw new Error(`empty-state message missing, got: ${out}`);
+  }
+  const storyActivesDir = join(emptyEnv.KOALA_PROJECT_ROOT, '.koala', 'story', 'actives');
+  if (existsSync(storyActivesDir)) {
+    throw new Error(`dev_memory_finish empty-state must not create story actives dir`);
+  }
+});
+
+check('dev_memory_finish --scope=global without --storyId writes global dev-memory entries', () => {
+  const globalEnv = {
+    ...process.env,
+    KOALA_PROJECT_ROOT: join(tmpBase, 'global-export-project'),
+    KOALA_GLOBAL_MEMORY_DIR: join(tmpBase, 'global-export-global'),
+  };
+  runKoala([
+    'dev_memory_capture',
+    '--category=debugging',
+    '--summary=Global export test entry for scope=global finish path',
+    '--trigger=testing global scope promotion in outside-Koala mode',
+    '--lesson=dev_memory_finish scope=global must write to global dev-memory',
+    '--reusePrompt=Verify global export writes entries',
+  ], globalEnv);
+  const r = runKoala(['dev_memory_finish', '--scope=global'], globalEnv);
+  if (r.status !== 0) {
+    throw new Error(`dev_memory_finish --scope=global must exit 0, got ${r.status}: ${r.stdout + r.stderr}`);
+  }
+  const out = r.stdout + r.stderr;
+  if (!out.toLowerCase().includes('global')) {
+    throw new Error(`output should mention global, got: ${out}`);
+  }
+  // Verify global file was actually written
+  const globalFile = join(globalEnv.KOALA_GLOBAL_MEMORY_DIR, 'experience.jsonl');
+  if (!existsSync(globalFile)) {
+    throw new Error(`global dev-memory file not created: ${globalFile}`);
+  }
+  const lines = readFileSync(globalFile, 'utf-8').trim().split('\n').filter(l => l.trim());
+  if (lines.length === 0) throw new Error('global dev-memory file is empty after --scope=global finish');
+  const entry = JSON.parse(lines[0]);
+  if (entry.scope !== 'global') {
+    throw new Error(`global export entry should have scope="global", got "${entry.scope}"`);
+  }
+  if (entry.gateEvidence !== false) {
+    throw new Error(`global export entry gateEvidence should be false`);
+  }
+  if (entry.authority !== 'non_authoritative') {
+    throw new Error(`global export entry authority should be "non_authoritative"`);
+  }
+});
+
+check('dev_memory_finish --scope=global deduplicates already-global entries', () => {
+  const dedupEnv = {
+    ...process.env,
+    KOALA_PROJECT_ROOT: join(tmpBase, 'global-dedup-project'),
+    KOALA_GLOBAL_MEMORY_DIR: join(tmpBase, 'global-dedup-global'),
+  };
+  // Capture one entry and export twice — second run should report 0 new entries
+  runKoala([
+    'dev_memory_capture',
+    '--category=pattern',
+    '--summary=Dedup test entry for global scope idempotency check',
+    '--trigger=testing idempotent global export',
+    '--lesson=Repeat global export should not duplicate entries',
+    '--reusePrompt=Run global export twice, count must not grow',
+  ], dedupEnv);
+  runKoala(['dev_memory_finish', '--scope=global'], dedupEnv);
+  const r2 = runKoala(['dev_memory_finish', '--scope=global'], dedupEnv);
+  if (r2.status !== 0) throw new Error(`second export must exit 0, got ${r2.status}`);
+  const out = r2.stdout + r2.stderr;
+  // Second run should report 0 new entries (or "already present")
+  if (!out.includes('0 entries') && !out.includes('0 entry') && !out.includes('already present')) {
+    throw new Error(`second global export should report 0 new entries or already-present, got: ${out}`);
+  }
+});
+
+check('docs: dev-memory.md does not imply --storyId is mandatory for finish outside Koala', () => {
+  const docPath = join(ROOT, 'docs', 'requirements', 'decisions', 'dev-memory.md');
+  const content = readFileSync(docPath, 'utf-8');
+  // Must not say "--storyId is required" for finish
+  if (content.match(/--storyId\s+is\s+required/i)) {
+    throw new Error('docs must not say "--storyId is required" — storyId is optional for outside-Koala finish');
+  }
+  // Must explicitly say storyId is optional OR outside-Koala works without it
+  const hasOptional = content.includes('--storyId` is optional') ||
+    content.includes('--storyId` optional') ||
+    content.includes('storyId is optional') ||
+    content.includes('no `--storyId`') ||
+    content.includes('without `--storyId`') ||
+    content.includes('Outside Koala') ||
+    content.includes('outside-Koala') ||
+    content.includes('outside Koala');
+  if (!hasOptional) {
+    throw new Error('docs must state that --storyId is optional (outside-Koala use) for dev_memory_finish');
+  }
+  // Must mention dev_memory_finish (already checked in section 7, belt-and-suspenders)
+  if (!content.includes('dev_memory_finish')) {
+    throw new Error('docs must mention dev_memory_finish');
+  }
+});
+
+// ---------------------------------------------------------------------------
 // Cleanup & summary
 // ---------------------------------------------------------------------------
 
