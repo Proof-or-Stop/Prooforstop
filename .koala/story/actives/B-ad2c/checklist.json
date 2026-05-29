@@ -201,10 +201,11 @@
       "title": "Add agent wrapper entrypoints for dev-start workflows",
       "context": "Milestone 5: add lightweight wrappers or prompt generators for dev-start codex/claude/gemini that run preflight first and remind users to finish afterward, without forcing Koala lifecycle.",
       "relatedDocs": [
-        "docs/requirements/decisions/role-separation.md",
-        "docs/requirements/decisions/stack-layering.md"
+        "docs/requirements/decisions/cc-learnings.md",
+        "docs/requirements/decisions/stack-layering.md",
+        "docs/requirements/decisions/truth-source.md"
       ],
-      "userSees": "dev-start claude prints a preflight experience pack and the exact next command or prompt to start Claude with the retrieved lessons.",
+      "userSees": "koala dev_start --agent=claude --query=\"new reviewer task\" --dryRun prints the bounded preflight pack, the resolved agent name, and a finish reminder: run koala dev_memory_finish when this session ends. It does not launch Claude/Codex/Gemini unless an explicit non-dry-run mode is implemented and requested.",
       "verificationIntent": {
         "happy": [
           {
@@ -230,7 +231,20 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/handlers/dev-memory.ts",
+          "bin/koala.js"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-dev-memory.mjs"
+        ]
+      }
     }
   ]
 }
