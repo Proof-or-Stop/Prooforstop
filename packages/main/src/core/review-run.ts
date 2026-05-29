@@ -67,6 +67,16 @@ export function isReviewRunLane(value: string): value is ReviewRunLane {
   return (REVIEW_RUN_LANES as readonly string[]).includes(value);
 }
 
+// A finding / review pass counts as reviewer evidence (subject to reviewRunId
+// binding) only when its agent is a koala-review-* lane. main / main-agent /
+// koala-implementer / other non-reviewer actors create findings during DEV or
+// for meta-process notes and must NOT be treated as reviewer evidence by the
+// REVIEW→TEST gate. Mirrors the predicate used at finding_add time
+// (handlers/finding.ts) and elsewhere in the codebase.
+export function isReviewerAgent(agent: string | undefined | null): boolean {
+  return !!agent && agent.startsWith('koala-review-');
+}
+
 export function resolveReviewRunLane(agent?: string, lane?: string): ReviewRunLane {
   const resolvedAgent = (agent || '').trim();
   const resolvedLane = (lane || '').trim();
@@ -434,8 +444,12 @@ export function collectReviewerEvidenceState(
   const findings = store.readFindings(storyId).findings || [];
   const passes = store.readReviewPasses(storyId).passes || [];
 
+  // Only true reviewer lanes (koala-review-*) require reviewRunId binding.
+  // main / main-agent / koala-implementer / other non-reviewer actors create
+  // findings during DEV or capture meta-process notes that must not be treated
+  // as reviewer evidence by the REVIEW→TEST gate.
   const reviewerFindings = findings
-    .filter((finding) => finding.agent && finding.agent !== 'main')
+    .filter((finding) => isReviewerAgent(finding.agent))
     .filter((finding) => !currentRound || finding.reviewRound === currentRound || !finding.reviewRound)
     .map((finding) => ({
       id: finding.id,
@@ -447,7 +461,7 @@ export function collectReviewerEvidenceState(
       finding,
     }));
   const reviewerPasses = passes
-    .filter((pass) => pass.agent && pass.agent !== 'main')
+    .filter((pass) => isReviewerAgent(pass.agent))
     .filter((pass) => !currentRound || pass.reviewRound === currentRound || !pass.reviewRound)
     .map((pass) => ({
       id: pass.id,

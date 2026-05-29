@@ -1,0 +1,112 @@
+{
+  "passes": [
+    {
+      "id": "B-ad2c:RP-001",
+      "agent": "koala-review-docs",
+      "note": "F-002 resolved: dev_memory_finish docs present exactly three modes (Outside Koala, Story-candidate write, Global promotion); --storyId documented as target override within story-candidate write, not a fourth mode. F-003 resolved: dev_memory_start section header explicitly says 'not lifecycle worktree initialization', body states 'does not start or advance any story phase', CLI engine description says '不是生命周期 dev_start，不创建 worktree 或推进 phase'. Non-authoritative disclaimer and gate-evidence exclusion confirmed in docs. verify-dev-memory.mjs 51/51 pass.",
+      "createdAt": "2026-05-29T13:40:04.998Z",
+      "reviewRound": "2026-05-29T13:31:59.258Z",
+      "reviewRunId": "B-ad2c:RR-005",
+      "_hash": "6a132b36e44122c07362817a664ad57d874b8895ee09ff970f66ac0e3f3d2c12"
+    },
+    {
+      "id": "B-ad2c:RP-002",
+      "agent": "koala-review-concept",
+      "note": "All 6 conceptual design boundaries verified. (1) gateEvidence:false + authority:non_authoritative enforced structurally in schema, createEntry(), and validateEntry() - machine-checkable at every read/write path. (2) dev-memory handlers import zero story lifecycle code; no story_advance/create path reachable. (3) Story-candidate mode writes to .koala/story/actives/<storyId>/dev-memory-candidates.jsonl; auto-injection path validates story exists via store.readStory. (4) Global promotion strictly requires explicit --scope=global; CLI auto-injection is skipped when scope=global, preventing active-story branch from bypassing it. (5) dev_memory_start is separate from lifecycle dev_start - dev_start is an internal handler NOT in MAIN_TOOLS, so no CLI collision. (6) dev_memory_finish has exactly the three intended modes (outside-Koala / story-candidate / global-promotion); all 51/51 verify-dev-memory.mjs checks pass. dev_memory_* command policies have no gateEvidence:true. Minor advisory (non-blocking): explicit --storyId + --scope=global combination silently uses story-candidate mode since schema documents scope as applicable only when no storyId.",
+      "createdAt": "2026-05-29T13:47:09.555Z",
+      "reviewRound": "2026-05-29T13:31:59.258Z",
+      "reviewRunId": "B-ad2c:RR-006",
+      "_hash": "c1c81f2a28ed4bafa1e2f87b2b5dd4ff2be52de61185099516bb9036f9f1d358"
+    },
+    {
+      "id": "B-ad2c:RP-003",
+      "agent": "koala-review-quality",
+      "note": "Quality review pass: core/dev-memory.ts + handlers/dev-memory.ts + command-policy.ts + cli-engine.ts boundary rule 4 are cohesive; schema validation enforces gateEvidence=false/authority=non_authoritative at every read/write; regex escape in search prevents injection; ownership classes correctly distinguish project-memory writes (mainSharedMutating) from story-candidate writes (storyScopedMutating) with dynamic promotion of --scope=global to mainSharedMutating; docs explicitly forbid gate-evidence use and separate dev_memory_start from lifecycle dev_start; npm --prefix packages/main run build clean; node scripts/verify-dev-memory.mjs 51/51 pass; git diff --check clean. Non-blocking advisories (not filed): (1) dev_memory_list --scope=story-candidate silently falls back to project memory instead of scanning candidate files; (2) generateId sha7 could collide on identical category/summary/trigger in same millisecond (would silently dedup on next read).",
+      "createdAt": "2026-05-29T13:50:13.731Z",
+      "reviewRound": "2026-05-29T13:31:59.258Z",
+      "reviewRunId": "B-ad2c:RR-007",
+      "_hash": "9884eb4fa1eaeff460be8de13c8bd57243bb5db9a18ed3399b19fa0401c67246"
+    },
+    {
+      "id": "B-ad2c:RP-004",
+      "agent": "koala-review-test-coverage",
+      "note": "Verification coverage adequate. scripts/verify-dev-memory.mjs runs 51 checks across 10 sections covering: (1) schema validation incl. gateEvidence=true and authority=authoritative rejection; (2) deterministic project/global/story-candidate path resolution under env overrides; (3) JSONL roundtrip + skip-invalid-line; (4) search by query/category/agent and findSimilar duplicate detection; (5) preflight empty-state, <=5 entries, 60-line budget, header; (6) CLI smoke for capture/list/search/preflight/finish/start; (7) docs non-authoritative disclaimer + delivery_check exclusion + lifecycle distinction; (8) command policy (capture=mainSharedMutating, finish=storyScopedMutating, readers=readOnly) + CLI engine description distinctions; (9) outside-Koala finish (no --storyId exits 0, no story dir created, --scope=global writes global with dedup, docs do not imply --storyId required); (10) active-story auto-injection + ownership boundary for --scope=global. checklist_get shows all 5 items have happy/edge/adversarial verificationEvidence with consistent headHash/materialHash. Build clean, 'node scripts/verify-dev-memory.mjs' = 51/51 PASS, 'koala validate' fallback = PASS, 'git diff --check' clean. Advisory (non-blocking): explicit '--storyId=B-x --scope=global' both-flags combination isn't behavior-tested (handler writes story candidates and ignores scope=global when storyId present); the ownership-gate side is covered via resolveEffectiveOwnershipClass tests but handler-output side is implicit. Low risk for a non-authoritative feature.",
+      "createdAt": "2026-05-29T13:53:37.872Z",
+      "reviewRound": "2026-05-29T13:31:59.258Z",
+      "reviewRunId": "B-ad2c:RR-008",
+      "_hash": "a6f88c50bdd45e1305dc642409b0dd7a99a4f866946a956105aa166de281080b"
+    },
+    {
+      "id": "B-ad2c:RP-005",
+      "agent": "koala-review-concept",
+      "note": "Concept/scope OK: dev-memory remains non-authoritative (docs/requirements/decisions/dev-memory.md lines 9-17 + schema gateEvidence:false / authority:non_authoritative); F-004 repair in packages/main/src/core/review-run.ts only narrows collectReviewerEvidenceState via isReviewerAgent (koala-review-* prefix) without weakening reviewRunId binding; regression assertNonReviewerFindingsDoNotCountAsReviewerEvidence in packages/main/src/tasks/flow-stability-smoke.ts covers positive + negative arms; no new lifecycle semantics. Commands run: node scripts/verify-dev-memory.mjs (51/51 pass), node packages/main/dist/tasks/flow-stability-smoke.js (PASS).",
+      "createdAt": "2026-05-29T14:07:38.587Z",
+      "reviewRound": "2026-05-29T14:01:25.978Z",
+      "reviewRunId": "B-ad2c:RR-009",
+      "_hash": "50f73b469c88cfd0ae752a299766eaf8ac16888eb0cb2371dfeff42ba4c29c8f"
+    },
+    {
+      "id": "B-ad2c:RP-006",
+      "agent": "koala-review-quality",
+      "note": "Quality scope: F-004 fix (isReviewerAgent helper + two-arm regression) + dev-memory module + cli-engine boundary rule 4. Verified: npm --prefix packages/main run build (ok), node packages/main/dist/tasks/flow-stability-smoke.js (passed incl new assertNonReviewerFindingsDoNotCountAsReviewerEvidence), git diff --check (clean), git log review-run.ts/flow-stability-smoke.ts (single focused commit adc4c4b6). Predicate mirrors handlers/finding.ts:237 pattern. Comments at review-run.ts:70 and :447 explain why. Test has positive+negative arms so fix did not weaken reviewRunId binding. Dev-memory has schema validation, deterministic paths, non-authoritative markers in every entry, sensible ownership classes. No risky abstraction, no drive-by refactors, no hand-edited Koala metadata.",
+      "createdAt": "2026-05-29T14:10:19.754Z",
+      "reviewRound": "2026-05-29T14:01:25.978Z",
+      "reviewRunId": "B-ad2c:RR-010",
+      "_hash": "efb4450df29149a0014f657375e2e3566a28bed5e4e8b5293e37a8d3c582de04"
+    },
+    {
+      "id": "B-ad2c:RP-007",
+      "agent": "koala-review-test-coverage",
+      "note": "Test-coverage round 3: verify-dev-memory.mjs 51/51 (10 sections cover schema validation, deterministic path resolution, JSONL roundtrip, search/dedup, preflight empty-state/≤5 entries/60-line budget, CLI capture/list/search/preflight/finish/start, non-authoritative docs, active-story candidate defaults), flow-stability-smoke.js PASS including F-004 regression assertNonReviewerFindingsDoNotCountAsReviewerEvidence (positive arm: main/main-agent/koala-implementer findings excluded from reviewer evidence and REVIEW→TEST passes; negative arm: real koala-review-quality finding without reviewRunId STILL raises missing_review_run_id), test-evidence.json shows verificationCoverage 15/15 covered 0 required missing, all 5 checklist items have happy/edge/adversarial evidence with consistent headHash 6b34bc0d. Commands run: koala session_brief, koala aux_doc_list, koala review_run_start, koala checklist_get, koala reviewer_list, node scripts/verify-dev-memory.mjs, node packages/main/dist/tasks/flow-stability-smoke.js, koala validate --story=B-ad2c --json (blocked by non-owner lease; previously persisted PASS evidence at headHash 2744eaf3 with same 15/15 coverage). Validate gate behavior surface (story-lifecycle + gap-convergence + verification intent coverage) covered by cli-e2e.js. No blocker.",
+      "createdAt": "2026-05-29T14:12:52.525Z",
+      "reviewRound": "2026-05-29T14:01:25.978Z",
+      "reviewRunId": "B-ad2c:RR-011",
+      "_hash": "777fb87fbdfb976b5ba54327d304bbf8a0d3e6788acc8a0f1631518a4d6255bf"
+    },
+    {
+      "id": "B-ad2c:RP-008",
+      "agent": "koala-review-docs",
+      "note": "docs/requirements/decisions/dev-memory.md is accurate and complete: (1) explicit non-authoritative disclaimer (L9) with itemized list of gate artifacts it cannot satisfy — delivery_check_set/verification_evidence_add/review_pass_set (L11-16); (2) dev_memory_finish section (L80-88) covers all three modes with --storyId framed as a target override within the story-candidate path, not a fourth mode (F-002 resolved); (3) dev_memory_start section (L90-94) explicitly labels it prompt-only, intentionally separate from Koala lifecycle, does not launch binaries, does not advance phase; cli-engine.ts description echoes the distinction (\"不是生命周期 dev_start，不创建 worktree 或推进 phase\") and verify-script Section 7+8 enforce all five distinction tokens (F-003 resolved). F-002/F-003 finding_list shows status=resolved, evidenceState=verified. node scripts/verify-dev-memory.mjs: 51 passed, 0 failed (covers schema, paths, JSONL, search/dedup, preflight, CLI smoke, docs check, active-story defaults, outside-Koala mode). git diff --check clean. Owner lease held by another session; relied on committed PASS validate evidence (last run 14:03:47Z PASS).",
+      "createdAt": "2026-05-29T14:14:40.923Z",
+      "reviewRound": "2026-05-29T14:01:25.978Z",
+      "reviewRunId": "B-ad2c:RR-012",
+      "_hash": "18a10c7c75b1c2b43ddb16134ede2d93dfa2a46954937de396fe23b18bfaf40c"
+    },
+    {
+      "id": "B-ad2c:RP-009",
+      "agent": "koala-review-concept",
+      "note": "Concept-deletion scan clean: F-005 replaced `f.agent !== \"main\"` classifier in core/guard-utils.ts:196 with shared isReviewerAgent helper (koala-review-* prefix). rg `agent !== .main.|agent != .main.` over packages/main returns zero hits, so both REVIEW→TEST gate paths (machine.ts canPassReview + guard-utils.ts getGuardFailureReason) and core/review-run.ts collectReviewerEvidenceState classify identically. Dev-memory concept stays sealed off from gate paths: dev_memory_* symbols appear only in cli-engine.ts/command-policy.ts/registry.ts/core+handlers/dev-memory.ts — delivery-check and other signed-artifact handlers contain no dev_memory references. Schema literal-types gateEvidence:false and authority:non_authoritative are enforced at type and write sites, and docs/requirements/decisions/dev-memory.md§Purpose+§Non-Goals explicitly enumerate the gates dev-memory cannot satisfy. Prior F-001/F-003 already resolved the dev_start vs dev_memory_start naming overlap (dev-memory.md§dev_memory_start).",
+      "createdAt": "2026-05-29T14:31:00.748Z",
+      "reviewRound": "2026-05-29T14:27:59.858Z",
+      "reviewRunId": "B-ad2c:RR-016",
+      "_hash": "b0c01c42d117ece6b3245d85a287126fbf50d7b987981b47f586886cbb56af08"
+    },
+    {
+      "id": "B-ad2c:RP-010",
+      "agent": "koala-review-test-coverage",
+      "note": "verificationIntent coverage complete across CHK-001..CHK-005 — verify-dev-memory.mjs: 51/51 pass (sections 1-10 cover schema, path resolution, capture/list/search/preflight/finish, story candidates, agent wrappers, command policies, outside-Koala mode, active-story defaults, non-authoritative docs). F-005 regression coverage in flow-stability-smoke.ts: assertStoryAdvanceGuardIgnoresMainAgentDevFindings exercises BOTH paths — machine.getGuardFailureReason (live story_advance) AND legacyGetGuardFailureReason (guard-utils.ts mirror) — with realistic F-001 shape (main-agent, status=resolved, empty reviewRound, no reviewRunId) and negative arm that a koala-review-* finding without reviewRunId still blocks. assertNonReviewerFindingsDoNotCountAsReviewerEvidence covers collectReviewerEvidenceState findings+passes filters. Commands: build exit 0, verify-dev-memory 51/51 pass, flow-stability-smoke pass, git diff --check clean.",
+      "createdAt": "2026-05-29T14:31:08.483Z",
+      "reviewRound": "2026-05-29T14:27:59.858Z",
+      "reviewRunId": "B-ad2c:RR-015",
+      "_hash": "69457fd5f91a5f9598409f8e21f233cdf626b24b9ab1f72e95f23ca1241de887"
+    },
+    {
+      "id": "B-ad2c:RP-011",
+      "agent": "koala-review-docs",
+      "note": "Docs review on docs/requirements/decisions/dev-memory.md + dev_memory_* CLI help confirms three clarity contracts: (1) Non-authoritative authority — doc L9 states \"Dev-memory is non-authoritative context, not Koala gate evidence\" and L11-15 enumerate the gate artifacts it cannot satisfy (delivery_check_set/verification_evidence_add/review_pass_set/signed artifacts); CLI help for dev_memory_capture mirrors with \"不能满足 Koala gate evidence\" and every entry hardcodes gateEvidence:false + authority:non_authoritative (doc L50-51). (2) dev_memory_start vs lifecycle dev_start — doc L90-94 carves out dev_memory_start as prompt-only memory wrapper (not lifecycle worktree initialization), and CLI help text explicitly says \"不是生命周期 dev_start，不创建 worktree 或推进 phase\"; lifecycle dev_start remains an internal handler invoked only by story_advance INIT_CHECK (cli-engine.ts L2310/L2367) — no user-facing collision. F-003 resolution holds. (3) dev_memory_finish three-mode framing — doc L80-88 lists exactly three modes (Outside Koala / Story-candidate write / Global promotion) and explicitly tags --storyId as \"target override within this same path, not a separate mode\", matching F-002 resolution. F-005 was a runtime classifier fix in guard-utils.ts/machine.ts with no docs surface to maintain; no doc section claimed the prior agent!=main classifier behavior, so no staleness from F-005. No blocker.",
+      "createdAt": "2026-05-29T14:31:08.920Z",
+      "reviewRound": "2026-05-29T14:27:59.858Z",
+      "reviewRunId": "B-ad2c:RR-013",
+      "_hash": "1b297bd554965440703434b27b2b51510746b7f6be45201ac8687803c5b59f46"
+    },
+    {
+      "id": "B-ad2c:RP-012",
+      "agent": "koala-review-quality",
+      "note": "F-005 quality review: legacy core/guard-utils.ts now uses the shared isReviewerAgent helper from core/review-run.ts (single-line classifier change at packages/main/src/core/guard-utils.ts:196) — identical predicate to collectReviewerEvidenceState (review-run.ts:451,464). Import added cleanly, rationale comment explains F-004 → F-005 narrowing and links to machine.ts canPassReview. No unrelated behavior changes in review-run.ts (only consumed via re-import) or dev-memory wiring (cli-engine.ts boundary rule 4, command-policy.ts entries, registry registration — all align with mainSharedMutating/storyScopedMutating/readOnly classification per dev-memory.md). Regression test assertStoryAdvanceGuardIgnoresMainAgentDevFindings (flow-stability-smoke.ts:1403-1490) exercises both positive arm (machine.ts + legacyGetGuardFailureReason both return null when main-agent F-001 with empty reviewRound coexists with bound reviewer lane evidence) and negative arm (real koala-review-quality finding without reviewRunId still surfaces missing_review_run_id / blocks REVIEW→TEST). tsc --noEmit clean; npm run test:flow-stability-smoke PASS; grep confirms zero remaining f.agent !== \"main\" reviewer-classification patterns in packages/main/src.",
+      "createdAt": "2026-05-29T14:31:46.993Z",
+      "reviewRound": "2026-05-29T14:27:59.858Z",
+      "reviewRunId": "B-ad2c:RR-014",
+      "_hash": "d6d32d8ff46ab0184f53c782f7f883258ecfd085a91e5da60ac264986b0794e9"
+    }
+  ]
+}

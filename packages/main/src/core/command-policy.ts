@@ -221,6 +221,13 @@ export const COMMAND_POLICIES = {
   workflow_explain: { status: 'supported', ownershipClass: 'readOnly', allowedPhases: 'all', destructiveRisk: 'none', reason: 'Read-only effective workflow explanation.' },
   // B-ea92 M1: read-only authority policy discovery — never submits evidence or claims jobs.
   authority_enforce_policy: { status: 'supported', ownershipClass: 'readOnly', allowedPhases: 'all', destructiveRisk: 'none', reason: 'Read-only authority policy discovery command stub (M1). Queries GET /v1/authority/policy and prints discovered fields. Never submits evidence, claims jobs, registers actor keys, executes providers, signs envelopes, or verifies receipts.' },
+  // B-ad2c: dev-memory — lightweight non-authoritative experience capture outside story gates.
+  dev_memory_capture: { status: 'supported', ownershipClass: 'mainSharedMutating', allowedPhases: 'all', destructiveRisk: 'metadata-write', reason: 'Captures a non-authoritative dev experience entry to file-backed JSONL storage (auxiliary non-gate project/global memory write). Cannot satisfy Koala DONE gate evidence. Cross-session serialized by shared file append; not per-story owner lease.' },
+  dev_memory_list: { status: 'supported', ownershipClass: 'readOnly', allowedPhases: 'all', destructiveRisk: 'none', reason: 'Lists dev-memory experience entries from project/global storage. Read-only.' },
+  dev_memory_search: { status: 'supported', ownershipClass: 'readOnly', allowedPhases: 'all', destructiveRisk: 'none', reason: 'Searches dev-memory experience entries by query/category/agent/tags. Read-only.' },
+  dev_memory_preflight: { status: 'supported', ownershipClass: 'readOnly', allowedPhases: 'all', destructiveRisk: 'none', reason: 'Emits a non-authoritative preflight context pack of relevant dev-memory entries. Read-only.' },
+  dev_memory_finish: { status: 'supported', ownershipClass: 'storyScopedMutating', allowedPhases: 'all', destructiveRisk: 'metadata-write', reason: 'Writes recent project-scoped experience candidates to a story-scoped JSONL file for later review; inside an active story, a bare finish defaults to that story. With --scope=global and no explicit story, the CLI dynamically treats it as a mainSharedMutating global promotion. Does not mutate story gate evidence.' },
+  dev_memory_start: { status: 'supported', ownershipClass: 'readOnly', allowedPhases: 'all', destructiveRisk: 'none', reason: 'Wrapper that emits a preflight context pack and a finish reminder before a dev session. Never spawns external agent binaries.' },
 } as const satisfies Record<string, CommandPolicy>;
 
 export type KnownCommandName = keyof typeof COMMAND_POLICIES;

@@ -23,6 +23,7 @@ import { findingAgentMatchesReviewer } from './reviewer-opt-in.js';
 import { isFindingBlocking } from './advisory.js';
 import { detectMdTouchpointsFromGit } from './touchpoints-fallback.js';
 import { computeActiveReviewers } from '../handlers/reviewer-list.js';
+import { isReviewerAgent } from './review-run.js';
 
 /**
  * Resolve effective blocking severities with round decay.
@@ -184,8 +185,15 @@ export function getGuardFailureReason(
         }
         if (policy.review.requireReviewerFinding) {
           const currentRound = story.currentReviewRound;
+          // B-ad2c F-005: classify reviewer evidence by koala-review-* lane prefix
+          // (shared isReviewerAgent helper), NOT by `agent != main`. Otherwise
+          // main / main-agent / koala-implementer findings recorded during DEV
+          // are misclassified as reviewer evidence and block REVIEW→TEST when
+          // they lack a reviewRunId. Mirrors core/review-run.ts
+          // collectReviewerEvidenceState (used by machine.ts canPassReview /
+          // getGuardFailureReason — the live story_advance gate).
           const currentRoundReviewerFindings = findings.findings.filter(
-            (f: Finding) => f.agent && f.agent !== 'main' && verifyFinding(storyId, f)
+            (f: Finding) => isReviewerAgent(f.agent) && verifyFinding(storyId, f)
               // backward compat: 旧 story 无 currentReviewRound 时不拒绝
               && (!currentRound || f.reviewRound === currentRound),
           );
