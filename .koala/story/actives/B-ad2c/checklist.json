@@ -5,10 +5,11 @@
       "title": "Define experience memory schema and storage locations",
       "context": "Milestone 1: create minimal JSONL schema, project/global storage rules, and story-scoped candidate relationship without treating memory as gate evidence.",
       "relatedDocs": [
+        "docs/requirements/decisions/truth-source.md",
         "docs/requirements/decisions/story-lifecycle.md",
-        "docs/requirements/decisions/truth-source.md"
+        "docs/requirements/decisions/framework.md"
       ],
-      "userSees": "dev-memory list or schema docs show workflow/failure_mode/success_pattern/open_issue/agent_tip entries with trigger, lesson, reusePrompt, scope, and sourceStoryId when available.",
+      "userSees": "Running koala dev_memory_list --scope=project in a project with no saved lessons prints: No dev-memory experience entries yet. Invalid experience JSON fails with a field-level schema error; docs explicitly say dev-memory is non-authoritative context, not gate evidence.",
       "verificationIntent": {
         "happy": [
           {
@@ -34,7 +35,20 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/config.ts"
+        ],
+        "create": [
+          "packages/main/src/core/dev-memory.ts",
+          "docs/requirements/decisions/dev-memory.md",
+          "scripts/verify-dev-memory.mjs"
+        ],
+        "test": [
+          "scripts/verify-dev-memory.mjs"
+        ]
+      }
     },
     {
       "id": "CHK-002",

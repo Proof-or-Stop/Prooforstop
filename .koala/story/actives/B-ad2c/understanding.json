@@ -1,35 +1,34 @@
 {
-  "task": "Build a lightweight dev-memory CLI layer so users can preserve and reuse agent programming lessons even when not using Koala.",
-  "outcome": "User runs dev-memory capture to save a Claude CLI failure lesson, dev-memory preflight \"delegate reviewer to Claude\" shows the lesson before coding, and dev-start claude prints the same preflight guidance plus a finish reminder.",
+  "task": "Build a lightweight dev-memory layer so useful lessons from ordinary non-Koala Claude/Codex/Gemini programming sessions can be captured and surfaced before later development starts.",
+  "outcome": "A user can capture a concrete failure-mode lesson, search/list it, see a bounded preflight context pack before new work, finish a session with story-scoped candidate lessons, and run a dev-start wrapper that shows relevant lessons without treating them as gate evidence.",
   "facts": [
-    "Users often accumulate workflow, failure-mode, and success-pattern knowledge in normal Claude/Codex/Gemini chats outside Koala.",
-    "If that knowledge stays only in chat context, the next agent session will not reliably read or reuse it.",
-    "When a Koala story is active, lessons should be linked to story evidence as candidates, not promoted to gate evidence.",
-    "INIT reviewers passed B-ad2c with advisory requirements for concrete examples, measurable preflight size, explicit dedupe behavior, and a shared active-story detection primitive."
+    "User concern from 2026-05-29: valuable design-process/failure-mode/success-pattern experience is currently lost when a coding session does not use a Koala story.",
+    "Anchor case: during previous Koala delegation, long Claude CLI reviewer prompts could stall or return late; the durable lesson is to use short single-responsibility prompts and verify with git/status/test evidence instead of natural-language confidence.",
+    "Koala already has authoritative story/checklist/evidence/gate/process-events; dev-memory must complement these and must not become DONE evidence.",
+    "Existing home-scoped file-backed precedent exists in ~/.koala/health.jsonl, and story capsule already separates current projection from authoritative evidence.",
+    "CLI command schemas are declared in packages/main/src/cli-engine.ts and handlers are registered through packages/main/src/registry.ts.",
+    "PLAN unknowns were resolved during code inspection: commands will be Koala-native, storage will be project/global JSONL, and wrappers will default to prompt-only/dry-run output rather than launching agent binaries."
   ],
   "constraints": [
-    "Do not make experience memory a Koala DONE gate receipt or substitute for signed evidence.",
-    "First version must stay simple: JSONL/Markdown and CLI output, no vector database or UI.",
-    "Preflight output must be concise: maximum 5 entries and maximum 60 rendered lines by default.",
-    "Duplicate handling must be warn-and-link: write the new entry but include relatedEntryIds and a duplicate warning in output.",
-    "Active story detection is shared: prefer explicit --storyId, then KOALA_STORY_ID, then current Koala session/story context from cwd."
+    "Experience memory is reusable context only, not authority evidence, not review pass, not validation evidence, and not a lifecycle gate input.",
+    "Use simple inspectable JSONL/Markdown files; no vector database, daemon, UI, or external service in this story.",
+    "Preflight output is bounded to at most 5 entries and 60 terminal lines to avoid token bloat.",
+    "Duplicate or near-duplicate capture should warn and link to the existing entry rather than silently creating another authoritative-looking fact.",
+    "Active story detection order is explicit --storyId, KOALA_STORY_ID, then current cwd/session context; unclear story context degrades to project/global memory only.",
+    "Tests must use temp project/home paths and must not pollute real user memory."
   ],
-  "unknowns": [
-    "Exact existing CLI registry files and command naming conventions must be inspected before implementation.",
-    "Whether project memory should default inside repository .koala/dev-memory or external user home must be decided in code after inspecting config helpers.",
-    "Whether wrappers should execute agent binaries or prompt-only dry-run by default must align with existing safety conventions."
-  ],
+  "unknowns": [],
   "touchpoints": [
     "packages/main/src/cli-engine.ts",
     "packages/main/src/registry.ts",
     "packages/main/src/core/config.ts",
-    "packages/main/src/handlers",
-    "packages/main/src/core",
-    "bin/koala-codex.js",
-    "docs/requirements/decisions/story-lifecycle.md",
-    "docs/requirements/decisions/truth-source.md",
-    "docs/requirements/decisions/verification-context-pack.md",
-    "scripts/verify-process-fact-contract.mjs"
+    "packages/main/src/core/dev-memory.ts",
+    "packages/main/src/handlers/dev-memory.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-dev-memory.mjs",
+    "docs/requirements/decisions/dev-memory.md",
+    "bin/koala.js"
   ],
-  "timestamp": "2026-05-29T12:19:31.215Z"
+  "timestamp": "2026-05-29T12:23:25.121Z"
 }
