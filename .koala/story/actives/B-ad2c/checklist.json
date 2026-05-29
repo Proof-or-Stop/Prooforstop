@@ -105,9 +105,10 @@
       "title": "Implement preflight context pack generation",
       "context": "Milestone 3: add dev-memory preflight task text that finds relevant experience by current project path, agent, and task keywords, then emits a short context pack for Claude/Codex/Gemini.",
       "relatedDocs": [
-        "docs/requirements/decisions/verification-context-pack.md"
+        "docs/requirements/decisions/verification-context-pack.md",
+        "docs/requirements/decisions/truth-source.md"
       ],
-      "userSees": "dev-memory preflight \"delegate reviewer to Claude\" prints short warnings and reusable prompts such as using shorter Claude CLI prompts when prior attempts stalled.",
+      "userSees": "koala dev_memory_preflight --query=\"delegate reviewer\" prints Dev Memory Preflight, at most five relevant entries, a line count below the 60-line budget, and clear references to source ids instead of asking the Agent to read full history.",
       "verificationIntent": {
         "happy": [
           {
@@ -133,7 +134,19 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/handlers/dev-memory.ts"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-dev-memory.mjs"
+        ]
+      }
     },
     {
       "id": "CHK-004",
