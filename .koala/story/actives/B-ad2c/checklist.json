@@ -205,7 +205,7 @@
         "docs/requirements/decisions/stack-layering.md",
         "docs/requirements/decisions/truth-source.md"
       ],
-      "userSees": "koala dev_start --agent=claude --query=\"new reviewer task\" --dryRun prints the bounded preflight pack, the resolved agent name, and a finish reminder: run koala dev_memory_finish when this session ends. It does not launch Claude/Codex/Gemini unless an explicit non-dry-run mode is implemented and requested.",
+      "userSees": "koala dev_memory_start --agent=claude --query=\"new reviewer task\" --dryRun prints the bounded preflight pack, the resolved agent name, and a finish reminder: run koala dev_memory_finish when this session ends. Existing Koala lifecycle dev_start remains unchanged and is not used as the agent wrapper command.",
       "verificationIntent": {
         "happy": [
           {
@@ -237,8 +237,7 @@
           "packages/main/src/cli-engine.ts",
           "packages/main/src/registry.ts",
           "packages/main/src/core/dev-memory.ts",
-          "packages/main/src/handlers/dev-memory.ts",
-          "bin/koala.js"
+          "packages/main/src/handlers/dev-memory.ts"
         ],
         "create": [],
         "test": [
