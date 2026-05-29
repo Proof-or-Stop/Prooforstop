@@ -156,7 +156,7 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/truth-source.md"
       ],
-      "userSees": "koala dev_memory_finish --storyId=B-xxxx prints Experience candidates written for B-xxxx and lists candidate ids. The generated story candidate file is clearly marked non-gate/non-authoritative unless the user explicitly exports a lesson into dev-memory.",
+      "userSees": "koala dev_memory_finish --storyId=B-xxxx prints \"Experience candidates written for B-xxxx\" followed by candidate ids. The generated story candidate file includes \"authority: non_authoritative\" and \"gateEvidence: false\" unless the user explicitly exports a lesson into dev-memory.",
       "verificationIntent": {
         "happy": [
           {
