@@ -51,9 +51,9 @@
           "file": "docs/requirements/decisions/role-separation.md",
           "result": "pass",
           "note": "role-separation.md documents KOALA_REVIEWER_READONLY=1 as advisory/delegated reviewer mode with read-only Koala inspection boundary.",
-          "headHash": "78d90745fb2c377d6d3d4d31dafb77c78f11cb9c",
-          "materialHash": "5d280856299abf10fc6741d1ba97d52584d617f03fa83e29cac16af22172aa16",
-          "timestamp": "2026-06-01T16:25:31.286Z"
+          "headHash": "6ff82ef0c558bf858247002cd51fe9ae58cbc2d7",
+          "materialHash": "a0c11d8e125c19941d1bb084146c152354a77b0adc6efe7b706edd585f2b3776",
+          "timestamp": "2026-06-01T16:36:51.352Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -61,9 +61,9 @@
           "file": "docs/requirements/decisions/role-separation.md",
           "result": "pass",
           "note": "docs distinguish advisory read-only reviewers from normal Koala gate reviewers that must write signed evidence.",
-          "headHash": "78d90745fb2c377d6d3d4d31dafb77c78f11cb9c",
-          "materialHash": "5d280856299abf10fc6741d1ba97d52584d617f03fa83e29cac16af22172aa16",
-          "timestamp": "2026-06-01T16:25:31.286Z"
+          "headHash": "6ff82ef0c558bf858247002cd51fe9ae58cbc2d7",
+          "materialHash": "a0c11d8e125c19941d1bb084146c152354a77b0adc6efe7b706edd585f2b3776",
+          "timestamp": "2026-06-01T16:36:51.352Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -71,9 +71,9 @@
           "file": "docs/requirements/decisions/role-separation.md",
           "result": "pass",
           "note": "docs explicitly state advisory reviewer text is not gate evidence and owner must materialize authoritative evidence.",
-          "headHash": "78d90745fb2c377d6d3d4d31dafb77c78f11cb9c",
-          "materialHash": "5d280856299abf10fc6741d1ba97d52584d617f03fa83e29cac16af22172aa16",
-          "timestamp": "2026-06-01T16:25:31.286Z"
+          "headHash": "6ff82ef0c558bf858247002cd51fe9ae58cbc2d7",
+          "materialHash": "a0c11d8e125c19941d1bb084146c152354a77b0adc6efe7b706edd585f2b3776",
+          "timestamp": "2026-06-01T16:36:51.352Z"
         }
       ]
     },
@@ -131,9 +131,9 @@
           "command": "npm run test:command-ownership-contract",
           "result": "pass",
           "note": "contract test proves KOALA_REVIEWER_READONLY=1 allows effective readOnly commands such as story_get and validate without story.",
-          "headHash": "78d90745fb2c377d6d3d4d31dafb77c78f11cb9c",
-          "materialHash": "5d280856299abf10fc6741d1ba97d52584d617f03fa83e29cac16af22172aa16",
-          "timestamp": "2026-06-01T16:25:31.286Z"
+          "headHash": "6ff82ef0c558bf858247002cd51fe9ae58cbc2d7",
+          "materialHash": "a0c11d8e125c19941d1bb084146c152354a77b0adc6efe7b706edd585f2b3776",
+          "timestamp": "2026-06-01T16:36:51.352Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -142,9 +142,9 @@
           "command": "npm run test:command-ownership-contract",
           "result": "pass",
           "note": "contract test proves reviewerWrite commands review_pass_set/finding_add/review_run_start/init_check_set are blocked under readonly mode.",
-          "headHash": "78d90745fb2c377d6d3d4d31dafb77c78f11cb9c",
-          "materialHash": "5d280856299abf10fc6741d1ba97d52584d617f03fa83e29cac16af22172aa16",
-          "timestamp": "2026-06-01T16:25:31.286Z"
+          "headHash": "6ff82ef0c558bf858247002cd51fe9ae58cbc2d7",
+          "materialHash": "a0c11d8e125c19941d1bb084146c152354a77b0adc6efe7b706edd585f2b3776",
+          "timestamp": "2026-06-01T16:36:51.352Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -153,9 +153,9 @@
           "command": "npm run test:command-ownership-contract",
           "result": "pass",
           "note": "contract test proves story_advance forceTakeover, verification_evidence_add, gap_log, audit, and unclassified commands are rejected before owner-lease flow.",
-          "headHash": "78d90745fb2c377d6d3d4d31dafb77c78f11cb9c",
-          "materialHash": "5d280856299abf10fc6741d1ba97d52584d617f03fa83e29cac16af22172aa16",
-          "timestamp": "2026-06-01T16:25:31.286Z"
+          "headHash": "6ff82ef0c558bf858247002cd51fe9ae58cbc2d7",
+          "materialHash": "a0c11d8e125c19941d1bb084146c152354a77b0adc6efe7b706edd585f2b3776",
+          "timestamp": "2026-06-01T16:36:51.352Z"
         }
       ]
     },
@@ -215,9 +215,9 @@
           "command": "npm run test:reviewer-readonly-command-policy-smoke",
           "result": "pass",
           "note": "smoke test output includes blocked review_pass_set writes no review-passes.json artifact and reviewer-readonly command policy smoke passed.",
-          "headHash": "78d90745fb2c377d6d3d4d31dafb77c78f11cb9c",
-          "materialHash": "5d280856299abf10fc6741d1ba97d52584d617f03fa83e29cac16af22172aa16",
-          "timestamp": "2026-06-01T16:25:31.286Z"
+          "headHash": "6ff82ef0c558bf858247002cd51fe9ae58cbc2d7",
+          "materialHash": "a0c11d8e125c19941d1bb084146c152354a77b0adc6efe7b706edd585f2b3776",
+          "timestamp": "2026-06-01T16:36:51.352Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -226,9 +226,9 @@
           "command": "npm run test:reviewer-readonly-command-policy-smoke",
           "result": "pass",
           "note": "smoke test output includes normal reviewerWrite remains allowed without KOALA_REVIEWER_READONLY.",
-          "headHash": "78d90745fb2c377d6d3d4d31dafb77c78f11cb9c",
-          "materialHash": "5d280856299abf10fc6741d1ba97d52584d617f03fa83e29cac16af22172aa16",
-          "timestamp": "2026-06-01T16:25:31.286Z"
+          "headHash": "6ff82ef0c558bf858247002cd51fe9ae58cbc2d7",
+          "materialHash": "a0c11d8e125c19941d1bb084146c152354a77b0adc6efe7b706edd585f2b3776",
+          "timestamp": "2026-06-01T16:36:51.352Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -237,9 +237,9 @@
           "command": "npm run test:command-ownership-contract",
           "result": "pass",
           "note": "contract coverage includes takeover/dangerous/story-scoped mutation rejection under readonly mode.",
-          "headHash": "78d90745fb2c377d6d3d4d31dafb77c78f11cb9c",
-          "materialHash": "5d280856299abf10fc6741d1ba97d52584d617f03fa83e29cac16af22172aa16",
-          "timestamp": "2026-06-01T16:25:31.286Z"
+          "headHash": "6ff82ef0c558bf858247002cd51fe9ae58cbc2d7",
+          "materialHash": "a0c11d8e125c19941d1bb084146c152354a77b0adc6efe7b706edd585f2b3776",
+          "timestamp": "2026-06-01T16:36:51.352Z"
         }
       ]
     },
@@ -296,9 +296,9 @@
           "file": "docs/requirements/decisions/role-separation.md",
           "result": "pass",
           "note": "owner dispatch guidance says advisory external reviewers run with KOALA_REVIEWER_READONLY=1 on the spawned process and return structured JSON/text findings.",
-          "headHash": "78d90745fb2c377d6d3d4d31dafb77c78f11cb9c",
-          "materialHash": "5d280856299abf10fc6741d1ba97d52584d617f03fa83e29cac16af22172aa16",
-          "timestamp": "2026-06-01T16:25:31.286Z"
+          "headHash": "6ff82ef0c558bf858247002cd51fe9ae58cbc2d7",
+          "materialHash": "a0c11d8e125c19941d1bb084146c152354a77b0adc6efe7b706edd585f2b3776",
+          "timestamp": "2026-06-01T16:36:51.352Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -306,9 +306,9 @@
           "file": "docs/requirements/decisions/role-separation.md",
           "result": "pass",
           "note": "guidance preserves normal Koala gate reviewers: koala-review-* must not set readonly mode because they need review_run_start/finding_add/review_pass_set.",
-          "headHash": "78d90745fb2c377d6d3d4d31dafb77c78f11cb9c",
-          "materialHash": "5d280856299abf10fc6741d1ba97d52584d617f03fa83e29cac16af22172aa16",
-          "timestamp": "2026-06-01T16:25:31.286Z"
+          "headHash": "6ff82ef0c558bf858247002cd51fe9ae58cbc2d7",
+          "materialHash": "a0c11d8e125c19941d1bb084146c152354a77b0adc6efe7b706edd585f2b3776",
+          "timestamp": "2026-06-01T16:36:51.352Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -317,9 +317,9 @@
           "command": "npm run test:codex-assets",
           "result": "pass",
           "note": "guidance covers omitted env fallback: treat as non-sandboxed advisory text, verify all claims manually, and discard direct gate artifacts; codex asset verification passed after rebuilding utils/main artifacts.",
-          "headHash": "78d90745fb2c377d6d3d4d31dafb77c78f11cb9c",
-          "materialHash": "5d280856299abf10fc6741d1ba97d52584d617f03fa83e29cac16af22172aa16",
-          "timestamp": "2026-06-01T16:25:31.286Z"
+          "headHash": "6ff82ef0c558bf858247002cd51fe9ae58cbc2d7",
+          "materialHash": "a0c11d8e125c19941d1bb084146c152354a77b0adc6efe7b706edd585f2b3776",
+          "timestamp": "2026-06-01T16:36:51.352Z"
         }
       ]
     },
@@ -379,9 +379,9 @@
           "command": "npm --prefix packages/main run build && npm --prefix packages/utils run build && npm run test:command-ownership-contract && npm run test:reviewer-readonly-command-policy-smoke && npm run test:process-fact-contract && npm run test:runtime-fact-contract && npm run test:codex-assets",
           "result": "pass",
           "note": "pre-REVIEW validation commands all pass after rebuilding main/utils artifacts; reviewer and DONE gate evidence will be added by lifecycle artifacts.",
-          "headHash": "78d90745fb2c377d6d3d4d31dafb77c78f11cb9c",
-          "materialHash": "5d280856299abf10fc6741d1ba97d52584d617f03fa83e29cac16af22172aa16",
-          "timestamp": "2026-06-01T16:25:31.286Z"
+          "headHash": "6ff82ef0c558bf858247002cd51fe9ae58cbc2d7",
+          "materialHash": "a0c11d8e125c19941d1bb084146c152354a77b0adc6efe7b706edd585f2b3776",
+          "timestamp": "2026-06-01T16:36:51.352Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
