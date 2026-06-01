@@ -1,0 +1,50 @@
+{
+  "storyId": "B-1148",
+  "name": "history-process-learnings-backfill",
+  "title": "Backfill Koala historical process learnings into dev-memory",
+  "description": "整理 Koala 历史流程设计、失败模式、成功模式和最新踩坑，把已有权威 story/evidence/doc 中可复用的经验回填为非权威 dev-memory 与可读 evidence 索引，方便普通编程会话在开发前先检索经验。",
+  "type": "chore",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "source": "user-request",
+  "keywords": [
+    "dev-memory",
+    "historical-learnings",
+    "process-fraud",
+    "fact-fraud",
+    "backfill",
+    "koala-process"
+  ],
+  "riskSignals": [
+    {
+      "category": "验证框架",
+      "matched": "koala validate"
+    }
+  ],
+  "createdAt": "2026-06-01T12:07:24.969Z",
+  "startedAt": "2026-06-01T12:07:24.969Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-01T12:07:24.975Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-01T12:10:44.225Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-1148",
+    "branch": "story/B-1148",
+    "createdAt": "2026-06-01T12:10:44.353Z"
+  }
+}
