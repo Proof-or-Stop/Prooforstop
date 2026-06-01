@@ -4,7 +4,7 @@
   "title": "Add read-only reviewer command policy",
   "description": "Prevent delegated read-only reviewers from directly writing Koala review/finding/lifecycle artifacts when they should only return structured review results to the owner.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "reviewer",
@@ -25,7 +25,7 @@
   ],
   "createdAt": "2026-06-01T15:46:33.630Z",
   "startedAt": "2026-06-01T15:46:33.630Z",
-  "endedAt": null,
+  "endedAt": "2026-06-01T16:49:41.671Z",
   "events": [
     {
       "phase": "INIT",
@@ -112,12 +112,16 @@
       "user": "Harmonygo",
       "sessionId": "sess-3dc0a7b8a40673b2",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-01T16:49:41.671Z",
+      "branch": "story/B-4f15",
+      "user": "Harmonygo",
+      "sessionId": "sess-3dc0a7b8a40673b2",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-4f15",
-    "branch": "story/B-4f15",
-    "createdAt": "2026-06-01T15:50:22.742Z"
-  },
   "currentReviewRound": "2026-06-01T16:36:45.678Z"
 }
