@@ -149,7 +149,7 @@
         "docs/requirements/decisions/role-separation.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "userSees": "Reviewer guidance tells owner agents to set the readonly mode for advisory Claude/Gemini/Codex reviews and record evidence themselves.",
+      "userSees": "Owner guidance says: \"For advisory Claude/Codex/Gemini reviews, set KOALA_REVIEWER_READONLY=1 on that spawned process only; normal Koala reviewers must not set it.\"",
       "status": "pending",
       "startTime": null,
       "endTime": null,
