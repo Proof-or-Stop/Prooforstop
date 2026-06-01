@@ -144,10 +144,42 @@
         "docs/requirements/decisions/dev-memory.md",
         "docs/requirements/decisions/truth-source.md"
       ],
-      "userSees": "一个人能读懂的索引，知道历史经验为什么被回填、依据在哪里、下次怎么用。",
+      "userSees": "evidence/backfill-manifest.md 中出现 \"Captured entries\", \"Skipped duplicates\", \"Needs human confirmation\" 三个分区。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          ".koala/story/actives/B-1148/checklist.json"
+        ],
+        "create": [
+          ".koala/story/actives/B-1148/evidence/backfill-manifest.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "backfill manifest 列出每个 captured entry 的 id/category/scope/tags/source refs/write rationale，并能让人追溯为什么写入。",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "manifest 同时列出 skipped duplicates 和 needs-human-confirmation，且说明为什么跳过或为什么需要人工确认。",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "manifest 明确声明 dev-memory 不是 gate evidence，且不能只靠 session-brief 或自然语言“完成了”作为 DONE 证据。",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
