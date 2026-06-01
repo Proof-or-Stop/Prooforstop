@@ -11,7 +11,31 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Evidence shows the stale-loop has been reproduced or precisely localized: validate-generated test-evidence self-churn is separated from real material drift.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A reproduction note or fixture identifies why validate-generated test-evidence can make session_brief report stale after a clean validate/DONE flow.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The reproduction distinguishes self-churn in test-evidence.json from real source/evidence material drift.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The reproduction cannot be satisfied by hiding all stale warnings globally; it must preserve a real-drift failing case.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
