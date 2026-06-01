@@ -12,7 +12,38 @@
       "userSees": "User sees a documented contract: readonly reviewer mode blocks mutating Koala commands and requires owner to record review evidence.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Docs define KOALA_REVIEWER_READONLY=1 as an advisory/delegated reviewer mode that permits only read-only Koala inspection commands.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Docs distinguish advisory read-only reviewers from normal Koala reviewers that must write signed reviewer evidence.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Docs explicitly say read-only reviewer summaries cannot satisfy gate evidence and the owner must record authoritative evidence after advisory review.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
