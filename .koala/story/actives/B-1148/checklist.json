@@ -365,7 +365,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "file": ".koala/story/actives/B-1148/evidence/verification-results.md",
+          "command": "KOALA_PROJECT_ROOT=.../B-1148 node packages/main/dist/cli.js dev_memory_search --query=\"authority reviewer\"",
+          "result": "pass",
+          "note": "dev_memory_search returns 3 entries (f668c60, 9a9c568, 0b952b0) for query authority reviewer (token-aware after B-1148 Risk B fix); dev_memory_preflight returns 5 entries with 23 lines for 流程伪造 事实伪造 authority reviewer; all entries show id/category/scope/Source (non_authoritative)/Refs fields as required by CHK-005:happy intent",
+          "headHash": "6495bda015ec2dc8d8152d72cf203407a71c2fef",
+          "materialHash": "468804adcf61452c832d0ba0cfcff0b0644db4e3ec90232c0fa992eaa10851e7",
+          "timestamp": "2026-06-01T12:58:53.446Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
