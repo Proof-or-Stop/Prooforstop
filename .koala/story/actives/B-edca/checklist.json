@@ -193,7 +193,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Final validation transcript shows build/tests pass and session_brief behavior is clean for validate self-churn while still fail-closed for real drift.",
+      "userSees": "最终 transcript 会显示：\"Build PASS; freshness smoke PASS; process fact contract PASS; koala validate PASS; no self-churn stale advisory.\"",
       "verificationIntent": {
         "happy": [
           {
@@ -215,6 +215,16 @@
             "type": "logic",
             "priority": "must"
           }
+        ]
+      },
+      "files": {
+        "modify": [],
+        "create": [
+          ".koala/story/actives/B-edca/evidence/validation-transcript.md"
+        ],
+        "test": [
+          "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
         ]
       }
     }
