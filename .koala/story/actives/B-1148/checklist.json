@@ -10,9 +10,9 @@
         "docs/requirements/decisions/story-lifecycle.md"
       ],
       "userSees": "终端/evidence 中出现 \"source inventory: backfill/duplicate/skip/needs-human-confirmation\"，并列出每个主题的 story/doc/evidence refs。",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-01T12:26:03.931Z",
-      "endTime": null,
+      "endTime": "2026-06-01T12:31:36.772Z",
       "files": {
         "modify": [
           ".koala/story/actives/B-1148/checklist.json"
@@ -44,7 +44,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": ".koala/story/actives/B-1148/evidence/source-inventory.md",
+          "command": "cat .koala/story/actives/B-1148/evidence/source-inventory.md",
+          "result": "pass",
+          "note": "source-inventory lists 11 backfill candidates with story/doc refs (B-c55d, B-f60c, B-eab3, B-95d8, B-1fca, B-9b8f, B-ad12, B-30b2, B-8db9, B-da14), 5 duplicate entries from B-ad2c, 6 needs-human-confirmation topics; each entry has a backfill/duplicate/skip/needs-human-confirmation status with source refs",
+          "headHash": "ef0d08192c589b3eb4119374717d31c94b398409",
+          "materialHash": "7898675f5a241ffed344aa27d1f3438a1ac3692e34adf4de4c14410242abf58e",
+          "timestamp": "2026-06-01T12:31:36.807Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": ".koala/story/actives/B-1148/evidence/source-inventory.md",
+          "command": "grep needs-human-confirmation .koala/story/actives/B-1148/evidence/source-inventory.md | wc -l",
+          "result": "pass",
+          "note": "6 needs-human-confirmation entries with explicit rationale (no story artifact available for B-e71f, B-ed3e, B-9975, B-9bd9, B-9d95, B-5a28); none are listed as backfill candidates",
+          "headHash": "ef0d08192c589b3eb4119374717d31c94b398409",
+          "materialHash": "7898675f5a241ffed344aa27d1f3438a1ac3692e34adf4de4c14410242abf58e",
+          "timestamp": "2026-06-01T12:31:36.835Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": ".koala/story/actives/B-1148/evidence/source-inventory.md",
+          "command": "grep -c source.refs .koala/story/actives/B-1148/evidence/source-inventory.md",
+          "result": "pass",
+          "note": "Every backfill candidate in the inventory specifies at least one story artifact ref (summary.json path or decisions doc path). No entry relies on chat memory alone.",
+          "headHash": "ef0d08192c589b3eb4119374717d31c94b398409",
+          "materialHash": "7898675f5a241ffed344aa27d1f3438a1ac3692e34adf4de4c14410242abf58e",
+          "timestamp": "2026-06-01T12:31:36.864Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
