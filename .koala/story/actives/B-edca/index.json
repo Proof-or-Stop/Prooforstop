@@ -4,7 +4,7 @@
   "title": "Fix validate test-evidence stale advisory loop",
   "description": "After B-1148 DONE, running koala validate updates tracked test-evidence.json with a timestamp/headSha. Committing that evidence can make session_brief report a fresh stale materialHash drift, while verification_evidence_refresh_stale may say there is nothing stale. Fix the loop so validate evidence remains useful without producing misleading stale advisories or endless metadata churn.",
   "type": "bug",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "source": "user-request",
   "keywords": [
@@ -28,7 +28,7 @@
   "priorityElevatedFrom": "medium",
   "createdAt": "2026-06-01T13:58:15.159Z",
   "startedAt": "2026-06-01T13:58:15.159Z",
-  "endedAt": null,
+  "endedAt": "2026-06-01T15:20:17.729Z",
   "events": [
     {
       "phase": "INIT",
@@ -98,12 +98,16 @@
       "user": "Harmonygo",
       "sessionId": "codex-bedca-manager",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-01T15:20:17.729Z",
+      "branch": "story/B-edca",
+      "user": "Harmonygo",
+      "sessionId": "codex-bedca-manager",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-edca",
-    "branch": "story/B-edca",
-    "createdAt": "2026-06-01T14:00:05.136Z"
-  },
   "currentReviewRound": "2026-06-01T15:09:31.734Z"
 }
