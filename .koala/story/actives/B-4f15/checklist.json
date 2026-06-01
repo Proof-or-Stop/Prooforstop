@@ -385,14 +385,14 @@
         },
         {
           "intentRef": "CHK-005:edge:0",
-          "kind": "waiver",
-          "verdict": "waived",
-          "waiverType": "deferred_gate_evidence",
+          "kind": "manual_transcript",
+          "file": ".koala/story/actives/B-4f15/review-passes.json",
+          "command": "node bin/koala.js finding_list --storyId=B-4f15 --json",
           "result": "pass",
-          "note": "Deferred because current REVIEW evidence can only be produced after entering REVIEW; will replace with actual review_run/review_pass artifacts before TEST/DONE.",
-          "headHash": "5efbe9f211f79c02198836e96a6c0b58875698bf",
-          "materialHash": "2fdeddc6e4525019f6e891980dcb3b59029f67e60d7ab05d7aa9c0a9a124f98a",
-          "timestamp": "2026-06-01T16:17:39.618Z"
+          "note": "Current REVIEW round produced standard signed reviewer artifacts, not advisory read-only text: RR-005/RP-004 quality, RR-006/RP-005 concept, RR-007/RP-006 test-coverage, RR-008/RP-007 docs. finding_list shows prior high/low findings resolved; the only remaining medium advisory is this deferred-evidence replacement obligation.",
+          "headHash": "2f941ea2baf927e7d36deba35130719ef69390bb",
+          "materialHash": "a0c11d8e125c19941d1bb084146c152354a77b0adc6efe7b706edd585f2b3776",
+          "timestamp": "2026-06-01T16:43:31.394Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
