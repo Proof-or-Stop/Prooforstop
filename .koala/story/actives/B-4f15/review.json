@@ -52,6 +52,24 @@
         }
       ],
       "_hash": "dc032bbfda023f7b1ab9b533323891970567e79e8c356748b3d26ed6185be6be"
+    },
+    {
+      "timestamp": "2026-06-01T15:58:39.841Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 个 checklist item，请检查是否有组合场景遗漏（如：Define read-only reviewer command boundary + Implement mechanical readonly command guard 同时操作会怎样？）"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story 命中 2 个高风险信号: 状态机/门禁, 验证框架。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）。 若本 story 只是提及而非修改该领域（误报），可 koala story_review_dismiss '{\"storyId\":\"B-4f15\",\"category\":\"<分类>\",\"reason\":\"...\"}' 完整回退 auto-elevation（全部 auto-elevated riskSignal 被 dismiss 后 priority 自动回退、高风险 gate 解除）。"
+        }
+      ],
+      "_hash": "4f469ca21136415b7b1db18e3d2c20e5a5bc74ea94f1355b16ec7cc72897d209"
     }
   ]
 }
