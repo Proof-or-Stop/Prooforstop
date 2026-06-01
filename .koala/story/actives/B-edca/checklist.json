@@ -149,7 +149,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Regression tests prove both sides: validate self-churn no longer creates stale noise, and a genuine material drift still triggers stale detection.",
+      "userSees": "测试输出会包含：\"self-churn test-evidence metadata does not stale verification evidence\" 和 \"real material drift still stale\"。",
       "verificationIntent": {
         "happy": [
           {
@@ -171,6 +171,14 @@
             "type": "logic",
             "priority": "must"
           }
+        ]
+      },
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
         ]
       }
     },
