@@ -87,11 +87,11 @@ export function formatWorktreePollutionDetails(
   const pollution = result.worktreePollution;
   if (!pollution || pollution.statusLines.length === 0) return [];
   const config = projectRoot ? loadConfig(projectRoot) : undefined;
-  let classifierOptions = config ? dirtyWorktreeClassifierOptionsFromConfig(config) : {};
+  let classifierOptions = config ? dirtyWorktreeClassifierOptionsFromConfig(config, projectRoot) : {};
   if (config && projectRoot && storyId) {
     try {
       const store = new StoryStore(projectRoot);
-      classifierOptions = dirtyWorktreeClassifierOptionsForStory(config, storyId, store);
+      classifierOptions = dirtyWorktreeClassifierOptionsForStory(config, storyId, store, projectRoot);
     } catch {
       // PROBE: StoryStore init or declared-artifacts read failed → fall back to config-only options.
     }

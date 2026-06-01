@@ -37,6 +37,8 @@ export interface DirtyWorktreeClassifierOptions {
   materialSourceFiles?: string[];
   declaredArtifactPaths?: string[];
   declaredArtifactMatcher?: DirtyDeclaredArtifactMatcher;
+  /** When set, passed to isStoryMetadataPath so configured storyDir is honoured. */
+  projectRoot?: string;
 }
 
 export type DirtyWorktreeGroups = Record<DirtyWorktreeCategory, DirtyWorktreeEntry[]>;
@@ -138,7 +140,7 @@ function isMaterialSourcePath(path: string, options: DirtyWorktreeClassifierOpti
 
 function classifyParsedRow(row: DirtyWorktreeParsedRow, options: DirtyWorktreeClassifierOptions): DirtyWorktreeEntry {
   const paths = pathSet(row);
-  if (paths.some((p) => isStoryMetadataPath(p))) {
+  if (paths.some((p) => isStoryMetadataPath(p, options.projectRoot))) {
     return { ...row, category: 'koala_metadata_changes' };
   }
 
@@ -194,7 +196,7 @@ export function classifyDeclarablePath(
   options: DirtyWorktreeClassifierOptions,
 ): NonDeclarableCategory | null {
   const path = normalizePath(rawPath);
-  if (isStoryMetadataPath(path)) return 'koala_metadata_changes';
+  if (isStoryMetadataPath(path, options.projectRoot)) return 'koala_metadata_changes';
   // B-8db9 F-002: a runtime artifact path (.koala/activity.jsonl, .koala-serve.json, …)
   // is already routed to runtime_artifact_changes by `classifyParsedRow`, so declaring
   // it as a product artifact is meaningless — reject it at declare time. Mirrors the
@@ -247,8 +249,9 @@ export function dirtyWorktreeClassifierOptionsForStory(
   config: KoalaConfig,
   storyId: string,
   store: StoryStore,
+  projectRoot?: string,
 ): DirtyWorktreeClassifierOptions {
-  const base = dirtyWorktreeClassifierOptionsFromConfig(config);
+  const base = dirtyWorktreeClassifierOptionsFromConfig(config, projectRoot);
   let declared: string[] = [];
   try {
     const data = store.readDeclaredArtifacts(storyId);
@@ -268,7 +271,7 @@ export function dirtyWorktreeClassifierOptionsForStory(
   };
 }
 
-export function dirtyWorktreeClassifierOptionsFromConfig(config: KoalaConfig): DirtyWorktreeClassifierOptions {
+export function dirtyWorktreeClassifierOptionsFromConfig(config: KoalaConfig, projectRoot?: string): DirtyWorktreeClassifierOptions {
   const sourceRoot = joinRelPath(config.scanRoot, config.rootDir || undefined);
   const packageRoot = normalizePath(config.scanRoot);
   const configFiles = [
@@ -297,6 +300,7 @@ export function dirtyWorktreeClassifierOptionsFromConfig(config: KoalaConfig): D
     ].filter(Boolean),
     materialSourceFiles: Array.from(new Set(configFiles.map(normalizePath).filter(Boolean))),
     declaredArtifactPaths: [],
+    projectRoot,
   };
 }
 

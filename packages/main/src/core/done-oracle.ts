@@ -75,11 +75,12 @@ function classifierOptionsForCheck(
   config: ReturnType<typeof loadConfig>,
   storyId: string | undefined,
   store: StoryStore | undefined,
+  projectRoot?: string,
 ) {
   if (storyId && store) {
-    return dirtyWorktreeClassifierOptionsForStory(config, storyId, store);
+    return dirtyWorktreeClassifierOptionsForStory(config, storyId, store, projectRoot);
   }
-  return dirtyWorktreeClassifierOptionsFromConfig(config);
+  return dirtyWorktreeClassifierOptionsFromConfig(config, projectRoot);
 }
 
 // Task B-4b22: dirty git-working-tree row uses the shared dirty-gate-policy
@@ -94,7 +95,7 @@ function evaluateDirtyGitStatus(
   gate: DirtyGateName,
   root: string,
 ): { classification: ReturnType<typeof classifyGitStatusRows>; result: EvaluateDirtyGateResult } {
-  const classification = classifyGitStatusRows(lines, classifierOptionsForCheck(config, storyId, store));
+  const classification = classifyGitStatusRows(lines, classifierOptionsForCheck(config, storyId, store, root));
   // Writer is wired only when storyId+store are available (so we know where to
   // append). storyId-less paths (e.g. anonymous status snapshots) skip audit
   // intentionally and pass null writer to the evaluator.
