@@ -307,6 +307,17 @@
           "headHash": "d4b600a342ea8e9003095900dc19e5fec993ac66",
           "materialHash": "468804adcf61452c832d0ba0cfcff0b0644db4e3ec90232c0fa992eaa10851e7",
           "timestamp": "2026-06-01T12:56:49.758Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "file": ".koala/story/actives/B-1148/evidence/backfill-manifest.md",
+          "command": "grep -c non-authoritative .koala/story/actives/B-1148/evidence/backfill-manifest.md",
+          "result": "pass",
+          "note": "manifest opens with explicit non-authoritative notice: gateEvidence=false, authority=non_authoritative, cannot satisfy delivery_check_set/verification_evidence_add/review_pass_set; all entry rows show gateEvidence and authority fields; no entry is presented as gate evidence",
+          "headHash": "7fba1d3ae395f40eadbc1464c286353424f1d4e4",
+          "materialHash": "468804adcf61452c832d0ba0cfcff0b0644db4e3ec90232c0fa992eaa10851e7",
+          "timestamp": "2026-06-01T12:56:55.489Z"
         }
       ]
     },
