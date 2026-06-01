@@ -4,7 +4,7 @@
       "id": "CHK-001",
       "title": "Add shared runtimeMode JSON contract with exact enums",
       "context": "Expose top-level runtimeMode in check --json and doctor --format=json through one shared core helper. Required fields: mode, source, requiresProjectJavaScriptRuntime, authority, message. mode enum: global-cli | project-local-package | packaged-runtime | compatibility-launcher | diagnostic-only. source enum: repo-local-dist | project-node-modules | packaged-runtime | external-development-engine | global-cli | unknown. Classification rules: project-local-package only when active CLI resolves through project root node_modules/project-local package; packaged-runtime when an explicit packaged runtime source/env is detected; global-cli when active CLI is global and no wrapper/dev engine is in play; compatibility-launcher when a thin launcher/fallback chain resolves repo-local dist, project node_modules fallback, external development engine, packaged runtime fallback, or global fallback; diagnostic-only when signals conflict or source is unknown. requiresProjectJavaScriptRuntime is true only for project-local-package. authority is always local-runtime-diagnostic-only in this story.",
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-06-01T16:33:11.662Z",
       "endTime": "2026-06-01T16:43:40.872Z",
       "userSees": "`check --json` and `doctor --format=json` both contain `\"runtimeMode\":{\"mode\":\"compatibility-launcher\",\"source\":\"external-development-engine\",\"requiresProjectJavaScriptRuntime\":false,\"authority\":\"local-runtime-diagnostic-only\",...}`.",
@@ -366,6 +366,16 @@
       "to": "done",
       "reason": "Core build and focused smoke tests passed; wrapper proof handoff is explicitly assigned to Koala Mac B-3e9a.",
       "agent": "main"
+    },
+    {
+      "timestamp": "2026-06-01T16:52:17.839Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Reopen for verified finding B-39d9:F-003 packaged runtime conflict classification",
+      "agent": "koala-implementer"
     }
   ]
 }
