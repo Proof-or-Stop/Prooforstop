@@ -377,6 +377,17 @@
           "headHash": "6495bda015ec2dc8d8152d72cf203407a71c2fef",
           "materialHash": "468804adcf61452c832d0ba0cfcff0b0644db4e3ec90232c0fa992eaa10851e7",
           "timestamp": "2026-06-01T12:58:53.446Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "file": ".koala/story/actives/B-1148/evidence/verification-results.md",
+          "command": "KOALA_PROJECT_ROOT=.../B-1148 node packages/main/dist/cli.js dev_memory_search --query=\"B-e71f B-ed3e B-9975\"",
+          "result": "pass",
+          "note": "searching for needs-human-confirmation story IDs (B-e71f, B-ed3e, B-9975, B-9bd9, B-9d95, B-5a28) returns zero results — none were captured. dev_memory_preflight --maxEntries=5 returns 5 entries ~23 lines (within 60-line budget). Bounded preflight verified by verify-dev-memory.mjs preflight output is bounded test (pass)",
+          "headHash": "beffc385d6467ab7b4d32cd54b86fa1701df7f22",
+          "materialHash": "468804adcf61452c832d0ba0cfcff0b0644db4e3ec90232c0fa992eaa10851e7",
+          "timestamp": "2026-06-01T12:58:58.837Z"
         }
       ]
     },
