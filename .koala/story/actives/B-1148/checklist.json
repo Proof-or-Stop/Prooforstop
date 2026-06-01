@@ -53,9 +53,9 @@
           "command": "cat .koala/story/actives/B-1148/evidence/source-inventory.md",
           "result": "pass",
           "note": "source-inventory lists 11 backfill candidates with story/doc refs (B-c55d, B-f60c, B-eab3, B-95d8, B-1fca, B-9b8f, B-ad12, B-30b2, B-8db9, B-da14), 5 duplicate entries from B-ad2c, 6 needs-human-confirmation topics; each entry has a backfill/duplicate/skip/needs-human-confirmation status with source refs",
-          "headHash": "95238cd2901c8d5a631075d6622b4415c40f879c",
-          "materialHash": "468804adcf61452c832d0ba0cfcff0b0644db4e3ec90232c0fa992eaa10851e7",
-          "timestamp": "2026-06-01T12:57:40.858Z"
+          "headHash": "84e0adcd68b429bdc89eb09de3af128196c35c48",
+          "materialHash": "87edc20e70c9c97032000fd6cac33229060d69fa6768d062062434b89f16d8cc",
+          "timestamp": "2026-06-01T13:07:43.639Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -64,9 +64,9 @@
           "command": "grep needs-human-confirmation .koala/story/actives/B-1148/evidence/source-inventory.md | wc -l",
           "result": "pass",
           "note": "6 needs-human-confirmation entries with explicit rationale (no story artifact available for B-e71f, B-ed3e, B-9975, B-9bd9, B-9d95, B-5a28); none are listed as backfill candidates",
-          "headHash": "95238cd2901c8d5a631075d6622b4415c40f879c",
-          "materialHash": "468804adcf61452c832d0ba0cfcff0b0644db4e3ec90232c0fa992eaa10851e7",
-          "timestamp": "2026-06-01T12:57:40.858Z"
+          "headHash": "84e0adcd68b429bdc89eb09de3af128196c35c48",
+          "materialHash": "87edc20e70c9c97032000fd6cac33229060d69fa6768d062062434b89f16d8cc",
+          "timestamp": "2026-06-01T13:07:43.639Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -75,9 +75,9 @@
           "command": "grep -c source.refs .koala/story/actives/B-1148/evidence/source-inventory.md",
           "result": "pass",
           "note": "Every backfill candidate in the inventory specifies at least one story artifact ref (summary.json path or decisions doc path). No entry relies on chat memory alone.",
-          "headHash": "95238cd2901c8d5a631075d6622b4415c40f879c",
-          "materialHash": "468804adcf61452c832d0ba0cfcff0b0644db4e3ec90232c0fa992eaa10851e7",
-          "timestamp": "2026-06-01T12:57:40.858Z"
+          "headHash": "84e0adcd68b429bdc89eb09de3af128196c35c48",
+          "materialHash": "87edc20e70c9c97032000fd6cac33229060d69fa6768d062062434b89f16d8cc",
+          "timestamp": "2026-06-01T13:07:43.639Z"
         }
       ]
     },
@@ -133,9 +133,9 @@
           "command": "cat .koala/story/actives/B-1148/evidence/taxonomy-strategy.md",
           "result": "pass",
           "note": "taxonomy-strategy uses dev-memory.md allowed categories (failure-mode/pattern/workflow/tool-quirk/guard-bypass/anti-pattern/other); scope rules specify project as default for Koala-specific lessons, global only for genuinely cross-project agent-collaboration lessons with explicit justification required; all 11 candidates mapped to project scope",
-          "headHash": "95238cd2901c8d5a631075d6622b4415c40f879c",
-          "materialHash": "468804adcf61452c832d0ba0cfcff0b0644db4e3ec90232c0fa992eaa10851e7",
-          "timestamp": "2026-06-01T12:57:40.858Z"
+          "headHash": "84e0adcd68b429bdc89eb09de3af128196c35c48",
+          "materialHash": "87edc20e70c9c97032000fd6cac33229060d69fa6768d062062434b89f16d8cc",
+          "timestamp": "2026-06-01T13:07:43.639Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -144,9 +144,9 @@
           "command": "grep -c scope .koala/story/actives/B-1148/evidence/taxonomy-strategy.md",
           "result": "pass",
           "note": "Overlap rule defined: same topic with different angles -> one primary entry with project scope + cross-project note; two separate entries only when cross-project lesson is fully independent of Koala internals; no B-1148 candidate qualifies for separate global entry",
-          "headHash": "95238cd2901c8d5a631075d6622b4415c40f879c",
-          "materialHash": "468804adcf61452c832d0ba0cfcff0b0644db4e3ec90232c0fa992eaa10851e7",
-          "timestamp": "2026-06-01T12:57:40.858Z"
+          "headHash": "84e0adcd68b429bdc89eb09de3af128196c35c48",
+          "materialHash": "87edc20e70c9c97032000fd6cac33229060d69fa6768d062062434b89f16d8cc",
+          "timestamp": "2026-06-01T13:07:43.639Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -155,9 +155,9 @@
           "command": "grep Prohibited .koala/story/actives/B-1148/evidence/taxonomy-strategy.md",
           "result": "pass",
           "note": "Prohibited content section explicitly bans full lifecycle histories, long transcripts, verbatim test output, and any text that could be misread as gate evidence. Content limits table requires gateEvidence=false and authority=non_authoritative.",
-          "headHash": "95238cd2901c8d5a631075d6622b4415c40f879c",
-          "materialHash": "468804adcf61452c832d0ba0cfcff0b0644db4e3ec90232c0fa992eaa10851e7",
-          "timestamp": "2026-06-01T12:57:40.858Z"
+          "headHash": "84e0adcd68b429bdc89eb09de3af128196c35c48",
+          "materialHash": "87edc20e70c9c97032000fd6cac33229060d69fa6768d062062434b89f16d8cc",
+          "timestamp": "2026-06-01T13:07:43.639Z"
         }
       ]
     },
@@ -213,9 +213,9 @@
           "command": "KOALA_PROJECT_ROOT=... node packages/main/dist/cli.js dev_memory_capture [11 times]",
           "result": "pass",
           "note": "11 entries captured via local CLI after CHK-006 fixed DEFAULT_PHASE_TOOLS gap. Python cross-check confirms all 11 entries have gateEvidence=false, authority=non_authoritative, sourceStoryId present, evidenceRefs present. IDs: 41c81bf 8937503 0d19c91 2fd571e cb6ce25 0b952b0 3b76ea5 9a9c568 f668c60 f2e0c14 f525408",
-          "headHash": "95238cd2901c8d5a631075d6622b4415c40f879c",
-          "materialHash": "468804adcf61452c832d0ba0cfcff0b0644db4e3ec90232c0fa992eaa10851e7",
-          "timestamp": "2026-06-01T12:57:40.858Z"
+          "headHash": "84e0adcd68b429bdc89eb09de3af128196c35c48",
+          "materialHash": "87edc20e70c9c97032000fd6cac33229060d69fa6768d062062434b89f16d8cc",
+          "timestamp": "2026-06-01T13:07:43.639Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -224,9 +224,9 @@
           "command": "cat .koala/story/actives/B-1148/evidence/captured-ids.txt",
           "result": "pass",
           "note": "captured-ids.txt lists 11 entries (B-c55d x2, B-f60c, B-eab3 x2, B-95d8, B-1fca, B-9b8f, B-ad12, B-30b2, B-8db9). None overlap with existing B-ad2c entries (7bc20e5 2de5d6b c948c85 f4fe749 a6832a1). Taxonomy-strategy duplicate policy applied: no re-capture of session-preflight, CLI lag, reviewer evidence classification, delivery review binding, or reviewer lane seizing.",
-          "headHash": "95238cd2901c8d5a631075d6622b4415c40f879c",
-          "materialHash": "468804adcf61452c832d0ba0cfcff0b0644db4e3ec90232c0fa992eaa10851e7",
-          "timestamp": "2026-06-01T12:57:40.858Z"
+          "headHash": "84e0adcd68b429bdc89eb09de3af128196c35c48",
+          "materialHash": "87edc20e70c9c97032000fd6cac33229060d69fa6768d062062434b89f16d8cc",
+          "timestamp": "2026-06-01T13:07:43.639Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -235,9 +235,9 @@
           "command": "python3 cross-check .koala/dev-memory/experience.jsonl",
           "result": "pass",
           "note": "11 entries verified: all have gateEvidence=false, authority=non_authoritative, sourceStoryId present, evidenceRefs present. No entry uses chat memory alone - every sourceStoryId maps to .koala/story/actives/<id>/summary.json verified in CHK-001 inventory scan.",
-          "headHash": "95238cd2901c8d5a631075d6622b4415c40f879c",
-          "materialHash": "468804adcf61452c832d0ba0cfcff0b0644db4e3ec90232c0fa992eaa10851e7",
-          "timestamp": "2026-06-01T12:57:40.858Z"
+          "headHash": "84e0adcd68b429bdc89eb09de3af128196c35c48",
+          "materialHash": "87edc20e70c9c97032000fd6cac33229060d69fa6768d062062434b89f16d8cc",
+          "timestamp": "2026-06-01T13:07:43.639Z"
         }
       ]
     },
@@ -293,9 +293,9 @@
           "command": "cat .koala/story/actives/B-1148/evidence/backfill-manifest.md",
           "result": "pass",
           "note": "backfill-manifest.md lists all 11 captured entries with id/category/scope/tags/sourceStoryId/evidenceRefs/write-rationale; each entry includes source story reference and rationale for why it was written; Python cross-check confirmed all fields present",
-          "headHash": "39db5d763b769aee12bd0e863e1beea45c24bda7",
-          "materialHash": "468804adcf61452c832d0ba0cfcff0b0644db4e3ec90232c0fa992eaa10851e7",
-          "timestamp": "2026-06-01T12:56:45.015Z"
+          "headHash": "84e0adcd68b429bdc89eb09de3af128196c35c48",
+          "materialHash": "87edc20e70c9c97032000fd6cac33229060d69fa6768d062062434b89f16d8cc",
+          "timestamp": "2026-06-01T13:07:43.639Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -304,9 +304,9 @@
           "command": "grep -c Skipped .koala/story/actives/B-1148/evidence/backfill-manifest.md",
           "result": "pass",
           "note": "manifest has Skipped Duplicates section listing 5 B-ad2c duplicates with existing entry ids and skip rationale; Needs Human Confirmation section lists 6 topics with reasons why they were not captured (no summary.json artifact available)",
-          "headHash": "d4b600a342ea8e9003095900dc19e5fec993ac66",
-          "materialHash": "468804adcf61452c832d0ba0cfcff0b0644db4e3ec90232c0fa992eaa10851e7",
-          "timestamp": "2026-06-01T12:56:49.758Z"
+          "headHash": "84e0adcd68b429bdc89eb09de3af128196c35c48",
+          "materialHash": "87edc20e70c9c97032000fd6cac33229060d69fa6768d062062434b89f16d8cc",
+          "timestamp": "2026-06-01T13:07:43.639Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -315,9 +315,9 @@
           "command": "grep -c non-authoritative .koala/story/actives/B-1148/evidence/backfill-manifest.md",
           "result": "pass",
           "note": "manifest opens with explicit non-authoritative notice: gateEvidence=false, authority=non_authoritative, cannot satisfy delivery_check_set/verification_evidence_add/review_pass_set; all entry rows show gateEvidence and authority fields; no entry is presented as gate evidence",
-          "headHash": "7fba1d3ae395f40eadbc1464c286353424f1d4e4",
-          "materialHash": "468804adcf61452c832d0ba0cfcff0b0644db4e3ec90232c0fa992eaa10851e7",
-          "timestamp": "2026-06-01T12:56:55.489Z"
+          "headHash": "84e0adcd68b429bdc89eb09de3af128196c35c48",
+          "materialHash": "87edc20e70c9c97032000fd6cac33229060d69fa6768d062062434b89f16d8cc",
+          "timestamp": "2026-06-01T13:07:43.639Z"
         }
       ]
     },
@@ -374,9 +374,9 @@
           "command": "KOALA_PROJECT_ROOT=.../B-1148 node packages/main/dist/cli.js dev_memory_search --query=\"authority reviewer\"",
           "result": "pass",
           "note": "dev_memory_search returns 3 entries (f668c60, 9a9c568, 0b952b0) for query authority reviewer (token-aware after B-1148 Risk B fix); dev_memory_preflight returns 5 entries with 23 lines for 流程伪造 事实伪造 authority reviewer; all entries show id/category/scope/Source (non_authoritative)/Refs fields as required by CHK-005:happy intent",
-          "headHash": "6495bda015ec2dc8d8152d72cf203407a71c2fef",
-          "materialHash": "468804adcf61452c832d0ba0cfcff0b0644db4e3ec90232c0fa992eaa10851e7",
-          "timestamp": "2026-06-01T12:58:53.446Z"
+          "headHash": "84e0adcd68b429bdc89eb09de3af128196c35c48",
+          "materialHash": "87edc20e70c9c97032000fd6cac33229060d69fa6768d062062434b89f16d8cc",
+          "timestamp": "2026-06-01T13:07:43.639Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -385,9 +385,9 @@
           "command": "KOALA_PROJECT_ROOT=.../B-1148 node packages/main/dist/cli.js dev_memory_search --query=\"B-e71f B-ed3e B-9975\"",
           "result": "pass",
           "note": "searching for needs-human-confirmation story IDs (B-e71f, B-ed3e, B-9975, B-9bd9, B-9d95, B-5a28) returns zero results — none were captured. dev_memory_preflight --maxEntries=5 returns 5 entries ~23 lines (within 60-line budget). Bounded preflight verified by verify-dev-memory.mjs preflight output is bounded test (pass)",
-          "headHash": "beffc385d6467ab7b4d32cd54b86fa1701df7f22",
-          "materialHash": "468804adcf61452c832d0ba0cfcff0b0644db4e3ec90232c0fa992eaa10851e7",
-          "timestamp": "2026-06-01T12:58:58.837Z"
+          "headHash": "84e0adcd68b429bdc89eb09de3af128196c35c48",
+          "materialHash": "87edc20e70c9c97032000fd6cac33229060d69fa6768d062062434b89f16d8cc",
+          "timestamp": "2026-06-01T13:07:43.639Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -396,9 +396,9 @@
           "command": "node scripts/verify-dev-memory.mjs && koala validate --story=B-1148 --json",
           "result": "pass",
           "note": "61/61 verify-dev-memory tests pass including B-1148 regression section. koala validate --json confirms npm test PASS and shows dev-memory entries do not appear as verification_evidence/review_pass/delivery_check artifacts in coverage report. Python cross-check confirms all 11 entries have gateEvidence=false and authority=non_authoritative. process-fact-contract also passes.",
-          "headHash": "3faf3a68e67ef7797006ab869354a6872d9d006e",
-          "materialHash": "468804adcf61452c832d0ba0cfcff0b0644db4e3ec90232c0fa992eaa10851e7",
-          "timestamp": "2026-06-01T12:59:05.113Z"
+          "headHash": "84e0adcd68b429bdc89eb09de3af128196c35c48",
+          "materialHash": "87edc20e70c9c97032000fd6cac33229060d69fa6768d062062434b89f16d8cc",
+          "timestamp": "2026-06-01T13:07:43.639Z"
         }
       ]
     },
