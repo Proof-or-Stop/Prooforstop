@@ -54,10 +54,42 @@
         "docs/requirements/decisions/dev-memory.md",
         "docs/requirements/decisions/cc-learnings.md"
       ],
-      "userSees": "一份清楚的回填规则，说明什么会写入、写到 project 还是 global、什么不写。",
+      "userSees": "evidence 中出现 \"taxonomy strategy: workflow/failure-mode/tool-quirk/guard-bypass/pattern/communication\"，并写明 project/global scope 规则。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          ".koala/story/actives/B-1148/checklist.json"
+        ],
+        "create": [
+          ".koala/story/actives/B-1148/evidence/taxonomy-strategy.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "taxonomy-strategy evidence 使用 dev-memory.md 允许的 category/scope 字段，并明确 Koala 专属经验默认 project scope、跨项目经验才 global scope。",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "同一主题同时适用于 Koala 与跨项目 agent 协作时，策略说明如何选择一个主要 scope 或拆分两条非重复 entries。",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "策略禁止把完整 lifecycle 历史、长 transcript 或 authority/gate 结论复制进 dev-memory，只允许最小可复用经验索引。",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
