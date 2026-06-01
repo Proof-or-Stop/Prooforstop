@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-01T16:36:45.678Z",
       "reviewRunId": "B-4f15:RR-005",
       "_hash": "e939c849c7678612fd17eb51b2605dd64cda9498b17798b2d34059afff75cca6"
+    },
+    {
+      "id": "B-4f15:RP-005",
+      "agent": "koala-review-concept",
+      "note": "All 5 checklist items delivered within scope. CHK-001: role-separation.md and session-ownership-and-write-leases.md correctly document the advisory read-only reviewer contract. CHK-002: enforceReviewerReadOnlyCommandGate in cli-engine.ts fires before preCommand hooks and before enforceStoryOwnerLeaseGate, blocks all non-readOnly classes fail-closed, error message includes env var / command / class / recovery path. CHK-003: smoke test and command-ownership-contract cover env detection, allowed readOnly paths, blocked reviewerWrite/storeScopedMutating/unclassified, no-artifact invariant, and passthrough when env unset. CHK-004: koala-evaluator template and both deployed files (.claude/agents, .Codex/agents) updated in sync with correct KOALA_REVIEWER_READONLY guidance; platform-specific diff in .Codex (\"Codex 调试流程\") is pre-existing and unrelated. CHK-005: lifecycle evidence and verification refresh completed. No deleted symbols, no orphaned concepts, no scope creep.",
+      "createdAt": "2026-06-01T16:40:06.088Z",
+      "reviewRound": "2026-06-01T16:36:45.678Z",
+      "reviewRunId": "B-4f15:RR-006",
+      "_hash": "8dba60fdd80af8505a4d38755f6c2a4b6b81ae09bd3783e094e920d783e4e404"
     }
   ]
 }
