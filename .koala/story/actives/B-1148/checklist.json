@@ -227,6 +227,17 @@
           "headHash": "b8f8a795aadcbd512ed4407ef605daab2ddb3c99",
           "materialHash": "cd19997ace463adfd3bcd8248c0579150682a4c015355f7d286c61c735dee759",
           "timestamp": "2026-06-01T12:47:48.005Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": ".koala/story/actives/B-1148/evidence/captured-ids.txt",
+          "command": "python3 cross-check .koala/dev-memory/experience.jsonl",
+          "result": "pass",
+          "note": "11 entries verified: all have gateEvidence=false, authority=non_authoritative, sourceStoryId present, evidenceRefs present. No entry uses chat memory alone - every sourceStoryId maps to .koala/story/actives/<id>/summary.json verified in CHK-001 inventory scan.",
+          "headHash": "8b0f3ae1b7db52c801c5cd8ca82fa1c7d9418f80",
+          "materialHash": "cd19997ace463adfd3bcd8248c0579150682a4c015355f7d286c61c735dee759",
+          "timestamp": "2026-06-01T12:47:59.587Z"
         }
       ]
     },
