@@ -9,10 +9,42 @@
         "docs/requirements/decisions/truth-source.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "userSees": "一份说明哪些历史经验已有权威来源、哪些已在 dev-memory、哪些需要回填的盘点报告。",
+      "userSees": "终端/evidence 中出现 \"source inventory: backfill/duplicate/skip/needs-human-confirmation\"，并列出每个主题的 story/doc/evidence refs。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          ".koala/story/actives/B-1148/checklist.json"
+        ],
+        "create": [
+          ".koala/story/actives/B-1148/evidence/source-inventory.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "source-inventory evidence 列出 anti-forgery、authority、fallback/repair、reviewer evidence、owner lease 等候选主题，并为每个 backfill/duplicate 项提供 DONE story、requirements doc 或 evidence ref。",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "没有可验证 story/doc/evidence ref 的历史主题进入 needs-human-confirmation，不进入正式 dev-memory capture 清单。",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "只来自聊天记忆、无法定位到权威 artifact 的流程经验不得被标记为 backfill；manifest 必须显示 skip 或 needs-human-confirmation。",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
