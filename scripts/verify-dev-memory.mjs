@@ -1246,7 +1246,8 @@ check('preflight output is bounded (B-1148 CHK-005 edge)', () => {
   }
   const tmpPreflightDir = join(tmpBase + '-bounded', 'preflight-bound');
   mkdirSync(tmpPreflightDir, { recursive: true });
-  const preflightPath = join(tmpPreflightDir, 'experience.jsonl');
+  // Write to the path buildPreflightPack actually reads: <root>/.koala/dev-memory/experience.jsonl
+  const preflightPath = dm.resolveProjectMemoryPath(tmpPreflightDir);
   for (const e of manyEntries) dm.appendEntry(preflightPath, e);
 
   const origProject = process.env.KOALA_PROJECT_ROOT;
@@ -1257,10 +1258,12 @@ check('preflight output is bounded (B-1148 CHK-005 edge)', () => {
   process.env.KOALA_PROJECT_ROOT = origProject || '';
   process.env.KOALA_GLOBAL_MEMORY_DIR = origGlobal || '';
 
-  if (result.entries.length > 5) throw new Error(`preflight exceeded maxEntries=5, got ${result.entries.length}`);
+  if (result.entries.length !== 5) throw new Error(`preflight should return exactly maxEntries=5, got ${result.entries.length}`);
   const formatted = dm.formatPreflightPack(result);
   const lineCount = formatted.split('\n').length;
   if (lineCount > 70) throw new Error(`formatted preflight too long: ${lineCount} lines`);
+  const hasExpectedId = result.entries.some((e) => /^B-test\d+$/.test(e.sourceStoryId ?? ''));
+  if (!hasExpectedId) throw new Error('preflight output missing expected sourceStoryId from test entries');
   rmSync(tmpBase + '-bounded', { recursive: true, force: true });
 });
 
