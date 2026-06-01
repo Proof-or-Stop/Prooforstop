@@ -151,7 +151,41 @@
       "userSees": "Reviewer guidance tells owner agents to set the readonly mode for advisory Claude/Gemini/Codex reviews and record evidence themselves.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          ".Codex/agents/koala-evaluator.md",
+          ".claude/agents/koala-evaluator.md",
+          "docs/requirements/decisions/role-separation.md"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-codex-assets.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Owner/agent guidance tells advisory external reviewers to run with KOALA_REVIEWER_READONLY=1 and return structured review JSON/text to the owner.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Guidance preserves normal Koala gate reviewers: they should not set readonly mode because they must call review_run_start/finding_add/review_pass_set.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Guidance warns that if the env was omitted, the owner must treat the review as non-sandboxed and verify/record evidence explicitly rather than trusting reviewer self-pass text.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
