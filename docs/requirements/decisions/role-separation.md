@@ -980,11 +980,39 @@ git revert <S-11 commit>   # PLAN_REVIEW phase 删除
 
 Some workflows delegate read-only review to an external Claude/Codex/Gemini process that is
 **not** a normal Koala gate reviewer. These advisory reviewers should not be able to call
-mutating Koala commands (e.g. `review_pass_set`, `finding_add`, `story_advance`) — they are
-expected to return structured text findings to the owner session, which then records evidence
-through the normal gate.
+mutating Koala commands — they are expected to return structured text or JSON findings to the
+owner session, which then records evidence through the normal gate.
 
-`KOALA_REVIEWER_READONLY=1` is the opt-in environment variable that enforces this boundary.
+### Dispatch rule for owner agents
+
+When an **owner session** launches an advisory external reviewer (Claude/Codex/Gemini), it
+**must** set `KOALA_REVIEWER_READONLY=1` on that spawned process only — not on the owner
+session itself or on any normal Koala gate reviewer subagent.
+
+```bash
+# Correct: sandbox only the advisory process
+KOALA_REVIEWER_READONLY=1 claude --model sonnet ... --prompt "inspect src/ and return JSON findings"
+
+# Wrong: do NOT set this on normal gate reviewers
+# koala-review-concept, koala-review-quality, etc. must NOT have this env set
+```
+
+The owner instructs the advisory reviewer to return structured JSON or plain-text findings and
+**explicitly prohibits** the reviewer from calling any of the following Koala commands:
+
+- `review_pass_set` — would forge a gate-pass artifact
+- `finding_add` — would forge a signed finding
+- `review_run_start` — would open a review run the owner doesn't control
+- `init_check_set` — would forge an init-check artifact
+- `delivery_check_set` — would forge a delivery-check artifact
+- `story_advance` — would advance the story phase without owner decision
+- `verification_evidence_add` — would inject evidence the owner hasn't verified
+
+The advisory reviewer must return its findings as structured output (JSON preferred), not call
+any of the above commands itself.
+
+### What KOALA_REVIEWER_READONLY=1 enforces
+
 When set on a spawned reviewer process:
 
 - Only commands with `CommandPolicy.ownershipClass === 'readOnly'` are allowed (e.g.
@@ -995,25 +1023,42 @@ When set on a spawned reviewer process:
   recovery path: return findings as text to the owner, who records them as evidence.
 - `--takeover` / `--forceTakeover` cannot be used to bypass the restriction.
 
-**Advisory reviewer text is not gate evidence.** A read-only reviewer cannot produce a Koala
-`review_pass_set` record, a signed `finding_add` entry, or any other lifecycle artifact.
-Owner sessions that receive advisory reviewer output must explicitly call the relevant Koala
-commands themselves to materialize evidence.
+### Advisory reviewer output is not gate evidence
 
-**Normal Koala gate reviewers must NOT set this mode.** Standard reviewers (`koala-review-*`
-subagents in REVIEW phase) need to call `review_run_start`, `finding_add`, `review_pass_set`,
-`init_check_set`, `scope_check_save`, and `delivery_check_set`. Setting
-`KOALA_REVIEWER_READONLY=1` on a normal gate reviewer will block all of those calls and break
-the review lifecycle.
+A read-only reviewer cannot produce a Koala `review_pass_set` record, a signed `finding_add`
+entry, or any other lifecycle artifact. Owner sessions that receive advisory reviewer output
+must explicitly call the relevant Koala commands themselves to materialize evidence.
+
+### If KOALA_REVIEWER_READONLY was omitted
+
+If an owner session launched an advisory reviewer **without** setting `KOALA_REVIEWER_READONLY=1`,
+the owner must treat the reviewer's output as **non-sandboxed advisory text** and apply extra
+scrutiny before recording any evidence:
+
+1. **Do not assume the reviewer only read.** The reviewer may have called mutating commands.
+   Check `koala finding_list`, `koala story_get`, and relevant artifact files (e.g.
+   `review-passes.json`, `init-check.json`) to see if the reviewer wrote anything unexpected.
+2. **Verify each claim independently** using `koala` commands or direct file inspection before
+   calling `finding_add`, `review_pass_set`, or `verification_evidence_add`.
+3. **Discard any gate artifacts** (finding hashes, review pass records) that appear to have
+   been written by the advisory reviewer directly — re-run or re-record them through the owner.
+
+### Normal Koala gate reviewers must NOT set this mode
+
+Standard reviewers (`koala-review-*` subagents in REVIEW phase) need to call `review_run_start`,
+`finding_add`, `review_pass_set`, `init_check_set`, `scope_check_save`, and
+`delivery_check_set`. Setting `KOALA_REVIEWER_READONLY=1` on a normal gate reviewer will block
+all of those calls and break the review lifecycle.
 
 ### When to use
 
 | Situation | Use KOALA_REVIEWER_READONLY=1? |
 |---|---|
-| External Claude/Codex/Gemini asked to inspect code and return text findings | Yes — sandbox the reviewer |
-| Normal `koala-review-concept` / `koala-review-quality` in REVIEW phase | No — reviewer must write gate artifacts |
-| `koala-evaluator` or `koala-evaluator-cli` scoring product quality | No — evaluator uses normal write path |
-| CI runner doing a read-only docs audit before reporting to owner | Yes |
+| External Claude/Codex/Gemini asked to inspect code and return text/JSON findings | **Yes** — owner must set it on the spawned process |
+| Normal `koala-review-concept` / `koala-review-quality` in REVIEW phase | **No** — reviewer must write gate artifacts |
+| `koala-evaluator` or `koala-evaluator-cli` scoring product quality | **No** — evaluator uses normal write path |
+| CI runner doing a read-only docs audit before reporting to owner | **Yes** |
+| Advisory reviewer launched without KOALA_REVIEWER_READONLY set | N/A — treat output as non-sandboxed, verify all claims manually |
 
 ---
 
