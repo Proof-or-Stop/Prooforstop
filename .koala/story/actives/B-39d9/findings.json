@@ -1,0 +1,37 @@
+{
+  "findings": [
+    {
+      "id": "B-39d9:F-001",
+      "desc": "`first-screen-clean` / `first-screen-drift` / `build-and-smoke` 的 recorded evidence 只由 validation-protocol smoke 证明 handler 输出与 build 通过；`packages/main/src/tasks/validation-protocol-smoke.ts:795-930` 直接调用 createCheckHandlers/createDoctorHandlers，没有实际经由 dist CLI 执行 `check`/`doctor`。对于 verificationIntent.type=cli 的首屏文本与 JSON surface，这会留下 CLI entrypoint wiring 未被本 story 证据直接覆盖的空档。",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-01T16:47:24.964Z",
+      "reviewRound": "2026-06-01T16:44:06.904Z",
+      "reviewRunId": "B-39d9:RR-006",
+      "_hash": "1600f0726492500919b660e738ff76ffbcbf58242217821cfb24f4c96e1fac7b",
+      "files": [
+        "packages/main/src/tasks/validation-protocol-smoke.ts",
+        ".koala/story/actives/B-39d9/plan.md"
+      ]
+    },
+    {
+      "id": "B-39d9:F-002",
+      "desc": "`no-wrapper-assumption` 已在 plan 里声明为 “B-39d9 only claims core readiness; B-3e9a records wrapper proof” (`.koala/story/actives/B-39d9/plan.md:48`)，但当前 verificationEvidence 把它记成 manual_transcript 且未附 file/command/source ref。该 intent 的结论方向是对的，不过证据载体还不够可追踪，建议后续把这条 evidence 直接绑定到 handoff 文档或 review artifact。",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-01T16:47:24.972Z",
+      "reviewRound": "2026-06-01T16:44:06.904Z",
+      "reviewRunId": "B-39d9:RR-006",
+      "_hash": "cfcdd014a84ed3407296cf20b1dc4a10186e4c99f8e4a07498e866e5159bd16f",
+      "files": [
+        ".koala/story/actives/B-39d9/plan.md"
+      ]
+    }
+  ]
+}
