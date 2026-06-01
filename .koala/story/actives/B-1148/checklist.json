@@ -1,0 +1,72 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "盘点已有历史来源和重复记录",
+      "context": "从 Koala CLI 读 story 列表、已完成 story metadata、相关决策文档和现有 dev-memory；禁止凭聊天记忆造事实，产出 source inventory evidence。",
+      "relatedDocs": [
+        "docs/requirements/decisions/dev-memory.md",
+        "docs/requirements/decisions/truth-source.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "一份说明哪些历史经验已有权威来源、哪些已在 dev-memory、哪些需要回填的盘点报告。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "定义经验 taxonomy 和写入策略",
+      "context": "明确 workflow/failure-mode/tool-quirk/guard-bypass/pattern/communication 等分类，以及 project/global scope 判定。",
+      "relatedDocs": [
+        "docs/requirements/decisions/dev-memory.md",
+        "docs/requirements/decisions/cc-learnings.md"
+      ],
+      "userSees": "一份清楚的回填规则，说明什么会写入、写到 project 还是 global、什么不写。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "回填高价值 dev-memory entries",
+      "context": "只写去重后的最小可复用经验，每条包含 summary/trigger/lesson/reusePrompt/tags/sourceStoryId/evidenceRefs，并保持 authority non_authoritative。",
+      "relatedDocs": [
+        "docs/requirements/decisions/dev-memory.md",
+        "docs/requirements/decisions/verification-context-pack.md",
+        "docs/requirements/decisions/authority-client-role.md"
+      ],
+      "userSees": "下次普通编程前可通过 dev_memory_preflight/search 找到流程防伪、事实防伪、authority、fallback、reviewer gate 等经验。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "生成人工可读 evidence 索引",
+      "context": "在本 story evidence 中记录 backfill manifest：条目 id、category、scope、tags、source refs、为什么写入或跳过。",
+      "relatedDocs": [
+        "docs/requirements/decisions/dev-memory.md",
+        "docs/requirements/decisions/truth-source.md"
+      ],
+      "userSees": "一个人能读懂的索引，知道历史经验为什么被回填、依据在哪里、下次怎么用。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "验证检索、边界和 Koala 收敛",
+      "context": "运行 dev_memory_search/preflight、检查非权威字段、运行 koala validate 和必要 reviewer/delivery gates，最终 DONE 后 convergence_check。",
+      "relatedDocs": [
+        "docs/requirements/decisions/dev-memory.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "userSees": "确认以后普通开发前能检索历史经验，同时这些经验不会绕过 Koala evidence/gate。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
