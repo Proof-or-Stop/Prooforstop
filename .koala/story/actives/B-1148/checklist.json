@@ -388,6 +388,17 @@
           "headHash": "beffc385d6467ab7b4d32cd54b86fa1701df7f22",
           "materialHash": "468804adcf61452c832d0ba0cfcff0b0644db4e3ec90232c0fa992eaa10851e7",
           "timestamp": "2026-06-01T12:58:58.837Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-dev-memory.mjs",
+          "command": "node scripts/verify-dev-memory.mjs && koala validate --story=B-1148 --json",
+          "result": "pass",
+          "note": "61/61 verify-dev-memory tests pass including B-1148 regression section. koala validate --json confirms npm test PASS and shows dev-memory entries do not appear as verification_evidence/review_pass/delivery_check artifacts in coverage report. Python cross-check confirms all 11 entries have gateEvidence=false and authority=non_authoritative. process-fact-contract also passes.",
+          "headHash": "3faf3a68e67ef7797006ab869354a6872d9d006e",
+          "materialHash": "468804adcf61452c832d0ba0cfcff0b0644db4e3ec90232c0fa992eaa10851e7",
+          "timestamp": "2026-06-01T12:59:05.113Z"
         }
       ]
     },
