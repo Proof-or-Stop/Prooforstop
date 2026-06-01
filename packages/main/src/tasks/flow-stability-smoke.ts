@@ -70,6 +70,7 @@ import { StoryStore } from '../core/store.js';
 import type { ChecklistData, Finding, ReviewRun, StoryInfo, TestEvidenceData } from '../core/types.js';
 import { CWD_GATED_PHASES, PHASE_TO_EVENT } from '../handlers/context.js';
 import { buildDoneChecklist, renderDoneChecklist } from '../core/done-oracle.js';
+import { formatWorktreePollutionDetails } from '../core/validation-executor.js';
 import { createStoryAdvanceHandlers } from '../handlers/story-advance.js';
 import { runReviewToTestPreflightGate, runValidateGate } from '../handlers/phase-gates.js';
 import { buildNextSteps, renderRelatedDocsHint } from '../handlers/transition-effects.js';
@@ -3413,6 +3414,154 @@ function assertDoneOracleSameSource(): void {
   }
 }
 
+/**
+ * B-edca quality follow-up: production helpers must pass projectRoot down to
+ * dirtyWorktreeClassifierOptions* so a custom storyDir is honoured in real call
+ * chains. Uses formatWorktreePollutionDetails (validation-executor) as the
+ * representative production caller: if it forgets projectRoot the custom story
+ * metadata path would land in unexpected_dirty_files (blocking) instead of
+ * koala_metadata_changes (passing).
+ */
+function assertProductionHelperPassesProjectRootToClassifier(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-prod-root-'));
+  try {
+    write(root, 'koala.config.json', JSON.stringify({
+      scanRoot: 'src',
+      testsDir: 'tests',
+      fixturesDir: 'tests/fixtures',
+      storyDir: 'workflow/stories',
+      requirementsDir: 'docs/requirements',
+    }));
+    resetConfigCache();
+
+    const worktreePollution: {
+      statusLines: string[];
+      paths: string[];
+      blocking?: boolean;
+    } = {
+      statusLines: [' M workflow/stories/B-smoke/checklist.json'],
+      paths: ['workflow/stories/B-smoke/checklist.json'],
+    };
+    const mockResult = {
+      label: 'smoke-cmd',
+      command: 'echo',
+      args: ['ok'],
+      code: 0,
+      output: '',
+      durationMs: 0,
+      worktreePollution,
+    };
+
+    const lines = formatWorktreePollutionDetails(mockResult, root);
+    assert.ok(lines.length > 0, 'formatWorktreePollutionDetails must return lines');
+    const header = lines[0];
+    assert.ok(
+      header.startsWith('✓'),
+      `Production helper must classify custom storyDir path as koala_metadata (passing). ` +
+      `Got: ${header} — if this fails, the production helper is not passing projectRoot to dirtyWorktreeClassifierOptionsFromConfig.`,
+    );
+    assert.equal(
+      worktreePollution.blocking, false,
+      'worktreePollution.blocking must be false when only koala_metadata paths are dirty',
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+    resetConfigCache();
+  }
+}
+
+/**
+ * B-edca quality follow-up: dirty-worktree classification honours configured
+ * storyDir via projectRoot so custom storyDir paths land in koala_metadata_changes,
+ * not unexpected_dirty_files. Verifies three cases:
+ *   1. Custom storyDir sub-path → koala_metadata_changes
+ *   2. Same-prefix-but-not-storyDir path → unexpected_dirty_files
+ *   3. Default .koala/story/ paths still work with projectRoot set
+ * Also verifies that declared/fixture/material precedence rules are not weakened.
+ */
+function assertCustomStoryDirDirtyWorktreeClassification(): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-custom-storydir-'));
+  try {
+    write(root, 'koala.config.json', JSON.stringify({
+      scanRoot: 'src',
+      testsDir: 'tests',
+      fixturesDir: 'tests/fixtures',
+      storyDir: 'workflow/stories',
+      requirementsDir: 'docs/requirements',
+    }));
+    resetConfigCache();
+
+    const config = loadConfig(root);
+    const opts = dirtyWorktreeClassifierOptionsFromConfig(config, root);
+
+    // 1. Custom storyDir sub-path must be koala_metadata_changes.
+    const storyMeta = classifyGitStatusRows(
+      [' M workflow/stories/B-smoke/test-evidence.json'],
+      opts,
+    );
+    assert.equal(
+      storyMeta.groups.koala_metadata_changes.length, 1,
+      'workflow/stories/B-smoke/test-evidence.json must be koala_metadata_changes with custom storyDir',
+    );
+    assert.equal(storyMeta.groups.unexpected_dirty_files.length, 0);
+
+    // 2. Sibling path outside storyDir must not be classified as koala_metadata.
+    const notMeta = classifyGitStatusRows(
+      ['?? workflow/notes.md'],
+      opts,
+    );
+    assert.equal(
+      notMeta.groups.koala_metadata_changes.length, 0,
+      'workflow/notes.md must not be koala_metadata_changes',
+    );
+    assert.equal(
+      notMeta.groups.unexpected_dirty_files.length, 1,
+      'workflow/notes.md must be unexpected_dirty_files',
+    );
+
+    // 3. Default .koala/story/ paths still work even with projectRoot set.
+    const defaultMeta = classifyGitStatusRows(
+      [' M .koala/story/actives/B-xxx/checklist.json'],
+      opts,
+    );
+    assert.equal(
+      defaultMeta.groups.koala_metadata_changes.length, 1,
+      '.koala/story/ default prefix must still be koala_metadata_changes',
+    );
+
+    // 4. Material source path is NOT reclassified as koala_metadata even if
+    //    projectRoot is set (classifier checks metadata first, but src/ is not
+    //    storyDir so it stays material).
+    const materialOpts = dirtyWorktreeClassifierOptionsFromConfig(config, root);
+    const material = classifyGitStatusRows(
+      [' M src/core/foo.ts'],
+      materialOpts,
+    );
+    assert.equal(
+      material.groups.material_source_changes.length, 1,
+      'src/core/foo.ts must remain material_source_changes with projectRoot set',
+    );
+    assert.equal(material.groups.koala_metadata_changes.length, 0);
+
+    // 5. Fixture path is not reclassified.
+    const fixtureOpts = dirtyWorktreeClassifierOptionsFromConfig(config, root);
+    const fixture = classifyGitStatusRows(
+      ['?? tests/fixtures/my-fixture.json'],
+      fixtureOpts,
+    );
+    assert.equal(
+      fixture.groups.fixture_changes.length, 1,
+      'tests/fixtures/ path must remain fixture_changes',
+    );
+    assert.equal(fixture.groups.koala_metadata_changes.length, 0);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+    resetConfigCache();
+  }
+}
+
+assertProductionHelperPassesProjectRootToClassifier();
+assertCustomStoryDirDirtyWorktreeClassification();
 assertSessionBriefGate();
 assertDirtyWorktreeClassifierGroupsOwnership();
 assertDirtyGatePolicyAcrossGates();

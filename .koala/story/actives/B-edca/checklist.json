@@ -9,9 +9,74 @@
         "docs/requirements/decisions/testing-completeness.md",
         "docs/requirements/decisions/truth-source.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-01T14:14:10.755Z",
+      "endTime": "2026-06-01T14:37:45.561Z",
+      "userSees": "用户会在 evidence/reproduction.md 看到：\"Root cause: validate-generated test-evidence.json self-churn is excluded from material drift, while real material drift remains stale.\"",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A reproduction note or fixture identifies why validate-generated test-evidence can make session_brief report stale after a clean validate/DONE flow.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The reproduction distinguishes self-churn in test-evidence.json from real source/evidence material drift.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The reproduction cannot be satisfied by hiding all stale warnings globally; it must preserve a real-drift failing case.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [],
+        "create": [
+          ".koala/story/actives/B-edca/evidence/reproduction.md"
+        ],
+        "test": [
+          "packages/main/src/tasks/verification-freshness-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": ".koala/story/actives/B-edca/evidence/reproduction.md",
+          "result": "pass",
+          "note": "reproduction.md documents validate-generated test-evidence missing materialHash and custom storyDir metadata gap",
+          "headHash": "3d6ca278e01527ea0df81111712205215f33fa4e",
+          "materialHash": "da6334ef9dca41027766bc8b8a77f482d60f016e572ba5d4efdb3bcc08a0febb",
+          "timestamp": "2026-06-01T15:08:29.106Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": ".koala/story/actives/B-edca/evidence/reproduction.md",
+          "result": "pass",
+          "note": "reproduction distinguishes test-evidence self-churn from real material drift",
+          "headHash": "3d6ca278e01527ea0df81111712205215f33fa4e",
+          "materialHash": "da6334ef9dca41027766bc8b8a77f482d60f016e572ba5d4efdb3bcc08a0febb",
+          "timestamp": "2026-06-01T15:08:29.106Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "regression keeps real material drift stale while allowing metadata-only test-evidence changes",
+          "headHash": "3d6ca278e01527ea0df81111712205215f33fa4e",
+          "materialHash": "da6334ef9dca41027766bc8b8a77f482d60f016e572ba5d4efdb3bcc08a0febb",
+          "timestamp": "2026-06-01T15:08:29.106Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -22,9 +87,73 @@
         "docs/requirements/decisions/testing-completeness.md",
         "docs/requirements/decisions/truth-source.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-01T14:38:01.242Z",
+      "userSees": "用户会在 policy/docs 或代码注释看到：\"test-evidence.json is gate-consumed validation metadata, not material drift input.\"",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Policy states how test-evidence.json is classified for freshness: generated validation metadata, not material source drift.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Policy states real source/evidence edits still trigger stale warnings and gate checks.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Policy does not allow validate output to mask failing validation, missing coverage, delivery-check, or summary gate failures.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/testing-completeness.md",
+          "result": "pass",
+          "note": "policy states test-evidence.json is gate-consumed validation metadata, not material drift input",
+          "headHash": "3d6ca278e01527ea0df81111712205215f33fa4e",
+          "materialHash": "da6334ef9dca41027766bc8b8a77f482d60f016e572ba5d4efdb3bcc08a0febb",
+          "timestamp": "2026-06-01T15:08:29.106Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "result": "pass",
+          "note": "policy preserves stale behavior for real source or evidence drift",
+          "headHash": "3d6ca278e01527ea0df81111712205215f33fa4e",
+          "materialHash": "da6334ef9dca41027766bc8b8a77f482d60f016e572ba5d4efdb3bcc08a0febb",
+          "timestamp": "2026-06-01T15:08:29.106Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "process fact contract still treats test-evidence.json as gate artifact and does not make validation output mask other gates",
+          "headHash": "3d6ca278e01527ea0df81111712205215f33fa4e",
+          "materialHash": "da6334ef9dca41027766bc8b8a77f482d60f016e572ba5d4efdb3bcc08a0febb",
+          "timestamp": "2026-06-01T15:08:29.106Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -34,9 +163,78 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-01T14:38:25.484Z",
+      "userSees": "用户运行 session_brief 时看到：\"DONE pre-check PASS\"，且不会仅因 test-evidence.json 自更新看到 \"EVIDENCE STALE\"。",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Session/freshness logic ignores validate-generated test-evidence self-churn for materialHash stale advisory purposes.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A real material source/evidence file change still produces a stale warning.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Failing validate results, missing coverage, delivery-check, or summary are still visible to gates and session_brief.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/evidence-stale-hint.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/core/done-oracle.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/evidence-freshness.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "freshness logic excludes validate-generated test-evidence self-churn from materialHash stale checks",
+          "headHash": "3d6ca278e01527ea0df81111712205215f33fa4e",
+          "materialHash": "da6334ef9dca41027766bc8b8a77f482d60f016e572ba5d4efdb3bcc08a0febb",
+          "timestamp": "2026-06-01T15:08:29.106Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "real material source drift remains stale, including workflow/notes.md outside configured storyDir",
+          "headHash": "3d6ca278e01527ea0df81111712205215f33fa4e",
+          "materialHash": "da6334ef9dca41027766bc8b8a77f482d60f016e572ba5d4efdb3bcc08a0febb",
+          "timestamp": "2026-06-01T15:08:29.106Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "failing validate, missing coverage, delivery and summary gates remain governed by process fact contract and gate artifacts",
+          "headHash": "3d6ca278e01527ea0df81111712205215f33fa4e",
+          "materialHash": "da6334ef9dca41027766bc8b8a77f482d60f016e572ba5d4efdb3bcc08a0febb",
+          "timestamp": "2026-06-01T15:08:29.106Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -46,9 +244,76 @@
         "docs/requirements/decisions/testing-completeness.md",
         "docs/requirements/decisions/test-intent-review.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-01T14:38:39.700Z",
+      "userSees": "测试输出会包含：\"self-churn test-evidence metadata does not stale verification evidence\" 和 \"real material drift still stale\"。",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A regression test covers validate/test-evidence self-churn without session_brief stale advisory.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The same regression suite covers committed validate metadata plus a clean working tree.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A separate adversarial assertion proves unrelated material drift is still detected as stale.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "node packages/main/dist/tasks/flow-stability-smoke.js",
+          "result": "pass",
+          "note": "flow-stability smoke covers dirty-worktree production helper passing projectRoot and custom storyDir metadata staying koala_metadata_changes",
+          "headHash": "06e1f94349e926aeba591a80213f40cb89d22e41",
+          "materialHash": "da6334ef9dca41027766bc8b8a77f482d60f016e572ba5d4efdb3bcc08a0febb",
+          "timestamp": "2026-06-01T15:15:01.205Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
+          "command": "node packages/main/dist/tasks/semantic-scope-guard-smoke.js",
+          "result": "pass",
+          "note": "semantic scope guard smoke covers review-scope-binding excluding custom storyDir metadata while preserving clean binding freshness",
+          "headHash": "06e1f94349e926aeba591a80213f40cb89d22e41",
+          "materialHash": "da6334ef9dca41027766bc8b8a77f482d60f016e572ba5d4efdb3bcc08a0febb",
+          "timestamp": "2026-06-01T15:15:01.205Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "node packages/main/dist/tasks/flow-stability-smoke.js && node packages/main/dist/tasks/semantic-scope-guard-smoke.js",
+          "result": "pass",
+          "note": "negative controls prove workflow/notes.md and real material/fixture paths are not hidden by custom storyDir metadata exclusions",
+          "headHash": "06e1f94349e926aeba591a80213f40cb89d22e41",
+          "materialHash": "da6334ef9dca41027766bc8b8a77f482d60f016e572ba5d4efdb3bcc08a0febb",
+          "timestamp": "2026-06-01T15:15:01.205Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -58,9 +323,77 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-01T14:39:07.977Z",
+      "userSees": "最终 transcript 会显示：\"Build PASS; freshness smoke PASS; process fact contract PASS; koala validate PASS; no self-churn stale advisory.\"",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Build, targeted stale-loop regression, and process-fact/lifecycle validation pass.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "session_brief output is explicitly checked for absence of self-churn stale advisory after validate/test-evidence update.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "DONE-related gates still fail on missing delivery/summary or real drift until normal lifecycle evidence is supplied.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [],
+        "create": [
+          ".koala/story/actives/B-edca/evidence/validation-transcript.md"
+        ],
+        "test": [
+          "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "file": ".koala/story/actives/B-edca/evidence/validation-transcript.md",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/flow-stability-smoke.js && node packages/main/dist/tasks/semantic-scope-guard-smoke.js && npm --prefix packages/main run test:verification-freshness-smoke && npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Codex ran build plus flow-stability, semantic-scope, verification-freshness, and process-fact checks after the custom storyDir follow-up",
+          "headHash": "06e1f94349e926aeba591a80213f40cb89d22e41",
+          "materialHash": "da6334ef9dca41027766bc8b8a77f482d60f016e572ba5d4efdb3bcc08a0febb",
+          "timestamp": "2026-06-01T15:15:01.205Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "file": ".koala/story/actives/B-edca/evidence/transcript-diff.md",
+          "result": "pass",
+          "note": "transcript-diff records TEST session_brief actual output: evidence freshness matched current HEAD and no self-churn EVIDENCE STALE advisory appeared",
+          "headHash": "b584546edc790c98947a5416eced4f6479ece868",
+          "materialHash": "da6334ef9dca41027766bc8b8a77f482d60f016e572ba5d4efdb3bcc08a0febb",
+          "timestamp": "2026-06-01T15:18:14.982Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "negative controls verify unrelated material drift remains stale while metadata self-churn stays fresh",
+          "headHash": "3d6ca278e01527ea0df81111712205215f33fa4e",
+          "materialHash": "da6334ef9dca41027766bc8b8a77f482d60f016e572ba5d4efdb3bcc08a0febb",
+          "timestamp": "2026-06-01T15:08:29.106Z"
+        }
+      ]
     }
   ]
 }

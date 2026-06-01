@@ -100,7 +100,7 @@ function assertSafePath(rawPath: string): string {
  */
 function assertDeclarablePath(path: string, root: string): void {
   const config = loadConfig(root);
-  const options = dirtyWorktreeClassifierOptionsFromConfig(config);
+  const options = dirtyWorktreeClassifierOptionsFromConfig(config, root);
   const category = classifyDeclarablePath(path, options);
   if (category === null) return;
   if (category === 'runtime_artifact_changes') {

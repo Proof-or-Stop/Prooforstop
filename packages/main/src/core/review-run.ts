@@ -235,7 +235,7 @@ export function currentScopeContextForStory(
   const contract = store.readScopeContract(storyId);
   if (!contract) return null;
   const diffPack = buildScopeDiffPack(projectRoot);
-  return buildCurrentScopeContext(contract, diffPack);
+  return buildCurrentScopeContext(contract, diffPack, projectRoot);
 }
 
 function scopeComparisonToIssueCode(cmp: ScopeBindingComparison): ReviewRunIssueCode {

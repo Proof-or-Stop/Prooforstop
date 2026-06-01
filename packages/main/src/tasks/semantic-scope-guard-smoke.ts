@@ -495,6 +495,71 @@ function mergedFor(contract: ScopeContractData, pack: ScopeDiffPack) {
   );
 }
 
+// ── 11b. B-edca: custom storyDir paths are excluded from the digest when
+//         projectRoot is provided; sibling paths outside storyDir stay material. ─
+{
+  const root = mkdtempSync(join(tmpdir(), 'koala-custom-storydir-'));
+  try {
+    writeFileSync(join(root, 'koala.config.json'), JSON.stringify({
+      storyDir: 'workflow/stories',
+    }, null, 2));
+    resetConfigCache();
+
+    const contract = makeContract({ mode: 'enforce', allowedModify: ['src/allowed.ts'] });
+    const codeHunk = makeHunk('src/allowed.ts', { anchor: 'fn', digest: 'aa001100aa001100' });
+    // Custom storyDir metadata path — should be excluded when projectRoot is known.
+    const customMetaHunk = makeHunk('workflow/stories/B-smoke/checklist.json', { digest: 'bb002200bb002200' });
+    // Sibling path outside storyDir — must stay material.
+    const siblingHunk = makeHunk('workflow/notes.md', { digest: 'cc003300cc003300' });
+
+    const packWithMeta = makePack([codeHunk, customMetaHunk]);
+    const packWithSibling = makePack([codeHunk, siblingHunk]);
+
+    // Without projectRoot: custom storyDir path is NOT excluded (unknown prefix).
+    const withoutRoot = materialDiffPackDigest(packWithMeta);
+    assert.ok(
+      withoutRoot.reviewedChangedFiles.includes('workflow/stories/B-smoke/checklist.json'),
+      'without projectRoot, custom storyDir path is NOT excluded from reviewedChangedFiles',
+    );
+
+    // With projectRoot: custom storyDir path IS excluded.
+    const withRoot = materialDiffPackDigest(packWithMeta, root);
+    assert.deepEqual(
+      withRoot.reviewedChangedFiles,
+      ['src/allowed.ts'],
+      'with projectRoot, custom storyDir path is excluded from reviewedChangedFiles',
+    );
+    assert.deepEqual(
+      withRoot.reviewedHunkDigests,
+      [codeHunk.hunkDigest],
+      'with projectRoot, custom storyDir hunk is excluded from reviewedHunkDigests',
+    );
+
+    // Sibling outside storyDir must stay material even with projectRoot.
+    const siblingResult = materialDiffPackDigest(packWithSibling, root);
+    assert.ok(
+      siblingResult.reviewedChangedFiles.includes('workflow/notes.md'),
+      'with projectRoot, sibling path outside storyDir is still material',
+    );
+
+    // Binding produced with projectRoot excludes the metadata hunk;
+    // metadata-only churn in the custom storyDir does NOT invalidate it.
+    const packCodeOnly = makePack([codeHunk]);
+    const packWithCustomMeta = makePack([codeHunk, customMetaHunk]);
+    const bindingWithRoot = computeReviewScopeBinding({ contract, diffPack: packCodeOnly, projectRoot: root });
+    assert.ok(bindingWithRoot, 'scope-protected story produces a binding with projectRoot');
+    const ctxWithMeta = buildCurrentScopeContext(contract, packWithCustomMeta, root);
+    assert.equal(
+      compareScopeBinding(bindingWithRoot, ctxWithMeta).ok,
+      true,
+      'custom-storyDir metadata churn does not invalidate the binding when projectRoot is passed',
+    );
+  } finally {
+    resetConfigCache();
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 // ── 12. CHK-005: review run signature folds in the binding hash ──────────────
 {
   const base = ['B-x', 'B-x:RR-001', 'koala-review-quality', 'koala-review-quality', 'round-1', '2026-01-01T00:00:00.000Z', 'head', 'material', ''] as const;

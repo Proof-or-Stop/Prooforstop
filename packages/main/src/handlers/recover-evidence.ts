@@ -73,7 +73,7 @@ function readGitStatusLines(projectRoot: string): string[] {
 function classifyDirtyWorktree(projectRoot: string): DirtyWorktreeClassification {
   const lines = readGitStatusLines(projectRoot);
   const config = loadConfig(projectRoot);
-  return classifyGitStatusRows(lines, dirtyWorktreeClassifierOptionsFromConfig(config));
+  return classifyGitStatusRows(lines, dirtyWorktreeClassifierOptionsFromConfig(config, projectRoot));
 }
 
 function findRefusedCategories(classification: DirtyWorktreeClassification): DirtyWorktreeCategory[] {

@@ -29,3 +29,7 @@ gap_analyze 的 no_test 应区分：
 - 普通函数缺测试 → severity: medium
 
 **理由**：扁平列表 39 条 medium 没有可操作性，分层后 AI 知道先补哪些。
+
+## Policy: test-evidence.json is gate-consumed validation metadata
+
+test-evidence.json is gate-consumed validation metadata, not material drift input. PASS/FAIL/coverage results still feed gates (TEST→DONE freshness check), and real source or evidence drift remains stale. Changes to test-evidence.json alone do not invalidate prior material-hash evidence.

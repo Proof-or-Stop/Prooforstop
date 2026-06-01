@@ -84,7 +84,7 @@ function snapshotDirtyClassification(projectRoot: string): DirtyWorktreeClassifi
     });
     const lines = raw.split('\n').map(line => line.trimEnd()).filter(Boolean);
     const config = loadConfig(projectRoot);
-    return classifyGitStatusRows(lines, dirtyWorktreeClassifierOptionsFromConfig(config));
+    return classifyGitStatusRows(lines, dirtyWorktreeClassifierOptionsFromConfig(config, projectRoot));
   } catch {
     return null;
   }
