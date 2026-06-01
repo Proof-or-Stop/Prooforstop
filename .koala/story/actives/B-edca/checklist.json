@@ -48,7 +48,31 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Docs or policy notes explain that test-evidence.json is generated validation metadata: it records latest validation, but should not cause materialHash stale loops.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Policy states how test-evidence.json is classified for freshness: generated validation metadata, not material source drift.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Policy states real source/evidence edits still trigger stale warnings and gate checks.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Policy does not allow validate output to mask failing validation, missing coverage, delivery-check, or summary gate failures.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
