@@ -54,7 +54,46 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "The first screen of plain `koala check` and plain `koala doctor` includes lines like `Runtime mode: compatibility-launcher`, `Project-local JavaScript runtime required: no`, and `Next action: no managed asset drift` or `Next action: review unsafe managed assets manually`."
+      "userSees": "The first screen of plain `koala check` and plain `koala doctor` includes lines like `Runtime mode: compatibility-launcher`, `Project-local JavaScript runtime required: no`, and `Next action: no managed asset drift` or `Next action: review unsafe managed assets manually`.",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-client-role.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/handlers/check.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/core/managed-assets.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "first-screen-clean",
+            "desc": "Plain check and doctor start with Runtime mode, Project-local JavaScript runtime required, and a no-drift next action before deeper diagnostics.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "id": "first-screen-drift",
+            "desc": "Plain check with managed asset drift still shows the runtime footprint block before throwing/rendering drift details.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "manual-next-action",
+            "desc": "Unsafe managed asset statuses summarize a manual review next action instead of implying check --apply can repair them.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
