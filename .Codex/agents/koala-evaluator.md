@@ -998,3 +998,7 @@ curl -X POST {serveUrl}/browser/refresh
 - 如果浏览器未连接（status 返回 disconnected），直接报告无法评估
 - 如果 console 有 error 级别日志，功能完整性最高 3 分
 - 每个 checklist item 至少要操作一次来验证，不要只读 DOM
+
+## KOALA_REVIEWER_READONLY
+
+普通 gate/evaluator reviewer（本角色）不是 advisory read-only reviewer，**不得**在自身进程设置 `KOALA_REVIEWER_READONLY=1`。只有 owner session 启动独立外部 advisory reviewer（Claude/Codex/Gemini 独立进程）时，才应在那个**被启动的进程**上设置 `KOALA_REVIEWER_READONLY=1`；advisory reviewer 的输出是只读文本/JSON，不构成 gate 证据。

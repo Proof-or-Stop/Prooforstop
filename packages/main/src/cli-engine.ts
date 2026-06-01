@@ -1688,6 +1688,53 @@ export function enforceStoryOwnerLeaseGate(
   );
 }
 
+// ─── B-4f15 CHK-002: read-only reviewer command guard ───────────────────────
+
+/** Environment variable name that activates read-only reviewer mode. */
+export const REVIEWER_READONLY_ENV = 'KOALA_REVIEWER_READONLY';
+
+/** Returns true when the process is running as a read-only reviewer. */
+export function isReviewerReadOnlyModeEnabled(): boolean {
+  return process.env[REVIEWER_READONLY_ENV] === '1';
+}
+
+/**
+ * B-4f15 CHK-002: pre-hook, pre-lease gate for read-only reviewer mode.
+ *
+ * When KOALA_REVIEWER_READONLY=1, only commands whose EFFECTIVE ownershipClass
+ * is `readOnly` are permitted. All other classes — `reviewerWrite`,
+ * `storyScopedMutating`, `mainSharedMutating`, `dangerousMutating`, and
+ * unclassified (null) — are rejected fail-closed.
+ *
+ * This gate must run BEFORE preCommand hooks and before enforceStoryOwnerLeaseGate
+ * so a blocked command never triggers hooks or acquires/mutates lease state.
+ *
+ * Throws an Error on rejection; callers surface it as a command failure.
+ */
+export function enforceReviewerReadOnlyCommandGate(
+  cmd: string,
+  args: Record<string, unknown>,
+  activeStory: ActiveStory | null,
+): void {
+  if (!isReviewerReadOnlyModeEnabled()) return;
+
+  const storyId = storyIdFromArgs(args, activeStory);
+  const cls = resolveEffectiveOwnershipClass(cmd, args, storyId);
+
+  if (cls === 'readOnly') return;
+
+  const clsLabel = cls === null ? 'unclassified' : cls;
+  throw new Error(
+    `[${REVIEWER_READONLY_ENV}=1] Command "${cmd}" is not allowed in read-only reviewer mode ` +
+    `(effective ownershipClass: ${clsLabel}). ` +
+    `Advisory read-only reviewers may only run read-only Koala commands and should return ` +
+    `structured findings to the story owner. ` +
+    `To run write commands, unset ${REVIEWER_READONLY_ENV} and ensure you are the story owner.`,
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 /**
  * Decide whether a CLI invocation should be recorded in activity.jsonl.
  * Returns false for read-only commands and dry-run invocations.
@@ -2218,6 +2265,18 @@ export async function runCli(opts?: {
   async function run(fn: () => unknown | Promise<unknown>) {
     const runStart = new Date().toISOString();
     log(`running ${cmd}...`);
+    // B-4f15 CHK-002: read-only reviewer gate runs first — before hooks and
+    // before the owner lease gate, so a blocked command cannot trigger hooks
+    // or acquire/mutate lease state.
+    try {
+      enforceReviewerReadOnlyCommandGate(cmd, parsed, activeStory);
+    } catch (e: any) {
+      clearInterval(watchdog);
+      log(`${cmd} failed: ${e.message}`);
+      process.stderr.write(`错误: ${e.message}\n`);
+      process.exitCode = 1;
+      return;
+    }
     // preCommand hook — non-blocking failure, awaited so it always runs before the handler
     if (config0?.hooks?.preCommand && !READ_ONLY_COMMANDS.has(cmd)) {
       process.stderr.write(`[koala-hook] running preCommand hooks (timeout ${HOOK_TIMEOUT_MS / 1000}s/cmd)...\n`);

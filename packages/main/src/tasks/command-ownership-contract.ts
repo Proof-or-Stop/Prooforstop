@@ -66,6 +66,9 @@ import {
   resolveEffectiveOwnershipClass,
   isDeliveryReviewerActor,
   enforceStoryOwnerLeaseGate,
+  REVIEWER_READONLY_ENV,
+  isReviewerReadOnlyModeEnabled,
+  enforceReviewerReadOnlyCommandGate,
 } from '../cli-engine.js';
 import {
   acquireOwnerLease,
@@ -413,6 +416,83 @@ try {
     }
   }
 
+  // ── 6. REVIEWER READ-ONLY COMMAND GATE (B-4f15 CHK-002) ─────────────────
+  // enforceReviewerReadOnlyCommandGate is the pre-lease read-only fence for
+  // reviewer agents running under KOALA_REVIEWER_READONLY=1.  This section
+  // asserts all documented behaviours so a future refactor breaks loudly.
+  {
+    const savedRO = process.env[REVIEWER_READONLY_ENV];
+    try {
+      // 6a. Env detection.
+      delete process.env[REVIEWER_READONLY_ENV];
+      assert.equal(isReviewerReadOnlyModeEnabled(), false, 'KOALA_REVIEWER_READONLY unset → disabled');
+      process.env[REVIEWER_READONLY_ENV] = '1';
+      assert.equal(isReviewerReadOnlyModeEnabled(), true, 'KOALA_REVIEWER_READONLY=1 → enabled');
+      process.env[REVIEWER_READONLY_ENV] = '0';
+      assert.equal(isReviewerReadOnlyModeEnabled(), false, 'KOALA_REVIEWER_READONLY=0 → disabled (only "1" enables)');
+
+      // 6b. With env enabled, readOnly commands are allowed.
+      process.env[REVIEWER_READONLY_ENV] = '1';
+      assert.doesNotThrow(
+        () => enforceReviewerReadOnlyCommandGate('story_get', {}, null),
+        'story_get (readOnly) is allowed in read-only reviewer mode',
+      );
+      // validate without --story downgrades to readOnly (boundary rule 2).
+      assert.doesNotThrow(
+        () => enforceReviewerReadOnlyCommandGate('validate', {}, null),
+        'diagnostic validate (no --story, readOnly) is allowed in read-only reviewer mode',
+      );
+
+      // 6c. reviewerWrite commands are blocked — even though they are
+      // owner-lease exempt, they are NOT readOnly and must be rejected.
+      for (const rwCmd of ['review_pass_set', 'finding_add', 'review_run_start', 'init_check_set']) {
+        assert.throws(
+          () => enforceReviewerReadOnlyCommandGate(rwCmd, {}, null),
+          (err: Error) =>
+            err.message.includes(REVIEWER_READONLY_ENV) && err.message.includes(rwCmd),
+          `${rwCmd} (reviewerWrite) is blocked in read-only reviewer mode`,
+        );
+      }
+
+      // 6d. storyScopedMutating / mainSharedMutating / dangerousMutating / unclassified
+      // commands are all blocked.
+      const blockedExamples: [string, Record<string, unknown>][] = [
+        // storyScopedMutating — story_advance without --forceTakeover
+        ['story_advance', { storyId: 'B-4f15' }],
+        // storyScopedMutating with --forceTakeover flag (still owner-gated)
+        ['story_advance', { storyId: 'B-4f15', forceTakeover: true }],
+        // storyScopedMutating
+        ['verification_evidence_add', { storyId: 'B-4f15' }],
+        // mainSharedMutating
+        ['gap_log', {}],
+        ['audit', {}],
+        // unclassified
+        ['no_such_command_xyz', {}],
+      ];
+      for (const [cmd, args] of blockedExamples) {
+        assert.throws(
+          () => enforceReviewerReadOnlyCommandGate(cmd, args, null),
+          (err: Error) => err.message.includes(REVIEWER_READONLY_ENV),
+          `${cmd} is blocked in read-only reviewer mode`,
+        );
+      }
+
+      // 6e. Without the env var, the gate is a no-op — reviewerWrite commands
+      // are not rejected here (they reach enforceStoryOwnerLeaseGate which
+      // correctly exempts them from the owner-lease check).
+      delete process.env[REVIEWER_READONLY_ENV];
+      for (const rwCmd of ['review_pass_set', 'finding_add']) {
+        assert.doesNotThrow(
+          () => enforceReviewerReadOnlyCommandGate(rwCmd, {}, null),
+          `${rwCmd} (reviewerWrite) is NOT rejected by the gate when KOALA_REVIEWER_READONLY is unset`,
+        );
+      }
+    } finally {
+      if (savedRO === undefined) delete process.env[REVIEWER_READONLY_ENV];
+      else process.env[REVIEWER_READONLY_ENV] = savedRO;
+    }
+  }
+
   if (divergences.length > 0) {
     console.error('command-ownership contract: FAIL');
     console.error(`  ${divergences.length} divergence(s) found:`);
@@ -424,10 +504,14 @@ try {
 
   console.log('✓ scope_check_save allowedPhases: PLAN');
   console.log('✓ scope_contract_acknowledge allowedPhases: DEV, REVIEW');
+  console.log('✓ KOALA_REVIEWER_READONLY=1 enables read-only reviewer mode');
+  console.log('✓ enforceReviewerReadOnlyCommandGate: allows readOnly, blocks reviewerWrite/storyScopedMutating/unclassified');
+  console.log('✓ with env unset, normal reviewerWrite reaches enforceStoryOwnerLeaseGate unblocked');
   console.log(
     `✓ command-ownership contract passed — ${cliCommands.length} CLI commands all carry a valid ` +
     `ownershipClass and a dispatchable handler; unclassified commands fail-closed; finding B-META / ` +
-    `validate --story / delivery_check_set boundary rules resolve as ruled`,
+    `validate --story / delivery_check_set boundary rules resolve as ruled; ` +
+    `read-only reviewer command gate (B-4f15 CHK-002) assertions all pass`,
   );
 } finally {
   rmSync(root, { recursive: true, force: true });

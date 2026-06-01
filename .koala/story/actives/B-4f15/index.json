@@ -4,7 +4,7 @@
   "title": "Add read-only reviewer command policy",
   "description": "Prevent delegated read-only reviewers from directly writing Koala review/finding/lifecycle artifacts when they should only return structured review results to the owner.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "reviewer",
@@ -25,7 +25,7 @@
   ],
   "createdAt": "2026-06-01T15:46:33.630Z",
   "startedAt": "2026-06-01T15:46:33.630Z",
-  "endedAt": null,
+  "endedAt": "2026-06-01T16:49:41.671Z",
   "events": [
     {
       "phase": "INIT",
@@ -42,11 +42,86 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-01T15:50:44.357Z",
+      "branch": "story/B-4f15",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-01T15:58:44.986Z",
+      "branch": "story/B-4f15",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-01T16:17:40.045Z",
+      "branch": "story/B-4f15",
+      "user": "Harmonygo",
+      "sessionId": "sess-3dc0a7b8a40673b2",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-01T16:20:56.942Z",
+      "branch": "story/B-4f15",
+      "user": "Harmonygo",
+      "sessionId": "sess-3dc0a7b8a40673b2",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-01T16:24:53.918Z",
+      "branch": "story/B-4f15",
+      "user": "Harmonygo",
+      "sessionId": "sess-3dc0a7b8a40673b2",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-01T16:26:24.024Z",
+      "branch": "story/B-4f15",
+      "user": "Harmonygo",
+      "sessionId": "sess-3dc0a7b8a40673b2",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-01T16:36:45.678Z",
+      "branch": "story/B-4f15",
+      "user": "Harmonygo",
+      "sessionId": "sess-3dc0a7b8a40673b2",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-01T16:45:54.818Z",
+      "branch": "story/B-4f15",
+      "user": "Harmonygo",
+      "sessionId": "sess-3dc0a7b8a40673b2",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-01T16:49:41.671Z",
+      "branch": "story/B-4f15",
+      "user": "Harmonygo",
+      "sessionId": "sess-3dc0a7b8a40673b2",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-4f15",
-    "branch": "story/B-4f15",
-    "createdAt": "2026-06-01T15:50:22.742Z"
-  }
+  "currentReviewRound": "2026-06-01T16:36:45.678Z"
 }
