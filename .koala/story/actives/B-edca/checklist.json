@@ -52,9 +52,9 @@
           "file": ".koala/story/actives/B-edca/evidence/reproduction.md",
           "result": "pass",
           "note": "reproduction.md documents validate-generated test-evidence missing materialHash and custom storyDir metadata gap",
-          "headHash": "1ae6f675030c3891901b7a223d62937614322e8e",
-          "materialHash": "d0f8574445b27a5688470c6de764092fd147dad10e9ce0e5014dd6170e05ea85",
-          "timestamp": "2026-06-01T14:37:45.599Z"
+          "headHash": "019890c54592c96679851c697c3d6ebc40b50499",
+          "materialHash": "da2521c836138b6c74c7bd31988dd3695bcd830658f2b74cdb28af4952cca914",
+          "timestamp": "2026-06-01T14:59:42.614Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -62,9 +62,9 @@
           "file": ".koala/story/actives/B-edca/evidence/reproduction.md",
           "result": "pass",
           "note": "reproduction distinguishes test-evidence self-churn from real material drift",
-          "headHash": "1ae6f675030c3891901b7a223d62937614322e8e",
-          "materialHash": "d0f8574445b27a5688470c6de764092fd147dad10e9ce0e5014dd6170e05ea85",
-          "timestamp": "2026-06-01T14:37:45.626Z"
+          "headHash": "019890c54592c96679851c697c3d6ebc40b50499",
+          "materialHash": "da2521c836138b6c74c7bd31988dd3695bcd830658f2b74cdb28af4952cca914",
+          "timestamp": "2026-06-01T14:59:42.614Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -72,9 +72,9 @@
           "command": "npm --prefix packages/main run test:verification-freshness-smoke",
           "result": "pass",
           "note": "regression keeps real material drift stale while allowing metadata-only test-evidence changes",
-          "headHash": "1ae6f675030c3891901b7a223d62937614322e8e",
-          "materialHash": "d0f8574445b27a5688470c6de764092fd147dad10e9ce0e5014dd6170e05ea85",
-          "timestamp": "2026-06-01T14:37:45.651Z"
+          "headHash": "019890c54592c96679851c697c3d6ebc40b50499",
+          "materialHash": "da2521c836138b6c74c7bd31988dd3695bcd830658f2b74cdb28af4952cca914",
+          "timestamp": "2026-06-01T14:59:42.614Z"
         }
       ]
     },
@@ -129,9 +129,9 @@
           "file": "docs/requirements/decisions/testing-completeness.md",
           "result": "pass",
           "note": "policy states test-evidence.json is gate-consumed validation metadata, not material drift input",
-          "headHash": "1ae6f675030c3891901b7a223d62937614322e8e",
-          "materialHash": "d0f8574445b27a5688470c6de764092fd147dad10e9ce0e5014dd6170e05ea85",
-          "timestamp": "2026-06-01T14:38:01.268Z"
+          "headHash": "019890c54592c96679851c697c3d6ebc40b50499",
+          "materialHash": "da2521c836138b6c74c7bd31988dd3695bcd830658f2b74cdb28af4952cca914",
+          "timestamp": "2026-06-01T14:59:42.614Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -139,9 +139,9 @@
           "file": "docs/requirements/decisions/lifecycle-artifact-scope.md",
           "result": "pass",
           "note": "policy preserves stale behavior for real source or evidence drift",
-          "headHash": "1ae6f675030c3891901b7a223d62937614322e8e",
-          "materialHash": "d0f8574445b27a5688470c6de764092fd147dad10e9ce0e5014dd6170e05ea85",
-          "timestamp": "2026-06-01T14:38:01.291Z"
+          "headHash": "019890c54592c96679851c697c3d6ebc40b50499",
+          "materialHash": "da2521c836138b6c74c7bd31988dd3695bcd830658f2b74cdb28af4952cca914",
+          "timestamp": "2026-06-01T14:59:42.614Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -149,9 +149,9 @@
           "command": "npm run test:process-fact-contract",
           "result": "pass",
           "note": "process fact contract still treats test-evidence.json as gate artifact and does not make validation output mask other gates",
-          "headHash": "1ae6f675030c3891901b7a223d62937614322e8e",
-          "materialHash": "d0f8574445b27a5688470c6de764092fd147dad10e9ce0e5014dd6170e05ea85",
-          "timestamp": "2026-06-01T14:38:01.322Z"
+          "headHash": "019890c54592c96679851c697c3d6ebc40b50499",
+          "materialHash": "da2521c836138b6c74c7bd31988dd3695bcd830658f2b74cdb28af4952cca914",
+          "timestamp": "2026-06-01T14:59:42.614Z"
         }
       ]
     },
@@ -209,9 +209,9 @@
           "command": "npm --prefix packages/main run test:verification-freshness-smoke",
           "result": "pass",
           "note": "freshness logic excludes validate-generated test-evidence self-churn from materialHash stale checks",
-          "headHash": "1ae6f675030c3891901b7a223d62937614322e8e",
-          "materialHash": "d0f8574445b27a5688470c6de764092fd147dad10e9ce0e5014dd6170e05ea85",
-          "timestamp": "2026-06-01T14:38:25.509Z"
+          "headHash": "019890c54592c96679851c697c3d6ebc40b50499",
+          "materialHash": "da2521c836138b6c74c7bd31988dd3695bcd830658f2b74cdb28af4952cca914",
+          "timestamp": "2026-06-01T14:59:42.614Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -220,9 +220,9 @@
           "command": "npm --prefix packages/main run test:verification-freshness-smoke",
           "result": "pass",
           "note": "real material source drift remains stale, including workflow/notes.md outside configured storyDir",
-          "headHash": "1ae6f675030c3891901b7a223d62937614322e8e",
-          "materialHash": "d0f8574445b27a5688470c6de764092fd147dad10e9ce0e5014dd6170e05ea85",
-          "timestamp": "2026-06-01T14:38:25.532Z"
+          "headHash": "019890c54592c96679851c697c3d6ebc40b50499",
+          "materialHash": "da2521c836138b6c74c7bd31988dd3695bcd830658f2b74cdb28af4952cca914",
+          "timestamp": "2026-06-01T14:59:42.614Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -230,9 +230,9 @@
           "command": "npm run test:process-fact-contract",
           "result": "pass",
           "note": "failing validate, missing coverage, delivery and summary gates remain governed by process fact contract and gate artifacts",
-          "headHash": "1ae6f675030c3891901b7a223d62937614322e8e",
-          "materialHash": "d0f8574445b27a5688470c6de764092fd147dad10e9ce0e5014dd6170e05ea85",
-          "timestamp": "2026-06-01T14:38:25.554Z"
+          "headHash": "019890c54592c96679851c697c3d6ebc40b50499",
+          "materialHash": "da2521c836138b6c74c7bd31988dd3695bcd830658f2b74cdb28af4952cca914",
+          "timestamp": "2026-06-01T14:59:42.614Z"
         }
       ]
     },
@@ -287,9 +287,9 @@
           "command": "npm --prefix packages/main run test:verification-freshness-smoke",
           "result": "pass",
           "note": "regression covers metadata-only test-evidence self-churn freshness",
-          "headHash": "1ae6f675030c3891901b7a223d62937614322e8e",
-          "materialHash": "d0f8574445b27a5688470c6de764092fd147dad10e9ce0e5014dd6170e05ea85",
-          "timestamp": "2026-06-01T14:38:39.723Z"
+          "headHash": "019890c54592c96679851c697c3d6ebc40b50499",
+          "materialHash": "da2521c836138b6c74c7bd31988dd3695bcd830658f2b74cdb28af4952cca914",
+          "timestamp": "2026-06-01T14:59:42.614Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -298,9 +298,9 @@
           "command": "npm --prefix packages/main run test:verification-freshness-smoke",
           "result": "pass",
           "note": "regression commits metadata in a clean temporary git repo and validates materialHash freshness",
-          "headHash": "1ae6f675030c3891901b7a223d62937614322e8e",
-          "materialHash": "d0f8574445b27a5688470c6de764092fd147dad10e9ce0e5014dd6170e05ea85",
-          "timestamp": "2026-06-01T14:38:39.745Z"
+          "headHash": "019890c54592c96679851c697c3d6ebc40b50499",
+          "materialHash": "da2521c836138b6c74c7bd31988dd3695bcd830658f2b74cdb28af4952cca914",
+          "timestamp": "2026-06-01T14:59:42.614Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -309,9 +309,9 @@
           "command": "npm --prefix packages/main run test:verification-freshness-smoke",
           "result": "pass",
           "note": "separate adversarial assertions prove workflow/notes.md and source file drift remain stale",
-          "headHash": "1ae6f675030c3891901b7a223d62937614322e8e",
-          "materialHash": "d0f8574445b27a5688470c6de764092fd147dad10e9ce0e5014dd6170e05ea85",
-          "timestamp": "2026-06-01T14:38:39.767Z"
+          "headHash": "019890c54592c96679851c697c3d6ebc40b50499",
+          "materialHash": "da2521c836138b6c74c7bd31988dd3695bcd830658f2b74cdb28af4952cca914",
+          "timestamp": "2026-06-01T14:59:42.614Z"
         }
       ]
     },
@@ -368,9 +368,9 @@
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:verification-freshness-smoke && npm run test:process-fact-contract",
           "result": "pass",
           "note": "Codex independently ran build, freshness smoke, and process fact contract; transcript records command results",
-          "headHash": "1ae6f675030c3891901b7a223d62937614322e8e",
-          "materialHash": "d0f8574445b27a5688470c6de764092fd147dad10e9ce0e5014dd6170e05ea85",
-          "timestamp": "2026-06-01T14:39:08.003Z"
+          "headHash": "019890c54592c96679851c697c3d6ebc40b50499",
+          "materialHash": "da2521c836138b6c74c7bd31988dd3695bcd830658f2b74cdb28af4952cca914",
+          "timestamp": "2026-06-01T14:59:42.614Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -378,9 +378,9 @@
           "file": ".koala/story/actives/B-edca/evidence/validation-transcript.md",
           "result": "pass",
           "note": "transcript documents absence of self-churn stale advisory is covered by committed regression and will be checked by validate/session_brief",
-          "headHash": "1ae6f675030c3891901b7a223d62937614322e8e",
-          "materialHash": "d0f8574445b27a5688470c6de764092fd147dad10e9ce0e5014dd6170e05ea85",
-          "timestamp": "2026-06-01T14:39:08.031Z"
+          "headHash": "019890c54592c96679851c697c3d6ebc40b50499",
+          "materialHash": "da2521c836138b6c74c7bd31988dd3695bcd830658f2b74cdb28af4952cca914",
+          "timestamp": "2026-06-01T14:59:42.614Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -389,9 +389,9 @@
           "command": "npm --prefix packages/main run test:verification-freshness-smoke",
           "result": "pass",
           "note": "negative controls verify unrelated material drift remains stale while metadata self-churn stays fresh",
-          "headHash": "1ae6f675030c3891901b7a223d62937614322e8e",
-          "materialHash": "d0f8574445b27a5688470c6de764092fd147dad10e9ce0e5014dd6170e05ea85",
-          "timestamp": "2026-06-01T14:39:08.058Z"
+          "headHash": "019890c54592c96679851c697c3d6ebc40b50499",
+          "materialHash": "da2521c836138b6c74c7bd31988dd3695bcd830658f2b74cdb28af4952cca914",
+          "timestamp": "2026-06-01T14:59:42.614Z"
         }
       ]
     }
