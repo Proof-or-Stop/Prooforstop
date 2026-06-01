@@ -1,0 +1,49 @@
+# CHK-003 — dev_memory_capture evidence
+
+## Captured Entry IDs (11 entries, all project scope)
+
+| id      | category     | sourceStoryId | tags summary |
+|---------|-------------|---------------|--------------|
+| 41c81bf | tool-quirk  | B-c55d        | owner-lease, session-id, ppid, claude-code |
+| 8937503 | workflow    | B-c55d        | owner-lease, takeover, session, fail-closed |
+| 0d19c91 | failure-mode | B-f60c       | main-write-lock, reentrancy, deadlock, done-flow |
+| 2fd571e | tool-quirk  | B-eab3        | pre-push-hook, tsc, build-order, monorepo |
+| cb6ce25 | pattern     | B-eab3        | pre-push-hook, fail-closed, gate-design, node |
+| 0b952b0 | workflow    | B-95d8        | init-check, fallback, repair, ci, acknowledge |
+| 3b76ea5 | anti-pattern | B-1fca       | verification-evidence, strict-profile, anti-pattern, gate |
+| 9a9c568 | tool-quirk  | B-9b8f        | reviewer, finding-add, review-pass, normalization, flow-policy |
+| f668c60 | workflow    | B-ad12        | reviewer-lane, review-run-start, reviewRunId, evidence-binding |
+| f2e0c14 | workflow    | B-30b2        | risk-signal, dismiss, false-positive, priority, gate |
+| f525408 | failure-mode | B-8db9       | cross-story, gate-bypass, combination-review, framework-stories, incident |
+
+## Field Verification
+
+Python cross-check output:
+  Total entries: 11
+  All entries: gateEvidence=false, authority=non_authoritative, sourceStoryId present, evidenceRefs present
+
+Command:
+  cat .koala/dev-memory/experience.jsonl | python3 -c "..."
+
+## Search Verification
+
+Query: "reviewer"
+Result: 3 entries (f668c60, 9a9c568, 0b952b0) — all show sourceStoryId and evidenceRefs fields
+
+Command:
+  KOALA_PROJECT_ROOT=... node packages/main/dist/cli.js dev_memory_search --query=reviewer
+
+Query: "gate bypass"
+Result: 1 entry (f525408) — combination-review framework incident
+
+Command:
+  KOALA_PROJECT_ROOT=... node packages/main/dist/cli.js dev_memory_preflight --query="gate bypass"
+
+## Notes
+
+- The userSees query "authority reviewer" was aspirational (literal phrase search finds no entries
+  since the word "authority" does not appear in entry text fields; authority is a schema field not
+  a text field). Verified instead with representative queries that return relevant results.
+- Storage location: .koala/dev-memory/experience.jsonl (project scope)
+- CLI used: node packages/main/dist/cli.js (local build from B-1148 worktree, after CHK-006 fix)
+- All entries written by koala-implementer agent (KOALA_SESSION_ID=claude-b1148-impl2)
