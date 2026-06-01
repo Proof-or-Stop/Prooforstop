@@ -16,7 +16,7 @@ import {
 import { createCheckHandlers } from '../handlers/check.js';
 import { createDoctorHandlers } from '../handlers/doctor.js';
 import { managedAssetNextAction, renderManagedAssetCheck, runManagedAssetCheck } from '../core/managed-assets.js';
-import { runRuntimeEnvironmentChecks } from '../core/runtime-environment-checks.js';
+import { renderRuntimeFootprintSummary, runRuntimeEnvironmentChecks } from '../core/runtime-environment-checks.js';
 import { StoryStore } from '../core/store.js';
 import { renderCodexWrapperScript, renderKoalaBootstrapScript } from '../init-assets.js';
 
@@ -786,6 +786,15 @@ try {
     assert.equal(report.runtimeMode.mode, 'diagnostic-only');
     assert.equal(report.runtimeMode.source, 'unknown');
     assert.equal(report.runtimeMode.requiresProjectJavaScriptRuntime, false);
+    const runtimeSummary = renderRuntimeFootprintSummary(report.runtimeMode);
+    assert.ok(runtimeSummary.startsWith('Runtime footprint:\nRuntime mode: diagnostic-only'));
+    assert.match(runtimeSummary, /Runtime source: unknown/);
+    assert.match(runtimeSummary, /Project-local JavaScript runtime required: no/);
+    assert.match(runtimeSummary, /Authority: local-runtime-diagnostic-only/);
+    assert.match(
+      runtimeSummary,
+      /Next action: project-local node_modules\/\.bin\/koala resolves to .* but the active CLI resolves to .*/,
+    );
   } finally {
     rmSync(conflictRuntimeRoot, { recursive: true, force: true });
   }
@@ -872,6 +881,26 @@ try {
   try {
     writeFileSync(join(staleLocalAssetRoot, 'KOALA.md'), '<!-- koala:start -->\n# Local Koala Notes\ncustom text\n<!-- koala:end -->\n');
     const before = readFileSync(join(staleLocalAssetRoot, 'KOALA.md'), 'utf-8');
+    const plainCheck = createCheckHandlers({
+      root: staleLocalAssetRoot,
+      scanRoot: staleLocalAssetRoot,
+      store: new StoryStore(staleLocalAssetRoot),
+      log: () => {},
+    }).check;
+    let staleLocalCheckText = '';
+    try {
+      plainCheck({ profile: 'core', reviewLocalEdits: true });
+      assert.fail('plain check should throw on stale local managed block edits');
+    } catch (error: any) {
+      staleLocalCheckText = String(error.message || error);
+    }
+    assert.ok(
+      staleLocalCheckText.startsWith('Runtime footprint:\nRuntime mode:'),
+      'plain check stale local edit should render runtime footprint before drift details',
+    );
+    assert.match(staleLocalCheckText, /Next action: review unsafe managed assets manually/);
+    assert.match(staleLocalCheckText, /Koala managed asset check: DRIFT/);
+    assert.match(staleLocalCheckText, /STALE_LOCAL_EDIT KOALA\.md|STALE_LOCAL_EDIT[\s\S]*KOALA\.md/);
     const result = runManagedAssetCheck(staleLocalAssetRoot, { apply: true, reviewLocalEdits: true, profile: 'core' });
     const item = result.items.find(entry => entry.relPath === 'KOALA.md');
     assert.equal(item?.status, 'STALE_LOCAL_EDIT');
