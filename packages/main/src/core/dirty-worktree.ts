@@ -138,7 +138,7 @@ function isMaterialSourcePath(path: string, options: DirtyWorktreeClassifierOpti
 
 function classifyParsedRow(row: DirtyWorktreeParsedRow, options: DirtyWorktreeClassifierOptions): DirtyWorktreeEntry {
   const paths = pathSet(row);
-  if (paths.some(isStoryMetadataPath)) {
+  if (paths.some((p) => isStoryMetadataPath(p))) {
     return { ...row, category: 'koala_metadata_changes' };
   }
 

@@ -1194,4 +1194,55 @@ async function assertSimulatedMainMergeRegression(): Promise<void> {
 
 await assertSimulatedMainMergeRegression();
 
+// ── B-edca: test-evidence.json is metadata-only; custom storyDir exclusion ──
+{
+  // (1) .koala/story/actives/B-smoke/test-evidence.json is metadata-only and
+  //     keeps material-hash evidence fresh.
+  const path1 = '.koala/story/actives/B-smoke/test-evidence.json';
+  assert.equal(isMaterialExcludedPath(path1), true, `${path1} should be metadata`);
+  assert.equal(materialFreshAfterChanging(path1), true, `${path1} should keep material-hash evidence fresh`);
+
+  // (2) custom configured storyDir: workflow/stories/B-smoke/test-evidence.json
+  //     is metadata when koala.config.json sets storyDir to workflow/stories.
+  //     workflow/notes.md must NOT be excluded (parent dir is not storyDir).
+  {
+    const root = mkdtempRoot();
+    try {
+      git(root, ['init']);
+      resetConfigCache();
+      write(root, 'koala.config.json', JSON.stringify({ storyDir: 'workflow/stories' }, null, 2));
+      write(root, 'packages/main/src/base.ts', 'export const base = true;\n');
+      const base = commit(root, 'base');
+      const materialHash = currentMaterialHash(root);
+      assert.ok(materialHash, 'material hash should be available');
+
+      // (2a) story metadata path IS excluded
+      const storyMetaPath = 'workflow/stories/B-smoke/test-evidence.json';
+      write(root, storyMetaPath, 'changed\n');
+      const baseAfterMeta = commit(root, 'change custom storyDir test-evidence');
+      const materialHashAfterMeta = currentMaterialHash(root);
+      assert.ok(materialHashAfterMeta, 'materialHashAfterMeta should be available');
+      const freshAfterMeta = checkEvidenceFreshnessForGit(root, base, materialHash).fresh;
+      assert.equal(freshAfterMeta, true, `${storyMetaPath} with storyDir=workflow/stories should keep material-hash evidence fresh`);
+      assert.equal(isMaterialExcludedPath(storyMetaPath, root), true, `${storyMetaPath} must be excluded with storyDir=workflow/stories`);
+
+      // (2b) sibling file outside storyDir must NOT be excluded and must make evidence stale.
+      // Use the post-meta commit as baseline so the sibling change is the only diff.
+      const siblingPath = 'workflow/notes.md';
+      assert.equal(isMaterialExcludedPath(siblingPath, root), false, `${siblingPath} must NOT be excluded (not under storyDir)`);
+      write(root, siblingPath, 'content\n');
+      commit(root, 'change sibling file');
+      const staleAfterSibling = checkEvidenceFreshnessForGit(root, baseAfterMeta, materialHashAfterMeta).fresh;
+      assert.equal(staleAfterSibling, false, `${siblingPath} must make material-hash evidence stale`);
+    } finally {
+      resetConfigCache();
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+
+  // (3) a real material file still makes evidence stale.
+  const materialPath = 'packages/main/src/core/verifier.ts';
+  assert.equal(materialFreshAfterChanging(materialPath), false, `${materialPath} should make material-hash evidence stale`);
+}
+
 console.log('✓ verification freshness smoke passed');

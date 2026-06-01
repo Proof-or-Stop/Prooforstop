@@ -98,3 +98,7 @@ Mechanical evidence lives in:
 
 If any of these regress, the policy is broken and must be fixed before
 landing further DEV work.
+
+## Policy: test-evidence.json is gate-consumed validation metadata
+
+test-evidence.json is gate-consumed validation metadata, not material drift input. PASS/FAIL/coverage still feed gates, and real source or evidence drift remains stale. Changes to test-evidence.json alone do not invalidate prior material-hash evidence.

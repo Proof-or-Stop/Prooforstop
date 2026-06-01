@@ -40,7 +40,7 @@ import { runChannelGateCli } from './validate-channel.js';
 import { runConceptGateCli } from './validate-concept.js';
 import { runLintGateCli } from './validate-lint.js';
 import { buildVerificationCoverage, renderVerificationCoverage } from '../core/verification.js';
-import { checkEvidenceFreshnessForGit } from '../core/evidence-freshness.js';
+import { checkEvidenceFreshnessForGit, currentMaterialHash } from '../core/evidence-freshness.js';
 import { syncClusterResolves } from '../core/cluster-sync.js';
 import { resolveVerificationIntentPolicy, resolveWorkflowPolicy } from '../core/workflow-policy.js';
 
@@ -372,12 +372,14 @@ function persistStoryValidationEvidence(ctx: HandlerContext, storyId: string, re
   const statusPass = result.status === 'pass';
   const allPass = Boolean(result.allPass ?? result.allPassed ?? statusPass);
   const headHash = currentHead(ctx.root) ?? result.headSha ?? result.headHash;
+  const materialHash = currentMaterialHash(ctx.root);
   ctx.store.writeTestEvidence(storyId, {
     command,
     output: JSON.stringify(result),
     result: allPass ? 'PASS' : 'FAIL',
     timestamp: new Date().toISOString(),
     ...(headHash ? { headHash } : {}),
+    ...(materialHash ? { materialHash } : {}),
     ...(result.verificationCoverage ? { verificationCoverage: result.verificationCoverage } : {}),
   });
 }

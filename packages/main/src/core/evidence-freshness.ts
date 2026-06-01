@@ -1,6 +1,7 @@
 import { execFileSync } from 'child_process';
 import { createHash } from 'crypto';
 import { isMaterialExcludedRuntimeArtifactPath } from './runtime-artifact-registry.js';
+import { loadConfig } from './config.js';
 
 export type EvidenceFreshness = {
   fresh: boolean;
@@ -14,17 +15,34 @@ function headMatches(a: string, b: string): boolean {
   return a === b || a.startsWith(b) || b.startsWith(a);
 }
 
-export function isStoryMetadataPath(path: string): boolean {
+const DEFAULT_STORY_METADATA_PREFIXES = [
+  'docs/story/',
+  '.koala/story/',
+  'docs/koala/framework-audit/',
+];
+
+export function isStoryMetadataPath(path: string, projectRoot?: string): boolean {
   const normalized = path.replace(/\\/g, '/').toLowerCase();
-  return [
-    'docs/story/',
-    '.koala/story/',
-    'docs/koala/framework-audit/',
-  ].some(prefix => normalized.startsWith(prefix));
+  const prefixes = [...DEFAULT_STORY_METADATA_PREFIXES];
+  if (projectRoot) {
+    try {
+      const cfg = loadConfig(projectRoot);
+      const storyDir = cfg.storyDir?.replace(/\\/g, '/').toLowerCase();
+      if (storyDir) {
+        const storyDirPrefix = storyDir.endsWith('/') ? storyDir : storyDir + '/';
+        if (!prefixes.some(p => p === storyDirPrefix || storyDirPrefix.startsWith(p))) {
+          prefixes.push(storyDirPrefix);
+        }
+      }
+    } catch {
+      // config load failure → fall back to defaults
+    }
+  }
+  return prefixes.some(prefix => normalized.startsWith(prefix));
 }
 
-export function isMaterialExcludedPath(path: string): boolean {
-  return isStoryMetadataPath(path) || isMaterialExcludedRuntimeArtifactPath(path);
+export function isMaterialExcludedPath(path: string, projectRoot?: string): boolean {
+  return isStoryMetadataPath(path, projectRoot) || isMaterialExcludedRuntimeArtifactPath(path);
 }
 
 export function currentGitHead(projectRoot: string): string | undefined {
@@ -62,7 +80,7 @@ export function currentMaterialHash(projectRoot: string, ref = 'HEAD'): string |
       if (tab < 0) continue;
       const meta = entry.slice(0, tab);
       const filePath = entry.slice(tab + 1);
-      if (isMaterialExcludedPath(filePath)) continue;
+      if (isMaterialExcludedPath(filePath, projectRoot)) continue;
       const objectId = meta.trim().split(/\s+/)[2];
       if (!objectId) continue;
       materialEntries.push(`${filePath}\0${objectId}`);
@@ -132,7 +150,7 @@ export function checkEvidenceFreshnessForGit(
 
   try {
     const changedFiles = changedFilesBetween(projectRoot, evidenceHash, 'HEAD');
-    const materialFiles = changedFiles.filter(f => !isMaterialExcludedPath(f));
+    const materialFiles = changedFiles.filter(f => !isMaterialExcludedPath(f, projectRoot));
     if (materialFiles.length === 0) {
       return {
         fresh: true,
