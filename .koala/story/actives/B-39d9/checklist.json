@@ -54,9 +54,9 @@
           "command": "npm --prefix packages/main run test:validation-protocol",
           "result": "pass",
           "note": "Smoke asserts top-level runtimeMode on check JSON and doctor JSON, exact enum membership, and required fields mode/source/requiresProjectJavaScriptRuntime/authority/message.",
-          "headHash": "042db0d2ddf93a150a758a0cd5c3b477b040ea8b",
-          "materialHash": "3f09945cc30eb45d36de61b458a2e30969bc5051005329a039da6dafe0d52dd9",
-          "timestamp": "2026-06-01T16:43:34.936Z"
+          "headHash": "e4d4014da25151ede01ba6199a60761cefc5c914",
+          "materialHash": "0263b38cb9290b1fbf9379149d8dd7a7052d7a3ab8d465bb14a2ad1c57632bab",
+          "timestamp": "2026-06-01T16:56:03.129Z"
         },
         {
           "intentRef": "external-project",
@@ -65,9 +65,9 @@
           "command": "npm --prefix packages/main run test:validation-protocol",
           "result": "pass",
           "note": "Smoke injects an external development engine root and asserts compatibility-launcher/external-development-engine with requiresProjectJavaScriptRuntime=false.",
-          "headHash": "042db0d2ddf93a150a758a0cd5c3b477b040ea8b",
-          "materialHash": "3f09945cc30eb45d36de61b458a2e30969bc5051005329a039da6dafe0d52dd9",
-          "timestamp": "2026-06-01T16:43:34.936Z"
+          "headHash": "e4d4014da25151ede01ba6199a60761cefc5c914",
+          "materialHash": "0263b38cb9290b1fbf9379149d8dd7a7052d7a3ab8d465bb14a2ad1c57632bab",
+          "timestamp": "2026-06-01T16:56:03.129Z"
         },
         {
           "intentRef": "unknown-conflict",
@@ -76,9 +76,9 @@
           "command": "npm --prefix packages/main run test:validation-protocol",
           "result": "pass",
           "note": "Smoke creates conflicting project-local and active CLI signals and asserts diagnostic-only/unknown with no project-local JS requirement.",
-          "headHash": "042db0d2ddf93a150a758a0cd5c3b477b040ea8b",
-          "materialHash": "3f09945cc30eb45d36de61b458a2e30969bc5051005329a039da6dafe0d52dd9",
-          "timestamp": "2026-06-01T16:43:34.936Z"
+          "headHash": "e4d4014da25151ede01ba6199a60761cefc5c914",
+          "materialHash": "0263b38cb9290b1fbf9379149d8dd7a7052d7a3ab8d465bb14a2ad1c57632bab",
+          "timestamp": "2026-06-01T16:56:03.129Z"
         }
       ]
     },
@@ -137,9 +137,9 @@
           "command": "npm --prefix packages/main run test:validation-protocol",
           "result": "pass",
           "note": "Smoke asserts plain check and doctor output start with Runtime footprint, Runtime mode, Project-local JavaScript runtime required, and Next action before detailed diagnostics.",
-          "headHash": "042db0d2ddf93a150a758a0cd5c3b477b040ea8b",
-          "materialHash": "3f09945cc30eb45d36de61b458a2e30969bc5051005329a039da6dafe0d52dd9",
-          "timestamp": "2026-06-01T16:43:34.936Z"
+          "headHash": "e4d4014da25151ede01ba6199a60761cefc5c914",
+          "materialHash": "0263b38cb9290b1fbf9379149d8dd7a7052d7a3ab8d465bb14a2ad1c57632bab",
+          "timestamp": "2026-06-01T16:56:03.129Z"
         },
         {
           "intentRef": "first-screen-drift",
@@ -148,9 +148,9 @@
           "command": "npm --prefix packages/main run test:validation-protocol",
           "result": "pass",
           "note": "Smoke asserts plain check drift throws text beginning with the runtime footprint summary before managed asset drift details.",
-          "headHash": "042db0d2ddf93a150a758a0cd5c3b477b040ea8b",
-          "materialHash": "3f09945cc30eb45d36de61b458a2e30969bc5051005329a039da6dafe0d52dd9",
-          "timestamp": "2026-06-01T16:43:34.936Z"
+          "headHash": "e4d4014da25151ede01ba6199a60761cefc5c914",
+          "materialHash": "0263b38cb9290b1fbf9379149d8dd7a7052d7a3ab8d465bb14a2ad1c57632bab",
+          "timestamp": "2026-06-01T16:56:03.129Z"
         },
         {
           "intentRef": "manual-next-action",
@@ -159,9 +159,9 @@
           "command": "npm --prefix packages/main run test:validation-protocol",
           "result": "pass",
           "note": "managedAssetNextAction returns manual review guidance whenever unsafe managed asset statuses are present.",
-          "headHash": "042db0d2ddf93a150a758a0cd5c3b477b040ea8b",
-          "materialHash": "3f09945cc30eb45d36de61b458a2e30969bc5051005329a039da6dafe0d52dd9",
-          "timestamp": "2026-06-01T16:43:34.936Z"
+          "headHash": "e4d4014da25151ede01ba6199a60761cefc5c914",
+          "materialHash": "0263b38cb9290b1fbf9379149d8dd7a7052d7a3ab8d465bb14a2ad1c57632bab",
+          "timestamp": "2026-06-01T16:56:03.129Z"
         }
       ]
     },
@@ -217,9 +217,9 @@
           "command": "npm --prefix packages/main run test:validation-protocol",
           "result": "pass",
           "note": "applyDefinition still returns false unless item status is MISSING or STALE_SAFE, and smoke verifies unsafe items are not counted in applied paths.",
-          "headHash": "042db0d2ddf93a150a758a0cd5c3b477b040ea8b",
-          "materialHash": "3f09945cc30eb45d36de61b458a2e30969bc5051005329a039da6dafe0d52dd9",
-          "timestamp": "2026-06-01T16:43:34.936Z"
+          "headHash": "e4d4014da25151ede01ba6199a60761cefc5c914",
+          "materialHash": "0263b38cb9290b1fbf9379149d8dd7a7052d7a3ab8d465bb14a2ad1c57632bab",
+          "timestamp": "2026-06-01T16:56:03.129Z"
         },
         {
           "intentRef": "unsafe-guidance",
@@ -228,9 +228,9 @@
           "command": "npm --prefix packages/main run test:validation-protocol",
           "result": "pass",
           "note": "Smoke asserts STALE_LOCAL_EDIT, CASE_MISMATCH, and INCOMPATIBLE render manual action text such as review local edits, rename exact casing, or fix manually.",
-          "headHash": "042db0d2ddf93a150a758a0cd5c3b477b040ea8b",
-          "materialHash": "3f09945cc30eb45d36de61b458a2e30969bc5051005329a039da6dafe0d52dd9",
-          "timestamp": "2026-06-01T16:43:34.936Z"
+          "headHash": "e4d4014da25151ede01ba6199a60761cefc5c914",
+          "materialHash": "0263b38cb9290b1fbf9379149d8dd7a7052d7a3ab8d465bb14a2ad1c57632bab",
+          "timestamp": "2026-06-01T16:56:03.129Z"
         },
         {
           "intentRef": "unsafe-not-repaired",
@@ -239,9 +239,9 @@
           "command": "npm --prefix packages/main run test:validation-protocol",
           "result": "pass",
           "note": "Smoke preserves the original unsafe files during apply and asserts no unsafe path appears in result.applied.",
-          "headHash": "042db0d2ddf93a150a758a0cd5c3b477b040ea8b",
-          "materialHash": "3f09945cc30eb45d36de61b458a2e30969bc5051005329a039da6dafe0d52dd9",
-          "timestamp": "2026-06-01T16:43:34.936Z"
+          "headHash": "e4d4014da25151ede01ba6199a60761cefc5c914",
+          "materialHash": "0263b38cb9290b1fbf9379149d8dd7a7052d7a3ab8d465bb14a2ad1c57632bab",
+          "timestamp": "2026-06-01T16:56:03.129Z"
         }
       ]
     },
@@ -300,9 +300,9 @@
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:validation-protocol && npm --prefix packages/main run test:runtime-fact-contract",
           "result": "pass",
           "note": "Fresh local verification after commit 042db0d2ddf93a150a758a0cd5c3b477b040ea8b passed build, validation protocol smoke, and runtime fact contract.",
-          "headHash": "042db0d2ddf93a150a758a0cd5c3b477b040ea8b",
-          "materialHash": "3f09945cc30eb45d36de61b458a2e30969bc5051005329a039da6dafe0d52dd9",
-          "timestamp": "2026-06-01T16:43:34.936Z"
+          "headHash": "e4d4014da25151ede01ba6199a60761cefc5c914",
+          "materialHash": "0263b38cb9290b1fbf9379149d8dd7a7052d7a3ab8d465bb14a2ad1c57632bab",
+          "timestamp": "2026-06-01T16:56:03.129Z"
         },
         {
           "intentRef": "consumer-handoff",
@@ -310,18 +310,18 @@
           "file": ".koala/story/actives/B-39d9/plan.md",
           "result": "pass",
           "note": "Handoff surface for Koala Mac B-3e9a is explicitly node bin/koala.js check --json, node bin/koala.js doctor --format=json, node bin/koala.js check, and node bin/koala.js doctor.",
-          "headHash": "042db0d2ddf93a150a758a0cd5c3b477b040ea8b",
-          "materialHash": "3f09945cc30eb45d36de61b458a2e30969bc5051005329a039da6dafe0d52dd9",
-          "timestamp": "2026-06-01T16:43:34.936Z"
+          "headHash": "e4d4014da25151ede01ba6199a60761cefc5c914",
+          "materialHash": "0263b38cb9290b1fbf9379149d8dd7a7052d7a3ab8d465bb14a2ad1c57632bab",
+          "timestamp": "2026-06-01T16:56:03.129Z"
         },
         {
           "intentRef": "no-wrapper-assumption",
           "kind": "manual_transcript",
           "result": "pass",
           "note": "B-39d9 evidence is limited to core readiness; Koala Mac wrapper proof remains assigned to B-3e9a and is not claimed here.",
-          "headHash": "042db0d2ddf93a150a758a0cd5c3b477b040ea8b",
-          "materialHash": "3f09945cc30eb45d36de61b458a2e30969bc5051005329a039da6dafe0d52dd9",
-          "timestamp": "2026-06-01T16:43:34.936Z"
+          "headHash": "e4d4014da25151ede01ba6199a60761cefc5c914",
+          "materialHash": "0263b38cb9290b1fbf9379149d8dd7a7052d7a3ab8d465bb14a2ad1c57632bab",
+          "timestamp": "2026-06-01T16:56:03.129Z"
         }
       ]
     }
