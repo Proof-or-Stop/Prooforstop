@@ -7,7 +7,45 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "`check --json` and `doctor --format=json` both contain `\"runtimeMode\":{\"mode\":\"compatibility-launcher\",\"source\":\"external-development-engine\",\"requiresProjectJavaScriptRuntime\":false,\"authority\":\"local-runtime-diagnostic-only\",...}`."
+      "userSees": "`check --json` and `doctor --format=json` both contain `\"runtimeMode\":{\"mode\":\"compatibility-launcher\",\"source\":\"external-development-engine\",\"requiresProjectJavaScriptRuntime\":false,\"authority\":\"local-runtime-diagnostic-only\",...}`.",
+      "relatedDocs": [
+        "docs/requirements/decisions/stack-layering.md",
+        "docs/requirements/decisions/truth-source.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/handlers/check.ts",
+          "packages/main/src/handlers/doctor.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "json-contract",
+            "desc": "check --json and doctor --format=json expose top-level runtimeMode with mode/source/requiresProjectJavaScriptRuntime/authority/message using agreed enum values.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "id": "external-project",
+            "desc": "An external non-self project does not require project-local JavaScript unless the active CLI is truly project-local.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "unknown-conflict",
+            "desc": "Unknown or conflicting runtime signals degrade to diagnostic-only/unknown instead of falsely claiming global-cli or project-local-package.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
