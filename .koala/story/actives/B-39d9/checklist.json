@@ -86,9 +86,9 @@
       "id": "CHK-002",
       "title": "Render first-screen runtime footprint guidance",
       "context": "Plain check and doctor output must start with a concise runtime footprint summary. The first visible block must directly show current mode, whether project-local JS runtime/package.json/node_modules is required, and next safe/manual action. Example lines: `Runtime mode: compatibility-launcher`; `Project-local JavaScript runtime required: no`; `Next action: no managed asset drift` or `Next action: review unsafe managed assets manually`.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-01T16:43:44.890Z",
       "userSees": "The first screen of plain `koala check` and plain `koala doctor` includes lines like `Runtime mode: compatibility-launcher`, `Project-local JavaScript runtime required: no`, and `Next action: no managed asset drift` or `Next action: review unsafe managed assets manually`.",
       "relatedDocs": [
         "docs/requirements/decisions/authority-client-role.md",
@@ -335,6 +335,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Runtime mode contract implemented in shared runtime diagnostics helper and covered by validation protocol smoke.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-06-01T16:43:44.890Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Plain check and doctor now render runtime footprint summary before detailed diagnostics and smoke covers clean/drift paths.",
       "agent": "main"
     }
   ]
