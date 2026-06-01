@@ -375,12 +375,12 @@
         {
           "intentRef": "CHK-005:edge:0",
           "kind": "manual_transcript",
-          "file": ".koala/story/actives/B-edca/evidence/validation-transcript.md",
+          "file": ".koala/story/actives/B-edca/evidence/transcript-diff.md",
           "result": "pass",
-          "note": "transcript documents absence of self-churn stale advisory is covered by committed regression and will be checked by validate/session_brief",
-          "headHash": "3d6ca278e01527ea0df81111712205215f33fa4e",
+          "note": "transcript-diff records TEST session_brief actual output: evidence freshness matched current HEAD and no self-churn EVIDENCE STALE advisory appeared",
+          "headHash": "b584546edc790c98947a5416eced4f6479ece868",
           "materialHash": "da6334ef9dca41027766bc8b8a77f482d60f016e572ba5d4efdb3bcc08a0febb",
-          "timestamp": "2026-06-01T15:08:29.106Z"
+          "timestamp": "2026-06-01T15:18:14.982Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
