@@ -4,7 +4,7 @@
   "title": "Backfill Koala historical process learnings into dev-memory",
   "description": "整理 Koala 历史流程设计、失败模式、成功模式和最新踩坑，把已有权威 story/evidence/doc 中可复用的经验回填为非权威 dev-memory 与可读 evidence 索引，方便普通编程会话在开发前先检索经验。",
   "type": "chore",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "source": "user-request",
   "keywords": [
@@ -57,11 +57,20 @@
       "user": "Harmonygo",
       "sessionId": "codex-b1148",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-01T13:11:52.247Z",
+      "branch": "story/B-1148",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-1148",
     "branch": "story/B-1148",
     "createdAt": "2026-06-01T12:10:44.353Z"
-  }
+  },
+  "currentReviewRound": "2026-06-01T13:11:52.247Z"
 }
