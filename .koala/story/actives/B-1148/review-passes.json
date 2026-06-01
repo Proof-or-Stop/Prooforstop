@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-01T13:11:52.247Z",
       "reviewRunId": "B-1148:RR-003",
       "_hash": "8a1fcfafbcb6dfffb64294276b09bebe6b39a3a22ca4d3689cdbafe9a8c216a9"
+    },
+    {
+      "id": "B-1148:RP-004",
+      "agent": "koala-review-docs",
+      "note": "docs touchpoints clean: decisions/dev-memory.md already documents schema (optional sourceStoryId/evidenceRefs at line 53), JSONL storage path (line 25), versionable design (line 103); .gitignore unignore aligns with project-lifetime + versionable design. Search/formatEntryShort enhancements are additive, consistent with documented optional fields. DEFAULT_PHASE_TOOLS['*']:dev_memory_* aligns with allowedPhases:'all' in command-policy.ts:225-230. story-lifecycle.md and testing-completeness.md unaffected (no dev-memory references). CLAUDE.md has no dev-memory mentions to drift. Backfill manifest (11 captured / 5 dup-skip / 6 needs-confirmation) and verification-results.md cover all evidence claims. Scope-check excludes decisions/*.md modification per truth-source.md.",
+      "createdAt": "2026-06-01T13:17:25.594Z",
+      "reviewRound": "2026-06-01T13:11:52.247Z",
+      "reviewRunId": "B-1148:RR-005",
+      "_hash": "3f70c0b39828255781d1fb08662ce846373f4b7172369a0e8fe72f2dc756b1dd"
     }
   ]
 }
