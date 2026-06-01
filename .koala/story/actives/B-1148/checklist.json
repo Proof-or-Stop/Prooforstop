@@ -284,7 +284,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "file": ".koala/story/actives/B-1148/evidence/backfill-manifest.md",
+          "command": "cat .koala/story/actives/B-1148/evidence/backfill-manifest.md",
+          "result": "pass",
+          "note": "backfill-manifest.md lists all 11 captured entries with id/category/scope/tags/sourceStoryId/evidenceRefs/write-rationale; each entry includes source story reference and rationale for why it was written; Python cross-check confirmed all fields present",
+          "headHash": "39db5d763b769aee12bd0e863e1beea45c24bda7",
+          "materialHash": "468804adcf61452c832d0ba0cfcff0b0644db4e3ec90232c0fa992eaa10851e7",
+          "timestamp": "2026-06-01T12:56:45.015Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
