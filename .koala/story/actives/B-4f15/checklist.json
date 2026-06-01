@@ -43,7 +43,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/role-separation.md",
+          "result": "pass",
+          "note": "role-separation.md documents KOALA_REVIEWER_READONLY=1 as advisory/delegated reviewer mode with read-only Koala inspection boundary.",
+          "headHash": "88ecdcc16c126f1efd2767596416f08b5f1d7a4e",
+          "materialHash": "2fdeddc6e4525019f6e891980dcb3b59029f67e60d7ab05d7aa9c0a9a124f98a",
+          "timestamp": "2026-06-01T16:16:52.939Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/role-separation.md",
+          "result": "pass",
+          "note": "docs distinguish advisory read-only reviewers from normal Koala gate reviewers that must write signed evidence.",
+          "headHash": "88ecdcc16c126f1efd2767596416f08b5f1d7a4e",
+          "materialHash": "2fdeddc6e4525019f6e891980dcb3b59029f67e60d7ab05d7aa9c0a9a124f98a",
+          "timestamp": "2026-06-01T16:16:52.939Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/role-separation.md",
+          "result": "pass",
+          "note": "docs explicitly state advisory reviewer text is not gate evidence and owner must materialize authoritative evidence.",
+          "headHash": "88ecdcc16c126f1efd2767596416f08b5f1d7a4e",
+          "materialHash": "2fdeddc6e4525019f6e891980dcb3b59029f67e60d7ab05d7aa9c0a9a124f98a",
+          "timestamp": "2026-06-01T16:16:52.939Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -90,7 +122,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/command-ownership-contract.ts",
+          "command": "npm run test:command-ownership-contract",
+          "result": "pass",
+          "note": "contract test proves KOALA_REVIEWER_READONLY=1 allows effective readOnly commands such as story_get and validate without story.",
+          "headHash": "88ecdcc16c126f1efd2767596416f08b5f1d7a4e",
+          "materialHash": "2fdeddc6e4525019f6e891980dcb3b59029f67e60d7ab05d7aa9c0a9a124f98a",
+          "timestamp": "2026-06-01T16:16:52.939Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/command-ownership-contract.ts",
+          "command": "npm run test:command-ownership-contract",
+          "result": "pass",
+          "note": "contract test proves reviewerWrite commands review_pass_set/finding_add/review_run_start/init_check_set are blocked under readonly mode.",
+          "headHash": "88ecdcc16c126f1efd2767596416f08b5f1d7a4e",
+          "materialHash": "2fdeddc6e4525019f6e891980dcb3b59029f67e60d7ab05d7aa9c0a9a124f98a",
+          "timestamp": "2026-06-01T16:16:52.939Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/command-ownership-contract.ts",
+          "command": "npm run test:command-ownership-contract",
+          "result": "pass",
+          "note": "contract test proves story_advance forceTakeover, verification_evidence_add, gap_log, audit, and unclassified commands are rejected before owner-lease flow.",
+          "headHash": "88ecdcc16c126f1efd2767596416f08b5f1d7a4e",
+          "materialHash": "2fdeddc6e4525019f6e891980dcb3b59029f67e60d7ab05d7aa9c0a9a124f98a",
+          "timestamp": "2026-06-01T16:16:52.939Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -139,7 +206,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/reviewer-readonly-command-policy-smoke.ts",
+          "command": "npm run test:reviewer-readonly-command-policy-smoke",
+          "result": "pass",
+          "note": "smoke test output includes blocked review_pass_set writes no review-passes.json artifact and reviewer-readonly command policy smoke passed.",
+          "headHash": "88ecdcc16c126f1efd2767596416f08b5f1d7a4e",
+          "materialHash": "2fdeddc6e4525019f6e891980dcb3b59029f67e60d7ab05d7aa9c0a9a124f98a",
+          "timestamp": "2026-06-01T16:16:52.939Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/reviewer-readonly-command-policy-smoke.ts",
+          "command": "npm run test:reviewer-readonly-command-policy-smoke",
+          "result": "pass",
+          "note": "smoke test output includes normal reviewerWrite remains allowed without KOALA_REVIEWER_READONLY.",
+          "headHash": "88ecdcc16c126f1efd2767596416f08b5f1d7a4e",
+          "materialHash": "2fdeddc6e4525019f6e891980dcb3b59029f67e60d7ab05d7aa9c0a9a124f98a",
+          "timestamp": "2026-06-01T16:16:52.939Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/command-ownership-contract.ts",
+          "command": "npm run test:command-ownership-contract",
+          "result": "pass",
+          "note": "contract coverage includes takeover/dangerous/story-scoped mutation rejection under readonly mode.",
+          "headHash": "88ecdcc16c126f1efd2767596416f08b5f1d7a4e",
+          "materialHash": "2fdeddc6e4525019f6e891980dcb3b59029f67e60d7ab05d7aa9c0a9a124f98a",
+          "timestamp": "2026-06-01T16:16:52.939Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -186,7 +288,40 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/role-separation.md",
+          "result": "pass",
+          "note": "owner dispatch guidance says advisory external reviewers run with KOALA_REVIEWER_READONLY=1 on the spawned process and return structured JSON/text findings.",
+          "headHash": "88ecdcc16c126f1efd2767596416f08b5f1d7a4e",
+          "materialHash": "2fdeddc6e4525019f6e891980dcb3b59029f67e60d7ab05d7aa9c0a9a124f98a",
+          "timestamp": "2026-06-01T16:16:52.939Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/role-separation.md",
+          "result": "pass",
+          "note": "guidance preserves normal Koala gate reviewers: koala-review-* must not set readonly mode because they need review_run_start/finding_add/review_pass_set.",
+          "headHash": "88ecdcc16c126f1efd2767596416f08b5f1d7a4e",
+          "materialHash": "2fdeddc6e4525019f6e891980dcb3b59029f67e60d7ab05d7aa9c0a9a124f98a",
+          "timestamp": "2026-06-01T16:16:52.939Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/role-separation.md",
+          "command": "npm run test:codex-assets",
+          "result": "pass",
+          "note": "guidance covers omitted env fallback: treat as non-sandboxed advisory text, verify all claims manually, and discard direct gate artifacts; codex asset verification passed after rebuilding utils/main artifacts.",
+          "headHash": "88ecdcc16c126f1efd2767596416f08b5f1d7a4e",
+          "materialHash": "2fdeddc6e4525019f6e891980dcb3b59029f67e60d7ab05d7aa9c0a9a124f98a",
+          "timestamp": "2026-06-01T16:16:52.939Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -236,7 +371,19 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/utils run build && npm run test:command-ownership-contract && npm run test:reviewer-readonly-command-policy-smoke && npm run test:process-fact-contract && npm run test:runtime-fact-contract && npm run test:codex-assets",
+          "result": "pass",
+          "note": "pre-REVIEW validation commands all pass after rebuilding main/utils artifacts; reviewer and DONE gate evidence will be added by lifecycle artifacts.",
+          "headHash": "88ecdcc16c126f1efd2767596416f08b5f1d7a4e",
+          "materialHash": "2fdeddc6e4525019f6e891980dcb3b59029f67e60d7ab05d7aa9c0a9a124f98a",
+          "timestamp": "2026-06-01T16:16:52.939Z"
+        }
+      ]
     }
   ]
 }
