@@ -396,14 +396,14 @@
         },
         {
           "intentRef": "CHK-005:adversarial:0",
-          "kind": "waiver",
-          "verdict": "waived",
-          "waiverType": "deferred_gate_evidence",
+          "kind": "manual_transcript",
+          "file": ".koala/story/actives/B-4f15/test-evidence.json",
+          "command": "node bin/koala.js story_advance --storyId=B-4f15 --phase=TEST",
           "result": "pass",
-          "note": "Deferred because DONE gate proof requires later delivery_check/summary/validate artifacts; will replace with actual DONE gate evidence before final completion.",
-          "headHash": "5efbe9f211f79c02198836e96a6c0b58875698bf",
-          "materialHash": "2fdeddc6e4525019f6e891980dcb3b59029f67e60d7ab05d7aa9c0a9a124f98a",
-          "timestamp": "2026-06-01T16:17:39.618Z"
+          "note": "Negative gate proof passed: attempting REVIEW→TEST with a deferred CHK-005:adversarial waiver failed with 'Cannot enter TEST' and 14/15 coverage, proving Koala does not allow deferred/missing evidence to advance. Managed asset drift is separately guarded by node bin/koala.js check OK and node bin/koala-codex.js verify_codex PASS; delivery/summary artifacts remain separate DONE gate requirements and will be set before DONE.",
+          "headHash": "e13fae7f581ee494d6987238687e75d86000ac5d",
+          "materialHash": "a0c11d8e125c19941d1bb084146c152354a77b0adc6efe7b706edd585f2b3776",
+          "timestamp": "2026-06-01T16:45:05.851Z"
         }
       ]
     }
