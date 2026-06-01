@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-01T16:17:40.045Z",
       "reviewRunId": "B-4f15:RR-004",
       "_hash": "fca1ee605e8ffc2ecc98a4383e3a973d17ebfdf00728674642b3dab8dc932364"
+    },
+    {
+      "id": "B-4f15:RP-003",
+      "agent": "koala-review-quality",
+      "note": "Reviewed cli-engine.ts (enforceReviewerReadOnlyCommandGate integration), command-ownership-contract.ts (section 6 assertions), reviewer-readonly-command-policy-smoke.ts (new smoke), and updated docs. No dead imports, no empty catch blocks, no shell/fn.ts isolation violations, no unnecessary as-any. catch (e: any) pattern is consistent with pre-existing codebase style. One low finding: log-message typo at command-ownership-contract.ts:508 (storeScopedMutating → storyScopedMutating).",
+      "createdAt": "2026-06-01T16:19:36.831Z",
+      "reviewRound": "2026-06-01T16:17:40.045Z",
+      "reviewRunId": "B-4f15:RR-003",
+      "_hash": "869244d66db69b856b9fcdf8a87c7f7d6bc6e72389674de0863d82fc580f1245"
     }
   ]
 }
