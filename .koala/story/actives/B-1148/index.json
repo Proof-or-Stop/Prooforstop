@@ -4,7 +4,7 @@
   "title": "Backfill Koala historical process learnings into dev-memory",
   "description": "整理 Koala 历史流程设计、失败模式、成功模式和最新踩坑，把已有权威 story/evidence/doc 中可复用的经验回填为非权威 dev-memory 与可读 evidence 索引，方便普通编程会话在开发前先检索经验。",
   "type": "chore",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "source": "user-request",
   "keywords": [
@@ -23,7 +23,7 @@
   ],
   "createdAt": "2026-06-01T12:07:24.969Z",
   "startedAt": "2026-06-01T12:07:24.969Z",
-  "endedAt": null,
+  "endedAt": "2026-06-01T13:22:18.741Z",
   "events": [
     {
       "phase": "INIT",
@@ -40,11 +40,48 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-01T12:11:29.030Z",
+      "branch": "story/B-1148",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-01T12:24:44.991Z",
+      "branch": "story/B-1148",
+      "user": "Harmonygo",
+      "sessionId": "codex-b1148",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-01T13:11:52.247Z",
+      "branch": "story/B-1148",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-01T13:18:06.489Z",
+      "branch": "story/B-1148",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-01T13:22:18.741Z",
+      "branch": "story/B-1148",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-1148",
-    "branch": "story/B-1148",
-    "createdAt": "2026-06-01T12:10:44.353Z"
-  }
+  "currentReviewRound": "2026-06-01T13:11:52.247Z"
 }

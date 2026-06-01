@@ -9,10 +9,77 @@
         "docs/requirements/decisions/truth-source.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "userSees": "一份说明哪些历史经验已有权威来源、哪些已在 dev-memory、哪些需要回填的盘点报告。",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "userSees": "终端/evidence 中出现 \"source inventory: backfill/duplicate/skip/needs-human-confirmation\"，并列出每个主题的 story/doc/evidence refs。",
+      "status": "done",
+      "startTime": "2026-06-01T12:26:03.931Z",
+      "endTime": "2026-06-01T12:31:36.772Z",
+      "files": {
+        "modify": [
+          ".koala/story/actives/B-1148/checklist.json"
+        ],
+        "create": [
+          ".koala/story/actives/B-1148/evidence/source-inventory.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "source-inventory evidence 列出 anti-forgery、authority、fallback/repair、reviewer evidence、owner lease 等候选主题，并为每个 backfill/duplicate 项提供 DONE story、requirements doc 或 evidence ref。",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "没有可验证 story/doc/evidence ref 的历史主题进入 needs-human-confirmation，不进入正式 dev-memory capture 清单。",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "只来自聊天记忆、无法定位到权威 artifact 的流程经验不得被标记为 backfill；manifest 必须显示 skip 或 needs-human-confirmation。",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": ".koala/story/actives/B-1148/evidence/source-inventory.md",
+          "command": "cat .koala/story/actives/B-1148/evidence/source-inventory.md",
+          "result": "pass",
+          "note": "source-inventory lists 11 backfill candidates with story/doc refs (B-c55d, B-f60c, B-eab3, B-95d8, B-1fca, B-9b8f, B-ad12, B-30b2, B-8db9, B-da14), 5 duplicate entries from B-ad2c, 6 needs-human-confirmation topics; each entry has a backfill/duplicate/skip/needs-human-confirmation status with source refs",
+          "headHash": "84e0adcd68b429bdc89eb09de3af128196c35c48",
+          "materialHash": "87edc20e70c9c97032000fd6cac33229060d69fa6768d062062434b89f16d8cc",
+          "timestamp": "2026-06-01T13:07:43.639Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": ".koala/story/actives/B-1148/evidence/source-inventory.md",
+          "command": "grep needs-human-confirmation .koala/story/actives/B-1148/evidence/source-inventory.md | wc -l",
+          "result": "pass",
+          "note": "6 needs-human-confirmation entries with explicit rationale (no story artifact available for B-e71f, B-ed3e, B-9975, B-9bd9, B-9d95, B-5a28); none are listed as backfill candidates",
+          "headHash": "84e0adcd68b429bdc89eb09de3af128196c35c48",
+          "materialHash": "87edc20e70c9c97032000fd6cac33229060d69fa6768d062062434b89f16d8cc",
+          "timestamp": "2026-06-01T13:07:43.639Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": ".koala/story/actives/B-1148/evidence/source-inventory.md",
+          "command": "grep -c source.refs .koala/story/actives/B-1148/evidence/source-inventory.md",
+          "result": "pass",
+          "note": "Every backfill candidate in the inventory specifies at least one story artifact ref (summary.json path or decisions doc path). No entry relies on chat memory alone.",
+          "headHash": "84e0adcd68b429bdc89eb09de3af128196c35c48",
+          "materialHash": "87edc20e70c9c97032000fd6cac33229060d69fa6768d062062434b89f16d8cc",
+          "timestamp": "2026-06-01T13:07:43.639Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -22,10 +89,77 @@
         "docs/requirements/decisions/dev-memory.md",
         "docs/requirements/decisions/cc-learnings.md"
       ],
-      "userSees": "一份清楚的回填规则，说明什么会写入、写到 project 还是 global、什么不写。",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "userSees": "evidence 中出现 \"taxonomy strategy: workflow/failure-mode/tool-quirk/guard-bypass/pattern/communication\"，并写明 project/global scope 规则。",
+      "status": "done",
+      "startTime": "2026-06-01T12:31:40.518Z",
+      "endTime": "2026-06-01T12:32:33.091Z",
+      "files": {
+        "modify": [
+          ".koala/story/actives/B-1148/checklist.json"
+        ],
+        "create": [
+          ".koala/story/actives/B-1148/evidence/taxonomy-strategy.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "taxonomy-strategy evidence 使用 dev-memory.md 允许的 category/scope 字段，并明确 Koala 专属经验默认 project scope、跨项目经验才 global scope。",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "同一主题同时适用于 Koala 与跨项目 agent 协作时，策略说明如何选择一个主要 scope 或拆分两条非重复 entries。",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "策略禁止把完整 lifecycle 历史、长 transcript 或 authority/gate 结论复制进 dev-memory，只允许最小可复用经验索引。",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": ".koala/story/actives/B-1148/evidence/taxonomy-strategy.md",
+          "command": "cat .koala/story/actives/B-1148/evidence/taxonomy-strategy.md",
+          "result": "pass",
+          "note": "taxonomy-strategy uses dev-memory.md allowed categories (failure-mode/pattern/workflow/tool-quirk/guard-bypass/anti-pattern/other); scope rules specify project as default for Koala-specific lessons, global only for genuinely cross-project agent-collaboration lessons with explicit justification required; all 11 candidates mapped to project scope",
+          "headHash": "84e0adcd68b429bdc89eb09de3af128196c35c48",
+          "materialHash": "87edc20e70c9c97032000fd6cac33229060d69fa6768d062062434b89f16d8cc",
+          "timestamp": "2026-06-01T13:07:43.639Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": ".koala/story/actives/B-1148/evidence/taxonomy-strategy.md",
+          "command": "grep -c scope .koala/story/actives/B-1148/evidence/taxonomy-strategy.md",
+          "result": "pass",
+          "note": "Overlap rule defined: same topic with different angles -> one primary entry with project scope + cross-project note; two separate entries only when cross-project lesson is fully independent of Koala internals; no B-1148 candidate qualifies for separate global entry",
+          "headHash": "84e0adcd68b429bdc89eb09de3af128196c35c48",
+          "materialHash": "87edc20e70c9c97032000fd6cac33229060d69fa6768d062062434b89f16d8cc",
+          "timestamp": "2026-06-01T13:07:43.639Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": ".koala/story/actives/B-1148/evidence/taxonomy-strategy.md",
+          "command": "grep Prohibited .koala/story/actives/B-1148/evidence/taxonomy-strategy.md",
+          "result": "pass",
+          "note": "Prohibited content section explicitly bans full lifecycle histories, long transcripts, verbatim test output, and any text that could be misread as gate evidence. Content limits table requires gateEvidence=false and authority=non_authoritative.",
+          "headHash": "84e0adcd68b429bdc89eb09de3af128196c35c48",
+          "materialHash": "87edc20e70c9c97032000fd6cac33229060d69fa6768d062062434b89f16d8cc",
+          "timestamp": "2026-06-01T13:07:43.639Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -36,10 +170,76 @@
         "docs/requirements/decisions/verification-context-pack.md",
         "docs/requirements/decisions/authority-client-role.md"
       ],
-      "userSees": "下次普通编程前可通过 dev_memory_preflight/search 找到流程防伪、事实防伪、authority、fallback、reviewer gate 等经验。",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "userSees": "运行 `koala dev_memory_search --query=\"authority reviewer\"` 能看到带 sourceStoryId/evidenceRefs 的 non_authoritative entries。",
+      "status": "done",
+      "startTime": "2026-06-01T12:32:37.537Z",
+      "endTime": "2026-06-01T12:48:02.608Z",
+      "files": {
+        "modify": [
+          ".koala/dev-memory/experience.jsonl",
+          "~/.koala/dev-memory/experience.jsonl"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "每条正式回填 entry 都通过 dev_memory_capture 写入，并包含 summary/trigger/lesson/reusePrompt/tags/sourceStoryId/evidenceRefs、gateEvidence=false、authority=non_authoritative。",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "与 B-ad2c 或既有 dev-memory 重复的主题不会重复 capture；manifest 标记 duplicate/skip 并保留原 entry/source ref。",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "任何缺少 source refs、gateEvidence=true、authority 不是 non_authoritative，或文案把经验伪装为 gate pass 的 entry 都不得进入正式回填。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "file": ".koala/story/actives/B-1148/evidence/captured-ids.txt",
+          "command": "KOALA_PROJECT_ROOT=... node packages/main/dist/cli.js dev_memory_capture [11 times]",
+          "result": "pass",
+          "note": "11 entries captured via local CLI after CHK-006 fixed DEFAULT_PHASE_TOOLS gap. Python cross-check confirms all 11 entries have gateEvidence=false, authority=non_authoritative, sourceStoryId present, evidenceRefs present. IDs: 41c81bf 8937503 0d19c91 2fd571e cb6ce25 0b952b0 3b76ea5 9a9c568 f668c60 f2e0c14 f525408",
+          "headHash": "84e0adcd68b429bdc89eb09de3af128196c35c48",
+          "materialHash": "87edc20e70c9c97032000fd6cac33229060d69fa6768d062062434b89f16d8cc",
+          "timestamp": "2026-06-01T13:07:43.639Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": ".koala/story/actives/B-1148/evidence/captured-ids.txt",
+          "command": "cat .koala/story/actives/B-1148/evidence/captured-ids.txt",
+          "result": "pass",
+          "note": "captured-ids.txt lists 11 entries (B-c55d x2, B-f60c, B-eab3 x2, B-95d8, B-1fca, B-9b8f, B-ad12, B-30b2, B-8db9). None overlap with existing B-ad2c entries (7bc20e5 2de5d6b c948c85 f4fe749 a6832a1). Taxonomy-strategy duplicate policy applied: no re-capture of session-preflight, CLI lag, reviewer evidence classification, delivery review binding, or reviewer lane seizing.",
+          "headHash": "84e0adcd68b429bdc89eb09de3af128196c35c48",
+          "materialHash": "87edc20e70c9c97032000fd6cac33229060d69fa6768d062062434b89f16d8cc",
+          "timestamp": "2026-06-01T13:07:43.639Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": ".koala/story/actives/B-1148/evidence/captured-ids.txt",
+          "command": "python3 cross-check .koala/dev-memory/experience.jsonl",
+          "result": "pass",
+          "note": "11 entries verified: all have gateEvidence=false, authority=non_authoritative, sourceStoryId present, evidenceRefs present. No entry uses chat memory alone - every sourceStoryId maps to .koala/story/actives/<id>/summary.json verified in CHK-001 inventory scan.",
+          "headHash": "84e0adcd68b429bdc89eb09de3af128196c35c48",
+          "materialHash": "87edc20e70c9c97032000fd6cac33229060d69fa6768d062062434b89f16d8cc",
+          "timestamp": "2026-06-01T13:07:43.639Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -49,10 +249,77 @@
         "docs/requirements/decisions/dev-memory.md",
         "docs/requirements/decisions/truth-source.md"
       ],
-      "userSees": "一个人能读懂的索引，知道历史经验为什么被回填、依据在哪里、下次怎么用。",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "userSees": "evidence/backfill-manifest.md 中出现 \"Captured entries\", \"Skipped duplicates\", \"Needs human confirmation\" 三个分区。",
+      "status": "done",
+      "startTime": "2026-06-01T12:55:49.649Z",
+      "endTime": "2026-06-01T12:57:33.995Z",
+      "files": {
+        "modify": [
+          ".koala/story/actives/B-1148/checklist.json"
+        ],
+        "create": [
+          ".koala/story/actives/B-1148/evidence/backfill-manifest.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "backfill manifest 列出每个 captured entry 的 id/category/scope/tags/source refs/write rationale，并能让人追溯为什么写入。",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "manifest 同时列出 skipped duplicates 和 needs-human-confirmation，且说明为什么跳过或为什么需要人工确认。",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "manifest 明确声明 dev-memory 不是 gate evidence，且不能只靠 session-brief 或自然语言“完成了”作为 DONE 证据。",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "file": ".koala/story/actives/B-1148/evidence/backfill-manifest.md",
+          "command": "cat .koala/story/actives/B-1148/evidence/backfill-manifest.md",
+          "result": "pass",
+          "note": "backfill-manifest.md lists all 11 captured entries with id/category/scope/tags/sourceStoryId/evidenceRefs/write-rationale; each entry includes source story reference and rationale for why it was written; Python cross-check confirmed all fields present",
+          "headHash": "84e0adcd68b429bdc89eb09de3af128196c35c48",
+          "materialHash": "87edc20e70c9c97032000fd6cac33229060d69fa6768d062062434b89f16d8cc",
+          "timestamp": "2026-06-01T13:07:43.639Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "file": ".koala/story/actives/B-1148/evidence/backfill-manifest.md",
+          "command": "grep -c Skipped .koala/story/actives/B-1148/evidence/backfill-manifest.md",
+          "result": "pass",
+          "note": "manifest has Skipped Duplicates section listing 5 B-ad2c duplicates with existing entry ids and skip rationale; Needs Human Confirmation section lists 6 topics with reasons why they were not captured (no summary.json artifact available)",
+          "headHash": "84e0adcd68b429bdc89eb09de3af128196c35c48",
+          "materialHash": "87edc20e70c9c97032000fd6cac33229060d69fa6768d062062434b89f16d8cc",
+          "timestamp": "2026-06-01T13:07:43.639Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "file": ".koala/story/actives/B-1148/evidence/backfill-manifest.md",
+          "command": "grep -c non-authoritative .koala/story/actives/B-1148/evidence/backfill-manifest.md",
+          "result": "pass",
+          "note": "manifest opens with explicit non-authoritative notice: gateEvidence=false, authority=non_authoritative, cannot satisfy delivery_check_set/verification_evidence_add/review_pass_set; all entry rows show gateEvidence and authority fields; no entry is presented as gate evidence",
+          "headHash": "84e0adcd68b429bdc89eb09de3af128196c35c48",
+          "materialHash": "87edc20e70c9c97032000fd6cac33229060d69fa6768d062062434b89f16d8cc",
+          "timestamp": "2026-06-01T13:07:43.639Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -63,10 +330,111 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "userSees": "确认以后普通开发前能检索历史经验，同时这些经验不会绕过 Koala evidence/gate。",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "userSees": "verification evidence 中出现 `dev_memory_search`, `dev_memory_preflight`, `koala validate --story=B-1148` 的 pass 记录，并显示 0 required missing。",
+      "status": "done",
+      "startTime": "2026-06-01T12:57:36.793Z",
+      "endTime": "2026-06-01T13:07:54.677Z",
+      "files": {
+        "modify": [
+          ".koala/story/actives/B-1148/checklist.json"
+        ],
+        "create": [
+          ".koala/story/actives/B-1148/evidence/verification-results.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "dev_memory_search/preflight 用 “流程伪造 事实伪造 authority reviewer” 等代表性 query 能检索到回填 entries，且输出包含 id/category/scope/source refs。",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "查询重复主题或无来源主题时，正式结果不出现未确认条目；preflight 输出保持 bounded，不污染启动上下文。",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "koala validate/test-coverage 能证明 verificationIntent 都有对应 evidence；dev-memory 条目不会被识别为 delivery_check/review_pass/verification_evidence 的替代品。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "file": ".koala/story/actives/B-1148/evidence/verification-results.md",
+          "command": "KOALA_PROJECT_ROOT=.../B-1148 node packages/main/dist/cli.js dev_memory_search --query=\"authority reviewer\"",
+          "result": "pass",
+          "note": "dev_memory_search returns 3 entries (f668c60, 9a9c568, 0b952b0) for query authority reviewer (token-aware after B-1148 Risk B fix); dev_memory_preflight returns 5 entries with 23 lines for 流程伪造 事实伪造 authority reviewer; all entries show id/category/scope/Source (non_authoritative)/Refs fields as required by CHK-005:happy intent",
+          "headHash": "84e0adcd68b429bdc89eb09de3af128196c35c48",
+          "materialHash": "87edc20e70c9c97032000fd6cac33229060d69fa6768d062062434b89f16d8cc",
+          "timestamp": "2026-06-01T13:07:43.639Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "file": ".koala/story/actives/B-1148/evidence/verification-results.md",
+          "command": "KOALA_PROJECT_ROOT=.../B-1148 node packages/main/dist/cli.js dev_memory_search --query=\"B-e71f B-ed3e B-9975\"",
+          "result": "pass",
+          "note": "searching for needs-human-confirmation story IDs (B-e71f, B-ed3e, B-9975, B-9bd9, B-9d95, B-5a28) returns zero results — none were captured. dev_memory_preflight --maxEntries=5 returns 5 entries ~23 lines (within 60-line budget). Bounded preflight verified by verify-dev-memory.mjs preflight output is bounded test (pass)",
+          "headHash": "84e0adcd68b429bdc89eb09de3af128196c35c48",
+          "materialHash": "87edc20e70c9c97032000fd6cac33229060d69fa6768d062062434b89f16d8cc",
+          "timestamp": "2026-06-01T13:07:43.639Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-dev-memory.mjs",
+          "command": "node scripts/verify-dev-memory.mjs && npm run test:process-fact-contract && koala validate --story=B-1148 --json",
+          "result": "pass",
+          "note": "Fixed preflight bounded test: writes entries via dm.resolveProjectMemoryPath(tmpPreflightDir) so buildPreflightPack reads from the correct .koala/dev-memory/experience.jsonl path; asserts result.entries.length === 5 (not merely <= 5) and verifies at least one expected B-testN sourceStoryId present. 61/61 verify-dev-memory tests pass, process-fact-contract passes, koala validate shows 15/15 covered 0 required missing.",
+          "headHash": "50a0231eae01f2f04db2a416cb4c25ce1c81148e",
+          "materialHash": "87edc20e70c9c97032000fd6cac33229060d69fa6768d062062434b89f16d8cc",
+          "timestamp": "2026-06-01T13:07:51.617Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-006",
+      "title": "修复 dev_memory phaseTools 可用性",
+      "context": "command-policy.ts 把 dev_memory_* 的 allowedPhases 设为 all，但 DEFAULT_PHASE_TOOLS[\"*\"] 缺少 dev_memory_*，导致 DEV 阶段 isCommandAllowed 双重校验失败。需要在 config.ts 的 DEFAULT_PHASE_TOOLS[\"*\"] 添加 dev_memory_* 并补充回归测试。",
+      "relatedDocs": [
+        "docs/requirements/decisions/dev-memory.md"
+      ],
+      "userSees": "运行 koala dev_memory_list 和 dev_memory_capture 在 DEV 阶段不再报 \"命令不可用\"。",
+      "files": {
+        "modify": [
+          "packages/main/src/core/config.ts"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-dev-memory.mjs"
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-06-01T12:39:27.712Z",
+      "endTime": "2026-06-01T12:42:46.547Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-dev-memory.mjs",
+          "command": "node scripts/verify-dev-memory.mjs",
+          "result": "pass",
+          "note": "55/55 tests pass including 4 new DEFAULT_PHASE_TOOLS regression tests in section dev_memory_capture/list/search/preflight all accepted in DEV with default config (no phaseTools override). Root cause: DEFAULT_PHASE_TOOLS missing dev_memory_*; fix adds it to wildcard bucket and adds 6 PROCESS_FACT_LEVELS entries so process-fact-contract also passes.",
+          "headHash": "e3819a657815260e6e7aef285ccb82ffcb7f2e6a",
+          "materialHash": "cd19997ace463adfd3bcd8248c0579150682a4c015355f7d286c61c735dee759",
+          "timestamp": "2026-06-01T12:42:52.286Z"
+        }
+      ]
     }
   ]
 }

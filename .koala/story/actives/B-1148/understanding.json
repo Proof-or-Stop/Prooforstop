@@ -1,0 +1,28 @@
+{
+  "task": "把 Koala 历史流程设计、失败模式、成功模式和最新踩坑从已有权威记录中盘点出来，并回填为非权威 dev-memory 与可读 evidence 索引。",
+  "outcome": "用户在一个新的普通编程会话开始前运行 `koala dev_memory_preflight --global --query=\"流程伪造 事实伪造 authority reviewer\" --maxEntries=8`，终端显示一组带 id/category/scope/source refs 的经验摘要，包括流程防伪、事实防伪、authority 分层、fallback/repair、reviewer evidence、owner lease 等主题；同时 story evidence 中有一份 backfill manifest 说明每条经验来自哪个 story/doc/evidence、哪些主题因缺少权威来源被跳过。",
+  "facts": [
+    "B-ad2c 已交付 dev-memory 命令与 non_authoritative/gateEvidence=false 边界。",
+    "已有大量相关 DONE story 和 docs 记录了流程防伪、事实防伪、authority、fallback、capsule、reviewer lane 等主题。",
+    "用户明确要求历史设计流程和踩坑也要有 story 记录，避免经验散落在聊天里。",
+    "dev-memory 是检索上下文，不是 Koala gate evidence。",
+    "docs/requirements/decisions/*.md 与历史 DONE story artifact 是本 story 的只读来源，不是要修改的 touchpoint。"
+  ],
+  "constraints": [
+    "不得凭聊天记忆编造历史事实；正式回填条目必须有 story/doc/evidence refs。",
+    "不得直接把完整 lifecycle 历史复制成 dev-memory；只保存可复用经验索引。",
+    "不得改变 Koala gate 语义或把 dev-memory 当权威证据。",
+    "Koala 专属经验优先 project scope，跨项目通用经验才 global scope。",
+    "CHK-001 必须先消化重复覆盖/来源充分性/写入数量三个问题，再允许 CHK-003 capture。"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    ".koala/story/actives/B-1148/evidence/source-inventory.md",
+    ".koala/story/actives/B-1148/evidence/taxonomy-strategy.md",
+    ".koala/story/actives/B-1148/evidence/backfill-manifest.md",
+    ".koala/story/actives/B-1148/evidence/verification-results.md",
+    ".koala/dev-memory/experience.jsonl",
+    "~/.koala/dev-memory/experience.jsonl"
+  ],
+  "timestamp": "2026-06-01T12:24:31.938Z"
+}
