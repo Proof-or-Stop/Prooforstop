@@ -216,6 +216,17 @@
           "headHash": "5c358f683aa826cb236fd3b9ad0fdb7e1afa7061",
           "materialHash": "cd19997ace463adfd3bcd8248c0579150682a4c015355f7d286c61c735dee759",
           "timestamp": "2026-06-01T12:47:40.749Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": ".koala/story/actives/B-1148/evidence/captured-ids.txt",
+          "command": "cat .koala/story/actives/B-1148/evidence/captured-ids.txt",
+          "result": "pass",
+          "note": "captured-ids.txt lists 11 entries (B-c55d x2, B-f60c, B-eab3 x2, B-95d8, B-1fca, B-9b8f, B-ad12, B-30b2, B-8db9). None overlap with existing B-ad2c entries (7bc20e5 2de5d6b c948c85 f4fe749 a6832a1). Taxonomy-strategy duplicate policy applied: no re-capture of session-preflight, CLI lag, reviewer evidence classification, delivery review binding, or reviewer lane seizing.",
+          "headHash": "b8f8a795aadcbd512ed4407ef605daab2ddb3c99",
+          "materialHash": "cd19997ace463adfd3bcd8248c0579150682a4c015355f7d286c61c735dee759",
+          "timestamp": "2026-06-01T12:47:48.005Z"
         }
       ]
     },
