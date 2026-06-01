@@ -393,12 +393,12 @@
           "intentRef": "CHK-005:adversarial:0",
           "kind": "logic_test",
           "file": "scripts/verify-dev-memory.mjs",
-          "command": "node scripts/verify-dev-memory.mjs && koala validate --story=B-1148 --json",
+          "command": "node scripts/verify-dev-memory.mjs && npm run test:process-fact-contract && koala validate --story=B-1148 --json",
           "result": "pass",
-          "note": "61/61 verify-dev-memory tests pass including B-1148 regression section. koala validate --json confirms npm test PASS and shows dev-memory entries do not appear as verification_evidence/review_pass/delivery_check artifacts in coverage report. Python cross-check confirms all 11 entries have gateEvidence=false and authority=non_authoritative. process-fact-contract also passes.",
-          "headHash": "84e0adcd68b429bdc89eb09de3af128196c35c48",
+          "note": "Fixed preflight bounded test: writes entries via dm.resolveProjectMemoryPath(tmpPreflightDir) so buildPreflightPack reads from the correct .koala/dev-memory/experience.jsonl path; asserts result.entries.length === 5 (not merely <= 5) and verifies at least one expected B-testN sourceStoryId present. 61/61 verify-dev-memory tests pass, process-fact-contract passes, koala validate shows 15/15 covered 0 required missing.",
+          "headHash": "50a0231eae01f2f04db2a416cb4c25ce1c81148e",
           "materialHash": "87edc20e70c9c97032000fd6cac33229060d69fa6768d062062434b89f16d8cc",
-          "timestamp": "2026-06-01T13:07:43.639Z"
+          "timestamp": "2026-06-01T13:07:51.617Z"
         }
       ]
     },
