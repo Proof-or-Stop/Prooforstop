@@ -31,6 +31,7 @@ import { createArtifactDeclareHandlers } from '../handlers/artifact-declare.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 import { signFinding, signReviewPass, verifyFinding, verifyReviewPass } from '../core/finding-verify.js';
 import { autoCommitStoryMetadata, AUTO_COMMIT_METADATA_PREFIX } from '../core/auto-commit-metadata.js';
+import { readHealthIssues } from '../core/health.js';
 import { getArtifactContractStatus } from '../core/artifact-contract.js';
 import { FLOW_FACT_POLICIES, isPassOnlyReviewFindingRecord } from '../core/flow-fact-policy.js';
 import { runManagedAssetCheck } from '../core/managed-assets.js';
@@ -2367,7 +2368,55 @@ function assertAutoCommitMetadataAcrossHandlers(): void {
     }
   }
 
-  // Test 6 (path broaden): non-canonical storyId form throws synchronously
+  // Test 6 (non-git temp root): validation/e2e fixtures that are not git
+  // repos should return '' and should not create mutation:storyMetadataCommit
+  // health noise.
+  {
+    const root = mkdtempSync(join(tmpdir(), 'koala-auto-commit-nongit-'));
+    const previousHealthPath = process.env.KOALA_HEALTH_PATH;
+    process.env.KOALA_HEALTH_PATH = join(root, 'health.jsonl');
+    try {
+      writeFakeMetadata(root, 'B-test1');
+      const out = autoCommitStoryMetadata(root, 'B-test1', 'artifact_declare');
+      assert.equal(out, '', `non-git roots should be treated as non-story workspaces; got: ${JSON.stringify(out)}`);
+      assert.equal(
+        readHealthIssues().filter(issue => issue.category === 'mutation:storyMetadataCommit').length,
+        0,
+        'non-git roots must not produce mutation:storyMetadataCommit health issues',
+      );
+    } finally {
+      if (previousHealthPath === undefined) delete process.env.KOALA_HEALTH_PATH;
+      else process.env.KOALA_HEALTH_PATH = previousHealthPath;
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+
+  // Test 7 (real git failure): once inside a story/* checkout, staging/commit
+  // failures remain health-reportable mutation failures.
+  {
+    const { root, storyId } = setupAutoCommitFixture();
+    const previousHealthPath = process.env.KOALA_HEALTH_PATH;
+    process.env.KOALA_HEALTH_PATH = join(root, 'health.jsonl');
+    try {
+      gitCheckoutNewBranch(root, `story/${storyId}`);
+      writeFakeMetadata(root, storyId);
+      writeFileSync(join(root, '.git', 'index.lock'), 'locked');
+      const out = autoCommitStoryMetadata(root, storyId, 'finding_add');
+      assert.match(out, /koala metadata 自动提交失败/, 'real git failures still return the user-visible warning');
+      const issues = readHealthIssues().filter(issue => issue.category === 'mutation:storyMetadataCommit');
+      assert.equal(issues.length, 1, 'real git checkout failures still produce one metadata health issue');
+      assert.equal(issues[0].context.storyId, storyId);
+      assert.equal(issues[0].context.reason, 'finding_add');
+      assert.equal(issues[0].context.projectRoot, root);
+    } finally {
+      rmSync(join(root, '.git', 'index.lock'), { force: true });
+      if (previousHealthPath === undefined) delete process.env.KOALA_HEALTH_PATH;
+      else process.env.KOALA_HEALTH_PATH = previousHealthPath;
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+
+  // Test 8 (path broaden): non-canonical storyId form throws synchronously
   // BEFORE any git invocation (preMortem #1 anchor). We probe path-traversal
   // (`../foo`), shell-metachar injection (`B-xx@injected`, `B-xx/yy`), and
   // empty / wrong-prefix inputs.
@@ -2391,7 +2440,7 @@ function assertAutoCommitMetadataAcrossHandlers(): void {
     }
   }
 
-  // Test 7 (prefix vocabulary parity with story-advance precedent — CHK-003
+  // Test 9 (prefix vocabulary parity with story-advance precedent — CHK-003
   // adversarial: byte-equal prefix `\n✓ koala metadata 已自动提交:`).
   {
     const { root, storyId } = setupAutoCommitFixture();
@@ -2410,7 +2459,7 @@ function assertAutoCommitMetadataAcrossHandlers(): void {
     }
   }
 
-  // Test 8 (3+ handler reasons covered — CHK-004 happy): the same fixture +
+  // Test 10 (3+ handler reasons covered — CHK-004 happy): the same fixture +
   // 3 different reasons all produce the canonical hint format. Verifies the
   // helper is reason-agnostic, not hardcoded to a single phase like the old
   // story-advance copy.
@@ -2431,7 +2480,7 @@ function assertAutoCommitMetadataAcrossHandlers(): void {
     }
   }
 
-  // Test 9 (classifier parity — CHK-004 adversarial): classifyDirtyWorktree
+  // Test 11 (classifier parity — CHK-004 adversarial): classifyDirtyWorktree
   // returns the same category counts whether helper was called or not for
   // non-metadata categories (auto-commit must not mask material/fixture/
   // unexpected dirt).

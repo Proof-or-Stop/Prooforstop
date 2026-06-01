@@ -793,10 +793,10 @@ try {
     const doctorStore = new StoryStore(doctorRoot);
 
     // Helper: materialise a story dir with a minimal index.json.
-    const makeStory = (id: string): string => {
+    const makeStory = (id: string, phase = 'DEV'): string => {
       const dir = doctorStore.storyDirPath(id);
       mkdirSync(dir, { recursive: true });
-      writeFileSync(join(dir, 'index.json'), JSON.stringify({ id, phase: 'DEV' }), 'utf-8');
+      writeFileSync(join(dir, 'index.json'), JSON.stringify({ id, phase }), 'utf-8');
       return dir;
     };
 
@@ -807,8 +807,8 @@ try {
     assert.equal(cleanScan.leases.length, 0, 'a story with no owner-lease.json contributes no lease entry');
     assert.equal(cleanScan.stale.length, 0, 'no leases on disk → no stale leases reported');
     assert.ok(
-      renderStoryOwnerLeaseScan(cleanScan).some((l) => l.includes('No stale story owner leases')),
-      'the clean scan renders the healthy "No stale story owner leases" line',
+      renderStoryOwnerLeaseScan(cleanScan).some((l) => l.includes('No actionable stale story owner leases')),
+      'the clean scan renders the healthy "No actionable stale story owner leases" line',
     );
 
     // 18b. One ACTIVE lease (fresh heartbeat) + one STALE lease (>30min old).
@@ -830,16 +830,31 @@ try {
       now: () => '2026-05-19T11:15:00.000Z', // 45min before the reference clock → stale
     });
 
+    process.env.KOALA_SESSION_ID = 'sess-terminal-owner';
+    resetSessionIdForTest();
+    const terminalDir = makeStory('B-terminal-lease', 'DONE');
+    acquireOwnerLease(terminalDir, {
+      command: 'story_advance',
+      cwd: '/tmp/terminal-wt',
+      now: () => '2026-05-19T10:45:00.000Z', // 75min before the reference clock → stale but terminal
+    });
+
     const referenceNow = Date.parse('2026-05-19T12:00:00.000Z');
     const scan = scanStoryOwnerLeases(doctorStore, referenceNow);
-    assert.equal(scan.leases.length, 2, 'the scan finds exactly the two stories that have a lease');
-    assert.equal(scan.stale.length, 1, 'exactly one of the two leases is stale');
+    assert.equal(scan.leases.length, 3, 'the scan finds exactly the three stories that have a lease');
+    assert.equal(scan.stale.length, 1, 'exactly one non-terminal lease is actionable stale');
+    assert.equal(scan.terminalStale.length, 1, 'terminal stale leases are split into the summary bucket');
     const staleItem = scan.stale[0];
     assert.equal(staleItem.storyId, 'B-stale-lease', 'the stale entry names the stale story');
     assert.equal(staleItem.state, 'stale', 'the stale entry is classified state=stale');
+    assert.equal(staleItem.terminal, false, 'the actionable stale entry is non-terminal');
     assert.equal(staleItem.ownerSessionId, 'sess-dead-owner', 'the stale entry names the owning session');
     assert.equal(staleItem.ownerCwd, '/tmp/stale-wt', 'the stale entry names the owner cwd');
     assert.equal(staleItem.heartbeatAgeLabel, '45m', 'the stale entry reports the heartbeat age (45m)');
+    const terminalItem = scan.terminalStale[0];
+    assert.equal(terminalItem.storyId, 'B-terminal-lease', 'the terminal stale bucket names the terminal story');
+    assert.equal(terminalItem.phase, 'DONE', 'the terminal stale bucket preserves the terminal phase');
+    assert.equal(terminalItem.terminal, true, 'the terminal stale bucket marks terminal=true');
     // The active lease is NOT misflagged as stale.
     const activeItem = scan.leases.find((l) => l.storyId === 'B-active-lease');
     assert.notEqual(activeItem, undefined, 'the active lease appears in the leases list');
@@ -850,10 +865,17 @@ try {
     const report = reportLines.join('\n');
     assert.ok(report.includes('Story owner leases:'), 'the report has a Story owner leases section');
     assert.ok(report.includes('stale leases : 1'), 'the report counts the stale lease');
+    assert.ok(report.includes('terminal stale leases: 1'), 'the report summarizes terminal stale leases separately');
     assert.ok(report.includes('⚠ STALE owner lease for B-stale-lease'), 'the report flags the stale story by id');
+    assert.equal(
+      report.includes('⚠ STALE owner lease for B-terminal-lease'),
+      false,
+      'terminal stale leases are not rendered as per-story actionable warnings',
+    );
     assert.ok(report.includes('sess-dead-owner'), 'the report names the stale lease owner session');
     assert.ok(report.includes('45m ago'), 'the report shows the stale heartbeat age');
     assert.ok(report.includes('--takeover'), 'the report points the operator at --takeover recovery');
+    assert.ok(report.includes('DONE/DISCARDED stories do not need --takeover'), 'terminal stale summary avoids takeover guidance');
 
     process.env.KOALA_SESSION_ID = 'sess-alpha';
     resetSessionIdForTest();

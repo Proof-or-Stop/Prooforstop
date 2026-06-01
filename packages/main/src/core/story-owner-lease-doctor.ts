@@ -23,6 +23,7 @@ import {
   ownerLeasePath,
   readOwnerLease,
 } from './story-owner-lease.js';
+import { TERMINAL_PHASES } from './phase-flow.js';
 import type { StoryStore } from './store.js';
 
 /** Classification of one story's owner-lease state. */
@@ -36,6 +37,10 @@ export interface StoryOwnerLeaseScanItem {
   leasePath: string;
   /** `absent` = no lease file; `active` = heartbeat within 30min; `stale` = past it. */
   state: OwnerLeaseState;
+  /** Current story phase when readable; null when the story record could not be read. */
+  phase: string | null;
+  /** Terminal stories keep lease history, but their stale leases are not takeover actions. */
+  terminal: boolean;
   /** Owning session id (`null` when there is no readable lease). */
   ownerSessionId: string | null;
   /** Owning session's cwd (`null` when there is no readable lease). */
@@ -50,8 +55,10 @@ export interface StoryOwnerLeaseScanItem {
 export interface StoryOwnerLeaseScan {
   /** Every story that has a lease file on disk (absent-lease stories are skipped). */
   leases: StoryOwnerLeaseScanItem[];
-  /** Just the subset whose `state` is `stale` — the ones the operator must act on. */
+  /** Stale leases on non-terminal stories — the ones the operator must act on. */
   stale: StoryOwnerLeaseScanItem[];
+  /** Stale leases on DONE/DISCARDED stories, summarized as lifecycle history. */
+  terminalStale: StoryOwnerLeaseScanItem[];
 }
 
 /**
@@ -79,7 +86,7 @@ export function scanStoryOwnerLeases(
     storyIds = store.listStoryIds();
   } catch {
     // PROBE: an unreadable actives directory yields no leases (not a crash).
-    return { leases: [], stale: [] };
+    return { leases: [], stale: [], terminalStale: [] };
   }
 
   for (const storyId of storyIds) {
@@ -89,6 +96,18 @@ export function scanStoryOwnerLeases(
     } catch {
       continue;
     }
+    let phase: string | null = null;
+    let terminal = false;
+    try {
+      const story = store.readStory(storyId);
+      phase = typeof story.phase === 'string' ? story.phase : null;
+      terminal = phase !== null && (TERMINAL_PHASES as readonly string[]).includes(phase);
+    } catch {
+      // PROBE: an unreadable story should not hide an actionable stale lease.
+      phase = null;
+      terminal = false;
+    }
+
     // `readOwnerLease` returns null for an absent OR corrupt lease — both mean
     // "no trustworthy ownership record", so neither is reported as stale.
     const lease = readOwnerLease(storyDir);
@@ -105,6 +124,8 @@ export function scanStoryOwnerLeases(
       storyId,
       leasePath: ownerLeasePath(storyDir),
       state: stale ? 'stale' : 'active',
+      phase,
+      terminal,
       ownerSessionId: lease.sessionId,
       ownerCwd: lease.cwd,
       heartbeatAgeMs,
@@ -113,7 +134,11 @@ export function scanStoryOwnerLeases(
   }
 
   leases.sort((a, b) => a.storyId.localeCompare(b.storyId));
-  return { leases, stale: leases.filter((l) => l.state === 'stale') };
+  return {
+    leases,
+    stale: leases.filter((l) => l.state === 'stale' && !l.terminal),
+    terminalStale: leases.filter((l) => l.state === 'stale' && l.terminal),
+  };
 }
 
 /**
@@ -127,11 +152,22 @@ export function scanStoryOwnerLeases(
 export function renderStoryOwnerLeaseScan(scan: StoryOwnerLeaseScan): string[] {
   const lines: string[] = [];
   lines.push('Story owner leases:');
-  lines.push(`  active leases: ${scan.leases.length}`);
+  lines.push(`  lease files  : ${scan.leases.length}`);
   lines.push(`  stale leases : ${scan.stale.length}`);
+  if (scan.terminalStale.length > 0) {
+    lines.push(`  terminal stale leases: ${scan.terminalStale.length} (summarized; not actionable)`);
+  }
 
   if (scan.stale.length === 0) {
-    lines.push('  ✓ No stale story owner leases — all owner leases have a fresh heartbeat.');
+    lines.push('  ✓ No actionable stale story owner leases — active owner leases have a fresh heartbeat.');
+    if (scan.terminalStale.length > 0) {
+      const preview = scan.terminalStale.slice(0, 5).map((item) => `${item.storyId}${item.phase ? `:${item.phase}` : ''}`);
+      const suffix = scan.terminalStale.length > preview.length ? `, +${scan.terminalStale.length - preview.length} more` : '';
+      lines.push(
+        `  ↳ ${scan.terminalStale.length} terminal stale lease(s) kept as lifecycle history, not takeover actions: ` +
+        `${preview.join(', ')}${suffix}`,
+      );
+    }
     return lines;
   }
 
@@ -146,5 +182,11 @@ export function renderStoryOwnerLeaseScan(scan: StoryOwnerLeaseScan): string[] {
     '  → A stale lease (no heartbeat for 30+ minutes) likely belongs to a dead session. ' +
     'Rerun the owner-gated command with --takeover to transfer it.',
   );
+  if (scan.terminalStale.length > 0) {
+    lines.push(
+      `  ↳ ${scan.terminalStale.length} terminal stale lease(s) summarized as lifecycle history; ` +
+      'DONE/DISCARDED stories do not need --takeover.',
+    );
+  }
   return lines;
 }

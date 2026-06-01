@@ -105,6 +105,15 @@ function renderCoexistTailNote(classification: DirtyWorktreeClassification | nul
   return ` (coexisting non-metadata dirt left untouched: ${parts})`;
 }
 
+function isNonGitRepositoryError(error: unknown): boolean {
+  const anyError = error as { message?: unknown; stderr?: unknown };
+  const stderr = Buffer.isBuffer(anyError?.stderr)
+    ? anyError.stderr.toString('utf-8')
+    : (typeof anyError?.stderr === 'string' ? anyError.stderr : '');
+  const message = typeof anyError?.message === 'string' ? anyError.message : '';
+  return `${message}\n${stderr}`.includes('not a git repository');
+}
+
 /**
  * Auto-commit metadata under `.koala/story/actives/<storyId>/`.
  *
@@ -128,11 +137,17 @@ export function autoCommitStoryMetadata(
 
   try {
     // 2. branch check — non-story/* branches stay silent
-    const branch = execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], {
-      cwd: projectRoot,
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    }).trim();
+    let branch = '';
+    try {
+      branch = execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], {
+        cwd: projectRoot,
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+      }).trim();
+    } catch (e: unknown) {
+      if (isNonGitRepositoryError(e)) return '';
+      throw e;
+    }
     if (!branch.startsWith('story/')) return '';
 
     // 3. canonical path computation (scope hardcoded by storyId — see preMortem #1)

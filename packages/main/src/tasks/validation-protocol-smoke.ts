@@ -1012,6 +1012,11 @@ try {
   assert.deepEqual(doctorJson.validation.discoveredFallbackLabels, ['package.json test script']);
   assert.equal(doctorJson.validation.noValidatorWarning, false);
   assert.equal(doctorJson.runtimeArtifacts.tracked.length, 2, 'doctor should report tracked runtime artifacts');
+  assert.ok(doctorJson.storyOwnerLeases, 'doctor JSON should expose story owner lease diagnostics');
+  assert.ok(Array.isArray(doctorJson.storyOwnerLeases.leases), 'storyOwnerLeases.leases should be an array');
+  assert.ok(Array.isArray(doctorJson.storyOwnerLeases.stale), 'storyOwnerLeases.stale should be an array');
+  assert.ok(Array.isArray(doctorJson.storyOwnerLeases.terminalStale), 'storyOwnerLeases.terminalStale should be an array');
+  assert.equal(doctorJson.storyOwnerLeases.hasTerminalStale, false, 'no terminal stale lease in the clean doctor fixture');
   const activityArtifact = doctorJson.runtimeArtifacts.tracked.find((artifact: any) => artifact.path === '.koala/activity.jsonl');
   assert.ok(activityArtifact, 'doctor should include .koala/activity.jsonl');
   assert.equal(activityArtifact.repairable, true);

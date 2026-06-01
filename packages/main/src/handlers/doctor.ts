@@ -137,7 +137,9 @@ export function createDoctorHandlers(ctx: HandlerContext) {
           storyOwnerLeases: {
             leases: storyOwnerLeases.leases,
             stale: storyOwnerLeases.stale,
+            terminalStale: storyOwnerLeases.terminalStale,
             hasStale: storyOwnerLeases.stale.length > 0,
+            hasTerminalStale: storyOwnerLeases.terminalStale.length > 0,
           },
           codex,
           validation,
