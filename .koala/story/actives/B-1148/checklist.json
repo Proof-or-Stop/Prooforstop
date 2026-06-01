@@ -90,9 +90,9 @@
         "docs/requirements/decisions/cc-learnings.md"
       ],
       "userSees": "evidence 中出现 \"taxonomy strategy: workflow/failure-mode/tool-quirk/guard-bypass/pattern/communication\"，并写明 project/global scope 规则。",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-01T12:31:40.518Z",
-      "endTime": null,
+      "endTime": "2026-06-01T12:32:33.091Z",
       "files": {
         "modify": [
           ".koala/story/actives/B-1148/checklist.json"
@@ -124,7 +124,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": ".koala/story/actives/B-1148/evidence/taxonomy-strategy.md",
+          "command": "cat .koala/story/actives/B-1148/evidence/taxonomy-strategy.md",
+          "result": "pass",
+          "note": "taxonomy-strategy uses dev-memory.md allowed categories (failure-mode/pattern/workflow/tool-quirk/guard-bypass/anti-pattern/other); scope rules specify project as default for Koala-specific lessons, global only for genuinely cross-project agent-collaboration lessons with explicit justification required; all 11 candidates mapped to project scope",
+          "headHash": "69d8affe7f3e531cfa1552fbc59260fbbce9e8e9",
+          "materialHash": "7898675f5a241ffed344aa27d1f3438a1ac3692e34adf4de4c14410242abf58e",
+          "timestamp": "2026-06-01T12:32:33.126Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": ".koala/story/actives/B-1148/evidence/taxonomy-strategy.md",
+          "command": "grep -c scope .koala/story/actives/B-1148/evidence/taxonomy-strategy.md",
+          "result": "pass",
+          "note": "Overlap rule defined: same topic with different angles -> one primary entry with project scope + cross-project note; two separate entries only when cross-project lesson is fully independent of Koala internals; no B-1148 candidate qualifies for separate global entry",
+          "headHash": "69d8affe7f3e531cfa1552fbc59260fbbce9e8e9",
+          "materialHash": "7898675f5a241ffed344aa27d1f3438a1ac3692e34adf4de4c14410242abf58e",
+          "timestamp": "2026-06-01T12:32:33.154Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": ".koala/story/actives/B-1148/evidence/taxonomy-strategy.md",
+          "command": "grep Prohibited .koala/story/actives/B-1148/evidence/taxonomy-strategy.md",
+          "result": "pass",
+          "note": "Prohibited content section explicitly bans full lifecycle histories, long transcripts, verbatim test output, and any text that could be misread as gate evidence. Content limits table requires gateEvidence=false and authority=non_authoritative.",
+          "headHash": "69d8affe7f3e531cfa1552fbc59260fbbce9e8e9",
+          "materialHash": "7898675f5a241ffed344aa27d1f3438a1ac3692e34adf4de4c14410242abf58e",
+          "timestamp": "2026-06-01T12:32:33.180Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
