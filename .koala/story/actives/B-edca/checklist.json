@@ -283,35 +283,35 @@
         {
           "intentRef": "CHK-004:happy:0",
           "kind": "logic_test",
-          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
-          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "node packages/main/dist/tasks/flow-stability-smoke.js",
           "result": "pass",
-          "note": "regression covers metadata-only test-evidence self-churn freshness",
-          "headHash": "3d6ca278e01527ea0df81111712205215f33fa4e",
+          "note": "flow-stability smoke covers dirty-worktree production helper passing projectRoot and custom storyDir metadata staying koala_metadata_changes",
+          "headHash": "06e1f94349e926aeba591a80213f40cb89d22e41",
           "materialHash": "da6334ef9dca41027766bc8b8a77f482d60f016e572ba5d4efdb3bcc08a0febb",
-          "timestamp": "2026-06-01T15:08:29.106Z"
+          "timestamp": "2026-06-01T15:15:01.205Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
           "kind": "logic_test",
-          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
-          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "file": "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
+          "command": "node packages/main/dist/tasks/semantic-scope-guard-smoke.js",
           "result": "pass",
-          "note": "regression commits metadata in a clean temporary git repo and validates materialHash freshness",
-          "headHash": "3d6ca278e01527ea0df81111712205215f33fa4e",
+          "note": "semantic scope guard smoke covers review-scope-binding excluding custom storyDir metadata while preserving clean binding freshness",
+          "headHash": "06e1f94349e926aeba591a80213f40cb89d22e41",
           "materialHash": "da6334ef9dca41027766bc8b8a77f482d60f016e572ba5d4efdb3bcc08a0febb",
-          "timestamp": "2026-06-01T15:08:29.106Z"
+          "timestamp": "2026-06-01T15:15:01.205Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
           "kind": "logic_test",
-          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
-          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "node packages/main/dist/tasks/flow-stability-smoke.js && node packages/main/dist/tasks/semantic-scope-guard-smoke.js",
           "result": "pass",
-          "note": "separate adversarial assertions prove workflow/notes.md and source file drift remain stale",
-          "headHash": "3d6ca278e01527ea0df81111712205215f33fa4e",
+          "note": "negative controls prove workflow/notes.md and real material/fixture paths are not hidden by custom storyDir metadata exclusions",
+          "headHash": "06e1f94349e926aeba591a80213f40cb89d22e41",
           "materialHash": "da6334ef9dca41027766bc8b8a77f482d60f016e572ba5d4efdb3bcc08a0febb",
-          "timestamp": "2026-06-01T15:08:29.106Z"
+          "timestamp": "2026-06-01T15:15:01.205Z"
         }
       ]
     },
@@ -365,12 +365,12 @@
           "intentRef": "CHK-005:happy:0",
           "kind": "manual_transcript",
           "file": ".koala/story/actives/B-edca/evidence/validation-transcript.md",
-          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:verification-freshness-smoke && npm run test:process-fact-contract",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/flow-stability-smoke.js && node packages/main/dist/tasks/semantic-scope-guard-smoke.js && npm --prefix packages/main run test:verification-freshness-smoke && npm run test:process-fact-contract",
           "result": "pass",
-          "note": "Codex independently ran build, freshness smoke, and process fact contract; transcript records command results",
-          "headHash": "3d6ca278e01527ea0df81111712205215f33fa4e",
+          "note": "Codex ran build plus flow-stability, semantic-scope, verification-freshness, and process-fact checks after the custom storyDir follow-up",
+          "headHash": "06e1f94349e926aeba591a80213f40cb89d22e41",
           "materialHash": "da6334ef9dca41027766bc8b8a77f482d60f016e572ba5d4efdb3bcc08a0febb",
-          "timestamp": "2026-06-01T15:08:29.106Z"
+          "timestamp": "2026-06-01T15:15:01.205Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
