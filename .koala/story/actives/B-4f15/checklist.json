@@ -382,6 +382,28 @@
           "headHash": "88ecdcc16c126f1efd2767596416f08b5f1d7a4e",
           "materialHash": "2fdeddc6e4525019f6e891980dcb3b59029f67e60d7ab05d7aa9c0a9a124f98a",
           "timestamp": "2026-06-01T16:16:52.939Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "waiver",
+          "verdict": "waived",
+          "waiverType": "deferred_gate_evidence",
+          "result": "pass",
+          "note": "Deferred because current REVIEW evidence can only be produced after entering REVIEW; will replace with actual review_run/review_pass artifacts before TEST/DONE.",
+          "headHash": "5efbe9f211f79c02198836e96a6c0b58875698bf",
+          "materialHash": "2fdeddc6e4525019f6e891980dcb3b59029f67e60d7ab05d7aa9c0a9a124f98a",
+          "timestamp": "2026-06-01T16:17:39.618Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "waiver",
+          "verdict": "waived",
+          "waiverType": "deferred_gate_evidence",
+          "result": "pass",
+          "note": "Deferred because DONE gate proof requires later delivery_check/summary/validate artifacts; will replace with actual DONE gate evidence before final completion.",
+          "headHash": "5efbe9f211f79c02198836e96a6c0b58875698bf",
+          "materialHash": "2fdeddc6e4525019f6e891980dcb3b59029f67e60d7ab05d7aa9c0a9a124f98a",
+          "timestamp": "2026-06-01T16:17:39.618Z"
         }
       ]
     }
