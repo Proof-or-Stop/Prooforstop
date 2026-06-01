@@ -198,7 +198,44 @@
       "userSees": "Final transcript shows readonly guard tests PASS and Koala lifecycle gates all pass.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          ".koala/story/actives/B-4f15/summary.json",
+          ".koala/story/actives/B-4f15/test-evidence.json",
+          ".koala/story/actives/B-4f15/delivery-check.json"
+        ],
+        "create": [],
+        "test": [
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/tasks/reviewer-readonly-command-policy-smoke.ts",
+          "packages/main/src/tasks/command-ownership-contract.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Build, focused readonly smoke, command ownership contract, process/runtime fact contracts, validate, and session_brief pass.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "REVIEW evidence is current after implementation commits and includes standard reviewer pass/finding artifacts, not advisory read-only text alone.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "DONE gate cannot pass if readonly reviewer docs/prompts drift, if evidence is stale, or if delivery/summary artifacts are missing.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
