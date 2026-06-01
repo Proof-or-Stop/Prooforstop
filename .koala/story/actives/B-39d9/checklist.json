@@ -169,9 +169,9 @@
       "id": "CHK-003",
       "title": "Preserve and prove managed asset safe sync boundaries",
       "context": "Keep apply/upgrade limited to MISSING/STALE_SAFE and add focused smoke proof that unsafe statuses are refused with manual guidance. User-visible unsafe examples must include STALE_LOCAL_EDIT with `review local edits before overwriting`, CASE_MISMATCH with exact-casing/manual rename guidance, and INCOMPATIBLE with manual fix guidance. Apply/upgrade must not report unsafe items as repaired.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-01T16:43:48.945Z",
       "userSees": "Unsafe drift is refused with visible manual guidance, for example `STALE_LOCAL_EDIT ... action: review local edits before overwriting`, `CASE_MISMATCH ... rename the path with exact casing`, or `INCOMPATIBLE ... fix manually`; apply/upgrade only reports repairs for MISSING/STALE_SAFE.",
       "relatedDocs": [
         "docs/requirements/decisions/lifecycle-artifact-scope.md",
@@ -345,6 +345,16 @@
       "from": "pending",
       "to": "done",
       "reason": "Plain check and doctor now render runtime footprint summary before detailed diagnostics and smoke covers clean/drift paths.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-06-01T16:43:48.945Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Managed asset mutation remains limited to MISSING/STALE_SAFE and smoke covers unsafe manual guidance/non-repair.",
       "agent": "main"
     }
   ]
