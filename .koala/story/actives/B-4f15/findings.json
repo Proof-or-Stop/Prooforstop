@@ -17,6 +17,22 @@
         ".claude/agents/koala-evaluator.md",
         ".Codex/agents/koala-evaluator.md"
       ]
+    },
+    {
+      "id": "B-4f15:F-002",
+      "desc": "quality-cleanup: command-ownership-contract.ts:508 log message contains typo \"storeScopedMutating\" (should be \"storyScopedMutating\") — inaccurate output could mislead readers debugging ownership class resolution",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-01T16:19:30.125Z",
+      "reviewRound": "2026-06-01T16:17:40.045Z",
+      "reviewRunId": "B-4f15:RR-003",
+      "_hash": "aaa3ef7c0cd970943aaf38b9b6d6b2fe80eafc48d9ca5a7ba4dbfc64c9534e7e",
+      "files": [
+        "packages/main/src/tasks/command-ownership-contract.ts"
+      ]
     }
   ]
 }
