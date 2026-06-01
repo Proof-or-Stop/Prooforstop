@@ -18,6 +18,7 @@ import { createDoctorHandlers } from '../handlers/doctor.js';
 import { managedAssetNextAction, renderManagedAssetCheck, runManagedAssetCheck } from '../core/managed-assets.js';
 import { runRuntimeEnvironmentChecks } from '../core/runtime-environment-checks.js';
 import { StoryStore } from '../core/store.js';
+import { renderCodexWrapperScript, renderKoalaBootstrapScript } from '../init-assets.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
@@ -913,6 +914,31 @@ try {
     assert.match(rendered, /action: .*fix manually|action: .*manually/);
   } finally {
     rmSync(incompatibleAssetRoot, { recursive: true, force: true });
+  }
+
+  const wrapperRoot = mkdtempSync(join(tmpdir(), 'koala-wrapper-cjs-'));
+  try {
+    mkdirSync(join(wrapperRoot, 'bin'), { recursive: true });
+    const koalaWrapperPath = join(wrapperRoot, 'bin', 'koala.js');
+    const codexWrapperPath = join(wrapperRoot, 'bin', 'koala-codex.js');
+    writeFileSync(koalaWrapperPath, renderKoalaBootstrapScript(packageRoot));
+    writeFileSync(codexWrapperPath, renderCodexWrapperScript());
+    const koalaWrapper = readFileSync(koalaWrapperPath, 'utf-8');
+    const codexWrapper = readFileSync(codexWrapperPath, 'utf-8');
+    assert.match(koalaWrapper, /require\('node:fs'\)/, 'Koala wrapper should be CommonJS so non-JS repos do not need package.json type=module');
+    assert.match(codexWrapper, /require\('node:fs'\)/, 'Codex wrapper should be CommonJS so non-JS repos do not need package.json type=module');
+    assert.doesNotMatch(koalaWrapper, /^import\s/m, 'Koala wrapper must not use static ESM import syntax');
+    assert.doesNotMatch(codexWrapper, /^import\s/m, 'Codex wrapper must not use static ESM import syntax');
+
+    const koalaHelp = spawnSync(process.execPath, [koalaWrapperPath, 'help'], { cwd: wrapperRoot, encoding: 'utf8' });
+    assert.equal(koalaHelp.status, 0, koalaHelp.stderr || koalaHelp.stdout);
+    assert.doesNotMatch(koalaHelp.stderr, /MODULE_TYPELESS_PACKAGE_JSON|Reparsing as ES module/, 'Koala wrapper help must not emit Node module-type warnings');
+
+    const codexHelp = spawnSync(process.execPath, [codexWrapperPath, 'help'], { cwd: wrapperRoot, encoding: 'utf8' });
+    assert.equal(codexHelp.status, 0, codexHelp.stderr || codexHelp.stdout);
+    assert.doesNotMatch(codexHelp.stderr, /MODULE_TYPELESS_PACKAGE_JSON|Reparsing as ES module/, 'Codex wrapper help must not emit Node module-type warnings');
+  } finally {
+    rmSync(wrapperRoot, { recursive: true, force: true });
   }
 
   writeFileSync(join(tmp, 'package.json'), JSON.stringify({
