@@ -33,6 +33,19 @@
       "files": [
         "packages/main/src/tasks/command-ownership-contract.ts"
       ]
+    },
+    {
+      "id": "B-4f15:F-003",
+      "desc": "CHK-005:edge:0 carries a deferred_gate_evidence waiver that explicitly commits to replacing with actual review_run/review_pass artifacts before TEST/DONE. We are now in the REVIEW round that produces those artifacts; the waiver must be replaced by the owner with a verification_evidence_add pointing to the reviewer pass records from this round (RR-007 and sibling runs) before advancing TEST→DONE. Additionally, both CHK-005 waivers are stale (headHash 5efbe9f2 vs current 151ccba0); owner must run verification_evidence_refresh_stale before TEST. The validate --story=B-4f15 currently reports status:fail for these 2 deferred intents (13/15 covered). Advisory in Round 2 but must be resolved before DONE gate.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-01T16:41:06.998Z",
+      "reviewRound": "2026-06-01T16:36:45.678Z",
+      "reviewRunId": "B-4f15:RR-007",
+      "_hash": "433bdb6f62fb1f4b4c8bf98578ae04119992e10a8614c63284bc5811f3a7ae31"
     }
   ]
 }
