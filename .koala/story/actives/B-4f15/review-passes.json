@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-01T16:17:40.045Z",
       "reviewRunId": "B-4f15:RR-003",
       "_hash": "869244d66db69b856b9fcdf8a87c7f7d6bc6e72389674de0863d82fc580f1245"
+    },
+    {
+      "id": "B-4f15:RP-004",
+      "agent": "koala-review-quality",
+      "note": "No blockers. enforceReviewerReadOnlyCommandGate: correct fail-closed logic (null→unclassified blocked, readOnly allowed), positioned before hooks/owner-lease gate. isReviewerReadOnlyModeEnabled: only =1 enables, others disabled. Smoke test (6 cases) and contract test section 6 (5 sub-assertions) all pass. Template/agent sync verified (3 files in sync; Codex/Claude label difference is pre-existing). TSC lint passes across 5 tsconfigs. Waived intents (CHK-005:edge/adversarial) are REVIEW/DONE-deferred and appropriate.",
+      "createdAt": "2026-06-01T16:40:01.577Z",
+      "reviewRound": "2026-06-01T16:36:45.678Z",
+      "reviewRunId": "B-4f15:RR-005",
+      "_hash": "e939c849c7678612fd17eb51b2605dd64cda9498b17798b2d34059afff75cca6"
     }
   ]
 }
