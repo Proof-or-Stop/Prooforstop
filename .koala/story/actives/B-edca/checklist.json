@@ -12,7 +12,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Evidence shows the stale-loop has been reproduced or precisely localized: validate-generated test-evidence self-churn is separated from real material drift.",
+      "userSees": "用户会在 evidence/reproduction.md 看到：\"Root cause: validate-generated test-evidence.json self-churn is excluded from material drift, while real material drift remains stale.\"",
       "verificationIntent": {
         "happy": [
           {
@@ -34,6 +34,15 @@
             "type": "logic",
             "priority": "must"
           }
+        ]
+      },
+      "files": {
+        "modify": [],
+        "create": [
+          ".koala/story/actives/B-edca/evidence/reproduction.md"
+        ],
+        "test": [
+          "packages/main/src/tasks/verification-freshness-smoke.ts"
         ]
       }
     },
