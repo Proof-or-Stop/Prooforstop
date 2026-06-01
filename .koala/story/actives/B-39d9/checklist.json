@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Add shared runtimeMode JSON contract with exact enums",
       "context": "Expose top-level runtimeMode in check --json and doctor --format=json through one shared core helper. Required fields: mode, source, requiresProjectJavaScriptRuntime, authority, message. mode enum: global-cli | project-local-package | packaged-runtime | compatibility-launcher | diagnostic-only. source enum: repo-local-dist | project-node-modules | packaged-runtime | external-development-engine | global-cli | unknown. Classification rules: project-local-package only when active CLI resolves through project root node_modules/project-local package; packaged-runtime when an explicit packaged runtime source/env is detected; global-cli when active CLI is global and no wrapper/dev engine is in play; compatibility-launcher when a thin launcher/fallback chain resolves repo-local dist, project node_modules fallback, external development engine, packaged runtime fallback, or global fallback; diagnostic-only when signals conflict or source is unknown. requiresProjectJavaScriptRuntime is true only for project-local-package. authority is always local-runtime-diagnostic-only in this story.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-01T16:33:11.662Z",
-      "endTime": "2026-06-01T16:43:40.872Z",
+      "endTime": "2026-06-01T16:56:23.026Z",
       "userSees": "`check --json` and `doctor --format=json` both contain `\"runtimeMode\":{\"mode\":\"compatibility-launcher\",\"source\":\"external-development-engine\",\"requiresProjectJavaScriptRuntime\":false,\"authority\":\"local-runtime-diagnostic-only\",...}`.",
       "relatedDocs": [
         "docs/requirements/decisions/stack-layering.md",
@@ -406,6 +406,16 @@
       "to": "in_progress",
       "reason": "Reopen for verified finding B-39d9:F-003 packaged runtime conflict classification",
       "agent": "koala-implementer"
+    },
+    {
+      "timestamp": "2026-06-01T16:56:23.026Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Fixed B-39d9:F-003 packaged-runtime conflict regression, refreshed evidence, and reran build/validation/runtime contract.",
+      "agent": "main"
     }
   ]
 }
