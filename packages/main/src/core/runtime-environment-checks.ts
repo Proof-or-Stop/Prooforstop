@@ -1,6 +1,6 @@
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync, readdirSync, realpathSync, statSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { basename, dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadConfig } from './config.js';
 import {
@@ -13,6 +13,17 @@ import {
 } from './runtime-fact-registry.js';
 
 export type RuntimeFactStatus = 'pass' | 'warn' | 'fail';
+export type RuntimeMode = 'global-cli' | 'project-local-package' | 'packaged-runtime' | 'compatibility-launcher' | 'diagnostic-only';
+export type RuntimeModeSource = 'repo-local-dist' | 'project-node-modules' | 'packaged-runtime' | 'external-development-engine' | 'global-cli' | 'unknown';
+export type RuntimeModeAuthority = 'local-runtime-diagnostic-only';
+
+export interface RuntimeModeContract {
+  mode: RuntimeMode;
+  source: RuntimeModeSource;
+  requiresProjectJavaScriptRuntime: boolean;
+  authority: RuntimeModeAuthority;
+  message: string;
+}
 
 export interface RuntimeFactCheckResult {
   id: RuntimeFactId;
@@ -33,6 +44,7 @@ export interface RuntimeFactCheckResult {
 export type RuntimeEnvironmentReport = {
   isSelfProject: boolean;
   scope: 'self' | 'external';
+  runtimeMode: RuntimeModeContract;
   summary: {
     status: RuntimeFactStatus;
     pass: number;
@@ -54,6 +66,7 @@ interface RuntimeCheckContext {
   corePackageRoot: string;
   canonicalSelfCoreRoot: string | null;
   cliEntrypoint: string | null;
+  activeCliEntrypoint: string | null;
   globalNpmRoot: string | null;
 }
 
@@ -72,6 +85,7 @@ const URL_RE = /\bhttps?:\/\/[^\s<>"')\]]+/gi;
 const HOST_PORT_RE = /\b(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}:\d{2,5}\b/g;
 const LOCAL_HOST_RE = /^(?:https?:\/\/)?(?:localhost|127\.0\.0\.1|\[?::1\]?)(?::\d+)?(?:[/?#]|$)/i;
 const HEALTH_SEMANTICS_RE = /\b(health\s*check|healthcheck|health\s*command|doctor|ping|readiness|liveness)\b|健康检查|健康命令/i;
+const RUNTIME_MODE_AUTHORITY: RuntimeModeAuthority = 'local-runtime-diagnostic-only';
 
 export function runRuntimeEnvironmentChecks(
   projectRoot: string,
@@ -89,6 +103,7 @@ export function runRuntimeEnvironmentChecks(
     corePackageRoot,
     canonicalSelfCoreRoot: isSelfProject ? resolveCanonicalSelfCoreRoot(resolvedRoot) : null,
     cliEntrypoint,
+    activeCliEntrypoint: resolveActiveCliEntrypoint(resolvedRoot, corePackageRoot, cliEntrypoint),
     globalNpmRoot,
   };
 
@@ -99,15 +114,28 @@ export function runRuntimeEnvironmentChecks(
   return {
     isSelfProject,
     scope: context.runtimeScope,
+    runtimeMode: classifyRuntimeMode(context),
     summary,
     ...keyed,
   };
+}
+
+export function renderRuntimeFootprintSummary(runtimeMode: RuntimeModeContract, nextAction?: string): string {
+  return [
+    'Runtime footprint:',
+    `Runtime mode: ${runtimeMode.mode}`,
+    `Runtime source: ${runtimeMode.source}`,
+    `Project-local JavaScript runtime required: ${runtimeMode.requiresProjectJavaScriptRuntime ? 'yes' : 'no'}`,
+    `Authority: ${runtimeMode.authority}`,
+    `Next action: ${nextAction ?? runtimeMode.message}`,
+  ].join('\n');
 }
 
 export function renderRuntimeEnvironmentReport(report: RuntimeEnvironmentReport): string {
   const lines: string[] = [];
   lines.push('Runtime scan:');
   lines.push(`  scope: ${report.scope}`);
+  lines.push(`  runtimeMode: ${report.runtimeMode.mode} (${report.runtimeMode.source})`);
   lines.push(`  status: ${report.summary.status} (${report.summary.pass} pass, ${report.summary.warn} warn, ${report.summary.fail} fail)`);
   for (const entry of RUNTIME_FACT_REGISTRY) {
     const result = report[entry.outputKey];
@@ -210,7 +238,7 @@ function checkProjectLocalBin(context: RuntimeCheckContext, severity: RuntimeFac
   const localBin = join(context.projectRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'koala.cmd' : 'koala');
   const localBinExists = existsSync(localBin);
   const localRealpath = localBinExists ? safeRealpath(localBin) : null;
-  const cliRealpath = context.cliEntrypoint ? safeRealpath(context.cliEntrypoint) : null;
+  const cliRealpath = context.activeCliEntrypoint ? safeRealpath(context.activeCliEntrypoint) : context.cliEntrypoint ? safeRealpath(context.cliEntrypoint) : null;
   const matchesEntrypoint = localBinExists && !!localRealpath && !!cliRealpath && samePath(localRealpath, cliRealpath);
   const shadowsEntrypoint = localBinExists && !matchesEntrypoint;
   const status = shadowsEntrypoint ? statusForDrift(severity) : 'pass';
@@ -225,8 +253,151 @@ function checkProjectLocalBin(context: RuntimeCheckContext, severity: RuntimeFac
       shadowsEntrypoint,
     },
     expected: 'project-local koala should be absent or resolve to the active CLI entrypoint',
-    ...(shadowsEntrypoint ? { warnings: [localBinWarning(localBin, localRealpath, cliRealpath, context.cliEntrypoint)] } : {}),
+    ...(shadowsEntrypoint ? { warnings: [localBinWarning(localBin, localRealpath, cliRealpath, context.activeCliEntrypoint ?? context.cliEntrypoint)] } : {}),
   };
+}
+
+function classifyRuntimeMode(context: RuntimeCheckContext): RuntimeModeContract {
+  const active = runtimeEntrypointRealpath(context);
+  const localBin = projectLocalBinPath(context.projectRoot);
+  const localBinPresent = existsSync(localBin);
+  const localBinRealpath = localBinPresent ? safeRealpath(localBin) : null;
+
+  if (localBinPresent) {
+    if (!active.realpath) {
+      return runtimeModeContract(
+        'diagnostic-only',
+        'unknown',
+        'project-local node_modules/.bin/koala exists, but the active Koala CLI entrypoint could not be resolved',
+      );
+    }
+    if (!localBinRealpath) {
+      return runtimeModeContract(
+        'diagnostic-only',
+        'unknown',
+        `project-local node_modules/.bin/koala exists at ${localBin}, but its realpath could not be resolved`,
+      );
+    }
+    if (samePath(localBinRealpath, active.realpath)) {
+      if (isPackagedRuntime()) {
+        return runtimeModeContract(
+          'packaged-runtime',
+          'packaged-runtime',
+          'packaged runtime detected; project package.json/node_modules are not required for Koala diagnostics',
+        );
+      }
+      return runtimeModeContract(
+        'project-local-package',
+        'project-node-modules',
+        'active Koala CLI is the project-local node_modules/.bin/koala package',
+        true,
+      );
+    }
+    return runtimeModeContract(
+      'diagnostic-only',
+      'unknown',
+      `project-local node_modules/.bin/koala resolves to ${localBinRealpath}, but the active CLI resolves to ${active.realpath}`,
+    );
+  }
+
+  if (isPackagedRuntime()) {
+    return runtimeModeContract(
+      'packaged-runtime',
+      'packaged-runtime',
+      'packaged runtime detected; project package.json/node_modules are not required for Koala diagnostics',
+    );
+  }
+
+  if (!active.realpath) {
+    return runtimeModeContract(
+      'diagnostic-only',
+      'unknown',
+      'active Koala CLI entrypoint could not be resolved; runtime classification is diagnostic-only',
+    );
+  }
+
+  const source = runtimeModeSource(context, active.realpath);
+  if (source === 'unknown') {
+    return runtimeModeContract(
+      'diagnostic-only',
+      'unknown',
+      `active Koala CLI ${active.realpath} does not match a known runtime source`,
+    );
+  }
+
+  if (source === 'global-cli' && !compatibilityLauncherSignal(active.path)) {
+    return runtimeModeContract(
+      'global-cli',
+      'global-cli',
+      'active Koala CLI resolves to the global installation; project package.json/node_modules are not required',
+    );
+  }
+
+  return runtimeModeContract(
+    'compatibility-launcher',
+    source,
+    compatibilityRuntimeMessage(source),
+  );
+}
+
+function runtimeModeContract(
+  mode: RuntimeMode,
+  source: RuntimeModeSource,
+  message: string,
+  requiresProjectJavaScriptRuntime = false,
+): RuntimeModeContract {
+  return {
+    mode,
+    source,
+    requiresProjectJavaScriptRuntime,
+    authority: RUNTIME_MODE_AUTHORITY,
+    message,
+  };
+}
+
+function runtimeEntrypointRealpath(context: RuntimeCheckContext): { path: string | null; realpath: string | null } {
+  const path = context.activeCliEntrypoint ?? context.cliEntrypoint;
+  return {
+    path,
+    realpath: path ? safeRealpath(path) ?? resolve(path) : null,
+  };
+}
+
+function runtimeModeSource(context: RuntimeCheckContext, activeRealpath: string): RuntimeModeSource {
+  const selfDistRoot = join(context.projectRoot, 'packages', 'main', 'dist');
+  const projectNodeModulesCore = join(context.projectRoot, 'node_modules', '@koala-agent', 'core');
+  const globalCoreRoot = context.globalNpmRoot ? join(context.globalNpmRoot, '@koala-agent', 'core') : null;
+
+  if (pathContains(selfDistRoot, activeRealpath) || samePath(context.corePackageRoot, join(context.projectRoot, 'packages', 'main'))) {
+    return 'repo-local-dist';
+  }
+  if (pathContains(projectNodeModulesCore, activeRealpath) || pathContains(projectNodeModulesCore, context.corePackageRoot)) {
+    return 'project-node-modules';
+  }
+  if (globalCoreRoot && (pathContains(globalCoreRoot, activeRealpath) || pathContains(globalCoreRoot, context.corePackageRoot))) {
+    return 'global-cli';
+  }
+  if (pathContains(context.corePackageRoot, activeRealpath) || !pathContains(context.projectRoot, context.corePackageRoot)) {
+    return 'external-development-engine';
+  }
+  return 'unknown';
+}
+
+function compatibilityRuntimeMessage(source: RuntimeModeSource): string {
+  switch (source) {
+    case 'repo-local-dist':
+      return 'compatibility launcher is using the repository-local Koala dist runtime; run npm --prefix packages/main run build after core edits';
+    case 'project-node-modules':
+      return 'compatibility launcher is using the project node_modules Koala package without requiring node_modules/.bin/koala as the active CLI';
+    case 'packaged-runtime':
+      return 'compatibility launcher is using a packaged Koala runtime; project package.json/node_modules are not required';
+    case 'external-development-engine':
+      return 'compatibility launcher is using an external Koala development engine; project package.json/node_modules are not required';
+    case 'global-cli':
+      return 'compatibility launcher is using the global Koala CLI fallback; project package.json/node_modules are not required';
+    case 'unknown':
+      return 'runtime source is unknown; classification is diagnostic-only';
+  }
 }
 
 function checkNodeVersion(severity: RuntimeFactSeverity): Pick<RuntimeFactCheckResult, 'status' | 'actual' | 'expected' | 'warnings'> {
@@ -479,6 +650,22 @@ function resolveGlobalNpmRoot(projectRoot: string): string | null {
   return runCommand('npm', ['root', '-g'], projectRoot);
 }
 
+function resolveActiveCliEntrypoint(projectRoot: string, corePackageRoot: string, fallbackEntrypoint: string | null): string | null {
+  const invoked = process.argv[1] ? resolve(process.argv[1]) : null;
+  if (invoked && looksLikeKoalaEntrypoint(invoked, projectRoot, corePackageRoot)) return invoked;
+  return fallbackEntrypoint;
+}
+
+function looksLikeKoalaEntrypoint(path: string, projectRoot: string, corePackageRoot: string): boolean {
+  const real = safeRealpath(path) ?? path;
+  const name = basename(path);
+  if (name === 'koala' || name === 'koala.cmd' || name === 'koala.js' || name === 'koala-codex.js') return true;
+  if ((name === 'cli.js' || name === 'cli-engine.js') && pathContains(corePackageRoot, real)) return true;
+  if (samePath(real, join(projectRoot, 'bin', 'koala.js'))) return true;
+  if (samePath(real, join(projectRoot, 'bin', 'koala-codex.js'))) return true;
+  return false;
+}
+
 function currentCorePackageRoot(): string {
   return resolve(__dirname, '..', '..');
 }
@@ -559,6 +746,27 @@ function safeRealpath(path: string): string | null {
 
 function samePath(a: string, b: string): boolean {
   return resolve(a) === resolve(b);
+}
+
+function pathContains(parent: string, child: string): boolean {
+  const rel = relative(resolve(parent), resolve(child));
+  return rel === '' || (!!rel && !rel.startsWith('..') && !isAbsolute(rel));
+}
+
+function projectLocalBinPath(projectRoot: string): string {
+  return join(projectRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'koala.cmd' : 'koala');
+}
+
+function isPackagedRuntime(): boolean {
+  return process.env.KOALA_DESKTOP_PACKAGED_RUNTIME === '1'
+    || Boolean((process as typeof process & { pkg?: unknown }).pkg);
+}
+
+function compatibilityLauncherSignal(activePath: string | null): boolean {
+  if (process.env.KOALA_ACTIVITY_SOURCE === 'codex') return true;
+  if (process.env.KOALA_CODEX_ENTRYPOINT === 'global-fallback' || process.env.KOALA_CODEX_ENTRYPOINT === 'local-wrapper') return true;
+  const name = activePath ? basename(activePath) : '';
+  return name === 'koala.js' || name === 'koala-codex.js';
 }
 
 function localBinWarning(localBin: string, localRealpath: string | null, cliRealpath: string | null, cliEntrypoint: string | null): string {

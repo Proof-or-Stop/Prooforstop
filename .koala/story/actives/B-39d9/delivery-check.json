@@ -1,0 +1,61 @@
+{
+  "storyId": "B-39d9",
+  "checkedAt": "2026-06-01T17:05:34.983Z",
+  "reviewRound": "2026-06-01T16:56:44.824Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".koala/story/actives/B-39d9/plan.md#CHK-001",
+      "promise": "B-39d9 adds a shared runtimeMode JSON contract with exact enums and exposes top-level runtimeMode on check --json and doctor --format=json.",
+      "status": "verified",
+      "verifiedBy": "plan + fresh dist CLI JSON transcript",
+      "evidence": "story_get CHK-001 plus node packages/main/dist/cli.js check --json and doctor --format=json both returned runtimeMode with mode=compatibility-launcher, source=repo-local-dist, requiresProjectJavaScriptRuntime=false, authority=local-runtime-diagnostic-only."
+    },
+    {
+      "docPath": ".koala/story/actives/B-39d9/plan.md#CHK-002",
+      "promise": "Plain check and doctor show the runtime footprint block first, including project-local JavaScript runtime required and the next action line.",
+      "status": "verified",
+      "verifiedBy": "plan + fresh plain CLI transcript",
+      "evidence": "node packages/main/dist/cli.js check | sed -n 1,12p and doctor | sed -n 1,12p both began with Runtime footprint, Runtime mode: compatibility-launcher, Runtime source: repo-local-dist, Project-local JavaScript runtime required: no, Authority: local-runtime-diagnostic-only, and Next action."
+    },
+    {
+      "docPath": ".koala/story/actives/B-39d9/plan.md#CHK-003",
+      "promise": "Managed asset apply/upgrade stays on the safe/manual boundary: only MISSING and STALE_SAFE are repaired, while unsafe statuses emit explicit manual guidance.",
+      "status": "verified",
+      "verifiedBy": "plan + validation smoke transcript",
+      "evidence": "npm --prefix packages/main run test:validation-protocol passed; the story findings show the packaged-runtime conflict regression was fixed and the unsafe boundary remains manual-only."
+    },
+    {
+      "docPath": ".koala/story/actives/B-39d9/plan.md#CHK-004",
+      "promise": "B-39d9 only claims core readiness and hands wrapper proof to B-3e9a, so it does not overclaim Koala Mac wrapper proof.",
+      "status": "verified",
+      "verifiedBy": "plan + summary boundary text",
+      "evidence": "plan CHK-004 says B-39d9 only claims core readiness while B-3e9a records wrapper proof; summary limitations/outcomeDiff repeat that wrapper proof remains B-3e9a evidence and is not claimed here."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "PASS: node packages/main/dist/cli.js check --json and doctor --format=json both printed top-level runtimeMode with mode=compatibility-launcher, source=repo-local-dist, requiresProjectJavaScriptRuntime=false, authority=local-runtime-diagnostic-only; doctor top-level runtimeMode matched runtime.runtimeMode."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "PASS: node packages/main/dist/cli.js check | sed -n 1,12p and node packages/main/dist/cli.js doctor | sed -n 1,12p both started with Runtime footprint, Runtime mode: compatibility-launcher, Runtime source: repo-local-dist, Project-local JavaScript runtime required: no, Authority: local-runtime-diagnostic-only, and Next action."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "PASS: npm --prefix packages/main run test:validation-protocol exited 0 with validation protocol smoke passed; coverage includes unsafe managed asset manual guidance and conflict degradation edge cases."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "PASS: npm --prefix packages/main run build exited 0 and npm --prefix packages/main run test:validation-protocol passed; the handoff remains scoped to B-3e9a for Koala Mac wrapper proof, not B-39d9."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Fresh dist CLI, plain first-screen, validation smoke, and build all passed. The docs promises are verified, edge cases are covered, and wrapper proof is explicitly scoped to B-3e9a so B-39d9 does not overclaim it."
+  },
+  "_hash": "d39b3bbc032f977147b537458c1c6a8b91382b3e9a7c458a6bd73d508d612ea7"
+}

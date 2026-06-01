@@ -548,7 +548,7 @@ function evaluateDefinition(root: string, def: ManagedAssetDefinition, manifest:
       return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', reason: 'excluded Codex runtime asset is absent', action: 'none' };
     }
     const found = pathKind === 'file' ? 'file' : pathKind === 'directory' ? 'directory' : 'non-file path';
-    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', actualHash, reason: `Codex runtime must not use this Claude-only asset path (found ${found})`, action: 'remove manually if it is not user-owned' };
+    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', actualHash, reason: `Codex runtime must not use this Claude-only asset path (found ${found})`, action: 'fix manually: remove it if it is not user-owned' };
   }
 
   if (def.kind === 'remove-extra') {
@@ -557,14 +557,14 @@ function evaluateDefinition(root: string, def: ManagedAssetDefinition, manifest:
     }
     if (pathKind !== 'file') {
       const found = pathKind === 'directory' ? 'directory' : 'non-file path';
-      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', reason: `stale generated prompt path is a ${found}`, action: 'remove manually if it is Koala-owned' };
+      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', reason: `stale generated prompt path is a ${found}`, action: 'fix manually: remove it if it is Koala-owned' };
     }
     return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'STALE_SAFE', actualHash, reason: 'Codex agent mirror contains a prompt no longer present in Koala templates', action: 'remove generated stale prompt' };
   }
 
   if (pathKind === 'directory' || pathKind === 'other') {
     const found = pathKind === 'directory' ? 'directory' : 'non-file path';
-    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', expectedHash, reason: `managed asset path is a ${found}, expected a file`, action: 'replace or remove the path manually before running koala check --apply/--upgrade' };
+    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', expectedHash, reason: `managed asset path is a ${found}, expected a file`, action: 'fix manually: replace or remove the path before running koala check --apply/--upgrade' };
   }
 
   if (def.kind === 'gitignore-runtime') {
@@ -581,11 +581,11 @@ function evaluateDefinition(root: string, def: ManagedAssetDefinition, manifest:
     }
     const parsed = safeJsonParse(actual);
     if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', actualHash, reason: 'settings.json is not a JSON object', action: 'fix JSON manually' };
+      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', actualHash, reason: 'settings.json is not a JSON object', action: 'fix manually: repair settings.json as a JSON object' };
     }
     const merged = mergeClaudeHooks(parsed);
     if (merged.incompatible.length > 0) {
-      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', actualHash, reason: `hook event(s) have incompatible shape: ${merged.incompatible.join(', ')}`, action: 'fix hook array shape manually' };
+      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', actualHash, reason: `hook event(s) have incompatible shape: ${merged.incompatible.join(', ')}`, action: 'fix manually: repair hook array shape' };
     }
     if (!merged.changed) {
       return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', actualHash, reason: 'Koala Claude hooks are present', action: 'none' };
@@ -601,7 +601,7 @@ function evaluateDefinition(root: string, def: ManagedAssetDefinition, manifest:
     const desiredSection = extractKoalaSection(expected ?? '');
     const manifestUnchanged = Boolean(manifestEntry?.contentHash && manifestEntry.contentHash === actualHash);
     if (!hasManagedMarkers(actual)) {
-      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', expectedHash: sha256(desiredSection), actualHash, reason: 'file exists without Koala managed markers', action: 'add markers or merge manually' };
+      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', expectedHash: sha256(desiredSection), actualHash, reason: 'file exists without Koala managed markers', action: 'fix manually: add markers or merge the managed section' };
     }
     const actualSection = actual.match(INIT_DOC_SECTION_RE)?.[0] ?? '';
     if (sha256(actualSection) === sha256(desiredSection)) {
@@ -843,4 +843,13 @@ export function renderManagedAssetCheck(result: ManagedAssetCheckResult): string
     lines.push(`Manifest: ${result.manifestPath}`);
   }
   return lines.join('\n');
+}
+
+export function managedAssetNextAction(result: ManagedAssetCheckResult): string {
+  const unsafe = result.summary.CASE_MISMATCH + result.summary.STALE_LOCAL_EDIT + result.summary.INCOMPATIBLE;
+  const safe = result.summary.MISSING + result.summary.STALE_SAFE;
+  if (unsafe > 0) return 'review unsafe managed assets manually';
+  if (safe > 0) return 'run koala check --apply to sync MISSING/STALE_SAFE assets';
+  if (result.applied.length > 0) return 'safe managed asset drift repaired';
+  return 'no managed asset drift';
 }

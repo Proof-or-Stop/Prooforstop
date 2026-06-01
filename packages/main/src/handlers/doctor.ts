@@ -19,7 +19,7 @@ import { loadConfig } from '../core/config.js';
 import { renderCodexAdapterChecks, runCodexAdapterChecks } from '../core/codex-adapter-checks.js';
 import { findRuntimeArtifactEntry, isRepairableTrackedRuntimeArtifactPath } from '../core/runtime-artifact-registry.js';
 import { formatValidationCommand } from '../core/validation-executor.js';
-import { renderRuntimeEnvironmentReport, runRuntimeEnvironmentChecks } from '../core/runtime-environment-checks.js';
+import { renderRuntimeEnvironmentReport, renderRuntimeFootprintSummary, runRuntimeEnvironmentChecks } from '../core/runtime-environment-checks.js';
 import { scanValidationSetup, type ValidationSetupScan } from './verifier.js';
 import { detectPartialDoneStories, renderPartialDoneSummary } from '../core/partial-done-recovery.js';
 import { renderMainWriteLockScan, scanMainWriteLock } from '../core/main-write-lock-doctor.js';
@@ -108,6 +108,7 @@ export function createDoctorHandlers(ctx: HandlerContext) {
 
       if (args?.format === 'json') {
         return {
+          runtimeMode: runtime.runtimeMode,
           healthPath: getHealthPath(),
           ...summary,
           worktrees: {
@@ -153,6 +154,8 @@ export function createDoctorHandlers(ctx: HandlerContext) {
 
       // text 输出
       const lines: string[] = [];
+      lines.push(renderRuntimeFootprintSummary(runtime.runtimeMode));
+      lines.push('');
       lines.push(`koala doctor — health issues`);
       lines.push(`  source: ${getHealthPath()}`);
       lines.push(`  total : ${summary.total} issues recorded`);

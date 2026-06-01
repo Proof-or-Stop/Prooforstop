@@ -4,37 +4,419 @@
       "id": "CHK-001",
       "title": "Add shared runtimeMode JSON contract with exact enums",
       "context": "Expose top-level runtimeMode in check --json and doctor --format=json through one shared core helper. Required fields: mode, source, requiresProjectJavaScriptRuntime, authority, message. mode enum: global-cli | project-local-package | packaged-runtime | compatibility-launcher | diagnostic-only. source enum: repo-local-dist | project-node-modules | packaged-runtime | external-development-engine | global-cli | unknown. Classification rules: project-local-package only when active CLI resolves through project root node_modules/project-local package; packaged-runtime when an explicit packaged runtime source/env is detected; global-cli when active CLI is global and no wrapper/dev engine is in play; compatibility-launcher when a thin launcher/fallback chain resolves repo-local dist, project node_modules fallback, external development engine, packaged runtime fallback, or global fallback; diagnostic-only when signals conflict or source is unknown. requiresProjectJavaScriptRuntime is true only for project-local-package. authority is always local-runtime-diagnostic-only in this story.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
-      "userSees": "`check --json` and `doctor --format=json` both contain `\"runtimeMode\":{\"mode\":\"compatibility-launcher\",\"source\":\"external-development-engine\",\"requiresProjectJavaScriptRuntime\":false,\"authority\":\"local-runtime-diagnostic-only\",...}`."
+      "status": "done",
+      "startTime": "2026-06-01T16:33:11.662Z",
+      "endTime": "2026-06-01T16:56:23.026Z",
+      "userSees": "`check --json` and `doctor --format=json` both contain `\"runtimeMode\":{\"mode\":\"compatibility-launcher\",\"source\":\"external-development-engine\",\"requiresProjectJavaScriptRuntime\":false,\"authority\":\"local-runtime-diagnostic-only\",...}`.",
+      "relatedDocs": [
+        "docs/requirements/decisions/stack-layering.md",
+        "docs/requirements/decisions/truth-source.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/handlers/check.ts",
+          "packages/main/src/handlers/doctor.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "json-contract",
+            "desc": "check --json and doctor --format=json expose top-level runtimeMode with mode/source/requiresProjectJavaScriptRuntime/authority/message using agreed enum values.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "id": "external-project",
+            "desc": "An external non-self project does not require project-local JavaScript unless the active CLI is truly project-local.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "unknown-conflict",
+            "desc": "Unknown or conflicting runtime signals degrade to diagnostic-only/unknown instead of falsely claiming global-cli or project-local-package.",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "json-contract",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "Smoke asserts top-level runtimeMode on check JSON and doctor JSON, exact enum membership, and required fields mode/source/requiresProjectJavaScriptRuntime/authority/message.",
+          "headHash": "d88c79e0b6588cf61fcf0e330fa8de72767f1847",
+          "materialHash": "5271e2a127e215b560eebbc9d19c5d22235ef3a4271aa906b0fda987e19204f9",
+          "timestamp": "2026-06-01T17:06:34.903Z"
+        },
+        {
+          "intentRef": "external-project",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "Smoke injects an external development engine root and asserts compatibility-launcher/external-development-engine with requiresProjectJavaScriptRuntime=false.",
+          "headHash": "d88c79e0b6588cf61fcf0e330fa8de72767f1847",
+          "materialHash": "5271e2a127e215b560eebbc9d19c5d22235ef3a4271aa906b0fda987e19204f9",
+          "timestamp": "2026-06-01T17:06:34.903Z"
+        },
+        {
+          "intentRef": "unknown-conflict",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "Smoke creates conflicting project-local and active CLI signals and asserts diagnostic-only/unknown with no project-local JS requirement.",
+          "headHash": "d88c79e0b6588cf61fcf0e330fa8de72767f1847",
+          "materialHash": "5271e2a127e215b560eebbc9d19c5d22235ef3a4271aa906b0fda987e19204f9",
+          "timestamp": "2026-06-01T17:06:34.903Z"
+        },
+        {
+          "intentRef": "json-contract-cli-entrypoint",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js check --json && node packages/main/dist/cli.js doctor --format=json",
+          "result": "pass",
+          "note": "Branch dist CLI entrypoint exposes top-level runtimeMode on both check and doctor JSON; check showed mode compatibility-launcher/source repo-local-dist/requiresProjectJavaScriptRuntime false/authority local-runtime-diagnostic-only, and doctor top-level runtimeMode matched runtime.runtimeMode.",
+          "headHash": "ca70ad30a61c6931f20dba995fb0b3bc543cb700",
+          "materialHash": "0263b38cb9290b1fbf9379149d8dd7a7052d7a3ab8d465bb14a2ad1c57632bab",
+          "timestamp": "2026-06-01T16:56:17.286Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Render first-screen runtime footprint guidance",
       "context": "Plain check and doctor output must start with a concise runtime footprint summary. The first visible block must directly show current mode, whether project-local JS runtime/package.json/node_modules is required, and next safe/manual action. Example lines: `Runtime mode: compatibility-launcher`; `Project-local JavaScript runtime required: no`; `Next action: no managed asset drift` or `Next action: review unsafe managed assets manually`.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
-      "userSees": "The first screen of plain `koala check` and plain `koala doctor` includes lines like `Runtime mode: compatibility-launcher`, `Project-local JavaScript runtime required: no`, and `Next action: no managed asset drift` or `Next action: review unsafe managed assets manually`."
+      "endTime": "2026-06-01T16:43:44.890Z",
+      "userSees": "The first screen of plain `koala check` and plain `koala doctor` includes lines like `Runtime mode: compatibility-launcher`, `Project-local JavaScript runtime required: no`, and `Next action: no managed asset drift` or `Next action: review unsafe managed assets manually`.",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-client-role.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/handlers/check.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/core/managed-assets.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "first-screen-clean",
+            "desc": "Plain check and doctor start with Runtime mode, Project-local JavaScript runtime required, and a no-drift next action before deeper diagnostics.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "id": "first-screen-drift",
+            "desc": "Plain check with managed asset drift still shows the runtime footprint block before throwing/rendering drift details.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "manual-next-action",
+            "desc": "Unsafe managed asset statuses summarize a manual review next action instead of implying check --apply can repair them.",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "first-screen-clean",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "Smoke asserts plain check and doctor output start with Runtime footprint, Runtime mode, Project-local JavaScript runtime required, and Next action before detailed diagnostics.",
+          "headHash": "d88c79e0b6588cf61fcf0e330fa8de72767f1847",
+          "materialHash": "5271e2a127e215b560eebbc9d19c5d22235ef3a4271aa906b0fda987e19204f9",
+          "timestamp": "2026-06-01T17:06:34.903Z"
+        },
+        {
+          "intentRef": "first-screen-drift",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "Smoke asserts plain check drift throws text beginning with the runtime footprint summary before managed asset drift details.",
+          "headHash": "d88c79e0b6588cf61fcf0e330fa8de72767f1847",
+          "materialHash": "5271e2a127e215b560eebbc9d19c5d22235ef3a4271aa906b0fda987e19204f9",
+          "timestamp": "2026-06-01T17:06:34.903Z"
+        },
+        {
+          "intentRef": "manual-next-action",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/managed-assets.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "managedAssetNextAction returns manual review guidance whenever unsafe managed asset statuses are present.",
+          "headHash": "d88c79e0b6588cf61fcf0e330fa8de72767f1847",
+          "materialHash": "5271e2a127e215b560eebbc9d19c5d22235ef3a4271aa906b0fda987e19204f9",
+          "timestamp": "2026-06-01T17:06:34.903Z"
+        },
+        {
+          "intentRef": "first-screen-cli-entrypoint",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js check | sed -n 1,12p && node packages/main/dist/cli.js doctor | sed -n 1,12p",
+          "result": "pass",
+          "note": "Branch dist CLI entrypoint plain check and doctor both start with Runtime footprint, Runtime mode, Runtime source, Project-local JavaScript runtime required: no, Authority, and Next action before detailed output.",
+          "headHash": "ca70ad30a61c6931f20dba995fb0b3bc543cb700",
+          "materialHash": "0263b38cb9290b1fbf9379149d8dd7a7052d7a3ab8d465bb14a2ad1c57632bab",
+          "timestamp": "2026-06-01T16:56:17.286Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Preserve and prove managed asset safe sync boundaries",
       "context": "Keep apply/upgrade limited to MISSING/STALE_SAFE and add focused smoke proof that unsafe statuses are refused with manual guidance. User-visible unsafe examples must include STALE_LOCAL_EDIT with `review local edits before overwriting`, CASE_MISMATCH with exact-casing/manual rename guidance, and INCOMPATIBLE with manual fix guidance. Apply/upgrade must not report unsafe items as repaired.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
-      "userSees": "Unsafe drift is refused with visible manual guidance, for example `STALE_LOCAL_EDIT ... action: review local edits before overwriting`, `CASE_MISMATCH ... rename the path with exact casing`, or `INCOMPATIBLE ... fix manually`; apply/upgrade only reports repairs for MISSING/STALE_SAFE."
+      "endTime": "2026-06-01T16:43:48.945Z",
+      "userSees": "Unsafe drift is refused with visible manual guidance, for example `STALE_LOCAL_EDIT ... action: review local edits before overwriting`, `CASE_MISMATCH ... rename the path with exact casing`, or `INCOMPATIBLE ... fix manually`; apply/upgrade only reports repairs for MISSING/STALE_SAFE.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/managed-assets.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "safe-apply-only",
+            "desc": "apply/upgrade repairs only MISSING and STALE_SAFE items and reports applied paths only for those safe statuses.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "id": "unsafe-guidance",
+            "desc": "STALE_LOCAL_EDIT, CASE_MISMATCH, and INCOMPATIBLE each render explicit manual guidance.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "unsafe-not-repaired",
+            "desc": "Unsafe drift remains unmodified after apply/upgrade and is not counted as repaired/applied.",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "safe-apply-only",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/managed-assets.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "applyDefinition still returns false unless item status is MISSING or STALE_SAFE, and smoke verifies unsafe items are not counted in applied paths.",
+          "headHash": "d88c79e0b6588cf61fcf0e330fa8de72767f1847",
+          "materialHash": "5271e2a127e215b560eebbc9d19c5d22235ef3a4271aa906b0fda987e19204f9",
+          "timestamp": "2026-06-01T17:06:34.903Z"
+        },
+        {
+          "intentRef": "unsafe-guidance",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "Smoke asserts STALE_LOCAL_EDIT, CASE_MISMATCH, and INCOMPATIBLE render manual action text such as review local edits, rename exact casing, or fix manually.",
+          "headHash": "d88c79e0b6588cf61fcf0e330fa8de72767f1847",
+          "materialHash": "5271e2a127e215b560eebbc9d19c5d22235ef3a4271aa906b0fda987e19204f9",
+          "timestamp": "2026-06-01T17:06:34.903Z"
+        },
+        {
+          "intentRef": "unsafe-not-repaired",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "Smoke preserves the original unsafe files during apply and asserts no unsafe path appears in result.applied.",
+          "headHash": "d88c79e0b6588cf61fcf0e330fa8de72767f1847",
+          "materialHash": "5271e2a127e215b560eebbc9d19c5d22235ef3a4271aa906b0fda987e19204f9",
+          "timestamp": "2026-06-01T17:06:34.903Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "Build core and provide explicit Koala Mac consumer proof handoff",
       "context": "Run the Orchestrate packages/main build and focused core smoke tests. Then write the concrete external handoff surface for Koala Mac story B-3e9a: `node bin/koala.js check --json`, `node bin/koala.js doctor --format=json`, plain `node bin/koala.js check`, and plain `node bin/koala.js doctor`. B-39d9 owns core readiness; B-3e9a owns running those commands in the Koala Mac wrapper worktree.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
-      "userSees": "Core test output passes, and the handoff says exactly which Koala Mac wrapper commands must show `runtimeMode` and the first-screen JS footprint summary."
+      "endTime": "2026-06-01T16:43:53.208Z",
+      "userSees": "Core test output passes, and the handoff says exactly which Koala Mac wrapper commands must show `runtimeMode` and the first-screen JS footprint summary.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/verification-context-pack.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/handlers/check.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "build-and-smoke",
+            "desc": "packages/main build and focused validation protocol smoke pass after implementation.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "id": "consumer-handoff",
+            "desc": "Story evidence names exact Koala Mac wrapper commands that must verify runtimeMode and first-screen footprint in B-3e9a.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "no-wrapper-assumption",
+            "desc": "B-39d9 does not claim Koala Mac wrapper proof until B-3e9a runs the external commands in its own worktree.",
+            "type": "manual"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "build-and-smoke",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:validation-protocol && npm --prefix packages/main run test:runtime-fact-contract",
+          "result": "pass",
+          "note": "Fresh local verification after commit 042db0d2ddf93a150a758a0cd5c3b477b040ea8b passed build, validation protocol smoke, and runtime fact contract.",
+          "headHash": "d88c79e0b6588cf61fcf0e330fa8de72767f1847",
+          "materialHash": "5271e2a127e215b560eebbc9d19c5d22235ef3a4271aa906b0fda987e19204f9",
+          "timestamp": "2026-06-01T17:06:34.903Z"
+        },
+        {
+          "intentRef": "consumer-handoff",
+          "kind": "docs_check",
+          "file": ".koala/story/actives/B-39d9/plan.md",
+          "result": "pass",
+          "note": "Handoff surface for Koala Mac B-3e9a is explicitly node bin/koala.js check --json, node bin/koala.js doctor --format=json, node bin/koala.js check, and node bin/koala.js doctor.",
+          "headHash": "d88c79e0b6588cf61fcf0e330fa8de72767f1847",
+          "materialHash": "5271e2a127e215b560eebbc9d19c5d22235ef3a4271aa906b0fda987e19204f9",
+          "timestamp": "2026-06-01T17:06:34.903Z"
+        },
+        {
+          "intentRef": "no-wrapper-assumption",
+          "kind": "docs_check",
+          "file": ".koala/story/actives/B-39d9/plan.md",
+          "result": "pass",
+          "note": "Plan CHK-004 explicitly states B-39d9 only claims core readiness and B-3e9a records wrapper proof; this replaces the earlier commandless manual transcript with a source-referenced docs_check.",
+          "headHash": "d88c79e0b6588cf61fcf0e330fa8de72767f1847",
+          "materialHash": "5271e2a127e215b560eebbc9d19c5d22235ef3a4271aa906b0fda987e19204f9",
+          "timestamp": "2026-06-01T17:06:34.903Z"
+        },
+        {
+          "intentRef": "no-wrapper-assumption-source-ref",
+          "kind": "docs_check",
+          "file": ".koala/story/actives/B-39d9/plan.md",
+          "result": "pass",
+          "note": "Plan section CHK-004 explicitly says B-39d9 only claims core readiness and B-3e9a records wrapper proof with node bin/koala.js check/doctor commands.",
+          "headHash": "ca70ad30a61c6931f20dba995fb0b3bc543cb700",
+          "materialHash": "0263b38cb9290b1fbf9379149d8dd7a7052d7a3ab8d465bb14a2ad1c57632bab",
+          "timestamp": "2026-06-01T16:56:17.286Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-01T16:43:40.872Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Runtime mode contract implemented in shared runtime diagnostics helper and covered by validation protocol smoke.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-06-01T16:43:44.890Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Plain check and doctor now render runtime footprint summary before detailed diagnostics and smoke covers clean/drift paths.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-06-01T16:43:48.945Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Managed asset mutation remains limited to MISSING/STALE_SAFE and smoke covers unsafe manual guidance/non-repair.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-06-01T16:43:53.208Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Core build and focused smoke tests passed; wrapper proof handoff is explicitly assigned to Koala Mac B-3e9a.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-06-01T16:52:17.839Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Reopen for verified finding B-39d9:F-003 packaged runtime conflict classification",
+      "agent": "koala-implementer"
+    },
+    {
+      "timestamp": "2026-06-01T16:56:23.026Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Fixed B-39d9:F-003 packaged-runtime conflict regression, refreshed evidence, and reran build/validation/runtime contract.",
+      "agent": "main"
     }
   ]
 }
