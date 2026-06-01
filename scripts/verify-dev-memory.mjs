@@ -1001,6 +1001,94 @@ check('dev_memory_finish --scope=global in active story does not write story can
 });
 
 // ---------------------------------------------------------------------------
+// Section: DEFAULT_PHASE_TOOLS regression (B-1148 CHK-006)
+// Verifies that dev_memory_* commands work in an active DEV story using the
+// default config — without any phaseTools override injected by the fixture.
+// This catches the gap where command-policy.ts says allowedPhases:all but
+// DEFAULT_PHASE_TOOLS['*'] was missing dev_memory_*, causing the dual-gate in
+// isCommandAllowed to block the command even though policy allowed it.
+// ---------------------------------------------------------------------------
+
+console.log('\n--- Section: DEFAULT_PHASE_TOOLS regression (no phaseTools override) ---');
+
+function createActiveStoryRepoDefaultConfig(label, storyId = 'B-active-default') {
+  const root = join(tmpBase, label);
+  const storyDir = join(root, '.koala', 'story', 'actives', storyId);
+  mkdirSync(storyDir, { recursive: true });
+  // Deliberately NO phaseTools — relies on DEFAULT_PHASE_TOOLS from config.ts
+  writeFileSync(join(root, 'koala.config.json'), JSON.stringify({
+    scanRoot: '.',
+    storyDir: '.koala/story/actives',
+  }, null, 2) + '\n', 'utf-8');
+  const now = new Date().toISOString();
+  writeFileSync(join(storyDir, 'index.json'), JSON.stringify({
+    storyId,
+    name: storyId,
+    title: 'Default-config active story (no phaseTools override)',
+    description: 'Fixture for DEFAULT_PHASE_TOOLS regression test.',
+    type: 'feature',
+    phase: 'DEV',
+    priority: 'medium',
+    createdAt: now,
+    startedAt: now,
+    endedAt: null,
+    events: [],
+  }, null, 2) + '\n', 'utf-8');
+  writeFileSync(join(root, 'seed.txt'), 'seed\n', 'utf-8');
+  runGit(root, ['init']);
+  runGit(root, ['config', 'user.email', 'koala-test@noreply.local']);
+  runGit(root, ['config', 'user.name', 'Koala Test']);
+  runGit(root, ['add', '.']);
+  runGit(root, ['commit', '-m', 'init default-config active story fixture']);
+  runGit(root, ['checkout', '-b', 'story/' + storyId]);
+  return root;
+}
+
+{
+  const defaultRoot = createActiveStoryRepoDefaultConfig('default-config-regression');
+  const storyId = 'B-active-default';
+  const defaultEnv = {
+    ...process.env,
+    KOALA_PROJECT_ROOT: defaultRoot,
+    KOALA_GLOBAL_MEMORY_DIR: join(tmpBase, 'default-config-global-memory'),
+  };
+
+  check('dev_memory_capture allowed in DEV with default config (no phaseTools override)', () => {
+    const r = runKoala([
+      'dev_memory_capture',
+      '--category=pattern',
+      '--summary=DEFAULT_PHASE_TOOLS must include dev_memory_* for DEV access',
+      '--trigger=dev_memory_* missing from DEFAULT_PHASE_TOOLS wildcard bucket',
+      '--lesson=command-policy allowedPhases:all is not enough; phaseTools wildcard must also include the command',
+      '--reusePrompt=Is dev_memory_* in DEFAULT_PHASE_TOOLS[*]?',
+      '--tags=config,phaseTools',
+    ], defaultEnv, defaultRoot);
+    const out = r.stdout + r.stderr;
+    if (r.status !== 0) throw new Error(`dev_memory_capture rejected in DEV with default config. Exit ${r.status}: ${out}`);
+    if (!out.includes('Captured dev-memory experience')) throw new Error('expected capture confirmation: ' + out);
+  });
+
+  check('dev_memory_list allowed in DEV with default config (no phaseTools override)', () => {
+    const r = runKoala(['dev_memory_list', '--scope=project'], defaultEnv, defaultRoot);
+    const out = r.stdout + r.stderr;
+    if (r.status !== 0) throw new Error(`dev_memory_list rejected in DEV with default config. Exit ${r.status}: ${out}`);
+    if (out.includes('No dev-memory experience entries yet')) throw new Error('expected entries from prior capture: ' + out);
+  });
+
+  check('dev_memory_search allowed in DEV with default config (no phaseTools override)', () => {
+    const r = runKoala(['dev_memory_search', '--query=phaseTools'], defaultEnv, defaultRoot);
+    const out = r.stdout + r.stderr;
+    if (r.status !== 0) throw new Error(`dev_memory_search rejected in DEV with default config. Exit ${r.status}: ${out}`);
+  });
+
+  check('dev_memory_preflight allowed in DEV with default config (no phaseTools override)', () => {
+    const r = runKoala(['dev_memory_preflight', '--query=config'], defaultEnv, defaultRoot);
+    const out = r.stdout + r.stderr;
+    if (r.status !== 0) throw new Error(`dev_memory_preflight rejected in DEV with default config. Exit ${r.status}: ${out}`);
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Cleanup & summary
 // ---------------------------------------------------------------------------
 
