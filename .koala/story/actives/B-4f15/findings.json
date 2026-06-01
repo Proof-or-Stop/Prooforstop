@@ -5,7 +5,7 @@
       "desc": "doc-promise-undelivered: CHK-004 declares Files.modify includes .claude/agents/koala-evaluator.md and .Codex/agents/koala-evaluator.md (to add KOALA_REVIEWER_READONLY=1 guidance for advisory external reviewers), but neither file appears in git diff main...HEAD. The env var does not appear in either file. The userSees for CHK-004 states owner guidance warns about KOALA_REVIEWER_READONLY=1 in the evaluator dispatch docs, but this guidance is absent from those agent prompt files.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-docs",
       "createdAt": "2026-06-01T16:19:11.599Z",
