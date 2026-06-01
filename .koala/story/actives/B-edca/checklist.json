@@ -58,7 +58,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Docs or policy notes explain that test-evidence.json is generated validation metadata: it records latest validation, but should not cause materialHash stale loops.",
+      "userSees": "用户会在 policy/docs 或代码注释看到：\"test-evidence.json is gate-consumed validation metadata, not material drift input.\"",
       "verificationIntent": {
         "happy": [
           {
@@ -81,6 +81,14 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md"
+        ],
+        "create": [],
+        "test": []
       }
     },
     {
