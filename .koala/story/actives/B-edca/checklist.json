@@ -1,0 +1,66 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Reproduce and localize the stale advisory loop",
+      "context": "Use a focused fixture or existing handlers to reproduce validate updating test-evidence.json then session_brief reporting stale while refresh_stale reports no stale.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-completeness.md",
+        "docs/requirements/decisions/truth-source.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Define the artifact freshness policy for test-evidence.json",
+      "context": "Document whether test-evidence.json is delivery metadata, material source, or generated test artifact, and how session_brief/DONE gates should treat it.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "docs/requirements/decisions/testing-completeness.md",
+        "docs/requirements/decisions/truth-source.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Implement minimal fix in validate/session freshness handling",
+      "context": "Adjust the code so validate-generated test evidence no longer creates an endless stale advisory after commit, without weakening DONE gate freshness for material source changes.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add regression coverage",
+      "context": "Add automated coverage for the stale-loop scenario and for a real material drift scenario so the fix is not a broad suppression.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-completeness.md",
+        "docs/requirements/decisions/test-intent-review.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Run lifecycle validation and record evidence",
+      "context": "Run build, targeted regression tests, process-fact contract, koala validate/session_brief checks, and record transcript/evidence for the story.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
