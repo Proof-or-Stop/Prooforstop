@@ -1,0 +1,79 @@
+{
+  "principles": [
+    "只从可验证 story/doc/evidence 回填，不凭聊天记忆造事实。",
+    "dev-memory 只做非权威上下文索引，不能满足任何 gate evidence。",
+    "少量高价值、可触发、可复用条目优先，避免把 lifecycle 历史重复存一份。",
+    "Koala 专属经验默认 project scope，跨项目通用经验才进入 global scope。",
+    "每条正式回填经验都必须能被 search/preflight 重新找到并有 source refs。"
+  ],
+  "drivers": [
+    "用户要防止历史流程经验丢失，并希望普通编程前能触发。",
+    "Koala 已有 story/evidence/docs 作为权威来源，不能绕开。",
+    "B-ad2c 已经提供 dev-memory 机制，本 story 应复用而不是新增复杂系统。"
+  ],
+  "options": [
+    {
+      "name": "do-nothing",
+      "pros": [
+        "不增加任何记录重复",
+        "零实现风险"
+      ],
+      "cons": [
+        "历史经验继续散落，用户下次普通编程前无法触发",
+        "不能回应用户明确要求"
+      ]
+    },
+    {
+      "name": "central-doc-only",
+      "pros": [
+        "人类阅读集中",
+        "不会污染 dev-memory"
+      ],
+      "cons": [
+        "普通编程前不容易自动检索触发",
+        "容易变成又一份和 story 重复的静态历史文档"
+      ]
+    },
+    {
+      "name": "evidence-backed-dev-memory-plus-manifest",
+      "pros": [
+        "下次可通过 dev_memory_search/preflight 触发",
+        "每条经验保留 source refs，降低编造风险",
+        "manifest 说明写入/跳过原因，避免重复和污染"
+      ],
+      "cons": [
+        "需要严格去重和证据盘点",
+        "需要额外验证非权威边界"
+      ]
+    }
+  ],
+  "chosen": "evidence-backed-dev-memory-plus-manifest",
+  "rationale": "选择 evidence-backed dev-memory plus manifest，因为它直接解决用户“下次普通编程前触发历史经验”的问题，同时用 source refs 和 manifest 保持可审计，不把 dev-memory 混成权威 gate evidence。",
+  "preMortem": [
+    {
+      "scenario": "Agent 凭聊天记忆写入看似权威的历史经验",
+      "trigger": "候选主题没有 story/doc/evidence refs，却被写入正式 dev-memory",
+      "consequence": "未来会话把编造经验当事实，反而增加事实欺骗风险",
+      "mitigation": "source inventory 中无来源的条目只列 needs-human-confirmation，不进入正式回填"
+    },
+    {
+      "scenario": "回填内容和 B-ad2c 已有 5 条 global entries 重复",
+      "trigger": "没有先搜索现有 dev-memory 就批量 capture",
+      "consequence": "preflight 输出噪音变多，用户下次更难找到真正有用经验",
+      "mitigation": "先运行 dev_memory_search --global，对重复主题标 duplicate/skip，只补缺口"
+    },
+    {
+      "scenario": "dev-memory 被误认为可以满足 Koala gate evidence",
+      "trigger": "manifest 或条目文案写成“证明/通过/验收”而非“经验/提醒/索引”",
+      "consequence": "流程防伪边界被削弱，后续 Agent 可能绕过 story evidence",
+      "mitigation": "所有条目保持 gateEvidence=false、authority=non_authoritative，并在 manifest/summary 写清不能满足 gate"
+    },
+    {
+      "scenario": "回填范围过大，把完整 lifecycle 历史复制一遍",
+      "trigger": "把 process-events 或 summary 原文大量搬进 dev-memory",
+      "consequence": "重复 story 权威记录、污染检索、增加维护成本",
+      "mitigation": "每条只保留 summary/trigger/lesson/reusePrompt/sourceRefs，完整历史回到原 story artifacts"
+    }
+  ],
+  "timestamp": "2026-06-01T12:13:16.942Z"
+}
