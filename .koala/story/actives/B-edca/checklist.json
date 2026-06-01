@@ -9,9 +9,9 @@
         "docs/requirements/decisions/testing-completeness.md",
         "docs/requirements/decisions/truth-source.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-01T14:14:10.755Z",
-      "endTime": null,
+      "endTime": "2026-06-01T14:37:45.561Z",
       "userSees": "用户会在 evidence/reproduction.md 看到：\"Root cause: validate-generated test-evidence.json self-churn is excluded from material drift, while real material drift remains stale.\"",
       "verificationIntent": {
         "happy": [
@@ -44,7 +44,39 @@
         "test": [
           "packages/main/src/tasks/verification-freshness-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": ".koala/story/actives/B-edca/evidence/reproduction.md",
+          "result": "pass",
+          "note": "reproduction.md documents validate-generated test-evidence missing materialHash and custom storyDir metadata gap",
+          "headHash": "1ae6f675030c3891901b7a223d62937614322e8e",
+          "materialHash": "d0f8574445b27a5688470c6de764092fd147dad10e9ce0e5014dd6170e05ea85",
+          "timestamp": "2026-06-01T14:37:45.599Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": ".koala/story/actives/B-edca/evidence/reproduction.md",
+          "result": "pass",
+          "note": "reproduction distinguishes test-evidence self-churn from real material drift",
+          "headHash": "1ae6f675030c3891901b7a223d62937614322e8e",
+          "materialHash": "d0f8574445b27a5688470c6de764092fd147dad10e9ce0e5014dd6170e05ea85",
+          "timestamp": "2026-06-01T14:37:45.626Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "regression keeps real material drift stale while allowing metadata-only test-evidence changes",
+          "headHash": "1ae6f675030c3891901b7a223d62937614322e8e",
+          "materialHash": "d0f8574445b27a5688470c6de764092fd147dad10e9ce0e5014dd6170e05ea85",
+          "timestamp": "2026-06-01T14:37:45.651Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
