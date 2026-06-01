@@ -79,6 +79,16 @@
           "headHash": "e4d4014da25151ede01ba6199a60761cefc5c914",
           "materialHash": "0263b38cb9290b1fbf9379149d8dd7a7052d7a3ab8d465bb14a2ad1c57632bab",
           "timestamp": "2026-06-01T16:56:03.129Z"
+        },
+        {
+          "intentRef": "json-contract-cli-entrypoint",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js check --json && node packages/main/dist/cli.js doctor --format=json",
+          "result": "pass",
+          "note": "Branch dist CLI entrypoint exposes top-level runtimeMode on both check and doctor JSON; check showed mode compatibility-launcher/source repo-local-dist/requiresProjectJavaScriptRuntime false/authority local-runtime-diagnostic-only, and doctor top-level runtimeMode matched runtime.runtimeMode.",
+          "headHash": "ca70ad30a61c6931f20dba995fb0b3bc543cb700",
+          "materialHash": "0263b38cb9290b1fbf9379149d8dd7a7052d7a3ab8d465bb14a2ad1c57632bab",
+          "timestamp": "2026-06-01T16:56:17.286Z"
         }
       ]
     },
@@ -162,6 +172,16 @@
           "headHash": "e4d4014da25151ede01ba6199a60761cefc5c914",
           "materialHash": "0263b38cb9290b1fbf9379149d8dd7a7052d7a3ab8d465bb14a2ad1c57632bab",
           "timestamp": "2026-06-01T16:56:03.129Z"
+        },
+        {
+          "intentRef": "first-screen-cli-entrypoint",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js check | sed -n 1,12p && node packages/main/dist/cli.js doctor | sed -n 1,12p",
+          "result": "pass",
+          "note": "Branch dist CLI entrypoint plain check and doctor both start with Runtime footprint, Runtime mode, Runtime source, Project-local JavaScript runtime required: no, Authority, and Next action before detailed output.",
+          "headHash": "ca70ad30a61c6931f20dba995fb0b3bc543cb700",
+          "materialHash": "0263b38cb9290b1fbf9379149d8dd7a7052d7a3ab8d465bb14a2ad1c57632bab",
+          "timestamp": "2026-06-01T16:56:17.286Z"
         }
       ]
     },
@@ -322,6 +342,16 @@
           "headHash": "e4d4014da25151ede01ba6199a60761cefc5c914",
           "materialHash": "0263b38cb9290b1fbf9379149d8dd7a7052d7a3ab8d465bb14a2ad1c57632bab",
           "timestamp": "2026-06-01T16:56:03.129Z"
+        },
+        {
+          "intentRef": "no-wrapper-assumption-source-ref",
+          "kind": "docs_check",
+          "file": ".koala/story/actives/B-39d9/plan.md",
+          "result": "pass",
+          "note": "Plan section CHK-004 explicitly says B-39d9 only claims core readiness and B-3e9a records wrapper proof with node bin/koala.js check/doctor commands.",
+          "headHash": "ca70ad30a61c6931f20dba995fb0b3bc543cb700",
+          "materialHash": "0263b38cb9290b1fbf9379149d8dd7a7052d7a3ab8d465bb14a2ad1c57632bab",
+          "timestamp": "2026-06-01T16:56:17.286Z"
         }
       ]
     }
