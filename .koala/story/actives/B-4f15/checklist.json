@@ -102,7 +102,43 @@
       "userSees": "Test output includes readonly reviewer guard blocks mutating commands and normal reviewer pass remains allowed.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/command-ownership-contract.ts",
+          "packages/main/package.json",
+          "package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/reviewer-readonly-command-policy-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/reviewer-readonly-command-policy-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Focused smoke output proves KOALA_REVIEWER_READONLY=1 blocks a mutating reviewer command and writes no review-pass artifact.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Focused or contract coverage proves no-env normal reviewerWrite behavior remains allowed.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Coverage includes an attempted takeover/dangerous or story-scoped mutation under readonly mode and verifies it is rejected before owner-lease flow.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
