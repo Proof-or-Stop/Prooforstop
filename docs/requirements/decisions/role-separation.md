@@ -976,6 +976,47 @@ git revert <S-11 commit>   # PLAN_REVIEW phase 删除
 
 ---
 
+## Advisory Read-Only Reviewer Mode (`KOALA_REVIEWER_READONLY=1`)
+
+Some workflows delegate read-only review to an external Claude/Codex/Gemini process that is
+**not** a normal Koala gate reviewer. These advisory reviewers should not be able to call
+mutating Koala commands (e.g. `review_pass_set`, `finding_add`, `story_advance`) — they are
+expected to return structured text findings to the owner session, which then records evidence
+through the normal gate.
+
+`KOALA_REVIEWER_READONLY=1` is the opt-in environment variable that enforces this boundary.
+When set on a spawned reviewer process:
+
+- Only commands with `CommandPolicy.ownershipClass === 'readOnly'` are allowed (e.g.
+  `session_brief`, `story_get`, `checklist_get`, `finding_list`).
+- All `reviewerWrite`, `storyScopedMutating`, `mainSharedMutating`, `dangerousMutating`, and
+  unclassified commands are rejected before preCommand hooks and before the owner-lease gate.
+  The error names the env var, the blocked command, its effective class, and the correct
+  recovery path: return findings as text to the owner, who records them as evidence.
+- `--takeover` / `--forceTakeover` cannot be used to bypass the restriction.
+
+**Advisory reviewer text is not gate evidence.** A read-only reviewer cannot produce a Koala
+`review_pass_set` record, a signed `finding_add` entry, or any other lifecycle artifact.
+Owner sessions that receive advisory reviewer output must explicitly call the relevant Koala
+commands themselves to materialize evidence.
+
+**Normal Koala gate reviewers must NOT set this mode.** Standard reviewers (`koala-review-*`
+subagents in REVIEW phase) need to call `review_run_start`, `finding_add`, `review_pass_set`,
+`init_check_set`, `scope_check_save`, and `delivery_check_set`. Setting
+`KOALA_REVIEWER_READONLY=1` on a normal gate reviewer will block all of those calls and break
+the review lifecycle.
+
+### When to use
+
+| Situation | Use KOALA_REVIEWER_READONLY=1? |
+|---|---|
+| External Claude/Codex/Gemini asked to inspect code and return text findings | Yes — sandbox the reviewer |
+| Normal `koala-review-concept` / `koala-review-quality` in REVIEW phase | No — reviewer must write gate artifacts |
+| `koala-evaluator` or `koala-evaluator-cli` scoring product quality | No — evaluator uses normal write path |
+| CI runner doing a read-only docs audit before reporting to owner | Yes |
+
+---
+
 ## 参考
 
 - `docs/requirements/decisions/cc-learnings.md` — 现有 koala 改造方案，本文档的前身和基线
