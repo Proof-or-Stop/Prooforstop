@@ -244,9 +244,9 @@
         "docs/requirements/decisions/testing-completeness.md",
         "docs/requirements/decisions/test-intent-review.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-01T14:38:39.700Z",
       "userSees": "测试输出会包含：\"self-churn test-evidence metadata does not stale verification evidence\" 和 \"real material drift still stale\"。",
       "verificationIntent": {
         "happy": [
@@ -278,7 +278,42 @@
           "packages/main/src/tasks/verification-freshness-smoke.ts",
           "scripts/verify-process-fact-contract.mjs"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "regression covers metadata-only test-evidence self-churn freshness",
+          "headHash": "1ae6f675030c3891901b7a223d62937614322e8e",
+          "materialHash": "d0f8574445b27a5688470c6de764092fd147dad10e9ce0e5014dd6170e05ea85",
+          "timestamp": "2026-06-01T14:38:39.723Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "regression commits metadata in a clean temporary git repo and validates materialHash freshness",
+          "headHash": "1ae6f675030c3891901b7a223d62937614322e8e",
+          "materialHash": "d0f8574445b27a5688470c6de764092fd147dad10e9ce0e5014dd6170e05ea85",
+          "timestamp": "2026-06-01T14:38:39.745Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "separate adversarial assertions prove workflow/notes.md and source file drift remain stale",
+          "headHash": "1ae6f675030c3891901b7a223d62937614322e8e",
+          "materialHash": "d0f8574445b27a5688470c6de764092fd147dad10e9ce0e5014dd6170e05ea85",
+          "timestamp": "2026-06-01T14:38:39.767Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
