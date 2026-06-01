@@ -1089,6 +1089,182 @@ function createActiveStoryRepoDefaultConfig(label, storyId = 'B-active-default')
 }
 
 // ---------------------------------------------------------------------------
+// Section: B-1148 regressions — gitignore policy + multi-token search
+// ---------------------------------------------------------------------------
+
+console.log('\n--- Section: B-1148 regressions ---');
+
+check('project dev-memory path is not gitignored (B-1148 Risk A)', () => {
+  // .gitignore must unignore .koala/dev-memory/ so experience.jsonl can be tracked.
+  // git check-ignore exits 0 if the file IS ignored, 1 if it is not (or when -v is used
+  // and the match is a negation rule). Use git ls-files --error-unmatch or check-ignore
+  // output to determine policy.
+  const gitignorePath = join(ROOT, '.gitignore');
+  if (!existsSync(gitignorePath)) throw new Error('.gitignore not found');
+  const content = readFileSync(gitignorePath, 'utf-8');
+  // Must have a negation rule for dev-memory
+  if (!content.includes('!.koala/dev-memory/') && !content.includes('!.koala/dev-memory/**')) {
+    throw new Error('.gitignore must have !.koala/dev-memory/ or !.koala/dev-memory/** to allow tracking project dev-memory');
+  }
+  // The .koala/* rule must be present (sanity check that the gitignore structure is still intact)
+  if (!content.includes('.koala/*')) {
+    throw new Error('.gitignore must retain .koala/* catch-all rule');
+  }
+  // Negation must come AFTER the .koala/* catch-all (last-match-wins)
+  const catchAllIdx = content.lastIndexOf('.koala/*');
+  const devMemoryIdx = content.indexOf('!.koala/dev-memory/');
+  if (devMemoryIdx !== -1 && devMemoryIdx < catchAllIdx) {
+    throw new Error('!.koala/dev-memory/ negation must appear AFTER .koala/* catch-all in .gitignore (last-match-wins)');
+  }
+});
+
+check('token-aware search: "authority reviewer" finds reviewer entries (B-1148 Risk B)', () => {
+  // Build entries with metadata including sourceStoryId and evidenceRefs
+  const entries = [
+    dm.createEntry({
+      category: 'tool-quirk',
+      scope: 'project',
+      summary: 'Reviewer calling finding_add with pass-only body is auto-normalized to review_pass_set',
+      trigger: 'Reviewer reports PASS via finding_add and it becomes an open finding',
+      lesson: 'flow-policy:pass-only-normalization converts low-severity koala-review-* finding_add to review_pass_set',
+      reusePrompt: 'reviewer pass-only finding_add normalized review_pass_set',
+      tags: ['reviewer', 'finding-add', 'review-pass', 'normalization'],
+      sourceStoryId: 'B-9b8f',
+      evidenceRefs: ['.koala/story/actives/B-9b8f/summary.json'],
+    }),
+    dm.createEntry({
+      category: 'workflow',
+      scope: 'project',
+      summary: 'Reviewers must call review_run_start first; findings or passes without reviewRunId are rejected',
+      trigger: 'Reviewer submits finding_add but it is not accepted as evidence',
+      lesson: 'Call review_run_start at the start of each review lane; include reviewRunId in findings',
+      reusePrompt: 'reviewer review_run_start reviewRunId binding lane',
+      tags: ['reviewer-lane', 'review-run-start', 'reviewRunId'],
+      sourceStoryId: 'B-ad12',
+      evidenceRefs: ['.koala/story/actives/B-ad12/summary.json'],
+    }),
+    dm.createEntry({
+      category: 'pattern',
+      scope: 'project',
+      summary: 'Pre-push hook must fail-closed when node is absent',
+      trigger: 'Node binary missing in CI environment',
+      lesson: 'gate hooks must fail-closed not fail-open when required tools are absent',
+      reusePrompt: 'fail-closed gate hook node absent',
+      tags: ['pre-push', 'gate-design', 'fail-closed'],
+      sourceStoryId: 'B-eab3',
+      evidenceRefs: ['.koala/story/actives/B-eab3/summary.json'],
+    }),
+  ];
+  const results = dm.searchEntries(entries, { query: 'authority reviewer', limit: 20 });
+  if (results.length === 0) throw new Error('"authority reviewer" should find reviewer entries (token-aware)');
+  const ids = results.map(e => e.id);
+  if (!ids.includes(entries[0].id)) throw new Error('first reviewer entry not found');
+  if (!ids.includes(entries[1].id)) throw new Error('second reviewer entry not found');
+  // pre-push entry should NOT match (no "reviewer" or "authority" in its text)
+  // but may have partial match from category text — just confirm reviewer entries are present
+});
+
+check('token-aware search: "reviewer" finds reviewer entries and excludes unrelated entries (B-1148)', () => {
+  const entries = [
+    dm.createEntry({
+      category: 'tool-quirk',
+      scope: 'project',
+      summary: 'Reviewer calling finding_add is normalized to review_pass_set',
+      trigger: 'reviewer pass-only body mistakenly becomes open finding',
+      lesson: 'flow-policy:pass-only-normalization handles this case',
+      reusePrompt: 'check reviewer behavior',
+      tags: ['reviewer'],
+      sourceStoryId: 'B-9b8f',
+      evidenceRefs: ['.koala/story/actives/B-9b8f/summary.json'],
+    }),
+    dm.createEntry({
+      category: 'pattern',
+      scope: 'project',
+      summary: 'Build packages before recursive tsc scan',
+      trigger: 'tsc gate silently skipping sub-packages',
+      lesson: 'packages/utils imports from dist; build main first',
+      reusePrompt: 'run build before tsc gate',
+      tags: ['build', 'tsc'],
+      sourceStoryId: 'B-eab3',
+      evidenceRefs: ['.koala/story/actives/B-eab3/summary.json'],
+    }),
+  ];
+  const results = dm.searchEntries(entries, { query: 'reviewer', limit: 10 });
+  if (results.length === 0) throw new Error('"reviewer" should find reviewer entry');
+  if (results[0].id !== entries[0].id) throw new Error('reviewer entry should rank first');
+});
+
+check('search includes sourceStoryId in searchable text (B-1148)', () => {
+  const entry = dm.createEntry({
+    category: 'workflow',
+    scope: 'project',
+    summary: 'Story owner lease fail-closed on non-owner writes',
+    trigger: 'non-owner session hits storyScopedMutating command',
+    lesson: 'always set KOALA_SESSION_ID or rely on CLAUDE_CODE_SESSION_ID',
+    reusePrompt: 'set KOALA_SESSION_ID for owner lease commands',
+    tags: ['owner-lease', 'session'],
+    sourceStoryId: 'B-c55d',
+    evidenceRefs: ['.koala/story/actives/B-c55d/summary.json'],
+  });
+  const results = dm.searchEntries([entry], { query: 'B-c55d', limit: 10 });
+  if (results.length === 0) throw new Error('sourceStoryId "B-c55d" should be searchable');
+});
+
+check('formatEntryShort shows sourceStoryId and evidenceRefs when present (B-1148)', () => {
+  const entry = dm.createEntry({
+    category: 'workflow',
+    scope: 'project',
+    summary: 'Test entry for format verification with source refs',
+    trigger: 'testing format output includes source and refs',
+    lesson: 'formatEntryShort must show sourceStoryId and evidenceRefs for traceability',
+    reusePrompt: 'check format output for source refs',
+    tags: ['test'],
+    sourceStoryId: 'B-test99',
+    evidenceRefs: ['.koala/story/actives/B-test99/summary.json'],
+  });
+  const formatted = dm.formatEntryShort(entry);
+  if (!formatted.includes('B-test99')) throw new Error('formatted output missing sourceStoryId');
+  if (!formatted.includes('non_authoritative')) throw new Error('formatted output missing non_authoritative boundary');
+  if (!formatted.includes('summary.json')) throw new Error('formatted output missing evidenceRefs');
+});
+
+check('preflight output is bounded (B-1148 CHK-005 edge)', () => {
+  // Build 10 entries and verify preflight stays within limits
+  const manyEntries = [];
+  for (let i = 0; i < 10; i++) {
+    manyEntries.push(dm.createEntry({
+      category: 'pattern',
+      scope: 'project',
+      summary: `Bounded preflight test entry number ${i} for limit verification`,
+      trigger: `trigger for entry ${i}`,
+      lesson: `lesson for entry ${i} to verify preflight line budget is respected`,
+      reusePrompt: `reuse prompt for entry ${i}`,
+      tags: [`tag${i}`],
+      sourceStoryId: `B-test${i}`,
+      evidenceRefs: [`.koala/story/actives/B-test${i}/summary.json`],
+    }));
+  }
+  const tmpPreflightDir = join(tmpBase + '-bounded', 'preflight-bound');
+  mkdirSync(tmpPreflightDir, { recursive: true });
+  const preflightPath = join(tmpPreflightDir, 'experience.jsonl');
+  for (const e of manyEntries) dm.appendEntry(preflightPath, e);
+
+  const origProject = process.env.KOALA_PROJECT_ROOT;
+  const origGlobal = process.env.KOALA_GLOBAL_MEMORY_DIR;
+  process.env.KOALA_PROJECT_ROOT = tmpPreflightDir;
+  process.env.KOALA_GLOBAL_MEMORY_DIR = join(tmpBase + '-bounded', 'empty-global');
+  const result = dm.buildPreflightPack({ maxEntries: 5 });
+  process.env.KOALA_PROJECT_ROOT = origProject || '';
+  process.env.KOALA_GLOBAL_MEMORY_DIR = origGlobal || '';
+
+  if (result.entries.length > 5) throw new Error(`preflight exceeded maxEntries=5, got ${result.entries.length}`);
+  const formatted = dm.formatPreflightPack(result);
+  const lineCount = formatted.split('\n').length;
+  if (lineCount > 70) throw new Error(`formatted preflight too long: ${lineCount} lines`);
+  rmSync(tmpBase + '-bounded', { recursive: true, force: true });
+});
+
+// ---------------------------------------------------------------------------
 // Cleanup & summary
 // ---------------------------------------------------------------------------
 

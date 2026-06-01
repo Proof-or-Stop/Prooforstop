@@ -268,20 +268,36 @@ export interface SearchOptions {
   limit?: number;
 }
 
+function buildSearchText(entry: DevMemoryEntry): string {
+  return [
+    entry.summary,
+    entry.trigger,
+    entry.lesson,
+    entry.reusePrompt,
+    ...(entry.tags || []),
+    entry.category,
+    entry.sourceStoryId || '',
+    ...(entry.evidenceRefs || []),
+  ].join(' ').toLowerCase();
+}
+
+function escapeRegex(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 function scoreEntry(entry: DevMemoryEntry, opts: SearchOptions): number {
   let score = 0;
-  const q = (opts.query || '').toLowerCase();
+  const q = (opts.query || '').trim().toLowerCase();
 
   if (q) {
-    const text = [
-      entry.summary,
-      entry.trigger,
-      entry.lesson,
-      entry.reusePrompt,
-      ...(entry.tags || []),
-    ].join(' ').toLowerCase();
-    const hits = (text.match(new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi')) || []).length;
-    score += hits * 10;
+    const text = buildSearchText(entry);
+    // Token-aware: split on whitespace so "authority reviewer" finds entries
+    // matching either "authority" or "reviewer" independently.
+    const tokens = q.split(/\s+/).filter(t => t.length > 0);
+    for (const token of tokens) {
+      const hits = (text.match(new RegExp(escapeRegex(token), 'gi')) || []).length;
+      score += hits * 10;
+    }
   }
 
   if (opts.category && entry.category === opts.category) score += 5;
@@ -384,12 +400,17 @@ export function buildPreflightPack(opts: PreflightOptions): PreflightResult {
 
 export function formatEntryShort(e: DevMemoryEntry): string {
   const tags = e.tags && e.tags.length > 0 ? ` [${e.tags.join(', ')}]` : '';
-  return [
+  const lines = [
     `[${e.id}] ${e.category} | ${e.scope} | agent: ${e.sourceAgent}${tags}`,
     `  Summary : ${e.summary}`,
     `  Lesson  : ${e.lesson}`,
     `  Reuse   : ${e.reusePrompt}`,
-  ].join('\n');
+  ];
+  if (e.sourceStoryId) lines.push(`  Source  : ${e.sourceStoryId} (non_authoritative)`);
+  if (e.evidenceRefs && e.evidenceRefs.length > 0) {
+    lines.push(`  Refs    : ${e.evidenceRefs.join(', ')}`);
+  }
+  return lines.join('\n');
 }
 
 export function formatPreflightPack(result: PreflightResult, query?: string): string {
