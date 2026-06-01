@@ -147,6 +147,77 @@
         }
       ],
       "_hash": "b4fc392ac2c2580b65ea1f60a50d38b7949bc2fefadf9c3d92286b3facf4f648"
+    },
+    {
+      "timestamp": "2026-06-01T12:23:54.796Z",
+      "issueCount": 9,
+      "blockerCount": 6,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 个 checklist item，请检查是否有组合场景遗漏（如：盘点已有历史来源和重复记录 + 定义经验 taxonomy 和写入策略 同时操作会怎样？）"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story 命中 1 个高风险信号: 验证框架。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）。 若本 story 只是提及而非修改该领域（误报），可 koala story_review_dismiss '{\"storyId\":\"B-1148\",\"category\":\"<分类>\",\"reason\":\"...\"}' 完整回退 auto-elevation（全部 auto-elevated riskSignal 被 dismiss 后 priority 自动回退、高风险 gate 解除）。"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding 还有 3 个未消化的 unknowns: 哪些历史主题已经被 B-ad2c 的 5 条 global dev-memory 覆盖，应该跳过而不是重复？; 哪些主题有充分 story/doc/evidence 来源，哪些只有对话记忆需要列为 needs-human-confirmation？; 最终应写入多少条经验才能高价值且不过度污染检索？"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: .koala/story/actives/B-1148/evidence/ 未被任何 checklist item 的 files 字段覆盖（请为相应 item 的 files.modify/create/test 加上此路径或用 excludes 显式排除）"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: docs/requirements/decisions/dev-memory.md 未被任何 checklist item 的 files 字段覆盖（请为相应 item 的 files.modify/create/test 加上此路径或用 excludes 显式排除）"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: docs/requirements/decisions/truth-source.md 未被任何 checklist item 的 files 字段覆盖（请为相应 item 的 files.modify/create/test 加上此路径或用 excludes 显式排除）"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: docs/requirements/decisions/authority-client-role.md 未被任何 checklist item 的 files 字段覆盖（请为相应 item 的 files.modify/create/test 加上此路径或用 excludes 显式排除）"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: docs/requirements/decisions/verification-context-pack.md 未被任何 checklist item 的 files 字段覆盖（请为相应 item 的 files.modify/create/test 加上此路径或用 excludes 显式排除）"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: 已完成 story metadata: summary.json/findings.json/delivery-check.json/process-events.jsonl 未被任何 checklist item 的 files 字段覆盖（请为相应 item 的 files.modify/create/test 加上此路径或用 excludes 显式排除）"
+        }
+      ],
+      "_hash": "0e8744bf074c3ae923c41ea7160b5f7de3dd840c08f31b690f3440f3d8fff868"
+    },
+    {
+      "timestamp": "2026-06-01T12:24:37.153Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 个 checklist item，请检查是否有组合场景遗漏（如：盘点已有历史来源和重复记录 + 定义经验 taxonomy 和写入策略 同时操作会怎样？）"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story 命中 1 个高风险信号: 验证框架。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）。 若本 story 只是提及而非修改该领域（误报），可 koala story_review_dismiss '{\"storyId\":\"B-1148\",\"category\":\"<分类>\",\"reason\":\"...\"}' 完整回退 auto-elevation（全部 auto-elevated riskSignal 被 dismiss 后 priority 自动回退、高风险 gate 解除）。"
+        }
+      ],
+      "_hash": "8048d4d37c0054f8de0113dc31d3d74fce63610a9d6a22c2d11af3a67919ce3d"
     }
   ]
 }
