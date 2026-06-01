@@ -316,7 +316,20 @@
       },
       "status": "done",
       "startTime": "2026-06-01T12:39:27.712Z",
-      "endTime": "2026-06-01T12:42:46.547Z"
+      "endTime": "2026-06-01T12:42:46.547Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-dev-memory.mjs",
+          "command": "node scripts/verify-dev-memory.mjs",
+          "result": "pass",
+          "note": "55/55 tests pass including 4 new DEFAULT_PHASE_TOOLS regression tests in section dev_memory_capture/list/search/preflight all accepted in DEV with default config (no phaseTools override). Root cause: DEFAULT_PHASE_TOOLS missing dev_memory_*; fix adds it to wildcard bucket and adds 6 PROCESS_FACT_LEVELS entries so process-fact-contract also passes.",
+          "headHash": "e3819a657815260e6e7aef285ccb82ffcb7f2e6a",
+          "materialHash": "cd19997ace463adfd3bcd8248c0579150682a4c015355f7d286c61c735dee759",
+          "timestamp": "2026-06-01T12:42:52.286Z"
+        }
+      ]
     }
   ]
 }
