@@ -100,7 +100,7 @@
         "docs/requirements/decisions/testing-completeness.md",
         "docs/requirements/decisions/test-intent-review.md"
       ],
-      "userSees": "Test output includes readonly reviewer guard blocks mutating commands and normal reviewer pass remains allowed.",
+      "userSees": "Test output contains: \"reviewer-readonly command policy smoke passed\" and \"normal reviewerWrite remains allowed without KOALA_REVIEWER_READONLY\".",
       "status": "pending",
       "startTime": null,
       "endTime": null,
