@@ -56,7 +56,40 @@
       "userSees": "When KOALA_REVIEWER_READONLY=1 is set, koala review_pass_set exits with a clear read-only reviewer error and writes no story metadata.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/command-ownership-contract.ts",
+          "packages/main/src/tasks/reviewer-readonly-command-policy-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "With KOALA_REVIEWER_READONLY=1, an effective readOnly command such as session_brief/story_get/checklist_get is allowed.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "With KOALA_REVIEWER_READONLY=1, reviewerWrite commands such as review_pass_set/finding_add/review_run_start/init_check_set are blocked before handler writes.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "With KOALA_REVIEWER_READONLY=1, storyScoped/mainShared/dangerous commands such as story_advance --forceTakeover, verification_evidence_add, and audit/gap writes cannot bypass the guard.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
