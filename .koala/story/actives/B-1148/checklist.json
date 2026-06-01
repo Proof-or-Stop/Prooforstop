@@ -190,10 +190,42 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "userSees": "确认以后普通开发前能检索历史经验，同时这些经验不会绕过 Koala evidence/gate。",
+      "userSees": "verification evidence 中出现 `dev_memory_search`, `dev_memory_preflight`, `koala validate --story=B-1148` 的 pass 记录，并显示 0 required missing。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          ".koala/story/actives/B-1148/checklist.json"
+        ],
+        "create": [
+          ".koala/story/actives/B-1148/evidence/verification-results.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "dev_memory_search/preflight 用 “流程伪造 事实伪造 authority reviewer” 等代表性 query 能检索到回填 entries，且输出包含 id/category/scope/source refs。",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "查询重复主题或无来源主题时，正式结果不出现未确认条目；preflight 输出保持 bounded，不污染启动上下文。",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "koala validate/test-coverage 能证明 verificationIntent 都有对应 evidence；dev-memory 条目不会被识别为 delivery_check/review_pass/verification_evidence 的替代品。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
