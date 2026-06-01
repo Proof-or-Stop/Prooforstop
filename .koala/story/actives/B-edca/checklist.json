@@ -163,9 +163,9 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-01T14:38:25.484Z",
       "userSees": "用户运行 session_brief 时看到：\"DONE pre-check PASS\"，且不会仅因 test-evidence.json 自更新看到 \"EVIDENCE STALE\"。",
       "verificationIntent": {
         "happy": [
@@ -200,7 +200,41 @@
         ],
         "create": [],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/evidence-freshness.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "freshness logic excludes validate-generated test-evidence self-churn from materialHash stale checks",
+          "headHash": "1ae6f675030c3891901b7a223d62937614322e8e",
+          "materialHash": "d0f8574445b27a5688470c6de764092fd147dad10e9ce0e5014dd6170e05ea85",
+          "timestamp": "2026-06-01T14:38:25.509Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "real material source drift remains stale, including workflow/notes.md outside configured storyDir",
+          "headHash": "1ae6f675030c3891901b7a223d62937614322e8e",
+          "materialHash": "d0f8574445b27a5688470c6de764092fd147dad10e9ce0e5014dd6170e05ea85",
+          "timestamp": "2026-06-01T14:38:25.532Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "failing validate, missing coverage, delivery and summary gates remain governed by process fact contract and gate artifacts",
+          "headHash": "1ae6f675030c3891901b7a223d62937614322e8e",
+          "materialHash": "d0f8574445b27a5688470c6de764092fd147dad10e9ce0e5014dd6170e05ea85",
+          "timestamp": "2026-06-01T14:38:25.554Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
