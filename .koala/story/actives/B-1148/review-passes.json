@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-1148:RP-001",
+      "agent": "koala-review-quality",
+      "note": "Quality verified: (1) search now token-aware via whitespace split with escapeRegex helper and .trim() guard; buildSearchText helper includes category/sourceStoryId/evidenceRefs for traceable retrieval (dev-memory.ts:271-301). (2) formatEntryShort adds 'Source: B-xxx (non_authoritative)' and 'Refs' lines guarding the authority boundary at the rendering layer (dev-memory.ts:401-414). (3) .gitignore negation '!.koala/dev-memory/' placed AFTER .koala/* catch-all; git check-ignore confirms .koala/dev-memory/experience.jsonl NOT ignored and is git-tracked. (4) Backfill integrity: 11 entries, all have gateEvidence:false and authority:'non_authoritative' (grep -c verified 11/11 each); evidenceRefs point to real summary.json paths. (5) Preflight test (verify-dev-memory.mjs:1231-1268) is strengthened against trivial pass: writes 10 entries, asserts length===5 (exact, not ≤), asserts formatted ≤70 lines, AND asserts hasExpectedId via /^B-test\\d+$/ pattern on sourceStoryId — empty/no-content output would fail all three. 61/61 verify-dev-memory checks pass.",
+      "createdAt": "2026-06-01T13:15:44.868Z",
+      "reviewRound": "2026-06-01T13:11:52.247Z",
+      "reviewRunId": "B-1148:RR-001",
+      "_hash": "1440f6fd9b024a2ed14b337e391886947ced05b8d20c92125cd79668502b50b9"
+    }
+  ]
+}
