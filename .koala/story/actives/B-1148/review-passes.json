@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-01T13:11:52.247Z",
       "reviewRunId": "B-1148:RR-004",
       "_hash": "078c245e0ad4c500f8cfae8ea7402ec36fa74a36c2dc4346412712ea9244365d"
+    },
+    {
+      "id": "B-1148:RP-003",
+      "agent": "koala-review-concept",
+      "note": "Concept/product fit verified. 11 backfill entries each have sourceStoryId + evidenceRefs pointing to verifiable .koala/story/actives/*/summary.json artifacts (B-c55d/B-f60c/B-eab3 x2/B-95d8/B-1fca/B-9b8f/B-ad12/B-30b2/B-8db9 cross-checked against actual pitfalls/expectedOutcome). 6 needs-human-confirmation topics correctly excluded — those story IDs have no actives dir in this worktree. 5 B-ad2c duplicates skipped with rationale per taxonomy duplicate policy. Non-authoritative guardrail enforced at 3 layers: per-entry gateEvidence=false + authority=non_authoritative; process-fact-levels.ts registers all 6 dev_memory_* commands at L0/L1 with explicit cannot-satisfy-gate-evidence rationale; formatEntryShort always emits 'Source: <storyId> (non_authoritative)' and backfill-manifest opens with explicit non-authoritative disclaimer. Taxonomy prohibits content that could be misread as gate evidence; spot-checked all 11 entry lessons — none make authority claims or read as gate pass. Scope=project on all 11 is appropriate since the lessons reference Koala-internal commands and gates. CHK-006 config.ts fix correctly unblocks dev_memory_* in DEV phase, matching the allowedPhases:all declaration.",
+      "createdAt": "2026-06-01T13:16:48.889Z",
+      "reviewRound": "2026-06-01T13:11:52.247Z",
+      "reviewRunId": "B-1148:RR-003",
+      "_hash": "8a1fcfafbcb6dfffb64294276b09bebe6b39a3a22ca4d3689cdbafe9a8c216a9"
     }
   ]
 }
