@@ -53,13 +53,14 @@
         "docs/requirements/decisions/truth-source.md",
         "docs/requirements/decisions/role-separation.md"
       ],
-      "userSees": "When KOALA_REVIEWER_READONLY=1 is set, koala review_pass_set exits with a clear read-only reviewer error and writes no story metadata.",
+      "userSees": "User runs `KOALA_REVIEWER_READONLY=1 koala review_pass_set --storyId=B-xxxx ...` and sees: \"KOALA_REVIEWER_READONLY=1 blocks review_pass_set because it is reviewerWrite; read-only reviewers may only run read-only Koala commands.\"",
       "status": "pending",
       "startTime": null,
       "endTime": null,
       "files": {
         "modify": [
-          "packages/main/src/cli-engine.ts"
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts"
         ],
         "create": [],
         "test": [
