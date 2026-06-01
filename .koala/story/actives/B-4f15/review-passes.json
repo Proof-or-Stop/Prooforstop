@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-01T16:36:45.678Z",
       "reviewRunId": "B-4f15:RR-006",
       "_hash": "8dba60fdd80af8505a4d38755f6c2a4b6b81ae09bd3783e094e920d783e4e404"
+    },
+    {
+      "id": "B-4f15:RP-006",
+      "agent": "koala-review-test-coverage",
+      "note": "13/15 must intents covered with proper evidence (logic_test/docs_check/manual_transcript). No blocker for REVIEW→TEST. Two deferred obligations before DONE: (1) CHK-005:edge:0 waiver must be replaced with actual review_pass evidence from this REVIEW round — waiver explicitly committed to this and the artifacts now exist; (2) CHK-005:adversarial:0 waiver (DONE gate proof) is legitimately deferred to TEST→DONE but must be replaced before story advances DONE. Owner must also run verification_evidence_refresh_stale to clear stale headHash on both waivers before TEST. Finding B-4f15:F-003 (medium advisory, Round 2) documents this obligation.",
+      "createdAt": "2026-06-01T16:41:14.209Z",
+      "reviewRound": "2026-06-01T16:36:45.678Z",
+      "reviewRunId": "B-4f15:RR-007",
+      "_hash": "3f124f4c2d64ca4630b2da884136a650dda9bc1320918c87cfb7b8864bf85ae3"
     }
   ]
 }
