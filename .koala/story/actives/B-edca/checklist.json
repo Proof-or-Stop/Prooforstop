@@ -323,9 +323,9 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-01T14:39:07.977Z",
       "userSees": "最终 transcript 会显示：\"Build PASS; freshness smoke PASS; process fact contract PASS; koala validate PASS; no self-churn stale advisory.\"",
       "verificationIntent": {
         "happy": [
@@ -359,7 +359,41 @@
           "packages/main/src/tasks/verification-freshness-smoke.ts",
           "scripts/verify-process-fact-contract.mjs"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "file": ".koala/story/actives/B-edca/evidence/validation-transcript.md",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:verification-freshness-smoke && npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Codex independently ran build, freshness smoke, and process fact contract; transcript records command results",
+          "headHash": "1ae6f675030c3891901b7a223d62937614322e8e",
+          "materialHash": "d0f8574445b27a5688470c6de764092fd147dad10e9ce0e5014dd6170e05ea85",
+          "timestamp": "2026-06-01T14:39:08.003Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "file": ".koala/story/actives/B-edca/evidence/validation-transcript.md",
+          "result": "pass",
+          "note": "transcript documents absence of self-churn stale advisory is covered by committed regression and will be checked by validate/session_brief",
+          "headHash": "1ae6f675030c3891901b7a223d62937614322e8e",
+          "materialHash": "d0f8574445b27a5688470c6de764092fd147dad10e9ce0e5014dd6170e05ea85",
+          "timestamp": "2026-06-01T14:39:08.031Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "command": "npm --prefix packages/main run test:verification-freshness-smoke",
+          "result": "pass",
+          "note": "negative controls verify unrelated material drift remains stale while metadata self-churn stays fresh",
+          "headHash": "1ae6f675030c3891901b7a223d62937614322e8e",
+          "materialHash": "d0f8574445b27a5688470c6de764092fd147dad10e9ce0e5014dd6170e05ea85",
+          "timestamp": "2026-06-01T14:39:08.058Z"
+        }
+      ]
     }
   ]
 }
