@@ -1,17 +1,17 @@
 {
   "storyId": "B-1148",
-  "generatedAt": "2026-06-01T12:24:45.021Z",
+  "generatedAt": "2026-06-01T13:19:49.385Z",
   "sourceSnapshot": {
     "hasUnderstanding": true,
     "hasDecision": true,
     "hasPlan": true,
-    "checklistItems": 5,
+    "checklistItems": 6,
     "reviewRounds": 3,
     "findings": 0,
     "bugs": 0,
     "testRuns": 0,
     "hasEvalEvidence": false,
-    "hasSummary": false
+    "hasSummary": true
   },
   "dimensions": {
     "tdd": {
@@ -116,7 +116,7 @@
           ]
         },
         "postDevChecklistChurn": {
-          "value": 0,
+          "value": 1,
           "unit": "count",
           "confidence": "medium",
           "sources": [
@@ -278,7 +278,7 @@
           "note": "proxy: no reviewer findings may indicate missing review, not code violation"
         },
         "parallelBatchCount": {
-          "value": 1,
+          "value": 2,
           "unit": "count",
           "confidence": "medium",
           "sources": [
