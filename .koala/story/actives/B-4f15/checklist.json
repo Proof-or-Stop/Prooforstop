@@ -9,7 +9,7 @@
         "docs/requirements/decisions/session-ownership-and-write-leases.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "userSees": "User sees a documented contract: readonly reviewer mode blocks mutating Koala commands and requires owner to record review evidence.",
+      "userSees": "User opens role-separation.md and sees: \"Advisory external reviewers must run with KOALA_REVIEWER_READONLY=1; their text is advice, not gate evidence.\"",
       "status": "pending",
       "startTime": null,
       "endTime": null,
