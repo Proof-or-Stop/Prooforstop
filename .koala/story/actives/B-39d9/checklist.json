@@ -147,7 +147,47 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Core test output passes, and the handoff says exactly which Koala Mac wrapper commands must show `runtimeMode` and the first-screen JS footprint summary."
+      "userSees": "Core test output passes, and the handoff says exactly which Koala Mac wrapper commands must show `runtimeMode` and the first-screen JS footprint summary.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/verification-context-pack.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/handlers/check.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "build-and-smoke",
+            "desc": "packages/main build and focused validation protocol smoke pass after implementation.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "id": "consumer-handoff",
+            "desc": "Story evidence names exact Koala Mac wrapper commands that must verify runtimeMode and first-screen footprint in B-3e9a.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "no-wrapper-assumption",
+            "desc": "B-39d9 does not claim Koala Mac wrapper proof until B-3e9a runs the external commands in its own worktree.",
+            "type": "manual"
+          }
+        ]
+      }
     }
   ]
 }
