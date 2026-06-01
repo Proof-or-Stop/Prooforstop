@@ -910,6 +910,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
             reviewRuns,
             currentReviewRound: story.currentReviewRound,
             phase: story.phase,
+            projectRoot: ctx.root,
           });
           // B-b9d0 CHK-004: derive next-step blocking signal from the same
           // ScopeProtectionSummary the brief renders, so the "DONE recommended"

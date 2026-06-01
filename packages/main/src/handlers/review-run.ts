@@ -66,6 +66,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
           contract,
           diffPack,
           reviewedIntentRefs: args.reviewedIntentRefs,
+          projectRoot: ctx.root,
         }) ?? undefined;
       }
 

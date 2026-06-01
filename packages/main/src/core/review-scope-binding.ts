@@ -56,17 +56,23 @@ function uniqSorted(values: readonly string[]): string[] {
  * Derive the stable, story-metadata-excluded view of a diff pack used for review
  * binding: the material changed files, material hunk digests, and a digest over
  * that material subset.
+ *
+ * Pass projectRoot so that a custom storyDir from koala.config.json is honoured
+ * when deciding which paths are story-metadata (and therefore excluded from the
+ * digest). Without projectRoot the function falls back to the built-in default
+ * prefixes (docs/story/, .koala/story/, …), which is still correct for the
+ * common case but misses custom storyDir configurations.
  */
-export function materialDiffPackDigest(diffPack: ScopeDiffPack): {
+export function materialDiffPackDigest(diffPack: ScopeDiffPack, projectRoot?: string): {
   diffPackHash: string;
   reviewedChangedFiles: string[];
   reviewedHunkDigests: string[];
 } {
   const reviewedChangedFiles = uniqSorted(
-    diffPack.changedFiles.filter((f) => !isMaterialExcludedPath(f)),
+    diffPack.changedFiles.filter((f) => !isMaterialExcludedPath(f, projectRoot)),
   );
   const materialHunks = diffPack.hunks
-    .filter((h) => !isMaterialExcludedPath(h.path))
+    .filter((h) => !isMaterialExcludedPath(h.path, projectRoot))
     .map((h) => ({
       path: h.path,
       header: h.header,
@@ -114,10 +120,11 @@ export function computeReviewScopeBinding(args: {
   contract: ScopeContractData | null | undefined;
   diffPack: ScopeDiffPack;
   reviewedIntentRefs?: readonly string[];
+  projectRoot?: string;
 }): ReviewScopeBinding | null {
   if (!args.contract) return null;
   const scopeContractHash = digestScopeContract(args.contract);
-  const { diffPackHash, reviewedChangedFiles, reviewedHunkDigests } = materialDiffPackDigest(args.diffPack);
+  const { diffPackHash, reviewedChangedFiles, reviewedHunkDigests } = materialDiffPackDigest(args.diffPack, args.projectRoot);
   const reviewedIntentRefs = uniqSorted(args.reviewedIntentRefs ?? []);
   const bindingHash = signReviewScopeBinding({
     scopeContractHash,
@@ -153,8 +160,9 @@ export interface CurrentScopeContext {
 export function buildCurrentScopeContext(
   contract: ScopeContractData,
   diffPack: ScopeDiffPack,
+  projectRoot?: string,
 ): CurrentScopeContext {
-  const { diffPackHash, reviewedHunkDigests } = materialDiffPackDigest(diffPack);
+  const { diffPackHash, reviewedHunkDigests } = materialDiffPackDigest(diffPack, projectRoot);
   return {
     scopeContractHash: digestScopeContract(contract),
     diffPackHash,
@@ -293,6 +301,7 @@ export interface ScopeProtectionSummaryInput {
   reviewRuns: readonly ReviewRun[];
   currentReviewRound?: string | null;
   phase: string;
+  projectRoot?: string;
 }
 
 /**
@@ -308,7 +317,7 @@ export function computeReviewHashFreshness(input: ScopeProtectionSummaryInput): 
   const roundRuns = input.reviewRuns.filter((run) => run.reviewRound === round);
   if (roundRuns.length === 0) return 'missing';
 
-  const current = buildCurrentScopeContext(input.contract, input.diffPack);
+  const current = buildCurrentScopeContext(input.contract, input.diffPack, input.projectRoot);
   let sawBinding = false;
   for (const run of roundRuns) {
     if (!run.scopeBinding) {
