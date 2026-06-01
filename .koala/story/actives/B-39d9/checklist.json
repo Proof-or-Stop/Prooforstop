@@ -102,7 +102,43 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Unsafe drift is refused with visible manual guidance, for example `STALE_LOCAL_EDIT ... action: review local edits before overwriting`, `CASE_MISMATCH ... rename the path with exact casing`, or `INCOMPATIBLE ... fix manually`; apply/upgrade only reports repairs for MISSING/STALE_SAFE."
+      "userSees": "Unsafe drift is refused with visible manual guidance, for example `STALE_LOCAL_EDIT ... action: review local edits before overwriting`, `CASE_MISMATCH ... rename the path with exact casing`, or `INCOMPATIBLE ... fix manually`; apply/upgrade only reports repairs for MISSING/STALE_SAFE.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/managed-assets.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "safe-apply-only",
+            "desc": "apply/upgrade repairs only MISSING and STALE_SAFE items and reports applied paths only for those safe statuses.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "id": "unsafe-guidance",
+            "desc": "STALE_LOCAL_EDIT, CASE_MISMATCH, and INCOMPATIBLE each render explicit manual guidance.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "unsafe-not-repaired",
+            "desc": "Unsafe drift remains unmodified after apply/upgrade and is not counted as repaired/applied.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
