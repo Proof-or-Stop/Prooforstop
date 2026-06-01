@@ -87,9 +87,9 @@
         "docs/requirements/decisions/testing-completeness.md",
         "docs/requirements/decisions/truth-source.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-01T14:38:01.242Z",
       "userSees": "用户会在 policy/docs 或代码注释看到：\"test-evidence.json is gate-consumed validation metadata, not material drift input.\"",
       "verificationIntent": {
         "happy": [
@@ -121,7 +121,39 @@
         ],
         "create": [],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/testing-completeness.md",
+          "result": "pass",
+          "note": "policy states test-evidence.json is gate-consumed validation metadata, not material drift input",
+          "headHash": "1ae6f675030c3891901b7a223d62937614322e8e",
+          "materialHash": "d0f8574445b27a5688470c6de764092fd147dad10e9ce0e5014dd6170e05ea85",
+          "timestamp": "2026-06-01T14:38:01.268Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "result": "pass",
+          "note": "policy preserves stale behavior for real source or evidence drift",
+          "headHash": "1ae6f675030c3891901b7a223d62937614322e8e",
+          "materialHash": "d0f8574445b27a5688470c6de764092fd147dad10e9ce0e5014dd6170e05ea85",
+          "timestamp": "2026-06-01T14:38:01.291Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "process fact contract still treats test-evidence.json as gate artifact and does not make validation output mask other gates",
+          "headHash": "1ae6f675030c3891901b7a223d62937614322e8e",
+          "materialHash": "d0f8574445b27a5688470c6de764092fd147dad10e9ce0e5014dd6170e05ea85",
+          "timestamp": "2026-06-01T14:38:01.322Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
