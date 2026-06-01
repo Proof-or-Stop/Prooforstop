@@ -13,13 +13,27 @@ import {
   createVerifierHandlers,
   discoverFallbackValidationCommands,
 } from '../handlers/verifier.js';
+import { createCheckHandlers } from '../handlers/check.js';
 import { createDoctorHandlers } from '../handlers/doctor.js';
+import { managedAssetNextAction, renderManagedAssetCheck, runManagedAssetCheck } from '../core/managed-assets.js';
+import { runRuntimeEnvironmentChecks } from '../core/runtime-environment-checks.js';
 import { StoryStore } from '../core/store.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
 
 const tmp = mkdtempSync(join(tmpdir(), 'koala-validation-protocol-'));
+
+function assertRuntimeModeShape(value: any): void {
+  assert.ok(value, 'runtimeMode should be present');
+  assert.ok(['global-cli', 'project-local-package', 'packaged-runtime', 'compatibility-launcher', 'diagnostic-only'].includes(value.mode), `runtimeMode.mode enum: ${value.mode}`);
+  assert.ok(['repo-local-dist', 'project-node-modules', 'packaged-runtime', 'external-development-engine', 'global-cli', 'unknown'].includes(value.source), `runtimeMode.source enum: ${value.source}`);
+  assert.equal(typeof value.requiresProjectJavaScriptRuntime, 'boolean');
+  assert.equal(value.authority, 'local-runtime-diagnostic-only');
+  assert.equal(typeof value.message, 'string');
+  assert.ok(value.message.length > 0);
+  assert.deepEqual(Object.keys(value).sort(), ['authority', 'message', 'mode', 'requiresProjectJavaScriptRuntime', 'source'].sort());
+}
 
 try {
   const subdir = join(tmp, 'sub');
@@ -717,6 +731,145 @@ try {
   assert.equal(existsSync(join(malformedJsonCwd, '.koala')), false, 'malformed JSON should not create project metadata');
   rmSync(malformedJsonCwd, { recursive: true, force: true });
 
+  const projectLocalRuntimeRoot = mkdtempSync(join(tmpdir(), 'koala-runtime-mode-local-'));
+  try {
+    mkdirSync(join(projectLocalRuntimeRoot, 'node_modules', '.bin'), { recursive: true });
+    const localBin = join(projectLocalRuntimeRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'koala.cmd' : 'koala');
+    writeFileSync(localBin, '#!/usr/bin/env node\n');
+    const report = runRuntimeEnvironmentChecks(projectLocalRuntimeRoot, {
+      commandResolver: () => localBin,
+      globalNpmRootResolver: () => null,
+      corePackageRoot: join(projectLocalRuntimeRoot, 'node_modules', '@koala-agent', 'core'),
+    });
+    assertRuntimeModeShape(report.runtimeMode);
+    assert.equal(report.runtimeMode.mode, 'project-local-package');
+    assert.equal(report.runtimeMode.source, 'project-node-modules');
+    assert.equal(report.runtimeMode.requiresProjectJavaScriptRuntime, true);
+  } finally {
+    rmSync(projectLocalRuntimeRoot, { recursive: true, force: true });
+  }
+
+  const externalRuntimeRoot = mkdtempSync(join(tmpdir(), 'koala-runtime-mode-external-'));
+  const externalEngineRoot = mkdtempSync(join(tmpdir(), 'koala-runtime-mode-engine-'));
+  try {
+    mkdirSync(join(externalEngineRoot, 'dist'), { recursive: true });
+    const engineCli = join(externalEngineRoot, 'dist', 'cli.js');
+    writeFileSync(engineCli, '#!/usr/bin/env node\n');
+    const report = runRuntimeEnvironmentChecks(externalRuntimeRoot, {
+      commandResolver: () => engineCli,
+      globalNpmRootResolver: () => null,
+      corePackageRoot: externalEngineRoot,
+    });
+    assertRuntimeModeShape(report.runtimeMode);
+    assert.equal(report.runtimeMode.mode, 'compatibility-launcher');
+    assert.equal(report.runtimeMode.source, 'external-development-engine');
+    assert.equal(report.runtimeMode.requiresProjectJavaScriptRuntime, false);
+  } finally {
+    rmSync(externalRuntimeRoot, { recursive: true, force: true });
+    rmSync(externalEngineRoot, { recursive: true, force: true });
+  }
+
+  const conflictRuntimeRoot = mkdtempSync(join(tmpdir(), 'koala-runtime-mode-conflict-'));
+  try {
+    mkdirSync(join(conflictRuntimeRoot, 'node_modules', '.bin'), { recursive: true });
+    const localBin = join(conflictRuntimeRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'koala.cmd' : 'koala');
+    const otherCli = join(conflictRuntimeRoot, 'other-koala');
+    writeFileSync(localBin, '#!/usr/bin/env node\n');
+    writeFileSync(otherCli, '#!/usr/bin/env node\n');
+    const report = runRuntimeEnvironmentChecks(conflictRuntimeRoot, {
+      commandResolver: () => otherCli,
+      globalNpmRootResolver: () => null,
+      corePackageRoot: join(conflictRuntimeRoot, 'node_modules', '@koala-agent', 'core'),
+    });
+    assertRuntimeModeShape(report.runtimeMode);
+    assert.equal(report.runtimeMode.mode, 'diagnostic-only');
+    assert.equal(report.runtimeMode.source, 'unknown');
+    assert.equal(report.runtimeMode.requiresProjectJavaScriptRuntime, false);
+  } finally {
+    rmSync(conflictRuntimeRoot, { recursive: true, force: true });
+  }
+
+  const checkRoot = mkdtempSync(join(tmpdir(), 'koala-check-runtime-surface-'));
+  try {
+    resetConfigCache();
+    const check = createCheckHandlers({
+      root: checkRoot,
+      scanRoot: checkRoot,
+      store: new StoryStore(checkRoot),
+      log: () => {},
+    }).check;
+    const checkJson = check({ json: true, profile: 'core' }) as any;
+    assertRuntimeModeShape(checkJson.runtimeMode);
+    assert.ok(Array.isArray(checkJson.items), 'check --json should preserve managed asset fields');
+    let driftText = '';
+    try {
+      check({ profile: 'core' });
+      assert.fail('plain check should throw on managed asset drift');
+    } catch (error: any) {
+      driftText = String(error.message || error);
+    }
+    assert.ok(driftText.startsWith('Runtime footprint:\nRuntime mode:'), 'plain check drift should render runtime footprint before drift details');
+    assert.match(driftText, /Project-local JavaScript runtime required: (yes|no)/);
+    assert.match(driftText, /Next action: run koala check --apply to sync MISSING\/STALE_SAFE assets/);
+    assert.match(driftText, /Koala managed asset check: DRIFT/);
+
+    runManagedAssetCheck(checkRoot, { apply: true, profile: 'core' });
+    const cleanText = check({ profile: 'core' }) as string;
+    assert.ok(cleanText.startsWith('Runtime footprint:\nRuntime mode:'), 'plain check OK should start with runtime footprint');
+    assert.match(cleanText, /Next action: no managed asset drift/);
+    assert.match(cleanText, /Koala managed asset check: OK/);
+  } finally {
+    rmSync(checkRoot, { recursive: true, force: true });
+  }
+
+  const staleLocalAssetRoot = mkdtempSync(join(tmpdir(), 'koala-managed-stale-local-'));
+  try {
+    writeFileSync(join(staleLocalAssetRoot, 'KOALA.md'), '<!-- koala:start -->\n# Local Koala Notes\ncustom text\n<!-- koala:end -->\n');
+    const before = readFileSync(join(staleLocalAssetRoot, 'KOALA.md'), 'utf-8');
+    const result = runManagedAssetCheck(staleLocalAssetRoot, { apply: true, reviewLocalEdits: true, profile: 'core' });
+    const item = result.items.find(entry => entry.relPath === 'KOALA.md');
+    assert.equal(item?.status, 'STALE_LOCAL_EDIT');
+    assert.equal(item?.applied, undefined);
+    assert.equal(readFileSync(join(staleLocalAssetRoot, 'KOALA.md'), 'utf-8'), before, 'STALE_LOCAL_EDIT must not be overwritten by apply');
+    assert.equal(result.applied.includes('KOALA.md'), false, 'STALE_LOCAL_EDIT must not be counted as applied');
+    assert.equal(managedAssetNextAction(result), 'review unsafe managed assets manually');
+    const rendered = renderManagedAssetCheck(result);
+    assert.match(rendered, /STALE_LOCAL_EDIT KOALA\.md/);
+    assert.match(rendered, /action: review local edits before overwriting|action: review local doc edits before replacing the section/);
+  } finally {
+    rmSync(staleLocalAssetRoot, { recursive: true, force: true });
+  }
+
+  const caseMismatchAssetRoot = mkdtempSync(join(tmpdir(), 'koala-managed-case-mismatch-'));
+  try {
+    writeFileSync(join(caseMismatchAssetRoot, 'koala.md'), 'case mismatch\n');
+    const result = runManagedAssetCheck(caseMismatchAssetRoot, { apply: true, profile: 'core' });
+    const item = result.items.find(entry => entry.relPath === 'KOALA.md');
+    assert.equal(item?.status, 'CASE_MISMATCH');
+    assert.equal(item?.applied, undefined);
+    assert.equal(result.applied.includes('KOALA.md'), false, 'CASE_MISMATCH must not be counted as applied');
+    const rendered = renderManagedAssetCheck(result);
+    assert.match(rendered, /CASE_MISMATCH KOALA\.md/);
+    assert.match(rendered, /action: rename the path with exact casing/);
+  } finally {
+    rmSync(caseMismatchAssetRoot, { recursive: true, force: true });
+  }
+
+  const incompatibleAssetRoot = mkdtempSync(join(tmpdir(), 'koala-managed-incompatible-'));
+  try {
+    mkdirSync(join(incompatibleAssetRoot, 'bin', 'koala.js'), { recursive: true });
+    const result = runManagedAssetCheck(incompatibleAssetRoot, { apply: true, profile: 'core' });
+    const item = result.items.find(entry => entry.relPath === 'bin/koala.js');
+    assert.equal(item?.status, 'INCOMPATIBLE');
+    assert.equal(item?.applied, undefined);
+    assert.equal(result.applied.includes('bin/koala.js'), false, 'INCOMPATIBLE must not be counted as applied');
+    const rendered = renderManagedAssetCheck(result);
+    assert.match(rendered, /INCOMPATIBLE bin\/koala\.js/);
+    assert.match(rendered, /action: .*fix manually|action: .*manually/);
+  } finally {
+    rmSync(incompatibleAssetRoot, { recursive: true, force: true });
+  }
+
   writeFileSync(join(tmp, 'package.json'), JSON.stringify({
     scripts: { test: 'node -e "process.stdout.write(\\"fallback\\")"' },
   }));
@@ -740,7 +893,9 @@ try {
     getAllToolNames: () => new Set<string>(),
   }).doctor;
   const doctorJson = doctor({ format: 'json' }) as any;
+  assertRuntimeModeShape(doctorJson.runtimeMode);
   assert.ok(doctorJson.runtime, 'doctor JSON should expose runtime section');
+  assert.deepEqual(doctorJson.runtime.runtimeMode, doctorJson.runtimeMode, 'doctor should expose runtimeMode top-level and inside runtime scan');
   assert.equal(doctorJson.runtime.cliEntrypoint.id, 'cli-entrypoint');
   assert.equal(doctorJson.runtime.globalCoreRealpath.id, 'global-core-realpath');
   assert.equal(doctorJson.runtime.projectLocalBin.id, 'project-local-bin');
@@ -770,6 +925,9 @@ try {
   );
 
   const doctorText = doctor() as string;
+  assert.ok(doctorText.startsWith('Runtime footprint:\nRuntime mode:'), 'plain doctor should start with runtime footprint');
+  assert.match(doctorText, /Project-local JavaScript runtime required: (yes|no)/);
+  assert.match(doctorText, /Next action: /);
   assert.match(doctorText, /Runtime artifacts:/);
   assert.match(doctorText, /\.koala\/activity\.jsonl/);
   assert.match(doctorText, /git rm --cached -- '\.koala\/activity\.jsonl'/);
