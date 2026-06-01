@@ -5,7 +5,7 @@
       "desc": "`first-screen-clean` / `first-screen-drift` / `build-and-smoke` 的 recorded evidence 只由 validation-protocol smoke 证明 handler 输出与 build 通过；`packages/main/src/tasks/validation-protocol-smoke.ts:795-930` 直接调用 createCheckHandlers/createDoctorHandlers，没有实际经由 dist CLI 执行 `check`/`doctor`。对于 verificationIntent.type=cli 的首屏文本与 JSON surface，这会留下 CLI entrypoint wiring 未被本 story 证据直接覆盖的空档。",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-06-01T16:47:24.964Z",
