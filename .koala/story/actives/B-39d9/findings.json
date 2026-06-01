@@ -38,7 +38,7 @@
       "desc": "runtimeMode conflict handling misses the packaged-runtime branch: classifyRuntimeMode short-circuits on KOALA_DESKTOP_PACKAGED_RUNTIME before checking for local node_modules/.bin/koala shadowing (packages/main/src/core/runtime-environment-checks.ts:260-303), so conflicting signals are reported as packaged-runtime instead of diagnostic-only/unknown. Repro command: node --input-type=module ... runRuntimeEnvironmentChecks(...) with KOALA_DESKTOP_PACKAGED_RUNTIME=1 plus a project-local node_modules/.bin/koala and a different active CLI path returns {\"mode\":\"packaged-runtime\",\"source\":\"packaged-runtime\"}. This violates the CHK-001 unknown-conflict contract and is not covered by validation-protocol-smoke.ts:772-787, which only tests non-packaged conflicts. Fix: detect conflicting local-bin signals before accepting packaged-runtime, and add a packaged-runtime conflict smoke case.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-01T16:50:21.587Z",
