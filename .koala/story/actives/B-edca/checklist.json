@@ -84,7 +84,31 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "After the fix, running validate and then session_brief does not show EVIDENCE STALE solely because test-evidence.json updated; real drift is still reported.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Session/freshness logic ignores validate-generated test-evidence self-churn for materialHash stale advisory purposes.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A real material source/evidence file change still produces a stale warning.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Failing validate results, missing coverage, delivery-check, or summary are still visible to gates and session_brief.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
