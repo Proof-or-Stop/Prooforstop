@@ -120,7 +120,31 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Regression tests prove both sides: validate self-churn no longer creates stale noise, and a genuine material drift still triggers stale detection.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A regression test covers validate/test-evidence self-churn without session_brief stale advisory.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The same regression suite covers committed validate metadata plus a clean working tree.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A separate adversarial assertion proves unrelated material drift is still detected as stale.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
