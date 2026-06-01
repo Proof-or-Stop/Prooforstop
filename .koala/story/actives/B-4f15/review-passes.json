@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-01T16:36:45.678Z",
       "reviewRunId": "B-4f15:RR-007",
       "_hash": "3f124f4c2d64ca4630b2da884136a650dda9bc1320918c87cfb7b8864bf85ae3"
+    },
+    {
+      "id": "B-4f15:RP-007",
+      "agent": "koala-review-docs",
+      "note": "All docs consistent with implementation. role-separation.md new section accurately documents KOALA_REVIEWER_READONLY=1 semantics, matches cli-engine.ts gate ordering and blocked-command classes. session-ownership-and-write-leases.md cross-reference is correct. All three koala-evaluator.md files (template + .claude + .Codex) carry identical KOALA_REVIEWER_READONLY guidance. koala check OK (45 assets, 0 missing). verify-codex-assets 16 prompts mirrored. Codex verify_codex 6/7 pass (1 warning is pre-existing worktree global-fallback path, not introduced by this story). Pre-existing .Codex adjustedDebug label difference is known platform divergence, not in this diff.",
+      "createdAt": "2026-06-01T16:42:18.723Z",
+      "reviewRound": "2026-06-01T16:36:45.678Z",
+      "reviewRunId": "B-4f15:RR-008",
+      "_hash": "154747de7fb4da553fe9a90814d4c5b0e82c452b0d0b9e78a1975bebc063d77b"
     }
   ]
 }
