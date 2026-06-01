@@ -505,7 +505,7 @@ try {
   console.log('✓ scope_check_save allowedPhases: PLAN');
   console.log('✓ scope_contract_acknowledge allowedPhases: DEV, REVIEW');
   console.log('✓ KOALA_REVIEWER_READONLY=1 enables read-only reviewer mode');
-  console.log('✓ enforceReviewerReadOnlyCommandGate: allows readOnly, blocks reviewerWrite/storeScopedMutating/unclassified');
+  console.log('✓ enforceReviewerReadOnlyCommandGate: allows readOnly, blocks reviewerWrite/storyScopedMutating/unclassified');
   console.log('✓ with env unset, normal reviewerWrite reaches enforceStoryOwnerLeaseGate unblocked');
   console.log(
     `✓ command-ownership contract passed — ${cliCommands.length} CLI commands all carry a valid ` +
