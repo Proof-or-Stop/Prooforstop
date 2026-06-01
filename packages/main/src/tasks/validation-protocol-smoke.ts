@@ -789,6 +789,51 @@ try {
     rmSync(conflictRuntimeRoot, { recursive: true, force: true });
   }
 
+  const previousPackagedRuntime = process.env.KOALA_DESKTOP_PACKAGED_RUNTIME;
+  process.env.KOALA_DESKTOP_PACKAGED_RUNTIME = '1';
+  const packagedConflictRoot = mkdtempSync(join(tmpdir(), 'koala-runtime-mode-packaged-conflict-'));
+  try {
+    mkdirSync(join(packagedConflictRoot, 'node_modules', '.bin'), { recursive: true });
+    const localBin = join(packagedConflictRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'koala.cmd' : 'koala');
+    const packagedCli = join(packagedConflictRoot, 'packaged-koala');
+    writeFileSync(localBin, '#!/usr/bin/env node\n');
+    writeFileSync(packagedCli, '#!/usr/bin/env node\n');
+    const report = runRuntimeEnvironmentChecks(packagedConflictRoot, {
+      commandResolver: () => packagedCli,
+      globalNpmRootResolver: () => null,
+      corePackageRoot: join(packagedConflictRoot, 'packaged-runtime'),
+    });
+    assertRuntimeModeShape(report.runtimeMode);
+    assert.equal(report.runtimeMode.mode, 'diagnostic-only');
+    assert.equal(report.runtimeMode.source, 'unknown');
+    assert.equal(report.runtimeMode.requiresProjectJavaScriptRuntime, false);
+  } finally {
+    rmSync(packagedConflictRoot, { recursive: true, force: true });
+    if (previousPackagedRuntime === undefined) delete process.env.KOALA_DESKTOP_PACKAGED_RUNTIME;
+    else process.env.KOALA_DESKTOP_PACKAGED_RUNTIME = previousPackagedRuntime;
+  }
+
+  const previousPackagedRuntimeClean = process.env.KOALA_DESKTOP_PACKAGED_RUNTIME;
+  process.env.KOALA_DESKTOP_PACKAGED_RUNTIME = '1';
+  const packagedCleanRoot = mkdtempSync(join(tmpdir(), 'koala-runtime-mode-packaged-clean-'));
+  try {
+    const packagedCli = join(packagedCleanRoot, 'packaged-koala');
+    writeFileSync(packagedCli, '#!/usr/bin/env node\n');
+    const report = runRuntimeEnvironmentChecks(packagedCleanRoot, {
+      commandResolver: () => packagedCli,
+      globalNpmRootResolver: () => null,
+      corePackageRoot: join(packagedCleanRoot, 'packaged-runtime'),
+    });
+    assertRuntimeModeShape(report.runtimeMode);
+    assert.equal(report.runtimeMode.mode, 'packaged-runtime');
+    assert.equal(report.runtimeMode.source, 'packaged-runtime');
+    assert.equal(report.runtimeMode.requiresProjectJavaScriptRuntime, false);
+  } finally {
+    rmSync(packagedCleanRoot, { recursive: true, force: true });
+    if (previousPackagedRuntimeClean === undefined) delete process.env.KOALA_DESKTOP_PACKAGED_RUNTIME;
+    else process.env.KOALA_DESKTOP_PACKAGED_RUNTIME = previousPackagedRuntimeClean;
+  }
+
   const checkRoot = mkdtempSync(join(tmpdir(), 'koala-check-runtime-surface-'));
   try {
     resetConfigCache();

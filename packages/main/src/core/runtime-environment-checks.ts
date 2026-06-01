@@ -258,29 +258,34 @@ function checkProjectLocalBin(context: RuntimeCheckContext, severity: RuntimeFac
 }
 
 function classifyRuntimeMode(context: RuntimeCheckContext): RuntimeModeContract {
-  if (isPackagedRuntime()) {
-    return runtimeModeContract(
-      'packaged-runtime',
-      'packaged-runtime',
-      'packaged runtime detected; project package.json/node_modules are not required for Koala diagnostics',
-    );
-  }
-
   const active = runtimeEntrypointRealpath(context);
   const localBin = projectLocalBinPath(context.projectRoot);
   const localBinPresent = existsSync(localBin);
   const localBinRealpath = localBinPresent ? safeRealpath(localBin) : null;
 
-  if (!active.realpath) {
-    return runtimeModeContract(
-      'diagnostic-only',
-      'unknown',
-      'active Koala CLI entrypoint could not be resolved; runtime classification is diagnostic-only',
-    );
-  }
-
-  if (localBinPresent && localBinRealpath) {
+  if (localBinPresent) {
+    if (!active.realpath) {
+      return runtimeModeContract(
+        'diagnostic-only',
+        'unknown',
+        'project-local node_modules/.bin/koala exists, but the active Koala CLI entrypoint could not be resolved',
+      );
+    }
+    if (!localBinRealpath) {
+      return runtimeModeContract(
+        'diagnostic-only',
+        'unknown',
+        `project-local node_modules/.bin/koala exists at ${localBin}, but its realpath could not be resolved`,
+      );
+    }
     if (samePath(localBinRealpath, active.realpath)) {
+      if (isPackagedRuntime()) {
+        return runtimeModeContract(
+          'packaged-runtime',
+          'packaged-runtime',
+          'packaged runtime detected; project package.json/node_modules are not required for Koala diagnostics',
+        );
+      }
       return runtimeModeContract(
         'project-local-package',
         'project-node-modules',
@@ -294,11 +299,20 @@ function classifyRuntimeMode(context: RuntimeCheckContext): RuntimeModeContract 
       `project-local node_modules/.bin/koala resolves to ${localBinRealpath}, but the active CLI resolves to ${active.realpath}`,
     );
   }
-  if (localBinPresent && !localBinRealpath) {
+
+  if (isPackagedRuntime()) {
+    return runtimeModeContract(
+      'packaged-runtime',
+      'packaged-runtime',
+      'packaged runtime detected; project package.json/node_modules are not required for Koala diagnostics',
+    );
+  }
+
+  if (!active.realpath) {
     return runtimeModeContract(
       'diagnostic-only',
       'unknown',
-      `project-local node_modules/.bin/koala exists at ${localBin}, but its realpath could not be resolved`,
+      'active Koala CLI entrypoint could not be resolved; runtime classification is diagnostic-only',
     );
   }
 
