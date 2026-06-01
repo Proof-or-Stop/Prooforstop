@@ -3,6 +3,7 @@
 Recorded: 2026-06-01T14:37:01Z
 Verifier: Codex project manager
 Implementer commit: 1ae6f675030c3891901b7a223d62937614322e8e
+Checklist evidence commit: 2ba49e63a4ed1961d166609899ac9e19204ad13f
 Material hash: d0f8574445b27a5688470c6de764092fd147dad10e9ce0e5014dd6170e05ea85
 
 ## Scope Reviewed
@@ -28,6 +29,19 @@ npm run test:process-fact-contract
 PASS
 Output included:
 Process fact contract verified
+
+KOALA_SESSION_ID=codex-bedca-manager koala validate --story=B-edca --json
+PASS
+Output included:
+Project validation commands passed
+Verification intent coverage: 15/15 covered (0 required missing)
+
+KOALA_SESSION_ID=codex-bedca-manager koala session_brief
+PASS
+Output included:
+Checklist (5/5 done)
+Last test run: PASS
+No EVIDENCE STALE advisory was emitted after validate wrote test-evidence.json.
 ```
 
 ## Negative Controls
