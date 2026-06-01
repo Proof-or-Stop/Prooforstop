@@ -1,0 +1,52 @@
+{
+  "storyId": "B-4f15",
+  "name": "reviewer-readonly-command-policy",
+  "title": "Add read-only reviewer command policy",
+  "description": "Prevent delegated read-only reviewers from directly writing Koala review/finding/lifecycle artifacts when they should only return structured review results to the owner.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "keywords": [
+    "reviewer",
+    "read-only",
+    "command-policy",
+    "review-pass",
+    "permission"
+  ],
+  "riskSignals": [
+    {
+      "category": "状态机/门禁",
+      "matched": "story_advance"
+    },
+    {
+      "category": "验证框架",
+      "matched": "koala validate"
+    }
+  ],
+  "createdAt": "2026-06-01T15:46:33.630Z",
+  "startedAt": "2026-06-01T15:46:33.630Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-01T15:46:33.636Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-01T15:50:22.600Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-4f15",
+    "branch": "story/B-4f15",
+    "createdAt": "2026-06-01T15:50:22.742Z"
+  }
+}

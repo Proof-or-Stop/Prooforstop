@@ -1,0 +1,70 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Define read-only reviewer command boundary",
+      "context": "Clarify which Koala commands are blocked when a delegated reviewer is explicitly in read-only mode, and preserve normal reviewer write mode.",
+      "relatedDocs": [
+        "docs/requirements/decisions/role-separation.md",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "User sees a documented contract: readonly reviewer mode blocks mutating Koala commands and requires owner to record review evidence.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Implement mechanical readonly command guard",
+      "context": "Add CLI/command-policy enforcement keyed by an explicit readonly reviewer environment/config flag, rejecting review_pass_set/finding_add/story_advance and other mutating commands before handler writes.",
+      "relatedDocs": [
+        "docs/requirements/decisions/truth-source.md",
+        "docs/requirements/decisions/role-separation.md"
+      ],
+      "userSees": "When KOALA_REVIEWER_READONLY=1 is set, koala review_pass_set exits with a clear read-only reviewer error and writes no story metadata.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add regression coverage for blocked and allowed paths",
+      "context": "Test that readonly reviewer mode blocks mutating commands without writing artifacts, while read-only commands and normal reviewer write mode still work.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-completeness.md",
+        "docs/requirements/decisions/test-intent-review.md"
+      ],
+      "userSees": "Test output includes readonly reviewer guard blocks mutating commands and normal reviewer pass remains allowed.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Update reviewer dispatch guidance",
+      "context": "Update docs/prompts or adapter guidance so owner agents launching read-only external reviewers set the new readonly mode and collect structured JSON themselves.",
+      "relatedDocs": [
+        "docs/requirements/decisions/role-separation.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "Reviewer guidance tells owner agents to set the readonly mode for advisory Claude/Gemini/Codex reviews and record evidence themselves.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Validate lifecycle and evidence",
+      "context": "Run build, focused smoke tests, process-fact contract, koala validate/session_brief, reviewer pass, delivery check, and summary before DONE.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-completeness.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "Final transcript shows readonly guard tests PASS and Koala lifecycle gates all pass.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
