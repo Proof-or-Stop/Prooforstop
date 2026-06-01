@@ -204,7 +204,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "file": ".koala/story/actives/B-1148/evidence/captured-ids.txt",
+          "command": "KOALA_PROJECT_ROOT=... node packages/main/dist/cli.js dev_memory_capture [11 times]",
+          "result": "pass",
+          "note": "11 entries captured via local CLI after CHK-006 fixed DEFAULT_PHASE_TOOLS gap. Python cross-check confirms all 11 entries have gateEvidence=false, authority=non_authoritative, sourceStoryId present, evidenceRefs present. IDs: 41c81bf 8937503 0d19c91 2fd571e cb6ce25 0b952b0 3b76ea5 9a9c568 f668c60 f2e0c14 f525408",
+          "headHash": "5c358f683aa826cb236fd3b9ad0fdb7e1afa7061",
+          "materialHash": "cd19997ace463adfd3bcd8248c0579150682a4c015355f7d286c61c735dee759",
+          "timestamp": "2026-06-01T12:47:40.749Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
