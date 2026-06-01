@@ -9,10 +9,73 @@
         "docs/requirements/decisions/session-ownership-and-write-leases.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "userSees": "User sees a documented contract: readonly reviewer mode blocks mutating Koala commands and requires owner to record review evidence.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "userSees": "User opens role-separation.md and sees: \"Advisory external reviewers must run with KOALA_REVIEWER_READONLY=1; their text is advice, not gate evidence.\"",
+      "status": "done",
+      "startTime": "2026-06-01T16:04:47.156Z",
+      "endTime": "2026-06-01T16:05:32.917Z",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Docs define KOALA_REVIEWER_READONLY=1 as an advisory/delegated reviewer mode that permits only read-only Koala inspection commands.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Docs distinguish advisory read-only reviewers from normal Koala reviewers that must write signed reviewer evidence.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Docs explicitly say read-only reviewer summaries cannot satisfy gate evidence and the owner must record authoritative evidence after advisory review.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/role-separation.md",
+          "result": "pass",
+          "note": "role-separation.md documents KOALA_REVIEWER_READONLY=1 as advisory/delegated reviewer mode with read-only Koala inspection boundary.",
+          "headHash": "6ff82ef0c558bf858247002cd51fe9ae58cbc2d7",
+          "materialHash": "a0c11d8e125c19941d1bb084146c152354a77b0adc6efe7b706edd585f2b3776",
+          "timestamp": "2026-06-01T16:36:51.352Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/role-separation.md",
+          "result": "pass",
+          "note": "docs distinguish advisory read-only reviewers from normal Koala gate reviewers that must write signed evidence.",
+          "headHash": "6ff82ef0c558bf858247002cd51fe9ae58cbc2d7",
+          "materialHash": "a0c11d8e125c19941d1bb084146c152354a77b0adc6efe7b706edd585f2b3776",
+          "timestamp": "2026-06-01T16:36:51.352Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/role-separation.md",
+          "result": "pass",
+          "note": "docs explicitly state advisory reviewer text is not gate evidence and owner must materialize authoritative evidence.",
+          "headHash": "6ff82ef0c558bf858247002cd51fe9ae58cbc2d7",
+          "materialHash": "a0c11d8e125c19941d1bb084146c152354a77b0adc6efe7b706edd585f2b3776",
+          "timestamp": "2026-06-01T16:36:51.352Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -22,10 +85,79 @@
         "docs/requirements/decisions/truth-source.md",
         "docs/requirements/decisions/role-separation.md"
       ],
-      "userSees": "When KOALA_REVIEWER_READONLY=1 is set, koala review_pass_set exits with a clear read-only reviewer error and writes no story metadata.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "userSees": "User runs `KOALA_REVIEWER_READONLY=1 koala review_pass_set --storyId=B-xxxx ...` and sees: \"KOALA_REVIEWER_READONLY=1 blocks review_pass_set because it is reviewerWrite; read-only reviewers may only run read-only Koala commands.\"",
+      "status": "done",
+      "startTime": "2026-06-01T16:07:29.433Z",
+      "endTime": "2026-06-01T16:08:37.412Z",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/command-ownership-contract.ts",
+          "packages/main/src/tasks/reviewer-readonly-command-policy-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "With KOALA_REVIEWER_READONLY=1, an effective readOnly command such as session_brief/story_get/checklist_get is allowed.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "With KOALA_REVIEWER_READONLY=1, reviewerWrite commands such as review_pass_set/finding_add/review_run_start/init_check_set are blocked before handler writes.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "With KOALA_REVIEWER_READONLY=1, storyScoped/mainShared/dangerous commands such as story_advance --forceTakeover, verification_evidence_add, and audit/gap writes cannot bypass the guard.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/command-ownership-contract.ts",
+          "command": "npm run test:command-ownership-contract",
+          "result": "pass",
+          "note": "contract test proves KOALA_REVIEWER_READONLY=1 allows effective readOnly commands such as story_get and validate without story.",
+          "headHash": "6ff82ef0c558bf858247002cd51fe9ae58cbc2d7",
+          "materialHash": "a0c11d8e125c19941d1bb084146c152354a77b0adc6efe7b706edd585f2b3776",
+          "timestamp": "2026-06-01T16:36:51.352Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/command-ownership-contract.ts",
+          "command": "npm run test:command-ownership-contract",
+          "result": "pass",
+          "note": "contract test proves reviewerWrite commands review_pass_set/finding_add/review_run_start/init_check_set are blocked under readonly mode.",
+          "headHash": "6ff82ef0c558bf858247002cd51fe9ae58cbc2d7",
+          "materialHash": "a0c11d8e125c19941d1bb084146c152354a77b0adc6efe7b706edd585f2b3776",
+          "timestamp": "2026-06-01T16:36:51.352Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/command-ownership-contract.ts",
+          "command": "npm run test:command-ownership-contract",
+          "result": "pass",
+          "note": "contract test proves story_advance forceTakeover, verification_evidence_add, gap_log, audit, and unclassified commands are rejected before owner-lease flow.",
+          "headHash": "6ff82ef0c558bf858247002cd51fe9ae58cbc2d7",
+          "materialHash": "a0c11d8e125c19941d1bb084146c152354a77b0adc6efe7b706edd585f2b3776",
+          "timestamp": "2026-06-01T16:36:51.352Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -35,10 +167,81 @@
         "docs/requirements/decisions/testing-completeness.md",
         "docs/requirements/decisions/test-intent-review.md"
       ],
-      "userSees": "Test output includes readonly reviewer guard blocks mutating commands and normal reviewer pass remains allowed.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "userSees": "Test output contains: \"reviewer-readonly command policy smoke passed\" and \"normal reviewerWrite remains allowed without KOALA_REVIEWER_READONLY\".",
+      "status": "done",
+      "startTime": "2026-06-01T16:09:53.126Z",
+      "endTime": "2026-06-01T16:12:22.341Z",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/command-ownership-contract.ts",
+          "packages/main/package.json",
+          "package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/reviewer-readonly-command-policy-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/reviewer-readonly-command-policy-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Focused smoke output proves KOALA_REVIEWER_READONLY=1 blocks a mutating reviewer command and writes no review-pass artifact.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Focused or contract coverage proves no-env normal reviewerWrite behavior remains allowed.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Coverage includes an attempted takeover/dangerous or story-scoped mutation under readonly mode and verifies it is rejected before owner-lease flow.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/reviewer-readonly-command-policy-smoke.ts",
+          "command": "npm run test:reviewer-readonly-command-policy-smoke",
+          "result": "pass",
+          "note": "smoke test output includes blocked review_pass_set writes no review-passes.json artifact and reviewer-readonly command policy smoke passed.",
+          "headHash": "6ff82ef0c558bf858247002cd51fe9ae58cbc2d7",
+          "materialHash": "a0c11d8e125c19941d1bb084146c152354a77b0adc6efe7b706edd585f2b3776",
+          "timestamp": "2026-06-01T16:36:51.352Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/reviewer-readonly-command-policy-smoke.ts",
+          "command": "npm run test:reviewer-readonly-command-policy-smoke",
+          "result": "pass",
+          "note": "smoke test output includes normal reviewerWrite remains allowed without KOALA_REVIEWER_READONLY.",
+          "headHash": "6ff82ef0c558bf858247002cd51fe9ae58cbc2d7",
+          "materialHash": "a0c11d8e125c19941d1bb084146c152354a77b0adc6efe7b706edd585f2b3776",
+          "timestamp": "2026-06-01T16:36:51.352Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/command-ownership-contract.ts",
+          "command": "npm run test:command-ownership-contract",
+          "result": "pass",
+          "note": "contract coverage includes takeover/dangerous/story-scoped mutation rejection under readonly mode.",
+          "headHash": "6ff82ef0c558bf858247002cd51fe9ae58cbc2d7",
+          "materialHash": "a0c11d8e125c19941d1bb084146c152354a77b0adc6efe7b706edd585f2b3776",
+          "timestamp": "2026-06-01T16:36:51.352Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -48,10 +251,77 @@
         "docs/requirements/decisions/role-separation.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "userSees": "Reviewer guidance tells owner agents to set the readonly mode for advisory Claude/Gemini/Codex reviews and record evidence themselves.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "userSees": "Owner guidance says: \"For advisory Claude/Codex/Gemini reviews, set KOALA_REVIEWER_READONLY=1 on that spawned process only; normal Koala reviewers must not set it.\"",
+      "status": "done",
+      "startTime": "2026-06-01T16:13:27.427Z",
+      "endTime": "2026-06-01T16:14:48.972Z",
+      "files": {
+        "modify": [
+          ".Codex/agents/koala-evaluator.md",
+          ".claude/agents/koala-evaluator.md",
+          "docs/requirements/decisions/role-separation.md"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-codex-assets.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Owner/agent guidance tells advisory external reviewers to run with KOALA_REVIEWER_READONLY=1 and return structured review JSON/text to the owner.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Guidance preserves normal Koala gate reviewers: they should not set readonly mode because they must call review_run_start/finding_add/review_pass_set.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Guidance warns that if the env was omitted, the owner must treat the review as non-sandboxed and verify/record evidence explicitly rather than trusting reviewer self-pass text.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/role-separation.md",
+          "result": "pass",
+          "note": "owner dispatch guidance says advisory external reviewers run with KOALA_REVIEWER_READONLY=1 on the spawned process and return structured JSON/text findings.",
+          "headHash": "6ff82ef0c558bf858247002cd51fe9ae58cbc2d7",
+          "materialHash": "a0c11d8e125c19941d1bb084146c152354a77b0adc6efe7b706edd585f2b3776",
+          "timestamp": "2026-06-01T16:36:51.352Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/role-separation.md",
+          "result": "pass",
+          "note": "guidance preserves normal Koala gate reviewers: koala-review-* must not set readonly mode because they need review_run_start/finding_add/review_pass_set.",
+          "headHash": "6ff82ef0c558bf858247002cd51fe9ae58cbc2d7",
+          "materialHash": "a0c11d8e125c19941d1bb084146c152354a77b0adc6efe7b706edd585f2b3776",
+          "timestamp": "2026-06-01T16:36:51.352Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/role-separation.md",
+          "command": "npm run test:codex-assets",
+          "result": "pass",
+          "note": "guidance covers omitted env fallback: treat as non-sandboxed advisory text, verify all claims manually, and discard direct gate artifacts; codex asset verification passed after rebuilding utils/main artifacts.",
+          "headHash": "6ff82ef0c558bf858247002cd51fe9ae58cbc2d7",
+          "materialHash": "a0c11d8e125c19941d1bb084146c152354a77b0adc6efe7b706edd585f2b3776",
+          "timestamp": "2026-06-01T16:36:51.352Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -61,10 +331,81 @@
         "docs/requirements/decisions/testing-completeness.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "userSees": "Final transcript shows readonly guard tests PASS and Koala lifecycle gates all pass.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "userSees": "Final transcript shows: \"build PASS; reviewer-readonly smoke PASS; command ownership contract PASS; koala validate PASS; DONE gate PASS.\"",
+      "status": "done",
+      "startTime": "2026-06-01T16:16:03.737Z",
+      "endTime": "2026-06-01T16:17:25.633Z",
+      "files": {
+        "modify": [
+          ".koala/story/actives/B-4f15/summary.json",
+          ".koala/story/actives/B-4f15/test-evidence.json",
+          ".koala/story/actives/B-4f15/delivery-check.json"
+        ],
+        "create": [],
+        "test": [
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/tasks/reviewer-readonly-command-policy-smoke.ts",
+          "packages/main/src/tasks/command-ownership-contract.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Build, focused readonly smoke, command ownership contract, process/runtime fact contracts, validate, and session_brief pass.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "REVIEW evidence is current after implementation commits and includes standard reviewer pass/finding artifacts, not advisory read-only text alone.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "DONE gate cannot pass if readonly reviewer docs/prompts drift, if evidence is stale, or if delivery/summary artifacts are missing.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/utils run build && npm run test:command-ownership-contract && npm run test:reviewer-readonly-command-policy-smoke && npm run test:process-fact-contract && npm run test:runtime-fact-contract && npm run test:codex-assets",
+          "result": "pass",
+          "note": "pre-REVIEW validation commands all pass after rebuilding main/utils artifacts; reviewer and DONE gate evidence will be added by lifecycle artifacts.",
+          "headHash": "6ff82ef0c558bf858247002cd51fe9ae58cbc2d7",
+          "materialHash": "a0c11d8e125c19941d1bb084146c152354a77b0adc6efe7b706edd585f2b3776",
+          "timestamp": "2026-06-01T16:36:51.352Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "file": ".koala/story/actives/B-4f15/review-passes.json",
+          "command": "node bin/koala.js finding_list --storyId=B-4f15 --json",
+          "result": "pass",
+          "note": "Current REVIEW round produced standard signed reviewer artifacts, not advisory read-only text: RR-005/RP-004 quality, RR-006/RP-005 concept, RR-007/RP-006 test-coverage, RR-008/RP-007 docs. finding_list shows prior high/low findings resolved; the only remaining medium advisory is this deferred-evidence replacement obligation.",
+          "headHash": "2f941ea2baf927e7d36deba35130719ef69390bb",
+          "materialHash": "a0c11d8e125c19941d1bb084146c152354a77b0adc6efe7b706edd585f2b3776",
+          "timestamp": "2026-06-01T16:43:31.394Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "file": ".koala/story/actives/B-4f15/test-evidence.json",
+          "command": "node bin/koala.js story_advance --storyId=B-4f15 --phase=TEST",
+          "result": "pass",
+          "note": "Negative gate proof passed: attempting REVIEW→TEST with a deferred CHK-005:adversarial waiver failed with 'Cannot enter TEST' and 14/15 coverage, proving Koala does not allow deferred/missing evidence to advance. Managed asset drift is separately guarded by node bin/koala.js check OK and node bin/koala-codex.js verify_codex PASS; delivery/summary artifacts remain separate DONE gate requirements and will be set before DONE.",
+          "headHash": "e13fae7f581ee494d6987238687e75d86000ac5d",
+          "materialHash": "a0c11d8e125c19941d1bb084146c152354a77b0adc6efe7b706edd585f2b3776",
+          "timestamp": "2026-06-01T16:45:05.851Z"
+        }
+      ]
     }
   ]
 }

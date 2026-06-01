@@ -1,0 +1,30 @@
+{
+  "task": "Add an explicit read-only reviewer command mode so advisory delegated reviewers can inspect Koala state without being able to write review/lifecycle evidence.",
+  "outcome": "User launches an advisory reviewer with KOALA_REVIEWER_READONLY=1; if that reviewer tries `koala review_pass_set --storyId=B-xxxx ...`, the terminal prints a clear readonly reviewer error and no review metadata is written, while `koala session_brief` and normal reviewer write mode still work.",
+  "facts": [
+    "B-edca showed a practical pitfall: a reviewer with Bash could prematurely call review_pass_set; Koala caught stale evidence, but the spawn sandbox lacked a mechanical readonly boundary.",
+    "CommandPolicy.ownershipClass is already the authoritative command classification table and cli-engine.ts is the single command choke-point.",
+    "reviewerWrite commands are intentionally owner-lease exempt for normal Koala reviewers, so readonly reviewer mode must be a separate opt-in layer rather than reclassifying reviewerWrite globally.",
+    "INIT reviewers raised seven advisory issues: settle the activation signal, enumerate mutating coverage via ownershipClass, document the contract location, integrate with the owner-lease gate, and test env leakage / missed commands / takeover interactions."
+  ],
+  "constraints": [
+    "Do not break normal Koala reviewer flows that must call review_run_start, finding_add, review_pass_set, init_check_set, scope_check_save, or delivery_check_set.",
+    "Readonly mode must fail before handler writes and before mutating hooks can run for a blocked command.",
+    "No new lifecycle truth source: reuse CommandPolicy.ownershipClass and document the contract in existing role/separation and ownership docs.",
+    "Claude Code CLI does implementation; Codex supervises, verifies, and records lifecycle evidence."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/tasks/command-ownership-contract.ts",
+    "packages/main/src/tasks/reviewer-readonly-command-policy-smoke.ts",
+    "packages/main/package.json",
+    "package.json",
+    "docs/requirements/decisions/role-separation.md",
+    "docs/requirements/decisions/session-ownership-and-write-leases.md",
+    ".Codex/agents/koala-evaluator.md",
+    ".claude/agents/koala-evaluator.md"
+  ],
+  "timestamp": "2026-06-01T15:53:27.914Z"
+}

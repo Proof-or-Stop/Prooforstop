@@ -1,0 +1,61 @@
+{
+  "storyId": "B-4f15",
+  "checkedAt": "2026-06-01T16:49:12.262Z",
+  "reviewRound": "2026-06-01T16:36:45.678Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/role-separation.md#advisory-read-only-reviewer-mode",
+      "promise": "Advisory read-only reviewer mode (KOALA_REVIEWER_READONLY=1) and blocked command classes (reviewerWrite, storyScopedMutating, mainSharedMutating, dangerousMutating, unclassified) are documented and match implementation in cli-engine.ts enforceReviewerReadOnlyCommandGate.",
+      "verifiedBy": "grep + diff",
+      "evidence": "role-separation.md lines 979-1061 document KOALA_REVIEWER_READONLY=1 with exact blocked command classes. cli-engine.ts lines 1694-1740 implement enforceReviewerReadOnlyCommandGate rejecting all non-readOnly classes with matching error message naming env var, command, class, and recovery path. command-ownership-contract.ts section 6 asserts 5 reviewerWrite commands blocked and readOnly commands pass."
+    },
+    {
+      "docPath": "docs/requirements/decisions/session-ownership-and-write-leases.md#read-only-reviewer-mode",
+      "promise": "Cross-reference to role-separation.md is correct: session-ownership-and-write-leases.md references role-separation.md under 'Advisory Read-Only Reviewer Mode'.",
+      "verifiedBy": "grep",
+      "evidence": "session-ownership-and-write-leases.md lines 230-250 describe KOALA_REVIEWER_READONLY=1 and at line 250 cross-reference 'docs/requirements/decisions/role-separation.md under Advisory Read-Only Reviewer Mode'. Cross-reference is accurate and the section exists at role-separation.md line 979."
+    },
+    {
+      "docPath": "packages/main/templates/agents/koala-evaluator.md#koala_reviewer_readonly",
+      "promise": "Template and deployed .claude/.Codex evaluator agent prompts state normal gate/evaluator reviewers must NOT set KOALA_REVIEWER_READONLY=1; only owner-spawned advisory external reviewers do.",
+      "verifiedBy": "grep + koala check",
+      "evidence": "packages/main/templates/agents/koala-evaluator.md line 1002-1004 explicitly states: 'normal gate/evaluator reviewer... must NOT set KOALA_REVIEWER_READONLY=1'. Both .claude/agents/koala-evaluator.md and .Codex/agents/koala-evaluator.md contain identical guidance at the same location. 'node bin/koala.js check' returns OK (45/45 managed assets synchronized, no missing/stale)."
+    },
+    {
+      "docPath": ".koala/managed-assets.json + node bin/koala-codex.js verify_codex",
+      "promise": "Managed assets synchronized with node bin/koala.js check OK; Codex adapter verification present.",
+      "verifiedBy": "CLI transcript",
+      "evidence": "node bin/koala.js check: 'OK=45, MISSING=0, CASE_MISMATCH=0, STALE_SAFE=0, STALE_LOCAL_EDIT=0, INCOMPATIBLE=0'. node bin/koala-codex.js verify_codex: 6/7 pass; the 1 advisory item ('Global fallback heartbeat') is expected worktree isolation behavior, not a delivery failure; all structural checks (manifest, mirrors, exclusions, wrapper, aux commands) pass."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "docs_check evidence: role-separation.md documents KOALA_REVIEWER_READONLY=1 advisory mode, blocked command classes enumerated (reviewerWrite, storyScopedMutating, mainSharedMutating, dangerousMutating, unclassified), advisory reviewer output is not gate evidence, and normal gate reviewers must not set this mode. All 3 intent lanes (happy/edge/adversarial) covered with docs_check evidence. koala validate --story=B-4f15 --json confirms CHK-001: 3/3 covered."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "logic_test evidence: command-ownership-contract.ts section 6 asserts: KOALA_REVIEWER_READONLY=1 enables mode; story_get (readOnly) and diagnostic validate (no --story, readOnly boundary rule 2) are allowed; review_pass_set/finding_add/review_run_start/init_check_set/story_advance(forceTakeover)/verification_evidence_add/gap_log/audit/unclassified all blocked before owner-lease gate. npm run test:command-ownership-contract passes. All 3 intent lanes (happy/edge/adversarial) covered."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "logic_test evidence: reviewer-readonly-command-policy-smoke.ts runs 6 in-process assertions: env detection, readOnly allowed, reviewerWrite blocked x4, storeScopedMutating/unclassified blocked x5, no-artifact invariant (review-passes.json absent after blocked review_pass_set), normal-no-env passthrough. npm run test:reviewer-readonly-command-policy-smoke passes with output confirming all 6 checks. All 3 intent lanes covered."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "docs_check evidence: role-separation.md guidance table confirmed: external advisory reviewers must use KOALA_REVIEWER_READONLY=1; normal koala-review-* must NOT; guidance for omitted env fallback ('treat as non-sandboxed, verify all claims manually, discard direct gate artifacts'). koala-evaluator.md template and both deployed files in sync. node bin/koala.js check OK. All 3 intent lanes covered."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "manual_transcript evidence: npm run build (main+utils), npm run test:command-ownership-contract, npm run test:reviewer-readonly-command-policy-smoke, npm run test:process-fact-contract, npm run test:runtime-fact-contract, npm run test:codex-assets all pass. koala validate --story=B-4f15 --json: 15/15 verification intents covered, 0 required missing. REVIEW round produced signed artifacts: RP-001 concept, RP-003/RP-004 quality, RP-002/RP-006 test-coverage, RP-007 docs, RP-005 concept (round 2). All findings resolved (F-001 low typo fixed, F-002 high eval-gate misuse fixed, F-003 medium deferred-waiver replacement completed). Negative gate proof: advancing to TEST with missing evidence was correctly rejected (14/15 coverage), proving gate integrity. Session_brief DONE pre-check: test evidence PASS, verification coverage 15/15, evidence freshness PASS, no bugs, working tree clean."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 5 checklist items delivered and verified. CLI transcripts of npm test, koala validate --story, koala check, and koala-codex verify_codex constitute real machine execution evidence for this non-UI process-policy story. Edge coverage includes adversarial gate bypass attempts (forceTakeover, unclassified commands), null/false-y env handling, and no-artifact invariant. All findings resolved; no open TODOs."
+  },
+  "_hash": "4eb1e9cdbc3e386ff3957dfeaede1d2b9fecd183951736e153946bd15b864164"
+}
