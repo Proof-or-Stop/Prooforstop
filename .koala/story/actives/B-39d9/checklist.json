@@ -249,9 +249,9 @@
       "id": "CHK-004",
       "title": "Build core and provide explicit Koala Mac consumer proof handoff",
       "context": "Run the Orchestrate packages/main build and focused core smoke tests. Then write the concrete external handoff surface for Koala Mac story B-3e9a: `node bin/koala.js check --json`, `node bin/koala.js doctor --format=json`, plain `node bin/koala.js check`, and plain `node bin/koala.js doctor`. B-39d9 owns core readiness; B-3e9a owns running those commands in the Koala Mac wrapper worktree.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-01T16:43:53.208Z",
       "userSees": "Core test output passes, and the handoff says exactly which Koala Mac wrapper commands must show `runtimeMode` and the first-screen JS footprint summary.",
       "relatedDocs": [
         "docs/requirements/decisions/testing-infra.md",
@@ -355,6 +355,16 @@
       "from": "pending",
       "to": "done",
       "reason": "Managed asset mutation remains limited to MISSING/STALE_SAFE and smoke covers unsafe manual guidance/non-repair.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-06-01T16:43:53.208Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Core build and focused smoke tests passed; wrapper proof handoff is explicitly assigned to Koala Mac B-3e9a.",
       "agent": "main"
     }
   ]
