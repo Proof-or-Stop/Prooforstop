@@ -5,7 +5,7 @@
       "desc": "CHK-002:edge:0 is marked covered in checklist evidence (.koala/story/actives/B-bffc/checklist.json:131-179), but the referenced smoke test does not assert the claimed visible optional-provider degradations. packages/main/src/tasks/lattice-cli-migration-smoke.ts:101-117 only checks schema/version/macAppRequired and host/prod flags for host_list/host_probe; it never inspects probe.degradations, visible degradation fields, or any non-fatal conditional capability output even though the Codex host profile exposes those degradations in packages/main/src/core/capabilities.ts:207-214. As written, the test can pass even if missing optional providers stop being reported as visible degradations, so this must intent is not actually covered.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-06-02T12:04:08.621Z",
