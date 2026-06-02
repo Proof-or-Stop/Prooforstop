@@ -7,8 +7,14 @@ import {
   listAgentPromptFiles,
   renderCodexAdapterManifest,
   renderCodexAgentContent,
+  type CodexPromptMode,
 } from '../init-assets.js';
 import { readActivityLogTail } from './activity-log.js';
+import {
+  promptRegistryManifest,
+  readPromptRegistry,
+  renderPromptEntryForHost,
+} from './prompt-registry.js';
 import type { StoryStore } from './store.js';
 import type { ProcessEvent } from './types.js';
 
@@ -56,6 +62,7 @@ const CODEX_MATERIAL_PATHS = [
   'packages/main/src/init-assets.ts',
   'packages/main/src/cli-init.ts',
   'packages/main/src/core/codex-adapter-checks.ts',
+  'packages/main/src/core/prompt-registry.ts',
   'packages/main/src/handlers/codex-adapter.ts',
   'packages/main/src/handlers/review-preflight.ts',
   'packages/main/src/handlers/story-advance.ts',
@@ -141,28 +148,71 @@ function push(
   checks.push({ id, label, status, hard, detail, ...(command ? { command } : {}) });
 }
 
-function checkManifest(root: string, checks: CodexAdapterCheck[]): void {
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
+function checkManifest(root: string, checks: CodexAdapterCheck[]): CodexPromptMode | null {
   const manifestPath = join(root, '.Codex', 'koala.json');
   if (!existsSync(manifestPath)) {
     push(checks, 'manifest', 'Codex manifest', 'fail', true, 'missing .Codex/koala.json', LOCAL_INIT_VERIFY_COMMAND);
-    return;
+    return null;
   }
   const actual = readText(manifestPath);
   const expected = renderCodexAdapterManifest();
-  if (actual !== expected) {
-    push(checks, 'manifest', 'Codex manifest', 'fail', true, '.Codex/koala.json drifted from Koala template', LOCAL_INIT_VERIFY_COMMAND);
-    return;
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(actual);
+  } catch {
+    push(checks, 'manifest', 'Codex manifest', 'fail', true, '.Codex/koala.json is not valid JSON', LOCAL_INIT_VERIFY_COMMAND);
+    return null;
   }
-  const parsed = JSON.parse(actual);
+  if (!isRecord(parsed)) {
+    push(checks, 'manifest', 'Codex manifest', 'fail', true, '.Codex/koala.json is not a JSON object', LOCAL_INIT_VERIFY_COMMAND);
+    return null;
+  }
   if (
     parsed?.adapterOwner !== CODEX_ADAPTER_MANIFEST.adapterOwner ||
     parsed?.adapterKind !== CODEX_ADAPTER_MANIFEST.adapterKind ||
     parsed?.activitySource !== CODEX_ADAPTER_MANIFEST.activitySource
   ) {
     push(checks, 'manifest', 'Codex manifest', 'fail', true, '.Codex/koala.json has invalid adapter identity', LOCAL_INIT_VERIFY_COMMAND);
-    return;
+    return null;
   }
-  push(checks, 'manifest', 'Codex manifest', 'pass', true, '.Codex/koala.json matches template');
+  if (parsed.promptMode === 'registry') {
+    const expectedRegistry = promptRegistryManifest();
+    const actualRegistry = parsed.promptRegistry;
+    if (!isRecord(actualRegistry)) {
+      push(checks, 'manifest', 'Codex manifest', 'fail', true, '.Codex/koala.json registry mode is missing promptRegistry metadata', LOCAL_INIT_VERIFY_COMMAND);
+      return 'registry';
+    }
+    const mismatches = (['schemaVersion', 'source', 'agentCount', 'materialHash'] as const)
+      .filter(key => actualRegistry[key] !== expectedRegistry[key]);
+    if (mismatches.length > 0) {
+      push(
+        checks,
+        'manifest',
+        'Codex manifest',
+        'fail',
+        true,
+        `.Codex/koala.json promptRegistry mismatch: ${mismatches.join(', ')}`,
+        LOCAL_INIT_VERIFY_COMMAND,
+      );
+      return 'registry';
+    }
+    push(checks, 'manifest', 'Codex manifest', 'pass', true, `.Codex/koala.json uses registry prompt mode (${expectedRegistry.agentCount} prompt(s), hash=${expectedRegistry.materialHash.slice(0, 12)})`);
+    return 'registry';
+  }
+  if (parsed.promptMode !== undefined && parsed.promptMode !== 'legacy-mirror') {
+    push(checks, 'manifest', 'Codex manifest', 'fail', true, `.Codex/koala.json has unsupported promptMode=${String(parsed.promptMode)}`, LOCAL_INIT_VERIFY_COMMAND);
+    return null;
+  }
+  if (actual !== expected) {
+    push(checks, 'manifest', 'Codex manifest', 'fail', true, '.Codex/koala.json drifted from Koala legacy template', LOCAL_INIT_VERIFY_COMMAND);
+    return 'legacy-mirror';
+  }
+  push(checks, 'manifest', 'Codex manifest', 'pass', true, '.Codex/koala.json matches legacy template');
+  return 'legacy-mirror';
 }
 
 function checkAgentMirror(root: string, checks: CodexAdapterCheck[]): void {
@@ -195,6 +245,26 @@ function checkAgentMirror(root: string, checks: CodexAdapterCheck[]): void {
     return;
   }
   push(checks, 'agents-mirror', 'Codex agents mirror', 'pass', true, `${sourceFiles.length} prompt(s) mirrored`);
+}
+
+function checkPromptRegistry(checks: CodexAdapterCheck[]): void {
+  try {
+    const registry = readPromptRegistry();
+    if (registry.agentCount === 0) {
+      push(checks, 'prompt-registry', 'Codex prompt registry', 'fail', true, 'package prompt registry has no agent prompts', LOCAL_INIT_VERIFY_COMMAND);
+      return;
+    }
+    const unrenderable = registry.agents
+      .filter(entry => renderPromptEntryForHost(entry, 'codex').trim().length === 0)
+      .map(entry => entry.file);
+    if (unrenderable.length > 0) {
+      push(checks, 'prompt-registry', 'Codex prompt registry', 'fail', true, `empty Codex render(s): ${unrenderable.slice(0, 6).join(', ')}`, LOCAL_INIT_VERIFY_COMMAND);
+      return;
+    }
+    push(checks, 'prompt-registry', 'Codex prompt registry', 'pass', true, `${registry.agentCount} prompt(s) render from package registry; hash=${registry.materialHash.slice(0, 12)}`);
+  } catch (e: any) {
+    push(checks, 'prompt-registry', 'Codex prompt registry', 'fail', true, `registry read/render failed: ${e?.message || e}`, LOCAL_INIT_VERIFY_COMMAND);
+  }
 }
 
 function checkExcludedAssets(root: string, checks: CodexAdapterCheck[]): void {
@@ -432,8 +502,12 @@ export function runCodexAdapterChecks(root: string, options: RunCodexChecksOptio
   const timeoutMs = options.timeoutMs ?? 10_000;
   const executeLocalHeartbeat = options.executeLocalHeartbeat ?? options.executeHeartbeats === true;
   const executeGlobalHeartbeat = options.executeGlobalHeartbeat ?? options.executeHeartbeats === true;
-  checkManifest(root, checks);
-  checkAgentMirror(root, checks);
+  const promptMode = checkManifest(root, checks);
+  if (promptMode === 'registry') {
+    checkPromptRegistry(checks);
+  } else {
+    checkAgentMirror(root, checks);
+  }
   checkExcludedAssets(root, checks);
   checkLocalWrapper(root, checks, executeLocalHeartbeat, timeoutMs);
   checkGlobalFallback(root, checks, executeGlobalHeartbeat, timeoutMs);

@@ -16,14 +16,15 @@ import { fileURLToPath } from 'node:url';
 import {
   AGENTS_MD_TEMPLATE,
   CLAUDE_MD_TEMPLATE,
-  CODEX_README_TEMPLATE,
   KOALA_MD_TEMPLATE,
   getKoalaHooks,
   listAgentPromptFiles,
   renderCodexAdapterManifest,
   renderCodexAgentContent,
+  renderCodexReadmeTemplate,
   renderCodexWrapperScript,
   renderKoalaBootstrapScript,
+  type InitAssetMode,
   type InitProfile,
 } from '../init-assets.js';
 import {
@@ -53,6 +54,7 @@ export interface ManagedAssetCheckOptions {
   upgrade?: boolean;
   reviewLocalEdits?: boolean;
   profile?: InitProfile;
+  assetMode?: InitAssetMode;
 }
 
 export interface ManagedAssetCheckItem {
@@ -71,6 +73,7 @@ export interface ManagedAssetCheckItem {
 export interface ManagedAssetCheckResult {
   ok: boolean;
   profile: InitProfile;
+  assetMode: InitAssetMode;
   mode: 'check' | 'apply' | 'upgrade';
   applied: string[];
   warnings: string[];
@@ -106,6 +109,7 @@ interface ManagedAssetDefinition {
 interface ManagedAssetManifest {
   version: 1;
   profile: InitProfile;
+  assetMode?: InitAssetMode;
   generatedAt: string;
   assets: Record<string, {
     relPath: string;
@@ -414,6 +418,7 @@ export function listManagedAssetDefinitions(
   profile: InitProfile,
   root = packageRoot(),
   projectRoot = process.cwd(),
+  assetMode: InitAssetMode = 'full',
 ): ManagedAssetDefinition[] {
   const defs: ManagedAssetDefinition[] = [
     managedDoc(
@@ -454,12 +459,17 @@ export function listManagedAssetDefinitions(
         actual => actual.includes('KOALA_ACTIVITY_SOURCE') && actual.includes('local-wrapper'),
         true,
       ),
-      wholeFile('.Codex:README.md', '.Codex/README.md', CODEX_README_TEMPLATE, actual => actual.includes('Codex + Koala')),
-      wholeFile('.Codex:koala.json', '.Codex/koala.json', renderCodexAdapterManifest(), () => true),
+      wholeFile('.Codex:README.md', '.Codex/README.md', renderCodexReadmeTemplate(assetMode), actual => actual.includes('Codex + Koala')),
+      wholeFile(
+        '.Codex:koala.json',
+        '.Codex/koala.json',
+        renderCodexAdapterManifest(assetMode === 'thin' ? { promptMode: 'registry' } : {}),
+        () => true,
+      ),
       { id: 'excluded:.Codex/hooks', relPath: '.Codex/hooks', kind: 'excluded-path' },
       { id: 'excluded:.Codex/settings.json', relPath: '.Codex/settings.json', kind: 'excluded-path' },
     );
-    if (templates) {
+    if (assetMode === 'full' && templates) {
       const files = listAgentPromptFiles(templates);
       for (const file of files) {
         const content = readFileSync(join(templates, file), 'utf-8');
@@ -509,7 +519,7 @@ export function listManagedAssetDefinitions(
     }
   }
 
-  if (wantsCodex && templates && existsSync(join(projectRoot, '.Codex', 'agents'))) {
+  if (wantsCodex && assetMode === 'full' && templates && existsSync(join(projectRoot, '.Codex', 'agents'))) {
     const expected = new Set(listAgentPromptFiles(templates));
     for (const file of listAgentPromptFiles(join(projectRoot, '.Codex', 'agents'))) {
       if (!expected.has(file)) {
@@ -675,7 +685,7 @@ function applyDefinition(root: string, def: ManagedAssetDefinition, item: Manage
   return false;
 }
 
-function writeManifest(root: string, profile: InitProfile, items: ManagedAssetCheckItem[]): void {
+function writeManifest(root: string, profile: InitProfile, assetMode: InitAssetMode, items: ManagedAssetCheckItem[]): void {
   const assets: ManagedAssetManifest['assets'] = {};
   const now = new Date().toISOString();
   for (const item of items) {
@@ -690,6 +700,7 @@ function writeManifest(root: string, profile: InitProfile, items: ManagedAssetCh
   writeText(root, MANIFEST_REL_PATH, JSON.stringify({
     version: 1,
     profile,
+    assetMode,
     generatedAt: now,
     assets,
   } satisfies ManagedAssetManifest, null, 2));
@@ -767,10 +778,11 @@ function collectLocalEditReviews(
 
 export function runManagedAssetCheck(root: string, options: ManagedAssetCheckOptions = {}): ManagedAssetCheckResult {
   const profile = options.profile ?? detectManagedAssetProfile(root);
+  const assetMode = options.assetMode ?? 'full';
   const mode: ManagedAssetCheckResult['mode'] = options.upgrade ? 'upgrade' : options.apply ? 'apply' : 'check';
   const shouldApply = mode === 'apply' || mode === 'upgrade';
   const warnings = shouldApply ? collectApplyWarnings(root) : [];
-  const defs = listManagedAssetDefinitions(profile, packageRoot(), root);
+  const defs = listManagedAssetDefinitions(profile, packageRoot(), root, assetMode);
   const manifest = loadManifest(root);
   let items = defs.map(def => evaluateDefinition(root, def, manifest));
   const applied: string[] = [];
@@ -786,7 +798,7 @@ export function runManagedAssetCheck(root: string, options: ManagedAssetCheckOpt
     }
     const afterManifest = loadManifest(root);
     items = defs.map(def => evaluateDefinition(root, def, afterManifest));
-    writeManifest(root, profile, items);
+    writeManifest(root, profile, assetMode, items);
   }
 
   const summary = summarize(items);
@@ -794,6 +806,7 @@ export function runManagedAssetCheck(root: string, options: ManagedAssetCheckOpt
   return {
     ok: summary.MISSING === 0 && summary.CASE_MISMATCH === 0 && summary.STALE_SAFE === 0 && summary.STALE_LOCAL_EDIT === 0 && summary.INCOMPATIBLE === 0,
     profile,
+    assetMode,
     mode,
     applied,
     warnings,
@@ -806,7 +819,7 @@ export function runManagedAssetCheck(root: string, options: ManagedAssetCheckOpt
 
 export function renderManagedAssetCheck(result: ManagedAssetCheckResult): string {
   const lines = [
-    `Koala managed asset check: ${result.ok ? 'OK' : 'DRIFT'} (profile=${result.profile})`,
+    `Koala managed asset check: ${result.ok ? 'OK' : 'DRIFT'} (profile=${result.profile}, assetMode=${result.assetMode})`,
     `Summary: OK=${result.summary.OK}, MISSING=${result.summary.MISSING}, CASE_MISMATCH=${result.summary.CASE_MISMATCH}, STALE_SAFE=${result.summary.STALE_SAFE}, STALE_LOCAL_EDIT=${result.summary.STALE_LOCAL_EDIT}, INCOMPATIBLE=${result.summary.INCOMPATIBLE}`,
   ];
   if (result.applied.length > 0) {
