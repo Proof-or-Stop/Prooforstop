@@ -120,6 +120,26 @@ The Mac App is no longer required for release or provider/config status. It is
 an optional dashboard/archive surface unless a future, explicitly reviewed
 receipt-backed runner path lands.
 
+### CHK-002 authority enforce matrix smoke
+
+`npm run test:authority-enforce-matrix` runs a deterministic in-process matrix
+that proves:
+
+- **local/off stays free/local** — `loadAuthoritySettings({})` is `mode: off`;
+  `classifyCliAuthoritySubmission('off', …)` returns `local-only`.
+- **shadow is warning-only** — a failing server returns `proceed=true` with a
+  `[warning]` rather than throwing.
+- **enforce fake receipt can only be classified after receipt verification** —
+  `classifyCliAuthoritySubmission` keeps `thin-client-transport-accepted`; only a
+  fully-bound envelope whose signed `AuthorityReceipt` is verified through
+  `classifyReceiptBackedEvidence` reaches `receipt-backed-l2-plus`.
+- **enforce missing server fails closed for runner/submission path** —
+  `createAuthoritySubmitter(enforce, no baseURL).submitSingle(…)` returns
+  `proceed=false` without touching the network.
+- **parallel_report remains non-authoritative** — `buildParallelReport(wave)`
+  always has `authority.productionDone=false`, `authorityChanged=false`, and
+  `receiptRefs=[]`.
+
 Primary path: Lattice CLI + Server Authority receipts. Mac App:
 optional/archive dashboard only.
 
