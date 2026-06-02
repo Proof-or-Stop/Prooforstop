@@ -125,6 +125,15 @@
       "reviewRound": "2026-06-02T16:24:10.672Z",
       "reviewRunId": "B-fd03:RR-017",
       "_hash": "f84dbdfbdbbdd87f0f45bfc467ef00bdcd067127494aad107d4fb816e37dd5c4"
+    },
+    {
+      "id": "B-fd03:RP-015",
+      "agent": "koala-review-concept",
+      "note": "CHK-004 userSees now matches the conservative rollout transcript: it names schema lattice.rollout_check.v1, readOnly=true, macAppRequired=false, pass/warn/fail summary counts, and per-project status/nextAction without promising Orchestrate pass or a mostly-warn mix. Verified against .koala/story/actives/B-fd03/checklist.json and evidence/rollout-transcript.md (current run: pass=0 warn=3 fail=3, Orchestrate=fail). Confirmed findings.json has no open findings ([]).",
+      "createdAt": "2026-06-02T16:40:38.886Z",
+      "reviewRound": "2026-06-02T16:24:10.672Z",
+      "reviewRunId": "B-fd03:RR-017",
+      "_hash": "f1ec17507e63855f28d1b91af3e84f28fde2c59b7eaea591f9dc14a04e493ee9"
     }
   ]
 }
