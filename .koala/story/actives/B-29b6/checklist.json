@@ -156,7 +156,43 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Wave output names host capability degradation, evidence refs, refresh guidance, merge blockers, and production authority boundary.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-parallel-wave.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lattice-parallel-wave-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Host candidate summaries include capability status and degradation counts from capability probes.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Evidence refs are preserved as references only and do not refresh stale evidence or change authority.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Missing or conditional receipt-verify capability blocks productionDone and keeps top-level receiptRefs empty.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
