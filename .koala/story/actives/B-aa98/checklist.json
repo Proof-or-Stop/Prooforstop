@@ -164,7 +164,7 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "userSees": "Claude Code 完成任务后可以通过 lattice 提交 receipt，Codex 主线程能看到 receipt 是否 pass、stale 或越界。",
+      "userSees": "用户运行 lattice handoff_receipt_submit --file=receipt.json --format=json 看到 \"status\":\"accepted-local\", \"scopeStatus\":\"pass|warn|fail\", \"freshness\":\"fresh|stale\", \"receiptVerified\":false, \"productionDone\":false。",
       "status": "pending",
       "startTime": null,
       "endTime": null,
