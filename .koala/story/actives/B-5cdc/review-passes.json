@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-02T21:27:45.228Z",
       "reviewRunId": "B-5cdc:RR-001",
       "_hash": "5cc7c845398fb20563c7e888c32dc397dee81802606bce5f7deaf681d6474071"
+    },
+    {
+      "id": "B-5cdc:RP-004",
+      "agent": "koala-review-test-coverage",
+      "note": "All 6 verificationIntents have backing tests. CHK-001:happy/edge covered by authority-enforce-runner-smoke.ts blocks 1+2 (schema lattice.authority_enforce_runner.v1, plannedSteps register/heartbeat/claim, spawned=false, providerEvents=[], missing-settings status=fail with localWorkflowUsable=true and 3 readinessWarnings) plus real CLI alias execFileSync. CHK-001:adversarial verified by structural separation (no buildAuthorityEnforceRunnerPlan callsites in story_advance/verification handlers), lifecycle-registry-contract + command-ownership-contract confirming readOnly/L0 classification, and buildAuthorityStatus having no plannedSteps. CHK-002:happy/edge covered by authority-runner-events-smoke.ts blocks 1+2 (stdout_delta+completed events, transcript sha256 hash, signed envelope verifies, failed event with exitCode 7). CHK-002:adversarial covered by block 3 (runnerId mismatch / runId mismatch / provider != fake-provider all throw before envelope). Lifecycle/ownership regressions covered by CHK-001 adversarial command running both contract tests. Evidence headHash fda78088 is older than HEAD 135613e2 but diff is koala metadata-only (no src changes), so evidence remains valid.",
+      "createdAt": "2026-06-02T21:33:24.018Z",
+      "reviewRound": "2026-06-02T21:27:45.228Z",
+      "reviewRunId": "B-5cdc:RR-003",
+      "_hash": "96e4a9b8436897eb73b669650a944a5ecb25257db44f691ab4c9bb5351cfe08e"
     }
   ]
 }
