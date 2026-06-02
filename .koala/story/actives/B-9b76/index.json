@@ -4,7 +4,7 @@
   "title": "Globalize Lattice agent prompts behind registry-backed thin assets",
   "description": "Move large Koala/Lattice agent prompt bodies toward package-level registry ownership while preserving all existing legacy full-mode behavior. Add registry rendering, registry-aware Codex verification, thin init/check asset mode, and migration-safe compatibility so existing .Codex/.claude prompt mirrors keep working until projects explicitly opt into thin assets.",
   "type": "feature",
-  "phase": "REVIEW",
+  "phase": "DEV",
   "priority": "high",
   "riskSignals": [
     {
@@ -52,6 +52,15 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-02T21:18:00.188Z",
+      "branch": "story/B-9b76",
+      "user": "Harmonygo",
+      "sessionId": "sess-984e0c8ad2c9b71f",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-02T21:19:57.941Z",
       "branch": "story/B-9b76",
       "user": "Harmonygo",
       "sessionId": "sess-984e0c8ad2c9b71f",
