@@ -59,9 +59,9 @@
           "command": "npm run test:authority-receipt-classification",
           "result": "pass",
           "note": "Fully bound verifier envelope only reaches receipt-backed-l2-plus after signed AuthorityReceipt verification and subject binding to the exact evidence envelope; smoke covers bare and sha256-prefixed subjectDigest acceptance.",
-          "headHash": "92eb141da1141695f12ebadfc3dd6878b53c9a1e",
-          "materialHash": "1e98554405271fbb5b942d47f8855d76a58f1f1cacd3db2079efbc4df6e39c70",
-          "timestamp": "2026-06-02T22:10:54.514Z"
+          "headHash": "f099fe5eb85150d9dd28d810a2ac2421d41a4dd8",
+          "materialHash": "308dc3f4b2b0c2ae3313945c35ffaa889f041838ee31778968f17eaf811fad18",
+          "timestamp": "2026-06-02T22:36:46.489Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -69,9 +69,9 @@
           "command": "npm run test:authority-receipt-classification && npm run test:authority-runner-contracts",
           "result": "pass",
           "note": "Same-run verifier, missing commandDigest/transcriptHash/diffHash, bad signature, wrong subjectKind, wrong subjectId, wrong subjectDigest, wrong bare digest, and unsupported sha512 prefix all stay non-receipt-backed.",
-          "headHash": "92eb141da1141695f12ebadfc3dd6878b53c9a1e",
-          "materialHash": "1e98554405271fbb5b942d47f8855d76a58f1f1cacd3db2079efbc4df6e39c70",
-          "timestamp": "2026-06-02T22:10:54.553Z"
+          "headHash": "f099fe5eb85150d9dd28d810a2ac2421d41a4dd8",
+          "materialHash": "308dc3f4b2b0c2ae3313945c35ffaa889f041838ee31778968f17eaf811fad18",
+          "timestamp": "2026-06-02T22:36:46.489Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -79,9 +79,9 @@
           "command": "npm run test:authority-boundary-smoke && npm run test:authority-evidence-flow",
           "result": "pass",
           "note": "Transport accepted true without verified receipt remains thin-client/local-shadow classification and cannot satisfy production receipt-backed authority.",
-          "headHash": "92eb141da1141695f12ebadfc3dd6878b53c9a1e",
-          "materialHash": "1e98554405271fbb5b942d47f8855d76a58f1f1cacd3db2079efbc4df6e39c70",
-          "timestamp": "2026-06-02T22:10:54.588Z"
+          "headHash": "f099fe5eb85150d9dd28d810a2ac2421d41a4dd8",
+          "materialHash": "308dc3f4b2b0c2ae3313945c35ffaa889f041838ee31778968f17eaf811fad18",
+          "timestamp": "2026-06-02T22:36:46.489Z"
         }
       ]
     },
