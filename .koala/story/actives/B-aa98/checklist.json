@@ -270,7 +270,48 @@
       "userSees": "用户看到测试证明：pack 可生成、receipt 可提交、越界/陈旧可识别、Claude Code 不可用时不阻塞主流程。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "README.md",
+          "docs/guide.md",
+          "docs/requirements/decisions/project-vision.md",
+          "packages/main/package.json",
+          "package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/host-overflow-smoke.ts",
+          ".koala/story/actives/B-aa98/evidence/host-overflow-transcript.md"
+        ],
+        "test": [
+          "packages/main/src/tasks/host-overflow-smoke.ts",
+          "packages/main/src/tasks/lattice-handoff-smoke.ts",
+          "packages/main/src/tasks/lattice-cli-migration-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Host Overflow smoke passes and demonstrates host_status, handoff_create, handoff_receipt_submit, handoff_worktree_create, and host_dispatch JSON contracts.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke covers unavailable host, stale/hash mismatch, and out-of-scope changedFiles without blocking local workflow.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Transcript and tests prove the flow works without Mac App and without claiming server receipt or production authority.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-007",
