@@ -1,0 +1,502 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Document dispatch_run protocol and authority boundaries",
+      "context": "Docs for supervised dispatch_run, overflow_auto alias, visible degradation, no auto-merge/productionDone.",
+      "relatedDocs": [
+        "docs/requirements/decisions/host-overflow.md",
+        "docs/guide.md",
+        "README.md"
+      ],
+      "userSees": "`lattice dispatch_run` docs show productionDone=false and manual review nextAction.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Docs describe dispatch_run as supervised host-neutral automation.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Docs explain unavailable hosts and missing CLIs degrade visibly.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Docs never claim external hosts can auto-merge, verify receipts, or set productionDone.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Implement host runtime registry and probe commands",
+      "context": "host_runtime_list/probe for fake, claude-code, gemini, codex with availability and limitations.",
+      "relatedDocs": [
+        "docs/requirements/decisions/host-overflow.md"
+      ],
+      "userSees": "`lattice host_runtime_list --json` shows fake/claude-code/gemini/codex runtime readiness.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "host_runtime_list/probe return JSON for fake/claude-code/gemini/codex.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Missing CLI returns unavailable/degraded with nextAction.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Runtime availability is diagnostic only and does not grant authority.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Implement dispatch_plan without side effects",
+      "context": "dispatch_plan chooses host=auto/explicit and returns preview, selectedHost, fallbackHosts, risks, nextAction without filesystem mutation.",
+      "relatedDocs": [
+        "docs/requirements/decisions/host-overflow.md"
+      ],
+      "userSees": "`lattice dispatch_plan --host=auto --json` explains selectedHost and no-start nextAction.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "dispatch_plan selects a host and reports fallback hosts/reasons.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "No available host returns planned failure and visible degradation.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "dispatch_plan creates no dispatch directory, worktree, process, or receipt.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Implement dispatch_prepare metadata lifecycle",
+      "context": "dispatch_prepare persists .koala/dispatches/<dispatchId> with pack/runtime/status/transcript placeholders and bounded constraints.",
+      "relatedDocs": [
+        "docs/requirements/decisions/host-overflow.md",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md"
+      ],
+      "userSees": "`lattice dispatch_prepare --json` returns dispatchId, status=prepared, packPath, statusPath.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "dispatch_prepare writes resumable metadata and bounded pack.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Missing constraints produce warnings without starting a host.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "dispatch_prepare does not run external host or merge changes.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Implement deterministic fake dispatch_run",
+      "context": "fake host full flow creates controlled diff, runs required commands, creates/submits receipt, and returns accepted_local/diagnostic.",
+      "relatedDocs": [
+        "docs/requirements/decisions/host-overflow.md"
+      ],
+      "userSees": "`lattice dispatch_run --host=fake --json` returns status=accepted_local with receipt.status=accepted-local.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "fake dispatch_run returns accepted_local for allowed diff.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "fake runner command failure/timeout becomes failed or diagnostic.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Denied path or forged receipt cannot become accepted_local.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Add real host adapter scaffolding",
+      "context": "claude-code/gemini/codex adapters build command/cwd/prompt/timeout/transcript metadata and degrade when CLI missing.",
+      "relatedDocs": [
+        "docs/requirements/decisions/host-overflow.md"
+      ],
+      "userSees": "Real-host dispatch output shows invocation plan or unavailable state without dirtying worktree.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Adapter scaffolding builds safe invocation metadata for real hosts.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Missing CLI reports unavailable/needs_receipt/failed without dirtying state.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Real host adapter cannot write story JSON or productionDone.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "Implement dispatch_collect",
+      "context": "Collect git-derived base/head/changedFiles/transcript/exit/limitations independent of host prose.",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-client-role.md",
+        "docs/requirements/decisions/host-overflow.md"
+      ],
+      "userSees": "`lattice dispatch_collect --dispatchId=D-... --json` shows git-derived changedFiles and diagnostic warnings.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "dispatch_collect produces JSON with git-derived base/head/changedFiles.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "No diff or missing transcript produces diagnostic warnings.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "changedFiles come from git diff, not untrusted host text.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-008",
+      "title": "Implement overflow_auto alias and guarded policy",
+      "context": "overflow_auto aliases host=auto dispatch behavior; default autoOverflow=suggest and requireApproval=true semantics are visible.",
+      "relatedDocs": [
+        "docs/requirements/decisions/host-overflow.md"
+      ],
+      "userSees": "`lattice overflow_auto --json` suggests or supervises according to policy and records visible trigger.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "overflow_auto aliases dispatch_run/plan behavior with host=auto.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Default policy suggests instead of auto-starting real hosts.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Automatic trigger is visible and never hidden from transcript/status.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-009",
+      "title": "Implement dispatch lifecycle commands",
+      "context": "dispatch_status/list/resume/cancel over planned/prepared/running/needs_receipt/accepted_local/diagnostic/failed/cancelled/expired.",
+      "relatedDocs": [
+        "docs/requirements/decisions/host-overflow.md"
+      ],
+      "userSees": "`lattice dispatch_status/list/resume/cancel --json` can inspect and control interrupted dispatches.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "status/list/resume/cancel report consistent dispatch state.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Unknown dispatchId and expired dispatch return actionable errors.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Cancel does not delete unreviewed work silently or mutate authority state.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-010",
+      "title": "Implement dispatch_review",
+      "context": "Review diff, local receipt, tests, warnings, and risks for one dispatch without producing merge instructions.",
+      "relatedDocs": [
+        "docs/requirements/decisions/host-overflow.md",
+        "docs/guide.md"
+      ],
+      "userSees": "`lattice dispatch_review --dispatchId=D-... --json` summarizes status, receipt, changedFiles, warnings, and nextAction.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "dispatch_review summarizes accepted_local dispatch with receipt and changed files.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "diagnostic/fail dispatches show risk warnings and no success claim.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "dispatch_review never says productionDone or receiptVerified are true.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-011",
+      "title": "Implement dispatch_receipt_create",
+      "context": "Create a draft local handoff receipt from collected dispatch state, using git-derived changedFiles and host-independent limitations.",
+      "relatedDocs": [
+        "docs/requirements/decisions/host-overflow.md",
+        "docs/requirements/decisions/authority-client-role.md"
+      ],
+      "userSees": "`lattice dispatch_receipt_create --dispatchId=D-... --json` writes/returns a draft receipt with productionDone=false.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "dispatch_receipt_create returns a lattice.handoff_receipt.v1-compatible draft receipt.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Missing collect data returns diagnostic warnings and refuses false success.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Draft receipt cannot claim receiptVerified or productionDone.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-012",
+      "title": "Implement dispatch_merge_plan",
+      "context": "Produce manual merge guidance only for accepted_local dispatches; diagnostic/fail dispatches must not receive a normal merge plan.",
+      "relatedDocs": [
+        "docs/requirements/decisions/host-overflow.md"
+      ],
+      "userSees": "`lattice dispatch_merge_plan --dispatchId=D-... --json` says manual merge only and keeps productionDone=false.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "dispatch_merge_plan summarizes manual merge guidance for accepted_local dispatch.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "diagnostic/fail dispatches do not get normal merge plans.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "merge_plan never auto-merges and never satisfies DONE gates.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-013",
+      "title": "Add dispatch_run smoke and contract test matrix",
+      "context": "Add deterministic tests covering runtime probe, plan, prepare, fake run, collect, receipt_create, overflow_auto, lifecycle, review, merge_plan, denied paths, stale/forged receipt, and command registration.",
+      "relatedDocs": [
+        "docs/requirements/decisions/host-overflow.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "userSees": "`npm --prefix packages/main run test:dispatch-run-smoke` passes and validates the full local flow.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "dispatch-run smoke covers the full fake accepted_local flow.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "smoke covers unavailable host, no diff, command failure, and unknown dispatch id.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "smoke proves denied path/forged receipt and productionDone overclaim fail closed.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-014",
+      "title": "Record dispatch authority decision and preMortem before DEV",
+      "context": "Make the supervised-vs-fake-path choice, host selection policy, failure semantics, and authority boundary a gateable PLAN artifact before implementation starts.",
+      "relatedDocs": [
+        "docs/requirements/decisions/host-overflow.md",
+        "docs/requirements/decisions/authority-client-role.md"
+      ],
+      "userSees": "PLAN says dispatch_run is supervised/fake-testable first, real hosts degrade visibly, and productionDone remains false.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "decision_set records protocol-and-fake-runner-first with host selection and failure semantics.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "preMortem covers missing CLI, timeout, stale receipt, denied path, and user-visible finish line risks.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "decision explicitly excludes server receipt implementation and hidden unattended real-host execution.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

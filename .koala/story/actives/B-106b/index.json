@@ -1,0 +1,43 @@
+{
+  "storyId": "B-106b",
+  "name": "dispatch-run-auto-overflow",
+  "title": "Productize Lattice dispatch_run automatic cross-host overflow",
+  "description": "Implement dispatch_run and overflow_auto as supervised cross-host overflow automation: runtime probing, host selection, prepare/run/collect/review lifecycle, fake runner proof, real host adapter scaffolding, and tests without granting external hosts authority.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "source": "codex-user-request",
+  "keywords": [
+    "dispatch_run",
+    "overflow_auto",
+    "host-overflow",
+    "cross-host",
+    "receipt"
+  ],
+  "createdAt": "2026-06-02T23:33:00.412Z",
+  "startedAt": "2026-06-02T23:33:00.412Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-02T23:33:00.489Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-02T23:39:19.038Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-106b",
+    "branch": "story/B-106b",
+    "createdAt": "2026-06-02T23:39:19.400Z"
+  }
+}
