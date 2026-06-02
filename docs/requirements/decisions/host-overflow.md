@@ -32,6 +32,15 @@ Overflow hosts keep these responsibilities:
 - Run or report required local commands
 - Return local diagnostic output and a local receipt
 
+If a higher-level dispatch runtime is added, it must remain supervised and
+visible:
+
+- The operator can see which host/runtime is targeted.
+- Planning, preparation, run, collect, status, review, and merge guidance stay
+  explicit artifacts, not hidden background work.
+- Missing host CLI/runtime degrades to `unavailable` or a diagnostic
+  `nextAction`; it does not silently switch hosts or pretend the work ran.
+
 Every overflow surface must keep:
 
 - `productionDone=false`
@@ -56,6 +65,7 @@ Lattice Host Overflow does **not**:
 
 - Share hidden context implicitly across hosts
 - Auto-trust overflow output
+- Auto-run hidden background host work that the operator cannot inspect
 - Auto-merge overflow diffs
 - Submit authority evidence from overflow hosts
 - Verify authority receipts from overflow hosts

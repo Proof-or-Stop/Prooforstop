@@ -96,6 +96,13 @@ The contract is conservative by design:
 - `handoff_receipt_submit` accepts local diagnostic receipts only. Even on
   `accepted-local`, `receiptVerified=false` and `productionDone=false` remain.
 
+Supervised visible automation is the intended ceiling for the next dispatch
+layer as well. When `dispatch_plan` / `dispatch_prepare` / `dispatch_run` land,
+they must stay operator-visible, emit explicit receipts/status artifacts, and
+degrade to `unavailable` or diagnostic `nextAction` when the requested host CLI
+is missing. They must not silently fall back to hidden execution, auto-merge,
+receipt verification, or `productionDone=true`.
+
 Architecture and non-goals:
 [`docs/requirements/decisions/host-overflow.md`](docs/requirements/decisions/host-overflow.md)
 
