@@ -12,7 +12,34 @@ import {
   buildAuthorityEvidenceBatchSubmission,
   buildAuthorityEvidenceSubmission,
 } from './authority-contracts.js';
-import { DEFAULT_AUTHORITY_TIMEOUT_MS } from './authority-mode.js';
+import {
+  ActorKeyRegistrationSchema,
+  AuthorityReceiptSchema,
+  JobClaimSchema,
+  JobLeaseHeartbeatSchema,
+  JobReleaseSchema,
+  JobSpecSchema,
+  ProviderEventsEnvelopeSchema,
+  RunnerHeartbeatSchema,
+  RunnerRegistrationSchema,
+  type ActorKeyRegistration,
+  type AuthorityReceipt,
+  type JobClaim,
+  type JobLeaseHeartbeat,
+  type JobRelease,
+  type JobSpec,
+  type ProviderEventsEnvelope,
+  type RunnerHeartbeat,
+  type RunnerRegistration,
+} from './authority-runner-contracts.js';
+import {
+  authorityModeEnabled,
+  loadAuthoritySettings,
+  type AuthorityMode,
+  type AuthoritySettings,
+  DEFAULT_AUTHORITY_TIMEOUT_MS,
+} from './authority-mode.js';
+import { z } from 'zod';
 
 /**
  * HTTP client that POSTs verification evidence envelopes to the cross-repo Python
@@ -158,6 +185,108 @@ export class AuthorityClient {
       '/v1/evidence/batch',
       buildAuthorityEvidenceBatchSubmission(envelopes),
       AuthorityEvidenceBatchSubmissionResultSchema,
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Runner endpoint methods (B-1123 milestone 2)
+  //
+  // Mirror the Python authority's headless runner routes. Each method takes
+  // an already-signed envelope (signing is the caller's responsibility — see
+  // authority-runner-contracts.signRunnerEnvelope) and returns the same
+  // outcome taxonomy used by submitEvidence().
+  //
+  // Trust boundary: a successful runner round-trip does NOT promote ordinary
+  // local/shadow workflow submissions to receipt-backed L2+. See
+  // authority-boundary.ts; the classifier is the single mechanical truth source.
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /** POST /v1/actors/{actorId}/keys — register an Ed25519 public key for an actor. */
+  async registerActorKey(
+    actorId: string,
+    envelope: ActorKeyRegistration,
+  ): Promise<AuthorityClientOutcome<AuthorityReceipt | Record<string, unknown>>> {
+    assertNonEmpty(actorId, 'actorId');
+    return this.post<AuthorityReceipt | Record<string, unknown>>(
+      `/v1/actors/${encodeURIComponent(actorId)}/keys`,
+      envelope,
+      AuthorityReceiptOrEmptySchema,
+    );
+  }
+
+  /** POST /v1/runners/register — register a runner instance. */
+  async registerRunner(
+    envelope: RunnerRegistration,
+  ): Promise<AuthorityClientOutcome<AuthorityReceipt | Record<string, unknown>>> {
+    return this.post<AuthorityReceipt | Record<string, unknown>>(
+      '/v1/runners/register',
+      envelope,
+      AuthorityReceiptOrEmptySchema,
+    );
+  }
+
+  /** POST /v1/runners/{runnerId}/heartbeat — emit a runner heartbeat. */
+  async heartbeatRunner(
+    runnerId: string,
+    envelope: RunnerHeartbeat,
+  ): Promise<AuthorityClientOutcome<AuthorityReceipt | Record<string, unknown>>> {
+    assertNonEmpty(runnerId, 'runnerId');
+    return this.post<AuthorityReceipt | Record<string, unknown>>(
+      `/v1/runners/${encodeURIComponent(runnerId)}/heartbeat`,
+      envelope,
+      AuthorityReceiptOrEmptySchema,
+    );
+  }
+
+  /** POST /v1/runners/{runnerId}/jobs/claim — claim the next eligible job. */
+  async claimJob(
+    runnerId: string,
+    envelope: JobClaim,
+  ): Promise<AuthorityClientOutcome<JobSpec | null>> {
+    assertNonEmpty(runnerId, 'runnerId');
+    return this.post<JobSpec | null>(
+      `/v1/runners/${encodeURIComponent(runnerId)}/jobs/claim`,
+      envelope,
+      JobSpecOrNullSchema,
+    );
+  }
+
+  /** POST /v1/jobs/{jobId}/heartbeat — extend a job lease. */
+  async heartbeatJob(
+    jobId: string,
+    envelope: JobLeaseHeartbeat,
+  ): Promise<AuthorityClientOutcome<AuthorityReceipt | Record<string, unknown>>> {
+    assertNonEmpty(jobId, 'jobId');
+    return this.post<AuthorityReceipt | Record<string, unknown>>(
+      `/v1/jobs/${encodeURIComponent(jobId)}/heartbeat`,
+      envelope,
+      AuthorityReceiptOrEmptySchema,
+    );
+  }
+
+  /** POST /v1/jobs/{jobId}/release — release a job with an outcome. */
+  async releaseJob(
+    jobId: string,
+    envelope: JobRelease,
+  ): Promise<AuthorityClientOutcome<AuthorityReceipt | Record<string, unknown>>> {
+    assertNonEmpty(jobId, 'jobId');
+    return this.post<AuthorityReceipt | Record<string, unknown>>(
+      `/v1/jobs/${encodeURIComponent(jobId)}/release`,
+      envelope,
+      AuthorityReceiptOrEmptySchema,
+    );
+  }
+
+  /** POST /v1/runs/{runId}/provider-events — submit provider event batch. */
+  async submitProviderEvents(
+    runId: string,
+    envelope: ProviderEventsEnvelope,
+  ): Promise<AuthorityClientOutcome<AuthorityReceipt | Record<string, unknown>>> {
+    assertNonEmpty(runId, 'runId');
+    return this.post<AuthorityReceipt | Record<string, unknown>>(
+      `/v1/runs/${encodeURIComponent(runId)}/provider-events`,
+      envelope,
+      AuthorityReceiptOrEmptySchema,
     );
   }
 
@@ -349,3 +478,113 @@ export class AuthorityClient {
 export function joinURL(baseURL: string, path: string): string {
   return `${baseURL.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Runner-client gate (B-1123 milestone 2)
+//
+// The headless runner endpoints must not be reachable when authority mode is
+// `off` or KOALA_AUTHORITY_URL is unset. Off-mode callers must observe zero
+// network calls (verification intent CHK-002 adversarial). This guard is the
+// single mechanical entry point for "should the runner client even exist?".
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface RunnerClientGateOptions {
+  fetchImpl?: AuthorityFetch;
+  timeoutMS?: number;
+}
+
+export interface RunnerClientGateResult {
+  /** The wrapped client, or undefined when the gate refuses (off / missing URL). */
+  client?: AuthorityClient;
+  /** Settings snapshot used to make the decision. */
+  settings: AuthoritySettings;
+  /** True iff the gate allows runner traffic. */
+  enabled: boolean;
+  /** Human-readable reason for refusal (only set when enabled=false). */
+  refusedReason?: string;
+}
+
+/**
+ * Decide whether the runner client should be instantiated for the given
+ * settings. Centralizes the "off-mode = zero network calls" guarantee so the
+ * smoke harness can prove it without spawning network code.
+ *
+ * Runtime re-validation (Handler 编码约定): we re-check mode and URL here, not
+ * only at env load time — a caller passing an arbitrary AuthoritySettings
+ * object still cannot bypass the off / missing-URL gate.
+ */
+export function createRunnerAuthorityClient(
+  settings: AuthoritySettings,
+  options: RunnerClientGateOptions = {},
+): RunnerClientGateResult {
+  if (!authorityModeEnabled(settings.mode)) {
+    return {
+      settings,
+      enabled: false,
+      refusedReason: `authority mode is "${settings.mode}" (off); runner client refuses to instantiate (zero network calls)`,
+    };
+  }
+  const url = settings.baseURL;
+  if (typeof url !== 'string' || url.trim().length === 0) {
+    return {
+      settings,
+      enabled: false,
+      refusedReason: 'KOALA_AUTHORITY_URL is not configured; runner client refuses to instantiate (zero network calls)',
+    };
+  }
+  const client = new AuthorityClient(
+    url,
+    options.fetchImpl,
+    typeof options.timeoutMS === 'number' && options.timeoutMS > 0 ? options.timeoutMS : settings.timeoutMS,
+  );
+  return { client, settings, enabled: true };
+}
+
+/** Convenience: load settings from env + override and apply the runner gate. */
+export function loadRunnerAuthorityClient(
+  env: Record<string, string | undefined> = process.env,
+  override: Parameters<typeof loadAuthoritySettings>[1] = {},
+  options: RunnerClientGateOptions = {},
+): RunnerClientGateResult {
+  const settings = loadAuthoritySettings(env, override);
+  return createRunnerAuthorityClient(settings, options);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Internal helpers
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Schema for endpoints that may return either a signed AuthorityReceipt, an
+ * empty acknowledgement object `{}`, or a passthrough object with arbitrary
+ * server fields. Using passthrough keeps unknown server fields intact for
+ * downstream consumers and audit logs.
+ */
+const AuthorityReceiptOrEmptySchema: ZodType<AuthorityReceipt | Record<string, unknown>> =
+  z.union([AuthorityReceiptSchema, z.record(z.string(), z.unknown())]);
+
+/** Schema for /v1/runners/{runnerId}/jobs/claim — JobSpec or null when none available. */
+const JobSpecOrNullSchema: ZodType<JobSpec | null> =
+  z.union([JobSpecSchema, z.null()]);
+
+/** Runtime re-validation: non-empty string path parameter (Handler 编码约定). */
+function assertNonEmpty(value: string, label: string): void {
+  if (typeof value !== 'string' || value.trim().length === 0) {
+    throw new Error(`${label} must be a non-empty string`);
+  }
+}
+
+// Re-export runner contract schemas as a single barrel for callers that prefer
+// importing schemas from authority-client.ts. The authoritative module remains
+// authority-runner-contracts.ts.
+export {
+  ActorKeyRegistrationSchema,
+  RunnerRegistrationSchema,
+  RunnerHeartbeatSchema,
+  JobClaimSchema,
+  JobSpecSchema,
+  JobLeaseHeartbeatSchema,
+  JobReleaseSchema,
+  ProviderEventsEnvelopeSchema,
+  AuthorityReceiptSchema,
+};

@@ -1,0 +1,199 @@
+{
+  "storyId": "B-1123",
+  "checkedAt": "2026-06-02T17:15:24.800Z",
+  "features": [
+    {
+      "feature": "TS contract types for actor key registration envelope shape",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/authority-client-role.md"
+    },
+    {
+      "feature": "TS contract types for runner registration envelope shape",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/authority-client-role.md"
+    },
+    {
+      "feature": "TS contract types for runner heartbeat envelope shape",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/authority-client-role.md"
+    },
+    {
+      "feature": "TS contract types for job claim and job spec shape",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/authority-client-role.md"
+    },
+    {
+      "feature": "TS contract types for job lease heartbeat and job release shape",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/authority-client-role.md"
+    },
+    {
+      "feature": "TS contract types for provider events shape",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/authority-client-role.md"
+    },
+    {
+      "feature": "TS contract types for authority receipt (signed receipt) shape",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/authority-client-role.md"
+    },
+    {
+      "feature": "Ed25519 canonical signing helpers: sign and verify runner envelopes",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/authority-client-role.md"
+    },
+    {
+      "feature": "Ed25519 key export/import helpers",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/authority-client-role.md"
+    },
+    {
+      "feature": "Canonical JSON digest helper (deterministic byte-stable serialization)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/authority-client-role.md"
+    },
+    {
+      "feature": "SHA-256 digest helper",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/authority-client-role.md"
+    },
+    {
+      "feature": "Adversarial invariant: signing primitives must not promote ordinary local/shadow evidence to receipt-backed L2+",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/authority-client-role.md"
+    },
+    {
+      "feature": "Smoke test: npm run test:authority-runner-contracts passes (deterministic canonicalization, valid/invalid signature, required actor/run binding, no-L2+ boundary)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "AuthorityClient typed method: actor key registration (/v1/actors/{actorId}/keys)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/authority-client-role.md"
+    },
+    {
+      "feature": "AuthorityClient typed method: runner register (/v1/runners/register)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/authority-client-role.md"
+    },
+    {
+      "feature": "AuthorityClient typed method: runner heartbeat (/v1/runners/{runnerId}/heartbeat)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/authority-client-role.md"
+    },
+    {
+      "feature": "AuthorityClient typed method: job claim (/v1/runners/{runnerId}/jobs/claim)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/authority-client-role.md"
+    },
+    {
+      "feature": "AuthorityClient typed method: job lease heartbeat (/v1/jobs/{jobId}/heartbeat)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/authority-client-role.md"
+    },
+    {
+      "feature": "AuthorityClient typed method: job release (/v1/jobs/{jobId}/release)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/authority-client-role.md"
+    },
+    {
+      "feature": "AuthorityClient typed method: provider events submission (/v1/runs/{runId}/provider-events)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/authority-client-role.md"
+    },
+    {
+      "feature": "AuthorityClient: signed receipt response parsing preserving unknown server fields",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/authority-client-role.md"
+    },
+    {
+      "feature": "AuthorityClient: off-mode / missing authority URL results in controlled failure and zero network calls",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/authority-client-role.md"
+    },
+    {
+      "feature": "Policy discovery (existing enforce policy command) must remain read-only and must not POST evidence or execute runner mutations",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/authority-client-role.md"
+    },
+    {
+      "feature": "Smoke test: npm run test:authority-runner-client passes with fake authority server capturing each expected endpoint path exactly once",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 24,
+    "covered": 24,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "c1b54a1cba2b2d0a054828eb5c16041bee096707420906de730a7c5f3cac1244",
+  "openQuestions": [
+    {
+      "id": "OQ-1",
+      "q": "decisions/authority-client-role.md §PD-2 milestone table states that actor key registration, runner heartbeat, job claim, and Ed25519 signing code may be implemented only after an explicit enforce-mode product approval overrides PD-1. The same doc §FU-3 doc-only resolution says No CLI code is needed for FU-3 — this document is the durable record of that design choice. B-1123 adds Ed25519 signing helpers (CHK-001) and AuthorityClient typed methods for /v1/actors/{actorId}/keys, /v1/runners/register, /v1/runners/{runnerId}/heartbeat, and job endpoints (CHK-002). Has there been an explicit enforce-mode product approval for this story (overriding PD-1), or is the FU-3/M2+ constraint interpreted as covering only production enforcement code rather than typed contract stubs and smoke-tested client methods? Neither the story description nor the understanding cites such an approval event.",
+      "evidence": "authority-client-role.md §PD-2: M2+ row — Must not land before explicit enforce-mode product approval. §Deferred: No code for any of the above [FU-1/FU-2/FU-3] may land until the product track explicitly approves a PD-1 = enforce decision. §FU-3 doc-only resolution: No CLI code is needed for FU-3. This document is the durable record of that design choice. Story description: Add TS/Lattice foundation for a headless authority-enforce runner: typed runner contracts, canonical Ed25519 signing helpers, and AuthorityClient methods for Python authority runner endpoints.",
+      "sourcePointers": [
+        "docs/requirements/decisions/authority-client-role.md#pd-2-decision-isolated-enforce-subsystem--b-7e38-milestone-0",
+        "docs/requirements/decisions/authority-client-role.md#pd-2-milestone-sequence",
+        "B-1123:CHK-001",
+        "B-1123:CHK-002"
+      ],
+      "resolution": "Resolution: the user explicitly approved starting the eight authority-runner milestones in this thread, which is the product approval to begin the isolated enforce subsystem track. B-1123 is still limited to typed contracts, deterministic signing helpers, AuthorityClient endpoint wrappers, and smoke tests. It does not create a production runner command, execute provider CLIs, submit verifier evidence as L2+, verify server receipts, or change ordinary Koala lifecycle gates. This preserves authority-client-role.md PD-2 boundaries: ordinary koala remains non-authoritative, transport/local JSON cannot satisfy production authority, and production L2+ remains blocked until later receipt-backed runner milestones complete.",
+      "resolvedAt": "2026-06-02T17:16:02.689Z"
+    }
+  ]
+}
