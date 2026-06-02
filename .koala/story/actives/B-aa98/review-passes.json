@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-02T21:55:26.631Z",
       "reviewRunId": "B-aa98:RR-008",
       "_hash": "7844a20708ff4d3b40fa457f89991268835c6d9865081e9a3a96c172e791767f"
+    },
+    {
+      "id": "B-aa98:RP-005",
+      "agent": "koala-review-docs",
+      "note": "Verified lattice --help exposes host_status, host_dispatch, handoff_receipt_submit, and handoff_worktree_create. Verified host_status --json returns parseable JSON. Verified handoff_worktree_create --help, handoff_receipt_submit --help, and host_dispatch --help each expose --json. Docs in README.md, docs/guide.md, and docs/requirements/decisions/host-overflow.md are manual-first, host-executor-only, do not require Mac App, and avoid productionDone/receiptVerified overclaim.",
+      "createdAt": "2026-06-02T22:14:16.005Z",
+      "reviewRound": "2026-06-02T22:11:06.509Z",
+      "reviewRunId": "B-aa98:RR-013",
+      "_hash": "7ff650dd7768c9139168b3eb5de3e75409a0fd6df3117eaf51f71cbefcba5d32"
     }
   ]
 }
