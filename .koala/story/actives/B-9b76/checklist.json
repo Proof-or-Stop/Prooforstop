@@ -190,7 +190,7 @@
         "AGENTS.md",
         "README.md"
       ],
-      "userSees": "用户看到 build、prompt registry smoke、Codex registry mode smoke、thin init smoke、managed asset check 和 Codex adapter verification 的命令结果都被记录为 pass，且 legacy compatibility 没有回归。",
+      "userSees": "用户看到验证摘要包含 `✓ prompt registry smoke passed`、`✓ codex registry mode smoke passed`、`✓ thin init assets smoke passed`、`✓ build passed` 和 `✓ Codex adapter checks passed`。",
       "files": {
         "modify": [
           "package.json",
