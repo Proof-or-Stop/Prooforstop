@@ -21,7 +21,7 @@
       "desc": "quality-cleanup: authority-runner-contracts.ts:30-39 — two separate import statements from the same module (\"./authority-signing.js\"). Line 30 imports canonicalDigest; lines 31-39 import signEnvelope, stripSignature, verifyCanonical, verifySignedEnvelope, and type aliases. Standard practice is to merge into a single import block. The split is purely cosmetic but increases maintenance surface: a future refactor could reorder or partially deduplicate, leaving a confusing partial import pattern. Fix: merge both import statements into one.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-02T17:36:52.783Z",
