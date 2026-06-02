@@ -371,7 +371,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "manual_transcript",
+          "file": ".koala/story/actives/B-aa98/evidence/host-overflow-transcript.md",
+          "command": "node packages/main/dist/cli.js host_status/handoff_create/handoff_worktree_create/host_dispatch/handoff_receipt_submit",
+          "result": "pass",
+          "note": "Transcript records the manual Claude Code overflow flow without Mac App and shows pack created -> receipt accepted-local -> scopeStatus=pass -> productionDone=false -> main-agent review/merge nextAction.",
+          "headHash": "182cf6b072d96060485ebc3d52bace508442dda2",
+          "materialHash": "bd29e0297db5c6be6cbeb9b4fb9fb501ae5536db42fccd198e54bf3ff7942b27",
+          "timestamp": "2026-06-02T21:26:54.675Z"
+        }
+      ]
     },
     {
       "id": "CHK-007",
