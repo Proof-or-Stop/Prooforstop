@@ -209,6 +209,24 @@
         }
       ],
       "_hash": "091af427632fa140bb8eaeb75f0e4ea8ae9553c280215f4be425b3d04f9411a7"
+    },
+    {
+      "timestamp": "2026-06-02T21:01:50.225Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 个 checklist item，请检查是否有组合场景遗漏（如：Document asset layering and compatibility contract + Implement package prompt registry and host renderer 同时操作会怎样？）"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story 命中 1 个高风险信号: 数据迁移/破坏性。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）。 若本 story 只是提及而非修改该领域（误报），可 koala story_review_dismiss '{\"storyId\":\"B-9b76\",\"category\":\"<分类>\",\"reason\":\"...\"}' 完整回退 auto-elevation（全部 auto-elevated riskSignal 被 dismiss 后 priority 自动回退、高风险 gate 解除）。"
+        }
+      ],
+      "_hash": "aa8a91f0186d645d95f36a8735014ce4fc13c1271aa45a9113db7a30287441ff"
     }
   ]
 }
