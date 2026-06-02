@@ -45,9 +45,9 @@
       "id": "CHK-002",
       "title": "Implement package prompt registry and host renderer",
       "context": "Expose versioned agent prompt metadata, template hashes, and host-specific rendering for Claude and Codex without changing legacy prompt files yet.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-02T21:04:23.460Z",
-      "endTime": null,
+      "endTime": "2026-06-02T21:05:04.691Z",
       "relatedDocs": [
         "docs/requirements/decisions/stack-layering.md",
         "AGENTS.md"
@@ -85,7 +85,42 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "npm --prefix packages/main run test:prompt-registry-smoke",
+          "result": "pass",
+          "note": "Prompt registry smoke enumerated 16 package agents with stable metadata and host render outputs.",
+          "headHash": "139c6e7bb73b1c047524a0b08ab2d479925097ca",
+          "materialHash": "602714ae40712072b46c8e999c5e2eb170a953542e6e910fcc1f3c6065847218",
+          "timestamp": "2026-06-02T21:05:04.739Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "npm --prefix packages/main run test:prompt-registry-smoke",
+          "result": "pass",
+          "note": "Smoke used the package templates/agents registry root and did not depend on repo-local .claude symlink materialization.",
+          "headHash": "139c6e7bb73b1c047524a0b08ab2d479925097ca",
+          "materialHash": "602714ae40712072b46c8e999c5e2eb170a953542e6e910fcc1f3c6065847218",
+          "timestamp": "2026-06-02T21:05:04.774Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "npm --prefix packages/main run test:prompt-registry-smoke",
+          "result": "pass",
+          "note": "Smoke compared Codex registry rendering against the legacy renderCodexAgentContent transform for every prompt.",
+          "headHash": "139c6e7bb73b1c047524a0b08ab2d479925097ca",
+          "materialHash": "602714ae40712072b46c8e999c5e2eb170a953542e6e910fcc1f3c6065847218",
+          "timestamp": "2026-06-02T21:05:04.807Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
