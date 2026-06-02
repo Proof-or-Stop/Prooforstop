@@ -17,7 +17,8 @@
     "docs/requirements/decisions/lattice-parallel-wave.md",
     "packages/main/src/core/lattice-parallel-wave.ts",
     "packages/main/src/handlers/lattice-parallel-wave.ts",
-    "packages/main/src/tasks/lattice-parallel-wave-smoke.ts"
+    "packages/main/src/tasks/lattice-parallel-wave-smoke.ts",
+    ".koala/story/actives/B-29b6/evidence/transcript-diff.md"
   ],
   "allowedTest": [
     "packages/main/src/tasks/lattice-parallel-wave-smoke.ts"
@@ -31,8 +32,8 @@
     "packages/main/src/core/lattice-handoff.ts",
     "packages/main/src/core/lattice-evidence.ts"
   ],
-  "scopeChangeReason": "REVIEW finding B-29b6:F-002 proved phase allowlist wiring requires packages/main/src/core/config.ts; keep enforce mode and protected authority/canonical boundaries unchanged.",
+  "scopeChangeReason": "TEST gate requires user-value transcript evidence at .koala/story/actives/B-29b6/evidence/transcript-diff.md; this file is non-authority TEST evidence and does not expand code or authority scope.",
   "acknowledgements": [],
   "createdAt": "2026-06-02T05:05:32.669Z",
-  "updatedAt": "2026-06-02T05:34:04.491Z"
+  "updatedAt": "2026-06-02T05:48:01.813Z"
 }
