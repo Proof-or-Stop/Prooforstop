@@ -89,9 +89,9 @@
         "docs/requirements/decisions/lattice-parallel-wave.md"
       ],
       "userSees": "`koala parallel_dispatch --format=json` prints `schemaVersion:\"koala.parallel_dispatch.v1\"`, story entries with `dispatchable`, and `authority.productionDone:false`; `koala parallel_status --format=json` prints candidate/blocked counts.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-02T12:40:09.679Z",
       "files": {
         "modify": [
           "packages/main/src/core/lattice-parallel-wave.ts"
@@ -415,6 +415,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Docs contract and memory boundary implemented and covered by docs rg checks plus focused smoke."
+    },
+    {
+      "timestamp": "2026-06-02T12:40:09.679Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Core dispatch/status/merge/report projections implemented and covered by focused smoke."
     }
   ]
 }
