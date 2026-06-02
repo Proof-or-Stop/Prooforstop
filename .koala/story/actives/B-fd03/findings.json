@@ -12,6 +12,24 @@
       "reviewRound": "2026-06-02T15:36:50.208Z",
       "reviewRunId": "B-fd03:RR-002",
       "_hash": "33f2b7205e8807838424a46e1f22f3b88340700bba499be4cc3e66f3b98cb964"
+    },
+    {
+      "id": "B-fd03:F-002",
+      "desc": "User-facing hints and the session brief reminder still recommend koala validate, koala next, or koala session_brief; B-fd03 requires lattice as the primary recommended CLI and koala only as explicit legacy compatibility.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-02T15:44:13.187Z",
+      "reviewRound": "2026-06-02T15:36:50.208Z",
+      "reviewRunId": "B-fd03:RR-001",
+      "_hash": "21677614047ec2ddbc4d50bb49cb305158984ae3c96d498d39c387e493b4d778",
+      "files": [
+        "packages/main/src/handlers/hints.ts",
+        ".claude/hooks/session-brief-reminder.cjs",
+        "packages/main/src/tasks/session-brief-prompt-sync-smoke.ts"
+      ]
     }
   ]
 }
