@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-02T22:08:14.135Z",
       "reviewRunId": "B-b95c:RR-001",
       "_hash": "94860f2e1a1871c531490bb3861ee175ec71d6ba14eb405a2d6ecf540b566564"
+    },
+    {
+      "id": "B-b95c:RP-002",
+      "agent": "koala-review-test-coverage",
+      "note": "Focused coverage is adequate for the Lattice init asset rename + Koala compatibility scope: thin-init-assets-smoke covers fresh thin/full init and user-owned legacy preservation; legacy-koala-compatibility-smoke covers legacy acceptance, Lattice primary precedence, and missing-path diagnostics; codex-registry-mode-smoke plus validation/flow/runtime/review-pass contract checks cover registry prompt mode and gate semantics. Evidence head hashes predate REVIEW metadata commits, but current materialHash still matches, so the recorded evidence remains fresh under the material-hash contract.",
+      "createdAt": "2026-06-02T22:11:14.381Z",
+      "reviewRound": "2026-06-02T22:08:14.135Z",
+      "reviewRunId": "B-b95c:RR-002",
+      "_hash": "34d16891afbf24647f8bf5ddd91a21f70b442537383ab7e1411a5a2796c34506"
     }
   ]
 }
