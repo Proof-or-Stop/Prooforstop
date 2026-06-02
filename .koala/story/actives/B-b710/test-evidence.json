@@ -1,0 +1,136 @@
+{
+  "command": "koala validate --story=B-b710 --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"fail\",\"allPass\":false,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery; verification coverage missing 6 required intent(s)\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.5 test\",\"  > npm run test:e2e\",\"  > koala@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 0/6 covered (6 required missing)\",\"  ✗ CHK-001:happy:0 [happy/must/cli] stale via integration_test (packages/main/src/tasks/authority-status-smoke.ts) — Off mode status says local workflow is usable and production authority is disabled.\",\"  ✗ CHK-001:edge:0 [edge/must/cli] stale via integration_test (packages/main/src/tasks/authority-status-smoke.ts) — Shadow/enforce with missing URL or actor key reports actionable readiness gaps without writing receipts.\",\"  ✗ CHK-001:adversarial:0 [adversarial/must/logic] stale via logic_test (packages/main/src/tasks/authority-status-smoke.ts) — No status/readiness path can claim productionDone or receiptVerified without verified receipt input.\",\"  ✗ CHK-002:happy:0 [happy/must/docs] stale via docs_check (README.md) — Docs include local/off, shadow, and enforce runner meanings plus commands to inspect status.\",\"  ✗ CHK-002:edge:0 [edge/must/docs] stale via docs_check (docs/guide.md) — Docs do not imply paid/server authority is required for normal local story development.\",\"  ✗ CHK-002:adversarial:0 [adversarial/must/docs] stale via docs_check (docs/requirements/decisions/authority-client-role.md) — Docs do not say local JSON or status output can satisfy production authority gates.\"],\"warnings\":[],\"timestamp\":\"2026-06-02T17:33:03.091Z\",\"headSha\":\"d848a298f885209eaf07f2a250627ed5f3328db0\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1770}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"express\",\"intentCount\":6,\"reason\":\"verificationIntent entries present (6)\"},\"verificationCoverage\":{\"total\":6,\"required\":6,\"covered\":0,\"missingRequired\":6,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Off mode status says local workflow is usable and production authority is disabled.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/authority-status-smoke.ts\",\"command\":\"npm run test:authority-status-smoke\",\"result\":\"pass\",\"note\":\"Off-mode status smoke and direct CLI check assert mode=off, localWorkflowUsable=true, productionDone=false, receiptVerified=false, canClaimProductionDone=false, and no readinessWarnings.\",\"headHash\":\"5538d3a8f32e4ef3333a39612c86b40a8dd614f3\",\"materialHash\":\"9c94c657e7f9eed06d05ded04897ae541dbe6d324998a052b697b73d32e89368\",\"timestamp\":\"2026-06-02T17:32:28.258Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Shadow/enforce with missing URL or actor key reports actionable readiness gaps without writing receipts.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/authority-status-smoke.ts\",\"command\":\"npm run test:authority-status-smoke\",\"result\":\"pass\",\"note\":\"Shadow with missing URL and enforce with missing URL/actor key/runner id emit actionable readinessWarnings and nextActions while keeping localWorkflowUsable=true and productionDone=false; direct enforce CLI JSON was also spot-checked.\",\"headHash\":\"5538d3a8f32e4ef3333a39612c86b40a8dd614f3\",\"materialHash\":\"9c94c657e7f9eed06d05ded04897ae541dbe6d324998a052b697b73d32e89368\",\"timestamp\":\"2026-06-02T17:32:28.258Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"No status/readiness path can claim productionDone or receiptVerified without verified receipt input.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/authority-status-smoke.ts\",\"command\":\"npm run test:authority-status-smoke\",\"result\":\"pass\",\"note\":\"assertNoProductionOverclaim walks authority_status, conduit_status, and conduit_explain JSON responses for off/shadow/enforce/full-env states and fails if productionDone, receiptVerified, canClaimProductionDone, or authorityChanged becomes true without verified receipt.\",\"headHash\":\"5538d3a8f32e4ef3333a39612c86b40a8dd614f3\",\"materialHash\":\"9c94c657e7f9eed06d05ded04897ae541dbe6d324998a052b697b73d32e89368\",\"timestamp\":\"2026-06-02T17:32:28.258Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"Docs include local/off, shadow, and enforce runner meanings plus commands to inspect status.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"docs_check\",\"file\":\"README.md\",\"command\":\"npm run test:authority-status-smoke\",\"result\":\"pass\",\"note\":\"README, docs/guide.md, and authority-client-role.md document off/shadow/enforce meanings, status inspection commands, and prerequisite fields; smoke checks the CLI JSON fields those docs describe.\",\"headHash\":\"5538d3a8f32e4ef3333a39612c86b40a8dd614f3\",\"materialHash\":\"9c94c657e7f9eed06d05ded04897ae541dbe6d324998a052b697b73d32e89368\",\"timestamp\":\"2026-06-02T17:32:28.258Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Docs do not imply paid/server authority is required for normal local story development.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"docs_check\",\"file\":\"docs/guide.md\",\"command\":\"npm run test:authority-status-smoke\",\"result\":\"pass\",\"note\":\"Docs explicitly state off is the default free/local workflow and shadow/enforce readiness gaps are warnings, not requirements for ordinary local story development.\",\"headHash\":\"5538d3a8f32e4ef3333a39612c86b40a8dd614f3\",\"materialHash\":\"9c94c657e7f9eed06d05ded04897ae541dbe6d324998a052b697b73d32e89368\",\"timestamp\":\"2026-06-02T17:32:28.258Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Docs do not say local JSON or status output can satisfy production authority gates.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/authority-client-role.md\",\"command\":\"npm run test:authority-status-smoke\",\"result\":\"pass\",\"note\":\"B-b710 authority-client-role section explicitly states local JSON/status output is non-authoritative; productionDone and receiptVerified stay false until a future verified AuthorityReceipt path exists, mechanically guarded by authority-status-smoke.\",\"headHash\":\"5538d3a8f32e4ef3333a39612c86b40a8dd614f3\",\"materialHash\":\"9c94c657e7f9eed06d05ded04897ae541dbe6d324998a052b697b73d32e89368\",\"timestamp\":\"2026-06-02T17:32:28.258Z\"}}]}}",
+  "result": "FAIL",
+  "timestamp": "2026-06-02T17:33:03.450Z",
+  "headHash": "d848a298f885209eaf07f2a250627ed5f3328db0",
+  "materialHash": "5e99c14a5bd7bd7660103e46025b4ab9f388bf68bf0c799835b2c26fb0cd2025",
+  "verificationCoverage": {
+    "total": 6,
+    "required": 6,
+    "covered": 0,
+    "missingRequired": 6,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "Off mode status says local workflow is usable and production authority is disabled.",
+        "type": "cli",
+        "priority": "must",
+        "status": "stale",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/authority-status-smoke.ts",
+          "command": "npm run test:authority-status-smoke",
+          "result": "pass",
+          "note": "Off-mode status smoke and direct CLI check assert mode=off, localWorkflowUsable=true, productionDone=false, receiptVerified=false, canClaimProductionDone=false, and no readinessWarnings.",
+          "headHash": "5538d3a8f32e4ef3333a39612c86b40a8dd614f3",
+          "materialHash": "9c94c657e7f9eed06d05ded04897ae541dbe6d324998a052b697b73d32e89368",
+          "timestamp": "2026-06-02T17:32:28.258Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Shadow/enforce with missing URL or actor key reports actionable readiness gaps without writing receipts.",
+        "type": "cli",
+        "priority": "must",
+        "status": "stale",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/authority-status-smoke.ts",
+          "command": "npm run test:authority-status-smoke",
+          "result": "pass",
+          "note": "Shadow with missing URL and enforce with missing URL/actor key/runner id emit actionable readinessWarnings and nextActions while keeping localWorkflowUsable=true and productionDone=false; direct enforce CLI JSON was also spot-checked.",
+          "headHash": "5538d3a8f32e4ef3333a39612c86b40a8dd614f3",
+          "materialHash": "9c94c657e7f9eed06d05ded04897ae541dbe6d324998a052b697b73d32e89368",
+          "timestamp": "2026-06-02T17:32:28.258Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "No status/readiness path can claim productionDone or receiptVerified without verified receipt input.",
+        "type": "logic",
+        "priority": "must",
+        "status": "stale",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-status-smoke.ts",
+          "command": "npm run test:authority-status-smoke",
+          "result": "pass",
+          "note": "assertNoProductionOverclaim walks authority_status, conduit_status, and conduit_explain JSON responses for off/shadow/enforce/full-env states and fails if productionDone, receiptVerified, canClaimProductionDone, or authorityChanged becomes true without verified receipt.",
+          "headHash": "5538d3a8f32e4ef3333a39612c86b40a8dd614f3",
+          "materialHash": "9c94c657e7f9eed06d05ded04897ae541dbe6d324998a052b697b73d32e89368",
+          "timestamp": "2026-06-02T17:32:28.258Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "Docs include local/off, shadow, and enforce runner meanings plus commands to inspect status.",
+        "type": "docs",
+        "priority": "must",
+        "status": "stale",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "README.md",
+          "command": "npm run test:authority-status-smoke",
+          "result": "pass",
+          "note": "README, docs/guide.md, and authority-client-role.md document off/shadow/enforce meanings, status inspection commands, and prerequisite fields; smoke checks the CLI JSON fields those docs describe.",
+          "headHash": "5538d3a8f32e4ef3333a39612c86b40a8dd614f3",
+          "materialHash": "9c94c657e7f9eed06d05ded04897ae541dbe6d324998a052b697b73d32e89368",
+          "timestamp": "2026-06-02T17:32:28.258Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Docs do not imply paid/server authority is required for normal local story development.",
+        "type": "docs",
+        "priority": "must",
+        "status": "stale",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "docs/guide.md",
+          "command": "npm run test:authority-status-smoke",
+          "result": "pass",
+          "note": "Docs explicitly state off is the default free/local workflow and shadow/enforce readiness gaps are warnings, not requirements for ordinary local story development.",
+          "headHash": "5538d3a8f32e4ef3333a39612c86b40a8dd614f3",
+          "materialHash": "9c94c657e7f9eed06d05ded04897ae541dbe6d324998a052b697b73d32e89368",
+          "timestamp": "2026-06-02T17:32:28.258Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Docs do not say local JSON or status output can satisfy production authority gates.",
+        "type": "docs",
+        "priority": "must",
+        "status": "stale",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/authority-client-role.md",
+          "command": "npm run test:authority-status-smoke",
+          "result": "pass",
+          "note": "B-b710 authority-client-role section explicitly states local JSON/status output is non-authoritative; productionDone and receiptVerified stay false until a future verified AuthorityReceipt path exists, mechanically guarded by authority-status-smoke.",
+          "headHash": "5538d3a8f32e4ef3333a39612c86b40a8dd614f3",
+          "materialHash": "9c94c657e7f9eed06d05ded04897ae541dbe6d324998a052b697b73d32e89368",
+          "timestamp": "2026-06-02T17:32:28.258Z"
+        }
+      }
+    ]
+  }
+}
