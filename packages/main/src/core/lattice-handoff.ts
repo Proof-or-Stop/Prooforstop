@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { digestCanonical } from './authority-contracts.js';
 import { buildCapabilityProbe, type CapabilityCategory, type CapabilityStatus } from './capabilities.js';
 import { buildCanonicalStory, type CanonicalStory } from './canonical-story.js';
-import { checkEvidenceFreshnessForGit, currentGitHead } from './evidence-freshness.js';
+import { changedFilesBetween, checkEvidenceFreshnessForGit, currentGitHead } from './evidence-freshness.js';
 import { buildLatticeHostStatus, type LatticeHostStatus } from './lattice-hosts.js';
 import type { StoryStore } from './store.js';
 
@@ -225,6 +225,7 @@ export interface HandoffReceiptSubmission {
     packHash: 'pass' | 'fail';
     baseSha: 'pass' | 'warn' | 'fail';
     headSha: 'pass' | 'warn' | 'fail';
+    headCommit: 'pass' | 'warn' | 'fail';
     changedFiles: HandoffScopeStatus;
   };
   changedFiles: string[];
@@ -750,6 +751,12 @@ function evaluateScope(changedFiles: string[], allowedPaths: string[], deniedPat
   return { status: 'pass', warnings };
 }
 
+function mergeScopeStatuses(...statuses: HandoffScopeStatus[]): HandoffScopeStatus {
+  if (statuses.includes('fail')) return 'fail';
+  if (statuses.includes('warn')) return 'warn';
+  return 'pass';
+}
+
 function normalizeHandoffReceipt(value: HandoffReceipt): HandoffReceipt {
   return {
     ...value,
@@ -787,6 +794,53 @@ function resolveCommitSha(root: string, ref: string): string | undefined {
   }
 }
 
+function validateReceiptHeadCommit(
+  root: string,
+  receipt: HandoffReceipt,
+  resolvedBaseSha: string | undefined,
+  resolvedHeadSha: string | undefined,
+): {
+  validation: 'pass' | 'warn' | 'fail';
+  scopeStatus: HandoffScopeStatus;
+  warnings: string[];
+} {
+  if (!receipt.baseSha || !receipt.headSha) {
+    return { validation: 'warn', scopeStatus: 'warn', warnings: [] };
+  }
+  if (!resolvedBaseSha || !resolvedHeadSha) {
+    return { validation: 'fail', scopeStatus: 'warn', warnings: [] };
+  }
+  let diffChangedFiles: string[];
+  try {
+    diffChangedFiles = normalizeOrderedStrings(changedFilesBetween(root, resolvedBaseSha, resolvedHeadSha));
+  } catch {
+    return {
+      validation: 'fail',
+      scopeStatus: 'warn',
+      warnings: [
+        `Receipt baseSha ${receipt.baseSha} and headSha ${receipt.headSha} could not be compared via git diff.`,
+      ],
+    };
+  }
+  const diffScope = evaluateScope(diffChangedFiles, receipt.allowedPaths, receipt.deniedPaths);
+  const warnings = diffScope.warnings.map(warning => `headSha diff: ${warning}`);
+  const missingReceiptFiles = receipt.changedFiles.filter(file => !diffChangedFiles.includes(file));
+  if (missingReceiptFiles.length > 0) {
+    warnings.push(
+      `Receipt changedFiles are not represented in git diff ${resolvedBaseSha.slice(0, 7)}..${resolvedHeadSha.slice(0, 7)}: ${missingReceiptFiles.join(', ')}`,
+    );
+  }
+  const validation =
+    missingReceiptFiles.length > 0 || diffScope.status === 'fail' ? 'fail'
+      : diffScope.status === 'warn' ? 'warn'
+        : 'pass';
+  return {
+    validation,
+    scopeStatus: diffScope.status,
+    warnings,
+  };
+}
+
 export function readHandoffReceipt(file: string): HandoffReceipt {
   const parsed = JSON.parse(readFileSync(file, 'utf8')) as HandoffReceipt;
   if (parsed.schemaVersion !== 'lattice.handoff_receipt.v1') {
@@ -798,16 +852,23 @@ export function readHandoffReceipt(file: string): HandoffReceipt {
 export function submitHandoffReceipt(root: string, receipt: HandoffReceipt): HandoffReceiptSubmission {
   const normalized = normalizeHandoffReceipt(receipt);
   const expectedPackHash = computeHandoffPackHash(normalized);
-  const scope = evaluateScope(normalized.changedFiles, normalized.allowedPaths, normalized.deniedPaths);
+  const receiptScope = evaluateScope(normalized.changedFiles, normalized.allowedPaths, normalized.deniedPaths);
   const freshnessResult = normalized.baseSha
     ? checkEvidenceFreshnessForGit(root, normalized.baseSha)
     : { fresh: false, reason: 'receipt is missing baseSha', changedFiles: [], materialFiles: [] };
-  const warnings = [...scope.warnings];
+  const warnings = receiptScope.warnings.map(warning => `receipt changedFiles: ${warning}`);
   if (!normalized.baseSha) warnings.push('Receipt is missing baseSha, so freshness cannot be trusted.');
   else if (!freshnessResult.fresh) warnings.push(freshnessResult.reason);
+  const resolvedBaseSha = normalized.baseSha ? resolveCommitSha(root, normalized.baseSha) : undefined;
+  if (normalized.baseSha && !resolvedBaseSha) {
+    warnings.push(`Receipt baseSha ${normalized.baseSha} could not be resolved to a local git commit, so headSha diff proof could not be computed.`);
+  }
   const resolvedHeadSha = normalized.headSha ? resolveCommitSha(root, normalized.headSha) : undefined;
   if (!normalized.headSha) warnings.push('Receipt is missing headSha, so the overflow result cannot be tied to a concrete worker commit.');
   else if (!resolvedHeadSha) warnings.push(`Receipt headSha ${normalized.headSha} could not be resolved to a local git commit.`);
+  const headCommitProof = validateReceiptHeadCommit(root, normalized, resolvedBaseSha, resolvedHeadSha);
+  warnings.push(...headCommitProof.warnings);
+  const scopeStatus = mergeScopeStatuses(receiptScope.status, headCommitProof.scopeStatus);
   const packIdPass = normalized.packId.length > 0;
   const packHashPass = normalized.packHash === expectedPackHash;
   const freshness = freshnessResult.fresh ? 'fresh' as const : 'stale' as const;
@@ -821,7 +882,8 @@ export function submitHandoffReceipt(root: string, receipt: HandoffReceipt): Han
     packHashPass &&
     baseShaValidation === 'pass' &&
     headShaValidation === 'pass' &&
-    scope.status === 'pass';
+    headCommitProof.validation === 'pass' &&
+    scopeStatus === 'pass';
   return {
     schemaVersion: 'lattice.handoff_receipt_submit.v1',
     status: acceptedLocal ? 'accepted-local' : 'diagnostic',
@@ -832,7 +894,7 @@ export function submitHandoffReceipt(root: string, receipt: HandoffReceipt): Han
     ...(normalized.baseSha ? { baseSha: normalized.baseSha } : {}),
     headSha: resolvedHeadSha ?? normalized.headSha,
     verdict: normalized.verdict,
-    scopeStatus: scope.status,
+    scopeStatus,
     freshness,
     authorityChanged: false,
     receiptVerified: false,
@@ -846,7 +908,8 @@ export function submitHandoffReceipt(root: string, receipt: HandoffReceipt): Han
       packHash: packHashPass ? 'pass' : 'fail',
       baseSha: baseShaValidation,
       headSha: headShaValidation,
-      changedFiles: scope.status,
+      headCommit: headCommitProof.validation,
+      changedFiles: scopeStatus,
     },
     changedFiles: normalized.changedFiles,
     commands: normalized.commands,

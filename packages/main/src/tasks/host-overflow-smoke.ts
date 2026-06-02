@@ -31,6 +31,28 @@ function git(root: string, args: string[]): string {
   }).trim();
 }
 
+function createBranchCommit(
+  root: string,
+  args: {
+    branch: string;
+    baseRef: string;
+    returnBranch: string;
+    files: Record<string, string>;
+    message: string;
+  },
+): string {
+  git(root, ['checkout', '-b', args.branch, args.baseRef]);
+  for (const [file, contents] of Object.entries(args.files)) {
+    mkdirSync(dirname(join(root, file)), { recursive: true });
+    writeFileSync(join(root, file), contents, 'utf8');
+  }
+  git(root, ['add', ...Object.keys(args.files)]);
+  git(root, ['commit', '-m', args.message]);
+  const sha = git(root, ['rev-parse', 'HEAD']);
+  git(root, ['checkout', args.returnBranch]);
+  return sha;
+}
+
 function writeConfig(root: string): void {
   writeFileSync(join(root, 'koala.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
@@ -154,6 +176,7 @@ try {
   const store = new StoryStore(root);
   seedStory(store);
   const head = git(root, ['rev-parse', 'HEAD']);
+  const ownerBranch = git(root, ['rev-parse', '--abbrev-ref', 'HEAD']);
 
   const claudeStatus = buildLatticeHostStatus('claude-code');
   assertClaudeCodeStatus(claudeStatus);
@@ -197,6 +220,24 @@ try {
   const cliPath = join(here, '..', 'cli.js');
   const packPath = join(root, 'handoff-pack.json');
   writeFileSync(packPath, JSON.stringify(pack, null, 2) + '\n', 'utf8');
+  const reviewedHead = createBranchCommit(root, {
+    branch: 'overflow-reviewed',
+    baseRef: head,
+    returnBranch: ownerBranch,
+    files: {
+      'packages/main/src/core/worker.ts': 'export const worker = "host-overflow-reviewed";\n',
+    },
+    message: 'overflow reviewed',
+  });
+  const unrelatedHead = createBranchCommit(root, {
+    branch: 'overflow-unrelated',
+    baseRef: head,
+    returnBranch: ownerBranch,
+    files: {
+      'other.txt': 'unrelated overflow result\n',
+    },
+    message: 'overflow unrelated',
+  });
 
   const worktree = JSON.parse(execFileSync(process.execPath, [
     cliPath,
@@ -272,7 +313,7 @@ try {
     successCriteria: pack.successCriteria,
     authorityBoundary: pack.authorityBoundary,
     executionInstructions: pack.executionInstructions,
-    headSha: head,
+    headSha: reviewedHead,
     changedFiles: ['packages/main/src/core/worker.ts'],
     commands: ['npm --prefix packages/main run build'],
     verdict: 'pass',
@@ -302,6 +343,7 @@ try {
   assert.equal(accepted.receiptVerified, false);
   assert.equal(accepted.productionDone, false);
   assert.equal(accepted.validations.headSha, 'pass');
+  assert.equal(accepted.validations.headCommit, 'pass');
 
   const invalidHeadReceiptPath = join(root, 'receipt-invalid-head.json');
   writeFileSync(invalidHeadReceiptPath, JSON.stringify({
@@ -323,7 +365,32 @@ try {
   })) as HandoffReceiptSubmission;
   assert.equal(invalidHead.status, 'diagnostic');
   assert.equal(invalidHead.validations.headSha, 'fail');
+  assert.equal(invalidHead.validations.headCommit, 'fail');
   assert.ok(invalidHead.warnings.some(warning => /could not be resolved/i.test(warning)));
+
+  const unrelatedHeadReceiptPath = join(root, 'receipt-unrelated-head.json');
+  writeFileSync(unrelatedHeadReceiptPath, JSON.stringify({
+    ...goodReceipt,
+    headSha: unrelatedHead,
+    limitations: ['unrelated existing headSha for smoke'],
+  }, null, 2) + '\n', 'utf8');
+  const unrelatedHeadReceipt = JSON.parse(execFileSync(process.execPath, [
+    cliPath,
+    '--root',
+    root,
+    'handoff_receipt_submit',
+    `--file=${unrelatedHeadReceiptPath}`,
+    '--json',
+  ], {
+    cwd: root,
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  })) as HandoffReceiptSubmission;
+  assert.equal(unrelatedHeadReceipt.status, 'diagnostic');
+  assert.equal(unrelatedHeadReceipt.validations.headSha, 'pass');
+  assert.equal(unrelatedHeadReceipt.validations.headCommit, 'fail');
+  assert.equal(unrelatedHeadReceipt.scopeStatus, 'fail');
+  assert.ok(unrelatedHeadReceipt.warnings.some(warning => /not represented in git diff/i.test(warning)));
 
   const badReceiptPath = join(root, 'receipt-bad.json');
   writeFileSync(badReceiptPath, JSON.stringify({
