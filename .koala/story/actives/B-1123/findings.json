@@ -31,6 +31,22 @@
       "files": [
         "packages/main/src/core/authority-runner-contracts.ts"
       ]
+    },
+    {
+      "id": "B-1123:F-003",
+      "desc": "quality-cleanup: authority-signing.ts:155-159 — second dead try-catch around Buffer.from(signature, \"base64\") in verifyCanonical(). Same Node.js behavior as F-001: Buffer.from(str, \"base64\") never throws; the catch block returning false is unreachable. Correctness is maintained by the sigBuf.length !== 64 check at line 160. The catch is harmless but adds misleading \"defensive\" code that cannot fire. Fix: remove the try-catch; the length guard alone is sufficient.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-02T17:37:37.712Z",
+      "reviewRound": "2026-06-02T17:33:25.988Z",
+      "reviewRunId": "B-1123:RR-002",
+      "_hash": "5326432c874bf5c8b2c3d6806b4845715ef1e5cb6a1f71ee3e3e64df26543452",
+      "files": [
+        "packages/main/src/core/authority-signing.ts"
+      ]
     }
   ]
 }
