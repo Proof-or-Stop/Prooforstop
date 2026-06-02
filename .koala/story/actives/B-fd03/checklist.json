@@ -263,7 +263,7 @@
         "docs/requirements/decisions/testing-completeness.md",
         "docs/requirements/decisions/lifecycle-artifact-scope.md"
       ],
-      "userSees": "用户在 TEST transcript 中看到 `Orchestrate: pass`, `plasmid: warn`, `minicell: warn`, `OpenCli: warn`, `avalon: warn`，以及 `transcript lifecycle readiness: pass`。",
+      "userSees": "用户在 TEST transcript 中看到真实 conservative 诊断：summary pass/warn/fail 以实际扫描为准（当前 real-project 记录为 pass=0、warn=3、fail=3），每个项目都有 status 与 nextAction；Orchestrate/外部项目的 warn/fail 被解释为 runtime、managed assets、git/story scope drift；同时看到 rollout_check readOnly=true、macAppRequired=false、transcript/story scope 字段。",
       "status": "done",
       "startTime": null,
       "endTime": "2026-06-02T15:36:02.329Z",
