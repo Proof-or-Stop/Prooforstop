@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-02T21:27:45.228Z",
       "reviewRunId": "B-5cdc:RR-004",
       "_hash": "a47697a161c12a3e2aa561baa8336693531ee0204b4a52d51db8851dc6b0500b"
+    },
+    {
+      "id": "B-5cdc:RP-003",
+      "agent": "koala-review-docs",
+      "note": "Related docs (authority-client-role.md, lattice-parallel-wave.md, verification-context-pack.md) not modified by this diff and do not need blocking updates. (1) The new authority_enforce_runner command stays inside the no-overclaim envelope already defined in authority-client-role.md: command output projects spawned:false / providerEvents:[] / localWorkflowUsable:true with a user-visible note (\"Dry-run only: planned runner register/heartbeat/claim steps; no network mutation and no provider execution.\"). command-policy.ts marks it readOnly/all-phases and process-fact-levels.ts records it L0/lattice-cli-read with explicit \"never submits evidence, claims jobs, registers actor keys, executes real providers, or verifies receipts\" rationale. (2) The fake-provider execution helper (executeFakeProviderJob) is only invoked from the smoke task; it is gated by provider==fake-provider + metadata.allowLocalCommand==true + runnerId/runId equality checks, none of which are exposed via lattice CLI. (3) CHK-001/CHK-002 verificationEvidence cites authority-enforce-runner-smoke.ts and authority-runner-events-smoke.ts which mechanically assert the boundaries (signed ProviderEventsEnvelope verification, adversarial provider/runner/runId mismatches rejected, command-ownership-contract + lifecycle-registry-contract coverage). (4) verification-context-pack.md is unaffected — no evidence-collector/context-pack code touched. (5) lattice-parallel-wave.md still accurately describes the wave/dispatch L0 diagnostics; the runner command is not a wave/dispatch surface. Advisory (non-blocking): a future story that consolidates the runner readiness pattern (or that lands M2+ real provider execution per authority-client-role.md PD-2 Milestone Routing) should add authority_enforce_runner to the README.md mode table (line 82 around authority_enforce_policy) and to the PD-2 milestone-sequence table so the doc enumerates both M1-shaped read-only stubs; the current story keeps the boundary in code/tests, so this is doc polish, not a missing promise.",
+      "createdAt": "2026-06-02T21:33:03.457Z",
+      "reviewRound": "2026-06-02T21:27:45.228Z",
+      "reviewRunId": "B-5cdc:RR-001",
+      "_hash": "5cc7c845398fb20563c7e888c32dc397dee81802606bce5f7deaf681d6474071"
     }
   ]
 }
