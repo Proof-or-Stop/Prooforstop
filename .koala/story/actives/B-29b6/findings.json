@@ -15,6 +15,23 @@
       "files": [
         "packages/main/src/core/lattice-parallel-wave.ts"
       ]
+    },
+    {
+      "id": "B-29b6:F-002",
+      "desc": "parallel_wave_create / parallel_wave_inspect / parallel_plan were added to MAIN_TOOLS and command-policy, but they are missing from DEFAULT_PHASE_TOOLS. With any active story, isCommandAllowed() rejects them, so the new CLI surfaces are unavailable in normal PLAN/DEV/REVIEW/TEST sessions despite allowedPhases=all. Add them to DEFAULT_PHASE_TOOLS[\"*\"] and cover the phase-gating path with a smoke test.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-02T05:31:48.195Z",
+      "reviewRound": "2026-06-02T05:27:19.493Z",
+      "reviewRunId": "B-29b6:RR-003",
+      "_hash": "762bac32720e4b484b4d9e98775a94a6fe6083f92ada1efef6129a59b64f2b4b",
+      "files": [
+        "packages/main/src/core/config.ts",
+        "packages/main/src/cli-engine.ts"
+      ]
     }
   ]
 }
