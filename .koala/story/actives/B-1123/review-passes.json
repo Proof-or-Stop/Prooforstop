@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-02T17:46:40.609Z",
       "reviewRunId": "B-1123:RR-004",
       "_hash": "db65e6d109dba637e9d05b6adf0790d6a3893ad4e86e5c4944e26e39590b59f9"
+    },
+    {
+      "id": "B-1123:RP-004",
+      "agent": "koala-review-concept",
+      "note": "Round 2 (2026-06-02T17:46:40.609Z) concept review pass — re-verified after F-001/F-002/F-003 quality fixes. Diff remains purely additive: (1) authority-boundary.ts UNCHANGED — single mechanical L2+ truth source preserved; (2) RUNNER_L2_REQUIREMENTS in authority-runner-contracts.ts is a parallel mirror with explicit comment about intentional redundancy with authority-boundary.AuthorityL2Requirement, NOT a rename or replacement; (3) runnerEnvelopeIsL2PlusCandidate adversarial gate still returns false for any signed-but-unbound CLI runner envelope (verified by contracts smoke test §7 — even fully-bound but receiptVerified=false fails, same-run producer/verifier collapse fails on independentVerifierRunId including whitespace-only diff); (4) createRunnerAuthorityClient off-mode and missing/whitespace URL refuses instantiation with zero network calls (verified by client smoke test §4-5, both loadRunnerAuthorityClient empty env + illegal mode env paths default to off); (5) discoverPolicy stays GET-only and overclaim guard rejects 2xx bodies with accepted/receipt/etc keys (client smoke §6-7 confirms zero hits to /v1/evidence, /v1/runners/register, jobs/claim, /keys, /provider-events); (6) lattice authority_status output still shows status:not-configured, productionDone:false, receiptVerified:false, canClaimProductionDone:false; (7) F-001/F-002/F-003 fixes (dead try-catch removal in decodeBase64Bytes/verifyCanonical, import merge in authority-runner-contracts) are cleanup with no concept implications — length-check validity gates unchanged, signing invariants preserved, both smoke tests still pass; (8) OQ-1 PD-2 boundary resolution honored — no production runner command, no provider CLI execution, no verifier evidence submitted as L2+, no DONE gate promotion. Story scope = milestones 1-2 typed contract + signing + client foundation only. No real concept blockers.",
+      "createdAt": "2026-06-02T17:53:06.159Z",
+      "reviewRound": "2026-06-02T17:46:40.609Z",
+      "reviewRunId": "B-1123:RR-005",
+      "_hash": "1c9ab345896d2dc3363219551734868f9b0f1a13b37506e3f0d1553591988bde"
     }
   ]
 }
