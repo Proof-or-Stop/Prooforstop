@@ -11,7 +11,40 @@
       "userSees": "Docs explain how to use Parallel Dispatch without confusing it with agent auto-spawn or authority evidence.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-parallel-wave.md",
+          "docs/requirements/decisions/dev-memory.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lattice-parallel-wave-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Docs list parallel_dispatch, parallel_status, parallel_merge_queue, and parallel_report as read-only operator surfaces and state their user-facing purpose.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Docs explicitly say the project public experience library is the existing dev-memory project/global JSONL storage and no duplicate story/history memory store is introduced.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Docs explicitly say dispatch/status/merge/report and dev-memory refs cannot satisfy REVIEW, TEST, DONE, delivery, receipt, or production authority gates and do not auto-spawn agents.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
