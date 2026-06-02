@@ -47,7 +47,16 @@
     ".claude/agents/**"
   ],
   "scopeChangeReason": "Initialize Host Overflow scope from PLAN file declarations; protect authority/lifecycle source docs from accidental semantic drift.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Allow finding_resolve to persist concrete resolution evidence notes required by this review-fix workflow.",
+      "timestamp": "2026-06-02T21:55:05.960Z",
+      "paths": [
+        "packages/main/src/handlers/finding.ts"
+      ]
+    }
+  ],
   "createdAt": "2026-06-02T21:02:42.250Z",
-  "updatedAt": "2026-06-02T21:29:09.203Z"
+  "updatedAt": "2026-06-02T21:55:05.960Z"
 }
