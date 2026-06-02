@@ -189,7 +189,7 @@ try {
     storyId: 'B-handoff',
     fromHost: 'codex',
     toHost: 'claude-code',
-    format: 'json',
+    json: true,
   }) as HandoffPack);
 
   const here = dirname(fileURLToPath(import.meta.url));
@@ -198,11 +198,13 @@ try {
     cliPath,
     '--root',
     root,
-    'handoff_create',
+    'lattice',
+    'handoff',
+    'create',
     '--storyId=B-handoff',
     '--fromHost=codex',
     '--toHost=claude-code',
-    '--format=json',
+    '--json',
   ], {
     cwd: root,
     encoding: 'utf8',
@@ -241,9 +243,11 @@ try {
     cliPath,
     '--root',
     root,
-    'handoff_inspect',
+    'lattice',
+    'handoff',
+    'inspect',
     `--file=${outputPath}`,
-    '--format=json',
+    '--json',
   ], {
     cwd: root,
     encoding: 'utf8',
@@ -255,10 +259,12 @@ try {
     cliPath,
     '--root',
     root,
-    'handoff_accept',
+    'lattice',
+    'handoff',
+    'accept',
     `--file=${outputPath}`,
     '--acceptedByHost=claude-code',
-    '--format=json',
+    '--json',
   ], {
     cwd: root,
     encoding: 'utf8',
@@ -290,16 +296,18 @@ try {
     cliPath,
     '--root',
     root,
-    'handoff_resume',
+    'lattice',
+    'handoff',
+    'resume',
     `--file=${acceptPath}`,
-    '--format=json',
+    '--json',
   ], {
     cwd: root,
     encoding: 'utf8',
     stdio: ['pipe', 'pipe', 'pipe'],
   });
   assertResumeProjection(JSON.parse(resumeStdout) as HandoffResumeProjection);
-  assertResumeProjection(registry.get('handoff_resume')!({ file: outputPath, format: 'json' }) as HandoffResumeProjection);
+  assertResumeProjection(registry.get('handoff_resume')!({ file: outputPath, json: true }) as HandoffResumeProjection);
 } finally {
   rmSync(root, { recursive: true, force: true });
 }

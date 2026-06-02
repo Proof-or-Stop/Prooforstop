@@ -20,12 +20,17 @@ const repoRoot = join(here, '..', '..', '..', '..');
 const COMMANDS = [
   'host_list',
   'host_probe',
+  'host_status',
   'host_install',
   'lattice_config_doctor',
   'rollout_check',
   'authority_status',
   'conduit_status',
   'conduit_explain',
+  'handoff_create',
+  'handoff_receipt_submit',
+  'handoff_worktree_create',
+  'host_dispatch',
 ] as const;
 
 function runCli(args: string[], env: Record<string, string | undefined> = {}): string {
@@ -99,6 +104,15 @@ for (const command of COMMANDS) {
   assert.ok(MAIN_TOOLS.some(tool => tool.name === command), `MAIN_TOOLS exposes ${command}`);
   assert.equal(isCommandAllowed(command, 'DEV'), true, `${command} is allowed during active DEV`);
   assert.equal(getCommandLifecyclePolicy(command)?.ownershipClass, 'readOnly', `${command} is read-only`);
+}
+for (const alias of [
+  'lattice host status',
+  'lattice host dispatch',
+  'lattice handoff create',
+  'lattice handoff receipt submit',
+  'lattice handoff worktree create',
+] as const) {
+  assert.match(help, new RegExp(alias.replace(/\s+/g, '\\s+')), `help exposes alias ${alias}`);
 }
 
 const storyCreateHelp = runCli(['story_create', '--help']);
@@ -180,6 +194,12 @@ for (const [category, authorityImpact] of [
   assert.equal(degradation.authorityImpact, authorityImpact, `codex ${category} authority impact is explicit`);
 }
 assertNoProductionOverclaim(hostProbeAlias, 'lattice host probe');
+
+const hostStatusAlias = runJson<any>(['lattice', 'host', 'status', '--host=claude-code', '--json']);
+assert.equal(hostStatusAlias.schemaVersion, 'lattice.host_status.v1');
+assert.equal(hostStatusAlias.host, 'claude-code');
+assert.equal(hostStatusAlias.overflowReady, true);
+assertNoProductionOverclaim(hostStatusAlias, 'lattice host status');
 
 const desktopProbe = runJson<any>(['host_probe', '--host=desktop-app', '--format=json']);
 assert.equal(desktopProbe.schemaVersion, 'lattice.host_probe.v1');

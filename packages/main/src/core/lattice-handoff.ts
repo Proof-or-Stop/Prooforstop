@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { digestCanonical } from './authority-contracts.js';
 import { buildCapabilityProbe, type CapabilityCategory, type CapabilityStatus } from './capabilities.js';
@@ -223,7 +224,7 @@ export interface HandoffReceiptSubmission {
     packId: 'pass' | 'fail';
     packHash: 'pass' | 'fail';
     baseSha: 'pass' | 'warn' | 'fail';
-    headSha: 'pass' | 'warn';
+    headSha: 'pass' | 'warn' | 'fail';
     changedFiles: HandoffScopeStatus;
   };
   changedFiles: string[];
@@ -774,6 +775,18 @@ function normalizeHandoffReceipt(value: HandoffReceipt): HandoffReceipt {
   };
 }
 
+function resolveCommitSha(root: string, ref: string): string | undefined {
+  try {
+    return execFileSync('git', ['rev-parse', '--verify', `${ref}^{commit}`], {
+      cwd: root,
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+  } catch {
+    return undefined;
+  }
+}
+
 export function readHandoffReceipt(file: string): HandoffReceipt {
   const parsed = JSON.parse(readFileSync(file, 'utf8')) as HandoffReceipt;
   if (parsed.schemaVersion !== 'lattice.handoff_receipt.v1') {
@@ -792,12 +805,17 @@ export function submitHandoffReceipt(root: string, receipt: HandoffReceipt): Han
   const warnings = [...scope.warnings];
   if (!normalized.baseSha) warnings.push('Receipt is missing baseSha, so freshness cannot be trusted.');
   else if (!freshnessResult.fresh) warnings.push(freshnessResult.reason);
+  const resolvedHeadSha = normalized.headSha ? resolveCommitSha(root, normalized.headSha) : undefined;
   if (!normalized.headSha) warnings.push('Receipt is missing headSha, so the overflow result cannot be tied to a concrete worker commit.');
+  else if (!resolvedHeadSha) warnings.push(`Receipt headSha ${normalized.headSha} could not be resolved to a local git commit.`);
   const packIdPass = normalized.packId.length > 0;
   const packHashPass = normalized.packHash === expectedPackHash;
   const freshness = freshnessResult.fresh ? 'fresh' as const : 'stale' as const;
   const baseShaValidation = normalized.baseSha ? (freshnessResult.fresh ? 'pass' as const : 'fail' as const) : 'warn' as const;
-  const headShaValidation = normalized.headSha ? 'pass' as const : 'warn' as const;
+  const headShaValidation =
+    !normalized.headSha ? 'warn' as const
+      : resolvedHeadSha ? 'pass' as const
+        : 'fail' as const;
   const acceptedLocal =
     packIdPass &&
     packHashPass &&
@@ -812,7 +830,7 @@ export function submitHandoffReceipt(root: string, receipt: HandoffReceipt): Han
     packId: normalized.packId,
     packHash: normalized.packHash,
     ...(normalized.baseSha ? { baseSha: normalized.baseSha } : {}),
-    headSha: normalized.headSha,
+    headSha: resolvedHeadSha ?? normalized.headSha,
     verdict: normalized.verdict,
     scopeStatus: scope.status,
     freshness,

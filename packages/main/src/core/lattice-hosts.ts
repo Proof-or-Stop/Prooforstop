@@ -269,18 +269,18 @@ function nextActionForStatus(
 ): string {
   if (!overflowReady) {
     if (probe.host === 'local-runner') {
-      return 'Use local-runner only for delegated verification commands; choose claude-code or codex for overflow edits.';
+      return 'Use local-runner only for delegated verification commands; choose an editing host with file-edit, shell/pty, test-execution, and approval support for overflow work.';
     }
     if (probe.host === 'browser') {
-      return 'Use browser as a verification companion only; choose claude-code or codex for overflow edits.';
+      return 'Use browser as a verification companion only; choose an editing host with file-edit, shell/pty, test-execution, and approval support for overflow work.';
     }
     if (probe.host === 'desktop-app') {
-      return 'Keep the desktop app as an optional dashboard/archive surface; choose claude-code or codex for overflow execution.';
+      return 'Keep the desktop app as an optional dashboard/archive surface; choose an editing host with file-edit, shell/pty, test-execution, and approval support for overflow execution.';
     }
     if (probe.host === 'server') {
       return 'Keep server responsibilities on authority/orchestration; choose a local editing host for overflow execution.';
     }
-    return 'Run lattice host list --format=json, then choose a known editing host such as claude-code or codex.';
+    return 'Run lattice host list --format=json, then choose a host whose profile exposes file-edit, shell/pty, test-execution, and approval support.';
   }
   if (status === 'degraded') {
     return 'Manual-first overflow is possible, but inspect the visible limits before dispatching work and keep review/merge authority in Lattice.';
@@ -288,20 +288,25 @@ function nextActionForStatus(
   return 'Manual-first overflow is ready: create a handoff pack, project an isolated overflow worktree, then review any receipt locally before merging.';
 }
 
-function hostStatusForProbe(probe: CapabilityProbe): Omit<LatticeHostStatus, 'schemaVersion' | 'product' | 'productionDone' | 'receiptVerified' | 'probe'> {
+function worktreeStatusForHost(profile: HostProfile): CapabilityStatus {
+  const shell = capabilityStatus(profile, 'shell/pty');
+  return shell === 'available' ? 'available' : shell === 'conditional' ? 'conditional' : 'unavailable';
+}
+
+export function buildLatticeHostStatusFromProbe(probe: CapabilityProbe): LatticeHostStatus {
   const edit = capabilityStatus(probe.profile, 'file-edit');
   const shell = capabilityStatus(probe.profile, 'shell/pty');
   const test = capabilityStatus(probe.profile, 'test-execution');
-  const worktree = shell === 'available' ? 'available' : shell === 'conditional' ? 'conditional' : 'unavailable';
+  const worktree = worktreeStatusForHost(probe.profile);
   const review = capabilityStatus(probe.profile, 'approval');
   const receiptCapability = capabilityStatus(probe.profile, 'receipt-verify');
-  const preferredExecutionHost = probe.host === 'claude-code' || probe.host === 'codex';
   const overflowReady =
-    preferredExecutionHost &&
     edit !== 'unavailable' &&
     shell !== 'unavailable' &&
     test !== 'unavailable' &&
-    probe.host !== 'unknown/fallback';
+    worktree !== 'unavailable' &&
+    review !== 'unavailable' &&
+    !probe.matchedFallback;
   let status: LatticeHostStatus['status'] = overflowReady ? 'ready' : 'unavailable';
   if (
     overflowReady &&
@@ -316,6 +321,8 @@ function hostStatusForProbe(probe: CapabilityProbe): Omit<LatticeHostStatus, 'sc
     status = 'degraded';
   }
   return {
+    schemaVersion: 'lattice.host_status.v1',
+    product: PRODUCT,
     host: probe.host,
     requestedHost: probe.requestedHost,
     matchedFallback: probe.matchedFallback,
@@ -332,20 +339,14 @@ function hostStatusForProbe(probe: CapabilityProbe): Omit<LatticeHostStatus, 'sc
     },
     limits: readinessLimitsForProbe(probe),
     warnings: readinessWarningsForProbe(probe),
-  };
-}
-
-export function buildLatticeHostStatus(host: string): LatticeHostStatus {
-  const probe = buildLatticeCapabilityProbe(host);
-  const summary = hostStatusForProbe(probe);
-  return {
-    schemaVersion: 'lattice.host_status.v1',
-    product: PRODUCT,
-    ...summary,
     productionDone: false,
     receiptVerified: false,
     probe,
   };
+}
+
+export function buildLatticeHostStatus(host: string): LatticeHostStatus {
+  return buildLatticeHostStatusFromProbe(buildLatticeCapabilityProbe(host));
 }
 
 function installStepsForHost(host: string): { summary: string; steps: string[]; commands: string[]; warnings: string[] } {

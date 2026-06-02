@@ -15,7 +15,8 @@ import {
   type HandoffWorktreeProjection,
   type HostDispatchProjection,
 } from '../core/lattice-handoff.js';
-import { buildLatticeHostStatus, type LatticeHostStatus } from '../core/lattice-hosts.js';
+import type { CapabilityProbe } from '../core/capabilities.js';
+import { buildLatticeHostStatus, buildLatticeHostStatusFromProbe, type LatticeHostStatus } from '../core/lattice-hosts.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
 import type { HandlerContext } from '../handlers/context.js';
@@ -94,6 +95,40 @@ function assertClaudeCodeStatus(result: LatticeHostStatus): void {
   assert.ok(result.nextAction.length > 0);
 }
 
+function buildSemanticEditingProbe(): CapabilityProbe {
+  return {
+    schemaVersion: 'koala.capability_probe.v1',
+    host: 'semantic-editor',
+    requestedHost: 'semantic-editor',
+    matchedFallback: false,
+    diagnosticOnly: true,
+    authorityRules: {
+      productionDoneRequiresReceipt: true,
+      receiptCapability: 'receipt-verify',
+      handoffCanManufactureProductionDone: false,
+    },
+    profile: {
+      id: 'semantic-editor',
+      label: 'Semantic editor',
+      summary: 'Synthetic editing profile used to verify overflow readiness follows capability semantics instead of host-id allowlists.',
+      capabilities: [
+        { category: 'file-edit', status: 'available', optional: false, note: 'Can edit files.' },
+        { category: 'patch-apply', status: 'conditional', optional: true, note: 'Patch support is optional.' },
+        { category: 'shell/pty', status: 'conditional', optional: true, note: 'Shell requires manual confirmation.' },
+        { category: 'test-execution', status: 'available', optional: true, note: 'Can run tests.' },
+        { category: 'browser-automation', status: 'unavailable', optional: true, note: 'No browser support.' },
+        { category: 'approval', status: 'available', optional: true, note: 'Can request approval.' },
+        { category: 'artifact-display', status: 'unavailable', optional: true, note: 'No artifact UI.' },
+        { category: 'evidence-submit', status: 'unavailable', optional: true, note: 'No evidence submit path.' },
+        { category: 'receipt-verify', status: 'unavailable', optional: true, note: 'No receipt verifier.' },
+        { category: 'multimodal-research', status: 'unavailable', optional: true, note: 'No multimodal tooling.' },
+      ],
+      degradations: [],
+    },
+    degradations: [],
+  };
+}
+
 function assertPack(pack: HandoffPack, head: string): void {
   assert.equal(pack.storyId, 'B-overflow');
   assert.equal(pack.fromHost, 'codex');
@@ -122,10 +157,16 @@ try {
 
   const claudeStatus = buildLatticeHostStatus('claude-code');
   assertClaudeCodeStatus(claudeStatus);
+  const semanticStatus = buildLatticeHostStatusFromProbe(buildSemanticEditingProbe());
+  assert.equal(semanticStatus.host, 'semantic-editor');
+  assert.equal(semanticStatus.overflowReady, true);
+  assert.equal(semanticStatus.status, 'degraded');
+  assert.equal(semanticStatus.readiness.shell, 'conditional');
+  assert.equal(semanticStatus.readiness.worktree, 'conditional');
   const runnerStatus = buildLatticeHostStatus('local-runner');
   assert.equal(runnerStatus.status, 'unavailable');
   assert.equal(runnerStatus.overflowReady, false);
-  assert.match(runnerStatus.nextAction, /choose claude-code or codex/i);
+  assert.match(runnerStatus.nextAction, /file-edit, shell\/pty, test-execution, and approval/i);
 
   const pack = createHandoffPack(store, root, {
     storyId: 'B-overflow',
@@ -150,7 +191,7 @@ try {
   assert.equal(registry.has('handoff_receipt_submit'), true);
   assert.equal(registry.has('handoff_worktree_create'), true);
   assert.equal(registry.has('host_dispatch'), true);
-  assertClaudeCodeStatus(registry.get('host_status')!({ host: 'claude-code', format: 'json' }) as LatticeHostStatus);
+  assertClaudeCodeStatus(registry.get('host_status')!({ host: 'claude-code', json: true }) as LatticeHostStatus);
 
   const here = dirname(fileURLToPath(import.meta.url));
   const cliPath = join(here, '..', 'cli.js');
@@ -161,9 +202,12 @@ try {
     cliPath,
     '--root',
     root,
-    'handoff_worktree_create',
+    'lattice',
+    'handoff',
+    'worktree',
+    'create',
     `--file=${packPath}`,
-    '--format=json',
+    '--json',
   ], {
     cwd: root,
     encoding: 'utf8',
@@ -183,11 +227,13 @@ try {
     cliPath,
     '--root',
     root,
-    'host_dispatch',
+    'lattice',
+    'host',
+    'dispatch',
     '--host=claude-code',
     `--file=${packPath}`,
     '--mode=supervised',
-    '--format=json',
+    '--json',
   ], {
     cwd: root,
     encoding: 'utf8',
@@ -239,9 +285,12 @@ try {
     cliPath,
     '--root',
     root,
-    'handoff_receipt_submit',
+    'lattice',
+    'handoff',
+    'receipt',
+    'submit',
     `--file=${goodReceiptPath}`,
-    '--format=json',
+    '--json',
   ], {
     cwd: root,
     encoding: 'utf8',
@@ -252,6 +301,29 @@ try {
   assert.equal(accepted.freshness, 'fresh');
   assert.equal(accepted.receiptVerified, false);
   assert.equal(accepted.productionDone, false);
+  assert.equal(accepted.validations.headSha, 'pass');
+
+  const invalidHeadReceiptPath = join(root, 'receipt-invalid-head.json');
+  writeFileSync(invalidHeadReceiptPath, JSON.stringify({
+    ...goodReceipt,
+    headSha: 'not-a-real-commit',
+    limitations: ['invalid headSha for smoke'],
+  }, null, 2) + '\n', 'utf8');
+  const invalidHead = JSON.parse(execFileSync(process.execPath, [
+    cliPath,
+    '--root',
+    root,
+    'handoff_receipt_submit',
+    `--file=${invalidHeadReceiptPath}`,
+    '--json',
+  ], {
+    cwd: root,
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  })) as HandoffReceiptSubmission;
+  assert.equal(invalidHead.status, 'diagnostic');
+  assert.equal(invalidHead.validations.headSha, 'fail');
+  assert.ok(invalidHead.warnings.some(warning => /could not be resolved/i.test(warning)));
 
   const badReceiptPath = join(root, 'receipt-bad.json');
   writeFileSync(badReceiptPath, JSON.stringify({
@@ -279,7 +351,7 @@ try {
     root,
     'handoff_receipt_submit',
     `--file=${staleReceiptPath}`,
-    '--format=json',
+    '--json',
   ], {
     cwd: root,
     encoding: 'utf8',

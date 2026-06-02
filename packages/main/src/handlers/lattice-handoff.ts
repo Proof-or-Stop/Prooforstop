@@ -22,6 +22,8 @@ import {
 } from '../core/lattice-handoff.js';
 import type { HandlerContext } from './context.js';
 
+type FormatArgs = { format?: 'text' | 'json'; json?: boolean };
+
 function writeJsonNoOverwrite(file: string, value: unknown): void {
   if (existsSync(file)) throw new Error(`refusing to overwrite existing file: ${file}`);
   mkdirSync(dirname(file), { recursive: true });
@@ -41,6 +43,10 @@ function readResumeSource(file: string): HandoffPack | HandoffAcceptProjection {
   throw new Error(`handoff_resume expected handoff-pack-v0 or koala.handoff_accept.v1, got ${String(schemaVersion)}`);
 }
 
+function wantsJson(args: FormatArgs | undefined): boolean {
+  return args?.format === 'json' || args?.json === true;
+}
+
 export function createLatticeHandoffHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
   return {
     handoff_create(args: {
@@ -58,6 +64,7 @@ export function createLatticeHandoffHandlers(ctx: HandlerContext): Record<string
       authorityBoundary?: string;
       executionInstructions?: string[] | string;
       format?: 'text' | 'json';
+      json?: boolean;
       output?: string;
     }) {
       const pack = createHandoffPack(ctx.store, ctx.root, {
@@ -79,7 +86,7 @@ export function createLatticeHandoffHandlers(ctx: HandlerContext): Record<string
         const outputPath = resolve(process.cwd(), args.output);
         writeJsonNoOverwrite(outputPath, pack);
       }
-      if (args.format === 'json') return pack;
+      if (wantsJson(args)) return pack;
       const outputNote = args.output ? `\noutput: ${args.output}` : '';
       return [
         `Handoff pack (${pack.schemaVersion})`,
@@ -99,16 +106,17 @@ export function createLatticeHandoffHandlers(ctx: HandlerContext): Record<string
         outputNote.trimEnd(),
       ].filter(Boolean).join('\n');
     },
-    handoff_inspect(args: { file: string; format?: 'text' | 'json' }) {
+    handoff_inspect(args: { file: string } & FormatArgs) {
       const pack = readHandoffPack(resolve(process.cwd(), args.file));
       const inspection = inspectHandoffPack(pack);
-      if (args.format === 'json') return inspection;
+      if (wantsJson(args)) return inspection;
       return renderHandoffInspectionText(inspection);
     },
     handoff_accept(args: {
       file: string;
       acceptedByHost?: string;
       format?: 'text' | 'json';
+      json?: boolean;
       output?: string;
     }) {
       const pack = readHandoffPack(resolve(process.cwd(), args.file));
@@ -117,7 +125,7 @@ export function createLatticeHandoffHandlers(ctx: HandlerContext): Record<string
         const outputPath = resolve(process.cwd(), args.output);
         writeJsonNoOverwrite(outputPath, projection);
       }
-      if (args.format === 'json') return projection;
+      if (wantsJson(args)) return projection;
       const outputNote = args.output ? `\noutput: ${args.output}` : '';
       return [renderHandoffAcceptText(projection), outputNote.trimEnd()].filter(Boolean).join('\n');
     },
@@ -125,6 +133,7 @@ export function createLatticeHandoffHandlers(ctx: HandlerContext): Record<string
       file: string;
       resumeHost?: string;
       format?: 'text' | 'json';
+      json?: boolean;
       output?: string;
     }) {
       const source = readResumeSource(resolve(process.cwd(), args.file));
@@ -133,13 +142,14 @@ export function createLatticeHandoffHandlers(ctx: HandlerContext): Record<string
         const outputPath = resolve(process.cwd(), args.output);
         writeJsonNoOverwrite(outputPath, projection);
       }
-      if (args.format === 'json') return projection;
+      if (wantsJson(args)) return projection;
       const outputNote = args.output ? `\noutput: ${args.output}` : '';
       return [renderHandoffResumeText(projection), outputNote.trimEnd()].filter(Boolean).join('\n');
     },
     handoff_receipt_submit(args: {
       file: string;
       format?: 'text' | 'json';
+      json?: boolean;
       output?: string;
     }) {
       const receipt = readHandoffReceipt(resolve(process.cwd(), args.file));
@@ -148,13 +158,14 @@ export function createLatticeHandoffHandlers(ctx: HandlerContext): Record<string
         const outputPath = resolve(process.cwd(), args.output);
         writeJsonNoOverwrite(outputPath, result);
       }
-      if (args.format === 'json') return result;
+      if (wantsJson(args)) return result;
       const outputNote = args.output ? `\noutput: ${args.output}` : '';
       return [renderHandoffReceiptSubmissionText(result), outputNote.trimEnd()].filter(Boolean).join('\n');
     },
     handoff_worktree_create(args: {
       file: string;
       format?: 'text' | 'json';
+      json?: boolean;
       output?: string;
     }) {
       const pack = readHandoffPack(resolve(process.cwd(), args.file));
@@ -163,7 +174,7 @@ export function createLatticeHandoffHandlers(ctx: HandlerContext): Record<string
         const outputPath = resolve(process.cwd(), args.output);
         writeJsonNoOverwrite(outputPath, result);
       }
-      if (args.format === 'json') return result;
+      if (wantsJson(args)) return result;
       const outputNote = args.output ? `\noutput: ${args.output}` : '';
       return [renderHandoffWorktreeProjectionText(result), outputNote.trimEnd()].filter(Boolean).join('\n');
     },
@@ -172,6 +183,7 @@ export function createLatticeHandoffHandlers(ctx: HandlerContext): Record<string
       file: string;
       mode?: 'supervised';
       format?: 'text' | 'json';
+      json?: boolean;
       output?: string;
     }) {
       const pack = readHandoffPack(resolve(process.cwd(), args.file));
@@ -180,7 +192,7 @@ export function createLatticeHandoffHandlers(ctx: HandlerContext): Record<string
         const outputPath = resolve(process.cwd(), args.output);
         writeJsonNoOverwrite(outputPath, result);
       }
-      if (args.format === 'json') return result;
+      if (wantsJson(args)) return result;
       const outputNote = args.output ? `\noutput: ${args.output}` : '';
       return [renderHostDispatchProjectionText(result), outputNote.trimEnd()].filter(Boolean).join('\n');
     },
