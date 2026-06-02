@@ -1,0 +1,78 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add explicit authority_enforce_runner once/dry-run command",
+      "context": "Add a supported command namespace that requires explicit invocation and never runs during normal local story commands. It should resolve authority settings, actor key, runner ID/session, register/heartbeat runner, and claim at most one job in once mode.",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-client-role.md",
+        "docs/requirements/decisions/lattice-parallel-wave.md",
+        "docs/requirements/decisions/verification-context-pack.md"
+      ],
+      "userSees": "用户运行 `lattice authority enforce runner --once --dry-run --json` 看到 planned register/heartbeat/claim steps and `spawned:false`/no provider execution in dry-run.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Dry-run runner command projects register/heartbeat/claim steps without network mutation or provider execution.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Missing URL/actor key in enforce runner mode fails with actionable error while local lifecycle commands remain usable.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Runner command cannot be invoked implicitly by verification_evidence_add or story_advance.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Execute claimed fake-provider jobs and emit signed provider events",
+      "context": "For tests and controlled headless mode, support fake/local command execution from JobSpec commandPreview/permissions; hash stdout/stderr transcript; send stdout/stderr/completed/failed provider events signed by runner actor key.",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-client-role.md",
+        "docs/requirements/decisions/lattice-parallel-wave.md",
+        "docs/requirements/decisions/verification-context-pack.md"
+      ],
+      "userSees": "Smoke transcript shows provider events: stdout_delta, completed with exitCode 0 and transcriptHash; failed command produces failed event and non-zero runner result.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Claimed allowed fake job emits stdout_delta and completed provider events with transcript hash.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Non-zero command emits failed provider event and releases/marks job according to contract.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Unleased or mismatched provider/run IDs are rejected by fake server/client tests before evidence submission.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

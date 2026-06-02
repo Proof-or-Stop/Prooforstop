@@ -1,0 +1,78 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add TS authority runner contracts and canonical signing helpers",
+      "context": "Mirror the Python/Mac runner envelope shape for actor key registration, runner register/heartbeat, job claim, job lease heartbeat/release, provider events, job specs, and authority receipts. Include canonical JSON digest/sign/verify helpers for Ed25519 without claiming ordinary CLI evidence is L2+.",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-client-role.md",
+        "docs/requirements/decisions/lattice-parallel-wave.md",
+        "docs/requirements/decisions/verification-context-pack.md"
+      ],
+      "userSees": "开发者运行 `npm run test:authority-runner-contracts` 看到 runner contract/signature smoke pass；普通 `lattice authority status --json` 仍显示 `receiptVerified:false` unless a verified receipt path is explicitly used.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Contract helpers sign and verify runner envelopes and job specs with deterministic canonical JSON bytes.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Invalid signatures, missing actor IDs, or same producer/verifier run bindings fail classification and verification.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Adding signing primitives does not promote ordinary local/shadow workflow submissions to receipt-backed L2+.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Extend AuthorityClient with runner endpoint methods",
+      "context": "Add typed, testable client calls for /v1/actors/{actorId}/keys, /v1/runners/register, /v1/runners/{runnerId}/heartbeat, /v1/runners/{runnerId}/jobs/claim, /v1/jobs/{jobId}/heartbeat, /v1/jobs/{jobId}/release, /v1/runs/{runId}/provider-events, and signed receipt response parsing.",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-client-role.md",
+        "docs/requirements/decisions/lattice-parallel-wave.md",
+        "docs/requirements/decisions/verification-context-pack.md"
+      ],
+      "userSees": "开发者运行 `npm run test:authority-runner-client` 看到 fake authority server captured each expected endpoint path exactly once with signed request bodies.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Client methods hit the expected authority endpoints and parse success responses.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "HTTP errors, malformed bodies, and missing authority URL remain controlled failures; off mode performs zero network calls.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Policy discovery still never POSTs evidence or runner mutations.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

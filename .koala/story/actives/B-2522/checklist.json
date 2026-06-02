@@ -1,0 +1,80 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Build signed full L2 evidence envelope and verify authority receipt metadata",
+      "context": "Use claimed JobSpec/VerificationContextPack/target data to create signed EvidenceEnvelope with run bindings, provider/model/vendor, commandDigest, transcriptHash, diffHash, coverage refs, handshake fields, runnerId/deviceId, and parse/verify receipt shape from authority response.",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-client-role.md",
+        "docs/requirements/decisions/lattice-parallel-wave.md",
+        "docs/requirements/decisions/verification-context-pack.md"
+      ],
+      "userSees": "E2E smoke shows `receiptVerified:true`, `klass:\"receipt-backed-l2-plus\"`, and evidence bound to distinct producer/verifier run IDs only when fake server receipt verification passes.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Enforce runner submits full signed L2 verifier envelope and classifies as receipt-backed only after receipt verification.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Same-run verifier, missing commandDigest/transcriptHash/diffHash, or receipt signature mismatch cannot classify as receipt-backed.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Transport accepted:true without verified receipt remains thin-client transport accepted and cannot pass production authority classification.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add local/off versus enforce E2E tests, docs, and Lattice parallel report evidence",
+      "context": "Run full smoke matrix: local/off lifecycle still works with no server; shadow warns but writes local; enforce missing server blocks runner only; enforce fake server success reaches receipt-backed classification. Record Lattice parallel_wave/plan/dispatch/report artifacts as non-authoritative scheduling evidence.",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-client-role.md",
+        "docs/requirements/decisions/lattice-parallel-wave.md",
+        "docs/requirements/decisions/verification-context-pack.md",
+        "README.md",
+        "docs/guide.md"
+      ],
+      "userSees": "Final transcript contains local/off PASS, shadow warning PASS, enforce fake-server receipt PASS, enforce no-server runner fail-closed, and `parallel_report` stating productionDone=false for planning artifacts.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Full test matrix passes and validates both local-only and server-backed enforce modes.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Gated live Python authority script is documented and skipped unless env vars are present.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Parallel Wave/dispatch/report artifacts remain non-authoritative and cannot satisfy DONE by themselves.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

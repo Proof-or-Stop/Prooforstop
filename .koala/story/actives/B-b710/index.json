@@ -1,0 +1,30 @@
+{
+  "storyId": "B-b710",
+  "name": "authority-enforce-local-mode-compat",
+  "title": "Milestones 3-4: preserve local/off compatibility while exposing enforce readiness",
+  "description": "Make the authority subsystem cold-readable for users who do not enable a paid/server-backed authority path: local/off remains fully usable, shadow/enforce readiness is explicit, and missing server/actor/runner inputs fail closed only inside enforce runner commands.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "high",
+  "source": "user-approved-authority-runner-roadmap",
+  "keywords": [
+    "authority",
+    "local-mode",
+    "enforce",
+    "status",
+    "paid-server"
+  ],
+  "createdAt": "2026-06-02T17:00:04.656Z",
+  "startedAt": "2026-06-02T17:00:04.656Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-02T17:00:04.667Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ]
+}

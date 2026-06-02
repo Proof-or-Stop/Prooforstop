@@ -1,0 +1,80 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add enforce readiness diagnostics without blocking local workflows",
+      "context": "Extend authority status/config output to show server URL, policy discovery, actor key availability, runner ID/session readiness, and explicit local/off fallback. Missing enforce prerequisites are warnings outside enforce runner commands.",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-client-role.md",
+        "docs/requirements/decisions/lattice-parallel-wave.md",
+        "docs/requirements/decisions/verification-context-pack.md"
+      ],
+      "userSees": "用户运行 `lattice authority status --json` 看到 `mode:\"off\"`, `localWorkflowUsable:true`, `productionDone:false`, and missing enforce prerequisites listed as readiness warnings, not global blockers.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Off mode status says local workflow is usable and production authority is disabled.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Shadow/enforce with missing URL or actor key reports actionable readiness gaps without writing receipts.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No status/readiness path can claim productionDone or receiptVerified without verified receipt input.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Document and test paid-server fallback semantics",
+      "context": "Update docs and smoke tests so users know local/off remains free/local, shadow is observational, enforce runner requires Python authority. Keep ordinary lifecycle gates local unless explicit receipt-backed enforcement is configured.",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-client-role.md",
+        "docs/requirements/decisions/lattice-parallel-wave.md",
+        "docs/requirements/decisions/verification-context-pack.md",
+        "README.md",
+        "docs/guide.md"
+      ],
+      "userSees": "README/guide explain: `KOALA_AUTHORITY_MODE=off` is default local workflow; `shadow` observes; `enforce` runner requires `KOALA_AUTHORITY_URL` and actor key setup.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Docs include local/off, shadow, and enforce runner meanings plus commands to inspect status.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Docs do not imply paid/server authority is required for normal local story development.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Docs do not say local JSON or status output can satisfy production authority gates.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
