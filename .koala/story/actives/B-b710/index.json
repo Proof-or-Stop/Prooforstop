@@ -4,7 +4,7 @@
   "title": "Milestones 3-4: preserve local/off compatibility while exposing enforce readiness",
   "description": "Make the authority subsystem cold-readable for users who do not enable a paid/server-backed authority path: local/off remains fully usable, shadow/enforce readiness is explicit, and missing server/actor/runner inputs fail closed only inside enforce runner commands.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "source": "user-approved-authority-runner-roadmap",
   "keywords": [
@@ -16,7 +16,7 @@
   ],
   "createdAt": "2026-06-02T17:00:04.656Z",
   "startedAt": "2026-06-02T17:00:04.656Z",
-  "endedAt": null,
+  "endedAt": "2026-06-02T18:08:59.044Z",
   "events": [
     {
       "phase": "INIT",
@@ -81,12 +81,15 @@
       "branch": "story/B-b710",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-02T18:08:59.044Z",
+      "branch": "story/B-b710",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-b710",
-    "branch": "story/B-b710",
-    "createdAt": "2026-06-02T17:02:35.295Z"
-  },
   "currentReviewRound": "2026-06-02T17:46:40.609Z"
 }
