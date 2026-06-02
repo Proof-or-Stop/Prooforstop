@@ -166,10 +166,12 @@
       "q": "plan.md CHK-001 DoneWhen treats wrong receipt subject (subjectKind/subjectId/subjectDigest binding mismatch) as a distinct non-receipt-backed case, but checklist CHK-001 userSees and verificationIntent.edge[0] only mention bad receipt signature, missing hashes, and same-run verifier. Should subject-binding mismatch be promoted to its own verificationIntent edge entry, or is it intentionally folded into receipt signature mismatch?",
       "evidence": "plan.md line 14 specifies subject binding check (subjectKind=evidence, subjectId=envelope.evidenceId, subjectDigest match). plan.md line 28 DoneWhen enumerates wrong receipt subject as a failure case. checklist CHK-001 verificationIntent.edge[0] reads only: Same-run verifier, missing commandDigest/transcriptHash/diffHash, or receipt signature mismatch cannot classify as receipt-backed.",
       "sourcePointers": [
-        ".koala/story/actives/B-2522/plan.md#chk-001",
-        ".koala/story/actives/B-2522/checklist.json#CHK-001",
-        "docs/requirements/decisions/authority-client-role.md#cold-read-definition-of-l2+-authority"
-      ]
+        "CHK-001",
+        ".koala/story/actives/B-2522/plan.md#CHK-001",
+        "docs/requirements/decisions/authority-client-role.md"
+      ],
+      "resolution": "Resolved by promoting receipt subject binding to explicit CHK-001 checklist text and edge verification intent: a signed AuthorityReceipt must bind subjectKind=evidence plus subjectId/subjectDigest to the exact evidence envelope, otherwise it cannot become receipt-backed L2+. This aligns with authority-client-role.md L2+ evidence boundary and the plan.md CHK-001 subject-binding step.",
+      "resolvedAt": "2026-06-02T21:55:51.948Z"
     }
   ]
 }
