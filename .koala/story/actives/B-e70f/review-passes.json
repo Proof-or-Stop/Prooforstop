@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-02T12:55:15.163Z",
       "reviewRunId": "B-e70f:RR-011",
       "_hash": "acbb492f1ebd7d9de6ab2e40e0da3a2e9220e7f85b4de7aad1cc204140c6ed53"
+    },
+    {
+      "id": "B-e70f:RP-006",
+      "agent": "koala-review-quality",
+      "note": "Reviewed merge-base diff for core/handler/CLI/docs projection changes plus story metadata. npm --prefix packages/main run build and test:lattice-parallel-wave-smoke both pass, git diff --check is clean, and the new parallel_dispatch/status/merge_queue/report surfaces remain read-only L0 projections with productionDone=false, authorityChanged=false, and receiptRefs=[]; no unrelated source/docs edits found.",
+      "createdAt": "2026-06-02T13:01:52.445Z",
+      "reviewRound": "2026-06-02T12:55:15.163Z",
+      "reviewRunId": "B-e70f:RR-009",
+      "_hash": "42e0bde745a65f7d07e39babf4b3cee03b1c2c3088fbb18d0e2bf3deb5e0e99f"
     }
   ]
 }
