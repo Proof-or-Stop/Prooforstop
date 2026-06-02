@@ -64,6 +64,26 @@
         ".koala/story/actives/B-fd03/checklist.json",
         ".koala/story/actives/B-fd03/evidence/rollout-transcript.md"
       ]
+    },
+    {
+      "id": "B-fd03:F-005",
+      "desc": "CHK-001 edge/adversarial docs evidence uses lattice-cli-migration-smoke, but that smoke test does not inspect README.md, docs/guide.md, or project-vision.md, leaving docs-only constraints under-covered.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-02T15:44:15.127Z",
+      "reviewRound": "2026-06-02T15:36:50.208Z",
+      "reviewRunId": "B-fd03:RR-003",
+      "_hash": "28023de27bd9a3b9f69e861fd99a32745440171ff1cc5363363ddea439021bdc",
+      "files": [
+        ".koala/story/actives/B-fd03/checklist.json",
+        "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+        "README.md",
+        "docs/guide.md",
+        "docs/requirements/decisions/project-vision.md"
+      ]
     }
   ]
 }
