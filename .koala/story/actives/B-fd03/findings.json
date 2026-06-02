@@ -36,7 +36,7 @@
       "desc": "README.md:45-53 and docs/guide.md:41-49 call this the local/global refresh flow, but they stop at lattice --version and never tell the user to verify the legacy koala alias. CHK-001 explicitly requires verifying lattice/koala versions, and the story background says stale koala-facing guidance after refresh is the rollout problem. As written, the docs cannot confirm that the alias also refreshed to 0.3.5. Add an explicit koala --version or equivalent alias verification step to the refresh flow.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-concept",
       "createdAt": "2026-06-02T15:44:13.601Z",
