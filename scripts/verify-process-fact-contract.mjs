@@ -2350,9 +2350,22 @@ function assertProcessFactRegistryContract(cliToolNames, policyEntries, configTe
 }
 
 /**
+ * @task B-f3db
+ * @checklist CHK-001
+ * @title transcript lifecycle artifact regression
+ * @type bugfix
+ * @priority high
+ * @description
+ *   Proves TEST transcript evidence is the only nested evidence path accepted
+ *   by lifecycle artifact scope classification.
+ * @changes
+ *   - [CHK-001] Assert evidence/transcript-diff.md passes scope as a lifecycle artifact
+ *   - [CHK-001] Assert nearby arbitrary evidence files remain out_of_scope
+ *
  * B-b9d0 CHK-001/CHK-002/CHK-005: mechanical evidence that the scope-contract
  * lifecycle-artifact classifier
  *   (a) accepts known story-scoped lifecycle artifacts under the story id,
+ *   (a2) accepts the narrow TEST transcript evidence relative path,
  *   (b) rejects arbitrary `.koala/foo.json` (i.e. no blanket `.koala/` pass),
  *   (c) rejects ordinary product source files when unacknowledged,
  *   (d) still passes runtime artifacts via the runtime-artifact registry.
@@ -2368,6 +2381,7 @@ async function assertLifecycleArtifactScopePolicy() {
   const requiredPolicyMarkers = [
     'isRuntimeArtifactPath',
     'classifyLifecycleArtifact',
+    'evidence/transcript-diff.md',
     'does not weaken product source scope enforcement',
     'arbitrary',
   ];
@@ -2418,6 +2432,7 @@ async function assertLifecycleArtifactScopePolicy() {
     '.koala/story/actives/B-scope/summary.json',
     '.koala/story/actives/B-scope/scope-contract.json',
     '.koala/story/actives/B-scope/process-events.jsonl',
+    '.koala/story/actives/B-scope/evidence/transcript-diff.md',
     'docs/story/actives/B-scope/plan.md',
   ];
   for (const file of lifecycleAccept) {
@@ -2446,6 +2461,8 @@ async function assertLifecycleArtifactScopePolicy() {
     '.koala/foo.json',
     '.koala/bar.txt',
     '.koala/secrets.json',
+    '.koala/story/actives/B-scope/evidence/notes.md',
+    '.koala/story/actives/B-scope/evidence/transcript-diff.txt',
     'packages/main/src/handlers/unrelated.ts',
     'src/handlers/random.ts',
   ];

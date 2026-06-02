@@ -28,8 +28,13 @@ order:
    – a recognized story-dir prefix (`docs/story/actives/`,
      `.koala/story/actives/`, or a custom `storyDir`),
    – followed by a valid storyId segment,
-   – followed by a terminal filename in `KOALA_LIFECYCLE_ARTIFACT_FILENAMES`
-     (the closed set declared in `packages/main/src/core/lifecycle-registry.ts`).
+   – followed by either a terminal filename in
+     `KOALA_LIFECYCLE_ARTIFACT_FILENAMES` or a relative path in
+     `KOALA_LIFECYCLE_ARTIFACT_RELATIVE_PATHS` (the closed sets declared in
+     `packages/main/src/core/lifecycle-registry.ts`).
+     The relative-path set is intentionally tiny: today it includes the TEST
+     transcript evidence path `evidence/transcript-diff.md` and does not allow
+     arbitrary files under `evidence/`.
    – Legacy story-tree paths under `docs/story/...` resolve as
      `legacy-metadata` for back-compat with PLAN-time files.
 
@@ -71,6 +76,11 @@ Both reviewers and tests must continue to assert:
 - `delivery_check_set` and `summary_set` may freely write
   `.koala/story/actives/<id>/delivery-check.json` and `summary.json` during
   TEST without expanding scope or triggering an `OUT_OF_SCOPE` violation.
+- A user-value acceptance transcript may write
+  `.koala/story/actives/<id>/evidence/transcript-diff.md` during TEST as a
+  lifecycle transcript artifact. This exemption is path-specific; sibling files
+  such as `evidence/notes.md` and arbitrary nested evidence still fall through
+  to normal scope enforcement.
 - `scope_contract_acknowledge` is still required for ordinary in-scope file
   expansions (product code, docs, new tests). It is **not** required for
   lifecycle artifacts.
@@ -86,8 +96,9 @@ Both reviewers and tests must continue to assert:
 Mechanical evidence lives in:
 
 - `scripts/verify-process-fact-contract.mjs` — asserts the classifier accepts
-  known lifecycle filenames under a story id, rejects arbitrary
-  `.koala/foo.json`, and rejects ordinary product source files when scope is
+  known lifecycle filenames plus `evidence/transcript-diff.md` under a story
+  id, rejects arbitrary `.koala/foo.json` and nearby non-transcript evidence
+  files, and rejects ordinary product source files when scope is
   unacknowledged.
 - `scripts/verify-gap-convergence.mjs` — asserts derived `.build` symlink
   loops do not crash `convergence_check` and do not hide real `docs/story` /
