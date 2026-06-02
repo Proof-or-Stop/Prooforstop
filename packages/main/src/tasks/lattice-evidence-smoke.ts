@@ -15,7 +15,7 @@ import {
   type EvidenceManifest,
 } from '../core/lattice-evidence.js';
 import { StoryStore } from '../core/store.js';
-import type { ChecklistData, StoryInfo } from '../core/types.js';
+import type { ChecklistData, StoryInfo, VerificationEvidence } from '../core/types.js';
 import type { HandlerContext } from '../handlers/context.js';
 import { MAIN_TOOLS } from '../cli-engine.js';
 import { createMainRegistry } from '../registry.js';
@@ -50,6 +50,26 @@ function writeConfig(root: string): void {
 
 function seedStory(store: StoryStore, headHash: string, materialHash: string): void {
   const now = '2026-06-02T00:00:00.000Z';
+  const testEvidence: VerificationEvidence & {
+    receiptRef: string;
+    redaction: { applied: boolean; secretsRedacted: boolean; notes: string[] };
+  } = {
+    intentRef: 'CHK-005:happy:0',
+    kind: 'integration_test',
+    command: 'npm run test:lattice-handoff-smoke',
+    file: 'packages/main/src/core/lattice-handoff.ts',
+    result: 'pass',
+    note: 'Handoff accept/resume evidence.',
+    headHash,
+    materialHash,
+    timestamp: now,
+    receiptRef: 'local-runner-receipt-ref',
+    redaction: {
+      applied: true,
+      secretsRedacted: true,
+      notes: ['token-like transcript values redacted'],
+    },
+  };
   const story: StoryInfo = {
     storyId: 'B-evidence',
     name: 'evidence-smoke',
@@ -70,17 +90,7 @@ function seedStory(store: StoryStore, headHash: string, materialHash: string): v
         status: 'done',
         startTime: now,
         endTime: now,
-        verificationEvidence: [{
-          intentRef: 'CHK-005:happy:0',
-          kind: 'integration_test',
-          command: 'npm run test:lattice-handoff-smoke',
-          file: 'packages/main/src/core/lattice-handoff.ts',
-          result: 'pass',
-          note: 'Handoff accept/resume evidence.',
-          headHash,
-          materialHash,
-          timestamp: now,
-        }],
+        verificationEvidence: [testEvidence],
       },
       {
         id: 'CHK-006',
@@ -115,9 +125,16 @@ function assertManifestFresh(manifest: EvidenceManifest, headHash: string, mater
   assert.deepEqual(manifest.freshness.staleRefs, []);
   assert.equal(manifest.authority.authorityChanged, false);
   assert.equal(manifest.authority.productionDone, false);
-  assert.deepEqual(manifest.authority.receiptRefs, []);
+  assert.deepEqual(manifest.authority.receiptRefs, ['local-runner-receipt-ref']);
+  assert.equal(manifest.authority.receiptRefsVerified, false);
+  assert.ok(manifest.authority.notes.some(note => /unverified local/.test(note)));
+  assert.equal(manifest.redaction.applied, true);
+  assert.equal(manifest.redaction.secretsRedacted, true);
+  assert.ok(manifest.redaction.notes.includes('token-like transcript values redacted'));
   assert.ok(manifest.transcriptRefs.includes('transcripts/evidence-smoke.md'), 'manifest carries transcript refs');
   assert.ok(manifest.testRefs.includes('command:npm run test:lattice-handoff-smoke'), 'manifest carries test command refs');
+  assert.ok(manifest.evidenceRefs.some(ref => ref.receiptRefs.includes('local-runner-receipt-ref')), 'manifest carries receipt lineage per evidence ref');
+  assert.ok(manifest.evidenceRefs.some(ref => ref.redaction.secretsRedacted), 'manifest carries redaction metadata per evidence ref');
   assert.ok(manifest.evidenceRefs.every(ref => ref.freshness.status === 'fresh'), 'all refs start fresh');
   assert.equal(manifest.refreshGuidance.refreshOnlyProvidesGuidance, true);
   assert.equal(manifest.refreshGuidance.authorityChanged, false);
@@ -133,7 +150,11 @@ function assertInspectionStale(inspection: EvidenceInspection, driftHead: string
   assert.ok(inspection.freshness.staleRefs.includes('CHK-006:happy:0'), 'transcript evidence becomes stale after material drift');
   assert.equal(inspection.authority.authorityChanged, false);
   assert.equal(inspection.authority.productionDone, false);
-  assert.deepEqual(inspection.authority.receiptRefs, []);
+  assert.deepEqual(inspection.authority.receiptRefs, ['local-runner-receipt-ref']);
+  assert.equal(inspection.authority.receiptRefsVerified, false);
+  assert.equal(inspection.redaction.applied, true);
+  assert.equal(inspection.redaction.secretsRedacted, true);
+  assert.ok(inspection.redaction.notes.includes('token-like transcript values redacted'));
   assert.equal(inspection.refreshGuidance.refreshOnlyProvidesGuidance, true);
   assert.equal(inspection.refreshGuidance.authorityChanged, false);
   assert.ok(inspection.refreshGuidance.guidance.includes('does not refresh hashes'), 'refresh is guidance-only');
@@ -213,6 +234,21 @@ try {
     stdio: ['pipe', 'pipe', 'pipe'],
   });
   assertInspectionStale(JSON.parse(inspectStdout) as EvidenceInspection, driftHead);
+
+  const storyInspectStdout = execFileSync(process.execPath, [
+    cliPath,
+    '--root',
+    root,
+    'evidence_inspect',
+    '--storyId=B-evidence',
+    '--sourceHost=codex',
+    '--format=json',
+  ], {
+    cwd: root,
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+  assertInspectionStale(JSON.parse(storyInspectStdout) as EvidenceInspection, driftHead);
 
   const inspectPath = join(root, 'evidence-inspect.json');
   registry.get('evidence_inspect')!({ file: manifestPath, output: inspectPath });

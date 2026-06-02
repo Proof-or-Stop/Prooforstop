@@ -639,8 +639,10 @@ export const MAIN_TOOLS: ToolDef[] = [
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     output: z.string().optional().describe('Optional file path for evidence manifest JSON; refuses to overwrite'),
   }},
-  { name: 'evidence_inspect', description: 'Inspect a portable evidence manifest against current HEAD/material hash without refreshing evidence', schema: {
-    file: z.string().describe('Evidence manifest JSON file'),
+  { name: 'evidence_inspect', description: 'Inspect a portable evidence manifest or Story evidence against current HEAD/material hash without refreshing evidence', schema: {
+    file: z.string().optional().describe('Evidence manifest JSON file; mutually exclusive with storyId'),
+    storyId: z.string().optional().describe('Story ID for story-based evidence inspection; mutually exclusive with file'),
+    sourceHost: z.string().optional().describe('Source host profile id for story-based inspection; defaults to codex'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     output: z.string().optional().describe('Optional file path for evidence inspection JSON; refuses to overwrite'),
   }},

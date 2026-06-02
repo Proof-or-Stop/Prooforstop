@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { buildCapabilityProbe } from './capabilities.js';
-import { buildCanonicalStory } from './canonical-story.js';
+import { buildCanonicalStory, collectReceiptRefs } from './canonical-story.js';
 import {
   checkEvidenceFreshnessForGit,
   currentGitHead,
@@ -15,6 +15,12 @@ export interface LatticeEvidenceFreshness extends EvidenceFreshness {
   status: LatticeEvidenceFreshnessStatus;
 }
 
+export interface LatticeEvidenceRedaction {
+  applied: boolean;
+  secretsRedacted: boolean;
+  notes: string[];
+}
+
 export interface LatticeEvidenceRef {
   id: string;
   source: string;
@@ -27,6 +33,8 @@ export interface LatticeEvidenceRef {
   testRefs: string[];
   headHash?: string;
   materialHash?: string;
+  receiptRefs: string[];
+  redaction: LatticeEvidenceRedaction;
   freshness: LatticeEvidenceFreshness;
 }
 
@@ -34,7 +42,9 @@ export interface LatticeEvidenceAuthorityBoundary {
   canManufactureAuthority: false;
   authorityChanged: false;
   productionDone: false;
-  receiptRefs: [];
+  receiptRefs: string[];
+  receiptRefsVerified: false;
+  notes: string[];
 }
 
 export interface LatticeEvidenceRefreshGuidance {
@@ -62,6 +72,7 @@ export interface EvidenceManifest {
   evidenceRefs: LatticeEvidenceRef[];
   freshness: LatticeEvidenceFreshnessSummary;
   refreshGuidance: LatticeEvidenceRefreshGuidance;
+  redaction: LatticeEvidenceRedaction;
   authority: LatticeEvidenceAuthorityBoundary;
 }
 
@@ -79,12 +90,24 @@ export interface EvidenceInspection {
   evidenceRefs: LatticeEvidenceRef[];
   freshness: LatticeEvidenceFreshnessSummary;
   refreshGuidance: LatticeEvidenceRefreshGuidance;
+  redaction: LatticeEvidenceRedaction;
   authority: LatticeEvidenceAuthorityBoundary;
 }
 
 function stringField(record: Record<string, unknown>, key: string): string | undefined {
   const value = record[key];
   return typeof value === 'string' && value.trim() ? value : undefined;
+}
+
+function booleanField(record: Record<string, unknown>, key: string): boolean | undefined {
+  const value = record[key];
+  return typeof value === 'boolean' ? value : undefined;
+}
+
+function stringArrayValue(value: unknown): string[] {
+  if (typeof value === 'string' && value.trim()) return [value];
+  if (!Array.isArray(value)) return [];
+  return value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0);
 }
 
 function evidenceId(record: Record<string, unknown>, index: number): string {
@@ -105,6 +128,38 @@ function freshnessFor(root: string, record: Record<string, unknown>): LatticeEvi
 
 function unique(values: Array<string | undefined>): string[] {
   return [...new Set(values.filter((value): value is string => Boolean(value && value.trim())))].sort();
+}
+
+function uniqueStrings(values: string[]): string[] {
+  return [...new Set(values.filter(value => value.trim()))].sort();
+}
+
+function redactionForRecord(record: Record<string, unknown>): LatticeEvidenceRedaction {
+  const nested = record.redaction && typeof record.redaction === 'object'
+    ? record.redaction as Record<string, unknown>
+    : {};
+  return {
+    applied: booleanField(nested, 'applied') ?? booleanField(record, 'redactionApplied') ?? false,
+    secretsRedacted: booleanField(nested, 'secretsRedacted') ?? booleanField(record, 'secretsRedacted') ?? false,
+    notes: uniqueStrings([
+      ...stringArrayValue(nested.notes),
+      ...stringArrayValue(record.redactionNotes),
+      ...stringArrayValue(record.redactionNote),
+    ]),
+  };
+}
+
+function summarizeRedaction(
+  refs: Array<{ redaction: LatticeEvidenceRedaction }>,
+  extra?: LatticeEvidenceRedaction,
+): LatticeEvidenceRedaction {
+  const statuses = extra ? [...refs.map(ref => ref.redaction), extra] : refs.map(ref => ref.redaction);
+  const notes = uniqueStrings(statuses.flatMap(status => status.notes));
+  return {
+    applied: statuses.some(status => status.applied),
+    secretsRedacted: statuses.some(status => status.secretsRedacted),
+    notes: notes.length > 0 ? notes : ['No redaction metadata was present on source evidence.'],
+  };
 }
 
 function refsForEvidence(record: Record<string, unknown>, id: string): { transcriptRefs: string[]; testRefs: string[] } {
@@ -149,6 +204,8 @@ function buildEvidenceRefs(root: string, records: Array<Record<string, unknown>>
       testRefs: refs.testRefs,
       ...(stringField(record, 'headHash') ? { headHash: stringField(record, 'headHash') } : {}),
       ...(stringField(record, 'materialHash') ? { materialHash: stringField(record, 'materialHash') } : {}),
+      receiptRefs: collectReceiptRefs(record),
+      redaction: redactionForRecord(record),
       freshness: freshnessFor(root, record),
     };
   });
@@ -178,12 +235,30 @@ function refreshGuidance(storyId: string, refs: LatticeEvidenceRef[]): LatticeEv
   };
 }
 
-function authorityBoundary(): LatticeEvidenceAuthorityBoundary {
+function authorityBoundary(receiptRefs: string[]): LatticeEvidenceAuthorityBoundary {
   return {
     canManufactureAuthority: false,
     authorityChanged: false,
     productionDone: false,
-    receiptRefs: [],
+    receiptRefs: uniqueStrings(receiptRefs),
+    receiptRefsVerified: false,
+    notes: [
+      'Receipt refs are unverified local or diagnostic refs only; they do not change authority tier or productionDone.',
+    ],
+  };
+}
+
+function normalizeEvidenceRef(ref: LatticeEvidenceRef): LatticeEvidenceRef {
+  const record = ref as unknown as Record<string, unknown>;
+  return {
+    ...ref,
+    transcriptRefs: stringArrayValue(record.transcriptRefs),
+    testRefs: stringArrayValue(record.testRefs),
+    receiptRefs: uniqueStrings([
+      ...stringArrayValue(record.receiptRefs),
+      ...collectReceiptRefs(record),
+    ]),
+    redaction: redactionForRecord(record),
   };
 }
 
@@ -195,6 +270,10 @@ export function buildEvidenceManifest(
   const sourceHost = buildCapabilityProbe(args.sourceHost).host;
   const canonical = buildCanonicalStory(store, root, args.storyId).story;
   const refs = buildEvidenceRefs(root, canonical.evidence);
+  const receiptRefs = uniqueStrings([
+    ...canonical.authority.receiptRefs,
+    ...refs.flatMap(ref => ref.receiptRefs),
+  ]);
   return {
     schemaVersion: 'koala.evidence_manifest.v1',
     storyId: args.storyId,
@@ -207,7 +286,8 @@ export function buildEvidenceManifest(
     evidenceRefs: refs,
     freshness: summarizeFreshness(refs),
     refreshGuidance: refreshGuidance(args.storyId, refs),
-    authority: authorityBoundary(),
+    redaction: summarizeRedaction(refs),
+    authority: authorityBoundary(receiptRefs),
   };
 }
 
@@ -216,17 +296,32 @@ export function readEvidenceManifest(file: string): EvidenceManifest {
   if (parsed.schemaVersion !== 'koala.evidence_manifest.v1') {
     throw new Error(`evidence_inspect expected schemaVersion koala.evidence_manifest.v1, got ${String((parsed as { schemaVersion?: unknown }).schemaVersion)}`);
   }
+  const refs = (parsed.evidenceRefs ?? []).map(ref => normalizeEvidenceRef(ref));
+  const redaction = redactionForRecord(parsed as unknown as Record<string, unknown>);
+  const receiptRefs = uniqueStrings([
+    ...stringArrayValue((parsed.authority as unknown as Record<string, unknown> | undefined)?.receiptRefs),
+    ...refs.flatMap(ref => ref.receiptRefs),
+  ]);
   return {
     ...parsed,
-    authority: authorityBoundary(),
+    evidenceRefs: refs,
+    redaction: summarizeRedaction(refs, redaction),
+    authority: authorityBoundary(receiptRefs),
   };
 }
 
 export function inspectEvidenceManifest(manifest: EvidenceManifest, root: string): EvidenceInspection {
-  const refs = manifest.evidenceRefs.map(ref => ({
-    ...ref,
-    freshness: freshnessFor(root, ref as unknown as Record<string, unknown>),
-  }));
+  const refs = manifest.evidenceRefs.map(ref => {
+    const normalized = normalizeEvidenceRef(ref);
+    return {
+      ...normalized,
+      freshness: freshnessFor(root, normalized as unknown as Record<string, unknown>),
+    };
+  });
+  const receiptRefs = uniqueStrings([
+    ...manifest.authority.receiptRefs,
+    ...refs.flatMap(ref => ref.receiptRefs),
+  ]);
   return {
     schemaVersion: 'koala.evidence_inspect.v1',
     manifestSchemaVersion: manifest.schemaVersion,
@@ -241,8 +336,17 @@ export function inspectEvidenceManifest(manifest: EvidenceManifest, root: string
     evidenceRefs: refs,
     freshness: summarizeFreshness(refs),
     refreshGuidance: refreshGuidance(manifest.storyId, refs),
-    authority: authorityBoundary(),
+    redaction: summarizeRedaction(refs, manifest.redaction),
+    authority: authorityBoundary(receiptRefs),
   };
+}
+
+export function inspectEvidenceStory(
+  store: StoryStore,
+  root: string,
+  args: { storyId: string; sourceHost: string },
+): EvidenceInspection {
+  return inspectEvidenceManifest(buildEvidenceManifest(store, root, args), root);
 }
 
 export function renderEvidenceManifestText(manifest: EvidenceManifest): string {
@@ -256,6 +360,9 @@ export function renderEvidenceManifestText(manifest: EvidenceManifest): string {
     `staleRefs: ${manifest.freshness.staleRefs.length}`,
     `transcriptRefs: ${manifest.transcriptRefs.length}`,
     `testRefs: ${manifest.testRefs.length}`,
+    `receiptRefs: ${manifest.authority.receiptRefs.length} unverified`,
+    `redactionApplied: ${manifest.redaction.applied}`,
+    `secretsRedacted: ${manifest.redaction.secretsRedacted}`,
     `authorityChanged: ${manifest.authority.authorityChanged}`,
     `productionDone: ${manifest.authority.productionDone}`,
   ].join('\n');
@@ -272,6 +379,9 @@ export function renderEvidenceInspectionText(inspection: EvidenceInspection): st
     `staleRefs: ${inspection.freshness.staleRefs.length}`,
     `transcriptRefs: ${inspection.transcriptRefs.length}`,
     `testRefs: ${inspection.testRefs.length}`,
+    `receiptRefs: ${inspection.authority.receiptRefs.length} unverified`,
+    `redactionApplied: ${inspection.redaction.applied}`,
+    `secretsRedacted: ${inspection.redaction.secretsRedacted}`,
     `authorityChanged: ${inspection.authority.authorityChanged}`,
     `productionDone: ${inspection.authority.productionDone}`,
   ].join('\n');

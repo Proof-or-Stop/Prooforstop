@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { buildCanonicalStory, type CanonicalStory } from '../core/canonical-story.js';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
-import type { ChecklistData, StoryInfo } from '../core/types.js';
+import type { ChecklistData, StoryInfo, VerificationEvidence } from '../core/types.js';
 import type { HandlerContext } from '../handlers/context.js';
 import { MAIN_TOOLS } from '../cli-engine.js';
 import { createMainRegistry } from '../registry.js';
@@ -37,6 +37,18 @@ function writeConfig(root: string): void {
 
 function seedStory(store: StoryStore): void {
   const now = '2026-06-02T00:00:00.000Z';
+  const localReceiptEvidence: VerificationEvidence & { receiptRef: string; receiptRefs: string[] } = {
+    intentRef: 'CHK-001:happy:0',
+    kind: 'integration_test',
+    command: 'npm run test:canonical-story-export-smoke',
+    result: 'pass',
+    note: 'Smoke command passed.',
+    headHash: 'abc123',
+    materialHash: 'mat123',
+    timestamp: now,
+    receiptRef: 'local-receipt-ref',
+    receiptRefs: ['diagnostic-receipt-ref'],
+  };
   const story: StoryInfo = {
     storyId: 'B-test',
     name: 'canonical-export-smoke',
@@ -63,16 +75,7 @@ function seedStory(store: StoryStore): void {
           edge: [],
           adversarial: [],
         },
-        verificationEvidence: [{
-          intentRef: 'CHK-001:happy:0',
-          kind: 'integration_test',
-          command: 'npm run test:canonical-story-export-smoke',
-          result: 'pass',
-          note: 'Smoke command passed.',
-          headHash: 'abc123',
-          materialHash: 'mat123',
-          timestamp: now,
-        }],
+        verificationEvidence: [localReceiptEvidence],
       },
     ],
   };
@@ -86,9 +89,9 @@ function assertCanonicalShape(story: CanonicalStory): void {
   assert.equal(story.schemaVersion, 'canonical-story-v0');
   assert.equal(story.storyId, 'B-test');
   assert.equal(story.lifecycle.localDone, true);
-  assert.equal(story.lifecycle.productionDone, false, 'local DONE does not become production DONE without receipt refs');
+  assert.equal(story.lifecycle.productionDone, false, 'local DONE does not become production DONE without verified receipt artifacts');
   assert.equal(story.authority.tier, 'local-evidence');
-  assert.deepEqual(story.authority.receiptRefs, []);
+  assert.deepEqual(story.authority.receiptRefs, ['diagnostic-receipt-ref', 'local-receipt-ref']);
   assert.match(story.authority.canonicalStoryDigest ?? '', /^sha256:/);
   assert.match(story.authority.gateInputDigest ?? '', /^sha256:/);
   assert.ok(story.evidence.some(e => e.id === 'CHK-001:happy:0'), 'verification evidence is exported');
@@ -128,6 +131,11 @@ try {
     stdio: ['pipe', 'pipe', 'pipe'],
   });
   assertCanonicalShape(JSON.parse(readFileSync(outputPath, 'utf8')) as CanonicalStory);
+  assert.throws(
+    () => registry.get('story_export')!({ storyId: 'B-test', output: outputPath }),
+    /refusing to overwrite existing file/,
+    'story_export output must be no-overwrite',
+  );
 } finally {
   rmSync(root, { recursive: true, force: true });
 }

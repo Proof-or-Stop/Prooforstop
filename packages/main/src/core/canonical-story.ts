@@ -131,7 +131,7 @@ function reviewProjection(
   return records;
 }
 
-function collectReceiptRefs(...values: unknown[]): string[] {
+export function collectReceiptRefs(...values: unknown[]): string[] {
   const refs = new Set<string>();
   const visit = (value: unknown, keyHint = ''): void => {
     if (!value) return;
@@ -154,15 +154,15 @@ function collectReceiptRefs(...values: unknown[]): string[] {
   return [...refs].sort();
 }
 
-function missingReceiptDegradation(receiptRefs: string[]): CanonicalStory['degradations'][number][] {
-  if (receiptRefs.length > 0) return [];
+function missingReceiptDegradation(verifiedReceiptRefs: string[]): CanonicalStory['degradations'][number][] {
+  if (verifiedReceiptRefs.length > 0) return [];
   return [{
     id: 'missing-server-receipt',
     host: 'authority-server',
     capability: 'receipt-verify',
     severity: 'block',
     visible: true,
-    reason: 'No verified server receipt reference is present in the exported Story.',
+    reason: 'No verified server receipt artifact is present in the exported Story. Local receipt refs are preserved as diagnostic refs only.',
     fallback: 'Keep completion at local evidence and do not claim production DONE.',
     authorityImpact: 'blocks-production-done',
     recovery: 'Run a receipt-backed authority flow and export again after the receipt is verified.',
@@ -200,7 +200,8 @@ export function buildCanonicalStory(store: StoryStore, root: string, storyId: st
 
   const reviews = reviewProjection(review, reviewRuns, reviewPasses, findings, deliveryCheck);
   const receiptRefs = collectReceiptRefs(evidence, reviews, deliveryCheck, testEvidence);
-  const productionDone = receiptRefs.length > 0;
+  const verifiedReceiptRefs: string[] = [];
+  const productionDone = verifiedReceiptRefs.length > 0;
   const authorityTier: CanonicalStory['authority']['tier'] = productionDone ? 'server-receipt' : 'local-evidence';
   const canonical: CanonicalStory = {
     schemaVersion: 'canonical-story-v0',
@@ -219,7 +220,7 @@ export function buildCanonicalStory(store: StoryStore, root: string, storyId: st
       receiptRefs,
     },
     degradations: [
-      ...missingReceiptDegradation(receiptRefs),
+      ...missingReceiptDegradation(verifiedReceiptRefs),
       ...missingArtifactDegradations(warnings),
     ],
     lineage: {

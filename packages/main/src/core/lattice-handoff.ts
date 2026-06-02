@@ -149,6 +149,20 @@ function capabilityDeltas(fromHost: string, toHost: string): HandoffCapabilityDe
   });
 }
 
+function localAuthorityOnlyCanonicalStory(canonical: CanonicalStory): CanonicalStory {
+  return {
+    ...canonical,
+    lifecycle: {
+      ...canonical.lifecycle,
+      productionDone: false,
+    },
+    authority: {
+      ...canonical.authority,
+      tier: 'local-evidence',
+    },
+  };
+}
+
 export function createHandoffPack(
   store: StoryStore,
   root: string,
@@ -168,13 +182,7 @@ export function createHandoffPack(
     storyId: args.storyId,
     fromHost: buildCapabilityProbe(args.fromHost).host,
     toHost: targetProbe.host,
-    canonicalStory: {
-      ...canonical,
-      lifecycle: {
-        ...canonical.lifecycle,
-        productionDone: canonical.authority.receiptRefs.length > 0,
-      },
-    },
+    canonicalStory: localAuthorityOnlyCanonicalStory(canonical),
     evidenceRefs: refs,
     capabilityDeltas: deltas,
     degradations,
@@ -200,6 +208,7 @@ export function readHandoffPack(file: string): HandoffPack {
   }
   return {
     ...parsed,
+    canonicalStory: localAuthorityOnlyCanonicalStory(parsed.canonicalStory),
     productionDone: false,
     receiptRefs: [],
   };

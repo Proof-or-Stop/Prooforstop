@@ -1,7 +1,13 @@
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { buildCanonicalStory } from '../core/canonical-story.js';
 import type { HandlerContext } from './context.js';
+
+function writeJsonNoOverwrite(file: string, value: unknown): void {
+  if (existsSync(file)) throw new Error(`refusing to overwrite existing file: ${file}`);
+  mkdirSync(dirname(file), { recursive: true });
+  writeFileSync(file, JSON.stringify(value, null, 2) + '\n', 'utf8');
+}
 
 export function createStoryExportHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
   return {
@@ -9,15 +15,14 @@ export function createStoryExportHandlers(ctx: HandlerContext): Record<string, (
       const result = buildCanonicalStory(ctx.store, ctx.root, args.storyId);
       if (args.output) {
         const outputPath = resolve(process.cwd(), args.output);
-        mkdirSync(dirname(outputPath), { recursive: true });
-        writeFileSync(outputPath, JSON.stringify(result.story, null, 2) + '\n', 'utf8');
+        writeJsonNoOverwrite(outputPath, result.story);
       }
 
       if (args.format === 'json') return result.story;
 
       const receiptNote = result.story.authority.receiptRefs.length > 0
-        ? `${result.story.authority.receiptRefs.length} receipt ref(s)`
-        : 'no server receipt refs; productionDone=false';
+        ? `${result.story.authority.receiptRefs.length} unverified receipt ref(s); productionDone=false`
+        : 'no verified server receipt refs; productionDone=false';
       const warningNote = result.warnings.length > 0
         ? `; degradations=${result.story.degradations.length}`
         : '';

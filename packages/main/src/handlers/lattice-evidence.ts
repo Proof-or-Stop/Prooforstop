@@ -3,6 +3,7 @@ import { dirname, resolve } from 'node:path';
 import {
   buildEvidenceManifest,
   inspectEvidenceManifest,
+  inspectEvidenceStory,
   readEvidenceManifest,
   renderEvidenceInspectionText,
   renderEvidenceManifestText,
@@ -33,12 +34,21 @@ export function createLatticeEvidenceHandlers(ctx: HandlerContext): Record<strin
       return [renderEvidenceManifestText(manifest), outputNote.trimEnd()].filter(Boolean).join('\n');
     },
     evidence_inspect(args: {
-      file: string;
+      file?: string;
+      storyId?: string;
+      sourceHost?: string;
       format?: 'text' | 'json';
       output?: string;
     }) {
-      const manifest = readEvidenceManifest(resolve(process.cwd(), args.file));
-      const inspection = inspectEvidenceManifest(manifest, ctx.root);
+      if (Boolean(args.file) === Boolean(args.storyId)) {
+        throw new Error('evidence_inspect requires exactly one of --file or --storyId');
+      }
+      const inspection = args.storyId
+        ? inspectEvidenceStory(ctx.store, ctx.root, {
+          storyId: args.storyId,
+          sourceHost: args.sourceHost ?? 'codex',
+        })
+        : inspectEvidenceManifest(readEvidenceManifest(resolve(process.cwd(), args.file!)), ctx.root);
       if (args.output) {
         const outputPath = resolve(process.cwd(), args.output);
         writeJsonNoOverwrite(outputPath, inspection);

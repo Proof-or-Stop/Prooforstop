@@ -18,7 +18,7 @@ import {
   type HandoffResumeProjection,
 } from '../core/lattice-handoff.js';
 import { StoryStore } from '../core/store.js';
-import type { ChecklistData, StoryInfo } from '../core/types.js';
+import type { ChecklistData, StoryInfo, VerificationEvidence } from '../core/types.js';
 import type { HandlerContext } from '../handlers/context.js';
 import { MAIN_TOOLS } from '../cli-engine.js';
 import { createMainRegistry } from '../registry.js';
@@ -33,6 +33,15 @@ function writeConfig(root: string): void {
 
 function seedStory(store: StoryStore): void {
   const now = '2026-06-02T00:00:00.000Z';
+  const localReceiptEvidence: VerificationEvidence & { receiptRef: string } = {
+    intentRef: 'CHK-001:happy:0',
+    kind: 'integration_test',
+    command: 'npm run test:lattice-handoff-smoke',
+    result: 'pass',
+    note: 'Handoff smoke evidence.',
+    timestamp: now,
+    receiptRef: 'handoff-local-receipt-ref',
+  };
   const story: StoryInfo = {
     storyId: 'B-handoff',
     name: 'handoff-smoke',
@@ -54,14 +63,7 @@ function seedStory(store: StoryStore): void {
         status: 'done',
         startTime: now,
         endTime: now,
-        verificationEvidence: [{
-          intentRef: 'CHK-001:happy:0',
-          kind: 'integration_test',
-          command: 'npm run test:lattice-handoff-smoke',
-          result: 'pass',
-          note: 'Handoff smoke evidence.',
-          timestamp: now,
-        }],
+        verificationEvidence: [localReceiptEvidence],
       },
     ],
   };
@@ -76,7 +78,9 @@ function assertHandoffPack(pack: HandoffPack): void {
   assert.equal(pack.toHost, 'claude-code');
   assert.equal(pack.productionDone, false, 'handoff top-level cannot claim productionDone');
   assert.deepEqual(pack.receiptRefs, [], 'handoff top-level cannot carry receipt refs as authority');
-  assert.equal(pack.canonicalStory.lifecycle.productionDone, false, 'embedded canonical story has no productionDone without receipt refs');
+  assert.equal(pack.canonicalStory.lifecycle.productionDone, false, 'embedded canonical story has no productionDone without verified receipt artifacts');
+  assert.equal(pack.canonicalStory.authority.tier, 'local-evidence', 'embedded canonical story keeps local authority tier');
+  assert.deepEqual(pack.canonicalStory.authority.receiptRefs, ['handoff-local-receipt-ref'], 'embedded canonical story preserves local receipt refs as diagnostics');
   assert.ok(pack.evidenceRefs.includes('CHK-001:happy:0'), 'evidence refs are preserved');
   assert.ok(pack.capabilityDeltas.some(delta => delta.capability === 'patch-apply' && delta.changed), 'capability deltas capture source/target differences');
   assert.ok(pack.degradations.some(d => d.host === 'claude-code' && d.capability === 'receipt-verify' && d.authorityImpact === 'blocks-production-done'), 'target receipt verification degradation is visible');
@@ -93,6 +97,7 @@ function assertInspection(inspection: HandoffInspection): void {
   assert.equal(inspection.productionDone, false);
   assert.deepEqual(inspection.receiptRefs, []);
   assert.equal(inspection.authority.handoffCanManufactureProductionDone, false);
+  assert.equal(inspection.authority.canonicalProductionDone, false);
   assert.ok(inspection.capabilityDeltaCount > 0);
   assert.ok(inspection.blockingDegradationCount > 0);
 }
