@@ -23,7 +23,7 @@
       "desc": "CHK-003:edge:0 and CHK-005:edge:0 are both recorded as covered (.koala/story/actives/B-bffc/checklist.json:221-255 and :387-423; .koala/story/actives/B-bffc/test-evidence.json:3-4), but the smoke file never asserts the missing-authority-URL fallback contract it claims to cover. packages/main/src/tasks/lattice-cli-migration-smoke.ts:135-141 only checks generic receipt/production false flags plus /no receipt is verified/ in note. The actual fallback surface is in packages/main/src/handlers/lattice-cli.ts:119-135: baseURLConfigured=false, baseURL=null, and status=not-configured when no authority URL exists. Because none of those fields are asserted, the test can pass even if missing-authority fallback guidance regresses while validate still reports 15/15 covered.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-06-02T12:04:17.789Z",
