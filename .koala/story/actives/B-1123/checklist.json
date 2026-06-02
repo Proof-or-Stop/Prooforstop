@@ -58,6 +58,17 @@
           "headHash": "025b17a6b0cea949618806851b8c3f7a506e2c71",
           "materialHash": "9c94c657e7f9eed06d05ded04897ae541dbe6d324998a052b697b73d32e89368",
           "timestamp": "2026-06-02T17:28:35.953Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-runner-contracts-smoke.ts",
+          "command": "npm --prefix packages/main run test:authority-runner-contracts",
+          "result": "pass",
+          "note": "adversarial: signed-but-unbound runner envelope still surfaces missing producerRunId/verifierRunId/provider/model/vendor/commandDigest/transcriptHash/diffHash/verifiedAuthorityReceipt via missingRunnerL2Requirements; runnerEnvelopeIsL2PlusCandidate returns false for every CLI-shaped runner envelope — signing primitives alone do NOT promote ordinary local/shadow evidence to receipt-backed L2+ (case 7 + L2+ boundary preserved)",
+          "headHash": "f4ed043c7c03a3bacb938f694d122cc3b1ae6ce8",
+          "materialHash": "9c94c657e7f9eed06d05ded04897ae541dbe6d324998a052b697b73d32e89368",
+          "timestamp": "2026-06-02T17:28:42.754Z"
         }
       ]
     },
