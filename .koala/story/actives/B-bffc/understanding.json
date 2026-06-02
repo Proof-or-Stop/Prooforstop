@@ -1,0 +1,36 @@
+{
+  "task": "Productize Lattice CLI 0.3.5 as the primary host-neutral client and migrate Mac App-only product capabilities into CLI-first surfaces.",
+  "outcome": "用户在终端运行 `lattice --version` 看到 `Lattice CLI 0.3.5`，运行 `lattice help` 能看到 host/config/authority/conduit 迁移入口，同时 README 明确写出 Mac App 是 optional dashboard/archive，不再是使用 Lattice 的必需步骤。",
+  "facts": [
+    "0.3.5 keeps package compatibility while adding a first-class lattice bin/entrypoint; hard npm package rename is deferred to avoid breaking existing installs.",
+    "Lattice Conduit in this story is a CLI-visible thin conduit contract/status surface, not a full autonomous model runner; full register/claim/heartbeat can land later behind the same command family.",
+    "koala remains a legacy alias in 0.3.5 so existing story tooling and downstream projects keep working while Lattice becomes the public product name.",
+    "Existing CLI already has Lattice primitives: capability_list/probe, story_export, handoff, evidence manifest, authority policy discovery.",
+    "Server Authority receipts remain the only production authority; local CLI, handoff packs, cache, and Mac UI must not claim productionDone."
+  ],
+  "constraints": [
+    "Do not make Lattice Conduit a new coding agent or model runtime.",
+    "Preserve koala compatibility as a legacy alias for existing users and story tooling.",
+    "Do not bypass Koala story/checklist/evidence commands for story metadata.",
+    "Keep production authority fail-closed: accepted transport or local cache is not a verified receipt.",
+    "Avoid making Mac App part of release or validation main path."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "package.json",
+    "packages/main/package.json",
+    "bin/koala.js",
+    "bin/bootstrap-runner.js",
+    "packages/main/src/cli.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/core/capabilities.ts",
+    "packages/main/src/handlers/capability-list.ts",
+    "packages/main/src/core/authority-client.ts",
+    "packages/main/src/core/authority-submit.ts",
+    "packages/main/src/tasks/*smoke.ts",
+    "README.md",
+    "docs/requirements/decisions/*.md"
+  ],
+  "timestamp": "2026-06-02T11:15:28.178Z"
+}

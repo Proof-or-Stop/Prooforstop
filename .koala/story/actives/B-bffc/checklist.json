@@ -10,7 +10,48 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "用户运行 `lattice --version` 看到 `Lattice CLI 0.3.5`；运行 `koala --version` 仍显示兼容入口并可继续使用旧命令。",
+      "files": {
+        "modify": [
+          "package.json",
+          "package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/cli.ts",
+          "packages/main/src/cli-engine.ts",
+          "bin/bootstrap-runner.js"
+        ],
+        "create": [
+          "bin/lattice.js",
+          "packages/main/src/core/lattice-brand.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/lattice-cli-migration-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice bin/help/version exposes Lattice CLI 0.3.5.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "koala legacy alias still exposes the command catalog.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "bootstrap/help text does not require Mac App setup for CLI usage.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
