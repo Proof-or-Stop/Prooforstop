@@ -142,7 +142,41 @@
       "relatedDocs": [
         "docs/requirements/decisions/lifecycle-artifact-scope.md",
         "README.md"
-      ]
+      ],
+      "userSees": "用户运行 `lattice init --asset-mode=thin --profile=codex` 后，初始化输出说明 thin/registry mode，项目中没有 .Codex/agents prompt copies，但 check 和 verify 仍能通过。",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-init.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/init-assets.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/thin-init-assets-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/thin-init-assets-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Thin codex init writes manifest/launcher/docs and omits .Codex/agents prompt copies.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Full init remains the default compatibility behavior and still materializes legacy prompt assets.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Thin check/apply does not delete user-owned local prompt files or overclaim production authority.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
