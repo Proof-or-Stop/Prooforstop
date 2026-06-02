@@ -1,0 +1,29 @@
+{
+  "storyId": "B-106b",
+  "checkedAt": "2026-06-02T23:38:56.470Z",
+  "reviewRound": "",
+  "agentId": "koala-review-story-init",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-02T23:35:16.651Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "Background explains the dispatch runtime mechanics, but it still needs a sharper before/after user narrative and explicit end-state so the value is visible without host-overflow context."
+        },
+        {
+          "severity": "medium",
+          "desc": "The checklist is observable at the CLI level, but most items stop at diagnostics or metadata surfaces; add one explicit user-facing closeout outcome so the story ends in a state the user can call done instead of asking what to do next."
+        }
+      ]
+    },
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-06-02T23:38:56.470Z",
+      "issues": []
+    }
+  ],
+  "_hash": "8dd01df5ae6a3e42b8b201504dcd002ec35ae1309212bc316f23dc807793dc03"
+}
