@@ -71,9 +71,9 @@
         "docs/requirements/decisions/project-vision.md"
       ],
       "userSees": "用户运行 lattice host_status --host=claude-code --format=json 看到 \"schemaVersion\":\"lattice.host_status.v1\", \"overflowReady\":true/false, \"status\":\"ready|degraded|unavailable\", \"nextAction\":\"...\"。",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-02T21:22:49.139Z",
       "files": {
         "modify": [
           "packages/main/src/core/capabilities.ts",
@@ -113,7 +113,19 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:host-overflow-smoke",
+          "result": "pass",
+          "note": "host-overflow smoke covers lattice host_status for claude-code/local-runner and proves overflowReady/status/nextAction stay diagnostic-only with productionDone=false and receiptVerified=false.",
+          "headHash": "ff61b776abff51c8577b2b03a111f8533d547553",
+          "materialHash": "bd29e0297db5c6be6cbeb9b4fb9fb501ae5536db42fccd198e54bf3ff7942b27",
+          "timestamp": "2026-06-02T21:22:49.191Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
