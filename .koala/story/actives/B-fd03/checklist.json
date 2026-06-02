@@ -263,7 +263,7 @@
         "docs/requirements/decisions/testing-completeness.md",
         "docs/requirements/decisions/lifecycle-artifact-scope.md"
       ],
-      "userSees": "用户在 TEST transcript 中看到 rollout_check JSON 使用 `schema: \"lattice.rollout_check.v1\"`、`readOnly: true`、`macAppRequired: false`，`summary.pass/warn/fail` 保守统计，以及每个项目的 `status` 和 `nextAction`；结果可随项目当前状态变化，不承诺 Orchestrate 或任一外部项目固定为 pass/warn/fail。",
+      "userSees": "用户在 TEST transcript 中看到真实的 rollout_check 诊断结果：schema 为 `lattice.rollout_check.v1`，`readOnly=true`，`macAppRequired=false`，summary 显示 `pass/warn/fail` 计数，每个真实项目都有 `status` 与 `nextAction`；transcript 明确说明 warn/fail 是当前本地 fleet 的保守诊断结果，不伪装成固定 PASS 分布。",
       "status": "done",
       "startTime": null,
       "endTime": "2026-06-02T15:36:02.329Z",
