@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-f3db:RP-001",
+      "agent": "koala-review-docs",
+      "note": "Pass after F-001 rerun. docs/requirements/decisions/lifecycle-artifact-scope.md now matches classifyLifecycleArtifact behavior: top-level matches use KOALA_LIFECYCLE_ARTIFACT_FILENAMES, nested matches use KOALA_LIFECYCLE_ARTIFACT_RELATIVE_PATHS only, and the only nested evidence path accepted is evidence/transcript-diff.md. Verified via packages/main/src/core/lifecycle-registry.ts, packages/main/src/core/scope-contract.ts, direct dist probes, and node scripts/verify-process-fact-contract.mjs.",
+      "createdAt": "2026-06-02T13:09:58.894Z",
+      "reviewRound": "2026-06-02T13:08:01.667Z",
+      "reviewRunId": "B-f3db:RR-007",
+      "_hash": "d06c45b5fc33cdb3625b8fcfec3f2d1456d3cf360ee226b4e6caaeaf4723636e"
+    }
+  ]
+}
