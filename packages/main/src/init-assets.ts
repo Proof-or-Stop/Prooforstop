@@ -26,7 +26,7 @@ export const AGENTS_MD_TEMPLATE = `# AGENTS.md
 - At the start of a new session, or when resuming interrupted work, run \`node bin/lattice.js session_brief\`.
 - Before acting, run \`node bin/lattice.js aux_doc_list\` to inspect relevant docs; if the current global core-only environment lacks aux commands, fall back to the local bootstrap or shell search.
 - Prefer \`node bin/lattice.js\` (or global \`lattice\`) for Story / checklist / fixture / bug operations. Do not edit story/fixture JSON directly; \`koala\` is only a legacy alias.
-- Codex subagent prompts live in \`.Codex/agents\`; Claude Code-only assets are generated only when the Claude profile is enabled.
+- Codex subagent prompts use the Lattice adapter: full asset mode materializes \`.Codex/agents\`, while thin asset mode resolves prompts from the package registry. Claude Code-only assets are generated only when the Claude profile is enabled.
 - After changing the Codex adapter, \`.Codex\`, or \`bin/lattice-codex.js\`, run \`node bin/lattice-codex.js verify_codex\` so REVIEW/DONE gates can consume hard evidence.
 - For Codex adapter diagnostics, run \`node bin/lattice-codex.js doctor\`.
 - Run \`node bin/lattice.js check\` to check Lattice managed asset/template drift; after review, use \`node bin/lattice.js check --apply\` or \`node bin/lattice.js check --upgrade\` to sync safe items.

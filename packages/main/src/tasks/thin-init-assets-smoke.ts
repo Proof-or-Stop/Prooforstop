@@ -79,6 +79,10 @@ try {
   assert.equal(manifest.recommendedEntrypoints[0]?.command, 'node bin/lattice-codex.js');
   assert.equal(manifest.promptMode, 'registry');
   assert.equal(typeof manifest.promptRegistry?.materialHash, 'string');
+  const thinAgentsMd = readFileSync(join(thinRoot, 'AGENTS.md'), 'utf8');
+  assert.match(thinAgentsMd, /full asset mode materializes `\.Codex\/agents`/, 'AGENTS.md explains full-mode Codex prompt copies');
+  assert.match(thinAgentsMd, /thin asset mode resolves prompts from the package registry/, 'AGENTS.md explains thin-mode registry-backed prompts');
+  assert.doesNotMatch(thinAgentsMd, /Codex subagent prompts live in `\.Codex\/agents`;/, 'AGENTS.md must not imply .Codex/agents always exists');
   assert.match(readFileSync(join(thinRoot, '.Codex', 'README.md'), 'utf8'), /Thin Asset Mode/);
   assertManagedOk(thinRoot, 'thin');
   assertCodexOk(thinRoot);
@@ -102,6 +106,9 @@ try {
   const manifest = JSON.parse(readFileSync(join(fullRoot, '.Codex', 'lattice.json'), 'utf8'));
   assert.equal(manifest.adapterOwner, 'lattice');
   assert.equal(manifest.promptMode, undefined);
+  const fullAgentsMd = readFileSync(join(fullRoot, 'AGENTS.md'), 'utf8');
+  assert.match(fullAgentsMd, /full asset mode materializes `\.Codex\/agents`/, 'full-mode AGENTS.md keeps .Codex/agents guidance');
+  assert.match(fullAgentsMd, /thin asset mode resolves prompts from the package registry/, 'full-mode AGENTS.md still documents supported thin mode');
   assertManagedOk(fullRoot, 'full');
 } finally {
   rmSync(fullRoot, { recursive: true, force: true });

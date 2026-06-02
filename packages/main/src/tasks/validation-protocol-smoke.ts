@@ -793,7 +793,7 @@ try {
     assert.match(runtimeSummary, /Authority: local-runtime-diagnostic-only/);
     assert.match(
       runtimeSummary,
-      /Next action: project-local node_modules\/\.bin\/koala resolves to .* but the active CLI resolves to .*/,
+      /Next action: project-local CLI bin .*node_modules\/\.bin\/koala resolves to .* but the active CLI resolves to .*/,
     );
   } finally {
     rmSync(conflictRuntimeRoot, { recursive: true, force: true });
