@@ -55,6 +55,25 @@
         "README.md",
         "docs/requirements/decisions/project-vision.md"
       ]
+    },
+    {
+      "id": "B-bffc:F-004",
+      "desc": "`packages/main/src/core/lattice-hosts.ts:54-70` exposes `host_list` by forwarding `buildCapabilityList()` directly, and `packages/main/src/core/capabilities.ts:323-345` still describes `desktop-app` as a conditional editing/test/evidence/receipt host. That contradicts the 0.3.5 migration contract in `README.md:49-54` and `docs/requirements/decisions/project-vision.md:17`, which demote the Mac App to optional/archive dashboard only. In practice `lattice host_probe --host=desktop-app --format=json` still advertises the Mac App as a potential authority/test surface, so the new CLI-first migration surfaces are not aligned with the documented product boundary.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-02T12:06:30.059Z",
+      "reviewRound": "2026-06-02T11:42:07.905Z",
+      "reviewRunId": "B-bffc:RR-003",
+      "_hash": "43ea399b7c00217b1320dd210fb8dc5fa084e269e530aff8d5d1c168d277086d",
+      "files": [
+        "packages/main/src/core/lattice-hosts.ts",
+        "packages/main/src/core/capabilities.ts",
+        "README.md",
+        "docs/requirements/decisions/project-vision.md"
+      ]
     }
   ]
 }
