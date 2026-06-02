@@ -61,7 +61,47 @@
       "userSees": "用户运行 lattice host_status 或 capability command 时能看到 claude-code 是否可作为 overflow host 以及缺失时的 nextAction。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/capabilities.ts",
+          "packages/main/src/core/lattice-hosts.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "README.md",
+          "docs/guide.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/capability-list-smoke.ts",
+          "packages/main/src/tasks/host-overflow-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice host_status --host=claude-code --format=json reports overflow readiness, capabilities, limits, availability, and nextAction.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Unknown or unavailable host returns diagnostic unavailable/warn with nextAction and does not block local story workflow.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Capability/status output keeps productionDone=false and receiptVerified=false; it never treats host availability as authority evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
