@@ -121,6 +121,48 @@
         "bindingHash": "2a3b90e03661e15c5660a9f2aec20cff887220794e716f0e4bb6b259cce4a3a6"
       },
       "_hash": "70ed623f9a2133aa91c8e10cf3ae14dd25e90560711616719f6c2b0b5bedb35a"
+    },
+    {
+      "reviewRunId": "B-29b6:RR-003",
+      "storyId": "B-29b6",
+      "agent": "koala-review-quality",
+      "lane": "koala-review-quality",
+      "reviewRound": "2026-06-02T05:27:19.493Z",
+      "startedAt": "2026-06-02T05:31:15.194Z",
+      "headHash": "1549e4f1871306cc8c3034bf46365b96895918ff",
+      "materialHash": "e531b89d72a95c04191bf4f43a97a4e341c3bfffbdbb9b1e25b538d908216cd1",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "301977386b8ddb7a259ca49654afb8bdcb9a07f119790f4066296ec06e971557",
+        "diffPackHash": "85dd35d95fbb5b901dcfaf0ae6d83c6fb574dc51453b2d2a75311f3ed0e78e8d",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/lattice-parallel-wave.md",
+          "packages/main/package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/lattice-parallel-wave.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/lattice-parallel-wave.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/lattice-parallel-wave-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "041e381979f5cc9f64411d730afe12a1db00e0294bb29b8114ba2cf4b07c4af3",
+          "0dfb72a3caaf6dcfe68197f750dda0cf12707090a23eada8243de779c1196fe2",
+          "35b2dc15829329bbfc434d67c0af86ef02808ff95e2b5b6c9aa45097000121e3",
+          "42973bec8abcf827f52720fb0704599b28ad4b490ec05272f630b95327079772",
+          "52839dbf1c06265163680a4e5a2ecef12dbe512efe58a947e194d56eccf973ae",
+          "977ba0d9d52f14612402ff5f247beeae13405f9c1a84ae4992dc66d9a3b14568",
+          "a1e113640c45be0bca50122453de1ee34ab821028860d35dd13696ab13eb99be",
+          "c5d74bf63c17a17b3d7fda13f9e7ac013af4d1567c467ac02d3f4f3afa343415",
+          "dd567a747f07c5ddd31a87aaa7937fe612ebad761f1effefedc75ee2599b35d3",
+          "e0694ca8d6013bd6d7b37d736fb6133bc236de9155ac7423020617aa91cbe96e",
+          "f1af974d3d0523020dd3af2b9d76cc5b1bc6df2c3883f623b9c2cadd9859fbcc"
+        ],
+        "bindingHash": "3fd5fdfdfe57b6da11c4bc4c12b40e288fa4db369c18b6e20cd31fc7a8109fef"
+      },
+      "_hash": "0f976ca4f45946bb58801a4b26cd7dc9b7547ff8079fb6d5dffeb8fa5d3290c7"
     }
   ]
 }
