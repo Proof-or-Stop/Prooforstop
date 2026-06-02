@@ -1,121 +1,59 @@
 {
   "storyId": "B-5cdc",
-  "checkedAt": "2026-06-02T21:05:46.590Z",
+  "checkedAt": "2026-06-02T21:06:27.298Z",
   "features": [
     {
-      "feature": "Explicit authority_enforce_runner command surface (--once / --dry-run / --json) that resolves authority mode, runner id, actor key presence and session readiness",
-      "covered_by": "CHK-001; CHK-001:happy:0; CHK-001:edge:0; plan.md#CHK-001; scope-contract.allowedCreate:packages/main/src/core/authority-runner.ts; scope-contract.allowedModify:packages/main/src/handlers/lattice-cli.ts; scope-contract.allowedModify:packages/main/src/cli-engine.ts",
+      "feature": "explicit authority_enforce_runner command",
+      "covered_by": "CHK-001 + plan.md CHK-001 + scope-contract allowedModify cli-engine/handler",
       "status": "covered",
       "excluded_by": "",
-      "source": "docs/requirements/decisions/authority-client-role.md#koala-authority-enforce-command-boundary-milestone-1-reserve"
+      "source": "B-5cdc PLAN"
     },
     {
-      "feature": "Dry-run is side-effect free: projects planned steps (register_runner, runner_heartbeat, claim_job, spawned:false, providerEvents:[]) with no network mutation and no provider execution",
-      "covered_by": "CHK-001:happy:0; plan.md#CHK-001; decision.principles[1]; decision.preMortem[1]; tasks/authority-enforce-runner-smoke.ts",
+      "feature": "dry-run has no network mutation and no provider execution",
+      "covered_by": "CHK-001:happy:0 + plan.md dry-run spawned:false providerEvents:[]",
       "status": "covered",
       "excluded_by": "",
-      "source": "plan.md#story-goal"
+      "source": "B-5cdc PLAN"
     },
     {
-      "feature": "Missing URL / actor key inside enforce runner mode fails closed with actionable error while ordinary local lifecycle commands remain usable",
-      "covered_by": "CHK-001:edge:0; plan.md#CHK-001; understanding.constraints[2]; decision.principles[0]",
+      "feature": "fake-provider execution and signed provider events",
+      "covered_by": "CHK-002 + plan.md CHK-002 + allowedCreate packages/main/src/core/authority-runner.ts",
       "status": "covered",
       "excluded_by": "",
-      "source": "docs/requirements/decisions/authority-client-role.md#b-b710-enforce-readiness-diagnostics-milestones-3-4"
+      "source": "B-5cdc PLAN"
     },
     {
-      "feature": "Ordinary local lifecycle commands (story_advance / verification_evidence_add) cannot implicitly invoke the runner path",
-      "covered_by": "CHK-001:adversarial:0; plan.md#CHK-001; decision.principles[0]; decision.preMortem[0]; tasks/authority-enforce-runner-smoke.ts",
+      "feature": "ordinary local lifecycle commands do not invoke runner",
+      "covered_by": "CHK-001:adversarial:0 + decision preMortem implicit invocation",
       "status": "covered",
       "excluded_by": "",
-      "source": "docs/requirements/decisions/authority-client-role.md#pd-2-decision-isolated-enforce-subsystem--b-7e38-milestone-0"
+      "source": "B-5cdc PLAN"
     },
     {
-      "feature": "Bounded fake-provider job execution in once mode driven by claimed JobSpec command/permissions",
-      "covered_by": "CHK-002; CHK-002:happy:0; plan.md#CHK-002; scope-contract.allowedCreate:packages/main/src/core/authority-runner.ts; scope-contract.allowedCreate:packages/main/src/tasks/authority-runner-events-smoke.ts",
-      "status": "covered",
-      "excluded_by": "",
-      "source": "plan.md#chk-002-fake-provider-job-execution-and-provider-events"
-    },
-    {
-      "feature": "Signed provider events (stdout_delta, stderr_delta, completed exitCode:0, failed for non-zero) bound to claimed run/job/actor identity with transcript hash",
-      "covered_by": "CHK-002:happy:0; CHK-002:edge:0; plan.md#CHK-002; decision.principles[2]; decision.preMortem[2]; decision.preMortem[3]; scope-contract.allowedModify:packages/main/src/core/authority-signing.ts; scope-contract.allowedModify:packages/main/src/core/authority-client.ts; scope-contract.allowedModify:packages/main/src/core/authority-runner-contracts.ts",
-      "status": "covered",
-      "excluded_by": "",
-      "source": "docs/requirements/decisions/authority-client-role.md#l2-evidence-boundary"
-    },
-    {
-      "feature": "Adversarial rejection of unleased or mismatched provider/run/job identities before any evidence submission",
-      "covered_by": "CHK-002:adversarial:0; plan.md#CHK-002; decision.preMortem[2]; tasks/authority-runner-events-smoke.ts",
-      "status": "covered",
-      "excluded_by": "",
-      "source": "docs/requirements/decisions/authority-client-role.md#cold-read-definition-of-l2-authority"
-    },
-    {
-      "feature": "Authority-client-role decision doc may be edited only for wording sync if needed",
-      "covered_by": "scope-contract.allowedModify:docs/requirements/decisions/authority-client-role.md; plan.md#scope",
-      "status": "covered",
-      "excluded_by": "",
-      "source": "plan.md#scope"
-    },
-    {
-      "feature": "Package scripts wired for the two new smoke commands (test:authority-enforce-runner, test:authority-runner-events)",
-      "covered_by": "scope-contract.allowedModify:package.json; scope-contract.allowedModify:packages/main/package.json; plan.md#acceptance-transcript",
-      "status": "covered",
-      "excluded_by": "",
-      "source": "plan.md#acceptance-transcript"
-    },
-    {
-      "feature": "Real provider CLI adapters (Claude Code / Codex / Gemini real process orchestration)",
+      "feature": "real provider CLI adapters and production Python deployment",
       "covered_by": "",
       "status": "excluded",
-      "excluded_by": "plan.md#scope:out-of-scope (real provider CLI adapters); understanding.unknowns[0]; background.md#方案取舍; decision.options.thin-explicit-runner.cons[0]",
-      "source": "plan.md#scope"
+      "excluded_by": "understanding unknowns + plan.md out of scope",
+      "source": "B-5cdc PLAN"
     },
     {
-      "feature": "Production Python authority deployment logic and receipt verification",
+      "feature": "host overflow B-aa98 assets",
       "covered_by": "",
       "status": "excluded",
-      "excluded_by": "plan.md#scope:out-of-scope (production Python deployment logic); understanding.unknowns[0]; understanding.constraints[0]; index.json#description",
-      "source": "docs/requirements/decisions/authority-client-role.md#milestone-routing"
-    },
-    {
-      "feature": "Persistent secure actor key storage / generation",
-      "covered_by": "",
-      "status": "excluded",
-      "excluded_by": "plan.md#scope:out-of-scope (persistent secure actor key storage); understanding.unknowns[1]",
-      "source": "plan.md#scope"
-    },
-    {
-      "feature": "Host overflow / B-aa98 assets",
-      "covered_by": "",
-      "status": "excluded",
-      "excluded_by": "plan.md#scope:out-of-scope (host overflow / B-aa98 assets); scope-contract.explicitExcludes:.koala/story/actives/B-aa98/**",
-      "source": "scope-contract.json#explicitExcludes"
-    },
-    {
-      "feature": "Lab, desktop, and package-desktop assets",
-      "covered_by": "",
-      "status": "excluded",
-      "excluded_by": "plan.md#scope:out-of-scope (lab/desktop/package-desktop assets); scope-contract.explicitExcludes:packages/lab/**; scope-contract.explicitExcludes:packages/desktop/**; scope-contract.explicitExcludes:scripts/package-desktop.mjs",
-      "source": "scope-contract.json#explicitExcludes"
-    },
-    {
-      "feature": "Promoting local JSON/status to authoritative production DONE evidence",
-      "covered_by": "",
-      "status": "excluded",
-      "excluded_by": "understanding.constraints[0]; decision.principles[3]; docs/requirements/decisions/authority-client-role.md#transport-acceptance-is-not-receipt-verification; docs/requirements/decisions/lattice-parallel-wave.md#authority-boundary",
-      "source": "docs/requirements/decisions/authority-client-role.md#what-thin-local-shadow-client-means"
+      "excluded_by": "scope-contract explicitExcludes .koala/story/actives/B-aa98/**",
+      "source": "B-5cdc scope contract"
     }
   ],
   "summary": {
-    "total": 15,
-    "covered": 9,
-    "excluded": 6,
+    "total": 6,
+    "covered": 4,
+    "excluded": 2,
     "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "96ca3001cebdb29411ce2ce2cc76add904e6d4a0940f2b0992e92f6b08c3d82a"
+  "_hash": "9259fb7ad8da9b921ec48c7dd96f1f7194a0c24e26c7109afb347b4e780e9322",
+  "openQuestions": []
 }
