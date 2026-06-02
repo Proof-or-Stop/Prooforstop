@@ -450,6 +450,7 @@ guard against future wording changes silently promoting thin-client submissions.
 | B-0f04 Codex PM re-verification | Independent PM confirmation of audit claims | `.koala/story/actives/B-0f04/evidence/codex-verification.md` |
 | B-4bd4 CHK-001 decision inputs | Derivation artifact (terms, citations, fact extraction) | `.koala/story/actives/B-4bd4/evidence/authority-client-role-decision.md` |
 | B-7e38 Milestone 0 | PD-2 boundary + enforce namespace reserve + handoff | `docs/requirements/decisions/authority-client-role.md` (this file) |
+| B-2522 CHK-002 enforce matrix | In-process smoke proving local/off stays free/local, shadow is warning-only, enforce fake receipt only classifies after receipt verification, enforce missing server fails closed, parallel_report stays non-authoritative with productionDone=false | `packages/main/src/tasks/authority-enforce-matrix-smoke.ts` |
 | Verification Context Pack | Defines locally-landed vs external authority constraints | `docs/requirements/decisions/verification-context-pack.md` |
 | Truth-source management | Defines where human decisions must live | `docs/requirements/decisions/truth-source.md` |
 | Role separation doc | Koala multi-role architecture reference | `docs/requirements/decisions/role-separation.md` |

@@ -142,6 +142,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'draft_check_set',      // B-9975 CHK-002: draft check 全阶段可用
     'draft_issue_resolve',
     'authority_enforce_policy', // B-ea92 M1: read-only authority policy discovery, no side-effects
+    'authority_enforce_runner', // B-5cdc: read-only enforce runner readiness/dry-run projection; no provider execution
     'capability_list', // B-f26a M2: read-only host capability diagnostics for cross-host degradation
     'capability_probe', // B-cd31 CHK-002: productized single-host capability diagnostics
     'host_*', // Lattice CLI 0.3.5: host list/probe/install guidance; dry-run/read-only diagnostics only
@@ -152,6 +153,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'story_export', // B-cd31 CHK-003: Canonical Story v0 export surface
     'handoff_create', 'handoff_inspect', // B-cd31 CHK-004: Lattice cross-host handoff pack surface
     'handoff_accept', 'handoff_resume', // B-cd31 CHK-005: handoff accept/resume projections without authority mutation
+    'handoff_receipt_submit', 'handoff_worktree_create', // B-aa98: overflow receipt/worktree diagnostic projections
     'evidence_manifest', 'evidence_inspect', // B-cd31 CHK-006: portable evidence freshness diagnostics
     'parallel_wave_create', 'parallel_wave_inspect', 'parallel_plan', // B-29b6: read-only Lattice Parallel Wave planning surfaces; no authority mutation
     'parallel_dispatch', 'parallel_status', 'parallel_merge_queue', 'parallel_report', // B-e70f: read-only Parallel Dispatch projections; no spawning or authority mutation

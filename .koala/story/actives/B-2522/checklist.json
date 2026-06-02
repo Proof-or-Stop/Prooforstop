@@ -9,18 +9,18 @@
         "docs/requirements/decisions/lattice-parallel-wave.md",
         "docs/requirements/decisions/verification-context-pack.md"
       ],
-      "userSees": "E2E smoke shows `receiptVerified:true`, `klass:\"receipt-backed-l2-plus\"`, and evidence bound to distinct producer/verifier run IDs only when fake server receipt verification passes.",
+      "userSees": "`test:authority-receipt-classification` prints `authority receipt classification smoke passed: receiptVerified=true klass=receipt-backed-l2-plus only after signed receipt verification`; same-run verifier, missing command/transcript/diff hashes, bad receipt signature, receipt subject mismatch, or transport accepted without verified receipt remain non-receipt-backed.",
       "verificationIntent": {
         "happy": [
           {
-            "desc": "Enforce runner submits full signed L2 verifier envelope and classifies as receipt-backed only after receipt verification.",
+            "desc": "A fully bound verifier envelope classifies as receipt-backed only after AuthorityReceipt signature verification and subject binding to that exact evidence envelope pass.",
             "type": "cli",
             "priority": "must"
           }
         ],
         "edge": [
           {
-            "desc": "Same-run verifier, missing commandDigest/transcriptHash/diffHash, or receipt signature mismatch cannot classify as receipt-backed.",
+            "desc": "Same-run verifier, missing commandDigest/transcriptHash/diffHash, receipt signature mismatch, or receipt subjectId/subjectDigest mismatch cannot classify as receipt-backed.",
             "type": "logic",
             "priority": "must"
           }
@@ -33,9 +33,57 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-02T21:56:31.674Z",
+      "endTime": "2026-06-02T22:10:54.470Z",
+      "files": {
+        "modify": [
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/authority-boundary.ts",
+          "packages/main/src/core/authority-runner-contracts.ts",
+          "packages/main/src/core/authority-submit.ts"
+        ],
+        "create": [
+          "packages/main/src/core/authority-receipt-classification.ts",
+          "packages/main/src/tasks/authority-receipt-classification-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/authority-receipt-classification-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "command": "npm run test:authority-receipt-classification",
+          "result": "pass",
+          "note": "Fully bound verifier envelope only reaches receipt-backed-l2-plus after signed AuthorityReceipt verification and subject binding to the exact evidence envelope; smoke covers bare and sha256-prefixed subjectDigest acceptance.",
+          "headHash": "29f643b7bd79f6266e27ca20f4e8ead883b2650d",
+          "materialHash": "bf8cbec16075695a8cc42bf993ded7058902fd0a21d8c563b4d151944229b19b",
+          "timestamp": "2026-06-02T23:07:19.479Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm run test:authority-receipt-classification && npm run test:authority-runner-contracts",
+          "result": "pass",
+          "note": "Same-run verifier, missing commandDigest/transcriptHash/diffHash, bad signature, wrong subjectKind, wrong subjectId, wrong subjectDigest, wrong bare digest, and unsupported sha512 prefix all stay non-receipt-backed.",
+          "headHash": "29f643b7bd79f6266e27ca20f4e8ead883b2650d",
+          "materialHash": "bf8cbec16075695a8cc42bf993ded7058902fd0a21d8c563b4d151944229b19b",
+          "timestamp": "2026-06-02T23:07:19.479Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm run test:authority-boundary-smoke && npm run test:authority-evidence-flow",
+          "result": "pass",
+          "note": "Transport accepted true without verified receipt remains thin-client/local-shadow classification and cannot satisfy production receipt-backed authority.",
+          "headHash": "29f643b7bd79f6266e27ca20f4e8ead883b2650d",
+          "materialHash": "bf8cbec16075695a8cc42bf993ded7058902fd0a21d8c563b4d151944229b19b",
+          "timestamp": "2026-06-02T23:07:19.479Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -52,29 +100,124 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "Full test matrix passes and validates both local-only and server-backed enforce modes.",
+            "desc": "A single matrix smoke prints local/off PASS, shadow warning PASS, enforce fake-server receipt PASS, enforce no-server runner fail-closed PASS, and parallel_report productionDone=false.",
             "type": "cli",
             "priority": "must"
           }
         ],
         "edge": [
           {
-            "desc": "Gated live Python authority script is documented and skipped unless env vars are present.",
+            "desc": "A live Python authority smoke is documented and self-skips unless KOALA_AUTHORITY_LIVE_URL and KOALA_AUTHORITY_LIVE_PUBLIC_KEY are present.",
             "type": "cli",
             "priority": "must"
           }
         ],
         "adversarial": [
           {
-            "desc": "Parallel Wave/dispatch/report artifacts remain non-authoritative and cannot satisfy DONE by themselves.",
+            "desc": "Parallel Wave/dispatch/report outputs remain read-only scheduling artifacts with productionDone=false, receiptRefs empty/unverified, and cannot satisfy DONE by themselves.",
             "type": "logic",
             "priority": "must"
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-02T22:11:12.453Z",
+      "endTime": "2026-06-02T22:37:56.690Z",
+      "files": {
+        "modify": [
+          "package.json",
+          "packages/main/package.json",
+          "README.md",
+          "docs/guide.md",
+          "docs/requirements/decisions/authority-client-role.md",
+          "docs/requirements/decisions/lattice-parallel-wave.md"
+        ],
+        "create": [
+          "packages/main/src/tasks/authority-enforce-matrix-smoke.ts",
+          "packages/main/src/tasks/authority-live-python-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/authority-enforce-matrix-smoke.ts",
+          "packages/main/src/tasks/authority-live-python-smoke.ts",
+          "packages/main/src/tasks/lattice-parallel-wave-smoke.ts",
+          "packages/main/src/tasks/authority-evidence-flow-smoke.ts",
+          "packages/main/src/tasks/authority-enforce-runner-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "command": "npm run test:authority-enforce-matrix",
+          "result": "pass",
+          "note": "Matrix smoke printed local/off PASS, shadow warning PASS, enforce fake-server receipt PASS, enforce no-server runner fail-closed PASS, and parallel_report productionDone=false PASS; confirms local/off remains free/local, shadow only warns, enforce missing server fails closed, and signed receipt classification is required for L2+.",
+          "headHash": "29f643b7bd79f6266e27ca20f4e8ead883b2650d",
+          "materialHash": "bf8cbec16075695a8cc42bf993ded7058902fd0a21d8c563b4d151944229b19b",
+          "timestamp": "2026-06-02T23:07:19.479Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "command": "npm run test:authority-live-python",
+          "result": "pass",
+          "note": "Live Python smoke self-skipped with the documented line because KOALA_AUTHORITY_LIVE_URL and KOALA_AUTHORITY_LIVE_PUBLIC_KEY are not set; when configured, the task performs policy discovery against the live Python authority before declaring pass.",
+          "headHash": "29f643b7bd79f6266e27ca20f4e8ead883b2650d",
+          "materialHash": "bf8cbec16075695a8cc42bf993ded7058902fd0a21d8c563b4d151944229b19b",
+          "timestamp": "2026-06-02T23:07:19.479Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:lattice-parallel-wave-smoke && npm run test:authority-enforce-matrix && npm run test:authority-boundary-smoke && npm run test:authority-evidence-flow",
+          "result": "pass",
+          "note": "Parallel Wave smoke and matrix assertions keep planning artifacts non-authoritative: productionDone=false, authorityChanged=false, receiptRefs=[]; authority boundary/evidence flow regressions confirm thin-client transport acceptance cannot satisfy receipt-backed production authority.",
+          "headHash": "29f643b7bd79f6266e27ca20f4e8ead883b2650d",
+          "materialHash": "bf8cbec16075695a8cc42bf993ded7058902fd0a21d8c563b4d151944229b19b",
+          "timestamp": "2026-06-02T23:07:19.479Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-02T21:56:31.674Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start Claude Code implementer work for receipt-backed classification helper and smoke.",
+      "agent": "codex"
+    },
+    {
+      "timestamp": "2026-06-02T22:10:54.470Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "CHK-001 implemented by koala-implementer commits e5f12c134f2e1caad267acdeab25d97bf759b6cf and 92eb141da1141695f12ebadfc3dd6878b53c9a1e; Codex independently verified build and authority smokes.",
+      "agent": "codex"
+    },
+    {
+      "timestamp": "2026-06-02T22:11:12.453Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start Claude Code implementer work for enforce/local/shadow matrix smoke, live Python self-skip smoke, docs, and Lattice parallel report non-authoritative evidence.",
+      "agent": "codex"
+    },
+    {
+      "timestamp": "2026-06-02T22:37:56.690Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "CHK-002 implemented by koala-implementer commit f099fe5eb85150d9dd28d810a2ac2421d41a4dd8; Codex independently verified build, authority matrix, live Python self-skip, authority runner/status/event smokes, receipt/boundary/evidence regressions, and lattice parallel wave non-authority boundary.",
+      "agent": "codex"
     }
   ]
 }

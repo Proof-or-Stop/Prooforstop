@@ -1,0 +1,46 @@
+{
+  "storyId": "B-5cdc",
+  "checkedAt": "2026-06-02T21:38:38.242Z",
+  "reviewRound": "2026-06-02T21:27:45.228Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/authority-client-role.md",
+      "promise": "PD-1/PD-2 boundary: koala authority enforce runner stays explicit/isolated/opt-in headless; ordinary koala workflow commands never invoke runner paths or claim L2+ authority evidence.",
+      "status": "verified",
+      "verifiedBy": "git diff + adversarial smoke + ownership/lifecycle contract",
+      "evidence": "Doc is referenced as boundary context and intentionally unchanged in this diff (git diff main...HEAD shows no docs/requirements changes). The new lattice authority enforce runner command is gated behind explicit `lattice authority enforce runner --once --dry-run`; AUTHORITY_RUNNER_PLANNED_STEPS and AuthorityRunnerPlan keep spawned:false/providerEvents:[]/productionDone:false; authority_status output has no plannedSteps (asserted in authority-enforce-runner-smoke.ts). Adversarial smoke + lifecycle-registry-contract + command-ownership-contract tests confirm authority_enforce_runner cannot be invoked implicitly by verification_evidence_add / story_advance."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-parallel-wave.md",
+      "promise": "Parallel-wave surfaces remain non-authority planning state: spawned stays false, runners must explicitly confirm follow-up, no production completion / receipt refs / auto-spawned runner state.",
+      "status": "verified",
+      "verifiedBy": "git diff + smoke transcript",
+      "evidence": "Doc is unchanged in this diff and the new runner respects the wave invariants. dry-run CLI transcript shows spawned:false, providerEvents:[], localWorkflowUsable:true; AuthorityRunnerPlan type literally pins spawned:false and providerEvents:[] (packages/main/src/core/authority-runner.ts:22-23). Real provider execution is only reachable via the explicit fake-provider executeFakeProviderJob helper, not via parallel-wave dispatch projections."
+    },
+    {
+      "docPath": "docs/requirements/decisions/verification-context-pack.md",
+      "promise": "Verification Context Pack remains the verifier reading boundary; this runner work does not bypass or redefine pack generation, digest parity, or coveredRefs mapping.",
+      "status": "verified",
+      "verifiedBy": "git diff + scope review",
+      "evidence": "Doc is unchanged and no listed maintenance surface is touched: git diff has no changes to authority-contracts.ts, evidence-collector.ts, verification-context-pack.ts, handlers/verification-context-pack.ts (cli-engine.ts/command-policy.ts changes are limited to registering the new authority_enforce_runner command at L0 read-only, not pack semantics). The runner emits its own signed ProviderEventsEnvelope via signRunnerEnvelope, not an EvidenceEnvelope that would interact with context pack coveredRefs."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "env KOALA_AUTHORITY_MODE=enforce KOALA_AUTHORITY_URL=https://authority.test KOALA_AUTHORITY_ACTOR_KEY=test-actor KOALA_AUTHORITY_RUNNER_ID=runner-1 node packages/main/dist/cli.js --root . lattice authority enforce runner --once --dry-run --json -> JSON {schemaVersion:lattice.authority_enforce_runner.v1, mode:enforce, once:true, dryRun:true, plannedSteps:[register_runner, runner_heartbeat, claim_job], spawned:false, providerEvents:[], localWorkflowUsable:true, status:pass, readinessWarnings:[], nextActions:[]}. Confirms expected plan projection, no network mutation, no provider execution. Smoke transcript: `authority enforce runner smoke passed: dry-run planned register/heartbeat/claim without provider execution` (npm run test:authority-enforce-runner)."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "npm run test:authority-runner-events transcript: `authority runner events smoke passed: stdout/completed/failed events are signed and transcript-bound`. Happy: executeFakeProviderJob for `node -e process.stdout.write(ok)` emits eventKinds=[stdout_delta, completed] with exitCode:0 and 64-hex transcriptHash; verifyRunnerEnvelope(envelope, publicKey)=true. Edge: failing command `process.stderr.write(bad); process.exit(7)` emits [stderr_delta, failed] with exitCode:7, envelope still signature-verifies. Adversarial: runnerId mismatch, expected runId mismatch, and provider=claude-code all throw before any event emission/evidence submission."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "koala validate --story=B-5cdc passes with verification intent coverage 6/6 (0 required missing); dry-run CLI transcript shows spawned:false and providerEvents:[]; fake-provider smoke emits signed stdout_delta/completed and stderr_delta/failed events with transcript-bound hashes; relatedDocs (authority-client-role / lattice-parallel-wave / verification-context-pack) intentionally untouched and their boundaries verified by adversarial smoke + ownership/lifecycle contract tests."
+  },
+  "_hash": "8c23c29520827bc455fe50056c49e726ac60310f16140e41e468d7bb8fb8a002"
+}

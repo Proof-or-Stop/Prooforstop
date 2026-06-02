@@ -1,0 +1,93 @@
+{
+  "findings": [
+    {
+      "id": "B-aa98:F-001",
+      "desc": "The overflow docs name CLI surfaces that do not exist in Lattice 0.3.5. `README.md` and `docs/guide.md` use `lattice host status`, `lattice host_dispatch`, `lattice handoff_worktree_create`, and `lattice handoff_receipt_submit`, but the CLI rejects those commands; only `host_list`, `host_probe`, `host_install`, `authority_status`, `conduit_status`, `conduit_explain`, `handoff_create`, `handoff_inspect`, `handoff_accept`, and `handoff_resume` are exposed. `docs/requirements/decisions/project-vision.md` also repeats `host_status` / `host_dispatch` as if they were valid surfaces.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-02T21:34:50.792Z",
+      "reviewRound": "2026-06-02T21:32:19.075Z",
+      "reviewRunId": "B-aa98:RR-003",
+      "_hash": "a40f54b67715af3f3509ec86154cf54c95c1fd03ead5b091ce5797f60b7e2d0d",
+      "files": [
+        "README.md",
+        "docs/guide.md",
+        "docs/requirements/decisions/project-vision.md"
+      ]
+    },
+    {
+      "id": "B-aa98:F-002",
+      "desc": "Host-neutrality is overclaimed. docs/requirements/decisions/host-overflow.md:5-12 and docs/requirements/decisions/project-vision.md:18 describe Host Overflow as host-neutral and say Claude Code, Codex, and similar tools are execution hosts, but packages/main/src/core/lattice-hosts.ts:298-304 only marks overflowReady for claude-code or codex by host id. A future editing host with the same declared capabilities would still report unavailable, so the architecture remains vendor-allowlisted under the hood. Fix by deriving overflow readiness from capability/profile semantics instead of a host-id allowlist, or narrow the docs to Codex/Claude Code only for this milestone.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-02T21:35:35.989Z",
+      "reviewRound": "2026-06-02T21:32:19.075Z",
+      "reviewRunId": "B-aa98:RR-002",
+      "_hash": "ba512ee777f1307904ef551f8355708feadf9b8734e5ad923eed780040ec3027",
+      "files": [
+        "packages/main/src/core/lattice-hosts.ts",
+        "docs/requirements/decisions/host-overflow.md",
+        "docs/requirements/decisions/project-vision.md"
+      ]
+    },
+    {
+      "id": "B-aa98:F-003",
+      "desc": "Receipt safety is incomplete: submitHandoffReceipt treats any non-empty headSha as pass (packages/main/src/core/lattice-handoff.ts:795-805) and can return accepted-local without proving that headSha exists or matches the reviewed overflow commit. Verified with an inline node repro that submitted headSha=\"not-a-real-commit\" and still got status=accepted-local plus validations.headSha=pass. Fix by resolving headSha in git (for example rev-parse/cat-file), requiring it to be reachable from the overflow worktree result being reviewed, and failing/diagnostic when the commit cannot be verified.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-02T21:37:26.090Z",
+      "reviewRound": "2026-06-02T21:32:19.075Z",
+      "reviewRunId": "B-aa98:RR-004",
+      "_hash": "d9c61dd8e302883d4651a4796d705366b5262231927a486e0adaad0760aadd78",
+      "files": [
+        "packages/main/src/core/lattice-handoff.ts"
+      ]
+    },
+    {
+      "id": "B-aa98:F-004",
+      "desc": "Overflow JSON contract is broken: docs/guide.md:118-122 advertise --json for host_status/handoff_create/handoff_worktree_create/host_dispatch/handoff_receipt_submit, but MAIN_TOOLS only declares format for these commands (packages/main/src/cli-engine.ts:620-705) and the handoff handlers only branch on args.format (packages/main/src/handlers/lattice-handoff.ts:140-185). Repro: node packages/main/dist/cli.js host_status --host=claude-code --json returns text, so automation expecting JSON silently breaks. Fix by adding json:boolean schema support + handler support for the new overflow commands, or change docs/examples/help to require --format=json consistently.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-02T21:37:26.091Z",
+      "reviewRound": "2026-06-02T21:32:19.075Z",
+      "reviewRunId": "B-aa98:RR-004",
+      "_hash": "4ff5d80cf2d983e19a63d8746da29f1f7b3ca1e31fba1b3fe8cd8804cf852326",
+      "files": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/handlers/lattice-handoff.ts",
+        "docs/guide.md"
+      ]
+    },
+    {
+      "id": "B-aa98:F-005",
+      "desc": "packages/main/src/core/lattice-handoff.ts:808-824 still treats any locally resolvable headSha as pass. Verified repro: a receipt whose headSha points to an unrelated existing commit (touching other.txt, not the claimed changedFiles) still returns status=accepted-local with validations.headSha=pass. That means handoff_receipt_submit still does not prove the receipt is tied to the reviewed overflow result; packages/main/src/tasks/host-overflow-smoke.ts:306-326 only covers an invalid SHA, so this false-positive path remains untested.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-02T22:04:01.827Z",
+      "reviewRound": "2026-06-02T21:55:26.631Z",
+      "reviewRunId": "B-aa98:RR-006",
+      "_hash": "74b246c87efaa07037774184730eb1d677d25e75e63745a4b5b22970df3b3cc6",
+      "files": [
+        "packages/main/src/core/lattice-handoff.ts",
+        "packages/main/src/tasks/host-overflow-smoke.ts"
+      ],
+      "resolvedReason": "handoff_receipt_submit now proves baseSha..headSha via git diff, requires receipt changedFiles to appear in that diff, and folds actual diff scope into receipt diagnostics so unrelated existing commits no longer pass local acceptance. Smoke coverage now submits an existing but unrelated local commit and expects diagnostic instead of accepted-local. Verified with npm --prefix packages/main run build, npm --prefix packages/main run test:host-overflow-smoke, npm --prefix packages/main run test:lattice-handoff-smoke, npm --prefix packages/main run test:lattice-cli-migration-smoke, npm run test:command-ownership-contract, npm run test:process-fact-contract, and git diff --check.",
+      "resolvedAt": "2026-06-02T22:11:15.648Z"
+    }
+  ]
+}

@@ -38,6 +38,30 @@ export interface LatticeHostProbe {
   probe: CapabilityProbe;
 }
 
+export interface LatticeHostStatus {
+  schemaVersion: 'lattice.host_status.v1';
+  product: { name: typeof LATTICE_PRODUCT_NAME; version: typeof LATTICE_CLI_VERSION };
+  host: string;
+  requestedHost: string;
+  matchedFallback: boolean;
+  status: 'ready' | 'degraded' | 'unavailable';
+  overflowReady: boolean;
+  nextAction: string;
+  productionDone: false;
+  receiptVerified: false;
+  readiness: {
+    edit: CapabilityStatus;
+    shell: CapabilityStatus;
+    test: CapabilityStatus;
+    worktree: CapabilityStatus;
+    review: CapabilityStatus;
+    receipt: 'local-only' | 'receipt-capable';
+  };
+  limits: string[];
+  warnings: string[];
+  probe: CapabilityProbe;
+}
+
 export interface LatticeHostInstallGuidance {
   schemaVersion: 'lattice.host_install.v1';
   product: { name: typeof LATTICE_PRODUCT_NAME; version: typeof LATTICE_CLI_VERSION };
@@ -218,6 +242,113 @@ export function buildLatticeHostProbe(host: string): LatticeHostProbe {
   };
 }
 
+function capabilityStatus(profile: HostProfile, category: CapabilityCategory): CapabilityStatus {
+  return profile.capabilities.find(capability => capability.category === category)?.status ?? 'unavailable';
+}
+
+function readinessWarningsForProbe(probe: CapabilityProbe): string[] {
+  return probe.degradations.map((degradation) => {
+    const recovery = degradation.recovery ? ` Recovery: ${degradation.recovery}` : '';
+    return `${degradation.capability}: ${degradation.reason} Fallback: ${degradation.fallback}.${recovery}`.trim();
+  });
+}
+
+function readinessLimitsForProbe(probe: CapabilityProbe): string[] {
+  const limits = probe.degradations
+    .filter((degradation) => degradation.authorityImpact !== 'none')
+    .map((degradation) => `${degradation.capability}=${degradation.authorityImpact}`);
+  return limits.length > 0
+    ? limits
+    : ['overflow execution remains local-only until a separate authority-capable path verifies receipts'];
+}
+
+function nextActionForStatus(
+  probe: CapabilityProbe,
+  overflowReady: boolean,
+  status: LatticeHostStatus['status'],
+): string {
+  if (!overflowReady) {
+    if (probe.host === 'local-runner') {
+      return 'Use local-runner only for delegated verification commands; choose an editing host with file-edit, shell/pty, test-execution, and approval support for overflow work.';
+    }
+    if (probe.host === 'browser') {
+      return 'Use browser as a verification companion only; choose an editing host with file-edit, shell/pty, test-execution, and approval support for overflow work.';
+    }
+    if (probe.host === 'desktop-app') {
+      return 'Keep the desktop app as an optional dashboard/archive surface; choose an editing host with file-edit, shell/pty, test-execution, and approval support for overflow execution.';
+    }
+    if (probe.host === 'server') {
+      return 'Keep server responsibilities on authority/orchestration; choose a local editing host for overflow execution.';
+    }
+    return 'Run lattice host list --format=json, then choose a host whose profile exposes file-edit, shell/pty, test-execution, and approval support.';
+  }
+  if (status === 'degraded') {
+    return 'Manual-first overflow is possible, but inspect the visible limits before dispatching work and keep review/merge authority in Lattice.';
+  }
+  return 'Manual-first overflow is ready: create a handoff pack, project an isolated overflow worktree, then review any receipt locally before merging.';
+}
+
+function worktreeStatusForHost(profile: HostProfile): CapabilityStatus {
+  const shell = capabilityStatus(profile, 'shell/pty');
+  return shell === 'available' ? 'available' : shell === 'conditional' ? 'conditional' : 'unavailable';
+}
+
+export function buildLatticeHostStatusFromProbe(probe: CapabilityProbe): LatticeHostStatus {
+  const edit = capabilityStatus(probe.profile, 'file-edit');
+  const shell = capabilityStatus(probe.profile, 'shell/pty');
+  const test = capabilityStatus(probe.profile, 'test-execution');
+  const worktree = worktreeStatusForHost(probe.profile);
+  const review = capabilityStatus(probe.profile, 'approval');
+  const receiptCapability = capabilityStatus(probe.profile, 'receipt-verify');
+  const overflowReady =
+    edit !== 'unavailable' &&
+    shell !== 'unavailable' &&
+    test !== 'unavailable' &&
+    worktree !== 'unavailable' &&
+    review !== 'unavailable' &&
+    !probe.matchedFallback;
+  let status: LatticeHostStatus['status'] = overflowReady ? 'ready' : 'unavailable';
+  if (
+    overflowReady &&
+    (
+      edit === 'conditional' ||
+      shell === 'conditional' ||
+      test === 'conditional' ||
+      worktree === 'conditional' ||
+      review === 'conditional'
+    )
+  ) {
+    status = 'degraded';
+  }
+  return {
+    schemaVersion: 'lattice.host_status.v1',
+    product: PRODUCT,
+    host: probe.host,
+    requestedHost: probe.requestedHost,
+    matchedFallback: probe.matchedFallback,
+    status,
+    overflowReady,
+    nextAction: nextActionForStatus(probe, overflowReady, status),
+    readiness: {
+      edit,
+      shell,
+      test,
+      worktree,
+      review,
+      receipt: receiptCapability === 'available' ? 'receipt-capable' : 'local-only',
+    },
+    limits: readinessLimitsForProbe(probe),
+    warnings: readinessWarningsForProbe(probe),
+    productionDone: false,
+    receiptVerified: false,
+    probe,
+  };
+}
+
+export function buildLatticeHostStatus(host: string): LatticeHostStatus {
+  return buildLatticeHostStatusFromProbe(buildLatticeCapabilityProbe(host));
+}
+
 function installStepsForHost(host: string): { summary: string; steps: string[]; commands: string[]; warnings: string[] } {
   const normalized = host.trim().toLowerCase();
   const commonWarnings = [
@@ -343,6 +474,37 @@ export function renderLatticeHostProbeText(probe: LatticeHostProbe): string {
     '',
     renderCapabilityProbeText(probe.probe),
   ].join('\n');
+}
+
+export function renderLatticeHostStatusText(status: LatticeHostStatus): string {
+  const lines = [
+    `${LATTICE_PRODUCT_NAME} ${LATTICE_CLI_VERSION} host status (${status.schemaVersion})`,
+    `host: ${status.host}`,
+    `requestedHost: ${status.requestedHost}`,
+    `status: ${status.status}`,
+    `overflowReady: ${status.overflowReady}`,
+    `matchedFallback: ${status.matchedFallback}`,
+    `productionDone: ${status.productionDone}`,
+    `receiptVerified: ${status.receiptVerified}`,
+    `nextAction: ${status.nextAction}`,
+    '',
+    'readiness:',
+    `  edit: ${status.readiness.edit}`,
+    `  shell: ${status.readiness.shell}`,
+    `  test: ${status.readiness.test}`,
+    `  worktree: ${status.readiness.worktree}`,
+    `  review: ${status.readiness.review}`,
+    `  receipt: ${status.readiness.receipt}`,
+  ];
+  if (status.limits.length > 0) {
+    lines.push('', 'limits:');
+    lines.push(...status.limits.map((limit) => `  - ${limit}`));
+  }
+  if (status.warnings.length > 0) {
+    lines.push('', 'warnings:');
+    lines.push(...status.warnings.map((warning) => `  - ${warning}`));
+  }
+  return lines.join('\n');
 }
 
 export function renderLatticeHostInstallText(guidance: LatticeHostInstallGuidance): string {

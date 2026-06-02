@@ -3,6 +3,7 @@
 
 ## 关键洞察
 事实防伪不只看 provider completed，还要把 verifier evidence 绑定 producerRunId/verifierRunId、provider/model/vendor、command/transcript/diff hashes、context pack/target refs，并验证 server receipt。
+Glossary for reviewers: L2 means independent verifier evidence; receipt-backed-l2-plus means the envelope has distinct producerRunId/verifierRunId, provider/model/vendor, commandDigest/transcriptHash/diffHash, envelope signature, and a cryptographically verified Python AuthorityReceipt; transport accepted means HTTP submission acceptance only; shadow keeps local evidence with warnings, enforce fail-closes authority-dependent runner claims.
 
 ## 方案取舍
 最后一个 story 做集成和文档：fake authority server + contract smoke 覆盖本地 off、shadow warning、enforce success、enforce failure；真实 Python live E2E 可 gated 跳过但脚本路径要清楚。

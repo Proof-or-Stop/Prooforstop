@@ -56,6 +56,7 @@
     "test:gap-log-smoke": "node dist/tasks/gap-log-smoke.js",
     "test:verification-context-pack": "node dist/tasks/verification-context-pack-smoke.js",
     "test:authority-boundary-smoke": "node dist/tasks/authority-boundary-smoke.js",
+    "test:authority-receipt-classification": "node dist/tasks/authority-receipt-classification-smoke.js",
     "test:authority-client": "node dist/tasks/authority-client-smoke.js",
     "test:authority-evidence-flow": "node dist/tasks/authority-evidence-flow-smoke.js",
     "test:verification-evidence-authority-handler": "node dist/tasks/verification-evidence-authority-handler-smoke.js",
@@ -80,13 +81,18 @@
     "test:rollout-check-smoke": "node dist/tasks/rollout-check-smoke.js",
     "test:canonical-story-export-smoke": "node dist/tasks/canonical-story-export-smoke.js",
     "test:lattice-handoff-smoke": "node dist/tasks/lattice-handoff-smoke.js",
+    "test:host-overflow-smoke": "node dist/tasks/host-overflow-smoke.js",
     "test:lattice-evidence-smoke": "node dist/tasks/lattice-evidence-smoke.js",
     "test:lattice-parallel-wave-smoke": "node dist/tasks/lattice-parallel-wave-smoke.js",
     "test:rollout-check-smoke": "node dist/tasks/rollout-check-smoke.js",
     "test:authority-enforce-policy": "node dist/tasks/authority-enforce-policy-smoke.js",
     "test:authority-status-smoke": "node dist/tasks/authority-status-smoke.js",
     "test:authority-runner-contracts": "node dist/tasks/authority-runner-contracts-smoke.js",
-    "test:authority-runner-client": "node dist/tasks/authority-runner-client-smoke.js"
+    "test:authority-runner-client": "node dist/tasks/authority-runner-client-smoke.js",
+    "test:authority-enforce-runner": "node dist/tasks/authority-enforce-runner-smoke.js",
+    "test:authority-runner-events": "node dist/tasks/authority-runner-events-smoke.js",
+    "test:authority-enforce-matrix": "node dist/tasks/authority-enforce-matrix-smoke.js",
+    "test:authority-live-python": "node dist/tasks/authority-live-python-smoke.js"
   },
   "dependencies": {
     "@koala-agent/lab": "0.3.1",

@@ -22,6 +22,7 @@ surfaces first:
 lattice --version
 lattice host list --format=json
 lattice host probe --host=codex --format=json
+lattice host status --host=claude-code --format=json
 lattice host install --host=desktop-app --format=json
 lattice config doctor --format=json
 lattice rollout_check --projects /path/to/project-a,/path/to/project-b --json
@@ -35,6 +36,7 @@ The flat command forms remain available for automation:
 ```bash
 lattice host_list --format=json
 lattice host_probe --host=codex --format=json
+lattice host_status --host=claude-code --format=json
 lattice host_install --host=local-runner --format=json
 lattice lattice_config_doctor --format=json
 lattice rollout_check --projects /path/to/project --json
@@ -66,6 +68,37 @@ next action instead of opaque command failures. `authority_status` and
 `conduit_status` are receipt-aware but conservative: without verified server
 receipt support they report `productionDone=false`, `receiptVerified=false`,
 and `canClaimProductionDone=false`.
+
+## Host Overflow
+
+Lattice Host Overflow is manual-first; Lattice keeps story/scope/receipt
+authority; Claude Code is an execution host, not a production authority.
+
+Use the overflow surfaces like this:
+
+```bash
+lattice host_status --host=claude-code --format=json
+lattice handoff_create --storyId=B-xxxx --fromHost=codex --toHost=claude-code --format=json
+lattice handoff_worktree_create --file=handoff-pack.json --format=json
+lattice host_dispatch --host=claude-code --file=handoff-pack.json --mode=supervised --format=json
+lattice handoff_receipt_submit --file=receipt.json --format=json
+```
+
+The contract is conservative by design:
+
+- `host_status` reports overflow readiness only; it never changes authority.
+- `handoff_create` produces a bounded pack with `packId`, `packHash`, `baseSha`,
+  `allowedPaths`, `deniedPaths`, and execution instructions.
+- `handoff_worktree_create` only projects isolated worktree guidance; it does
+  not create, merge, trust, or clean anything automatically.
+- `host_dispatch` returns `planned` or `unavailable` plus `nextAction`; it does
+  not auto-run hosts, submit evidence, verify receipts, or claim
+  `productionDone`.
+- `handoff_receipt_submit` accepts local diagnostic receipts only. Even on
+  `accepted-local`, `receiptVerified=false` and `productionDone=false` remain.
+
+Architecture and non-goals:
+[`docs/requirements/decisions/host-overflow.md`](docs/requirements/decisions/host-overflow.md)
 
 ### Authority modes (off / shadow / enforce)
 
@@ -120,6 +153,26 @@ for the PD-1 / PD-2 trust boundary.
 The Mac App is no longer required for release or provider/config status. It is
 an optional dashboard/archive surface unless a future, explicitly reviewed
 receipt-backed runner path lands.
+
+### CHK-002 authority enforce matrix smoke
+
+`npm run test:authority-enforce-matrix` runs a deterministic in-process matrix
+that proves:
+
+- **local/off stays free/local** — `loadAuthoritySettings({})` is `mode: off`;
+  `classifyCliAuthoritySubmission('off', …)` returns `local-only`.
+- **shadow is warning-only** — a failing server returns `proceed=true` with a
+  `[warning]` rather than throwing.
+- **enforce fake receipt can only be classified after receipt verification** —
+  `classifyCliAuthoritySubmission` keeps `thin-client-transport-accepted`; only a
+  fully-bound envelope whose signed `AuthorityReceipt` is verified through
+  `classifyReceiptBackedEvidence` reaches `receipt-backed-l2-plus`.
+- **enforce missing server fails closed for runner/submission path** —
+  `createAuthoritySubmitter(enforce, no baseURL).submitSingle(…)` returns
+  `proceed=false` without touching the network.
+- **parallel_report remains non-authoritative** — `buildParallelReport(wave)`
+  always has `authority.productionDone=false`,
+  `authority.authorityChanged=false`, and `authority.receiptRefs=[]`.
 
 Primary path: Lattice CLI + Server Authority receipts. Mac App:
 optional/archive dashboard only.
