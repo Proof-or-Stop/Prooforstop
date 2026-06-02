@@ -383,9 +383,9 @@
         "docs/requirements/decisions/lattice-parallel-wave.md"
       ],
       "userSees": "用户运行 lattice host_dispatch --host=claude-code --file=pack.json --mode=supervised --format=json 看到 \"status\":\"planned|unavailable\", \"nextAction\":\"...\", \"authorityChanged\":false, \"productionDone\":false。",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-02T21:23:24.091Z",
       "files": {
         "modify": [
           "packages/main/src/core/lattice-handoff.ts",
@@ -425,7 +425,19 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:host-overflow-smoke",
+          "result": "pass",
+          "note": "host-overflow smoke verifies host_dispatch returns planned or unavailable with nextAction only, while preserving authorityChanged=false, receiptVerified=false, and productionDone=false.",
+          "headHash": "2077a9a0aea0804c44e3af2910ce86ba59cdb567",
+          "materialHash": "bd29e0297db5c6be6cbeb9b4fb9fb501ae5536db42fccd198e54bf3ff7942b27",
+          "timestamp": "2026-06-02T21:23:24.139Z"
+        }
+      ]
     }
   ]
 }
