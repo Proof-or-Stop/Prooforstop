@@ -74,12 +74,12 @@
           "intentRef": "CHK-001:adversarial:0",
           "kind": "docs_check",
           "file": "README.md;docs/guide.md;docs/requirements/decisions/project-vision.md",
-          "command": "npm --prefix packages/main run test:lattice-cli-migration-smoke",
+          "command": "rg \"koala (check|doctor|session_brief|validate|story_|init|dispatch|help|lab)\" README.md docs/guide.md docs/requirements/decisions/project-vision.md",
           "result": "pass",
-          "note": "Migration smoke rejects user-facing guidance that prefers koala over lattice for normal commands.",
-          "headHash": "3d08e9516db83545b0e3924c0baf08f940b0752c",
+          "note": "Docs-only adversarial check confirms normal install and rollout guidance does not recommend koala-prefixed operational commands over lattice equivalents.",
+          "headHash": "759bbb9011bcb0073013002d85eb3220f7e4ab68",
           "materialHash": "8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910",
-          "timestamp": "2026-06-02T15:35:27.262Z"
+          "timestamp": "2026-06-02T15:52:35.779Z"
         }
       ]
     },
