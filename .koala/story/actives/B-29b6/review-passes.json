@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-02T05:38:38.869Z",
       "reviewRunId": "B-29b6:RR-006",
       "_hash": "1ca26705f02dea1f6b2341171abe5f0fed78950ddb121219c7bab67d4432386d"
+    },
+    {
+      "id": "B-29b6:RP-007",
+      "agent": "koala-review-quality",
+      "note": "Second-round quality review passed: verified F-001 active-phase predicate now excludes IDEA consistently; verified F-002 commands are in DEFAULT_PHASE_TOOLS and active REVIEW session can execute parallel_wave_create/parallel_plan without phase-gate rejection; npx tsc -p packages/main/tsconfig.json --noEmit passed; scope_contract_check passed; smoke coverage asserts no-overwrite and all three parallel-wave commands across default phases.",
+      "createdAt": "2026-06-02T05:44:11.294Z",
+      "reviewRound": "2026-06-02T05:38:38.869Z",
+      "reviewRunId": "B-29b6:RR-007",
+      "_hash": "f4718ec4867ccc9119ce8283cde5aec4092b5a3ffba08e430fce43505633ad84"
     }
   ]
 }
