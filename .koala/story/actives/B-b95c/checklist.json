@@ -240,9 +240,44 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-02T22:07:14.244Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:lattice-branded-init-smoke && npm --prefix packages/main run test:legacy-koala-compatibility-smoke && npm --prefix packages/main run test:codex-registry-mode-smoke && npm --prefix packages/main run test:validation-protocol && npm --prefix packages/main run test:flow-stability-smoke && npm --prefix packages/main run test:lattice-cli-migration-smoke && npm --prefix packages/main run test:runtime-fact-contract && npm --prefix packages/main run test:review-pass-discard-smoke && node bin/koala.js check && node bin/koala-codex.js verify_codex",
+          "result": "pass",
+          "note": "Final combined verification passed after the implementation commit.",
+          "headHash": "58b90f572f65adbf0456bffbd09a78ec8e43723c",
+          "materialHash": "54a44bfdc89b28267c9b2ad640178bb6f2c629406762f880a6e2dd1d9d926864",
+          "timestamp": "2026-06-02T22:07:14.278Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "npm --prefix packages/main run test:lattice-branded-init-smoke && npm --prefix packages/main run test:legacy-koala-compatibility-smoke && npm --prefix packages/main run test:codex-registry-mode-smoke",
+          "result": "pass",
+          "note": "Thin/full new init, legacy Koala paths, registry prompt mode, and mixed manifest precedence are covered by focused smokes.",
+          "headHash": "58b90f572f65adbf0456bffbd09a78ec8e43723c",
+          "materialHash": "54a44bfdc89b28267c9b2ad640178bb6f2c629406762f880a6e2dd1d9d926864",
+          "timestamp": "2026-06-02T22:07:14.312Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node bin/koala-codex.js verify_codex",
+          "result": "pass",
+          "note": "Codex adapter verification event was refreshed in process-events.jsonl after changing adapter material paths; result was pass with only a non-hard global fallback advisory.",
+          "headHash": "58b90f572f65adbf0456bffbd09a78ec8e43723c",
+          "materialHash": "54a44bfdc89b28267c9b2ad640178bb6f2c629406762f880a6e2dd1d9d926864",
+          "timestamp": "2026-06-02T22:07:14.344Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -274,6 +309,16 @@
       "from": "pending",
       "to": "done",
       "reason": "Preserved legacy Koala asset compatibility while preferring Lattice primary paths.",
+      "agent": "main+koala-implementer"
+    },
+    {
+      "timestamp": "2026-06-02T22:07:14.244Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Validated docs, init smoke coverage, managed check, runtime contract, and Codex adapter evidence.",
       "agent": "main+koala-implementer"
     }
   ]
