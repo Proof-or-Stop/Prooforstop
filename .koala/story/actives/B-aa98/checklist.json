@@ -322,7 +322,7 @@
         "docs/requirements/decisions/project-vision.md",
         "docs/requirements/decisions/lattice-parallel-wave.md"
       ],
-      "userSees": "用户运行 supervised dispatch projection 时看到 planned/unavailable 状态、nextAction、authorityChanged=false、productionDone=false；不可用时流程不崩溃。",
+      "userSees": "用户运行 lattice host_dispatch --host=claude-code --file=pack.json --mode=supervised --format=json 看到 \"status\":\"planned|unavailable\", \"nextAction\":\"...\", \"authorityChanged\":false, \"productionDone\":false。",
       "status": "pending",
       "startTime": null,
       "endTime": null,
