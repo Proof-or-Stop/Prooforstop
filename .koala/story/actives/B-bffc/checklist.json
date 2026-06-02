@@ -164,7 +164,43 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "用户阅读 README 和决策文档时看到主路径是 Lattice CLI + Server Authority receipts；Mac App 被说明为 optional/archive/dashboard，而非必需依赖。",
+      "files": {
+        "modify": [
+          "README.md",
+          "docs/requirements/decisions/stack-layering.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/authority-client-role.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lattice-cli-migration-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "docs state Lattice CLI works with third-party hosts and Server Authority receipts.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "docs keep Koala as legacy compatibility wording without confusing the main product identity.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "docs do not imply Mac App must be open-sourced or installed to use Lattice CLI.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
