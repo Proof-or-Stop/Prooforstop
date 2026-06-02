@@ -83,7 +83,7 @@
       "status": "in_progress",
       "startTime": "2026-06-02T12:56:07.368Z",
       "endTime": null,
-      "userSees": "validate and delivery pre-check evidence show transcript-diff.md stays in scope, reviewer binding remains fresh, and TEST does not bounce back to DEV for transcript-only evidence.",
+      "userSees": "Terminal output includes \"Scope gate: pass\" for transcript-only evidence, \"Verification policy:\" during validate, and no \"scope_contract_acknowledge\" instruction for transcript-diff.md.",
       "files": {
         "modify": [
           "docs/requirements/decisions/lifecycle-artifact-scope.md"
