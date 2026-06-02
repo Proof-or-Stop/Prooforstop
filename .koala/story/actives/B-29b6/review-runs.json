@@ -381,6 +381,182 @@
         "bindingHash": "fb09209a16569bf4106e606c2053040b498c82b6ec1154a12c80086065dc7fc6"
       },
       "_hash": "3b2f916fcd9fd778051f07ec80b0fea768cd057c0524da5ec16138f9b4c0c0fb"
+    },
+    {
+      "reviewRunId": "B-29b6:RR-009",
+      "storyId": "B-29b6",
+      "agent": "koala-review-concept",
+      "lane": "koala-review-concept",
+      "reviewRound": "2026-06-02T05:48:34.206Z",
+      "startedAt": "2026-06-02T05:49:23.925Z",
+      "headHash": "0de1173b7a2b246a333b03e92c747b761db4079b",
+      "materialHash": "1c35ba061e29a8234ef9a0afbc379b40bccb6961e3faca9954dd7714e5257193",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "cc06a8a51b111aa6eae0f90d26b920cb0539ac3959a28a320065bd665968d3c5",
+        "diffPackHash": "c637524e5fe49330a05b202a1e02995502791e2f6773090e5ae031d51e59e970",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/lattice-parallel-wave.md",
+          "packages/main/package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/lattice-parallel-wave.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/lattice-parallel-wave.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/lattice-parallel-wave-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "041e381979f5cc9f64411d730afe12a1db00e0294bb29b8114ba2cf4b07c4af3",
+          "0dfb72a3caaf6dcfe68197f750dda0cf12707090a23eada8243de779c1196fe2",
+          "2a04e1076b4316716f9355136bb45c715c8e11c87fad04ee328bd80c4a173041",
+          "35b2dc15829329bbfc434d67c0af86ef02808ff95e2b5b6c9aa45097000121e3",
+          "42973bec8abcf827f52720fb0704599b28ad4b490ec05272f630b95327079772",
+          "52839dbf1c06265163680a4e5a2ecef12dbe512efe58a947e194d56eccf973ae",
+          "bc9151b58f9cb442e8edd6ac8ad9b16a6aae718d1f4660bc07f67fe71c6a9188",
+          "c106dfa32dac54ba17aaa2533c72b36aa3fda7508f47087a8ffd1f1105951cec",
+          "c5d74bf63c17a17b3d7fda13f9e7ac013af4d1567c467ac02d3f4f3afa343415",
+          "dd567a747f07c5ddd31a87aaa7937fe612ebad761f1effefedc75ee2599b35d3",
+          "e0694ca8d6013bd6d7b37d736fb6133bc236de9155ac7423020617aa91cbe96e",
+          "f1af974d3d0523020dd3af2b9d76cc5b1bc6df2c3883f623b9c2cadd9859fbcc"
+        ],
+        "bindingHash": "68adb24804a31a81f03aa55be3c1e03eedbc8be0989a60f4ea9c2d7ab5db8327"
+      },
+      "_hash": "4b6caed7a9e3a59fd2760c60ef9fbd11ba3c77aa956a9eef999d3ae6f24cc5b0"
+    },
+    {
+      "reviewRunId": "B-29b6:RR-010",
+      "storyId": "B-29b6",
+      "agent": "koala-review-test-coverage",
+      "lane": "koala-review-test-coverage",
+      "reviewRound": "2026-06-02T05:48:34.206Z",
+      "startedAt": "2026-06-02T05:49:28.934Z",
+      "headHash": "0de1173b7a2b246a333b03e92c747b761db4079b",
+      "materialHash": "1c35ba061e29a8234ef9a0afbc379b40bccb6961e3faca9954dd7714e5257193",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "cc06a8a51b111aa6eae0f90d26b920cb0539ac3959a28a320065bd665968d3c5",
+        "diffPackHash": "c637524e5fe49330a05b202a1e02995502791e2f6773090e5ae031d51e59e970",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/lattice-parallel-wave.md",
+          "packages/main/package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/lattice-parallel-wave.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/lattice-parallel-wave.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/lattice-parallel-wave-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "041e381979f5cc9f64411d730afe12a1db00e0294bb29b8114ba2cf4b07c4af3",
+          "0dfb72a3caaf6dcfe68197f750dda0cf12707090a23eada8243de779c1196fe2",
+          "2a04e1076b4316716f9355136bb45c715c8e11c87fad04ee328bd80c4a173041",
+          "35b2dc15829329bbfc434d67c0af86ef02808ff95e2b5b6c9aa45097000121e3",
+          "42973bec8abcf827f52720fb0704599b28ad4b490ec05272f630b95327079772",
+          "52839dbf1c06265163680a4e5a2ecef12dbe512efe58a947e194d56eccf973ae",
+          "bc9151b58f9cb442e8edd6ac8ad9b16a6aae718d1f4660bc07f67fe71c6a9188",
+          "c106dfa32dac54ba17aaa2533c72b36aa3fda7508f47087a8ffd1f1105951cec",
+          "c5d74bf63c17a17b3d7fda13f9e7ac013af4d1567c467ac02d3f4f3afa343415",
+          "dd567a747f07c5ddd31a87aaa7937fe612ebad761f1effefedc75ee2599b35d3",
+          "e0694ca8d6013bd6d7b37d736fb6133bc236de9155ac7423020617aa91cbe96e",
+          "f1af974d3d0523020dd3af2b9d76cc5b1bc6df2c3883f623b9c2cadd9859fbcc"
+        ],
+        "bindingHash": "68adb24804a31a81f03aa55be3c1e03eedbc8be0989a60f4ea9c2d7ab5db8327"
+      },
+      "_hash": "8f938146436c36fe7179796ece5cd167b7862575621583a89ae81c601d30b370"
+    },
+    {
+      "reviewRunId": "B-29b6:RR-011",
+      "storyId": "B-29b6",
+      "agent": "koala-review-quality",
+      "lane": "koala-review-quality",
+      "reviewRound": "2026-06-02T05:48:34.206Z",
+      "startedAt": "2026-06-02T05:49:29.639Z",
+      "headHash": "0de1173b7a2b246a333b03e92c747b761db4079b",
+      "materialHash": "1c35ba061e29a8234ef9a0afbc379b40bccb6961e3faca9954dd7714e5257193",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "cc06a8a51b111aa6eae0f90d26b920cb0539ac3959a28a320065bd665968d3c5",
+        "diffPackHash": "c637524e5fe49330a05b202a1e02995502791e2f6773090e5ae031d51e59e970",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/lattice-parallel-wave.md",
+          "packages/main/package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/lattice-parallel-wave.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/lattice-parallel-wave.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/lattice-parallel-wave-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "041e381979f5cc9f64411d730afe12a1db00e0294bb29b8114ba2cf4b07c4af3",
+          "0dfb72a3caaf6dcfe68197f750dda0cf12707090a23eada8243de779c1196fe2",
+          "2a04e1076b4316716f9355136bb45c715c8e11c87fad04ee328bd80c4a173041",
+          "35b2dc15829329bbfc434d67c0af86ef02808ff95e2b5b6c9aa45097000121e3",
+          "42973bec8abcf827f52720fb0704599b28ad4b490ec05272f630b95327079772",
+          "52839dbf1c06265163680a4e5a2ecef12dbe512efe58a947e194d56eccf973ae",
+          "bc9151b58f9cb442e8edd6ac8ad9b16a6aae718d1f4660bc07f67fe71c6a9188",
+          "c106dfa32dac54ba17aaa2533c72b36aa3fda7508f47087a8ffd1f1105951cec",
+          "c5d74bf63c17a17b3d7fda13f9e7ac013af4d1567c467ac02d3f4f3afa343415",
+          "dd567a747f07c5ddd31a87aaa7937fe612ebad761f1effefedc75ee2599b35d3",
+          "e0694ca8d6013bd6d7b37d736fb6133bc236de9155ac7423020617aa91cbe96e",
+          "f1af974d3d0523020dd3af2b9d76cc5b1bc6df2c3883f623b9c2cadd9859fbcc"
+        ],
+        "bindingHash": "68adb24804a31a81f03aa55be3c1e03eedbc8be0989a60f4ea9c2d7ab5db8327"
+      },
+      "_hash": "40a1a664e4e58933bac7803db118f54dba6b2c22907d4b871bed6b17218948c7"
+    },
+    {
+      "reviewRunId": "B-29b6:RR-012",
+      "storyId": "B-29b6",
+      "agent": "koala-review-docs",
+      "lane": "koala-review-docs",
+      "reviewRound": "2026-06-02T05:48:34.206Z",
+      "startedAt": "2026-06-02T05:49:55.459Z",
+      "headHash": "0de1173b7a2b246a333b03e92c747b761db4079b",
+      "materialHash": "1c35ba061e29a8234ef9a0afbc379b40bccb6961e3faca9954dd7714e5257193",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "cc06a8a51b111aa6eae0f90d26b920cb0539ac3959a28a320065bd665968d3c5",
+        "diffPackHash": "c637524e5fe49330a05b202a1e02995502791e2f6773090e5ae031d51e59e970",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/lattice-parallel-wave.md",
+          "packages/main/package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/lattice-parallel-wave.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/lattice-parallel-wave.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/lattice-parallel-wave-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "041e381979f5cc9f64411d730afe12a1db00e0294bb29b8114ba2cf4b07c4af3",
+          "0dfb72a3caaf6dcfe68197f750dda0cf12707090a23eada8243de779c1196fe2",
+          "2a04e1076b4316716f9355136bb45c715c8e11c87fad04ee328bd80c4a173041",
+          "35b2dc15829329bbfc434d67c0af86ef02808ff95e2b5b6c9aa45097000121e3",
+          "42973bec8abcf827f52720fb0704599b28ad4b490ec05272f630b95327079772",
+          "52839dbf1c06265163680a4e5a2ecef12dbe512efe58a947e194d56eccf973ae",
+          "bc9151b58f9cb442e8edd6ac8ad9b16a6aae718d1f4660bc07f67fe71c6a9188",
+          "c106dfa32dac54ba17aaa2533c72b36aa3fda7508f47087a8ffd1f1105951cec",
+          "c5d74bf63c17a17b3d7fda13f9e7ac013af4d1567c467ac02d3f4f3afa343415",
+          "dd567a747f07c5ddd31a87aaa7937fe612ebad761f1effefedc75ee2599b35d3",
+          "e0694ca8d6013bd6d7b37d736fb6133bc236de9155ac7423020617aa91cbe96e",
+          "f1af974d3d0523020dd3af2b9d76cc5b1bc6df2c3883f623b9c2cadd9859fbcc"
+        ],
+        "bindingHash": "68adb24804a31a81f03aa55be3c1e03eedbc8be0989a60f4ea9c2d7ab5db8327"
+      },
+      "_hash": "66612fb5d5bee14f8660e547426a9f632dd168588ebd7ff35ac46cf6b1f30abd"
     }
   ]
 }
