@@ -218,7 +218,45 @@
       "userSees": "用户能看到每个 overflow task 应在独立 worktree 执行，并看到 worktree path、branch、baseSha、packId、allowedPaths 与 cleanup/merge guidance。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-handoff.ts",
+          "packages/main/src/handlers/lattice-handoff.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "README.md",
+          "docs/guide.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/host-overflow-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice handoff_worktree_create or equivalent projection returns worktree path, branch, baseSha, packId, allowedPaths, deniedPaths, and cleanup/merge guidance for an overflow task.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Worktree isolation guidance refuses or warns when pack constraints are missing and does not modify external host results.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Worktree projection does not auto-merge, does not delete unaccepted work, and keeps external host edits outside the main Codex worktree until reviewed.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-006",
