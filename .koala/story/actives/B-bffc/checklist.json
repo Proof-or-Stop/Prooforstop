@@ -8,8 +8,8 @@
         "docs/requirements/decisions/authority-client-role.md",
         "docs/requirements/decisions/stack-layering.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-02T11:24:34.136Z",
       "endTime": null,
       "userSees": "用户运行 `lattice --version` 看到 `Lattice CLI 0.3.5`；运行 `koala --version` 仍显示兼容入口并可继续使用旧命令。",
       "files": {
@@ -249,6 +249,17 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-02T11:24:34.136Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start DEV implementation for Lattice CLI 0.3.5 migration."
     }
   ]
 }
