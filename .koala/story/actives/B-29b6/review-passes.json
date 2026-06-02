@@ -71,6 +71,15 @@
       "reviewRound": "2026-06-02T05:48:34.206Z",
       "reviewRunId": "B-29b6:RR-012",
       "_hash": "159cf8bff648d0a622faf2589cf5a412039e45a80f7b6e656138a359085580ad"
+    },
+    {
+      "id": "B-29b6:RP-009",
+      "agent": "koala-review-concept",
+      "note": "Third-round concept review passed. Since prior concept pass head 39cee9e, current head 0de1173 adds only TEST/review story artifacts (.koala/story/actives/B-29b6/evidence/transcript-diff.md, scope-contract/test-evidence/index/process-metrics metadata) and no packages/main or authority-doc changes. transcript-diff records acceptance-only evidence with productionDone=false, authorityChanged=false, receiptRefs=[] and explicitly says it does not satisfy DONE or claim production authority; scope-contract adds that path as non-authority TEST evidence only. Current implementation still keeps Parallel Wave read-only/L0 and non-authoritative, and resolved findings B-29b6:F-001/F-002 remain fixed (single active-story predicate plus DEFAULT_PHASE_TOOLS exposure for all three commands).",
+      "createdAt": "2026-06-02T05:50:44.526Z",
+      "reviewRound": "2026-06-02T05:48:34.206Z",
+      "reviewRunId": "B-29b6:RR-009",
+      "_hash": "1bf027851e8e00ec9304e5fad793259ae9d65c11fde30a3ee1a4e54f1c33246b"
     }
   ]
 }
