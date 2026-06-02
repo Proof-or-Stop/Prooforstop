@@ -168,9 +168,9 @@
         "docs/requirements/decisions/lattice-parallel-wave.md"
       ],
       "userSees": "`koala help | rg \"parallel_dispatch|parallel_status|parallel_merge_queue|parallel_report\"` prints all four command names, and each command accepts `--format=json` without changing story state.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-02T12:40:14.125Z",
       "files": {
         "modify": [
           "packages/main/src/handlers/lattice-parallel-wave.ts",
@@ -424,6 +424,15 @@
       "from": "pending",
       "to": "done",
       "reason": "Core dispatch/status/merge/report projections implemented and covered by focused smoke."
+    },
+    {
+      "timestamp": "2026-06-02T12:40:14.125Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "CLI schemas and command policy/fact/default phase registrations implemented and contract-tested."
     }
   ]
 }
