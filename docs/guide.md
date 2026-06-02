@@ -106,6 +106,16 @@ authority。即使 `KOALA_AUTHORITY_URL`、`KOALA_AUTHORITY_ACTOR_KEY`、
 trust boundary 见
 [`requirements/decisions/authority-client-role.md`](requirements/decisions/authority-client-role.md)。
 
+### CHK-002 enforce matrix smoke
+
+`npm run test:authority-enforce-matrix` 通过一个纯 in-process 矩阵验证以下五个格：
+
+- **local/off 保持 free/local** — `loadAuthoritySettings({})` 返回 `mode: off`；`classifyCliAuthoritySubmission('off', …)` 返回 `local-only`，不触网。
+- **shadow 只是 warning** — 服务器失败时 `proceed=true` + stderr `[warning]`，不抛异常，不阻塞本地写入。
+- **enforce fake receipt 只有经过 receipt verification 才能分类为 L2+** — 普通 CLI 提交永远是 `thin-client-transport-accepted`；只有把完整绑定的 envelope + 签名的 `AuthorityReceipt` 传入 `classifyReceiptBackedEvidence` 并验签通过，才能达到 `receipt-backed-l2-plus`。
+- **enforce 缺 server 时 runner/submission 路径 fail-closed** — `createAuthoritySubmitter(enforce, 无 baseURL).submitSingle(…)` 返回 `proceed=false`，不触网。
+- **parallel_report 始终 non-authoritative** — `buildParallelReport(wave)` 的 `authority.productionDone` 永远是 `false`，`authority.authorityChanged` 永远是 `false`，`authority.receiptRefs` 永远为空。
+
 ## Host Overflow
 
 Lattice Host Overflow 是 **manual-first** 的 bounded overflow 流程：

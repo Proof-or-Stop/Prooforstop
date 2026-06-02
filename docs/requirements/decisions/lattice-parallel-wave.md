@@ -179,3 +179,9 @@ make work done. A wave artifact, handoff pack, local JSON file, missing receipt,
 conditional receipt capability, or unverified receipt ref cannot satisfy DONE or
 production authority. Production completion still requires the normal Koala
 gates and a verified receipt-backed authority flow.
+
+Every `buildParallelReport` output has `authority.productionDone=false`,
+`authority.authorityChanged=false`, and `authority.receiptRefs=[]`. The
+B-2522 CHK-002 enforce matrix smoke (`npm run test:authority-enforce-matrix`)
+includes a `parallel_report` assertion that mechanically proves this invariant
+holds even when a wave is created against real story IDs and real hosts.

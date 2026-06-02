@@ -63,6 +63,7 @@
     "test:gap-log-smoke": "npm --prefix packages/main run test:gap-log-smoke",
     "test:verification-context-pack": "npm --prefix packages/main run test:verification-context-pack",
     "test:authority-boundary-smoke": "npm --prefix packages/main run test:authority-boundary-smoke",
+    "test:authority-receipt-classification": "npm --prefix packages/main run test:authority-receipt-classification",
     "test:authority-client": "npm --prefix packages/main run test:authority-client",
     "test:authority-evidence-flow": "npm --prefix packages/main run test:authority-evidence-flow",
     "test:verification-evidence-authority-handler": "npm --prefix packages/main run test:verification-evidence-authority-handler",
@@ -76,6 +77,8 @@
     "test:authority-runner-client": "npm --prefix packages/main run test:authority-runner-client",
     "test:authority-enforce-runner": "npm --prefix packages/main run test:authority-enforce-runner",
     "test:authority-runner-events": "npm --prefix packages/main run test:authority-runner-events",
+    "test:authority-enforce-matrix": "npm --prefix packages/main run test:authority-enforce-matrix",
+    "test:authority-live-python": "npm --prefix packages/main run test:authority-live-python",
     "test:rollout-check-smoke": "npm --prefix packages/main run test:rollout-check-smoke",
     "test:e2e": "node packages/main/dist/tasks/cli-e2e.js",
     "lint:tasks": "node packages/main/dist/tasks/cli-validate.js"
