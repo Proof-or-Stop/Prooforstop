@@ -17,6 +17,24 @@
         "docs/guide.md",
         "docs/requirements/decisions/project-vision.md"
       ]
+    },
+    {
+      "id": "B-aa98:F-002",
+      "desc": "Host-neutrality is overclaimed. docs/requirements/decisions/host-overflow.md:5-12 and docs/requirements/decisions/project-vision.md:18 describe Host Overflow as host-neutral and say Claude Code, Codex, and similar tools are execution hosts, but packages/main/src/core/lattice-hosts.ts:298-304 only marks overflowReady for claude-code or codex by host id. A future editing host with the same declared capabilities would still report unavailable, so the architecture remains vendor-allowlisted under the hood. Fix by deriving overflow readiness from capability/profile semantics instead of a host-id allowlist, or narrow the docs to Codex/Claude Code only for this milestone.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-02T21:35:35.989Z",
+      "reviewRound": "2026-06-02T21:32:19.075Z",
+      "reviewRunId": "B-aa98:RR-002",
+      "_hash": "ba512ee777f1307904ef551f8355708feadf9b8734e5ad923eed780040ec3027",
+      "files": [
+        "packages/main/src/core/lattice-hosts.ts",
+        "docs/requirements/decisions/host-overflow.md",
+        "docs/requirements/decisions/project-vision.md"
+      ]
     }
   ]
 }
