@@ -10,10 +10,45 @@
         "docs/requirements/decisions/project-vision.md",
         "docs/requirements/decisions/authority-client-role.md"
       ],
-      "userSees": "lattice exposes a JSON resolver surface that lets dashboard adapters discover the authoritative cwd for each active story.",
+      "userSees": "Running lattice story_authority_resolve --format=json prints schemaVersion=lattice.story_authority_resolve.v1 and active story rows with authoritativeCwd resolved before story_export.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [
+          "packages/main/src/core/story-authority-resolver.ts",
+          "packages/main/src/handlers/story-authority-resolve.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/story-authority-resolve-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice story_authority_resolve --format=json returns schemaVersion, readOnly=true, and active story rows with required resolver fields.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "When a story has authority:worktree and mirrorPhase differs, resolver returns authoritativePhase from the worktree and authoritativeCwd pointing at the worktree.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Resolver does not parse session_brief/status Markdown and cannot set productionDone, receiptVerified, or authorityChanged true.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
