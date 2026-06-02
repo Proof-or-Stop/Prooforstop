@@ -1,15 +1,15 @@
 {
   "command": "koala validate --story=B-fd03 --json",
-  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"fail\",\"allPass\":false,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery; verification coverage missing 12 required intent(s)\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.5 test\",\"  > npm run test:e2e\",\"  > koala@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 0/12 covered (12 required missing)\",\"  ✗ CHK-001:happy:0 [happy/must/docs] stale via docs_check (README.md;docs/guide.md;docs/requirements/decisions/project-vision.md) — README/docs guide publish local/global refresh steps and primary examples with lattice check, lattice doctor, lattice session_brief, and lattice rollout_check.\",\"  ✗ CHK-001:edge:0 [edge/must/docs] stale via docs_check (README.md;docs/guide.md;docs/requirements/decisions/project-vision.md) — Docs preserve necessary koala references only for legacy alias, .koala state, koala-codex adapter, package identity, or historical reviewer lane context.\",\"  ✗ CHK-001:adversarial:0 [adversarial/must/docs] stale via docs_check (README.md;docs/guide.md;docs/requirements/decisions/project-vision.md) — General install and rollout guidance must not tell users to prefer koala check/doctor/session_brief over lattice equivalents.\",\"  ✗ CHK-002:happy:0 [happy/must/cli] stale via manual_transcript (packages/main/src/cli-prompts.ts) — lattice story_create --help and session/next-step guidance prefer lattice command examples for user actions.\",\"  ✗ CHK-002:edge:0 [edge/must/cli] stale via logic_test (packages/main/src/tasks/lattice-cli-migration-smoke.ts;packages/main/src/tasks/rollout-check-smoke.ts) — koala remains a working legacy alias and version/help output explicitly frames it as legacy compatibility.\",\"  ✗ CHK-002:adversarial:0 [adversarial/must/logic] stale via logic_test (packages/main/src/tasks/lattice-cli-migration-smoke.ts) — Command-language migration does not rename .koala paths, koala-review-* lanes, KOALA_* env vars, bin/koala-codex.js, or @koala-agent/core package identity.\",\"  ✗ CHK-003:happy:0 [happy/must/cli] stale via manual_transcript (packages/main/src/tasks/rollout-check-smoke.ts) — lattice rollout_check --projects <paths> --json returns stable summary counts and per-project status/nextAction records.\",\"  ✗ CHK-003:edge:0 [edge/must/logic] stale via logic_test (packages/main/src/tasks/rollout-check-smoke.ts) — External or non-Lattice projects are normalized into WARN/SKIP-style project results with evidence snippets instead of opaque command failures.\",\"  ✗ CHK-003:adversarial:0 [adversarial/must/logic] stale via logic_test (packages/main/src/core/rollout-check.ts) — rollout_check never invokes apply/repair commands and does not change scanned project git status.\",\"  ✗ CHK-004:happy:0 [happy/must/cli] stale via manual_transcript (.koala/story/actives/B-fd03/evidence/rollout-transcript.md) — rollout-check smoke test passes and real-project TEST transcript records Orchestrate plus external project statuses with actionable next actions.\",\"  ✗ CHK-004:edge:0 [edge/must/logic] stale via manual_transcript (.koala/story/actives/B-fd03/evidence/rollout-transcript.md) — rollout_check explains managed asset drift warnings from external projects without treating every nonzero check exit as a framework failure.\",\"  ✗ CHK-004:adversarial:0 [adversarial/must/logic] stale via logic_test (packages/main/src/tasks/session-brief-prompt-sync-smoke.ts;packages/main/src/tasks/rollout-check-smoke.ts;.koala/story/actives/B-fd03/evidence/rollout-transcript.md) — global transcript lifecycle readiness remains pass, proving B-f3db behavior survives the lattice command migration and rollout checker.\"],\"warnings\":[],\"timestamp\":\"2026-06-02T16:03:25.959Z\",\"headSha\":\"c166fca4142d8b12acba9bfd352a6ec45062fcee\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1924}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":12,\"reason\":\"verificationIntent entries present (12)\"},\"verificationCoverage\":{\"total\":12,\"required\":12,\"covered\":0,\"missingRequired\":12,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"README/docs guide publish local/global refresh steps and primary examples with lattice check, lattice doctor, lattice session_brief, and lattice rollout_check.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"docs_check\",\"file\":\"README.md;docs/guide.md;docs/requirements/decisions/project-vision.md\",\"command\":\"rg \\\"lattice (check|doctor|session_brief|rollout_check)|legacy alias\\\" README.md docs/guide.md docs/requirements/decisions/project-vision.md\",\"result\":\"pass\",\"note\":\"Docs now publish lattice-primary check/doctor/session_brief/rollout_check guidance and explicitly keep koala as the legacy alias.\",\"headHash\":\"3d08e9516db83545b0e3924c0baf08f940b0752c\",\"materialHash\":\"8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910\",\"timestamp\":\"2026-06-02T15:35:27.261Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Docs preserve necessary koala references only for legacy alias, .koala state, koala-codex adapter, package identity, or historical reviewer lane context.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"docs_check\",\"file\":\"README.md;docs/guide.md;docs/requirements/decisions/project-vision.md\",\"command\":\"rg \\\"lattice (check|doctor|session_brief|rollout_check)|legacy alias|koala --version\\\" README.md docs/guide.md docs/requirements/decisions/project-vision.md\",\"result\":\"pass\",\"note\":\"Docs-only check verifies lattice-primary guidance plus explicit legacy alias/version verification without relying on migration smoke tests.\",\"headHash\":\"7d35bd118b2b9f7b888f95a95f9f95d4825fcdaf\",\"materialHash\":\"8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910\",\"timestamp\":\"2026-06-02T15:52:35.532Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"General install and rollout guidance must not tell users to prefer koala check/doctor/session_brief over lattice equivalents.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"README.md;docs/guide.md;docs/requirements/decisions/project-vision.md\",\"command\":\"rg \\\"koala (check|doctor|session_brief|validate|story_|init|dispatch|help|lab)\\\" README.md docs/guide.md docs/requirements/decisions/project-vision.md\",\"result\":\"pass\",\"note\":\"Docs-only adversarial check confirms normal install and rollout guidance does not recommend koala-prefixed operational commands over lattice equivalents.\",\"headHash\":\"759bbb9011bcb0073013002d85eb3220f7e4ab68\",\"materialHash\":\"8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910\",\"timestamp\":\"2026-06-02T15:52:35.779Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"lattice story_create --help and session/next-step guidance prefer lattice command examples for user actions.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/src/cli-prompts.ts\",\"command\":\"node packages/main/dist/cli.js story_create --help\",\"result\":\"pass\",\"note\":\"Local dist help prints lattice story_create examples and lattice session_brief next-step guidance.\",\"headHash\":\"5a306ab1404bff5d0477341c08ec532d26208a22\",\"materialHash\":\"8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910\",\"timestamp\":\"2026-06-02T15:35:28.818Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"koala remains a working legacy alias and version/help output explicitly frames it as legacy compatibility.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/lattice-cli-migration-smoke.ts;packages/main/src/tasks/rollout-check-smoke.ts\",\"command\":\"npm --prefix packages/main run test:lattice-cli-migration-smoke && npm run test:rollout-check-smoke\",\"result\":\"pass\",\"note\":\"Behavior-level evidence: the migration smoke verifies koala legacy alias/help semantics and the rollout smoke executes both flat rollout_check and nested lattice rollout check command paths while preserving compatibility.\",\"headHash\":\"340ffe3de4f200327cb1b5418cb0fd5c8bca6277\",\"materialHash\":\"8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910\",\"timestamp\":\"2026-06-02T15:36:31.115Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Command-language migration does not rename .koala paths, koala-review-* lanes, KOALA_* env vars, bin/koala-codex.js, or @koala-agent/core package identity.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/lattice-cli-migration-smoke.ts\",\"command\":\"npm run test:lattice-cli-migration-smoke && node packages/main/dist/tasks/session-brief-prompt-sync-smoke.js\",\"result\":\"pass\",\"note\":\"Migration and prompt-sync smoke tests pass, preserving koala-review lanes/.koala semantics while making user-facing command examples prefer lattice.\",\"headHash\":\"5a306ab1404bff5d0477341c08ec532d26208a22\",\"materialHash\":\"8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910\",\"timestamp\":\"2026-06-02T15:35:28.955Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"lattice rollout_check --projects <paths> --json returns stable summary counts and per-project status/nextAction records.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/src/tasks/rollout-check-smoke.ts\",\"command\":\"npm run test:rollout-check-smoke\",\"result\":\"pass\",\"note\":\"Smoke test verifies lattice rollout_check --projects <paths> --json returns schema, summary counts, per-project status, and nextAction.\",\"headHash\":\"5a306ab1404bff5d0477341c08ec532d26208a22\",\"materialHash\":\"8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910\",\"timestamp\":\"2026-06-02T15:35:44.065Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"External or non-Lattice projects are normalized into WARN/SKIP-style project results with evidence snippets instead of opaque command failures.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/rollout-check-smoke.ts\",\"command\":\"npm run test:rollout-check-smoke\",\"result\":\"pass\",\"note\":\"Smoke test covers a plain external temp project and a missing project path; both normalize into stable project results instead of opaque failures.\",\"headHash\":\"5a306ab1404bff5d0477341c08ec532d26208a22\",\"materialHash\":\"8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910\",\"timestamp\":\"2026-06-02T15:35:44.118Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"rollout_check never invokes apply/repair commands and does not change scanned project git status.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/core/rollout-check.ts\",\"command\":\"npm run test:rollout-check-smoke\",\"result\":\"pass\",\"note\":\"Smoke test asserts recorded rollout probe commands never contain --apply, --upgrade, --repair, or --fix and git status is unchanged by the scan.\",\"headHash\":\"5a306ab1404bff5d0477341c08ec532d26208a22\",\"materialHash\":\"8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910\",\"timestamp\":\"2026-06-02T15:35:44.168Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"rollout-check smoke test passes and real-project TEST transcript records Orchestrate plus external project statuses with actionable next actions.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"manual_transcript\",\"file\":\".koala/story/actives/B-fd03/evidence/rollout-transcript.md\",\"command\":\"node packages/main/dist/cli.js --root /Users/jek/Documents/Work/Orchestrate/.worktrees/B-fd03 rollout_check --projects=/Users/jek/Documents/Work/Orchestrate,/Users/jek/Documents/Work/Koala/Koala,/Users/jek/Documents/Work/plasmid,/Users/jek/Documents/Work/minicell,/Users/jek/Documents/Work/OpenCli,/Users/jek/Documents/Work/avalon --json\",\"result\":\"pass\",\"note\":\"Real-project transcript records Orchestrate, Koala/Koala, plasmid, minicell, OpenCli, and avalon statuses with actionable next actions; actual distribution was warn=4 fail=2 because rollout_check conservatively surfaces runtime/managed-asset drift.\",\"headHash\":\"5a306ab1404bff5d0477341c08ec532d26208a22\",\"materialHash\":\"8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910\",\"timestamp\":\"2026-06-02T15:36:02.401Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"rollout_check explains managed asset drift warnings from external projects without treating every nonzero check exit as a framework failure.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"manual_transcript\",\"file\":\".koala/story/actives/B-fd03/evidence/rollout-transcript.md\",\"command\":\"node packages/main/dist/cli.js --root /Users/jek/Documents/Work/Orchestrate/.worktrees/B-fd03 rollout_check --projects=/Users/jek/Documents/Work/Koala/Koala,/Users/jek/Documents/Work/plasmid,/Users/jek/Documents/Work/minicell,/Users/jek/Documents/Work/OpenCli,/Users/jek/Documents/Work/avalon --json\",\"result\":\"pass\",\"note\":\"Transcript explains external project warnings/failures as managed asset drift, non-git state, dirty worktrees, or missing transcript/story scope rather than opaque nonzero check exits.\",\"headHash\":\"5a306ab1404bff5d0477341c08ec532d26208a22\",\"materialHash\":\"8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910\",\"timestamp\":\"2026-06-02T15:36:02.455Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"global transcript lifecycle readiness remains pass, proving B-f3db behavior survives the lattice command migration and rollout checker.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/session-brief-prompt-sync-smoke.ts;packages/main/src/tasks/rollout-check-smoke.ts;.koala/story/actives/B-fd03/evidence/rollout-transcript.md\",\"command\":\"node packages/main/dist/tasks/session-brief-prompt-sync-smoke.js && npm run test:rollout-check-smoke && real-project rollout_check before/after git-status comparison\",\"result\":\"pass\",\"note\":\"Assertion-level evidence: prompt-sync and rollout smoke tests pass, and the real-project transcript records unchanged worktree git status plus transcript_scope outcomes after the lattice command migration.\",\"headHash\":\"340ffe3de4f200327cb1b5418cb0fd5c8bca6277\",\"materialHash\":\"8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910\",\"timestamp\":\"2026-06-02T15:36:31.115Z\"}}]}}",
-  "result": "FAIL",
-  "timestamp": "2026-06-02T16:03:26.674Z",
-  "headHash": "c166fca4142d8b12acba9bfd352a6ec45062fcee",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.5 test\",\"  > npm run test:e2e\",\"  > koala@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 12/12 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/docs] covered via docs_check (README.md;docs/guide.md;docs/requirements/decisions/project-vision.md) — README/docs guide publish local/global refresh steps and primary examples with lattice check, lattice doctor, lattice session_brief, and lattice rollout_check.\",\"  ✓ CHK-001:edge:0 [edge/must/docs] covered via docs_check (README.md;docs/guide.md;docs/requirements/decisions/project-vision.md) — Docs preserve necessary koala references only for legacy alias, .koala state, koala-codex adapter, package identity, or historical reviewer lane context.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/docs] covered via docs_check (README.md;docs/guide.md;docs/requirements/decisions/project-vision.md) — General install and rollout guidance must not tell users to prefer koala check/doctor/session_brief over lattice equivalents.\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via manual_transcript (packages/main/src/cli-prompts.ts) — lattice story_create --help and session/next-step guidance prefer lattice command examples for user actions.\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via logic_test (packages/main/src/tasks/lattice-cli-migration-smoke.ts;packages/main/src/tasks/rollout-check-smoke.ts) — koala remains a working legacy alias and version/help output explicitly frames it as legacy compatibility.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/lattice-cli-migration-smoke.ts) — Command-language migration does not rename .koala paths, koala-review-* lanes, KOALA_* env vars, bin/koala-codex.js, or @koala-agent/core package identity.\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via manual_transcript (packages/main/src/tasks/rollout-check-smoke.ts) — lattice rollout_check --projects <paths> --json returns stable summary counts and per-project status/nextAction records.\",\"  ✓ CHK-003:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/rollout-check-smoke.ts) — External or non-Lattice projects are normalized into WARN/SKIP-style project results with evidence snippets instead of opaque command failures.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/core/rollout-check.ts) — rollout_check never invokes apply/repair commands and does not change scanned project git status.\",\"  ✓ CHK-004:happy:0 [happy/must/cli] covered via manual_transcript (.koala/story/actives/B-fd03/evidence/rollout-transcript.md) — rollout-check smoke test passes and real-project TEST transcript records Orchestrate plus external project statuses with actionable next actions.\",\"  ✓ CHK-004:edge:0 [edge/must/logic] covered via manual_transcript (.koala/story/actives/B-fd03/evidence/rollout-transcript.md) — rollout_check explains managed asset drift warnings from external projects without treating every nonzero check exit as a framework failure.\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/session-brief-prompt-sync-smoke.ts;packages/main/src/tasks/rollout-check-smoke.ts;.koala/story/actives/B-fd03/evidence/rollout-transcript.md) — global transcript lifecycle readiness remains pass, proving B-f3db behavior survives the lattice command migration and rollout checker.\"],\"warnings\":[],\"timestamp\":\"2026-06-02T16:03:48.415Z\",\"headSha\":\"f18431ba4edd0e7be1828aacb72b0dacd7eabee0\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":2088}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":12,\"reason\":\"verificationIntent entries present (12)\"},\"verificationCoverage\":{\"total\":12,\"required\":12,\"covered\":12,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"README/docs guide publish local/global refresh steps and primary examples with lattice check, lattice doctor, lattice session_brief, and lattice rollout_check.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"docs_check\",\"file\":\"README.md;docs/guide.md;docs/requirements/decisions/project-vision.md\",\"command\":\"rg \\\"lattice (check|doctor|session_brief|rollout_check)|legacy alias\\\" README.md docs/guide.md docs/requirements/decisions/project-vision.md\",\"result\":\"pass\",\"note\":\"Docs now publish lattice-primary check/doctor/session_brief/rollout_check guidance and explicitly keep koala as the legacy alias.\",\"headHash\":\"c166fca4142d8b12acba9bfd352a6ec45062fcee\",\"materialHash\":\"a3b30571d2718e0ec17f87a356c217e52b1d60f9248fdaa2e37c7e464dfa112d\",\"timestamp\":\"2026-06-02T16:03:38.511Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Docs preserve necessary koala references only for legacy alias, .koala state, koala-codex adapter, package identity, or historical reviewer lane context.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"docs_check\",\"file\":\"README.md;docs/guide.md;docs/requirements/decisions/project-vision.md\",\"command\":\"rg \\\"lattice (check|doctor|session_brief|rollout_check)|legacy alias|koala --version\\\" README.md docs/guide.md docs/requirements/decisions/project-vision.md\",\"result\":\"pass\",\"note\":\"Docs-only check verifies lattice-primary guidance plus explicit legacy alias/version verification without relying on migration smoke tests.\",\"headHash\":\"c166fca4142d8b12acba9bfd352a6ec45062fcee\",\"materialHash\":\"a3b30571d2718e0ec17f87a356c217e52b1d60f9248fdaa2e37c7e464dfa112d\",\"timestamp\":\"2026-06-02T16:03:38.511Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"General install and rollout guidance must not tell users to prefer koala check/doctor/session_brief over lattice equivalents.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"README.md;docs/guide.md;docs/requirements/decisions/project-vision.md\",\"command\":\"rg \\\"koala (check|doctor|session_brief|validate|story_|init|dispatch|help|lab)\\\" README.md docs/guide.md docs/requirements/decisions/project-vision.md\",\"result\":\"pass\",\"note\":\"Docs-only adversarial check confirms normal install and rollout guidance does not recommend koala-prefixed operational commands over lattice equivalents.\",\"headHash\":\"c166fca4142d8b12acba9bfd352a6ec45062fcee\",\"materialHash\":\"a3b30571d2718e0ec17f87a356c217e52b1d60f9248fdaa2e37c7e464dfa112d\",\"timestamp\":\"2026-06-02T16:03:38.511Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"lattice story_create --help and session/next-step guidance prefer lattice command examples for user actions.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/src/cli-prompts.ts\",\"command\":\"node packages/main/dist/cli.js story_create --help\",\"result\":\"pass\",\"note\":\"Local dist help prints lattice story_create examples and lattice session_brief next-step guidance.\",\"headHash\":\"c166fca4142d8b12acba9bfd352a6ec45062fcee\",\"materialHash\":\"a3b30571d2718e0ec17f87a356c217e52b1d60f9248fdaa2e37c7e464dfa112d\",\"timestamp\":\"2026-06-02T16:03:38.511Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"koala remains a working legacy alias and version/help output explicitly frames it as legacy compatibility.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/lattice-cli-migration-smoke.ts;packages/main/src/tasks/rollout-check-smoke.ts\",\"command\":\"npm --prefix packages/main run test:lattice-cli-migration-smoke && npm run test:rollout-check-smoke\",\"result\":\"pass\",\"note\":\"Behavior-level evidence: the migration smoke verifies koala legacy alias/help semantics and the rollout smoke executes both flat rollout_check and nested lattice rollout check command paths while preserving compatibility.\",\"headHash\":\"c166fca4142d8b12acba9bfd352a6ec45062fcee\",\"materialHash\":\"a3b30571d2718e0ec17f87a356c217e52b1d60f9248fdaa2e37c7e464dfa112d\",\"timestamp\":\"2026-06-02T16:03:38.511Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Command-language migration does not rename .koala paths, koala-review-* lanes, KOALA_* env vars, bin/koala-codex.js, or @koala-agent/core package identity.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/lattice-cli-migration-smoke.ts\",\"command\":\"npm run test:lattice-cli-migration-smoke && node packages/main/dist/tasks/session-brief-prompt-sync-smoke.js\",\"result\":\"pass\",\"note\":\"Migration and prompt-sync smoke tests pass, preserving koala-review lanes/.koala semantics while making user-facing command examples prefer lattice.\",\"headHash\":\"c166fca4142d8b12acba9bfd352a6ec45062fcee\",\"materialHash\":\"a3b30571d2718e0ec17f87a356c217e52b1d60f9248fdaa2e37c7e464dfa112d\",\"timestamp\":\"2026-06-02T16:03:38.511Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"lattice rollout_check --projects <paths> --json returns stable summary counts and per-project status/nextAction records.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/src/tasks/rollout-check-smoke.ts\",\"command\":\"npm run test:rollout-check-smoke\",\"result\":\"pass\",\"note\":\"Smoke test verifies lattice rollout_check --projects <paths> --json returns schema, summary counts, per-project status, and nextAction.\",\"headHash\":\"c166fca4142d8b12acba9bfd352a6ec45062fcee\",\"materialHash\":\"a3b30571d2718e0ec17f87a356c217e52b1d60f9248fdaa2e37c7e464dfa112d\",\"timestamp\":\"2026-06-02T16:03:38.511Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"External or non-Lattice projects are normalized into WARN/SKIP-style project results with evidence snippets instead of opaque command failures.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/rollout-check-smoke.ts\",\"command\":\"npm run test:rollout-check-smoke\",\"result\":\"pass\",\"note\":\"Smoke test covers a plain external temp project and a missing project path; both normalize into stable project results instead of opaque failures.\",\"headHash\":\"c166fca4142d8b12acba9bfd352a6ec45062fcee\",\"materialHash\":\"a3b30571d2718e0ec17f87a356c217e52b1d60f9248fdaa2e37c7e464dfa112d\",\"timestamp\":\"2026-06-02T16:03:38.511Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"rollout_check never invokes apply/repair commands and does not change scanned project git status.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/core/rollout-check.ts\",\"command\":\"npm run test:rollout-check-smoke\",\"result\":\"pass\",\"note\":\"Smoke test asserts recorded rollout probe commands never contain --apply, --upgrade, --repair, or --fix and git status is unchanged by the scan.\",\"headHash\":\"c166fca4142d8b12acba9bfd352a6ec45062fcee\",\"materialHash\":\"a3b30571d2718e0ec17f87a356c217e52b1d60f9248fdaa2e37c7e464dfa112d\",\"timestamp\":\"2026-06-02T16:03:38.511Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"rollout-check smoke test passes and real-project TEST transcript records Orchestrate plus external project statuses with actionable next actions.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"manual_transcript\",\"file\":\".koala/story/actives/B-fd03/evidence/rollout-transcript.md\",\"command\":\"node packages/main/dist/cli.js --root /Users/jek/Documents/Work/Orchestrate/.worktrees/B-fd03 rollout_check --projects=/Users/jek/Documents/Work/Orchestrate,/Users/jek/Documents/Work/Koala/Koala,/Users/jek/Documents/Work/plasmid,/Users/jek/Documents/Work/minicell,/Users/jek/Documents/Work/OpenCli,/Users/jek/Documents/Work/avalon --json\",\"result\":\"pass\",\"note\":\"Real-project transcript records Orchestrate, Koala/Koala, plasmid, minicell, OpenCli, and avalon statuses with actionable next actions; actual distribution was warn=4 fail=2 because rollout_check conservatively surfaces runtime/managed-asset drift.\",\"headHash\":\"c166fca4142d8b12acba9bfd352a6ec45062fcee\",\"materialHash\":\"a3b30571d2718e0ec17f87a356c217e52b1d60f9248fdaa2e37c7e464dfa112d\",\"timestamp\":\"2026-06-02T16:03:38.511Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"rollout_check explains managed asset drift warnings from external projects without treating every nonzero check exit as a framework failure.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"manual_transcript\",\"file\":\".koala/story/actives/B-fd03/evidence/rollout-transcript.md\",\"command\":\"node packages/main/dist/cli.js --root /Users/jek/Documents/Work/Orchestrate/.worktrees/B-fd03 rollout_check --projects=/Users/jek/Documents/Work/Koala/Koala,/Users/jek/Documents/Work/plasmid,/Users/jek/Documents/Work/minicell,/Users/jek/Documents/Work/OpenCli,/Users/jek/Documents/Work/avalon --json\",\"result\":\"pass\",\"note\":\"Transcript explains external project warnings/failures as managed asset drift, non-git state, dirty worktrees, or missing transcript/story scope rather than opaque nonzero check exits.\",\"headHash\":\"c166fca4142d8b12acba9bfd352a6ec45062fcee\",\"materialHash\":\"a3b30571d2718e0ec17f87a356c217e52b1d60f9248fdaa2e37c7e464dfa112d\",\"timestamp\":\"2026-06-02T16:03:38.511Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"global transcript lifecycle readiness remains pass, proving B-f3db behavior survives the lattice command migration and rollout checker.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/session-brief-prompt-sync-smoke.ts;packages/main/src/tasks/rollout-check-smoke.ts;.koala/story/actives/B-fd03/evidence/rollout-transcript.md\",\"command\":\"node packages/main/dist/tasks/session-brief-prompt-sync-smoke.js && npm run test:rollout-check-smoke && real-project rollout_check before/after git-status comparison\",\"result\":\"pass\",\"note\":\"Assertion-level evidence: prompt-sync and rollout smoke tests pass, and the real-project transcript records unchanged worktree git status plus transcript_scope outcomes after the lattice command migration.\",\"headHash\":\"c166fca4142d8b12acba9bfd352a6ec45062fcee\",\"materialHash\":\"a3b30571d2718e0ec17f87a356c217e52b1d60f9248fdaa2e37c7e464dfa112d\",\"timestamp\":\"2026-06-02T16:03:38.511Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-02T16:03:49.174Z",
+  "headHash": "f18431ba4edd0e7be1828aacb72b0dacd7eabee0",
   "materialHash": "a3b30571d2718e0ec17f87a356c217e52b1d60f9248fdaa2e37c7e464dfa112d",
   "verificationCoverage": {
     "total": 12,
     "required": 12,
-    "covered": 0,
-    "missingRequired": 12,
+    "covered": 12,
+    "missingRequired": 0,
     "entries": [
       {
         "intentRef": "CHK-001:happy:0",
@@ -18,7 +18,7 @@
         "desc": "README/docs guide publish local/global refresh steps and primary examples with lattice check, lattice doctor, lattice session_brief, and lattice rollout_check.",
         "type": "docs",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:happy:0",
           "kind": "docs_check",
@@ -26,9 +26,9 @@
           "command": "rg \"lattice (check|doctor|session_brief|rollout_check)|legacy alias\" README.md docs/guide.md docs/requirements/decisions/project-vision.md",
           "result": "pass",
           "note": "Docs now publish lattice-primary check/doctor/session_brief/rollout_check guidance and explicitly keep koala as the legacy alias.",
-          "headHash": "3d08e9516db83545b0e3924c0baf08f940b0752c",
-          "materialHash": "8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910",
-          "timestamp": "2026-06-02T15:35:27.261Z"
+          "headHash": "c166fca4142d8b12acba9bfd352a6ec45062fcee",
+          "materialHash": "a3b30571d2718e0ec17f87a356c217e52b1d60f9248fdaa2e37c7e464dfa112d",
+          "timestamp": "2026-06-02T16:03:38.511Z"
         }
       },
       {
@@ -38,7 +38,7 @@
         "desc": "Docs preserve necessary koala references only for legacy alias, .koala state, koala-codex adapter, package identity, or historical reviewer lane context.",
         "type": "docs",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:edge:0",
           "kind": "docs_check",
@@ -46,9 +46,9 @@
           "command": "rg \"lattice (check|doctor|session_brief|rollout_check)|legacy alias|koala --version\" README.md docs/guide.md docs/requirements/decisions/project-vision.md",
           "result": "pass",
           "note": "Docs-only check verifies lattice-primary guidance plus explicit legacy alias/version verification without relying on migration smoke tests.",
-          "headHash": "7d35bd118b2b9f7b888f95a95f9f95d4825fcdaf",
-          "materialHash": "8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910",
-          "timestamp": "2026-06-02T15:52:35.532Z"
+          "headHash": "c166fca4142d8b12acba9bfd352a6ec45062fcee",
+          "materialHash": "a3b30571d2718e0ec17f87a356c217e52b1d60f9248fdaa2e37c7e464dfa112d",
+          "timestamp": "2026-06-02T16:03:38.511Z"
         }
       },
       {
@@ -58,7 +58,7 @@
         "desc": "General install and rollout guidance must not tell users to prefer koala check/doctor/session_brief over lattice equivalents.",
         "type": "docs",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "docs_check",
@@ -66,9 +66,9 @@
           "command": "rg \"koala (check|doctor|session_brief|validate|story_|init|dispatch|help|lab)\" README.md docs/guide.md docs/requirements/decisions/project-vision.md",
           "result": "pass",
           "note": "Docs-only adversarial check confirms normal install and rollout guidance does not recommend koala-prefixed operational commands over lattice equivalents.",
-          "headHash": "759bbb9011bcb0073013002d85eb3220f7e4ab68",
-          "materialHash": "8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910",
-          "timestamp": "2026-06-02T15:52:35.779Z"
+          "headHash": "c166fca4142d8b12acba9bfd352a6ec45062fcee",
+          "materialHash": "a3b30571d2718e0ec17f87a356c217e52b1d60f9248fdaa2e37c7e464dfa112d",
+          "timestamp": "2026-06-02T16:03:38.511Z"
         }
       },
       {
@@ -78,7 +78,7 @@
         "desc": "lattice story_create --help and session/next-step guidance prefer lattice command examples for user actions.",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:happy:0",
           "kind": "manual_transcript",
@@ -86,9 +86,9 @@
           "command": "node packages/main/dist/cli.js story_create --help",
           "result": "pass",
           "note": "Local dist help prints lattice story_create examples and lattice session_brief next-step guidance.",
-          "headHash": "5a306ab1404bff5d0477341c08ec532d26208a22",
-          "materialHash": "8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910",
-          "timestamp": "2026-06-02T15:35:28.818Z"
+          "headHash": "c166fca4142d8b12acba9bfd352a6ec45062fcee",
+          "materialHash": "a3b30571d2718e0ec17f87a356c217e52b1d60f9248fdaa2e37c7e464dfa112d",
+          "timestamp": "2026-06-02T16:03:38.511Z"
         }
       },
       {
@@ -98,7 +98,7 @@
         "desc": "koala remains a working legacy alias and version/help output explicitly frames it as legacy compatibility.",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
@@ -106,9 +106,9 @@
           "command": "npm --prefix packages/main run test:lattice-cli-migration-smoke && npm run test:rollout-check-smoke",
           "result": "pass",
           "note": "Behavior-level evidence: the migration smoke verifies koala legacy alias/help semantics and the rollout smoke executes both flat rollout_check and nested lattice rollout check command paths while preserving compatibility.",
-          "headHash": "340ffe3de4f200327cb1b5418cb0fd5c8bca6277",
-          "materialHash": "8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910",
-          "timestamp": "2026-06-02T15:36:31.115Z"
+          "headHash": "c166fca4142d8b12acba9bfd352a6ec45062fcee",
+          "materialHash": "a3b30571d2718e0ec17f87a356c217e52b1d60f9248fdaa2e37c7e464dfa112d",
+          "timestamp": "2026-06-02T16:03:38.511Z"
         }
       },
       {
@@ -118,7 +118,7 @@
         "desc": "Command-language migration does not rename .koala paths, koala-review-* lanes, KOALA_* env vars, bin/koala-codex.js, or @koala-agent/core package identity.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
@@ -126,9 +126,9 @@
           "command": "npm run test:lattice-cli-migration-smoke && node packages/main/dist/tasks/session-brief-prompt-sync-smoke.js",
           "result": "pass",
           "note": "Migration and prompt-sync smoke tests pass, preserving koala-review lanes/.koala semantics while making user-facing command examples prefer lattice.",
-          "headHash": "5a306ab1404bff5d0477341c08ec532d26208a22",
-          "materialHash": "8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910",
-          "timestamp": "2026-06-02T15:35:28.955Z"
+          "headHash": "c166fca4142d8b12acba9bfd352a6ec45062fcee",
+          "materialHash": "a3b30571d2718e0ec17f87a356c217e52b1d60f9248fdaa2e37c7e464dfa112d",
+          "timestamp": "2026-06-02T16:03:38.511Z"
         }
       },
       {
@@ -138,7 +138,7 @@
         "desc": "lattice rollout_check --projects <paths> --json returns stable summary counts and per-project status/nextAction records.",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:happy:0",
           "kind": "manual_transcript",
@@ -146,9 +146,9 @@
           "command": "npm run test:rollout-check-smoke",
           "result": "pass",
           "note": "Smoke test verifies lattice rollout_check --projects <paths> --json returns schema, summary counts, per-project status, and nextAction.",
-          "headHash": "5a306ab1404bff5d0477341c08ec532d26208a22",
-          "materialHash": "8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910",
-          "timestamp": "2026-06-02T15:35:44.065Z"
+          "headHash": "c166fca4142d8b12acba9bfd352a6ec45062fcee",
+          "materialHash": "a3b30571d2718e0ec17f87a356c217e52b1d60f9248fdaa2e37c7e464dfa112d",
+          "timestamp": "2026-06-02T16:03:38.511Z"
         }
       },
       {
@@ -158,7 +158,7 @@
         "desc": "External or non-Lattice projects are normalized into WARN/SKIP-style project results with evidence snippets instead of opaque command failures.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:edge:0",
           "kind": "logic_test",
@@ -166,9 +166,9 @@
           "command": "npm run test:rollout-check-smoke",
           "result": "pass",
           "note": "Smoke test covers a plain external temp project and a missing project path; both normalize into stable project results instead of opaque failures.",
-          "headHash": "5a306ab1404bff5d0477341c08ec532d26208a22",
-          "materialHash": "8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910",
-          "timestamp": "2026-06-02T15:35:44.118Z"
+          "headHash": "c166fca4142d8b12acba9bfd352a6ec45062fcee",
+          "materialHash": "a3b30571d2718e0ec17f87a356c217e52b1d60f9248fdaa2e37c7e464dfa112d",
+          "timestamp": "2026-06-02T16:03:38.511Z"
         }
       },
       {
@@ -178,7 +178,7 @@
         "desc": "rollout_check never invokes apply/repair commands and does not change scanned project git status.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "logic_test",
@@ -186,9 +186,9 @@
           "command": "npm run test:rollout-check-smoke",
           "result": "pass",
           "note": "Smoke test asserts recorded rollout probe commands never contain --apply, --upgrade, --repair, or --fix and git status is unchanged by the scan.",
-          "headHash": "5a306ab1404bff5d0477341c08ec532d26208a22",
-          "materialHash": "8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910",
-          "timestamp": "2026-06-02T15:35:44.168Z"
+          "headHash": "c166fca4142d8b12acba9bfd352a6ec45062fcee",
+          "materialHash": "a3b30571d2718e0ec17f87a356c217e52b1d60f9248fdaa2e37c7e464dfa112d",
+          "timestamp": "2026-06-02T16:03:38.511Z"
         }
       },
       {
@@ -198,7 +198,7 @@
         "desc": "rollout-check smoke test passes and real-project TEST transcript records Orchestrate plus external project statuses with actionable next actions.",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-004:happy:0",
           "kind": "manual_transcript",
@@ -206,9 +206,9 @@
           "command": "node packages/main/dist/cli.js --root /Users/jek/Documents/Work/Orchestrate/.worktrees/B-fd03 rollout_check --projects=/Users/jek/Documents/Work/Orchestrate,/Users/jek/Documents/Work/Koala/Koala,/Users/jek/Documents/Work/plasmid,/Users/jek/Documents/Work/minicell,/Users/jek/Documents/Work/OpenCli,/Users/jek/Documents/Work/avalon --json",
           "result": "pass",
           "note": "Real-project transcript records Orchestrate, Koala/Koala, plasmid, minicell, OpenCli, and avalon statuses with actionable next actions; actual distribution was warn=4 fail=2 because rollout_check conservatively surfaces runtime/managed-asset drift.",
-          "headHash": "5a306ab1404bff5d0477341c08ec532d26208a22",
-          "materialHash": "8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910",
-          "timestamp": "2026-06-02T15:36:02.401Z"
+          "headHash": "c166fca4142d8b12acba9bfd352a6ec45062fcee",
+          "materialHash": "a3b30571d2718e0ec17f87a356c217e52b1d60f9248fdaa2e37c7e464dfa112d",
+          "timestamp": "2026-06-02T16:03:38.511Z"
         }
       },
       {
@@ -218,7 +218,7 @@
         "desc": "rollout_check explains managed asset drift warnings from external projects without treating every nonzero check exit as a framework failure.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-004:edge:0",
           "kind": "manual_transcript",
@@ -226,9 +226,9 @@
           "command": "node packages/main/dist/cli.js --root /Users/jek/Documents/Work/Orchestrate/.worktrees/B-fd03 rollout_check --projects=/Users/jek/Documents/Work/Koala/Koala,/Users/jek/Documents/Work/plasmid,/Users/jek/Documents/Work/minicell,/Users/jek/Documents/Work/OpenCli,/Users/jek/Documents/Work/avalon --json",
           "result": "pass",
           "note": "Transcript explains external project warnings/failures as managed asset drift, non-git state, dirty worktrees, or missing transcript/story scope rather than opaque nonzero check exits.",
-          "headHash": "5a306ab1404bff5d0477341c08ec532d26208a22",
-          "materialHash": "8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910",
-          "timestamp": "2026-06-02T15:36:02.455Z"
+          "headHash": "c166fca4142d8b12acba9bfd352a6ec45062fcee",
+          "materialHash": "a3b30571d2718e0ec17f87a356c217e52b1d60f9248fdaa2e37c7e464dfa112d",
+          "timestamp": "2026-06-02T16:03:38.511Z"
         }
       },
       {
@@ -238,7 +238,7 @@
         "desc": "global transcript lifecycle readiness remains pass, proving B-f3db behavior survives the lattice command migration and rollout checker.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-004:adversarial:0",
           "kind": "logic_test",
@@ -246,9 +246,9 @@
           "command": "node packages/main/dist/tasks/session-brief-prompt-sync-smoke.js && npm run test:rollout-check-smoke && real-project rollout_check before/after git-status comparison",
           "result": "pass",
           "note": "Assertion-level evidence: prompt-sync and rollout smoke tests pass, and the real-project transcript records unchanged worktree git status plus transcript_scope outcomes after the lattice command migration.",
-          "headHash": "340ffe3de4f200327cb1b5418cb0fd5c8bca6277",
-          "materialHash": "8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910",
-          "timestamp": "2026-06-02T15:36:31.115Z"
+          "headHash": "c166fca4142d8b12acba9bfd352a6ec45062fcee",
+          "materialHash": "a3b30571d2718e0ec17f87a356c217e52b1d60f9248fdaa2e37c7e464dfa112d",
+          "timestamp": "2026-06-02T16:03:38.511Z"
         }
       }
     ]
