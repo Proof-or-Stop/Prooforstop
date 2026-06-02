@@ -30,9 +30,44 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-02T21:46:01.192Z",
-      "endTime": null
+      "endTime": "2026-06-02T22:07:12.045Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "result": "pass",
+          "note": "Lifecycle artifact scope now lists LATTICE.md, bin/lattice.js, bin/lattice-codex.js, and .Codex/lattice.json as new init primary paths, with KOALA.md/bin/koala*.js/.Codex/koala.json documented as legacy compatibility.",
+          "headHash": "58b90f572f65adbf0456bffbd09a78ec8e43723c",
+          "materialHash": "54a44bfdc89b28267c9b2ad640178bb6f2c629406762f880a6e2dd1d9d926864",
+          "timestamp": "2026-06-02T22:07:12.093Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "result": "pass",
+          "note": "Docs state cleanup may remove a legacy Koala-named asset only when exact generated ownership is proven; user-owned legacy files are preserved.",
+          "headHash": "58b90f572f65adbf0456bffbd09a78ec8e43723c",
+          "materialHash": "54a44bfdc89b28267c9b2ad640178bb6f2c629406762f880a6e2dd1d9d926864",
+          "timestamp": "2026-06-02T22:07:12.123Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "result": "pass",
+          "note": "Docs explicitly bound this to managed asset naming and state it does not change receipt-backed authority or lifecycle gates.",
+          "headHash": "58b90f572f65adbf0456bffbd09a78ec8e43723c",
+          "materialHash": "54a44bfdc89b28267c9b2ad640178bb6f2c629406762f880a6e2dd1d9d926864",
+          "timestamp": "2026-06-02T22:07:12.156Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -132,6 +167,18 @@
       "status": "pending",
       "startTime": null,
       "endTime": null
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-02T22:07:12.045Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Documented Lattice primary asset naming contract and Koala legacy compatibility boundary.",
+      "agent": "main+koala-implementer"
     }
   ]
 }
