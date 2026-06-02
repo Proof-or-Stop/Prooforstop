@@ -1,0 +1,44 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-06-02T12:52:06.474Z",
+      "issueCount": 6,
+      "blockerCount": 2,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 缺少 userSees（用户完成此 item 后在终端/UI 看到的具体文本）。写法示例：'用户看到 \"✓ 文件已创建: hello.txt\" 然后返回提示符'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 缺少 userSees（用户完成此 item 后在终端/UI 看到的具体文本）。写法示例：'用户看到 \"✓ 文件已创建: hello.txt\" 然后返回提示符'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 个 checklist item，请检查是否有组合场景遗漏（如：Classify transcript-diff as a narrow lifecycle artifact + Document and verify TEST transcript scope behavior 同时操作会怎样？）"
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "checklist 所有 item 均未填写 files 字段（旧 story 兼容模式），无法对 understanding.touchpoints 做覆盖校验。请为至少一个 item 的 files.modify/create/test 列出改动文件，以启用 touchpoint→files 强校验"
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "blocker",
+          "message": "高风险 story 必须有 plan.md（执行计划）。按 CLAUDE.md plan.md 模板写，每个 CHK-xxx 一个章节"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "未跑 scope check。请先启动 koala-review-scope-plan agent，agent 会自动调 scope_check_save 写入结果"
+        }
+      ],
+      "_hash": "a1cb3b1a4a8ec511c0e2f51a3d935c3a4f47309edc0d36131acaefe813207d09"
+    }
+  ]
+}
