@@ -1,0 +1,21 @@
+{
+  "findings": [
+    {
+      "id": "B-f3db:F-001",
+      "desc": "docs/requirements/decisions/lifecycle-artifact-scope.md:31 says only KOALA_LIFECYCLE_ARTIFACT_RELATIVE_PATHS admits nested lifecycle paths and lines 35-37/79-83 overclaim that only evidence/transcript-diff.md is allowed under evidence/, but packages/main/src/core/lifecycle-registry.ts:655 still accepts any nested path whose basename is in KOALA_LIFECYCLE_ARTIFACT_FILENAMES (for example evidence/summary.json or evidence/test-evidence.json). Update the truth-source wording or tighten classifyLifecycleArtifact so the docs stop overclaiming the scope narrowing. severity=medium",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-02T13:04:12.499Z",
+      "reviewRound": "2026-06-02T13:02:32.855Z",
+      "reviewRunId": "B-f3db:RR-002",
+      "_hash": "8ba039ea8a8988cedbda76c3013741e0b5af320ddd2e1f7793431217aad6e673",
+      "files": [
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "packages/main/src/core/lifecycle-registry.ts"
+      ]
+    }
+  ]
+}
