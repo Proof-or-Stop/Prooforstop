@@ -2,7 +2,7 @@
 
 ## 核心定位
 
-koala (packages/main) 是一个 **Claude 驱动的通用项目开发框架**，目标是实现从需求到代码的完整闭环：
+Lattice CLI（packages/main，legacy alias: `koala`）是一个 **host-neutral 的通用项目开发编排 CLI**，目标是实现从需求到代码的完整闭环：
 
 ```
 truth（需求真相源）→ story（执行计划）→ code（开发）→ extract（提取验证）→ gap（差距分析）→ converge（收敛判定）
@@ -10,10 +10,11 @@ truth（需求真相源）→ story（执行计划）→ code（开发）→ ext
 
 ## 设计原则
 
-- **MCP 工具驱动**：所有项目管理操作通过 24 个 MCP 工具完成，AI 通过工具调用而非文档约束来执行流程
-- **单一入口**：`/koala` Skill 是唯一用户交互入口，内部根据意图路由到对应工具
+- **CLI / MCP 工具驱动**：所有项目管理操作通过 Lattice/Koala 命令或 MCP 工具完成，AI 通过结构化入口而非文档约束来执行流程
+- **主入口**：`lattice` 是 0.3.5 主产品入口，`koala` 保留为兼容 alias；`/koala` Skill 仍可路由到同一套命令
 - **结构化注释即元数据**：代码中的 `@task`/`@flow`/`@test` 注释是项目状态的活文档，可被工具扫描和校验
 - **真相源分离**：需求决策（docs/requirements/decisions/）与执行计划（Story）分离，避免循环依赖
+- **CLI-first host migration**：Mac App provider/config dashboard 功能通过 `host_*`、`lattice_config_doctor`、`authority_status`、`conduit_*` 等 CLI surface 表达；Mac App 只保留 optional/dashboard/archive 角色
 
 ## 技术栈
 

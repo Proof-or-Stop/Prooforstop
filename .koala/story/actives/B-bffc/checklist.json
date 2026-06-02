@@ -8,9 +8,87 @@
         "docs/requirements/decisions/authority-client-role.md",
         "docs/requirements/decisions/stack-layering.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-02T11:24:34.136Z",
+      "endTime": "2026-06-02T11:41:13.821Z",
+      "userSees": "用户运行 `lattice --version` 看到 `Lattice CLI 0.3.5`；运行 `koala --version` 仍显示兼容入口并可继续使用旧命令。",
+      "files": {
+        "modify": [
+          "package.json",
+          "package-lock.json",
+          "packages/main/package.json",
+          "packages/main/package-lock.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "create": [
+          "bin/lattice.js",
+          "packages/main/src/core/lattice-brand.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/lattice-cli-migration-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice bin/help/version exposes Lattice CLI 0.3.5.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "koala legacy alias still exposes the command catalog.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "bootstrap/help text does not require Mac App setup for CLI usage.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "command": "npm run test:lattice-cli-migration-smoke",
+          "result": "pass",
+          "note": "Smoke asserts `lattice --version`, package versions, lattice bin mapping, and Lattice CLI 0.3.5 help identity.",
+          "headHash": "739c8fc10a3e58c05b52a58b45182447b4a612d6",
+          "materialHash": "fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e",
+          "timestamp": "2026-06-02T12:14:34.860Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "command": "npm run test:lattice-cli-migration-smoke",
+          "result": "pass",
+          "note": "Smoke asserts the legacy koala alias remains present through package bin and version/help compatibility text.",
+          "headHash": "739c8fc10a3e58c05b52a58b45182447b4a612d6",
+          "materialHash": "fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e",
+          "timestamp": "2026-06-02T12:14:34.860Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "README.md",
+          "command": "rg -n \"Mac App|Primary path|Lattice CLI 0.3.5|legacy alias\" README.md docs/requirements/decisions/*.md",
+          "result": "pass",
+          "note": "Docs state Lattice CLI is primary, koala is legacy, and Mac App is optional/archive dashboard only rather than setup requirement.",
+          "headHash": "739c8fc10a3e58c05b52a58b45182447b4a612d6",
+          "materialHash": "fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e",
+          "timestamp": "2026-06-02T12:14:34.860Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -20,9 +98,86 @@
         "docs/requirements/decisions/stack-layering.md",
         "docs/requirements/decisions/project-vision.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-02T11:24:35.270Z",
+      "endTime": "2026-06-02T12:12:45.502Z",
+      "userSees": "用户运行 `lattice host list`、`lattice host probe --host=codex` 和 `lattice config doctor` 看到 provider/config 状态与降级提示，不需要打开 Mac App provider dashboard。",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "README.md",
+          "docs/requirements/decisions/project-vision.md"
+        ],
+        "create": [
+          "packages/main/src/core/lattice-hosts.ts",
+          "packages/main/src/handlers/lattice-cli.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/lattice-cli-migration-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "host list/probe and config doctor return Lattice CLI provider/config status.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "missing optional providers are reported as visible degradations, not fatal errors.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "host install guidance is dry-run guidance and does not execute third-party installs.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "command": "npm run test:lattice-cli-migration-smoke",
+          "result": "pass",
+          "note": "Smoke asserts host_list, host_probe, host_install, and lattice_config_doctor are in MAIN_TOOLS, registry, read-only policy, DEV allowlist, and JSON behavior.",
+          "headHash": "739c8fc10a3e58c05b52a58b45182447b4a612d6",
+          "materialHash": "fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e",
+          "timestamp": "2026-06-02T12:14:34.860Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "command": "npm run test:lattice-cli-migration-smoke",
+          "result": "pass",
+          "note": "Repair evidence for F-001: smoke now asserts Codex visible degradation entries for browser-automation, evidence-submit, and receipt-verify, including explicit authorityImpact values.",
+          "headHash": "221ed721715f2a17f280e1756b8faa043a32bfd6",
+          "materialHash": "fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e",
+          "timestamp": "2026-06-02T12:12:36.470Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "command": "npm run test:lattice-cli-migration-smoke",
+          "result": "pass",
+          "note": "Smoke asserts host_install returns dryRun=true, executed=false, and thirdPartyInstallsExecuted=false.",
+          "headHash": "739c8fc10a3e58c05b52a58b45182447b4a612d6",
+          "materialHash": "fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e",
+          "timestamp": "2026-06-02T12:14:34.860Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -32,9 +187,85 @@
         "docs/requirements/decisions/authority-client-role.md",
         "docs/requirements/decisions/lattice-parallel-wave.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-02T11:24:36.617Z",
+      "endTime": "2026-06-02T12:12:45.946Z",
+      "userSees": "用户运行 `lattice authority status` 和 `lattice conduit status` 看到 Server Authority receipts 是唯一生产权威，Conduit 只是 thin conduit，不是 agent host。",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "docs/requirements/decisions/authority-client-role.md",
+          "docs/requirements/decisions/lattice-parallel-wave.md"
+        ],
+        "create": [
+          "packages/main/src/handlers/lattice-cli.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/lattice-cli-migration-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "authority/conduit status commands expose receipt-aware, non-authoritative local status.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "missing authority URL yields guidance without claiming receipt verification.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "local JSON, handoff packs, conduit status, and transport acceptance cannot be reported as production DONE.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "command": "npm run test:lattice-cli-migration-smoke",
+          "result": "pass",
+          "note": "Smoke asserts authority_status and conduit_status return receipt-aware local status with receiptVerified=false and productionDone=false.",
+          "headHash": "739c8fc10a3e58c05b52a58b45182447b4a612d6",
+          "materialHash": "fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e",
+          "timestamp": "2026-06-02T12:14:34.860Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "command": "npm run test:lattice-cli-migration-smoke",
+          "result": "pass",
+          "note": "Repair evidence for F-002: smoke now asserts missing authority URL fallback fields: baseURLConfigured=false, baseURL=null, status=not-configured, serverReachability=not-probed, and no receipt/production overclaim.",
+          "headHash": "221ed721715f2a17f280e1756b8faa043a32bfd6",
+          "materialHash": "fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e",
+          "timestamp": "2026-06-02T12:12:36.470Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "command": "node packages/main/dist/cli.js host_probe --host=desktop-app --format=json && npm run test:lattice-cli-migration-smoke",
+          "result": "pass",
+          "note": "Repair evidence for F-003/F-004: Lattice-facing desktop-app projection is dashboard/archive only; file-edit, test-execution, evidence-submit, and receipt-verify are unavailable, with productionDone still blocked by receipt verification.",
+          "headHash": "221ed721715f2a17f280e1756b8faa043a32bfd6",
+          "materialHash": "fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e",
+          "timestamp": "2026-06-02T12:12:36.470Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -44,9 +275,80 @@
         "docs/requirements/decisions/stack-layering.md",
         "docs/requirements/decisions/project-vision.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-02T11:24:37.971Z",
+      "endTime": "2026-06-02T11:41:14.854Z",
+      "userSees": "用户在 README 顶部看到 `Lattice CLI 0.3.5`；在迁移说明中看到精确文字 `Mac App: optional/archive dashboard only` 和 `Primary path: Lattice CLI + Server Authority receipts`。",
+      "files": {
+        "modify": [
+          "README.md",
+          "docs/requirements/decisions/stack-layering.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/authority-client-role.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lattice-cli-migration-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "docs state Lattice CLI works with third-party hosts and Server Authority receipts.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "docs keep Koala as legacy compatibility wording without confusing the main product identity.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "docs do not imply Mac App must be open-sourced or installed to use Lattice CLI.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "file": "README.md",
+          "command": "rg -n \"Primary path: Lattice CLI \\+ Server Authority receipts|Mac App:|optional/archive dashboard only\" README.md docs/requirements/decisions/*.md",
+          "result": "pass",
+          "note": "README and decision docs state the primary path is Lattice CLI plus Server Authority receipts, with Mac App optional/archive dashboard only.",
+          "headHash": "739c8fc10a3e58c05b52a58b45182447b4a612d6",
+          "materialHash": "fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e",
+          "timestamp": "2026-06-02T12:14:34.860Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/project-vision.md",
+          "command": "rg -n \"legacy alias|Lattice CLI|koala\" README.md docs/requirements/decisions/project-vision.md docs/requirements/decisions/stack-layering.md",
+          "result": "pass",
+          "note": "Docs preserve koala as legacy compatibility wording while making Lattice CLI 0.3.5 the primary product entrypoint.",
+          "headHash": "739c8fc10a3e58c05b52a58b45182447b4a612d6",
+          "materialHash": "fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e",
+          "timestamp": "2026-06-02T12:14:34.860Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "file": "README.md",
+          "command": "rg -n \"Mac App|optional|dashboard|archive|required\" README.md docs/requirements/decisions/*.md",
+          "result": "pass",
+          "note": "Docs explicitly demote Mac App and do not require it to be open-sourced or installed for Lattice CLI usage.",
+          "headHash": "739c8fc10a3e58c05b52a58b45182447b4a612d6",
+          "materialHash": "fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e",
+          "timestamp": "2026-06-02T12:14:34.860Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -56,9 +358,228 @@
         "docs/requirements/decisions/authority-client-role.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-02T11:24:39.290Z",
+      "endTime": "2026-06-02T12:12:46.425Z",
+      "userSees": "用户看到 `npm run build` 和 `npm run test:lattice-cli-migration-smoke` 通过，并且 checklist verificationEvidence 覆盖所有 happy/edge/adversarial intent。",
+      "files": {
+        "modify": [
+          "package.json",
+          "package-lock.json",
+          "packages/main/package.json",
+          "packages/main/package-lock.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/lattice-cli-migration-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/lattice-cli-migration-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "build and focused Lattice CLI migration smoke test pass.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "smoke covers missing optional hosts and missing authority URL fallback output.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "smoke fails if any local CLI surface overclaims verified production receipt authority.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm run test:lattice-cli-migration-smoke",
+          "result": "pass",
+          "note": "Final HEAD build and focused Lattice CLI migration smoke both passed.",
+          "headHash": "739c8fc10a3e58c05b52a58b45182447b4a612d6",
+          "materialHash": "fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e",
+          "timestamp": "2026-06-02T12:14:34.860Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm run test:lattice-cli-migration-smoke",
+          "result": "pass",
+          "note": "Repair evidence for F-002: final build and smoke cover missing optional host/degradation and authority URL fallback behavior explicitly.",
+          "headHash": "221ed721715f2a17f280e1756b8faa043a32bfd6",
+          "materialHash": "fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e",
+          "timestamp": "2026-06-02T12:12:36.470Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "command": "npm run test:lattice-cli-migration-smoke",
+          "result": "pass",
+          "note": "Smoke fails on any local CLI overclaim of verified production receipt authority across host/config/authority/conduit JSON surfaces.",
+          "headHash": "739c8fc10a3e58c05b52a58b45182447b4a612d6",
+          "materialHash": "fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e",
+          "timestamp": "2026-06-02T12:14:34.860Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-02T11:24:34.136Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start DEV implementation for Lattice CLI 0.3.5 migration."
+    },
+    {
+      "timestamp": "2026-06-02T11:24:35.270Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start DEV implementation for Lattice CLI 0.3.5 migration."
+    },
+    {
+      "timestamp": "2026-06-02T11:24:36.617Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start DEV implementation for Lattice CLI 0.3.5 migration."
+    },
+    {
+      "timestamp": "2026-06-02T11:24:37.971Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start DEV implementation for Lattice CLI 0.3.5 migration."
+    },
+    {
+      "timestamp": "2026-06-02T11:24:39.290Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start DEV implementation for Lattice CLI 0.3.5 migration."
+    },
+    {
+      "timestamp": "2026-06-02T11:41:13.821Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementation committed in 8283f40e plus README label follow-up 2fc6de60; build/smoke/evidence passed."
+    },
+    {
+      "timestamp": "2026-06-02T11:41:14.151Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementation committed in 8283f40e plus README label follow-up 2fc6de60; build/smoke/evidence passed."
+    },
+    {
+      "timestamp": "2026-06-02T11:41:14.493Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementation committed in 8283f40e plus README label follow-up 2fc6de60; build/smoke/evidence passed."
+    },
+    {
+      "timestamp": "2026-06-02T11:41:14.854Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementation committed in 8283f40e plus README label follow-up 2fc6de60; build/smoke/evidence passed."
+    },
+    {
+      "timestamp": "2026-06-02T11:41:15.186Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementation committed in 8283f40e plus README label follow-up 2fc6de60; build/smoke/evidence passed."
+    },
+    {
+      "timestamp": "2026-06-02T12:07:35.433Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Reopen to address REVIEW findings F-001/F-002/F-003/F-004."
+    },
+    {
+      "timestamp": "2026-06-02T12:07:35.815Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Reopen to address REVIEW findings F-001/F-002/F-003/F-004."
+    },
+    {
+      "timestamp": "2026-06-02T12:07:36.269Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Reopen to address REVIEW findings F-001/F-002/F-003/F-004."
+    },
+    {
+      "timestamp": "2026-06-02T12:12:45.502Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "REVIEW findings F-001/F-002/F-003/F-004 repaired by commit 221ed721; build and Lattice smoke pass."
+    },
+    {
+      "timestamp": "2026-06-02T12:12:45.946Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "REVIEW findings F-001/F-002/F-003/F-004 repaired by commit 221ed721; build and Lattice smoke pass."
+    },
+    {
+      "timestamp": "2026-06-02T12:12:46.425Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "REVIEW findings F-001/F-002/F-003/F-004 repaired by commit 221ed721; build and Lattice smoke pass."
     }
   ]
 }

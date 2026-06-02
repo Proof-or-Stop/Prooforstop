@@ -1,0 +1,73 @@
+{
+  "principles": [
+    "Lattice CLI is the primary product surface; Mac App is optional/dashboard only.",
+    "Host-neutral means third-party hosts do intelligence; Lattice does lifecycle, evidence, handoff, authority, and thin conduit only.",
+    "Production authority requires verified server receipts, never local cache or transport accepted flags.",
+    "0.3.5 must preserve Koala compatibility while making Lattice the public name.",
+    "Every migration surface must be testable through CLI JSON or focused smoke tests."
+  ],
+  "drivers": [
+    "User wants to stop depending on Mac App and use Codex, Claude Code, Gemini directly.",
+    "Existing projects and Koala story tooling still depend on koala command names.",
+    "Authority overclaim risk is high because local CLI/conduit/cache can be confused with server receipts."
+  ],
+  "options": [
+    {
+      "name": "A: Hard rename everything to lattice immediately",
+      "pros": [
+        "Cleanest product story",
+        "No dual-brand ambiguity"
+      ],
+      "cons": [
+        "Breaks existing koala story tooling and downstream scripts",
+        "High migration blast radius for a single release"
+      ]
+    },
+    {
+      "name": "B: Lattice CLI primary with koala legacy alias",
+      "pros": [
+        "Makes Lattice the user-facing product while preserving current workflows",
+        "Allows focused 0.3.5 delivery with explicit deprecation path",
+        "Keeps story tooling usable during transition"
+      ],
+      "cons": [
+        "Dual naming remains temporarily",
+        "Docs and tests must guard against mixed authority language"
+      ]
+    },
+    {
+      "name": "C: Keep Koala name and only document Lattice as architecture",
+      "pros": [
+        "Lowest implementation risk",
+        "No compatibility changes"
+      ],
+      "cons": [
+        "Does not satisfy user decision to rename product",
+        "Keeps Mac App/Koala confusion alive"
+      ]
+    }
+  ],
+  "chosen": "B: Lattice CLI primary with koala legacy alias",
+  "rationale": "This option delivers the requested Lattice CLI 0.3.5 product direction while preserving existing Koala command compatibility and avoiding a risky hard rename in one release.",
+  "preMortem": [
+    {
+      "scenario": "Legacy Koala workflows break after adding lattice branding",
+      "trigger": "Existing scripts expect koala bin, KOALA_* env vars, or @koala-agent/core package name",
+      "consequence": "Developers cannot run story gates or validate current worktrees",
+      "mitigation": "Keep koala bin/entrypoint as legacy alias, dual-read old env vars, and add smoke tests for koala compatibility."
+    },
+    {
+      "scenario": "Lattice Conduit is misunderstood as a new coding agent",
+      "trigger": "Docs or help describe conduit as runner/worker without clear host-neutral boundary",
+      "consequence": "Product appears to compete with Codex/Claude/Gemini and violates user intent",
+      "mitigation": "Document and test wording that conduit is thin job/event/evidence transport only and does not provide model reasoning or production authority."
+    },
+    {
+      "scenario": "Local CLI accepted response is mistaken for receipt-backed authority",
+      "trigger": "authority or evidence command displays accepted/record refs without receipt verification caveat",
+      "consequence": "productionDone may be overclaimed from local or transport state",
+      "mitigation": "Keep authority text and JSON explicit: receiptVerified false unless verified; productionDone requires server receipt; add overclaim smoke coverage."
+    }
+  ],
+  "timestamp": "2026-06-02T11:15:45.128Z"
+}
