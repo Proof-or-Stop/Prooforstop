@@ -955,7 +955,8 @@ try {
     const koalaWrapper = readFileSync(koalaWrapperPath, 'utf-8');
     const codexWrapper = readFileSync(codexWrapperPath, 'utf-8');
     assert.match(koalaWrapper, /require\('node:fs'\)/, 'Koala wrapper should be CommonJS so non-JS repos do not need package.json type=module');
-    assert.match(codexWrapper, /require\('node:fs'\)/, 'Codex wrapper should be CommonJS so non-JS repos do not need package.json type=module');
+    assert.match(codexWrapper, /import\('node:fs'\)/, 'Codex wrapper should use dynamic import so it runs in both CommonJS and type=module projects');
+    assert.doesNotMatch(codexWrapper, /require\(/, 'Codex wrapper must not use require because type=module projects execute .js files as ESM');
     assert.doesNotMatch(koalaWrapper, /^import\s/m, 'Koala wrapper must not use static ESM import syntax');
     assert.doesNotMatch(codexWrapper, /^import\s/m, 'Codex wrapper must not use static ESM import syntax');
 

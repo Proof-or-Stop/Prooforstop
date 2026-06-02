@@ -226,9 +226,6 @@ if (require.main === module) {
 
 export function renderCodexWrapperScript(): string {
   return `#!/usr/bin/env node
-const { existsSync } = require('node:fs');
-const { join } = require('node:path');
-
 process.env.KOALA_ACTIVITY_SOURCE = 'codex';
 process.env.KOALA_ACTIVITY_RECORD_READONLY = '1';
 process.env.KOALA_CODEX_ENTRYPOINT = 'local-wrapper';
@@ -242,15 +239,19 @@ if (!process.env.KOALA_ACTIVITY_SESSION) {
 }
 
 async function main() {
-  const binDir = __dirname;
+  const [{ existsSync }, { dirname, join }, { pathToFileURL }] = await Promise.all([
+    import('node:fs'),
+    import('node:path'),
+    import('node:url'),
+  ]);
+  const binDir = dirname(process.argv[1] || '.');
   const localKoala = join(binDir, 'koala.js');
   if (existsSync(localKoala)) {
-    const koala = require(localKoala);
-    if (typeof koala.main !== 'function') {
-      console.error('bin/koala-codex.js found bin/koala.js, but it did not export main().');
-      process.exit(1);
+    const koala = await import(pathToFileURL(localKoala).href);
+    const localMain = koala.main || koala.default?.main;
+    if (typeof localMain === 'function') {
+      await localMain();
     }
-    await koala.main();
   } else {
     console.error('bin/koala-codex.js did not find a sibling bin/koala.js local bootstrap.');
     console.error('');
