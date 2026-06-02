@@ -1,7 +1,15 @@
 import { readdirSync } from 'fs';
+import {
+  promptRegistryManifest,
+  renderCodexPromptContent,
+  type PromptRegistryManifest,
+} from './core/prompt-registry.js';
 
 export const SUPPORTED_INIT_PROFILES = ['codex', 'claude', 'all', 'core'] as const;
 export type InitProfile = typeof SUPPORTED_INIT_PROFILES[number];
+export const SUPPORTED_INIT_ASSET_MODES = ['full', 'thin'] as const;
+export type InitAssetMode = typeof SUPPORTED_INIT_ASSET_MODES[number];
+export type CodexPromptMode = 'legacy-mirror' | 'registry';
 
 export function listAgentPromptFiles(agentDir: string): string[] {
   return readdirSync(agentDir)
@@ -98,11 +106,28 @@ export const CODEX_ADAPTER_MANIFEST = {
   ],
 } as const;
 
-export function renderCodexAdapterManifest(): string {
-  return `${JSON.stringify(CODEX_ADAPTER_MANIFEST, null, 2)}\n`;
+export interface RenderCodexAdapterManifestOptions {
+  promptMode?: CodexPromptMode;
+  promptRegistry?: PromptRegistryManifest;
 }
 
-export const CODEX_README_TEMPLATE = `# Codex + Koala
+export function renderCodexAdapterManifest(options: RenderCodexAdapterManifestOptions = {}): string {
+  if (options.promptMode !== 'registry') {
+    return `${JSON.stringify(CODEX_ADAPTER_MANIFEST, null, 2)}\n`;
+  }
+
+  return `${JSON.stringify({
+    ...CODEX_ADAPTER_MANIFEST,
+    promptMode: 'registry',
+    promptRegistry: options.promptRegistry ?? promptRegistryManifest(),
+    notes: [
+      ...CODEX_ADAPTER_MANIFEST.notes,
+      'Thin asset mode uses the package prompt registry instead of materializing .Codex/agents prompt copies.',
+    ],
+  }, null, 2)}\n`;
+}
+
+const CODEX_README_LEGACY_TEMPLATE = `# Codex + Koala
 
 优先做法：
 
@@ -151,10 +176,26 @@ fallback 说明：
 - 需要观测 Codex 活动时，使用 \`.Codex/koala.json\` 记录的 wrapper 或带 \`KOALA_ACTIVITY_RECORD_READONLY=1\` 的 fallback
 `;
 
+const CODEX_README_THIN_APPENDIX = `
+## Thin Asset Mode
+
+This repository uses registry-backed Codex prompts:
+
+- \`.Codex/koala.json\` records \`promptMode=registry\` and the package prompt registry hash.
+- \`.Codex/agents\` prompt copies are not required for Koala adapter verification in this mode.
+- Legacy full-mode repositories may still materialize \`.Codex/agents\`; both modes remain supported.
+- This is adapter hygiene only. It does not replace validation evidence, receipts, or production authority.
+`;
+
+export function renderCodexReadmeTemplate(assetMode: InitAssetMode = 'full'): string {
+  if (assetMode === 'thin') return `${CODEX_README_LEGACY_TEMPLATE}${CODEX_README_THIN_APPENDIX}`;
+  return CODEX_README_LEGACY_TEMPLATE;
+}
+
+export const CODEX_README_TEMPLATE = renderCodexReadmeTemplate('full');
+
 export function renderCodexAgentContent(content: string): string {
-  return content
-    .replace(/Claude Code/g, 'Codex')
-    .replace(/\.claude\/agents\//g, '.Codex/agents/');
+  return renderCodexPromptContent(content);
 }
 
 function jsString(value: string): string {

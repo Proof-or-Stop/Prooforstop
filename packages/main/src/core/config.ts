@@ -142,6 +142,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'draft_check_set',      // B-9975 CHK-002: draft check 全阶段可用
     'draft_issue_resolve',
     'authority_enforce_policy', // B-ea92 M1: read-only authority policy discovery, no side-effects
+    'authority_enforce_runner', // B-5cdc: read-only enforce runner readiness/dry-run projection; no provider execution
     'capability_list', // B-f26a M2: read-only host capability diagnostics for cross-host degradation
     'capability_probe', // B-cd31 CHK-002: productized single-host capability diagnostics
     'host_*', // Lattice CLI 0.3.5: host list/probe/install guidance; dry-run/read-only diagnostics only

@@ -71,6 +71,9 @@
     "test:scope-contract-smoke": "node dist/tasks/scope-contract-smoke.js",
     "test:semantic-scope-guard-smoke": "node dist/tasks/semantic-scope-guard-smoke.js",
     "test:capability-list-smoke": "node dist/tasks/capability-list-smoke.js",
+    "test:prompt-registry-smoke": "node dist/tasks/prompt-registry-smoke.js",
+    "test:codex-registry-mode-smoke": "node dist/tasks/codex-registry-mode-smoke.js",
+    "test:thin-init-assets-smoke": "node dist/tasks/thin-init-assets-smoke.js",
     "test:lattice-cli-migration-smoke": "node dist/tasks/lattice-cli-migration-smoke.js",
     "test:rollout-check-smoke": "node dist/tasks/rollout-check-smoke.js",
     "test:canonical-story-export-smoke": "node dist/tasks/canonical-story-export-smoke.js",
@@ -82,7 +85,9 @@
     "test:authority-enforce-policy": "node dist/tasks/authority-enforce-policy-smoke.js",
     "test:authority-status-smoke": "node dist/tasks/authority-status-smoke.js",
     "test:authority-runner-contracts": "node dist/tasks/authority-runner-contracts-smoke.js",
-    "test:authority-runner-client": "node dist/tasks/authority-runner-client-smoke.js"
+    "test:authority-runner-client": "node dist/tasks/authority-runner-client-smoke.js",
+    "test:authority-enforce-runner": "node dist/tasks/authority-enforce-runner-smoke.js",
+    "test:authority-runner-events": "node dist/tasks/authority-runner-events-smoke.js"
   },
   "dependencies": {
     "@koala-agent/lab": "0.3.1",

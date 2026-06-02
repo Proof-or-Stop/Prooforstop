@@ -803,6 +803,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     upgrade: z.boolean().optional().describe('同步 MISSING/STALE_SAFE 管理资产到当前 Koala 模板；等价于 --apply'),
     reviewLocalEdits: z.boolean().optional().describe('输出 STALE_LOCAL_EDIT 的结构化人工审查摘要'),
     profile: z.enum(['codex', 'claude', 'all', 'core']).optional().describe('覆盖自动检测的 init profile'),
+    assetMode: z.enum(['full', 'thin']).optional().describe('覆盖 Codex prompt asset 模式；full=生成 .Codex/agents，thin=使用 prompt registry'),
   }},
 
   // Audit (framework self-audit — 跨 story 扫 CLAUDE.md 承诺 vs 实际 CLI 行为 drift)
@@ -1144,6 +1145,15 @@ export const MAIN_TOOLS: ToolDef[] = [
   { name: 'authority_enforce_policy', description: 'Discover authority policy (GET /v1/authority/policy). Read-only: no receipt, no gate pass, no evidence submission. Alias: lattice authority enforce policy', schema: {
     authorityURL: z.string().optional().describe('Authority server base URL (overrides KOALA_AUTHORITY_URL)'),
     authorityTimeoutMS: z.number().optional().describe('Request timeout in milliseconds (overrides KOALA_AUTHORITY_TIMEOUT_MS)'),
+  }},
+  { name: 'authority_enforce_runner', description: 'Explicit enforce-only headless runner command. Dry-run projects register/heartbeat/claim without provider execution. Alias: lattice authority enforce runner', schema: {
+    once: z.boolean().optional().describe('Claim at most one job'),
+    dryRun: z.boolean().optional().describe('Project planned steps without network mutation or provider execution'),
+    json: z.boolean().optional().describe('Output JSON'),
+    format: z.enum(['text', 'json']).optional().describe('Output format'),
+    authorityMode: z.string().optional().describe('Authority mode override; runner treats missing override as enforce'),
+    authorityURL: z.string().optional().describe('Authority server base URL override'),
+    authorityTimeoutMS: z.number().optional().describe('Request timeout override'),
   }},
 
   // B-ad2c: dev-memory — lightweight non-authoritative experience capture
@@ -1652,6 +1662,7 @@ const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'workflow_explain',
   'help',
   'authority_enforce_policy',
+  'authority_enforce_runner',
 ]);
 
 function inferCodexEntrypoint(): string {
@@ -2260,6 +2271,7 @@ export async function runCli(opts?: {
     'rollout check': 'rollout_check',
     'authority status': 'authority_status',
     'authority enforce policy': 'authority_enforce_policy',
+    'authority enforce runner': 'authority_enforce_runner',
     'conduit status': 'conduit_status',
     'conduit explain': 'conduit_explain',
   };

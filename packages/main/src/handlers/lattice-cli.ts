@@ -3,6 +3,10 @@ import { join } from 'path';
 import type { HandlerContext } from './context.js';
 import { loadAuthoritySettings, type AuthoritySettings } from '../core/authority-mode.js';
 import {
+  AUTHORITY_RUNNER_PLANNED_STEPS,
+  type AuthorityRunnerPlan,
+} from '../core/authority-runner.js';
+import {
   LATTICE_CLI_VERSION,
   LATTICE_PRODUCT_NAME,
   formatLatticeProductLine,
@@ -286,6 +290,53 @@ function renderAuthorityStatusText(result: ReturnType<typeof buildAuthorityStatu
   return lines.join('\n');
 }
 
+export function buildAuthorityEnforceRunnerPlan(
+  args: { once?: boolean; dryRun?: boolean; authorityMode?: string; authorityURL?: string; authorityTimeoutMS?: number } = {},
+  env: Record<string, string | undefined> = process.env,
+): AuthorityRunnerPlan {
+  const settings = loadAuthoritySettings(env, { ...args, authorityMode: args.authorityMode ?? 'enforce' });
+  const readiness = buildAuthorityReadiness({ ...settings, mode: 'enforce' }, env);
+  const missing = readiness.readinessWarnings;
+  return {
+    schemaVersion: 'lattice.authority_enforce_runner.v1',
+    mode: 'enforce',
+    once: args.once !== false,
+    dryRun: args.dryRun === true,
+    plannedSteps: [...AUTHORITY_RUNNER_PLANNED_STEPS],
+    spawned: false,
+    providerEvents: [],
+    localWorkflowUsable: true,
+    status: missing.length === 0 ? 'pass' : 'fail',
+    readinessWarnings: missing,
+    nextActions: readiness.nextActions,
+    note: args.dryRun === true
+      ? 'Dry-run only: planned runner register/heartbeat/claim steps; no network mutation and no provider execution.'
+      : 'Runner execution is limited to controlled fake-provider smoke helpers in this milestone.',
+  };
+}
+
+function renderAuthorityEnforceRunnerText(result: AuthorityRunnerPlan): string {
+  const lines = [
+    `${formatLatticeProductLine()} authority enforce runner (${result.schemaVersion})`,
+    `status: ${result.status}`,
+    `mode: ${result.mode}`,
+    `once: ${result.once}`,
+    `dryRun: ${result.dryRun}`,
+    `spawned: ${result.spawned}`,
+    `providerEvents: ${result.providerEvents.length}`,
+    'plannedSteps:',
+    ...result.plannedSteps.map(step => `  - ${step}`),
+  ];
+  if (result.readinessWarnings.length > 0) {
+    lines.push('', 'readinessWarnings:', ...result.readinessWarnings.map(w => `  - ${w}`));
+  }
+  if (result.nextActions.length > 0) {
+    lines.push('', 'nextActions:', ...result.nextActions.map(a => `  - ${a}`));
+  }
+  lines.push('', result.note);
+  return lines.join('\n');
+}
+
 export function buildConduitStatus(env: Record<string, string | undefined> = process.env) {
   const settings = loadAuthoritySettings(env);
   const readiness = buildAuthorityReadiness(settings, env);
@@ -419,6 +470,10 @@ export function createLatticeCliHandlers(ctx: HandlerContext) {
     authority_status(args: { format?: LatticeFormat; json?: boolean; authorityMode?: string; authorityURL?: string; authorityTimeoutMS?: number } = {}) {
       const result = buildAuthorityStatus(args);
       return wantsJson(args) ? result : renderAuthorityStatusText(result);
+    },
+    authority_enforce_runner(args: { format?: LatticeFormat; json?: boolean; once?: boolean; dryRun?: boolean; authorityMode?: string; authorityURL?: string; authorityTimeoutMS?: number } = {}) {
+      const result = buildAuthorityEnforceRunnerPlan(args);
+      return wantsJson(args) ? result : renderAuthorityEnforceRunnerText(result);
     },
     conduit_status(args: FormatArgs = {}) {
       const result = buildConduitStatus();
