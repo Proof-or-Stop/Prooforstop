@@ -32,6 +32,38 @@ Lattice CLI 0.3.5 (lattice; legacy alias: koala)
 Command:
 
 ```bash
+npm --prefix packages/utils run build
+node bin/lattice.js --version
+node bin/lattice.js lattice_config_doctor --format=json
+node bin/lattice.js host_probe --host=desktop-app --format=json
+```
+
+Observed excerpts:
+
+```text
+@koala-agent/utils build passed.
+Lattice CLI 0.3.5 (lattice; legacy alias: koala)
+```
+
+```json
+{
+  "schemaVersion": "lattice.config_doctor.v1",
+  "product": { "name": "Lattice CLI", "version": "0.3.5" },
+  "ok": true,
+  "migration": {
+    "cliFirst": true,
+    "macAppRequired": false,
+    "macAppRole": "optional-dashboard-archive",
+    "legacyKoalaAliasPreserved": true
+  }
+}
+```
+
+The full local wrapper also reports `desktop-app` as `Desktop app (dashboard/archive)`, with edit/test/evidence/receipt capabilities unavailable and `productionDone=false`.
+
+Command:
+
+```bash
 node packages/main/dist/cli.js help
 ```
 
@@ -236,7 +268,7 @@ Observed excerpts:
 
 | Expected | Actual | Result |
 | --- | --- | --- |
-| Lattice CLI 0.3.5 is primary. | Version/help identify `Lattice CLI 0.3.5` and `Primary entrypoint: lattice`. | Match |
+| Lattice CLI 0.3.5 is primary. | Core CLI and full local wrapper both identify `Lattice CLI 0.3.5`; help says `Primary entrypoint: lattice`. | Match |
 | `koala` remains legacy compatibility. | Version/help state `legacy alias: koala`. | Match |
 | Mac App is optional/dashboard/archive only. | `host_list` reports `macAppRequired=false`; `host_probe desktop-app` labels it `Desktop app (dashboard/archive)`. | Match |
 | Mac App is not edit/test/evidence/receipt authority. | `desktop-app` edit, shell, test, evidence-submit, and receipt-verify capabilities are unavailable. | Match |
