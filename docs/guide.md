@@ -103,7 +103,7 @@ authority。即使 `KOALA_AUTHORITY_URL`、`KOALA_AUTHORITY_ACTOR_KEY`、
 `KOALA_AUTHORITY_RUNNER_ID` 都配齐，`productionDone` 仍保持 `false`，直到
 未来的 receipt-backed runner 路径真正验签 receipt 为止。PD-1 / PD-2 的
 trust boundary 见
-[`docs/requirements/decisions/authority-client-role.md`](requirements/decisions/authority-client-role.md)。
+[`requirements/decisions/authority-client-role.md`](requirements/decisions/authority-client-role.md)。
 
 ## 代码与文档的结合
 
