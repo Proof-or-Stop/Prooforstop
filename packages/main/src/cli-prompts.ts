@@ -290,7 +290,7 @@ STEP-BY-STEP
   1. Write code + tests
   2. lattice validate — fix any failures
   3. Repeat until green
-  4. git commit + checklist_update --status=done
+  4. git commit + lattice checklist_update --status=done
 `.trim();
 
 export const SESSION_BRIEF_FOOTER = '\n→ 不知道现在该做什么？跑 lattice session_brief 看项目全貌（koala 仍是 legacy alias）\n';
