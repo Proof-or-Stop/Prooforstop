@@ -66,6 +66,45 @@
       "files": [
         "packages/main/src/tasks/validation-protocol-smoke.ts"
       ]
+    },
+    {
+      "id": "B-b95c:F-005",
+      "desc": "AGENTS.md:189 and KOALA.md:61 still describe .Codex/agents as the Codex prompt location without the thin-mode caveat, even though this story explicitly requires F-001 and README/init templates already say thin mode can omit local prompt copies and rely on .Codex/lattice.json. The requested docs alignment is still incomplete.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-02T22:58:09.318Z",
+      "reviewRound": "2026-06-02T22:37:38.846Z",
+      "reviewRunId": "B-b95c:RR-005",
+      "_hash": "69b788d141f83aca31441d6848d72a13f60dd45d693df3075d89aa1d4a23285f",
+      "files": [
+        "AGENTS.md",
+        "KOALA.md",
+        "README.md"
+      ]
+    },
+    {
+      "id": "B-b95c:F-006",
+      "desc": "packages/main/src/cli-prompts.ts:32, packages/main/src/handlers/story-create.ts:370, and packages/main/src/handlers/story-draft.ts:60 now document the background contract as English-only section headers, but cli-engine.ts, existing drafts, and the current repo docs still instruct the long-standing Chinese headings. This adds unrelated prompt/doc drift on top of the Lattice naming work.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-02T22:58:09.362Z",
+      "reviewRound": "2026-06-02T22:37:38.846Z",
+      "reviewRunId": "B-b95c:RR-005",
+      "_hash": "3b74230406f1f3ec90692eb252ddf3bd2a82887d04dede1741ee472dc529aef7",
+      "files": [
+        "packages/main/src/cli-prompts.ts",
+        "packages/main/src/handlers/story-create.ts",
+        "packages/main/src/handlers/story-draft.ts",
+        "packages/main/src/cli-engine.ts",
+        "AGENTS.md",
+        "KOALA.md"
+      ]
     }
   ]
 }
