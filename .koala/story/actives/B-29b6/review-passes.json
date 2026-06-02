@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-02T05:27:19.493Z",
       "reviewRunId": "B-29b6:RR-001",
       "_hash": "48e0e42279b0fe8ceae7a42e7056548f6bedd353da409dadd6a11024f56a7757"
+    },
+    {
+      "id": "B-29b6:RP-002",
+      "agent": "koala-review-test-coverage",
+      "note": "Reviewed packages/main/src/tasks/lattice-parallel-wave-smoke.ts, packages/main/package.json, checklist/test-evidence/scope-contract artifacts, and current HEAD drift. Focused smoke covers dependency blocking, shared hotspot degradation, CLI create inspect plan, no-overwrite, host capability, authority boundary, and command policy/process-fact L0 assertions. Read-only reruns at review time: npm --prefix packages/main run build PASS and npm --prefix packages/main run test:lattice-parallel-wave-smoke PASS. Recorded koala validate artifact is a fallback npm test transcript rather than direct focused smoke/build proof, but current diff from evidence head only touches .koala story metadata, so no blocker for lane=test-coverage.",
+      "createdAt": "2026-06-02T05:30:30.132Z",
+      "reviewRound": "2026-06-02T05:27:19.493Z",
+      "reviewRunId": "B-29b6:RR-002",
+      "_hash": "25d2bb527d793ef94f1a3b63c6b5d19721d0ac9c72aed3c7df52a14d368ea956"
     }
   ]
 }
