@@ -63,7 +63,46 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "用户运行 `lattice host list`、`lattice host probe --host=codex` 和 `lattice config doctor` 看到 provider/config 状态与降级提示，不需要打开 Mac App provider dashboard。",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/registry.ts",
+          "README.md",
+          "docs/requirements/decisions/project-vision.md"
+        ],
+        "create": [
+          "packages/main/src/core/lattice-hosts.ts",
+          "packages/main/src/handlers/lattice-cli.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/lattice-cli-migration-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "host list/probe and config doctor return Lattice CLI provider/config status.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "missing optional providers are reported as visible degradations, not fatal errors.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "host install guidance is dry-run guidance and does not execute third-party installs.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
