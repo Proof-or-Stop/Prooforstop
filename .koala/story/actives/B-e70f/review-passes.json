@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-02T12:55:15.163Z",
       "reviewRunId": "B-e70f:RR-009",
       "_hash": "42e0bde745a65f7d07e39babf4b3cee03b1c2c3088fbb18d0e2bf3deb5e0e99f"
+    },
+    {
+      "id": "B-e70f:RP-007",
+      "agent": "koala-review-concept",
+      "note": "Checked docs plus packages/main core/handler/CLI/smoke coverage and live branch output via node packages/main/dist/cli.js and node bin/koala.js: parallel_dispatch/status/merge_queue/report are read-only product surfaces, dispatch keeps spawned=false with explicit runner confirmation, report/dev-memory refs stay gateEvidence=false authority=non_authoritative, and every projection preserves productionDone=false authorityChanged=false receiptRefs=[] with no auto-spawn or authority-gate claims.",
+      "createdAt": "2026-06-02T13:02:05.187Z",
+      "reviewRound": "2026-06-02T12:55:15.163Z",
+      "reviewRunId": "B-e70f:RR-008",
+      "_hash": "87fd3c0ebe596fe7fccb8267cab12c3a016481293c81bee118865b5f5995d3ca"
     }
   ]
 }
