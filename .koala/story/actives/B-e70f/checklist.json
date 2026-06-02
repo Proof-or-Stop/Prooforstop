@@ -146,7 +146,7 @@
         "docs/requirements/decisions/dev-memory.md",
         "docs/requirements/decisions/lattice-parallel-wave.md"
       ],
-      "userSees": "Parallel planning can surface relevant project lessons while still labeling them as non-authoritative context.",
+      "userSees": "`koala parallel_dispatch --includeExperience --format=json` prints `experienceRefs` entries with `gateEvidence:false` and `authority:\"non_authoritative\"`; an empty memory file prints `experienceRefs:[]`.",
       "status": "pending",
       "startTime": null,
       "endTime": null,
