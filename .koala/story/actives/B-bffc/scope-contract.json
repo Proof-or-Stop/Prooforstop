@@ -1,0 +1,44 @@
+{
+  "storyId": "B-bffc",
+  "mode": "enforce",
+  "allowedModify": [
+    "package.json",
+    "package-lock.json",
+    "packages/main/package.json",
+    "packages/main/src/cli.ts",
+    "packages/main/src/cli-engine.ts",
+    "bin/bootstrap-runner.js",
+    "packages/main/src/registry.ts",
+    "README.md",
+    "docs/requirements/decisions/project-vision.md",
+    "docs/requirements/decisions/authority-client-role.md",
+    "docs/requirements/decisions/lattice-parallel-wave.md",
+    "docs/requirements/decisions/stack-layering.md"
+  ],
+  "allowedCreate": [
+    "bin/lattice.js",
+    "packages/main/src/core/lattice-brand.ts",
+    "packages/main/src/core/lattice-hosts.ts",
+    "packages/main/src/handlers/lattice-cli.ts",
+    "packages/main/src/tasks/lattice-cli-migration-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/lattice-cli-migration-smoke.ts"
+  ],
+  "protectedFiles": [
+    ".koala/story/actives/B-bffc/checklist.json",
+    ".koala/story/actives/B-bffc/index.json"
+  ],
+  "explicitExcludes": [
+    "packages/mac/**",
+    "apps/mac/**",
+    "mac/**",
+    "server/**",
+    "packages/main/dist/**",
+    "node_modules/**"
+  ],
+  "scopeChangeReason": "Initialize enforced scope from PLAN checklist files for Lattice CLI 0.3.5 migration; exclude in-repo Mac/server/build/runtime paths from this CLI-first story.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-02T11:21:36.192Z",
+  "updatedAt": "2026-06-02T11:21:36.192Z"
+}

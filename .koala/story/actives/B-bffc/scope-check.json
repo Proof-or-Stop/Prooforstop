@@ -1,0 +1,66 @@
+{
+  "storyId": "B-bffc",
+  "checkedAt": "2026-06-02T11:22:09.039Z",
+  "features": [
+    {
+      "feature": "Lattice CLI product identity and 0.3.5 entrypoint",
+      "covered_by": "CHK-001 covers package versions, cli/bin entrypoint, bootstrap text, and lattice-brand helper files.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "PLAN CHK-001 files + plan.md"
+    },
+    {
+      "feature": "CLI provider and config surfaces replacing Mac provider dashboard dependency",
+      "covered_by": "CHK-002 covers lattice-hosts core metadata, lattice-cli handler, registry/cli-engine registration, README, and project-vision docs.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "PLAN CHK-002 files + Mac App optional boundary"
+    },
+    {
+      "feature": "Receipt-aware authority and conduit semantics without new runner host",
+      "covered_by": "CHK-003 covers lattice-cli authority/conduit handlers, registry/cli-engine registration, authority-client-role docs, and lattice-parallel-wave docs.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "PLAN CHK-003 files + authority boundary docs"
+    },
+    {
+      "feature": "Mac App demoted from required release path",
+      "covered_by": "CHK-004 covers README, stack-layering, project-vision, and authority-client-role docs.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "PLAN CHK-004 docs"
+    },
+    {
+      "feature": "Focused build and smoke verification",
+      "covered_by": "CHK-005 covers root/package scripts and lattice-cli-migration-smoke task.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "PLAN CHK-005 files + verificationIntent"
+    },
+    {
+      "feature": "Mac App implementation migration as code move",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Out of scope for host-neutral CLI-first story; Mac App is demoted in docs, not modified or required in this repository.",
+      "source": "Product boundary and explicit excludes"
+    },
+    {
+      "feature": "Python Server Authority implementation changes",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "This story consumes Server Authority receipt semantics but does not change the separate Python authority repo.",
+      "source": "Product boundary"
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "covered": 5,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "769f85819f2e447886bd5840848ee5ac40a01cb89308b9c76b9b57c7e5268ae9",
+  "openQuestions": []
+}
