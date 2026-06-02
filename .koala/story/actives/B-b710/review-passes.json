@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-02T17:46:40.609Z",
       "reviewRunId": "B-b710:RR-005",
       "_hash": "1ac531219ade9d988cbcebd8501ea56fab1a4af69da6689cd2f6e710e3a52115"
+    },
+    {
+      "id": "B-b710:RP-005",
+      "agent": "koala-review-concept",
+      "note": "Concept review pass (post-F-001 docs fix, RR-006 head 08574cb). (1) Local/off usability is structurally guaranteed: localWorkflowUsable typed 'true' literal in AuthorityReadiness (lattice-cli.ts:62) and returned as compile-time true (line 119); off mode produces empty readinessWarnings/nextActions arrays; smoke asserts mode=off → readinessWarnings=[] and CLI text omits readinessWarnings list. (2) Shadow/enforce readiness is explicit and actionable: buildAuthorityReadiness emits per-prerequisite warnings + matching nextActions (URL for shadow; URL + actor key + runner id for enforce), both authority_status and conduit_status mirror identical fields, and conduit_explain documents enforce prereqs. Warnings are surfaced-only — no gate logic, no global blocker. (3) No production overclaim: receiptVerified/productionDone/canClaimProductionDone are 'false as const' in buildAuthorityStatus; receiptVerified/productionDone/authorityChanged are 'false as const' in buildConduitStatus; assertNoProductionOverclaim tree-walks JSON for every state (off / shadow-missing-url / enforce-missing-prereqs / enforce-env-complete / conduit_status / conduit_explain) and fails on any true; env-complete enforce smoke explicitly proves env presence alone never promotes authority. Docs (README#authority-modes / docs/guide.md / authority-client-role.md §B-b710) consistently state local JSON is not authority evidence and enforce path is deferred until verified receipt lands. No deleted-concept residue: diff is purely additive (new fields + new smoke + new docs sections) — no symbol renamed or removed that would leave dangling references. npm run test:authority-status-smoke passes.",
+      "createdAt": "2026-06-02T17:52:11.048Z",
+      "reviewRound": "2026-06-02T17:46:40.609Z",
+      "reviewRunId": "B-b710:RR-006",
+      "_hash": "b5d9cd723a22a9a93351e64a50f246c7070f75dbb27c4c74c5021a9141a0e95a"
     }
   ]
 }
