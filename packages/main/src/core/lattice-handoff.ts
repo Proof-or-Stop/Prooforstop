@@ -54,6 +54,71 @@ export interface HandoffInspection {
   recoveryPoint: HandoffPack['recoveryPoint'];
 }
 
+export interface HandoffAcceptProjection {
+  schemaVersion: 'koala.handoff_accept.v1';
+  processEvent: {
+    type: 'handoff_accepted';
+    action: 'accept';
+    storyId: string;
+    phase: string;
+    fromHost: string;
+    toHost: string;
+    acceptedByHost: string;
+    evidenceRefs: string[];
+    recoveryPointId: string;
+    authorityChanged: false;
+    productionDone: false;
+    receiptRefs: [];
+  };
+  storyId: string;
+  fromHost: string;
+  toHost: string;
+  acceptedByHost: string;
+  evidenceRefs: string[];
+  lineage: CanonicalStory['lineage'];
+  recoveryPoint: HandoffPack['recoveryPoint'];
+  authorityChanged: false;
+  productionDone: false;
+  receiptRefs: [];
+  evidenceRefresh: {
+    performed: false;
+    guidance: string;
+  };
+}
+
+export interface HandoffResumeProjection {
+  schemaVersion: 'koala.handoff_resume.v1';
+  processEvent: {
+    type: 'handoff_resume_projected';
+    action: 'resume';
+    storyId: string;
+    phase: string;
+    fromHost: string;
+    toHost: string;
+    resumeHost: string;
+    evidenceRefs: string[];
+    recoveryPointId: string;
+    authorityChanged: false;
+    productionDone: false;
+    receiptRefs: [];
+  };
+  storyId: string;
+  fromHost: string;
+  toHost: string;
+  resumeHost: string;
+  evidenceRefs: string[];
+  lineage: CanonicalStory['lineage'];
+  recoveryPoint: HandoffPack['recoveryPoint'];
+  authorityChanged: false;
+  productionDone: false;
+  receiptRefs: [];
+  nextActions: string[];
+  evidenceRefresh: {
+    performed: false;
+    guidance: string;
+  };
+}
+
 function evidenceRefs(canonicalStory: CanonicalStory): string[] {
   const refs = new Set<string>();
   for (const evidence of canonicalStory.evidence) {
@@ -140,6 +205,29 @@ export function readHandoffPack(file: string): HandoffPack {
   };
 }
 
+export function readHandoffAcceptProjection(file: string): HandoffAcceptProjection {
+  const parsed = JSON.parse(readFileSync(file, 'utf8')) as HandoffAcceptProjection;
+  if (parsed.schemaVersion !== 'koala.handoff_accept.v1') {
+    throw new Error(`handoff_resume expected schemaVersion koala.handoff_accept.v1, got ${String((parsed as { schemaVersion?: unknown }).schemaVersion)}`);
+  }
+  return {
+    ...parsed,
+    authorityChanged: false,
+    productionDone: false,
+    receiptRefs: [],
+    processEvent: {
+      ...parsed.processEvent,
+      authorityChanged: false,
+      productionDone: false,
+      receiptRefs: [],
+    },
+    evidenceRefresh: {
+      performed: false,
+      guidance: parsed.evidenceRefresh?.guidance ?? handoffEvidenceRefreshGuidance(),
+    },
+  };
+}
+
 export function inspectHandoffPack(pack: HandoffPack): HandoffInspection {
   return {
     schemaVersion: 'koala.handoff_inspect.v1',
@@ -162,6 +250,103 @@ export function inspectHandoffPack(pack: HandoffPack): HandoffInspection {
   };
 }
 
+function handoffEvidenceRefreshGuidance(): string {
+  return 'This projection preserves prior evidence refs only. Rerun validation in the target host before recording fresh evidence; do not refresh hashes or claim authority from handoff accept/resume.';
+}
+
+export function buildHandoffAcceptProjection(
+  pack: HandoffPack,
+  args: { acceptedByHost?: string } = {},
+): HandoffAcceptProjection {
+  const acceptedByHost = args.acceptedByHost ? buildCapabilityProbe(args.acceptedByHost).host : pack.toHost;
+  const processEvent = {
+    type: 'handoff_accepted' as const,
+    action: 'accept' as const,
+    storyId: pack.storyId,
+    phase: pack.recoveryPoint.phase,
+    fromHost: pack.fromHost,
+    toHost: pack.toHost,
+    acceptedByHost,
+    evidenceRefs: pack.evidenceRefs,
+    recoveryPointId: pack.recoveryPoint.id,
+    authorityChanged: false as const,
+    productionDone: false as const,
+    receiptRefs: [] as [],
+  };
+  return {
+    schemaVersion: 'koala.handoff_accept.v1',
+    processEvent,
+    storyId: pack.storyId,
+    fromHost: pack.fromHost,
+    toHost: pack.toHost,
+    acceptedByHost,
+    evidenceRefs: pack.evidenceRefs,
+    lineage: pack.canonicalStory.lineage,
+    recoveryPoint: pack.recoveryPoint,
+    authorityChanged: false,
+    productionDone: false,
+    receiptRefs: [],
+    evidenceRefresh: {
+      performed: false,
+      guidance: handoffEvidenceRefreshGuidance(),
+    },
+  };
+}
+
+export function buildHandoffResumeProjection(
+  source: HandoffPack | HandoffAcceptProjection,
+  args: { resumeHost?: string } = {},
+): HandoffResumeProjection {
+  const isAccept = source.schemaVersion === 'koala.handoff_accept.v1';
+  const storyId = source.storyId;
+  const fromHost = source.fromHost;
+  const toHost = source.toHost;
+  const evidenceRefs = source.evidenceRefs;
+  const lineage = isAccept ? source.lineage : source.canonicalStory.lineage;
+  const recoveryPoint = source.recoveryPoint;
+  const resumeHost = args.resumeHost
+    ? buildCapabilityProbe(args.resumeHost).host
+    : (isAccept ? source.acceptedByHost : toHost);
+  const processEvent = {
+    type: 'handoff_resume_projected' as const,
+    action: 'resume' as const,
+    storyId,
+    phase: recoveryPoint.phase,
+    fromHost,
+    toHost,
+    resumeHost,
+    evidenceRefs,
+    recoveryPointId: recoveryPoint.id,
+    authorityChanged: false as const,
+    productionDone: false as const,
+    receiptRefs: [] as [],
+  };
+  return {
+    schemaVersion: 'koala.handoff_resume.v1',
+    processEvent,
+    storyId,
+    fromHost,
+    toHost,
+    resumeHost,
+    evidenceRefs,
+    lineage,
+    recoveryPoint,
+    authorityChanged: false,
+    productionDone: false,
+    receiptRefs: [],
+    nextActions: [
+      `Resume ${storyId} from recovery point ${recoveryPoint.id} at phase ${recoveryPoint.phase}.`,
+      'Inspect capability degradations and keep any missing authority visible.',
+      'Rerun target-host validation before recording new verification evidence.',
+      'Require a verified receipt before any productionDone claim.',
+    ],
+    evidenceRefresh: {
+      performed: false,
+      guidance: handoffEvidenceRefreshGuidance(),
+    },
+  };
+}
+
 export function renderHandoffInspectionText(inspection: HandoffInspection): string {
   return [
     `Handoff inspect (${inspection.schemaVersion})`,
@@ -175,5 +360,38 @@ export function renderHandoffInspectionText(inspection: HandoffInspection): stri
     `receiptRefs: ${inspection.receiptRefs.length}`,
     `handoffCanManufactureProductionDone: ${inspection.authority.handoffCanManufactureProductionDone}`,
     `recoveryPoint: ${inspection.recoveryPoint.id}`,
+  ].join('\n');
+}
+
+export function renderHandoffAcceptText(projection: HandoffAcceptProjection): string {
+  return [
+    `Handoff accept (${projection.schemaVersion})`,
+    `storyId: ${projection.storyId}`,
+    `fromHost: ${projection.fromHost}`,
+    `toHost: ${projection.toHost}`,
+    `acceptedByHost: ${projection.acceptedByHost}`,
+    `phase: ${projection.recoveryPoint.phase}`,
+    `evidenceRefs: ${projection.evidenceRefs.length}`,
+    `authorityChanged: ${projection.authorityChanged}`,
+    `productionDone: ${projection.productionDone}`,
+    `receiptRefs: ${projection.receiptRefs.length}`,
+    `recoveryPoint: ${projection.recoveryPoint.id}`,
+  ].join('\n');
+}
+
+export function renderHandoffResumeText(projection: HandoffResumeProjection): string {
+  return [
+    `Handoff resume (${projection.schemaVersion})`,
+    `storyId: ${projection.storyId}`,
+    `fromHost: ${projection.fromHost}`,
+    `toHost: ${projection.toHost}`,
+    `resumeHost: ${projection.resumeHost}`,
+    `phase: ${projection.recoveryPoint.phase}`,
+    `evidenceRefs: ${projection.evidenceRefs.length}`,
+    `authorityChanged: ${projection.authorityChanged}`,
+    `productionDone: ${projection.productionDone}`,
+    `receiptRefs: ${projection.receiptRefs.length}`,
+    `recoveryPoint: ${projection.recoveryPoint.id}`,
+    `nextActions: ${projection.nextActions.length}`,
   ].join('\n');
 }

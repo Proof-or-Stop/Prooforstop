@@ -8,10 +8,14 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { resetConfigCache } from '../core/config.js';
 import {
+  buildHandoffAcceptProjection,
+  buildHandoffResumeProjection,
   createHandoffPack,
   inspectHandoffPack,
+  type HandoffAcceptProjection,
   type HandoffInspection,
   type HandoffPack,
+  type HandoffResumeProjection,
 } from '../core/lattice-handoff.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
@@ -93,6 +97,45 @@ function assertInspection(inspection: HandoffInspection): void {
   assert.ok(inspection.blockingDegradationCount > 0);
 }
 
+function assertAcceptProjection(projection: HandoffAcceptProjection): void {
+  assert.equal(projection.schemaVersion, 'koala.handoff_accept.v1');
+  assert.equal(projection.storyId, 'B-handoff');
+  assert.equal(projection.fromHost, 'codex');
+  assert.equal(projection.toHost, 'claude-code');
+  assert.equal(projection.acceptedByHost, 'claude-code');
+  assert.equal(projection.authorityChanged, false);
+  assert.equal(projection.productionDone, false);
+  assert.deepEqual(projection.receiptRefs, []);
+  assert.equal(projection.processEvent.type, 'handoff_accepted');
+  assert.equal(projection.processEvent.authorityChanged, false);
+  assert.equal(projection.processEvent.productionDone, false);
+  assert.deepEqual(projection.processEvent.receiptRefs, []);
+  assert.ok(projection.evidenceRefs.includes('CHK-001:happy:0'), 'accept preserves evidence refs');
+  assert.equal(projection.recoveryPoint.storyId, 'B-handoff', 'accept preserves recovery point');
+  assert.ok(projection.lineage, 'accept preserves canonical lineage');
+  assert.equal(projection.evidenceRefresh.performed, false, 'accept does not refresh evidence');
+}
+
+function assertResumeProjection(projection: HandoffResumeProjection): void {
+  assert.equal(projection.schemaVersion, 'koala.handoff_resume.v1');
+  assert.equal(projection.storyId, 'B-handoff');
+  assert.equal(projection.fromHost, 'codex');
+  assert.equal(projection.toHost, 'claude-code');
+  assert.equal(projection.resumeHost, 'claude-code');
+  assert.equal(projection.authorityChanged, false);
+  assert.equal(projection.productionDone, false);
+  assert.deepEqual(projection.receiptRefs, []);
+  assert.equal(projection.processEvent.type, 'handoff_resume_projected');
+  assert.equal(projection.processEvent.authorityChanged, false);
+  assert.equal(projection.processEvent.productionDone, false);
+  assert.deepEqual(projection.processEvent.receiptRefs, []);
+  assert.ok(projection.evidenceRefs.includes('CHK-001:happy:0'), 'resume preserves evidence refs');
+  assert.equal(projection.recoveryPoint.storyId, 'B-handoff', 'resume preserves recovery point');
+  assert.ok(projection.lineage, 'resume preserves canonical lineage');
+  assert.equal(projection.evidenceRefresh.performed, false, 'resume does not refresh evidence');
+  assert.ok(projection.nextActions.some(action => /verified receipt/.test(action)), 'resume keeps production authority guidance visible');
+}
+
 const root = mkdtempSync(join(tmpdir(), 'koala-lattice-handoff-'));
 try {
   writeConfig(root);
@@ -103,13 +146,19 @@ try {
   const pack = createHandoffPack(store, root, { storyId: 'B-handoff', fromHost: 'codex', toHost: 'claude-code' });
   assertHandoffPack(pack);
   assertInspection(inspectHandoffPack(pack));
+  assertAcceptProjection(buildHandoffAcceptProjection(pack));
+  assertResumeProjection(buildHandoffResumeProjection(pack));
 
   assert.ok(MAIN_TOOLS.some(tool => tool.name === 'handoff_create'), 'MAIN_TOOLS exposes handoff_create');
   assert.ok(MAIN_TOOLS.some(tool => tool.name === 'handoff_inspect'), 'MAIN_TOOLS exposes handoff_inspect');
+  assert.ok(MAIN_TOOLS.some(tool => tool.name === 'handoff_accept'), 'MAIN_TOOLS exposes handoff_accept');
+  assert.ok(MAIN_TOOLS.some(tool => tool.name === 'handoff_resume'), 'MAIN_TOOLS exposes handoff_resume');
   const ctx: HandlerContext = { store, root, scanRoot: join(root, 'packages/main') };
   const registry = createMainRegistry(ctx);
   assert.equal(registry.has('handoff_create'), true, 'registry exposes handoff_create handler');
   assert.equal(registry.has('handoff_inspect'), true, 'registry exposes handoff_inspect handler');
+  assert.equal(registry.has('handoff_accept'), true, 'registry exposes handoff_accept handler');
+  assert.equal(registry.has('handoff_resume'), true, 'registry exposes handoff_resume handler');
   assertHandoffPack(registry.get('handoff_create')!({
     storyId: 'B-handoff',
     fromHost: 'codex',
@@ -151,6 +200,16 @@ try {
     stdio: ['pipe', 'pipe', 'pipe'],
   });
   assertHandoffPack(JSON.parse(readFileSync(outputPath, 'utf8')) as HandoffPack);
+  assert.throws(
+    () => registry.get('handoff_create')!({
+      storyId: 'B-handoff',
+      fromHost: 'codex',
+      toHost: 'claude-code',
+      output: outputPath,
+    }),
+    /refusing to overwrite existing file/,
+    'handoff_create output must be no-overwrite',
+  );
 
   const inspectStdout = execFileSync(process.execPath, [
     cliPath,
@@ -165,6 +224,56 @@ try {
     stdio: ['pipe', 'pipe', 'pipe'],
   });
   assertInspection(JSON.parse(inspectStdout) as HandoffInspection);
+
+  const acceptStdout = execFileSync(process.execPath, [
+    cliPath,
+    '--root',
+    root,
+    'handoff_accept',
+    `--file=${outputPath}`,
+    '--acceptedByHost=claude-code',
+    '--format=json',
+  ], {
+    cwd: root,
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+  assertAcceptProjection(JSON.parse(acceptStdout) as HandoffAcceptProjection);
+
+  const acceptPath = join(root, 'handoff-accept.json');
+  execFileSync(process.execPath, [
+    cliPath,
+    '--root',
+    root,
+    'handoff_accept',
+    `--file=${outputPath}`,
+    `--output=${acceptPath}`,
+  ], {
+    cwd: root,
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+  assertAcceptProjection(JSON.parse(readFileSync(acceptPath, 'utf8')) as HandoffAcceptProjection);
+  assert.throws(
+    () => registry.get('handoff_accept')!({ file: outputPath, output: acceptPath }),
+    /refusing to overwrite existing file/,
+    'handoff_accept output must be no-overwrite',
+  );
+
+  const resumeStdout = execFileSync(process.execPath, [
+    cliPath,
+    '--root',
+    root,
+    'handoff_resume',
+    `--file=${acceptPath}`,
+    '--format=json',
+  ], {
+    cwd: root,
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+  assertResumeProjection(JSON.parse(resumeStdout) as HandoffResumeProjection);
+  assertResumeProjection(registry.get('handoff_resume')!({ file: outputPath, format: 'json' }) as HandoffResumeProjection);
 } finally {
   rmSync(root, { recursive: true, force: true });
 }

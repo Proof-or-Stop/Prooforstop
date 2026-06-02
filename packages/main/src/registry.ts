@@ -65,6 +65,7 @@ import { createDevMemoryHandlers } from './handlers/dev-memory.js';
 import { createCapabilityListHandlers } from './handlers/capability-list.js';
 import { createStoryExportHandlers } from './handlers/story-export.js';
 import { createLatticeHandoffHandlers } from './handlers/lattice-handoff.js';
+import { createLatticeEvidenceHandlers } from './handlers/lattice-evidence.js';
 import { nextStoryId } from './handlers/context.js';
 
 export type HandlerFn = (...args: any[]) => any;
@@ -210,6 +211,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   // Lattice productized export and cross-host handoff surfaces.
   registry.registerBatch(createStoryExportHandlers(ctx));
   registry.registerBatch(createLatticeHandoffHandlers(ctx));
+  registry.registerBatch(createLatticeEvidenceHandlers(ctx));
 
   // 内部辅助：返回下一个 story id（fixture/测试 runner 用）
   registry.register('_nextStoryId', (prefix?: string) => nextStoryId(ctx.store, prefix));

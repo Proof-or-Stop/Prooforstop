@@ -621,6 +621,29 @@ export const MAIN_TOOLS: ToolDef[] = [
     file: z.string().describe('Handoff pack JSON file'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
   }},
+  { name: 'handoff_accept', description: 'Accept a Lattice handoff pack as a process-event style projection without changing authority', schema: {
+    file: z.string().describe('Handoff pack JSON file'),
+    acceptedByHost: z.string().optional().describe('Accepting host profile id; defaults to the handoff target host'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    output: z.string().optional().describe('Optional file path for accept projection JSON; refuses to overwrite'),
+  }},
+  { name: 'handoff_resume', description: 'Project a resume plan from a handoff pack or accept projection without refreshing evidence or authority', schema: {
+    file: z.string().describe('Handoff pack JSON file or handoff_accept projection JSON file'),
+    resumeHost: z.string().optional().describe('Resume host profile id; defaults to acceptedByHost or target host'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    output: z.string().optional().describe('Optional file path for resume projection JSON; refuses to overwrite'),
+  }},
+  { name: 'evidence_manifest', description: 'Create a portable evidence freshness manifest with transcript/test refs and authority guidance only', schema: {
+    storyId: z.string().describe('Story ID to inspect for evidence refs'),
+    sourceHost: z.string().describe('Source host profile id for portability diagnostics'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    output: z.string().optional().describe('Optional file path for evidence manifest JSON; refuses to overwrite'),
+  }},
+  { name: 'evidence_inspect', description: 'Inspect a portable evidence manifest against current HEAD/material hash without refreshing evidence', schema: {
+    file: z.string().describe('Evidence manifest JSON file'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    output: z.string().optional().describe('Optional file path for evidence inspection JSON; refuses to overwrite'),
+  }},
 
   // Doctor (health issue 巡检)
   { name: 'doctor', description: '查看 koala 自身的 health issue（被 silent catch 接住的 PERSIST 失败）+ 扫 .worktrees/ 孤儿目录', schema: {
@@ -1449,6 +1472,10 @@ const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'story_export',
   'handoff_create',
   'handoff_inspect',
+  'handoff_accept',
+  'handoff_resume',
+  'evidence_manifest',
+  'evidence_inspect',
   'grill_get',
   'reviewer_list',
   'workflow_explain',
