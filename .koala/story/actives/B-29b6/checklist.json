@@ -255,7 +255,42 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Final validation transcript shows build pass, lattice parallel wave smoke pass, scope check pass, and koala validate pass.",
+      "files": {
+        "modify": [
+          ".koala/story/actives/B-29b6/checklist.json",
+          ".koala/story/actives/B-29b6/summary.json"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Build and focused lattice parallel wave smoke test pass.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Scope contract check passes without forbidden writes.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "koala validate confirms all checklist verification intents are covered before DONE.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
