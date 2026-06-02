@@ -335,9 +335,9 @@
         "docs/requirements/decisions/dev-memory.md"
       ],
       "userSees": "`npm --prefix packages/main run test:lattice-parallel-wave-smoke` ends with `✓ lattice parallel wave smoke passed`, and `koala validate --story=B-e70f` reports `allPass:true` with required intents covered.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-02T12:40:23.904Z",
       "files": {
         "modify": [
           "packages/main/src/tasks/lattice-parallel-wave-smoke.ts",
@@ -442,6 +442,15 @@
       "from": "pending",
       "to": "done",
       "reason": "Project public experience library is integrated through bounded dev-memory refs and tested as non-authoritative context."
+    },
+    {
+      "timestamp": "2026-06-02T12:40:23.904Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Build, focused smoke, lifecycle registry, command ownership, diff check, and enforce scope check passed."
     }
   ]
 }
