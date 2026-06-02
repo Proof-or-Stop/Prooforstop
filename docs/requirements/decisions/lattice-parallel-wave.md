@@ -8,8 +8,10 @@ parallel worktrees.
 
 It is not authority evidence. A wave artifact is local planning state only: it
 cannot satisfy REVIEW, TEST, DONE, delivery, receipt, or production authority
-gates. Every Parallel Wave output keeps `productionDone=false`,
-`authorityChanged=false`, and top-level `receiptRefs=[]`.
+gates. Each JSON surface keeps the non-authority boundary explicit with
+`authority.productionDone=false`, `authority.authorityChanged=false`, and
+`authority.receiptRefs=[]`; no surface emits production completion, non-empty
+`receiptRefs`, or auto-spawned runner state.
 
 ## Lattice Mapping
 
@@ -60,9 +62,11 @@ requested output artifact, but they do not mutate story metadata, process
 evidence, lifecycle state, receipts, authority state, production completion, or
 spawn agent runners. They are process fact level L0.
 
-## Wave JSON Contract
+## Base Wave JSON Contract
 
-Every JSON output includes:
+The base wave/create/inspect/plan surfaces are the only JSON outputs that carry
+the full wave envelope. `parallel_wave_create`, `parallel_wave_inspect`, and
+`parallel_plan` include:
 
 - `schemaVersion`
 - `waveId`
@@ -74,6 +78,45 @@ Every JSON output includes:
 - `authority.productionDone=false`
 - `authority.authorityChanged=false`
 - `authority.receiptRefs=[]`
+
+`parallel_wave_create` additionally includes `generatedAt`.
+`parallel_wave_inspect` additionally includes `waveSchemaVersion`,
+`inspectedAt`, and an `inspection` count summary. `parallel_plan` additionally
+includes `waveSchemaVersion`, `plannedAt`, `parallelDevCandidates`,
+`planOnlyStories`, `blockedStories`, and `recoveryGuidance`.
+
+## Projection JSON Contracts
+
+Projection-specific schemas do not all repeat the full base wave envelope.
+Every projection still includes `schemaVersion`, `waveSchemaVersion`, `waveId`,
+a projection timestamp, `summary`, and the non-authoritative `authority`
+boundary with `productionDone=false`, `authorityChanged=false`, and
+`receiptRefs=[]`.
+
+`parallel_dispatch` emits `dispatchedAt`, `summary`, `dispatchEntries`,
+`hostCandidates`, top-level `evidenceRefs`, `mergeOrder`, and `authority`. It
+does not emit top-level `storyRefs`. Each dispatch entry contains `storyId`,
+`title`, `recommendation`, `dispatchable`, `agentRole`, `spawned=false`,
+`requiresRunnerConfirmation=true`, `recommendedHostIds`, optional
+`worktreePath` and `branch`, `nextCommand`, `blockers`, `degradations`,
+`evidenceRefs`, and bounded non-authoritative `experienceRefs`.
+
+`parallel_status` emits `statusAt`, `summary`, `candidates`, `planOnly`,
+`blocked` entries with blockers, `mergeGuidance`, and `authority`. It does not
+emit `storyRefs`, `hostCandidates`, top-level `evidenceRefs`, or `mergeOrder`.
+
+`parallel_merge_queue` emits `queuedAt`, `summary`, `ready` and `blocked`
+queue entries, `mergeGuidance`, and `authority`. Each queue entry contains
+`storyId`, `title`, `after`, `safety`, `recommendation`, `ready`, `blockers`,
+`guidance`, and story-level `evidenceRefs`. It does not emit `storyRefs`,
+`hostCandidates`, top-level `evidenceRefs`, or raw `mergeOrder`.
+
+`parallel_report` emits `reportedAt`, `summary`, `candidates`, `planOnly`,
+`blocked`, `dispatchEntries`, `mergeGuidance`, `evidenceSummary`,
+`experienceRefs`, and `authority`. `evidenceSummary` contains `topLevelRefs`
+and per-story entries with `storyId`, `title`, story-level `evidenceRefs`,
+`canonicalStoryRef`, and `recoveryRefs`. It does not emit `storyRefs`,
+`hostCandidates`, top-level `evidenceRefs`, or raw `mergeOrder`.
 
 Projection schema versions:
 
