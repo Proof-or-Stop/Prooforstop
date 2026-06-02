@@ -41,34 +41,34 @@
           "intentRef": "CHK-001:happy:0",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/authority-runner-contracts-smoke.ts",
-          "command": "npm --prefix packages/main run test:authority-runner-contracts",
+          "command": "npm run test:authority-runner-contracts",
           "result": "pass",
-          "note": "contract helpers sign and verify runner envelopes and job specs with deterministic canonical JSON bytes; case 1 (canonical determinism) + case 2 (sign/verify roundtrip) + case 5 (every runner shape roundtrip) + case 10 (JobSpec server signature) all pass",
-          "headHash": "585ae841a3f3036286b0394bb09188cb405fbbe2",
+          "note": "Root npm script delegates to the focused authority runner contracts smoke; it verifies deterministic canonical JSON bytes, Ed25519 sign/verify roundtrip, every runner envelope shape, and JobSpec/receipt signing paths.",
+          "headHash": "5ec4878750c2879722252f504e1bf6996f5dadae",
           "materialHash": "9c94c657e7f9eed06d05ded04897ae541dbe6d324998a052b697b73d32e89368",
-          "timestamp": "2026-06-02T17:28:28.875Z"
+          "timestamp": "2026-06-02T17:32:07.449Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/authority-runner-contracts-smoke.ts",
-          "command": "npm --prefix packages/main run test:authority-runner-contracts",
+          "command": "npm run test:authority-runner-contracts",
           "result": "pass",
-          "note": "invalid signatures (wrong key / tampered payload / 64-byte zero / malformed base64), missing actorId/nonce/createdAt (runtime re-validation beyond Zod), same producer/verifier run id (incl. whitespace-only difference) all fail classification and verification — cases 2/4/6/7 cover edge paths",
-          "headHash": "025b17a6b0cea949618806851b8c3f7a506e2c71",
+          "note": "Smoke covers invalid signatures, wrong keys, tampered payloads, malformed signatures, missing actorId/nonce/createdAt, and same-run producer/verifier collapse including whitespace-only variants.",
+          "headHash": "5ec4878750c2879722252f504e1bf6996f5dadae",
           "materialHash": "9c94c657e7f9eed06d05ded04897ae541dbe6d324998a052b697b73d32e89368",
-          "timestamp": "2026-06-02T17:28:35.953Z"
+          "timestamp": "2026-06-02T17:32:07.449Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/authority-runner-contracts-smoke.ts",
-          "command": "npm --prefix packages/main run test:authority-runner-contracts",
+          "command": "npm run test:authority-runner-contracts",
           "result": "pass",
-          "note": "adversarial: signed-but-unbound runner envelope still surfaces missing producerRunId/verifierRunId/provider/model/vendor/commandDigest/transcriptHash/diffHash/verifiedAuthorityReceipt via missingRunnerL2Requirements; runnerEnvelopeIsL2PlusCandidate returns false for every CLI-shaped runner envelope — signing primitives alone do NOT promote ordinary local/shadow evidence to receipt-backed L2+ (case 7 + L2+ boundary preserved)",
-          "headHash": "f4ed043c7c03a3bacb938f694d122cc3b1ae6ce8",
+          "note": "Smoke proves signing primitives alone do not promote ordinary local/shadow runner envelopes to receipt-backed L2+: missingRunnerL2Requirements still requires run bindings, provider/model/vendor, command/transcript/diff hashes, and verified authority receipt.",
+          "headHash": "5ec4878750c2879722252f504e1bf6996f5dadae",
           "materialHash": "9c94c657e7f9eed06d05ded04897ae541dbe6d324998a052b697b73d32e89368",
-          "timestamp": "2026-06-02T17:28:42.754Z"
+          "timestamp": "2026-06-02T17:32:07.449Z"
         }
       ]
     },
@@ -113,34 +113,34 @@
           "intentRef": "CHK-002:happy:0",
           "kind": "integration_test",
           "file": "packages/main/src/tasks/authority-runner-client-smoke.ts",
-          "command": "npm --prefix packages/main run test:authority-runner-client",
+          "command": "npm run test:authority-runner-client",
           "result": "pass",
-          "note": "fake authority server captures each expected endpoint path exactly once with signed request bodies: /v1/actors/{actorId}/keys, /v1/runners/register, /v1/runners/{runnerId}/heartbeat (URL-encoded), /v1/runners/{runnerId}/jobs/claim (JobSpec + null both success), /v1/jobs/{jobId}/heartbeat, /v1/jobs/{jobId}/release, /v1/runs/{runId}/provider-events — case 1 covers all 7 endpoints; outbound bodies parse against their typed schemas",
-          "headHash": "55893f56afae042587f7bbc00011f4497c966ef7",
+          "note": "Root npm script delegates to the focused authority runner client smoke; fake authority server captures all 7 expected runner endpoints exactly once with signed request bodies and typed schema parsing.",
+          "headHash": "5ec4878750c2879722252f504e1bf6996f5dadae",
           "materialHash": "9c94c657e7f9eed06d05ded04897ae541dbe6d324998a052b697b73d32e89368",
-          "timestamp": "2026-06-02T17:28:57.435Z"
+          "timestamp": "2026-06-02T17:32:07.449Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/authority-runner-client-smoke.ts",
-          "command": "npm --prefix packages/main run test:authority-runner-client",
+          "command": "npm run test:authority-runner-client",
           "result": "pass",
-          "note": "HTTP error (503 → http_error), malformed 2xx body (string body, fails JobSpec|null schema → error, never silently success), connection_refused (ECONNREFUSED), and timeout (AbortError) all map to controlled failure outcomes — case 3; empty/whitespace path params throw before any network call — case 2; off mode (createRunnerAuthorityClient with mode=off) and missing/whitespace KOALA_AUTHORITY_URL both refuse instantiation and perform zero network calls — case 4; loadRunnerAuthorityClient runtime re-validates mode and URL with override-beats-env semantics — case 5",
-          "headHash": "3f5d571299619c5b349e9d7328b8a18a487e9ff2",
+          "note": "Smoke covers HTTP errors, malformed 2xx bodies, connection refused, timeout, empty path params, off mode zero-network refusal, missing/whitespace KOALA_AUTHORITY_URL refusal, and runtime re-validation of env/override mode.",
+          "headHash": "5ec4878750c2879722252f504e1bf6996f5dadae",
           "materialHash": "9c94c657e7f9eed06d05ded04897ae541dbe6d324998a052b697b73d32e89368",
-          "timestamp": "2026-06-02T17:29:07.490Z"
+          "timestamp": "2026-06-02T17:32:07.449Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/authority-runner-client-smoke.ts",
-          "command": "npm --prefix packages/main run test:authority-runner-client",
+          "command": "npm run test:authority-runner-client",
           "result": "pass",
-          "note": "adversarial PD-2 invariant: discoverPolicy makes exactly one GET to /v1/authority/policy with no body, and never POSTs /v1/evidence, /v1/evidence/batch, /v1/runners/register, /jobs/claim, /keys, or /provider-events — case 6 enumerates each forbidden path; overclaim guard still rejects policy bodies containing receipt/receiptId/gatePassed/accepted keys — case 7",
-          "headHash": "2d5d382295396bdd2d6239f9087efc78208c7d40",
+          "note": "Smoke proves policy discovery remains read-only: exactly one GET /v1/authority/policy and no POST to /v1/evidence, runner register, jobs claim, actor keys, or provider events; overclaim policy bodies containing accepted/receipt fields still fail.",
+          "headHash": "5ec4878750c2879722252f504e1bf6996f5dadae",
           "materialHash": "9c94c657e7f9eed06d05ded04897ae541dbe6d324998a052b697b73d32e89368",
-          "timestamp": "2026-06-02T17:29:13.887Z"
+          "timestamp": "2026-06-02T17:32:07.449Z"
         }
       ]
     }
