@@ -12,7 +12,7 @@
         "docs/requirements/decisions/lifecycle-artifact-scope.md",
         "AGENTS.md"
       ],
-      "userSees": "用户阅读 docs/requirements/decisions/lifecycle-artifact-scope.md 时能看到 registry-backed prompt assets、project-local required assets、legacy mirror compatibility 和 safe migration/no-overwrite 的明确分层说明。",
+      "userSees": "用户运行 `rg -n \"registry-backed prompt assets|project-local required|legacy mirror compatibility|STALE_LOCAL_EDIT\" docs/requirements/decisions/lifecycle-artifact-scope.md` 后看到四个命中行。",
       "files": {
         "modify": [
           "docs/requirements/decisions/lifecycle-artifact-scope.md"
