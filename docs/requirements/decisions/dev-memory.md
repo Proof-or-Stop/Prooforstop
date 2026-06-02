@@ -93,6 +93,21 @@ Optional fields: `tags`, `sourceStoryId`, `evidenceRefs`.
 
 `koala dev_memory_start --agent=claude|codex|gemini` adds per-agent startup guidance to the output.
 
+### Lattice Parallel Dispatch Consumers
+
+`parallel_dispatch` and `parallel_report` may surface dev-memory entries as
+bounded `experienceRefs` when the caller passes `includeExperience=true`. This
+is a projection-only read path:
+
+- It reads existing project and global JSONL files with the dev-memory reader.
+- Missing memory files return an empty list.
+- Results are searched with the existing dev-memory search routine and capped by
+  `maxExperienceRefs`.
+- Emitted refs contain only `id`, `category`, `summary`, `source`, `scope`,
+  `gateEvidence:false`, and `authority:"non_authoritative"`.
+- These refs are not evidence refs and cannot satisfy review, test, delivery,
+  receipt, DONE, or production authority gates.
+
 ---
 
 ## Design Decisions

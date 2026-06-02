@@ -1,13 +1,22 @@
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import {
+  buildParallelDispatch,
+  buildParallelMergeQueue,
   buildParallelPlan,
+  buildParallelReport,
+  buildParallelStatus,
   createParallelWave,
   inspectParallelWave,
   readParallelWave,
+  type LatticeParallelDispatch,
+  type LatticeParallelMergeQueue,
   type LatticeParallelPlan,
+  type LatticeParallelReport,
+  type LatticeParallelStatus,
   type LatticeParallelWave,
   type LatticeParallelWaveInspection,
+  type ParallelWaveProjectionOptions,
 } from '../core/lattice-parallel-wave.js';
 import type { HandlerContext } from './context.js';
 
@@ -24,6 +33,38 @@ function storySummary(wave: Pick<LatticeParallelWave, 'storyRefs'>): string {
   return `stories: ${wave.storyRefs.length}; parallelDev=${candidateCount}; planOnly=${planOnlyCount}; blocked=${blockedCount}`;
 }
 
+function countSummary(summary: { storyCount: number; candidateCount: number; planOnlyCount: number; blockedCount: number }): string {
+  return `stories: ${summary.storyCount}; parallelDev=${summary.candidateCount}; planOnly=${summary.planOnlyCount}; blocked=${summary.blockedCount}`;
+}
+
+function waveFromArgs(ctx: HandlerContext, args: {
+  file?: string;
+  storyIds?: string[];
+  hosts?: string[];
+  waveId?: string;
+}): LatticeParallelWave {
+  return args.file
+    ? readParallelWave(resolve(process.cwd(), args.file))
+    : createParallelWave(ctx.store, ctx.root, {
+      storyIds: args.storyIds,
+      hosts: args.hosts,
+      waveId: args.waveId,
+    });
+}
+
+function projectionOptions(ctx: HandlerContext, args: {
+  includeExperience?: boolean;
+  experienceQuery?: string;
+  maxExperienceRefs?: number;
+}): ParallelWaveProjectionOptions {
+  return {
+    projectRoot: ctx.root,
+    includeExperience: args.includeExperience,
+    experienceQuery: args.experienceQuery,
+    maxExperienceRefs: args.maxExperienceRefs,
+  };
+}
+
 function renderParallelWaveText(wave: LatticeParallelWave): string {
   return [
     `Parallel wave (${wave.schemaVersion})`,
@@ -35,6 +76,70 @@ function renderParallelWaveText(wave: LatticeParallelWave): string {
     `authorityChanged: ${wave.authority.authorityChanged}`,
     `productionDone: ${wave.authority.productionDone}`,
     `receiptRefs: ${wave.authority.receiptRefs.length}`,
+  ].join('\n');
+}
+
+function renderParallelDispatchText(dispatch: LatticeParallelDispatch): string {
+  return [
+    `Parallel dispatch (${dispatch.schemaVersion})`,
+    `waveId: ${dispatch.waveId}`,
+    countSummary(dispatch.summary),
+    `dispatchable: ${dispatch.dispatchEntries.filter(entry => entry.dispatchable).map(entry => entry.storyId).join(', ') || '(none)'}`,
+    `blocked: ${dispatch.dispatchEntries.filter(entry => !entry.dispatchable).map(entry => entry.storyId).join(', ') || '(none)'}`,
+    `experienceRefs: ${dispatch.dispatchEntries.reduce((count, entry) => Math.max(count, entry.experienceRefs.length), 0)}`,
+    `authorityChanged: ${dispatch.authority.authorityChanged}`,
+    `productionDone: ${dispatch.authority.productionDone}`,
+    `receiptRefs: ${dispatch.authority.receiptRefs.length}`,
+  ].join('\n');
+}
+
+function renderParallelStatusText(status: LatticeParallelStatus): string {
+  return [
+    `Parallel status (${status.schemaVersion})`,
+    `waveId: ${status.waveId}`,
+    countSummary(status.summary),
+    `parallelDevCandidates: ${status.candidates.join(', ') || '(none)'}`,
+    `planOnlyStories: ${status.planOnly.join(', ') || '(none)'}`,
+    `blockedStories: ${status.blocked.map(entry => entry.storyId).join(', ') || '(none)'}`,
+    `readyGuidance: ${status.mergeGuidance.ready.length}`,
+    `blockedGuidance: ${status.mergeGuidance.blocked.length}`,
+    `authorityChanged: ${status.authority.authorityChanged}`,
+    `productionDone: ${status.authority.productionDone}`,
+    `receiptRefs: ${status.authority.receiptRefs.length}`,
+  ].join('\n');
+}
+
+function renderParallelMergeQueueText(queue: LatticeParallelMergeQueue): string {
+  return [
+    `Parallel merge queue (${queue.schemaVersion})`,
+    `waveId: ${queue.waveId}`,
+    countSummary(queue.summary),
+    `ready: ${queue.ready.map(entry => entry.storyId).join(', ') || '(none)'}`,
+    `blocked: ${queue.blocked.map(entry => entry.storyId).join(', ') || '(none)'}`,
+    `readyGuidance: ${queue.mergeGuidance.ready.length}`,
+    `blockedGuidance: ${queue.mergeGuidance.blocked.length}`,
+    `authorityChanged: ${queue.authority.authorityChanged}`,
+    `productionDone: ${queue.authority.productionDone}`,
+    `receiptRefs: ${queue.authority.receiptRefs.length}`,
+  ].join('\n');
+}
+
+function renderParallelReportText(report: LatticeParallelReport): string {
+  return [
+    `Parallel report (${report.schemaVersion})`,
+    `waveId: ${report.waveId}`,
+    countSummary(report.summary),
+    `parallelDevCandidates: ${report.candidates.join(', ') || '(none)'}`,
+    `planOnlyStories: ${report.planOnly.join(', ') || '(none)'}`,
+    `blockedStories: ${report.blocked.join(', ') || '(none)'}`,
+    `dispatchEntries: ${report.dispatchEntries.length}`,
+    `experienceRefs: ${report.experienceRefs.length}`,
+    `evidenceRefs: ${report.evidenceSummary.topLevelRefs.length}`,
+    `readyGuidance: ${report.mergeGuidance.ready.length}`,
+    `blockedGuidance: ${report.mergeGuidance.blocked.length}`,
+    `authorityChanged: ${report.authority.authorityChanged}`,
+    `productionDone: ${report.authority.productionDone}`,
+    `receiptRefs: ${report.authority.receiptRefs.length}`,
   ].join('\n');
 }
 
@@ -119,6 +224,84 @@ export function createLatticeParallelWaveHandlers(ctx: HandlerContext): Record<s
       if (args.format === 'json') return plan;
       const outputNote = args.output ? `\noutput: ${args.output}` : '';
       return [renderParallelPlanText(plan), outputNote.trimEnd()].filter(Boolean).join('\n');
+    },
+    parallel_dispatch(args: {
+      file?: string;
+      storyIds?: string[];
+      hosts?: string[];
+      waveId?: string;
+      includeExperience?: boolean;
+      experienceQuery?: string;
+      maxExperienceRefs?: number;
+      format?: 'text' | 'json';
+      output?: string;
+    } = {}) {
+      const wave = waveFromArgs(ctx, args);
+      const dispatch = buildParallelDispatch(wave, projectionOptions(ctx, args));
+      if (args.output) {
+        const outputPath = resolve(process.cwd(), args.output);
+        writeJsonNoOverwrite(outputPath, dispatch);
+      }
+      if (args.format === 'json') return dispatch;
+      const outputNote = args.output ? `\noutput: ${args.output}` : '';
+      return [renderParallelDispatchText(dispatch), outputNote.trimEnd()].filter(Boolean).join('\n');
+    },
+    parallel_status(args: {
+      file?: string;
+      storyIds?: string[];
+      hosts?: string[];
+      waveId?: string;
+      format?: 'text' | 'json';
+      output?: string;
+    } = {}) {
+      const wave = waveFromArgs(ctx, args);
+      const status = buildParallelStatus(wave);
+      if (args.output) {
+        const outputPath = resolve(process.cwd(), args.output);
+        writeJsonNoOverwrite(outputPath, status);
+      }
+      if (args.format === 'json') return status;
+      const outputNote = args.output ? `\noutput: ${args.output}` : '';
+      return [renderParallelStatusText(status), outputNote.trimEnd()].filter(Boolean).join('\n');
+    },
+    parallel_merge_queue(args: {
+      file?: string;
+      storyIds?: string[];
+      hosts?: string[];
+      waveId?: string;
+      format?: 'text' | 'json';
+      output?: string;
+    } = {}) {
+      const wave = waveFromArgs(ctx, args);
+      const queue = buildParallelMergeQueue(wave);
+      if (args.output) {
+        const outputPath = resolve(process.cwd(), args.output);
+        writeJsonNoOverwrite(outputPath, queue);
+      }
+      if (args.format === 'json') return queue;
+      const outputNote = args.output ? `\noutput: ${args.output}` : '';
+      return [renderParallelMergeQueueText(queue), outputNote.trimEnd()].filter(Boolean).join('\n');
+    },
+    parallel_report(args: {
+      file?: string;
+      storyIds?: string[];
+      hosts?: string[];
+      waveId?: string;
+      includeExperience?: boolean;
+      experienceQuery?: string;
+      maxExperienceRefs?: number;
+      format?: 'text' | 'json';
+      output?: string;
+    } = {}) {
+      const wave = waveFromArgs(ctx, args);
+      const report = buildParallelReport(wave, projectionOptions(ctx, args));
+      if (args.output) {
+        const outputPath = resolve(process.cwd(), args.output);
+        writeJsonNoOverwrite(outputPath, report);
+      }
+      if (args.format === 'json') return report;
+      const outputNote = args.output ? `\noutput: ${args.output}` : '';
+      return [renderParallelReportText(report), outputNote.trimEnd()].filter(Boolean).join('\n');
     },
   };
 }

@@ -2,7 +2,7 @@
 
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -10,10 +10,23 @@ import { MAIN_TOOLS } from '../cli-engine.js';
 import { getCommandPolicy } from '../core/command-policy.js';
 import { getAllowedPatterns, isCommandAllowed, resetConfigCache } from '../core/config.js';
 import {
+  resolveGlobalMemoryPath,
+  resolveProjectMemoryPath,
+  type DevMemoryEntry,
+} from '../core/dev-memory.js';
+import {
+  buildParallelDispatch,
+  buildParallelMergeQueue,
   buildParallelPlan,
+  buildParallelReport,
+  buildParallelStatus,
   createParallelWave,
   inspectParallelWave,
+  type LatticeParallelDispatch,
+  type LatticeParallelMergeQueue,
   type LatticeParallelPlan,
+  type LatticeParallelReport,
+  type LatticeParallelStatus,
   type LatticeParallelWave,
   type LatticeParallelWaveInspection,
 } from '../core/lattice-parallel-wave.js';
@@ -23,7 +36,15 @@ import type { ChecklistData, StoryInfo, VerificationEvidence } from '../core/typ
 import type { HandlerContext } from '../handlers/context.js';
 import { createMainRegistry } from '../registry.js';
 
-const PARALLEL_WAVE_COMMANDS = ['parallel_wave_create', 'parallel_wave_inspect', 'parallel_plan'] as const;
+const PARALLEL_WAVE_COMMANDS = [
+  'parallel_wave_create',
+  'parallel_wave_inspect',
+  'parallel_plan',
+  'parallel_dispatch',
+  'parallel_status',
+  'parallel_merge_queue',
+  'parallel_report',
+] as const;
 const DEFAULT_POLICY_PHASES = ['INIT', 'INIT_CHECK', 'PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE'] as const;
 const WAVE_STORY_IDS = ['B-main', 'B-independent', 'B-dependent', 'B-hotspot', 'B-idea-adjacent'] as const;
 
@@ -75,7 +96,57 @@ function checklist(intentRef: string, receiptRef?: string): ChecklistData {
   };
 }
 
-function seedStories(store: StoryStore): void {
+function memoryEntry(patch: Partial<DevMemoryEntry> & Pick<DevMemoryEntry, 'id' | 'summary' | 'sourceAgent'>): DevMemoryEntry {
+  return {
+    createdAt: '2026-06-02T00:00:00.000Z',
+    category: 'workflow',
+    scope: 'project',
+    trigger: 'parallel dispatch smoke',
+    lesson: 'Keep parallel dispatch memory non-authoritative and bounded.',
+    reusePrompt: 'Use this only as advisory parallel dispatch context.',
+    gateEvidence: false,
+    authority: 'non_authoritative',
+    ...patch,
+  };
+}
+
+function writeMemoryFile(file: string, entries: DevMemoryEntry[]): void {
+  mkdirSync(dirname(file), { recursive: true });
+  writeFileSync(file, entries.map(entry => JSON.stringify(entry)).join('\n') + '\n', 'utf8');
+}
+
+function seedDevMemory(root: string): void {
+  writeMemoryFile(resolveProjectMemoryPath(root), [
+    memoryEntry({
+      id: 'memproj1',
+      createdAt: '2026-06-02T00:00:03.000Z',
+      summary: 'Parallel dispatch should keep runner confirmation explicit.',
+      sourceAgent: 'koala-smoke-project',
+      tags: ['parallel'],
+    }),
+    memoryEntry({
+      id: 'memproj2',
+      createdAt: '2026-06-02T00:00:02.000Z',
+      category: 'tool-quirk',
+      summary: 'Parallel report memory refs are advisory context only.',
+      sourceAgent: 'koala-smoke-project',
+      tags: ['parallel'],
+    }),
+  ]);
+  writeMemoryFile(resolveGlobalMemoryPath(), [
+    memoryEntry({
+      id: 'memglob1',
+      createdAt: '2026-06-02T00:00:04.000Z',
+      scope: 'global',
+      summary: 'Global parallel dispatch memory must remain non-authoritative.',
+      sourceAgent: 'koala-smoke-global',
+      tags: ['parallel'],
+    }),
+  ]);
+}
+
+function seedStories(store: StoryStore, root: string): void {
+  const now = '2026-06-02T00:00:00.000Z';
   store.writeStory('B-main', story('B-main', {
     priority: 'high',
     lane: 'mainline',
@@ -87,6 +158,11 @@ function seedStories(store: StoryStore): void {
     priority: 'medium',
     lane: 'supporting',
     parallelSafe: 'yes',
+    worktree: {
+      path: join(root, '.worktrees', 'B-independent'),
+      branch: 'story/B-independent',
+      createdAt: now,
+    },
   }));
   store.writeChecklist('B-independent', checklist('B-independent:happy:0', 'local-unverified-wave-receipt'));
 
@@ -129,13 +205,19 @@ function ref(wave: LatticeParallelWave, storyId: string) {
   return found;
 }
 
-function assertAuthorityBoundary(value: LatticeParallelWave | LatticeParallelWaveInspection | LatticeParallelPlan): void {
+function assertAuthorityBoundary(value: {
+  authority: {
+    productionDone: false;
+    authorityChanged: false;
+    receiptRefs: [];
+  };
+}): void {
   assert.equal(value.authority.productionDone, false, 'Parallel Wave output cannot claim productionDone');
   assert.equal(value.authority.authorityChanged, false, 'Parallel Wave output cannot change authority');
   assert.deepEqual(value.authority.receiptRefs, [], 'Parallel Wave top-level receiptRefs must stay empty');
 }
 
-function assertWave(wave: LatticeParallelWave): void {
+function assertWave(wave: LatticeParallelWave, root: string): void {
   assert.equal(wave.schemaVersion, 'koala.parallel_wave.v1');
   assert.equal(wave.waveId, 'wave-smoke');
   assert.equal(wave.storyRefs.length, WAVE_STORY_IDS.length);
@@ -155,6 +237,8 @@ function assertWave(wave: LatticeParallelWave): void {
   assert.equal(independent.recommendation, 'parallel_dev');
   assert.equal(independent.parallelDevRecommended, true);
   assert.deepEqual(independent.recommendedHostIds, ['codex']);
+  assert.equal(independent.worktreePath, join(root, '.worktrees', 'B-independent'));
+  assert.equal(independent.branch, 'story/B-independent');
 
   const dependent = ref(wave, 'B-dependent');
   assert.equal(dependent.declaredParallelSafe, 'yes');
@@ -204,6 +288,110 @@ function assertPlan(plan: LatticeParallelPlan): void {
   assertAuthorityBoundary(plan);
 }
 
+function dispatchRef(dispatch: LatticeParallelDispatch, storyId: string) {
+  const found = dispatch.dispatchEntries.find(entry => entry.storyId === storyId);
+  assert.ok(found, `${storyId} should be present in dispatch`);
+  return found;
+}
+
+function assertExperienceRefs(refs: LatticeParallelDispatch['dispatchEntries'][number]['experienceRefs'], expectedCount: number): void {
+  assert.equal(refs.length, expectedCount);
+  for (const ref of refs) {
+    assert.equal(typeof ref.id, 'string');
+    assert.equal(typeof ref.category, 'string');
+    assert.equal(typeof ref.summary, 'string');
+    assert.equal(typeof ref.source, 'string');
+    assert.ok(['project', 'global', 'story-candidate'].includes(ref.scope));
+    assert.equal(ref.gateEvidence, false);
+    assert.equal(ref.authority, 'non_authoritative');
+    assert.equal('evidenceRefs' in ref, false, 'dev-memory refs must not look like gate evidence');
+  }
+}
+
+function assertDispatch(dispatch: LatticeParallelDispatch, root: string, expectedExperienceRefs = 0): void {
+  assert.equal(dispatch.schemaVersion, 'koala.parallel_dispatch.v1');
+  assert.equal(dispatch.waveSchemaVersion, 'koala.parallel_wave.v1');
+  assert.equal(dispatch.waveId, 'wave-smoke');
+  assert.equal(dispatch.summary.storyCount, WAVE_STORY_IDS.length);
+  assert.equal(dispatch.summary.candidateCount, 2);
+  assert.equal(dispatch.summary.planOnlyCount, 2);
+  assert.equal(dispatch.summary.blockedCount, 1);
+  assertAuthorityBoundary(dispatch);
+
+  const independent = dispatchRef(dispatch, 'B-independent');
+  assert.equal(independent.recommendation, 'parallel_dev');
+  assert.equal(independent.dispatchable, true);
+  assert.equal(independent.agentRole, 'implementer');
+  assert.equal(independent.spawned, false);
+  assert.equal(independent.requiresRunnerConfirmation, true);
+  assert.deepEqual(independent.recommendedHostIds, ['codex']);
+  assert.equal(independent.worktreePath, join(root, '.worktrees', 'B-independent'));
+  assert.equal(independent.branch, 'story/B-independent');
+  assert.match(independent.nextCommand, /koala dispatch/);
+  assert.deepEqual(independent.blockers, []);
+  assert.ok(independent.evidenceRefs.includes('B-independent:happy:0'));
+  assertExperienceRefs(independent.experienceRefs, expectedExperienceRefs);
+
+  const hotspot = dispatchRef(dispatch, 'B-hotspot');
+  assert.equal(hotspot.recommendation, 'plan_only');
+  assert.equal(hotspot.dispatchable, true);
+  assert.equal(hotspot.agentRole, 'planner');
+  assert.match(hotspot.nextCommand, /parallel_plan/);
+  assert.ok(hotspot.degradations.some(degradation => degradation.severity === 'warn'));
+  assertExperienceRefs(hotspot.experienceRefs, expectedExperienceRefs);
+
+  const dependent = dispatchRef(dispatch, 'B-dependent');
+  assert.equal(dependent.recommendation, 'blocked');
+  assert.equal(dependent.dispatchable, false);
+  assert.equal(dependent.agentRole, 'blocked');
+  assert.match(dependent.nextCommand, /parallel_status/);
+  assert.ok(dependent.blockers.some(blocker => /B-main/.test(blocker)));
+  assertExperienceRefs(dependent.experienceRefs, expectedExperienceRefs);
+}
+
+function assertStatus(status: LatticeParallelStatus): void {
+  assert.equal(status.schemaVersion, 'koala.parallel_status.v1');
+  assert.equal(status.waveSchemaVersion, 'koala.parallel_wave.v1');
+  assert.equal(status.waveId, 'wave-smoke');
+  assert.equal(status.summary.candidateCount, 2);
+  assert.deepEqual(status.candidates, ['B-idea-adjacent', 'B-independent']);
+  assert.deepEqual(status.planOnly, ['B-hotspot', 'B-main']);
+  assert.deepEqual(status.blocked.map(entry => entry.storyId), ['B-dependent']);
+  assert.ok(status.mergeGuidance.ready.length > 0, 'status includes ready guidance');
+  assert.ok(status.mergeGuidance.blocked.length > 0, 'status includes blocked guidance');
+  assertAuthorityBoundary(status);
+}
+
+function assertMergeQueue(queue: LatticeParallelMergeQueue): void {
+  assert.equal(queue.schemaVersion, 'koala.parallel_merge_queue.v1');
+  assert.equal(queue.waveSchemaVersion, 'koala.parallel_wave.v1');
+  assert.equal(queue.waveId, 'wave-smoke');
+  assert.equal(queue.summary.storyCount, WAVE_STORY_IDS.length);
+  assert.ok(queue.ready.some(entry => entry.storyId === 'B-independent'));
+  assert.ok(queue.ready.some(entry => entry.storyId === 'B-hotspot' && /planning/.test(entry.guidance)));
+  assert.deepEqual(queue.blocked.map(entry => entry.storyId), ['B-dependent']);
+  assert.ok(queue.blocked[0]?.blockers.some(blocker => /B-main/.test(blocker)));
+  assert.ok(queue.mergeGuidance.ready.length > 0);
+  assert.ok(queue.mergeGuidance.blocked.length > 0);
+  assertAuthorityBoundary(queue);
+}
+
+function assertReport(report: LatticeParallelReport, root: string, expectedExperienceRefs = 0): void {
+  assert.equal(report.schemaVersion, 'koala.parallel_report.v1');
+  assert.equal(report.waveSchemaVersion, 'koala.parallel_wave.v1');
+  assert.equal(report.waveId, 'wave-smoke');
+  assert.equal(report.summary.candidateCount, 2);
+  assert.deepEqual(report.candidates, ['B-idea-adjacent', 'B-independent']);
+  assert.deepEqual(report.planOnly, ['B-hotspot', 'B-main']);
+  assert.deepEqual(report.blocked, ['B-dependent']);
+  assert.equal(report.dispatchEntries.length, WAVE_STORY_IDS.length);
+  assert.equal(report.evidenceSummary.byStory.length, WAVE_STORY_IDS.length);
+  assert.ok(report.evidenceSummary.topLevelRefs.includes('B-independent:happy:0'));
+  assertExperienceRefs(report.experienceRefs, expectedExperienceRefs);
+  assertDispatch({ ...report, schemaVersion: 'koala.parallel_dispatch.v1', dispatchedAt: report.reportedAt, hostCandidates: [], evidenceRefs: report.evidenceSummary.topLevelRefs, mergeOrder: [] }, root, expectedExperienceRefs);
+  assertAuthorityBoundary(report);
+}
+
 function assertDefaultPhaseToolPolicy(): void {
   for (const command of PARALLEL_WAVE_COMMANDS) {
     for (const phase of DEFAULT_POLICY_PHASES) {
@@ -233,11 +421,13 @@ function assertCommandRegistration(registry: ReturnType<typeof createMainRegistr
 }
 
 const root = mkdtempSync(join(tmpdir(), 'koala-lattice-parallel-wave-'));
+const originalGlobalMemoryDir = process.env.KOALA_GLOBAL_MEMORY_DIR;
 try {
+  process.env.KOALA_GLOBAL_MEMORY_DIR = join(root, 'global-memory');
   writeConfig(root);
   resetConfigCache();
   const store = new StoryStore(root);
-  seedStories(store);
+  seedStories(store, root);
   const ctx: HandlerContext = { store, root, scanRoot: join(root, 'packages/main') };
   const registry = createMainRegistry(ctx);
   assertDefaultPhaseToolPolicy();
@@ -248,16 +438,52 @@ try {
     hosts: ['codex'],
     waveId: 'wave-smoke',
   });
-  assertWave(wave);
+  assertWave(wave, root);
   assertInspection(inspectParallelWave(wave));
   assertPlan(buildParallelPlan(wave));
+  assertDispatch(buildParallelDispatch(wave), root);
+  assertDispatch(buildParallelDispatch(wave, {
+    projectRoot: root,
+    includeExperience: true,
+    experienceQuery: 'parallel',
+    maxExperienceRefs: 2,
+  }), root, 0);
+  assertStatus(buildParallelStatus(wave));
+  assertMergeQueue(buildParallelMergeQueue(wave));
+  assertReport(buildParallelReport(wave, {
+    projectRoot: root,
+    includeExperience: true,
+    experienceQuery: 'parallel',
+    maxExperienceRefs: 2,
+  }), root, 0);
+
+  seedDevMemory(root);
+  const seededDispatch = buildParallelDispatch(wave, {
+    projectRoot: root,
+    includeExperience: true,
+    experienceQuery: 'parallel',
+    maxExperienceRefs: 2,
+  });
+  assertDispatch(seededDispatch, root, 2);
+  assertExperienceRefs(dispatchRef(buildParallelDispatch(wave, {
+    projectRoot: root,
+    includeExperience: true,
+    experienceQuery: 'parallel',
+    maxExperienceRefs: 1,
+  }), 'B-independent').experienceRefs, 1);
+  assertReport(buildParallelReport(wave, {
+    projectRoot: root,
+    includeExperience: true,
+    experienceQuery: 'parallel',
+    maxExperienceRefs: 2,
+  }), root, 2);
 
   assertWave(registry.get('parallel_wave_create')!({
     storyIds: [...WAVE_STORY_IDS],
     hosts: ['codex'],
     waveId: 'wave-smoke',
     format: 'json',
-  }) as LatticeParallelWave);
+  }) as LatticeParallelWave, root);
 
   const wavePath = join(root, 'parallel-wave.json');
   registry.get('parallel_wave_create')!({
@@ -266,7 +492,7 @@ try {
     waveId: 'wave-smoke',
     output: wavePath,
   });
-  assertWave(JSON.parse(readFileSync(wavePath, 'utf8')) as LatticeParallelWave);
+  assertWave(JSON.parse(readFileSync(wavePath, 'utf8')) as LatticeParallelWave, root);
   assert.throws(
     () => registry.get('parallel_wave_create')!({
       storyIds: [...WAVE_STORY_IDS],
@@ -296,6 +522,60 @@ try {
     'parallel_plan output must be no-overwrite',
   );
 
+  const dispatchPath = join(root, 'parallel-dispatch.json');
+  registry.get('parallel_dispatch')!({
+    file: wavePath,
+    includeExperience: true,
+    experienceQuery: 'parallel',
+    maxExperienceRefs: 2,
+    output: dispatchPath,
+  });
+  assertDispatch(JSON.parse(readFileSync(dispatchPath, 'utf8')) as LatticeParallelDispatch, root, 2);
+  assert.throws(
+    () => registry.get('parallel_dispatch')!({
+      file: wavePath,
+      output: dispatchPath,
+    }),
+    /refusing to overwrite existing file/,
+    'parallel_dispatch output must be no-overwrite',
+  );
+
+  const statusPath = join(root, 'parallel-status.json');
+  registry.get('parallel_status')!({ file: wavePath, output: statusPath });
+  assertStatus(JSON.parse(readFileSync(statusPath, 'utf8')) as LatticeParallelStatus);
+  assert.throws(
+    () => registry.get('parallel_status')!({ file: wavePath, output: statusPath }),
+    /refusing to overwrite existing file/,
+    'parallel_status output must be no-overwrite',
+  );
+
+  const mergeQueuePath = join(root, 'parallel-merge-queue.json');
+  registry.get('parallel_merge_queue')!({ file: wavePath, output: mergeQueuePath });
+  assertMergeQueue(JSON.parse(readFileSync(mergeQueuePath, 'utf8')) as LatticeParallelMergeQueue);
+  assert.throws(
+    () => registry.get('parallel_merge_queue')!({ file: wavePath, output: mergeQueuePath }),
+    /refusing to overwrite existing file/,
+    'parallel_merge_queue output must be no-overwrite',
+  );
+
+  const reportPath = join(root, 'parallel-report.json');
+  registry.get('parallel_report')!({
+    file: wavePath,
+    includeExperience: true,
+    experienceQuery: 'parallel',
+    maxExperienceRefs: 2,
+    output: reportPath,
+  });
+  assertReport(JSON.parse(readFileSync(reportPath, 'utf8')) as LatticeParallelReport, root, 2);
+  assert.throws(
+    () => registry.get('parallel_report')!({
+      file: wavePath,
+      output: reportPath,
+    }),
+    /refusing to overwrite existing file/,
+    'parallel_report output must be no-overwrite',
+  );
+
   const here = dirname(fileURLToPath(import.meta.url));
   const cliPath = join(here, '..', 'cli.js');
   const cliWaveStdout = execFileSync(process.execPath, [
@@ -312,7 +592,7 @@ try {
     encoding: 'utf8',
     stdio: ['pipe', 'pipe', 'pipe'],
   });
-  assertWave(JSON.parse(cliWaveStdout) as LatticeParallelWave);
+  assertWave(JSON.parse(cliWaveStdout) as LatticeParallelWave, root);
 
   const cliInspectStdout = execFileSync(process.execPath, [
     cliPath,
@@ -343,7 +623,82 @@ try {
     stdio: ['pipe', 'pipe', 'pipe'],
   });
   assertPlan(JSON.parse(cliPlanStdout) as LatticeParallelPlan);
+
+  const cliDispatchStdout = execFileSync(process.execPath, [
+    cliPath,
+    '--root',
+    root,
+    'parallel_dispatch',
+    `--storyIds=${JSON.stringify([...WAVE_STORY_IDS])}`,
+    '--hosts=["codex"]',
+    '--waveId=wave-smoke',
+    '--includeExperience=true',
+    '--experienceQuery=parallel',
+    '--maxExperienceRefs=2',
+    '--format=json',
+  ], {
+    cwd: root,
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+  assertDispatch(JSON.parse(cliDispatchStdout) as LatticeParallelDispatch, root, 2);
+
+  const cliStatusStdout = execFileSync(process.execPath, [
+    cliPath,
+    '--root',
+    root,
+    'parallel_status',
+    `--storyIds=${JSON.stringify([...WAVE_STORY_IDS])}`,
+    '--hosts=["codex"]',
+    '--waveId=wave-smoke',
+    '--format=json',
+  ], {
+    cwd: root,
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+  assertStatus(JSON.parse(cliStatusStdout) as LatticeParallelStatus);
+
+  const cliMergeQueueStdout = execFileSync(process.execPath, [
+    cliPath,
+    '--root',
+    root,
+    'parallel_merge_queue',
+    `--storyIds=${JSON.stringify([...WAVE_STORY_IDS])}`,
+    '--hosts=["codex"]',
+    '--waveId=wave-smoke',
+    '--format=json',
+  ], {
+    cwd: root,
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+  assertMergeQueue(JSON.parse(cliMergeQueueStdout) as LatticeParallelMergeQueue);
+
+  const cliReportStdout = execFileSync(process.execPath, [
+    cliPath,
+    '--root',
+    root,
+    'parallel_report',
+    `--storyIds=${JSON.stringify([...WAVE_STORY_IDS])}`,
+    '--hosts=["codex"]',
+    '--waveId=wave-smoke',
+    '--includeExperience=true',
+    '--experienceQuery=parallel',
+    '--maxExperienceRefs=2',
+    '--format=json',
+  ], {
+    cwd: root,
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+  assertReport(JSON.parse(cliReportStdout) as LatticeParallelReport, root, 2);
 } finally {
+  if (originalGlobalMemoryDir === undefined) {
+    delete process.env.KOALA_GLOBAL_MEMORY_DIR;
+  } else {
+    process.env.KOALA_GLOBAL_MEMORY_DIR = originalGlobalMemoryDir;
+  }
   rmSync(root, { recursive: true, force: true });
   resetConfigCache();
 }

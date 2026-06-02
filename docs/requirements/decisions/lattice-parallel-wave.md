@@ -38,10 +38,27 @@ writes JSON with no overwrite.
 analyzing active stories directly. Optional `output` writes JSON with no
 overwrite.
 
-All three commands are read-only workflow commands: they may write a caller
+`parallel_dispatch` projects one dispatch entry per wave story. Entries contain
+`storyId`, `title`, `recommendation`, `dispatchable`, `agentRole`, `spawned`,
+`requiresRunnerConfirmation`, `recommendedHostIds`, optional `worktreePath` and
+`branch`, `nextCommand`, `blockers`, `degradations`, `evidenceRefs`, and bounded
+non-authoritative `experienceRefs`. `agentRole` is `implementer` for
+`parallel_dev`, `planner` for `plan_only`, and `blocked` for `blocked`.
+`spawned` is always `false`; the runner must explicitly confirm any follow-up.
+
+`parallel_status` projects wave counts, parallel DEV candidates, plan-only
+stories, blocked stories, and ready/blocked merge guidance.
+
+`parallel_merge_queue` projects integration ordering from `mergeOrder`, split
+into ready and blocked entries with blockers and guidance.
+
+`parallel_report` combines the dispatch projection, count summary, ready/blocked
+guidance, evidence lineage, and optional bounded dev-memory refs.
+
+All seven commands are read-only workflow commands: they may write a caller
 requested output artifact, but they do not mutate story metadata, process
-evidence, lifecycle state, receipts, authority state, or production completion.
-They are process fact level L0.
+evidence, lifecycle state, receipts, authority state, production completion, or
+spawn agent runners. They are process fact level L0.
 
 ## Wave JSON Contract
 
@@ -58,9 +75,34 @@ Every JSON output includes:
 - `authority.authorityChanged=false`
 - `authority.receiptRefs=[]`
 
+Projection schema versions:
+
+- `koala.parallel_wave.v1`
+- `koala.parallel_wave_inspect.v1`
+- `koala.parallel_plan.v1`
+- `koala.parallel_dispatch.v1`
+- `koala.parallel_status.v1`
+- `koala.parallel_merge_queue.v1`
+- `koala.parallel_report.v1`
+
 Unsafe metadata is fail-closed. Active dependencies and shared hotspots degrade
 or block parallel DEV recommendations even when a story declares
 `parallelSafe=yes`.
+
+## Dev-memory Boundary
+
+Parallel dispatch and report projections may include dev-memory refs only when
+`includeExperience=true`. The implementation reads project memory from
+`<projectRoot>/.koala/dev-memory/experience.jsonl` and global memory from
+`~/.koala/dev-memory/experience.jsonl`, tolerates missing files as an empty
+list, de-duplicates by id, searches through the existing dev-memory search
+routine, and caps output by `maxExperienceRefs`.
+
+Each emitted memory ref is deliberately small: `id`, `category`, `summary`,
+`source`, `scope`, `gateEvidence=false`, and
+`authority="non_authoritative"`. These refs are operator context only. They are
+not evidence refs, cannot satisfy gates, and do not change the authority
+boundary.
 
 ## Six Implementation Milestones
 
