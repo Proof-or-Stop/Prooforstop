@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-aa98:F-001",
+      "desc": "The overflow docs name CLI surfaces that do not exist in Lattice 0.3.5. `README.md` and `docs/guide.md` use `lattice host status`, `lattice host_dispatch`, `lattice handoff_worktree_create`, and `lattice handoff_receipt_submit`, but the CLI rejects those commands; only `host_list`, `host_probe`, `host_install`, `authority_status`, `conduit_status`, `conduit_explain`, `handoff_create`, `handoff_inspect`, `handoff_accept`, and `handoff_resume` are exposed. `docs/requirements/decisions/project-vision.md` also repeats `host_status` / `host_dispatch` as if they were valid surfaces.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-02T21:34:50.792Z",
+      "reviewRound": "2026-06-02T21:32:19.075Z",
+      "reviewRunId": "B-aa98:RR-003",
+      "_hash": "a40f54b67715af3f3509ec86154cf54c95c1fd03ead5b091ce5797f60b7e2d0d",
+      "files": [
+        "README.md",
+        "docs/guide.md",
+        "docs/requirements/decisions/project-vision.md"
+      ]
+    }
+  ]
+}
