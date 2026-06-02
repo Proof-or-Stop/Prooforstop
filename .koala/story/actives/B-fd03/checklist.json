@@ -149,14 +149,14 @@
         },
         {
           "intentRef": "CHK-002:edge:0",
-          "kind": "manual_transcript",
-          "file": "packages/main/src/core/lattice-brand.ts",
-          "command": "lattice --version",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lattice-cli-migration-smoke.ts;packages/main/src/tasks/rollout-check-smoke.ts",
+          "command": "npm --prefix packages/main run test:lattice-cli-migration-smoke && npm run test:rollout-check-smoke",
           "result": "pass",
-          "note": "Global lattice prints Lattice CLI 0.3.5 with koala explicitly framed as legacy alias.",
-          "headHash": "5a306ab1404bff5d0477341c08ec532d26208a22",
+          "note": "Behavior-level evidence: the migration smoke verifies koala legacy alias/help semantics and the rollout smoke executes both flat rollout_check and nested lattice rollout check command paths while preserving compatibility.",
+          "headHash": "340ffe3de4f200327cb1b5418cb0fd5c8bca6277",
           "materialHash": "8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910",
-          "timestamp": "2026-06-02T15:35:28.897Z"
+          "timestamp": "2026-06-02T15:36:31.115Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -328,14 +328,14 @@
         },
         {
           "intentRef": "CHK-004:adversarial:0",
-          "kind": "manual_transcript",
-          "file": ".koala/story/actives/B-fd03/evidence/rollout-transcript.md",
-          "command": "npm install -g ./packages/main && lattice --version && lattice rollout_check --projects=/Users/jek/Documents/Work/Orchestrate/.worktrees/B-fd03 --json",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/session-brief-prompt-sync-smoke.ts;packages/main/src/tasks/rollout-check-smoke.ts;.koala/story/actives/B-fd03/evidence/rollout-transcript.md",
+          "command": "node packages/main/dist/tasks/session-brief-prompt-sync-smoke.js && npm run test:rollout-check-smoke && real-project rollout_check before/after git-status comparison",
           "result": "pass",
-          "note": "Global Lattice CLI refresh succeeded; transcript/story scope readiness remains pass for Orchestrate and the active B-fd03 worktree while dirty DEV/runtime warnings are visible diagnostics.",
-          "headHash": "5a306ab1404bff5d0477341c08ec532d26208a22",
+          "note": "Assertion-level evidence: prompt-sync and rollout smoke tests pass, and the real-project transcript records unchanged worktree git status plus transcript_scope outcomes after the lattice command migration.",
+          "headHash": "340ffe3de4f200327cb1b5418cb0fd5c8bca6277",
           "materialHash": "8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910",
-          "timestamp": "2026-06-02T15:36:02.506Z"
+          "timestamp": "2026-06-02T15:36:31.115Z"
         }
       ]
     }
