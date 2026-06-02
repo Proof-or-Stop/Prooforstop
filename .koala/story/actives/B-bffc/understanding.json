@@ -18,19 +18,23 @@
   "unknowns": [],
   "touchpoints": [
     "package.json",
+    "package-lock.json",
     "packages/main/package.json",
-    "bin/koala.js",
-    "bin/bootstrap-runner.js",
     "packages/main/src/cli.ts",
     "packages/main/src/cli-engine.ts",
     "packages/main/src/registry.ts",
-    "packages/main/src/core/capabilities.ts",
-    "packages/main/src/handlers/capability-list.ts",
-    "packages/main/src/core/authority-client.ts",
-    "packages/main/src/core/authority-submit.ts",
-    "packages/main/src/tasks/*smoke.ts",
+    "bin/bootstrap-runner.js",
+    "bin/lattice.js",
+    "packages/main/src/core/lattice-brand.ts",
+    "packages/main/src/core/lattice-hosts.ts",
+    "packages/main/src/handlers/lattice-cli.ts",
+    "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
     "README.md",
-    "docs/requirements/decisions/*.md"
+    "docs/requirements/decisions/stack-layering.md",
+    "docs/requirements/decisions/project-vision.md",
+    "docs/requirements/decisions/authority-client-role.md",
+    "docs/requirements/decisions/lattice-parallel-wave.md",
+    "docs/requirements/decisions/testing-completeness.md"
   ],
-  "timestamp": "2026-06-02T11:15:28.178Z"
+  "timestamp": "2026-06-02T11:22:54.560Z"
 }
