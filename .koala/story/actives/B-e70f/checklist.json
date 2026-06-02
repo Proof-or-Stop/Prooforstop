@@ -100,7 +100,43 @@
       "userSees": "koala help shows the new commands and they behave like safe read-only operator tools.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/lattice-parallel-wave.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lattice-parallel-wave-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "MAIN_TOOLS and registry expose parallel_dispatch, parallel_status, parallel_merge_queue, and parallel_report with JSON/text output schemas.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "All four commands are allowed in default phase tools and registered as supported readOnly commands with destructiveRisk none.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "All four commands are process fact L0 with no gateConsumer and cannot be marked gateEvidence through policy drift.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
