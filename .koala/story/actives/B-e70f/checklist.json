@@ -197,7 +197,40 @@
       "userSees": "Validation transcript shows the new operator surfaces work end-to-end and cannot promote authority.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/lattice-parallel-wave-smoke.ts",
+          "packages/main/package.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lattice-parallel-wave-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Focused smoke passes and asserts JSON shape, no-overwrite behavior, command registration, policy registration, default phase tools, and process fact levels for all new commands.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "npm build passes after adding the projections and CLI schemas, proving TypeScript exports and handler signatures are coherent.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "koala validate for B-e70f passes with verification coverage for every required intent and does not treat dev-memory or dispatch artifacts as gate evidence.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
