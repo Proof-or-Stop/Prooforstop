@@ -55,9 +55,9 @@
           "command": "npm run test:process-fact-contract",
           "result": "pass",
           "note": "Contract test accepts .koala/story/actives/B-scope/evidence/transcript-diff.md as a lifecycle artifact and reports Process fact contract verified.",
-          "headHash": "9defc9c86c4b12958ed02e5b426e7f6ecadabe7d",
-          "materialHash": "fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e",
-          "timestamp": "2026-06-02T13:00:34.674Z"
+          "headHash": "a9889dd8238bd8c454ee18c5251286f54406cfb4",
+          "materialHash": "69095ec35191137fcf433beeb255ca0df35f6db5c1425e18d477c25d3ee2f494",
+          "timestamp": "2026-06-02T13:01:46.707Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -66,9 +66,9 @@
           "command": "npm run test:process-fact-contract && npm run test:flow-stability-smoke",
           "result": "pass",
           "note": "Classifier requires a valid story-scoped prefix/storyId and the lifecycle registry projection still passes flow stability after adding the closed relative artifact path.",
-          "headHash": "9defc9c86c4b12958ed02e5b426e7f6ecadabe7d",
-          "materialHash": "fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e",
-          "timestamp": "2026-06-02T13:00:34.674Z"
+          "headHash": "a9889dd8238bd8c454ee18c5251286f54406cfb4",
+          "materialHash": "69095ec35191137fcf433beeb255ca0df35f6db5c1425e18d477c25d3ee2f494",
+          "timestamp": "2026-06-02T13:01:46.707Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -77,9 +77,9 @@
           "command": "npm run test:process-fact-contract",
           "result": "pass",
           "note": "Regression asserts .koala/foo.json, evidence/notes.md, evidence/transcript-diff.txt, and unrelated source files remain out_of_scope.",
-          "headHash": "9defc9c86c4b12958ed02e5b426e7f6ecadabe7d",
-          "materialHash": "fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e",
-          "timestamp": "2026-06-02T13:00:34.674Z"
+          "headHash": "a9889dd8238bd8c454ee18c5251286f54406cfb4",
+          "materialHash": "69095ec35191137fcf433beeb255ca0df35f6db5c1425e18d477c25d3ee2f494",
+          "timestamp": "2026-06-02T13:01:46.707Z"
         }
       ]
     },
@@ -139,9 +139,9 @@
           "command": "npm run test:process-fact-contract",
           "result": "pass",
           "note": "Policy doc states evidence/transcript-diff.md is TEST lifecycle transcript evidence, path-specific, and does not weaken product source scope enforcement.",
-          "headHash": "9defc9c86c4b12958ed02e5b426e7f6ecadabe7d",
-          "materialHash": "fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e",
-          "timestamp": "2026-06-02T13:00:34.674Z"
+          "headHash": "a9889dd8238bd8c454ee18c5251286f54406cfb4",
+          "materialHash": "69095ec35191137fcf433beeb255ca0df35f6db5c1425e18d477c25d3ee2f494",
+          "timestamp": "2026-06-02T13:01:46.707Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -150,9 +150,9 @@
           "command": "koala scope_contract_init_from_plan --storyId=B-f3db && koala scope_contract_check --storyId=B-f3db",
           "result": "pass",
           "note": "CLI scope gate printed Scope gate: pass with 13 changed files and 0 unacknowledged violations; no scope_contract_acknowledge instruction was required for lifecycle metadata.",
-          "headHash": "9defc9c86c4b12958ed02e5b426e7f6ecadabe7d",
-          "materialHash": "fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e",
-          "timestamp": "2026-06-02T13:00:34.674Z"
+          "headHash": "a9889dd8238bd8c454ee18c5251286f54406cfb4",
+          "materialHash": "69095ec35191137fcf433beeb255ca0df35f6db5c1425e18d477c25d3ee2f494",
+          "timestamp": "2026-06-02T13:01:46.707Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -161,9 +161,9 @@
           "command": "npm run test:process-fact-contract && npm run lint:tasks",
           "result": "pass",
           "note": "Delivery/scope semantics stay separate: process fact contract keeps signed delivery artifacts/gates registered, adversarial evidence files fail scope, and task annotation lint reports PASSED.",
-          "headHash": "9defc9c86c4b12958ed02e5b426e7f6ecadabe7d",
-          "materialHash": "fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e",
-          "timestamp": "2026-06-02T13:00:34.674Z"
+          "headHash": "a9889dd8238bd8c454ee18c5251286f54406cfb4",
+          "materialHash": "69095ec35191137fcf433beeb255ca0df35f6db5c1425e18d477c25d3ee2f494",
+          "timestamp": "2026-06-02T13:01:46.707Z"
         }
       ]
     }
