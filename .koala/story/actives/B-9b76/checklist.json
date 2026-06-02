@@ -48,9 +48,9 @@
           "command": "rg -n \"registry-backed prompt assets|project-local required assets|legacy mirror compatibility|STALE_LOCAL_EDIT|production authority\" docs/requirements/decisions/lifecycle-artifact-scope.md",
           "result": "pass",
           "note": "Docs define project-local assets, package registry prompt templates, materialized prompt caches, and legacy mirror compatibility.",
-          "headHash": "34b1ecffb027d97a8ba392c8be35e2458b1335b4",
-          "materialHash": "6149854bd58827b5622f3cc619797bd5b534a9b95efb4791b806109a706b7d7a",
-          "timestamp": "2026-06-02T21:05:54.077Z"
+          "headHash": "7a9385262421891b09c2446fa66db234de4dda52",
+          "materialHash": "2c0da729bbc06fc1fbc64fae17e7edcdaf3100c75b837f9a97fa6f03f20c321c",
+          "timestamp": "2026-06-02T21:18:07.764Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -59,9 +59,9 @@
           "command": "rg -n \"legacy mirror compatibility|Thin-mode repositories may omit|Legacy full-mode repositories may keep\" docs/requirements/decisions/lifecycle-artifact-scope.md",
           "result": "pass",
           "note": "Docs preserve legacy full-mode mirrors and state thin mode omits prompt copies only when manifest selects registry prompts.",
-          "headHash": "34b1ecffb027d97a8ba392c8be35e2458b1335b4",
-          "materialHash": "6149854bd58827b5622f3cc619797bd5b534a9b95efb4791b806109a706b7d7a",
-          "timestamp": "2026-06-02T21:05:54.119Z"
+          "headHash": "7a9385262421891b09c2446fa66db234de4dda52",
+          "materialHash": "2c0da729bbc06fc1fbc64fae17e7edcdaf3100c75b837f9a97fa6f03f20c321c",
+          "timestamp": "2026-06-02T21:18:07.764Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -70,9 +70,9 @@
           "command": "rg -n \"STALE_LOCAL_EDIT|report-only|must not overwrite or delete local edits\" docs/requirements/decisions/lifecycle-artifact-scope.md",
           "result": "pass",
           "note": "Docs require report-only handling for local edits, case mismatch, and incompatible prompt files during thin migration.",
-          "headHash": "34b1ecffb027d97a8ba392c8be35e2458b1335b4",
-          "materialHash": "6149854bd58827b5622f3cc619797bd5b534a9b95efb4791b806109a706b7d7a",
-          "timestamp": "2026-06-02T21:05:54.154Z"
+          "headHash": "7a9385262421891b09c2446fa66db234de4dda52",
+          "materialHash": "2c0da729bbc06fc1fbc64fae17e7edcdaf3100c75b837f9a97fa6f03f20c321c",
+          "timestamp": "2026-06-02T21:18:07.764Z"
         }
       ]
     },
@@ -129,9 +129,9 @@
           "command": "npm --prefix packages/main run test:prompt-registry-smoke",
           "result": "pass",
           "note": "Prompt registry smoke enumerated 16 package agents with stable metadata and host render outputs.",
-          "headHash": "139c6e7bb73b1c047524a0b08ab2d479925097ca",
-          "materialHash": "602714ae40712072b46c8e999c5e2eb170a953542e6e910fcc1f3c6065847218",
-          "timestamp": "2026-06-02T21:05:04.739Z"
+          "headHash": "7a9385262421891b09c2446fa66db234de4dda52",
+          "materialHash": "2c0da729bbc06fc1fbc64fae17e7edcdaf3100c75b837f9a97fa6f03f20c321c",
+          "timestamp": "2026-06-02T21:18:07.764Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -140,9 +140,9 @@
           "command": "npm --prefix packages/main run test:prompt-registry-smoke",
           "result": "pass",
           "note": "Smoke used the package templates/agents registry root and did not depend on repo-local .claude symlink materialization.",
-          "headHash": "139c6e7bb73b1c047524a0b08ab2d479925097ca",
-          "materialHash": "602714ae40712072b46c8e999c5e2eb170a953542e6e910fcc1f3c6065847218",
-          "timestamp": "2026-06-02T21:05:04.774Z"
+          "headHash": "7a9385262421891b09c2446fa66db234de4dda52",
+          "materialHash": "2c0da729bbc06fc1fbc64fae17e7edcdaf3100c75b837f9a97fa6f03f20c321c",
+          "timestamp": "2026-06-02T21:18:07.764Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -151,9 +151,9 @@
           "command": "npm --prefix packages/main run test:prompt-registry-smoke",
           "result": "pass",
           "note": "Smoke compared Codex registry rendering against the legacy renderCodexAgentContent transform for every prompt.",
-          "headHash": "139c6e7bb73b1c047524a0b08ab2d479925097ca",
-          "materialHash": "602714ae40712072b46c8e999c5e2eb170a953542e6e910fcc1f3c6065847218",
-          "timestamp": "2026-06-02T21:05:04.807Z"
+          "headHash": "7a9385262421891b09c2446fa66db234de4dda52",
+          "materialHash": "2c0da729bbc06fc1fbc64fae17e7edcdaf3100c75b837f9a97fa6f03f20c321c",
+          "timestamp": "2026-06-02T21:18:07.764Z"
         }
       ]
     },
@@ -210,9 +210,9 @@
           "command": "npm --prefix packages/main run test:codex-registry-mode-smoke",
           "result": "pass",
           "note": "Codex registry mode smoke verified the legacy manifest path still uses the hard agents-mirror check.",
-          "headHash": "f4e254ca1986af4a95da6df9271b135b00c1999d",
-          "materialHash": "b8c98a7392817acc8489549598e4181fc61f17bbc0bec653970e039bbd5ba853",
-          "timestamp": "2026-06-02T21:12:33.530Z"
+          "headHash": "7a9385262421891b09c2446fa66db234de4dda52",
+          "materialHash": "2c0da729bbc06fc1fbc64fae17e7edcdaf3100c75b837f9a97fa6f03f20c321c",
+          "timestamp": "2026-06-02T21:18:07.764Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -221,9 +221,9 @@
           "command": "npm --prefix packages/main run test:codex-registry-mode-smoke",
           "result": "pass",
           "note": "Codex registry mode smoke verified promptMode=registry passes without .Codex/agents or .claude/agents prompt mirror directories.",
-          "headHash": "f4e254ca1986af4a95da6df9271b135b00c1999d",
-          "materialHash": "b8c98a7392817acc8489549598e4181fc61f17bbc0bec653970e039bbd5ba853",
-          "timestamp": "2026-06-02T21:12:33.530Z"
+          "headHash": "7a9385262421891b09c2446fa66db234de4dda52",
+          "materialHash": "2c0da729bbc06fc1fbc64fae17e7edcdaf3100c75b837f9a97fa6f03f20c321c",
+          "timestamp": "2026-06-02T21:18:07.764Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -232,9 +232,9 @@
           "command": "npm --prefix packages/main run test:codex-registry-mode-smoke",
           "result": "pass",
           "note": "Codex registry mode smoke tampered promptRegistry.materialHash and observed a hard manifest failure while registry renderability remained separately checked.",
-          "headHash": "f4e254ca1986af4a95da6df9271b135b00c1999d",
-          "materialHash": "b8c98a7392817acc8489549598e4181fc61f17bbc0bec653970e039bbd5ba853",
-          "timestamp": "2026-06-02T21:12:33.530Z"
+          "headHash": "7a9385262421891b09c2446fa66db234de4dda52",
+          "materialHash": "2c0da729bbc06fc1fbc64fae17e7edcdaf3100c75b837f9a97fa6f03f20c321c",
+          "timestamp": "2026-06-02T21:18:07.764Z"
         }
       ]
     },
@@ -291,9 +291,9 @@
           "command": "npm --prefix packages/main run test:thin-init-assets-smoke",
           "result": "pass",
           "note": "Thin init smoke ran real init with --profile=codex --asset-mode=thin, verified registry manifest/README, absence of .Codex/agents, managed asset check, and Codex adapter verification.",
-          "headHash": "84f1030afc1190289216e627af15bbf1c1bb371a",
-          "materialHash": "30a90d739f0113f99d8519125c91137dd16fef5ab308238265c1c71b5eae34e3",
-          "timestamp": "2026-06-02T21:15:23.426Z"
+          "headHash": "7a9385262421891b09c2446fa66db234de4dda52",
+          "materialHash": "2c0da729bbc06fc1fbc64fae17e7edcdaf3100c75b837f9a97fa6f03f20c321c",
+          "timestamp": "2026-06-02T21:18:07.764Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -302,9 +302,9 @@
           "command": "npm --prefix packages/main run test:thin-init-assets-smoke",
           "result": "pass",
           "note": "Thin init smoke ran default full Codex init and verified it still materializes the package prompt copies in .Codex/agents with a legacy manifest.",
-          "headHash": "84f1030afc1190289216e627af15bbf1c1bb371a",
-          "materialHash": "30a90d739f0113f99d8519125c91137dd16fef5ab308238265c1c71b5eae34e3",
-          "timestamp": "2026-06-02T21:15:23.426Z"
+          "headHash": "7a9385262421891b09c2446fa66db234de4dda52",
+          "materialHash": "2c0da729bbc06fc1fbc64fae17e7edcdaf3100c75b837f9a97fa6f03f20c321c",
+          "timestamp": "2026-06-02T21:18:07.764Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -313,9 +313,9 @@
           "command": "npm --prefix packages/main run test:thin-init-assets-smoke",
           "result": "pass",
           "note": "Thin init smoke seeded a user-owned .Codex/agents/user-owned.md before --asset-mode thin and verified init/check/verify left it in place.",
-          "headHash": "84f1030afc1190289216e627af15bbf1c1bb371a",
-          "materialHash": "30a90d739f0113f99d8519125c91137dd16fef5ab308238265c1c71b5eae34e3",
-          "timestamp": "2026-06-02T21:15:23.426Z"
+          "headHash": "7a9385262421891b09c2446fa66db234de4dda52",
+          "materialHash": "2c0da729bbc06fc1fbc64fae17e7edcdaf3100c75b837f9a97fa6f03f20c321c",
+          "timestamp": "2026-06-02T21:18:07.764Z"
         }
       ]
     },
