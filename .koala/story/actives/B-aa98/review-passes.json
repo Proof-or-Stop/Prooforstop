@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-02T22:11:06.509Z",
       "reviewRunId": "B-aa98:RR-013",
       "_hash": "7ff650dd7768c9139168b3eb5de3e75409a0fd6df3117eaf51f71cbefcba5d32"
+    },
+    {
+      "id": "B-aa98:RP-006",
+      "agent": "koala-review-concept",
+      "note": "Final concept review: host overflow readiness now follows capability semantics instead of host-id allowlists; authority surfaces remain conservative; Mac App stays optional/dashboard-only; host overflow and authority docs consistently keep productionDone=false and receiptVerified=false pending a verified authority receipt. Verified against packages/main/src/core/lattice-hosts.ts, docs/requirements/decisions/host-overflow.md, docs/requirements/decisions/project-vision.md, README.md, docs/guide.md, and npm --prefix packages/main run test:host-overflow-smoke.",
+      "createdAt": "2026-06-02T22:14:35.674Z",
+      "reviewRound": "2026-06-02T22:11:06.509Z",
+      "reviewRunId": "B-aa98:RR-011",
+      "_hash": "d4703a25002c8eed7af351fad3cc810a63d7be9abd2c1e028c1b1fd9608e7094"
     }
   ]
 }
