@@ -114,3 +114,39 @@ landing further DEV work.
 ## Policy: test-evidence.json is gate-consumed validation metadata
 
 test-evidence.json is gate-consumed validation metadata, not material drift input. PASS/FAIL/coverage still feed gates, and real source or evidence drift remains stale. Changes to test-evidence.json alone do not invalidate prior material-hash evidence.
+
+## Policy: registry-backed prompt assets
+
+Lattice init supports two compatible prompt asset shapes:
+
+| Layer | Examples | Ownership |
+| --- | --- | --- |
+| project-local required assets | `KOALA.md`, `AGENTS.md`, `CLAUDE.md`, `.Codex/koala.json`, `bin/koala.js`, `bin/koala-codex.js`, `.claude/settings.json`, `.claude/hooks/*` | Repository-local host entrypoints, adapter config, and command launchers. |
+| package registry prompt templates | `packages/main/templates/agents/*.md` exposed through `koala.prompt-registry.v1` | Versioned Koala/Lattice package assets. These are the canonical prompt bodies. |
+| generated or materialized prompt caches | `.Codex/agents/*.md`, `.claude/agents/*.md` when a profile asks for full materialization | Compatibility surfaces for hosts or old repositories that still expect local prompt files. |
+
+The phrase **registry-backed prompt assets** means project metadata points at the
+package prompt registry instead of treating every rendered agent prompt as a
+project-local required file. In registry mode, `.Codex/koala.json` carries the
+prompt registry version and material hash, and Codex adapter verification checks
+that registry rather than requiring `.Codex/agents` prompt copies.
+
+This is a **legacy mirror compatibility** change, not a host behavior removal.
+Legacy full-mode repositories may keep `.Codex/agents` and `.claude/agents`.
+Thin-mode repositories may omit `.Codex/agents` when the manifest selects
+registry prompts. Claude Code host-local discovery can still use materialized
+`.claude/agents` where that host profile requires it.
+
+Safe migration follows the existing managed-asset states:
+
+- `OK` registry manifests and full-mode mirrors are both valid.
+- `MISSING` registry metadata can be created by explicit thin init/check flows.
+- `STALE_SAFE` generated prompt mirrors may be updated or removed only when
+  Koala can prove they are old unedited managed assets.
+- `STALE_LOCAL_EDIT`, `CASE_MISMATCH`, and `INCOMPATIBLE` prompt files are
+  report-only. Koala must not overwrite or delete local edits during thin
+  migration.
+
+Registry-backed prompt checks are adapter hygiene. They do not submit evidence,
+verify receipts, or satisfy production authority. Validation evidence and
+receipt-backed authority remain separate gate inputs.
