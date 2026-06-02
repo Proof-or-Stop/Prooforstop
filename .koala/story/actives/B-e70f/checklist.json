@@ -56,7 +56,39 @@
       "userSees": "CLI JSON can tell an operator what can run, what is blocked, what should merge first, and what evidence exists.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-parallel-wave.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lattice-parallel-wave-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Core builders produce schemaVersion values for parallel_dispatch, parallel_status, parallel_merge_queue, and parallel_report from an existing wave without mutating the wave.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Blocked dependency stories, plan-only hotspot stories, and parallel-dev candidates remain distinguishable in dispatch/status/merge/report projections.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Every new projection preserves authority.productionDone=false, authority.authorityChanged=false, and top-level authority.receiptRefs=[] even when story evidence refs exist.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
