@@ -282,7 +282,42 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/thin-init-assets-smoke.ts",
+          "command": "npm --prefix packages/main run test:thin-init-assets-smoke",
+          "result": "pass",
+          "note": "Thin init smoke ran real init with --profile=codex --asset-mode=thin, verified registry manifest/README, absence of .Codex/agents, managed asset check, and Codex adapter verification.",
+          "headHash": "84f1030afc1190289216e627af15bbf1c1bb371a",
+          "materialHash": "30a90d739f0113f99d8519125c91137dd16fef5ab308238265c1c71b5eae34e3",
+          "timestamp": "2026-06-02T21:15:23.426Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/thin-init-assets-smoke.ts",
+          "command": "npm --prefix packages/main run test:thin-init-assets-smoke",
+          "result": "pass",
+          "note": "Thin init smoke ran default full Codex init and verified it still materializes the package prompt copies in .Codex/agents with a legacy manifest.",
+          "headHash": "84f1030afc1190289216e627af15bbf1c1bb371a",
+          "materialHash": "30a90d739f0113f99d8519125c91137dd16fef5ab308238265c1c71b5eae34e3",
+          "timestamp": "2026-06-02T21:15:23.426Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/thin-init-assets-smoke.ts",
+          "command": "npm --prefix packages/main run test:thin-init-assets-smoke",
+          "result": "pass",
+          "note": "Thin init smoke seeded a user-owned .Codex/agents/user-owned.md before --asset-mode thin and verified init/check/verify left it in place.",
+          "headHash": "84f1030afc1190289216e627af15bbf1c1bb371a",
+          "materialHash": "30a90d739f0113f99d8519125c91137dd16fef5ab308238265c1c71b5eae34e3",
+          "timestamp": "2026-06-02T21:15:23.426Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
