@@ -53,9 +53,9 @@
           "command": "rg -n \"parallel_dispatch|parallel_status|parallel_merge_queue|parallel_report\" docs/requirements/decisions/lattice-parallel-wave.md",
           "result": "pass",
           "note": "Docs list all four read-only operator commands and describe their user-facing purpose.",
-          "headHash": "e22329a2b03af884a8f761d3629b56fe7b5be1a6",
-          "materialHash": "ca142545dda7e383efcaeb4b181e6fbd9145cdf47d44c75f61c8ca3d12293154",
-          "timestamp": "2026-06-02T12:39:58.790Z"
+          "headHash": "7f9b793752cf014ebe58d0201633a1c3d8ecad37",
+          "materialHash": "584eb25e15acea4b9b53d403e0c3d1efdacba355b4e6fef8e084b3243e739c47",
+          "timestamp": "2026-06-02T12:58:03.063Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -64,9 +64,9 @@
           "command": "rg -n \"public experience library|dev-memory project|global|No Duplicate Memory Store\" docs/requirements/decisions/dev-memory.md",
           "result": "pass",
           "note": "Docs identify existing dev-memory project/global JSONL as the public experience library and explicitly reject a duplicate memory store.",
-          "headHash": "e22329a2b03af884a8f761d3629b56fe7b5be1a6",
-          "materialHash": "ca142545dda7e383efcaeb4b181e6fbd9145cdf47d44c75f61c8ca3d12293154",
-          "timestamp": "2026-06-02T12:39:58.790Z"
+          "headHash": "7f9b793752cf014ebe58d0201633a1c3d8ecad37",
+          "materialHash": "584eb25e15acea4b9b53d403e0c3d1efdacba355b4e6fef8e084b3243e739c47",
+          "timestamp": "2026-06-02T12:58:03.063Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -75,9 +75,9 @@
           "command": "rg -n \"cannot satisfy REVIEW|do not auto-spawn|production authority|receiptRefs\" docs/requirements/decisions/lattice-parallel-wave.md docs/requirements/decisions/dev-memory.md",
           "result": "pass",
           "note": "Docs state dispatch/report/status/merge and dev-memory refs cannot satisfy lifecycle, receipt, or production authority gates and do not auto-spawn agents.",
-          "headHash": "e22329a2b03af884a8f761d3629b56fe7b5be1a6",
-          "materialHash": "ca142545dda7e383efcaeb4b181e6fbd9145cdf47d44c75f61c8ca3d12293154",
-          "timestamp": "2026-06-02T12:39:58.790Z"
+          "headHash": "7f9b793752cf014ebe58d0201633a1c3d8ecad37",
+          "materialHash": "584eb25e15acea4b9b53d403e0c3d1efdacba355b4e6fef8e084b3243e739c47",
+          "timestamp": "2026-06-02T12:58:03.063Z"
         }
       ]
     },
@@ -132,9 +132,9 @@
           "command": "npm --prefix packages/main run test:lattice-parallel-wave-smoke",
           "result": "pass",
           "note": "Focused smoke asserts core builders produce koala.parallel_dispatch/status/merge_queue/report.v1 projections from an existing wave.",
-          "headHash": "e22329a2b03af884a8f761d3629b56fe7b5be1a6",
-          "materialHash": "ca142545dda7e383efcaeb4b181e6fbd9145cdf47d44c75f61c8ca3d12293154",
-          "timestamp": "2026-06-02T12:39:58.790Z"
+          "headHash": "7f9b793752cf014ebe58d0201633a1c3d8ecad37",
+          "materialHash": "584eb25e15acea4b9b53d403e0c3d1efdacba355b4e6fef8e084b3243e739c47",
+          "timestamp": "2026-06-02T12:58:03.063Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -143,9 +143,9 @@
           "command": "npm --prefix packages/main run test:lattice-parallel-wave-smoke",
           "result": "pass",
           "note": "Smoke asserts parallel-dev candidates, plan-only hotspot stories, and dependency-blocked stories remain distinguishable in dispatch/status/merge/report outputs.",
-          "headHash": "e22329a2b03af884a8f761d3629b56fe7b5be1a6",
-          "materialHash": "ca142545dda7e383efcaeb4b181e6fbd9145cdf47d44c75f61c8ca3d12293154",
-          "timestamp": "2026-06-02T12:39:58.790Z"
+          "headHash": "7f9b793752cf014ebe58d0201633a1c3d8ecad37",
+          "materialHash": "584eb25e15acea4b9b53d403e0c3d1efdacba355b4e6fef8e084b3243e739c47",
+          "timestamp": "2026-06-02T12:58:03.063Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -154,9 +154,9 @@
           "command": "npm --prefix packages/main run test:lattice-parallel-wave-smoke",
           "result": "pass",
           "note": "Smoke asserts every new projection preserves productionDone=false, authorityChanged=false, and receiptRefs=[] even while evidence refs exist.",
-          "headHash": "e22329a2b03af884a8f761d3629b56fe7b5be1a6",
-          "materialHash": "ca142545dda7e383efcaeb4b181e6fbd9145cdf47d44c75f61c8ca3d12293154",
-          "timestamp": "2026-06-02T12:39:58.790Z"
+          "headHash": "7f9b793752cf014ebe58d0201633a1c3d8ecad37",
+          "materialHash": "584eb25e15acea4b9b53d403e0c3d1efdacba355b4e6fef8e084b3243e739c47",
+          "timestamp": "2026-06-02T12:58:03.063Z"
         }
       ]
     },
@@ -215,9 +215,9 @@
           "command": "npm --prefix packages/main run test:lattice-parallel-wave-smoke",
           "result": "pass",
           "note": "Smoke asserts MAIN_TOOLS and createMainRegistry expose all four commands and invokes each through the built CLI with --format=json.",
-          "headHash": "e22329a2b03af884a8f761d3629b56fe7b5be1a6",
-          "materialHash": "ca142545dda7e383efcaeb4b181e6fbd9145cdf47d44c75f61c8ca3d12293154",
-          "timestamp": "2026-06-02T12:39:58.790Z"
+          "headHash": "7f9b793752cf014ebe58d0201633a1c3d8ecad37",
+          "materialHash": "584eb25e15acea4b9b53d403e0c3d1efdacba355b4e6fef8e084b3243e739c47",
+          "timestamp": "2026-06-02T12:58:03.063Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -226,9 +226,9 @@
           "command": "npm --prefix packages/main run test:lifecycle-registry-contract && npm --prefix packages/main run test:command-ownership-contract",
           "result": "pass",
           "note": "Lifecycle and ownership contracts assert all four commands are supported readOnly/all-phase/none-risk commands.",
-          "headHash": "e22329a2b03af884a8f761d3629b56fe7b5be1a6",
-          "materialHash": "ca142545dda7e383efcaeb4b181e6fbd9145cdf47d44c75f61c8ca3d12293154",
-          "timestamp": "2026-06-02T12:39:58.790Z"
+          "headHash": "7f9b793752cf014ebe58d0201633a1c3d8ecad37",
+          "materialHash": "584eb25e15acea4b9b53d403e0c3d1efdacba355b4e6fef8e084b3243e739c47",
+          "timestamp": "2026-06-02T12:58:03.063Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -237,9 +237,9 @@
           "command": "npm --prefix packages/main run test:lattice-parallel-wave-smoke",
           "result": "pass",
           "note": "Smoke asserts all four new commands have L0 process fact entries, no gateConsumer, and are not gateEvidence.",
-          "headHash": "e22329a2b03af884a8f761d3629b56fe7b5be1a6",
-          "materialHash": "ca142545dda7e383efcaeb4b181e6fbd9145cdf47d44c75f61c8ca3d12293154",
-          "timestamp": "2026-06-02T12:39:58.790Z"
+          "headHash": "7f9b793752cf014ebe58d0201633a1c3d8ecad37",
+          "materialHash": "584eb25e15acea4b9b53d403e0c3d1efdacba355b4e6fef8e084b3243e739c47",
+          "timestamp": "2026-06-02T12:58:03.063Z"
         }
       ]
     },
@@ -298,9 +298,9 @@
           "command": "npm --prefix packages/main run test:lattice-parallel-wave-smoke",
           "result": "pass",
           "note": "Smoke seeds project/global dev-memory and asserts parallel_dispatch/report include bounded experienceRefs when includeExperience is requested.",
-          "headHash": "e22329a2b03af884a8f761d3629b56fe7b5be1a6",
-          "materialHash": "ca142545dda7e383efcaeb4b181e6fbd9145cdf47d44c75f61c8ca3d12293154",
-          "timestamp": "2026-06-02T12:39:58.790Z"
+          "headHash": "7f9b793752cf014ebe58d0201633a1c3d8ecad37",
+          "materialHash": "584eb25e15acea4b9b53d403e0c3d1efdacba355b4e6fef8e084b3243e739c47",
+          "timestamp": "2026-06-02T12:58:03.063Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -309,9 +309,9 @@
           "command": "npm --prefix packages/main run test:lattice-parallel-wave-smoke",
           "result": "pass",
           "note": "Smoke asserts missing or empty dev-memory succeeds with experienceRefs=[] before seeded memory exists.",
-          "headHash": "e22329a2b03af884a8f761d3629b56fe7b5be1a6",
-          "materialHash": "ca142545dda7e383efcaeb4b181e6fbd9145cdf47d44c75f61c8ca3d12293154",
-          "timestamp": "2026-06-02T12:39:58.790Z"
+          "headHash": "7f9b793752cf014ebe58d0201633a1c3d8ecad37",
+          "materialHash": "584eb25e15acea4b9b53d403e0c3d1efdacba355b4e6fef8e084b3243e739c47",
+          "timestamp": "2026-06-02T12:58:03.063Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -320,9 +320,9 @@
           "command": "npm --prefix packages/main run test:lattice-parallel-wave-smoke",
           "result": "pass",
           "note": "Smoke asserts experience refs retain gateEvidence=false and authority=non_authoritative and do not alter authority or receipt refs.",
-          "headHash": "e22329a2b03af884a8f761d3629b56fe7b5be1a6",
-          "materialHash": "ca142545dda7e383efcaeb4b181e6fbd9145cdf47d44c75f61c8ca3d12293154",
-          "timestamp": "2026-06-02T12:39:58.791Z"
+          "headHash": "7f9b793752cf014ebe58d0201633a1c3d8ecad37",
+          "materialHash": "584eb25e15acea4b9b53d403e0c3d1efdacba355b4e6fef8e084b3243e739c47",
+          "timestamp": "2026-06-02T12:58:03.063Z"
         }
       ]
     },
@@ -379,9 +379,9 @@
           "command": "npm --prefix packages/main run test:lattice-parallel-wave-smoke",
           "result": "pass",
           "note": "Focused smoke passes and covers JSON shape, no-overwrite behavior, command registration, policy registration, default phase tools, and process fact levels.",
-          "headHash": "e22329a2b03af884a8f761d3629b56fe7b5be1a6",
-          "materialHash": "ca142545dda7e383efcaeb4b181e6fbd9145cdf47d44c75f61c8ca3d12293154",
-          "timestamp": "2026-06-02T12:39:58.791Z"
+          "headHash": "7f9b793752cf014ebe58d0201633a1c3d8ecad37",
+          "materialHash": "584eb25e15acea4b9b53d403e0c3d1efdacba355b4e6fef8e084b3243e739c47",
+          "timestamp": "2026-06-02T12:58:03.063Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -389,9 +389,9 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "TypeScript build passes after adding projections, handlers, CLI schemas, and smoke tests.",
-          "headHash": "e22329a2b03af884a8f761d3629b56fe7b5be1a6",
-          "materialHash": "ca142545dda7e383efcaeb4b181e6fbd9145cdf47d44c75f61c8ca3d12293154",
-          "timestamp": "2026-06-02T12:39:58.791Z"
+          "headHash": "7f9b793752cf014ebe58d0201633a1c3d8ecad37",
+          "materialHash": "584eb25e15acea4b9b53d403e0c3d1efdacba355b4e6fef8e084b3243e739c47",
+          "timestamp": "2026-06-02T12:58:03.063Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -399,9 +399,9 @@
           "command": "git diff --check && koala scope_contract_check --storyId=B-e70f --json",
           "result": "pass",
           "note": "Whitespace and enforce scope gates pass; validation coverage is prepared for koala validate and dev-memory/dispatch artifacts remain non-authoritative.",
-          "headHash": "e22329a2b03af884a8f761d3629b56fe7b5be1a6",
-          "materialHash": "ca142545dda7e383efcaeb4b181e6fbd9145cdf47d44c75f61c8ca3d12293154",
-          "timestamp": "2026-06-02T12:39:58.791Z"
+          "headHash": "7f9b793752cf014ebe58d0201633a1c3d8ecad37",
+          "materialHash": "584eb25e15acea4b9b53d403e0c3d1efdacba355b4e6fef8e084b3243e739c47",
+          "timestamp": "2026-06-02T12:58:03.063Z"
         }
       ]
     }
