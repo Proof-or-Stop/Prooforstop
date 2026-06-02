@@ -15,9 +15,11 @@ import {
   buildLatticeHostInstallGuidance,
   buildLatticeHostList,
   buildLatticeHostProbe,
+  buildLatticeHostStatus,
   renderLatticeHostInstallText,
   renderLatticeHostListText,
   renderLatticeHostProbeText,
+  renderLatticeHostStatusText,
   type LatticeFormat,
 } from '../core/lattice-hosts.js';
 
@@ -362,12 +364,16 @@ export function buildConduitStatus(env: Record<string, string | undefined> = pro
     supportedSurfaces: [
       'host_list',
       'host_probe',
+      'host_status',
       'host_install',
       'lattice_config_doctor',
       'authority_status',
       'handoff_create',
       'handoff_accept',
       'handoff_resume',
+      'handoff_receipt_submit',
+      'handoff_worktree_create',
+      'host_dispatch',
       'evidence_manifest',
       'evidence_inspect',
       'parallel_wave_create',
@@ -448,6 +454,10 @@ export function createLatticeCliHandlers(ctx: HandlerContext) {
     host_probe(args: { host: string; format?: LatticeFormat }) {
       const result = buildLatticeHostProbe(args.host);
       return wantsJson(args) ? result : renderLatticeHostProbeText(result);
+    },
+    host_status(args: { host: string; format?: LatticeFormat }) {
+      const result = buildLatticeHostStatus(args.host);
+      return wantsJson(args) ? result : renderLatticeHostStatusText(result);
     },
     host_install(args: { host: string; format?: LatticeFormat }) {
       const result = buildLatticeHostInstallGuidance(args.host);
