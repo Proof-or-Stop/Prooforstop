@@ -1,0 +1,57 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Record rollout findings and publish Lattice install guidance",
+      "context": "Capture M1 real-project rollout findings and update README/docs so the primary command is lattice, koala is legacy alias, and local global refresh steps are explicit.",
+      "relatedDocs": [
+        "README.md",
+        "docs/guide.md",
+        "docs/requirements/decisions/project-vision.md"
+      ],
+      "userSees": "用户在 README/guide 中看到 `lattice check`、`lattice doctor`、`lattice session_brief`，并看到 `koala` 仅作为 legacy alias。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Make user-facing CLI help and hints prefer lattice",
+      "context": "Update help banners, next-step hints, doctor/check/session output, and command examples so invoked or recommended commands say lattice by default while keeping koala compatibility.",
+      "relatedDocs": [
+        "docs/requirements/decisions/project-vision.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "用户执行 `lattice story_create --help` 时主标题、示例和下一步优先显示 `lattice ...`，不再推荐 `koala ...`。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add read-only lattice rollout_check command",
+      "context": "Implement a cross-project rollout checker that scans selected roots or project lists for global CLI version, lattice/koala realpath, config doctor status, session/doctor/check status, managed asset drift, and transcript lifecycle readiness without modifying projects.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "docs/requirements/decisions/authority-client-role.md"
+      ],
+      "userSees": "用户执行 `lattice rollout_check --projects <paths> --json` 得到每个项目 PASS/WARN/FAIL 和 next action，不需要逐个手跑 doctor/check。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Verify rollout_check and lattice command semantics across real projects",
+      "context": "Add focused smoke tests plus a real-project transcript covering Orchestrate, Koala/Koala, plasmid, minicell, OpenCli, and avalon behavior from M1.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-completeness.md",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md"
+      ],
+      "userSees": "用户看到 TEST transcript 中列出真实项目巡检结果，并看到 rollout_check 能把外部项目状态解释成 warning 而非混乱失败。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
