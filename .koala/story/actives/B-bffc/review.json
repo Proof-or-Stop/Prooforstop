@@ -211,6 +211,47 @@
         }
       ],
       "_hash": "2a812e7e1aa549cd0ee4af98738c29ffd41cdc9564c467ad268c8aaa8d78ee12"
+    },
+    {
+      "timestamp": "2026-06-02T11:23:01.686Z",
+      "issueCount": 3,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 个 checklist item，请检查是否有组合场景遗漏（如：Ship Lattice CLI 0.3.5 product identity and entrypoint + Expose Mac App provider/config capabilities through CLI surfaces 同时操作会怎样？）"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story 命中 2 个高风险信号: 数据迁移/破坏性, 生产环境/紧急。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）。 若本 story 只是提及而非修改该领域（误报），可 koala story_review_dismiss '{\"storyId\":\"B-bffc\",\"category\":\"<分类>\",\"reason\":\"...\"}' 完整回退 auto-elevation（全部 auto-elevated riskSignal 被 dismiss 后 priority 自动回退、高风险 gate 解除）。"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: docs/requirements/decisions/testing-completeness.md 未被任何 checklist item 的 files 字段覆盖（请为相应 item 的 files.modify/create/test 加上此路径或用 excludes 显式排除）"
+        }
+      ],
+      "_hash": "8e84bb4cf622aefe2d63c79499f92f25db044ff04b981b5f1c6934e85a24d72b"
+    },
+    {
+      "timestamp": "2026-06-02T11:23:25.239Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 个 checklist item，请检查是否有组合场景遗漏（如：Ship Lattice CLI 0.3.5 product identity and entrypoint + Expose Mac App provider/config capabilities through CLI surfaces 同时操作会怎样？）"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story 命中 2 个高风险信号: 数据迁移/破坏性, 生产环境/紧急。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）。 若本 story 只是提及而非修改该领域（误报），可 koala story_review_dismiss '{\"storyId\":\"B-bffc\",\"category\":\"<分类>\",\"reason\":\"...\"}' 完整回退 auto-elevation（全部 auto-elevated riskSignal 被 dismiss 后 priority 自动回退、高风险 gate 解除）。"
+        }
+      ],
+      "_hash": "bbb4528ac820ce32dfa3da272e7f84a1744855b2688466a5e978b6f69601814d"
     }
   ]
 }
