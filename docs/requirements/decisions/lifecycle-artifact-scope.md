@@ -28,13 +28,14 @@ order:
    – a recognized story-dir prefix (`docs/story/actives/`,
      `.koala/story/actives/`, or a custom `storyDir`),
    – followed by a valid storyId segment,
-   – followed by either a terminal filename in
+   – followed by either a top-level terminal filename in
      `KOALA_LIFECYCLE_ARTIFACT_FILENAMES` or a relative path in
      `KOALA_LIFECYCLE_ARTIFACT_RELATIVE_PATHS` (the closed sets declared in
      `packages/main/src/core/lifecycle-registry.ts`).
      The relative-path set is intentionally tiny: today it includes the TEST
      transcript evidence path `evidence/transcript-diff.md` and does not allow
-     arbitrary files under `evidence/`.
+     arbitrary files under `evidence/`, even when their basename is a known
+     top-level lifecycle filename such as `summary.json`.
    – Legacy story-tree paths under `docs/story/...` resolve as
      `legacy-metadata` for back-compat with PLAN-time files.
 

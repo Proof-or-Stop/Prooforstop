@@ -4,7 +4,7 @@
   "title": "Allow TEST transcript evidence as lifecycle artifact",
   "description": "Small framework fix: classify .koala/story/actives/<storyId>/evidence/transcript-diff.md as a story-scoped lifecycle delivery evidence artifact so TEST user-value transcript evidence does not require scope_contract_acknowledge or reviewer rebind. Keep product source scope enforcement strict and reject arbitrary .koala/evidence paths.",
   "type": "bug",
-  "phase": "REVIEW",
+  "phase": "DEV",
   "priority": "high",
   "keywords": [
     "scope-contract",
@@ -55,6 +55,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-02T13:02:32.855Z",
+      "branch": "story/B-f3db",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-02T13:04:54.788Z",
       "branch": "story/B-f3db",
       "user": "Harmonygo",
       "agent": "main"

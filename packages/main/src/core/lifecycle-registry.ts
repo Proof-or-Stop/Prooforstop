@@ -554,8 +554,8 @@ export function lifecycleArtifactsByTransition(): LifecycleTransitionArtifacts[]
 // Narrow trust policy for command-generated story metadata. A path is
 // recognized as a Koala-owned lifecycle artifact only when it lives under a
 // known story directory prefix, the segment after that prefix is a valid
-// storyId, AND either the terminal filename or relative story-dir path is in a
-// closed set below. Arbitrary JSON / unknown files under active docs/story/ or
+// storyId, AND either the top-level terminal filename or relative story-dir
+// path is in a closed set below. Arbitrary JSON / unknown files under active docs/story/ or
 // .koala/ story dirs no longer pass scope implicitly; legacy
 // `docs/story/.../<storyId>/...` still resolves for back-compat outside active
 // story prefixes (returns kind 'legacy-metadata').
@@ -654,10 +654,11 @@ export function classifyLifecycleArtifact(
     if (options.storyId && options.storyId !== storyId) return null;
     const fileName = segments[segments.length - 1];
     const relativePath = segments.slice(1).join('/');
-    if (
-      !KOALA_LIFECYCLE_ARTIFACT_FILENAMES.has(fileName)
-      && !KOALA_LIFECYCLE_ARTIFACT_RELATIVE_PATHS.has(relativePath)
-    ) {
+    const isTopLevelArtifact = segments.length === 2;
+    if (isTopLevelArtifact && !KOALA_LIFECYCLE_ARTIFACT_FILENAMES.has(fileName)) {
+      return null;
+    }
+    if (!isTopLevelArtifact && !KOALA_LIFECYCLE_ARTIFACT_RELATIVE_PATHS.has(relativePath)) {
       return null;
     }
     return {
