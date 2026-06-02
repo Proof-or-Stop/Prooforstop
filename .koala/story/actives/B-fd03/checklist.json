@@ -82,10 +82,46 @@
         "docs/requirements/decisions/testing-completeness.md",
         "docs/requirements/decisions/lifecycle-artifact-scope.md"
       ],
-      "userSees": "用户看到 TEST transcript 中列出真实项目巡检结果，并看到 rollout_check 能把外部项目状态解释成 warning 而非混乱失败。",
+      "userSees": "用户在 TEST transcript 中看到 `Orchestrate: pass`, `plasmid: warn`, `minicell: warn`, `OpenCli: warn`, `avalon: warn`，以及 `transcript lifecycle readiness: pass`。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/rollout-check-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [
+          ".koala/story/actives/B-fd03/evidence/rollout-transcript.md"
+        ],
+        "test": [
+          "packages/main/src/tasks/rollout-check-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "rollout-check smoke test passes and real-project TEST transcript records Orchestrate plus external project statuses with actionable next actions.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "rollout_check explains managed asset drift warnings from external projects without treating every nonzero check exit as a framework failure.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "global transcript lifecycle readiness remains pass, proving B-f3db behavior survives the lattice command migration and rollout checker.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
