@@ -75,7 +75,7 @@
       "desc": "packages/main/src/core/lattice-handoff.ts:808-824 still treats any locally resolvable headSha as pass. Verified repro: a receipt whose headSha points to an unrelated existing commit (touching other.txt, not the claimed changedFiles) still returns status=accepted-local with validations.headSha=pass. That means handoff_receipt_submit still does not prove the receipt is tied to the reviewed overflow result; packages/main/src/tasks/host-overflow-smoke.ts:306-326 only covers an invalid SHA, so this false-positive path remains untested.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-02T22:04:01.827Z",
@@ -85,7 +85,9 @@
       "files": [
         "packages/main/src/core/lattice-handoff.ts",
         "packages/main/src/tasks/host-overflow-smoke.ts"
-      ]
+      ],
+      "resolvedReason": "handoff_receipt_submit now proves baseSha..headSha via git diff, requires receipt changedFiles to appear in that diff, and folds actual diff scope into receipt diagnostics so unrelated existing commits no longer pass local acceptance. Smoke coverage now submits an existing but unrelated local commit and expects diagnostic instead of accepted-local. Verified with npm --prefix packages/main run build, npm --prefix packages/main run test:host-overflow-smoke, npm --prefix packages/main run test:lattice-handoff-smoke, npm --prefix packages/main run test:lattice-cli-migration-smoke, npm run test:command-ownership-contract, npm run test:process-fact-contract, and git diff --check.",
+      "resolvedAt": "2026-06-02T22:11:15.648Z"
     }
   ]
 }
