@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-02T12:40:45.418Z",
       "reviewRunId": "B-e70f:RR-003",
       "_hash": "1ecd4f1fb76481b9c15150f921b2a48dd1a473c03a96448092a49b9dd818dcd3"
+    },
+    {
+      "id": "B-e70f:RP-004",
+      "agent": "koala-review-docs",
+      "note": "PASS: docs/requirements/decisions/lattice-parallel-wave.md:65-119 splits the base wave JSON contract from projection-specific contracts and explicitly states which parallel_* outputs omit storyRefs/hostCandidates/top-level evidenceRefs/mergeOrder; docs/requirements/decisions/dev-memory.md:7-17,25-31,50-51,84-109 define project/global dev-memory JSONL as advisory experience storage and keep it out of gate evidence via gateEvidence=false and authority=\"non_authoritative\".",
+      "createdAt": "2026-06-02T13:00:52.897Z",
+      "reviewRound": "2026-06-02T12:55:15.163Z",
+      "reviewRunId": "B-e70f:RR-010",
+      "_hash": "ddd1ed023e4f0465d23239de9c532841b92ab87f0437b5af488654e089a0222d"
     }
   ]
 }
