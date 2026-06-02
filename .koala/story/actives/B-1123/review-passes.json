@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-02T17:33:25.988Z",
       "reviewRunId": "B-1123:RR-001",
       "_hash": "0284c70fa9765bbcaaf81598e0799b287232b307dbad16e6470eee6dfc17be34"
+    },
+    {
+      "id": "B-1123:RP-003",
+      "agent": "koala-review-quality",
+      "note": "F-001/F-002/F-003 all fixed and verified. authority-signing.ts:98-109 (decodeBase64Bytes) and 145-166 (verifyCanonical) — dead try-catches around Buffer.from(_, 'base64') removed; explanatory comments + length checks remain as the actual validity gate. Remaining try-catches around importPublicKeyRaw (PKCS#8 DER parse can throw) and verify() (crypto.verify can throw on key mismatch) are legitimate. authority-runner-contracts.ts:30-39 — both imports merged into single import block. No new dead code, type safety preserved (unknown/Zod), I/O isolation intact (only node:crypto + same-package). No whitespace issues.",
+      "createdAt": "2026-06-02T17:49:38.545Z",
+      "reviewRound": "2026-06-02T17:46:40.609Z",
+      "reviewRunId": "B-1123:RR-004",
+      "_hash": "db65e6d109dba637e9d05b6adf0790d6a3893ad4e86e5c4944e26e39590b59f9"
     }
   ]
 }
