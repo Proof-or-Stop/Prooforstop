@@ -201,7 +201,42 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/codex-registry-mode-smoke.ts",
+          "command": "npm --prefix packages/main run test:codex-registry-mode-smoke",
+          "result": "pass",
+          "note": "Codex registry mode smoke verified the legacy manifest path still uses the hard agents-mirror check.",
+          "headHash": "f4e254ca1986af4a95da6df9271b135b00c1999d",
+          "materialHash": "b8c98a7392817acc8489549598e4181fc61f17bbc0bec653970e039bbd5ba853",
+          "timestamp": "2026-06-02T21:12:33.530Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/codex-registry-mode-smoke.ts",
+          "command": "npm --prefix packages/main run test:codex-registry-mode-smoke",
+          "result": "pass",
+          "note": "Codex registry mode smoke verified promptMode=registry passes without .Codex/agents or .claude/agents prompt mirror directories.",
+          "headHash": "f4e254ca1986af4a95da6df9271b135b00c1999d",
+          "materialHash": "b8c98a7392817acc8489549598e4181fc61f17bbc0bec653970e039bbd5ba853",
+          "timestamp": "2026-06-02T21:12:33.530Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/codex-registry-mode-smoke.ts",
+          "command": "npm --prefix packages/main run test:codex-registry-mode-smoke",
+          "result": "pass",
+          "note": "Codex registry mode smoke tampered promptRegistry.materialHash and observed a hard manifest failure while registry renderability remained separately checked.",
+          "headHash": "f4e254ca1986af4a95da6df9271b135b00c1999d",
+          "materialHash": "b8c98a7392817acc8489549598e4181fc61f17bbc0bec653970e039bbd5ba853",
+          "timestamp": "2026-06-02T21:12:33.530Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
