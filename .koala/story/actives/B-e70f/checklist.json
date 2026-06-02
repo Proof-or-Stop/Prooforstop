@@ -53,7 +53,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-parallel-wave.md"
       ],
-      "userSees": "CLI JSON can tell an operator what can run, what is blocked, what should merge first, and what evidence exists.",
+      "userSees": "`koala parallel_dispatch --format=json` prints `schemaVersion:\"koala.parallel_dispatch.v1\"`, story entries with `dispatchable`, and `authority.productionDone:false`; `koala parallel_status --format=json` prints candidate/blocked counts.",
       "status": "pending",
       "startTime": null,
       "endTime": null,
