@@ -1,11 +1,54 @@
-# Koala
+# Lattice CLI
 
-Koala 是一套围绕 Story 工作流的 AI 开发编排 CLI。这个仓库当前包含：
+Lattice CLI 0.3.5 是 Koala Story 工作流的 CLI-first 产品入口。`lattice`
+是主入口，`koala` 保留为 legacy alias；两者仍指向同一套 project state、
+phase、gate、review、evidence 和 handoff 语义。
 
-- `packages/main`：Koala 核心 CLI
+这个仓库当前包含：
+
+- `packages/main`：Lattice/Koala 核心 CLI
 - `packages/utils`：`aux_*`、`truth_*`、`tool_status` 等扩展工具
-- `bin/koala.js`：完整 bootstrap 入口（`main + utils`）
+- `bin/lattice.js`：完整 bootstrap 主入口（`main + utils`）
+- `bin/koala.js`：legacy bootstrap alias（`main + utils`）
 - `bin/koala-codex.js`：Codex 专用入口，会把活动记成 `source=codex`
+
+## Lattice CLI 0.3.5 Migration
+
+Mac App provider/config dashboard capabilities are now exposed through CLI
+surfaces first:
+
+```bash
+lattice --version
+lattice host list --format=json
+lattice host probe --host=codex --format=json
+lattice host install --host=desktop-app --format=json
+lattice config doctor --format=json
+lattice authority status --format=json
+lattice conduit status --format=json
+lattice conduit explain --format=json
+```
+
+The flat command forms remain available for automation:
+
+```bash
+lattice host_list --format=json
+lattice host_probe --host=codex --format=json
+lattice host_install --host=local-runner --format=json
+lattice lattice_config_doctor --format=json
+lattice authority_status --format=json
+lattice conduit_status --format=json
+lattice conduit_explain --format=json
+```
+
+These commands are diagnostic/read-only. `host_install` is dry-run guidance only
+and never executes third-party installers. `authority_status` and
+`conduit_status` are receipt-aware but conservative: without verified server
+receipt support they report `productionDone=false`, `receiptVerified=false`,
+and `canClaimProductionDone=false`.
+
+The Mac App is no longer required for release or provider/config status. It is
+an optional dashboard/archive surface unless a future, explicitly reviewed
+receipt-backed runner path lands.
 
 ## Codex 使用
 
@@ -17,12 +60,12 @@ story、phase、worktree、gate、review、fixture、bug 和 evidence。
 恢复现场时优先使用只读入口：
 
 ```bash
-koala status
-koala next
+lattice status
+lattice next
 ```
 
-- `koala status` 展示当前工程状态总览，复用 `session_brief` 的事实来源
-- `koala next` 只输出当前最可信的下一步建议
+- `lattice status` 展示当前工程状态总览，复用 `session_brief` 的事实来源
+- `lattice next` 只输出当前最可信的下一步建议
 - 两个命令都不推进 phase、不写 `.koala/state`、不修改 story/fixture/git
 
 `session_brief` 仍然是新 agent session 的开场简报入口；`status` / `next` 是给人和
@@ -61,11 +104,12 @@ node packages/main/dist/cli.js validate --json
 node packages/main/dist/cli.js doctor --format=json
 ```
 
-## Desktop binary packaging
+## Optional Desktop Binary Packaging
 
-Koala can be packaged as a single desktop executable with Vercel `pkg`. The
-desktop build uses a small pkg-specific entrypoint that loads the same full
-local bootstrap as `bin/koala.js`, so packaged binaries include core commands
+Lattice can still be packaged as a single desktop executable with Vercel `pkg`,
+but this is optional packaging, not the Mac App release path. The desktop build
+uses a small pkg-specific entrypoint that loads the same full local bootstrap as
+`bin/lattice.js` / `bin/koala.js`, so packaged binaries include core commands
 and utils commands such as `aux_doc_list`.
 The entrypoint exists because pkg's Node 18 snapshot loader does not reliably
 run this repo's ESM bootstrap directly from the snapshot; it stages the bundled
@@ -84,8 +128,10 @@ packaging for macOS, Linux, and Windows x64 targets is available with:
 npm run package:desktop:release
 ```
 
-Desktop releases can copy the matching `dist/desktop/koala-*` binary into the
-app bundle and invoke it directly; users do not need a separate Node.js install.
+Desktop/archive surfaces can copy the matching `dist/desktop/koala-*` binary
+into an app bundle and invoke it directly; users do not need a separate Node.js
+install. This is optional dashboard/archive support. Provider/config status now
+belongs to the Lattice CLI commands above.
 Vercel `pkg` is an early distribution shortcut here, not the long-term final
 runtime strategy: the upstream Vercel project is archived, and `pkg` 5.8.1 was
 its last release. Future release hardening should revisit Node SEA or an
@@ -205,11 +251,12 @@ npm --prefix packages/lab run build
 
 全局安装的 `koala`（来自 `@koala-agent/core`）在 `@koala-agent/lab` 可解析时也会自动启用 `koala lab ...`；如果没有安装 lab，普通 core 命令仍然可用，只有 `koala lab ...` 会提示安装/构建 lab。
 
-发布 `0.2.2` 前建议跑：
+发布 `0.3.5` 前建议跑：
 
 ```bash
 npm --prefix packages/main run build
 npm --prefix packages/lab run build
+npm run test:lattice-cli-migration-smoke
 npm run test:global-lab-entrypoint
 ```
 

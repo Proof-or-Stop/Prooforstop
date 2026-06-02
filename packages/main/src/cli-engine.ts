@@ -45,6 +45,11 @@ import {
   STORY_REVIEW_LONG, BUG_REPORT_LONG, VALIDATE_LONG,
   SESSION_BRIEF_FOOTER,
 } from './cli-prompts.js';
+import {
+  detectLatticeBrand,
+  formatLatticeProductLine,
+  formatLatticeVersionLine,
+} from './core/lattice-brand.js';
 
 // ── Tool Registry ──
 
@@ -603,6 +608,32 @@ export const MAIN_TOOLS: ToolDef[] = [
   }},
   { name: 'capability_probe', description: 'Probe one host-neutral Koala capability profile and visible degradations (text/json)', schema: {
     host: z.string().describe('Host profile id, for example codex, claude-code, local-runner, browser, server, desktop-app'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+  }},
+  { name: 'host_list', description: 'List Lattice host profiles, visible degradations, and migration authority boundaries (text/json). Alias: lattice host list', schema: {
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+  }},
+  { name: 'host_probe', description: 'Probe one Lattice host profile without claiming production authority (text/json). Alias: lattice host probe', schema: {
+    host: z.string().describe('Host profile id, for example codex, claude-code, local-runner, browser, server, desktop-app'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+  }},
+  { name: 'host_install', description: 'Show dry-run Lattice host install guidance only; no third-party installs are executed. Alias: lattice host install', schema: {
+    host: z.string().describe('Host profile id to show guidance for'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+  }},
+  { name: 'lattice_config_doctor', description: 'Report Lattice CLI 0.3.5 migration readiness and Mac App demotion status (text/json). Alias: lattice config doctor', schema: {
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+  }},
+  { name: 'authority_status', description: 'Report receipt-aware authority settings without submitting evidence or verifying receipts. Alias: lattice authority status', schema: {
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    authorityMode: z.string().optional().describe('Optional authority mode override for diagnostics only'),
+    authorityURL: z.string().optional().describe('Optional authority URL override for diagnostics only'),
+    authorityTimeoutMS: z.number().optional().describe('Optional authority timeout override for diagnostics only'),
+  }},
+  { name: 'conduit_status', description: 'Report Lattice conduit status without provisioning a runner or production authority. Alias: lattice conduit status', schema: {
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+  }},
+  { name: 'conduit_explain', description: 'Explain the CLI conduit migration boundary and no-overclaim semantics. Alias: lattice conduit explain', schema: {
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
   }},
   { name: 'story_export', description: 'Export a Koala Story as Canonical Story v0 without claiming production authority', schema: {
@@ -1177,13 +1208,15 @@ type HelpOutputOptions = {
 };
 
 function printToolHelp(tool: ToolDef, options: HelpOutputOptions = {}) {
+  const brand = detectLatticeBrand();
   const out = (line = '') => {
     if (options.stream) options.stream.write(`${line}\n`);
     else console.log(line);
   };
   const includeFooter = options.includeFooter !== false;
 
-  out(`\n  koala ${tool.name} — ${tool.description}\n`);
+  out(`\n  ${brand.primaryBin} ${tool.name} — ${tool.description}\n`);
+  out(`  ${formatLatticeProductLine(brand)}; legacy alias: ${brand.legacyAlias}\n`);
 
   // 如果有 longHelp（核心命令），先打印完整 PROMPT
   if (tool.longHelp) {
@@ -1194,7 +1227,7 @@ function printToolHelp(tool: ToolDef, options: HelpOutputOptions = {}) {
   const entries = Object.entries(tool.schema);
   if (entries.length === 0) {
     out('  无参数\n');
-    out(`  用法: koala ${tool.name}`);
+    out(`  用法: ${brand.primaryBin} ${tool.name}`);
     if (includeFooter) out(SESSION_BRIEF_FOOTER);
     return;
   }
@@ -1219,7 +1252,8 @@ function printToolHelp(tool: ToolDef, options: HelpOutputOptions = {}) {
     const base = inner instanceof ZodOptional ? (inner as any)._def.innerType : inner;
     return base instanceof ZodBoolean ? `[--${k}]` : `[--${k}=值]`;
   });
-  out(`\n  用法: koala ${tool.name} ${[...reqParts, ...optParts].join(' ')}`);
+  out(`\n  用法: ${brand.primaryBin} ${tool.name} ${[...reqParts, ...optParts].join(' ')}`);
+  out(`  兼容: ${brand.legacyAlias} ${tool.name} ...`);
   out('  (* = 必填)');
   if (includeFooter) out(SESSION_BRIEF_FOOTER);
 }
@@ -1239,11 +1273,15 @@ function printValidationFailure(tool: ToolDef, issues: z.ZodIssue[]) {
 }
 
 function printHelp(activeStory?: ActiveStory | null) {
-  console.log('\n  koala — AI-driven project management CLI\n');
-  console.log('  用法: koala <command> --key=value         执行命令');
-  console.log('        koala <command> --help              查看参数');
-  console.log('        koala help                          显示此帮助');
-  console.log('        koala --root <path> ...             指定项目根目录\n');
+  const brand = detectLatticeBrand();
+  console.log(`\n  ${formatLatticeProductLine(brand)} — CLI-first project workflow and host migration surface\n`);
+  console.log(`  Primary entrypoint: ${brand.primaryBin}`);
+  console.log(`  Legacy alias:       ${brand.legacyAlias}\n`);
+  console.log(`  用法: ${brand.primaryBin} <command> --key=value         执行命令`);
+  console.log(`        ${brand.primaryBin} <command> --help              查看参数`);
+  console.log(`        ${brand.primaryBin} help                          显示此帮助`);
+  console.log(`        ${brand.primaryBin} --version                     显示版本`);
+  console.log(`        ${brand.primaryBin} --root <path> ...             指定项目根目录\n`);
 
   if (activeStory) {
     console.log(`  当前 Story: ${activeStory.storyId}  阶段: ${activeStory.phase}\n`);
@@ -1267,9 +1305,13 @@ function printHelp(activeStory?: ActiveStory | null) {
     session: 'Session',
     audit: 'Audit',
     check: 'Check',
+    host: 'Host',
+    lattice: 'Lattice',
+    authority: 'Authority',
+    conduit: 'Conduit',
   };
   // 已知分组的展示顺序；不在列表里的分组（来自 extras）按字母序追加
-  const KNOWN_ORDER = ['Story', 'Review', 'Checklist', 'Grill', 'Bug', 'Test', 'Validate', 'Evaluate', 'Workflow', 'Status', 'Check', 'Serve', 'Session', 'Aux', 'Audit'];
+  const KNOWN_ORDER = ['Host', 'Lattice', 'Authority', 'Conduit', 'Story', 'Review', 'Checklist', 'Grill', 'Bug', 'Test', 'Validate', 'Evaluate', 'Workflow', 'Status', 'Check', 'Serve', 'Session', 'Aux', 'Audit'];
 
   const groups: Record<string, ToolDef[]> = {};
   for (const t of TOOLS) {
@@ -1297,30 +1339,30 @@ function printHelp(activeStory?: ActiveStory | null) {
   console.log(`
   开发流程:
     ── PLAN ──
-    1. koala story_create '{"name":"x","title":"..","description":"..","type":"feature","priority":"high","checklist":[{"title":"做什么","context":"上下文"}]}'
-    2. koala story_advance --storyId=B-xxx --phase=INIT_CHECK # 创建 worktree
+    1. lattice story_create '{"name":"x","title":"..","description":"..","type":"feature","priority":"high","checklist":[{"title":"做什么","context":"上下文"}]}'
+    2. lattice story_advance --storyId=B-xxx --phase=INIT_CHECK # 创建 worktree
     3. cd .worktrees/B-xxx
-    4. koala story_review --storyId=B-xxx                     # 审查通过后进 DEV
-    5. koala story_advance --storyId=B-xxx --phase=DEV
+    4. lattice story_review --storyId=B-xxx                     # 审查通过后进 DEV
+    5. lattice story_advance --storyId=B-xxx --phase=DEV
 
     ── DEV ──
     6. 写代码 + 写验证（fixture / 项目原生测试 / validate.ts 可选）
-    7. koala validate                                         # 验证（按项目语言自动发现或读取配置）
-    8. koala checklist_update --storyId=B-xxx --itemId=CHK-001 --status=done
+    7. lattice validate                                         # 验证（按项目语言自动发现或读取配置）
+    8. lattice checklist_update --storyId=B-xxx --itemId=CHK-001 --status=done
 
     ── REVIEW ──
-    9. koala story_advance --storyId=B-xxx --phase=REVIEW    # 进入代码审查
+    9. lattice story_advance --storyId=B-xxx --phase=REVIEW    # 进入代码审查
    10. koala-reviewer 审查代码，提 finding                     # critical/high 必须 resolve
 
     ── TEST → DONE ──
-   11. koala story_advance --storyId=B-xxx --phase=TEST
-   12. koala story_advance --storyId=B-xxx --phase=DONE
+   11. lattice story_advance --storyId=B-xxx --phase=TEST
+   12. lattice story_advance --storyId=B-xxx --phase=DONE
 
   初始化新项目:
-    koala init                          # 在当前目录初始化 koala
+    lattice init                          # 在当前目录初始化 Lattice/Koala project state
 
   提示: 简单参数用 --key=value，复杂参数(array/object)用 JSON 格式
-  出错? 用 koala <command> --help 查看完整参数说明
+  出错? 用 lattice <command> --help 查看完整参数说明
 `);
 }
 
@@ -1491,6 +1533,13 @@ const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'aux_doc_list',
   'capability_list',
   'capability_probe',
+  'host_list',
+  'host_probe',
+  'host_install',
+  'lattice_config_doctor',
+  'authority_status',
+  'conduit_status',
+  'conduit_explain',
   'story_export',
   'handoff_create',
   'handoff_inspect',
@@ -2069,6 +2118,10 @@ export async function runCli(opts?: {
   const gitReady = isGitRepository(root0);
 
   if (!cmd || cmd === 'help' || cmd === '--help') { printHelp(activeStory); return; }
+  if (cmd === 'version' || cmd === '--version' || cmd === '-v') {
+    process.stdout.write(`${formatLatticeVersionLine()}\n`);
+    return;
+  }
 
   // init 走独立脚本
   if (cmd === 'init') {
@@ -2090,13 +2143,32 @@ export async function runCli(opts?: {
     return;
   }
 
-  // B-ea92 M1: normalize nested multi-word alias "authority enforce policy" →
-  // "authority_enforce_policy" without disturbing flat underscore dispatch.
-  // Mutates cmd/arg/argv[0] so all downstream code sees the canonical name.
-  if (cmd === 'authority' && argv[1] === 'enforce' && argv[2] === 'policy') {
-    argv.splice(0, 3, 'authority_enforce_policy');
-    cmd = 'authority_enforce_policy';
-    arg = argv[1]; // re-read: may be a JSON arg or '--help'
+  // Normalize nested space aliases into the flat underscore commands used by
+  // the registry. Supports both primary invocations (`lattice host list`) and
+  // legacy-prefixed invocations (`koala lattice host list`).
+  const aliasStart = cmd === 'lattice' ? 1 : 0;
+  const nested = argv.slice(aliasStart, aliasStart + 3).join(' ');
+  const aliasMap: Record<string, string> = {
+    'host list': 'host_list',
+    'host probe': 'host_probe',
+    'host install': 'host_install',
+    'config doctor': 'lattice_config_doctor',
+    'authority status': 'authority_status',
+    'authority enforce policy': 'authority_enforce_policy',
+    'conduit status': 'conduit_status',
+    'conduit explain': 'conduit_explain',
+  };
+  const twoPart = argv.slice(aliasStart, aliasStart + 2).join(' ');
+  const threePart = argv.slice(aliasStart, aliasStart + 3).join(' ');
+  const canonicalAlias = aliasMap[threePart] || aliasMap[twoPart] || aliasMap[nested];
+  if (canonicalAlias) {
+    const consumed = aliasMap[threePart] ? 3 : 2;
+    argv.splice(0, aliasStart + consumed, canonicalAlias);
+    cmd = canonicalAlias;
+    arg = argv[1];
+  } else if (cmd === 'lattice' && (argv[1] === 'version' || argv[1] === '--version' || argv[1] === '-v')) {
+    process.stdout.write(`${formatLatticeVersionLine()}\n`);
+    return;
   }
 
   const tool = TOOLS.find(t => t.name === cmd);

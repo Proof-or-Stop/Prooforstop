@@ -8,7 +8,7 @@
 
 1. **Claude Code / Codex**：agent runtime
 2. **Superpowers**：agent workflow / methodology
-3. **Koala**：project execution + verification substrate
+3. **Lattice CLI / Koala**：project execution + verification substrate
 
 三层不是并列功能列表，而是自上而下分工：
 
@@ -19,7 +19,7 @@ Claude Code / Codex
 Superpowers
   ↓ 提供 workflow、skills、方法论、默认工作习惯
 
-Koala
+Lattice CLI / Koala
   ↓ 提供 story / checklist / phase / gate / artifact / evidence / bug / review result
 ```
 
@@ -94,7 +94,7 @@ Koala
 
 > **长期保存项目状态和验证证据**
 
-### 3. Koala：Execution / Verification 底座
+### 3. Lattice CLI / Koala：Execution / Verification 底座
 
 这是项目状态层，负责：
 
@@ -132,6 +132,7 @@ Koala
 - **Claude Code / Codex** 提供 runtime
 - **Superpowers** 提供 workflow
 - **Koala** 提供 state substrate
+- **Lattice CLI 0.3.5** 是这个 substrate 的主产品入口；`koala` 是 legacy alias
 
 也就是：
 
@@ -140,7 +141,7 @@ Koala
   ↓
 Superpowers skills / workflow
   ↓ 调用
-Koala CLI / MCP / story machine
+Lattice CLI / Koala CLI / MCP / story machine
   ↓ 落盘
 story / checklist / phase / gate / artifact / evidence
 ```
@@ -149,7 +150,20 @@ story / checklist / phase / gate / artifact / evidence
 
 - **Claude/Codex**：让 agent 能工作
 - **Superpowers**：告诉 agent 应该怎么工作
-- **Koala**：记录它到底工作到了哪
+- **Lattice CLI / Koala**：记录它到底工作到了哪
+
+## Mac App Boundary
+
+Lattice CLI 0.3.5 moves provider/config status into CLI-first surfaces:
+`host_list`, `host_probe`, `host_install`, `lattice_config_doctor`,
+`authority_status`, `conduit_status`, and `conduit_explain`. The Mac App is not
+the required project-state or provider/config layer. It may remain an optional
+dashboard/archive surface, but the CLI owns the cold-readable migration status.
+
+These CLI surfaces do not create a model runner or production authority. They
+report capability degradations and receipt requirements, and keep
+`productionDone=false` / `receiptVerified=false` unless a future receipt-backed
+authority path is implemented and mechanically verified.
 
 ## 为什么这种组合比单独使用更强
 

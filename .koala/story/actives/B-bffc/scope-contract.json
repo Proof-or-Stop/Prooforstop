@@ -4,16 +4,20 @@
   "allowedModify": [
     "package.json",
     "package-lock.json",
+    "packages/main/package-lock.json",
     "packages/main/package.json",
     "packages/main/src/cli.ts",
     "packages/main/src/cli-engine.ts",
-    "bin/bootstrap-runner.js",
     "packages/main/src/registry.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "bin/bootstrap-runner.js",
     "README.md",
+    "docs/requirements/decisions/stack-layering.md",
     "docs/requirements/decisions/project-vision.md",
     "docs/requirements/decisions/authority-client-role.md",
-    "docs/requirements/decisions/lattice-parallel-wave.md",
-    "docs/requirements/decisions/stack-layering.md"
+    "docs/requirements/decisions/lattice-parallel-wave.md"
   ],
   "allowedCreate": [
     "bin/lattice.js",
@@ -37,8 +41,8 @@
     "packages/main/dist/**",
     "node_modules/**"
   ],
-  "scopeChangeReason": "Initialize enforced scope from PLAN checklist files for Lattice CLI 0.3.5 migration; exclude in-repo Mac/server/build/runtime paths from this CLI-first story.",
+  "scopeChangeReason": "DEV implementation requires command-policy/config/process-fact-levels registration for new Lattice read-only commands and packages/main lockfile bin/version metadata; still excludes Mac/server/build/runtime paths.",
   "acknowledgements": [],
   "createdAt": "2026-06-02T11:21:36.192Z",
-  "updatedAt": "2026-06-02T11:21:36.192Z"
+  "updatedAt": "2026-06-02T11:35:24.951Z"
 }
