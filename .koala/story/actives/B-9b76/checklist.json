@@ -1,0 +1,44 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Document asset layering and compatibility contract",
+      "context": "Define project-local required assets versus package registry prompt templates versus generated/cache materialization, including legacy mirror compatibility and no-overwrite rules.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Implement package prompt registry and host renderer",
+      "context": "Expose versioned agent prompt metadata, template hashes, and host-specific rendering for Claude and Codex without changing legacy prompt files yet.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Make Codex verification and managed asset checks registry-aware",
+      "context": "Allow legacy mirror mode and new registry mode to pass hard verification, preserving existing process-event gate evidence and clear drift diagnostics.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add opt-in thin init asset mode",
+      "context": "Support init/check paths that keep project assets lightweight by writing manifests and launchers while avoiding default prompt copies when registry mode is selected.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Validate legacy compatibility and thin mode behavior",
+      "context": "Run focused smoke tests, build/type checks, init fixtures, managed asset checks, and Codex adapter verification proving existing full mode is unaffected.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

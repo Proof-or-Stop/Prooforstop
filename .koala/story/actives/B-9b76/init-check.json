@@ -1,0 +1,29 @@
+{
+  "storyId": "B-9b76",
+  "checkedAt": "2026-06-02T20:57:10.490Z",
+  "reviewRound": "",
+  "agentId": "koala-review-story-init@fallback",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "koala-review-story-init@fallback",
+      "checkedAt": "2026-06-02T20:57:10.490Z",
+      "issues": []
+    },
+    {
+      "agentId": "product-reviewer@fallback",
+      "checkedAt": "2026-06-02T20:57:10.490Z",
+      "issues": []
+    }
+  ],
+  "fallback": {
+    "mode": "repair",
+    "reason": "Current Codex thread policy does not allow spawning generic subagents unless the user explicitly asks for parallel agent work, so I manually inspected story_get, checklist_get, and both dispatch prompts. The background has the required four sections, the checklist maps to the approved five milestones, and no INIT critical/high blocker was found.",
+    "actor": "Harmonygo",
+    "session": "sess-db80edab6ecb02eb",
+    "attestedAt": "2026-06-02T20:57:10.490Z",
+    "headHash": "ef8d6bdc77a6a5c4e6fed5a39efa83c0beb2fa8e",
+    "materialHash": "a30a550b39540debecada33bc0de8ec7b38f86193a53c1f090f5229b59f09b7b"
+  },
+  "_hash": "23f2a9a81b89fac040bd1d722706dc30921805ee128d67e57673630c8a7cd684"
+}
