@@ -33,9 +33,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-02T21:56:31.674Z",
-      "endTime": null,
+      "endTime": "2026-06-02T22:10:54.470Z",
       "files": {
         "modify": [
           "package.json",
@@ -51,7 +51,39 @@
         "test": [
           "packages/main/src/tasks/authority-receipt-classification-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "command": "npm run test:authority-receipt-classification",
+          "result": "pass",
+          "note": "Fully bound verifier envelope only reaches receipt-backed-l2-plus after signed AuthorityReceipt verification and subject binding to the exact evidence envelope; smoke covers bare and sha256-prefixed subjectDigest acceptance.",
+          "headHash": "92eb141da1141695f12ebadfc3dd6878b53c9a1e",
+          "materialHash": "1e98554405271fbb5b942d47f8855d76a58f1f1cacd3db2079efbc4df6e39c70",
+          "timestamp": "2026-06-02T22:10:54.514Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm run test:authority-receipt-classification && npm run test:authority-runner-contracts",
+          "result": "pass",
+          "note": "Same-run verifier, missing commandDigest/transcriptHash/diffHash, bad signature, wrong subjectKind, wrong subjectId, wrong subjectDigest, wrong bare digest, and unsupported sha512 prefix all stay non-receipt-backed.",
+          "headHash": "92eb141da1141695f12ebadfc3dd6878b53c9a1e",
+          "materialHash": "1e98554405271fbb5b942d47f8855d76a58f1f1cacd3db2079efbc4df6e39c70",
+          "timestamp": "2026-06-02T22:10:54.553Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm run test:authority-boundary-smoke && npm run test:authority-evidence-flow",
+          "result": "pass",
+          "note": "Transport accepted true without verified receipt remains thin-client/local-shadow classification and cannot satisfy production receipt-backed authority.",
+          "headHash": "92eb141da1141695f12ebadfc3dd6878b53c9a1e",
+          "materialHash": "1e98554405271fbb5b942d47f8855d76a58f1f1cacd3db2079efbc4df6e39c70",
+          "timestamp": "2026-06-02T22:10:54.588Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -123,6 +155,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Start Claude Code implementer work for receipt-backed classification helper and smoke.",
+      "agent": "codex"
+    },
+    {
+      "timestamp": "2026-06-02T22:10:54.470Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "CHK-001 implemented by koala-implementer commits e5f12c134f2e1caad267acdeab25d97bf759b6cf and 92eb141da1141695f12ebadfc3dd6878b53c9a1e; Codex independently verified build and authority smokes.",
       "agent": "codex"
     }
   ]
