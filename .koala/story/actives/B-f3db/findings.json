@@ -1,0 +1,37 @@
+{
+  "findings": [
+    {
+      "id": "B-f3db:F-001",
+      "desc": "docs/requirements/decisions/lifecycle-artifact-scope.md:31 says only KOALA_LIFECYCLE_ARTIFACT_RELATIVE_PATHS admits nested lifecycle paths and lines 35-37/79-83 overclaim that only evidence/transcript-diff.md is allowed under evidence/, but packages/main/src/core/lifecycle-registry.ts:655 still accepts any nested path whose basename is in KOALA_LIFECYCLE_ARTIFACT_FILENAMES (for example evidence/summary.json or evidence/test-evidence.json). Update the truth-source wording or tighten classifyLifecycleArtifact so the docs stop overclaiming the scope narrowing. severity=medium",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-02T13:04:12.499Z",
+      "reviewRound": "2026-06-02T13:02:32.855Z",
+      "reviewRunId": "B-f3db:RR-002",
+      "_hash": "8ba039ea8a8988cedbda76c3013741e0b5af320ddd2e1f7793431217aad6e673",
+      "files": [
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "packages/main/src/core/lifecycle-registry.ts"
+      ]
+    },
+    {
+      "id": "B-f3db:F-002",
+      "desc": "CHK-002:edge:0 lacks adequate mechanical evidence. The recorded manual_transcript runs scope_contract_check on a worktree with 15 changed files, so it does not prove the transcript-only diff scenario from the intent, and no changed automated test exercises reviewer scope-binding freshness or the claimed no TEST→DEV bounce when only .koala/story/actives/<storyId>/evidence/transcript-diff.md is present.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-02T13:04:36.537Z",
+      "reviewRound": "2026-06-02T13:02:32.855Z",
+      "reviewRunId": "B-f3db:RR-003",
+      "_hash": "618702d3868d6abda6673f8bd654935a7aed3be3ae9ee72e031f012ecb0396c0",
+      "files": [
+        "scripts/verify-process-fact-contract.mjs"
+      ]
+    }
+  ]
+}

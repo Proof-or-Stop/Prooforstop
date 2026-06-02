@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-f3db:RP-001",
+      "agent": "koala-review-docs",
+      "note": "Pass after F-001 rerun. docs/requirements/decisions/lifecycle-artifact-scope.md now matches classifyLifecycleArtifact behavior: top-level matches use KOALA_LIFECYCLE_ARTIFACT_FILENAMES, nested matches use KOALA_LIFECYCLE_ARTIFACT_RELATIVE_PATHS only, and the only nested evidence path accepted is evidence/transcript-diff.md. Verified via packages/main/src/core/lifecycle-registry.ts, packages/main/src/core/scope-contract.ts, direct dist probes, and node scripts/verify-process-fact-contract.mjs.",
+      "createdAt": "2026-06-02T13:09:58.894Z",
+      "reviewRound": "2026-06-02T13:08:01.667Z",
+      "reviewRunId": "B-f3db:RR-007",
+      "_hash": "d06c45b5fc33cdb3625b8fcfec3f2d1456d3cf360ee226b4e6caaeaf4723636e"
+    },
+    {
+      "id": "B-f3db:RP-002",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS: CHK-002 edge has mechanical coverage. verify-process-fact-contract asserts transcript-only scope pass, reviewer scope-binding freshness, and adversarial sibling evidence rejection; semantic-scope-guard-smoke separately asserts prose-only reviewer runs report missing freshness and require review_run_start. Focused verification rerun on 2026-06-02: npm run test:process-fact-contract; npm --prefix packages/main run test:semantic-scope-guard-smoke; npm run test:flow-stability-smoke; koala scope_contract_check --storyId=B-f3db.",
+      "createdAt": "2026-06-02T13:10:00.036Z",
+      "reviewRound": "2026-06-02T13:08:01.667Z",
+      "reviewRunId": "B-f3db:RR-006",
+      "_hash": "44eb32393b6d60ddacb5d0aa5b7728d6fa2adfef5ee668fd143baa4028aee122"
+    },
+    {
+      "id": "B-f3db:RP-003",
+      "agent": "koala-review-concept",
+      "note": "Re-review after F-001/F-002 fixes: classifyLifecycleArtifact now only accepts top-level lifecycle filenames or the closed relative path evidence/transcript-diff.md under a valid story-scoped prefix/storyId; docs match that narrow rule; verify-process-fact-contract proves transcript-only scope pass, reviewer scope binding freshness, and rejects neighboring evidence/product paths, so B-f3db is satisfied without broadening scope or weakening delivery/reviewer gates.",
+      "createdAt": "2026-06-02T13:10:29.870Z",
+      "reviewRound": "2026-06-02T13:08:01.667Z",
+      "reviewRunId": "B-f3db:RR-008",
+      "_hash": "b703a66b60499c288824e0ba34e2b742ffac08cf50e0376042d42a56b90f8921"
+    },
+    {
+      "id": "B-f3db:RP-004",
+      "agent": "koala-review-quality",
+      "note": "Reviewed lifecycle-registry narrowing and transcript-only process-fact regression coverage; build, process-fact contract, flow-stability smoke, lint:tasks, and scope_contract_check all passed, with no quality blockers for F-001/F-002 fixes.",
+      "createdAt": "2026-06-02T13:10:30.517Z",
+      "reviewRound": "2026-06-02T13:08:01.667Z",
+      "reviewRunId": "B-f3db:RR-005",
+      "_hash": "427983958002e14979dac6ea7f03c0b57e7791aa798ba6dc0040a354daaf5341"
+    }
+  ]
+}

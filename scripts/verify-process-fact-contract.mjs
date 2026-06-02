@@ -2350,9 +2350,22 @@ function assertProcessFactRegistryContract(cliToolNames, policyEntries, configTe
 }
 
 /**
+ * @task B-f3db
+ * @checklist CHK-001
+ * @title transcript lifecycle artifact regression
+ * @type bugfix
+ * @priority high
+ * @description
+ *   Proves TEST transcript evidence is the only nested evidence path accepted
+ *   by lifecycle artifact scope classification.
+ * @changes
+ *   - [CHK-001] Assert evidence/transcript-diff.md passes scope as a lifecycle artifact
+ *   - [CHK-001] Assert nearby arbitrary evidence files remain out_of_scope
+ *
  * B-b9d0 CHK-001/CHK-002/CHK-005: mechanical evidence that the scope-contract
  * lifecycle-artifact classifier
  *   (a) accepts known story-scoped lifecycle artifacts under the story id,
+ *   (a2) accepts the narrow TEST transcript evidence relative path,
  *   (b) rejects arbitrary `.koala/foo.json` (i.e. no blanket `.koala/` pass),
  *   (c) rejects ordinary product source files when unacknowledged,
  *   (d) still passes runtime artifacts via the runtime-artifact registry.
@@ -2368,6 +2381,7 @@ async function assertLifecycleArtifactScopePolicy() {
   const requiredPolicyMarkers = [
     'isRuntimeArtifactPath',
     'classifyLifecycleArtifact',
+    'evidence/transcript-diff.md',
     'does not weaken product source scope enforcement',
     'arbitrary',
   ];
@@ -2394,6 +2408,18 @@ async function assertLifecycleArtifactScopePolicy() {
     fail('checkScopeContract export missing from packages/main/dist/core/scope-contract.js');
     return;
   }
+  const bindingMod = await import(pathToFileURL(join(root, 'packages/main/dist/core/review-scope-binding.js')).href);
+  const {
+    computeReviewScopeBinding,
+    buildCurrentScopeContext,
+    compareScopeBinding,
+  } = bindingMod;
+  for (const [name, fn] of Object.entries({ computeReviewScopeBinding, buildCurrentScopeContext, compareScopeBinding })) {
+    if (typeof fn !== 'function') {
+      fail(`${name} export missing from packages/main/dist/core/review-scope-binding.js`);
+      return;
+    }
+  }
 
   const baseContract = {
     storyId: 'B-scope',
@@ -2412,12 +2438,14 @@ async function assertLifecycleArtifactScopePolicy() {
     Array.isArray(result.violations)
       && result.violations.some((v) => v.path === path && v.rule === 'out_of_scope');
   const isClean = (result) => result.violations.length === 0;
+  const transcriptOnlyFile = '.koala/story/actives/B-scope/evidence/transcript-diff.md';
 
   const lifecycleAccept = [
     '.koala/story/actives/B-scope/delivery-check.json',
     '.koala/story/actives/B-scope/summary.json',
     '.koala/story/actives/B-scope/scope-contract.json',
     '.koala/story/actives/B-scope/process-events.jsonl',
+    transcriptOnlyFile,
     'docs/story/actives/B-scope/plan.md',
   ];
   for (const file of lifecycleAccept) {
@@ -2425,6 +2453,10 @@ async function assertLifecycleArtifactScopePolicy() {
     if (!isClean(result)) {
       fail(`lifecycle artifact unexpectedly rejected: ${file} → ${JSON.stringify(result.violations)}`);
     }
+  }
+  const transcriptOnlyScope = probe([transcriptOnlyFile]);
+  if (transcriptOnlyScope.status !== 'pass' || !transcriptOnlyScope.summary.includes('Scope gate: pass')) {
+    fail(`transcript-only scope check should pass without acknowledgement: ${JSON.stringify(transcriptOnlyScope)}`);
   }
 
   const runtimeAccept = [
@@ -2446,6 +2478,10 @@ async function assertLifecycleArtifactScopePolicy() {
     '.koala/foo.json',
     '.koala/bar.txt',
     '.koala/secrets.json',
+    '.koala/story/actives/B-scope/evidence/notes.md',
+    '.koala/story/actives/B-scope/evidence/summary.json',
+    '.koala/story/actives/B-scope/evidence/test-evidence.json',
+    '.koala/story/actives/B-scope/evidence/transcript-diff.txt',
     'packages/main/src/handlers/unrelated.ts',
     'src/handlers/random.ts',
   ];
@@ -2463,6 +2499,54 @@ async function assertLifecycleArtifactScopePolicy() {
   const unknownResult = probe([unknownFilenameUnderStory]);
   if (!isOop(unknownResult, unknownFilenameUnderStory)) {
     fail(`unknown filename under story dir unexpectedly accepted: ${unknownFilenameUnderStory} → ${JSON.stringify(unknownResult.violations)}`);
+  }
+
+  const emptyDiffPack = {
+    diffPackHash: 'unused-empty',
+    changedFiles: [],
+    hunks: [],
+    generatedAt: '2026-06-02T00:00:00.000Z',
+  };
+  const transcriptOnlyDiffPack = {
+    diffPackHash: 'unused-transcript',
+    changedFiles: [transcriptOnlyFile],
+    hunks: [{
+      path: transcriptOnlyFile,
+      oldStart: 0,
+      oldLines: 0,
+      newStart: 1,
+      newLines: 1,
+      header: '@@ -0,0 +1 @@',
+      hunkDigest: 'abc12345abc12345',
+      changeKind: 'add',
+    }],
+    generatedAt: '2026-06-02T00:00:01.000Z',
+  };
+  const reviewerBinding = computeReviewScopeBinding({ contract: baseContract, diffPack: emptyDiffPack });
+  const transcriptOnlyContext = buildCurrentScopeContext(baseContract, transcriptOnlyDiffPack);
+  const transcriptBindingComparison = compareScopeBinding(reviewerBinding, transcriptOnlyContext);
+  if (!transcriptBindingComparison.ok) {
+    fail(`transcript-only evidence should not invalidate reviewer scope binding: ${JSON.stringify(transcriptBindingComparison)}`);
+  }
+
+  const productDiffPack = {
+    diffPackHash: 'unused-product',
+    changedFiles: ['packages/main/src/handlers/unrelated.ts'],
+    hunks: [{
+      path: 'packages/main/src/handlers/unrelated.ts',
+      oldStart: 1,
+      oldLines: 1,
+      newStart: 1,
+      newLines: 1,
+      header: '@@ -1 +1 @@',
+      hunkDigest: 'def67890def67890',
+      changeKind: 'modify',
+    }],
+    generatedAt: '2026-06-02T00:00:02.000Z',
+  };
+  const productBindingComparison = compareScopeBinding(reviewerBinding, buildCurrentScopeContext(baseContract, productDiffPack));
+  if (productBindingComparison.ok) {
+    fail('ordinary product diff unexpectedly kept reviewer scope binding fresh');
   }
 }
 

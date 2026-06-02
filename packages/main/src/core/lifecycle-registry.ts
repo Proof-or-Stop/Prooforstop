@@ -296,6 +296,18 @@ export const LIFECYCLE_TRANSITIONS = [
  * typed enum — not free text — keeps the artifacts dimension mechanically
  * checkable: a contract test can assert every oracle/gate reference that
  * names an artifact resolves to one of these declared values (preMortem #3).
+ *
+ * @task B-f3db
+ * @checklist CHK-001
+ * @title transcript evidence lifecycle artifact
+ * @type bugfix
+ * @priority high
+ * @description
+ *   Treat the TEST user-value transcript file as a narrow story-scoped
+ *   lifecycle artifact without allowing arbitrary evidence files.
+ * @changes
+ *   - [CHK-001] Register evidence/transcript-diff.md as a closed relative lifecycle artifact path
+ *   - [CHK-002] Keep artifact projections aligned with TEST transcript delivery evidence
  */
 export const LIFECYCLE_ARTIFACTS = [
   'index.json',
@@ -313,6 +325,7 @@ export const LIFECYCLE_ARTIFACTS = [
   'declared-artifacts.json',
   'eval-evidence.json',
   'process-events.jsonl',
+  'evidence/transcript-diff.md',
 ] as const;
 
 export type LifecycleArtifact = typeof LIFECYCLE_ARTIFACTS[number];
@@ -364,7 +377,7 @@ export const LIFECYCLE_PHASE_ARTIFACTS = {
     consumes: ['checklist.json', 'findings.json', 'review-passes.json', 'review-runs.json'],
   },
   TEST: {
-    produces: ['test-evidence.json', 'delivery-check.json', 'eval-evidence.json', 'summary.json'],
+    produces: ['test-evidence.json', 'delivery-check.json', 'eval-evidence.json', 'summary.json', 'evidence/transcript-diff.md'],
     consumes: ['test-evidence.json', 'findings.json'],
   },
   DONE: {
@@ -541,13 +554,14 @@ export function lifecycleArtifactsByTransition(): LifecycleTransitionArtifacts[]
 // Narrow trust policy for command-generated story metadata. A path is
 // recognized as a Koala-owned lifecycle artifact only when it lives under a
 // known story directory prefix, the segment after that prefix is a valid
-// storyId, AND the terminal filename is in the closed set below. Arbitrary
-// JSON / unknown files under docs/story/ or .koala/ no longer pass scope
-// implicitly; legacy `docs/story/.../<storyId>/...` still resolves for
-// back-compat (returns kind 'legacy-metadata').
+// storyId, AND either the top-level terminal filename or relative story-dir
+// path is in a closed set below. Arbitrary JSON / unknown files under active docs/story/ or
+// .koala/ story dirs no longer pass scope implicitly; legacy
+// `docs/story/.../<storyId>/...` still resolves for back-compat outside active
+// story prefixes (returns kind 'legacy-metadata').
 
 export const KOALA_LIFECYCLE_ARTIFACT_FILENAMES: ReadonlySet<string> = new Set([
-  ...LIFECYCLE_ARTIFACTS,
+  ...LIFECYCLE_ARTIFACTS.filter((artifact) => !artifact.includes('/')),
   'plan.md',
   'background.md',
   'understanding.json',
@@ -571,6 +585,10 @@ export const KOALA_LIFECYCLE_ARTIFACT_FILENAMES: ReadonlySet<string> = new Set([
   'draft-check-fallback.json',
   'risk-dismiss.json',
   'exp.json',
+]);
+
+export const KOALA_LIFECYCLE_ARTIFACT_RELATIVE_PATHS: ReadonlySet<string> = new Set([
+  ...LIFECYCLE_ARTIFACTS.filter((artifact) => artifact.includes('/')),
 ]);
 
 const STORY_ID_RE = /^(?:B-META-[A-Za-z0-9_-]+|B-[A-Za-z0-9_-]+|ADHOC-[A-Za-z0-9_-]+|TOOL-[A-Za-z0-9_-]+|META-[A-Za-z0-9_-]+)$/;
@@ -635,7 +653,14 @@ export function classifyLifecycleArtifact(
     if (!STORY_ID_RE.test(storyId)) return null;
     if (options.storyId && options.storyId !== storyId) return null;
     const fileName = segments[segments.length - 1];
-    if (!KOALA_LIFECYCLE_ARTIFACT_FILENAMES.has(fileName)) return null;
+    const relativePath = segments.slice(1).join('/');
+    const isTopLevelArtifact = segments.length === 2;
+    if (isTopLevelArtifact && !KOALA_LIFECYCLE_ARTIFACT_FILENAMES.has(fileName)) {
+      return null;
+    }
+    if (!isTopLevelArtifact && !KOALA_LIFECYCLE_ARTIFACT_RELATIVE_PATHS.has(relativePath)) {
+      return null;
+    }
     return {
       kind: 'lifecycle',
       storyId,
@@ -643,6 +668,10 @@ export function classifyLifecycleArtifact(
       storyDir: stripTrailingSlash(prefix),
       label: 'Koala lifecycle artifact (command-generated metadata)',
     };
+  }
+
+  if (prefixes.some((prefix) => normalized.startsWith(prefix))) {
+    return null;
   }
 
   const legacyPrefixes = [
