@@ -363,7 +363,42 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/thin-init-assets-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:prompt-registry-smoke && npm --prefix packages/main run test:codex-registry-mode-smoke && npm --prefix packages/main run test:thin-init-assets-smoke",
+          "result": "pass",
+          "note": "TypeScript build and all three focused smoke commands passed in the story worktree after the thin/full init changes.",
+          "headHash": "2aac0c1a41ccaf50402339db7d6eb6936afc72b0",
+          "materialHash": "2c0da729bbc06fc1fbc64fae17e7edcdaf3100c75b837f9a97fa6f03f20c321c",
+          "timestamp": "2026-06-02T21:17:42.092Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/codex-registry-mode-smoke.ts",
+          "command": "npm --prefix packages/main run test:codex-registry-mode-smoke && npm --prefix packages/main run test:thin-init-assets-smoke",
+          "result": "pass",
+          "note": "Registry-mode smoke covers legacy mirror verification, while thin-init smoke proves full init remains the default and still materializes .Codex/agents prompt copies.",
+          "headHash": "2aac0c1a41ccaf50402339db7d6eb6936afc72b0",
+          "materialHash": "2c0da729bbc06fc1fbc64fae17e7edcdaf3100c75b837f9a97fa6f03f20c321c",
+          "timestamp": "2026-06-02T21:17:42.092Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "file": ".koala/story/actives/B-9b76/process-events.jsonl",
+          "command": "npm --prefix packages/utils run build && KOALA_SESSION_ID=sess-984e0c8ad2c9b71f node bin/koala-codex.js verify_codex",
+          "result": "pass",
+          "note": "Codex adapter verification passed 6/7 checks with manifest, 16 mirrored prompts, local wrapper heartbeat, exclusions, and aux availability; the only warning was that global koala points at the main checkout and is heartbeat-only.",
+          "headHash": "2aac0c1a41ccaf50402339db7d6eb6936afc72b0",
+          "materialHash": "2c0da729bbc06fc1fbc64fae17e7edcdaf3100c75b837f9a97fa6f03f20c321c",
+          "timestamp": "2026-06-02T21:17:42.092Z"
+        }
+      ]
     }
   ]
 }
