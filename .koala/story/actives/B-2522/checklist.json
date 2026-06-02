@@ -33,8 +33,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-02T21:56:31.674Z",
       "endTime": null,
       "files": {
         "modify": [
@@ -112,6 +112,18 @@
           "packages/main/src/tasks/authority-enforce-runner-smoke.ts"
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-02T21:56:31.674Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start Claude Code implementer work for receipt-backed classification helper and smoke.",
+      "agent": "codex"
     }
   ]
 }

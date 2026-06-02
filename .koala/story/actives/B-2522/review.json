@@ -22,6 +22,24 @@
         }
       ],
       "_hash": "ff4d575a1b9cf4e5d568aa9bee4abb837cfc4d1e9c0cc8318ad229ffb38fcc70"
+    },
+    {
+      "timestamp": "2026-06-02T21:56:14.539Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 个 checklist item，请检查是否有组合场景遗漏（如：Build signed full L2 evidence envelope and verify authority receipt metadata + Add local/off versus enforce E2E tests, docs, and Lattice parallel report evidence 同时操作会怎样？）"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story 命中 2 个高风险信号: 验证框架, 生产环境/紧急。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）。 若本 story 只是提及而非修改该领域（误报），可 koala story_review_dismiss '{\"storyId\":\"B-2522\",\"category\":\"<分类>\",\"reason\":\"...\"}' 完整回退 auto-elevation（全部 auto-elevated riskSignal 被 dismiss 后 priority 自动回退、高风险 gate 解除）。"
+        }
+      ],
+      "_hash": "921f5a019f3b131bb96db026f1e87d91fcc0022532ae68872b899640736f8296"
     }
   ]
 }
