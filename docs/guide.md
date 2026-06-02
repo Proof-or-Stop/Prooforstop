@@ -35,6 +35,7 @@
 lattice check
 lattice doctor --format=json
 lattice session_brief
+lattice host status --host=claude-code --format=json
 lattice rollout_check --projects /path/to/project --json
 ```
 
@@ -104,6 +105,37 @@ authority。即使 `KOALA_AUTHORITY_URL`、`KOALA_AUTHORITY_ACTOR_KEY`、
 未来的 receipt-backed runner 路径真正验签 receipt 为止。PD-1 / PD-2 的
 trust boundary 见
 [`requirements/decisions/authority-client-role.md`](requirements/decisions/authority-client-role.md)。
+
+## Host Overflow
+
+Lattice Host Overflow 是 **manual-first** 的 bounded overflow 流程：
+Lattice 持有 story / scope / receipt / merge authority，Claude Code 只是执行 host，
+不是 production authority。
+
+建议顺序：
+
+```bash
+lattice host_status --host=claude-code --json
+lattice handoff_create --storyId=B-xxxx --fromHost=codex --toHost=claude-code --json
+lattice handoff_worktree_create --file=handoff-pack.json --json
+lattice host_dispatch --host=claude-code --file=handoff-pack.json --mode=supervised --json
+lattice handoff_receipt_submit --file=receipt.json --json
+```
+
+关键边界：
+
+- `host_status` 只报告 overflow readiness，不授予 authority。
+- `handoff_create` 生成 bounded pack，包含 `packId`、`packHash`、`baseSha`、
+  `allowedPaths`、`deniedPaths`、required commands 和 execution instructions。
+- `handoff_worktree_create` 只投影 worktree/branch/cleanup guidance，不自动创建、
+  合并、清理或信任结果。
+- `host_dispatch` 只返回 `planned|unavailable` 和 `nextAction`，不 auto-trust、
+  不 submit evidence、不 verify receipt、也不声明 `productionDone`。
+- `handoff_receipt_submit` 只接收本地 diagnostic receipt；即使
+  `accepted-local`，仍然保持 `receiptVerified=false`、`productionDone=false`。
+
+详细架构说明见
+[`requirements/decisions/host-overflow.md`](requirements/decisions/host-overflow.md)。
 
 ## 代码与文档的结合
 

@@ -1,12 +1,13 @@
 # 真相源导航
 
-> 14 个文件
+> 15 个文件
 
 ## decisions
 
 - [结构化注释系统](decisions/annotation-system.md)
 - [koala 向 Claude Code 学习的改造方案](decisions/cc-learnings.md)
 - [framework](decisions/framework.md)
+- [Lattice Host Overflow](decisions/host-overflow.md)
 - [项目愿景与定位](decisions/project-vision.md)
 - [koala 多角色分离改造方案](decisions/role-separation.md)
 - [Session Ownership and Write Leases](decisions/session-ownership-and-write-leases.md)

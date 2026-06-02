@@ -74,8 +74,17 @@ function seedStory(store: StoryStore): void {
 function assertHandoffPack(pack: HandoffPack): void {
   assert.equal(pack.schemaVersion, 'handoff-pack-v0');
   assert.equal(pack.storyId, 'B-handoff');
+  assert.match(pack.packId, /^HP-[a-f0-9]{12}$/);
+  assert.match(pack.packHash, /^sha256:/);
   assert.equal(pack.fromHost, 'codex');
   assert.equal(pack.toHost, 'claude-code');
+  assert.deepEqual(pack.allowedPaths, []);
+  assert.deepEqual(pack.deniedPaths, []);
+  assert.deepEqual(pack.requiredCommands, []);
+  assert.deepEqual(pack.successCriteria, []);
+  assert.equal(pack.authorityBoundary.owner, 'lattice');
+  assert.equal(pack.authorityBoundary.noAutoTrust, true);
+  assert.ok(pack.executionInstructions.some(instruction => /Do not auto-merge/i.test(instruction)), 'pack carries conservative execution instructions');
   assert.equal(pack.productionDone, false, 'handoff top-level cannot claim productionDone');
   assert.deepEqual(pack.receiptRefs, [], 'handoff top-level cannot carry receipt refs as authority');
   assert.equal(pack.canonicalStory.lifecycle.productionDone, false, 'embedded canonical story has no productionDone without verified receipt artifacts');
@@ -92,6 +101,8 @@ function assertHandoffPack(pack: HandoffPack): void {
 function assertInspection(inspection: HandoffInspection): void {
   assert.equal(inspection.schemaVersion, 'koala.handoff_inspect.v1');
   assert.equal(inspection.storyId, 'B-handoff');
+  assert.match(inspection.packId, /^HP-[a-f0-9]{12}$/);
+  assert.match(inspection.packHash, /^sha256:/);
   assert.equal(inspection.fromHost, 'codex');
   assert.equal(inspection.toHost, 'claude-code');
   assert.equal(inspection.productionDone, false);
@@ -105,6 +116,8 @@ function assertInspection(inspection: HandoffInspection): void {
 function assertAcceptProjection(projection: HandoffAcceptProjection): void {
   assert.equal(projection.schemaVersion, 'koala.handoff_accept.v1');
   assert.equal(projection.storyId, 'B-handoff');
+  assert.match(projection.packId, /^HP-[a-f0-9]{12}$/);
+  assert.match(projection.packHash, /^sha256:/);
   assert.equal(projection.fromHost, 'codex');
   assert.equal(projection.toHost, 'claude-code');
   assert.equal(projection.acceptedByHost, 'claude-code');
@@ -124,6 +137,8 @@ function assertAcceptProjection(projection: HandoffAcceptProjection): void {
 function assertResumeProjection(projection: HandoffResumeProjection): void {
   assert.equal(projection.schemaVersion, 'koala.handoff_resume.v1');
   assert.equal(projection.storyId, 'B-handoff');
+  assert.match(projection.packId, /^HP-[a-f0-9]{12}$/);
+  assert.match(projection.packHash, /^sha256:/);
   assert.equal(projection.fromHost, 'codex');
   assert.equal(projection.toHost, 'claude-code');
   assert.equal(projection.resumeHost, 'claude-code');
@@ -158,12 +173,18 @@ try {
   assert.ok(MAIN_TOOLS.some(tool => tool.name === 'handoff_inspect'), 'MAIN_TOOLS exposes handoff_inspect');
   assert.ok(MAIN_TOOLS.some(tool => tool.name === 'handoff_accept'), 'MAIN_TOOLS exposes handoff_accept');
   assert.ok(MAIN_TOOLS.some(tool => tool.name === 'handoff_resume'), 'MAIN_TOOLS exposes handoff_resume');
+  assert.ok(MAIN_TOOLS.some(tool => tool.name === 'handoff_receipt_submit'), 'MAIN_TOOLS exposes handoff_receipt_submit');
+  assert.ok(MAIN_TOOLS.some(tool => tool.name === 'handoff_worktree_create'), 'MAIN_TOOLS exposes handoff_worktree_create');
+  assert.ok(MAIN_TOOLS.some(tool => tool.name === 'host_dispatch'), 'MAIN_TOOLS exposes host_dispatch');
   const ctx: HandlerContext = { store, root, scanRoot: join(root, 'packages/main') };
   const registry = createMainRegistry(ctx);
   assert.equal(registry.has('handoff_create'), true, 'registry exposes handoff_create handler');
   assert.equal(registry.has('handoff_inspect'), true, 'registry exposes handoff_inspect handler');
   assert.equal(registry.has('handoff_accept'), true, 'registry exposes handoff_accept handler');
   assert.equal(registry.has('handoff_resume'), true, 'registry exposes handoff_resume handler');
+  assert.equal(registry.has('handoff_receipt_submit'), true, 'registry exposes handoff_receipt_submit handler');
+  assert.equal(registry.has('handoff_worktree_create'), true, 'registry exposes handoff_worktree_create handler');
+  assert.equal(registry.has('host_dispatch'), true, 'registry exposes host_dispatch handler');
   assertHandoffPack(registry.get('handoff_create')!({
     storyId: 'B-handoff',
     fromHost: 'codex',
