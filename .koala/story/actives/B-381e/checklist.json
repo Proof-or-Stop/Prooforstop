@@ -60,10 +60,45 @@
         "docs/requirements/decisions/project-vision.md",
         "docs/requirements/decisions/authority-client-role.md"
       ],
-      "userSees": "adapter code can assemble host-neutral observability data from Lattice JSON surfaces without touching backing store files.",
+      "userSees": "Running lattice observability_snapshot --format=json emits a dry-run read-only snapshot with resolver rows plus normalized Authority Ladder, Story Board, Capability Matrix, Recovery, and Parallel input sections.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [
+          "packages/main/src/core/observability-snapshot.ts",
+          "packages/main/src/handlers/observability-snapshot.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/observability-snapshot-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice observability_snapshot --format=json returns normalized sections for authority ladder, story board, capability matrix, recovery, and parallel planning inputs.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Snapshot runs story_export from each resolver authoritativeCwd rather than repo root when worktree authority is present.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Snapshot does not read .koala/story or docs/story backing JSON directly and does not build or modify the terminal dashboard UI.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
