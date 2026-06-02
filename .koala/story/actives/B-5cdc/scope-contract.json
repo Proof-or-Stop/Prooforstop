@@ -1,0 +1,85 @@
+{
+  "storyId": "B-5cdc",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/handlers/lattice-cli.ts",
+    "packages/main/src/core/authority-client.ts",
+    "packages/main/src/core/authority-runner-contracts.ts",
+    "packages/main/src/core/authority-signing.ts",
+    "package.json",
+    "packages/main/package.json",
+    "docs/requirements/decisions/authority-client-role.md"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/authority-runner.ts",
+    "packages/main/src/tasks/authority-enforce-runner-smoke.ts",
+    "packages/main/src/tasks/authority-runner-events-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/authority-enforce-runner-smoke.ts",
+    "packages/main/src/tasks/authority-runner-events-smoke.ts"
+  ],
+  "protectedFiles": [
+    "docs/requirements/decisions/lattice-parallel-wave.md",
+    "docs/requirements/decisions/verification-context-pack.md"
+  ],
+  "explicitExcludes": [
+    ".koala/story/actives/B-aa98/**",
+    "packages/lab/**",
+    "packages/desktop/**",
+    "scripts/package-desktop.mjs"
+  ],
+  "scopeChangeReason": "B-5cdc explicit runner scope: command/handler/client/contracts/signing, package scripts, authority-client-role doc, and focused runner smoke tests only.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-02T21:02:01.321Z",
+  "updatedAt": "2026-06-02T21:02:22.471Z",
+  "fileRules": [
+    {
+      "path": "packages/main/src/handlers/lattice-cli.ts",
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ]
+    },
+    {
+      "path": "packages/main/src/core/authority-runner.ts",
+      "allowedChangeKinds": [
+        "add"
+      ],
+      "intentRefs": [
+        "CHK-001:happy:0",
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ]
+    },
+    {
+      "path": "packages/main/src/tasks/authority-enforce-runner-smoke.ts",
+      "allowedChangeKinds": [
+        "add"
+      ],
+      "intentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ]
+    },
+    {
+      "path": "packages/main/src/tasks/authority-runner-events-smoke.ts",
+      "allowedChangeKinds": [
+        "add"
+      ],
+      "intentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ]
+    }
+  ]
+}
