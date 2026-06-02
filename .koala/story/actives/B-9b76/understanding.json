@@ -1,12 +1,12 @@
 {
   "task": "Implement registry-backed thin prompt assets for Lattice/Koala init without breaking legacy full-mode .Codex/.claude behavior.",
-  "outcome": "用户在一个干净测试仓库运行 `lattice init --asset-mode=thin --profile=codex` 后，会看到输出明确说明使用 registry-backed prompts，项目中只生成 KOALA.md、AGENTS.md、.Codex/README.md、.Codex/koala.json 和 launcher，不再生成整套 .Codex/agents prompt copies；随后运行 `lattice check --profile=codex` 和 `node bin/koala-codex.js verify_codex` 都通过。用户在旧 full-mode 仓库运行原有命令时，输出仍然是通过或只出现原有 drift，不会因为 thin mode 变化而失败。",
+  "outcome": "用户在一个干净测试仓库运行 `lattice init --asset-mode=thin --profile=codex` 后，会看到输出包含 `Asset mode: thin` 和 `Codex prompts: registry-backed`，项目中只生成 KOALA.md、AGENTS.md、.Codex/README.md、.Codex/koala.json 和 launcher，不再生成整套 .Codex/agents prompt copies；随后运行 `lattice check --profile=codex` 和 `node bin/koala-codex.js verify_codex` 都通过。用户在旧 full-mode 仓库运行原有命令时，输出仍然是通过或只出现原有 drift，不会因为 thin mode 变化而失败。",
   "facts": [
     "Prompt templates already live in packages/main/templates/agents.",
     "Current init materializes .Codex/agents as rendered Markdown copies and .claude/agents as symlinks.",
     "Current verify_codex hard-checks legacy mirror presence and equality.",
-    "Managed assets contract requires conservative no-overwrite behavior for local edits.",
-    "Non-JS repositories must remain lightweight and cannot be forced to carry runtime dependencies."
+    "This story keeps full mode as the default compatibility behavior and adds thin mode as explicit opt-in.",
+    "Host runtimes that need local prompt discovery can continue using legacy full/materialized assets while registry mode supports Koala adapter verification without Codex prompt copies."
   ],
   "constraints": [
     "Do not break legacy full mode or existing .Codex/.claude projects.",
@@ -15,18 +15,15 @@
     "Do not rely on absolute symlinks as the only cross-machine representation.",
     "All story and checklist mutations must use Koala CLI."
   ],
-  "unknowns": [
-    "Whether future host runtimes will require materialized prompt files for native discovery remains host-specific.",
-    "Whether default init profile should switch in this story or only thin mode opt-in should be introduced depends on compatibility test results."
-  ],
+  "unknowns": [],
   "touchpoints": [
     "packages/main/src/init-assets.ts",
     "packages/main/src/cli-init.ts",
     "packages/main/src/core/managed-assets.ts",
     "packages/main/src/core/codex-adapter-checks.ts",
+    "packages/main/src/core/prompt-registry.ts",
     "packages/main/templates/agents",
-    "docs/requirements/decisions/stack-layering.md",
     "docs/requirements/decisions/lifecycle-artifact-scope.md"
   ],
-  "timestamp": "2026-06-02T20:58:00.849Z"
+  "timestamp": "2026-06-02T21:01:16.895Z"
 }

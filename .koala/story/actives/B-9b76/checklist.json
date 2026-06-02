@@ -52,10 +52,11 @@
         "docs/requirements/decisions/stack-layering.md",
         "AGENTS.md"
       ],
-      "userSees": "用户运行 registry smoke 时看到所有 package agent templates 都被列出，Claude render 与模板一致，Codex render 与 legacy transform 一致，并输出 pass。",
+      "userSees": "用户运行 `npm --prefix packages/main run test:prompt-registry-smoke` 后看到 `✓ prompt registry smoke passed: 16 agents rendered for claude and codex`。",
       "files": {
         "modify": [
-          "packages/main/src/init-assets.ts"
+          "packages/main/src/init-assets.ts",
+          "packages/main/templates/agents"
         ],
         "create": [
           "packages/main/src/core/prompt-registry.ts",
