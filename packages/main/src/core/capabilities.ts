@@ -20,6 +20,7 @@ export type AuthorityImpact =
   | 'evidence-local-only'
   | 'verification-evidence-limited'
   | 'blocks-production-done';
+export type DegradationSeverity = 'info' | 'warn' | 'block';
 
 export interface CapabilityDescription {
   id: CapabilityCategory;
@@ -36,13 +37,15 @@ export interface HostCapability {
 }
 
 export interface CapabilityDegradation {
-  category: CapabilityCategory;
-  status: Exclude<CapabilityStatus, 'available'>;
+  id: string;
+  host: string;
+  capability: CapabilityCategory;
+  severity: DegradationSeverity;
   visible: true;
-  fatal: boolean;
-  authorityImpact: AuthorityImpact;
   reason: string;
   fallback: string;
+  authorityImpact: AuthorityImpact;
+  recovery?: string;
 }
 
 export interface HostProfile {
@@ -128,9 +131,7 @@ const CATEGORY_DESCRIPTIONS: Record<CapabilityCategory, CapabilityDescription> =
 };
 
 type HostCapabilityInput = Omit<HostCapability, 'optional'>;
-type DegradationInput = Omit<CapabilityDegradation, 'visible' | 'fatal'> & {
-  fatal?: boolean;
-};
+type DegradationInput = Omit<CapabilityDegradation, 'id' | 'host' | 'visible'>;
 
 interface HostProfileInput {
   id: string;
@@ -149,14 +150,34 @@ function capability(
 }
 
 function degradation(
-  category: CapabilityCategory,
-  status: Exclude<CapabilityStatus, 'available'>,
+  capability: CapabilityCategory,
+  _status: Exclude<CapabilityStatus, 'available'>,
   authorityImpact: AuthorityImpact,
   reason: string,
   fallback: string,
-  fatal = false,
+  recovery?: string,
 ): DegradationInput {
-  return { category, status, authorityImpact, reason, fallback, fatal };
+  return {
+    capability,
+    severity: severityForAuthorityImpact(authorityImpact),
+    authorityImpact,
+    reason,
+    fallback,
+    ...(recovery ? { recovery } : {}),
+  };
+}
+
+function severityForAuthorityImpact(authorityImpact: AuthorityImpact): DegradationSeverity {
+  if (authorityImpact === 'blocks-production-done') return 'block';
+  if (authorityImpact === 'none') return 'info';
+  return 'warn';
+}
+
+function degradationId(hostId: string, capability: CapabilityCategory): string {
+  return `${hostId}-${capability}`
+    .replace(/[^a-zA-Z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .toLowerCase();
 }
 
 const HOST_PROFILE_INPUTS: HostProfileInput[] = [
@@ -356,9 +377,10 @@ function materializeProfile(input: HostProfileInput): HostProfile {
     optional: CATEGORY_DESCRIPTIONS[c.category].optional,
   }));
   const degradations = input.degradations.map(d => ({
+    id: degradationId(input.id, d.capability),
+    host: input.id,
     ...d,
     visible: true as const,
-    fatal: d.fatal ?? false,
   }));
 
   return { ...input, capabilities, degradations };
@@ -401,7 +423,7 @@ export function renderCapabilityListText(list: CapabilityList = buildCapabilityL
     if (host.degradations.length > 0) {
       lines.push('  degradations:');
       for (const d of host.degradations) {
-        lines.push(`    - ${d.category} ${d.status}; visible=${d.visible}; fatal=${d.fatal}; authorityImpact=${d.authorityImpact}; ${d.reason}`);
+        lines.push(`    - ${d.id}; capability=${d.capability}; severity=${d.severity}; visible=${d.visible}; authorityImpact=${d.authorityImpact}; ${d.reason}`);
       }
     }
     lines.push('');

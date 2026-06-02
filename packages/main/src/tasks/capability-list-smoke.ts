@@ -11,6 +11,7 @@ import {
   buildCapabilityList,
   renderCapabilityListText,
   type AuthorityImpact,
+  type DegradationSeverity,
 } from '../core/capabilities.js';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
@@ -34,6 +35,7 @@ const AUTHORITY_IMPACTS: readonly AuthorityImpact[] = [
   'verification-evidence-limited',
   'blocks-production-done',
 ];
+const DEGRADATION_SEVERITIES: readonly DegradationSeverity[] = ['info', 'warn', 'block'];
 
 const list = buildCapabilityList();
 
@@ -49,19 +51,32 @@ for (const host of list.hosts) {
   );
 }
 
-// Missing or conditional capabilities are visible degradations, not fatal list failures.
+// Missing or conditional capabilities are visible degradations, not production claims.
 for (const host of list.hosts) {
-  for (const capability of host.capabilities) {
-    if (capability.status === 'available') continue;
-    const degradation = host.degradations.find(d => d.category === capability.category);
-    assert.ok(degradation, `${host.id} ${capability.category} has explicit degradation`);
-    assert.equal(degradation.visible, true, `${host.id} ${capability.category} degradation is visible`);
-    assert.equal(degradation.fatal, false, `${host.id} ${capability.category} degradation is not fatal`);
-    assert.equal(degradation.status, capability.status, `${host.id} ${capability.category} degradation status matches capability`);
+  const seenIds = new Set<string>();
+  for (const degradation of host.degradations) {
+    assert.equal(degradation.host, host.id, `${host.id} degradation host matches profile`);
+    assert.equal(degradation.visible, true, `${host.id} ${degradation.capability} degradation is visible`);
+    assert.ok(degradation.id.length > 0, `${host.id} ${degradation.capability} degradation has id`);
+    assert.equal(seenIds.has(degradation.id), false, `${host.id} degradation id ${degradation.id} is unique`);
+    seenIds.add(degradation.id);
+    assert.ok(
+      DEGRADATION_SEVERITIES.includes(degradation.severity),
+      `${host.id} ${degradation.capability} degradation has known severity`,
+    );
     assert.ok(
       AUTHORITY_IMPACTS.includes(degradation.authorityImpact),
-      `${host.id} ${capability.category} degradation has known authorityImpact`,
+      `${host.id} ${degradation.capability} degradation has known authorityImpact`,
     );
+    assert.equal((degradation as unknown as Record<string, unknown>).category, undefined, `${host.id} degradation does not expose legacy category`);
+    assert.equal((degradation as unknown as Record<string, unknown>).status, undefined, `${host.id} degradation does not expose legacy status`);
+    assert.equal((degradation as unknown as Record<string, unknown>).fatal, undefined, `${host.id} degradation does not expose legacy fatal`);
+  }
+
+  for (const capability of host.capabilities) {
+    if (capability.status === 'available') continue;
+    const degradation = host.degradations.find(d => d.capability === capability.category);
+    assert.ok(degradation, `${host.id} ${capability.category} has explicit degradation`);
   }
 }
 
@@ -83,12 +98,13 @@ for (const host of list.hosts) {
   const receipt = host.capabilities.find(c => c.category === 'receipt-verify');
   assert.ok(receipt, `${host.id} has receipt-verify capability row`);
   if (receipt.status !== 'available') {
-    const degradation = host.degradations.find(d => d.category === 'receipt-verify');
+    const degradation = host.degradations.find(d => d.capability === 'receipt-verify');
     assert.equal(
       degradation?.authorityImpact,
       'blocks-production-done',
       `${host.id} cannot claim productionDone without receipt verification`,
     );
+    assert.equal(degradation?.severity, 'block', `${host.id} receipt verification degradation blocks productionDone`);
   }
 }
 
@@ -97,6 +113,7 @@ const text = renderCapabilityListText(list);
 assert.match(text, /Koala capability profiles/);
 assert.match(text, /unknown\/fallback/);
 assert.match(text, /authorityImpact=blocks-production-done/);
+assert.doesNotMatch(text, /fatal=/);
 
 // Registry and CLI schema expose the command.
 assert.ok(MAIN_TOOLS.some(tool => tool.name === 'capability_list'), 'MAIN_TOOLS exposes capability_list');
