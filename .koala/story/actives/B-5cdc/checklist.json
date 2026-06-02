@@ -35,7 +35,42 @@
       },
       "status": "in_progress",
       "startTime": "2026-06-02T21:25:51.668Z",
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/authority-enforce-runner-smoke.ts",
+          "command": "npm run test:authority-enforce-runner",
+          "result": "pass",
+          "note": "Covers dry-run runner command: asserts schema lattice.authority_enforce_runner.v1, planned register/heartbeat/claim steps, spawned=false, providerEvents=[], and nested lattice authority enforce runner alias returns JSON.",
+          "headHash": "4649bfaec20e42c8897b314328156e2ebad9fa24",
+          "materialHash": "a30a550b39540debecada33bc0de8ec7b38f86193a53c1f090f5229b59f09b7b",
+          "timestamp": "2026-06-02T21:26:12.833Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/authority-enforce-runner-smoke.ts",
+          "command": "npm run test:authority-enforce-runner",
+          "result": "pass",
+          "note": "Covers missing enforce settings: same smoke asserts missing URL/actor key/runner ID returns status=fail while localWorkflowUsable remains true and no provider events are produced.",
+          "headHash": "4649bfaec20e42c8897b314328156e2ebad9fa24",
+          "materialHash": "a30a550b39540debecada33bc0de8ec7b38f86193a53c1f090f5229b59f09b7b",
+          "timestamp": "2026-06-02T21:26:12.833Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-enforce-runner-smoke.ts",
+          "command": "npm run test:authority-enforce-runner && npm --prefix packages/main run test:lifecycle-registry-contract && npm run test:command-ownership-contract",
+          "result": "pass",
+          "note": "Covers non-implicit command boundary: ordinary authority_status has no plannedSteps, authority_enforce_runner is explicitly registered as readOnly/L0 with lifecycle and ownership contract coverage, and cannot become an unclassified implicit story command.",
+          "headHash": "4649bfaec20e42c8897b314328156e2ebad9fa24",
+          "materialHash": "a30a550b39540debecada33bc0de8ec7b38f86193a53c1f090f5229b59f09b7b",
+          "timestamp": "2026-06-02T21:26:12.833Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -72,7 +107,42 @@
       },
       "status": "in_progress",
       "startTime": "2026-06-02T21:25:51.331Z",
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/authority-runner-events-smoke.ts",
+          "command": "npm run test:authority-runner-events",
+          "result": "pass",
+          "note": "Covers allowed fake-provider job: executeFakeProviderJob emits stdout_delta and completed events with exitCode 0, transcriptHash, signed ProviderEventsEnvelope, and envelope verification succeeds.",
+          "headHash": "4649bfaec20e42c8897b314328156e2ebad9fa24",
+          "materialHash": "a30a550b39540debecada33bc0de8ec7b38f86193a53c1f090f5229b59f09b7b",
+          "timestamp": "2026-06-02T21:26:12.833Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/authority-runner-events-smoke.ts",
+          "command": "npm run test:authority-runner-events",
+          "result": "pass",
+          "note": "Covers non-zero fake-provider job: stderr is captured, failed event is emitted with exitCode 7 and transcriptHash, and the signed envelope verifies.",
+          "headHash": "4649bfaec20e42c8897b314328156e2ebad9fa24",
+          "materialHash": "a30a550b39540debecada33bc0de8ec7b38f86193a53c1f090f5229b59f09b7b",
+          "timestamp": "2026-06-02T21:26:12.833Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-runner-events-smoke.ts",
+          "command": "npm run test:authority-runner-events",
+          "result": "pass",
+          "note": "Covers adversarial claim boundaries: runnerId mismatch, expected runId mismatch, and provider other than fake-provider are rejected before event/evidence submission.",
+          "headHash": "4649bfaec20e42c8897b314328156e2ebad9fa24",
+          "materialHash": "a30a550b39540debecada33bc0de8ec7b38f86193a53c1f090f5229b59f09b7b",
+          "timestamp": "2026-06-02T21:26:12.833Z"
+        }
+      ]
     }
   ],
   "auditLog": [
