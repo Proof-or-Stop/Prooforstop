@@ -4,7 +4,7 @@
   "title": "Milestones 5-6: implement headless authority runner job claim and provider event flow",
   "description": "Implement an explicit Lattice authority enforce runner command path that can register/heartbeat a runner, claim a signed JobSpec, execute a bounded local provider command/job once, emit provider events, and keep ordinary CLI workflows local when the runner is not invoked.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "source": "user-approved-authority-runner-roadmap",
   "depends": [
@@ -19,7 +19,7 @@
   ],
   "createdAt": "2026-06-02T17:00:05.079Z",
   "startedAt": "2026-06-02T17:00:05.079Z",
-  "endedAt": null,
+  "endedAt": "2026-06-02T21:40:35.021Z",
   "events": [
     {
       "phase": "INIT",
@@ -68,12 +68,15 @@
       "branch": "story/B-5cdc",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-02T21:40:35.021Z",
+      "branch": "story/B-5cdc",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-5cdc",
-    "branch": "story/B-5cdc",
-    "createdAt": "2026-06-02T20:56:04.124Z"
-  },
   "currentReviewRound": "2026-06-02T21:27:45.228Z"
 }
