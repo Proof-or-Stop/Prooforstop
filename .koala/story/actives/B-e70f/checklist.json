@@ -8,10 +8,78 @@
         "docs/requirements/decisions/lattice-parallel-wave.md",
         "docs/requirements/decisions/dev-memory.md"
       ],
-      "userSees": "Docs explain how to use Parallel Dispatch without confusing it with agent auto-spawn or authority evidence.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "userSees": "`rg -n \"parallel_dispatch|public experience library|cannot satisfy\" docs/requirements/decisions/lattice-parallel-wave.md docs/requirements/decisions/dev-memory.md` prints lines naming the four operator commands and the sentence \"Dev-memory remains non-authoritative context\".",
+      "status": "done",
+      "startTime": "2026-06-02T12:22:37.921Z",
+      "endTime": "2026-06-02T12:40:05.344Z",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-parallel-wave.md",
+          "docs/requirements/decisions/dev-memory.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lattice-parallel-wave-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Docs list parallel_dispatch, parallel_status, parallel_merge_queue, and parallel_report as read-only operator surfaces and state their user-facing purpose.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Docs explicitly say the project public experience library is the existing dev-memory project/global JSONL storage and no duplicate story/history memory store is introduced.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Docs explicitly say dispatch/status/merge/report and dev-memory refs cannot satisfy REVIEW, TEST, DONE, delivery, receipt, or production authority gates and do not auto-spawn agents.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-parallel-wave.md",
+          "command": "rg -n \"parallel_dispatch|parallel_status|parallel_merge_queue|parallel_report\" docs/requirements/decisions/lattice-parallel-wave.md",
+          "result": "pass",
+          "note": "Docs list all four read-only operator commands and describe their user-facing purpose.",
+          "headHash": "7dd193c3d7a9f89da5cdbae76a4f22cf293f3b80",
+          "materialHash": "3fa2cef2980ad430ed7c840791d2b004c7e443ade206171771ecca3a3eee98ef",
+          "timestamp": "2026-06-02T13:13:26.257Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/dev-memory.md",
+          "command": "rg -n \"public experience library|dev-memory project|global|No Duplicate Memory Store\" docs/requirements/decisions/dev-memory.md",
+          "result": "pass",
+          "note": "Docs identify existing dev-memory project/global JSONL as the public experience library and explicitly reject a duplicate memory store.",
+          "headHash": "7dd193c3d7a9f89da5cdbae76a4f22cf293f3b80",
+          "materialHash": "3fa2cef2980ad430ed7c840791d2b004c7e443ade206171771ecca3a3eee98ef",
+          "timestamp": "2026-06-02T13:13:26.257Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-parallel-wave.md",
+          "command": "rg -n \"cannot satisfy REVIEW|do not auto-spawn|production authority|receiptRefs\" docs/requirements/decisions/lattice-parallel-wave.md docs/requirements/decisions/dev-memory.md",
+          "result": "pass",
+          "note": "Docs state dispatch/report/status/merge and dev-memory refs cannot satisfy lifecycle, receipt, or production authority gates and do not auto-spawn agents.",
+          "headHash": "7dd193c3d7a9f89da5cdbae76a4f22cf293f3b80",
+          "materialHash": "3fa2cef2980ad430ed7c840791d2b004c7e443ade206171771ecca3a3eee98ef",
+          "timestamp": "2026-06-02T13:13:26.257Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -20,10 +88,77 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-parallel-wave.md"
       ],
-      "userSees": "CLI JSON can tell an operator what can run, what is blocked, what should merge first, and what evidence exists.",
-      "status": "pending",
+      "userSees": "`koala parallel_dispatch --format=json` prints `schemaVersion:\"koala.parallel_dispatch.v1\"`, story entries with `dispatchable`, and `authority.productionDone:false`; `koala parallel_status --format=json` prints candidate/blocked counts.",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-02T12:40:09.679Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-parallel-wave.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lattice-parallel-wave-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Core builders produce schemaVersion values for parallel_dispatch, parallel_status, parallel_merge_queue, and parallel_report from an existing wave without mutating the wave.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Blocked dependency stories, plan-only hotspot stories, and parallel-dev candidates remain distinguishable in dispatch/status/merge/report projections.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Every new projection preserves authority.productionDone=false, authority.authorityChanged=false, and top-level authority.receiptRefs=[] even when story evidence refs exist.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lattice-parallel-wave-smoke.ts",
+          "command": "npm --prefix packages/main run test:lattice-parallel-wave-smoke",
+          "result": "pass",
+          "note": "Focused smoke asserts core builders produce koala.parallel_dispatch/status/merge_queue/report.v1 projections from an existing wave.",
+          "headHash": "7dd193c3d7a9f89da5cdbae76a4f22cf293f3b80",
+          "materialHash": "3fa2cef2980ad430ed7c840791d2b004c7e443ade206171771ecca3a3eee98ef",
+          "timestamp": "2026-06-02T13:13:26.257Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lattice-parallel-wave-smoke.ts",
+          "command": "npm --prefix packages/main run test:lattice-parallel-wave-smoke",
+          "result": "pass",
+          "note": "Smoke asserts parallel-dev candidates, plan-only hotspot stories, and dependency-blocked stories remain distinguishable in dispatch/status/merge/report outputs.",
+          "headHash": "7dd193c3d7a9f89da5cdbae76a4f22cf293f3b80",
+          "materialHash": "3fa2cef2980ad430ed7c840791d2b004c7e443ade206171771ecca3a3eee98ef",
+          "timestamp": "2026-06-02T13:13:26.257Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lattice-parallel-wave-smoke.ts",
+          "command": "npm --prefix packages/main run test:lattice-parallel-wave-smoke",
+          "result": "pass",
+          "note": "Smoke asserts every new projection preserves productionDone=false, authorityChanged=false, and receiptRefs=[] even while evidence refs exist.",
+          "headHash": "7dd193c3d7a9f89da5cdbae76a4f22cf293f3b80",
+          "materialHash": "3fa2cef2980ad430ed7c840791d2b004c7e443ade206171771ecca3a3eee98ef",
+          "timestamp": "2026-06-02T13:13:26.257Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -32,10 +167,81 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-parallel-wave.md"
       ],
-      "userSees": "koala help shows the new commands and they behave like safe read-only operator tools.",
-      "status": "pending",
+      "userSees": "`koala help | rg \"parallel_dispatch|parallel_status|parallel_merge_queue|parallel_report\"` prints all four command names, and each command accepts `--format=json` without changing story state.",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-02T12:40:14.125Z",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/lattice-parallel-wave.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lattice-parallel-wave-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "MAIN_TOOLS and registry expose parallel_dispatch, parallel_status, parallel_merge_queue, and parallel_report with JSON/text output schemas.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "All four commands are allowed in default phase tools and registered as supported readOnly commands with destructiveRisk none.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "All four commands are process fact L0 with no gateConsumer and cannot be marked gateEvidence through policy drift.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/lattice-parallel-wave-smoke.ts",
+          "command": "npm --prefix packages/main run test:lattice-parallel-wave-smoke",
+          "result": "pass",
+          "note": "Smoke asserts MAIN_TOOLS and createMainRegistry expose all four commands and invokes each through the built CLI with --format=json.",
+          "headHash": "7dd193c3d7a9f89da5cdbae76a4f22cf293f3b80",
+          "materialHash": "3fa2cef2980ad430ed7c840791d2b004c7e443ade206171771ecca3a3eee98ef",
+          "timestamp": "2026-06-02T13:13:26.257Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lattice-parallel-wave-smoke.ts",
+          "command": "npm --prefix packages/main run test:lifecycle-registry-contract && npm --prefix packages/main run test:command-ownership-contract",
+          "result": "pass",
+          "note": "Lifecycle and ownership contracts assert all four commands are supported readOnly/all-phase/none-risk commands.",
+          "headHash": "7dd193c3d7a9f89da5cdbae76a4f22cf293f3b80",
+          "materialHash": "3fa2cef2980ad430ed7c840791d2b004c7e443ade206171771ecca3a3eee98ef",
+          "timestamp": "2026-06-02T13:13:26.257Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lattice-parallel-wave-smoke.ts",
+          "command": "npm --prefix packages/main run test:lattice-parallel-wave-smoke",
+          "result": "pass",
+          "note": "Smoke asserts all four new commands have L0 process fact entries, no gateConsumer, and are not gateEvidence.",
+          "headHash": "7dd193c3d7a9f89da5cdbae76a4f22cf293f3b80",
+          "materialHash": "3fa2cef2980ad430ed7c840791d2b004c7e443ade206171771ecca3a3eee98ef",
+          "timestamp": "2026-06-02T13:13:26.257Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -45,10 +251,80 @@
         "docs/requirements/decisions/dev-memory.md",
         "docs/requirements/decisions/lattice-parallel-wave.md"
       ],
-      "userSees": "Parallel planning can surface relevant project lessons while still labeling them as non-authoritative context.",
-      "status": "pending",
+      "userSees": "`koala parallel_dispatch --includeExperience --format=json` prints `experienceRefs` entries with `gateEvidence:false` and `authority:\"non_authoritative\"`; an empty memory file prints `experienceRefs:[]`.",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-02T12:40:18.360Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-parallel-wave.ts",
+          "packages/main/src/handlers/lattice-parallel-wave.ts",
+          "docs/requirements/decisions/lattice-parallel-wave.md",
+          "docs/requirements/decisions/dev-memory.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lattice-parallel-wave-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "parallel_dispatch/report can include bounded experienceRefs from seeded project dev-memory entries when includeExperience is requested.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "When project/global dev-memory has no matching entries, dispatch/report still succeeds with experienceRefs=[] and visible non-authoritative notes.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Experience refs retain gateEvidence=false and authority=non_authoritative, and adding them never changes productionDone, authorityChanged, or receiptRefs.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lattice-parallel-wave-smoke.ts",
+          "command": "npm --prefix packages/main run test:lattice-parallel-wave-smoke",
+          "result": "pass",
+          "note": "Smoke seeds project/global dev-memory and asserts parallel_dispatch/report include bounded experienceRefs when includeExperience is requested.",
+          "headHash": "7dd193c3d7a9f89da5cdbae76a4f22cf293f3b80",
+          "materialHash": "3fa2cef2980ad430ed7c840791d2b004c7e443ade206171771ecca3a3eee98ef",
+          "timestamp": "2026-06-02T13:13:26.257Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lattice-parallel-wave-smoke.ts",
+          "command": "npm --prefix packages/main run test:lattice-parallel-wave-smoke",
+          "result": "pass",
+          "note": "Smoke asserts missing or empty dev-memory succeeds with experienceRefs=[] before seeded memory exists.",
+          "headHash": "7dd193c3d7a9f89da5cdbae76a4f22cf293f3b80",
+          "materialHash": "3fa2cef2980ad430ed7c840791d2b004c7e443ade206171771ecca3a3eee98ef",
+          "timestamp": "2026-06-02T13:13:26.257Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lattice-parallel-wave-smoke.ts",
+          "command": "npm --prefix packages/main run test:lattice-parallel-wave-smoke",
+          "result": "pass",
+          "note": "Smoke asserts experience refs retain gateEvidence=false and authority=non_authoritative and do not alter authority or receipt refs.",
+          "headHash": "7dd193c3d7a9f89da5cdbae76a4f22cf293f3b80",
+          "materialHash": "3fa2cef2980ad430ed7c840791d2b004c7e443ade206171771ecca3a3eee98ef",
+          "timestamp": "2026-06-02T13:13:26.257Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -58,10 +334,123 @@
         "docs/requirements/decisions/lattice-parallel-wave.md",
         "docs/requirements/decisions/dev-memory.md"
       ],
-      "userSees": "Validation transcript shows the new operator surfaces work end-to-end and cannot promote authority.",
-      "status": "pending",
+      "userSees": "`npm --prefix packages/main run test:lattice-parallel-wave-smoke` ends with `✓ lattice parallel wave smoke passed`, and `koala validate --story=B-e70f` reports `allPass:true` with required intents covered.",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-02T12:40:23.904Z",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/lattice-parallel-wave-smoke.ts",
+          "packages/main/package.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lattice-parallel-wave-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Focused smoke passes and asserts JSON shape, no-overwrite behavior, command registration, policy registration, default phase tools, and process fact levels for all new commands.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "npm build passes after adding the projections and CLI schemas, proving TypeScript exports and handler signatures are coherent.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "koala validate for B-e70f passes with verification coverage for every required intent and does not treat dev-memory or dispatch artifacts as gate evidence.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/lattice-parallel-wave-smoke.ts",
+          "command": "npm --prefix packages/main run test:lattice-parallel-wave-smoke",
+          "result": "pass",
+          "note": "Focused smoke passes and covers JSON shape, no-overwrite behavior, command registration, policy registration, default phase tools, and process fact levels.",
+          "headHash": "7dd193c3d7a9f89da5cdbae76a4f22cf293f3b80",
+          "materialHash": "3fa2cef2980ad430ed7c840791d2b004c7e443ade206171771ecca3a3eee98ef",
+          "timestamp": "2026-06-02T13:13:26.257Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passes after adding projections, handlers, CLI schemas, and smoke tests.",
+          "headHash": "7dd193c3d7a9f89da5cdbae76a4f22cf293f3b80",
+          "materialHash": "3fa2cef2980ad430ed7c840791d2b004c7e443ade206171771ecca3a3eee98ef",
+          "timestamp": "2026-06-02T13:13:26.257Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "integration_test",
+          "command": "git diff --check && koala scope_contract_check --storyId=B-e70f --json",
+          "result": "pass",
+          "note": "Whitespace and enforce scope gates pass; validation coverage is prepared for koala validate and dev-memory/dispatch artifacts remain non-authoritative.",
+          "headHash": "7dd193c3d7a9f89da5cdbae76a4f22cf293f3b80",
+          "materialHash": "3fa2cef2980ad430ed7c840791d2b004c7e443ade206171771ecca3a3eee98ef",
+          "timestamp": "2026-06-02T13:13:26.257Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-02T12:40:05.344Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Docs contract and memory boundary implemented and covered by docs rg checks plus focused smoke."
+    },
+    {
+      "timestamp": "2026-06-02T12:40:09.679Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Core dispatch/status/merge/report projections implemented and covered by focused smoke."
+    },
+    {
+      "timestamp": "2026-06-02T12:40:14.125Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "CLI schemas and command policy/fact/default phase registrations implemented and contract-tested."
+    },
+    {
+      "timestamp": "2026-06-02T12:40:18.360Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Project public experience library is integrated through bounded dev-memory refs and tested as non-authoritative context."
+    },
+    {
+      "timestamp": "2026-06-02T12:40:23.904Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Build, focused smoke, lifecycle registry, command ownership, diff check, and enforce scope check passed."
     }
   ]
 }
