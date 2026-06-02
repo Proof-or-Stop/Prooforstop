@@ -67,21 +67,21 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "Full test matrix passes and validates both local-only and server-backed enforce modes.",
+            "desc": "A single matrix smoke prints local/off PASS, shadow warning PASS, enforce fake-server receipt PASS, enforce no-server runner fail-closed PASS, and parallel_report productionDone=false.",
             "type": "cli",
             "priority": "must"
           }
         ],
         "edge": [
           {
-            "desc": "Gated live Python authority script is documented and skipped unless env vars are present.",
+            "desc": "A live Python authority smoke is documented and self-skips unless KOALA_AUTHORITY_LIVE_URL and KOALA_AUTHORITY_LIVE_PUBLIC_KEY are present.",
             "type": "cli",
             "priority": "must"
           }
         ],
         "adversarial": [
           {
-            "desc": "Parallel Wave/dispatch/report artifacts remain non-authoritative and cannot satisfy DONE by themselves.",
+            "desc": "Parallel Wave/dispatch/report outputs remain read-only scheduling artifacts with productionDone=false, receiptRefs empty/unverified, and cannot satisfy DONE by themselves.",
             "type": "logic",
             "priority": "must"
           }
@@ -89,7 +89,28 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "package.json",
+          "packages/main/package.json",
+          "README.md",
+          "docs/guide.md",
+          "docs/requirements/decisions/authority-client-role.md",
+          "docs/requirements/decisions/lattice-parallel-wave.md"
+        ],
+        "create": [
+          "packages/main/src/tasks/authority-enforce-matrix-smoke.ts",
+          "packages/main/src/tasks/authority-live-python-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/authority-enforce-matrix-smoke.ts",
+          "packages/main/src/tasks/authority-live-python-smoke.ts",
+          "packages/main/src/tasks/lattice-parallel-wave-smoke.ts",
+          "packages/main/src/tasks/authority-evidence-flow-smoke.ts",
+          "packages/main/src/tasks/authority-enforce-runner-smoke.ts"
+        ]
+      }
     }
   ]
 }
