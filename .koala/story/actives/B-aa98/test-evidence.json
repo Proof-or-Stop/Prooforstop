@@ -1,15 +1,15 @@
 {
   "command": "koala validate --story=B-aa98 --json",
-  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"fail\",\"allPass\":false,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery; verification coverage missing 21 required intent(s)\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.5 test\",\"  > npm run test:e2e\",\"  > koala@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 0/21 covered (21 required missing)\",\"  ✗ CHK-001:happy:0 [happy/must/docs] stale via docs_check — Docs explain Lattice Host Overflow as host-neutral authority: Lattice owns story/scope/receipt/gate, Codex/Claude Code/Gemini are execution hosts.\",\"  ✗ CHK-001:edge:0 [edge/must/docs] stale via docs_check — Docs explicitly say manual handoff comes before supervised dispatch and Claude Code unavailable is a diagnostic degradation, not a workflow blocker.\",\"  ✗ CHK-001:adversarial:0 [adversarial/must/docs] stale via docs_check — Docs do not claim Lattice is a new agent runtime, Mac App requirement, productionDone source, or automatic trust/merge mechanism for Claude Code output.\",\"  ✗ CHK-002:happy:0 [happy/must/cli] stale via logic_test — lattice host_status --host=claude-code --format=json reports overflow readiness, capabilities, limits, availability, and nextAction.\",\"  ✗ CHK-002:edge:0 [edge/must/logic] stale via logic_test (packages/main/src/tasks/host-overflow-smoke.ts) — Unknown or unavailable host returns diagnostic unavailable/warn with nextAction and does not block local story workflow.\",\"  ✗ CHK-002:adversarial:0 [adversarial/must/logic] stale via logic_test (packages/main/src/tasks/host-overflow-smoke.ts) — Capability/status output keeps productionDone=false and receiptVerified=false; it never treats host availability as authority evidence.\",\"  ✗ CHK-003:happy:0 [happy/must/cli] stale via logic_test — lattice handoff_create can create a Claude Code overflow pack with role, objective, baseSha, packId, packHash, allowedPaths, deniedPaths, requiredCommands, successCriteria, and authority boundary.\",\"  ✗ CHK-003:edge:0 [edge/must/logic] stale via logic_test (packages/main/src/tasks/lattice-handoff-smoke.ts) — Existing handoff_create/inspect/accept/resume compatibility remains intact for old handoff-pack-v0 consumers.\",\"  ✗ CHK-003:adversarial:0 [adversarial/must/logic] stale via logic_test (packages/main/src/tasks/host-overflow-smoke.ts) — Handoff pack instructions forbid direct story JSON edits, auto-merge, auto-trust, evidence submission, receipt verification, and productionDone claims.\",\"  ✗ CHK-004:happy:0 [happy/must/cli] stale via logic_test — lattice handoff_receipt_submit accepts a completed external-host receipt referencing packId/hash/base/head, commands, changedFiles, verdict, and limitations, then returns accepted-local status.\",\"  ✗ CHK-004:edge:0 [edge/must/logic] stale via logic_test (packages/main/src/tasks/host-overflow-smoke.ts) — Receipt submit reports stale or scope warning/failure when head/base/hash or changedFiles do not match the pack constraints.\",\"  ✗ CHK-004:adversarial:0 [adversarial/must/logic] stale via logic_test (packages/main/src/tasks/host-overflow-smoke.ts) — Receipt submit remains local diagnostic evidence with authorityChanged=false, receiptVerified=false, productionDone=false, and cannot satisfy server authority by itself.\",\"  ✗ CHK-005:happy:0 [happy/must/cli] stale via logic_test — lattice handoff_worktree_create or equivalent projection returns worktree path, branch, baseSha, packId, allowedPaths, deniedPaths, and cleanup/merge guidance for an overflow task.\",\"  ✗ CHK-005:edge:0 [edge/must/logic] stale via logic_test (packages/main/src/tasks/host-overflow-smoke.ts) — Worktree isolation guidance refuses or warns when pack constraints are missing and does not modify external host results.\",\"  ✗ CHK-005:adversarial:0 [adversarial/must/logic] stale via logic_test (packages/main/src/tasks/host-overflow-smoke.ts) — Worktree projection does not auto-merge, does not delete unaccepted work, and keeps external host edits outside the main Codex worktree until reviewed.\",\"  ✗ CHK-006:happy:0 [happy/must/logic] stale via logic_test (packages/main/src/tasks/host-overflow-smoke.ts) — Host Overflow smoke passes and demonstrates host_status, handoff_create, handoff_receipt_submit, handoff_worktree_create, and host_dispatch JSON contracts.\",\"  ✗ CHK-006:edge:0 [edge/must/logic] stale via logic_test (packages/main/src/tasks/host-overflow-smoke.ts) — Smoke covers unavailable host, stale/hash mismatch, and out-of-scope changedFiles without blocking local workflow.\",\"  ✗ CHK-006:adversarial:0 [adversarial/must/manual] stale via manual_transcript (.koala/story/actives/B-aa98/evidence/host-overflow-transcript.md) — Transcript and tests prove the flow works without Mac App and without claiming server receipt or production authority.\",\"  ✗ CHK-007:happy:0 [happy/must/cli] stale via logic_test — lattice host_dispatch --host=claude-code --pack=<pack> --mode=supervised --format=json returns planned dispatch metadata with nextAction and no authority changes.\",\"  ✗ CHK-007:edge:0 [edge/must/logic] stale via logic_test (packages/main/src/tasks/host-overflow-smoke.ts) — When Claude Code is unavailable, host_dispatch returns unavailable/warn plus nextAction instead of failing the local workflow.\",\"  ✗ CHK-007:adversarial:0 [adversarial/must/logic] stale via logic_test (packages/main/src/tasks/host-overflow-smoke.ts) — host_dispatch never auto-trusts results, auto-merges diffs, submits evidence, verifies receipts, or claims productionDone.\"],\"warnings\":[],\"timestamp\":\"2026-06-02T22:38:32.620Z\",\"headSha\":\"d567c848aa94e3a557b76ffc43d6d38238eb123a\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":8115}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":21,\"reason\":\"verificationIntent entries present (21)\"},\"verificationCoverage\":{\"total\":21,\"required\":21,\"covered\":0,\"missingRequired\":21,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Docs explain Lattice Host Overflow as host-neutral authority: Lattice owns story/scope/receipt/gate, Codex/Claude Code/Gemini are execution hosts.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"docs_check\",\"command\":\"rg -n \\\"Host Overflow|host_status|handoff_worktree_create|handoff_receipt_submit|host_dispatch\\\" README.md docs/guide.md docs/requirements/decisions/project-vision.md docs/requirements/NAV.md docs/requirements/decisions/host-overflow.md\",\"result\":\"pass\",\"note\":\"README/guide/vision/nav and the new host-overflow decision doc describe the manual-first authority boundary and Claude Code execution-host role.\",\"headHash\":\"3ed135a91cf1036cc4de4dbd484ebf2a7ab8610f\",\"materialHash\":\"a9e5d1153e2c578001e930596743bd2a1b353212f3a8cffeb45fe3ebb0506a52\",\"timestamp\":\"2026-06-02T22:12:30.149Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Docs explicitly say manual handoff comes before supervised dispatch and Claude Code unavailable is a diagnostic degradation, not a workflow blocker.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"docs_check\",\"command\":\"rg -n \\\"manual-first|supervised dispatch|diagnostic degradation|not a workflow blocker\\\" README.md docs/guide.md docs/requirements/decisions/host-overflow.md\",\"result\":\"pass\",\"note\":\"Docs state manual-first handoff precedes supervised dispatch and unavailable Claude Code is reported as diagnostic degradation rather than a local workflow blocker.\",\"headHash\":\"3ed135a91cf1036cc4de4dbd484ebf2a7ab8610f\",\"materialHash\":\"a9e5d1153e2c578001e930596743bd2a1b353212f3a8cffeb45fe3ebb0506a52\",\"timestamp\":\"2026-06-02T22:12:30.149Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Docs do not claim Lattice is a new agent runtime, Mac App requirement, productionDone source, or automatic trust/merge mechanism for Claude Code output.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"docs_check\",\"command\":\"rg -n \\\"not a new agent runtime|Mac App is not required|productionDone=false|no auto-trust|no auto-merge\\\" README.md docs/guide.md docs/requirements/decisions/host-overflow.md\",\"result\":\"pass\",\"note\":\"Docs state Lattice Host Overflow is not a new runner, does not require Mac App, and does not claim productionDone, auto-trust, or auto-merge authority.\",\"headHash\":\"3ed135a91cf1036cc4de4dbd484ebf2a7ab8610f\",\"materialHash\":\"a9e5d1153e2c578001e930596743bd2a1b353212f3a8cffeb45fe3ebb0506a52\",\"timestamp\":\"2026-06-02T22:12:30.149Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"lattice host_status --host=claude-code --format=json reports overflow readiness, capabilities, limits, availability, and nextAction.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:host-overflow-smoke\",\"result\":\"pass\",\"note\":\"host-overflow smoke covers lattice host_status for claude-code/local-runner and proves overflowReady/status/nextAction stay diagnostic-only with productionDone=false and receiptVerified=false.\",\"headHash\":\"3ed135a91cf1036cc4de4dbd484ebf2a7ab8610f\",\"materialHash\":\"a9e5d1153e2c578001e930596743bd2a1b353212f3a8cffeb45fe3ebb0506a52\",\"timestamp\":\"2026-06-02T22:12:30.149Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Unknown or unavailable host returns diagnostic unavailable/warn with nextAction and does not block local story workflow.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/host-overflow-smoke.ts\",\"command\":\"npm --prefix packages/main run test:host-overflow-smoke\",\"result\":\"pass\",\"note\":\"Host Overflow smoke covers unavailable and non-ready host diagnostics with nextAction while keeping the local story workflow unblocked.\",\"headHash\":\"3ed135a91cf1036cc4de4dbd484ebf2a7ab8610f\",\"materialHash\":\"a9e5d1153e2c578001e930596743bd2a1b353212f3a8cffeb45fe3ebb0506a52\",\"timestamp\":\"2026-06-02T22:12:30.149Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Capability/status output keeps productionDone=false and receiptVerified=false; it never treats host availability as authority evidence.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/host-overflow-smoke.ts\",\"command\":\"npm --prefix packages/main run test:host-overflow-smoke\",\"result\":\"pass\",\"note\":\"Host Overflow smoke asserts host_status output stays diagnostic-only with productionDone=false and receiptVerified=false.\",\"headHash\":\"3ed135a91cf1036cc4de4dbd484ebf2a7ab8610f\",\"materialHash\":\"a9e5d1153e2c578001e930596743bd2a1b353212f3a8cffeb45fe3ebb0506a52\",\"timestamp\":\"2026-06-02T22:12:30.149Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"lattice handoff_create can create a Claude Code overflow pack with role, objective, baseSha, packId, packHash, allowedPaths, deniedPaths, requiredCommands, successCriteria, and authority boundary.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:lattice-handoff-smoke\",\"result\":\"pass\",\"note\":\"lattice-handoff smoke verifies bounded handoff packs include packId/packHash/baseSha-safe boundaries while preserving legacy handoff-pack-v0 compatibility and non-authoritative projections.\",\"headHash\":\"3ed135a91cf1036cc4de4dbd484ebf2a7ab8610f\",\"materialHash\":\"a9e5d1153e2c578001e930596743bd2a1b353212f3a8cffeb45fe3ebb0506a52\",\"timestamp\":\"2026-06-02T22:12:30.149Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Existing handoff_create/inspect/accept/resume compatibility remains intact for old handoff-pack-v0 consumers.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/lattice-handoff-smoke.ts\",\"command\":\"npm --prefix packages/main run test:lattice-handoff-smoke\",\"result\":\"pass\",\"note\":\"Lattice handoff smoke preserves existing handoff_create, inspect, accept, and resume compatibility for handoff-pack-v0 consumers.\",\"headHash\":\"3ed135a91cf1036cc4de4dbd484ebf2a7ab8610f\",\"materialHash\":\"a9e5d1153e2c578001e930596743bd2a1b353212f3a8cffeb45fe3ebb0506a52\",\"timestamp\":\"2026-06-02T22:12:30.150Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Handoff pack instructions forbid direct story JSON edits, auto-merge, auto-trust, evidence submission, receipt verification, and productionDone claims.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/host-overflow-smoke.ts\",\"command\":\"npm --prefix packages/main run test:host-overflow-smoke\",\"result\":\"pass\",\"note\":\"Host Overflow smoke verifies handoff pack instructions preserve authority boundaries and forbid direct story JSON edits, auto-merge, auto-trust, evidence submission, receipt verification, and productionDone claims.\",\"headHash\":\"3ed135a91cf1036cc4de4dbd484ebf2a7ab8610f\",\"materialHash\":\"a9e5d1153e2c578001e930596743bd2a1b353212f3a8cffeb45fe3ebb0506a52\",\"timestamp\":\"2026-06-02T22:12:30.150Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"lattice handoff_receipt_submit accepts a completed external-host receipt referencing packId/hash/base/head, commands, changedFiles, verdict, and limitations, then returns accepted-local status.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:host-overflow-smoke\",\"result\":\"pass\",\"note\":\"host-overflow smoke validates handoff_receipt_submit accepted-local and diagnostic flows, including pack-hash validation, scopeStatus, freshness, and the fixed authorityChanged=false / receiptVerified=false / productionDone=false boundary.\",\"headHash\":\"3ed135a91cf1036cc4de4dbd484ebf2a7ab8610f\",\"materialHash\":\"a9e5d1153e2c578001e930596743bd2a1b353212f3a8cffeb45fe3ebb0506a52\",\"timestamp\":\"2026-06-02T22:12:30.150Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"Receipt submit reports stale or scope warning/failure when head/base/hash or changedFiles do not match the pack constraints.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/host-overflow-smoke.ts\",\"command\":\"npm --prefix packages/main run test:host-overflow-smoke\",\"result\":\"pass\",\"note\":\"Host Overflow smoke covers stale head and pack hash mismatch plus changedFiles scope warning and failure diagnostics.\",\"headHash\":\"3ed135a91cf1036cc4de4dbd484ebf2a7ab8610f\",\"materialHash\":\"a9e5d1153e2c578001e930596743bd2a1b353212f3a8cffeb45fe3ebb0506a52\",\"timestamp\":\"2026-06-02T22:12:30.150Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"Receipt submit remains local diagnostic evidence with authorityChanged=false, receiptVerified=false, productionDone=false, and cannot satisfy server authority by itself.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/host-overflow-smoke.ts\",\"command\":\"npm --prefix packages/main run test:host-overflow-smoke\",\"result\":\"pass\",\"note\":\"Host Overflow smoke asserts handoff_receipt_submit remains accepted-local diagnostic evidence only with authorityChanged=false, receiptVerified=false, and productionDone=false.\",\"headHash\":\"3ed135a91cf1036cc4de4dbd484ebf2a7ab8610f\",\"materialHash\":\"a9e5d1153e2c578001e930596743bd2a1b353212f3a8cffeb45fe3ebb0506a52\",\"timestamp\":\"2026-06-02T22:12:30.150Z\"}},{\"intentRef\":\"CHK-005:happy:0\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"lattice handoff_worktree_create or equivalent projection returns worktree path, branch, baseSha, packId, allowedPaths, deniedPaths, and cleanup/merge guidance for an overflow task.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-005:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:host-overflow-smoke\",\"result\":\"pass\",\"note\":\"host-overflow smoke proves handoff_worktree_create returns isolated branch/worktree/cleanup guidance only, keeps external work unmerged, and warns when pack constraints are incomplete.\",\"headHash\":\"3ed135a91cf1036cc4de4dbd484ebf2a7ab8610f\",\"materialHash\":\"a9e5d1153e2c578001e930596743bd2a1b353212f3a8cffeb45fe3ebb0506a52\",\"timestamp\":\"2026-06-02T22:12:30.150Z\"}},{\"intentRef\":\"CHK-005:edge:0\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"Worktree isolation guidance refuses or warns when pack constraints are missing and does not modify external host results.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-005:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/host-overflow-smoke.ts\",\"command\":\"npm --prefix packages/main run test:host-overflow-smoke\",\"result\":\"pass\",\"note\":\"Host Overflow smoke covers incomplete or unsafe pack constraints through warnings and keeps external host results untouched.\",\"headHash\":\"3ed135a91cf1036cc4de4dbd484ebf2a7ab8610f\",\"materialHash\":\"a9e5d1153e2c578001e930596743bd2a1b353212f3a8cffeb45fe3ebb0506a52\",\"timestamp\":\"2026-06-02T22:12:30.150Z\"}},{\"intentRef\":\"CHK-005:adversarial:0\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"Worktree projection does not auto-merge, does not delete unaccepted work, and keeps external host edits outside the main Codex worktree until reviewed.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/host-overflow-smoke.ts\",\"command\":\"npm --prefix packages/main run test:host-overflow-smoke\",\"result\":\"pass\",\"note\":\"Host Overflow smoke asserts worktree projection returns guidance only and does not auto-merge, delete, or trust external host edits.\",\"headHash\":\"3ed135a91cf1036cc4de4dbd484ebf2a7ab8610f\",\"materialHash\":\"a9e5d1153e2c578001e930596743bd2a1b353212f3a8cffeb45fe3ebb0506a52\",\"timestamp\":\"2026-06-02T22:12:30.150Z\"}},{\"intentRef\":\"CHK-006:happy:0\",\"itemId\":\"CHK-006\",\"lane\":\"happy\",\"desc\":\"Host Overflow smoke passes and demonstrates host_status, handoff_create, handoff_receipt_submit, handoff_worktree_create, and host_dispatch JSON contracts.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-006:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/host-overflow-smoke.ts\",\"command\":\"npm --prefix packages/main run test:host-overflow-smoke\",\"result\":\"pass\",\"note\":\"Host Overflow smoke passed and demonstrates host_status, handoff_create, handoff_receipt_submit, handoff_worktree_create, and host_dispatch JSON contracts.\",\"headHash\":\"3ed135a91cf1036cc4de4dbd484ebf2a7ab8610f\",\"materialHash\":\"a9e5d1153e2c578001e930596743bd2a1b353212f3a8cffeb45fe3ebb0506a52\",\"timestamp\":\"2026-06-02T22:12:30.150Z\"}},{\"intentRef\":\"CHK-006:edge:0\",\"itemId\":\"CHK-006\",\"lane\":\"edge\",\"desc\":\"Smoke covers unavailable host, stale/hash mismatch, and out-of-scope changedFiles without blocking local workflow.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-006:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/host-overflow-smoke.ts\",\"command\":\"npm --prefix packages/main run test:host-overflow-smoke\",\"result\":\"pass\",\"note\":\"Host Overflow smoke covers unavailable/non-ready host behavior, pack hash mismatch, stale receipt freshness, and out-of-scope changedFiles without blocking local workflow.\",\"headHash\":\"3ed135a91cf1036cc4de4dbd484ebf2a7ab8610f\",\"materialHash\":\"a9e5d1153e2c578001e930596743bd2a1b353212f3a8cffeb45fe3ebb0506a52\",\"timestamp\":\"2026-06-02T22:12:30.150Z\"}},{\"intentRef\":\"CHK-006:adversarial:0\",\"itemId\":\"CHK-006\",\"lane\":\"adversarial\",\"desc\":\"Transcript and tests prove the flow works without Mac App and without claiming server receipt or production authority.\",\"type\":\"manual\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-006:adversarial:0\",\"kind\":\"manual_transcript\",\"file\":\".koala/story/actives/B-aa98/evidence/host-overflow-transcript.md\",\"command\":\"node packages/main/dist/cli.js host_status/handoff_create/handoff_worktree_create/host_dispatch/handoff_receipt_submit\",\"result\":\"pass\",\"note\":\"Transcript records the manual Claude Code overflow flow without Mac App and shows pack created -> receipt accepted-local -> scopeStatus=pass -> productionDone=false -> main-agent review/merge nextAction.\",\"headHash\":\"3ed135a91cf1036cc4de4dbd484ebf2a7ab8610f\",\"materialHash\":\"a9e5d1153e2c578001e930596743bd2a1b353212f3a8cffeb45fe3ebb0506a52\",\"timestamp\":\"2026-06-02T22:12:30.150Z\"}},{\"intentRef\":\"CHK-007:happy:0\",\"itemId\":\"CHK-007\",\"lane\":\"happy\",\"desc\":\"lattice host_dispatch --host=claude-code --pack=<pack> --mode=supervised --format=json returns planned dispatch metadata with nextAction and no authority changes.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-007:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:host-overflow-smoke\",\"result\":\"pass\",\"note\":\"host-overflow smoke verifies host_dispatch returns planned or unavailable with nextAction only, while preserving authorityChanged=false, receiptVerified=false, and productionDone=false.\",\"headHash\":\"3ed135a91cf1036cc4de4dbd484ebf2a7ab8610f\",\"materialHash\":\"a9e5d1153e2c578001e930596743bd2a1b353212f3a8cffeb45fe3ebb0506a52\",\"timestamp\":\"2026-06-02T22:12:30.150Z\"}},{\"intentRef\":\"CHK-007:edge:0\",\"itemId\":\"CHK-007\",\"lane\":\"edge\",\"desc\":\"When Claude Code is unavailable, host_dispatch returns unavailable/warn plus nextAction instead of failing the local workflow.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-007:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/host-overflow-smoke.ts\",\"command\":\"npm --prefix packages/main run test:host-overflow-smoke\",\"result\":\"pass\",\"note\":\"Host Overflow smoke covers unavailable host_dispatch output with warning and nextAction instead of failing the local workflow.\",\"headHash\":\"3ed135a91cf1036cc4de4dbd484ebf2a7ab8610f\",\"materialHash\":\"a9e5d1153e2c578001e930596743bd2a1b353212f3a8cffeb45fe3ebb0506a52\",\"timestamp\":\"2026-06-02T22:12:30.150Z\"}},{\"intentRef\":\"CHK-007:adversarial:0\",\"itemId\":\"CHK-007\",\"lane\":\"adversarial\",\"desc\":\"host_dispatch never auto-trusts results, auto-merges diffs, submits evidence, verifies receipts, or claims productionDone.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-007:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/host-overflow-smoke.ts\",\"command\":\"npm --prefix packages/main run test:host-overflow-smoke\",\"result\":\"pass\",\"note\":\"Host Overflow smoke asserts host_dispatch never auto-trusts output, auto-merges diffs, submits evidence, verifies receipts, or claims productionDone.\",\"headHash\":\"3ed135a91cf1036cc4de4dbd484ebf2a7ab8610f\",\"materialHash\":\"a9e5d1153e2c578001e930596743bd2a1b353212f3a8cffeb45fe3ebb0506a52\",\"timestamp\":\"2026-06-02T22:12:30.150Z\"}}]}}",
-  "result": "FAIL",
-  "timestamp": "2026-06-02T22:38:37.553Z",
-  "headHash": "d567c848aa94e3a557b76ffc43d6d38238eb123a",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.5 test\",\"  > npm run test:e2e\",\"  > koala@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 21/21 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/docs] covered via docs_check — Docs explain Lattice Host Overflow as host-neutral authority: Lattice owns story/scope/receipt/gate, Codex/Claude Code/Gemini are execution hosts.\",\"  ✓ CHK-001:edge:0 [edge/must/docs] covered via docs_check — Docs explicitly say manual handoff comes before supervised dispatch and Claude Code unavailable is a diagnostic degradation, not a workflow blocker.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/docs] covered via docs_check — Docs do not claim Lattice is a new agent runtime, Mac App requirement, productionDone source, or automatic trust/merge mechanism for Claude Code output.\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via logic_test — lattice host_status --host=claude-code --format=json reports overflow readiness, capabilities, limits, availability, and nextAction.\",\"  ✓ CHK-002:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/host-overflow-smoke.ts) — Unknown or unavailable host returns diagnostic unavailable/warn with nextAction and does not block local story workflow.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/host-overflow-smoke.ts) — Capability/status output keeps productionDone=false and receiptVerified=false; it never treats host availability as authority evidence.\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via logic_test — lattice handoff_create can create a Claude Code overflow pack with role, objective, baseSha, packId, packHash, allowedPaths, deniedPaths, requiredCommands, successCriteria, and authority boundary.\",\"  ✓ CHK-003:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/lattice-handoff-smoke.ts) — Existing handoff_create/inspect/accept/resume compatibility remains intact for old handoff-pack-v0 consumers.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/host-overflow-smoke.ts) — Handoff pack instructions forbid direct story JSON edits, auto-merge, auto-trust, evidence submission, receipt verification, and productionDone claims.\",\"  ✓ CHK-004:happy:0 [happy/must/cli] covered via logic_test — lattice handoff_receipt_submit accepts a completed external-host receipt referencing packId/hash/base/head, commands, changedFiles, verdict, and limitations, then returns accepted-local status.\",\"  ✓ CHK-004:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/host-overflow-smoke.ts) — Receipt submit reports stale or scope warning/failure when head/base/hash or changedFiles do not match the pack constraints.\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/host-overflow-smoke.ts) — Receipt submit remains local diagnostic evidence with authorityChanged=false, receiptVerified=false, productionDone=false, and cannot satisfy server authority by itself.\",\"  ✓ CHK-005:happy:0 [happy/must/cli] covered via logic_test — lattice handoff_worktree_create or equivalent projection returns worktree path, branch, baseSha, packId, allowedPaths, deniedPaths, and cleanup/merge guidance for an overflow task.\",\"  ✓ CHK-005:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/host-overflow-smoke.ts) — Worktree isolation guidance refuses or warns when pack constraints are missing and does not modify external host results.\",\"  ✓ CHK-005:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/host-overflow-smoke.ts) — Worktree projection does not auto-merge, does not delete unaccepted work, and keeps external host edits outside the main Codex worktree until reviewed.\",\"  ✓ CHK-006:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/tasks/host-overflow-smoke.ts) — Host Overflow smoke passes and demonstrates host_status, handoff_create, handoff_receipt_submit, handoff_worktree_create, and host_dispatch JSON contracts.\",\"  ✓ CHK-006:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/host-overflow-smoke.ts) — Smoke covers unavailable host, stale/hash mismatch, and out-of-scope changedFiles without blocking local workflow.\",\"  ✓ CHK-006:adversarial:0 [adversarial/must/manual] covered via manual_transcript (.koala/story/actives/B-aa98/evidence/host-overflow-transcript.md) — Transcript and tests prove the flow works without Mac App and without claiming server receipt or production authority.\",\"  ✓ CHK-007:happy:0 [happy/must/cli] covered via logic_test — lattice host_dispatch --host=claude-code --pack=<pack> --mode=supervised --format=json returns planned dispatch metadata with nextAction and no authority changes.\",\"  ✓ CHK-007:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/host-overflow-smoke.ts) — When Claude Code is unavailable, host_dispatch returns unavailable/warn plus nextAction instead of failing the local workflow.\",\"  ✓ CHK-007:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/host-overflow-smoke.ts) — host_dispatch never auto-trusts results, auto-merges diffs, submits evidence, verifies receipts, or claims productionDone.\"],\"warnings\":[],\"timestamp\":\"2026-06-02T22:39:27.156Z\",\"headSha\":\"d98519ca29167acaa3a03467067e597eae85bfaa\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":6844}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":21,\"reason\":\"verificationIntent entries present (21)\"},\"verificationCoverage\":{\"total\":21,\"required\":21,\"covered\":21,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Docs explain Lattice Host Overflow as host-neutral authority: Lattice owns story/scope/receipt/gate, Codex/Claude Code/Gemini are execution hosts.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"docs_check\",\"command\":\"rg -n \\\"Host Overflow|host_status|handoff_worktree_create|handoff_receipt_submit|host_dispatch\\\" README.md docs/guide.md docs/requirements/decisions/project-vision.md docs/requirements/NAV.md docs/requirements/decisions/host-overflow.md\",\"result\":\"pass\",\"note\":\"README/guide/vision/nav and the new host-overflow decision doc describe the manual-first authority boundary and Claude Code execution-host role.\",\"headHash\":\"d567c848aa94e3a557b76ffc43d6d38238eb123a\",\"materialHash\":\"bf72aa19d1117ecf826c1ac23b42dc1d2371783047f0344609d0178177fc3b54\",\"timestamp\":\"2026-06-02T22:39:05.260Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Docs explicitly say manual handoff comes before supervised dispatch and Claude Code unavailable is a diagnostic degradation, not a workflow blocker.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"docs_check\",\"command\":\"rg -n \\\"manual-first|supervised dispatch|diagnostic degradation|not a workflow blocker\\\" README.md docs/guide.md docs/requirements/decisions/host-overflow.md\",\"result\":\"pass\",\"note\":\"Docs state manual-first handoff precedes supervised dispatch and unavailable Claude Code is reported as diagnostic degradation rather than a local workflow blocker.\",\"headHash\":\"d567c848aa94e3a557b76ffc43d6d38238eb123a\",\"materialHash\":\"bf72aa19d1117ecf826c1ac23b42dc1d2371783047f0344609d0178177fc3b54\",\"timestamp\":\"2026-06-02T22:39:05.260Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Docs do not claim Lattice is a new agent runtime, Mac App requirement, productionDone source, or automatic trust/merge mechanism for Claude Code output.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"docs_check\",\"command\":\"rg -n \\\"not a new agent runtime|Mac App is not required|productionDone=false|no auto-trust|no auto-merge\\\" README.md docs/guide.md docs/requirements/decisions/host-overflow.md\",\"result\":\"pass\",\"note\":\"Docs state Lattice Host Overflow is not a new runner, does not require Mac App, and does not claim productionDone, auto-trust, or auto-merge authority.\",\"headHash\":\"d567c848aa94e3a557b76ffc43d6d38238eb123a\",\"materialHash\":\"bf72aa19d1117ecf826c1ac23b42dc1d2371783047f0344609d0178177fc3b54\",\"timestamp\":\"2026-06-02T22:39:05.260Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"lattice host_status --host=claude-code --format=json reports overflow readiness, capabilities, limits, availability, and nextAction.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:host-overflow-smoke\",\"result\":\"pass\",\"note\":\"host-overflow smoke covers lattice host_status for claude-code/local-runner and proves overflowReady/status/nextAction stay diagnostic-only with productionDone=false and receiptVerified=false.\",\"headHash\":\"d567c848aa94e3a557b76ffc43d6d38238eb123a\",\"materialHash\":\"bf72aa19d1117ecf826c1ac23b42dc1d2371783047f0344609d0178177fc3b54\",\"timestamp\":\"2026-06-02T22:39:05.260Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Unknown or unavailable host returns diagnostic unavailable/warn with nextAction and does not block local story workflow.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/host-overflow-smoke.ts\",\"command\":\"npm --prefix packages/main run test:host-overflow-smoke\",\"result\":\"pass\",\"note\":\"Host Overflow smoke covers unavailable and non-ready host diagnostics with nextAction while keeping the local story workflow unblocked.\",\"headHash\":\"d567c848aa94e3a557b76ffc43d6d38238eb123a\",\"materialHash\":\"bf72aa19d1117ecf826c1ac23b42dc1d2371783047f0344609d0178177fc3b54\",\"timestamp\":\"2026-06-02T22:39:05.260Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Capability/status output keeps productionDone=false and receiptVerified=false; it never treats host availability as authority evidence.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/host-overflow-smoke.ts\",\"command\":\"npm --prefix packages/main run test:host-overflow-smoke\",\"result\":\"pass\",\"note\":\"Host Overflow smoke asserts host_status output stays diagnostic-only with productionDone=false and receiptVerified=false.\",\"headHash\":\"d567c848aa94e3a557b76ffc43d6d38238eb123a\",\"materialHash\":\"bf72aa19d1117ecf826c1ac23b42dc1d2371783047f0344609d0178177fc3b54\",\"timestamp\":\"2026-06-02T22:39:05.260Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"lattice handoff_create can create a Claude Code overflow pack with role, objective, baseSha, packId, packHash, allowedPaths, deniedPaths, requiredCommands, successCriteria, and authority boundary.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:lattice-handoff-smoke\",\"result\":\"pass\",\"note\":\"lattice-handoff smoke verifies bounded handoff packs include packId/packHash/baseSha-safe boundaries while preserving legacy handoff-pack-v0 compatibility and non-authoritative projections.\",\"headHash\":\"d567c848aa94e3a557b76ffc43d6d38238eb123a\",\"materialHash\":\"bf72aa19d1117ecf826c1ac23b42dc1d2371783047f0344609d0178177fc3b54\",\"timestamp\":\"2026-06-02T22:39:05.260Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Existing handoff_create/inspect/accept/resume compatibility remains intact for old handoff-pack-v0 consumers.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/lattice-handoff-smoke.ts\",\"command\":\"npm --prefix packages/main run test:lattice-handoff-smoke\",\"result\":\"pass\",\"note\":\"Lattice handoff smoke preserves existing handoff_create, inspect, accept, and resume compatibility for handoff-pack-v0 consumers.\",\"headHash\":\"d567c848aa94e3a557b76ffc43d6d38238eb123a\",\"materialHash\":\"bf72aa19d1117ecf826c1ac23b42dc1d2371783047f0344609d0178177fc3b54\",\"timestamp\":\"2026-06-02T22:39:05.260Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Handoff pack instructions forbid direct story JSON edits, auto-merge, auto-trust, evidence submission, receipt verification, and productionDone claims.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/host-overflow-smoke.ts\",\"command\":\"npm --prefix packages/main run test:host-overflow-smoke\",\"result\":\"pass\",\"note\":\"Host Overflow smoke verifies handoff pack instructions preserve authority boundaries and forbid direct story JSON edits, auto-merge, auto-trust, evidence submission, receipt verification, and productionDone claims.\",\"headHash\":\"d567c848aa94e3a557b76ffc43d6d38238eb123a\",\"materialHash\":\"bf72aa19d1117ecf826c1ac23b42dc1d2371783047f0344609d0178177fc3b54\",\"timestamp\":\"2026-06-02T22:39:05.260Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"lattice handoff_receipt_submit accepts a completed external-host receipt referencing packId/hash/base/head, commands, changedFiles, verdict, and limitations, then returns accepted-local status.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:host-overflow-smoke\",\"result\":\"pass\",\"note\":\"host-overflow smoke validates handoff_receipt_submit accepted-local and diagnostic flows, including pack-hash validation, scopeStatus, freshness, and the fixed authorityChanged=false / receiptVerified=false / productionDone=false boundary.\",\"headHash\":\"d567c848aa94e3a557b76ffc43d6d38238eb123a\",\"materialHash\":\"bf72aa19d1117ecf826c1ac23b42dc1d2371783047f0344609d0178177fc3b54\",\"timestamp\":\"2026-06-02T22:39:05.260Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"Receipt submit reports stale or scope warning/failure when head/base/hash or changedFiles do not match the pack constraints.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/host-overflow-smoke.ts\",\"command\":\"npm --prefix packages/main run test:host-overflow-smoke\",\"result\":\"pass\",\"note\":\"Host Overflow smoke covers stale head and pack hash mismatch plus changedFiles scope warning and failure diagnostics.\",\"headHash\":\"d567c848aa94e3a557b76ffc43d6d38238eb123a\",\"materialHash\":\"bf72aa19d1117ecf826c1ac23b42dc1d2371783047f0344609d0178177fc3b54\",\"timestamp\":\"2026-06-02T22:39:05.261Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"Receipt submit remains local diagnostic evidence with authorityChanged=false, receiptVerified=false, productionDone=false, and cannot satisfy server authority by itself.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/host-overflow-smoke.ts\",\"command\":\"npm --prefix packages/main run test:host-overflow-smoke\",\"result\":\"pass\",\"note\":\"Host Overflow smoke asserts handoff_receipt_submit remains accepted-local diagnostic evidence only with authorityChanged=false, receiptVerified=false, and productionDone=false.\",\"headHash\":\"d567c848aa94e3a557b76ffc43d6d38238eb123a\",\"materialHash\":\"bf72aa19d1117ecf826c1ac23b42dc1d2371783047f0344609d0178177fc3b54\",\"timestamp\":\"2026-06-02T22:39:05.261Z\"}},{\"intentRef\":\"CHK-005:happy:0\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"lattice handoff_worktree_create or equivalent projection returns worktree path, branch, baseSha, packId, allowedPaths, deniedPaths, and cleanup/merge guidance for an overflow task.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:host-overflow-smoke\",\"result\":\"pass\",\"note\":\"host-overflow smoke proves handoff_worktree_create returns isolated branch/worktree/cleanup guidance only, keeps external work unmerged, and warns when pack constraints are incomplete.\",\"headHash\":\"d567c848aa94e3a557b76ffc43d6d38238eb123a\",\"materialHash\":\"bf72aa19d1117ecf826c1ac23b42dc1d2371783047f0344609d0178177fc3b54\",\"timestamp\":\"2026-06-02T22:39:05.261Z\"}},{\"intentRef\":\"CHK-005:edge:0\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"Worktree isolation guidance refuses or warns when pack constraints are missing and does not modify external host results.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/host-overflow-smoke.ts\",\"command\":\"npm --prefix packages/main run test:host-overflow-smoke\",\"result\":\"pass\",\"note\":\"Host Overflow smoke covers incomplete or unsafe pack constraints through warnings and keeps external host results untouched.\",\"headHash\":\"d567c848aa94e3a557b76ffc43d6d38238eb123a\",\"materialHash\":\"bf72aa19d1117ecf826c1ac23b42dc1d2371783047f0344609d0178177fc3b54\",\"timestamp\":\"2026-06-02T22:39:05.261Z\"}},{\"intentRef\":\"CHK-005:adversarial:0\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"Worktree projection does not auto-merge, does not delete unaccepted work, and keeps external host edits outside the main Codex worktree until reviewed.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/host-overflow-smoke.ts\",\"command\":\"npm --prefix packages/main run test:host-overflow-smoke\",\"result\":\"pass\",\"note\":\"Host Overflow smoke asserts worktree projection returns guidance only and does not auto-merge, delete, or trust external host edits.\",\"headHash\":\"d567c848aa94e3a557b76ffc43d6d38238eb123a\",\"materialHash\":\"bf72aa19d1117ecf826c1ac23b42dc1d2371783047f0344609d0178177fc3b54\",\"timestamp\":\"2026-06-02T22:39:05.261Z\"}},{\"intentRef\":\"CHK-006:happy:0\",\"itemId\":\"CHK-006\",\"lane\":\"happy\",\"desc\":\"Host Overflow smoke passes and demonstrates host_status, handoff_create, handoff_receipt_submit, handoff_worktree_create, and host_dispatch JSON contracts.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/host-overflow-smoke.ts\",\"command\":\"npm --prefix packages/main run test:host-overflow-smoke\",\"result\":\"pass\",\"note\":\"Host Overflow smoke passed and demonstrates host_status, handoff_create, handoff_receipt_submit, handoff_worktree_create, and host_dispatch JSON contracts.\",\"headHash\":\"d567c848aa94e3a557b76ffc43d6d38238eb123a\",\"materialHash\":\"bf72aa19d1117ecf826c1ac23b42dc1d2371783047f0344609d0178177fc3b54\",\"timestamp\":\"2026-06-02T22:39:05.261Z\"}},{\"intentRef\":\"CHK-006:edge:0\",\"itemId\":\"CHK-006\",\"lane\":\"edge\",\"desc\":\"Smoke covers unavailable host, stale/hash mismatch, and out-of-scope changedFiles without blocking local workflow.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/host-overflow-smoke.ts\",\"command\":\"npm --prefix packages/main run test:host-overflow-smoke\",\"result\":\"pass\",\"note\":\"Host Overflow smoke covers unavailable/non-ready host behavior, pack hash mismatch, stale receipt freshness, and out-of-scope changedFiles without blocking local workflow.\",\"headHash\":\"d567c848aa94e3a557b76ffc43d6d38238eb123a\",\"materialHash\":\"bf72aa19d1117ecf826c1ac23b42dc1d2371783047f0344609d0178177fc3b54\",\"timestamp\":\"2026-06-02T22:39:05.261Z\"}},{\"intentRef\":\"CHK-006:adversarial:0\",\"itemId\":\"CHK-006\",\"lane\":\"adversarial\",\"desc\":\"Transcript and tests prove the flow works without Mac App and without claiming server receipt or production authority.\",\"type\":\"manual\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:adversarial:0\",\"kind\":\"manual_transcript\",\"file\":\".koala/story/actives/B-aa98/evidence/host-overflow-transcript.md\",\"command\":\"node packages/main/dist/cli.js host_status/handoff_create/handoff_worktree_create/host_dispatch/handoff_receipt_submit\",\"result\":\"pass\",\"note\":\"Transcript records the manual Claude Code overflow flow without Mac App and shows pack created -> receipt accepted-local -> scopeStatus=pass -> productionDone=false -> main-agent review/merge nextAction.\",\"headHash\":\"d567c848aa94e3a557b76ffc43d6d38238eb123a\",\"materialHash\":\"bf72aa19d1117ecf826c1ac23b42dc1d2371783047f0344609d0178177fc3b54\",\"timestamp\":\"2026-06-02T22:39:05.261Z\"}},{\"intentRef\":\"CHK-007:happy:0\",\"itemId\":\"CHK-007\",\"lane\":\"happy\",\"desc\":\"lattice host_dispatch --host=claude-code --pack=<pack> --mode=supervised --format=json returns planned dispatch metadata with nextAction and no authority changes.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:host-overflow-smoke\",\"result\":\"pass\",\"note\":\"host-overflow smoke verifies host_dispatch returns planned or unavailable with nextAction only, while preserving authorityChanged=false, receiptVerified=false, and productionDone=false.\",\"headHash\":\"d567c848aa94e3a557b76ffc43d6d38238eb123a\",\"materialHash\":\"bf72aa19d1117ecf826c1ac23b42dc1d2371783047f0344609d0178177fc3b54\",\"timestamp\":\"2026-06-02T22:39:05.261Z\"}},{\"intentRef\":\"CHK-007:edge:0\",\"itemId\":\"CHK-007\",\"lane\":\"edge\",\"desc\":\"When Claude Code is unavailable, host_dispatch returns unavailable/warn plus nextAction instead of failing the local workflow.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/host-overflow-smoke.ts\",\"command\":\"npm --prefix packages/main run test:host-overflow-smoke\",\"result\":\"pass\",\"note\":\"Host Overflow smoke covers unavailable host_dispatch output with warning and nextAction instead of failing the local workflow.\",\"headHash\":\"d567c848aa94e3a557b76ffc43d6d38238eb123a\",\"materialHash\":\"bf72aa19d1117ecf826c1ac23b42dc1d2371783047f0344609d0178177fc3b54\",\"timestamp\":\"2026-06-02T22:39:05.261Z\"}},{\"intentRef\":\"CHK-007:adversarial:0\",\"itemId\":\"CHK-007\",\"lane\":\"adversarial\",\"desc\":\"host_dispatch never auto-trusts results, auto-merges diffs, submits evidence, verifies receipts, or claims productionDone.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/host-overflow-smoke.ts\",\"command\":\"npm --prefix packages/main run test:host-overflow-smoke\",\"result\":\"pass\",\"note\":\"Host Overflow smoke asserts host_dispatch never auto-trusts output, auto-merges diffs, submits evidence, verifies receipts, or claims productionDone.\",\"headHash\":\"d567c848aa94e3a557b76ffc43d6d38238eb123a\",\"materialHash\":\"bf72aa19d1117ecf826c1ac23b42dc1d2371783047f0344609d0178177fc3b54\",\"timestamp\":\"2026-06-02T22:39:05.261Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-02T22:39:31.521Z",
+  "headHash": "d98519ca29167acaa3a03467067e597eae85bfaa",
   "materialHash": "bf72aa19d1117ecf826c1ac23b42dc1d2371783047f0344609d0178177fc3b54",
   "verificationCoverage": {
     "total": 21,
     "required": 21,
-    "covered": 0,
-    "missingRequired": 21,
+    "covered": 21,
+    "missingRequired": 0,
     "entries": [
       {
         "intentRef": "CHK-001:happy:0",
@@ -18,16 +18,16 @@
         "desc": "Docs explain Lattice Host Overflow as host-neutral authority: Lattice owns story/scope/receipt/gate, Codex/Claude Code/Gemini are execution hosts.",
         "type": "docs",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:happy:0",
           "kind": "docs_check",
           "command": "rg -n \"Host Overflow|host_status|handoff_worktree_create|handoff_receipt_submit|host_dispatch\" README.md docs/guide.md docs/requirements/decisions/project-vision.md docs/requirements/NAV.md docs/requirements/decisions/host-overflow.md",
           "result": "pass",
           "note": "README/guide/vision/nav and the new host-overflow decision doc describe the manual-first authority boundary and Claude Code execution-host role.",
-          "headHash": "3ed135a91cf1036cc4de4dbd484ebf2a7ab8610f",
-          "materialHash": "a9e5d1153e2c578001e930596743bd2a1b353212f3a8cffeb45fe3ebb0506a52",
-          "timestamp": "2026-06-02T22:12:30.149Z"
+          "headHash": "d567c848aa94e3a557b76ffc43d6d38238eb123a",
+          "materialHash": "bf72aa19d1117ecf826c1ac23b42dc1d2371783047f0344609d0178177fc3b54",
+          "timestamp": "2026-06-02T22:39:05.260Z"
         }
       },
       {
@@ -37,16 +37,16 @@
         "desc": "Docs explicitly say manual handoff comes before supervised dispatch and Claude Code unavailable is a diagnostic degradation, not a workflow blocker.",
         "type": "docs",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:edge:0",
           "kind": "docs_check",
           "command": "rg -n \"manual-first|supervised dispatch|diagnostic degradation|not a workflow blocker\" README.md docs/guide.md docs/requirements/decisions/host-overflow.md",
           "result": "pass",
           "note": "Docs state manual-first handoff precedes supervised dispatch and unavailable Claude Code is reported as diagnostic degradation rather than a local workflow blocker.",
-          "headHash": "3ed135a91cf1036cc4de4dbd484ebf2a7ab8610f",
-          "materialHash": "a9e5d1153e2c578001e930596743bd2a1b353212f3a8cffeb45fe3ebb0506a52",
-          "timestamp": "2026-06-02T22:12:30.149Z"
+          "headHash": "d567c848aa94e3a557b76ffc43d6d38238eb123a",
+          "materialHash": "bf72aa19d1117ecf826c1ac23b42dc1d2371783047f0344609d0178177fc3b54",
+          "timestamp": "2026-06-02T22:39:05.260Z"
         }
       },
       {
@@ -56,16 +56,16 @@
         "desc": "Docs do not claim Lattice is a new agent runtime, Mac App requirement, productionDone source, or automatic trust/merge mechanism for Claude Code output.",
         "type": "docs",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "docs_check",
           "command": "rg -n \"not a new agent runtime|Mac App is not required|productionDone=false|no auto-trust|no auto-merge\" README.md docs/guide.md docs/requirements/decisions/host-overflow.md",
           "result": "pass",
           "note": "Docs state Lattice Host Overflow is not a new runner, does not require Mac App, and does not claim productionDone, auto-trust, or auto-merge authority.",
-          "headHash": "3ed135a91cf1036cc4de4dbd484ebf2a7ab8610f",
-          "materialHash": "a9e5d1153e2c578001e930596743bd2a1b353212f3a8cffeb45fe3ebb0506a52",
-          "timestamp": "2026-06-02T22:12:30.149Z"
+          "headHash": "d567c848aa94e3a557b76ffc43d6d38238eb123a",
+          "materialHash": "bf72aa19d1117ecf826c1ac23b42dc1d2371783047f0344609d0178177fc3b54",
+          "timestamp": "2026-06-02T22:39:05.260Z"
         }
       },
       {
@@ -75,16 +75,16 @@
         "desc": "lattice host_status --host=claude-code --format=json reports overflow readiness, capabilities, limits, availability, and nextAction.",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:happy:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:host-overflow-smoke",
           "result": "pass",
           "note": "host-overflow smoke covers lattice host_status for claude-code/local-runner and proves overflowReady/status/nextAction stay diagnostic-only with productionDone=false and receiptVerified=false.",
-          "headHash": "3ed135a91cf1036cc4de4dbd484ebf2a7ab8610f",
-          "materialHash": "a9e5d1153e2c578001e930596743bd2a1b353212f3a8cffeb45fe3ebb0506a52",
-          "timestamp": "2026-06-02T22:12:30.149Z"
+          "headHash": "d567c848aa94e3a557b76ffc43d6d38238eb123a",
+          "materialHash": "bf72aa19d1117ecf826c1ac23b42dc1d2371783047f0344609d0178177fc3b54",
+          "timestamp": "2026-06-02T22:39:05.260Z"
         }
       },
       {
@@ -94,7 +94,7 @@
         "desc": "Unknown or unavailable host returns diagnostic unavailable/warn with nextAction and does not block local story workflow.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
@@ -102,9 +102,9 @@
           "command": "npm --prefix packages/main run test:host-overflow-smoke",
           "result": "pass",
           "note": "Host Overflow smoke covers unavailable and non-ready host diagnostics with nextAction while keeping the local story workflow unblocked.",
-          "headHash": "3ed135a91cf1036cc4de4dbd484ebf2a7ab8610f",
-          "materialHash": "a9e5d1153e2c578001e930596743bd2a1b353212f3a8cffeb45fe3ebb0506a52",
-          "timestamp": "2026-06-02T22:12:30.149Z"
+          "headHash": "d567c848aa94e3a557b76ffc43d6d38238eb123a",
+          "materialHash": "bf72aa19d1117ecf826c1ac23b42dc1d2371783047f0344609d0178177fc3b54",
+          "timestamp": "2026-06-02T22:39:05.260Z"
         }
       },
       {
@@ -114,7 +114,7 @@
         "desc": "Capability/status output keeps productionDone=false and receiptVerified=false; it never treats host availability as authority evidence.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
@@ -122,9 +122,9 @@
           "command": "npm --prefix packages/main run test:host-overflow-smoke",
           "result": "pass",
           "note": "Host Overflow smoke asserts host_status output stays diagnostic-only with productionDone=false and receiptVerified=false.",
-          "headHash": "3ed135a91cf1036cc4de4dbd484ebf2a7ab8610f",
-          "materialHash": "a9e5d1153e2c578001e930596743bd2a1b353212f3a8cffeb45fe3ebb0506a52",
-          "timestamp": "2026-06-02T22:12:30.149Z"
+          "headHash": "d567c848aa94e3a557b76ffc43d6d38238eb123a",
+          "materialHash": "bf72aa19d1117ecf826c1ac23b42dc1d2371783047f0344609d0178177fc3b54",
+          "timestamp": "2026-06-02T22:39:05.260Z"
         }
       },
       {
@@ -134,16 +134,16 @@
         "desc": "lattice handoff_create can create a Claude Code overflow pack with role, objective, baseSha, packId, packHash, allowedPaths, deniedPaths, requiredCommands, successCriteria, and authority boundary.",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:happy:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:lattice-handoff-smoke",
           "result": "pass",
           "note": "lattice-handoff smoke verifies bounded handoff packs include packId/packHash/baseSha-safe boundaries while preserving legacy handoff-pack-v0 compatibility and non-authoritative projections.",
-          "headHash": "3ed135a91cf1036cc4de4dbd484ebf2a7ab8610f",
-          "materialHash": "a9e5d1153e2c578001e930596743bd2a1b353212f3a8cffeb45fe3ebb0506a52",
-          "timestamp": "2026-06-02T22:12:30.149Z"
+          "headHash": "d567c848aa94e3a557b76ffc43d6d38238eb123a",
+          "materialHash": "bf72aa19d1117ecf826c1ac23b42dc1d2371783047f0344609d0178177fc3b54",
+          "timestamp": "2026-06-02T22:39:05.260Z"
         }
       },
       {
@@ -153,7 +153,7 @@
         "desc": "Existing handoff_create/inspect/accept/resume compatibility remains intact for old handoff-pack-v0 consumers.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:edge:0",
           "kind": "logic_test",
@@ -161,9 +161,9 @@
           "command": "npm --prefix packages/main run test:lattice-handoff-smoke",
           "result": "pass",
           "note": "Lattice handoff smoke preserves existing handoff_create, inspect, accept, and resume compatibility for handoff-pack-v0 consumers.",
-          "headHash": "3ed135a91cf1036cc4de4dbd484ebf2a7ab8610f",
-          "materialHash": "a9e5d1153e2c578001e930596743bd2a1b353212f3a8cffeb45fe3ebb0506a52",
-          "timestamp": "2026-06-02T22:12:30.150Z"
+          "headHash": "d567c848aa94e3a557b76ffc43d6d38238eb123a",
+          "materialHash": "bf72aa19d1117ecf826c1ac23b42dc1d2371783047f0344609d0178177fc3b54",
+          "timestamp": "2026-06-02T22:39:05.260Z"
         }
       },
       {
@@ -173,7 +173,7 @@
         "desc": "Handoff pack instructions forbid direct story JSON edits, auto-merge, auto-trust, evidence submission, receipt verification, and productionDone claims.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "logic_test",
@@ -181,9 +181,9 @@
           "command": "npm --prefix packages/main run test:host-overflow-smoke",
           "result": "pass",
           "note": "Host Overflow smoke verifies handoff pack instructions preserve authority boundaries and forbid direct story JSON edits, auto-merge, auto-trust, evidence submission, receipt verification, and productionDone claims.",
-          "headHash": "3ed135a91cf1036cc4de4dbd484ebf2a7ab8610f",
-          "materialHash": "a9e5d1153e2c578001e930596743bd2a1b353212f3a8cffeb45fe3ebb0506a52",
-          "timestamp": "2026-06-02T22:12:30.150Z"
+          "headHash": "d567c848aa94e3a557b76ffc43d6d38238eb123a",
+          "materialHash": "bf72aa19d1117ecf826c1ac23b42dc1d2371783047f0344609d0178177fc3b54",
+          "timestamp": "2026-06-02T22:39:05.260Z"
         }
       },
       {
@@ -193,16 +193,16 @@
         "desc": "lattice handoff_receipt_submit accepts a completed external-host receipt referencing packId/hash/base/head, commands, changedFiles, verdict, and limitations, then returns accepted-local status.",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-004:happy:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:host-overflow-smoke",
           "result": "pass",
           "note": "host-overflow smoke validates handoff_receipt_submit accepted-local and diagnostic flows, including pack-hash validation, scopeStatus, freshness, and the fixed authorityChanged=false / receiptVerified=false / productionDone=false boundary.",
-          "headHash": "3ed135a91cf1036cc4de4dbd484ebf2a7ab8610f",
-          "materialHash": "a9e5d1153e2c578001e930596743bd2a1b353212f3a8cffeb45fe3ebb0506a52",
-          "timestamp": "2026-06-02T22:12:30.150Z"
+          "headHash": "d567c848aa94e3a557b76ffc43d6d38238eb123a",
+          "materialHash": "bf72aa19d1117ecf826c1ac23b42dc1d2371783047f0344609d0178177fc3b54",
+          "timestamp": "2026-06-02T22:39:05.260Z"
         }
       },
       {
@@ -212,7 +212,7 @@
         "desc": "Receipt submit reports stale or scope warning/failure when head/base/hash or changedFiles do not match the pack constraints.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-004:edge:0",
           "kind": "logic_test",
@@ -220,9 +220,9 @@
           "command": "npm --prefix packages/main run test:host-overflow-smoke",
           "result": "pass",
           "note": "Host Overflow smoke covers stale head and pack hash mismatch plus changedFiles scope warning and failure diagnostics.",
-          "headHash": "3ed135a91cf1036cc4de4dbd484ebf2a7ab8610f",
-          "materialHash": "a9e5d1153e2c578001e930596743bd2a1b353212f3a8cffeb45fe3ebb0506a52",
-          "timestamp": "2026-06-02T22:12:30.150Z"
+          "headHash": "d567c848aa94e3a557b76ffc43d6d38238eb123a",
+          "materialHash": "bf72aa19d1117ecf826c1ac23b42dc1d2371783047f0344609d0178177fc3b54",
+          "timestamp": "2026-06-02T22:39:05.261Z"
         }
       },
       {
@@ -232,7 +232,7 @@
         "desc": "Receipt submit remains local diagnostic evidence with authorityChanged=false, receiptVerified=false, productionDone=false, and cannot satisfy server authority by itself.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-004:adversarial:0",
           "kind": "logic_test",
@@ -240,9 +240,9 @@
           "command": "npm --prefix packages/main run test:host-overflow-smoke",
           "result": "pass",
           "note": "Host Overflow smoke asserts handoff_receipt_submit remains accepted-local diagnostic evidence only with authorityChanged=false, receiptVerified=false, and productionDone=false.",
-          "headHash": "3ed135a91cf1036cc4de4dbd484ebf2a7ab8610f",
-          "materialHash": "a9e5d1153e2c578001e930596743bd2a1b353212f3a8cffeb45fe3ebb0506a52",
-          "timestamp": "2026-06-02T22:12:30.150Z"
+          "headHash": "d567c848aa94e3a557b76ffc43d6d38238eb123a",
+          "materialHash": "bf72aa19d1117ecf826c1ac23b42dc1d2371783047f0344609d0178177fc3b54",
+          "timestamp": "2026-06-02T22:39:05.261Z"
         }
       },
       {
@@ -252,16 +252,16 @@
         "desc": "lattice handoff_worktree_create or equivalent projection returns worktree path, branch, baseSha, packId, allowedPaths, deniedPaths, and cleanup/merge guidance for an overflow task.",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-005:happy:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:host-overflow-smoke",
           "result": "pass",
           "note": "host-overflow smoke proves handoff_worktree_create returns isolated branch/worktree/cleanup guidance only, keeps external work unmerged, and warns when pack constraints are incomplete.",
-          "headHash": "3ed135a91cf1036cc4de4dbd484ebf2a7ab8610f",
-          "materialHash": "a9e5d1153e2c578001e930596743bd2a1b353212f3a8cffeb45fe3ebb0506a52",
-          "timestamp": "2026-06-02T22:12:30.150Z"
+          "headHash": "d567c848aa94e3a557b76ffc43d6d38238eb123a",
+          "materialHash": "bf72aa19d1117ecf826c1ac23b42dc1d2371783047f0344609d0178177fc3b54",
+          "timestamp": "2026-06-02T22:39:05.261Z"
         }
       },
       {
@@ -271,7 +271,7 @@
         "desc": "Worktree isolation guidance refuses or warns when pack constraints are missing and does not modify external host results.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-005:edge:0",
           "kind": "logic_test",
@@ -279,9 +279,9 @@
           "command": "npm --prefix packages/main run test:host-overflow-smoke",
           "result": "pass",
           "note": "Host Overflow smoke covers incomplete or unsafe pack constraints through warnings and keeps external host results untouched.",
-          "headHash": "3ed135a91cf1036cc4de4dbd484ebf2a7ab8610f",
-          "materialHash": "a9e5d1153e2c578001e930596743bd2a1b353212f3a8cffeb45fe3ebb0506a52",
-          "timestamp": "2026-06-02T22:12:30.150Z"
+          "headHash": "d567c848aa94e3a557b76ffc43d6d38238eb123a",
+          "materialHash": "bf72aa19d1117ecf826c1ac23b42dc1d2371783047f0344609d0178177fc3b54",
+          "timestamp": "2026-06-02T22:39:05.261Z"
         }
       },
       {
@@ -291,7 +291,7 @@
         "desc": "Worktree projection does not auto-merge, does not delete unaccepted work, and keeps external host edits outside the main Codex worktree until reviewed.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-005:adversarial:0",
           "kind": "logic_test",
@@ -299,9 +299,9 @@
           "command": "npm --prefix packages/main run test:host-overflow-smoke",
           "result": "pass",
           "note": "Host Overflow smoke asserts worktree projection returns guidance only and does not auto-merge, delete, or trust external host edits.",
-          "headHash": "3ed135a91cf1036cc4de4dbd484ebf2a7ab8610f",
-          "materialHash": "a9e5d1153e2c578001e930596743bd2a1b353212f3a8cffeb45fe3ebb0506a52",
-          "timestamp": "2026-06-02T22:12:30.150Z"
+          "headHash": "d567c848aa94e3a557b76ffc43d6d38238eb123a",
+          "materialHash": "bf72aa19d1117ecf826c1ac23b42dc1d2371783047f0344609d0178177fc3b54",
+          "timestamp": "2026-06-02T22:39:05.261Z"
         }
       },
       {
@@ -311,7 +311,7 @@
         "desc": "Host Overflow smoke passes and demonstrates host_status, handoff_create, handoff_receipt_submit, handoff_worktree_create, and host_dispatch JSON contracts.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-006:happy:0",
           "kind": "logic_test",
@@ -319,9 +319,9 @@
           "command": "npm --prefix packages/main run test:host-overflow-smoke",
           "result": "pass",
           "note": "Host Overflow smoke passed and demonstrates host_status, handoff_create, handoff_receipt_submit, handoff_worktree_create, and host_dispatch JSON contracts.",
-          "headHash": "3ed135a91cf1036cc4de4dbd484ebf2a7ab8610f",
-          "materialHash": "a9e5d1153e2c578001e930596743bd2a1b353212f3a8cffeb45fe3ebb0506a52",
-          "timestamp": "2026-06-02T22:12:30.150Z"
+          "headHash": "d567c848aa94e3a557b76ffc43d6d38238eb123a",
+          "materialHash": "bf72aa19d1117ecf826c1ac23b42dc1d2371783047f0344609d0178177fc3b54",
+          "timestamp": "2026-06-02T22:39:05.261Z"
         }
       },
       {
@@ -331,7 +331,7 @@
         "desc": "Smoke covers unavailable host, stale/hash mismatch, and out-of-scope changedFiles without blocking local workflow.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-006:edge:0",
           "kind": "logic_test",
@@ -339,9 +339,9 @@
           "command": "npm --prefix packages/main run test:host-overflow-smoke",
           "result": "pass",
           "note": "Host Overflow smoke covers unavailable/non-ready host behavior, pack hash mismatch, stale receipt freshness, and out-of-scope changedFiles without blocking local workflow.",
-          "headHash": "3ed135a91cf1036cc4de4dbd484ebf2a7ab8610f",
-          "materialHash": "a9e5d1153e2c578001e930596743bd2a1b353212f3a8cffeb45fe3ebb0506a52",
-          "timestamp": "2026-06-02T22:12:30.150Z"
+          "headHash": "d567c848aa94e3a557b76ffc43d6d38238eb123a",
+          "materialHash": "bf72aa19d1117ecf826c1ac23b42dc1d2371783047f0344609d0178177fc3b54",
+          "timestamp": "2026-06-02T22:39:05.261Z"
         }
       },
       {
@@ -351,7 +351,7 @@
         "desc": "Transcript and tests prove the flow works without Mac App and without claiming server receipt or production authority.",
         "type": "manual",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-006:adversarial:0",
           "kind": "manual_transcript",
@@ -359,9 +359,9 @@
           "command": "node packages/main/dist/cli.js host_status/handoff_create/handoff_worktree_create/host_dispatch/handoff_receipt_submit",
           "result": "pass",
           "note": "Transcript records the manual Claude Code overflow flow without Mac App and shows pack created -> receipt accepted-local -> scopeStatus=pass -> productionDone=false -> main-agent review/merge nextAction.",
-          "headHash": "3ed135a91cf1036cc4de4dbd484ebf2a7ab8610f",
-          "materialHash": "a9e5d1153e2c578001e930596743bd2a1b353212f3a8cffeb45fe3ebb0506a52",
-          "timestamp": "2026-06-02T22:12:30.150Z"
+          "headHash": "d567c848aa94e3a557b76ffc43d6d38238eb123a",
+          "materialHash": "bf72aa19d1117ecf826c1ac23b42dc1d2371783047f0344609d0178177fc3b54",
+          "timestamp": "2026-06-02T22:39:05.261Z"
         }
       },
       {
@@ -371,16 +371,16 @@
         "desc": "lattice host_dispatch --host=claude-code --pack=<pack> --mode=supervised --format=json returns planned dispatch metadata with nextAction and no authority changes.",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-007:happy:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:host-overflow-smoke",
           "result": "pass",
           "note": "host-overflow smoke verifies host_dispatch returns planned or unavailable with nextAction only, while preserving authorityChanged=false, receiptVerified=false, and productionDone=false.",
-          "headHash": "3ed135a91cf1036cc4de4dbd484ebf2a7ab8610f",
-          "materialHash": "a9e5d1153e2c578001e930596743bd2a1b353212f3a8cffeb45fe3ebb0506a52",
-          "timestamp": "2026-06-02T22:12:30.150Z"
+          "headHash": "d567c848aa94e3a557b76ffc43d6d38238eb123a",
+          "materialHash": "bf72aa19d1117ecf826c1ac23b42dc1d2371783047f0344609d0178177fc3b54",
+          "timestamp": "2026-06-02T22:39:05.261Z"
         }
       },
       {
@@ -390,7 +390,7 @@
         "desc": "When Claude Code is unavailable, host_dispatch returns unavailable/warn plus nextAction instead of failing the local workflow.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-007:edge:0",
           "kind": "logic_test",
@@ -398,9 +398,9 @@
           "command": "npm --prefix packages/main run test:host-overflow-smoke",
           "result": "pass",
           "note": "Host Overflow smoke covers unavailable host_dispatch output with warning and nextAction instead of failing the local workflow.",
-          "headHash": "3ed135a91cf1036cc4de4dbd484ebf2a7ab8610f",
-          "materialHash": "a9e5d1153e2c578001e930596743bd2a1b353212f3a8cffeb45fe3ebb0506a52",
-          "timestamp": "2026-06-02T22:12:30.150Z"
+          "headHash": "d567c848aa94e3a557b76ffc43d6d38238eb123a",
+          "materialHash": "bf72aa19d1117ecf826c1ac23b42dc1d2371783047f0344609d0178177fc3b54",
+          "timestamp": "2026-06-02T22:39:05.261Z"
         }
       },
       {
@@ -410,7 +410,7 @@
         "desc": "host_dispatch never auto-trusts results, auto-merges diffs, submits evidence, verifies receipts, or claims productionDone.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-007:adversarial:0",
           "kind": "logic_test",
@@ -418,9 +418,9 @@
           "command": "npm --prefix packages/main run test:host-overflow-smoke",
           "result": "pass",
           "note": "Host Overflow smoke asserts host_dispatch never auto-trusts output, auto-merges diffs, submits evidence, verifies receipts, or claims productionDone.",
-          "headHash": "3ed135a91cf1036cc4de4dbd484ebf2a7ab8610f",
-          "materialHash": "a9e5d1153e2c578001e930596743bd2a1b353212f3a8cffeb45fe3ebb0506a52",
-          "timestamp": "2026-06-02T22:12:30.150Z"
+          "headHash": "d567c848aa94e3a557b76ffc43d6d38238eb123a",
+          "materialHash": "bf72aa19d1117ecf826c1ac23b42dc1d2371783047f0344609d0178177fc3b54",
+          "timestamp": "2026-06-02T22:39:05.261Z"
         }
       }
     ]
