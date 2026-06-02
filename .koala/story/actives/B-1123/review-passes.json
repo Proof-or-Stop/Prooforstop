@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-02T17:46:40.609Z",
       "reviewRunId": "B-1123:RR-005",
       "_hash": "1c9ab345896d2dc3363219551734868f9b0f1a13b37506e3f0d1553591988bde"
+    },
+    {
+      "id": "B-1123:RP-005",
+      "agent": "koala-review-test-coverage",
+      "note": "Test coverage pass for all 6 verification intents (CHK-001 happy/edge/adversarial + CHK-002 happy/edge/adversarial). Ran npm run test:authority-runner-contracts and npm run test:authority-runner-client — both print their PASS_LINE. Coverage map: CHK-001:happy:0 ← contracts-smoke §1 determinism + §2 sign/verify roundtrip + §5a-5g per-envelope + §10 JobSpec; CHK-001:edge:0 ← §2 wrong key + tamper + malformed sig + §4 tampered payload + missing sig + §6 empty/whitespace actorId/nonce/createdAt sign-throw + verify-false + §7 same-run collapse + whitespace-only collapse; CHK-001:adversarial:0 ← §7 signed-but-unbound not L2+ + full missing requirements list including verifiedAuthorityReceipt + collapsed verifier rejected + fully-bound+receipt clears boundary; CHK-002:happy:0 ← client-smoke §1a-1g all 7 endpoints hit exactly once with URL-encoded paths + Zod parse on outbound bodies + AuthorityReceipt/JobSpec union response parsing + null JobSpec success; CHK-002:edge:0 ← §2 empty path params throw zero calls + §3 503 http_error + malformed 2xx → error + ECONNREFUSED → connection_refused + AbortError → timeout + §4 off mode + missing URL + whitespace URL all zero calls + §5 illegal mode normalizes to off; CHK-002:adversarial:0 ← §6 policy discovery is GET only one call to /v1/authority/policy with no body and asserts no POST to /v1/evidence /v1/runners/register /jobs/claim /keys /provider-events + §7 overclaim accepted:true → error. No coverage gap.",
+      "createdAt": "2026-06-02T17:55:22.593Z",
+      "reviewRound": "2026-06-02T17:46:40.609Z",
+      "reviewRunId": "B-1123:RR-006",
+      "_hash": "c41bccf13f55fa08d5cfb404a189ce697865b37319d0c4af15e4c228a9cc4d04"
     }
   ]
 }
