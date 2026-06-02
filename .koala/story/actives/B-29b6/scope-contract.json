@@ -9,6 +9,7 @@
     "packages/main/package.json",
     "packages/main/src/core/command-policy.ts",
     "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/config.ts",
     ".koala/story/actives/B-29b6/checklist.json",
     ".koala/story/actives/B-29b6/summary.json"
   ],
@@ -30,8 +31,8 @@
     "packages/main/src/core/lattice-handoff.ts",
     "packages/main/src/core/lattice-evidence.ts"
   ],
-  "scopeChangeReason": "Initialize enforce-mode scope from PLAN so Parallel Wave work cannot modify existing Canonical Story, handoff, evidence, or authority decision files without explicit acknowledgement.",
+  "scopeChangeReason": "REVIEW finding B-29b6:F-002 proved phase allowlist wiring requires packages/main/src/core/config.ts; keep enforce mode and protected authority/canonical boundaries unchanged.",
   "acknowledgements": [],
   "createdAt": "2026-06-02T05:05:32.669Z",
-  "updatedAt": "2026-06-02T05:05:32.669Z"
+  "updatedAt": "2026-06-02T05:34:04.491Z"
 }
