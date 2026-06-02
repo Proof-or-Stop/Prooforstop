@@ -284,7 +284,47 @@
       "userSees": "用户运行 supervised dispatch projection 时看到 planned/unavailable 状态、nextAction、authorityChanged=false、productionDone=false；不可用时流程不崩溃。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-handoff.ts",
+          "packages/main/src/handlers/lattice-handoff.ts",
+          "packages/main/src/core/lattice-hosts.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "README.md",
+          "docs/guide.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/host-overflow-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice host_dispatch --host=claude-code --pack=<pack> --mode=supervised --format=json returns planned dispatch metadata with nextAction and no authority changes.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "When Claude Code is unavailable, host_dispatch returns unavailable/warn plus nextAction instead of failing the local workflow.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "host_dispatch never auto-trusts results, auto-merges diffs, submits evidence, verifies receipts, or claims productionDone.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
