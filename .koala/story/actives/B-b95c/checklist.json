@@ -1,0 +1,137 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Define Lattice primary asset naming contract",
+      "context": "Document which paths are primary for new projects and which Koala paths remain legacy compatibility aliases.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "docs/requirements/decisions/stack-layering.md",
+        "AGENTS.md"
+      ],
+      "userSees": "用户看到文档说明新项目使用 `LATTICE.md`, `bin/lattice.js`, `bin/lattice-codex.js`, `.Codex/lattice.json`；旧 `KOALA.md`, `bin/koala.js`, `bin/koala-codex.js`, `.Codex/koala.json` 仍可识别为 legacy。",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Docs distinguish new Lattice primary paths from legacy Koala compatibility aliases.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Docs state new init should not silently delete existing Koala-named assets in old projects.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Docs avoid claiming runtime/production authority changes; this is managed asset naming only.",
+            "type": "docs"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Implement Lattice-branded init output",
+      "context": "Update init templates and wrapper generation so new projects write Lattice primary files and commands by default.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "README.md"
+      ],
+      "userSees": "用户运行 `lattice init --profile=codex --asset-mode=thin` 后看到生成 `LATTICE.md`, `bin/lattice.js`, `bin/lattice-codex.js`, `.Codex/lattice.json`，没有 `bin/koala*.js` 或 `.Codex/koala.json`。",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "New Codex thin init writes Lattice primary assets and omits Koala-named local wrappers/manifests.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Default/full init still materializes prompt assets while using Lattice-branded launchers and manifest paths.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Profile cleanup and thin init do not delete user-owned legacy Koala assets unless ownership is proven safe.",
+            "type": "cli"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Preserve legacy Koala asset compatibility",
+      "context": "Update managed asset detection/check and Codex verification to accept existing Koala-named files and wrappers while preferring Lattice paths for new assets.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "AGENTS.md"
+      ],
+      "userSees": "用户在旧项目里运行 `node bin/koala-codex.js verify_codex` 仍能通过；新项目里运行 `node bin/lattice-codex.js verify_codex` 也能通过。",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Legacy Koala manifest/wrapper paths remain accepted by check and verify.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "When both Lattice and Koala manifest paths exist, verification prefers Lattice primary path and reports clear drift diagnostics.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Missing both primary and legacy paths fails clearly with recovery command that names the Lattice entrypoint.",
+            "type": "logic"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Validate docs, init fixtures, and adapter verification",
+      "context": "Add focused smoke coverage and run build plus Codex adapter verification to prove new names and legacy aliases both work.",
+      "relatedDocs": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "userSees": "用户看到验证摘要包含 `✓ lattice branded init smoke passed`, `✓ legacy koala compatibility smoke passed`, `✓ build passed`, 和 `✓ Codex adapter checks passed`。",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Focused smoke commands and TypeScript build pass.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Thin/full and legacy/new path combinations are covered by tests.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Codex adapter evidence is refreshed after changing adapter material paths.",
+            "type": "cli"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

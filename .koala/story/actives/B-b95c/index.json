@@ -1,0 +1,43 @@
+{
+  "storyId": "B-b95c",
+  "name": "lattice-branded-init-assets",
+  "title": "Default new init assets to Lattice names with Koala compatibility",
+  "description": "Make new Lattice/Koala init projects use Lattice-branded local assets (LATTICE.md, bin/lattice.js, bin/lattice-codex.js, .Codex/lattice.json) while preserving legacy Koala asset recognition and verification for existing projects. Avoid generating extra Koala-named files for new projects unless a compatibility path explicitly needs them.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "keywords": [
+    "lattice",
+    "init",
+    "managed-assets",
+    "codex-adapter",
+    "legacy-koala-alias"
+  ],
+  "createdAt": "2026-06-02T21:37:26.626Z",
+  "startedAt": "2026-06-02T21:37:26.626Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-02T21:37:26.632Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-02T21:37:42.873Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-lattice-brand-init",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-b95c",
+    "branch": "story/B-b95c",
+    "createdAt": "2026-06-02T21:37:43.001Z"
+  }
+}
