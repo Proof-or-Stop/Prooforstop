@@ -194,7 +194,7 @@
         "docs/requirements/decisions/lattice-parallel-wave.md",
         "docs/requirements/decisions/dev-memory.md"
       ],
-      "userSees": "Validation transcript shows the new operator surfaces work end-to-end and cannot promote authority.",
+      "userSees": "`npm --prefix packages/main run test:lattice-parallel-wave-smoke` ends with `✓ lattice parallel wave smoke passed`, and `koala validate --story=B-e70f` reports `allPass:true` with required intents covered.",
       "status": "pending",
       "startTime": null,
       "endTime": null,
