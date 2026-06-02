@@ -61,8 +61,8 @@
         "docs/requirements/decisions/stack-layering.md",
         "docs/requirements/decisions/project-vision.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-02T11:24:35.270Z",
       "endTime": null,
       "userSees": "用户运行 `lattice host list`、`lattice host probe --host=codex` 和 `lattice config doctor` 看到 provider/config 状态与降级提示，不需要打开 Mac App provider dashboard。",
       "files": {
@@ -256,6 +256,15 @@
       "timestamp": "2026-06-02T11:24:34.136Z",
       "phase": "DEV",
       "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start DEV implementation for Lattice CLI 0.3.5 migration."
+    },
+    {
+      "timestamp": "2026-06-02T11:24:35.270Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
       "action": "update",
       "from": "pending",
       "to": "in_progress",
