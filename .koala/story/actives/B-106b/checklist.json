@@ -497,6 +497,55 @@
       "status": "pending",
       "startTime": null,
       "endTime": null
+    },
+    {
+      "id": "CHK-015",
+      "title": "Validate parallel multi-agent dispatch with isolated receipts",
+      "context": "Prove Lattice can coordinate multiple parallel fake/host dispatches for disjoint scopes, keep work isolated, collect separate receipts, and produce a combined review/merge plan without auto-merging or claiming DONE.",
+      "relatedDocs": [
+        "docs/requirements/decisions/host-overflow.md",
+        "docs/requirements/decisions/lattice-parallel-wave.md"
+      ],
+      "userSees": "`lattice dispatch_run --host=fake --parallel=2 --json` returns two worker dispatches, two receipts, combined status=accepted_local, productionDone=false.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "parallel fake dispatch creates two isolated worker dispatches with separate accepted-local receipts.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "one worker failing leaves combined status diagnostic/partial and preserves the passing worker receipt.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "parallel workers with overlapping or denied scopes cannot be auto-merged or productionDone.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-02T23:40:13.445Z",
+      "phase": "PLAN",
+      "itemId": "CHK-015",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "User explicitly requested validation of multi-agent parallel development capability, not only single-host overflow.",
+      "addedTitle": "Validate parallel multi-agent dispatch with isolated receipts",
+      "addedContext": "Prove Lattice can coordinate multiple parallel fake/host dispatches for disjoint scopes, keep work isolated, collect separate receipts, and produce a combined review/merge plan without auto-merging or claiming DONE."
     }
   ]
 }
