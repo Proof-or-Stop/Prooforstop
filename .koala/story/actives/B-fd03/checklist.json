@@ -109,10 +109,46 @@
         "docs/requirements/decisions/lifecycle-artifact-scope.md",
         "docs/requirements/decisions/authority-client-role.md"
       ],
-      "userSees": "用户执行 `lattice rollout_check --projects <paths> --json` 得到每个项目 PASS/WARN/FAIL 和 next action，不需要逐个手跑 doctor/check。",
+      "userSees": "用户执行 `lattice rollout_check --projects /path/a,/path/b --json` 时看到 `summary.total`、`summary.pass/warn/fail` 和每个项目的 `status`、`nextAction`。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "create": [
+          "packages/main/src/core/rollout-check.ts",
+          "packages/main/src/handlers/rollout-check.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/rollout-check-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice rollout_check --projects <paths> --json returns stable summary counts and per-project status/nextAction records.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "External or non-Lattice projects are normalized into WARN/SKIP-style project results with evidence snippets instead of opaque command failures.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "rollout_check never invokes apply/repair commands and does not change scanned project git status.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
