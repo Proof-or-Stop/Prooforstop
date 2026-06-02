@@ -10,9 +10,9 @@
         "docs/requirements/decisions/project-vision.md"
       ],
       "userSees": "用户在 README/guide 中看到 `lattice check`、`lattice doctor`、`lattice session_brief`、`lattice rollout_check`，并看到 `koala` 标注为 legacy alias。",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-02T14:51:56.515Z",
-      "endTime": null,
+      "endTime": "2026-06-02T15:35:13.831Z",
       "files": {
         "modify": [
           "README.md",
@@ -46,7 +46,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "README.md",
+          "command": "rg \"lattice (check|doctor|session_brief|rollout_check)\" README.md docs/guide.md docs/requirements/decisions/project-vision.md",
+          "result": "pass",
+          "note": "README, docs/guide, and project vision publish lattice as the primary entrypoint, include local/global refresh commands, and document rollout_check.",
+          "headHash": "5a306ab1404bff5d0477341c08ec532d26208a22",
+          "materialHash": "8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910",
+          "timestamp": "2026-06-02T15:35:13.914Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "README.md",
+          "command": "rg \"legacy alias|koala-codex|.koala\" README.md docs/guide.md docs/requirements/decisions/project-vision.md",
+          "result": "pass",
+          "note": "Docs preserve koala references only for legacy alias, package/path, adapter, and historical state semantics.",
+          "headHash": "5a306ab1404bff5d0477341c08ec532d26208a22",
+          "materialHash": "8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910",
+          "timestamp": "2026-06-02T15:35:14.060Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "README.md",
+          "command": "rg \"koala (check|doctor|session_brief|validate|story_|init|dispatch|help|lab)\" README.md docs/guide.md docs/requirements/decisions/project-vision.md",
+          "result": "pass",
+          "note": "No general docs guidance tells users to prefer koala for check/doctor/session_brief/rollout workflows; lattice is primary.",
+          "headHash": "5a306ab1404bff5d0477341c08ec532d26208a22",
+          "materialHash": "8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910",
+          "timestamp": "2026-06-02T15:35:14.114Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -198,6 +233,17 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-02T15:35:13.831Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Docs and install guidance committed in 5a306ab1."
     }
   ]
 }
