@@ -39,7 +39,17 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Implementation also updates session-brief prompt sync smoke because the canonical session brief footer now recommends lattice session_brief while koala remains only a legacy alias.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Review finding F-002 requires Lattice-first user-facing hints and session reminder wording across CLI and Claude adapter surfaces.",
+      "timestamp": "2026-06-02T15:52:09.962Z",
+      "paths": [
+        "packages/main/src/handlers/hints.ts",
+        ".claude/hooks/session-brief-reminder.cjs"
+      ]
+    }
+  ],
   "createdAt": "2026-06-02T14:42:55.423Z",
-  "updatedAt": "2026-06-02T15:33:15.034Z"
+  "updatedAt": "2026-06-02T15:52:09.962Z"
 }
