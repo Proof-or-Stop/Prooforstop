@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-02T17:46:40.609Z",
       "reviewRunId": "B-b710:RR-007",
       "_hash": "cb467ae27e0d43bc851a817aa211dd33b145cb224d39de18232c0bd1ff95aba0"
+    },
+    {
+      "id": "B-b710:RP-007",
+      "agent": "koala-review-test-coverage",
+      "note": "All six verificationIntent refs (CHK-001/CHK-002 happy/edge/adversarial) have matching evidence and pass on a real run of npm run test:authority-status-smoke. CHK-001 happy: smoke asserts mode=off, localWorkflowUsable=true, productionDone=false, receiptVerified=false, canClaimProductionDone=false, readinessWarnings=[] via both buildAuthorityStatus and CLI --json/--format=json paths. CHK-001 edge: shadow+missing URL emits actionable readinessWarnings and nextActions while keeping productionDone=false and localWorkflowUsable=true; enforce+missing URL/actor key/runner emits 3 distinct readiness warnings. CHK-001 adversarial: assertNoProductionOverclaim recursively walks authority_status, conduit_status, and conduit_explain outputs across off/shadow/enforce/full-env states and fails on any true productionDone/receiptVerified/canClaimProductionDone/authorityChanged - the env-complete enforce case is the strongest test (every readiness field configured, still no authority promotion). CHK-002 happy: README.md and docs/guide.md both document off/shadow/enforce semantics with explicit inspect commands (lattice authority status --json, KOALA_AUTHORITY_MODE=shadow|enforce variants). CHK-002 edge: docs explicitly state local/off is the default free/local workflow and readiness gaps are warnings, not blockers (\"本地 story workflow 永远不被 authority 阻塞\"). CHK-002 adversarial: authority-client-role.md PD-1 and B-b710 section explicitly forbid treating transport acceptance or local JSON as verified authority receipt evidence, with mechanical guard pointing back to authority-status-smoke.ts. No coverage gap detected.",
+      "createdAt": "2026-06-02T17:58:40.742Z",
+      "reviewRound": "2026-06-02T17:46:40.609Z",
+      "reviewRunId": "B-b710:RR-008",
+      "_hash": "365a2110aa1bc34f5fe2ad7d3f3567834135c117ba67b8593deca20d542cc391"
     }
   ]
 }
