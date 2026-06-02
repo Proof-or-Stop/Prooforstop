@@ -105,6 +105,23 @@
         "AGENTS.md",
         "KOALA.md"
       ]
+    },
+    {
+      "id": "B-b95c:F-007",
+      "desc": "packages/main/src/handlers/background.ts:103 Existing background.md files that still use legacy ## 触发事件-style headers cannot be appended anymore: the lookup compares raw header text to the canonical English title from backgroundSectionTitle(), so background_append now throws on repo data that packages/main/src/core/background-validator.ts explicitly accepts as compatible.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-02T22:58:54.819Z",
+      "reviewRound": "2026-06-02T22:37:38.846Z",
+      "reviewRunId": "B-b95c:RR-005",
+      "_hash": "f98bd9d001bb2cc0c5daba246a96bbf49b6a27d428ac413b0ce3d9303ae36b95",
+      "files": [
+        "packages/main/src/handlers/background.ts",
+        "packages/main/src/core/background-validator.ts"
+      ]
     }
   ]
 }
