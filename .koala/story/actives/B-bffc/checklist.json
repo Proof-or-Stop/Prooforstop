@@ -358,9 +358,9 @@
         "docs/requirements/decisions/authority-client-role.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-02T11:24:39.290Z",
-      "endTime": null,
+      "endTime": "2026-06-02T11:41:15.186Z",
       "userSees": "用户看到 `npm run build` 和 `npm run test:lattice-cli-migration-smoke` 通过，并且 checklist verificationEvidence 覆盖所有 happy/edge/adversarial intent。",
       "files": {
         "modify": [
@@ -513,6 +513,15 @@
       "timestamp": "2026-06-02T11:41:14.854Z",
       "phase": "DEV",
       "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementation committed in 8283f40e plus README label follow-up 2fc6de60; build/smoke/evidence passed."
+    },
+    {
+      "timestamp": "2026-06-02T11:41:15.186Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
       "action": "update",
       "from": "in_progress",
       "to": "done",
