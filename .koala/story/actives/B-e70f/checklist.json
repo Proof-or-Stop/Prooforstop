@@ -252,9 +252,9 @@
         "docs/requirements/decisions/lattice-parallel-wave.md"
       ],
       "userSees": "`koala parallel_dispatch --includeExperience --format=json` prints `experienceRefs` entries with `gateEvidence:false` and `authority:\"non_authoritative\"`; an empty memory file prints `experienceRefs:[]`.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-02T12:40:18.360Z",
       "files": {
         "modify": [
           "packages/main/src/core/lattice-parallel-wave.ts",
@@ -433,6 +433,15 @@
       "from": "pending",
       "to": "done",
       "reason": "CLI schemas and command policy/fact/default phase registrations implemented and contract-tested."
+    },
+    {
+      "timestamp": "2026-06-02T12:40:18.360Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Project public experience library is integrated through bounded dev-memory refs and tested as non-authoritative context."
     }
   ]
 }
