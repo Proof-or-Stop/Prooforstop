@@ -11,7 +11,35 @@
         "docs/requirements/decisions/stack-layering.md",
         "docs/requirements/decisions/lifecycle-artifact-scope.md",
         "AGENTS.md"
-      ]
+      ],
+      "userSees": "用户阅读 docs/requirements/decisions/lifecycle-artifact-scope.md 时能看到 registry-backed prompt assets、project-local required assets、legacy mirror compatibility 和 safe migration/no-overwrite 的明确分层说明。",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Docs define project-local required assets, package registry prompt templates, generated/materialized caches, and legacy mirror compatibility.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Docs explicitly preserve legacy full-mode .Codex/.claude mirrors and explain thin mode is opt-in, not a silent default migration.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Docs state migration must not overwrite or delete local edits unless Koala can prove STALE_SAFE ownership.",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

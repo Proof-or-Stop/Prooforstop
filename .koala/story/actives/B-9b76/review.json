@@ -1,0 +1,157 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-06-02T20:59:14.077Z",
+      "issueCount": 25,
+      "blockerCount": 16,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 缺少 userSees（用户完成此 item 后在终端/UI 看到的具体文本）。写法示例：'用户看到 \"✓ 文件已创建: hello.txt\" 然后返回提示符'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 缺少 userSees（用户完成此 item 后在终端/UI 看到的具体文本）。写法示例：'用户看到 \"✓ 文件已创建: hello.txt\" 然后返回提示符'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 缺少 userSees（用户完成此 item 后在终端/UI 看到的具体文本）。写法示例：'用户看到 \"✓ 文件已创建: hello.txt\" 然后返回提示符'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 缺少 userSees（用户完成此 item 后在终端/UI 看到的具体文本）。写法示例：'用户看到 \"✓ 文件已创建: hello.txt\" 然后返回提示符'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 缺少 userSees（用户完成此 item 后在终端/UI 看到的具体文本）。写法示例：'用户看到 \"✓ 文件已创建: hello.txt\" 然后返回提示符'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 个 checklist item，请检查是否有组合场景遗漏（如：Document asset layering and compatibility contract + Implement package prompt registry and host renderer 同时操作会怎样？）"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story 命中 1 个高风险信号: 数据迁移/破坏性。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）。 若本 story 只是提及而非修改该领域（误报），可 koala story_review_dismiss '{\"storyId\":\"B-9b76\",\"category\":\"<分类>\",\"reason\":\"...\"}' 完整回退 auto-elevation（全部 auto-elevated riskSignal 被 dismiss 后 priority 自动回退、高风险 gate 解除）。"
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-001",
+          "message": "CHK-001 缺少 verificationIntent.happy。第二套流程保留 happy/edge/adversarial 测试纪律：在 PLAN 写 intent，在 DEV/TEST 通过 verification_evidence_add 或 validate 覆盖。"
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-001",
+          "message": "CHK-001 缺少 verificationIntent.edge。第二套流程保留 happy/edge/adversarial 测试纪律：在 PLAN 写 intent，在 DEV/TEST 通过 verification_evidence_add 或 validate 覆盖。"
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-001",
+          "message": "CHK-001 缺少 verificationIntent.adversarial。第二套流程保留 happy/edge/adversarial 测试纪律：在 PLAN 写 intent，在 DEV/TEST 通过 verification_evidence_add 或 validate 覆盖。"
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-002",
+          "message": "CHK-002 缺少 verificationIntent.happy。第二套流程保留 happy/edge/adversarial 测试纪律：在 PLAN 写 intent，在 DEV/TEST 通过 verification_evidence_add 或 validate 覆盖。"
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-002",
+          "message": "CHK-002 缺少 verificationIntent.edge。第二套流程保留 happy/edge/adversarial 测试纪律：在 PLAN 写 intent，在 DEV/TEST 通过 verification_evidence_add 或 validate 覆盖。"
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-002",
+          "message": "CHK-002 缺少 verificationIntent.adversarial。第二套流程保留 happy/edge/adversarial 测试纪律：在 PLAN 写 intent，在 DEV/TEST 通过 verification_evidence_add 或 validate 覆盖。"
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-003",
+          "message": "CHK-003 缺少 verificationIntent.happy。第二套流程保留 happy/edge/adversarial 测试纪律：在 PLAN 写 intent，在 DEV/TEST 通过 verification_evidence_add 或 validate 覆盖。"
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-003",
+          "message": "CHK-003 缺少 verificationIntent.edge。第二套流程保留 happy/edge/adversarial 测试纪律：在 PLAN 写 intent，在 DEV/TEST 通过 verification_evidence_add 或 validate 覆盖。"
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-003",
+          "message": "CHK-003 缺少 verificationIntent.adversarial。第二套流程保留 happy/edge/adversarial 测试纪律：在 PLAN 写 intent，在 DEV/TEST 通过 verification_evidence_add 或 validate 覆盖。"
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-004",
+          "message": "CHK-004 缺少 verificationIntent.happy。第二套流程保留 happy/edge/adversarial 测试纪律：在 PLAN 写 intent，在 DEV/TEST 通过 verification_evidence_add 或 validate 覆盖。"
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-004",
+          "message": "CHK-004 缺少 verificationIntent.edge。第二套流程保留 happy/edge/adversarial 测试纪律：在 PLAN 写 intent，在 DEV/TEST 通过 verification_evidence_add 或 validate 覆盖。"
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-004",
+          "message": "CHK-004 缺少 verificationIntent.adversarial。第二套流程保留 happy/edge/adversarial 测试纪律：在 PLAN 写 intent，在 DEV/TEST 通过 verification_evidence_add 或 validate 覆盖。"
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-005",
+          "message": "CHK-005 缺少 verificationIntent.happy。第二套流程保留 happy/edge/adversarial 测试纪律：在 PLAN 写 intent，在 DEV/TEST 通过 verification_evidence_add 或 validate 覆盖。"
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-005",
+          "message": "CHK-005 缺少 verificationIntent.edge。第二套流程保留 happy/edge/adversarial 测试纪律：在 PLAN 写 intent，在 DEV/TEST 通过 verification_evidence_add 或 validate 覆盖。"
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-005",
+          "message": "CHK-005 缺少 verificationIntent.adversarial。第二套流程保留 happy/edge/adversarial 测试纪律：在 PLAN 写 intent，在 DEV/TEST 通过 verification_evidence_add 或 validate 覆盖。"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding 还有 2 个未消化的 unknowns: Whether future host runtimes will require materialized prompt files for native discovery remains host-specific.; Whether default init profile should switch in this story or only thin mode opt-in should be introduced depends on compatibility test results."
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "checklist 所有 item 均未填写 files 字段（旧 story 兼容模式），无法对 understanding.touchpoints 做覆盖校验。请为至少一个 item 的 files.modify/create/test 列出改动文件，以启用 touchpoint→files 强校验"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "未跑 scope check。请先启动 koala-review-scope-plan agent，agent 会自动调 scope_check_save 写入结果"
+        }
+      ],
+      "_hash": "330a4f981877426f719c1338e5dc5c4e943096085656d1f296624ebca65920ae"
+    }
+  ]
+}
