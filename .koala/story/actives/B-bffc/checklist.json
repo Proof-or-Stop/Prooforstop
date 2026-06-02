@@ -114,7 +114,45 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "用户运行 `lattice authority status` 和 `lattice conduit status` 看到 Server Authority receipts 是唯一生产权威，Conduit 只是 thin conduit，不是 agent host。",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/registry.ts",
+          "docs/requirements/decisions/authority-client-role.md",
+          "docs/requirements/decisions/lattice-parallel-wave.md"
+        ],
+        "create": [
+          "packages/main/src/handlers/lattice-cli.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/lattice-cli-migration-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "authority/conduit status commands expose receipt-aware, non-authoritative local status.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "missing authority URL yields guidance without claiming receipt verification.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "local JSON, handoff packs, conduit status, and transport acceptance cannot be reported as production DONE.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
