@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-02T05:27:19.493Z",
       "reviewRunId": "B-29b6:RR-004",
       "_hash": "8ead285f1f4e2ebb05fcfbe8c2bf87688d255fc187eef423efb93a3665d38261"
+    },
+    {
+      "id": "B-29b6:RP-004",
+      "agent": "koala-review-test-coverage",
+      "note": "Round 2 test-coverage pass: npm --prefix packages/main run build, test:lattice-parallel-wave-smoke, and test:command-ownership-contract all passed on head 39cee9e. lattice-parallel-wave-smoke directly covers B-29b6:F-001 via IDEA peer non-active scheduling assertions and B-29b6:F-002 via DEFAULT_PHASE_TOOLS/isCommandAllowed assertions for all wave commands; command-ownership-contract still covers the guard-session ownership regression and reviewer read-only gate boundaries. Story happy/edge/adversarial intents for CHK-002 through CHK-005 remain mapped to explicit smoke/contract assertions.",
+      "createdAt": "2026-06-02T05:42:43.857Z",
+      "reviewRound": "2026-06-02T05:38:38.869Z",
+      "reviewRunId": "B-29b6:RR-005",
+      "_hash": "250d5d83f6bb3ff28bed3ed0b0e49158ddb490f34522348ec8eafe24df4fc1a0"
     }
   ]
 }
