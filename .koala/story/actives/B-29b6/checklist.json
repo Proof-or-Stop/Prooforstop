@@ -11,7 +11,41 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User can read docs/requirements/decisions/lattice-parallel-wave.md and see the six-step Parallel Wave flow, schema shape, authority boundary, and no-productionDone rule.",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/lattice-parallel-wave.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Document defines Parallel Wave as collection-level scheduling over Canonical Stories with six execution milestones.",
+            "type": "docs",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Document explains why Canonical Story v0 is not modified and how wave metadata references stories instead.",
+            "type": "docs",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Document explicitly says wave artifacts, handoff packs, local JSON, and capability probes cannot satisfy DONE or production authority.",
+            "type": "docs",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
