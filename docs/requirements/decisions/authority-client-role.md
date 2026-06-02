@@ -100,6 +100,63 @@ The Mac App is not the authority/config source for this migration. It may remain
 an optional dashboard/archive surface; production authority remains receipt
 backed and external to the ordinary CLI path.
 
+### B-b710 — Enforce Readiness Diagnostics (Milestones 3-4)
+
+> **Status**: B-b710 milestones 3-4 recorded — extends the receipt-aware status
+> surface with enforce readiness diagnostics while preserving the PD-1 / PD-2
+> thin-client posture.
+
+`authority_status` and `conduit_status` are extended with an explicit
+**readiness** section so users can tell `off` (intentional opt-out, free local
+workflow) apart from `shadow` / `enforce` with missing prerequisites. Missing
+prerequisites are surfaced as warnings, **not** as global blockers — ordinary
+local Koala/Lattice story development (`story_advance`,
+`verification_evidence_add`, DONE) keeps working in every mode.
+
+New JSON fields (both `authority_status` and `conduit_status`):
+
+| Field | Meaning |
+|-------|---------|
+| `mode` | Alias of `authorityMode` (`off` / `shadow` / `enforce`). |
+| `localWorkflowUsable` | **Always `true`**. Local lifecycle gates do not depend on remote authority. |
+| `authorityUrlConfigured` | Is `KOALA_AUTHORITY_URL` set to a non-empty value? |
+| `actorKeyConfigured` | Is `KOALA_AUTHORITY_ACTOR_KEY` or `KOALA_AUTHORITY_ACTOR_KEY_PATH` set? (Presence detection only — the CLI does not generate, hold, or sign with actor keys.) |
+| `runnerConfigured` | Is `KOALA_AUTHORITY_RUNNER_ID` set? (Presence detection only.) |
+| `sessionConfigured` | Is `KOALA_AUTHORITY_SESSION_ID` set? (Presence detection only.) |
+| `readinessWarnings` | Actionable strings populated only when `shadow` / `enforce` is configured but prerequisites are missing. Empty when `mode='off'`. |
+| `nextActions` | Suggested env / command fixes for each readiness warning. |
+| `localWorkflowNote` | Reminder that readiness warnings are not global blockers. |
+
+Constraints preserved by B-b710 (mechanical guard:
+`packages/main/src/tasks/authority-status-smoke.ts`):
+
+1. **No status/readiness path can flip `productionDone`, `receiptVerified`, or
+   `canClaimProductionDone` to `true`.** Not even when every readiness field is
+   `true` (URL + actor key + runner id all configured): env presence alone is
+   never authority. Only a future receipt-backed path that verifies a signed
+   `AuthorityReceipt` may promote them, and that path is gated by PD-1 /
+   PD-2 milestone routing.
+2. **`authorityChanged` stays `false`** on `conduit_status`.
+3. **Local workflow is never blocked.** `localWorkflowUsable: true` is a
+   compile-time literal; missing enforce prerequisites become
+   `readinessWarnings`, not a hard refusal to run lifecycle commands.
+4. **`KOALA_AUTHORITY_ACTOR_KEY` etc. are diagnostic env vars only.** B-b710
+   does not introduce actor-key generation, registration, runner heartbeat,
+   job claim, provider execution, envelope signing, or receipt verification.
+   Those remain deferred per the Milestone Routing table below.
+
+CLI ergonomics: both `--json` (shortcut) and `--format=json` work on
+`authority_status` / `conduit_status` / `conduit_explain`, so
+`lattice authority status --json` produces the readiness JSON directly without
+remembering the long form.
+
+Docs that match this contract:
+[`README.md`](../../../README.md) and [`docs/guide.md`](../../guide.md) document
+the three modes so users know `off` is the default free/local workflow,
+`shadow` is observational, and `enforce` requires Python authority + actor key
++ runner identity (and stays not-implemented until an explicit enforce-mode
+product approval lands).
+
 ---
 
 ## Current Decision

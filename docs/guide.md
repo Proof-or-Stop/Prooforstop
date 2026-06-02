@@ -57,6 +57,54 @@ repair/fix、第三方安装、evidence submit 或 receipt verify。主仓可以
 PASS；外部项目、旧 wrapper 或非 git 项目会被解释成 WARN/FAIL 加下一步，
 而不是让用户逐个手跑 doctor/check 后猜原因。
 
+### Authority 模式：off / shadow / enforce
+
+`KOALA_AUTHORITY_MODE` 控制 CLI 是否与 Python authority 交互。**三种模式
+都不会阻塞本地 Story 工作流**：本地 lifecycle gates（`story_advance`、
+`verification_evidence_add`、DONE）不读 server receipt，所以
+`authority_status` 永远报 `localWorkflowUsable: true`；enforce 缺前置只会
+进 `readinessWarnings` / `nextActions`，不会变成全局 blocker。
+
+| 模式 | 何时使用 | CLI 行为 | 是否构成生产 authority |
+|------|----------|----------|------------------------|
+| `off`（默认） | 普通本地 Koala/Lattice story 开发，**免费、纯本地**。 | 完全不发起网络请求；本地 evidence + DONE gate 行为不变。 | 否：`productionDone=false`、`receiptVerified=false`。 |
+| `shadow` | 想观察 Python authority 的响应但保留本地行为。 | 尽力 observational POST；失败仅 stderr warning，不影响本地写入。 | 否：transport `accepted: true` 是 `thin-client-transport-accepted`，不是受签的 receipt。 |
+| `enforce` | 预留给未来 isolated headless runner，**需要** Python authority server + 注册过的 actor key + runner identity。 | 当前只实现到 `authority_enforce_policy` 的只读 policy discovery；envelope 签名、submission、receipt verification 都延后到 M2+。 | 暂时仍是 否：`productionDone` / `receiptVerified` 在没有验签 receipt 之前一直是 `false`。 |
+
+查看本地 CLI 看到的 authority 表面：
+
+```bash
+# 默认 off：不需要任何 env
+lattice authority status --json
+
+# shadow / enforce 缺前置时会看到 readinessWarnings + nextActions
+KOALA_AUTHORITY_MODE=shadow lattice authority status --json
+KOALA_AUTHORITY_MODE=enforce lattice authority status --json
+
+# Conduit 视图镜像同一份 readiness 字段
+lattice conduit status --json
+lattice conduit explain --json
+```
+
+`authority status --json` 字段速查：
+
+- `mode` — `off` | `shadow` | `enforce`
+- `localWorkflowUsable: true` — 本地 story workflow 永远不被 authority 阻塞
+- `authorityUrlConfigured` — `KOALA_AUTHORITY_URL` 是否已配置
+- `actorKeyConfigured` — `KOALA_AUTHORITY_ACTOR_KEY` / `_PATH` 是否已配置
+- `runnerConfigured` — `KOALA_AUTHORITY_RUNNER_ID` 是否已配置
+- `readinessWarnings: string[]` — 只在 shadow/enforce 缺前置时填充
+- `nextActions: string[]` — 对应的 env / 命令建议
+- `productionDone: false`、`receiptVerified: false`、`canClaimProductionDone: false`
+
+**重要边界**：本地 JSON 或文本输出**不是** authority evidence。只有 Python
+authority 颁发并由 runner / 客户端验签的 `AuthorityReceipt` 才算受签的生产
+authority。即使 `KOALA_AUTHORITY_URL`、`KOALA_AUTHORITY_ACTOR_KEY`、
+`KOALA_AUTHORITY_RUNNER_ID` 都配齐，`productionDone` 仍保持 `false`，直到
+未来的 receipt-backed runner 路径真正验签 receipt 为止。PD-1 / PD-2 的
+trust boundary 见
+[`docs/requirements/decisions/authority-client-role.md`](requirements/decisions/authority-client-role.md)。
+
 ## 代码与文档的结合
 
 生成了代码但是需要同步生成这份代码的文档，为 JSON 格式。每次修改了代码都必须同步更新代码的文档说明，细到每一个 Class 和 函数，Class 的定下来就不会变，但函数的说明必须每次更新。做这个的目的是为了实时提取项目的整个状态，方便分析任务完成情况，需要和资料挂钩，以及动态及时更新。每段代码需求来自哪里，经过多少次更新，每次更新内容最好都做记录，被删除，废弃的代码也不要删除，都需要保留历史。很多主观内容，需要加上自动化脚本验证。
