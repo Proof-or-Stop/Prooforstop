@@ -55,9 +55,9 @@
           "command": "rg \"lattice (check|doctor|session_brief|rollout_check)|legacy alias\" README.md docs/guide.md docs/requirements/decisions/project-vision.md",
           "result": "pass",
           "note": "Docs now publish lattice-primary check/doctor/session_brief/rollout_check guidance and explicitly keep koala as the legacy alias.",
-          "headHash": "3d08e9516db83545b0e3924c0baf08f940b0752c",
-          "materialHash": "8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910",
-          "timestamp": "2026-06-02T15:35:27.261Z"
+          "headHash": "c166fca4142d8b12acba9bfd352a6ec45062fcee",
+          "materialHash": "a3b30571d2718e0ec17f87a356c217e52b1d60f9248fdaa2e37c7e464dfa112d",
+          "timestamp": "2026-06-02T16:03:38.511Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -66,9 +66,9 @@
           "command": "rg \"lattice (check|doctor|session_brief|rollout_check)|legacy alias|koala --version\" README.md docs/guide.md docs/requirements/decisions/project-vision.md",
           "result": "pass",
           "note": "Docs-only check verifies lattice-primary guidance plus explicit legacy alias/version verification without relying on migration smoke tests.",
-          "headHash": "7d35bd118b2b9f7b888f95a95f9f95d4825fcdaf",
-          "materialHash": "8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910",
-          "timestamp": "2026-06-02T15:52:35.532Z"
+          "headHash": "c166fca4142d8b12acba9bfd352a6ec45062fcee",
+          "materialHash": "a3b30571d2718e0ec17f87a356c217e52b1d60f9248fdaa2e37c7e464dfa112d",
+          "timestamp": "2026-06-02T16:03:38.511Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -77,9 +77,9 @@
           "command": "rg \"koala (check|doctor|session_brief|validate|story_|init|dispatch|help|lab)\" README.md docs/guide.md docs/requirements/decisions/project-vision.md",
           "result": "pass",
           "note": "Docs-only adversarial check confirms normal install and rollout guidance does not recommend koala-prefixed operational commands over lattice equivalents.",
-          "headHash": "759bbb9011bcb0073013002d85eb3220f7e4ab68",
-          "materialHash": "8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910",
-          "timestamp": "2026-06-02T15:52:35.779Z"
+          "headHash": "c166fca4142d8b12acba9bfd352a6ec45062fcee",
+          "materialHash": "a3b30571d2718e0ec17f87a356c217e52b1d60f9248fdaa2e37c7e464dfa112d",
+          "timestamp": "2026-06-02T16:03:38.511Z"
         }
       ]
     },
@@ -143,9 +143,9 @@
           "command": "node packages/main/dist/cli.js story_create --help",
           "result": "pass",
           "note": "Local dist help prints lattice story_create examples and lattice session_brief next-step guidance.",
-          "headHash": "5a306ab1404bff5d0477341c08ec532d26208a22",
-          "materialHash": "8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910",
-          "timestamp": "2026-06-02T15:35:28.818Z"
+          "headHash": "c166fca4142d8b12acba9bfd352a6ec45062fcee",
+          "materialHash": "a3b30571d2718e0ec17f87a356c217e52b1d60f9248fdaa2e37c7e464dfa112d",
+          "timestamp": "2026-06-02T16:03:38.511Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -154,9 +154,9 @@
           "command": "npm --prefix packages/main run test:lattice-cli-migration-smoke && npm run test:rollout-check-smoke",
           "result": "pass",
           "note": "Behavior-level evidence: the migration smoke verifies koala legacy alias/help semantics and the rollout smoke executes both flat rollout_check and nested lattice rollout check command paths while preserving compatibility.",
-          "headHash": "340ffe3de4f200327cb1b5418cb0fd5c8bca6277",
-          "materialHash": "8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910",
-          "timestamp": "2026-06-02T15:36:31.115Z"
+          "headHash": "c166fca4142d8b12acba9bfd352a6ec45062fcee",
+          "materialHash": "a3b30571d2718e0ec17f87a356c217e52b1d60f9248fdaa2e37c7e464dfa112d",
+          "timestamp": "2026-06-02T16:03:38.511Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -165,9 +165,9 @@
           "command": "npm run test:lattice-cli-migration-smoke && node packages/main/dist/tasks/session-brief-prompt-sync-smoke.js",
           "result": "pass",
           "note": "Migration and prompt-sync smoke tests pass, preserving koala-review lanes/.koala semantics while making user-facing command examples prefer lattice.",
-          "headHash": "5a306ab1404bff5d0477341c08ec532d26208a22",
-          "materialHash": "8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910",
-          "timestamp": "2026-06-02T15:35:28.955Z"
+          "headHash": "c166fca4142d8b12acba9bfd352a6ec45062fcee",
+          "materialHash": "a3b30571d2718e0ec17f87a356c217e52b1d60f9248fdaa2e37c7e464dfa112d",
+          "timestamp": "2026-06-02T16:03:38.511Z"
         }
       ]
     },
@@ -227,9 +227,9 @@
           "command": "npm run test:rollout-check-smoke",
           "result": "pass",
           "note": "Smoke test verifies lattice rollout_check --projects <paths> --json returns schema, summary counts, per-project status, and nextAction.",
-          "headHash": "5a306ab1404bff5d0477341c08ec532d26208a22",
-          "materialHash": "8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910",
-          "timestamp": "2026-06-02T15:35:44.065Z"
+          "headHash": "c166fca4142d8b12acba9bfd352a6ec45062fcee",
+          "materialHash": "a3b30571d2718e0ec17f87a356c217e52b1d60f9248fdaa2e37c7e464dfa112d",
+          "timestamp": "2026-06-02T16:03:38.511Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -238,9 +238,9 @@
           "command": "npm run test:rollout-check-smoke",
           "result": "pass",
           "note": "Smoke test covers a plain external temp project and a missing project path; both normalize into stable project results instead of opaque failures.",
-          "headHash": "5a306ab1404bff5d0477341c08ec532d26208a22",
-          "materialHash": "8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910",
-          "timestamp": "2026-06-02T15:35:44.118Z"
+          "headHash": "c166fca4142d8b12acba9bfd352a6ec45062fcee",
+          "materialHash": "a3b30571d2718e0ec17f87a356c217e52b1d60f9248fdaa2e37c7e464dfa112d",
+          "timestamp": "2026-06-02T16:03:38.511Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -249,9 +249,9 @@
           "command": "npm run test:rollout-check-smoke",
           "result": "pass",
           "note": "Smoke test asserts recorded rollout probe commands never contain --apply, --upgrade, --repair, or --fix and git status is unchanged by the scan.",
-          "headHash": "5a306ab1404bff5d0477341c08ec532d26208a22",
-          "materialHash": "8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910",
-          "timestamp": "2026-06-02T15:35:44.168Z"
+          "headHash": "c166fca4142d8b12acba9bfd352a6ec45062fcee",
+          "materialHash": "a3b30571d2718e0ec17f87a356c217e52b1d60f9248fdaa2e37c7e464dfa112d",
+          "timestamp": "2026-06-02T16:03:38.511Z"
         }
       ]
     },
@@ -311,9 +311,9 @@
           "command": "node packages/main/dist/cli.js --root /Users/jek/Documents/Work/Orchestrate/.worktrees/B-fd03 rollout_check --projects=/Users/jek/Documents/Work/Orchestrate,/Users/jek/Documents/Work/Koala/Koala,/Users/jek/Documents/Work/plasmid,/Users/jek/Documents/Work/minicell,/Users/jek/Documents/Work/OpenCli,/Users/jek/Documents/Work/avalon --json",
           "result": "pass",
           "note": "Real-project transcript records Orchestrate, Koala/Koala, plasmid, minicell, OpenCli, and avalon statuses with actionable next actions; actual distribution was warn=4 fail=2 because rollout_check conservatively surfaces runtime/managed-asset drift.",
-          "headHash": "5a306ab1404bff5d0477341c08ec532d26208a22",
-          "materialHash": "8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910",
-          "timestamp": "2026-06-02T15:36:02.401Z"
+          "headHash": "c166fca4142d8b12acba9bfd352a6ec45062fcee",
+          "materialHash": "a3b30571d2718e0ec17f87a356c217e52b1d60f9248fdaa2e37c7e464dfa112d",
+          "timestamp": "2026-06-02T16:03:38.511Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -322,9 +322,9 @@
           "command": "node packages/main/dist/cli.js --root /Users/jek/Documents/Work/Orchestrate/.worktrees/B-fd03 rollout_check --projects=/Users/jek/Documents/Work/Koala/Koala,/Users/jek/Documents/Work/plasmid,/Users/jek/Documents/Work/minicell,/Users/jek/Documents/Work/OpenCli,/Users/jek/Documents/Work/avalon --json",
           "result": "pass",
           "note": "Transcript explains external project warnings/failures as managed asset drift, non-git state, dirty worktrees, or missing transcript/story scope rather than opaque nonzero check exits.",
-          "headHash": "5a306ab1404bff5d0477341c08ec532d26208a22",
-          "materialHash": "8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910",
-          "timestamp": "2026-06-02T15:36:02.455Z"
+          "headHash": "c166fca4142d8b12acba9bfd352a6ec45062fcee",
+          "materialHash": "a3b30571d2718e0ec17f87a356c217e52b1d60f9248fdaa2e37c7e464dfa112d",
+          "timestamp": "2026-06-02T16:03:38.511Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -333,9 +333,9 @@
           "command": "node packages/main/dist/tasks/session-brief-prompt-sync-smoke.js && npm run test:rollout-check-smoke && real-project rollout_check before/after git-status comparison",
           "result": "pass",
           "note": "Assertion-level evidence: prompt-sync and rollout smoke tests pass, and the real-project transcript records unchanged worktree git status plus transcript_scope outcomes after the lattice command migration.",
-          "headHash": "340ffe3de4f200327cb1b5418cb0fd5c8bca6277",
-          "materialHash": "8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910",
-          "timestamp": "2026-06-02T15:36:31.115Z"
+          "headHash": "c166fca4142d8b12acba9bfd352a6ec45062fcee",
+          "materialHash": "a3b30571d2718e0ec17f87a356c217e52b1d60f9248fdaa2e37c7e464dfa112d",
+          "timestamp": "2026-06-02T16:03:38.511Z"
         }
       ]
     }
