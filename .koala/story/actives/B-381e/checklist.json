@@ -1,0 +1,64 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add machine-readable story authority resolver JSON surface",
+      "context": "Create or extend a L0 read-only Lattice command returning active stories with storyId, title, authority, mirrorPhase, authoritativePhase, authoritativeCwd, and worktreePath. It must avoid Markdown parsing and must report productionDone/receiptVerified false unless a verified receipt path exists.",
+      "relatedDocs": [
+        "docs/requirements/decisions/host-neutral-observability-console.md",
+        "docs/requirements/decisions/lattice-parallel-wave.md",
+        "docs/requirements/decisions/project-vision.md",
+        "docs/requirements/decisions/authority-client-role.md"
+      ],
+      "userSees": "lattice exposes a JSON resolver surface that lets dashboard adapters discover the authoritative cwd for each active story.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Build read-only observability adapter skeleton",
+      "context": "Add a core adapter that consumes the resolver output, runs story_export from the authoritative cwd, and prepares normalized inputs for Authority Ladder, Story Board, Capability Matrix, Recovery, and Parallel views without building UI.",
+      "relatedDocs": [
+        "docs/requirements/decisions/host-neutral-observability-console.md",
+        "docs/requirements/decisions/lattice-parallel-wave.md",
+        "docs/requirements/decisions/project-vision.md",
+        "docs/requirements/decisions/authority-client-role.md"
+      ],
+      "userSees": "adapter code can assemble host-neutral observability data from Lattice JSON surfaces without touching backing store files.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Register L0 policy and schema contracts",
+      "context": "Register the new resolver/adapter command policy and process fact level as read-only L0. Document exact schema names and keep every authority field conservative: productionDone false, receiptVerified false, authorityChanged false.",
+      "relatedDocs": [
+        "docs/requirements/decisions/host-neutral-observability-console.md",
+        "docs/requirements/decisions/lattice-parallel-wave.md",
+        "docs/requirements/decisions/project-vision.md",
+        "docs/requirements/decisions/authority-client-role.md"
+      ],
+      "userSees": "the new observability surfaces are mechanically classified as read-only diagnostics rather than evidence or authority.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add smoke coverage for worktree authority and no overclaim",
+      "context": "Add focused tests proving worktree authority beats main mirror, UI/adapter code does not parse session_brief Markdown, no direct .koala/story or docs/story JSON reads are used by adapter, and no path can manufacture production authority.",
+      "relatedDocs": [
+        "docs/requirements/decisions/host-neutral-observability-console.md",
+        "docs/requirements/decisions/lattice-parallel-wave.md",
+        "docs/requirements/decisions/project-vision.md",
+        "docs/requirements/decisions/authority-client-role.md"
+      ],
+      "userSees": "validation demonstrates the resolver and adapter preserve host-neutral authority boundaries and do not overclaim production DONE.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
