@@ -167,7 +167,45 @@
       "userSees": "Claude Code 完成任务后可以通过 lattice 提交 receipt，Codex 主线程能看到 receipt 是否 pass、stale 或越界。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-handoff.ts",
+          "packages/main/src/handlers/lattice-handoff.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/tasks/lattice-handoff-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/host-overflow-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice handoff_receipt_submit accepts a completed external-host receipt referencing packId/hash/base/head, commands, changedFiles, verdict, and limitations, then returns accepted-local status.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Receipt submit reports stale or scope warning/failure when head/base/hash or changedFiles do not match the pack constraints.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Receipt submit remains local diagnostic evidence with authorityChanged=false, receiptVerified=false, productionDone=false, and cannot satisfy server authority by itself.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
