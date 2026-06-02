@@ -7,6 +7,9 @@
     "packages/main/src/core/authority-client.ts",
     "packages/main/src/core/authority-runner-contracts.ts",
     "packages/main/src/core/authority-signing.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/config.ts",
     "package.json",
     "packages/main/package.json",
     "docs/requirements/decisions/authority-client-role.md"
@@ -18,7 +21,8 @@
   ],
   "allowedTest": [
     "packages/main/src/tasks/authority-enforce-runner-smoke.ts",
-    "packages/main/src/tasks/authority-runner-events-smoke.ts"
+    "packages/main/src/tasks/authority-runner-events-smoke.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts"
   ],
   "protectedFiles": [
     "docs/requirements/decisions/lattice-parallel-wave.md",
@@ -30,10 +34,10 @@
     "packages/desktop/**",
     "scripts/package-desktop.mjs"
   ],
-  "scopeChangeReason": "B-5cdc explicit runner scope: command/handler/client/contracts/signing, package scripts, authority-client-role doc, and focused runner smoke tests only.",
+  "scopeChangeReason": "B-5cdc explicit runner scope plus test fixture repair: flow-stability smoke assertion is updated to current Lattice replacement wording after the broader phase-tool regression exposed stale koala validate text.",
   "acknowledgements": [],
   "createdAt": "2026-06-02T21:02:01.321Z",
-  "updatedAt": "2026-06-02T21:02:22.471Z",
+  "updatedAt": "2026-06-02T21:23:07.052Z",
   "fileRules": [
     {
       "path": "packages/main/src/handlers/lattice-cli.ts",
