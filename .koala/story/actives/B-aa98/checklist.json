@@ -201,9 +201,9 @@
         "docs/requirements/decisions/testing-completeness.md"
       ],
       "userSees": "用户运行 lattice handoff_receipt_submit --file=receipt.json --format=json 看到 \"status\":\"accepted-local\", \"scopeStatus\":\"pass|warn|fail\", \"freshness\":\"fresh|stale\", \"receiptVerified\":false, \"productionDone\":false。",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-02T21:23:07.332Z",
       "files": {
         "modify": [
           "packages/main/src/core/lattice-handoff.ts",
@@ -241,7 +241,19 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:host-overflow-smoke",
+          "result": "pass",
+          "note": "host-overflow smoke validates handoff_receipt_submit accepted-local and diagnostic flows, including pack-hash validation, scopeStatus, freshness, and the fixed authorityChanged=false / receiptVerified=false / productionDone=false boundary.",
+          "headHash": "03460bea1980b196583f4b1b79951d7c8d45b64b",
+          "materialHash": "bd29e0297db5c6be6cbeb9b4fb9fb501ae5536db42fccd198e54bf3ff7942b27",
+          "timestamp": "2026-06-02T21:23:07.372Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
