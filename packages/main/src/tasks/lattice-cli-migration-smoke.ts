@@ -101,6 +101,18 @@ for (const command of COMMANDS) {
   assert.equal(getCommandLifecyclePolicy(command)?.ownershipClass, 'readOnly', `${command} is read-only`);
 }
 
+const storyCreateHelp = runCli(['story_create', '--help']);
+assert.match(storyCreateHelp, /lattice story_create with checklist/);
+assert.match(storyCreateHelp, /lattice story_advance phase=INIT_CHECK/);
+assert.doesNotMatch(storyCreateHelp, /(?:^|\n)\s+\d+\.\s+(?:story_create|story_advance)\b/, 'story_create help step list uses lattice-prefixed commands');
+assert.doesNotMatch(storyCreateHelp, /use checklist_add\b/, 'story_create help uses lattice checklist_add');
+
+const storyAdvanceHelp = runCli(['story_advance', '--help']);
+assert.match(storyAdvanceHelp, /lattice story_review/);
+assert.match(storyAdvanceHelp, /lattice story_advance '\{"storyId":"B-a3f7","phase":"DEV"\}'/);
+assert.match(storyAdvanceHelp, /Try lattice story_advance/);
+assert.doesNotMatch(storyAdvanceHelp, /(?:^|\n)\s+\d+\.\s+(?:story_review|story_advance|understanding_set|decision_set)\b/, 'story_advance help step list uses lattice-prefixed commands');
+
 // Registry exposes handlers in-process.
 {
   const store = new StoryStore(repoRoot);

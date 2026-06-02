@@ -168,11 +168,14 @@ function packageBinHasLattice(path: string): boolean {
 }
 
 function parseProjectList(root: string, projects: string | string[] | undefined, maxDepth: number): string[] {
-  if (Array.isArray(projects)) {
-    return uniquePaths(projects.map(project => resolveProject(root, project)));
-  }
-  if (typeof projects === 'string' && projects.trim().length > 0) {
-    return uniquePaths(projects.split(',').map(part => resolveProject(root, part.trim())).filter(Boolean));
+  if (projects !== undefined) {
+    const parts = (Array.isArray(projects) ? projects : projects.split(','))
+      .map(part => part.trim())
+      .filter(part => part.length > 0);
+    if (parts.length === 0) {
+      throw new Error('rollout_check --projects was provided but did not include any project paths; omit --projects to discover from root or pass at least one path.');
+    }
+    return uniquePaths(parts.map(part => resolveProject(root, part)));
   }
   return discoverProjects(root, maxDepth);
 }

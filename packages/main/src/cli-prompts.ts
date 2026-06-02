@@ -17,7 +17,7 @@ WHEN TO USE
 WHEN NOT TO USE
   ✗ User is still discussing / brainstorming — wait
   ✗ User asks a question — answer first
-  ✗ Adding item to existing story — use checklist_add
+  ✗ Adding item to existing story — use lattice checklist_add
   ✗ Trivial 2-line edits user said "立刻改" — just do it
 
 REQUIRED FIELDS
@@ -58,8 +58,8 @@ STEP-BY-STEP
   1. lattice session_brief — recover active story and next step
   2. lattice story_list — check for duplicates
   3. Discuss with user until requirements crystallize
-  4. story_create with checklist
-  5. story_advance phase=INIT_CHECK to create worktree
+  4. lattice story_create with checklist
+  5. lattice story_advance phase=INIT_CHECK to create worktree
 `.trim();
 
 export const STORY_ADVANCE_LONG = `
@@ -74,15 +74,15 @@ PHASE FLOW
 WHEN TO USE
   ✓ Current phase work is done AND gate conditions are met
   ✓ Need to roll back: TEST → DEV (test fail)
-  ✓ INIT_CHECK after story_create (auto-creates worktree)
+  ✓ INIT_CHECK after lattice story_create (auto-creates worktree)
 
 PHASE GATES
   INIT → INIT_CHECK    : auto, creates worktree + branch
   INIT_CHECK → PLAN    : cwd MUST be inside .worktrees/B-xxx
-  PLAN → DEV           : story_review returns blockerCount=0
+  PLAN → DEV           : lattice story_review returns blockerCount=0
   DEV → TEST           : all checklist items done
   TEST → DONE          : lattice validate PASS + all bugs fixed
-                         + summary_set complete + DONE Final Checklist passes
+                         + lattice summary_set complete + DONE Final Checklist passes
 
 ROLLBACK PATHS
   TEST → DEV           (validate fail → fix code)
@@ -103,13 +103,13 @@ EXAMPLES
 
 DONE FINAL CHECKLIST
   When DONE gate prints failing items, fix each one:
-  missing summary_set, untouched relatedDocs, open bugs, missing test evidence.
+  missing lattice summary_set, untouched relatedDocs, open bugs, missing test evidence.
 
 STEP-BY-STEP
   1. lattice session_brief — see current phase and next gate hint
   2. Read gate error carefully
   3. Fix root cause
-  4. Try advance (max 2 retries before reflecting)
+  4. Try lattice story_advance (max 2 retries before reflecting)
 `.trim();
 
 export const CHECKLIST_UPDATE_LONG = `
@@ -154,7 +154,7 @@ STEP-BY-STEP
   2. Pick ONE pending item, mark in_progress
   3. Write the code
   4. git add + git commit
-  5. checklist_update --status=done
+  5. lattice checklist_update --status=done
   6. Repeat
 `.trim();
 
@@ -165,7 +165,7 @@ export const STORY_REVIEW_LONG = `
 
 WHEN TO USE
   ✓ PLAN phase is done: understanding + decision + checklist + plan.md are ready
-  ✓ Before advancing PLAN → DEV (story_review issueCount=0 is the gate)
+  ✓ Before advancing PLAN → DEV (lattice story_review issueCount=0 is the gate)
   ✓ After adding/removing checklist items to re-validate completeness
 
 WHEN NOT TO USE
@@ -186,13 +186,13 @@ EXAMPLES
 
   # Typical output:
   #   issueCount: 0 → ready to advance to DEV
-  #   issueCount: 3 → fix issues, then re-run story_review
+  #   issueCount: 3 → fix issues, then re-run lattice story_review
 
 STEP-BY-STEP
-  1. Finish understanding_set + decision_set + checklist + plan.md
+  1. Finish lattice understanding_set + lattice decision_set + checklist + plan.md
   2. Run scope-plan reviewer (normal channel) → scope-check.json
   3. lattice story_review — fix any issues it reports
-  4. story_advance phase=DEV
+  4. lattice story_advance phase=DEV
 `.trim();
 
 export const BUG_REPORT_LONG = `
@@ -207,7 +207,7 @@ WHEN TO USE
 
 WHEN NOT TO USE
   ✗ Vague suspicion without reproduction — investigate first
-  ✗ Feature request or enhancement — use checklist_add
+  ✗ Feature request or enhancement — use lattice checklist_add
   ✗ Bug in a different story — report on that story's ID
 
 REQUIRED FIELDS
@@ -247,7 +247,7 @@ export const VALIDATE_LONG = `
 
 WHEN TO USE
   ✓ After writing / modifying code — verify before committing
-  ✓ Before story_advance to TEST or DONE — gate requires validate PASS
+  ✓ Before lattice story_advance to TEST or DONE — gate requires validate PASS
   ✓ Debugging a test failure — re-run to confirm fix
   ✓ REVIEW preflight — CLI gates (--channel / --concept / --lint / docs-drift, plus conditional codex-adapter) run automatically
 
@@ -265,7 +265,7 @@ MODES
   lattice validate --channel --story=B-xxx  # only commit-author check
 
 REVIEW→TEST PREFLIGHT (CLI gates)
-  These run automatically on story_advance --phase=TEST:
+  These run automatically on lattice story_advance --phase=TEST:
   1. --channel: normal channel requires implementer commits
   2. --concept: deleted symbols with ≥5 residual refs → spawn reviewer
   3. --lint: tsc/ruff/import-graph — fail blocks advance

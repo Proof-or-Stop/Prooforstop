@@ -44,6 +44,7 @@ lattice rollout_check --projects /path/to/project --json
 npm --prefix packages/main run build
 npm install -g ./packages/main
 lattice --version
+koala --version
 lattice check
 lattice doctor --format=json
 lattice rollout_check --projects "$(pwd)" --json

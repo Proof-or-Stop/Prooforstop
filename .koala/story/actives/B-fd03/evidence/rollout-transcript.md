@@ -16,25 +16,22 @@ Result:
 - `macAppRequired: false`
 - Summary: `total=6`, `pass=0`, `warn=3`, `fail=3`, `skip=0`
 - Safety note: the command does not run `--apply`, `--upgrade`, `--repair`, `--fix`, installers, evidence submission, or receipt verification.
-- Current B-fd03 worktree git status was unchanged before/after the command: `25` porcelain lines before, `25` after.
-
-Per-project status:
-
-| Project | Status | Key reason | Transcript/story scope | nextAction |
-| --- | --- | --- | --- | --- |
-| `/Users/jek/Documents/Work/Orchestrate` | fail | runtime footprint fails because the compatibility launcher is using an external development engine; managed assets pass; git dirty count 0 | pass: `AGENTS.md=true`, `KOALA/CLAUDE guide=true`, `.koala/story=true` | `compatibility launcher is using an external Koala development engine; project package.json/node_modules are not required` |
-| `/Users/jek/Documents/Work/Koala/Koala` | warn | external project config passes; runtime footprint warns; managed assets have 2 `STALE_SAFE` items; git dirty count 0 | pass: `AGENTS.md=true`, `KOALA/CLAUDE guide=true`, `.koala/story=true` | `compatibility launcher is using an external Koala development engine; project package.json/node_modules are not required` |
-| `/Users/jek/Documents/Work/plasmid` | fail | managed assets include `MISSING=1`, `STALE_SAFE=17`, `INCOMPATIBLE=1`; git dirty count 1 | warn: `.koala/story=false` | `Run lattice check manually, review unsafe items, then use lattice check --apply or --upgrade only after operator approval.` |
-| `/Users/jek/Documents/Work/minicell` | warn | runtime footprint warns; managed assets `STALE_SAFE=4`; git dirty count 9 | warn: `.koala/story=false` | `compatibility launcher is using an external Koala development engine; project package.json/node_modules are not required` |
-| `/Users/jek/Documents/Work/OpenCli` | warn | non-git project; managed assets missing/stale; no agent guides | warn: `AGENTS.md=false`, `KOALA/CLAUDE guide=false`, `.koala/story=false` | `compatibility launcher is using an external Koala development engine; project package.json/node_modules are not required` |
-| `/Users/jek/Documents/Work/avalon` | fail | managed assets include `MISSING=17`, `STALE_SAFE=4`, `STALE_LOCAL_EDIT=3`; git dirty count 133 | warn: `.koala/story=false` | `Run lattice check manually, review unsafe items, then use lattice check --apply or --upgrade only after operator approval.` |
+- Current B-fd03 worktree git status was unchanged before/after the command: `9` porcelain lines before, `9` after.
 
 Acceptance reconciliation:
 
-- The original PLAN/user-visible expectation assumed `Orchestrate: pass` and external projects mostly `warn`.
-- The actual diagnostic result is intentionally stricter: `pass=0`, `warn=3`, `fail=3`.
-- This is accepted because `rollout_check` should expose runtime-source drift, unsafe managed assets, non-git state, and missing story/transcript scope instead of smoothing them into a pass.
-- The user-facing contract is therefore the schema plus per-project `status`/`nextAction`, not a hard-coded status distribution.
+The real-project acceptance evidence is intentionally conservative: this run does not claim every project is production-ready or PASS. It records the scanner's actual `warn`/`fail` statuses and the CLI output contract's per-project `nextAction` field so an operator can audit why a project is blocked without running write-capable repair paths. The status mix below is therefore the expected diagnostic outcome for the current local fleet, not a weakened pass condition.
+
+Per-project status:
+
+| Project | Status | Key probe status | Project `nextAction` | Transcript/story scope |
+| --- | --- | --- | --- | --- |
+| `/Users/jek/Documents/Work/Orchestrate` | fail | `runtime_footprint=fail`; `managed_assets=warn`; `doctor_readonly_subset=fail`; git dirty count 0 | compatibility launcher is using an external Koala development engine; project package.json/node_modules are not required | pass: `AGENTS.md=true`, `KOALA/CLAUDE guide=true`, `.koala/story=true`, `activeStories=259` |
+| `/Users/jek/Documents/Work/Koala/Koala` | warn | `runtime_footprint=warn`; `managed_assets=warn`; `doctor_readonly_subset=warn`; git dirty count 0 | compatibility launcher is using an external Koala development engine; project package.json/node_modules are not required | pass: `AGENTS.md=true`, `KOALA/CLAUDE guide=true`, `.koala/story=true`, `activeStories=1` |
+| `/Users/jek/Documents/Work/plasmid` | fail | `managed_assets=fail`; `runtime_footprint=warn`; git dirty count 1 | Run lattice check manually, review unsafe items, then use lattice check --apply or --upgrade only after operator approval. | warn: `AGENTS.md=true`, `KOALA/CLAUDE guide=true`, `.koala/story=false` |
+| `/Users/jek/Documents/Work/minicell` | warn | `runtime_footprint=warn`; `managed_assets=warn`; git dirty count 9 | compatibility launcher is using an external Koala development engine; project package.json/node_modules are not required | warn: `AGENTS.md=true`, `KOALA/CLAUDE guide=true`, `.koala/story=false` |
+| `/Users/jek/Documents/Work/OpenCli` | warn | non-git project; `runtime_footprint=warn`; `managed_assets=warn`; no agent guides | compatibility launcher is using an external Koala development engine; project package.json/node_modules are not required | warn: `AGENTS.md=false`, `KOALA/CLAUDE guide=false`, `.koala/story=false` |
+| `/Users/jek/Documents/Work/avalon` | fail | `managed_assets=fail`; `runtime_footprint=warn`; git dirty count 133 | Run lattice check manually, review unsafe items, then use lattice check --apply or --upgrade only after operator approval. | warn: `AGENTS.md=true`, `KOALA/CLAUDE guide=true`, `.koala/story=false` |
 
 Self-worktree sanity command:
 
@@ -44,28 +41,28 @@ node packages/main/dist/cli.js --root /Users/jek/Documents/Work/Orchestrate/.wor
 
 Self-worktree result:
 
-- Status: `warn`
-- Reason: runtime footprint warns that the compatibility launcher uses repo-local dist; git is dirty because this story is in DEV.
-- Managed assets: pass.
+- Status: `fail`
+- Project `nextAction`: compatibility launcher is using the repository-local Koala dist runtime; run `npm --prefix packages/main run build` after core edits.
+- Reason: runtime footprint is intentionally conservative for the Lattice source tree while this DEV worktree has source/doc/evidence edits in flight; `doctor_readonly_subset` also fails because git is dirty and runtime is fail.
+- Managed assets: pass (`OK=45`, no missing/stale/incompatible items).
 - Transcript/story scope: pass, including current story `B-fd03:DEV`.
 
-Verification commands run:
+Verification commands run during this refresh:
 
 ```bash
 npm --prefix packages/main run build
 npm run test:rollout-check-smoke
 npm run test:lattice-cli-migration-smoke
-npm run test:command-ownership-contract
-npm run test:process-fact-contract
-npm run test:authority-boundary-smoke
-npm run lint:tasks
-git diff --check
 node packages/main/dist/tasks/session-brief-prompt-sync-smoke.js
+npm run test:process-fact-contract
+npm run test:command-ownership-contract
+git diff --check
+node packages/main/dist/cli.js --root /Users/jek/Documents/Work/Orchestrate/.worktrees/B-fd03 rollout_check --projects=/Users/jek/Documents/Work/Orchestrate,/Users/jek/Documents/Work/Koala/Koala,/Users/jek/Documents/Work/plasmid,/Users/jek/Documents/Work/minicell,/Users/jek/Documents/Work/OpenCli,/Users/jek/Documents/Work/avalon --json
 ```
 
-All verification commands passed. `npm run lint:tasks` reported 0 errors and 2 pre-existing task annotation warnings in `src/handlers/story-query.ts`.
+All commands above passed. The rebuilt `rollout_check` command returned the conservative real-project statuses shown in the table.
 
-Global CLI refresh:
+Global CLI refresh / alias verification:
 
 ```bash
 npm install -g ./packages/main
@@ -79,7 +76,9 @@ lattice story_create --help
 
 Global verification result:
 
-- `lattice --version` and `koala --version` both print `Lattice CLI 0.3.5`; the `koala` output marks the invocation as the legacy alias.
-- `lattice check` and `lattice doctor --format=json` are part of the documented refresh verification flow.
+- `lattice --version` prints `Lattice CLI 0.3.5 (lattice; legacy alias: koala)`.
+- `koala --version` prints `Lattice CLI 0.3.5 (lattice; invoked through legacy alias koala)`.
+- `lattice check` reports `Runtime mode: compatibility-launcher`, `Runtime source: repo-local-dist`, and `Lattice managed asset check: OK`.
+- `lattice doctor --format=json` exits successfully and reports `runtime.summary.status=fail` for this self-project because the global `koala`/core realpaths point at the B-fd03 worktree while the canonical expected paths are the main Orchestrate tree. This is a development-time diagnostic failure, not a write or repair action.
+- Bare global `lattice rollout_check` returns schema `lattice.rollout_check.v1` and scans the story worktree. It reports `status=fail` for the dirty DEV worktree because runtime facts are conservative for a self-project with in-flight source edits; managed assets and transcript/story scope still pass.
 - `lattice story_create --help` prints `lattice story_create` and the long-help examples now use `lattice`.
-- Bare global `lattice rollout_check` returns schema `lattice.rollout_check.v1` and scans the story worktree. It reports `status=fail` for the dirty DEV worktree because runtime facts are conservative for a self-project with in-flight source edits; managed assets and transcript/story scope still pass. This is an expected diagnostic signal, not an entrypoint failure.

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -30,6 +30,21 @@ function runCli(args: string[]): string {
 
 function runJson(args: string[]): RolloutCheckResult {
   return JSON.parse(runCli(args)) as RolloutCheckResult;
+}
+
+function runCliFailure(args: string[]): { status: number | null; stderr: string; stdout: string } {
+  const result = spawnSync(process.execPath, [cliPath, '--root', repoRoot, ...args], {
+    cwd: repoRoot,
+    env: { ...process.env, KOALA_ACTIVITY_RECORD_READONLY: '0' },
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+  assert.notEqual(result.status, 0, `${args.join(' ')} should fail`);
+  return {
+    status: result.status,
+    stderr: result.stderr,
+    stdout: result.stdout,
+  };
 }
 
 function gitStatus(): string {
@@ -99,6 +114,15 @@ const flat = runJson(['rollout_check', `--projects=${repoRoot}`, '--format=json'
 assertRolloutShape(flat, 'flat command');
 assert.equal(flat.projects[0]?.path, repoRoot, 'flat command scans requested project');
 
+const trailingComma = runJson(['rollout_check', `--projects=${repoRoot},`, '--format=json']);
+assertRolloutShape(trailingComma, 'trailing comma project list');
+assert.equal(trailingComma.summary.total, 1, 'trailing comma does not add the scan root as an extra project');
+assert.equal(trailingComma.projects[0]?.path, repoRoot, 'trailing comma still scans the explicit project');
+
+const allEmptyProjects = runCliFailure(['rollout_check', '--projects=,, ,', '--format=json']);
+assert.match(allEmptyProjects.stderr, /rollout_check --projects was provided but did not include any project paths/, 'all-empty explicit project list is a clear CLI failure');
+assert.equal(allEmptyProjects.stdout, '', 'all-empty explicit project list does not emit a zero-project success payload');
+
 const alias = runJson(['lattice', 'rollout', 'check', `--projects=${repoRoot}`, '--json']);
 assertRolloutShape(alias, 'space alias');
 assert.equal(alias.projects[0]?.path, repoRoot, 'space alias scans requested project');
@@ -118,6 +142,19 @@ try {
   assert.ok(
     ['warn', 'fail', 'pass'].includes(coreResult.projects.find(project => project.path === plainProject)?.status ?? ''),
     'plain external project is normalized into a stable status',
+  );
+  const commaResult = buildRolloutCheck({ root: tempRoot, projects: `${plainProject},,${missingProject},` });
+  assert.equal(commaResult.summary.total, 2, 'trailing/empty comma entries do not add root');
+  assert.deepEqual(commaResult.projects.map(project => project.path), [plainProject, missingProject], 'comma list preserves only non-empty explicit projects');
+  assert.throws(
+    () => buildRolloutCheck({ root: tempRoot, projects: ',, , ' }),
+    /rollout_check --projects was provided but did not include any project paths/,
+    'all-empty explicit comma list fails instead of falling back to discovery',
+  );
+  assert.throws(
+    () => buildRolloutCheck({ root: tempRoot, projects: ['', '   '] }),
+    /rollout_check --projects was provided but did not include any project paths/,
+    'all-empty explicit array fails instead of falling back to discovery',
   );
   const externalMonorepo = join(tempRoot, 'external-monorepo');
   const externalMain = join(externalMonorepo, 'packages', 'main');
