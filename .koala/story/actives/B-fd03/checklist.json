@@ -264,9 +264,9 @@
         "docs/requirements/decisions/lifecycle-artifact-scope.md"
       ],
       "userSees": "用户在 TEST transcript 中看到 `Orchestrate: pass`, `plasmid: warn`, `minicell: warn`, `OpenCli: warn`, `avalon: warn`，以及 `transcript lifecycle readiness: pass`。",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-02T15:35:57.904Z",
       "files": {
         "modify": [
           "packages/main/src/tasks/rollout-check-smoke.ts",
@@ -367,6 +367,15 @@
       "from": "pending",
       "to": "done",
       "reason": "Read-only rollout_check command committed in 5a306ab1 and verified by rollout-check-smoke."
+    },
+    {
+      "timestamp": "2026-06-02T15:35:57.904Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Real-project rollout transcript, rollout smoke, process-fact contract, command ownership contract, authority boundary smoke, session prompt sync, lint, and diff sanity all passed or reported only known warnings."
     }
   ]
 }
