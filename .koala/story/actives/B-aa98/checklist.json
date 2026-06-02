@@ -264,9 +264,9 @@
         "docs/requirements/decisions/lifecycle-artifact-scope.md"
       ],
       "userSees": "用户运行 lattice handoff_worktree_create --file=pack.json --format=json 看到 \"worktreePath\":\".worktrees/overflow/...\", \"branch\":\"overflow/...\", \"baseSha\":\"...\", \"packId\":\"HP-...\", \"cleanupCommand\":\"...\"。",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-02T21:23:17.938Z",
       "files": {
         "modify": [
           "packages/main/src/core/lattice-handoff.ts",
@@ -304,7 +304,19 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:host-overflow-smoke",
+          "result": "pass",
+          "note": "host-overflow smoke proves handoff_worktree_create returns isolated branch/worktree/cleanup guidance only, keeps external work unmerged, and warns when pack constraints are incomplete.",
+          "headHash": "627d69d2117373bc58bc059e0f37ad91f3fef289",
+          "materialHash": "bd29e0297db5c6be6cbeb9b4fb9fb501ae5536db42fccd198e54bf3ff7942b27",
+          "timestamp": "2026-06-02T21:23:17.981Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
