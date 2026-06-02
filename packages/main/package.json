@@ -78,7 +78,9 @@
     "test:lattice-evidence-smoke": "node dist/tasks/lattice-evidence-smoke.js",
     "test:lattice-parallel-wave-smoke": "node dist/tasks/lattice-parallel-wave-smoke.js",
     "test:rollout-check-smoke": "node dist/tasks/rollout-check-smoke.js",
-    "test:authority-enforce-policy": "node dist/tasks/authority-enforce-policy-smoke.js"
+    "test:authority-enforce-policy": "node dist/tasks/authority-enforce-policy-smoke.js",
+    "test:authority-runner-contracts": "node dist/tasks/authority-runner-contracts-smoke.js",
+    "test:authority-runner-client": "node dist/tasks/authority-runner-client-smoke.js"
   },
   "dependencies": {
     "@koala-agent/lab": "0.3.1",

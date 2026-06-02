@@ -1,0 +1,136 @@
+{
+  "command": "koala validate --story=B-1123 --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.5 test\",\"  > npm run test:e2e\",\"  > koala@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 6/6 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/tasks/authority-runner-contracts-smoke.ts) — Contract helpers sign and verify runner envelopes and job specs with deterministic canonical JSON bytes.\",\"  ✓ CHK-001:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/authority-runner-contracts-smoke.ts) — Invalid signatures, missing actor IDs, or same producer/verifier run bindings fail classification and verification.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/authority-runner-contracts-smoke.ts) — Adding signing primitives does not promote ordinary local/shadow workflow submissions to receipt-backed L2+.\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via integration_test (packages/main/src/tasks/authority-runner-client-smoke.ts) — Client methods hit the expected authority endpoints and parse success responses.\",\"  ✓ CHK-002:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/authority-runner-client-smoke.ts) — HTTP errors, malformed bodies, and missing authority URL remain controlled failures; off mode performs zero network calls.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/authority-runner-client-smoke.ts) — Policy discovery still never POSTs evidence or runner mutations.\"],\"warnings\":[],\"timestamp\":\"2026-06-02T17:59:23.440Z\",\"headSha\":\"65d8bae2107a1f912a4bcff810afacd3dda029b1\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1659}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"express\",\"intentCount\":6,\"reason\":\"verificationIntent entries present (6)\"},\"verificationCoverage\":{\"total\":6,\"required\":6,\"covered\":6,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Contract helpers sign and verify runner envelopes and job specs with deterministic canonical JSON bytes.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/authority-runner-contracts-smoke.ts\",\"command\":\"npm run test:authority-runner-contracts\",\"result\":\"pass\",\"note\":\"Root npm script delegates to the focused authority runner contracts smoke; it verifies deterministic canonical JSON bytes, Ed25519 sign/verify roundtrip, every runner envelope shape, and JobSpec/receipt signing paths.\",\"headHash\":\"dc4230795e077b982c45da62656125b75ffb46a0\",\"materialHash\":\"d1cb82d477820f1d7d640af55d43156c7b3c746fa49a02c346125b9ccd516091\",\"timestamp\":\"2026-06-02T17:45:29.908Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Invalid signatures, missing actor IDs, or same producer/verifier run bindings fail classification and verification.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/authority-runner-contracts-smoke.ts\",\"command\":\"npm run test:authority-runner-contracts\",\"result\":\"pass\",\"note\":\"Smoke covers invalid signatures, wrong keys, tampered payloads, malformed signatures, missing actorId/nonce/createdAt, and same-run producer/verifier collapse including whitespace-only variants.\",\"headHash\":\"dc4230795e077b982c45da62656125b75ffb46a0\",\"materialHash\":\"d1cb82d477820f1d7d640af55d43156c7b3c746fa49a02c346125b9ccd516091\",\"timestamp\":\"2026-06-02T17:45:29.908Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Adding signing primitives does not promote ordinary local/shadow workflow submissions to receipt-backed L2+.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/authority-runner-contracts-smoke.ts\",\"command\":\"npm run test:authority-runner-contracts\",\"result\":\"pass\",\"note\":\"Smoke proves signing primitives alone do not promote ordinary local/shadow runner envelopes to receipt-backed L2+: missingRunnerL2Requirements still requires run bindings, provider/model/vendor, command/transcript/diff hashes, and verified authority receipt.\",\"headHash\":\"dc4230795e077b982c45da62656125b75ffb46a0\",\"materialHash\":\"d1cb82d477820f1d7d640af55d43156c7b3c746fa49a02c346125b9ccd516091\",\"timestamp\":\"2026-06-02T17:45:29.908Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"Client methods hit the expected authority endpoints and parse success responses.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/authority-runner-client-smoke.ts\",\"command\":\"npm run test:authority-runner-client\",\"result\":\"pass\",\"note\":\"Root npm script delegates to the focused authority runner client smoke; fake authority server captures all 7 expected runner endpoints exactly once with signed request bodies and typed schema parsing.\",\"headHash\":\"dc4230795e077b982c45da62656125b75ffb46a0\",\"materialHash\":\"d1cb82d477820f1d7d640af55d43156c7b3c746fa49a02c346125b9ccd516091\",\"timestamp\":\"2026-06-02T17:45:29.908Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"HTTP errors, malformed bodies, and missing authority URL remain controlled failures; off mode performs zero network calls.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/authority-runner-client-smoke.ts\",\"command\":\"npm run test:authority-runner-client\",\"result\":\"pass\",\"note\":\"Smoke covers HTTP errors, malformed 2xx bodies, connection refused, timeout, empty path params, off mode zero-network refusal, missing/whitespace KOALA_AUTHORITY_URL refusal, and runtime re-validation of env/override mode.\",\"headHash\":\"dc4230795e077b982c45da62656125b75ffb46a0\",\"materialHash\":\"d1cb82d477820f1d7d640af55d43156c7b3c746fa49a02c346125b9ccd516091\",\"timestamp\":\"2026-06-02T17:45:29.908Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Policy discovery still never POSTs evidence or runner mutations.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/authority-runner-client-smoke.ts\",\"command\":\"npm run test:authority-runner-client\",\"result\":\"pass\",\"note\":\"Smoke proves policy discovery remains read-only: exactly one GET /v1/authority/policy and no POST to /v1/evidence, runner register, jobs claim, actor keys, or provider events; overclaim policy bodies containing accepted/receipt fields still fail.\",\"headHash\":\"dc4230795e077b982c45da62656125b75ffb46a0\",\"materialHash\":\"d1cb82d477820f1d7d640af55d43156c7b3c746fa49a02c346125b9ccd516091\",\"timestamp\":\"2026-06-02T17:45:29.908Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-02T17:59:23.788Z",
+  "headHash": "65d8bae2107a1f912a4bcff810afacd3dda029b1",
+  "materialHash": "d1cb82d477820f1d7d640af55d43156c7b3c746fa49a02c346125b9ccd516091",
+  "verificationCoverage": {
+    "total": 6,
+    "required": 6,
+    "covered": 6,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "Contract helpers sign and verify runner envelopes and job specs with deterministic canonical JSON bytes.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-runner-contracts-smoke.ts",
+          "command": "npm run test:authority-runner-contracts",
+          "result": "pass",
+          "note": "Root npm script delegates to the focused authority runner contracts smoke; it verifies deterministic canonical JSON bytes, Ed25519 sign/verify roundtrip, every runner envelope shape, and JobSpec/receipt signing paths.",
+          "headHash": "dc4230795e077b982c45da62656125b75ffb46a0",
+          "materialHash": "d1cb82d477820f1d7d640af55d43156c7b3c746fa49a02c346125b9ccd516091",
+          "timestamp": "2026-06-02T17:45:29.908Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Invalid signatures, missing actor IDs, or same producer/verifier run bindings fail classification and verification.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-runner-contracts-smoke.ts",
+          "command": "npm run test:authority-runner-contracts",
+          "result": "pass",
+          "note": "Smoke covers invalid signatures, wrong keys, tampered payloads, malformed signatures, missing actorId/nonce/createdAt, and same-run producer/verifier collapse including whitespace-only variants.",
+          "headHash": "dc4230795e077b982c45da62656125b75ffb46a0",
+          "materialHash": "d1cb82d477820f1d7d640af55d43156c7b3c746fa49a02c346125b9ccd516091",
+          "timestamp": "2026-06-02T17:45:29.908Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Adding signing primitives does not promote ordinary local/shadow workflow submissions to receipt-backed L2+.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-runner-contracts-smoke.ts",
+          "command": "npm run test:authority-runner-contracts",
+          "result": "pass",
+          "note": "Smoke proves signing primitives alone do not promote ordinary local/shadow runner envelopes to receipt-backed L2+: missingRunnerL2Requirements still requires run bindings, provider/model/vendor, command/transcript/diff hashes, and verified authority receipt.",
+          "headHash": "dc4230795e077b982c45da62656125b75ffb46a0",
+          "materialHash": "d1cb82d477820f1d7d640af55d43156c7b3c746fa49a02c346125b9ccd516091",
+          "timestamp": "2026-06-02T17:45:29.908Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "Client methods hit the expected authority endpoints and parse success responses.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/authority-runner-client-smoke.ts",
+          "command": "npm run test:authority-runner-client",
+          "result": "pass",
+          "note": "Root npm script delegates to the focused authority runner client smoke; fake authority server captures all 7 expected runner endpoints exactly once with signed request bodies and typed schema parsing.",
+          "headHash": "dc4230795e077b982c45da62656125b75ffb46a0",
+          "materialHash": "d1cb82d477820f1d7d640af55d43156c7b3c746fa49a02c346125b9ccd516091",
+          "timestamp": "2026-06-02T17:45:29.908Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "HTTP errors, malformed bodies, and missing authority URL remain controlled failures; off mode performs zero network calls.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-runner-client-smoke.ts",
+          "command": "npm run test:authority-runner-client",
+          "result": "pass",
+          "note": "Smoke covers HTTP errors, malformed 2xx bodies, connection refused, timeout, empty path params, off mode zero-network refusal, missing/whitespace KOALA_AUTHORITY_URL refusal, and runtime re-validation of env/override mode.",
+          "headHash": "dc4230795e077b982c45da62656125b75ffb46a0",
+          "materialHash": "d1cb82d477820f1d7d640af55d43156c7b3c746fa49a02c346125b9ccd516091",
+          "timestamp": "2026-06-02T17:45:29.908Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Policy discovery still never POSTs evidence or runner mutations.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-runner-client-smoke.ts",
+          "command": "npm run test:authority-runner-client",
+          "result": "pass",
+          "note": "Smoke proves policy discovery remains read-only: exactly one GET /v1/authority/policy and no POST to /v1/evidence, runner register, jobs claim, actor keys, or provider events; overclaim policy bodies containing accepted/receipt fields still fail.",
+          "headHash": "dc4230795e077b982c45da62656125b75ffb46a0",
+          "materialHash": "d1cb82d477820f1d7d640af55d43156c7b3c746fa49a02c346125b9ccd516091",
+          "timestamp": "2026-06-02T17:45:29.908Z"
+        }
+      }
+    ]
+  }
+}
