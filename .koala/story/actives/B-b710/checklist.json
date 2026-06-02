@@ -44,9 +44,9 @@
           "command": "npm run test:authority-status-smoke",
           "result": "pass",
           "note": "Off-mode status smoke and direct CLI check assert mode=off, localWorkflowUsable=true, productionDone=false, receiptVerified=false, canClaimProductionDone=false, and no readinessWarnings.",
-          "headHash": "d848a298f885209eaf07f2a250627ed5f3328db0",
-          "materialHash": "5e99c14a5bd7bd7660103e46025b4ab9f388bf68bf0c799835b2c26fb0cd2025",
-          "timestamp": "2026-06-02T17:33:12.762Z"
+          "headHash": "27aa4a5891deb45f14bb4653781eee7f3e8be98b",
+          "materialHash": "67bb2d03cacdbfc67fe1826ecaa2739199766ebea8fbc5387a748053f634a578",
+          "timestamp": "2026-06-02T17:45:29.989Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -55,9 +55,9 @@
           "command": "npm run test:authority-status-smoke",
           "result": "pass",
           "note": "Shadow with missing URL and enforce with missing URL/actor key/runner id emit actionable readinessWarnings and nextActions while keeping localWorkflowUsable=true and productionDone=false; direct enforce CLI JSON was also spot-checked.",
-          "headHash": "d848a298f885209eaf07f2a250627ed5f3328db0",
-          "materialHash": "5e99c14a5bd7bd7660103e46025b4ab9f388bf68bf0c799835b2c26fb0cd2025",
-          "timestamp": "2026-06-02T17:33:12.762Z"
+          "headHash": "27aa4a5891deb45f14bb4653781eee7f3e8be98b",
+          "materialHash": "67bb2d03cacdbfc67fe1826ecaa2739199766ebea8fbc5387a748053f634a578",
+          "timestamp": "2026-06-02T17:45:29.989Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -66,9 +66,9 @@
           "command": "npm run test:authority-status-smoke",
           "result": "pass",
           "note": "assertNoProductionOverclaim walks authority_status, conduit_status, and conduit_explain JSON responses for off/shadow/enforce/full-env states and fails if productionDone, receiptVerified, canClaimProductionDone, or authorityChanged becomes true without verified receipt.",
-          "headHash": "d848a298f885209eaf07f2a250627ed5f3328db0",
-          "materialHash": "5e99c14a5bd7bd7660103e46025b4ab9f388bf68bf0c799835b2c26fb0cd2025",
-          "timestamp": "2026-06-02T17:33:12.762Z"
+          "headHash": "27aa4a5891deb45f14bb4653781eee7f3e8be98b",
+          "materialHash": "67bb2d03cacdbfc67fe1826ecaa2739199766ebea8fbc5387a748053f634a578",
+          "timestamp": "2026-06-02T17:45:29.989Z"
         }
       ]
     },
@@ -118,9 +118,9 @@
           "command": "npm run test:authority-status-smoke",
           "result": "pass",
           "note": "README, docs/guide.md, and authority-client-role.md document off/shadow/enforce meanings, status inspection commands, and prerequisite fields; smoke checks the CLI JSON fields those docs describe.",
-          "headHash": "d848a298f885209eaf07f2a250627ed5f3328db0",
-          "materialHash": "5e99c14a5bd7bd7660103e46025b4ab9f388bf68bf0c799835b2c26fb0cd2025",
-          "timestamp": "2026-06-02T17:33:12.762Z"
+          "headHash": "27aa4a5891deb45f14bb4653781eee7f3e8be98b",
+          "materialHash": "67bb2d03cacdbfc67fe1826ecaa2739199766ebea8fbc5387a748053f634a578",
+          "timestamp": "2026-06-02T17:45:29.989Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -129,9 +129,9 @@
           "command": "npm run test:authority-status-smoke",
           "result": "pass",
           "note": "Docs explicitly state off is the default free/local workflow and shadow/enforce readiness gaps are warnings, not requirements for ordinary local story development.",
-          "headHash": "d848a298f885209eaf07f2a250627ed5f3328db0",
-          "materialHash": "5e99c14a5bd7bd7660103e46025b4ab9f388bf68bf0c799835b2c26fb0cd2025",
-          "timestamp": "2026-06-02T17:33:12.762Z"
+          "headHash": "27aa4a5891deb45f14bb4653781eee7f3e8be98b",
+          "materialHash": "67bb2d03cacdbfc67fe1826ecaa2739199766ebea8fbc5387a748053f634a578",
+          "timestamp": "2026-06-02T17:45:29.989Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -140,9 +140,9 @@
           "command": "npm run test:authority-status-smoke",
           "result": "pass",
           "note": "B-b710 authority-client-role section explicitly states local JSON/status output is non-authoritative; productionDone and receiptVerified stay false until a future verified AuthorityReceipt path exists, mechanically guarded by authority-status-smoke.",
-          "headHash": "d848a298f885209eaf07f2a250627ed5f3328db0",
-          "materialHash": "5e99c14a5bd7bd7660103e46025b4ab9f388bf68bf0c799835b2c26fb0cd2025",
-          "timestamp": "2026-06-02T17:33:12.762Z"
+          "headHash": "27aa4a5891deb45f14bb4653781eee7f3e8be98b",
+          "materialHash": "67bb2d03cacdbfc67fe1826ecaa2739199766ebea8fbc5387a748053f634a578",
+          "timestamp": "2026-06-02T17:45:29.989Z"
         }
       ]
     }
