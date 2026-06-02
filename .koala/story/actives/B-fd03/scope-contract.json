@@ -1,13 +1,36 @@
 {
   "storyId": "B-fd03",
   "mode": "enforce",
-  "allowedModify": [],
-  "allowedCreate": [],
-  "allowedTest": [],
+  "allowedModify": [
+    "README.md",
+    "docs/guide.md",
+    "docs/requirements/decisions/project-vision.md",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/lattice-brand.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/handlers/doctor.ts",
+    "packages/main/src/handlers/check.ts",
+    "packages/main/src/handlers/story-create.ts",
+    "packages/main/src/handlers/story-dispatch.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/tasks/rollout-check-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/rollout-check.ts",
+    "packages/main/src/handlers/rollout-check.ts",
+    ".koala/story/actives/B-fd03/evidence/rollout-transcript.md"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/rollout-check-smoke.ts",
+    "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
   "acknowledgements": [],
   "createdAt": "2026-06-02T14:42:55.423Z",
-  "updatedAt": "2026-06-02T14:42:55.423Z"
+  "updatedAt": "2026-06-02T14:48:10.626Z"
 }
