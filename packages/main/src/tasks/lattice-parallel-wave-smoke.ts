@@ -8,7 +8,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { MAIN_TOOLS } from '../cli-engine.js';
 import { getCommandPolicy } from '../core/command-policy.js';
-import { resetConfigCache } from '../core/config.js';
+import { getAllowedPatterns, isCommandAllowed, resetConfigCache } from '../core/config.js';
 import {
   buildParallelPlan,
   createParallelWave,
@@ -23,7 +23,9 @@ import type { ChecklistData, StoryInfo, VerificationEvidence } from '../core/typ
 import type { HandlerContext } from '../handlers/context.js';
 import { createMainRegistry } from '../registry.js';
 
-const WAVE_STORY_IDS = ['B-main', 'B-independent', 'B-dependent', 'B-hotspot'] as const;
+const PARALLEL_WAVE_COMMANDS = ['parallel_wave_create', 'parallel_wave_inspect', 'parallel_plan'] as const;
+const DEFAULT_POLICY_PHASES = ['INIT', 'INIT_CHECK', 'PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE'] as const;
+const WAVE_STORY_IDS = ['B-main', 'B-independent', 'B-dependent', 'B-hotspot', 'B-idea-adjacent'] as const;
 
 function writeConfig(root: string): void {
   writeFileSync(join(root, 'koala.config.json'), JSON.stringify({
@@ -103,6 +105,22 @@ function seedStories(store: StoryStore): void {
     sharedHotspots: ['packages/main/src/core/command-policy.ts'],
   }));
   store.writeChecklist('B-hotspot', checklist('B-hotspot:happy:0'));
+
+  store.writeStory('B-idea-peer', story('B-idea-peer', {
+    phase: 'IDEA',
+    priority: 'medium',
+    lane: 'supporting',
+    sharedHotspots: ['packages/main/src/core/idea-only.ts'],
+  }));
+
+  store.writeStory('B-idea-adjacent', story('B-idea-adjacent', {
+    priority: 'medium',
+    lane: 'supporting',
+    parallelSafe: 'yes',
+    depends: ['B-idea-peer'],
+    sharedHotspots: ['packages/main/src/core/idea-only.ts'],
+  }));
+  store.writeChecklist('B-idea-adjacent', checklist('B-idea-adjacent:happy:0'));
 }
 
 function ref(wave: LatticeParallelWave, storyId: string) {
@@ -154,13 +172,23 @@ function assertWave(wave: LatticeParallelWave): void {
   assert.deepEqual(hotspot.hotspots, ['packages/main/src/core/command-policy.ts']);
   assert.ok(hotspot.sharedHotspots.some(conflict => conflict.storyIds.includes('B-main')), 'hotspot conflict names active story');
   assert.ok(hotspot.degradations.some(degradation => degradation.severity === 'warn' && /parallelSafe=yes/.test(degradation.reason)), 'hotspot degradation names explicit override');
+
+  const ideaAdjacent = ref(wave, 'B-idea-adjacent');
+  assert.equal(ideaAdjacent.declaredParallelSafe, 'yes');
+  assert.equal(ideaAdjacent.safety, 'yes', 'IDEA dependencies and hotspots are not active scheduling peers');
+  assert.equal(ideaAdjacent.recommendation, 'parallel_dev');
+  assert.equal(ideaAdjacent.parallelDevRecommended, true);
+  assert.deepEqual(ideaAdjacent.dependencies.declared, ['B-idea-peer']);
+  assert.deepEqual(ideaAdjacent.dependencies.active, [], 'IDEA dependency is declared but not active');
+  assert.deepEqual(ideaAdjacent.sharedHotspots, [], 'IDEA hotspot peer does not create an active conflict');
+  assert.deepEqual(ideaAdjacent.degradations, [], 'IDEA peer should not block or degrade scheduling');
 }
 
 function assertInspection(inspection: LatticeParallelWaveInspection): void {
   assert.equal(inspection.schemaVersion, 'koala.parallel_wave_inspect.v1');
   assert.equal(inspection.waveSchemaVersion, 'koala.parallel_wave.v1');
   assert.equal(inspection.waveId, 'wave-smoke');
-  assert.equal(inspection.inspection.parallelDevCandidateCount, 1);
+  assert.equal(inspection.inspection.parallelDevCandidateCount, 2);
   assert.ok(inspection.inspection.blockingDegradationCount > 0);
   assertAuthorityBoundary(inspection);
 }
@@ -169,15 +197,24 @@ function assertPlan(plan: LatticeParallelPlan): void {
   assert.equal(plan.schemaVersion, 'koala.parallel_plan.v1');
   assert.equal(plan.waveSchemaVersion, 'koala.parallel_wave.v1');
   assert.equal(plan.waveId, 'wave-smoke');
-  assert.deepEqual(plan.parallelDevCandidates, ['B-independent']);
+  assert.deepEqual(plan.parallelDevCandidates, ['B-idea-adjacent', 'B-independent']);
   assert.ok(plan.planOnlyStories.includes('B-hotspot'));
   assert.ok(plan.blockedStories.includes('B-dependent'));
   assert.ok(plan.recoveryGuidance.some(line => /verified receipts/.test(line)), 'plan keeps authority guidance visible');
   assertAuthorityBoundary(plan);
 }
 
+function assertDefaultPhaseToolPolicy(): void {
+  for (const command of PARALLEL_WAVE_COMMANDS) {
+    for (const phase of DEFAULT_POLICY_PHASES) {
+      assert.equal(isCommandAllowed(command, phase), true, `${command} should be allowed by default phase tools in ${phase}`);
+      assert.equal(getAllowedPatterns(phase).includes(command), true, `${command} should appear in default allowed patterns for ${phase}`);
+    }
+  }
+}
+
 function assertCommandRegistration(registry: ReturnType<typeof createMainRegistry>): void {
-  for (const command of ['parallel_wave_create', 'parallel_wave_inspect', 'parallel_plan']) {
+  for (const command of PARALLEL_WAVE_COMMANDS) {
     assert.ok(MAIN_TOOLS.some(tool => tool.name === command), `MAIN_TOOLS exposes ${command}`);
     assert.equal(registry.has(command), true, `registry exposes ${command}`);
 
@@ -203,6 +240,7 @@ try {
   seedStories(store);
   const ctx: HandlerContext = { store, root, scanRoot: join(root, 'packages/main') };
   const registry = createMainRegistry(ctx);
+  assertDefaultPhaseToolPolicy();
   assertCommandRegistration(registry);
 
   const wave = createParallelWave(store, root, {

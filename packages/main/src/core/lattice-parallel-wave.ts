@@ -147,10 +147,6 @@ function waveIdFor(storyIds: string[], explicit?: string): string {
 }
 
 function isActiveStory(story: StoryInfo): boolean {
-  return !TERMINAL_PHASES.has(story.phase) && story.phase !== 'META';
-}
-
-function selectableActiveStory(story: StoryInfo): boolean {
   return !NON_ACTIVE_PHASES.has(story.phase);
 }
 
@@ -163,7 +159,7 @@ function canonicalPhase(phase: StoryPhase): CanonicalStory['lifecycle']['phase']
 function selectStories(store: StoryStore, storyIds?: string[]): StoryInfo[] {
   const ids = storyIds && storyIds.length > 0
     ? uniqueStrings(storyIds)
-    : store.listStoryIds().filter(id => selectableActiveStory(store.readStory(id)));
+    : store.listStoryIds().filter(id => isActiveStory(store.readStory(id)));
   return ids.map(id => store.readStory(id));
 }
 
