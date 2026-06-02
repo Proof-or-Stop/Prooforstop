@@ -601,6 +601,26 @@ export const MAIN_TOOLS: ToolDef[] = [
   { name: 'capability_list', description: 'List host-neutral Koala capability profiles and degradations (text/json)', schema: {
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
   }},
+  { name: 'capability_probe', description: 'Probe one host-neutral Koala capability profile and visible degradations (text/json)', schema: {
+    host: z.string().describe('Host profile id, for example codex, claude-code, local-runner, browser, server, desktop-app'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+  }},
+  { name: 'story_export', description: 'Export a Koala Story as Canonical Story v0 without claiming production authority', schema: {
+    storyId: z.string().describe('Story ID to export'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    output: z.string().optional().describe('Optional file path for canonical-story JSON'),
+  }},
+  { name: 'handoff_create', description: 'Create a Lattice handoff pack from one host to another without manufacturing production DONE', schema: {
+    storyId: z.string().describe('Story ID to include in the handoff pack'),
+    fromHost: z.string().describe('Source host profile id'),
+    toHost: z.string().describe('Target host profile id'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    output: z.string().optional().describe('Optional file path for handoff-pack JSON'),
+  }},
+  { name: 'handoff_inspect', description: 'Inspect a Lattice handoff pack and show capability deltas, degradations, evidence refs, and authority boundary', schema: {
+    file: z.string().describe('Handoff pack JSON file'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+  }},
 
   // Doctor (health issue 巡检)
   { name: 'doctor', description: '查看 koala 自身的 health issue（被 silent catch 接住的 PERSIST 失败）+ 扫 .worktrees/ 孤儿目录', schema: {
@@ -1425,6 +1445,10 @@ const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'test_list',
   'aux_doc_list',
   'capability_list',
+  'capability_probe',
+  'story_export',
+  'handoff_create',
+  'handoff_inspect',
   'grill_get',
   'reviewer_list',
   'workflow_explain',

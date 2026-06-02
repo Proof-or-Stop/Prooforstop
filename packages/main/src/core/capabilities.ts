@@ -67,6 +67,17 @@ export interface CapabilityList {
   hosts: HostProfile[];
 }
 
+export interface CapabilityProbe {
+  schemaVersion: 'koala.capability_probe.v1';
+  host: string;
+  requestedHost: string;
+  matchedFallback: boolean;
+  diagnosticOnly: true;
+  authorityRules: CapabilityList['authorityRules'];
+  profile: HostProfile;
+  degradations: CapabilityDegradation[];
+}
+
 const CATEGORY_DESCRIPTIONS: Record<CapabilityCategory, CapabilityDescription> = {
   'file-edit': {
     id: 'file-edit',
@@ -399,6 +410,35 @@ export function buildCapabilityList(): CapabilityList {
   };
 }
 
+function normalizeHostId(host: string): string {
+  return host.trim().toLowerCase();
+}
+
+export function buildCapabilityProbe(host: string): CapabilityProbe {
+  const requestedHost = host.trim();
+  if (!requestedHost) {
+    throw new Error('capability_probe requires --host');
+  }
+  const list = buildCapabilityList();
+  const normalized = normalizeHostId(requestedHost);
+  const profile = list.hosts.find(candidate => normalizeHostId(candidate.id) === normalized)
+    ?? list.hosts.find(candidate => candidate.id === 'unknown/fallback');
+  if (!profile) {
+    throw new Error('unknown/fallback host profile is missing from capability registry');
+  }
+
+  return {
+    schemaVersion: 'koala.capability_probe.v1',
+    host: profile.id,
+    requestedHost,
+    matchedFallback: profile.id !== normalized,
+    diagnosticOnly: true,
+    authorityRules: list.authorityRules,
+    profile,
+    degradations: profile.degradations,
+  };
+}
+
 export function renderCapabilityListText(list: CapabilityList = buildCapabilityList()): string {
   const lines: string[] = [
     `Koala capability profiles (${list.schemaVersion})`,
@@ -427,6 +467,39 @@ export function renderCapabilityListText(list: CapabilityList = buildCapabilityL
       }
     }
     lines.push('');
+  }
+
+  return lines.join('\n').trimEnd();
+}
+
+export function renderCapabilityProbeText(probe: CapabilityProbe): string {
+  const available = probe.profile.capabilities
+    .filter(c => c.status === 'available')
+    .map(c => c.category);
+  const limited = probe.profile.capabilities
+    .filter(c => c.status !== 'available')
+    .map(c => `${c.category}=${c.status}`);
+
+  const lines: string[] = [
+    `Koala capability probe (${probe.schemaVersion})`,
+    `host: ${probe.host}`,
+    `requestedHost: ${probe.requestedHost}`,
+    `matchedFallback: ${probe.matchedFallback}`,
+    `diagnosticOnly: ${probe.diagnosticOnly}`,
+    `authorityImpact: diagnostic-only`,
+    `productionDoneRequiresReceipt: ${probe.authorityRules.productionDoneRequiresReceipt}`,
+    '',
+    probe.profile.summary,
+    '',
+    `available: ${available.length > 0 ? available.join(', ') : '(none)'}`,
+    `limited: ${limited.length > 0 ? limited.join(', ') : '(none)'}`,
+  ];
+
+  if (probe.degradations.length > 0) {
+    lines.push('degradations:');
+    for (const d of probe.degradations) {
+      lines.push(`  - ${d.id}; capability=${d.capability}; visible=${d.visible}; authorityImpact=${d.authorityImpact}; ${d.reason}`);
+    }
   }
 
   return lines.join('\n').trimEnd();

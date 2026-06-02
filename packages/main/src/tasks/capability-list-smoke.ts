@@ -9,7 +9,9 @@ import { fileURLToPath } from 'node:url';
 import {
   CAPABILITY_CATEGORIES,
   buildCapabilityList,
+  buildCapabilityProbe,
   renderCapabilityListText,
+  renderCapabilityProbeText,
   type AuthorityImpact,
   type DegradationSeverity,
 } from '../core/capabilities.js';
@@ -115,8 +117,23 @@ assert.match(text, /unknown\/fallback/);
 assert.match(text, /authorityImpact=blocks-production-done/);
 assert.doesNotMatch(text, /fatal=/);
 
+// Productized single-host probe is a diagnostic projection of the same registry.
+const codexProbe = buildCapabilityProbe('codex');
+assert.equal(codexProbe.schemaVersion, 'koala.capability_probe.v1');
+assert.equal(codexProbe.host, 'codex');
+assert.equal(codexProbe.diagnosticOnly, true);
+assert.equal(codexProbe.authorityRules.productionDoneRequiresReceipt, true);
+assert.equal(codexProbe.degradations.every(d => d.visible === true), true);
+assert.equal((codexProbe as unknown as Record<string, unknown>).productionDone, undefined);
+const fallbackProbe = buildCapabilityProbe('not-a-real-host');
+assert.equal(fallbackProbe.host, 'unknown/fallback');
+assert.equal(fallbackProbe.matchedFallback, true);
+assert.equal(fallbackProbe.profile.capabilities.find(c => c.category === 'receipt-verify')?.status, 'unavailable');
+assert.match(renderCapabilityProbeText(codexProbe), /authorityImpact: diagnostic-only/);
+
 // Registry and CLI schema expose the command.
 assert.ok(MAIN_TOOLS.some(tool => tool.name === 'capability_list'), 'MAIN_TOOLS exposes capability_list');
+assert.ok(MAIN_TOOLS.some(tool => tool.name === 'capability_probe'), 'MAIN_TOOLS exposes capability_probe');
 {
   const root = mkdtempSync(join(tmpdir(), 'koala-capability-list-registry-'));
   try {
@@ -126,8 +143,11 @@ assert.ok(MAIN_TOOLS.some(tool => tool.name === 'capability_list'), 'MAIN_TOOLS 
     const ctx: HandlerContext = { store, root, scanRoot: join(root, 'packages/main') };
     const registry = createMainRegistry(ctx);
     assert.equal(registry.has('capability_list'), true, 'registry exposes capability_list handler');
+    assert.equal(registry.has('capability_probe'), true, 'registry exposes capability_probe handler');
     const result = registry.get('capability_list')!({ format: 'json' });
     assert.deepEqual((result as typeof list).hosts.map(h => h.id), [...EXPECTED_HOSTS]);
+    const probe = registry.get('capability_probe')!({ host: 'claude-code', format: 'json' });
+    assert.equal((probe as typeof codexProbe).host, 'claude-code');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -148,6 +168,15 @@ assert.ok(MAIN_TOOLS.some(tool => tool.name === 'capability_list'), 'MAIN_TOOLS 
     const parsed = JSON.parse(stdout) as typeof list;
     assert.deepEqual(parsed.hosts.map(h => h.id), [...EXPECTED_HOSTS]);
     assert.equal(parsed.authorityRules.handoffCanManufactureProductionDone, false);
+    const probeStdout = execFileSync(process.execPath, [cliPath, '--root', root, 'capability_probe', '--host=browser', '--format=json'], {
+      cwd: root,
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    const parsedProbe = JSON.parse(probeStdout) as typeof codexProbe;
+    assert.equal(parsedProbe.host, 'browser');
+    assert.equal(parsedProbe.profile.capabilities.find(c => c.category === 'shell/pty')?.status, 'unavailable');
+    assert.equal(parsedProbe.degradations.find(d => d.capability === 'receipt-verify')?.authorityImpact, 'blocks-production-done');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

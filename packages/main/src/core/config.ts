@@ -143,6 +143,9 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'draft_issue_resolve',
     'authority_enforce_policy', // B-ea92 M1: read-only authority policy discovery, no side-effects
     'capability_list', // B-f26a M2: read-only host capability diagnostics for cross-host degradation
+    'capability_probe', // B-cd31 CHK-002: productized single-host capability diagnostics
+    'story_export', // B-cd31 CHK-003: Canonical Story v0 export surface
+    'handoff_create', 'handoff_inspect', // B-cd31 CHK-004: Lattice cross-host handoff pack surface
     'dev_memory_*',  // B-1148: dev_memory_capture/list/search/preflight/finish/start declared allowedPhases:all in command-policy; phaseTools must match
   ],
   INIT: [
