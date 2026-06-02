@@ -17,9 +17,11 @@
           "package.json",
           "package-lock.json",
           "packages/main/package.json",
-          "packages/main/src/cli.ts",
+          "packages/main/package-lock.json",
           "packages/main/src/cli-engine.ts",
-          "bin/bootstrap-runner.js"
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts"
         ],
         "create": [
           "bin/lattice.js",
