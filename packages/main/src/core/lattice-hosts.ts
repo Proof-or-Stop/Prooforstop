@@ -3,7 +3,11 @@ import {
   buildCapabilityProbe,
   renderCapabilityListText,
   renderCapabilityProbeText,
+  type AuthorityImpact,
+  type CapabilityCategory,
   type CapabilityList,
+  type CapabilityStatus,
+  type DegradationSeverity,
   type CapabilityProbe,
   type HostProfile,
 } from './capabilities.js';
@@ -51,8 +55,142 @@ export interface LatticeHostInstallGuidance {
 
 const PRODUCT = { name: LATTICE_PRODUCT_NAME, version: LATTICE_CLI_VERSION } as const;
 
-export function buildLatticeHostList(): LatticeHostList {
+const LATTICE_DESKTOP_APP_SUMMARY =
+  'Optional dashboard/archive surface for displaying artifacts, collecting visible approval, and browsing historical handoff context; Lattice CLI commands remain the editing, test, authority, and receipt surfaces.';
+
+type LatticeDesktopCapabilityDemotion = {
+  status: Exclude<CapabilityStatus, 'available'>;
+  note: string;
+  authorityImpact: AuthorityImpact;
+  reason: string;
+  fallback: string;
+  recovery?: string;
+};
+
+const LATTICE_DESKTOP_APP_DEMOTIONS: Partial<Record<CapabilityCategory, LatticeDesktopCapabilityDemotion>> = {
+  'file-edit': {
+    status: 'unavailable',
+    note: 'Unavailable in Lattice CLI 0.3.5; the desktop app is optional dashboard/archive only.',
+    authorityImpact: 'none',
+    reason: 'Lattice CLI 0.3.5 does not treat the desktop app as a repository editing host.',
+    fallback: 'Delegate file edits to Codex, Claude Code, or another explicit editing host.',
+  },
+  'patch-apply': {
+    status: 'unavailable',
+    note: 'Unavailable in Lattice CLI 0.3.5; patches must be applied by a CLI/editor host.',
+    authorityImpact: 'none',
+    reason: 'The desktop app projection is dashboard/archive only and cannot apply patches.',
+    fallback: 'Use a patch-capable CLI/editor host.',
+  },
+  'shell/pty': {
+    status: 'unavailable',
+    note: 'Unavailable in Lattice CLI 0.3.5; shell access stays with CLI/editor/runner hosts.',
+    authorityImpact: 'verification-evidence-limited',
+    reason: 'The desktop app projection is not a local command or PTY surface.',
+    fallback: 'Run commands through Codex, Claude Code, or local-runner.',
+  },
+  'test-execution': {
+    status: 'unavailable',
+    note: 'Unavailable in Lattice CLI 0.3.5; tests must run through CLI/editor/runner hosts.',
+    authorityImpact: 'verification-evidence-limited',
+    reason: 'The desktop app projection is not a test execution surface.',
+    fallback: 'Delegate build and test commands to local-runner or an editing host with shell access.',
+  },
+  'browser-automation': {
+    status: 'unavailable',
+    note: 'Unavailable in Lattice CLI 0.3.5; browser checks require a browser-capable host.',
+    authorityImpact: 'verification-evidence-limited',
+    reason: 'The desktop app projection does not expose browser automation as a Lattice host capability.',
+    fallback: 'Use a browser host or record that browser automation is unavailable.',
+  },
+  'evidence-submit': {
+    status: 'unavailable',
+    note: 'Unavailable in Lattice CLI 0.3.5; the desktop app is not an authority evidence submission surface.',
+    authorityImpact: 'evidence-local-only',
+    reason: 'The desktop app projection cannot submit authority evidence.',
+    fallback: 'Keep evidence local until submitted through an explicit authority-capable client.',
+  },
+  'receipt-verify': {
+    status: 'unavailable',
+    note: 'Unavailable in Lattice CLI 0.3.5; the desktop app cannot verify authority receipts.',
+    authorityImpact: 'blocks-production-done',
+    reason: 'The desktop app projection cannot verify authority receipts or unlock productionDone.',
+    fallback: 'Require a verified receipt from an authority-capable verifier before productionDone.',
+  },
+  'multimodal-research': {
+    status: 'unavailable',
+    note: 'Unavailable in Lattice CLI 0.3.5; research and verification are delegated to explicit capable hosts.',
+    authorityImpact: 'none',
+    reason: 'The desktop app projection is limited to dashboard/archive display rather than research execution.',
+    fallback: 'Delegate research to a multimodal-capable host.',
+  },
+};
+
+function severityForAuthorityImpact(authorityImpact: AuthorityImpact): DegradationSeverity {
+  if (authorityImpact === 'blocks-production-done') return 'block';
+  if (authorityImpact === 'none') return 'info';
+  return 'warn';
+}
+
+function buildLatticeDesktopDegradation(category: CapabilityCategory, demotion: LatticeDesktopCapabilityDemotion) {
+  return {
+    id: `desktop-app-${category}`
+      .replace(/[^a-zA-Z0-9]+/g, '-')
+      .replace(/^-|-$/g, '')
+      .toLowerCase(),
+    host: 'desktop-app',
+    capability: category,
+    severity: severityForAuthorityImpact(demotion.authorityImpact),
+    visible: true as const,
+    reason: demotion.reason,
+    fallback: demotion.fallback,
+    authorityImpact: demotion.authorityImpact,
+    ...(demotion.recovery ? { recovery: demotion.recovery } : {}),
+  };
+}
+
+function projectLatticeHostProfile(profile: HostProfile): HostProfile {
+  if (profile.id !== 'desktop-app') return profile;
+
+  return {
+    ...profile,
+    label: 'Desktop app (dashboard/archive)',
+    summary: LATTICE_DESKTOP_APP_SUMMARY,
+    capabilities: profile.capabilities.map(capability => {
+      const demotion = LATTICE_DESKTOP_APP_DEMOTIONS[capability.category];
+      if (!demotion) return capability;
+      return {
+        ...capability,
+        status: demotion.status,
+        note: demotion.note,
+      };
+    }),
+    degradations: Object.entries(LATTICE_DESKTOP_APP_DEMOTIONS).map(([category, demotion]) =>
+      buildLatticeDesktopDegradation(category as CapabilityCategory, demotion),
+    ),
+  };
+}
+
+function buildLatticeCapabilityList(): CapabilityList {
   const list = buildCapabilityList();
+  return {
+    ...list,
+    hosts: list.hosts.map(projectLatticeHostProfile),
+  };
+}
+
+function buildLatticeCapabilityProbe(host: string): CapabilityProbe {
+  const probe = buildCapabilityProbe(host);
+  const profile = projectLatticeHostProfile(probe.profile);
+  return {
+    ...probe,
+    profile,
+    degradations: profile.degradations,
+  };
+}
+
+export function buildLatticeHostList(): LatticeHostList {
+  const list = buildLatticeCapabilityList();
   return {
     schemaVersion: 'lattice.host_list.v1',
     product: PRODUCT,
@@ -76,7 +214,7 @@ export function buildLatticeHostProbe(host: string): LatticeHostProbe {
     product: PRODUCT,
     productionDone: false,
     receiptVerified: false,
-    probe: buildCapabilityProbe(host),
+    probe: buildLatticeCapabilityProbe(host),
   };
 }
 
@@ -194,7 +332,7 @@ export function renderLatticeHostListText(list: LatticeHostList): string {
     `migration: cliFirst=${list.migration.cliFirst}; macAppRequired=${list.migration.macAppRequired}; macAppRole=${list.migration.macAppRole}`,
     `authority: productionDone=${list.authority.productionDone}; receiptVerified=${list.authority.receiptVerified}; productionDoneRequiresReceipt=${list.authority.productionDoneRequiresReceipt}`,
     '',
-    renderCapabilityListText({ ...buildCapabilityList(), hosts: list.hosts }),
+    renderCapabilityListText({ ...buildLatticeCapabilityList(), hosts: list.hosts }),
   ].join('\n');
 }
 
@@ -232,4 +370,3 @@ export function renderLatticeHostInstallText(guidance: LatticeHostInstallGuidanc
   }
   return lines.join('\n');
 }
-

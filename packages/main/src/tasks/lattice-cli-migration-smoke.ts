@@ -27,16 +27,17 @@ const COMMANDS = [
   'conduit_explain',
 ] as const;
 
-function runCli(args: string[]): string {
+function runCli(args: string[], env: Record<string, string | undefined> = {}): string {
   return execFileSync(process.execPath, [cliPath, '--root', repoRoot, ...args], {
     cwd: repoRoot,
+    env: { ...process.env, ...env },
     encoding: 'utf8',
     stdio: ['pipe', 'pipe', 'pipe'],
   });
 }
 
-function runJson<T>(args: string[]): T {
-  return JSON.parse(runCli(args)) as T;
+function runJson<T>(args: string[], env: Record<string, string | undefined> = {}): T {
+  return JSON.parse(runCli(args, env)) as T;
 }
 
 function assertNoProductionOverclaim(value: unknown, label: string): void {
@@ -64,6 +65,18 @@ function assertNoProductionOverclaim(value: unknown, label: string): void {
 
 function readJson(path: string): any {
   return JSON.parse(readFileSync(path, 'utf8'));
+}
+
+function capabilityByCategory(profile: any, category: string): any {
+  const capability = profile.capabilities.find((candidate: any) => candidate.category === category);
+  assert.ok(capability, `${profile.id ?? 'host profile'} exposes ${category} capability`);
+  return capability;
+}
+
+function degradationByCategory(degradations: any[], category: string): any {
+  const degradation = degradations.find(candidate => candidate.capability === category);
+  assert.ok(degradation, `${category} has visible degradation`);
+  return degradation;
 }
 
 // Product identity and package entrypoints.
@@ -105,6 +118,35 @@ assert.equal(hostList.migration.macAppRequired, false);
 assert.equal(hostList.authority.productionDone, false);
 assert.equal(hostList.authority.receiptVerified, false);
 assertNoProductionOverclaim(hostList, 'host_list');
+const desktopFromList = hostList.hosts.find((host: any) => host.id === 'desktop-app');
+assert.ok(desktopFromList, 'host_list includes desktop-app projection');
+assert.match(desktopFromList.label, /dashboard\/archive/i);
+assert.match(desktopFromList.summary, /dashboard\/archive/i);
+for (const category of [
+  'file-edit',
+  'patch-apply',
+  'shell/pty',
+  'test-execution',
+  'browser-automation',
+  'evidence-submit',
+  'receipt-verify',
+  'multimodal-research',
+] as const) {
+  assert.equal(capabilityByCategory(desktopFromList, category).status, 'unavailable', `desktop-app ${category} is unavailable in Lattice projection`);
+  assert.equal(degradationByCategory(desktopFromList.degradations, category).visible, true, `desktop-app ${category} degradation is visible`);
+}
+assert.equal(capabilityByCategory(desktopFromList, 'approval').status, 'available', 'desktop-app keeps dashboard approval available');
+assert.equal(capabilityByCategory(desktopFromList, 'artifact-display').status, 'available', 'desktop-app keeps artifact display available');
+assert.equal(
+  degradationByCategory(desktopFromList.degradations, 'evidence-submit').authorityImpact,
+  'evidence-local-only',
+  'desktop-app evidence submission remains local-only in Lattice projection',
+);
+assert.equal(
+  degradationByCategory(desktopFromList.degradations, 'receipt-verify').authorityImpact,
+  'blocks-production-done',
+  'desktop-app receipt verification blocks productionDone in Lattice projection',
+);
 
 const hostListAlias = runJson<any>(['host', 'list', '--format=json']);
 assert.equal(hostListAlias.schemaVersion, 'lattice.host_list.v1', 'host list alias works');
@@ -114,7 +156,29 @@ assert.equal(hostProbeAlias.schemaVersion, 'lattice.host_probe.v1');
 assert.equal(hostProbeAlias.probe.host, 'codex');
 assert.equal(hostProbeAlias.productionDone, false);
 assert.equal(hostProbeAlias.receiptVerified, false);
+for (const [category, authorityImpact] of [
+  ['browser-automation', 'verification-evidence-limited'],
+  ['evidence-submit', 'evidence-local-only'],
+  ['receipt-verify', 'blocks-production-done'],
+] as const) {
+  assert.equal(capabilityByCategory(hostProbeAlias.probe.profile, category).status, 'conditional', `codex ${category} remains visible conditional`);
+  const degradation = degradationByCategory(hostProbeAlias.probe.degradations, category);
+  assert.equal(degradation.visible, true, `codex ${category} degradation is visible`);
+  assert.equal(degradation.authorityImpact, authorityImpact, `codex ${category} authority impact is explicit`);
+}
 assertNoProductionOverclaim(hostProbeAlias, 'lattice host probe');
+
+const desktopProbe = runJson<any>(['host_probe', '--host=desktop-app', '--format=json']);
+assert.equal(desktopProbe.schemaVersion, 'lattice.host_probe.v1');
+assert.equal(desktopProbe.probe.host, 'desktop-app');
+assert.match(desktopProbe.probe.profile.summary, /dashboard\/archive/i);
+for (const category of ['file-edit', 'test-execution', 'evidence-submit', 'receipt-verify'] as const) {
+  assert.equal(capabilityByCategory(desktopProbe.probe.profile, category).status, 'unavailable', `desktop-app probe ${category} is unavailable`);
+  assert.equal(degradationByCategory(desktopProbe.probe.degradations, category).visible, true, `desktop-app probe ${category} degradation is visible`);
+}
+assert.equal(capabilityByCategory(desktopProbe.probe.profile, 'artifact-display').status, 'available', 'desktop-app probe keeps artifact display available');
+assert.equal(degradationByCategory(desktopProbe.probe.degradations, 'receipt-verify').authorityImpact, 'blocks-production-done');
+assertNoProductionOverclaim(desktopProbe, 'desktop-app host probe');
 
 const install = runJson<any>(['host_install', '--host=desktop-app', '--format=json']);
 assert.equal(install.schemaVersion, 'lattice.host_install.v1');
@@ -132,8 +196,16 @@ assert.equal(configDoctor.migration.legacyKoalaAliasPreserved, true);
 assert.equal(configDoctor.versions.expected, LATTICE_CLI_VERSION);
 assertNoProductionOverclaim(configDoctor, 'lattice config doctor');
 
-const authority = runJson<any>(['lattice', 'authority', 'status', '--format=json']);
+const authority = runJson<any>(['lattice', 'authority', 'status', '--format=json'], {
+  KOALA_AUTHORITY_MODE: '',
+  KOALA_AUTHORITY_URL: '',
+  KOALA_AUTHORITY_TIMEOUT_MS: '',
+});
 assert.equal(authority.schemaVersion, 'lattice.authority_status.v1');
+assert.equal(authority.baseURLConfigured, false);
+assert.equal(authority.baseURL, null);
+assert.equal(authority.status, 'not-configured');
+assert.equal(authority.serverReachability, 'not-probed');
 assert.equal(authority.receiptVerified, false);
 assert.equal(authority.productionDone, false);
 assert.equal(authority.canClaimProductionDone, false);
@@ -155,4 +227,3 @@ assert.ok(conduitExplain.explanation.some((line: string) => /not a model runner/
 assertNoProductionOverclaim(conduitExplain, 'lattice conduit explain');
 
 console.log('✓ lattice CLI migration smoke passed');
-
