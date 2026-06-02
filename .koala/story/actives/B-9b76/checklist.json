@@ -51,7 +51,40 @@
       "relatedDocs": [
         "docs/requirements/decisions/stack-layering.md",
         "AGENTS.md"
-      ]
+      ],
+      "userSees": "用户运行 registry smoke 时看到所有 package agent templates 都被列出，Claude render 与模板一致，Codex render 与 legacy transform 一致，并输出 pass。",
+      "files": {
+        "modify": [
+          "packages/main/src/init-assets.ts"
+        ],
+        "create": [
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/prompt-registry-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Registry enumerates every package template agent with stable id, path, sha256 hash, and host render outputs.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Registry behaves deterministically when template directory exists through package templates rather than repo-local .claude symlinks.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Codex rendered output remains byte-compatible with the legacy renderCodexAgentContent transform so legacy mirrors are not silently changed.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
