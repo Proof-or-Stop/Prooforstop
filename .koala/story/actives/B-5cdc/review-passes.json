@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-02T21:27:45.228Z",
       "reviewRunId": "B-5cdc:RR-002",
       "_hash": "de7b7c6654b0601d893233e48d9a0784d286f758c453956ddf925aa50ddd166f"
+    },
+    {
+      "id": "B-5cdc:RP-002",
+      "agent": "koala-review-concept",
+      "note": "Concept review pass: authority_enforce_runner is wired as an explicit command (cli-engine MAIN_TOOLS + alias \"lattice authority enforce runner\") with no implicit caller from story_advance / verification_evidence_add (confirmed by grep + CHK-001:adversarial smoke). The CLI surface only projects a Plan — buildAuthorityEnforceRunnerPlan always returns spawned:false, providerEvents:[], regardless of --dry-run, so the CLI cannot run a provider in any mode. Production authority is not overclaimed: registered L0 readOnly in process-fact-levels and command-policy with reason \"never submits evidence, claims jobs, registers actor keys, executes real providers, or verifies receipts\"; conduit/authority status keep productionDone:false / receiptVerified:false. Local workflow remains usable without paid authority: localWorkflowUsable:true always; missing URL/actor key/runner id flip status:fail with actionable nextActions while readinessWarnings are framed as readiness (not global blockers), confirmed by CHK-001:edge smoke. The fake-provider helper executeFakeProviderJob lives in core/authority-runner.ts but is consumed only by tasks/authority-runner-events-smoke.ts (grep confirmed); assertClaimedFakeJob hard-rejects non fake-provider, missing allowLocalCommand, runnerId / runId mismatches, and commandFromJob requires a bare executable name. CHK-002:adversarial covers all three rejection branches and verifyRunnerEnvelope ties events to claimed JobSpec identity. No concept overreach or implicit-execution risk found.",
+      "createdAt": "2026-06-02T21:33:02.521Z",
+      "reviewRound": "2026-06-02T21:27:45.228Z",
+      "reviewRunId": "B-5cdc:RR-004",
+      "_hash": "a47697a161c12a3e2aa561baa8336693531ee0204b4a52d51db8851dc6b0500b"
     }
   ]
 }
