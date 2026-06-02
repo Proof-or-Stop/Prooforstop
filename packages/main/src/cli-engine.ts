@@ -598,6 +598,9 @@ export const MAIN_TOOLS: ToolDef[] = [
   { name: 'aux_doc_list', description: '列出项目文档（PLAN 阶段挑选 relatedDocs 用）', schema: {
     format: z.enum(['text', 'json']).optional().describe('输出格式（默认 text）'),
   }},
+  { name: 'capability_list', description: 'List host-neutral Koala capability profiles and degradations (text/json)', schema: {
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+  }},
 
   // Doctor (health issue 巡检)
   { name: 'doctor', description: '查看 koala 自身的 health issue（被 silent catch 接住的 PERSIST 失败）+ 扫 .worktrees/ 孤儿目录', schema: {
@@ -1421,6 +1424,7 @@ const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'bug_list',
   'test_list',
   'aux_doc_list',
+  'capability_list',
   'grill_get',
   'reviewer_list',
   'workflow_explain',

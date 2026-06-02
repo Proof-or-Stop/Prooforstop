@@ -62,6 +62,7 @@ import { createScopeContractHandlers } from './handlers/scope-contract.js';
 import { createGuardSessionHandlers } from './handlers/guard-session.js';
 import { createAuthorityEnforceHandlers } from './handlers/authority-enforce.js';
 import { createDevMemoryHandlers } from './handlers/dev-memory.js';
+import { createCapabilityListHandlers } from './handlers/capability-list.js';
 import { nextStoryId } from './handlers/context.js';
 
 export type HandlerFn = (...args: any[]) => any;
@@ -200,6 +201,9 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   // B-ad2c: dev_memory_* — lightweight experience capture outside Koala story gates.
   // Non-authoritative: entries cannot satisfy Koala DONE gate evidence.
   registry.registerBatch(createDevMemoryHandlers(ctx));
+
+  // Host-neutral capability discovery for Koala/Lattice adapters.
+  registry.registerBatch(createCapabilityListHandlers());
 
   // 内部辅助：返回下一个 story id（fixture/测试 runner 用）
   registry.register('_nextStoryId', (prefix?: string) => nextStoryId(ctx.store, prefix));

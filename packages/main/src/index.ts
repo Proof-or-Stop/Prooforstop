@@ -63,6 +63,20 @@ export {
   parseUnifiedDiff,
 } from './core/scope-diff-pack.js';
 export {
+  CAPABILITY_CATEGORIES,
+  CAPABILITY_SCHEMA_VERSION,
+  buildCapabilityList,
+  renderCapabilityListText,
+  type AuthorityImpact,
+  type CapabilityCategory,
+  type CapabilityDegradation,
+  type CapabilityDescription,
+  type CapabilityList,
+  type CapabilityStatus,
+  type HostCapability,
+  type HostProfile,
+} from './core/capabilities.js';
+export {
   checkSemanticScope,
   mergeSemanticScopeResult,
   isSemanticContract,
