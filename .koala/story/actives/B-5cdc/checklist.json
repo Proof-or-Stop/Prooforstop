@@ -105,9 +105,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-02T21:25:51.331Z",
-      "endTime": null,
+      "endTime": "2026-06-02T21:26:39.872Z",
       "verificationEvidence": [
         {
           "intentRef": "CHK-002:happy:0",
@@ -172,6 +172,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Committed authority_enforce_runner dry-run command and recorded happy/edge/adversarial verification evidence."
+    },
+    {
+      "timestamp": "2026-06-02T21:26:39.872Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Committed fake-provider execution helper and signed provider-event smoke coverage for happy/edge/adversarial claim boundaries."
     }
   ]
 }
