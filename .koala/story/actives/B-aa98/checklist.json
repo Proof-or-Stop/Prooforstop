@@ -111,7 +111,7 @@
         "docs/requirements/decisions/verification-context-pack.md",
         "docs/requirements/decisions/lifecycle-artifact-scope.md"
       ],
-      "userSees": "用户能生成可复制给 Claude Code 的 handoff pack，pack 明确写了 allowed paths、commands、success criteria 和不能直接改 story JSON。",
+      "userSees": "用户运行 lattice handoff_create ... --format=json 看到 \"packId\":\"HP-...\", \"packHash\":\"sha256:...\", \"baseSha\":\"...\", \"allowedPaths\":[...], \"requiredCommands\":[...], \"productionDone\":false。",
       "status": "pending",
       "startTime": null,
       "endTime": null,
