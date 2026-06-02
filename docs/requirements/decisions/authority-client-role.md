@@ -71,14 +71,34 @@ Milestone 1 implemented read-only policy discovery only; actor keys, jobs, provi
 
 ## PD-1 Decision
 
-**Question**: Should Koala CLI become a first-class enforce-mode authority client, or stay a thin
+**Question**: Should Lattice/Koala CLI become a first-class enforce-mode authority client, or stay a thin
 local/shadow tool with MAC as the canonical runner for authority evidence?
 
-**Answer**: **Koala CLI remains a thin local/shadow lifecycle client.** It must not claim or certify
+**Answer**: **Lattice/Koala CLI remains a thin local/shadow lifecycle client.** It must not claim or certify
 L2+ authority evidence. MAC/runner/CI/human and the Python authority remain the canonical sources
 for L2+ authority evidence. A first-class enforce-mode CLI authority client is **deferred** to a
 future explicit product track once handshake, full evidence envelope submission, actor-key/signing/
 runner identity, and server receipt verification are implemented and reviewed in dedicated stories.
+
+### Lattice CLI 0.3.5 Status Surfaces
+
+Lattice CLI 0.3.5 adds receipt-aware status commands for migration visibility:
+
+- `authority_status` / `lattice authority status`
+- `conduit_status` / `lattice conduit status`
+- `conduit_explain` / `lattice conduit explain`
+
+These commands are read-only diagnostics. They may report local
+`KOALA_AUTHORITY_MODE`, URL configuration, conduit availability, and supported
+handoff/evidence surfaces, but they do not submit evidence, claim jobs, register
+actors, run providers, sign envelopes, verify server receipts, or promote local
+DONE to production DONE. Until verified receipt support exists, their JSON
+contracts must keep `receiptVerified=false`, `productionDone=false`, and
+`canClaimProductionDone=false`.
+
+The Mac App is not the authority/config source for this migration. It may remain
+an optional dashboard/archive surface; production authority remains receipt
+backed and external to the ordinary CLI path.
 
 ---
 

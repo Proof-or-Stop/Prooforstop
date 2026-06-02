@@ -27,6 +27,9 @@ gates. Every Parallel Wave output keeps `productionDone=false`,
 
 ## Commands
 
+Lattice CLI 0.3.5 is the primary product entrypoint for these commands. The
+legacy `koala` alias remains compatible.
+
 `parallel_wave_create` creates a wave projection from story refs, or from active
 stories when refs are omitted. Optional `output` writes JSON with no overwrite.
 
@@ -42,6 +45,18 @@ All three commands are read-only workflow commands: they may write a caller
 requested output artifact, but they do not mutate story metadata, process
 evidence, lifecycle state, receipts, authority state, or production completion.
 They are process fact level L0.
+
+Related migration diagnostics are also L0/read-only:
+
+- `host_list` / `lattice host list`
+- `host_probe` / `lattice host probe`
+- `host_install` / `lattice host install` (dry-run guidance only)
+- `lattice_config_doctor` / `lattice config doctor`
+- `authority_status` / `lattice authority status`
+- `conduit_status` and `conduit_explain` / `lattice conduit ...`
+
+These surfaces replace Mac App provider/config dashboard requirements for the
+0.3.5 migration. The Mac App remains optional dashboard/archive only.
 
 ## Wave JSON Contract
 

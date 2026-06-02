@@ -144,6 +144,10 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'authority_enforce_policy', // B-ea92 M1: read-only authority policy discovery, no side-effects
     'capability_list', // B-f26a M2: read-only host capability diagnostics for cross-host degradation
     'capability_probe', // B-cd31 CHK-002: productized single-host capability diagnostics
+    'host_*', // Lattice CLI 0.3.5: host list/probe/install guidance; dry-run/read-only diagnostics only
+    'lattice_config_doctor', // Lattice CLI 0.3.5: CLI-first migration/config status; no Mac App dependency
+    'authority_status', // Lattice CLI 0.3.5: receipt-aware status only; no evidence submission
+    'conduit_*', // Lattice CLI 0.3.5: conduit status/explain; no runner provisioning or authority mutation
     'story_export', // B-cd31 CHK-003: Canonical Story v0 export surface
     'handoff_create', 'handoff_inspect', // B-cd31 CHK-004: Lattice cross-host handoff pack surface
     'handoff_accept', 'handoff_resume', // B-cd31 CHK-005: handoff accept/resume projections without authority mutation

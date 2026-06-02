@@ -8,11 +8,12 @@
     "url": "git+https://github.com/koala-agent/koala.git",
     "directory": "packages/main"
   },
-  "version": "0.3.4-1",
+  "version": "0.3.5",
   "description": "通用项目开发框架 — AI-driven Story 工作流 CLI",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
+    "lattice": "dist/cli.js",
     "koala": "dist/cli.js"
   },
   "exports": {
@@ -70,6 +71,7 @@
     "test:scope-contract-smoke": "node dist/tasks/scope-contract-smoke.js",
     "test:semantic-scope-guard-smoke": "node dist/tasks/semantic-scope-guard-smoke.js",
     "test:capability-list-smoke": "node dist/tasks/capability-list-smoke.js",
+    "test:lattice-cli-migration-smoke": "node dist/tasks/lattice-cli-migration-smoke.js",
     "test:canonical-story-export-smoke": "node dist/tasks/canonical-story-export-smoke.js",
     "test:lattice-handoff-smoke": "node dist/tasks/lattice-handoff-smoke.js",
     "test:lattice-evidence-smoke": "node dist/tasks/lattice-evidence-smoke.js",

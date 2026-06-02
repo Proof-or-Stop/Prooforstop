@@ -1,0 +1,316 @@
+{
+  "command": "koala validate --story=B-bffc --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.5 test\",\"  > npm run test:e2e\",\"  > koala@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 15/15 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via integration_test (packages/main/src/tasks/lattice-cli-migration-smoke.ts) — lattice bin/help/version exposes Lattice CLI 0.3.5.\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via integration_test (packages/main/src/tasks/lattice-cli-migration-smoke.ts) — koala legacy alias still exposes the command catalog.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/docs] covered via docs_check (README.md) — bootstrap/help text does not require Mac App setup for CLI usage.\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via integration_test (packages/main/src/tasks/lattice-cli-migration-smoke.ts) — host list/probe and config doctor return Lattice CLI provider/config status.\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via integration_test (packages/main/src/tasks/lattice-cli-migration-smoke.ts) — missing optional providers are reported as visible degradations, not fatal errors.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via integration_test (packages/main/src/tasks/lattice-cli-migration-smoke.ts) — host install guidance is dry-run guidance and does not execute third-party installs.\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via integration_test (packages/main/src/tasks/lattice-cli-migration-smoke.ts) — authority/conduit status commands expose receipt-aware, non-authoritative local status.\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via integration_test (packages/main/src/tasks/lattice-cli-migration-smoke.ts) — missing authority URL yields guidance without claiming receipt verification.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/lattice-cli-migration-smoke.ts) — local JSON, handoff packs, conduit status, and transport acceptance cannot be reported as production DONE.\",\"  ✓ CHK-004:happy:0 [happy/must/docs] covered via docs_check (README.md) — docs state Lattice CLI works with third-party hosts and Server Authority receipts.\",\"  ✓ CHK-004:edge:0 [edge/must/docs] covered via docs_check (docs/requirements/decisions/project-vision.md) — docs keep Koala as legacy compatibility wording without confusing the main product identity.\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/docs] covered via docs_check (README.md) — docs do not imply Mac App must be open-sourced or installed to use Lattice CLI.\",\"  ✓ CHK-005:happy:0 [happy/must/cli] covered via integration_test (packages/main/src/tasks/lattice-cli-migration-smoke.ts) — build and focused Lattice CLI migration smoke test pass.\",\"  ✓ CHK-005:edge:0 [edge/must/cli] covered via integration_test (packages/main/src/tasks/lattice-cli-migration-smoke.ts) — smoke covers missing optional hosts and missing authority URL fallback output.\",\"  ✓ CHK-005:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/lattice-cli-migration-smoke.ts) — smoke fails if any local CLI surface overclaims verified production receipt authority.\"],\"warnings\":[],\"timestamp\":\"2026-06-02T12:30:42.954Z\",\"headSha\":\"1faceacf2619f5c3659d661fa6d16dc8d9d3e0a0\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":960}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":15,\"reason\":\"verificationIntent entries present (15)\"},\"verificationCoverage\":{\"total\":15,\"required\":15,\"covered\":15,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"lattice bin/help/version exposes Lattice CLI 0.3.5.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/lattice-cli-migration-smoke.ts\",\"command\":\"npm run test:lattice-cli-migration-smoke\",\"result\":\"pass\",\"note\":\"Smoke asserts `lattice --version`, package versions, lattice bin mapping, and Lattice CLI 0.3.5 help identity.\",\"headHash\":\"739c8fc10a3e58c05b52a58b45182447b4a612d6\",\"materialHash\":\"fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e\",\"timestamp\":\"2026-06-02T12:14:34.860Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"koala legacy alias still exposes the command catalog.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/lattice-cli-migration-smoke.ts\",\"command\":\"npm run test:lattice-cli-migration-smoke\",\"result\":\"pass\",\"note\":\"Smoke asserts the legacy koala alias remains present through package bin and version/help compatibility text.\",\"headHash\":\"739c8fc10a3e58c05b52a58b45182447b4a612d6\",\"materialHash\":\"fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e\",\"timestamp\":\"2026-06-02T12:14:34.860Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"bootstrap/help text does not require Mac App setup for CLI usage.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"README.md\",\"command\":\"rg -n \\\"Mac App|Primary path|Lattice CLI 0.3.5|legacy alias\\\" README.md docs/requirements/decisions/*.md\",\"result\":\"pass\",\"note\":\"Docs state Lattice CLI is primary, koala is legacy, and Mac App is optional/archive dashboard only rather than setup requirement.\",\"headHash\":\"739c8fc10a3e58c05b52a58b45182447b4a612d6\",\"materialHash\":\"fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e\",\"timestamp\":\"2026-06-02T12:14:34.860Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"host list/probe and config doctor return Lattice CLI provider/config status.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/lattice-cli-migration-smoke.ts\",\"command\":\"npm run test:lattice-cli-migration-smoke\",\"result\":\"pass\",\"note\":\"Smoke asserts host_list, host_probe, host_install, and lattice_config_doctor are in MAIN_TOOLS, registry, read-only policy, DEV allowlist, and JSON behavior.\",\"headHash\":\"739c8fc10a3e58c05b52a58b45182447b4a612d6\",\"materialHash\":\"fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e\",\"timestamp\":\"2026-06-02T12:14:34.860Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"missing optional providers are reported as visible degradations, not fatal errors.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/lattice-cli-migration-smoke.ts\",\"command\":\"npm run test:lattice-cli-migration-smoke\",\"result\":\"pass\",\"note\":\"Repair evidence for F-001: smoke now asserts Codex visible degradation entries for browser-automation, evidence-submit, and receipt-verify, including explicit authorityImpact values.\",\"headHash\":\"221ed721715f2a17f280e1756b8faa043a32bfd6\",\"materialHash\":\"fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e\",\"timestamp\":\"2026-06-02T12:12:36.470Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"host install guidance is dry-run guidance and does not execute third-party installs.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/lattice-cli-migration-smoke.ts\",\"command\":\"npm run test:lattice-cli-migration-smoke\",\"result\":\"pass\",\"note\":\"Smoke asserts host_install returns dryRun=true, executed=false, and thirdPartyInstallsExecuted=false.\",\"headHash\":\"739c8fc10a3e58c05b52a58b45182447b4a612d6\",\"materialHash\":\"fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e\",\"timestamp\":\"2026-06-02T12:14:34.860Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"authority/conduit status commands expose receipt-aware, non-authoritative local status.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/lattice-cli-migration-smoke.ts\",\"command\":\"npm run test:lattice-cli-migration-smoke\",\"result\":\"pass\",\"note\":\"Smoke asserts authority_status and conduit_status return receipt-aware local status with receiptVerified=false and productionDone=false.\",\"headHash\":\"739c8fc10a3e58c05b52a58b45182447b4a612d6\",\"materialHash\":\"fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e\",\"timestamp\":\"2026-06-02T12:14:34.860Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"missing authority URL yields guidance without claiming receipt verification.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/lattice-cli-migration-smoke.ts\",\"command\":\"npm run test:lattice-cli-migration-smoke\",\"result\":\"pass\",\"note\":\"Repair evidence for F-002: smoke now asserts missing authority URL fallback fields: baseURLConfigured=false, baseURL=null, status=not-configured, serverReachability=not-probed, and no receipt/production overclaim.\",\"headHash\":\"221ed721715f2a17f280e1756b8faa043a32bfd6\",\"materialHash\":\"fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e\",\"timestamp\":\"2026-06-02T12:12:36.470Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"local JSON, handoff packs, conduit status, and transport acceptance cannot be reported as production DONE.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/lattice-cli-migration-smoke.ts\",\"command\":\"node packages/main/dist/cli.js host_probe --host=desktop-app --format=json && npm run test:lattice-cli-migration-smoke\",\"result\":\"pass\",\"note\":\"Repair evidence for F-003/F-004: Lattice-facing desktop-app projection is dashboard/archive only; file-edit, test-execution, evidence-submit, and receipt-verify are unavailable, with productionDone still blocked by receipt verification.\",\"headHash\":\"221ed721715f2a17f280e1756b8faa043a32bfd6\",\"materialHash\":\"fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e\",\"timestamp\":\"2026-06-02T12:12:36.470Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"docs state Lattice CLI works with third-party hosts and Server Authority receipts.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"docs_check\",\"file\":\"README.md\",\"command\":\"rg -n \\\"Primary path: Lattice CLI \\\\+ Server Authority receipts|Mac App:|optional/archive dashboard only\\\" README.md docs/requirements/decisions/*.md\",\"result\":\"pass\",\"note\":\"README and decision docs state the primary path is Lattice CLI plus Server Authority receipts, with Mac App optional/archive dashboard only.\",\"headHash\":\"739c8fc10a3e58c05b52a58b45182447b4a612d6\",\"materialHash\":\"fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e\",\"timestamp\":\"2026-06-02T12:14:34.860Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"docs keep Koala as legacy compatibility wording without confusing the main product identity.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/project-vision.md\",\"command\":\"rg -n \\\"legacy alias|Lattice CLI|koala\\\" README.md docs/requirements/decisions/project-vision.md docs/requirements/decisions/stack-layering.md\",\"result\":\"pass\",\"note\":\"Docs preserve koala as legacy compatibility wording while making Lattice CLI 0.3.5 the primary product entrypoint.\",\"headHash\":\"739c8fc10a3e58c05b52a58b45182447b4a612d6\",\"materialHash\":\"fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e\",\"timestamp\":\"2026-06-02T12:14:34.860Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"docs do not imply Mac App must be open-sourced or installed to use Lattice CLI.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"README.md\",\"command\":\"rg -n \\\"Mac App|optional|dashboard|archive|required\\\" README.md docs/requirements/decisions/*.md\",\"result\":\"pass\",\"note\":\"Docs explicitly demote Mac App and do not require it to be open-sourced or installed for Lattice CLI usage.\",\"headHash\":\"739c8fc10a3e58c05b52a58b45182447b4a612d6\",\"materialHash\":\"fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e\",\"timestamp\":\"2026-06-02T12:14:34.860Z\"}},{\"intentRef\":\"CHK-005:happy:0\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"build and focused Lattice CLI migration smoke test pass.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/lattice-cli-migration-smoke.ts\",\"command\":\"npm --prefix packages/main run build && npm run test:lattice-cli-migration-smoke\",\"result\":\"pass\",\"note\":\"Final HEAD build and focused Lattice CLI migration smoke both passed.\",\"headHash\":\"739c8fc10a3e58c05b52a58b45182447b4a612d6\",\"materialHash\":\"fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e\",\"timestamp\":\"2026-06-02T12:14:34.860Z\"}},{\"intentRef\":\"CHK-005:edge:0\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"smoke covers missing optional hosts and missing authority URL fallback output.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:edge:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/lattice-cli-migration-smoke.ts\",\"command\":\"npm --prefix packages/main run build && npm run test:lattice-cli-migration-smoke\",\"result\":\"pass\",\"note\":\"Repair evidence for F-002: final build and smoke cover missing optional host/degradation and authority URL fallback behavior explicitly.\",\"headHash\":\"221ed721715f2a17f280e1756b8faa043a32bfd6\",\"materialHash\":\"fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e\",\"timestamp\":\"2026-06-02T12:12:36.470Z\"}},{\"intentRef\":\"CHK-005:adversarial:0\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"smoke fails if any local CLI surface overclaims verified production receipt authority.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/lattice-cli-migration-smoke.ts\",\"command\":\"npm run test:lattice-cli-migration-smoke\",\"result\":\"pass\",\"note\":\"Smoke fails on any local CLI overclaim of verified production receipt authority across host/config/authority/conduit JSON surfaces.\",\"headHash\":\"739c8fc10a3e58c05b52a58b45182447b4a612d6\",\"materialHash\":\"fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e\",\"timestamp\":\"2026-06-02T12:14:34.860Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-02T12:30:43.316Z",
+  "headHash": "1faceacf2619f5c3659d661fa6d16dc8d9d3e0a0",
+  "materialHash": "fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e",
+  "verificationCoverage": {
+    "total": 15,
+    "required": 15,
+    "covered": 15,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "lattice bin/help/version exposes Lattice CLI 0.3.5.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "command": "npm run test:lattice-cli-migration-smoke",
+          "result": "pass",
+          "note": "Smoke asserts `lattice --version`, package versions, lattice bin mapping, and Lattice CLI 0.3.5 help identity.",
+          "headHash": "739c8fc10a3e58c05b52a58b45182447b4a612d6",
+          "materialHash": "fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e",
+          "timestamp": "2026-06-02T12:14:34.860Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "koala legacy alias still exposes the command catalog.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "command": "npm run test:lattice-cli-migration-smoke",
+          "result": "pass",
+          "note": "Smoke asserts the legacy koala alias remains present through package bin and version/help compatibility text.",
+          "headHash": "739c8fc10a3e58c05b52a58b45182447b4a612d6",
+          "materialHash": "fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e",
+          "timestamp": "2026-06-02T12:14:34.860Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "bootstrap/help text does not require Mac App setup for CLI usage.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "README.md",
+          "command": "rg -n \"Mac App|Primary path|Lattice CLI 0.3.5|legacy alias\" README.md docs/requirements/decisions/*.md",
+          "result": "pass",
+          "note": "Docs state Lattice CLI is primary, koala is legacy, and Mac App is optional/archive dashboard only rather than setup requirement.",
+          "headHash": "739c8fc10a3e58c05b52a58b45182447b4a612d6",
+          "materialHash": "fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e",
+          "timestamp": "2026-06-02T12:14:34.860Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "host list/probe and config doctor return Lattice CLI provider/config status.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "command": "npm run test:lattice-cli-migration-smoke",
+          "result": "pass",
+          "note": "Smoke asserts host_list, host_probe, host_install, and lattice_config_doctor are in MAIN_TOOLS, registry, read-only policy, DEV allowlist, and JSON behavior.",
+          "headHash": "739c8fc10a3e58c05b52a58b45182447b4a612d6",
+          "materialHash": "fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e",
+          "timestamp": "2026-06-02T12:14:34.860Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "missing optional providers are reported as visible degradations, not fatal errors.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "command": "npm run test:lattice-cli-migration-smoke",
+          "result": "pass",
+          "note": "Repair evidence for F-001: smoke now asserts Codex visible degradation entries for browser-automation, evidence-submit, and receipt-verify, including explicit authorityImpact values.",
+          "headHash": "221ed721715f2a17f280e1756b8faa043a32bfd6",
+          "materialHash": "fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e",
+          "timestamp": "2026-06-02T12:12:36.470Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "host install guidance is dry-run guidance and does not execute third-party installs.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "command": "npm run test:lattice-cli-migration-smoke",
+          "result": "pass",
+          "note": "Smoke asserts host_install returns dryRun=true, executed=false, and thirdPartyInstallsExecuted=false.",
+          "headHash": "739c8fc10a3e58c05b52a58b45182447b4a612d6",
+          "materialHash": "fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e",
+          "timestamp": "2026-06-02T12:14:34.860Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "authority/conduit status commands expose receipt-aware, non-authoritative local status.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "command": "npm run test:lattice-cli-migration-smoke",
+          "result": "pass",
+          "note": "Smoke asserts authority_status and conduit_status return receipt-aware local status with receiptVerified=false and productionDone=false.",
+          "headHash": "739c8fc10a3e58c05b52a58b45182447b4a612d6",
+          "materialHash": "fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e",
+          "timestamp": "2026-06-02T12:14:34.860Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "missing authority URL yields guidance without claiming receipt verification.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "command": "npm run test:lattice-cli-migration-smoke",
+          "result": "pass",
+          "note": "Repair evidence for F-002: smoke now asserts missing authority URL fallback fields: baseURLConfigured=false, baseURL=null, status=not-configured, serverReachability=not-probed, and no receipt/production overclaim.",
+          "headHash": "221ed721715f2a17f280e1756b8faa043a32bfd6",
+          "materialHash": "fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e",
+          "timestamp": "2026-06-02T12:12:36.470Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "local JSON, handoff packs, conduit status, and transport acceptance cannot be reported as production DONE.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "command": "node packages/main/dist/cli.js host_probe --host=desktop-app --format=json && npm run test:lattice-cli-migration-smoke",
+          "result": "pass",
+          "note": "Repair evidence for F-003/F-004: Lattice-facing desktop-app projection is dashboard/archive only; file-edit, test-execution, evidence-submit, and receipt-verify are unavailable, with productionDone still blocked by receipt verification.",
+          "headHash": "221ed721715f2a17f280e1756b8faa043a32bfd6",
+          "materialHash": "fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e",
+          "timestamp": "2026-06-02T12:12:36.470Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "docs state Lattice CLI works with third-party hosts and Server Authority receipts.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "file": "README.md",
+          "command": "rg -n \"Primary path: Lattice CLI \\+ Server Authority receipts|Mac App:|optional/archive dashboard only\" README.md docs/requirements/decisions/*.md",
+          "result": "pass",
+          "note": "README and decision docs state the primary path is Lattice CLI plus Server Authority receipts, with Mac App optional/archive dashboard only.",
+          "headHash": "739c8fc10a3e58c05b52a58b45182447b4a612d6",
+          "materialHash": "fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e",
+          "timestamp": "2026-06-02T12:14:34.860Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "docs keep Koala as legacy compatibility wording without confusing the main product identity.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/project-vision.md",
+          "command": "rg -n \"legacy alias|Lattice CLI|koala\" README.md docs/requirements/decisions/project-vision.md docs/requirements/decisions/stack-layering.md",
+          "result": "pass",
+          "note": "Docs preserve koala as legacy compatibility wording while making Lattice CLI 0.3.5 the primary product entrypoint.",
+          "headHash": "739c8fc10a3e58c05b52a58b45182447b4a612d6",
+          "materialHash": "fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e",
+          "timestamp": "2026-06-02T12:14:34.860Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "docs do not imply Mac App must be open-sourced or installed to use Lattice CLI.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "file": "README.md",
+          "command": "rg -n \"Mac App|optional|dashboard|archive|required\" README.md docs/requirements/decisions/*.md",
+          "result": "pass",
+          "note": "Docs explicitly demote Mac App and do not require it to be open-sourced or installed for Lattice CLI usage.",
+          "headHash": "739c8fc10a3e58c05b52a58b45182447b4a612d6",
+          "materialHash": "fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e",
+          "timestamp": "2026-06-02T12:14:34.860Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:happy:0",
+        "itemId": "CHK-005",
+        "lane": "happy",
+        "desc": "build and focused Lattice CLI migration smoke test pass.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm run test:lattice-cli-migration-smoke",
+          "result": "pass",
+          "note": "Final HEAD build and focused Lattice CLI migration smoke both passed.",
+          "headHash": "739c8fc10a3e58c05b52a58b45182447b4a612d6",
+          "materialHash": "fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e",
+          "timestamp": "2026-06-02T12:14:34.860Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:edge:0",
+        "itemId": "CHK-005",
+        "lane": "edge",
+        "desc": "smoke covers missing optional hosts and missing authority URL fallback output.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm run test:lattice-cli-migration-smoke",
+          "result": "pass",
+          "note": "Repair evidence for F-002: final build and smoke cover missing optional host/degradation and authority URL fallback behavior explicitly.",
+          "headHash": "221ed721715f2a17f280e1756b8faa043a32bfd6",
+          "materialHash": "fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e",
+          "timestamp": "2026-06-02T12:12:36.470Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:adversarial:0",
+        "itemId": "CHK-005",
+        "lane": "adversarial",
+        "desc": "smoke fails if any local CLI surface overclaims verified production receipt authority.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "command": "npm run test:lattice-cli-migration-smoke",
+          "result": "pass",
+          "note": "Smoke fails on any local CLI overclaim of verified production receipt authority across host/config/authority/conduit JSON surfaces.",
+          "headHash": "739c8fc10a3e58c05b52a58b45182447b4a612d6",
+          "materialHash": "fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e",
+          "timestamp": "2026-06-02T12:14:34.860Z"
+        }
+      }
+    ]
+  }
+}
