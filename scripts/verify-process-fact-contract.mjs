@@ -138,15 +138,15 @@ const requiredArtifactFacts = [
 const legacyCommandPolicyGuidance = {
   test_auto: {
     destructiveRisk: 'workspace-destructive',
-    patterns: [/koala validate --story=<storyId>/, /verificationEvidence/, /dryRun/, /confirm/, /git restore\/git clean/],
+    patterns: [/(?:lattice|koala) validate --story=<storyId>/, /verificationEvidence/, /dryRun/, /confirm/, /git restore\/git clean/],
   },
   test_story: {
     destructiveRisk: 'fixture-write',
-    patterns: [/koala validate --story=<storyId>/, /verification_evidence_add|verificationEvidence/],
+    patterns: [/(?:lattice|koala) validate --story=<storyId>/, /verification_evidence_add|verificationEvidence/],
   },
   test_fixture: {
     destructiveRisk: 'fixture-write',
-    patterns: [/project-native command|koala validate --story=<storyId>/, /verification_evidence_add|verificationEvidence/],
+    patterns: [/project-native command|(?:lattice|koala) validate --story=<storyId>/, /verification_evidence_add|verificationEvidence/],
   },
   fixture_batch_add: {
     destructiveRisk: 'fixture-write',

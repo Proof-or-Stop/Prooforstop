@@ -69,6 +69,7 @@
     "test:story-capsule-smoke": "npm --prefix packages/main run test:story-capsule-smoke",
     "test:capability-list-smoke": "npm --prefix packages/main run test:capability-list-smoke",
     "test:lattice-cli-migration-smoke": "npm --prefix packages/main run test:lattice-cli-migration-smoke",
+    "test:rollout-check-smoke": "npm --prefix packages/main run test:rollout-check-smoke",
     "test:e2e": "node packages/main/dist/tasks/cli-e2e.js",
     "lint:tasks": "node packages/main/dist/tasks/cli-validate.js"
   },

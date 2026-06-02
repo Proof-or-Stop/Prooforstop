@@ -326,7 +326,7 @@ function isMetaContainer(storyId: string, phase: string): boolean {
 }
 
 function metaContainerNextStep(storyId: string): string {
-  return `${storyId} 是 META 容器（audit/finding flow 的常驻容器），不走普通 story lifecycle，也不需要 worktree。用 \`koala audit\` 查看框架自省结果、\`koala finding_list\` 处理它的 finding；不要对它 story_advance 或创建 worktree。`;
+  return `${storyId} 是 META 容器（audit/finding flow 的常驻容器），不走普通 story lifecycle，也不需要 worktree。用 \`lattice audit\` 查看框架自省结果、\`lattice finding_list\` 处理它的 finding；不要对它 story_advance 或创建 worktree。`;
 }
 
 /**
@@ -394,7 +394,7 @@ export function renderMetaAuditBlock(storyId: string): string[] {
     '## Shared audit state (B-META)',
     `  ${storyId} is the shared framework-audit / finding container, not a normal story.`,
     `  It carries NO per-story owner lease; concurrent writes are serialized by the main write lock.`,
-    `  Do not story_advance it — use \`koala audit\` / \`koala finding_list\` instead.`,
+    `  Do not story_advance it — use \`lattice audit\` / \`lattice finding_list\` instead.`,
   ];
 }
 
@@ -469,13 +469,13 @@ function computeNextStep(c: NextStepCtx): string {
         return `TEST 阶段。Scope gate: blocking — ${c.scopeBlocking.reason}。DONE is not recommended while scope is blocking。下一步：回 DEV/REVIEW 修复 out-of-scope diff 或 scope_contract_acknowledge 后再 story_advance --phase=TEST`;
       }
       if (openBugs.length > 0) {
-        return `TEST 阶段，有 ${openBugs.length} 个 open bug：${openBugs.slice(0, 3).map(b => b.id).join(', ')}。修复后跑 koala validate 验证`;
+        return `TEST 阶段，有 ${openBugs.length} 个 open bug：${openBugs.slice(0, 3).map(b => b.id).join(', ')}。修复后跑 lattice validate 验证`;
       }
       if (!c.hasTestEvidence) {
-        return `TEST 阶段。下一步：koala validate 跑验证，写 bug/evidence`;
+        return `TEST 阶段。下一步：lattice validate 跑验证，写 bug/evidence`;
       }
       if (!c.hasPassingTestEvidence) {
-        return `TEST 阶段，最后一次验证未通过。下一步：修复失败项后重跑 koala validate`;
+        return `TEST 阶段，最后一次验证未通过。下一步：修复失败项后重跑 lattice validate`;
       }
       if (c.donePrecheck && c.donePrecheck.blocking.length > 0) {
         const ids = c.donePrecheck.blocking.slice(0, 4).map(r => r.id).join(', ');
@@ -531,7 +531,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
       const concise = args.concise === true;
       const lines: string[] = [];
       const gitReady = isGitRepository(ctx.root);
-      lines.push('# koala session brief');
+      lines.push('# lattice session brief');
       lines.push('');
 
       const detected = detectActiveStoryFromGit(ctx);
@@ -548,7 +548,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
         if (allStoryIds.length === 0) {
           lines.push('**No active story** — no stories yet.');
           lines.push('');
-          lines.push('Start with `koala story_create` to create your first story.');
+          lines.push('Start with `lattice story_create` to create your first story.');
           if (!gitReady) {
             lines.push('');
             lines.push('⚠ Non-git project: Koala can still record story/test metadata here, but INIT_CHECK/worktree phases need `git init` + an initial commit first.');
@@ -702,7 +702,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
           for (const id of metaContainerIds) {
             lines.push(`  ${id} — audit/finding flow 容器，不走 story lifecycle`);
           }
-          lines.push('  → 用 `koala audit` / `koala finding_list` 处理，不要 story_advance 或建 worktree');
+          lines.push('  → 用 `lattice audit` / `lattice finding_list` 处理，不要 story_advance 或建 worktree');
         }
 
         // Cross-story open bugs sample (concise mode skips this).
@@ -773,16 +773,16 @@ export function createSessionHandlers(ctx: HandlerContext) {
               : `${top.phase} from ${top.phaseAuthority} metadata`;
             lines.push(`  Resume: cd ${wt} (story ${top.storyId}; authority: ${authority})`);
           } else {
-            lines.push(`  Story ${top.storyId} is in ${top.phase} but has no worktree. Try \`koala story_advance --storyId=${top.storyId} --phase=INIT_CHECK\` to create one.`);
+            lines.push(`  Story ${top.storyId} is in ${top.phase} but has no worktree. Try \`lattice story_advance --storyId=${top.storyId} --phase=INIT_CHECK\` to create one.`);
           }
         } else if (doneStories === totalStories) {
-          lines.push('  All stories DONE. Archive old stories or `koala story_create` for new work.');
+          lines.push('  All stories DONE. Archive old stories or `lattice story_create` for new work.');
         } else if (zombiesForBrief.length > 0) {
-          lines.push(`  No healthy active story. 先运行 koala story_reconcile '{"dryRun":true}' 查看 ${zombiesForBrief.length} 个僵尸 story，再确认是否 story_reconcile '{"dryRun":false}' 修复。`);
+          lines.push(`  No healthy active story. 先运行 lattice story_reconcile '{"dryRun":true}' 查看 ${zombiesForBrief.length} 个僵尸 story，再确认是否 story_reconcile '{"dryRun":false}' 修复。`);
         } else if (metaContainerIds.length > 0) {
           lines.push(`  ${metaContainerNextStep(metaContainerIds[0])}`);
         } else {
-          lines.push('  No active story. `koala story_create` to start one, or `koala story_list` to see all.');
+          lines.push('  No active story. `lattice story_create` to start one, or `lattice story_list` to see all.');
         }
 
         return lines.join('\n');

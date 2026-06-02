@@ -1,7 +1,7 @@
 /**
- * koala doctor — 输出最近 24 小时的 health issue（按 category 分组）
+ * lattice doctor — 输出最近 24 小时的 health issue（按 category 分组）
  *
- * 让用户能定期 `koala doctor` 检查 koala 自己有没有隐藏的 PERSIST 失败。
+ * 让用户能定期 `lattice doctor` 检查 Lattice 自己有没有隐藏的 PERSIST 失败。
  * 之前这些失败被 silent catch 吞掉，事后无法回溯。
  *
  * B-7241 follow-up: `--repair` 模式扫 `.worktrees/` 下的孤儿目录
@@ -158,14 +158,14 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       const lines: string[] = [];
       lines.push(renderRuntimeFootprintSummary(runtime.runtimeMode));
       lines.push('');
-      lines.push(`koala doctor — health issues`);
+      lines.push(`lattice doctor — health issues`);
       lines.push(`  source: ${getHealthPath()}`);
       lines.push(`  total : ${summary.total} issues recorded`);
       lines.push(`  shown : ${summary.recent.length} (${summary.recentWindow === '24h' ? 'last 24h' : 'most recent'})`);
       lines.push('');
 
       if (summary.total === 0 && cleanupTargets.length === 0 && trackedRuntimeArtifacts.length === 0 && partialDone.length === 0) {
-        lines.push('✓ No health issues recorded. koala is healthy.');
+        lines.push('✓ No health issues recorded. Lattice is healthy.');
       } else if (summary.total === 0 && cleanupTargets.length > 0) {
         lines.push('⚠ No health issues recorded, but worktree cleanup issues were found.');
       } else if (summary.total === 0 && partialDone.length > 0) {
@@ -217,7 +217,7 @@ export function createDoctorHandlers(ctx: HandlerContext) {
             lines.push(`  ✗ ${failed.path}: ${failed.error}`);
           }
         } else {
-          lines.push('→ Re-run: koala doctor --repair to untrack repairable runtime artifacts.');
+          lines.push('→ Re-run: lattice doctor --repair to untrack repairable runtime artifacts.');
         }
       }
       lines.push('');
@@ -255,7 +255,7 @@ export function createDoctorHandlers(ctx: HandlerContext) {
           lines.push(`→ terminal registered = story 已 DONE/DISCARDED 但 git 仍注册 worktree。`);
           lines.push(`→ orphan dirs = 目录仍在 .worktrees/ 下但 git worktree list 已不认识。`);
           lines.push(`→ terminal dirs = DONE/DISCARDED story 的 worktree 目录仍存在。`);
-          lines.push(`→ 重跑: koala doctor --repair 清理这些残留。`);
+          lines.push(`→ 重跑: lattice doctor --repair 清理这些残留。`);
         }
       }
 
@@ -264,7 +264,7 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       for (const line of renderPartialDoneSummary(partialDone)) lines.push(line);
       if (partialDone.length > 0) {
         lines.push('→ partial-DONE = story.phase is DONE but story branch is not merged into main.');
-        lines.push('→ Run the listed koala done_recover command after main is clean.');
+        lines.push('→ Run the listed lattice done_recover command after main is clean.');
       }
 
       lines.push('');

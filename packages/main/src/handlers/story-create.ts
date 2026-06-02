@@ -40,7 +40,7 @@ const HIGH_RISK_PATTERNS: Array<{ pattern: RegExp; category: string }> = [
   { pattern: /\b(auth|authn|authz|security|password|token|secret|credential)\b/i, category: '安全/凭证' },
   { pattern: /\b(migration|schema migration|destructive|drop\s+table|truncate)\b/i, category: '数据迁移/破坏性' },
   { pattern: /\b(machine\.ts|state machine|phase flow|story_advance|DONE gate|TEST gate|guard logic)\b/i, category: '状态机/门禁' },
-  { pattern: /\b(validate\.ts|koala validate|validation protocol|verifier|fixture runner|test\s*runner|test_auto)\b/i, category: '验证框架' },
+  { pattern: /\b(validate\.ts|koala validate|lattice validate|validation protocol|verifier|fixture runner|test\s*runner|test_auto)\b/i, category: '验证框架' },
   { pattern: /\b(git\s+(restore|reset|clean|push --force))\b/i, category: 'git 破坏性操作' },
   { pattern: /\b(production|incident|hotfix|p0|p1)\b/i, category: '生产环境/紧急' },
   { pattern: /\b(PII|personally identifiable|GDPR|compliance)\b/i, category: '合规/隐私' },
@@ -443,8 +443,8 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         // CHK-001 implements: dismissing every auto-elevated category rolls the
         // priority back and clears the high-risk gate; partial dismiss does not.
         lines.push('误报消解（mention vs modify）：关键词检测无法区分"提及"与"修改"该领域。');
-        lines.push('  若为误报（仅提及未修改），可 koala story_review_dismiss 完整回退：');
-        lines.push(`    koala story_review_dismiss '{"storyId":"${storyId}","category":"<上面命中的分类>","reason":"说明为何是误报"}'`);
+        lines.push('  若为误报（仅提及未修改），可 lattice story_review_dismiss 完整回退：');
+        lines.push(`    lattice story_review_dismiss '{"storyId":"${storyId}","category":"<上面命中的分类>","reason":"说明为何是误报"}'`);
         lines.push('  当全部 auto-elevated 的 riskSignal 都被 dismiss 后，priority 自动回退、高风险 gate 解除（仅 dismiss 部分则不回退）。');
         riskHint = lines.join('\n');
       }
@@ -616,12 +616,12 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         // init_check_set 伪造签名（反自豁免）。审查通过后才能 story_advance INIT_CHECK。
         const initReviewHint =
           `\n\n→ 现在请并行 spawn 两个 INIT reviewer：\n` +
-          `  · Agent({ subagent_type: "koala-review-story-init", prompt: \`审查 story ${storyId} 的 background + checklist 初版（运行 koala dispatch '{"storyId":"${storyId}","agentType":"koala-review-story-init"}' 取标准 prompt）\` })\n` +
-          `  · Agent({ subagent_type: "product-reviewer", prompt: \`运行 koala dispatch '{"storyId":"${storyId}","agentType":"product-reviewer"}' 取标准 prompt；无论 pass/fail 都必须调用 init_check_set，agentId 必须精确为 product-reviewer\` })\n` +
-          `  · 不要主 agent 自调 koala init_check_set（CLI 不做 agentId 机械校验，但 reviewer 模板 fresh-context fence + CLAUDE.md 行为规约要求由独立 subagent 调用——主 agent 自调相当于绕过 reviewer，违反反自豁免约定）\n` +
-          `  · 如果 reviewer 4 分钟无输出，视为卡住：重新运行 koala dispatch 获取 prompt 后重启 reviewer；旧 reviewer 若之后返回，以最新 init_check_set 为准\n` +
+          `  · Agent({ subagent_type: "koala-review-story-init", prompt: \`审查 story ${storyId} 的 background + checklist 初版（运行 lattice dispatch '{"storyId":"${storyId}","agentType":"koala-review-story-init"}' 取标准 prompt）\` })\n` +
+          `  · Agent({ subagent_type: "product-reviewer", prompt: \`运行 lattice dispatch '{"storyId":"${storyId}","agentType":"product-reviewer"}' 取标准 prompt；无论 pass/fail 都必须调用 init_check_set，agentId 必须精确为 product-reviewer\` })\n` +
+          `  · 不要主 agent 自调 lattice init_check_set（CLI 不做 agentId 机械校验，但 reviewer 模板 fresh-context fence + CLAUDE.md 行为规约要求由独立 subagent 调用——主 agent 自调相当于绕过 reviewer，违反反自豁免约定）\n` +
+          `  · 如果 reviewer 4 分钟无输出，视为卡住：重新运行 lattice dispatch 获取 prompt 后重启 reviewer；旧 reviewer 若之后返回，以最新 init_check_set 为准\n` +
           `  · INIT_CHECK gate 要求 koala-review-story-init 与 product-reviewer 都已通过 init_check_set 落盘；critical/high issue 会阻塞推进\n` +
-          `  · 审查通过后调 koala story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}' 进 INIT_CHECK`;
+          `  · 审查通过后调 lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}' 进 INIT_CHECK`;
         const nonGitHint = !isGitRepository(ctx.root)
           ? `\n⚠ 当前目录不是 git 仓库：story 已记录，但 INIT_CHECK/worktree 流程仍需先 git init + 首次 commit。`
           : '';

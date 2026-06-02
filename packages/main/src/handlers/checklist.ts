@@ -410,7 +410,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         const persistedStatus = persisted ? persisted.status : '<unknown>';
         process.stderr.write(
           `↻ 已写入并确认持久化：${args.itemId} 当前 status=${persistedStatus}。` +
-          `长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\n`,
+          `长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\n`,
         );
       } catch (e) {
         // Reminder is advisory only — a read-back failure must never change the
@@ -763,7 +763,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       if (!args.dryRun) store.writeChecklist(args.storyId, cl);
       lines.push(args.dryRun
         ? '→ 重跑上述 command 后去掉 dryRun 刷新 evidence metadata'
-        : `Refreshed ${refreshed}/${stale.length} stale evidence item(s). Re-run koala validate --story=${args.storyId} --json`);
+        : `Refreshed ${refreshed}/${stale.length} stale evidence item(s). Re-run lattice validate --story=${args.storyId} --json`);
       if (!args.dryRun) {
         const commitHint = autoCommitStoryMetadata(root, args.storyId, 'verification_evidence_refresh_stale');
         if (commitHint) lines.push(commitHint.replace(/^\n/, ''));

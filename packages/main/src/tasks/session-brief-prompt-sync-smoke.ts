@@ -53,7 +53,7 @@ for (const file of targetDocs) {
   }
 }
 
-assert.match(read('packages/main/src/cli-prompts.ts'), /SESSION_BRIEF_FOOTER[\s\S]*koala session_brief/);
+assert.match(read('packages/main/src/cli-prompts.ts'), /SESSION_BRIEF_FOOTER[\s\S]*lattice session_brief/);
 
 for (const file of targetDocs) {
   const content = read(file);
@@ -176,7 +176,7 @@ function tmpRoot(prefix: string): string {
 }
 
 const cliInit = read('packages/main/src/cli-init.ts');
-assert.match(cliInit, /UserPromptSubmit/);
+assert.match(cliInit, /getKoalaHooks/);
 assert.match(cliInit, /session-brief-reminder\.cjs/);
 
 console.log('✓ session brief prompt sync smoke passed');
