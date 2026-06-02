@@ -68,6 +68,7 @@ import { createLatticeHandoffHandlers } from './handlers/lattice-handoff.js';
 import { createLatticeEvidenceHandlers } from './handlers/lattice-evidence.js';
 import { createLatticeParallelWaveHandlers } from './handlers/lattice-parallel-wave.js';
 import { createLatticeCliHandlers } from './handlers/lattice-cli.js';
+import { createRolloutCheckHandlers } from './handlers/rollout-check.js';
 import { nextStoryId } from './handlers/context.js';
 
 export type HandlerFn = (...args: any[]) => any;
@@ -212,6 +213,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
 
   // Lattice productized export and cross-host handoff surfaces.
   registry.registerBatch(createLatticeCliHandlers(ctx));
+  registry.registerBatch(createRolloutCheckHandlers(ctx));
   registry.registerBatch(createStoryExportHandlers(ctx));
   registry.registerBatch(createLatticeHandoffHandlers(ctx));
   registry.registerBatch(createLatticeEvidenceHandlers(ctx));

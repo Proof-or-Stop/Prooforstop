@@ -53,7 +53,31 @@ for (const file of targetDocs) {
   }
 }
 
-assert.match(read('packages/main/src/cli-prompts.ts'), /SESSION_BRIEF_FOOTER[\s\S]*koala session_brief/);
+assert.match(read('packages/main/src/cli-prompts.ts'), /SESSION_BRIEF_FOOTER[\s\S]*lattice session_brief/);
+
+const readme = read('README.md');
+const guide = read('docs/guide.md');
+const projectVision = read('docs/requirements/decisions/project-vision.md');
+
+for (const [label, content] of [['README.md', readme], ['docs/guide.md', guide]] as const) {
+  assert.match(content, /npm --prefix packages\/main run build/, `${label} documents local package build before refresh`);
+  assert.match(content, /npm install -g \.\/packages\/main/, `${label} documents global package refresh`);
+  assert.match(content, /\blattice --version\b/, `${label} verifies primary lattice binary version`);
+  assert.match(content, /\bkoala --version\b/, `${label} verifies legacy koala alias version`);
+  assert.match(content, /\blattice check\b/, `${label} documents lattice check`);
+  assert.match(content, /\blattice doctor --format=json\b/, `${label} documents lattice doctor json`);
+  assert.match(content, /\blattice rollout_check --projects "\$\(pwd\)" --json\b/, `${label} documents rollout_check refresh proof`);
+}
+
+assert.match(readme, /`lattice`\s+[\s\S]{0,80}主入口[\s\S]{0,120}`koala`[\s\S]{0,80}legacy alias/, 'README states lattice primary and koala legacy alias');
+assert.match(readme, /node bin\/lattice\.js tool_status/, 'README uses lattice local wrapper for generic tool_status');
+assert.match(readme, /node bin\/lattice\.js verify_codex/, 'README uses lattice local wrapper for generic verify_codex fallback');
+assert.match(readme, /node bin\/lattice\.js aux_doc_list/, 'README uses lattice local wrapper for generic aux_doc_list');
+assert.doesNotMatch(readme, /node bin\/koala\.js (?:tool_status|verify_codex|aux_doc_list)\b/, 'README keeps bin/koala.js as legacy alias, not preferred generic command examples');
+assert.match(guide, /`lattice` 是当前主命令入口，`koala` 只保留为 legacy alias/, 'guide states lattice primary and koala legacy alias');
+assert.match(projectVision, /`lattice` 是 0\.3\.5 主产品入口，`koala` 保留为兼容 alias/, 'project vision states primary and legacy aliases');
+assert.match(projectVision, /`lattice rollout_check` 只读扫描/, 'project vision keeps rollout_check read-only constraint');
+assert.match(projectVision, /`lattice --version`[\s\S]{0,80}`koala --version`/, 'project vision requires primary and alias version verification');
 
 for (const file of targetDocs) {
   const content = read(file);
@@ -67,7 +91,7 @@ for (const file of targetDocs) {
 }
 
 const hookPath = join(repoRoot, '.claude', 'hooks', 'session-brief-reminder.cjs');
-const reminder = '建议先运行 koala session_brief 恢复现场';
+const reminder = '建议先运行 lattice session_brief 恢复现场';
 
 function runHook(root: string, input: string): { status: number | null; output: string } {
   const result = spawnSync(process.execPath, [hookPath], {
@@ -137,6 +161,24 @@ function tmpRoot(prefix: string): string {
 }
 
 {
+  const root = tmpRoot('lattice-session-brief-bash-');
+  try {
+    mkdirSync(join(root, 'docs', 'story'), { recursive: true });
+    writeFileSync(join(root, 'docs', 'story', 'activity.jsonl'), JSON.stringify({
+      tool: 'Bash',
+      detail: 'lattice session_brief',
+      args: { command: 'lattice session_brief' },
+      endTime: new Date().toISOString(),
+    }) + '\n');
+    const result = runHook(root, JSON.stringify({ cwd: root }));
+    assert.equal(result.status, 0);
+    assert.equal(result.output, '');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+{
   const root = tmpRoot('koala-session-brief-story-bash-');
   try {
     mkdirSync(join(root, 'docs', 'story', 'actives', 'B-demo'), { recursive: true });
@@ -176,7 +218,7 @@ function tmpRoot(prefix: string): string {
 }
 
 const cliInit = read('packages/main/src/cli-init.ts');
-assert.match(cliInit, /UserPromptSubmit/);
+assert.match(cliInit, /getKoalaHooks/);
 assert.match(cliInit, /session-brief-reminder\.cjs/);
 
 console.log('✓ session brief prompt sync smoke passed');

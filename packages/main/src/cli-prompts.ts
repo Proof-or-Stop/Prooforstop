@@ -1,12 +1,12 @@
 /**
- * Long-form PROMPTs for koala 核心命令
+ * Long-form PROMPTs for Lattice CLI core commands
  *
- * 出现在 `koala <cmd> --help` 输出里，教 agent 怎么用。
+ * 出现在 `lattice <cmd> --help` 输出里，教 agent 怎么用。
  */
 
 export const STORY_CREATE_LONG = `
 ══════════════════════════════════════════════════════════
-  koala story_create — Create a Story (the unit of work)
+  lattice story_create — Create a Story (the unit of work)
 ══════════════════════════════════════════════════════════
 
 WHEN TO USE
@@ -17,7 +17,7 @@ WHEN TO USE
 WHEN NOT TO USE
   ✗ User is still discussing / brainstorming — wait
   ✗ User asks a question — answer first
-  ✗ Adding item to existing story — use checklist_add
+  ✗ Adding item to existing story — use lattice checklist_add
   ✗ Trivial 2-line edits user said "立刻改" — just do it
 
 REQUIRED FIELDS
@@ -41,7 +41,7 @@ OPTIONAL BUT RECOMMENDED
 
 EXAMPLES
 
-  koala story_create '{
+  lattice story_create '{
     "name":"add-pagination",
     "title":"列表页加分页",
     "description":"商品列表 1k+ 条时全量渲染卡顿",
@@ -55,16 +55,16 @@ EXAMPLES
   }'
 
 STEP-BY-STEP
-  1. koala session_brief — recover active story and next step
-  2. koala story_list — check for duplicates
+  1. lattice session_brief — recover active story and next step
+  2. lattice story_list — check for duplicates
   3. Discuss with user until requirements crystallize
-  4. story_create with checklist
-  5. story_advance phase=INIT_CHECK to create worktree
+  4. lattice story_create with checklist
+  5. lattice story_advance phase=INIT_CHECK to create worktree
 `.trim();
 
 export const STORY_ADVANCE_LONG = `
 ══════════════════════════════════════════════════════════
-  koala story_advance — Move story to next phase
+  lattice story_advance — Move story to next phase
 ══════════════════════════════════════════════════════════
 
 PHASE FLOW
@@ -74,15 +74,15 @@ PHASE FLOW
 WHEN TO USE
   ✓ Current phase work is done AND gate conditions are met
   ✓ Need to roll back: TEST → DEV (test fail)
-  ✓ INIT_CHECK after story_create (auto-creates worktree)
+  ✓ INIT_CHECK after lattice story_create (auto-creates worktree)
 
 PHASE GATES
   INIT → INIT_CHECK    : auto, creates worktree + branch
   INIT_CHECK → PLAN    : cwd MUST be inside .worktrees/B-xxx
-  PLAN → DEV           : story_review returns blockerCount=0
+  PLAN → DEV           : lattice story_review returns blockerCount=0
   DEV → TEST           : all checklist items done
-  TEST → DONE          : koala validate PASS + all bugs fixed
-                         + summary_set complete + DONE Final Checklist passes
+  TEST → DONE          : lattice validate PASS + all bugs fixed
+                         + lattice summary_set complete + DONE Final Checklist passes
 
 ROLLBACK PATHS
   TEST → DEV           (validate fail → fix code)
@@ -91,30 +91,30 @@ ROLLBACK PATHS
 EXAMPLES
 
   # Forward progression
-  koala story_advance '{"storyId":"B-a3f7","phase":"DEV"}'
+  lattice story_advance '{"storyId":"B-a3f7","phase":"DEV"}'
 
   # Create worktree
-  koala story_advance '{"storyId":"B-a3f7","phase":"INIT_CHECK"}'
+  lattice story_advance '{"storyId":"B-a3f7","phase":"INIT_CHECK"}'
   cd .worktrees/B-a3f7
-  koala story_advance '{"storyId":"B-a3f7","phase":"PLAN"}'
+  lattice story_advance '{"storyId":"B-a3f7","phase":"PLAN"}'
 
   # Rollback after test fail
-  koala story_advance '{"storyId":"B-a3f7","phase":"DEV"}'    # from TEST
+  lattice story_advance '{"storyId":"B-a3f7","phase":"DEV"}'    # from TEST
 
 DONE FINAL CHECKLIST
   When DONE gate prints failing items, fix each one:
-  missing summary_set, untouched relatedDocs, open bugs, missing test evidence.
+  missing lattice summary_set, untouched relatedDocs, open bugs, missing test evidence.
 
 STEP-BY-STEP
-  1. koala session_brief — see current phase and next gate hint
+  1. lattice session_brief — see current phase and next gate hint
   2. Read gate error carefully
   3. Fix root cause
-  4. Try advance (max 2 retries before reflecting)
+  4. Try lattice story_advance (max 2 retries before reflecting)
 `.trim();
 
 export const CHECKLIST_UPDATE_LONG = `
 ══════════════════════════════════════════════════════════
-  koala checklist_update — Update one checklist item
+  lattice checklist_update — Update one checklist item
 ══════════════════════════════════════════════════════════
 
 DISCIPLINE
@@ -138,34 +138,34 @@ STATUS LIFECYCLE
 EXAMPLES
 
   # Start work
-  koala checklist_update '{"storyId":"B-a3f7","itemId":"CHK-002","status":"in_progress"}'
+  lattice checklist_update '{"storyId":"B-a3f7","itemId":"CHK-002","status":"in_progress"}'
 
   # Done after commit
-  koala checklist_update '{"storyId":"B-a3f7","itemId":"CHK-002","status":"done"}'
+  lattice checklist_update '{"storyId":"B-a3f7","itemId":"CHK-002","status":"done"}'
 
   # Update relatedDocs
-  koala checklist_update '{
+  lattice checklist_update '{
     "storyId":"B-a3f7","itemId":"CHK-002",
     "relatedDocs":["docs/api/auth.md#session-flow"]
   }'
 
 STEP-BY-STEP
-  1. koala checklist_get --storyId=B-xxx — see current state
+  1. lattice checklist_get --storyId=B-xxx — see current state
   2. Pick ONE pending item, mark in_progress
   3. Write the code
   4. git add + git commit
-  5. checklist_update --status=done
+  5. lattice checklist_update --status=done
   6. Repeat
 `.trim();
 
 export const STORY_REVIEW_LONG = `
 ══════════════════════════════════════════════════════════
-  koala story_review — Adversarial review of checklist completeness
+  lattice story_review — Adversarial review of checklist completeness
 ══════════════════════════════════════════════════════════
 
 WHEN TO USE
   ✓ PLAN phase is done: understanding + decision + checklist + plan.md are ready
-  ✓ Before advancing PLAN → DEV (story_review issueCount=0 is the gate)
+  ✓ Before advancing PLAN → DEV (lattice story_review issueCount=0 is the gate)
   ✓ After adding/removing checklist items to re-validate completeness
 
 WHEN NOT TO USE
@@ -182,32 +182,32 @@ WHAT IT CHECKS
 
 EXAMPLES
 
-  koala story_review '{"storyId":"B-a3f7"}'
+  lattice story_review '{"storyId":"B-a3f7"}'
 
   # Typical output:
   #   issueCount: 0 → ready to advance to DEV
-  #   issueCount: 3 → fix issues, then re-run story_review
+  #   issueCount: 3 → fix issues, then re-run lattice story_review
 
 STEP-BY-STEP
-  1. Finish understanding_set + decision_set + checklist + plan.md
+  1. Finish lattice understanding_set + lattice decision_set + checklist + plan.md
   2. Run scope-plan reviewer (normal channel) → scope-check.json
-  3. koala story_review — fix any issues it reports
-  4. story_advance phase=DEV
+  3. lattice story_review — fix any issues it reports
+  4. lattice story_advance phase=DEV
 `.trim();
 
 export const BUG_REPORT_LONG = `
 ══════════════════════════════════════════════════════════
-  koala bug_report — Report a bug found during development or testing
+  lattice bug_report — Report a bug found during development or testing
 ══════════════════════════════════════════════════════════
 
 WHEN TO USE
   ✓ Found a bug during DEV / REVIEW / TEST phase
-  ✓ koala validate fails and root cause is identified
+  ✓ lattice validate fails and root cause is identified
   ✓ Reviewer finding reveals a concrete defect
 
 WHEN NOT TO USE
   ✗ Vague suspicion without reproduction — investigate first
-  ✗ Feature request or enhancement — use checklist_add
+  ✗ Feature request or enhancement — use lattice checklist_add
   ✗ Bug in a different story — report on that story's ID
 
 REQUIRED FIELDS
@@ -221,19 +221,19 @@ OPTIONAL
 EXAMPLES
 
   # Simple bug report
-  koala bug_report '{"storyId":"B-a3f7","id":"BUG-001","title":"guard 函数缺少 default return 导致 undefined"}'
+  lattice bug_report '{"storyId":"B-a3f7","id":"BUG-001","title":"guard 函数缺少 default return 导致 undefined"}'
 
   # Bug linked to checklist item
-  koala bug_report '{
+  lattice bug_report '{
     "storyId":"B-a3f7","id":"BUG-002",
     "title":"validate --lint 跳过子包 tsconfig",
     "checklistId":"CHK-003"
   }'
 
   # After fixing, update with evidence:
-  koala bug_update '{"storyId":"B-a3f7","id":"BUG-001","status":"fixed","evidence":{
+  lattice bug_update '{"storyId":"B-a3f7","id":"BUG-001","status":"fixed","evidence":{
     "symptom":"validate 报 TypeError: x is not a function",
-    "reproSteps":["跑 koala validate","fn.ts:42 的 guard 返回 undefined"],
+    "reproSteps":["跑 lattice validate","fn.ts:42 的 guard 返回 undefined"],
     "rootCause":"guard 函数缺少 default return",
     "fixEvidence":"加 return false 兜底，logicTest guard_missing_default 覆盖",
     "reproTest":"tests/logic.ts#guard_missing_default"
@@ -242,12 +242,12 @@ EXAMPLES
 
 export const VALIDATE_LONG = `
 ══════════════════════════════════════════════════════════
-  koala validate — Run project verification (static + logic + integration)
+  lattice validate — Run project verification (static + logic + integration)
 ══════════════════════════════════════════════════════════
 
 WHEN TO USE
   ✓ After writing / modifying code — verify before committing
-  ✓ Before story_advance to TEST or DONE — gate requires validate PASS
+  ✓ Before lattice story_advance to TEST or DONE — gate requires validate PASS
   ✓ Debugging a test failure — re-run to confirm fix
   ✓ REVIEW preflight — CLI gates (--channel / --concept / --lint / docs-drift, plus conditional codex-adapter) run automatically
 
@@ -256,16 +256,16 @@ WHEN NOT TO USE
   ✗ Want to run only one gate — use --channel / --concept / --lint flag
 
 MODES
-  koala validate                    # standard: static + logic + integration
-  koala validate --full             # + real machine tests (browser/CLI)
-  koala validate --full=PvE         # filter real machine tests by name
-  koala validate --json             # structured ExternalVerifierResult output
-  koala validate --lint             # only tsc + ruff + import-graph
-  koala validate --concept          # only deleted-symbol residue scan
-  koala validate --channel --story=B-xxx  # only commit-author check
+  lattice validate                    # standard: static + logic + integration
+  lattice validate --full             # + real machine tests (browser/CLI)
+  lattice validate --full=PvE         # filter real machine tests by name
+  lattice validate --json             # structured ExternalVerifierResult output
+  lattice validate --lint             # only tsc + ruff + import-graph
+  lattice validate --concept          # only deleted-symbol residue scan
+  lattice validate --channel --story=B-xxx  # only commit-author check
 
 REVIEW→TEST PREFLIGHT (CLI gates)
-  These run automatically on story_advance --phase=TEST:
+  These run automatically on lattice story_advance --phase=TEST:
   1. --channel: normal channel requires implementer commits
   2. --concept: deleted symbols with ≥5 residual refs → spawn reviewer
   3. --lint: tsc/ruff/import-graph — fail blocks advance
@@ -275,22 +275,22 @@ REVIEW→TEST PREFLIGHT (CLI gates)
 EXAMPLES
 
   # Standard validation
-  koala validate
+  lattice validate
 
   # Full with real machine tests
-  koala validate --full
+  lattice validate --full
 
   # JSON output for programmatic consumption
-  koala validate --json
+  lattice validate --json
 
   # Only lint gate (quick, seconds)
-  koala validate --lint
+  lattice validate --lint
 
 STEP-BY-STEP
   1. Write code + tests
-  2. koala validate — fix any failures
+  2. lattice validate — fix any failures
   3. Repeat until green
-  4. git commit + checklist_update --status=done
+  4. git commit + lattice checklist_update --status=done
 `.trim();
 
-export const SESSION_BRIEF_FOOTER = '\n→ 不知道现在该做什么？跑 koala session_brief 看项目全貌\n';
+export const SESSION_BRIEF_FOOTER = '\n→ 不知道现在该做什么？跑 lattice session_brief 看项目全貌（koala 仍是 legacy alias）\n';

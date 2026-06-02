@@ -41,7 +41,7 @@ export interface KoalaConfig {
   cli?: {
     command: string;
   };
-  /** 项目级验证命令；没有 validate.ts/js 时由 koala validate 使用 */
+  /** 项目级验证命令；没有 validate.ts/js 时由 lattice validate 使用 */
   validate?: {
     command?: string;
     commands?: Array<string | {
@@ -146,6 +146,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'capability_probe', // B-cd31 CHK-002: productized single-host capability diagnostics
     'host_*', // Lattice CLI 0.3.5: host list/probe/install guidance; dry-run/read-only diagnostics only
     'lattice_config_doctor', // Lattice CLI 0.3.5: CLI-first migration/config status; no Mac App dependency
+    'rollout_check', // Lattice CLI 0.3.5: read-only cross-project rollout diagnostics
     'authority_status', // Lattice CLI 0.3.5: receipt-aware status only; no evidence submission
     'conduit_*', // Lattice CLI 0.3.5: conduit status/explain; no runner provisioning or authority mutation
     'story_export', // B-cd31 CHK-003: Canonical Story v0 export surface

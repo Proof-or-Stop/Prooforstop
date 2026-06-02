@@ -103,7 +103,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         type: 'dispatch',
         storyId: args.storyId,
         phase: story.phase,
-        source: 'koala dispatch',
+        source: 'lattice dispatch',
         targetKind: args.targetKind,
         agentType,
         ...(args.itemId ? { itemId: args.itemId, checklistId: args.itemId } : {}),
@@ -163,8 +163,8 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         '',
         '硬性要求:',
         `- 无论结论是 pass 还是 fail，都必须调用一次 init_check_set 记录结果；只输出文字结论不算完成。`,
-        `- 发现问题时也要调用: koala init_check_set '{"storyId":"${args.storyId}","issues":[{"severity":"low","desc":"..."}],"agentId":"koala-review-story-init"}'`,
-        `- 如果没有问题，issues 传空数组: koala init_check_set '{"storyId":"${args.storyId}","issues":[],"agentId":"koala-review-story-init"}'`,
+        `- 发现问题时也要调用: lattice init_check_set '{"storyId":"${args.storyId}","issues":[{"severity":"low","desc":"..."}],"agentId":"koala-review-story-init"}'`,
+        `- 如果没有问题，issues 传空数组: lattice init_check_set '{"storyId":"${args.storyId}","issues":[],"agentId":"koala-review-story-init"}'`,
         '- INIT_CHECK gate 还要求 product-reviewer 也调用 init_check_set；你只负责 koala-review-story-init 这一条记录。',
         '- 不要直接编辑 story 文件。',
       ].join('\n'),
@@ -199,8 +199,8 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         '硬性要求:',
         '- 无论结论是 pass 还是 fail，都必须调用一次 init_check_set 记录结果；只输出文字结论不算完成。',
         `- agentId 必须精确传 "product-reviewer"。不要传 "koala-review-story-init"，那是另一个 reviewer，会导致 INIT_CHECK gate 继续报缺 product-reviewer。`,
-        `- 发现问题时也要调用: koala init_check_set '{"storyId":"${args.storyId}","issues":[{"severity":"medium","desc":"..."}],"agentId":"product-reviewer"}'`,
-        `- 如果没有问题，issues 传空数组: koala init_check_set '{"storyId":"${args.storyId}","issues":[],"agentId":"product-reviewer"}'`,
+        `- 发现问题时也要调用: lattice init_check_set '{"storyId":"${args.storyId}","issues":[{"severity":"medium","desc":"..."}],"agentId":"product-reviewer"}'`,
+        `- 如果没有问题，issues 传空数组: lattice init_check_set '{"storyId":"${args.storyId}","issues":[],"agentId":"product-reviewer"}'`,
         '- critical/high issue 会硬阻塞 INIT_CHECK；medium/low 会记录为 advisory。',
         '- 不要直接编辑 story 文件。',
       ].join('\n'),
@@ -273,7 +273,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       appendDispatchLivenessGuidance(lines, `${displayAgent}/${shortFid}`);
 
       if (bgPolicy === 'required') {
-        const prefix = bgExists ? '' : '⚠ 缺失，强烈建议先写 `koala background_set` — ';
+        const prefix = bgExists ? '' : '⚠ 缺失，强烈建议先写 `lattice background_set` — ';
         lines.push(`必读: ${prefix}${bgPath}`);
         lines.push('');
       } else if (bgPolicy === 'advisory') {
@@ -288,7 +288,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       lines.push('');
       lines.push('完成后:');
       appendImplementerCommitSteps(lines, `${args.storyId} ${shortFid}: resolve finding`);
-      lines.push(`- koala finding_resolve '{"storyId":"${args.storyId}","findingId":"${finding.id}","resolution":"<你的修复说明>"}'`);
+      lines.push(`- lattice finding_resolve '{"storyId":"${args.storyId}","findingId":"${finding.id}","resolution":"<你的修复说明>"}'`);
 
       return { prompt: lines.join('\n') };
   }
@@ -328,7 +328,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       const bgExists = existsSync(bgAbs);
 
       // 5. Verify 段从 plan.md 段里提取（若未找到则降级）
-      const verifyText = extractVerifyFromSection(planSection) || 'koala validate 全绿';
+      const verifyText = extractVerifyFromSection(planSection) || 'lattice validate 全绿';
 
       // 6. Files 段渲染（若 item.files 缺失，显示"（未声明）"）
       const filesBlock = renderFilesBlock(item.files);
@@ -355,7 +355,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         lines.push('审查材料:');
         let idx = 1;
         if (bgPolicy === 'required') {
-          const prefix = bgExists ? '' : '⚠ 缺失，强烈建议先写 `koala background_set` — ';
+          const prefix = bgExists ? '' : '⚠ 缺失，强烈建议先写 `lattice background_set` — ';
           lines.push(`${idx}. 必读 background.md 理解意图 — ${prefix}${bgPath}`);
           idx++;
         }
@@ -387,9 +387,9 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         lines.push(`Verify expectation: ${verifyText}`);
         lines.push('');
         lines.push('结论记录（必须二选一）:');
-        lines.push(`- 先启动本轮 reviewer run: koala review_run_start '{"storyId":"${args.storyId}","agent":"${displayAgent}"}'，复制输出里的 reviewRunId`);
-        lines.push(`- 有问题: koala finding_add '{"storyId":"${args.storyId}","reviewRunId":"<reviewRunId from review_run_start>","desc":"<file:line WHY + severity>","severity":"high|medium|low","category":"missing|edge|adversarial|happy","agent":"${displayAgent}"}'`);
-        lines.push(`- 无 blocker: koala review_pass_set '{"storyId":"${args.storyId}","agent":"${displayAgent}","reviewRunId":"<reviewRunId from review_run_start>","note":"reviewed ${args.itemId}: checked implementation against the item context and found no blocker."}'`);
+        lines.push(`- 先启动本轮 reviewer run: lattice review_run_start '{"storyId":"${args.storyId}","agent":"${displayAgent}"}'，复制输出里的 reviewRunId`);
+        lines.push(`- 有问题: lattice finding_add '{"storyId":"${args.storyId}","reviewRunId":"<reviewRunId from review_run_start>","desc":"<file:line WHY + severity>","severity":"high|medium|low","category":"missing|edge|adversarial|happy","agent":"${displayAgent}"}'`);
+        lines.push(`- 无 blocker: lattice review_pass_set '{"storyId":"${args.storyId}","agent":"${displayAgent}","reviewRunId":"<reviewRunId from review_run_start>","note":"reviewed ${args.itemId}: checked implementation against the item context and found no blocker."}'`);
 
         void story;
 
@@ -410,7 +410,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       lines.push('必读（按顺序）:');
       let idx = 1;
       if (bgPolicy === 'required') {
-        const prefix = bgExists ? '' : '⚠ 缺失，强烈建议先写 `koala background_set` — ';
+        const prefix = bgExists ? '' : '⚠ 缺失，强烈建议先写 `lattice background_set` — ';
         lines.push(`${idx}. 必读 background.md 理解意图 — ${prefix}${bgPath}`);
         idx++;
       }
@@ -445,7 +445,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       lines.push('');
       lines.push('完成后:');
       appendImplementerCommitSteps(lines, `${args.storyId} ${args.itemId}: ${item.title}`);
-      lines.push(`- koala checklist_update '{"storyId":"${args.storyId}","itemId":"${args.itemId}","status":"done"}'`);
+      lines.push(`- lattice checklist_update '{"storyId":"${args.storyId}","itemId":"${args.itemId}","status":"done"}'`);
 
       // 使用 story.phase 消除未使用变量告警（同时便于 CHK-008 扩展时读取上下文）
       void story;
@@ -465,7 +465,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       agentType?: string;
     }): { prompt: string } {
       console.log(
-        '⚠ deprecation: finding_dispatch 将在 B-9d95 之后版本下线，请改用 koala dispatch',
+        '⚠ deprecation: finding_dispatch 将在 B-9d95 之后版本下线，请改用 lattice dispatch',
       );
       return buildFindingPrompt(args);
     },
@@ -481,7 +481,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       agentType?: string;
     }): { prompt: string } {
       console.log(
-        '⚠ deprecation: story_dispatch 将在 B-9d95 之后版本下线，请改用 koala dispatch',
+        '⚠ deprecation: story_dispatch 将在 B-9d95 之后版本下线，请改用 lattice dispatch',
       );
       return buildItemPrompt(args);
     },

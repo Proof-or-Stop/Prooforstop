@@ -22,6 +22,7 @@ const COMMANDS = [
   'host_probe',
   'host_install',
   'lattice_config_doctor',
+  'rollout_check',
   'authority_status',
   'conduit_status',
   'conduit_explain',
@@ -99,6 +100,18 @@ for (const command of COMMANDS) {
   assert.equal(isCommandAllowed(command, 'DEV'), true, `${command} is allowed during active DEV`);
   assert.equal(getCommandLifecyclePolicy(command)?.ownershipClass, 'readOnly', `${command} is read-only`);
 }
+
+const storyCreateHelp = runCli(['story_create', '--help']);
+assert.match(storyCreateHelp, /lattice story_create with checklist/);
+assert.match(storyCreateHelp, /lattice story_advance phase=INIT_CHECK/);
+assert.doesNotMatch(storyCreateHelp, /(?:^|\n)\s+\d+\.\s+(?:story_create|story_advance)\b/, 'story_create help step list uses lattice-prefixed commands');
+assert.doesNotMatch(storyCreateHelp, /use checklist_add\b/, 'story_create help uses lattice checklist_add');
+
+const storyAdvanceHelp = runCli(['story_advance', '--help']);
+assert.match(storyAdvanceHelp, /lattice story_review/);
+assert.match(storyAdvanceHelp, /lattice story_advance '\{"storyId":"B-a3f7","phase":"DEV"\}'/);
+assert.match(storyAdvanceHelp, /Try lattice story_advance/);
+assert.doesNotMatch(storyAdvanceHelp, /(?:^|\n)\s+\d+\.\s+(?:story_review|story_advance|understanding_set|decision_set)\b/, 'story_advance help step list uses lattice-prefixed commands');
 
 // Registry exposes handlers in-process.
 {
@@ -195,6 +208,24 @@ assert.equal(configDoctor.migration.macAppRequired, false);
 assert.equal(configDoctor.migration.legacyKoalaAliasPreserved, true);
 assert.equal(configDoctor.versions.expected, LATTICE_CLI_VERSION);
 assertNoProductionOverclaim(configDoctor, 'lattice config doctor');
+
+const rollout = runJson<any>(['lattice', 'rollout', 'check', `--projects=${repoRoot}`, '--format=json']);
+assert.equal(rollout.schemaVersion, 'lattice.rollout_check.v1');
+assert.equal(rollout.readOnly, true);
+assert.equal(rollout.macAppRequired, false);
+assert.equal(rollout.summary.total, 1);
+assert.equal(rollout.projects[0].path, repoRoot);
+assert.ok(rollout.projects[0].nextAction.length > 0, 'rollout_check returns actionable nextAction');
+for (const probe of rollout.projects[0].probes) {
+  assert.equal(probe.readOnly, true, `${probe.id} is read-only`);
+  assert.match(probe.command, /^(lattice|filesystem)/, `${probe.id} command uses lattice wording or filesystem stat`);
+  for (const forbidden of rollout.safety.forbiddenArgs) {
+    assert.ok(!probe.command.includes(forbidden), `rollout_check does not record ${forbidden}`);
+  }
+}
+assert.equal(rollout.safety.forbiddenArgs.includes('--apply'), true);
+assert.match(rollout.safety.note, /never runs apply, upgrade, repair, fix/i);
+assertNoProductionOverclaim(rollout, 'lattice rollout check');
 
 const authority = runJson<any>(['lattice', 'authority', 'status', '--format=json'], {
   KOALA_AUTHORITY_MODE: '',

@@ -23,6 +23,7 @@ lattice host list --format=json
 lattice host probe --host=codex --format=json
 lattice host install --host=desktop-app --format=json
 lattice config doctor --format=json
+lattice rollout_check --projects /path/to/project-a,/path/to/project-b --json
 lattice authority status --format=json
 lattice conduit status --format=json
 lattice conduit explain --format=json
@@ -35,13 +36,32 @@ lattice host_list --format=json
 lattice host_probe --host=codex --format=json
 lattice host_install --host=local-runner --format=json
 lattice lattice_config_doctor --format=json
+lattice rollout_check --projects /path/to/project --json
 lattice authority_status --format=json
 lattice conduit_status --format=json
 lattice conduit_explain --format=json
 ```
 
-These commands are diagnostic/read-only. `host_install` is dry-run guidance only
-and never executes third-party installers. `authority_status` and
+Local/global refresh after editing the CLI itself:
+
+```bash
+npm --prefix packages/main run build
+npm install -g ./packages/main
+lattice --version
+koala --version
+lattice check
+lattice doctor --format=json
+lattice rollout_check --projects "$(pwd)" --json
+```
+
+These commands are diagnostic/read-only unless their names explicitly say
+otherwise. `host_install` is dry-run guidance only and never executes
+third-party installers. `rollout_check` scans selected projects for install
+drift, managed asset drift, runtime footprint, git/story state, and transcript
+lifecycle readiness; it never runs `check --apply`, `check --upgrade`, repair
+commands, installers, evidence submission, or receipt verification. External
+projects and non-git projects are normalized into PASS/WARN/FAIL records with a
+next action instead of opaque command failures. `authority_status` and
 `conduit_status` are receipt-aware but conservative: without verified server
 receipt support they report `productionDone=false`, `receiptVerified=false`,
 and `canClaimProductionDone=false`.
@@ -94,7 +114,7 @@ node bin/koala-codex.js lab create --target=test-case-reviewer --profile=reviewe
 原因：
 
 - 这个入口会加载 `main + utils`，所以 `aux_*` 命令可用
-- 如果 `packages/lab` 已构建，它也会把 `koala lab ...` 子命令一起接进来
+- 如果 `packages/lab` 已构建，它也会把 `lattice lab ...` 子命令一起接进来
 - 它会把 Koala 调用写入 `.koala/activity.jsonl`
 - 写入记录会带 `source=codex`，可以和普通 CLI、Claude Code 区分
 - 它会为 `session_brief` 这类只读恢复命令启用 heartbeat 记录
@@ -148,7 +168,7 @@ workflows.
 
 `doctor` 还会输出 `Runtime scan:`，这不是流程 gate 证据，而是运行环境漂移检查。runtime facts 由 `packages/main/src/core/runtime-fact-registry.ts` 定义并由 `scripts/verify-runtime-fact-contract.mjs` 保护，覆盖 CLI entrypoint、global `@koala-agent/core` realpath、项目本地 `node_modules/.bin/koala`、Node/package version、validate source 和 `external-reference-policy`。外部项目只收到 warn/advisory，不因为 Orchestrate 本仓的 symlink 期望 hard fail。`external-reference-policy` 只扫描 `koala.config.json`、`AGENTS.md`、`CLAUDE.md`、`README.md`、`docs/requirements/**/*.md`，排除 story/fixture/build/source-comment 噪音；它只报告 policy warning，不声明 connectivity pass。
 
-Koala runtime artifacts 是另一张表：`packages/main/src/core/runtime-artifact-registry.ts` 定义 `.koala/activity.jsonl`、legacy `docs/story/activity.jsonl`、`.koala/runtime/`、`.koala/traces/`、`.koala-serve.json`、debug/browser logs 等运行时文件的 ignore、materialHash 和 repair 语义。`koala init` 会把缺失的 runtime ignore 规则合并进已有 `.gitignore`；`koala doctor` 会报告已被 git 跟踪的 runtime artifacts，并在 `--repair` 时只对 registry 标记为 repairable 的路径执行 `git rm --cached`。这些文件不会让 materialHash-backed verification evidence stale；`.koala/story/` 仍是流程证据，不按 runtime artifact 处理。
+Koala runtime artifacts 是另一张表：`packages/main/src/core/runtime-artifact-registry.ts` 定义 `.koala/activity.jsonl`、legacy `docs/story/activity.jsonl`、`.koala/runtime/`、`.koala/traces/`、`.koala-serve.json`、debug/browser logs 等运行时文件的 ignore、materialHash 和 repair 语义。`lattice init` 会把缺失的 runtime ignore 规则合并进已有 `.gitignore`；`lattice doctor` 会报告已被 git 跟踪的 runtime artifacts，并在 `--repair` 时只对 registry 标记为 repairable 的路径执行 `git rm --cached`。这些文件不会让 materialHash-backed verification evidence stale；`.koala/story/` 仍是流程证据，不按 runtime artifact 处理。
 
 Lifecycle facts are also registry-backed. `packages/main/src/core/lifecycle-registry.ts` records the active phase order, legacy phase aliases, transition events, rollback edges, TEST/DONE gate ids, effects, and oracle row ids. `phase-flow.ts`, `handlers/context.ts`, and `test:flow-stability-smoke` must agree with it; inconsistent phase/event/policy edits should fail with a direct lifecycle registry mismatch.
 
@@ -160,7 +180,7 @@ npm --prefix packages/main run build
 npm --prefix packages/main run test:outcome-semantics-smoke
 ```
 
-通过 `story_advance ... INIT_CHECK` 新建的 story worktree 不需要手工复制 `.Codex`。`git worktree` 会把当前分支已跟踪的仓库文件一并展开出来，所以只要 `.Codex`、`.claude`、`AGENTS.md`、`CLAUDE.md` 已经提交到仓库，新的 `.worktrees/B-xxx/` 里就会自然带上这些入口。只有两种常见缺失原因：这些文件本来就没被 git 跟踪，或这个 worktree 是从还没包含这些资产的旧分支/旧提交分出来的。
+通过 `lattice story_advance ... INIT_CHECK` 新建的 story worktree 不需要手工复制 `.Codex`。`git worktree` 会把当前分支已跟踪的仓库文件一并展开出来，所以只要 `.Codex`、`.claude`、`AGENTS.md`、`CLAUDE.md` 已经提交到仓库，新的 `.worktrees/B-xxx/` 里就会自然带上这些入口。只有两种常见缺失原因：这些文件本来就没被 git 跟踪，或这个 worktree 是从还没包含这些资产的旧分支/旧提交分出来的。
 
 ### 3. 新 session 的第一步
 
@@ -173,7 +193,7 @@ node bin/koala-codex.js session_brief
 ### 4. 查看 Codex 自己的 Koala 活动
 
 ```bash
-node bin/koala.js tool_status --source=codex --days=1 --limit=10
+node bin/lattice.js tool_status --source=codex --days=1 --limit=10
 ```
 
 ### 5. 跑入口回归验证
@@ -206,7 +226,7 @@ node bin/koala-codex.js verify_codex
 - `.Codex/README.md` 是否保留正确的 Codex fallback 入口
 - `README.md` / `AGENTS.md` 是否仍然包含关键的 Codex 接入说明
 
-`node bin/koala-codex.js verify_codex`（或 `node bin/koala.js verify_codex`）复用同一套共享检查，并额外执行本地 wrapper 与全局 fallback heartbeat：它确认 activity 记录包含 `source=codex`、session、entrypoint，并把带当前 HEAD/material hash 的 `codex_adapter_verification` 追加到当前 story 的 `process-events.jsonl`。触及 Codex adapter 的 story 在 REVIEW/DONE gate 会区分这条证据是 missing / failing / stale / passing，并给出可直接重跑的本地 wrapper 命令。
+`node bin/koala-codex.js verify_codex`（或通用本地入口 `node bin/lattice.js verify_codex`；`bin/koala.js` 仍是 legacy alias）复用同一套共享检查，并额外执行本地 wrapper 与全局 fallback heartbeat：它确认 activity 记录包含 `source=codex`、session、entrypoint，并把带当前 HEAD/material hash 的 `codex_adapter_verification` 追加到当前 story 的 `process-events.jsonl`。触及 Codex adapter 的 story 在 REVIEW/DONE gate 会区分这条证据是 missing / failing / stale / passing，并给出可直接重跑的本地 wrapper 命令。
 
 诊断同一组 Codex adapter 检查、health 和 worktree 状态：
 
@@ -222,26 +242,26 @@ npx koala-init --verify-codex
 
 ## 没有本地 wrapper 时
 
-如果某个项目只有全局 `koala`，没有 `bin/koala-codex.js`，可以这样跑：
+如果某个项目只有全局 CLI，没有 `bin/koala-codex.js`，可以这样跑：
 
 ```bash
-KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 KOALA_CODEX_ENTRYPOINT=global-fallback koala session_brief
+KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 KOALA_CODEX_ENTRYPOINT=global-fallback lattice session_brief
 ```
 
 这能保证 activity 里仍然按 `source=codex` / `entrypoint=global-fallback` 记账，并让 `session_brief` 这种只读入口也留下 heartbeat；但如果没有 bootstrap 入口，`aux_*` 命令可能不可用。
 
-注意：在 Koala 仓库开发 Koala 自身时，全局 `koala` 可能来自旧安装、主仓或另一个 worktree。不要用它的 `status` / `next` / `validate` 输出判断当前 story 是否可推进；先构建本地 wrapper，或使用 `node packages/main/dist/cli.js <command>` 读取当前 worktree 的代码和状态。
+注意：在 Lattice/Koala 仓库开发自身时，全局 CLI 可能来自旧安装、主仓或另一个 worktree。不要用旧全局 `koala` alias 的 `status` / `next` / `validate` 输出判断当前 story 是否可推进；先构建本地 wrapper，或使用 `node packages/main/dist/cli.js <command>` 读取当前 worktree 的代码和状态。
 
 如果全局 core 入口提示 `未知命令: aux_doc_list`，在 Koala 仓库内使用完整 bootstrap：
 
 ```bash
-node bin/koala.js aux_doc_list --format=json
+node bin/lattice.js aux_doc_list --format=json
 ```
 
 `story_create` / `story_update` 支持并行调度元数据，建议在多 story 并行时显式填写：
 
 ```bash
-koala story_update '{"storyId":"B-xxxx","lane":"mainline","parallelSafe":"plan_only","sharedHotspots":["packages/main/src/handlers/session.ts"]}'
+lattice story_update '{"storyId":"B-xxxx","lane":"mainline","parallelSafe":"plan_only","sharedHotspots":["packages/main/src/handlers/session.ts"]}'
 ```
 
 如果完整入口提示缺少 `packages/main/dist/*` 或 `packages/utils/dist/*`，先执行：
@@ -252,7 +272,7 @@ npm --prefix packages/utils run build
 npm --prefix packages/lab run build
 ```
 
-全局安装的 `koala`（来自 `@koala-agent/core`）在 `@koala-agent/lab` 可解析时也会自动启用 `koala lab ...`；如果没有安装 lab，普通 core 命令仍然可用，只有 `koala lab ...` 会提示安装/构建 lab。
+全局安装的 `lattice`（legacy alias: `koala`，来自 `@koala-agent/core`）在 `@koala-agent/lab` 可解析时也会自动启用 `lattice lab ...`；如果没有安装 lab，普通 core 命令仍然可用，只有 `lattice lab ...` 会提示安装/构建 lab。
 
 发布 `0.3.5` 前建议跑：
 
@@ -268,23 +288,23 @@ npm run test:global-lab-entrypoint
 `koala-lab` 是 Koala 的离线优化实验室，用来创建实验配置、预览隔离 sandbox、校验 patch 白名单，以及为后续 compare/promote 留出统一骨架。
 
 ```bash
-node bin/koala.js lab create --target=test-case-reviewer --profile=reviewer-quality-v1
-node bin/koala.js lab run --config experiments/configs/lab-reviewer-reviewer-quality-v1.json --dry-run
-node bin/koala.js lab eval '{"config":"experiments/configs/lab-reviewer-reviewer-quality-v1.json","files":[".Codex/agents/test-case-reviewer.md"]}'
+node bin/lattice.js lab create --target=test-case-reviewer --profile=reviewer-quality-v1
+node bin/lattice.js lab run --config experiments/configs/lab-reviewer-reviewer-quality-v1.json --dry-run
+node bin/lattice.js lab eval '{"config":"experiments/configs/lab-reviewer-reviewer-quality-v1.json","files":[".Codex/agents/test-case-reviewer.md"]}'
 ```
 
 第一版默认只支持离线、安全的实验配置：
 
 - `lab run` 需要先 `--dry-run` 预览，真实创建 sandbox 时带 `--confirm`
 - `lab eval` 默认拦截 `docs/story`、`tests/fixtures` 和任何不在 `editableFiles` 白名单内的路径
-- `packages/lab` 未构建时，普通 `koala` 命令仍可继续使用；只有 `koala lab ...` 会提示补 build
+- `packages/lab` 未构建时，普通 `lattice` 命令仍可继续使用；只有 `lattice lab ...` 会提示补 build
 
 当前 `reviewer-quality-v1` 已经能给出真实的 baseline / score / delta / kept-discard 决策：
 
 ```bash
-node bin/koala.js lab run --config experiments/configs/lab-reviewer-reviewer-quality-v1.json --confirm
-node bin/koala.js lab compare --config experiments/configs/lab-reviewer-reviewer-quality-v1.json
-node bin/koala.js lab promote --config experiments/configs/lab-reviewer-reviewer-quality-v1.json
+node bin/lattice.js lab run --config experiments/configs/lab-reviewer-reviewer-quality-v1.json --confirm
+node bin/lattice.js lab compare --config experiments/configs/lab-reviewer-reviewer-quality-v1.json
+node bin/lattice.js lab promote --config experiments/configs/lab-reviewer-reviewer-quality-v1.json
 ```
 
 对 reviewer 目标来说，`lab run --confirm` 现在还会把真实 `patch.diff` 写进 run 目录；`lab compare` / `lab promote` 会把对应的 patch 路径和 baseline ref 一起带出来，便于直接审阅。

@@ -26,6 +26,37 @@
 
 ---
 
+## Lattice CLI Rollout
+
+`lattice` 是当前主命令入口，`koala` 只保留为 legacy alias。项目本地开发、
+巡检和恢复现场时优先使用：
+
+```bash
+lattice check
+lattice doctor --format=json
+lattice session_brief
+lattice rollout_check --projects /path/to/project --json
+```
+
+开发 Lattice CLI 自身后，本地/全局刷新流程是：
+
+```bash
+npm --prefix packages/main run build
+npm install -g ./packages/main
+lattice --version
+koala --version
+lattice check
+lattice doctor --format=json
+lattice rollout_check --projects "$(pwd)" --json
+```
+
+`rollout_check` 是只读跨项目巡检：它读取 git 状态、managed asset 状态、
+runtime footprint、story/transcript scope readiness，并输出每个项目的
+`status` 与 `nextAction`。它不会执行 `check --apply`、`check --upgrade`、
+repair/fix、第三方安装、evidence submit 或 receipt verify。主仓可以是
+PASS；外部项目、旧 wrapper 或非 git 项目会被解释成 WARN/FAIL 加下一步，
+而不是让用户逐个手跑 doctor/check 后猜原因。
+
 ## 代码与文档的结合
 
 生成了代码但是需要同步生成这份代码的文档，为 JSON 格式。每次修改了代码都必须同步更新代码的文档说明，细到每一个 Class 和 函数，Class 的定下来就不会变，但函数的说明必须每次更新。做这个的目的是为了实时提取项目的整个状态，方便分析任务完成情况，需要和资料挂钩，以及动态及时更新。每段代码需求来自哪里，经过多少次更新，每次更新内容最好都做记录，被删除，废弃的代码也不要删除，都需要保留历史。很多主观内容，需要加上自动化脚本验证。

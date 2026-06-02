@@ -1,9 +1,9 @@
 /**
- * koala session_brief — 跨 session 的开场简报
+ * lattice session_brief — 跨 session 的开场简报
  *
  * 设计目的：
  *   新 Claude session 进来时不知道"上次停在哪、最近发生过什么"。
- *   之前要连续 koala story_list / story_get / checklist_get 才能拼凑出来。
+ *   之前要连续 lattice story_list / story_get / checklist_get 才能拼凑出来。
  *   session_brief 是 single-shot 命令：跑一下就拿到完整上下文 + 应该做的事。
  *
  *   CLAUDE.md 要求每个新 session 第一件事跑这个命令。
@@ -313,12 +313,12 @@ function summarizeDonePrecheck(rows: DoneCheckRow[]): DonePrecheckSummary {
 function summarizeDonePrecheckActions(rows: DoneCheckRow[]): string {
   const actions = rows.map(row => row.hint || `补齐 ${row.id}`);
   const unique = [...new Set(actions)];
-  return `${unique.join('；')}；全部通过后再 story_advance --phase=DONE`;
+  return `${unique.join('；')}；全部通过后再 lattice story_advance --phase=DONE`;
 }
 
 /** B-a370: META container detection. Audit meta-stories (B-META-* / phase=META)
  *  are permanent audit/finding containers — they never run the normal story
- *  lifecycle, so next/session_brief must not hand them story_advance / worktree
+ *  lifecycle, so next/session_brief must not hand them lattice story_advance / worktree
  *  hints. Both criteria are independently sufficient: phase=META is the canonical
  *  marker, the B-META- id prefix is the structural guarantee from audit-meta-store. */
 function isMetaContainer(storyId: string, phase: string): boolean {
@@ -326,7 +326,7 @@ function isMetaContainer(storyId: string, phase: string): boolean {
 }
 
 function metaContainerNextStep(storyId: string): string {
-  return `${storyId} 是 META 容器（audit/finding flow 的常驻容器），不走普通 story lifecycle，也不需要 worktree。用 \`koala audit\` 查看框架自省结果、\`koala finding_list\` 处理它的 finding；不要对它 story_advance 或创建 worktree。`;
+  return `${storyId} 是 META 容器（audit/finding flow 的常驻容器），不走普通 story lifecycle，也不需要 worktree。用 \`lattice audit\` 查看框架自省结果、\`lattice finding_list\` 处理它的 finding；不要对它运行 lattice story_advance 或创建 worktree。`;
 }
 
 /**
@@ -382,7 +382,7 @@ export function renderOwnershipBlock(view: OwnerLeaseView): string[] {
  *
  * B-META containers are NOT normal story-owner-lease subjects — they are the
  * permanent audit/finding container shared across sessions. `session_brief`
- * must show them as shared audit state and must NOT suggest `story_advance`
+ * must show them as shared audit state and must NOT suggest `lattice story_advance`
  * (per § session_brief Requirements). The B-f60c main write lock — not the
  * per-story owner lease — serializes concurrent writes to B-META.
  *
@@ -394,8 +394,14 @@ export function renderMetaAuditBlock(storyId: string): string[] {
     '## Shared audit state (B-META)',
     `  ${storyId} is the shared framework-audit / finding container, not a normal story.`,
     `  It carries NO per-story owner lease; concurrent writes are serialized by the main write lock.`,
-    `  Do not story_advance it — use \`koala audit\` / \`koala finding_list\` instead.`,
+    `  Do not run \`lattice story_advance\` for it — use \`lattice audit\` / \`lattice finding_list\` instead.`,
   ];
+}
+
+function normalizeSessionCommandHints(text: string): string {
+  return text
+    .replace(/\bkoala\s+(validate|status|checklist_get|session_brief|next)\b/g, 'lattice $1')
+    .replace(/(\]\s+)(finding_list|reviewer_list|review_run_start|review_pass_set|story_advance|checklist_get)\b/g, '$1lattice $2');
 }
 
 function computeNextStep(c: NextStepCtx): string {
@@ -405,37 +411,37 @@ function computeNextStep(c: NextStepCtx): string {
 
   switch (c.phase) {
     case 'IDEA':
-      return `Story 在 IDEA 阶段，没有 checklist。和用户讨论 checklist 后用 checklist_add 追加，或重新 story_create 时带上 checklist 字段`;
+      return `Story 在 IDEA 阶段，没有 checklist。和用户讨论 checklist 后用 lattice checklist_add 追加，或重新 lattice story_create 时带上 checklist 字段`;
     case 'INIT':
       if (!c.gitReady) {
         return `Story 在 INIT 阶段，但当前项目不是 git 仓库。可以继续记录 metadata；若要进入 INIT_CHECK/worktree 流程，先 git init && git add . && git commit -m "init"`;
       }
-      return `Story 在 INIT 阶段。下一步：story_advance --storyId=${sid} --phase=INIT_CHECK 创建 worktree，然后 cd 进去`;
+      return `Story 在 INIT 阶段。下一步：lattice story_advance --storyId=${sid} --phase=INIT_CHECK 创建 worktree，然后 cd 进去`;
     case 'INIT_CHECK':
       if (!c.gitReady) {
         return `Story 在 INIT_CHECK 前置阶段，但当前项目不是 git 仓库。先 git init + 首次 commit，再继续 worktree / PLAN 流程`;
       }
-      return `Story 在 INIT_CHECK，worktree 已创建。下一步：cd 到 .worktrees/${sid}/ 然后 story_advance --phase=PLAN`;
+      return `Story 在 INIT_CHECK，worktree 已创建。下一步：cd 到 .worktrees/${sid}/ 然后 lattice story_advance --phase=PLAN`;
     case 'PLAN': {
       if (!c.hasUnderstanding) {
-        return `PLAN 阶段缺 understanding。下一步：understanding_set 落 task/outcome/facts/constraints/unknowns/touchpoints 快照`;
+        return `PLAN 阶段缺 understanding。下一步：lattice understanding_set 落 task/outcome/facts/constraints/unknowns/touchpoints 快照`;
       }
       if (!c.hasDecision) {
-        return `PLAN 阶段已有 understanding，缺 decision。下一步：decision_set 落 RALPLAN-DR 决策（principles/drivers/options/chosen/rationale/preMortem）`;
+        return `PLAN 阶段已有 understanding，缺 decision。下一步：lattice decision_set 落 RALPLAN-DR 决策（principles/drivers/options/chosen/rationale/preMortem）`;
       }
-      return `PLAN 阶段。下一步：story_review --storyId=${sid} 跑对抗审查，issueCount=0 后 story_advance --phase=DEV`;
+      return `PLAN 阶段。下一步：lattice story_review --storyId=${sid} 跑对抗审查，issueCount=0 后 lattice story_advance --phase=DEV`;
     }
     case 'DEV': {
-      if (!c.checklist) return `DEV 阶段。先 checklist_get --storyId=${sid} 看待办`;
+      if (!c.checklist) return `DEV 阶段。先 lattice checklist_get --storyId=${sid} 看待办`;
       if (c.checklist.inProgress.length > 0) {
         const ip = c.checklist.inProgress[0];
-        return `DEV 阶段。继续完成 in_progress item: ${ip.id} ${ip.title}（完成后 checklist_update --status=done）`;
+        return `DEV 阶段。继续完成 in_progress item: ${ip.id} ${ip.title}（完成后 lattice checklist_update --status=done）`;
       }
       if (c.checklist.pending.length > 0) {
         const next = c.checklist.pending[0];
-        return `DEV 阶段。下一项：checklist_update --storyId=${sid} --itemId=${next.id} --status=in_progress（${next.title}）`;
+        return `DEV 阶段。下一项：lattice checklist_update --storyId=${sid} --itemId=${next.id} --status=in_progress（${next.title}）`;
       }
-      return `DEV 阶段，所有 checklist 已 done。下一步：git commit + story_advance --storyId=${sid} --phase=REVIEW 进入代码审查`;
+      return `DEV 阶段，所有 checklist 已 done。下一步：git commit + lattice story_advance --storyId=${sid} --phase=REVIEW 进入代码审查`;
     }
     case 'REVIEW':
       if (c.reviewerStatus) {
@@ -444,45 +450,45 @@ function computeNextStep(c: NextStepCtx): string {
             .filter(e => e.blockerCount > 0)
             .map(e => `${e.name}(${e.blockerCount})`)
             .join(', ');
-          return `REVIEW 阶段，有 ${c.reviewerStatus.totalBlockers} 个 blocking finding：${blocked}。下一步：finding_list --storyId=${sid} 查看并修复，必要时 story_advance --storyId=${sid} --phase=DEV`;
+          return `REVIEW 阶段，有 ${c.reviewerStatus.totalBlockers} 个 blocking finding：${blocked}。下一步：lattice finding_list --storyId=${sid} 查看并修复，必要时 lattice story_advance --storyId=${sid} --phase=DEV`;
         }
         if (!c.reviewerStatus.allPassed) {
           const pending = c.reviewerStatus.entries
             .filter(e => e.verdict === 'pending')
             .map(e => e.name)
             .join(', ') || 'reviewer evidence';
-          return `REVIEW 阶段，等待 reviewer evidence：${pending}。下一步：reviewer_list --storyId=${sid} 查看应运行的 koala-review-* reviewer，全部 pass 后再 story_advance --storyId=${sid} --phase=TEST`;
+          return `REVIEW 阶段，等待 reviewer evidence：${pending}。下一步：lattice reviewer_list --storyId=${sid} 查看应运行的 koala-review-* reviewer，全部 pass 后再 lattice story_advance --storyId=${sid} --phase=TEST`;
         }
-        return `REVIEW 阶段，reviewer gate 全部通过。下一步：story_advance --storyId=${sid} --phase=TEST 进入正式验证`;
+        return `REVIEW 阶段，reviewer gate 全部通过。下一步：lattice story_advance --storyId=${sid} --phase=TEST 进入正式验证`;
       }
-      return `REVIEW 阶段。koala-reviewer 审查代码，提 finding。critical/high finding 全部 resolved 后 story_advance --storyId=${sid} --phase=TEST`;
+      return `REVIEW 阶段。koala-reviewer 审查代码，提 finding。critical/high finding 全部 resolved 后 lattice story_advance --storyId=${sid} --phase=TEST`;
     case 'TEST_CASE':
-      return `TEST_CASE 阶段（legacy）。建议 story_advance --phase=TEST 直接进入验证`;
+      return `TEST_CASE 阶段（legacy）。建议 lattice story_advance --phase=TEST 直接进入验证`;
     case 'TEST_CASE_REVIEW':
-      return `TEST_CASE_REVIEW 阶段（legacy）。建议 story_advance --phase=TEST 直接进入验证`;
+      return `TEST_CASE_REVIEW 阶段（legacy）。建议 lattice story_advance --phase=TEST 直接进入验证`;
     case 'TEST':
       // B-b9d0 CHK-004: scope-gate blocking takes priority over the DONE
       // hint — DONE is not recommended while scope is blocking. Out-of-scope
       // diffs must be fixed or scope_contract_acknowledge'd in DEV/REVIEW
       // (TEST acknowledgement is intentionally forbidden) before advancing.
       if (c.scopeBlocking) {
-        return `TEST 阶段。Scope gate: blocking — ${c.scopeBlocking.reason}。DONE is not recommended while scope is blocking。下一步：回 DEV/REVIEW 修复 out-of-scope diff 或 scope_contract_acknowledge 后再 story_advance --phase=TEST`;
+        return `TEST 阶段。Scope gate: blocking — ${c.scopeBlocking.reason}。DONE is not recommended while scope is blocking。下一步：回 DEV/REVIEW 修复 out-of-scope diff 或 lattice scope_contract_acknowledge 后再 lattice story_advance --phase=TEST`;
       }
       if (openBugs.length > 0) {
-        return `TEST 阶段，有 ${openBugs.length} 个 open bug：${openBugs.slice(0, 3).map(b => b.id).join(', ')}。修复后跑 koala validate 验证`;
+        return `TEST 阶段，有 ${openBugs.length} 个 open bug：${openBugs.slice(0, 3).map(b => b.id).join(', ')}。修复后跑 lattice validate 验证`;
       }
       if (!c.hasTestEvidence) {
-        return `TEST 阶段。下一步：koala validate 跑验证，写 bug/evidence`;
+        return `TEST 阶段。下一步：lattice validate 跑验证，写 bug/evidence`;
       }
       if (!c.hasPassingTestEvidence) {
-        return `TEST 阶段，最后一次验证未通过。下一步：修复失败项后重跑 koala validate`;
+        return `TEST 阶段，最后一次验证未通过。下一步：修复失败项后重跑 lattice validate`;
       }
       if (c.donePrecheck && c.donePrecheck.blocking.length > 0) {
         const ids = c.donePrecheck.blocking.slice(0, 4).map(r => r.id).join(', ');
         const more = c.donePrecheck.blocking.length > 4 ? ` (+${c.donePrecheck.blocking.length - 4} more)` : '';
         return `TEST 阶段，DONE pre-check 还有 ${c.donePrecheck.blocking.length} 项未通过：${ids}${more}。下一步：${summarizeDonePrecheckActions(c.donePrecheck.blocking)}`;
       }
-      return `TEST 阶段，所有 bug 已 fixed。下一步：story_advance --storyId=${sid} --phase=DONE 完成 story（会自动合并回 main）`;
+      return `TEST 阶段，所有 bug 已 fixed。下一步：lattice story_advance --storyId=${sid} --phase=DONE 完成 story（会自动合并回 main）`;
     case 'DONE':
       return `Story 已 DONE。可以开始下一个 story`;
     default:
@@ -531,7 +537,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
       const concise = args.concise === true;
       const lines: string[] = [];
       const gitReady = isGitRepository(ctx.root);
-      lines.push('# koala session brief');
+      lines.push('# lattice session brief');
       lines.push('');
 
       const detected = detectActiveStoryFromGit(ctx);
@@ -548,7 +554,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
         if (allStoryIds.length === 0) {
           lines.push('**No active story** — no stories yet.');
           lines.push('');
-          lines.push('Start with `koala story_create` to create your first story.');
+          lines.push('Start with `lattice story_create` to create your first story.');
           if (!gitReady) {
             lines.push('');
             lines.push('⚠ Non-git project: Koala can still record story/test metadata here, but INIT_CHECK/worktree phases need `git init` + an initial commit first.');
@@ -702,7 +708,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
           for (const id of metaContainerIds) {
             lines.push(`  ${id} — audit/finding flow 容器，不走 story lifecycle`);
           }
-          lines.push('  → 用 `koala audit` / `koala finding_list` 处理，不要 story_advance 或建 worktree');
+          lines.push('  → 用 `lattice audit` / `lattice finding_list` 处理，不要运行 `lattice story_advance` 或建 worktree');
         }
 
         // Cross-story open bugs sample (concise mode skips this).
@@ -773,16 +779,16 @@ export function createSessionHandlers(ctx: HandlerContext) {
               : `${top.phase} from ${top.phaseAuthority} metadata`;
             lines.push(`  Resume: cd ${wt} (story ${top.storyId}; authority: ${authority})`);
           } else {
-            lines.push(`  Story ${top.storyId} is in ${top.phase} but has no worktree. Try \`koala story_advance --storyId=${top.storyId} --phase=INIT_CHECK\` to create one.`);
+            lines.push(`  Story ${top.storyId} is in ${top.phase} but has no worktree. Try \`lattice story_advance --storyId=${top.storyId} --phase=INIT_CHECK\` to create one.`);
           }
         } else if (doneStories === totalStories) {
-          lines.push('  All stories DONE. Archive old stories or `koala story_create` for new work.');
+          lines.push('  All stories DONE. Archive old stories or `lattice story_create` for new work.');
         } else if (zombiesForBrief.length > 0) {
-          lines.push(`  No healthy active story. 先运行 koala story_reconcile '{"dryRun":true}' 查看 ${zombiesForBrief.length} 个僵尸 story，再确认是否 story_reconcile '{"dryRun":false}' 修复。`);
+          lines.push(`  No healthy active story. 先运行 lattice story_reconcile '{"dryRun":true}' 查看 ${zombiesForBrief.length} 个僵尸 story，再确认是否 lattice story_reconcile '{"dryRun":false}' 修复。`);
         } else if (metaContainerIds.length > 0) {
           lines.push(`  ${metaContainerNextStep(metaContainerIds[0])}`);
         } else {
-          lines.push('  No active story. `koala story_create` to start one, or `koala story_list` to see all.');
+          lines.push('  No active story. `lattice story_create` to start one, or `lattice story_list` to see all.');
         }
 
         return lines.join('\n');
@@ -929,7 +935,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
           // so we do NOT re-render a redundant "guard session" line here. Only the
           // actionable violation detail below adds new information.
           if (guardSession && guardSession.status === 'violations_detected' && guardSession.violations.length > 0) {
-            lines.push(`  ${guardSession.violations.length} forbidden write(s) under story scope protection — run guard_session_check for detail.`);
+            lines.push(`  ${guardSession.violations.length} forbidden write(s) under story scope protection — run lattice guard_session_check for detail.`);
           }
         }
       } catch { /* probe — never block session_brief on scope-summary render failure */ }
@@ -997,8 +1003,8 @@ export function createSessionHandlers(ctx: HandlerContext) {
             stall = renderAntiStall({
               storyId,
               title: `REVIEW waiting for ${pending}`,
-              retry: `reviewer_list '{"storyId":"${storyId}"}' then run the pending koala-review-* reviewers`,
-              fix: `review_run_start '{"storyId":"${storyId}","agent":"koala-review-<name>"}' first, then use the returned reviewRunId in review_pass_set '{"storyId":"${storyId}","reviewRunId":"<reviewRunId from review_run_start>","agent":"koala-review-<name>","note":"..."}' when a reviewer found no blocker`,
+              retry: `lattice reviewer_list '{"storyId":"${storyId}"}' then run the pending koala-review-* reviewers`,
+              fix: `lattice review_run_start '{"storyId":"${storyId}","agent":"koala-review-<name>"}' first, then use the returned reviewRunId in lattice review_pass_set '{"storyId":"${storyId}","reviewRunId":"<reviewRunId from lattice review_run_start>","agent":"koala-review-<name>","note":"..."}' when a reviewer found no blocker`,
             });
           }
         } else {
@@ -1007,7 +1013,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
         if (stall) {
           lines.push('');
           lines.push(`## Anti-stall (${story.phase})`);
-          for (const line of stall.split('\n')) {
+          for (const line of normalizeSessionCommandHints(stall).split('\n')) {
             lines.push(`  ${line}`);
           }
         }

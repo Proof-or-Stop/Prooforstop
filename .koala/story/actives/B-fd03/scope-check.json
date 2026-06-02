@@ -1,0 +1,108 @@
+{
+  "storyId": "B-fd03",
+  "checkedAt": "2026-06-02T16:22:20.912Z",
+  "features": [
+    {
+      "feature": "Local/global Lattice install refresh guidance documents build, npm install -g ./packages/main, and version checks for lattice plus koala alias.",
+      "covered_by": "CHK-001 files: README.md, docs/guide.md, docs/requirements/decisions/project-vision.md",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "background, understanding.outcome, plan.md#CHK-001"
+    },
+    {
+      "feature": "Primary user-facing command examples prefer lattice check, lattice doctor, lattice session_brief, and lattice rollout_check.",
+      "covered_by": "CHK-001 verificationIntent happy/adversarial; CHK-002 userSees",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist CHK-001/CHK-002, decision principle: primary command language is lattice"
+    },
+    {
+      "feature": "CLI help, hints, session, doctor, check, story_create, dispatch, and checklist guidance use lattice by default.",
+      "covered_by": "CHK-002 files: cli-engine, lattice-brand, session, doctor, check, story-create, story-dispatch, checklist handlers",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "understanding.touchpoints, plan.md#CHK-002"
+    },
+    {
+      "feature": "koala remains a working legacy alias with explicit compatibility wording.",
+      "covered_by": "CHK-002 verificationIntent edge; CHK-001 docs edge",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "background solution tradeoff, decision principles, plan non-goals"
+    },
+    {
+      "feature": "Read-only lattice rollout_check supports explicit project paths and optional root discovery with JSON summary counts and per-project status/nextAction.",
+      "covered_by": "CHK-003 files: rollout-check core/handler, cli-engine, registry; CHK-003 userSees",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "understanding facts, plan.md#CHK-003"
+    },
+    {
+      "feature": "rollout_check collects version/realpath, config doctor, session_brief, doctor, check, managed asset drift, and transcript lifecycle readiness without apply/repair writes.",
+      "covered_by": "CHK-003 verificationIntent happy/adversarial; CHK-004 verificationIntent adversarial",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "background key insight, decision preMortem, plan.md#CHK-003"
+    },
+    {
+      "feature": "External and non-Lattice projects degrade to WARN/SKIP-style results with evidence snippets and actionable nextAction instead of opaque failures.",
+      "covered_by": "CHK-003 verificationIntent edge; CHK-004 verificationIntent edge",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "understanding constraints, decision drivers/preMortem"
+    },
+    {
+      "feature": "Real-project rollout transcript covers Orchestrate, Koala/Koala, plasmid, minicell, OpenCli, and avalon with conservative pass/warn/fail diagnostic statuses and actionable nextAction values.",
+      "covered_by": "CHK-004 files.create: .koala/story/actives/B-fd03/evidence/rollout-transcript.md; CHK-004 userSees",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan.md#CHK-004"
+    },
+    {
+      "feature": "Verification coverage includes rollout-check smoke, lattice CLI migration smoke, process fact contract, flow stability, lint/tasks, and no scanned-project mutation checks.",
+      "covered_by": "CHK-002/CHK-003/CHK-004 test files and plan verify list",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist verificationIntent, plan.md#CHK-004, testing-completeness related doc"
+    },
+    {
+      "feature": "Rename .koala state directories or historical story metadata paths.",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "background solution tradeoff; understanding constraint; decision preMortem; plan.md Non-goals",
+      "source": "explicit non-goal"
+    },
+    {
+      "feature": "Rename koala-review-* reviewer lanes or lane signatures.",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "CHK-002 verificationIntent adversarial; understanding constraint; plan.md Non-goals",
+      "source": "explicit non-goal"
+    },
+    {
+      "feature": "Rename @koala-agent/core package identity.",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "CHK-002 verificationIntent adversarial; understanding constraint; plan.md Non-goals",
+      "source": "explicit non-goal"
+    },
+    {
+      "feature": "Rename Codex adapter entrypoints or KOALA_* runtime environment identifiers such as bin/koala-codex.js.",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "CHK-001 plan step; CHK-002 verificationIntent adversarial; plan.md Non-goals",
+      "source": "bounded compatibility non-goal"
+    }
+  ],
+  "summary": {
+    "total": 13,
+    "covered": 9,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "2026-06-02T16:04:27.428Z",
+  "_hash": "5e96671b52fe50f96a714789f7e91b56e883c1705ecf12f22739f8fdd8c0c262",
+  "openQuestions": []
+}

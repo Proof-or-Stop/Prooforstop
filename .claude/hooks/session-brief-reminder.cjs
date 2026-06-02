@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 /**
  * Claude Code UserPromptSubmit hook: softly remind the agent to recover state
- * with `koala session_brief` when no recent heartbeat is visible.
+ * with `lattice session_brief` when no recent heartbeat is visible.
  */
 const fs = require('fs');
 const path = require('path');
 
 const DEFAULT_FRESH_MINUTES = 60;
-const REMINDER = '建议先运行 koala session_brief 恢复现场';
+const REMINDER = '建议先运行 lattice session_brief 恢复现场（koala 仍是 legacy alias）';
 
 let input = '';
 process.stdin.setEncoding('utf8');
@@ -133,7 +133,8 @@ function isSessionBrief(entry) {
 function containsSessionBriefCommand(value) {
   if (typeof value !== 'string') return false;
   const command = value.replace(/["']/g, '').trim();
-  return /(?:^|[\s;&|()])(?:[\w.-]+=\S+\s+)*koala\s+session_brief(?:$|[\s;&|()])/.test(command)
+  return /(?:^|[\s;&|()])(?:[\w.-]+=\S+\s+)*(?:lattice|koala)\s+session_brief(?:$|[\s;&|()])/.test(command)
+    || /(?:^|[\s;&|()])node\s+(?:\.\/)?(?:.*\/)?bin\/lattice\.js\s+session_brief(?:$|[\s;&|()])/.test(command)
     || /(?:^|[\s;&|()])node\s+(?:\.\/)?(?:.*\/)?bin\/koala(?:-codex)?\.js\s+session_brief(?:$|[\s;&|()])/.test(command)
     || /(?:^|[\s;&|()])node\s+(?:\.\/)?(?:.*\/)?packages\/main\/dist\/cli\.js\s+session_brief(?:$|[\s;&|()])/.test(command);
 }

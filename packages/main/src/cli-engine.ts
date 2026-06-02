@@ -55,9 +55,9 @@ import {
 
 export interface ToolDef {
   name: string;
-  /** 一行描述（出现在 koala help 列表里） */
+  /** 一行描述（出现在 lattice help 列表里） */
   description: string;
-  /** 完整 PROMPT（出现在 koala <cmd> --help 里）。可选；缺省时只显示 description */
+  /** 完整 PROMPT（出现在 lattice <cmd> --help 里）。可选；缺省时只显示 description */
   longHelp?: string;
   schema: Record<string, ZodType>;
 }
@@ -469,7 +469,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     outcomeKind: z.enum(STORY_OUTCOME_KINDS).optional().describe('DONE outcome classification: success / blocked / audit_only'),
     limitations: z.string().describe('已知限制 / 设计偏离（没有就写 "none — fully covered"）'),
     pitfalls: z.string().describe('踩坑记录（卡在哪、绕了几次路、下个人应该知道什么，≥ 10 字符；禁止空话）'),
-    skipReasons: z.record(z.string(), z.string()).optional().describe('{case name: reason} 对每条 sandbox:false 但没跑的 case 说明原因；未提供则 koala 报错列出缺失项'),
+    skipReasons: z.record(z.string(), z.string()).optional().describe('{case name: reason} 对每条 sandbox:false 但没跑的 case 说明原因；未提供则 Lattice 报错列出缺失项'),
   }},
   { name: 'summary_get', description: '读取 story summary', schema: {
     storyId: z.string().describe('Story ID'),
@@ -519,7 +519,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     validateExecute: z.boolean().optional().describe('追加前预执行 CLI case'),
   }},
   { name: 'test_auto', description: 'legacy 全量 fixture 回归（真实执行需 confirm；dryRun 预览）', schema: {
-    storyId: z.string().optional().describe('已废弃；当前 story 验证请用 koala validate --story=<storyId> 并记录 verificationEvidence'),
+    storyId: z.string().optional().describe('已废弃；当前 story 验证请用 lattice validate --story=<storyId> 并记录 verificationEvidence'),
     trace: z.boolean().optional().describe('收集 trace'),
     enableProfiler: z.boolean().optional().describe('启用 profiler'),
     dryRun: z.boolean().optional().describe('只输出执行计划'),
@@ -623,6 +623,12 @@ export const MAIN_TOOLS: ToolDef[] = [
   }},
   { name: 'lattice_config_doctor', description: 'Report Lattice CLI 0.3.5 migration readiness and Mac App demotion status (text/json). Alias: lattice config doctor', schema: {
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+  }},
+  { name: 'rollout_check', description: 'Run read-only cross-project Lattice rollout diagnostics for install drift, managed assets, runtime footprint, and transcript scope. Alias: lattice rollout check', schema: {
+    projects: z.union([z.string(), z.array(z.string())]).optional().describe('Comma-separated project paths or JSON array; omit to scan the current root'),
+    maxDepth: z.number().optional().describe('Discovery depth when projects is omitted (default 1)'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    json: z.boolean().optional().describe('Shortcut for --format=json'),
   }},
   { name: 'authority_status', description: 'Report receipt-aware authority settings without submitting evidence or verifying receipts. Alias: lattice authority status', schema: {
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
@@ -737,7 +743,7 @@ export const MAIN_TOOLS: ToolDef[] = [
   }},
 
   // Doctor (health issue 巡检)
-  { name: 'doctor', description: '查看 koala 自身的 health issue（被 silent catch 接住的 PERSIST 失败）+ 扫 .worktrees/ 孤儿目录', schema: {
+  { name: 'doctor', description: '查看 Lattice 自身的 health issue（被 silent catch 接住的 PERSIST 失败）+ 扫 .worktrees/ 孤儿目录', schema: {
     format: z.enum(['text', 'json']).optional().describe('输出格式（默认 text）'),
     limit: z.number().optional().describe('最多读取条数（默认 1000）'),
     repair: z.boolean().optional().describe('清理 DONE/DISCARDED terminal worktree 注册项、孤儿目录与 prunable 元数据'),
@@ -806,7 +812,7 @@ export const MAIN_TOOLS: ToolDef[] = [
   // Evaluate (browser 项目 AI 评估)
   { name: 'evaluate', description: '调 evaluator agent 对 browser 应用打分（功能完整性 + 可用性）', schema: {
     storyId: z.string().describe('Story ID'),
-    port: z.number().optional().describe('koala serve 端口（默认 3456）'),
+    port: z.number().optional().describe('lattice serve 端口（默认 3456）'),
   }},
   { name: 'evaluate_save', description: '保存 evaluator 打分结果到 eval-evidence.json', schema: {
     storyId: z.string().describe('Story ID'),
@@ -983,14 +989,14 @@ export const MAIN_TOOLS: ToolDef[] = [
   }},
 
   // Finding dispatch (B-45ed CHK-010: reviewer-finding 修复 prompt generator，与 story_dispatch 同构)
-  // B-9d95 CHK-004: deprecated alias，首行 stdout 打印 deprecation warning，建议改用 `koala dispatch`
-  { name: 'finding_dispatch', description: '[deprecated: 请改用 koala dispatch] 生成标准 reviewer-finding 修复 prompt 字符串', schema: {
+  // B-9d95 CHK-004: deprecated alias，首行 stdout 打印 deprecation warning，建议改用 `lattice dispatch`
+  { name: 'finding_dispatch', description: '[deprecated: 请改用 lattice dispatch] 生成标准 reviewer-finding 修复 prompt 字符串', schema: {
     storyId: z.string().describe('Story ID'),
     findingId: z.string().describe('Finding ID（如 F-001 或 B-xxx:F-001 完整形式）'),
     agentType: z.string().optional().describe('subagent 类型（如 koala-implementer / koala-review-channel）；复用 CHK-008 分级矩阵'),
   }},
 
-  // Unified dispatch (B-9d95 CHK-004: story_dispatch / finding_dispatch 合并为 `koala dispatch`，全阶段开放)
+  // Unified dispatch (B-9d95 CHK-004: story_dispatch / finding_dispatch 合并为 `lattice dispatch`，全阶段开放)
   { name: 'dispatch', description: '统一派发入口：按 itemId / findingId / clusterId 恰好一个生成 subagent prompt（全阶段可用）', schema: {
     storyId: z.string().describe('Story ID'),
     itemId: z.string().optional().describe('Checklist item ID（CHK-xxx）；与 findingId / clusterId 互斥，恰好提供一个'),
@@ -1091,8 +1097,8 @@ export const MAIN_TOOLS: ToolDef[] = [
   }},
 
   // B-ea92 M1: read-only authority policy discovery.
-  // Alias: koala authority enforce policy → authority_enforce_policy (resolved in runCli).
-  { name: 'authority_enforce_policy', description: 'Discover authority policy (GET /v1/authority/policy). Read-only: no receipt, no gate pass, no evidence submission. Alias: koala authority enforce policy', schema: {
+  // Alias: lattice authority enforce policy → authority_enforce_policy (resolved in runCli).
+  { name: 'authority_enforce_policy', description: 'Discover authority policy (GET /v1/authority/policy). Read-only: no receipt, no gate pass, no evidence submission. Alias: lattice authority enforce policy', schema: {
     authorityURL: z.string().optional().describe('Authority server base URL (overrides KOALA_AUTHORITY_URL)'),
     authorityTimeoutMS: z.number().optional().describe('Request timeout in milliseconds (overrides KOALA_AUTHORITY_TIMEOUT_MS)'),
   }},
@@ -1345,6 +1351,7 @@ function printHelp(activeStory?: ActiveStory | null) {
     check: 'Check',
     host: 'Host',
     lattice: 'Lattice',
+    rollout: 'Lattice',
     authority: 'Authority',
     conduit: 'Conduit',
   };
@@ -1575,6 +1582,7 @@ const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'host_probe',
   'host_install',
   'lattice_config_doctor',
+  'rollout_check',
   'authority_status',
   'conduit_status',
   'conduit_explain',
@@ -2195,6 +2203,7 @@ export async function runCli(opts?: {
     'host probe': 'host_probe',
     'host install': 'host_install',
     'config doctor': 'lattice_config_doctor',
+    'rollout check': 'rollout_check',
     'authority status': 'authority_status',
     'authority enforce policy': 'authority_enforce_policy',
     'conduit status': 'conduit_status',
@@ -2217,8 +2226,8 @@ export async function runCli(opts?: {
   if (!tool) {
     console.error(`未知命令: ${cmd}`);
     const m = TOOLS.filter(t => t.name.includes(cmd) || cmd.includes(t.name.split('_')[0]));
-    if (m.length) { console.error('你是不是要找:'); for (const t of m) console.error(`  koala ${t.name}`); }
-    console.error('用 koala help 查看所有命令');
+    if (m.length) { console.error('你是不是要找:'); for (const t of m) console.error(`  lattice ${t.name}`); }
+    console.error('用 lattice help 查看所有命令（legacy alias: koala）');
     process.exit(1);
   }
 
@@ -2557,16 +2566,16 @@ export async function runCli(opts?: {
         const storyId = result.match(/Story\s+([\w-]+)/)?.[1];
         if (!storyId) return result;
         if (!gitReady) {
-          return `${result}\n⚠ 当前目录不是 git 仓库：story 已记录，但 from-draft worktree 不能自动创建。\n→ 先 git init + 首次 commit 后重试 story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}'`;
+          return `${result}\n⚠ 当前目录不是 git 仓库：story 已记录，但 from-draft worktree 不能自动创建。\n→ 先 git init + 首次 commit 后重试 lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}'`;
         }
         try {
           const wtResult = handlers.dev_start({ storyId });
           const syncResult = commitFromDraftMetadataAndMergeMain(root, store, storyId, fromDraftName);
-          return `${result}\n\n${wtResult}\n\n${syncResult}\n\n→ 现在请 cd 到上述 worktree 路径，然后调 story_advance phase=PLAN 进入 PLAN`;
+          return `${result}\n\n${wtResult}\n\n${syncResult}\n\n→ 现在请 cd 到上述 worktree 路径，然后调 lattice story_advance phase=PLAN 进入 PLAN`;
         } catch (e: any) {
           throw new Error(
             `from-draft worktree bootstrap failed for ${storyId}: ${e.message}\n` +
-            `→ 排查后再次执行 story_advance --phase=INIT_CHECK 自动重试，或手动 dev_start '{"storyId":"${storyId}"}'`,
+            `→ 排查后再次执行 lattice story_advance --phase=INIT_CHECK 自动重试，或手动 lattice dev_start '{"storyId":"${storyId}"}'`,
           );
         }
       }
@@ -2575,9 +2584,9 @@ export async function runCli(opts?: {
       if (!storyId) return result;
       if (result.includes('当前目录不是 git 仓库')) return result;
       if (!gitReady) {
-        return `${result}\n⚠ 当前目录不是 git 仓库：story 已记录，但 INIT_CHECK/worktree 流程还不能顺畅跑。\n→ 先在项目根执行 git init && git add . && git commit -m \"init\"，再 story_advance '{\"storyId\":\"${storyId}\",\"phase\":\"INIT_CHECK\"}'`;
+        return `${result}\n⚠ 当前目录不是 git 仓库：story 已记录，但 INIT_CHECK/worktree 流程还不能顺畅跑。\n→ 先在项目根执行 git init && git add . && git commit -m \"init\"，再 lattice story_advance '{\"storyId\":\"${storyId}\",\"phase\":\"INIT_CHECK\"}'`;
       }
-      return `${result}\n→ Story 停在 INIT 阶段。下一步:\n  1. story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}' 创建 worktree\n  2. cd 到提示的 worktree 路径\n  3. story_advance '{"storyId":"${storyId}","phase":"PLAN"}' 进入 PLAN（cwd 必须是 worktree）`;
+      return `${result}\n→ Story 停在 INIT 阶段。下一步:\n  1. lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}' 创建 worktree\n  2. cd 到提示的 worktree 路径\n  3. lattice story_advance '{"storyId":"${storyId}","phase":"PLAN"}' 进入 PLAN（cwd 必须是 worktree）`;
     });
     return;
   }
@@ -2627,9 +2636,9 @@ export async function runCli(opts?: {
           syncResult = commitInitCheckMetadataAndMergeMain(root, store, storyId);
         }
         const syncSegment = syncResult ? `\n\n${syncResult}` : '';
-        return `${advanceResult}\n\n${wtResult}${syncSegment}\n\n→ 现在请 cd 到上述 worktree 路径，然后调 story_advance phase=PLAN 进入 PLAN`;
+        return `${advanceResult}\n\n${wtResult}${syncSegment}\n\n→ 现在请 cd 到上述 worktree 路径，然后调 lattice story_advance phase=PLAN 进入 PLAN`;
       } catch (e: any) {
-        return `${advanceResult}\n⚠ worktree 创建失败: ${e.message}\n→ 排查后再次执行 story_advance --phase=INIT_CHECK 自动重试，或手动 dev_start '{"storyId":"${storyId}"}'`;
+        return `${advanceResult}\n⚠ worktree 创建失败: ${e.message}\n→ 排查后再次执行 lattice story_advance --phase=INIT_CHECK 自动重试，或手动 lattice dev_start '{"storyId":"${storyId}"}'`;
       }
     });
     return;
