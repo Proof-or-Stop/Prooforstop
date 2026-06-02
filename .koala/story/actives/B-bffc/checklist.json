@@ -53,7 +53,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "command": "npm run test:lattice-cli-migration-smoke",
+          "result": "pass",
+          "note": "Smoke asserts `lattice --version`, package versions, lattice bin mapping, and Lattice CLI 0.3.5 help identity.",
+          "headHash": "91549dbf3ad5289e5b3a6e8946e03681d668fe3a",
+          "materialHash": "3f168c9f681f61167ecb3df1f005f88e3f5b6daf706494c63877105721ad25da",
+          "timestamp": "2026-06-02T11:41:04.904Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "command": "npm run test:lattice-cli-migration-smoke",
+          "result": "pass",
+          "note": "Smoke asserts the legacy koala alias remains present through package bin and version/help compatibility text.",
+          "headHash": "91549dbf3ad5289e5b3a6e8946e03681d668fe3a",
+          "materialHash": "3f168c9f681f61167ecb3df1f005f88e3f5b6daf706494c63877105721ad25da",
+          "timestamp": "2026-06-02T11:41:04.904Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "README.md",
+          "command": "rg -n \"Mac App|Primary path|Lattice CLI 0.3.5|legacy alias\" README.md docs/requirements/decisions/*.md",
+          "result": "pass",
+          "note": "Docs state Lattice CLI is primary, koala is legacy, and Mac App is optional/archive dashboard only rather than setup requirement.",
+          "headHash": "91549dbf3ad5289e5b3a6e8946e03681d668fe3a",
+          "materialHash": "3f168c9f681f61167ecb3df1f005f88e3f5b6daf706494c63877105721ad25da",
+          "timestamp": "2026-06-02T11:41:04.904Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -107,7 +142,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "command": "npm run test:lattice-cli-migration-smoke",
+          "result": "pass",
+          "note": "Smoke asserts host_list, host_probe, host_install, and lattice_config_doctor are in MAIN_TOOLS, registry, read-only policy, DEV allowlist, and JSON behavior.",
+          "headHash": "91549dbf3ad5289e5b3a6e8946e03681d668fe3a",
+          "materialHash": "3f168c9f681f61167ecb3df1f005f88e3f5b6daf706494c63877105721ad25da",
+          "timestamp": "2026-06-02T11:41:04.904Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "command": "npm run test:lattice-cli-migration-smoke",
+          "result": "pass",
+          "note": "Smoke probes Codex and migration status through JSON surfaces that expose capability/degradation status without fatal provider dashboard dependency.",
+          "headHash": "91549dbf3ad5289e5b3a6e8946e03681d668fe3a",
+          "materialHash": "3f168c9f681f61167ecb3df1f005f88e3f5b6daf706494c63877105721ad25da",
+          "timestamp": "2026-06-02T11:41:04.904Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "command": "npm run test:lattice-cli-migration-smoke",
+          "result": "pass",
+          "note": "Smoke asserts host_install returns dryRun=true, executed=false, and thirdPartyInstallsExecuted=false.",
+          "headHash": "91549dbf3ad5289e5b3a6e8946e03681d668fe3a",
+          "materialHash": "3f168c9f681f61167ecb3df1f005f88e3f5b6daf706494c63877105721ad25da",
+          "timestamp": "2026-06-02T11:41:04.904Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -160,7 +230,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "command": "npm run test:lattice-cli-migration-smoke",
+          "result": "pass",
+          "note": "Smoke asserts authority_status and conduit_status return receipt-aware local status with receiptVerified=false and productionDone=false.",
+          "headHash": "91549dbf3ad5289e5b3a6e8946e03681d668fe3a",
+          "materialHash": "3f168c9f681f61167ecb3df1f005f88e3f5b6daf706494c63877105721ad25da",
+          "timestamp": "2026-06-02T11:41:04.904Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "command": "npm run test:lattice-cli-migration-smoke",
+          "result": "pass",
+          "note": "Smoke covers missing/default authority URL behavior via authority_status JSON where serverReachability is not-probed and no receipt verification is claimed.",
+          "headHash": "91549dbf3ad5289e5b3a6e8946e03681d668fe3a",
+          "materialHash": "3f168c9f681f61167ecb3df1f005f88e3f5b6daf706494c63877105721ad25da",
+          "timestamp": "2026-06-02T11:41:04.904Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "command": "npm run test:lattice-cli-migration-smoke",
+          "result": "pass",
+          "note": "Smoke recursively fails if productionDone, receiptVerified, canClaimProductionDone, or authorityChanged become true in local CLI surfaces.",
+          "headHash": "91549dbf3ad5289e5b3a6e8946e03681d668fe3a",
+          "materialHash": "3f168c9f681f61167ecb3df1f005f88e3f5b6daf706494c63877105721ad25da",
+          "timestamp": "2026-06-02T11:41:04.904Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -208,7 +313,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "file": "README.md",
+          "command": "rg -n \"Primary path: Lattice CLI \\+ Server Authority receipts|Mac App:|optional/archive dashboard only\" README.md docs/requirements/decisions/*.md",
+          "result": "pass",
+          "note": "README and decision docs state the primary path is Lattice CLI plus Server Authority receipts, with Mac App optional/archive dashboard only.",
+          "headHash": "91549dbf3ad5289e5b3a6e8946e03681d668fe3a",
+          "materialHash": "3f168c9f681f61167ecb3df1f005f88e3f5b6daf706494c63877105721ad25da",
+          "timestamp": "2026-06-02T11:41:04.904Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/project-vision.md",
+          "command": "rg -n \"legacy alias|Lattice CLI|koala\" README.md docs/requirements/decisions/project-vision.md docs/requirements/decisions/stack-layering.md",
+          "result": "pass",
+          "note": "Docs preserve koala as legacy compatibility wording while making Lattice CLI 0.3.5 the primary product entrypoint.",
+          "headHash": "91549dbf3ad5289e5b3a6e8946e03681d668fe3a",
+          "materialHash": "3f168c9f681f61167ecb3df1f005f88e3f5b6daf706494c63877105721ad25da",
+          "timestamp": "2026-06-02T11:41:04.904Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "file": "README.md",
+          "command": "rg -n \"Mac App|optional|dashboard|archive|required\" README.md docs/requirements/decisions/*.md",
+          "result": "pass",
+          "note": "Docs explicitly demote Mac App and do not require it to be open-sourced or installed for Lattice CLI usage.",
+          "headHash": "91549dbf3ad5289e5b3a6e8946e03681d668fe3a",
+          "materialHash": "3f168c9f681f61167ecb3df1f005f88e3f5b6daf706494c63877105721ad25da",
+          "timestamp": "2026-06-02T11:41:04.904Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -258,7 +398,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm run test:lattice-cli-migration-smoke",
+          "result": "pass",
+          "note": "Final HEAD build and focused Lattice CLI migration smoke both passed.",
+          "headHash": "91549dbf3ad5289e5b3a6e8946e03681d668fe3a",
+          "materialHash": "3f168c9f681f61167ecb3df1f005f88e3f5b6daf706494c63877105721ad25da",
+          "timestamp": "2026-06-02T11:41:04.904Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "command": "npm run test:lattice-cli-migration-smoke",
+          "result": "pass",
+          "note": "Smoke covers optional host/config defaults and missing authority URL fallback without failing the command.",
+          "headHash": "91549dbf3ad5289e5b3a6e8946e03681d668fe3a",
+          "materialHash": "3f168c9f681f61167ecb3df1f005f88e3f5b6daf706494c63877105721ad25da",
+          "timestamp": "2026-06-02T11:41:04.904Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "command": "npm run test:lattice-cli-migration-smoke",
+          "result": "pass",
+          "note": "Smoke fails on any local CLI overclaim of verified production receipt authority across host/config/authority/conduit JSON surfaces.",
+          "headHash": "91549dbf3ad5289e5b3a6e8946e03681d668fe3a",
+          "materialHash": "3f168c9f681f61167ecb3df1f005f88e3f5b6daf706494c63877105721ad25da",
+          "timestamp": "2026-06-02T11:41:04.904Z"
+        }
+      ]
     }
   ],
   "auditLog": [
