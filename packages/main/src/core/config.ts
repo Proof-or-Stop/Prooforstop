@@ -142,6 +142,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'draft_check_set',      // B-9975 CHK-002: draft check 全阶段可用
     'draft_issue_resolve',
     'authority_enforce_policy', // B-ea92 M1: read-only authority policy discovery, no side-effects
+    'capability_list', // B-f26a M2: read-only host capability diagnostics for cross-host degradation
     'dev_memory_*',  // B-1148: dev_memory_capture/list/search/preflight/finish/start declared allowedPhases:all in command-policy; phaseTools must match
   ],
   INIT: [
