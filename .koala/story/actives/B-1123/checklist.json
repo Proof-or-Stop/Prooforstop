@@ -119,6 +119,17 @@
           "headHash": "55893f56afae042587f7bbc00011f4497c966ef7",
           "materialHash": "9c94c657e7f9eed06d05ded04897ae541dbe6d324998a052b697b73d32e89368",
           "timestamp": "2026-06-02T17:28:57.435Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-runner-client-smoke.ts",
+          "command": "npm --prefix packages/main run test:authority-runner-client",
+          "result": "pass",
+          "note": "HTTP error (503 → http_error), malformed 2xx body (string body, fails JobSpec|null schema → error, never silently success), connection_refused (ECONNREFUSED), and timeout (AbortError) all map to controlled failure outcomes — case 3; empty/whitespace path params throw before any network call — case 2; off mode (createRunnerAuthorityClient with mode=off) and missing/whitespace KOALA_AUTHORITY_URL both refuse instantiation and perform zero network calls — case 4; loadRunnerAuthorityClient runtime re-validates mode and URL with override-beats-env semantics — case 5",
+          "headHash": "3f5d571299619c5b349e9d7328b8a18a487e9ff2",
+          "materialHash": "9c94c657e7f9eed06d05ded04897ae541dbe6d324998a052b697b73d32e89368",
+          "timestamp": "2026-06-02T17:29:07.490Z"
         }
       ]
     }
