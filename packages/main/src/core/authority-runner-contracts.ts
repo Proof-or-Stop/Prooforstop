@@ -27,8 +27,8 @@
 //     returns false for any CLI-shaped runner envelope today.
 
 import { z } from 'zod';
-import { canonicalDigest } from './authority-signing.js';
 import {
+  canonicalDigest,
   signEnvelope as signEnvelopeRaw,
   stripSignature,
   verifyCanonical,

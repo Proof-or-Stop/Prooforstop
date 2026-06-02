@@ -99,12 +99,9 @@ function decodeBase64Bytes(input: string, expectedLen: number, label: string): B
   if (typeof input !== 'string' || input.length === 0) {
     throw new Error(`${label}: expected non-empty base64 string`);
   }
-  let buf: Buffer;
-  try {
-    buf = Buffer.from(input, 'base64');
-  } catch (err) {
-    throw new Error(`${label}: invalid base64 (${err instanceof Error ? err.message : String(err)})`);
-  }
+  // Buffer.from(_, 'base64') silently tolerates malformed base64 (skips invalid
+  // chars, never throws); the length check below is the actual validity gate.
+  const buf = Buffer.from(input, 'base64');
   if (buf.length !== expectedLen) {
     throw new Error(`${label}: expected ${expectedLen} raw bytes, got ${buf.length}`);
   }
@@ -151,12 +148,9 @@ export function verifyCanonical(
   publicKey: PublicKeyBase64,
 ): boolean {
   if (typeof signature !== 'string' || signature.length === 0) return false;
-  let sigBuf: Buffer;
-  try {
-    sigBuf = Buffer.from(signature, 'base64');
-  } catch {
-    return false;
-  }
+  // Buffer.from(_, 'base64') silently tolerates malformed base64; the 64-byte
+  // length check below is the actual validity gate for an Ed25519 signature.
+  const sigBuf = Buffer.from(signature, 'base64');
   if (sigBuf.length !== 64) return false;
   let key: ReturnType<typeof importPublicKeyRaw>;
   try {
