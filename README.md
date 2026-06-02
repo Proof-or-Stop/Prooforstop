@@ -50,6 +50,9 @@ The Mac App is no longer required for release or provider/config status. It is
 an optional dashboard/archive surface unless a future, explicitly reviewed
 receipt-backed runner path lands.
 
+Primary path: Lattice CLI + Server Authority receipts. Mac App:
+optional/archive dashboard only.
+
 ## Codex 使用
 
 ## Koala 状态入口
