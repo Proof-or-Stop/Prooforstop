@@ -17,12 +17,16 @@ import {
   AGENTS_MD_TEMPLATE,
   CLAUDE_MD_TEMPLATE,
   KOALA_MD_TEMPLATE,
+  LATTICE_MD_TEMPLATE,
   getKoalaHooks,
   listAgentPromptFiles,
   renderCodexAdapterManifest,
   renderCodexAgentContent,
   renderCodexReadmeTemplate,
   renderCodexWrapperScript,
+  renderLatticeBootstrapScript,
+  renderLatticeCodexAdapterManifest,
+  renderLatticeCodexWrapperScript,
   renderKoalaBootstrapScript,
   type InitAssetMode,
   type InitProfile,
@@ -333,8 +337,10 @@ export function detectManagedAssetProfile(root: string): InitProfile {
   const claude = readText(root, 'CLAUDE.md');
   const hasCodex = Boolean(
     (agents && hasManagedMarkers(agents))
+      || existsSync(join(root, '.Codex', 'lattice.json'))
       || existsSync(join(root, '.Codex', 'koala.json'))
       || existsSync(join(root, '.Codex', 'agents'))
+      || existsSync(join(root, 'bin', 'lattice-codex.js'))
       || existsSync(join(root, 'bin', 'koala-codex.js')),
   );
   const hasClaude = Boolean(
@@ -414,28 +420,55 @@ function isExpandedKoalaClaudeGuide(actual: string): boolean {
     && actual.includes('框架自省 audit 配置');
 }
 
+function useLegacyAssetPath(projectRoot: string, primaryRelPath: string, legacyRelPath: string): boolean {
+  const legacyKind = managedAssetPathKind(projectRoot, legacyRelPath);
+  return managedAssetPathKind(projectRoot, primaryRelPath) === 'missing'
+    && legacyKind !== 'missing';
+}
+
 export function listManagedAssetDefinitions(
   profile: InitProfile,
   root = packageRoot(),
   projectRoot = process.cwd(),
   assetMode: InitAssetMode = 'full',
 ): ManagedAssetDefinition[] {
+  const useLegacyGuide = useLegacyAssetPath(projectRoot, 'LATTICE.md', 'KOALA.md');
+  const useLegacyBootstrap = useLegacyAssetPath(projectRoot, 'bin/lattice.js', 'bin/koala.js');
+  const useLegacyCodexWrapper = useLegacyAssetPath(projectRoot, 'bin/lattice-codex.js', 'bin/koala-codex.js');
+  const useLegacyCodexManifest = useLegacyAssetPath(projectRoot, '.Codex/lattice.json', '.Codex/koala.json');
   const defs: ManagedAssetDefinition[] = [
-    managedDoc(
-      'doc:KOALA.md',
-      'KOALA.md',
-      KOALA_MD_TEMPLATE,
-      actual => actual.includes('canonical、host-neutral') || actual.includes('所有 init profile 都会创建或同步这个文件'),
-      actual => isExpandedKoalaOverview(actual),
-    ),
-    wholeFile(
-      'bin:koala.js',
-      'bin/koala.js',
-      renderKoalaBootstrapScript(root),
-      actual => actual.includes('coreCliEngineCandidates') && actual.includes('runCli'),
-      true,
-      isKoalaSelfRepoBootstrap,
-    ),
+    useLegacyGuide
+      ? managedDoc(
+        'doc:KOALA.md',
+        'KOALA.md',
+        KOALA_MD_TEMPLATE,
+        actual => actual.includes('canonical、host-neutral') || actual.includes('所有 init profile 都会创建或同步这个文件'),
+        actual => isExpandedKoalaOverview(actual),
+      )
+      : managedDoc(
+        'doc:LATTICE.md',
+        'LATTICE.md',
+        LATTICE_MD_TEMPLATE,
+        actual => actual.includes('canonical、host-neutral') || actual.includes('新的 init profile'),
+        actual => isExpandedKoalaOverview(actual),
+      ),
+    useLegacyBootstrap
+      ? wholeFile(
+        'bin:koala.js',
+        'bin/koala.js',
+        renderKoalaBootstrapScript(root),
+        actual => actual.includes('coreCliEngineCandidates') && actual.includes('runCli'),
+        true,
+        isKoalaSelfRepoBootstrap,
+      )
+      : wholeFile(
+        'bin:lattice.js',
+        'bin/lattice.js',
+        renderLatticeBootstrapScript(root),
+        actual => actual.includes('coreCliEngineCandidates') && actual.includes('runCli'),
+        true,
+        isKoalaSelfRepoBootstrap,
+      ),
     { id: 'gitignore:runtime-artifacts', relPath: '.gitignore', kind: 'gitignore-runtime' },
   ];
 
@@ -453,17 +486,24 @@ export function listManagedAssetDefinitions(
         actual => isExpandedKoalaAgentsGuide(actual),
       ),
       wholeFile(
-        'bin:koala-codex.js',
-        'bin/koala-codex.js',
-        renderCodexWrapperScript(),
+        useLegacyCodexWrapper ? 'bin:koala-codex.js' : 'bin:lattice-codex.js',
+        useLegacyCodexWrapper ? 'bin/koala-codex.js' : 'bin/lattice-codex.js',
+        useLegacyCodexWrapper ? renderCodexWrapperScript() : renderLatticeCodexWrapperScript(),
         actual => actual.includes('KOALA_ACTIVITY_SOURCE') && actual.includes('local-wrapper'),
         true,
       ),
-      wholeFile('.Codex:README.md', '.Codex/README.md', renderCodexReadmeTemplate(assetMode), actual => actual.includes('Codex + Koala')),
       wholeFile(
-        '.Codex:koala.json',
-        '.Codex/koala.json',
-        renderCodexAdapterManifest(assetMode === 'thin' ? { promptMode: 'registry' } : {}),
+        '.Codex:README.md',
+        '.Codex/README.md',
+        renderCodexReadmeTemplate(assetMode, useLegacyCodexManifest ? 'koala' : 'lattice'),
+        actual => actual.includes('Codex + Koala') || actual.includes('Codex + Lattice'),
+      ),
+      wholeFile(
+        useLegacyCodexManifest ? '.Codex:koala.json' : '.Codex:lattice.json',
+        useLegacyCodexManifest ? '.Codex/koala.json' : '.Codex/lattice.json',
+        useLegacyCodexManifest
+          ? renderCodexAdapterManifest(assetMode === 'thin' ? { promptMode: 'registry' } : {})
+          : renderLatticeCodexAdapterManifest(assetMode === 'thin' ? { promptMode: 'registry' } : {}),
         () => true,
       ),
       { id: 'excluded:.Codex/hooks', relPath: '.Codex/hooks', kind: 'excluded-path' },
@@ -549,7 +589,7 @@ function evaluateDefinition(root: string, def: ManagedAssetDefinition, manifest:
       expectedHash,
       actualRelPath: pathInfo.actualRelPath,
       reason: `managed asset path exists with different case (${pathInfo.actualRelPath}), expected exact path ${def.relPath}`,
-      action: 'rename the path with exact casing or merge it manually before running koala check --apply/--upgrade',
+      action: 'rename the path with exact casing or merge it manually before running lattice check --apply/--upgrade',
     };
   }
 
@@ -569,12 +609,12 @@ function evaluateDefinition(root: string, def: ManagedAssetDefinition, manifest:
       const found = pathKind === 'directory' ? 'directory' : 'non-file path';
       return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', reason: `stale generated prompt path is a ${found}`, action: 'fix manually: remove it if it is Koala-owned' };
     }
-    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'STALE_SAFE', actualHash, reason: 'Codex agent mirror contains a prompt no longer present in Koala templates', action: 'remove generated stale prompt' };
+    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'STALE_SAFE', actualHash, reason: 'Codex agent mirror contains a prompt no longer present in managed templates', action: 'remove generated stale prompt' };
   }
 
   if (pathKind === 'directory' || pathKind === 'other') {
     const found = pathKind === 'directory' ? 'directory' : 'non-file path';
-    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', expectedHash, reason: `managed asset path is a ${found}, expected a file`, action: 'fix manually: replace or remove the path before running koala check --apply/--upgrade' };
+    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', expectedHash, reason: `managed asset path is a ${found}, expected a file`, action: 'fix manually: replace or remove the path before running lattice check --apply/--upgrade' };
   }
 
   if (def.kind === 'gitignore-runtime') {
@@ -604,7 +644,7 @@ function evaluateDefinition(root: string, def: ManagedAssetDefinition, manifest:
   }
 
   if (actual === null) {
-    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'MISSING', expectedHash, reason: 'managed asset is missing', action: 'create from Koala template' };
+    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'MISSING', expectedHash, reason: 'managed asset is missing', action: 'create from managed template' };
   }
 
   if (def.kind === 'managed-block') {
@@ -615,7 +655,7 @@ function evaluateDefinition(root: string, def: ManagedAssetDefinition, manifest:
     }
     const actualSection = actual.match(INIT_DOC_SECTION_RE)?.[0] ?? '';
     if (sha256(actualSection) === sha256(desiredSection)) {
-      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', expectedHash: sha256(desiredSection), actualHash, reason: 'managed section matches Koala template', action: 'none' };
+      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', expectedHash: sha256(desiredSection), actualHash, reason: 'managed section matches template', action: 'none' };
     }
     if (def.okWhen?.(actualSection, root)) {
       return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', expectedHash: sha256(desiredSection), actualHash, reason: 'managed section matches alternate Koala-owned contract', action: 'none' };
@@ -627,7 +667,7 @@ function evaluateDefinition(root: string, def: ManagedAssetDefinition, manifest:
   }
 
   if (expected && actual === expected) {
-    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', expectedHash, actualHash, reason: 'managed file matches Koala template', action: 'none' };
+    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', expectedHash, actualHash, reason: 'managed file matches template', action: 'none' };
   }
 
   if (actual !== null && def.okWhen?.(actual, root)) {
@@ -636,7 +676,7 @@ function evaluateDefinition(root: string, def: ManagedAssetDefinition, manifest:
 
   const unchangedSinceManifest = Boolean(manifestEntry?.contentHash && manifestEntry.contentHash === actualHash);
   if (unchangedSinceManifest || def.ownedWhen?.(actual)) {
-    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'STALE_SAFE', expectedHash, actualHash, reason: unchangedSinceManifest ? 'Koala template changed since last managed sync' : 'file has Koala-owned generated signature', action: 'replace generated file from template' };
+    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'STALE_SAFE', expectedHash, actualHash, reason: unchangedSinceManifest ? 'managed template changed since last sync' : 'file has managed generated signature', action: 'replace generated file from template' };
   }
 
   return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'STALE_LOCAL_EDIT', expectedHash, actualHash, reason: 'file differs and is not known to be unchanged/generated', action: 'review local edits before overwriting' };
@@ -819,7 +859,7 @@ export function runManagedAssetCheck(root: string, options: ManagedAssetCheckOpt
 
 export function renderManagedAssetCheck(result: ManagedAssetCheckResult): string {
   const lines = [
-    `Koala managed asset check: ${result.ok ? 'OK' : 'DRIFT'} (profile=${result.profile}, assetMode=${result.assetMode})`,
+    `Lattice managed asset check: ${result.ok ? 'OK' : 'DRIFT'} (profile=${result.profile}, assetMode=${result.assetMode})`,
     `Summary: OK=${result.summary.OK}, MISSING=${result.summary.MISSING}, CASE_MISMATCH=${result.summary.CASE_MISMATCH}, STALE_SAFE=${result.summary.STALE_SAFE}, STALE_LOCAL_EDIT=${result.summary.STALE_LOCAL_EDIT}, INCOMPATIBLE=${result.summary.INCOMPATIBLE}`,
   ];
   if (result.applied.length > 0) {
@@ -851,7 +891,7 @@ export function renderManagedAssetCheck(result: ManagedAssetCheckResult): string
         lines.push(`    recommendation: ${review.recommendation}`);
       }
     }
-    lines.push('', 'Run `koala check --apply` or `koala check --upgrade` to sync MISSING/STALE_SAFE assets. CASE_MISMATCH/STALE_LOCAL_EDIT/INCOMPATIBLE require manual review.');
+    lines.push('', 'Run `lattice check --apply` or `lattice check --upgrade` to sync MISSING/STALE_SAFE assets. CASE_MISMATCH/STALE_LOCAL_EDIT/INCOMPATIBLE require manual review.');
   } else {
     lines.push(`Manifest: ${result.manifestPath}`);
   }
@@ -862,7 +902,7 @@ export function managedAssetNextAction(result: ManagedAssetCheckResult): string 
   const unsafe = result.summary.CASE_MISMATCH + result.summary.STALE_LOCAL_EDIT + result.summary.INCOMPATIBLE;
   const safe = result.summary.MISSING + result.summary.STALE_SAFE;
   if (unsafe > 0) return 'review unsafe managed assets manually';
-  if (safe > 0) return 'run koala check --apply to sync MISSING/STALE_SAFE assets';
+  if (safe > 0) return 'run lattice check --apply to sync MISSING/STALE_SAFE assets';
   if (result.applied.length > 0) return 'safe managed asset drift repaired';
   return 'no managed asset drift';
 }
