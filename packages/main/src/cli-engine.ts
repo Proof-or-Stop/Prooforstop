@@ -617,6 +617,11 @@ export const MAIN_TOOLS: ToolDef[] = [
     host: z.string().describe('Host profile id, for example codex, claude-code, local-runner, browser, server, desktop-app'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
   }},
+  { name: 'host_status', description: 'Report overflow-readiness status for one Lattice host without changing authority (text/json). Alias: lattice host status', schema: {
+    host: z.string().describe('Host profile id, for example claude-code or codex'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    json: z.boolean().optional().describe('Shortcut for --format=json'),
+  }},
   { name: 'host_install', description: 'Show dry-run Lattice host install guidance only; no third-party installs are executed. Alias: lattice host install', schema: {
     host: z.string().describe('Host profile id to show guidance for'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
@@ -650,28 +655,62 @@ export const MAIN_TOOLS: ToolDef[] = [
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     output: z.string().optional().describe('Optional file path for canonical-story JSON'),
   }},
-  { name: 'handoff_create', description: 'Create a Lattice handoff pack from one host to another without manufacturing production DONE', schema: {
+  { name: 'handoff_create', description: 'Create a Lattice handoff pack from one host to another without manufacturing production DONE. Alias: lattice handoff create', schema: {
     storyId: z.string().describe('Story ID to include in the handoff pack'),
     fromHost: z.string().describe('Source host profile id'),
     toHost: z.string().describe('Target host profile id'),
+    role: z.string().optional().describe('Optional overflow role for the external worker'),
+    objective: z.string().optional().describe('Optional bounded objective for the overflow worker'),
+    allowedPaths: z.union([z.string(), z.array(z.string())]).optional().describe('Optional allowed file paths/globs for overflow edits'),
+    deniedPaths: z.union([z.string(), z.array(z.string())]).optional().describe('Optional denied file paths/globs for overflow edits'),
+    requiredCommands: z.union([z.string(), z.array(z.string())]).optional().describe('Optional required local commands the overflow worker must run or report'),
+    successCriteria: z.union([z.string(), z.array(z.string())]).optional().describe('Optional success criteria for the overflow worker'),
+    baseSha: z.string().optional().describe('Optional explicit base SHA; defaults to current HEAD'),
+    packId: z.string().optional().describe('Optional explicit pack id; defaults to HP-<digest>'),
+    authorityBoundary: z.string().optional().describe('Optional authority-boundary summary carried into the pack'),
+    executionInstructions: z.union([z.string(), z.array(z.string())]).optional().describe('Optional execution instructions for the overflow worker'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for handoff-pack JSON'),
   }},
-  { name: 'handoff_inspect', description: 'Inspect a Lattice handoff pack and show capability deltas, degradations, evidence refs, and authority boundary', schema: {
+  { name: 'handoff_inspect', description: 'Inspect a Lattice handoff pack and show capability deltas, degradations, evidence refs, and authority boundary. Alias: lattice handoff inspect', schema: {
     file: z.string().describe('Handoff pack JSON file'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    json: z.boolean().optional().describe('Shortcut for --format=json'),
   }},
-  { name: 'handoff_accept', description: 'Accept a Lattice handoff pack as a process-event style projection without changing authority', schema: {
+  { name: 'handoff_accept', description: 'Accept a Lattice handoff pack as a process-event style projection without changing authority. Alias: lattice handoff accept', schema: {
     file: z.string().describe('Handoff pack JSON file'),
     acceptedByHost: z.string().optional().describe('Accepting host profile id; defaults to the handoff target host'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for accept projection JSON; refuses to overwrite'),
   }},
-  { name: 'handoff_resume', description: 'Project a resume plan from a handoff pack or accept projection without refreshing evidence or authority', schema: {
+  { name: 'handoff_resume', description: 'Project a resume plan from a handoff pack or accept projection without refreshing evidence or authority. Alias: lattice handoff resume', schema: {
     file: z.string().describe('Handoff pack JSON file or handoff_accept projection JSON file'),
     resumeHost: z.string().optional().describe('Resume host profile id; defaults to acceptedByHost or target host'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for resume projection JSON; refuses to overwrite'),
+  }},
+  { name: 'handoff_receipt_submit', description: 'Validate and accept a local overflow receipt as diagnostic evidence only; never changes authority. Alias: lattice handoff receipt submit', schema: {
+    file: z.string().describe('Handoff receipt JSON file'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    json: z.boolean().optional().describe('Shortcut for --format=json'),
+    output: z.string().optional().describe('Optional file path for receipt-submit projection JSON; refuses to overwrite'),
+  }},
+  { name: 'handoff_worktree_create', description: 'Project isolated overflow worktree guidance from a handoff pack without creating or merging anything. Alias: lattice handoff worktree create', schema: {
+    file: z.string().describe('Handoff pack JSON file'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    json: z.boolean().optional().describe('Shortcut for --format=json'),
+    output: z.string().optional().describe('Optional file path for worktree projection JSON; refuses to overwrite'),
+  }},
+  { name: 'host_dispatch', description: 'Project supervised host dispatch for an overflow pack without auto-trust, evidence submit, receipt verify, or merge. Alias: lattice host dispatch', schema: {
+    host: z.string().describe('Target host profile id, for example claude-code'),
+    file: z.string().describe('Handoff pack JSON file'),
+    mode: z.enum(['supervised']).optional().describe('Dispatch mode; only supervised projection is supported'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    json: z.boolean().optional().describe('Shortcut for --format=json'),
+    output: z.string().optional().describe('Optional file path for dispatch projection JSON; refuses to overwrite'),
   }},
   { name: 'evidence_manifest', description: 'Create a portable evidence freshness manifest with transcript/test refs and authority guidance only', schema: {
     storyId: z.string().describe('Story ID to inspect for evidence refs'),
@@ -860,6 +899,7 @@ export const MAIN_TOOLS: ToolDef[] = [
   { name: 'finding_resolve', description: '标记 finding 为已解决', schema: {
     storyId: z.string().describe('Story ID'),
     findingId: z.string().describe('Finding ID（如 B-xxx:F-001）'),
+    resolution: z.string().optional().describe('可选：记录具体修复/验证证据说明'),
   }},
   { name: 'finding_dismiss', description: '确认 finding 不修（需说明理由）', schema: {
     storyId: z.string().describe('Story ID'),
@@ -1593,6 +1633,7 @@ const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'capability_probe',
   'host_list',
   'host_probe',
+  'host_status',
   'host_install',
   'lattice_config_doctor',
   'rollout_check',
@@ -1604,6 +1645,9 @@ const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'handoff_inspect',
   'handoff_accept',
   'handoff_resume',
+  'handoff_receipt_submit',
+  'handoff_worktree_create',
+  'host_dispatch',
   'evidence_manifest',
   'evidence_inspect',
   'parallel_wave_create',
@@ -2211,12 +2255,19 @@ export async function runCli(opts?: {
   // the registry. Supports both primary invocations (`lattice host list`) and
   // legacy-prefixed invocations (`koala lattice host list`).
   const aliasStart = cmd === 'lattice' ? 1 : 0;
-  const nested = argv.slice(aliasStart, aliasStart + 3).join(' ');
   const aliasMap: Record<string, string> = {
-    'host list': 'host_list',
-    'host probe': 'host_probe',
-    'host install': 'host_install',
-    'config doctor': 'lattice_config_doctor',
+  'host list': 'host_list',
+  'host probe': 'host_probe',
+  'host status': 'host_status',
+  'host install': 'host_install',
+  'host dispatch': 'host_dispatch',
+  'handoff create': 'handoff_create',
+  'handoff inspect': 'handoff_inspect',
+  'handoff accept': 'handoff_accept',
+  'handoff resume': 'handoff_resume',
+  'handoff receipt submit': 'handoff_receipt_submit',
+  'handoff worktree create': 'handoff_worktree_create',
+  'config doctor': 'lattice_config_doctor',
     'rollout check': 'rollout_check',
     'authority status': 'authority_status',
     'authority enforce policy': 'authority_enforce_policy',
@@ -2226,9 +2277,10 @@ export async function runCli(opts?: {
   };
   const twoPart = argv.slice(aliasStart, aliasStart + 2).join(' ');
   const threePart = argv.slice(aliasStart, aliasStart + 3).join(' ');
-  const canonicalAlias = aliasMap[threePart] || aliasMap[twoPart] || aliasMap[nested];
+  const fourPart = argv.slice(aliasStart, aliasStart + 4).join(' ');
+  const canonicalAlias = aliasMap[fourPart] || aliasMap[threePart] || aliasMap[twoPart];
   if (canonicalAlias) {
-    const consumed = aliasMap[threePart] ? 3 : 2;
+    const consumed = aliasMap[fourPart] ? 4 : aliasMap[threePart] ? 3 : 2;
     argv.splice(0, aliasStart + consumed, canonicalAlias);
     cmd = canonicalAlias;
     arg = argv[1];

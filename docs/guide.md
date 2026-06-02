@@ -35,6 +35,7 @@
 lattice check
 lattice doctor --format=json
 lattice session_brief
+lattice host status --host=claude-code --format=json
 lattice rollout_check --projects /path/to/project --json
 ```
 
@@ -113,7 +114,38 @@ trust boundary 见
 - **shadow 只是 warning** — 服务器失败时 `proceed=true` + stderr `[warning]`，不抛异常，不阻塞本地写入。
 - **enforce fake receipt 只有经过 receipt verification 才能分类为 L2+** — 普通 CLI 提交永远是 `thin-client-transport-accepted`；只有把完整绑定的 envelope + 签名的 `AuthorityReceipt` 传入 `classifyReceiptBackedEvidence` 并验签通过，才能达到 `receipt-backed-l2-plus`。
 - **enforce 缺 server 时 runner/submission 路径 fail-closed** — `createAuthoritySubmitter(enforce, 无 baseURL).submitSingle(…)` 返回 `proceed=false`，不触网。
-- **parallel_report 始终 non-authoritative** — `buildParallelReport(wave)` 的 `authority.productionDone` 永远是 `false`，`receiptRefs` 永远为空。
+- **parallel_report 始终 non-authoritative** — `buildParallelReport(wave)` 的 `authority.productionDone` 永远是 `false`，`authority.authorityChanged` 永远是 `false`，`authority.receiptRefs` 永远为空。
+
+## Host Overflow
+
+Lattice Host Overflow 是 **manual-first** 的 bounded overflow 流程：
+Lattice 持有 story / scope / receipt / merge authority，Claude Code 只是执行 host，
+不是 production authority。
+
+建议顺序：
+
+```bash
+lattice host_status --host=claude-code --json
+lattice handoff_create --storyId=B-xxxx --fromHost=codex --toHost=claude-code --json
+lattice handoff_worktree_create --file=handoff-pack.json --json
+lattice host_dispatch --host=claude-code --file=handoff-pack.json --mode=supervised --json
+lattice handoff_receipt_submit --file=receipt.json --json
+```
+
+关键边界：
+
+- `host_status` 只报告 overflow readiness，不授予 authority。
+- `handoff_create` 生成 bounded pack，包含 `packId`、`packHash`、`baseSha`、
+  `allowedPaths`、`deniedPaths`、required commands 和 execution instructions。
+- `handoff_worktree_create` 只投影 worktree/branch/cleanup guidance，不自动创建、
+  合并、清理或信任结果。
+- `host_dispatch` 只返回 `planned|unavailable` 和 `nextAction`，不 auto-trust、
+  不 submit evidence、不 verify receipt、也不声明 `productionDone`。
+- `handoff_receipt_submit` 只接收本地 diagnostic receipt；即使
+  `accepted-local`，仍然保持 `receiptVerified=false`、`productionDone=false`。
+
+详细架构说明见
+[`requirements/decisions/host-overflow.md`](requirements/decisions/host-overflow.md)。
 
 ## 代码与文档的结合
 

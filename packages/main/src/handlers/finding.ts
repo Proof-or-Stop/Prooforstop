@@ -375,7 +375,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
       };
     },
 
-    finding_resolve(args: { storyId: string; findingId: string }): string {
+    finding_resolve(args: { storyId: string; findingId: string; resolution?: string }): string {
       assertCwdInWorktree(store, args.storyId);
       // B-f60c CHK-003: a B-META finding mutation is serialized under the main
       // write lock; a normal story runs unchanged (pass-through).
@@ -384,6 +384,9 @@ export function createFindingHandlers(ctx: HandlerContext) {
         const f = data.findings.find(f => f.id === args.findingId);
         if (!f) throw new Error(`Finding ${args.findingId} not found`);
         f.status = 'resolved';
+        const resolution = args.resolution?.trim();
+        if (resolution) f.resolvedReason = resolution;
+        f.resolvedAt = new Date().toISOString();
         store.writeFindings(args.storyId, data);
       });
 
