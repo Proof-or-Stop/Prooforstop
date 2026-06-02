@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-02T17:33:25.988Z",
       "reviewRunId": "B-1123:RR-003",
       "_hash": "f35fc1290f970b3593421ab71d8f149b5a7529dbf03131260176d386ac963251"
+    },
+    {
+      "id": "B-1123:RP-002",
+      "agent": "koala-review-concept",
+      "note": "Concept residue check: diff is purely additive (3 new files, 2 modified files — additions only). No existing symbols deleted or replaced. Verified: (1) authority-boundary.ts unchanged (canonical L2+ truth source, 204 lines identical); (2) DEFAULT_AUTHORITY_TIMEOUT_MS import refactor preserves symbol usage; (3) RunnerL2Requirement is a new parallel type, not a rename of AuthorityL2Requirement; (4) runnerEnvelopeIsL2PlusCandidate() adversarial gate returns false for ordinary CLI-shaped runner envelopes — no L2+ overclaim; (5) createRunnerAuthorityClient() off-mode gate refuses instantiation with zero network calls; (6) both smoke tests use recordingFetch (mock), no real HTTP calls. Zero residual references to deleted concepts.",
+      "createdAt": "2026-06-02T17:36:35.937Z",
+      "reviewRound": "2026-06-02T17:33:25.988Z",
+      "reviewRunId": "B-1123:RR-001",
+      "_hash": "0284c70fa9765bbcaaf81598e0799b287232b307dbad16e6470eee6dfc17be34"
     }
   ]
 }
