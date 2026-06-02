@@ -1,5 +1,76 @@
 # Changelog
 
+## Koala 0.3.4-1 - 2026-06-02
+
+> Local release note: this is the npm-compatible package version for the user-requested local release number `0.3.4.1`.
+> This release was installed locally for the current machine only; it was not published to a remote registry.
+
+### 版本号
+
+- **上一版本**：0.3.3
+- **当前版本**：0.3.4-1
+- **用户侧发布号**：0.3.4.1
+- **版本类型**：local release
+- **涉及包**：
+  - `koala`: 0.3.3 → 0.3.4-1
+  - `@koala-agent/core`: 0.3.3 → 0.3.4-1
+
+### 重大更新
+
+#### 1. Lattice Parallel Wave planning
+
+- 新增 `parallel_wave_create`：从 active stories 或指定 story ids 生成 Lattice Parallel Wave 调度投影。
+- 新增 `parallel_wave_inspect`：读取 wave JSON 并输出 inspect projection，不刷新 evidence，也不变更 authority。
+- 新增 `parallel_plan`：从 wave file 或 active stories 生成并行执行计划，包括 parallel DEV candidates、plan-only stories、blocked stories 与 recovery guidance。
+- 新增核心模型 `packages/main/src/core/lattice-parallel-wave.ts`，把 story refs、host candidates、merge order、dependency/hotspot degradation、canonical story refs 和 recovery refs 统一到 collection-level projection。
+
+#### 2. Authority boundary 保持 fail-closed
+
+- Parallel Wave 被明确限定为本地 planning / recovery projection，不是 authority evidence。
+- Wave / inspect / plan 输出固定保持：
+  - `productionDone=false`
+  - `authorityChanged=false`
+  - `receiptRefs=[]`
+- `receipt-verify=conditional` 会显示为 visible degradation，并阻止 productionDone claim。
+- 新增决策文档 `docs/requirements/decisions/lattice-parallel-wave.md`，记录 Canonical Story、Capability Contract、Visible Degradation、Lineage、Authority Binding 与 Handoff Pack 的边界关系。
+
+#### 3. CLI policy / phase gate 同步
+
+- 三个新命令已接入 CLI registry、`MAIN_TOOLS`、handler registry、command ownership policy、process fact levels。
+- 三个新命令均标记为：
+  - ownership class: `readOnly`
+  - process fact level: `L0`
+  - non-authority / non-gate evidence
+- 修复 review 发现的 phase allowlist 漏洞：`parallel_wave_create`、`parallel_wave_inspect`、`parallel_plan` 已加入 `DEFAULT_PHASE_TOOLS["*"]`，active story session 中不会被 phase gate 拒绝。
+
+#### 4. 调度准确性修复
+
+- 修复 `IDEA` story 被误算成 active scheduling peer 的问题。
+- `IDEA` / `META` / terminal stories 不再参与 active dependency blocking 或 shared hotspot degradation。
+- Smoke test 增加回归断言，确保 IDEA dependency/hotspot 不会错误阻塞并行建议。
+
+#### 5. 验证与交付证据
+
+- 新增 focused smoke：`npm --prefix packages/main run test:lattice-parallel-wave-smoke`。
+- 覆盖场景包括：
+  - independent story 可成为 parallel DEV candidate
+  - active dependency 阻塞
+  - shared hotspot 降级
+  - create / inspect / plan JSON output
+  - no-overwrite output behavior
+  - host capability visible degradation
+  - authority boundary fail-closed
+  - command policy `readOnly`
+  - process fact `L0`
+  - default phase tools 放行新命令
+- Story `B-29b6` 已完成 Koala full lifecycle：REVIEW、TEST、delivery-check、DONE、merge to main。
+- 本机验收 transcript 已记录在 story evidence 中，确认三个命令实际可运行并保持 non-authority boundary。
+
+### 已知限制
+
+- 当前本地发布只更新当前 Node 环境下的全局 `koala`，不会让其他机器自动可用。
+- `koala validate` 在本仓仍使用 fallback `npm test`，因为仓库没有配置 `validate.ts/js/mts` 或 `validate.command(s)`；本功能由 focused smoke、command ownership test、reviewer evidence、delivery-check 和真实 transcript 共同覆盖。
+
 ## Koala 0.3.0 - 2026-04-20
 
 本版本是一次面向真实 Codex / Claude Code 使用链路的稳定性优化发布。0.2.2 之后，Koala 在多个真实 story 中暴露出一组共性问题：只读状态命令污染工作区、`activity.jsonl` 参与 story metadata 合并、DONE 流程反复被自己制造的 dirty 状态阻塞、main/story worktree metadata 生命周期不清、DEV 与 TEST_CASE 职责冲突、fixture 预览和真实 runner 不一致。0.3.0 将这些问题收敛为 8 个 story，核心目标是让 Koala 的 Story 流程更接近“可以反复自动执行的可靠 loop”。
