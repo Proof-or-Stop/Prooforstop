@@ -70,6 +70,10 @@ for (const [label, content] of [['README.md', readme], ['docs/guide.md', guide]]
 }
 
 assert.match(readme, /`lattice`\s+[\s\S]{0,80}主入口[\s\S]{0,120}`koala`[\s\S]{0,80}legacy alias/, 'README states lattice primary and koala legacy alias');
+assert.match(readme, /node bin\/lattice\.js tool_status/, 'README uses lattice local wrapper for generic tool_status');
+assert.match(readme, /node bin\/lattice\.js verify_codex/, 'README uses lattice local wrapper for generic verify_codex fallback');
+assert.match(readme, /node bin\/lattice\.js aux_doc_list/, 'README uses lattice local wrapper for generic aux_doc_list');
+assert.doesNotMatch(readme, /node bin\/koala\.js (?:tool_status|verify_codex|aux_doc_list)\b/, 'README keeps bin/koala.js as legacy alias, not preferred generic command examples');
 assert.match(guide, /`lattice` 是当前主命令入口，`koala` 只保留为 legacy alias/, 'guide states lattice primary and koala legacy alias');
 assert.match(projectVision, /`lattice` 是 0\.3\.5 主产品入口，`koala` 保留为兼容 alias/, 'project vision states primary and legacy aliases');
 assert.match(projectVision, /`lattice rollout_check` 只读扫描/, 'project vision keeps rollout_check read-only constraint');

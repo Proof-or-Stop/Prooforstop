@@ -180,7 +180,7 @@ npm --prefix packages/main run build
 npm --prefix packages/main run test:outcome-semantics-smoke
 ```
 
-通过 `story_advance ... INIT_CHECK` 新建的 story worktree 不需要手工复制 `.Codex`。`git worktree` 会把当前分支已跟踪的仓库文件一并展开出来，所以只要 `.Codex`、`.claude`、`AGENTS.md`、`CLAUDE.md` 已经提交到仓库，新的 `.worktrees/B-xxx/` 里就会自然带上这些入口。只有两种常见缺失原因：这些文件本来就没被 git 跟踪，或这个 worktree 是从还没包含这些资产的旧分支/旧提交分出来的。
+通过 `lattice story_advance ... INIT_CHECK` 新建的 story worktree 不需要手工复制 `.Codex`。`git worktree` 会把当前分支已跟踪的仓库文件一并展开出来，所以只要 `.Codex`、`.claude`、`AGENTS.md`、`CLAUDE.md` 已经提交到仓库，新的 `.worktrees/B-xxx/` 里就会自然带上这些入口。只有两种常见缺失原因：这些文件本来就没被 git 跟踪，或这个 worktree 是从还没包含这些资产的旧分支/旧提交分出来的。
 
 ### 3. 新 session 的第一步
 
@@ -193,7 +193,7 @@ node bin/koala-codex.js session_brief
 ### 4. 查看 Codex 自己的 Koala 活动
 
 ```bash
-node bin/koala.js tool_status --source=codex --days=1 --limit=10
+node bin/lattice.js tool_status --source=codex --days=1 --limit=10
 ```
 
 ### 5. 跑入口回归验证
@@ -226,7 +226,7 @@ node bin/koala-codex.js verify_codex
 - `.Codex/README.md` 是否保留正确的 Codex fallback 入口
 - `README.md` / `AGENTS.md` 是否仍然包含关键的 Codex 接入说明
 
-`node bin/koala-codex.js verify_codex`（或 `node bin/koala.js verify_codex`）复用同一套共享检查，并额外执行本地 wrapper 与全局 fallback heartbeat：它确认 activity 记录包含 `source=codex`、session、entrypoint，并把带当前 HEAD/material hash 的 `codex_adapter_verification` 追加到当前 story 的 `process-events.jsonl`。触及 Codex adapter 的 story 在 REVIEW/DONE gate 会区分这条证据是 missing / failing / stale / passing，并给出可直接重跑的本地 wrapper 命令。
+`node bin/koala-codex.js verify_codex`（或通用本地入口 `node bin/lattice.js verify_codex`；`bin/koala.js` 仍是 legacy alias）复用同一套共享检查，并额外执行本地 wrapper 与全局 fallback heartbeat：它确认 activity 记录包含 `source=codex`、session、entrypoint，并把带当前 HEAD/material hash 的 `codex_adapter_verification` 追加到当前 story 的 `process-events.jsonl`。触及 Codex adapter 的 story 在 REVIEW/DONE gate 会区分这条证据是 missing / failing / stale / passing，并给出可直接重跑的本地 wrapper 命令。
 
 诊断同一组 Codex adapter 检查、health 和 worktree 状态：
 
@@ -255,7 +255,7 @@ KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 KOALA_CODEX_ENTRYPO
 如果全局 core 入口提示 `未知命令: aux_doc_list`，在 Koala 仓库内使用完整 bootstrap：
 
 ```bash
-node bin/koala.js aux_doc_list --format=json
+node bin/lattice.js aux_doc_list --format=json
 ```
 
 `story_create` / `story_update` 支持并行调度元数据，建议在多 story 并行时显式填写：
