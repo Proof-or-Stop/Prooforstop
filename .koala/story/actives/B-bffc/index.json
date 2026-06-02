@@ -1,0 +1,53 @@
+{
+  "storyId": "B-bffc",
+  "name": "lattice-cli-035-mac-migration",
+  "title": "Productize Lattice CLI 0.3.5 and migrate Mac App capabilities into CLI-first surfaces",
+  "description": "Rename the Koala CLI product surface to Lattice CLI 0.3.5, add the lattice entrypoint and migration-oriented CLI surfaces for host probes, config, authority receipts, and conduit semantics, while demoting the Mac App to an optional archived dashboard path.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "keywords": [
+    "lattice",
+    "cli",
+    "mac-app",
+    "authority",
+    "host-neutral",
+    "conduit"
+  ],
+  "riskSignals": [
+    {
+      "category": "数据迁移/破坏性",
+      "matched": "migration"
+    },
+    {
+      "category": "生产环境/紧急",
+      "matched": "production"
+    }
+  ],
+  "createdAt": "2026-06-02T11:13:49.809Z",
+  "startedAt": "2026-06-02T11:13:49.809Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-02T11:13:49.840Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-02T11:14:30.711Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-bffc",
+    "branch": "story/B-bffc",
+    "createdAt": "2026-06-02T11:14:30.853Z"
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Ship Lattice CLI 0.3.5 product identity and entrypoint",
+      "context": "Add a first-class lattice command/branding while preserving koala as a legacy compatibility alias. Version/help/package metadata must make Lattice CLI the current product name without breaking existing local Koala commands.",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-client-role.md",
+        "docs/requirements/decisions/stack-layering.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Expose Mac App provider/config capabilities through CLI surfaces",
+      "context": "Move the useful Mac App provider status and preference concepts into CLI commands: host probe/install guidance, Lattice/Koala config compatibility, and visible deprecation of Mac-only provider dashboard behavior.",
+      "relatedDocs": [
+        "docs/requirements/decisions/stack-layering.md",
+        "docs/requirements/decisions/project-vision.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Define receipt-aware authority and conduit semantics without creating a new agent host",
+      "context": "Add CLI-visible authority/conduit status and docs that distinguish third-party hosts from Lattice Conduit. Lattice Conduit is a thin job conduit/event capture path, not a model runner or production authority.",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-client-role.md",
+        "docs/requirements/decisions/lattice-parallel-wave.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Demote Mac App from required release path",
+      "context": "Update product docs and runtime messaging so Mac App is optional/archive/dashboard only; Lattice CLI + Server Authority receipts becomes the main path. Do not rely on Mac App for CLI release or host-neutral workflow usage.",
+      "relatedDocs": [
+        "docs/requirements/decisions/stack-layering.md",
+        "docs/requirements/decisions/project-vision.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Verify Lattice CLI migration with focused build and smoke tests",
+      "context": "Add focused smoke coverage for lattice entrypoint/version/help, legacy koala alias compatibility, host/config/authority/conduit command exposure, and no production authority overclaim from local CLI surfaces.",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-client-role.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
