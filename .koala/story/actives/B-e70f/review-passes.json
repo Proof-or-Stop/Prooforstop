@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-02T12:40:45.418Z",
       "reviewRunId": "B-e70f:RR-002",
       "_hash": "5c38615628399025095ffc478eae9dda329e6a6f588dfce1dc73a0beed09f88d"
+    },
+    {
+      "id": "B-e70f:RP-002",
+      "agent": "koala-review-concept",
+      "note": "Concept review: parallel_dispatch/status/merge_queue/report stay read-only L0 operator projections over existing Parallel Wave facts; authority remains productionDone=false/authorityChanged=false/receiptRefs=[] in docs, policy, process-fact registry, smoke, and live local CLI JSON output. Dev-memory integration reuses existing project/global JSONL via bounded non-authoritative experienceRefs with gateEvidence=false and authority=non_authoritative; no duplicate memory store or gate-evidence path added. Commands inspected: koala review_run_start, koala session_brief, koala aux_doc_list, koala reviewer_list, koala checklist_get, git diff main...HEAD, npm --prefix packages/main run test:lattice-parallel-wave-smoke, node packages/main/dist/cli.js parallel_dispatch/parallel_report/parallel_merge_queue. No blocking concept/product-fit finding.",
+      "createdAt": "2026-06-02T12:44:33.424Z",
+      "reviewRound": "2026-06-02T12:40:45.418Z",
+      "reviewRunId": "B-e70f:RR-004",
+      "_hash": "c6e7ce56099c12c34840dc66b751da3a81f316c43ea3de083bd91ec39b5fa57c"
     }
   ]
 }
