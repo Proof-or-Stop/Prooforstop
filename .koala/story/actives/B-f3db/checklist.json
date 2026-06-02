@@ -54,7 +54,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/lifecycle-artifact-scope.md",
         "docs/requirements/decisions/story-lifecycle.md",
-        "docs/requirements/decisions/testing-completeness.md"
+        "docs/requirements/decisions/verification-context-pack.md"
       ],
       "verificationIntent": {
         "happy": [
@@ -81,7 +81,20 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "validate and delivery pre-check evidence show transcript-diff.md stays in scope, reviewer binding remains fresh, and TEST does not bounce back to DEV for transcript-only evidence.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md"
+        ],
+        "create": [
+          ".koala/story/actives/B-f3db/plan.md",
+          ".koala/story/actives/B-f3db/scope-check.json"
+        ],
+        "test": [
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      }
     }
   ]
 }
