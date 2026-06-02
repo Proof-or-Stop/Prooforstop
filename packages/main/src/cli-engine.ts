@@ -764,6 +764,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     upgrade: z.boolean().optional().describe('同步 MISSING/STALE_SAFE 管理资产到当前 Koala 模板；等价于 --apply'),
     reviewLocalEdits: z.boolean().optional().describe('输出 STALE_LOCAL_EDIT 的结构化人工审查摘要'),
     profile: z.enum(['codex', 'claude', 'all', 'core']).optional().describe('覆盖自动检测的 init profile'),
+    assetMode: z.enum(['full', 'thin']).optional().describe('覆盖 Codex prompt asset 模式；full=生成 .Codex/agents，thin=使用 prompt registry'),
   }},
 
   // Audit (framework self-audit — 跨 story 扫 CLAUDE.md 承诺 vs 实际 CLI 行为 drift)

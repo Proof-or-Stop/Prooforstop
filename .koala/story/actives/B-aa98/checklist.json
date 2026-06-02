@@ -1,0 +1,100 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Document Host Overflow architecture and boundaries",
+      "context": "Add a host-neutral architecture document for Lattice Host Overflow / Host Conduit. It must define Lattice as authority, hosts as executors, manual mode first, supervised dispatch as conservative projection, and explicit non-goals such as no hidden-context sharing or auto-trust.",
+      "relatedDocs": [
+        "docs/requirements/decisions/project-vision.md",
+        "docs/requirements/decisions/stack-layering.md",
+        "docs/requirements/decisions/lattice-parallel-wave.md"
+      ],
+      "userSees": "用户能在文档中看到 Codex agent 不够时如何安全使用 Claude Code overflow，以及哪些情况不能 overflow。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add host capability model for overflow readiness",
+      "context": "Implement a CLI-visible capability report for claude-code/codex/local-runner style hosts, including availability, edit/shell/worktree/review/receipt capabilities, limits, and nextAction when unavailable.",
+      "relatedDocs": [
+        "README.md",
+        "docs/guide.md",
+        "docs/requirements/decisions/project-vision.md"
+      ],
+      "userSees": "用户运行 lattice host_status 或 capability command 时能看到 claude-code 是否可作为 overflow host 以及缺失时的 nextAction。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Create bounded handoff pack schema and CLI",
+      "context": "Add handoff pack creation/inspection for host overflow tasks with storyId, role, host, objective, baseSha, allowedPaths, deniedPaths, requiredCommands, successCriteria, authority boundary, and pack hash.",
+      "relatedDocs": [
+        "docs/requirements/decisions/verification-context-pack.md",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md"
+      ],
+      "userSees": "用户能生成可复制给 Claude Code 的 handoff pack，pack 明确写了 allowed paths、commands、success criteria 和不能直接改 story JSON。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add manual receipt submit and gate-consumable evidence",
+      "context": "Implement a receipt submit/read path for completed external host handoffs. Receipt must reference packId/hash/base/head, commands, changedFiles, verdict, limitations, and scope status. session_brief or inspect output should surface active/completed handoff state.",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-client-role.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "userSees": "Claude Code 完成任务后可以通过 lattice 提交 receipt，Codex 主线程能看到 receipt 是否 pass、stale 或越界。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Add overflow worktree isolation guidance",
+      "context": "Provide safe worktree guidance and creation metadata for overflow tasks. Each external-host task should have its own branch/worktree, baseSha, packId, allowedPaths, deniedPaths, and merge/cleanup guidance. Do not include unavailable-host reporting here; host availability belongs to CHK-002.",
+      "relatedDocs": [
+        "docs/requirements/decisions/session-ownership-and-write-leases.md",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md"
+      ],
+      "userSees": "用户能看到每个 overflow task 应在独立 worktree 执行，并看到 worktree path、branch、baseSha、packId、allowedPaths 与 cleanup/merge guidance。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Cover Host Overflow with tests and delivery transcript",
+      "context": "Add smoke tests for capability report, handoff pack creation/inspection, receipt submit, stale/hash/scope behavior, and supervised dispatch unavailable behavior. Record a user-facing transcript showing manual Claude Code overflow flow without requiring Mac App.",
+      "relatedDocs": [
+        "README.md",
+        "docs/guide.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "userSees": "用户看到测试证明：pack 可生成、receipt 可提交、越界/陈旧可识别、Claude Code 不可用时不阻塞主流程。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "Add conservative supervised dispatch projection",
+      "context": "Add a host_dispatch-style projection for overflow tasks. It may detect whether Claude Code is unavailable and return unavailable/warn with nextAction, and when available it records planned dispatch metadata only. It must not auto-trust results, auto-merge diffs, submit authority evidence, or claim productionDone.",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-client-role.md",
+        "docs/requirements/decisions/project-vision.md",
+        "docs/requirements/decisions/lattice-parallel-wave.md"
+      ],
+      "userSees": "用户运行 supervised dispatch projection 时看到 planned/unavailable 状态、nextAction、authorityChanged=false、productionDone=false；不可用时流程不崩溃。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
