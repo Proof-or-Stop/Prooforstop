@@ -394,6 +394,17 @@
           "headHash": "71b7b5feda40bacb5c1cedf58fa1098795d8222e",
           "materialHash": "bd29e0297db5c6be6cbeb9b4fb9fb501ae5536db42fccd198e54bf3ff7942b27",
           "timestamp": "2026-06-02T21:26:54.882Z"
+        },
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/host-overflow-smoke.ts",
+          "command": "npm --prefix packages/main run test:host-overflow-smoke",
+          "result": "pass",
+          "note": "Host Overflow smoke passed and demonstrates host_status, handoff_create, handoff_receipt_submit, handoff_worktree_create, and host_dispatch JSON contracts.",
+          "headHash": "ebb960b54ab36597adf60c858ed1505ba9ca25a3",
+          "materialHash": "bd29e0297db5c6be6cbeb9b4fb9fb501ae5536db42fccd198e54bf3ff7942b27",
+          "timestamp": "2026-06-02T21:26:55.100Z"
         }
       ]
     },
