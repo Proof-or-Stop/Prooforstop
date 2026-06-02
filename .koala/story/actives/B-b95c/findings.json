@@ -33,6 +33,23 @@
       "files": [
         "packages/main/src/core/runtime-environment-checks.ts"
       ]
+    },
+    {
+      "id": "B-b95c:F-003",
+      "desc": "[HIGH] packages/main/src/core/runtime-environment-checks.ts:237-256 still hard-codes node_modules/.bin/koala inside checkProjectLocalBin, so doctor/runtime checks miss a shadowing node_modules/.bin/lattice even though F-002 requires lattice-first discovery with koala only as fallback. Repro: create node_modules/.bin/lattice plus a different active CLI; runtimeMode becomes diagnostic-only, but report.projectLocalBin incorrectly stays pass and points at a missing koala path. Fix: make checkProjectLocalBin use the same lattice-first candidate resolution as projectLocalBinPath/projectLocalBinCandidates and report whichever local binary actually shadows the active CLI.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-02T22:55:32.540Z",
+      "reviewRound": "2026-06-02T22:37:38.846Z",
+      "reviewRunId": "B-b95c:RR-007",
+      "_hash": "8670ef9a94953e5fa17a638d4c311043f308692707efd19e8d30a80ad0459af9",
+      "files": [
+        "packages/main/src/core/runtime-environment-checks.ts",
+        "packages/main/src/core/runtime-fact-registry.ts"
+      ]
     }
   ]
 }
