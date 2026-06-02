@@ -4,7 +4,7 @@
   "title": "Productize Lattice rollout_check and make lattice the primary CLI name",
   "description": "Execute the post-0.3.5 rollout plan: document local/global installation, make user-facing command language prefer lattice over koala, and add a read-only rollout_check command that can scan real projects for version, managed-asset, doctor/check, and transcript lifecycle readiness while preserving koala as a legacy alias.",
   "type": "feature",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "keywords": [
     "lattice-cli",
@@ -102,6 +102,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-02T16:24:10.672Z",
+      "branch": "story/B-fd03",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-02T16:42:04.251Z",
       "branch": "story/B-fd03",
       "user": "Harmonygo",
       "agent": "main"
