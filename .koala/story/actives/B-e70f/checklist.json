@@ -8,7 +8,7 @@
         "docs/requirements/decisions/lattice-parallel-wave.md",
         "docs/requirements/decisions/dev-memory.md"
       ],
-      "userSees": "Docs explain how to use Parallel Dispatch without confusing it with agent auto-spawn or authority evidence.",
+      "userSees": "`rg -n \"parallel_dispatch|public experience library|cannot satisfy\" docs/requirements/decisions/lattice-parallel-wave.md docs/requirements/decisions/dev-memory.md` prints lines naming the four operator commands and the sentence \"Dev-memory remains non-authoritative context\".",
       "status": "pending",
       "startTime": null,
       "endTime": null,

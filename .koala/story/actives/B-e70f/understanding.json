@@ -5,7 +5,9 @@
     "B-29b6 already shipped parallel_wave_create, parallel_wave_inspect, and parallel_plan as read-only L0 planning surfaces.",
     "docs/requirements/decisions/dev-memory.md already defines project/global dev-memory JSONL as the public experience library, and marks it non-authoritative.",
     "The new commands must reuse existing wave story refs, host capability probes, dependency summaries, hotspot degradations, evidence refs, and authority boundary.",
-    "There is an active B-bffc story for CLI/App migration; this story must not modify or depend on B-bffc worktree state."
+    "There is an active B-bffc story for CLI/App migration; this story must not modify or depend on B-bffc worktree state.",
+    "Future signed host-runner dispatch API acceptance is explicitly out of scope for this local operator projection.",
+    "Single-story multi-implementer sharding is explicitly left for a separate future productization story."
   ],
   "constraints": [
     "No automatic Codex/Claude/Gemini spawn from these CLI commands until a signed host-runner dispatch API exists.",
@@ -13,10 +15,7 @@
     "Dev-memory entries are bounded context only and cannot satisfy checklist, REVIEW, TEST, DONE, delivery, or receipt gates.",
     "Changes must stay inside the Lattice Parallel Wave/command registration/smoke/doc surface and avoid unrelated lifecycle rewrites."
   ],
-  "unknowns": [
-    "Whether future host runners will accept this exact dispatch manifest shape as an execution API remains out of scope for this local operator projection.",
-    "Whether single-story multi-implementer sharding needs a distinct model is left as a future productization story."
-  ],
+  "unknowns": [],
   "touchpoints": [
     "docs/requirements/decisions/lattice-parallel-wave.md",
     "docs/requirements/decisions/dev-memory.md",
@@ -29,5 +28,5 @@
     "packages/main/src/tasks/lattice-parallel-wave-smoke.ts",
     "packages/main/package.json"
   ],
-  "timestamp": "2026-06-02T12:17:05.129Z"
+  "timestamp": "2026-06-02T12:20:47.154Z"
 }
