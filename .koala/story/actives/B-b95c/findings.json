@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-b95c:F-001",
+      "desc": "packages/main/src/init-assets.ts:29 says Codex subagent prompts live in .Codex/agents, but packages/main/src/cli-init.ts:244 and docs/requirements/decisions/lifecycle-artifact-scope.md:126-147 both say thin asset mode uses the registry and may omit .Codex/agents. New init can therefore emit AGENTS.md text that misstates the generated asset shape in thin mode.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-02T22:11:39.093Z",
+      "reviewRound": "2026-06-02T22:08:14.135Z",
+      "reviewRunId": "B-b95c:RR-004",
+      "_hash": "b8e4bf1b55aad4ca74d6389015719b75e7030b61d8df16198cebe50ce1643fc5",
+      "files": [
+        "packages/main/src/init-assets.ts",
+        "packages/main/src/cli-init.ts",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md"
+      ]
+    }
+  ]
+}
