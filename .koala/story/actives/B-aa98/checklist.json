@@ -12,7 +12,42 @@
       "userSees": "用户能在文档中看到 Codex agent 不够时如何安全使用 Claude Code overflow，以及哪些情况不能 overflow。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "README.md",
+          "docs/guide.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/NAV.md"
+        ],
+        "create": [
+          "docs/requirements/decisions/host-overflow.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Docs explain Lattice Host Overflow as host-neutral authority: Lattice owns story/scope/receipt/gate, Codex/Claude Code/Gemini are execution hosts.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Docs explicitly say manual handoff comes before supervised dispatch and Claude Code unavailable is a diagnostic degradation, not a workflow blocker.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Docs do not claim Lattice is a new agent runtime, Mac App requirement, productionDone source, or automatic trust/merge mechanism for Claude Code output.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
