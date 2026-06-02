@@ -212,7 +212,43 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "用户看到 `npm run build` 和 `npm run test:lattice-cli-migration-smoke` 通过，并且 checklist verificationEvidence 覆盖所有 happy/edge/adversarial intent。",
+      "files": {
+        "modify": [
+          "package.json",
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/lattice-cli-migration-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/lattice-cli-migration-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "build and focused Lattice CLI migration smoke test pass.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "smoke covers missing optional hosts and missing authority URL fallback output.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "smoke fails if any local CLI surface overclaims verified production receipt authority.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
