@@ -130,6 +130,17 @@
           "headHash": "3f5d571299619c5b349e9d7328b8a18a487e9ff2",
           "materialHash": "9c94c657e7f9eed06d05ded04897ae541dbe6d324998a052b697b73d32e89368",
           "timestamp": "2026-06-02T17:29:07.490Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-runner-client-smoke.ts",
+          "command": "npm --prefix packages/main run test:authority-runner-client",
+          "result": "pass",
+          "note": "adversarial PD-2 invariant: discoverPolicy makes exactly one GET to /v1/authority/policy with no body, and never POSTs /v1/evidence, /v1/evidence/batch, /v1/runners/register, /jobs/claim, /keys, or /provider-events — case 6 enumerates each forbidden path; overclaim guard still rejects policy bodies containing receipt/receiptId/gatePassed/accepted keys — case 7",
+          "headHash": "2d5d382295396bdd2d6239f9087efc78208c7d40",
+          "materialHash": "9c94c657e7f9eed06d05ded04897ae541dbe6d324998a052b697b73d32e89368",
+          "timestamp": "2026-06-02T17:29:13.887Z"
         }
       ]
     }
