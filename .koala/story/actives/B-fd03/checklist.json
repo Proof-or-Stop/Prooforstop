@@ -266,7 +266,7 @@
       "userSees": "用户在 TEST transcript 中看到 `Orchestrate: pass`, `plasmid: warn`, `minicell: warn`, `OpenCli: warn`, `avalon: warn`，以及 `transcript lifecycle readiness: pass`。",
       "status": "done",
       "startTime": null,
-      "endTime": "2026-06-02T15:35:57.904Z",
+      "endTime": "2026-06-02T15:36:02.329Z",
       "files": {
         "modify": [
           "packages/main/src/tasks/rollout-check-smoke.ts",
@@ -310,32 +310,32 @@
           "file": ".koala/story/actives/B-fd03/evidence/rollout-transcript.md",
           "command": "node packages/main/dist/cli.js --root /Users/jek/Documents/Work/Orchestrate/.worktrees/B-fd03 rollout_check --projects=/Users/jek/Documents/Work/Orchestrate,/Users/jek/Documents/Work/Koala/Koala,/Users/jek/Documents/Work/plasmid,/Users/jek/Documents/Work/minicell,/Users/jek/Documents/Work/OpenCli,/Users/jek/Documents/Work/avalon --json",
           "result": "pass",
-          "note": "Transcript records the six real projects with actionable next actions; actual environment statuses are 3 warn and 3 fail, which proves reporting fidelity rather than command failure.",
-          "headHash": "3d08e9516db83545b0e3924c0baf08f940b0752c",
+          "note": "Real-project transcript records Orchestrate, Koala/Koala, plasmid, minicell, OpenCli, and avalon statuses with actionable next actions; actual distribution was warn=4 fail=2 because rollout_check conservatively surfaces runtime/managed-asset drift.",
+          "headHash": "5a306ab1404bff5d0477341c08ec532d26208a22",
           "materialHash": "8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910",
-          "timestamp": "2026-06-02T15:35:27.262Z"
+          "timestamp": "2026-06-02T15:36:02.401Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
-          "kind": "logic_test",
-          "file": "packages/main/src/tasks/rollout-check-smoke.ts;.koala/story/actives/B-fd03/evidence/rollout-transcript.md",
-          "command": "npm run test:rollout-check-smoke; real-project rollout_check transcript",
+          "kind": "manual_transcript",
+          "file": ".koala/story/actives/B-fd03/evidence/rollout-transcript.md",
+          "command": "node packages/main/dist/cli.js --root /Users/jek/Documents/Work/Orchestrate/.worktrees/B-fd03 rollout_check --projects=/Users/jek/Documents/Work/Koala/Koala,/Users/jek/Documents/Work/plasmid,/Users/jek/Documents/Work/minicell,/Users/jek/Documents/Work/OpenCli,/Users/jek/Documents/Work/avalon --json",
           "result": "pass",
-          "note": "rollout_check separates managed asset drift from framework failure, preserving actionable nextAction output for external projects.",
-          "headHash": "3d08e9516db83545b0e3924c0baf08f940b0752c",
+          "note": "Transcript explains external project warnings/failures as managed asset drift, non-git state, dirty worktrees, or missing transcript/story scope rather than opaque nonzero check exits.",
+          "headHash": "5a306ab1404bff5d0477341c08ec532d26208a22",
           "materialHash": "8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910",
-          "timestamp": "2026-06-02T15:35:27.262Z"
+          "timestamp": "2026-06-02T15:36:02.455Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
-          "kind": "logic_test",
-          "file": "packages/main/src/tasks/session-brief-prompt-sync-smoke.ts;.koala/story/actives/B-fd03/evidence/rollout-transcript.md",
-          "command": "node packages/main/dist/tasks/session-brief-prompt-sync-smoke.js && real-project rollout_check transcript",
+          "kind": "manual_transcript",
+          "file": ".koala/story/actives/B-fd03/evidence/rollout-transcript.md",
+          "command": "npm install -g ./packages/main && lattice --version && lattice rollout_check --projects=/Users/jek/Documents/Work/Orchestrate/.worktrees/B-fd03 --json",
           "result": "pass",
-          "note": "Session/transcript lifecycle checks still pass after the lattice command migration; rollout_check records transcript_scope for managed projects and warnings for projects without .koala/story.",
-          "headHash": "3d08e9516db83545b0e3924c0baf08f940b0752c",
+          "note": "Global Lattice CLI refresh succeeded; transcript/story scope readiness remains pass for Orchestrate and the active B-fd03 worktree while dirty DEV/runtime warnings are visible diagnostics.",
+          "headHash": "5a306ab1404bff5d0477341c08ec532d26208a22",
           "materialHash": "8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910",
-          "timestamp": "2026-06-02T15:35:27.262Z"
+          "timestamp": "2026-06-02T15:36:02.506Z"
         }
       ]
     }
