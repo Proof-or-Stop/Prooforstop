@@ -110,6 +110,32 @@ export function envelopeSubjectDigest(envelope: EvidenceEnvelopeContract): strin
 }
 
 /**
+ * Compare a receipt's claimed subjectDigest to the recomputed envelope canonical
+ * digest. We accept two equivalent forms so Node- and Python-issued receipts can
+ * both verify without coordinating on a string convention:
+ *
+ *   - the BARE canonical hex digest (what {@link envelopeSubjectDigest} returns)
+ *   - the `sha256:<canonical-hex>` prefixed form (Python `AuthorityReceipt`
+ *     issuers conventionally tag the algorithm)
+ *
+ * The match is exact-string and case-sensitive against either of those two
+ * forms; we do NOT do generic algorithm parsing — only the literal `sha256:`
+ * prefix paired with the recomputed hex. Anything else (different hex,
+ * different algorithm tag, trailing whitespace, etc.) fails. This is a runtime
+ * re-check; the contract is also documented on the JSDoc of
+ * {@link verifyReceiptBinding} step 6.
+ */
+function subjectDigestMatches(
+  claimed: string | undefined,
+  envelopeDigest: string,
+): boolean {
+  if (!isNonEmptyString(claimed)) {
+    return false;
+  }
+  return claimed === envelopeDigest || claimed === `sha256:${envelopeDigest}`;
+}
+
+/**
  * Verify a receipt against the supplied envelope + authority public key.
  *
  * Returns a structured result rather than throwing so callers can map the
@@ -123,11 +149,18 @@ export function envelopeSubjectDigest(envelope: EvidenceEnvelopeContract): strin
  *   3. ed25519 signature verifies (verifyAuthorityReceipt)?
  *   4. subjectKind === 'evidence'?
  *   5. subjectId === envelope.evidenceId?
- *   6. subjectDigest (if present on the receipt) === envelope canonical digest?
- *      — when absent on the receipt, this step is treated as "not asserted by
+ *   6. subjectDigest (if present on the receipt) matches the envelope canonical
+ *      digest? Accepted forms are the BARE canonical hex digest produced by
+ *      {@link envelopeSubjectDigest} (Node-issued receipts) and the
+ *      `sha256:<canonical-hex>` prefixed form (Python `AuthorityReceipt` issuers
+ *      conventionally tag the algorithm). Any other value — including a
+ *      different hex, a different algorithm prefix, or trailing whitespace —
+ *      fails as `subject_digest_mismatch`.
+ *      When absent on the receipt, this step is treated as "not asserted by
  *      the authority"; the binding still passes, because the subjectId match
- *      already pins the receipt to this evidenceId. The smoke covers both
- *      branches (present-and-matching, present-and-mismatching, absent).
+ *      already pins the receipt to this evidenceId. The smoke covers all
+ *      branches (present-bare-matching, present-prefixed-matching,
+ *      present-mismatching, absent).
  */
 export function verifyReceiptBinding(
   envelope: EvidenceEnvelopeContract,
@@ -179,7 +212,7 @@ export function verifyReceiptBinding(
       subjectDigestPresent,
     };
   }
-  if (subjectDigestPresent && receipt.subjectDigest !== envelopeDigest) {
+  if (subjectDigestPresent && !subjectDigestMatches(receipt.subjectDigest, envelopeDigest)) {
     return {
       verified: false,
       rejectionReason: 'subject_digest_mismatch',

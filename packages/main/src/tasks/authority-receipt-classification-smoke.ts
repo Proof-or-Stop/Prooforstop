@@ -237,6 +237,74 @@ function caseWrongSubjectDigest(): void {
   });
   expectRejection(verification, 'subject_digest_mismatch', 'wrong subjectDigest');
   assert.notEqual(classification.klass, 'receipt-backed-l2-plus');
+
+  // Also: a bare-hex digest that simply isn't the envelope's canonical digest
+  // (no `sha256:` prefix tricks) must fail the same way. Defends against a
+  // future "accept any non-empty subjectDigest" regression.
+  const wrongBare = signReceiptFor(env, { subjectDigest: 'deadbeef'.repeat(8) });
+  const wrongBareResult = classifyReceiptBackedEvidence({
+    mode: 'enforce',
+    envelope: env,
+    receipt: wrongBare,
+    authorityPublicKey: authority.publicKey,
+    transportAccepted: true,
+  });
+  expectRejection(
+    wrongBareResult.receipt,
+    'subject_digest_mismatch',
+    'wrong bare-hex subjectDigest',
+  );
+  assert.notEqual(wrongBareResult.classification.klass, 'receipt-backed-l2-plus');
+
+  // And: a different algorithm prefix paired with the correct hex must also
+  // fail — we only accept the literal `sha256:` prefix, not any algorithm tag.
+  const env2 = fullEnvelope();
+  const wrongAlgo = signReceiptFor(env2, {
+    subjectDigest: `sha512:${envelopeSubjectDigest(env2)}`,
+  });
+  const wrongAlgoResult = classifyReceiptBackedEvidence({
+    mode: 'enforce',
+    envelope: env2,
+    receipt: wrongAlgo,
+    authorityPublicKey: authority.publicKey,
+    transportAccepted: true,
+  });
+  expectRejection(
+    wrongAlgoResult.receipt,
+    'subject_digest_mismatch',
+    'unsupported algorithm prefix must not promote',
+  );
+  assert.notEqual(wrongAlgoResult.classification.klass, 'receipt-backed-l2-plus');
+}
+
+// ─── 6b. prefixed `sha256:<canonical-hex>` subjectDigest is accepted → L2+ ────
+function caseSha256PrefixedSubjectDigestAccepted(): void {
+  // External Python AuthorityReceipt issuers conventionally tag the digest with
+  // an algorithm prefix. Both the BARE canonical hex (signReceiptFor default,
+  // covered by caseHappyReceiptBacked) and the `sha256:<hex>` prefixed form
+  // must classify as receipt-backed-l2-plus. Plan: cover both accepted forms.
+  const env = fullEnvelope();
+  const bareDigest = envelopeSubjectDigest(env);
+  const prefixed = signReceiptFor(env, { subjectDigest: `sha256:${bareDigest}` });
+  const { classification, receipt: verification } = classifyReceiptBackedEvidence({
+    mode: 'enforce',
+    envelope: env,
+    receipt: prefixed,
+    authorityPublicKey: authority.publicKey,
+    transportAccepted: true,
+  });
+  assert.equal(
+    verification.verified,
+    true,
+    'sha256:<hex> prefixed subjectDigest must verify',
+  );
+  assert.equal(verification.subjectDigestPresent, true);
+  assert.equal(
+    classification.klass,
+    'receipt-backed-l2-plus',
+    'sha256:<hex> prefixed subjectDigest must classify as receipt-backed-l2-plus',
+  );
+  assert.equal(classification.missing.length, 0);
 }
 
 // ─── 7. subjectDigest absent (not asserted by authority) → still L2+ ──────────
@@ -375,6 +443,7 @@ function main(): void {
   caseWrongSubjectKind();
   caseWrongSubjectId();
   caseWrongSubjectDigest();
+  caseSha256PrefixedSubjectDigestAccepted();
   caseSubjectDigestAbsentStillVerifies();
   caseMissingAuthorityPublicKey();
   caseSameRunCollapseStillBlocks();
