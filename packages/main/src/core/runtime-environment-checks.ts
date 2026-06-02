@@ -235,7 +235,7 @@ function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: Runtime
 }
 
 function checkProjectLocalBin(context: RuntimeCheckContext, severity: RuntimeFactSeverity): Pick<RuntimeFactCheckResult, 'status' | 'actual' | 'expected' | 'warnings'> {
-  const localBin = join(context.projectRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'koala.cmd' : 'koala');
+  const localBin = projectLocalBinPath(context.projectRoot);
   const localBinExists = existsSync(localBin);
   const localRealpath = localBinExists ? safeRealpath(localBin) : null;
   const cliRealpath = context.activeCliEntrypoint ? safeRealpath(context.activeCliEntrypoint) : context.cliEntrypoint ? safeRealpath(context.cliEntrypoint) : null;
