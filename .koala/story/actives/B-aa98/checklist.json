@@ -10,9 +10,9 @@
         "docs/requirements/decisions/lattice-parallel-wave.md"
       ],
       "userSees": "用户在 README/docs 中看到明确句子：\"Lattice Host Overflow is manual-first; Lattice keeps story/scope/receipt authority; Claude Code is an execution host, not a production authority.\"",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-02T21:05:10.296Z",
-      "endTime": null,
+      "endTime": "2026-06-02T21:22:42.850Z",
       "files": {
         "modify": [
           "README.md",
@@ -47,7 +47,19 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Host Overflow|host_status|handoff_worktree_create|handoff_receipt_submit|host_dispatch\" README.md docs/guide.md docs/requirements/decisions/project-vision.md docs/requirements/NAV.md docs/requirements/decisions/host-overflow.md",
+          "result": "pass",
+          "note": "README/guide/vision/nav and the new host-overflow decision doc describe the manual-first authority boundary and Claude Code execution-host role.",
+          "headHash": "74504b01f29df59725241128f49b26dca817f68f",
+          "materialHash": "bd29e0297db5c6be6cbeb9b4fb9fb501ae5536db42fccd198e54bf3ff7942b27",
+          "timestamp": "2026-06-02T21:22:42.887Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
