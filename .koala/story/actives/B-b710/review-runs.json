@@ -244,6 +244,52 @@
         "bindingHash": "80d4217adf177bf6d5f96e65e58a00d82ae0672a7a2499090d965c11acada8b2"
       },
       "_hash": "635f7dca6f1792ed12be07b0cabbe343756dc048dce860372d33a2e725abd5d8"
+    },
+    {
+      "reviewRunId": "B-b710:RR-007",
+      "storyId": "B-b710",
+      "agent": "koala-review-quality",
+      "lane": "koala-review-quality",
+      "reviewRound": "2026-06-02T17:46:40.609Z",
+      "startedAt": "2026-06-02T17:56:15.018Z",
+      "headHash": "3a54f35d40cbaf065d1590aa7e7ddc1b320ebf94",
+      "materialHash": "67bb2d03cacdbfc67fe1826ecaa2739199766ebea8fbc5387a748053f634a578",
+      "promptHash": "514e33265947baf18875f60ed676cef6f063ffb2c410047396f82fd5bfab1b0b",
+      "scopeBinding": {
+        "scopeContractHash": "cf3b0ac0e5783d395d31a5bd1db39234801c023fe99402dc9810f3ef9a289c87",
+        "diffPackHash": "295856c01e2e86c92f2f26f7e187be9962107452de406751c0d6ba84df73ce0f",
+        "reviewedChangedFiles": [
+          "README.md",
+          "docs/guide.md",
+          "docs/requirements/decisions/authority-client-role.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/tasks/authority-status-smoke.ts"
+        ],
+        "reviewedIntentRefs": [
+          "CHK-001:adversarial:0",
+          "CHK-001:edge:0",
+          "CHK-001:happy:0",
+          "CHK-002:adversarial:0",
+          "CHK-002:edge:0",
+          "CHK-002:happy:0"
+        ],
+        "reviewedHunkDigests": [
+          "66a405643cf4d74e6e0125475fe3b212c3eb8d0f0b335358e8d9e624017743f3",
+          "6c3fe83614b55b3463e7fe2aa8a7c4015e14efc5d5169bbc6a33b40a60948a10",
+          "77226afc42166cc927827c9a145c1cbfa2d958b7489fdc6bfafc0de15b8c4257",
+          "86020c792454c141adf4ec2b1520d0888c1024399dcb684829d7d45fa6f52042",
+          "ab6551e58cf799f5fbf4d0c0cdbcf3b36f55f323e381ee1745f7be005d09edce",
+          "bcee2cd5c91cbf89ff6eb7d2d57a737a809cf43e0669af825a11fa246c0ed066",
+          "c02af2716edd99cbb5f354cf400ea98354b8dcb2cf38626730d186c22e6ee6b6",
+          "eec837725fffe2ea52549c49872a1a197738a719ab3f3c88de66d3dd16657a03",
+          "ff64bf4e0acf0799ca2c85ea12330d51404ed01356b6c5c2f42cf8d377f13b82"
+        ],
+        "bindingHash": "80d4217adf177bf6d5f96e65e58a00d82ae0672a7a2499090d965c11acada8b2"
+      },
+      "_hash": "2865fc2717031281e4c1461356fa18b1d8837f616ce371a3abfc470489e65d44"
     }
   ]
 }

@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-02T17:46:40.609Z",
       "reviewRunId": "B-b710:RR-006",
       "_hash": "b5d9cd723a22a9a93351e64a50f246c7070f75dbb27c4c74c5021a9141a0e95a"
+    },
+    {
+      "id": "B-b710:RP-006",
+      "agent": "koala-review-quality",
+      "note": "Round 2 quality re-review (RR-007, head 3a54f35d). Source/test files unchanged since RP-003 quality pass — only docs/guide.md:106 display text was corrected to match the file-relative href (F-001 resolution); no production code, type definitions, exports, or smoke test logic changed. Re-verified: (1) Dead code: none — LOCAL_WORKFLOW_NOTE, readEnforceEnv, AuthorityReadiness, buildAuthorityReadiness, AuthoritySettings import, and the buildAuthorityStatus/buildConduitStatus exports are all consumed by handlers, renderers, and the smoke task. (2) Type safety: no production-code 'as any'; the runJson<any> + 'as Record<string,string|undefined>' patterns in authority-status-smoke.ts are deliberate, benign no-op casts in integration scaffolding. (3) I/O isolation: lattice-cli.ts stays a handler (no shell-level fn.ts import), env reads via injected parameter with process.env default, no side effects beyond env reads. (4) FormatArgs widened to include json?: boolean — handlers using FormatArgs (conduit_status / conduit_explain / config_doctor / host_*) inherit the --json shortcut correctly; authority_status inline arg shape also includes json?. (5) CLI engine schema additions (json: z.boolean().optional()) are pure schema; no zod-only constraints that could be bypassed at a non-handler consumption point per CLAUDE.md handler convention. (6) Smoke run: npm run test:authority-status-smoke passes; spot-checked KOALA_AUTHORITY_MODE=enforce CLI JSON returns three readinessWarnings with productionDone/canClaimProductionDone/receiptVerified all false, off mode returns localWorkflowUsable:true with empty readinessWarnings. No quality blockers.",
+      "createdAt": "2026-06-02T17:57:06.324Z",
+      "reviewRound": "2026-06-02T17:46:40.609Z",
+      "reviewRunId": "B-b710:RR-007",
+      "_hash": "cb467ae27e0d43bc851a817aa211dd33b145cb224d39de18232c0bd1ff95aba0"
     }
   ]
 }
