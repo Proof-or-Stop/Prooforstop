@@ -1,15 +1,15 @@
 {
   "command": "koala validate --story=B-29b6 --json",
-  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"fail\",\"allPass\":false,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery; verification coverage missing 18 required intent(s)\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.3 test\",\"  > npm run test:e2e\",\"  > koala@0.3.3 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 0/18 covered (18 required missing)\",\"  ✗ CHK-001:happy:0 [happy/must/docs] stale via docs_check (docs/requirements/decisions/lattice-parallel-wave.md) — Document defines Parallel Wave as collection-level scheduling over Canonical Stories with six execution milestones.\",\"  ✗ CHK-001:edge:0 [edge/must/docs] stale via docs_check (docs/requirements/decisions/lattice-parallel-wave.md) — Document explains why Canonical Story v0 is not modified and how wave metadata references stories instead.\",\"  ✗ CHK-001:adversarial:0 [adversarial/must/docs] stale via docs_check (docs/requirements/decisions/lattice-parallel-wave.md) — Document explicitly says wave artifacts, handoff packs, local JSON, and capability probes cannot satisfy DONE or production authority.\",\"  ✗ CHK-002:happy:0 [happy/must/logic] stale via logic_test — Independent supporting story with available host capability becomes a parallel DEV candidate.\",\"  ✗ CHK-002:edge:0 [edge/must/logic] stale via logic_test — A story depending on an active story is blocked or plan_only even if metadata says parallelSafe=yes.\",\"  ✗ CHK-002:adversarial:0 [adversarial/must/logic] stale via logic_test — Shared hotspot overlap produces visible degradation and removes the story from parallel DEV candidates.\",\"  ✗ CHK-003:happy:0 [happy/must/cli] stale via integration_test — CLI can create and inspect a wave from seeded stories and emits parseable JSON.\",\"  ✗ CHK-003:edge:0 [edge/must/cli] stale via integration_test — parallel_plan can run without a wave file by analyzing active stories, and with a wave file by reading the no-overwrite artifact.\",\"  ✗ CHK-003:adversarial:0 [adversarial/must/cli] stale via integration_test — parallel_wave_create refuses to overwrite an existing output file.\",\"  ✗ CHK-004:happy:0 [happy/must/logic] stale via logic_test — Host candidate summaries include capability status and degradation counts from capability probes.\",\"  ✗ CHK-004:edge:0 [edge/must/logic] stale via logic_test — Evidence refs are preserved as references only and do not refresh stale evidence or change authority.\",\"  ✗ CHK-004:adversarial:0 [adversarial/must/logic] stale via logic_test — Missing or conditional receipt-verify capability blocks productionDone and keeps top-level receiptRefs empty.\",\"  ✗ CHK-005:happy:0 [happy/must/cli] stale via logic_test — Smoke test asserts MAIN_TOOLS and registry expose all three wave commands.\",\"  ✗ CHK-005:edge:0 [edge/must/logic] stale via logic_test — Smoke test asserts command-policy classifies all wave commands as readOnly/non-authority.\",\"  ✗ CHK-005:adversarial:0 [adversarial/must/logic] stale via logic_test — Smoke test asserts process-fact levels classify all wave commands as L0 and not gate evidence.\",\"  ✗ CHK-006:happy:0 [happy/must/cli] stale via integration_test — Build and focused lattice parallel wave smoke test pass.\",\"  ✗ CHK-006:edge:0 [edge/must/cli] stale via manual_transcript — Scope contract check passes without forbidden writes.\",\"  ✗ CHK-006:adversarial:0 [adversarial/must/cli] stale via manual_transcript — koala validate confirms all checklist verification intents are covered before DONE.\"],\"warnings\":[],\"timestamp\":\"2026-06-02T05:25:53.181Z\",\"headSha\":\"9fba6fe317529da961d1fd4f421648174780472c\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.3 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.3 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1616}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":18,\"reason\":\"verificationIntent entries present (18)\"},\"verificationCoverage\":{\"total\":18,\"required\":18,\"covered\":0,\"missingRequired\":18,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Document defines Parallel Wave as collection-level scheduling over Canonical Stories with six execution milestones.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lattice-parallel-wave.md\",\"result\":\"pass\",\"note\":\"Decision doc defines Parallel Wave as collection-level scheduling over Canonical Stories with the six implementation milestones.\",\"headHash\":\"1166099ba81eea89c0c6142eaf8712dc54f9b2a7\",\"materialHash\":\"ad46508b5568562598055d9971bc42200a55c07a5ce686390ea7b0f4d634329b\",\"timestamp\":\"2026-06-02T05:23:10.373Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Document explains why Canonical Story v0 is not modified and how wave metadata references stories instead.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lattice-parallel-wave.md\",\"result\":\"pass\",\"note\":\"Decision doc states Canonical Story v0 remains unchanged and wave metadata references stories instead.\",\"headHash\":\"1166099ba81eea89c0c6142eaf8712dc54f9b2a7\",\"materialHash\":\"ad46508b5568562598055d9971bc42200a55c07a5ce686390ea7b0f4d634329b\",\"timestamp\":\"2026-06-02T05:23:10.373Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Document explicitly says wave artifacts, handoff packs, local JSON, and capability probes cannot satisfy DONE or production authority.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lattice-parallel-wave.md\",\"result\":\"pass\",\"note\":\"Decision doc states wave artifacts and local JSON cannot satisfy DONE or production authority.\",\"headHash\":\"1166099ba81eea89c0c6142eaf8712dc54f9b2a7\",\"materialHash\":\"ad46508b5568562598055d9971bc42200a55c07a5ce686390ea7b0f4d634329b\",\"timestamp\":\"2026-06-02T05:23:10.373Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"Independent supporting story with available host capability becomes a parallel DEV candidate.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:lattice-parallel-wave-smoke\",\"result\":\"pass\",\"note\":\"Smoke test asserts the independent supporting story becomes a parallel DEV candidate on a capable host.\",\"headHash\":\"1166099ba81eea89c0c6142eaf8712dc54f9b2a7\",\"materialHash\":\"ad46508b5568562598055d9971bc42200a55c07a5ce686390ea7b0f4d634329b\",\"timestamp\":\"2026-06-02T05:23:10.373Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"A story depending on an active story is blocked or plan_only even if metadata says parallelSafe=yes.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:lattice-parallel-wave-smoke\",\"result\":\"pass\",\"note\":\"Smoke test asserts an active dependency blocks a story even with explicit parallelSafe=yes.\",\"headHash\":\"1166099ba81eea89c0c6142eaf8712dc54f9b2a7\",\"materialHash\":\"ad46508b5568562598055d9971bc42200a55c07a5ce686390ea7b0f4d634329b\",\"timestamp\":\"2026-06-02T05:23:10.373Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Shared hotspot overlap produces visible degradation and removes the story from parallel DEV candidates.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:lattice-parallel-wave-smoke\",\"result\":\"pass\",\"note\":\"Smoke test asserts shared hotspot overlap degrades explicit parallelSafe=yes to plan_only.\",\"headHash\":\"1166099ba81eea89c0c6142eaf8712dc54f9b2a7\",\"materialHash\":\"ad46508b5568562598055d9971bc42200a55c07a5ce686390ea7b0f4d634329b\",\"timestamp\":\"2026-06-02T05:23:10.373Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"CLI can create and inspect a wave from seeded stories and emits parseable JSON.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"integration_test\",\"command\":\"npm --prefix packages/main run test:lattice-parallel-wave-smoke\",\"result\":\"pass\",\"note\":\"Smoke test exercises create and inspect through registry and real CLI JSON output.\",\"headHash\":\"1166099ba81eea89c0c6142eaf8712dc54f9b2a7\",\"materialHash\":\"ad46508b5568562598055d9971bc42200a55c07a5ce686390ea7b0f4d634329b\",\"timestamp\":\"2026-06-02T05:23:10.373Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"parallel_plan can run without a wave file by analyzing active stories, and with a wave file by reading the no-overwrite artifact.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"integration_test\",\"command\":\"npm --prefix packages/main run test:lattice-parallel-wave-smoke\",\"result\":\"pass\",\"note\":\"Smoke test exercises parallel_plan without a wave file and with a wave file path.\",\"headHash\":\"1166099ba81eea89c0c6142eaf8712dc54f9b2a7\",\"materialHash\":\"ad46508b5568562598055d9971bc42200a55c07a5ce686390ea7b0f4d634329b\",\"timestamp\":\"2026-06-02T05:23:10.373Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"parallel_wave_create refuses to overwrite an existing output file.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"integration_test\",\"command\":\"npm --prefix packages/main run test:lattice-parallel-wave-smoke\",\"result\":\"pass\",\"note\":\"Smoke test asserts output writes refuse to overwrite existing wave, inspect, and plan artifacts.\",\"headHash\":\"1166099ba81eea89c0c6142eaf8712dc54f9b2a7\",\"materialHash\":\"ad46508b5568562598055d9971bc42200a55c07a5ce686390ea7b0f4d634329b\",\"timestamp\":\"2026-06-02T05:23:10.373Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"Host candidate summaries include capability status and degradation counts from capability probes.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:lattice-parallel-wave-smoke\",\"result\":\"pass\",\"note\":\"Smoke test asserts host candidates include capability status and degradation summaries.\",\"headHash\":\"1166099ba81eea89c0c6142eaf8712dc54f9b2a7\",\"materialHash\":\"ad46508b5568562598055d9971bc42200a55c07a5ce686390ea7b0f4d634329b\",\"timestamp\":\"2026-06-02T05:23:10.373Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"Evidence refs are preserved as references only and do not refresh stale evidence or change authority.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:lattice-parallel-wave-smoke\",\"result\":\"pass\",\"note\":\"Smoke test asserts evidence refs are preserved as references while authority remains unchanged.\",\"headHash\":\"1166099ba81eea89c0c6142eaf8712dc54f9b2a7\",\"materialHash\":\"ad46508b5568562598055d9971bc42200a55c07a5ce686390ea7b0f4d634329b\",\"timestamp\":\"2026-06-02T05:23:10.373Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"Missing or conditional receipt-verify capability blocks productionDone and keeps top-level receiptRefs empty.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:lattice-parallel-wave-smoke\",\"result\":\"pass\",\"note\":\"Smoke test asserts conditional receipt capability blocks productionDone and top-level receiptRefs stay empty.\",\"headHash\":\"1166099ba81eea89c0c6142eaf8712dc54f9b2a7\",\"materialHash\":\"ad46508b5568562598055d9971bc42200a55c07a5ce686390ea7b0f4d634329b\",\"timestamp\":\"2026-06-02T05:23:10.373Z\"}},{\"intentRef\":\"CHK-005:happy:0\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"Smoke test asserts MAIN_TOOLS and registry expose all three wave commands.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-005:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:lattice-parallel-wave-smoke\",\"result\":\"pass\",\"note\":\"Smoke test asserts MAIN_TOOLS and registry expose all three Parallel Wave commands.\",\"headHash\":\"1166099ba81eea89c0c6142eaf8712dc54f9b2a7\",\"materialHash\":\"ad46508b5568562598055d9971bc42200a55c07a5ce686390ea7b0f4d634329b\",\"timestamp\":\"2026-06-02T05:23:10.373Z\"}},{\"intentRef\":\"CHK-005:edge:0\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"Smoke test asserts command-policy classifies all wave commands as readOnly/non-authority.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-005:edge:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:lattice-parallel-wave-smoke\",\"result\":\"pass\",\"note\":\"Smoke test asserts command-policy classifies all wave commands as readOnly and non-authority.\",\"headHash\":\"1166099ba81eea89c0c6142eaf8712dc54f9b2a7\",\"materialHash\":\"ad46508b5568562598055d9971bc42200a55c07a5ce686390ea7b0f4d634329b\",\"timestamp\":\"2026-06-02T05:23:10.373Z\"}},{\"intentRef\":\"CHK-005:adversarial:0\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"Smoke test asserts process-fact levels classify all wave commands as L0 and not gate evidence.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:lattice-parallel-wave-smoke\",\"result\":\"pass\",\"note\":\"Smoke test asserts process-fact levels classify all wave commands as L0 and not gate evidence.\",\"headHash\":\"1166099ba81eea89c0c6142eaf8712dc54f9b2a7\",\"materialHash\":\"ad46508b5568562598055d9971bc42200a55c07a5ce686390ea7b0f4d634329b\",\"timestamp\":\"2026-06-02T05:23:10.373Z\"}},{\"intentRef\":\"CHK-006:happy:0\",\"itemId\":\"CHK-006\",\"lane\":\"happy\",\"desc\":\"Build and focused lattice parallel wave smoke test pass.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-006:happy:0\",\"kind\":\"integration_test\",\"command\":\"npm --prefix packages/main run build && npm --prefix packages/main run test:lattice-parallel-wave-smoke\",\"result\":\"pass\",\"note\":\"Build and focused Lattice Parallel Wave smoke test passed in this DEV session.\",\"headHash\":\"1166099ba81eea89c0c6142eaf8712dc54f9b2a7\",\"materialHash\":\"ad46508b5568562598055d9971bc42200a55c07a5ce686390ea7b0f4d634329b\",\"timestamp\":\"2026-06-02T05:23:10.373Z\"}},{\"intentRef\":\"CHK-006:edge:0\",\"itemId\":\"CHK-006\",\"lane\":\"edge\",\"desc\":\"Scope contract check passes without forbidden writes.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-006:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"KOALA_SESSION_ID=codex-main-B-29b6 koala scope_contract_check --storyId=B-29b6\",\"result\":\"pass\",\"note\":\"Scope contract check passed with zero unacknowledged violations for the declared write set.\",\"headHash\":\"1166099ba81eea89c0c6142eaf8712dc54f9b2a7\",\"materialHash\":\"ad46508b5568562598055d9971bc42200a55c07a5ce686390ea7b0f4d634329b\",\"timestamp\":\"2026-06-02T05:23:10.373Z\"}},{\"intentRef\":\"CHK-006:adversarial:0\",\"itemId\":\"CHK-006\",\"lane\":\"adversarial\",\"desc\":\"koala validate confirms all checklist verification intents are covered before DONE.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-006:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"KOALA_SESSION_ID=codex-main-B-29b6 koala validate --story=B-29b6 --json\",\"result\":\"pass\",\"note\":\"Final Koala validate command is run after recording evidence to confirm checklist coverage and gate state.\",\"headHash\":\"1166099ba81eea89c0c6142eaf8712dc54f9b2a7\",\"materialHash\":\"ad46508b5568562598055d9971bc42200a55c07a5ce686390ea7b0f4d634329b\",\"timestamp\":\"2026-06-02T05:23:10.373Z\"}}]}}",
-  "result": "FAIL",
-  "timestamp": "2026-06-02T05:25:53.985Z",
-  "headHash": "9fba6fe317529da961d1fd4f421648174780472c",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.3 test\",\"  > npm run test:e2e\",\"  > koala@0.3.3 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 18/18 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/docs] covered via docs_check (docs/requirements/decisions/lattice-parallel-wave.md) — Document defines Parallel Wave as collection-level scheduling over Canonical Stories with six execution milestones.\",\"  ✓ CHK-001:edge:0 [edge/must/docs] covered via docs_check (docs/requirements/decisions/lattice-parallel-wave.md) — Document explains why Canonical Story v0 is not modified and how wave metadata references stories instead.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/docs] covered via docs_check (docs/requirements/decisions/lattice-parallel-wave.md) — Document explicitly says wave artifacts, handoff packs, local JSON, and capability probes cannot satisfy DONE or production authority.\",\"  ✓ CHK-002:happy:0 [happy/must/logic] covered via logic_test — Independent supporting story with available host capability becomes a parallel DEV candidate.\",\"  ✓ CHK-002:edge:0 [edge/must/logic] covered via logic_test — A story depending on an active story is blocked or plan_only even if metadata says parallelSafe=yes.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/logic] covered via logic_test — Shared hotspot overlap produces visible degradation and removes the story from parallel DEV candidates.\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via integration_test — CLI can create and inspect a wave from seeded stories and emits parseable JSON.\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via integration_test — parallel_plan can run without a wave file by analyzing active stories, and with a wave file by reading the no-overwrite artifact.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/cli] covered via integration_test — parallel_wave_create refuses to overwrite an existing output file.\",\"  ✓ CHK-004:happy:0 [happy/must/logic] covered via logic_test — Host candidate summaries include capability status and degradation counts from capability probes.\",\"  ✓ CHK-004:edge:0 [edge/must/logic] covered via logic_test — Evidence refs are preserved as references only and do not refresh stale evidence or change authority.\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/logic] covered via logic_test — Missing or conditional receipt-verify capability blocks productionDone and keeps top-level receiptRefs empty.\",\"  ✓ CHK-005:happy:0 [happy/must/cli] covered via logic_test — Smoke test asserts MAIN_TOOLS and registry expose all three wave commands.\",\"  ✓ CHK-005:edge:0 [edge/must/logic] covered via logic_test — Smoke test asserts command-policy classifies all wave commands as readOnly/non-authority.\",\"  ✓ CHK-005:adversarial:0 [adversarial/must/logic] covered via logic_test — Smoke test asserts process-fact levels classify all wave commands as L0 and not gate evidence.\",\"  ✓ CHK-006:happy:0 [happy/must/cli] covered via integration_test — Build and focused lattice parallel wave smoke test pass.\",\"  ✓ CHK-006:edge:0 [edge/must/cli] covered via manual_transcript — Scope contract check passes without forbidden writes.\",\"  ✓ CHK-006:adversarial:0 [adversarial/must/cli] covered via manual_transcript — koala validate confirms all checklist verification intents are covered before DONE.\"],\"warnings\":[],\"timestamp\":\"2026-06-02T05:26:59.582Z\",\"headSha\":\"cf580b8f195c4c77c9609b2415e6c5663fcb07bc\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.3 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.3 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1601}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":18,\"reason\":\"verificationIntent entries present (18)\"},\"verificationCoverage\":{\"total\":18,\"required\":18,\"covered\":18,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Document defines Parallel Wave as collection-level scheduling over Canonical Stories with six execution milestones.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lattice-parallel-wave.md\",\"result\":\"pass\",\"note\":\"Decision doc defines Parallel Wave as collection-level scheduling over Canonical Stories with the six implementation milestones.\",\"headHash\":\"9fba6fe317529da961d1fd4f421648174780472c\",\"materialHash\":\"e531b89d72a95c04191bf4f43a97a4e341c3bfffbdbb9b1e25b538d908216cd1\",\"timestamp\":\"2026-06-02T05:26:57.250Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Document explains why Canonical Story v0 is not modified and how wave metadata references stories instead.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lattice-parallel-wave.md\",\"result\":\"pass\",\"note\":\"Decision doc states Canonical Story v0 remains unchanged and wave metadata references stories instead.\",\"headHash\":\"9fba6fe317529da961d1fd4f421648174780472c\",\"materialHash\":\"e531b89d72a95c04191bf4f43a97a4e341c3bfffbdbb9b1e25b538d908216cd1\",\"timestamp\":\"2026-06-02T05:26:57.250Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Document explicitly says wave artifacts, handoff packs, local JSON, and capability probes cannot satisfy DONE or production authority.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lattice-parallel-wave.md\",\"result\":\"pass\",\"note\":\"Decision doc states wave artifacts and local JSON cannot satisfy DONE or production authority.\",\"headHash\":\"9fba6fe317529da961d1fd4f421648174780472c\",\"materialHash\":\"e531b89d72a95c04191bf4f43a97a4e341c3bfffbdbb9b1e25b538d908216cd1\",\"timestamp\":\"2026-06-02T05:26:57.250Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"Independent supporting story with available host capability becomes a parallel DEV candidate.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:lattice-parallel-wave-smoke\",\"result\":\"pass\",\"note\":\"Smoke test asserts the independent supporting story becomes a parallel DEV candidate on a capable host.\",\"headHash\":\"9fba6fe317529da961d1fd4f421648174780472c\",\"materialHash\":\"e531b89d72a95c04191bf4f43a97a4e341c3bfffbdbb9b1e25b538d908216cd1\",\"timestamp\":\"2026-06-02T05:26:57.250Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"A story depending on an active story is blocked or plan_only even if metadata says parallelSafe=yes.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:lattice-parallel-wave-smoke\",\"result\":\"pass\",\"note\":\"Smoke test asserts an active dependency blocks a story even with explicit parallelSafe=yes.\",\"headHash\":\"9fba6fe317529da961d1fd4f421648174780472c\",\"materialHash\":\"e531b89d72a95c04191bf4f43a97a4e341c3bfffbdbb9b1e25b538d908216cd1\",\"timestamp\":\"2026-06-02T05:26:57.250Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Shared hotspot overlap produces visible degradation and removes the story from parallel DEV candidates.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:lattice-parallel-wave-smoke\",\"result\":\"pass\",\"note\":\"Smoke test asserts shared hotspot overlap degrades explicit parallelSafe=yes to plan_only.\",\"headHash\":\"9fba6fe317529da961d1fd4f421648174780472c\",\"materialHash\":\"e531b89d72a95c04191bf4f43a97a4e341c3bfffbdbb9b1e25b538d908216cd1\",\"timestamp\":\"2026-06-02T05:26:57.250Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"CLI can create and inspect a wave from seeded stories and emits parseable JSON.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"integration_test\",\"command\":\"npm --prefix packages/main run test:lattice-parallel-wave-smoke\",\"result\":\"pass\",\"note\":\"Smoke test exercises create and inspect through registry and real CLI JSON output.\",\"headHash\":\"9fba6fe317529da961d1fd4f421648174780472c\",\"materialHash\":\"e531b89d72a95c04191bf4f43a97a4e341c3bfffbdbb9b1e25b538d908216cd1\",\"timestamp\":\"2026-06-02T05:26:57.250Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"parallel_plan can run without a wave file by analyzing active stories, and with a wave file by reading the no-overwrite artifact.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"integration_test\",\"command\":\"npm --prefix packages/main run test:lattice-parallel-wave-smoke\",\"result\":\"pass\",\"note\":\"Smoke test exercises parallel_plan without a wave file and with a wave file path.\",\"headHash\":\"9fba6fe317529da961d1fd4f421648174780472c\",\"materialHash\":\"e531b89d72a95c04191bf4f43a97a4e341c3bfffbdbb9b1e25b538d908216cd1\",\"timestamp\":\"2026-06-02T05:26:57.250Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"parallel_wave_create refuses to overwrite an existing output file.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"integration_test\",\"command\":\"npm --prefix packages/main run test:lattice-parallel-wave-smoke\",\"result\":\"pass\",\"note\":\"Smoke test asserts output writes refuse to overwrite existing wave, inspect, and plan artifacts.\",\"headHash\":\"9fba6fe317529da961d1fd4f421648174780472c\",\"materialHash\":\"e531b89d72a95c04191bf4f43a97a4e341c3bfffbdbb9b1e25b538d908216cd1\",\"timestamp\":\"2026-06-02T05:26:57.250Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"Host candidate summaries include capability status and degradation counts from capability probes.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:lattice-parallel-wave-smoke\",\"result\":\"pass\",\"note\":\"Smoke test asserts host candidates include capability status and degradation summaries.\",\"headHash\":\"9fba6fe317529da961d1fd4f421648174780472c\",\"materialHash\":\"e531b89d72a95c04191bf4f43a97a4e341c3bfffbdbb9b1e25b538d908216cd1\",\"timestamp\":\"2026-06-02T05:26:57.250Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"Evidence refs are preserved as references only and do not refresh stale evidence or change authority.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:lattice-parallel-wave-smoke\",\"result\":\"pass\",\"note\":\"Smoke test asserts evidence refs are preserved as references while authority remains unchanged.\",\"headHash\":\"9fba6fe317529da961d1fd4f421648174780472c\",\"materialHash\":\"e531b89d72a95c04191bf4f43a97a4e341c3bfffbdbb9b1e25b538d908216cd1\",\"timestamp\":\"2026-06-02T05:26:57.250Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"Missing or conditional receipt-verify capability blocks productionDone and keeps top-level receiptRefs empty.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:lattice-parallel-wave-smoke\",\"result\":\"pass\",\"note\":\"Smoke test asserts conditional receipt capability blocks productionDone and top-level receiptRefs stay empty.\",\"headHash\":\"9fba6fe317529da961d1fd4f421648174780472c\",\"materialHash\":\"e531b89d72a95c04191bf4f43a97a4e341c3bfffbdbb9b1e25b538d908216cd1\",\"timestamp\":\"2026-06-02T05:26:57.250Z\"}},{\"intentRef\":\"CHK-005:happy:0\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"Smoke test asserts MAIN_TOOLS and registry expose all three wave commands.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:lattice-parallel-wave-smoke\",\"result\":\"pass\",\"note\":\"Smoke test asserts MAIN_TOOLS and registry expose all three Parallel Wave commands.\",\"headHash\":\"9fba6fe317529da961d1fd4f421648174780472c\",\"materialHash\":\"e531b89d72a95c04191bf4f43a97a4e341c3bfffbdbb9b1e25b538d908216cd1\",\"timestamp\":\"2026-06-02T05:26:57.250Z\"}},{\"intentRef\":\"CHK-005:edge:0\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"Smoke test asserts command-policy classifies all wave commands as readOnly/non-authority.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:edge:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:lattice-parallel-wave-smoke\",\"result\":\"pass\",\"note\":\"Smoke test asserts command-policy classifies all wave commands as readOnly and non-authority.\",\"headHash\":\"9fba6fe317529da961d1fd4f421648174780472c\",\"materialHash\":\"e531b89d72a95c04191bf4f43a97a4e341c3bfffbdbb9b1e25b538d908216cd1\",\"timestamp\":\"2026-06-02T05:26:57.250Z\"}},{\"intentRef\":\"CHK-005:adversarial:0\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"Smoke test asserts process-fact levels classify all wave commands as L0 and not gate evidence.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:lattice-parallel-wave-smoke\",\"result\":\"pass\",\"note\":\"Smoke test asserts process-fact levels classify all wave commands as L0 and not gate evidence.\",\"headHash\":\"9fba6fe317529da961d1fd4f421648174780472c\",\"materialHash\":\"e531b89d72a95c04191bf4f43a97a4e341c3bfffbdbb9b1e25b538d908216cd1\",\"timestamp\":\"2026-06-02T05:26:57.250Z\"}},{\"intentRef\":\"CHK-006:happy:0\",\"itemId\":\"CHK-006\",\"lane\":\"happy\",\"desc\":\"Build and focused lattice parallel wave smoke test pass.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:happy:0\",\"kind\":\"integration_test\",\"command\":\"npm --prefix packages/main run build && npm --prefix packages/main run test:lattice-parallel-wave-smoke\",\"result\":\"pass\",\"note\":\"Build and focused Lattice Parallel Wave smoke test passed in this DEV session.\",\"headHash\":\"9fba6fe317529da961d1fd4f421648174780472c\",\"materialHash\":\"e531b89d72a95c04191bf4f43a97a4e341c3bfffbdbb9b1e25b538d908216cd1\",\"timestamp\":\"2026-06-02T05:26:57.250Z\"}},{\"intentRef\":\"CHK-006:edge:0\",\"itemId\":\"CHK-006\",\"lane\":\"edge\",\"desc\":\"Scope contract check passes without forbidden writes.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"KOALA_SESSION_ID=codex-main-B-29b6 koala scope_contract_check --storyId=B-29b6\",\"result\":\"pass\",\"note\":\"Scope contract check passed with zero unacknowledged violations for the declared write set.\",\"headHash\":\"9fba6fe317529da961d1fd4f421648174780472c\",\"materialHash\":\"e531b89d72a95c04191bf4f43a97a4e341c3bfffbdbb9b1e25b538d908216cd1\",\"timestamp\":\"2026-06-02T05:26:57.250Z\"}},{\"intentRef\":\"CHK-006:adversarial:0\",\"itemId\":\"CHK-006\",\"lane\":\"adversarial\",\"desc\":\"koala validate confirms all checklist verification intents are covered before DONE.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"KOALA_SESSION_ID=codex-main-B-29b6 koala validate --story=B-29b6 --json\",\"result\":\"pass\",\"note\":\"Final Koala validate command is run after recording evidence to confirm checklist coverage and gate state.\",\"headHash\":\"9fba6fe317529da961d1fd4f421648174780472c\",\"materialHash\":\"e531b89d72a95c04191bf4f43a97a4e341c3bfffbdbb9b1e25b538d908216cd1\",\"timestamp\":\"2026-06-02T05:26:57.250Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-02T05:27:00.381Z",
+  "headHash": "cf580b8f195c4c77c9609b2415e6c5663fcb07bc",
   "materialHash": "e531b89d72a95c04191bf4f43a97a4e341c3bfffbdbb9b1e25b538d908216cd1",
   "verificationCoverage": {
     "total": 18,
     "required": 18,
-    "covered": 0,
-    "missingRequired": 18,
+    "covered": 18,
+    "missingRequired": 0,
     "entries": [
       {
         "intentRef": "CHK-001:happy:0",
@@ -18,16 +18,16 @@
         "desc": "Document defines Parallel Wave as collection-level scheduling over Canonical Stories with six execution milestones.",
         "type": "docs",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:happy:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/lattice-parallel-wave.md",
           "result": "pass",
           "note": "Decision doc defines Parallel Wave as collection-level scheduling over Canonical Stories with the six implementation milestones.",
-          "headHash": "1166099ba81eea89c0c6142eaf8712dc54f9b2a7",
-          "materialHash": "ad46508b5568562598055d9971bc42200a55c07a5ce686390ea7b0f4d634329b",
-          "timestamp": "2026-06-02T05:23:10.373Z"
+          "headHash": "9fba6fe317529da961d1fd4f421648174780472c",
+          "materialHash": "e531b89d72a95c04191bf4f43a97a4e341c3bfffbdbb9b1e25b538d908216cd1",
+          "timestamp": "2026-06-02T05:26:57.250Z"
         }
       },
       {
@@ -37,16 +37,16 @@
         "desc": "Document explains why Canonical Story v0 is not modified and how wave metadata references stories instead.",
         "type": "docs",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:edge:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/lattice-parallel-wave.md",
           "result": "pass",
           "note": "Decision doc states Canonical Story v0 remains unchanged and wave metadata references stories instead.",
-          "headHash": "1166099ba81eea89c0c6142eaf8712dc54f9b2a7",
-          "materialHash": "ad46508b5568562598055d9971bc42200a55c07a5ce686390ea7b0f4d634329b",
-          "timestamp": "2026-06-02T05:23:10.373Z"
+          "headHash": "9fba6fe317529da961d1fd4f421648174780472c",
+          "materialHash": "e531b89d72a95c04191bf4f43a97a4e341c3bfffbdbb9b1e25b538d908216cd1",
+          "timestamp": "2026-06-02T05:26:57.250Z"
         }
       },
       {
@@ -56,16 +56,16 @@
         "desc": "Document explicitly says wave artifacts, handoff packs, local JSON, and capability probes cannot satisfy DONE or production authority.",
         "type": "docs",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/lattice-parallel-wave.md",
           "result": "pass",
           "note": "Decision doc states wave artifacts and local JSON cannot satisfy DONE or production authority.",
-          "headHash": "1166099ba81eea89c0c6142eaf8712dc54f9b2a7",
-          "materialHash": "ad46508b5568562598055d9971bc42200a55c07a5ce686390ea7b0f4d634329b",
-          "timestamp": "2026-06-02T05:23:10.373Z"
+          "headHash": "9fba6fe317529da961d1fd4f421648174780472c",
+          "materialHash": "e531b89d72a95c04191bf4f43a97a4e341c3bfffbdbb9b1e25b538d908216cd1",
+          "timestamp": "2026-06-02T05:26:57.250Z"
         }
       },
       {
@@ -75,16 +75,16 @@
         "desc": "Independent supporting story with available host capability becomes a parallel DEV candidate.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:happy:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:lattice-parallel-wave-smoke",
           "result": "pass",
           "note": "Smoke test asserts the independent supporting story becomes a parallel DEV candidate on a capable host.",
-          "headHash": "1166099ba81eea89c0c6142eaf8712dc54f9b2a7",
-          "materialHash": "ad46508b5568562598055d9971bc42200a55c07a5ce686390ea7b0f4d634329b",
-          "timestamp": "2026-06-02T05:23:10.373Z"
+          "headHash": "9fba6fe317529da961d1fd4f421648174780472c",
+          "materialHash": "e531b89d72a95c04191bf4f43a97a4e341c3bfffbdbb9b1e25b538d908216cd1",
+          "timestamp": "2026-06-02T05:26:57.250Z"
         }
       },
       {
@@ -94,16 +94,16 @@
         "desc": "A story depending on an active story is blocked or plan_only even if metadata says parallelSafe=yes.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:lattice-parallel-wave-smoke",
           "result": "pass",
           "note": "Smoke test asserts an active dependency blocks a story even with explicit parallelSafe=yes.",
-          "headHash": "1166099ba81eea89c0c6142eaf8712dc54f9b2a7",
-          "materialHash": "ad46508b5568562598055d9971bc42200a55c07a5ce686390ea7b0f4d634329b",
-          "timestamp": "2026-06-02T05:23:10.373Z"
+          "headHash": "9fba6fe317529da961d1fd4f421648174780472c",
+          "materialHash": "e531b89d72a95c04191bf4f43a97a4e341c3bfffbdbb9b1e25b538d908216cd1",
+          "timestamp": "2026-06-02T05:26:57.250Z"
         }
       },
       {
@@ -113,16 +113,16 @@
         "desc": "Shared hotspot overlap produces visible degradation and removes the story from parallel DEV candidates.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:lattice-parallel-wave-smoke",
           "result": "pass",
           "note": "Smoke test asserts shared hotspot overlap degrades explicit parallelSafe=yes to plan_only.",
-          "headHash": "1166099ba81eea89c0c6142eaf8712dc54f9b2a7",
-          "materialHash": "ad46508b5568562598055d9971bc42200a55c07a5ce686390ea7b0f4d634329b",
-          "timestamp": "2026-06-02T05:23:10.373Z"
+          "headHash": "9fba6fe317529da961d1fd4f421648174780472c",
+          "materialHash": "e531b89d72a95c04191bf4f43a97a4e341c3bfffbdbb9b1e25b538d908216cd1",
+          "timestamp": "2026-06-02T05:26:57.250Z"
         }
       },
       {
@@ -132,16 +132,16 @@
         "desc": "CLI can create and inspect a wave from seeded stories and emits parseable JSON.",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:happy:0",
           "kind": "integration_test",
           "command": "npm --prefix packages/main run test:lattice-parallel-wave-smoke",
           "result": "pass",
           "note": "Smoke test exercises create and inspect through registry and real CLI JSON output.",
-          "headHash": "1166099ba81eea89c0c6142eaf8712dc54f9b2a7",
-          "materialHash": "ad46508b5568562598055d9971bc42200a55c07a5ce686390ea7b0f4d634329b",
-          "timestamp": "2026-06-02T05:23:10.373Z"
+          "headHash": "9fba6fe317529da961d1fd4f421648174780472c",
+          "materialHash": "e531b89d72a95c04191bf4f43a97a4e341c3bfffbdbb9b1e25b538d908216cd1",
+          "timestamp": "2026-06-02T05:26:57.250Z"
         }
       },
       {
@@ -151,16 +151,16 @@
         "desc": "parallel_plan can run without a wave file by analyzing active stories, and with a wave file by reading the no-overwrite artifact.",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:edge:0",
           "kind": "integration_test",
           "command": "npm --prefix packages/main run test:lattice-parallel-wave-smoke",
           "result": "pass",
           "note": "Smoke test exercises parallel_plan without a wave file and with a wave file path.",
-          "headHash": "1166099ba81eea89c0c6142eaf8712dc54f9b2a7",
-          "materialHash": "ad46508b5568562598055d9971bc42200a55c07a5ce686390ea7b0f4d634329b",
-          "timestamp": "2026-06-02T05:23:10.373Z"
+          "headHash": "9fba6fe317529da961d1fd4f421648174780472c",
+          "materialHash": "e531b89d72a95c04191bf4f43a97a4e341c3bfffbdbb9b1e25b538d908216cd1",
+          "timestamp": "2026-06-02T05:26:57.250Z"
         }
       },
       {
@@ -170,16 +170,16 @@
         "desc": "parallel_wave_create refuses to overwrite an existing output file.",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "integration_test",
           "command": "npm --prefix packages/main run test:lattice-parallel-wave-smoke",
           "result": "pass",
           "note": "Smoke test asserts output writes refuse to overwrite existing wave, inspect, and plan artifacts.",
-          "headHash": "1166099ba81eea89c0c6142eaf8712dc54f9b2a7",
-          "materialHash": "ad46508b5568562598055d9971bc42200a55c07a5ce686390ea7b0f4d634329b",
-          "timestamp": "2026-06-02T05:23:10.373Z"
+          "headHash": "9fba6fe317529da961d1fd4f421648174780472c",
+          "materialHash": "e531b89d72a95c04191bf4f43a97a4e341c3bfffbdbb9b1e25b538d908216cd1",
+          "timestamp": "2026-06-02T05:26:57.250Z"
         }
       },
       {
@@ -189,16 +189,16 @@
         "desc": "Host candidate summaries include capability status and degradation counts from capability probes.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-004:happy:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:lattice-parallel-wave-smoke",
           "result": "pass",
           "note": "Smoke test asserts host candidates include capability status and degradation summaries.",
-          "headHash": "1166099ba81eea89c0c6142eaf8712dc54f9b2a7",
-          "materialHash": "ad46508b5568562598055d9971bc42200a55c07a5ce686390ea7b0f4d634329b",
-          "timestamp": "2026-06-02T05:23:10.373Z"
+          "headHash": "9fba6fe317529da961d1fd4f421648174780472c",
+          "materialHash": "e531b89d72a95c04191bf4f43a97a4e341c3bfffbdbb9b1e25b538d908216cd1",
+          "timestamp": "2026-06-02T05:26:57.250Z"
         }
       },
       {
@@ -208,16 +208,16 @@
         "desc": "Evidence refs are preserved as references only and do not refresh stale evidence or change authority.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-004:edge:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:lattice-parallel-wave-smoke",
           "result": "pass",
           "note": "Smoke test asserts evidence refs are preserved as references while authority remains unchanged.",
-          "headHash": "1166099ba81eea89c0c6142eaf8712dc54f9b2a7",
-          "materialHash": "ad46508b5568562598055d9971bc42200a55c07a5ce686390ea7b0f4d634329b",
-          "timestamp": "2026-06-02T05:23:10.373Z"
+          "headHash": "9fba6fe317529da961d1fd4f421648174780472c",
+          "materialHash": "e531b89d72a95c04191bf4f43a97a4e341c3bfffbdbb9b1e25b538d908216cd1",
+          "timestamp": "2026-06-02T05:26:57.250Z"
         }
       },
       {
@@ -227,16 +227,16 @@
         "desc": "Missing or conditional receipt-verify capability blocks productionDone and keeps top-level receiptRefs empty.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-004:adversarial:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:lattice-parallel-wave-smoke",
           "result": "pass",
           "note": "Smoke test asserts conditional receipt capability blocks productionDone and top-level receiptRefs stay empty.",
-          "headHash": "1166099ba81eea89c0c6142eaf8712dc54f9b2a7",
-          "materialHash": "ad46508b5568562598055d9971bc42200a55c07a5ce686390ea7b0f4d634329b",
-          "timestamp": "2026-06-02T05:23:10.373Z"
+          "headHash": "9fba6fe317529da961d1fd4f421648174780472c",
+          "materialHash": "e531b89d72a95c04191bf4f43a97a4e341c3bfffbdbb9b1e25b538d908216cd1",
+          "timestamp": "2026-06-02T05:26:57.250Z"
         }
       },
       {
@@ -246,16 +246,16 @@
         "desc": "Smoke test asserts MAIN_TOOLS and registry expose all three wave commands.",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-005:happy:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:lattice-parallel-wave-smoke",
           "result": "pass",
           "note": "Smoke test asserts MAIN_TOOLS and registry expose all three Parallel Wave commands.",
-          "headHash": "1166099ba81eea89c0c6142eaf8712dc54f9b2a7",
-          "materialHash": "ad46508b5568562598055d9971bc42200a55c07a5ce686390ea7b0f4d634329b",
-          "timestamp": "2026-06-02T05:23:10.373Z"
+          "headHash": "9fba6fe317529da961d1fd4f421648174780472c",
+          "materialHash": "e531b89d72a95c04191bf4f43a97a4e341c3bfffbdbb9b1e25b538d908216cd1",
+          "timestamp": "2026-06-02T05:26:57.250Z"
         }
       },
       {
@@ -265,16 +265,16 @@
         "desc": "Smoke test asserts command-policy classifies all wave commands as readOnly/non-authority.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-005:edge:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:lattice-parallel-wave-smoke",
           "result": "pass",
           "note": "Smoke test asserts command-policy classifies all wave commands as readOnly and non-authority.",
-          "headHash": "1166099ba81eea89c0c6142eaf8712dc54f9b2a7",
-          "materialHash": "ad46508b5568562598055d9971bc42200a55c07a5ce686390ea7b0f4d634329b",
-          "timestamp": "2026-06-02T05:23:10.373Z"
+          "headHash": "9fba6fe317529da961d1fd4f421648174780472c",
+          "materialHash": "e531b89d72a95c04191bf4f43a97a4e341c3bfffbdbb9b1e25b538d908216cd1",
+          "timestamp": "2026-06-02T05:26:57.250Z"
         }
       },
       {
@@ -284,16 +284,16 @@
         "desc": "Smoke test asserts process-fact levels classify all wave commands as L0 and not gate evidence.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-005:adversarial:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:lattice-parallel-wave-smoke",
           "result": "pass",
           "note": "Smoke test asserts process-fact levels classify all wave commands as L0 and not gate evidence.",
-          "headHash": "1166099ba81eea89c0c6142eaf8712dc54f9b2a7",
-          "materialHash": "ad46508b5568562598055d9971bc42200a55c07a5ce686390ea7b0f4d634329b",
-          "timestamp": "2026-06-02T05:23:10.373Z"
+          "headHash": "9fba6fe317529da961d1fd4f421648174780472c",
+          "materialHash": "e531b89d72a95c04191bf4f43a97a4e341c3bfffbdbb9b1e25b538d908216cd1",
+          "timestamp": "2026-06-02T05:26:57.250Z"
         }
       },
       {
@@ -303,16 +303,16 @@
         "desc": "Build and focused lattice parallel wave smoke test pass.",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-006:happy:0",
           "kind": "integration_test",
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:lattice-parallel-wave-smoke",
           "result": "pass",
           "note": "Build and focused Lattice Parallel Wave smoke test passed in this DEV session.",
-          "headHash": "1166099ba81eea89c0c6142eaf8712dc54f9b2a7",
-          "materialHash": "ad46508b5568562598055d9971bc42200a55c07a5ce686390ea7b0f4d634329b",
-          "timestamp": "2026-06-02T05:23:10.373Z"
+          "headHash": "9fba6fe317529da961d1fd4f421648174780472c",
+          "materialHash": "e531b89d72a95c04191bf4f43a97a4e341c3bfffbdbb9b1e25b538d908216cd1",
+          "timestamp": "2026-06-02T05:26:57.250Z"
         }
       },
       {
@@ -322,16 +322,16 @@
         "desc": "Scope contract check passes without forbidden writes.",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-006:edge:0",
           "kind": "manual_transcript",
           "command": "KOALA_SESSION_ID=codex-main-B-29b6 koala scope_contract_check --storyId=B-29b6",
           "result": "pass",
           "note": "Scope contract check passed with zero unacknowledged violations for the declared write set.",
-          "headHash": "1166099ba81eea89c0c6142eaf8712dc54f9b2a7",
-          "materialHash": "ad46508b5568562598055d9971bc42200a55c07a5ce686390ea7b0f4d634329b",
-          "timestamp": "2026-06-02T05:23:10.373Z"
+          "headHash": "9fba6fe317529da961d1fd4f421648174780472c",
+          "materialHash": "e531b89d72a95c04191bf4f43a97a4e341c3bfffbdbb9b1e25b538d908216cd1",
+          "timestamp": "2026-06-02T05:26:57.250Z"
         }
       },
       {
@@ -341,16 +341,16 @@
         "desc": "koala validate confirms all checklist verification intents are covered before DONE.",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-006:adversarial:0",
           "kind": "manual_transcript",
           "command": "KOALA_SESSION_ID=codex-main-B-29b6 koala validate --story=B-29b6 --json",
           "result": "pass",
           "note": "Final Koala validate command is run after recording evidence to confirm checklist coverage and gate state.",
-          "headHash": "1166099ba81eea89c0c6142eaf8712dc54f9b2a7",
-          "materialHash": "ad46508b5568562598055d9971bc42200a55c07a5ce686390ea7b0f4d634329b",
-          "timestamp": "2026-06-02T05:23:10.373Z"
+          "headHash": "9fba6fe317529da961d1fd4f421648174780472c",
+          "materialHash": "e531b89d72a95c04191bf4f43a97a4e341c3bfffbdbb9b1e25b538d908216cd1",
+          "timestamp": "2026-06-02T05:26:57.250Z"
         }
       }
     ]
