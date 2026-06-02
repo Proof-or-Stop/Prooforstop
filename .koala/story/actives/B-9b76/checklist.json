@@ -96,7 +96,41 @@
       "relatedDocs": [
         "docs/requirements/decisions/lifecycle-artifact-scope.md",
         "AGENTS.md"
-      ]
+      ],
+      "userSees": "用户在 legacy full repo 运行 verify_codex 仍看到 agents mirror pass；在 thin registry fixture 运行 verify_codex 看到 registry prompt check pass，且不要求 .Codex/agents。",
+      "files": {
+        "modify": [
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/managed-assets.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/codex-registry-mode-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/codex-registry-mode-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Legacy manifest or absent promptMode keeps existing .claude/.Codex mirror hard check behavior.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Registry promptMode verifies registry version/hash/renderability without requiring local prompt mirror directories.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Registry hash mismatch or missing registry capability fails clearly and still preserves hard Codex adapter verification semantics.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
