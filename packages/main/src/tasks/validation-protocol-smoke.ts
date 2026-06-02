@@ -865,14 +865,14 @@ try {
     }
     assert.ok(driftText.startsWith('Runtime footprint:\nRuntime mode:'), 'plain check drift should render runtime footprint before drift details');
     assert.match(driftText, /Project-local JavaScript runtime required: (yes|no)/);
-    assert.match(driftText, /Next action: run koala check --apply to sync MISSING\/STALE_SAFE assets/);
-    assert.match(driftText, /Koala managed asset check: DRIFT/);
+    assert.match(driftText, /Next action: run lattice check --apply to sync MISSING\/STALE_SAFE assets/);
+    assert.match(driftText, /Lattice managed asset check: DRIFT/);
 
     runManagedAssetCheck(checkRoot, { apply: true, profile: 'core' });
     const cleanText = check({ profile: 'core' }) as string;
     assert.ok(cleanText.startsWith('Runtime footprint:\nRuntime mode:'), 'plain check OK should start with runtime footprint');
     assert.match(cleanText, /Next action: no managed asset drift/);
-    assert.match(cleanText, /Koala managed asset check: OK/);
+    assert.match(cleanText, /Lattice managed asset check: OK/);
   } finally {
     rmSync(checkRoot, { recursive: true, force: true });
   }
@@ -899,7 +899,7 @@ try {
       'plain check stale local edit should render runtime footprint before drift details',
     );
     assert.match(staleLocalCheckText, /Next action: review unsafe managed assets manually/);
-    assert.match(staleLocalCheckText, /Koala managed asset check: DRIFT/);
+    assert.match(staleLocalCheckText, /Lattice managed asset check: DRIFT/);
     assert.match(staleLocalCheckText, /STALE_LOCAL_EDIT KOALA\.md|STALE_LOCAL_EDIT[\s\S]*KOALA\.md/);
     const result = runManagedAssetCheck(staleLocalAssetRoot, { apply: true, reviewLocalEdits: true, profile: 'core' });
     const item = result.items.find(entry => entry.relPath === 'KOALA.md');

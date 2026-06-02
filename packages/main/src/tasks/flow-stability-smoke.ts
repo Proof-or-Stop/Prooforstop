@@ -770,7 +770,7 @@ function assertPhaseGatePolicyHints(): void {
     assert.match(output, /Lifecycle: legacy/);
     assert.match(output, /Requested phase: DEV/);
     assert.match(output, /Allowed phases: root-only/);
-    assert.match(output, /Replacement: .*koala validate --story=<storyId>/);
+    assert.match(output, /Replacement: .*lattice validate --story=<storyId>/);
     assert.match(output, /verificationEvidence/);
     assert.match(output, /Destructive risk: workspace-destructive/);
     assert.match(output, /confirm/);
@@ -1577,7 +1577,7 @@ function assertReviewerStatusUsesMdFallback(): void {
     assert.match(reviewBrief, /review_run_start/, 'REVIEW anti-stall should tell reviewers to start a signed review run');
     assert.match(reviewBrief, /reviewRunId/, 'REVIEW anti-stall should mention the returned reviewRunId');
     assert.match(reviewBrief, /review_pass_set/, 'REVIEW anti-stall should still explain no-blocker pass evidence');
-    assert.match(reviewBrief, /<reviewRunId from review_run_start>/, 'REVIEW anti-stall should not imply a hard-coded reviewRunId');
+    assert.match(reviewBrief, /<reviewRunId from (?:lattice )?review_run_start>/, 'REVIEW anti-stall should not imply a hard-coded reviewRunId');
     assert.doesNotMatch(reviewBrief, /:RR-001/, 'REVIEW anti-stall must not hard-code a synthetic reviewRunId');
 
     const contract = getArtifactContractStatus(store, storyId, 'TEST', { projectRoot: root });
@@ -1670,8 +1670,8 @@ function assertSessionBriefStatusHintsMatchGates(): void {
     // B-4b22: koala_metadata-only pollution passes via dirty-gate-policy, so
     // git-working-tree no longer appears in the blocked-row list.
     assert.match(nextStep, /delivery-check, story-summary/);
-    assert.match(nextStep, /全部通过后再 story_advance --phase=DONE/);
-    assert.match(testBrief, /全部通过后再 story_advance --phase=DONE/);
+    assert.match(nextStep, /全部通过后再 (?:lattice )?story_advance --phase=DONE/);
+    assert.match(testBrief, /全部通过后再 (?:lattice )?story_advance --phase=DONE/);
     assert.doesNotMatch(testBrief, /下一步：story_advance --storyId=B-smoke --phase=DONE/);
     assert.doesNotMatch(testBrief, /下一步：先 git add \+ git commit 提交所有改动，再 advance DONE/);
   } finally {

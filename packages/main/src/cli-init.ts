@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 import {
   AGENTS_MD_TEMPLATE,
   CLAUDE_MD_TEMPLATE,
-  KOALA_MD_TEMPLATE,
+  LATTICE_MD_TEMPLATE,
   SUPPORTED_INIT_ASSET_MODES,
   SUPPORTED_INIT_PROFILES,
   listAgentPromptFiles,
@@ -14,7 +14,9 @@ import {
   renderCodexAgentContent,
   renderCodexReadmeTemplate,
   renderCodexWrapperScript,
-  renderKoalaBootstrapScript,
+  renderLatticeBootstrapScript,
+  renderLatticeCodexAdapterManifest,
+  renderLatticeCodexWrapperScript,
   getKoalaHooks,
 } from './init-assets.js';
 import type { InitAssetMode, InitProfile } from './init-assets.js';
@@ -217,24 +219,26 @@ const arg = parseTargetDir(initArgs);
 
 if (initArgs.includes('--help') || initArgs.includes('-h') || initArgs.includes('help')) {
   console.log(`
-koala-init — 初始化 koala 开发框架
+lattice init — 初始化 Lattice/Koala 开发框架
 
 用法:
-  npx koala-init [目标目录]                  在指定目录初始化（默认当前目录）
-  npx koala-init --profile <profile> [目标目录]
+  lattice init [目标目录]                    在指定目录初始化（默认当前目录）
+  lattice init --profile <profile> [目标目录]
                                         选择 init profile: codex | claude | all | core
-  npx koala-init --asset-mode <mode> [目标目录]
+  lattice init --asset-mode <mode> [目标目录]
                                         选择 Codex prompt asset mode: full | thin（默认 full）
-  npx koala-init --starter [目标目录]        额外生成旧版 starter 业务模板
-  npx koala-init --with-template [目标目录]  --starter 的同义 alias
-  npx koala-init --upgrade [目标目录]        同步 Koala 管理资产到当前版本
-  npx koala-init --verify-codex [目标目录]   初始化后校验 Codex adapter 资产
-  npx koala-init --help                      显示帮助
+  lattice init --starter [目标目录]          额外生成旧版 starter 业务模板
+  lattice init --with-template [目标目录]    --starter 的同义 alias
+  lattice init --upgrade [目标目录]          同步 Lattice 管理资产到当前版本
+  lattice init --verify-codex [目标目录]     初始化后校验 Codex adapter 资产
+  lattice init --help                        显示帮助
+
+Legacy npm package entrypoint \`npx koala-init\` remains accepted as an alias.
 
 初始化内容:
   koala.config.json             项目配置（扫描路径、Story 前缀）
-  KOALA.md                      canonical host-neutral Koala 指南
-  bin/koala.js                  本地 koala bootstrap
+  LATTICE.md                    canonical host-neutral Lattice 指南
+  bin/lattice.js                本地 Lattice bootstrap
   host adapter assets           由 --profile 控制（codex / claude / all / core）
   Codex prompt assets           由 --asset-mode 控制（full 生成 .Codex/agents；thin 使用 registry）
   .claude/skills/koala/         /koala skill 文件
@@ -250,9 +254,9 @@ koala-init — 初始化 koala 开发框架
   tests/                        测试目录
 
 初始化后:
-  1. 阅读 KOALA.md，并使用 profile 生成的入口
+  1. 阅读 LATTICE.md，并使用 profile 生成的入口
   2. 编辑 koala.config.json 调整 scanRoot 等路径
-  3. 可选: koala validate 跑项目验证
+  3. 可选: lattice validate 跑项目验证
 `);
   process.exit(0);
 }
@@ -270,7 +274,7 @@ const isPython = existsSync(join(targetDir, 'requirements.txt'))
   || existsSync(join(targetDir, 'pyproject.toml'))
   || existsSync(join(targetDir, 'setup.py'));
 
-console.log(`\nInitializing koala in ${targetDir}\n`);
+console.log(`\nInitializing Lattice in ${targetDir}\n`);
 console.log(`Selected init profile: ${selectedProfile}`);
 console.log(`Profile reason: ${selectedProfileInfo.reason}`);
 console.log(`Codex asset mode: ${selectedAssetMode}`);
@@ -357,6 +361,15 @@ function removePathIfExists(relPath: string, label: string) {
   console.log(`  ↻ ${label} (removed for profile cleanup)`);
 }
 
+function removeWholeFileIfGenerated(relPath: string, label: string, expectedContents: string[]) {
+  const full = join(targetDir, relPath);
+  if (!existsSync(full)) return;
+  const actual = readFileSync(full, 'utf-8');
+  if (!expectedContents.some(expected => actual === (expected.endsWith('\n') ? expected : `${expected}\n`))) return;
+  unlinkSync(full);
+  console.log(`  ↻ ${label} (removed generated file for profile cleanup)`);
+}
+
 function cleanupEmptyDirChain(relDir: string) {
   let current = relDir;
   while (current && current !== '.') {
@@ -386,12 +399,19 @@ function removeClaudeSettingsIfManaged() {
 }
 
 function removeCodexWrapperIfManaged() {
-  const wrapperPath = join(targetDir, 'bin', 'koala-codex.js');
-  if (!existsSync(wrapperPath)) return;
-  const actual = readFileSync(wrapperPath, 'utf-8');
-  if (actual !== renderCodexWrapperScript()) return;
-  unlinkSync(wrapperPath);
-  console.log('  ↻ bin/koala-codex.js (removed generated Codex wrapper for profile cleanup)');
+  removeWholeFileIfGenerated('bin/lattice-codex.js', 'bin/lattice-codex.js', [renderLatticeCodexWrapperScript()]);
+  removeWholeFileIfGenerated('bin/koala-codex.js', 'bin/koala-codex.js', [renderCodexWrapperScript()]);
+}
+
+function removeCodexManifestIfManaged() {
+  removeWholeFileIfGenerated('.Codex/lattice.json', '.Codex/lattice.json', [
+    renderLatticeCodexAdapterManifest(),
+    renderLatticeCodexAdapterManifest({ promptMode: 'registry' }),
+  ]);
+  removeWholeFileIfGenerated('.Codex/koala.json', '.Codex/koala.json', [
+    renderCodexAdapterManifest(),
+    renderCodexAdapterManifest({ promptMode: 'registry' }),
+  ]);
 }
 
 function cleanupClaudeAssets() {
@@ -408,7 +428,7 @@ function cleanupCodexAssets() {
   removeIfManagedDoc('AGENTS.md', 'AGENTS.md');
   removePathIfExists('.Codex/agents', '.Codex/agents');
   removePathIfExists('.Codex/README.md', '.Codex/README.md');
-  removePathIfExists('.Codex/koala.json', '.Codex/koala.json');
+  removeCodexManifestIfManaged();
   cleanupEmptyDirChain('.Codex');
   removeCodexWrapperIfManaged();
 }
@@ -498,16 +518,16 @@ if (withStarter) {
   }
 }
 
-const codexWrapperPath = join(targetDir, 'bin', 'koala-codex.js');
-writeExecutable('bin/koala.js', renderKoalaBootstrapScript(packageRoot));
+const codexWrapperPath = join(targetDir, 'bin', 'lattice-codex.js');
+writeExecutable('bin/lattice.js', renderLatticeBootstrapScript(packageRoot));
 
 if (wantsCodex && !existsSync(codexWrapperPath)) {
-  writeExecutable('bin/koala-codex.js', renderCodexWrapperScript());
-  console.log('  ✓ bin/koala-codex.js (Codex wrapper)');
+  writeExecutable('bin/lattice-codex.js', renderLatticeCodexWrapperScript());
+  console.log('  ✓ bin/lattice-codex.js (Codex wrapper)');
 } else if (wantsCodex) {
-  console.log('  - bin/koala-codex.js (exists, skip)');
+  console.log('  - bin/lattice-codex.js (exists, skip)');
 } else {
-  console.log('  - bin/koala-codex.js (profile skip)');
+  console.log('  - bin/lattice-codex.js (profile skip)');
 }
 
 // 生成 CLI shell 模板
@@ -716,8 +736,8 @@ if (existsSync(pkgPath)) {
 write('koala.config.json', JSON.stringify(koalaConfig, null, 2) + '\n');
 
 // 3. 文档入口
-console.log('\n[3/6] 配置 Koala / host 文档...');
-writeManagedMarkdown('KOALA.md', KOALA_MD_TEMPLATE, 'KOALA.md');
+console.log('\n[3/6] 配置 Lattice / host 文档...');
+writeManagedMarkdown('LATTICE.md', LATTICE_MD_TEMPLATE, 'LATTICE.md');
 
 if (wantsClaude) {
   writeManagedMarkdown('CLAUDE.md', CLAUDE_MD_TEMPLATE, 'CLAUDE.md');
@@ -793,12 +813,12 @@ if (wantsCodex) {
   writeFileSync(codexReadmePath, renderCodexReadmeTemplate(selectedAssetMode));
   console.log('  ✓ .Codex/README.md');
 
-  const codexManifestPath = join(targetDir, '.Codex', 'koala.json');
-  writeFileSync(codexManifestPath, renderCodexAdapterManifest(selectedAssetMode === 'thin' ? { promptMode: 'registry' } : {}));
-  console.log('  ✓ .Codex/koala.json');
+  const codexManifestPath = join(targetDir, '.Codex', 'lattice.json');
+  writeFileSync(codexManifestPath, renderLatticeCodexAdapterManifest(selectedAssetMode === 'thin' ? { promptMode: 'registry' } : {}));
+  console.log('  ✓ .Codex/lattice.json');
 } else {
   console.log('  - .Codex/README.md (profile skip)');
-  console.log('  - .Codex/koala.json (profile skip)');
+  console.log('  - .Codex/lattice.json (profile skip)');
 }
 
 if (wantsCodex && selectedAssetMode === 'thin') {
@@ -884,7 +904,7 @@ if (wantsClaude) {
 }
 
 if (upgradeManagedAssets) {
-  console.log('\n[upgrade] 同步 Koala 管理资产...');
+  console.log('\n[upgrade] 同步 Lattice 管理资产...');
   const result = runManagedAssetCheck(targetDir, { apply: true, profile: selectedProfile, assetMode: selectedAssetMode });
   console.log(renderManagedAssetCheck(result));
   if (!result.ok) process.exit(1);
@@ -894,9 +914,9 @@ console.log(`
 ✓ 初始化完成
 
 Next steps:
-  1. Read KOALA.md, then use the entrypoints generated for profile ${selectedProfile}
+  1. Read LATTICE.md, then use the entrypoints generated for profile ${selectedProfile}
   2. Optional: edit koala.config.json to adjust scanRoot
-  3. Optional: koala validate to verify project
+  3. Optional: lattice validate to verify project
 `);
 
 if (verifyCodex) {

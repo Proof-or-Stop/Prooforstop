@@ -630,7 +630,7 @@ async function assertItemDispatchWritesChannelEvidence(): Promise<void> {
     assert.equal(dispatchEvent?.checklistId, 'CHK-001', 'item dispatch should write checklistId for channel gate');
     assert.equal(dispatchEvent?.agentType, 'koala-implementer', 'item dispatch should write agentType');
     assert.equal(dispatchEvent?.phase, 'DEV', 'item dispatch event should include story phase');
-    assert.equal(dispatchEvent?.source, 'koala dispatch', 'item dispatch event should name source');
+    assert.equal(dispatchEvent?.source, 'lattice dispatch', 'item dispatch event should name source');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

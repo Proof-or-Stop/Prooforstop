@@ -659,8 +659,19 @@ function resolveActiveCliEntrypoint(projectRoot: string, corePackageRoot: string
 function looksLikeKoalaEntrypoint(path: string, projectRoot: string, corePackageRoot: string): boolean {
   const real = safeRealpath(path) ?? path;
   const name = basename(path);
-  if (name === 'koala' || name === 'koala.cmd' || name === 'koala.js' || name === 'koala-codex.js') return true;
+  if (
+    name === 'lattice'
+    || name === 'lattice.cmd'
+    || name === 'lattice.js'
+    || name === 'lattice-codex.js'
+    || name === 'koala'
+    || name === 'koala.cmd'
+    || name === 'koala.js'
+    || name === 'koala-codex.js'
+  ) return true;
   if ((name === 'cli.js' || name === 'cli-engine.js') && pathContains(corePackageRoot, real)) return true;
+  if (samePath(real, join(projectRoot, 'bin', 'lattice.js'))) return true;
+  if (samePath(real, join(projectRoot, 'bin', 'lattice-codex.js'))) return true;
   if (samePath(real, join(projectRoot, 'bin', 'koala.js'))) return true;
   if (samePath(real, join(projectRoot, 'bin', 'koala-codex.js'))) return true;
   return false;
@@ -766,7 +777,7 @@ function compatibilityLauncherSignal(activePath: string | null): boolean {
   if (process.env.KOALA_ACTIVITY_SOURCE === 'codex') return true;
   if (process.env.KOALA_CODEX_ENTRYPOINT === 'global-fallback' || process.env.KOALA_CODEX_ENTRYPOINT === 'local-wrapper') return true;
   const name = activePath ? basename(activePath) : '';
-  return name === 'koala.js' || name === 'koala-codex.js';
+  return name === 'lattice.js' || name === 'lattice-codex.js' || name === 'koala.js' || name === 'koala-codex.js';
 }
 
 function localBinWarning(localBin: string, localRealpath: string | null, cliRealpath: string | null, cliEntrypoint: string | null): string {

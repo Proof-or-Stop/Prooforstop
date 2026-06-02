@@ -1614,7 +1614,7 @@ const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
 function inferCodexEntrypoint(): string {
   if (process.env.KOALA_CODEX_ENTRYPOINT) return process.env.KOALA_CODEX_ENTRYPOINT;
   const invoked = process.argv[1] || '';
-  if (invoked.includes('koala-codex')) return 'local-wrapper';
+  if (invoked.includes('lattice-codex') || invoked.includes('koala-codex')) return 'local-wrapper';
   if (process.env.KOALA_ACTIVITY_SOURCE === 'codex') return 'global-fallback';
   return 'cli';
 }

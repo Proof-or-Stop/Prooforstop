@@ -20,16 +20,35 @@ export function listAgentPromptFiles(agentDir: string): string[] {
 export const AGENTS_MD_TEMPLATE = `# AGENTS.md
 
 <!-- koala:start -->
-## Koala
+## Lattice
 
-- \`KOALA.md\` 是 host-neutral 的 Koala 指南；以下只保留 Codex / AGENTS 侧补充。
-- 新 session 或恢复中断工作时，先运行 \`koala session_brief\`。
-- 行动前运行 \`koala aux_doc_list\` 查看相关文档；若当前全局 core-only 环境没有 aux 命令，用本地 bootstrap 或 shell 搜索兜底。
-- Story / checklist / fixture / bug 操作优先通过 \`koala\` CLI，不直接改 story/fixture JSON。
-- Codex subagent prompts 位于 \`.Codex/agents\`；Claude Code 专属资产只会在启用 Claude profile 的仓库里生成。
-- 改动 Codex adapter / \`.Codex\` / \`bin/koala-codex.js\` 后运行 \`node bin/koala-codex.js verify_codex\`，让 REVIEW/DONE gate 能消费硬证据。
-- 诊断 Codex adapter 时运行 \`node bin/koala-codex.js doctor\`。
-- 运行 \`koala check\` 检查 Koala 管理资产/模板漂移；确认后用 \`koala check --apply\` 或 \`koala check --upgrade\` 同步安全项。
+- \`LATTICE.md\` is the host-neutral Lattice guide; this file keeps only Codex / AGENTS additions.
+- At the start of a new session, or when resuming interrupted work, run \`node bin/lattice.js session_brief\`.
+- Before acting, run \`node bin/lattice.js aux_doc_list\` to inspect relevant docs; if the current global core-only environment lacks aux commands, fall back to the local bootstrap or shell search.
+- Prefer \`node bin/lattice.js\` (or global \`lattice\`) for Story / checklist / fixture / bug operations. Do not edit story/fixture JSON directly; \`koala\` is only a legacy alias.
+- Codex subagent prompts live in \`.Codex/agents\`; Claude Code-only assets are generated only when the Claude profile is enabled.
+- After changing the Codex adapter, \`.Codex\`, or \`bin/lattice-codex.js\`, run \`node bin/lattice-codex.js verify_codex\` so REVIEW/DONE gates can consume hard evidence.
+- For Codex adapter diagnostics, run \`node bin/lattice-codex.js doctor\`.
+- Run \`node bin/lattice.js check\` to check Lattice managed asset/template drift; after review, use \`node bin/lattice.js check --apply\` or \`node bin/lattice.js check --upgrade\` to sync safe items.
+
+<!-- koala:end -->
+`;
+
+export const LATTICE_MD_TEMPLATE = `# LATTICE.md
+
+<!-- koala:start -->
+## Lattice
+
+\`LATTICE.md\` is the canonical, host-neutral Lattice guide. New init profiles create or sync this file.
+
+- At the start of a new session, or when resuming interrupted work, run \`node bin/lattice.js session_brief\`.
+- Before acting, run \`node bin/lattice.js aux_doc_list\` to inspect relevant docs; if the current global core-only environment lacks aux commands, fall back to the local bootstrap or shell search.
+- Prefer \`node bin/lattice.js\` (or global \`lattice\`) for Story / checklist / fixture / bug operations. Do not edit story/fixture JSON directly; \`koala\` remains a legacy alias.
+- The default local entrypoint is \`node bin/lattice.js\`; if the profile generated a Codex adapter, also use \`node bin/lattice-codex.js\`.
+- Codex-specific notes live in \`AGENTS.md\` and \`.Codex/README.md\`; Claude-specific notes live in \`CLAUDE.md\` and \`.claude/\`.
+- After changing Lattice adapter assets, run the corresponding verification: project validation uses \`node bin/lattice.js validate\`, and the Codex adapter additionally uses \`node bin/lattice-codex.js verify_codex\`.
+- \`node bin/lattice.js check\` checks Lattice managed assets against the hardcoded registry. \`node bin/lattice.js check --apply\` / \`node bin/lattice.js check --upgrade\` sync only MISSING/STALE_SAFE items and do not overwrite CASE_MISMATCH, local edits, or incompatible files.
+- Legacy projects may still expose \`KOALA.md\`, \`bin/koala.js\`, \`bin/koala-codex.js\`, and \`.Codex/koala.json\` as compatibility assets. New init no longer generates those files by default.
 
 <!-- koala:end -->
 `;
@@ -39,15 +58,15 @@ export const KOALA_MD_TEMPLATE = `# KOALA.md
 <!-- koala:start -->
 ## Koala
 
-\`KOALA.md\` 是 Koala 的 canonical、host-neutral 指南。所有 init profile 都会创建或同步这个文件。
+\`KOALA.md\` is the legacy canonical, host-neutral Koala guide. Existing legacy init profiles may still create or sync this file.
 
-- 新 session 或恢复中断工作时，先运行 \`koala session_brief\`。
-- 行动前运行 \`koala aux_doc_list\` 查看相关文档；若当前全局 core-only 环境没有 aux 命令，用本地 bootstrap 或 shell 搜索兜底。
-- Story / checklist / fixture / bug 操作优先通过 \`koala\` CLI，不直接改 story/fixture JSON。
-- 默认本地入口是 \`node bin/koala.js\`；若 profile 生成了 Codex adapter，可额外使用 \`node bin/koala-codex.js\`。
-- Codex 专属说明放在 \`AGENTS.md\` 和 \`.Codex/README.md\`；Claude 专属说明放在 \`CLAUDE.md\` 和 \`.claude/\`。
-- 改动 Koala adapter 资产后先跑对应验证：项目验证用 \`koala validate\`，Codex adapter 额外跑 \`node bin/koala-codex.js verify_codex\`。
-- \`koala check\` 会按硬编码 registry 检查 Koala 管理资产是否跟当前版本漂移；\`koala check --apply\` / \`koala check --upgrade\` 只会同步 MISSING/STALE_SAFE，不会覆盖 CASE_MISMATCH、本地编辑或不兼容文件。
+- At the start of a new session, or when resuming interrupted work, run \`koala session_brief\`.
+- Before acting, run \`koala aux_doc_list\` to inspect relevant docs; if the current global core-only environment lacks aux commands, fall back to the local bootstrap or shell search.
+- Prefer the \`koala\` CLI for Story / checklist / fixture / bug operations. Do not edit story/fixture JSON directly.
+- The default local entrypoint is \`node bin/koala.js\`; if the profile generated a Codex adapter, also use \`node bin/koala-codex.js\`.
+- Codex-specific notes live in \`AGENTS.md\` and \`.Codex/README.md\`; Claude-specific notes live in \`CLAUDE.md\` and \`.claude/\`.
+- After changing Koala adapter assets, run the corresponding verification: project validation uses \`koala validate\`, and the Codex adapter additionally uses \`node bin/koala-codex.js verify_codex\`.
+- \`koala check\` checks Koala managed assets against the hardcoded registry. \`koala check --apply\` / \`koala check --upgrade\` sync only MISSING/STALE_SAFE items and do not overwrite CASE_MISMATCH, local edits, or incompatible files.
 
 <!-- koala:end -->
 `;
@@ -55,20 +74,39 @@ export const KOALA_MD_TEMPLATE = `# KOALA.md
 export const CLAUDE_MD_TEMPLATE = `# CLAUDE.md
 
 <!-- koala:start -->
-## Koala For Claude Code
+## Lattice For Claude Code
 
-- \`KOALA.md\` 是 canonical、host-neutral 的 Koala 指南；Story 生命周期、流程事实和通用规则都以它为准。
-- Claude Code 入口先跑 \`koala session_brief\`，日常操作继续使用 \`koala\` CLI。
-- Claude Code subagents 位于 \`.claude/agents\`。
-- Claude Code hooks 位于 \`.claude/hooks\`，Claude settings 位于 \`.claude/settings.json\`。
-- Claude Code 的 \`/koala\` skill 位于 \`.claude/skills/koala\`。
-- 当仓库同时启用 Codex profile 时，Codex 资产会单独放在 \`.Codex/\`，不要把这里当成双端共享真相源。
-- 运行 \`koala check\` 检查 Koala 管理资产/模板漂移；确认后用 \`koala check --apply\` 或 \`koala check --upgrade\` 同步安全项。
+- \`LATTICE.md\` is the canonical, host-neutral Lattice guide; Story lifecycle facts and shared rules derive from it.
+- Claude Code entrypoints should first run \`node bin/lattice.js session_brief\`; daily operations should use \`node bin/lattice.js\` or global \`lattice\`. \`koala\` is only a legacy alias.
+- Claude Code subagents live in \`.claude/agents\`.
+- Claude Code hooks live in \`.claude/hooks\`, and Claude settings live in \`.claude/settings.json\`.
+- The Claude Code \`/koala\` skill lives in \`.claude/skills/koala\`.
+- When the repository also enables the Codex profile, Codex assets live separately under \`.Codex/\`; do not treat this file as a shared truth source for both hosts.
+- Run \`node bin/lattice.js check\` to check Lattice managed asset/template drift; after review, use \`node bin/lattice.js check --apply\` or \`node bin/lattice.js check --upgrade\` to sync safe items.
 
 <!-- koala:end -->
 `;
 
-export const CODEX_ADAPTER_MANIFEST = {
+export interface CodexAdapterManifest {
+  adapterOwner: string;
+  adapterKind: 'codex';
+  activitySource: 'codex';
+  recommendedEntrypoints: readonly {
+    name: string;
+    command: string;
+    useWhen: string;
+  }[];
+  sessionEnv: {
+    source: string;
+    session: string;
+    recordReadOnly: string;
+    sessionCandidates: readonly string[];
+  };
+  excludedRuntimeAssets: readonly string[];
+  notes: readonly string[];
+}
+
+export const CODEX_ADAPTER_MANIFEST: CodexAdapterManifest = {
   adapterOwner: 'koala',
   adapterKind: 'codex',
   activitySource: 'codex',
@@ -106,6 +144,30 @@ export const CODEX_ADAPTER_MANIFEST = {
   ],
 } as const;
 
+export const LATTICE_CODEX_ADAPTER_MANIFEST: CodexAdapterManifest = {
+  ...CODEX_ADAPTER_MANIFEST,
+  adapterOwner: 'lattice',
+  recommendedEntrypoints: [
+    {
+      name: 'local-wrapper',
+      command: 'node bin/lattice-codex.js',
+      useWhen: 'This repository includes the Lattice bootstrap wrapper.',
+    },
+    {
+      name: 'global-fallback',
+      command: 'KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 KOALA_CODEX_ENTRYPOINT=global-fallback lattice',
+      useWhen: 'Only the global lattice CLI is available for read-only heartbeats; do not use it as current-worktree gate/status evidence when a local wrapper or core CLI exists.',
+    },
+  ],
+  notes: [
+    'This file is read by Lattice tooling, not by the Codex runtime.',
+    'Codex agent prompts live in .Codex/agents and are generated from .claude/agents in full asset mode.',
+    'Claude Code hooks, settings, and skills remain under .claude only.',
+    'Run node bin/lattice-codex.js verify_codex after changing Codex adapter assets; it records codex_adapter_verification evidence for gates.',
+    'Legacy Koala projects may still use .Codex/koala.json and bin/koala-codex.js as compatibility assets.',
+  ],
+} as const;
+
 export interface RenderCodexAdapterManifestOptions {
   promptMode?: CodexPromptMode;
   promptRegistry?: PromptRegistryManifest;
@@ -122,6 +184,22 @@ export function renderCodexAdapterManifest(options: RenderCodexAdapterManifestOp
     promptRegistry: options.promptRegistry ?? promptRegistryManifest(),
     notes: [
       ...CODEX_ADAPTER_MANIFEST.notes,
+      'Thin asset mode uses the package prompt registry instead of materializing .Codex/agents prompt copies.',
+    ],
+  }, null, 2)}\n`;
+}
+
+export function renderLatticeCodexAdapterManifest(options: RenderCodexAdapterManifestOptions = {}): string {
+  if (options.promptMode !== 'registry') {
+    return `${JSON.stringify(LATTICE_CODEX_ADAPTER_MANIFEST, null, 2)}\n`;
+  }
+
+  return `${JSON.stringify({
+    ...LATTICE_CODEX_ADAPTER_MANIFEST,
+    promptMode: 'registry',
+    promptRegistry: options.promptRegistry ?? promptRegistryManifest(),
+    notes: [
+      ...LATTICE_CODEX_ADAPTER_MANIFEST.notes,
       'Thin asset mode uses the package prompt registry instead of materializing .Codex/agents prompt copies.',
     ],
   }, null, 2)}\n`;
@@ -187,9 +265,35 @@ This repository uses registry-backed Codex prompts:
 - This is adapter hygiene only. It does not replace validation evidence, receipts, or production authority.
 `;
 
-export function renderCodexReadmeTemplate(assetMode: InitAssetMode = 'full'): string {
-  if (assetMode === 'thin') return `${CODEX_README_LEGACY_TEMPLATE}${CODEX_README_THIN_APPENDIX}`;
-  return CODEX_README_LEGACY_TEMPLATE;
+export type CodexAdapterBrand = 'lattice' | 'koala';
+
+const CODEX_README_LATTICE_TEMPLATE = CODEX_README_LEGACY_TEMPLATE
+  .replace('# Codex + Koala', '# Codex + Lattice')
+  .replaceAll('node bin/koala-codex.js', 'node bin/lattice-codex.js')
+  .replaceAll('node bin/koala.js', 'node bin/lattice.js')
+  .replaceAll('.Codex/koala.json', '.Codex/lattice.json')
+  .replaceAll('npx koala-init', 'lattice init')
+  .replaceAll('KOALA_CODEX_ENTRYPOINT=global-fallback koala session_brief', 'KOALA_CODEX_ENTRYPOINT=global-fallback lattice session_brief')
+  .replaceAll('全局 `koala`', '全局 `lattice`')
+  .replaceAll('core-only koala', 'core-only lattice')
+  .replaceAll('Koala 仓库自身', 'Lattice/Koala 仓库自身')
+  .replaceAll('Koala 仓库', 'Lattice/Koala 仓库')
+  .replaceAll('Koala 自己读取', 'Lattice 自己读取')
+  .replaceAll('Koala adapter', 'Lattice adapter')
+  .replaceAll('Koala 管理资产', 'Lattice 管理资产')
+  .replaceAll('Koala tooling', 'Lattice tooling')
+  .replaceAll('`koala check', '`lattice check')
+  .replaceAll('Lattice/Lattice/Koala', 'Lattice/Koala');
+
+const CODEX_README_LATTICE_THIN_APPENDIX = CODEX_README_THIN_APPENDIX
+  .replaceAll('.Codex/koala.json', '.Codex/lattice.json')
+  .replaceAll('Koala adapter', 'Lattice adapter');
+
+export function renderCodexReadmeTemplate(assetMode: InitAssetMode = 'full', brand: CodexAdapterBrand = 'lattice'): string {
+  const base = brand === 'koala' ? CODEX_README_LEGACY_TEMPLATE : CODEX_README_LATTICE_TEMPLATE;
+  const appendix = brand === 'koala' ? CODEX_README_THIN_APPENDIX : CODEX_README_LATTICE_THIN_APPENDIX;
+  if (assetMode === 'thin') return `${base}${appendix}`;
+  return base;
 }
 
 export const CODEX_README_TEMPLATE = renderCodexReadmeTemplate('full');
@@ -265,6 +369,17 @@ if (require.main === module) {
 `;
 }
 
+export function renderLatticeBootstrapScript(packageRootAbs: string): string {
+  return renderKoalaBootstrapScript(packageRootAbs)
+    .replaceAll('bin/koala.js', 'bin/lattice.js')
+    .replaceAll('koala local bootstrap candidate', 'lattice local bootstrap candidate')
+    .replace("spawnSync('koala', ['help']", "spawnSync('lattice', ['help']")
+    .replace("spawnSync('koala', process.argv.slice(2)", "spawnSync('lattice', process.argv.slice(2)")
+    .replaceAll('npx koala-init', 'lattice init')
+    .replaceAll('global koala', 'global lattice')
+    .replace('In the Koala repository, run: npm run build', 'In the Lattice/Koala repository, run: npm run build');
+}
+
 export function renderCodexWrapperScript(): string {
   return `#!/usr/bin/env node
 process.env.KOALA_ACTIVITY_SOURCE = 'codex';
@@ -308,6 +423,15 @@ main().catch(error => {
   process.exit(1);
 });
 `;
+}
+
+export function renderLatticeCodexWrapperScript(): string {
+  return renderCodexWrapperScript()
+    .replace("const localKoala = join(binDir, 'koala.js');", "const localKoala = join(binDir, 'lattice.js');")
+    .replaceAll('bin/koala-codex.js', 'bin/lattice-codex.js')
+    .replaceAll('bin/koala.js', 'bin/lattice.js')
+    .replaceAll('npx koala-init', 'lattice init')
+    .replace('If this is the Koala repository, run: npm run build', 'If this is the Lattice/Koala repository, run: npm run build');
 }
 
 export function hookCommand(hookFile: string): string {

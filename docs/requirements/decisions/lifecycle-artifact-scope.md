@@ -121,15 +121,26 @@ Lattice init supports two compatible prompt asset shapes:
 
 | Layer | Examples | Ownership |
 | --- | --- | --- |
-| project-local required assets | `KOALA.md`, `AGENTS.md`, `CLAUDE.md`, `.Codex/koala.json`, `bin/koala.js`, `bin/koala-codex.js`, `.claude/settings.json`, `.claude/hooks/*` | Repository-local host entrypoints, adapter config, and command launchers. |
+| project-local required assets | New init primary: `LATTICE.md`, `AGENTS.md`, `CLAUDE.md`, `.Codex/lattice.json`, `bin/lattice.js`, `bin/lattice-codex.js`, `.claude/settings.json`, `.claude/hooks/*`. Legacy compatibility: `KOALA.md`, `.Codex/koala.json`, `bin/koala.js`, `bin/koala-codex.js`. | Repository-local host entrypoints, adapter config, and command launchers. |
 | package registry prompt templates | `packages/main/templates/agents/*.md` exposed through `koala.prompt-registry.v1` | Versioned Koala/Lattice package assets. These are the canonical prompt bodies. |
 | generated or materialized prompt caches | `.Codex/agents/*.md`, `.claude/agents/*.md` when a profile asks for full materialization | Compatibility surfaces for hosts or old repositories that still expect local prompt files. |
 
 The phrase **registry-backed prompt assets** means project metadata points at the
 package prompt registry instead of treating every rendered agent prompt as a
-project-local required file. In registry mode, `.Codex/koala.json` carries the
-prompt registry version and material hash, and Codex adapter verification checks
-that registry rather than requiring `.Codex/agents` prompt copies.
+project-local required file. In registry mode, new projects use
+`.Codex/lattice.json` to carry the prompt registry version and material hash,
+and Codex adapter verification checks that registry rather than requiring
+`.Codex/agents` prompt copies. Existing repositories that already committed
+`.Codex/koala.json` remain valid legacy inputs.
+
+The Lattice naming migration is a managed-asset naming contract only. It does
+not promote ordinary CLI output to receipt-backed authority, does not change
+Story lifecycle gates, and does not remove the `koala` command alias. Fresh init
+must not generate `KOALA.md`, `.Codex/koala.json`, `bin/koala.js`, or
+`bin/koala-codex.js`; compatibility checks may still read those paths when a
+project has not yet adopted the Lattice primary files. Cleanup may remove a
+legacy Koala-named asset only when its content exactly matches a generated
+template or manifest; user-owned legacy files are preserved.
 
 This is a **legacy mirror compatibility** change, not a host behavior removal.
 Legacy full-mode repositories may keep `.Codex/agents` and `.claude/agents`.

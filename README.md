@@ -10,7 +10,8 @@ phase、gate、review、evidence 和 handoff 语义。
 - `packages/utils`：`aux_*`、`truth_*`、`tool_status` 等扩展工具
 - `bin/lattice.js`：完整 bootstrap 主入口（`main + utils`）
 - `bin/koala.js`：legacy bootstrap alias（`main + utils`）
-- `bin/koala-codex.js`：Codex 专用入口，会把活动记成 `source=codex`
+- `bin/lattice-codex.js`：Codex 专用入口，会把活动记成 `source=codex`
+- `bin/koala-codex.js`：legacy Codex wrapper alias for existing repositories
 
 ## Lattice CLI 0.3.5 Migration
 
@@ -155,10 +156,10 @@ npm --prefix packages/lab run build
 ### 2. 在 Codex 里优先用仓库内入口
 
 ```bash
-node bin/koala-codex.js session_brief
-node bin/koala-codex.js aux_doc_list --format=json
-node bin/koala-codex.js story_create '...'
-node bin/koala-codex.js lab create --target=test-case-reviewer --profile=reviewer-quality-v1
+node bin/lattice-codex.js session_brief
+node bin/lattice-codex.js aux_doc_list --format=json
+node bin/lattice-codex.js story_create '...'
+node bin/lattice-codex.js lab create --target=test-case-reviewer --profile=reviewer-quality-v1
 ```
 
 原因：
@@ -235,7 +236,7 @@ npm --prefix packages/main run test:outcome-semantics-smoke
 ### 3. 新 session 的第一步
 
 ```bash
-node bin/koala-codex.js session_brief
+node bin/lattice-codex.js session_brief
 ```
 
 项目里的 [AGENTS.md](/Users/jek/Documents/Work/Orchestrate/AGENTS.md:1) 也要求每个新 session 先跑这条命令。
@@ -254,8 +255,8 @@ npm run test:entrypoints
 
 这会验证当前 worktree 的 repo-local entrypoints / generated local wrapper，不要求当前环境里的 bare global `koala` 已经更新：
 
-- 当前仓库的 `bin/koala.js` / `bin/koala-codex.js`
-- repo-local `node packages/main/dist/cli.js init --help` 和 generated local wrapper `node bin/koala.js init --help` 都把 `--starter` / `--with-template` 标为可选 starter 内容
+- 当前仓库的 `bin/lattice.js` / `bin/lattice-codex.js`，以及 legacy `bin/koala.js` / `bin/koala-codex.js`
+- repo-local `node packages/main/dist/cli.js init --help` 和 generated local wrapper `node bin/lattice.js init --help` 都把 `--starter` / `--with-template` 标为可选 starter 内容
 - repo-local default init 只生成 Koala management assets，不生成 starter `src/core` / `src/shells` / `tests`
 - repo-local `init --starter` / `init --with-template` 会生成旧版 starter 模板，并使用 `scanRoot: "src"`
 - Python no-src 项目默认 init 不创建 `src/`，并使用 `scanRoot: "."`
@@ -265,24 +266,24 @@ npm run test:entrypoints
 
 ```bash
 npm run test:codex-assets
-node bin/koala-codex.js verify_codex
+node bin/lattice-codex.js verify_codex
 ```
 
 这会检查：
 
 - legacy/full prompt mode 下，`.Codex/agents/*.md` 是否仍然等于 `.claude/agents/*.md` 的受控 transform 结果
 - legacy/full prompt mode 下，`.Codex/agents` 是否没有漏掉 `.claude/agents` 中新增的 prompt
-- registry/thin prompt mode 下，`.Codex/koala.json` 的 `promptRegistry` version/hash 是否匹配 package registry，且 Codex prompt renderability 正常
-- `.Codex/koala.json` 是否仍然声明 Koala-managed Codex adapter、`activitySource=codex`、推荐入口和不生成的 runtime 资产
+- registry/thin prompt mode 下，`.Codex/lattice.json` 的 `promptRegistry` version/hash 是否匹配 package registry，且 Codex prompt renderability 正常；legacy `.Codex/koala.json` 仍被兼容识别
+- `.Codex/lattice.json` 是否声明 Lattice-managed Codex adapter、`activitySource=codex`、推荐入口和不生成的 runtime 资产
 - `.Codex/README.md` 是否保留正确的 Codex fallback 入口
 - `README.md` / `AGENTS.md` 是否仍然包含关键的 Codex 接入说明
 
-`node bin/koala-codex.js verify_codex`（或通用本地入口 `node bin/lattice.js verify_codex`；`bin/koala.js` 仍是 legacy alias）复用同一套共享检查，并额外执行本地 wrapper 与全局 fallback heartbeat：它确认 activity 记录包含 `source=codex`、session、entrypoint，并把带当前 HEAD/material hash 的 `codex_adapter_verification` 追加到当前 story 的 `process-events.jsonl`。触及 Codex adapter 的 story 在 REVIEW/DONE gate 会区分这条证据是 missing / failing / stale / passing，并给出可直接重跑的本地 wrapper 命令。
+`node bin/lattice-codex.js verify_codex`（legacy 项目也可继续用 `node bin/koala-codex.js verify_codex`；通用本地入口是 `node bin/lattice.js verify_codex`）复用同一套共享检查，并额外执行本地 wrapper 与全局 fallback heartbeat：它确认 activity 记录包含 `source=codex`、session、entrypoint，并把带当前 HEAD/material hash 的 `codex_adapter_verification` 追加到当前 story 的 `process-events.jsonl`。触及 Codex adapter 的 story 在 REVIEW/DONE gate 会区分这条证据是 missing / failing / stale / passing，并给出可直接重跑的本地 wrapper 命令。
 
 诊断同一组 Codex adapter 检查、health 和 worktree 状态：
 
 ```bash
-node bin/koala-codex.js doctor
+node bin/lattice-codex.js doctor
 ```
 
 初始化新项目时也可以直接跑：
@@ -293,7 +294,7 @@ npx koala-init --verify-codex
 
 ## 没有本地 wrapper 时
 
-如果某个项目只有全局 CLI，没有 `bin/koala-codex.js`，可以这样跑：
+如果某个项目只有全局 CLI，没有 `bin/lattice-codex.js`，可以这样跑：
 
 ```bash
 KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 KOALA_CODEX_ENTRYPOINT=global-fallback lattice session_brief
@@ -381,11 +382,11 @@ node scripts/real-story-replay-benchmark.mjs
 
 ## Claude Code
 
-Claude Code 侧仍然使用 `.claude/` 下的 hooks、settings 和 skill。Codex 不消费这些 Claude runtime 配置，也不会读取 `.Codex/hooks` 或 `.Codex/settings.json`。Koala 为 Codex 生成的是 adapter 资产：full mode 会把 agent prompt 从 `.claude/agents` 全量受控生成到 `.Codex/agents`；thin mode 则在 `.Codex/koala.json` 记录 package prompt registry 的版本和 material hash，不要求本地 prompt copies。`.Codex/koala.json` 同时记录 Koala-managed adapter 的推荐入口、`source=codex` 活动标记、session 环境变量和明确排除的 runtime 资产。Codex 侧的说明放在：
+Claude Code 侧仍然使用 `.claude/` 下的 hooks、settings 和 skill。Codex 不消费这些 Claude runtime 配置，也不会读取 `.Codex/hooks` 或 `.Codex/settings.json`。Lattice 为 Codex 生成的是 adapter 资产：full mode 会把 agent prompt 从 `.claude/agents` 全量受控生成到 `.Codex/agents`；thin mode 则在 `.Codex/lattice.json` 记录 package prompt registry 的版本和 material hash，不要求本地 prompt copies。`.Codex/lattice.json` 同时记录 Lattice-managed adapter 的推荐入口、`source=codex` 活动标记、session 环境变量和明确排除的 runtime 资产；旧 `.Codex/koala.json` 仍作为 legacy manifest 被识别。Codex 侧的说明放在：
 
 - [AGENTS.md](/Users/jek/Documents/Work/Orchestrate/AGENTS.md:1)
 - [.Codex/README.md](/Users/jek/Documents/Work/Orchestrate/.Codex/README.md:1)
-- [.Codex/koala.json](/Users/jek/Documents/Work/Orchestrate/.Codex/koala.json:1)
+- `.Codex/lattice.json`（new init primary；this repository may still show legacy [.Codex/koala.json](/Users/jek/Documents/Work/Orchestrate/.Codex/koala.json:1) until migrated）
 - [.Codex/agents/](/Users/jek/Documents/Work/Orchestrate/.Codex/agents:1)（full mode materialization；thin mode 可省略）
 
-full mode 仓库里的 `.Codex/agents` 由 `.claude/agents` 经过受控 transform 全量生成，并通过 `npm run test:codex-assets` 防止后续漂移；thin mode 仓库由 `node bin/koala-codex.js verify_codex` 校验 registry manifest/hash/renderability。
+full mode 仓库里的 `.Codex/agents` 由 `.claude/agents` 经过受控 transform 全量生成，并通过 `npm run test:codex-assets` 防止后续漂移；thin mode 仓库由 `node bin/lattice-codex.js verify_codex` 校验 registry manifest/hash/renderability。
