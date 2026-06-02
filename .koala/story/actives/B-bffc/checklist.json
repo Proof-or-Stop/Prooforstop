@@ -358,9 +358,9 @@
         "docs/requirements/decisions/authority-client-role.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-02T11:24:39.290Z",
-      "endTime": "2026-06-02T11:41:15.186Z",
+      "endTime": "2026-06-02T12:12:46.425Z",
       "userSees": "用户看到 `npm run build` 和 `npm run test:lattice-cli-migration-smoke` 通过，并且 checklist verificationEvidence 覆盖所有 happy/edge/adversarial intent。",
       "files": {
         "modify": [
@@ -567,6 +567,15 @@
       "timestamp": "2026-06-02T12:12:45.946Z",
       "phase": "DEV",
       "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "REVIEW findings F-001/F-002/F-003/F-004 repaired by commit 221ed721; build and Lattice smoke pass."
+    },
+    {
+      "timestamp": "2026-06-02T12:12:46.425Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
       "action": "update",
       "from": "in_progress",
       "to": "done",
