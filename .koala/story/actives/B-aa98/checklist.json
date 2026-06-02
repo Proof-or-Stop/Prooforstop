@@ -328,8 +328,8 @@
         "docs/requirements/decisions/testing-completeness.md"
       ],
       "userSees": "用户在 transcript 中看到 \"Manual Claude Code overflow flow: pack created -> receipt accepted-local -> scopeStatus=pass -> productionDone=false -> nextAction=main agent reviews and merges.\"",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-02T21:24:40.008Z",
       "endTime": null,
       "files": {
         "modify": [
@@ -438,6 +438,18 @@
           "timestamp": "2026-06-02T21:23:24.139Z"
         }
       ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-02T21:24:40.008Z",
+      "phase": "DEV",
+      "itemId": "CHK-006",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start final Host Overflow test/transcript coverage after implementer completed core code.",
+      "agent": "main-agent"
     }
   ]
 }
