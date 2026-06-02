@@ -180,9 +180,9 @@
         "docs/requirements/decisions/authority-client-role.md"
       ],
       "userSees": "用户执行 `lattice rollout_check --projects /path/a,/path/b --json` 时看到 `summary.total`、`summary.pass/warn/fail` 和每个项目的 `status`、`nextAction`。",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-02T15:35:43.997Z",
       "files": {
         "modify": [
           "packages/main/src/cli-engine.ts",
@@ -226,10 +226,10 @@
           "file": "packages/main/src/tasks/rollout-check-smoke.ts",
           "command": "npm run test:rollout-check-smoke",
           "result": "pass",
-          "note": "rollout_check returns stable schema, summary counts, per-project status, nextAction records, and supports flat plus nested lattice rollout check forms.",
-          "headHash": "3d08e9516db83545b0e3924c0baf08f940b0752c",
+          "note": "Smoke test verifies lattice rollout_check --projects <paths> --json returns schema, summary counts, per-project status, and nextAction.",
+          "headHash": "5a306ab1404bff5d0477341c08ec532d26208a22",
           "materialHash": "8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910",
-          "timestamp": "2026-06-02T15:35:27.262Z"
+          "timestamp": "2026-06-02T15:35:44.065Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -237,21 +237,21 @@
           "file": "packages/main/src/tasks/rollout-check-smoke.ts",
           "command": "npm run test:rollout-check-smoke",
           "result": "pass",
-          "note": "Smoke covers missing/external projects and an external monorepo with packages/main so non-Lattice projects get normalized guidance instead of self-layout wrapper warnings.",
-          "headHash": "3d08e9516db83545b0e3924c0baf08f940b0752c",
+          "note": "Smoke test covers a plain external temp project and a missing project path; both normalize into stable project results instead of opaque failures.",
+          "headHash": "5a306ab1404bff5d0477341c08ec532d26208a22",
           "materialHash": "8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910",
-          "timestamp": "2026-06-02T15:35:27.262Z"
+          "timestamp": "2026-06-02T15:35:44.118Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "logic_test",
-          "file": "packages/main/src/tasks/rollout-check-smoke.ts;.koala/story/actives/B-fd03/evidence/rollout-transcript.md",
-          "command": "npm run test:rollout-check-smoke; real-project rollout_check with before/after git status comparison",
+          "file": "packages/main/src/core/rollout-check.ts",
+          "command": "npm run test:rollout-check-smoke",
           "result": "pass",
-          "note": "rollout_check policy is read-only/L0, safety forbids apply/upgrade/repair/fix, and the real-project command left current worktree git status unchanged.",
-          "headHash": "3d08e9516db83545b0e3924c0baf08f940b0752c",
+          "note": "Smoke test asserts recorded rollout probe commands never contain --apply, --upgrade, --repair, or --fix and git status is unchanged by the scan.",
+          "headHash": "5a306ab1404bff5d0477341c08ec532d26208a22",
           "materialHash": "8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910",
-          "timestamp": "2026-06-02T15:35:27.262Z"
+          "timestamp": "2026-06-02T15:35:44.168Z"
         }
       ]
     },
@@ -358,6 +358,15 @@
       "from": "pending",
       "to": "done",
       "reason": "Lattice-first help, session, check, doctor, and dispatch hints committed in 5a306ab1."
+    },
+    {
+      "timestamp": "2026-06-02T15:35:43.997Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Read-only rollout_check command committed in 5a306ab1 and verified by rollout-check-smoke."
     }
   ]
 }
