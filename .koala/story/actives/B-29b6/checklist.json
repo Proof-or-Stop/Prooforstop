@@ -105,7 +105,46 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "koala help lists parallel_wave_create, parallel_wave_inspect, and parallel_plan; each command supports JSON output and text output.",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "create": [
+          "packages/main/src/handlers/lattice-parallel-wave.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/lattice-parallel-wave-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "CLI can create and inspect a wave from seeded stories and emits parseable JSON.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "parallel_plan can run without a wave file by analyzing active stories, and with a wave file by reading the no-overwrite artifact.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "parallel_wave_create refuses to overwrite an existing output file.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
