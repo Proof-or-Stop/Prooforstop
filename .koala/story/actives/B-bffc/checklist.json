@@ -187,7 +187,7 @@
         "docs/requirements/decisions/authority-client-role.md",
         "docs/requirements/decisions/lattice-parallel-wave.md"
       ],
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-06-02T11:24:36.617Z",
       "endTime": "2026-06-02T11:41:14.493Z",
       "userSees": "用户运行 `lattice authority status` 和 `lattice conduit status` 看到 Server Authority receipts 是唯一生产权威，Conduit 只是 thin conduit，不是 agent host。",
@@ -531,6 +531,15 @@
       "timestamp": "2026-06-02T12:07:35.433Z",
       "phase": "DEV",
       "itemId": "CHK-002",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Reopen to address REVIEW findings F-001/F-002/F-003/F-004."
+    },
+    {
+      "timestamp": "2026-06-02T12:07:35.815Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
       "action": "update",
       "from": "done",
       "to": "in_progress",
