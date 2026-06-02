@@ -1,0 +1,75 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Classify transcript-diff as a narrow lifecycle artifact",
+      "context": "Update lifecycle artifact scope classification so only the controlled story-scoped evidence/transcript-diff.md path is allowed. Arbitrary evidence files, unknown .koala files, and product source changes must still fail when out of scope.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "story-scoped evidence/transcript-diff.md is classified as a lifecycle artifact and does not produce OUT_OF_SCOPE.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the allowed transcript artifact must still require a valid story-scoped path and story id.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "arbitrary evidence files and unknown .koala files remain out of scope unless explicitly allowed.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Document and verify TEST transcript scope behavior",
+      "context": "Update the lifecycle artifact policy and add focused regression coverage proving TEST transcript evidence is delivery evidence, not product scope expansion. The regression must explicitly prove the B-bffc incident no longer repeats: when the only diff is .koala/story/actives/<storyId>/evidence/transcript-diff.md, scope_contract_check must not require scope_contract_acknowledge, reviewer evidence must not become stale solely because of that transcript, and the story must not need a TEST→DEV bounce. Delivery-check and ordinary product/docs/test scope acknowledgement rules remain intact.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "policy docs state evidence/transcript-diff.md is TEST delivery evidence and does not need scope acknowledgement.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "a TEST-phase story whose only new diff is .koala/story/actives/<storyId>/evidence/transcript-diff.md can run scope_contract_check without OUT_OF_SCOPE, without scope_contract_acknowledge, and without invalidating reviewer scope binding.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "delivery-check remains required, arbitrary evidence files remain out of scope, and ordinary product/docs/test scope expansions still need normal scope handling.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
