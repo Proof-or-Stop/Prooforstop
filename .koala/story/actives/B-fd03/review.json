@@ -118,6 +118,30 @@
         }
       ],
       "_hash": "6470ad0d6893aa5e638f3464ec8e08deed135c9e1540557d18d726b0fe5ada70"
+    },
+    {
+      "timestamp": "2026-06-02T16:20:56.802Z",
+      "issueCount": 3,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 userSees 可能太抽象（未包含引号括起来的具体输出文本）。应该写用户看到的精确文字，不是\"功能正常工作\"这类描述"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 个 checklist item，请检查是否有组合场景遗漏（如：Record rollout findings and publish Lattice install guidance + Make user-facing CLI help and hints prefer lattice 同时操作会怎样？）"
+        },
+        {
+          "type": "scope_check_stale",
+          "severity": "blocker",
+          "message": "scope-check.json 的 reviewRound (无) 与当前 review round (2026-06-02T16:04:27.428Z) 不匹配，请重新跑 scope agent"
+        }
+      ],
+      "_hash": "d3667d0a191a654213dbc57bb740b4bf855ac9317f2378bddcac51b503ed21c4"
     }
   ]
 }
