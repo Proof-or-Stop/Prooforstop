@@ -215,7 +215,7 @@
         "docs/requirements/decisions/session-ownership-and-write-leases.md",
         "docs/requirements/decisions/lifecycle-artifact-scope.md"
       ],
-      "userSees": "用户能看到每个 overflow task 应在独立 worktree 执行，并看到 worktree path、branch、baseSha、packId、allowedPaths 与 cleanup/merge guidance。",
+      "userSees": "用户运行 lattice handoff_worktree_create --file=pack.json --format=json 看到 \"worktreePath\":\".worktrees/overflow/...\", \"branch\":\"overflow/...\", \"baseSha\":\"...\", \"packId\":\"HP-...\", \"cleanupCommand\":\"...\"。",
       "status": "pending",
       "startTime": null,
       "endTime": null,
