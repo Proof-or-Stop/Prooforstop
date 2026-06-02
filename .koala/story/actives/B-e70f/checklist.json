@@ -149,7 +149,42 @@
       "userSees": "Parallel planning can surface relevant project lessons while still labeling them as non-authoritative context.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-parallel-wave.ts",
+          "packages/main/src/handlers/lattice-parallel-wave.ts",
+          "docs/requirements/decisions/lattice-parallel-wave.md",
+          "docs/requirements/decisions/dev-memory.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lattice-parallel-wave-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "parallel_dispatch/report can include bounded experienceRefs from seeded project dev-memory entries when includeExperience is requested.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "When project/global dev-memory has no matching entries, dispatch/report still succeeds with experienceRefs=[] and visible non-authoritative notes.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Experience refs retain gateEvidence=false and authority=non_authoritative, and adding them never changes productionDone, authorityChanged, or receiptRefs.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
