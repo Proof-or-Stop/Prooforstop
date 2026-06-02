@@ -1,0 +1,35 @@
+{
+  "storyId": "B-aa98",
+  "name": "host-overflow-claude-code",
+  "title": "Productize Lattice Host Overflow for Claude Code overflow workers",
+  "description": "When Codex subagent capacity is not enough, Lattice should provide a host-neutral overflow path that can hand bounded tasks to Claude Code while preserving story authority, scope, receipt, evidence, and review gates. This story implements the first production slice: capability reporting, handoff pack creation, manual receipt submit, isolated worktree guidance, supervised dispatch projection, docs, and smoke tests.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "host-overflow",
+    "claude-code",
+    "handoff",
+    "receipt",
+    "host-neutral"
+  ],
+  "riskSignals": [
+    {
+      "category": "生产环境/紧急",
+      "matched": "production"
+    }
+  ],
+  "createdAt": "2026-06-02T20:55:21.674Z",
+  "startedAt": "2026-06-02T20:55:21.674Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-02T20:55:21.682Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ]
+}
