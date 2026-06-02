@@ -58,7 +58,7 @@
         "docs/guide.md",
         "docs/requirements/decisions/project-vision.md"
       ],
-      "userSees": "用户运行 lattice host_status 或 capability command 时能看到 claude-code 是否可作为 overflow host 以及缺失时的 nextAction。",
+      "userSees": "用户运行 lattice host_status --host=claude-code --format=json 看到 \"schemaVersion\":\"lattice.host_status.v1\", \"overflowReady\":true/false, \"status\":\"ready|degraded|unavailable\", \"nextAction\":\"...\"。",
       "status": "pending",
       "startTime": null,
       "endTime": null,
