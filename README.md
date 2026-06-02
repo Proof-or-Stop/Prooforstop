@@ -66,6 +66,56 @@ next action instead of opaque command failures. `authority_status` and
 receipt support they report `productionDone=false`, `receiptVerified=false`,
 and `canClaimProductionDone=false`.
 
+### Authority modes (off / shadow / enforce)
+
+Lattice CLI 0.3.5 exposes three authority modes through `KOALA_AUTHORITY_MODE`.
+All three keep ordinary local story development free, local, and unblocked —
+`authority_status` will always report `localWorkflowUsable: true`. Local
+lifecycle gates (`story_advance`, `verification_evidence_add`, DONE) do **not**
+consume server receipts; missing enforce prerequisites are reported as
+`readinessWarnings` / `nextActions`, never as global blockers.
+
+| Mode | When to use | What the CLI does | Production authority? |
+|------|-------------|-------------------|-----------------------|
+| `off` (default) | Normal local Koala/Lattice story development. **Free, local-only.** | Zero network. Local evidence and DONE gate work exactly as without authority. | No — `productionDone=false`, `receiptVerified=false`. |
+| `shadow` | You want to observe Python authority responses while still running locally. | Best-effort observational POST. Failure becomes a single stderr warning; the local evidence write still succeeds. | No — `accepted: true` from the transport is `thin-client-transport-accepted`, not a verified receipt. |
+| `enforce` (future runner path) | Reserved namespace for the isolated headless runner. Requires the Python authority server, a registered actor key, and a runner identity. | Not implemented end-to-end yet: `authority_enforce_policy` is read-only policy discovery; envelope submission, signing, receipt verification are deferred to M2+. | No today — `productionDone` and `receiptVerified` stay `false` until an explicit receipt-backed authority path verifies a signed receipt. |
+
+Inspect what the local CLI thinks the authority surface looks like:
+
+```bash
+# Plain status (default = off; no env needed)
+lattice authority status --json
+
+# Probe what's missing if you try shadow / enforce
+KOALA_AUTHORITY_MODE=shadow lattice authority status --json
+KOALA_AUTHORITY_MODE=enforce lattice authority status --json
+
+# Conduit-side mirror of the same readiness fields
+lattice conduit status --json
+lattice conduit explain --json
+```
+
+`authority status --json` returns (among other fields):
+
+- `mode` — `off` | `shadow` | `enforce`
+- `localWorkflowUsable: true` — local Story workflow is never blocked
+- `authorityUrlConfigured` — is `KOALA_AUTHORITY_URL` set?
+- `actorKeyConfigured` — is `KOALA_AUTHORITY_ACTOR_KEY` / `_PATH` set?
+- `runnerConfigured` — is `KOALA_AUTHORITY_RUNNER_ID` set?
+- `readinessWarnings: string[]` — actionable, only populated when `shadow` / `enforce` is configured but prerequisites are missing
+- `nextActions: string[]` — suggested env / command fixes
+- `productionDone: false`, `receiptVerified: false`, `canClaimProductionDone: false`
+
+**Important boundary**: this local JSON output (or `lattice` text output) is
+**not** authority evidence. The Python authority is the only source of a
+verified `AuthorityReceipt`. Even with `KOALA_AUTHORITY_URL`,
+`KOALA_AUTHORITY_ACTOR_KEY`, and `KOALA_AUTHORITY_RUNNER_ID` all set,
+`productionDone` stays `false` until a signed receipt is verified by a future
+receipt-backed runner path. See
+[`docs/requirements/decisions/authority-client-role.md`](docs/requirements/decisions/authority-client-role.md)
+for the PD-1 / PD-2 trust boundary.
+
 The Mac App is no longer required for release or provider/config status. It is
 an optional dashboard/archive surface unless a future, explicitly reviewed
 receipt-backed runner path lands.

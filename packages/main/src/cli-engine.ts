@@ -630,17 +630,20 @@ export const MAIN_TOOLS: ToolDef[] = [
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
   }},
-  { name: 'authority_status', description: 'Report receipt-aware authority settings without submitting evidence or verifying receipts. Alias: lattice authority status', schema: {
+  { name: 'authority_status', description: 'Report receipt-aware authority settings and enforce readiness diagnostics without submitting evidence or verifying receipts. Alias: lattice authority status', schema: {
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    json: z.boolean().optional().describe('Shortcut for --format=json'),
     authorityMode: z.string().optional().describe('Optional authority mode override for diagnostics only'),
     authorityURL: z.string().optional().describe('Optional authority URL override for diagnostics only'),
     authorityTimeoutMS: z.number().optional().describe('Optional authority timeout override for diagnostics only'),
   }},
-  { name: 'conduit_status', description: 'Report Lattice conduit status without provisioning a runner or production authority. Alias: lattice conduit status', schema: {
+  { name: 'conduit_status', description: 'Report Lattice conduit status and enforce readiness diagnostics without provisioning a runner or production authority. Alias: lattice conduit status', schema: {
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    json: z.boolean().optional().describe('Shortcut for --format=json'),
   }},
   { name: 'conduit_explain', description: 'Explain the CLI conduit migration boundary and no-overclaim semantics. Alias: lattice conduit explain', schema: {
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    json: z.boolean().optional().describe('Shortcut for --format=json'),
   }},
   { name: 'story_export', description: 'Export a Koala Story as Canonical Story v0 without claiming production authority', schema: {
     storyId: z.string().describe('Story ID to export'),

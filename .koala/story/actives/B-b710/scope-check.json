@@ -1,0 +1,115 @@
+{
+  "storyId": "B-b710",
+  "checkedAt": "2026-06-02T17:14:04.514Z",
+  "features": [
+    {
+      "feature": "authority status --json output shows mode:off, localWorkflowUsable:true, productionDone:false, receiptVerified:false in off mode",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/authority-client-role.md"
+    },
+    {
+      "feature": "Authority status output includes readiness warnings for missing enforce prerequisites (server URL, actor key, runner config) without blocking local workflows",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/authority-client-role.md"
+    },
+    {
+      "feature": "Shadow/enforce mode with missing URL or actor key reports actionable readiness gaps without writing receipts",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Adversarial constraint: no status or readiness path can claim productionDone or receiptVerified without a verified receipt input",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/authority-client-role.md"
+    },
+    {
+      "feature": "Smoke tests covering off mode usability, shadow/enforce readiness gaps, and adversarial no-receipt/no-productionDone behavior",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Documentation explaining off (default local/free), shadow (observational), enforce runner (requires Python authority + actor/runner setup) modes and their boundaries",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/authority-client-role.md"
+    },
+    {
+      "feature": "Documentation clarifying paid/server authority is not required for normal local story development",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/authority-client-role.md"
+    },
+    {
+      "feature": "Documentation explicitly stating local JSON or status output does not satisfy production authority gates",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/authority-client-role.md"
+    },
+    {
+      "feature": "Doc-oriented smoke tests or assertions preventing documentation regression on key wording",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "M1 policy discovery: authority_enforce_policy command stub querying /v1/authority/policy (implemented in prior story B-ec09)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Prior story B-ec09 already implements M1; understanding.constraints explicitly scopes this story to status/readiness/docs/tests only",
+      "source": "decisions:decisions/authority-client-role.md"
+    },
+    {
+      "feature": "M3 CLI authority handshake fields (FU-2: clientName/clientVersion/commandCatalogDigest/evidenceSchemaDigest) - requires explicit enforce-mode product approval",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Deferred per PD-1 until explicit enforce-mode product approval; plan non-goals: no actor key generation, job claim, provider execution, or server receipt verification",
+      "source": "decisions:decisions/authority-client-role.md"
+    },
+    {
+      "feature": "M4 Full EvidenceEnvelope in buildEnvelope (FU-1: producerRunId/verifierRunId/provider/model/vendor) - requires explicit enforce-mode product approval",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Deferred per PD-1; same explicit non-goal gate as M3",
+      "source": "decisions:decisions/authority-client-role.md"
+    },
+    {
+      "feature": "conduit_status and conduit_explain diagnostic commands",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Existing commands implemented in B-7e38/PD-1; not being extended or changed in this story",
+      "source": "decisions:decisions/authority-client-role.md"
+    },
+    {
+      "feature": "Verification Context Pack create/expand/digest commands (VCP protocol for L2 verifier evidence packaging)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Different feature domain (L2 verifier evidence packaging, not authority status readiness diagnostics); no overlap with B-b710 touchpoints",
+      "source": "decisions:decisions/verification-context-pack.md"
+    }
+  ],
+  "summary": {
+    "total": 14,
+    "covered": 9,
+    "excluded": 5,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "899e7e0bb939574819e0a7b71365649633a9fe92e668fac717b19cf3749c6318",
+  "openQuestions": []
+}
