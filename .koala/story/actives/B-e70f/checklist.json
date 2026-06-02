@@ -97,7 +97,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-parallel-wave.md"
       ],
-      "userSees": "koala help shows the new commands and they behave like safe read-only operator tools.",
+      "userSees": "`koala help | rg \"parallel_dispatch|parallel_status|parallel_merge_queue|parallel_report\"` prints all four command names, and each command accepts `--format=json` without changing story state.",
       "status": "pending",
       "startTime": null,
       "endTime": null,
