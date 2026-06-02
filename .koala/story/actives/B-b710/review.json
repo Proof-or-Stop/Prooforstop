@@ -27,6 +27,29 @@
         }
       ],
       "_hash": "7adee361890ab87d75288d4c19d3c9c5fb46402a9843de3c4fff5e25704d64af"
+    },
+    {
+      "timestamp": "2026-06-02T17:15:35.927Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 个 checklist item，请检查是否有组合场景遗漏（如：Add enforce readiness diagnostics without blocking local workflows + Document and test paid-server fallback semantics 同时操作会怎样？）"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding 还有 2 个未消化的 unknowns: Exact future actor key storage mechanism remains a later runner implementation choice.; Exact paid/server deployment product wording may change; docs should describe current technical semantics, not pricing promises."
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "checklist 所有 item 均未填写 files 字段（旧 story 兼容模式），无法对 understanding.touchpoints 做覆盖校验。请为至少一个 item 的 files.modify/create/test 列出改动文件，以启用 touchpoint→files 强校验"
+        }
+      ],
+      "_hash": "b9d90d9cbcfbfee630072e36a7c06a0e437bf52f5e2cd0101301dd01f781845e"
     }
   ]
 }
