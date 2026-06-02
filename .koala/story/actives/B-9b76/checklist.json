@@ -188,7 +188,41 @@
       "relatedDocs": [
         "AGENTS.md",
         "README.md"
-      ]
+      ],
+      "userSees": "用户看到 build、prompt registry smoke、Codex registry mode smoke、thin init smoke、managed asset check 和 Codex adapter verification 的命令结果都被记录为 pass，且 legacy compatibility 没有回归。",
+      "files": {
+        "modify": [
+          "package.json",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/managed-assets.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/codex-registry-mode-smoke.ts",
+          "packages/main/src/tasks/thin-init-assets-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Focused smoke commands and TypeScript build pass in the story worktree.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Legacy full-mode check/verify behavior remains covered after registry mode additions.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Codex adapter verification process-event evidence is refreshed after touching Codex adapter material paths.",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
