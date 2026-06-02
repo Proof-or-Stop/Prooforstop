@@ -225,7 +225,9 @@
       "files": {
         "modify": [
           "package.json",
-          "packages/main/package.json"
+          "package-lock.json",
+          "packages/main/package.json",
+          "packages/main/package-lock.json"
         ],
         "create": [
           "packages/main/src/tasks/lattice-cli-migration-smoke.ts"
