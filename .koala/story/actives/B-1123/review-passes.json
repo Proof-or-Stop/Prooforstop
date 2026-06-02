@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-1123:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: Reviewed verificationIntent vs verificationEvidence for all 6 must intents (CHK-001:happy/edge/adversarial, CHK-002:happy/edge/adversarial). All covered by result:pass logic_test/integration_test evidence bound to commit 1fa47507. Smoke test files exist and content is specific to each intent: canonical determinism + all 7 envelope shapes + L2+ boundary (CHK-001); 7 endpoints x1 each + off-mode zero calls + policy-discovery read-only invariant (CHK-002). No must gaps, no waivers needed.",
+      "createdAt": "2026-06-02T17:36:03.853Z",
+      "reviewRound": "2026-06-02T17:33:25.988Z",
+      "reviewRunId": "B-1123:RR-003",
+      "_hash": "f35fc1290f970b3593421ab71d8f149b5a7529dbf03131260176d386ac963251"
+    }
+  ]
+}
