@@ -120,9 +120,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-02T22:11:12.453Z",
-      "endTime": null,
+      "endTime": "2026-06-02T22:37:56.690Z",
       "files": {
         "modify": [
           "package.json",
@@ -143,7 +143,39 @@
           "packages/main/src/tasks/authority-evidence-flow-smoke.ts",
           "packages/main/src/tasks/authority-enforce-runner-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "command": "npm run test:authority-enforce-matrix",
+          "result": "pass",
+          "note": "Matrix smoke printed local/off PASS, shadow warning PASS, enforce fake-server receipt PASS, enforce no-server runner fail-closed PASS, and parallel_report productionDone=false PASS; confirms local/off remains free/local, shadow only warns, enforce missing server fails closed, and signed receipt classification is required for L2+.",
+          "headHash": "f099fe5eb85150d9dd28d810a2ac2421d41a4dd8",
+          "materialHash": "308dc3f4b2b0c2ae3313945c35ffaa889f041838ee31778968f17eaf811fad18",
+          "timestamp": "2026-06-02T22:37:56.924Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "command": "npm run test:authority-live-python",
+          "result": "pass",
+          "note": "Live Python smoke self-skipped with the documented line because KOALA_AUTHORITY_LIVE_URL and KOALA_AUTHORITY_LIVE_PUBLIC_KEY are not set; when configured, the task performs policy discovery against the live Python authority before declaring pass.",
+          "headHash": "f099fe5eb85150d9dd28d810a2ac2421d41a4dd8",
+          "materialHash": "308dc3f4b2b0c2ae3313945c35ffaa889f041838ee31778968f17eaf811fad18",
+          "timestamp": "2026-06-02T22:37:57.222Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:lattice-parallel-wave-smoke && npm run test:authority-enforce-matrix && npm run test:authority-boundary-smoke && npm run test:authority-evidence-flow",
+          "result": "pass",
+          "note": "Parallel Wave smoke and matrix assertions keep planning artifacts non-authoritative: productionDone=false, authorityChanged=false, receiptRefs=[]; authority boundary/evidence flow regressions confirm thin-client transport acceptance cannot satisfy receipt-backed production authority.",
+          "headHash": "f099fe5eb85150d9dd28d810a2ac2421d41a4dd8",
+          "materialHash": "308dc3f4b2b0c2ae3313945c35ffaa889f041838ee31778968f17eaf811fad18",
+          "timestamp": "2026-06-02T22:37:57.432Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -175,6 +207,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Start Claude Code implementer work for enforce/local/shadow matrix smoke, live Python self-skip smoke, docs, and Lattice parallel report non-authoritative evidence.",
+      "agent": "codex"
+    },
+    {
+      "timestamp": "2026-06-02T22:37:56.690Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "CHK-002 implemented by koala-implementer commit f099fe5eb85150d9dd28d810a2ac2421d41a4dd8; Codex independently verified build, authority matrix, live Python self-skip, authority runner/status/event smokes, receipt/boundary/evidence regressions, and lattice parallel wave non-authority boundary.",
       "agent": "codex"
     }
   ]
