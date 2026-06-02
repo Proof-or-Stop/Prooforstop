@@ -41,9 +41,9 @@
           "file": "docs/requirements/decisions/lifecycle-artifact-scope.md",
           "result": "pass",
           "note": "Lifecycle artifact scope now lists LATTICE.md, bin/lattice.js, bin/lattice-codex.js, and .Codex/lattice.json as new init primary paths, with KOALA.md/bin/koala*.js/.Codex/koala.json documented as legacy compatibility.",
-          "headHash": "58b90f572f65adbf0456bffbd09a78ec8e43723c",
-          "materialHash": "54a44bfdc89b28267c9b2ad640178bb6f2c629406762f880a6e2dd1d9d926864",
-          "timestamp": "2026-06-02T22:07:12.093Z"
+          "headHash": "b8f16277eeaa70861c2a8394eb5c1c24ab9eb0dc",
+          "materialHash": "f15e454b6e2333b741a78b4238f2c0e9cd2513066c3a6dd3fc2990a37b83fd6b",
+          "timestamp": "2026-06-02T23:10:32.754Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -52,9 +52,9 @@
           "file": "docs/requirements/decisions/lifecycle-artifact-scope.md",
           "result": "pass",
           "note": "Docs state cleanup may remove a legacy Koala-named asset only when exact generated ownership is proven; user-owned legacy files are preserved.",
-          "headHash": "58b90f572f65adbf0456bffbd09a78ec8e43723c",
-          "materialHash": "54a44bfdc89b28267c9b2ad640178bb6f2c629406762f880a6e2dd1d9d926864",
-          "timestamp": "2026-06-02T22:07:12.123Z"
+          "headHash": "b8f16277eeaa70861c2a8394eb5c1c24ab9eb0dc",
+          "materialHash": "f15e454b6e2333b741a78b4238f2c0e9cd2513066c3a6dd3fc2990a37b83fd6b",
+          "timestamp": "2026-06-02T23:10:32.754Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -63,9 +63,9 @@
           "file": "docs/requirements/decisions/lifecycle-artifact-scope.md",
           "result": "pass",
           "note": "Docs explicitly bound this to managed asset naming and state it does not change receipt-backed authority or lifecycle gates.",
-          "headHash": "58b90f572f65adbf0456bffbd09a78ec8e43723c",
-          "materialHash": "54a44bfdc89b28267c9b2ad640178bb6f2c629406762f880a6e2dd1d9d926864",
-          "timestamp": "2026-06-02T22:07:12.156Z"
+          "headHash": "b8f16277eeaa70861c2a8394eb5c1c24ab9eb0dc",
+          "materialHash": "f15e454b6e2333b741a78b4238f2c0e9cd2513066c3a6dd3fc2990a37b83fd6b",
+          "timestamp": "2026-06-02T23:10:32.754Z"
         }
       ]
     },
@@ -110,9 +110,9 @@
           "command": "npm --prefix packages/main run test:lattice-branded-init-smoke",
           "result": "pass",
           "note": "Smoke asserts thin codex init creates LATTICE.md, bin/lattice.js, bin/lattice-codex.js, .Codex/lattice.json and does not create KOALA.md, bin/koala.js, bin/koala-codex.js, or .Codex/koala.json.",
-          "headHash": "58b90f572f65adbf0456bffbd09a78ec8e43723c",
-          "materialHash": "54a44bfdc89b28267c9b2ad640178bb6f2c629406762f880a6e2dd1d9d926864",
-          "timestamp": "2026-06-02T22:07:12.853Z"
+          "headHash": "b8f16277eeaa70861c2a8394eb5c1c24ab9eb0dc",
+          "materialHash": "f15e454b6e2333b741a78b4238f2c0e9cd2513066c3a6dd3fc2990a37b83fd6b",
+          "timestamp": "2026-06-02T23:10:32.754Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -122,9 +122,9 @@
           "command": "npm --prefix packages/main run test:lattice-branded-init-smoke",
           "result": "pass",
           "note": "Same smoke covers default/full codex init: .Codex/agents is materialized while Lattice launchers and manifest remain primary.",
-          "headHash": "58b90f572f65adbf0456bffbd09a78ec8e43723c",
-          "materialHash": "54a44bfdc89b28267c9b2ad640178bb6f2c629406762f880a6e2dd1d9d926864",
-          "timestamp": "2026-06-02T22:07:12.888Z"
+          "headHash": "b8f16277eeaa70861c2a8394eb5c1c24ab9eb0dc",
+          "materialHash": "f15e454b6e2333b741a78b4238f2c0e9cd2513066c3a6dd3fc2990a37b83fd6b",
+          "timestamp": "2026-06-02T23:10:32.754Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -134,9 +134,9 @@
           "command": "npm --prefix packages/main run test:lattice-branded-init-smoke",
           "result": "pass",
           "note": "Smoke seeds user-owned KOALA.md, bin/koala.js, bin/koala-codex.js, .Codex/koala.json, and .Codex/agents/user-owned.md before thin init and asserts they survive unchanged.",
-          "headHash": "58b90f572f65adbf0456bffbd09a78ec8e43723c",
-          "materialHash": "54a44bfdc89b28267c9b2ad640178bb6f2c629406762f880a6e2dd1d9d926864",
-          "timestamp": "2026-06-02T22:07:12.923Z"
+          "headHash": "b8f16277eeaa70861c2a8394eb5c1c24ab9eb0dc",
+          "materialHash": "f15e454b6e2333b741a78b4238f2c0e9cd2513066c3a6dd3fc2990a37b83fd6b",
+          "timestamp": "2026-06-02T23:10:32.754Z"
         }
       ]
     },
@@ -181,9 +181,9 @@
           "command": "npm --prefix packages/main run test:legacy-koala-compatibility-smoke && node bin/koala-codex.js verify_codex",
           "result": "pass",
           "note": "Legacy smoke verifies .Codex/koala.json, bin/koala.js, and bin/koala-codex.js still pass managed check and Codex adapter checks; repo-local legacy wrapper verify_codex also passed.",
-          "headHash": "58b90f572f65adbf0456bffbd09a78ec8e43723c",
-          "materialHash": "54a44bfdc89b28267c9b2ad640178bb6f2c629406762f880a6e2dd1d9d926864",
-          "timestamp": "2026-06-02T22:07:13.542Z"
+          "headHash": "b8f16277eeaa70861c2a8394eb5c1c24ab9eb0dc",
+          "materialHash": "f15e454b6e2333b741a78b4238f2c0e9cd2513066c3a6dd3fc2990a37b83fd6b",
+          "timestamp": "2026-06-02T23:10:32.754Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -193,9 +193,9 @@
           "command": "npm --prefix packages/main run test:legacy-koala-compatibility-smoke",
           "result": "pass",
           "note": "Mixed manifest scenario proves .Codex/lattice.json is preferred and drift in primary Lattice manifest fails even when legacy .Codex/koala.json is valid.",
-          "headHash": "58b90f572f65adbf0456bffbd09a78ec8e43723c",
-          "materialHash": "54a44bfdc89b28267c9b2ad640178bb6f2c629406762f880a6e2dd1d9d926864",
-          "timestamp": "2026-06-02T22:07:13.575Z"
+          "headHash": "b8f16277eeaa70861c2a8394eb5c1c24ab9eb0dc",
+          "materialHash": "f15e454b6e2333b741a78b4238f2c0e9cd2513066c3a6dd3fc2990a37b83fd6b",
+          "timestamp": "2026-06-02T23:10:32.754Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -205,9 +205,9 @@
           "command": "npm --prefix packages/main run test:legacy-koala-compatibility-smoke",
           "result": "pass",
           "note": "Missing both primary and legacy manifests fails clearly and recommends lattice init --verify-codex.",
-          "headHash": "58b90f572f65adbf0456bffbd09a78ec8e43723c",
-          "materialHash": "54a44bfdc89b28267c9b2ad640178bb6f2c629406762f880a6e2dd1d9d926864",
-          "timestamp": "2026-06-02T22:07:13.605Z"
+          "headHash": "b8f16277eeaa70861c2a8394eb5c1c24ab9eb0dc",
+          "materialHash": "f15e454b6e2333b741a78b4238f2c0e9cd2513066c3a6dd3fc2990a37b83fd6b",
+          "timestamp": "2026-06-02T23:10:32.754Z"
         }
       ]
     },
@@ -251,9 +251,9 @@
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:lattice-branded-init-smoke && npm --prefix packages/main run test:legacy-koala-compatibility-smoke && npm --prefix packages/main run test:codex-registry-mode-smoke && npm --prefix packages/main run test:validation-protocol && npm --prefix packages/main run test:flow-stability-smoke && npm --prefix packages/main run test:lattice-cli-migration-smoke && npm --prefix packages/main run test:runtime-fact-contract && npm --prefix packages/main run test:review-pass-discard-smoke && node bin/koala.js check && node bin/koala-codex.js verify_codex",
           "result": "pass",
           "note": "Final combined verification passed after the implementation commit.",
-          "headHash": "58b90f572f65adbf0456bffbd09a78ec8e43723c",
-          "materialHash": "54a44bfdc89b28267c9b2ad640178bb6f2c629406762f880a6e2dd1d9d926864",
-          "timestamp": "2026-06-02T22:07:14.278Z"
+          "headHash": "b8f16277eeaa70861c2a8394eb5c1c24ab9eb0dc",
+          "materialHash": "f15e454b6e2333b741a78b4238f2c0e9cd2513066c3a6dd3fc2990a37b83fd6b",
+          "timestamp": "2026-06-02T23:10:32.754Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -262,9 +262,9 @@
           "command": "npm --prefix packages/main run test:lattice-branded-init-smoke && npm --prefix packages/main run test:legacy-koala-compatibility-smoke && npm --prefix packages/main run test:codex-registry-mode-smoke",
           "result": "pass",
           "note": "Thin/full new init, legacy Koala paths, registry prompt mode, and mixed manifest precedence are covered by focused smokes.",
-          "headHash": "58b90f572f65adbf0456bffbd09a78ec8e43723c",
-          "materialHash": "54a44bfdc89b28267c9b2ad640178bb6f2c629406762f880a6e2dd1d9d926864",
-          "timestamp": "2026-06-02T22:07:14.312Z"
+          "headHash": "b8f16277eeaa70861c2a8394eb5c1c24ab9eb0dc",
+          "materialHash": "f15e454b6e2333b741a78b4238f2c0e9cd2513066c3a6dd3fc2990a37b83fd6b",
+          "timestamp": "2026-06-02T23:10:32.754Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -273,9 +273,9 @@
           "command": "node bin/koala-codex.js verify_codex",
           "result": "pass",
           "note": "Codex adapter verification event was refreshed in process-events.jsonl after changing adapter material paths; result was pass with only a non-hard global fallback advisory.",
-          "headHash": "58b90f572f65adbf0456bffbd09a78ec8e43723c",
-          "materialHash": "54a44bfdc89b28267c9b2ad640178bb6f2c629406762f880a6e2dd1d9d926864",
-          "timestamp": "2026-06-02T22:07:14.344Z"
+          "headHash": "b8f16277eeaa70861c2a8394eb5c1c24ab9eb0dc",
+          "materialHash": "f15e454b6e2333b741a78b4238f2c0e9cd2513066c3a6dd3fc2990a37b83fd6b",
+          "timestamp": "2026-06-02T23:10:32.754Z"
         }
       ]
     }
