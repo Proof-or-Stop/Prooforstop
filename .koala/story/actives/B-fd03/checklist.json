@@ -56,10 +56,50 @@
         "docs/requirements/decisions/project-vision.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "userSees": "用户执行 `lattice story_create --help` 时主标题、示例和下一步优先显示 `lattice ...`，不再推荐 `koala ...`。",
+      "userSees": "用户执行 `lattice story_create --help` 时看到 `lattice story_create` 示例和 `lattice session_brief` 下一步；执行 `koala --version` 仍看到 legacy alias 说明。",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/handlers/check.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "packages/main/src/tasks/rollout-check-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice story_create --help and session/next-step guidance prefer lattice command examples for user actions.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "koala remains a working legacy alias and version/help output explicitly frames it as legacy compatibility.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Command-language migration does not rename .koala paths, koala-review-* lanes, KOALA_* env vars, bin/koala-codex.js, or @koala-agent/core package identity.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
