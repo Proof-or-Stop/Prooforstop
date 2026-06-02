@@ -383,6 +383,17 @@
           "headHash": "182cf6b072d96060485ebc3d52bace508442dda2",
           "materialHash": "bd29e0297db5c6be6cbeb9b4fb9fb501ae5536db42fccd198e54bf3ff7942b27",
           "timestamp": "2026-06-02T21:26:54.675Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/host-overflow-smoke.ts",
+          "command": "npm --prefix packages/main run test:host-overflow-smoke",
+          "result": "pass",
+          "note": "Host Overflow smoke covers unavailable/non-ready host behavior, pack hash mismatch, stale receipt freshness, and out-of-scope changedFiles without blocking local workflow.",
+          "headHash": "71b7b5feda40bacb5c1cedf58fa1098795d8222e",
+          "materialHash": "bd29e0297db5c6be6cbeb9b4fb9fb501ae5536db42fccd198e54bf3ff7942b27",
+          "timestamp": "2026-06-02T21:26:54.882Z"
         }
       ]
     },
