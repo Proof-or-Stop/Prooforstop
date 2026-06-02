@@ -646,6 +646,26 @@ export const MAIN_TOOLS: ToolDef[] = [
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     output: z.string().optional().describe('Optional file path for evidence inspection JSON; refuses to overwrite'),
   }},
+  { name: 'parallel_wave_create', description: 'Create a Lattice Parallel Wave scheduling projection over Canonical Stories without authority changes', schema: {
+    storyIds: z.array(z.string()).optional().describe('Story IDs to include; omit to analyze active stories'),
+    hosts: z.array(z.string()).optional().describe('Host profile ids to consider; defaults to codex'),
+    waveId: z.string().optional().describe('Optional stable wave id; defaults to a deterministic id from story refs'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    output: z.string().optional().describe('Optional file path for wave JSON; refuses to overwrite'),
+  }},
+  { name: 'parallel_wave_inspect', description: 'Inspect a Lattice Parallel Wave JSON file without refreshing evidence or authority', schema: {
+    file: z.string().describe('Parallel Wave JSON file'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    output: z.string().optional().describe('Optional file path for inspection JSON; refuses to overwrite'),
+  }},
+  { name: 'parallel_plan', description: 'Produce a parallel execution plan from a wave file or active stories without creating authority evidence', schema: {
+    file: z.string().optional().describe('Parallel Wave JSON file; omit to analyze active stories or provided storyIds'),
+    storyIds: z.array(z.string()).optional().describe('Story IDs to include when no file is provided'),
+    hosts: z.array(z.string()).optional().describe('Host profile ids to consider when no file is provided; defaults to codex'),
+    waveId: z.string().optional().describe('Optional stable wave id when creating an ad hoc plan'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    output: z.string().optional().describe('Optional file path for plan JSON; refuses to overwrite'),
+  }},
 
   // Doctor (health issue 巡检)
   { name: 'doctor', description: '查看 koala 自身的 health issue（被 silent catch 接住的 PERSIST 失败）+ 扫 .worktrees/ 孤儿目录', schema: {
@@ -1478,6 +1498,9 @@ const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'handoff_resume',
   'evidence_manifest',
   'evidence_inspect',
+  'parallel_wave_create',
+  'parallel_wave_inspect',
+  'parallel_plan',
   'grill_get',
   'reviewer_list',
   'workflow_explain',
