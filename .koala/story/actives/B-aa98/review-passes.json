@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-02T22:11:06.509Z",
       "reviewRunId": "B-aa98:RR-011",
       "_hash": "d4703a25002c8eed7af351fad3cc810a63d7be9abd2c1e028c1b1fd9608e7094"
+    },
+    {
+      "id": "B-aa98:RP-007",
+      "agent": "koala-review-test-coverage",
+      "note": "Reviewed final test coverage and evidence for F-005 on head c0d93c0. Confirmed host-overflow smoke covers both invalid headSha rejection and an existing-but-unrelated headSha returning diagnostic/scope fail, lattice-cli-migration smoke exercises the --json alias path for lattice host status, global CLI help exposes host_status/host_dispatch/handoff_receipt_submit/handoff_worktree_create, and recorded validate evidence plus fresh lattice validate pass show 21/21 verification intent coverage with no blocking gap.",
+      "createdAt": "2026-06-02T22:14:36.813Z",
+      "reviewRound": "2026-06-02T22:11:06.509Z",
+      "reviewRunId": "B-aa98:RR-014",
+      "_hash": "d03ca359fc739e7ab5e09ac7e1caab2e683dca7bd19df958de2ded37fa1b696e"
     }
   ]
 }
