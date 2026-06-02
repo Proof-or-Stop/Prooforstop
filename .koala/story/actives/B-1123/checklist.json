@@ -47,6 +47,17 @@
           "headHash": "585ae841a3f3036286b0394bb09188cb405fbbe2",
           "materialHash": "9c94c657e7f9eed06d05ded04897ae541dbe6d324998a052b697b73d32e89368",
           "timestamp": "2026-06-02T17:28:28.875Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-runner-contracts-smoke.ts",
+          "command": "npm --prefix packages/main run test:authority-runner-contracts",
+          "result": "pass",
+          "note": "invalid signatures (wrong key / tampered payload / 64-byte zero / malformed base64), missing actorId/nonce/createdAt (runtime re-validation beyond Zod), same producer/verifier run id (incl. whitespace-only difference) all fail classification and verification — cases 2/4/6/7 cover edge paths",
+          "headHash": "025b17a6b0cea949618806851b8c3f7a506e2c71",
+          "materialHash": "9c94c657e7f9eed06d05ded04897ae541dbe6d324998a052b697b73d32e89368",
+          "timestamp": "2026-06-02T17:28:35.953Z"
         }
       ]
     },
