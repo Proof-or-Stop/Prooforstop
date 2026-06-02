@@ -6,17 +6,18 @@ import { fileURLToPath } from 'url';
 import {
   AGENTS_MD_TEMPLATE,
   CLAUDE_MD_TEMPLATE,
-  CODEX_README_TEMPLATE,
   KOALA_MD_TEMPLATE,
+  SUPPORTED_INIT_ASSET_MODES,
   SUPPORTED_INIT_PROFILES,
   listAgentPromptFiles,
   renderCodexAdapterManifest,
   renderCodexAgentContent,
+  renderCodexReadmeTemplate,
   renderCodexWrapperScript,
   renderKoalaBootstrapScript,
   getKoalaHooks,
 } from './init-assets.js';
-import type { InitProfile } from './init-assets.js';
+import type { InitAssetMode, InitProfile } from './init-assets.js';
 import { renderCodexAdapterChecks, runCodexAdapterChecks } from './core/codex-adapter-checks.js';
 import { renderManagedAssetCheck, runManagedAssetCheck } from './core/managed-assets.js';
 import {
@@ -51,6 +52,10 @@ const GITIGNORE_RUNTIME_BLOCK_RE = new RegExp(
 
 function isSupportedInitProfile(value: string): value is InitProfile {
   return SUPPORTED_INIT_PROFILES.includes(value as InitProfile);
+}
+
+function isSupportedInitAssetMode(value: string): value is InitAssetMode {
+  return SUPPORTED_INIT_ASSET_MODES.includes(value as InitAssetMode);
 }
 
 function escapeRegExp(value: string): string {
@@ -132,14 +137,45 @@ function parseExplicitProfile(args: string[]): InitProfile | null {
   return null;
 }
 
+function parseExplicitAssetMode(args: string[]): InitAssetMode | null {
+  for (let index = 0; index < args.length; index += 1) {
+    const arg = args[index];
+    if (arg.startsWith('--asset-mode=')) {
+      const value = arg.slice('--asset-mode='.length);
+      if (!isSupportedInitAssetMode(value)) {
+        console.error(`Unsupported init asset mode: ${value}`);
+        console.error(`Supported asset modes: ${SUPPORTED_INIT_ASSET_MODES.join(', ')}`);
+        process.exit(1);
+      }
+      return value;
+    }
+    if (arg === '--asset-mode') {
+      const value = args[index + 1];
+      if (!value || value.startsWith('--')) {
+        console.error('Missing value for --asset-mode');
+        console.error(`Supported asset modes: ${SUPPORTED_INIT_ASSET_MODES.join(', ')}`);
+        process.exit(1);
+      }
+      if (!isSupportedInitAssetMode(value)) {
+        console.error(`Unsupported init asset mode: ${value}`);
+        console.error(`Supported asset modes: ${SUPPORTED_INIT_ASSET_MODES.join(', ')}`);
+        process.exit(1);
+      }
+      return value;
+    }
+  }
+  return null;
+}
+
 function parseTargetDir(args: string[]): string | null {
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index];
-    if (arg === '--profile') {
+    if (arg === '--profile' || arg === '--asset-mode') {
       index += 1;
       continue;
     }
     if (arg.startsWith('--profile=')) continue;
+    if (arg.startsWith('--asset-mode=')) continue;
     if (!arg.startsWith('--')) return arg;
   }
   return null;
@@ -187,6 +223,8 @@ koala-init — 初始化 koala 开发框架
   npx koala-init [目标目录]                  在指定目录初始化（默认当前目录）
   npx koala-init --profile <profile> [目标目录]
                                         选择 init profile: codex | claude | all | core
+  npx koala-init --asset-mode <mode> [目标目录]
+                                        选择 Codex prompt asset mode: full | thin（默认 full）
   npx koala-init --starter [目标目录]        额外生成旧版 starter 业务模板
   npx koala-init --with-template [目标目录]  --starter 的同义 alias
   npx koala-init --upgrade [目标目录]        同步 Koala 管理资产到当前版本
@@ -198,6 +236,7 @@ koala-init — 初始化 koala 开发框架
   KOALA.md                      canonical host-neutral Koala 指南
   bin/koala.js                  本地 koala bootstrap
   host adapter assets           由 --profile 控制（codex / claude / all / core）
+  Codex prompt assets           由 --asset-mode 控制（full 生成 .Codex/agents；thin 使用 registry）
   .claude/skills/koala/         /koala skill 文件
   docs/story/actives/           Story 数据目录
   docs/requirements/            真相源目录
@@ -223,6 +262,7 @@ const selectedProfileInfo = explicitProfile
   ? { profile: explicitProfile, reason: `explicit --profile=${explicitProfile}` }
   : detectInitProfile(targetDir);
 const selectedProfile = selectedProfileInfo.profile;
+const selectedAssetMode = parseExplicitAssetMode(initArgs) ?? 'full';
 const wantsCodex = selectedProfile === 'codex' || selectedProfile === 'all';
 const wantsClaude = selectedProfile === 'claude' || selectedProfile === 'all';
 const hadSrcBeforeInit = existsSync(join(targetDir, 'src'));
@@ -233,6 +273,7 @@ const isPython = existsSync(join(targetDir, 'requirements.txt'))
 console.log(`\nInitializing koala in ${targetDir}\n`);
 console.log(`Selected init profile: ${selectedProfile}`);
 console.log(`Profile reason: ${selectedProfileInfo.reason}`);
+console.log(`Codex asset mode: ${selectedAssetMode}`);
 if ('compatibilityNote' in selectedProfileInfo && selectedProfileInfo.compatibilityNote) {
   console.log(selectedProfileInfo.compatibilityNote);
 }
@@ -396,7 +437,7 @@ const dirs = [
   'docs/requirements/extracted',
 ];
 if (wantsClaude) dirs.push('.claude/skills/koala', '.claude/agents');
-if (wantsCodex) dirs.push('.Codex/agents');
+if (wantsCodex && selectedAssetMode === 'full') dirs.push('.Codex/agents');
 for (const d of dirs) {
   const full = join(targetDir, d);
   if (!existsSync(full)) {
@@ -749,18 +790,20 @@ if (wantsClaude && agentTemplateDir) {
 if (wantsCodex) {
   const codexReadmePath = join(targetDir, '.Codex', 'README.md');
   if (!existsSync(dirname(codexReadmePath))) mkdirSync(dirname(codexReadmePath), { recursive: true });
-  writeFileSync(codexReadmePath, CODEX_README_TEMPLATE);
+  writeFileSync(codexReadmePath, renderCodexReadmeTemplate(selectedAssetMode));
   console.log('  ✓ .Codex/README.md');
 
   const codexManifestPath = join(targetDir, '.Codex', 'koala.json');
-  writeFileSync(codexManifestPath, renderCodexAdapterManifest());
+  writeFileSync(codexManifestPath, renderCodexAdapterManifest(selectedAssetMode === 'thin' ? { promptMode: 'registry' } : {}));
   console.log('  ✓ .Codex/koala.json');
 } else {
   console.log('  - .Codex/README.md (profile skip)');
   console.log('  - .Codex/koala.json (profile skip)');
 }
 
-if (wantsCodex && agentTemplateDir) {
+if (wantsCodex && selectedAssetMode === 'thin') {
+  console.log('  - .Codex/agents (thin asset mode; prompts resolve from registry)');
+} else if (wantsCodex && agentTemplateDir) {
   const codexAgentDir = join(targetDir, '.Codex', 'agents');
   if (!existsSync(codexAgentDir)) mkdirSync(codexAgentDir, { recursive: true });
   const agentPromptFiles = listAgentPromptFiles(agentTemplateDir);
@@ -842,7 +885,7 @@ if (wantsClaude) {
 
 if (upgradeManagedAssets) {
   console.log('\n[upgrade] 同步 Koala 管理资产...');
-  const result = runManagedAssetCheck(targetDir, { apply: true, profile: selectedProfile });
+  const result = runManagedAssetCheck(targetDir, { apply: true, profile: selectedProfile, assetMode: selectedAssetMode });
   console.log(renderManagedAssetCheck(result));
   if (!result.ok) process.exit(1);
 }
