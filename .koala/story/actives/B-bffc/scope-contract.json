@@ -42,7 +42,16 @@
     "node_modules/**"
   ],
   "scopeChangeReason": "DEV implementation requires command-policy/config/process-fact-levels registration for new Lattice read-only commands and packages/main lockfile bin/version metadata; still excludes Mac/server/build/runtime paths.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "TEST gate requires a user-value transcript diff evidence file for delivery validation; this story-scoped evidence does not expand product code or documentation scope.",
+      "timestamp": "2026-06-02T12:24:12.188Z",
+      "paths": [
+        ".koala/story/actives/B-bffc/evidence/transcript-diff.md"
+      ]
+    }
+  ],
   "createdAt": "2026-06-02T11:21:36.192Z",
-  "updatedAt": "2026-06-02T11:35:24.951Z"
+  "updatedAt": "2026-06-02T12:24:12.188Z"
 }
