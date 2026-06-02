@@ -59,9 +59,9 @@
           "command": "npm run test:authority-receipt-classification",
           "result": "pass",
           "note": "Fully bound verifier envelope only reaches receipt-backed-l2-plus after signed AuthorityReceipt verification and subject binding to the exact evidence envelope; smoke covers bare and sha256-prefixed subjectDigest acceptance.",
-          "headHash": "f099fe5eb85150d9dd28d810a2ac2421d41a4dd8",
-          "materialHash": "308dc3f4b2b0c2ae3313945c35ffaa889f041838ee31778968f17eaf811fad18",
-          "timestamp": "2026-06-02T22:36:46.489Z"
+          "headHash": "29f643b7bd79f6266e27ca20f4e8ead883b2650d",
+          "materialHash": "bf8cbec16075695a8cc42bf993ded7058902fd0a21d8c563b4d151944229b19b",
+          "timestamp": "2026-06-02T23:07:19.479Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -69,9 +69,9 @@
           "command": "npm run test:authority-receipt-classification && npm run test:authority-runner-contracts",
           "result": "pass",
           "note": "Same-run verifier, missing commandDigest/transcriptHash/diffHash, bad signature, wrong subjectKind, wrong subjectId, wrong subjectDigest, wrong bare digest, and unsupported sha512 prefix all stay non-receipt-backed.",
-          "headHash": "f099fe5eb85150d9dd28d810a2ac2421d41a4dd8",
-          "materialHash": "308dc3f4b2b0c2ae3313945c35ffaa889f041838ee31778968f17eaf811fad18",
-          "timestamp": "2026-06-02T22:36:46.489Z"
+          "headHash": "29f643b7bd79f6266e27ca20f4e8ead883b2650d",
+          "materialHash": "bf8cbec16075695a8cc42bf993ded7058902fd0a21d8c563b4d151944229b19b",
+          "timestamp": "2026-06-02T23:07:19.479Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -79,9 +79,9 @@
           "command": "npm run test:authority-boundary-smoke && npm run test:authority-evidence-flow",
           "result": "pass",
           "note": "Transport accepted true without verified receipt remains thin-client/local-shadow classification and cannot satisfy production receipt-backed authority.",
-          "headHash": "f099fe5eb85150d9dd28d810a2ac2421d41a4dd8",
-          "materialHash": "308dc3f4b2b0c2ae3313945c35ffaa889f041838ee31778968f17eaf811fad18",
-          "timestamp": "2026-06-02T22:36:46.489Z"
+          "headHash": "29f643b7bd79f6266e27ca20f4e8ead883b2650d",
+          "materialHash": "bf8cbec16075695a8cc42bf993ded7058902fd0a21d8c563b4d151944229b19b",
+          "timestamp": "2026-06-02T23:07:19.479Z"
         }
       ]
     },
@@ -151,9 +151,9 @@
           "command": "npm run test:authority-enforce-matrix",
           "result": "pass",
           "note": "Matrix smoke printed local/off PASS, shadow warning PASS, enforce fake-server receipt PASS, enforce no-server runner fail-closed PASS, and parallel_report productionDone=false PASS; confirms local/off remains free/local, shadow only warns, enforce missing server fails closed, and signed receipt classification is required for L2+.",
-          "headHash": "f099fe5eb85150d9dd28d810a2ac2421d41a4dd8",
-          "materialHash": "308dc3f4b2b0c2ae3313945c35ffaa889f041838ee31778968f17eaf811fad18",
-          "timestamp": "2026-06-02T22:37:56.924Z"
+          "headHash": "29f643b7bd79f6266e27ca20f4e8ead883b2650d",
+          "materialHash": "bf8cbec16075695a8cc42bf993ded7058902fd0a21d8c563b4d151944229b19b",
+          "timestamp": "2026-06-02T23:07:19.479Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -161,9 +161,9 @@
           "command": "npm run test:authority-live-python",
           "result": "pass",
           "note": "Live Python smoke self-skipped with the documented line because KOALA_AUTHORITY_LIVE_URL and KOALA_AUTHORITY_LIVE_PUBLIC_KEY are not set; when configured, the task performs policy discovery against the live Python authority before declaring pass.",
-          "headHash": "f099fe5eb85150d9dd28d810a2ac2421d41a4dd8",
-          "materialHash": "308dc3f4b2b0c2ae3313945c35ffaa889f041838ee31778968f17eaf811fad18",
-          "timestamp": "2026-06-02T22:37:57.222Z"
+          "headHash": "29f643b7bd79f6266e27ca20f4e8ead883b2650d",
+          "materialHash": "bf8cbec16075695a8cc42bf993ded7058902fd0a21d8c563b4d151944229b19b",
+          "timestamp": "2026-06-02T23:07:19.479Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -171,9 +171,9 @@
           "command": "npm --prefix packages/main run test:lattice-parallel-wave-smoke && npm run test:authority-enforce-matrix && npm run test:authority-boundary-smoke && npm run test:authority-evidence-flow",
           "result": "pass",
           "note": "Parallel Wave smoke and matrix assertions keep planning artifacts non-authoritative: productionDone=false, authorityChanged=false, receiptRefs=[]; authority boundary/evidence flow regressions confirm thin-client transport acceptance cannot satisfy receipt-backed production authority.",
-          "headHash": "f099fe5eb85150d9dd28d810a2ac2421d41a4dd8",
-          "materialHash": "308dc3f4b2b0c2ae3313945c35ffaa889f041838ee31778968f17eaf811fad18",
-          "timestamp": "2026-06-02T22:37:57.432Z"
+          "headHash": "29f643b7bd79f6266e27ca20f4e8ead883b2650d",
+          "materialHash": "bf8cbec16075695a8cc42bf993ded7058902fd0a21d8c563b4d151944229b19b",
+          "timestamp": "2026-06-02T23:07:19.479Z"
         }
       ]
     }
