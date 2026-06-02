@@ -112,8 +112,8 @@
         "docs/requirements/decisions/authority-client-role.md",
         "docs/requirements/decisions/lattice-parallel-wave.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-02T11:24:36.617Z",
       "endTime": null,
       "userSees": "用户运行 `lattice authority status` 和 `lattice conduit status` 看到 Server Authority receipts 是唯一生产权威，Conduit 只是 thin conduit，不是 agent host。",
       "files": {
@@ -265,6 +265,15 @@
       "timestamp": "2026-06-02T11:24:35.270Z",
       "phase": "DEV",
       "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start DEV implementation for Lattice CLI 0.3.5 migration."
+    },
+    {
+      "timestamp": "2026-06-02T11:24:36.617Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
       "action": "update",
       "from": "pending",
       "to": "in_progress",
