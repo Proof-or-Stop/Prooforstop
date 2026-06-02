@@ -9,7 +9,7 @@
         "docs/requirements/decisions/lattice-parallel-wave.md",
         "docs/requirements/decisions/verification-context-pack.md"
       ],
-      "userSees": "E2E smoke shows `receiptVerified:true`, `klass:\"receipt-backed-l2-plus\"`, and evidence bound to distinct producer/verifier run IDs only when fake server receipt verification passes.",
+      "userSees": "`test:authority-receipt-classification` prints `authority receipt classification smoke passed: receiptVerified=true klass=receipt-backed-l2-plus only after signed receipt verification`; same-run verifier, missing command/transcript/diff hashes, bad receipt signature, or transport accepted without verified receipt remain non-receipt-backed.",
       "verificationIntent": {
         "happy": [
           {
@@ -35,7 +35,22 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/authority-boundary.ts",
+          "packages/main/src/core/authority-runner-contracts.ts"
+        ],
+        "create": [
+          "packages/main/src/core/authority-receipt-classification.ts",
+          "packages/main/src/tasks/authority-receipt-classification-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/authority-receipt-classification-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-002",
