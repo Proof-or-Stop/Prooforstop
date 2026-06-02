@@ -56,7 +56,45 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Core wave model returns story lanes, readiness, visible degradations, authorityChanged=false, productionDone=false, and merge order in JSON.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/parallel-policy.ts"
+        ],
+        "create": [
+          "packages/main/src/core/lattice-parallel-wave.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/lattice-parallel-wave-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Independent supporting story with available host capability becomes a parallel DEV candidate.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A story depending on an active story is blocked or plan_only even if metadata says parallelSafe=yes.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Shared hotspot overlap produces visible degradation and removes the story from parallel DEV candidates.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
