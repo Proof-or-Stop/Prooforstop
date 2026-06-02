@@ -162,8 +162,8 @@
         "docs/requirements/decisions/stack-layering.md",
         "docs/requirements/decisions/project-vision.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-02T11:24:37.971Z",
       "endTime": null,
       "userSees": "用户在 README 顶部看到 `Lattice CLI 0.3.5`；在迁移说明中看到精确文字 `Mac App: optional/archive dashboard only` 和 `Primary path: Lattice CLI + Server Authority receipts`。",
       "files": {
@@ -274,6 +274,15 @@
       "timestamp": "2026-06-02T11:24:36.617Z",
       "phase": "DEV",
       "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start DEV implementation for Lattice CLI 0.3.5 migration."
+    },
+    {
+      "timestamp": "2026-06-02T11:24:37.971Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
       "action": "update",
       "from": "pending",
       "to": "in_progress",
