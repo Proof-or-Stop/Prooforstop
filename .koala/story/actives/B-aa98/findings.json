@@ -41,7 +41,7 @@
       "desc": "Receipt safety is incomplete: submitHandoffReceipt treats any non-empty headSha as pass (packages/main/src/core/lattice-handoff.ts:795-805) and can return accepted-local without proving that headSha exists or matches the reviewed overflow commit. Verified with an inline node repro that submitted headSha=\"not-a-real-commit\" and still got status=accepted-local plus validations.headSha=pass. Fix by resolving headSha in git (for example rev-parse/cat-file), requiring it to be reachable from the overflow worktree result being reviewed, and failing/diagnostic when the commit cannot be verified.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-02T21:37:26.090Z",
