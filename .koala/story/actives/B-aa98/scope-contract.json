@@ -1,0 +1,51 @@
+{
+  "storyId": "B-aa98",
+  "mode": "enforce",
+  "allowedModify": [
+    "README.md",
+    "docs/guide.md",
+    "docs/requirements/decisions/project-vision.md",
+    "docs/requirements/NAV.md",
+    "packages/main/src/core/capabilities.ts",
+    "packages/main/src/core/lattice-hosts.ts",
+    "packages/main/src/handlers/lattice-cli.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/lattice-handoff.ts",
+    "packages/main/src/handlers/lattice-handoff.ts",
+    "packages/main/src/tasks/lattice-handoff-smoke.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/package.json",
+    "package.json"
+  ],
+  "allowedCreate": [
+    "docs/requirements/decisions/host-overflow.md",
+    "packages/main/src/tasks/host-overflow-smoke.ts",
+    ".koala/story/actives/B-aa98/evidence/host-overflow-transcript.md"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/capability-list-smoke.ts",
+    "packages/main/src/tasks/host-overflow-smoke.ts",
+    "packages/main/src/tasks/lattice-handoff-smoke.ts",
+    "packages/main/src/tasks/lattice-cli-migration-smoke.ts"
+  ],
+  "protectedFiles": [
+    "docs/requirements/decisions/authority-client-role.md",
+    "docs/requirements/decisions/story-lifecycle.md",
+    "docs/requirements/decisions/testing-completeness.md",
+    "docs/requirements/decisions/session-ownership-and-write-leases.md",
+    "docs/requirements/decisions/lifecycle-artifact-scope.md",
+    "docs/requirements/decisions/verification-context-pack.md"
+  ],
+  "explicitExcludes": [
+    "packages/server/**",
+    "packages/desktop/**",
+    ".Codex/**",
+    ".claude/agents/**"
+  ],
+  "scopeChangeReason": "Initialize Host Overflow scope from PLAN file declarations; protect authority/lifecycle source docs from accidental semantic drift.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-02T21:02:42.250Z",
+  "updatedAt": "2026-06-02T21:02:42.250Z"
+}
