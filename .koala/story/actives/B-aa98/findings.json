@@ -57,7 +57,7 @@
       "desc": "Overflow JSON contract is broken: docs/guide.md:118-122 advertise --json for host_status/handoff_create/handoff_worktree_create/host_dispatch/handoff_receipt_submit, but MAIN_TOOLS only declares format for these commands (packages/main/src/cli-engine.ts:620-705) and the handoff handlers only branch on args.format (packages/main/src/handlers/lattice-handoff.ts:140-185). Repro: node packages/main/dist/cli.js host_status --host=claude-code --json returns text, so automation expecting JSON silently breaks. Fix by adding json:boolean schema support + handler support for the new overflow commands, or change docs/examples/help to require --format=json consistently.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-02T21:37:26.091Z",
