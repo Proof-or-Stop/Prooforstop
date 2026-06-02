@@ -136,9 +136,9 @@
         "docs/requirements/decisions/lifecycle-artifact-scope.md"
       ],
       "userSees": "用户运行 lattice handoff_create ... --format=json 看到 \"packId\":\"HP-...\", \"packHash\":\"sha256:...\", \"baseSha\":\"...\", \"allowedPaths\":[...], \"requiredCommands\":[...], \"productionDone\":false。",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-02T21:22:58.526Z",
       "files": {
         "modify": [
           "packages/main/src/core/lattice-handoff.ts",
@@ -177,7 +177,19 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:lattice-handoff-smoke",
+          "result": "pass",
+          "note": "lattice-handoff smoke verifies bounded handoff packs include packId/packHash/baseSha-safe boundaries while preserving legacy handoff-pack-v0 compatibility and non-authoritative projections.",
+          "headHash": "889fcc8f649196a48fc2bb32c46c36568c6fd05e",
+          "materialHash": "bd29e0297db5c6be6cbeb9b4fb9fb501ae5536db42fccd198e54bf3ff7942b27",
+          "timestamp": "2026-06-02T21:22:58.574Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
