@@ -267,7 +267,7 @@
         "docs/guide.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "userSees": "用户看到测试证明：pack 可生成、receipt 可提交、越界/陈旧可识别、Claude Code 不可用时不阻塞主流程。",
+      "userSees": "用户在 transcript 中看到 \"Manual Claude Code overflow flow: pack created -> receipt accepted-local -> scopeStatus=pass -> productionDone=false -> nextAction=main agent reviews and merges.\"",
       "status": "pending",
       "startTime": null,
       "endTime": null,
