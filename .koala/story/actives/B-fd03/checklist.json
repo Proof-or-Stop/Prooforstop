@@ -92,9 +92,9 @@
         "docs/requirements/decisions/story-lifecycle.md"
       ],
       "userSees": "用户执行 `lattice story_create --help` 时看到 `lattice story_create` 示例和 `lattice session_brief` 下一步；执行 `koala --version` 仍看到 legacy alias 说明。",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-02T15:35:28.748Z",
       "files": {
         "modify": [
           "packages/main/src/cli-engine.ts",
@@ -139,35 +139,35 @@
         {
           "intentRef": "CHK-002:happy:0",
           "kind": "manual_transcript",
-          "file": "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
-          "command": "npm --prefix packages/main run test:lattice-cli-migration-smoke",
+          "file": "packages/main/src/cli-prompts.ts",
+          "command": "node packages/main/dist/cli.js story_create --help",
           "result": "pass",
-          "note": "Smoke verifies story_create help and next-step guidance prefer lattice command examples.",
-          "headHash": "3d08e9516db83545b0e3924c0baf08f940b0752c",
+          "note": "Local dist help prints lattice story_create examples and lattice session_brief next-step guidance.",
+          "headHash": "5a306ab1404bff5d0477341c08ec532d26208a22",
           "materialHash": "8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910",
-          "timestamp": "2026-06-02T15:35:27.262Z"
+          "timestamp": "2026-06-02T15:35:28.818Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "manual_transcript",
-          "file": "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
-          "command": "npm --prefix packages/main run test:lattice-cli-migration-smoke",
+          "file": "packages/main/src/core/lattice-brand.ts",
+          "command": "lattice --version",
           "result": "pass",
-          "note": "Smoke verifies koala remains a working legacy alias and help/version output documents that compatibility.",
-          "headHash": "3d08e9516db83545b0e3924c0baf08f940b0752c",
+          "note": "Global lattice prints Lattice CLI 0.3.5 with koala explicitly framed as legacy alias.",
+          "headHash": "5a306ab1404bff5d0477341c08ec532d26208a22",
           "materialHash": "8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910",
-          "timestamp": "2026-06-02T15:35:27.262Z"
+          "timestamp": "2026-06-02T15:35:28.897Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
-          "file": "packages/main/src/tasks/lattice-cli-migration-smoke.ts;scripts/verify-process-fact-contract.mjs",
-          "command": "npm --prefix packages/main run test:lattice-cli-migration-smoke && npm run test:process-fact-contract",
+          "file": "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+          "command": "npm run test:lattice-cli-migration-smoke && node packages/main/dist/tasks/session-brief-prompt-sync-smoke.js",
           "result": "pass",
-          "note": "Tests preserve .koala paths, koala-review lanes, KOALA env vars, koala-codex adapter names, and @koala-agent/core package identity while accepting lattice-primary commands.",
-          "headHash": "3d08e9516db83545b0e3924c0baf08f940b0752c",
+          "note": "Migration and prompt-sync smoke tests pass, preserving koala-review lanes/.koala semantics while making user-facing command examples prefer lattice.",
+          "headHash": "5a306ab1404bff5d0477341c08ec532d26208a22",
           "materialHash": "8c1c58769bf29230cb010d18123b0419697dca4fca46b718a6631f7ef265a910",
-          "timestamp": "2026-06-02T15:35:27.262Z"
+          "timestamp": "2026-06-02T15:35:28.955Z"
         }
       ]
     },
@@ -349,6 +349,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Docs and install guidance committed in 5a306ab1."
+    },
+    {
+      "timestamp": "2026-06-02T15:35:28.748Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Lattice-first help, session, check, doctor, and dispatch hints committed in 5a306ab1."
     }
   ]
 }
