@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Document asset layering and compatibility contract",
       "context": "Define project-local required assets versus package registry prompt templates versus generated/cache materialization, including legacy mirror compatibility and no-overwrite rules.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-02T21:05:11.151Z",
-      "endTime": null,
+      "endTime": "2026-06-02T21:05:54.013Z",
       "relatedDocs": [
         "docs/requirements/decisions/stack-layering.md",
         "docs/requirements/decisions/lifecycle-artifact-scope.md",
@@ -39,7 +39,42 @@
             "type": "docs"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "command": "rg -n \"registry-backed prompt assets|project-local required assets|legacy mirror compatibility|STALE_LOCAL_EDIT|production authority\" docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "result": "pass",
+          "note": "Docs define project-local assets, package registry prompt templates, materialized prompt caches, and legacy mirror compatibility.",
+          "headHash": "34b1ecffb027d97a8ba392c8be35e2458b1335b4",
+          "materialHash": "6149854bd58827b5622f3cc619797bd5b534a9b95efb4791b806109a706b7d7a",
+          "timestamp": "2026-06-02T21:05:54.077Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "command": "rg -n \"legacy mirror compatibility|Thin-mode repositories may omit|Legacy full-mode repositories may keep\" docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "result": "pass",
+          "note": "Docs preserve legacy full-mode mirrors and state thin mode omits prompt copies only when manifest selects registry prompts.",
+          "headHash": "34b1ecffb027d97a8ba392c8be35e2458b1335b4",
+          "materialHash": "6149854bd58827b5622f3cc619797bd5b534a9b95efb4791b806109a706b7d7a",
+          "timestamp": "2026-06-02T21:05:54.119Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "command": "rg -n \"STALE_LOCAL_EDIT|report-only|must not overwrite or delete local edits\" docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "result": "pass",
+          "note": "Docs require report-only handling for local edits, case mismatch, and incompatible prompt files during thin migration.",
+          "headHash": "34b1ecffb027d97a8ba392c8be35e2458b1335b4",
+          "materialHash": "6149854bd58827b5622f3cc619797bd5b534a9b95efb4791b806109a706b7d7a",
+          "timestamp": "2026-06-02T21:05:54.154Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
