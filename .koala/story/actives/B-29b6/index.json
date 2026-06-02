@@ -1,0 +1,51 @@
+{
+  "storyId": "B-29b6",
+  "name": "lattice-parallel-wave",
+  "title": "Productize Lattice Parallel Wave planning for multi-story worktree delivery",
+  "description": "Add a Lattice-compatible Parallel Wave contract and CLI surface so large demands can be split into related stories, planned as a DAG, dispatched across worktrees/hosts with capability-aware degradations, tracked through portable evidence/lineage, and merged in a safe order without confusing local workflow with production authority.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "source": "user",
+  "keywords": [
+    "lattice",
+    "parallel-wave",
+    "story-dag",
+    "worktree",
+    "capability-contract",
+    "visible-degradation",
+    "lineage"
+  ],
+  "riskSignals": [
+    {
+      "category": "生产环境/紧急",
+      "matched": "production"
+    }
+  ],
+  "createdAt": "2026-06-02T04:59:56.163Z",
+  "startedAt": "2026-06-02T04:59:56.163Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-02T04:59:56.174Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-02T05:02:10.651Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-29b6",
+    "branch": "story/B-29b6",
+    "createdAt": "2026-06-02T05:02:10.795Z"
+  }
+}
