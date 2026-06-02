@@ -100,6 +100,23 @@
       "files": [
         ".koala/story/actives/B-fd03/evidence/rollout-transcript.md"
       ]
+    },
+    {
+      "id": "B-fd03:F-007",
+      "desc": "parseProjectList resolves project entries before dropping empty values, so a trailing comma in --projects silently adds the current root to the scan set and widens rollout_check scope.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-02T15:44:16.955Z",
+      "reviewRound": "2026-06-02T15:36:50.208Z",
+      "reviewRunId": "B-fd03:RR-002",
+      "_hash": "23c004329f72d4b0a9a8ef62811d27262fe43ba16e9d49f160efa8c4a9886ff5",
+      "files": [
+        "packages/main/src/core/rollout-check.ts",
+        "packages/main/src/tasks/rollout-check-smoke.ts"
+      ]
     }
   ]
 }
