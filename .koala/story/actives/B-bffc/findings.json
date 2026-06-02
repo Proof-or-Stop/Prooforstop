@@ -42,7 +42,7 @@
       "desc": "packages/main/src/core/capabilities.ts:323-345 still models `desktop-app` as an active connected host with conditional file-edit/test-execution/evidence-submit/receipt-verify capabilities, and packages/main/src/core/lattice-hosts.ts:54-70 passes that profile straight through `host_list`. That conflicts with README.md:49-54 and docs/requirements/decisions/project-vision.md:17, which define the Mac App as optional/dashboard/archive only for 0.3.5. As implemented, `lattice host list` / `lattice host probe --host=desktop-app` will still present the Mac App as a potential authority/test surface instead of a demoted archive/dashboard surface.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-concept",
       "createdAt": "2026-06-02T12:04:26.567Z",
