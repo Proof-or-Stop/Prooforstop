@@ -1,18 +1,18 @@
 {
   "storyId": "B-fd03",
-  "changes": "Implemented Lattice CLI 0.3.5 rollout productization: lattice is now the primary user-facing command, koala remains an explicit legacy alias, rollout_check scans multiple projects with read-only per-project status and nextAction output, docs and prompts now publish lattice-first refresh/check/doctor/session guidance, and smoke tests cover alias compatibility plus rollout scope safety.",
-  "usage": "Use lattice --version, koala --version for legacy alias verification, lattice check, lattice doctor --format=json, and lattice rollout_check --projects=/path/a,/path/b --json to audit project rollout state. Use lattice session_brief and lattice validate for story lifecycle work.",
-  "expectedOutcome": "Users see Lattice CLI 0.3.5 as the official CLI entry, koala clearly labeled as legacy compatibility, and rollout_check JSON that reports schema, readOnly=true, macAppRequired=false, summary counts, per-project status, evidence, and nextAction.",
-  "actualTranscript": "Validation passed via lattice validate --story=B-fd03 --json, npm test fallback passed, verification intent coverage is 12/12, all REVIEW lanes passed, and real-project rollout transcript records conservative warn/fail diagnostics with actionable nextAction values instead of claiming all projects are clean.",
-  "outcomeDiff": "No product gap. The only intentional difference is that real-project rollout output is conservative: warn/fail drift is surfaced honestly rather than converted into pass.",
+  "changes": "把 Lattice 作为主 CLI 名称落到 README、guide、project vision、help、session/hint 文案和 smoke tests；新增只读 rollout_check 命令、handler、core scanner、L0/read-only policy 和回归测试；保留 koala 作为 legacy alias。",
+  "usage": "用户使用 lattice check、lattice doctor --format=json、lattice session_brief、lattice rollout_check --projects \"$(pwd)\" --json；旧 koala 命令仍可作为 legacy alias 使用。",
+  "expectedOutcome": "用户看到 Lattice CLI 0.3.5 以 lattice 为主入口，koala 标注为 legacy alias；rollout_check 输出 schema、readOnly、macAppRequired、summary、每项目 status 和 nextAction。",
+  "actualTranscript": "validate 12/12 intent coverage pass；rollout-check-smoke pass；session-brief-prompt-sync smoke pass；real-project transcript 显示 total=6、pass=0、warn=3、fail=3，每项目都有 status 与 nextAction。",
+  "outcomeDiff": "无未接受差异；原先硬编码的项目 pass/warn 预期已改为真实保守诊断输出，warn/fail 被作为健康信号暴露。",
   "acceptanceVerdict": "accepted",
   "outcomeKind": "success",
   "realMachineCoverage": {
     "ran": [],
     "skipped": []
   },
-  "limitations": "rollout_check is a read-only diagnostic and does not apply repairs; external project warnings still require the operator to run project-local check/apply/doctor actions. Mac app is not required for this CLI plus server-authority receipts path.",
-  "pitfalls": "F-009 caught an acceptance-text mismatch that still promised fixed pass outcomes; it was corrected to match the conservative transcript. Review also caught trailing-comma project parsing and stale koala help text, both now covered by smoke tests.",
+  "limitations": "rollout_check 是只读本地诊断，不提交 authority evidence、不验证 receipt、不修复 managed assets；真实项目 warn/fail 需要项目维护者后续处理。",
+  "pitfalls": "review 发现两类坑：用户提示里残留 koala 前缀，以及 CHK-004 一开始承诺固定项目状态；最终改成 lattice-first 和真实 status/nextAction contract。",
   "phaseStats": {
     "INIT": {
       "count": 1,
@@ -36,10 +36,10 @@
     },
     "TEST": {
       "count": 1,
-      "durationMs": 95802
+      "durationMs": 126987
     }
   },
-  "totalDurationMs": 8858001,
+  "totalDurationMs": 8889186,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -52,5 +52,5 @@
     "open": 0
   },
   "createdAt": "2026-06-02T16:43:40.053Z",
-  "updatedAt": "2026-06-02T16:43:40.053Z"
+  "updatedAt": "2026-06-02T16:44:11.239Z"
 }
