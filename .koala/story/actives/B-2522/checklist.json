@@ -9,18 +9,18 @@
         "docs/requirements/decisions/lattice-parallel-wave.md",
         "docs/requirements/decisions/verification-context-pack.md"
       ],
-      "userSees": "`test:authority-receipt-classification` prints `authority receipt classification smoke passed: receiptVerified=true klass=receipt-backed-l2-plus only after signed receipt verification`; same-run verifier, missing command/transcript/diff hashes, bad receipt signature, or transport accepted without verified receipt remain non-receipt-backed.",
+      "userSees": "`test:authority-receipt-classification` prints `authority receipt classification smoke passed: receiptVerified=true klass=receipt-backed-l2-plus only after signed receipt verification`; same-run verifier, missing command/transcript/diff hashes, bad receipt signature, receipt subject mismatch, or transport accepted without verified receipt remain non-receipt-backed.",
       "verificationIntent": {
         "happy": [
           {
-            "desc": "Enforce runner submits full signed L2 verifier envelope and classifies as receipt-backed only after receipt verification.",
+            "desc": "A fully bound verifier envelope classifies as receipt-backed only after AuthorityReceipt signature verification and subject binding to that exact evidence envelope pass.",
             "type": "cli",
             "priority": "must"
           }
         ],
         "edge": [
           {
-            "desc": "Same-run verifier, missing commandDigest/transcriptHash/diffHash, or receipt signature mismatch cannot classify as receipt-backed.",
+            "desc": "Same-run verifier, missing commandDigest/transcriptHash/diffHash, receipt signature mismatch, or receipt subjectId/subjectDigest mismatch cannot classify as receipt-backed.",
             "type": "logic",
             "priority": "must"
           }
