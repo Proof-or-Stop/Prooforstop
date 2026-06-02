@@ -161,10 +161,10 @@
           "file": "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
           "command": "npm run test:lattice-cli-migration-smoke",
           "result": "pass",
-          "note": "Smoke probes Codex and migration status through JSON surfaces that expose capability/degradation status without fatal provider dashboard dependency.",
-          "headHash": "91549dbf3ad5289e5b3a6e8946e03681d668fe3a",
-          "materialHash": "3f168c9f681f61167ecb3df1f005f88e3f5b6daf706494c63877105721ad25da",
-          "timestamp": "2026-06-02T11:41:04.904Z"
+          "note": "Repair evidence for F-001: smoke now asserts Codex visible degradation entries for browser-automation, evidence-submit, and receipt-verify, including explicit authorityImpact values.",
+          "headHash": "221ed721715f2a17f280e1756b8faa043a32bfd6",
+          "materialHash": "fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e",
+          "timestamp": "2026-06-02T12:12:36.470Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -249,21 +249,21 @@
           "file": "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
           "command": "npm run test:lattice-cli-migration-smoke",
           "result": "pass",
-          "note": "Smoke covers missing/default authority URL behavior via authority_status JSON where serverReachability is not-probed and no receipt verification is claimed.",
-          "headHash": "91549dbf3ad5289e5b3a6e8946e03681d668fe3a",
-          "materialHash": "3f168c9f681f61167ecb3df1f005f88e3f5b6daf706494c63877105721ad25da",
-          "timestamp": "2026-06-02T11:41:04.904Z"
+          "note": "Repair evidence for F-002: smoke now asserts missing authority URL fallback fields: baseURLConfigured=false, baseURL=null, status=not-configured, serverReachability=not-probed, and no receipt/production overclaim.",
+          "headHash": "221ed721715f2a17f280e1756b8faa043a32bfd6",
+          "materialHash": "fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e",
+          "timestamp": "2026-06-02T12:12:36.470Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
-          "command": "npm run test:lattice-cli-migration-smoke",
+          "command": "node packages/main/dist/cli.js host_probe --host=desktop-app --format=json && npm run test:lattice-cli-migration-smoke",
           "result": "pass",
-          "note": "Smoke recursively fails if productionDone, receiptVerified, canClaimProductionDone, or authorityChanged become true in local CLI surfaces.",
-          "headHash": "91549dbf3ad5289e5b3a6e8946e03681d668fe3a",
-          "materialHash": "3f168c9f681f61167ecb3df1f005f88e3f5b6daf706494c63877105721ad25da",
-          "timestamp": "2026-06-02T11:41:04.904Z"
+          "note": "Repair evidence for F-003/F-004: Lattice-facing desktop-app projection is dashboard/archive only; file-edit, test-execution, evidence-submit, and receipt-verify are unavailable, with productionDone still blocked by receipt verification.",
+          "headHash": "221ed721715f2a17f280e1756b8faa043a32bfd6",
+          "materialHash": "fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e",
+          "timestamp": "2026-06-02T12:12:36.470Z"
         }
       ]
     },
@@ -415,12 +415,12 @@
           "intentRef": "CHK-005:edge:0",
           "kind": "integration_test",
           "file": "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
-          "command": "npm run test:lattice-cli-migration-smoke",
+          "command": "npm --prefix packages/main run build && npm run test:lattice-cli-migration-smoke",
           "result": "pass",
-          "note": "Smoke covers optional host/config defaults and missing authority URL fallback without failing the command.",
-          "headHash": "91549dbf3ad5289e5b3a6e8946e03681d668fe3a",
-          "materialHash": "3f168c9f681f61167ecb3df1f005f88e3f5b6daf706494c63877105721ad25da",
-          "timestamp": "2026-06-02T11:41:04.904Z"
+          "note": "Repair evidence for F-002: final build and smoke cover missing optional host/degradation and authority URL fallback behavior explicitly.",
+          "headHash": "221ed721715f2a17f280e1756b8faa043a32bfd6",
+          "materialHash": "fcea2da9d5b83b1ed47e9b74aa35ad174925243c866d54723ac738668c9faf6e",
+          "timestamp": "2026-06-02T12:12:36.470Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
