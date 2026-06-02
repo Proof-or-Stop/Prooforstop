@@ -153,6 +153,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'handoff_accept', 'handoff_resume', // B-cd31 CHK-005: handoff accept/resume projections without authority mutation
     'evidence_manifest', 'evidence_inspect', // B-cd31 CHK-006: portable evidence freshness diagnostics
     'parallel_wave_create', 'parallel_wave_inspect', 'parallel_plan', // B-29b6: read-only Lattice Parallel Wave planning surfaces; no authority mutation
+    'parallel_dispatch', 'parallel_status', 'parallel_merge_queue', 'parallel_report', // B-e70f: read-only Parallel Dispatch projections; no spawning or authority mutation
     'dev_memory_*',  // B-1148: dev_memory_capture/list/search/preflight/finish/start declared allowedPhases:all in command-policy; phaseTools must match
   ],
   INIT: [

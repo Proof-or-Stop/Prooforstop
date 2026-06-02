@@ -1,6 +1,13 @@
 import { readFileSync } from 'node:fs';
 import { buildCapabilityProbe, type CapabilityStatus } from './capabilities.js';
 import { buildCanonicalStory, type CanonicalStory } from './canonical-story.js';
+import {
+  readEntries,
+  resolveGlobalMemoryPath,
+  resolveProjectMemoryPath,
+  searchEntries,
+  type DevMemoryEntry,
+} from './dev-memory.js';
 import { resolveStoryLane, type StoryLane } from './parallel-policy.js';
 import type { StoryStore } from './store.js';
 import type { StoryInfo, StoryPhase } from './types.js';
@@ -8,6 +15,10 @@ import type { StoryInfo, StoryPhase } from './types.js';
 export const PARALLEL_WAVE_SCHEMA_VERSION = 'koala.parallel_wave.v1' as const;
 export const PARALLEL_WAVE_INSPECT_SCHEMA_VERSION = 'koala.parallel_wave_inspect.v1' as const;
 export const PARALLEL_PLAN_SCHEMA_VERSION = 'koala.parallel_plan.v1' as const;
+export const PARALLEL_DISPATCH_SCHEMA_VERSION = 'koala.parallel_dispatch.v1' as const;
+export const PARALLEL_STATUS_SCHEMA_VERSION = 'koala.parallel_status.v1' as const;
+export const PARALLEL_MERGE_QUEUE_SCHEMA_VERSION = 'koala.parallel_merge_queue.v1' as const;
+export const PARALLEL_REPORT_SCHEMA_VERSION = 'koala.parallel_report.v1' as const;
 
 export type ParallelWaveSafety = 'yes' | 'plan_only' | 'no';
 export type ParallelWaveRecommendation = 'parallel_dev' | 'plan_only' | 'blocked';
@@ -60,6 +71,8 @@ export interface ParallelWaveStoryRef {
     gateInputDigest?: string;
   };
   recoveryRefs: string[];
+  worktreePath?: string;
+  branch?: string;
 }
 
 export interface ParallelWaveHostCandidate {
@@ -132,11 +145,297 @@ export interface LatticeParallelPlan extends Omit<LatticeParallelWave, 'schemaVe
   recoveryGuidance: string[];
 }
 
+export interface ParallelWaveExperienceRef {
+  id: string;
+  category: DevMemoryEntry['category'];
+  summary: string;
+  source: string;
+  scope: DevMemoryEntry['scope'];
+  gateEvidence: false;
+  authority: 'non_authoritative';
+}
+
+export interface ParallelWaveProjectionOptions {
+  projectRoot?: string;
+  includeExperience?: boolean;
+  experienceQuery?: string;
+  maxExperienceRefs?: number;
+}
+
+export interface ParallelWaveCounts {
+  storyCount: number;
+  candidateCount: number;
+  planOnlyCount: number;
+  blockedCount: number;
+}
+
+export interface ParallelDispatchEntry {
+  storyId: string;
+  title: string;
+  recommendation: ParallelWaveRecommendation;
+  dispatchable: boolean;
+  agentRole: 'implementer' | 'planner' | 'blocked';
+  spawned: false;
+  requiresRunnerConfirmation: true;
+  recommendedHostIds: string[];
+  worktreePath?: string;
+  branch?: string;
+  nextCommand: string;
+  blockers: string[];
+  degradations: ParallelWaveDegradation[];
+  evidenceRefs: string[];
+  experienceRefs: ParallelWaveExperienceRef[];
+}
+
+export interface LatticeParallelDispatch {
+  schemaVersion: typeof PARALLEL_DISPATCH_SCHEMA_VERSION;
+  waveSchemaVersion: typeof PARALLEL_WAVE_SCHEMA_VERSION;
+  waveId: string;
+  dispatchedAt: string;
+  summary: ParallelWaveCounts;
+  dispatchEntries: ParallelDispatchEntry[];
+  hostCandidates: ParallelWaveHostCandidate[];
+  evidenceRefs: string[];
+  mergeOrder: ParallelWaveMergeOrderEntry[];
+  authority: ParallelWaveAuthorityBoundary;
+}
+
+export interface ParallelMergeGuidanceReady {
+  storyId: string;
+  title: string;
+  guidance: string;
+}
+
+export interface ParallelMergeGuidanceBlocked {
+  storyId: string;
+  title: string;
+  blockers: string[];
+  guidance: string;
+}
+
+export interface ParallelWaveMergeGuidance {
+  ready: ParallelMergeGuidanceReady[];
+  blocked: ParallelMergeGuidanceBlocked[];
+}
+
+export interface LatticeParallelStatus {
+  schemaVersion: typeof PARALLEL_STATUS_SCHEMA_VERSION;
+  waveSchemaVersion: typeof PARALLEL_WAVE_SCHEMA_VERSION;
+  waveId: string;
+  statusAt: string;
+  summary: ParallelWaveCounts;
+  candidates: string[];
+  planOnly: string[];
+  blocked: Array<{ storyId: string; title: string; blockers: string[] }>;
+  mergeGuidance: ParallelWaveMergeGuidance;
+  authority: ParallelWaveAuthorityBoundary;
+}
+
+export interface ParallelMergeQueueEntry {
+  storyId: string;
+  title: string;
+  after: string[];
+  safety: ParallelWaveSafety;
+  recommendation: ParallelWaveRecommendation;
+  ready: boolean;
+  blockers: string[];
+  guidance: string;
+  evidenceRefs: string[];
+}
+
+export interface LatticeParallelMergeQueue {
+  schemaVersion: typeof PARALLEL_MERGE_QUEUE_SCHEMA_VERSION;
+  waveSchemaVersion: typeof PARALLEL_WAVE_SCHEMA_VERSION;
+  waveId: string;
+  queuedAt: string;
+  summary: ParallelWaveCounts;
+  ready: ParallelMergeQueueEntry[];
+  blocked: ParallelMergeQueueEntry[];
+  mergeGuidance: ParallelWaveMergeGuidance;
+  authority: ParallelWaveAuthorityBoundary;
+}
+
+export interface ParallelReportEvidenceEntry {
+  storyId: string;
+  title: string;
+  evidenceRefs: string[];
+  canonicalStoryRef: ParallelWaveStoryRef['canonicalStoryRef'];
+  recoveryRefs: string[];
+}
+
+export interface LatticeParallelReport {
+  schemaVersion: typeof PARALLEL_REPORT_SCHEMA_VERSION;
+  waveSchemaVersion: typeof PARALLEL_WAVE_SCHEMA_VERSION;
+  waveId: string;
+  reportedAt: string;
+  summary: ParallelWaveCounts;
+  candidates: string[];
+  planOnly: string[];
+  blocked: string[];
+  dispatchEntries: ParallelDispatchEntry[];
+  mergeGuidance: ParallelWaveMergeGuidance;
+  evidenceSummary: {
+    topLevelRefs: string[];
+    byStory: ParallelReportEvidenceEntry[];
+  };
+  experienceRefs: ParallelWaveExperienceRef[];
+  authority: ParallelWaveAuthorityBoundary;
+}
+
+const DEFAULT_MAX_EXPERIENCE_REFS = 3;
+const MAX_EXPERIENCE_REFS = 20;
+
 const TERMINAL_PHASES = new Set<StoryPhase>(['DONE', 'DISCARDED']);
 const NON_ACTIVE_PHASES = new Set<StoryPhase>(['DONE', 'DISCARDED', 'IDEA', 'META']);
 
 function uniqueStrings(values: Array<string | undefined>): string[] {
   return [...new Set(values.filter((value): value is string => Boolean(value && value.trim())))].sort();
+}
+
+function boundedExperienceLimit(maxExperienceRefs?: number): number {
+  if (typeof maxExperienceRefs !== 'number' || !Number.isFinite(maxExperienceRefs)) {
+    return DEFAULT_MAX_EXPERIENCE_REFS;
+  }
+  return Math.max(0, Math.min(MAX_EXPERIENCE_REFS, Math.floor(maxExperienceRefs)));
+}
+
+function experienceRef(entry: DevMemoryEntry): ParallelWaveExperienceRef {
+  return {
+    id: entry.id,
+    category: entry.category,
+    summary: entry.summary,
+    source: entry.sourceAgent,
+    scope: entry.scope,
+    gateEvidence: false,
+    authority: 'non_authoritative',
+  };
+}
+
+function experienceRefs(options: ParallelWaveProjectionOptions = {}): ParallelWaveExperienceRef[] {
+  if (!options.includeExperience) return [];
+  const limit = boundedExperienceLimit(options.maxExperienceRefs);
+  if (limit <= 0) return [];
+  const seen = new Set<string>();
+  const entries: DevMemoryEntry[] = [];
+  for (const entry of [
+    ...readEntries(resolveProjectMemoryPath(options.projectRoot)),
+    ...readEntries(resolveGlobalMemoryPath()),
+  ]) {
+    if (seen.has(entry.id)) continue;
+    seen.add(entry.id);
+    entries.push(entry);
+  }
+  return searchEntries(entries, {
+    query: options.experienceQuery,
+    limit,
+  }).map(experienceRef);
+}
+
+function waveCounts(wave: Pick<LatticeParallelWave, 'storyRefs'>): ParallelWaveCounts {
+  return {
+    storyCount: wave.storyRefs.length,
+    candidateCount: wave.storyRefs.filter(ref => ref.recommendation === 'parallel_dev').length,
+    planOnlyCount: wave.storyRefs.filter(ref => ref.recommendation === 'plan_only').length,
+    blockedCount: wave.storyRefs.filter(ref => ref.recommendation === 'blocked').length,
+  };
+}
+
+function refBlockers(ref: ParallelWaveStoryRef): string[] {
+  return uniqueStrings([
+    ...ref.dependencies.active,
+    ...ref.dependencies.blockingForActive,
+    ...ref.degradations
+      .filter(degradation => degradation.severity === 'block')
+      .map(degradation => degradation.reason),
+  ]);
+}
+
+function dispatchAgentRole(recommendation: ParallelWaveRecommendation): ParallelDispatchEntry['agentRole'] {
+  if (recommendation === 'parallel_dev') return 'implementer';
+  if (recommendation === 'plan_only') return 'planner';
+  return 'blocked';
+}
+
+function dispatchNextCommand(ref: ParallelWaveStoryRef): string {
+  if (ref.recommendation === 'parallel_dev') {
+    return `koala dispatch --storyId=${ref.storyId} --itemId=<CHK-id> --agentType=koala-implementer`;
+  }
+  if (ref.recommendation === 'plan_only') {
+    return `koala parallel_plan --storyIds='["${ref.storyId}"]'`;
+  }
+  return `koala parallel_status --storyIds='["${ref.storyId}"]'`;
+}
+
+function dispatchEntry(ref: ParallelWaveStoryRef, refs: ParallelWaveExperienceRef[]): ParallelDispatchEntry {
+  return {
+    storyId: ref.storyId,
+    title: ref.title,
+    recommendation: ref.recommendation,
+    dispatchable: ref.recommendation !== 'blocked',
+    agentRole: dispatchAgentRole(ref.recommendation),
+    spawned: false,
+    requiresRunnerConfirmation: true,
+    recommendedHostIds: ref.recommendedHostIds,
+    ...(ref.worktreePath ? { worktreePath: ref.worktreePath } : {}),
+    ...(ref.branch ? { branch: ref.branch } : {}),
+    nextCommand: dispatchNextCommand(ref),
+    blockers: refBlockers(ref),
+    degradations: ref.degradations,
+    evidenceRefs: ref.evidenceRefs,
+    experienceRefs: refs,
+  };
+}
+
+function mergeGuidance(wave: LatticeParallelWave): ParallelWaveMergeGuidance {
+  const refsById = new Map(wave.storyRefs.map(ref => [ref.storyId, ref]));
+  const ready: ParallelMergeGuidanceReady[] = [];
+  const blocked: ParallelMergeGuidanceBlocked[] = [];
+  for (const entry of wave.mergeOrder) {
+    const ref = refsById.get(entry.storyId);
+    if (!ref) continue;
+    const blockers = refBlockers(ref);
+    if (ref.recommendation === 'blocked') {
+      blocked.push({
+        storyId: ref.storyId,
+        title: ref.title,
+        blockers,
+        guidance: blockers.length > 0
+          ? `Resolve blockers before dispatch or merge: ${blockers.join('; ')}.`
+          : 'Resolve blocked scheduling state before dispatch or merge.',
+      });
+      continue;
+    }
+    ready.push({
+      storyId: ref.storyId,
+      title: ref.title,
+      guidance: ref.recommendation === 'parallel_dev'
+        ? 'Ready for operator-confirmed implementer dispatch; normal Koala review, test, merge, and receipt gates still apply.'
+        : 'Ready for planning-only handoff; avoid simultaneous DEV until hotspot or capability degradations clear.',
+    });
+  }
+  return { ready, blocked };
+}
+
+function mergeQueueEntry(entry: ParallelWaveMergeOrderEntry, ref: ParallelWaveStoryRef): ParallelMergeQueueEntry {
+  const blockers = refBlockers(ref);
+  const ready = ref.recommendation !== 'blocked';
+  return {
+    storyId: ref.storyId,
+    title: ref.title,
+    after: entry.after,
+    safety: entry.safety,
+    recommendation: entry.recommendation,
+    ready,
+    blockers,
+    guidance: ready
+      ? entry.recommendation === 'parallel_dev'
+        ? 'Queue after listed dependencies and keep receipt-backed authority checks separate.'
+        : 'Queue for planning follow-up only; do not treat plan-only as simultaneous DEV clearance.'
+      : blockers.length > 0
+        ? `Blocked until resolved: ${blockers.join('; ')}.`
+        : 'Blocked until scheduling safety is restored.',
+    evidenceRefs: ref.evidenceRefs,
+  };
 }
 
 function waveIdFor(storyIds: string[], explicit?: string): string {
@@ -391,6 +690,8 @@ function storyRef(
       ...(canonical.authority.gateInputDigest ? { gateInputDigest: canonical.authority.gateInputDigest } : {}),
     },
     recoveryRefs: recoveryRefs(canonical),
+    ...(story.worktree?.path ? { worktreePath: story.worktree.path } : {}),
+    ...(story.worktree?.branch ? { branch: story.worktree.branch } : {}),
   };
 }
 
@@ -578,5 +879,118 @@ export function buildParallelPlan(wave: LatticeParallelWave): LatticeParallelPla
         : 'No dependency-blocked stories in this wave.',
       'Rerun normal Koala validation and require verified receipts before claiming productionDone.',
     ],
+  };
+}
+
+export function buildParallelDispatch(
+  wave: LatticeParallelWave,
+  options: ParallelWaveProjectionOptions = {},
+): LatticeParallelDispatch {
+  const refs = experienceRefs(options);
+  return {
+    schemaVersion: PARALLEL_DISPATCH_SCHEMA_VERSION,
+    waveSchemaVersion: PARALLEL_WAVE_SCHEMA_VERSION,
+    waveId: wave.waveId,
+    dispatchedAt: new Date().toISOString(),
+    summary: waveCounts(wave),
+    dispatchEntries: wave.storyRefs
+      .map(ref => dispatchEntry(ref, refs))
+      .sort((a, b) => a.storyId.localeCompare(b.storyId)),
+    hostCandidates: wave.hostCandidates,
+    evidenceRefs: wave.evidenceRefs,
+    mergeOrder: wave.mergeOrder,
+    authority: nonAuthorityBoundary(wave.authority),
+  };
+}
+
+export function buildParallelStatus(wave: LatticeParallelWave): LatticeParallelStatus {
+  return {
+    schemaVersion: PARALLEL_STATUS_SCHEMA_VERSION,
+    waveSchemaVersion: PARALLEL_WAVE_SCHEMA_VERSION,
+    waveId: wave.waveId,
+    statusAt: new Date().toISOString(),
+    summary: waveCounts(wave),
+    candidates: wave.storyRefs
+      .filter(ref => ref.recommendation === 'parallel_dev')
+      .map(ref => ref.storyId)
+      .sort(),
+    planOnly: wave.storyRefs
+      .filter(ref => ref.recommendation === 'plan_only')
+      .map(ref => ref.storyId)
+      .sort(),
+    blocked: wave.storyRefs
+      .filter(ref => ref.recommendation === 'blocked')
+      .map(ref => ({
+        storyId: ref.storyId,
+        title: ref.title,
+        blockers: refBlockers(ref),
+      }))
+      .sort((a, b) => a.storyId.localeCompare(b.storyId)),
+    mergeGuidance: mergeGuidance(wave),
+    authority: nonAuthorityBoundary(wave.authority),
+  };
+}
+
+export function buildParallelMergeQueue(wave: LatticeParallelWave): LatticeParallelMergeQueue {
+  const refsById = new Map(wave.storyRefs.map(ref => [ref.storyId, ref]));
+  const entries = wave.mergeOrder.flatMap(entry => {
+    const ref = refsById.get(entry.storyId);
+    return ref ? [mergeQueueEntry(entry, ref)] : [];
+  });
+  return {
+    schemaVersion: PARALLEL_MERGE_QUEUE_SCHEMA_VERSION,
+    waveSchemaVersion: PARALLEL_WAVE_SCHEMA_VERSION,
+    waveId: wave.waveId,
+    queuedAt: new Date().toISOString(),
+    summary: waveCounts(wave),
+    ready: entries.filter(entry => entry.ready),
+    blocked: entries.filter(entry => !entry.ready),
+    mergeGuidance: mergeGuidance(wave),
+    authority: nonAuthorityBoundary(wave.authority),
+  };
+}
+
+export function buildParallelReport(
+  wave: LatticeParallelWave,
+  options: ParallelWaveProjectionOptions = {},
+): LatticeParallelReport {
+  const refs = experienceRefs(options);
+  const dispatchEntries = wave.storyRefs
+    .map(ref => dispatchEntry(ref, refs))
+    .sort((a, b) => a.storyId.localeCompare(b.storyId));
+  return {
+    schemaVersion: PARALLEL_REPORT_SCHEMA_VERSION,
+    waveSchemaVersion: PARALLEL_WAVE_SCHEMA_VERSION,
+    waveId: wave.waveId,
+    reportedAt: new Date().toISOString(),
+    summary: waveCounts(wave),
+    candidates: wave.storyRefs
+      .filter(ref => ref.recommendation === 'parallel_dev')
+      .map(ref => ref.storyId)
+      .sort(),
+    planOnly: wave.storyRefs
+      .filter(ref => ref.recommendation === 'plan_only')
+      .map(ref => ref.storyId)
+      .sort(),
+    blocked: wave.storyRefs
+      .filter(ref => ref.recommendation === 'blocked')
+      .map(ref => ref.storyId)
+      .sort(),
+    dispatchEntries,
+    mergeGuidance: mergeGuidance(wave),
+    evidenceSummary: {
+      topLevelRefs: wave.evidenceRefs,
+      byStory: wave.storyRefs
+        .map(ref => ({
+          storyId: ref.storyId,
+          title: ref.title,
+          evidenceRefs: ref.evidenceRefs,
+          canonicalStoryRef: ref.canonicalStoryRef,
+          recoveryRefs: ref.recoveryRefs,
+        }))
+        .sort((a, b) => a.storyId.localeCompare(b.storyId)),
+    },
+    experienceRefs: refs,
+    authority: nonAuthorityBoundary(wave.authority),
   };
 }

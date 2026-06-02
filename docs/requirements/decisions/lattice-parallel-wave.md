@@ -8,8 +8,10 @@ parallel worktrees.
 
 It is not authority evidence. A wave artifact is local planning state only: it
 cannot satisfy REVIEW, TEST, DONE, delivery, receipt, or production authority
-gates. Every Parallel Wave output keeps `productionDone=false`,
-`authorityChanged=false`, and top-level `receiptRefs=[]`.
+gates. Each JSON surface keeps the non-authority boundary explicit with
+`authority.productionDone=false`, `authority.authorityChanged=false`, and
+`authority.receiptRefs=[]`; no surface emits production completion, non-empty
+`receiptRefs`, or auto-spawned runner state.
 
 ## Lattice Mapping
 
@@ -41,10 +43,27 @@ writes JSON with no overwrite.
 analyzing active stories directly. Optional `output` writes JSON with no
 overwrite.
 
-All three commands are read-only workflow commands: they may write a caller
+`parallel_dispatch` projects one dispatch entry per wave story. Entries contain
+`storyId`, `title`, `recommendation`, `dispatchable`, `agentRole`, `spawned`,
+`requiresRunnerConfirmation`, `recommendedHostIds`, optional `worktreePath` and
+`branch`, `nextCommand`, `blockers`, `degradations`, `evidenceRefs`, and bounded
+non-authoritative `experienceRefs`. `agentRole` is `implementer` for
+`parallel_dev`, `planner` for `plan_only`, and `blocked` for `blocked`.
+`spawned` is always `false`; the runner must explicitly confirm any follow-up.
+
+`parallel_status` projects wave counts, parallel DEV candidates, plan-only
+stories, blocked stories, and ready/blocked merge guidance.
+
+`parallel_merge_queue` projects integration ordering from `mergeOrder`, split
+into ready and blocked entries with blockers and guidance.
+
+`parallel_report` combines the dispatch projection, count summary, ready/blocked
+guidance, evidence lineage, and optional bounded dev-memory refs.
+
+All seven commands are read-only workflow commands: they may write a caller
 requested output artifact, but they do not mutate story metadata, process
-evidence, lifecycle state, receipts, authority state, or production completion.
-They are process fact level L0.
+evidence, lifecycle state, receipts, authority state, production completion, or
+spawn agent runners. They are process fact level L0.
 
 Related migration diagnostics are also L0/read-only:
 
@@ -58,9 +77,11 @@ Related migration diagnostics are also L0/read-only:
 These surfaces replace Mac App provider/config dashboard requirements for the
 0.3.5 migration. The Mac App remains optional dashboard/archive only.
 
-## Wave JSON Contract
+## Base Wave JSON Contract
 
-Every JSON output includes:
+The base wave/create/inspect/plan surfaces are the only JSON outputs that carry
+the full wave envelope. `parallel_wave_create`, `parallel_wave_inspect`, and
+`parallel_plan` include:
 
 - `schemaVersion`
 - `waveId`
@@ -73,9 +94,73 @@ Every JSON output includes:
 - `authority.authorityChanged=false`
 - `authority.receiptRefs=[]`
 
+`parallel_wave_create` additionally includes `generatedAt`.
+`parallel_wave_inspect` additionally includes `waveSchemaVersion`,
+`inspectedAt`, and an `inspection` count summary. `parallel_plan` additionally
+includes `waveSchemaVersion`, `plannedAt`, `parallelDevCandidates`,
+`planOnlyStories`, `blockedStories`, and `recoveryGuidance`.
+
+## Projection JSON Contracts
+
+Projection-specific schemas do not all repeat the full base wave envelope.
+Every projection still includes `schemaVersion`, `waveSchemaVersion`, `waveId`,
+a projection timestamp, `summary`, and the non-authoritative `authority`
+boundary with `productionDone=false`, `authorityChanged=false`, and
+`receiptRefs=[]`.
+
+`parallel_dispatch` emits `dispatchedAt`, `summary`, `dispatchEntries`,
+`hostCandidates`, top-level `evidenceRefs`, `mergeOrder`, and `authority`. It
+does not emit top-level `storyRefs`. Each dispatch entry contains `storyId`,
+`title`, `recommendation`, `dispatchable`, `agentRole`, `spawned=false`,
+`requiresRunnerConfirmation=true`, `recommendedHostIds`, optional
+`worktreePath` and `branch`, `nextCommand`, `blockers`, `degradations`,
+`evidenceRefs`, and bounded non-authoritative `experienceRefs`.
+
+`parallel_status` emits `statusAt`, `summary`, `candidates`, `planOnly`,
+`blocked` entries with blockers, `mergeGuidance`, and `authority`. It does not
+emit `storyRefs`, `hostCandidates`, top-level `evidenceRefs`, or `mergeOrder`.
+
+`parallel_merge_queue` emits `queuedAt`, `summary`, `ready` and `blocked`
+queue entries, `mergeGuidance`, and `authority`. Each queue entry contains
+`storyId`, `title`, `after`, `safety`, `recommendation`, `ready`, `blockers`,
+`guidance`, and story-level `evidenceRefs`. It does not emit `storyRefs`,
+`hostCandidates`, top-level `evidenceRefs`, or raw `mergeOrder`.
+
+`parallel_report` emits `reportedAt`, `summary`, `candidates`, `planOnly`,
+`blocked`, `dispatchEntries`, `mergeGuidance`, `evidenceSummary`,
+`experienceRefs`, and `authority`. `evidenceSummary` contains `topLevelRefs`
+and per-story entries with `storyId`, `title`, story-level `evidenceRefs`,
+`canonicalStoryRef`, and `recoveryRefs`. It does not emit `storyRefs`,
+`hostCandidates`, top-level `evidenceRefs`, or raw `mergeOrder`.
+
+Projection schema versions:
+
+- `koala.parallel_wave.v1`
+- `koala.parallel_wave_inspect.v1`
+- `koala.parallel_plan.v1`
+- `koala.parallel_dispatch.v1`
+- `koala.parallel_status.v1`
+- `koala.parallel_merge_queue.v1`
+- `koala.parallel_report.v1`
+
 Unsafe metadata is fail-closed. Active dependencies and shared hotspots degrade
 or block parallel DEV recommendations even when a story declares
 `parallelSafe=yes`.
+
+## Dev-memory Boundary
+
+Parallel dispatch and report projections may include dev-memory refs only when
+`includeExperience=true`. The implementation reads project memory from
+`<projectRoot>/.koala/dev-memory/experience.jsonl` and global memory from
+`~/.koala/dev-memory/experience.jsonl`, tolerates missing files as an empty
+list, de-duplicates by id, searches through the existing dev-memory search
+routine, and caps output by `maxExperienceRefs`.
+
+Each emitted memory ref is deliberately small: `id`, `category`, `summary`,
+`source`, `scope`, `gateEvidence=false`, and
+`authority="non_authoritative"`. These refs are operator context only. They are
+not evidence refs, cannot satisfy gates, and do not change the authority
+boundary.
 
 ## Six Implementation Milestones
 
