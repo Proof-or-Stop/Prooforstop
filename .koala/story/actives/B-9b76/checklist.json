@@ -98,7 +98,7 @@
         "docs/requirements/decisions/lifecycle-artifact-scope.md",
         "AGENTS.md"
       ],
-      "userSees": "用户在 legacy full repo 运行 verify_codex 仍看到 agents mirror pass；在 thin registry fixture 运行 verify_codex 看到 registry prompt check pass，且不要求 .Codex/agents。",
+      "userSees": "用户运行 `node packages/main/dist/tasks/codex-registry-mode-smoke.js` 后看到 `✓ codex registry mode smoke passed: legacy mirror and thin registry verification are both covered`。",
       "files": {
         "modify": [
           "packages/main/src/init-assets.ts",
