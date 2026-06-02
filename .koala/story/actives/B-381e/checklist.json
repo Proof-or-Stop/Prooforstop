@@ -159,10 +159,48 @@
         "docs/requirements/decisions/project-vision.md",
         "docs/requirements/decisions/authority-client-role.md"
       ],
-      "userSees": "validation demonstrates the resolver and adapter preserve host-neutral authority boundaries and do not overclaim production DONE.",
+      "userSees": "Validation output includes focused smoke coverage proving worktree authority wins over stale main mirror, no Markdown parsing is required, no backing-store direct reads are used by the adapter, and no command manufactures production DONE.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/story-authority-resolve-smoke.ts",
+          "packages/main/src/tasks/observability-snapshot-smoke.ts",
+          "packages/main/src/tasks/observability-contract-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/story-authority-resolve-smoke.ts",
+          "packages/main/src/tasks/observability-snapshot-smoke.ts",
+          "packages/main/src/tasks/observability-contract-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Focused smoke commands pass for resolver, snapshot adapter, and policy contract.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke fixture covers stale main mirror versus authoritative worktree and verifies authoritativeCwd is used.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Tests fail if implementation parses session_brief/status Markdown, directly reads backing story JSON from adapter, or claims productionDone/receiptVerified.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
