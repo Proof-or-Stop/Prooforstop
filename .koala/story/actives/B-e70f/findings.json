@@ -5,7 +5,7 @@
       "desc": "docs/requirements/decisions/lattice-parallel-wave.md overstates the shared JSON contract for the new parallel_* projections: the \"Every JSON output includes\" list claims all outputs carry storyRefs, hostCandidates, top-level evidenceRefs, and mergeOrder, but parallel_status, parallel_merge_queue, and parallel_report do not expose that envelope in implementation or smoke assertions. Tighten the section to distinguish the base wave/create/inspect/plan envelope from the projection-specific schemas, or enumerate each command separately.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-docs",
       "createdAt": "2026-06-02T12:49:49.483Z",
