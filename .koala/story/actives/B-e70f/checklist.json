@@ -1,0 +1,67 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Document Parallel Dispatch operator contract and memory boundary",
+      "context": "Update the Lattice Parallel Wave decision doc so dispatch/status/merge/report are explicit non-authoritative operator surfaces, and state that project dev-memory is the existing public experience library, not new gate evidence.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-parallel-wave.md",
+        "docs/requirements/decisions/dev-memory.md"
+      ],
+      "userSees": "Docs explain how to use Parallel Dispatch without confusing it with agent auto-spawn or authority evidence.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add core dispatch, status, merge queue, and report projections",
+      "context": "Extend the existing Parallel Wave model with schemas for dispatch manifests, wave status aggregation, serial merge queue guidance, and evidence/report summaries while preserving productionDone=false and receiptRefs=[].",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-parallel-wave.md"
+      ],
+      "userSees": "CLI JSON can tell an operator what can run, what is blocked, what should merge first, and what evidence exists.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Expose CLI commands and policy/fact registrations",
+      "context": "Add read-only CLI surfaces for parallel_dispatch, parallel_status, parallel_merge_queue, and parallel_report; register command policy, runtime/process fact level, and default phase availability without adding lifecycle mutations.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-parallel-wave.md"
+      ],
+      "userSees": "koala help shows the new commands and they behave like safe read-only operator tools.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Integrate project public experience library as bounded context",
+      "context": "Reuse existing dev-memory storage by letting dispatch/report include limited non-authoritative experience references when requested; never let those refs satisfy checklist, review, TEST, DONE, or receipt gates.",
+      "relatedDocs": [
+        "docs/requirements/decisions/dev-memory.md",
+        "docs/requirements/decisions/lattice-parallel-wave.md"
+      ],
+      "userSees": "Parallel planning can surface relevant project lessons while still labeling them as non-authoritative context.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Verify with focused smoke, build, policy checks, and Koala validation",
+      "context": "Add a smoke test that proves dispatch/status/merge/report JSON shape, no-overwrite behavior, authority boundary, dev-memory boundary, command registration, policy registration, and fact-level registration. Run build and Koala validation before DONE.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-parallel-wave.md",
+        "docs/requirements/decisions/dev-memory.md"
+      ],
+      "userSees": "Validation transcript shows the new operator surfaces work end-to-end and cannot promote authority.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
