@@ -9,7 +9,7 @@
  * Verifies that verify_codex keeps legacy mirror mode strict while accepting
  * registry-backed thin prompt assets without .Codex/agents.
  * @changes
- * - [CHK-003] Cover legacy mirror, registry thin, and tampered registry hash.
+ * - [CHK-003] Cover legacy mirror, registry thin, registry drift, and tampered registry hash.
  */
 
 import assert from 'node:assert/strict';
@@ -83,6 +83,20 @@ try {
   assert.equal(thin.checks.some(check => check.id === 'agents-mirror'), false);
 } finally {
   rmSync(thinRoot, { recursive: true, force: true });
+}
+
+const driftRoot = makeRoot('codex-registry-drift');
+try {
+  const manifest = JSON.parse(renderCodexAdapterManifest({ promptMode: 'registry' }));
+  manifest.recommendedEntrypoints[0].command = 'node bin/changed.js';
+  writeText(driftRoot, '.Codex/koala.json', `${JSON.stringify(manifest, null, 2)}\n`);
+  const drift = runCodexAdapterChecks(driftRoot, { executeHeartbeats: false });
+  assert.equal(drift.ok, false, 'registry manifest static drift must be a hard failure');
+  assert.equal(checkById(drift, 'manifest').status, 'fail');
+  assert.match(checkById(drift, 'manifest').detail, /registry template/);
+  assert.equal(checkById(drift, 'prompt-registry').status, 'pass');
+} finally {
+  rmSync(driftRoot, { recursive: true, force: true });
 }
 
 const tamperedRoot = makeRoot('codex-tampered');

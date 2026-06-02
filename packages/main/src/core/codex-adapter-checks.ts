@@ -200,6 +200,11 @@ function checkManifest(root: string, checks: CodexAdapterCheck[]): CodexPromptMo
       );
       return 'registry';
     }
+    const expectedRegistryManifest = renderCodexAdapterManifest({ promptMode: 'registry' });
+    if (actual !== expectedRegistryManifest) {
+      push(checks, 'manifest', 'Codex manifest', 'fail', true, '.Codex/koala.json drifted from Koala registry template', LOCAL_INIT_VERIFY_COMMAND);
+      return 'registry';
+    }
     push(checks, 'manifest', 'Codex manifest', 'pass', true, `.Codex/koala.json uses registry prompt mode (${expectedRegistry.agentCount} prompt(s), hash=${expectedRegistry.materialHash.slice(0, 12)})`);
     return 'registry';
   }
