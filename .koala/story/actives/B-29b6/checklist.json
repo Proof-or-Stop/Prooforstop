@@ -204,7 +204,47 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "npm run test:lattice-parallel-wave-smoke passes and proves command registration, policy/fact-level coverage, and wave behavior.",
+      "files": {
+        "modify": [
+          "packages/main/package.json",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/lattice-parallel-wave-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/lattice-parallel-wave-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Smoke test asserts MAIN_TOOLS and registry expose all three wave commands.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke test asserts command-policy classifies all wave commands as readOnly/non-authority.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke test asserts process-fact levels classify all wave commands as L0 and not gate evidence.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-006",
