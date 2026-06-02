@@ -39,6 +39,36 @@
         }
       ],
       "_hash": "a1cb3b1a4a8ec511c0e2f51a3d935c3a4f47309edc0d36131acaefe813207d09"
+    },
+    {
+      "timestamp": "2026-06-02T12:56:38.838Z",
+      "issueCount": 4,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees 可能太抽象（未包含引号括起来的具体输出文本）。应该写用户看到的精确文字，不是\"功能正常工作\"这类描述"
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 userSees 可能太抽象（未包含引号括起来的具体输出文本）。应该写用户看到的精确文字，不是\"功能正常工作\"这类描述"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 个 checklist item，请检查是否有组合场景遗漏（如：Classify transcript-diff as a narrow lifecycle artifact + Document and verify TEST transcript scope behavior 同时操作会怎样？）"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/tasks/flow-stability-smoke.ts 未被任何 checklist item 的 files 字段覆盖（请为相应 item 的 files.modify/create/test 加上此路径或用 excludes 显式排除）"
+        }
+      ],
+      "_hash": "902e02376a374f4168eaaee3eae293875ca8c3bb316aca55bb6a83552a682785"
     }
   ]
 }
