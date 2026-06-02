@@ -1106,6 +1106,15 @@ export const MAIN_TOOLS: ToolDef[] = [
     authorityURL: z.string().optional().describe('Authority server base URL (overrides KOALA_AUTHORITY_URL)'),
     authorityTimeoutMS: z.number().optional().describe('Request timeout in milliseconds (overrides KOALA_AUTHORITY_TIMEOUT_MS)'),
   }},
+  { name: 'authority_enforce_runner', description: 'Explicit enforce-only headless runner command. Dry-run projects register/heartbeat/claim without provider execution. Alias: lattice authority enforce runner', schema: {
+    once: z.boolean().optional().describe('Claim at most one job'),
+    dryRun: z.boolean().optional().describe('Project planned steps without network mutation or provider execution'),
+    json: z.boolean().optional().describe('Output JSON'),
+    format: z.enum(['text', 'json']).optional().describe('Output format'),
+    authorityMode: z.string().optional().describe('Authority mode override; runner treats missing override as enforce'),
+    authorityURL: z.string().optional().describe('Authority server base URL override'),
+    authorityTimeoutMS: z.number().optional().describe('Request timeout override'),
+  }},
 
   // B-ad2c: dev-memory — lightweight non-authoritative experience capture
   { name: 'dev_memory_capture', description: '捕获一条非权威 dev-memory 经验条目到 file-backed JSONL 存储（不能满足 Koala gate evidence）', schema: {
@@ -1609,6 +1618,7 @@ const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'workflow_explain',
   'help',
   'authority_enforce_policy',
+  'authority_enforce_runner',
 ]);
 
 function inferCodexEntrypoint(): string {
@@ -2210,6 +2220,7 @@ export async function runCli(opts?: {
     'rollout check': 'rollout_check',
     'authority status': 'authority_status',
     'authority enforce policy': 'authority_enforce_policy',
+    'authority enforce runner': 'authority_enforce_runner',
     'conduit status': 'conduit_status',
     'conduit explain': 'conduit_explain',
   };

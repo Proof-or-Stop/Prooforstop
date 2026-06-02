@@ -84,7 +84,9 @@
     "test:authority-enforce-policy": "node dist/tasks/authority-enforce-policy-smoke.js",
     "test:authority-status-smoke": "node dist/tasks/authority-status-smoke.js",
     "test:authority-runner-contracts": "node dist/tasks/authority-runner-contracts-smoke.js",
-    "test:authority-runner-client": "node dist/tasks/authority-runner-client-smoke.js"
+    "test:authority-runner-client": "node dist/tasks/authority-runner-client-smoke.js",
+    "test:authority-enforce-runner": "node dist/tasks/authority-enforce-runner-smoke.js",
+    "test:authority-runner-events": "node dist/tasks/authority-runner-events-smoke.js"
   },
   "dependencies": {
     "@koala-agent/lab": "0.3.1",
