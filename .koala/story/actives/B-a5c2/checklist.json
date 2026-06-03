@@ -298,7 +298,7 @@
         "docs/requirements/decisions/authority-client-role.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "userSees": "dispatch_review shows unattended transcripts/diffs/receipts; dispatch_merge_plan remains manualOnly and says host completion is not production authority.",
+      "userSees": "`lattice dispatch_review --dispatchId=D-123` prints \"transcript\", \"changedFiles\", \"localReceipt\", \"productionDone:false\"; `dispatch_merge_plan` prints \"manualOnly:true\".",
       "verificationIntent": {
         "happy": [
           {
@@ -329,7 +329,18 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-dispatch.ts",
+          "packages/main/src/core/lattice-handoff.ts",
+          "packages/main/src/handlers/lattice-dispatch.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/dispatch-run-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-008",
