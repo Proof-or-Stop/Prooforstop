@@ -387,9 +387,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-03T21:07:33.559Z",
-      "endTime": null,
+      "endTime": "2026-06-03T21:14:15.787Z",
       "files": {
         "modify": [
           "README.md",
@@ -558,6 +558,16 @@
       "to": "in_progress",
       "reason": "Start DEV milestone 8 full user-facing unattended flow docs and smoke",
       "agent": "codex"
+    },
+    {
+      "timestamp": "2026-06-03T21:14:15.787Z",
+      "phase": "DEV",
+      "itemId": "CHK-008",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Claude Code CLI implemented full unattended dispatch docs and smoke",
+      "agent": "koala-implementer"
     }
   ]
 }
