@@ -1,0 +1,80 @@
+{
+  "findings": [
+    {
+      "id": "B-a5c2:F-001",
+      "desc": "CHK-008:edge:1 is marked covered by packages/main/src/tasks/unattended-dispatch-smoke.ts, but that smoke only asserts cancellation, accepted review, missing policy, unavailable/unattendedUnsafe host, and authority invariants (see lines 271-459). It does not exercise the required timeout, missing-receipt, or mixed-worker-outcome paths. Those scenarios only appear in dispatch-run-smoke under CHK-007 (e.g. missing transcript/receipt at 1777-1830 and mixed worker outcomes at 1833-1853), so the recorded evidence/test-evidence overclaims final CHK-008 edge coverage.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-03T21:24:35.325Z",
+      "reviewRound": "2026-06-03T21:19:39.509Z",
+      "reviewRunId": "B-a5c2:RR-003",
+      "_hash": "35f89d149550ff80b5ebc4f1a3ef12448ccd12e1d48ea844b8df749d8fc3f04c",
+      "files": [
+        "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+        "packages/main/src/tasks/dispatch-run-smoke.ts",
+        ".koala/story/actives/B-a5c2/test-evidence.json"
+      ],
+      "resolvedReason": "Fixed in commit e10e5a85 by expanding packages/main/src/tasks/unattended-dispatch-smoke.ts CHK-008 edge coverage to assert timeout, missing receipt diagnostics, mixed worker outcomes, out-of-policy path/command refusal, and denied env filtering. Re-verified with npm --prefix packages/main run build, npm --prefix packages/main run test:dispatch-run-smoke, npm --prefix packages/main run test:unattended-dispatch-smoke, and refreshed verification evidence in 1b567ca/d739983.",
+      "resolvedAt": "2026-06-03T21:42:23.231Z"
+    },
+    {
+      "id": "B-a5c2:F-002",
+      "desc": "dispatch_auto authorizes on env and runtime policy fields that the fake unattended runner never enforces. checkDispatchPolicy requires env and runtime metadata (packages/main/src/core/dispatch-policy.ts:385-409), but runRequiredCommands executes child commands with execSync using the parent process environment and no timeout or env override (packages/main/src/core/lattice-dispatch.ts:1330-1343). Verified in an isolated temp repo: policy envAllowlist=[] and envDenylist=[REVIEW_LANE_SECRET], then dispatch_auto with a fake requiredCommand that writes process.env.REVIEW_LANE_SECRET still returned status=accepted_local and produced leakedValue=lane-secret-value. That means unattended jobs can read caller secrets despite an explicit denylist, and maxRuntimeMinutes is likewise not enforced on the execution path.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-03T21:26:15.067Z",
+      "reviewRound": "2026-06-03T21:19:39.509Z",
+      "reviewRunId": "B-a5c2:RR-007",
+      "_hash": "5ac9c757f65d57eb28ce38485b1e82036593e14726d660931441f0b85ce60f84",
+      "files": [
+        "packages/main/src/core/lattice-dispatch.ts",
+        "packages/main/src/core/dispatch-policy.ts"
+      ],
+      "resolvedReason": "Fixed in commit e10e5a85 by running dispatch_auto fake required commands with policy-filtered env derived from envAllowlist/envDenylist and per-command maxRuntimeMinutes timeout; runner metadata records filtered env summary and timedOut. Re-verified with npm --prefix packages/main run build, npm --prefix packages/main run test:dispatch-run-smoke, npm --prefix packages/main run test:unattended-dispatch-smoke, and refreshed verification evidence in 1b567ca/d739983.",
+      "resolvedAt": "2026-06-03T21:42:23.251Z"
+    },
+    {
+      "id": "B-a5c2:F-003",
+      "desc": "dispatch_auto does not enforce policy scope or command allowlists before execution. buildPack copies caller-supplied allowedPaths and requiredCommands directly into the pack (packages/main/src/core/lattice-dispatch.ts:945-969), dispatchAuto only checks host and maxParallel before forwarding the original args into runDispatch (2203-2273), and the fake runner executes pack.requiredCommands verbatim (1544-1556). Verified in an isolated temp repo using built dist handlers: a policy with allowedPaths=[packages/main/src/generated/] and commandAllowlist=[node -e process.exit(0)] still accepted dispatch_auto with allowedPaths=[README.md] and requiredCommands=[node -e require(fs).writeFileSync(UNSAFE-CMD.txt,x)], returned status=accepted_local, and created the file. This breaks the user-approved host/path/command boundary promised by the story.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-03T21:26:55.119Z",
+      "reviewRound": "2026-06-03T21:19:39.509Z",
+      "reviewRunId": "B-a5c2:RR-008",
+      "_hash": "8c7269e27f861da00621bf09a0a859b4a6a05289926ec80ce0fc10b6eb768d84",
+      "files": [
+        "packages/main/src/core/lattice-dispatch.ts"
+      ],
+      "resolvedReason": "Fixed in commit e10e5a85 by binding dispatch_auto allowedPaths/deniedPaths/requiredCommands to the selected policy before runDispatch and refusing out-of-policy scope or commandAllowlist violations before dispatch artifacts are created. Re-verified with npm --prefix packages/main run build, npm --prefix packages/main run test:dispatch-run-smoke, npm --prefix packages/main run test:unattended-dispatch-smoke, and refreshed verification evidence in 1b567ca/d739983.",
+      "resolvedAt": "2026-06-03T21:42:23.249Z"
+    },
+    {
+      "id": "B-a5c2:F-004",
+      "desc": "F-001 remains open: CHK-008:edge:1 persisted evidence is stale. packages/main/src/tasks/unattended-dispatch-smoke.ts now covers timeout, missing receipt, mixed worker outcomes, out-of-policy path/command refusal, and denied env filtering, and fresh smoke passes, but .koala/story/actives/B-a5c2/test-evidence.json still records note 'E2E smoke covers missing policy, unavailable host, cancellation, missing receipt, and mixed/manual outcomes.' It omits timeout and still uses stale mixed/manual wording, so the story evidence/note does not yet match the fixed coverage scope.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-03T21:47:58.515Z",
+      "reviewRound": "2026-06-03T21:42:02.868Z",
+      "reviewRunId": "B-a5c2:RR-013",
+      "_hash": "c0b1206a2d217377ec70ab0ecb16d0d22214fe6f5b8a6085bdefd1fddc88356f",
+      "files": [
+        "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+        ".koala/story/actives/B-a5c2/test-evidence.json"
+      ],
+      "resolvedReason": "Fixed by refreshing persisted validation snapshot in commit 5a5e5696 after lattice validate PASS. .koala/story/actives/B-a5c2/test-evidence.json now records CHK-008:edge:1 as covering missing policy, unavailable host, timeout, cancellation, missing receipt diagnostics, and mixed worker outcomes. Re-verified validate 27/27 coverage and npm test PASS.",
+      "resolvedAt": "2026-06-03T21:51:30.929Z"
+    }
+  ]
+}

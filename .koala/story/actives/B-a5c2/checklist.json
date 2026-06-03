@@ -10,7 +10,7 @@
         "docs/requirements/decisions/authority-client-role.md",
         "docs/requirements/decisions/session-ownership-and-write-leases.md"
       ],
-      "userSees": "lattice decision_get --storyId=B-a5c2 --json shows the chosen policy-authorized unattended mode, explicit no-authority boundaries, and preMortem risks.",
+      "userSees": "Terminal/doc output includes \"chosen: policy-authorized-unattended-scheduler\", \"productionDone=false\", \"receiptVerified=false\", \"authorityChanged=false\", and \"preMortem: 6\".",
       "verificationIntent": {
         "happy": [
           {
@@ -34,9 +34,53 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-03T19:45:54.916Z",
+      "endTime": "2026-06-03T20:02:49.615Z",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/host-overflow.md",
+          "docs/requirements/decisions/authority-client-role.md",
+          "README.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "README.md",
+          "command": "git show 8143ef10 -- README.md docs/requirements/decisions/host-overflow.md docs/requirements/decisions/authority-client-role.md",
+          "result": "pass",
+          "note": "Docs record the policy-authorized unattended scheduler model and user-visible command flow.",
+          "headHash": "5a862d7aecd43ae7cadfc1de5ffbd81940a4e0cf",
+          "materialHash": "6fbe82c714c8817488f66079f8bfbf32f13143b94eb455c8baa45ee5d3d7e3e0",
+          "timestamp": "2026-06-03T22:08:04.434Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/host-overflow.md",
+          "command": "git show 8143ef10 -- docs/requirements/decisions/host-overflow.md",
+          "result": "pass",
+          "note": "Host overflow decision docs cover policy, env filtering, worker control, mixed outcomes, and stale/local receipt risks.",
+          "headHash": "5a862d7aecd43ae7cadfc1de5ffbd81940a4e0cf",
+          "materialHash": "6fbe82c714c8817488f66079f8bfbf32f13143b94eb455c8baa45ee5d3d7e3e0",
+          "timestamp": "2026-06-03T22:08:04.434Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/authority-client-role.md",
+          "command": "git show 8143ef10 -- docs/requirements/decisions/authority-client-role.md",
+          "result": "pass",
+          "note": "Authority boundary docs explicitly forbid auto-merge, auto-DONE, authorityChanged=true, receiptVerified=true, and productionDone=true from host output.",
+          "headHash": "5a862d7aecd43ae7cadfc1de5ffbd81940a4e0cf",
+          "materialHash": "6fbe82c714c8817488f66079f8bfbf32f13143b94eb455c8baa45ee5d3d7e3e0",
+          "timestamp": "2026-06-03T22:08:04.434Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -47,7 +91,7 @@
         "docs/requirements/decisions/cc-learnings.md",
         "docs/requirements/decisions/host-neutral-observability-console.md"
       ],
-      "userSees": "lattice host_runtime_probe --host=claude-code --json reports whether Claude Code is unattended-capable, supervised-only, or unavailable, with nextAction.",
+      "userSees": "`lattice host_runtime_probe --host=claude-code --json` prints \"host\":\"claude-code\", \"unattendedSafe\": true|false, \"status\":\"ready|scaffolded|unavailable\", and a visible \"nextAction\".",
       "verificationIntent": {
         "happy": [
           {
@@ -71,9 +115,53 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-03T20:04:51.229Z",
+      "endTime": "2026-06-03T20:08:41.291Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-dispatch.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/dispatch-run-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke asserts claude-code probe exposes version/path/cwd/transcript/noninteractive feasibility fields.",
+          "headHash": "5a862d7aecd43ae7cadfc1de5ffbd81940a4e0cf",
+          "materialHash": "6fbe82c714c8817488f66079f8bfbf32f13143b94eb455c8baa45ee5d3d7e3e0",
+          "timestamp": "2026-06-03T22:08:04.434Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke asserts missing or incomplete Claude Code capability degrades to supervised-only/unavailable with nextAction.",
+          "headHash": "5a862d7aecd43ae7cadfc1de5ffbd81940a4e0cf",
+          "materialHash": "6fbe82c714c8817488f66079f8bfbf32f13143b94eb455c8baa45ee5d3d7e3e0",
+          "timestamp": "2026-06-03T22:08:04.434Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke asserts claude-code never sets unattendedSafe=true solely from CLI availability.",
+          "headHash": "5a862d7aecd43ae7cadfc1de5ffbd81940a4e0cf",
+          "materialHash": "6fbe82c714c8817488f66079f8bfbf32f13143b94eb455c8baa45ee5d3d7e3e0",
+          "timestamp": "2026-06-03T22:08:04.434Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -84,7 +172,7 @@
         "docs/requirements/decisions/session-ownership-and-write-leases.md",
         "docs/requirements/decisions/lifecycle-artifact-scope.md"
       ],
-      "userSees": "lattice dispatch_policy check --policy=<name> reports authorized/denied, exact reasons, and whether the run must fall back to supervised/manual mode.",
+      "userSees": "`lattice dispatch_policy check --policy=nightly-safe --json` prints \"authorized\":true or \"authorized\":false with \"reasons\" and \"fallback\":\"supervised\".",
       "verificationIntent": {
         "happy": [
           {
@@ -108,9 +196,58 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-03T20:11:06.738Z",
+      "endTime": "2026-06-03T20:17:34.253Z",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/lattice-dispatch.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "create": [
+          "packages/main/src/core/dispatch-policy.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/dispatch-run-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke covers creating/checking a bounded dispatch policy with hosts, paths, parallelism, runtime, receipt, and review gates.",
+          "headHash": "5a862d7aecd43ae7cadfc1de5ffbd81940a4e0cf",
+          "materialHash": "6fbe82c714c8817488f66079f8bfbf32f13143b94eb455c8baa45ee5d3d7e3e0",
+          "timestamp": "2026-06-03T22:08:04.434Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke covers supervised/manual degradation when budget or network constraints are missing.",
+          "headHash": "5a862d7aecd43ae7cadfc1de5ffbd81940a4e0cf",
+          "materialHash": "6fbe82c714c8817488f66079f8bfbf32f13143b94eb455c8baa45ee5d3d7e3e0",
+          "timestamp": "2026-06-03T22:08:04.434Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke covers missing policy, traversal/absolute paths, denied overlap, unsafe env, unbounded parallelism, auto-merge, and productionDone rejection.",
+          "headHash": "5a862d7aecd43ae7cadfc1de5ffbd81940a4e0cf",
+          "materialHash": "6fbe82c714c8817488f66079f8bfbf32f13143b94eb455c8baa45ee5d3d7e3e0",
+          "timestamp": "2026-06-03T22:08:04.434Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -120,7 +257,7 @@
         "docs/requirements/decisions/host-overflow.md",
         "docs/requirements/decisions/host-neutral-observability-console.md"
       ],
-      "userSees": "lattice host_runtime_list --json shows fake/claude-code/gemini/codex with unattended capability, degradations, and nextAction.",
+      "userSees": "`lattice host_runtime_list --json` prints each runtime with \"unattendedSafe\", \"degradations\", \"limitations\", and \"nextAction\".",
       "verificationIntent": {
         "happy": [
           {
@@ -144,9 +281,55 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-03T20:18:49.469Z",
+      "endTime": "2026-06-03T20:35:31.144Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-dispatch.ts",
+          "packages/main/src/core/capabilities.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/capability-list-smoke.ts",
+          "packages/main/src/tasks/dispatch-run-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke asserts claude-code, gemini, and codex probes expose structured unattended capability fields without launching workers.",
+          "headHash": "5a862d7aecd43ae7cadfc1de5ffbd81940a4e0cf",
+          "materialHash": "6fbe82c714c8817488f66079f8bfbf32f13143b94eb455c8baa45ee5d3d7e3e0",
+          "timestamp": "2026-06-03T22:08:04.434Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke covers unavailable or partially supported CLI degradation with actionable nextAction while fake coverage still works.",
+          "headHash": "5a862d7aecd43ae7cadfc1de5ffbd81940a4e0cf",
+          "materialHash": "6fbe82c714c8817488f66079f8bfbf32f13143b94eb455c8baa45ee5d3d7e3e0",
+          "timestamp": "2026-06-03T22:08:04.434Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke asserts detected real CLIs never become unattendedSafe without required policy and runner guarantees.",
+          "headHash": "5a862d7aecd43ae7cadfc1de5ffbd81940a4e0cf",
+          "materialHash": "6fbe82c714c8817488f66079f8bfbf32f13143b94eb455c8baa45ee5d3d7e3e0",
+          "timestamp": "2026-06-03T22:08:04.434Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -156,7 +339,7 @@
         "docs/requirements/decisions/host-overflow.md",
         "docs/requirements/decisions/lifecycle-artifact-scope.md"
       ],
-      "userSees": "lattice dispatch_status --dispatchId=<id> shows runner command, cwd, exit/timeout, transcript path, environment summary, and inspect/retry guidance.",
+      "userSees": "`lattice dispatch_status --dispatchId=D-123 --json` prints \"runner\":{\"cwd\":...,\"exitCode\":...,\"transcriptFile\":...} plus \"nextAction\":\"inspect transcript or retry via dispatch_auto\".",
       "verificationIntent": {
         "happy": [
           {
@@ -180,9 +363,56 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-03T20:36:31.432Z",
+      "endTime": "2026-06-03T20:43:26.027Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-dispatch.ts",
+          "packages/main/src/handlers/lattice-dispatch.ts"
+        ],
+        "create": [
+          "packages/main/src/core/dispatch-runner.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/dispatch-run-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke asserts fake/scaffolded dispatch_status includes runner command, cwd, transcript, exit, and nextAction details.",
+          "headHash": "5a862d7aecd43ae7cadfc1de5ffbd81940a4e0cf",
+          "materialHash": "6fbe82c714c8817488f66079f8bfbf32f13143b94eb455c8baa45ee5d3d7e3e0",
+          "timestamp": "2026-06-03T22:08:04.434Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke covers diagnostic runner status for failed/nonzero command paths and visible retry/inspect guidance.",
+          "headHash": "5a862d7aecd43ae7cadfc1de5ffbd81940a4e0cf",
+          "materialHash": "6fbe82c714c8817488f66079f8bfbf32f13143b94eb455c8baa45ee5d3d7e3e0",
+          "timestamp": "2026-06-03T22:08:04.434Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke covers runner refusal/unsafe environment summary and keeps dispatch_status diagnostic with authority flags false.",
+          "headHash": "5a862d7aecd43ae7cadfc1de5ffbd81940a4e0cf",
+          "materialHash": "6fbe82c714c8817488f66079f8bfbf32f13143b94eb455c8baa45ee5d3d7e3e0",
+          "timestamp": "2026-06-03T22:08:04.434Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
@@ -193,7 +423,7 @@
         "docs/requirements/decisions/lattice-parallel-wave.md",
         "docs/requirements/decisions/session-ownership-and-write-leases.md"
       ],
-      "userSees": "lattice dispatch_auto starts/refuses workers; lattice dispatch_watch shows lifecycle states; lattice dispatch_cancel stops a running worker and watch shows cancelled/stopped nextAction.",
+      "userSees": "`lattice dispatch_watch --dispatchId=D-123` shows \"running\", then after `lattice dispatch_cancel --dispatchId=D-123` shows \"cancelled\" or \"stopped\" with \"nextAction\":\"inspect transcript or retry\".",
       "verificationIntent": {
         "happy": [
           {
@@ -217,9 +447,57 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-03T20:44:15.262Z",
+      "endTime": "2026-06-03T20:58:03.759Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-dispatch.ts",
+          "packages/main/src/handlers/lattice-dispatch.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/dispatch-run-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke covers authorized fake dispatch_auto, dispatch_watch lifecycle, and dispatch_cancel terminal state.",
+          "headHash": "5a862d7aecd43ae7cadfc1de5ffbd81940a4e0cf",
+          "materialHash": "6fbe82c714c8817488f66079f8bfbf32f13143b94eb455c8baa45ee5d3d7e3e0",
+          "timestamp": "2026-06-03T22:08:04.434Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke covers mixed worker/failure/cancel states while preserving successful evidence and bounded retry metadata.",
+          "headHash": "5a862d7aecd43ae7cadfc1de5ffbd81940a4e0cf",
+          "materialHash": "6fbe82c714c8817488f66079f8bfbf32f13143b94eb455c8baa45ee5d3d7e3e0",
+          "timestamp": "2026-06-03T22:08:04.434Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke covers missing policy, disallowed host, maxParallel, unsafe/unattendedSafe=false real host refusal, and cancel evidence preservation.",
+          "headHash": "5a862d7aecd43ae7cadfc1de5ffbd81940a4e0cf",
+          "materialHash": "6fbe82c714c8817488f66079f8bfbf32f13143b94eb455c8baa45ee5d3d7e3e0",
+          "timestamp": "2026-06-03T22:08:04.434Z"
+        }
+      ]
     },
     {
       "id": "CHK-007",
@@ -231,7 +509,7 @@
         "docs/requirements/decisions/authority-client-role.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "userSees": "dispatch_review shows unattended transcripts/diffs/receipts; dispatch_merge_plan remains manualOnly and says host completion is not production authority.",
+      "userSees": "`lattice dispatch_review --dispatchId=D-123` prints \"transcript\", \"changedFiles\", \"localReceipt\", \"productionDone:false\"; `dispatch_merge_plan` prints \"manualOnly:true\".",
       "verificationIntent": {
         "happy": [
           {
@@ -260,9 +538,66 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-03T20:58:32.775Z",
+      "endTime": "2026-06-03T21:06:37.620Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-dispatch.ts",
+          "packages/main/src/core/lattice-handoff.ts",
+          "packages/main/src/handlers/lattice-dispatch.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/dispatch-run-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke covers transcript, changedFiles, command output, runner metadata, and local diagnostic receipt collection.",
+          "headHash": "5a862d7aecd43ae7cadfc1de5ffbd81940a4e0cf",
+          "materialHash": "6fbe82c714c8817488f66079f8bfbf32f13143b94eb455c8baa45ee5d3d7e3e0",
+          "timestamp": "2026-06-03T22:08:04.434Z"
+        },
+        {
+          "intentRef": "CHK-007:happy:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke covers dispatch_review and dispatch_merge_plan surfacing evidence with manual next actions.",
+          "headHash": "5a862d7aecd43ae7cadfc1de5ffbd81940a4e0cf",
+          "materialHash": "6fbe82c714c8817488f66079f8bfbf32f13143b94eb455c8baa45ee5d3d7e3e0",
+          "timestamp": "2026-06-03T22:08:04.434Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke covers missing transcript/receipt, stale/no diff, and partial worker outcomes as diagnostic without erasing evidence.",
+          "headHash": "5a862d7aecd43ae7cadfc1de5ffbd81940a4e0cf",
+          "materialHash": "6fbe82c714c8817488f66079f8bfbf32f13143b94eb455c8baa45ee5d3d7e3e0",
+          "timestamp": "2026-06-03T22:08:04.434Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke covers forged host/receipt overclaims and keeps receiptVerified/authorityChanged/productionDone false.",
+          "headHash": "5a862d7aecd43ae7cadfc1de5ffbd81940a4e0cf",
+          "materialHash": "6fbe82c714c8817488f66079f8bfbf32f13143b94eb455c8baa45ee5d3d7e3e0",
+          "timestamp": "2026-06-03T22:08:04.434Z"
+        }
+      ]
     },
     {
       "id": "CHK-008",
@@ -274,7 +609,7 @@
         "README.md",
         "docs/guide.md"
       ],
-      "userSees": "Docs and smoke transcript show: overflow_auto nextAction to dispatch_auto, dispatch_policy check, host_runtime_probe, dispatch_auto, dispatch_watch, dispatch_cancel, dispatch_review, and manual dispatch_merge_plan.",
+      "userSees": "Docs and smoke transcript include \"overflow_auto -> dispatch_auto\", \"dispatch_policy check\", \"host_runtime_probe\", \"dispatch_auto\", \"dispatch_watch\", \"dispatch_cancel\", \"dispatch_review\", and \"manualOnly:true\".",
       "verificationIntent": {
         "happy": [
           {
@@ -308,9 +643,244 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-03T21:07:33.559Z",
+      "endTime": "2026-06-03T21:14:15.787Z",
+      "files": {
+        "modify": [
+          "README.md",
+          "docs/guide.md",
+          "docs/requirements/decisions/host-overflow.md",
+          "docs/requirements/decisions/host-neutral-observability-console.md",
+          "packages/main/src/tasks/dispatch-run-smoke.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/unattended-dispatch-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+          "packages/main/src/tasks/dispatch-run-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-008:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+          "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
+          "result": "pass",
+          "note": "E2E smoke covers fake parallel dispatch_auto plus Claude Code capability/refusal flow with watch/cancel/review/merge nextActions.",
+          "headHash": "5a862d7aecd43ae7cadfc1de5ffbd81940a4e0cf",
+          "materialHash": "6fbe82c714c8817488f66079f8bfbf32f13143b94eb455c8baa45ee5d3d7e3e0",
+          "timestamp": "2026-06-03T22:08:04.434Z"
+        },
+        {
+          "intentRef": "CHK-008:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+          "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
+          "result": "pass",
+          "note": "E2E smoke records explicit supervised/manual refusal when Claude Code capability or policy is insufficient.",
+          "headHash": "5a862d7aecd43ae7cadfc1de5ffbd81940a4e0cf",
+          "materialHash": "6fbe82c714c8817488f66079f8bfbf32f13143b94eb455c8baa45ee5d3d7e3e0",
+          "timestamp": "2026-06-03T22:08:04.434Z"
+        },
+        {
+          "intentRef": "CHK-008:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+          "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
+          "result": "pass",
+          "note": "E2E smoke now directly covers missing policy, unavailable host, timeout, cancellation, missing receipt diagnostics, and mixed worker outcomes.",
+          "headHash": "5a862d7aecd43ae7cadfc1de5ffbd81940a4e0cf",
+          "materialHash": "6fbe82c714c8817488f66079f8bfbf32f13143b94eb455c8baa45ee5d3d7e3e0",
+          "timestamp": "2026-06-03T22:08:04.434Z"
+        },
+        {
+          "intentRef": "CHK-008:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Regression smoke covers traversal, symlink output escape, denied overlap, host overclaim, accidental auto-merge, and productionDone invariants.",
+          "headHash": "5a862d7aecd43ae7cadfc1de5ffbd81940a4e0cf",
+          "materialHash": "6fbe82c714c8817488f66079f8bfbf32f13143b94eb455c8baa45ee5d3d7e3e0",
+          "timestamp": "2026-06-03T22:08:04.434Z"
+        },
+        {
+          "intentRef": "CHK-008:adversarial:1",
+          "kind": "docs_check",
+          "file": "README.md",
+          "command": "git show 1f8e281b -- README.md docs/guide.md docs/requirements/decisions/host-overflow.md",
+          "result": "pass",
+          "note": "Docs show the opt-in command sequence, dispatch_auto versus overflow_auto, and user-authorized authority-safe boundaries.",
+          "headHash": "5a862d7aecd43ae7cadfc1de5ffbd81940a4e0cf",
+          "materialHash": "6fbe82c714c8817488f66079f8bfbf32f13143b94eb455c8baa45ee5d3d7e3e0",
+          "timestamp": "2026-06-03T22:08:04.434Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-03T19:45:54.916Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start DEV milestone 1 authority decision verification",
+      "agent": "codex"
+    },
+    {
+      "timestamp": "2026-06-03T20:02:49.615Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Claude Code CLI implemented CHK-001 docs and authority decision evidence",
+      "agent": "koala-implementer"
+    },
+    {
+      "timestamp": "2026-06-03T20:04:51.229Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start DEV milestone 2 Claude Code bounded unattended feasibility",
+      "agent": "codex"
+    },
+    {
+      "timestamp": "2026-06-03T20:08:41.291Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Claude Code CLI implemented CHK-002 bounded feasibility probe",
+      "agent": "koala-implementer"
+    },
+    {
+      "timestamp": "2026-06-03T20:11:06.738Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start DEV milestone 3 dispatch policy contract",
+      "agent": "codex"
+    },
+    {
+      "timestamp": "2026-06-03T20:17:34.253Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Claude Code CLI implemented dispatch policy contract and CLI surfaces",
+      "agent": "koala-implementer"
+    },
+    {
+      "timestamp": "2026-06-03T20:18:49.469Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start DEV milestone 4 real host unattended capability contract",
+      "agent": "codex"
+    },
+    {
+      "timestamp": "2026-06-03T20:32:26.994Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Claude Code CLI implemented real host unattended capability contract",
+      "agent": "koala-implementer"
+    },
+    {
+      "timestamp": "2026-06-03T20:36:31.432Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start DEV milestone 5 runner details in dispatch_status",
+      "agent": "codex"
+    },
+    {
+      "timestamp": "2026-06-03T20:43:26.027Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Claude Code CLI implemented runner details in dispatch_status",
+      "agent": "koala-implementer"
+    },
+    {
+      "timestamp": "2026-06-03T20:44:15.262Z",
+      "phase": "DEV",
+      "itemId": "CHK-006",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start DEV milestone 6 dispatch_auto watch cancel scheduler loop",
+      "agent": "codex"
+    },
+    {
+      "timestamp": "2026-06-03T20:58:03.759Z",
+      "phase": "DEV",
+      "itemId": "CHK-006",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Claude Code CLI implemented dispatch_auto watch cancel scheduler loop",
+      "agent": "koala-implementer"
+    },
+    {
+      "timestamp": "2026-06-03T20:58:32.775Z",
+      "phase": "DEV",
+      "itemId": "CHK-007",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start DEV milestone 7 unattended evidence and manual review gates",
+      "agent": "codex"
+    },
+    {
+      "timestamp": "2026-06-03T21:06:37.620Z",
+      "phase": "DEV",
+      "itemId": "CHK-007",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Claude Code CLI implemented unattended evidence review and manual merge gates",
+      "agent": "koala-implementer"
+    },
+    {
+      "timestamp": "2026-06-03T21:07:33.559Z",
+      "phase": "DEV",
+      "itemId": "CHK-008",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start DEV milestone 8 full user-facing unattended flow docs and smoke",
+      "agent": "codex"
+    },
+    {
+      "timestamp": "2026-06-03T21:14:15.787Z",
+      "phase": "DEV",
+      "itemId": "CHK-008",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Claude Code CLI implemented full unattended dispatch docs and smoke",
+      "agent": "koala-implementer"
     }
   ]
 }

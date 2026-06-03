@@ -1,0 +1,184 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Support validate storyId JSON alias without silent diagnostic fallback",
+      "context": "Normalize validate args so storyId aliases story, conflict fails, and JSON body writes story test-evidence instead of silently becoming read-only diagnostic validate.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "userSees": "lattice validate {\"storyId\":\"B-xxxx\",\"json\":true} 刷新对应 story 的 test-evidence；如果参数冲突会明确报错。",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "validate JSON body with storyId writes/refreshes test-evidence.json for that story.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "validate --story continues to work and no-story validate remains diagnostic/read-only.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "passing both story and a different storyId fails instead of choosing one silently.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Render phase-aware scope freshness guidance",
+      "context": "Change scope protection next-action so stale/missing review bindings still guide REVIEW gate, while TEST/DONE surfaces explain advisory vs blocking behavior accurately.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "TEST 阶段不会再看到 before REVIEW→TEST 的误导提示；blocking scope failures still show hard recovery commands.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "REVIEW stale/missing binding still instructs review_run_start before REVIEW→TEST.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "TEST stale review binding renders as post-review advisory/delivery-review guidance, not REVIEW→TEST instruction.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "path/semantic/guard fail remains blocking and is not softened by the new TEST advisory copy.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Expose owner-lease takeover meta options in CLI help",
+      "context": "Owner gate already consumes takeover/forceTakeover before schema validation; help should present these common owner recovery flags for owner-gated commands.",
+      "relatedDocs": [
+        "docs/requirements/decisions/session-ownership-and-write-leases.md",
+        "docs/requirements/decisions/role-separation.md"
+      ],
+      "userSees": "story_advance/validate/checklist_update help shows --takeover and --forceTakeover with stale-vs-active lease semantics.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "owner-gated command help includes takeover and forceTakeover guidance.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "read-only command help does not imply takeover is needed.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "help change does not alter owner gate behavior; active takeover still requires forceTakeover and logs event.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Clarify scope-warning recovery path after REVIEW",
+      "context": "Scope warnings should distinguish advisory shadow warnings from blocking scope failures and point to acknowledge, rollback DEV, or delivery reviewer verification as appropriate.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md"
+      ],
+      "userSees": "scope warnings explain whether they block and what exact command/path to use next, reducing false alarm during TEST/DONE.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "scope warning output mentions advisory/not blocking when mode is shadow/warn.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "later-phase necessary out-of-scope expansion points to scope_contract_acknowledge or rollback DEV.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "scope_contract_set phase limits remain unchanged and warnings do not become silent pass.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Integrate parallel fixes and prove lifecycle gates still fail closed",
+      "context": "Merge the three implementation branches, resolve conflicts in cli-engine/verifier/scope tests, then run build, targeted smoke, validation protocol, owner lease smoke, scope smoke, flow stability, and process-fact contract.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/verification-context-pack.md"
+      ],
+      "userSees": "所有修复在一个 story 中交付，验证 transcript 清楚显示 validate evidence、scope hints、owner help 都按预期工作。",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm --prefix packages/main run build and targeted smoke commands pass after integration.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "validation protocol, owner lease smoke, semantic scope smoke, flow stability smoke all pass.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "process fact contract remains valid and no gate-evidence command is downgraded to read-only accidentally.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

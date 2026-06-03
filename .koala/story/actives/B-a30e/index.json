@@ -1,0 +1,49 @@
+{
+  "storyId": "B-a30e",
+  "name": "lifecycle-ux-papercuts",
+  "title": "Fix Lattice lifecycle UX papercuts found during B-4ee0 delivery",
+  "description": "Fix four lifecycle UX/API papercuts discovered while delivering B-4ee0: validate JSON storyId silently becoming diagnostic validate, TEST-phase scope freshness hints saying REVIEW→TEST, hidden owner-lease takeover flags, and unclear scope-warning recovery guidance.",
+  "type": "bug",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "source": "B-4ee0 delivery retrospective",
+  "keywords": [
+    "validate",
+    "story-evidence",
+    "scope-gate",
+    "owner-lease",
+    "lifecycle-ux"
+  ],
+  "riskSignals": [
+    {
+      "category": "验证框架",
+      "matched": "verifier"
+    }
+  ],
+  "createdAt": "2026-06-03T21:48:37.959Z",
+  "startedAt": "2026-06-03T21:48:37.959Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-03T21:48:38.020Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-03T21:51:00.501Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-a30e",
+    "branch": "story/B-a30e",
+    "createdAt": "2026-06-03T21:51:00.687Z"
+  }
+}

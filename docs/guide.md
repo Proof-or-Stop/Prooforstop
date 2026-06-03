@@ -156,6 +156,67 @@ lattice handoff_receipt_submit --file=receipt.json --json
 详细架构说明见
 [`requirements/decisions/host-overflow.md`](requirements/decisions/host-overflow.md)。
 
+### Unattended dispatch — `dispatch_auto` (policy-authorized)
+
+`dispatch_auto` 是 **policy-authorized 的 unattended scheduler**，是
+`overflow_auto` 的扩展路径。与 `overflow_auto` 的区别：
+
+| | `overflow_auto` | `dispatch_auto` |
+|---|---|---|
+| 默认模式 | suggest-only（需要 `--approve --start` 才真正启动） | policy-gated（检查通过后自动启动 worker） |
+| 是否需要 policy | 否 | 是（缺 policy 或未授权则 refuse） |
+| Host safety check | 否 | 是（`unattendedSafe=false` 则 refuse） |
+| 是否 unattended | 否 | 是 |
+
+如果已经在用 `overflow_auto`，想要 unattended workers，先定义 dispatch policy，
+再迁移到 `dispatch_auto`。`overflow_auto` 的 `nextAction` 字段会指向 `dispatch_auto`。
+
+**完整 opt-in 顺序：**
+
+```bash
+# 1. 定义 dispatch policy（只需一次）
+lattice dispatch_policy_create --policy=my-policy \
+  --allowedHosts=fake --allowedPaths=packages/main/src/generated/ \
+  --maxParallel=2 --maxRuntimeMinutes=30 --maxBudgetUSD=5.0 \
+  --network=none --commandAllowlist='node -e "process.exit(0)"' \
+  --requireReceipt=true --requireReview=true \
+  --allowAutoMerge=false --allowProductionDone=false
+
+# 2. 验证 policy 授权
+lattice dispatch_policy_check --policy=my-policy --format=json
+
+# 3. 探测 host capability（不启动外部进程；CLI 不在 PATH 时返回 unavailable）
+lattice host_runtime_probe --host=claude-code --json
+
+# 4. 启动 policy-authorized unattended workers
+lattice dispatch_auto --storyId=B-xxxx --policy=my-policy --format=json
+
+# 5. 查看 lifecycle / runner 状态
+lattice dispatch_watch --dispatchId=D-xxxx --format=json
+
+# 6. 取消（evidence 不会被删除）
+lattice dispatch_cancel --dispatchId=D-xxxx --format=json
+
+# 7. 人工 review：transcript / diff / receipt / runner evidence
+lattice dispatch_review --dispatchId=D-xxxx --format=json
+
+# 8. 人工 merge（dispatch 完成 ≠ production authority）
+lattice dispatch_merge_plan --dispatchId=D-xxxx --format=json
+```
+
+**Unattended mode 仍然是 user-authorized、authority-safe：**
+
+- `dispatch_auto` 在以下情况下 **refuse**（显式拒绝，不假装执行）：
+  - 缺 `policy` 参数
+  - policy 不存在或未授权（`authorized=false`）
+  - host 不可用（`status=unavailable`）或 `unattendedSafe=false`
+  - host 不在 policy `allowedHosts` 列表
+  - 超过 policy `maxParallel` 限制
+- Worker 输出只是 evidence candidate，不构成 gate authority。
+- `dispatch_merge_plan` 永远是 `manualOnly=true`，不自动 merge、不自动 DONE。
+- 所有 authority 字段固定为 `false`：`productionDone=false`、
+  `receiptVerified=false`、`authorityChanged=false`。
+
 ## 代码与文档的结合
 
 生成了代码但是需要同步生成这份代码的文档，为 JSON 格式。每次修改了代码都必须同步更新代码的文档说明，细到每一个 Class 和 函数，Class 的定下来就不会变，但函数的说明必须每次更新。做这个的目的是为了实时提取项目的整个状态，方便分析任务完成情况，需要和资料挂钩，以及动态及时更新。每段代码需求来自哪里，经过多少次更新，每次更新内容最好都做记录，被删除，废弃的代码也不要删除，都需要保留历史。很多主观内容，需要加上自动化脚本验证。
