@@ -158,6 +158,22 @@
       ],
       "resolvedReason": "Resolved by commit b7b16fcf. dispatchId is now validated at the storage helper/read-write boundary and rejected for empty, absolute, separator, or traversal values across prepare/run/status/collect/receipt/resume/cancel/review/merge_plan. Smoke now covers malicious dispatchId rejection across those commands and proves no metadata is written outside .koala/dispatches. Verified with build, dispatch-run smoke, lattice-handoff smoke, host-overflow smoke, command ownership contract, process fact contract, git diff --check, and lattice validate test command output.",
       "resolvedAt": "2026-06-03T00:50:19.153Z"
+    },
+    {
+      "id": "B-106b:F-009",
+      "desc": "README dispatch examples use --allowedPath, but the landed CLI only honors --allowedPaths. dispatch_plan with --allowedPath leaves pack.allowedPaths empty, while --allowedPaths populates it. Update README examples to match the actual dispatch CLI schema.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-03T00:53:37.106Z",
+      "reviewRound": "2026-06-03T00:50:59.368Z",
+      "reviewRunId": "B-106b:RR-018",
+      "_hash": "d560202230bc8a3896cf875c1bc45041a58bdca68f2e4ff2045fde15cd1ebf24",
+      "files": [
+        "README.md"
+      ]
     }
   ]
 }
