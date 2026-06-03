@@ -242,9 +242,9 @@
       "id": "CHK-004",
       "title": "Wire watch cancel collect review merge boundaries",
       "context": "dispatch_watch should expose real runner summary, dispatch_cancel should be able to terminate or mark cancellation safely, collect/review/merge_plan must keep receiptVerified=false and manualOnly=true.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-03T23:16:20.491Z",
-      "endTime": null,
+      "endTime": "2026-06-03T23:16:23.814Z",
       "userSees": "用户可以用 dispatch_watch/dispatch_review 查看 Claude runner 结果，用 dispatch_cancel 保留证据地停止或标记取消，dispatch_merge_plan 仍只给 manual merge guidance。",
       "files": {
         "modify": [
@@ -279,7 +279,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+          "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
+          "result": "pass",
+          "note": "dispatch_status/watch/review expose runnerKind, cwd, transcriptPath, exitCode/timedOut, changedFiles, transcriptExists, and localReceiptStatus.",
+          "headHash": "64b9000932ade99c7cd9be5f64c4eb7f767eba32",
+          "materialHash": "ce6f86dd377ce348403ef6d4bfd965009ad9fe39d28ff906168221728c6b5cfd",
+          "timestamp": "2026-06-03T23:16:23.878Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+          "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
+          "result": "pass",
+          "note": "dispatch_cancel preserves pack/prompt/status evidence and dispatch_merge_plan withholds merge guidance for missing/mixed/failed receipts.",
+          "headHash": "64b9000932ade99c7cd9be5f64c4eb7f767eba32",
+          "materialHash": "ce6f86dd377ce348403ef6d4bfd965009ad9fe39d28ff906168221728c6b5cfd",
+          "timestamp": "2026-06-03T23:16:23.936Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+          "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
+          "result": "pass",
+          "note": "All dispatch_auto/watch/review/merge authority fields remain authorityChanged=false, receiptVerified=false, productionDone=false, manualOnly=true where applicable.",
+          "headHash": "64b9000932ade99c7cd9be5f64c4eb7f767eba32",
+          "materialHash": "ce6f86dd377ce348403ef6d4bfd965009ad9fe39d28ff906168221728c6b5cfd",
+          "timestamp": "2026-06-03T23:16:23.995Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -365,6 +400,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Claude Code real runner lifecycle is implemented and verified with deterministic fake binary.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-06-03T23:16:23.814Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Watch/cancel/review/merge boundaries consume runner evidence and stay manual-only.",
       "agent": "main"
     }
   ]
