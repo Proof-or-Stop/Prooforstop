@@ -127,7 +127,17 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/story-owner-lease-smoke.ts",
+          "packages/main/src/tasks/command-ownership-contract.ts"
+        ]
+      }
     },
     {
       "id": "CHK-004",
