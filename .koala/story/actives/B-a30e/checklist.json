@@ -52,10 +52,10 @@
           "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
           "command": "npm --prefix packages/main run test:validation-protocol",
           "result": "pass",
-          "note": "After merging main and rebuilding, validation-protocol smoke confirms JSON storyId validate writes story test-evidence instead of silently falling back to diagnostic validate.",
-          "headHash": "1fde0e61344c666fead46cd47293cbe170eb3399",
-          "materialHash": "55d787322a99d2667408051a70c253418b1e5f1ba90d99cbda2a24b21e81b6de",
-          "timestamp": "2026-06-03T22:34:59.510Z"
+          "note": "Final HEAD validation-protocol smoke confirms JSON storyId validate writes story test-evidence instead of silently falling back to diagnostic validate.",
+          "headHash": "cde80cd885549ec432103e0fc4ad492ffff43a90",
+          "materialHash": "ae2c9d9c521a59f9c5dd144ac9240a6e2bd6c2e989a26807448b02f42aa8a9c9",
+          "timestamp": "2026-06-03T22:49:08.155Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -63,10 +63,10 @@
           "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
           "command": "npm --prefix packages/main run test:validation-protocol",
           "result": "pass",
-          "note": "Same smoke confirms --story continues to write evidence and no-story validate remains diagnostic/read-only without creating story state.",
-          "headHash": "1fde0e61344c666fead46cd47293cbe170eb3399",
-          "materialHash": "55d787322a99d2667408051a70c253418b1e5f1ba90d99cbda2a24b21e81b6de",
-          "timestamp": "2026-06-03T22:34:59.510Z"
+          "note": "Final HEAD smoke confirms --story continues to write evidence and no-story validate remains diagnostic/read-only without creating story state.",
+          "headHash": "cde80cd885549ec432103e0fc4ad492ffff43a90",
+          "materialHash": "ae2c9d9c521a59f9c5dd144ac9240a6e2bd6c2e989a26807448b02f42aa8a9c9",
+          "timestamp": "2026-06-03T22:49:08.155Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -74,10 +74,10 @@
           "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
           "command": "npm --prefix packages/main run test:validation-protocol",
           "result": "pass",
-          "note": "Same smoke confirms conflicting story and storyId values fail explicitly before validation or persistence.",
-          "headHash": "1fde0e61344c666fead46cd47293cbe170eb3399",
-          "materialHash": "55d787322a99d2667408051a70c253418b1e5f1ba90d99cbda2a24b21e81b6de",
-          "timestamp": "2026-06-03T22:34:59.510Z"
+          "note": "Final HEAD smoke confirms conflicting story and storyId values fail explicitly before validation or persistence.",
+          "headHash": "cde80cd885549ec432103e0fc4ad492ffff43a90",
+          "materialHash": "ae2c9d9c521a59f9c5dd144ac9240a6e2bd6c2e989a26807448b02f42aa8a9c9",
+          "timestamp": "2026-06-03T22:49:08.155Z"
         }
       ]
     },
@@ -134,10 +134,10 @@
           "file": "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
           "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
           "result": "pass",
-          "note": "Semantic scope guard smoke confirms REVIEW stale or missing binding still points to review_run_start before REVIEW-to-TEST.",
-          "headHash": "1fde0e61344c666fead46cd47293cbe170eb3399",
-          "materialHash": "55d787322a99d2667408051a70c253418b1e5f1ba90d99cbda2a24b21e81b6de",
-          "timestamp": "2026-06-03T22:34:59.510Z"
+          "note": "Final HEAD semantic scope guard smoke confirms REVIEW stale or missing binding still points to review_run_start before REVIEW-to-TEST.",
+          "headHash": "cde80cd885549ec432103e0fc4ad492ffff43a90",
+          "materialHash": "ae2c9d9c521a59f9c5dd144ac9240a6e2bd6c2e989a26807448b02f42aa8a9c9",
+          "timestamp": "2026-06-03T22:49:08.155Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -145,10 +145,10 @@
           "file": "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
           "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
           "result": "pass",
-          "note": "Same smoke confirms TEST stale review binding renders post-review advisory delivery-review guidance instead of REVIEW-to-TEST instruction.",
-          "headHash": "1fde0e61344c666fead46cd47293cbe170eb3399",
-          "materialHash": "55d787322a99d2667408051a70c253418b1e5f1ba90d99cbda2a24b21e81b6de",
-          "timestamp": "2026-06-03T22:34:59.510Z"
+          "note": "Final HEAD smoke confirms TEST stale review binding renders post-review advisory delivery-review guidance instead of REVIEW-to-TEST instruction.",
+          "headHash": "cde80cd885549ec432103e0fc4ad492ffff43a90",
+          "materialHash": "ae2c9d9c521a59f9c5dd144ac9240a6e2bd6c2e989a26807448b02f42aa8a9c9",
+          "timestamp": "2026-06-03T22:49:08.155Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -156,10 +156,10 @@
           "file": "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
           "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke && npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
-          "note": "Semantic scope and flow stability smokes confirm path semantic and guard failures remain blocking and are not softened by advisory copy.",
-          "headHash": "1fde0e61344c666fead46cd47293cbe170eb3399",
-          "materialHash": "55d787322a99d2667408051a70c253418b1e5f1ba90d99cbda2a24b21e81b6de",
-          "timestamp": "2026-06-03T22:34:59.510Z"
+          "note": "Final HEAD semantic scope and flow stability smokes confirm path semantic and guard failures remain blocking and are not softened by advisory copy.",
+          "headHash": "cde80cd885549ec432103e0fc4ad492ffff43a90",
+          "materialHash": "ae2c9d9c521a59f9c5dd144ac9240a6e2bd6c2e989a26807448b02f42aa8a9c9",
+          "timestamp": "2026-06-03T22:49:08.155Z"
         }
       ]
     },
@@ -215,10 +215,10 @@
           "file": "packages/main/src/tasks/command-ownership-contract.ts",
           "command": "npm --prefix packages/main run test:command-ownership-contract",
           "result": "pass",
-          "note": "Command ownership contract confirms owner-gated command help exposes --takeover and --forceTakeover, including story-targeted validate guidance.",
-          "headHash": "1fde0e61344c666fead46cd47293cbe170eb3399",
-          "materialHash": "55d787322a99d2667408051a70c253418b1e5f1ba90d99cbda2a24b21e81b6de",
-          "timestamp": "2026-06-03T22:34:59.510Z"
+          "note": "Final HEAD command ownership contract confirms owner-gated command help exposes --takeover and --forceTakeover, including story-targeted validate guidance.",
+          "headHash": "cde80cd885549ec432103e0fc4ad492ffff43a90",
+          "materialHash": "ae2c9d9c521a59f9c5dd144ac9240a6e2bd6c2e989a26807448b02f42aa8a9c9",
+          "timestamp": "2026-06-03T22:49:08.155Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -226,10 +226,10 @@
           "file": "packages/main/src/tasks/command-ownership-contract.ts",
           "command": "npm --prefix packages/main run test:command-ownership-contract",
           "result": "pass",
-          "note": "Same contract confirms readOnly reviewerWrite and mainSharedMutating command help does not advertise takeover recovery.",
-          "headHash": "1fde0e61344c666fead46cd47293cbe170eb3399",
-          "materialHash": "55d787322a99d2667408051a70c253418b1e5f1ba90d99cbda2a24b21e81b6de",
-          "timestamp": "2026-06-03T22:34:59.510Z"
+          "note": "Final HEAD contract confirms readOnly reviewerWrite and mainSharedMutating command help does not advertise takeover recovery.",
+          "headHash": "cde80cd885549ec432103e0fc4ad492ffff43a90",
+          "materialHash": "ae2c9d9c521a59f9c5dd144ac9240a6e2bd6c2e989a26807448b02f42aa8a9c9",
+          "timestamp": "2026-06-03T22:49:08.155Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -237,10 +237,10 @@
           "file": "packages/main/src/tasks/story-owner-lease-smoke.ts",
           "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
           "result": "pass",
-          "note": "Story owner lease smoke confirms active foreign lease still requires --forceTakeover, stale takeover semantics and audit events remain intact.",
-          "headHash": "1fde0e61344c666fead46cd47293cbe170eb3399",
-          "materialHash": "55d787322a99d2667408051a70c253418b1e5f1ba90d99cbda2a24b21e81b6de",
-          "timestamp": "2026-06-03T22:34:59.510Z"
+          "note": "Final HEAD story owner lease smoke confirms active foreign lease still requires --forceTakeover, stale takeover semantics and audit events remain intact.",
+          "headHash": "cde80cd885549ec432103e0fc4ad492ffff43a90",
+          "materialHash": "ae2c9d9c521a59f9c5dd144ac9240a6e2bd6c2e989a26807448b02f42aa8a9c9",
+          "timestamp": "2026-06-03T22:49:08.155Z"
         }
       ]
     },
@@ -300,10 +300,10 @@
           "file": "packages/main/src/tasks/scope-contract-smoke.ts",
           "command": "npm --prefix packages/main run test:scope-contract-smoke",
           "result": "pass",
-          "note": "Scope-contract smoke confirms shadow/warn transition output says advisory and not blocking, and names scope_contract_acknowledge recovery.",
-          "headHash": "1fde0e61344c666fead46cd47293cbe170eb3399",
-          "materialHash": "55d787322a99d2667408051a70c253418b1e5f1ba90d99cbda2a24b21e81b6de",
-          "timestamp": "2026-06-03T22:34:59.510Z"
+          "note": "Final HEAD scope-contract smoke confirms shadow/warn transition output says advisory and not blocking, and names scope_contract_acknowledge recovery.",
+          "headHash": "cde80cd885549ec432103e0fc4ad492ffff43a90",
+          "materialHash": "ae2c9d9c521a59f9c5dd144ac9240a6e2bd6c2e989a26807448b02f42aa8a9c9",
+          "timestamp": "2026-06-03T22:49:08.155Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -311,10 +311,10 @@
           "file": "packages/main/src/tasks/scope-contract-smoke.ts",
           "command": "npm --prefix packages/main run test:scope-contract-smoke",
           "result": "pass",
-          "note": "Same smoke confirms TEST-phase warnings point to rolling back to DEV to acknowledge or delivery reviewer verification.",
-          "headHash": "1fde0e61344c666fead46cd47293cbe170eb3399",
-          "materialHash": "55d787322a99d2667408051a70c253418b1e5f1ba90d99cbda2a24b21e81b6de",
-          "timestamp": "2026-06-03T22:34:59.510Z"
+          "note": "Final HEAD scope-contract smoke confirms TEST-phase warnings point to rolling back to DEV to acknowledge or delivery reviewer verification.",
+          "headHash": "cde80cd885549ec432103e0fc4ad492ffff43a90",
+          "materialHash": "ae2c9d9c521a59f9c5dd144ac9240a6e2bd6c2e989a26807448b02f42aa8a9c9",
+          "timestamp": "2026-06-03T22:49:08.155Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -322,10 +322,10 @@
           "file": "packages/main/src/tasks/command-ownership-contract.ts",
           "command": "npm --prefix packages/main run test:command-ownership-contract && npm --prefix packages/main run test:flow-stability-smoke",
           "result": "pass",
-          "note": "Command ownership and flow stability smokes confirm scope command phase policy remains unchanged and warnings do not become silent pass.",
-          "headHash": "1fde0e61344c666fead46cd47293cbe170eb3399",
-          "materialHash": "55d787322a99d2667408051a70c253418b1e5f1ba90d99cbda2a24b21e81b6de",
-          "timestamp": "2026-06-03T22:34:59.510Z"
+          "note": "Final HEAD command ownership and flow stability smokes confirm scope command phase policy remains unchanged and warnings do not become silent pass.",
+          "headHash": "cde80cd885549ec432103e0fc4ad492ffff43a90",
+          "materialHash": "ae2c9d9c521a59f9c5dd144ac9240a6e2bd6c2e989a26807448b02f42aa8a9c9",
+          "timestamp": "2026-06-03T22:49:08.155Z"
         }
       ]
     },
@@ -390,20 +390,20 @@
           "kind": "manual_transcript",
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:validation-protocol && npm --prefix packages/main run test:command-ownership-contract",
           "result": "pass",
-          "note": "Integrated HEAD builds cleanly after main merge; validate alias and owner-help targeted smokes pass on the rebuilt local dist.",
-          "headHash": "1fde0e61344c666fead46cd47293cbe170eb3399",
-          "materialHash": "55d787322a99d2667408051a70c253418b1e5f1ba90d99cbda2a24b21e81b6de",
-          "timestamp": "2026-06-03T22:34:59.510Z"
+          "note": "Final integrated HEAD builds cleanly after latest main merge; validate alias and owner-help targeted smokes pass on rebuilt local dist.",
+          "headHash": "cde80cd885549ec432103e0fc4ad492ffff43a90",
+          "materialHash": "ae2c9d9c521a59f9c5dd144ac9240a6e2bd6c2e989a26807448b02f42aa8a9c9",
+          "timestamp": "2026-06-03T22:49:08.155Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
           "kind": "manual_transcript",
-          "command": "npm --prefix packages/main run test:story-owner-lease-smoke && npm --prefix packages/main run test:semantic-scope-guard-smoke && npm --prefix packages/main run test:scope-contract-smoke && npm --prefix packages/main run test:flow-stability-smoke",
+          "command": "npm --prefix packages/main run test:story-owner-lease-smoke && npm --prefix packages/main run test:semantic-scope-guard-smoke && npm --prefix packages/main run test:scope-contract-smoke && npm --prefix packages/main run test:flow-stability-smoke && node packages/main/dist/tasks/cli-json-stdout-contract-smoke.js",
           "result": "pass",
-          "note": "Owner lease, semantic scope, scope contract, and flow stability smokes all pass after merging main and fixing the dispatch phase-tools drift exposed by that merge.",
-          "headHash": "1fde0e61344c666fead46cd47293cbe170eb3399",
-          "materialHash": "55d787322a99d2667408051a70c253418b1e5f1ba90d99cbda2a24b21e81b6de",
-          "timestamp": "2026-06-03T22:34:59.510Z"
+          "note": "Final HEAD owner lease, semantic scope, scope contract, flow stability, and cli-json stdout contract smokes all pass after adapting flow hint coverage to text-mode validate under the new JSON stdout contract.",
+          "headHash": "cde80cd885549ec432103e0fc4ad492ffff43a90",
+          "materialHash": "ae2c9d9c521a59f9c5dd144ac9240a6e2bd6c2e989a26807448b02f42aa8a9c9",
+          "timestamp": "2026-06-03T22:49:08.155Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -411,10 +411,10 @@
           "file": "scripts/verify-process-fact-contract.mjs",
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Process fact contract verifies validate/gate-evidence command semantics and confirms new dispatch policy/watch/auto commands are aligned between command-policy and DEFAULT_PHASE_TOOLS.",
-          "headHash": "1fde0e61344c666fead46cd47293cbe170eb3399",
-          "materialHash": "55d787322a99d2667408051a70c253418b1e5f1ba90d99cbda2a24b21e81b6de",
-          "timestamp": "2026-06-03T22:34:59.510Z"
+          "note": "Final HEAD process fact contract verifies validate/gate-evidence command semantics and confirms dispatch policy/watch/auto commands stay aligned between command-policy and DEFAULT_PHASE_TOOLS.",
+          "headHash": "cde80cd885549ec432103e0fc4ad492ffff43a90",
+          "materialHash": "ae2c9d9c521a59f9c5dd144ac9240a6e2bd6c2e989a26807448b02f42aa8a9c9",
+          "timestamp": "2026-06-03T22:49:08.155Z"
         }
       ]
     }
