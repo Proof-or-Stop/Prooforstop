@@ -24,6 +24,7 @@ import { createMainRegistry } from '../registry.js';
 const EXPECTED_HOSTS = [
   'codex',
   'claude-code',
+  'gemini',
   'local-runner',
   'browser',
   'server',
@@ -129,6 +130,10 @@ const fallbackProbe = buildCapabilityProbe('not-a-real-host');
 assert.equal(fallbackProbe.host, 'unknown/fallback');
 assert.equal(fallbackProbe.matchedFallback, true);
 assert.equal(fallbackProbe.profile.capabilities.find(c => c.category === 'receipt-verify')?.status, 'unavailable');
+const geminiProbe = buildCapabilityProbe('gemini');
+assert.equal(geminiProbe.host, 'gemini');
+assert.equal(geminiProbe.matchedFallback, false);
+assert.equal(geminiProbe.profile.capabilities.find(c => c.category === 'receipt-verify')?.status, 'conditional');
 assert.match(renderCapabilityProbeText(codexProbe), /authorityImpact: diagnostic-only/);
 
 // Registry and CLI schema expose the command.

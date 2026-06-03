@@ -532,6 +532,7 @@ function dispatchPrompt(pack: HandoffPack, runtime: HostRuntimeProbe, dispatchId
 
 function handoffTargetForRuntime(host: HostRuntimeId): string {
   if (host === 'claude-code') return 'claude-code';
+  if (host === 'gemini') return 'gemini';
   return 'codex';
 }
 
@@ -776,6 +777,37 @@ function listedGitWorktreeRoots(root: string): string[] {
     });
 }
 
+function assertProjectedWorktreeAncestors(root: string, worktreeAbs: string, label: string): void {
+  const relativePath = relative(root, worktreeAbs);
+  if (relativePath === '..' || relativePath.startsWith(`..${sep}`)) {
+    throw new Error(`${label} must stay within the repository root: ${worktreeAbs}`);
+  }
+  const rootReal = realpathSync(root);
+  const segments = relativePath.split(/[\\/]+/).filter(Boolean);
+  let currentAbs = root;
+  for (const segment of segments) {
+    currentAbs = join(currentAbs, segment);
+    let entry: ReturnType<typeof lstatSync>;
+    try {
+      entry = lstatSync(currentAbs);
+    } catch (error: any) {
+      if (error?.code === 'ENOENT') break;
+      const detail = String(error?.message || error).trim();
+      throw new Error(`${label} ancestor could not be inspected: ${relative(root, currentAbs)} (${detail})`);
+    }
+    if (entry.isSymbolicLink()) {
+      throw new Error(`${label} traverses a symlinked ancestor: ${relative(root, currentAbs)}`);
+    }
+    if (!entry.isDirectory()) {
+      throw new Error(`${label} ancestor must be a directory: ${relative(root, currentAbs)}`);
+    }
+    const currentReal = realpathSync(currentAbs);
+    if (!pathResolvesWithinRoot(rootReal, currentReal)) {
+      throw new Error(`${label} ancestor resolves outside the repository root: ${relative(root, currentAbs)}`);
+    }
+  }
+}
+
 function assertRegisteredDispatchWorktreeRoot(root: string, worktreeAbs: string, label: string): void {
   const entry = lstatSync(worktreeAbs);
   if (entry.isSymbolicLink()) {
@@ -840,11 +872,13 @@ function normalizePackPaths(
 
 function ensureWorktree(root: string, worktreePath: string, branch: string, baseRef: string): string {
   const absPath = resolve(root, worktreePath);
+  assertProjectedWorktreeAncestors(root, absPath, 'Dispatch worktree path');
   if (existsSync(absPath)) {
     assertRegisteredDispatchWorktreeRoot(root, absPath, 'Dispatch worktree path');
     return absPath;
   }
   mkdirSync(dirname(absPath), { recursive: true });
+  assertProjectedWorktreeAncestors(root, absPath, 'Dispatch worktree path');
   try {
     execFileSync('git', ['worktree', 'add', absPath, '-b', branch, baseRef], {
       cwd: root,
@@ -857,7 +891,14 @@ function ensureWorktree(root: string, worktreePath: string, branch: string, base
       throw new Error(`git worktree add failed for ${worktreePath}: ${message.trim()}`);
     }
   }
-  assertRegisteredDispatchWorktreeRoot(root, absPath, 'Dispatch worktree path');
+  try {
+    assertRegisteredDispatchWorktreeRoot(root, absPath, 'Dispatch worktree path');
+  } catch (error: any) {
+    const detail = String(error?.message || error).trim();
+    const cleanupWarnings = cleanupCreatedWorktree(root, worktreePath, branch);
+    const suffix = cleanupWarnings.length > 0 ? ` (${cleanupWarnings.join(' | ')})` : '';
+    throw new Error(`${detail}${suffix}`);
+  }
   return absPath;
 }
 

@@ -97,10 +97,10 @@ function initRepo(root: string, externalDir: string): void {
   git(root, ['commit', '-m', 'fixture']);
 }
 
-function seedStory(store: StoryStore): void {
+function seedStory(store: StoryStore, storyId = 'B-dispatch'): void {
   const now = '2026-06-02T00:00:00.000Z';
   const story: StoryInfo = {
-    storyId: 'B-dispatch',
+    storyId,
     name: 'dispatch-run-smoke',
     title: 'Dispatch run smoke story',
     description: 'Smoke story for Lattice dispatch_run automatic overflow.',
@@ -110,7 +110,7 @@ function seedStory(store: StoryStore): void {
     createdAt: now,
     startedAt: now,
     endedAt: null,
-    events: [{ phase: 'DEV', action: 'advance', timestamp: now, branch: 'story/B-dispatch' }],
+    events: [{ phase: 'DEV', action: 'advance', timestamp: now, branch: `story/${storyId}` }],
   };
   const checklist: ChecklistData = {
     items: [
@@ -123,8 +123,8 @@ function seedStory(store: StoryStore): void {
       },
     ],
   };
-  store.writeStory('B-dispatch', story);
-  store.writeChecklist('B-dispatch', checklist);
+  store.writeStory(storyId, story);
+  store.writeChecklist(storyId, checklist);
 }
 
 function assertAuthorityFalse(value: unknown, label = 'result'): void {
@@ -152,8 +152,19 @@ function readDispatch(root: string, dispatchId: string): DispatchRecord {
   return JSON.parse(readFileSync(join(root, '.koala/dispatches', dispatchId, 'dispatch.json'), 'utf8')) as DispatchRecord;
 }
 
+function readPack(root: string, dispatchId: string): { toHost: string; executionInstructions: string[] } {
+  return JSON.parse(readFileSync(join(root, '.koala/dispatches', dispatchId, 'pack.json'), 'utf8')) as {
+    toHost: string;
+    executionInstructions: string[];
+  };
+}
+
 function projectedDispatchWorktreePath(root: string, storyId: string, dispatchId: string): string {
   return join(root, '.worktrees', 'overflow', storyId, dispatchId);
+}
+
+function projectedDispatchWorktreeStoryRoot(root: string, storyId: string): string {
+  return join(root, '.worktrees', 'overflow', storyId);
 }
 
 function seedProjectedDispatchWorktreeRootSymlink(root: string, storyId: string, dispatchId: string, externalTarget: string): string {
@@ -164,8 +175,16 @@ function seedProjectedDispatchWorktreeRootSymlink(root: string, storyId: string,
   return projectedRoot;
 }
 
-function isProjectedRootSymlinkFailure(detail: string): boolean {
-  return /real git worktree root, not a symlink|resolves outside the isolated worktree via an existing symlinked path segment/i.test(detail);
+function seedProjectedDispatchWorktreeAncestorSymlink(root: string, storyId: string, externalTarget: string): string {
+  const projectedStoryRoot = projectedDispatchWorktreeStoryRoot(root, storyId);
+  mkdirSync(dirname(projectedStoryRoot), { recursive: true });
+  rmSync(projectedStoryRoot, { recursive: true, force: true });
+  symlinkSync(externalTarget, projectedStoryRoot, 'dir');
+  return projectedStoryRoot;
+}
+
+function isProjectedWorktreeContainmentFailure(detail: string): boolean {
+  return /real git worktree root, not a symlink|resolves outside the isolated worktree via an existing symlinked path segment|traverses a symlinked ancestor|ancestor must be a directory|ancestor resolves outside the repository root/i.test(detail);
 }
 
 function assertFiveWayRegistration(command: string, registry: ReturnType<typeof createMainRegistry>): void {
@@ -184,11 +203,14 @@ const externalDir = mkdtempSync(join(tmpdir(), 'lattice-dispatch-run-external-')
 const externalMarker = join(externalDir, 'blocked-by-symlink.txt');
 const fakeProjectedRootExternalDir = mkdtempSync(join(tmpdir(), 'lattice-dispatch-run-fake-root-'));
 const realProjectedRootExternalDir = mkdtempSync(join(tmpdir(), 'lattice-dispatch-run-real-root-'));
+const fakeAncestorExternalDir = mkdtempSync(join(tmpdir(), 'lattice-dispatch-run-fake-ancestor-'));
+const realAncestorExternalDir = mkdtempSync(join(tmpdir(), 'lattice-dispatch-run-real-ancestor-'));
 try {
   initRepo(root, externalDir);
   resetConfigCache();
   const store = new StoryStore(root);
   seedStory(store);
+  seedStory(store, 'B-ancestor-attack');
   const baseSha = git(root, ['rev-parse', 'HEAD']);
   const ctx: HandlerContext = { store, root, scanRoot: join(root, 'packages/main') };
   const registry = createMainRegistry(ctx);
@@ -243,6 +265,32 @@ try {
   assert.equal(existsSync(join(root, prepared.promptFile)), true);
   assert.equal(existsSync(resolve(root, prepared.worktree.worktreePath)), false, 'dispatch_prepare must not create a worktree');
   assertAuthorityFalse(prepared, 'prepared');
+
+  const geminiPrepared = run<DispatchRecord>('dispatch_prepare', {
+    storyId: 'B-dispatch',
+    dispatchId: 'D-gemini-prepare',
+    host: 'gemini',
+    objective: 'Gemini dispatch should preserve host-neutral identity in pack and prompt artifacts.',
+    allowedPaths: ['packages/main/src/generated/gemini-prepare.txt'],
+    deniedPaths: ['README.md'],
+  });
+  const geminiPack = readPack(root, geminiPrepared.dispatchId);
+  const geminiPrompt = readFileSync(join(root, geminiPrepared.promptFile), 'utf8');
+  assert.equal(geminiPrepared.selectedHost, 'gemini');
+  assert.equal(geminiPrepared.runtime.host, 'gemini');
+  assert.equal(geminiPack.toHost, 'gemini');
+  assert.ok(
+    geminiPack.executionInstructions.some(instruction => /Use gemini only as a bounded overflow execution host/i.test(instruction)),
+    'gemini dispatch pack should preserve Gemini host identity in execution instructions',
+  );
+  assert.ok(
+    !geminiPack.executionInstructions.some(instruction => /Use codex only as a bounded overflow execution host/i.test(instruction)),
+    'gemini dispatch pack should not silently fall back to Codex wording',
+  );
+  assert.match(geminiPrompt, /Host runtime: gemini/);
+  assert.match(geminiPrompt, /Use gemini only as a bounded overflow execution host/i);
+  assert.doesNotMatch(geminiPrompt, /Use codex only as a bounded overflow execution host/i);
+  assertAuthorityFalse(geminiPrepared, 'geminiPrepared');
 
   run<DispatchRecord>('dispatch_prepare', {
     storyId: 'B-dispatch',
@@ -418,10 +466,28 @@ try {
   });
   assert.throws(
     () => run<DispatchRunResult>('dispatch_run', { dispatchId: fakeProjectedRootDispatchId }),
-    error => isProjectedRootSymlinkFailure(String(error)),
+    error => isProjectedWorktreeContainmentFailure(String(error)),
   );
   assert.equal(existsSync(fakeProjectedRootExternalMarker), false, 'fake projected-root symlink target must never receive allowed output');
   assert.deepEqual(readdirSync(fakeProjectedRootExternalDir), [], 'fake projected-root symlink target must remain unused');
+
+  const fakeAncestorDispatchId = 'D-ancestor-symlink-fake';
+  seedProjectedDispatchWorktreeAncestorSymlink(root, 'B-ancestor-attack', fakeAncestorExternalDir);
+  run<DispatchRecord>('dispatch_prepare', {
+    storyId: 'B-ancestor-attack',
+    dispatchId: fakeAncestorDispatchId,
+    host: 'fake',
+    objective: 'Fake runtime must reject a symlinked projected worktree ancestor before git worktree add.',
+    allowedPaths: ['packages/main/src/generated/ancestor-blocked.txt'],
+    deniedPaths: ['README.md'],
+  });
+  assert.throws(
+    () => run<DispatchRunResult>('dispatch_run', { dispatchId: fakeAncestorDispatchId }),
+    error => isProjectedWorktreeContainmentFailure(String(error)),
+  );
+  assert.equal(existsSync(resolve(root, projectedDispatchWorktreePath(root, 'B-ancestor-attack', fakeAncestorDispatchId))), false, 'fake ancestor symlink attack must not materialize a worktree path');
+  assert.deepEqual(readdirSync(fakeAncestorExternalDir), [], 'fake ancestor symlink target must remain unused');
+  rmSync(projectedDispatchWorktreeStoryRoot(root, 'B-ancestor-attack'), { recursive: true, force: true });
 
   const maliciousDispatchId = '../../dispatch-id-escape';
   const escapedDispatchMetadataDir = resolve(root, 'dispatch-id-escape');
@@ -530,13 +596,36 @@ try {
     assert.notEqual(realProjectedRootRun.status, 'needs_receipt');
     assert.equal(realProjectedRootRun.status, 'failed');
     assert.ok(
-      realProjectedRootRun.warnings.some(warning => isProjectedRootSymlinkFailure(warning)),
+      realProjectedRootRun.warnings.some(warning => isProjectedWorktreeContainmentFailure(warning)),
       'real projected-root symlink should surface canonical validation failure in warnings',
     );
     assert.match(realProjectedRootRun.nextAction, /Resolve the git worktree error, then rerun dispatch_run/i);
     assert.equal(existsSync(realProjectedRootExternalMarker), false, 'real projected-root symlink target must never receive allowed output');
     assert.deepEqual(readdirSync(realProjectedRootExternalDir), [], 'real projected-root symlink target must remain unused');
     assert.equal(readDispatch(root, realProjectedRootSymlink.dispatchId).status, 'failed', 'real projected-root symlink must persist failed dispatch status');
+
+    const realAncestorDispatchId = 'D-ancestor-symlink-real';
+    seedProjectedDispatchWorktreeAncestorSymlink(root, 'B-ancestor-attack', realAncestorExternalDir);
+    const realAncestorSymlink = run<DispatchRecord>('dispatch_prepare', {
+      storyId: 'B-ancestor-attack',
+      dispatchId: realAncestorDispatchId,
+      host: 'codex',
+      objective: 'Real runtime must reject a symlinked projected worktree ancestor before returning needs_receipt.',
+      allowedPaths: ['packages/main/src/generated/ancestor-blocked.txt'],
+      deniedPaths: ['README.md'],
+    });
+    const realAncestorRun = run<DispatchRunResult>('dispatch_run', { dispatchId: realAncestorSymlink.dispatchId });
+    assert.notEqual(realAncestorRun.status, 'needs_receipt');
+    assert.equal(realAncestorRun.status, 'failed');
+    assert.ok(
+      realAncestorRun.warnings.some(warning => isProjectedWorktreeContainmentFailure(warning)),
+      'real ancestor symlink should surface ancestry containment failure in warnings',
+    );
+    assert.match(realAncestorRun.nextAction, /Resolve the git worktree error, then rerun dispatch_run/i);
+    assert.equal(existsSync(resolve(root, projectedDispatchWorktreePath(root, 'B-ancestor-attack', realAncestorDispatchId))), false, 'real ancestor symlink attack must not materialize a worktree path');
+    assert.deepEqual(readdirSync(realAncestorExternalDir), [], 'real ancestor symlink target must remain unused');
+    assert.equal(readDispatch(root, realAncestorSymlink.dispatchId).status, 'failed', 'real ancestor symlink must persist failed dispatch status');
+    rmSync(projectedDispatchWorktreeStoryRoot(root, 'B-ancestor-attack'), { recursive: true, force: true });
 
     const realHostFailure = run<DispatchRecord>('dispatch_prepare', {
       storyId: 'B-dispatch',
@@ -607,4 +696,6 @@ try {
   rmSync(externalDir, { recursive: true, force: true });
   rmSync(fakeProjectedRootExternalDir, { recursive: true, force: true });
   rmSync(realProjectedRootExternalDir, { recursive: true, force: true });
+  rmSync(fakeAncestorExternalDir, { recursive: true, force: true });
+  rmSync(realAncestorExternalDir, { recursive: true, force: true });
 }
