@@ -613,6 +613,8 @@ try {
       'fake claude env probe must pass only when denied secret is filtered out');
     const envStatus = run<DispatchStatusResult>('dispatch_status', { dispatchId: envRun.dispatchId });
     assert.equal(envStatus.runner?.runnerKind, 'claude-code-real');
+    assert.equal(envStatus.runner?.envSummary.safeVarNames.includes('LATTICE_FAKE_CLAUDE_ALLOWED'), true,
+      'runner env summary must list safe LATTICE_ allowlisted names without values');
     assert.equal(envStatus.runner?.envSummary.safeVarNames.includes('LATTICE_FAKE_CLAUDE_SECRET'), false,
       'runner env summary must not list denied secret env var');
     const envTranscript = readFileSync(join(root, envStatus.dispatch.transcriptFile), 'utf8');

@@ -9,7 +9,7 @@ const SENSITIVE_ENV_PATTERNS = [
 // Only names starting with these prefixes are included in the safe-name summary.
 const SAFE_ENV_PREFIXES = [
   'PATH', 'HOME', 'USER', 'SHELL', 'TERM', 'LANG', 'LC_', 'TZ',
-  'PWD', 'OLDPWD', 'NODE_', 'npm_', 'KOALA_', 'CI', 'GITHUB_',
+  'PWD', 'OLDPWD', 'NODE_', 'npm_', 'LATTICE_', 'KOALA_', 'CI', 'GITHUB_',
   'RUNNER_', 'TMPDIR', 'TEMP', 'TMP', 'LOGNAME',
 ];
 
