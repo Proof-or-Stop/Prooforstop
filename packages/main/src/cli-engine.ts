@@ -18,7 +18,7 @@ import type { HandlerContext } from './handlers/context.js';
 import { execFileSync, execSync } from 'child_process';
 import { loadConfig, isCommandAllowed, getAllowedPatterns, hasProjectConfigFile } from './core/config.js';
 import { formatCommandLifecycleHint } from './core/command-policy.js';
-import { decorateResult, type ActiveStoryInfo } from './handlers/hints.js';
+import { decorateResult, wantsMachineJson, type ActiveStoryInfo } from './handlers/hints.js';
 import { reportHealthIssue } from './core/health.js';
 import { detectStaleState } from './core/stale-detector.js';
 import { runHooks, truncateForEnv, buildHookEnv as buildSharedHookEnv, HOOK_TIMEOUT_MS } from './core/hooks.js';
@@ -2861,17 +2861,24 @@ export async function runCli(opts?: {
       }
       writeCodexProcessEvent({ command: cmd, args: parsed, success: true });
       // 注入 next-step hint（hints.ts 注册的命令才有效；其它命令原样返回）
+      // B-7fc2: `--json` / `--format=json` stdout is a machine-only payload.
+      // Skip hint decoration entirely in machine JSON mode so JSON.parse(stdout)
+      // succeeds for dashboard / host adapters / smoke tests. Text mode still
+      // gets the existing decorateResult treatment so human users keep the
+      // next-step hint (e.g. "→ 验证全绿").
       const hintActive: ActiveStoryInfo | null = activeStory
         ? { storyId: activeStory.storyId, phase: activeStory.phase }
         : null;
-      result = decorateResult({
-        cmd,
-        args: parsed,
-        result,
-        store,
-        root,
-        activeStory: hintActive,
-      });
+      if (!wantsMachineJson(parsed)) {
+        result = decorateResult({
+          cmd,
+          args: parsed,
+          result,
+          store,
+          root,
+          activeStory: hintActive,
+        });
+      }
       // postCommand hook — runs before we exit; failure does not block exit(0)
       const resultText = typeof result === 'string' ? result : JSON.stringify(result);
       if (config0?.hooks?.postCommand && !READ_ONLY_COMMANDS.has(cmd)) {
