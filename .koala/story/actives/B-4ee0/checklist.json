@@ -209,7 +209,7 @@
         "docs/requirements/decisions/verification-context-pack.md",
         "README.md"
       ],
-      "userSees": "用户看到 build 和 smoke 结果明确证明：新项目文件树干净、全局 lattice codex 命令可用、旧 Koala/Lattice shim 项目仍兼容，且全局 lattice 重新 build 后使用最新 dist。",
+      "userSees": "用户看到验证输出 \"✓ thin init assets smoke passed\"、\"✓ legacy Koala compatibility smoke passed\" 和 \"tsc\" build 成功，证明新项目干净且旧项目兼容。",
       "files": {
         "modify": [
           "packages/main/package.json",
