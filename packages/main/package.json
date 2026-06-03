@@ -90,7 +90,10 @@
     "test:authority-enforce-runner": "node dist/tasks/authority-enforce-runner-smoke.js",
     "test:authority-runner-events": "node dist/tasks/authority-runner-events-smoke.js",
     "test:authority-enforce-matrix": "node dist/tasks/authority-enforce-matrix-smoke.js",
-    "test:authority-live-python": "node dist/tasks/authority-live-python-smoke.js"
+    "test:authority-live-python": "node dist/tasks/authority-live-python-smoke.js",
+    "test:story-authority-resolve-smoke": "node dist/tasks/story-authority-resolve-smoke.js",
+    "test:observability-snapshot-smoke": "node dist/tasks/observability-snapshot-smoke.js",
+    "test:observability-contract-smoke": "node dist/tasks/observability-contract-smoke.js"
   },
   "dependencies": {
     "@koala-agent/lab": "0.3.1",
