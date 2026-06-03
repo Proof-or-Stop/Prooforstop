@@ -1,0 +1,25 @@
+{
+  "storyId": "B-a30e",
+  "checkedAt": "2026-06-03T21:50:05.323Z",
+  "reviewRound": "",
+  "agentId": "product-reviewer",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-06-03T21:49:53.030Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "B-7fc2 (strict-json-stdout-contract, currently INIT_CHECK, riskSignal=Lattice validate) also touches the validate CLI JSON path; background.md and CHK-005 integration step do not mention coordination/rebase order with B-7fc2. PLAN should explicitly state which story owns validate JSON output contract vs args/storyId-alias normalization to avoid double-edit conflicts in cli-engine/validate handler and conflicting JSON stdout expectations."
+        }
+      ]
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-03T21:50:05.323Z",
+      "issues": []
+    }
+  ],
+  "_hash": "ac42b7679dc5a8ea44f919f5f7692872c70548d4a4a7bc228ac647c94c178c70"
+}

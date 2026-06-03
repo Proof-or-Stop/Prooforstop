@@ -166,6 +166,18 @@ interface CodexManifestSelection {
   brand: CodexManifestBrand;
 }
 
+function isGlobalThinProject(root: string): boolean {
+  try {
+    const configPath = join(root, '.Lattice', 'lattice.json');
+    if (!existsSync(configPath)) return false;
+    const text = readFileSync(configPath, 'utf-8');
+    const parsed = JSON.parse(text);
+    return isRecord(parsed) && parsed['assetMode'] === 'global-thin';
+  } catch {
+    return false;
+  }
+}
+
 function resolveCodexManifest(root: string): CodexManifestSelection | null {
   if (existsSync(join(root, '.Codex', 'lattice.json'))) {
     return { relPath: '.Codex/lattice.json', brand: 'lattice' };
@@ -187,6 +199,11 @@ function renderExpectedManifest(brand: CodexManifestBrand, options: { promptMode
 }
 
 function checkManifest(root: string, checks: CodexAdapterCheck[]): CodexPromptMode | null {
+  // Resolver priority: .Lattice/lattice.json (global-thin) first.
+  if (isGlobalThinProject(root)) {
+    push(checks, 'manifest', 'Codex manifest', 'pass', true, 'global-thin project: Codex adapter behavior runs from global lattice CLI (.Lattice/lattice.json present)');
+    return 'registry';
+  }
   const selection = resolveCodexManifest(root);
   if (!selection) {
     push(checks, 'manifest', 'Codex manifest', 'fail', true, 'missing .Codex/lattice.json (legacy .Codex/koala.json is also accepted)', LOCAL_INIT_VERIFY_COMMAND);
@@ -415,6 +432,12 @@ function resolveKoalaCommandPath(root: string): string | null {
 }
 
 function checkLocalWrapper(root: string, checks: CodexAdapterCheck[], executeHeartbeats: boolean, timeoutMs: number): void {
+  // Global-thin projects: executable Codex adapter behavior lives in the global lattice CLI.
+  // Local wrapper is not required regardless of whether legacy bin/ files exist.
+  if (isGlobalThinProject(root)) {
+    push(checks, 'local-wrapper', 'Local Codex wrapper', 'pass', true, 'global-thin project: local wrapper not required; use global lattice codex verify / lattice codex doctor');
+    return;
+  }
   const hasLatticeWrapper = existsSync(join(root, 'bin', 'lattice-codex.js'));
   const wrapperRelPath = hasLatticeWrapper ? 'bin/lattice-codex.js' : 'bin/koala-codex.js';
   const bootstrapRelPath = hasLatticeWrapper ? 'bin/lattice.js' : 'bin/koala.js';

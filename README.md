@@ -8,9 +8,9 @@ phase、gate、review、evidence 和 handoff 语义。
 
 - `packages/main`：Lattice/Koala 核心 CLI
 - `packages/utils`：`aux_*`、`truth_*`、`tool_status` 等扩展工具
-- `bin/lattice.js`：完整 bootstrap 主入口（`main + utils`）
+- `bin/lattice.js`：完整 bootstrap 主入口（`main + utils`）；仅此仓库自身使用，新项目 global-thin 默认 init 不生成此文件
 - `bin/koala.js`：legacy bootstrap alias（`main + utils`）
-- `bin/lattice-codex.js`：Codex 专用入口，会把活动记成 `source=codex`
+- `bin/lattice-codex.js`：Codex 专用本地入口，会把活动记成 `source=codex`；full/thin 模式显式 opt-in 才生成，global-thin 默认不生成
 - `bin/koala-codex.js`：legacy Codex wrapper alias for existing repositories
 
 ## Lattice CLI 0.3.5 Migration
@@ -343,7 +343,9 @@ workflows.
 `validate --json` 的 `commands[]` 是验证 receipt：结构化命令默认记录 argv 形式；
 包含 `cd`、`&&`、管道或重定向等 shell 语义的字符串配置会记录 `shell=true`，表示这是有意的 shell receipt。必需命令失败会让 validate fail；`optional:true` 失败只会 warn。`doctor` 的 Validation scan 只做 advisory：它展示 validate 文件、配置命令、fallback 发现和 no-validator warning，帮助你决定是否要补显式 `validate.command(s)`。
 
-`doctor` 还会输出 `Runtime scan:`，这不是流程 gate 证据，而是运行环境漂移检查。runtime facts 由 `packages/main/src/core/runtime-fact-registry.ts` 定义并由 `scripts/verify-runtime-fact-contract.mjs` 保护，覆盖 CLI entrypoint、global `@koala-agent/core` realpath、项目本地 `node_modules/.bin/koala`、Node/package version、validate source 和 `external-reference-policy`。外部项目只收到 warn/advisory，不因为 Orchestrate 本仓的 symlink 期望 hard fail。`external-reference-policy` 只扫描 `koala.config.json`、`AGENTS.md`、`CLAUDE.md`、`README.md`、`docs/requirements/**/*.md`，排除 story/fixture/build/source-comment 噪音；它只报告 policy warning，不声明 connectivity pass。
+项目配置文件 canonical 为 `lattice.config.json`，legacy `koala.config.json` 仍可读作为兜底；两者并存时 `lattice.config.json` 胜出并打印冲突诊断。`lattice validate` 的自动 fallback 集合只包含 `npm test` / `pytest` / `go test` / `cargo test` / `mvn test` / `gradle test`；Swift / Mac Native App 已退役，**不**在自动 fallback 列表，必须显式配置 `validate.commands` 才会运行 `swift test`。
+
+`doctor` 还会输出 `Runtime scan:`，这不是流程 gate 证据，而是运行环境漂移检查。runtime facts 由 `packages/main/src/core/runtime-fact-registry.ts` 定义并由 `scripts/verify-runtime-fact-contract.mjs` 保护，覆盖 CLI entrypoint、global `@koala-agent/core` realpath、项目本地 `node_modules/.bin/koala`、Node/package version、validate source 和 `external-reference-policy`。外部项目只收到 warn/advisory，不因为 Orchestrate 本仓的 symlink 期望 hard fail。`external-reference-policy` 只扫描 `lattice.config.json`（canonical）/ `koala.config.json`（legacy fallback）、`AGENTS.md`、`CLAUDE.md`、`README.md`、`docs/requirements/**/*.md`，排除 story/fixture/build/source-comment 噪音；它只报告 policy warning，不声明 connectivity pass。
 
 Koala runtime artifacts 是另一张表：`packages/main/src/core/runtime-artifact-registry.ts` 定义 `.koala/activity.jsonl`、legacy `docs/story/activity.jsonl`、`.koala/runtime/`、`.koala/traces/`、`.koala-serve.json`、debug/browser logs 等运行时文件的 ignore、materialHash 和 repair 语义。`lattice init` 会把缺失的 runtime ignore 规则合并进已有 `.gitignore`；`lattice doctor` 会报告已被 git 跟踪的 runtime artifacts，并在 `--repair` 时只对 registry 标记为 repairable 的路径执行 `git rm --cached`。这些文件不会让 materialHash-backed verification evidence stale；`.koala/story/` 仍是流程证据，不按 runtime artifact 处理。
 
@@ -512,7 +514,7 @@ Claude Code 侧仍然使用 `.claude/` 下的 hooks、settings 和 skill。Codex
 
 - [AGENTS.md](/Users/jek/Documents/Work/Orchestrate/AGENTS.md:1)
 - [.Codex/README.md](/Users/jek/Documents/Work/Orchestrate/.Codex/README.md:1)
-- `.Codex/lattice.json`（new init primary；this repository may still show legacy [.Codex/koala.json](/Users/jek/Documents/Work/Orchestrate/.Codex/koala.json:1) until migrated）
+- `.Lattice/lattice.json`（global-thin default init primary；full/thin mode projects may use `.Codex/lattice.json` instead; legacy [.Codex/koala.json](/Users/jek/Documents/Work/Orchestrate/.Codex/koala.json:1) is still recognized as a compatibility input）
 - [.Codex/agents/](/Users/jek/Documents/Work/Orchestrate/.Codex/agents:1)（full mode materialization；thin mode 可省略）
 
 full mode 仓库里的 `.Codex/agents` 由 `.claude/agents` 经过受控 transform 全量生成，并通过 `npm run test:codex-assets` 防止后续漂移；thin mode 仓库由 `node bin/lattice-codex.js verify_codex` 校验 registry manifest/hash/renderability。

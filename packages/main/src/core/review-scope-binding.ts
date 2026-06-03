@@ -57,7 +57,8 @@ function uniqSorted(values: readonly string[]): string[] {
  * binding: the material changed files, material hunk digests, and a digest over
  * that material subset.
  *
- * Pass projectRoot so that a custom storyDir from koala.config.json is honoured
+ * Pass projectRoot so that a custom storyDir from lattice.config.json
+ * (canonical) or koala.config.json (legacy fallback) is honoured
  * when deciding which paths are story-metadata (and therefore excluded from the
  * digest). Without projectRoot the function falls back to the built-in default
  * prefixes (docs/story/, .koala/story/, …), which is still correct for the

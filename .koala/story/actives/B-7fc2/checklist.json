@@ -1,0 +1,139 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "M1 contract audit and failing reproduction for JSON stdout",
+      "context": "确认 --json / --format=json stdout contract，复现 validate --json 追加 hint 破坏 JSON.parse，并列出受影响/未受影响命令矩阵。",
+      "relatedDocs": [
+        "docs/requirements/decisions/host-neutral-observability-console.md",
+        "docs/requirements/decisions/testing-infra.md",
+        "README.md"
+      ],
+      "userSees": "开发计划明确说明 dashboard 可以直接 JSON.parse Lattice CLI stdout，不需要 substring parser。",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "validate --json 当前失败被真实 CLI 子进程复现，错误定位到 hint decoration",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "已有正常 --format=json 命令仍被纳入矩阵，避免误判全 CLI 都坏",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "禁止把修复方案定为 dashboard 侧抽取 JSON substring",
+            "type": "docs"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "M2 fix CLI output pipeline to suppress stdout hints in machine JSON mode",
+      "context": "在 cli-engine 统一判断 args.json===true 或 format=json；JSON mode 不调用/不输出 hint decoration，text mode 保留现有人类 next-step hint。",
+      "relatedDocs": [
+        "docs/requirements/decisions/host-neutral-observability-console.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "userSees": "lattice validate --json stdout 只剩 JSON；lattice validate text mode 仍有人类下一步提示。",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "validate --json stdout 可直接 JSON.parse 且没有 “→ 验证全绿”",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "text mode validate 仍保留 “→ 验证全绿” next-step hint",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "失败/coverage missing 的 JSON mode 也不能把修复建议拼进 stdout",
+            "type": "cli"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "M3 add regression smoke and document the JSON stdout contract",
+      "context": "新增 CLI JSON stdout contract smoke，覆盖 validate --json、至少一个 --format=json 命令、text mode hint 保留；文档写明 stdout machine-only，human guidance 只在 text mode 或 stderr。",
+      "relatedDocs": [
+        "docs/requirements/decisions/host-neutral-observability-console.md",
+        "docs/requirements/decisions/testing-infra.md",
+        "README.md"
+      ],
+      "userSees": "后续 dashboard/read-only adapter 可以把 Lattice CLI JSON stdout 当稳定 contract。",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "新 smoke 直接 JSON.parse execFileSync stdout",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "一个已经正常的 --format=json 命令继续 parseable，防止输出管线回归",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "测试断言 stdout 不含 next-step hint，避免未来误把 hint 加回 JSON mode",
+            "type": "logic"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "M4 run three-agent Claude Code review, delivery evidence, and DONE gates",
+      "context": "Agent1 做 contract/test audit，Agent2 做实现，Agent3 做独立 review/delivery；Codex 复核后跑 Lattice validate、用户验收 transcript、summary/delivery_check_set/DONE。",
+      "relatedDocs": [
+        "docs/requirements/decisions/host-neutral-observability-console.md",
+        "docs/requirements/decisions/testing-infra.md",
+        "README.md"
+      ],
+      "userSees": "story DONE 后有 Claude Code 三 agent 证据、Codex 审核结论和真实 CLI acceptance transcript。",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Claude Code 三个 agent 均产出可追踪结论，Lattice delivery-check 接收",
+            "type": "manual"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "如果某 agent 发现 blocking issue，story 留在 DEV/REVIEW 修复而不是硬 DONE",
+            "type": "manual"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "DONE summary 必须明确 no limitations 或列出未覆盖 JSON 命令，不允许抽象说全绿",
+            "type": "docs"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

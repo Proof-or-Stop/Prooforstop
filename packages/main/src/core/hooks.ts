@@ -8,7 +8,8 @@
  *   - onError        : 每条 command 抛错时
  *   - onPhaseChange  : story_advance 成功后，按 "FROM->TO" 匹配
  *
- * 用户在 koala.config.json 的 hooks 字段配置：
+ * 用户在项目配置文件（lattice.config.json canonical / koala.config.json
+ * legacy fallback）的 hooks 字段配置：
  *   "hooks": {
  *     "preCommand": { "*": ["./scripts/notify"] , "story_advance": ["./scripts/sync"] },
  *     "onPhaseChange": { "*": ["echo $KOALA_OLD_PHASE"], "DEV->TEST": ["./scripts/freeze"] }

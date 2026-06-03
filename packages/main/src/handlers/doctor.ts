@@ -326,7 +326,8 @@ function renderValidationScan(scan: ValidationSetupScan): string {
   } else {
     lines.push('  warnings: none');
   }
-  lines.push('  note: fallback command discovery is advisory; configure validate.command(s) for an explicit project gate.');
+  lines.push('  note: fallback command discovery is advisory; configure validate.command(s) in lattice.config.json (canonical; legacy koala.config.json still readable) for an explicit project gate.');
+  lines.push('  note: Swift / Package.swift is NOT in the automatic fallback set (Mac Native App demoted); opt in explicitly via validate.commands if needed.');
   return lines.join('\n');
 }
 

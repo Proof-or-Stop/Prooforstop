@@ -4,8 +4,10 @@ import { mkdirSync, writeFileSync, readFileSync, existsSync, cpSync, readdirSync
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import {
+  AGENTS_MD_GLOBAL_THIN_TEMPLATE,
   AGENTS_MD_TEMPLATE,
   CLAUDE_MD_TEMPLATE,
+  LATTICE_DOT_DIR_MD_TEMPLATE,
   LATTICE_MD_TEMPLATE,
   SUPPORTED_INIT_ASSET_MODES,
   SUPPORTED_INIT_PROFILES,
@@ -17,6 +19,7 @@ import {
   renderLatticeBootstrapScript,
   renderLatticeCodexAdapterManifest,
   renderLatticeCodexWrapperScript,
+  renderLatticeProjectConfig,
   getKoalaHooks,
 } from './init-assets.js';
 import type { InitAssetMode, InitProfile } from './init-assets.js';
@@ -205,9 +208,8 @@ function detectInitProfile(root: string): { profile: InitProfile; reason: string
     };
   }
   return {
-    profile: 'all',
-    reason: 'no host markers found; using all for backward compatibility',
-    compatibilityNote: 'Compatibility note: no AGENTS.md/.Codex/CLAUDE.md/.claude markers found, defaulting to profile all for backward compatibility.',
+    profile: 'core',
+    reason: 'no host markers found; using core (global-thin default)',
   };
 }
 
@@ -226,7 +228,7 @@ lattice init — 初始化 Lattice/Koala 开发框架
   lattice init --profile <profile> [目标目录]
                                         选择 init profile: codex | claude | all | core
   lattice init --asset-mode <mode> [目标目录]
-                                        选择 Codex prompt asset mode: full | thin（默认 full）
+                                        选择资产模式: global-thin（默认）| full | thin
   lattice init --starter [目标目录]          额外生成旧版 starter 业务模板
   lattice init --with-template [目标目录]    --starter 的同义 alias
   lattice init --upgrade [目标目录]          同步 Lattice 管理资产到当前版本
@@ -235,15 +237,19 @@ lattice init — 初始化 Lattice/Koala 开发框架
 
 Legacy npm package entrypoint \`npx koala-init\` remains accepted as an alias.
 
-初始化内容:
-  koala.config.json             项目配置（扫描路径、Story 前缀）
-  LATTICE.md                    canonical host-neutral Lattice 指南
-  bin/lattice.js                本地 Lattice bootstrap
-  host adapter assets           由 --profile 控制（codex / claude / all / core）
-  Codex prompt assets           由 --asset-mode 控制（full 生成 .Codex/agents；thin 使用 registry）
-  .claude/skills/koala/         /koala skill 文件
+默认初始化（global-thin mode）:
+  .Lattice/Lattice.md           canonical host-neutral Lattice 指南（新目录）
+  .Lattice/lattice.json         项目 Lattice 配置（global-thin）
+  AGENTS.md                     薄 Codex/AGENTS 指南（引用全局 lattice CLI）
+  lattice.config.json           项目配置（canonical; legacy koala.config.json 仍可读为兜底）
   docs/story/actives/           Story 数据目录
   docs/requirements/            真相源目录
+
+full/thin asset mode（显式 --asset-mode=full 或 --asset-mode=thin）:
+  LATTICE.md                    canonical host-neutral Lattice 指南（旧位置）
+  bin/lattice.js                本地 Lattice bootstrap（仅 full/thin）
+  .Codex/lattice.json           Codex adapter manifest（仅 full/thin + codex profile）
+  .Codex/agents                 agent prompt copies（仅 full mode + codex profile）
 
 可选 starter 内容（仅 --starter / --with-template）:
   src/core/app.ts               应用组装（平台无关）
@@ -253,10 +259,11 @@ Legacy npm package entrypoint \`npx koala-init\` remains accepted as an alias.
   src/shells/web/               Web shell 目录
   tests/                        测试目录
 
-初始化后:
-  1. 阅读 LATTICE.md，并使用 profile 生成的入口
-  2. 编辑 koala.config.json 调整 scanRoot 等路径
-  3. 可选: lattice validate 跑项目验证
+初始化后（global-thin）:
+  1. 阅读 .Lattice/Lattice.md
+  2. 使用全局 lattice CLI：lattice session_brief、lattice codex verify、lattice codex doctor
+  3. 可选: 编辑 lattice.config.json 调整 scanRoot 等路径
+  4. 可选: lattice validate 跑项目验证
 `);
   process.exit(0);
 }
@@ -266,7 +273,8 @@ const selectedProfileInfo = explicitProfile
   ? { profile: explicitProfile, reason: `explicit --profile=${explicitProfile}` }
   : detectInitProfile(targetDir);
 const selectedProfile = selectedProfileInfo.profile;
-const selectedAssetMode = parseExplicitAssetMode(initArgs) ?? 'full';
+const selectedAssetMode = parseExplicitAssetMode(initArgs) ?? 'global-thin';
+const isGlobalThin = selectedAssetMode === 'global-thin';
 const wantsCodex = selectedProfile === 'codex' || selectedProfile === 'all';
 const wantsClaude = selectedProfile === 'claude' || selectedProfile === 'all';
 const hadSrcBeforeInit = existsSync(join(targetDir, 'src'));
@@ -456,6 +464,7 @@ const dirs = [
   'docs/requirements/decisions',
   'docs/requirements/extracted',
 ];
+if (isGlobalThin) dirs.push('.Lattice');
 if (wantsClaude) dirs.push('.claude/skills/koala', '.claude/agents');
 if (wantsCodex && selectedAssetMode === 'full') dirs.push('.Codex/agents');
 for (const d of dirs) {
@@ -519,13 +528,19 @@ if (withStarter) {
 }
 
 const codexWrapperPath = join(targetDir, 'bin', 'lattice-codex.js');
-writeExecutable('bin/lattice.js', renderLatticeBootstrapScript(packageRoot));
+if (!isGlobalThin) {
+  writeExecutable('bin/lattice.js', renderLatticeBootstrapScript(packageRoot));
+} else {
+  console.log('  - bin/lattice.js (global-thin mode; use global lattice CLI)');
+}
 
-if (wantsCodex && !existsSync(codexWrapperPath)) {
+if (!isGlobalThin && wantsCodex && !existsSync(codexWrapperPath)) {
   writeExecutable('bin/lattice-codex.js', renderLatticeCodexWrapperScript());
   console.log('  ✓ bin/lattice-codex.js (Codex wrapper)');
-} else if (wantsCodex) {
+} else if (!isGlobalThin && wantsCodex) {
   console.log('  - bin/lattice-codex.js (exists, skip)');
+} else if (isGlobalThin) {
+  console.log('  - bin/lattice-codex.js (global-thin mode; use lattice codex verify)');
 } else {
   console.log('  - bin/lattice-codex.js (profile skip)');
 }
@@ -704,9 +719,9 @@ import { createApp } from './app.js';
   console.log('  ✓ src/core/debug.ts (调试入口模板)');
 }
 
-// 2. koala.config.json
-console.log('\n[2/6] 生成 koala.config.json...');
-const koalaConfig: Record<string, unknown> = {
+// 2. lattice.config.json (canonical; legacy koala.config.json still readable)
+console.log('\n[2/6] 生成 lattice.config.json...');
+const latticeConfig: Record<string, unknown> = {
   scanRoot: withStarter || hadSrcBeforeInit ? 'src' : '.',
   testsDir: 'tests',
   storyDir: 'docs/story/actives',
@@ -714,8 +729,8 @@ const koalaConfig: Record<string, unknown> = {
   storyPrefix: 'S',
 };
 if (isPython) {
-  koalaConfig.language = 'python';
-  koalaConfig.scanRoot = withStarter || hadSrcBeforeInit ? 'src' : '.';
+  latticeConfig.language = 'python';
+  latticeConfig.scanRoot = withStarter || hadSrcBeforeInit ? 'src' : '.';
   console.log('  ✓ 检测到 Python 项目');
 }
 
@@ -728,16 +743,36 @@ if (existsSync(pkgPath)) {
     const hasHtml = existsSync(join(targetDir, 'index.html')) || existsSync(join(targetDir, 'public', 'index.html'));
     if (hasHtml || deps?.vite || deps?.webpack || deps?.next) {
       const devCmd = deps?.vite ? 'npx vite' : deps?.next ? 'npx next dev' : deps?.webpack ? 'npx webpack serve' : 'npx serve';
-      koalaConfig.browser = { devCommand: devCmd };
+      latticeConfig.browser = { devCommand: devCmd };
       console.log(`  ✓ 检测到浏览器项目，browser.devCommand = "${devCmd}"`);
     }
   } catch { /* ignore */ }
 }
-write('koala.config.json', JSON.stringify(koalaConfig, null, 2) + '\n');
+if (existsSync(join(targetDir, 'lattice.config.json'))) {
+  console.log('  - lattice.config.json (exists, skip)');
+} else if (existsSync(join(targetDir, 'koala.config.json'))) {
+  // Legacy fallback already present — keep it intact and skip scaffold to
+  // avoid producing a conflicting canonical file the user did not ask for.
+  console.log('  - lattice.config.json (skip; legacy koala.config.json detected, keeping it as fallback)');
+} else {
+  write('lattice.config.json', JSON.stringify(latticeConfig, null, 2) + '\n');
+}
 
 // 3. 文档入口
 console.log('\n[3/6] 配置 Lattice / host 文档...');
-writeManagedMarkdown('LATTICE.md', LATTICE_MD_TEMPLATE, 'LATTICE.md');
+if (isGlobalThin) {
+  writeManagedMarkdown('.Lattice/Lattice.md', LATTICE_DOT_DIR_MD_TEMPLATE, '.Lattice/Lattice.md');
+  const latticeConfigPath = join(targetDir, '.Lattice', 'lattice.json');
+  if (!existsSync(latticeConfigPath)) {
+    writeFileSync(latticeConfigPath, renderLatticeProjectConfig());
+    console.log('  ✓ .Lattice/lattice.json');
+  } else {
+    console.log('  - .Lattice/lattice.json (exists, skip)');
+  }
+  console.log('  - LATTICE.md (global-thin mode; canonical guide is .Lattice/Lattice.md)');
+} else {
+  writeManagedMarkdown('LATTICE.md', LATTICE_MD_TEMPLATE, 'LATTICE.md');
+}
 
 if (wantsClaude) {
   writeManagedMarkdown('CLAUDE.md', CLAUDE_MD_TEMPLATE, 'CLAUDE.md');
@@ -745,7 +780,9 @@ if (wantsClaude) {
   console.log('  - CLAUDE.md (profile skip)');
 }
 
-if (wantsCodex) {
+if (isGlobalThin) {
+  writeManagedMarkdown('AGENTS.md', AGENTS_MD_GLOBAL_THIN_TEMPLATE, 'AGENTS.md');
+} else if (wantsCodex) {
   writeManagedMarkdown('AGENTS.md', AGENTS_MD_TEMPLATE, 'AGENTS.md');
 } else {
   console.log('  - AGENTS.md (profile skip)');
@@ -807,7 +844,7 @@ if (wantsClaude && agentTemplateDir) {
   console.log('  - .claude/agents (profile skip)');
 }
 
-if (wantsCodex) {
+if (!isGlobalThin && wantsCodex) {
   const codexReadmePath = join(targetDir, '.Codex', 'README.md');
   if (!existsSync(dirname(codexReadmePath))) mkdirSync(dirname(codexReadmePath), { recursive: true });
   writeFileSync(codexReadmePath, renderCodexReadmeTemplate(selectedAssetMode));
@@ -816,14 +853,17 @@ if (wantsCodex) {
   const codexManifestPath = join(targetDir, '.Codex', 'lattice.json');
   writeFileSync(codexManifestPath, renderLatticeCodexAdapterManifest(selectedAssetMode === 'thin' ? { promptMode: 'registry' } : {}));
   console.log('  ✓ .Codex/lattice.json');
+} else if (isGlobalThin) {
+  console.log('  - .Codex/README.md (global-thin mode; Codex adapter runs from global lattice CLI)');
+  console.log('  - .Codex/lattice.json (global-thin mode; use lattice codex verify)');
 } else {
   console.log('  - .Codex/README.md (profile skip)');
   console.log('  - .Codex/lattice.json (profile skip)');
 }
 
-if (wantsCodex && selectedAssetMode === 'thin') {
+if (!isGlobalThin && wantsCodex && selectedAssetMode === 'thin') {
   console.log('  - .Codex/agents (thin asset mode; prompts resolve from registry)');
-} else if (wantsCodex && agentTemplateDir) {
+} else if (!isGlobalThin && wantsCodex && agentTemplateDir) {
   const codexAgentDir = join(targetDir, '.Codex', 'agents');
   if (!existsSync(codexAgentDir)) mkdirSync(codexAgentDir, { recursive: true });
   const agentPromptFiles = listAgentPromptFiles(agentTemplateDir);
@@ -848,8 +888,10 @@ if (wantsCodex && selectedAssetMode === 'thin') {
     writeFileSync(dst, content);
     console.log(`  ✓ .Codex/agents/${file}`);
   }
-} else if (wantsCodex) {
+} else if (!isGlobalThin && wantsCodex) {
   console.log('  - .Codex/agents template source missing, skip');
+} else if (isGlobalThin) {
+  console.log('  - .Codex/agents (global-thin mode; Codex prompts resolve from global lattice registry)');
 }
 
 // 6. hooks + settings.json
@@ -914,15 +956,18 @@ console.log(`
 ✓ 初始化完成
 
 Next steps:
-  1. Read LATTICE.md, then use the entrypoints generated for profile ${selectedProfile}
-  2. Optional: edit koala.config.json to adjust scanRoot
-  3. Optional: lattice validate to verify project
+${isGlobalThin ? `  1. Read .Lattice/Lattice.md
+  2. Use the global lattice CLI: lattice session_brief
+  3. For Codex adapter: lattice codex verify / lattice codex doctor
+  4. Optional: lattice validate to verify project` : `  1. Read LATTICE.md, then use the entrypoints generated for profile ${selectedProfile}
+  2. Optional: edit lattice.config.json to adjust scanRoot (legacy koala.config.json is still read as a fallback)
+  3. Optional: lattice validate to verify project`}
 `);
 
 if (verifyCodex) {
-  if (wantsCodex) {
+  if (isGlobalThin || wantsCodex) {
     console.log('Codex verification:');
-    const result = runCodexAdapterChecks(targetDir, { executeLocalHeartbeat: true });
+    const result = runCodexAdapterChecks(targetDir, { executeLocalHeartbeat: !isGlobalThin });
     console.log(renderCodexAdapterChecks(result));
     if (!result.ok) process.exit(1);
   } else {

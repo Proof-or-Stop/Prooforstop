@@ -12,7 +12,7 @@ import { execSync } from 'child_process';
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import type { HandlerContext } from './context.js';
-import { loadConfig } from '../core/config.js';
+import { loadConfig, pickProjectConfigPath, LATTICE_CONFIG_FILENAME } from '../core/config.js';
 import { executeBrowserCases, type BrowserStep, type BrowserCaseResult } from '../tasks/browser-executor.js';
 import { FixtureProfilerSession } from '../tasks/profiler.js';
 import { saveTraceSnapshot, loadTraceSnapshot } from '../tasks/trace-store.js';
@@ -98,7 +98,15 @@ export function createTestAutoHandlers(ctx: HandlerContext) {
       }
       progress(`[DEBUG] root=${root}`);
       progress(`[DEBUG] config.fixturesDir=${config.fixturesDir}`);
-      try { progress(`[DEBUG] koala.config.json: ${readFileSync(join(root, 'koala.config.json'), 'utf-8').slice(0, 50).replace(/\n/g, ' ')}`); } catch(e: any) { progress(`[DEBUG] config read err: ${e.message}`); }
+      try {
+        const picked = pickProjectConfigPath(root);
+        if (picked) {
+          const tag = picked.legacy ? 'legacy' : 'canonical';
+          progress(`[DEBUG] ${picked.filename} (${tag}): ${readFileSync(picked.path, 'utf-8').slice(0, 50).replace(/\n/g, ' ')}`);
+        } else {
+          progress('[DEBUG] no project config file found');
+        }
+      } catch(e: any) { progress(`[DEBUG] config read err: ${e.message}`); }
       progress(`test_auto start: full regression`);
 
       // 创建隔离的 handlers + testStore
@@ -173,18 +181,22 @@ export function createTestAutoHandlers(ctx: HandlerContext) {
           }
           try {
             for (const c of group.cases) {
-              // DEBUG: 追踪 koala.config.json 被谁改了
-              const _cfgPath = join(root, 'koala.config.json');
+              // DEBUG: 追踪项目配置文件（lattice canonical / koala legacy）被谁改了
+              const _cfgPicked = pickProjectConfigPath(root);
+              const _cfgPath = _cfgPicked?.path ?? join(root, LATTICE_CONFIG_FILENAME);
+              const _cfgLabel = _cfgPicked
+                ? `${_cfgPicked.filename}${_cfgPicked.legacy ? ' (legacy)' : ' (canonical)'}`
+                : `${LATTICE_CONFIG_FILENAME} (canonical, missing)`;
               let _cfgBefore = '';
               try { _cfgBefore = readFileSync(_cfgPath, 'utf-8').slice(0, 30); } catch {}
-              progress(`${fileName}:${c.name} START → config: ${_cfgBefore.replace(/\n/g, ' ')}`);
+              progress(`${fileName}:${c.name} START → ${_cfgLabel}: ${_cfgBefore.replace(/\n/g, ' ')}`);
 
               const result = await runCase(c, root, handlers, sharedCtx, profilerSession, testStoryFactory, fileCaseIds);
               caseResults.push(result);
 
               let _cfgAfter = '';
               try { _cfgAfter = readFileSync(_cfgPath, 'utf-8').slice(0, 30); } catch {}
-              progress(`${fileName}:${c.name} END → config: ${_cfgAfter.replace(/\n/g, ' ')}`);
+              progress(`${fileName}:${c.name} END → ${_cfgLabel}: ${_cfgAfter.replace(/\n/g, ' ')}`);
 
               if (result.trace && result.trace.length > 0) {
                 const lastSnap = loadTraceSnapshot(root, fileName, c.name);

@@ -21,6 +21,7 @@ import {
 import { join, resolve } from 'path';
 import { homedir } from 'os';
 import { createHash } from 'crypto';
+import { hasProjectConfigFile } from './config.js';
 
 // ---------------------------------------------------------------------------
 // Schema
@@ -136,7 +137,8 @@ export function validateEntry(raw: unknown): { ok: true; entry: DevMemoryEntry }
 
 /**
  * Resolve the project-scoped experience file path.
- * Uses KOALA_PROJECT_ROOT env or walks upward to find koala.config.json.
+ * Uses KOALA_PROJECT_ROOT env or walks upward to find lattice.config.json
+ * (canonical) / koala.config.json (legacy fallback).
  * Deterministic — no Koala daemon required.
  */
 export function resolveProjectMemoryPath(projectRoot?: string): string {
@@ -166,7 +168,7 @@ function resolveProjectRoot(): string {
   if (process.env.KOALA_PROJECT_ROOT) return process.env.KOALA_PROJECT_ROOT;
   let dir = process.cwd();
   for (let i = 0; i < 10; i++) {
-    if (existsSync(join(dir, 'koala.config.json'))) return dir;
+    if (hasProjectConfigFile(dir)) return dir;
     const parent = resolve(dir, '..');
     if (parent === dir) break;
     dir = parent;
