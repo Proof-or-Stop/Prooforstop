@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-4ee0:RP-001",
+      "agent": "koala-review-concept",
+      "note": "概念契约一致：默认 global-thin 仅生成 .Lattice/Lattice.md、.Lattice/lattice.json、AGENTS.md、koala.config.json；显式 --asset-mode=full/thin 与 legacy KOALA.md/.Codex/koala.json/bin/koala*.js 兼容路径保留；codex verify/doctor 对 global-thin 不要求本地 wrapper，resolver 优先 .Lattice/lattice.json；文档（lifecycle-artifact-scope.md、README.md）已对齐默认 global-thin 表述；两项 smoke 测试本地复跑通过。",
+      "createdAt": "2026-06-03T19:53:53.891Z",
+      "reviewRound": "2026-06-03T19:44:46.620Z",
+      "reviewRunId": "B-4ee0:RR-001",
+      "_hash": "5f8f4bc2588a7f0e38f3ba5a4e8e53b39b9d692ea1cc7f31c857b10fb07762bf"
+    }
+  ]
+}
