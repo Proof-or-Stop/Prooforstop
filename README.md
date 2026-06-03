@@ -76,32 +76,33 @@ authority; Claude Code is an execution host, not a production authority.
 Use the overflow surfaces like this:
 
 ```bash
-lattice host_status --host=claude-code --format=json
-lattice handoff_create --storyId=B-xxxx --fromHost=codex --toHost=claude-code --format=json
-lattice handoff_worktree_create --file=handoff-pack.json --format=json
-lattice host_dispatch --host=claude-code --file=handoff-pack.json --mode=supervised --format=json
-lattice handoff_receipt_submit --file=receipt.json --format=json
+lattice dispatch_plan --storyId=B-xxxx --host=claude-code --allowedPath=packages/main/src/foo.ts --format=json
+lattice dispatch_prepare --storyId=B-xxxx --host=claude-code --allowedPath=packages/main/src/foo.ts --format=json
+lattice dispatch_run --dispatchId=D-B-xxxx-claude-code-1234 --format=json
+lattice overflow_auto --storyId=B-xxxx --host=claude-code --format=json
+lattice overflow_auto --storyId=B-xxxx --host=claude-code --approve=true --start=true --format=json
 ```
 
 The contract is conservative by design:
 
-- `host_status` reports overflow readiness only; it never changes authority.
-- `handoff_create` produces a bounded pack with `packId`, `packHash`, `baseSha`,
-  `allowedPaths`, `deniedPaths`, and execution instructions.
-- `handoff_worktree_create` only projects isolated worktree guidance; it does
-  not create, merge, trust, or clean anything automatically.
-- `host_dispatch` returns `planned` or `unavailable` plus `nextAction`; it does
-  not auto-run hosts, submit evidence, verify receipts, or claim
-  `productionDone`.
-- `handoff_receipt_submit` accepts local diagnostic receipts only. Even on
-  `accepted-local`, `receiptVerified=false` and `productionDone=false` remain.
-
-Supervised visible automation is the intended ceiling for the next dispatch
-layer as well. When `dispatch_plan` / `dispatch_prepare` / `dispatch_run` land,
-they must stay operator-visible, emit explicit receipts/status artifacts, and
-degrade to `unavailable` or diagnostic `nextAction` when the requested host CLI
-is missing. They must not silently fall back to hidden execution, auto-merge,
-receipt verification, or `productionDone=true`.
+- `dispatch_plan` is read-only planning. It picks a host, previews the bounded
+  pack/worktree projection, and creates no dispatch record, worktree, or
+  receipt.
+- `dispatch_prepare` persists the bounded pack plus prompt/status placeholders
+  under `.koala/dispatches`, but it still does not create the overflow worktree
+  or start a host.
+- `dispatch_run` is landed. For `fake`, it runs the deterministic local harness
+  and returns a local diagnostic receipt. For real hosts, it creates the
+  projected isolated worktree when scaffold creation succeeds, or returns
+  `failed` with a diagnostic `nextAction` when `git worktree add` cannot create
+  that scaffold. It never auto-drives the external host, verifies receipts, or
+  claims `productionDone=true`.
+- `overflow_auto` is a guarded wrapper around dispatch selection. By default it
+  is suggest-only. It only materializes a dispatch when **both**
+  `approve=true` and `start=true` are present; either flag by itself stays in
+  suggest-only mode with an explicit warning.
+- Local receipts remain diagnostic-only. Even on `accepted-local`,
+  `receiptVerified=false` and `productionDone=false` remain.
 
 Architecture and non-goals:
 [`docs/requirements/decisions/host-overflow.md`](docs/requirements/decisions/host-overflow.md)

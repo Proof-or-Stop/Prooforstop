@@ -1,7 +1,9 @@
 import { execFileSync, execSync } from 'node:child_process';
 import {
   existsSync,
+  lstatSync,
   mkdirSync,
+  realpathSync,
   readFileSync,
   readdirSync,
   rmSync,
@@ -672,6 +674,36 @@ function assertWorktreeRelativePath(worktreeAbs: string, candidatePath: string, 
   return candidateRel || '.';
 }
 
+function pathResolvesWithinRoot(rootReal: string, candidateReal: string): boolean {
+  const rel = relative(rootReal, candidateReal);
+  return rel === '' || (rel !== '..' && !rel.startsWith(`..${sep}`));
+}
+
+function assertCanonicalWorktreeWritePath(worktreeAbs: string, candidatePath: string, label: string): string {
+  const relativePath = assertWorktreeRelativePath(worktreeAbs, candidatePath, label);
+  const worktreeReal = realpathSync(worktreeAbs);
+  const segments = relativePath === '.' ? [] : relativePath.split(/[\\/]+/).filter(Boolean);
+  let currentAbs = worktreeAbs;
+  for (const segment of segments) {
+    currentAbs = join(currentAbs, segment);
+    try {
+      lstatSync(currentAbs);
+    } catch {
+      break;
+    }
+    let currentReal: string;
+    try {
+      currentReal = realpathSync(currentAbs);
+    } catch (error: any) {
+      throw new Error(`${label} traverses an unresolved symlink inside the isolated worktree: ${candidatePath} (${String(error?.message || error)})`);
+    }
+    if (!pathResolvesWithinRoot(worktreeReal, currentReal)) {
+      throw new Error(`${label} resolves outside the isolated worktree via an existing symlinked path segment: ${candidatePath}`);
+    }
+  }
+  return relativePath;
+}
+
 function normalizeFakePackPaths(root: string, dispatchId: string, worktreeAbs: string, pack: HandoffPack): HandoffPack {
   const allowedPaths = pack.allowedPaths.map((entry, index) =>
     assertWorktreeRelativePath(worktreeAbs, entry, `allowedPaths[${index}]`));
@@ -930,18 +962,19 @@ function runFakeLeafDispatch(store: StoryStore, root: string, record: DispatchRe
   const baseRef = pack.baseSha ?? 'HEAD';
   const worktreeAbs = ensureWorktree(root, record.worktree.worktreePath, record.worktree.branch, baseRef);
   const markerPath = pack.allowedPaths[0] ?? `.koala/dispatches/${record.dispatchId}/worker/fake-result.txt`;
-  const markerAbs = resolve(worktreeAbs, markerPath);
+  const safeMarkerPath = assertCanonicalWorktreeWritePath(worktreeAbs, markerPath, 'fake dispatch marker');
+  const markerAbs = resolve(worktreeAbs, safeMarkerPath);
   mkdirSync(dirname(markerAbs), { recursive: true });
   writeFileSync(markerAbs, `dispatch=${record.dispatchId}\nstory=${record.storyId}\nrunAt=${nowIso()}\n`, 'utf8');
   appendTranscript(resolve(root, record.transcriptFile), [
-    `[${nowIso()}] fake runtime prepared ${markerPath}`,
+    `[${nowIso()}] fake runtime prepared ${safeMarkerPath}`,
   ]);
   const commandResults = runRequiredCommands(worktreeAbs, pack.requiredCommands);
   appendTranscript(resolve(root, record.transcriptFile), commandResults.map(result => (
     `[${nowIso()}] command ${result.ok ? 'ok' : 'fail'} ${result.command}${result.output ? ` :: ${result.output}` : ''}`
   )));
   writeJson(resolve(root, record.collectFile.replace(/collect\.json$/, 'command-results.json')), commandResults);
-  gitOutput(worktreeAbs, ['add', '-f', markerPath]);
+  gitOutput(worktreeAbs, ['add', '-f', safeMarkerPath]);
   const commitMessage = `fake dispatch ${record.dispatchId}`;
   try {
     gitOutput(worktreeAbs, ['commit', '-m', commitMessage]);
@@ -952,7 +985,7 @@ function runFakeLeafDispatch(store: StoryStore, root: string, record: DispatchRe
   if (!headSha) {
     throw new Error(`fake dispatch ${record.dispatchId} could not resolve HEAD after commit`);
   }
-  const changedFiles = pack.baseSha ? changedFilesBetween(root, pack.baseSha, headSha) : [markerPath];
+  const changedFiles = pack.baseSha ? changedFilesBetween(root, pack.baseSha, headSha) : [safeMarkerPath];
   const commandWarnings = commandResults.filter(result => !result.ok).map(result => `command failed: ${result.command}`);
   const receipt = createFakeReceipt(pack, record.dispatchId, headSha, changedFiles, commandResults, commandWarnings);
   writeJson(resolve(root, record.receiptFile), receipt);

@@ -9,6 +9,7 @@ import {
   readFileSync,
   readdirSync,
   rmSync,
+  symlinkSync,
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -82,8 +83,10 @@ function writeConfig(root: string): void {
   }, null, 2) + '\n');
 }
 
-function initRepo(root: string): void {
+function initRepo(root: string, externalDir: string): void {
   mkdirSync(join(root, 'packages/main/src/generated'), { recursive: true });
+  mkdirSync(externalDir, { recursive: true });
+  symlinkSync(externalDir, join(root, 'packages/main/src/generated/external-link'), 'dir');
   writeFileSync(join(root, 'packages/main/src/index.ts'), 'export const smoke = true;\n');
   writeFileSync(join(root, 'README.md'), '# dispatch run smoke\n');
   writeConfig(root);
@@ -161,8 +164,10 @@ function assertFiveWayRegistration(command: string, registry: ReturnType<typeof 
 }
 
 const root = mkdtempSync(join(tmpdir(), 'lattice-dispatch-run-'));
+const externalDir = mkdtempSync(join(tmpdir(), 'lattice-dispatch-run-external-'));
+const externalMarker = join(externalDir, 'blocked-by-symlink.txt');
 try {
-  initRepo(root);
+  initRepo(root, externalDir);
   resetConfigCache();
   const store = new StoryStore(root);
   seedStory(store);
@@ -370,6 +375,20 @@ try {
   assert.equal(existsSync(resolve(root, '../D-path-traversal-escaped.txt')), false, 'escaped file must never be written');
   assert.equal(existsSync(resolve(root, traversalRecord.worktree.worktreePath)), false, 'invalid traversal must fail before creating the isolated worktree');
 
+  run<DispatchRecord>('dispatch_prepare', {
+    storyId: 'B-dispatch',
+    dispatchId: 'D-symlink-escape',
+    host: 'fake',
+    objective: 'Symlink escape must be rejected before writing outside the worktree.',
+    allowedPaths: ['packages/main/src/generated/external-link/blocked-by-symlink.txt'],
+    deniedPaths: ['README.md'],
+  });
+  assert.throws(
+    () => run<DispatchRunResult>('dispatch_run', { dispatchId: 'D-symlink-escape' }),
+    /resolves outside the isolated worktree via an existing symlinked path segment/i,
+  );
+  assert.equal(existsSync(externalMarker), false, 'symlink escape target must never be written');
+
   const originalCodexSessionId = process.env.CODEX_SESSION_ID;
   try {
     process.env.CODEX_SESSION_ID = 'dispatch-run-smoke';
@@ -451,4 +470,5 @@ try {
 } finally {
   resetConfigCache();
   rmSync(root, { recursive: true, force: true });
+  rmSync(externalDir, { recursive: true, force: true });
 }

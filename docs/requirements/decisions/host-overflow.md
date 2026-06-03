@@ -32,8 +32,7 @@ Overflow hosts keep these responsibilities:
 - Run or report required local commands
 - Return local diagnostic output and a local receipt
 
-If a higher-level dispatch runtime is added, it must remain supervised and
-visible:
+The higher-level dispatch runtime remains supervised and visible:
 
 - The operator can see which host/runtime is targeted.
 - Planning, preparation, run, collect, status, review, and merge guidance stay
@@ -46,6 +45,28 @@ Every overflow surface must keep:
 - `productionDone=false`
 - `receiptVerified=false`
 - `authorityChanged=false`
+
+## Landed dispatch surfaces
+
+The supervised dispatch layer is now landed as explicit Lattice surfaces:
+
+- `dispatch_plan` selects the runtime and returns a bounded pack/worktree
+  preview without creating a dispatch record, worktree, receipt, or external
+  host session.
+- `dispatch_prepare` persists rebuildable dispatch metadata under
+  `.koala/dispatches/` plus prompt placeholders. It still does not create the
+  projected worktree or auto-run a host.
+- `dispatch_run` is manual-first but executable. For `fake`, it runs the local
+  deterministic harness inside the isolated overflow worktree and returns a
+  local diagnostic receipt. For real hosts, it attempts to create the projected
+  worktree scaffold first; success yields `needs_receipt`, while scaffold
+  creation failure is reported truthfully as `failed` with a diagnostic
+  `nextAction`.
+- `overflow_auto` is a visible policy wrapper over dispatch selection. Default
+  behavior is suggest-only. It only starts a dispatch when **both**
+  `approve=true` and `start=true` are provided; `approve=true` alone or
+  `start=true` alone must remain suggest-only and emit a warning about the
+  missing counterpart flag.
 
 ## Workflow
 
