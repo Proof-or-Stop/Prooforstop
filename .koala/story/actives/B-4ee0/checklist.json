@@ -255,9 +255,9 @@
       "id": "CHK-005",
       "title": "补 smoke/contract 验证并重新 build",
       "context": "Add tests for fresh minimal init, no local shim by default, .Lattice resolver, global codex verify/doctor, legacy compatibility, and non-destructive check/apply migration. Finish with npm --prefix packages/main run build and targeted smokes.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-03T19:29:33.856Z",
-      "endTime": "2026-06-03T19:13:10.352Z",
+      "endTime": "2026-06-03T19:30:06.082Z",
       "relatedDocs": [
         "docs/requirements/decisions/testing-completeness.md",
         "docs/requirements/decisions/verification-context-pack.md",
@@ -305,13 +305,13 @@
         {
           "intentRef": "CHK-005:happy:0",
           "kind": "integration_test",
-          "file": "packages/main/src/tasks/thin-init-assets-smoke.ts",
-          "command": "npm --prefix packages/main run test:thin-init-assets-smoke && npm --prefix packages/main run test:legacy-koala-compatibility-smoke && npm --prefix packages/main run test:validation-protocol",
+          "file": "packages/main/src/tasks/legacy-koala-compatibility-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:thin-init-assets-smoke && npm --prefix packages/main run test:legacy-koala-compatibility-smoke && npm --prefix packages/main run test:runtime-fact-contract && npm --prefix packages/main run test:validation-protocol && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "All 3 smoke suites pass: thin-init-assets (5 scenarios), legacy-koala-compat (5 scenarios incl global-thin), validation-protocol (all existing tests preserved)",
-          "headHash": "ec60d7a32df88b688dd2e1dcd5788ca32f6fcd71",
-          "materialHash": "3efb799345b698adb0b3e3cba5524a54d1b521ccffdc537576d4aa460a9d9411",
-          "timestamp": "2026-06-03T19:13:10.420Z"
+          "note": "All 5 suites pass + process-fact-contract verified: build clean, thin-init-assets smoke (5 tests), legacy-koala-compat smoke (6 tests incl codex doctor CLI smoke + strengthened mixed-global-thin), runtime-fact-contract, validation-protocol. docs drift fixed in lifecycle-artifact-scope.md + README.md.",
+          "headHash": "68cb837f283bd582d9965da58276cf314e3f7914",
+          "materialHash": "de12b3d40bbefa486cf0df7223f13d0421b19a5e1f7dc125a81b9e6da37c372c",
+          "timestamp": "2026-06-03T19:30:06.227Z"
         }
       ]
     }
