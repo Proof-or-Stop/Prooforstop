@@ -45,7 +45,7 @@
       "desc": "Verified HIGH: overflow_auto starts a mutating dispatch when either --start=true or --approve=true is present because the guard is `if (args.start !== true && args.approve !== true) return plan`. That contradicts the CLI contract (`requires visible approval to start`) and CHK-008 requireApproval semantics. Repro: a throwaway registry run returned lattice.dispatch_run.v1 accepted_local for both startOnly={start:true} and approveOnly={approve:true}. The command currently bypasses its explicit approval/start safety policy.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-03T00:20:24.407Z",
@@ -56,7 +56,9 @@
         "packages/main/src/core/lattice-dispatch.ts",
         "packages/main/src/cli-engine.ts",
         "packages/main/src/tasks/dispatch-run-smoke.ts"
-      ]
+      ],
+      "resolvedReason": "Resolved by commit 74ce419c. overflow_auto now requires approve=true and start=true; fake dispatch paths are bounded before any file write; scaffolded real-host dispatch creates the projected worktree or returns failed with warnings. Verified with npm --prefix packages/main run build, npm --prefix packages/main run test:dispatch-run-smoke, npm --prefix packages/main run test:lattice-handoff-smoke, npm run test:command-ownership-contract, and npm run test:process-fact-contract.",
+      "resolvedAt": "2026-06-03T00:27:26.600Z"
     },
     {
       "id": "B-106b:F-004",
