@@ -96,6 +96,23 @@
       ],
       "resolvedReason": "Resolved by requiring canonical commandAllowlist entry claude --print <prompt-file> before dispatch_auto may launch the real Claude subprocess; unattended smoke and CLI canary verify refusal without dispatch artifact creation.",
       "resolvedAt": "2026-06-03T23:53:03.712Z"
+    },
+    {
+      "id": "B-8a1a:F-006",
+      "desc": "CHK-005:adversarial:0 points to cli-real-claude-canary.md and that artifact exists, but the verificationEvidence command/note also claims a \"missing launcher refusal\" result that is not present in the artifact body. The canary remains valid for the real claude-code success/manualOnly path, yet this specific refusal claim is not independently auditable from the referenced file, so the evidence should be narrowed or the artifact should include the refusal transcript/result.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-03T23:59:25.754Z",
+      "reviewRound": "2026-06-03T23:52:40.928Z",
+      "reviewRunId": "B-8a1a:RR-009",
+      "_hash": "4eae36c7b633c5121363233d69a3d8641f334c485888512ceba95004633c19cc",
+      "files": [
+        ".koala/story/actives/B-8a1a/checklist.json",
+        ".koala/story/actives/B-8a1a/evidence/cli-real-claude-canary.md"
+      ]
     }
   ]
 }
