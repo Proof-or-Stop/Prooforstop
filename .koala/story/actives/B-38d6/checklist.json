@@ -32,9 +32,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-03T19:03:53.842Z",
-      "endTime": null,
+      "endTime": "2026-06-03T19:04:05.512Z",
       "files": {
         "modify": [
           "packages/main/src/handlers/verifier.ts",
@@ -44,7 +44,45 @@
         "test": [
           "packages/main/src/tasks/validation-protocol-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "Validation protocol smoke creates a Package.swift-only temp repo and asserts discoverFallbackValidationCommands returns no swift command, validate returns koala-verifier-no-validation-entry warn/skip, and commands is empty.",
+          "headHash": "5164d1f7688ec4a8d2abaac099e7357ec2830a1d",
+          "materialHash": "08d6898dcc0d44d0d311471c40c1841ef5e3b3ea472df9ac42ee5e1d27364d6e",
+          "timestamp": "2026-06-03T19:04:05.562Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "Validation protocol smoke creates an explicit validate.commands entry labelled explicit swift test and verifies configured commands still run, preserving opt-in legacy Swift validation.",
+          "headHash": "5164d1f7688ec4a8d2abaac099e7357ec2830a1d",
+          "materialHash": "08d6898dcc0d44d0d311471c40c1841ef5e3b3ea472df9ac42ee5e1d27364d6e",
+          "timestamp": "2026-06-03T19:04:05.591Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol && npm --prefix packages/main run test:runtime-fact-contract",
+          "result": "pass",
+          "note": "Verifier details and runtime fallback labels no longer advertise swift test as a standard automatic fallback; runtime fact contract still verifies validate-source coverage.",
+          "headHash": "5164d1f7688ec4a8d2abaac099e7357ec2830a1d",
+          "materialHash": "08d6898dcc0d44d0d311471c40c1841ef5e3b3ea472df9ac42ee5e1d27364d6e",
+          "timestamp": "2026-06-03T19:04:05.622Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -160,6 +198,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Implementation committed by koala-implementer; recording verification evidence before marking done."
+    },
+    {
+      "timestamp": "2026-06-03T19:04:05.512Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementation committed in 5a162280 and verified by validation-protocol plus runtime-fact-contract."
     }
   ]
 }
