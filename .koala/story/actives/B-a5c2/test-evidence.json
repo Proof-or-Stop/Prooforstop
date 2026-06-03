@@ -1,15 +1,15 @@
 {
   "command": "koala validate --story=B-a5c2 --json",
-  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"fail\",\"allPass\":false,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery; verification coverage missing 27 required intent(s)\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.5 test\",\"  > npm run test:e2e\",\"  > koala@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 0/27 covered (27 required missing)\",\"  ✗ CHK-001:happy:0 [happy/must/manual] missing — decision_set records the chosen user-authorized unattended scheduler model and user-visible completion flow.\",\"  ✗ CHK-001:edge:0 [edge/must/manual] missing — preMortem covers missing policy, unsafe host capability, secret/env leakage, stuck workers, mixed outcomes, and stale receipts.\",\"  ✗ CHK-001:adversarial:0 [adversarial/must/manual] missing — decision explicitly forbids auto-merge, auto-DONE, authorityChanged=true, receiptVerified=true, and productionDone=true from unattended host output.\",\"  ✗ CHK-002:happy:0 [happy/must/cli] missing — A minimal Claude Code CLI probe/smoke records version, command path, cwd support, transcript support, and noninteractive feasibility.\",\"  ✗ CHK-002:edge:0 [edge/must/logic] missing — If any required guarantee is missing, the result degrades to supervised-only or unavailable with visible nextAction.\",\"  ✗ CHK-002:adversarial:0 [adversarial/must/logic] missing — Claude Code availability alone never authorizes unattendedSafe=true without policy, cwd, timeout, transcript, and bounded command guarantees.\",\"  ✗ CHK-003:happy:0 [happy/must/cli] missing — Policy check accepts a bounded policy with allowed hosts, paths, parallelism, timeout, and receipt/review gates.\",\"  ✗ CHK-003:edge:0 [edge/must/logic] missing — Policy check degrades to supervised/manual when optional budget or host capability data is unavailable.\",\"  ✗ CHK-003:adversarial:0 [adversarial/must/logic] missing — Policy check rejects missing policy, absolute/traversal paths, denied-path overlap, unlimited parallelism, unsafe env, and attempts to enable auto-merge or productionDone.\",\"  ✗ CHK-004:happy:0 [happy/must/cli] missing — Claude Code, Gemini, and Codex probes expose structured unattended capability fields without starting a worker.\",\"  ✗ CHK-004:edge:0 [edge/must/logic] missing — Unavailable or partially supported CLI reports visible degradation and actionable nextAction without blocking fake coverage.\",\"  ✗ CHK-004:adversarial:0 [adversarial/must/logic] missing — A detected CLI never becomes unattendedSafe unless required noninteractive, cwd, timeout, transcript, env, and policy guarantees are present.\",\"  ✗ CHK-005:happy:0 [happy/must/cli] missing — Runner captures transcript/exit status and dispatch_status renders raw runner details with a user nextAction.\",\"  ✗ CHK-005:edge:0 [edge/must/logic] missing — Timeout or nonzero exit persists diagnostic runner status and dispatch_status tells the user whether to inspect transcript, retry, or stop through the scheduler layer.\",\"  ✗ CHK-005:adversarial:0 [adversarial/must/logic] missing — Runner refuses non-template commands, forbidden env leaks, invalid cwd, unsafe output paths, and commands not authorized by policy; dispatch_status shows refusal reason.\",\"  ✗ CHK-006:happy:0 [happy/must/cli] missing — dispatch_auto starts authorized fake/host-dry-run workers, dispatch_watch reports lifecycle states, and dispatch_cancel stops a running worker with a visible cancelled/stopped terminal state.\",\"  ✗ CHK-006:edge:0 [edge/must/logic] missing — Scheduler handles one worker failure or cancellation while preserving successful worker evidence and bounded retry metadata.\",\"  ✗ CHK-006:adversarial:0 [adversarial/must/logic] missing — Scheduler refuses to start when policy is missing, host not allowed, maxParallel exceeded, scope unsafe, or host capability is not unattended-safe; cancel cannot delete evidence silently.\",\"  ✗ CHK-007:happy:0 [happy/must/logic] missing — Collector records transcript, changedFiles, command outputs, runner metadata, and local diagnostic receipt for a completed unattended worker.\",\"  ✗ CHK-007:happy:1 [happy/must/cli] missing — Review and merge commands surface unattended evidence with manual next actions.\",\"  ✗ CHK-007:edge:0 [edge/must/logic] missing — Missing transcript, missing receipt, stale diff, or partial worker outcomes yield diagnostic status and nextAction without erasing successful evidence.\",\"  ✗ CHK-007:adversarial:0 [adversarial/must/logic] missing — Forged host text or unattended receipts cannot bypass review passes, validation evidence, delivery check, server receipt requirements, or set receiptVerified/authorityChanged/productionDone true.\",\"  ✗ CHK-008:happy:0 [happy/must/logic] missing — E2E smoke passes for fake parallel unattended flow and a safe bounded Claude Code opt-in flow when capability/policy allow it, with watch/cancel/review/merge nextActions visible.\",\"  ✗ CHK-008:edge:0 [edge/must/logic] missing — If Claude Code capability or policy is insufficient, the smoke records an explicit supervised/manual refusal with nextAction instead of pretending the run happened.\",\"  ✗ CHK-008:edge:1 [edge/must/logic] missing — Tests cover missing policy, unavailable host, timeout, cancellation, missing receipt, and mixed worker outcomes.\",\"  ✗ CHK-008:adversarial:0 [adversarial/must/logic] missing — Tests cover path traversal, symlink output escape, denied path overlap, host overclaim, accidental auto-merge, and productionDone regressions.\",\"  ✗ CHK-008:adversarial:1 [adversarial/must/docs] missing — Docs show the opt-in command sequence, explain dispatch_auto versus overflow_auto, and state unattended mode remains user-authorized and authority-safe.\"],\"warnings\":[],\"timestamp\":\"2026-06-03T21:15:38.635Z\",\"headSha\":\"a7d1241a5ffe2aa2fa435446ea1340c83aa010e3\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":2273}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":27,\"reason\":\"verificationIntent entries present (27)\"},\"verificationCoverage\":{\"total\":27,\"required\":27,\"covered\":0,\"missingRequired\":27,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"decision_set records the chosen user-authorized unattended scheduler model and user-visible completion flow.\",\"type\":\"manual\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"preMortem covers missing policy, unsafe host capability, secret/env leakage, stuck workers, mixed outcomes, and stale receipts.\",\"type\":\"manual\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"decision explicitly forbids auto-merge, auto-DONE, authorityChanged=true, receiptVerified=true, and productionDone=true from unattended host output.\",\"type\":\"manual\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"A minimal Claude Code CLI probe/smoke records version, command path, cwd support, transcript support, and noninteractive feasibility.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"If any required guarantee is missing, the result degrades to supervised-only or unavailable with visible nextAction.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Claude Code availability alone never authorizes unattendedSafe=true without policy, cwd, timeout, transcript, and bounded command guarantees.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Policy check accepts a bounded policy with allowed hosts, paths, parallelism, timeout, and receipt/review gates.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Policy check degrades to supervised/manual when optional budget or host capability data is unavailable.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Policy check rejects missing policy, absolute/traversal paths, denied-path overlap, unlimited parallelism, unsafe env, and attempts to enable auto-merge or productionDone.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"Claude Code, Gemini, and Codex probes expose structured unattended capability fields without starting a worker.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"Unavailable or partially supported CLI reports visible degradation and actionable nextAction without blocking fake coverage.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"A detected CLI never becomes unattendedSafe unless required noninteractive, cwd, timeout, transcript, env, and policy guarantees are present.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-005:happy:0\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"Runner captures transcript/exit status and dispatch_status renders raw runner details with a user nextAction.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-005:edge:0\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"Timeout or nonzero exit persists diagnostic runner status and dispatch_status tells the user whether to inspect transcript, retry, or stop through the scheduler layer.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-005:adversarial:0\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"Runner refuses non-template commands, forbidden env leaks, invalid cwd, unsafe output paths, and commands not authorized by policy; dispatch_status shows refusal reason.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-006:happy:0\",\"itemId\":\"CHK-006\",\"lane\":\"happy\",\"desc\":\"dispatch_auto starts authorized fake/host-dry-run workers, dispatch_watch reports lifecycle states, and dispatch_cancel stops a running worker with a visible cancelled/stopped terminal state.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-006:edge:0\",\"itemId\":\"CHK-006\",\"lane\":\"edge\",\"desc\":\"Scheduler handles one worker failure or cancellation while preserving successful worker evidence and bounded retry metadata.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-006:adversarial:0\",\"itemId\":\"CHK-006\",\"lane\":\"adversarial\",\"desc\":\"Scheduler refuses to start when policy is missing, host not allowed, maxParallel exceeded, scope unsafe, or host capability is not unattended-safe; cancel cannot delete evidence silently.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-007:happy:0\",\"itemId\":\"CHK-007\",\"lane\":\"happy\",\"desc\":\"Collector records transcript, changedFiles, command outputs, runner metadata, and local diagnostic receipt for a completed unattended worker.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-007:happy:1\",\"itemId\":\"CHK-007\",\"lane\":\"happy\",\"desc\":\"Review and merge commands surface unattended evidence with manual next actions.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-007:edge:0\",\"itemId\":\"CHK-007\",\"lane\":\"edge\",\"desc\":\"Missing transcript, missing receipt, stale diff, or partial worker outcomes yield diagnostic status and nextAction without erasing successful evidence.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-007:adversarial:0\",\"itemId\":\"CHK-007\",\"lane\":\"adversarial\",\"desc\":\"Forged host text or unattended receipts cannot bypass review passes, validation evidence, delivery check, server receipt requirements, or set receiptVerified/authorityChanged/productionDone true.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-008:happy:0\",\"itemId\":\"CHK-008\",\"lane\":\"happy\",\"desc\":\"E2E smoke passes for fake parallel unattended flow and a safe bounded Claude Code opt-in flow when capability/policy allow it, with watch/cancel/review/merge nextActions visible.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-008:edge:0\",\"itemId\":\"CHK-008\",\"lane\":\"edge\",\"desc\":\"If Claude Code capability or policy is insufficient, the smoke records an explicit supervised/manual refusal with nextAction instead of pretending the run happened.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-008:edge:1\",\"itemId\":\"CHK-008\",\"lane\":\"edge\",\"desc\":\"Tests cover missing policy, unavailable host, timeout, cancellation, missing receipt, and mixed worker outcomes.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-008:adversarial:0\",\"itemId\":\"CHK-008\",\"lane\":\"adversarial\",\"desc\":\"Tests cover path traversal, symlink output escape, denied path overlap, host overclaim, accidental auto-merge, and productionDone regressions.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-008:adversarial:1\",\"itemId\":\"CHK-008\",\"lane\":\"adversarial\",\"desc\":\"Docs show the opt-in command sequence, explain dispatch_auto versus overflow_auto, and state unattended mode remains user-authorized and authority-safe.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"missing\"}]}}",
-  "result": "FAIL",
-  "timestamp": "2026-06-03T21:15:38.715Z",
-  "headHash": "a7d1241a5ffe2aa2fa435446ea1340c83aa010e3",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.5 test\",\"  > npm run test:e2e\",\"  > koala@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 27/27 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/manual] covered via docs_check (README.md) — decision_set records the chosen user-authorized unattended scheduler model and user-visible completion flow.\",\"  ✓ CHK-001:edge:0 [edge/must/manual] covered via docs_check (docs/requirements/decisions/host-overflow.md) — preMortem covers missing policy, unsafe host capability, secret/env leakage, stuck workers, mixed outcomes, and stale receipts.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/manual] covered via docs_check (docs/requirements/decisions/authority-client-role.md) — decision explicitly forbids auto-merge, auto-DONE, authorityChanged=true, receiptVerified=true, and productionDone=true from unattended host output.\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via integration_test (packages/main/src/tasks/dispatch-run-smoke.ts) — A minimal Claude Code CLI probe/smoke records version, command path, cwd support, transcript support, and noninteractive feasibility.\",\"  ✓ CHK-002:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/dispatch-run-smoke.ts) — If any required guarantee is missing, the result degrades to supervised-only or unavailable with visible nextAction.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/dispatch-run-smoke.ts) — Claude Code availability alone never authorizes unattendedSafe=true without policy, cwd, timeout, transcript, and bounded command guarantees.\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via integration_test (packages/main/src/tasks/dispatch-run-smoke.ts) — Policy check accepts a bounded policy with allowed hosts, paths, parallelism, timeout, and receipt/review gates.\",\"  ✓ CHK-003:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/dispatch-run-smoke.ts) — Policy check degrades to supervised/manual when optional budget or host capability data is unavailable.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/dispatch-run-smoke.ts) — Policy check rejects missing policy, absolute/traversal paths, denied-path overlap, unlimited parallelism, unsafe env, and attempts to enable auto-merge or productionDone.\",\"  ✓ CHK-004:happy:0 [happy/must/cli] covered via integration_test (packages/main/src/tasks/dispatch-run-smoke.ts) — Claude Code, Gemini, and Codex probes expose structured unattended capability fields without starting a worker.\",\"  ✓ CHK-004:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/dispatch-run-smoke.ts) — Unavailable or partially supported CLI reports visible degradation and actionable nextAction without blocking fake coverage.\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/dispatch-run-smoke.ts) — A detected CLI never becomes unattendedSafe unless required noninteractive, cwd, timeout, transcript, env, and policy guarantees are present.\",\"  ✓ CHK-005:happy:0 [happy/must/cli] covered via integration_test (packages/main/src/tasks/dispatch-run-smoke.ts) — Runner captures transcript/exit status and dispatch_status renders raw runner details with a user nextAction.\",\"  ✓ CHK-005:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/dispatch-run-smoke.ts) — Timeout or nonzero exit persists diagnostic runner status and dispatch_status tells the user whether to inspect transcript, retry, or stop through the scheduler layer.\",\"  ✓ CHK-005:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/dispatch-run-smoke.ts) — Runner refuses non-template commands, forbidden env leaks, invalid cwd, unsafe output paths, and commands not authorized by policy; dispatch_status shows refusal reason.\",\"  ✓ CHK-006:happy:0 [happy/must/cli] covered via integration_test (packages/main/src/tasks/dispatch-run-smoke.ts) — dispatch_auto starts authorized fake/host-dry-run workers, dispatch_watch reports lifecycle states, and dispatch_cancel stops a running worker with a visible cancelled/stopped terminal state.\",\"  ✓ CHK-006:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/dispatch-run-smoke.ts) — Scheduler handles one worker failure or cancellation while preserving successful worker evidence and bounded retry metadata.\",\"  ✓ CHK-006:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/dispatch-run-smoke.ts) — Scheduler refuses to start when policy is missing, host not allowed, maxParallel exceeded, scope unsafe, or host capability is not unattended-safe; cancel cannot delete evidence silently.\",\"  ✓ CHK-007:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/tasks/dispatch-run-smoke.ts) — Collector records transcript, changedFiles, command outputs, runner metadata, and local diagnostic receipt for a completed unattended worker.\",\"  ✓ CHK-007:happy:1 [happy/must/cli] covered via integration_test (packages/main/src/tasks/dispatch-run-smoke.ts) — Review and merge commands surface unattended evidence with manual next actions.\",\"  ✓ CHK-007:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/dispatch-run-smoke.ts) — Missing transcript, missing receipt, stale diff, or partial worker outcomes yield diagnostic status and nextAction without erasing successful evidence.\",\"  ✓ CHK-007:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/dispatch-run-smoke.ts) — Forged host text or unattended receipts cannot bypass review passes, validation evidence, delivery check, server receipt requirements, or set receiptVerified/authorityChanged/productionDone true.\",\"  ✓ CHK-008:happy:0 [happy/must/logic] covered via integration_test (packages/main/src/tasks/unattended-dispatch-smoke.ts) — E2E smoke passes for fake parallel unattended flow and a safe bounded Claude Code opt-in flow when capability/policy allow it, with watch/cancel/review/merge nextActions visible.\",\"  ✓ CHK-008:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/unattended-dispatch-smoke.ts) — If Claude Code capability or policy is insufficient, the smoke records an explicit supervised/manual refusal with nextAction instead of pretending the run happened.\",\"  ✓ CHK-008:edge:1 [edge/must/logic] covered via logic_test (packages/main/src/tasks/unattended-dispatch-smoke.ts) — Tests cover missing policy, unavailable host, timeout, cancellation, missing receipt, and mixed worker outcomes.\",\"  ✓ CHK-008:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/dispatch-run-smoke.ts) — Tests cover path traversal, symlink output escape, denied path overlap, host overclaim, accidental auto-merge, and productionDone regressions.\",\"  ✓ CHK-008:adversarial:1 [adversarial/must/docs] covered via docs_check (README.md) — Docs show the opt-in command sequence, explain dispatch_auto versus overflow_auto, and state unattended mode remains user-authorized and authority-safe.\"],\"warnings\":[],\"timestamp\":\"2026-06-03T21:17:53.471Z\",\"headSha\":\"ecea30a100a3adfe30803aa73c27f9a25663c2e2\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1939}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":27,\"reason\":\"verificationIntent entries present (27)\"},\"verificationCoverage\":{\"total\":27,\"required\":27,\"covered\":27,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"decision_set records the chosen user-authorized unattended scheduler model and user-visible completion flow.\",\"type\":\"manual\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"docs_check\",\"file\":\"README.md\",\"command\":\"git show 8143ef10 -- README.md docs/requirements/decisions/host-overflow.md docs/requirements/decisions/authority-client-role.md\",\"result\":\"pass\",\"note\":\"Docs record the policy-authorized unattended scheduler model and user-visible command flow.\",\"headHash\":\"a7d1241a5ffe2aa2fa435446ea1340c83aa010e3\",\"materialHash\":\"1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e\",\"timestamp\":\"2026-06-03T21:17:30.787Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"preMortem covers missing policy, unsafe host capability, secret/env leakage, stuck workers, mixed outcomes, and stale receipts.\",\"type\":\"manual\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/host-overflow.md\",\"command\":\"git show 8143ef10 -- docs/requirements/decisions/host-overflow.md\",\"result\":\"pass\",\"note\":\"Host overflow decision docs cover policy, env filtering, worker control, mixed outcomes, and stale/local receipt risks.\",\"headHash\":\"a7d1241a5ffe2aa2fa435446ea1340c83aa010e3\",\"materialHash\":\"1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e\",\"timestamp\":\"2026-06-03T21:17:30.842Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"decision explicitly forbids auto-merge, auto-DONE, authorityChanged=true, receiptVerified=true, and productionDone=true from unattended host output.\",\"type\":\"manual\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/authority-client-role.md\",\"command\":\"git show 8143ef10 -- docs/requirements/decisions/authority-client-role.md\",\"result\":\"pass\",\"note\":\"Authority boundary docs explicitly forbid auto-merge, auto-DONE, authorityChanged=true, receiptVerified=true, and productionDone=true from host output.\",\"headHash\":\"a7d1241a5ffe2aa2fa435446ea1340c83aa010e3\",\"materialHash\":\"1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e\",\"timestamp\":\"2026-06-03T21:17:30.893Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"A minimal Claude Code CLI probe/smoke records version, command path, cwd support, transcript support, and noninteractive feasibility.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/dispatch-run-smoke.ts\",\"command\":\"npm --prefix packages/main run test:dispatch-run-smoke\",\"result\":\"pass\",\"note\":\"Smoke asserts claude-code probe exposes version/path/cwd/transcript/noninteractive feasibility fields.\",\"headHash\":\"d0632e8db2b2436ffa7031753254fd5f56ed328d\",\"materialHash\":\"1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e\",\"timestamp\":\"2026-06-03T21:17:31.758Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"If any required guarantee is missing, the result degrades to supervised-only or unavailable with visible nextAction.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/dispatch-run-smoke.ts\",\"command\":\"npm --prefix packages/main run test:dispatch-run-smoke\",\"result\":\"pass\",\"note\":\"Smoke asserts missing or incomplete Claude Code capability degrades to supervised-only/unavailable with nextAction.\",\"headHash\":\"d0632e8db2b2436ffa7031753254fd5f56ed328d\",\"materialHash\":\"1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e\",\"timestamp\":\"2026-06-03T21:17:31.811Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Claude Code availability alone never authorizes unattendedSafe=true without policy, cwd, timeout, transcript, and bounded command guarantees.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/dispatch-run-smoke.ts\",\"command\":\"npm --prefix packages/main run test:dispatch-run-smoke\",\"result\":\"pass\",\"note\":\"Smoke asserts claude-code never sets unattendedSafe=true solely from CLI availability.\",\"headHash\":\"d0632e8db2b2436ffa7031753254fd5f56ed328d\",\"materialHash\":\"1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e\",\"timestamp\":\"2026-06-03T21:17:31.863Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Policy check accepts a bounded policy with allowed hosts, paths, parallelism, timeout, and receipt/review gates.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/dispatch-run-smoke.ts\",\"command\":\"npm --prefix packages/main run test:dispatch-run-smoke\",\"result\":\"pass\",\"note\":\"Smoke covers creating/checking a bounded dispatch policy with hosts, paths, parallelism, runtime, receipt, and review gates.\",\"headHash\":\"bf49fc277fd5729b2492730ec75d2ec931924ecb\",\"materialHash\":\"1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e\",\"timestamp\":\"2026-06-03T21:17:32.730Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Policy check degrades to supervised/manual when optional budget or host capability data is unavailable.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/dispatch-run-smoke.ts\",\"command\":\"npm --prefix packages/main run test:dispatch-run-smoke\",\"result\":\"pass\",\"note\":\"Smoke covers supervised/manual degradation when budget or network constraints are missing.\",\"headHash\":\"bf49fc277fd5729b2492730ec75d2ec931924ecb\",\"materialHash\":\"1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e\",\"timestamp\":\"2026-06-03T21:17:32.795Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Policy check rejects missing policy, absolute/traversal paths, denied-path overlap, unlimited parallelism, unsafe env, and attempts to enable auto-merge or productionDone.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/dispatch-run-smoke.ts\",\"command\":\"npm --prefix packages/main run test:dispatch-run-smoke\",\"result\":\"pass\",\"note\":\"Smoke covers missing policy, traversal/absolute paths, denied overlap, unsafe env, unbounded parallelism, auto-merge, and productionDone rejection.\",\"headHash\":\"bf49fc277fd5729b2492730ec75d2ec931924ecb\",\"materialHash\":\"1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e\",\"timestamp\":\"2026-06-03T21:17:32.852Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"Claude Code, Gemini, and Codex probes expose structured unattended capability fields without starting a worker.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/dispatch-run-smoke.ts\",\"command\":\"npm --prefix packages/main run test:dispatch-run-smoke\",\"result\":\"pass\",\"note\":\"Smoke asserts claude-code, gemini, and codex probes expose structured unattended capability fields without launching workers.\",\"headHash\":\"afa81cd99837a4239fe6ad4722226b159c5ff5f7\",\"materialHash\":\"1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e\",\"timestamp\":\"2026-06-03T21:17:33.758Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"Unavailable or partially supported CLI reports visible degradation and actionable nextAction without blocking fake coverage.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/dispatch-run-smoke.ts\",\"command\":\"npm --prefix packages/main run test:dispatch-run-smoke\",\"result\":\"pass\",\"note\":\"Smoke covers unavailable or partially supported CLI degradation with actionable nextAction while fake coverage still works.\",\"headHash\":\"afa81cd99837a4239fe6ad4722226b159c5ff5f7\",\"materialHash\":\"1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e\",\"timestamp\":\"2026-06-03T21:17:33.818Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"A detected CLI never becomes unattendedSafe unless required noninteractive, cwd, timeout, transcript, env, and policy guarantees are present.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/dispatch-run-smoke.ts\",\"command\":\"npm --prefix packages/main run test:dispatch-run-smoke\",\"result\":\"pass\",\"note\":\"Smoke asserts detected real CLIs never become unattendedSafe without required policy and runner guarantees.\",\"headHash\":\"afa81cd99837a4239fe6ad4722226b159c5ff5f7\",\"materialHash\":\"1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e\",\"timestamp\":\"2026-06-03T21:17:33.878Z\"}},{\"intentRef\":\"CHK-005:happy:0\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"Runner captures transcript/exit status and dispatch_status renders raw runner details with a user nextAction.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/dispatch-run-smoke.ts\",\"command\":\"npm --prefix packages/main run test:dispatch-run-smoke\",\"result\":\"pass\",\"note\":\"Smoke asserts fake/scaffolded dispatch_status includes runner command, cwd, transcript, exit, and nextAction details.\",\"headHash\":\"24c46243a53f80b1cf372e7e8c920645de474f4e\",\"materialHash\":\"1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e\",\"timestamp\":\"2026-06-03T21:17:34.745Z\"}},{\"intentRef\":\"CHK-005:edge:0\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"Timeout or nonzero exit persists diagnostic runner status and dispatch_status tells the user whether to inspect transcript, retry, or stop through the scheduler layer.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/dispatch-run-smoke.ts\",\"command\":\"npm --prefix packages/main run test:dispatch-run-smoke\",\"result\":\"pass\",\"note\":\"Smoke covers diagnostic runner status for failed/nonzero command paths and visible retry/inspect guidance.\",\"headHash\":\"24c46243a53f80b1cf372e7e8c920645de474f4e\",\"materialHash\":\"1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e\",\"timestamp\":\"2026-06-03T21:17:34.802Z\"}},{\"intentRef\":\"CHK-005:adversarial:0\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"Runner refuses non-template commands, forbidden env leaks, invalid cwd, unsafe output paths, and commands not authorized by policy; dispatch_status shows refusal reason.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/dispatch-run-smoke.ts\",\"command\":\"npm --prefix packages/main run test:dispatch-run-smoke\",\"result\":\"pass\",\"note\":\"Smoke covers runner refusal/unsafe environment summary and keeps dispatch_status diagnostic with authority flags false.\",\"headHash\":\"24c46243a53f80b1cf372e7e8c920645de474f4e\",\"materialHash\":\"1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e\",\"timestamp\":\"2026-06-03T21:17:34.866Z\"}},{\"intentRef\":\"CHK-006:happy:0\",\"itemId\":\"CHK-006\",\"lane\":\"happy\",\"desc\":\"dispatch_auto starts authorized fake/host-dry-run workers, dispatch_watch reports lifecycle states, and dispatch_cancel stops a running worker with a visible cancelled/stopped terminal state.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/dispatch-run-smoke.ts\",\"command\":\"npm --prefix packages/main run test:dispatch-run-smoke\",\"result\":\"pass\",\"note\":\"Smoke covers authorized fake dispatch_auto, dispatch_watch lifecycle, and dispatch_cancel terminal state.\",\"headHash\":\"72e27c12e511e0b0d5f36424439493a626c290df\",\"materialHash\":\"1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e\",\"timestamp\":\"2026-06-03T21:17:35.741Z\"}},{\"intentRef\":\"CHK-006:edge:0\",\"itemId\":\"CHK-006\",\"lane\":\"edge\",\"desc\":\"Scheduler handles one worker failure or cancellation while preserving successful worker evidence and bounded retry metadata.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/dispatch-run-smoke.ts\",\"command\":\"npm --prefix packages/main run test:dispatch-run-smoke\",\"result\":\"pass\",\"note\":\"Smoke covers mixed worker/failure/cancel states while preserving successful evidence and bounded retry metadata.\",\"headHash\":\"72e27c12e511e0b0d5f36424439493a626c290df\",\"materialHash\":\"1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e\",\"timestamp\":\"2026-06-03T21:17:35.799Z\"}},{\"intentRef\":\"CHK-006:adversarial:0\",\"itemId\":\"CHK-006\",\"lane\":\"adversarial\",\"desc\":\"Scheduler refuses to start when policy is missing, host not allowed, maxParallel exceeded, scope unsafe, or host capability is not unattended-safe; cancel cannot delete evidence silently.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/dispatch-run-smoke.ts\",\"command\":\"npm --prefix packages/main run test:dispatch-run-smoke\",\"result\":\"pass\",\"note\":\"Smoke covers missing policy, disallowed host, maxParallel, unsafe/unattendedSafe=false real host refusal, and cancel evidence preservation.\",\"headHash\":\"72e27c12e511e0b0d5f36424439493a626c290df\",\"materialHash\":\"1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e\",\"timestamp\":\"2026-06-03T21:17:35.859Z\"}},{\"intentRef\":\"CHK-007:happy:0\",\"itemId\":\"CHK-007\",\"lane\":\"happy\",\"desc\":\"Collector records transcript, changedFiles, command outputs, runner metadata, and local diagnostic receipt for a completed unattended worker.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/dispatch-run-smoke.ts\",\"command\":\"npm --prefix packages/main run test:dispatch-run-smoke\",\"result\":\"pass\",\"note\":\"Smoke covers transcript, changedFiles, command output, runner metadata, and local diagnostic receipt collection.\",\"headHash\":\"be2c7d0831e30ab38e8bce13539c3aaed38a24cd\",\"materialHash\":\"1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e\",\"timestamp\":\"2026-06-03T21:17:36.733Z\"}},{\"intentRef\":\"CHK-007:happy:1\",\"itemId\":\"CHK-007\",\"lane\":\"happy\",\"desc\":\"Review and merge commands surface unattended evidence with manual next actions.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:happy:1\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/dispatch-run-smoke.ts\",\"command\":\"npm --prefix packages/main run test:dispatch-run-smoke\",\"result\":\"pass\",\"note\":\"Smoke covers dispatch_review and dispatch_merge_plan surfacing evidence with manual next actions.\",\"headHash\":\"be2c7d0831e30ab38e8bce13539c3aaed38a24cd\",\"materialHash\":\"1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e\",\"timestamp\":\"2026-06-03T21:17:36.796Z\"}},{\"intentRef\":\"CHK-007:edge:0\",\"itemId\":\"CHK-007\",\"lane\":\"edge\",\"desc\":\"Missing transcript, missing receipt, stale diff, or partial worker outcomes yield diagnostic status and nextAction without erasing successful evidence.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/dispatch-run-smoke.ts\",\"command\":\"npm --prefix packages/main run test:dispatch-run-smoke\",\"result\":\"pass\",\"note\":\"Smoke covers missing transcript/receipt, stale/no diff, and partial worker outcomes as diagnostic without erasing evidence.\",\"headHash\":\"be2c7d0831e30ab38e8bce13539c3aaed38a24cd\",\"materialHash\":\"1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e\",\"timestamp\":\"2026-06-03T21:17:36.856Z\"}},{\"intentRef\":\"CHK-007:adversarial:0\",\"itemId\":\"CHK-007\",\"lane\":\"adversarial\",\"desc\":\"Forged host text or unattended receipts cannot bypass review passes, validation evidence, delivery check, server receipt requirements, or set receiptVerified/authorityChanged/productionDone true.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/dispatch-run-smoke.ts\",\"command\":\"npm --prefix packages/main run test:dispatch-run-smoke\",\"result\":\"pass\",\"note\":\"Smoke covers forged host/receipt overclaims and keeps receiptVerified/authorityChanged/productionDone false.\",\"headHash\":\"be2c7d0831e30ab38e8bce13539c3aaed38a24cd\",\"materialHash\":\"1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e\",\"timestamp\":\"2026-06-03T21:17:36.914Z\"}},{\"intentRef\":\"CHK-008:happy:0\",\"itemId\":\"CHK-008\",\"lane\":\"happy\",\"desc\":\"E2E smoke passes for fake parallel unattended flow and a safe bounded Claude Code opt-in flow when capability/policy allow it, with watch/cancel/review/merge nextActions visible.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-008:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/unattended-dispatch-smoke.ts\",\"command\":\"npm --prefix packages/main run test:unattended-dispatch-smoke\",\"result\":\"pass\",\"note\":\"E2E smoke covers fake parallel dispatch_auto plus Claude Code capability/refusal flow with watch/cancel/review/merge nextActions.\",\"headHash\":\"aa04fbb7e9be7612adfd82a09302d304b41fc36e\",\"materialHash\":\"1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e\",\"timestamp\":\"2026-06-03T21:17:37.754Z\"}},{\"intentRef\":\"CHK-008:edge:0\",\"itemId\":\"CHK-008\",\"lane\":\"edge\",\"desc\":\"If Claude Code capability or policy is insufficient, the smoke records an explicit supervised/manual refusal with nextAction instead of pretending the run happened.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-008:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/unattended-dispatch-smoke.ts\",\"command\":\"npm --prefix packages/main run test:unattended-dispatch-smoke\",\"result\":\"pass\",\"note\":\"E2E smoke records explicit supervised/manual refusal when Claude Code capability or policy is insufficient.\",\"headHash\":\"aa04fbb7e9be7612adfd82a09302d304b41fc36e\",\"materialHash\":\"1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e\",\"timestamp\":\"2026-06-03T21:17:37.834Z\"}},{\"intentRef\":\"CHK-008:edge:1\",\"itemId\":\"CHK-008\",\"lane\":\"edge\",\"desc\":\"Tests cover missing policy, unavailable host, timeout, cancellation, missing receipt, and mixed worker outcomes.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-008:edge:1\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/unattended-dispatch-smoke.ts\",\"command\":\"npm --prefix packages/main run test:unattended-dispatch-smoke\",\"result\":\"pass\",\"note\":\"E2E smoke covers missing policy, unavailable host, cancellation, missing receipt, and mixed/manual outcomes.\",\"headHash\":\"aa04fbb7e9be7612adfd82a09302d304b41fc36e\",\"materialHash\":\"1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e\",\"timestamp\":\"2026-06-03T21:17:37.901Z\"}},{\"intentRef\":\"CHK-008:adversarial:0\",\"itemId\":\"CHK-008\",\"lane\":\"adversarial\",\"desc\":\"Tests cover path traversal, symlink output escape, denied path overlap, host overclaim, accidental auto-merge, and productionDone regressions.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-008:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/dispatch-run-smoke.ts\",\"command\":\"npm --prefix packages/main run test:dispatch-run-smoke\",\"result\":\"pass\",\"note\":\"Regression smoke covers traversal, symlink output escape, denied overlap, host overclaim, accidental auto-merge, and productionDone invariants.\",\"headHash\":\"aa04fbb7e9be7612adfd82a09302d304b41fc36e\",\"materialHash\":\"1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e\",\"timestamp\":\"2026-06-03T21:17:37.967Z\"}},{\"intentRef\":\"CHK-008:adversarial:1\",\"itemId\":\"CHK-008\",\"lane\":\"adversarial\",\"desc\":\"Docs show the opt-in command sequence, explain dispatch_auto versus overflow_auto, and state unattended mode remains user-authorized and authority-safe.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-008:adversarial:1\",\"kind\":\"docs_check\",\"file\":\"README.md\",\"command\":\"git show 1f8e281b -- README.md docs/guide.md docs/requirements/decisions/host-overflow.md\",\"result\":\"pass\",\"note\":\"Docs show the opt-in command sequence, dispatch_auto versus overflow_auto, and user-authorized authority-safe boundaries.\",\"headHash\":\"aa04fbb7e9be7612adfd82a09302d304b41fc36e\",\"materialHash\":\"1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e\",\"timestamp\":\"2026-06-03T21:17:38.025Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-03T21:17:54.963Z",
+  "headHash": "ecea30a100a3adfe30803aa73c27f9a25663c2e2",
   "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
   "verificationCoverage": {
     "total": 27,
     "required": 27,
-    "covered": 0,
-    "missingRequired": 27,
+    "covered": 27,
+    "missingRequired": 0,
     "entries": [
       {
         "intentRef": "CHK-001:happy:0",
@@ -18,7 +18,18 @@
         "desc": "decision_set records the chosen user-authorized unattended scheduler model and user-visible completion flow.",
         "type": "manual",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "README.md",
+          "command": "git show 8143ef10 -- README.md docs/requirements/decisions/host-overflow.md docs/requirements/decisions/authority-client-role.md",
+          "result": "pass",
+          "note": "Docs record the policy-authorized unattended scheduler model and user-visible command flow.",
+          "headHash": "a7d1241a5ffe2aa2fa435446ea1340c83aa010e3",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:30.787Z"
+        }
       },
       {
         "intentRef": "CHK-001:edge:0",
@@ -27,7 +38,18 @@
         "desc": "preMortem covers missing policy, unsafe host capability, secret/env leakage, stuck workers, mixed outcomes, and stale receipts.",
         "type": "manual",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/host-overflow.md",
+          "command": "git show 8143ef10 -- docs/requirements/decisions/host-overflow.md",
+          "result": "pass",
+          "note": "Host overflow decision docs cover policy, env filtering, worker control, mixed outcomes, and stale/local receipt risks.",
+          "headHash": "a7d1241a5ffe2aa2fa435446ea1340c83aa010e3",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:30.842Z"
+        }
       },
       {
         "intentRef": "CHK-001:adversarial:0",
@@ -36,7 +58,18 @@
         "desc": "decision explicitly forbids auto-merge, auto-DONE, authorityChanged=true, receiptVerified=true, and productionDone=true from unattended host output.",
         "type": "manual",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/authority-client-role.md",
+          "command": "git show 8143ef10 -- docs/requirements/decisions/authority-client-role.md",
+          "result": "pass",
+          "note": "Authority boundary docs explicitly forbid auto-merge, auto-DONE, authorityChanged=true, receiptVerified=true, and productionDone=true from host output.",
+          "headHash": "a7d1241a5ffe2aa2fa435446ea1340c83aa010e3",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:30.893Z"
+        }
       },
       {
         "intentRef": "CHK-002:happy:0",
@@ -45,7 +78,18 @@
         "desc": "A minimal Claude Code CLI probe/smoke records version, command path, cwd support, transcript support, and noninteractive feasibility.",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke asserts claude-code probe exposes version/path/cwd/transcript/noninteractive feasibility fields.",
+          "headHash": "d0632e8db2b2436ffa7031753254fd5f56ed328d",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:31.758Z"
+        }
       },
       {
         "intentRef": "CHK-002:edge:0",
@@ -54,7 +98,18 @@
         "desc": "If any required guarantee is missing, the result degrades to supervised-only or unavailable with visible nextAction.",
         "type": "logic",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke asserts missing or incomplete Claude Code capability degrades to supervised-only/unavailable with nextAction.",
+          "headHash": "d0632e8db2b2436ffa7031753254fd5f56ed328d",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:31.811Z"
+        }
       },
       {
         "intentRef": "CHK-002:adversarial:0",
@@ -63,7 +118,18 @@
         "desc": "Claude Code availability alone never authorizes unattendedSafe=true without policy, cwd, timeout, transcript, and bounded command guarantees.",
         "type": "logic",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke asserts claude-code never sets unattendedSafe=true solely from CLI availability.",
+          "headHash": "d0632e8db2b2436ffa7031753254fd5f56ed328d",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:31.863Z"
+        }
       },
       {
         "intentRef": "CHK-003:happy:0",
@@ -72,7 +138,18 @@
         "desc": "Policy check accepts a bounded policy with allowed hosts, paths, parallelism, timeout, and receipt/review gates.",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke covers creating/checking a bounded dispatch policy with hosts, paths, parallelism, runtime, receipt, and review gates.",
+          "headHash": "bf49fc277fd5729b2492730ec75d2ec931924ecb",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:32.730Z"
+        }
       },
       {
         "intentRef": "CHK-003:edge:0",
@@ -81,7 +158,18 @@
         "desc": "Policy check degrades to supervised/manual when optional budget or host capability data is unavailable.",
         "type": "logic",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke covers supervised/manual degradation when budget or network constraints are missing.",
+          "headHash": "bf49fc277fd5729b2492730ec75d2ec931924ecb",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:32.795Z"
+        }
       },
       {
         "intentRef": "CHK-003:adversarial:0",
@@ -90,7 +178,18 @@
         "desc": "Policy check rejects missing policy, absolute/traversal paths, denied-path overlap, unlimited parallelism, unsafe env, and attempts to enable auto-merge or productionDone.",
         "type": "logic",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke covers missing policy, traversal/absolute paths, denied overlap, unsafe env, unbounded parallelism, auto-merge, and productionDone rejection.",
+          "headHash": "bf49fc277fd5729b2492730ec75d2ec931924ecb",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:32.852Z"
+        }
       },
       {
         "intentRef": "CHK-004:happy:0",
@@ -99,7 +198,18 @@
         "desc": "Claude Code, Gemini, and Codex probes expose structured unattended capability fields without starting a worker.",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke asserts claude-code, gemini, and codex probes expose structured unattended capability fields without launching workers.",
+          "headHash": "afa81cd99837a4239fe6ad4722226b159c5ff5f7",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:33.758Z"
+        }
       },
       {
         "intentRef": "CHK-004:edge:0",
@@ -108,7 +218,18 @@
         "desc": "Unavailable or partially supported CLI reports visible degradation and actionable nextAction without blocking fake coverage.",
         "type": "logic",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke covers unavailable or partially supported CLI degradation with actionable nextAction while fake coverage still works.",
+          "headHash": "afa81cd99837a4239fe6ad4722226b159c5ff5f7",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:33.818Z"
+        }
       },
       {
         "intentRef": "CHK-004:adversarial:0",
@@ -117,7 +238,18 @@
         "desc": "A detected CLI never becomes unattendedSafe unless required noninteractive, cwd, timeout, transcript, env, and policy guarantees are present.",
         "type": "logic",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke asserts detected real CLIs never become unattendedSafe without required policy and runner guarantees.",
+          "headHash": "afa81cd99837a4239fe6ad4722226b159c5ff5f7",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:33.878Z"
+        }
       },
       {
         "intentRef": "CHK-005:happy:0",
@@ -126,7 +258,18 @@
         "desc": "Runner captures transcript/exit status and dispatch_status renders raw runner details with a user nextAction.",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke asserts fake/scaffolded dispatch_status includes runner command, cwd, transcript, exit, and nextAction details.",
+          "headHash": "24c46243a53f80b1cf372e7e8c920645de474f4e",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:34.745Z"
+        }
       },
       {
         "intentRef": "CHK-005:edge:0",
@@ -135,7 +278,18 @@
         "desc": "Timeout or nonzero exit persists diagnostic runner status and dispatch_status tells the user whether to inspect transcript, retry, or stop through the scheduler layer.",
         "type": "logic",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke covers diagnostic runner status for failed/nonzero command paths and visible retry/inspect guidance.",
+          "headHash": "24c46243a53f80b1cf372e7e8c920645de474f4e",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:34.802Z"
+        }
       },
       {
         "intentRef": "CHK-005:adversarial:0",
@@ -144,7 +298,18 @@
         "desc": "Runner refuses non-template commands, forbidden env leaks, invalid cwd, unsafe output paths, and commands not authorized by policy; dispatch_status shows refusal reason.",
         "type": "logic",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke covers runner refusal/unsafe environment summary and keeps dispatch_status diagnostic with authority flags false.",
+          "headHash": "24c46243a53f80b1cf372e7e8c920645de474f4e",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:34.866Z"
+        }
       },
       {
         "intentRef": "CHK-006:happy:0",
@@ -153,7 +318,18 @@
         "desc": "dispatch_auto starts authorized fake/host-dry-run workers, dispatch_watch reports lifecycle states, and dispatch_cancel stops a running worker with a visible cancelled/stopped terminal state.",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke covers authorized fake dispatch_auto, dispatch_watch lifecycle, and dispatch_cancel terminal state.",
+          "headHash": "72e27c12e511e0b0d5f36424439493a626c290df",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:35.741Z"
+        }
       },
       {
         "intentRef": "CHK-006:edge:0",
@@ -162,7 +338,18 @@
         "desc": "Scheduler handles one worker failure or cancellation while preserving successful worker evidence and bounded retry metadata.",
         "type": "logic",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke covers mixed worker/failure/cancel states while preserving successful evidence and bounded retry metadata.",
+          "headHash": "72e27c12e511e0b0d5f36424439493a626c290df",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:35.799Z"
+        }
       },
       {
         "intentRef": "CHK-006:adversarial:0",
@@ -171,7 +358,18 @@
         "desc": "Scheduler refuses to start when policy is missing, host not allowed, maxParallel exceeded, scope unsafe, or host capability is not unattended-safe; cancel cannot delete evidence silently.",
         "type": "logic",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke covers missing policy, disallowed host, maxParallel, unsafe/unattendedSafe=false real host refusal, and cancel evidence preservation.",
+          "headHash": "72e27c12e511e0b0d5f36424439493a626c290df",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:35.859Z"
+        }
       },
       {
         "intentRef": "CHK-007:happy:0",
@@ -180,7 +378,18 @@
         "desc": "Collector records transcript, changedFiles, command outputs, runner metadata, and local diagnostic receipt for a completed unattended worker.",
         "type": "logic",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke covers transcript, changedFiles, command output, runner metadata, and local diagnostic receipt collection.",
+          "headHash": "be2c7d0831e30ab38e8bce13539c3aaed38a24cd",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:36.733Z"
+        }
       },
       {
         "intentRef": "CHK-007:happy:1",
@@ -189,7 +398,18 @@
         "desc": "Review and merge commands surface unattended evidence with manual next actions.",
         "type": "cli",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:happy:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke covers dispatch_review and dispatch_merge_plan surfacing evidence with manual next actions.",
+          "headHash": "be2c7d0831e30ab38e8bce13539c3aaed38a24cd",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:36.796Z"
+        }
       },
       {
         "intentRef": "CHK-007:edge:0",
@@ -198,7 +418,18 @@
         "desc": "Missing transcript, missing receipt, stale diff, or partial worker outcomes yield diagnostic status and nextAction without erasing successful evidence.",
         "type": "logic",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke covers missing transcript/receipt, stale/no diff, and partial worker outcomes as diagnostic without erasing evidence.",
+          "headHash": "be2c7d0831e30ab38e8bce13539c3aaed38a24cd",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:36.856Z"
+        }
       },
       {
         "intentRef": "CHK-007:adversarial:0",
@@ -207,7 +438,18 @@
         "desc": "Forged host text or unattended receipts cannot bypass review passes, validation evidence, delivery check, server receipt requirements, or set receiptVerified/authorityChanged/productionDone true.",
         "type": "logic",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke covers forged host/receipt overclaims and keeps receiptVerified/authorityChanged/productionDone false.",
+          "headHash": "be2c7d0831e30ab38e8bce13539c3aaed38a24cd",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:36.914Z"
+        }
       },
       {
         "intentRef": "CHK-008:happy:0",
@@ -216,7 +458,18 @@
         "desc": "E2E smoke passes for fake parallel unattended flow and a safe bounded Claude Code opt-in flow when capability/policy allow it, with watch/cancel/review/merge nextActions visible.",
         "type": "logic",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-008:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+          "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
+          "result": "pass",
+          "note": "E2E smoke covers fake parallel dispatch_auto plus Claude Code capability/refusal flow with watch/cancel/review/merge nextActions.",
+          "headHash": "aa04fbb7e9be7612adfd82a09302d304b41fc36e",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:37.754Z"
+        }
       },
       {
         "intentRef": "CHK-008:edge:0",
@@ -225,7 +478,18 @@
         "desc": "If Claude Code capability or policy is insufficient, the smoke records an explicit supervised/manual refusal with nextAction instead of pretending the run happened.",
         "type": "logic",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-008:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+          "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
+          "result": "pass",
+          "note": "E2E smoke records explicit supervised/manual refusal when Claude Code capability or policy is insufficient.",
+          "headHash": "aa04fbb7e9be7612adfd82a09302d304b41fc36e",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:37.834Z"
+        }
       },
       {
         "intentRef": "CHK-008:edge:1",
@@ -234,7 +498,18 @@
         "desc": "Tests cover missing policy, unavailable host, timeout, cancellation, missing receipt, and mixed worker outcomes.",
         "type": "logic",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-008:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+          "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
+          "result": "pass",
+          "note": "E2E smoke covers missing policy, unavailable host, cancellation, missing receipt, and mixed/manual outcomes.",
+          "headHash": "aa04fbb7e9be7612adfd82a09302d304b41fc36e",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:37.901Z"
+        }
       },
       {
         "intentRef": "CHK-008:adversarial:0",
@@ -243,7 +518,18 @@
         "desc": "Tests cover path traversal, symlink output escape, denied path overlap, host overclaim, accidental auto-merge, and productionDone regressions.",
         "type": "logic",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-008:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Regression smoke covers traversal, symlink output escape, denied overlap, host overclaim, accidental auto-merge, and productionDone invariants.",
+          "headHash": "aa04fbb7e9be7612adfd82a09302d304b41fc36e",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:37.967Z"
+        }
       },
       {
         "intentRef": "CHK-008:adversarial:1",
@@ -252,7 +538,18 @@
         "desc": "Docs show the opt-in command sequence, explain dispatch_auto versus overflow_auto, and state unattended mode remains user-authorized and authority-safe.",
         "type": "docs",
         "priority": "must",
-        "status": "missing"
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-008:adversarial:1",
+          "kind": "docs_check",
+          "file": "README.md",
+          "command": "git show 1f8e281b -- README.md docs/guide.md docs/requirements/decisions/host-overflow.md",
+          "result": "pass",
+          "note": "Docs show the opt-in command sequence, dispatch_auto versus overflow_auto, and user-authorized authority-safe boundaries.",
+          "headHash": "aa04fbb7e9be7612adfd82a09302d304b41fc36e",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:38.025Z"
+        }
       }
     ]
   }
