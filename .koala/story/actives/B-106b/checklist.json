@@ -914,9 +914,47 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-03T00:15:54.117Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-013:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke; npm run test:command-ownership-contract; npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Smoke plus command/process contracts verify registration, policies, process facts, runtime flow, degradation, and authority invariants. Covers happy intent 0.",
+          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
+          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
+          "timestamp": "2026-06-03T00:15:54.170Z"
+        },
+        {
+          "intentRef": "CHK-013:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke; npm run test:command-ownership-contract; npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Smoke plus command/process contracts verify registration, policies, process facts, runtime flow, degradation, and authority invariants. Covers edge intent 1.",
+          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
+          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
+          "timestamp": "2026-06-03T00:15:54.219Z"
+        },
+        {
+          "intentRef": "CHK-013:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke; npm run test:command-ownership-contract; npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Smoke plus command/process contracts verify registration, policies, process facts, runtime flow, degradation, and authority invariants. Covers adversarial intent 2.",
+          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
+          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
+          "timestamp": "2026-06-03T00:15:54.263Z"
+        }
+      ]
     },
     {
       "id": "CHK-014",
@@ -1117,6 +1155,16 @@
       "timestamp": "2026-06-03T00:15:53.317Z",
       "phase": "DEV",
       "itemId": "CHK-012",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented and verified in commits through e04c4939.",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-06-03T00:15:54.117Z",
+      "phase": "DEV",
+      "itemId": "CHK-013",
       "action": "update",
       "from": "pending",
       "to": "done",
