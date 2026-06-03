@@ -255,9 +255,9 @@
       "id": "CHK-005",
       "title": "补 smoke/contract 验证并重新 build",
       "context": "Add tests for fresh minimal init, no local shim by default, .Lattice resolver, global codex verify/doctor, legacy compatibility, and non-destructive check/apply migration. Finish with npm --prefix packages/main run build and targeted smokes.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-03T19:13:10.352Z",
       "relatedDocs": [
         "docs/requirements/decisions/testing-completeness.md",
         "docs/requirements/decisions/verification-context-pack.md",
@@ -300,7 +300,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/thin-init-assets-smoke.ts",
+          "command": "npm --prefix packages/main run test:thin-init-assets-smoke && npm --prefix packages/main run test:legacy-koala-compatibility-smoke && npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "All 3 smoke suites pass: thin-init-assets (5 scenarios), legacy-koala-compat (5 scenarios incl global-thin), validation-protocol (all existing tests preserved)",
+          "headHash": "ec60d7a32df88b688dd2e1dcd5788ca32f6fcd71",
+          "materialHash": "3efb799345b698adb0b3e3cba5524a54d1b521ccffdc537576d4aa460a9d9411",
+          "timestamp": "2026-06-03T19:13:10.420Z"
+        }
+      ]
     }
   ]
 }
