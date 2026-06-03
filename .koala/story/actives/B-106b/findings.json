@@ -122,7 +122,7 @@
       "desc": "Real-host dispatch_run can scaffold an isolated overflow worktree while preserving allowedPaths/deniedPaths that point outside that worktree, so the generated prompt can instruct a real host to edit ../outside.txt. Fake dispatch paths are bounded, but real-host scaffold does not validate pack paths before writing prompt/worktree metadata or returning needs_receipt. Repro: prepare a codex dispatch with allowedPaths=[\"../outside.txt\"], run dispatch_run, then inspect .koala/dispatches/<dispatchId>/prompt.md; it contains \"Only edit these paths: ../outside.txt\" while the worktree is .worktrees/overflow/<story>/<dispatch>.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-concept",
       "createdAt": "2026-06-03T00:43:13.770Z",
@@ -134,7 +134,9 @@
         "packages/main/src/core/lattice-handoff.ts",
         "packages/main/src/tasks/dispatch-run-smoke.ts",
         "docs/requirements/decisions/host-overflow.md"
-      ]
+      ],
+      "resolvedReason": "Resolved by commit b7b16fcf. Dispatch pack allowedPaths/deniedPaths are now normalized before prompt metadata is persisted, and real-host scaffold revalidates paths against the actual worktree before returning needs_receipt. Smoke now covers real-host traversal rejection before metadata persists and real-host symlink escape rejection before needs_receipt. Verified with build, dispatch-run smoke, lattice-handoff smoke, host-overflow smoke, command ownership contract, process fact contract, git diff --check, and lattice validate test command output.",
+      "resolvedAt": "2026-06-03T00:50:13.588Z"
     },
     {
       "id": "B-106b:F-008",
