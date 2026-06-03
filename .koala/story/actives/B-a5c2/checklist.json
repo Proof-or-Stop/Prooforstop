@@ -352,7 +352,7 @@
         "README.md",
         "docs/guide.md"
       ],
-      "userSees": "Docs and smoke transcript show: overflow_auto nextAction to dispatch_auto, dispatch_policy check, host_runtime_probe, dispatch_auto, dispatch_watch, dispatch_cancel, dispatch_review, and manual dispatch_merge_plan.",
+      "userSees": "Docs and smoke transcript include \"overflow_auto -> dispatch_auto\", \"dispatch_policy check\", \"host_runtime_probe\", \"dispatch_auto\", \"dispatch_watch\", \"dispatch_cancel\", \"dispatch_review\", and \"manualOnly:true\".",
       "verificationIntent": {
         "happy": [
           {
@@ -388,7 +388,22 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "README.md",
+          "docs/guide.md",
+          "docs/requirements/decisions/host-overflow.md",
+          "packages/main/src/tasks/dispatch-run-smoke.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/unattended-dispatch-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+          "packages/main/src/tasks/dispatch-run-smoke.ts"
+        ]
+      }
     }
   ]
 }
