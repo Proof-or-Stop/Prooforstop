@@ -80,8 +80,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-03T20:04:51.229Z",
       "endTime": null,
       "files": {
         "modify": [
@@ -428,6 +428,16 @@
       "to": "done",
       "reason": "Claude Code CLI implemented CHK-001 docs and authority decision evidence",
       "agent": "koala-implementer"
+    },
+    {
+      "timestamp": "2026-06-03T20:04:51.229Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start DEV milestone 2 Claude Code bounded unattended feasibility",
+      "agent": "codex"
     }
   ]
 }
