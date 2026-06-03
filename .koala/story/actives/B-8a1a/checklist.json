@@ -8,9 +8,9 @@
         "docs/requirements/decisions/host-overflow.md",
         "README.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-03T22:54:45.817Z",
-      "endTime": null,
+      "endTime": "2026-06-03T23:16:21.202Z",
       "userSees": "用户运行 lattice help / README 示例时，会看到 dispatch_auto 可在 allowRealHostSubprocess=true policy 下启动 claude-code real runner，但仍显示 manual review / productionDone=false 边界。",
       "files": {
         "modify": [
@@ -45,7 +45,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "README.md",
+          "command": "rg -n \"allowRealHostSubprocess|claude-code|productionDone=false|dispatch_auto\" README.md docs/requirements/decisions/host-overflow.md packages/main/src/core/command-policy.ts packages/main/src/core/process-fact-levels.ts",
+          "result": "pass",
+          "note": "Docs and command/process policy text describe Claude Code only, explicit policy opt-in, and authority-safe false fields.",
+          "headHash": "64b9000932ade99c7cd9be5f64c4eb7f767eba32",
+          "materialHash": "ce6f86dd377ce348403ef6d4bfd965009ad9fe39d28ff906168221728c6b5cfd",
+          "timestamp": "2026-06-03T23:16:21.268Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+          "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
+          "result": "pass",
+          "note": "Smoke verifies Gemini/Codex real subprocesses stay refused/scaffolded while Claude Code has the only real runner path.",
+          "headHash": "64b9000932ade99c7cd9be5f64c4eb7f767eba32",
+          "materialHash": "ce6f86dd377ce348403ef6d4bfd965009ad9fe39d28ff906168221728c6b5cfd",
+          "timestamp": "2026-06-03T23:16:21.312Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Existing dispatch smoke preserves manual merge guidance and no productionDone/receiptVerified authority overclaim.",
+          "headHash": "64b9000932ade99c7cd9be5f64c4eb7f767eba32",
+          "materialHash": "ce6f86dd377ce348403ef6d4bfd965009ad9fe39d28ff906168221728c6b5cfd",
+          "timestamp": "2026-06-03T23:16:21.346Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -230,6 +265,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Starting integration verification for watch/cancel/review/merge surfaces after runner implementation.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-06-03T23:16:21.202Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Claude-only real-host contract and docs/command policy were implemented and verified.",
       "agent": "main"
     }
   ]
