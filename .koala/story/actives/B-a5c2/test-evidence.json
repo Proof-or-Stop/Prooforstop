@@ -1,0 +1,259 @@
+{
+  "command": "koala validate --story=B-a5c2 --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"fail\",\"allPass\":false,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery; verification coverage missing 27 required intent(s)\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.5 test\",\"  > npm run test:e2e\",\"  > koala@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 0/27 covered (27 required missing)\",\"  ✗ CHK-001:happy:0 [happy/must/manual] missing — decision_set records the chosen user-authorized unattended scheduler model and user-visible completion flow.\",\"  ✗ CHK-001:edge:0 [edge/must/manual] missing — preMortem covers missing policy, unsafe host capability, secret/env leakage, stuck workers, mixed outcomes, and stale receipts.\",\"  ✗ CHK-001:adversarial:0 [adversarial/must/manual] missing — decision explicitly forbids auto-merge, auto-DONE, authorityChanged=true, receiptVerified=true, and productionDone=true from unattended host output.\",\"  ✗ CHK-002:happy:0 [happy/must/cli] missing — A minimal Claude Code CLI probe/smoke records version, command path, cwd support, transcript support, and noninteractive feasibility.\",\"  ✗ CHK-002:edge:0 [edge/must/logic] missing — If any required guarantee is missing, the result degrades to supervised-only or unavailable with visible nextAction.\",\"  ✗ CHK-002:adversarial:0 [adversarial/must/logic] missing — Claude Code availability alone never authorizes unattendedSafe=true without policy, cwd, timeout, transcript, and bounded command guarantees.\",\"  ✗ CHK-003:happy:0 [happy/must/cli] missing — Policy check accepts a bounded policy with allowed hosts, paths, parallelism, timeout, and receipt/review gates.\",\"  ✗ CHK-003:edge:0 [edge/must/logic] missing — Policy check degrades to supervised/manual when optional budget or host capability data is unavailable.\",\"  ✗ CHK-003:adversarial:0 [adversarial/must/logic] missing — Policy check rejects missing policy, absolute/traversal paths, denied-path overlap, unlimited parallelism, unsafe env, and attempts to enable auto-merge or productionDone.\",\"  ✗ CHK-004:happy:0 [happy/must/cli] missing — Claude Code, Gemini, and Codex probes expose structured unattended capability fields without starting a worker.\",\"  ✗ CHK-004:edge:0 [edge/must/logic] missing — Unavailable or partially supported CLI reports visible degradation and actionable nextAction without blocking fake coverage.\",\"  ✗ CHK-004:adversarial:0 [adversarial/must/logic] missing — A detected CLI never becomes unattendedSafe unless required noninteractive, cwd, timeout, transcript, env, and policy guarantees are present.\",\"  ✗ CHK-005:happy:0 [happy/must/cli] missing — Runner captures transcript/exit status and dispatch_status renders raw runner details with a user nextAction.\",\"  ✗ CHK-005:edge:0 [edge/must/logic] missing — Timeout or nonzero exit persists diagnostic runner status and dispatch_status tells the user whether to inspect transcript, retry, or stop through the scheduler layer.\",\"  ✗ CHK-005:adversarial:0 [adversarial/must/logic] missing — Runner refuses non-template commands, forbidden env leaks, invalid cwd, unsafe output paths, and commands not authorized by policy; dispatch_status shows refusal reason.\",\"  ✗ CHK-006:happy:0 [happy/must/cli] missing — dispatch_auto starts authorized fake/host-dry-run workers, dispatch_watch reports lifecycle states, and dispatch_cancel stops a running worker with a visible cancelled/stopped terminal state.\",\"  ✗ CHK-006:edge:0 [edge/must/logic] missing — Scheduler handles one worker failure or cancellation while preserving successful worker evidence and bounded retry metadata.\",\"  ✗ CHK-006:adversarial:0 [adversarial/must/logic] missing — Scheduler refuses to start when policy is missing, host not allowed, maxParallel exceeded, scope unsafe, or host capability is not unattended-safe; cancel cannot delete evidence silently.\",\"  ✗ CHK-007:happy:0 [happy/must/logic] missing — Collector records transcript, changedFiles, command outputs, runner metadata, and local diagnostic receipt for a completed unattended worker.\",\"  ✗ CHK-007:happy:1 [happy/must/cli] missing — Review and merge commands surface unattended evidence with manual next actions.\",\"  ✗ CHK-007:edge:0 [edge/must/logic] missing — Missing transcript, missing receipt, stale diff, or partial worker outcomes yield diagnostic status and nextAction without erasing successful evidence.\",\"  ✗ CHK-007:adversarial:0 [adversarial/must/logic] missing — Forged host text or unattended receipts cannot bypass review passes, validation evidence, delivery check, server receipt requirements, or set receiptVerified/authorityChanged/productionDone true.\",\"  ✗ CHK-008:happy:0 [happy/must/logic] missing — E2E smoke passes for fake parallel unattended flow and a safe bounded Claude Code opt-in flow when capability/policy allow it, with watch/cancel/review/merge nextActions visible.\",\"  ✗ CHK-008:edge:0 [edge/must/logic] missing — If Claude Code capability or policy is insufficient, the smoke records an explicit supervised/manual refusal with nextAction instead of pretending the run happened.\",\"  ✗ CHK-008:edge:1 [edge/must/logic] missing — Tests cover missing policy, unavailable host, timeout, cancellation, missing receipt, and mixed worker outcomes.\",\"  ✗ CHK-008:adversarial:0 [adversarial/must/logic] missing — Tests cover path traversal, symlink output escape, denied path overlap, host overclaim, accidental auto-merge, and productionDone regressions.\",\"  ✗ CHK-008:adversarial:1 [adversarial/must/docs] missing — Docs show the opt-in command sequence, explain dispatch_auto versus overflow_auto, and state unattended mode remains user-authorized and authority-safe.\"],\"warnings\":[],\"timestamp\":\"2026-06-03T21:15:38.635Z\",\"headSha\":\"a7d1241a5ffe2aa2fa435446ea1340c83aa010e3\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":2273}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":27,\"reason\":\"verificationIntent entries present (27)\"},\"verificationCoverage\":{\"total\":27,\"required\":27,\"covered\":0,\"missingRequired\":27,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"decision_set records the chosen user-authorized unattended scheduler model and user-visible completion flow.\",\"type\":\"manual\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"preMortem covers missing policy, unsafe host capability, secret/env leakage, stuck workers, mixed outcomes, and stale receipts.\",\"type\":\"manual\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"decision explicitly forbids auto-merge, auto-DONE, authorityChanged=true, receiptVerified=true, and productionDone=true from unattended host output.\",\"type\":\"manual\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"A minimal Claude Code CLI probe/smoke records version, command path, cwd support, transcript support, and noninteractive feasibility.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"If any required guarantee is missing, the result degrades to supervised-only or unavailable with visible nextAction.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Claude Code availability alone never authorizes unattendedSafe=true without policy, cwd, timeout, transcript, and bounded command guarantees.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Policy check accepts a bounded policy with allowed hosts, paths, parallelism, timeout, and receipt/review gates.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Policy check degrades to supervised/manual when optional budget or host capability data is unavailable.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Policy check rejects missing policy, absolute/traversal paths, denied-path overlap, unlimited parallelism, unsafe env, and attempts to enable auto-merge or productionDone.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"Claude Code, Gemini, and Codex probes expose structured unattended capability fields without starting a worker.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"Unavailable or partially supported CLI reports visible degradation and actionable nextAction without blocking fake coverage.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"A detected CLI never becomes unattendedSafe unless required noninteractive, cwd, timeout, transcript, env, and policy guarantees are present.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-005:happy:0\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"Runner captures transcript/exit status and dispatch_status renders raw runner details with a user nextAction.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-005:edge:0\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"Timeout or nonzero exit persists diagnostic runner status and dispatch_status tells the user whether to inspect transcript, retry, or stop through the scheduler layer.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-005:adversarial:0\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"Runner refuses non-template commands, forbidden env leaks, invalid cwd, unsafe output paths, and commands not authorized by policy; dispatch_status shows refusal reason.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-006:happy:0\",\"itemId\":\"CHK-006\",\"lane\":\"happy\",\"desc\":\"dispatch_auto starts authorized fake/host-dry-run workers, dispatch_watch reports lifecycle states, and dispatch_cancel stops a running worker with a visible cancelled/stopped terminal state.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-006:edge:0\",\"itemId\":\"CHK-006\",\"lane\":\"edge\",\"desc\":\"Scheduler handles one worker failure or cancellation while preserving successful worker evidence and bounded retry metadata.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-006:adversarial:0\",\"itemId\":\"CHK-006\",\"lane\":\"adversarial\",\"desc\":\"Scheduler refuses to start when policy is missing, host not allowed, maxParallel exceeded, scope unsafe, or host capability is not unattended-safe; cancel cannot delete evidence silently.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-007:happy:0\",\"itemId\":\"CHK-007\",\"lane\":\"happy\",\"desc\":\"Collector records transcript, changedFiles, command outputs, runner metadata, and local diagnostic receipt for a completed unattended worker.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-007:happy:1\",\"itemId\":\"CHK-007\",\"lane\":\"happy\",\"desc\":\"Review and merge commands surface unattended evidence with manual next actions.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-007:edge:0\",\"itemId\":\"CHK-007\",\"lane\":\"edge\",\"desc\":\"Missing transcript, missing receipt, stale diff, or partial worker outcomes yield diagnostic status and nextAction without erasing successful evidence.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-007:adversarial:0\",\"itemId\":\"CHK-007\",\"lane\":\"adversarial\",\"desc\":\"Forged host text or unattended receipts cannot bypass review passes, validation evidence, delivery check, server receipt requirements, or set receiptVerified/authorityChanged/productionDone true.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-008:happy:0\",\"itemId\":\"CHK-008\",\"lane\":\"happy\",\"desc\":\"E2E smoke passes for fake parallel unattended flow and a safe bounded Claude Code opt-in flow when capability/policy allow it, with watch/cancel/review/merge nextActions visible.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-008:edge:0\",\"itemId\":\"CHK-008\",\"lane\":\"edge\",\"desc\":\"If Claude Code capability or policy is insufficient, the smoke records an explicit supervised/manual refusal with nextAction instead of pretending the run happened.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-008:edge:1\",\"itemId\":\"CHK-008\",\"lane\":\"edge\",\"desc\":\"Tests cover missing policy, unavailable host, timeout, cancellation, missing receipt, and mixed worker outcomes.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-008:adversarial:0\",\"itemId\":\"CHK-008\",\"lane\":\"adversarial\",\"desc\":\"Tests cover path traversal, symlink output escape, denied path overlap, host overclaim, accidental auto-merge, and productionDone regressions.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-008:adversarial:1\",\"itemId\":\"CHK-008\",\"lane\":\"adversarial\",\"desc\":\"Docs show the opt-in command sequence, explain dispatch_auto versus overflow_auto, and state unattended mode remains user-authorized and authority-safe.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"missing\"}]}}",
+  "result": "FAIL",
+  "timestamp": "2026-06-03T21:15:38.715Z",
+  "headHash": "a7d1241a5ffe2aa2fa435446ea1340c83aa010e3",
+  "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+  "verificationCoverage": {
+    "total": 27,
+    "required": 27,
+    "covered": 0,
+    "missingRequired": 27,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "decision_set records the chosen user-authorized unattended scheduler model and user-visible completion flow.",
+        "type": "manual",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "preMortem covers missing policy, unsafe host capability, secret/env leakage, stuck workers, mixed outcomes, and stale receipts.",
+        "type": "manual",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "decision explicitly forbids auto-merge, auto-DONE, authorityChanged=true, receiptVerified=true, and productionDone=true from unattended host output.",
+        "type": "manual",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "A minimal Claude Code CLI probe/smoke records version, command path, cwd support, transcript support, and noninteractive feasibility.",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "If any required guarantee is missing, the result degrades to supervised-only or unavailable with visible nextAction.",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Claude Code availability alone never authorizes unattendedSafe=true without policy, cwd, timeout, transcript, and bounded command guarantees.",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Policy check accepts a bounded policy with allowed hosts, paths, parallelism, timeout, and receipt/review gates.",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Policy check degrades to supervised/manual when optional budget or host capability data is unavailable.",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Policy check rejects missing policy, absolute/traversal paths, denied-path overlap, unlimited parallelism, unsafe env, and attempts to enable auto-merge or productionDone.",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "Claude Code, Gemini, and Codex probes expose structured unattended capability fields without starting a worker.",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "Unavailable or partially supported CLI reports visible degradation and actionable nextAction without blocking fake coverage.",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "A detected CLI never becomes unattendedSafe unless required noninteractive, cwd, timeout, transcript, env, and policy guarantees are present.",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-005:happy:0",
+        "itemId": "CHK-005",
+        "lane": "happy",
+        "desc": "Runner captures transcript/exit status and dispatch_status renders raw runner details with a user nextAction.",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-005:edge:0",
+        "itemId": "CHK-005",
+        "lane": "edge",
+        "desc": "Timeout or nonzero exit persists diagnostic runner status and dispatch_status tells the user whether to inspect transcript, retry, or stop through the scheduler layer.",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-005:adversarial:0",
+        "itemId": "CHK-005",
+        "lane": "adversarial",
+        "desc": "Runner refuses non-template commands, forbidden env leaks, invalid cwd, unsafe output paths, and commands not authorized by policy; dispatch_status shows refusal reason.",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-006:happy:0",
+        "itemId": "CHK-006",
+        "lane": "happy",
+        "desc": "dispatch_auto starts authorized fake/host-dry-run workers, dispatch_watch reports lifecycle states, and dispatch_cancel stops a running worker with a visible cancelled/stopped terminal state.",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-006:edge:0",
+        "itemId": "CHK-006",
+        "lane": "edge",
+        "desc": "Scheduler handles one worker failure or cancellation while preserving successful worker evidence and bounded retry metadata.",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-006:adversarial:0",
+        "itemId": "CHK-006",
+        "lane": "adversarial",
+        "desc": "Scheduler refuses to start when policy is missing, host not allowed, maxParallel exceeded, scope unsafe, or host capability is not unattended-safe; cancel cannot delete evidence silently.",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-007:happy:0",
+        "itemId": "CHK-007",
+        "lane": "happy",
+        "desc": "Collector records transcript, changedFiles, command outputs, runner metadata, and local diagnostic receipt for a completed unattended worker.",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-007:happy:1",
+        "itemId": "CHK-007",
+        "lane": "happy",
+        "desc": "Review and merge commands surface unattended evidence with manual next actions.",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-007:edge:0",
+        "itemId": "CHK-007",
+        "lane": "edge",
+        "desc": "Missing transcript, missing receipt, stale diff, or partial worker outcomes yield diagnostic status and nextAction without erasing successful evidence.",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-007:adversarial:0",
+        "itemId": "CHK-007",
+        "lane": "adversarial",
+        "desc": "Forged host text or unattended receipts cannot bypass review passes, validation evidence, delivery check, server receipt requirements, or set receiptVerified/authorityChanged/productionDone true.",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-008:happy:0",
+        "itemId": "CHK-008",
+        "lane": "happy",
+        "desc": "E2E smoke passes for fake parallel unattended flow and a safe bounded Claude Code opt-in flow when capability/policy allow it, with watch/cancel/review/merge nextActions visible.",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-008:edge:0",
+        "itemId": "CHK-008",
+        "lane": "edge",
+        "desc": "If Claude Code capability or policy is insufficient, the smoke records an explicit supervised/manual refusal with nextAction instead of pretending the run happened.",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-008:edge:1",
+        "itemId": "CHK-008",
+        "lane": "edge",
+        "desc": "Tests cover missing policy, unavailable host, timeout, cancellation, missing receipt, and mixed worker outcomes.",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-008:adversarial:0",
+        "itemId": "CHK-008",
+        "lane": "adversarial",
+        "desc": "Tests cover path traversal, symlink output escape, denied path overlap, host overclaim, accidental auto-merge, and productionDone regressions.",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-008:adversarial:1",
+        "itemId": "CHK-008",
+        "lane": "adversarial",
+        "desc": "Docs show the opt-in command sequence, explain dispatch_auto versus overflow_auto, and state unattended mode remains user-authorized and authority-safe.",
+        "type": "docs",
+        "priority": "must",
+        "status": "missing"
+      }
+    ]
+  }
+}

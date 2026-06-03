@@ -45,7 +45,42 @@
         ],
         "create": [],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "README.md",
+          "command": "git show 8143ef10 -- README.md docs/requirements/decisions/host-overflow.md docs/requirements/decisions/authority-client-role.md",
+          "result": "pass",
+          "note": "Docs record the policy-authorized unattended scheduler model and user-visible command flow.",
+          "headHash": "a7d1241a5ffe2aa2fa435446ea1340c83aa010e3",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:30.787Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/host-overflow.md",
+          "command": "git show 8143ef10 -- docs/requirements/decisions/host-overflow.md",
+          "result": "pass",
+          "note": "Host overflow decision docs cover policy, env filtering, worker control, mixed outcomes, and stale/local receipt risks.",
+          "headHash": "a7d1241a5ffe2aa2fa435446ea1340c83aa010e3",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:30.842Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/authority-client-role.md",
+          "command": "git show 8143ef10 -- docs/requirements/decisions/authority-client-role.md",
+          "result": "pass",
+          "note": "Authority boundary docs explicitly forbid auto-merge, auto-DONE, authorityChanged=true, receiptVerified=true, and productionDone=true from host output.",
+          "headHash": "a7d1241a5ffe2aa2fa435446ea1340c83aa010e3",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:30.893Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
