@@ -1,0 +1,48 @@
+{
+  "storyId": "B-4ee0",
+  "name": "global-thin-lattice-init-assets",
+  "title": "Default Lattice init to global-thin project assets",
+  "description": "Make fresh Lattice projects minimal by moving executable Codex adapter behavior to the global lattice CLI while leaving old local shim assets compatible. New init should materialize only the canonical .Lattice guide/config plus a thin AGENTS.md pointer unless a full/local-shim mode is explicitly requested.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "keywords": [
+    "lattice-init",
+    "managed-assets",
+    "codex-adapter",
+    "global-cli",
+    "thin-assets"
+  ],
+  "riskSignals": [
+    {
+      "category": "数据迁移/破坏性",
+      "matched": "destructive"
+    }
+  ],
+  "createdAt": "2026-06-03T18:34:22.318Z",
+  "startedAt": "2026-06-03T18:34:22.318Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-03T18:34:22.339Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-03T18:38:24.829Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-4ee0",
+    "branch": "story/B-4ee0",
+    "createdAt": "2026-06-03T18:38:25.085Z"
+  }
+}
