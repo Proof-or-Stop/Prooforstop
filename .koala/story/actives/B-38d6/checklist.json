@@ -85,7 +85,13 @@
         "modify": [
           "packages/main/src/core/config.ts",
           "packages/main/src/handlers/verifier.ts",
-          "packages/main/src/core/runtime-environment-checks.ts"
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/handlers/dev-memory.ts",
+          "packages/main/src/dashboard.ts",
+          "packages/main/src/cli-init.ts",
+          "packages/main/src/core/dirty-worktree.ts"
         ],
         "create": [],
         "test": [
