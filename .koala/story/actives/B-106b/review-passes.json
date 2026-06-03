@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-03T00:16:11.990Z",
       "reviewRunId": "B-106b:RR-002",
       "_hash": "c4c2c128b1e89adfbd46a2f5e51f8026dfe6cb40e1effbc17ef5b2f09106d5d0"
+    },
+    {
+      "id": "B-106b:RP-002",
+      "agent": "koala-review-test-coverage",
+      "note": "Re-review after 74ce419c: dispatch-run smoke still covers overflow_auto suggest-only/default, start-only, approve-only, fake parallel=2, path traversal no-write/no worktree, real-host scaffold creation and truthful failure, and authorityChanged=false invariants. Verified with npm --prefix packages/main run build; npm run test:dispatch-run-smoke; npm run test:command-ownership-contract; npm run test:process-fact-contract.",
+      "createdAt": "2026-06-03T00:29:16.276Z",
+      "reviewRound": "2026-06-03T00:27:15.686Z",
+      "reviewRunId": "B-106b:RR-006",
+      "_hash": "b32c469e4560cf41a405abed567c5218e6b7a1d6f7353f45b96ff8b29d88a8a1"
     }
   ]
 }
