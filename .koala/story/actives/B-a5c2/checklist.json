@@ -328,9 +328,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-03T20:58:32.775Z",
-      "endTime": null,
+      "endTime": "2026-06-03T21:06:37.620Z",
       "files": {
         "modify": [
           "packages/main/src/core/lattice-dispatch.ts",
@@ -538,6 +538,16 @@
       "to": "in_progress",
       "reason": "Start DEV milestone 7 unattended evidence and manual review gates",
       "agent": "codex"
+    },
+    {
+      "timestamp": "2026-06-03T21:06:37.620Z",
+      "phase": "DEV",
+      "itemId": "CHK-007",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Claude Code CLI implemented unattended evidence review and manual merge gates",
+      "agent": "koala-implementer"
     }
   ]
 }
