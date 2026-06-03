@@ -212,7 +212,15 @@ const validateHint: HintFn = (ctx) => {
     }
     return `→ 验证未通过。按上方 details 修复后重跑 lattice validate`;
   }
-  if (parsed ? parsed.allPass === true : (result.includes('allPass') && result.includes('true'))) {
+  // B-7fc2: text-mode validate emits "✓ ALL PASS" (cli-e2e) or "✓ Project
+  // validation commands passed" (renderExternalResult) when all checks succeed.
+  // Without these markers the text-mode hint was silently dropped, so the hint
+  // contract promised by `koala validate` was only honoured for JSON callers.
+  const textModePass = !parsed && (
+    result.includes('✓ ALL PASS')
+    || result.includes('✓ Project validation commands passed')
+  );
+  if (parsed ? parsed.allPass === true : ((result.includes('allPass') && result.includes('true')) || textModePass)) {
     const storyId = getStoryId(ctx);
     if (storyId) {
       const phase = getStory(ctx, storyId)?.phase ?? ctx.activeStory?.phase;
@@ -250,6 +258,21 @@ const HINTS: Record<string, HintFn> = {
 
 export function listHintCommands(): string[] {
   return Object.keys(HINTS);
+}
+
+/**
+ * Machine JSON mode detector — B-7fc2 CLI stdout contract.
+ *
+ * `--json` / `--format=json` stdout is a machine-only payload that callers
+ * (dashboard, host adapters, smoke tests) must be able to feed straight into
+ * JSON.parse. Returning true here causes the CLI output pipeline to skip
+ * decorateResult so the human next-step hint never contaminates stdout.
+ */
+export function wantsMachineJson(args: Record<string, unknown> | null | undefined): boolean {
+  if (!args || typeof args !== 'object') return false;
+  if ((args as { json?: unknown }).json === true) return true;
+  if ((args as { format?: unknown }).format === 'json') return true;
+  return false;
 }
 
 /**
