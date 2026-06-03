@@ -4,7 +4,7 @@
   "title": "Productize user-authorized unattended cross-host scheduler",
   "description": "Add a policy-authorized unattended scheduler so Lattice can start Claude Code, Gemini, or Codex CLI workers only inside user-approved host, path, budget, timeout, environment, and authority boundaries. The user-visible outcome is a clear opt-in flow: define a safe policy, verify host capability, start an unattended run, watch worker status, inspect transcripts/receipts/diffs, and receive manual next actions without auto-merge, auto-DONE, or productionDone claims.",
   "type": "feature",
-  "phase": "REVIEW",
+  "phase": "DEV",
   "priority": "high",
   "source": "user",
   "keywords": [
@@ -56,6 +56,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-03T21:19:39.509Z",
+      "branch": "story/B-a5c2",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-03T21:27:55.335Z",
       "branch": "story/B-a5c2",
       "user": "Harmonygo",
       "agent": "main"
