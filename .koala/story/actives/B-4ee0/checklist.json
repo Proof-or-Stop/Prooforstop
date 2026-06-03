@@ -193,9 +193,9 @@
       "id": "CHK-004",
       "title": "实现非破坏迁移与 legacy compatibility",
       "context": "lattice check should advise/apply canonical .Lattice assets without deleting legacy files by default; prune legacy assets only behind an explicit option. Existing KOALA.md, .Codex/koala.json, bin/koala-codex.js, and bin/lattice-codex.js must keep working.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-03T19:13:05.394Z",
       "relatedDocs": [
         "docs/requirements/decisions/lifecycle-artifact-scope.md",
         "docs/requirements/decisions/truth-source.md",
@@ -236,7 +236,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/thin-init-assets-smoke.ts",
+          "command": "npm --prefix packages/main run test:thin-init-assets-smoke",
+          "result": "pass",
+          "note": "Test 5 (preserve-legacy): KOALA.md, LATTICE.md, bin/koala.js, bin/koala-codex.js, .Codex/koala.json all survive global-thin init unchanged; managed-assets detectManagedAssetMode detects full mode via KOALA.md presence",
+          "headHash": "4b959dff7524968b743cb92a45bc2aa1fb337513",
+          "materialHash": "3efb799345b698adb0b3e3cba5524a54d1b521ccffdc537576d4aa460a9d9411",
+          "timestamp": "2026-06-03T19:13:05.447Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
