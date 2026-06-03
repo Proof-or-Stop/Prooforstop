@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "B-8a1a:F-001",
+      "desc": "Docs describe dispatch_auto as starting only after host unattended-safety checks pass, but the reusable probe fact never becomes true for Claude and the scheduler bypasses it with a Claude-specific subset check. This keeps v1.0.1 behavior conservative enough, but leaves the host-neutral safety boundary under-specified for future hosts/extensions.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-03T23:22:50.411Z",
+      "reviewRound": "2026-06-03T23:16:51.649Z",
+      "reviewRunId": "B-8a1a:RR-001",
+      "_hash": "c23e9496d4a0048f4fadfede15ae0042db0a060ffe4ce3272b84130b5b8ea94f",
+      "files": [
+        "README.md",
+        "docs/requirements/decisions/host-overflow.md",
+        "packages/main/src/core/lattice-dispatch.ts",
+        "packages/main/src/tasks/unattended-dispatch-smoke.ts"
+      ]
+    }
+  ]
+}
