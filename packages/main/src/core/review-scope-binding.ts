@@ -347,14 +347,23 @@ function deriveNextAction(s: {
   if (s.pathGate === 'fail' || s.semanticGate === 'fail') {
     return 'Out-of-scope change blocks the gate — fix the diff or scope_contract_acknowledge the necessary expansion before advancing.';
   }
+  // CHK-002 B-a30e: phase-aware freshness guidance — TEST/DONE renders post-review
+  // advisory copy instead of a REVIEW→TEST instruction (which is past tense in those phases).
   if (s.reviewHashFreshness === 'stale') {
+    if (s.phase === 'TEST' || s.phase === 'DONE') {
+      return 'Reviewer scope binding is stale (post-review advisory) — if changes were made after REVIEW, roll back to DEV and re-review, or verify via delivery reviewer.';
+    }
     return 'Reviewer scope binding is stale (contract/code changed) — re-run the reviewer via review_run_start before REVIEW→TEST.';
   }
   if (s.reviewHashFreshness === 'missing') {
+    if (s.phase === 'TEST' || s.phase === 'DONE') {
+      return 'Reviewer scope binding is missing (post-review advisory) — confirm reviewer ran with review_run_start, or verify via delivery reviewer.';
+    }
     return 'Reviewer evidence is not bound to the scope — start review_run_start (captures the scope binding) before recording a pass.';
   }
+  // CHK-004 B-a30e: clearer advisory warning copy — name the exact recovery path.
   if (s.pathGate === 'warn' || s.semanticGate === 'warn') {
-    return 'Scope warnings present (advisory, not blocking) — review them or proceed.';
+    return 'Scope warnings present (advisory, not blocking) — acknowledge in DEV/REVIEW via scope_contract_acknowledge if needed, roll back to DEV when in TEST, or verify via delivery reviewer.';
   }
   return 'Scope protection clean — proceed.';
 }

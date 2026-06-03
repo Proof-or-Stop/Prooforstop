@@ -167,6 +167,13 @@ export function runScopeTransitionGate(
       `\n\n→ 修复 out-of-scope diff，或用 scope_contract_acknowledge 记录必要扩展后重跑 story_advance --phase=${phase}`,
     );
   }
+  // CHK-004 B-a30e: advisory warning copy — name recovery path depending on phase.
+  if (result.status === 'warn') {
+    const recoveryHint = (phase === 'TEST' || phase === 'DONE')
+      ? `→ Scope warnings (advisory, not blocking) — roll back to DEV to acknowledge via scope_contract_acknowledge, or verify via delivery reviewer.`
+      : `→ Scope warnings (advisory, not blocking) — acknowledge via scope_contract_acknowledge if the expansion is intentional, then proceed.`;
+    return `\n\n${rendered}\n\n${recoveryHint}`;
+  }
   return `\n\n${rendered}`;
 }
 
