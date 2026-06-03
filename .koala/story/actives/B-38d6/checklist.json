@@ -116,8 +116,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-03T19:04:14.763Z",
       "endTime": null,
       "files": {
         "modify": [
@@ -207,6 +207,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Implementation committed in 5a162280 and verified by validation-protocol plus runtime-fact-contract."
+    },
+    {
+      "timestamp": "2026-06-03T19:04:14.763Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Implementation committed by koala-implementer; recording canonical config verification evidence."
     }
   ]
 }
