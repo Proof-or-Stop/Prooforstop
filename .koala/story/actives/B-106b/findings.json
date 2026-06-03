@@ -83,7 +83,7 @@
       "desc": "Verified HIGH: 74ce419c still allows fake dispatch_run to write outside the isolated overflow worktree via tracked symlink paths. The new assertWorktreeRelativePath()/normalizeFakePackPaths guard in packages/main/src/core/lattice-dispatch.ts only rejects absolute and .. segments, but runFakeLeafDispatch then resolves markerAbs and writes it directly before any canonical-path check. Repro: after npm --prefix packages/main run build, a one-off registry run in a temporary git repo with a tracked absolute symlink packages/main/src/generated/escape-link -> /tmp/... prepared dispatchId=D-symlink with allowedPaths=[\"packages/main/src/generated/escape-link/escaped.txt\"]. dispatch_run threw later at git add with fatal: pathspec ... is beyond a symbolic link, but /tmp/.../escaped.txt had already been created with dispatch metadata. This means the bounded fake-path write contract is still bypassable before the command fails.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-03T00:30:38.858Z",
@@ -92,7 +92,9 @@
       "_hash": "73b98367e1d3663f5480b6b3620c3538f9ea6aa3e2e0e5adaa96e892b8fd4d49",
       "files": [
         "packages/main/src/core/lattice-dispatch.ts"
-      ]
+      ],
+      "resolvedReason": "Resolved by commit 990be1be. Fake dispatch now uses canonical realpath containment before mkdir/write so symlink escapes fail before external writes. README and host-overflow docs now describe landed dispatch_plan/prepare/run/overflow_auto, approve+start gating, and real-host worktree creation/failure behavior. Verified with build, dispatch-run smoke, lattice-handoff smoke, command ownership contract, and process fact contract.",
+      "resolvedAt": "2026-06-03T00:36:12.949Z"
     },
     {
       "id": "B-106b:F-006",
