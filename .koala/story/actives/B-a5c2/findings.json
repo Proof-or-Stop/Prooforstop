@@ -34,6 +34,22 @@
         "packages/main/src/core/lattice-dispatch.ts",
         "packages/main/src/core/dispatch-policy.ts"
       ]
+    },
+    {
+      "id": "B-a5c2:F-003",
+      "desc": "dispatch_auto does not enforce policy scope or command allowlists before execution. buildPack copies caller-supplied allowedPaths and requiredCommands directly into the pack (packages/main/src/core/lattice-dispatch.ts:945-969), dispatchAuto only checks host and maxParallel before forwarding the original args into runDispatch (2203-2273), and the fake runner executes pack.requiredCommands verbatim (1544-1556). Verified in an isolated temp repo using built dist handlers: a policy with allowedPaths=[packages/main/src/generated/] and commandAllowlist=[node -e process.exit(0)] still accepted dispatch_auto with allowedPaths=[README.md] and requiredCommands=[node -e require(fs).writeFileSync(UNSAFE-CMD.txt,x)], returned status=accepted_local, and created the file. This breaks the user-approved host/path/command boundary promised by the story.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-03T21:26:55.119Z",
+      "reviewRound": "2026-06-03T21:19:39.509Z",
+      "reviewRunId": "B-a5c2:RR-008",
+      "_hash": "8c7269e27f861da00621bf09a0a859b4a6a05289926ec80ce0fc10b6eb768d84",
+      "files": [
+        "packages/main/src/core/lattice-dispatch.ts"
+      ]
     }
   ]
 }
