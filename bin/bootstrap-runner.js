@@ -41,8 +41,9 @@ function printBootstrapFailure(error) {
   console.error('Fallbacks:');
   console.error('  - Core-only local CLI: node packages/main/dist/cli.js <command>');
   console.error('    Use this for current-worktree gate/status/validate checks while developing Koala.');
-  console.error('  - Global Codex path: KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 KOALA_CODEX_ENTRYPOINT=global-fallback koala <command>');
-  console.error('    Heartbeat fallback only; it may lag this worktree and is not gate/status evidence.');
+  console.error('  - Global CLI (heartbeat-only, not current-worktree gate/status evidence):');
+  console.error('    KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 KOALA_CODEX_ENTRYPOINT=global-fallback koala <command>');
+  console.error('    Use only for session_brief heartbeat or post-merge main checks; may lag this worktree.');
 
   if (error) {
     console.error('');

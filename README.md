@@ -288,6 +288,8 @@ node bin/lattice-codex.js story_create '...'
 node bin/lattice-codex.js lab create --target=test-case-reviewer --profile=reviewer-quality-v1
 ```
 
+Wrapper 优先级：`bin/lattice-codex.js`（本仓标准）> `bin/koala-codex.js`（legacy 项目等价 fallback）> `bin/lattice.js`（通用 bootstrap，不带 `source=codex` 标记）。legacy 项目或新 worktree 只有 `bin/koala-codex.js` 时，直接替换前缀，语义等价。
+
 原因：
 
 - 这个入口会加载 `main + utils`，所以 `aux_*` 命令可用
@@ -338,7 +340,7 @@ its last release. Future release hardening should revisit Node SEA or an
 actively maintained `pkg` fork before adding installer, signing, or auto-update
 workflows.
 
-全局 `koala` 只适合作为 source-tagged heartbeat fallback；它可能滞后于当前 worktree，不应作为当前 story 的 gate/status/next-step 证据。
+全局 `koala` 只适合作为 source-tagged heartbeat fallback；它可能滞后于当前 worktree，不应作为当前 story 的 gate/status/next-step 证据。Global `lattice`/`koala` in a story worktree is **heartbeat-only, not current-worktree gate/status evidence**.
 
 `validate --json` 的 `commands[]` 是验证 receipt：结构化命令默认记录 argv 形式；
 包含 `cd`、`&&`、管道或重定向等 shell 语义的字符串配置会记录 `shell=true`，表示这是有意的 shell receipt。必需命令失败会让 validate fail；`optional:true` 失败只会 warn。`doctor` 的 Validation scan 只做 advisory：它展示 validate 文件、配置命令、fallback 发现和 no-validator warning，帮助你决定是否要补显式 `validate.command(s)`。
@@ -363,8 +365,11 @@ npm --prefix packages/main run test:outcome-semantics-smoke
 
 ### 3. 新 session 的第一步
 
+用当前 worktree 已有的 codex wrapper（按优先级选一）：
+
 ```bash
-node bin/lattice-codex.js session_brief
+node bin/lattice-codex.js session_brief     # 本仓标准 wrapper
+# node bin/koala-codex.js session_brief    # legacy 项目 fallback（等价）
 ```
 
 项目里的 [AGENTS.md](/Users/jek/Documents/Work/Orchestrate/AGENTS.md:1) 也要求每个新 session 先跑这条命令。
@@ -422,13 +427,13 @@ npx koala-init --verify-codex
 
 ## 没有本地 wrapper 时
 
-如果某个项目只有全局 CLI，没有 `bin/lattice-codex.js`，可以这样跑：
+如果某个项目只有全局 CLI，没有 `bin/lattice-codex.js` 也没有 `bin/koala-codex.js`，可以这样跑：
 
 ```bash
 KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 KOALA_CODEX_ENTRYPOINT=global-fallback lattice session_brief
 ```
 
-这能保证 activity 里仍然按 `source=codex` / `entrypoint=global-fallback` 记账，并让 `session_brief` 这种只读入口也留下 heartbeat；但如果没有 bootstrap 入口，`aux_*` 命令可能不可用。
+这能保证 activity 里仍然按 `source=codex` / `entrypoint=global-fallback` 记账，并让 `session_brief` 这种只读入口也留下 heartbeat；但如果没有 bootstrap 入口，`aux_*` 命令可能不可用。**Global CLI is heartbeat-only, not current-worktree gate/status evidence**; do not use its `status` / `validate` output as gate authority for the active story worktree.
 
 注意：在 Lattice/Koala 仓库开发自身时，全局 CLI 可能来自旧安装、主仓或另一个 worktree。不要用旧全局 `koala` alias 的 `status` / `next` / `validate` 输出判断当前 story 是否可推进；先构建本地 wrapper，或使用 `node packages/main/dist/cli.js <command>` 读取当前 worktree 的代码和状态。
 
