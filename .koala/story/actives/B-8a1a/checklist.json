@@ -369,7 +369,7 @@
           "note": "Deterministic fake Claude coverage passed for success/env/nonzero/timeout plus policy/refusal/manual authority paths.",
           "headHash": "b30b54cdbe2f02be1064be2145acc3c106aad568",
           "materialHash": "379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b",
-          "timestamp": "2026-06-03T23:50:28.073Z"
+          "timestamp": "2026-06-03T23:50:49.674Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -380,17 +380,18 @@
           "note": "Related regression suite passed: dispatch scaffold, host overflow, capability list, and Lattice CLI migration.",
           "headHash": "b30b54cdbe2f02be1064be2145acc3c106aad568",
           "materialHash": "379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b",
-          "timestamp": "2026-06-03T23:50:28.073Z"
+          "timestamp": "2026-06-03T23:50:49.798Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
           "kind": "manual_transcript",
-          "command": "CLI canary in temp git repo using node packages/main/dist/cli.js --root <tmp> dispatch_policy_create/dispatch_auto/dispatch_status/dispatch_watch/dispatch_review/dispatch_merge_plan with fake claude in PATH",
+          "file": ".koala/story/actives/B-8a1a/evidence/cli-real-claude-canary.md",
+          "command": "Auditable CLI canary artifact records node packages/main/dist/cli.js --root <tmp> dispatch_policy_create/dispatch_auto/dispatch_status/dispatch_watch/dispatch_review/dispatch_merge_plan with fake claude in PATH, plus missing launcher refusal.",
           "result": "pass",
-          "note": "Real CLI entrypoint reached runnerKind=claude-code-real, changedFiles=[packages/main/src/generated/cli-claude.txt], manualOnly=true, authority fields false. The live-provider canary is intentionally classified as deterministic fake-binary evidence to avoid spending user Claude quota during story automation.",
+          "note": "Real CLI entrypoint evidence is persisted in .koala/story/actives/B-8a1a/evidence/cli-real-claude-canary.md: runnerKind=claude-code-real, changedFiles=[packages/main/src/generated/cli-claude.txt], manualOnly=true, missing launcher allowlist refused, authority fields false. Fake binary is intentional to avoid spending user Claude quota while testing CLI orchestration.",
           "headHash": "b30b54cdbe2f02be1064be2145acc3c106aad568",
           "materialHash": "379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b",
-          "timestamp": "2026-06-03T23:50:28.073Z"
+          "timestamp": "2026-06-03T23:50:49.878Z"
         }
       ]
     }
