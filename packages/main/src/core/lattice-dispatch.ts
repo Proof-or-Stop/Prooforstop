@@ -253,12 +253,26 @@ export interface DispatchListResult {
   productionDone: false;
 }
 
+export interface DispatchReviewRunnerSummary {
+  runnerKind: string;
+  cwd: string;
+  transcriptPath: string;
+  exitCode?: number;
+  timedOut: boolean;
+  commandTemplate: string[];
+}
+
 export interface DispatchReviewResult {
   schemaVersion: 'lattice.dispatch_review.v1';
   dispatchId: string;
   storyId: string;
   status: DispatchLifecycleStatus;
   changedFiles: string[];
+  commands: string[];
+  transcriptPath: string;
+  transcriptExists: boolean;
+  runnerSummary?: DispatchReviewRunnerSummary;
+  localReceiptStatus: 'accepted-local' | 'diagnostic' | 'missing';
   receipt?: HandoffReceiptSubmission;
   workers: DispatchReviewResult[];
   warnings: string[];
@@ -2010,19 +2024,40 @@ export function cancelDispatch(root: string, dispatchId: string): DispatchStatus
   return dispatchStatus(root, updated.dispatchId);
 }
 
+function normalizeReceiptSubmissionAuthority(sub: HandoffReceiptSubmission): HandoffReceiptSubmission {
+  return {
+    ...sub,
+    authorityChanged: false,
+    receiptVerified: false,
+    productionDone: false,
+  };
+}
+
 export function reviewDispatch(root: string, dispatchId: string): DispatchReviewResult {
   const status = dispatchStatus(root, dispatchId);
-  const receipt = status.receipt;
+  // Normalize receipt to ensure forged authority fields in persisted files cannot surface as true.
+  const receipt = status.receipt ? normalizeReceiptSubmissionAuthority(status.receipt) : undefined;
   if (status.dispatch.workerIds.length > 0) {
     const workers = status.workers.map(worker => reviewDispatch(root, worker.dispatch.dispatchId));
     const warnings = workers.flatMap(worker => worker.warnings);
     const risks = workers.flatMap(worker => worker.risks);
+    const transcriptPath = status.dispatch.transcriptFile;
+    const transcriptAbsPath = resolve(root, transcriptPath);
+    const transcriptExists = existsSync(transcriptAbsPath) && (statSync(transcriptAbsPath).size > 0);
+    const localReceiptStatus: DispatchReviewResult['localReceiptStatus'] =
+      workers.some(w => w.localReceiptStatus === 'accepted-local')
+        ? workers.every(w => w.localReceiptStatus === 'accepted-local') ? 'accepted-local' : 'diagnostic'
+        : workers.some(w => w.localReceiptStatus === 'diagnostic') ? 'diagnostic' : 'missing';
     return {
       schemaVersion: 'lattice.dispatch_review.v1',
       dispatchId,
       storyId: status.dispatch.storyId,
       status: aggregateStatus(workers.map(worker => worker.status)),
       changedFiles: [...new Set(workers.flatMap(worker => worker.changedFiles))].sort(),
+      commands: [...new Set(workers.flatMap(worker => worker.commands))],
+      transcriptPath,
+      transcriptExists,
+      localReceiptStatus,
       workers,
       warnings,
       risks,
@@ -2035,10 +2070,28 @@ export function reviewDispatch(root: string, dispatchId: string): DispatchReview
     };
   }
   const collection = collectDispatch(root, dispatchId, { persist: false });
+  const transcriptPath = status.dispatch.transcriptFile;
+  const transcriptAbsPath = resolve(root, transcriptPath);
+  // transcriptExists is true only when the transcript file has been written to (non-empty).
+  // The placeholder file is created during dispatch_prepare; actual content means the dispatch ran.
+  const transcriptExists = existsSync(transcriptAbsPath) && (statSync(transcriptAbsPath).size > 0);
+  const runner = status.runner;
+  const runnerSummary: DispatchReviewRunnerSummary | undefined = runner ? {
+    runnerKind: runner.runnerKind,
+    cwd: runner.cwd,
+    transcriptPath: runner.transcriptPath,
+    ...(runner.exitCode !== undefined ? { exitCode: runner.exitCode } : {}),
+    timedOut: runner.timedOut,
+    commandTemplate: [...runner.commandTemplate],
+  } : undefined;
+  const localReceiptStatus: DispatchReviewResult['localReceiptStatus'] = receipt
+    ? (receipt.status === 'accepted-local' ? 'accepted-local' : 'diagnostic')
+    : 'missing';
   const risks = [
     ...(status.dispatch.status === 'accepted_local' ? [] : [`dispatch status=${status.dispatch.status}`]),
     ...(receipt?.status === 'accepted-local' ? [] : ['receipt is diagnostic-only or missing']),
     ...(collection.changedFiles.length > 0 ? [] : ['no git-derived changedFiles collected']),
+    ...(!transcriptExists ? ['transcript file missing or not yet written'] : []),
   ];
   return {
     schemaVersion: 'lattice.dispatch_review.v1',
@@ -2046,6 +2099,11 @@ export function reviewDispatch(root: string, dispatchId: string): DispatchReview
     storyId: status.dispatch.storyId,
     status: status.dispatch.status,
     changedFiles: collection.changedFiles,
+    commands: collection.commands,
+    transcriptPath,
+    transcriptExists,
+    ...(runnerSummary ? { runnerSummary } : {}),
+    localReceiptStatus,
     ...(receipt ? { receipt } : {}),
     workers: [],
     warnings: [...status.dispatch.warnings, ...collection.warnings, ...(receipt?.warnings ?? [])],
@@ -2061,23 +2119,35 @@ export function reviewDispatch(root: string, dispatchId: string): DispatchReview
 
 export function buildDispatchMergePlan(root: string, dispatchId: string): DispatchMergePlanResult {
   const status = dispatchStatus(root, dispatchId);
-  const workers = status.dispatch.workerIds.length > 0
-    ? status.workers.map(worker => ({
-      dispatchId: worker.dispatch.dispatchId,
-      status: worker.dispatch.status,
-      reviewCommand: worker.dispatch.worktree.reviewCommand,
-      cleanupCommand: worker.dispatch.worktree.cleanupCommand,
-    }))
-    : [{
-      dispatchId: status.dispatch.dispatchId,
-      status: status.dispatch.status,
-      reviewCommand: status.dispatch.worktree.reviewCommand,
-      cleanupCommand: status.dispatch.worktree.cleanupCommand,
-    }];
-  const mergeable = workers.every(worker => worker.status === 'accepted_local');
+  const workerRecords = status.dispatch.workerIds.length > 0
+    ? status.workers.map(w => w.dispatch)
+    : [status.dispatch];
+  const workers = workerRecords.map(record => ({
+    dispatchId: record.dispatchId,
+    status: record.status,
+    reviewCommand: record.worktree.reviewCommand,
+    cleanupCommand: record.worktree.cleanupCommand,
+  }));
+  const allLifecycleAccepted = workers.every(worker => worker.status === 'accepted_local');
+  // Defense in depth: verify accepted-local receipts actually exist on disk, not just lifecycle status.
+  // This prevents a forged or mutated receipt file from making mergeable=true after an invalid run.
+  const allReceiptsAccepted = workerRecords.every(record => {
+    const sub = maybeReadReceiptSubmission(root, record);
+    return sub?.status === 'accepted-local';
+  });
+  const mergeable = allLifecycleAccepted && allReceiptsAccepted;
+  const receiptMismatch = allLifecycleAccepted && !allReceiptsAccepted;
   const commands = mergeable
     ? workers.flatMap(worker => [`${worker.reviewCommand}`, `${worker.cleanupCommand}`])
     : [];
+  const warnings: string[] = [];
+  if (mergeable) {
+    warnings.push('Manual merge only: review each isolated worker diff and cherry-pick/merge by hand if accepted.');
+  } else if (receiptMismatch) {
+    warnings.push('Lifecycle status shows accepted_local but accepted-local receipt(s) are missing or diagnostic. Manual investigation required before merge.');
+  } else {
+    warnings.push('Normal merge guidance is withheld because the dispatch is not accepted_local across all required workers.');
+  }
   return {
     schemaVersion: 'lattice.dispatch_merge_plan.v1',
     dispatchId,
@@ -2087,9 +2157,7 @@ export function buildDispatchMergePlan(root: string, dispatchId: string): Dispat
     manualOnly: true,
     workers,
     commands,
-    warnings: mergeable
-      ? ['Manual merge only: review each isolated worker diff and cherry-pick/merge by hand if accepted.']
-      : ['Normal merge guidance is withheld because the dispatch is not accepted_local across all required workers.'],
+    warnings,
     nextAction: mergeable
       ? 'Manual merge only. Review diffs, receipt diagnostics, and required command output before merging anything back.'
       : status.dispatch.nextAction,
@@ -2446,11 +2514,31 @@ export function renderDispatchReviewText(result: DispatchReviewResult): string {
     `storyId: ${result.storyId}`,
     `status: ${result.status}`,
     `changedFiles: ${result.changedFiles.length}`,
+    `transcriptPath: ${result.transcriptPath}`,
+    `transcriptExists: ${result.transcriptExists}`,
+    `localReceiptStatus: ${result.localReceiptStatus}`,
     `nextAction: ${result.nextAction}`,
   ];
+  if (result.runnerSummary) {
+    const r = result.runnerSummary;
+    lines.push('', 'runner:');
+    lines.push(`  runnerKind: ${r.runnerKind}`);
+    lines.push(`  cwd: ${r.cwd}`);
+    lines.push(`  transcriptPath: ${r.transcriptPath}`);
+    if (r.exitCode !== undefined) lines.push(`  exitCode: ${r.exitCode}`);
+    lines.push(`  timedOut: ${r.timedOut}`);
+  }
+  if (result.commands.length > 0) {
+    lines.push('', 'commands:');
+    lines.push(...result.commands.map(cmd => `  - ${cmd}`));
+  }
   if (result.workers.length > 0) {
     lines.push('', 'workers:');
-    lines.push(...result.workers.map(worker => `  - ${worker.dispatchId}: ${worker.status}`));
+    lines.push(...result.workers.map(worker => `  - ${worker.dispatchId}: ${worker.status} localReceiptStatus=${worker.localReceiptStatus}`));
+  }
+  if (result.risks.length > 0) {
+    lines.push('', 'risks:');
+    lines.push(...result.risks.map(risk => `  - ${risk}`));
   }
   if (result.warnings.length > 0) {
     lines.push('', 'warnings:');

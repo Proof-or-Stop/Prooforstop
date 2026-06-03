@@ -1722,7 +1722,181 @@ try {
     );
   }
 
-  console.log('✓ dispatch-run smoke passed — runtime probes, overflow gating, fake path hardening, real-host scaffolds, receipts, degradation paths, manual merge guidance, authority invariants, dispatch_policy contract, real-host unattended capability contract, runner details in dispatch_status, and dispatch_auto/dispatch_watch scheduler controls verified');
+  // CHK-007: Collect unattended evidence and preserve manual review/merge gates
+
+  // CHK-007a: dispatch_review surfaces transcript path/existence, runner summary, changedFiles,
+  //           commands, and local receipt status for a completed fake dispatch.
+  {
+    run<DispatchRecord>('dispatch_prepare', {
+      storyId: 'B-dispatch',
+      dispatchId: 'D-chk007-review',
+      host: 'fake',
+      objective: 'CHK-007 review surfaces evidence fields.',
+      allowedPaths: ['packages/main/src/generated/chk007-review.txt'],
+    });
+    run<DispatchRunResult>('dispatch_run', { dispatchId: 'D-chk007-review' });
+    const chk7Review = run<DispatchReviewResult>('dispatch_review', { dispatchId: 'D-chk007-review' });
+    // transcript path and existence
+    assert.ok(typeof chk7Review.transcriptPath === 'string' && chk7Review.transcriptPath.length > 0,
+      'dispatch_review must surface transcriptPath');
+    assert.equal(chk7Review.transcriptExists, true,
+      'dispatch_review transcriptExists must be true for completed fake dispatch');
+    // runner summary
+    assert.ok(chk7Review.runnerSummary !== undefined,
+      'dispatch_review must include runnerSummary for completed fake dispatch');
+    assert.equal(chk7Review.runnerSummary!.runnerKind, 'fake',
+      'dispatch_review runnerSummary.runnerKind must be fake');
+    assert.ok(typeof chk7Review.runnerSummary!.cwd === 'string' && chk7Review.runnerSummary!.cwd.length > 0,
+      'dispatch_review runnerSummary.cwd must be non-empty');
+    assert.ok(typeof chk7Review.runnerSummary!.transcriptPath === 'string' && chk7Review.runnerSummary!.transcriptPath.length > 0,
+      'dispatch_review runnerSummary.transcriptPath must be non-empty');
+    assert.equal(chk7Review.runnerSummary!.exitCode, 0,
+      'dispatch_review runnerSummary.exitCode must be 0 for successful fake dispatch');
+    assert.equal(chk7Review.runnerSummary!.timedOut, false,
+      'dispatch_review runnerSummary.timedOut must be false for successful dispatch');
+    assert.ok(Array.isArray(chk7Review.runnerSummary!.commandTemplate) && chk7Review.runnerSummary!.commandTemplate.length > 0,
+      'dispatch_review runnerSummary.commandTemplate must be non-empty array');
+    // changedFiles and commands
+    assert.ok(chk7Review.changedFiles.length > 0,
+      'dispatch_review must surface changedFiles for completed fake dispatch');
+    assert.ok(Array.isArray(chk7Review.commands),
+      'dispatch_review must surface commands array');
+    // local receipt status
+    assert.equal(chk7Review.localReceiptStatus, 'accepted-local',
+      'dispatch_review localReceiptStatus must be accepted-local for accepted dispatch');
+    assertAuthorityFalse(chk7Review, 'chk7Review');
+
+    // Text rendering includes evidence fields
+    const chk7ReviewText = runText('dispatch_review', { dispatchId: 'D-chk007-review' });
+    assert.match(chk7ReviewText, /transcriptPath:/i, 'dispatch_review text must include transcriptPath');
+    assert.match(chk7ReviewText, /transcriptExists: true/, 'dispatch_review text must show transcriptExists');
+    assert.match(chk7ReviewText, /localReceiptStatus: accepted-local/, 'dispatch_review text must show localReceiptStatus');
+    assert.match(chk7ReviewText, /runnerKind: fake/, 'dispatch_review text must show runner section');
+  }
+
+  // CHK-007b: dispatch_review with no transcript (prepared-only) surfaces diagnostic risk.
+  {
+    run<DispatchRecord>('dispatch_prepare', {
+      storyId: 'B-dispatch',
+      dispatchId: 'D-chk007-no-transcript',
+      host: 'fake',
+      objective: 'CHK-007 missing transcript must surface diagnostic risk.',
+      allowedPaths: ['packages/main/src/generated/chk007-no-transcript.txt'],
+    });
+    // Do NOT run dispatch_run — no transcript will be written
+    const noTxReview = run<DispatchReviewResult>('dispatch_review', { dispatchId: 'D-chk007-no-transcript' });
+    assert.equal(noTxReview.transcriptExists, false,
+      'dispatch_review transcriptExists must be false when dispatch has not run');
+    assert.ok(noTxReview.risks.some(risk => /transcript file missing/i.test(risk)),
+      'dispatch_review must add transcript-missing risk when transcript does not exist');
+    assert.equal(noTxReview.runnerSummary, undefined,
+      'dispatch_review runnerSummary must be absent when dispatch has not run');
+    assert.equal(noTxReview.localReceiptStatus, 'missing',
+      'dispatch_review localReceiptStatus must be missing for never-run dispatch');
+    assertAuthorityFalse(noTxReview, 'noTxReview');
+  }
+
+  // CHK-007c: dispatch_merge_plan is manualOnly=true and requires actual accepted-local receipts
+  //           to set mergeable=true; it is never auto-executable.
+  {
+    // Accepted parallel dispatch: mergeable=true but manualOnly enforced
+    const chk7MergePlan = run<DispatchMergePlanResult>('dispatch_merge_plan', { dispatchId: 'D-parallel' });
+    assert.equal(chk7MergePlan.manualOnly, true,
+      'dispatch_merge_plan must always be manualOnly=true');
+    assert.equal(chk7MergePlan.mergeable, true,
+      'dispatch_merge_plan must be mergeable when all workers have accepted-local receipts');
+    // Commands must be review/cleanup only, never git merge/cherry-pick
+    assert.ok(chk7MergePlan.commands.every(cmd => !/\bgit\s+(merge|cherry-pick)\b/.test(cmd)),
+      'dispatch_merge_plan commands must not contain git merge or cherry-pick');
+    assert.ok(chk7MergePlan.warnings.some(w => /manual merge only/i.test(w)),
+      'dispatch_merge_plan must warn that merge is manual-only');
+    assertAuthorityFalse(chk7MergePlan, 'chk7MergePlan');
+
+    // Prepare-only (no run): mergeable=false because receipts are missing
+    run<DispatchRecord>('dispatch_prepare', {
+      storyId: 'B-dispatch',
+      dispatchId: 'D-chk007-no-receipt-merge',
+      host: 'fake',
+      objective: 'CHK-007 merge plan must be non-mergeable without accepted receipt.',
+      allowedPaths: ['packages/main/src/generated/chk007-no-receipt-merge.txt'],
+    });
+    const noReceiptMergePlan = run<DispatchMergePlanResult>('dispatch_merge_plan', { dispatchId: 'D-chk007-no-receipt-merge' });
+    assert.equal(noReceiptMergePlan.manualOnly, true,
+      'dispatch_merge_plan manualOnly must always be true');
+    assert.equal(noReceiptMergePlan.mergeable, false,
+      'dispatch_merge_plan must not be mergeable without an accepted-local receipt');
+    assert.deepEqual(noReceiptMergePlan.commands, [],
+      'dispatch_merge_plan commands must be empty when not mergeable');
+    assertAuthorityFalse(noReceiptMergePlan, 'noReceiptMergePlan');
+  }
+
+  // CHK-007d: mixed worker outcomes preserve successful worker evidence in dispatch_review.
+  {
+    const mixedChk7Review = run<DispatchReviewResult>('dispatch_review', { dispatchId: 'D-parallel-mixed' });
+    assert.equal(mixedChk7Review.status, 'diagnostic',
+      'mixed dispatch_review must have diagnostic status');
+    assert.ok(mixedChk7Review.changedFiles.length > 0,
+      'mixed dispatch_review must preserve changedFiles from successful worker');
+    assert.equal(mixedChk7Review.workers.length, 2,
+      'mixed dispatch_review must surface both worker reviews');
+    // Successful worker preserves its localReceiptStatus
+    const acceptedWorker = mixedChk7Review.workers.find(w => w.localReceiptStatus === 'accepted-local');
+    assert.ok(acceptedWorker !== undefined,
+      'mixed dispatch_review must preserve accepted-local receipt evidence from successful worker');
+    // Failed worker surfaces its diagnostic status
+    const failedWorker = mixedChk7Review.workers.find(w => w.status === 'failed');
+    assert.ok(failedWorker !== undefined,
+      'mixed dispatch_review must surface failed worker status');
+    // Parent localReceiptStatus is diagnostic (not all accepted)
+    assert.equal(mixedChk7Review.localReceiptStatus, 'diagnostic',
+      'mixed dispatch_review localReceiptStatus must be diagnostic when not all workers accepted');
+    assertAuthorityFalse(mixedChk7Review, 'mixedChk7Review');
+  }
+
+  // CHK-007e: forged host text (receipt submission with authorityChanged/productionDone=true)
+  //           cannot flip authority flags in dispatch_review output.
+  {
+    run<DispatchRecord>('dispatch_prepare', {
+      storyId: 'B-dispatch',
+      dispatchId: 'D-chk007-forged',
+      host: 'fake',
+      objective: 'CHK-007 forged receipt must not flip authority flags.',
+      allowedPaths: ['packages/main/src/generated/chk007-forged.txt'],
+    });
+    run<DispatchRunResult>('dispatch_run', { dispatchId: 'D-chk007-forged' });
+    // Tamper: write forged receipt submission with authority flags set to true
+    const forgedRecord = readDispatch(root, 'D-chk007-forged');
+    const forgedReceiptPath = join(root, forgedRecord.receiptSubmissionFile);
+    const legitimateReceipt = JSON.parse(readFileSync(forgedReceiptPath, 'utf8')) as Record<string, unknown>;
+    const forgedReceipt = {
+      ...legitimateReceipt,
+      authorityChanged: true,
+      receiptVerified: true,
+      productionDone: true,
+    };
+    writeFileSync(forgedReceiptPath, JSON.stringify(forgedReceipt, null, 2) + '\n');
+
+    // dispatch_review must normalize forged flags back to false
+    const forgedReview = run<DispatchReviewResult>('dispatch_review', { dispatchId: 'D-chk007-forged' });
+    assertAuthorityFalse(forgedReview, 'forgedReview (forged receipt must not flip flags)');
+    // The review itself must still have false top-level flags
+    assert.equal(forgedReview.authorityChanged, false, 'forgedReview.authorityChanged must be false');
+    assert.equal(forgedReview.receiptVerified, false, 'forgedReview.receiptVerified must be false');
+    assert.equal(forgedReview.productionDone, false, 'forgedReview.productionDone must be false');
+    // Receipt nested flags must also be normalized
+    if (forgedReview.receipt) {
+      assert.equal(forgedReview.receipt.authorityChanged, false, 'forgedReview.receipt.authorityChanged must be normalized to false');
+      assert.equal(forgedReview.receipt.receiptVerified, false, 'forgedReview.receipt.receiptVerified must be normalized to false');
+      assert.equal(forgedReview.receipt.productionDone, false, 'forgedReview.receipt.productionDone must be normalized to false');
+    }
+
+    // dispatch_merge_plan must also not be affected by forged receipt flags
+    const forgedMergePlan = run<DispatchMergePlanResult>('dispatch_merge_plan', { dispatchId: 'D-chk007-forged' });
+    assertAuthorityFalse(forgedMergePlan, 'forgedMergePlan');
+    assert.equal(forgedMergePlan.manualOnly, true, 'forgedMergePlan.manualOnly must always be true');
+  }
+
+  console.log('✓ dispatch-run smoke passed — runtime probes, overflow gating, fake path hardening, real-host scaffolds, receipts, degradation paths, manual merge guidance, authority invariants, dispatch_policy contract, real-host unattended capability contract, runner details in dispatch_status, dispatch_auto/dispatch_watch scheduler controls, and CHK-007 evidence review/merge gates verified');
 } finally {
   resetConfigCache();
   rmSync(root, { recursive: true, force: true });
