@@ -1,0 +1,124 @@
+{
+  "command": "koala validate --story=B-7fc2 --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"fail\",\"allPass\":false,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery; verification coverage missing 12 required intent(s)\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.5 test\",\"  > npm run test:e2e\",\"  > koala@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ℹ Reading legacy koala.config.json at /Users/jek/Documents/Work/Orchestrate/.worktrees/B-7fc2; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ℹ Reading legacy koala.config.json at .; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-uR5hL0; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-ylbCQl; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 0/12 covered (12 required missing)\",\"  ✗ CHK-001:happy:0 [happy/must/cli] missing — validate --json 当前失败被真实 CLI 子进程复现，错误定位到 hint decoration\",\"  ✗ CHK-001:edge:0 [edge/must/logic] missing — 已有正常 --format=json 命令仍被纳入矩阵，避免误判全 CLI 都坏\",\"  ✗ CHK-001:adversarial:0 [adversarial/must/docs] missing — 禁止把修复方案定为 dashboard 侧抽取 JSON substring\",\"  ✗ CHK-002:happy:0 [happy/must/cli] missing — validate --json stdout 可直接 JSON.parse 且没有 “→ 验证全绿”\",\"  ✗ CHK-002:edge:0 [edge/must/cli] missing — text mode validate 仍保留 “→ 验证全绿” next-step hint\",\"  ✗ CHK-002:adversarial:0 [adversarial/must/cli] missing — 失败/coverage missing 的 JSON mode 也不能把修复建议拼进 stdout\",\"  ✗ CHK-003:happy:0 [happy/must/cli] missing — 新 smoke 直接 JSON.parse execFileSync stdout\",\"  ✗ CHK-003:edge:0 [edge/must/cli] missing — 一个已经正常的 --format=json 命令继续 parseable，防止输出管线回归\",\"  ✗ CHK-003:adversarial:0 [adversarial/must/logic] missing — 测试断言 stdout 不含 next-step hint，避免未来误把 hint 加回 JSON mode\",\"  ✗ CHK-004:happy:0 [happy/must/manual] missing — Claude Code 三个 agent 均产出可追踪结论，Lattice delivery-check 接收\",\"  ✗ CHK-004:edge:0 [edge/must/manual] missing — 如果某 agent 发现 blocking issue，story 留在 DEV/REVIEW 修复而不是硬 DONE\",\"  ✗ CHK-004:adversarial:0 [adversarial/must/docs] missing — DONE summary 必须明确 no limitations 或列出未覆盖 JSON 命令，不允许抽象说全绿\"],\"warnings\":[],\"timestamp\":\"2026-06-03T22:20:23.472Z\",\"headSha\":\"951a6c763173fb316d9178695972f5629b94a606\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\nℹ Reading legacy koala.config.json at /Users/jek/Documents/Work/Orchestrate/.worktrees/B-7fc2; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\nℹ Reading legacy koala.config.json at .; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-uR5hL0; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-ylbCQl; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1990}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":12,\"reason\":\"verificationIntent entries present (12)\"},\"verificationCoverage\":{\"total\":12,\"required\":12,\"covered\":0,\"missingRequired\":12,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"validate --json 当前失败被真实 CLI 子进程复现，错误定位到 hint decoration\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"已有正常 --format=json 命令仍被纳入矩阵，避免误判全 CLI 都坏\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"禁止把修复方案定为 dashboard 侧抽取 JSON substring\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"validate --json stdout 可直接 JSON.parse 且没有 “→ 验证全绿”\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"text mode validate 仍保留 “→ 验证全绿” next-step hint\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"失败/coverage missing 的 JSON mode 也不能把修复建议拼进 stdout\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"新 smoke 直接 JSON.parse execFileSync stdout\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"一个已经正常的 --format=json 命令继续 parseable，防止输出管线回归\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"测试断言 stdout 不含 next-step hint，避免未来误把 hint 加回 JSON mode\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"Claude Code 三个 agent 均产出可追踪结论，Lattice delivery-check 接收\",\"type\":\"manual\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"如果某 agent 发现 blocking issue，story 留在 DEV/REVIEW 修复而不是硬 DONE\",\"type\":\"manual\",\"priority\":\"must\",\"status\":\"missing\"},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"DONE summary 必须明确 no limitations 或列出未覆盖 JSON 命令，不允许抽象说全绿\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"missing\"}]}}",
+  "result": "FAIL",
+  "timestamp": "2026-06-03T22:20:23.554Z",
+  "headHash": "951a6c763173fb316d9178695972f5629b94a606",
+  "materialHash": "c2ee16c6517610f41ec93b2990dfdbe50e646768062385895c149371a814f508",
+  "verificationCoverage": {
+    "total": 12,
+    "required": 12,
+    "covered": 0,
+    "missingRequired": 12,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "validate --json 当前失败被真实 CLI 子进程复现，错误定位到 hint decoration",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "已有正常 --format=json 命令仍被纳入矩阵，避免误判全 CLI 都坏",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "禁止把修复方案定为 dashboard 侧抽取 JSON substring",
+        "type": "docs",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "validate --json stdout 可直接 JSON.parse 且没有 “→ 验证全绿”",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "text mode validate 仍保留 “→ 验证全绿” next-step hint",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "失败/coverage missing 的 JSON mode 也不能把修复建议拼进 stdout",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "新 smoke 直接 JSON.parse execFileSync stdout",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "一个已经正常的 --format=json 命令继续 parseable，防止输出管线回归",
+        "type": "cli",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "测试断言 stdout 不含 next-step hint，避免未来误把 hint 加回 JSON mode",
+        "type": "logic",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "Claude Code 三个 agent 均产出可追踪结论，Lattice delivery-check 接收",
+        "type": "manual",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "如果某 agent 发现 blocking issue，story 留在 DEV/REVIEW 修复而不是硬 DONE",
+        "type": "manual",
+        "priority": "must",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "DONE summary 必须明确 no limitations 或列出未覆盖 JSON 命令，不允许抽象说全绿",
+        "type": "docs",
+        "priority": "must",
+        "status": "missing"
+      }
+    ]
+  }
+}
