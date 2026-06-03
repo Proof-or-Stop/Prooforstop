@@ -240,7 +240,7 @@
       "desc": "Ancestor symlink in .worktrees/overflow can still materialize an out-of-repo worktree before containment rejects it. If .worktrees/overflow/<storyId> is a symlink to an external directory, ensureWorktree calls git worktree add through that symlink and only afterward assertRegisteredDispatchWorktreeRoot rejects the external realpath. This leaves external worktree artifacts for fake and real-host dispatches even though they do not reach needs_receipt. Validate all existing worktreePath ancestors before mkdirSync/git worktree add, clean partial add failures, and add fake plus real-host ancestor-symlink smoke coverage.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-03T13:56:12.304Z",
@@ -249,7 +249,9 @@
       "_hash": "e2c4edecb5bd3f24c5d603996a0ba107775f6dfd05651bc9acc625635b6cce1c",
       "files": [
         "packages/main/src/core/lattice-dispatch.ts,packages/main/src/tasks/dispatch-run-smoke.ts"
-      ]
+      ],
+      "resolvedReason": "Resolved by committed code in 7beea13d with validation preserved by 87480a9c. Dispatch worktree creation now validates projected ancestors before mkdir/git worktree add, and dispatch-run smoke covers fake plus real-host .worktrees/overflow/<storyId> ancestor symlink attacks with no external artifacts. Verified with npm --prefix packages/main run build; npm --prefix packages/main run test:dispatch-run-smoke; npm --prefix packages/main run test:capability-list-smoke.",
+      "resolvedAt": "2026-06-03T14:08:37.248Z"
     },
     {
       "id": "B-106b:F-014",
