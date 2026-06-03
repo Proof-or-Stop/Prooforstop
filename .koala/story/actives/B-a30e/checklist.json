@@ -195,9 +195,9 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-03T22:17:51.947Z",
       "files": {
         "modify": [
           "packages/main/src/cli-engine.ts"
@@ -438,6 +438,16 @@
       "from": "pending",
       "to": "done",
       "reason": "Implementation committed and verificationEvidence recorded for CHK-002",
+      "agent": "codex-supervisor"
+    },
+    {
+      "timestamp": "2026-06-03T22:17:51.947Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implementation committed and verificationEvidence recorded for CHK-003",
       "agent": "codex-supervisor"
     }
   ]
