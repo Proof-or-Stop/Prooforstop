@@ -35,7 +35,7 @@
       },
       "status": "done",
       "startTime": null,
-      "endTime": "2026-06-03T00:14:55.336Z",
+      "endTime": "2026-06-03T00:15:44.656Z",
       "verificationEvidence": [
         {
           "intentRef": "CHK-001:happy:0",
@@ -44,10 +44,34 @@
           "file": "docs/requirements/decisions/host-overflow.md",
           "command": "review README.md docs/guide.md docs/requirements/decisions/host-overflow.md",
           "result": "pass",
-          "note": "Docs state dispatch_run/overflow_auto are supervised, degrade visibly, and never auto-merge, verify receipts, or claim productionDone.",
+          "note": "Docs state dispatch_run/overflow_auto are supervised, degrade visibly, and never auto-merge, verify receipts, or claim productionDone. Covers happy intent 0.",
           "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
           "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:14:55.401Z"
+          "timestamp": "2026-06-03T00:15:44.722Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/host-overflow.md",
+          "command": "review README.md docs/guide.md docs/requirements/decisions/host-overflow.md",
+          "result": "pass",
+          "note": "Docs state dispatch_run/overflow_auto are supervised, degrade visibly, and never auto-merge, verify receipts, or claim productionDone. Covers edge intent 1.",
+          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
+          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
+          "timestamp": "2026-06-03T00:15:44.768Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/host-overflow.md",
+          "command": "review README.md docs/guide.md docs/requirements/decisions/host-overflow.md",
+          "result": "pass",
+          "note": "Docs state dispatch_run/overflow_auto are supervised, degrade visibly, and never auto-merge, verify receipts, or claim productionDone. Covers adversarial intent 2.",
+          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
+          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
+          "timestamp": "2026-06-03T00:15:44.814Z"
         }
       ]
     },
