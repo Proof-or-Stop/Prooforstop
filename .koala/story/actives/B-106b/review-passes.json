@@ -143,6 +143,15 @@
       "reviewRound": "2026-06-03T16:23:19.820Z",
       "reviewRunId": "B-106b:RR-042",
       "_hash": "e147f3d21f9b1c5871aa54617d72ab486c02f0817e15a7a105a087cd7dc29bd3"
+    },
+    {
+      "id": "B-106b:RP-017",
+      "agent": "koala-review-test-coverage",
+      "note": "Coverage recheck passed on HEAD ff6e151c. verification_evidence_refresh_stale --dryRun reports no stale evidence; koala validate passed; build + dispatch-run/host-overflow/lattice-handoff/flow-stability smokes passed. Verified F-016 Gemini receipt.host=gemini not codex via dispatch-run-smoke lines 365-396; F-015 mixed parallel diagnostic containment via lines 475-513; F-013 ancestor-symlink no-materialization coverage remains in dispatch-run-smoke; BUG-001 output hint containment remains covered in flow-stability-smoke lines 1853-1880. 45/45 evidence fresh for current HEAD per dry-run.",
+      "createdAt": "2026-06-03T16:28:35.109Z",
+      "reviewRound": "2026-06-03T16:23:19.820Z",
+      "reviewRunId": "B-106b:RR-039",
+      "_hash": "c03f2e1f4400d34e544d24ade346e1234dab94c40bfc603f023e65c3737ad6ee"
     }
   ]
 }
