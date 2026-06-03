@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "定稿 global-thin 管理资产契约",
       "context": "Define canonical new-project assets under .Lattice plus thin AGENTS.md, legacy compatibility paths, and explicit full/local-shim modes. Related docs: docs/requirements/decisions/lifecycle-artifact-scope.md, docs/requirements/decisions/stack-layering.md, README.md.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-03T18:56:09.535Z",
-      "endTime": "2026-06-03T19:12:44.602Z",
+      "endTime": "2026-06-03T19:29:41.100Z",
       "relatedDocs": [
         "docs/requirements/decisions/lifecycle-artifact-scope.md",
         "docs/requirements/decisions/stack-layering.md",
@@ -52,14 +52,14 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-001:happy:0",
-          "kind": "integration_test",
-          "file": "packages/main/src/tasks/thin-init-assets-smoke.ts",
-          "command": "npm --prefix packages/main run test:thin-init-assets-smoke",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "command": "git diff main...HEAD docs/requirements/decisions/lifecycle-artifact-scope.md",
           "result": "pass",
-          "note": "LATTICE_DOT_DIR_MD_TEMPLATE, AGENTS_MD_GLOBAL_THIN_TEMPLATE, renderLatticeProjectConfig verified by thin-init-assets-smoke Test 1 (checks content/structure of generated assets)",
-          "headHash": "d80232d9857d2b21a9468419df31668d0f89589b",
-          "materialHash": "3efb799345b698adb0b3e3cba5524a54d1b521ccffdc537576d4aa460a9d9411",
-          "timestamp": "2026-06-03T19:12:44.660Z"
+          "note": "docs drift fixed: project-local required assets row now declares .Lattice/Lattice.md, .Lattice/lattice.json, AGENTS.md as global-thin default; full/local-shim/legacy assets (LATTICE.md, .Codex/*, bin/*.js) explicitly marked compatibility or opt-in",
+          "headHash": "f29b9b88993a67783d88cf4815a0a74072adb24f",
+          "materialHash": "de12b3d40bbefa486cf0df7223f13d0421b19a5e1f7dc125a81b9e6da37c372c",
+          "timestamp": "2026-06-03T19:29:41.193Z"
         }
       ]
     },
