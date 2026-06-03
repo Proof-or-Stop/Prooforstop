@@ -232,8 +232,8 @@
         "packages/main/src/core/lattice-dispatch.ts",
         "packages/main/src/tasks/dispatch-run-smoke.ts"
       ],
-      "resolvedReason": "Resolved by c84932d8 and 241b9000. Smoke now covers preexisting projected worktree root symlinks for fake and codex scaffold hosts. ensureWorktree now rejects existing roots unless they are non-symlink directories, stay under the repo realpath, match git top-level, and are registered in git worktree list before fake writes or real-host needs_receipt can happen.",
-      "resolvedAt": "2026-06-03T13:52:21.650Z"
+      "resolvedReason": "Resolved by existing HEAD 241b9000. ensureWorktree now rejects existing projected overflow worktree roots unless they are non-symlink directories, resolve inside the repository, match git rev-parse --show-toplevel, and are registered in git worktree list before fake writes or real-host needs_receipt. dispatch-run smoke covers fake and real preexisting root-symlink cases. Verified with npm --prefix packages/main run build and npm --prefix packages/main run test:dispatch-run-smoke.",
+      "resolvedAt": "2026-06-03T13:52:54.103Z"
     }
   ]
 }
