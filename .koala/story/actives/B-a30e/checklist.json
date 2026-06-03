@@ -113,9 +113,9 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-03T22:17:51.248Z",
       "files": {
         "modify": [
           "packages/main/src/core/review-scope-binding.ts",
@@ -428,6 +428,16 @@
       "from": "pending",
       "to": "done",
       "reason": "Implementation committed and verificationEvidence recorded for CHK-001",
+      "agent": "codex-supervisor"
+    },
+    {
+      "timestamp": "2026-06-03T22:17:51.248Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implementation committed and verificationEvidence recorded for CHK-002",
       "agent": "codex-supervisor"
     }
   ]
