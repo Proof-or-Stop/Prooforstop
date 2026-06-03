@@ -72,6 +72,7 @@ import { createLatticeCliHandlers } from './handlers/lattice-cli.js';
 import { createRolloutCheckHandlers } from './handlers/rollout-check.js';
 import { createStoryAuthorityResolveHandlers } from './handlers/story-authority-resolve.js';
 import { createObservabilitySnapshotHandlers } from './handlers/observability-snapshot.js';
+import { createPrewriteGuardHandlers } from './handlers/prewrite-guard.js';
 import { nextStoryId } from './handlers/context.js';
 
 export type HandlerFn = (...args: any[]) => any;
@@ -224,6 +225,9 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createLatticeDispatchHandlers(ctx));
   registry.registerBatch(createLatticeEvidenceHandlers(ctx));
   registry.registerBatch(createLatticeParallelWaveHandlers(ctx));
+
+  // prewrite scope enforcement — pre-tool hook guard for write-like operations
+  registry.registerBatch(createPrewriteGuardHandlers(ctx));
 
   // 内部辅助：返回下一个 story id（fixture/测试 runner 用）
   registry.register('_nextStoryId', (prefix?: string) => nextStoryId(ctx.store, prefix));
