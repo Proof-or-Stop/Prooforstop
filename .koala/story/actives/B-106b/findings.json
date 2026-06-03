@@ -317,7 +317,7 @@
       "desc": "Verification coverage count is 45/45, but all 45 evidence entries are stale: checklist evidence still points to head ec35d59 while current HEAD is 51a5efd. Fresh smoke/build runs passed, but REVIEW coverage evidence has not been refreshed for the current revision, so the REVIEW->TEST freshness gate is not satisfied.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-06-03T16:10:41.907Z",
@@ -327,7 +327,9 @@
       "files": [
         ".koala/story/actives/B-106b/checklist.json",
         "packages/main/src/tasks/dispatch-run-smoke.ts"
-      ]
+      ],
+      "resolvedReason": "Resolved by koala-implementer evidence commit e364deb1 and main dry-run verification. verification_evidence_refresh_stale refreshed 45/45 checklist evidence to e27e5fd0 materialHash d0d3908985bc3a1a1f98850c2ac34332b472e3166d5a2a1a9ad104b4f86b22f6; koala validate allPass=true with 45/45 coverage; verification_evidence_refresh_stale --dryRun reports no stale verification evidence.",
+      "resolvedAt": "2026-06-03T16:24:29.079Z"
     }
   ]
 }
