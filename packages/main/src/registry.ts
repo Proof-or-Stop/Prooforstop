@@ -65,6 +65,7 @@ import { createDevMemoryHandlers } from './handlers/dev-memory.js';
 import { createCapabilityListHandlers } from './handlers/capability-list.js';
 import { createStoryExportHandlers } from './handlers/story-export.js';
 import { createLatticeHandoffHandlers } from './handlers/lattice-handoff.js';
+import { createLatticeDispatchHandlers } from './handlers/lattice-dispatch.js';
 import { createLatticeEvidenceHandlers } from './handlers/lattice-evidence.js';
 import { createLatticeParallelWaveHandlers } from './handlers/lattice-parallel-wave.js';
 import { createLatticeCliHandlers } from './handlers/lattice-cli.js';
@@ -220,6 +221,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createStoryAuthorityResolveHandlers(ctx));
   registry.registerBatch(createObservabilitySnapshotHandlers(ctx));
   registry.registerBatch(createLatticeHandoffHandlers(ctx));
+  registry.registerBatch(createLatticeDispatchHandlers(ctx));
   registry.registerBatch(createLatticeEvidenceHandlers(ctx));
   registry.registerBatch(createLatticeParallelWaveHandlers(ctx));
 

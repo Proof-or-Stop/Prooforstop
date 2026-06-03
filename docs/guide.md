@@ -144,6 +144,15 @@ lattice handoff_receipt_submit --file=receipt.json --json
 - `handoff_receipt_submit` 只接收本地 diagnostic receipt；即使
   `accepted-local`，仍然保持 `receiptVerified=false`、`productionDone=false`。
 
+后续 `dispatch_plan` / `dispatch_prepare` / `dispatch_run` 也必须遵守同一条边界：
+
+- 只能做 supervised、visible automation。操作员必须能看见目标 host、计划、
+  receipt、status 和 review/merge guidance。
+- 如果目标 host 缺少对应 CLI/runtime，结果必须 degrade 成 `unavailable` 或
+  diagnostic `nextAction`，不能偷偷换成别的 host 或静默跳过。
+- 即使是 fake/local receipt，也不能 auto-merge、不能 verify authority
+  receipt、不能把 `productionDone` 改成 `true`。
+
 详细架构说明见
 [`requirements/decisions/host-overflow.md`](requirements/decisions/host-overflow.md)。
 

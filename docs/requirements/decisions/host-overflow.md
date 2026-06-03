@@ -32,11 +32,41 @@ Overflow hosts keep these responsibilities:
 - Run or report required local commands
 - Return local diagnostic output and a local receipt
 
+The higher-level dispatch runtime remains supervised and visible:
+
+- The operator can see which host/runtime is targeted.
+- Planning, preparation, run, collect, status, review, and merge guidance stay
+  explicit artifacts, not hidden background work.
+- Missing host CLI/runtime degrades to `unavailable` or a diagnostic
+  `nextAction`; it does not silently switch hosts or pretend the work ran.
+
 Every overflow surface must keep:
 
 - `productionDone=false`
 - `receiptVerified=false`
 - `authorityChanged=false`
+
+## Landed dispatch surfaces
+
+The supervised dispatch layer is now landed as explicit Lattice surfaces:
+
+- `dispatch_plan` selects the runtime and returns a bounded pack/worktree
+  preview without creating a dispatch record, worktree, receipt, or external
+  host session.
+- `dispatch_prepare` persists rebuildable dispatch metadata under
+  `.koala/dispatches/` plus prompt placeholders. It still does not create the
+  projected worktree or auto-run a host.
+- `dispatch_run` is manual-first but executable. For `fake`, it runs the local
+  deterministic harness inside the isolated overflow worktree and returns a
+  local diagnostic receipt. For real hosts, it attempts to create the projected
+  worktree scaffold first; success yields `needs_receipt`, while scaffold
+  creation failure is reported truthfully as `failed` with a diagnostic
+  `nextAction`.
+- `overflow_auto` is a visible policy wrapper over dispatch selection. Default
+  behavior is suggest-only. It only starts a dispatch when **both**
+  `approve=true` and `start=true` are provided; `approve=true` alone or
+  `start=true` alone must remain suggest-only and emit a warning about the
+  missing counterpart flag.
 
 ## Workflow
 
@@ -56,6 +86,7 @@ Lattice Host Overflow does **not**:
 
 - Share hidden context implicitly across hosts
 - Auto-trust overflow output
+- Auto-run hidden background host work that the operator cannot inspect
 - Auto-merge overflow diffs
 - Submit authority evidence from overflow hosts
 - Verify authority receipts from overflow hosts
