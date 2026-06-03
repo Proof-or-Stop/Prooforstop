@@ -6,7 +6,7 @@ Story: B-4ee0 - Default Lattice init to global-thin project assets
 
 For a fresh empty project, `lattice init` should default to global-thin project assets:
 
-- Create `.Lattice/Lattice.md`, `.Lattice/lattice.json`, `AGENTS.md`, `koala.config.json`, and `.gitignore`.
+- Create `.Lattice/Lattice.md`, `.Lattice/lattice.json`, `AGENTS.md`, `lattice.config.json`, and `.gitignore`.
 - Do not create legacy local Codex/Koala assets by default: `KOALA.md`, `LATTICE.md`, `.Codex/README.md`, `.Codex/lattice.json`, `.Codex/koala.json`, `.Codex/agents`, or `bin/lattice*.js` / `bin/koala*.js`.
 - `lattice codex doctor` should pass on the global-thin project without requiring `bin/lattice-codex.js`.
 
@@ -32,6 +32,7 @@ Codex asset mode: global-thin
 ✓ .Lattice/lattice.json
 - LATTICE.md (global-thin mode; canonical guide is .Lattice/Lattice.md)
 ✓ AGENTS.md (created)
+- [2/6] generated lattice.config.json
 - .Codex/README.md (global-thin mode; Codex adapter runs from global lattice CLI)
 - .Codex/lattice.json (global-thin mode; use lattice codex verify)
 - .Codex/agents (global-thin mode; Codex prompts resolve from global lattice registry)
@@ -44,7 +45,7 @@ Observed file tree:
 .Lattice/lattice.json
 .gitignore
 AGENTS.md
-koala.config.json
+lattice.config.json
 ```
 
 Forbidden local assets check printed no `PRESENT ...` lines for:
@@ -52,6 +53,7 @@ Forbidden local assets check printed no `PRESENT ...` lines for:
 ```text
 KOALA.md
 LATTICE.md
+koala.config.json
 .Codex/README.md
 .Codex/lattice.json
 .Codex/koala.json

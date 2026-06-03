@@ -5,6 +5,7 @@ import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync } from 
 import { join, dirname } from 'path';
 import { execSync } from 'child_process';
 import type { ProfileNode } from './profiler.js';
+import { pickProjectConfigPath } from '../core/config.js';
 export interface TraceSnapshot {
   commit: string;
   timestamp: string;
@@ -23,12 +24,16 @@ export interface TraceFile {
 
 const DEFAULT_MAX_SNAPSHOTS = 5;
 
-/** Read maxTraceSnapshots directly from config file (bypasses loadConfig cache) */
+/**
+ * Read maxTraceSnapshots directly from the project config file (bypasses
+ * loadConfig cache). lattice.config.json wins over the legacy koala.config.json
+ * when both are present; either file is sufficient.
+ */
 function getMaxSnapshots(root: string): number {
   try {
-    const configPath = join(root, 'koala.config.json');
-    if (!existsSync(configPath)) return DEFAULT_MAX_SNAPSHOTS;
-    const raw = JSON.parse(readFileSync(configPath, 'utf-8'));
+    const picked = pickProjectConfigPath(root);
+    if (!picked) return DEFAULT_MAX_SNAPSHOTS;
+    const raw = JSON.parse(readFileSync(picked.path, 'utf-8'));
     return raw.maxTraceSnapshots ?? DEFAULT_MAX_SNAPSHOTS;
   } catch {
     return DEFAULT_MAX_SNAPSHOTS;

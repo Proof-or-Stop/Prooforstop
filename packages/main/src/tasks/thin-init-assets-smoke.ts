@@ -13,6 +13,7 @@
  * - [CHK-003] Assert global codex verify/doctor passes in a global-thin project.
  * - [CHK-004] Assert legacy assets survive init (no deletion).
  * - [B-4ee0] Global-thin: .Lattice/Lattice.md, .Lattice/lattice.json, AGENTS.md are canonical defaults.
+ * - [B-38d6] Fresh init writes lattice.config.json as canonical config; koala.config.json remains legacy fallback only.
  */
 
 import assert from 'node:assert/strict';
@@ -76,7 +77,8 @@ try {
   assertExists(globalThinRoot, '.Lattice/Lattice.md');
   assertExists(globalThinRoot, '.Lattice/lattice.json');
   assertExists(globalThinRoot, 'AGENTS.md');
-  assertExists(globalThinRoot, 'koala.config.json');
+  assertExists(globalThinRoot, 'lattice.config.json');
+  assertAbsent(globalThinRoot, 'koala.config.json');
 
   // AGENTS.md should reference global lattice, not node bin/lattice.js
   const agentsMd = readFileSync(join(globalThinRoot, 'AGENTS.md'), 'utf8');

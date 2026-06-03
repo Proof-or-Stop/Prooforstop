@@ -16,7 +16,7 @@ import { StoryStore } from './core/store.js';
 import { createMainRegistry, type Registry } from './registry.js';
 import type { HandlerContext } from './handlers/context.js';
 import { execFileSync, execSync } from 'child_process';
-import { loadConfig, isCommandAllowed, getAllowedPatterns } from './core/config.js';
+import { loadConfig, isCommandAllowed, getAllowedPatterns, hasProjectConfigFile } from './core/config.js';
 import { formatCommandLifecycleHint } from './core/command-policy.js';
 import { decorateResult, type ActiveStoryInfo } from './handlers/hints.js';
 import { reportHealthIssue } from './core/health.js';
@@ -1716,10 +1716,10 @@ export function addValue(obj: Record<string, unknown>, key: string, val: unknown
 function resolveRoot(explicit?: string): string {
   if (explicit) return explicit;
   if (process.env.KOALA_PROJECT_ROOT) return process.env.KOALA_PROJECT_ROOT;
-  // 向上查找 koala.config.json 确定项目根
+  // 向上查找项目配置（lattice.config.json 优先，koala.config.json 兜底）确定项目根
   let dir = process.cwd();
   for (let i = 0; i < 10; i++) {
-    if (existsSync(join(dir, 'koala.config.json'))) return dir;
+    if (hasProjectConfigFile(dir)) return dir;
     const parent = join(dir, '..');
     if (parent === dir) break;
     dir = parent;
@@ -2614,22 +2614,23 @@ export async function runCli(opts?: {
       // path, we re-create dirs and leave a dangling audit log that
       // masquerades as an active worktree.
       //
-      // Detect this by checking if `root` still has koala.config.json. If not
-      // (the worktree was removed), prefer the durable main-root fallback
-      // captured at command start — it was computed while root/.git still
-      // existed, so it points at the real main project even after the worktree
-      // is gone. Do NOT fall back to resolveRoot() first: its cwd-walk may
-      // resolve to (and appendActivityLog would then recreate) the now-deleted
-      // ghost worktree dir. Only use resolveRoot() if the durable fallback is
-      // unavailable/stale, and skip logging entirely if neither has
-      // koala.config.json rather than pollute the filesystem.
+      // Detect this by checking if `root` still has a project config file
+      // (lattice.config.json canonical, koala.config.json legacy fallback).
+      // If not (the worktree was removed), prefer the durable main-root
+      // fallback captured at command start — it was computed while root/.git
+      // still existed, so it points at the real main project even after the
+      // worktree is gone. Do NOT fall back to resolveRoot() first: its
+      // cwd-walk may resolve to (and appendActivityLog would then recreate)
+      // the now-deleted ghost worktree dir. Only use resolveRoot() if the
+      // durable fallback is unavailable/stale, and skip logging entirely if
+      // neither has a project config file rather than pollute the filesystem.
       let effectiveRoot = root;
-      if (!existsSync(join(effectiveRoot, 'koala.config.json'))) {
-        if (mainRootFallback && existsSync(join(mainRootFallback, 'koala.config.json'))) {
+      if (!hasProjectConfigFile(effectiveRoot)) {
+        if (mainRootFallback && hasProjectConfigFile(mainRootFallback)) {
           effectiveRoot = mainRootFallback;
         } else {
           effectiveRoot = resolveRoot();
-          if (!existsSync(join(effectiveRoot, 'koala.config.json'))) {
+          if (!hasProjectConfigFile(effectiveRoot)) {
             return;
           }
         }

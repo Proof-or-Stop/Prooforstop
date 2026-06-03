@@ -2,7 +2,7 @@
 import { readFileSync, readdirSync, statSync, existsSync, lstatSync } from 'fs';
 import { join, relative, extname, dirname } from 'path';
 import type { TaskAnnotation, ExtractFilters, FlowStep, FlowChain } from './types.js';
-import { loadConfig } from '../core/config.js';
+import { loadConfig, hasProjectConfigFile } from '../core/config.js';
 
 export const CODE_EXTENSIONS = new Set([
   '.ts', '.tsx', '.js', '.jsx', '.mts', '.mjs', '.cts', '.cjs',
@@ -255,11 +255,12 @@ export function parseBlock(raw: string): Record<string, string | string[]> {
 
 export function scan(scanRoot: string): TaskAnnotation[] {
   // 优先从 metadata store（task.json）读取，不再扫描源码
-  // 从 scanRoot 向上查找 koala.config.json 确定项目根，再定位 docs/metadata/task.json
+  // 从 scanRoot 向上查找 lattice.config.json（canonical）/ koala.config.json
+  // （legacy fallback）确定项目根，再定位 docs/metadata/task.json
   let metadataPath = '';
   let searchDir = scanRoot;
   for (let i = 0; i < 10; i++) {
-    if (existsSync(join(searchDir, 'koala.config.json'))) {
+    if (hasProjectConfigFile(searchDir)) {
       const candidate = join(searchDir, 'docs', 'metadata', 'task.json');
       if (existsSync(candidate)) metadataPath = candidate;
       break;
