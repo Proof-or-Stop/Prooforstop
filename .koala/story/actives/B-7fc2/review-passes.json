@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-03T22:21:59.769Z",
       "reviewRunId": "B-7fc2:RR-003",
       "_hash": "db7020404d1085946ac70d9ce591e148cda6904a0e99f6592a058e2ec0d1d34e"
+    },
+    {
+      "id": "B-7fc2:RP-002",
+      "agent": "koala-review-concept",
+      "note": "CLI JSON stdout contract scoped correctly: fix is in cli-engine.ts/hints.ts choke point (wantsMachineJson skips decorateResult for --json/--format=json), not a dashboard substring parser. Verified: validate --json stdout is direct JSON.parse-able (3303B, ends with '}\\n'); text-mode validate keeps '→ 验证全绿' hint; stderr carries 'ℹ Reading legacy koala.config.json' notice as doc claims. Smoke test cli-json-stdout-contract-smoke spawns real CLI children and uses direct JSON.parse - no extractFirstJsonObject. Doc addition §2.0 stays scoped to stdout JSON.parse contract; does NOT overclaim finalized dashboard/resolver schemas (§2.1(0) still flags resolver surface as missing, productionDone disclaimer intact). Lattice CLI/Orchestrate JS surface work in packages/main - not Swift/Mac Native App.",
+      "createdAt": "2026-06-03T22:25:01.926Z",
+      "reviewRound": "2026-06-03T22:21:59.769Z",
+      "reviewRunId": "B-7fc2:RR-004",
+      "_hash": "bedb7c60c4b87e5def661296da2c61efce5436b02cdf338a3fa4dabab4796b5b"
     }
   ]
 }
