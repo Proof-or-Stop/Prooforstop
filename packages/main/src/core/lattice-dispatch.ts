@@ -8,7 +8,7 @@ import {
   statSync,
   writeFileSync,
 } from 'node:fs';
-import { dirname, join, relative, resolve } from 'node:path';
+import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { changedFilesBetween, checkEvidenceFreshnessForGit, currentGitHead } from './evidence-freshness.js';
 import {
   buildHandoffWorktreeProjection,
@@ -656,6 +656,39 @@ function ensurePreparedPackForFake(root: string, dispatchId: string, pack: Hando
   return patched;
 }
 
+function assertWorktreeRelativePath(worktreeAbs: string, candidatePath: string, label: string): string {
+  const trimmed = candidatePath.trim();
+  if (!trimmed) {
+    throw new Error(`${label} must not be empty.`);
+  }
+  if (isAbsolute(trimmed)) {
+    throw new Error(`${label} must stay inside the isolated worktree; absolute paths are forbidden: ${trimmed}`);
+  }
+  const candidateAbs = resolve(worktreeAbs, trimmed);
+  const candidateRel = relative(worktreeAbs, candidateAbs);
+  if (candidateRel === '..' || candidateRel.startsWith(`..${sep}`)) {
+    throw new Error(`${label} escapes the isolated worktree via path traversal: ${trimmed}`);
+  }
+  return candidateRel || '.';
+}
+
+function normalizeFakePackPaths(root: string, dispatchId: string, worktreeAbs: string, pack: HandoffPack): HandoffPack {
+  const allowedPaths = pack.allowedPaths.map((entry, index) =>
+    assertWorktreeRelativePath(worktreeAbs, entry, `allowedPaths[${index}]`));
+  const deniedPaths = pack.deniedPaths.map((entry, index) =>
+    assertWorktreeRelativePath(worktreeAbs, entry, `deniedPaths[${index}]`));
+  const packChanged = allowedPaths.some((entry, index) => entry !== pack.allowedPaths[index])
+    || deniedPaths.some((entry, index) => entry !== pack.deniedPaths[index]);
+  if (!packChanged) return pack;
+  const patched: HandoffPack = {
+    ...pack,
+    allowedPaths,
+    deniedPaths,
+  };
+  writePack(root, dispatchId, patched);
+  return patched;
+}
+
 function ensureWorktree(root: string, worktreePath: string, branch: string, baseRef: string): string {
   const absPath = resolve(root, worktreePath);
   if (existsSync(absPath)) return absPath;
@@ -892,10 +925,12 @@ export function prepareDispatch(store: StoryStore, root: string, args: DispatchP
 function runFakeLeafDispatch(store: StoryStore, root: string, record: DispatchRecord): DispatchRunResult {
   let pack = readPack(root, record.dispatchId);
   pack = ensurePreparedPackForFake(root, record.dispatchId, pack);
+  const projectedWorktreeAbs = resolve(root, record.worktree.worktreePath);
+  pack = normalizeFakePackPaths(root, record.dispatchId, projectedWorktreeAbs, pack);
   const baseRef = pack.baseSha ?? 'HEAD';
   const worktreeAbs = ensureWorktree(root, record.worktree.worktreePath, record.worktree.branch, baseRef);
   const markerPath = pack.allowedPaths[0] ?? `.koala/dispatches/${record.dispatchId}/worker/fake-result.txt`;
-  const markerAbs = join(worktreeAbs, markerPath);
+  const markerAbs = resolve(worktreeAbs, markerPath);
   mkdirSync(dirname(markerAbs), { recursive: true });
   writeFileSync(markerAbs, `dispatch=${record.dispatchId}\nstory=${record.storyId}\nrunAt=${nowIso()}\n`, 'utf8');
   appendTranscript(resolve(root, record.transcriptFile), [
@@ -1051,19 +1086,76 @@ export function runDispatch(store: StoryStore, root: string, args: DispatchRunAr
     return runFakeLeafDispatch(store, root, record);
   }
 
-  const promptFile = resolve(root, record.promptFile);
   const runtime = record.runtime;
+  if (!runtime.available) {
+    const updated = writeRecord(root, {
+      ...record,
+      status: 'unavailable',
+      nextAction: runtime.nextAction,
+      warnings: [...record.warnings, ...runtime.warnings],
+    });
+    return {
+      schemaVersion: 'lattice.dispatch_run.v1',
+      dispatchId: updated.dispatchId,
+      storyId: updated.storyId,
+      host: updated.selectedHost,
+      status: updated.status,
+      parallel: updated.parallel,
+      runtime: updated.runtime,
+      workers: [],
+      warnings: [...updated.warnings],
+      nextAction: updated.nextAction,
+      authorityChanged: false,
+      receiptVerified: false,
+      productionDone: false,
+    };
+  }
+  const pack = readPack(root, record.dispatchId);
+  const baseRef = pack.baseSha ?? 'HEAD';
+  let worktreeAbs: string;
+  try {
+    worktreeAbs = ensureWorktree(root, record.worktree.worktreePath, record.worktree.branch, baseRef);
+  } catch (error: any) {
+    const detail = String(error?.message || error).trim();
+    appendTranscript(resolve(root, record.transcriptFile), [
+      `[${nowIso()}] scaffolded runtime ${runtime.host} failed to create worktree`,
+      detail,
+    ]);
+    const warnings = [...record.warnings, ...runtime.warnings, `Worktree creation failed: ${detail}`];
+    const nextAction = `Dispatch scaffold could not create ${record.worktree.worktreePath}. Resolve the git worktree error, then rerun dispatch_run for ${record.dispatchId}.`;
+    const failed = writeRecord(root, {
+      ...record,
+      status: 'failed',
+      warnings,
+      nextAction,
+    });
+    return {
+      schemaVersion: 'lattice.dispatch_run.v1',
+      dispatchId: failed.dispatchId,
+      storyId: failed.storyId,
+      host: failed.selectedHost,
+      status: failed.status,
+      parallel: failed.parallel,
+      runtime: failed.runtime,
+      workers: [],
+      warnings: [...failed.warnings],
+      nextAction: failed.nextAction,
+      authorityChanged: false,
+      receiptVerified: false,
+      productionDone: false,
+    };
+  }
+  const promptFile = resolve(root, record.promptFile);
   const invocation = runtime.invocationTemplate?.map(part =>
     part === '<prompt-file>' ? promptFile : part === '<worktree>' ? record.worktree.worktreePath : part,
   ) ?? [];
   appendTranscript(resolve(root, record.transcriptFile), [
     `[${nowIso()}] scaffolded runtime ${runtime.host}`,
+    `[${nowIso()}] worktree ready ${record.worktree.worktreePath} (${worktreeAbs})`,
     invocation.length > 0 ? invocation.join(' ') : '(no invocation template)',
   ]);
-  const status: DispatchLifecycleStatus = runtime.available ? 'needs_receipt' : 'unavailable';
-  const nextAction = runtime.available
-    ? `Manual-first only. Run ${invocation.join(' ')} in ${record.worktree.worktreePath}, then return a local receipt via dispatch_collect/dispatch_receipt_create.`
-    : runtime.nextAction;
+  const status: DispatchLifecycleStatus = 'needs_receipt';
+  const nextAction = `Manual-first only. Worktree is ready at ${record.worktree.worktreePath}. Run ${invocation.join(' ')} there, then return a local receipt via dispatch_collect/dispatch_receipt_create.`;
   const updated = writeRecord(root, {
     ...record,
     status,
@@ -1315,22 +1407,27 @@ export function overflowAuto(
   args: DispatchRunArgs & { approve?: boolean; start?: boolean },
 ): DispatchPlanResult | DispatchRunResult {
   const plan = computePlan(store, root, { ...args, host: args.host ?? 'auto' });
-  if (args.start !== true && args.approve !== true) {
-    return {
-      ...plan,
-      warnings: [
-        ...plan.warnings,
-        'overflow_auto defaulted to suggest-only mode; no host was started.',
-      ],
-      nextAction: plan.selectedHost === 'fake'
-        ? 'Run overflow_auto --approve=true --start=true or dispatch_run --host=fake to execute the deterministic local harness.'
-        : 'Review the suggested host and rerun with --approve=true --start=true if you want to materialize dispatch metadata.',
-    };
+  if (args.start === true && args.approve === true) {
+    return runDispatch(store, root, {
+      ...args,
+      host: plan.selectedHost,
+    });
   }
-  return runDispatch(store, root, {
-    ...args,
-    host: plan.selectedHost,
-  });
+  const gatingWarning = args.start === true
+    ? 'overflow_auto received start=true without approve=true; staying in suggest-only mode.'
+    : args.approve === true
+      ? 'overflow_auto received approve=true without start=true; staying in suggest-only mode.'
+      : 'overflow_auto defaulted to suggest-only mode; no host was started.';
+  return {
+    ...plan,
+    warnings: [
+      ...plan.warnings,
+      gatingWarning,
+    ],
+    nextAction: plan.selectedHost === 'fake'
+      ? 'Run overflow_auto --approve=true --start=true or dispatch_run --host=fake to execute the deterministic local harness.'
+      : 'Review the suggested host and rerun with --approve=true --start=true if you want to materialize dispatch metadata.',
+  };
 }
 
 function summaryLine(record: DispatchRecord): string {

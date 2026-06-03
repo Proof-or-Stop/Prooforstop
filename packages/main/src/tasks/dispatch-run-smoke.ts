@@ -326,6 +326,26 @@ try {
   assert.equal(suggested.schemaVersion, 'lattice.dispatch_plan.v1');
   assert.ok(suggested.warnings.some(warning => /suggest-only/i.test(warning)));
   assert.equal(dispatchCount(root), beforeOverflowSuggestCount, 'overflow_auto default must not materialize dispatch records');
+  const startOnly = run<DispatchPlanResult>('overflow_auto', {
+    storyId: 'B-dispatch',
+    host: 'fake',
+    objective: 'Start-only must stay suggest-only.',
+    start: true,
+  });
+  assert.equal(startOnly.schemaVersion, 'lattice.dispatch_plan.v1');
+  assert.ok(startOnly.warnings.some(warning => /start=true without approve=true/i.test(warning)));
+  assert.match(startOnly.nextAction, /approve=true --start=true/);
+  assert.equal(dispatchCount(root), beforeOverflowSuggestCount, 'overflow_auto start=true alone must stay suggest-only');
+  const approveOnly = run<DispatchPlanResult>('overflow_auto', {
+    storyId: 'B-dispatch',
+    host: 'fake',
+    objective: 'Approve-only must stay suggest-only.',
+    approve: true,
+  });
+  assert.equal(approveOnly.schemaVersion, 'lattice.dispatch_plan.v1');
+  assert.ok(approveOnly.warnings.some(warning => /approve=true without start=true/i.test(warning)));
+  assert.match(approveOnly.nextAction, /approve=true --start=true/);
+  assert.equal(dispatchCount(root), beforeOverflowSuggestCount, 'overflow_auto approve=true alone must stay suggest-only');
   const approved = run<DispatchRunResult>('overflow_auto', {
     storyId: 'B-dispatch',
     host: 'fake',
@@ -336,6 +356,55 @@ try {
   });
   assert.equal(approved.status, 'accepted_local');
   assertAuthorityFalse(approved, 'approvedOverflow');
+
+  run<DispatchRecord>('dispatch_prepare', {
+    storyId: 'B-dispatch',
+    dispatchId: 'D-path-traversal',
+    host: 'fake',
+    objective: 'Traversal must be rejected before any file write.',
+    allowedPaths: ['../D-path-traversal-escaped.txt'],
+    deniedPaths: ['README.md'],
+  });
+  const traversalRecord = readDispatch(root, 'D-path-traversal');
+  assert.throws(() => run<DispatchRunResult>('dispatch_run', { dispatchId: 'D-path-traversal' }), /escapes the isolated worktree/i);
+  assert.equal(existsSync(resolve(root, '../D-path-traversal-escaped.txt')), false, 'escaped file must never be written');
+  assert.equal(existsSync(resolve(root, traversalRecord.worktree.worktreePath)), false, 'invalid traversal must fail before creating the isolated worktree');
+
+  const originalCodexSessionId = process.env.CODEX_SESSION_ID;
+  try {
+    process.env.CODEX_SESSION_ID = 'dispatch-run-smoke';
+    const realHostReady = run<DispatchRecord>('dispatch_prepare', {
+      storyId: 'B-dispatch',
+      dispatchId: 'D-real-host-ready',
+      host: 'codex',
+      objective: 'Available real host should create its isolated worktree.',
+      allowedPaths: ['packages/main/src/generated/real-host-ready.txt'],
+    });
+    const realHostRun = run<DispatchRunResult>('dispatch_run', { dispatchId: realHostReady.dispatchId });
+    assert.equal(realHostRun.status, 'needs_receipt');
+    assert.equal(existsSync(resolve(root, realHostReady.worktree.worktreePath)), true, 'available real-host scaffold should create the isolated worktree');
+    assert.match(realHostRun.nextAction, new RegExp(realHostReady.worktree.worktreePath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+
+    const realHostFailure = run<DispatchRecord>('dispatch_prepare', {
+      storyId: 'B-dispatch',
+      dispatchId: 'D-real-host-failure',
+      host: 'codex',
+      objective: 'Available real host should report worktree creation failure truthfully.',
+      allowedPaths: ['packages/main/src/generated/real-host-failure.txt'],
+    });
+    git(root, ['branch', realHostFailure.worktree.branch, baseSha]);
+    const failedRealHost = run<DispatchRunResult>('dispatch_run', { dispatchId: realHostFailure.dispatchId });
+    assert.equal(failedRealHost.status, 'failed');
+    assert.equal(existsSync(resolve(root, realHostFailure.worktree.worktreePath)), false, 'failed scaffold must not claim a created worktree');
+    assert.ok(failedRealHost.warnings.some(warning => /Worktree creation failed:/i.test(warning)));
+    assert.match(failedRealHost.nextAction, /could not create .*Resolve the git worktree error, then rerun dispatch_run/i);
+  } finally {
+    if (originalCodexSessionId === undefined) {
+      delete process.env.CODEX_SESSION_ID;
+    } else {
+      process.env.CODEX_SESSION_ID = originalCodexSessionId;
+    }
+  }
 
   const originalPath = process.env.PATH;
   try {
@@ -378,7 +447,7 @@ try {
   assert.equal(cliProbe.status, 'ready');
   assertAuthorityFalse(cliProbe, 'cliProbe');
 
-  console.log('✓ dispatch-run smoke passed — runtime probes, fake parallel dispatch, receipts, degradation paths, manual merge guidance, and authority invariants verified');
+  console.log('✓ dispatch-run smoke passed — runtime probes, overflow gating, fake path hardening, real-host scaffolds, receipts, degradation paths, manual merge guidance, and authority invariants verified');
 } finally {
   resetConfigCache();
   rmSync(root, { recursive: true, force: true });
