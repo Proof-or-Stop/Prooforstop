@@ -37,6 +37,23 @@
         "packages/main/src/tasks/unattended-dispatch-smoke.ts",
         "packages/main/src/tasks/dispatch-run-smoke.ts"
       ]
+    },
+    {
+      "id": "B-8a1a:F-003",
+      "desc": "CHK-005:adversarial:0 records a manual_transcript canary, but the story has no persisted transcript artifact or delivery-check style record for that CLI entrypoint run. The checklist note claims a temp git repo canary via node packages/main/dist/cli.js reached runnerKind=claude-code-real, yet B-8a1a contains no evidence/transcript-diff.md, summary.json, or delivery-check.json, so the claimed CLI canary is not independently auditable and currently rests on checklist prose only.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-03T23:23:13.156Z",
+      "reviewRound": "2026-06-03T23:16:51.649Z",
+      "reviewRunId": "B-8a1a:RR-004",
+      "_hash": "214ad999b902dae492b8209017c06529217549de164e057a62ff1a14f8d45d8d",
+      "files": [
+        ".koala/story/actives/B-8a1a/checklist.json",
+        ".koala/story/actives/B-8a1a"
+      ]
     }
   ]
 }
