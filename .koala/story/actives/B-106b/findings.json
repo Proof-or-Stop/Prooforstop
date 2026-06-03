@@ -93,6 +93,25 @@
       "files": [
         "packages/main/src/core/lattice-dispatch.ts"
       ]
+    },
+    {
+      "id": "B-106b:F-006",
+      "desc": "README.md:76, README.md:99, docs/requirements/decisions/host-overflow.md:35 MEDIUM: docs still present dispatch_plan/dispatch_prepare/dispatch_run as future work and only show the older handoff/host_dispatch flow, but the local CLI/code already ship overflow_auto with a visible approve+start gate and dispatch_run that creates a real-host worktree before needs_receipt or returns failed on scaffold errors. Update the docs to describe the landed dispatch surfaces and these approval/worktree semantics.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-03T00:30:39.233Z",
+      "reviewRound": "2026-06-03T00:27:15.686Z",
+      "reviewRunId": "B-106b:RR-008",
+      "_hash": "3de15c674786872b1bd1ec4273fd375a0ffa676b259a87ff83e6787316781584",
+      "files": [
+        "README.md",
+        "docs/requirements/decisions/host-overflow.md",
+        "packages/main/src/core/lattice-dispatch.ts",
+        "packages/main/src/cli-engine.ts"
+      ]
     }
   ]
 }
