@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-03T22:21:59.769Z",
       "reviewRunId": "B-7fc2:RR-002",
       "_hash": "3896a3ac864cf55070a568d3d2f1b475885608118e5a55106de12eb81516f778"
+    },
+    {
+      "id": "B-7fc2:RP-004",
+      "agent": "koala-review-quality",
+      "note": "Choke point in cli-engine.ts run() correctly gates decorateResult via wantsMachineJson; small reusable exported detector with strict ===true / ==='json' equality. Text-mode validate hint markers '✓ ALL PASS' / '✓ Project validation commands passed' are sufficiently specific. postCommand/stderr unchanged so no JSON pollution. No extractFirstJsonObject or substring helpers introduced. Smoke asserts direct JSON.parse plus single-document tail anchor, and locks in --format=json on non-hint commands (authority_status, host_list). Build + smoke green; live validate --json parses with allPass=true and text mode still emits the next-step hint.",
+      "createdAt": "2026-06-03T22:28:31.658Z",
+      "reviewRound": "2026-06-03T22:21:59.769Z",
+      "reviewRunId": "B-7fc2:RR-001",
+      "_hash": "9a3629b67e9b93d3d96aebbcbc17a4f5ac96bc78597894614d968b7ba5646262"
     }
   ]
 }
