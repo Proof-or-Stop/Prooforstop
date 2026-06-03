@@ -176,8 +176,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-03T20:18:49.469Z",
       "endTime": null,
       "files": {
         "modify": [
@@ -468,6 +468,16 @@
       "to": "done",
       "reason": "Claude Code CLI implemented dispatch policy contract and CLI surfaces",
       "agent": "koala-implementer"
+    },
+    {
+      "timestamp": "2026-06-03T20:18:49.469Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start DEV milestone 4 real host unattended capability contract",
+      "agent": "codex"
     }
   ]
 }
