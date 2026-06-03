@@ -1,0 +1,31 @@
+{
+  "task": "Fix Lattice CLI self-development gate guidance so Codex adapter verification commands and story worktree acceptance commands are runnable against the current repository/worktree instead of stale or nonexistent entrypoints.",
+  "outcome": "User runs REVIEW or DONE preflight for a Codex-adapter story and sees a command such as `node bin/koala-codex.js verify_codex` when that is the wrapper present in the repo; in a story worktree, status/validate guidance points at `node bin/lattice.js ...` or `node packages/main/dist/cli.js ...` and explicitly labels stale global `lattice` as advisory fallback, so the user can say: 好了，现在 gate 让我跑的命令存在，而且不会把 main dist 当成当前 worktree 验收。",
+  "facts": [
+    "B-7fc2 delivered JSON stdout contract fixes but exposed two acceptance pitfalls around stale global lattice and hardcoded lattice-codex gate hints.",
+    "packages/main/src/core/codex-adapter-checks.ts already has constants for lattice and legacy koala wrappers, but summarizeCodexEvidence currently returns LOCAL_CODEX_VERIFY_COMMAND for missing/failing/stale states.",
+    "packages/main/src/handlers/review-preflight.ts renders codex-adapter gate command labels from LOCAL_CODEX_VERIFY_COMMAND instead of resolved gate details.",
+    "packages/main/src/handlers/phase-gates.ts includes fallback text that hardcodes LOCAL_CODEX_VERIFY_COMMAND for Codex adapter reruns.",
+    "checkGlobalFallback already classifies global @koala-agent/core resolving outside the current worktree as warn/heartbeat-only; this story should preserve advisory semantics and improve command guidance/tests, not hard-fail global drift.",
+    "README and bootstrap-runner already warn that global fallback may lag a worktree, but first-step and verify sections still assume lattice-codex too strongly for legacy/full-ish repos."
+  ],
+  "constraints": [
+    "Do not use Swift or Mac Native App validation as primary evidence.",
+    "Do not migrate koala.config.json to lattice.config.json in this story.",
+    "Do not force global lattice to point at a story worktree; global can remain main/global while worktree acceptance prefers local commands.",
+    "Preserve --json stdout parseability and existing legacy Koala compatibility."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/codex-adapter-checks.ts",
+    "packages/main/src/handlers/review-preflight.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "packages/main/src/handlers/codex-adapter.ts",
+    "packages/main/src/core/done-oracle.ts",
+    "README.md",
+    "scripts/verify-codex-assets.mjs",
+    "scripts/verify-entrypoints.mjs",
+    "packages/main/src/tasks focused smoke tests"
+  ],
+  "timestamp": "2026-06-03T23:01:02.197Z"
+}

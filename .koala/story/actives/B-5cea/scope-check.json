@@ -1,0 +1,80 @@
+{
+  "storyId": "B-5cea",
+  "checkedAt": "2026-06-03T23:03:20.081Z",
+  "features": [
+    {
+      "feature": "Codex adapter verify command resolver and rendered gate remediation",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lifecycle-artifact-scope.md"
+    },
+    {
+      "feature": "Worktree-local CLI acceptance guidance with stale global classified advisory",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:host-neutral-observability-console.md"
+    },
+    {
+      "feature": "Focused regression tests and delivery evidence without Swift/Mac Native App validation",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:testing-infra.md"
+    },
+    {
+      "feature": "Explicit exclusion of koala.config.json to lattice.config.json config-file migration from this story",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "background.md constraint: Do not migrate koala.config.json to lattice.config.json in this story",
+      "source": "decisions:lifecycle-artifact-scope.md"
+    },
+    {
+      "feature": "Explicit exclusion of Swift/Mac Native App as primary validation evidence",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "background.md constraint: Do not use Swift or Mac Native App validation as primary evidence; CHK-003 context explicitly excludes Swift/Mac Native",
+      "source": "decisions:testing-infra.md"
+    },
+    {
+      "feature": "Explicit exclusion of forcing global lattice to point at story worktree",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "background.md constraint: Do not force global lattice to point at a story worktree; CHK-002 uses advisory classification, not hard-fail",
+      "source": "decisions:host-neutral-observability-console.md"
+    },
+    {
+      "feature": "Worktree authority vs main mirror: execution authority in worktree, stale global classified as heartbeat fallback",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "Legacy koala-codex and koala.js wrapper compatibility preserved alongside Lattice primary wrappers",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lifecycle-artifact-scope.md"
+    },
+    {
+      "feature": "JSON stdout contract preservation (--json / --format=json parseability)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:host-neutral-observability-console.md"
+    }
+  ],
+  "summary": {
+    "total": 9,
+    "covered": 6,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "e77e8730d3667ca8dcf192225123dac3bceef351fe2ef620f39f6ee469763c91",
+  "openQuestions": []
+}
