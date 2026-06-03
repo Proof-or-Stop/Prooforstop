@@ -1,0 +1,316 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Lock unattended product outcome and authority decision",
+      "context": "Before implementation, record the product end-state and a decision/preMortem for unattended execution: user opt-in, secret/env filtering, host login/network limits, receipt trust model, worker lease/conflict handling, no auto-merge, no auto-DONE, no productionDone, and relationship to B-106b Host Overflow.",
+      "relatedDocs": [
+        "docs/requirements/decisions/host-overflow.md",
+        "docs/requirements/decisions/project-vision.md",
+        "docs/requirements/decisions/authority-client-role.md",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md"
+      ],
+      "userSees": "lattice decision_get --storyId=B-a5c2 --json shows the chosen policy-authorized unattended mode, explicit no-authority boundaries, and preMortem risks.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "decision_set records the chosen user-authorized unattended scheduler model and user-visible completion flow.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "preMortem covers missing policy, unsafe host capability, secret/env leakage, stuck workers, mixed outcomes, and stale receipts.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "decision explicitly forbids auto-merge, auto-DONE, authorityChanged=true, receiptVerified=true, and productionDone=true from unattended host output.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Verify Claude Code CLI bounded unattended feasibility early",
+      "context": "Before building abstractions, verify the concrete host assumption: Claude Code CLI is present, versioned, can run a bounded noninteractive/dry-run or minimal safe command in an isolated cwd, can produce transcript/exit metadata, and any missing guarantee is surfaced as unavailable or supervised-only.",
+      "relatedDocs": [
+        "docs/requirements/decisions/host-overflow.md",
+        "docs/requirements/decisions/cc-learnings.md",
+        "docs/requirements/decisions/host-neutral-observability-console.md"
+      ],
+      "userSees": "lattice host_runtime_probe --host=claude-code --json reports whether Claude Code is unattended-capable, supervised-only, or unavailable, with nextAction.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A minimal Claude Code CLI probe/smoke records version, command path, cwd support, transcript support, and noninteractive feasibility.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If any required guarantee is missing, the result degrades to supervised-only or unavailable with visible nextAction.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Claude Code availability alone never authorizes unattendedSafe=true without policy, cwd, timeout, transcript, and bounded command guarantees.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Implement dispatch_policy contract and CLI surfaces",
+      "context": "Add policy schema and commands for creating, inspecting, and checking unattended authorization: allowedHosts, allowedPaths, deniedPaths, maxParallel, maxRuntimeMinutes, budget, network, environment allow/deny, command allowlist, retry limits, and receipt/review requirements.",
+      "relatedDocs": [
+        "docs/requirements/decisions/host-overflow.md",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md"
+      ],
+      "userSees": "lattice dispatch_policy check --policy=<name> reports authorized/denied, exact reasons, and whether the run must fall back to supervised/manual mode.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Policy check accepts a bounded policy with allowed hosts, paths, parallelism, timeout, and receipt/review gates.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Policy check degrades to supervised/manual when optional budget or host capability data is unavailable.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Policy check rejects missing policy, absolute/traversal paths, denied-path overlap, unlimited parallelism, unsafe env, and attempts to enable auto-merge or productionDone.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Implement real host unattended capability contract",
+      "context": "Extend host runtime probes for Claude Code, Gemini, and Codex with structured unattended capability fields: version/login readiness, noninteractive mode, cwd support, timeout behavior, transcript mode, environment safety, receipt support, and unattendedSafe reasons. This milestone only reports capability; it does not launch hosts.",
+      "relatedDocs": [
+        "docs/requirements/decisions/host-overflow.md",
+        "docs/requirements/decisions/host-neutral-observability-console.md"
+      ],
+      "userSees": "lattice host_runtime_list --json shows fake/claude-code/gemini/codex with unattended capability, degradations, and nextAction.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Claude Code, Gemini, and Codex probes expose structured unattended capability fields without starting a worker.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Unavailable or partially supported CLI reports visible degradation and actionable nextAction without blocking fake coverage.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A detected CLI never becomes unattendedSafe unless required noninteractive, cwd, timeout, transcript, env, and policy guarantees are present.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Expose runner details through dispatch_status",
+      "context": "Build the bounded runner artifact and surface raw runner details through dispatch_status: command template, cwd, startedAt/endedAt, exitCode or timeout, transcript path, and sanitized environment summary must be visible so the user can decide whether to inspect or hand control back to the scheduler. This milestone only handles raw runner status, not dispatch_watch aggregation, cancellation, or receipt trust.",
+      "relatedDocs": [
+        "docs/requirements/decisions/host-overflow.md",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md"
+      ],
+      "userSees": "lattice dispatch_status --dispatchId=<id> shows runner command, cwd, exit/timeout, transcript path, environment summary, and inspect/retry guidance.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Runner captures transcript/exit status and dispatch_status renders raw runner details with a user nextAction.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Timeout or nonzero exit persists diagnostic runner status and dispatch_status tells the user whether to inspect transcript, retry, or stop through the scheduler layer.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Runner refuses non-template commands, forbidden env leaks, invalid cwd, unsafe output paths, and commands not authorized by policy; dispatch_status shows refusal reason.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Implement dispatch_auto scheduler, dispatch_watch, and cancel control loop",
+      "context": "Add scheduler commands that read dispatch_policy, choose only allowed unattended-safe hosts, create isolated worktrees, start bounded runner jobs, enforce maxParallel/retry/time limits, persist worker states, provide dispatch_watch aggregation, and expose a stop/cancel control loop for running workers. Receipt and merge authority stay outside this milestone.",
+      "relatedDocs": [
+        "docs/requirements/decisions/host-overflow.md",
+        "docs/requirements/decisions/lattice-parallel-wave.md",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md"
+      ],
+      "userSees": "lattice dispatch_auto starts/refuses workers; lattice dispatch_watch shows lifecycle states; lattice dispatch_cancel stops a running worker and watch shows cancelled/stopped nextAction.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "dispatch_auto starts authorized fake/host-dry-run workers, dispatch_watch reports lifecycle states, and dispatch_cancel stops a running worker with a visible cancelled/stopped terminal state.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Scheduler handles one worker failure or cancellation while preserving successful worker evidence and bounded retry metadata.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Scheduler refuses to start when policy is missing, host not allowed, maxParallel exceeded, scope unsafe, or host capability is not unattended-safe; cancel cannot delete evidence silently.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "Collect unattended evidence and preserve manual review/merge gates",
+      "context": "Collect transcript, git changed files, required command output, runner metadata, and local diagnostic receipts for unattended workers; integrate dispatch_review and dispatch_merge_plan so outputs are evidence candidates only and merge/DONE remain manual gate-controlled.",
+      "relatedDocs": [
+        "docs/requirements/decisions/host-overflow.md",
+        "docs/requirements/decisions/verification-context-pack.md",
+        "docs/requirements/decisions/authority-client-role.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "dispatch_review shows unattended transcripts/diffs/receipts; dispatch_merge_plan remains manualOnly and says host completion is not production authority.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Collector records transcript, changedFiles, command outputs, runner metadata, and local diagnostic receipt for a completed unattended worker.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Review and merge commands surface unattended evidence with manual next actions.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Missing transcript, missing receipt, stale diff, or partial worker outcomes yield diagnostic status and nextAction without erasing successful evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Forged host text or unattended receipts cannot bypass review passes, validation evidence, delivery check, server receipt requirements, or set receiptVerified/authorityChanged/productionDone true.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-008",
+      "title": "Validate full user-facing unattended Claude Code flow",
+      "context": "Add final E2E/product validation for a real story-style unattended flow: user creates/checks a policy, probes Claude Code, starts dispatch_auto with a safe bounded real Claude Code smoke when policy and capability allow or receives an explicit policy/capability refusal, watches worker start/refuse/succeed/fail/cancel states, reviews transcript/diff/receipt evidence, and receives a manual nextAction/merge plan. Docs and smoke must also explain how dispatch_auto relates to the existing overflow_auto surface and provide migration/nextAction guidance from old guarded overflow to new policy-authorized unattended scheduling.",
+      "relatedDocs": [
+        "docs/requirements/decisions/host-overflow.md",
+        "docs/requirements/decisions/testing-completeness.md",
+        "README.md",
+        "docs/guide.md"
+      ],
+      "userSees": "Docs and smoke transcript show: overflow_auto nextAction to dispatch_auto, dispatch_policy check, host_runtime_probe, dispatch_auto, dispatch_watch, dispatch_cancel, dispatch_review, and manual dispatch_merge_plan.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "E2E smoke passes for fake parallel unattended flow and a safe bounded Claude Code opt-in flow when capability/policy allow it, with watch/cancel/review/merge nextActions visible.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If Claude Code capability or policy is insufficient, the smoke records an explicit supervised/manual refusal with nextAction instead of pretending the run happened.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Tests cover missing policy, unavailable host, timeout, cancellation, missing receipt, and mixed worker outcomes.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Tests cover path traversal, symlink output escape, denied path overlap, host overclaim, accidental auto-merge, and productionDone regressions.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Docs show the opt-in command sequence, explain dispatch_auto versus overflow_auto, and state unattended mode remains user-authorized and authority-safe.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
