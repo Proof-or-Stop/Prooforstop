@@ -102,7 +102,51 @@
       "context": "Expose global commands such as lattice codex verify and lattice codex doctor, make legacy local shims proxy/fallback, and ensure resolver prefers .Lattice/lattice.json before .Codex or KOALA-era paths.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/stack-layering.md",
+        "docs/requirements/decisions/host-overflow.md",
+        "README.md"
+      ],
+      "userSees": "没有本地 bin/lattice-codex.js 的新项目里，用户仍可运行 lattice codex verify 和 lattice codex doctor；旧 node bin/lattice-codex.js verify_codex 在 legacy 项目中继续代理或兼容。",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/handlers/codex-adapter.ts",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/thin-init-assets-smoke.ts",
+          "packages/main/src/tasks/legacy-koala-compatibility-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "在没有本地 Codex wrapper 的 fresh init 项目中运行全局 lattice codex verify/doctor，命令能解析 .Lattice/lattice.json 并给出通过或可解释诊断。",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "legacy .Codex/lattice.json 或 .Codex/koala.json 项目仍能通过 verify_codex 兼容路径。",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "verify/doctor 不得因为缺少 bin/lattice-codex.js 而 hard fail；只有 legacy full/local-shim 模式才要求本地 wrapper 心跳。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
