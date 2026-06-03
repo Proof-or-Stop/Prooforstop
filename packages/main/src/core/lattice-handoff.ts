@@ -227,6 +227,7 @@ export interface HandoffReceiptSubmission {
     headSha: 'pass' | 'warn' | 'fail';
     headCommit: 'pass' | 'warn' | 'fail';
     changedFiles: HandoffScopeStatus;
+    verdict: 'pass' | 'warn' | 'fail';
   };
   changedFiles: string[];
   commands: string[];
@@ -871,6 +872,7 @@ export function submitHandoffReceipt(root: string, receipt: HandoffReceipt): Han
   const scopeStatus = mergeScopeStatuses(receiptScope.status, headCommitProof.scopeStatus);
   const packIdPass = normalized.packId.length > 0;
   const packHashPass = normalized.packHash === expectedPackHash;
+  const verdictValidation = normalized.verdict === 'pass' ? 'pass' as const : normalized.verdict;
   const freshness = freshnessResult.fresh ? 'fresh' as const : 'stale' as const;
   const baseShaValidation = normalized.baseSha ? (freshnessResult.fresh ? 'pass' as const : 'fail' as const) : 'warn' as const;
   const headShaValidation =
@@ -883,7 +885,8 @@ export function submitHandoffReceipt(root: string, receipt: HandoffReceipt): Han
     baseShaValidation === 'pass' &&
     headShaValidation === 'pass' &&
     headCommitProof.validation === 'pass' &&
-    scopeStatus === 'pass';
+    scopeStatus === 'pass' &&
+    verdictValidation === 'pass';
   return {
     schemaVersion: 'lattice.handoff_receipt_submit.v1',
     status: acceptedLocal ? 'accepted-local' : 'diagnostic',
@@ -910,6 +913,7 @@ export function submitHandoffReceipt(root: string, receipt: HandoffReceipt): Han
       headSha: headShaValidation,
       headCommit: headCommitProof.validation,
       changedFiles: scopeStatus,
+      verdict: verdictValidation,
     },
     changedFiles: normalized.changedFiles,
     commands: normalized.commands,

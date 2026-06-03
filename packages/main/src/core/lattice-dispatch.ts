@@ -809,8 +809,12 @@ function aggregateStatus(statuses: DispatchLifecycleStatus[]): DispatchLifecycle
   return 'diagnostic';
 }
 
-function aggregateWorkerCollections(root: string, record: DispatchRecord): DispatchCollection {
-  const workers = record.workerIds.map(workerId => collectDispatch(root, workerId));
+type CollectDispatchOptions = {
+  persist?: boolean;
+};
+
+function aggregateWorkerCollections(root: string, record: DispatchRecord, options: CollectDispatchOptions = {}): DispatchCollection {
+  const workers = record.workerIds.map(workerId => collectDispatch(root, workerId, options));
   return {
     schemaVersion: 'lattice.dispatch_collect.v1',
     dispatchId: record.dispatchId,
@@ -1083,16 +1087,16 @@ export function runDispatch(store: StoryStore, root: string, args: DispatchRunAr
   };
 }
 
-export function collectDispatch(root: string, dispatchId: string): DispatchCollection {
+export function collectDispatch(root: string, dispatchId: string, options: CollectDispatchOptions = {}): DispatchCollection {
   const record = readRecord(root, dispatchId);
   if (record.workerIds.length > 0) {
-    const aggregate = aggregateWorkerCollections(root, record);
-    writeJson(resolve(root, record.collectFile), aggregate);
+    const aggregate = aggregateWorkerCollections(root, record, options);
+    if (options.persist !== false) writeJson(resolve(root, record.collectFile), aggregate);
     return aggregate;
   }
   const pack = readPack(root, dispatchId);
   const result = leafDispatchCollection(root, record, pack);
-  writeJson(resolve(root, record.collectFile), result);
+  if (options.persist !== false) writeJson(resolve(root, record.collectFile), result);
   return result;
 }
 
@@ -1151,7 +1155,7 @@ function maybeReadReceiptSubmission(root: string, record: DispatchRecord): Hando
 export function dispatchStatus(root: string, dispatchId: string): DispatchStatusResult {
   const record = readRecord(root, dispatchId);
   const effectiveStatus = resolveEffectiveStatus(record);
-  const current = effectiveStatus === record.status ? record : writeRecord(root, { ...record, status: effectiveStatus });
+  const current = effectiveStatus === record.status ? record : { ...record, status: effectiveStatus };
   return {
     schemaVersion: 'lattice.dispatch_status.v1',
     dispatch: current,
@@ -1240,7 +1244,7 @@ export function reviewDispatch(root: string, dispatchId: string): DispatchReview
       productionDone: false,
     };
   }
-  const collection = collectDispatch(root, dispatchId);
+  const collection = collectDispatch(root, dispatchId, { persist: false });
   const risks = [
     ...(status.dispatch.status === 'accepted_local' ? [] : [`dispatch status=${status.dispatch.status}`]),
     ...(receipt?.status === 'accepted-local' ? [] : ['receipt is diagnostic-only or missing']),

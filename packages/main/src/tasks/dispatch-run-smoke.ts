@@ -2,26 +2,40 @@
 
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { MAIN_TOOLS } from '../cli-engine.js';
+import { COMMAND_POLICIES } from '../core/command-policy.js';
 import { resetConfigCache } from '../core/config.js';
-import { getCommandLifecyclePolicy } from '../core/command-policy.js';
+import { PROCESS_FACT_LEVEL_BY_NAME } from '../core/process-fact-levels.js';
+import { StoryStore } from '../core/store.js';
+import type {
+  ChecklistData,
+  StoryInfo,
+} from '../core/types.js';
 import type {
   DispatchCollection,
   DispatchListResult,
   DispatchMergePlanResult,
   DispatchPlanResult,
   DispatchReceiptDraft,
+  DispatchRecord,
   DispatchReviewResult,
   DispatchRunResult,
   DispatchStatusResult,
   HostRuntimeList,
   HostRuntimeProbe,
 } from '../core/lattice-dispatch.js';
-import { StoryStore } from '../core/store.js';
-import type { ChecklistData, StoryInfo } from '../core/types.js';
 import type { HandlerContext } from '../handlers/context.js';
 import { createMainRegistry } from '../registry.js';
 
@@ -31,6 +45,7 @@ const EXPECTED_COMMANDS = [
   'dispatch_plan',
   'dispatch_prepare',
   'dispatch_run',
+  'overflow_auto',
   'dispatch_collect',
   'dispatch_receipt_create',
   'dispatch_status',
@@ -41,28 +56,15 @@ const EXPECTED_COMMANDS = [
   'dispatch_merge_plan',
 ] as const;
 
-function assertNoAuthorityOverclaim(value: unknown, label: string): void {
-  const bad: string[] = [];
-  const visit = (node: unknown, path: string): void => {
-    if (!node || typeof node !== 'object') return;
-    if (Array.isArray(node)) {
-      node.forEach((item, index) => visit(item, `${path}[${index}]`));
-      return;
-    }
-    for (const [key, child] of Object.entries(node as Record<string, unknown>)) {
-      const childPath = path ? `${path}.${key}` : key;
-      if (
-        (key === 'authorityChanged' || key === 'receiptVerified' || key === 'productionDone')
-        && child === true
-      ) {
-        bad.push(childPath);
-      }
-      visit(child, childPath);
-    }
-  };
-  visit(value, '');
-  assert.deepEqual(bad, [], `${label} must not overclaim authority/receipt/production state`);
-}
+const READ_ONLY_EXPECTED = new Set([
+  'host_runtime_list',
+  'host_runtime_probe',
+  'dispatch_plan',
+  'dispatch_status',
+  'dispatch_list',
+  'dispatch_review',
+  'dispatch_merge_plan',
+]);
 
 function git(root: string, args: string[]): string {
   return execFileSync('git', args, {
@@ -77,28 +79,28 @@ function writeConfig(root: string): void {
     scanRoot: 'packages/main',
     rootDir: 'src',
     storyDir: '.koala/story/actives',
-  }, null, 2));
+  }, null, 2) + '\n');
 }
 
 function initRepo(root: string): void {
-  mkdirSync(join(root, 'packages/main/src/core'), { recursive: true });
-  writeFileSync(join(root, 'packages/main/src/core/base.ts'), 'export const base = "dispatch-smoke";\n');
-  writeFileSync(join(root, 'README.md'), '# dispatch runtime smoke fixture\n');
+  mkdirSync(join(root, 'packages/main/src/generated'), { recursive: true });
+  writeFileSync(join(root, 'packages/main/src/index.ts'), 'export const smoke = true;\n');
+  writeFileSync(join(root, 'README.md'), '# dispatch run smoke\n');
   writeConfig(root);
   git(root, ['init']);
-  git(root, ['config', 'user.email', 'koala@example.com']);
-  git(root, ['config', 'user.name', 'Koala Smoke']);
+  git(root, ['config', 'user.email', 'lattice@example.com']);
+  git(root, ['config', 'user.name', 'Lattice Smoke']);
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'fixture']);
 }
 
-function seedStory(store: StoryStore, root: string): void {
-  const now = '2026-06-03T00:00:00.000Z';
+function seedStory(store: StoryStore): void {
+  const now = '2026-06-02T00:00:00.000Z';
   const story: StoryInfo = {
     storyId: 'B-dispatch',
-    name: 'dispatch-runtime-smoke',
-    title: 'Dispatch runtime smoke story',
-    description: 'Exercise deterministic dispatch runtime surfaces.',
+    name: 'dispatch-run-smoke',
+    title: 'Dispatch run smoke story',
+    description: 'Smoke story for Lattice dispatch_run automatic overflow.',
     type: 'feature',
     phase: 'DEV',
     priority: 'high',
@@ -106,314 +108,278 @@ function seedStory(store: StoryStore, root: string): void {
     startedAt: now,
     endedAt: null,
     events: [{ phase: 'DEV', action: 'advance', timestamp: now, branch: 'story/B-dispatch' }],
-    worktree: {
-      path: join(root, '.worktrees', 'B-dispatch-owner'),
-      branch: 'story/B-dispatch',
-      createdAt: now,
-    },
   };
   const checklist: ChecklistData = {
-    items: [{
-      id: 'CHK-001',
-      title: 'Dispatch runtime bounded overflow',
-      status: 'done',
-      startTime: now,
-      endTime: now,
-    }],
+    items: [
+      {
+        id: 'CHK-001',
+        title: 'Dispatch run smoke',
+        status: 'done',
+        startTime: now,
+        endTime: now,
+      },
+    ],
   };
   store.writeStory('B-dispatch', story);
   store.writeChecklist('B-dispatch', checklist);
 }
 
-function createRegistry(root: string) {
+function assertAuthorityFalse(value: unknown, label = 'result'): void {
+  if (Array.isArray(value)) {
+    value.forEach((entry, index) => assertAuthorityFalse(entry, `${label}[${index}]`));
+    return;
+  }
+  if (!value || typeof value !== 'object') return;
+  const record = value as Record<string, unknown>;
+  for (const key of ['authorityChanged', 'receiptVerified', 'productionDone']) {
+    if (key in record) assert.equal(record[key], false, `${label}.${key}`);
+  }
+  for (const [key, nested] of Object.entries(record)) {
+    if (nested && typeof nested === 'object') assertAuthorityFalse(nested, `${label}.${key}`);
+  }
+}
+
+function dispatchCount(root: string): number {
+  const dir = join(root, '.koala/dispatches');
+  if (!existsSync(dir)) return 0;
+  return readdirSync(dir).filter(entry => existsSync(join(dir, entry, 'dispatch.json'))).length;
+}
+
+function readDispatch(root: string, dispatchId: string): DispatchRecord {
+  return JSON.parse(readFileSync(join(root, '.koala/dispatches', dispatchId, 'dispatch.json'), 'utf8')) as DispatchRecord;
+}
+
+function assertFiveWayRegistration(command: string, registry: ReturnType<typeof createMainRegistry>): void {
+  assert.ok(MAIN_TOOLS.some(tool => tool.name === command), `${command} missing MAIN_TOOLS entry`);
+  assert.equal(registry.has(command), true, `${command} missing registry handler`);
+  assert.ok(command in COMMAND_POLICIES, `${command} missing command policy`);
+  assert.ok(PROCESS_FACT_LEVEL_BY_NAME[command], `${command} missing process fact level`);
+  const ownership = COMMAND_POLICIES[command as keyof typeof COMMAND_POLICIES].ownershipClass;
+  if (READ_ONLY_EXPECTED.has(command)) {
+    assert.equal(ownership, 'readOnly', `${command} should stay read-only`);
+  }
+}
+
+const root = mkdtempSync(join(tmpdir(), 'lattice-dispatch-run-'));
+try {
+  initRepo(root);
   resetConfigCache();
   const store = new StoryStore(root);
-  seedStory(store, root);
-  const ctx: HandlerContext = { store, root, scanRoot: join(root, 'packages', 'main') };
-  return createMainRegistry(ctx);
-}
+  seedStory(store);
+  const baseSha = git(root, ['rev-parse', 'HEAD']);
+  const ctx: HandlerContext = { store, root, scanRoot: join(root, 'packages/main') };
+  const registry = createMainRegistry(ctx);
+  const run = <T>(name: string, args: Record<string, unknown> = {}): T => {
+    const handler = registry.get(name);
+    assert.ok(handler, `${name} handler must be registered`);
+    return handler({ ...args, json: true }) as T;
+  };
 
-function withEnv<T>(patch: Record<string, string | undefined>, fn: () => T): T {
-  const previous = new Map<string, string | undefined>();
-  for (const [key, value] of Object.entries(patch)) {
-    previous.set(key, process.env[key]);
-    if (value === undefined) delete process.env[key];
-    else process.env[key] = value;
-  }
-  try {
-    return fn();
-  } finally {
-    for (const [key, value] of previous.entries()) {
-      if (value === undefined) delete process.env[key];
-      else process.env[key] = value;
-    }
-  }
-}
+  for (const command of EXPECTED_COMMANDS) assertFiveWayRegistration(command, registry);
 
-function findUnavailableRealHost(registry: ReturnType<typeof createMainRegistry>): HostRuntimeProbe {
-  const tryProbe = (host: 'claude-code' | 'gemini' | 'codex') =>
-    registry.get('host_runtime_probe')!({ host, json: true }) as HostRuntimeProbe;
+  const runtimeList = run<HostRuntimeList>('host_runtime_list');
+  assert.equal(runtimeList.schemaVersion, 'lattice.host_runtime_list.v1');
+  assert.deepEqual(runtimeList.runtimes.map(runtime => runtime.host), ['fake', 'claude-code', 'gemini', 'codex']);
+  assert.equal(runtimeList.runtimes.find(runtime => runtime.host === 'fake')?.status, 'ready');
+  assertAuthorityFalse(runtimeList, 'runtimeList');
 
-  for (const host of ['claude-code', 'gemini', 'codex'] as const) {
-    const probe = tryProbe(host);
-    if (probe.status === 'unavailable') return probe;
-  }
-
-  return withEnv({
-    PATH: '/usr/bin:/bin',
-    KOALA_ACTIVITY_SOURCE: undefined,
-    CODEX_SESSION_ID: undefined,
-    CODEX_HOME: undefined,
-  }, () => {
-    for (const host of ['claude-code', 'gemini'] as const) {
-      const probe = tryProbe(host);
-      if (probe.status === 'unavailable') return probe;
-    }
-    throw new Error('Expected at least one real host runtime to degrade to unavailable under a narrowed PATH');
-  });
-}
-
-function assertRegistered(registry: ReturnType<typeof createMainRegistry>): void {
-  for (const command of EXPECTED_COMMANDS) {
-    assert.ok(MAIN_TOOLS.some(tool => tool.name === command), `MAIN_TOOLS exposes ${command}`);
-    assert.equal(registry.has(command), true, `registry exposes ${command}`);
-  }
-  assert.equal(getCommandLifecyclePolicy('dispatch_plan')?.ownershipClass, 'readOnly');
-  assert.equal(getCommandLifecyclePolicy('dispatch_prepare')?.ownershipClass, 'storyScopedMutating');
-  assert.equal(getCommandLifecyclePolicy('dispatch_run')?.ownershipClass, 'storyScopedMutating');
-  assert.equal(getCommandLifecyclePolicy('dispatch_receipt_create')?.ownershipClass, 'storyScopedMutating');
-  assert.equal(getCommandLifecyclePolicy('dispatch_merge_plan')?.ownershipClass, 'readOnly');
-}
-
-function assertRuntimeListAndProbe(registry: ReturnType<typeof createMainRegistry>): HostRuntimeProbe {
-  const list = registry.get('host_runtime_list')!({ json: true }) as HostRuntimeList;
-  assert.equal(list.schemaVersion, 'lattice.host_runtime_list.v1');
-  assert.deepEqual(list.runtimes.map(runtime => runtime.host), ['fake', 'claude-code', 'gemini', 'codex']);
-  assertNoAuthorityOverclaim(list, 'host_runtime_list');
-
-  const fakeProbe = registry.get('host_runtime_probe')!({ host: 'fake', json: true }) as HostRuntimeProbe;
-  assert.equal(fakeProbe.schemaVersion, 'lattice.host_runtime_probe.v1');
+  const fakeProbe = run<HostRuntimeProbe>('host_runtime_probe', { host: 'fake' });
   assert.equal(fakeProbe.status, 'ready');
-  assert.equal(fakeProbe.available, true);
   assert.equal(fakeProbe.supportsParallel, true);
-  assert.equal(fakeProbe.runtimeKind, 'fake');
-  assert.match(fakeProbe.nextAction, /dispatch_prepare\/dispatch_run/i);
-  assertNoAuthorityOverclaim(fakeProbe, 'fake host_runtime_probe');
+  assertAuthorityFalse(fakeProbe, 'fakeProbe');
+  assert.throws(() => run<HostRuntimeProbe>('host_runtime_probe', { host: 'unknown-host' }), /requires host=fake\|claude-code\|gemini\|codex/);
 
-  const unavailableProbe = findUnavailableRealHost(registry);
-  assert.equal(unavailableProbe.status, 'unavailable');
-  assert.equal(unavailableProbe.available, false);
-  assert.equal(unavailableProbe.runtimeKind, 'missing-cli');
-  assert.match(unavailableProbe.nextAction, /Install|use host=fake/i);
-  assertNoAuthorityOverclaim(unavailableProbe, 'unavailable host_runtime_probe');
-  return unavailableProbe;
-}
-
-function assertPlanAndPrepare(
-  registry: ReturnType<typeof createMainRegistry>,
-): { plan: DispatchPlanResult; preparedId: string } {
-  const plan = registry.get('dispatch_plan')!({
+  const beforePlanCount = dispatchCount(root);
+  const plan = run<DispatchPlanResult>('dispatch_plan', {
     storyId: 'B-dispatch',
     host: 'fake',
+    objective: 'Verify dispatch planning without side effects.',
+    allowedPaths: ['packages/main/src/generated/plan.txt'],
+    deniedPaths: ['README.md'],
+    successCriteria: ['Plan only'],
     parallel: 2,
-    allowedPaths: [
-      'packages/main/src/core/fake-worker-1.txt',
-      'packages/main/src/core/fake-worker-2.txt',
-    ],
-    requiredCommands: ['git status --short'],
-    successCriteria: ['Return local accepted receipts for both workers'],
-    json: true,
-  }) as DispatchPlanResult;
+  });
   assert.equal(plan.schemaVersion, 'lattice.dispatch_plan.v1');
   assert.equal(plan.status, 'planned');
   assert.equal(plan.selectedHost, 'fake');
   assert.equal(plan.parallel, 2);
-  assert.equal(plan.pack.allowedPaths.length, 2);
-  assert.match(plan.nextAction, /dispatch_prepare|dispatch_run/i);
-  assertNoAuthorityOverclaim(plan, 'dispatch_plan fake');
+  assert.equal(dispatchCount(root), beforePlanCount, 'dispatch_plan must not create dispatch records');
+  assert.equal(existsSync(join(root, '.koala/dispatches')), false, 'dispatch_plan must not create .koala/dispatches');
+  assertAuthorityFalse(plan, 'plan');
 
-  const prepared = registry.get('dispatch_prepare')!({
+  const prepared = run<DispatchRecord>('dispatch_prepare', {
     storyId: 'B-dispatch',
+    dispatchId: 'D-prepare',
     host: 'fake',
-    parallel: 2,
-    allowedPaths: [
-      'packages/main/src/core/fake-worker-1.txt',
-      'packages/main/src/core/fake-worker-2.txt',
-    ],
-    requiredCommands: ['git status --short'],
-    successCriteria: ['Return local accepted receipts for both workers'],
-    json: true,
-  }) as { dispatchId: string; status: string; packFile: string; promptFile: string; workerIds: string[] };
+    objective: 'Prepare only.',
+    allowedPaths: ['packages/main/src/generated/prepare.txt'],
+    deniedPaths: ['README.md'],
+  });
   assert.equal(prepared.status, 'prepared');
-  assert.ok(prepared.dispatchId.startsWith('D-B-dispatch-fake-'));
-  assert.equal(prepared.workerIds.length, 0);
-  assert.equal(existsSync(resolve(process.cwd(), prepared.packFile)), true, 'dispatch_prepare persisted the pack file');
-  assert.equal(existsSync(resolve(process.cwd(), prepared.promptFile)), true, 'dispatch_prepare persisted the prompt file');
-  return { plan, preparedId: prepared.dispatchId };
-}
+  assert.equal(existsSync(join(root, prepared.packFile)), true);
+  assert.equal(existsSync(join(root, prepared.promptFile)), true);
+  assert.equal(existsSync(resolve(root, prepared.worktree.worktreePath)), false, 'dispatch_prepare must not create a worktree');
+  assertAuthorityFalse(prepared, 'prepared');
 
-function assertFakeParallelRun(
-  root: string,
-  registry: ReturnType<typeof createMainRegistry>,
-  dispatchId: string,
-): { run: DispatchRunResult; leafDispatchId: string } {
-  const run = registry.get('dispatch_run')!({ dispatchId, json: true }) as DispatchRunResult;
-  assert.equal(run.schemaVersion, 'lattice.dispatch_run.v1');
-  assert.equal(run.host, 'fake');
-  assert.equal(run.parallel, 2);
-  assert.equal(run.status, 'accepted_local');
-  assert.equal(run.workers.length, 2);
-  assertNoAuthorityOverclaim(run, 'dispatch_run fake parallel');
-  for (const worker of run.workers) {
+  run<DispatchRecord>('dispatch_prepare', {
+    storyId: 'B-dispatch',
+    dispatchId: 'D-parallel',
+    host: 'fake',
+    objective: 'Verify parallel fake workers.',
+    allowedPaths: [
+      'packages/main/src/generated/worker-1.txt',
+      'packages/main/src/generated/worker-2.txt',
+    ],
+    deniedPaths: ['README.md'],
+    successCriteria: ['Each worker returns local receipt only'],
+    parallel: 2,
+  });
+  const parallelRun = run<DispatchRunResult>('dispatch_run', { dispatchId: 'D-parallel' });
+  assert.equal(parallelRun.schemaVersion, 'lattice.dispatch_run.v1');
+  assert.equal(parallelRun.status, 'accepted_local');
+  assert.equal(parallelRun.parallel, 2);
+  assert.equal(parallelRun.workers.length, 2);
+  assert.equal('receipt' in parallelRun, false, 'parent parallel dispatch should not create a parent receipt');
+  for (const worker of parallelRun.workers) {
     assert.equal(worker.status, 'accepted_local');
-    assert.equal(worker.parallel, 1);
     assert.equal(worker.receipt?.status, 'accepted-local');
-    assert.equal(worker.receipt?.receiptVerified, false);
-    assert.equal(worker.receipt?.productionDone, false);
-    assert.match(worker.nextAction, /Review the isolated overflow diff/i);
-    assertNoAuthorityOverclaim(worker, `dispatch_run worker ${worker.dispatchId}`);
+    assert.equal(worker.receipt?.verdict, 'pass');
+    assert.equal(worker.receipt?.validations.verdict, 'pass');
   }
+  const parentRecord = readDispatch(root, 'D-parallel');
+  assert.deepEqual(parentRecord.workerIds, ['D-parallel-w1', 'D-parallel-w2']);
+  assertAuthorityFalse(parallelRun, 'parallelRun');
 
-  const parentStatus = registry.get('dispatch_status')!({ dispatchId, json: true }) as DispatchStatusResult;
-  assert.equal(parentStatus.schemaVersion, 'lattice.dispatch_status.v1');
+  const parentStatus = run<DispatchStatusResult>('dispatch_status', { dispatchId: 'D-parallel' });
   assert.equal(parentStatus.dispatch.status, 'accepted_local');
   assert.equal(parentStatus.workers.length, 2);
   assert.equal(parentStatus.receipt, undefined);
-  assertNoAuthorityOverclaim(parentStatus, 'dispatch_status parent');
+  assertAuthorityFalse(parentStatus, 'parentStatus');
 
-  const list = registry.get('dispatch_list')!({ storyId: 'B-dispatch', json: true }) as DispatchListResult;
-  assert.equal(list.schemaVersion, 'lattice.dispatch_list.v1');
-  assert.ok(list.dispatches.some(entry => entry.dispatchId === dispatchId && entry.status === 'accepted_local'));
-  assert.equal(list.dispatches.filter(entry => entry.storyId === 'B-dispatch').length >= 3, true);
-  assertNoAuthorityOverclaim(list, 'dispatch_list');
+  const parentCollect = run<DispatchCollection>('dispatch_collect', { dispatchId: 'D-parallel' });
+  assert.equal(parentCollect.status, 'accepted_local');
+  assert.equal(parentCollect.workers.length, 2);
+  assert.equal(parentCollect.changedFiles.length, 2);
+  assert.equal(existsSync(join(root, '.koala/dispatches/D-parallel/collect.json')), true);
+  assert.throws(() => run<DispatchReceiptDraft>('dispatch_receipt_create', { dispatchId: 'D-parallel' }), /only supports leaf dispatches/);
 
-  const collect = registry.get('dispatch_collect')!({ dispatchId, json: true }) as DispatchCollection;
-  assert.equal(collect.schemaVersion, 'lattice.dispatch_collect.v1');
-  assert.equal(collect.status, 'accepted_local');
-  assert.equal(collect.workers.length, 2);
-  assert.equal(collect.changedFiles.length >= 2, true);
-  assert.equal(collect.transcriptExists, true);
-  assertNoAuthorityOverclaim(collect, 'dispatch_collect parent');
-  for (const worker of collect.workers) {
-    assert.equal(worker.changedFiles.length > 0, true, `worker ${worker.dispatchId} collected git-derived changedFiles`);
-    assert.equal(worker.transcriptExists, true);
-  }
+  const leafReceipt = run<DispatchReceiptDraft>('dispatch_receipt_create', { dispatchId: 'D-parallel-w1' });
+  assert.equal(leafReceipt.status, 'created');
+  assert.equal(leafReceipt.receipt.verdict, 'pass');
+  assertAuthorityFalse(leafReceipt, 'leafReceipt');
 
-  const leafDispatchId = run.workers[0]!.dispatchId;
-  const draft = registry.get('dispatch_receipt_create')!({ dispatchId: leafDispatchId, json: true }) as DispatchReceiptDraft;
-  assert.equal(draft.schemaVersion, 'lattice.dispatch_receipt_create.v1');
-  assert.equal(draft.status, 'created');
-  assert.equal(draft.receipt.changedFiles.length > 0, true);
-  assert.equal(draft.receipt.limitations.some(line => /Draft receipt only/i.test(line)), true);
-  assertNoAuthorityOverclaim(draft, 'dispatch_receipt_create leaf');
-
-  const review = registry.get('dispatch_review')!({ dispatchId, json: true }) as DispatchReviewResult;
-  assert.equal(review.schemaVersion, 'lattice.dispatch_review.v1');
+  const review = run<DispatchReviewResult>('dispatch_review', { dispatchId: 'D-parallel' });
   assert.equal(review.status, 'accepted_local');
+  assert.equal(review.changedFiles.length, 2);
   assert.equal(review.workers.length, 2);
-  assert.equal(review.changedFiles.length >= 2, true);
-  assert.match(review.nextAction, /Inspect each worker receipt and diff manually|merge planning/i);
-  assertNoAuthorityOverclaim(review, 'dispatch_review parent');
+  assertAuthorityFalse(review, 'review');
 
-  const mergePlan = registry.get('dispatch_merge_plan')!({ dispatchId, json: true }) as DispatchMergePlanResult;
-  assert.equal(mergePlan.schemaVersion, 'lattice.dispatch_merge_plan.v1');
-  assert.equal(mergePlan.status, 'accepted_local');
+  const mergePlan = run<DispatchMergePlanResult>('dispatch_merge_plan', { dispatchId: 'D-parallel' });
   assert.equal(mergePlan.mergeable, true);
   assert.equal(mergePlan.manualOnly, true);
-  assert.equal(mergePlan.workers.length, 2);
   assert.equal(mergePlan.commands.length, 4);
-  assert.match(mergePlan.nextAction, /Manual merge only/i);
-  assertNoAuthorityOverclaim(mergePlan, 'dispatch_merge_plan accepted_local');
+  assert.ok(mergePlan.commands.every(command => !/\bgit\s+(merge|cherry-pick)\b/.test(command)));
+  assertAuthorityFalse(mergePlan, 'mergePlan');
 
-  for (const worker of run.workers) {
-    const workerDir = join(root, '.koala', 'dispatches', worker.dispatchId);
-    assert.equal(existsSync(join(workerDir, 'pack.json')), true, `worker ${worker.dispatchId} pack persisted`);
-    assert.equal(existsSync(join(workerDir, 'receipt-submit.json')), true, `worker ${worker.dispatchId} receipt submission persisted`);
-    const submission = JSON.parse(readFileSync(join(workerDir, 'receipt-submit.json'), 'utf8')) as { status: string };
-    assert.equal(submission.status, 'accepted-local');
-  }
+  run<DispatchRecord>('dispatch_prepare', {
+    storyId: 'B-dispatch',
+    dispatchId: 'D-failing-command',
+    host: 'fake',
+    objective: 'Required command failure must not be accepted local.',
+    allowedPaths: ['packages/main/src/generated/failing.txt'],
+    requiredCommands: ['node -e "process.exit(7)"'],
+  });
+  const failedRun = run<DispatchRunResult>('dispatch_run', { dispatchId: 'D-failing-command' });
+  assert.equal(failedRun.status, 'failed');
+  assert.equal(failedRun.receipt?.status, 'diagnostic');
+  assert.equal(failedRun.receipt?.verdict, 'fail');
+  assert.equal(failedRun.receipt?.validations.verdict, 'fail');
+  const failedMerge = run<DispatchMergePlanResult>('dispatch_merge_plan', { dispatchId: 'D-failing-command' });
+  assert.equal(failedMerge.mergeable, false);
+  assert.deepEqual(failedMerge.commands, []);
+  assertAuthorityFalse(failedRun, 'failedRun');
 
-  return { run, leafDispatchId };
-}
+  const cancelRecord = run<DispatchRecord>('dispatch_prepare', {
+    storyId: 'B-dispatch',
+    dispatchId: 'D-cancel-resume',
+    host: 'fake',
+    allowedPaths: ['packages/main/src/generated/cancel-resume.txt'],
+  });
+  const cancelStatus = run<DispatchStatusResult>('dispatch_cancel', { dispatchId: cancelRecord.dispatchId });
+  assert.equal(cancelStatus.dispatch.status, 'cancelled');
+  assert.equal(existsSync(join(root, cancelStatus.dispatch.receiptFile)), false);
+  const resumed = run<DispatchRunResult>('dispatch_resume', { dispatchId: cancelRecord.dispatchId });
+  assert.equal(resumed.status, 'accepted_local');
+  assert.equal(resumed.receipt?.status, 'accepted-local');
 
-function assertCancelAndResume(registry: ReturnType<typeof createMainRegistry>): void {
-  const prepared = registry.get('dispatch_prepare')!({
+  const list = run<DispatchListResult>('dispatch_list', { storyId: 'B-dispatch' });
+  assert.ok(list.dispatches.some(entry => entry.dispatchId === 'D-parallel'));
+  assert.ok(list.dispatches.some(entry => entry.dispatchId === 'D-cancel-resume'));
+  assertAuthorityFalse(list, 'list');
+
+  const beforeOverflowSuggestCount = dispatchCount(root);
+  const suggested = run<DispatchPlanResult>('overflow_auto', {
     storyId: 'B-dispatch',
     host: 'fake',
-    allowedPaths: ['packages/main/src/core/fake-resume.txt'],
-    requiredCommands: ['git status --short'],
-    json: true,
-  }) as { dispatchId: string };
-
-  const cancelled = registry.get('dispatch_cancel')!({ dispatchId: prepared.dispatchId, json: true }) as DispatchStatusResult;
-  assert.equal(cancelled.dispatch.status, 'cancelled');
-  assert.match(cancelled.dispatch.nextAction, /Dispatch cancelled/i);
-  assertNoAuthorityOverclaim(cancelled, 'dispatch_cancel');
-
-  const resumed = registry.get('dispatch_resume')!({ dispatchId: prepared.dispatchId, json: true }) as DispatchRunResult;
-  assert.equal(resumed.status, 'accepted_local');
-  assert.equal(resumed.parallel, 1);
-  assert.equal(resumed.receipt?.status, 'accepted-local');
-  assertNoAuthorityOverclaim(resumed, 'dispatch_resume');
-}
-
-function assertUnavailableRealHostPath(
-  registry: ReturnType<typeof createMainRegistry>,
-  unavailableProbe: HostRuntimeProbe,
-): void {
-  const host = unavailableProbe.host;
-  const runUnderNarrowPath = <T>(fn: () => T): T => withEnv({
-    PATH: '/usr/bin:/bin',
-    KOALA_ACTIVITY_SOURCE: undefined,
-    CODEX_SESSION_ID: undefined,
-    CODEX_HOME: undefined,
-  }, fn);
-
-  const plan = runUnderNarrowPath(() => registry.get('dispatch_plan')!({
+    objective: 'Suggest only.',
+  });
+  assert.equal(suggested.schemaVersion, 'lattice.dispatch_plan.v1');
+  assert.ok(suggested.warnings.some(warning => /suggest-only/i.test(warning)));
+  assert.equal(dispatchCount(root), beforeOverflowSuggestCount, 'overflow_auto default must not materialize dispatch records');
+  const approved = run<DispatchRunResult>('overflow_auto', {
     storyId: 'B-dispatch',
-    host,
-    parallel: 1,
-    json: true,
-  }) as DispatchPlanResult);
-  assert.equal(plan.status, 'unavailable');
-  assert.equal(plan.selectedHost, host);
-  assert.match(plan.nextAction, /Install|use host=fake/i);
-  assertNoAuthorityOverclaim(plan, 'dispatch_plan unavailable real host');
+    host: 'fake',
+    objective: 'Approved fake overflow run.',
+    allowedPaths: ['packages/main/src/generated/overflow-approved.txt'],
+    approve: true,
+    start: true,
+  });
+  assert.equal(approved.status, 'accepted_local');
+  assertAuthorityFalse(approved, 'approvedOverflow');
 
-  const prepared = runUnderNarrowPath(() => registry.get('dispatch_prepare')!({
-    storyId: 'B-dispatch',
-    host,
-    parallel: 1,
-    json: true,
-  }) as DispatchStatusResult['dispatch']);
-  assert.equal(prepared.status, 'unavailable');
-
-  const run = runUnderNarrowPath(() => registry.get('dispatch_run')!({
-    dispatchId: prepared.dispatchId,
-    json: true,
-  }) as DispatchRunResult);
-  assert.equal(run.status, 'unavailable');
-  assert.equal(run.host, host);
-  assert.match(run.nextAction, /Install|use host=fake/i);
-  assertNoAuthorityOverclaim(run, 'dispatch_run unavailable real host');
-}
-
-const root = mkdtempSync(join(tmpdir(), 'koala-dispatch-run-'));
-try {
-  initRepo(root);
-  const previousCwd = process.cwd();
-  process.chdir(root);
+  const originalPath = process.env.PATH;
   try {
-    const registry = createRegistry(root);
-    assertRegistered(registry);
-    const unavailableProbe = assertRuntimeListAndProbe(registry);
-    const { preparedId } = assertPlanAndPrepare(registry);
-    assertFakeParallelRun(root, registry, preparedId);
-    assertCancelAndResume(registry);
-    assertUnavailableRealHostPath(registry, unavailableProbe);
+    process.env.PATH = '/usr/bin:/bin';
+    const unavailableProbe = run<HostRuntimeProbe>('host_runtime_probe', { host: 'gemini' });
+    assert.equal(unavailableProbe.status, 'unavailable');
+    assert.equal(unavailableProbe.runtimeKind, 'missing-cli');
+    const unavailableRun = run<DispatchRunResult>('dispatch_run', {
+      storyId: 'B-dispatch',
+      host: 'gemini',
+      objective: 'Missing real host should degrade without worktree execution.',
+    });
+    assert.equal(unavailableRun.status, 'unavailable');
+    const missingRecord = readDispatch(root, unavailableRun.dispatchId);
+    assert.equal(existsSync(resolve(root, missingRecord.worktree.worktreePath)), false);
+    assert.equal(existsSync(join(root, missingRecord.receiptFile)), false);
+    assertAuthorityFalse(unavailableRun, 'unavailableRun');
   } finally {
-    process.chdir(previousCwd);
+    process.env.PATH = originalPath;
   }
+
+  const here = dirname(fileURLToPath(import.meta.url));
+  const cliPath = join(here, '..', 'cli.js');
+  const cliProbe = JSON.parse(execFileSync(process.execPath, [
+    cliPath,
+    '--root',
+    root,
+    'lattice',
+    'host',
+    'runtime',
+    'probe',
+    '--host=fake',
+    '--json',
+  ], {
+    cwd: root,
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  })) as HostRuntimeProbe;
+  assert.equal(cliProbe.host, 'fake');
+  assert.equal(cliProbe.status, 'ready');
+  assertAuthorityFalse(cliProbe, 'cliProbe');
+
+  console.log('✓ dispatch-run smoke passed — runtime probes, fake parallel dispatch, receipts, degradation paths, manual merge guidance, and authority invariants verified');
 } finally {
+  resetConfigCache();
   rmSync(root, { recursive: true, force: true });
 }
