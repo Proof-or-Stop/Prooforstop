@@ -54,7 +54,47 @@
       "context": "Fresh lattice init must create .Lattice/Lattice.md, .Lattice/lattice.json, thin AGENTS.md, and must not create bin/lattice*.js, .Codex/README.md, .Codex/lattice.json, .Codex/agents, or KOALA.md by default.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "README.md",
+        "docs/requirements/decisions/project-vision.md",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md"
+      ],
+      "userSees": "用户运行 lattice init 后，终端输出和文件树只出现 .Lattice/Lattice.md、.Lattice/lattice.json、AGENTS.md 这些默认项目资产；不会看到 bin/lattice-codex.js、bin/lattice.js、.Codex/README.md、.Codex/agents 或 KOALA.md。",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-init.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/core/managed-assets.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/thin-init-assets-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "在临时空目录执行 fresh lattice init，断言 .Lattice/Lattice.md、.Lattice/lattice.json、AGENTS.md 存在。",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "使用显式 full/local-shim 选项时仍能生成或保留需要的 host adapter/local shim 资产。",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "fresh 默认 init 中若出现 bin/lattice-codex.js、bin/lattice.js、.Codex/README.md、.Codex/lattice.json、.Codex/agents 或 KOALA.md，则测试必须失败。",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
