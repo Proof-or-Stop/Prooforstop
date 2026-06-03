@@ -377,7 +377,42 @@
         "test": [
           "packages/main/src/tasks/dispatch-run-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke asserts fake/scaffolded dispatch_status includes runner command, cwd, transcript, exit, and nextAction details.",
+          "headHash": "24c46243a53f80b1cf372e7e8c920645de474f4e",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:34.745Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke covers diagnostic runner status for failed/nonzero command paths and visible retry/inspect guidance.",
+          "headHash": "24c46243a53f80b1cf372e7e8c920645de474f4e",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:34.802Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke covers runner refusal/unsafe environment summary and keeps dispatch_status diagnostic with authority flags false.",
+          "headHash": "24c46243a53f80b1cf372e7e8c920645de474f4e",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:34.866Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
