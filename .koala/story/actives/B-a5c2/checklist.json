@@ -126,9 +126,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-03T20:11:06.738Z",
-      "endTime": null,
+      "endTime": "2026-06-03T20:17:34.253Z",
       "files": {
         "modify": [
           "packages/main/src/handlers/lattice-dispatch.ts",
@@ -458,6 +458,16 @@
       "to": "in_progress",
       "reason": "Start DEV milestone 3 dispatch policy contract",
       "agent": "codex"
+    },
+    {
+      "timestamp": "2026-06-03T20:17:34.253Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Claude Code CLI implemented dispatch policy contract and CLI surfaces",
+      "agent": "koala-implementer"
     }
   ]
 }
