@@ -980,9 +980,13 @@ function runRequiredCommands(worktreeRoot: string, commands: string[]): Array<{ 
   });
 }
 
+function dispatchReceiptHost(record: Pick<DispatchRecord, 'selectedHost'>, pack: HandoffPack): string {
+  return normalizeHostRuntimeId(record.selectedHost) ?? pack.toHost;
+}
+
 function createFakeReceipt(
   pack: HandoffPack,
-  dispatchId: string,
+  record: Pick<DispatchRecord, 'dispatchId' | 'selectedHost'>,
   headSha: string,
   changedFiles: string[],
   commandResults: Array<{ command: string; ok: boolean; output: string }>,
@@ -992,7 +996,7 @@ function createFakeReceipt(
   return {
     schemaVersion: 'lattice.handoff_receipt.v1',
     storyId: pack.storyId,
-    host: 'codex',
+    host: dispatchReceiptHost(record, pack),
     packId: pack.packId,
     packHash: pack.packHash,
     fromHost: pack.fromHost,
@@ -1011,8 +1015,8 @@ function createFakeReceipt(
     commands: commandResults.map(result => result.command),
     verdict: failedCommand ? 'fail' : 'pass',
     summary: failedCommand
-      ? `Fake dispatch ${dispatchId} hit command failure: ${failedCommand.command}`
-      : `Fake dispatch ${dispatchId} produced a deterministic local diff for review.`,
+      ? `Fake dispatch ${record.dispatchId} hit command failure: ${failedCommand.command}`
+      : `Fake dispatch ${record.dispatchId} produced a deterministic local diff for review.`,
     limitations: [
       'Local fake runtime receipt only.',
       'receiptVerified=false, authorityChanged=false, productionDone=false.',
@@ -1198,7 +1202,7 @@ function runFakeLeafDispatch(store: StoryStore, root: string, record: DispatchRe
   }
   const changedFiles = pack.baseSha ? changedFilesBetween(root, pack.baseSha, headSha) : [safeMarkerPath];
   const commandWarnings = commandResults.filter(result => !result.ok).map(result => `command failed: ${result.command}`);
-  const receipt = createFakeReceipt(pack, record.dispatchId, headSha, changedFiles, commandResults, commandWarnings);
+  const receipt = createFakeReceipt(pack, record, headSha, changedFiles, commandResults, commandWarnings);
   writeJson(resolve(root, record.receiptFile), receipt);
   const submission = submitHandoffReceipt(root, receipt);
   writeJson(resolve(root, record.receiptSubmissionFile), submission);
@@ -1494,7 +1498,7 @@ export function createDispatchReceipt(root: string, dispatchId: string): Dispatc
   const receipt: HandoffReceipt = {
     schemaVersion: 'lattice.handoff_receipt.v1',
     storyId: record.storyId,
-    host: 'codex',
+    host: dispatchReceiptHost(record, pack),
     packId: pack.packId,
     packHash: pack.packHash,
     fromHost: pack.fromHost,

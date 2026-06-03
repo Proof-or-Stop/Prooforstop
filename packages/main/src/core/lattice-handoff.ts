@@ -761,7 +761,7 @@ function mergeScopeStatuses(...statuses: HandoffScopeStatus[]): HandoffScopeStat
 function normalizeHandoffReceipt(value: HandoffReceipt): HandoffReceipt {
   return {
     ...value,
-    host: buildCapabilityProbe(value.host).host,
+    host: normalizeReceiptHost(value.host),
     fromHost: buildCapabilityProbe(value.fromHost).host,
     toHost: buildCapabilityProbe(value.toHost).host,
     packId: normalizeOptionalString(value.packId) ?? buildDefaultPackId(value),
@@ -781,6 +781,15 @@ function normalizeHandoffReceipt(value: HandoffReceipt): HandoffReceipt {
     limitations: normalizeOrderedStrings(value.limitations),
     ...(normalizeOptionalString(value.summary) ? { summary: normalizeOptionalString(value.summary) } : {}),
   };
+}
+
+function normalizeReceiptHost(host: string): string {
+  const requestedHost = normalizeOptionalString(host);
+  if (!requestedHost) {
+    throw new Error('handoff receipt requires host');
+  }
+  if (requestedHost.toLowerCase() === 'fake') return 'fake';
+  return buildCapabilityProbe(requestedHost).host;
 }
 
 function resolveCommitSha(root: string, ref: string): string | undefined {

@@ -388,6 +388,13 @@ try {
   assert.doesNotMatch(geminiPrompt, /Use codex only as a bounded overflow execution host/i);
   assertAuthorityFalse(geminiPrepared, 'geminiPrepared');
 
+  const geminiDraftReceipt = run<DispatchReceiptDraft>('dispatch_receipt_create', { dispatchId: geminiPrepared.dispatchId });
+  assert.equal(geminiDraftReceipt.receipt.host, 'gemini');
+  assert.notEqual(geminiDraftReceipt.receipt.host, 'codex');
+  assert.equal(geminiDraftReceipt.receipt.fromHost, 'codex');
+  assert.equal(geminiDraftReceipt.receipt.toHost, 'gemini');
+  assertAuthorityFalse(geminiDraftReceipt, 'geminiDraftReceipt');
+
   run<DispatchRecord>('dispatch_prepare', {
     storyId: 'B-dispatch',
     dispatchId: 'D-parallel',
@@ -410,6 +417,8 @@ try {
   for (const worker of parallelRun.workers) {
     assert.equal(worker.status, 'accepted_local');
     assert.equal(worker.receipt?.status, 'accepted-local');
+    assert.equal(worker.receipt?.host, 'fake');
+    assert.notEqual(worker.receipt?.host, 'codex');
     assert.equal(worker.receipt?.verdict, 'pass');
     assert.equal(worker.receipt?.validations.verdict, 'pass');
   }
@@ -432,6 +441,8 @@ try {
 
   const leafReceipt = run<DispatchReceiptDraft>('dispatch_receipt_create', { dispatchId: 'D-parallel-w1' });
   assert.equal(leafReceipt.status, 'created');
+  assert.equal(leafReceipt.receipt.host, 'fake');
+  assert.notEqual(leafReceipt.receipt.host, 'codex');
   assert.equal(leafReceipt.receipt.verdict, 'pass');
   assertAuthorityFalse(leafReceipt, 'leafReceipt');
 
@@ -561,6 +572,8 @@ try {
   });
   const draftReceipt = run<DispatchReceiptDraft>('dispatch_receipt_create', { dispatchId: draftOnly.dispatchId });
   assert.equal(draftReceipt.status, 'diagnostic');
+  assert.equal(draftReceipt.receipt.host, 'fake');
+  assert.notEqual(draftReceipt.receipt.host, 'codex');
   assert.equal(draftReceipt.receipt.verdict, 'warn');
   assert.deepEqual(draftReceipt.receipt.changedFiles, []);
   assert.ok(draftReceipt.receipt.limitations.some(limitation => /No git-derived changedFiles detected/i.test(limitation)));
