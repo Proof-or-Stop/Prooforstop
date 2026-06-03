@@ -24,6 +24,7 @@ import { scanValidationSetup, type ValidationSetupScan } from './verifier.js';
 import { detectPartialDoneStories, renderPartialDoneSummary } from '../core/partial-done-recovery.js';
 import { renderMainWriteLockScan, scanMainWriteLock } from '../core/main-write-lock-doctor.js';
 import { renderStoryOwnerLeaseScan, scanStoryOwnerLeases } from '../core/story-owner-lease-doctor.js';
+import { renderGuardSessionDoctorSection, scanGuardSessions } from '../core/guard-session-doctor.js';
 
 export function createDoctorHandlers(ctx: HandlerContext) {
   const { root, store } = ctx;
@@ -58,6 +59,9 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       // lease (heartbeat older than the 30-minute threshold). An active lease
       // within the window is reported as healthy, never misflagged.
       const storyOwnerLeases = scanStoryOwnerLeases(store);
+      // Guard session scan: report prewrite scope guard status for active stories
+      // and check whether the Claude Code PreToolUse hook is installed.
+      const guardSessionScan = scanGuardSessions(store, root);
       const repaired: string[] = [];
       const repairFailed: Array<{ path: string; error: string }> = [];
       let cleanupTargets = collectWorktreeCleanupTargets(orphanScan);
@@ -140,6 +144,15 @@ export function createDoctorHandlers(ctx: HandlerContext) {
             terminalStale: storyOwnerLeases.terminalStale,
             hasStale: storyOwnerLeases.stale.length > 0,
             hasTerminalStale: storyOwnerLeases.terminalStale.length > 0,
+          },
+          guardSessions: {
+            preToolUseHook: guardSessionScan.preToolUseHook,
+            sessions: guardSessionScan.sessions,
+            active: guardSessionScan.active,
+            withViolations: guardSessionScan.withViolations,
+            activeMissingHook: guardSessionScan.activeMissingHook,
+            hasMisconfigured: guardSessionScan.activeMissingHook.length > 0,
+            hasViolations: guardSessionScan.withViolations.length > 0,
           },
           codex,
           validation,
@@ -272,6 +285,9 @@ export function createDoctorHandlers(ctx: HandlerContext) {
 
       lines.push('');
       for (const line of renderStoryOwnerLeaseScan(storyOwnerLeases)) lines.push(line);
+
+      lines.push('');
+      for (const line of renderGuardSessionDoctorSection(guardSessionScan)) lines.push(line);
 
       lines.push('');
       lines.push(renderRuntimeEnvironmentReport(runtime));
