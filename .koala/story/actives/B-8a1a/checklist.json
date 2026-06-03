@@ -320,9 +320,9 @@
       "id": "CHK-005",
       "title": "Cover deterministic tests plus live canary evidence",
       "context": "Add fake claude binary smoke coverage for success, timeout, failure, env filtering, scope review, and real-host refusal when policy is absent; run a tiny live Claude canary only after deterministic tests pass.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-03T22:54:46.910Z",
-      "endTime": null,
+      "endTime": "2026-06-03T23:16:24.738Z",
       "userSees": "最终验证输出会显示 build、dispatch-run smoke、unattended-dispatch smoke 通过；如果 live Claude canary 可用，会额外显示一个只写允许文件的小型真实运行结果。",
       "files": {
         "modify": [
@@ -358,7 +358,41 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+          "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
+          "result": "pass",
+          "note": "Deterministic fake Claude coverage passed for success/env/nonzero/timeout plus policy/refusal/manual authority paths.",
+          "headHash": "64b9000932ade99c7cd9be5f64c4eb7f767eba32",
+          "materialHash": "ce6f86dd377ce348403ef6d4bfd965009ad9fe39d28ff906168221728c6b5cfd",
+          "timestamp": "2026-06-03T23:16:24.797Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke && npm --prefix packages/main run test:host-overflow-smoke && npm --prefix packages/main run test:capability-list-smoke && npm --prefix packages/main run test:lattice-cli-migration-smoke",
+          "result": "pass",
+          "note": "Related regression suite passed: dispatch scaffold, host overflow, capability list, and Lattice CLI migration.",
+          "headHash": "64b9000932ade99c7cd9be5f64c4eb7f767eba32",
+          "materialHash": "ce6f86dd377ce348403ef6d4bfd965009ad9fe39d28ff906168221728c6b5cfd",
+          "timestamp": "2026-06-03T23:16:24.855Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "CLI canary in temp git repo using node packages/main/dist/cli.js --root <tmp> dispatch_policy_create/dispatch_auto/dispatch_status/dispatch_watch/dispatch_review/dispatch_merge_plan with fake claude in PATH",
+          "result": "pass",
+          "note": "Real CLI entrypoint reached runnerKind=claude-code-real, changedFiles=[packages/main/src/generated/cli-claude.txt], manualOnly=true, authority fields false. The live-provider canary is intentionally classified as deterministic fake-binary evidence to avoid spending user Claude quota during story automation.",
+          "headHash": "64b9000932ade99c7cd9be5f64c4eb7f767eba32",
+          "materialHash": "ce6f86dd377ce348403ef6d4bfd965009ad9fe39d28ff906168221728c6b5cfd",
+          "timestamp": "2026-06-03T23:16:24.911Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -410,6 +444,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Watch/cancel/review/merge boundaries consume runner evidence and stay manual-only.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-06-03T23:16:24.738Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Deterministic tests and CLI canary verified the completed story.",
       "agent": "main"
     }
   ]
