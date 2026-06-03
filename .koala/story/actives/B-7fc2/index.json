@@ -4,7 +4,7 @@
   "title": "Keep Lattice CLI --json stdout machine-parseable while preserving human hints",
   "description": "Fix the Lattice CLI output contract so dashboard and adapter consumers can parse --json / --format=json stdout directly, without substring extraction or special cases for human next-step hints.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "source": "user-request-2026-06-03",
   "keywords": [
@@ -37,6 +37,14 @@
       "action": "advance",
       "timestamp": "2026-06-03T21:46:44.375Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-03T21:47:32.653Z",
+      "branch": "story/B-7fc2",
       "user": "Harmonygo",
       "agent": "main"
     }
