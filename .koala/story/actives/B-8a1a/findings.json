@@ -54,6 +54,38 @@
         ".koala/story/actives/B-8a1a/checklist.json",
         ".koala/story/actives/B-8a1a"
       ]
+    },
+    {
+      "id": "B-8a1a:F-004",
+      "desc": "[HIGH] packages/main/src/core/lattice-dispatch.ts:1114-1116 uses pathResolvesWithinRoot() without rejecting absolute relative() results. On Windows, cross-drive paths make path.relative() return an absolute path (for example D:\\outside), so the current check can treat a symlinked ancestor or registered worktree outside the repo as in-root. That weakens the worktree/path safety boundary for dispatch scopes. Fix by mirroring the stricter handler check and rejecting isAbsolute(rel) before accepting the path as contained.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-03T23:26:44.868Z",
+      "reviewRound": "2026-06-03T23:16:51.649Z",
+      "reviewRunId": "B-8a1a:RR-007",
+      "_hash": "ec129188b7d260e8100e8555ae27281b79e25b287d59de17fd83b2519745eeac",
+      "files": [
+        "packages/main/src/core/lattice-dispatch.ts"
+      ]
+    },
+    {
+      "id": "B-8a1a:F-005",
+      "desc": "[HIGH] packages/main/src/core/lattice-dispatch.ts:2626-2638 and 1833-1839 only apply commandAllowlist to pack.requiredCommands; the actual claude child_process launch is unconditional once allowRealHostSubprocess=true. A policy can authorize real Claude subprocess execution even when commandAllowlist does not contain claude --print, which breaks the promised child_process boundary. Fix by validating the real-host launcher against a canonical allowlist entry (for example claude --print <prompt-file>) before dispatch_auto/runDispatch can spawn it.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-03T23:26:44.871Z",
+      "reviewRound": "2026-06-03T23:16:51.649Z",
+      "reviewRunId": "B-8a1a:RR-007",
+      "_hash": "62fa0e53d0fbef8e722b9248cff9f793ffad425da6afce20451b5071e5f66d02",
+      "files": [
+        "packages/main/src/core/lattice-dispatch.ts"
+      ]
     }
   ]
 }
