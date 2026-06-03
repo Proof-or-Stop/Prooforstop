@@ -26,15 +26,25 @@
         ],
         "adversarial": [
           {
-            "desc": "Fallback docs/details no longer advertise swift test as a standard automatic fallback.",
-            "type": "docs",
+            "desc": "Inline validate diagnostics/details and runtime fact labels no longer advertise swift test as a standard automatic fallback.",
+            "type": "logic",
             "priority": "must"
           }
         ]
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/core/runtime-environment-checks.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-002",

@@ -4,7 +4,7 @@
   "title": "Remove Swift validation fallback from Lattice CLI gates",
   "description": "Stop Package.swift from making koala/lattice validate run legacy Swift tests automatically; add lattice.config.json as the canonical config name with koala.config.json compatibility.",
   "type": "refactor",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "source": "user request 2026-06-03",
   "keywords": [
@@ -36,6 +36,14 @@
       "action": "advance",
       "timestamp": "2026-06-03T18:15:11.525Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-03T18:15:55.315Z",
+      "branch": "story/B-38d6",
       "user": "Harmonygo",
       "agent": "main"
     }
