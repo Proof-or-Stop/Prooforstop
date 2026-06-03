@@ -272,8 +272,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-03T20:44:15.262Z",
       "endTime": null,
       "files": {
         "modify": [
@@ -508,6 +508,16 @@
       "to": "done",
       "reason": "Claude Code CLI implemented runner details in dispatch_status",
       "agent": "koala-implementer"
+    },
+    {
+      "timestamp": "2026-06-03T20:44:15.262Z",
+      "phase": "DEV",
+      "itemId": "CHK-006",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start DEV milestone 6 dispatch_auto watch cancel scheduler loop",
+      "agent": "codex"
     }
   ]
 }
