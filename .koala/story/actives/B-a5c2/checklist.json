@@ -223,8 +223,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-03T20:36:31.432Z",
       "endTime": null,
       "files": {
         "modify": [
@@ -488,6 +488,16 @@
       "to": "done",
       "reason": "Claude Code CLI implemented real host unattended capability contract",
       "agent": "koala-implementer"
+    },
+    {
+      "timestamp": "2026-06-03T20:36:31.432Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start DEV milestone 5 runner details in dispatch_status",
+      "agent": "codex"
     }
   ]
 }
