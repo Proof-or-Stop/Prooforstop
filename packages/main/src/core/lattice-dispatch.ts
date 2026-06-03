@@ -14,6 +14,7 @@ import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { changedFilesBetween, checkEvidenceFreshnessForGit, currentGitHead } from './evidence-freshness.js';
 import {
   checkDispatchPolicy,
+  type DispatchPolicy,
   type DispatchPolicyCheckResult,
 } from './dispatch-policy.js';
 import {
@@ -25,7 +26,6 @@ import {
   type HandoffReceiptSubmission,
 } from './lattice-handoff.js';
 import {
-  buildEnvSummary,
   buildFakeRunnerRecord,
   buildRefusedRunnerRecord,
   buildScaffoldedRunnerRecord,
@@ -369,6 +369,21 @@ type DispatchPrepareArgs = DispatchPlanArgs & {
 
 type DispatchRunArgs = DispatchPrepareArgs & {
   dispatchId?: string;
+  executionPolicy?: DispatchCommandExecutionPolicy;
+};
+
+type DispatchCommandExecutionPolicy = {
+  envAllowlist: string[];
+  envDenylist: string[];
+  commandAllowlist: string[];
+  maxRuntimeMs: number;
+};
+
+type RequiredCommandResult = {
+  command: string;
+  ok: boolean;
+  output: string;
+  timedOut?: boolean;
 };
 
 const TERMINAL_DISPATCH_STATUSES = new Set<DispatchLifecycleStatus>([
@@ -1327,18 +1342,88 @@ function gitOutput(cwd: string, args: string[]): string {
   }).trim();
 }
 
-function runRequiredCommands(worktreeRoot: string, commands: string[]): Array<{ command: string; ok: boolean; output: string }> {
+const UNSAFE_COMMAND_ENV_PATTERN = /TOKEN|SECRET|PASSWORD|PASSWD|KEY|CREDENTIAL|AUTH|PRIVATE/i;
+const SAFE_COMMAND_ENV_BASICS = [
+  'PATH',
+  'HOME',
+  'USER',
+  'LOGNAME',
+  'TMPDIR',
+  'TMP',
+  'TEMP',
+  'SystemRoot',
+  'ComSpec',
+];
+
+function isUnsafeCommandEnvName(name: string): boolean {
+  return UNSAFE_COMMAND_ENV_PATTERN.test(name);
+}
+
+function buildRequiredCommandEnv(policy?: DispatchCommandExecutionPolicy): Record<string, string | undefined> {
+  if (!policy) return process.env;
+
+  const denied = new Set(policy.envDenylist.map(name => name.trim()).filter(Boolean));
+  const env: Record<string, string | undefined> = {};
+  const copyIfAllowed = (name: string): void => {
+    const trimmed = name.trim();
+    if (!trimmed || denied.has(trimmed) || isUnsafeCommandEnvName(trimmed)) return;
+    const value = process.env[trimmed];
+    if (value !== undefined) env[trimmed] = value;
+  };
+
+  for (const name of SAFE_COMMAND_ENV_BASICS) copyIfAllowed(name);
+  for (const name of policy.envAllowlist) copyIfAllowed(name);
+  return env;
+}
+
+function commandTimedOut(error: any, timeoutMs: number | undefined): boolean {
+  if (timeoutMs === undefined) return false;
+  const message = String(error?.message || error?.stderr || error?.stdout || error);
+  return error?.signal === 'SIGTERM'
+    || error?.code === 'ETIMEDOUT'
+    || /timed out|timeout|SIGTERM|ETIMEDOUT/i.test(message);
+}
+
+function commandFailureOutput(error: any, timedOut: boolean, timeoutMs: number | undefined): string {
+  const details = String(error?.stderr || error?.stdout || error?.message || error).trim();
+  if (!timedOut) return details;
+  const timeoutNote = `timed out after ${Math.ceil(timeoutMs ?? 0)}ms`;
+  return details ? `${timeoutNote}; ${details}` : timeoutNote;
+}
+
+function runRequiredCommands(
+  worktreeRoot: string,
+  commands: string[],
+  executionPolicy?: DispatchCommandExecutionPolicy,
+  env: Record<string, string | undefined> = buildRequiredCommandEnv(executionPolicy),
+): RequiredCommandResult[] {
+  const commandAllowlist = new Set(executionPolicy?.commandAllowlist ?? []);
+  const timeoutMs = executionPolicy ? Math.ceil(executionPolicy.maxRuntimeMs) : undefined;
   return commands.map((command) => {
+    if (executionPolicy && !commandAllowlist.has(command)) {
+      return {
+        command,
+        ok: false,
+        output: 'refused before execution: command is not in dispatch_auto policy commandAllowlist',
+      };
+    }
     try {
       const output = execSync(command, {
         cwd: worktreeRoot,
         encoding: 'utf8',
         stdio: ['pipe', 'pipe', 'pipe'],
+        env,
+        ...(timeoutMs !== undefined ? { timeout: timeoutMs } : {}),
       });
       return { command, ok: true, output: output.trim() };
     } catch (error: any) {
-      const details = String(error?.stderr || error?.stdout || error?.message || error).trim();
-      return { command, ok: false, output: details };
+      const timedOut = commandTimedOut(error, timeoutMs);
+      return {
+        command,
+        ok: false,
+        output: commandFailureOutput(error, timedOut, timeoutMs),
+        ...(timedOut ? { timedOut: true } : {}),
+      };
     }
   });
 }
@@ -1352,7 +1437,7 @@ function createFakeReceipt(
   record: Pick<DispatchRecord, 'dispatchId' | 'selectedHost'>,
   headSha: string,
   changedFiles: string[],
-  commandResults: Array<{ command: string; ok: boolean; output: string }>,
+  commandResults: RequiredCommandResult[],
   warnings: string[],
 ): HandoffReceipt {
   const failedCommand = commandResults.find(result => !result.ok);
@@ -1532,7 +1617,12 @@ export function prepareDispatch(store: StoryStore, root: string, args: DispatchP
   return writeRecord(root, record);
 }
 
-function runFakeLeafDispatch(store: StoryStore, root: string, record: DispatchRecord): DispatchRunResult {
+function runFakeLeafDispatch(
+  store: StoryStore,
+  root: string,
+  record: DispatchRecord,
+  executionPolicy?: DispatchCommandExecutionPolicy,
+): DispatchRunResult {
   const runnerStartedAt = nowIso();
   let pack = readPack(root, record.dispatchId);
   pack = ensurePreparedPackForFake(root, record.dispatchId, pack);
@@ -1549,7 +1639,8 @@ function runFakeLeafDispatch(store: StoryStore, root: string, record: DispatchRe
   appendTranscript(resolve(root, record.transcriptFile), [
     `[${nowIso()}] fake runtime prepared ${safeMarkerPath}`,
   ]);
-  const commandResults = runRequiredCommands(worktreeAbs, pack.requiredCommands);
+  const commandEnv = buildRequiredCommandEnv(executionPolicy);
+  const commandResults = runRequiredCommands(worktreeAbs, pack.requiredCommands, executionPolicy, commandEnv);
   appendTranscript(resolve(root, record.transcriptFile), commandResults.map(result => (
     `[${nowIso()}] command ${result.ok ? 'ok' : 'fail'} ${result.command}${result.output ? ` :: ${result.output}` : ''}`
   )));
@@ -1588,6 +1679,7 @@ function runFakeLeafDispatch(store: StoryStore, root: string, record: DispatchRe
     : submission.nextAction;
   const runnerEndedAt = nowIso();
   const fakeExitCode = commandWarnings.length > 0 ? 1 : 0;
+  const commandTimedOut = commandResults.some(result => result.timedOut === true);
   const runnerRecord = buildFakeRunnerRecord({
     dispatchId: record.dispatchId,
     host: record.selectedHost,
@@ -1597,6 +1689,8 @@ function runFakeLeafDispatch(store: StoryStore, root: string, record: DispatchRe
     startedAt: runnerStartedAt,
     endedAt: runnerEndedAt,
     exitCode: fakeExitCode,
+    timedOut: commandTimedOut,
+    env: commandEnv,
   });
   if (record.runnerFile) {
     writeJson(resolve(root, record.runnerFile), runnerRecord);
@@ -1680,7 +1774,7 @@ export function runDispatch(store: StoryStore, root: string, args: DispatchRunAr
       const childArgs = childDispatchArgs(pack, record, index);
       const childRecord = prepareDispatch(store, root, { ...childArgs });
       workerIds.push(childRecord.dispatchId);
-      workers.push(runFakeLeafDispatch(store, root, childRecord));
+      workers.push(runFakeLeafDispatch(store, root, childRecord, args.executionPolicy));
     }
     const aggregate = aggregateStatus(workers.map(worker => worker.status));
     const warnings = workers.flatMap(worker => worker.warnings);
@@ -1712,7 +1806,7 @@ export function runDispatch(store: StoryStore, root: string, args: DispatchRunAr
   }
 
   if (record.selectedHost === 'fake') {
-    return runFakeLeafDispatch(store, root, record);
+    return runFakeLeafDispatch(store, root, record, args.executionPolicy);
   }
 
   const runtime = record.runtime;
@@ -2196,6 +2290,129 @@ export function overflowAuto(
   };
 }
 
+function pathIsWithinScope(candidate: string, scope: string): boolean {
+  if (scope === '.') return true;
+  return candidate === scope || candidate.startsWith(`${scope}/`);
+}
+
+function pathsOverlap(left: string, right: string): boolean {
+  return pathIsWithinScope(left, right) || pathIsWithinScope(right, left);
+}
+
+function normalizePolicyPaths(
+  root: string,
+  storyId: string,
+  policy: DispatchPolicy,
+): { allowedPaths: string[]; deniedPaths: string[] } {
+  const packId = `dispatch-auto-policy-${sanitizeSegment(policy.policy)}`;
+  return {
+    allowedPaths: normalizePackPathList(root, storyId, packId, policy.allowedPaths, 'allowedPaths'),
+    deniedPaths: normalizePackPathList(root, storyId, packId, policy.deniedPaths, 'deniedPaths'),
+  };
+}
+
+function defaultAllowedPathForPolicyScope(root: string, rawScope: string, normalizedScope: string, index: number): string {
+  if (normalizedScope === '.') return `dispatch-auto-result-${index + 1}.txt`;
+  const trimmed = rawScope.trim();
+  const rootCandidate = resolve(root, normalizedScope);
+  const isDirectoryScope = trimmed.endsWith('/') || trimmed.endsWith('\\')
+    || (existsSync(rootCandidate) && statSync(rootCandidate).isDirectory());
+  return isDirectoryScope
+    ? `${normalizedScope}/dispatch-auto-result-${index + 1}.txt`
+    : normalizedScope;
+}
+
+function uniqueStrings(values: string[]): string[] {
+  const seen = new Set<string>();
+  const result: string[] = [];
+  for (const value of values) {
+    if (seen.has(value)) continue;
+    seen.add(value);
+    result.push(value);
+  }
+  return result;
+}
+
+function bindDispatchAutoPathsToPolicy(
+  root: string,
+  args: DispatchRunArgs,
+  policy: DispatchPolicy,
+): Pick<DispatchRunArgs, 'allowedPaths' | 'deniedPaths'> {
+  const policyPaths = normalizePolicyPaths(root, args.storyId, policy);
+  const packId = args.packId?.trim() || `dispatch-auto-request-${sanitizeSegment(args.storyId)}`;
+  const requestedAllowedPaths = normalizePackPathList(root, args.storyId, packId, args.allowedPaths, 'allowedPaths');
+  const requestedDeniedPaths = normalizePackPathList(root, args.storyId, packId, args.deniedPaths, 'deniedPaths');
+  const effectiveAllowedPaths = requestedAllowedPaths.length > 0
+    ? requestedAllowedPaths
+    : policyPaths.allowedPaths.map((allowedPath, index) =>
+      defaultAllowedPathForPolicyScope(root, policy.allowedPaths[index] ?? allowedPath, allowedPath, index));
+
+  const errors: string[] = [];
+  for (const [index, allowedPath] of effectiveAllowedPaths.entries()) {
+    if (!policyPaths.allowedPaths.some(policyAllowed => pathIsWithinScope(allowedPath, policyAllowed))) {
+      errors.push(
+        `allowedPaths[${index}] "${allowedPath}" is outside policy "${policy.policy}" allowedPaths (${policy.allowedPaths.join(', ')})`,
+      );
+    }
+    const deniedOverlap = policyPaths.deniedPaths.find(policyDenied => pathsOverlap(allowedPath, policyDenied));
+    if (deniedOverlap) {
+      errors.push(
+        `allowedPaths[${index}] "${allowedPath}" overlaps policy "${policy.policy}" deniedPaths entry "${deniedOverlap}"`,
+      );
+    }
+  }
+  if (errors.length > 0) {
+    throw new Error(`dispatch_auto refused by policy scope:\n${errors.map(error => `  - ${error}`).join('\n')}`);
+  }
+
+  return {
+    allowedPaths: effectiveAllowedPaths,
+    deniedPaths: uniqueStrings([...policyPaths.deniedPaths, ...requestedDeniedPaths]),
+  };
+}
+
+function bindDispatchAutoCommandsToPolicy(args: DispatchRunArgs, policy: DispatchPolicy): string[] {
+  const requiredCommands = normalizeList(args.requiredCommands);
+  const allowedCommands = new Set(normalizeList(policy.commandAllowlist));
+  const refused = requiredCommands
+    .map((command, index) => ({ command, index }))
+    .filter(({ command }) => !allowedCommands.has(command));
+  if (refused.length > 0) {
+    throw new Error(
+      `dispatch_auto refused by policy commandAllowlist:\n${refused.map(({ command, index }) =>
+        `  - requiredCommands[${index}] "${command}" is not in policy "${policy.policy}" commandAllowlist`).join('\n')}`,
+    );
+  }
+  return requiredCommands;
+}
+
+function buildDispatchCommandExecutionPolicy(policy: DispatchPolicy): DispatchCommandExecutionPolicy {
+  return {
+    envAllowlist: normalizeList(policy.envAllowlist),
+    envDenylist: normalizeList(policy.envDenylist),
+    commandAllowlist: normalizeList(policy.commandAllowlist),
+    maxRuntimeMs: policy.maxRuntimeMinutes * 60 * 1000,
+  };
+}
+
+function bindDispatchAutoArgsToPolicy(
+  root: string,
+  args: DispatchRunArgs,
+  selectedHost: HostRuntimeId,
+  policy: DispatchPolicy,
+): DispatchRunArgs {
+  const paths = bindDispatchAutoPathsToPolicy(root, args, policy);
+  const requiredCommands = bindDispatchAutoCommandsToPolicy(args, policy);
+  return {
+    ...args,
+    host: selectedHost,
+    allowedPaths: paths.allowedPaths,
+    deniedPaths: paths.deniedPaths,
+    requiredCommands,
+    executionPolicy: buildDispatchCommandExecutionPolicy(policy),
+  };
+}
+
 type DispatchAutoArgs = DispatchRunArgs & {
   policy: string;
 };
@@ -2242,6 +2459,8 @@ export function dispatchAuto(store: StoryStore, root: string, args: DispatchAuto
     );
   }
 
+  const constrainedArgs = bindDispatchAutoArgsToPolicy(root, args, selectedHost, policy);
+
   const existing = listDispatches(root, args.storyId);
   const activeCount = existing.dispatches.filter(d => !TERMINAL_DISPATCH_STATUSES.has(d.status)).length;
   if (activeCount >= policy.maxParallel) {
@@ -2269,7 +2488,7 @@ export function dispatchAuto(store: StoryStore, root: string, args: DispatchAuto
   }
 
   const parallel = Math.min(Math.max(1, args.parallel ?? 1), policy.maxParallel);
-  const runResult = runDispatch(store, root, { ...args, host: selectedHost, parallel });
+  const runResult = runDispatch(store, root, { ...constrainedArgs, parallel });
 
   function convertToAutoResult(worker: DispatchRunResult): DispatchAutoResult {
     return {

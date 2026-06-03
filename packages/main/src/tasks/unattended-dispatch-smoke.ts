@@ -16,6 +16,7 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
+  readdirSync,
   rmSync,
   writeFileSync,
 } from 'node:fs';
@@ -32,6 +33,7 @@ import type {
   DispatchMergePlanResult,
   DispatchRecord,
   DispatchReviewResult,
+  DispatchStatusResult,
   DispatchWatchResult,
   HostRuntimeProbe,
 } from '../core/lattice-dispatch.js';
@@ -57,6 +59,12 @@ function writeConfig(root: string): void {
     rootDir: 'src',
     storyDir: '.koala/story/actives',
   }, null, 2) + '\n');
+}
+
+function writeDispatchPolicy(root: string, policy: DispatchPolicy): void {
+  const dir = join(root, '.koala/dispatch-policies');
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(join(dir, `${policy.policy}.json`), JSON.stringify(policy, null, 2) + '\n');
 }
 
 function initRepo(root: string): void {
@@ -112,6 +120,18 @@ function readDispatch(root: string, dispatchId: string): DispatchRecord {
   return JSON.parse(
     readFileSync(join(root, '.koala/dispatches', dispatchId, 'dispatch.json'), 'utf8'),
   ) as DispatchRecord;
+}
+
+function dispatchCount(root: string): number {
+  const dir = join(root, '.koala/dispatches');
+  if (!existsSync(dir)) return 0;
+  return readdirSync(dir).filter(entry => existsSync(join(dir, entry, 'dispatch.json'))).length;
+}
+
+function readCommandResults(root: string, record: DispatchRecord): Array<{ command: string; ok: boolean; output: string; timedOut?: boolean }> {
+  return JSON.parse(
+    readFileSync(join(root, record.collectFile.replace(/collect\.json$/, 'command-results.json')), 'utf8'),
+  ) as Array<{ command: string; ok: boolean; output: string; timedOut?: boolean }>;
 }
 
 const sandboxRoot = mkdtempSync(join(tmpdir(), 'lattice-unattended-smoke-'));
@@ -413,7 +433,219 @@ try {
     );
   }
 
-  // ── Step 9: All authority flags remain false throughout ────────────────────
+  // ── Step 9: CHK-008 edge coverage ──────────────────────────────────────────
+
+  const exitZeroCommand = 'node -e "process.exit(0)"';
+
+  // 9a: allowedPaths override outside policy refuses before dispatch artifacts
+  {
+    run<DispatchPolicy>('dispatch_policy_create', {
+      policy: 'chk008-scope-boundary',
+      allowedHosts: ['fake'],
+      allowedPaths: ['packages/main/src/generated/policy-safe.txt'],
+      maxParallel: 2,
+      maxRuntimeMinutes: 30,
+      maxBudgetUSD: 5.0,
+      network: 'none',
+      commandAllowlist: [exitZeroCommand],
+    });
+    const before = dispatchCount(root);
+    assert.throws(
+      () => run('dispatch_auto', {
+        storyId: 'B-unattended',
+        policy: 'chk008-scope-boundary',
+        allowedPaths: ['README.md'],
+        objective: 'CHK-008 unsafe path override must refuse',
+      }),
+      /policy scope|outside policy/i,
+      'dispatch_auto must refuse allowedPaths outside policy before execution',
+    );
+    assert.equal(dispatchCount(root), before,
+      'unsafe allowedPaths override must not create dispatch records');
+  }
+
+  // 9b: requiredCommand outside commandAllowlist refuses before command execution
+  {
+    const disallowedCommand =
+      'node -e "require(\'fs\').writeFileSync(\'packages/main/src/generated/disallowed-command-ran.txt\', \'ran\')"';
+    run<DispatchPolicy>('dispatch_policy_create', {
+      policy: 'chk008-command-boundary',
+      allowedHosts: ['fake'],
+      allowedPaths: ['packages/main/src/generated/command-boundary.txt'],
+      maxParallel: 2,
+      maxRuntimeMinutes: 30,
+      maxBudgetUSD: 5.0,
+      network: 'none',
+      commandAllowlist: [exitZeroCommand],
+    });
+    const before = dispatchCount(root);
+    assert.throws(
+      () => run('dispatch_auto', {
+        storyId: 'B-unattended',
+        policy: 'chk008-command-boundary',
+        allowedPaths: ['packages/main/src/generated/command-boundary.txt'],
+        requiredCommands: [disallowedCommand],
+        objective: 'CHK-008 disallowed command must refuse',
+      }),
+      /commandAllowlist|not in policy/i,
+      'dispatch_auto must refuse commands outside policy.commandAllowlist before execution',
+    );
+    assert.equal(dispatchCount(root), before,
+      'disallowed requiredCommand must not create dispatch records');
+    assert.equal(existsSync(join(root, 'packages/main/src/generated/disallowed-command-ran.txt')), false,
+      'disallowed requiredCommand must not run side effects');
+  }
+
+  // 9c: fake required commands run with filtered env and cannot read denied secrets
+  {
+    const secretValue = 'super-secret-value-that-must-not-leak';
+    const savedSecret = process.env.KOALA_DENIED_SECRET;
+    const leakProbeCommand =
+      'node -e "if (process.env.KOALA_DENIED_SECRET) { console.error(process.env.KOALA_DENIED_SECRET); process.exit(2); } console.log(\'secret absent\')"';
+    try {
+      process.env.KOALA_DENIED_SECRET = secretValue;
+      run<DispatchPolicy>('dispatch_policy_create', {
+        policy: 'chk008-env-filter',
+        allowedHosts: ['fake'],
+        allowedPaths: ['packages/main/src/generated/env-filter.txt'],
+        maxParallel: 2,
+        maxRuntimeMinutes: 1,
+        maxBudgetUSD: 5.0,
+        network: 'none',
+        envDenylist: ['KOALA_DENIED_SECRET'],
+        commandAllowlist: [leakProbeCommand],
+      });
+      const envResult = run<DispatchAutoResult>('dispatch_auto', {
+        storyId: 'B-unattended',
+        policy: 'chk008-env-filter',
+        allowedPaths: ['packages/main/src/generated/env-filter.txt'],
+        requiredCommands: [leakProbeCommand],
+        objective: 'CHK-008 denied env must not leak',
+      });
+      assert.equal(envResult.status, 'accepted_local',
+        'denied secret env probe must pass when the secret is filtered out');
+      const envRecord = readDispatch(root, envResult.dispatchId);
+      const envCommands = readCommandResults(root, envRecord);
+      assert.equal(envCommands[0].ok, true, 'env leak probe command must succeed');
+      assert.match(envCommands[0].output, /secret absent/, 'env leak probe must observe missing secret');
+      assert.doesNotMatch(envCommands[0].output, /super-secret-value-that-must-not-leak/,
+        'command result output must not contain denied secret value');
+      const envStatus = run<DispatchStatusResult>('dispatch_status', { dispatchId: envResult.dispatchId });
+      assert.equal(envStatus.runner?.envSummary.safeVarNames.includes('KOALA_DENIED_SECRET'), false,
+        'runner env summary must not list denied secret env var');
+    } finally {
+      if (savedSecret === undefined) delete process.env.KOALA_DENIED_SECRET;
+      else process.env.KOALA_DENIED_SECRET = savedSecret;
+    }
+  }
+
+  // 9d: maxRuntimeMinutes is enforced as a per-command timeout
+  {
+    const timeoutCommand = 'node -e "setTimeout(function () {}, 200)"';
+    writeDispatchPolicy(root, {
+      schemaVersion: 'lattice.dispatch_policy.v1',
+      policy: 'chk008-timeout',
+      allowedHosts: ['fake'],
+      allowedPaths: ['packages/main/src/generated/timeout.txt'],
+      deniedPaths: [],
+      maxParallel: 2,
+      maxRuntimeMinutes: 0.001,
+      maxBudgetUSD: 5.0,
+      network: 'none',
+      envAllowlist: [],
+      envDenylist: [],
+      commandAllowlist: [timeoutCommand],
+      retryLimit: 0,
+      requireReceipt: true,
+      requireReview: true,
+      allowAutoMerge: false,
+      allowProductionDone: false,
+      createdAt: '2026-06-03T00:00:00.000Z',
+    });
+    const timeoutResult = run<DispatchAutoResult>('dispatch_auto', {
+      storyId: 'B-unattended',
+      policy: 'chk008-timeout',
+      allowedPaths: ['packages/main/src/generated/timeout.txt'],
+      requiredCommands: [timeoutCommand],
+      objective: 'CHK-008 timeout command path',
+    });
+    assert.equal(timeoutResult.status, 'failed',
+      'timeout command must leave fake dispatch in failed lifecycle status');
+    const timeoutRecord = readDispatch(root, timeoutResult.dispatchId);
+    const timeoutCommands = readCommandResults(root, timeoutRecord);
+    assert.equal(timeoutCommands[0].timedOut, true,
+      'command-results must mark timedOut=true');
+    assert.match(timeoutCommands[0].output, /timed out after/i,
+      'command-results output must surface timeout detail');
+    const timeoutStatus = run<DispatchStatusResult>('dispatch_status', { dispatchId: timeoutResult.dispatchId });
+    assert.equal(timeoutStatus.runner?.timedOut, true,
+      'runner record must surface timedOut=true for dispatch_watch/review');
+  }
+
+  // 9e: missing receipt review/merge diagnostics are asserted directly
+  {
+    run<DispatchRecord>('dispatch_prepare', {
+      storyId: 'B-unattended',
+      dispatchId: 'D-chk008-missing-receipt',
+      host: 'fake',
+      objective: 'CHK-008 missing receipt diagnostics',
+      allowedPaths: ['packages/main/src/generated/missing-receipt.txt'],
+    });
+    const missingReview = run<DispatchReviewResult>('dispatch_review', { dispatchId: 'D-chk008-missing-receipt' });
+    assert.equal(missingReview.localReceiptStatus, 'missing',
+      'dispatch_review must report missing local receipt for prepared-only dispatch');
+    assert.ok(missingReview.risks.some(risk => /receipt.*missing/i.test(risk)),
+      'dispatch_review must include missing receipt risk');
+    const missingMerge = run<DispatchMergePlanResult>('dispatch_merge_plan', { dispatchId: 'D-chk008-missing-receipt' });
+    assert.equal(missingMerge.mergeable, false,
+      'dispatch_merge_plan must refuse merge guidance for missing receipt');
+  }
+
+  // 9f: mixed worker outcomes are surfaced by review and merge diagnostics
+  {
+    const mixedCommand =
+      'node -e "const fs=require(\'fs\'); process.exit(fs.existsSync(\'packages/main/src/generated/mixed-2.txt\') ? 1 : 0)"';
+    run<DispatchPolicy>('dispatch_policy_create', {
+      policy: 'chk008-mixed-workers',
+      allowedHosts: ['fake'],
+      allowedPaths: ['packages/main/src/generated/'],
+      maxParallel: 2,
+      maxRuntimeMinutes: 1,
+      maxBudgetUSD: 5.0,
+      network: 'none',
+      commandAllowlist: [mixedCommand],
+    });
+    const mixedResult = run<DispatchAutoResult>('dispatch_auto', {
+      storyId: 'B-unattended',
+      policy: 'chk008-mixed-workers',
+      allowedPaths: [
+        'packages/main/src/generated/mixed-1.txt',
+        'packages/main/src/generated/mixed-2.txt',
+      ],
+      requiredCommands: [mixedCommand],
+      parallel: 2,
+      objective: 'CHK-008 mixed worker outcome diagnostics',
+    });
+    assert.equal(mixedResult.status, 'diagnostic',
+      'parallel dispatch with mixed worker statuses must aggregate to diagnostic');
+    assert.deepEqual(
+      mixedResult.workers.map(worker => worker.status).sort(),
+      ['accepted_local', 'failed'],
+      'mixed worker smoke must produce one accepted_local worker and one failed worker',
+    );
+    const mixedReview = run<DispatchReviewResult>('dispatch_review', { dispatchId: mixedResult.dispatchId });
+    assert.equal(mixedReview.localReceiptStatus, 'diagnostic',
+      'dispatch_review must surface diagnostic localReceiptStatus for mixed workers');
+    assert.equal(mixedReview.workers.length, 2,
+      'dispatch_review must include both workers for mixed outcome diagnostics');
+    assert.ok(mixedReview.workers.some(worker => worker.status === 'failed'),
+      'dispatch_review worker diagnostics must include the failed worker');
+    const mixedMerge = run<DispatchMergePlanResult>('dispatch_merge_plan', { dispatchId: mixedResult.dispatchId });
+    assert.equal(mixedMerge.mergeable, false,
+      'dispatch_merge_plan must withhold merge guidance for mixed worker outcomes');
+  }
+
+  // ── Step 10: All authority flags remain false throughout ───────────────────
 
   // Explicitly re-verify the three authority fields on each major surface
   {
@@ -444,7 +676,7 @@ try {
     assert.equal(mergeAuth.productionDone, false, 'dispatch_merge_plan.productionDone must be false');
   }
 
-  // ── Step 10: overflow_auto nextAction references dispatch_auto ─────────────
+  // ── Step 11: overflow_auto nextAction references dispatch_auto ─────────────
 
   const overflowResult = run<{ nextAction?: string; schemaVersion: string }>('overflow_auto', {
     storyId: 'B-unattended',
@@ -456,7 +688,7 @@ try {
     `overflow_auto nextAction must reference dispatch_auto as the policy-authorized unattended path, got: ${overflowResult.nextAction}`,
   );
 
-  console.log('✓ unattended-dispatch-smoke passed — policy check, claude-code capability probe, fake parallel dispatch_auto, dispatch_watch lifecycle, dispatch_cancel evidence preservation, dispatch_review transcript/runner evidence, dispatch_merge_plan manualOnly, refusal for missing policy / unavailable / unattendedUnsafe host, authority invariants, and overflow_auto→dispatch_auto migration guidance verified');
+  console.log('✓ unattended-dispatch-smoke passed — policy check, claude-code capability probe, fake parallel dispatch_auto, dispatch_watch lifecycle, dispatch_cancel evidence preservation, dispatch_review transcript/runner evidence, dispatch_merge_plan manualOnly, refusal for missing policy / unavailable / unattendedUnsafe host / out-of-policy scope / out-of-policy command, denied env filtering, timeout, missing receipt, mixed worker diagnostics, authority invariants, and overflow_auto→dispatch_auto migration guidance verified');
 } finally {
   resetConfigCache();
   rmSync(sandboxRoot, { recursive: true, force: true });

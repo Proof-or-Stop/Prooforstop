@@ -78,6 +78,8 @@ export function buildFakeRunnerRecord(opts: {
   startedAt: string;
   endedAt: string;
   exitCode: number;
+  timedOut?: boolean;
+  env?: Record<string, string | undefined>;
 }): DispatchRunnerRecord {
   return {
     schemaVersion: 'lattice.dispatch_runner.v1',
@@ -91,8 +93,8 @@ export function buildFakeRunnerRecord(opts: {
     startedAt: opts.startedAt,
     endedAt: opts.endedAt,
     exitCode: opts.exitCode,
-    timedOut: false,
-    envSummary: buildEnvSummary(),
+    timedOut: opts.timedOut ?? false,
+    envSummary: buildEnvSummary(opts.env),
     refusalReasons: [],
     ...authorityState(),
   };
