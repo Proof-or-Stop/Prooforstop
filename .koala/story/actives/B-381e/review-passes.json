@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-03T00:20:21.831Z",
       "reviewRunId": "B-381e:RR-001",
       "_hash": "c347c5454f63430fb62f53ecc97f40753f3e6b9ee5379c055ca05c059507a84f"
+    },
+    {
+      "id": "B-381e:RP-002",
+      "agent": "koala-review-test-coverage",
+      "note": "verificationIntent for CHK-001..004 (happy/edge/adversarial) is mechanically covered: story-authority-resolve-smoke asserts schemaVersion=lattice.story_authority_resolve.v1, readOnly=true, required row fields, and a real git-worktree drift fixture confirms worktree authority beats stale main mirror with authoritativeCwd=worktreePath; observability-snapshot-smoke captures opened cwds via storeFactory to prove per-row routing through authoritativeCwd, asserts all 5 sections present, and asserts productionDone=false even for local DONE; observability-contract-smoke asserts both commands are L0 readOnly with destructiveRisk=none, runtime resolver/snapshot keep productionDone/receiptVerified/authorityChanged=false, and source greps confirm no session_brief/status calls, no .koala/story or docs/story reads in adapter, and no dashboard.ts wiring; command-ownership-contract and lifecycle-registry-contract pass with 0 divergences confirming L0 boundary; CLI transcripts re-verified live (story_authority_resolve and observability_snapshot emit claimed schemas with conservative authority).",
+      "createdAt": "2026-06-03T00:23:26.182Z",
+      "reviewRound": "2026-06-03T00:20:21.831Z",
+      "reviewRunId": "B-381e:RR-002",
+      "_hash": "4dc85c4038e811688e4bf642ba1611503633ece1b657d68fad31023d58a36346"
     }
   ]
 }
