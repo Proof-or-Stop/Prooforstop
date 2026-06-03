@@ -77,6 +77,22 @@
       ],
       "resolvedReason": "Resolved by commit 74ce419c. overflow_auto now requires approve=true and start=true; fake dispatch paths are bounded before any file write; scaffolded real-host dispatch creates the projected worktree or returns failed with warnings. Verified with npm --prefix packages/main run build, npm --prefix packages/main run test:dispatch-run-smoke, npm --prefix packages/main run test:lattice-handoff-smoke, npm run test:command-ownership-contract, and npm run test:process-fact-contract.",
       "resolvedAt": "2026-06-03T00:27:27.249Z"
+    },
+    {
+      "id": "B-106b:F-005",
+      "desc": "Verified HIGH: 74ce419c still allows fake dispatch_run to write outside the isolated overflow worktree via tracked symlink paths. The new assertWorktreeRelativePath()/normalizeFakePackPaths guard in packages/main/src/core/lattice-dispatch.ts only rejects absolute and .. segments, but runFakeLeafDispatch then resolves markerAbs and writes it directly before any canonical-path check. Repro: after npm --prefix packages/main run build, a one-off registry run in a temporary git repo with a tracked absolute symlink packages/main/src/generated/escape-link -> /tmp/... prepared dispatchId=D-symlink with allowedPaths=[\"packages/main/src/generated/escape-link/escaped.txt\"]. dispatch_run threw later at git add with fatal: pathspec ... is beyond a symbolic link, but /tmp/.../escaped.txt had already been created with dispatch metadata. This means the bounded fake-path write contract is still bypassable before the command fails.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-03T00:30:38.858Z",
+      "reviewRound": "2026-06-03T00:27:15.686Z",
+      "reviewRunId": "B-106b:RR-007",
+      "_hash": "73b98367e1d3663f5480b6b3620c3538f9ea6aa3e2e0e5adaa96e892b8fd4d49",
+      "files": [
+        "packages/main/src/core/lattice-dispatch.ts"
+      ]
     }
   ]
 }
