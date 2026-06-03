@@ -756,6 +756,62 @@ function assertCanonicalWorktreePath(worktreeAbs: string, candidatePath: string,
   return relativePath;
 }
 
+function listedGitWorktreeRoots(root: string): string[] {
+  const output = execFileSync('git', ['worktree', 'list', '--porcelain'], {
+    cwd: root,
+    stdio: ['pipe', 'pipe', 'pipe'],
+    encoding: 'utf8',
+  });
+  return output
+    .split(/\r?\n/)
+    .filter(line => line.startsWith('worktree '))
+    .map(line => line.slice('worktree '.length).trim())
+    .filter(Boolean)
+    .map((path) => {
+      try {
+        return realpathSync(path);
+      } catch {
+        return resolve(root, path);
+      }
+    });
+}
+
+function assertRegisteredDispatchWorktreeRoot(root: string, worktreeAbs: string, label: string): void {
+  const entry = lstatSync(worktreeAbs);
+  if (entry.isSymbolicLink()) {
+    throw new Error(`${label} must be a real git worktree root, not a symlink: ${relative(root, worktreeAbs)}`);
+  }
+  if (!entry.isDirectory()) {
+    throw new Error(`${label} must be a directory git worktree root: ${relative(root, worktreeAbs)}`);
+  }
+  const rootReal = realpathSync(root);
+  const worktreeReal = realpathSync(worktreeAbs);
+  if (!pathResolvesWithinRoot(rootReal, worktreeReal)) {
+    throw new Error(`${label} resolves outside the repository root: ${relative(root, worktreeAbs)}`);
+  }
+
+  let gitTopLevel: string;
+  try {
+    gitTopLevel = execFileSync('git', ['-C', worktreeAbs, 'rev-parse', '--show-toplevel'], {
+      cwd: root,
+      stdio: ['pipe', 'pipe', 'pipe'],
+      encoding: 'utf8',
+    }).trim();
+  } catch (error: any) {
+    const detail = String(error?.stderr || error?.stdout || error?.message || error).trim();
+    throw new Error(`${label} is not a git worktree root: ${relative(root, worktreeAbs)} (${detail})`);
+  }
+
+  const gitTopLevelReal = realpathSync(gitTopLevel);
+  if (gitTopLevelReal !== worktreeReal) {
+    throw new Error(`${label} must be the git top-level worktree root, got ${relative(root, worktreeAbs)} inside ${relative(root, gitTopLevelReal)}`);
+  }
+
+  if (!listedGitWorktreeRoots(root).includes(worktreeReal)) {
+    throw new Error(`${label} is not registered in this repository's git worktree list: ${relative(root, worktreeAbs)}`);
+  }
+}
+
 function normalizePackPaths(
   root: string,
   dispatchId: string,
@@ -784,7 +840,10 @@ function normalizePackPaths(
 
 function ensureWorktree(root: string, worktreePath: string, branch: string, baseRef: string): string {
   const absPath = resolve(root, worktreePath);
-  if (existsSync(absPath)) return absPath;
+  if (existsSync(absPath)) {
+    assertRegisteredDispatchWorktreeRoot(root, absPath, 'Dispatch worktree path');
+    return absPath;
+  }
   mkdirSync(dirname(absPath), { recursive: true });
   try {
     execFileSync('git', ['worktree', 'add', absPath, '-b', branch, baseRef], {
@@ -798,6 +857,7 @@ function ensureWorktree(root: string, worktreePath: string, branch: string, base
       throw new Error(`git worktree add failed for ${worktreePath}: ${message.trim()}`);
     }
   }
+  assertRegisteredDispatchWorktreeRoot(root, absPath, 'Dispatch worktree path');
   return absPath;
 }
 
