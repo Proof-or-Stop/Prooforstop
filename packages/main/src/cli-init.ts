@@ -236,7 +236,7 @@ lattice init — 初始化 Lattice/Koala 开发框架
 Legacy npm package entrypoint \`npx koala-init\` remains accepted as an alias.
 
 初始化内容:
-  koala.config.json             项目配置（扫描路径、Story 前缀）
+  lattice.config.json           项目配置（canonical; legacy koala.config.json 仍可读为兜底）
   LATTICE.md                    canonical host-neutral Lattice 指南
   bin/lattice.js                本地 Lattice bootstrap
   host adapter assets           由 --profile 控制（codex / claude / all / core）
@@ -255,7 +255,7 @@ Legacy npm package entrypoint \`npx koala-init\` remains accepted as an alias.
 
 初始化后:
   1. 阅读 LATTICE.md，并使用 profile 生成的入口
-  2. 编辑 koala.config.json 调整 scanRoot 等路径
+  2. 编辑 lattice.config.json 调整 scanRoot 等路径（legacy koala.config.json 仍可读，作为兜底）
   3. 可选: lattice validate 跑项目验证
 `);
   process.exit(0);
@@ -704,9 +704,9 @@ import { createApp } from './app.js';
   console.log('  ✓ src/core/debug.ts (调试入口模板)');
 }
 
-// 2. koala.config.json
-console.log('\n[2/6] 生成 koala.config.json...');
-const koalaConfig: Record<string, unknown> = {
+// 2. lattice.config.json (canonical; legacy koala.config.json still readable)
+console.log('\n[2/6] 生成 lattice.config.json...');
+const latticeConfig: Record<string, unknown> = {
   scanRoot: withStarter || hadSrcBeforeInit ? 'src' : '.',
   testsDir: 'tests',
   storyDir: 'docs/story/actives',
@@ -714,8 +714,8 @@ const koalaConfig: Record<string, unknown> = {
   storyPrefix: 'S',
 };
 if (isPython) {
-  koalaConfig.language = 'python';
-  koalaConfig.scanRoot = withStarter || hadSrcBeforeInit ? 'src' : '.';
+  latticeConfig.language = 'python';
+  latticeConfig.scanRoot = withStarter || hadSrcBeforeInit ? 'src' : '.';
   console.log('  ✓ 检测到 Python 项目');
 }
 
@@ -728,12 +728,20 @@ if (existsSync(pkgPath)) {
     const hasHtml = existsSync(join(targetDir, 'index.html')) || existsSync(join(targetDir, 'public', 'index.html'));
     if (hasHtml || deps?.vite || deps?.webpack || deps?.next) {
       const devCmd = deps?.vite ? 'npx vite' : deps?.next ? 'npx next dev' : deps?.webpack ? 'npx webpack serve' : 'npx serve';
-      koalaConfig.browser = { devCommand: devCmd };
+      latticeConfig.browser = { devCommand: devCmd };
       console.log(`  ✓ 检测到浏览器项目，browser.devCommand = "${devCmd}"`);
     }
   } catch { /* ignore */ }
 }
-write('koala.config.json', JSON.stringify(koalaConfig, null, 2) + '\n');
+if (existsSync(join(targetDir, 'lattice.config.json'))) {
+  console.log('  - lattice.config.json (exists, skip)');
+} else if (existsSync(join(targetDir, 'koala.config.json'))) {
+  // Legacy fallback already present — keep it intact and skip scaffold to
+  // avoid producing a conflicting canonical file the user did not ask for.
+  console.log('  - lattice.config.json (skip; legacy koala.config.json detected, keeping it as fallback)');
+} else {
+  write('lattice.config.json', JSON.stringify(latticeConfig, null, 2) + '\n');
+}
 
 // 3. 文档入口
 console.log('\n[3/6] 配置 Lattice / host 文档...');
@@ -915,7 +923,7 @@ console.log(`
 
 Next steps:
   1. Read LATTICE.md, then use the entrypoints generated for profile ${selectedProfile}
-  2. Optional: edit koala.config.json to adjust scanRoot
+  2. Optional: edit lattice.config.json to adjust scanRoot (legacy koala.config.json is still read as a fallback)
   3. Optional: lattice validate to verify project
 `);
 

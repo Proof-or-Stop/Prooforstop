@@ -269,6 +269,186 @@ try {
     rmSync(fallbackRoot, { recursive: true, force: true });
   }
 
+  // B-38d6 CHK-001: Package.swift alone must NOT auto-fall back to swift test.
+  // The Mac Native App / Swift product runtime has been demoted; explicit
+  // validate.commands is the only opt-in path.
+  const swiftOnlyRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-swift-only-'));
+  try {
+    writeFileSync(join(swiftOnlyRoot, 'Package.swift'), '// swift-tools-version:5.9\nimport PackageDescription\n');
+    resetConfigCache();
+    const swiftFallback = discoverFallbackValidationCommands(swiftOnlyRoot);
+    assert.equal(swiftFallback.length, 0, 'Package.swift alone must NOT produce automatic swift test fallback');
+    const logs: string[] = [];
+    const swiftJson = await createVerifierHandlers({
+      root: swiftOnlyRoot,
+      scanRoot: swiftOnlyRoot,
+      store: new StoryStore(swiftOnlyRoot),
+      log: (line) => logs.push(line),
+    }).validate({ json: true });
+    const swiftResult = JSON.parse(swiftJson);
+    assert.equal(swiftResult.provider, 'koala-verifier-no-validation-entry', 'Package.swift alone must surface no-validation-entry warn/skip');
+    assert.equal(swiftResult.status, 'warn');
+    assert.equal(swiftResult.allPass, true, 'no-validation-entry skip is advisory, not a hard fail');
+    assert.equal(swiftResult.commands.length, 0);
+    const swiftRendered = `${swiftResult.summary}\n${swiftResult.details.join('\n')}\n${swiftResult.warnings.join('\n')}\n${logs.join('\n')}`;
+    assert.doesNotMatch(swiftRendered, /swift test as a standard automatic fallback/i);
+    // Swift may be mentioned ONLY in the negative form (demoted notice). It
+    // must not advertise swift test as a fallback that is being executed.
+    assert.match(swiftRendered, /Mac Native App|不在自动 fallback|demoted/i);
+  } finally {
+    rmSync(swiftOnlyRoot, { recursive: true, force: true });
+  }
+
+  // B-38d6 CHK-001: explicit validate.commands for swift test must STILL run.
+  const swiftExplicitRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-swift-explicit-'));
+  try {
+    writeFileSync(join(swiftExplicitRoot, 'Package.swift'), '// swift-tools-version:5.9\nimport PackageDescription\n');
+    writeFileSync(join(swiftExplicitRoot, 'lattice.config.json'), JSON.stringify({
+      validate: {
+        commands: [
+          { label: 'explicit swift test', command: 'node', args: ['-e', 'process.stdout.write("swift-opt-in-ok")'] },
+        ],
+      },
+    }));
+    resetConfigCache();
+    const swiftExplicit = configuredValidationCommands(swiftExplicitRoot);
+    assert.equal(swiftExplicit.length, 1, 'explicit validate.commands entry should be honoured');
+    assert.equal(swiftExplicit[0].label, 'explicit swift test');
+    const swiftExplicitJson = await createVerifierHandlers({
+      root: swiftExplicitRoot,
+      scanRoot: swiftExplicitRoot,
+      store: new StoryStore(swiftExplicitRoot),
+      log: () => {},
+    }).validate({ json: true });
+    const swiftExplicitResult = JSON.parse(swiftExplicitJson);
+    assert.equal(swiftExplicitResult.provider, 'koala-verifier-configured-commands');
+    assert.equal(swiftExplicitResult.status, 'pass');
+    assert.match(swiftExplicitResult.commands[0].output, /swift-opt-in-ok/);
+  } finally {
+    rmSync(swiftExplicitRoot, { recursive: true, force: true });
+  }
+
+  // B-38d6 CHK-002: lattice.config.json is canonical; validate.commands there
+  // must be loaded and used by koala/lattice validate.
+  const latticeCanonicalRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-canonical-'));
+  try {
+    writeFileSync(join(latticeCanonicalRoot, 'lattice.config.json'), JSON.stringify({
+      validate: {
+        commands: [
+          { label: 'canonical lattice gate', command: 'node', args: ['-e', 'process.stdout.write("lattice-canonical-ok")'] },
+        ],
+      },
+    }));
+    resetConfigCache();
+    const canonicalDiscovered = configuredValidationCommands(latticeCanonicalRoot);
+    assert.equal(canonicalDiscovered.length, 1, 'lattice.config.json validate.commands must load');
+    assert.equal(canonicalDiscovered[0].label, 'canonical lattice gate');
+    const canonicalJson = await createVerifierHandlers({
+      root: latticeCanonicalRoot,
+      scanRoot: latticeCanonicalRoot,
+      store: new StoryStore(latticeCanonicalRoot),
+      log: () => {},
+    }).validate({ json: true });
+    const canonicalResult = JSON.parse(canonicalJson);
+    assert.equal(canonicalResult.provider, 'koala-verifier-configured-commands');
+    assert.equal(canonicalResult.status, 'pass');
+    assert.match(canonicalResult.commands[0].output, /lattice-canonical-ok/);
+  } finally {
+    rmSync(latticeCanonicalRoot, { recursive: true, force: true });
+  }
+
+  // B-38d6 CHK-002: koala.config.json remains readable as legacy fallback
+  // when lattice.config.json is absent, with a visible migration notice.
+  const legacyOnlyRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-legacy-only-'));
+  try {
+    writeFileSync(join(legacyOnlyRoot, 'koala.config.json'), JSON.stringify({
+      validate: {
+        commands: [
+          { label: 'legacy koala gate', command: 'node', args: ['-e', 'process.stdout.write("legacy-ok")'] },
+        ],
+      },
+    }));
+    resetConfigCache();
+    const legacyStderr: string[] = [];
+    const originalWrite = process.stderr.write.bind(process.stderr);
+    (process.stderr.write as unknown as (chunk: string) => boolean) = ((chunk: any) => {
+      legacyStderr.push(String(chunk));
+      return true;
+    }) as any;
+    let legacyResult: any;
+    try {
+      const legacyDiscovered = configuredValidationCommands(legacyOnlyRoot);
+      assert.equal(legacyDiscovered.length, 1, 'koala.config.json validate.commands must load as legacy fallback');
+      assert.equal(legacyDiscovered[0].label, 'legacy koala gate');
+      const legacyJson = await createVerifierHandlers({
+        root: legacyOnlyRoot,
+        scanRoot: legacyOnlyRoot,
+        store: new StoryStore(legacyOnlyRoot),
+        log: () => {},
+      }).validate({ json: true });
+      legacyResult = JSON.parse(legacyJson);
+    } finally {
+      (process.stderr.write as any) = originalWrite;
+    }
+    assert.equal(legacyResult.provider, 'koala-verifier-configured-commands');
+    assert.equal(legacyResult.status, 'pass');
+    assert.match(legacyResult.commands[0].output, /legacy-ok/);
+    const legacyMigrationText = legacyStderr.join('');
+    assert.match(legacyMigrationText, /Reading legacy koala\.config\.json/);
+    assert.match(legacyMigrationText, /rename to lattice\.config\.json/);
+  } finally {
+    rmSync(legacyOnlyRoot, { recursive: true, force: true });
+  }
+
+  // B-38d6 CHK-002: lattice.config.json and koala.config.json both present →
+  // lattice.config.json wins (canonical) and diagnostic identifies the winner.
+  const conflictConfigRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-config-conflict-'));
+  try {
+    writeFileSync(join(conflictConfigRoot, 'lattice.config.json'), JSON.stringify({
+      validate: {
+        commands: [
+          { label: 'lattice wins gate', command: 'node', args: ['-e', 'process.stdout.write("lattice-wins")'] },
+        ],
+      },
+    }));
+    writeFileSync(join(conflictConfigRoot, 'koala.config.json'), JSON.stringify({
+      validate: {
+        commands: [
+          { label: 'koala loses gate', command: 'node', args: ['-e', 'process.stdout.write("koala-loses")'] },
+        ],
+      },
+    }));
+    resetConfigCache();
+    const conflictStderr: string[] = [];
+    const originalWrite = process.stderr.write.bind(process.stderr);
+    (process.stderr.write as unknown as (chunk: string) => boolean) = ((chunk: any) => {
+      conflictStderr.push(String(chunk));
+      return true;
+    }) as any;
+    let conflictResult: any;
+    try {
+      const conflictDiscovered = configuredValidationCommands(conflictConfigRoot);
+      assert.equal(conflictDiscovered.length, 1, 'only the canonical lattice.config.json entry must be loaded');
+      assert.equal(conflictDiscovered[0].label, 'lattice wins gate', 'lattice.config.json must win over koala.config.json');
+      const conflictJson = await createVerifierHandlers({
+        root: conflictConfigRoot,
+        scanRoot: conflictConfigRoot,
+        store: new StoryStore(conflictConfigRoot),
+        log: () => {},
+      }).validate({ json: true });
+      conflictResult = JSON.parse(conflictJson);
+    } finally {
+      (process.stderr.write as any) = originalWrite;
+    }
+    assert.match(conflictResult.commands[0].output, /lattice-wins/);
+    assert.doesNotMatch(conflictResult.commands[0].output, /koala-loses/, 'koala.config.json gate must NOT be executed when lattice.config.json is present');
+    const conflictDiagnostic = conflictStderr.join('');
+    assert.match(conflictDiagnostic, /lattice\.config\.json.*koala\.config\.json.*both exist/i);
+    assert.match(conflictDiagnostic, /using lattice\.config\.json/i);
+  } finally {
+    rmSync(conflictConfigRoot, { recursive: true, force: true });
+  }
+
   const dirtyFallbackRoot = mkdtempSync(join(tmpdir(), 'koala-validation-dirty-fallback-'));
   try {
     writeFileSync(join(dirtyFallbackRoot, 'package.json'), JSON.stringify({

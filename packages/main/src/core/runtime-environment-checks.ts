@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process';
 import { accessSync, constants, existsSync, readFileSync, readdirSync, realpathSync, statSync } from 'node:fs';
 import { basename, delimiter, dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { loadConfig } from './config.js';
+import { loadConfig, PROJECT_CONFIG_FILENAMES } from './config.js';
 import {
   RUNTIME_FACT_REGISTRY,
   type RuntimeFactId,
@@ -524,7 +524,9 @@ function discoverFallbackValidationLabels(projectRoot: string): string[] {
   }
   if (existsSync(join(projectRoot, 'go.mod'))) labels.push('go test');
   if (existsSync(join(projectRoot, 'Cargo.toml'))) labels.push('cargo test');
-  if (existsSync(join(projectRoot, 'Package.swift'))) labels.push('swift test');
+  // Swift / Package.swift is intentionally NOT advertised as a standard
+  // automatic fallback (Mac Native App demoted). Opt in explicitly via
+  // validate.commands if needed.
   if (existsSync(join(projectRoot, 'pom.xml'))) labels.push('maven test');
   if (existsSync(join(projectRoot, 'build.gradle')) || existsSync(join(projectRoot, 'build.gradle.kts')) || existsSync(join(projectRoot, 'settings.gradle')) || existsSync(join(projectRoot, 'settings.gradle.kts'))) {
     labels.push('gradle test');
@@ -576,7 +578,10 @@ function scanExternalReferences(projectRoot: string): {
 }
 
 function boundedReferenceFiles(projectRoot: string): string[] {
-  const files = ['koala.config.json', 'AGENTS.md', 'CLAUDE.md', 'README.md'].filter((relPath) => existsSync(join(projectRoot, relPath)));
+  // lattice.config.json (canonical) ranked before legacy koala.config.json so
+  // scans observe the same lattice-first ordering as loadConfig.
+  const candidates = [...PROJECT_CONFIG_FILENAMES, 'AGENTS.md', 'CLAUDE.md', 'README.md'];
+  const files = candidates.filter((relPath) => existsSync(join(projectRoot, relPath)));
   const requirementsRoot = join(projectRoot, 'docs', 'requirements');
   for (const relPath of listMarkdownFiles(requirementsRoot, join('docs', 'requirements'))) {
     files.push(relPath);

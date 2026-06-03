@@ -3,11 +3,11 @@
  */
 
 import type { HandlerContext } from './context.js';
-import { loadConfig } from '../core/config.js';
+import { loadConfig, pickProjectConfigPath, LATTICE_CONFIG_FILENAME, LEGACY_KOALA_CONFIG_FILENAME } from '../core/config.js';
 import { resolveWorkflowPolicy, explainProfile, computeChannel, CHANNEL_LABELS } from '../core/workflow-policy.js';
 import type { WorkflowProfile, WorkflowPolicy } from '../core/types.js';
 import { WORKFLOW_PRESETS } from '../core/types.js';
-import { readFileSync, writeFileSync } from 'fs';
+import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { syncProfileSection } from '../claude-md-sync.js';
 
@@ -22,7 +22,13 @@ export function createWorkflowHandlers(ctx: HandlerContext) {
       }
       const newProfile = args.profile as WorkflowProfile;
 
-      const configPath = join(root, 'koala.config.json');
+      // Prefer lattice.config.json (canonical). Fall back to legacy
+      // koala.config.json only if it is the sole existing project config so
+      // koala-only repos keep working. If neither exists, create the canonical
+      // lattice.config.json.
+      const picked = pickProjectConfigPath(root);
+      const configPath = picked?.path ?? join(root, LATTICE_CONFIG_FILENAME);
+      const configFilename = picked?.filename ?? LATTICE_CONFIG_FILENAME;
       const config = loadConfig(root);
       const oldProfile: WorkflowProfile = config.workflow?.profile ?? 'balanced';
 
@@ -34,8 +40,11 @@ export function createWorkflowHandlers(ctx: HandlerContext) {
       const oldPolicy = WORKFLOW_PRESETS[oldProfile];
       const newPolicy = WORKFLOW_PRESETS[newProfile];
 
-      // Atomic write: read raw config, patch, write back
-      const rawConfig = JSON.parse(readFileSync(configPath, 'utf-8'));
+      // Atomic write: read raw config (or start from empty when creating
+      // lattice.config.json fresh), patch, write back.
+      const rawConfig = existsSync(configPath)
+        ? JSON.parse(readFileSync(configPath, 'utf-8'))
+        : {};
       if (!rawConfig.workflow) rawConfig.workflow = {};
       rawConfig.workflow.profile = newProfile;
       writeFileSync(configPath, JSON.stringify(rawConfig, null, 2) + '\n', 'utf-8');
@@ -47,7 +56,10 @@ export function createWorkflowHandlers(ctx: HandlerContext) {
       } catch (err) {
         rawConfig.workflow.profile = oldProfile;
         writeFileSync(configPath, JSON.stringify(rawConfig, null, 2) + '\n', 'utf-8');
-        return `CLAUDE.md sync failed, rolled back koala.config.json: ${err}`;
+        const configLabel = configFilename === LEGACY_KOALA_CONFIG_FILENAME
+          ? `${LEGACY_KOALA_CONFIG_FILENAME} (legacy fallback)`
+          : `${LATTICE_CONFIG_FILENAME} (canonical)`;
+        return `CLAUDE.md sync failed, rolled back ${configLabel}: ${err}`;
       }
 
       const lines: string[] = [];
