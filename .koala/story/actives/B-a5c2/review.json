@@ -58,6 +58,29 @@
         }
       ],
       "_hash": "f1ca306d310c5d7930ce412726c25d13348624400f110e00271d2898f3854baf"
+    },
+    {
+      "timestamp": "2026-06-03T19:37:59.695Z",
+      "issueCount": 3,
+      "blockerCount": 2,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "8 个 checklist item，请检查是否有组合场景遗漏（如：Lock unattended product outcome and authority decision + Verify Claude Code CLI bounded unattended feasibility early 同时操作会怎样？）"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: docs/requirements/decisions/host-neutral-observability-console.md 未被任何 checklist item 的 files 字段覆盖（请为相应 item 的 files.modify/create/test 加上此路径或用 excludes 显式排除）"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: docs/requirements/decisions/authority-client-role.md 未被任何 checklist item 的 files 字段覆盖（请为相应 item 的 files.modify/create/test 加上此路径或用 excludes 显式排除）"
+        }
+      ],
+      "_hash": "f637cf756331dc95815cb9b85d7d0486323e28ddce571e00ee071ea171861548"
     }
   ]
 }
