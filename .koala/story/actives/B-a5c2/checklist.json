@@ -34,9 +34,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-03T19:45:54.916Z",
-      "endTime": null,
+      "endTime": "2026-06-03T20:02:49.615Z",
       "files": {
         "modify": [
           "docs/requirements/decisions/host-overflow.md",
@@ -418,6 +418,16 @@
       "to": "in_progress",
       "reason": "Start DEV milestone 1 authority decision verification",
       "agent": "codex"
+    },
+    {
+      "timestamp": "2026-06-03T20:02:49.615Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Claude Code CLI implemented CHK-001 docs and authority decision evidence",
+      "agent": "koala-implementer"
     }
   ]
 }
