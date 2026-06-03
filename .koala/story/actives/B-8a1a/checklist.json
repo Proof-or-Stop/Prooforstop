@@ -137,8 +137,8 @@
       "id": "CHK-004",
       "title": "Wire watch cancel collect review merge boundaries",
       "context": "dispatch_watch should expose real runner summary, dispatch_cancel should be able to terminate or mark cancellation safely, collect/review/merge_plan must keep receiptVerified=false and manualOnly=true.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-03T23:16:20.491Z",
       "endTime": null,
       "userSees": "用户可以用 dispatch_watch/dispatch_review 查看 Claude runner 结果，用 dispatch_cancel 保留证据地停止或标记取消，dispatch_merge_plan 仍只给 manual merge guidance。",
       "files": {
@@ -219,6 +219,18 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-03T23:16:20.491Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting integration verification for watch/cancel/review/merge surfaces after runner implementation.",
+      "agent": "main"
     }
   ]
 }
