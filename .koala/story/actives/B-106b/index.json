@@ -4,7 +4,7 @@
   "title": "Productize Lattice dispatch_run automatic cross-host overflow",
   "description": "Implement dispatch_run and overflow_auto as supervised cross-host overflow automation: runtime probing, host selection, prepare/run/collect/review lifecycle, fake runner proof, real host adapter scaffolding, and tests without granting external hosts authority.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "source": "codex-user-request",
   "keywords": [
@@ -16,7 +16,7 @@
   ],
   "createdAt": "2026-06-02T23:33:00.412Z",
   "startedAt": "2026-06-02T23:33:00.412Z",
-  "endedAt": null,
+  "endedAt": "2026-06-03T16:39:49.075Z",
   "events": [
     {
       "phase": "INIT",
@@ -217,12 +217,15 @@
       "branch": "story/B-106b",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-03T16:39:49.075Z",
+      "branch": "story/B-106b",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-106b",
-    "branch": "story/B-106b",
-    "createdAt": "2026-06-02T23:39:19.400Z"
-  },
   "currentReviewRound": "2026-06-03T16:23:19.820Z"
 }
