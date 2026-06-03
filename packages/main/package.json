@@ -75,6 +75,8 @@
     "test:prompt-registry-smoke": "node dist/tasks/prompt-registry-smoke.js",
     "test:codex-registry-mode-smoke": "node dist/tasks/codex-registry-mode-smoke.js",
     "test:thin-init-assets-smoke": "node dist/tasks/thin-init-assets-smoke.js",
+    "test:lattice-branded-init-smoke": "node dist/tasks/thin-init-assets-smoke.js",
+    "test:legacy-koala-compatibility-smoke": "node dist/tasks/legacy-koala-compatibility-smoke.js",
     "test:lattice-cli-migration-smoke": "node dist/tasks/lattice-cli-migration-smoke.js",
     "test:dispatch-run-smoke": "node dist/tasks/dispatch-run-smoke.js",
     "test:rollout-check-smoke": "node dist/tasks/rollout-check-smoke.js",
@@ -91,7 +93,10 @@
     "test:authority-enforce-runner": "node dist/tasks/authority-enforce-runner-smoke.js",
     "test:authority-runner-events": "node dist/tasks/authority-runner-events-smoke.js",
     "test:authority-enforce-matrix": "node dist/tasks/authority-enforce-matrix-smoke.js",
-    "test:authority-live-python": "node dist/tasks/authority-live-python-smoke.js"
+    "test:authority-live-python": "node dist/tasks/authority-live-python-smoke.js",
+    "test:story-authority-resolve-smoke": "node dist/tasks/story-authority-resolve-smoke.js",
+    "test:observability-snapshot-smoke": "node dist/tasks/observability-snapshot-smoke.js",
+    "test:observability-contract-smoke": "node dist/tasks/observability-contract-smoke.js"
   },
   "dependencies": {
     "@koala-agent/lab": "0.3.1",

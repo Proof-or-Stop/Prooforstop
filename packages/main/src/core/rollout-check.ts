@@ -230,6 +230,7 @@ function looksLikeProject(dir: string): boolean {
     existsSync(join(dir, 'package.json')) ||
     existsSync(join(dir, 'AGENTS.md')) ||
     existsSync(join(dir, 'CLAUDE.md')) ||
+    existsSync(join(dir, 'LATTICE.md')) ||
     existsSync(join(dir, 'KOALA.md'));
 }
 
@@ -362,12 +363,12 @@ function buildDoctorProbe(runtime: RuntimeEnvironmentReport, git: RolloutProject
 
 function buildTranscriptScopeProbe(projectRoot: string, story: RolloutProjectStoryState): RolloutProbe {
   const hasAgentGuide = existsSync(join(projectRoot, 'AGENTS.md'));
-  const hasKoalaGuide = existsSync(join(projectRoot, 'KOALA.md')) || existsSync(join(projectRoot, 'CLAUDE.md'));
+  const hasKoalaGuide = existsSync(join(projectRoot, 'LATTICE.md')) || existsSync(join(projectRoot, 'KOALA.md')) || existsSync(join(projectRoot, 'CLAUDE.md'));
   const hasStoryRoot = existsSync(join(projectRoot, '.koala', 'story'));
   const status: RolloutStatus = hasAgentGuide && hasKoalaGuide && hasStoryRoot ? 'pass' : 'warn';
   const parts = [
     `AGENTS.md=${hasAgentGuide}`,
-    `KOALA/CLAUDE guide=${hasKoalaGuide}`,
+    `LATTICE/KOALA/CLAUDE guide=${hasKoalaGuide}`,
     `.koala/story=${hasStoryRoot}`,
     `activeStories=${story.activeStoryCount}`,
   ];

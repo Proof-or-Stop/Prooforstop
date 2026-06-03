@@ -2,7 +2,7 @@
 
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -75,6 +75,8 @@ async function main() {
   check(registrySource.includes('checker:'), 'runtime registry entries should declare checker');
   check(registrySource.includes('driftMessage'), 'runtime registry entries should declare driftMessage');
   check(registrySource.includes('repairHint'), 'runtime registry should include repair hints where applicable');
+  check(registrySource.includes('command -v lattice || command -v koala'), 'cli-entrypoint repair hint should prefer lattice and preserve koala fallback');
+  check(registrySource.includes('node_modules/.bin/lattice'), 'project-local-bin guidance should prefer lattice local bins');
   check(doctorSource.includes('runRuntimeEnvironmentChecks'), 'doctor should call runRuntimeEnvironmentChecks');
   check(doctorSource.includes('runtime,'), 'doctor JSON should expose runtime');
   check(doctorSource.includes('renderRuntimeEnvironmentReport'), 'doctor text should render runtime scan');
@@ -127,6 +129,31 @@ async function main() {
       check(report.externalReferencePolicy.actual.policy === 'reference-only', 'external-reference-policy should be policy-only');
       check(report.projectLocalBin.status === 'pass', 'project-local-bin should pass when no project-local bin exists');
       check(report.projectLocalBin.actual.present === false, 'project-local-bin should record absent local bin');
+      check(report.cliEntrypoint.expected === 'lattice executable on PATH (falling back to legacy koala)', 'cli-entrypoint expected text should prefer lattice and name koala fallback');
+      check((report.cliEntrypoint.warnings ?? []).some((warning) => warning.includes('lattice') && warning.includes('koala')), 'missing CLI warning should mention lattice and koala fallback');
+
+      const pathBinDir = join(tmp, 'path-bin');
+      mkdirSync(pathBinDir, { recursive: true });
+      const latticeBin = join(pathBinDir, process.platform === 'win32' ? 'lattice.cmd' : 'lattice');
+      writeFileSync(latticeBin, process.platform === 'win32' ? '@echo off\r\n' : '#!/bin/sh\nexit 0\n');
+      if (process.platform !== 'win32') chmodSync(latticeBin, 0o755);
+      const oldPath = process.env.PATH;
+      const oldWindowsPath = process.env.Path;
+      try {
+        process.env.PATH = pathBinDir;
+        if (process.platform === 'win32') process.env.Path = pathBinDir;
+        const latticeOnlyPathReport = checksModule.runRuntimeEnvironmentChecks(tmp, {
+          globalNpmRootResolver: () => null,
+        });
+        check(latticeOnlyPathReport.cliEntrypoint.status === 'pass', 'cli-entrypoint should pass when PATH exposes lattice only');
+        check(latticeOnlyPathReport.cliEntrypoint.actual.path === latticeBin, 'cli-entrypoint should resolve lattice before any legacy koala fallback');
+        check(!existsSync(join(pathBinDir, process.platform === 'win32' ? 'koala.cmd' : 'koala')), 'lattice-only PATH smoke should not create a koala binary');
+      } finally {
+        if (oldPath === undefined) delete process.env.PATH;
+        else process.env.PATH = oldPath;
+        if (oldWindowsPath === undefined) delete process.env.Path;
+        else process.env.Path = oldWindowsPath;
+      }
 
       const localBinName = process.platform === 'win32' ? 'koala.cmd' : 'koala';
       const localBinDir = join(tmp, 'node_modules', '.bin');

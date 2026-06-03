@@ -152,6 +152,8 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'authority_status', // Lattice CLI 0.3.5: receipt-aware status only; no evidence submission
     'conduit_*', // Lattice CLI 0.3.5: conduit status/explain; no runner provisioning or authority mutation
     'story_export', // B-cd31 CHK-003: Canonical Story v0 export surface
+    'story_authority_resolve', // B-381e: read-only authority/worktree resolver for observability adapters
+    'observability_snapshot', // B-381e: read-only host-neutral observability adapter dry-run
     'handoff_create', 'handoff_inspect', // B-cd31 CHK-004: Lattice cross-host handoff pack surface
     'handoff_accept', 'handoff_resume', // B-cd31 CHK-005: handoff accept/resume projections without authority mutation
     'handoff_receipt_submit', 'handoff_worktree_create', // B-aa98: overflow receipt/worktree diagnostic projections

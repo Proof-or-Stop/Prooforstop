@@ -666,6 +666,18 @@ export const MAIN_TOOLS: ToolDef[] = [
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     output: z.string().optional().describe('Optional file path for canonical-story JSON'),
   }},
+  { name: 'story_authority_resolve', description: 'Resolve host-neutral story authority (main vs worktree) for every active story without parsing session_brief/status Markdown or promoting local DONE. Alias: lattice story authority resolve', schema: {
+    storyIds: z.array(z.string()).optional().describe('Restrict resolution to specific story ids'),
+    activeOnly: z.boolean().optional().describe('Default true; pass false to include DONE/DISCARDED stories'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default json for machine consumers)'),
+  }},
+  { name: 'observability_snapshot', description: 'Build a host-neutral Lattice observability snapshot (authority ladder, story board, capability matrix, recovery, parallel) from story_authority_resolve without claiming production authority. Alias: lattice observability snapshot', schema: {
+    storyIds: z.array(z.string()).optional().describe('Restrict snapshot to specific story ids'),
+    activeOnly: z.boolean().optional().describe('Default true; pass false to include DONE/DISCARDED stories'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    json: z.boolean().optional().describe('Shortcut for --format=json'),
+    output: z.string().optional().describe('Optional file path for snapshot JSON; refuses to overwrite'),
+  }},
   { name: 'handoff_create', description: 'Create a Lattice handoff pack from one host to another without manufacturing production DONE. Alias: lattice handoff create', schema: {
     storyId: z.string().describe('Story ID to include in the handoff pack'),
     fromHost: z.string().describe('Source host profile id'),
@@ -1783,6 +1795,8 @@ const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'conduit_status',
   'conduit_explain',
   'story_export',
+  'story_authority_resolve',
+  'observability_snapshot',
   'handoff_create',
   'handoff_inspect',
   'handoff_accept',
@@ -1815,7 +1829,7 @@ const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
 function inferCodexEntrypoint(): string {
   if (process.env.KOALA_CODEX_ENTRYPOINT) return process.env.KOALA_CODEX_ENTRYPOINT;
   const invoked = process.argv[1] || '';
-  if (invoked.includes('koala-codex')) return 'local-wrapper';
+  if (invoked.includes('lattice-codex') || invoked.includes('koala-codex')) return 'local-wrapper';
   if (process.env.KOALA_ACTIVITY_SOURCE === 'codex') return 'global-fallback';
   return 'cli';
 }
@@ -2435,6 +2449,8 @@ export async function runCli(opts?: {
     'authority enforce runner': 'authority_enforce_runner',
     'conduit status': 'conduit_status',
     'conduit explain': 'conduit_explain',
+    'story authority resolve': 'story_authority_resolve',
+    'observability snapshot': 'observability_snapshot',
   };
   const twoPart = argv.slice(aliasStart, aliasStart + 2).join(' ');
   const threePart = argv.slice(aliasStart, aliasStart + 3).join(' ');

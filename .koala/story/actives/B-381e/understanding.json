@@ -1,0 +1,33 @@
+{
+  "task": "为 Host-Neutral Observability Console M1 实现机器可读 story authority resolver JSON surface，并提供只读 observability_snapshot adapter dry-run 供后续 dashboard/console 消费。",
+  "outcome": "开发者在 B-381e worktree 运行 lattice story_authority_resolve --format=json 时，会看到 schemaVersion=lattice.story_authority_resolve.v1、readOnly=true，以及每个 active story 的 storyId、authority、mirrorPhase、authoritativePhase、authoritativeCwd、worktreePath；运行 lattice observability_snapshot --format=json 时，会看到 Authority Ladder、Story Board、Capability Matrix、Recovery、Parallel 所需字段均来自 Lattice JSON surfaces，且没有 Markdown parse、没有 backing-store 直读、没有 productionDone/receiptVerified 提升。",
+  "facts": [
+    "2026-06-03 用户要求按 Lattice CLI 开发流程安排 Claude Code CLI 并行开发 M1，而不是直接改 dashboard.ts UI。",
+    "docs/requirements/decisions/host-neutral-observability-console.md 已被采纳为设计真相源，并明确 M1 第一验收项是 resolver JSON surface。",
+    "实测 lattice status --format=json 与 lattice session_brief --format=json 目前仍返回 Markdown，不能作为 UI adapter 的机器可读数据源。",
+    "PLAN 决策已选择 resolver-plus-snapshot-command：story_authority_resolve 负责 authority/cwd 解析，observability_snapshot 提供 adapter dry-run JSON 输出。",
+    "B-2522 已 DONE 但 story_export 仍为 localDone:true、productionDone:false、authority.tier:local-evidence，说明 local DONE 不能被渲染为 production DONE。"
+  ],
+  "constraints": [
+    "M1 不开发多页面 UI，也不把 packages/main/src/dashboard.ts 改造成新 console。",
+    "resolver/adapter 必须是 L0 read-only，不写 lifecycle、process evidence、receipt、authority，也不 spawn runner。",
+    "adapter/UI 不能 parse session_brief/status Markdown，必须消费机器可读 JSON contract。",
+    "adapter 不能直接读 .koala/story、docs/story 或 backing JSON；内部 CLI resolver 可通过 StoryStore/handler API 读取项目状态。",
+    "所有 authority 字段保持 conservative：productionDone=false、receiptVerified=false、authorityChanged=false，除非未来 verified receipt path 明确出现。"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/story-authority-resolver.ts",
+    "packages/main/src/handlers/story-authority-resolve.ts",
+    "packages/main/src/core/observability-snapshot.ts",
+    "packages/main/src/handlers/observability-snapshot.ts",
+    "packages/main/package.json",
+    "packages/main/src/tasks/story-authority-resolve-smoke.ts",
+    "packages/main/src/tasks/observability-snapshot-smoke.ts",
+    "packages/main/src/tasks/observability-contract-smoke.ts"
+  ],
+  "timestamp": "2026-06-02T23:40:53.298Z"
+}
