@@ -86,9 +86,9 @@
       "id": "CHK-002",
       "title": "Add explicit real-host subprocess policy gate",
       "context": "Dispatch policy must require an explicit opt-in beyond allowedHosts, bind host/scope/commands/env/runtime limits, and keep standalone host_runtime_probe conservative.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-03T22:55:20.760Z",
-      "endTime": null,
+      "endTime": "2026-06-03T23:16:22.086Z",
       "userSees": "用户创建 claude-code policy 时必须显式传 allowRealHostSubprocess=true；否则 dispatch_auto 会清楚拒绝真实 Claude 启动并解释缺少 opt-in。",
       "files": {
         "modify": [
@@ -124,7 +124,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/dispatch-policy.ts",
+          "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
+          "result": "pass",
+          "note": "Smoke creates a claude-code policy with allowRealHostSubprocess=true and verifies it authorizes only under full policy constraints.",
+          "headHash": "64b9000932ade99c7cd9be5f64c4eb7f767eba32",
+          "materialHash": "ce6f86dd377ce348403ef6d4bfd965009ad9fe39d28ff906168221728c6b5cfd",
+          "timestamp": "2026-06-03T23:16:22.142Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/lattice-dispatch.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Missing policy, unavailable host, unsupported real hosts, and unattendedSafe=false refusal paths remain explicit.",
+          "headHash": "64b9000932ade99c7cd9be5f64c4eb7f767eba32",
+          "materialHash": "ce6f86dd377ce348403ef6d4bfd965009ad9fe39d28ff906168221728c6b5cfd",
+          "timestamp": "2026-06-03T23:16:22.197Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+          "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
+          "result": "pass",
+          "note": "Out-of-policy scope/command and denied env cases refuse before execution or filter secrets.",
+          "headHash": "64b9000932ade99c7cd9be5f64c4eb7f767eba32",
+          "materialHash": "ce6f86dd377ce348403ef6d4bfd965009ad9fe39d28ff906168221728c6b5cfd",
+          "timestamp": "2026-06-03T23:16:22.257Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -275,6 +310,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Claude-only real-host contract and docs/command policy were implemented and verified.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-06-03T23:16:22.086Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Explicit real-host subprocess policy gate is implemented and covered.",
       "agent": "main"
     }
   ]
