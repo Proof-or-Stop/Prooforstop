@@ -256,7 +256,7 @@
       "desc": "Gemini dispatch artifacts collapse into Codex semantics instead of preserving host-neutral identity. dispatch_prepare with host=gemini persists pack.toHost=codex and prompt instructions that say to use codex, because handoffTargetForRuntime maps every non-claude runtime to codex and capability profiles do not include Gemini. B-106b cannot certify host-neutral overflow across supported hosts until Gemini dispatches use a Gemini/host-neutral target identity and smoke coverage verifies pack/prompt artifacts for Gemini.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-concept",
       "createdAt": "2026-06-03T13:56:25.601Z",
@@ -265,7 +265,9 @@
       "_hash": "d374914d593bfa93355422a2bd529b5b7bb8d0306c76c51448e480720328ba03",
       "files": [
         "packages/main/src/core/lattice-dispatch.ts,packages/main/src/core/lattice-handoff.ts,packages/main/src/core/capabilities.ts,packages/main/src/tasks/dispatch-run-smoke.ts"
-      ]
+      ],
+      "resolvedReason": "Resolved by implementer commit 7beea13d. Gemini is now a first-class capability profile, handoffTargetForRuntime preserves host=gemini as toHost=gemini, and dispatch-run smoke asserts Gemini dispatch pack/prompt artifacts say Gemini and do not silently fall back to Codex wording. Verified with build, dispatch-run smoke, capability-list smoke, handoff/host-overflow smokes, command/process contracts, and git diff --check.",
+      "resolvedAt": "2026-06-03T14:05:17.752Z"
     },
     {
       "id": "B-106b:F-015",
