@@ -1,5 +1,5 @@
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
+import { lstatSync, mkdirSync, realpathSync, writeFileSync } from 'node:fs';
+import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import type { HandlerContext } from './context.js';
 import {
   buildDispatchMergePlan,
@@ -35,15 +35,76 @@ function wantsJson(args: FormatArgs | undefined): boolean {
   return args?.format === 'json' || args?.json === true;
 }
 
+function assertNoExistingOutput(file: string): void {
+  try {
+    lstatSync(file);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return;
+    throw error;
+  }
+  throw new Error(`refusing to overwrite existing file: ${file}`);
+}
+
+function pathResolvesWithinRoot(rootReal: string, candidateReal: string): boolean {
+  const rel = relative(rootReal, candidateReal);
+  return rel === '' || (rel !== '..' && !rel.startsWith(`..${sep}`) && !isAbsolute(rel));
+}
+
+function resolveRepoContainedOutputPath(root: string, output: string): string {
+  const trimmed = output.trim();
+  if (!trimmed) {
+    throw new Error('--output must not be empty');
+  }
+  if (isAbsolute(trimmed)) {
+    throw new Error(`--output must be a relative path inside the repository root: ${trimmed}`);
+  }
+  const rootPath = resolve(root);
+  const outputPath = resolve(rootPath, trimmed);
+  const outputRel = relative(rootPath, outputPath);
+  if (outputRel === '') {
+    throw new Error('--output must resolve to a file inside the repository root, not the repository root itself');
+  }
+  if (!pathResolvesWithinRoot(rootPath, outputPath)) {
+    throw new Error(`--output escapes the repository root via path traversal: ${trimmed}`);
+  }
+
+  const rootReal = realpathSync(rootPath);
+  const segments = outputRel.split(/[\\/]+/).filter(Boolean);
+  let currentPath = rootPath;
+  for (const segment of segments.slice(0, -1)) {
+    currentPath = join(currentPath, segment);
+    let entry: ReturnType<typeof lstatSync>;
+    try {
+      entry = lstatSync(currentPath);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') break;
+      throw error;
+    }
+    const ancestorRel = relative(rootPath, currentPath) || '.';
+    if (entry.isSymbolicLink()) {
+      throw new Error(`--output traverses a symlinked ancestor: ${ancestorRel}`);
+    }
+    if (!entry.isDirectory()) {
+      throw new Error(`--output ancestor must be a directory: ${ancestorRel}`);
+    }
+    const currentReal = realpathSync(currentPath);
+    if (!pathResolvesWithinRoot(rootReal, currentReal)) {
+      throw new Error(`--output ancestor resolves outside the repository root: ${ancestorRel}`);
+    }
+  }
+
+  return outputPath;
+}
+
 function writeJsonNoOverwrite(file: string, value: unknown): void {
-  if (existsSync(file)) throw new Error(`refusing to overwrite existing file: ${file}`);
+  assertNoExistingOutput(file);
   mkdirSync(dirname(file), { recursive: true });
   writeFileSync(file, JSON.stringify(value, null, 2) + '\n', 'utf8');
 }
 
 function maybeWriteOutput(root: string, output: string | undefined, value: unknown): string {
   if (!output) return '';
-  const outputPath = resolve(root, output);
+  const outputPath = resolveRepoContainedOutputPath(root, output);
   writeJsonNoOverwrite(outputPath, value);
   return `\noutput: ${output}`;
 }
@@ -60,15 +121,15 @@ export function createLatticeDispatchHandlers(ctx: HandlerContext): Record<strin
   return {
     host_runtime_list(args: FormatArgs = {}) {
       const result = listHostRuntimes();
-      if (args.output) writeJsonNoOverwrite(resolve(ctx.root, args.output), result);
+      const outputNote = maybeWriteOutput(ctx.root, args.output, result);
       if (wantsJson(args)) return result;
-      return [renderHostRuntimeListText(result), args.output ? `output: ${args.output}` : ''].filter(Boolean).join('\n');
+      return `${renderHostRuntimeListText(result)}${outputNote}`;
     },
     host_runtime_probe(args: { host: string } & FormatArgs) {
       const result = probeHostRuntime(args.host);
-      if (args.output) writeJsonNoOverwrite(resolve(ctx.root, args.output), result);
+      const outputNote = maybeWriteOutput(ctx.root, args.output, result);
       if (wantsJson(args)) return result;
-      return [renderHostRuntimeProbeText(result), args.output ? `output: ${args.output}` : ''].filter(Boolean).join('\n');
+      return `${renderHostRuntimeProbeText(result)}${outputNote}`;
     },
     dispatch_plan(args: {
       storyId: string;

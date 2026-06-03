@@ -202,9 +202,13 @@ function assertFiveWayRegistration(command: string, registry: ReturnType<typeof 
   }
 }
 
-const root = mkdtempSync(join(tmpdir(), 'lattice-dispatch-run-'));
+const sandboxRoot = mkdtempSync(join(tmpdir(), 'lattice-dispatch-run-suite-'));
+const root = join(sandboxRoot, 'repo', 'root');
 const externalDir = mkdtempSync(join(tmpdir(), 'lattice-dispatch-run-external-'));
 const externalMarker = join(externalDir, 'blocked-by-symlink.txt');
+const escapedHostRuntimeListOutput = resolve(root, '../escape.json');
+const escapedDispatchPlanOutput = resolve(root, '../../escape.json');
+const outputSymlinkEscapeMarker = join(externalDir, 'nested/output-symlink-escape.json');
 const fakeProjectedRootExternalDir = mkdtempSync(join(tmpdir(), 'lattice-dispatch-run-fake-root-'));
 const realProjectedRootExternalDir = mkdtempSync(join(tmpdir(), 'lattice-dispatch-run-real-root-'));
 const fakeAncestorExternalDir = mkdtempSync(join(tmpdir(), 'lattice-dispatch-run-fake-ancestor-'));
@@ -223,6 +227,11 @@ try {
     assert.ok(handler, `${name} handler must be registered`);
     return handler({ ...args, json: true }) as T;
   };
+  const runText = (name: string, args: Record<string, unknown> = {}): string => {
+    const handler = registry.get(name);
+    assert.ok(handler, `${name} handler must be registered`);
+    return handler(args) as string;
+  };
 
   for (const command of EXPECTED_COMMANDS) assertFiveWayRegistration(command, registry);
 
@@ -237,6 +246,76 @@ try {
   assert.equal(fakeProbe.supportsParallel, true);
   assertAuthorityFalse(fakeProbe, 'fakeProbe');
   assert.throws(() => run<HostRuntimeProbe>('host_runtime_probe', { host: 'unknown-host' }), /requires host=fake\|claude-code\|gemini\|codex/);
+
+  assert.throws(
+    () => run<HostRuntimeList>('host_runtime_list', { output: '../escape.json' }),
+    /--output escapes the repository root via path traversal/i,
+    'host_runtime_list --output=../escape.json must be rejected before writing outside root',
+  );
+  assert.equal(existsSync(escapedHostRuntimeListOutput), false, 'host_runtime_list escaped output must never be created');
+  assert.throws(
+    () => runText('dispatch_plan', {
+      storyId: 'B-dispatch',
+      host: 'fake',
+      objective: 'Escaped output must be rejected.',
+      output: '../../escape.json',
+    }),
+    /--output escapes the repository root via path traversal/i,
+    'dispatch_plan --output=../../escape.json must be rejected before writing outside root',
+  );
+  assert.equal(existsSync(escapedDispatchPlanOutput), false, 'dispatch_plan escaped output must never be created');
+
+  const absoluteRuntimeOutput = join(root, 'reports/absolute-runtime-list.json');
+  assert.throws(
+    () => run<HostRuntimeProbe>('host_runtime_probe', { host: 'fake', output: absoluteRuntimeOutput }),
+    /--output must be a relative path inside the repository root/i,
+    'host_runtime_probe --output must reject absolute paths',
+  );
+  assert.equal(existsSync(absoluteRuntimeOutput), false, 'absolute --output rejection must not write inside root');
+  assert.throws(
+    () => run<HostRuntimeList>('host_runtime_list', { output: '.' }),
+    /--output must resolve to a file inside the repository root, not the repository root itself/i,
+    'host_runtime_list --output=. must reject the repo root as the output target',
+  );
+
+  const nonDirectoryOutputAncestor = join(root, 'reports-file-ancestor');
+  writeFileSync(nonDirectoryOutputAncestor, 'not a directory\n');
+  assert.throws(
+    () => run<HostRuntimeList>('host_runtime_list', { output: 'reports-file-ancestor/runtime-list.json' }),
+    /--output ancestor must be a directory/i,
+    'host_runtime_list --output must reject existing non-directory ancestors',
+  );
+
+  assert.throws(
+    () => run<HostRuntimeList>('host_runtime_list', {
+      output: 'packages/main/src/generated/external-link/nested/output-symlink-escape.json',
+    }),
+    /--output traverses a symlinked ancestor/i,
+    'host_runtime_list output must reject a pre-existing symlink ancestor that resolves outside root',
+  );
+  assert.equal(existsSync(outputSymlinkEscapeMarker), false, 'output symlink ancestor escape target must never be created');
+
+  const legalRuntimeOutput = 'reports/runtime-list.json';
+  const legalRuntimeOutputPath = join(root, legalRuntimeOutput);
+  const legalRuntimeList = run<HostRuntimeList>('host_runtime_list', { output: legalRuntimeOutput });
+  assert.equal(legalRuntimeList.schemaVersion, 'lattice.host_runtime_list.v1');
+  assert.equal(existsSync(legalRuntimeOutputPath), true, 'repo-local output should be created');
+  assert.equal(JSON.parse(readFileSync(legalRuntimeOutputPath, 'utf8')).schemaVersion, 'lattice.host_runtime_list.v1');
+  assert.throws(
+    () => run<HostRuntimeList>('host_runtime_list', { output: legalRuntimeOutput }),
+    /refusing to overwrite existing file/,
+    'repo-local output must keep no-overwrite behavior',
+  );
+
+  const legalPlanOutput = 'reports/nested/dispatch-plan.json';
+  const legalPlanText = runText('dispatch_plan', {
+    storyId: 'B-dispatch',
+    host: 'fake',
+    objective: 'Repo-local text output should be written.',
+    output: legalPlanOutput,
+  });
+  assert.match(legalPlanText, /output: reports\/nested\/dispatch-plan\.json/);
+  assert.equal(existsSync(join(root, legalPlanOutput)), true, 'repo-local text output should be created');
 
   const beforePlanCount = dispatchCount(root);
   const plan = run<DispatchPlanResult>('dispatch_plan', {
@@ -871,6 +950,7 @@ try {
 } finally {
   resetConfigCache();
   rmSync(root, { recursive: true, force: true });
+  rmSync(sandboxRoot, { recursive: true, force: true });
   rmSync(externalDir, { recursive: true, force: true });
   rmSync(fakeProjectedRootExternalDir, { recursive: true, force: true });
   rmSync(realProjectedRootExternalDir, { recursive: true, force: true });

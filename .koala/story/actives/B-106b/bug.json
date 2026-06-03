@@ -3,9 +3,20 @@
     {
       "id": "BUG-001",
       "title": "dispatch --output paths can escape the repository root",
-      "status": "open",
+      "status": "fixed",
       "foundAt": "2026-06-03T14:18:15.626Z",
-      "fixedAt": null
+      "fixedAt": "2026-06-03T15:44:40.071Z",
+      "evidence": {
+        "symptom": "dispatch/host_runtime --output accepted traversal such as ../escape.json or ../../escape.json and could write JSON outside the repository root; existing symlink ancestors inside the repo could also redirect output outside root.",
+        "reproSteps": [
+          "Call host_runtime_list through the registry with { json: true, output: \"../escape.json\" } and observe the write target resolves outside the fixture repo root before this fix.",
+          "Call dispatch_plan through the registry text path with { storyId: \"B-dispatch\", host: \"fake\", output: \"../../escape.json\" } and observe the write target resolves outside the fixture repo root before this fix.",
+          "Call host_runtime_list with output under packages/main/src/generated/external-link where external-link is a pre-existing symlink to an external directory; before this fix the mkdir/write path could follow that ancestor outside root."
+        ],
+        "rootCause": "packages/main/src/handlers/lattice-dispatch.ts resolved output with resolve(ctx.root,args.output) and wrote directly. That lexical resolve did not require the final path to stay under repo root and did not canonicalize the nearest existing parent/ancestor to reject symlink escapes. host_runtime_list/probe also bypassed the shared maybeWriteOutput helper entirely.",
+        "fixEvidence": "Added a shared guarded output writer in packages/main/src/handlers/lattice-dispatch.ts. It rejects lexical traversal outside repo root, canonicalizes the nearest existing parent ancestor with realpathSync, rejects existing symlink ancestors resolving outside root, keeps new repo-local paths valid, and preserves lstat-based no-overwrite. host_runtime_list/probe now use the same writer as dispatch commands. Verified with npm --prefix packages/main run build; npm --prefix packages/main run test:dispatch-run-smoke; npm --prefix packages/main run test:command-ownership-contract; npm run test:process-fact-contract.",
+        "reproTest": "packages/main/src/tasks/dispatch-run-smoke.ts covers host_runtime_list --output=../escape.json, dispatch_plan --output=../../escape.json, symlink ancestor escape rejection, legal repo-local output creation, and no-overwrite rejection."
+      }
     }
   ]
 }
