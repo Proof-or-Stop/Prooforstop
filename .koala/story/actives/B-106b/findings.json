@@ -221,7 +221,7 @@
       "desc": "Preexisting symlinked projected worktree root bypasses dispatch containment. ensureWorktree reuses any existing .worktrees/overflow/... path without validating that it is a real registered git worktree. If that path is a symlink to an external directory, fake dispatch can write outside the repo before git fails, and real-host dispatch can return needs_receipt for an external target. Reject symlink/non-worktree roots before reuse and add fake plus real-host root-symlink smoke coverage.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-03T13:46:12.353Z",
@@ -231,7 +231,9 @@
       "files": [
         "packages/main/src/core/lattice-dispatch.ts",
         "packages/main/src/tasks/dispatch-run-smoke.ts"
-      ]
+      ],
+      "resolvedReason": "Resolved by c84932d8 and 241b9000. Smoke now covers preexisting projected worktree root symlinks for fake and codex scaffold hosts. ensureWorktree now rejects existing roots unless they are non-symlink directories, stay under the repo realpath, match git top-level, and are registered in git worktree list before fake writes or real-host needs_receipt can happen.",
+      "resolvedAt": "2026-06-03T13:52:21.650Z"
     }
   ]
 }
