@@ -285,9 +285,9 @@
         "docs/requirements/decisions/authority-client-role.md"
       ],
       "userSees": "Validation output includes focused smoke coverage proving worktree authority wins over stale main mirror, no Markdown parsing is required, no backing-store direct reads are used by the adapter, and no command manufactures production DONE.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-03T00:20:08.313Z",
       "files": {
         "modify": [
           "packages/main/package.json"
@@ -325,7 +325,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/observability-contract-smoke.ts",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:story-authority-resolve-smoke && npm --prefix packages/main run test:observability-snapshot-smoke && npm --prefix packages/main run test:observability-contract-smoke",
+          "result": "pass",
+          "note": "Build and all three focused smoke commands passed for resolver, snapshot adapter, and policy contract.",
+          "headHash": "daa33d5d64a13740a0afe765fead4acbd2890c99",
+          "materialHash": "c4a6ab521118020cf4ba084a917727556b4312f28b7dfb09c1e37d8eb23c0f8e",
+          "timestamp": "2026-06-03T00:20:08.375Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/story-authority-resolve-smoke.ts",
+          "command": "npm --prefix packages/main run test:story-authority-resolve-smoke && npm --prefix packages/main run test:observability-snapshot-smoke",
+          "result": "pass",
+          "note": "Resolver smoke covers stale main mirror versus authoritative worktree; snapshot smoke asserts adapter uses resolver authoritativeCwd for each row.",
+          "headHash": "daa33d5d64a13740a0afe765fead4acbd2890c99",
+          "materialHash": "c4a6ab521118020cf4ba084a917727556b4312f28b7dfb09c1e37d8eb23c0f8e",
+          "timestamp": "2026-06-03T00:20:08.429Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/observability-contract-smoke.ts",
+          "command": "npm --prefix packages/main run test:observability-contract-smoke",
+          "result": "pass",
+          "note": "Contract smoke fails if resolver/snapshot source calls session_brief/status, if snapshot directly reads .koala/story or docs/story backing JSON, if dashboard.ts is wired in M1, or if outputs claim productionDone/receiptVerified/authorityChanged.",
+          "headHash": "daa33d5d64a13740a0afe765fead4acbd2890c99",
+          "materialHash": "c4a6ab521118020cf4ba084a917727556b4312f28b7dfb09c1e37d8eb23c0f8e",
+          "timestamp": "2026-06-03T00:20:08.481Z"
+        }
+      ]
     }
   ]
 }
