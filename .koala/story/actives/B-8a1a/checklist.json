@@ -54,9 +54,9 @@
           "command": "rg -n \"allowRealHostSubprocess|claude-code|productionDone=false|dispatch_auto\" README.md docs/requirements/decisions/host-overflow.md packages/main/src/core/command-policy.ts packages/main/src/core/process-fact-levels.ts",
           "result": "pass",
           "note": "Docs and command/process policy text describe Claude Code only, explicit policy opt-in, and authority-safe false fields.",
-          "headHash": "64b9000932ade99c7cd9be5f64c4eb7f767eba32",
-          "materialHash": "ce6f86dd377ce348403ef6d4bfd965009ad9fe39d28ff906168221728c6b5cfd",
-          "timestamp": "2026-06-03T23:16:21.268Z"
+          "headHash": "b30b54cdbe2f02be1064be2145acc3c106aad568",
+          "materialHash": "379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b",
+          "timestamp": "2026-06-03T23:50:28.073Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -65,9 +65,9 @@
           "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
           "result": "pass",
           "note": "Smoke verifies Gemini/Codex real subprocesses stay refused/scaffolded while Claude Code has the only real runner path.",
-          "headHash": "64b9000932ade99c7cd9be5f64c4eb7f767eba32",
-          "materialHash": "ce6f86dd377ce348403ef6d4bfd965009ad9fe39d28ff906168221728c6b5cfd",
-          "timestamp": "2026-06-03T23:16:21.312Z"
+          "headHash": "b30b54cdbe2f02be1064be2145acc3c106aad568",
+          "materialHash": "379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b",
+          "timestamp": "2026-06-03T23:50:28.073Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -76,9 +76,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke",
           "result": "pass",
           "note": "Existing dispatch smoke preserves manual merge guidance and no productionDone/receiptVerified authority overclaim.",
-          "headHash": "64b9000932ade99c7cd9be5f64c4eb7f767eba32",
-          "materialHash": "ce6f86dd377ce348403ef6d4bfd965009ad9fe39d28ff906168221728c6b5cfd",
-          "timestamp": "2026-06-03T23:16:21.346Z"
+          "headHash": "b30b54cdbe2f02be1064be2145acc3c106aad568",
+          "materialHash": "379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b",
+          "timestamp": "2026-06-03T23:50:28.073Z"
         }
       ]
     },
@@ -133,9 +133,9 @@
           "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
           "result": "pass",
           "note": "Smoke creates a claude-code policy with allowRealHostSubprocess=true and verifies it authorizes only under full policy constraints.",
-          "headHash": "64b9000932ade99c7cd9be5f64c4eb7f767eba32",
-          "materialHash": "ce6f86dd377ce348403ef6d4bfd965009ad9fe39d28ff906168221728c6b5cfd",
-          "timestamp": "2026-06-03T23:16:22.142Z"
+          "headHash": "b30b54cdbe2f02be1064be2145acc3c106aad568",
+          "materialHash": "379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b",
+          "timestamp": "2026-06-03T23:50:28.073Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -144,9 +144,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke",
           "result": "pass",
           "note": "Missing policy, unavailable host, unsupported real hosts, and unattendedSafe=false refusal paths remain explicit.",
-          "headHash": "64b9000932ade99c7cd9be5f64c4eb7f767eba32",
-          "materialHash": "ce6f86dd377ce348403ef6d4bfd965009ad9fe39d28ff906168221728c6b5cfd",
-          "timestamp": "2026-06-03T23:16:22.197Z"
+          "headHash": "b30b54cdbe2f02be1064be2145acc3c106aad568",
+          "materialHash": "379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b",
+          "timestamp": "2026-06-03T23:50:28.073Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -155,9 +155,9 @@
           "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
           "result": "pass",
           "note": "Out-of-policy scope/command and denied env cases refuse before execution or filter secrets.",
-          "headHash": "64b9000932ade99c7cd9be5f64c4eb7f767eba32",
-          "materialHash": "ce6f86dd377ce348403ef6d4bfd965009ad9fe39d28ff906168221728c6b5cfd",
-          "timestamp": "2026-06-03T23:16:22.257Z"
+          "headHash": "b30b54cdbe2f02be1064be2145acc3c106aad568",
+          "materialHash": "379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b",
+          "timestamp": "2026-06-03T23:50:28.073Z"
         }
       ]
     },
@@ -210,9 +210,9 @@
           "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
           "result": "pass",
           "note": "Fake claude binary exercises claude --print, isolated cwd, stdout/stderr transcript, runnerKind=claude-code-real, exitCode=0, accepted-local diagnostic receipt.",
-          "headHash": "64b9000932ade99c7cd9be5f64c4eb7f767eba32",
-          "materialHash": "ce6f86dd377ce348403ef6d4bfd965009ad9fe39d28ff906168221728c6b5cfd",
-          "timestamp": "2026-06-03T23:16:23.015Z"
+          "headHash": "b30b54cdbe2f02be1064be2145acc3c106aad568",
+          "materialHash": "379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b",
+          "timestamp": "2026-06-03T23:50:28.073Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -221,9 +221,9 @@
           "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
           "result": "pass",
           "note": "Non-zero and timeout fake claude cases produce failed status with exitCode/timedOut and no forged receipt.",
-          "headHash": "64b9000932ade99c7cd9be5f64c4eb7f767eba32",
-          "materialHash": "ce6f86dd377ce348403ef6d4bfd965009ad9fe39d28ff906168221728c6b5cfd",
-          "timestamp": "2026-06-03T23:16:23.079Z"
+          "headHash": "b30b54cdbe2f02be1064be2145acc3c106aad568",
+          "materialHash": "379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b",
+          "timestamp": "2026-06-03T23:50:28.073Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -232,9 +232,9 @@
           "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
           "result": "pass",
           "note": "Env summary records safe LATTICE_ allowlisted names without values and excludes denied/sensitive names.",
-          "headHash": "64b9000932ade99c7cd9be5f64c4eb7f767eba32",
-          "materialHash": "ce6f86dd377ce348403ef6d4bfd965009ad9fe39d28ff906168221728c6b5cfd",
-          "timestamp": "2026-06-03T23:16:23.133Z"
+          "headHash": "b30b54cdbe2f02be1064be2145acc3c106aad568",
+          "materialHash": "379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b",
+          "timestamp": "2026-06-03T23:50:28.073Z"
         }
       ]
     },
@@ -288,9 +288,9 @@
           "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
           "result": "pass",
           "note": "dispatch_status/watch/review expose runnerKind, cwd, transcriptPath, exitCode/timedOut, changedFiles, transcriptExists, and localReceiptStatus.",
-          "headHash": "64b9000932ade99c7cd9be5f64c4eb7f767eba32",
-          "materialHash": "ce6f86dd377ce348403ef6d4bfd965009ad9fe39d28ff906168221728c6b5cfd",
-          "timestamp": "2026-06-03T23:16:23.878Z"
+          "headHash": "b30b54cdbe2f02be1064be2145acc3c106aad568",
+          "materialHash": "379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b",
+          "timestamp": "2026-06-03T23:50:28.073Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -299,9 +299,9 @@
           "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
           "result": "pass",
           "note": "dispatch_cancel preserves pack/prompt/status evidence and dispatch_merge_plan withholds merge guidance for missing/mixed/failed receipts.",
-          "headHash": "64b9000932ade99c7cd9be5f64c4eb7f767eba32",
-          "materialHash": "ce6f86dd377ce348403ef6d4bfd965009ad9fe39d28ff906168221728c6b5cfd",
-          "timestamp": "2026-06-03T23:16:23.936Z"
+          "headHash": "b30b54cdbe2f02be1064be2145acc3c106aad568",
+          "materialHash": "379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b",
+          "timestamp": "2026-06-03T23:50:28.073Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -310,9 +310,9 @@
           "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
           "result": "pass",
           "note": "All dispatch_auto/watch/review/merge authority fields remain authorityChanged=false, receiptVerified=false, productionDone=false, manualOnly=true where applicable.",
-          "headHash": "64b9000932ade99c7cd9be5f64c4eb7f767eba32",
-          "materialHash": "ce6f86dd377ce348403ef6d4bfd965009ad9fe39d28ff906168221728c6b5cfd",
-          "timestamp": "2026-06-03T23:16:23.995Z"
+          "headHash": "b30b54cdbe2f02be1064be2145acc3c106aad568",
+          "materialHash": "379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b",
+          "timestamp": "2026-06-03T23:50:28.073Z"
         }
       ]
     },
@@ -367,9 +367,9 @@
           "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
           "result": "pass",
           "note": "Deterministic fake Claude coverage passed for success/env/nonzero/timeout plus policy/refusal/manual authority paths.",
-          "headHash": "64b9000932ade99c7cd9be5f64c4eb7f767eba32",
-          "materialHash": "ce6f86dd377ce348403ef6d4bfd965009ad9fe39d28ff906168221728c6b5cfd",
-          "timestamp": "2026-06-03T23:16:24.797Z"
+          "headHash": "b30b54cdbe2f02be1064be2145acc3c106aad568",
+          "materialHash": "379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b",
+          "timestamp": "2026-06-03T23:50:28.073Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -378,9 +378,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke && npm --prefix packages/main run test:host-overflow-smoke && npm --prefix packages/main run test:capability-list-smoke && npm --prefix packages/main run test:lattice-cli-migration-smoke",
           "result": "pass",
           "note": "Related regression suite passed: dispatch scaffold, host overflow, capability list, and Lattice CLI migration.",
-          "headHash": "64b9000932ade99c7cd9be5f64c4eb7f767eba32",
-          "materialHash": "ce6f86dd377ce348403ef6d4bfd965009ad9fe39d28ff906168221728c6b5cfd",
-          "timestamp": "2026-06-03T23:16:24.855Z"
+          "headHash": "b30b54cdbe2f02be1064be2145acc3c106aad568",
+          "materialHash": "379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b",
+          "timestamp": "2026-06-03T23:50:28.073Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -388,9 +388,9 @@
           "command": "CLI canary in temp git repo using node packages/main/dist/cli.js --root <tmp> dispatch_policy_create/dispatch_auto/dispatch_status/dispatch_watch/dispatch_review/dispatch_merge_plan with fake claude in PATH",
           "result": "pass",
           "note": "Real CLI entrypoint reached runnerKind=claude-code-real, changedFiles=[packages/main/src/generated/cli-claude.txt], manualOnly=true, authority fields false. The live-provider canary is intentionally classified as deterministic fake-binary evidence to avoid spending user Claude quota during story automation.",
-          "headHash": "64b9000932ade99c7cd9be5f64c4eb7f767eba32",
-          "materialHash": "ce6f86dd377ce348403ef6d4bfd965009ad9fe39d28ff906168221728c6b5cfd",
-          "timestamp": "2026-06-03T23:16:24.911Z"
+          "headHash": "b30b54cdbe2f02be1064be2145acc3c106aad568",
+          "materialHash": "379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b",
+          "timestamp": "2026-06-03T23:50:28.073Z"
         }
       ]
     }
