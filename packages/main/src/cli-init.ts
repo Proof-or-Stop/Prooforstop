@@ -40,7 +40,7 @@ const agentTemplateDir = [
 ].find(existsSync);
 const skillSrc = join(packageRoot, '..', '..', '.claude', 'skills', 'koala');
 const hookSrcDir = join(packageRoot, '..', '..', '.claude', 'hooks');
-const HOOK_FILES = ['log-tools.cjs', 'session-brief-reminder.cjs'] as const;
+const HOOK_FILES = ['log-tools.cjs', 'scope-pretool.cjs', 'session-brief-reminder.cjs'] as const;
 const KOALA_SKILL_FALLBACK = `# /koala — 项目管理入口
 
 你是项目管理引擎。执行 /koala 了解项目全貌并开始工作。

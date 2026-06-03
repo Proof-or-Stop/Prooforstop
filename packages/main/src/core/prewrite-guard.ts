@@ -77,6 +77,7 @@ export function isWriteLikeTool(toolName: string): boolean {
  * Returns an empty array when the input cannot be parsed or yields no path.
  */
 export function extractPathsFromToolInput(toolName: string, toolInputJson: string): string[] {
+  if (!isWriteLikeTool(toolName)) return [];
   let input: Record<string, unknown>;
   try {
     input = JSON.parse(toolInputJson) as Record<string, unknown>;
@@ -208,6 +209,8 @@ export interface PrewriteGuardInput {
   contractError?: string;
   /** Error describing why story resolution failed (ambiguous sessions). */
   resolutionError?: string;
+  /** Optional reason to render when no contract/context should be treated as an allow/no-decision. */
+  noDecisionReason?: string;
 }
 
 /**
@@ -217,7 +220,7 @@ export interface PrewriteGuardInput {
  * story context. The handler wires all I/O and calls this function.
  */
 export function runPrewriteGuardCheck(input: PrewriteGuardInput): PrewriteGuardResult {
-  const { normalizedPaths, contract, storyId, contractError, resolutionError } = input;
+  const { normalizedPaths, contract, storyId, contractError, resolutionError, noDecisionReason } = input;
 
   // Fail-closed: corrupt contract
   if (contractError) {
@@ -244,7 +247,7 @@ export function runPrewriteGuardCheck(input: PrewriteGuardInput): PrewriteGuardR
       verdict: 'allow',
       targetPaths: normalizedPaths,
       storyId,
-      reasons: ['No scope contract found — proceeding without restriction (no-decision).'],
+      reasons: [noDecisionReason ?? 'No scope contract found — proceeding without restriction (no-decision).'],
       noDecision: true,
     };
   }

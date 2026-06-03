@@ -15,7 +15,7 @@
 
 import { resolve } from 'node:path';
 import type { HandlerContext } from './context.js';
-import type { ScopeContractData, GuardSessionData } from '../core/types.js';
+import type { ScopeContractData, GuardSessionData, GuardSessionMode } from '../core/types.js';
 import {
   isWriteLikeTool,
   extractPathsFromToolInput,
@@ -29,6 +29,10 @@ import {
 interface ActiveSession {
   storyId: string;
   session: GuardSessionData;
+}
+
+function canEnforceBeforeWrite(mode: GuardSessionMode): boolean {
+  return mode === 'native-pretool' || mode === 'wrapped-preapply' || mode === 'active';
 }
 
 function findActiveGuardSessions(
@@ -124,6 +128,7 @@ export function createPrewriteGuardHandlers(ctx: HandlerContext): Record<string,
       let contract: ScopeContractData | null = null;
       let contractError: string | undefined;
       let resolutionError: string | undefined;
+      let noDecisionReason: string | undefined;
 
       if (storyId) {
         // Explicit storyId: validate exists, load contract.
@@ -133,10 +138,23 @@ export function createPrewriteGuardHandlers(ctx: HandlerContext): Record<string,
         } catch (e) {
           throw new Error(`Story ${storyId} not found: ${(e as Error).message}`);
         }
+        let session: GuardSessionData | null = null;
         try {
-          contract = store.readScopeContract(storyId);
-        } catch (e) {
-          contractError = (e as Error).message;
+          session = store.readGuardSession(storyId);
+        } catch {
+          session = null;
+        }
+        if (!session || session.status === 'stopped') {
+          noDecisionReason = 'No active guard session found — proceeding without pre-write enforcement (no-decision).';
+        } else if (!canEnforceBeforeWrite(session.guardMode)) {
+          noDecisionReason = `Guard session is ${session.guardMode}; this host cannot block writes before they land (no-decision).`;
+        } else {
+          try {
+            const loaded = store.readScopeContract(storyId);
+            contract = loaded ? { ...loaded, mode: 'enforce' } : null;
+          } catch (e) {
+            contractError = (e as Error).message;
+          }
         }
       } else {
         // Auto-discover from active guard sessions.
@@ -152,12 +170,19 @@ export function createPrewriteGuardHandlers(ctx: HandlerContext): Record<string,
           if (activeSessions.length === 0) {
             // No active guard session → no-decision allow
             // (contract stays null, storyId stays undefined)
+            noDecisionReason = 'No active guard session found — proceeding without pre-write enforcement (no-decision).';
           } else if (activeSessions.length === 1) {
-            storyId = activeSessions[0].storyId;
-            try {
-              contract = store.readScopeContract(storyId);
-            } catch (e) {
-              contractError = (e as Error).message;
+            const active = activeSessions[0];
+            storyId = active.storyId;
+            if (!canEnforceBeforeWrite(active.session.guardMode)) {
+              noDecisionReason = `Guard session is ${active.session.guardMode}; this host cannot block writes before they land (no-decision).`;
+            } else {
+              try {
+                const loaded = store.readScopeContract(storyId);
+                contract = loaded ? { ...loaded, mode: 'enforce' } : null;
+              } catch (e) {
+                contractError = (e as Error).message;
+              }
             }
           } else {
             // Multiple active guard sessions → fail-closed
@@ -173,6 +198,7 @@ export function createPrewriteGuardHandlers(ctx: HandlerContext): Record<string,
         storyId,
         contractError,
         resolutionError,
+        noDecisionReason,
       });
 
       if (args.json) return JSON.stringify(result, null, 2);

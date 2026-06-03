@@ -35,6 +35,8 @@ const sessionEnv = { ...process.env, KOALA_SESSION_ID: 'pretool-scope-smoke', KO
 
 function normalizeToRelativePaths(root: string, paths: readonly string[]): string[] {
   return paths
+    .map((p) => p.trim())
+    .filter((p) => p.length > 0)
     .map((p) => normalizeToProjectRoot(p, root, root))
     .filter((p): p is string => !!p);
 }
@@ -271,8 +273,8 @@ try {
     allowedCreate: [],
   });
 
-  // Start guard session with claude-code provider
-  run(enforceRoot, 'guard_session_start', { storyId, provider: 'claude-code' });
+  // Start guard session with a verified Claude Code PreToolUse hook.
+  run(enforceRoot, 'guard_session_start', { storyId, provider: 'claude-code', nativeHookVerified: true });
 
   // In-scope write → pass
   const inScopeResult = run(enforceRoot, 'prewrite_guard_check', {

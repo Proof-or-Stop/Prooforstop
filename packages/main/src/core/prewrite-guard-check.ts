@@ -1,47 +1,33 @@
 /**
- * Pre-write guard check: evaluate a pending tool call (Edit/Write/MultiEdit)
- * against the story scope contract and decide whether to deny the write
- * before it happens.
+ * Compatibility adapter for the older prewrite-guard smoke-test interface.
  *
- * This is the pre-tool-use blocking half of the guard session projection:
- *   active mode   → deny forbidden writes before they land (pre-tool hook)
- *   watcher-fallback → cannot block pre-write; violations are detected
- *                      post-write by guard_session_check instead
- *
- * See core/guard-session.ts for the guard session projection data model and
- * guard_session_check for post-write violation detection.
+ * The product implementation lives in core/prewrite-guard.ts plus
+ * handlers/prewrite-guard.ts. Keep this file thin so tests can express
+ * Edit/Write/MultiEdit fixtures without carrying a second policy engine.
  */
 
-import type { ScopeContractData, GuardSessionData } from './types.js';
-import { checkScopeContract } from './scope-contract.js';
+import type { GuardSessionData, ScopeContractData } from './types.js';
+import {
+  runPrewriteGuardCheck,
+  type PrewriteGuardResult as CanonicalPrewriteGuardResult,
+} from './prewrite-guard.js';
 
 /** Tool names that produce file writes in Claude Code. */
 export type PrewriteToolName = 'Edit' | 'Write' | 'MultiEdit';
 
-/**
- * Normalized tool input for a write operation.
- * - Edit and Write each target a single file_path.
- * - MultiEdit carries an edits array where each entry may target a distinct file.
- */
 export interface PrewriteToolInput {
   tool: PrewriteToolName;
-  /** Target path for Edit and Write calls. */
   file_path?: string;
-  /** Per-edit path list for MultiEdit calls (each edit may touch a different file). */
   edits?: Array<{ file_path: string }>;
 }
 
 export interface PrewriteGuardResult {
   deny: boolean;
-  /** Human-readable denial reason (only set when deny: true). */
   reason?: string;
-  /** Scope rule that triggered the denial. */
   rule?: 'protected' | 'out_of_scope' | 'no_session' | 'no_contract' | 'watcher_fallback';
-  /** First violating path (only set when deny: true). */
   path?: string;
 }
 
-/** Extract target file paths from a pre-write tool input. */
 export function extractPrewritePaths(input: PrewriteToolInput): string[] {
   if (input.tool === 'MultiEdit') {
     return (input.edits ?? [])
@@ -51,62 +37,41 @@ export function extractPrewritePaths(input: PrewriteToolInput): string[] {
   return input.file_path ? [input.file_path] : [];
 }
 
-/**
- * Pre-write guard check.
- *
- * Returns deny: true only when ALL of these hold:
- *   1. A guard session is running (not stopped)
- *   2. A scope contract is configured
- *   3. The provider supports pre-tool blocking (guardMode === 'active')
- *   4. At least one target path violates the contract (protected or out_of_scope)
- *
- * Deny is always based on an enforce-equivalent contract view: the guard session
- * escalates protection so even shadow/local contracts surface violations here.
- *
- * Protected files (contract.protectedFiles) are always denied regardless of any
- * acknowledgement; out-of-scope files that have been explicitly acknowledged are
- * not denied (the acknowledgement was a deliberate, reviewed scope expansion).
- */
+function canBlockBeforeWrite(session: GuardSessionData): boolean {
+  return session.guardMode === 'native-pretool'
+    || session.guardMode === 'wrapped-preapply'
+    || session.guardMode === 'active';
+}
+
+function adapt(result: CanonicalPrewriteGuardResult): PrewriteGuardResult {
+  if (result.verdict !== 'deny') return { deny: false };
+  const first = result.violations?.[0];
+  const isProtected = first?.rule === 'protected';
+  return {
+    deny: true,
+    reason: first
+      ? `${isProtected ? 'Protected file' : 'Out-of-scope file'}: ${first.path}`
+      : result.reasons.join('\n'),
+    rule: isProtected ? 'protected' : 'out_of_scope',
+    path: first?.path,
+  };
+}
+
 export function prewriteGuardCheck(
   contract: ScopeContractData | null,
   session: GuardSessionData | null,
   toolInput: PrewriteToolInput,
 ): PrewriteGuardResult {
-  if (!session || session.status === 'stopped') {
-    return { deny: false, rule: 'no_session' };
-  }
-  if (!contract) {
-    return { deny: false, rule: 'no_contract' };
-  }
-  if (session.guardMode === 'watcher-fallback') {
-    // Watcher-fallback providers cannot intercept writes pre-tool; violations
-    // are recorded post-write by guard_session_check. Do not deny.
-    return { deny: false, rule: 'watcher_fallback' };
-  }
+  if (!session || session.status === 'stopped') return { deny: false, rule: 'no_session' };
+  if (!contract) return { deny: false, rule: 'no_contract' };
+  if (!canBlockBeforeWrite(session)) return { deny: false, rule: 'watcher_fallback' };
 
-  const paths = extractPrewritePaths(toolInput);
-  if (paths.length === 0) return { deny: false };
-
-  // Always evaluate against an enforce-equivalent view: the guard session
-  // escalates protection so shadow/local contracts still surface violations.
-  const enforceContract: ScopeContractData =
-    contract.mode === 'enforce' ? contract : { ...contract, mode: 'enforce' };
-
-  const result = checkScopeContract(enforceContract, paths);
-
-  // Only unacknowledged violations block. Protected files are always
-  // unacknowledged (checkScopeContract never sets acknowledged=true for them).
-  const blocker = result.violations.find(v => !v.acknowledged);
-
-  if (blocker) {
-    const isProtected = blocker.rule === 'protected';
-    return {
-      deny: true,
-      reason: `${isProtected ? 'Protected file' : 'Out-of-scope file'}: ${blocker.path}`,
-      rule: isProtected ? 'protected' : 'out_of_scope',
-      path: blocker.path,
-    };
-  }
-
-  return { deny: false };
+  const enforceContract: ScopeContractData = contract.mode === 'enforce'
+    ? contract
+    : { ...contract, mode: 'enforce' };
+  return adapt(runPrewriteGuardCheck({
+    normalizedPaths: extractPrewritePaths(toolInput),
+    contract: enforceContract,
+    storyId: session.storyId,
+  }));
 }
