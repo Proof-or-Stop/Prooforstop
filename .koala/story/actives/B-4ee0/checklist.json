@@ -38,7 +38,50 @@
       "context": "Add tests for fresh minimal init, no local shim by default, .Lattice resolver, global codex verify/doctor, legacy compatibility, and non-destructive check/apply migration. Finish with npm --prefix packages/main run build and targeted smokes.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-completeness.md",
+        "docs/requirements/decisions/verification-context-pack.md",
+        "README.md"
+      ],
+      "userSees": "用户看到 build 和 smoke 结果明确证明：新项目文件树干净、全局 lattice codex 命令可用、旧 Koala/Lattice shim 项目仍兼容，且全局 lattice 重新 build 后使用最新 dist。",
+      "files": {
+        "modify": [
+          "packages/main/package.json",
+          "packages/main/src/tasks/thin-init-assets-smoke.ts",
+          "packages/main/src/tasks/legacy-koala-compatibility-smoke.ts",
+          "scripts/verify-runtime-fact-contract.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/thin-init-assets-smoke.ts",
+          "packages/main/src/tasks/legacy-koala-compatibility-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm --prefix packages/main run build 通过，targeted smoke 全部通过。",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "测试同时覆盖 fresh minimal 项目和 legacy Koala 项目，不只覆盖其中一种。",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "若测试只检查文件存在、不检查默认不生成 forbidden assets，或者全局命令未真实执行，则验收失败。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
