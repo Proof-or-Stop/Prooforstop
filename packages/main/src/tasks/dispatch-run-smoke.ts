@@ -37,6 +37,10 @@ import type {
   HostRuntimeList,
   HostRuntimeProbe,
 } from '../core/lattice-dispatch.js';
+import type {
+  DispatchPolicy,
+  DispatchPolicyCheckResult,
+} from '../core/dispatch-policy.js';
 import type { HandlerContext } from '../handlers/context.js';
 import { createMainRegistry } from '../registry.js';
 
@@ -55,6 +59,9 @@ const EXPECTED_COMMANDS = [
   'dispatch_cancel',
   'dispatch_review',
   'dispatch_merge_plan',
+  'dispatch_policy_create',
+  'dispatch_policy_get',
+  'dispatch_policy_check',
 ] as const;
 
 const READ_ONLY_EXPECTED = new Set([
@@ -65,6 +72,8 @@ const READ_ONLY_EXPECTED = new Set([
   'dispatch_list',
   'dispatch_review',
   'dispatch_merge_plan',
+  'dispatch_policy_get',
+  'dispatch_policy_check',
 ]);
 
 function git(root: string, args: string[]): string {
@@ -1017,7 +1026,184 @@ try {
   assert.equal(cliProbe.status, 'ready');
   assertAuthorityFalse(cliProbe, 'cliProbe');
 
-  console.log('✓ dispatch-run smoke passed — runtime probes, overflow gating, fake path hardening, real-host scaffolds, receipts, degradation paths, manual merge guidance, and authority invariants verified');
+  // CHK-003: dispatch_policy contract — create/get/check happy path
+  const policyCreateResult = run<DispatchPolicy>('dispatch_policy_create', {
+    policy: 'nightly-safe',
+    allowedHosts: ['fake'],
+    allowedPaths: ['packages/main/src/generated/'],
+    maxParallel: 2,
+    maxRuntimeMinutes: 60,
+    maxBudgetUSD: 5.0,
+    network: 'none',
+    commandAllowlist: ['node -e "process.exit(0)"'],
+    requireReceipt: true,
+    requireReview: true,
+    allowAutoMerge: false,
+    allowProductionDone: false,
+  });
+  assert.equal(policyCreateResult.schemaVersion, 'lattice.dispatch_policy.v1');
+  assert.equal(policyCreateResult.policy, 'nightly-safe');
+  assert.deepEqual(policyCreateResult.allowedHosts, ['fake']);
+  assert.equal(policyCreateResult.allowAutoMerge, false);
+  assert.equal(policyCreateResult.allowProductionDone, false);
+  assert.equal(policyCreateResult.requireReceipt, true);
+  assert.equal(policyCreateResult.requireReview, true);
+
+  const policyGetResult = run<DispatchPolicy>('dispatch_policy_get', { policy: 'nightly-safe' });
+  assert.equal(policyGetResult.schemaVersion, 'lattice.dispatch_policy.v1');
+  assert.equal(policyGetResult.policy, 'nightly-safe');
+  assert.deepEqual(policyGetResult.allowedHosts, ['fake']);
+
+  const policyCheckAuthorized = run<DispatchPolicyCheckResult>('dispatch_policy_check', { policy: 'nightly-safe' });
+  assert.equal(policyCheckAuthorized.schemaVersion, 'lattice.dispatch_policy_check.v1');
+  assert.equal(policyCheckAuthorized.policy, 'nightly-safe');
+  assert.equal(policyCheckAuthorized.authorized, true);
+  assert.equal(policyCheckAuthorized.status, 'authorized');
+  assert.equal(policyCheckAuthorized.reasons.length, 0);
+  assert.equal(policyCheckAuthorized.degradations.length, 0);
+  assert.equal(policyCheckAuthorized.authorityChanged, false);
+  assert.equal(policyCheckAuthorized.receiptVerified, false);
+  assert.equal(policyCheckAuthorized.productionDone, false);
+  assertAuthorityFalse(policyCheckAuthorized, 'policyCheckAuthorized');
+
+  // CHK-003: fake policy is deterministically authorized
+  const fakeCheckResult = run<DispatchPolicyCheckResult>('dispatch_policy_check', { policy: 'fake' });
+  assert.equal(fakeCheckResult.authorized, true);
+  assert.equal(fakeCheckResult.status, 'authorized');
+  assertAuthorityFalse(fakeCheckResult, 'fakeCheckResult');
+
+  // CHK-003: missing policy → refused
+  const missingPolicyResult = run<DispatchPolicyCheckResult>('dispatch_policy_check', { policy: 'does-not-exist' });
+  assert.equal(missingPolicyResult.authorized, false);
+  assert.equal(missingPolicyResult.status, 'refused');
+  assert.ok(missingPolicyResult.reasons.some(r => /not found/i.test(r)));
+  assertAuthorityFalse(missingPolicyResult, 'missingPolicyResult');
+
+  // CHK-003: dispatch_policy_get throws for missing policy
+  assert.throws(
+    () => run<DispatchPolicy>('dispatch_policy_get', { policy: 'no-such-policy' }),
+    /not found/i,
+    'dispatch_policy_get must throw for missing policy',
+  );
+
+  // CHK-003: traversal/absolute path rejection
+  assert.throws(
+    () => run<DispatchPolicy>('dispatch_policy_create', {
+      policy: 'bad-traversal',
+      allowedHosts: ['fake'],
+      allowedPaths: ['../escaped.txt'],
+      maxParallel: 1,
+      maxRuntimeMinutes: 30,
+      commandAllowlist: ['node -e "process.exit(0)"'],
+    }),
+    /allowedPaths\[0\].*escapes|traversal/i,
+    'create must reject traversal in allowedPaths',
+  );
+  assert.throws(
+    () => run<DispatchPolicy>('dispatch_policy_create', {
+      policy: 'bad-absolute',
+      allowedHosts: ['fake'],
+      allowedPaths: ['/etc/passwd'],
+      maxParallel: 1,
+      maxRuntimeMinutes: 30,
+      commandAllowlist: ['node -e "process.exit(0)"'],
+    }),
+    /allowedPaths\[0\].*relative|absolute/i,
+    'create must reject absolute paths in allowedPaths',
+  );
+
+  // CHK-003: denied-path overlap rejection
+  assert.throws(
+    () => run<DispatchPolicy>('dispatch_policy_create', {
+      policy: 'bad-overlap',
+      allowedHosts: ['fake'],
+      allowedPaths: ['packages/main/src/'],
+      deniedPaths: ['packages/main/src/'],
+      maxParallel: 1,
+      maxRuntimeMinutes: 30,
+      commandAllowlist: ['node -e "process.exit(0)"'],
+    }),
+    /overlap/i,
+    'create must reject denied-path overlap with allowedPaths',
+  );
+
+  // CHK-003: unsafe env name rejection
+  assert.throws(
+    () => run<DispatchPolicy>('dispatch_policy_create', {
+      policy: 'bad-env',
+      allowedHosts: ['fake'],
+      allowedPaths: ['packages/main/src/generated/'],
+      maxParallel: 1,
+      maxRuntimeMinutes: 30,
+      commandAllowlist: ['node -e "process.exit(0)"'],
+      envAllowlist: ['ANTHROPIC_API_KEY'],
+    }),
+    /unsafe.*env|TOKEN|SECRET|PASSWORD|KEY|CREDENTIAL/i,
+    'create must reject unsafe env names in envAllowlist',
+  );
+
+  // CHK-003: allowAutoMerge=true rejection
+  assert.throws(
+    () => run<DispatchPolicy>('dispatch_policy_create', {
+      policy: 'bad-automerge',
+      allowedHosts: ['fake'],
+      allowedPaths: ['packages/main/src/generated/'],
+      maxParallel: 1,
+      maxRuntimeMinutes: 30,
+      commandAllowlist: ['node -e "process.exit(0)"'],
+      allowAutoMerge: true,
+    }),
+    /allowAutoMerge.*false|auto-merge/i,
+    'create must reject allowAutoMerge=true',
+  );
+
+  // CHK-003: allowProductionDone=true rejection
+  assert.throws(
+    () => run<DispatchPolicy>('dispatch_policy_create', {
+      policy: 'bad-productiondone',
+      allowedHosts: ['fake'],
+      allowedPaths: ['packages/main/src/generated/'],
+      maxParallel: 1,
+      maxRuntimeMinutes: 30,
+      commandAllowlist: ['node -e "process.exit(0)"'],
+      allowProductionDone: true,
+    }),
+    /allowProductionDone.*false|productionDone/i,
+    'create must reject allowProductionDone=true',
+  );
+
+  // CHK-003: authority flags always false on check result
+  assert.equal(policyCheckAuthorized.authorityChanged, false, 'policy check must never set authorityChanged=true');
+  assert.equal(policyCheckAuthorized.receiptVerified, false, 'policy check must never set receiptVerified=true');
+  assert.equal(policyCheckAuthorized.productionDone, false, 'policy check must never set productionDone=true');
+
+  // CHK-003: missing budget/network → supervised, not refused
+  const supervisedPolicyCreate = run<DispatchPolicy>('dispatch_policy_create', {
+    policy: 'supervised-only',
+    allowedHosts: ['fake'],
+    allowedPaths: ['packages/main/src/generated/'],
+    maxParallel: 1,
+    maxRuntimeMinutes: 30,
+    commandAllowlist: ['node -e "process.exit(0)"'],
+    // deliberately omitting maxBudgetUSD and network
+  });
+  assert.equal(supervisedPolicyCreate.maxBudgetUSD, undefined);
+  assert.equal(supervisedPolicyCreate.network, undefined);
+  const supervisedCheckResult = run<DispatchPolicyCheckResult>('dispatch_policy_check', { policy: 'supervised-only' });
+  assert.equal(supervisedCheckResult.authorized, false);
+  assert.equal(supervisedCheckResult.status, 'supervised');
+  assert.ok(supervisedCheckResult.degradations.length > 0, 'supervised check must have degradations');
+  assert.ok(
+    supervisedCheckResult.degradations.some(d => /budget/i.test(d)),
+    'supervised check must report missing budget as a degradation',
+  );
+  assert.ok(
+    supervisedCheckResult.degradations.some(d => /network/i.test(d)),
+    'supervised check must report missing network as a degradation',
+  );
+  assertAuthorityFalse(supervisedCheckResult, 'supervisedCheckResult');
+
+  console.log('✓ dispatch-run smoke passed — runtime probes, overflow gating, fake path hardening, real-host scaffolds, receipts, degradation paths, manual merge guidance, authority invariants, and dispatch_policy contract verified');
 } finally {
   resetConfigCache();
   rmSync(root, { recursive: true, force: true });

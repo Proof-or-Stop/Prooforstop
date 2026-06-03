@@ -28,6 +28,16 @@ import {
   runDispatch,
   resumeDispatch,
 } from '../core/lattice-dispatch.js';
+import {
+  checkDispatchPolicy,
+  createDispatchPolicy,
+  getDispatchPolicy,
+  renderDispatchPolicyCheckText,
+  renderDispatchPolicyText,
+  type CreateDispatchPolicyArgs,
+  type DispatchPolicy,
+  type DispatchPolicyCheckResult,
+} from '../core/dispatch-policy.js';
 
 type FormatArgs = { format?: 'text' | 'json'; json?: boolean; output?: string };
 
@@ -337,6 +347,24 @@ export function createLatticeDispatchHandlers(ctx: HandlerContext): Record<strin
       const outputNote = maybeWriteOutput(ctx.root, args.output, result);
       if (wantsJson(args)) return result;
       return `${renderDispatchMergePlanText(result)}${outputNote}`;
+    },
+    dispatch_policy_create(args: CreateDispatchPolicyArgs & FormatArgs) {
+      const result = createDispatchPolicy(ctx.root, args);
+      const outputNote = maybeWriteOutput(ctx.root, args.output, result);
+      if (wantsJson(args)) return result;
+      return `${renderDispatchPolicyText(result)}${outputNote}`;
+    },
+    dispatch_policy_get(args: { policy: string } & FormatArgs) {
+      const result = getDispatchPolicy(ctx.root, args.policy);
+      const outputNote = maybeWriteOutput(ctx.root, args.output, result);
+      if (wantsJson(args)) return result;
+      return `${renderDispatchPolicyText(result)}${outputNote}`;
+    },
+    dispatch_policy_check(args: { policy: string } & FormatArgs) {
+      const result = checkDispatchPolicy(ctx.root, args.policy);
+      const outputNote = maybeWriteOutput(ctx.root, args.output, result);
+      if (wantsJson(args)) return result;
+      return `${renderDispatchPolicyCheckText(result)}${outputNote}`;
     },
   };
 }
