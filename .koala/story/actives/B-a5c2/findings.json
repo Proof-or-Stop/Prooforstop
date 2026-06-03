@@ -17,6 +17,23 @@
         "packages/main/src/tasks/dispatch-run-smoke.ts",
         ".koala/story/actives/B-a5c2/test-evidence.json"
       ]
+    },
+    {
+      "id": "B-a5c2:F-002",
+      "desc": "dispatch_auto authorizes on env and runtime policy fields that the fake unattended runner never enforces. checkDispatchPolicy requires env and runtime metadata (packages/main/src/core/dispatch-policy.ts:385-409), but runRequiredCommands executes child commands with execSync using the parent process environment and no timeout or env override (packages/main/src/core/lattice-dispatch.ts:1330-1343). Verified in an isolated temp repo: policy envAllowlist=[] and envDenylist=[REVIEW_LANE_SECRET], then dispatch_auto with a fake requiredCommand that writes process.env.REVIEW_LANE_SECRET still returned status=accepted_local and produced leakedValue=lane-secret-value. That means unattended jobs can read caller secrets despite an explicit denylist, and maxRuntimeMinutes is likewise not enforced on the execution path.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-03T21:26:15.067Z",
+      "reviewRound": "2026-06-03T21:19:39.509Z",
+      "reviewRunId": "B-a5c2:RR-007",
+      "_hash": "5ac9c757f65d57eb28ce38485b1e82036593e14726d660931441f0b85ce60f84",
+      "files": [
+        "packages/main/src/core/lattice-dispatch.ts",
+        "packages/main/src/core/dispatch-policy.ts"
+      ]
     }
   ]
 }
