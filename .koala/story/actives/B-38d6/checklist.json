@@ -116,9 +116,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-03T19:04:14.763Z",
-      "endTime": null,
+      "endTime": "2026-06-03T19:04:40.401Z",
       "files": {
         "modify": [
           "packages/main/src/core/config.ts",
@@ -135,7 +135,45 @@
         "test": [
           "packages/main/src/tasks/validation-protocol-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "Validation protocol smoke creates lattice.config.json with validate.commands and verifies koala-verifier-configured-commands executes the canonical lattice command.",
+          "headHash": "c63aab20d076030910786d1c4743c6c3faa6074e",
+          "materialHash": "08d6898dcc0d44d0d311471c40c1841ef5e3b3ea472df9ac42ee5e1d27364d6e",
+          "timestamp": "2026-06-03T19:04:40.548Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "Validation protocol smoke creates a legacy koala.config.json-only repo, verifies configured commands still load, and captures the migration diagnostic telling users to rename to lattice.config.json.",
+          "headHash": "c63aab20d076030910786d1c4743c6c3faa6074e",
+          "materialHash": "08d6898dcc0d44d0d311471c40c1841ef5e3b3ea472df9ac42ee5e1d27364d6e",
+          "timestamp": "2026-06-03T19:04:40.648Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "Validation protocol smoke creates both lattice.config.json and koala.config.json with conflicting commands, verifies lattice.config.json wins, koala command is not executed, and conflict diagnostics identify the canonical winner.",
+          "headHash": "c63aab20d076030910786d1c4743c6c3faa6074e",
+          "materialHash": "08d6898dcc0d44d0d311471c40c1841ef5e3b3ea472df9ac42ee5e1d27364d6e",
+          "timestamp": "2026-06-03T19:04:40.778Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -216,6 +254,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Implementation committed by koala-implementer; recording canonical config verification evidence."
+    },
+    {
+      "timestamp": "2026-06-03T19:04:40.401Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementation committed in 5a162280 and verified by validation-protocol smoke."
     }
   ]
 }
