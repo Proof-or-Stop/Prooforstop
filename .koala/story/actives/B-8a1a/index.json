@@ -4,7 +4,7 @@
   "title": "Lattice Real-host unattended runner v1.0.1: Claude Code first",
   "description": "Implement the first real-host unattended runner path for Claude Code CLI. The current dispatch surfaces can scaffold real hosts and run fake deterministic workers, but they intentionally refuse real host subprocess execution. This story upgrades policy-bound dispatch_auto for claude-code only so Lattice can launch a bounded Claude Code subprocess in an isolated dispatch worktree while preserving manual review, diagnostic receipts, and authority-safe invariants.",
   "type": "feature",
-  "phase": "REVIEW",
+  "phase": "DEV",
   "priority": "high",
   "keywords": [
     "dispatch_auto",
@@ -53,6 +53,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-03T23:16:51.649Z",
+      "branch": "story/B-8a1a",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-03T23:28:20.364Z",
       "branch": "story/B-8a1a",
       "user": "Harmonygo",
       "agent": "main"
