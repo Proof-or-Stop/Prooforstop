@@ -244,8 +244,66 @@ try {
   const fakeProbe = run<HostRuntimeProbe>('host_runtime_probe', { host: 'fake' });
   assert.equal(fakeProbe.status, 'ready');
   assert.equal(fakeProbe.supportsParallel, true);
+  assert.equal(fakeProbe.versionStatus, 'detected');
+  assert.equal(fakeProbe.version, 'fake-deterministic');
+  assert.equal(fakeProbe.noninteractiveSupport, 'supported');
+  assert.equal(fakeProbe.cwdSupport, 'supported');
+  assert.equal(fakeProbe.timeoutSupport, 'supported');
+  assert.equal(fakeProbe.transcriptSupport, 'supported');
+  assert.equal(fakeProbe.envSafetyPosture, 'sandboxed');
+  assert.equal(fakeProbe.unattendedSafe, false, 'fake probe must never set unattendedSafe=true');
+  assert.ok(Array.isArray(fakeProbe.unattendedReasons), 'fake probe must have unattendedReasons array');
+  assert.ok(Array.isArray(fakeProbe.degradations), 'fake probe must have degradations array');
   assertAuthorityFalse(fakeProbe, 'fakeProbe');
   assert.throws(() => run<HostRuntimeProbe>('host_runtime_probe', { host: 'unknown-host' }), /requires host=fake\|claude-code\|gemini\|codex/);
+
+  // CHK-002: Claude Code bounded unattended feasibility probe
+  // Must work whether claude is installed or not
+  const claudeProbe = run<HostRuntimeProbe>('host_runtime_probe', { host: 'claude-code' });
+  assert.equal(claudeProbe.host, 'claude-code');
+  assert.equal(claudeProbe.schemaVersion, 'lattice.host_runtime_probe.v1');
+  // Structured feasibility fields must always be present
+  assert.ok(['detected', 'unavailable', 'unknown'].includes(claudeProbe.versionStatus), `claude versionStatus must be a known value, got ${claudeProbe.versionStatus}`);
+  assert.ok(['supported', 'unverified', 'unsupported'].includes(claudeProbe.noninteractiveSupport), `claude noninteractiveSupport must be a known value, got ${claudeProbe.noninteractiveSupport}`);
+  assert.ok(['supported', 'unverified'].includes(claudeProbe.cwdSupport), `claude cwdSupport must be a known value, got ${claudeProbe.cwdSupport}`);
+  assert.ok(['supported', 'unverified'].includes(claudeProbe.timeoutSupport), `claude timeoutSupport must be a known value, got ${claudeProbe.timeoutSupport}`);
+  assert.ok(['supported', 'unverified'].includes(claudeProbe.transcriptSupport), `claude transcriptSupport must be a known value, got ${claudeProbe.transcriptSupport}`);
+  assert.ok(['sandboxed', 'inherited', 'unverified'].includes(claudeProbe.envSafetyPosture), `claude envSafetyPosture must be a known value, got ${claudeProbe.envSafetyPosture}`);
+  assert.equal(claudeProbe.unattendedSafe, false, 'claude-code must not claim unattendedSafe=true — policy (CHK-003) not yet implemented');
+  assert.ok(Array.isArray(claudeProbe.unattendedReasons), 'claude probe must have unattendedReasons array');
+  assert.ok(claudeProbe.unattendedReasons.length > 0, 'claude probe must explain why unattendedSafe=false');
+  assert.ok(
+    claudeProbe.unattendedReasons.some(reason => /policy|CHK-003|dispatch_policy/i.test(reason)),
+    'claude probe must surface policy requirement (CHK-003) as a reason for unattendedSafe=false',
+  );
+  assert.ok(Array.isArray(claudeProbe.degradations), 'claude probe must have degradations array');
+  assert.ok(typeof claudeProbe.nextAction === 'string' && claudeProbe.nextAction.length > 0, 'claude probe must have a nextAction');
+  // nextAction must indicate supervised-only or unavailable, not full authorization
+  assert.ok(
+    /supervised-only|unavailable|policy|install|expose/i.test(claudeProbe.nextAction),
+    `claude probe nextAction must indicate supervised-only or missing CLI, got: ${claudeProbe.nextAction}`,
+  );
+  assertAuthorityFalse(claudeProbe, 'claudeProbe');
+
+  // If claude is installed, additional shape assertions apply
+  if (claudeProbe.available) {
+    assert.ok(['detected', 'unknown'].includes(claudeProbe.versionStatus), `installed claude must have detected or unknown versionStatus, got ${claudeProbe.versionStatus}`);
+    assert.ok(['supported', 'unverified', 'unsupported'].includes(claudeProbe.noninteractiveSupport), 'installed claude must report noninteractive support');
+    assert.equal(claudeProbe.cwdSupport, 'supported', 'installed claude must have cwdSupport=supported');
+    assert.equal(claudeProbe.timeoutSupport, 'supported', 'installed claude must have timeoutSupport=supported');
+    assert.equal(claudeProbe.transcriptSupport, 'supported', 'installed claude must have transcriptSupport=supported');
+    // Even if installed and noninteractive is supported, policy gate still blocks unattendedSafe
+    assert.equal(claudeProbe.unattendedSafe, false, 'installed claude must not be unattendedSafe without policy');
+    assert.match(claudeProbe.nextAction, /supervised-only|policy/i, 'installed claude without policy must surface supervised-only nextAction');
+  } else {
+    // CLI not installed
+    assert.equal(claudeProbe.status, 'unavailable');
+    assert.equal(claudeProbe.runtimeKind, 'missing-cli');
+    assert.ok(
+      claudeProbe.unattendedReasons.some(reason => /not available|install|expose|PATH/i.test(reason)),
+      'unavailable claude probe must explain CLI is not in PATH',
+    );
+  }
 
   assert.throws(
     () => run<HostRuntimeList>('host_runtime_list', { output: '../escape.json' }),

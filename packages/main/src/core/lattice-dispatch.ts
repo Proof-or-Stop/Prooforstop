@@ -42,6 +42,13 @@ export interface DispatchAuthorityState {
   productionDone: false;
 }
 
+export type VersionStatus = 'detected' | 'unavailable' | 'unknown';
+export type NoninteractiveSupport = 'supported' | 'unverified' | 'unsupported';
+export type CwdSupport = 'supported' | 'unverified';
+export type TimeoutSupport = 'supported' | 'unverified';
+export type TranscriptSupport = 'supported' | 'unverified';
+export type EnvSafetyPosture = 'sandboxed' | 'inherited' | 'unverified';
+
 export interface HostRuntimeProbe {
   schemaVersion: 'lattice.host_runtime_probe.v1';
   host: HostRuntimeId;
@@ -54,6 +61,17 @@ export interface HostRuntimeProbe {
   cliCommand?: string;
   commandPath?: string;
   invocationTemplate?: string[];
+  // Bounded unattended feasibility fields (CHK-002)
+  versionStatus: VersionStatus;
+  version?: string;
+  noninteractiveSupport: NoninteractiveSupport;
+  cwdSupport: CwdSupport;
+  timeoutSupport: TimeoutSupport;
+  transcriptSupport: TranscriptSupport;
+  envSafetyPosture: EnvSafetyPosture;
+  unattendedSafe: boolean;
+  unattendedReasons: string[];
+  degradations: string[];
   limitations: string[];
   warnings: string[];
   nextAction: string;
@@ -345,6 +363,137 @@ function runtimeTemplate(host: HostRuntimeId): string[] | undefined {
   return ['codex', 'exec', '--prompt-file', '<prompt-file>'];
 }
 
+interface ClaudeCodeCapabilities {
+  versionStatus: VersionStatus;
+  version?: string;
+  noninteractiveSupport: NoninteractiveSupport;
+  cwdSupport: CwdSupport;
+  timeoutSupport: TimeoutSupport;
+  transcriptSupport: TranscriptSupport;
+  envSafetyPosture: EnvSafetyPosture;
+  unattendedSafe: boolean;
+  unattendedReasons: string[];
+  degradations: string[];
+}
+
+function probeClaudeCodeCapabilities(commandPath: string | null): ClaudeCodeCapabilities {
+  const unattendedReasons: string[] = [];
+  const degradations: string[] = [];
+
+  // Version detection
+  let versionStatus: VersionStatus = 'unavailable';
+  let version: string | undefined;
+  if (commandPath) {
+    try {
+      const versionOutput = execFileSync('claude', ['--version'], {
+        encoding: 'utf8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+        timeout: 5000,
+      }).trim();
+      if (versionOutput) {
+        versionStatus = 'detected';
+        version = versionOutput;
+      } else {
+        versionStatus = 'unknown';
+      }
+    } catch {
+      versionStatus = 'unknown';
+    }
+  }
+
+  // Noninteractive support: check if --print / -p flag is present in help output
+  let noninteractiveSupport: NoninteractiveSupport = 'unverified';
+  if (commandPath) {
+    try {
+      // claude --help may exit non-zero but still output help text to stdout or stderr
+      let helpOutput = '';
+      try {
+        helpOutput = execFileSync('claude', ['--help'], {
+          encoding: 'utf8',
+          stdio: ['pipe', 'pipe', 'pipe'],
+          timeout: 5000,
+        });
+      } catch (err: any) {
+        // Some CLI tools exit non-zero for --help; capture stderr output too
+        helpOutput = String(err?.stdout || '') + String(err?.stderr || '');
+      }
+      if (/--print\b|-p\b/i.test(helpOutput)) {
+        noninteractiveSupport = 'supported';
+      } else if (helpOutput.length > 0) {
+        // Help was returned but --print flag not found
+        noninteractiveSupport = 'unsupported';
+        unattendedReasons.push('claude --help output does not document --print/-p noninteractive flag; unattended execution not confirmed.');
+      } else {
+        noninteractiveSupport = 'unverified';
+        unattendedReasons.push('claude --help produced no output; noninteractive support cannot be verified.');
+      }
+    } catch {
+      noninteractiveSupport = 'unverified';
+      unattendedReasons.push('claude --help failed; noninteractive support cannot be verified.');
+    }
+  } else {
+    unattendedReasons.push('claude CLI is not available; noninteractive execution is impossible.');
+  }
+
+  // cwd support: Claude Code processes run in the invoker's working directory; this is standard for CLI tools
+  // We mark it supported since the CLI is a standard subprocess, but note it's inferred not tested
+  const cwdSupport: CwdSupport = commandPath ? 'supported' : 'unverified';
+  if (!commandPath) {
+    degradations.push('cwd support cannot be confirmed without a live CLI.');
+  }
+
+  // Timeout support: Lattice controls timeout via process kill; no dedicated --timeout flag needed
+  // Mark as supported when CLI is present (Lattice runner controls the envelope)
+  const timeoutSupport: TimeoutSupport = commandPath ? 'supported' : 'unverified';
+  if (!commandPath) {
+    degradations.push('timeout enforcement cannot be confirmed without a live CLI.');
+  }
+
+  // Transcript support: output can be captured from stdout/stderr of the subprocess
+  const transcriptSupport: TranscriptSupport = commandPath ? 'supported' : 'unverified';
+  if (!commandPath) {
+    degradations.push('transcript capture cannot be confirmed without a live CLI.');
+  }
+
+  // Environment safety: Claude Code inherits the invoker's environment; no known sandboxing
+  // Mark as 'inherited' when CLI is present (standard subprocess behavior)
+  const envSafetyPosture: EnvSafetyPosture = commandPath ? 'inherited' : 'unverified';
+  if (commandPath) {
+    degradations.push('claude-code inherits the invoker environment; sensitive env vars are visible to the subprocess unless filtered by Lattice policy.');
+  }
+
+  // Unattended safety decision:
+  // CLI presence alone is NOT enough. We require:
+  // 1. CLI available
+  // 2. noninteractiveSupport = 'supported' (confirmed --print flag)
+  // 3. Policy must be defined (CHK-003, not yet implemented)
+  // Since CHK-003 (policy) is not yet implemented, unattendedSafe must remain false
+  // even when the CLI is present and noninteractive is confirmed.
+  if (!commandPath) {
+    unattendedReasons.push('claude CLI is not available in PATH.');
+  }
+  if (noninteractiveSupport !== 'supported') {
+    unattendedReasons.push('Noninteractive (--print/-p) support not confirmed; bounded unattended execution cannot be guaranteed.');
+  }
+  // CHK-003 policy gate is not yet implemented; always add this reason until policy is implemented
+  unattendedReasons.push('dispatch_policy (CHK-003) not yet implemented; unattended authorization requires a verified policy before any worker may start.');
+
+  const unattendedSafe = false; // Always false at CHK-002 stage: policy not yet implemented
+
+  return {
+    versionStatus,
+    ...(version !== undefined ? { version } : {}),
+    noninteractiveSupport,
+    cwdSupport,
+    timeoutSupport,
+    transcriptSupport,
+    envSafetyPosture,
+    unattendedSafe,
+    unattendedReasons,
+    degradations,
+  };
+}
+
 export function probeHostRuntime(host: string): HostRuntimeProbe {
   const normalized = normalizeHostRuntimeId(host);
   if (!normalized) {
@@ -361,6 +510,16 @@ export function probeHostRuntime(host: string): HostRuntimeProbe {
       matchedFallback: host.trim().toLowerCase() !== 'fake',
       runtimeKind: 'fake',
       invocationTemplate: runtimeTemplate('fake'),
+      versionStatus: 'detected',
+      version: 'fake-deterministic',
+      noninteractiveSupport: 'supported',
+      cwdSupport: 'supported',
+      timeoutSupport: 'supported',
+      transcriptSupport: 'supported',
+      envSafetyPosture: 'sandboxed',
+      unattendedSafe: false,
+      unattendedReasons: ['Fake runtime is for deterministic local test coverage only; not for production unattended use.'],
+      degradations: [],
       limitations: [
         'Deterministic local test harness only.',
         'Produces local diagnostic receipts only.',
@@ -384,6 +543,26 @@ export function probeHostRuntime(host: string): HostRuntimeProbe {
     : [
       `${cliCommand} CLI is not available in PATH; runtime stays unavailable-safe and will not start the host automatically.`,
     ];
+
+  // Bounded unattended feasibility — currently only deep-probed for claude-code (CHK-002)
+  // Other real hosts use conservative unverified defaults
+  const capabilities: ClaudeCodeCapabilities = normalized === 'claude-code'
+    ? probeClaudeCodeCapabilities(commandPath)
+    : {
+      versionStatus: 'unknown',
+      noninteractiveSupport: 'unverified',
+      cwdSupport: 'unverified',
+      timeoutSupport: 'unverified',
+      transcriptSupport: 'unverified',
+      envSafetyPosture: 'unverified',
+      unattendedSafe: false,
+      unattendedReasons: [
+        `${normalized} unattended capability not yet probed (CHK-004 will cover all hosts).`,
+        'dispatch_policy (CHK-003) not yet implemented; unattended authorization requires a verified policy.',
+      ],
+      degradations: [],
+    };
+
   return {
     schemaVersion: 'lattice.host_runtime_probe.v1',
     host: normalized,
@@ -396,6 +575,16 @@ export function probeHostRuntime(host: string): HostRuntimeProbe {
     cliCommand,
     ...(commandPath ? { commandPath } : {}),
     invocationTemplate: runtimeTemplate(normalized),
+    versionStatus: capabilities.versionStatus,
+    ...(capabilities.version !== undefined ? { version: capabilities.version } : {}),
+    noninteractiveSupport: capabilities.noninteractiveSupport,
+    cwdSupport: capabilities.cwdSupport,
+    timeoutSupport: capabilities.timeoutSupport,
+    transcriptSupport: capabilities.transcriptSupport,
+    envSafetyPosture: capabilities.envSafetyPosture,
+    unattendedSafe: capabilities.unattendedSafe,
+    unattendedReasons: capabilities.unattendedReasons,
+    degradations: capabilities.degradations,
     limitations: [
       'Real-host execution is scaffolded only in this milestone.',
       'No external host is auto-driven by Lattice dispatch_run.',
@@ -403,7 +592,9 @@ export function probeHostRuntime(host: string): HostRuntimeProbe {
     ],
     warnings,
     nextAction: available
-      ? `Use dispatch_prepare/dispatch_run to generate the isolated worktree + prompt metadata, then run ${cliCommand} manually and return a local receipt.`
+      ? capabilities.unattendedSafe
+        ? `${normalized} is unattended-capable. Use dispatch_auto (CHK-006) to start a policy-authorized worker.`
+        : `${normalized} is supervised-only at this stage. Use dispatch_prepare/dispatch_run to generate the isolated worktree + prompt metadata, then run ${cliCommand} manually and return a local receipt. Policy authorization (CHK-003) required before unattended use.`
       : `Install or expose ${cliCommand} in PATH, or use host=fake for deterministic local coverage.`,
     authority: authorityState(),
   };
