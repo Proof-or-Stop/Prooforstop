@@ -389,6 +389,14 @@ try {
 
   const maliciousDispatchId = '../../dispatch-id-escape';
   const escapedDispatchMetadataDir = resolve(root, 'dispatch-id-escape');
+  const maliciousOverflowSuggest = run<DispatchPlanResult>('overflow_auto', {
+    storyId: 'B-dispatch',
+    dispatchId: maliciousDispatchId,
+    host: 'fake',
+    allowedPaths: ['packages/main/src/generated/malicious-overflow-suggest.txt'],
+  });
+  assert.equal(maliciousOverflowSuggest.schemaVersion, 'lattice.dispatch_plan.v1');
+  assert.equal(existsSync(escapedDispatchMetadataDir), false, 'overflow_auto suggest-only malicious dispatchId must not write outside .koala/dispatches');
   for (const [command, args] of [
     ['dispatch_prepare', {
       storyId: 'B-dispatch',
@@ -409,6 +417,14 @@ try {
     ['dispatch_cancel', { dispatchId: maliciousDispatchId }],
     ['dispatch_review', { dispatchId: maliciousDispatchId }],
     ['dispatch_merge_plan', { dispatchId: maliciousDispatchId }],
+    ['overflow_auto', {
+      storyId: 'B-dispatch',
+      dispatchId: maliciousDispatchId,
+      host: 'fake',
+      allowedPaths: ['packages/main/src/generated/malicious-overflow-start.txt'],
+      approve: true,
+      start: true,
+    }],
   ] as const) {
     assert.throws(
       () => run(command, args),
@@ -451,11 +467,17 @@ try {
       allowedPaths: ['packages/main/src/generated/external-link/blocked-by-symlink.txt'],
       deniedPaths: ['README.md'],
     });
-    assert.throws(
-      () => run<DispatchRunResult>('dispatch_run', { dispatchId: realHostSymlinkEscape.dispatchId }),
-      /resolves outside the isolated worktree via an existing symlinked path segment/i,
+    const failedRealHostSymlinkEscape = run<DispatchRunResult>('dispatch_run', { dispatchId: realHostSymlinkEscape.dispatchId });
+    assert.equal(failedRealHostSymlinkEscape.status, 'failed');
+    assert.ok(
+      failedRealHostSymlinkEscape.warnings.some(warning =>
+        /canonical pack-path validation failed: .*resolves outside the isolated worktree via an existing symlinked path segment/i.test(warning)),
+      'real-host symlink escape should surface canonical validation failure in warnings',
     );
+    assert.match(failedRealHostSymlinkEscape.nextAction, /rolled back after canonical pack-path validation failed/i);
+    assert.equal(existsSync(resolve(root, realHostSymlinkEscape.worktree.worktreePath)), false, 'real-host symlink escape must clean up the created worktree');
     assert.equal(existsSync(externalMarker), false, 'real-host symlink escape target must never be written');
+    assert.equal(readDispatch(root, realHostSymlinkEscape.dispatchId).status, 'failed', 'real-host symlink escape must persist failed dispatch status');
 
     const realHostFailure = run<DispatchRecord>('dispatch_prepare', {
       storyId: 'B-dispatch',

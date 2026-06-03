@@ -801,6 +801,49 @@ function ensureWorktree(root: string, worktreePath: string, branch: string, base
   return absPath;
 }
 
+function cleanupCreatedWorktree(root: string, worktreePath: string, branch: string): string[] {
+  const warnings: string[] = [];
+  const absPath = resolve(root, worktreePath);
+  try {
+    execFileSync('git', ['worktree', 'remove', '--force', absPath], {
+      cwd: root,
+      stdio: ['pipe', 'pipe', 'pipe'],
+      encoding: 'utf8',
+    });
+  } catch (error: any) {
+    const detail = String(error?.stderr || error?.stdout || error?.message || error).trim();
+    warnings.push(`Worktree cleanup warning: git worktree remove failed for ${worktreePath}: ${detail}`);
+  }
+  if (existsSync(absPath)) {
+    try {
+      rmSync(absPath, { recursive: true, force: true });
+    } catch (error: any) {
+      const detail = String(error?.message || error).trim();
+      warnings.push(`Worktree cleanup warning: rm -rf failed for ${worktreePath}: ${detail}`);
+    }
+  }
+  try {
+    execFileSync('git', ['worktree', 'prune'], {
+      cwd: root,
+      stdio: ['pipe', 'pipe', 'pipe'],
+      encoding: 'utf8',
+    });
+  } catch {
+    // probe: stale worktree metadata can remain until prune, but prune failure is non-fatal here
+  }
+  try {
+    execFileSync('git', ['branch', '-D', branch], {
+      cwd: root,
+      stdio: ['pipe', 'pipe', 'pipe'],
+      encoding: 'utf8',
+    });
+  } catch (error: any) {
+    const detail = String(error?.stderr || error?.stdout || error?.message || error).trim();
+    warnings.push(`Worktree cleanup warning: branch delete failed for ${branch}: ${detail}`);
+  }
+  return warnings;
+}
+
 function appendTranscript(file: string, lines: string[]): void {
   mkdirSync(dirname(file), { recursive: true });
   const previous = existsSync(file) ? readFileSync(file, 'utf8') : '';
@@ -1210,6 +1253,8 @@ export function runDispatch(store: StoryStore, root: string, args: DispatchRunAr
   let pack = readPack(root, record.dispatchId);
   pack = normalizePackPaths(root, record.dispatchId, resolve(root, record.worktree.worktreePath), pack);
   const baseRef = pack.baseSha ?? 'HEAD';
+  const worktreeAbsPath = resolve(root, record.worktree.worktreePath);
+  const worktreeCreatedThisRun = !existsSync(worktreeAbsPath);
   let worktreeAbs: string;
   try {
     worktreeAbs = ensureWorktree(root, record.worktree.worktreePath, record.worktree.branch, baseRef);
@@ -1243,7 +1288,49 @@ export function runDispatch(store: StoryStore, root: string, args: DispatchRunAr
       productionDone: false,
       };
   }
-  pack = normalizePackPaths(root, record.dispatchId, worktreeAbs, pack, 'canonical');
+  try {
+    pack = normalizePackPaths(root, record.dispatchId, worktreeAbs, pack, 'canonical');
+  } catch (error: any) {
+    const detail = String(error?.message || error).trim();
+    const cleanupWarnings = worktreeCreatedThisRun
+      ? cleanupCreatedWorktree(root, record.worktree.worktreePath, record.worktree.branch)
+      : [];
+    appendTranscript(resolve(root, record.transcriptFile), [
+      `[${nowIso()}] scaffolded runtime ${runtime.host} canonical pack-path validation failed`,
+      detail,
+      ...cleanupWarnings.map(warning => `[${nowIso()}] ${warning}`),
+    ]);
+    const warnings = [
+      ...record.warnings,
+      ...runtime.warnings,
+      `Canonical pack-path validation failed: ${detail}`,
+      ...cleanupWarnings,
+    ];
+    const nextAction = worktreeCreatedThisRun
+      ? `Dispatch scaffold was rolled back after canonical pack-path validation failed. Fix the allowed/denied paths for ${record.dispatchId}, then rerun dispatch_run.`
+      : `Canonical pack-path validation failed for ${record.dispatchId}. Fix the allowed/denied paths, verify the existing worktree at ${record.worktree.worktreePath}, then rerun dispatch_run.`;
+    const failed = writeRecord(root, {
+      ...record,
+      status: 'failed',
+      warnings,
+      nextAction,
+    });
+    return {
+      schemaVersion: 'lattice.dispatch_run.v1',
+      dispatchId: failed.dispatchId,
+      storyId: failed.storyId,
+      host: failed.selectedHost,
+      status: failed.status,
+      parallel: failed.parallel,
+      runtime: failed.runtime,
+      workers: [],
+      warnings: [...failed.warnings],
+      nextAction: failed.nextAction,
+      authorityChanged: false,
+      receiptVerified: false,
+      productionDone: false,
+    };
+  }
   const promptFile = resolve(root, record.promptFile);
   const invocation = runtime.invocationTemplate?.map(part =>
     part === '<prompt-file>' ? promptFile : part === '<worktree>' ? record.worktree.worktreePath : part,

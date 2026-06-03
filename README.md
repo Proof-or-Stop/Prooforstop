@@ -76,8 +76,8 @@ authority; Claude Code is an execution host, not a production authority.
 Use the overflow surfaces like this:
 
 ```bash
-lattice dispatch_plan --storyId=B-xxxx --host=claude-code --allowedPath=packages/main/src/foo.ts --format=json
-lattice dispatch_prepare --storyId=B-xxxx --host=claude-code --allowedPath=packages/main/src/foo.ts --format=json
+lattice dispatch_plan --storyId=B-xxxx --host=claude-code --allowedPaths=packages/main/src/foo.ts --format=json
+lattice dispatch_prepare --storyId=B-xxxx --host=claude-code --allowedPaths=packages/main/src/foo.ts --format=json
 lattice dispatch_run --dispatchId=D-B-xxxx-claude-code-1234 --format=json
 lattice overflow_auto --storyId=B-xxxx --host=claude-code --format=json
 lattice overflow_auto --storyId=B-xxxx --host=claude-code --approve=true --start=true --format=json
