@@ -52,6 +52,24 @@ export const LEGACY_LOCAL_MAIN_VERIFY_COMMAND = 'node bin/koala.js verify_codex'
 export const LOCAL_INIT_VERIFY_COMMAND = 'lattice init --verify-codex';
 export const GLOBAL_CODEX_FALLBACK_COMMAND = 'KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 KOALA_CODEX_ENTRYPOINT=global-fallback lattice';
 
+/**
+ * Resolve the preferred verify_codex command from available local wrappers.
+ * Priority: bin/lattice-codex.js > bin/koala-codex.js > bin/lattice.js > bin/koala.js
+ * Falls back to LOCAL_CODEX_VERIFY_COMMAND when no wrapper exists (global-thin / unchecked-out).
+ */
+export function resolveLocalCodexVerifyCommand(root: string): string {
+  const candidates: Array<[string, string]> = [
+    ['bin/lattice-codex.js', LOCAL_CODEX_VERIFY_COMMAND],
+    ['bin/koala-codex.js',   LEGACY_LOCAL_CODEX_VERIFY_COMMAND],
+    ['bin/lattice.js',       LOCAL_MAIN_VERIFY_COMMAND],
+    ['bin/koala.js',         LEGACY_LOCAL_MAIN_VERIFY_COMMAND],
+  ];
+  for (const [rel, cmd] of candidates) {
+    if (existsSync(join(root, rel))) return cmd;
+  }
+  return LOCAL_CODEX_VERIFY_COMMAND;
+}
+
 const CODEX_MATERIAL_PATHS = [
   '.Codex/README.md',
   '.Codex/lattice.json',
@@ -487,7 +505,7 @@ function checkLocalWrapper(root: string, checks: CodexAdapterCheck[], executeHea
       heartbeat.displayCommand,
     );
   } else {
-    push(checks, 'local-wrapper-heartbeat', 'Local wrapper heartbeat', 'warn', false, 'not executed in this diagnostic mode', LOCAL_CODEX_VERIFY_COMMAND);
+    push(checks, 'local-wrapper-heartbeat', 'Local wrapper heartbeat', 'warn', false, 'not executed in this diagnostic mode', `node ${wrapperRelPath} verify_codex`);
   }
 }
 
@@ -637,19 +655,20 @@ export function summarizeCodexEvidence(store: StoryStore, storyId: string, root?
   if (!storyRequiresCodexEvidence(store, storyId)) {
     return { status: 'not-required', detail: 'story does not touch Codex adapter surfaces' };
   }
+  const resolvedCommand = root ? resolveLocalCodexVerifyCommand(root) : LOCAL_CODEX_VERIFY_COMMAND;
   const event = latestCodexVerificationEvent(store, storyId);
   if (!event) {
     return {
       status: 'missing',
       detail: 'no codex_adapter_verification process-event recorded',
-      command: LOCAL_CODEX_VERIFY_COMMAND,
+      command: resolvedCommand,
     };
   }
   if (event.result !== 'pass') {
     return {
       status: 'failing',
-      detail: String(event.summary || `latest ${LOCAL_CODEX_VERIFY_COMMAND} failed`),
-      command: LOCAL_CODEX_VERIFY_COMMAND,
+      detail: String(event.summary || `latest ${resolvedCommand} failed`),
+      command: resolvedCommand,
     };
   }
   if (root) {
@@ -659,19 +678,19 @@ export function summarizeCodexEvidence(store: StoryStore, storyId: string, root?
       return {
         status: 'stale',
         detail: 'latest codex_adapter_verification lacks a material hash snapshot',
-        command: LOCAL_CODEX_VERIFY_COMMAND,
+        command: resolvedCommand,
       };
     }
     if (eventMaterialHash !== current.materialHash) {
       return {
         status: 'stale',
         detail: `material changed since verification (${eventMaterialHash.slice(0, 12)} != ${current.materialHash.slice(0, 12)})`,
-        command: LOCAL_CODEX_VERIFY_COMMAND,
+        command: resolvedCommand,
       };
     };
   }
   return {
     status: 'passing',
-    detail: String(event.summary || `${LOCAL_CODEX_VERIFY_COMMAND} passed at ${event.timestamp}`),
+    detail: String(event.summary || `${resolvedCommand} passed at ${event.timestamp}`),
   };
 }

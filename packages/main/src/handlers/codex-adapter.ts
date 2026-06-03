@@ -1,8 +1,8 @@
 import { execSync } from 'node:child_process';
 import type { HandlerContext } from './context.js';
 import {
-  LOCAL_CODEX_VERIFY_COMMAND,
   renderCodexAdapterChecks,
+  resolveLocalCodexVerifyCommand,
   runCodexAdapterChecks,
 } from '../core/codex-adapter-checks.js';
 
@@ -34,7 +34,7 @@ export function createCodexAdapterHandlers(ctx: HandlerContext) {
           ctx.store.appendProcessEvent(storyId, {
             type: 'codex_adapter_verification',
             storyId,
-            command: LOCAL_CODEX_VERIFY_COMMAND,
+            command: resolveLocalCodexVerifyCommand(ctx.root),
             result: result.ok ? 'pass' : 'fail',
             summary: result.summary,
             headHash: result.materialSnapshot.headHash,

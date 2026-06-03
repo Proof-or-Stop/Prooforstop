@@ -53,6 +53,7 @@ import {
 } from './validate-docs-drift.js';
 import {
   LOCAL_CODEX_VERIFY_COMMAND,
+  resolveLocalCodexVerifyCommand,
   storyRequiresCodexEvidence,
   summarizeCodexEvidence,
 } from '../core/codex-adapter-checks.js';
@@ -86,6 +87,8 @@ export interface PreflightGateEntry {
   status: string;
   summary: string;
   details: string[];
+  /** Resolved display label for gate command (replaces hardcoded constant in renderers). */
+  commandLabel?: string;
 }
 
 export interface PreflightResult {
@@ -231,12 +234,14 @@ export function runReviewCliGates(
     });
     if (storyRequiresCodexEvidence(deps.store, storyId)) {
       const codex = summarizeCodexEvidence(deps.store, storyId, deps.projectRoot);
+      const resolvedLabel = resolveLocalCodexVerifyCommand(deps.projectRoot);
       gates.push({
         name: 'codex-adapter',
         ok: codex.status === 'passing',
         status: codex.status,
         summary: codex.detail,
         details: codex.command ? [`run: ${codex.command}`] : [],
+        commandLabel: resolvedLabel,
       });
     }
     return { ok: gates.every((g) => g.ok), fastChannel, gates };
@@ -352,12 +357,14 @@ export function runReviewCliGates(
 
   if (storyRequiresCodexEvidence(deps.store, storyId)) {
     const codex = summarizeCodexEvidence(deps.store, storyId, deps.projectRoot);
+    const resolvedLabel = resolveLocalCodexVerifyCommand(deps.projectRoot);
     gates.push({
       name: 'codex-adapter',
       ok: codex.status === 'passing',
       status: codex.status,
       summary: codex.detail,
       details: codex.command ? [`run: ${codex.command}`] : [],
+      commandLabel: resolvedLabel,
     });
   }
 
@@ -377,7 +384,7 @@ export function renderPreflight(result: PreflightResult): string {
   );
   for (const g of result.gates) {
     const icon = g.ok ? '✓' : '✗';
-    const commandLabel = g.name === 'codex-adapter' ? LOCAL_CODEX_VERIFY_COMMAND : `validate --${g.name}`;
+    const commandLabel = g.commandLabel ?? (g.name === 'codex-adapter' ? LOCAL_CODEX_VERIFY_COMMAND : `validate --${g.name}`);
     lines.push(`  [${icon}] ${commandLabel}: ${g.status} — ${g.summary}`);
     if (!g.ok && g.details.length > 0) {
       for (const d of g.details.slice(0, 20)) {

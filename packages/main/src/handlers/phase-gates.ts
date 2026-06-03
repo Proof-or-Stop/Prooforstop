@@ -30,7 +30,7 @@ import type { HandlerContext } from './context.js';
 import type { StoryStore } from '../core/store.js';
 import type { StoryPhase } from '../core/types.js';
 import { getStateName, getGuardFailureReason } from '../core/machine.js';
-import { LOCAL_CODEX_VERIFY_COMMAND } from '../core/codex-adapter-checks.js';
+import { resolveLocalCodexVerifyCommand } from '../core/codex-adapter-checks.js';
 import { currentMaterialHash } from '../core/evidence-freshness.js';
 import { reportHealthIssue } from '../core/health.js';
 import { execSync } from 'child_process';
@@ -105,6 +105,7 @@ export async function runReviewToTestPreflightGate(
       projectRoot: ctx.root,
       registryNames: ctx.getAllToolNames?.(),
     });
+    const codexVerifyCmd = resolveLocalCodexVerifyCommand(ctx.root);
     if (!preflight.ok) {
       const rendered = renderPreflight(preflight);
       const failedGates = preflight.gates.filter(g => !g.ok).map(g => g.name).join(', ');
@@ -112,7 +113,7 @@ export async function runReviewToTestPreflightGate(
         `Cannot enter TEST: CLI gate preflight 失败 (${failedGates})\n\n` +
         rendered +
         `\n\n→ 修复上述 gate 后重跑 koala story_advance --phase=TEST\n` +
-        `→ 单独复跑: koala validate --channel --story=${storyId} / --concept / --lint；docs-drift 随 preflight 执行；Codex adapter 用 ${LOCAL_CODEX_VERIFY_COMMAND}`,
+        `→ 单独复跑: koala validate --channel --story=${storyId} / --concept / --lint；docs-drift 随 preflight 执行；Codex adapter 用 ${codexVerifyCmd}`,
       );
     }
     ctx.log?.('CLI gate preflight: all pass');
@@ -120,11 +121,12 @@ export async function runReviewToTestPreflightGate(
     if (e?.message?.startsWith('Cannot enter TEST')) throw e;
     // 预检查本身失败（review-preflight.ts import 失败等）→ fail-closed
     const message = e instanceof Error ? e.message : String(e);
+    const codexVerifyCmd = resolveLocalCodexVerifyCommand(ctx.root);
     throw new Error(
       `Cannot enter TEST: CLI gate preflight 执行异常\n` +
       `${message}\n\n` +
       `→ 修复 review-preflight gate 后重跑 koala story_advance --phase=TEST\n` +
-      `→ 单独复跑: koala validate --channel --story=${storyId} / --concept / --lint；docs-drift 随 preflight 执行；Codex adapter 用 ${LOCAL_CODEX_VERIFY_COMMAND}`,
+      `→ 单独复跑: koala validate --channel --story=${storyId} / --concept / --lint；docs-drift 随 preflight 执行；Codex adapter 用 ${codexVerifyCmd}`,
     );
   }
 }
