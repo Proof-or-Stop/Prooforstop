@@ -55,7 +55,7 @@
         "docs/requirements/decisions/cc-learnings.md",
         "docs/requirements/decisions/host-neutral-observability-console.md"
       ],
-      "userSees": "lattice host_runtime_probe --host=claude-code --json reports whether Claude Code is unattended-capable, supervised-only, or unavailable, with nextAction.",
+      "userSees": "`lattice host_runtime_probe --host=claude-code --json` prints \"host\":\"claude-code\", \"unattendedSafe\": true|false, \"status\":\"ready|scaffolded|unavailable\", and a visible \"nextAction\".",
       "verificationIntent": {
         "happy": [
           {
@@ -81,7 +81,16 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-dispatch.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/dispatch-run-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-003",
