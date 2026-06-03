@@ -174,6 +174,24 @@
       "files": [
         "README.md"
       ]
+    },
+    {
+      "id": "B-106b:F-010",
+      "desc": "dispatchId hardening coverage is missing the overflow_auto public entrypoint. The malicious-id smoke matrix covers dispatch_prepare/run/status/collect/receipt/resume/cancel/review/merge_plan but not overflow_auto, even though overflow_auto accepts dispatchId and has both suggest-only and approve+start paths. Add smoke assertions for overflow_auto --dispatchId=../../dispatch-id-escape in suggest-only no-write mode and approve+start rejection/no outside metadata write.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-03T00:53:51.577Z",
+      "reviewRound": "2026-06-03T00:50:59.368Z",
+      "reviewRunId": "B-106b:RR-017",
+      "_hash": "fc57f08d02664a1754765b7c0a58e8bfccfb3fe2ff283caaeb8fec20ffdc41d6",
+      "files": [
+        "packages/main/src/tasks/dispatch-run-smoke.ts",
+        "packages/main/src/handlers/lattice-dispatch.ts",
+        "packages/main/src/core/lattice-dispatch.ts"
+      ]
     }
   ]
 }
