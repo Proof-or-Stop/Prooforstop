@@ -97,7 +97,41 @@
       "context": "Under dispatch_auto with authorized claude-code policy, spawn claude in isolated worktree with bounded env, timeout, stdout/stderr transcript capture, runner metadata, and terminal status mapping.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "用户运行 dispatch_auto 后，dispatch_status/dispatch_watch 显示 runnerKind=claude-code-real、cwd 为 isolated worktree、transcriptPath 和 exitCode/timedOut，而不是 scaffolded/manual-only。",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-dispatch.ts",
+          "packages/main/src/core/dispatch-runner.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/unattended-dispatch-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "dispatch_auto with an authorized claude-code real-host policy launches a bounded claude subprocess in the isolated dispatch worktree and records runnerKind=claude-code-real with transcript and exit metadata.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A claude subprocess exiting non-zero or timing out records failed status, exitCode/timedOut metadata, transcript output, and no accepted-local receipt.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The real Claude runner receives only filtered environment variables and never records secret values in runner metadata or transcript-created summaries.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
