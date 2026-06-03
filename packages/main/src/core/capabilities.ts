@@ -11,6 +11,7 @@ export const CAPABILITY_CATEGORIES = [
   'evidence-submit',
   'receipt-verify',
   'multimodal-research',
+  'prewrite-guard',
 ] as const;
 
 export type CapabilityCategory = typeof CAPABILITY_CATEGORIES[number];
@@ -139,6 +140,12 @@ const CATEGORY_DESCRIPTIONS: Record<CapabilityCategory, CapabilityDescription> =
     optional: true,
     description: 'Use web, image, document, or other multimodal research inputs.',
   },
+  'prewrite-guard': {
+    id: 'prewrite-guard',
+    label: 'Pre-write guard',
+    optional: true,
+    description: 'Intercept or gate file writes before they land (native-pretool, wrapped-preapply, or watcher-fallback).',
+  },
 };
 
 type HostCapabilityInput = Omit<HostCapability, 'optional'>;
@@ -207,11 +214,13 @@ const HOST_PROFILE_INPUTS: HostProfileInput[] = [
       capability('evidence-submit', 'conditional', 'Requires a configured authority URL and submit-capable client path.'),
       capability('receipt-verify', 'conditional', 'Requires an authority receipt verifier path.'),
       capability('multimodal-research', 'available', 'Can combine local files, web research, and visual inputs when tools are present.'),
+      capability('prewrite-guard', 'conditional', 'wrapped-preapply mode when invoked via Lattice dispatch/pre-apply flow; otherwise watcher-fallback.'),
     ],
     degradations: [
       degradation('browser-automation', 'conditional', 'verification-evidence-limited', 'Browser automation may be absent from a Codex session.', 'Mark browser verification unavailable or delegate to a browser-capable host.'),
       degradation('evidence-submit', 'conditional', 'evidence-local-only', 'Authority submission depends on external authority configuration.', 'Keep evidence local and do not claim authority-backed completion.'),
       degradation('receipt-verify', 'conditional', 'blocks-production-done', 'Receipt verification depends on an authority verifier.', 'Require a verified receipt before productionDone can be claimed.'),
+      degradation('prewrite-guard', 'conditional', 'none', 'Codex has no native PreToolUse hook; prewrite guard is wrapped-preapply when via Lattice dispatch, watcher-fallback otherwise.', 'Route through Lattice dispatch to enable wrapped-preapply guard mode.'),
     ],
   },
   {
@@ -229,6 +238,7 @@ const HOST_PROFILE_INPUTS: HostProfileInput[] = [
       capability('evidence-submit', 'conditional', 'Requires authority client configuration.'),
       capability('receipt-verify', 'conditional', 'Requires authority receipt verifier support.'),
       capability('multimodal-research', 'conditional', 'Depends on enabled tools and model inputs.'),
+      capability('prewrite-guard', 'conditional', 'native-pretool mode when a verified PreToolUse hook is installed; otherwise watcher-fallback.'),
     ],
     degradations: [
       degradation('patch-apply', 'conditional', 'none', 'Patch-specific tooling may not be exposed directly.', 'Use normal file-edit operations with clear diffs.'),
@@ -237,6 +247,7 @@ const HOST_PROFILE_INPUTS: HostProfileInput[] = [
       degradation('evidence-submit', 'conditional', 'evidence-local-only', 'Authority submission is not intrinsic to the host.', 'Keep local evidence and require a submit-capable authority client.'),
       degradation('receipt-verify', 'conditional', 'blocks-production-done', 'Receipt verification is not intrinsic to the host.', 'Require a verified receipt before productionDone can be claimed.'),
       degradation('multimodal-research', 'conditional', 'none', 'Multimodal research depends on enabled tools.', 'Use text-only research or delegate to a multimodal host.'),
+      degradation('prewrite-guard', 'conditional', 'none', 'native-pretool guard requires a verified PreToolUse hook installed in .claude/settings.json; without it the session falls back to watcher-fallback.', 'Install the prewrite_guard_check hook via guard_session_start or verify hook presence before claiming active guard mode.'),
     ],
   },
   {
@@ -254,6 +265,7 @@ const HOST_PROFILE_INPUTS: HostProfileInput[] = [
       capability('evidence-submit', 'conditional', 'Requires authority client configuration.'),
       capability('receipt-verify', 'conditional', 'Requires authority receipt verifier support.'),
       capability('multimodal-research', 'conditional', 'Depends on enabled tools and model inputs.'),
+      capability('prewrite-guard', 'conditional', 'wrapped-preapply mode when invoked via Lattice dispatch/pre-apply flow; otherwise watcher-fallback.'),
     ],
     degradations: [
       degradation('patch-apply', 'conditional', 'none', 'Patch-specific tooling may not be exposed directly.', 'Use normal file-edit operations with clear diffs.'),
@@ -262,6 +274,7 @@ const HOST_PROFILE_INPUTS: HostProfileInput[] = [
       degradation('evidence-submit', 'conditional', 'evidence-local-only', 'Authority submission is not intrinsic to the host.', 'Keep local evidence and require a submit-capable authority client.'),
       degradation('receipt-verify', 'conditional', 'blocks-production-done', 'Receipt verification is not intrinsic to the host.', 'Require a verified receipt before productionDone can be claimed.'),
       degradation('multimodal-research', 'conditional', 'none', 'Multimodal research depends on enabled tools.', 'Use text-only research or delegate to a multimodal host.'),
+      degradation('prewrite-guard', 'conditional', 'none', 'Gemini has no native PreToolUse hook; prewrite guard is wrapped-preapply when via Lattice dispatch, watcher-fallback otherwise.', 'Route through Lattice dispatch to enable wrapped-preapply guard mode.'),
     ],
   },
   {
@@ -279,6 +292,7 @@ const HOST_PROFILE_INPUTS: HostProfileInput[] = [
       capability('evidence-submit', 'conditional', 'Can submit only when configured with authority client credentials.'),
       capability('receipt-verify', 'conditional', 'Can verify only when configured with receipt verifier support.'),
       capability('multimodal-research', 'unavailable', 'Runner has no research model or browsing intelligence.'),
+      capability('prewrite-guard', 'unavailable', 'Local runner is execution-only; it has no agent write interception.'),
     ],
     degradations: [
       degradation('file-edit', 'unavailable', 'none', 'A local runner is execution-only.', 'Delegate edits to a file-edit capable host.'),
@@ -289,6 +303,7 @@ const HOST_PROFILE_INPUTS: HostProfileInput[] = [
       degradation('evidence-submit', 'conditional', 'evidence-local-only', 'Authority submission requires external configuration.', 'Record local evidence and submit through an authority-capable host.'),
       degradation('receipt-verify', 'conditional', 'blocks-production-done', 'Receipt verification requires external configuration.', 'Require receipt verification elsewhere before productionDone.'),
       degradation('multimodal-research', 'unavailable', 'none', 'A local runner cannot conduct multimodal research.', 'Delegate research to a host with browser or multimodal inputs.'),
+      degradation('prewrite-guard', 'unavailable', 'none', 'Local runner has no agent-level write interception.', 'Use an editing host with native-pretool or wrapped-preapply guard support.'),
     ],
   },
   {
@@ -306,6 +321,7 @@ const HOST_PROFILE_INPUTS: HostProfileInput[] = [
       capability('evidence-submit', 'unavailable', 'Browser does not submit authority evidence.'),
       capability('receipt-verify', 'unavailable', 'Browser does not verify authority receipts.'),
       capability('multimodal-research', 'available', 'Can inspect visual web state.'),
+      capability('prewrite-guard', 'unavailable', 'Browser is not a repository editing host; pre-write guard does not apply.'),
     ],
     degradations: [
       degradation('file-edit', 'unavailable', 'none', 'Browser is not a file-editing host.', 'Return findings to an editing host.'),
@@ -315,6 +331,7 @@ const HOST_PROFILE_INPUTS: HostProfileInput[] = [
       degradation('approval', 'unavailable', 'none', 'Browser cannot collect orchestration approval.', 'Collect approval in the orchestrating host.'),
       degradation('evidence-submit', 'unavailable', 'evidence-local-only', 'Browser evidence is local until submitted by another host.', 'Export screenshot or trace evidence for authority submission.'),
       degradation('receipt-verify', 'unavailable', 'blocks-production-done', 'Browser cannot verify receipts.', 'Require receipt verification by an authority-capable host.'),
+      degradation('prewrite-guard', 'unavailable', 'none', 'Browser is not a repository editing host.', 'Use an editing host with prewrite-guard support.'),
     ],
   },
   {
@@ -332,6 +349,7 @@ const HOST_PROFILE_INPUTS: HostProfileInput[] = [
       capability('evidence-submit', 'available', 'Receives and validates evidence submissions.'),
       capability('receipt-verify', 'available', 'Verifies authority receipts and completion claims.'),
       capability('multimodal-research', 'unavailable', 'Server is not a research host.'),
+      capability('prewrite-guard', 'unavailable', 'Server does not author workspace writes; pre-write guard does not apply.'),
     ],
     degradations: [
       degradation('file-edit', 'unavailable', 'none', 'Server is not a workspace authoring host.', 'Delegate edits to an editing host.'),
@@ -342,6 +360,7 @@ const HOST_PROFILE_INPUTS: HostProfileInput[] = [
       degradation('approval', 'conditional', 'none', 'Approval enforcement may depend on external policy data.', 'Require recorded approval from an approval-capable host.'),
       degradation('artifact-display', 'conditional', 'none', 'Server may only expose artifact references.', 'Open artifacts in a display-capable host.'),
       degradation('multimodal-research', 'unavailable', 'none', 'Server does not conduct research.', 'Delegate research.'),
+      degradation('prewrite-guard', 'unavailable', 'none', 'Server does not author workspace writes.', 'Pre-write guard is only applicable to editing hosts.'),
     ],
   },
   {
@@ -359,6 +378,7 @@ const HOST_PROFILE_INPUTS: HostProfileInput[] = [
       capability('evidence-submit', 'conditional', 'Requires configured authority client integration.'),
       capability('receipt-verify', 'conditional', 'Requires configured authority verifier integration.'),
       capability('multimodal-research', 'available', 'Can coordinate visual and document-oriented user workflows.'),
+      capability('prewrite-guard', 'unavailable', 'Desktop app is a display/approval surface; pre-write guard is handled by the connected coding engine.'),
     ],
     degradations: [
       degradation('file-edit', 'conditional', 'none', 'Desktop surface needs a connected coding engine for edits.', 'Delegate edits to Codex, Claude Code, or another editor host.'),
@@ -368,6 +388,7 @@ const HOST_PROFILE_INPUTS: HostProfileInput[] = [
       degradation('browser-automation', 'conditional', 'verification-evidence-limited', 'Browser automation depends on connected browser support.', 'Use a browser host or mark browser verification unavailable.'),
       degradation('evidence-submit', 'conditional', 'evidence-local-only', 'Authority submission depends on configured integration.', 'Keep local evidence until submitted by an authority-capable client.'),
       degradation('receipt-verify', 'conditional', 'blocks-production-done', 'Receipt verification depends on configured integration.', 'Require verified receipt before productionDone.'),
+      degradation('prewrite-guard', 'unavailable', 'none', 'Desktop app does not author writes directly; pre-write guard applies to the connected coding engine.', 'Enable prewrite guard in the connected coding host.'),
     ],
   },
   {
@@ -385,6 +406,7 @@ const HOST_PROFILE_INPUTS: HostProfileInput[] = [
       capability('evidence-submit', 'unavailable', 'Unknown host has no declared authority submission support.'),
       capability('receipt-verify', 'unavailable', 'Unknown host has no declared receipt verification support.'),
       capability('multimodal-research', 'unavailable', 'Unknown host has no declared multimodal research support.'),
+      capability('prewrite-guard', 'unavailable', 'Unknown host defaults to watcher-fallback; no prewrite interception is claimed.'),
     ],
     degradations: [
       degradation('file-edit', 'unavailable', 'none', 'Host is unknown.', 'Require an explicit host profile before editing.'),
@@ -397,6 +419,7 @@ const HOST_PROFILE_INPUTS: HostProfileInput[] = [
       degradation('evidence-submit', 'unavailable', 'evidence-local-only', 'Host is unknown.', 'Submit evidence through a known authority-capable host.'),
       degradation('receipt-verify', 'unavailable', 'blocks-production-done', 'Host is unknown.', 'Production completion requires a verified receipt from a known verifier.'),
       degradation('multimodal-research', 'unavailable', 'none', 'Host is unknown.', 'Delegate research to a known multimodal host.'),
+      degradation('prewrite-guard', 'unavailable', 'none', 'Host is unknown; defaults to watcher-fallback guard mode.', 'Identify the host and use a known guard-capable profile.'),
     ],
   },
 ];

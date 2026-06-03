@@ -1295,14 +1295,16 @@ export interface SemanticScopeGateResult {
 
 /**
  * Guard capability of the session's provider:
- * - active          — provider supports pre-tool (PreToolUse-style) blocking, so
- *                      forbidden writes can be intercepted before they happen.
- * - watcher-fallback — provider has no pre-tool hook; Koala can only detect
- *                      forbidden writes after the fact (watcher), never pretend
- *                      pre-tool blocking exists.
- * - inactive        — no guard session is running (used by renderers only).
+ * - native-pretool   — Claude Code with a verified native PreToolUse hook; forbidden
+ *                      writes are intercepted before they land.
+ * - wrapped-preapply — Codex or Gemini invoked via Lattice dispatch/pre-apply flow;
+ *                      the flow's pre-apply step checks scope before writing.
+ * - watcher-fallback — provider has no pre-write interception; Koala can only detect
+ *                      forbidden writes after the fact, never pretend blocking exists.
+ * - active           — legacy alias for native-pretool (kept for backwards compat).
+ * - inactive         — no guard session is running (used by renderers only).
  */
-export type GuardSessionMode = 'active' | 'watcher-fallback' | 'inactive';
+export type GuardSessionMode = 'native-pretool' | 'wrapped-preapply' | 'watcher-fallback' | 'active' | 'inactive';
 
 /** Lifecycle status of a started guard session. */
 export type GuardSessionStatus = 'active' | 'violations_detected' | 'stopped';

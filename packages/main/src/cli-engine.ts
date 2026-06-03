@@ -1341,7 +1341,9 @@ export const MAIN_TOOLS: ToolDef[] = [
   }},
   { name: 'guard_session_start', description: 'Start (or restart) a Koala-managed scope-guard session projection for a story', schema: {
     storyId: z.string().describe('Story ID'),
-    provider: z.string().min(1, 'provider is required').describe('Agent provider runtime (e.g. claude-code, codex). Providers without pre-tool hooks run as watcher-fallback.'),
+    provider: z.string().min(1, 'provider is required').describe('Agent provider runtime (e.g. claude-code, codex). Guard mode depends on provider and context flags.'),
+    nativeHookVerified: z.boolean().optional().describe('(Claude Code only) Set true when a PreToolUse hook is confirmed installed, enabling native-pretool mode. Without this, Claude Code uses watcher-fallback.'),
+    viaDispatch: z.boolean().optional().describe('(Codex/Gemini only) Set true when running via Lattice dispatch/pre-apply flow, enabling wrapped-preapply mode. Without this, those hosts use watcher-fallback.'),
     json: z.boolean().optional().describe('Output structured JSON'),
   }},
   { name: 'guard_session_status', description: 'Read the current guard session projection for a story', schema: {
@@ -1351,6 +1353,11 @@ export const MAIN_TOOLS: ToolDef[] = [
   { name: 'guard_session_check', description: 'Check current diff against the guard session scope contract and record any forbidden writes', schema: {
     storyId: z.string().describe('Story ID'),
     simulatedWrites: z.array(z.string()).optional().describe('Paths to evaluate as if written (test/dry-run forbidden-write simulation)'),
+    json: z.boolean().optional().describe('Output structured JSON'),
+  }},
+  { name: 'prewrite_guard_check', description: 'Per-write enforcement check: given a file path about to be written, determine if the guard session allows or blocks it. Called by PreToolUse hooks (Claude Code) or the Lattice dispatch pre-apply step.', schema: {
+    storyId: z.string().describe('Story ID'),
+    path: z.string().min(1, 'path is required').describe('File path about to be written (relative to project root)'),
     json: z.boolean().optional().describe('Output structured JSON'),
   }},
 
