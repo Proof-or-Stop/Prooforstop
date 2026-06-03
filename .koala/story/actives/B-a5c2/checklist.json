@@ -691,10 +691,10 @@
           "file": "packages/main/src/tasks/unattended-dispatch-smoke.ts",
           "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
           "result": "pass",
-          "note": "E2E smoke covers missing policy, unavailable host, cancellation, missing receipt, and mixed/manual outcomes.",
-          "headHash": "e10e5a85f156fef0cbc7ddd596eadafb1e00c005",
+          "note": "E2E smoke now directly covers missing policy, unavailable host, timeout, cancellation, missing receipt diagnostics, and mixed worker outcomes.",
+          "headHash": "1b567cad3ac23ef1d498e4ceb39787ba5a43e68b",
           "materialHash": "faf73b14c2c071bdb0dc429f727055d29a5b99b8cd12c307f9b1300310682530",
-          "timestamp": "2026-06-03T21:41:24.080Z"
+          "timestamp": "2026-06-03T21:41:35.798Z"
         },
         {
           "intentRef": "CHK-008:adversarial:0",
