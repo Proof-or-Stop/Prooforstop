@@ -165,9 +165,9 @@
       "id": "CHK-003",
       "title": "Implement Claude Code real runner lifecycle",
       "context": "Under dispatch_auto with authorized claude-code policy, spawn claude in isolated worktree with bounded env, timeout, stdout/stderr transcript capture, runner metadata, and terminal status mapping.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-03T22:54:46.333Z",
-      "endTime": null,
+      "endTime": "2026-06-03T23:16:22.965Z",
       "userSees": "用户运行 dispatch_auto 后，dispatch_status/dispatch_watch 显示 runnerKind=claude-code-real、cwd 为 isolated worktree、transcriptPath 和 exitCode/timedOut，而不是 scaffolded/manual-only。",
       "files": {
         "modify": [
@@ -201,7 +201,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+          "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
+          "result": "pass",
+          "note": "Fake claude binary exercises claude --print, isolated cwd, stdout/stderr transcript, runnerKind=claude-code-real, exitCode=0, accepted-local diagnostic receipt.",
+          "headHash": "64b9000932ade99c7cd9be5f64c4eb7f767eba32",
+          "materialHash": "ce6f86dd377ce348403ef6d4bfd965009ad9fe39d28ff906168221728c6b5cfd",
+          "timestamp": "2026-06-03T23:16:23.015Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+          "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
+          "result": "pass",
+          "note": "Non-zero and timeout fake claude cases produce failed status with exitCode/timedOut and no forged receipt.",
+          "headHash": "64b9000932ade99c7cd9be5f64c4eb7f767eba32",
+          "materialHash": "ce6f86dd377ce348403ef6d4bfd965009ad9fe39d28ff906168221728c6b5cfd",
+          "timestamp": "2026-06-03T23:16:23.079Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/dispatch-runner.ts",
+          "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
+          "result": "pass",
+          "note": "Env summary records safe LATTICE_ allowlisted names without values and excludes denied/sensitive names.",
+          "headHash": "64b9000932ade99c7cd9be5f64c4eb7f767eba32",
+          "materialHash": "ce6f86dd377ce348403ef6d4bfd965009ad9fe39d28ff906168221728c6b5cfd",
+          "timestamp": "2026-06-03T23:16:23.133Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -320,6 +355,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Explicit real-host subprocess policy gate is implemented and covered.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-06-03T23:16:22.965Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Claude Code real runner lifecycle is implemented and verified with deterministic fake binary.",
       "agent": "main"
     }
   ]
