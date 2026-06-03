@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-03T00:36:04.583Z",
       "reviewRunId": "B-106b:RR-009",
       "_hash": "9357b8633a64cc25c93118e2c93eebe96ab404c8399975df3a302cd3727b2291"
+    },
+    {
+      "id": "B-106b:RP-005",
+      "agent": "koala-review-quality",
+      "note": "Final quality re-review after 990be1be on HEAD 6258b635. Re-verified F-005 and prior quality blockers against the landed code path: fake dispatch now calls assertCanonicalWorktreeWritePath before mkdir/write, enforcing canonical realpath containment for existing symlink segments; overflow_auto remains suggest-only unless both approve=true and start=true; docs reflect landed dispatch surfaces and guarded behavior. Verified with npm --prefix packages/main run build, npm --prefix packages/main run test:dispatch-run-smoke, npm --prefix packages/main run test:lattice-handoff-smoke, and targeted source inspection of packages/main/src/core/lattice-dispatch.ts plus the symlink regression in packages/main/src/tasks/dispatch-run-smoke.ts. No verified critical/high quality blocker remains.",
+      "createdAt": "2026-06-03T00:39:47.002Z",
+      "reviewRound": "2026-06-03T00:36:04.583Z",
+      "reviewRunId": "B-106b:RR-014",
+      "_hash": "662b6da6fc492ea43739d3739cab33244f8f54f3cdde5237427fde7b0f87cc8a"
     }
   ]
 }
