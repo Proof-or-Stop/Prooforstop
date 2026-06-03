@@ -990,6 +990,7 @@ export const MAIN_TOOLS: ToolDef[] = [
   { name: 'validate', description: '运行项目验证（静态 + 逻辑 + 集成测试）', longHelp: VALIDATE_LONG, schema: {
     full: z.union([z.string(), z.boolean()]).optional().describe('含真机测试（--full 或 --full=PvE 按名称过滤）'),
     story: z.string().optional().describe('只跑 story 改动涉及的 transition（TEST gate 用）'),
+    storyId: z.string().optional().describe('B-a30e: --story 的别名；两者同时提供且值不同时报错'),
     json: z.boolean().optional().describe('结构化 JSON 输出（ExternalVerifierResult）'),
     // B-9d95 CHK-006: REVIEW→TEST preflight CLI gate 独立分流 flag
     // 任一 flag 命中 → 只跑对应 CLI gate，不 spawn pytest（秒级返回）

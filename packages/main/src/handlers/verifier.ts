@@ -426,6 +426,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
     async validate(args: {
       full?: string | boolean;
       story?: string;
+      storyId?: string;
       json?: boolean;
       // B-9d95 CHK-006: REVIEW→TEST preflight CLI gate 独立分流
       channel?: boolean;
@@ -433,6 +434,16 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
       lint?: boolean;
       noSync?: boolean;
     }) {
+      // B-a30e: normalize storyId alias — must happen before any story usage
+      if (args.storyId !== undefined) {
+        const sid = args.storyId.trim();
+        if (args.story !== undefined && args.story.trim() !== sid) {
+          throw new Error(
+            `validate: conflicting story identifiers: --story="${args.story}" and storyId="${args.storyId}" differ; supply only one`,
+          );
+        }
+        args.story = sid;
+      }
       const projectRoot = ctx.root;
       if (args.story) {
         assertCwdInWorktree(ctx.store, args.story);

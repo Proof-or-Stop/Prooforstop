@@ -1311,6 +1311,83 @@ try {
     resetConfigCache();
   }
 
+  // B-a30e CHK-001: validate storyId alias — conflict, evidence, read-only parity
+
+  // 1. Conflicting story + storyId values must fail with an explicit error
+  const conflictAliasRoot = mkdtempSync(join(tmpdir(), 'koala-validate-alias-conflict-'));
+  try {
+    resetConfigCache();
+    await assert.rejects(
+      () => createVerifierHandlers({
+        root: conflictAliasRoot,
+        scanRoot: conflictAliasRoot,
+        store: new StoryStore(conflictAliasRoot),
+        log: () => {},
+      }).validate({ story: 'B-x1', storyId: 'B-x2', json: true }),
+      /conflicting story identifiers.*--story.*storyId.*differ/i,
+      'validate with story != storyId must fail with an explicit error',
+    );
+  } finally {
+    rmSync(conflictAliasRoot, { recursive: true, force: true });
+  }
+
+  // 2. storyId alias writes test evidence (same as --story)
+  const storyIdAliasRoot = mkdtempSync(join(tmpdir(), 'koala-validate-storyid-alias-'));
+  try {
+    resetConfigCache();
+    const aliasStore = new StoryStore(storyIdAliasRoot);
+    const aliasJson = await createVerifierHandlers({
+      root: storyIdAliasRoot,
+      scanRoot: storyIdAliasRoot,
+      store: aliasStore,
+      log: () => {},
+    }).validate({ storyId: 'B-alias-smoke', json: true, noSync: true });
+    const aliasResult = JSON.parse(aliasJson);
+    assert.equal(aliasResult.provider, 'koala-verifier-no-validation-entry', 'storyId alias: expected no-validation-entry provider');
+    assert.equal(aliasResult.status, 'warn', 'storyId alias: expected warn status for no-validator');
+    const aliasEvidence = aliasStore.readTestEvidence('B-alias-smoke');
+    assert.ok(aliasEvidence !== null, 'storyId alias: test evidence must be written when storyId is supplied');
+    assert.equal(aliasEvidence!.result, 'PASS', 'storyId alias: warn/skip evidence persists as PASS');
+  } finally {
+    rmSync(storyIdAliasRoot, { recursive: true, force: true });
+  }
+
+  // 3. --story still writes test evidence (unchanged behavior)
+  const storyFlagRoot = mkdtempSync(join(tmpdir(), 'koala-validate-story-flag-'));
+  try {
+    resetConfigCache();
+    const storyFlagStore = new StoryStore(storyFlagRoot);
+    const storyFlagJson = await createVerifierHandlers({
+      root: storyFlagRoot,
+      scanRoot: storyFlagRoot,
+      store: storyFlagStore,
+      log: () => {},
+    }).validate({ story: 'B-story-flag-smoke', json: true, noSync: true });
+    const storyFlagResult = JSON.parse(storyFlagJson);
+    assert.equal(storyFlagResult.provider, 'koala-verifier-no-validation-entry', '--story flag: expected no-validation-entry provider');
+    const storyFlagEvidence = storyFlagStore.readTestEvidence('B-story-flag-smoke');
+    assert.ok(storyFlagEvidence !== null, '--story flag: test evidence must be written (regression guard)');
+  } finally {
+    rmSync(storyFlagRoot, { recursive: true, force: true });
+  }
+
+  // 4. No-story validate is diagnostic/read-only: must not write any .koala/ state
+  const noStoryReadOnlyRoot = mkdtempSync(join(tmpdir(), 'koala-validate-no-story-'));
+  try {
+    resetConfigCache();
+    const noStoryJson = await createVerifierHandlers({
+      root: noStoryReadOnlyRoot,
+      scanRoot: noStoryReadOnlyRoot,
+      store: new StoryStore(noStoryReadOnlyRoot),
+      log: () => {},
+    }).validate({ json: true });
+    const noStoryResult = JSON.parse(noStoryJson);
+    assert.equal(noStoryResult.provider, 'koala-verifier-no-validation-entry', 'no-story: expected diagnostic provider');
+    assert.equal(existsSync(join(noStoryReadOnlyRoot, '.koala')), false, 'no-story validate must not create any .koala/ state (read-only)');
+  } finally {
+    rmSync(noStoryReadOnlyRoot, { recursive: true, force: true });
+  }
+
   console.log('✓ validation protocol smoke passed');
 } finally {
   rmSync(tmp, { recursive: true, force: true });
