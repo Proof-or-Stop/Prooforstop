@@ -186,7 +186,7 @@ koala gap_log '{"category":"missing","severity":"medium","evidence":"<gap 描述
 
 ### Subagent 定义
 
-subagent prompt 文件放在 `.Codex/agents/` 下——这是 **Koala adapter 约定**（大写 `.Codex` 目录、Markdown + YAML frontmatter 格式，由 Koala tooling 读取，见 `.Codex/koala.json` 标注的 `read by Koala tooling, not by the Codex runtime`），**不是 Codex 官方约定**；Codex 官方自定义 agent 约定是小写 `~/.codex/agents/` 或项目 `.codex/agents/` + TOML 文件。Koala init 会从 `.claude/agents/` 全量受控生成 Codex prompt，并写入 Koala 自己读取的 `.Codex/koala.json` adapter manifest。`.claude/hooks`、`.claude/settings.json`、`.claude/skills` 仍是 Claude Code 专属资产；不要创建会误导用户的 `.Codex/hooks` 或 `.Codex/settings.json`。prompt 格式为 Markdown + YAML frontmatter：
+Codex subagent prompt 是 **Koala/Lattice adapter 约定**，由 Koala tooling 读取，不是 Codex runtime 官方约定。Full asset mode 会物化 `.Codex/agents/` 下的 Markdown + YAML frontmatter prompt；thin asset mode 可省略本地 prompt copy，改由 `.Codex/lattice.json` 的 package prompt registry 解析。legacy `.Codex/koala.json` 仍兼容。Codex 官方自定义 agent 约定是小写 `~/.codex/agents/` 或项目 `.codex/agents/` + TOML 文件。`.claude/hooks`、`.claude/settings.json`、`.claude/skills` 仍是 Claude Code 专属资产；不要创建会误导用户的 `.Codex/hooks` 或 `.Codex/settings.json`。full 模式下 prompt 格式为 Markdown + YAML frontmatter：
 
 ```markdown
 ---

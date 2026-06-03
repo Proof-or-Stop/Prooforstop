@@ -770,6 +770,34 @@ try {
     rmSync(externalEngineRoot, { recursive: true, force: true });
   }
 
+  const latticeConflictRuntimeRoot = mkdtempSync(join(tmpdir(), 'koala-runtime-mode-lattice-conflict-'));
+  try {
+    mkdirSync(join(latticeConflictRuntimeRoot, 'node_modules', '.bin'), { recursive: true });
+    const localBin = join(latticeConflictRuntimeRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'lattice.cmd' : 'lattice');
+    const otherCli = join(latticeConflictRuntimeRoot, 'other-lattice');
+    writeFileSync(localBin, '#!/usr/bin/env node\n');
+    writeFileSync(otherCli, '#!/usr/bin/env node\n');
+    const report = runRuntimeEnvironmentChecks(latticeConflictRuntimeRoot, {
+      commandResolver: () => otherCli,
+      globalNpmRootResolver: () => null,
+      corePackageRoot: join(latticeConflictRuntimeRoot, 'node_modules', '@koala-agent', 'core'),
+    });
+    assertRuntimeModeShape(report.runtimeMode);
+    assert.equal(report.runtimeMode.mode, 'diagnostic-only');
+    assert.equal(report.runtimeMode.source, 'unknown');
+    assert.equal(report.runtimeMode.requiresProjectJavaScriptRuntime, false);
+    assert.equal((report.projectLocalBin.actual as any).path, localBin, 'project-local-bin must report the lattice bin that shadows the active CLI');
+    assert.equal((report.projectLocalBin.actual as any).shadowsEntrypoint, true);
+    assert.match(report.projectLocalBin.warnings?.join('\n') ?? '', /node_modules\/\.bin\/lattice/);
+    const runtimeSummary = renderRuntimeFootprintSummary(report.runtimeMode);
+    assert.match(
+      runtimeSummary,
+      /Next action: project-local CLI bin .*node_modules\/\.bin\/lattice resolves to .* but the active CLI resolves to .*/,
+    );
+  } finally {
+    rmSync(latticeConflictRuntimeRoot, { recursive: true, force: true });
+  }
+
   const conflictRuntimeRoot = mkdtempSync(join(tmpdir(), 'koala-runtime-mode-conflict-'));
   try {
     mkdirSync(join(conflictRuntimeRoot, 'node_modules', '.bin'), { recursive: true });
@@ -786,6 +814,8 @@ try {
     assert.equal(report.runtimeMode.mode, 'diagnostic-only');
     assert.equal(report.runtimeMode.source, 'unknown');
     assert.equal(report.runtimeMode.requiresProjectJavaScriptRuntime, false);
+    assert.equal((report.projectLocalBin.actual as any).path, localBin, 'project-local-bin must keep legacy koala fallback coverage');
+    assert.equal((report.projectLocalBin.actual as any).shadowsEntrypoint, true);
     const runtimeSummary = renderRuntimeFootprintSummary(report.runtimeMode);
     assert.ok(runtimeSummary.startsWith('Runtime footprint:\nRuntime mode: diagnostic-only'));
     assert.match(runtimeSummary, /Runtime source: unknown/);
@@ -793,7 +823,7 @@ try {
     assert.match(runtimeSummary, /Authority: local-runtime-diagnostic-only/);
     assert.match(
       runtimeSummary,
-      /Next action: project-local node_modules\/\.bin\/koala resolves to .* but the active CLI resolves to .*/,
+      /Next action: project-local CLI bin .*node_modules\/\.bin\/koala resolves to .* but the active CLI resolves to .*/,
     );
   } finally {
     rmSync(conflictRuntimeRoot, { recursive: true, force: true });
@@ -865,14 +895,14 @@ try {
     }
     assert.ok(driftText.startsWith('Runtime footprint:\nRuntime mode:'), 'plain check drift should render runtime footprint before drift details');
     assert.match(driftText, /Project-local JavaScript runtime required: (yes|no)/);
-    assert.match(driftText, /Next action: run koala check --apply to sync MISSING\/STALE_SAFE assets/);
-    assert.match(driftText, /Koala managed asset check: DRIFT/);
+    assert.match(driftText, /Next action: run lattice check --apply to sync MISSING\/STALE_SAFE assets/);
+    assert.match(driftText, /Lattice managed asset check: DRIFT/);
 
     runManagedAssetCheck(checkRoot, { apply: true, profile: 'core' });
     const cleanText = check({ profile: 'core' }) as string;
     assert.ok(cleanText.startsWith('Runtime footprint:\nRuntime mode:'), 'plain check OK should start with runtime footprint');
     assert.match(cleanText, /Next action: no managed asset drift/);
-    assert.match(cleanText, /Koala managed asset check: OK/);
+    assert.match(cleanText, /Lattice managed asset check: OK/);
   } finally {
     rmSync(checkRoot, { recursive: true, force: true });
   }
@@ -899,7 +929,7 @@ try {
       'plain check stale local edit should render runtime footprint before drift details',
     );
     assert.match(staleLocalCheckText, /Next action: review unsafe managed assets manually/);
-    assert.match(staleLocalCheckText, /Koala managed asset check: DRIFT/);
+    assert.match(staleLocalCheckText, /Lattice managed asset check: DRIFT/);
     assert.match(staleLocalCheckText, /STALE_LOCAL_EDIT KOALA\.md|STALE_LOCAL_EDIT[\s\S]*KOALA\.md/);
     const result = runManagedAssetCheck(staleLocalAssetRoot, { apply: true, reviewLocalEdits: true, profile: 'core' });
     const item = result.items.find(entry => entry.relPath === 'KOALA.md');

@@ -58,7 +58,7 @@ Koala 不是 agent runtime，也不是完整 agent 方法论层。Koala 的定�
 | 实验包 | `packages/lab` | 离线实验、reviewer/profile eval、compare、promote | 用于优化 agent/prompt，不直接替代 story 流程 |
 | 完整入口 | `bin/koala.js` | 加载 `main + utils`，可选接入 `lab` | 仓库内优先使用 |
 | Codex 入口 | `bin/koala-codex.js` | Codex 专用入口，记录 `source=codex` activity | 便于区分 Codex 与普通 CLI 调用 |
-| Agent 资产 | `.Codex/agents/*`、`.claude/agents/*` | test-intent、reviewer、implementation-reviewer 等角色 prompt | Codex 资产由 Claude 资产受控 transform 生成 |
+| Agent 资产 | full: `.Codex/agents/*`；thin: `.Codex/lattice.json` registry；legacy: `.Codex/koala.json` | test-intent、reviewer、implementation-reviewer 等角色 prompt | full 模式物化本地 prompt；thin 模式可省略本地 copy，由 package registry 解析；Claude 资产只在启用 Claude profile 时生成 |
 | 真相源 | `docs/requirements/*` | 需求、架构决策、流程规范 | 不是当前执行状态 |
 | 执行状态 | story / checklist / phase metadata | 当前做到哪、下一步是什么、门禁是否通过 | 不靠聊天记忆判定 |
 | 验证资产 | verificationIntent / verificationEvidence / fixture / validate evidence | 证明需求是否满足 | 不能用“我觉得好了”代替 |
