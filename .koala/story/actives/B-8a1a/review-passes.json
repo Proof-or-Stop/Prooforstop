@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-03T23:16:51.649Z",
       "reviewRunId": "B-8a1a:RR-003",
       "_hash": "67749f3cea0d07afa94520f6b621f7a9dd287bfcfeb8a10486581535a2245fec"
+    },
+    {
+      "id": "B-8a1a:RP-002",
+      "agent": "koala-review-concept",
+      "note": "Concept boundary passes overall: Claude Code is the only real-host unattended runner, Gemini/Codex remain scaffolded/refused, and authority-safe/manual-only fields stay false. Recorded one low spec-boundary note: docs describe host unattended-safety as a reusable gate, but current implementation reaches the Claude path through a narrower special-case check rather than a host-neutral safe=true fact.",
+      "createdAt": "2026-06-03T23:23:01.024Z",
+      "reviewRound": "2026-06-03T23:16:51.649Z",
+      "reviewRunId": "B-8a1a:RR-001",
+      "_hash": "692d69d16109449cc670f6725cc758b285d61a271e91007696cb271e6939130b"
     }
   ]
 }
