@@ -101,7 +101,7 @@
         "docs/requirements/decisions/session-ownership-and-write-leases.md",
         "docs/requirements/decisions/lifecycle-artifact-scope.md"
       ],
-      "userSees": "lattice dispatch_policy check --policy=<name> reports authorized/denied, exact reasons, and whether the run must fall back to supervised/manual mode.",
+      "userSees": "`lattice dispatch_policy check --policy=nightly-safe --json` prints \"authorized\":true or \"authorized\":false with \"reasons\" and \"fallback\":\"supervised\".",
       "verificationIntent": {
         "happy": [
           {
@@ -127,7 +127,21 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/lattice-dispatch.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "create": [
+          "packages/main/src/core/dispatch-policy.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/dispatch-run-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-004",
