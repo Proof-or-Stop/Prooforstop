@@ -152,6 +152,10 @@ function readDispatch(root: string, dispatchId: string): DispatchRecord {
   return JSON.parse(readFileSync(join(root, '.koala/dispatches', dispatchId, 'dispatch.json'), 'utf8')) as DispatchRecord;
 }
 
+function writeDispatch(root: string, dispatchId: string, record: DispatchRecord): void {
+  writeFileSync(join(root, '.koala/dispatches', dispatchId, 'dispatch.json'), JSON.stringify(record, null, 2) + '\n');
+}
+
 function readPack(root: string, dispatchId: string): { toHost: string; executionInstructions: string[] } {
   return JSON.parse(readFileSync(join(root, '.koala/dispatches', dispatchId, 'pack.json'), 'utf8')) as {
     toHost: string;
@@ -266,6 +270,19 @@ try {
   assert.equal(existsSync(resolve(root, prepared.worktree.worktreePath)), false, 'dispatch_prepare must not create a worktree');
   assertAuthorityFalse(prepared, 'prepared');
 
+  const unconstrainedPrepared = run<DispatchRecord>('dispatch_prepare', {
+    storyId: 'B-dispatch',
+    dispatchId: 'D-prepare-unconstrained',
+    host: 'fake',
+    objective: 'Prepare with missing constraints should warn without starting a host.',
+  });
+  assert.equal(unconstrainedPrepared.status, 'prepared');
+  assert.ok(unconstrainedPrepared.warnings.some(warning => /No allowedPaths declared/i.test(warning)));
+  assert.ok(unconstrainedPrepared.warnings.some(warning => /No requiredCommands declared/i.test(warning)));
+  assert.equal(existsSync(resolve(root, unconstrainedPrepared.worktree.worktreePath)), false, 'missing-constraints dispatch_prepare must not create a worktree');
+  assert.equal(existsSync(join(root, unconstrainedPrepared.receiptFile)), false, 'missing-constraints dispatch_prepare must not create a receipt');
+  assertAuthorityFalse(unconstrainedPrepared, 'unconstrainedPrepared');
+
   const geminiPrepared = run<DispatchRecord>('dispatch_prepare', {
     storyId: 'B-dispatch',
     dispatchId: 'D-gemini-prepare',
@@ -354,6 +371,56 @@ try {
 
   run<DispatchRecord>('dispatch_prepare', {
     storyId: 'B-dispatch',
+    dispatchId: 'D-parallel-mixed',
+    host: 'fake',
+    objective: 'Mixed fake worker outcomes should stay recoverable at the parent level.',
+    allowedPaths: [
+      'packages/main/src/generated/mixed-worker-1.txt',
+      'packages/main/src/generated/mixed-worker-2.txt',
+    ],
+    requiredCommands: ['node -e "const fs = require(\'fs\'); process.exit(fs.existsSync(\'packages/main/src/generated/mixed-worker-2.txt\') ? 7 : 0)"'],
+    successCriteria: ['One worker succeeds while another reports a local command failure'],
+    parallel: 2,
+  });
+  const mixedRun = run<DispatchRunResult>('dispatch_run', { dispatchId: 'D-parallel-mixed' });
+  assert.equal(mixedRun.status, 'diagnostic');
+  assert.equal(mixedRun.parallel, 2);
+  assert.equal(mixedRun.workers.length, 2);
+  assert.equal(mixedRun.workers[0].status, 'accepted_local');
+  assert.equal(mixedRun.workers[0].receipt?.status, 'accepted-local');
+  assert.equal(mixedRun.workers[0].receipt?.validations.verdict, 'pass');
+  assert.equal(mixedRun.workers[1].status, 'failed');
+  assert.equal(mixedRun.workers[1].receipt?.status, 'diagnostic');
+  assert.equal(mixedRun.workers[1].receipt?.verdict, 'fail');
+  assert.equal(mixedRun.workers[1].receipt?.validations.verdict, 'fail');
+  const mixedParentRecord = readDispatch(root, 'D-parallel-mixed');
+  assert.equal(mixedParentRecord.status, 'diagnostic');
+  assert.deepEqual(mixedParentRecord.workerIds, ['D-parallel-mixed-w1', 'D-parallel-mixed-w2']);
+  const mixedParentStatus = run<DispatchStatusResult>('dispatch_status', { dispatchId: 'D-parallel-mixed' });
+  assert.equal(mixedParentStatus.dispatch.status, 'diagnostic');
+  assert.equal(mixedParentStatus.workers[0].dispatch.status, 'accepted_local');
+  assert.equal(mixedParentStatus.workers[1].dispatch.status, 'failed');
+  const mixedCollect = run<DispatchCollection>('dispatch_collect', { dispatchId: 'D-parallel-mixed' });
+  assert.equal(mixedCollect.status, 'diagnostic');
+  assert.equal(mixedCollect.changedFiles.length, 2);
+  const mixedReview = run<DispatchReviewResult>('dispatch_review', { dispatchId: 'D-parallel-mixed' });
+  assert.equal(mixedReview.status, 'diagnostic');
+  assert.equal(mixedReview.changedFiles.length, 2);
+  assert.equal(mixedReview.workers.length, 2);
+  assert.ok(mixedReview.risks.some(risk => /dispatch status=failed/i.test(risk)));
+  assert.ok(mixedReview.risks.some(risk => /receipt is diagnostic-only or missing/i.test(risk)));
+  assert.match(mixedReview.nextAction, /non-accepted workers/i);
+  const mixedMerge = run<DispatchMergePlanResult>('dispatch_merge_plan', { dispatchId: 'D-parallel-mixed' });
+  assert.equal(mixedMerge.mergeable, false);
+  assert.deepEqual(mixedMerge.commands, []);
+  assert.ok(mixedMerge.workers.some(worker => worker.dispatchId === 'D-parallel-mixed-w1' && worker.status === 'accepted_local'));
+  assert.ok(mixedMerge.workers.some(worker => worker.dispatchId === 'D-parallel-mixed-w2' && worker.status === 'failed'));
+  assertAuthorityFalse(mixedRun, 'mixedRun');
+  assertAuthorityFalse(mixedReview, 'mixedReview');
+  assertAuthorityFalse(mixedMerge, 'mixedMerge');
+
+  run<DispatchRecord>('dispatch_prepare', {
+    storyId: 'B-dispatch',
     dispatchId: 'D-failing-command',
     host: 'fake',
     objective: 'Required command failure must not be accepted local.',
@@ -365,10 +432,52 @@ try {
   assert.equal(failedRun.receipt?.status, 'diagnostic');
   assert.equal(failedRun.receipt?.verdict, 'fail');
   assert.equal(failedRun.receipt?.validations.verdict, 'fail');
+  const failedReview = run<DispatchReviewResult>('dispatch_review', { dispatchId: 'D-failing-command' });
+  assert.equal(failedReview.status, 'failed');
+  assert.ok(failedReview.risks.some(risk => /dispatch status=failed/i.test(risk)));
+  assert.ok(failedReview.risks.some(risk => /receipt is diagnostic-only or missing/i.test(risk)));
   const failedMerge = run<DispatchMergePlanResult>('dispatch_merge_plan', { dispatchId: 'D-failing-command' });
   assert.equal(failedMerge.mergeable, false);
   assert.deepEqual(failedMerge.commands, []);
   assertAuthorityFalse(failedRun, 'failedRun');
+  assertAuthorityFalse(failedReview, 'failedReview');
+
+  run<DispatchRecord>('dispatch_prepare', {
+    storyId: 'B-dispatch',
+    dispatchId: 'D-diagnostic-scope',
+    host: 'fake',
+    objective: 'Denied overlap should keep a passing fake worker diagnostic-only.',
+    allowedPaths: ['packages/main/src/generated/diagnostic-scope.txt'],
+    deniedPaths: ['packages/main/src/generated/diagnostic-scope.txt'],
+  });
+  const diagnosticRun = run<DispatchRunResult>('dispatch_run', { dispatchId: 'D-diagnostic-scope' });
+  assert.equal(diagnosticRun.status, 'diagnostic');
+  assert.equal(diagnosticRun.receipt?.status, 'diagnostic');
+  assert.equal(diagnosticRun.receipt?.verdict, 'pass');
+  assert.equal(diagnosticRun.receipt?.validations.changedFiles, 'fail');
+  const diagnosticReview = run<DispatchReviewResult>('dispatch_review', { dispatchId: 'D-diagnostic-scope' });
+  assert.equal(diagnosticReview.status, 'diagnostic');
+  assert.ok(diagnosticReview.risks.some(risk => /dispatch status=diagnostic/i.test(risk)));
+  assert.ok(diagnosticReview.risks.some(risk => /receipt is diagnostic-only or missing/i.test(risk)));
+  const diagnosticMerge = run<DispatchMergePlanResult>('dispatch_merge_plan', { dispatchId: 'D-diagnostic-scope' });
+  assert.equal(diagnosticMerge.mergeable, false);
+  assert.deepEqual(diagnosticMerge.commands, []);
+  assertAuthorityFalse(diagnosticRun, 'diagnosticRun');
+  assertAuthorityFalse(diagnosticReview, 'diagnosticReview');
+
+  const draftOnly = run<DispatchRecord>('dispatch_prepare', {
+    storyId: 'B-dispatch',
+    dispatchId: 'D-draft-receipt-no-collect',
+    host: 'fake',
+    objective: 'Draft receipt should degrade when no worker collect data exists yet.',
+    allowedPaths: ['packages/main/src/generated/draft-only.txt'],
+  });
+  const draftReceipt = run<DispatchReceiptDraft>('dispatch_receipt_create', { dispatchId: draftOnly.dispatchId });
+  assert.equal(draftReceipt.status, 'diagnostic');
+  assert.equal(draftReceipt.receipt.verdict, 'warn');
+  assert.deepEqual(draftReceipt.receipt.changedFiles, []);
+  assert.ok(draftReceipt.receipt.limitations.some(limitation => /No git-derived changedFiles detected/i.test(limitation)));
+  assertAuthorityFalse(draftReceipt, 'draftReceipt');
 
   const cancelRecord = run<DispatchRecord>('dispatch_prepare', {
     storyId: 'B-dispatch',
@@ -383,12 +492,37 @@ try {
   assert.equal(resumed.status, 'accepted_local');
   assert.equal(resumed.receipt?.status, 'accepted-local');
 
+  const expiredRecord = run<DispatchRecord>('dispatch_prepare', {
+    storyId: 'B-dispatch',
+    dispatchId: 'D-expired',
+    host: 'fake',
+    allowedPaths: ['packages/main/src/generated/expired.txt'],
+  });
+  writeDispatch(root, expiredRecord.dispatchId, {
+    ...expiredRecord,
+    expiresAt: '2026-06-01T00:00:00.000Z',
+  });
+  const expiredStatus = run<DispatchStatusResult>('dispatch_status', { dispatchId: expiredRecord.dispatchId });
+  assert.equal(expiredStatus.dispatch.status, 'expired');
+  const expiredRun = run<DispatchRunResult>('dispatch_run', { dispatchId: expiredRecord.dispatchId });
+  assert.equal(expiredRun.status, 'expired');
+  assert.equal(existsSync(resolve(root, expiredRecord.worktree.worktreePath)), false, 'expired dispatch_run must not create a worktree');
+  assert.equal(readDispatch(root, expiredRecord.dispatchId).status, 'expired');
+
   const list = run<DispatchListResult>('dispatch_list', { storyId: 'B-dispatch' });
   assert.ok(list.dispatches.some(entry => entry.dispatchId === 'D-parallel'));
   assert.ok(list.dispatches.some(entry => entry.dispatchId === 'D-cancel-resume'));
   assertAuthorityFalse(list, 'list');
 
   const beforeOverflowSuggestCount = dispatchCount(root);
+  const autoSuggested = run<DispatchPlanResult>('overflow_auto', {
+    storyId: 'B-dispatch',
+    objective: 'Default auto suggestion should not require an explicit fake host.',
+  });
+  assert.equal(autoSuggested.schemaVersion, 'lattice.dispatch_plan.v1');
+  assert.equal(autoSuggested.requestedHost, 'auto');
+  assert.ok(autoSuggested.warnings.some(warning => /suggest-only/i.test(warning)));
+  assert.equal(dispatchCount(root), beforeOverflowSuggestCount, 'overflow_auto default host=auto must not materialize dispatch records');
   const suggested = run<DispatchPlanResult>('overflow_auto', {
     storyId: 'B-dispatch',
     host: 'fake',
@@ -536,6 +670,30 @@ try {
   }
   assert.equal(existsSync(escapedDispatchMetadataDir), false, 'malicious dispatchId must not write metadata outside .koala/dispatches');
 
+  const unknownValidDispatchId = 'D-valid-but-missing';
+  for (const [command, args] of [
+    ['dispatch_run', { dispatchId: unknownValidDispatchId }],
+    ['dispatch_status', { dispatchId: unknownValidDispatchId }],
+    ['dispatch_collect', { dispatchId: unknownValidDispatchId }],
+    ['dispatch_receipt_create', { dispatchId: unknownValidDispatchId }],
+    ['dispatch_resume', { dispatchId: unknownValidDispatchId }],
+    ['dispatch_cancel', { dispatchId: unknownValidDispatchId }],
+    ['dispatch_review', { dispatchId: unknownValidDispatchId }],
+    ['dispatch_merge_plan', { dispatchId: unknownValidDispatchId }],
+    ['overflow_auto', {
+      storyId: 'B-dispatch',
+      dispatchId: unknownValidDispatchId,
+      approve: true,
+      start: true,
+    }],
+  ] as const) {
+    assert.throws(
+      () => run(command, args),
+      new RegExp(`Unknown dispatchId ${unknownValidDispatchId}`),
+      `${command} must reject an unknown but syntactically valid dispatchId`,
+    );
+  }
+
   const originalCodexSessionId = process.env.CODEX_SESSION_ID;
   try {
     process.env.CODEX_SESSION_ID = 'dispatch-run-smoke';
@@ -654,6 +812,18 @@ try {
     const unavailableProbe = run<HostRuntimeProbe>('host_runtime_probe', { host: 'gemini' });
     assert.equal(unavailableProbe.status, 'unavailable');
     assert.equal(unavailableProbe.runtimeKind, 'missing-cli');
+    const beforeUnavailablePlanCount = dispatchCount(root);
+    const unavailablePlan = run<DispatchPlanResult>('dispatch_plan', {
+      storyId: 'B-dispatch',
+      host: 'gemini',
+      objective: 'Explicit unavailable host should produce a degraded plan only.',
+    });
+    assert.equal(unavailablePlan.status, 'unavailable');
+    assert.equal(unavailablePlan.selectedHost, 'gemini');
+    assert.equal(unavailablePlan.runtime.status, 'unavailable');
+    assert.ok(unavailablePlan.risks.some(risk => /gemini runtime is unavailable/i.test(risk)));
+    assert.ok(unavailablePlan.warnings.some(warning => /gemini CLI is not available/i.test(warning)));
+    assert.equal(dispatchCount(root), beforeUnavailablePlanCount, 'unavailable dispatch_plan must not create dispatch records');
     const unavailableRun = run<DispatchRunResult>('dispatch_run', {
       storyId: 'B-dispatch',
       host: 'gemini',

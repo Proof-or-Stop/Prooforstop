@@ -614,15 +614,19 @@ function computePlan(
   const { selectedHost, runtime, fallbackHosts } = chooseHost(args.host);
   const pack = buildPack(store, root, args, selectedHost);
   const worktree = buildHandoffWorktreeProjection(pack);
+  const constraintWarnings = [
+    ...(pack.allowedPaths.length === 0 ? ['No allowedPaths declared; scope remains advisory until constrained.'] : []),
+    ...(pack.requiredCommands.length === 0 ? ['No requiredCommands declared; validation expectations are minimal.'] : []),
+  ];
   const risks = [
     ...(runtime.status === 'unavailable' ? [`${selectedHost} runtime is unavailable.`] : []),
     ...(runtime.status === 'scaffolded' ? ['Real-host execution remains scaffolded/manual-first.'] : []),
-    ...(pack.allowedPaths.length === 0 ? ['No allowedPaths declared; scope remains advisory until constrained.'] : []),
-    ...(pack.requiredCommands.length === 0 ? ['No requiredCommands declared; validation expectations are minimal.'] : []),
+    ...constraintWarnings,
   ];
   const warnings = [
     ...runtime.warnings,
     ...worktree.warnings,
+    ...constraintWarnings,
   ];
   return {
     schemaVersion: 'lattice.dispatch_plan.v1',
@@ -1069,13 +1073,13 @@ function leafDispatchCollection(root: string, record: DispatchRecord, pack: Hand
 }
 
 function aggregateStatus(statuses: DispatchLifecycleStatus[]): DispatchLifecycleStatus {
-  if (statuses.every(status => status === 'accepted_local')) return 'accepted_local';
-  if (statuses.some(status => status === 'failed')) return 'failed';
-  if (statuses.some(status => status === 'cancelled')) return 'cancelled';
-  if (statuses.some(status => status === 'expired')) return 'expired';
-  if (statuses.some(status => status === 'needs_receipt')) return 'needs_receipt';
-  if (statuses.some(status => status === 'unavailable')) return 'unavailable';
+  if (statuses.length === 0) return 'diagnostic';
+  const first = statuses[0];
+  if (statuses.every(status => status === first)) return first;
   if (statuses.some(status => status === 'running')) return 'running';
+  if (statuses.some(status => status === 'needs_receipt')) return 'needs_receipt';
+  if (statuses.some(status => status === 'prepared')) return 'prepared';
+  if (statuses.some(status => status === 'planned')) return 'planned';
   return 'diagnostic';
 }
 
