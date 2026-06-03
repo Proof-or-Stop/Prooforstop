@@ -661,7 +661,64 @@
           "packages/main/src/tasks/unattended-dispatch-smoke.ts",
           "packages/main/src/tasks/dispatch-run-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-008:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+          "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
+          "result": "pass",
+          "note": "E2E smoke covers fake parallel dispatch_auto plus Claude Code capability/refusal flow with watch/cancel/review/merge nextActions.",
+          "headHash": "aa04fbb7e9be7612adfd82a09302d304b41fc36e",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:37.754Z"
+        },
+        {
+          "intentRef": "CHK-008:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+          "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
+          "result": "pass",
+          "note": "E2E smoke records explicit supervised/manual refusal when Claude Code capability or policy is insufficient.",
+          "headHash": "aa04fbb7e9be7612adfd82a09302d304b41fc36e",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:37.834Z"
+        },
+        {
+          "intentRef": "CHK-008:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+          "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
+          "result": "pass",
+          "note": "E2E smoke covers missing policy, unavailable host, cancellation, missing receipt, and mixed/manual outcomes.",
+          "headHash": "aa04fbb7e9be7612adfd82a09302d304b41fc36e",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:37.901Z"
+        },
+        {
+          "intentRef": "CHK-008:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Regression smoke covers traversal, symlink output escape, denied overlap, host overclaim, accidental auto-merge, and productionDone invariants.",
+          "headHash": "aa04fbb7e9be7612adfd82a09302d304b41fc36e",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:37.967Z"
+        },
+        {
+          "intentRef": "CHK-008:adversarial:1",
+          "kind": "docs_check",
+          "file": "README.md",
+          "command": "git show 1f8e281b -- README.md docs/guide.md docs/requirements/decisions/host-overflow.md",
+          "result": "pass",
+          "note": "Docs show the opt-in command sequence, dispatch_auto versus overflow_auto, and user-authorized authority-safe boundaries.",
+          "headHash": "aa04fbb7e9be7612adfd82a09302d304b41fc36e",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:38.025Z"
+        }
+      ]
     }
   ],
   "auditLog": [
