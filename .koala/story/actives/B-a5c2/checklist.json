@@ -247,7 +247,7 @@
         "docs/requirements/decisions/lattice-parallel-wave.md",
         "docs/requirements/decisions/session-ownership-and-write-leases.md"
       ],
-      "userSees": "lattice dispatch_auto starts/refuses workers; lattice dispatch_watch shows lifecycle states; lattice dispatch_cancel stops a running worker and watch shows cancelled/stopped nextAction.",
+      "userSees": "`lattice dispatch_watch --dispatchId=D-123` shows \"running\", then after `lattice dispatch_cancel --dispatchId=D-123` shows \"cancelled\" or \"stopped\" with \"nextAction\":\"inspect transcript or retry\".",
       "verificationIntent": {
         "happy": [
           {
@@ -273,7 +273,20 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-dispatch.ts",
+          "packages/main/src/handlers/lattice-dispatch.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/dispatch-run-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-007",
