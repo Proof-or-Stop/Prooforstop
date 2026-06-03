@@ -5,7 +5,7 @@
       "desc": "overflow_auto bypasses its documented visible-approval guard: core/lattice-dispatch starts the dispatch when either approve=true or start=true is present, so --start=true alone materializes dispatch state even though the CLI/docs promise suggest-only behavior unless visibly approved. This breaks the manual-first user-visible contract for overflow_auto.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-docs",
       "createdAt": "2026-06-03T00:19:13.902Z",
@@ -17,7 +17,9 @@
         "packages/main/src/cli-engine.ts",
         "README.md",
         "docs/guide.md"
-      ]
+      ],
+      "resolvedReason": "Resolved by commit 74ce419c. overflow_auto now requires approve=true and start=true; fake dispatch paths are bounded before any file write; scaffolded real-host dispatch creates the projected worktree or returns failed with warnings. Verified with npm --prefix packages/main run build, npm --prefix packages/main run test:dispatch-run-smoke, npm --prefix packages/main run test:lattice-handoff-smoke, npm run test:command-ownership-contract, and npm run test:process-fact-contract.",
+      "resolvedAt": "2026-06-03T00:27:25.355Z"
     },
     {
       "id": "B-106b:F-002",
