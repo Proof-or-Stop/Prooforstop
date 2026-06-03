@@ -60,6 +60,28 @@
           "headHash": "f29b9b88993a67783d88cf4815a0a74072adb24f",
           "materialHash": "de12b3d40bbefa486cf0df7223f13d0421b19a5e1f7dc125a81b9e6da37c372c",
           "timestamp": "2026-06-03T19:29:41.193Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "command": "rg -n \"Default fresh init primary|Full/local-shim/legacy|global-thin mode\" docs/requirements/decisions/lifecycle-artifact-scope.md README.md",
+          "result": "pass",
+          "note": "lifecycle artifact scope and README now explicitly classify .Lattice assets as default primary and LATTICE/KOALA/.Codex/bin shims as compatibility or explicit full/thin opt-in.",
+          "headHash": "7a37cddf8aa14b4a57aa583a81c93a36a4ac19b4",
+          "materialHash": "de12b3d40bbefa486cf0df7223f13d0421b19a5e1f7dc125a81b9e6da37c372c",
+          "timestamp": "2026-06-03T19:43:56.940Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/thin-init-assets-smoke.ts",
+          "command": "npm --prefix packages/main run test:thin-init-assets-smoke",
+          "result": "pass",
+          "note": "global-thin smoke asserts AGENTS.md does not reference node bin/lattice.js and fresh init does not create bin/lattice-codex.js or .Codex/README.md by default.",
+          "headHash": "7a37cddf8aa14b4a57aa583a81c93a36a4ac19b4",
+          "materialHash": "de12b3d40bbefa486cf0df7223f13d0421b19a5e1f7dc125a81b9e6da37c372c",
+          "timestamp": "2026-06-03T19:43:56.940Z"
         }
       ]
     },
@@ -121,6 +143,28 @@
           "headHash": "0e58a4bc87736cc6a530cba56030ae1d5428e592",
           "materialHash": "3efb799345b698adb0b3e3cba5524a54d1b521ccffdc537576d4aa460a9d9411",
           "timestamp": "2026-06-03T19:12:53.154Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/thin-init-assets-smoke.ts",
+          "command": "npm --prefix packages/main run test:thin-init-assets-smoke",
+          "result": "pass",
+          "note": "explicit full and explicit thin scenarios assert local shim/.Codex assets remain available when --asset-mode=full or --asset-mode=thin is requested.",
+          "headHash": "7a37cddf8aa14b4a57aa583a81c93a36a4ac19b4",
+          "materialHash": "de12b3d40bbefa486cf0df7223f13d0421b19a5e1f7dc125a81b9e6da37c372c",
+          "timestamp": "2026-06-03T19:43:56.940Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/thin-init-assets-smoke.ts",
+          "command": "npm --prefix packages/main run test:thin-init-assets-smoke",
+          "result": "pass",
+          "note": "fresh default scenario asserts bin/lattice.js, bin/lattice-codex.js, .Codex/README.md, .Codex/lattice.json, .Codex/agents, KOALA.md and LATTICE.md are absent.",
+          "headHash": "7a37cddf8aa14b4a57aa583a81c93a36a4ac19b4",
+          "materialHash": "de12b3d40bbefa486cf0df7223f13d0421b19a5e1f7dc125a81b9e6da37c372c",
+          "timestamp": "2026-06-03T19:43:56.940Z"
         }
       ]
     },
@@ -186,6 +230,28 @@
           "headHash": "f0e74e98271e9ca4bff506a2004f06567dfb2e47",
           "materialHash": "de12b3d40bbefa486cf0df7223f13d0421b19a5e1f7dc125a81b9e6da37c372c",
           "timestamp": "2026-06-03T19:29:50.804Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/legacy-koala-compatibility-smoke.ts",
+          "command": "npm --prefix packages/main run test:legacy-koala-compatibility-smoke",
+          "result": "pass",
+          "note": "legacy compatibility smoke covers .Codex/koala.json and .Codex/lattice.json compatibility while global-thin projects prefer .Lattice/lattice.json.",
+          "headHash": "7a37cddf8aa14b4a57aa583a81c93a36a4ac19b4",
+          "materialHash": "de12b3d40bbefa486cf0df7223f13d0421b19a5e1f7dc125a81b9e6da37c372c",
+          "timestamp": "2026-06-03T19:43:56.940Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/legacy-koala-compatibility-smoke.ts",
+          "command": "npm --prefix packages/main run test:legacy-koala-compatibility-smoke && node packages/main/dist/cli.js --root <tmp-global-thin> codex doctor",
+          "result": "pass",
+          "note": "global-thin runCodexAdapterChecks and codex doctor smoke pass without local bin/lattice-codex.js and report local wrapper as not required, not a hard failure.",
+          "headHash": "7a37cddf8aa14b4a57aa583a81c93a36a4ac19b4",
+          "materialHash": "de12b3d40bbefa486cf0df7223f13d0421b19a5e1f7dc125a81b9e6da37c372c",
+          "timestamp": "2026-06-03T19:43:56.940Z"
         }
       ]
     },
@@ -248,6 +314,28 @@
           "headHash": "474ca79d261f71a897d2dc464972dfaf3c304bcf",
           "materialHash": "de12b3d40bbefa486cf0df7223f13d0421b19a5e1f7dc125a81b9e6da37c372c",
           "timestamp": "2026-06-03T19:29:57.877Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/legacy-koala-compatibility-smoke.ts",
+          "command": "npm --prefix packages/main run test:legacy-koala-compatibility-smoke",
+          "result": "pass",
+          "note": "mixed global-thin test seeds KOALA.md plus .Codex/koala.json and .Codex/lattice.json and asserts manifest detail contains global-thin, proving .Lattice resolver priority.",
+          "headHash": "7a37cddf8aa14b4a57aa583a81c93a36a4ac19b4",
+          "materialHash": "de12b3d40bbefa486cf0df7223f13d0421b19a5e1f7dc125a81b9e6da37c372c",
+          "timestamp": "2026-06-03T19:43:56.940Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/thin-init-assets-smoke.ts",
+          "command": "npm --prefix packages/main run test:thin-init-assets-smoke",
+          "result": "pass",
+          "note": "preserve-legacy scenario verifies KOALA.md, LATTICE.md, bin/koala.js, bin/koala-codex.js and .Codex/koala.json survive global-thin init unchanged.",
+          "headHash": "7a37cddf8aa14b4a57aa583a81c93a36a4ac19b4",
+          "materialHash": "de12b3d40bbefa486cf0df7223f13d0421b19a5e1f7dc125a81b9e6da37c372c",
+          "timestamp": "2026-06-03T19:43:56.940Z"
         }
       ]
     },
@@ -312,6 +400,28 @@
           "headHash": "68cb837f283bd582d9965da58276cf314e3f7914",
           "materialHash": "de12b3d40bbefa486cf0df7223f13d0421b19a5e1f7dc125a81b9e6da37c372c",
           "timestamp": "2026-06-03T19:30:06.227Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/thin-init-assets-smoke.ts",
+          "command": "npm --prefix packages/main run test:thin-init-assets-smoke && npm --prefix packages/main run test:legacy-koala-compatibility-smoke",
+          "result": "pass",
+          "note": "targeted smokes cover both fresh minimal global-thin projects and legacy Koala/Lattice compatibility projects.",
+          "headHash": "7a37cddf8aa14b4a57aa583a81c93a36a4ac19b4",
+          "materialHash": "de12b3d40bbefa486cf0df7223f13d0421b19a5e1f7dc125a81b9e6da37c372c",
+          "timestamp": "2026-06-03T19:43:56.940Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/thin-init-assets-smoke.ts",
+          "command": "npm --prefix packages/main run test:thin-init-assets-smoke && npm --prefix packages/main run test:legacy-koala-compatibility-smoke && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "tests assert forbidden default assets are absent, global codex doctor/verify paths execute, mixed resolver priority is checked, and process fact contract recognizes codex_doctor.",
+          "headHash": "7a37cddf8aa14b4a57aa583a81c93a36a4ac19b4",
+          "materialHash": "de12b3d40bbefa486cf0df7223f13d0421b19a5e1f7dc125a81b9e6da37c372c",
+          "timestamp": "2026-06-03T19:43:56.940Z"
         }
       ]
     }
