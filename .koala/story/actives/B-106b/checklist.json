@@ -45,9 +45,9 @@
           "command": "review README.md docs/guide.md docs/requirements/decisions/host-overflow.md",
           "result": "pass",
           "note": "Docs state dispatch_run/overflow_auto are supervised, degrade visibly, and never auto-merge, verify receipts, or claim productionDone. Covers happy intent 0.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:44.722Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.441Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -57,9 +57,9 @@
           "command": "review README.md docs/guide.md docs/requirements/decisions/host-overflow.md",
           "result": "pass",
           "note": "Docs state dispatch_run/overflow_auto are supervised, degrade visibly, and never auto-merge, verify receipts, or claim productionDone. Covers edge intent 1.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:44.768Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.441Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -69,9 +69,9 @@
           "command": "review README.md docs/guide.md docs/requirements/decisions/host-overflow.md",
           "result": "pass",
           "note": "Docs state dispatch_run/overflow_auto are supervised, degrade visibly, and never auto-merge, verify receipts, or claim productionDone. Covers adversarial intent 2.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:44.814Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.441Z"
         }
       ]
     },
@@ -118,9 +118,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke",
           "result": "pass",
           "note": "Smoke verifies host_runtime_list/probe for fake/claude-code/gemini/codex, missing CLI degradation, and authority=false invariants. Covers happy intent 0.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:45.536Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.441Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -130,9 +130,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke",
           "result": "pass",
           "note": "Smoke verifies host_runtime_list/probe for fake/claude-code/gemini/codex, missing CLI degradation, and authority=false invariants. Covers edge intent 1.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:45.585Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.441Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -142,9 +142,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke",
           "result": "pass",
           "note": "Smoke verifies host_runtime_list/probe for fake/claude-code/gemini/codex, missing CLI degradation, and authority=false invariants. Covers adversarial intent 2.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:45.632Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.441Z"
         }
       ]
     },
@@ -191,9 +191,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke",
           "result": "pass",
           "note": "Smoke asserts dispatch_plan selects fake, reports parallel=2, and creates no .koala/dispatches records or worktrees. Covers happy intent 0.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:46.323Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.441Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -203,9 +203,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke",
           "result": "pass",
           "note": "Smoke asserts dispatch_plan selects fake, reports parallel=2, and creates no .koala/dispatches records or worktrees. Covers edge intent 1.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:46.372Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.441Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -215,9 +215,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke",
           "result": "pass",
           "note": "Smoke asserts dispatch_plan selects fake, reports parallel=2, and creates no .koala/dispatches records or worktrees. Covers adversarial intent 2.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:46.418Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.441Z"
         }
       ]
     },
@@ -265,9 +265,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke",
           "result": "pass",
           "note": "Smoke verifies dispatch_prepare writes pack/prompt metadata with status=prepared and does not create a worktree or run a host. Covers happy intent 0.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:47.120Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.441Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -277,9 +277,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke",
           "result": "pass",
           "note": "Smoke verifies dispatch_prepare writes pack/prompt metadata with status=prepared and does not create a worktree or run a host. Covers edge intent 1.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:47.169Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.441Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -289,9 +289,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke",
           "result": "pass",
           "note": "Smoke verifies dispatch_prepare writes pack/prompt metadata with status=prepared and does not create a worktree or run a host. Covers adversarial intent 2.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:47.215Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.441Z"
         }
       ]
     },
@@ -338,9 +338,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke",
           "result": "pass",
           "note": "Smoke verifies fake dispatch accepted_local on allowed diffs and failed required commands remain diagnostic/failed, not accepted_local. Covers happy intent 0.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:47.904Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.441Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -350,9 +350,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke",
           "result": "pass",
           "note": "Smoke verifies fake dispatch accepted_local on allowed diffs and failed required commands remain diagnostic/failed, not accepted_local. Covers edge intent 1.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:47.954Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.441Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -362,9 +362,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke",
           "result": "pass",
           "note": "Smoke verifies fake dispatch accepted_local on allowed diffs and failed required commands remain diagnostic/failed, not accepted_local. Covers adversarial intent 2.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:47.999Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.441Z"
         }
       ]
     },
@@ -411,9 +411,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke",
           "result": "pass",
           "note": "Smoke narrows PATH to prove real-host scaffolding degrades to unavailable without creating a worktree or receipt. Covers happy intent 0.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:48.701Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.441Z"
         },
         {
           "intentRef": "CHK-006:edge:0",
@@ -423,9 +423,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke",
           "result": "pass",
           "note": "Smoke narrows PATH to prove real-host scaffolding degrades to unavailable without creating a worktree or receipt. Covers edge intent 1.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:48.747Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.441Z"
         },
         {
           "intentRef": "CHK-006:adversarial:0",
@@ -435,9 +435,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke",
           "result": "pass",
           "note": "Smoke narrows PATH to prove real-host scaffolding degrades to unavailable without creating a worktree or receipt. Covers adversarial intent 2.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:48.791Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.441Z"
         }
       ]
     },
@@ -485,9 +485,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke",
           "result": "pass",
           "note": "Smoke verifies dispatch_collect reports git-derived worker changedFiles and persisted collect artifacts independent of transcript prose. Covers happy intent 0.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:49.464Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.441Z"
         },
         {
           "intentRef": "CHK-007:edge:0",
@@ -497,9 +497,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke",
           "result": "pass",
           "note": "Smoke verifies dispatch_collect reports git-derived worker changedFiles and persisted collect artifacts independent of transcript prose. Covers edge intent 1.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:49.511Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.441Z"
         },
         {
           "intentRef": "CHK-007:adversarial:0",
@@ -509,9 +509,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke",
           "result": "pass",
           "note": "Smoke verifies dispatch_collect reports git-derived worker changedFiles and persisted collect artifacts independent of transcript prose. Covers adversarial intent 2.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:49.555Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.441Z"
         }
       ]
     },
@@ -558,9 +558,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke",
           "result": "pass",
           "note": "Smoke verifies overflow_auto default suggest-only creates no dispatch records, while approve+start runs supervised fake dispatch. Covers happy intent 0.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:50.221Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.441Z"
         },
         {
           "intentRef": "CHK-008:edge:0",
@@ -570,9 +570,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke",
           "result": "pass",
           "note": "Smoke verifies overflow_auto default suggest-only creates no dispatch records, while approve+start runs supervised fake dispatch. Covers edge intent 1.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:50.270Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.441Z"
         },
         {
           "intentRef": "CHK-008:adversarial:0",
@@ -582,9 +582,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke",
           "result": "pass",
           "note": "Smoke verifies overflow_auto default suggest-only creates no dispatch records, while approve+start runs supervised fake dispatch. Covers adversarial intent 2.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:50.316Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.441Z"
         }
       ]
     },
@@ -631,9 +631,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke",
           "result": "pass",
           "note": "Smoke verifies dispatch_status/list/cancel/resume lifecycle transitions and that cancel does not delete unreviewed artifacts. Covers happy intent 0.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:50.994Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.441Z"
         },
         {
           "intentRef": "CHK-009:edge:0",
@@ -643,9 +643,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke",
           "result": "pass",
           "note": "Smoke verifies dispatch_status/list/cancel/resume lifecycle transitions and that cancel does not delete unreviewed artifacts. Covers edge intent 1.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:51.043Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.441Z"
         },
         {
           "intentRef": "CHK-009:adversarial:0",
@@ -655,9 +655,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke",
           "result": "pass",
           "note": "Smoke verifies dispatch_status/list/cancel/resume lifecycle transitions and that cancel does not delete unreviewed artifacts. Covers adversarial intent 2.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:51.090Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.441Z"
         }
       ]
     },
@@ -705,9 +705,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke",
           "result": "pass",
           "note": "Smoke verifies dispatch_review summarizes workers, receipts, changedFiles, risks, and keeps productionDone/receiptVerified false. Covers happy intent 0.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:51.769Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.441Z"
         },
         {
           "intentRef": "CHK-010:edge:0",
@@ -717,9 +717,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke",
           "result": "pass",
           "note": "Smoke verifies dispatch_review summarizes workers, receipts, changedFiles, risks, and keeps productionDone/receiptVerified false. Covers edge intent 1.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:51.817Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.441Z"
         },
         {
           "intentRef": "CHK-010:adversarial:0",
@@ -729,9 +729,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke",
           "result": "pass",
           "note": "Smoke verifies dispatch_review summarizes workers, receipts, changedFiles, risks, and keeps productionDone/receiptVerified false. Covers adversarial intent 2.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:51.862Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.441Z"
         }
       ]
     },
@@ -779,9 +779,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke",
           "result": "pass",
           "note": "Smoke verifies dispatch_receipt_create works for leaf workers and refuses parent dispatch receipts while keeping authority false. Covers happy intent 0.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:52.577Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.442Z"
         },
         {
           "intentRef": "CHK-011:edge:0",
@@ -791,9 +791,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke",
           "result": "pass",
           "note": "Smoke verifies dispatch_receipt_create works for leaf workers and refuses parent dispatch receipts while keeping authority false. Covers edge intent 1.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:52.626Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.442Z"
         },
         {
           "intentRef": "CHK-011:adversarial:0",
@@ -803,9 +803,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke",
           "result": "pass",
           "note": "Smoke verifies dispatch_receipt_create works for leaf workers and refuses parent dispatch receipts while keeping authority false. Covers adversarial intent 2.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:52.670Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.442Z"
         }
       ]
     },
@@ -852,9 +852,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke",
           "result": "pass",
           "note": "Smoke verifies dispatch_merge_plan is manualOnly, mergeable only for accepted_local workers, and emits no git merge/cherry-pick commands. Covers happy intent 0.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:53.369Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.442Z"
         },
         {
           "intentRef": "CHK-012:edge:0",
@@ -864,9 +864,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke",
           "result": "pass",
           "note": "Smoke verifies dispatch_merge_plan is manualOnly, mergeable only for accepted_local workers, and emits no git merge/cherry-pick commands. Covers edge intent 1.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:53.419Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.442Z"
         },
         {
           "intentRef": "CHK-012:adversarial:0",
@@ -876,9 +876,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke",
           "result": "pass",
           "note": "Smoke verifies dispatch_merge_plan is manualOnly, mergeable only for accepted_local workers, and emits no git merge/cherry-pick commands. Covers adversarial intent 2.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:53.465Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.442Z"
         }
       ]
     },
@@ -926,9 +926,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke; npm run test:command-ownership-contract; npm run test:process-fact-contract",
           "result": "pass",
           "note": "Smoke plus command/process contracts verify registration, policies, process facts, runtime flow, degradation, and authority invariants. Covers happy intent 0.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:54.170Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.442Z"
         },
         {
           "intentRef": "CHK-013:edge:0",
@@ -938,9 +938,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke; npm run test:command-ownership-contract; npm run test:process-fact-contract",
           "result": "pass",
           "note": "Smoke plus command/process contracts verify registration, policies, process facts, runtime flow, degradation, and authority invariants. Covers edge intent 1.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:54.219Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.442Z"
         },
         {
           "intentRef": "CHK-013:adversarial:0",
@@ -950,9 +950,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke; npm run test:command-ownership-contract; npm run test:process-fact-contract",
           "result": "pass",
           "note": "Smoke plus command/process contracts verify registration, policies, process facts, runtime flow, degradation, and authority invariants. Covers adversarial intent 2.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:54.263Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.442Z"
         }
       ]
     },
@@ -1000,9 +1000,9 @@
           "command": "lattice decision_get --storyId=B-106b --json",
           "result": "pass",
           "note": "PLAN decision records protocol-and-fake-runner-first, visible degradation, failure semantics, and no hidden unattended real-host execution. Covers happy intent 0.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:54.969Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.442Z"
         },
         {
           "intentRef": "CHK-014:edge:0",
@@ -1012,9 +1012,9 @@
           "command": "lattice decision_get --storyId=B-106b --json",
           "result": "pass",
           "note": "PLAN decision records protocol-and-fake-runner-first, visible degradation, failure semantics, and no hidden unattended real-host execution. Covers edge intent 1.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:55.017Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.442Z"
         },
         {
           "intentRef": "CHK-014:adversarial:0",
@@ -1024,9 +1024,9 @@
           "command": "lattice decision_get --storyId=B-106b --json",
           "result": "pass",
           "note": "PLAN decision records protocol-and-fake-runner-first, visible degradation, failure semantics, and no hidden unattended real-host execution. Covers adversarial intent 2.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:55.064Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.442Z"
         }
       ]
     },
@@ -1074,9 +1074,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke",
           "result": "pass",
           "note": "Smoke verifies host=fake parallel=2 creates two isolated worker dispatches, two accepted-local receipts, accepted_local aggregate, and productionDone=false. Covers happy intent 0.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:55.746Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.442Z"
         },
         {
           "intentRef": "CHK-015:edge:0",
@@ -1086,9 +1086,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke",
           "result": "pass",
           "note": "Smoke verifies host=fake parallel=2 creates two isolated worker dispatches, two accepted-local receipts, accepted_local aggregate, and productionDone=false. Covers edge intent 1.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:55.793Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.442Z"
         },
         {
           "intentRef": "CHK-015:adversarial:0",
@@ -1098,9 +1098,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke",
           "result": "pass",
           "note": "Smoke verifies host=fake parallel=2 creates two isolated worker dispatches, two accepted-local receipts, accepted_local aggregate, and productionDone=false. Covers adversarial intent 2.",
-          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
-          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
-          "timestamp": "2026-06-03T00:15:55.838Z"
+          "headHash": "2f2496e20cd6c993b9f1ac700fd6e9a381eb97a6",
+          "materialHash": "b3935728951fc09cd21bb9355a3c3b92dc46af98f198ac9bb4df59dbca7fb0ac",
+          "timestamp": "2026-06-03T00:27:35.442Z"
         }
       ]
     }
