@@ -105,6 +105,30 @@ The contract is conservative by design:
 - Local receipts remain diagnostic-only. Even on `accepted-local`,
   `receiptVerified=false` and `productionDone=false` remain.
 
+The unattended product target for B-a5c2 is
+`chosen: policy-authorized-unattended-scheduler` with `preMortem: 6`. It adds a
+separate `dispatch_auto` path for user-authorized unattended workers:
+
+```bash
+lattice dispatch_policy check --policy=nightly-safe --format=json
+lattice host_runtime_probe --host=claude-code --json
+lattice dispatch_auto --storyId=B-xxxx --policy=nightly-safe --format=json
+lattice dispatch_watch --dispatchId=D-B-xxxx-claude-code-1234 --format=json
+lattice dispatch_cancel --dispatchId=D-B-xxxx-claude-code-1234 --format=json
+lattice dispatch_review --dispatchId=D-B-xxxx-claude-code-1234 --format=json
+lattice dispatch_merge_plan --dispatchId=D-B-xxxx-claude-code-1234 --format=json
+```
+
+`overflow_auto` remains the guarded, supervised overflow wrapper. `dispatch_auto`
+is the future unattended scheduler and must refuse missing policy, unsafe host
+capability, unsafe scope, denied environment, exceeded limits, or lease/conflict
+risks. Even when it starts workers successfully, the closeout is still manual:
+`dispatch_review` surfaces transcripts/diffs/local receipts, and
+`dispatch_merge_plan` remains manual-only. Unattended output must not auto-merge,
+auto-DONE, verify receipts, change authority, or claim `productionDone=true`;
+the authority fields stay `productionDone=false`, `receiptVerified=false`, and
+`authorityChanged=false`.
+
 Architecture and non-goals:
 [`docs/requirements/decisions/host-overflow.md`](docs/requirements/decisions/host-overflow.md)
 

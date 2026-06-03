@@ -100,6 +100,22 @@ The Mac App is not the authority/config source for this migration. It may remain
 an optional dashboard/archive surface; production authority remains receipt
 backed and external to the ordinary CLI path.
 
+### B-a5c2 unattended scheduler authority boundary
+
+The B-a5c2 `dispatch_auto` track is a policy-authorized scheduler for ordinary
+execution hosts, not a new authority client. It may launch Claude Code, Gemini,
+Codex, or fake workers only after user opt-in policy and host unattended-safety
+checks pass. Those checks are authorization to start bounded local work; they
+are not authorization to claim production completion.
+
+Unattended worker artifacts remain local diagnostic evidence candidates:
+transcripts, changed-file lists, command output, runner status, and local
+receipts can inform `dispatch_review` and manual `dispatch_merge_plan`, but they
+do not satisfy L2+ authority. A host transcript or local receipt must never set
+`authorityChanged=true`, `receiptVerified=true`, or `productionDone=true`, and
+must never auto-merge or auto-DONE a story. A verified production receipt still
+requires the receipt-backed path described by PD-1 / PD-2.
+
 ### B-b710 — Enforce Readiness Diagnostics (Milestones 3-4)
 
 > **Status**: B-b710 milestones 3-4 recorded — extends the receipt-aware status

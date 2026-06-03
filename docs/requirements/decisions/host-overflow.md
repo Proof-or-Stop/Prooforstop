@@ -10,11 +10,40 @@ merge authority.
 - Claude Code, Codex, and similar tools are execution hosts.
 - Manual handoff comes before supervised dispatch.
 - Supervised dispatch is a conservative projection, not an auto-runner.
+- Unattended dispatch is a separate, policy-authorized extension of supervised
+  dispatch, not an authority upgrade.
 
 Claude Code overflow workers are therefore **execution-only** in this model:
 they can receive a bounded handoff pack, work inside an isolated overflow
 worktree, and return a local diagnostic receipt, but they do **not** become
 production authority.
+
+## B-a5c2 unattended extension
+
+B-106b landed the manual-first Host Overflow base. B-a5c2 extends that base with
+`dispatch_auto` as the selected `policy-authorized-unattended-scheduler`:
+`chosen: policy-authorized-unattended-scheduler`, `preMortem: 6`.
+
+The product finish line is concrete and user-visible:
+
+1. The user defines or selects an explicit unattended policy.
+2. Lattice checks policy authorization, including allowed hosts, allowed and
+   denied paths, max parallelism, timeouts, retry limits, command templates,
+   budget/network posture, and environment allow/deny filtering.
+3. Lattice probes host capability and reports unavailable or supervised-only
+   when login, noninteractive mode, cwd isolation, timeout, transcript, network,
+   or env-safety guarantees are missing.
+4. `dispatch_auto` starts only policy-authorized, unattended-safe workers in
+   isolated worktrees and records worker lease/conflict state.
+5. `dispatch_watch` and `dispatch_cancel` keep the run visible and stoppable.
+6. `dispatch_review` and manual `dispatch_merge_plan` surface transcripts,
+   changed files, command output, and local diagnostic receipts as evidence
+   candidates only.
+
+The unattended extension must still keep `productionDone=false`,
+`receiptVerified=false`, and `authorityChanged=false`. It must not auto-merge,
+auto-DONE, expand scope, treat a host transcript as gate evidence, or treat a
+local diagnostic receipt as a verified authority receipt.
 
 ## Boundaries
 
@@ -30,7 +59,8 @@ Overflow hosts keep these responsibilities:
 - Execute the bounded objective from the handoff pack
 - Stay inside `allowedPaths` / `deniedPaths`
 - Run or report required local commands
-- Return local diagnostic output and a local receipt
+- Return local diagnostic output, transcript metadata, and a local diagnostic
+  receipt
 
 The higher-level dispatch runtime remains supervised and visible:
 
@@ -67,6 +97,9 @@ The supervised dispatch layer is now landed as explicit Lattice surfaces:
   `approve=true` and `start=true` are provided; `approve=true` alone or
   `start=true` alone must remain suggest-only and emit a warning about the
   missing counterpart flag.
+- `dispatch_auto` is reserved for the B-a5c2 unattended extension. Unlike
+  `overflow_auto`, it may start external host workers, but only after explicit
+  user policy authorization and host unattended-safety checks pass.
 
 ## Workflow
 
@@ -88,6 +121,7 @@ Lattice Host Overflow does **not**:
 - Auto-trust overflow output
 - Auto-run hidden background host work that the operator cannot inspect
 - Auto-merge overflow diffs
+- Auto-DONE a story or claim `productionDone=true`
 - Submit authority evidence from overflow hosts
 - Verify authority receipts from overflow hosts
 - Turn host availability into production authority
