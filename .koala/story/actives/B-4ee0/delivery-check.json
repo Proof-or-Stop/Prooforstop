@@ -1,72 +1,73 @@
 {
   "storyId": "B-4ee0",
-  "checkedAt": "2026-06-03T20:11:28.848Z",
+  "checkedAt": "2026-06-03T20:23:29.230Z",
   "reviewRound": "2026-06-03T19:44:46.620Z",
   "agentId": "koala-review-delivery",
   "docsPromises": [
     {
       "docPath": "README.md#bin/lattice.js",
       "promise": "bin/lattice.js 仅此仓库自身使用，新项目 global-thin 默认 init 不生成",
-      "status": "verified",
       "verifiedBy": "real-machine init + smoke",
-      "evidence": "node packages/main/dist/cli.js --root <tmp> init --yes => bin/lattice.js absent; thin-init-assets-smoke Test 1 asserts assertAbsent bin/lattice.js"
+      "evidence": "node packages/main/dist/cli.js --root <tmp> init --yes => 真机文件树 = .Lattice/Lattice.md, .Lattice/lattice.json, AGENTS.md, lattice.config.json, .gitignore；bin/lattice.js absent；thin-init-assets-smoke Test 1 asserts assertAbsent bin/lattice.js"
     },
     {
       "docPath": "README.md#bin/lattice-codex.js",
       "promise": "bin/lattice-codex.js 仅 full/thin 模式显式 opt-in 才生成",
-      "status": "verified",
       "verifiedBy": "real-machine init + smoke",
-      "evidence": "fresh init absent; thin-init-assets-smoke Tests 3-4 with --asset-mode=full/--asset-mode=thin produce bin/lattice-codex.js as expected"
+      "evidence": "fresh init absent；thin-init-assets-smoke Tests 3-4 with --asset-mode=full / --asset-mode=thin produce bin/lattice-codex.js as expected"
     },
     {
       "docPath": "README.md#Codex_prompt_assets",
       "promise": ".Lattice/lattice.json 是 global-thin 默认 init primary；.Codex/lattice.json 为 full/thin opt-in；.Codex/koala.json 仍是 legacy compatibility input",
-      "status": "verified",
       "verifiedBy": "docs_diff + smoke",
-      "evidence": "git diff main...HEAD README.md 显示更新行；legacy-koala-compatibility-smoke 覆盖 .Codex/koala.json/.Codex/lattice.json/.Lattice/lattice.json 三套 manifest，mixed-global-thin 断言 .Lattice 优先"
+      "evidence": "git diff main...HEAD README.md 显示更新行；legacy-koala-compatibility-smoke 覆盖 .Codex/koala.json / .Codex/lattice.json / .Lattice/lattice.json 三套 manifest，mixed-global-thin 断言 .Lattice 优先"
     },
     {
       "docPath": "docs/requirements/decisions/lifecycle-artifact-scope.md",
-      "promise": "Default fresh init primary (global-thin): .Lattice/Lattice.md, .Lattice/lattice.json, AGENTS.md；Full/local-shim/legacy 仅在 --asset-mode=full/thin 显式 opt-in 时生成 LATTICE.md/KOALA.md/.Codex/*/bin/*.js",
-      "status": "verified",
+      "promise": "Default fresh init primary (global-thin): .Lattice/Lattice.md, .Lattice/lattice.json, AGENTS.md, lattice.config.json；Full/local-shim/legacy 仅在 --asset-mode=full/thin 显式 opt-in 时生成 LATTICE.md/KOALA.md/.Codex/*/bin/*.js",
       "verifiedBy": "docs_diff + real-machine",
-      "evidence": "git diff main...HEAD docs/requirements/decisions/lifecycle-artifact-scope.md 显示重写后的 project-local required assets 行；real-machine fresh init 文件树仅含 .Lattice/* + AGENTS.md + koala.config.json + .gitignore + docs/，验证 default 与契约一致"
+      "evidence": "git diff main...HEAD docs/requirements/decisions/lifecycle-artifact-scope.md 显示重写后的 project-local required assets 行；真机 fresh init 文件树 = .Lattice/Lattice.md, .Lattice/lattice.json, AGENTS.md, lattice.config.json, .gitignore，与契约一致；canonical fresh config 现为 lattice.config.json（B-38d6 合并）"
     },
     {
       "docPath": "docs/requirements/decisions/lifecycle-artifact-scope.md#registry-backed",
       "promise": "global-thin 模式下 .Lattice/lattice.json 承载项目 config 与 assetMode 声明，Codex adapter verification 解析 .Lattice/ 而非要求 .Codex/ 或 bin wrappers",
-      "status": "verified",
       "verifiedBy": "real-machine + smoke",
-      "evidence": "codex doctor on global-thin root 输出 \"Local Codex wrapper: global-thin project: local wrapper not required\"，并 \"Codex manifest: global-thin project: ... (.Lattice/lattice.json present)\" PASS；legacy-koala-compatibility-smoke global-thin-compat / mixed-global-thin / codex-doctor smoke 验证同一路径"
+      "evidence": "codex doctor on global-thin root 输出 'Local Codex wrapper: global-thin project: local wrapper not required'，并 'Codex manifest: global-thin project: ... (.Lattice/lattice.json present)' PASS；legacy-koala-compatibility-smoke global-thin-compat / mixed-global-thin / codex-doctor smoke 验证同一路径"
+    },
+    {
+      "docPath": ".koala/story/actives/B-4ee0/evidence/transcript-diff.md",
+      "promise": "User acceptance transcript 记录 fresh init 文件树仅含 .Lattice/Lattice.md, .Lattice/lattice.json, AGENTS.md, lattice.config.json, .gitignore；codex doctor 在无本地 wrapper 时通过；forbidden 资产全部 absent",
+      "verifiedBy": "real-machine + transcript",
+      "evidence": "transcript-diff.md 记录的真机命令与本次 reviewer 复跑一致：fresh init 文件树 = .Lattice/Lattice.md, .Lattice/lattice.json, .gitignore, AGENTS.md, lattice.config.json；forbidden 检查包含 koala.config.json / .Codex/* / bin/*.js / KOALA.md / LATTICE.md 全部 absent；codex doctor 5/6 pass，Local Codex wrapper 标 not required"
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "docs_check + git diff main...HEAD docs/requirements/decisions/lifecycle-artifact-scope.md README.md 显示新契约措辞；resolveManagedAssetDefinitions registry 列出 .Lattice/Lattice.md + .Lattice/lattice.json + AGENTS.md 为 global-thin 默认；rg 验证 LATTICE.md/KOALA.md/.Codex/*/bin/*.js 仅作 compatibility 或 explicit opt-in"
+      "transcript": "docs_check + git diff main...HEAD docs/requirements/decisions/lifecycle-artifact-scope.md README.md 显示新契约措辞（含 lattice.config.json 取代 koala.config.json 为 canonical fresh config）；resolveManagedAssetDefinitions registry 列出 .Lattice/Lattice.md + .Lattice/lattice.json + AGENTS.md + lattice.config.json 为 global-thin 默认；rg 验证 LATTICE.md/KOALA.md/.Codex/*/bin/*.js 仅作 compatibility 或 explicit opt-in"
     },
     {
       "featureId": "CHK-002",
-      "transcript": "真机：node packages/main/dist/cli.js --root /var/folders/.../lattice-delivery-fresh-XXXX.XDCe05KEvL init --yes 输出 \"global-thin mode; use global lattice CLI\"，文件树 = .Lattice/Lattice.md, .Lattice/lattice.json, AGENTS.md, koala.config.json, .gitignore, docs/；forbidden 检查全部 absent (bin/lattice*.js, bin/koala*.js, .Codex/README.md, .Codex/lattice.json, KOALA.md, LATTICE.md)；npm run test:thin-init-assets-smoke ✓ global-thin init assets smoke passed"
+      "transcript": "真机：node packages/main/dist/cli.js --root <tmp> init --yes 输出 'global-thin mode; use global lattice CLI'，文件树 = .Lattice/Lattice.md, .Lattice/lattice.json, AGENTS.md, lattice.config.json, .gitignore；forbidden 检查全部 absent (bin/lattice*.js, bin/koala*.js, .Codex/README.md, .Codex/lattice.json, .Codex/agents, KOALA.md, LATTICE.md, koala.config.json)；npm --prefix packages/main run test:thin-init-assets-smoke ✓ global-thin init assets smoke passed"
     },
     {
       "featureId": "CHK-003",
-      "transcript": "真机：node packages/main/dist/cli.js --root <tmp-global-thin> codex doctor 输出 ✓ Codex adapter checks passed (5/6 pass)，包含 [✓] Codex manifest: global-thin project: ... (.Lattice/lattice.json present)、[✓] Local Codex wrapper: global-thin project: local wrapper not required；[!] Global fallback heartbeat: not executed in this diagnostic mode 为 advisory 非 hard-fail；npm run test:legacy-koala-compatibility-smoke ✓ legacy koala compatibility smoke passed"
+      "transcript": "真机：node packages/main/dist/cli.js --root <tmp-global-thin> codex doctor 输出 ✓ Codex adapter checks passed (5/6 pass)，包含 [✓] Codex manifest: global-thin project: ... (.Lattice/lattice.json present)、[✓] Local Codex wrapper: global-thin project: local wrapper not required；[!] Global fallback heartbeat: not executed in this diagnostic mode 为 advisory 非 hard-fail；npm --prefix packages/main run test:legacy-koala-compatibility-smoke ✓ legacy koala compatibility smoke passed；node bin/koala-codex.js verify_codex ✓ Codex adapter checks passed (6/7 pass)"
     },
     {
       "featureId": "CHK-004",
-      "transcript": "npm run test:thin-init-assets-smoke Test 5 (preserve-legacy)：预置 KOALA.md/LATTICE.md/bin/koala.js/bin/koala-codex.js/.Codex/koala.json，run init 后 readFileSync 比对原文未变；同时 .Lattice/Lattice.md 与 .Lattice/lattice.json 新增；legacy-koala-compatibility-smoke mixed-global-thin 用 .Lattice/lattice.json + .Codex/koala.json + .Codex/lattice.json 验证 resolver 选 .Lattice 且 manifest.detail 含 global-thin"
+      "transcript": "npm --prefix packages/main run test:thin-init-assets-smoke Test 5 (preserve-legacy)：预置 KOALA.md/LATTICE.md/bin/koala.js/bin/koala-codex.js/.Codex/koala.json，run init 后 readFileSync 比对原文未变；同时 .Lattice/Lattice.md 与 .Lattice/lattice.json + lattice.config.json 新增；legacy-koala-compatibility-smoke mixed-global-thin 用 .Lattice/lattice.json + .Codex/koala.json + .Codex/lattice.json 验证 resolver 选 .Lattice 且 manifest.detail 含 global-thin"
     },
     {
       "featureId": "CHK-005",
-      "transcript": "npm --prefix packages/main run build 通过；npm run test:thin-init-assets-smoke ✓（5 tests fresh/global-thin+codex/full/thin/preserve-legacy）；npm run test:legacy-koala-compatibility-smoke ✓（legacy-koala-compat + mixed manifest drift + missing manifest + global-thin compat + mixed-global-thin + codex-doctor CLI smoke）；koala validate --story=B-4ee0 verificationCoverage 15/15 covered, 0 missing required"
+      "transcript": "合并 main (B-38d6 lattice.config.json canonical) 后复跑：npm --prefix packages/main run build 通过；npm --prefix packages/main run test:thin-init-assets-smoke ✓（5 tests fresh/global-thin+codex/full/thin/preserve-legacy）；npm --prefix packages/main run test:legacy-koala-compatibility-smoke ✓（6 tests legacy-koala-compat + mixed manifest drift + missing manifest + global-thin compat + mixed-global-thin + codex-doctor CLI smoke）；node packages/main/dist/cli.js validate --story=B-4ee0 --json 全绿，verificationCoverage 15/15 covered (0 required missing)，npm test (cli-e2e story-lifecycle + gap-convergence) ALL PASS"
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "global-thin 默认已落实：真机 fresh init 产出仅 .Lattice/+AGENTS.md+koala.config.json+.gitignore；codex doctor 在无本地 wrapper 时通过；smoke 覆盖 fresh default / explicit full / explicit thin / legacy preserve / mixed .Lattice+.Codex resolver / codex doctor CLI；文档承诺与代码、smoke、真机 transcript 三方一致；零 open finding 与 bug"
+    "summary": "global-thin 默认已落实并在合并 main 后复签：真机 fresh init 产出 .Lattice/Lattice.md, .Lattice/lattice.json, AGENTS.md, lattice.config.json, .gitignore（canonical config 已随 B-38d6 改为 lattice.config.json，legacy koala.config.json 仍可读）；codex doctor 在无本地 wrapper 时通过；smoke 覆盖 fresh default / explicit full / explicit thin / legacy preserve / mixed .Lattice+.Codex resolver / codex doctor CLI；文档承诺、smoke、真机 transcript、validate verificationCoverage 四方一致；零 open finding 与 bug"
   },
-  "_hash": "28dfb680c6f09486e22b9be840eb9d258f92b3823d3a795205d9daae416e3796"
+  "_hash": "84d4022b34c5d4177b4ae876de180cf69e98d0fbc1b93b7afa6188b7a671aceb"
 }
