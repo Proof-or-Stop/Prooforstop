@@ -94,6 +94,42 @@
         }
       ],
       "_hash": "faad32a5bd15e75263e009600d2a18aa057f4779fbff6c718edbeee83e667ad6"
+    },
+    {
+      "timestamp": "2026-06-03T23:06:08.507Z",
+      "issueCount": 3,
+      "blockerCount": 2,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 个 checklist item，请检查是否有组合场景遗漏（如：Resolve Codex adapter verify command from available wrappers + Make worktree acceptance guidance prefer current worktree CLI 同时操作会怎样？）"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/core/done-oracle.ts 未被任何 checklist item 的 files 字段覆盖（请为相应 item 的 files.modify/create/test 加上此路径或用 excludes 显式排除）"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/tasks focused smoke tests 未被任何 checklist item 的 files 字段覆盖（请为相应 item 的 files.modify/create/test 加上此路径或用 excludes 显式排除）"
+        }
+      ],
+      "_hash": "4c20c86fd27e8546c3d30dc57d436c0035e6af0beac038ba9ef248dd0c7a946a"
+    },
+    {
+      "timestamp": "2026-06-03T23:07:04.408Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 个 checklist item，请检查是否有组合场景遗漏（如：Resolve Codex adapter verify command from available wrappers + Make worktree acceptance guidance prefer current worktree CLI 同时操作会怎样？）"
+        }
+      ],
+      "_hash": "d4d3f4accc58fed853c1579bbb53a36a11b54807799b4ad050f238bd1f6ea1d5"
     }
   ]
 }
