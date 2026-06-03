@@ -4,7 +4,7 @@
   "title": "Fix Lattice lifecycle UX papercuts found during B-4ee0 delivery",
   "description": "Fix four lifecycle UX/API papercuts discovered while delivering B-4ee0: validate JSON storyId silently becoming diagnostic validate, TEST-phase scope freshness hints saying REVIEW→TEST, hidden owner-lease takeover flags, and unclear scope-warning recovery guidance.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "source": "B-4ee0 delivery retrospective",
   "keywords": [
@@ -37,6 +37,14 @@
       "action": "advance",
       "timestamp": "2026-06-03T21:51:00.501Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-03T21:51:46.638Z",
+      "branch": "story/B-a30e",
       "user": "Harmonygo",
       "agent": "main"
     }
