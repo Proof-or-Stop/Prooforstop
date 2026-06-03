@@ -26,7 +26,7 @@
       "desc": "[HIGH] packages/main/src/core/lattice-dispatch.ts:845 and 1054-1066 leave approved real-host dispatch_run/overflow_auto without a usable overflow worktree. prepareDispatch writes only metadata and explicitly leaves worktree creation undone, but the scaffolded real-host run path tells the operator to run codex/claude/gemini in .worktrees/overflow/... anyway. Repro: node packages/main/dist/cli.js --root <tmp> lattice dispatch run --storyId=B-real --host=codex --json returned status=needs_receipt with nextAction pointing at .worktrees/overflow/B-real/D-B-real-codex-..., while the recorded dispatch.json showed worktreeExists=false for that path. That breaks the required host-overflow workflow in docs/requirements/decisions/host-overflow.md:52-54, where Lattice must project an isolated overflow worktree before the host works in it, so the approved real-host overflow path cannot actually execute.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-concept",
       "createdAt": "2026-06-03T00:19:14.878Z",
@@ -36,7 +36,9 @@
       "files": [
         "packages/main/src/core/lattice-dispatch.ts",
         "docs/requirements/decisions/host-overflow.md"
-      ]
+      ],
+      "resolvedReason": "Resolved by commit 74ce419c. overflow_auto now requires approve=true and start=true; fake dispatch paths are bounded before any file write; scaffolded real-host dispatch creates the projected worktree or returns failed with warnings. Verified with npm --prefix packages/main run build, npm --prefix packages/main run test:dispatch-run-smoke, npm --prefix packages/main run test:lattice-handoff-smoke, npm run test:command-ownership-contract, and npm run test:process-fact-contract.",
+      "resolvedAt": "2026-06-03T00:27:25.981Z"
     },
     {
       "id": "B-106b:F-003",
