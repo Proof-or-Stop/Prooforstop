@@ -34,8 +34,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-03T19:45:54.916Z",
       "endTime": null,
       "files": {
         "modify": [
@@ -406,6 +406,18 @@
           "packages/main/src/tasks/dispatch-run-smoke.ts"
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-03T19:45:54.916Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start DEV milestone 1 authority decision verification",
+      "agent": "codex"
     }
   ]
 }
