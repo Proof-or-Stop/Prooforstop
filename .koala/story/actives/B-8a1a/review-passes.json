@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-03T23:52:40.928Z",
       "reviewRunId": "B-8a1a:RR-011",
       "_hash": "fdff40cb12fbe7898f4474441eff804a8b182ecde5a4e8f6948c59bd99ee62b2"
+    },
+    {
+      "id": "B-8a1a:RP-004",
+      "agent": "koala-review-test-coverage",
+      "note": "Re-review complete: F-002 is covered by dedicated unattended-dispatch-smoke refusal cases for missing allowRealHostSubprocess and missing canonical launcher commandAllowlist, both fresh-passing. F-003 is resolved at the existence/pointer level because cli-real-claude-canary.md exists and CHK-005 points to it. One medium non-blocking evidence wording gap was recorded separately because the canary artifact does not itself show the claimed missing-launcher refusal result.",
+      "createdAt": "2026-06-03T23:59:54.664Z",
+      "reviewRound": "2026-06-03T23:52:40.928Z",
+      "reviewRunId": "B-8a1a:RR-009",
+      "_hash": "1ee6d2c18739db5bd0a0f5c1b8c51ccd7125680d7fa88781dd8fcf2949daa422"
     }
   ]
 }
