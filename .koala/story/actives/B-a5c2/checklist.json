@@ -151,7 +151,7 @@
         "docs/requirements/decisions/host-overflow.md",
         "docs/requirements/decisions/host-neutral-observability-console.md"
       ],
-      "userSees": "lattice host_runtime_list --json shows fake/claude-code/gemini/codex with unattended capability, degradations, and nextAction.",
+      "userSees": "`lattice host_runtime_list --json` prints each runtime with \"unattendedSafe\", \"degradations\", \"limitations\", and \"nextAction\".",
       "verificationIntent": {
         "happy": [
           {
@@ -177,7 +177,18 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-dispatch.ts",
+          "packages/main/src/core/capabilities.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/capability-list-smoke.ts",
+          "packages/main/src/tasks/dispatch-run-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-005",
