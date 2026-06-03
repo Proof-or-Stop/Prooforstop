@@ -362,18 +362,16 @@ try {
   assert.equal(approved.status, 'accepted_local');
   assertAuthorityFalse(approved, 'approvedOverflow');
 
-  run<DispatchRecord>('dispatch_prepare', {
+  assert.throws(() => run<DispatchRecord>('dispatch_prepare', {
     storyId: 'B-dispatch',
     dispatchId: 'D-path-traversal',
     host: 'fake',
     objective: 'Traversal must be rejected before any file write.',
     allowedPaths: ['../D-path-traversal-escaped.txt'],
     deniedPaths: ['README.md'],
-  });
-  const traversalRecord = readDispatch(root, 'D-path-traversal');
-  assert.throws(() => run<DispatchRunResult>('dispatch_run', { dispatchId: 'D-path-traversal' }), /escapes the isolated worktree/i);
+  }), /allowedPaths\[0\].*escapes the isolated worktree/i);
   assert.equal(existsSync(resolve(root, '../D-path-traversal-escaped.txt')), false, 'escaped file must never be written');
-  assert.equal(existsSync(resolve(root, traversalRecord.worktree.worktreePath)), false, 'invalid traversal must fail before creating the isolated worktree');
+  assert.equal(existsSync(join(root, '.koala/dispatches/D-path-traversal')), false, 'invalid traversal must not persist dispatch metadata');
 
   run<DispatchRecord>('dispatch_prepare', {
     storyId: 'B-dispatch',
@@ -389,9 +387,50 @@ try {
   );
   assert.equal(existsSync(externalMarker), false, 'symlink escape target must never be written');
 
+  const maliciousDispatchId = '../../dispatch-id-escape';
+  const escapedDispatchMetadataDir = resolve(root, 'dispatch-id-escape');
+  for (const [command, args] of [
+    ['dispatch_prepare', {
+      storyId: 'B-dispatch',
+      dispatchId: maliciousDispatchId,
+      host: 'fake',
+      allowedPaths: ['packages/main/src/generated/malicious.txt'],
+    }],
+    ['dispatch_run', {
+      storyId: 'B-dispatch',
+      dispatchId: maliciousDispatchId,
+      host: 'fake',
+      allowedPaths: ['packages/main/src/generated/malicious.txt'],
+    }],
+    ['dispatch_status', { dispatchId: maliciousDispatchId }],
+    ['dispatch_collect', { dispatchId: maliciousDispatchId }],
+    ['dispatch_receipt_create', { dispatchId: maliciousDispatchId }],
+    ['dispatch_resume', { dispatchId: maliciousDispatchId }],
+    ['dispatch_cancel', { dispatchId: maliciousDispatchId }],
+    ['dispatch_review', { dispatchId: maliciousDispatchId }],
+    ['dispatch_merge_plan', { dispatchId: maliciousDispatchId }],
+  ] as const) {
+    assert.throws(
+      () => run(command, args),
+      /dispatchId must not contain path separators or traversal segments/i,
+      `${command} must reject malicious dispatchId`,
+    );
+  }
+  assert.equal(existsSync(escapedDispatchMetadataDir), false, 'malicious dispatchId must not write metadata outside .koala/dispatches');
+
   const originalCodexSessionId = process.env.CODEX_SESSION_ID;
   try {
     process.env.CODEX_SESSION_ID = 'dispatch-run-smoke';
+    assert.throws(() => run<DispatchRecord>('dispatch_prepare', {
+      storyId: 'B-dispatch',
+      dispatchId: 'D-real-host-traversal',
+      host: 'codex',
+      objective: 'Real-host traversal must be rejected before prompt metadata persists.',
+      allowedPaths: ['packages/main/src/generated/real-host-traversal.txt'],
+      deniedPaths: ['../outside.txt'],
+    }), /deniedPaths\[0\].*escapes the isolated worktree/i);
+    assert.equal(existsSync(join(root, '.koala/dispatches/D-real-host-traversal')), false, 'invalid real-host traversal must not persist dispatch metadata');
+
     const realHostReady = run<DispatchRecord>('dispatch_prepare', {
       storyId: 'B-dispatch',
       dispatchId: 'D-real-host-ready',
@@ -403,6 +442,20 @@ try {
     assert.equal(realHostRun.status, 'needs_receipt');
     assert.equal(existsSync(resolve(root, realHostReady.worktree.worktreePath)), true, 'available real-host scaffold should create the isolated worktree');
     assert.match(realHostRun.nextAction, new RegExp(realHostReady.worktree.worktreePath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+
+    const realHostSymlinkEscape = run<DispatchRecord>('dispatch_prepare', {
+      storyId: 'B-dispatch',
+      dispatchId: 'D-real-host-symlink-escape',
+      host: 'codex',
+      objective: 'Real-host scaffold must not return needs_receipt when allowedPaths resolve outside the worktree.',
+      allowedPaths: ['packages/main/src/generated/external-link/blocked-by-symlink.txt'],
+      deniedPaths: ['README.md'],
+    });
+    assert.throws(
+      () => run<DispatchRunResult>('dispatch_run', { dispatchId: realHostSymlinkEscape.dispatchId }),
+      /resolves outside the isolated worktree via an existing symlinked path segment/i,
+    );
+    assert.equal(existsSync(externalMarker), false, 'real-host symlink escape target must never be written');
 
     const realHostFailure = run<DispatchRecord>('dispatch_prepare', {
       storyId: 'B-dispatch',

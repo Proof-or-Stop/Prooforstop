@@ -429,6 +429,23 @@ function normalizeList(values: string[] | undefined): string[] {
   return normalized;
 }
 
+function normalizeDispatchId(dispatchId: string, label = 'dispatchId'): string {
+  const trimmed = dispatchId.trim();
+  if (!trimmed) {
+    throw new Error(`${label} must not be empty.`);
+  }
+  if (isAbsolute(trimmed)) {
+    throw new Error(`${label} must not be absolute: ${trimmed}`);
+  }
+  if (/[\\/]/.test(trimmed)) {
+    throw new Error(`${label} must not contain path separators or traversal segments: ${trimmed}`);
+  }
+  if (trimmed === '.' || trimmed === '..') {
+    throw new Error(`${label} must not be "." or "..": ${trimmed}`);
+  }
+  return trimmed;
+}
+
 function sanitizeSegment(value: string): string {
   return value.replace(/[^a-zA-Z0-9._-]+/g, '-').replace(/^-+|-+$/g, '') || 'dispatch';
 }
@@ -437,8 +454,31 @@ function dispatchStorageRoot(root: string): string {
   return join(root, '.koala', 'dispatches');
 }
 
+function projectedDispatchWorktreePath(storyId: string, packId: string): string {
+  return `.worktrees/overflow/${sanitizeSegment(storyId)}/${sanitizeSegment(packId)}`;
+}
+
+function normalizePackPathList(
+  root: string,
+  storyId: string,
+  packId: string,
+  values: string[] | undefined,
+  label: 'allowedPaths' | 'deniedPaths',
+): string[] {
+  const worktreeAbs = resolve(root, projectedDispatchWorktreePath(storyId, packId));
+  const seen = new Set<string>();
+  const normalized: string[] = [];
+  for (const [index, value] of (values ?? []).entries()) {
+    const relativePath = assertWorktreeRelativePath(worktreeAbs, value, `${label}[${index}]`);
+    if (seen.has(relativePath)) continue;
+    seen.add(relativePath);
+    normalized.push(relativePath);
+  }
+  return normalized;
+}
+
 function dispatchDir(root: string, dispatchId: string): string {
-  return join(dispatchStorageRoot(root), dispatchId);
+  return join(dispatchStorageRoot(root), normalizeDispatchId(dispatchId));
 }
 
 function dispatchFile(root: string, dispatchId: string, name: string): string {
@@ -547,18 +587,19 @@ function buildPack(
 ): HandoffPack {
   const role = args.role?.trim() || 'overflow-worker';
   const objective = args.objective?.trim() || `Dispatch runtime work for ${args.storyId}`;
+  const packId = args.packId?.trim() || dispatchId || 'dispatch-preview';
   return createHandoffPack(store, root, {
     storyId: args.storyId,
     fromHost: args.fromHost?.trim() || 'codex',
     toHost: handoffTargetForRuntime(selectedHost),
     role,
     objective,
-    allowedPaths: normalizeList(args.allowedPaths),
-    deniedPaths: normalizeList(args.deniedPaths),
+    allowedPaths: normalizePackPathList(root, args.storyId, packId, args.allowedPaths, 'allowedPaths'),
+    deniedPaths: normalizePackPathList(root, args.storyId, packId, args.deniedPaths, 'deniedPaths'),
     requiredCommands: normalizeList(args.requiredCommands),
     successCriteria: normalizeList(args.successCriteria),
     baseSha: args.baseSha?.trim(),
-    packId: args.packId?.trim() || dispatchId,
+    packId,
     authorityBoundary: args.authorityBoundary?.trim(),
     executionInstructions: normalizeList(args.executionInstructions),
   });
@@ -620,20 +661,31 @@ function writePack(root: string, dispatchId: string, pack: HandoffPack): void {
 }
 
 function writeRecord(root: string, record: DispatchRecord): DispatchRecord {
+  const dispatchId = normalizeDispatchId(record.dispatchId, 'record.dispatchId');
   const next = {
     ...record,
+    dispatchId,
     updatedAt: nowIso(),
   };
-  writeJson(dispatchFile(root, record.dispatchId, 'dispatch.json'), next);
+  writeJson(dispatchFile(root, dispatchId, 'dispatch.json'), next);
   return next;
 }
 
 function readRecord(root: string, dispatchId: string): DispatchRecord {
-  const file = dispatchFile(root, dispatchId, 'dispatch.json');
+  const normalizedDispatchId = normalizeDispatchId(dispatchId);
+  const file = dispatchFile(root, normalizedDispatchId, 'dispatch.json');
   if (!existsSync(file)) {
-    throw new Error(`Unknown dispatchId ${dispatchId}. Expected ${relative(root, file)}.`);
+    throw new Error(`Unknown dispatchId ${normalizedDispatchId}. Expected ${relative(root, file)}.`);
   }
-  return readJson<DispatchRecord>(file);
+  const record = readJson<DispatchRecord>(file);
+  const recordedDispatchId = normalizeDispatchId(record.dispatchId, 'dispatch.json dispatchId');
+  if (recordedDispatchId !== normalizedDispatchId) {
+    throw new Error(`Dispatch metadata mismatch: requested ${normalizedDispatchId}, found ${recordedDispatchId}.`);
+  }
+  return {
+    ...record,
+    dispatchId: recordedDispatchId,
+  };
 }
 
 function resolveEffectiveStatus(record: DispatchRecord): DispatchLifecycleStatus {
@@ -679,7 +731,7 @@ function pathResolvesWithinRoot(rootReal: string, candidateReal: string): boolea
   return rel === '' || (rel !== '..' && !rel.startsWith(`..${sep}`));
 }
 
-function assertCanonicalWorktreeWritePath(worktreeAbs: string, candidatePath: string, label: string): string {
+function assertCanonicalWorktreePath(worktreeAbs: string, candidatePath: string, label: string): string {
   const relativePath = assertWorktreeRelativePath(worktreeAbs, candidatePath, label);
   const worktreeReal = realpathSync(worktreeAbs);
   const segments = relativePath === '.' ? [] : relativePath.split(/[\\/]+/).filter(Boolean);
@@ -704,11 +756,20 @@ function assertCanonicalWorktreeWritePath(worktreeAbs: string, candidatePath: st
   return relativePath;
 }
 
-function normalizeFakePackPaths(root: string, dispatchId: string, worktreeAbs: string, pack: HandoffPack): HandoffPack {
+function normalizePackPaths(
+  root: string,
+  dispatchId: string,
+  worktreeAbs: string,
+  pack: HandoffPack,
+  mode: 'relative' | 'canonical' = 'relative',
+): HandoffPack {
+  const normalizePath = mode === 'canonical'
+    ? assertCanonicalWorktreePath
+    : assertWorktreeRelativePath;
   const allowedPaths = pack.allowedPaths.map((entry, index) =>
-    assertWorktreeRelativePath(worktreeAbs, entry, `allowedPaths[${index}]`));
+    normalizePath(worktreeAbs, entry, `allowedPaths[${index}]`));
   const deniedPaths = pack.deniedPaths.map((entry, index) =>
-    assertWorktreeRelativePath(worktreeAbs, entry, `deniedPaths[${index}]`));
+    normalizePath(worktreeAbs, entry, `deniedPaths[${index}]`));
   const packChanged = allowedPaths.some((entry, index) => entry !== pack.allowedPaths[index])
     || deniedPaths.some((entry, index) => entry !== pack.deniedPaths[index]);
   if (!packChanged) return pack;
@@ -908,8 +969,9 @@ export function planDispatch(store: StoryStore, root: string, args: DispatchPlan
 }
 
 export function prepareDispatch(store: StoryStore, root: string, args: DispatchPrepareArgs): DispatchRecord {
+  const requestedDispatchId = args.dispatchId?.trim() ? normalizeDispatchId(args.dispatchId) : undefined;
   const plan = computePlan(store, root, args);
-  const dispatchId = args.dispatchId?.trim() || createDispatchId(args.storyId, plan.selectedHost);
+  const dispatchId = requestedDispatchId ?? createDispatchId(args.storyId, plan.selectedHost);
   ensureDispatchDir(root, dispatchId);
   const pack = buildPack(store, root, args, plan.selectedHost, dispatchId);
   writePack(root, dispatchId, pack);
@@ -946,7 +1008,7 @@ export function prepareDispatch(store: StoryStore, root: string, args: DispatchP
       cleanupCommand: worktree.cleanupCommand,
     },
     workerIds: [],
-    ...(args.dispatchId?.trim() ? { parentDispatchId: args.dispatchId.trim() } : {}),
+    ...(requestedDispatchId ? { parentDispatchId: requestedDispatchId } : {}),
     authorityChanged: false,
     receiptVerified: false,
     productionDone: false,
@@ -958,11 +1020,12 @@ function runFakeLeafDispatch(store: StoryStore, root: string, record: DispatchRe
   let pack = readPack(root, record.dispatchId);
   pack = ensurePreparedPackForFake(root, record.dispatchId, pack);
   const projectedWorktreeAbs = resolve(root, record.worktree.worktreePath);
-  pack = normalizeFakePackPaths(root, record.dispatchId, projectedWorktreeAbs, pack);
+  pack = normalizePackPaths(root, record.dispatchId, projectedWorktreeAbs, pack);
   const baseRef = pack.baseSha ?? 'HEAD';
   const worktreeAbs = ensureWorktree(root, record.worktree.worktreePath, record.worktree.branch, baseRef);
+  pack = normalizePackPaths(root, record.dispatchId, worktreeAbs, pack, 'canonical');
   const markerPath = pack.allowedPaths[0] ?? `.koala/dispatches/${record.dispatchId}/worker/fake-result.txt`;
-  const safeMarkerPath = assertCanonicalWorktreeWritePath(worktreeAbs, markerPath, 'fake dispatch marker');
+  const safeMarkerPath = assertCanonicalWorktreePath(worktreeAbs, markerPath, 'fake dispatch marker');
   const markerAbs = resolve(worktreeAbs, safeMarkerPath);
   mkdirSync(dirname(markerAbs), { recursive: true });
   writeFileSync(markerAbs, `dispatch=${record.dispatchId}\nstory=${record.storyId}\nrunAt=${nowIso()}\n`, 'utf8');
@@ -1055,7 +1118,8 @@ function childDispatchArgs(parentPack: HandoffPack, parent: DispatchRecord, work
 }
 
 export function runDispatch(store: StoryStore, root: string, args: DispatchRunArgs): DispatchRunResult {
-  const existing = args.dispatchId?.trim() ? readRecord(root, args.dispatchId.trim()) : null;
+  const requestedDispatchId = args.dispatchId?.trim() ? normalizeDispatchId(args.dispatchId) : undefined;
+  const existing = requestedDispatchId ? readRecord(root, requestedDispatchId) : null;
   const record = existing ?? prepareDispatch(store, root, args);
   if (resolveEffectiveStatus(record) === 'expired') {
     const expired = writeRecord(root, { ...record, status: 'expired', nextAction: 'Dispatch expired. Run dispatch_resume to refresh metadata and rerun it.' });
@@ -1143,7 +1207,8 @@ export function runDispatch(store: StoryStore, root: string, args: DispatchRunAr
       productionDone: false,
     };
   }
-  const pack = readPack(root, record.dispatchId);
+  let pack = readPack(root, record.dispatchId);
+  pack = normalizePackPaths(root, record.dispatchId, resolve(root, record.worktree.worktreePath), pack);
   const baseRef = pack.baseSha ?? 'HEAD';
   let worktreeAbs: string;
   try {
@@ -1176,8 +1241,9 @@ export function runDispatch(store: StoryStore, root: string, args: DispatchRunAr
       authorityChanged: false,
       receiptVerified: false,
       productionDone: false,
-    };
+      };
   }
+  pack = normalizePackPaths(root, record.dispatchId, worktreeAbs, pack, 'canonical');
   const promptFile = resolve(root, record.promptFile);
   const invocation = runtime.invocationTemplate?.map(part =>
     part === '<prompt-file>' ? promptFile : part === '<worktree>' ? record.worktree.worktreePath : part,
