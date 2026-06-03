@@ -297,7 +297,7 @@
       "desc": "Cross-host receipt artifacts are still codex-pinned. createFakeReceipt and dispatch_receipt_create hardcode host=\"codex\" in receipt payloads (packages/main/src/core/lattice-dispatch.ts:995 and :1497), while the handoff receipt schema treats host as the receipt producer host beside fromHost/toHost (packages/main/src/core/lattice-handoff.ts:181-204). dispatch-run-smoke only verifies Gemini host identity in pack/prompt artifacts (packages/main/src/tasks/dispatch-run-smoke.ts:365-389) and misses receipt artifacts. Repro: prepare a gemini dispatch and run dispatch_receipt_create; the emitted receipt reports {\"host\":\"codex\",\"toHost\":\"gemini\"}. This violates the host-neutral Gemini/Codex artifact boundary.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-concept",
       "createdAt": "2026-06-03T16:08:01.149Z",
@@ -308,7 +308,9 @@
         "packages/main/src/core/lattice-dispatch.ts",
         "packages/main/src/core/lattice-handoff.ts",
         "packages/main/src/tasks/dispatch-run-smoke.ts"
-      ]
+      ],
+      "resolvedReason": "probe",
+      "resolvedAt": "2026-06-03T16:23:59.238Z"
     },
     {
       "id": "B-106b:F-017",
