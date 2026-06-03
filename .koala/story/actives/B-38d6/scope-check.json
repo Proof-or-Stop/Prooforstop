@@ -61,14 +61,13 @@
       "q": "PLAN claims lattice.config.json is canonical, but project-root resolution duplicates (cli-engine.ts:1716-1719, dev-memory.ts:169, dashboard.ts:260, cli-init.ts:707-736, core/dirty-worktree.ts:282) only know about koala.config.json. Does CHK-002 scope cover those, or is the design boundary: lattice.config.json is content-overlay only and project-root marker stays koala.config.json (so a repo MUST still have koala.config.json present)? If the former, scope-contract.allowedModify needs cli-engine.ts/dev-memory.ts/dashboard.ts/cli-init.ts/dirty-worktree.ts added.",
       "evidence": "grep koala.config.json across packages/main/src returned hardcoded markers at cli-engine.ts:1716-1719 (resolveProjectRoot duplicate of core/config.ts), dev-memory.ts:169 (project root walker), dashboard.ts:260-261 (no koala.config.json found guard), cli-init.ts:707/736 (scaffold writes koala.config.json), core/dirty-worktree.ts:282 (classifier config-file list); none are in PLAN modify scope.",
       "sourcePointers": [
-        "packages/main/src/cli-engine.ts#L1716",
-        "packages/main/src/core/dev-memory.ts#L169",
-        "packages/main/src/dashboard.ts#L260",
-        "packages/main/src/cli-init.ts#L707",
-        "packages/main/src/core/dirty-worktree.ts#L282",
+        ".koala/story/actives/B-38d6/decision.json",
         ".koala/story/actives/B-38d6/checklist.json#CHK-002",
-        ".koala/story/actives/B-38d6/scope-contract.json"
-      ]
+        ".koala/story/actives/B-38d6/scope-contract.json",
+        "docs/requirements/decisions/project-vision.md"
+      ],
+      "resolution": "Resolved: lattice.config.json is not content-overlay only; it is the canonical config and project-root marker. B-38d6 scope now explicitly includes cli-engine.ts, core/dev-memory.ts, handlers/dev-memory.ts, dashboard.ts, cli-init.ts, and core/dirty-worktree.ts so root detection, diagnostics, init scaffolding, and dirty classification recognize lattice.config.json while retaining koala.config.json as legacy fallback. This follows the chosen decision option: canonical Lattice naming with backward compatibility, not a hard rename.",
+      "resolvedAt": "2026-06-03T18:28:47.936Z"
     },
     {
       "id": "OQ-2",

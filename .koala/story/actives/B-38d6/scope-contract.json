@@ -5,6 +5,12 @@
     "packages/main/src/handlers/verifier.ts",
     "packages/main/src/core/runtime-environment-checks.ts",
     "packages/main/src/core/config.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/dev-memory.ts",
+    "packages/main/src/handlers/dev-memory.ts",
+    "packages/main/src/dashboard.ts",
+    "packages/main/src/cli-init.ts",
+    "packages/main/src/core/dirty-worktree.ts",
     "docs/requirements/decisions/testing-infra.md",
     "README.md",
     "packages/main/src/cli-prompts.ts",
@@ -24,8 +30,8 @@
     ".koala/runtime/**",
     ".koala/traces/**"
   ],
-  "scopeChangeReason": "Seed B-38d6 scope from PLAN checklist files; protect unrelated metadata and generated/runtime artifacts.",
+  "scopeChangeReason": "Expand scope after scope-plan reviewer OQ: lattice.config.json canonical must cover project root detection, init scaffold, dashboard/dev-memory, and dirty-classifier references in addition to config loading.",
   "acknowledgements": [],
   "createdAt": "2026-06-03T18:20:32.170Z",
-  "updatedAt": "2026-06-03T18:20:32.170Z"
+  "updatedAt": "2026-06-03T18:28:21.715Z"
 }
