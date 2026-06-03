@@ -154,7 +154,48 @@
       "context": "lattice check should advise/apply canonical .Lattice assets without deleting legacy files by default; prune legacy assets only behind an explicit option. Existing KOALA.md, .Codex/koala.json, bin/koala-codex.js, and bin/lattice-codex.js must keep working.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "docs/requirements/decisions/truth-source.md",
+        "README.md"
+      ],
+      "userSees": "旧项目运行 lattice check 时会看到建议迁移到 .Lattice 资产，但默认 --apply 不删除 KOALA.md、.Codex/koala.json 或 bin/*codex.js；只有显式 prune legacy 选项才会清理旧资产。",
+      "files": {
+        "modify": [
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/cli-init.ts",
+          "packages/main/src/init-assets.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/legacy-koala-compatibility-smoke.ts",
+          "packages/main/src/tasks/thin-init-assets-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "legacy 项目运行 lattice check/check --apply 后新增或修复 canonical .Lattice 资产，同时旧资产仍存在。",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "旧 KOALA.md、.Codex/koala.json、bin/koala-codex.js 和新 bin/lattice-codex.js 混合存在时，resolver 选择稳定且诊断说明清楚。",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "默认 check --apply 若删除、覆盖本地编辑或破坏旧 shim，测试必须失败。",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
