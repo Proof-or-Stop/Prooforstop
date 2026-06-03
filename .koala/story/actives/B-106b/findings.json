@@ -143,7 +143,7 @@
       "desc": "dispatchId path traversal escapes .koala/dispatches and allows out-of-scope Lattice metadata writes. dispatchDir/dispatchFile join caller-controlled dispatchId into storage paths, and prepareDispatch accepts args.dispatchId from the public handler unchanged. Repro: dispatch_prepare --dispatchId=../../../outside/owned writes dispatch.json, pack.json, prompt.md, and transcript.log outside the repository dispatch storage root. Apply validation to all public dispatchId read/write paths and add smoke coverage for malicious dispatchId.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-03T00:44:02.068Z",
@@ -155,7 +155,9 @@
         "packages/main/src/handlers/lattice-dispatch.ts",
         "packages/main/src/tasks/dispatch-run-smoke.ts",
         "docs/requirements/decisions/host-overflow.md"
-      ]
+      ],
+      "resolvedReason": "Resolved by commit b7b16fcf. dispatchId is now validated at the storage helper/read-write boundary and rejected for empty, absolute, separator, or traversal values across prepare/run/status/collect/receipt/resume/cancel/review/merge_plan. Smoke now covers malicious dispatchId rejection across those commands and proves no metadata is written outside .koala/dispatches. Verified with build, dispatch-run smoke, lattice-handoff smoke, host-overflow smoke, command ownership contract, process fact contract, git diff --check, and lattice validate test command output.",
+      "resolvedAt": "2026-06-03T00:50:19.153Z"
     }
   ]
 }
