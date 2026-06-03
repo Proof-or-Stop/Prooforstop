@@ -41,9 +41,9 @@
           "command": "Agent 1 read-only reproduction: validate --json stdout followed by direct JSON.parse before fix",
           "result": "pass",
           "note": "Agent 1 reproduced the original pre-fix failure: validate --json returned JSON plus a human success hint, so direct JSON.parse(stdout) failed; the root cause was hint decoration after the validate handler returned JSON text.",
-          "headHash": "951a6c763173fb316d9178695972f5629b94a606",
-          "materialHash": "c2ee16c6517610f41ec93b2990dfdbe50e646768062385895c149371a814f508",
-          "timestamp": "2026-06-03T22:21:08.935Z"
+          "headHash": "af4b8cfa373471b4b9ddc4646fdeda2b82bc21b4",
+          "materialHash": "43330fb8c4a8f195a60e8db4802ecd24fad09b6fadba2ff1bbd29e369ef4b1c6",
+          "timestamp": "2026-06-03T22:39:30.610Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -52,9 +52,9 @@
           "command": "Agent 1 JSON command matrix for validate, authority_status, host_runtime_probe, and parallel_status",
           "result": "pass",
           "note": "Agent 1 documented the affected/unaffected matrix: validate --json was broken because validate is hint-decorated, while representative existing JSON commands remained parseable because they were not in the hint registry.",
-          "headHash": "951a6c763173fb316d9178695972f5629b94a606",
-          "materialHash": "c2ee16c6517610f41ec93b2990dfdbe50e646768062385895c149371a814f508",
-          "timestamp": "2026-06-03T22:21:08.935Z"
+          "headHash": "af4b8cfa373471b4b9ddc4646fdeda2b82bc21b4",
+          "materialHash": "43330fb8c4a8f195a60e8db4802ecd24fad09b6fadba2ff1bbd29e369ef4b1c6",
+          "timestamp": "2026-06-03T22:39:30.610Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -63,9 +63,9 @@
           "command": "Review Agent 1 recommendation plus commit 8a0c0705 implementation approach",
           "result": "pass",
           "note": "The selected fix explicitly rejects dashboard-side substring extraction and places the guard in the shared CLI output pipeline; Agent 3 confirmed no extractFirstJsonObject/regex JSON substring parser was introduced.",
-          "headHash": "951a6c763173fb316d9178695972f5629b94a606",
-          "materialHash": "c2ee16c6517610f41ec93b2990dfdbe50e646768062385895c149371a814f508",
-          "timestamp": "2026-06-03T22:21:08.935Z"
+          "headHash": "af4b8cfa373471b4b9ddc4646fdeda2b82bc21b4",
+          "materialHash": "43330fb8c4a8f195a60e8db4802ecd24fad09b6fadba2ff1bbd29e369ef4b1c6",
+          "timestamp": "2026-06-03T22:39:30.610Z"
         }
       ]
     },
@@ -109,9 +109,9 @@
           "command": "KOALA_SESSION_ID=codex-b7fc2 node packages/main/dist/cli.js validate --story=B-7fc2 --json --forceTakeover | node -e JSON.parse(stdin)",
           "result": "pass",
           "note": "Worktree dist validate --json stdout parsed directly as a single JSON document; no human success hint was appended to stdout in machine JSON mode.",
-          "headHash": "951a6c763173fb316d9178695972f5629b94a606",
-          "materialHash": "c2ee16c6517610f41ec93b2990dfdbe50e646768062385895c149371a814f508",
-          "timestamp": "2026-06-03T22:21:08.935Z"
+          "headHash": "af4b8cfa373471b4b9ddc4646fdeda2b82bc21b4",
+          "materialHash": "43330fb8c4a8f195a60e8db4802ecd24fad09b6fadba2ff1bbd29e369ef4b1c6",
+          "timestamp": "2026-06-03T22:39:30.610Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -120,9 +120,9 @@
           "command": "node packages/main/dist/cli.js validate | tail -n 8",
           "result": "pass",
           "note": "Text-mode validate still emitted the human success next-step hint containing 验证全绿; the text-mode UX was preserved while JSON mode was cleaned.",
-          "headHash": "951a6c763173fb316d9178695972f5629b94a606",
-          "materialHash": "c2ee16c6517610f41ec93b2990dfdbe50e646768062385895c149371a814f508",
-          "timestamp": "2026-06-03T22:21:08.935Z"
+          "headHash": "af4b8cfa373471b4b9ddc4646fdeda2b82bc21b4",
+          "materialHash": "43330fb8c4a8f195a60e8db4802ecd24fad09b6fadba2ff1bbd29e369ef4b1c6",
+          "timestamp": "2026-06-03T22:39:30.610Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -131,9 +131,9 @@
           "command": "KOALA_SESSION_ID=codex-b7fc2 node packages/main/dist/cli.js validate --story=B-7fc2 --json --forceTakeover | node -e JSON.parse(stdin)",
           "result": "pass",
           "note": "Even when validate returned allPass=false because verification evidence was missing, worktree JSON mode stdout remained direct-parseable; the failure guidance was not appended to stdout.",
-          "headHash": "951a6c763173fb316d9178695972f5629b94a606",
-          "materialHash": "c2ee16c6517610f41ec93b2990dfdbe50e646768062385895c149371a814f508",
-          "timestamp": "2026-06-03T22:21:08.935Z"
+          "headHash": "af4b8cfa373471b4b9ddc4646fdeda2b82bc21b4",
+          "materialHash": "43330fb8c4a8f195a60e8db4802ecd24fad09b6fadba2ff1bbd29e369ef4b1c6",
+          "timestamp": "2026-06-03T22:39:30.610Z"
         }
       ]
     },
@@ -178,9 +178,9 @@
           "command": "npm --prefix packages/main run test:cli-json-stdout-contract-smoke",
           "result": "pass",
           "note": "The new smoke spawns real CLI child processes and feeds captured stdout directly into JSON.parse, covering validate --json without substring extraction.",
-          "headHash": "951a6c763173fb316d9178695972f5629b94a606",
-          "materialHash": "c2ee16c6517610f41ec93b2990dfdbe50e646768062385895c149371a814f508",
-          "timestamp": "2026-06-03T22:21:08.935Z"
+          "headHash": "af4b8cfa373471b4b9ddc4646fdeda2b82bc21b4",
+          "materialHash": "43330fb8c4a8f195a60e8db4802ecd24fad09b6fadba2ff1bbd29e369ef4b1c6",
+          "timestamp": "2026-06-03T22:39:30.610Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -189,9 +189,9 @@
           "command": "npm --prefix packages/main run test:cli-json-stdout-contract-smoke",
           "result": "pass",
           "note": "The smoke also covers existing --format=json surfaces such as authority_status and host_list, proving known-good JSON commands remain direct-parseable through the shared output pipeline.",
-          "headHash": "951a6c763173fb316d9178695972f5629b94a606",
-          "materialHash": "c2ee16c6517610f41ec93b2990dfdbe50e646768062385895c149371a814f508",
-          "timestamp": "2026-06-03T22:21:08.935Z"
+          "headHash": "af4b8cfa373471b4b9ddc4646fdeda2b82bc21b4",
+          "materialHash": "43330fb8c4a8f195a60e8db4802ecd24fad09b6fadba2ff1bbd29e369ef4b1c6",
+          "timestamp": "2026-06-03T22:39:30.610Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -200,9 +200,9 @@
           "command": "npm --prefix packages/main run test:cli-json-stdout-contract-smoke",
           "result": "pass",
           "note": "The smoke asserts JSON stdout contains no human hint markers and that trimmed validate --json output ends at the single JSON document boundary, preventing future trailing decoration regressions.",
-          "headHash": "951a6c763173fb316d9178695972f5629b94a606",
-          "materialHash": "c2ee16c6517610f41ec93b2990dfdbe50e646768062385895c149371a814f508",
-          "timestamp": "2026-06-03T22:21:08.935Z"
+          "headHash": "af4b8cfa373471b4b9ddc4646fdeda2b82bc21b4",
+          "materialHash": "43330fb8c4a8f195a60e8db4802ecd24fad09b6fadba2ff1bbd29e369ef4b1c6",
+          "timestamp": "2026-06-03T22:39:30.610Z"
         }
       ]
     },
@@ -247,9 +247,9 @@
           "command": "Claude Code Agent 1 audit + Agent 2 implementation + Agent 3 independent review; Codex reran focused validation",
           "result": "pass",
           "note": "All three Claude Code roles produced traceable conclusions: Agent 1 audit, Agent 2 implementation commit 8a0c0705, and Agent 3 pass review; Codex reran build, focused smoke, migration smoke, direct JSON.parse, and text hint checks.",
-          "headHash": "951a6c763173fb316d9178695972f5629b94a606",
-          "materialHash": "c2ee16c6517610f41ec93b2990dfdbe50e646768062385895c149371a814f508",
-          "timestamp": "2026-06-03T22:21:08.935Z"
+          "headHash": "af4b8cfa373471b4b9ddc4646fdeda2b82bc21b4",
+          "materialHash": "43330fb8c4a8f195a60e8db4802ecd24fad09b6fadba2ff1bbd29e369ef4b1c6",
+          "timestamp": "2026-06-03T22:39:30.610Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -258,9 +258,9 @@
           "command": "Agent 3 independent review and lattice finding_list --storyId=B-7fc2",
           "result": "pass",
           "note": "Agent 3 found no blockers or advisory regressions, and finding_list returned no findings; if blockers had been found, the story would have remained in DEV rather than being advanced.",
-          "headHash": "951a6c763173fb316d9178695972f5629b94a606",
-          "materialHash": "c2ee16c6517610f41ec93b2990dfdbe50e646768062385895c149371a814f508",
-          "timestamp": "2026-06-03T22:21:08.935Z"
+          "headHash": "af4b8cfa373471b4b9ddc4646fdeda2b82bc21b4",
+          "materialHash": "43330fb8c4a8f195a60e8db4802ecd24fad09b6fadba2ff1bbd29e369ef4b1c6",
+          "timestamp": "2026-06-03T22:39:30.610Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -269,9 +269,9 @@
           "command": "Review docs/requirements/decisions/host-neutral-observability-console.md and .koala/story/actives/B-7fc2/evidence/agent-delivery-review.md",
           "result": "pass",
           "note": "Delivery evidence states the scoped limitation explicitly: no known limitations for the JSON stdout contract, while resolver/dashboard schema completion remains outside B-7fc2 and belongs to the host-neutral observability milestones.",
-          "headHash": "951a6c763173fb316d9178695972f5629b94a606",
-          "materialHash": "c2ee16c6517610f41ec93b2990dfdbe50e646768062385895c149371a814f508",
-          "timestamp": "2026-06-03T22:21:08.935Z"
+          "headHash": "af4b8cfa373471b4b9ddc4646fdeda2b82bc21b4",
+          "materialHash": "43330fb8c4a8f195a60e8db4802ecd24fad09b6fadba2ff1bbd29e369ef4b1c6",
+          "timestamp": "2026-06-03T22:39:30.610Z"
         }
       ]
     }
