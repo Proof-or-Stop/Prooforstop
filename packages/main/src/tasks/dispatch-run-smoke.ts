@@ -152,6 +152,22 @@ function readDispatch(root: string, dispatchId: string): DispatchRecord {
   return JSON.parse(readFileSync(join(root, '.koala/dispatches', dispatchId, 'dispatch.json'), 'utf8')) as DispatchRecord;
 }
 
+function projectedDispatchWorktreePath(root: string, storyId: string, dispatchId: string): string {
+  return join(root, '.worktrees', 'overflow', storyId, dispatchId);
+}
+
+function seedProjectedDispatchWorktreeRootSymlink(root: string, storyId: string, dispatchId: string, externalTarget: string): string {
+  const projectedRoot = projectedDispatchWorktreePath(root, storyId, dispatchId);
+  mkdirSync(dirname(projectedRoot), { recursive: true });
+  rmSync(projectedRoot, { recursive: true, force: true });
+  symlinkSync(externalTarget, projectedRoot, 'dir');
+  return projectedRoot;
+}
+
+function isProjectedRootSymlinkFailure(detail: string): boolean {
+  return /real git worktree root, not a symlink|resolves outside the isolated worktree via an existing symlinked path segment/i.test(detail);
+}
+
 function assertFiveWayRegistration(command: string, registry: ReturnType<typeof createMainRegistry>): void {
   assert.ok(MAIN_TOOLS.some(tool => tool.name === command), `${command} missing MAIN_TOOLS entry`);
   assert.equal(registry.has(command), true, `${command} missing registry handler`);
@@ -166,6 +182,8 @@ function assertFiveWayRegistration(command: string, registry: ReturnType<typeof 
 const root = mkdtempSync(join(tmpdir(), 'lattice-dispatch-run-'));
 const externalDir = mkdtempSync(join(tmpdir(), 'lattice-dispatch-run-external-'));
 const externalMarker = join(externalDir, 'blocked-by-symlink.txt');
+const fakeProjectedRootExternalDir = mkdtempSync(join(tmpdir(), 'lattice-dispatch-run-fake-root-'));
+const realProjectedRootExternalDir = mkdtempSync(join(tmpdir(), 'lattice-dispatch-run-real-root-'));
 try {
   initRepo(root, externalDir);
   resetConfigCache();
@@ -387,6 +405,24 @@ try {
   );
   assert.equal(existsSync(externalMarker), false, 'symlink escape target must never be written');
 
+  const fakeProjectedRootDispatchId = 'D-preexisting-root-symlink-fake';
+  const fakeProjectedRootExternalMarker = join(fakeProjectedRootExternalDir, 'packages/main/src/generated/preexisting-root-blocked.txt');
+  seedProjectedDispatchWorktreeRootSymlink(root, 'B-dispatch', fakeProjectedRootDispatchId, fakeProjectedRootExternalDir);
+  run<DispatchRecord>('dispatch_prepare', {
+    storyId: 'B-dispatch',
+    dispatchId: fakeProjectedRootDispatchId,
+    host: 'fake',
+    objective: 'Fake runtime must reject a projected worktree root symlink before writing external output.',
+    allowedPaths: ['packages/main/src/generated/preexisting-root-blocked.txt'],
+    deniedPaths: ['README.md'],
+  });
+  assert.throws(
+    () => run<DispatchRunResult>('dispatch_run', { dispatchId: fakeProjectedRootDispatchId }),
+    error => isProjectedRootSymlinkFailure(String(error)),
+  );
+  assert.equal(existsSync(fakeProjectedRootExternalMarker), false, 'fake projected-root symlink target must never receive allowed output');
+  assert.deepEqual(readdirSync(fakeProjectedRootExternalDir), [], 'fake projected-root symlink target must remain unused');
+
   const maliciousDispatchId = '../../dispatch-id-escape';
   const escapedDispatchMetadataDir = resolve(root, 'dispatch-id-escape');
   const maliciousOverflowSuggest = run<DispatchPlanResult>('overflow_auto', {
@@ -479,6 +515,29 @@ try {
     assert.equal(existsSync(externalMarker), false, 'real-host symlink escape target must never be written');
     assert.equal(readDispatch(root, realHostSymlinkEscape.dispatchId).status, 'failed', 'real-host symlink escape must persist failed dispatch status');
 
+    const realProjectedRootDispatchId = 'D-preexisting-root-symlink-real';
+    const realProjectedRootExternalMarker = join(realProjectedRootExternalDir, 'packages/main/src/generated/preexisting-root-blocked.txt');
+    seedProjectedDispatchWorktreeRootSymlink(root, 'B-dispatch', realProjectedRootDispatchId, realProjectedRootExternalDir);
+    const realProjectedRootSymlink = run<DispatchRecord>('dispatch_prepare', {
+      storyId: 'B-dispatch',
+      dispatchId: realProjectedRootDispatchId,
+      host: 'codex',
+      objective: 'Real runtime must fail instead of returning needs_receipt when the projected worktree root is a symlink.',
+      allowedPaths: ['packages/main/src/generated/preexisting-root-blocked.txt'],
+      deniedPaths: ['README.md'],
+    });
+    const realProjectedRootRun = run<DispatchRunResult>('dispatch_run', { dispatchId: realProjectedRootSymlink.dispatchId });
+    assert.notEqual(realProjectedRootRun.status, 'needs_receipt');
+    assert.equal(realProjectedRootRun.status, 'failed');
+    assert.ok(
+      realProjectedRootRun.warnings.some(warning => isProjectedRootSymlinkFailure(warning)),
+      'real projected-root symlink should surface canonical validation failure in warnings',
+    );
+    assert.match(realProjectedRootRun.nextAction, /Resolve the git worktree error, then rerun dispatch_run/i);
+    assert.equal(existsSync(realProjectedRootExternalMarker), false, 'real projected-root symlink target must never receive allowed output');
+    assert.deepEqual(readdirSync(realProjectedRootExternalDir), [], 'real projected-root symlink target must remain unused');
+    assert.equal(readDispatch(root, realProjectedRootSymlink.dispatchId).status, 'failed', 'real projected-root symlink must persist failed dispatch status');
+
     const realHostFailure = run<DispatchRecord>('dispatch_prepare', {
       storyId: 'B-dispatch',
       dispatchId: 'D-real-host-failure',
@@ -546,4 +605,6 @@ try {
   resetConfigCache();
   rmSync(root, { recursive: true, force: true });
   rmSync(externalDir, { recursive: true, force: true });
+  rmSync(fakeProjectedRootExternalDir, { recursive: true, force: true });
+  rmSync(realProjectedRootExternalDir, { recursive: true, force: true });
 }
