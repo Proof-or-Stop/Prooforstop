@@ -309,8 +309,8 @@
         "packages/main/src/core/lattice-handoff.ts",
         "packages/main/src/tasks/dispatch-run-smoke.ts"
       ],
-      "resolvedReason": "probe",
-      "resolvedAt": "2026-06-03T16:23:59.238Z"
+      "resolvedReason": "Resolved by koala-implementer commit e27e5fd0. dispatch receipts now set receipt.host from record.selectedHost via dispatchReceiptHost instead of hardcoded codex; Gemini dispatch_receipt_create and fake receipts preserve host identity while receiptVerified/productionDone remain false. dispatch-run smoke asserts Gemini receipt.host=gemini and not codex. Verified with build, dispatch-run smoke, host-overflow smoke, lattice-handoff smoke, command-ownership contract, process-fact contract, capability/runtime contracts, git diff --check.",
+      "resolvedAt": "2026-06-03T16:24:28.387Z"
     },
     {
       "id": "B-106b:F-017",
