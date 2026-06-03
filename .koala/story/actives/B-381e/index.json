@@ -4,7 +4,7 @@
   "title": "Implement Host-Neutral Observability M1 resolver and adapter",
   "description": "Build the first implementation slice for the adopted Host-Neutral Observability Console contract: a machine-readable resolver JSON surface plus read-only adapter skeleton. This must not build the multi-page UI yet and must not mutate Story, evidence, receipt, or authority state.",
   "type": "feature",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "source": "user-request",
   "keywords": [
@@ -61,6 +61,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-03T00:20:21.831Z",
+      "branch": "story/B-381e",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-03T00:25:06.265Z",
       "branch": "story/B-381e",
       "user": "Harmonygo",
       "agent": "main"
