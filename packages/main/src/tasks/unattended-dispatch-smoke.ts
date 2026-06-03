@@ -12,6 +12,7 @@
 
 import assert from 'node:assert/strict';
 import {
+  chmodSync,
   existsSync,
   mkdirSync,
   mkdtempSync,
@@ -21,7 +22,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { delimiter, join } from 'node:path';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
 import type {
@@ -45,6 +46,10 @@ import type { HandlerContext } from '../handlers/context.js';
 import { createMainRegistry } from '../registry.js';
 import { execFileSync } from 'node:child_process';
 
+type DispatchPolicyWithRealHost = DispatchPolicy & {
+  allowRealHostSubprocess?: boolean;
+};
+
 function git(root: string, args: string[]): string {
   return execFileSync('git', args, {
     cwd: root,
@@ -61,10 +66,79 @@ function writeConfig(root: string): void {
   }, null, 2) + '\n');
 }
 
-function writeDispatchPolicy(root: string, policy: DispatchPolicy): void {
+function writeDispatchPolicy(root: string, policy: DispatchPolicyWithRealHost): void {
   const dir = join(root, '.koala/dispatch-policies');
   mkdirSync(dir, { recursive: true });
   writeFileSync(join(dir, `${policy.policy}.json`), JSON.stringify(policy, null, 2) + '\n');
+}
+
+function installFakeClaude(binDir: string): void {
+  mkdirSync(binDir, { recursive: true });
+  const scriptPath = join(binDir, 'claude');
+  writeFileSync(scriptPath, `#!/usr/bin/env node
+const fs = require('fs');
+const path = require('path');
+
+if (process.argv[2] === '--version') {
+  console.log('fake-claude 1.0.0');
+  process.exit(0);
+}
+if (process.argv[2] === '--help') {
+  console.log('Usage: claude --print <prompt-file>');
+  process.exit(0);
+}
+if (process.argv[2] !== '--print' || !process.argv[3]) {
+  console.error('expected claude --print <prompt-file>');
+  process.exit(64);
+}
+
+const prompt = fs.readFileSync(process.argv[3], 'utf8');
+const mode = process.env.LATTICE_FAKE_CLAUDE_MODE || 'success';
+function writeRelative(file, body) {
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, body);
+}
+
+if (mode === 'timeout') {
+  setTimeout(() => {}, 10000);
+} else if (mode === 'fail') {
+  console.error('intentional fake claude failure');
+  process.exit(5);
+} else if (mode === 'env') {
+  if (process.env.LATTICE_FAKE_CLAUDE_SECRET) {
+    console.error('secret leaked to fake claude');
+    process.exit(7);
+  }
+  if (process.env.LATTICE_FAKE_CLAUDE_ALLOWED !== 'allowed-value') {
+    console.error('allowed env missing');
+    process.exit(8);
+  }
+  writeRelative('packages/main/src/generated/claude-env.txt', 'allowed env observed\\n');
+  console.log('env ok');
+} else {
+  writeRelative('packages/main/src/generated/claude-success.txt', 'prompt=' + /Lattice Dispatch/.test(prompt) + '\\n');
+  console.log('success stdout');
+  console.error('success stderr');
+}
+`, 'utf8');
+  chmodSync(scriptPath, 0o755);
+}
+
+function withProcessEnv<T>(updates: Record<string, string | undefined>, fn: () => T): T {
+  const saved: Record<string, string | undefined> = {};
+  for (const key of Object.keys(updates)) saved[key] = process.env[key];
+  try {
+    for (const [key, value] of Object.entries(updates)) {
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    }
+    return fn();
+  } finally {
+    for (const [key, value] of Object.entries(saved)) {
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    }
+  }
 }
 
 function initRepo(root: string): void {
@@ -134,9 +208,41 @@ function readCommandResults(root: string, record: DispatchRecord): Array<{ comma
   ) as Array<{ command: string; ok: boolean; output: string; timedOut?: boolean }>;
 }
 
+function realClaudePolicy(opts: {
+  policy: string;
+  allowedPaths: string[];
+  maxRuntimeMinutes?: number;
+  envAllowlist?: string[];
+  envDenylist?: string[];
+}): DispatchPolicyWithRealHost {
+  return {
+    schemaVersion: 'lattice.dispatch_policy.v1',
+    policy: opts.policy,
+    allowedHosts: ['claude-code'],
+    allowedPaths: opts.allowedPaths,
+    deniedPaths: [],
+    maxParallel: 2,
+    maxRuntimeMinutes: opts.maxRuntimeMinutes ?? 1,
+    maxBudgetUSD: 5.0,
+    network: 'restricted',
+    envAllowlist: opts.envAllowlist ?? ['LATTICE_FAKE_CLAUDE_MODE'],
+    envDenylist: opts.envDenylist ?? [],
+    commandAllowlist: ['claude --print <prompt-file>'],
+    retryLimit: 0,
+    requireReceipt: true,
+    requireReview: true,
+    allowAutoMerge: false,
+    allowProductionDone: false,
+    allowRealHostSubprocess: true,
+    createdAt: '2026-06-03T00:00:00.000Z',
+  };
+}
+
 const sandboxRoot = mkdtempSync(join(tmpdir(), 'lattice-unattended-smoke-'));
 const root = join(sandboxRoot, 'repo', 'root');
+const fakeClaudeBin = join(sandboxRoot, 'fake-claude-bin');
 try {
+  installFakeClaude(fakeClaudeBin);
   initRepo(root);
   resetConfigCache();
   const store = new StoryStore(root);
@@ -433,11 +539,153 @@ try {
     );
   }
 
-  // ── Step 9: CHK-008 edge coverage ──────────────────────────────────────────
+  // ── Step 9: policy-bound real Claude subprocess path (fake binary) ──────────
+
+  const fakeClaudePath = `${fakeClaudeBin}${delimiter}${process.env.PATH ?? ''}`;
+
+  // 9a: allowRealHostSubprocess=true permits claude-code only and records runner metadata
+  {
+    writeDispatchPolicy(root, realClaudePolicy({
+      policy: 'chk008-claude-real-success',
+      allowedPaths: ['packages/main/src/generated/claude-success.txt'],
+    }));
+    const realSuccess = withProcessEnv({
+      PATH: fakeClaudePath,
+      LATTICE_FAKE_CLAUDE_MODE: 'success',
+    }, () => run<DispatchAutoResult>('dispatch_auto', {
+      storyId: 'B-unattended',
+      policy: 'chk008-claude-real-success',
+      host: 'claude-code',
+      allowedPaths: ['packages/main/src/generated/claude-success.txt'],
+      objective: 'CHK-008 policy-bound fake claude success',
+    }));
+    assert.equal(realSuccess.status, 'accepted_local',
+      'policy-bound fake claude success must create an accepted-local diagnostic receipt');
+    assert.equal(realSuccess.host, 'claude-code',
+      'real claude dispatch_auto result must report claude-code host');
+    assertAuthorityFalse(realSuccess, 'realSuccess');
+
+    const realSuccessStatus = run<DispatchStatusResult>('dispatch_status', { dispatchId: realSuccess.dispatchId });
+    assert.equal(realSuccessStatus.runner?.runnerKind, 'claude-code-real',
+      'runnerKind must identify the policy-bound real claude path');
+    assert.deepEqual(realSuccessStatus.runner?.commandTemplate, ['claude', '--print', '<prompt-file>'],
+      'runner commandTemplate must record claude --print <prompt-file>');
+    assert.equal(realSuccessStatus.runner?.invocation[0], 'claude',
+      'runner invocation must start claude');
+    assert.equal(realSuccessStatus.runner?.invocation[1], '--print',
+      'runner invocation must use --print');
+    assert.equal(realSuccessStatus.runner?.cwd, realSuccessStatus.dispatch.worktree.worktreePath,
+      'runner cwd must be the isolated dispatch worktree');
+    assert.equal(realSuccessStatus.runner?.exitCode, 0,
+      'successful fake claude exitCode must be recorded');
+    assert.equal(realSuccessStatus.runner?.timedOut, false,
+      'successful fake claude must not be timed out');
+    assert.equal(realSuccessStatus.receipt?.status, 'accepted-local',
+      'real claude success receipt remains local accepted diagnostic evidence');
+    assertAuthorityFalse(realSuccessStatus, 'realSuccessStatus');
+    const transcript = readFileSync(join(root, realSuccessStatus.dispatch.transcriptFile), 'utf8');
+    assert.match(transcript, /success stdout/, 'real claude transcript must capture stdout');
+    assert.match(transcript, /success stderr/, 'real claude transcript must capture stderr');
+  }
+
+  // 9b: filtered env reaches allowlisted names but not denied/sensitive names
+  {
+    const secretValue = 'fake-claude-secret-value';
+    writeDispatchPolicy(root, realClaudePolicy({
+      policy: 'chk008-claude-real-env',
+      allowedPaths: ['packages/main/src/generated/claude-env.txt'],
+      envAllowlist: ['LATTICE_FAKE_CLAUDE_MODE', 'LATTICE_FAKE_CLAUDE_ALLOWED'],
+      envDenylist: ['LATTICE_FAKE_CLAUDE_SECRET'],
+    }));
+    const envRun = withProcessEnv({
+      PATH: fakeClaudePath,
+      LATTICE_FAKE_CLAUDE_MODE: 'env',
+      LATTICE_FAKE_CLAUDE_ALLOWED: 'allowed-value',
+      LATTICE_FAKE_CLAUDE_SECRET: secretValue,
+    }, () => run<DispatchAutoResult>('dispatch_auto', {
+      storyId: 'B-unattended',
+      policy: 'chk008-claude-real-env',
+      host: 'claude-code',
+      allowedPaths: ['packages/main/src/generated/claude-env.txt'],
+      objective: 'CHK-008 policy-bound fake claude env filtering',
+    }));
+    assert.equal(envRun.status, 'accepted_local',
+      'fake claude env probe must pass only when denied secret is filtered out');
+    const envStatus = run<DispatchStatusResult>('dispatch_status', { dispatchId: envRun.dispatchId });
+    assert.equal(envStatus.runner?.runnerKind, 'claude-code-real');
+    assert.equal(envStatus.runner?.envSummary.safeVarNames.includes('LATTICE_FAKE_CLAUDE_SECRET'), false,
+      'runner env summary must not list denied secret env var');
+    const envTranscript = readFileSync(join(root, envStatus.dispatch.transcriptFile), 'utf8');
+    assert.match(envTranscript, /env ok/, 'real claude env transcript must capture stdout');
+    assert.doesNotMatch(envTranscript, new RegExp(secretValue),
+      'real claude transcript must not contain denied secret value');
+    assertAuthorityFalse(envStatus, 'envStatus');
+  }
+
+  // 9c: non-zero fake claude exits fail the dispatch without production authority
+  {
+    writeDispatchPolicy(root, realClaudePolicy({
+      policy: 'chk008-claude-real-nonzero',
+      allowedPaths: ['packages/main/src/generated/claude-nonzero.txt'],
+    }));
+    const nonzeroRun = withProcessEnv({
+      PATH: fakeClaudePath,
+      LATTICE_FAKE_CLAUDE_MODE: 'fail',
+    }, () => run<DispatchAutoResult>('dispatch_auto', {
+      storyId: 'B-unattended',
+      policy: 'chk008-claude-real-nonzero',
+      host: 'claude-code',
+      allowedPaths: ['packages/main/src/generated/claude-nonzero.txt'],
+      objective: 'CHK-008 policy-bound fake claude nonzero failure',
+    }));
+    assert.equal(nonzeroRun.status, 'failed',
+      'non-zero fake claude must leave dispatch in failed status');
+    const nonzeroStatus = run<DispatchStatusResult>('dispatch_status', { dispatchId: nonzeroRun.dispatchId });
+    assert.equal(nonzeroStatus.runner?.runnerKind, 'claude-code-real');
+    assert.equal(nonzeroStatus.runner?.exitCode, 5,
+      'non-zero fake claude exitCode must be recorded');
+    assert.equal(nonzeroStatus.runner?.timedOut, false,
+      'non-zero fake claude must not be marked timedOut');
+    assert.equal(nonzeroStatus.receipt, undefined,
+      'failed real claude subprocess must not forge a receipt');
+    assertAuthorityFalse(nonzeroStatus, 'nonzeroStatus');
+  }
+
+  // 9d: timeout from policy executionPolicy fails the real subprocess path
+  {
+    writeDispatchPolicy(root, realClaudePolicy({
+      policy: 'chk008-claude-real-timeout',
+      allowedPaths: ['packages/main/src/generated/claude-timeout.txt'],
+      maxRuntimeMinutes: 0.001,
+    }));
+    const timeoutRun = withProcessEnv({
+      PATH: fakeClaudePath,
+      LATTICE_FAKE_CLAUDE_MODE: 'timeout',
+    }, () => run<DispatchAutoResult>('dispatch_auto', {
+      storyId: 'B-unattended',
+      policy: 'chk008-claude-real-timeout',
+      host: 'claude-code',
+      allowedPaths: ['packages/main/src/generated/claude-timeout.txt'],
+      objective: 'CHK-008 policy-bound fake claude timeout failure',
+    }));
+    assert.equal(timeoutRun.status, 'failed',
+      'timed-out fake claude must leave dispatch in failed status');
+    const timeoutRealStatus = run<DispatchStatusResult>('dispatch_status', { dispatchId: timeoutRun.dispatchId });
+    assert.equal(timeoutRealStatus.runner?.runnerKind, 'claude-code-real');
+    assert.equal(timeoutRealStatus.runner?.timedOut, true,
+      'real claude runner record must surface timedOut=true');
+    assert.notEqual(timeoutRealStatus.runner?.exitCode, 0,
+      'timed-out fake claude must not record exitCode 0');
+    assert.equal(timeoutRealStatus.receipt, undefined,
+      'timed-out real claude subprocess must not forge a receipt');
+    assertAuthorityFalse(timeoutRealStatus, 'timeoutRealStatus');
+  }
+
+  // ── Step 10: CHK-008 edge coverage ─────────────────────────────────────────
 
   const exitZeroCommand = 'node -e "process.exit(0)"';
 
-  // 9a: allowedPaths override outside policy refuses before dispatch artifacts
+  // 10a: allowedPaths override outside policy refuses before dispatch artifacts
   {
     run<DispatchPolicy>('dispatch_policy_create', {
       policy: 'chk008-scope-boundary',
@@ -688,7 +936,7 @@ try {
     `overflow_auto nextAction must reference dispatch_auto as the policy-authorized unattended path, got: ${overflowResult.nextAction}`,
   );
 
-  console.log('✓ unattended-dispatch-smoke passed — policy check, claude-code capability probe, fake parallel dispatch_auto, dispatch_watch lifecycle, dispatch_cancel evidence preservation, dispatch_review transcript/runner evidence, dispatch_merge_plan manualOnly, refusal for missing policy / unavailable / unattendedUnsafe host / out-of-policy scope / out-of-policy command, denied env filtering, timeout, missing receipt, mixed worker diagnostics, authority invariants, and overflow_auto→dispatch_auto migration guidance verified');
+  console.log('✓ unattended-dispatch-smoke passed — policy check, claude-code capability probe, fake parallel dispatch_auto, policy-bound fake claude success/env/nonzero/timeout coverage, dispatch_watch lifecycle, dispatch_cancel evidence preservation, dispatch_review transcript/runner evidence, dispatch_merge_plan manualOnly, refusal for missing policy / unavailable / unattendedUnsafe host / out-of-policy scope / out-of-policy command, denied env filtering, timeout, missing receipt, mixed worker diagnostics, authority invariants, and overflow_auto→dispatch_auto migration guidance verified');
 } finally {
   resetConfigCache();
   rmSync(sandboxRoot, { recursive: true, force: true });

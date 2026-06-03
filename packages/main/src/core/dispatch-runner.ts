@@ -22,7 +22,7 @@ export interface DispatchRunnerEnvSummary {
   note: string;
 }
 
-export type RunnerKind = 'fake' | 'scaffolded' | 'refused';
+export type RunnerKind = 'fake' | 'scaffolded' | 'refused' | 'claude-code-real';
 
 export interface DispatchRunnerRecord {
   schemaVersion: 'lattice.dispatch_runner.v1';
@@ -126,6 +126,38 @@ export function buildScaffoldedRunnerRecord(opts: {
     refusalReasons: [
       'supervised-only: no external host process was launched; manual invocation required.',
     ],
+    ...authorityState(),
+  };
+}
+
+export function buildClaudeCodeRealRunnerRecord(opts: {
+  dispatchId: string;
+  host: string;
+  commandTemplate: string[];
+  invocation: string[];
+  cwd: string;
+  transcriptPath: string;
+  startedAt: string;
+  endedAt: string;
+  exitCode: number;
+  timedOut: boolean;
+  env: Record<string, string | undefined>;
+}): DispatchRunnerRecord {
+  return {
+    schemaVersion: 'lattice.dispatch_runner.v1',
+    dispatchId: opts.dispatchId,
+    host: opts.host,
+    runnerKind: 'claude-code-real',
+    commandTemplate: opts.commandTemplate,
+    invocation: opts.invocation,
+    cwd: opts.cwd,
+    transcriptPath: opts.transcriptPath,
+    startedAt: opts.startedAt,
+    endedAt: opts.endedAt,
+    exitCode: opts.exitCode,
+    timedOut: opts.timedOut,
+    envSummary: buildEnvSummary(opts.env),
+    refusalReasons: [],
     ...authorityState(),
   };
 }
