@@ -44,7 +44,42 @@
         "test": [
           "packages/main/src/tasks/validation-protocol-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "validation-protocol smoke covers B-a30e storyId alias: JSON storyId validate writes story test-evidence instead of silently falling back to diagnostic validate.",
+          "headHash": "ecd3c9c5b04a33a97d0372cb24bedfda08d1d4a0",
+          "materialHash": "01db90fafb39546169dfee06e62335971bde73db383a8d89fce1a22cb33a452b",
+          "timestamp": "2026-06-03T22:17:39.521Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "same smoke asserts --story still writes evidence and no-story validate remains diagnostic/read-only without creating .koala state.",
+          "headHash": "ecd3c9c5b04a33a97d0372cb24bedfda08d1d4a0",
+          "materialHash": "01db90fafb39546169dfee06e62335971bde73db383a8d89fce1a22cb33a452b",
+          "timestamp": "2026-06-03T22:17:39.521Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "same smoke asserts conflicting story and storyId values reject explicitly before validation/persistence.",
+          "headHash": "ecd3c9c5b04a33a97d0372cb24bedfda08d1d4a0",
+          "materialHash": "01db90fafb39546169dfee06e62335971bde73db383a8d89fce1a22cb33a452b",
+          "timestamp": "2026-06-03T22:17:39.521Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -91,7 +126,42 @@
           "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
           "packages/main/src/tasks/flow-stability-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
+          "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
+          "result": "pass",
+          "note": "semantic scope guard smoke asserts REVIEW stale/missing binding still names review_run_start and REVIEW-to-TEST guidance.",
+          "headHash": "ecd3c9c5b04a33a97d0372cb24bedfda08d1d4a0",
+          "materialHash": "01db90fafb39546169dfee06e62335971bde73db383a8d89fce1a22cb33a452b",
+          "timestamp": "2026-06-03T22:17:39.521Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
+          "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke",
+          "result": "pass",
+          "note": "same smoke asserts TEST stale/missing review binding renders post-review advisory copy and does not contain REVIEW-to-TEST guidance.",
+          "headHash": "ecd3c9c5b04a33a97d0372cb24bedfda08d1d4a0",
+          "materialHash": "01db90fafb39546169dfee06e62335971bde73db383a8d89fce1a22cb33a452b",
+          "timestamp": "2026-06-03T22:17:39.521Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
+          "command": "npm --prefix packages/main run test:semantic-scope-guard-smoke && npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "semantic scope and flow stability smokes pass with path/semantic/guard fail still blocking and not softened by advisory copy.",
+          "headHash": "ecd3c9c5b04a33a97d0372cb24bedfda08d1d4a0",
+          "materialHash": "01db90fafb39546169dfee06e62335971bde73db383a8d89fce1a22cb33a452b",
+          "timestamp": "2026-06-03T22:17:39.521Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -137,7 +207,42 @@
           "packages/main/src/tasks/story-owner-lease-smoke.ts",
           "packages/main/src/tasks/command-ownership-contract.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/command-ownership-contract.ts",
+          "command": "npm --prefix packages/main run test:command-ownership-contract",
+          "result": "pass",
+          "note": "command ownership contract asserts owner-gated command help exposes --takeover and --forceTakeover guidance, including validate story-target note.",
+          "headHash": "ecd3c9c5b04a33a97d0372cb24bedfda08d1d4a0",
+          "materialHash": "01db90fafb39546169dfee06e62335971bde73db383a8d89fce1a22cb33a452b",
+          "timestamp": "2026-06-03T22:17:39.521Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/command-ownership-contract.ts",
+          "command": "npm --prefix packages/main run test:command-ownership-contract",
+          "result": "pass",
+          "note": "same contract asserts readOnly, reviewerWrite, and mainSharedMutating commands do not advertise takeover recovery.",
+          "headHash": "ecd3c9c5b04a33a97d0372cb24bedfda08d1d4a0",
+          "materialHash": "01db90fafb39546169dfee06e62335971bde73db383a8d89fce1a22cb33a452b",
+          "timestamp": "2026-06-03T22:17:39.521Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story-owner-lease-smoke.ts",
+          "command": "npm --prefix packages/main run test:story-owner-lease-smoke",
+          "result": "pass",
+          "note": "story-owner-lease smoke confirms active foreign lease still requires --forceTakeover, stale takeover semantics and audit events remain intact.",
+          "headHash": "ecd3c9c5b04a33a97d0372cb24bedfda08d1d4a0",
+          "materialHash": "01db90fafb39546169dfee06e62335971bde73db383a8d89fce1a22cb33a452b",
+          "timestamp": "2026-06-03T22:17:39.521Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -187,7 +292,42 @@
           "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
           "packages/main/src/tasks/flow-stability-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/scope-contract-smoke.ts",
+          "command": "npm --prefix packages/main run test:scope-contract-smoke",
+          "result": "pass",
+          "note": "scope-contract smoke asserts shadow/warn transition output says advisory, not blocking and names scope_contract_acknowledge recovery.",
+          "headHash": "ecd3c9c5b04a33a97d0372cb24bedfda08d1d4a0",
+          "materialHash": "01db90fafb39546169dfee06e62335971bde73db383a8d89fce1a22cb33a452b",
+          "timestamp": "2026-06-03T22:17:39.521Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/scope-contract-smoke.ts",
+          "command": "npm --prefix packages/main run test:scope-contract-smoke",
+          "result": "pass",
+          "note": "same smoke asserts TEST-phase warnings point to rolling back to DEV to acknowledge or delivery reviewer verification.",
+          "headHash": "ecd3c9c5b04a33a97d0372cb24bedfda08d1d4a0",
+          "materialHash": "01db90fafb39546169dfee06e62335971bde73db383a8d89fce1a22cb33a452b",
+          "timestamp": "2026-06-03T22:17:39.521Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/command-ownership-contract.ts",
+          "command": "npm --prefix packages/main run test:command-ownership-contract && npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "command ownership and flow stability smokes pass, confirming scope command phase policy remains unchanged and warnings are not silent pass.",
+          "headHash": "ecd3c9c5b04a33a97d0372cb24bedfda08d1d4a0",
+          "materialHash": "01db90fafb39546169dfee06e62335971bde73db383a8d89fce1a22cb33a452b",
+          "timestamp": "2026-06-03T22:17:39.521Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -243,7 +383,40 @@
           "packages/main/src/tasks/flow-stability-smoke.ts",
           "scripts/verify-process-fact-contract.mjs"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:validation-protocol && npm --prefix packages/main run test:command-ownership-contract",
+          "result": "pass",
+          "note": "integration HEAD builds cleanly and targeted validate/owner-help smoke commands pass after merging all Claude agent branches plus supervisor test fix.",
+          "headHash": "ecd3c9c5b04a33a97d0372cb24bedfda08d1d4a0",
+          "materialHash": "01db90fafb39546169dfee06e62335971bde73db383a8d89fce1a22cb33a452b",
+          "timestamp": "2026-06-03T22:17:39.521Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:story-owner-lease-smoke && npm --prefix packages/main run test:semantic-scope-guard-smoke && npm --prefix packages/main run test:scope-contract-smoke && npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "owner lease, semantic scope, scope contract, and flow stability smoke commands all pass on integrated HEAD; scope-contract was rerun serially after build to avoid dist race.",
+          "headHash": "ecd3c9c5b04a33a97d0372cb24bedfda08d1d4a0",
+          "materialHash": "01db90fafb39546169dfee06e62335971bde73db383a8d89fce1a22cb33a452b",
+          "timestamp": "2026-06-03T22:17:39.521Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "process fact contract verifies validate and gate-evidence command semantics remain registered and no gate evidence command was downgraded accidentally.",
+          "headHash": "ecd3c9c5b04a33a97d0372cb24bedfda08d1d4a0",
+          "materialHash": "01db90fafb39546169dfee06e62335971bde73db383a8d89fce1a22cb33a452b",
+          "timestamp": "2026-06-03T22:17:39.521Z"
+        }
+      ]
     }
   ]
 }
