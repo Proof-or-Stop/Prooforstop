@@ -128,9 +128,9 @@
       "id": "CHK-003",
       "title": "把 Codex verify/doctor 能力收回全局 CLI",
       "context": "Expose global commands such as lattice codex verify and lattice codex doctor, make legacy local shims proxy/fallback, and ensure resolver prefers .Lattice/lattice.json before .Codex or KOALA-era paths.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-03T19:12:57.872Z",
       "relatedDocs": [
         "docs/requirements/decisions/stack-layering.md",
         "docs/requirements/decisions/host-overflow.md",
@@ -174,7 +174,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/thin-init-assets-smoke.ts",
+          "command": "npm --prefix packages/main run test:thin-init-assets-smoke",
+          "result": "pass",
+          "note": "assertCodexOk passes in Test 1/2/5; legacy-koala-compat-smoke global-thin case also passes codex checks without bin/ shims",
+          "headHash": "13696b1eac890525882ab0bad558755b38314c32",
+          "materialHash": "3efb799345b698adb0b3e3cba5524a54d1b521ccffdc537576d4aa460a9d9411",
+          "timestamp": "2026-06-03T19:12:57.980Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
