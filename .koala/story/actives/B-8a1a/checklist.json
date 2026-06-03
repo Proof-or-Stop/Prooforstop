@@ -10,7 +10,42 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "用户运行 lattice help / README 示例时，会看到 dispatch_auto 可在 allowRealHostSubprocess=true policy 下启动 claude-code real runner，但仍显示 manual review / productionDone=false 边界。",
+      "files": {
+        "modify": [
+          "README.md",
+          "docs/requirements/decisions/host-overflow.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Docs and CLI text describe Claude-only real subprocess v1.0.1, explicit policy opt-in, and unchanged authority fields.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Gemini/Codex remain documented as scaffolded or refused, with no wording claiming full real-host fleet support.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No doc or command description implies local Claude output can auto-merge, auto-DONE, or verify production receipts.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
