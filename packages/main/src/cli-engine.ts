@@ -1460,6 +1460,37 @@ type HelpOutputOptions = {
   includeFooter?: boolean;
 };
 
+/**
+ * Returns a multi-line help block describing the `--takeover` / `--forceTakeover`
+ * meta options for owner-gated CLI commands, or `null` for commands that are
+ * not owner-gated (readOnly / reviewerWrite / mainSharedMutating).
+ *
+ * Owner-gated means `storyScopedMutating` or `dangerousMutating` — the gate in
+ * `enforceStoryOwnerLeaseGate` checks both. `validate` is statically classified
+ * `storyScopedMutating` so the block is shown, with a note that it only applies
+ * when `--story` is supplied (boundary rule 2 downgrades it to readOnly without
+ * a story argument).
+ *
+ * Exported so contract tests can assert the block is present for gated commands
+ * and absent for read-only / reviewer-lane commands without spawning a subprocess.
+ */
+export function ownerLeaseHelpBlock(cmd: string): string | null {
+  const policy = getCommandPolicy(cmd);
+  if (!policy || !isOwnershipClass(policy.ownershipClass)) return null;
+  const cls = policy.ownershipClass;
+  if (cls === 'readOnly' || cls === 'reviewerWrite' || cls === 'mainSharedMutating') return null;
+  // storyScopedMutating or dangerousMutating — owner-gated.
+  const note = cmd === 'validate'
+    ? ' (applies when --story is supplied; diagnostic validate without --story is always read-only)'
+    : '';
+  return [
+    ``,
+    `  Owner lease meta options${note}:`,
+    `    --takeover          recover a stale foreign lease (no heartbeat for 30+ min)`,
+    `    --forceTakeover     seize an active foreign lease (deliberate human override; also transfers stale)`,
+  ].join('\n');
+}
+
 function printToolHelp(tool: ToolDef, options: HelpOutputOptions = {}) {
   const brand = detectLatticeBrand();
   const out = (line = '') => {
@@ -1481,6 +1512,8 @@ function printToolHelp(tool: ToolDef, options: HelpOutputOptions = {}) {
   if (entries.length === 0) {
     out('  无参数\n');
     out(`  用法: ${brand.primaryBin} ${tool.name}`);
+    const ownerBlock = ownerLeaseHelpBlock(tool.name);
+    if (ownerBlock) out(ownerBlock);
     if (includeFooter) out(SESSION_BRIEF_FOOTER);
     return;
   }
@@ -1508,6 +1541,8 @@ function printToolHelp(tool: ToolDef, options: HelpOutputOptions = {}) {
   out(`\n  用法: ${brand.primaryBin} ${tool.name} ${[...reqParts, ...optParts].join(' ')}`);
   out(`  兼容: ${brand.legacyAlias} ${tool.name} ...`);
   out('  (* = 必填)');
+  const ownerBlock = ownerLeaseHelpBlock(tool.name);
+  if (ownerBlock) out(ownerBlock);
   if (includeFooter) out(SESSION_BRIEF_FOOTER);
 }
 
