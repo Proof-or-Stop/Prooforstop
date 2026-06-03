@@ -37,8 +37,9 @@
 `validate.ts`。执行优先级：
 
 1. 项目根目录存在 `validate.ts` / `validate.js` / `validate.mts` 时，按原 D/M/F verifier 路径执行。
-2. 否则读取 `koala.config.json` 的 `validate.command` 或 `validate.commands`。
-3. 否则按项目类型自动发现标准命令：`npm test`、`python -m pytest`、`go test ./...`、`cargo test`、`swift test`、`mvn test`、`gradle test`。
+2. 否则读取**项目配置**：canonical `lattice.config.json` 优先；legacy `koala.config.json` 仅在 canonical 缺失时作为兜底读取，使用时输出迁移提示。两者同时存在时 `lattice.config.json` 胜出并打印冲突诊断，`koala.config.json` 的 validate 配置被忽略。读取的 `validate.command` 或 `validate.commands` 直接执行。
+3. 否则按项目类型自动发现标准命令：`npm test`、`python -m pytest`、`go test ./...`、`cargo test`、`mvn test`、`gradle test`。
+   - **Swift / Package.swift 不在自动 fallback 列表**：Mac Native App 已退役，不再作为当前产品入口；如需运行 `swift test` 必须在 `lattice.config.json`（或 legacy `koala.config.json`）显式声明 `validate.commands` 条目。
 4. 仍找不到验证入口时返回 `warn/skip`，不把 Python/Go/C++ 等非 TS 项目误判为失败；需要强门禁的项目必须显式配置验证命令。
 
 `koala validate` 的成功提示必须使用当前 story phase 和 gate oracle，而不是硬编码 DONE：
@@ -100,10 +101,10 @@ npm --prefix packages/main run test:outcome-semantics-smoke
 命令失败时只返回 warn。
 
 `koala doctor` 的 Validation scan 是项目级 advisory，不替代 `koala validate`：
-它说明 `validate.ts/js/mts` 是否存在、`koala.config.json` 是否配置了验证命令、
+它说明 `validate.ts/js/mts` 是否存在、项目配置（`lattice.config.json` 优先，legacy `koala.config.json` 仍可读）是否配置了验证命令、
 自动发现的 fallback 命令标签、是否处于 no-validator warning，以及 shell 风格配置
 是否会留下 `shell=true` receipt。这里不能写项目专属测试数量或 PVSC 之类的假设；
-需要强门禁时应配置显式 validate command。
+需要强门禁时应配置显式 validate command。Swift / Package.swift 不属于自动 fallback（Mac Native App 已退役），doctor 输出会显式提示需要显式 `validate.commands` 才会跑 `swift test`。
 
 `koala doctor` 的 `Runtime scan:` 是另一类 advisory / warn 输出：它检查 Koala 运行环境事实，
 不写 validation evidence，也不进入 `process-fact-registry`。runtime facts 由
@@ -113,7 +114,7 @@ doctor JSON `runtime` 分区和 text source coverage。`external-reference-polic
 truth/config scan：`koala.config.json`、`AGENTS.md`、`CLAUDE.md`、`README.md`、
 `docs/requirements/**/*.md`；排除 `.koala/story`、`docs/story`、`tests/fixtures`、
 `node_modules`、`dist/build` 和普通源码注释。扫描到外部 URL / host:port 且没有 health command
-语义时只能输出 reference-only / health-check-required warning，不能声称 connectivity pass。
+语义时只能输出 reference-only / health-check-required warning，不能声称 connectivity pass。bounded scan 同时识别 `lattice.config.json`（canonical）与 `koala.config.json`（legacy fallback）作为项目配置 marker。
 
 Runtime artifacts 不属于 `Runtime scan` 的环境事实，而是由
 `packages/main/src/core/runtime-artifact-registry.ts` 单独登记的运行时文件事实。
@@ -173,7 +174,7 @@ gitignore、materialHash exclusion、volatile dirty-risk 和 tracked repair 语�
 
 ## 跨语言执行协议
 
-Legacy fixture 是语言无关测试协议，不是 JS 脚本容器。`execute` 只代表 legacy `js.execute` executor；Python、Go、C++、Java、Swift、Objective-C 等项目应优先通过 `command` / 语言 executor / 原生测试命令产生 `verificationEvidence`，再由 `koala validate` 在 TEST 阶段消费。
+Legacy fixture 是语言无关测试协议，不是 JS 脚本容器。`execute` 只代表 legacy `js.execute` executor；Python、Go、C++、Java、Rust 等项目应优先通过 `command` / 语言 executor / 原生测试命令产生 `verificationEvidence`，再由 `koala validate` 在 TEST 阶段消费。Swift / Objective-C（Mac Native App）已退役，不再作为当前产品默认验证入口，只有显式通过 `validate.commands` 或 legacy `swift.test` / `objc.xcodebuild` executor opt-in 时才会被执行。
 
 第一批内置 executor：
 
@@ -185,8 +186,8 @@ Legacy fixture 是语言无关测试协议，不是 JS 脚本容器。`execute` 
 | `go.test` | Go 标准入口，默认 `go test ./...` |
 | `java.junit` | Java/JUnit 标准入口，默认 `mvn test`，可选 `buildTool:"gradle"` |
 | `cpp.binary` | C/C++ 测试二进制入口 |
-| `swift.test` | Swift Package 标准入口，默认 `swift test` |
-| `objc.xcodebuild` | Objective-C / Apple 平台标准入口，默认 `xcodebuild test` |
+| `swift.test` | Swift Package 标准入口，默认 `swift test`；仅在 legacy executor 显式声明时使用（Mac Native App 已退役，**不**在 `lattice validate` 的自动 fallback 列表里） |
+| `objc.xcodebuild` | Objective-C / Apple 平台标准入口，默认 `xcodebuild test`；同 `swift.test`，仅 legacy executor 显式 opt-in |
 | `rust.cargo` | Rust 标准入口，默认 `cargo test` |
 
 Reviewer 不能把“JS runner 无法 import Python/Go/C++/Java/Swift/OC”判定为测试通过；这只能说明缺少对应 executor 证据或 `verificationEvidence`。

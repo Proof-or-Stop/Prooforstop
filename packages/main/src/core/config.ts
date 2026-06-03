@@ -276,31 +276,104 @@ const DEFAULT_CONFIG: KoalaConfig = {
 
 const _cache = new Map<string, KoalaConfig>();
 
-/** 从 cwd 向上查找 koala.config.json，返回项目根目录 */
-function resolveProjectRoot(): string {
-  if (process.env.KOALA_PROJECT_ROOT) return process.env.KOALA_PROJECT_ROOT;
-  let dir = process.cwd();
+/**
+ * Canonical project config filename. lattice.config.json wins over the legacy
+ * koala.config.json when both are present.
+ */
+export const LATTICE_CONFIG_FILENAME = 'lattice.config.json';
+/**
+ * Legacy fallback project config filename. Still read when lattice.config.json
+ * is absent so existing koala-only repositories keep working.
+ */
+export const LEGACY_KOALA_CONFIG_FILENAME = 'koala.config.json';
+/**
+ * Lattice-first ordering of config filenames; consumers that walk upward
+ * looking for a project root should treat the first match as canonical.
+ */
+export const PROJECT_CONFIG_FILENAMES: readonly string[] = [
+  LATTICE_CONFIG_FILENAME,
+  LEGACY_KOALA_CONFIG_FILENAME,
+];
+
+/** True if any known project config file (lattice or legacy koala) exists in dir. */
+export function hasProjectConfigFile(dir: string): boolean {
+  return PROJECT_CONFIG_FILENAMES.some((name) => existsSync(join(dir, name)));
+}
+
+/**
+ * Pick the canonical project config file path for `dir`. Returns the first
+ * matching filename in {@link PROJECT_CONFIG_FILENAMES} (lattice-first), or
+ * null if neither file exists.
+ */
+export function pickProjectConfigPath(dir: string): { path: string; filename: string; legacy: boolean } | null {
+  for (const name of PROJECT_CONFIG_FILENAMES) {
+    const candidate = join(dir, name);
+    if (existsSync(candidate)) {
+      return { path: candidate, filename: name, legacy: name === LEGACY_KOALA_CONFIG_FILENAME };
+    }
+  }
+  return null;
+}
+
+const _warnedRoots = new Set<string>();
+function warnOnce(root: string, message: string): void {
+  const key = `${root}::${message}`;
+  if (_warnedRoots.has(key)) return;
+  _warnedRoots.add(key);
+  try { process.stderr.write(`${message}\n`); } catch { /* stderr write best-effort */ }
+}
+
+function findProjectRootByMarker(startDir: string): string | null {
+  let dir = startDir;
   for (let i = 0; i < 10; i++) {
-    if (existsSync(join(dir, 'koala.config.json'))) return dir;
+    if (hasProjectConfigFile(dir)) return dir;
     const parent = join(dir, '..');
     if (parent === dir) break;
     dir = parent;
   }
-  return process.cwd();
+  return null;
+}
+
+/** 从 cwd 向上查找项目配置文件（lattice.config.json 优先，koala.config.json 兜底），返回项目根目录 */
+function resolveProjectRoot(): string {
+  if (process.env.KOALA_PROJECT_ROOT) return process.env.KOALA_PROJECT_ROOT;
+  return findProjectRootByMarker(process.cwd()) ?? process.cwd();
 }
 
 export function loadConfig(projectRoot?: string): KoalaConfig {
   // 有参数用参数，没参数从 cwd 向上查找
   const root = projectRoot || resolveProjectRoot();
   if (_cache.has(root)) return _cache.get(root)!;
-  const configPath = join(root, 'koala.config.json');
+
+  const latticePath = join(root, LATTICE_CONFIG_FILENAME);
+  const legacyPath = join(root, LEGACY_KOALA_CONFIG_FILENAME);
+  const latticeExists = existsSync(latticePath);
+  const legacyExists = existsSync(legacyPath);
 
   let userConfig: Partial<KoalaConfig> = {};
-  if (existsSync(configPath)) {
+  let chosenPath: string | null = null;
+  if (latticeExists) {
+    chosenPath = latticePath;
     try {
-      userConfig = JSON.parse(readFileSync(configPath, 'utf-8'));
+      userConfig = JSON.parse(readFileSync(latticePath, 'utf-8'));
     } catch { /* ignore parse errors */ }
+    if (legacyExists) {
+      warnOnce(
+        root,
+        `⚠ ${LATTICE_CONFIG_FILENAME} and legacy ${LEGACY_KOALA_CONFIG_FILENAME} both exist at ${root}; using ${LATTICE_CONFIG_FILENAME} (canonical). Delete ${LEGACY_KOALA_CONFIG_FILENAME} once migration is complete.`,
+      );
+    }
+  } else if (legacyExists) {
+    chosenPath = legacyPath;
+    try {
+      userConfig = JSON.parse(readFileSync(legacyPath, 'utf-8'));
+    } catch { /* ignore parse errors */ }
+    warnOnce(
+      root,
+      `ℹ Reading legacy ${LEGACY_KOALA_CONFIG_FILENAME} at ${root}; rename to ${LATTICE_CONFIG_FILENAME} to silence this notice (canonical Lattice CLI config).`,
+    );
   }
+  void chosenPath; // retained for future diagnostics; suppress unused warning
 
   const _cached: KoalaConfig = {
     ...DEFAULT_CONFIG,
@@ -318,6 +391,7 @@ export function loadConfig(projectRoot?: string): KoalaConfig {
 /** 重置缓存（测试用） */
 export function resetConfigCache(): void {
   _cache.clear();
+  _warnedRoots.clear();
 }
 
 /**
