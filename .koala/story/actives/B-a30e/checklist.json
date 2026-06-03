@@ -223,7 +223,27 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/core/review-scope-binding.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/scope-contract.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "packages/main/src/tasks/story-owner-lease-smoke.ts",
+          "packages/main/src/tasks/command-ownership-contract.ts",
+          "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
+          "packages/main/src/tasks/scope-contract-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      }
     }
   ]
 }
