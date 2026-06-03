@@ -546,9 +546,47 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-03T00:15:50.173Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-008:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke verifies overflow_auto default suggest-only creates no dispatch records, while approve+start runs supervised fake dispatch. Covers happy intent 0.",
+          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
+          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
+          "timestamp": "2026-06-03T00:15:50.221Z"
+        },
+        {
+          "intentRef": "CHK-008:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke verifies overflow_auto default suggest-only creates no dispatch records, while approve+start runs supervised fake dispatch. Covers edge intent 1.",
+          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
+          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
+          "timestamp": "2026-06-03T00:15:50.270Z"
+        },
+        {
+          "intentRef": "CHK-008:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke verifies overflow_auto default suggest-only creates no dispatch records, while approve+start runs supervised fake dispatch. Covers adversarial intent 2.",
+          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
+          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
+          "timestamp": "2026-06-03T00:15:50.316Z"
+        }
+      ]
     },
     {
       "id": "CHK-009",
@@ -877,6 +915,16 @@
       "timestamp": "2026-06-03T00:15:49.415Z",
       "phase": "DEV",
       "itemId": "CHK-007",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented and verified in commits through e04c4939.",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-06-03T00:15:50.173Z",
+      "phase": "DEV",
+      "itemId": "CHK-008",
       "action": "update",
       "from": "pending",
       "to": "done",
