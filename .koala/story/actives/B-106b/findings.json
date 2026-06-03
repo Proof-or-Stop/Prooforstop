@@ -192,6 +192,23 @@
         "packages/main/src/handlers/lattice-dispatch.ts",
         "packages/main/src/core/lattice-dispatch.ts"
       ]
+    },
+    {
+      "id": "B-106b:F-011",
+      "desc": "Real-host dispatch_run creates the overflow worktree before symlink-aware canonical pack-path validation completes. Repro: prepare a codex dispatch with allowedPaths=[\"packages/main/src/generated/external-link/blocked-by-symlink.txt\"] and run dispatch_run. It throws the symlink escape error, but the projected worktree exists afterward and dispatch.json remains status=prepared. The smoke only asserts the throw and no external write, not cleanup/failed state. This violates the boundary that real-host scaffold should happen only after bounded pack paths.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-03T00:54:30.679Z",
+      "reviewRound": "2026-06-03T00:50:59.368Z",
+      "reviewRunId": "B-106b:RR-015",
+      "_hash": "6f6998f401e94f71bede8859a88102596b17c3f895bd44a2bf62d65b79b162c5",
+      "files": [
+        "packages/main/src/core/lattice-dispatch.ts",
+        "packages/main/src/tasks/dispatch-run-smoke.ts"
+      ]
     }
   ]
 }
