@@ -1354,6 +1354,20 @@ export const MAIN_TOOLS: ToolDef[] = [
     json: z.boolean().optional().describe('Output structured JSON'),
   }},
 
+  // Pre-write scope enforcement — pre-tool hook guard for write-like operations.
+  // Returns allow/deny/ask/shadow verdict before the write lands.
+  // Fail-closed on corrupt scope contracts or ambiguous active guard sessions.
+  // Backward-compatible allow when no guard session or story context exists.
+  { name: 'prewrite_guard_check', description: 'Pre-write scope enforcement: inspect target path(s) against the active story scope contract and return allow/deny/ask/shadow verdict before the write lands', schema: {
+    storyId: z.string().optional().describe('Story ID (auto-discovered from active guard sessions when absent)'),
+    provider: z.string().optional().describe('Agent provider (informational; used to log who triggered the check)'),
+    toolName: z.string().describe('Name of the write-like tool being invoked (e.g. Edit, Write, MultiEdit, NotebookEdit)'),
+    toolInputJson: z.string().optional().describe('JSON-encoded tool input from which target paths are extracted (used when targetPaths is absent)'),
+    targetPaths: z.union([z.string(), z.array(z.string())]).optional().describe('Explicit target path(s) to evaluate (overrides tool-input extraction)'),
+    cwd: z.string().optional().describe('Working directory for resolving relative paths (defaults to project root)'),
+    json: z.boolean().optional().describe('Output structured JSON'),
+  }},
+
   // B-ea92 M1: read-only authority policy discovery.
   // Alias: lattice authority enforce policy → authority_enforce_policy (resolved in runCli).
   { name: 'authority_enforce_policy', description: 'Discover authority policy (GET /v1/authority/policy). Read-only: no receipt, no gate pass, no evidence submission. Alias: lattice authority enforce policy', schema: {
