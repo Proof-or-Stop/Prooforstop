@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-381e:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Reviewed M1 resolver/snapshot contract against host-neutral-observability-console decision. Verified: (1) two L0 read-only CLI handlers, no Mac native app/server/spawn/POST authority paths; (2) contract smoke proves dashboard.ts NOT wired to new commands; (3) productionDone/receiptVerified/authorityChanged hardcoded false at resolver, snapshot.authority, storyBoard rows, capability rows; (4) worktree authority resolved via per-row StoryStore(authoritativeCwd) and buildCanonicalStory rooted at worktreePath, edge smoke proves stale main INIT_CHECK loses to worktree DEV; (5) command-policy + process-fact-levels register both as readOnly L0 lattice-observability-read. All three smokes pass locally.",
+      "createdAt": "2026-06-03T00:22:53.212Z",
+      "reviewRound": "2026-06-03T00:20:21.831Z",
+      "reviewRunId": "B-381e:RR-001",
+      "_hash": "c347c5454f63430fb62f53ecc97f40753f3e6b9ee5379c055ca05c059507a84f"
+    }
+  ]
+}
