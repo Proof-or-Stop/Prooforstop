@@ -328,8 +328,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-03T20:58:32.775Z",
       "endTime": null,
       "files": {
         "modify": [
@@ -528,6 +528,16 @@
       "to": "done",
       "reason": "Claude Code CLI implemented dispatch_auto watch cancel scheduler loop",
       "agent": "koala-implementer"
+    },
+    {
+      "timestamp": "2026-06-03T20:58:32.775Z",
+      "phase": "DEV",
+      "itemId": "CHK-007",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start DEV milestone 7 unattended evidence and manual review gates",
+      "agent": "codex"
     }
   ]
 }
