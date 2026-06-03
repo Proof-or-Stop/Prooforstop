@@ -988,9 +988,47 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-03T00:15:54.915Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-014:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": ".koala/story/actives/B-106b/decision.json",
+          "command": "lattice decision_get --storyId=B-106b --json",
+          "result": "pass",
+          "note": "PLAN decision records protocol-and-fake-runner-first, visible degradation, failure semantics, and no hidden unattended real-host execution. Covers happy intent 0.",
+          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
+          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
+          "timestamp": "2026-06-03T00:15:54.969Z"
+        },
+        {
+          "intentRef": "CHK-014:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": ".koala/story/actives/B-106b/decision.json",
+          "command": "lattice decision_get --storyId=B-106b --json",
+          "result": "pass",
+          "note": "PLAN decision records protocol-and-fake-runner-first, visible degradation, failure semantics, and no hidden unattended real-host execution. Covers edge intent 1.",
+          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
+          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
+          "timestamp": "2026-06-03T00:15:55.017Z"
+        },
+        {
+          "intentRef": "CHK-014:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": ".koala/story/actives/B-106b/decision.json",
+          "command": "lattice decision_get --storyId=B-106b --json",
+          "result": "pass",
+          "note": "PLAN decision records protocol-and-fake-runner-first, visible degradation, failure semantics, and no hidden unattended real-host execution. Covers adversarial intent 2.",
+          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
+          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
+          "timestamp": "2026-06-03T00:15:55.064Z"
+        }
+      ]
     },
     {
       "id": "CHK-015",
@@ -1165,6 +1203,16 @@
       "timestamp": "2026-06-03T00:15:54.117Z",
       "phase": "DEV",
       "itemId": "CHK-013",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented and verified in commits through e04c4939.",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-06-03T00:15:54.915Z",
+      "phase": "DEV",
+      "itemId": "CHK-014",
       "action": "update",
       "from": "pending",
       "to": "done",
