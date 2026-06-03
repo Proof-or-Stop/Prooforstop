@@ -106,9 +106,47 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-03T00:15:45.484Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke verifies host_runtime_list/probe for fake/claude-code/gemini/codex, missing CLI degradation, and authority=false invariants. Covers happy intent 0.",
+          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
+          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
+          "timestamp": "2026-06-03T00:15:45.536Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke verifies host_runtime_list/probe for fake/claude-code/gemini/codex, missing CLI degradation, and authority=false invariants. Covers edge intent 1.",
+          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
+          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
+          "timestamp": "2026-06-03T00:15:45.585Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke verifies host_runtime_list/probe for fake/claude-code/gemini/codex, missing CLI degradation, and authority=false invariants. Covers adversarial intent 2.",
+          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
+          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
+          "timestamp": "2026-06-03T00:15:45.632Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -593,6 +631,16 @@
       "from": "pending",
       "to": "done",
       "reason": "test takeover update",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-06-03T00:15:45.484Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented and verified in commits through e04c4939.",
       "agent": "codex-main"
     }
   ]
