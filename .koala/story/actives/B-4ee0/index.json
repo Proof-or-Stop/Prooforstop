@@ -4,7 +4,7 @@
   "title": "Default Lattice init to global-thin project assets",
   "description": "Make fresh Lattice projects minimal by moving executable Codex adapter behavior to the global lattice CLI while leaving old local shim assets compatible. New init should materialize only the canonical .Lattice guide/config plus a thin AGENTS.md pointer unless a full/local-shim mode is explicitly requested.",
   "type": "feature",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "keywords": [
     "lattice-init",
@@ -59,6 +59,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-03T19:44:46.620Z",
+      "branch": "story/B-4ee0",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-03T20:04:04.859Z",
       "branch": "story/B-4ee0",
       "user": "Harmonygo",
       "agent": "main"
