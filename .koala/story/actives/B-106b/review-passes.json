@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-03T00:36:04.583Z",
       "reviewRunId": "B-106b:RR-013",
       "_hash": "ef26159b0ee48c3ebfdec985677bb7e23b1a1ee73286a9282acc9cccf761c489"
+    },
+    {
+      "id": "B-106b:RP-007",
+      "agent": "koala-review-test-coverage",
+      "note": "Coverage is sufficient for TEST: dispatch-run smoke exercises runtime probing, dispatch plan/prepare/run/collect/review/merge, overflow_auto approval gating, dispatchId traversal rejection, nested symlink escape, preexisting projected worktree-root symlink escape for fake and codex, real-host scaffold failure, and recursive authority=false invariants; host-overflow and handoff smokes cover readiness and receipt boundaries; build/smoke/contract verification passed.",
+      "createdAt": "2026-06-03T13:54:57.477Z",
+      "reviewRound": "2026-06-03T13:52:15.320Z",
+      "reviewRunId": "B-106b:RR-029",
+      "_hash": "7ea0a4f14ac28201a1d6eb3f3b5b8061708d1eb97606a56c0a4badfcfa9c71b3"
     }
   ]
 }
