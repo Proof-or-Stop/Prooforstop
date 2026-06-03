@@ -182,7 +182,43 @@
       "context": "Add fake claude binary smoke coverage for success, timeout, failure, env filtering, scope review, and real-host refusal when policy is absent; run a tiny live Claude canary only after deterministic tests pass.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "最终验证输出会显示 build、dispatch-run smoke、unattended-dispatch smoke 通过；如果 live Claude canary 可用，会额外显示一个只写允许文件的小型真实运行结果。",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+          "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "packages/main/package.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+          "packages/main/src/tasks/dispatch-run-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Deterministic smoke uses a fake claude executable to prove real-runner success without depending on live LLM output.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Deterministic smoke covers timeout, non-zero exit, missing explicit policy opt-in, and scope/command/env policy failures.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A live Claude Code canary is either recorded as successful tiny bounded evidence or explicitly classified as unavailable/blocked without weakening deterministic coverage.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
