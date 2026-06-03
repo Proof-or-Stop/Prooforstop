@@ -72,7 +72,46 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "The story delivers focused smoke/test commands whose output proves the resolver and worktree guidance behavior without using Swift or Mac Native App validation."
+      "userSees": "Focused verification output includes passing Node/Lattice commands such as `npm run test:codex-assets`, `npm run test:entrypoints`, and a JSON stdout parse check; no delivery evidence command is `swift test` or Mac Native App validation.",
+      "files": {
+        "modify": [
+          "scripts/verify-codex-assets.mjs",
+          "scripts/verify-entrypoints.mjs",
+          "package.json",
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/worktree-codex-gate-command-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/worktree-codex-gate-command-smoke.ts",
+          "scripts/verify-codex-assets.mjs",
+          "scripts/verify-entrypoints.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Focused tests cover lattice wrapper and legacy wrapper command resolution, and pass after the implementation.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Focused tests cover stale-global/current-worktree guidance without depending on global install mutation.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Validation evidence must preserve JSON stdout parseability and must not include Swift/Mac Native App fallback commands.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
