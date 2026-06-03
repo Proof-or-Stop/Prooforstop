@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-03T22:21:59.769Z",
       "reviewRunId": "B-7fc2:RR-004",
       "_hash": "bedb7c60c4b87e5def661296da2c61efce5436b02cdf338a3fa4dabab4796b5b"
+    },
+    {
+      "id": "B-7fc2:RP-003",
+      "agent": "koala-review-docs",
+      "note": "§2.0 CLI JSON stdout contract accurately describes the wantsMachineJson choke point (handlers/hints.ts:271) and cli-engine.ts decorateResult skip (cli-engine.ts:2769); smoke at packages/main/src/tasks/cli-json-stdout-contract-smoke.ts matches doc claim. No conflict with testing-infra.md or README.md; Lattice CLI primary / Mac Native App retired wording preserved. Adapter contract (direct JSON.parse without substring extraction) is explicit. Evidence file calls out scope limits (hint-registered commands + representative --format=json surfaces, resolver schema deferred to M1+). Minor nit: line 72 leads with tests/cli-json-stdout-contract-smoke.ts before the canonical packages/main/src/tasks/... path in parens; canonical path is correct so non-blocking.",
+      "createdAt": "2026-06-03T22:25:26.758Z",
+      "reviewRound": "2026-06-03T22:21:59.769Z",
+      "reviewRunId": "B-7fc2:RR-002",
+      "_hash": "3896a3ac864cf55070a568d3d2f1b475885608118e5a55106de12eb81516f778"
     }
   ]
 }
