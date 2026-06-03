@@ -387,8 +387,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-03T21:07:33.559Z",
       "endTime": null,
       "files": {
         "modify": [
@@ -548,6 +548,16 @@
       "to": "done",
       "reason": "Claude Code CLI implemented unattended evidence review and manual merge gates",
       "agent": "koala-implementer"
+    },
+    {
+      "timestamp": "2026-06-03T21:07:33.559Z",
+      "phase": "DEV",
+      "itemId": "CHK-008",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start DEV milestone 8 full user-facing unattended flow docs and smoke",
+      "agent": "codex"
     }
   ]
 }
