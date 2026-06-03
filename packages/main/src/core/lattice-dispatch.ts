@@ -518,9 +518,7 @@ function probeGeminiCapabilities(commandPath: string | null): RealHostCapabiliti
   if (!commandPath) {
     unattendedReasons.push('gemini CLI is not available in PATH.');
   }
-  if (noninteractiveSupport !== 'supported') {
-    unattendedReasons.push('Noninteractive mode not confirmed for gemini; bounded unattended execution cannot be guaranteed.');
-  }
+  unattendedReasons.push('Noninteractive mode is unverified for gemini; bounded unattended execution cannot be guaranteed by host_runtime_probe alone.');
   unattendedReasons.push('Unattended execution requires a dispatch_policy_check authorization and dispatch_auto policy binding before starting.');
 
   return {
@@ -588,9 +586,7 @@ function probeCodexCapabilities(commandPath: string | null, isCodexSession: bool
   if (!commandPath) {
     unattendedReasons.push('codex CLI is not available in PATH.');
   }
-  if (noninteractiveSupport !== 'supported') {
-    unattendedReasons.push('Noninteractive mode not confirmed for codex; bounded unattended execution cannot be guaranteed.');
-  }
+  unattendedReasons.push('Noninteractive mode is unverified for codex; bounded unattended execution cannot be guaranteed by host_runtime_probe alone.');
   unattendedReasons.push('Unattended execution requires a dispatch_policy_check authorization and dispatch_auto policy binding before starting.');
 
   return {
