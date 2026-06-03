@@ -48,6 +48,8 @@ export type CwdSupport = 'supported' | 'unverified';
 export type TimeoutSupport = 'supported' | 'unverified';
 export type TranscriptSupport = 'supported' | 'unverified';
 export type EnvSafetyPosture = 'sandboxed' | 'inherited' | 'unverified';
+export type LoginReadiness = 'ready' | 'requires-login' | 'unknown';
+export type ReceiptSupport = 'structured' | 'transcript-capture' | 'unverified';
 
 export interface HostRuntimeProbe {
   schemaVersion: 'lattice.host_runtime_probe.v1';
@@ -61,14 +63,16 @@ export interface HostRuntimeProbe {
   cliCommand?: string;
   commandPath?: string;
   invocationTemplate?: string[];
-  // Bounded unattended feasibility fields (CHK-002)
+  // Unattended capability contract (CHK-002 / CHK-004)
   versionStatus: VersionStatus;
   version?: string;
+  loginReadiness: LoginReadiness;
   noninteractiveSupport: NoninteractiveSupport;
   cwdSupport: CwdSupport;
   timeoutSupport: TimeoutSupport;
   transcriptSupport: TranscriptSupport;
   envSafetyPosture: EnvSafetyPosture;
+  receiptSupport: ReceiptSupport;
   unattendedSafe: boolean;
   unattendedReasons: string[];
   degradations: string[];
@@ -363,20 +367,22 @@ function runtimeTemplate(host: HostRuntimeId): string[] | undefined {
   return ['codex', 'exec', '--prompt-file', '<prompt-file>'];
 }
 
-interface ClaudeCodeCapabilities {
+interface RealHostCapabilities {
   versionStatus: VersionStatus;
   version?: string;
+  loginReadiness: LoginReadiness;
   noninteractiveSupport: NoninteractiveSupport;
   cwdSupport: CwdSupport;
   timeoutSupport: TimeoutSupport;
   transcriptSupport: TranscriptSupport;
   envSafetyPosture: EnvSafetyPosture;
+  receiptSupport: ReceiptSupport;
   unattendedSafe: boolean;
   unattendedReasons: string[];
   degradations: string[];
 }
 
-function probeClaudeCodeCapabilities(commandPath: string | null): ClaudeCodeCapabilities {
+function probeClaudeCodeCapabilities(commandPath: string | null): RealHostCapabilities {
   const unattendedReasons: string[] = [];
   const degradations: string[] = [];
 
@@ -405,7 +411,6 @@ function probeClaudeCodeCapabilities(commandPath: string | null): ClaudeCodeCapa
   let noninteractiveSupport: NoninteractiveSupport = 'unverified';
   if (commandPath) {
     try {
-      // claude --help may exit non-zero but still output help text to stdout or stderr
       let helpOutput = '';
       try {
         helpOutput = execFileSync('claude', ['--help'], {
@@ -420,7 +425,6 @@ function probeClaudeCodeCapabilities(commandPath: string | null): ClaudeCodeCapa
       if (/--print\b|-p\b/i.test(helpOutput)) {
         noninteractiveSupport = 'supported';
       } else if (helpOutput.length > 0) {
-        // Help was returned but --print flag not found
         noninteractiveSupport = 'unsupported';
         unattendedReasons.push('claude --help output does not document --print/-p noninteractive flag; unattended execution not confirmed.');
       } else {
@@ -435,60 +439,170 @@ function probeClaudeCodeCapabilities(commandPath: string | null): ClaudeCodeCapa
     unattendedReasons.push('claude CLI is not available; noninteractive execution is impossible.');
   }
 
-  // cwd support: Claude Code processes run in the invoker's working directory; this is standard for CLI tools
-  // We mark it supported since the CLI is a standard subprocess, but note it's inferred not tested
+  // cwd, timeout, transcript: standard subprocess behavior; supported when CLI is present
   const cwdSupport: CwdSupport = commandPath ? 'supported' : 'unverified';
-  if (!commandPath) {
-    degradations.push('cwd support cannot be confirmed without a live CLI.');
-  }
-
-  // Timeout support: Lattice controls timeout via process kill; no dedicated --timeout flag needed
-  // Mark as supported when CLI is present (Lattice runner controls the envelope)
   const timeoutSupport: TimeoutSupport = commandPath ? 'supported' : 'unverified';
-  if (!commandPath) {
-    degradations.push('timeout enforcement cannot be confirmed without a live CLI.');
-  }
-
-  // Transcript support: output can be captured from stdout/stderr of the subprocess
   const transcriptSupport: TranscriptSupport = commandPath ? 'supported' : 'unverified';
   if (!commandPath) {
-    degradations.push('transcript capture cannot be confirmed without a live CLI.');
+    degradations.push('cwd, timeout, and transcript support cannot be confirmed without a live CLI.');
   }
 
-  // Environment safety: Claude Code inherits the invoker's environment; no known sandboxing
-  // Mark as 'inherited' when CLI is present (standard subprocess behavior)
+  // Environment safety: Claude Code inherits the invoker's environment
   const envSafetyPosture: EnvSafetyPosture = commandPath ? 'inherited' : 'unverified';
   if (commandPath) {
     degradations.push('claude-code inherits the invoker environment; sensitive env vars are visible to the subprocess unless filtered by Lattice policy.');
   }
 
-  // Unattended safety decision:
-  // CLI presence alone is NOT enough. We require:
-  // 1. CLI available
-  // 2. noninteractiveSupport = 'supported' (confirmed --print flag)
-  // 3. Policy must be defined (CHK-003, not yet implemented)
-  // Since CHK-003 (policy) is not yet implemented, unattendedSafe must remain false
-  // even when the CLI is present and noninteractive is confirmed.
+  // Login readiness: ANTHROPIC_API_KEY is a strong signal for non-interactive auth
+  const loginReadiness: LoginReadiness = process.env.ANTHROPIC_API_KEY?.trim()
+    ? 'ready'
+    : (commandPath ? 'unknown' : 'unknown');
+
+  // Receipt support: stdout/stderr captured as transcript; Lattice builds receipt from transcript + git
+  const receiptSupport: ReceiptSupport = commandPath ? 'transcript-capture' : 'unverified';
+
   if (!commandPath) {
     unattendedReasons.push('claude CLI is not available in PATH.');
   }
   if (noninteractiveSupport !== 'supported') {
     unattendedReasons.push('Noninteractive (--print/-p) support not confirmed; bounded unattended execution cannot be guaranteed.');
   }
-  // CHK-003 policy gate is not yet implemented; always add this reason until policy is implemented
-  unattendedReasons.push('dispatch_policy (CHK-003) not yet implemented; unattended authorization requires a verified policy before any worker may start.');
-
-  const unattendedSafe = false; // Always false at CHK-002 stage: policy not yet implemented
+  // Policy + dispatch_auto binding required before any unattended run may start
+  unattendedReasons.push('Unattended execution requires a dispatch_policy_check authorization and dispatch_auto policy binding before starting.');
 
   return {
     versionStatus,
     ...(version !== undefined ? { version } : {}),
+    loginReadiness,
     noninteractiveSupport,
     cwdSupport,
     timeoutSupport,
     transcriptSupport,
     envSafetyPosture,
-    unattendedSafe,
+    receiptSupport,
+    unattendedSafe: false,
+    unattendedReasons,
+    degradations,
+  };
+}
+
+function probeGeminiCapabilities(commandPath: string | null): RealHostCapabilities {
+  const unattendedReasons: string[] = [];
+  const degradations: string[] = [];
+
+  const versionStatus: VersionStatus = commandPath ? 'unknown' : 'unavailable';
+  const noninteractiveSupport: NoninteractiveSupport = 'unverified';
+  if (commandPath) {
+    degradations.push('gemini version/help probing is intentionally skipped by host_runtime_probe; provider CLIs can block or authenticate during help startup.');
+    unattendedReasons.push('gemini noninteractive support is unverified by the safe probe; dispatch_auto must require policy binding and a bounded runner before launch.');
+  } else {
+    unattendedReasons.push('gemini CLI is not available; noninteractive execution is impossible.');
+  }
+
+  const cwdSupport: CwdSupport = commandPath ? 'supported' : 'unverified';
+  const timeoutSupport: TimeoutSupport = commandPath ? 'supported' : 'unverified';
+  const transcriptSupport: TranscriptSupport = commandPath ? 'supported' : 'unverified';
+  if (!commandPath) {
+    degradations.push('cwd, timeout, and transcript support cannot be confirmed without a live CLI.');
+  }
+
+  const envSafetyPosture: EnvSafetyPosture = commandPath ? 'inherited' : 'unverified';
+  if (commandPath) {
+    degradations.push('gemini inherits the invoker environment; sensitive env vars are visible to the subprocess unless filtered by Lattice policy.');
+  }
+
+  // Login readiness: gemini typically requires gcloud auth or application default credentials
+  const loginReadiness: LoginReadiness = 'unknown';
+  const receiptSupport: ReceiptSupport = commandPath ? 'transcript-capture' : 'unverified';
+
+  if (!commandPath) {
+    unattendedReasons.push('gemini CLI is not available in PATH.');
+  }
+  if (noninteractiveSupport !== 'supported') {
+    unattendedReasons.push('Noninteractive mode not confirmed for gemini; bounded unattended execution cannot be guaranteed.');
+  }
+  unattendedReasons.push('Unattended execution requires a dispatch_policy_check authorization and dispatch_auto policy binding before starting.');
+
+  return {
+    versionStatus,
+    loginReadiness,
+    noninteractiveSupport,
+    cwdSupport,
+    timeoutSupport,
+    transcriptSupport,
+    envSafetyPosture,
+    receiptSupport,
+    unattendedSafe: false,
+    unattendedReasons,
+    degradations,
+  };
+}
+
+function probeCodexCapabilities(commandPath: string | null, isCodexSession: boolean): RealHostCapabilities {
+  const unattendedReasons: string[] = [];
+  const degradations: string[] = [];
+
+  if (isCodexSession) {
+    // Running inside a Codex session: capabilities are available in-process
+    degradations.push('Codex session inherits the invoker environment; sensitive env vars are visible unless filtered by Lattice policy.');
+    unattendedReasons.push('Unattended execution requires a dispatch_policy_check authorization and dispatch_auto policy binding before starting.');
+    return {
+      versionStatus: 'unknown',
+      loginReadiness: 'ready',
+      noninteractiveSupport: 'supported',
+      cwdSupport: 'supported',
+      timeoutSupport: 'supported',
+      transcriptSupport: 'supported',
+      envSafetyPosture: 'inherited',
+      receiptSupport: 'transcript-capture',
+      unattendedSafe: false,
+      unattendedReasons,
+      degradations,
+    };
+  }
+
+  const versionStatus: VersionStatus = commandPath ? 'unknown' : 'unavailable';
+  const noninteractiveSupport: NoninteractiveSupport = 'unverified';
+  if (commandPath) {
+    degradations.push('codex version/help probing is intentionally skipped by host_runtime_probe; the current Codex host may be the active operator and must not be auto-driven by a probe.');
+    unattendedReasons.push('codex CLI noninteractive support is unverified by the safe probe; dispatch_auto must require policy binding and a bounded runner before launch.');
+  } else {
+    unattendedReasons.push('codex CLI is not available; noninteractive execution is impossible.');
+  }
+
+  const cwdSupport: CwdSupport = commandPath ? 'supported' : 'unverified';
+  const timeoutSupport: TimeoutSupport = commandPath ? 'supported' : 'unverified';
+  const transcriptSupport: TranscriptSupport = commandPath ? 'supported' : 'unverified';
+  if (!commandPath) {
+    degradations.push('cwd, timeout, and transcript support cannot be confirmed without a live CLI.');
+  }
+
+  const envSafetyPosture: EnvSafetyPosture = commandPath ? 'inherited' : 'unverified';
+  if (commandPath) {
+    degradations.push('codex inherits the invoker environment; sensitive env vars are visible to the subprocess unless filtered by Lattice policy.');
+  }
+
+  const loginReadiness: LoginReadiness = 'unknown';
+  const receiptSupport: ReceiptSupport = commandPath ? 'transcript-capture' : 'unverified';
+
+  if (!commandPath) {
+    unattendedReasons.push('codex CLI is not available in PATH.');
+  }
+  if (noninteractiveSupport !== 'supported') {
+    unattendedReasons.push('Noninteractive mode not confirmed for codex; bounded unattended execution cannot be guaranteed.');
+  }
+  unattendedReasons.push('Unattended execution requires a dispatch_policy_check authorization and dispatch_auto policy binding before starting.');
+
+  return {
+    versionStatus,
+    loginReadiness,
+    noninteractiveSupport,
+    cwdSupport,
+    timeoutSupport,
+    transcriptSupport,
+    envSafetyPosture,
+    receiptSupport,
+    unattendedSafe: false,
     unattendedReasons,
     degradations,
   };
@@ -512,11 +626,13 @@ export function probeHostRuntime(host: string): HostRuntimeProbe {
       invocationTemplate: runtimeTemplate('fake'),
       versionStatus: 'detected',
       version: 'fake-deterministic',
+      loginReadiness: 'ready',
       noninteractiveSupport: 'supported',
       cwdSupport: 'supported',
       timeoutSupport: 'supported',
       transcriptSupport: 'supported',
       envSafetyPosture: 'sandboxed',
+      receiptSupport: 'structured',
       unattendedSafe: false,
       unattendedReasons: ['Fake runtime is for deterministic local test coverage only; not for production unattended use.'],
       degradations: [],
@@ -532,7 +648,8 @@ export function probeHostRuntime(host: string): HostRuntimeProbe {
   }
 
   const cliCommand = REAL_HOST_CLI[normalized];
-  const commandPath = normalized === 'codex' && currentCodexSessionAvailable()
+  const isCodexSession = normalized === 'codex' && currentCodexSessionAvailable();
+  const commandPath = isCodexSession
     ? process.execPath
     : detectCommandPath(cliCommand);
   const available = Boolean(commandPath);
@@ -544,24 +661,12 @@ export function probeHostRuntime(host: string): HostRuntimeProbe {
       `${cliCommand} CLI is not available in PATH; runtime stays unavailable-safe and will not start the host automatically.`,
     ];
 
-  // Bounded unattended feasibility — currently only deep-probed for claude-code (CHK-002)
-  // Other real hosts use conservative unverified defaults
-  const capabilities: ClaudeCodeCapabilities = normalized === 'claude-code'
+  // Real host unattended capability contract (CHK-002 claude-code / CHK-004 all hosts)
+  const capabilities: RealHostCapabilities = normalized === 'claude-code'
     ? probeClaudeCodeCapabilities(commandPath)
-    : {
-      versionStatus: 'unknown',
-      noninteractiveSupport: 'unverified',
-      cwdSupport: 'unverified',
-      timeoutSupport: 'unverified',
-      transcriptSupport: 'unverified',
-      envSafetyPosture: 'unverified',
-      unattendedSafe: false,
-      unattendedReasons: [
-        `${normalized} unattended capability not yet probed (CHK-004 will cover all hosts).`,
-        'dispatch_policy (CHK-003) not yet implemented; unattended authorization requires a verified policy.',
-      ],
-      degradations: [],
-    };
+    : normalized === 'gemini'
+      ? probeGeminiCapabilities(commandPath)
+      : probeCodexCapabilities(commandPath, isCodexSession);
 
   return {
     schemaVersion: 'lattice.host_runtime_probe.v1',
@@ -577,11 +682,13 @@ export function probeHostRuntime(host: string): HostRuntimeProbe {
     invocationTemplate: runtimeTemplate(normalized),
     versionStatus: capabilities.versionStatus,
     ...(capabilities.version !== undefined ? { version: capabilities.version } : {}),
+    loginReadiness: capabilities.loginReadiness,
     noninteractiveSupport: capabilities.noninteractiveSupport,
     cwdSupport: capabilities.cwdSupport,
     timeoutSupport: capabilities.timeoutSupport,
     transcriptSupport: capabilities.transcriptSupport,
     envSafetyPosture: capabilities.envSafetyPosture,
+    receiptSupport: capabilities.receiptSupport,
     unattendedSafe: capabilities.unattendedSafe,
     unattendedReasons: capabilities.unattendedReasons,
     degradations: capabilities.degradations,
@@ -592,9 +699,7 @@ export function probeHostRuntime(host: string): HostRuntimeProbe {
     ],
     warnings,
     nextAction: available
-      ? capabilities.unattendedSafe
-        ? `${normalized} is unattended-capable. Use dispatch_auto (CHK-006) to start a policy-authorized worker.`
-        : `${normalized} is supervised-only at this stage. Use dispatch_prepare/dispatch_run to generate the isolated worktree + prompt metadata, then run ${cliCommand} manually and return a local receipt. Policy authorization (CHK-003) required before unattended use.`
+      ? `${normalized} is supervised-only until dispatch_auto (CHK-006) is authorized. Use dispatch_prepare/dispatch_run to generate the isolated worktree + prompt metadata, then run ${cliCommand} manually and return a local receipt. Unattended execution requires dispatch_policy_check authorization and dispatch_auto policy binding.`
       : `Install or expose ${cliCommand} in PATH, or use host=fake for deterministic local coverage.`,
     authority: authorityState(),
   };

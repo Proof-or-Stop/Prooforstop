@@ -278,12 +278,12 @@ try {
   assert.ok(['supported', 'unverified'].includes(claudeProbe.timeoutSupport), `claude timeoutSupport must be a known value, got ${claudeProbe.timeoutSupport}`);
   assert.ok(['supported', 'unverified'].includes(claudeProbe.transcriptSupport), `claude transcriptSupport must be a known value, got ${claudeProbe.transcriptSupport}`);
   assert.ok(['sandboxed', 'inherited', 'unverified'].includes(claudeProbe.envSafetyPosture), `claude envSafetyPosture must be a known value, got ${claudeProbe.envSafetyPosture}`);
-  assert.equal(claudeProbe.unattendedSafe, false, 'claude-code must not claim unattendedSafe=true — policy (CHK-003) not yet implemented');
+  assert.equal(claudeProbe.unattendedSafe, false, 'claude-code must not claim unattendedSafe=true — dispatch_policy_check authorization and dispatch_auto policy binding required first');
   assert.ok(Array.isArray(claudeProbe.unattendedReasons), 'claude probe must have unattendedReasons array');
   assert.ok(claudeProbe.unattendedReasons.length > 0, 'claude probe must explain why unattendedSafe=false');
   assert.ok(
-    claudeProbe.unattendedReasons.some(reason => /policy|CHK-003|dispatch_policy/i.test(reason)),
-    'claude probe must surface policy requirement (CHK-003) as a reason for unattendedSafe=false',
+    claudeProbe.unattendedReasons.some(reason => /policy|dispatch_policy|dispatch_auto/i.test(reason)),
+    'claude probe must surface dispatch_policy_check / dispatch_auto policy binding requirement as a reason for unattendedSafe=false',
   );
   assert.ok(Array.isArray(claudeProbe.degradations), 'claude probe must have degradations array');
   assert.ok(typeof claudeProbe.nextAction === 'string' && claudeProbe.nextAction.length > 0, 'claude probe must have a nextAction');
@@ -301,9 +301,9 @@ try {
     assert.equal(claudeProbe.cwdSupport, 'supported', 'installed claude must have cwdSupport=supported');
     assert.equal(claudeProbe.timeoutSupport, 'supported', 'installed claude must have timeoutSupport=supported');
     assert.equal(claudeProbe.transcriptSupport, 'supported', 'installed claude must have transcriptSupport=supported');
-    // Even if installed and noninteractive is supported, policy gate still blocks unattendedSafe
-    assert.equal(claudeProbe.unattendedSafe, false, 'installed claude must not be unattendedSafe without policy');
-    assert.match(claudeProbe.nextAction, /supervised-only|policy/i, 'installed claude without policy must surface supervised-only nextAction');
+    // Even if installed and noninteractive is supported, dispatch_auto + policy binding still blocks unattendedSafe
+    assert.equal(claudeProbe.unattendedSafe, false, 'installed claude must not be unattendedSafe without dispatch_auto policy binding');
+    assert.match(claudeProbe.nextAction, /supervised-only|dispatch_auto|policy/i, 'installed claude without dispatch_auto policy binding must surface supervised-only nextAction');
   } else {
     // CLI not installed
     assert.equal(claudeProbe.status, 'unavailable');
@@ -1177,6 +1177,139 @@ try {
   assert.equal(policyCheckAuthorized.receiptVerified, false, 'policy check must never set receiptVerified=true');
   assert.equal(policyCheckAuthorized.productionDone, false, 'policy check must never set productionDone=true');
 
+  // CHK-004: Real host unattended capability contract — structured fields on all probes
+  {
+    const VALID_LOGIN_READINESS = ['ready', 'requires-login', 'unknown'];
+    const VALID_RECEIPT_SUPPORT = ['structured', 'transcript-capture', 'unverified'];
+    const VALID_VERSION_STATUS = ['detected', 'unavailable', 'unknown'];
+    const VALID_NONINTERACTIVE = ['supported', 'unverified', 'unsupported'];
+
+    // Fake probe: re-run to confirm structured fields
+    const fakeProbe4 = run<HostRuntimeProbe>('host_runtime_probe', { host: 'fake' });
+    assert.equal(fakeProbe4.loginReadiness, 'ready', 'fake probe must have loginReadiness=ready');
+    assert.equal(fakeProbe4.receiptSupport, 'structured', 'fake probe must have receiptSupport=structured');
+    assert.equal(fakeProbe4.unattendedSafe, false, 'fake probe must never set unattendedSafe=true');
+    assertAuthorityFalse(fakeProbe4, 'fakeProbe4');
+
+    // claude-code probe (already partially tested in CHK-002 section; extend for CHK-004 fields)
+    const claudeProbe4 = run<HostRuntimeProbe>('host_runtime_probe', { host: 'claude-code' });
+    assert.ok(VALID_LOGIN_READINESS.includes(claudeProbe4.loginReadiness),
+      `claude-code loginReadiness must be valid, got ${claudeProbe4.loginReadiness}`);
+    assert.ok(VALID_RECEIPT_SUPPORT.includes(claudeProbe4.receiptSupport),
+      `claude-code receiptSupport must be valid, got ${claudeProbe4.receiptSupport}`);
+    assert.equal(claudeProbe4.unattendedSafe, false, 'claude-code must not claim unattendedSafe=true');
+    assert.ok(
+      claudeProbe4.unattendedReasons.some(r => /dispatch_policy_check|dispatch_auto|policy binding/i.test(r)),
+      'claude-code unattendedReasons must reference dispatch_policy_check / dispatch_auto policy binding',
+    );
+    assertAuthorityFalse(claudeProbe4, 'claudeProbe4');
+
+    // gemini probe: must expose structured fields regardless of CLI availability
+    const geminiProbe4 = run<HostRuntimeProbe>('host_runtime_probe', { host: 'gemini' });
+    assert.equal(geminiProbe4.host, 'gemini');
+    assert.equal(geminiProbe4.schemaVersion, 'lattice.host_runtime_probe.v1');
+    assert.ok(VALID_VERSION_STATUS.includes(geminiProbe4.versionStatus),
+      `gemini versionStatus must be valid, got ${geminiProbe4.versionStatus}`);
+    assert.ok(VALID_LOGIN_READINESS.includes(geminiProbe4.loginReadiness),
+      `gemini loginReadiness must be valid, got ${geminiProbe4.loginReadiness}`);
+    assert.ok(VALID_NONINTERACTIVE.includes(geminiProbe4.noninteractiveSupport),
+      `gemini noninteractiveSupport must be valid, got ${geminiProbe4.noninteractiveSupport}`);
+    assert.ok(VALID_RECEIPT_SUPPORT.includes(geminiProbe4.receiptSupport),
+      `gemini receiptSupport must be valid, got ${geminiProbe4.receiptSupport}`);
+    assert.equal(geminiProbe4.unattendedSafe, false, 'gemini must not claim unattendedSafe=true');
+    assert.ok(Array.isArray(geminiProbe4.unattendedReasons) && geminiProbe4.unattendedReasons.length > 0,
+      'gemini must have unattendedReasons');
+    assert.ok(
+      geminiProbe4.unattendedReasons.some(r => /dispatch_policy_check|dispatch_auto|policy binding/i.test(r)),
+      'gemini unattendedReasons must reference dispatch_policy_check / dispatch_auto policy binding',
+    );
+    assert.ok(typeof geminiProbe4.nextAction === 'string' && geminiProbe4.nextAction.length > 0,
+      'gemini must have a nextAction');
+    assertAuthorityFalse(geminiProbe4, 'geminiProbe4');
+
+    // If gemini is unavailable (CLI not in PATH), must degrade visibly
+    if (!geminiProbe4.available) {
+      assert.equal(geminiProbe4.status, 'unavailable');
+      assert.equal(geminiProbe4.runtimeKind, 'missing-cli');
+      assert.equal(geminiProbe4.receiptSupport, 'unverified',
+        'unavailable gemini must have receiptSupport=unverified');
+      assert.ok(
+        geminiProbe4.unattendedReasons.some(r => /not available|install|expose|PATH/i.test(r)),
+        'unavailable gemini must explain CLI is not in PATH',
+      );
+    } else {
+      assert.equal(geminiProbe4.status, 'scaffolded');
+      assert.equal(geminiProbe4.receiptSupport, 'transcript-capture',
+        'available gemini must have receiptSupport=transcript-capture');
+      assert.ok(/supervised-only|dispatch_auto|policy/i.test(geminiProbe4.nextAction),
+        'available gemini nextAction must surface supervised-only or dispatch_auto requirement');
+    }
+
+    // codex probe: must expose structured fields regardless of session/CLI availability
+    const codexProbe4 = run<HostRuntimeProbe>('host_runtime_probe', { host: 'codex' });
+    assert.equal(codexProbe4.host, 'codex');
+    assert.equal(codexProbe4.schemaVersion, 'lattice.host_runtime_probe.v1');
+    assert.ok(VALID_VERSION_STATUS.includes(codexProbe4.versionStatus),
+      `codex versionStatus must be valid, got ${codexProbe4.versionStatus}`);
+    assert.ok(VALID_LOGIN_READINESS.includes(codexProbe4.loginReadiness),
+      `codex loginReadiness must be valid, got ${codexProbe4.loginReadiness}`);
+    assert.ok(VALID_NONINTERACTIVE.includes(codexProbe4.noninteractiveSupport),
+      `codex noninteractiveSupport must be valid, got ${codexProbe4.noninteractiveSupport}`);
+    assert.ok(VALID_RECEIPT_SUPPORT.includes(codexProbe4.receiptSupport),
+      `codex receiptSupport must be valid, got ${codexProbe4.receiptSupport}`);
+    assert.equal(codexProbe4.unattendedSafe, false, 'codex must not claim unattendedSafe=true');
+    assert.ok(Array.isArray(codexProbe4.unattendedReasons) && codexProbe4.unattendedReasons.length > 0,
+      'codex must have unattendedReasons');
+    assert.ok(
+      codexProbe4.unattendedReasons.some(r => /dispatch_policy_check|dispatch_auto|policy binding/i.test(r)),
+      'codex unattendedReasons must reference dispatch_policy_check / dispatch_auto policy binding',
+    );
+    assertAuthorityFalse(codexProbe4, 'codexProbe4');
+
+    // host_runtime_list: all four hosts must expose loginReadiness and receiptSupport
+    const runtimeList4 = run<HostRuntimeList>('host_runtime_list');
+    for (const runtime of runtimeList4.runtimes) {
+      assert.ok(VALID_LOGIN_READINESS.includes(runtime.loginReadiness),
+        `runtime list ${runtime.host} must have valid loginReadiness, got ${runtime.loginReadiness}`);
+      assert.ok(VALID_RECEIPT_SUPPORT.includes(runtime.receiptSupport),
+        `runtime list ${runtime.host} must have valid receiptSupport, got ${runtime.receiptSupport}`);
+      assert.equal(runtime.unattendedSafe, false,
+        `runtime list ${runtime.host} must not claim unattendedSafe=true prematurely`);
+      assertAuthorityFalse(runtime, `runtimeList4.${runtime.host}`);
+    }
+  }
+
+  // CHK-004: unavailable host degrades visibly (PATH-restricted test)
+  {
+    const savedPath = process.env.PATH;
+    try {
+      process.env.PATH = '/usr/bin:/bin';
+      const geminiUnavailable = run<HostRuntimeProbe>('host_runtime_probe', { host: 'gemini' });
+      assert.equal(geminiUnavailable.status, 'unavailable');
+      assert.equal(geminiUnavailable.runtimeKind, 'missing-cli');
+      assert.equal(geminiUnavailable.receiptSupport, 'unverified',
+        'unavailable gemini (PATH-restricted) must have receiptSupport=unverified');
+      assert.ok(['ready', 'requires-login', 'unknown'].includes(geminiUnavailable.loginReadiness),
+        `unavailable gemini loginReadiness must be valid, got ${geminiUnavailable.loginReadiness}`);
+      assert.equal(geminiUnavailable.unattendedSafe, false,
+        'unavailable gemini must not claim unattendedSafe=true');
+      assert.ok(
+        geminiUnavailable.unattendedReasons.some(r => /dispatch_policy_check|dispatch_auto|policy binding/i.test(r)),
+        'unavailable gemini must still reference policy binding requirement',
+      );
+      assertAuthorityFalse(geminiUnavailable, 'geminiUnavailable4');
+
+      const codexUnavailable = run<HostRuntimeProbe>('host_runtime_probe', { host: 'codex' });
+      assert.equal(codexUnavailable.receiptSupport, 'unverified',
+        'unavailable codex (PATH-restricted) must have receiptSupport=unverified');
+      assert.equal(codexUnavailable.unattendedSafe, false,
+        'unavailable codex must not claim unattendedSafe=true');
+      assertAuthorityFalse(codexUnavailable, 'codexUnavailable4');
+    } finally {
+      process.env.PATH = savedPath;
+    }
+  }
+
   // CHK-003: missing budget/network → supervised, not refused
   const supervisedPolicyCreate = run<DispatchPolicy>('dispatch_policy_create', {
     policy: 'supervised-only',
@@ -1203,7 +1336,7 @@ try {
   );
   assertAuthorityFalse(supervisedCheckResult, 'supervisedCheckResult');
 
-  console.log('✓ dispatch-run smoke passed — runtime probes, overflow gating, fake path hardening, real-host scaffolds, receipts, degradation paths, manual merge guidance, authority invariants, and dispatch_policy contract verified');
+  console.log('✓ dispatch-run smoke passed — runtime probes, overflow gating, fake path hardening, real-host scaffolds, receipts, degradation paths, manual merge guidance, authority invariants, dispatch_policy contract, and real-host unattended capability contract verified');
 } finally {
   resetConfigCache();
   rmSync(root, { recursive: true, force: true });
