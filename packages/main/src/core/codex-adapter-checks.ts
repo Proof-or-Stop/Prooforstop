@@ -49,15 +49,17 @@ export const LOCAL_CODEX_VERIFY_COMMAND = 'node bin/lattice-codex.js verify_code
 export const LOCAL_MAIN_VERIFY_COMMAND = 'node bin/lattice.js verify_codex';
 export const LEGACY_LOCAL_CODEX_VERIFY_COMMAND = 'node bin/koala-codex.js verify_codex';
 export const LEGACY_LOCAL_MAIN_VERIFY_COMMAND = 'node bin/koala.js verify_codex';
+export const GLOBAL_THIN_CODEX_VERIFY_COMMAND = 'lattice codex verify';
 export const LOCAL_INIT_VERIFY_COMMAND = 'lattice init --verify-codex';
 export const GLOBAL_CODEX_FALLBACK_COMMAND = 'KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 KOALA_CODEX_ENTRYPOINT=global-fallback lattice';
 
 /**
  * Resolve the preferred verify_codex command from available local wrappers.
  * Priority: bin/lattice-codex.js > bin/koala-codex.js > bin/lattice.js > bin/koala.js
- * Falls back to LOCAL_CODEX_VERIFY_COMMAND when no wrapper exists (global-thin / unchecked-out).
+ * Falls back to the documented global-thin command when local wrappers are intentionally absent.
  */
 export function resolveLocalCodexVerifyCommand(root: string): string {
+  if (isGlobalThinProject(root)) return GLOBAL_THIN_CODEX_VERIFY_COMMAND;
   const candidates: Array<[string, string]> = [
     ['bin/lattice-codex.js', LOCAL_CODEX_VERIFY_COMMAND],
     ['bin/koala-codex.js',   LEGACY_LOCAL_CODEX_VERIFY_COMMAND],
@@ -68,6 +70,14 @@ export function resolveLocalCodexVerifyCommand(root: string): string {
     if (existsSync(join(root, rel))) return cmd;
   }
   return LOCAL_CODEX_VERIFY_COMMAND;
+}
+
+export function resolveCodexSessionBriefCommand(root: string): string {
+  if (isGlobalThinProject(root)) return `${GLOBAL_CODEX_FALLBACK_COMMAND} session_brief`;
+  const verifyCommand = resolveLocalCodexVerifyCommand(root);
+  return verifyCommand.endsWith(' verify_codex')
+    ? verifyCommand.slice(0, -' verify_codex'.length) + ' session_brief'
+    : 'node bin/lattice-codex.js session_brief';
 }
 
 const CODEX_MATERIAL_PATHS = [
@@ -549,7 +559,7 @@ function checkGlobalFallback(root: string, checks: CodexAdapterCheck[], executeH
           'warn',
           false,
           `global @koala-agent/core resolves to ${globalReal}, not current worktree ${currentReal}; treat global koala as heartbeat-only, not current-worktree gate/status evidence`,
-          'node bin/lattice-codex.js session_brief',
+          resolveCodexSessionBriefCommand(root),
         );
         return;
       }
