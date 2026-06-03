@@ -551,7 +551,53 @@
         "test": [
           "packages/main/src/tasks/dispatch-run-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke covers transcript, changedFiles, command output, runner metadata, and local diagnostic receipt collection.",
+          "headHash": "be2c7d0831e30ab38e8bce13539c3aaed38a24cd",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:36.733Z"
+        },
+        {
+          "intentRef": "CHK-007:happy:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke covers dispatch_review and dispatch_merge_plan surfacing evidence with manual next actions.",
+          "headHash": "be2c7d0831e30ab38e8bce13539c3aaed38a24cd",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:36.796Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke covers missing transcript/receipt, stale/no diff, and partial worker outcomes as diagnostic without erasing evidence.",
+          "headHash": "be2c7d0831e30ab38e8bce13539c3aaed38a24cd",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:36.856Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke covers forged host/receipt overclaims and keeps receiptVerified/authorityChanged/productionDone false.",
+          "headHash": "be2c7d0831e30ab38e8bce13539c3aaed38a24cd",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:36.914Z"
+        }
+      ]
     },
     {
       "id": "CHK-008",
