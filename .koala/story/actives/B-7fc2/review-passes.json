@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-7fc2:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS: smoke covers validate --json direct JSON.parse, --json + --format=json aliases on authority_status, host_list --format=json, text-mode hint preservation (→ 验证全绿), adversarial 6-marker hint absence + single-JSON-document boundary (trimmed ends with }). verificationCoverage 12/12 must intents covered via integration_test/logic_test/manual_transcript/docs_check. Choke-point fix in cli-engine means representative-command smoke is sufficient; non-tested --format=json commands (parallel_status, host_runtime_probe) are acceptable residual risk, not blocker.",
+      "createdAt": "2026-06-03T22:24:58.876Z",
+      "reviewRound": "2026-06-03T22:21:59.769Z",
+      "reviewRunId": "B-7fc2:RR-003",
+      "_hash": "db7020404d1085946ac70d9ce591e148cda6904a0e99f6592a058e2ec0d1d34e"
+    }
+  ]
+}
