@@ -139,7 +139,42 @@
       "context": "dispatch_watch should expose real runner summary, dispatch_cancel should be able to terminate or mark cancellation safely, collect/review/merge_plan must keep receiptVerified=false and manualOnly=true.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "用户可以用 dispatch_watch/dispatch_review 查看 Claude runner 结果，用 dispatch_cancel 保留证据地停止或标记取消，dispatch_merge_plan 仍只给 manual merge guidance。",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-dispatch.ts",
+          "packages/main/src/core/dispatch-runner.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+          "packages/main/src/tasks/dispatch-run-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "dispatch_watch and dispatch_review expose real Claude runner summary, changedFiles, transcript existence, and manual nextAction after a completed real-runner dispatch.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "dispatch_cancel on a real-runner record preserves dispatch metadata and reports cancelled/terminal state without deleting transcript or worktree evidence.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "dispatch_merge_plan remains manualOnly=true and receiptVerified=false/productionDone=false even when the real Claude runner completed successfully.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
