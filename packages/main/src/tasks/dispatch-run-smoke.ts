@@ -33,6 +33,7 @@ import type {
   DispatchRecord,
   DispatchReviewResult,
   DispatchRunResult,
+  DispatchRunnerRecord,
   DispatchStatusResult,
   HostRuntimeList,
   HostRuntimeProbe,
@@ -1336,7 +1337,160 @@ try {
   );
   assertAuthorityFalse(supervisedCheckResult, 'supervisedCheckResult');
 
-  console.log('✓ dispatch-run smoke passed — runtime probes, overflow gating, fake path hardening, real-host scaffolds, receipts, degradation paths, manual merge guidance, authority invariants, dispatch_policy contract, and real-host unattended capability contract verified');
+  // CHK-005: Runner details exposed through dispatch_status
+
+  function assertRunnerShape(runner: unknown, label: string): void {
+    assert.ok(runner && typeof runner === 'object', `${label} must be an object`);
+    const r = runner as DispatchRunnerRecord;
+    assert.equal(r.schemaVersion, 'lattice.dispatch_runner.v1', `${label}.schemaVersion`);
+    assert.ok(typeof r.dispatchId === 'string' && r.dispatchId.length > 0, `${label}.dispatchId must be non-empty`);
+    assert.ok(typeof r.host === 'string', `${label}.host must be a string`);
+    assert.ok(['fake', 'scaffolded', 'refused'].includes(r.runnerKind), `${label}.runnerKind must be fake|scaffolded|refused, got ${r.runnerKind}`);
+    assert.ok(Array.isArray(r.commandTemplate), `${label}.commandTemplate must be an array`);
+    assert.ok(Array.isArray(r.invocation), `${label}.invocation must be an array`);
+    assert.ok(typeof r.cwd === 'string' && r.cwd.length > 0, `${label}.cwd must be non-empty`);
+    assert.ok(typeof r.transcriptPath === 'string' && r.transcriptPath.length > 0, `${label}.transcriptPath must be non-empty`);
+    assert.ok(typeof r.startedAt === 'string', `${label}.startedAt must be a string`);
+    assert.equal(typeof r.timedOut, 'boolean', `${label}.timedOut must be boolean`);
+    assert.ok(Array.isArray(r.refusalReasons), `${label}.refusalReasons must be an array`);
+    assert.ok(r.envSummary && typeof r.envSummary === 'object', `${label}.envSummary must be an object`);
+    const env = r.envSummary as { totalVars: number; sensitiveFiltered: number; safeVarNames: string[]; note: string };
+    assert.ok(typeof env.totalVars === 'number' && env.totalVars >= 0, `${label}.envSummary.totalVars`);
+    assert.ok(typeof env.sensitiveFiltered === 'number' && env.sensitiveFiltered >= 0, `${label}.envSummary.sensitiveFiltered`);
+    assert.ok(Array.isArray(env.safeVarNames), `${label}.envSummary.safeVarNames must be an array`);
+    assert.ok(typeof env.note === 'string', `${label}.envSummary.note must be a string`);
+    // Authority invariant
+    assert.equal(r.authorityChanged, false, `${label}.authorityChanged must be false`);
+    assert.equal(r.receiptVerified, false, `${label}.receiptVerified must be false`);
+    assert.equal(r.productionDone, false, `${label}.productionDone must be false`);
+  }
+
+  // CHK-005a: Fake run — dispatch_status exposes runner details
+  {
+    run<DispatchRecord>('dispatch_prepare', {
+      storyId: 'B-dispatch',
+      dispatchId: 'D-chk005-fake',
+      host: 'fake',
+      objective: 'CHK-005 fake runner details.',
+      allowedPaths: ['packages/main/src/generated/chk005-fake.txt'],
+    });
+    run<DispatchRunResult>('dispatch_run', { dispatchId: 'D-chk005-fake' });
+    const fakeRunStatus = run<DispatchStatusResult>('dispatch_status', { dispatchId: 'D-chk005-fake' });
+    assert.ok(fakeRunStatus.runner !== undefined, 'dispatch_status after fake run must include runner field');
+    assertRunnerShape(fakeRunStatus.runner, 'fakeRunStatus.runner');
+    assert.equal(fakeRunStatus.runner!.runnerKind, 'fake', 'fake run must have runnerKind=fake');
+    assert.ok(fakeRunStatus.runner!.commandTemplate.length > 0, 'fake runner must have commandTemplate');
+    assert.ok(fakeRunStatus.runner!.invocation.length > 0, 'fake runner must have invocation');
+    assert.equal(fakeRunStatus.runner!.cwd, fakeRunStatus.dispatch.worktree.worktreePath, 'fake runner cwd must match worktree path');
+    assert.equal(fakeRunStatus.runner!.transcriptPath, fakeRunStatus.dispatch.transcriptFile, 'fake runner transcriptPath must match dispatch transcriptFile');
+    assert.ok(typeof fakeRunStatus.runner!.startedAt === 'string', 'fake runner must have startedAt');
+    assert.ok(typeof fakeRunStatus.runner!.endedAt === 'string', 'fake runner must have endedAt');
+    assert.equal(typeof fakeRunStatus.runner!.exitCode, 'number', 'fake runner must have exitCode');
+    assert.equal(fakeRunStatus.runner!.exitCode, 0, 'successful fake run must have exitCode=0');
+    assert.equal(fakeRunStatus.runner!.timedOut, false, 'fake runner timedOut must be false');
+    assert.equal(fakeRunStatus.runner!.refusalReasons.length, 0, 'fake runner must have no refusalReasons on success');
+    assertAuthorityFalse(fakeRunStatus.runner, 'fakeRunStatus.runner');
+    // Text rendering includes runner info
+    const fakeRunStatusText = runText('dispatch_status', { dispatchId: 'D-chk005-fake' });
+    assert.match(fakeRunStatusText, /runner:/i, 'dispatch_status text must include runner section');
+    assert.match(fakeRunStatusText, /runnerKind: fake/, 'dispatch_status text must show runnerKind=fake');
+    assert.match(fakeRunStatusText, /cwd:/, 'dispatch_status text must show cwd');
+    assert.match(fakeRunStatusText, /transcriptPath:/, 'dispatch_status text must show transcriptPath');
+    assert.match(fakeRunStatusText, /exitCode:/, 'dispatch_status text must show exitCode');
+  }
+
+  // CHK-005b: Fake run with failing command — exitCode=1, diagnostic status
+  {
+    run<DispatchRecord>('dispatch_prepare', {
+      storyId: 'B-dispatch',
+      dispatchId: 'D-chk005-fail-cmd',
+      host: 'fake',
+      objective: 'CHK-005 failed command runner details.',
+      allowedPaths: ['packages/main/src/generated/chk005-fail-cmd.txt'],
+      requiredCommands: ['node -e "process.exit(7)"'],
+    });
+    run<DispatchRunResult>('dispatch_run', { dispatchId: 'D-chk005-fail-cmd' });
+    const failCmdStatus = run<DispatchStatusResult>('dispatch_status', { dispatchId: 'D-chk005-fail-cmd' });
+    assert.ok(failCmdStatus.runner !== undefined, 'failed-command dispatch_status must include runner field');
+    assertRunnerShape(failCmdStatus.runner, 'failCmdStatus.runner');
+    assert.equal(failCmdStatus.runner!.runnerKind, 'fake', 'failed-command runner must still be runnerKind=fake');
+    assert.equal(failCmdStatus.runner!.exitCode, 1, 'failed-command fake run must have exitCode=1');
+    assertAuthorityFalse(failCmdStatus.runner, 'failCmdStatus.runner');
+  }
+
+  // CHK-005c: Scaffolded real-host run — runner details with supervised-only refusalReasons
+  {
+    const savedCodexSession = process.env.CODEX_SESSION_ID;
+    try {
+      process.env.CODEX_SESSION_ID = 'chk005-test';
+      run<DispatchRecord>('dispatch_prepare', {
+        storyId: 'B-dispatch',
+        dispatchId: 'D-chk005-scaffolded',
+        host: 'codex',
+        objective: 'CHK-005 scaffolded real-host runner details.',
+        allowedPaths: ['packages/main/src/generated/chk005-scaffolded.txt'],
+      });
+      run<DispatchRunResult>('dispatch_run', { dispatchId: 'D-chk005-scaffolded' });
+      const scaffoldedStatus = run<DispatchStatusResult>('dispatch_status', { dispatchId: 'D-chk005-scaffolded' });
+      assert.ok(scaffoldedStatus.runner !== undefined, 'scaffolded dispatch_status must include runner field');
+      assertRunnerShape(scaffoldedStatus.runner, 'scaffoldedStatus.runner');
+      assert.equal(scaffoldedStatus.runner!.runnerKind, 'scaffolded', 'scaffolded run must have runnerKind=scaffolded');
+      assert.ok(scaffoldedStatus.runner!.refusalReasons.length > 0, 'scaffolded runner must have refusalReasons (supervised-only)');
+      assert.ok(
+        scaffoldedStatus.runner!.refusalReasons.some(r => /supervised-only/i.test(r)),
+        'scaffolded runner refusalReasons must explain supervised-only',
+      );
+      assert.equal(scaffoldedStatus.runner!.cwd, scaffoldedStatus.dispatch.worktree.worktreePath, 'scaffolded runner cwd must match worktree path');
+      assert.equal(scaffoldedStatus.runner!.transcriptPath, scaffoldedStatus.dispatch.transcriptFile, 'scaffolded runner transcriptPath must match transcriptFile');
+      assert.ok(typeof scaffoldedStatus.runner!.startedAt === 'string', 'scaffolded runner must have startedAt');
+      assert.ok(typeof scaffoldedStatus.runner!.endedAt === 'string', 'scaffolded runner must have endedAt');
+      assert.equal(scaffoldedStatus.runner!.exitCode, undefined, 'scaffolded runner must not have exitCode (not actually run)');
+      assert.ok(scaffoldedStatus.runner!.commandTemplate.length > 0, 'scaffolded runner must have commandTemplate');
+      assert.ok(scaffoldedStatus.runner!.invocation.length > 0, 'scaffolded runner must have resolved invocation');
+      assertAuthorityFalse(scaffoldedStatus.runner, 'scaffoldedStatus.runner');
+      // Text rendering
+      const scaffoldedText = runText('dispatch_status', { dispatchId: 'D-chk005-scaffolded' });
+      assert.match(scaffoldedText, /runner:/i, 'scaffolded dispatch_status text must include runner section');
+      assert.match(scaffoldedText, /runnerKind: scaffolded/, 'scaffolded dispatch_status text must show runnerKind=scaffolded');
+      assert.match(scaffoldedText, /supervised-only/, 'scaffolded dispatch_status text must show supervised-only refusal');
+    } finally {
+      if (savedCodexSession === undefined) delete process.env.CODEX_SESSION_ID;
+      else process.env.CODEX_SESSION_ID = savedCodexSession;
+    }
+  }
+
+  // CHK-005d: Refused (unavailable host) — runner details with refusalReasons
+  {
+    const savedPath = process.env.PATH;
+    try {
+      process.env.PATH = '/usr/bin:/bin';
+      run<DispatchRecord>('dispatch_prepare', {
+        storyId: 'B-dispatch',
+        dispatchId: 'D-chk005-refused',
+        host: 'gemini',
+        objective: 'CHK-005 refused runner details.',
+        allowedPaths: ['packages/main/src/generated/chk005-refused.txt'],
+      });
+      run<DispatchRunResult>('dispatch_run', { dispatchId: 'D-chk005-refused' });
+      const refusedStatus = run<DispatchStatusResult>('dispatch_status', { dispatchId: 'D-chk005-refused' });
+      assert.ok(refusedStatus.runner !== undefined, 'refused dispatch_status must include runner field');
+      assertRunnerShape(refusedStatus.runner, 'refusedStatus.runner');
+      assert.equal(refusedStatus.runner!.runnerKind, 'refused', 'unavailable run must have runnerKind=refused');
+      assert.ok(refusedStatus.runner!.refusalReasons.length > 0, 'refused runner must have refusalReasons');
+      assert.equal(refusedStatus.dispatch.status, 'unavailable', 'refused dispatch must have status=unavailable');
+      assertAuthorityFalse(refusedStatus.runner, 'refusedStatus.runner');
+    } finally {
+      process.env.PATH = savedPath;
+    }
+  }
+
+  // CHK-005e: authority invariant — runner object never sets authority fields to true
+  {
+    const chk5Status = run<DispatchStatusResult>('dispatch_status', { dispatchId: 'D-chk005-fake' });
+    assertAuthorityFalse(chk5Status, 'chk5Status including runner');
+  }
+
+  console.log('✓ dispatch-run smoke passed — runtime probes, overflow gating, fake path hardening, real-host scaffolds, receipts, degradation paths, manual merge guidance, authority invariants, dispatch_policy contract, real-host unattended capability contract, and runner details in dispatch_status verified');
 } finally {
   resetConfigCache();
   rmSync(root, { recursive: true, force: true });

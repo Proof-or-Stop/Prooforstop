@@ -20,6 +20,13 @@ import {
   type HandoffReceipt,
   type HandoffReceiptSubmission,
 } from './lattice-handoff.js';
+import {
+  buildEnvSummary,
+  buildFakeRunnerRecord,
+  buildRefusedRunnerRecord,
+  buildScaffoldedRunnerRecord,
+  type DispatchRunnerRecord,
+} from './dispatch-runner.js';
 import type { StoryStore } from './store.js';
 
 export type HostRuntimeId = 'fake' | 'claude-code' | 'gemini' | 'codex';
@@ -160,6 +167,7 @@ export interface DispatchRecord {
   parentDispatchId?: string;
   latestHeadSha?: string;
   cancelledAt?: string;
+  runnerFile?: string;
   authorityChanged: false;
   receiptVerified: false;
   productionDone: false;
@@ -217,11 +225,14 @@ export interface DispatchStatusResult {
   schemaVersion: 'lattice.dispatch_status.v1';
   dispatch: DispatchRecord;
   receipt?: HandoffReceiptSubmission;
+  runner?: DispatchRunnerRecord;
   workers: DispatchStatusResult[];
   authorityChanged: false;
   receiptVerified: false;
   productionDone: false;
 }
+
+export type { DispatchRunnerRecord };
 
 export interface DispatchListResult {
   schemaVersion: 'lattice.dispatch_list.v1';
@@ -1445,6 +1456,7 @@ export function prepareDispatch(store: StoryStore, root: string, args: DispatchP
     collectFile: relative(root, dispatchFile(root, dispatchId, 'collect.json')),
     receiptFile: relative(root, dispatchFile(root, dispatchId, 'receipt.json')),
     receiptSubmissionFile: relative(root, dispatchFile(root, dispatchId, 'receipt-submit.json')),
+    runnerFile: relative(root, dispatchFile(root, dispatchId, 'runner.json')),
     worktree: {
       branch: worktree.branch,
       worktreePath: worktree.worktreePath,
@@ -1461,6 +1473,7 @@ export function prepareDispatch(store: StoryStore, root: string, args: DispatchP
 }
 
 function runFakeLeafDispatch(store: StoryStore, root: string, record: DispatchRecord): DispatchRunResult {
+  const runnerStartedAt = nowIso();
   let pack = readPack(root, record.dispatchId);
   pack = ensurePreparedPackForFake(root, record.dispatchId, pack);
   const projectedWorktreeAbs = resolve(root, record.worktree.worktreePath);
@@ -1513,6 +1526,21 @@ function runFakeLeafDispatch(store: StoryStore, root: string, record: DispatchRe
   const nextAction = submission.status === 'accepted-local'
     ? 'Fake dispatch completed. Review the isolated overflow diff and receipt manually before any merge.'
     : submission.nextAction;
+  const runnerEndedAt = nowIso();
+  const fakeExitCode = commandWarnings.length > 0 ? 1 : 0;
+  const runnerRecord = buildFakeRunnerRecord({
+    dispatchId: record.dispatchId,
+    host: record.selectedHost,
+    commandTemplate: record.runtime.invocationTemplate ?? ['fake-runtime', '--deterministic'],
+    cwd: record.worktree.worktreePath,
+    transcriptPath: record.transcriptFile,
+    startedAt: runnerStartedAt,
+    endedAt: runnerEndedAt,
+    exitCode: fakeExitCode,
+  });
+  if (record.runnerFile) {
+    writeJson(resolve(root, record.runnerFile), runnerRecord);
+  }
   writeRecord(root, {
     ...record,
     status: nextStatus,
@@ -1629,6 +1657,22 @@ export function runDispatch(store: StoryStore, root: string, args: DispatchRunAr
 
   const runtime = record.runtime;
   if (!runtime.available) {
+    const refusalReasons = [
+      ...runtime.warnings,
+      ...runtime.unattendedReasons,
+      `Host ${runtime.host} is not available; run refused.`,
+    ];
+    const refusedRunner = buildRefusedRunnerRecord({
+      dispatchId: record.dispatchId,
+      host: record.selectedHost,
+      commandTemplate: runtime.invocationTemplate ?? [],
+      cwd: record.worktree.worktreePath,
+      transcriptPath: record.transcriptFile,
+      refusalReasons,
+    });
+    if (record.runnerFile) {
+      writeJson(resolve(root, record.runnerFile), refusedRunner);
+    }
     const updated = writeRecord(root, {
       ...record,
       status: 'unavailable',
@@ -1732,6 +1776,7 @@ export function runDispatch(store: StoryStore, root: string, args: DispatchRunAr
       productionDone: false,
     };
   }
+  const scaffoldStartedAt = nowIso();
   const promptFile = resolve(root, record.promptFile);
   const invocation = runtime.invocationTemplate?.map(part =>
     part === '<prompt-file>' ? promptFile : part === '<worktree>' ? record.worktree.worktreePath : part,
@@ -1743,6 +1788,19 @@ export function runDispatch(store: StoryStore, root: string, args: DispatchRunAr
   ]);
   const status: DispatchLifecycleStatus = 'needs_receipt';
   const nextAction = `Manual-first only. Worktree is ready at ${record.worktree.worktreePath}. Run ${invocation.join(' ')} there, then return a local receipt via dispatch_collect/dispatch_receipt_create.`;
+  const scaffoldedRunner = buildScaffoldedRunnerRecord({
+    dispatchId: record.dispatchId,
+    host: record.selectedHost,
+    commandTemplate: runtime.invocationTemplate ?? [],
+    invocation,
+    cwd: record.worktree.worktreePath,
+    transcriptPath: record.transcriptFile,
+    startedAt: scaffoldStartedAt,
+    endedAt: nowIso(),
+  });
+  if (record.runnerFile) {
+    writeJson(resolve(root, record.runnerFile), scaffoldedRunner);
+  }
   const updated = writeRecord(root, {
     ...record,
     status,
@@ -1831,14 +1889,21 @@ function maybeReadReceiptSubmission(root: string, record: DispatchRecord): Hando
   return maybeReadJson<HandoffReceiptSubmission>(resolve(root, record.receiptSubmissionFile));
 }
 
+function maybeReadRunnerRecord(root: string, record: DispatchRecord): DispatchRunnerRecord | undefined {
+  if (!record.runnerFile) return undefined;
+  return maybeReadJson<DispatchRunnerRecord>(resolve(root, record.runnerFile));
+}
+
 export function dispatchStatus(root: string, dispatchId: string): DispatchStatusResult {
   const record = readRecord(root, dispatchId);
   const effectiveStatus = resolveEffectiveStatus(record);
   const current = effectiveStatus === record.status ? record : { ...record, status: effectiveStatus };
+  const runner = maybeReadRunnerRecord(root, current);
   return {
     schemaVersion: 'lattice.dispatch_status.v1',
     dispatch: current,
     receipt: maybeReadReceiptSubmission(root, current),
+    ...(runner !== undefined ? { runner } : {}),
     workers: current.workerIds.map(workerId => dispatchStatus(root, workerId)),
     authorityChanged: false,
     receiptVerified: false,
@@ -2141,6 +2206,28 @@ export function renderDispatchStatusText(result: DispatchStatusResult): string {
   ];
   if (result.receipt) {
     lines.push(`receipt.status: ${result.receipt.status}`);
+  }
+  if (result.runner) {
+    const r = result.runner;
+    lines.push('', 'runner:');
+    lines.push(`  runnerKind: ${r.runnerKind}`);
+    if (r.commandTemplate.length > 0) {
+      lines.push(`  commandTemplate: ${r.commandTemplate.join(' ')}`);
+    }
+    if (r.invocation.length > 0) {
+      lines.push(`  invocation: ${r.invocation.join(' ')}`);
+    }
+    lines.push(`  cwd: ${r.cwd}`);
+    lines.push(`  transcriptPath: ${r.transcriptPath}`);
+    lines.push(`  startedAt: ${r.startedAt}`);
+    if (r.endedAt) lines.push(`  endedAt: ${r.endedAt}`);
+    if (r.exitCode !== undefined) lines.push(`  exitCode: ${r.exitCode}`);
+    if (r.timedOut) lines.push(`  timedOut: true`);
+    lines.push(`  envSummary: ${r.envSummary.totalVars} vars, ${r.envSummary.sensitiveFiltered} sensitive filtered`);
+    if (r.refusalReasons.length > 0) {
+      lines.push('  refusalReasons:');
+      lines.push(...r.refusalReasons.map(reason => `    - ${reason}`));
+    }
   }
   if (result.workers.length > 0) {
     lines.push('', 'workers:');
