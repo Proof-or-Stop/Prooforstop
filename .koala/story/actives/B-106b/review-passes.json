@@ -116,6 +116,15 @@
       "reviewRound": "2026-06-03T16:02:54.409Z",
       "reviewRunId": "B-106b:RR-038",
       "_hash": "ed301fc6767480f98e6b137e259e8960e336906378f25827947ba91d29bf9cda"
+    },
+    {
+      "id": "B-106b:RP-014",
+      "agent": "koala-review-quality",
+      "note": "Reviewed BUG-001 output-path hardening in packages/main/src/handlers/lattice-dispatch.ts: resolveRepoContainedOutputPath now rejects absolute paths, traversal outside repo root, repo-root target, existing symlink ancestors, and non-directory ancestors; writeJsonNoOverwrite still rejects pre-existing outputs. Verified host_runtime_list and host_runtime_probe both route through maybeWriteOutput, so they share the same guard as dispatch_plan and other dispatch JSON outputs. Rechecked read-only command policy and reviewer read-only gate: host_runtime_list/probe and dispatch_plan/status/list/review/merge_plan remain ownershipClass=readOnly and command-ownership-contract passed. Rechecked smoke realism: npm --prefix packages/main run build compiled dist, npm --prefix packages/main run test:dispatch-run-smoke exercised the compiled dist registry/handlers and explicitly asserted traversal, absolute-path, repo-root, non-directory ancestor, symlink-ancestor, legal repo-local output, and no-overwrite behavior; npm run test:process-fact-contract also passed. No verified quality blocker found for BUG-001.",
+      "createdAt": "2026-06-03T16:08:54.364Z",
+      "reviewRound": "2026-06-03T16:02:54.409Z",
+      "reviewRunId": "B-106b:RR-035",
+      "_hash": "334bbfc518e819df3df6d729ed15ee0c36cf27926f142d23d7de262455bd56bb"
     }
   ]
 }
