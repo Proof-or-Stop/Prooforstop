@@ -309,6 +309,23 @@
         "packages/main/src/core/lattice-handoff.ts",
         "packages/main/src/tasks/dispatch-run-smoke.ts"
       ]
+    },
+    {
+      "id": "B-106b:F-017",
+      "desc": "Verification coverage count is 45/45, but all 45 evidence entries are stale: checklist evidence still points to head ec35d59 while current HEAD is 51a5efd. Fresh smoke/build runs passed, but REVIEW coverage evidence has not been refreshed for the current revision, so the REVIEW->TEST freshness gate is not satisfied.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-03T16:10:41.907Z",
+      "reviewRound": "2026-06-03T16:02:54.409Z",
+      "reviewRunId": "B-106b:RR-037",
+      "_hash": "aad1d11b4e03546038308932c0d1314eaae9a001234f1bf680e9e6162f0cfd51",
+      "files": [
+        ".koala/story/actives/B-106b/checklist.json",
+        "packages/main/src/tasks/dispatch-run-smoke.ts"
+      ]
     }
   ]
 }
