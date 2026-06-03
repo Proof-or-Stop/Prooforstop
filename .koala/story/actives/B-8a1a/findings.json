@@ -26,7 +26,7 @@
       "desc": "CHK-002:edge:0 overclaims explicit opt-in coverage. The intent requires that a claude-code policy without allowRealHostSubprocess=true stays supervised/refused for real subprocess launch, but the recorded evidence points to dispatch-run-smoke paths that only cover host-not-in-policy and gemini unavailable/unattendedSafe=false refusals, not the dedicated claude-code missing-opt-in branch. The production code has a separate refusal at lattice-dispatch.ts:2747-2750, yet unattended-dispatch-smoke only exercises allowRealHostSubprocess=true success/env/nonzero/timeout cases.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-06-03T23:22:59.088Z",
@@ -38,7 +38,9 @@
         "packages/main/src/core/lattice-dispatch.ts",
         "packages/main/src/tasks/unattended-dispatch-smoke.ts",
         "packages/main/src/tasks/dispatch-run-smoke.ts"
-      ]
+      ],
+      "resolvedReason": "Resolved by adding unattended-dispatch-smoke coverage for claude-code policy missing allowRealHostSubprocess=true with fake claude on PATH; dispatch_auto refuses before creating dispatch records.",
+      "resolvedAt": "2026-06-03T23:53:01.285Z"
     },
     {
       "id": "B-8a1a:F-003",
