@@ -25,7 +25,42 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "A developer in a story worktree sees guidance that uses the current worktree local CLI for status/validate/gate evidence and labels stale global lattice as advisory fallback only."
+      "userSees": "When a Koala/Lattice self-development story worktree is using current code, docs and diagnostics say `node bin/lattice.js <command>` or `node packages/main/dist/cli.js <command>` for status/validate/gate evidence, and any global `lattice` that resolves outside the worktree is described as `heartbeat-only, not current-worktree gate/status evidence`.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "bin/bootstrap-runner.js",
+          "README.md"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-codex-assets.mjs",
+          "scripts/verify-entrypoints.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Bootstrap/docs guidance for current story worktrees names local wrapper or current dist CLI as the evidence path for status/validate/gate checks.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "When global @koala-agent/core resolves outside current worktree, diagnostics keep the result advisory and describe global CLI as heartbeat-only rather than current-worktree evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The implementation must not hard-fail all global lattice drift or force global lattice to point at a story worktree.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
