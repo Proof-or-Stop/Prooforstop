@@ -949,6 +949,9 @@ export const MAIN_TOOLS: ToolDef[] = [
     json: z.boolean().optional().describe('结构化 JSON 输出'),
     storyId: z.string().optional().describe('可选 Story ID；缺省从 story/* 分支推断并记录 process-event evidence'),
   }},
+  { name: 'codex_doctor', description: 'Codex adapter 诊断：输出 Codex adapter 检查状态（不写 process-event evidence）。Alias: lattice codex doctor', schema: {
+    json: z.boolean().optional().describe('结构化 JSON 输出'),
+  }},
   { name: 'check', description: '检查 Koala 管理资产/模板漂移；--apply/--upgrade 显式同步安全项', schema: {
     json: z.boolean().optional().describe('结构化 JSON 输出'),
     apply: z.boolean().optional().describe('同步 MISSING/STALE_SAFE 管理资产；不会覆盖 CASE_MISMATCH/STALE_LOCAL_EDIT/INCOMPATIBLE'),
@@ -2443,6 +2446,8 @@ export async function runCli(opts?: {
   'handoff receipt submit': 'handoff_receipt_submit',
   'handoff worktree create': 'handoff_worktree_create',
   'config doctor': 'lattice_config_doctor',
+  'codex verify': 'verify_codex',
+  'codex doctor': 'codex_doctor',
     'rollout check': 'rollout_check',
     'authority status': 'authority_status',
     'authority enforce policy': 'authority_enforce_policy',

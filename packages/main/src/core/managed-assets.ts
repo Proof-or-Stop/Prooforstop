@@ -14,9 +14,11 @@ import { createHash } from 'node:crypto';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
+  AGENTS_MD_GLOBAL_THIN_TEMPLATE,
   AGENTS_MD_TEMPLATE,
   CLAUDE_MD_TEMPLATE,
   KOALA_MD_TEMPLATE,
+  LATTICE_DOT_DIR_MD_TEMPLATE,
   LATTICE_MD_TEMPLATE,
   getKoalaHooks,
   listAgentPromptFiles,
@@ -28,6 +30,7 @@ import {
   renderLatticeCodexAdapterManifest,
   renderLatticeCodexWrapperScript,
   renderKoalaBootstrapScript,
+  renderLatticeProjectConfig,
   type InitAssetMode,
   type InitProfile,
 } from '../init-assets.js';
@@ -355,6 +358,25 @@ export function detectManagedAssetProfile(root: string): InitProfile {
   return 'core';
 }
 
+export function detectManagedAssetMode(root: string): InitAssetMode {
+  if (existsSync(join(root, '.Lattice', 'lattice.json'))) {
+    const text = readText(root, '.Lattice/lattice.json');
+    if (text?.includes('global-thin')) return 'global-thin';
+  }
+  if (existsSync(join(root, '.Codex', 'lattice.json')) || existsSync(join(root, '.Codex', 'agents'))) {
+    return 'full';
+  }
+  if (existsSync(join(root, 'bin', 'lattice.js')) || existsSync(join(root, 'bin', 'koala.js'))) {
+    return 'full';
+  }
+  // Legacy full-mode: KOALA.md or LATTICE.md presence (any casing) implies non-global-thin project
+  try {
+    const lcNames = readdirSync(root).map(e => e.toLowerCase());
+    if (lcNames.includes('koala.md') || lcNames.includes('lattice.md')) return 'full';
+  } catch {}
+  return 'global-thin';
+}
+
 function loadManifest(root: string): ManagedAssetManifest | null {
   const text = readText(root, MANIFEST_REL_PATH);
   if (!text) return null;
@@ -432,6 +454,62 @@ export function listManagedAssetDefinitions(
   projectRoot = process.cwd(),
   assetMode: InitAssetMode = 'full',
 ): ManagedAssetDefinition[] {
+  const isGlobalThin = assetMode === 'global-thin';
+  // Global-thin: canonical assets live in .Lattice/. No local bin shims.
+  if (isGlobalThin) {
+    const defs: ManagedAssetDefinition[] = [
+      managedDoc(
+        'doc:.Lattice/Lattice.md',
+        '.Lattice/Lattice.md',
+        LATTICE_DOT_DIR_MD_TEMPLATE,
+        actual => actual.includes('.Lattice/Lattice.md') || actual.includes('lattice codex verify'),
+      ),
+      wholeFile(
+        '.Lattice:lattice.json',
+        '.Lattice/lattice.json',
+        renderLatticeProjectConfig(),
+        actual => actual.includes('"assetMode"') && actual.includes('global-thin'),
+        false,
+        actual => {
+          try {
+            const parsed = safeJsonParse(actual);
+            return Boolean(
+              parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+              && (parsed as Record<string, unknown>)['assetMode'] === 'global-thin'
+              && (parsed as Record<string, unknown>)['latticeVersion'] === 1,
+            );
+          } catch { return false; }
+        },
+      ),
+      { id: 'gitignore:runtime-artifacts', relPath: '.gitignore', kind: 'gitignore-runtime' },
+    ];
+    const wantsCodex = profile === 'codex' || profile === 'all';
+    const wantsClaude = profile === 'claude' || profile === 'all';
+    if (wantsCodex || profile === 'core') {
+      defs.push(
+        managedDoc(
+          'doc:AGENTS.md',
+          'AGENTS.md',
+          AGENTS_MD_GLOBAL_THIN_TEMPLATE,
+          actual => actual.includes('.Lattice/Lattice.md') || actual.includes('lattice codex verify'),
+        ),
+      );
+    }
+    if (wantsClaude) {
+      defs.push(
+        managedDoc(
+          'doc:CLAUDE.md',
+          'CLAUDE.md',
+          CLAUDE_MD_TEMPLATE,
+          actual => actual.includes('Koala For Claude Code') || actual.includes('Claude Code subagents 位于'),
+          actual => isExpandedKoalaClaudeGuide(actual),
+        ),
+        { id: '.claude:settings.json', relPath: '.claude/settings.json', kind: 'claude-settings' },
+      );
+    }
+    return defs;
+  }
+
   const useLegacyGuide = useLegacyAssetPath(projectRoot, 'LATTICE.md', 'KOALA.md');
   const useLegacyBootstrap = useLegacyAssetPath(projectRoot, 'bin/lattice.js', 'bin/koala.js');
   const useLegacyCodexWrapper = useLegacyAssetPath(projectRoot, 'bin/lattice-codex.js', 'bin/koala-codex.js');
@@ -818,7 +896,7 @@ function collectLocalEditReviews(
 
 export function runManagedAssetCheck(root: string, options: ManagedAssetCheckOptions = {}): ManagedAssetCheckResult {
   const profile = options.profile ?? detectManagedAssetProfile(root);
-  const assetMode = options.assetMode ?? 'full';
+  const assetMode = options.assetMode ?? detectManagedAssetMode(root);
   const mode: ManagedAssetCheckResult['mode'] = options.upgrade ? 'upgrade' : options.apply ? 'apply' : 'check';
   const shouldApply = mode === 'apply' || mode === 'upgrade';
   const warnings = shouldApply ? collectApplyWarnings(root) : [];
