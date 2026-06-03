@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-03T23:16:51.649Z",
       "reviewRunId": "B-8a1a:RR-001",
       "_hash": "692d69d16109449cc670f6725cc758b285d61a271e91007696cb271e6939130b"
+    },
+    {
+      "id": "B-8a1a:RP-003",
+      "agent": "koala-review-docs",
+      "note": "README.md 与 host-overflow.md 都明确写出 allowRealHostSubprocess 仅限 Claude Code、host_runtime_probe.unattendedSafe 保守为 false、dispatch_merge_plan manualOnly=true，且未暗示 Gemini/Codex 或 standalone probe 可授权真实 subprocess。",
+      "createdAt": "2026-06-03T23:56:22.875Z",
+      "reviewRound": "2026-06-03T23:52:40.928Z",
+      "reviewRunId": "B-8a1a:RR-011",
+      "_hash": "fdff40cb12fbe7898f4474441eff804a8b182ecde5a4e8f6948c59bd99ee62b2"
     }
   ]
 }
