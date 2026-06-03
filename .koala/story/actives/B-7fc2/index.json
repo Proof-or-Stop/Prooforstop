@@ -1,0 +1,49 @@
+{
+  "storyId": "B-7fc2",
+  "name": "strict-json-stdout-contract",
+  "title": "Keep Lattice CLI --json stdout machine-parseable while preserving human hints",
+  "description": "Fix the Lattice CLI output contract so dashboard and adapter consumers can parse --json / --format=json stdout directly, without substring extraction or special cases for human next-step hints.",
+  "type": "bug",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "source": "user-request-2026-06-03",
+  "keywords": [
+    "lattice-cli",
+    "json-stdout",
+    "dashboard",
+    "validate",
+    "host-neutral-observability"
+  ],
+  "riskSignals": [
+    {
+      "category": "验证框架",
+      "matched": "Lattice validate"
+    }
+  ],
+  "createdAt": "2026-06-03T21:43:22.263Z",
+  "startedAt": "2026-06-03T21:43:22.263Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-03T21:43:22.271Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-03T21:46:44.375Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-7fc2",
+    "branch": "story/B-7fc2",
+    "createdAt": "2026-06-03T21:46:44.554Z"
+  }
+}
