@@ -208,9 +208,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-03T19:05:27.948Z",
-      "endTime": null,
+      "endTime": "2026-06-03T19:06:08.510Z",
       "files": {
         "modify": [
           "docs/requirements/decisions/testing-infra.md",
@@ -224,7 +224,45 @@
         "test": [
           "packages/main/src/tasks/validation-protocol-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol",
+          "result": "pass",
+          "note": "Validation protocol smoke covers Package.swift no-auto-Swift, explicit Swift opt-in, canonical lattice.config.json, legacy koala.config.json fallback, and config conflict diagnostics.",
+          "headHash": "61b5525562ce5bf0cbbb835c78f238617369f7db",
+          "materialHash": "08d6898dcc0d44d0d311471c40c1841ef5e3b3ea472df9ac42ee5e1d27364d6e",
+          "timestamp": "2026-06-03T19:06:08.628Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run test:validation-protocol && lattice validate --json",
+          "result": "pass",
+          "note": "Existing package.json/npm fallback behavior still works: validation-protocol retains npm fallback coverage and lattice validate --json on the repo passed via package.json test script without invoking Swift.",
+          "headHash": "61b5525562ce5bf0cbbb835c78f238617369f7db",
+          "materialHash": "08d6898dcc0d44d0d311471c40c1841ef5e3b3ea472df9ac42ee5e1d27364d6e",
+          "timestamp": "2026-06-03T19:06:08.778Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/testing-infra.md",
+          "command": "rg -n \"Swift / Package.swift 不在自动 fallback|Mac Native App 已退役|lattice.config.json\" docs/requirements/decisions/testing-infra.md README.md packages/main/src/handlers/doctor.ts packages/main/src/verifier/serve.ts",
+          "result": "pass",
+          "note": "Docs and user-facing diagnostics now state lattice.config.json is canonical and Swift/Mac Native is not an automatic validation fallback; Swift remains only explicit opt-in or legacy executor context.",
+          "headHash": "61b5525562ce5bf0cbbb835c78f238617369f7db",
+          "materialHash": "08d6898dcc0d44d0d311471c40c1841ef5e3b3ea472df9ac42ee5e1d27364d6e",
+          "timestamp": "2026-06-03T19:06:08.900Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -272,6 +310,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Implementation committed by koala-implementer; recording docs and regression evidence."
+    },
+    {
+      "timestamp": "2026-06-03T19:06:08.510Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementation committed in 5a162280 and verified by full smoke matrix plus docs grep review."
     }
   ]
 }
