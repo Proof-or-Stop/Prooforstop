@@ -1,0 +1,83 @@
+{
+  "storyId": "B-4ee0",
+  "checkedAt": "2026-06-03T18:51:27.643Z",
+  "features": [
+    {
+      "feature": "fresh init creates .Lattice/Lattice.md, .Lattice/lattice.json, thin AGENTS.md as minimal assets",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "understanding.outcome + CHK-002 userSees"
+    },
+    {
+      "feature": "default init does not generate bin/lattice*.js, .Codex/README.md, .Codex/agents, KOALA.md clutter",
+      "covered_by": "CHK-001,CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "understanding.outcome + CHK-002 adversarial verificationIntent"
+    },
+    {
+      "feature": "global lattice codex verify/doctor works without local bin wrapper in fresh thin-mode project",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "understanding.outcome + CHK-003 userSees + preMortem scenario 2"
+    },
+    {
+      "feature": "legacy Koala/Lattice local shim projects keep working (KOALA.md, .Codex/koala.json, bin/koala-codex.js, bin/lattice-codex.js)",
+      "covered_by": "CHK-003,CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "understanding.constraints + CHK-003 edge + CHK-004 context"
+    },
+    {
+      "feature": "non-destructive check/apply migration: lattice check --apply adds canonical .Lattice assets without deleting legacy files",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "understanding.constraints + CHK-004 userSees + preMortem scenario 3"
+    },
+    {
+      "feature": "resolver priority: .Lattice/lattice.json preferred over .Codex and KOALA-era paths when coexisting",
+      "covered_by": "CHK-001,CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "preMortem scenario 4 + CHK-003 context + managed-assets.ts touchpoint"
+    },
+    {
+      "feature": "targeted smoke tests (thin-init-assets-smoke, legacy-koala-compatibility-smoke) and successful tsc build",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "understanding.outcome + CHK-005 verificationIntent"
+    },
+    {
+      "feature": "lifecycle-artifact-scope.md registry-backed-prompt-assets section lists .Codex/lattice.json and bin/lattice*.js as New init primary, contradicting story goal of removing these from fresh init default; no CHK lists this document in files.modify",
+      "covered_by": "",
+      "status": "drift",
+      "excluded_by": "",
+      "source": "lifecycle-artifact-scope.md#registry-backed-prompt-assets vs CHK-002 adversarial verificationIntent"
+    }
+  ],
+  "summary": {
+    "total": 8,
+    "covered": 7,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 1
+  },
+  "reviewRound": "",
+  "_hash": "ae8914bcfc1bf5ad690e9648a368538f3b5a62e9e63a0b378468e98b9213fc67",
+  "openQuestions": [
+    {
+      "id": "OQ-1",
+      "q": "lifecycle-artifact-scope.md registry-backed prompt assets 表格把 .Codex/lattice.json、bin/lattice.js、bin/lattice-codex.js 标注为 New init primary 资产，但 B-4ee0 目标是默认 fresh init 不再生成这些文件。现有 CHK-001~CHK-005 的 files.modify 均未包含 lifecycle-artifact-scope.md。B-4ee0 落地后该文档将与实际 init 行为矛盾。是否应在本 story 内更新 lifecycle-artifact-scope.md？若是，由哪个 CHK 负责？",
+      "evidence": "lifecycle-artifact-scope.md New init primary 包含 .Codex/lattice.json、bin/lattice.js、bin/lattice-codex.js vs CHK-002 adversarial verificationIntent: fresh 默认 init 中若出现这些文件测试必须失败",
+      "sourcePointers": [
+        "docs/requirements/decisions/lifecycle-artifact-scope.md#registry-backed-prompt-assets",
+        "docs/story/actives/B-4ee0/checklist.json#CHK-002-adversarial"
+      ]
+    }
+  ]
+}
