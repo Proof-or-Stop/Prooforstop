@@ -215,6 +215,23 @@
       ],
       "resolvedReason": "Resolved by commit 5856f39b. Real-host post-scaffold canonical pack-path validation failure now becomes a structured failed dispatch result: it appends transcript evidence, cleans up the worktree when created by this run, persists status=failed, returns authorityChanged=false/receiptVerified=false/productionDone=false, and gives a corrective nextAction instead of throwing while leaving prepared residue. Smoke asserts failed status, no external write, worktree cleanup, and persisted failed state.",
       "resolvedAt": "2026-06-03T00:58:33.557Z"
+    },
+    {
+      "id": "B-106b:F-012",
+      "desc": "Preexisting symlinked projected worktree root bypasses dispatch containment. ensureWorktree reuses any existing .worktrees/overflow/... path without validating that it is a real registered git worktree. If that path is a symlink to an external directory, fake dispatch can write outside the repo before git fails, and real-host dispatch can return needs_receipt for an external target. Reject symlink/non-worktree roots before reuse and add fake plus real-host root-symlink smoke coverage.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-03T13:46:12.353Z",
+      "reviewRound": "2026-06-03T00:59:20.196Z",
+      "reviewRunId": "B-106b:RR-020",
+      "_hash": "eba7e643cd278d4d9b6c7d9d8d86672e86497ee710104286d29708aebb649185",
+      "files": [
+        "packages/main/src/core/lattice-dispatch.ts",
+        "packages/main/src/tasks/dispatch-run-smoke.ts"
+      ]
     }
   ]
 }
