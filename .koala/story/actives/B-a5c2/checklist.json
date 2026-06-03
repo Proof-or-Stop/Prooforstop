@@ -150,31 +150,31 @@
     },
     {
       "id": "CHK-005",
-      "title": "Implement bounded external process runner artifact",
-      "context": "Build a reusable runner for an already-authorized host command with isolated cwd, sanitized environment, timeout/kill, stdout/stderr transcript capture, exit status, and runner artifact persistence. This milestone only produces raw runner artifacts; receipt/diff collection remains separate.",
+      "title": "Expose runner status through user-facing commands",
+      "context": "Build the bounded runner artifact and surface it through user-facing status/review output: command template, cwd, startedAt/endedAt, exitCode or timeout, transcript path, and sanitized environment summary must be visible through dispatch_watch or dispatch_status so the user can decide whether to retry, inspect, or stop. This milestone only handles raw runner status, not receipt trust.",
       "relatedDocs": [
         "docs/requirements/decisions/host-overflow.md",
         "docs/requirements/decisions/lifecycle-artifact-scope.md"
       ],
-      "userSees": "A runner artifact shows command template, cwd, startedAt/endedAt, exitCode or timeout, transcript path, and authority=false fields.",
+      "userSees": "lattice dispatch_watch --dispatchId=<id> or dispatch_status shows runner command, cwd, exit/timeout, transcript path, and retry/inspect/stop nextAction.",
       "verificationIntent": {
         "happy": [
           {
-            "desc": "Runner captures transcript and exit status for a successful bounded fake/local command in an isolated cwd.",
-            "type": "logic",
+            "desc": "Runner captures transcript/exit status and dispatch_watch or dispatch_status renders those details with a user nextAction.",
+            "type": "cli",
             "priority": "must"
           }
         ],
         "edge": [
           {
-            "desc": "Timeout or nonzero exit persists diagnostic runner artifact and transcript without deleting evidence.",
+            "desc": "Timeout or nonzero exit persists diagnostic runner status and tells the user whether to inspect transcript, retry, or stop.",
             "type": "logic",
             "priority": "must"
           }
         ],
         "adversarial": [
           {
-            "desc": "Runner refuses non-template commands, forbidden env leaks, invalid cwd, unsafe output paths, and commands not authorized by policy.",
+            "desc": "Runner refuses non-template commands, forbidden env leaks, invalid cwd, unsafe output paths, and commands not authorized by policy; user-facing status shows refusal reason.",
             "type": "logic",
             "priority": "must"
           }
@@ -266,24 +266,29 @@
     },
     {
       "id": "CHK-008",
-      "title": "Add end-to-end tests and user-facing opt-in docs",
-      "context": "Add smoke coverage for fake parallel unattended runs, policy rejection, timeout, missing receipt, mixed worker outcomes, symlink/output containment, denied path overlap, host overclaim, no auto-merge, and documented opt-in command sequence. Claude Code feasibility evidence belongs to CHK-002.",
+      "title": "Validate full user-facing unattended Claude Code flow",
+      "context": "Add final E2E/product validation for a real story-style unattended flow: user creates/checks a policy, probes Claude Code, starts dispatch_auto with a safe bounded real Claude Code smoke when policy and capability allow or receives an explicit policy/capability refusal, watches worker start/refuse/succeed/fail states, reviews transcript/diff/receipt evidence, and receives a manual nextAction/merge plan. Fake parallel E2E and docs remain required, but final acceptance must prove the user-visible closeout.",
       "relatedDocs": [
         "docs/requirements/decisions/host-overflow.md",
         "docs/requirements/decisions/testing-completeness.md",
         "README.md",
         "docs/guide.md"
       ],
-      "userSees": "README/docs show a safe opt-in flow: create/check policy, probe host, dispatch_auto, dispatch_watch, dispatch_review, and manual merge plan.",
+      "userSees": "Docs and smoke transcript show: dispatch_policy check, host_runtime_probe, dispatch_auto, dispatch_watch, dispatch_review, and manual dispatch_merge_plan for a bounded Claude Code-capable flow.",
       "verificationIntent": {
         "happy": [
           {
-            "desc": "E2E smoke passes for fake parallel unattended flow and documented CLI examples.",
+            "desc": "E2E smoke passes for fake parallel unattended flow and a safe bounded Claude Code opt-in flow when capability/policy allow it, with watch/review/merge nextActions visible.",
             "type": "logic",
             "priority": "must"
           }
         ],
         "edge": [
+          {
+            "desc": "If Claude Code capability or policy is insufficient, the smoke records an explicit supervised/manual refusal with nextAction instead of pretending the run happened.",
+            "type": "logic",
+            "priority": "must"
+          },
           {
             "desc": "Tests cover missing policy, unavailable host, timeout, missing receipt, and mixed worker outcomes.",
             "type": "logic",
@@ -297,7 +302,7 @@
             "priority": "must"
           },
           {
-            "desc": "Docs show opt-in commands and state unattended mode remains user-authorized and authority-safe.",
+            "desc": "Docs show the opt-in command sequence and state unattended mode remains user-authorized and authority-safe.",
             "type": "docs",
             "priority": "must"
           }

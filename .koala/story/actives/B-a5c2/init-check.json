@@ -1,20 +1,16 @@
 {
   "storyId": "B-a5c2",
-  "checkedAt": "2026-06-03T18:38:57.076Z",
+  "checkedAt": "2026-06-03T18:53:54.434Z",
   "reviewRound": "",
   "agentId": "product-reviewer",
   "issues": [
     {
-      "severity": "medium",
-      "desc": "background 主要解释 unattended scheduler 的机制和 authority guardrail，但没有清楚说明用户为什么现在需要它：当前人工流程具体卡在哪、用户希望省掉哪些手工步骤、以及完成后用户能获得什么新的可用能力。产品动机仍偏工程视角。"
-    },
-    {
-      "severity": "medium",
-      "desc": "部分 checklist 项的 outcome 仍偏内部机制而非用户可观察结果，尤其 CHK-004 与 CHK-006。像 \"runner result records ...\"、\"collector records ...\" 描述的是内部产物字段，不够说明用户通过哪个命令/界面看到什么，并据此做什么决策。"
-    },
-    {
       "severity": "high",
-      "desc": "整体缺少一个让用户自然说\"好了\"的终态定义。当前八项覆盖 policy、probe、runner、scheduler、receipt、gate、tests/docs，但没有明确承诺一个完整用户闭环：用户对真实 story 发起 unattended run、看到哪些 worker 成功/失败、如何审阅结果、以及系统给出什么下一步而不是让用户继续追问 \"然后呢？\"。"
+      "desc": "Checklist still does not lock a single end-to-end user-visible completion bar for the actual product outcome. CHK-006 only promises starting authorized fake/host-dry-run workers, and CHK-008 only requires fake unattended smoke plus docs. For a story triggered by proving real parallel work with Claude Code CLI agents, the checklist never explicitly requires that a user can run unattended mode on a real story, see which real workers ran or were refused, review the outcome, and receive a concrete nextAction to finish manually. That leaves the complete product end-state under-specified even though the background now describes it."
+    },
+    {
+      "severity": "medium",
+      "desc": "Some milestones still anchor success on internal artifacts instead of a user decision surface. CHK-005 is considered done when a runner artifact contains fields like command template, timestamps, transcript path, and authority=false, but it does not say through which command/view the user inspects that artifact or what decision it enables. This weakens the user-observable outcome requirement even though later items improve it."
     }
   ],
   "agentResults": [
@@ -38,22 +34,18 @@
     },
     {
       "agentId": "product-reviewer",
-      "checkedAt": "2026-06-03T18:38:57.076Z",
+      "checkedAt": "2026-06-03T18:53:54.434Z",
       "issues": [
         {
-          "severity": "medium",
-          "desc": "background 主要解释 unattended scheduler 的机制和 authority guardrail，但没有清楚说明用户为什么现在需要它：当前人工流程具体卡在哪、用户希望省掉哪些手工步骤、以及完成后用户能获得什么新的可用能力。产品动机仍偏工程视角。"
-        },
-        {
-          "severity": "medium",
-          "desc": "部分 checklist 项的 outcome 仍偏内部机制而非用户可观察结果，尤其 CHK-004 与 CHK-006。像 \"runner result records ...\"、\"collector records ...\" 描述的是内部产物字段，不够说明用户通过哪个命令/界面看到什么，并据此做什么决策。"
-        },
-        {
           "severity": "high",
-          "desc": "整体缺少一个让用户自然说\"好了\"的终态定义。当前八项覆盖 policy、probe、runner、scheduler、receipt、gate、tests/docs，但没有明确承诺一个完整用户闭环：用户对真实 story 发起 unattended run、看到哪些 worker 成功/失败、如何审阅结果、以及系统给出什么下一步而不是让用户继续追问 \"然后呢？\"。"
+          "desc": "Checklist still does not lock a single end-to-end user-visible completion bar for the actual product outcome. CHK-006 only promises starting authorized fake/host-dry-run workers, and CHK-008 only requires fake unattended smoke plus docs. For a story triggered by proving real parallel work with Claude Code CLI agents, the checklist never explicitly requires that a user can run unattended mode on a real story, see which real workers ran or were refused, review the outcome, and receive a concrete nextAction to finish manually. That leaves the complete product end-state under-specified even though the background now describes it."
+        },
+        {
+          "severity": "medium",
+          "desc": "Some milestones still anchor success on internal artifacts instead of a user decision surface. CHK-005 is considered done when a runner artifact contains fields like command template, timestamps, transcript path, and authority=false, but it does not say through which command/view the user inspects that artifact or what decision it enables. This weakens the user-observable outcome requirement even though later items improve it."
         }
       ]
     }
   ],
-  "_hash": "c512fbd86e9d3553b04c4ffa379bfcfa93d4b1b9bcd00263b6f0adea981e7b9d"
+  "_hash": "5ca6bb7f0522148c09a05e81c3902743abd070263fac69ed8c7cb714e56316d0"
 }
