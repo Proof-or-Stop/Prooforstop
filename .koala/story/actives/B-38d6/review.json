@@ -40,6 +40,42 @@
         }
       ],
       "_hash": "f6035d4459306931fb8d3e175a9ac2127119cabfa0d4b5f0760b82d44461fedb"
+    },
+    {
+      "timestamp": "2026-06-03T18:34:18.700Z",
+      "issueCount": 5,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees 可能太抽象（未包含引号括起来的具体输出文本）。应该写用户看到的精确文字，不是\"功能正常工作\"这类描述"
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 userSees 可能太抽象（未包含引号括起来的具体输出文本）。应该写用户看到的精确文字，不是\"功能正常工作\"这类描述"
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 userSees 可能太抽象（未包含引号括起来的具体输出文本）。应该写用户看到的精确文字，不是\"功能正常工作\"这类描述"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 个 checklist item，请检查是否有组合场景遗漏（如：Remove Swift from automatic validation fallback discovery + Support lattice.config.json as canonical config with koala.config.json legacy fallback 同时操作会怎样？）"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story 命中 1 个高风险信号: 验证框架。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）。 若本 story 只是提及而非修改该领域（误报），可 koala story_review_dismiss '{\"storyId\":\"B-38d6\",\"category\":\"<分类>\",\"reason\":\"...\"}' 完整回退 auto-elevation（全部 auto-elevated riskSignal 被 dismiss 后 priority 自动回退、高风险 gate 解除）。"
+        }
+      ],
+      "_hash": "55b3982193ebc6b6b1e6f432a6bdcfd1f43885201efe7756309e1fcd731d85a9"
     }
   ]
 }

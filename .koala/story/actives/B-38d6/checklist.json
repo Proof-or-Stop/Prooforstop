@@ -32,8 +32,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-03T19:03:53.842Z",
       "endTime": null,
       "files": {
         "modify": [
@@ -149,6 +149,17 @@
           "packages/main/src/tasks/validation-protocol-smoke.ts"
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-03T19:03:53.842Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Implementation committed by koala-implementer; recording verification evidence before marking done."
     }
   ]
 }

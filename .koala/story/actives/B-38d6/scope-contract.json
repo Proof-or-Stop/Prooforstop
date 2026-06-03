@@ -31,7 +31,32 @@
     ".koala/traces/**"
   ],
   "scopeChangeReason": "Expand scope after scope-plan reviewer OQ: lattice.config.json canonical must cover project root detection, init scaffold, dashboard/dev-memory, and dirty-classifier references in addition to config loading.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "B-38d6 canonical lattice.config.json and Swift fallback removal also affect rollout project discovery, runtime validation repair hints, and verifier serve no-validator diagnostics; keeping these stale would contradict CHK-002/CHK-003 user-visible guidance.",
+      "timestamp": "2026-06-03T18:55:14.778Z",
+      "paths": [
+        "packages/main/src/core/rollout-check.ts",
+        "packages/main/src/core/runtime-fact-registry.ts",
+        "packages/main/src/verifier/serve.ts"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "B-38d6 canonical lattice.config.json migration requires remaining production config consumers and user-facing diagnostics to recognize lattice.config.json first while retaining koala.config.json as legacy fallback; otherwise workflow profile writes, task metadata extraction, trace retention settings, evaluator guidance, hook docs, review-scope comments, and legacy test debug output would remain stale.",
+      "timestamp": "2026-06-03T19:01:24.104Z",
+      "paths": [
+        "packages/main/src/handlers/workflow.ts",
+        "packages/main/src/tasks/extract.ts",
+        "packages/main/src/tasks/trace-store.ts",
+        "packages/main/src/handlers/evaluate.ts",
+        "packages/main/src/core/hooks.ts",
+        "packages/main/src/core/review-scope-binding.ts",
+        "packages/main/src/handlers/test-auto.ts"
+      ]
+    }
+  ],
   "createdAt": "2026-06-03T18:20:32.170Z",
-  "updatedAt": "2026-06-03T18:28:21.715Z"
+  "updatedAt": "2026-06-03T19:01:24.104Z"
 }
