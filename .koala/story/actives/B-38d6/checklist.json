@@ -1,0 +1,113 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Remove Swift from automatic validation fallback discovery",
+      "context": "Update verifier/runtime environment checks so Package.swift alone no longer causes swift test to run; Swift may only run through explicit validate.command(s) or an opt-in legacy setting.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/host-overflow.md"
+      ],
+      "userSees": "koala validate --json no longer reports swift test only because Package.swift exists.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A temp repo with only Package.swift and no validator/config returns no-validation-entry warn/skip, not swift test execution.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A repo with explicit validate.commands for Swift can still opt in to running swift test.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Fallback docs/details no longer advertise swift test as a standard automatic fallback.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Support lattice.config.json as canonical config with koala.config.json legacy fallback",
+      "context": "loadConfig and config diagnostics should prefer lattice.config.json while still reading koala.config.json for existing repositories; conflict handling must be visible.",
+      "relatedDocs": [
+        "docs/requirements/decisions/project-vision.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "userSees": "A repository can configure validation in lattice.config.json; koala.config.json still works as a legacy fallback.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice.config.json validate.commands are loaded and used by koala validate.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "koala.config.json remains readable when lattice.config.json is absent.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "If both config files exist with conflicting validation config, diagnostics identify which file won.",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Update validation protocol tests and docs for Lattice-first validation",
+      "context": "Validation smoke tests, runtime fact labels, docs, and prompts should describe Lattice/explicit validators rather than Swift fallback as current product gate.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/host-overflow.md",
+        "README.md"
+      ],
+      "userSees": "Docs and test output point maintainers to lattice.config.json or validate.js, not Swift automatic fallback.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "validation-protocol smoke covers Package.swift no-auto-Swift and lattice.config.json canonical config.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing package.json/npm fallback behavior still works.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No user-facing current validation guidance treats Swift/Mac Native as the default product gate.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
