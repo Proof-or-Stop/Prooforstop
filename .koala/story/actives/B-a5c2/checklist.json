@@ -80,9 +80,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-03T20:04:51.229Z",
-      "endTime": null,
+      "endTime": "2026-06-03T20:08:41.291Z",
       "files": {
         "modify": [
           "packages/main/src/core/lattice-dispatch.ts"
@@ -438,6 +438,16 @@
       "to": "in_progress",
       "reason": "Start DEV milestone 2 Claude Code bounded unattended feasibility",
       "agent": "codex"
+    },
+    {
+      "timestamp": "2026-06-03T20:08:41.291Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Claude Code CLI implemented CHK-002 bounded feasibility probe",
+      "agent": "koala-implementer"
     }
   ]
 }
