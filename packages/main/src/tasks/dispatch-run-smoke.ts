@@ -25,6 +25,7 @@ import type {
   StoryInfo,
 } from '../core/types.js';
 import type {
+  DispatchAutoResult,
   DispatchCollection,
   DispatchListResult,
   DispatchMergePlanResult,
@@ -33,10 +34,16 @@ import type {
   DispatchRecord,
   DispatchReviewResult,
   DispatchRunResult,
+  DispatchRunnerRecord,
   DispatchStatusResult,
+  DispatchWatchResult,
   HostRuntimeList,
   HostRuntimeProbe,
 } from '../core/lattice-dispatch.js';
+import type {
+  DispatchPolicy,
+  DispatchPolicyCheckResult,
+} from '../core/dispatch-policy.js';
 import type { HandlerContext } from '../handlers/context.js';
 import { createMainRegistry } from '../registry.js';
 
@@ -55,6 +62,11 @@ const EXPECTED_COMMANDS = [
   'dispatch_cancel',
   'dispatch_review',
   'dispatch_merge_plan',
+  'dispatch_policy_create',
+  'dispatch_policy_get',
+  'dispatch_policy_check',
+  'dispatch_auto',
+  'dispatch_watch',
 ] as const;
 
 const READ_ONLY_EXPECTED = new Set([
@@ -65,6 +77,9 @@ const READ_ONLY_EXPECTED = new Set([
   'dispatch_list',
   'dispatch_review',
   'dispatch_merge_plan',
+  'dispatch_policy_get',
+  'dispatch_policy_check',
+  'dispatch_watch',
 ]);
 
 function git(root: string, args: string[]): string {
@@ -219,6 +234,7 @@ try {
   const store = new StoryStore(root);
   seedStory(store);
   seedStory(store, 'B-ancestor-attack');
+  seedStory(store, 'B-chk006-auto');
   const baseSha = git(root, ['rev-parse', 'HEAD']);
   const ctx: HandlerContext = { store, root, scanRoot: join(root, 'packages/main') };
   const registry = createMainRegistry(ctx);
@@ -244,8 +260,66 @@ try {
   const fakeProbe = run<HostRuntimeProbe>('host_runtime_probe', { host: 'fake' });
   assert.equal(fakeProbe.status, 'ready');
   assert.equal(fakeProbe.supportsParallel, true);
+  assert.equal(fakeProbe.versionStatus, 'detected');
+  assert.equal(fakeProbe.version, 'fake-deterministic');
+  assert.equal(fakeProbe.noninteractiveSupport, 'supported');
+  assert.equal(fakeProbe.cwdSupport, 'supported');
+  assert.equal(fakeProbe.timeoutSupport, 'supported');
+  assert.equal(fakeProbe.transcriptSupport, 'supported');
+  assert.equal(fakeProbe.envSafetyPosture, 'sandboxed');
+  assert.equal(fakeProbe.unattendedSafe, false, 'fake probe must never set unattendedSafe=true');
+  assert.ok(Array.isArray(fakeProbe.unattendedReasons), 'fake probe must have unattendedReasons array');
+  assert.ok(Array.isArray(fakeProbe.degradations), 'fake probe must have degradations array');
   assertAuthorityFalse(fakeProbe, 'fakeProbe');
   assert.throws(() => run<HostRuntimeProbe>('host_runtime_probe', { host: 'unknown-host' }), /requires host=fake\|claude-code\|gemini\|codex/);
+
+  // CHK-002: Claude Code bounded unattended feasibility probe
+  // Must work whether claude is installed or not
+  const claudeProbe = run<HostRuntimeProbe>('host_runtime_probe', { host: 'claude-code' });
+  assert.equal(claudeProbe.host, 'claude-code');
+  assert.equal(claudeProbe.schemaVersion, 'lattice.host_runtime_probe.v1');
+  // Structured feasibility fields must always be present
+  assert.ok(['detected', 'unavailable', 'unknown'].includes(claudeProbe.versionStatus), `claude versionStatus must be a known value, got ${claudeProbe.versionStatus}`);
+  assert.ok(['supported', 'unverified', 'unsupported'].includes(claudeProbe.noninteractiveSupport), `claude noninteractiveSupport must be a known value, got ${claudeProbe.noninteractiveSupport}`);
+  assert.ok(['supported', 'unverified'].includes(claudeProbe.cwdSupport), `claude cwdSupport must be a known value, got ${claudeProbe.cwdSupport}`);
+  assert.ok(['supported', 'unverified'].includes(claudeProbe.timeoutSupport), `claude timeoutSupport must be a known value, got ${claudeProbe.timeoutSupport}`);
+  assert.ok(['supported', 'unverified'].includes(claudeProbe.transcriptSupport), `claude transcriptSupport must be a known value, got ${claudeProbe.transcriptSupport}`);
+  assert.ok(['sandboxed', 'inherited', 'unverified'].includes(claudeProbe.envSafetyPosture), `claude envSafetyPosture must be a known value, got ${claudeProbe.envSafetyPosture}`);
+  assert.equal(claudeProbe.unattendedSafe, false, 'claude-code must not claim unattendedSafe=true — dispatch_policy_check authorization and dispatch_auto policy binding required first');
+  assert.ok(Array.isArray(claudeProbe.unattendedReasons), 'claude probe must have unattendedReasons array');
+  assert.ok(claudeProbe.unattendedReasons.length > 0, 'claude probe must explain why unattendedSafe=false');
+  assert.ok(
+    claudeProbe.unattendedReasons.some(reason => /policy|dispatch_policy|dispatch_auto/i.test(reason)),
+    'claude probe must surface dispatch_policy_check / dispatch_auto policy binding requirement as a reason for unattendedSafe=false',
+  );
+  assert.ok(Array.isArray(claudeProbe.degradations), 'claude probe must have degradations array');
+  assert.ok(typeof claudeProbe.nextAction === 'string' && claudeProbe.nextAction.length > 0, 'claude probe must have a nextAction');
+  // nextAction must indicate supervised-only or unavailable, not full authorization
+  assert.ok(
+    /supervised-only|unavailable|policy|install|expose/i.test(claudeProbe.nextAction),
+    `claude probe nextAction must indicate supervised-only or missing CLI, got: ${claudeProbe.nextAction}`,
+  );
+  assertAuthorityFalse(claudeProbe, 'claudeProbe');
+
+  // If claude is installed, additional shape assertions apply
+  if (claudeProbe.available) {
+    assert.ok(['detected', 'unknown'].includes(claudeProbe.versionStatus), `installed claude must have detected or unknown versionStatus, got ${claudeProbe.versionStatus}`);
+    assert.ok(['supported', 'unverified', 'unsupported'].includes(claudeProbe.noninteractiveSupport), 'installed claude must report noninteractive support');
+    assert.equal(claudeProbe.cwdSupport, 'supported', 'installed claude must have cwdSupport=supported');
+    assert.equal(claudeProbe.timeoutSupport, 'supported', 'installed claude must have timeoutSupport=supported');
+    assert.equal(claudeProbe.transcriptSupport, 'supported', 'installed claude must have transcriptSupport=supported');
+    // Even if installed and noninteractive is supported, dispatch_auto + policy binding still blocks unattendedSafe
+    assert.equal(claudeProbe.unattendedSafe, false, 'installed claude must not be unattendedSafe without dispatch_auto policy binding');
+    assert.match(claudeProbe.nextAction, /supervised-only|dispatch_auto|policy/i, 'installed claude without dispatch_auto policy binding must surface supervised-only nextAction');
+  } else {
+    // CLI not installed
+    assert.equal(claudeProbe.status, 'unavailable');
+    assert.equal(claudeProbe.runtimeKind, 'missing-cli');
+    assert.ok(
+      claudeProbe.unattendedReasons.some(reason => /not available|install|expose|PATH/i.test(reason)),
+      'unavailable claude probe must explain CLI is not in PATH',
+    );
+  }
 
   assert.throws(
     () => run<HostRuntimeList>('host_runtime_list', { output: '../escape.json' }),
@@ -959,7 +1033,870 @@ try {
   assert.equal(cliProbe.status, 'ready');
   assertAuthorityFalse(cliProbe, 'cliProbe');
 
-  console.log('✓ dispatch-run smoke passed — runtime probes, overflow gating, fake path hardening, real-host scaffolds, receipts, degradation paths, manual merge guidance, and authority invariants verified');
+  // CHK-003: dispatch_policy contract — create/get/check happy path
+  const policyCreateResult = run<DispatchPolicy>('dispatch_policy_create', {
+    policy: 'nightly-safe',
+    allowedHosts: ['fake'],
+    allowedPaths: ['packages/main/src/generated/'],
+    maxParallel: 2,
+    maxRuntimeMinutes: 60,
+    maxBudgetUSD: 5.0,
+    network: 'none',
+    commandAllowlist: ['node -e "process.exit(0)"'],
+    requireReceipt: true,
+    requireReview: true,
+    allowAutoMerge: false,
+    allowProductionDone: false,
+  });
+  assert.equal(policyCreateResult.schemaVersion, 'lattice.dispatch_policy.v1');
+  assert.equal(policyCreateResult.policy, 'nightly-safe');
+  assert.deepEqual(policyCreateResult.allowedHosts, ['fake']);
+  assert.equal(policyCreateResult.allowAutoMerge, false);
+  assert.equal(policyCreateResult.allowProductionDone, false);
+  assert.equal(policyCreateResult.requireReceipt, true);
+  assert.equal(policyCreateResult.requireReview, true);
+
+  const policyGetResult = run<DispatchPolicy>('dispatch_policy_get', { policy: 'nightly-safe' });
+  assert.equal(policyGetResult.schemaVersion, 'lattice.dispatch_policy.v1');
+  assert.equal(policyGetResult.policy, 'nightly-safe');
+  assert.deepEqual(policyGetResult.allowedHosts, ['fake']);
+
+  const policyCheckAuthorized = run<DispatchPolicyCheckResult>('dispatch_policy_check', { policy: 'nightly-safe' });
+  assert.equal(policyCheckAuthorized.schemaVersion, 'lattice.dispatch_policy_check.v1');
+  assert.equal(policyCheckAuthorized.policy, 'nightly-safe');
+  assert.equal(policyCheckAuthorized.authorized, true);
+  assert.equal(policyCheckAuthorized.status, 'authorized');
+  assert.equal(policyCheckAuthorized.reasons.length, 0);
+  assert.equal(policyCheckAuthorized.degradations.length, 0);
+  assert.equal(policyCheckAuthorized.authorityChanged, false);
+  assert.equal(policyCheckAuthorized.receiptVerified, false);
+  assert.equal(policyCheckAuthorized.productionDone, false);
+  assertAuthorityFalse(policyCheckAuthorized, 'policyCheckAuthorized');
+
+  // CHK-003: fake policy is deterministically authorized
+  const fakeCheckResult = run<DispatchPolicyCheckResult>('dispatch_policy_check', { policy: 'fake' });
+  assert.equal(fakeCheckResult.authorized, true);
+  assert.equal(fakeCheckResult.status, 'authorized');
+  assertAuthorityFalse(fakeCheckResult, 'fakeCheckResult');
+
+  // CHK-003: missing policy → refused
+  const missingPolicyResult = run<DispatchPolicyCheckResult>('dispatch_policy_check', { policy: 'does-not-exist' });
+  assert.equal(missingPolicyResult.authorized, false);
+  assert.equal(missingPolicyResult.status, 'refused');
+  assert.ok(missingPolicyResult.reasons.some(r => /not found/i.test(r)));
+  assertAuthorityFalse(missingPolicyResult, 'missingPolicyResult');
+
+  // CHK-003: dispatch_policy_get throws for missing policy
+  assert.throws(
+    () => run<DispatchPolicy>('dispatch_policy_get', { policy: 'no-such-policy' }),
+    /not found/i,
+    'dispatch_policy_get must throw for missing policy',
+  );
+
+  // CHK-003: traversal/absolute path rejection
+  assert.throws(
+    () => run<DispatchPolicy>('dispatch_policy_create', {
+      policy: 'bad-traversal',
+      allowedHosts: ['fake'],
+      allowedPaths: ['../escaped.txt'],
+      maxParallel: 1,
+      maxRuntimeMinutes: 30,
+      commandAllowlist: ['node -e "process.exit(0)"'],
+    }),
+    /allowedPaths\[0\].*escapes|traversal/i,
+    'create must reject traversal in allowedPaths',
+  );
+  assert.throws(
+    () => run<DispatchPolicy>('dispatch_policy_create', {
+      policy: 'bad-absolute',
+      allowedHosts: ['fake'],
+      allowedPaths: ['/etc/passwd'],
+      maxParallel: 1,
+      maxRuntimeMinutes: 30,
+      commandAllowlist: ['node -e "process.exit(0)"'],
+    }),
+    /allowedPaths\[0\].*relative|absolute/i,
+    'create must reject absolute paths in allowedPaths',
+  );
+
+  // CHK-003: denied-path overlap rejection
+  assert.throws(
+    () => run<DispatchPolicy>('dispatch_policy_create', {
+      policy: 'bad-overlap',
+      allowedHosts: ['fake'],
+      allowedPaths: ['packages/main/src/'],
+      deniedPaths: ['packages/main/src/'],
+      maxParallel: 1,
+      maxRuntimeMinutes: 30,
+      commandAllowlist: ['node -e "process.exit(0)"'],
+    }),
+    /overlap/i,
+    'create must reject denied-path overlap with allowedPaths',
+  );
+
+  // CHK-003: unsafe env name rejection
+  assert.throws(
+    () => run<DispatchPolicy>('dispatch_policy_create', {
+      policy: 'bad-env',
+      allowedHosts: ['fake'],
+      allowedPaths: ['packages/main/src/generated/'],
+      maxParallel: 1,
+      maxRuntimeMinutes: 30,
+      commandAllowlist: ['node -e "process.exit(0)"'],
+      envAllowlist: ['ANTHROPIC_API_KEY'],
+    }),
+    /unsafe.*env|TOKEN|SECRET|PASSWORD|KEY|CREDENTIAL/i,
+    'create must reject unsafe env names in envAllowlist',
+  );
+
+  // CHK-003: allowAutoMerge=true rejection
+  assert.throws(
+    () => run<DispatchPolicy>('dispatch_policy_create', {
+      policy: 'bad-automerge',
+      allowedHosts: ['fake'],
+      allowedPaths: ['packages/main/src/generated/'],
+      maxParallel: 1,
+      maxRuntimeMinutes: 30,
+      commandAllowlist: ['node -e "process.exit(0)"'],
+      allowAutoMerge: true,
+    }),
+    /allowAutoMerge.*false|auto-merge/i,
+    'create must reject allowAutoMerge=true',
+  );
+
+  // CHK-003: allowProductionDone=true rejection
+  assert.throws(
+    () => run<DispatchPolicy>('dispatch_policy_create', {
+      policy: 'bad-productiondone',
+      allowedHosts: ['fake'],
+      allowedPaths: ['packages/main/src/generated/'],
+      maxParallel: 1,
+      maxRuntimeMinutes: 30,
+      commandAllowlist: ['node -e "process.exit(0)"'],
+      allowProductionDone: true,
+    }),
+    /allowProductionDone.*false|productionDone/i,
+    'create must reject allowProductionDone=true',
+  );
+
+  // CHK-003: authority flags always false on check result
+  assert.equal(policyCheckAuthorized.authorityChanged, false, 'policy check must never set authorityChanged=true');
+  assert.equal(policyCheckAuthorized.receiptVerified, false, 'policy check must never set receiptVerified=true');
+  assert.equal(policyCheckAuthorized.productionDone, false, 'policy check must never set productionDone=true');
+
+  // CHK-004: Real host unattended capability contract — structured fields on all probes
+  {
+    const VALID_LOGIN_READINESS = ['ready', 'requires-login', 'unknown'];
+    const VALID_RECEIPT_SUPPORT = ['structured', 'transcript-capture', 'unverified'];
+    const VALID_VERSION_STATUS = ['detected', 'unavailable', 'unknown'];
+    const VALID_NONINTERACTIVE = ['supported', 'unverified', 'unsupported'];
+
+    // Fake probe: re-run to confirm structured fields
+    const fakeProbe4 = run<HostRuntimeProbe>('host_runtime_probe', { host: 'fake' });
+    assert.equal(fakeProbe4.loginReadiness, 'ready', 'fake probe must have loginReadiness=ready');
+    assert.equal(fakeProbe4.receiptSupport, 'structured', 'fake probe must have receiptSupport=structured');
+    assert.equal(fakeProbe4.unattendedSafe, false, 'fake probe must never set unattendedSafe=true');
+    assertAuthorityFalse(fakeProbe4, 'fakeProbe4');
+
+    // claude-code probe (already partially tested in CHK-002 section; extend for CHK-004 fields)
+    const claudeProbe4 = run<HostRuntimeProbe>('host_runtime_probe', { host: 'claude-code' });
+    assert.ok(VALID_LOGIN_READINESS.includes(claudeProbe4.loginReadiness),
+      `claude-code loginReadiness must be valid, got ${claudeProbe4.loginReadiness}`);
+    assert.ok(VALID_RECEIPT_SUPPORT.includes(claudeProbe4.receiptSupport),
+      `claude-code receiptSupport must be valid, got ${claudeProbe4.receiptSupport}`);
+    assert.equal(claudeProbe4.unattendedSafe, false, 'claude-code must not claim unattendedSafe=true');
+    assert.ok(
+      claudeProbe4.unattendedReasons.some(r => /dispatch_policy_check|dispatch_auto|policy binding/i.test(r)),
+      'claude-code unattendedReasons must reference dispatch_policy_check / dispatch_auto policy binding',
+    );
+    assertAuthorityFalse(claudeProbe4, 'claudeProbe4');
+
+    // gemini probe: must expose structured fields regardless of CLI availability
+    const geminiProbe4 = run<HostRuntimeProbe>('host_runtime_probe', { host: 'gemini' });
+    assert.equal(geminiProbe4.host, 'gemini');
+    assert.equal(geminiProbe4.schemaVersion, 'lattice.host_runtime_probe.v1');
+    assert.ok(VALID_VERSION_STATUS.includes(geminiProbe4.versionStatus),
+      `gemini versionStatus must be valid, got ${geminiProbe4.versionStatus}`);
+    assert.ok(VALID_LOGIN_READINESS.includes(geminiProbe4.loginReadiness),
+      `gemini loginReadiness must be valid, got ${geminiProbe4.loginReadiness}`);
+    assert.ok(VALID_NONINTERACTIVE.includes(geminiProbe4.noninteractiveSupport),
+      `gemini noninteractiveSupport must be valid, got ${geminiProbe4.noninteractiveSupport}`);
+    assert.ok(VALID_RECEIPT_SUPPORT.includes(geminiProbe4.receiptSupport),
+      `gemini receiptSupport must be valid, got ${geminiProbe4.receiptSupport}`);
+    assert.equal(geminiProbe4.unattendedSafe, false, 'gemini must not claim unattendedSafe=true');
+    assert.ok(Array.isArray(geminiProbe4.unattendedReasons) && geminiProbe4.unattendedReasons.length > 0,
+      'gemini must have unattendedReasons');
+    assert.ok(
+      geminiProbe4.unattendedReasons.some(r => /dispatch_policy_check|dispatch_auto|policy binding/i.test(r)),
+      'gemini unattendedReasons must reference dispatch_policy_check / dispatch_auto policy binding',
+    );
+    assert.ok(typeof geminiProbe4.nextAction === 'string' && geminiProbe4.nextAction.length > 0,
+      'gemini must have a nextAction');
+    assertAuthorityFalse(geminiProbe4, 'geminiProbe4');
+
+    // If gemini is unavailable (CLI not in PATH), must degrade visibly
+    if (!geminiProbe4.available) {
+      assert.equal(geminiProbe4.status, 'unavailable');
+      assert.equal(geminiProbe4.runtimeKind, 'missing-cli');
+      assert.equal(geminiProbe4.receiptSupport, 'unverified',
+        'unavailable gemini must have receiptSupport=unverified');
+      assert.ok(
+        geminiProbe4.unattendedReasons.some(r => /not available|install|expose|PATH/i.test(r)),
+        'unavailable gemini must explain CLI is not in PATH',
+      );
+    } else {
+      assert.equal(geminiProbe4.status, 'scaffolded');
+      assert.equal(geminiProbe4.receiptSupport, 'transcript-capture',
+        'available gemini must have receiptSupport=transcript-capture');
+      assert.ok(/supervised-only|dispatch_auto|policy/i.test(geminiProbe4.nextAction),
+        'available gemini nextAction must surface supervised-only or dispatch_auto requirement');
+    }
+
+    // codex probe: must expose structured fields regardless of session/CLI availability
+    const codexProbe4 = run<HostRuntimeProbe>('host_runtime_probe', { host: 'codex' });
+    assert.equal(codexProbe4.host, 'codex');
+    assert.equal(codexProbe4.schemaVersion, 'lattice.host_runtime_probe.v1');
+    assert.ok(VALID_VERSION_STATUS.includes(codexProbe4.versionStatus),
+      `codex versionStatus must be valid, got ${codexProbe4.versionStatus}`);
+    assert.ok(VALID_LOGIN_READINESS.includes(codexProbe4.loginReadiness),
+      `codex loginReadiness must be valid, got ${codexProbe4.loginReadiness}`);
+    assert.ok(VALID_NONINTERACTIVE.includes(codexProbe4.noninteractiveSupport),
+      `codex noninteractiveSupport must be valid, got ${codexProbe4.noninteractiveSupport}`);
+    assert.ok(VALID_RECEIPT_SUPPORT.includes(codexProbe4.receiptSupport),
+      `codex receiptSupport must be valid, got ${codexProbe4.receiptSupport}`);
+    assert.equal(codexProbe4.unattendedSafe, false, 'codex must not claim unattendedSafe=true');
+    assert.ok(Array.isArray(codexProbe4.unattendedReasons) && codexProbe4.unattendedReasons.length > 0,
+      'codex must have unattendedReasons');
+    assert.ok(
+      codexProbe4.unattendedReasons.some(r => /dispatch_policy_check|dispatch_auto|policy binding/i.test(r)),
+      'codex unattendedReasons must reference dispatch_policy_check / dispatch_auto policy binding',
+    );
+    assertAuthorityFalse(codexProbe4, 'codexProbe4');
+
+    // host_runtime_list: all four hosts must expose loginReadiness and receiptSupport
+    const runtimeList4 = run<HostRuntimeList>('host_runtime_list');
+    for (const runtime of runtimeList4.runtimes) {
+      assert.ok(VALID_LOGIN_READINESS.includes(runtime.loginReadiness),
+        `runtime list ${runtime.host} must have valid loginReadiness, got ${runtime.loginReadiness}`);
+      assert.ok(VALID_RECEIPT_SUPPORT.includes(runtime.receiptSupport),
+        `runtime list ${runtime.host} must have valid receiptSupport, got ${runtime.receiptSupport}`);
+      assert.equal(runtime.unattendedSafe, false,
+        `runtime list ${runtime.host} must not claim unattendedSafe=true prematurely`);
+      assertAuthorityFalse(runtime, `runtimeList4.${runtime.host}`);
+    }
+  }
+
+  // CHK-004: unavailable host degrades visibly (PATH-restricted test)
+  {
+    const savedPath = process.env.PATH;
+    try {
+      process.env.PATH = '/usr/bin:/bin';
+      const geminiUnavailable = run<HostRuntimeProbe>('host_runtime_probe', { host: 'gemini' });
+      assert.equal(geminiUnavailable.status, 'unavailable');
+      assert.equal(geminiUnavailable.runtimeKind, 'missing-cli');
+      assert.equal(geminiUnavailable.receiptSupport, 'unverified',
+        'unavailable gemini (PATH-restricted) must have receiptSupport=unverified');
+      assert.ok(['ready', 'requires-login', 'unknown'].includes(geminiUnavailable.loginReadiness),
+        `unavailable gemini loginReadiness must be valid, got ${geminiUnavailable.loginReadiness}`);
+      assert.equal(geminiUnavailable.unattendedSafe, false,
+        'unavailable gemini must not claim unattendedSafe=true');
+      assert.ok(
+        geminiUnavailable.unattendedReasons.some(r => /dispatch_policy_check|dispatch_auto|policy binding/i.test(r)),
+        'unavailable gemini must still reference policy binding requirement',
+      );
+      assertAuthorityFalse(geminiUnavailable, 'geminiUnavailable4');
+
+      const codexUnavailable = run<HostRuntimeProbe>('host_runtime_probe', { host: 'codex' });
+      assert.equal(codexUnavailable.receiptSupport, 'unverified',
+        'unavailable codex (PATH-restricted) must have receiptSupport=unverified');
+      assert.equal(codexUnavailable.unattendedSafe, false,
+        'unavailable codex must not claim unattendedSafe=true');
+      assertAuthorityFalse(codexUnavailable, 'codexUnavailable4');
+    } finally {
+      process.env.PATH = savedPath;
+    }
+  }
+
+  // CHK-003: missing budget/network → supervised, not refused
+  const supervisedPolicyCreate = run<DispatchPolicy>('dispatch_policy_create', {
+    policy: 'supervised-only',
+    allowedHosts: ['fake'],
+    allowedPaths: ['packages/main/src/generated/'],
+    maxParallel: 1,
+    maxRuntimeMinutes: 30,
+    commandAllowlist: ['node -e "process.exit(0)"'],
+    // deliberately omitting maxBudgetUSD and network
+  });
+  assert.equal(supervisedPolicyCreate.maxBudgetUSD, undefined);
+  assert.equal(supervisedPolicyCreate.network, undefined);
+  const supervisedCheckResult = run<DispatchPolicyCheckResult>('dispatch_policy_check', { policy: 'supervised-only' });
+  assert.equal(supervisedCheckResult.authorized, false);
+  assert.equal(supervisedCheckResult.status, 'supervised');
+  assert.ok(supervisedCheckResult.degradations.length > 0, 'supervised check must have degradations');
+  assert.ok(
+    supervisedCheckResult.degradations.some(d => /budget/i.test(d)),
+    'supervised check must report missing budget as a degradation',
+  );
+  assert.ok(
+    supervisedCheckResult.degradations.some(d => /network/i.test(d)),
+    'supervised check must report missing network as a degradation',
+  );
+  assertAuthorityFalse(supervisedCheckResult, 'supervisedCheckResult');
+
+  // CHK-005: Runner details exposed through dispatch_status
+
+  function assertRunnerShape(runner: unknown, label: string): void {
+    assert.ok(runner && typeof runner === 'object', `${label} must be an object`);
+    const r = runner as DispatchRunnerRecord;
+    assert.equal(r.schemaVersion, 'lattice.dispatch_runner.v1', `${label}.schemaVersion`);
+    assert.ok(typeof r.dispatchId === 'string' && r.dispatchId.length > 0, `${label}.dispatchId must be non-empty`);
+    assert.ok(typeof r.host === 'string', `${label}.host must be a string`);
+    assert.ok(['fake', 'scaffolded', 'refused'].includes(r.runnerKind), `${label}.runnerKind must be fake|scaffolded|refused, got ${r.runnerKind}`);
+    assert.ok(Array.isArray(r.commandTemplate), `${label}.commandTemplate must be an array`);
+    assert.ok(Array.isArray(r.invocation), `${label}.invocation must be an array`);
+    assert.ok(typeof r.cwd === 'string' && r.cwd.length > 0, `${label}.cwd must be non-empty`);
+    assert.ok(typeof r.transcriptPath === 'string' && r.transcriptPath.length > 0, `${label}.transcriptPath must be non-empty`);
+    assert.ok(typeof r.startedAt === 'string', `${label}.startedAt must be a string`);
+    assert.equal(typeof r.timedOut, 'boolean', `${label}.timedOut must be boolean`);
+    assert.ok(Array.isArray(r.refusalReasons), `${label}.refusalReasons must be an array`);
+    assert.ok(r.envSummary && typeof r.envSummary === 'object', `${label}.envSummary must be an object`);
+    const env = r.envSummary as { totalVars: number; sensitiveFiltered: number; safeVarNames: string[]; note: string };
+    assert.ok(typeof env.totalVars === 'number' && env.totalVars >= 0, `${label}.envSummary.totalVars`);
+    assert.ok(typeof env.sensitiveFiltered === 'number' && env.sensitiveFiltered >= 0, `${label}.envSummary.sensitiveFiltered`);
+    assert.ok(Array.isArray(env.safeVarNames), `${label}.envSummary.safeVarNames must be an array`);
+    assert.ok(typeof env.note === 'string', `${label}.envSummary.note must be a string`);
+    // Authority invariant
+    assert.equal(r.authorityChanged, false, `${label}.authorityChanged must be false`);
+    assert.equal(r.receiptVerified, false, `${label}.receiptVerified must be false`);
+    assert.equal(r.productionDone, false, `${label}.productionDone must be false`);
+  }
+
+  // CHK-005a: Fake run — dispatch_status exposes runner details
+  {
+    run<DispatchRecord>('dispatch_prepare', {
+      storyId: 'B-dispatch',
+      dispatchId: 'D-chk005-fake',
+      host: 'fake',
+      objective: 'CHK-005 fake runner details.',
+      allowedPaths: ['packages/main/src/generated/chk005-fake.txt'],
+    });
+    run<DispatchRunResult>('dispatch_run', { dispatchId: 'D-chk005-fake' });
+    const fakeRunStatus = run<DispatchStatusResult>('dispatch_status', { dispatchId: 'D-chk005-fake' });
+    assert.ok(fakeRunStatus.runner !== undefined, 'dispatch_status after fake run must include runner field');
+    assertRunnerShape(fakeRunStatus.runner, 'fakeRunStatus.runner');
+    assert.equal(fakeRunStatus.runner!.runnerKind, 'fake', 'fake run must have runnerKind=fake');
+    assert.ok(fakeRunStatus.runner!.commandTemplate.length > 0, 'fake runner must have commandTemplate');
+    assert.ok(fakeRunStatus.runner!.invocation.length > 0, 'fake runner must have invocation');
+    assert.equal(fakeRunStatus.runner!.cwd, fakeRunStatus.dispatch.worktree.worktreePath, 'fake runner cwd must match worktree path');
+    assert.equal(fakeRunStatus.runner!.transcriptPath, fakeRunStatus.dispatch.transcriptFile, 'fake runner transcriptPath must match dispatch transcriptFile');
+    assert.ok(typeof fakeRunStatus.runner!.startedAt === 'string', 'fake runner must have startedAt');
+    assert.ok(typeof fakeRunStatus.runner!.endedAt === 'string', 'fake runner must have endedAt');
+    assert.equal(typeof fakeRunStatus.runner!.exitCode, 'number', 'fake runner must have exitCode');
+    assert.equal(fakeRunStatus.runner!.exitCode, 0, 'successful fake run must have exitCode=0');
+    assert.equal(fakeRunStatus.runner!.timedOut, false, 'fake runner timedOut must be false');
+    assert.equal(fakeRunStatus.runner!.refusalReasons.length, 0, 'fake runner must have no refusalReasons on success');
+    assertAuthorityFalse(fakeRunStatus.runner, 'fakeRunStatus.runner');
+    // Text rendering includes runner info
+    const fakeRunStatusText = runText('dispatch_status', { dispatchId: 'D-chk005-fake' });
+    assert.match(fakeRunStatusText, /runner:/i, 'dispatch_status text must include runner section');
+    assert.match(fakeRunStatusText, /runnerKind: fake/, 'dispatch_status text must show runnerKind=fake');
+    assert.match(fakeRunStatusText, /cwd:/, 'dispatch_status text must show cwd');
+    assert.match(fakeRunStatusText, /transcriptPath:/, 'dispatch_status text must show transcriptPath');
+    assert.match(fakeRunStatusText, /exitCode:/, 'dispatch_status text must show exitCode');
+  }
+
+  // CHK-005b: Fake run with failing command — exitCode=1, diagnostic status
+  {
+    run<DispatchRecord>('dispatch_prepare', {
+      storyId: 'B-dispatch',
+      dispatchId: 'D-chk005-fail-cmd',
+      host: 'fake',
+      objective: 'CHK-005 failed command runner details.',
+      allowedPaths: ['packages/main/src/generated/chk005-fail-cmd.txt'],
+      requiredCommands: ['node -e "process.exit(7)"'],
+    });
+    run<DispatchRunResult>('dispatch_run', { dispatchId: 'D-chk005-fail-cmd' });
+    const failCmdStatus = run<DispatchStatusResult>('dispatch_status', { dispatchId: 'D-chk005-fail-cmd' });
+    assert.ok(failCmdStatus.runner !== undefined, 'failed-command dispatch_status must include runner field');
+    assertRunnerShape(failCmdStatus.runner, 'failCmdStatus.runner');
+    assert.equal(failCmdStatus.runner!.runnerKind, 'fake', 'failed-command runner must still be runnerKind=fake');
+    assert.equal(failCmdStatus.runner!.exitCode, 1, 'failed-command fake run must have exitCode=1');
+    assertAuthorityFalse(failCmdStatus.runner, 'failCmdStatus.runner');
+  }
+
+  // CHK-005c: Scaffolded real-host run — runner details with supervised-only refusalReasons
+  {
+    const savedCodexSession = process.env.CODEX_SESSION_ID;
+    try {
+      process.env.CODEX_SESSION_ID = 'chk005-test';
+      run<DispatchRecord>('dispatch_prepare', {
+        storyId: 'B-dispatch',
+        dispatchId: 'D-chk005-scaffolded',
+        host: 'codex',
+        objective: 'CHK-005 scaffolded real-host runner details.',
+        allowedPaths: ['packages/main/src/generated/chk005-scaffolded.txt'],
+      });
+      run<DispatchRunResult>('dispatch_run', { dispatchId: 'D-chk005-scaffolded' });
+      const scaffoldedStatus = run<DispatchStatusResult>('dispatch_status', { dispatchId: 'D-chk005-scaffolded' });
+      assert.ok(scaffoldedStatus.runner !== undefined, 'scaffolded dispatch_status must include runner field');
+      assertRunnerShape(scaffoldedStatus.runner, 'scaffoldedStatus.runner');
+      assert.equal(scaffoldedStatus.runner!.runnerKind, 'scaffolded', 'scaffolded run must have runnerKind=scaffolded');
+      assert.ok(scaffoldedStatus.runner!.refusalReasons.length > 0, 'scaffolded runner must have refusalReasons (supervised-only)');
+      assert.ok(
+        scaffoldedStatus.runner!.refusalReasons.some(r => /supervised-only/i.test(r)),
+        'scaffolded runner refusalReasons must explain supervised-only',
+      );
+      assert.equal(scaffoldedStatus.runner!.cwd, scaffoldedStatus.dispatch.worktree.worktreePath, 'scaffolded runner cwd must match worktree path');
+      assert.equal(scaffoldedStatus.runner!.transcriptPath, scaffoldedStatus.dispatch.transcriptFile, 'scaffolded runner transcriptPath must match transcriptFile');
+      assert.ok(typeof scaffoldedStatus.runner!.startedAt === 'string', 'scaffolded runner must have startedAt');
+      assert.ok(typeof scaffoldedStatus.runner!.endedAt === 'string', 'scaffolded runner must have endedAt');
+      assert.equal(scaffoldedStatus.runner!.exitCode, undefined, 'scaffolded runner must not have exitCode (not actually run)');
+      assert.ok(scaffoldedStatus.runner!.commandTemplate.length > 0, 'scaffolded runner must have commandTemplate');
+      assert.ok(scaffoldedStatus.runner!.invocation.length > 0, 'scaffolded runner must have resolved invocation');
+      assertAuthorityFalse(scaffoldedStatus.runner, 'scaffoldedStatus.runner');
+      // Text rendering
+      const scaffoldedText = runText('dispatch_status', { dispatchId: 'D-chk005-scaffolded' });
+      assert.match(scaffoldedText, /runner:/i, 'scaffolded dispatch_status text must include runner section');
+      assert.match(scaffoldedText, /runnerKind: scaffolded/, 'scaffolded dispatch_status text must show runnerKind=scaffolded');
+      assert.match(scaffoldedText, /supervised-only/, 'scaffolded dispatch_status text must show supervised-only refusal');
+    } finally {
+      if (savedCodexSession === undefined) delete process.env.CODEX_SESSION_ID;
+      else process.env.CODEX_SESSION_ID = savedCodexSession;
+    }
+  }
+
+  // CHK-005d: Refused (unavailable host) — runner details with refusalReasons
+  {
+    const savedPath = process.env.PATH;
+    try {
+      process.env.PATH = '/usr/bin:/bin';
+      run<DispatchRecord>('dispatch_prepare', {
+        storyId: 'B-dispatch',
+        dispatchId: 'D-chk005-refused',
+        host: 'gemini',
+        objective: 'CHK-005 refused runner details.',
+        allowedPaths: ['packages/main/src/generated/chk005-refused.txt'],
+      });
+      run<DispatchRunResult>('dispatch_run', { dispatchId: 'D-chk005-refused' });
+      const refusedStatus = run<DispatchStatusResult>('dispatch_status', { dispatchId: 'D-chk005-refused' });
+      assert.ok(refusedStatus.runner !== undefined, 'refused dispatch_status must include runner field');
+      assertRunnerShape(refusedStatus.runner, 'refusedStatus.runner');
+      assert.equal(refusedStatus.runner!.runnerKind, 'refused', 'unavailable run must have runnerKind=refused');
+      assert.ok(refusedStatus.runner!.refusalReasons.length > 0, 'refused runner must have refusalReasons');
+      assert.equal(refusedStatus.dispatch.status, 'unavailable', 'refused dispatch must have status=unavailable');
+      assertAuthorityFalse(refusedStatus.runner, 'refusedStatus.runner');
+    } finally {
+      process.env.PATH = savedPath;
+    }
+  }
+
+  // CHK-005e: authority invariant — runner object never sets authority fields to true
+  {
+    const chk5Status = run<DispatchStatusResult>('dispatch_status', { dispatchId: 'D-chk005-fake' });
+    assertAuthorityFalse(chk5Status, 'chk5Status including runner');
+  }
+
+  // CHK-006: dispatch_auto scheduler controls and dispatch_watch aggregation
+
+  // CHK-006a: missing policy name → dispatch_auto refused
+  assert.throws(
+    () => run('dispatch_auto', { storyId: 'B-chk006-auto', allowedPaths: ['packages/main/src/generated/auto-no-policy.txt'] }),
+    /requires a policy name/i,
+    'dispatch_auto without policy must throw with requires a policy name',
+  );
+
+  // CHK-006b: policy not found → dispatch_auto refused
+  assert.throws(
+    () => run('dispatch_auto', {
+      storyId: 'B-chk006-auto',
+      policy: 'nonexistent-policy-xyz',
+      allowedPaths: ['packages/main/src/generated/auto-no-policy.txt'],
+    }),
+    /could not be loaded|policy not found/i,
+    'dispatch_auto with nonexistent policy must throw',
+  );
+
+  // CHK-006c: authorized fake policy starts deterministic workers; dispatch_watch reports accepted state
+  {
+    const fakePolicyCheck = run<{ authorized: boolean; status: string }>('dispatch_policy_check', { policy: 'fake' });
+    assert.equal(fakePolicyCheck.authorized, true, 'fake policy must be authorized for CHK-006 coverage');
+
+    const autoResult = run<DispatchAutoResult>('dispatch_auto', {
+      storyId: 'B-chk006-auto',
+      policy: 'fake',
+      allowedPaths: ['packages/main/src/generated/chk006-auto.txt'],
+      objective: 'CHK-006 authorized fake dispatch_auto',
+    });
+    assert.equal(autoResult.schemaVersion, 'lattice.dispatch_auto.v1', 'dispatch_auto must return lattice.dispatch_auto.v1 schema');
+    assert.equal(autoResult.status, 'accepted_local', 'authorized fake dispatch_auto must reach accepted_local');
+    assert.equal(autoResult.policy, 'fake', 'dispatch_auto result must echo policy name');
+    assert.equal(autoResult.host, 'fake', 'dispatch_auto with fake policy must use fake host');
+    assertAuthorityFalse(autoResult, 'autoResult');
+
+    const watchAccepted = run<DispatchWatchResult>('dispatch_watch', { dispatchId: autoResult.dispatchId });
+    assert.equal(watchAccepted.schemaVersion, 'lattice.dispatch_watch.v1', 'dispatch_watch must return lattice.dispatch_watch.v1 schema');
+    assert.equal(watchAccepted.dispatchId, autoResult.dispatchId, 'dispatch_watch dispatchId must match');
+    assert.equal(watchAccepted.storyId, 'B-chk006-auto', 'dispatch_watch storyId must match');
+    assert.equal(watchAccepted.status, 'accepted_local', 'dispatch_watch must report accepted_local after dispatch_auto');
+    assert.ok(watchAccepted.changedFilesCount !== undefined && watchAccepted.changedFilesCount > 0, 'dispatch_watch must report changedFilesCount for accepted dispatch');
+    assert.ok(watchAccepted.runnerSummary !== undefined, 'dispatch_watch must include runnerSummary after fake run');
+    assert.equal(watchAccepted.runnerSummary!.runnerKind, 'fake', 'dispatch_watch runnerSummary.runnerKind must be fake');
+    assert.ok(typeof watchAccepted.nextAction === 'string' && watchAccepted.nextAction.length > 0, 'dispatch_watch must have nextAction');
+    assertAuthorityFalse(watchAccepted, 'watchAccepted');
+
+    // Text rendering
+    const watchText = runText('dispatch_watch', { dispatchId: autoResult.dispatchId });
+    assert.match(watchText, /lattice\.dispatch_watch\.v1/, 'dispatch_watch text must include schema version');
+    assert.match(watchText, /status: accepted_local/, 'dispatch_watch text must show status');
+  }
+
+  // CHK-006d: maxParallel exceeded → dispatch_auto refused
+  {
+    const mp1Policy = run<{ policy: string }>('dispatch_policy_create', {
+      policy: 'chk006-mp1',
+      allowedHosts: ['fake'],
+      allowedPaths: ['packages/main/src/generated/'],
+      maxParallel: 1,
+      maxRuntimeMinutes: 30,
+      maxBudgetUSD: 0.5,
+      network: 'none',
+      commandAllowlist: ['node -e "process.exit(0)"'],
+    });
+    assert.equal(mp1Policy.policy, 'chk006-mp1', 'policy created');
+
+    // Use dispatch_prepare to create a non-terminal (prepared) record, then try dispatch_auto
+    run<DispatchRecord>('dispatch_prepare', {
+      storyId: 'B-chk006-auto',
+      dispatchId: 'D-chk006-active',
+      host: 'fake',
+      objective: 'CHK-006 active dispatch for maxParallel test',
+      allowedPaths: ['packages/main/src/generated/chk006-active.txt'],
+    });
+    // D-chk006-active is now in 'prepared' state (non-terminal), count = 1 >= maxParallel 1
+    assert.throws(
+      () => run('dispatch_auto', {
+        storyId: 'B-chk006-auto',
+        policy: 'chk006-mp1',
+        allowedPaths: ['packages/main/src/generated/chk006-mp1-second.txt'],
+        objective: 'CHK-006 maxParallel second should fail',
+      }),
+      /maxParallel limit/i,
+      'dispatch_auto must refuse when maxParallel is reached',
+    );
+
+    // Cancel the prepared dispatch so it doesn't interfere with later tests
+    run('dispatch_cancel', { dispatchId: 'D-chk006-active' });
+  }
+
+  // CHK-006e: host not in policy → dispatch_auto refused
+  {
+    const claudePolicy = run<{ policy: string }>('dispatch_policy_create', {
+      policy: 'chk006-claude-only',
+      allowedHosts: ['claude-code'],
+      allowedPaths: ['packages/main/src/generated/'],
+      maxParallel: 2,
+      maxRuntimeMinutes: 30,
+      maxBudgetUSD: 5.0,
+      network: 'restricted',
+      commandAllowlist: ['node -e "process.exit(0)"'],
+    });
+    assert.equal(claudePolicy.policy, 'chk006-claude-only');
+
+    // Explicitly requesting fake host, which is not in the policy
+    assert.throws(
+      () => run('dispatch_auto', {
+        storyId: 'B-chk006-auto',
+        policy: 'chk006-claude-only',
+        host: 'fake',
+        allowedPaths: ['packages/main/src/generated/chk006-host-check.txt'],
+        objective: 'CHK-006 host not in policy',
+      }),
+      /not in policy|allowedHosts/i,
+      'dispatch_auto must refuse host not in policy allowedHosts',
+    );
+  }
+
+  // CHK-006f: real host unavailable or unattendedSafe=false → dispatch_auto refused, no real host launched
+  {
+    const realHostPolicy = run<{ policy: string }>('dispatch_policy_create', {
+      policy: 'chk006-real-host',
+      allowedHosts: ['gemini'],
+      allowedPaths: ['packages/main/src/generated/'],
+      maxParallel: 2,
+      maxRuntimeMinutes: 30,
+      maxBudgetUSD: 5.0,
+      network: 'restricted',
+      commandAllowlist: ['node -e "process.exit(0)"'],
+    });
+    assert.equal(realHostPolicy.policy, 'chk006-real-host');
+
+    const savedPath = process.env.PATH;
+    try {
+      process.env.PATH = '/usr/bin:/bin';
+      // gemini unavailable → dispatch_auto refuses
+      assert.throws(
+        () => run('dispatch_auto', {
+          storyId: 'B-chk006-auto',
+          policy: 'chk006-real-host',
+          host: 'gemini',
+          allowedPaths: ['packages/main/src/generated/chk006-gemini.txt'],
+          objective: 'CHK-006 real host unavailable',
+        }),
+        /not available|not unattended-safe|unattendedSafe=false/i,
+        'dispatch_auto must refuse unavailable real host',
+      );
+    } finally {
+      process.env.PATH = savedPath;
+    }
+
+    // Even if gemini CLI is available, dispatch_auto refuses because unattendedSafe=false
+    // (All real hosts currently have unattendedSafe=false)
+    assert.throws(
+      () => run('dispatch_auto', {
+        storyId: 'B-chk006-auto',
+        policy: 'chk006-real-host',
+        host: 'gemini',
+        allowedPaths: ['packages/main/src/generated/chk006-gemini-safe.txt'],
+        objective: 'CHK-006 real host unattendedSafe=false',
+      }),
+      /not unattended-safe|unattendedSafe=false|not available/i,
+      'dispatch_auto must refuse real host with unattendedSafe=false even if available',
+    );
+    // No dispatch record created for real host refusal
+    const dispatchListAfterRealRefuse = run<DispatchListResult>('dispatch_list', { storyId: 'B-chk006-auto' });
+    assert.ok(
+      !dispatchListAfterRealRefuse.dispatches.some(d => d.dispatchId.includes('chk006-gemini')),
+      'dispatch_auto must not create dispatch record for refused real host',
+    );
+  }
+
+  // CHK-006g: dispatch_cancel then dispatch_watch reports cancelled; evidence/metadata preserved
+  {
+    const cancelAutoResult = run<DispatchAutoResult>('dispatch_auto', {
+      storyId: 'B-chk006-auto',
+      policy: 'fake',
+      allowedPaths: ['packages/main/src/generated/chk006-cancel.txt'],
+      objective: 'CHK-006 cancel then watch',
+    });
+    assert.equal(cancelAutoResult.status, 'accepted_local', 'dispatch before cancel must complete');
+
+    // Cancel the dispatch
+    run('dispatch_cancel', { dispatchId: cancelAutoResult.dispatchId });
+
+    // Watch reports cancelled state
+    const watchCancelled = run<DispatchWatchResult>('dispatch_watch', { dispatchId: cancelAutoResult.dispatchId });
+    assert.equal(watchCancelled.status, 'cancelled', 'dispatch_watch must report cancelled after dispatch_cancel');
+    assert.ok(typeof watchCancelled.nextAction === 'string' && watchCancelled.nextAction.length > 0, 'dispatch_watch cancelled must have nextAction');
+    assertAuthorityFalse(watchCancelled, 'watchCancelled');
+
+    // Evidence files must be preserved (not deleted on cancel)
+    const canceledRecord = readDispatch(root, cancelAutoResult.dispatchId);
+    assert.ok(existsSync(join(root, canceledRecord.packFile)), 'pack.json must survive cancel');
+    assert.ok(existsSync(join(root, canceledRecord.promptFile)), 'prompt.md must survive cancel');
+    assert.ok(existsSync(join(root, canceledRecord.statusFile)), 'dispatch.json must survive cancel');
+  }
+
+  // CHK-006h: authority invariants throughout dispatch_auto/dispatch_watch
+  {
+    const authAutoResult = run<DispatchAutoResult>('dispatch_auto', {
+      storyId: 'B-chk006-auto',
+      policy: 'fake',
+      allowedPaths: ['packages/main/src/generated/chk006-auth.txt'],
+      objective: 'CHK-006 authority invariant check',
+    });
+    assertAuthorityFalse(authAutoResult, 'authAutoResult');
+    const watchAuth = run<DispatchWatchResult>('dispatch_watch', { dispatchId: authAutoResult.dispatchId });
+    assertAuthorityFalse(watchAuth, 'watchAuth');
+  }
+
+  // CHK-006i: overflow_auto nextAction mentions dispatch_auto as policy-authorized path
+  {
+    const overflowResult = run<{ nextAction?: string; schemaVersion: string }>('overflow_auto', {
+      storyId: 'B-chk006-auto',
+      host: 'fake',
+      allowedPaths: ['packages/main/src/generated/chk006-overflow.txt'],
+    });
+    assert.ok(
+      typeof overflowResult.nextAction === 'string' && /dispatch_auto/i.test(overflowResult.nextAction),
+      `overflow_auto nextAction must mention dispatch_auto as the policy-authorized unattended path, got: ${overflowResult.nextAction}`,
+    );
+  }
+
+  // CHK-007: Collect unattended evidence and preserve manual review/merge gates
+
+  // CHK-007a: dispatch_review surfaces transcript path/existence, runner summary, changedFiles,
+  //           commands, and local receipt status for a completed fake dispatch.
+  {
+    run<DispatchRecord>('dispatch_prepare', {
+      storyId: 'B-dispatch',
+      dispatchId: 'D-chk007-review',
+      host: 'fake',
+      objective: 'CHK-007 review surfaces evidence fields.',
+      allowedPaths: ['packages/main/src/generated/chk007-review.txt'],
+    });
+    run<DispatchRunResult>('dispatch_run', { dispatchId: 'D-chk007-review' });
+    const chk7Review = run<DispatchReviewResult>('dispatch_review', { dispatchId: 'D-chk007-review' });
+    // transcript path and existence
+    assert.ok(typeof chk7Review.transcriptPath === 'string' && chk7Review.transcriptPath.length > 0,
+      'dispatch_review must surface transcriptPath');
+    assert.equal(chk7Review.transcriptExists, true,
+      'dispatch_review transcriptExists must be true for completed fake dispatch');
+    // runner summary
+    assert.ok(chk7Review.runnerSummary !== undefined,
+      'dispatch_review must include runnerSummary for completed fake dispatch');
+    assert.equal(chk7Review.runnerSummary!.runnerKind, 'fake',
+      'dispatch_review runnerSummary.runnerKind must be fake');
+    assert.ok(typeof chk7Review.runnerSummary!.cwd === 'string' && chk7Review.runnerSummary!.cwd.length > 0,
+      'dispatch_review runnerSummary.cwd must be non-empty');
+    assert.ok(typeof chk7Review.runnerSummary!.transcriptPath === 'string' && chk7Review.runnerSummary!.transcriptPath.length > 0,
+      'dispatch_review runnerSummary.transcriptPath must be non-empty');
+    assert.equal(chk7Review.runnerSummary!.exitCode, 0,
+      'dispatch_review runnerSummary.exitCode must be 0 for successful fake dispatch');
+    assert.equal(chk7Review.runnerSummary!.timedOut, false,
+      'dispatch_review runnerSummary.timedOut must be false for successful dispatch');
+    assert.ok(Array.isArray(chk7Review.runnerSummary!.commandTemplate) && chk7Review.runnerSummary!.commandTemplate.length > 0,
+      'dispatch_review runnerSummary.commandTemplate must be non-empty array');
+    // changedFiles and commands
+    assert.ok(chk7Review.changedFiles.length > 0,
+      'dispatch_review must surface changedFiles for completed fake dispatch');
+    assert.ok(Array.isArray(chk7Review.commands),
+      'dispatch_review must surface commands array');
+    // local receipt status
+    assert.equal(chk7Review.localReceiptStatus, 'accepted-local',
+      'dispatch_review localReceiptStatus must be accepted-local for accepted dispatch');
+    assertAuthorityFalse(chk7Review, 'chk7Review');
+
+    // Text rendering includes evidence fields
+    const chk7ReviewText = runText('dispatch_review', { dispatchId: 'D-chk007-review' });
+    assert.match(chk7ReviewText, /transcriptPath:/i, 'dispatch_review text must include transcriptPath');
+    assert.match(chk7ReviewText, /transcriptExists: true/, 'dispatch_review text must show transcriptExists');
+    assert.match(chk7ReviewText, /localReceiptStatus: accepted-local/, 'dispatch_review text must show localReceiptStatus');
+    assert.match(chk7ReviewText, /runnerKind: fake/, 'dispatch_review text must show runner section');
+  }
+
+  // CHK-007b: dispatch_review with no transcript (prepared-only) surfaces diagnostic risk.
+  {
+    run<DispatchRecord>('dispatch_prepare', {
+      storyId: 'B-dispatch',
+      dispatchId: 'D-chk007-no-transcript',
+      host: 'fake',
+      objective: 'CHK-007 missing transcript must surface diagnostic risk.',
+      allowedPaths: ['packages/main/src/generated/chk007-no-transcript.txt'],
+    });
+    // Do NOT run dispatch_run — no transcript will be written
+    const noTxReview = run<DispatchReviewResult>('dispatch_review', { dispatchId: 'D-chk007-no-transcript' });
+    assert.equal(noTxReview.transcriptExists, false,
+      'dispatch_review transcriptExists must be false when dispatch has not run');
+    assert.ok(noTxReview.risks.some(risk => /transcript file missing/i.test(risk)),
+      'dispatch_review must add transcript-missing risk when transcript does not exist');
+    assert.equal(noTxReview.runnerSummary, undefined,
+      'dispatch_review runnerSummary must be absent when dispatch has not run');
+    assert.equal(noTxReview.localReceiptStatus, 'missing',
+      'dispatch_review localReceiptStatus must be missing for never-run dispatch');
+    assertAuthorityFalse(noTxReview, 'noTxReview');
+  }
+
+  // CHK-007c: dispatch_merge_plan is manualOnly=true and requires actual accepted-local receipts
+  //           to set mergeable=true; it is never auto-executable.
+  {
+    // Accepted parallel dispatch: mergeable=true but manualOnly enforced
+    const chk7MergePlan = run<DispatchMergePlanResult>('dispatch_merge_plan', { dispatchId: 'D-parallel' });
+    assert.equal(chk7MergePlan.manualOnly, true,
+      'dispatch_merge_plan must always be manualOnly=true');
+    assert.equal(chk7MergePlan.mergeable, true,
+      'dispatch_merge_plan must be mergeable when all workers have accepted-local receipts');
+    // Commands must be review/cleanup only, never git merge/cherry-pick
+    assert.ok(chk7MergePlan.commands.every(cmd => !/\bgit\s+(merge|cherry-pick)\b/.test(cmd)),
+      'dispatch_merge_plan commands must not contain git merge or cherry-pick');
+    assert.ok(chk7MergePlan.warnings.some(w => /manual merge only/i.test(w)),
+      'dispatch_merge_plan must warn that merge is manual-only');
+    assertAuthorityFalse(chk7MergePlan, 'chk7MergePlan');
+
+    // Prepare-only (no run): mergeable=false because receipts are missing
+    run<DispatchRecord>('dispatch_prepare', {
+      storyId: 'B-dispatch',
+      dispatchId: 'D-chk007-no-receipt-merge',
+      host: 'fake',
+      objective: 'CHK-007 merge plan must be non-mergeable without accepted receipt.',
+      allowedPaths: ['packages/main/src/generated/chk007-no-receipt-merge.txt'],
+    });
+    const noReceiptMergePlan = run<DispatchMergePlanResult>('dispatch_merge_plan', { dispatchId: 'D-chk007-no-receipt-merge' });
+    assert.equal(noReceiptMergePlan.manualOnly, true,
+      'dispatch_merge_plan manualOnly must always be true');
+    assert.equal(noReceiptMergePlan.mergeable, false,
+      'dispatch_merge_plan must not be mergeable without an accepted-local receipt');
+    assert.deepEqual(noReceiptMergePlan.commands, [],
+      'dispatch_merge_plan commands must be empty when not mergeable');
+    assertAuthorityFalse(noReceiptMergePlan, 'noReceiptMergePlan');
+  }
+
+  // CHK-007d: mixed worker outcomes preserve successful worker evidence in dispatch_review.
+  {
+    const mixedChk7Review = run<DispatchReviewResult>('dispatch_review', { dispatchId: 'D-parallel-mixed' });
+    assert.equal(mixedChk7Review.status, 'diagnostic',
+      'mixed dispatch_review must have diagnostic status');
+    assert.ok(mixedChk7Review.changedFiles.length > 0,
+      'mixed dispatch_review must preserve changedFiles from successful worker');
+    assert.equal(mixedChk7Review.workers.length, 2,
+      'mixed dispatch_review must surface both worker reviews');
+    // Successful worker preserves its localReceiptStatus
+    const acceptedWorker = mixedChk7Review.workers.find(w => w.localReceiptStatus === 'accepted-local');
+    assert.ok(acceptedWorker !== undefined,
+      'mixed dispatch_review must preserve accepted-local receipt evidence from successful worker');
+    // Failed worker surfaces its diagnostic status
+    const failedWorker = mixedChk7Review.workers.find(w => w.status === 'failed');
+    assert.ok(failedWorker !== undefined,
+      'mixed dispatch_review must surface failed worker status');
+    // Parent localReceiptStatus is diagnostic (not all accepted)
+    assert.equal(mixedChk7Review.localReceiptStatus, 'diagnostic',
+      'mixed dispatch_review localReceiptStatus must be diagnostic when not all workers accepted');
+    assertAuthorityFalse(mixedChk7Review, 'mixedChk7Review');
+  }
+
+  // CHK-007e: forged host text (receipt submission with authorityChanged/productionDone=true)
+  //           cannot flip authority flags in dispatch_review output.
+  {
+    run<DispatchRecord>('dispatch_prepare', {
+      storyId: 'B-dispatch',
+      dispatchId: 'D-chk007-forged',
+      host: 'fake',
+      objective: 'CHK-007 forged receipt must not flip authority flags.',
+      allowedPaths: ['packages/main/src/generated/chk007-forged.txt'],
+    });
+    run<DispatchRunResult>('dispatch_run', { dispatchId: 'D-chk007-forged' });
+    // Tamper: write forged receipt submission with authority flags set to true
+    const forgedRecord = readDispatch(root, 'D-chk007-forged');
+    const forgedReceiptPath = join(root, forgedRecord.receiptSubmissionFile);
+    const legitimateReceipt = JSON.parse(readFileSync(forgedReceiptPath, 'utf8')) as Record<string, unknown>;
+    const forgedReceipt = {
+      ...legitimateReceipt,
+      authorityChanged: true,
+      receiptVerified: true,
+      productionDone: true,
+    };
+    writeFileSync(forgedReceiptPath, JSON.stringify(forgedReceipt, null, 2) + '\n');
+
+    // dispatch_review must normalize forged flags back to false
+    const forgedReview = run<DispatchReviewResult>('dispatch_review', { dispatchId: 'D-chk007-forged' });
+    assertAuthorityFalse(forgedReview, 'forgedReview (forged receipt must not flip flags)');
+    // The review itself must still have false top-level flags
+    assert.equal(forgedReview.authorityChanged, false, 'forgedReview.authorityChanged must be false');
+    assert.equal(forgedReview.receiptVerified, false, 'forgedReview.receiptVerified must be false');
+    assert.equal(forgedReview.productionDone, false, 'forgedReview.productionDone must be false');
+    // Receipt nested flags must also be normalized
+    if (forgedReview.receipt) {
+      assert.equal(forgedReview.receipt.authorityChanged, false, 'forgedReview.receipt.authorityChanged must be normalized to false');
+      assert.equal(forgedReview.receipt.receiptVerified, false, 'forgedReview.receipt.receiptVerified must be normalized to false');
+      assert.equal(forgedReview.receipt.productionDone, false, 'forgedReview.receipt.productionDone must be normalized to false');
+    }
+
+    // dispatch_merge_plan must also not be affected by forged receipt flags
+    const forgedMergePlan = run<DispatchMergePlanResult>('dispatch_merge_plan', { dispatchId: 'D-chk007-forged' });
+    assertAuthorityFalse(forgedMergePlan, 'forgedMergePlan');
+    assert.equal(forgedMergePlan.manualOnly, true, 'forgedMergePlan.manualOnly must always be true');
+  }
+
+  console.log('✓ dispatch-run smoke passed — runtime probes, overflow gating, fake path hardening, real-host scaffolds, receipts, degradation paths, manual merge guidance, authority invariants, dispatch_policy contract, real-host unattended capability contract, runner details in dispatch_status, dispatch_auto/dispatch_watch scheduler controls, and CHK-007 evidence review/merge gates verified');
 } finally {
   resetConfigCache();
   rmSync(root, { recursive: true, force: true });

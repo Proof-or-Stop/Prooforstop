@@ -4,7 +4,7 @@
   "title": "Productize user-authorized unattended cross-host scheduler",
   "description": "Add a policy-authorized unattended scheduler so Lattice can start Claude Code, Gemini, or Codex CLI workers only inside user-approved host, path, budget, timeout, environment, and authority boundaries. The user-visible outcome is a clear opt-in flow: define a safe policy, verify host capability, start an unattended run, watch worker status, inspect transcripts/receipts/diffs, and receive manual next actions without auto-merge, auto-DONE, or productionDone claims.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "source": "user",
   "keywords": [
@@ -18,7 +18,7 @@
   ],
   "createdAt": "2026-06-03T18:35:10.498Z",
   "startedAt": "2026-06-03T18:35:10.498Z",
-  "endedAt": null,
+  "endedAt": "2026-06-03T22:09:15.530Z",
   "events": [
     {
       "phase": "INIT",
@@ -35,11 +35,63 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-03T19:06:40.432Z",
+      "branch": "story/B-a5c2",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-03T19:43:49.528Z",
+      "branch": "story/B-a5c2",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-03T21:19:39.509Z",
+      "branch": "story/B-a5c2",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-03T21:27:55.335Z",
+      "branch": "story/B-a5c2",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-03T21:42:02.868Z",
+      "branch": "story/B-a5c2",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-03T21:54:49.475Z",
+      "branch": "story/B-a5c2",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-03T22:09:15.530Z",
+      "branch": "story/B-a5c2",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-a5c2",
-    "branch": "story/B-a5c2",
-    "createdAt": "2026-06-03T19:05:23.791Z"
-  }
+  "currentReviewRound": "2026-06-03T21:42:02.868Z"
 }
