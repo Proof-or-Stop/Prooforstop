@@ -389,10 +389,13 @@ try {
   assert.equal(mixedRun.workers[0].status, 'accepted_local');
   assert.equal(mixedRun.workers[0].receipt?.status, 'accepted-local');
   assert.equal(mixedRun.workers[0].receipt?.validations.verdict, 'pass');
+  assert.deepEqual(mixedRun.workers[0].receipt?.changedFiles, ['packages/main/src/generated/mixed-worker-1.txt']);
   assert.equal(mixedRun.workers[1].status, 'failed');
   assert.equal(mixedRun.workers[1].receipt?.status, 'diagnostic');
   assert.equal(mixedRun.workers[1].receipt?.verdict, 'fail');
   assert.equal(mixedRun.workers[1].receipt?.validations.verdict, 'fail');
+  assert.ok(mixedRun.workers[1].warnings.some(warning => /command failed:/i.test(warning)));
+  assert.ok(mixedRun.workers[1].receipt?.limitations.some(limitation => /command failed:/i.test(limitation)));
   const mixedParentRecord = readDispatch(root, 'D-parallel-mixed');
   assert.equal(mixedParentRecord.status, 'diagnostic');
   assert.deepEqual(mixedParentRecord.workerIds, ['D-parallel-mixed-w1', 'D-parallel-mixed-w2']);
@@ -400,9 +403,12 @@ try {
   assert.equal(mixedParentStatus.dispatch.status, 'diagnostic');
   assert.equal(mixedParentStatus.workers[0].dispatch.status, 'accepted_local');
   assert.equal(mixedParentStatus.workers[1].dispatch.status, 'failed');
+  assert.deepEqual(mixedParentStatus.workers[0].receipt?.changedFiles, ['packages/main/src/generated/mixed-worker-1.txt']);
   const mixedCollect = run<DispatchCollection>('dispatch_collect', { dispatchId: 'D-parallel-mixed' });
   assert.equal(mixedCollect.status, 'diagnostic');
   assert.equal(mixedCollect.changedFiles.length, 2);
+  assert.deepEqual(mixedCollect.workers[0]?.changedFiles, ['packages/main/src/generated/mixed-worker-1.txt']);
+  assert.deepEqual(mixedCollect.workers[1]?.changedFiles, ['packages/main/src/generated/mixed-worker-2.txt']);
   const mixedReview = run<DispatchReviewResult>('dispatch_review', { dispatchId: 'D-parallel-mixed' });
   assert.equal(mixedReview.status, 'diagnostic');
   assert.equal(mixedReview.changedFiles.length, 2);
@@ -416,6 +422,8 @@ try {
   assert.ok(mixedMerge.workers.some(worker => worker.dispatchId === 'D-parallel-mixed-w1' && worker.status === 'accepted_local'));
   assert.ok(mixedMerge.workers.some(worker => worker.dispatchId === 'D-parallel-mixed-w2' && worker.status === 'failed'));
   assertAuthorityFalse(mixedRun, 'mixedRun');
+  assertAuthorityFalse(mixedParentStatus, 'mixedParentStatus');
+  assertAuthorityFalse(mixedCollect, 'mixedCollect');
   assertAuthorityFalse(mixedReview, 'mixedReview');
   assertAuthorityFalse(mixedMerge, 'mixedMerge');
 
