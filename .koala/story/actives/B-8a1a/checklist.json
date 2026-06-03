@@ -53,7 +53,43 @@
       "context": "Dispatch policy must require an explicit opt-in beyond allowedHosts, bind host/scope/commands/env/runtime limits, and keep standalone host_runtime_probe conservative.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "用户创建 claude-code policy 时必须显式传 allowRealHostSubprocess=true；否则 dispatch_auto 会清楚拒绝真实 Claude 启动并解释缺少 opt-in。",
+      "files": {
+        "modify": [
+          "packages/main/src/core/dispatch-policy.ts",
+          "packages/main/src/handlers/lattice-dispatch.ts",
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+          "packages/main/src/tasks/dispatch-run-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A policy with allowedHosts=claude-code plus allowRealHostSubprocess=true is authorized only when all existing receipt/review/budget/network/command constraints are valid.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A claude-code policy without explicit allowRealHostSubprocess stays supervised or refused for real subprocess launch even if allowedHosts includes claude-code.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Policy creation/check rejects unsafe env allowlist, auto-merge, productionDone, unknown hosts, out-of-scope paths, and real host subprocess attempts without explicit opt-in.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
