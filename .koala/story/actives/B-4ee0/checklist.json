@@ -108,7 +108,7 @@
         "docs/requirements/decisions/host-overflow.md",
         "README.md"
       ],
-      "userSees": "没有本地 bin/lattice-codex.js 的新项目里，用户仍可运行 lattice codex verify 和 lattice codex doctor；旧 node bin/lattice-codex.js verify_codex 在 legacy 项目中继续代理或兼容。",
+      "userSees": "用户在无本地 wrapper 的项目里运行 \"lattice codex verify\" 看到 \"Codex adapter checks passed\" 或清晰 bounded diagnostic；运行 \"lattice codex doctor\" 看到 Codex/Lattice runtime 状态，而不是 \"missing bin/lattice-codex.js\" hard fail。",
       "files": {
         "modify": [
           "packages/main/src/cli-engine.ts",
