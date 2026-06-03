@@ -57,9 +57,9 @@
           "command": "npm --prefix packages/main run test:story-authority-resolve-smoke",
           "result": "pass",
           "note": "Resolver smoke asserts schemaVersion=lattice.story_authority_resolve.v1, readOnly=true, required active story row fields, and handler JSON/text output.",
-          "headHash": "daa33d5d64a13740a0afe765fead4acbd2890c99",
-          "materialHash": "c4a6ab521118020cf4ba084a917727556b4312f28b7dfb09c1e37d8eb23c0f8e",
-          "timestamp": "2026-06-03T00:19:35.308Z"
+          "headHash": "1e7eef4ef39a38ae3be91e1a82c248c4ebabec50",
+          "materialHash": "3af8be34d6aa77542157e162e501264dd9498196e8a0d08f93b4938b74f078f5",
+          "timestamp": "2026-06-03T00:30:09.097Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -68,9 +68,9 @@
           "command": "npm --prefix packages/main run test:story-authority-resolve-smoke",
           "result": "pass",
           "note": "Smoke fixture creates stale main mirror INIT_CHECK plus worktree DEV and asserts authoritativePhase=DEV and authoritativeCwd points at the worktree.",
-          "headHash": "daa33d5d64a13740a0afe765fead4acbd2890c99",
-          "materialHash": "c4a6ab521118020cf4ba084a917727556b4312f28b7dfb09c1e37d8eb23c0f8e",
-          "timestamp": "2026-06-03T00:19:35.369Z"
+          "headHash": "1e7eef4ef39a38ae3be91e1a82c248c4ebabec50",
+          "materialHash": "3af8be34d6aa77542157e162e501264dd9498196e8a0d08f93b4938b74f078f5",
+          "timestamp": "2026-06-03T00:30:09.097Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -79,9 +79,9 @@
           "command": "npm --prefix packages/main run test:observability-contract-smoke",
           "result": "pass",
           "note": "Contract smoke asserts resolver output keeps productionDone=false, receiptVerified=false, authorityChanged=false and source does not call session_brief/status.",
-          "headHash": "daa33d5d64a13740a0afe765fead4acbd2890c99",
-          "materialHash": "c4a6ab521118020cf4ba084a917727556b4312f28b7dfb09c1e37d8eb23c0f8e",
-          "timestamp": "2026-06-03T00:19:35.422Z"
+          "headHash": "1e7eef4ef39a38ae3be91e1a82c248c4ebabec50",
+          "materialHash": "3af8be34d6aa77542157e162e501264dd9498196e8a0d08f93b4938b74f078f5",
+          "timestamp": "2026-06-03T00:30:09.097Z"
         },
         {
           "intentRef": "CHK-001:happy:cli",
@@ -152,9 +152,9 @@
           "command": "npm --prefix packages/main run test:observability-snapshot-smoke",
           "result": "pass",
           "note": "Snapshot smoke asserts schemaVersion=lattice.observability_snapshot.v1, readOnly=true, and populated authorityLadder/storyBoard/capabilityMatrix/recovery/parallel sections.",
-          "headHash": "daa33d5d64a13740a0afe765fead4acbd2890c99",
-          "materialHash": "c4a6ab521118020cf4ba084a917727556b4312f28b7dfb09c1e37d8eb23c0f8e",
-          "timestamp": "2026-06-03T00:19:47.659Z"
+          "headHash": "1e7eef4ef39a38ae3be91e1a82c248c4ebabec50",
+          "materialHash": "3af8be34d6aa77542157e162e501264dd9498196e8a0d08f93b4938b74f078f5",
+          "timestamp": "2026-06-03T00:30:09.097Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -163,9 +163,9 @@
           "command": "npm --prefix packages/main run test:observability-snapshot-smoke",
           "result": "pass",
           "note": "Smoke injects resolver rows with distinct authoritativeCwd values and asserts the adapter opens StoryStore for each resolver authoritativeCwd rather than the repo root.",
-          "headHash": "daa33d5d64a13740a0afe765fead4acbd2890c99",
-          "materialHash": "c4a6ab521118020cf4ba084a917727556b4312f28b7dfb09c1e37d8eb23c0f8e",
-          "timestamp": "2026-06-03T00:19:47.708Z"
+          "headHash": "1e7eef4ef39a38ae3be91e1a82c248c4ebabec50",
+          "materialHash": "3af8be34d6aa77542157e162e501264dd9498196e8a0d08f93b4938b74f078f5",
+          "timestamp": "2026-06-03T00:30:09.097Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -174,9 +174,9 @@
           "command": "npm --prefix packages/main run test:observability-contract-smoke",
           "result": "pass",
           "note": "Contract smoke asserts snapshot source does not directly read .koala/story or docs/story backing JSON and dashboard.ts is not wired to the new M1 commands.",
-          "headHash": "daa33d5d64a13740a0afe765fead4acbd2890c99",
-          "materialHash": "c4a6ab521118020cf4ba084a917727556b4312f28b7dfb09c1e37d8eb23c0f8e",
-          "timestamp": "2026-06-03T00:19:47.756Z"
+          "headHash": "1e7eef4ef39a38ae3be91e1a82c248c4ebabec50",
+          "materialHash": "3af8be34d6aa77542157e162e501264dd9498196e8a0d08f93b4938b74f078f5",
+          "timestamp": "2026-06-03T00:30:09.097Z"
         },
         {
           "intentRef": "CHK-002:happy:cli",
@@ -246,9 +246,9 @@
           "command": "npm --prefix packages/main run test:observability-contract-smoke",
           "result": "pass",
           "note": "Contract smoke asserts story_authority_resolve and observability_snapshot are supported readOnly commands with allowedPhases=all, destructiveRisk=none, and L0 process fact registrations.",
-          "headHash": "daa33d5d64a13740a0afe765fead4acbd2890c99",
-          "materialHash": "c4a6ab521118020cf4ba084a917727556b4312f28b7dfb09c1e37d8eb23c0f8e",
-          "timestamp": "2026-06-03T00:19:57.512Z"
+          "headHash": "1e7eef4ef39a38ae3be91e1a82c248c4ebabec50",
+          "materialHash": "3af8be34d6aa77542157e162e501264dd9498196e8a0d08f93b4938b74f078f5",
+          "timestamp": "2026-06-03T00:30:09.097Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -257,9 +257,9 @@
           "command": "npm --prefix packages/main run test:observability-contract-smoke",
           "result": "pass",
           "note": "Contract smoke executes resolver and snapshot projections and asserts productionDone=false, receiptVerified=false, and authorityChanged=false at the resolver/snapshot boundaries.",
-          "headHash": "daa33d5d64a13740a0afe765fead4acbd2890c99",
-          "materialHash": "c4a6ab521118020cf4ba084a917727556b4312f28b7dfb09c1e37d8eb23c0f8e",
-          "timestamp": "2026-06-03T00:19:57.561Z"
+          "headHash": "1e7eef4ef39a38ae3be91e1a82c248c4ebabec50",
+          "materialHash": "3af8be34d6aa77542157e162e501264dd9498196e8a0d08f93b4938b74f078f5",
+          "timestamp": "2026-06-03T00:30:09.097Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -268,9 +268,9 @@
           "command": "npm --prefix packages/main run test:command-ownership-contract && npm --prefix packages/main run test:lifecycle-registry-contract",
           "result": "pass",
           "note": "Existing ownership/lifecycle contracts passed after adding the commands, proving all CLI commands have policy/handler coverage and lifecycle registry consistency has 0 divergences.",
-          "headHash": "daa33d5d64a13740a0afe765fead4acbd2890c99",
-          "materialHash": "c4a6ab521118020cf4ba084a917727556b4312f28b7dfb09c1e37d8eb23c0f8e",
-          "timestamp": "2026-06-03T00:19:57.618Z"
+          "headHash": "1e7eef4ef39a38ae3be91e1a82c248c4ebabec50",
+          "materialHash": "3af8be34d6aa77542157e162e501264dd9498196e8a0d08f93b4938b74f078f5",
+          "timestamp": "2026-06-03T00:30:09.097Z"
         }
       ]
     },
@@ -334,9 +334,9 @@
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:story-authority-resolve-smoke && npm --prefix packages/main run test:observability-snapshot-smoke && npm --prefix packages/main run test:observability-contract-smoke",
           "result": "pass",
           "note": "Build and all three focused smoke commands passed for resolver, snapshot adapter, and policy contract.",
-          "headHash": "daa33d5d64a13740a0afe765fead4acbd2890c99",
-          "materialHash": "c4a6ab521118020cf4ba084a917727556b4312f28b7dfb09c1e37d8eb23c0f8e",
-          "timestamp": "2026-06-03T00:20:08.375Z"
+          "headHash": "1e7eef4ef39a38ae3be91e1a82c248c4ebabec50",
+          "materialHash": "3af8be34d6aa77542157e162e501264dd9498196e8a0d08f93b4938b74f078f5",
+          "timestamp": "2026-06-03T00:30:09.097Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -345,9 +345,9 @@
           "command": "npm --prefix packages/main run test:story-authority-resolve-smoke && npm --prefix packages/main run test:observability-snapshot-smoke",
           "result": "pass",
           "note": "Resolver smoke covers stale main mirror versus authoritative worktree; snapshot smoke asserts adapter uses resolver authoritativeCwd for each row.",
-          "headHash": "daa33d5d64a13740a0afe765fead4acbd2890c99",
-          "materialHash": "c4a6ab521118020cf4ba084a917727556b4312f28b7dfb09c1e37d8eb23c0f8e",
-          "timestamp": "2026-06-03T00:20:08.429Z"
+          "headHash": "1e7eef4ef39a38ae3be91e1a82c248c4ebabec50",
+          "materialHash": "3af8be34d6aa77542157e162e501264dd9498196e8a0d08f93b4938b74f078f5",
+          "timestamp": "2026-06-03T00:30:09.097Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -356,9 +356,9 @@
           "command": "npm --prefix packages/main run test:observability-contract-smoke",
           "result": "pass",
           "note": "Contract smoke fails if resolver/snapshot source calls session_brief/status, if snapshot directly reads .koala/story or docs/story backing JSON, if dashboard.ts is wired in M1, or if outputs claim productionDone/receiptVerified/authorityChanged.",
-          "headHash": "daa33d5d64a13740a0afe765fead4acbd2890c99",
-          "materialHash": "c4a6ab521118020cf4ba084a917727556b4312f28b7dfb09c1e37d8eb23c0f8e",
-          "timestamp": "2026-06-03T00:20:08.481Z"
+          "headHash": "1e7eef4ef39a38ae3be91e1a82c248c4ebabec50",
+          "materialHash": "3af8be34d6aa77542157e162e501264dd9498196e8a0d08f93b4938b74f078f5",
+          "timestamp": "2026-06-03T00:30:09.097Z"
         }
       ]
     }
