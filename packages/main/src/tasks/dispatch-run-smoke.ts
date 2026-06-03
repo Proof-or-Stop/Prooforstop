@@ -25,6 +25,7 @@ import type {
   StoryInfo,
 } from '../core/types.js';
 import type {
+  DispatchAutoResult,
   DispatchCollection,
   DispatchListResult,
   DispatchMergePlanResult,
@@ -35,6 +36,7 @@ import type {
   DispatchRunResult,
   DispatchRunnerRecord,
   DispatchStatusResult,
+  DispatchWatchResult,
   HostRuntimeList,
   HostRuntimeProbe,
 } from '../core/lattice-dispatch.js';
@@ -63,6 +65,8 @@ const EXPECTED_COMMANDS = [
   'dispatch_policy_create',
   'dispatch_policy_get',
   'dispatch_policy_check',
+  'dispatch_auto',
+  'dispatch_watch',
 ] as const;
 
 const READ_ONLY_EXPECTED = new Set([
@@ -75,6 +79,7 @@ const READ_ONLY_EXPECTED = new Set([
   'dispatch_merge_plan',
   'dispatch_policy_get',
   'dispatch_policy_check',
+  'dispatch_watch',
 ]);
 
 function git(root: string, args: string[]): string {
@@ -229,6 +234,7 @@ try {
   const store = new StoryStore(root);
   seedStory(store);
   seedStory(store, 'B-ancestor-attack');
+  seedStory(store, 'B-chk006-auto');
   const baseSha = git(root, ['rev-parse', 'HEAD']);
   const ctx: HandlerContext = { store, root, scanRoot: join(root, 'packages/main') };
   const registry = createMainRegistry(ctx);
@@ -1490,7 +1496,233 @@ try {
     assertAuthorityFalse(chk5Status, 'chk5Status including runner');
   }
 
-  console.log('✓ dispatch-run smoke passed — runtime probes, overflow gating, fake path hardening, real-host scaffolds, receipts, degradation paths, manual merge guidance, authority invariants, dispatch_policy contract, real-host unattended capability contract, and runner details in dispatch_status verified');
+  // CHK-006: dispatch_auto scheduler controls and dispatch_watch aggregation
+
+  // CHK-006a: missing policy name → dispatch_auto refused
+  assert.throws(
+    () => run('dispatch_auto', { storyId: 'B-chk006-auto', allowedPaths: ['packages/main/src/generated/auto-no-policy.txt'] }),
+    /requires a policy name/i,
+    'dispatch_auto without policy must throw with requires a policy name',
+  );
+
+  // CHK-006b: policy not found → dispatch_auto refused
+  assert.throws(
+    () => run('dispatch_auto', {
+      storyId: 'B-chk006-auto',
+      policy: 'nonexistent-policy-xyz',
+      allowedPaths: ['packages/main/src/generated/auto-no-policy.txt'],
+    }),
+    /could not be loaded|policy not found/i,
+    'dispatch_auto with nonexistent policy must throw',
+  );
+
+  // CHK-006c: authorized fake policy starts deterministic workers; dispatch_watch reports accepted state
+  {
+    const fakePolicyCheck = run<{ authorized: boolean; status: string }>('dispatch_policy_check', { policy: 'fake' });
+    assert.equal(fakePolicyCheck.authorized, true, 'fake policy must be authorized for CHK-006 coverage');
+
+    const autoResult = run<DispatchAutoResult>('dispatch_auto', {
+      storyId: 'B-chk006-auto',
+      policy: 'fake',
+      allowedPaths: ['packages/main/src/generated/chk006-auto.txt'],
+      objective: 'CHK-006 authorized fake dispatch_auto',
+    });
+    assert.equal(autoResult.schemaVersion, 'lattice.dispatch_auto.v1', 'dispatch_auto must return lattice.dispatch_auto.v1 schema');
+    assert.equal(autoResult.status, 'accepted_local', 'authorized fake dispatch_auto must reach accepted_local');
+    assert.equal(autoResult.policy, 'fake', 'dispatch_auto result must echo policy name');
+    assert.equal(autoResult.host, 'fake', 'dispatch_auto with fake policy must use fake host');
+    assertAuthorityFalse(autoResult, 'autoResult');
+
+    const watchAccepted = run<DispatchWatchResult>('dispatch_watch', { dispatchId: autoResult.dispatchId });
+    assert.equal(watchAccepted.schemaVersion, 'lattice.dispatch_watch.v1', 'dispatch_watch must return lattice.dispatch_watch.v1 schema');
+    assert.equal(watchAccepted.dispatchId, autoResult.dispatchId, 'dispatch_watch dispatchId must match');
+    assert.equal(watchAccepted.storyId, 'B-chk006-auto', 'dispatch_watch storyId must match');
+    assert.equal(watchAccepted.status, 'accepted_local', 'dispatch_watch must report accepted_local after dispatch_auto');
+    assert.ok(watchAccepted.changedFilesCount !== undefined && watchAccepted.changedFilesCount > 0, 'dispatch_watch must report changedFilesCount for accepted dispatch');
+    assert.ok(watchAccepted.runnerSummary !== undefined, 'dispatch_watch must include runnerSummary after fake run');
+    assert.equal(watchAccepted.runnerSummary!.runnerKind, 'fake', 'dispatch_watch runnerSummary.runnerKind must be fake');
+    assert.ok(typeof watchAccepted.nextAction === 'string' && watchAccepted.nextAction.length > 0, 'dispatch_watch must have nextAction');
+    assertAuthorityFalse(watchAccepted, 'watchAccepted');
+
+    // Text rendering
+    const watchText = runText('dispatch_watch', { dispatchId: autoResult.dispatchId });
+    assert.match(watchText, /lattice\.dispatch_watch\.v1/, 'dispatch_watch text must include schema version');
+    assert.match(watchText, /status: accepted_local/, 'dispatch_watch text must show status');
+  }
+
+  // CHK-006d: maxParallel exceeded → dispatch_auto refused
+  {
+    const mp1Policy = run<{ policy: string }>('dispatch_policy_create', {
+      policy: 'chk006-mp1',
+      allowedHosts: ['fake'],
+      allowedPaths: ['packages/main/src/generated/'],
+      maxParallel: 1,
+      maxRuntimeMinutes: 30,
+      maxBudgetUSD: 0.5,
+      network: 'none',
+      commandAllowlist: ['node -e "process.exit(0)"'],
+    });
+    assert.equal(mp1Policy.policy, 'chk006-mp1', 'policy created');
+
+    // Use dispatch_prepare to create a non-terminal (prepared) record, then try dispatch_auto
+    run<DispatchRecord>('dispatch_prepare', {
+      storyId: 'B-chk006-auto',
+      dispatchId: 'D-chk006-active',
+      host: 'fake',
+      objective: 'CHK-006 active dispatch for maxParallel test',
+      allowedPaths: ['packages/main/src/generated/chk006-active.txt'],
+    });
+    // D-chk006-active is now in 'prepared' state (non-terminal), count = 1 >= maxParallel 1
+    assert.throws(
+      () => run('dispatch_auto', {
+        storyId: 'B-chk006-auto',
+        policy: 'chk006-mp1',
+        allowedPaths: ['packages/main/src/generated/chk006-mp1-second.txt'],
+        objective: 'CHK-006 maxParallel second should fail',
+      }),
+      /maxParallel limit/i,
+      'dispatch_auto must refuse when maxParallel is reached',
+    );
+
+    // Cancel the prepared dispatch so it doesn't interfere with later tests
+    run('dispatch_cancel', { dispatchId: 'D-chk006-active' });
+  }
+
+  // CHK-006e: host not in policy → dispatch_auto refused
+  {
+    const claudePolicy = run<{ policy: string }>('dispatch_policy_create', {
+      policy: 'chk006-claude-only',
+      allowedHosts: ['claude-code'],
+      allowedPaths: ['packages/main/src/generated/'],
+      maxParallel: 2,
+      maxRuntimeMinutes: 30,
+      maxBudgetUSD: 5.0,
+      network: 'restricted',
+      commandAllowlist: ['node -e "process.exit(0)"'],
+    });
+    assert.equal(claudePolicy.policy, 'chk006-claude-only');
+
+    // Explicitly requesting fake host, which is not in the policy
+    assert.throws(
+      () => run('dispatch_auto', {
+        storyId: 'B-chk006-auto',
+        policy: 'chk006-claude-only',
+        host: 'fake',
+        allowedPaths: ['packages/main/src/generated/chk006-host-check.txt'],
+        objective: 'CHK-006 host not in policy',
+      }),
+      /not in policy|allowedHosts/i,
+      'dispatch_auto must refuse host not in policy allowedHosts',
+    );
+  }
+
+  // CHK-006f: real host unavailable or unattendedSafe=false → dispatch_auto refused, no real host launched
+  {
+    const realHostPolicy = run<{ policy: string }>('dispatch_policy_create', {
+      policy: 'chk006-real-host',
+      allowedHosts: ['gemini'],
+      allowedPaths: ['packages/main/src/generated/'],
+      maxParallel: 2,
+      maxRuntimeMinutes: 30,
+      maxBudgetUSD: 5.0,
+      network: 'restricted',
+      commandAllowlist: ['node -e "process.exit(0)"'],
+    });
+    assert.equal(realHostPolicy.policy, 'chk006-real-host');
+
+    const savedPath = process.env.PATH;
+    try {
+      process.env.PATH = '/usr/bin:/bin';
+      // gemini unavailable → dispatch_auto refuses
+      assert.throws(
+        () => run('dispatch_auto', {
+          storyId: 'B-chk006-auto',
+          policy: 'chk006-real-host',
+          host: 'gemini',
+          allowedPaths: ['packages/main/src/generated/chk006-gemini.txt'],
+          objective: 'CHK-006 real host unavailable',
+        }),
+        /not available|not unattended-safe|unattendedSafe=false/i,
+        'dispatch_auto must refuse unavailable real host',
+      );
+    } finally {
+      process.env.PATH = savedPath;
+    }
+
+    // Even if gemini CLI is available, dispatch_auto refuses because unattendedSafe=false
+    // (All real hosts currently have unattendedSafe=false)
+    assert.throws(
+      () => run('dispatch_auto', {
+        storyId: 'B-chk006-auto',
+        policy: 'chk006-real-host',
+        host: 'gemini',
+        allowedPaths: ['packages/main/src/generated/chk006-gemini-safe.txt'],
+        objective: 'CHK-006 real host unattendedSafe=false',
+      }),
+      /not unattended-safe|unattendedSafe=false|not available/i,
+      'dispatch_auto must refuse real host with unattendedSafe=false even if available',
+    );
+    // No dispatch record created for real host refusal
+    const dispatchListAfterRealRefuse = run<DispatchListResult>('dispatch_list', { storyId: 'B-chk006-auto' });
+    assert.ok(
+      !dispatchListAfterRealRefuse.dispatches.some(d => d.dispatchId.includes('chk006-gemini')),
+      'dispatch_auto must not create dispatch record for refused real host',
+    );
+  }
+
+  // CHK-006g: dispatch_cancel then dispatch_watch reports cancelled; evidence/metadata preserved
+  {
+    const cancelAutoResult = run<DispatchAutoResult>('dispatch_auto', {
+      storyId: 'B-chk006-auto',
+      policy: 'fake',
+      allowedPaths: ['packages/main/src/generated/chk006-cancel.txt'],
+      objective: 'CHK-006 cancel then watch',
+    });
+    assert.equal(cancelAutoResult.status, 'accepted_local', 'dispatch before cancel must complete');
+
+    // Cancel the dispatch
+    run('dispatch_cancel', { dispatchId: cancelAutoResult.dispatchId });
+
+    // Watch reports cancelled state
+    const watchCancelled = run<DispatchWatchResult>('dispatch_watch', { dispatchId: cancelAutoResult.dispatchId });
+    assert.equal(watchCancelled.status, 'cancelled', 'dispatch_watch must report cancelled after dispatch_cancel');
+    assert.ok(typeof watchCancelled.nextAction === 'string' && watchCancelled.nextAction.length > 0, 'dispatch_watch cancelled must have nextAction');
+    assertAuthorityFalse(watchCancelled, 'watchCancelled');
+
+    // Evidence files must be preserved (not deleted on cancel)
+    const canceledRecord = readDispatch(root, cancelAutoResult.dispatchId);
+    assert.ok(existsSync(join(root, canceledRecord.packFile)), 'pack.json must survive cancel');
+    assert.ok(existsSync(join(root, canceledRecord.promptFile)), 'prompt.md must survive cancel');
+    assert.ok(existsSync(join(root, canceledRecord.statusFile)), 'dispatch.json must survive cancel');
+  }
+
+  // CHK-006h: authority invariants throughout dispatch_auto/dispatch_watch
+  {
+    const authAutoResult = run<DispatchAutoResult>('dispatch_auto', {
+      storyId: 'B-chk006-auto',
+      policy: 'fake',
+      allowedPaths: ['packages/main/src/generated/chk006-auth.txt'],
+      objective: 'CHK-006 authority invariant check',
+    });
+    assertAuthorityFalse(authAutoResult, 'authAutoResult');
+    const watchAuth = run<DispatchWatchResult>('dispatch_watch', { dispatchId: authAutoResult.dispatchId });
+    assertAuthorityFalse(watchAuth, 'watchAuth');
+  }
+
+  // CHK-006i: overflow_auto nextAction mentions dispatch_auto as policy-authorized path
+  {
+    const overflowResult = run<{ nextAction?: string; schemaVersion: string }>('overflow_auto', {
+      storyId: 'B-chk006-auto',
+      host: 'fake',
+      allowedPaths: ['packages/main/src/generated/chk006-overflow.txt'],
+    });
+    assert.ok(
+      typeof overflowResult.nextAction === 'string' && /dispatch_auto/i.test(overflowResult.nextAction),
+      `overflow_auto nextAction must mention dispatch_auto as the policy-authorized unattended path, got: ${overflowResult.nextAction}`,
+    );
+  }
+
+  console.log('✓ dispatch-run smoke passed — runtime probes, overflow gating, fake path hardening, real-host scaffolds, receipts, degradation paths, manual merge guidance, authority invariants, dispatch_policy contract, real-host unattended capability contract, runner details in dispatch_status, and dispatch_auto/dispatch_watch scheduler controls verified');
 } finally {
   resetConfigCache();
   rmSync(root, { recursive: true, force: true });

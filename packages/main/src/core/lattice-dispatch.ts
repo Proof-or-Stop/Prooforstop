@@ -13,6 +13,10 @@ import {
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { changedFilesBetween, checkEvidenceFreshnessForGit, currentGitHead } from './evidence-freshness.js';
 import {
+  checkDispatchPolicy,
+  type DispatchPolicyCheckResult,
+} from './dispatch-policy.js';
+import {
   buildHandoffWorktreeProjection,
   createHandoffPack,
   submitHandoffReceipt,
@@ -280,6 +284,48 @@ export interface DispatchMergePlanResult {
   }>;
   commands: string[];
   warnings: string[];
+  nextAction: string;
+  authorityChanged: false;
+  receiptVerified: false;
+  productionDone: false;
+}
+
+export interface DispatchAutoResult {
+  schemaVersion: 'lattice.dispatch_auto.v1';
+  dispatchId: string;
+  storyId: string;
+  host: HostRuntimeId;
+  status: DispatchLifecycleStatus;
+  parallel: number;
+  policy: string;
+  workers: DispatchAutoResult[];
+  warnings: string[];
+  nextAction: string;
+  authorityChanged: false;
+  receiptVerified: false;
+  productionDone: false;
+}
+
+export interface DispatchWatchWorkerSummary {
+  dispatchId: string;
+  status: DispatchLifecycleStatus;
+  runnerKind?: string;
+}
+
+export interface DispatchWatchResult {
+  schemaVersion: 'lattice.dispatch_watch.v1';
+  dispatchId: string;
+  storyId: string;
+  status: DispatchLifecycleStatus;
+  workers: DispatchWatchWorkerSummary[];
+  runnerSummary?: {
+    runnerKind: string;
+    cwd: string;
+    exitCode?: number;
+    timedOut: boolean;
+    transcriptPath: string;
+  };
+  changedFilesCount?: number;
   nextAction: string;
   authorityChanged: false;
   receiptVerified: false;
@@ -2077,8 +2123,156 @@ export function overflowAuto(
       gatingWarning,
     ],
     nextAction: plan.selectedHost === 'fake'
-      ? 'Run overflow_auto --approve=true --start=true or dispatch_run --host=fake to execute the deterministic local harness.'
-      : 'Review the suggested host and rerun with --approve=true --start=true if you want to materialize dispatch metadata.',
+      ? 'Run overflow_auto --approve=true --start=true or dispatch_run --host=fake to execute the deterministic local harness. For policy-authorized unattended scheduling, use dispatch_auto --policy=<name>.'
+      : 'Review the suggested host and rerun with --approve=true --start=true if you want to materialize dispatch metadata. For policy-authorized unattended scheduling, use dispatch_auto --policy=<name>.',
+  };
+}
+
+type DispatchAutoArgs = DispatchRunArgs & {
+  policy: string;
+};
+
+export function dispatchAuto(store: StoryStore, root: string, args: DispatchAutoArgs): DispatchAutoResult {
+  const policyName = (args.policy ?? '').trim();
+  if (!policyName) {
+    throw new Error('dispatch_auto requires a policy name; set --policy=<name> to authorize unattended scheduling.');
+  }
+
+  let policyCheck: DispatchPolicyCheckResult;
+  try {
+    policyCheck = checkDispatchPolicy(root, policyName);
+  } catch (error: any) {
+    throw new Error(`dispatch_auto: policy "${policyName}" could not be loaded: ${String(error?.message || error)}`);
+  }
+
+  if (policyCheck.status === 'refused') {
+    throw new Error(
+      `dispatch_auto refused by policy "${policyName}":\n${policyCheck.reasons.map(r => `  - ${r}`).join('\n')}\n${policyCheck.nextAction}`,
+    );
+  }
+
+  const policy = policyCheck.normalizedPolicy;
+
+  const requestedHost = args.host?.trim();
+  let selectedHost: HostRuntimeId;
+  if (requestedHost) {
+    const normalized = normalizeHostRuntimeId(requestedHost);
+    if (!normalized) {
+      throw new Error(`dispatch_auto: unknown host "${requestedHost}"; must be fake|claude-code|gemini|codex`);
+    }
+    selectedHost = normalized;
+  } else {
+    const firstAllowed = policy.allowedHosts
+      .map(h => normalizeHostRuntimeId(h))
+      .find((n): n is HostRuntimeId => n !== null);
+    selectedHost = firstAllowed ?? 'fake';
+  }
+
+  if (!policy.allowedHosts.includes(selectedHost)) {
+    throw new Error(
+      `dispatch_auto: host "${selectedHost}" is not in policy "${policyName}" allowedHosts (${policy.allowedHosts.join(', ')}); only policy-allowed hosts may be scheduled.`,
+    );
+  }
+
+  const existing = listDispatches(root, args.storyId);
+  const activeCount = existing.dispatches.filter(d => !TERMINAL_DISPATCH_STATUSES.has(d.status)).length;
+  if (activeCount >= policy.maxParallel) {
+    throw new Error(
+      `dispatch_auto: maxParallel limit (${policy.maxParallel}) reached; ${activeCount} active dispatch(es) found for story ${args.storyId}. Cancel or resolve existing dispatches before starting new ones.`,
+    );
+  }
+
+  if (selectedHost !== 'fake') {
+    const probe = probeHostRuntime(selectedHost);
+    if (!probe.available) {
+      throw new Error(
+        `dispatch_auto: host "${selectedHost}" is not available in PATH; install or expose ${probe.cliCommand ?? selectedHost} and retry, or use host=fake for deterministic local coverage.`,
+      );
+    }
+    throw new Error(
+      `dispatch_auto: host "${selectedHost}" is not unattended-safe (unattendedSafe=false). Real host unattended execution is not yet authorized for policy-driven scheduling. Run dispatch_prepare/dispatch_run manually and return a receipt, or use host=fake for deterministic local coverage.`,
+    );
+  }
+
+  if (!policyCheck.authorized) {
+    throw new Error(
+      `dispatch_auto: policy "${policyName}" is supervised-only and cannot authorize unattended scheduling. ${policyCheck.nextAction}`,
+    );
+  }
+
+  const parallel = Math.min(Math.max(1, args.parallel ?? 1), policy.maxParallel);
+  const runResult = runDispatch(store, root, { ...args, host: selectedHost, parallel });
+
+  function convertToAutoResult(worker: DispatchRunResult): DispatchAutoResult {
+    return {
+      schemaVersion: 'lattice.dispatch_auto.v1',
+      dispatchId: worker.dispatchId,
+      storyId: worker.storyId,
+      host: worker.host,
+      status: worker.status,
+      parallel: worker.parallel,
+      policy: policyName,
+      workers: worker.workers.map(convertToAutoResult),
+      warnings: [...worker.warnings],
+      nextAction: worker.nextAction,
+      authorityChanged: false,
+      receiptVerified: false,
+      productionDone: false,
+    };
+  }
+
+  return convertToAutoResult(runResult);
+}
+
+export function dispatchWatch(root: string, dispatchId: string): DispatchWatchResult {
+  const status = dispatchStatus(root, dispatchId);
+  const record = status.dispatch;
+  const effectiveStatus = record.status;
+
+  const runnerSummary = status.runner
+    ? {
+      runnerKind: status.runner.runnerKind,
+      cwd: status.runner.cwd,
+      ...(status.runner.exitCode !== undefined ? { exitCode: status.runner.exitCode } : {}),
+      timedOut: status.runner.timedOut,
+      transcriptPath: status.runner.transcriptPath,
+    }
+    : undefined;
+
+  let changedFilesCount: number | undefined;
+  try {
+    const collection = collectDispatch(root, dispatchId, { persist: false });
+    if (collection.changedFiles.length > 0) {
+      changedFilesCount = collection.changedFiles.length;
+    }
+  } catch {
+    // changedFilesCount remains undefined if collection fails
+  }
+
+  const workers: DispatchWatchWorkerSummary[] = status.workers.map(worker => ({
+    dispatchId: worker.dispatch.dispatchId,
+    status: worker.dispatch.status,
+    ...(worker.runner ? { runnerKind: worker.runner.runnerKind } : {}),
+  }));
+
+  const nextAction = TERMINAL_DISPATCH_STATUSES.has(effectiveStatus)
+    ? record.nextAction
+    : effectiveStatus === 'accepted_local'
+      ? 'Dispatch completed with local accepted receipt. Run dispatch_review or dispatch_merge_plan to inspect evidence before any merge.'
+      : record.nextAction;
+
+  return {
+    schemaVersion: 'lattice.dispatch_watch.v1',
+    dispatchId: record.dispatchId,
+    storyId: record.storyId,
+    status: effectiveStatus,
+    workers,
+    ...(runnerSummary !== undefined ? { runnerSummary } : {}),
+    ...(changedFilesCount !== undefined ? { changedFilesCount } : {}),
+    nextAction,
+    authorityChanged: false,
+    receiptVerified: false,
+    productionDone: false,
   };
 }
 
@@ -2282,6 +2476,55 @@ export function renderDispatchMergePlanText(result: DispatchMergePlanResult): st
   if (result.warnings.length > 0) {
     lines.push('', 'warnings:');
     lines.push(...result.warnings.map(warning => `  - ${warning}`));
+  }
+  return lines.join('\n');
+}
+
+export function renderDispatchAutoText(result: DispatchAutoResult): string {
+  const lines = [
+    `Dispatch auto (${result.schemaVersion})`,
+    `dispatchId: ${result.dispatchId}`,
+    `storyId: ${result.storyId}`,
+    `host: ${result.host}`,
+    `status: ${result.status}`,
+    `parallel: ${result.parallel}`,
+    `policy: ${result.policy}`,
+    `nextAction: ${result.nextAction}`,
+  ];
+  if (result.workers.length > 0) {
+    lines.push('', 'workers:');
+    lines.push(...result.workers.map(worker => `  - ${worker.dispatchId}: ${worker.status}`));
+  }
+  if (result.warnings.length > 0) {
+    lines.push('', 'warnings:');
+    lines.push(...result.warnings.map(warning => `  - ${warning}`));
+  }
+  return lines.join('\n');
+}
+
+export function renderDispatchWatchText(result: DispatchWatchResult): string {
+  const lines = [
+    `Dispatch watch (${result.schemaVersion})`,
+    `dispatchId: ${result.dispatchId}`,
+    `storyId: ${result.storyId}`,
+    `status: ${result.status}`,
+    `nextAction: ${result.nextAction}`,
+  ];
+  if (result.changedFilesCount !== undefined) {
+    lines.push(`changedFilesCount: ${result.changedFilesCount}`);
+  }
+  if (result.runnerSummary) {
+    const r = result.runnerSummary;
+    lines.push('', 'runner:');
+    lines.push(`  runnerKind: ${r.runnerKind}`);
+    lines.push(`  cwd: ${r.cwd}`);
+    lines.push(`  transcriptPath: ${r.transcriptPath}`);
+    if (r.exitCode !== undefined) lines.push(`  exitCode: ${r.exitCode}`);
+    if (r.timedOut) lines.push(`  timedOut: true`);
+  }
+  if (result.workers.length > 0) {
+    lines.push('', 'workers:');
+    lines.push(...result.workers.map(worker => `  - ${worker.dispatchId}: ${worker.status}${worker.runnerKind ? ` (${worker.runnerKind})` : ''}`));
   }
   return lines.join('\n');
 }

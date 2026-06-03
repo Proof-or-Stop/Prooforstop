@@ -6,13 +6,16 @@ import {
   cancelDispatch,
   collectDispatch,
   createDispatchReceipt,
+  dispatchAuto,
   dispatchStatus,
+  dispatchWatch,
   listDispatches,
   listHostRuntimes,
   overflowAuto,
   planDispatch,
   prepareDispatch,
   probeHostRuntime,
+  renderDispatchAutoText,
   renderDispatchCollectionText,
   renderDispatchListText,
   renderDispatchMergePlanText,
@@ -22,6 +25,7 @@ import {
   renderDispatchReviewText,
   renderDispatchRunText,
   renderDispatchStatusText,
+  renderDispatchWatchText,
   renderHostRuntimeListText,
   renderHostRuntimeProbeText,
   reviewDispatch,
@@ -365,6 +369,50 @@ export function createLatticeDispatchHandlers(ctx: HandlerContext): Record<strin
       const outputNote = maybeWriteOutput(ctx.root, args.output, result);
       if (wantsJson(args)) return result;
       return `${renderDispatchPolicyCheckText(result)}${outputNote}`;
+    },
+    dispatch_auto(args: {
+      storyId: string;
+      policy: string;
+      host?: string;
+      fromHost?: string;
+      role?: string;
+      objective?: string;
+      allowedPaths?: string[] | string;
+      deniedPaths?: string[] | string;
+      requiredCommands?: string[] | string;
+      successCriteria?: string[] | string;
+      baseSha?: string;
+      packId?: string;
+      authorityBoundary?: string;
+      executionInstructions?: string[] | string;
+      parallel?: number;
+    } & FormatArgs) {
+      const result = dispatchAuto(ctx.store, ctx.root, {
+        storyId: args.storyId,
+        policy: args.policy,
+        host: args.host,
+        fromHost: args.fromHost,
+        role: args.role,
+        objective: args.objective,
+        allowedPaths: normalizeList(args.allowedPaths),
+        deniedPaths: normalizeList(args.deniedPaths),
+        requiredCommands: normalizeList(args.requiredCommands),
+        successCriteria: normalizeList(args.successCriteria),
+        baseSha: args.baseSha,
+        packId: args.packId,
+        authorityBoundary: args.authorityBoundary,
+        executionInstructions: normalizeList(args.executionInstructions),
+        parallel: args.parallel,
+      });
+      const outputNote = maybeWriteOutput(ctx.root, args.output, result);
+      if (wantsJson(args)) return result;
+      return `${renderDispatchAutoText(result)}${outputNote}`;
+    },
+    dispatch_watch(args: { dispatchId: string } & FormatArgs) {
+      const result = dispatchWatch(ctx.root, args.dispatchId);
+      const outputNote = maybeWriteOutput(ctx.root, args.output, result);
+      if (wantsJson(args)) return result;
+      return `${renderDispatchWatchText(result)}${outputNote}`;
     },
   };
 }
