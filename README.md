@@ -8,9 +8,9 @@ phase、gate、review、evidence 和 handoff 语义。
 
 - `packages/main`：Lattice/Koala 核心 CLI
 - `packages/utils`：`aux_*`、`truth_*`、`tool_status` 等扩展工具
-- `bin/lattice.js`：完整 bootstrap 主入口（`main + utils`）
+- `bin/lattice.js`：完整 bootstrap 主入口（`main + utils`）；仅此仓库自身使用，新项目 global-thin 默认 init 不生成此文件
 - `bin/koala.js`：legacy bootstrap alias（`main + utils`）
-- `bin/lattice-codex.js`：Codex 专用入口，会把活动记成 `source=codex`
+- `bin/lattice-codex.js`：Codex 专用本地入口，会把活动记成 `source=codex`；full/thin 模式显式 opt-in 才生成，global-thin 默认不生成
 - `bin/koala-codex.js`：legacy Codex wrapper alias for existing repositories
 
 ## Lattice CLI 0.3.5 Migration
@@ -447,7 +447,7 @@ Claude Code 侧仍然使用 `.claude/` 下的 hooks、settings 和 skill。Codex
 
 - [AGENTS.md](/Users/jek/Documents/Work/Orchestrate/AGENTS.md:1)
 - [.Codex/README.md](/Users/jek/Documents/Work/Orchestrate/.Codex/README.md:1)
-- `.Codex/lattice.json`（new init primary；this repository may still show legacy [.Codex/koala.json](/Users/jek/Documents/Work/Orchestrate/.Codex/koala.json:1) until migrated）
+- `.Lattice/lattice.json`（global-thin default init primary；full/thin mode projects may use `.Codex/lattice.json` instead; legacy [.Codex/koala.json](/Users/jek/Documents/Work/Orchestrate/.Codex/koala.json:1) is still recognized as a compatibility input）
 - [.Codex/agents/](/Users/jek/Documents/Work/Orchestrate/.Codex/agents:1)（full mode materialization；thin mode 可省略）
 
 full mode 仓库里的 `.Codex/agents` 由 `.claude/agents` 经过受控 transform 全量生成，并通过 `npm run test:codex-assets` 防止后续漂移；thin mode 仓库由 `node bin/lattice-codex.js verify_codex` 校验 registry manifest/hash/renderability。

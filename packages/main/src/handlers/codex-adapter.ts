@@ -58,5 +58,14 @@ export function createCodexAdapterHandlers(ctx: HandlerContext) {
       if (!result.ok) throw new Error(rendered);
       return rendered;
     },
+
+    codex_doctor(args: { json?: boolean } = {}) {
+      const result = runCodexAdapterChecks(ctx.root, {
+        executeHeartbeats: false,
+        registryNames: ctx.getAllToolNames?.(),
+      });
+      if (args.json) return result;
+      return renderCodexAdapterChecks(result);
+    },
   };
 }
