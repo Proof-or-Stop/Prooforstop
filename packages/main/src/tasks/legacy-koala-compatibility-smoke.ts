@@ -93,4 +93,46 @@ try {
   rmSync(missingRoot, { recursive: true, force: true });
 }
 
+// ─── Global-thin project: local-wrapper not required ─────────────────────────
+// A project with only .Lattice/lattice.json (global-thin) should pass codex verify
+// without any bin/ shim or .Codex/ manifest.
+const globalThinRoot = makeRoot('global-thin-compat');
+try {
+  writeText(globalThinRoot, '.Lattice/lattice.json', JSON.stringify({
+    latticeVersion: 1,
+    assetMode: 'global-thin',
+    description: 'test global-thin project',
+    generatedAt: new Date().toISOString(),
+  }, null, 2) + '\n');
+  writeText(globalThinRoot, '.gitignore', '# minimal\n');
+  const gtResult = runCodexAdapterChecks(globalThinRoot, { executeHeartbeats: false });
+  assert.equal(gtResult.ok, true, `global-thin project should pass codex checks: ${JSON.stringify(gtResult.checks.filter(c => c.status === 'fail'), null, 2)}`);
+  assert.equal(checkById(gtResult, 'manifest').status, 'pass');
+  assert.match(checkById(gtResult, 'manifest').detail, /global-thin/);
+  assert.equal(checkById(gtResult, 'local-wrapper').status, 'pass');
+  assert.match(checkById(gtResult, 'local-wrapper').detail, /global-thin/);
+} finally {
+  rmSync(globalThinRoot, { recursive: true, force: true });
+}
+
+// ─── Mixed project: .Lattice/ present alongside .Codex/koala.json ────────────
+// When both .Lattice/ and legacy .Codex/koala.json exist, global-thin wins
+// (no hard failure on local-wrapper absence).
+const mixedGlobalRoot = makeRoot('mixed-global-thin');
+try {
+  writeText(mixedGlobalRoot, '.Lattice/lattice.json', JSON.stringify({
+    latticeVersion: 1,
+    assetMode: 'global-thin',
+    description: 'test mixed project',
+    generatedAt: new Date().toISOString(),
+  }, null, 2) + '\n');
+  writeText(mixedGlobalRoot, 'KOALA.md', KOALA_MD_TEMPLATE);
+  writeText(mixedGlobalRoot, 'AGENTS.md', AGENTS_MD_TEMPLATE);
+  writeText(mixedGlobalRoot, '.gitignore', listRuntimeArtifactIgnorePatterns().join('\n') + '\n');
+  const mixedResult = runCodexAdapterChecks(mixedGlobalRoot, { executeHeartbeats: false });
+  assert.equal(mixedResult.ok, true, `mixed global-thin project should pass: ${JSON.stringify(mixedResult.checks.filter(c => c.status === 'fail'), null, 2)}`);
+} finally {
+  rmSync(mixedGlobalRoot, { recursive: true, force: true });
+}
+
 console.log('✓ legacy koala compatibility smoke passed');

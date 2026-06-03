@@ -2443,6 +2443,8 @@ export async function runCli(opts?: {
   'handoff receipt submit': 'handoff_receipt_submit',
   'handoff worktree create': 'handoff_worktree_create',
   'config doctor': 'lattice_config_doctor',
+  'codex verify': 'verify_codex',
+  'codex doctor': 'doctor',
     'rollout check': 'rollout_check',
     'authority status': 'authority_status',
     'authority enforce policy': 'authority_enforce_policy',

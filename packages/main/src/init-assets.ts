@@ -7,7 +7,7 @@ import {
 
 export const SUPPORTED_INIT_PROFILES = ['codex', 'claude', 'all', 'core'] as const;
 export type InitProfile = typeof SUPPORTED_INIT_PROFILES[number];
-export const SUPPORTED_INIT_ASSET_MODES = ['full', 'thin'] as const;
+export const SUPPORTED_INIT_ASSET_MODES = ['full', 'thin', 'global-thin'] as const;
 export type InitAssetMode = typeof SUPPORTED_INIT_ASSET_MODES[number];
 export type CodexPromptMode = 'legacy-mirror' | 'registry';
 
@@ -86,6 +86,59 @@ export const CLAUDE_MD_TEMPLATE = `# CLAUDE.md
 
 <!-- koala:end -->
 `;
+
+// --- Global-thin asset templates ---
+// These are used when fresh init defaults to the global-thin asset mode.
+// The .Lattice/ directory holds project context (Lattice.md) and config (lattice.json).
+// Executable Codex adapter behavior lives in the global lattice CLI; no local bin shims are created.
+
+export const LATTICE_DOT_DIR_MD_TEMPLATE = `# Lattice.md
+
+<!-- koala:start -->
+## Lattice
+
+\`.Lattice/Lattice.md\` is the canonical, host-neutral Lattice project guide. This directory holds project-local Lattice context and configuration.
+
+- At the start of a new session, or when resuming interrupted work, run \`lattice session_brief\`.
+- Before acting, run \`lattice aux_doc_list\` to inspect relevant docs.
+- Use the global \`lattice\` CLI for Story / checklist / fixture / bug operations. Do not edit story/fixture JSON directly; \`koala\` is a legacy alias.
+- Codex adapter verification and diagnostics use the global CLI: \`lattice codex verify\` and \`lattice codex doctor\`.
+- Run \`lattice check\` to check Lattice managed asset/template drift; after review, use \`lattice check --apply\` to sync safe items.
+- Legacy projects may expose \`KOALA.md\`, \`LATTICE.md\`, \`bin/lattice.js\`, \`bin/lattice-codex.js\`, and \`.Codex/\` assets as compatibility assets. New global-thin init no longer generates those files.
+
+<!-- koala:end -->
+`;
+
+export const AGENTS_MD_GLOBAL_THIN_TEMPLATE = `# AGENTS.md
+
+<!-- koala:start -->
+## Lattice
+
+- \`.Lattice/Lattice.md\` is the host-neutral Lattice guide; this file keeps only Codex / AGENTS additions.
+- At the start of a new session, or when resuming interrupted work, run \`lattice session_brief\`.
+- Before acting, run \`lattice aux_doc_list\` to inspect relevant docs.
+- Use the global \`lattice\` CLI for Story / checklist / fixture / bug operations. Do not edit story/fixture JSON directly; \`koala\` is only a legacy alias.
+- Codex adapter verification uses the global CLI: \`lattice codex verify\`. For diagnostics, run \`lattice codex doctor\`.
+- Run \`lattice check\` to check Lattice managed asset/template drift; after review, use \`lattice check --apply\` to sync safe items.
+
+<!-- koala:end -->
+`;
+
+export interface LatticeProjectConfig {
+  latticeVersion: 1;
+  assetMode: 'global-thin';
+  description: string;
+  generatedAt: string;
+}
+
+export function renderLatticeProjectConfig(): string {
+  return JSON.stringify({
+    latticeVersion: 1,
+    assetMode: 'global-thin',
+    description: 'Global-thin Lattice project: executable Codex adapter behavior lives in the global lattice CLI; no local bin shims required.',
+    generatedAt: new Date().toISOString(),
+  } satisfies LatticeProjectConfig, null, 2) + '\n';
+}
 
 export interface CodexAdapterManifest {
   adapterOwner: string;
