@@ -399,9 +399,47 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-03T00:15:48.647Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke narrows PATH to prove real-host scaffolding degrades to unavailable without creating a worktree or receipt. Covers happy intent 0.",
+          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
+          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
+          "timestamp": "2026-06-03T00:15:48.701Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke narrows PATH to prove real-host scaffolding degrades to unavailable without creating a worktree or receipt. Covers edge intent 1.",
+          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
+          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
+          "timestamp": "2026-06-03T00:15:48.747Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke narrows PATH to prove real-host scaffolding degrades to unavailable without creating a worktree or receipt. Covers adversarial intent 2.",
+          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
+          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
+          "timestamp": "2026-06-03T00:15:48.791Z"
+        }
+      ]
     },
     {
       "id": "CHK-007",
@@ -781,6 +819,16 @@
       "timestamp": "2026-06-03T00:15:47.854Z",
       "phase": "DEV",
       "itemId": "CHK-005",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented and verified in commits through e04c4939.",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-06-03T00:15:48.647Z",
+      "phase": "DEV",
+      "itemId": "CHK-006",
       "action": "update",
       "from": "pending",
       "to": "done",
