@@ -1,0 +1,52 @@
+{
+  "storyId": "B-7fc2",
+  "checkedAt": "2026-06-03T21:51:23.895Z",
+  "features": [
+    {
+      "feature": "Strict JSON stdout for machine mode (--json and --format=json) — only one JSON payload on stdout, no hint text",
+      "covered_by": "CHK-002; decision.json#chosen=shared-cli-json-mode-suppression; decision.preMortem[2] --json vs --format=json parity",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan.md#CHK-002 + understanding.constraints[0,2] + touchpoints packages/main/src/cli-engine.ts, packages/main/src/handlers/hints.ts"
+    },
+    {
+      "feature": "Human next-step hint preserved in text mode (e.g., → 验证全绿)",
+      "covered_by": "CHK-002 verificationIntent.edge (text mode validate 仍保留 next-step hint); decision.preMortem[1] text-mode loses guidance mitigation",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist.json#CHK-002.verificationIntent.edge + understanding.constraints[1]"
+    },
+    {
+      "feature": "Regression smoke executes real child-process and JSON.parse(stdout) directly, no substring extraction",
+      "covered_by": "CHK-003; decision.preMortem[3] substring-parsing mitigation; decision.principles[3] real CLI child processes",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan.md#CHK-003 + touchpoints packages/main/src/tasks/cli-json-stdout-contract-smoke.ts"
+    },
+    {
+      "feature": "Docs declare CLI JSON stdout contract for dashboard/host-neutral consumers (machine-only stdout; human guidance to text mode or stderr)",
+      "covered_by": "CHK-001 relatedDocs lists testing-infra + host-neutral-observability-console + README; CHK-003 Document the contract in dashboard/testing-infra docs and README",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist.json#CHK-001.relatedDocs + plan.md#CHK-003 Scope/Acceptance + docs/requirements/decisions/host-neutral-observability-console.md §2 (CLI JSON surface as adapter contract)"
+    },
+    {
+      "feature": "Three Claude Code agents + Codex review/delivery evidence with real CLI acceptance transcript",
+      "covered_by": "CHK-004; background.md (用户明确要求开 3 个 Claude Code CLI agent + Codex 审核); decision.principles[3]",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan.md#Agent Split + plan.md#CHK-004 + checklist.json#CHK-004.verificationIntent.adversarial (DONE summary 必须明确 no limitations)"
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "covered": 5,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "3edebab17eb7653b5b034168ea60e779ab021786910295d586cf82e0314ec51d",
+  "openQuestions": []
+}

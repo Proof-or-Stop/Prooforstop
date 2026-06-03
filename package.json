@@ -81,6 +81,7 @@
     "test:authority-enforce-matrix": "npm --prefix packages/main run test:authority-enforce-matrix",
     "test:authority-live-python": "npm --prefix packages/main run test:authority-live-python",
     "test:rollout-check-smoke": "npm --prefix packages/main run test:rollout-check-smoke",
+    "test:cli-json-stdout-contract-smoke": "npm --prefix packages/main run test:cli-json-stdout-contract-smoke",
     "test:e2e": "node packages/main/dist/tasks/cli-e2e.js",
     "lint:tasks": "node packages/main/dist/tasks/cli-validate.js"
   },
