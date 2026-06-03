@@ -105,29 +105,70 @@ The contract is conservative by design:
 - Local receipts remain diagnostic-only. Even on `accepted-local`,
   `receiptVerified=false` and `productionDone=false` remain.
 
-The unattended product target for B-a5c2 is
-`chosen: policy-authorized-unattended-scheduler` with `preMortem: 6`. It adds a
-separate `dispatch_auto` path for user-authorized unattended workers:
+### Unattended dispatch: `dispatch_auto` (policy-authorized)
+
+`dispatch_auto` is the policy-authorized unattended scheduler. Unlike
+`overflow_auto`, it may start external host workers automatically — but only
+after explicit user policy authorization and host unattended-safety checks pass.
+
+**Opt-in command sequence:**
 
 ```bash
-lattice dispatch_policy check --policy=nightly-safe --format=json
+# 1. Define or verify a dispatch policy
+lattice dispatch_policy_create --policy=nightly-safe \
+  --allowedHosts=fake --allowedPaths=packages/main/src/generated/ \
+  --maxParallel=2 --maxRuntimeMinutes=30 --maxBudgetUSD=5.0 \
+  --network=none --commandAllowlist='node -e "process.exit(0)"' \
+  --requireReceipt=true --requireReview=true \
+  --allowAutoMerge=false --allowProductionDone=false
+
+lattice dispatch_policy_check --policy=nightly-safe --format=json
+
+# 2. Probe host capability (works whether or not the CLI is installed)
 lattice host_runtime_probe --host=claude-code --json
+
+# 3. Start policy-authorized unattended workers
 lattice dispatch_auto --storyId=B-xxxx --policy=nightly-safe --format=json
-lattice dispatch_watch --dispatchId=D-B-xxxx-claude-code-1234 --format=json
-lattice dispatch_cancel --dispatchId=D-B-xxxx-claude-code-1234 --format=json
-lattice dispatch_review --dispatchId=D-B-xxxx-claude-code-1234 --format=json
-lattice dispatch_merge_plan --dispatchId=D-B-xxxx-claude-code-1234 --format=json
+
+# 4. Watch lifecycle and runner status
+lattice dispatch_watch --dispatchId=D-B-xxxx-1234 --format=json
+
+# 5. Cancel if needed — evidence is preserved, never deleted
+lattice dispatch_cancel --dispatchId=D-B-xxxx-1234 --format=json
+
+# 6. Review transcripts, diffs, receipts, and runner evidence
+lattice dispatch_review --dispatchId=D-B-xxxx-1234 --format=json
+
+# 7. Merge manually — dispatch completion is NOT production authority
+lattice dispatch_merge_plan --dispatchId=D-B-xxxx-1234 --format=json
 ```
 
-`overflow_auto` remains the guarded, supervised overflow wrapper. `dispatch_auto`
-is the future unattended scheduler and must refuse missing policy, unsafe host
-capability, unsafe scope, denied environment, exceeded limits, or lease/conflict
-risks. Even when it starts workers successfully, the closeout is still manual:
-`dispatch_review` surfaces transcripts/diffs/local receipts, and
-`dispatch_merge_plan` remains manual-only. Unattended output must not auto-merge,
-auto-DONE, verify receipts, change authority, or claim `productionDone=true`;
-the authority fields stay `productionDone=false`, `receiptVerified=false`, and
-`authorityChanged=false`.
+**`dispatch_auto` versus `overflow_auto`:**
+
+| | `overflow_auto` | `dispatch_auto` |
+|---|---|---|
+| Mode | Supervised/manual-first | Policy-authorized unattended |
+| Starts workers automatically | Only with `approve=true --start=true` | Yes, after policy + host checks pass |
+| Policy required | No | Yes — refuses if missing or unauthorized |
+| Host safety check | No | Yes — refuses if `unattendedSafe=false` |
+| Unattended mode | No (suggest-only by default) | Yes (policy-gated) |
+| Migration | Current default | Use this for unattended mode |
+
+If you are currently using `overflow_auto` and want unattended workers, migrate
+to `dispatch_auto` with an explicit policy. The `overflow_auto` `nextAction`
+field will point you to `dispatch_auto` as the policy-authorized path.
+
+**Unattended mode remains user-authorized and authority-safe:**
+
+- `dispatch_auto` starts workers only after policy authorization and host
+  unattended-safety checks pass — it refuses missing policy, unsafe host, unsafe
+  scope, denied environment, exceeded limits, and lease/conflict risks.
+- Worker output is evidence only. `dispatch_review` surfaces transcripts, diffs,
+  receipts, and runner metadata as **evidence candidates**, not as gate authority.
+- `dispatch_merge_plan` is always `manualOnly=true` — dispatch completion never
+  auto-merges, auto-DONEs, or claims `productionDone=true`.
+- All authority fields remain fixed: `productionDone=false`,
+  `receiptVerified=false`, `authorityChanged=false`.
 
 Architecture and non-goals:
 [`docs/requirements/decisions/host-overflow.md`](docs/requirements/decisions/host-overflow.md)

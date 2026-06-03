@@ -135,3 +135,20 @@ authority. The intended sentence for user-facing docs is:
 
 > Lattice Host Overflow is manual-first; Lattice keeps story/scope/receipt
 > authority; Claude Code is an execution host, not a production authority.
+
+## Smoke coverage
+
+The full user-facing unattended dispatch flow is validated by the deterministic
+smoke test at `packages/main/src/tasks/unattended-dispatch-smoke.ts`:
+
+```bash
+npm --prefix packages/main run test:unattended-dispatch-smoke
+```
+
+The smoke covers: dispatch policy creation and check, `host_runtime_probe` for
+claude-code (works whether or not the CLI is installed), `dispatch_auto` with
+fake policy (deterministic parallel workers), `dispatch_watch` lifecycle,
+`dispatch_cancel` evidence preservation, `dispatch_review` transcript/runner
+evidence, `dispatch_merge_plan` `manualOnly=true`, explicit refusals for missing
+policy / unavailable host / `unattendedSafe=false` host, all authority flags
+fixed at `false`, and `overflow_auto` `nextAction` pointing to `dispatch_auto`.
