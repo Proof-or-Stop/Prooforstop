@@ -109,7 +109,7 @@
         ],
         "adversarial": [
           {
-            "desc": "No user-facing current validation guidance treats Swift/Mac Native as the default product gate.",
+            "desc": "No long-form current validation guidance treats Swift/Mac Native as the default product gate.",
             "type": "docs",
             "priority": "must"
           }
@@ -117,7 +117,19 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/testing-infra.md",
+          "README.md",
+          "packages/main/src/cli-prompts.ts",
+          "packages/main/src/handlers/doctor.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ]
+      }
     }
   ]
 }
