@@ -1,12 +1,17 @@
 /**
- * Guard Session handlers — koala guard_session_start / status / check
+ * Guard Session handlers — koala guard_session_start / status / check / prewrite_guard_check
  *
- * guard_session_start  — start (or restart) a story-scoped scope-guard session
- *                        projection bound to the current scope contract.
- * guard_session_status — read the current guard session projection.
- * guard_session_check  — check the current diff (plus optional simulated writes)
- *                        against the guard session scope contract, record any
- *                        forbidden writes as violations, and surface status.
+ * guard_session_start    — start (or restart) a story-scoped scope-guard session
+ *                          projection bound to the current scope contract.
+ * guard_session_status   — read the current guard session projection.
+ * guard_session_check    — check the current diff (plus optional simulated writes)
+ *                          against the guard session scope contract, record any
+ *                          forbidden writes as violations, and surface status.
+ * prewrite_guard_check   — per-write enforcement hook: given a file path about to
+ *                          be written, check whether the guard session allows it.
+ *                          Returns allow/block with guard-mode context. This is the
+ *                          command that a PreToolUse hook (Claude Code) or the
+ *                          Lattice dispatch pre-apply step should call.
  *
  * The guard session is a scope-protection projection. It does NOT replace the
  * story owner lease (which stays authoritative for writes) and is NOT a
@@ -21,9 +26,12 @@ import {
   applyGuardCheck,
   digestScopeContract,
   renderGuardSession,
+  renderGuardModeDiagnostic,
   resolveGuardMode,
+  type GuardModeContext,
 } from '../core/guard-session.js';
 import { buildScopeDiffPack } from '../core/scope-diff-pack.js';
+import { checkScopeContract } from '../core/scope-contract.js';
 
 export function createGuardSessionHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
   const { store, root } = ctx;
@@ -32,6 +40,8 @@ export function createGuardSessionHandlers(ctx: HandlerContext): Record<string, 
     guard_session_start(args: {
       storyId: string;
       provider: string;
+      nativeHookVerified?: boolean;
+      viaDispatch?: boolean;
       json?: boolean;
     }): string {
       if (!args.storyId) throw new Error('storyId is required');
@@ -40,14 +50,19 @@ export function createGuardSessionHandlers(ctx: HandlerContext): Record<string, 
       // ensure story exists (throws if not)
       store.readStory(args.storyId);
 
+      const context: GuardModeContext = {
+        nativeHookVerified: args.nativeHookVerified === true,
+        viaDispatch: args.viaDispatch === true,
+      };
       const contract = store.readScopeContract(args.storyId);
       const scopeContractHash = contract ? digestScopeContract(contract) : undefined;
-      const guardMode = resolveGuardMode(provider);
+      const guardMode = resolveGuardMode(provider, context);
 
       const session = buildGuardSession({
         storyId: args.storyId,
         provider,
         scopeContractHash,
+        context,
       });
       store.writeGuardSession(args.storyId, session);
 
@@ -56,6 +71,8 @@ export function createGuardSessionHandlers(ctx: HandlerContext): Record<string, 
           type: 'guard_session_start',
           provider,
           guardMode,
+          nativeHookVerified: context.nativeHookVerified ?? false,
+          viaDispatch: context.viaDispatch ?? false,
           scopeContractHash: scopeContractHash ?? null,
         });
       } catch (e) {
@@ -137,6 +154,59 @@ export function createGuardSessionHandlers(ctx: HandlerContext): Record<string, 
       }
       return lines.join('\n');
     },
+
+    prewrite_guard_check(args: {
+      storyId: string;
+      path: string;
+      json?: boolean;
+    }): string {
+      if (!args.storyId) throw new Error('storyId is required');
+      const path = (args.path ?? '').trim().replace(/\\/g, '/');
+      if (path.length === 0) throw new Error('path is required (the file path about to be written)');
+
+      const session = store.readGuardSession(args.storyId);
+      if (!session || session.status === 'stopped') {
+        const result = { allow: true, reason: 'no active guard session', guardMode: 'watcher-fallback', path };
+        if (args.json) return JSON.stringify(result, null, 2);
+        return `prewrite_guard_check: allow (no active guard session)\npath: ${path}\nguardMode: watcher-fallback`;
+      }
+
+      const contract = store.readScopeContract(args.storyId);
+      if (!contract) {
+        const result = { allow: true, reason: 'no scope contract', guardMode: session.guardMode, path };
+        if (args.json) return JSON.stringify(result, null, 2);
+        return `prewrite_guard_check: allow (no scope contract)\npath: ${path}\nguardMode: ${session.guardMode}\n${renderGuardModeDiagnostic(session.guardMode)}`;
+      }
+
+      const enforceContract = contract.mode === 'enforce' ? contract : { ...contract, mode: 'enforce' as const };
+      const check = checkScopeContract(enforceContract, [path]);
+      const blocked = check.violations.filter(v => !v.acknowledged);
+
+      const result = {
+        allow: blocked.length === 0,
+        reason: blocked.length > 0 ? `forbidden write: ${blocked.map(v => v.rule).join(', ')}` : 'path is within scope',
+        guardMode: session.guardMode,
+        path,
+        violations: blocked.map(v => ({ path: v.path, rule: v.rule, ...(v.anchor ? { anchor: v.anchor } : {}) })),
+        modeDiagnostic: renderGuardModeDiagnostic(session.guardMode),
+      };
+
+      if (args.json) return JSON.stringify(result, null, 2);
+      const decision = result.allow ? 'allow' : 'BLOCK';
+      const lines = [
+        `prewrite_guard_check: ${decision}`,
+        `path: ${path}`,
+        `guardMode: ${session.guardMode}`,
+        `reason: ${result.reason}`,
+        renderGuardModeDiagnostic(session.guardMode),
+      ];
+      if (!result.allow) {
+        for (const v of result.violations) {
+          lines.push(`  violation: ${v.rule.toUpperCase()} ${v.path}${v.anchor ? ` anchor=${v.anchor}` : ''}`);
+        }
+      }
+      return lines.join('\n');
+    },
   };
 }
 
@@ -174,7 +244,8 @@ export function runGuardSessionGate(
       `\n\n→ 移除 out-of-scope 改动，或用 scope_contract_acknowledge 记录必要扩展后重跑 story_advance --phase=${phase}`,
     );
   }
-  return `\n\nGuard session: pass (${session.guardMode}, 0 violations)`;
+  const modeLabel = session.guardMode === 'active' ? 'native-pretool' : session.guardMode;
+  return `\n\nGuard session: pass (${modeLabel}, 0 violations)`;
 }
 
 export type { GuardSessionData };
