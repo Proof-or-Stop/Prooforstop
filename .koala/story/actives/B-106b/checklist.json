@@ -33,9 +33,23 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-03T00:14:55.336Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/host-overflow.md",
+          "command": "review README.md docs/guide.md docs/requirements/decisions/host-overflow.md",
+          "result": "pass",
+          "note": "Docs state dispatch_run/overflow_auto are supervised, degrade visibly, and never auto-merge, verify receipts, or claim productionDone.",
+          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
+          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
+          "timestamp": "2026-06-03T00:14:55.401Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -546,6 +560,16 @@
       "reason": "User explicitly requested validation of multi-agent parallel development capability, not only single-host overflow.",
       "addedTitle": "Validate parallel multi-agent dispatch with isolated receipts",
       "addedContext": "Prove Lattice can coordinate multiple parallel fake/host dispatches for disjoint scopes, keep work isolated, collect separate receipts, and produce a combined review/merge plan without auto-merging or claiming DONE."
+    },
+    {
+      "timestamp": "2026-06-03T00:14:55.336Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "test takeover update",
+      "agent": "codex-main"
     }
   ]
 }
