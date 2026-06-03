@@ -63,6 +63,8 @@ export type EnvSafetyPosture = 'sandboxed' | 'inherited' | 'unverified';
 export type LoginReadiness = 'ready' | 'requires-login' | 'unknown';
 export type ReceiptSupport = 'structured' | 'transcript-capture' | 'unverified';
 
+const CLAUDE_PRINT_LAUNCHER = 'claude --print <prompt-file>';
+
 export interface HostRuntimeProbe {
   schemaVersion: 'lattice.host_runtime_probe.v1';
   host: HostRuntimeId;
@@ -1111,9 +1113,34 @@ function assertWorktreeRelativePath(worktreeAbs: string, candidatePath: string, 
   return candidateRel || '.';
 }
 
+export function relativePathStaysWithinRoot(
+  rel: string,
+  absolutePathDetector: (path: string) => boolean = isAbsolute,
+): boolean {
+  return rel === ''
+    || (rel !== '..'
+      && !rel.startsWith('../')
+      && !rel.startsWith('..\\')
+      && !absolutePathDetector(rel));
+}
+
 function pathResolvesWithinRoot(rootReal: string, candidateReal: string): boolean {
   const rel = relative(rootReal, candidateReal);
-  return rel === '' || (rel !== '..' && !rel.startsWith(`..${sep}`));
+  return relativePathStaysWithinRoot(rel);
+}
+
+function commandAllowlistAllowsClaudePrint(commandAllowlist: string[] | undefined): boolean {
+  return normalizeList(commandAllowlist).includes(CLAUDE_PRINT_LAUNCHER);
+}
+
+function assertClaudePrintLauncherAllowed(
+  commandAllowlist: string[] | undefined,
+  refusalPrefix: string,
+): void {
+  if (commandAllowlistAllowsClaudePrint(commandAllowlist)) return;
+  throw new Error(
+    `${refusalPrefix} policy commandAllowlist must include canonical launcher "${CLAUDE_PRINT_LAUNCHER}" before Lattice may start claude --print.`,
+  );
 }
 
 function assertCanonicalWorktreePath(worktreeAbs: string, candidatePath: string, label: string): string {
@@ -1818,9 +1845,10 @@ function runClaudeCodeRealLeafDispatch(
 ): DispatchRunResult {
   const runnerStartedAt = nowIso();
   const promptFile = resolve(root, record.promptFile);
+  assertClaudePrintLauncherAllowed(executionPolicy.commandAllowlist, 'dispatch_run:');
   const commandTemplate = runtime.invocationTemplate ?? ['claude', '--print', '<prompt-file>'];
   const invocation = ['claude', '--print', promptFile];
-  const commandLabel = 'claude --print <prompt-file>';
+  const commandLabel = CLAUDE_PRINT_LAUNCHER;
   const transcriptPath = resolve(root, record.transcriptFile);
   const commandEnv = buildRequiredCommandEnv(executionPolicy);
   const timeoutMs = Math.ceil(executionPolicy.maxRuntimeMs);
@@ -2754,6 +2782,7 @@ export function dispatchAuto(store: StoryStore, root: string, args: DispatchAuto
         `dispatch_auto: host "${selectedHost}" is not unattended-safe (unattendedSafe=false). claude --print support is ${probe.noninteractiveSupport}; refusing real subprocess launch.`,
       );
     }
+    assertClaudePrintLauncherAllowed(policy.commandAllowlist, 'dispatch_auto:');
   }
 
   const parallel = Math.min(Math.max(1, args.parallel ?? 1), policy.maxParallel);

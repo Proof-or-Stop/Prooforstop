@@ -214,6 +214,8 @@ function realClaudePolicy(opts: {
   maxRuntimeMinutes?: number;
   envAllowlist?: string[];
   envDenylist?: string[];
+  commandAllowlist?: string[];
+  allowRealHostSubprocess?: boolean;
 }): DispatchPolicyWithRealHost {
   return {
     schemaVersion: 'lattice.dispatch_policy.v1',
@@ -227,13 +229,13 @@ function realClaudePolicy(opts: {
     network: 'restricted',
     envAllowlist: opts.envAllowlist ?? ['LATTICE_FAKE_CLAUDE_MODE'],
     envDenylist: opts.envDenylist ?? [],
-    commandAllowlist: ['claude --print <prompt-file>'],
+    commandAllowlist: opts.commandAllowlist ?? ['claude --print <prompt-file>'],
     retryLimit: 0,
     requireReceipt: true,
     requireReview: true,
     allowAutoMerge: false,
     allowProductionDone: false,
-    allowRealHostSubprocess: true,
+    allowRealHostSubprocess: opts.allowRealHostSubprocess ?? true,
     createdAt: '2026-06-03T00:00:00.000Z',
   };
 }
@@ -543,7 +545,59 @@ try {
 
   const fakeClaudePath = `${fakeClaudeBin}${delimiter}${process.env.PATH ?? ''}`;
 
-  // 9a: allowRealHostSubprocess=true permits claude-code only and records runner metadata
+  // 9a: missing allowRealHostSubprocess=true refuses real claude launch before creating a dispatch
+  {
+    writeDispatchPolicy(root, realClaudePolicy({
+      policy: 'chk008-claude-real-missing-opt-in',
+      allowedPaths: ['packages/main/src/generated/claude-missing-opt-in.txt'],
+      allowRealHostSubprocess: false,
+    }));
+    const before = dispatchCount(root);
+    assert.throws(
+      () => withProcessEnv({
+        PATH: fakeClaudePath,
+        LATTICE_FAKE_CLAUDE_MODE: 'success',
+      }, () => run('dispatch_auto', {
+        storyId: 'B-unattended',
+        policy: 'chk008-claude-real-missing-opt-in',
+        host: 'claude-code',
+        allowedPaths: ['packages/main/src/generated/claude-missing-opt-in.txt'],
+        objective: 'CHK-008 missing allowRealHostSubprocess opt-in must refuse',
+      })),
+      /allowRealHostSubprocess=true|not unattended-safe|claude --print/i,
+      'dispatch_auto must refuse claude-code real launch without allowRealHostSubprocess=true even when fake claude is on PATH',
+    );
+    assert.equal(dispatchCount(root), before,
+      'missing allowRealHostSubprocess opt-in must not create dispatch records');
+  }
+
+  // 9b: allowRealHostSubprocess=true still requires canonical claude launcher in commandAllowlist
+  {
+    writeDispatchPolicy(root, realClaudePolicy({
+      policy: 'chk008-claude-real-missing-launcher',
+      allowedPaths: ['packages/main/src/generated/claude-missing-launcher.txt'],
+      commandAllowlist: ['node -e "process.exit(0)"'],
+    }));
+    const before = dispatchCount(root);
+    assert.throws(
+      () => withProcessEnv({
+        PATH: fakeClaudePath,
+        LATTICE_FAKE_CLAUDE_MODE: 'success',
+      }, () => run('dispatch_auto', {
+        storyId: 'B-unattended',
+        policy: 'chk008-claude-real-missing-launcher',
+        host: 'claude-code',
+        allowedPaths: ['packages/main/src/generated/claude-missing-launcher.txt'],
+        objective: 'CHK-008 missing canonical claude launcher must refuse',
+      })),
+      /commandAllowlist|claude --print <prompt-file>/i,
+      'dispatch_auto must refuse real claude launch when policy.commandAllowlist omits the canonical launcher',
+    );
+    assert.equal(dispatchCount(root), before,
+      'missing canonical claude launcher must not create dispatch records');
+  }
+
+  // 9c: allowRealHostSubprocess=true permits claude-code only and records runner metadata
   {
     writeDispatchPolicy(root, realClaudePolicy({
       policy: 'chk008-claude-real-success',
@@ -588,7 +642,7 @@ try {
     assert.match(transcript, /success stderr/, 'real claude transcript must capture stderr');
   }
 
-  // 9b: filtered env reaches allowlisted names but not denied/sensitive names
+  // 9d: filtered env reaches allowlisted names but not denied/sensitive names
   {
     const secretValue = 'fake-claude-secret-value';
     writeDispatchPolicy(root, realClaudePolicy({
@@ -624,7 +678,7 @@ try {
     assertAuthorityFalse(envStatus, 'envStatus');
   }
 
-  // 9c: non-zero fake claude exits fail the dispatch without production authority
+  // 9e: non-zero fake claude exits fail the dispatch without production authority
   {
     writeDispatchPolicy(root, realClaudePolicy({
       policy: 'chk008-claude-real-nonzero',
@@ -653,7 +707,7 @@ try {
     assertAuthorityFalse(nonzeroStatus, 'nonzeroStatus');
   }
 
-  // 9d: timeout from policy executionPolicy fails the real subprocess path
+  // 9f: timeout from policy executionPolicy fails the real subprocess path
   {
     writeDispatchPolicy(root, realClaudePolicy({
       policy: 'chk008-claude-real-timeout',

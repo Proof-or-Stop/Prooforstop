@@ -37,9 +37,12 @@ The product finish line is concrete and user-visible:
    budget/network posture, and environment allow/deny filtering.
 3. Lattice probes host capability and reports unavailable or supervised-only
    when login, noninteractive mode, cwd isolation, timeout, transcript, network,
-   or env-safety guarantees are missing.
-4. `dispatch_auto` starts only policy-authorized, unattended-safe workers in
-   isolated worktrees and records worker lease/conflict state. For v1.0.1, the
+   or env-safety guarantees are missing. The standalone
+   `host_runtime_probe.unattendedSafe` fact stays conservatively `false`.
+4. `dispatch_auto` performs the actual unattended launch decision by combining
+   policy authorization, Claude availability, `claude --print` support,
+   launcher allowlisting, timeout/env filtering, scope checks, and worker
+   lease/conflict state before starting isolated worktrees. For v1.0.1, the
    only real-host subprocess target is Claude Code under explicit policy
    opt-in; fake remains the deterministic local harness.
 5. `dispatch_watch` and `dispatch_cancel` keep the run visible and stoppable.
