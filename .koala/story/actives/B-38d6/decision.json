@@ -1,0 +1,76 @@
+{
+  "principles": [
+    "Host-neutral validation must verify the current Lattice CLI surface, not legacy host implementation leftovers.",
+    "Configuration migration must be explicit and reversible: prefer lattice.config.json while preserving koala.config.json fallback.",
+    "Automatic fallback discovery should stay conservative and never surprise users with deprecated platform tests.",
+    "Gate evidence must be structured, reproducible, and tied to user-visible CLI output."
+  ],
+  "drivers": [
+    "User has declared Swift/Mac Native App deprecated for current capability work.",
+    "Existing repositories may still rely on koala.config.json, so hard rename would break gates.",
+    "B-1691 dispatch runtime depends on Lattice CLI JSON smoke evidence, not Swift test evidence."
+  ],
+  "options": [
+    {
+      "name": "Remove Swift auto fallback and add lattice.config.json with koala legacy fallback",
+      "pros": [
+        "Stops Package.swift from hijacking current validation gates",
+        "Supports canonical Lattice naming without breaking old repos",
+        "Allows explicit Swift opt-in for legacy projects"
+      ],
+      "cons": [
+        "Requires touching config loading, diagnostics, docs, and smoke tests together"
+      ]
+    },
+    {
+      "name": "Only add Koala repo validate.js and leave core fallback unchanged",
+      "pros": [
+        "Fast local fix for Koala repo",
+        "Lower core blast radius"
+      ],
+      "cons": [
+        "Other host-neutral repos with Package.swift remain exposed",
+        "Swift still appears as current standard fallback in core docs/diagnostics"
+      ]
+    },
+    {
+      "name": "Hard rename koala.config.json to lattice.config.json and remove legacy config immediately",
+      "pros": [
+        "Clean naming with no ambiguity"
+      ],
+      "cons": [
+        "Breaks existing repos and managed assets",
+        "Forces unrelated migration into one validation story"
+      ]
+    }
+  ],
+  "chosen": "Remove Swift auto fallback and add lattice.config.json with koala legacy fallback",
+  "rationale": "This option fixes the stale validation root cause while making the Lattice config migration explicit and backward compatible; it preserves legacy Swift only as an opt-in configured command.",
+  "preMortem": [
+    {
+      "scenario": "Package.swift repos still run swift test after the change",
+      "trigger": "Swift removal only updates verifier.ts but runtime checks or docs still advertise swift fallback",
+      "consequence": "Future stories can still record stale Swift gate evidence and user trust remains broken",
+      "mitigation": "Add validation-protocol smoke with Package.swift-only temp repo and grep docs/diagnostics for current swift fallback guidance."
+    },
+    {
+      "scenario": "Existing koala.config.json repos fail validation after config rename",
+      "trigger": "loadConfig only reads lattice.config.json and ignores legacy file",
+      "consequence": "Installed repos lose storyDir/validate config and lifecycle gates fail unexpectedly",
+      "mitigation": "Implement ordered config resolution: lattice.config.json canonical, koala.config.json legacy fallback, with smoke coverage for both."
+    },
+    {
+      "scenario": "Both config files exist and users cannot tell which one won",
+      "trigger": "Config loader silently merges or picks one without diagnostics",
+      "consequence": "Validation commands appear inconsistent and debugging becomes opaque",
+      "mitigation": "Prefer lattice.config.json, expose config source/conflict warning in scan/doctor/validate setup, and test conflict diagnostics."
+    },
+    {
+      "scenario": "Docs accidentally imply Swift/Mac Native is still the current product gate",
+      "trigger": "README/testing-infra/prompts retain old Swift automatic fallback language",
+      "consequence": "Agents keep running or citing Swift tests for Lattice CLI stories",
+      "mitigation": "Update current validation docs to lattice.config.json/validate.js/configured commands; keep Swift only in explicit legacy executor context."
+    }
+  ],
+  "timestamp": "2026-06-03T18:19:17.128Z"
+}

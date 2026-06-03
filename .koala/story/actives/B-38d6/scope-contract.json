@@ -1,0 +1,31 @@
+{
+  "storyId": "B-38d6",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/core/runtime-environment-checks.ts",
+    "packages/main/src/core/config.ts",
+    "docs/requirements/decisions/testing-infra.md",
+    "README.md",
+    "packages/main/src/cli-prompts.ts",
+    "packages/main/src/handlers/doctor.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/validation-protocol-smoke.ts"
+  ],
+  "protectedFiles": [
+    ".koala/story/actives/B-META-framework-audit/**",
+    "docs/requirements/NAV.md"
+  ],
+  "explicitExcludes": [
+    "packages/main/dist/**",
+    "node_modules/**",
+    ".koala/runtime/**",
+    ".koala/traces/**"
+  ],
+  "scopeChangeReason": "Seed B-38d6 scope from PLAN checklist files; protect unrelated metadata and generated/runtime artifacts.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-03T18:20:32.170Z",
+  "updatedAt": "2026-06-03T18:20:32.170Z"
+}
