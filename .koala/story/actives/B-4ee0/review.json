@@ -52,6 +52,24 @@
         }
       ],
       "_hash": "e27f119a3263e8a594712ed195b7cde422c5af5cc4700f1fd26d8b9e1f465f46"
+    },
+    {
+      "timestamp": "2026-06-03T18:54:14.458Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 个 checklist item，请检查是否有组合场景遗漏（如：定稿 global-thin 管理资产契约 + 修改 init 默认输出为 .Lattice 最小资产 同时操作会怎样？）"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story 命中 1 个高风险信号: 数据迁移/破坏性。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）。 若本 story 只是提及而非修改该领域（误报），可 koala story_review_dismiss '{\"storyId\":\"B-4ee0\",\"category\":\"<分类>\",\"reason\":\"...\"}' 完整回退 auto-elevation（全部 auto-elevated riskSignal 被 dismiss 后 priority 自动回退、高风险 gate 解除）。"
+        }
+      ],
+      "_hash": "0e4993ed86356cade18ef93c15650b9c533f212f192128c637864cf90e054a8f"
     }
   ]
 }
