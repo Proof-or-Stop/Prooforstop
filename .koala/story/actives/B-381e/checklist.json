@@ -201,9 +201,9 @@
         "docs/requirements/decisions/authority-client-role.md"
       ],
       "userSees": "Running command policy/process fact smoke tests shows story_authority_resolve and observability_snapshot are L0 read-only diagnostics, and calling them does not create evidence, receipt, lifecycle, or authority events.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-03T00:19:57.455Z",
       "files": {
         "modify": [
           "packages/main/src/core/command-policy.ts",
@@ -237,7 +237,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/observability-contract-smoke.ts",
+          "command": "npm --prefix packages/main run test:observability-contract-smoke",
+          "result": "pass",
+          "note": "Contract smoke asserts story_authority_resolve and observability_snapshot are supported readOnly commands with allowedPhases=all, destructiveRisk=none, and L0 process fact registrations.",
+          "headHash": "daa33d5d64a13740a0afe765fead4acbd2890c99",
+          "materialHash": "c4a6ab521118020cf4ba084a917727556b4312f28b7dfb09c1e37d8eb23c0f8e",
+          "timestamp": "2026-06-03T00:19:57.512Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/observability-contract-smoke.ts",
+          "command": "npm --prefix packages/main run test:observability-contract-smoke",
+          "result": "pass",
+          "note": "Contract smoke executes resolver and snapshot projections and asserts productionDone=false, receiptVerified=false, and authorityChanged=false at the resolver/snapshot boundaries.",
+          "headHash": "daa33d5d64a13740a0afe765fead4acbd2890c99",
+          "materialHash": "c4a6ab521118020cf4ba084a917727556b4312f28b7dfb09c1e37d8eb23c0f8e",
+          "timestamp": "2026-06-03T00:19:57.561Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/command-ownership-contract.ts",
+          "command": "npm --prefix packages/main run test:command-ownership-contract && npm --prefix packages/main run test:lifecycle-registry-contract",
+          "result": "pass",
+          "note": "Existing ownership/lifecycle contracts passed after adding the commands, proving all CLI commands have policy/handler coverage and lifecycle registry consistency has 0 divergences.",
+          "headHash": "daa33d5d64a13740a0afe765fead4acbd2890c99",
+          "materialHash": "c4a6ab521118020cf4ba084a917727556b4312f28b7dfb09c1e37d8eb23c0f8e",
+          "timestamp": "2026-06-03T00:19:57.618Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
