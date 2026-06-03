@@ -89,6 +89,15 @@
       "reviewRound": "2026-06-03T14:08:28.888Z",
       "reviewRunId": "B-106b:RR-031",
       "_hash": "c55c7bd180fc563a8cfd1b3859b19d65711f209daa40f6ed2847de3583d6343a"
+    },
+    {
+      "id": "B-106b:RP-011",
+      "agent": "koala-review-quality",
+      "note": "Re-checked containment/security and quality focus areas: dispatchId and pack-path traversal reject before persistence; fake/real-host root/final/ancestor symlink cases fail closed with cleanup or persisted failed state; unsafe real-host paths never reach needs_receipt; Gemini keeps its own identity; mixed-worker parents stay diagnostic with manual-only merge semantics; no hidden external host execution; authority flags remain false; build, dispatch-run smoke, and host-overflow smoke pass.",
+      "createdAt": "2026-06-03T14:13:45.892Z",
+      "reviewRound": "2026-06-03T14:08:28.888Z",
+      "reviewRunId": "B-106b:RR-032",
+      "_hash": "ee582579dfd5152a8aa4e0f1be688242db749d4778f362b05a42d9d09059ab1b"
     }
   ]
 }
