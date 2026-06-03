@@ -164,7 +164,7 @@
       "desc": "README dispatch examples use --allowedPath, but the landed CLI only honors --allowedPaths. dispatch_plan with --allowedPath leaves pack.allowedPaths empty, while --allowedPaths populates it. Update README examples to match the actual dispatch CLI schema.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-docs",
       "createdAt": "2026-06-03T00:53:37.106Z",
@@ -173,7 +173,9 @@
       "_hash": "d560202230bc8a3896cf875c1bc45041a58bdca68f2e4ff2045fde15cd1ebf24",
       "files": [
         "README.md"
-      ]
+      ],
+      "resolvedReason": "Resolved by commit 5856f39b. README dispatch examples now use the landed CLI parameter --allowedPaths instead of the non-existent --allowedPath. Verified by docs grep and build/dispatch-run smoke plus full validation command output.",
+      "resolvedAt": "2026-06-03T00:58:22.745Z"
     },
     {
       "id": "B-106b:F-010",
