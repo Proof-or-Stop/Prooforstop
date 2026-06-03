@@ -60,7 +60,7 @@
         "docs/requirements/decisions/project-vision.md",
         "docs/requirements/decisions/lifecycle-artifact-scope.md"
       ],
-      "userSees": "用户运行 lattice init 后，终端输出和文件树只出现 .Lattice/Lattice.md、.Lattice/lattice.json、AGENTS.md 这些默认项目资产；不会看到 bin/lattice-codex.js、bin/lattice.js、.Codex/README.md、.Codex/agents 或 KOALA.md。",
+      "userSees": "用户运行 lattice init 后看到输出行 \"✓ .Lattice/Lattice.md\"、\"✓ .Lattice/lattice.json\"、\"✓ AGENTS.md\"，并且看不到 \"✓ bin/lattice-codex.js\"、\"✓ .Codex/README.md\" 或 \"✓ KOALA.md\"。",
       "files": {
         "modify": [
           "packages/main/src/cli-init.ts",
