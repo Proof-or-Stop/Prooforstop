@@ -65,7 +65,7 @@
       "desc": "Verified HIGH: fake dispatch_run writes pack.allowedPaths[0] directly via path.join(worktreeAbs, markerPath) before any scope validation, so ../../ traversal escapes the isolated overflow worktree. Repro: a throwaway registry run with allowedPaths=[\"../../escape.txt\"] created .worktrees/overflow/escape.txt and only failed later at git add. This breaks the bounded-path contract for dispatch_run/overflow_auto and allows out-of-scope filesystem writes.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-03T00:20:24.408Z",
@@ -74,7 +74,9 @@
       "_hash": "b5cf4475c89fd90cf6e1efe16cc48fc7754417a125dbc7b25da8fff2c2aa6858",
       "files": [
         "packages/main/src/core/lattice-dispatch.ts"
-      ]
+      ],
+      "resolvedReason": "Resolved by commit 74ce419c. overflow_auto now requires approve=true and start=true; fake dispatch paths are bounded before any file write; scaffolded real-host dispatch creates the projected worktree or returns failed with warnings. Verified with npm --prefix packages/main run build, npm --prefix packages/main run test:dispatch-run-smoke, npm --prefix packages/main run test:lattice-handoff-smoke, npm run test:command-ownership-contract, and npm run test:process-fact-contract.",
+      "resolvedAt": "2026-06-03T00:27:27.249Z"
     }
   ]
 }
