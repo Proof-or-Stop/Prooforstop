@@ -1355,17 +1355,11 @@ export const MAIN_TOOLS: ToolDef[] = [
     simulatedWrites: z.array(z.string()).optional().describe('Paths to evaluate as if written (test/dry-run forbidden-write simulation)'),
     json: z.boolean().optional().describe('Output structured JSON'),
   }},
-  { name: 'prewrite_guard_check', description: 'Per-write enforcement check: given a file path about to be written, determine if the guard session allows or blocks it. Called by PreToolUse hooks (Claude Code) or the Lattice dispatch pre-apply step.', schema: {
-    storyId: z.string().describe('Story ID'),
-    path: z.string().min(1, 'path is required').describe('File path about to be written (relative to project root)'),
-    json: z.boolean().optional().describe('Output structured JSON'),
-  }},
-
   // Pre-write scope enforcement — pre-tool hook guard for write-like operations.
   // Returns allow/deny/ask/shadow verdict before the write lands.
   // Fail-closed on corrupt scope contracts or ambiguous active guard sessions.
   // Backward-compatible allow when no guard session or story context exists.
-  { name: 'prewrite_guard_check', description: 'Pre-write scope enforcement: inspect target path(s) against the active story scope contract and return allow/deny/ask/shadow verdict before the write lands', schema: {
+  { name: 'prewrite_guard_check', description: 'Pre-write scope enforcement for Claude Code PreToolUse hooks and Lattice dispatch pre-apply checks', schema: {
     storyId: z.string().optional().describe('Story ID (auto-discovered from active guard sessions when absent)'),
     provider: z.string().optional().describe('Agent provider (informational; used to log who triggered the check)'),
     toolName: z.string().describe('Name of the write-like tool being invoked (e.g. Edit, Write, MultiEdit, NotebookEdit)'),
