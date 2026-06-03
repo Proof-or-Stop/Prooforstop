@@ -150,31 +150,31 @@
     },
     {
       "id": "CHK-005",
-      "title": "Expose runner status through user-facing commands",
-      "context": "Build the bounded runner artifact and surface it through user-facing status/review output: command template, cwd, startedAt/endedAt, exitCode or timeout, transcript path, and sanitized environment summary must be visible through dispatch_watch or dispatch_status so the user can decide whether to retry, inspect, or stop. This milestone only handles raw runner status, not receipt trust.",
+      "title": "Expose runner details through dispatch_status",
+      "context": "Build the bounded runner artifact and surface raw runner details through dispatch_status: command template, cwd, startedAt/endedAt, exitCode or timeout, transcript path, and sanitized environment summary must be visible so the user can decide whether to inspect or hand control back to the scheduler. This milestone only handles raw runner status, not dispatch_watch aggregation, cancellation, or receipt trust.",
       "relatedDocs": [
         "docs/requirements/decisions/host-overflow.md",
         "docs/requirements/decisions/lifecycle-artifact-scope.md"
       ],
-      "userSees": "lattice dispatch_watch --dispatchId=<id> or dispatch_status shows runner command, cwd, exit/timeout, transcript path, and retry/inspect/stop nextAction.",
+      "userSees": "lattice dispatch_status --dispatchId=<id> shows runner command, cwd, exit/timeout, transcript path, environment summary, and inspect/retry guidance.",
       "verificationIntent": {
         "happy": [
           {
-            "desc": "Runner captures transcript/exit status and dispatch_watch or dispatch_status renders those details with a user nextAction.",
+            "desc": "Runner captures transcript/exit status and dispatch_status renders raw runner details with a user nextAction.",
             "type": "cli",
             "priority": "must"
           }
         ],
         "edge": [
           {
-            "desc": "Timeout or nonzero exit persists diagnostic runner status and tells the user whether to inspect transcript, retry, or stop.",
+            "desc": "Timeout or nonzero exit persists diagnostic runner status and dispatch_status tells the user whether to inspect transcript, retry, or stop through the scheduler layer.",
             "type": "logic",
             "priority": "must"
           }
         ],
         "adversarial": [
           {
-            "desc": "Runner refuses non-template commands, forbidden env leaks, invalid cwd, unsafe output paths, and commands not authorized by policy; user-facing status shows refusal reason.",
+            "desc": "Runner refuses non-template commands, forbidden env leaks, invalid cwd, unsafe output paths, and commands not authorized by policy; dispatch_status shows refusal reason.",
             "type": "logic",
             "priority": "must"
           }
@@ -186,32 +186,32 @@
     },
     {
       "id": "CHK-006",
-      "title": "Implement dispatch_auto scheduler and dispatch_watch",
-      "context": "Add scheduler commands that read dispatch_policy, choose only allowed unattended-safe hosts, create isolated worktrees, start bounded runner jobs, enforce maxParallel/retry/time limits, persist worker states, and provide watch/status output. Receipt and merge authority stay outside this milestone.",
+      "title": "Implement dispatch_auto scheduler, dispatch_watch, and cancel control loop",
+      "context": "Add scheduler commands that read dispatch_policy, choose only allowed unattended-safe hosts, create isolated worktrees, start bounded runner jobs, enforce maxParallel/retry/time limits, persist worker states, provide dispatch_watch aggregation, and expose a stop/cancel control loop for running workers. Receipt and merge authority stay outside this milestone.",
       "relatedDocs": [
         "docs/requirements/decisions/host-overflow.md",
         "docs/requirements/decisions/lattice-parallel-wave.md",
         "docs/requirements/decisions/session-ownership-and-write-leases.md"
       ],
-      "userSees": "lattice dispatch_auto --storyId=B-xxxx --policy=<name> starts or refuses workers with reasons; lattice dispatch_watch shows planned/running/diagnostic/needs_receipt statuses.",
+      "userSees": "lattice dispatch_auto starts/refuses workers; lattice dispatch_watch shows lifecycle states; lattice dispatch_cancel stops a running worker and watch shows cancelled/stopped nextAction.",
       "verificationIntent": {
         "happy": [
           {
-            "desc": "dispatch_auto starts authorized fake/host-dry-run workers and dispatch_watch reports prepared/running/needs_receipt/diagnostic states.",
+            "desc": "dispatch_auto starts authorized fake/host-dry-run workers, dispatch_watch reports lifecycle states, and dispatch_cancel stops a running worker with a visible cancelled/stopped terminal state.",
             "type": "cli",
             "priority": "must"
           }
         ],
         "edge": [
           {
-            "desc": "Scheduler handles one worker failure while preserving successful worker evidence and bounded retry metadata.",
+            "desc": "Scheduler handles one worker failure or cancellation while preserving successful worker evidence and bounded retry metadata.",
             "type": "logic",
             "priority": "must"
           }
         ],
         "adversarial": [
           {
-            "desc": "Scheduler refuses to start when policy is missing, host not allowed, maxParallel exceeded, scope unsafe, or host capability is not unattended-safe.",
+            "desc": "Scheduler refuses to start when policy is missing, host not allowed, maxParallel exceeded, scope unsafe, or host capability is not unattended-safe; cancel cannot delete evidence silently.",
             "type": "logic",
             "priority": "must"
           }
@@ -267,18 +267,18 @@
     {
       "id": "CHK-008",
       "title": "Validate full user-facing unattended Claude Code flow",
-      "context": "Add final E2E/product validation for a real story-style unattended flow: user creates/checks a policy, probes Claude Code, starts dispatch_auto with a safe bounded real Claude Code smoke when policy and capability allow or receives an explicit policy/capability refusal, watches worker start/refuse/succeed/fail states, reviews transcript/diff/receipt evidence, and receives a manual nextAction/merge plan. Fake parallel E2E and docs remain required, but final acceptance must prove the user-visible closeout.",
+      "context": "Add final E2E/product validation for a real story-style unattended flow: user creates/checks a policy, probes Claude Code, starts dispatch_auto with a safe bounded real Claude Code smoke when policy and capability allow or receives an explicit policy/capability refusal, watches worker start/refuse/succeed/fail/cancel states, reviews transcript/diff/receipt evidence, and receives a manual nextAction/merge plan. Docs and smoke must also explain how dispatch_auto relates to the existing overflow_auto surface and provide migration/nextAction guidance from old guarded overflow to new policy-authorized unattended scheduling.",
       "relatedDocs": [
         "docs/requirements/decisions/host-overflow.md",
         "docs/requirements/decisions/testing-completeness.md",
         "README.md",
         "docs/guide.md"
       ],
-      "userSees": "Docs and smoke transcript show: dispatch_policy check, host_runtime_probe, dispatch_auto, dispatch_watch, dispatch_review, and manual dispatch_merge_plan for a bounded Claude Code-capable flow.",
+      "userSees": "Docs and smoke transcript show: overflow_auto nextAction to dispatch_auto, dispatch_policy check, host_runtime_probe, dispatch_auto, dispatch_watch, dispatch_cancel, dispatch_review, and manual dispatch_merge_plan.",
       "verificationIntent": {
         "happy": [
           {
-            "desc": "E2E smoke passes for fake parallel unattended flow and a safe bounded Claude Code opt-in flow when capability/policy allow it, with watch/review/merge nextActions visible.",
+            "desc": "E2E smoke passes for fake parallel unattended flow and a safe bounded Claude Code opt-in flow when capability/policy allow it, with watch/cancel/review/merge nextActions visible.",
             "type": "logic",
             "priority": "must"
           }
@@ -290,7 +290,7 @@
             "priority": "must"
           },
           {
-            "desc": "Tests cover missing policy, unavailable host, timeout, missing receipt, and mixed worker outcomes.",
+            "desc": "Tests cover missing policy, unavailable host, timeout, cancellation, missing receipt, and mixed worker outcomes.",
             "type": "logic",
             "priority": "must"
           }
@@ -302,7 +302,7 @@
             "priority": "must"
           },
           {
-            "desc": "Docs show the opt-in command sequence and state unattended mode remains user-authorized and authority-safe.",
+            "desc": "Docs show the opt-in command sequence, explain dispatch_auto versus overflow_auto, and state unattended mode remains user-authorized and authority-safe.",
             "type": "docs",
             "priority": "must"
           }

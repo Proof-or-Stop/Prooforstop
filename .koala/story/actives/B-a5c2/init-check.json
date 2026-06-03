@@ -1,51 +1,43 @@
 {
   "storyId": "B-a5c2",
-  "checkedAt": "2026-06-03T18:53:54.434Z",
+  "checkedAt": "2026-06-03T18:58:45.294Z",
   "reviewRound": "",
-  "agentId": "product-reviewer",
+  "agentId": "koala-review-story-init",
   "issues": [
     {
-      "severity": "high",
-      "desc": "Checklist still does not lock a single end-to-end user-visible completion bar for the actual product outcome. CHK-006 only promises starting authorized fake/host-dry-run workers, and CHK-008 only requires fake unattended smoke plus docs. For a story triggered by proving real parallel work with Claude Code CLI agents, the checklist never explicitly requires that a user can run unattended mode on a real story, see which real workers ran or were refused, review the outcome, and receive a concrete nextAction to finish manually. That leaves the complete product end-state under-specified even though the background now describes it."
+      "severity": "medium",
+      "desc": "CHK-005 and CHK-006 both claim dispatch_watch, so runner-detail visibility vs scheduler-lifecycle visibility is not cleanly separated. Tighten CHK-005 to dispatch_status/runner artifact only, or make CHK-006 the sole dispatch_watch milestone, so item completion cannot be claimed without one canonical user-facing status surface."
     },
     {
       "severity": "medium",
-      "desc": "Some milestones still anchor success on internal artifacts instead of a user decision surface. CHK-005 is considered done when a runner artifact contains fields like command template, timestamps, transcript path, and authority=false, but it does not say through which command/view the user inspects that artifact or what decision it enables. This weakens the user-observable outcome requirement even though later items improve it."
+      "desc": "CHK-006 and CHK-008 move the user flow to dispatch_auto, but the checklist never makes the migration/relationship to landed B-106b overflow_auto user-observable. Add an explicit acceptance clause for replace/alias/wrap behavior plus docs/smoke verification, otherwise users can finish with two competing entry points and no clear product closeout."
     }
   ],
   "agentResults": [
     {
-      "agentId": "koala-review-story-init",
-      "checkedAt": "2026-06-03T18:38:53.882Z",
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-03T18:57:28.891Z",
       "issues": [
         {
           "severity": "high",
-          "desc": "Background frames unattended external CLI launch, transcript capture, local receipts, and authority boundaries as core constraints, but the checklist lacks a dedicated PLAN/decision/pre-mortem item that must resolve trust and containment invariants up front: secret/env redaction, receipt trust model, login/network authority, and worker ownership/lease conflict behavior. Add an explicit decision artifact before implementation milestones so these safety boundaries are fixed before runner/scheduler work starts."
-        },
-        {
-          "severity": "medium",
-          "desc": "The concrete trigger is to verify parallel development with Claude Code CLI agents in practice, but actual Claude Code smoke validation is deferred to CHK-008 after policy, probe, runner, scheduler, collector, and gate work. That leaves the central host-feasibility assumption unproven until the end. Split out an earlier bounded Claude Code reality-check milestone or move the smoke proof ahead of deeper abstractions."
-        },
-        {
-          "severity": "medium",
-          "desc": "Several checklist items are not cleanly independent or user-verifiable. CHK-004 already owns transcript capture and runner result evidence, while CHK-006 re-owns transcript/command-output/receipt collection, and CHK-008 bundles e2e tests, docs, and Claude Code smoke into one item. Split these into non-overlapping items with distinct observable outputs so progress can be marked and reviewed without partial ambiguity."
+          "desc": "Checklist promises that watch/status will tell the user to retry, inspect, or stop a worker, but there is no explicit milestone or user-visible acceptance criteria for actually stopping/canceling a running unattended worker and seeing a final cancelled/stopped state. This leaves the user with observability but not a complete control loop when a worker hangs or runs the wrong task."
         }
       ]
     },
     {
-      "agentId": "product-reviewer",
-      "checkedAt": "2026-06-03T18:53:54.434Z",
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-06-03T18:58:45.294Z",
       "issues": [
         {
-          "severity": "high",
-          "desc": "Checklist still does not lock a single end-to-end user-visible completion bar for the actual product outcome. CHK-006 only promises starting authorized fake/host-dry-run workers, and CHK-008 only requires fake unattended smoke plus docs. For a story triggered by proving real parallel work with Claude Code CLI agents, the checklist never explicitly requires that a user can run unattended mode on a real story, see which real workers ran or were refused, review the outcome, and receive a concrete nextAction to finish manually. That leaves the complete product end-state under-specified even though the background now describes it."
+          "severity": "medium",
+          "desc": "CHK-005 and CHK-006 both claim dispatch_watch, so runner-detail visibility vs scheduler-lifecycle visibility is not cleanly separated. Tighten CHK-005 to dispatch_status/runner artifact only, or make CHK-006 the sole dispatch_watch milestone, so item completion cannot be claimed without one canonical user-facing status surface."
         },
         {
           "severity": "medium",
-          "desc": "Some milestones still anchor success on internal artifacts instead of a user decision surface. CHK-005 is considered done when a runner artifact contains fields like command template, timestamps, transcript path, and authority=false, but it does not say through which command/view the user inspects that artifact or what decision it enables. This weakens the user-observable outcome requirement even though later items improve it."
+          "desc": "CHK-006 and CHK-008 move the user flow to dispatch_auto, but the checklist never makes the migration/relationship to landed B-106b overflow_auto user-observable. Add an explicit acceptance clause for replace/alias/wrap behavior plus docs/smoke verification, otherwise users can finish with two competing entry points and no clear product closeout."
         }
       ]
     }
   ],
-  "_hash": "5ca6bb7f0522148c09a05e81c3902743abd070263fac69ed8c7cb714e56316d0"
+  "_hash": "6f3d34a6398b578e3d2cfe1b221a05f21c079c958aafc96e857715d9f99b10c8"
 }
