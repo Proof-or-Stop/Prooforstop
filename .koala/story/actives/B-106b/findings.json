@@ -135,6 +135,25 @@
         "packages/main/src/tasks/dispatch-run-smoke.ts",
         "docs/requirements/decisions/host-overflow.md"
       ]
+    },
+    {
+      "id": "B-106b:F-008",
+      "desc": "dispatchId path traversal escapes .koala/dispatches and allows out-of-scope Lattice metadata writes. dispatchDir/dispatchFile join caller-controlled dispatchId into storage paths, and prepareDispatch accepts args.dispatchId from the public handler unchanged. Repro: dispatch_prepare --dispatchId=../../../outside/owned writes dispatch.json, pack.json, prompt.md, and transcript.log outside the repository dispatch storage root. Apply validation to all public dispatchId read/write paths and add smoke coverage for malicious dispatchId.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-03T00:44:02.068Z",
+      "reviewRound": "2026-06-03T00:36:04.583Z",
+      "reviewRunId": "B-106b:RR-014",
+      "_hash": "863f03c0a28248611c2779e58b8960350724d2b0fa429565bac6630252a060ef",
+      "files": [
+        "packages/main/src/core/lattice-dispatch.ts",
+        "packages/main/src/handlers/lattice-dispatch.ts",
+        "packages/main/src/tasks/dispatch-run-smoke.ts",
+        "docs/requirements/decisions/host-overflow.md"
+      ]
     }
   ]
 }
