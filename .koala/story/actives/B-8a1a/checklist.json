@@ -51,8 +51,8 @@
       "id": "CHK-002",
       "title": "Add explicit real-host subprocess policy gate",
       "context": "Dispatch policy must require an explicit opt-in beyond allowedHosts, bind host/scope/commands/env/runtime limits, and keep standalone host_runtime_probe conservative.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-03T22:55:20.760Z",
       "endTime": null,
       "userSees": "用户创建 claude-code policy 时必须显式传 allowRealHostSubprocess=true；否则 dispatch_auto 会清楚拒绝真实 Claude 启动并解释缺少 opt-in。",
       "files": {
