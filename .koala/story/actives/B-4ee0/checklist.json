@@ -160,7 +160,7 @@
         "docs/requirements/decisions/truth-source.md",
         "README.md"
       ],
-      "userSees": "旧项目运行 lattice check 时会看到建议迁移到 .Lattice 资产，但默认 --apply 不删除 KOALA.md、.Codex/koala.json 或 bin/*codex.js；只有显式 prune legacy 选项才会清理旧资产。",
+      "userSees": "旧项目运行 \"lattice check --apply\" 后看到 \".Lattice/lattice.json\" 被创建或检查，同时 \"KOALA.md\"、\".Codex/koala.json\"、\"bin/koala-codex.js\" 仍然留在文件树里。",
       "files": {
         "modify": [
           "packages/main/src/core/managed-assets.ts",
