@@ -1,0 +1,59 @@
+{
+  "storyId": "B-a5c2",
+  "checkedAt": "2026-06-03T18:38:57.076Z",
+  "reviewRound": "",
+  "agentId": "product-reviewer",
+  "issues": [
+    {
+      "severity": "medium",
+      "desc": "background 主要解释 unattended scheduler 的机制和 authority guardrail，但没有清楚说明用户为什么现在需要它：当前人工流程具体卡在哪、用户希望省掉哪些手工步骤、以及完成后用户能获得什么新的可用能力。产品动机仍偏工程视角。"
+    },
+    {
+      "severity": "medium",
+      "desc": "部分 checklist 项的 outcome 仍偏内部机制而非用户可观察结果，尤其 CHK-004 与 CHK-006。像 \"runner result records ...\"、\"collector records ...\" 描述的是内部产物字段，不够说明用户通过哪个命令/界面看到什么，并据此做什么决策。"
+    },
+    {
+      "severity": "high",
+      "desc": "整体缺少一个让用户自然说\"好了\"的终态定义。当前八项覆盖 policy、probe、runner、scheduler、receipt、gate、tests/docs，但没有明确承诺一个完整用户闭环：用户对真实 story 发起 unattended run、看到哪些 worker 成功/失败、如何审阅结果、以及系统给出什么下一步而不是让用户继续追问 \"然后呢？\"。"
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-06-03T18:38:53.882Z",
+      "issues": [
+        {
+          "severity": "high",
+          "desc": "Background frames unattended external CLI launch, transcript capture, local receipts, and authority boundaries as core constraints, but the checklist lacks a dedicated PLAN/decision/pre-mortem item that must resolve trust and containment invariants up front: secret/env redaction, receipt trust model, login/network authority, and worker ownership/lease conflict behavior. Add an explicit decision artifact before implementation milestones so these safety boundaries are fixed before runner/scheduler work starts."
+        },
+        {
+          "severity": "medium",
+          "desc": "The concrete trigger is to verify parallel development with Claude Code CLI agents in practice, but actual Claude Code smoke validation is deferred to CHK-008 after policy, probe, runner, scheduler, collector, and gate work. That leaves the central host-feasibility assumption unproven until the end. Split out an earlier bounded Claude Code reality-check milestone or move the smoke proof ahead of deeper abstractions."
+        },
+        {
+          "severity": "medium",
+          "desc": "Several checklist items are not cleanly independent or user-verifiable. CHK-004 already owns transcript capture and runner result evidence, while CHK-006 re-owns transcript/command-output/receipt collection, and CHK-008 bundles e2e tests, docs, and Claude Code smoke into one item. Split these into non-overlapping items with distinct observable outputs so progress can be marked and reviewed without partial ambiguity."
+        }
+      ]
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-03T18:38:57.076Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "background 主要解释 unattended scheduler 的机制和 authority guardrail，但没有清楚说明用户为什么现在需要它：当前人工流程具体卡在哪、用户希望省掉哪些手工步骤、以及完成后用户能获得什么新的可用能力。产品动机仍偏工程视角。"
+        },
+        {
+          "severity": "medium",
+          "desc": "部分 checklist 项的 outcome 仍偏内部机制而非用户可观察结果，尤其 CHK-004 与 CHK-006。像 \"runner result records ...\"、\"collector records ...\" 描述的是内部产物字段，不够说明用户通过哪个命令/界面看到什么，并据此做什么决策。"
+        },
+        {
+          "severity": "high",
+          "desc": "整体缺少一个让用户自然说\"好了\"的终态定义。当前八项覆盖 policy、probe、runner、scheduler、receipt、gate、tests/docs，但没有明确承诺一个完整用户闭环：用户对真实 story 发起 unattended run、看到哪些 worker 成功/失败、如何审阅结果、以及系统给出什么下一步而不是让用户继续追问 \"然后呢？\"。"
+        }
+      ]
+    }
+  ],
+  "_hash": "c512fbd86e9d3553b04c4ffa379bfcfa93d4b1b9bcd00263b6f0adea981e7b9d"
+}
