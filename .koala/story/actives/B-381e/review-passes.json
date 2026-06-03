@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-03T00:20:21.831Z",
       "reviewRunId": "B-381e:RR-002",
       "_hash": "4dc85c4038e811688e4bf642ba1611503633ece1b657d68fad31023d58a36346"
+    },
+    {
+      "id": "B-381e:RP-003",
+      "agent": "koala-review-quality",
+      "note": "Quality review pass: resolver/snapshot/handlers structured cleanly; type narrowing is defensive where CanonicalStory exposes Record<string,unknown>; error handling follows read-only warning-collection pattern; CLI registration (MAIN_TOOLS, READ_ONLY_COMMANDS, alias map, COMMAND_POLICIES, PROCESS_FACT_LEVELS, DEFAULT_PHASE_TOOLS, registry) consistent across all surfaces; build + command-ownership-contract + lifecycle-registry-contract + new smoke tests all green.",
+      "createdAt": "2026-06-03T00:24:25.496Z",
+      "reviewRound": "2026-06-03T00:20:21.831Z",
+      "reviewRunId": "B-381e:RR-003",
+      "_hash": "0dd1a234dafee589dc8ba6d8c6f34ecdb5436ffab3a851df137f8e42e8b617f9"
     }
   ]
 }
