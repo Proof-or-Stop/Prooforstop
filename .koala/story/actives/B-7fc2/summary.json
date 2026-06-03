@@ -1,0 +1,56 @@
+{
+  "storyId": "B-7fc2",
+  "changes": "Implemented a shared Lattice CLI JSON stdout guard: cli-engine skips hint decoration in machine JSON mode, hints.ts adds wantsMachineJson and preserves text validate success hints, a focused child-process smoke locks direct JSON.parse stdout, package scripts expose the smoke, and the host-neutral observability decision records the contract.",
+  "usage": "Use Lattice CLI machine mode normally: node packages/main/dist/cli.js validate --json or commands with --format=json can be piped directly into JSON.parse; use text mode validate when human next-step hints are wanted.",
+  "expectedOutcome": "validate --json stdout is a single JSON.parse-able document with no human hint text; validate text mode still shows 验证全绿; the focused cli-json stdout smoke passes.",
+  "actualTranscript": "TEST transcript: validate --story=B-7fc2 --json piped to JSON.parse returned parse ok, allPass true, status pass, coverage 12/12; text-mode validate tail contained 验证全绿; npm --prefix packages/main run test:cli-json-stdout-contract-smoke passed.",
+  "outcomeDiff": "No product diff for the scoped contract: expected and actual match. Operational note: global lattice points to main checkout dist until this branch is merged/built, so worktree acceptance used node packages/main/dist/cli.js.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none - fully covered for the B-7fc2 JSON stdout contract; resolver/dashboard schema expansion remains intentionally outside this story and belongs to host-neutral observability M1+.",
+  "pitfalls": "Do not validate this story through the global lattice binary before merge because it resolves to main checkout dist. Also, codex adapter preflight may request bin/lattice-codex.js even on legacy assets; bin/lattice.js verify_codex or bin/koala-codex.js verify_codex produced the required evidence after building packages/utils.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 202104
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 48278
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 273203
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 1793913
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 619504
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 296201
+    }
+  },
+  "totalDurationMs": 3233211,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-03T22:37:15.475Z",
+  "updatedAt": "2026-06-03T22:37:15.475Z"
+}
