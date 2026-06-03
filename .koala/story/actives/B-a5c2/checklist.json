@@ -126,7 +126,42 @@
         "test": [
           "packages/main/src/tasks/dispatch-run-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke asserts claude-code probe exposes version/path/cwd/transcript/noninteractive feasibility fields.",
+          "headHash": "d0632e8db2b2436ffa7031753254fd5f56ed328d",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:31.758Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke asserts missing or incomplete Claude Code capability degrades to supervised-only/unavailable with nextAction.",
+          "headHash": "d0632e8db2b2436ffa7031753254fd5f56ed328d",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:31.811Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke asserts claude-code never sets unattendedSafe=true solely from CLI availability.",
+          "headHash": "d0632e8db2b2436ffa7031753254fd5f56ed328d",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:31.863Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
