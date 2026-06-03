@@ -10,7 +10,7 @@
         "docs/requirements/decisions/authority-client-role.md",
         "docs/requirements/decisions/session-ownership-and-write-leases.md"
       ],
-      "userSees": "lattice decision_get --storyId=B-a5c2 --json shows the chosen policy-authorized unattended mode, explicit no-authority boundaries, and preMortem risks.",
+      "userSees": "Terminal/doc output includes \"chosen: policy-authorized-unattended-scheduler\", \"productionDone=false\", \"receiptVerified=false\", \"authorityChanged=false\", and \"preMortem: 6\".",
       "verificationIntent": {
         "happy": [
           {
@@ -36,7 +36,15 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/host-overflow.md",
+          "README.md"
+        ],
+        "create": [],
+        "test": []
+      }
     },
     {
       "id": "CHK-002",
