@@ -13,6 +13,11 @@ import {
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { changedFilesBetween, checkEvidenceFreshnessForGit, currentGitHead } from './evidence-freshness.js';
 import {
+  checkDispatchPolicy,
+  type DispatchPolicy,
+  type DispatchPolicyCheckResult,
+} from './dispatch-policy.js';
+import {
   buildHandoffWorktreeProjection,
   createHandoffPack,
   submitHandoffReceipt,
@@ -20,6 +25,12 @@ import {
   type HandoffReceipt,
   type HandoffReceiptSubmission,
 } from './lattice-handoff.js';
+import {
+  buildFakeRunnerRecord,
+  buildRefusedRunnerRecord,
+  buildScaffoldedRunnerRecord,
+  type DispatchRunnerRecord,
+} from './dispatch-runner.js';
 import type { StoryStore } from './store.js';
 
 export type HostRuntimeId = 'fake' | 'claude-code' | 'gemini' | 'codex';
@@ -42,6 +53,15 @@ export interface DispatchAuthorityState {
   productionDone: false;
 }
 
+export type VersionStatus = 'detected' | 'unavailable' | 'unknown';
+export type NoninteractiveSupport = 'supported' | 'unverified' | 'unsupported';
+export type CwdSupport = 'supported' | 'unverified';
+export type TimeoutSupport = 'supported' | 'unverified';
+export type TranscriptSupport = 'supported' | 'unverified';
+export type EnvSafetyPosture = 'sandboxed' | 'inherited' | 'unverified';
+export type LoginReadiness = 'ready' | 'requires-login' | 'unknown';
+export type ReceiptSupport = 'structured' | 'transcript-capture' | 'unverified';
+
 export interface HostRuntimeProbe {
   schemaVersion: 'lattice.host_runtime_probe.v1';
   host: HostRuntimeId;
@@ -54,6 +74,19 @@ export interface HostRuntimeProbe {
   cliCommand?: string;
   commandPath?: string;
   invocationTemplate?: string[];
+  // Unattended capability contract (CHK-002 / CHK-004)
+  versionStatus: VersionStatus;
+  version?: string;
+  loginReadiness: LoginReadiness;
+  noninteractiveSupport: NoninteractiveSupport;
+  cwdSupport: CwdSupport;
+  timeoutSupport: TimeoutSupport;
+  transcriptSupport: TranscriptSupport;
+  envSafetyPosture: EnvSafetyPosture;
+  receiptSupport: ReceiptSupport;
+  unattendedSafe: boolean;
+  unattendedReasons: string[];
+  degradations: string[];
   limitations: string[];
   warnings: string[];
   nextAction: string;
@@ -138,6 +171,7 @@ export interface DispatchRecord {
   parentDispatchId?: string;
   latestHeadSha?: string;
   cancelledAt?: string;
+  runnerFile?: string;
   authorityChanged: false;
   receiptVerified: false;
   productionDone: false;
@@ -195,11 +229,14 @@ export interface DispatchStatusResult {
   schemaVersion: 'lattice.dispatch_status.v1';
   dispatch: DispatchRecord;
   receipt?: HandoffReceiptSubmission;
+  runner?: DispatchRunnerRecord;
   workers: DispatchStatusResult[];
   authorityChanged: false;
   receiptVerified: false;
   productionDone: false;
 }
+
+export type { DispatchRunnerRecord };
 
 export interface DispatchListResult {
   schemaVersion: 'lattice.dispatch_list.v1';
@@ -216,12 +253,26 @@ export interface DispatchListResult {
   productionDone: false;
 }
 
+export interface DispatchReviewRunnerSummary {
+  runnerKind: string;
+  cwd: string;
+  transcriptPath: string;
+  exitCode?: number;
+  timedOut: boolean;
+  commandTemplate: string[];
+}
+
 export interface DispatchReviewResult {
   schemaVersion: 'lattice.dispatch_review.v1';
   dispatchId: string;
   storyId: string;
   status: DispatchLifecycleStatus;
   changedFiles: string[];
+  commands: string[];
+  transcriptPath: string;
+  transcriptExists: boolean;
+  runnerSummary?: DispatchReviewRunnerSummary;
+  localReceiptStatus: 'accepted-local' | 'diagnostic' | 'missing';
   receipt?: HandoffReceiptSubmission;
   workers: DispatchReviewResult[];
   warnings: string[];
@@ -253,6 +304,48 @@ export interface DispatchMergePlanResult {
   productionDone: false;
 }
 
+export interface DispatchAutoResult {
+  schemaVersion: 'lattice.dispatch_auto.v1';
+  dispatchId: string;
+  storyId: string;
+  host: HostRuntimeId;
+  status: DispatchLifecycleStatus;
+  parallel: number;
+  policy: string;
+  workers: DispatchAutoResult[];
+  warnings: string[];
+  nextAction: string;
+  authorityChanged: false;
+  receiptVerified: false;
+  productionDone: false;
+}
+
+export interface DispatchWatchWorkerSummary {
+  dispatchId: string;
+  status: DispatchLifecycleStatus;
+  runnerKind?: string;
+}
+
+export interface DispatchWatchResult {
+  schemaVersion: 'lattice.dispatch_watch.v1';
+  dispatchId: string;
+  storyId: string;
+  status: DispatchLifecycleStatus;
+  workers: DispatchWatchWorkerSummary[];
+  runnerSummary?: {
+    runnerKind: string;
+    cwd: string;
+    exitCode?: number;
+    timedOut: boolean;
+    transcriptPath: string;
+  };
+  changedFilesCount?: number;
+  nextAction: string;
+  authorityChanged: false;
+  receiptVerified: false;
+  productionDone: false;
+}
+
 type DispatchPlanArgs = {
   storyId: string;
   host?: string;
@@ -276,6 +369,21 @@ type DispatchPrepareArgs = DispatchPlanArgs & {
 
 type DispatchRunArgs = DispatchPrepareArgs & {
   dispatchId?: string;
+  executionPolicy?: DispatchCommandExecutionPolicy;
+};
+
+type DispatchCommandExecutionPolicy = {
+  envAllowlist: string[];
+  envDenylist: string[];
+  commandAllowlist: string[];
+  maxRuntimeMs: number;
+};
+
+type RequiredCommandResult = {
+  command: string;
+  ok: boolean;
+  output: string;
+  timedOut?: boolean;
 };
 
 const TERMINAL_DISPATCH_STATUSES = new Set<DispatchLifecycleStatus>([
@@ -345,6 +453,243 @@ function runtimeTemplate(host: HostRuntimeId): string[] | undefined {
   return ['codex', 'exec', '--prompt-file', '<prompt-file>'];
 }
 
+interface RealHostCapabilities {
+  versionStatus: VersionStatus;
+  version?: string;
+  loginReadiness: LoginReadiness;
+  noninteractiveSupport: NoninteractiveSupport;
+  cwdSupport: CwdSupport;
+  timeoutSupport: TimeoutSupport;
+  transcriptSupport: TranscriptSupport;
+  envSafetyPosture: EnvSafetyPosture;
+  receiptSupport: ReceiptSupport;
+  unattendedSafe: boolean;
+  unattendedReasons: string[];
+  degradations: string[];
+}
+
+function probeClaudeCodeCapabilities(commandPath: string | null): RealHostCapabilities {
+  const unattendedReasons: string[] = [];
+  const degradations: string[] = [];
+
+  // Version detection
+  let versionStatus: VersionStatus = 'unavailable';
+  let version: string | undefined;
+  if (commandPath) {
+    try {
+      const versionOutput = execFileSync('claude', ['--version'], {
+        encoding: 'utf8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+        timeout: 5000,
+      }).trim();
+      if (versionOutput) {
+        versionStatus = 'detected';
+        version = versionOutput;
+      } else {
+        versionStatus = 'unknown';
+      }
+    } catch {
+      versionStatus = 'unknown';
+    }
+  }
+
+  // Noninteractive support: check if --print / -p flag is present in help output
+  let noninteractiveSupport: NoninteractiveSupport = 'unverified';
+  if (commandPath) {
+    try {
+      let helpOutput = '';
+      try {
+        helpOutput = execFileSync('claude', ['--help'], {
+          encoding: 'utf8',
+          stdio: ['pipe', 'pipe', 'pipe'],
+          timeout: 5000,
+        });
+      } catch (err: any) {
+        // Some CLI tools exit non-zero for --help; capture stderr output too
+        helpOutput = String(err?.stdout || '') + String(err?.stderr || '');
+      }
+      if (/--print\b|-p\b/i.test(helpOutput)) {
+        noninteractiveSupport = 'supported';
+      } else if (helpOutput.length > 0) {
+        noninteractiveSupport = 'unsupported';
+        unattendedReasons.push('claude --help output does not document --print/-p noninteractive flag; unattended execution not confirmed.');
+      } else {
+        noninteractiveSupport = 'unverified';
+        unattendedReasons.push('claude --help produced no output; noninteractive support cannot be verified.');
+      }
+    } catch {
+      noninteractiveSupport = 'unverified';
+      unattendedReasons.push('claude --help failed; noninteractive support cannot be verified.');
+    }
+  } else {
+    unattendedReasons.push('claude CLI is not available; noninteractive execution is impossible.');
+  }
+
+  // cwd, timeout, transcript: standard subprocess behavior; supported when CLI is present
+  const cwdSupport: CwdSupport = commandPath ? 'supported' : 'unverified';
+  const timeoutSupport: TimeoutSupport = commandPath ? 'supported' : 'unverified';
+  const transcriptSupport: TranscriptSupport = commandPath ? 'supported' : 'unverified';
+  if (!commandPath) {
+    degradations.push('cwd, timeout, and transcript support cannot be confirmed without a live CLI.');
+  }
+
+  // Environment safety: Claude Code inherits the invoker's environment
+  const envSafetyPosture: EnvSafetyPosture = commandPath ? 'inherited' : 'unverified';
+  if (commandPath) {
+    degradations.push('claude-code inherits the invoker environment; sensitive env vars are visible to the subprocess unless filtered by Lattice policy.');
+  }
+
+  // Login readiness: ANTHROPIC_API_KEY is a strong signal for non-interactive auth
+  const loginReadiness: LoginReadiness = process.env.ANTHROPIC_API_KEY?.trim()
+    ? 'ready'
+    : (commandPath ? 'unknown' : 'unknown');
+
+  // Receipt support: stdout/stderr captured as transcript; Lattice builds receipt from transcript + git
+  const receiptSupport: ReceiptSupport = commandPath ? 'transcript-capture' : 'unverified';
+
+  if (!commandPath) {
+    unattendedReasons.push('claude CLI is not available in PATH.');
+  }
+  if (noninteractiveSupport !== 'supported') {
+    unattendedReasons.push('Noninteractive (--print/-p) support not confirmed; bounded unattended execution cannot be guaranteed.');
+  }
+  // Policy + dispatch_auto binding required before any unattended run may start
+  unattendedReasons.push('Unattended execution requires a dispatch_policy_check authorization and dispatch_auto policy binding before starting.');
+
+  return {
+    versionStatus,
+    ...(version !== undefined ? { version } : {}),
+    loginReadiness,
+    noninteractiveSupport,
+    cwdSupport,
+    timeoutSupport,
+    transcriptSupport,
+    envSafetyPosture,
+    receiptSupport,
+    unattendedSafe: false,
+    unattendedReasons,
+    degradations,
+  };
+}
+
+function probeGeminiCapabilities(commandPath: string | null): RealHostCapabilities {
+  const unattendedReasons: string[] = [];
+  const degradations: string[] = [];
+
+  const versionStatus: VersionStatus = commandPath ? 'unknown' : 'unavailable';
+  const noninteractiveSupport: NoninteractiveSupport = 'unverified';
+  if (commandPath) {
+    degradations.push('gemini version/help probing is intentionally skipped by host_runtime_probe; provider CLIs can block or authenticate during help startup.');
+    unattendedReasons.push('gemini noninteractive support is unverified by the safe probe; dispatch_auto must require policy binding and a bounded runner before launch.');
+  } else {
+    unattendedReasons.push('gemini CLI is not available; noninteractive execution is impossible.');
+  }
+
+  const cwdSupport: CwdSupport = commandPath ? 'supported' : 'unverified';
+  const timeoutSupport: TimeoutSupport = commandPath ? 'supported' : 'unverified';
+  const transcriptSupport: TranscriptSupport = commandPath ? 'supported' : 'unverified';
+  if (!commandPath) {
+    degradations.push('cwd, timeout, and transcript support cannot be confirmed without a live CLI.');
+  }
+
+  const envSafetyPosture: EnvSafetyPosture = commandPath ? 'inherited' : 'unverified';
+  if (commandPath) {
+    degradations.push('gemini inherits the invoker environment; sensitive env vars are visible to the subprocess unless filtered by Lattice policy.');
+  }
+
+  // Login readiness: gemini typically requires gcloud auth or application default credentials
+  const loginReadiness: LoginReadiness = 'unknown';
+  const receiptSupport: ReceiptSupport = commandPath ? 'transcript-capture' : 'unverified';
+
+  if (!commandPath) {
+    unattendedReasons.push('gemini CLI is not available in PATH.');
+  }
+  unattendedReasons.push('Noninteractive mode is unverified for gemini; bounded unattended execution cannot be guaranteed by host_runtime_probe alone.');
+  unattendedReasons.push('Unattended execution requires a dispatch_policy_check authorization and dispatch_auto policy binding before starting.');
+
+  return {
+    versionStatus,
+    loginReadiness,
+    noninteractiveSupport,
+    cwdSupport,
+    timeoutSupport,
+    transcriptSupport,
+    envSafetyPosture,
+    receiptSupport,
+    unattendedSafe: false,
+    unattendedReasons,
+    degradations,
+  };
+}
+
+function probeCodexCapabilities(commandPath: string | null, isCodexSession: boolean): RealHostCapabilities {
+  const unattendedReasons: string[] = [];
+  const degradations: string[] = [];
+
+  if (isCodexSession) {
+    // Running inside a Codex session: capabilities are available in-process
+    degradations.push('Codex session inherits the invoker environment; sensitive env vars are visible unless filtered by Lattice policy.');
+    unattendedReasons.push('Unattended execution requires a dispatch_policy_check authorization and dispatch_auto policy binding before starting.');
+    return {
+      versionStatus: 'unknown',
+      loginReadiness: 'ready',
+      noninteractiveSupport: 'supported',
+      cwdSupport: 'supported',
+      timeoutSupport: 'supported',
+      transcriptSupport: 'supported',
+      envSafetyPosture: 'inherited',
+      receiptSupport: 'transcript-capture',
+      unattendedSafe: false,
+      unattendedReasons,
+      degradations,
+    };
+  }
+
+  const versionStatus: VersionStatus = commandPath ? 'unknown' : 'unavailable';
+  const noninteractiveSupport: NoninteractiveSupport = 'unverified';
+  if (commandPath) {
+    degradations.push('codex version/help probing is intentionally skipped by host_runtime_probe; the current Codex host may be the active operator and must not be auto-driven by a probe.');
+    unattendedReasons.push('codex CLI noninteractive support is unverified by the safe probe; dispatch_auto must require policy binding and a bounded runner before launch.');
+  } else {
+    unattendedReasons.push('codex CLI is not available; noninteractive execution is impossible.');
+  }
+
+  const cwdSupport: CwdSupport = commandPath ? 'supported' : 'unverified';
+  const timeoutSupport: TimeoutSupport = commandPath ? 'supported' : 'unverified';
+  const transcriptSupport: TranscriptSupport = commandPath ? 'supported' : 'unverified';
+  if (!commandPath) {
+    degradations.push('cwd, timeout, and transcript support cannot be confirmed without a live CLI.');
+  }
+
+  const envSafetyPosture: EnvSafetyPosture = commandPath ? 'inherited' : 'unverified';
+  if (commandPath) {
+    degradations.push('codex inherits the invoker environment; sensitive env vars are visible to the subprocess unless filtered by Lattice policy.');
+  }
+
+  const loginReadiness: LoginReadiness = 'unknown';
+  const receiptSupport: ReceiptSupport = commandPath ? 'transcript-capture' : 'unverified';
+
+  if (!commandPath) {
+    unattendedReasons.push('codex CLI is not available in PATH.');
+  }
+  unattendedReasons.push('Noninteractive mode is unverified for codex; bounded unattended execution cannot be guaranteed by host_runtime_probe alone.');
+  unattendedReasons.push('Unattended execution requires a dispatch_policy_check authorization and dispatch_auto policy binding before starting.');
+
+  return {
+    versionStatus,
+    loginReadiness,
+    noninteractiveSupport,
+    cwdSupport,
+    timeoutSupport,
+    transcriptSupport,
+    envSafetyPosture,
+    receiptSupport,
+    unattendedSafe: false,
+    unattendedReasons,
+    degradations,
+  };
+}
+
 export function probeHostRuntime(host: string): HostRuntimeProbe {
   const normalized = normalizeHostRuntimeId(host);
   if (!normalized) {
@@ -361,6 +706,18 @@ export function probeHostRuntime(host: string): HostRuntimeProbe {
       matchedFallback: host.trim().toLowerCase() !== 'fake',
       runtimeKind: 'fake',
       invocationTemplate: runtimeTemplate('fake'),
+      versionStatus: 'detected',
+      version: 'fake-deterministic',
+      loginReadiness: 'ready',
+      noninteractiveSupport: 'supported',
+      cwdSupport: 'supported',
+      timeoutSupport: 'supported',
+      transcriptSupport: 'supported',
+      envSafetyPosture: 'sandboxed',
+      receiptSupport: 'structured',
+      unattendedSafe: false,
+      unattendedReasons: ['Fake runtime is for deterministic local test coverage only; not for production unattended use.'],
+      degradations: [],
       limitations: [
         'Deterministic local test harness only.',
         'Produces local diagnostic receipts only.',
@@ -373,7 +730,8 @@ export function probeHostRuntime(host: string): HostRuntimeProbe {
   }
 
   const cliCommand = REAL_HOST_CLI[normalized];
-  const commandPath = normalized === 'codex' && currentCodexSessionAvailable()
+  const isCodexSession = normalized === 'codex' && currentCodexSessionAvailable();
+  const commandPath = isCodexSession
     ? process.execPath
     : detectCommandPath(cliCommand);
   const available = Boolean(commandPath);
@@ -384,6 +742,14 @@ export function probeHostRuntime(host: string): HostRuntimeProbe {
     : [
       `${cliCommand} CLI is not available in PATH; runtime stays unavailable-safe and will not start the host automatically.`,
     ];
+
+  // Real host unattended capability contract (CHK-002 claude-code / CHK-004 all hosts)
+  const capabilities: RealHostCapabilities = normalized === 'claude-code'
+    ? probeClaudeCodeCapabilities(commandPath)
+    : normalized === 'gemini'
+      ? probeGeminiCapabilities(commandPath)
+      : probeCodexCapabilities(commandPath, isCodexSession);
+
   return {
     schemaVersion: 'lattice.host_runtime_probe.v1',
     host: normalized,
@@ -396,6 +762,18 @@ export function probeHostRuntime(host: string): HostRuntimeProbe {
     cliCommand,
     ...(commandPath ? { commandPath } : {}),
     invocationTemplate: runtimeTemplate(normalized),
+    versionStatus: capabilities.versionStatus,
+    ...(capabilities.version !== undefined ? { version: capabilities.version } : {}),
+    loginReadiness: capabilities.loginReadiness,
+    noninteractiveSupport: capabilities.noninteractiveSupport,
+    cwdSupport: capabilities.cwdSupport,
+    timeoutSupport: capabilities.timeoutSupport,
+    transcriptSupport: capabilities.transcriptSupport,
+    envSafetyPosture: capabilities.envSafetyPosture,
+    receiptSupport: capabilities.receiptSupport,
+    unattendedSafe: capabilities.unattendedSafe,
+    unattendedReasons: capabilities.unattendedReasons,
+    degradations: capabilities.degradations,
     limitations: [
       'Real-host execution is scaffolded only in this milestone.',
       'No external host is auto-driven by Lattice dispatch_run.',
@@ -403,7 +781,7 @@ export function probeHostRuntime(host: string): HostRuntimeProbe {
     ],
     warnings,
     nextAction: available
-      ? `Use dispatch_prepare/dispatch_run to generate the isolated worktree + prompt metadata, then run ${cliCommand} manually and return a local receipt.`
+      ? `${normalized} is supervised-only until dispatch_auto (CHK-006) is authorized. Use dispatch_prepare/dispatch_run to generate the isolated worktree + prompt metadata, then run ${cliCommand} manually and return a local receipt. Unattended execution requires dispatch_policy_check authorization and dispatch_auto policy binding.`
       : `Install or expose ${cliCommand} in PATH, or use host=fake for deterministic local coverage.`,
     authority: authorityState(),
   };
@@ -964,18 +1342,88 @@ function gitOutput(cwd: string, args: string[]): string {
   }).trim();
 }
 
-function runRequiredCommands(worktreeRoot: string, commands: string[]): Array<{ command: string; ok: boolean; output: string }> {
+const UNSAFE_COMMAND_ENV_PATTERN = /TOKEN|SECRET|PASSWORD|PASSWD|KEY|CREDENTIAL|AUTH|PRIVATE/i;
+const SAFE_COMMAND_ENV_BASICS = [
+  'PATH',
+  'HOME',
+  'USER',
+  'LOGNAME',
+  'TMPDIR',
+  'TMP',
+  'TEMP',
+  'SystemRoot',
+  'ComSpec',
+];
+
+function isUnsafeCommandEnvName(name: string): boolean {
+  return UNSAFE_COMMAND_ENV_PATTERN.test(name);
+}
+
+function buildRequiredCommandEnv(policy?: DispatchCommandExecutionPolicy): Record<string, string | undefined> {
+  if (!policy) return process.env;
+
+  const denied = new Set(policy.envDenylist.map(name => name.trim()).filter(Boolean));
+  const env: Record<string, string | undefined> = {};
+  const copyIfAllowed = (name: string): void => {
+    const trimmed = name.trim();
+    if (!trimmed || denied.has(trimmed) || isUnsafeCommandEnvName(trimmed)) return;
+    const value = process.env[trimmed];
+    if (value !== undefined) env[trimmed] = value;
+  };
+
+  for (const name of SAFE_COMMAND_ENV_BASICS) copyIfAllowed(name);
+  for (const name of policy.envAllowlist) copyIfAllowed(name);
+  return env;
+}
+
+function commandTimedOut(error: any, timeoutMs: number | undefined): boolean {
+  if (timeoutMs === undefined) return false;
+  const message = String(error?.message || error?.stderr || error?.stdout || error);
+  return error?.signal === 'SIGTERM'
+    || error?.code === 'ETIMEDOUT'
+    || /timed out|timeout|SIGTERM|ETIMEDOUT/i.test(message);
+}
+
+function commandFailureOutput(error: any, timedOut: boolean, timeoutMs: number | undefined): string {
+  const details = String(error?.stderr || error?.stdout || error?.message || error).trim();
+  if (!timedOut) return details;
+  const timeoutNote = `timed out after ${Math.ceil(timeoutMs ?? 0)}ms`;
+  return details ? `${timeoutNote}; ${details}` : timeoutNote;
+}
+
+function runRequiredCommands(
+  worktreeRoot: string,
+  commands: string[],
+  executionPolicy?: DispatchCommandExecutionPolicy,
+  env: Record<string, string | undefined> = buildRequiredCommandEnv(executionPolicy),
+): RequiredCommandResult[] {
+  const commandAllowlist = new Set(executionPolicy?.commandAllowlist ?? []);
+  const timeoutMs = executionPolicy ? Math.ceil(executionPolicy.maxRuntimeMs) : undefined;
   return commands.map((command) => {
+    if (executionPolicy && !commandAllowlist.has(command)) {
+      return {
+        command,
+        ok: false,
+        output: 'refused before execution: command is not in dispatch_auto policy commandAllowlist',
+      };
+    }
     try {
       const output = execSync(command, {
         cwd: worktreeRoot,
         encoding: 'utf8',
         stdio: ['pipe', 'pipe', 'pipe'],
+        env,
+        ...(timeoutMs !== undefined ? { timeout: timeoutMs } : {}),
       });
       return { command, ok: true, output: output.trim() };
     } catch (error: any) {
-      const details = String(error?.stderr || error?.stdout || error?.message || error).trim();
-      return { command, ok: false, output: details };
+      const timedOut = commandTimedOut(error, timeoutMs);
+      return {
+        command,
+        ok: false,
+        output: commandFailureOutput(error, timedOut, timeoutMs),
+        ...(timedOut ? { timedOut: true } : {}),
+      };
     }
   });
 }
@@ -989,7 +1437,7 @@ function createFakeReceipt(
   record: Pick<DispatchRecord, 'dispatchId' | 'selectedHost'>,
   headSha: string,
   changedFiles: string[],
-  commandResults: Array<{ command: string; ok: boolean; output: string }>,
+  commandResults: RequiredCommandResult[],
   warnings: string[],
 ): HandoffReceipt {
   const failedCommand = commandResults.find(result => !result.ok);
@@ -1153,6 +1601,7 @@ export function prepareDispatch(store: StoryStore, root: string, args: DispatchP
     collectFile: relative(root, dispatchFile(root, dispatchId, 'collect.json')),
     receiptFile: relative(root, dispatchFile(root, dispatchId, 'receipt.json')),
     receiptSubmissionFile: relative(root, dispatchFile(root, dispatchId, 'receipt-submit.json')),
+    runnerFile: relative(root, dispatchFile(root, dispatchId, 'runner.json')),
     worktree: {
       branch: worktree.branch,
       worktreePath: worktree.worktreePath,
@@ -1168,7 +1617,13 @@ export function prepareDispatch(store: StoryStore, root: string, args: DispatchP
   return writeRecord(root, record);
 }
 
-function runFakeLeafDispatch(store: StoryStore, root: string, record: DispatchRecord): DispatchRunResult {
+function runFakeLeafDispatch(
+  store: StoryStore,
+  root: string,
+  record: DispatchRecord,
+  executionPolicy?: DispatchCommandExecutionPolicy,
+): DispatchRunResult {
+  const runnerStartedAt = nowIso();
   let pack = readPack(root, record.dispatchId);
   pack = ensurePreparedPackForFake(root, record.dispatchId, pack);
   const projectedWorktreeAbs = resolve(root, record.worktree.worktreePath);
@@ -1184,7 +1639,8 @@ function runFakeLeafDispatch(store: StoryStore, root: string, record: DispatchRe
   appendTranscript(resolve(root, record.transcriptFile), [
     `[${nowIso()}] fake runtime prepared ${safeMarkerPath}`,
   ]);
-  const commandResults = runRequiredCommands(worktreeAbs, pack.requiredCommands);
+  const commandEnv = buildRequiredCommandEnv(executionPolicy);
+  const commandResults = runRequiredCommands(worktreeAbs, pack.requiredCommands, executionPolicy, commandEnv);
   appendTranscript(resolve(root, record.transcriptFile), commandResults.map(result => (
     `[${nowIso()}] command ${result.ok ? 'ok' : 'fail'} ${result.command}${result.output ? ` :: ${result.output}` : ''}`
   )));
@@ -1221,6 +1677,24 @@ function runFakeLeafDispatch(store: StoryStore, root: string, record: DispatchRe
   const nextAction = submission.status === 'accepted-local'
     ? 'Fake dispatch completed. Review the isolated overflow diff and receipt manually before any merge.'
     : submission.nextAction;
+  const runnerEndedAt = nowIso();
+  const fakeExitCode = commandWarnings.length > 0 ? 1 : 0;
+  const commandTimedOut = commandResults.some(result => result.timedOut === true);
+  const runnerRecord = buildFakeRunnerRecord({
+    dispatchId: record.dispatchId,
+    host: record.selectedHost,
+    commandTemplate: record.runtime.invocationTemplate ?? ['fake-runtime', '--deterministic'],
+    cwd: record.worktree.worktreePath,
+    transcriptPath: record.transcriptFile,
+    startedAt: runnerStartedAt,
+    endedAt: runnerEndedAt,
+    exitCode: fakeExitCode,
+    timedOut: commandTimedOut,
+    env: commandEnv,
+  });
+  if (record.runnerFile) {
+    writeJson(resolve(root, record.runnerFile), runnerRecord);
+  }
   writeRecord(root, {
     ...record,
     status: nextStatus,
@@ -1300,7 +1774,7 @@ export function runDispatch(store: StoryStore, root: string, args: DispatchRunAr
       const childArgs = childDispatchArgs(pack, record, index);
       const childRecord = prepareDispatch(store, root, { ...childArgs });
       workerIds.push(childRecord.dispatchId);
-      workers.push(runFakeLeafDispatch(store, root, childRecord));
+      workers.push(runFakeLeafDispatch(store, root, childRecord, args.executionPolicy));
     }
     const aggregate = aggregateStatus(workers.map(worker => worker.status));
     const warnings = workers.flatMap(worker => worker.warnings);
@@ -1332,11 +1806,27 @@ export function runDispatch(store: StoryStore, root: string, args: DispatchRunAr
   }
 
   if (record.selectedHost === 'fake') {
-    return runFakeLeafDispatch(store, root, record);
+    return runFakeLeafDispatch(store, root, record, args.executionPolicy);
   }
 
   const runtime = record.runtime;
   if (!runtime.available) {
+    const refusalReasons = [
+      ...runtime.warnings,
+      ...runtime.unattendedReasons,
+      `Host ${runtime.host} is not available; run refused.`,
+    ];
+    const refusedRunner = buildRefusedRunnerRecord({
+      dispatchId: record.dispatchId,
+      host: record.selectedHost,
+      commandTemplate: runtime.invocationTemplate ?? [],
+      cwd: record.worktree.worktreePath,
+      transcriptPath: record.transcriptFile,
+      refusalReasons,
+    });
+    if (record.runnerFile) {
+      writeJson(resolve(root, record.runnerFile), refusedRunner);
+    }
     const updated = writeRecord(root, {
       ...record,
       status: 'unavailable',
@@ -1440,6 +1930,7 @@ export function runDispatch(store: StoryStore, root: string, args: DispatchRunAr
       productionDone: false,
     };
   }
+  const scaffoldStartedAt = nowIso();
   const promptFile = resolve(root, record.promptFile);
   const invocation = runtime.invocationTemplate?.map(part =>
     part === '<prompt-file>' ? promptFile : part === '<worktree>' ? record.worktree.worktreePath : part,
@@ -1451,6 +1942,19 @@ export function runDispatch(store: StoryStore, root: string, args: DispatchRunAr
   ]);
   const status: DispatchLifecycleStatus = 'needs_receipt';
   const nextAction = `Manual-first only. Worktree is ready at ${record.worktree.worktreePath}. Run ${invocation.join(' ')} there, then return a local receipt via dispatch_collect/dispatch_receipt_create.`;
+  const scaffoldedRunner = buildScaffoldedRunnerRecord({
+    dispatchId: record.dispatchId,
+    host: record.selectedHost,
+    commandTemplate: runtime.invocationTemplate ?? [],
+    invocation,
+    cwd: record.worktree.worktreePath,
+    transcriptPath: record.transcriptFile,
+    startedAt: scaffoldStartedAt,
+    endedAt: nowIso(),
+  });
+  if (record.runnerFile) {
+    writeJson(resolve(root, record.runnerFile), scaffoldedRunner);
+  }
   const updated = writeRecord(root, {
     ...record,
     status,
@@ -1539,14 +2043,21 @@ function maybeReadReceiptSubmission(root: string, record: DispatchRecord): Hando
   return maybeReadJson<HandoffReceiptSubmission>(resolve(root, record.receiptSubmissionFile));
 }
 
+function maybeReadRunnerRecord(root: string, record: DispatchRecord): DispatchRunnerRecord | undefined {
+  if (!record.runnerFile) return undefined;
+  return maybeReadJson<DispatchRunnerRecord>(resolve(root, record.runnerFile));
+}
+
 export function dispatchStatus(root: string, dispatchId: string): DispatchStatusResult {
   const record = readRecord(root, dispatchId);
   const effectiveStatus = resolveEffectiveStatus(record);
   const current = effectiveStatus === record.status ? record : { ...record, status: effectiveStatus };
+  const runner = maybeReadRunnerRecord(root, current);
   return {
     schemaVersion: 'lattice.dispatch_status.v1',
     dispatch: current,
     receipt: maybeReadReceiptSubmission(root, current),
+    ...(runner !== undefined ? { runner } : {}),
     workers: current.workerIds.map(workerId => dispatchStatus(root, workerId)),
     authorityChanged: false,
     receiptVerified: false,
@@ -1607,19 +2118,40 @@ export function cancelDispatch(root: string, dispatchId: string): DispatchStatus
   return dispatchStatus(root, updated.dispatchId);
 }
 
+function normalizeReceiptSubmissionAuthority(sub: HandoffReceiptSubmission): HandoffReceiptSubmission {
+  return {
+    ...sub,
+    authorityChanged: false,
+    receiptVerified: false,
+    productionDone: false,
+  };
+}
+
 export function reviewDispatch(root: string, dispatchId: string): DispatchReviewResult {
   const status = dispatchStatus(root, dispatchId);
-  const receipt = status.receipt;
+  // Normalize receipt to ensure forged authority fields in persisted files cannot surface as true.
+  const receipt = status.receipt ? normalizeReceiptSubmissionAuthority(status.receipt) : undefined;
   if (status.dispatch.workerIds.length > 0) {
     const workers = status.workers.map(worker => reviewDispatch(root, worker.dispatch.dispatchId));
     const warnings = workers.flatMap(worker => worker.warnings);
     const risks = workers.flatMap(worker => worker.risks);
+    const transcriptPath = status.dispatch.transcriptFile;
+    const transcriptAbsPath = resolve(root, transcriptPath);
+    const transcriptExists = existsSync(transcriptAbsPath) && (statSync(transcriptAbsPath).size > 0);
+    const localReceiptStatus: DispatchReviewResult['localReceiptStatus'] =
+      workers.some(w => w.localReceiptStatus === 'accepted-local')
+        ? workers.every(w => w.localReceiptStatus === 'accepted-local') ? 'accepted-local' : 'diagnostic'
+        : workers.some(w => w.localReceiptStatus === 'diagnostic') ? 'diagnostic' : 'missing';
     return {
       schemaVersion: 'lattice.dispatch_review.v1',
       dispatchId,
       storyId: status.dispatch.storyId,
       status: aggregateStatus(workers.map(worker => worker.status)),
       changedFiles: [...new Set(workers.flatMap(worker => worker.changedFiles))].sort(),
+      commands: [...new Set(workers.flatMap(worker => worker.commands))],
+      transcriptPath,
+      transcriptExists,
+      localReceiptStatus,
       workers,
       warnings,
       risks,
@@ -1632,10 +2164,28 @@ export function reviewDispatch(root: string, dispatchId: string): DispatchReview
     };
   }
   const collection = collectDispatch(root, dispatchId, { persist: false });
+  const transcriptPath = status.dispatch.transcriptFile;
+  const transcriptAbsPath = resolve(root, transcriptPath);
+  // transcriptExists is true only when the transcript file has been written to (non-empty).
+  // The placeholder file is created during dispatch_prepare; actual content means the dispatch ran.
+  const transcriptExists = existsSync(transcriptAbsPath) && (statSync(transcriptAbsPath).size > 0);
+  const runner = status.runner;
+  const runnerSummary: DispatchReviewRunnerSummary | undefined = runner ? {
+    runnerKind: runner.runnerKind,
+    cwd: runner.cwd,
+    transcriptPath: runner.transcriptPath,
+    ...(runner.exitCode !== undefined ? { exitCode: runner.exitCode } : {}),
+    timedOut: runner.timedOut,
+    commandTemplate: [...runner.commandTemplate],
+  } : undefined;
+  const localReceiptStatus: DispatchReviewResult['localReceiptStatus'] = receipt
+    ? (receipt.status === 'accepted-local' ? 'accepted-local' : 'diagnostic')
+    : 'missing';
   const risks = [
     ...(status.dispatch.status === 'accepted_local' ? [] : [`dispatch status=${status.dispatch.status}`]),
     ...(receipt?.status === 'accepted-local' ? [] : ['receipt is diagnostic-only or missing']),
     ...(collection.changedFiles.length > 0 ? [] : ['no git-derived changedFiles collected']),
+    ...(!transcriptExists ? ['transcript file missing or not yet written'] : []),
   ];
   return {
     schemaVersion: 'lattice.dispatch_review.v1',
@@ -1643,6 +2193,11 @@ export function reviewDispatch(root: string, dispatchId: string): DispatchReview
     storyId: status.dispatch.storyId,
     status: status.dispatch.status,
     changedFiles: collection.changedFiles,
+    commands: collection.commands,
+    transcriptPath,
+    transcriptExists,
+    ...(runnerSummary ? { runnerSummary } : {}),
+    localReceiptStatus,
     ...(receipt ? { receipt } : {}),
     workers: [],
     warnings: [...status.dispatch.warnings, ...collection.warnings, ...(receipt?.warnings ?? [])],
@@ -1658,23 +2213,35 @@ export function reviewDispatch(root: string, dispatchId: string): DispatchReview
 
 export function buildDispatchMergePlan(root: string, dispatchId: string): DispatchMergePlanResult {
   const status = dispatchStatus(root, dispatchId);
-  const workers = status.dispatch.workerIds.length > 0
-    ? status.workers.map(worker => ({
-      dispatchId: worker.dispatch.dispatchId,
-      status: worker.dispatch.status,
-      reviewCommand: worker.dispatch.worktree.reviewCommand,
-      cleanupCommand: worker.dispatch.worktree.cleanupCommand,
-    }))
-    : [{
-      dispatchId: status.dispatch.dispatchId,
-      status: status.dispatch.status,
-      reviewCommand: status.dispatch.worktree.reviewCommand,
-      cleanupCommand: status.dispatch.worktree.cleanupCommand,
-    }];
-  const mergeable = workers.every(worker => worker.status === 'accepted_local');
+  const workerRecords = status.dispatch.workerIds.length > 0
+    ? status.workers.map(w => w.dispatch)
+    : [status.dispatch];
+  const workers = workerRecords.map(record => ({
+    dispatchId: record.dispatchId,
+    status: record.status,
+    reviewCommand: record.worktree.reviewCommand,
+    cleanupCommand: record.worktree.cleanupCommand,
+  }));
+  const allLifecycleAccepted = workers.every(worker => worker.status === 'accepted_local');
+  // Defense in depth: verify accepted-local receipts actually exist on disk, not just lifecycle status.
+  // This prevents a forged or mutated receipt file from making mergeable=true after an invalid run.
+  const allReceiptsAccepted = workerRecords.every(record => {
+    const sub = maybeReadReceiptSubmission(root, record);
+    return sub?.status === 'accepted-local';
+  });
+  const mergeable = allLifecycleAccepted && allReceiptsAccepted;
+  const receiptMismatch = allLifecycleAccepted && !allReceiptsAccepted;
   const commands = mergeable
     ? workers.flatMap(worker => [`${worker.reviewCommand}`, `${worker.cleanupCommand}`])
     : [];
+  const warnings: string[] = [];
+  if (mergeable) {
+    warnings.push('Manual merge only: review each isolated worker diff and cherry-pick/merge by hand if accepted.');
+  } else if (receiptMismatch) {
+    warnings.push('Lifecycle status shows accepted_local but accepted-local receipt(s) are missing or diagnostic. Manual investigation required before merge.');
+  } else {
+    warnings.push('Normal merge guidance is withheld because the dispatch is not accepted_local across all required workers.');
+  }
   return {
     schemaVersion: 'lattice.dispatch_merge_plan.v1',
     dispatchId,
@@ -1684,9 +2251,7 @@ export function buildDispatchMergePlan(root: string, dispatchId: string): Dispat
     manualOnly: true,
     workers,
     commands,
-    warnings: mergeable
-      ? ['Manual merge only: review each isolated worker diff and cherry-pick/merge by hand if accepted.']
-      : ['Normal merge guidance is withheld because the dispatch is not accepted_local across all required workers.'],
+    warnings,
     nextAction: mergeable
       ? 'Manual merge only. Review diffs, receipt diagnostics, and required command output before merging anything back.'
       : status.dispatch.nextAction,
@@ -1720,8 +2285,281 @@ export function overflowAuto(
       gatingWarning,
     ],
     nextAction: plan.selectedHost === 'fake'
-      ? 'Run overflow_auto --approve=true --start=true or dispatch_run --host=fake to execute the deterministic local harness.'
-      : 'Review the suggested host and rerun with --approve=true --start=true if you want to materialize dispatch metadata.',
+      ? 'Run overflow_auto --approve=true --start=true or dispatch_run --host=fake to execute the deterministic local harness. For policy-authorized unattended scheduling, use dispatch_auto --policy=<name>.'
+      : 'Review the suggested host and rerun with --approve=true --start=true if you want to materialize dispatch metadata. For policy-authorized unattended scheduling, use dispatch_auto --policy=<name>.',
+  };
+}
+
+function pathIsWithinScope(candidate: string, scope: string): boolean {
+  if (scope === '.') return true;
+  return candidate === scope || candidate.startsWith(`${scope}/`);
+}
+
+function pathsOverlap(left: string, right: string): boolean {
+  return pathIsWithinScope(left, right) || pathIsWithinScope(right, left);
+}
+
+function normalizePolicyPaths(
+  root: string,
+  storyId: string,
+  policy: DispatchPolicy,
+): { allowedPaths: string[]; deniedPaths: string[] } {
+  const packId = `dispatch-auto-policy-${sanitizeSegment(policy.policy)}`;
+  return {
+    allowedPaths: normalizePackPathList(root, storyId, packId, policy.allowedPaths, 'allowedPaths'),
+    deniedPaths: normalizePackPathList(root, storyId, packId, policy.deniedPaths, 'deniedPaths'),
+  };
+}
+
+function defaultAllowedPathForPolicyScope(root: string, rawScope: string, normalizedScope: string, index: number): string {
+  if (normalizedScope === '.') return `dispatch-auto-result-${index + 1}.txt`;
+  const trimmed = rawScope.trim();
+  const rootCandidate = resolve(root, normalizedScope);
+  const isDirectoryScope = trimmed.endsWith('/') || trimmed.endsWith('\\')
+    || (existsSync(rootCandidate) && statSync(rootCandidate).isDirectory());
+  return isDirectoryScope
+    ? `${normalizedScope}/dispatch-auto-result-${index + 1}.txt`
+    : normalizedScope;
+}
+
+function uniqueStrings(values: string[]): string[] {
+  const seen = new Set<string>();
+  const result: string[] = [];
+  for (const value of values) {
+    if (seen.has(value)) continue;
+    seen.add(value);
+    result.push(value);
+  }
+  return result;
+}
+
+function bindDispatchAutoPathsToPolicy(
+  root: string,
+  args: DispatchRunArgs,
+  policy: DispatchPolicy,
+): Pick<DispatchRunArgs, 'allowedPaths' | 'deniedPaths'> {
+  const policyPaths = normalizePolicyPaths(root, args.storyId, policy);
+  const packId = args.packId?.trim() || `dispatch-auto-request-${sanitizeSegment(args.storyId)}`;
+  const requestedAllowedPaths = normalizePackPathList(root, args.storyId, packId, args.allowedPaths, 'allowedPaths');
+  const requestedDeniedPaths = normalizePackPathList(root, args.storyId, packId, args.deniedPaths, 'deniedPaths');
+  const effectiveAllowedPaths = requestedAllowedPaths.length > 0
+    ? requestedAllowedPaths
+    : policyPaths.allowedPaths.map((allowedPath, index) =>
+      defaultAllowedPathForPolicyScope(root, policy.allowedPaths[index] ?? allowedPath, allowedPath, index));
+
+  const errors: string[] = [];
+  for (const [index, allowedPath] of effectiveAllowedPaths.entries()) {
+    if (!policyPaths.allowedPaths.some(policyAllowed => pathIsWithinScope(allowedPath, policyAllowed))) {
+      errors.push(
+        `allowedPaths[${index}] "${allowedPath}" is outside policy "${policy.policy}" allowedPaths (${policy.allowedPaths.join(', ')})`,
+      );
+    }
+    const deniedOverlap = policyPaths.deniedPaths.find(policyDenied => pathsOverlap(allowedPath, policyDenied));
+    if (deniedOverlap) {
+      errors.push(
+        `allowedPaths[${index}] "${allowedPath}" overlaps policy "${policy.policy}" deniedPaths entry "${deniedOverlap}"`,
+      );
+    }
+  }
+  if (errors.length > 0) {
+    throw new Error(`dispatch_auto refused by policy scope:\n${errors.map(error => `  - ${error}`).join('\n')}`);
+  }
+
+  return {
+    allowedPaths: effectiveAllowedPaths,
+    deniedPaths: uniqueStrings([...policyPaths.deniedPaths, ...requestedDeniedPaths]),
+  };
+}
+
+function bindDispatchAutoCommandsToPolicy(args: DispatchRunArgs, policy: DispatchPolicy): string[] {
+  const requiredCommands = normalizeList(args.requiredCommands);
+  const allowedCommands = new Set(normalizeList(policy.commandAllowlist));
+  const refused = requiredCommands
+    .map((command, index) => ({ command, index }))
+    .filter(({ command }) => !allowedCommands.has(command));
+  if (refused.length > 0) {
+    throw new Error(
+      `dispatch_auto refused by policy commandAllowlist:\n${refused.map(({ command, index }) =>
+        `  - requiredCommands[${index}] "${command}" is not in policy "${policy.policy}" commandAllowlist`).join('\n')}`,
+    );
+  }
+  return requiredCommands;
+}
+
+function buildDispatchCommandExecutionPolicy(policy: DispatchPolicy): DispatchCommandExecutionPolicy {
+  return {
+    envAllowlist: normalizeList(policy.envAllowlist),
+    envDenylist: normalizeList(policy.envDenylist),
+    commandAllowlist: normalizeList(policy.commandAllowlist),
+    maxRuntimeMs: policy.maxRuntimeMinutes * 60 * 1000,
+  };
+}
+
+function bindDispatchAutoArgsToPolicy(
+  root: string,
+  args: DispatchRunArgs,
+  selectedHost: HostRuntimeId,
+  policy: DispatchPolicy,
+): DispatchRunArgs {
+  const paths = bindDispatchAutoPathsToPolicy(root, args, policy);
+  const requiredCommands = bindDispatchAutoCommandsToPolicy(args, policy);
+  return {
+    ...args,
+    host: selectedHost,
+    allowedPaths: paths.allowedPaths,
+    deniedPaths: paths.deniedPaths,
+    requiredCommands,
+    executionPolicy: buildDispatchCommandExecutionPolicy(policy),
+  };
+}
+
+type DispatchAutoArgs = DispatchRunArgs & {
+  policy: string;
+};
+
+export function dispatchAuto(store: StoryStore, root: string, args: DispatchAutoArgs): DispatchAutoResult {
+  const policyName = (args.policy ?? '').trim();
+  if (!policyName) {
+    throw new Error('dispatch_auto requires a policy name; set --policy=<name> to authorize unattended scheduling.');
+  }
+
+  let policyCheck: DispatchPolicyCheckResult;
+  try {
+    policyCheck = checkDispatchPolicy(root, policyName);
+  } catch (error: any) {
+    throw new Error(`dispatch_auto: policy "${policyName}" could not be loaded: ${String(error?.message || error)}`);
+  }
+
+  if (policyCheck.status === 'refused') {
+    throw new Error(
+      `dispatch_auto refused by policy "${policyName}":\n${policyCheck.reasons.map(r => `  - ${r}`).join('\n')}\n${policyCheck.nextAction}`,
+    );
+  }
+
+  const policy = policyCheck.normalizedPolicy;
+
+  const requestedHost = args.host?.trim();
+  let selectedHost: HostRuntimeId;
+  if (requestedHost) {
+    const normalized = normalizeHostRuntimeId(requestedHost);
+    if (!normalized) {
+      throw new Error(`dispatch_auto: unknown host "${requestedHost}"; must be fake|claude-code|gemini|codex`);
+    }
+    selectedHost = normalized;
+  } else {
+    const firstAllowed = policy.allowedHosts
+      .map(h => normalizeHostRuntimeId(h))
+      .find((n): n is HostRuntimeId => n !== null);
+    selectedHost = firstAllowed ?? 'fake';
+  }
+
+  if (!policy.allowedHosts.includes(selectedHost)) {
+    throw new Error(
+      `dispatch_auto: host "${selectedHost}" is not in policy "${policyName}" allowedHosts (${policy.allowedHosts.join(', ')}); only policy-allowed hosts may be scheduled.`,
+    );
+  }
+
+  const constrainedArgs = bindDispatchAutoArgsToPolicy(root, args, selectedHost, policy);
+
+  const existing = listDispatches(root, args.storyId);
+  const activeCount = existing.dispatches.filter(d => !TERMINAL_DISPATCH_STATUSES.has(d.status)).length;
+  if (activeCount >= policy.maxParallel) {
+    throw new Error(
+      `dispatch_auto: maxParallel limit (${policy.maxParallel}) reached; ${activeCount} active dispatch(es) found for story ${args.storyId}. Cancel or resolve existing dispatches before starting new ones.`,
+    );
+  }
+
+  if (selectedHost !== 'fake') {
+    const probe = probeHostRuntime(selectedHost);
+    if (!probe.available) {
+      throw new Error(
+        `dispatch_auto: host "${selectedHost}" is not available in PATH; install or expose ${probe.cliCommand ?? selectedHost} and retry, or use host=fake for deterministic local coverage.`,
+      );
+    }
+    throw new Error(
+      `dispatch_auto: host "${selectedHost}" is not unattended-safe (unattendedSafe=false). Real host unattended execution is not yet authorized for policy-driven scheduling. Run dispatch_prepare/dispatch_run manually and return a receipt, or use host=fake for deterministic local coverage.`,
+    );
+  }
+
+  if (!policyCheck.authorized) {
+    throw new Error(
+      `dispatch_auto: policy "${policyName}" is supervised-only and cannot authorize unattended scheduling. ${policyCheck.nextAction}`,
+    );
+  }
+
+  const parallel = Math.min(Math.max(1, args.parallel ?? 1), policy.maxParallel);
+  const runResult = runDispatch(store, root, { ...constrainedArgs, parallel });
+
+  function convertToAutoResult(worker: DispatchRunResult): DispatchAutoResult {
+    return {
+      schemaVersion: 'lattice.dispatch_auto.v1',
+      dispatchId: worker.dispatchId,
+      storyId: worker.storyId,
+      host: worker.host,
+      status: worker.status,
+      parallel: worker.parallel,
+      policy: policyName,
+      workers: worker.workers.map(convertToAutoResult),
+      warnings: [...worker.warnings],
+      nextAction: worker.nextAction,
+      authorityChanged: false,
+      receiptVerified: false,
+      productionDone: false,
+    };
+  }
+
+  return convertToAutoResult(runResult);
+}
+
+export function dispatchWatch(root: string, dispatchId: string): DispatchWatchResult {
+  const status = dispatchStatus(root, dispatchId);
+  const record = status.dispatch;
+  const effectiveStatus = record.status;
+
+  const runnerSummary = status.runner
+    ? {
+      runnerKind: status.runner.runnerKind,
+      cwd: status.runner.cwd,
+      ...(status.runner.exitCode !== undefined ? { exitCode: status.runner.exitCode } : {}),
+      timedOut: status.runner.timedOut,
+      transcriptPath: status.runner.transcriptPath,
+    }
+    : undefined;
+
+  let changedFilesCount: number | undefined;
+  try {
+    const collection = collectDispatch(root, dispatchId, { persist: false });
+    if (collection.changedFiles.length > 0) {
+      changedFilesCount = collection.changedFiles.length;
+    }
+  } catch {
+    // changedFilesCount remains undefined if collection fails
+  }
+
+  const workers: DispatchWatchWorkerSummary[] = status.workers.map(worker => ({
+    dispatchId: worker.dispatch.dispatchId,
+    status: worker.dispatch.status,
+    ...(worker.runner ? { runnerKind: worker.runner.runnerKind } : {}),
+  }));
+
+  const nextAction = TERMINAL_DISPATCH_STATUSES.has(effectiveStatus)
+    ? record.nextAction
+    : effectiveStatus === 'accepted_local'
+      ? 'Dispatch completed with local accepted receipt. Run dispatch_review or dispatch_merge_plan to inspect evidence before any merge.'
+      : record.nextAction;
+
+  return {
+    schemaVersion: 'lattice.dispatch_watch.v1',
+    dispatchId: record.dispatchId,
+    storyId: record.storyId,
+    status: effectiveStatus,
+    workers,
+    ...(runnerSummary !== undefined ? { runnerSummary } : {}),
+    ...(changedFilesCount !== undefined ? { changedFilesCount } : {}),
+    nextAction,
+    authorityChanged: false,
+    receiptVerified: false,
+    productionDone: false,
   };
 }
 
@@ -1850,6 +2688,28 @@ export function renderDispatchStatusText(result: DispatchStatusResult): string {
   if (result.receipt) {
     lines.push(`receipt.status: ${result.receipt.status}`);
   }
+  if (result.runner) {
+    const r = result.runner;
+    lines.push('', 'runner:');
+    lines.push(`  runnerKind: ${r.runnerKind}`);
+    if (r.commandTemplate.length > 0) {
+      lines.push(`  commandTemplate: ${r.commandTemplate.join(' ')}`);
+    }
+    if (r.invocation.length > 0) {
+      lines.push(`  invocation: ${r.invocation.join(' ')}`);
+    }
+    lines.push(`  cwd: ${r.cwd}`);
+    lines.push(`  transcriptPath: ${r.transcriptPath}`);
+    lines.push(`  startedAt: ${r.startedAt}`);
+    if (r.endedAt) lines.push(`  endedAt: ${r.endedAt}`);
+    if (r.exitCode !== undefined) lines.push(`  exitCode: ${r.exitCode}`);
+    if (r.timedOut) lines.push(`  timedOut: true`);
+    lines.push(`  envSummary: ${r.envSummary.totalVars} vars, ${r.envSummary.sensitiveFiltered} sensitive filtered`);
+    if (r.refusalReasons.length > 0) {
+      lines.push('  refusalReasons:');
+      lines.push(...r.refusalReasons.map(reason => `    - ${reason}`));
+    }
+  }
   if (result.workers.length > 0) {
     lines.push('', 'workers:');
     lines.push(...result.workers.map(worker => `  - ${worker.dispatch.dispatchId}: ${worker.dispatch.status}`));
@@ -1873,11 +2733,31 @@ export function renderDispatchReviewText(result: DispatchReviewResult): string {
     `storyId: ${result.storyId}`,
     `status: ${result.status}`,
     `changedFiles: ${result.changedFiles.length}`,
+    `transcriptPath: ${result.transcriptPath}`,
+    `transcriptExists: ${result.transcriptExists}`,
+    `localReceiptStatus: ${result.localReceiptStatus}`,
     `nextAction: ${result.nextAction}`,
   ];
+  if (result.runnerSummary) {
+    const r = result.runnerSummary;
+    lines.push('', 'runner:');
+    lines.push(`  runnerKind: ${r.runnerKind}`);
+    lines.push(`  cwd: ${r.cwd}`);
+    lines.push(`  transcriptPath: ${r.transcriptPath}`);
+    if (r.exitCode !== undefined) lines.push(`  exitCode: ${r.exitCode}`);
+    lines.push(`  timedOut: ${r.timedOut}`);
+  }
+  if (result.commands.length > 0) {
+    lines.push('', 'commands:');
+    lines.push(...result.commands.map(cmd => `  - ${cmd}`));
+  }
   if (result.workers.length > 0) {
     lines.push('', 'workers:');
-    lines.push(...result.workers.map(worker => `  - ${worker.dispatchId}: ${worker.status}`));
+    lines.push(...result.workers.map(worker => `  - ${worker.dispatchId}: ${worker.status} localReceiptStatus=${worker.localReceiptStatus}`));
+  }
+  if (result.risks.length > 0) {
+    lines.push('', 'risks:');
+    lines.push(...result.risks.map(risk => `  - ${risk}`));
   }
   if (result.warnings.length > 0) {
     lines.push('', 'warnings:');
@@ -1903,6 +2783,55 @@ export function renderDispatchMergePlanText(result: DispatchMergePlanResult): st
   if (result.warnings.length > 0) {
     lines.push('', 'warnings:');
     lines.push(...result.warnings.map(warning => `  - ${warning}`));
+  }
+  return lines.join('\n');
+}
+
+export function renderDispatchAutoText(result: DispatchAutoResult): string {
+  const lines = [
+    `Dispatch auto (${result.schemaVersion})`,
+    `dispatchId: ${result.dispatchId}`,
+    `storyId: ${result.storyId}`,
+    `host: ${result.host}`,
+    `status: ${result.status}`,
+    `parallel: ${result.parallel}`,
+    `policy: ${result.policy}`,
+    `nextAction: ${result.nextAction}`,
+  ];
+  if (result.workers.length > 0) {
+    lines.push('', 'workers:');
+    lines.push(...result.workers.map(worker => `  - ${worker.dispatchId}: ${worker.status}`));
+  }
+  if (result.warnings.length > 0) {
+    lines.push('', 'warnings:');
+    lines.push(...result.warnings.map(warning => `  - ${warning}`));
+  }
+  return lines.join('\n');
+}
+
+export function renderDispatchWatchText(result: DispatchWatchResult): string {
+  const lines = [
+    `Dispatch watch (${result.schemaVersion})`,
+    `dispatchId: ${result.dispatchId}`,
+    `storyId: ${result.storyId}`,
+    `status: ${result.status}`,
+    `nextAction: ${result.nextAction}`,
+  ];
+  if (result.changedFilesCount !== undefined) {
+    lines.push(`changedFilesCount: ${result.changedFilesCount}`);
+  }
+  if (result.runnerSummary) {
+    const r = result.runnerSummary;
+    lines.push('', 'runner:');
+    lines.push(`  runnerKind: ${r.runnerKind}`);
+    lines.push(`  cwd: ${r.cwd}`);
+    lines.push(`  transcriptPath: ${r.transcriptPath}`);
+    if (r.exitCode !== undefined) lines.push(`  exitCode: ${r.exitCode}`);
+    if (r.timedOut) lines.push(`  timedOut: true`);
+  }
+  if (result.workers.length > 0) {
+    lines.push('', 'workers:');
+    lines.push(...result.workers.map(worker => `  - ${worker.dispatchId}: ${worker.status}${worker.runnerKind ? ` (${worker.runnerKind})` : ''}`));
   }
   return lines.join('\n');
 }
