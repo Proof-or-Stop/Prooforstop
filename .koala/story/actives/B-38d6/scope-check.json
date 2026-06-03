@@ -1,86 +1,52 @@
 {
   "storyId": "B-38d6",
-  "checkedAt": "2026-06-03T18:26:25.934Z",
+  "checkedAt": "2026-06-03T18:33:42.829Z",
   "features": [
     {
       "feature": "CHK-001 Remove Swift from automatic validation fallback discovery",
-      "covered_by": "packages/main/src/handlers/verifier.ts:244-246; packages/main/src/handlers/verifier.ts:508; packages/main/src/core/runtime-environment-checks.ts:527; packages/main/src/tasks/validation-protocol-smoke.ts",
+      "covered_by": "packages/main/src/handlers/verifier.ts; packages/main/src/core/runtime-environment-checks.ts; packages/main/src/tasks/validation-protocol-smoke.ts",
       "status": "covered",
       "excluded_by": "",
-      "source": "PLAN CHK-001 + verifier.ts/runtime-environment-checks.ts grep"
+      "source": "PLAN CHK-001 covers verifier fallback discovery, runtime fact fallback labels, and validation protocol regression tests."
     },
     {
-      "feature": "CHK-002 Config load path: lattice.config.json canonical + koala.config.json legacy fallback (content overlay)",
-      "covered_by": "packages/main/src/core/config.ts:280-316 loadConfig/resolveProjectRoot; packages/main/src/handlers/verifier.ts:138-141 configuredValidationCommands; packages/main/src/handlers/verifier.ts:507/511 detail strings; packages/main/src/core/runtime-environment-checks.ts:505 countConfiguredValidationCommands; packages/main/src/tasks/validation-protocol-smoke.ts",
+      "feature": "CHK-002 lattice.config.json canonical + koala.config.json legacy fallback across config loading and project-root surfaces",
+      "covered_by": "packages/main/src/core/config.ts; packages/main/src/handlers/verifier.ts; packages/main/src/core/runtime-environment-checks.ts; packages/main/src/cli-engine.ts; packages/main/src/core/dev-memory.ts; packages/main/src/handlers/dev-memory.ts; packages/main/src/dashboard.ts; packages/main/src/cli-init.ts; packages/main/src/core/dirty-worktree.ts; packages/main/src/tasks/validation-protocol-smoke.ts",
       "status": "covered",
       "excluded_by": "",
-      "source": "PLAN CHK-002 + config.ts/verifier.ts/runtime-environment-checks.ts grep"
+      "source": "Resolved OQ-1/OQ-2: canonical lattice.config.json must cover loadConfig, root marker detection, init scaffold output, dashboard/dev-memory guidance, and dirty classifier while koala.config.json remains a legacy fallback."
     },
     {
-      "feature": "CHK-002 Project root marker / scaffold output (duplicated outside core/config.ts)",
-      "covered_by": "",
-      "status": "gap",
-      "excluded_by": "",
-      "source": "cli-engine.ts:1716-1719, dev-memory.ts:139-169, dashboard.ts:260-261, cli-init.ts:707-736, core/dirty-worktree.ts:282 hardcode koala.config.json as project-root marker / scaffold output / dirty-classifier config file; PLAN scope-contract does not modify any of these. A fresh repo with only lattice.config.json will fail project root walk-up + dashboard guard + dirty-classifier; see OQ-1."
-    },
-    {
-      "feature": "CHK-003 Docs/prompt/doctor lattice-first guidance",
-      "covered_by": "docs/requirements/decisions/testing-infra.md:40-41; docs/requirements/decisions/testing-infra.md:103; README.md:281 (external-reference-policy file list); packages/main/src/handlers/doctor.ts:289-330 renderValidationScan (config source surfacing); packages/main/src/cli-prompts.ts (no current swift mention; CHK-003 advisory update only)",
+      "feature": "CHK-003 Lattice-first validation docs, prompts, and doctor guidance",
+      "covered_by": "docs/requirements/decisions/testing-infra.md; README.md; packages/main/src/cli-prompts.ts; packages/main/src/handlers/doctor.ts; packages/main/src/cli-init.ts; packages/main/src/dashboard.ts; packages/main/src/tasks/validation-protocol-smoke.ts",
       "status": "covered",
       "excluded_by": "",
-      "source": "PLAN CHK-003 + docs/README grep"
+      "source": "PLAN CHK-003 covers long-form docs, maintainer prompts, doctor/UX text, and regression tests for user-visible validation guidance."
     },
     {
       "feature": "Historical Swift sources/tests and historical story evidence preserved",
       "covered_by": "",
       "status": "excluded",
-      "excluded_by": "decision.json rationale: do not remove historical Swift source/tests or historical story evidence; scope-contract.json protectedFiles + explicitExcludes (.koala/story/actives/B-META-framework-audit/**, .koala/runtime/**, .koala/traces/**); packages/main/src/handlers/fixture-executors.ts swift.test executor kept as opt-in cross-language executor",
-      "source": "decision.json + scope-contract.json"
+      "excluded_by": "decision.json and scope-contract.json: do not remove historical Swift source/tests or old story evidence; fixture executor swift.test may remain explicit opt-in, not an automatic validate fallback.",
+      "source": "Decision preMortem + scope contract protected/excluded areas."
     },
     {
-      "feature": "node_modules / packages/main/dist generated artifacts",
+      "feature": "Generated artifacts and dependency trees",
       "covered_by": "",
       "status": "excluded",
-      "excluded_by": "scope-contract.json explicitExcludes packages/main/dist/**, node_modules/**; PLAN risks note: dist rebuild required but not source-tracked",
-      "source": "scope-contract.json"
+      "excluded_by": "scope-contract.json excludes packages/main/dist/**, node_modules/**, .koala/runtime/**, and .koala/traces/**.",
+      "source": "scope-contract explicitExcludes."
     }
   ],
   "summary": {
-    "total": 6,
+    "total": 5,
     "covered": 3,
     "excluded": 2,
-    "gaps": 1,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "f711164f16291a92feb672038e35b342917f182348f5f2ffcab3336b805e95bc",
-  "openQuestions": [
-    {
-      "id": "OQ-1",
-      "q": "PLAN claims lattice.config.json is canonical, but project-root resolution duplicates (cli-engine.ts:1716-1719, dev-memory.ts:169, dashboard.ts:260, cli-init.ts:707-736, core/dirty-worktree.ts:282) only know about koala.config.json. Does CHK-002 scope cover those, or is the design boundary: lattice.config.json is content-overlay only and project-root marker stays koala.config.json (so a repo MUST still have koala.config.json present)? If the former, scope-contract.allowedModify needs cli-engine.ts/dev-memory.ts/dashboard.ts/cli-init.ts/dirty-worktree.ts added.",
-      "evidence": "grep koala.config.json across packages/main/src returned hardcoded markers at cli-engine.ts:1716-1719 (resolveProjectRoot duplicate of core/config.ts), dev-memory.ts:169 (project root walker), dashboard.ts:260-261 (no koala.config.json found guard), cli-init.ts:707/736 (scaffold writes koala.config.json), core/dirty-worktree.ts:282 (classifier config-file list); none are in PLAN modify scope.",
-      "sourcePointers": [
-        ".koala/story/actives/B-38d6/decision.json",
-        ".koala/story/actives/B-38d6/checklist.json#CHK-002",
-        ".koala/story/actives/B-38d6/scope-contract.json",
-        "docs/requirements/decisions/project-vision.md"
-      ],
-      "resolution": "Resolved: lattice.config.json is not content-overlay only; it is the canonical config and project-root marker. B-38d6 scope now explicitly includes cli-engine.ts, core/dev-memory.ts, handlers/dev-memory.ts, dashboard.ts, cli-init.ts, and core/dirty-worktree.ts so root detection, diagnostics, init scaffolding, and dirty classification recognize lattice.config.json while retaining koala.config.json as legacy fallback. This follows the chosen decision option: canonical Lattice naming with backward compatibility, not a hard rename.",
-      "resolvedAt": "2026-06-03T18:28:47.936Z"
-    },
-    {
-      "id": "OQ-2",
-      "q": "cli-init.ts:707/736 currently scaffolds koala.config.json for new repos. If lattice.config.json is canonical (CHK-002) and docs (CHK-003) point maintainers to it, should new repos generated by lattice init produce lattice.config.json (canonical) instead, with koala.config.json reserved for legacy? PLAN does not list cli-init.ts under CHK-002/003 scope.",
-      "evidence": "cli-init.ts:236-258 user-facing template lists koala.config.json; cli-init.ts:707-736 writes koala.config.json as the generated config; PLAN.md CHK-003 mentions CLI prompt but not init scaffold output.",
-      "sourcePointers": [
-        ".koala/story/actives/B-38d6/decision.json",
-        ".koala/story/actives/B-38d6/checklist.json#CHK-002",
-        ".koala/story/actives/B-38d6/checklist.json#CHK-003",
-        ".koala/story/actives/B-38d6/scope-contract.json"
-      ],
-      "resolution": "Resolved: new Lattice scaffolding should emit lattice.config.json as the canonical config file. koala.config.json remains a legacy read fallback only. B-38d6 scope now includes cli-init.ts and dashboard user-facing guidance so init output and maintainer docs align with the canonical name.",
-      "resolvedAt": "2026-06-03T18:29:53.272Z"
-    }
-  ]
+  "_hash": "76bdb48abff09678d01652ecd59fa3a2962d80eb35804c6def376c537f72a34d",
+  "openQuestions": []
 }
