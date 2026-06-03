@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-03T00:27:15.686Z",
       "reviewRunId": "B-106b:RR-006",
       "_hash": "b32c469e4560cf41a405abed567c5218e6b7a1d6f7353f45b96ff8b29d88a8a1"
+    },
+    {
+      "id": "B-106b:RP-003",
+      "agent": "koala-review-concept",
+      "note": "Re-reviewed after 74ce419c. Verified F-002 is fixed: approved scaffolded real-host dispatch_run now creates the projected overflow worktree before returning needs_receipt, and worktree-creation failures degrade to status=failed with explicit nextAction instead of claiming a runnable overflow path. Verified with lattice validate --concept --story=B-106b, npm --prefix packages/main run build, npm --prefix packages/main run test:dispatch-run-smoke, npm --prefix packages/main run test:lattice-handoff-smoke, npm run test:command-ownership-contract, and npm run test:process-fact-contract. Concept/authority boundary still holds: dispatch/handoff surfaces continue to keep authorityChanged=false, receiptVerified=false, and productionDone=false.",
+      "createdAt": "2026-06-03T00:29:54.749Z",
+      "reviewRound": "2026-06-03T00:27:15.686Z",
+      "reviewRunId": "B-106b:RR-005",
+      "_hash": "4b37163fa98e0b8f95cddf6615a6f484c00010f0aa1d1f3d3424e0bd7a2eacf1"
     }
   ]
 }
