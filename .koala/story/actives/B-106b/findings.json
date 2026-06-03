@@ -276,7 +276,7 @@
       "desc": "Mixed parallel fake-worker outcomes collapse to failed instead of the contract-required recoverable diagnostic/partial parent outcome. CHK-015 says one worker failure yields diagnostic/partial while preserving successful worker receipts, but aggregateStatus returns failed when any worker failed and smoke only covers all-workers-success plus separate single-leaf failure.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-concept",
       "createdAt": "2026-06-03T14:01:20.405Z",
@@ -288,7 +288,9 @@
         "packages/main/src/tasks/dispatch-run-smoke.ts",
         ".koala/story/actives/B-106b/plan.md",
         ".koala/story/actives/B-106b/checklist.json"
-      ]
+      ],
+      "resolvedReason": "Resolved by commit 87480a9c. aggregateStatus now returns diagnostic for mixed terminal worker outcomes while preserving uniform all-success, all-failed, all-cancelled, all-expired, and all-unavailable outcomes; dispatch-run smoke covers one accepted_local fake worker plus one failed worker, preserves the successful receipt, reports parent diagnostic, makes dispatch_review non-accepted, and keeps dispatch_merge_plan non-mergeable. Verified with npm --prefix packages/main run build; npm --prefix packages/main run test:dispatch-run-smoke; npm --prefix packages/main run test:capability-list-smoke.",
+      "resolvedAt": "2026-06-03T14:08:43.413Z"
     }
   ]
 }
