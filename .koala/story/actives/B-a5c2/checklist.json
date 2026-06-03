@@ -462,7 +462,42 @@
         "test": [
           "packages/main/src/tasks/dispatch-run-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke covers authorized fake dispatch_auto, dispatch_watch lifecycle, and dispatch_cancel terminal state.",
+          "headHash": "72e27c12e511e0b0d5f36424439493a626c290df",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:35.741Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke covers mixed worker/failure/cancel states while preserving successful evidence and bounded retry metadata.",
+          "headHash": "72e27c12e511e0b0d5f36424439493a626c290df",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:35.799Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke covers missing policy, disallowed host, maxParallel, unsafe/unattendedSafe=false real host refusal, and cancel evidence preservation.",
+          "headHash": "72e27c12e511e0b0d5f36424439493a626c290df",
+          "materialHash": "1c2c6c9a24b303f1564ef2eb828ee8661df3e4dc27a51206bb1915edb4ec944e",
+          "timestamp": "2026-06-03T21:17:35.859Z"
+        }
+      ]
     },
     {
       "id": "CHK-007",
