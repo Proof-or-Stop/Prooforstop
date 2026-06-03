@@ -60,6 +60,7 @@ import { createVerificationContextPackHandlers } from './handlers/verification-c
 import { createCapsuleHandlers } from './handlers/capsule.js';
 import { createScopeContractHandlers } from './handlers/scope-contract.js';
 import { createGuardSessionHandlers } from './handlers/guard-session.js';
+import { createPrewriteGuardCheckHandlers } from './handlers/prewrite-guard-check.js';
 import { createAuthorityEnforceHandlers } from './handlers/authority-enforce.js';
 import { createDevMemoryHandlers } from './handlers/dev-memory.js';
 import { createCapabilityListHandlers } from './handlers/capability-list.js';
@@ -202,6 +203,9 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
 
   // B-6bfd CHK-004: guard session projection — guard_session_start/status/check
   registry.registerBatch(createGuardSessionHandlers(ctx));
+
+  // B-6bfd CHK-005: prewrite_guard_check — pre-write scope gate for Claude Code PreToolUse hooks
+  registry.registerBatch(createPrewriteGuardCheckHandlers(ctx));
 
   // B-ea92 M1: authority_enforce_policy — read-only policy discovery command stub.
   // Never submits evidence, claims jobs, registers actor keys, or verifies receipts.

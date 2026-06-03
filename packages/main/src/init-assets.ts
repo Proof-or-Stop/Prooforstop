@@ -491,9 +491,12 @@ export function hookCommand(hookFile: string): string {
   return `node "$(git -C "$CLAUDE_PROJECT_DIR" rev-parse --show-toplevel 2>/dev/null || echo "$CLAUDE_PROJECT_DIR")/.claude/hooks/${hookFile}"`;
 }
 
+export const PRETOOL_SCOPE_HOOK_MATCHER = 'Edit|Write|MultiEdit|NotebookEdit';
+
 export function getKoalaHooks() {
   return {
     UserPromptSubmit: [{ matcher: '', hooks: [{ type: 'command', command: hookCommand('session-brief-reminder.cjs') }] }],
+    PreToolUse: [{ matcher: PRETOOL_SCOPE_HOOK_MATCHER, hooks: [{ type: 'command', command: hookCommand('scope-pretool.cjs') }] }],
     PostToolUse: [{ matcher: '', hooks: [{ type: 'command', command: hookCommand('log-tools.cjs') }] }],
     PostToolUseFailure: [{ matcher: '', hooks: [{ type: 'command', command: hookCommand('log-tools.cjs') }] }],
   };

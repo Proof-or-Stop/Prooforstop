@@ -1354,6 +1354,18 @@ export const MAIN_TOOLS: ToolDef[] = [
     json: z.boolean().optional().describe('Output structured JSON'),
   }},
 
+  // B-6bfd CHK-005: pre-write scope gate for Claude Code PreToolUse hooks.
+  // Called by .claude/hooks/scope-pretool.cjs before Edit/Write/MultiEdit/NotebookEdit.
+  // Exits 0 (pass) or 1 (BLOCKED, converted to exit 2 by hook) when a guard session
+  // + enforce-mode scope contract is active for the current story.
+  { name: 'prewrite_guard_check', description: 'Pre-write scope gate for Claude Code PreToolUse hooks — blocks out-of-scope writes when a guard session + scope contract is active', schema: {
+    provider: z.string().min(1, 'provider is required').describe('Agent provider runtime (e.g. claude-code)'),
+    toolName: z.string().min(1, 'toolName is required').describe('Claude Code tool name (Edit, Write, MultiEdit, NotebookEdit)'),
+    toolInputJson: z.string().describe('Raw JSON string of the tool_input field from the PreToolUse hook payload'),
+    storyId: z.string().optional().describe('Story ID (auto-detected from git branch when omitted)'),
+    json: z.boolean().optional().describe('Output structured JSON'),
+  }},
+
   // B-ea92 M1: read-only authority policy discovery.
   // Alias: lattice authority enforce policy → authority_enforce_policy (resolved in runCli).
   { name: 'authority_enforce_policy', description: 'Discover authority policy (GET /v1/authority/policy). Read-only: no receipt, no gate pass, no evidence submission. Alias: lattice authority enforce policy', schema: {
