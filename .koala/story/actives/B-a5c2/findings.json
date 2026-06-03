@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-a5c2:F-001",
+      "desc": "CHK-008:edge:1 is marked covered by packages/main/src/tasks/unattended-dispatch-smoke.ts, but that smoke only asserts cancellation, accepted review, missing policy, unavailable/unattendedUnsafe host, and authority invariants (see lines 271-459). It does not exercise the required timeout, missing-receipt, or mixed-worker-outcome paths. Those scenarios only appear in dispatch-run-smoke under CHK-007 (e.g. missing transcript/receipt at 1777-1830 and mixed worker outcomes at 1833-1853), so the recorded evidence/test-evidence overclaims final CHK-008 edge coverage.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-03T21:24:35.325Z",
+      "reviewRound": "2026-06-03T21:19:39.509Z",
+      "reviewRunId": "B-a5c2:RR-003",
+      "_hash": "35f89d149550ff80b5ebc4f1a3ef12448ccd12e1d48ea844b8df749d8fc3f04c",
+      "files": [
+        "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+        "packages/main/src/tasks/dispatch-run-smoke.ts",
+        ".koala/story/actives/B-a5c2/test-evidence.json"
+      ]
+    }
+  ]
+}
