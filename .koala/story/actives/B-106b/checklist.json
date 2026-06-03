@@ -473,9 +473,47 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-03T00:15:49.415Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke verifies dispatch_collect reports git-derived worker changedFiles and persisted collect artifacts independent of transcript prose. Covers happy intent 0.",
+          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
+          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
+          "timestamp": "2026-06-03T00:15:49.464Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke verifies dispatch_collect reports git-derived worker changedFiles and persisted collect artifacts independent of transcript prose. Covers edge intent 1.",
+          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
+          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
+          "timestamp": "2026-06-03T00:15:49.511Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Smoke verifies dispatch_collect reports git-derived worker changedFiles and persisted collect artifacts independent of transcript prose. Covers adversarial intent 2.",
+          "headHash": "e04c4939a9924f79cdb2f8995c995359fc22989e",
+          "materialHash": "9352aa5f8ce06f72d1641d7242f7d7f8ef853ed08057f5656bb350f2f3acaf30",
+          "timestamp": "2026-06-03T00:15:49.555Z"
+        }
+      ]
     },
     {
       "id": "CHK-008",
@@ -829,6 +867,16 @@
       "timestamp": "2026-06-03T00:15:48.647Z",
       "phase": "DEV",
       "itemId": "CHK-006",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented and verified in commits through e04c4939.",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-06-03T00:15:49.415Z",
+      "phase": "DEV",
+      "itemId": "CHK-007",
       "action": "update",
       "from": "pending",
       "to": "done",
