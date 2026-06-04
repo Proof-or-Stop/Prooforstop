@@ -85,6 +85,46 @@
         }
       ],
       "_hash": "c538f27ed3c9ade041bf772493b4312e20f5ac941ec30fbb844073c856927950"
+    },
+    {
+      "timestamp": "2026-06-04T11:02:08.646Z",
+      "issueCount": 6,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees 可能太抽象（未包含引号括起来的具体输出文本）。应该写用户看到的精确文字，不是\"功能正常工作\"这类描述"
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 userSees 可能太抽象（未包含引号括起来的具体输出文本）。应该写用户看到的精确文字，不是\"功能正常工作\"这类描述"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 个 checklist item，请检查是否有组合场景遗漏（如：Fix invalid or incomplete task annotation headers + Verify annotation validator and convergence output 同时操作会怎样？）"
+        },
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "1 个 risk signal 已被主 agent 驳回（理由见 story.riskSignalsDismissed）: 合规/隐私"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding 还有 1 个未消化的 unknowns: Whether fixing the 10 hard errors will leave only warnings or make convergence fully green"
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "advisory",
+          "message": "未找到 plan.md。正常通道建议写 plan.md 明确执行顺序和依赖"
+        }
+      ],
+      "_hash": "ca83e8d9671aca14772e4fe124a29ad6eaa687f49f89cb6d54b1b5f4511c9261"
     }
   ]
 }
