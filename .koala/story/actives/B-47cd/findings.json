@@ -203,7 +203,7 @@
       "desc": "Full-autopilot maxBudgetUSD is advertised as a retry bound, but budgetSpentUSD is initialized once and never updated after dispatch attempts, so retries can continue regardless of actual spend. Fix by either measuring/persisting per-iteration spend before retry or refusing budget-bound retries when spend cannot be measured.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-04T04:32:54.747Z",
@@ -213,7 +213,9 @@
       "files": [
         "packages/main/src/core/lattice-autopilot.ts",
         "packages/main/src/tasks/autopilot-run-smoke.ts"
-      ]
+      ],
+      "resolvedReason": "Resolved by requiring measurable spend before budget-capped full-autopilot retries: fake-host retries count as measured 0 spend, and non-measurable provider retries fail closed with stopReason=budget_exhausted before another iteration. Evidence: npm --prefix packages/main run build; npm --prefix packages/main run test:autopilot-run-smoke; docs/requirements/decisions/host-overflow.md documents the fail-closed budget rule.",
+      "resolvedAt": "2026-06-04T04:58:45.617Z"
     }
   ]
 }
