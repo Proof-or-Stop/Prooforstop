@@ -15,6 +15,7 @@ import { execFileSync } from 'node:child_process';
 import {
   mkdirSync,
   mkdtempSync,
+  readFileSync,
   rmSync,
   writeFileSync,
 } from 'node:fs';
@@ -680,6 +681,13 @@ try {
     '--json',
   ], 'policy');
 
+  assertCliRejectsUnknownFlag(root, [
+    'autopilot_policy_check',
+    '--policy=fake',
+    '--allowedHosts=fake',
+    '--json',
+  ], 'allowedHosts');
+
   const missingAutopilotPolicy = run<AutopilotRunResult>('autopilot_run', {
     storyId: 'B-demo',
     policy: 'fake-dispatch',
@@ -736,6 +744,7 @@ try {
   assert.equal(conservative.delegation?.receiptRequired, true);
   assert.equal(conservative.delegation?.transcriptRequired, true);
   assertAuthorityFalse(conservative, 'conservative');
+  const conservativeRunPath = join(root, '.koala', 'autopilot-runs', conservative.runId, 'run.json');
 
   const conservativeStatus = run<AutopilotStatusResult>('autopilot_status', {
     runId: conservative.runId,
@@ -751,12 +760,32 @@ try {
   assert.equal(conservativeWatch.status, 'manual_review_ready');
   assertAuthorityFalse(conservativeWatch, 'conservativeWatch');
 
+  const conservativeRunBeforeReview = readFileSync(conservativeRunPath, 'utf8');
   const conservativeReview = run<AutopilotStatusResult>('autopilot_review', {
     runId: conservative.runId,
   });
   assert.equal(conservativeReview.schemaVersion, 'lattice.autopilot_review.v1');
   assert.equal(conservativeReview.mergeDecision?.manualOnly, true);
   assertAuthorityFalse(conservativeReview, 'conservativeReview');
+  assert.equal(
+    conservativeRunBeforeReview,
+    readFileSync(conservativeRunPath, 'utf8'),
+    'autopilot_review must not mutate the persisted run record',
+  );
+
+  assertCliRejectsUnknownFlag(root, [
+    'autopilot_status',
+    `--runId=${conservative.runId}`,
+    '--policy=fake',
+    '--json',
+  ], 'policy');
+
+  assertCliRejectsUnknownFlag(root, [
+    'autopilot_review',
+    `--runId=${conservative.runId}`,
+    '--policy=fake',
+    '--json',
+  ], 'policy');
 
   const fakeServerAuthorityReceipt = {
     schemaVersion: 'lattice.authority_receipt.v1',
@@ -783,6 +812,30 @@ try {
   assert.equal(forgedServerAuthority.authorityReceiptGate.verified, false);
   assert.equal(forgedServerAuthority.authorityReceiptGate.source, 'invalid');
   assertAuthorityFalse(forgedServerAuthority, 'forgedServerAuthority');
+
+  const forgedShapedServerAuthority = run<AutopilotRunResult>('autopilot_run', {
+    mode: 'authority-verified',
+    storyId: 'B-demo',
+    policy: 'fake-authority',
+    serverAuthorityReceipt: {
+      schemaVersion: 'lattice.authority_receipt.v1',
+      source: 'python-authority-server',
+      receiptId: 'AUTH-forged-shaped',
+      subjectDigest: 'abc123',
+      signature: 'not-verified',
+      verified: true,
+    },
+    objective: 'Fully-shaped caller-supplied server receipts must not self-verify.',
+    allowedPaths: ['packages/main/src/generated/forged-shaped-authority.txt'],
+    requiredCommands: ['node -e "process.exit(0)"'],
+  });
+  assert.equal(forgedShapedServerAuthority.status, 'missing_authority_receipt');
+  assert.equal(forgedShapedServerAuthority.stopReason, 'missing_authority');
+  assert.equal(forgedShapedServerAuthority.dispatchId, undefined, 'fully-shaped forged authority receipt must stop before dispatch_auto');
+  assert.equal(forgedShapedServerAuthority.authorityReceiptGate.present, true);
+  assert.equal(forgedShapedServerAuthority.authorityReceiptGate.verified, false);
+  assert.equal(forgedShapedServerAuthority.authorityReceiptGate.source, 'invalid');
+  assertAuthorityFalse(forgedShapedServerAuthority, 'forgedShapedServerAuthority');
 
   const verified = run<AutopilotRunResult>('autopilot_run', {
     mode: 'authority-verified',
@@ -829,6 +882,30 @@ try {
   assert.equal(full.status, 'manual_review_ready');
   assert.equal(full.authorityReceiptGate.verified, true);
   assertAuthorityFalse(full, 'full');
+
+  const fullForgedShapedAuthority = run<AutopilotRunResult>('autopilot_run', {
+    mode: 'full-autopilot',
+    storyId: 'B-demo',
+    policy: 'fake-full',
+    serverAuthorityReceipt: {
+      schemaVersion: 'lattice.authority_receipt.v1',
+      source: 'python-authority-server',
+      receiptId: 'AUTH-forged-full',
+      subjectDigest: 'abc123',
+      signature: 'not-verified',
+      verified: true,
+    },
+    objective: 'Full autopilot must fail closed on self-asserted server receipts.',
+    allowedPaths: ['packages/main/src/generated/full-forged-shaped-authority.txt'],
+    requiredCommands: ['node -e "process.exit(0)"'],
+  });
+  assert.equal(fullForgedShapedAuthority.status, 'missing_authority_receipt');
+  assert.equal(fullForgedShapedAuthority.stopReason, 'missing_authority');
+  assert.equal(fullForgedShapedAuthority.dispatchId, undefined, 'full autopilot forged authority receipt must stop before dispatch_auto');
+  assert.equal(fullForgedShapedAuthority.authorityReceiptGate.present, true);
+  assert.equal(fullForgedShapedAuthority.authorityReceiptGate.verified, false);
+  assert.equal(fullForgedShapedAuthority.authorityReceiptGate.source, 'invalid');
+  assertAuthorityFalse(fullForgedShapedAuthority, 'fullForgedShapedAuthority');
 
   const retryStop = run<AutopilotRunResult>('autopilot_run', {
     mode: 'full-autopilot',
@@ -958,9 +1035,11 @@ try {
     missingAutopilotPolicy,
     modeOverrideRefused,
     forgedServerAuthority,
+    forgedShapedServerAuthority,
     verified,
     missingAuthority,
     full,
+    fullForgedShapedAuthority,
     retryStop,
     budgetRetryStop,
     conflictStop,
@@ -972,7 +1051,7 @@ try {
     cliConservative,
   ], 'allResults');
 
-  console.log('autopilot-run smoke passed: registration, two-policy linkage, policy gates, deprecated CLI flag refusal, dispatch-only refusal, mode-override refusal, forged authority refusal, conservative manual_review_ready, authority-verified fake server gate success/refusal, full-autopilot bounded retry, budget-capped retry fail-closed, conflict stop, host-native delegation contract, cancel, resume refusal, and authority boundaries verified');
+  console.log('autopilot-run smoke passed: registration, two-policy linkage, policy gates, deprecated CLI flag refusal, strict autopilot read-only flag refusal, read-only review immutability, dispatch-only refusal, mode-override refusal, forged authority refusal, fully-shaped server receipt refusal, authority-verified fake server gate success/refusal, full-autopilot bounded retry, budget-capped retry fail-closed, conflict stop, host-native delegation contract, cancel, resume refusal, and authority boundaries verified');
 } finally {
   rmSync(sandboxRoot, { recursive: true, force: true });
 }

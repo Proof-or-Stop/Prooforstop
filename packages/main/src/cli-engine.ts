@@ -1932,9 +1932,10 @@ export function addValue(obj: Record<string, unknown>, key: string, val: unknown
   }
 }
 
-const STRICT_UNKNOWN_KEY_COMMANDS = new Set([
+const STRICT_OWNER_META_COMMANDS = new Set([
   'autopilot_policy_create',
   'autopilot_run',
+  'autopilot_cancel',
   'autopilot_resume',
 ]);
 
@@ -1943,9 +1944,16 @@ const CLI_META_SCHEMA = {
   forceTakeover: z.boolean().optional(),
 };
 
+function isAutopilotCommand(cmd: string): boolean {
+  return cmd.startsWith('autopilot_');
+}
+
 function validationSchemaForCommand(cmd: string, tool: ToolDef): z.ZodObject<Record<string, ZodType>> {
-  if (STRICT_UNKNOWN_KEY_COMMANDS.has(cmd)) {
-    return z.object({ ...tool.schema, ...CLI_META_SCHEMA }).strict();
+  if (isAutopilotCommand(cmd)) {
+    const schema = STRICT_OWNER_META_COMMANDS.has(cmd)
+      ? { ...tool.schema, ...CLI_META_SCHEMA }
+      : tool.schema;
+    return z.object(schema).strict();
   }
   return z.object(tool.schema);
 }
@@ -2795,6 +2803,7 @@ export async function runCli(opts?: {
     printValidationFailure(tool, v.error.issues);
     process.exit(1);
   }
+  parsed = v.data as Record<string, unknown>;
 
   // Execute
   const root = resolveRootForCommand(cmd, rootOverride);
@@ -3188,5 +3197,9 @@ export async function runCli(opts?: {
   const handler = handlers[cmd];
   if (!handler) { console.error(`handler not found: ${cmd}`); process.exit(1); }
 
-  await run(() => Object.keys(tool.schema).length === 0 ? handler() : handler(v.data));
+  await run(() => Object.keys(tool.schema).length === 0 ? handler() : handler(
+    isAutopilotCommand(cmd)
+      ? parsed
+      : (v.data as Record<string, unknown>),
+  ));
 }

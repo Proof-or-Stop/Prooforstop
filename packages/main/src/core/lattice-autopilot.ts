@@ -332,6 +332,10 @@ function persist(root: string, record: AutopilotRunRecord): AutopilotRunRecord {
   return updated;
 }
 
+function cloneRunRecord(record: AutopilotRunRecord): AutopilotRunRecord {
+  return JSON.parse(JSON.stringify(record)) as AutopilotRunRecord;
+}
+
 function event(type: string, message: string, extra: Pick<AutopilotEvent, 'dispatchId' | 'stopReason'> = {}): AutopilotEvent {
   return {
     at: nowIso(),
@@ -470,19 +474,13 @@ function classifyAuthorityReceiptCandidate(candidate: unknown, required: boolean
   const shape = authorityReceiptShape(candidate);
   const hasRequiredReceiptShape = !!shape.receiptRef && !!shape.subjectDigest && !!shape.signature && shape.verified;
   const fakeTestServerMarked = /fake-test-server/i.test(shape.sourceText);
-  const realAuthorityServerMarked =
-    /lattice-authority-server|authority-server|python-authority-server/i.test(shape.sourceText)
-    || (
-      (candidate.klass === 'receipt-backed-l2-plus' || candidate.classification === 'receipt-backed-l2-plus')
-      && /authority|server/i.test(shape.sourceText)
-    );
 
-  if (hasRequiredReceiptShape && (fakeTestServerMarked || realAuthorityServerMarked)) {
+  if (hasRequiredReceiptShape && fakeTestServerMarked) {
     return {
       required: true,
       present: true,
       verified: true,
-      source: fakeTestServerMarked ? 'fake-test-server' : 'server',
+      source: 'fake-test-server',
       receiptRef: shape.receiptRef,
       missing: [],
       nextAction: 'Server authority receipt is present. Continue to manual review; this autopilot still will not auto-merge, auto-DONE, or claim productionDone.',
@@ -1122,42 +1120,42 @@ export function autopilotCancel(root: string, runId: string): AutopilotCancelRes
 }
 
 export function autopilotReview(root: string, runId: string): AutopilotReviewResult {
-  let record = readRunRecord(root, runId);
+  const persistedRecord = readRunRecord(root, runId);
+  let reviewRecord = cloneRunRecord(persistedRecord);
   let dispatchReviewResult: DispatchReviewResult | undefined;
   let mergePlan: DispatchMergePlanResult | undefined;
-  if (record.dispatchId) {
-    dispatchReviewResult = reviewDispatch(root, record.dispatchId);
-    mergePlan = buildDispatchMergePlan(root, record.dispatchId);
+  if (persistedRecord.dispatchId) {
+    dispatchReviewResult = reviewDispatch(root, persistedRecord.dispatchId);
+    mergePlan = buildDispatchMergePlan(root, persistedRecord.dispatchId);
     const mergeDecision = buildMergeDecision(mergePlan);
     const status: AutopilotStatus =
       dispatchReviewResult.localReceiptStatus === 'accepted-local' && dispatchReviewResult.transcriptExists
-        ? record.status === 'missing_authority_receipt' ? 'missing_authority_receipt' : 'manual_review_ready'
+        ? persistedRecord.status === 'missing_authority_receipt' ? 'missing_authority_receipt' : 'manual_review_ready'
         : 'needs_receipt';
-    record = persist(root, {
-      ...record,
+    reviewRecord = {
+      ...reviewRecord,
       status,
       dispatch: {
-        ...record.dispatch,
+        ...reviewRecord.dispatch,
         review: dispatchReviewResult,
         mergePlan,
       },
       mergeDecision,
       nextAction: status === 'needs_receipt'
         ? 'Host-native receipt or transcript evidence is still missing. Stay before integration, DONE, and main merge.'
-        : record.nextAction,
-      events: [...record.events, event('review_refreshed', 'autopilot_review refreshed dispatch_review and dispatch_merge_plan', { dispatchId: record.dispatchId })],
-    });
+        : reviewRecord.nextAction,
+    };
   }
   return {
     schemaVersion: AUTOPILOT_REVIEW_SCHEMA_VERSION,
-    runId: record.runId,
-    storyId: record.storyId,
-    status: record.status,
+    runId: reviewRecord.runId,
+    storyId: reviewRecord.storyId,
+    status: reviewRecord.status,
     ...(dispatchReviewResult ? { dispatchReview: dispatchReviewResult } : {}),
     ...(mergePlan ? { mergePlan } : {}),
-    ...(record.mergeDecision ? { mergeDecision: record.mergeDecision } : {}),
-    authorityReceiptGate: record.authorityReceiptGate,
-    nextAction: record.nextAction,
+    ...(reviewRecord.mergeDecision ? { mergeDecision: reviewRecord.mergeDecision } : {}),
+    authorityReceiptGate: reviewRecord.authorityReceiptGate,
+    nextAction: reviewRecord.nextAction,
     authorityChanged: false,
     receiptVerified: false,
     productionDone: false,
