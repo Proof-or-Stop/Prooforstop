@@ -103,6 +103,29 @@
         }
       ],
       "_hash": "d00e5b8aecc72a08fb955de91fe2e43aa5b9ad06985542ff8f72e45c504f852b"
+    },
+    {
+      "timestamp": "2026-06-04T03:04:21.123Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "11 个 checklist item，请检查是否有组合场景遗漏（如：Define execution mode contract and story scope + Add autopilot policy schema and mode permission matrix 同时操作会怎样？）"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story 命中 2 个高风险信号: 状态机/门禁, 生产环境/紧急。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）。 若本 story 只是提及而非修改该领域（误报），可 koala story_review_dismiss '{\"storyId\":\"B-47cd\",\"category\":\"<分类>\",\"reason\":\"...\"}' 完整回退 auto-elevation（全部 auto-elevated riskSignal 被 dismiss 后 priority 自动回退、高风险 gate 解除）。"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding 还有 4 个未消化的 unknowns: Whether authority server receipt verification can be fully live-tested in this story or should be represented by an explicit fake-authority deterministic smoke.; How much story-branch integration can safely be automated without fighting existing DONE merge worktree gates.; Whether host-native delegation should be a first-class run mode in this story or a documented contract surfaced through autopilot plan output.…"
+        }
+      ],
+      "_hash": "297b7d54d4b602a5b47c75287c0847dfc839b2ed3ec00efb1e0faf79060ea757"
     }
   ]
 }

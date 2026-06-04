@@ -32,8 +32,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-04T03:05:42.743Z",
       "endTime": null,
       "files": {
         "modify": [
@@ -519,6 +519,18 @@
           "packages/main/src/tasks/autopilot-run-smoke.ts"
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-04T03:05:42.743Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "DEV parallel implementation lane started",
+      "agent": "codex-main"
     }
   ]
 }
