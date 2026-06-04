@@ -1,0 +1,21 @@
+{
+  "findings": [
+    {
+      "id": "B-47cd:F-001",
+      "desc": "CHK-002 adversarial evidence is not credible at packages/main/src/core/autopilot-policy.ts:408-422. Those lines reject unbounded full-autopilot policies, but packages/main/src/tasks/autopilot-run-smoke.ts:347-365 only asserts successful creation of a bounded policy and never exercises the refusal cases. The checklist evidence note pointing to build/smoke therefore overclaims coverage for missing maxIterations/maxRuntimeMinutes/maxBudgetUSD/stop flags.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-04T03:42:19.185Z",
+      "reviewRound": "2026-06-04T03:37:35.517Z",
+      "reviewRunId": "B-47cd:RR-003",
+      "_hash": "32cd2be9c5c0a95a7147353a67df0cb3af4db746d9a291cc97aab73d074aa258",
+      "files": [
+        "packages/main/src/core/autopilot-policy.ts",
+        "packages/main/src/tasks/autopilot-run-smoke.ts"
+      ]
+    }
+  ]
+}
