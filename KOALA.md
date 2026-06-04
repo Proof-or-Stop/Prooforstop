@@ -118,7 +118,7 @@ Koala 开发时遵循数据、逻辑、渲染三层解耦。
 | 13 | DONE | merge 本地 main、清理 worktree |
 | 14 | 用户价值确认 | 用户从产品视角认可，才是真完成 |
 
-并行开发只使用本地 git worktree + 本地分支。`story/*`、`codex/*`、`lab/*` 等任务分支是本地实现细节，不要 push 到 GitHub/origin；需要远端发布时，只在本地 main 干净且已验证后 push main。
+并行开发只使用本地 git worktree + 本地分支。`story/*`、`codex/*`、`lab/*` 等任务分支是本地实现细节，不要 push 到 GitHub/origin。需要远端发布时，先确保本地 main 干净且已验证，再由人类显式运行 `lattice release_approve_push --confirm` 创建短 TTL 一次性 approval，然后手动 `git push origin main`；`.githooks/pre-push` 默认拒绝所有远端写入。
 
 ## Phase 里的工具边界
 

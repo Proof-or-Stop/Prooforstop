@@ -77,6 +77,16 @@ export function listRegisteredWorktrees(root: string): Array<{ path: string; bra
   return out;
 }
 
+export function findRegisteredWorktreeForBranch(root: string, branch: string): string | null {
+  const normalizedBranch = branch.startsWith('refs/heads/') ? branch.slice('refs/heads/'.length) : branch;
+  const registered = listRegisteredWorktrees(root).find(entry => entry.branch === normalizedBranch);
+  return registered?.path ?? null;
+}
+
+export function resolveMainBranchWorktree(root: string): string {
+  return resolve(findRegisteredWorktreeForBranch(root, 'main') ?? root);
+}
+
 export function storyWorktreePath(root: string, storyId: string): string {
   const cfg = loadConfig(root);
   return join(root, cfg.worktreeDir || '.worktrees', storyId);
@@ -154,8 +164,8 @@ export function assertMainWorktreeClean(root: string): void {
   const status = git(root, ['status', '--porcelain']);
   if (status.trim()) {
     throw new Error(
-      `done_recover refused: main worktree is not clean.\n${status}\n` +
-      `→ Commit, stash, or resolve these changes before retrying.`,
+      `done_recover refused: main worktree at "${resolve(root)}" is not clean.\n${status}\n` +
+      `→ cd "${resolve(root)}" && git stash (or commit/resolve these changes before retrying).`,
     );
   }
 }

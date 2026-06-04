@@ -6,6 +6,7 @@ import {
   assertStoryWorktreeClean,
   detectPartialDoneStories,
   removeStoryWorktree,
+  resolveMainBranchWorktree,
   resolveMainRepoRoot,
 } from '../core/partial-done-recovery.js';
 import { acquireDoneMainMergeLock } from './done-effects.js';
@@ -36,17 +37,22 @@ export function createDoneRecoverHandlers(ctx: HandlerContext) {
       if (!storyId) throw new Error('done_recover: storyId is required');
 
       const mainRepoRoot = resolveMainRepoRoot(root);
-      const store = mainRepoRoot === root ? ctx.store : new StoryStore(mainRepoRoot);
+      const mainMergeRoot = resolveMainBranchWorktree(mainRepoRoot);
+      const store = mainMergeRoot === root ? ctx.store : new StoryStore(mainMergeRoot);
       const lock = acquireDoneMainMergeLock(storyId, mainRepoRoot);
       try {
 
-      const currentBranch = git(mainRepoRoot, ['rev-parse', '--abbrev-ref', 'HEAD']);
+      const currentBranch = git(mainMergeRoot, ['rev-parse', '--abbrev-ref', 'HEAD']);
       if (currentBranch !== 'main') {
-        throw new Error(`done_recover refused: run from main repo on branch main (current: ${currentBranch})`);
+        throw new Error(
+          `done_recover refused: resolved main merge worktree at "${mainMergeRoot}" is on branch "${currentBranch}", not "main".\n` +
+          `Repository root: "${mainRepoRoot}".\n` +
+          `→ cd "${mainMergeRoot}" && git checkout main`,
+        );
       }
-      assertMainWorktreeClean(mainRepoRoot);
+      assertMainWorktreeClean(mainMergeRoot);
 
-      const partial = detectPartialDoneStories(mainRepoRoot, store).find(entry => entry.storyId === storyId);
+      const partial = detectPartialDoneStories(mainMergeRoot, store).find(entry => entry.storyId === storyId);
       if (!partial) {
         const story = store.readStory(storyId);
         if (story.phase !== 'DONE') {
@@ -66,9 +72,9 @@ export function createDoneRecoverHandlers(ctx: HandlerContext) {
       assertStoryWorktreeClean(partial.worktreePath);
 
       const lines: string[] = [];
-      git(mainRepoRoot, ['merge-tree', '--write-tree', 'main', partial.branch]);
+      git(mainMergeRoot, ['merge-tree', '--write-tree', 'main', partial.branch]);
       git(
-        mainRepoRoot,
+        mainMergeRoot,
         ['-c', 'commit.gpgsign=false', 'merge', partial.branch, '--no-ff', '-m', `merge: ${storyId} ${partial.title}`],
       );
       lines.push(`✓ ${partial.branch} merged into main`);
@@ -77,12 +83,12 @@ export function createDoneRecoverHandlers(ctx: HandlerContext) {
         lines.push(line);
       }
 
-      if (gitSucceeds(mainRepoRoot, ['show-ref', '--verify', '--quiet', `refs/heads/${partial.branch}`])) {
-        git(mainRepoRoot, ['branch', '-d', partial.branch]);
+      if (gitSucceeds(mainMergeRoot, ['show-ref', '--verify', '--quiet', `refs/heads/${partial.branch}`])) {
+        git(mainMergeRoot, ['branch', '-d', partial.branch]);
         lines.push(`✓ ${partial.branch} deleted`);
       }
 
-      const remaining = detectPartialDoneStories(mainRepoRoot, store).find(entry => entry.storyId === storyId);
+      const remaining = detectPartialDoneStories(mainMergeRoot, store).find(entry => entry.storyId === storyId);
       if (remaining) {
         throw new Error(`done_recover incomplete: ${storyId} still appears partial-DONE`);
       }

@@ -1005,6 +1005,16 @@ export const MAIN_TOOLS: ToolDef[] = [
   { name: 'done_recover', description: '恢复 phase 已 DONE 但 story 分支尚未合并 main 的 partial-DONE story', schema: {
     storyId: z.string().describe('要恢复的 Story ID'),
   }},
+  { name: 'release_approve_push', description: 'Create a short-lived local approval for one remote main push; never pushes by itself', schema: {
+    confirm: z.boolean().optional().describe('Required explicit human confirmation; must be true'),
+    sha: z.string().optional().describe('Expected commit SHA/ref to publish; defaults to HEAD and is resolved to a full SHA'),
+    ttlSeconds: z.number().optional().describe('Approval TTL in seconds; defaults to 300 and is capped at 900'),
+    remote: z.string().optional().describe('Remote name the approval is valid for; defaults to origin'),
+    reason: z.string().optional().describe('Human reason recorded in the local approval file'),
+    approvedBy: z.string().optional().describe('Human/operator label recorded in the local approval file'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    json: z.boolean().optional().describe('Shortcut for --format=json'),
+  }},
   { name: 'verify_codex', description: '验证 Codex adapter 资产、入口 heartbeat 与硬证据', schema: {
     json: z.boolean().optional().describe('结构化 JSON 输出'),
     storyId: z.string().optional().describe('可选 Story ID；缺省从 story/* 分支推断并记录 process-event evidence'),
@@ -1668,6 +1678,7 @@ function printHelp(activeStory?: ActiveStory | null) {
     session: 'Session',
     audit: 'Audit',
     check: 'Check',
+    release: 'Release',
     host: 'Host',
     lattice: 'Lattice',
     rollout: 'Lattice',
@@ -1724,7 +1735,7 @@ function printHelp(activeStory?: ActiveStory | null) {
 
   并行/分支纪律:
     Lattice 并行开发只使用本地 git worktree + 本地分支；不要创建或 push GitHub/origin feature branch。
-    如需发布远端，先让 DONE 合回本地 main、确认 main 干净，再只 push main。
+    如需发布远端，先让 DONE 合回本地 main、确认 main 干净，再由人类显式运行 lattice release_approve_push --confirm，然后手动 git push origin main。
 
   初始化新项目:
     lattice init                          # 在当前目录初始化 Lattice/Koala project state

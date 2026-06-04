@@ -51,6 +51,7 @@ import { reportHealthIssue } from '../core/health.js';
 import { runDoneOracleGate } from './phase-gates.js';
 import type { AcquiredMkdirLock } from '../core/mkdir-lock.js';
 import { acquireMainWriteLockRegistered, mainWriteLockPath } from '../core/main-write-lock.js';
+import { resolveMainBranchWorktree } from '../core/partial-done-recovery.js';
 
 // B-c622 CHK-004: DONE 阶段自动同步 main —— detect divergence + auto merge main.
 // checkMainDivergence is defined in core/done-oracle.ts and imported by
@@ -226,6 +227,74 @@ function assertSafeResidualWorktreeRm(ctx: DoneWorktreeContext, target: string, 
   }
 }
 
+/**
+ * B-e74e CHK-001: Assert that the main repo's working tree is on branch "main"
+ * and is clean before we can execute a DONE merge into it.
+ *
+ * Runs BEFORE phase=DONE is persisted so any failure leaves the story at TEST.
+ * Explicitly names the main worktree path in error messages so recovery
+ * instructions point at the right directory.
+ */
+function assertMainWorktreeReadyForMerge(storyId: string, mainRepoRoot: string): string {
+  const mainMergeRoot = resolveMainBranchWorktree(mainRepoRoot);
+  let mainBranch: string;
+  try {
+    mainBranch = execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], {
+      cwd: mainMergeRoot,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+  } catch (e: any) {
+    throw new Error(
+      `Cannot enter DONE: cannot read git HEAD at main worktree "${mainMergeRoot}".\n` +
+      `${e?.message ?? e}\n` +
+      `Story ${storyId} phase was not changed.`,
+    );
+  }
+
+  if (mainBranch !== 'main') {
+    throw new Error(
+      `Cannot enter DONE: resolved main merge worktree at "${mainMergeRoot}" is on branch "${mainBranch}", not "main".\n` +
+      `Repository root: "${mainRepoRoot}".\n` +
+      `The DONE merge runs from the main worktree — it must be checked out on branch main.\n` +
+      `→ cd "${mainMergeRoot}" && git checkout main\n` +
+      `Story ${storyId} phase was not changed.`,
+    );
+  }
+
+  // Check for staged or modified tracked files only. Untracked files in the
+  // main worktree are not checked here — they only block the merge if the
+  // story branch would overwrite them, which the merge-tree dry-run already
+  // catches. Runtime artifacts (e.g. .koala/locks/ created by the merge lock)
+  // must not block the preflight.
+  let status: string;
+  try {
+    status = execFileSync('git', ['status', '--porcelain', '--untracked-files=no'], {
+      cwd: mainMergeRoot,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+  } catch (e: any) {
+    throw new Error(
+      `Cannot enter DONE: cannot inspect git status at main worktree "${mainMergeRoot}".\n` +
+      `${e?.message ?? e}\n` +
+      `Story ${storyId} phase was not changed.`,
+    );
+  }
+
+  if (status) {
+    throw new Error(
+      `Cannot enter DONE: main worktree at "${mainMergeRoot}" has uncommitted changes to tracked files.\n` +
+      `${status}\n\n` +
+      `→ Commit or stash these changes in the main worktree before retrying DONE:\n` +
+      `→ cd "${mainMergeRoot}" && git status\n` +
+      `Story ${storyId} phase was not changed.`,
+    );
+  }
+
+  return mainMergeRoot;
+}
+
 function assertDoneMergeCanApplyBeforeStateMutation(storyId: string, worktreePath: string, mainRepoRoot: string): void {
   try {
     execFileSync('git', ['merge-tree', '--write-tree', 'main', 'HEAD'], {
@@ -238,9 +307,9 @@ function assertDoneMergeCanApplyBeforeStateMutation(storyId: string, worktreePat
     throw new Error(
       `Cannot enter DONE: story/${storyId} 尚不能干净合并到 main；未修改 story phase。\n` +
       `${detail}\n\n` +
-      `→ 在 worktree 内先解决与 main 的合并冲突，再重跑 story_advance --phase=DONE。\n` +
+      `→ 在 story worktree 内先同步 main，再重跑 story_advance --phase=DONE。\n` +
       `→ 可执行: cd "${worktreePath}" && git merge main\n` +
-      `→ 主仓库: ${mainRepoRoot}`,
+      `→ 主仓库 (main worktree): ${mainRepoRoot}`,
     );
   }
 }
@@ -289,16 +358,20 @@ export async function runDonePreMergeGate(
     const doneWorktree = detectDoneStoryWorktreeContext();
     if (doneWorktree) {
       assertDoneStoryBranchMatches(storyId, doneWorktree.branch);
+      // B-e74e CHK-001: verify main worktree is on branch "main" and clean
+      // BEFORE writing phase=DONE. Fails fast with the actual main worktree
+      // path so recovery instructions point at the right directory.
+      const mainMergeRoot = assertMainWorktreeReadyForMerge(storyId, doneWorktree.mainRepoRoot);
       // 仅 dry-run：用 git ls-files 读出未追踪文件，按白名单分类。
       // 发现 offender → throw（此时 story.phase 仍为 TEST）。无 offender
       // → 返回，不做任何删除，后续 Step 2.5 才会真的 rm whitelist 文件。
-      const { mainRepoRoot, worktreeRoot } = doneWorktree;
+      const { worktreeRoot } = doneWorktree;
       const storyDir = `${store.storyDirRel()}/${storyId}/`;
-      if (existsSync(join(mainRepoRoot, storyDir))) {
+      if (existsSync(join(mainMergeRoot, storyDir))) {
         let raw = '';
         try {
           raw = execFileSync('git', ['ls-files', '--others', '--exclude-standard', '--', storyDir], {
-            cwd: mainRepoRoot,
+            cwd: mainMergeRoot,
             encoding: 'utf-8',
             stdio: ['pipe', 'pipe', 'pipe'],
           }).toString();
@@ -313,7 +386,7 @@ export async function runDonePreMergeGate(
           // actor lifecycle is owned solely by transition-orchestrator.ts,
           // which stops it in a single finally on every exit path (including
           // this thrown-error path).
-          cleanStrayWorktreeFiles(mainRepoRoot, storyId, worktreeRoot);
+          cleanStrayWorktreeFiles(mainMergeRoot, storyId, worktreeRoot);
           // cleanStrayWorktreeFiles 在有 offender 时必然 throw；能到这行
           // 说明逻辑偏离，fallback：主动抛错避免 phase 默认落盘。
           throw new Error(
@@ -321,7 +394,7 @@ export async function runDonePreMergeGate(
           );
         }
       }
-      assertDoneMergeCanApplyBeforeStateMutation(storyId, worktreeRoot, mainRepoRoot);
+      assertDoneMergeCanApplyBeforeStateMutation(storyId, worktreeRoot, mainMergeRoot);
     }
   } catch (e: any) {
     // throw 的错误信息（含 stash / worktree remove 指引）直接冒给 caller，
@@ -397,6 +470,7 @@ export async function applyDoneMergeEffects(
     const mergeLines: string[] = [];
     const { branch, mainRepoRoot, worktreeRoot: wtPathAbs } = doneWorktree;
     assertDoneStoryBranchMatches(storyId, branch);
+    const mainMergeRoot = assertMainWorktreeReadyForMerge(storyId, mainRepoRoot);
     {
       const runGitArgs = (gitArgs: string[], cwd: string): string =>
         execFileSync('git', gitArgs, { cwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).toString().trim();
@@ -424,17 +498,17 @@ export async function applyDoneMergeEffects(
       // 这里只负责 whitelist 自动 rm；理论上 offender 不可能到这行（上面
       // 已 throw），但保留 throw 路径作为 defense-in-depth。第三参数
       // wtPathAbs 用于 error message 的 worktree 清理指引（F-014）。
-      const strayReport = cleanStrayWorktreeFiles(mainRepoRoot, storyId, wtPathAbs);
+      const strayReport = cleanStrayWorktreeFiles(mainMergeRoot, storyId, wtPathAbs);
       for (const line of strayReport) mergeLines.push(line);
 
       // Step 3: 从主仓库根目录 merge story 分支。merge 冲突直接 throw 给上层
       // 让 agent 看到详细的手动 cleanup 步骤——phase 已经是 DONE，不回滚，但
       // 必须让 user 知道还有手动收尾要做。
-      const mainBranch = runGitArgs(['rev-parse', '--abbrev-ref', 'HEAD'], mainRepoRoot);
+      const mainBranch = runGitArgs(['rev-parse', '--abbrev-ref', 'HEAD'], mainMergeRoot);
       try {
         runGitArgs(
           ['-c', 'commit.gpgsign=false', 'merge', branch, '--no-ff', '-m', `merge: ${storyId} ${story.title}`],
-          mainRepoRoot,
+          mainMergeRoot,
         );
         mergeLines.push(`✓ 分支 ${branch} 已合并到 ${mainBranch}`);
       } catch (e: any) {
@@ -442,7 +516,7 @@ export async function applyDoneMergeEffects(
           `Story ${storyId} 已标记为 DONE 但自动合并失败:\n` +
           `${e.stderr?.toString() || e.message}\n\n` +
           `请手动完成:\n` +
-          `  cd "${mainRepoRoot}"\n` +
+          `  cd "${mainMergeRoot}"\n` +
           `  git merge ${branch}\n` +
           `  git worktree remove --force "${wtPathAbs}"\n` +
           `  git branch -d ${branch}`,
@@ -521,7 +595,7 @@ export async function applyDoneMergeEffects(
 
       // Step 5: 删除分支
       try {
-        runGitArgs(['branch', '-d', branch], mainRepoRoot);
+        runGitArgs(['branch', '-d', branch], mainMergeRoot);
         mergeLines.push(`✓ 分支 ${branch} 已删除`);
       } catch {
         mergeLines.push(`⚠ 分支 ${branch} 未删除（可能有未合并的提交）`);
@@ -549,9 +623,9 @@ export async function applyDoneMergeEffects(
     // B-9bd9 CHK-003: DONE 合并成功后，尝试触发 framework audit。
     // maybeTriggerAudit 内部已 try/catch + meta-story guard + mode=off 兜底；
     // 此处再包一层防御，确保任何 audit-trigger 路径异常都不影响 DONE 成功消息。
-    // projectRoot 用 mainRepoRoot（main 仓的根，不是已被清掉的 worktree）。
+    // projectRoot uses the worktree that currently owns branch main.
     try {
-      const auditResult = await maybeTriggerAudit(storyId, mainRepoRoot);
+      const auditResult = await maybeTriggerAudit(storyId, mainMergeRoot);
       if (auditResult.hint) {
         // semi-auto 提示行：前后各空一行单独成段，avoid 和 mergeLines/docsHint 挤在一起
         doneMergeReport += `\n${auditResult.hint}`;

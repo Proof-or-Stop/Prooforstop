@@ -1,8 +1,0 @@
-{
-  "storyId": "B-e3a4",
-  "verdict": "pass",
-  "findings": [],
-  "summary": "Reviewed story storage migration design and implementation. Store writes primary .koala/story, falls back to legacy docs/story; migration copies only missing targets and backs up legacy; core consumers use config/storyDir or Store API; .koala/story is explicitly trackable.",
-  "createdAt": "2026-04-20T00:47:28.113Z",
-  "updatedAt": "2026-04-20T00:47:28.113Z"
-}

@@ -1,8 +1,0 @@
-{
-  "storyId": "B-3736",
-  "verdict": "pass",
-  "findings": [],
-  "summary": "packages/main/src/handlers/session.ts:962 reuses session_brief for next extraction; packages/main/src/handlers/session.ts:981 exposes status by header rewrite only; packages/main/src/core/config.ts:97 keeps status/next globally phase-allowed. No implementation regressions found in read-only review.",
-  "createdAt": "2026-04-19T19:16:38.100Z",
-  "updatedAt": "2026-04-19T19:16:38.100Z"
-}
