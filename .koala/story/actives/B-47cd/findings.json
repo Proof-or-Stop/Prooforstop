@@ -183,7 +183,7 @@
       "desc": "CLI parser strips unknown autopilot flags before core validation, so removed autopilot_policy_create/autopilot_resume flags such as --allowedHosts or --policy can still be accepted and ignored instead of rejected. Fix by making these command schemas strict or adding explicit unknown-flag rejection before safeParse.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-04T04:32:44.034Z",
@@ -194,7 +194,9 @@
         "packages/main/src/cli-engine.ts",
         "packages/main/src/handlers/lattice-autopilot.ts",
         "packages/main/src/core/autopilot-policy.ts"
-      ]
+      ],
+      "resolvedReason": "Resolved by strict CLI parsing for autopilot_policy_create/autopilot_run/autopilot_resume while preserving Lattice owner-lease meta flags. Smoke asserts deprecated flags are rejected and --forceTakeover remains accepted without entering policy output. Evidence: npm --prefix packages/main run build; npm --prefix packages/main run test:autopilot-run-smoke.",
+      "resolvedAt": "2026-06-04T04:58:24.449Z"
     },
     {
       "id": "B-47cd:F-011",
