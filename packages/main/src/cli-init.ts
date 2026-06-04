@@ -20,7 +20,15 @@ import {
   renderLatticeCodexAdapterManifest,
   renderLatticeCodexWrapperScript,
   renderLatticeProjectConfig,
+  renderCodexHooksJson,
+  renderCodexPretoolScopeHookScript,
+  codexHookCommand,
+  getCodexHooks,
   getKoalaHooks,
+  hookCommand,
+  LEGACY_SCOPE_PRETOOL_HOOK_FILE,
+  LATTICE_SCOPE_PRETOOL_HOOK_FILE,
+  migrateHookCommandEntries,
 } from './init-assets.js';
 import type { InitAssetMode, InitProfile } from './init-assets.js';
 import { renderCodexAdapterChecks, runCodexAdapterChecks } from './core/codex-adapter-checks.js';
@@ -40,7 +48,7 @@ const agentTemplateDir = [
 ].find(existsSync);
 const skillSrc = join(packageRoot, '..', '..', '.claude', 'skills', 'koala');
 const hookSrcDir = join(packageRoot, '..', '..', '.claude', 'hooks');
-const HOOK_FILES = ['log-tools.cjs', 'scope-pretool.cjs', 'session-brief-reminder.cjs'] as const;
+const HOOK_FILES = ['log-tools.cjs', LATTICE_SCOPE_PRETOOL_HOOK_FILE, 'session-brief-reminder.cjs'] as const;
 const KOALA_SKILL_FALLBACK = `# /koala — 项目管理入口
 
 你是项目管理引擎。执行 /koala 了解项目全貌并开始工作。
@@ -353,6 +361,45 @@ function hasHookCommand(entries: any, command: string): boolean {
     Array.isArray(entry?.hooks) && entry.hooks.some((hook: any) => hook?.type === 'command' && hook?.command === command));
 }
 
+function mergeCodexHooks(existing: any): { updated: any; changed: boolean; incompatible: string[] } {
+  const koalaHooks = getCodexHooks();
+  const updated = existing && typeof existing === 'object' && !Array.isArray(existing) ? { ...existing } : {};
+  const hooks = updated.hooks && typeof updated.hooks === 'object' && !Array.isArray(updated.hooks)
+    ? { ...updated.hooks }
+    : {};
+  const incompatible: string[] = [];
+  let changed = !updated.hooks;
+
+  for (const [event, eventHooks] of Object.entries(koalaHooks)) {
+    const command = eventHooks[0]?.hooks?.[0]?.command;
+    if (!hooks[event]) {
+      hooks[event] = eventHooks;
+      changed = true;
+      continue;
+    }
+    if (!Array.isArray(hooks[event])) {
+      incompatible.push(event);
+      continue;
+    }
+    const migrated = migrateHookCommandEntries(
+      hooks[event],
+      codexHookCommand(LEGACY_SCOPE_PRETOOL_HOOK_FILE),
+      command || '',
+    );
+    if (migrated.changed) {
+      hooks[event] = migrated.entries;
+      changed = true;
+    }
+    if (command && !hasHookCommand(hooks[event], command)) {
+      hooks[event] = [...hooks[event], ...eventHooks];
+      changed = true;
+    }
+  }
+
+  updated.hooks = hooks;
+  return { updated, changed, incompatible };
+}
+
 function removeIfManagedDoc(relPath: string, label: string) {
   const full = join(targetDir, relPath);
   if (!existsSync(full)) return;
@@ -397,7 +444,13 @@ function removeClaudeSettingsIfManaged() {
   if (!existsSync(settingsPath)) return;
   try {
     const parsed = JSON.parse(readFileSync(settingsPath, 'utf-8'));
-    if (JSON.stringify(parsed) !== JSON.stringify({ hooks: getKoalaHooks() })) return;
+    const legacyHooks = JSON.parse(JSON.stringify(getKoalaHooks()));
+    legacyHooks.PreToolUse[0].hooks[0].command = hookCommand(LEGACY_SCOPE_PRETOOL_HOOK_FILE);
+    const managedSettings = [
+      { hooks: getKoalaHooks() },
+      { hooks: legacyHooks },
+    ];
+    if (!managedSettings.some(settings => JSON.stringify(parsed) === JSON.stringify(settings))) return;
     unlinkSync(settingsPath);
     console.log('  ↻ .claude/settings.json (removed managed settings for profile cleanup)');
     cleanupEmptyDirChain('.claude');
@@ -422,6 +475,13 @@ function removeCodexManifestIfManaged() {
   ]);
 }
 
+function removeCodexNativeHooksIfManaged() {
+  removeWholeFileIfGenerated('.codex/hooks.json', '.codex/hooks.json', [renderCodexHooksJson()]);
+  removeWholeFileIfGenerated('.codex/hooks/lattice-scope-pretool.cjs', '.codex/hooks/lattice-scope-pretool.cjs', [renderCodexPretoolScopeHookScript()]);
+  removeWholeFileIfGenerated('.codex/hooks/scope-pretool.cjs', '.codex/hooks/scope-pretool.cjs', [renderCodexPretoolScopeHookScript()]);
+  cleanupEmptyDirChain('.codex/hooks');
+}
+
 function cleanupClaudeAssets() {
   removeIfManagedDoc('CLAUDE.md', 'CLAUDE.md');
   removePathIfExists('.claude/agents', '.claude/agents');
@@ -439,6 +499,7 @@ function cleanupCodexAssets() {
   removeCodexManifestIfManaged();
   cleanupEmptyDirChain('.Codex');
   removeCodexWrapperIfManaged();
+  removeCodexNativeHooksIfManaged();
 }
 
 function enforceProfileCleanup(profile: InitProfile) {
@@ -909,6 +970,14 @@ if (wantsClaude) {
       console.log(`  - .claude/hooks/${hookFile} (exists, skip)`);
     }
   }
+  const newPretoolHookSrc = join(hookSrcDir, LATTICE_SCOPE_PRETOOL_HOOK_FILE);
+  if (existsSync(newPretoolHookSrc)) {
+    removeWholeFileIfGenerated(
+      `.claude/hooks/${LEGACY_SCOPE_PRETOOL_HOOK_FILE}`,
+      `.claude/hooks/${LEGACY_SCOPE_PRETOOL_HOOK_FILE}`,
+      [readFileSync(newPretoolHookSrc, 'utf-8')],
+    );
+  }
   
   // 合并 settings.json（不覆盖已有配置）
   const settingsPath = join(targetDir, '.claude', 'settings.json');
@@ -923,9 +992,22 @@ if (wantsClaude) {
         if (!existing.hooks[event]) {
           existing.hooks[event] = hooks;
           console.log(`  ✓ settings.json: 添加 ${event} hook`);
-        } else if (!Array.isArray(existing.hooks[event])) {
+          continue;
+        }
+        if (!Array.isArray(existing.hooks[event])) {
           console.log(`  - settings.json: ${event} hook 已存在但格式不兼容, skip`);
-        } else if (command && !hasHookCommand(existing.hooks[event], command)) {
+          continue;
+        }
+        const migrated = migrateHookCommandEntries(
+          existing.hooks[event],
+          hookCommand(LEGACY_SCOPE_PRETOOL_HOOK_FILE),
+          command || '',
+        );
+        if (migrated.changed) {
+          existing.hooks[event] = migrated.entries;
+          console.log(`  ✓ settings.json: 迁移 ${event} Lattice hook 名称`);
+        }
+        if (command && !hasHookCommand(existing.hooks[event], command)) {
           existing.hooks[event].push(...hooks);
           console.log(`  ✓ settings.json: 合并 ${event} koala hook`);
         } else {
@@ -943,6 +1025,36 @@ if (wantsClaude) {
 } else {
   console.log('  - .claude/hooks (profile skip)');
   console.log('  - .claude/settings.json (profile skip)');
+}
+
+if (wantsCodex) {
+  writeExecutable('.codex/hooks/lattice-scope-pretool.cjs', renderCodexPretoolScopeHookScript());
+  removeWholeFileIfGenerated('.codex/hooks/scope-pretool.cjs', '.codex/hooks/scope-pretool.cjs', [renderCodexPretoolScopeHookScript()]);
+
+  const codexHooksPath = join(targetDir, '.codex', 'hooks.json');
+  const codexHooks = getCodexHooks();
+  if (existsSync(codexHooksPath)) {
+    try {
+      const existing = JSON.parse(readFileSync(codexHooksPath, 'utf-8'));
+      const merged = mergeCodexHooks(existing);
+      if (merged.incompatible.length > 0) {
+        console.log(`  - .codex/hooks.json: ${merged.incompatible.join(', ')} hook shape incompatible, skip`);
+      } else if (merged.changed) {
+        writeFileSync(codexHooksPath, JSON.stringify(merged.updated, null, 2) + '\n');
+        console.log('  ✓ .codex/hooks.json: merged Lattice PreToolUse hook');
+      } else {
+        console.log('  - .codex/hooks.json: PreToolUse hook exists, skip');
+      }
+    } catch (e: any) {
+      console.log(`  ⚠ .codex/hooks.json merge failed: ${e.message}`);
+    }
+  } else {
+    writeFileSync(codexHooksPath, JSON.stringify({ hooks: codexHooks }, null, 2) + '\n');
+    console.log('  ✓ .codex/hooks.json (created)');
+  }
+} else {
+  console.log('  - .codex/hooks (profile skip)');
+  console.log('  - .codex/hooks.json (profile skip)');
 }
 
 if (upgradeManagedAssets) {

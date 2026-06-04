@@ -8,29 +8,37 @@
  * @description
  *   Exercises PreToolUse scope pre-write guard:
  *   1. getKoalaHooks() includes PreToolUse with write-tool matcher
- *   2. mergeClaudeHooks generates settings.json containing PreToolUse
- *   3. extractPathsFromToolInput parses Edit/Write/MultiEdit/NotebookEdit correctly
+ *   2. getCodexHooks() includes PreToolUse for apply_patch/Edit/Write
+ *   3. mergeClaudeHooks generates settings.json containing PreToolUse
+ *   4. Codex init generates lowercase .codex native hook assets
+ *   5. extractPathsFromToolInput parses Edit/Write/MultiEdit/NotebookEdit/apply_patch correctly
  *   4. prewrite_guard_check CLI returns pass when no guard session
  *   5. prewrite_guard_check CLI blocks when guard session + enforce contract + out-of-scope path
- *   6. scope-pretool.cjs hook exits 0 (pass-through) when CLI produces no BLOCKED output
+ *   6. lattice-scope-pretool.cjs hook exits 0 (pass-through) when CLI produces no BLOCKED output
  * @changes
  *   - [CHK-005] Add PreToolUse scope hook integration smoke
  */
 
 import { strict as assert } from 'node:assert';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { getKoalaHooks, PRETOOL_SCOPE_HOOK_MATCHER } from '../init-assets.js';
+import {
+  CODEX_PRETOOL_SCOPE_HOOK_MATCHER,
+  getCodexHooks,
+  getKoalaHooks,
+  PRETOOL_SCOPE_HOOK_MATCHER,
+} from '../init-assets.js';
 import { extractPathsFromToolInput, normalizeToProjectRoot } from '../core/prewrite-guard.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
-const hookPath = resolve(packageRoot, '..', '..', '..', '.claude', 'hooks', 'scope-pretool.cjs');
+const hookPath = resolve(packageRoot, '..', '..', '..', '.claude', 'hooks', 'lattice-scope-pretool.cjs');
+const codexHookPath = resolve(packageRoot, '..', '..', '..', '.codex', 'hooks', 'lattice-scope-pretool.cjs');
 const sessionEnv = { ...process.env, KOALA_SESSION_ID: 'pretool-scope-smoke', KOALA_AGENT: 'pretool-scope-smoke' };
 
 function normalizeToRelativePaths(root: string, paths: readonly string[]): string[] {
@@ -73,14 +81,33 @@ const preToolEntry = (hooks.PreToolUse as any[])[0];
 assert.equal(preToolEntry.matcher, PRETOOL_SCOPE_HOOK_MATCHER, 'PreToolUse matcher must match write tools');
 assert.match(
   preToolEntry.hooks[0].command,
-  /scope-pretool\.cjs/,
-  'PreToolUse hook must reference scope-pretool.cjs',
+  /lattice-scope-pretool\.cjs/,
+  'PreToolUse hook must reference lattice-scope-pretool.cjs',
 );
 assert.ok('UserPromptSubmit' in hooks, 'getKoalaHooks() must still include UserPromptSubmit');
 assert.ok('PostToolUse' in hooks, 'getKoalaHooks() must still include PostToolUse');
 assert.ok('PostToolUseFailure' in hooks, 'getKoalaHooks() must still include PostToolUseFailure');
 
 console.log('✓ Test 1: getKoalaHooks() includes PreToolUse');
+
+// ─── Test 1b: getCodexHooks() includes PreToolUse ────────────────────────────
+
+const codexHooks = getCodexHooks() as Record<string, unknown>;
+assert.ok('PreToolUse' in codexHooks, 'getCodexHooks() must include PreToolUse');
+const codexPreToolEntry = (codexHooks.PreToolUse as any[])[0];
+assert.equal(codexPreToolEntry.matcher, CODEX_PRETOOL_SCOPE_HOOK_MATCHER, 'Codex PreToolUse matcher must match apply_patch/Edit/Write');
+assert.match(
+  codexPreToolEntry.hooks[0].command,
+  /\.codex\/hooks\/lattice-scope-pretool\.cjs/,
+  'Codex PreToolUse hook must reference lowercase .codex/hooks/lattice-scope-pretool.cjs',
+);
+assert.doesNotMatch(
+  codexPreToolEntry.hooks[0].command,
+  /\.Codex\/hooks/,
+  'Codex PreToolUse hook must not use uppercase .Codex/hooks',
+);
+
+console.log('✓ Test 1b: getCodexHooks() includes PreToolUse');
 
 // ─── Test 2: mergeClaudeHooks generates settings with PreToolUse ──────────────
 // Indirect: run managed asset check in a claude-profile temp dir and verify settings
@@ -96,8 +123,6 @@ try {
     cwd: settingsRoot, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'],
   });
 
-  // Read the generated settings.json
-  const { readFileSync } = await import('node:fs');
   const settingsText = readFileSync(join(settingsRoot, '.claude', 'settings.json'), 'utf8');
   const settings = JSON.parse(settingsText);
 
@@ -106,7 +131,7 @@ try {
   const ptEntry = settings.hooks.PreToolUse[0];
   assert.ok(ptEntry, 'PreToolUse must have at least one entry');
   assert.equal(ptEntry.matcher, PRETOOL_SCOPE_HOOK_MATCHER, 'PreToolUse matcher must match write tools');
-  assert.match(ptEntry.hooks[0].command, /scope-pretool\.cjs/, 'PreToolUse command must reference scope-pretool.cjs');
+  assert.match(ptEntry.hooks[0].command, /lattice-scope-pretool\.cjs/, 'PreToolUse command must reference lattice-scope-pretool.cjs');
 
   // Existing hooks must still be present
   assert.ok(Array.isArray(settings.hooks.PostToolUse), 'PostToolUse must be present');
@@ -115,6 +140,84 @@ try {
   console.log('✓ Test 2: mergeClaudeHooks generates settings with PreToolUse');
 } finally {
   rmSync(settingsRoot, { recursive: true, force: true });
+}
+
+// ─── Test 2b: codex profile generates lowercase Codex hooks ──────────────────
+
+const codexInitRoot = mkdtempSync(join(tmpdir(), 'koala-pretool-codex-init-'));
+try {
+  git(codexInitRoot, ['init', '-b', 'main']);
+  git(codexInitRoot, ['config', 'user.email', 'hook@test']);
+  git(codexInitRoot, ['config', 'user.name', 'Hook Test']);
+
+  execFileSync(process.execPath, [cliPath, 'init', '--profile=codex', codexInitRoot], {
+    cwd: codexInitRoot, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'],
+  });
+
+  const hooksJsonPath = join(codexInitRoot, '.codex', 'hooks.json');
+  const scopeHookPath = join(codexInitRoot, '.codex', 'hooks', 'lattice-scope-pretool.cjs');
+  assert.ok(existsSync(hooksJsonPath), 'codex profile must generate lowercase .codex/hooks.json');
+  assert.ok(existsSync(scopeHookPath), 'codex profile must generate lowercase .codex/hooks/lattice-scope-pretool.cjs');
+  const upperHooksPath = join(codexInitRoot, '.Codex', 'hooks');
+  if (existsSync(upperHooksPath)) {
+    const lower = statSync(join(codexInitRoot, '.codex', 'hooks'));
+    const upper = statSync(upperHooksPath);
+    assert.equal(upper.ino, lower.ino, 'uppercase .Codex/hooks path must only be the case-insensitive alias of lowercase .codex/hooks');
+  }
+
+  const generated = JSON.parse(readFileSync(hooksJsonPath, 'utf8'));
+  assert.ok(Array.isArray(generated.hooks?.PreToolUse), 'generated .codex/hooks.json must include PreToolUse');
+  assert.match(generated.hooks.PreToolUse[0].matcher, /apply_patch/, 'generated Codex matcher must include apply_patch');
+  assert.match(readFileSync(scopeHookPath, 'utf8'), /provider: 'codex'/, 'generated Codex hook must call guard as provider=codex');
+
+  console.log('✓ Test 2b: codex init generates lowercase native hook assets');
+} finally {
+  rmSync(codexInitRoot, { recursive: true, force: true });
+}
+
+// ─── Test 2c: managed asset apply migrates legacy scope-pretool names ─────────
+
+const migrationRoot = mkdtempSync(join(tmpdir(), 'koala-pretool-migrate-'));
+try {
+  git(migrationRoot, ['init', '-b', 'main']);
+  git(migrationRoot, ['config', 'user.email', 'hook@test']);
+  git(migrationRoot, ['config', 'user.name', 'Hook Test']);
+
+  execFileSync(process.execPath, [cliPath, 'init', '--profile=all', '--asset-mode=full', migrationRoot], {
+    cwd: migrationRoot, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'],
+  });
+
+  const legacyClaudeHooks = JSON.parse(JSON.stringify(getKoalaHooks()));
+  legacyClaudeHooks.PreToolUse[0].hooks[0].command = legacyClaudeHooks.PreToolUse[0].hooks[0].command
+    .replace('lattice-scope-pretool.cjs', 'scope-pretool.cjs');
+  write(migrationRoot, '.claude/settings.json', JSON.stringify({ hooks: legacyClaudeHooks }, null, 2) + '\n');
+  write(migrationRoot, '.claude/hooks/scope-pretool.cjs', readFileSync(hookPath, 'utf8'));
+
+  const legacyCodexHooks = JSON.parse(JSON.stringify(getCodexHooks()));
+  legacyCodexHooks.PreToolUse[0].hooks[0].command = legacyCodexHooks.PreToolUse[0].hooks[0].command
+    .replace('lattice-scope-pretool.cjs', 'scope-pretool.cjs');
+  write(migrationRoot, '.codex/hooks.json', JSON.stringify({ hooks: legacyCodexHooks }, null, 2) + '\n');
+  write(migrationRoot, '.codex/hooks/scope-pretool.cjs', readFileSync(codexHookPath, 'utf8'));
+
+  execFileSync(process.execPath, [cliPath, '--root', migrationRoot, 'check', '--apply', '--profile=all', '--assetMode=full'], {
+    cwd: migrationRoot, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'],
+  });
+
+  const migratedSettings = readFileSync(join(migrationRoot, '.claude', 'settings.json'), 'utf8');
+  assert.match(migratedSettings, /lattice-scope-pretool\.cjs/, 'managed apply must migrate Claude settings to lattice-scope-pretool.cjs');
+  assert.doesNotMatch(migratedSettings, /\/scope-pretool\.cjs/, 'managed apply must remove old Claude scope-pretool command');
+  assert.ok(existsSync(join(migrationRoot, '.claude', 'hooks', 'lattice-scope-pretool.cjs')), 'managed apply must create new Claude hook script');
+  assert.ok(!existsSync(join(migrationRoot, '.claude', 'hooks', 'scope-pretool.cjs')), 'managed apply must remove generated old Claude hook script');
+
+  const migratedCodexHooks = readFileSync(join(migrationRoot, '.codex', 'hooks.json'), 'utf8');
+  assert.match(migratedCodexHooks, /lattice-scope-pretool\.cjs/, 'managed apply must migrate Codex hooks.json to lattice-scope-pretool.cjs');
+  assert.doesNotMatch(migratedCodexHooks, /\/scope-pretool\.cjs/, 'managed apply must remove old Codex scope-pretool command');
+  assert.ok(existsSync(join(migrationRoot, '.codex', 'hooks', 'lattice-scope-pretool.cjs')), 'managed apply must create new Codex hook script');
+  assert.ok(!existsSync(join(migrationRoot, '.codex', 'hooks', 'scope-pretool.cjs')), 'managed apply must remove generated old Codex hook script');
+
+  console.log('✓ Test 2c: managed asset apply migrates legacy scope-pretool hook names');
+} finally {
+  rmSync(migrationRoot, { recursive: true, force: true });
 }
 
 // ─── Test 3: extractPathsFromToolInput ───────────────────────────────────────
@@ -138,6 +241,24 @@ assert.deepEqual(
   extractPathsFromToolInput('NotebookEdit', JSON.stringify({ notebook_path: 'notebooks/demo.ipynb' })),
   ['notebooks/demo.ipynb'],
   'NotebookEdit: extracts notebook_path',
+);
+assert.deepEqual(
+  extractPathsFromToolInput('apply_patch', JSON.stringify({
+    command: [
+      '*** Begin Patch',
+      '*** Update File: src/foo.ts',
+      '@@',
+      '-old',
+      '+new',
+      '*** Add File: src/new.ts',
+      '+x',
+      '*** Delete File: src/old.ts',
+      '*** Move to: src/moved.ts',
+      '*** End Patch',
+    ].join('\n'),
+  })),
+  ['src/foo.ts', 'src/new.ts', 'src/old.ts', 'src/moved.ts'],
+  'apply_patch: extracts file paths from patch and move headers',
 );
 assert.deepEqual(
   extractPathsFromToolInput('Bash', JSON.stringify({ command: 'echo hello' })),
@@ -296,12 +417,38 @@ try {
   assert.match(blockedResult, /DENY/, 'out-of-scope path must produce DENY output');
   assert.match(blockedResult, /out_of_scope|out-of-scope|OUT_OF_SCOPE/i, 'blocked output should mention out_of_scope rule');
 
-  console.log('✓ Test 6: prewrite_guard_check blocks out-of-scope writes with active guard session');
+  const missingHookStart = run(enforceRoot, 'guard_session_start', { storyId, provider: 'codex', nativeHookVerified: true }, true);
+  assert.match(missingHookStart, /requires \.codex\/hooks\.json/, 'Codex nativeHookVerified=true must be rejected until .codex hook assets exist');
+
+  execFileSync(process.execPath, [cliPath, 'init', '--profile=codex', enforceRoot], {
+    cwd: enforceRoot, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'],
+  });
+
+  // Restart as a verified Codex native PreToolUse session and block apply_patch before it lands.
+  run(enforceRoot, 'guard_session_start', { storyId, provider: 'codex', nativeHookVerified: true });
+  const codexPatchResult = run(enforceRoot, 'prewrite_guard_check', {
+    provider: 'codex',
+    toolName: 'apply_patch',
+    toolInputJson: JSON.stringify({
+      command: [
+        '*** Begin Patch',
+        '*** Update File: src/out-of-scope.ts',
+        '@@',
+        '+export const nope = true;',
+        '*** End Patch',
+      ].join('\n'),
+    }),
+    storyId,
+  }, true);
+  assert.match(codexPatchResult, /DENY/, 'Codex apply_patch out-of-scope path must produce DENY output');
+  assert.match(codexPatchResult, /src\/out-of-scope\.ts/, 'Codex blocked output should mention patch target path');
+
+  console.log('✓ Test 6: prewrite_guard_check blocks out-of-scope writes with active Claude/Codex guard sessions');
 } finally {
   rmSync(enforceRoot, { recursive: true, force: true });
 }
 
-// ─── Test 7: scope-pretool.cjs hook — passes through when no BLOCKED output ───
+// ─── Test 7: lattice-scope-pretool.cjs hook — passes through when no BLOCKED output ───
 
 const hookTestRoot = mkdtempSync(join(tmpdir(), 'koala-pretool-hook-'));
 try {
@@ -339,7 +486,31 @@ try {
   assert.equal(noCliResult.status, 0, 'hook: Write tool without CLI should pass through gracefully (exit 0)');
   assert.notEqual(noCliResult.status, 2, 'hook: should not block when CLI is not available');
 
-  console.log('✓ Test 7: scope-pretool.cjs hook passes through gracefully when CLI unavailable');
+  const codexPatchPayload = JSON.stringify({
+    hook_event_name: 'PreToolUse',
+    tool_name: 'apply_patch',
+    tool_input: {
+      command: [
+        '*** Begin Patch',
+        '*** Update File: src/out-of-scope.ts',
+        '@@',
+        '+x',
+        '*** End Patch',
+      ].join('\n'),
+    },
+    cwd: hookTestRoot,
+  });
+
+  const codexNoCliResult = spawnSync(process.execPath, [codexHookPath], {
+    input: codexPatchPayload,
+    encoding: 'utf8',
+    timeout: 5000,
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+  assert.equal(codexNoCliResult.status, 0, 'Codex hook: apply_patch without CLI should pass through gracefully (exit 0)');
+  assert.notEqual(codexNoCliResult.status, 2, 'Codex hook: should not block when CLI is not available');
+
+  console.log('✓ Test 7: Claude/Codex lattice-scope-pretool hooks pass through gracefully when CLI unavailable');
 } finally {
   rmSync(hookTestRoot, { recursive: true, force: true });
 }

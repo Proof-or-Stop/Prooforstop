@@ -5,8 +5,9 @@
  * Verifies that guard mode resolution matches the host capability truth table:
  *   - claude-code + nativeHookVerified=true  → native-pretool
  *   - claude-code + nativeHookVerified=false → watcher-fallback
+ *   - codex       + nativeHookVerified=true  → native-pretool
  *   - codex       + viaDispatch=true         → wrapped-preapply
- *   - codex       + viaDispatch=false        → watcher-fallback
+ *   - codex       + no verified context      → watcher-fallback
  *   - gemini      + viaDispatch=true         → wrapped-preapply
  *   - gemini      + viaDispatch=false        → watcher-fallback
  *   - fake                                   → watcher-fallback
@@ -81,7 +82,17 @@ assert.equal(
   'CLAUDE-CODE (upper) + nativeHookVerified=true → native-pretool',
 );
 
-// Codex: wrapped-preapply only via dispatch
+// Codex: native-pretool when official .codex hook is verified, otherwise wrapped-preapply via dispatch
+assert.equal(
+  resolveGuardMode('codex', { nativeHookVerified: true }),
+  'native-pretool',
+  'codex + nativeHookVerified=true → native-pretool',
+);
+assert.equal(
+  resolveGuardMode('codex', { nativeHookVerified: true, viaDispatch: true }),
+  'native-pretool',
+  'codex + nativeHookVerified=true takes precedence over viaDispatch',
+);
 assert.equal(
   resolveGuardMode('codex', { viaDispatch: true }),
   'wrapped-preapply',
@@ -101,13 +112,6 @@ assert.equal(
   resolveGuardMode('codex'),
   'watcher-fallback',
   'codex + missing context → watcher-fallback',
-);
-
-// Codex with nativeHookVerified should NOT become native-pretool
-assert.equal(
-  resolveGuardMode('codex', { nativeHookVerified: true }),
-  'watcher-fallback',
-  'codex + nativeHookVerified=true still watcher-fallback (not a native-pretool host)',
 );
 
 // Gemini: wrapped-preapply only via dispatch
@@ -141,7 +145,7 @@ for (const unknown of ['', 'other-host', 'some-agent', 'browser', 'server']) {
 // ── 2. Provider set correctness ──────────────────────────────────────────────
 
 assert.equal(GUARD_NATIVE_PRETOOL_PROVIDERS.has('claude-code'), true);
-assert.equal(GUARD_NATIVE_PRETOOL_PROVIDERS.has('codex'), false, 'codex is NOT native-pretool');
+assert.equal(GUARD_NATIVE_PRETOOL_PROVIDERS.has('codex'), true, 'codex is native-pretool capable when .codex hook is verified');
 assert.equal(GUARD_NATIVE_PRETOOL_PROVIDERS.has('gemini'), false, 'gemini is NOT native-pretool');
 assert.equal(GUARD_NATIVE_PRETOOL_PROVIDERS.has('fake'), false, 'fake is NOT native-pretool');
 
@@ -215,6 +219,9 @@ assert.equal(ccFallback.guardMode, 'watcher-fallback', 'claude-code + no hook �
 const codexDispatch = buildGuardSession({ storyId: 'B-x', provider: 'codex', context: { viaDispatch: true } });
 assert.equal(codexDispatch.guardMode, 'wrapped-preapply', 'codex + dispatch → wrapped-preapply session');
 
+const codexNative = buildGuardSession({ storyId: 'B-x', provider: 'codex', context: { nativeHookVerified: true } });
+assert.equal(codexNative.guardMode, 'native-pretool', 'codex + verified hook → native-pretool session');
+
 const codexDirect = buildGuardSession({ storyId: 'B-x', provider: 'codex', context: { viaDispatch: false } });
 assert.equal(codexDirect.guardMode, 'watcher-fallback', 'codex + no dispatch → watcher-fallback session');
 
@@ -246,13 +253,13 @@ const ccPGDeg = ccProfile.degradations.find(d => d.capability === 'prewrite-guar
 assert.ok(ccPGDeg, 'claude-code has prewrite-guard degradation explaining hook requirement');
 assert.match(ccPGDeg!.reason, /hook|pretool|PreToolUse/i, 'claude-code prewrite-guard degradation mentions hook');
 
-// codex is conditional (wrapped-preapply via dispatch, else fallback)
+// codex is conditional (native-pretool via .codex hook, wrapped-preapply via dispatch, else fallback)
 const codexProfile = list.hosts.find(h => h.id === 'codex')!;
 const codexPG = codexProfile.capabilities.find(c => c.category === 'prewrite-guard')!;
 assert.equal(codexPG.status, 'conditional', 'codex prewrite-guard is conditional');
 const codexPGDeg = codexProfile.degradations.find(d => d.capability === 'prewrite-guard');
 assert.ok(codexPGDeg, 'codex has prewrite-guard degradation');
-assert.match(codexPGDeg!.reason, /dispatch|wrapped/i, 'codex prewrite-guard degradation mentions dispatch');
+assert.match(codexPGDeg!.reason, /\.codex|hook|dispatch|wrapped/i, 'codex prewrite-guard degradation mentions hook or dispatch');
 
 // gemini is conditional (wrapped-preapply via dispatch, else fallback)
 const geminiProfile = list.hosts.find(h => h.id === 'gemini')!;
@@ -279,7 +286,7 @@ const fallbackPGProbe = fakeProbe.profile.capabilities.find(c => c.category === 
 assert.equal(fallbackPGProbe?.status, 'unavailable', 'unknown/fallback probe shows prewrite-guard=unavailable');
 
 // ── 8. Guard mode does not depend on viaDispatch for claude-code ─────────────
-// and does not depend on nativeHookVerified for codex/gemini
+// and nativeHookVerified only applies to hosts with a known native hook
 
 assert.equal(
   resolveGuardMode('claude-code', { viaDispatch: true }),
@@ -287,9 +294,9 @@ assert.equal(
   'claude-code with viaDispatch=true but no nativeHookVerified → watcher-fallback (dispatch context irrelevant)',
 );
 assert.equal(
-  resolveGuardMode('codex', { nativeHookVerified: true, viaDispatch: false }),
+  resolveGuardMode('gemini', { nativeHookVerified: true, viaDispatch: false }),
   'watcher-fallback',
-  'codex with nativeHookVerified but no viaDispatch → watcher-fallback',
+  'gemini with nativeHookVerified but no viaDispatch → watcher-fallback',
 );
 
 console.log('✓ host guard matrix smoke passed');

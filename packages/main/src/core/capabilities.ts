@@ -214,13 +214,13 @@ const HOST_PROFILE_INPUTS: HostProfileInput[] = [
       capability('evidence-submit', 'conditional', 'Requires a configured authority URL and submit-capable client path.'),
       capability('receipt-verify', 'conditional', 'Requires an authority receipt verifier path.'),
       capability('multimodal-research', 'available', 'Can combine local files, web research, and visual inputs when tools are present.'),
-      capability('prewrite-guard', 'conditional', 'wrapped-preapply mode when invoked via Lattice dispatch/pre-apply flow; otherwise watcher-fallback.'),
+      capability('prewrite-guard', 'conditional', 'native-pretool mode when a verified Codex PreToolUse hook is installed; wrapped-preapply when invoked via Lattice dispatch/pre-apply flow; otherwise watcher-fallback.'),
     ],
     degradations: [
       degradation('browser-automation', 'conditional', 'verification-evidence-limited', 'Browser automation may be absent from a Codex session.', 'Mark browser verification unavailable or delegate to a browser-capable host.'),
       degradation('evidence-submit', 'conditional', 'evidence-local-only', 'Authority submission depends on external authority configuration.', 'Keep evidence local and do not claim authority-backed completion.'),
       degradation('receipt-verify', 'conditional', 'blocks-production-done', 'Receipt verification depends on an authority verifier.', 'Require a verified receipt before productionDone can be claimed.'),
-      degradation('prewrite-guard', 'conditional', 'none', 'Codex has no native PreToolUse hook; prewrite guard is wrapped-preapply when via Lattice dispatch, watcher-fallback otherwise.', 'Route through Lattice dispatch to enable wrapped-preapply guard mode.'),
+      degradation('prewrite-guard', 'conditional', 'none', 'Codex native-pretool guard requires a verified .codex/hooks.json PreToolUse hook; without it, direct Codex sessions fall back unless routed through Lattice dispatch wrapped-preapply.', 'Install the .codex/hooks.json lattice-scope-pretool hook or route through Lattice dispatch to enable a pre-write guard mode.'),
     ],
   },
   {

@@ -12,7 +12,7 @@
  *
  *   Provider capability:
  *     - A provider whose runtime supports pre-tool (PreToolUse-style) hooks can
- *       block forbidden writes before they happen → guardMode 'active'.
+ *       block forbidden writes before they happen → guardMode 'native-pretool'.
  *     - Any other provider can only be watched after the fact → guardMode
  *       'watcher-fallback'. We never pretend pre-tool blocking exists for a
  *       provider that cannot do it.
@@ -49,6 +49,9 @@ export const GUARD_NATIVE_PRETOOL_PROVIDERS: ReadonlySet<string> = new Set([
   'claude-code',
   'claude_code',
   'claudecode',
+  'codex',
+  'openai-codex',
+  'openai_codex',
 ]);
 
 /**
@@ -78,8 +81,10 @@ export function providerSupportsPreToolBlocking(provider: string): boolean {
  * Context for resolving the guard mode of a provider invocation.
  *
  * - nativeHookVerified: true when a PreToolUse hook is confirmed installed and
- *   active in the Claude Code session (e.g. prewrite_guard_check is wired).
- *   Without this, Claude Code falls back to watcher-fallback.
+ *   active in the host session (e.g. Claude Code .claude/settings.json or
+ *   Codex .codex/hooks.json wires prewrite_guard_check). Without this, native
+ *   hook-capable hosts fall back to watcher-fallback unless another guarded
+ *   context such as wrapped-preapply applies.
  * - viaDispatch: true when Codex or Gemini is running through Lattice
  *   dispatch/pre-apply flow, enabling wrapped-preapply mode.
  *   Without this, those providers fall back to watcher-fallback.
@@ -95,8 +100,9 @@ export interface GuardModeContext {
  * Truth table:
  * - Claude Code + nativeHookVerified=true  → 'native-pretool'
  * - Claude Code + nativeHookVerified≠true  → 'watcher-fallback'
+ * - Codex + nativeHookVerified=true        → 'native-pretool'
  * - Codex/Gemini + viaDispatch=true        → 'wrapped-preapply'
- * - Codex/Gemini + viaDispatch≠true        → 'watcher-fallback'
+ * - Codex/Gemini + no verified context     → 'watcher-fallback'
  * - fake / other                           → 'watcher-fallback'
  *
  * Never returns 'active' for new sessions — 'active' is a legacy alias kept
@@ -104,8 +110,8 @@ export interface GuardModeContext {
  */
 export function resolveGuardMode(provider: string, context: GuardModeContext = {}): GuardSessionMode {
   const normalized = normalizeProvider(provider);
-  if (GUARD_NATIVE_PRETOOL_PROVIDERS.has(normalized)) {
-    return context.nativeHookVerified === true ? 'native-pretool' : 'watcher-fallback';
+  if (GUARD_NATIVE_PRETOOL_PROVIDERS.has(normalized) && context.nativeHookVerified === true) {
+    return 'native-pretool';
   }
   if (GUARD_WRAPPED_PREAPPLY_PROVIDERS.has(normalized)) {
     return context.viaDispatch === true ? 'wrapped-preapply' : 'watcher-fallback';

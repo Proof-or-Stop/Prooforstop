@@ -1342,7 +1342,7 @@ export const MAIN_TOOLS: ToolDef[] = [
   { name: 'guard_session_start', description: 'Start (or restart) a Koala-managed scope-guard session projection for a story', schema: {
     storyId: z.string().describe('Story ID'),
     provider: z.string().min(1, 'provider is required').describe('Agent provider runtime (e.g. claude-code, codex). Guard mode depends on provider and context flags.'),
-    nativeHookVerified: z.boolean().optional().describe('(Claude Code only) Set true when a PreToolUse hook is confirmed installed, enabling native-pretool mode. Without this, Claude Code uses watcher-fallback.'),
+    nativeHookVerified: z.boolean().optional().describe('Set true when the host-native PreToolUse hook is confirmed installed (Claude Code .claude/settings.json or Codex .codex/hooks.json), enabling native-pretool mode.'),
     viaDispatch: z.boolean().optional().describe('(Codex/Gemini only) Set true when running via Lattice dispatch/pre-apply flow, enabling wrapped-preapply mode. Without this, those hosts use watcher-fallback.'),
     json: z.boolean().optional().describe('Output structured JSON'),
   }},

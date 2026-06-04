@@ -369,8 +369,9 @@ function mergedFor(contract: ScopeContractData, pack: ScopeDiffPack) {
 
 // ── 8. CHK-004 Edge: watcher-fallback when no interception context available ─
 {
-  assert.equal(providerSupportsPreToolBlocking('codex'), false, 'codex is not a native-pretool provider');
-  assert.equal(resolveGuardMode('codex'), 'watcher-fallback', 'codex without dispatch context → watcher-fallback');
+  assert.equal(providerSupportsPreToolBlocking('codex'), true, 'codex CAN support native pre-tool blocking');
+  assert.equal(resolveGuardMode('codex', { nativeHookVerified: true }), 'native-pretool', 'codex + nativeHookVerified=true → native-pretool');
+  assert.equal(resolveGuardMode('codex'), 'watcher-fallback', 'codex without verified context → watcher-fallback');
   assert.equal(resolveGuardMode('codex', { viaDispatch: false }), 'watcher-fallback', 'codex + viaDispatch=false → watcher-fallback');
 
   const session = buildGuardSession({ storyId: 'B-guard', provider: 'codex' });
