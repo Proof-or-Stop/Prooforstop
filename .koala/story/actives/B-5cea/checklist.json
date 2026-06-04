@@ -174,9 +174,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-04T00:01:24.557Z",
-      "endTime": null,
+      "endTime": "2026-06-04T00:01:42.211Z",
       "userSees": "Focused verification output includes passing Node/Lattice commands such as `npm run test:codex-assets`, `npm run test:entrypoints`, and a JSON stdout parse check; no delivery evidence command is `swift test` or Mac Native App validation.",
       "files": {
         "modify": [
@@ -216,7 +216,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-codex-assets.mjs",
+          "command": "npm run test:codex-assets",
+          "result": "pass",
+          "note": "Focused regression passes for lattice wrapper and legacy wrapper command resolution.",
+          "headHash": "5665ff481ba2ac92cdf8c29277552f244e90762e",
+          "materialHash": "6a583152cbec31c51a60a0b32a2682082783d7a8f9ba71b8ef83360e161e596e",
+          "timestamp": "2026-06-04T00:01:42.278Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-entrypoints.mjs",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "Entrypoint smoke covers stale global guidance without mutating the real global install and keeps local/current worktree paths explicit.",
+          "headHash": "5665ff481ba2ac92cdf8c29277552f244e90762e",
+          "materialHash": "6a583152cbec31c51a60a0b32a2682082783d7a8f9ba71b8ef83360e161e596e",
+          "timestamp": "2026-06-04T00:01:42.337Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/dist/cli.js",
+          "command": "node --input-type=module -e \"import { execFileSync } from node:child_process; const raw = execFileSync(process.execPath, [packages/main/dist/cli.js, validate, --json], { encoding: utf8 }); JSON.parse(raw.slice(raw.indexOf({)));\"",
+          "result": "pass",
+          "note": "Lattice CLI validate --json stdout remains parseable; verification set used Node/Lattice commands and did not run Swift or Mac Native App validation.",
+          "headHash": "5665ff481ba2ac92cdf8c29277552f244e90762e",
+          "materialHash": "6a583152cbec31c51a60a0b32a2682082783d7a8f9ba71b8ef83360e161e596e",
+          "timestamp": "2026-06-04T00:01:42.387Z"
+        }
+      ]
     }
   ],
   "auditLog": [
