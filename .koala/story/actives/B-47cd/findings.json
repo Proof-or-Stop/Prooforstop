@@ -90,6 +90,58 @@
         "packages/main/src/core/lattice-autopilot.ts",
         "packages/main/src/tasks/autopilot-run-smoke.ts"
       ]
+    },
+    {
+      "id": "B-47cd:F-006",
+      "desc": "packages/main/src/core/lattice-autopilot.ts:558-568 and 651-652 never load or check the persisted autopilot policy that cli-engine.ts:985-1006 advertises as the authorization source. The run mode, receipt requirement, and bounds come from CLI args instead of .koala/autopilot-policies/<name>.json, so a conservative policy can be executed as full-autopilot or authority-verified just by changing --mode. Fix by loading checkAutopilotPolicy() before dispatch, refusing supervised/refused policies, and deriving mode/maxIterations/runtime/budget/receipt requirements from the normalized autopilot policy rather than raw CLI overrides.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-04T03:43:24.258Z",
+      "reviewRound": "2026-06-04T03:37:35.517Z",
+      "reviewRunId": "B-47cd:RR-002",
+      "_hash": "059481e2d103e4a5b1b998aaf16da71d235a760ae6c7c9259a74dcae9d89b1d3",
+      "files": [
+        "packages/main/src/core/lattice-autopilot.ts",
+        "packages/main/src/cli-engine.ts"
+      ]
+    },
+    {
+      "id": "B-47cd:F-007",
+      "desc": "cli-engine.ts:1036-1046 documents autopilot_resume as resuming a run under policy and safety checks with optional policy/runtime/budget/server-receipt inputs, but handlers/lattice-autopilot.ts:250-252 forwards those args into core/lattice-autopilot.ts:862-887 where every call is unconditionally persisted as status=refused and all of the advertised resume/policy inputs are ignored. Fix by narrowing the public schema to the current refusal-only behavior or implementing an actual safe resume path that validates the stored run against the supplied policy/receipt/bounds.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-04T03:43:24.259Z",
+      "reviewRound": "2026-06-04T03:37:35.517Z",
+      "reviewRunId": "B-47cd:RR-002",
+      "_hash": "4c8cb9cc6bf0558ec7b3d45a53b5589249f138c12e1e9903c82b777258d5b78e",
+      "files": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/handlers/lattice-autopilot.ts",
+        "packages/main/src/core/lattice-autopilot.ts"
+      ]
+    },
+    {
+      "id": "B-47cd:F-008",
+      "desc": "cli-engine.ts:944-967 accepts dispatchPolicy/allowedHosts/allowedPaths/deniedPaths/commandAllowlist/requiredCommands/requireReview/stopOnValidationFailure on autopilot_policy_create, but core/autopilot-policy.ts:147-162 and 483-516 have no fields for them and silently drop the input. This breaks the published JSON/CLI contract and can mislead operators into thinking scope or command restrictions were persisted when they were discarded. Fix by either removing unsupported schema fields from the CLI surface or extending the AutopilotPolicy model/checker to persist and enforce them.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-04T03:43:24.306Z",
+      "reviewRound": "2026-06-04T03:37:35.517Z",
+      "reviewRunId": "B-47cd:RR-002",
+      "_hash": "663febafe8f780972636d35c52734c22f25e1b69955065a2b73e228fddc3730d",
+      "files": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/core/autopilot-policy.ts"
+      ]
     }
   ]
 }
