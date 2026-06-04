@@ -363,6 +363,24 @@
       ],
       "resolvedReason": "Resolved by making fake-test-server acceptance internal-test-only via trustedTestAuthorityReceipt, keeping public serverAuthorityReceipt fake-test-server JSON invalid, and adding smoke coverage for caller-supplied fake-test-server refusal plus CLI rejection of trustedTestAuthorityReceipt. Evidence: npm --prefix packages/main run build; npm --prefix packages/main run test:autopilot-run-smoke; npm --prefix packages/main run test:dispatch-run-smoke; npm --prefix packages/main run test:unattended-dispatch-smoke; npm --prefix packages/main run test:command-ownership-contract; npm --prefix packages/main run test:flow-stability-smoke; node bin/lattice.js validate --story=B-47cd --json (33/33 PASS).",
       "resolvedAt": "2026-06-04T06:37:00.816Z"
+    },
+    {
+      "id": "B-47cd:F-020",
+      "desc": "test-evidence.json overstates executable coverage for required intents: CHK-002:adversarial:0 is recorded as covered by npm build instead of the smoke refusal assertions; CHK-008:edge:0 is recorded as docs-only for a runtime conflict/evidence-preservation claim; CHK-009:edge:0 claims autopilot cancel evidence preservation while the autopilot smoke only checks cancelled/refused and explicit preservation assertions exist only at dispatch level.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-04T06:48:09.841Z",
+      "reviewRound": "2026-06-04T06:36:38.276Z",
+      "reviewRunId": "B-47cd:RR-020",
+      "_hash": "ba71e8436ec84c72053034b0cba8c1bcac4e7dee817a8183211b1403d90cacac",
+      "files": [
+        ".koala/story/actives/B-47cd/test-evidence.json",
+        "packages/main/src/tasks/autopilot-run-smoke.ts",
+        "packages/main/src/tasks/unattended-dispatch-smoke.ts"
+      ]
     }
   ]
 }
