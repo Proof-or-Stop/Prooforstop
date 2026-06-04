@@ -1,0 +1,41 @@
+{
+  "task": "Lattice CLI needs explicit Conservative, Authority-Verified, and Full Autopilot execution modes for unattended host-to-host development while preserving policy, evidence, receipt, review, and merge authority boundaries.",
+  "outcome": "User runs `lattice autopilot_run --mode=conservative --storyId=B-demo --policy=fake --json` and sees a structured result saying mode=conservative, status=manual_review_ready, validation=passed, mergePlan.manualOnly=true, productionDone=false; docs also show authority-verified and full-autopilot boundaries.",
+  "facts": [
+    "B-8a1a already delivered policy-bound dispatch_auto with Claude Code real subprocess support under allowRealHostSubprocess=true and claude --print <prompt-file> command allowlist.",
+    "Current dispatch_review and dispatch_merge_plan intentionally keep authorityChanged=false, receiptVerified=false, productionDone=false, and manualOnly=true for local diagnostic results.",
+    "Codex, Claude Code, and Gemini can call each other as CLIs, so Lattice should primarily provide policy, handoff, evidence, receipts, review, and merge boundaries rather than replacing host intelligence.",
+    "Conservative mode must be the safe default: automatic development evidence is allowed, automatic production authority is not.",
+    "Authority-Verified and Full Autopilot modes are high-risk because they touch completion semantics, story lifecycle, and production/main merge wording."
+  ],
+  "constraints": [
+    "Do not weaken existing dispatch_auto policy checks, allowedPaths/deniedPaths, commandAllowlist, env filtering, or Claude Code only real subprocess boundary.",
+    "Do not allow any local diagnostic receipt to satisfy server authority receipt requirements.",
+    "Do not auto-merge main or claim productionDone unless an explicit mode policy and required authority gates pass.",
+    "All long-running loops must be bounded by maxIterations, maxRuntimeMinutes, maxBudgetUSD, stopOnConflict, and stopOnScopeViolation.",
+    "Reuse existing dispatch, receipt, validation, and merge_plan primitives instead of introducing a second runner stack."
+  ],
+  "unknowns": [
+    "Whether authority server receipt verification can be fully live-tested in this story or should be represented by an explicit fake-authority deterministic smoke.",
+    "How much story-branch integration can safely be automated without fighting existing DONE merge worktree gates.",
+    "Whether host-native delegation should be a first-class run mode in this story or a documented contract surfaced through autopilot plan output.",
+    "How much auto-fix behavior should be implemented now versus limited to bounded retry/state classification."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/dispatch-policy.ts",
+    "packages/main/src/core/lattice-dispatch.ts",
+    "packages/main/src/core/lattice-autopilot.ts",
+    "packages/main/src/core/autopilot-policy.ts",
+    "packages/main/src/handlers/lattice-autopilot.ts",
+    "packages/main/src/handlers/lattice-dispatch.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/tasks/autopilot-run-smoke.ts",
+    "README.md",
+    "docs/requirements/decisions/host-overflow.md",
+    "docs/requirements/decisions/story-lifecycle.md",
+    "docs/requirements/decisions/authority-client-role.md"
+  ],
+  "timestamp": "2026-06-04T02:54:30.577Z"
+}

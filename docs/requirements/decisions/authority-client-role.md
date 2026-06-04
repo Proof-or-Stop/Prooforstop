@@ -94,7 +94,9 @@ handoff/evidence surfaces, but they do not submit evidence, claim jobs, register
 actors, run providers, sign envelopes, verify server receipts, or promote local
 DONE to production DONE. Until verified receipt support exists, their JSON
 contracts must keep `receiptVerified=false`, `productionDone=false`, and
-`canClaimProductionDone=false`.
+`authorityChanged=false`. `authority_status` additionally reports
+`canClaimProductionDone=false`; `conduit_status` does not expose that
+authority-specific field.
 
 The Mac App is not the authority/config source for this migration. It may remain
 an optional dashboard/archive surface; production authority remains receipt
@@ -129,7 +131,7 @@ prerequisites are surfaced as warnings, **not** as global blockers — ordinary
 local Koala/Lattice story development (`story_advance`,
 `verification_evidence_add`, DONE) keeps working in every mode.
 
-New JSON fields (both `authority_status` and `conduit_status`):
+New readiness JSON fields (both `authority_status` and `conduit_status`):
 
 | Field | Meaning |
 |-------|---------|
@@ -146,8 +148,8 @@ New JSON fields (both `authority_status` and `conduit_status`):
 Constraints preserved by B-b710 (mechanical guard:
 `packages/main/src/tasks/authority-status-smoke.ts`):
 
-1. **No status/readiness path can flip `productionDone`, `receiptVerified`, or
-   `canClaimProductionDone` to `true`.** Not even when every readiness field is
+1. **No status/readiness path can flip `productionDone` or `receiptVerified` to
+   `true`; `authority_status` also keeps `canClaimProductionDone=false`.** Not even when every readiness field is
    `true` (URL + actor key + runner id all configured): env presence alone is
    never authority. Only a future receipt-backed path that verifies a signed
    `AuthorityReceipt` may promote them, and that path is gated by PD-1 /

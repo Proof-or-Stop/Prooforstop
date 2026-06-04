@@ -491,10 +491,17 @@ export function collectReviewerEvidenceState(
   }
 
   const agentsWithCurrentValidEvidence = new Set(valid.map((evidence) => evidence.agent));
+  const terminalReviewerFindingIds = new Set(
+    reviewerFindings
+      .filter((evidence) => evidence.finding?.status === 'resolved' || evidence.finding?.status === 'dismissed')
+      .map((evidence) => evidence.id),
+  );
   const invalid = rawInvalid.filter((issue) => {
-    if (issue.kind !== 'pass') return true;
     if (issue.code !== 'stale_run' && issue.code !== 'stale_run_hash') return true;
-    return !agentsWithCurrentValidEvidence.has(issue.agent);
+    if (!agentsWithCurrentValidEvidence.has(issue.agent)) return true;
+    if (issue.kind === 'pass') return false;
+    if (issue.kind === 'finding' && terminalReviewerFindingIds.has(issue.evidenceId)) return false;
+    return true;
   });
 
   return { valid, invalid };

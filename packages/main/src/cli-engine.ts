@@ -138,6 +138,23 @@ const verificationEvidenceSchema = z.object({
   timestamp: z.string().optional().describe('记录时间'),
 });
 
+const stringOrStringArraySchema = z.union([z.string(), z.array(z.string())]);
+const autopilotModeSchema = z.enum([
+  'conservative',
+  'authority-verified',
+  'authority_verified',
+  'full-autopilot',
+  'full_autopilot',
+]);
+const serverAuthorityReceiptSchema = z.union([
+  z.string(),
+  z.object({
+    authority: z.string().optional(),
+    verified: z.boolean().optional(),
+    receiptRef: z.string().optional(),
+  }).passthrough(),
+]);
+
 const capsuleEvidenceRefSchema = z.object({
   kind: z.string().optional(),
   path: z.string().optional(),
@@ -923,6 +940,95 @@ export const MAIN_TOOLS: ToolDef[] = [
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for dispatch_watch JSON; refuses to overwrite'),
+  }},
+  { name: 'autopilot_policy_create', description: 'Create and persist a named autopilot execution policy without starting workers or claiming authority. Alias: lattice autopilot policy create', schema: {
+    policy: z.string().describe('Policy name (alphanumeric, hyphen, underscore; 1-64 chars)'),
+    mode: autopilotModeSchema.optional().describe('Autopilot execution mode (default conservative in core policy)'),
+    dispatchPolicy: z.string().optional().describe('Underlying dispatch policy name to enforce for worker scheduling'),
+    allowAutoDispatch: z.boolean().optional().describe('Allow autopilot to schedule dispatch under policy constraints'),
+    allowAutoValidate: z.boolean().optional().describe('Allow autopilot to run validation commands under policy constraints'),
+    allowAutoFix: z.boolean().optional().describe('Allow bounded fix retries'),
+    allowStoryIntegration: z.boolean().optional().describe('Allow story-branch integration only when core authority gates permit it'),
+    allowDoneAdvance: z.boolean().optional().describe('Allow lifecycle DONE advance only when core authority gates permit it'),
+    allowMainMerge: z.boolean().optional().describe('Allow main merge only when core authority gates permit it'),
+    requireServerReceipt: z.boolean().optional().describe('Require server-authority proof before stronger authority claims'),
+    requireServerAuthorityReceipt: z.boolean().optional().describe('Require server-authority proof before stronger authority claims'),
+    maxIterations: z.number().int().positive().optional().describe('Maximum autopilot loop iterations'),
+    maxRuntimeMinutes: z.number().int().positive().optional().describe('Maximum total autopilot runtime in minutes'),
+    maxBudgetUSD: z.number().positive().optional().describe('Optional budget cap in USD'),
+    stopOnConflict: z.boolean().optional().describe('Stop when a conflict is detected'),
+    stopOnScopeViolation: z.boolean().optional().describe('Stop when scope guard reports a violation'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    json: z.boolean().optional().describe('Shortcut for --format=json'),
+    output: z.string().optional().describe('Optional file path for autopilot policy JSON; refuses to overwrite'),
+  }},
+  { name: 'autopilot_policy_get', description: 'Read a named autopilot policy. Alias: lattice autopilot policy get', schema: {
+    policy: z.string().describe('Policy name'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    json: z.boolean().optional().describe('Shortcut for --format=json'),
+    output: z.string().optional().describe('Optional file path for autopilot policy JSON; refuses to overwrite'),
+  }},
+  { name: 'autopilot_policy_check', description: 'Check a named autopilot policy without changing authority. Alias: lattice autopilot policy check', schema: {
+    policy: z.string().describe('Policy name to check'),
+    serverAuthorityReceipt: serverAuthorityReceiptSchema.optional().describe('Optional server-authority proof object or reference to pass through to the core checker'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    json: z.boolean().optional().describe('Shortcut for --format=json'),
+    output: z.string().optional().describe('Optional file path for autopilot policy check JSON; refuses to overwrite'),
+  }},
+  { name: 'autopilot_run', description: 'Run a saved autopilot policy for a story while preserving conservative authority boundaries. Alias: lattice autopilot run', schema: {
+    storyId: z.string().describe('Story ID to run autopilot for'),
+    policy: z.string().describe('Saved autopilot policy name; its dispatchPolicy selects the underlying dispatch policy'),
+    mode: autopilotModeSchema.optional().describe('Optional expected mode assertion; must match the saved autopilot policy and cannot widen it'),
+    runId: z.string().optional().describe('Optional explicit run id when core supports it'),
+    host: z.string().optional().describe('Override host, constrained by policy'),
+    fromHost: z.string().optional().describe('Dispatching host identity'),
+    role: z.string().optional().describe('Worker role label'),
+    objective: z.string().optional().describe('Bounded objective for this run'),
+    allowedPaths: stringOrStringArraySchema.optional().describe('Paths the run may write'),
+    deniedPaths: stringOrStringArraySchema.optional().describe('Paths the run must not write'),
+    requiredCommands: stringOrStringArraySchema.optional().describe('Commands the run must execute or verify'),
+    successCriteria: stringOrStringArraySchema.optional().describe('Acceptance criteria for the run'),
+    baseSha: z.string().optional().describe('Git base SHA for evidence freshness'),
+    packId: z.string().optional().describe('Optional pack id override'),
+    authorityBoundary: z.string().optional().describe('Authority boundary statement'),
+    executionInstructions: stringOrStringArraySchema.optional().describe('Instructions for the worker'),
+    parallel: z.number().optional().describe('Worker count, capped by policy'),
+    serverAuthorityReceipt: serverAuthorityReceiptSchema.optional().describe('Optional server-authority proof object or reference to pass through to core'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    json: z.boolean().optional().describe('Shortcut for --format=json'),
+    output: z.string().optional().describe('Optional file path for autopilot run JSON; refuses to overwrite'),
+  }},
+  { name: 'autopilot_status', description: 'Read one persisted autopilot run status. Alias: lattice autopilot status', schema: {
+    runId: z.string().describe('Autopilot run ID to inspect'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    json: z.boolean().optional().describe('Shortcut for --format=json'),
+    output: z.string().optional().describe('Optional file path for autopilot status JSON; refuses to overwrite'),
+  }},
+  { name: 'autopilot_watch', description: 'Read-only lifecycle aggregation for one autopilot run. Alias: lattice autopilot watch', schema: {
+    runId: z.string().describe('Autopilot run ID to watch'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    json: z.boolean().optional().describe('Shortcut for --format=json'),
+    output: z.string().optional().describe('Optional file path for autopilot watch JSON; refuses to overwrite'),
+  }},
+  { name: 'autopilot_cancel', description: 'Cancel an autopilot run without deleting evidence or changing authority. Alias: lattice autopilot cancel', schema: {
+    runId: z.string().describe('Autopilot run ID to cancel'),
+    reason: z.string().optional().describe('Optional cancellation reason'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    json: z.boolean().optional().describe('Shortcut for --format=json'),
+    output: z.string().optional().describe('Optional file path for autopilot cancel JSON; refuses to overwrite'),
+  }},
+  { name: 'autopilot_review', description: 'Summarize an autopilot run, warnings, evidence, and authority posture without mutating it. Alias: lattice autopilot review', schema: {
+    runId: z.string().describe('Autopilot run ID to review'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    json: z.boolean().optional().describe('Shortcut for --format=json'),
+    output: z.string().optional().describe('Optional file path for autopilot review JSON; refuses to overwrite'),
+  }},
+  { name: 'autopilot_resume', description: 'Inspect a persisted autopilot run and refuse unsafe v1 resume while preserving evidence. Alias: lattice autopilot resume', schema: {
+    runId: z.string().describe('Autopilot run ID to resume'),
+    maxResumeAgeMs: z.number().int().positive().optional().describe('Maximum age in ms for a persisted run to be considered resumable by core'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    json: z.boolean().optional().describe('Shortcut for --format=json'),
+    output: z.string().optional().describe('Optional file path for autopilot resume JSON; refuses to overwrite'),
   }},
   { name: 'evidence_manifest', description: 'Create a portable evidence freshness manifest with transcript/test refs and authority guidance only', schema: {
     storyId: z.string().describe('Story ID to inspect for evidence refs'),
@@ -1837,6 +1943,31 @@ export function addValue(obj: Record<string, unknown>, key: string, val: unknown
   }
 }
 
+const STRICT_OWNER_META_COMMANDS = new Set([
+  'autopilot_run',
+  'autopilot_cancel',
+  'autopilot_resume',
+]);
+
+const CLI_META_SCHEMA = {
+  takeover: z.boolean().optional(),
+  forceTakeover: z.boolean().optional(),
+};
+
+function isAutopilotCommand(cmd: string): boolean {
+  return cmd.startsWith('autopilot_');
+}
+
+function validationSchemaForCommand(cmd: string, tool: ToolDef): z.ZodObject<Record<string, ZodType>> {
+  if (isAutopilotCommand(cmd)) {
+    const schema = STRICT_OWNER_META_COMMANDS.has(cmd)
+      ? { ...tool.schema, ...CLI_META_SCHEMA }
+      : tool.schema;
+    return z.object(schema).strict();
+  }
+  return z.object(tool.schema);
+}
+
 // ── Resolve root ──
 
 function resolveRoot(explicit?: string): string {
@@ -1956,6 +2087,11 @@ const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'dispatch_policy_get',
   'dispatch_policy_check',
   'dispatch_watch',
+  'autopilot_policy_get',
+  'autopilot_policy_check',
+  'autopilot_status',
+  'autopilot_watch',
+  'autopilot_review',
 ]);
 
 function inferCodexEntrypoint(): string {
@@ -1966,9 +2102,47 @@ function inferCodexEntrypoint(): string {
   return 'cli';
 }
 
-function storyIdFromArgs(args: Record<string, unknown>, activeStory?: ActiveStory | null): string | null {
+const AUTOPILOT_RUN_OWNER_GATED_COMMANDS = new Set([
+  'autopilot_cancel',
+  'autopilot_resume',
+]);
+
+function safeAutopilotRunId(value: unknown): string | null {
+  if (typeof value !== 'string') return null;
+  const trimmed = value.trim();
+  return /^[a-zA-Z0-9_.-]{1,128}$/.test(trimmed) ? trimmed : null;
+}
+
+export function storyIdFromAutopilotRunId(projectRoot: string, args: Record<string, unknown>): string | null {
+  const runId = safeAutopilotRunId(args.runId ?? args.autopilotId);
+  if (!runId) return null;
+  const file = join(projectRoot, '.koala', 'autopilot-runs', runId, 'run.json');
+  if (!existsSync(file)) return null;
+  try {
+    const parsed = JSON.parse(readFileSync(file, 'utf8')) as { storyId?: unknown };
+    return typeof parsed.storyId === 'string' && parsed.storyId.trim()
+      ? parsed.storyId.trim()
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+function storyIdFromArgs(
+  args: Record<string, unknown>,
+  activeStory?: ActiveStory | null,
+  context?: { command?: string; projectRoot?: string },
+): string | null {
   if (typeof args.storyId === 'string' && args.storyId.trim()) return args.storyId.trim();
   if (typeof args.story === 'string' && args.story.trim()) return args.story.trim();
+  if (
+    context?.command &&
+    context.projectRoot &&
+    AUTOPILOT_RUN_OWNER_GATED_COMMANDS.has(context.command)
+  ) {
+    const runStoryId = storyIdFromAutopilotRunId(context.projectRoot, args);
+    if (runStoryId) return runStoryId;
+  }
   return activeStory?.storyId || null;
 }
 
@@ -2133,7 +2307,7 @@ export function enforceStoryOwnerLeaseGate(
   activeStory: ActiveStory | null,
   projectRoot: string,
 ): void {
-  const storyId = storyIdFromArgs(args, activeStory);
+  const storyId = storyIdFromArgs(args, activeStory, { command: cmd, projectRoot });
   const cls = resolveEffectiveOwnershipClass(cmd, args, storyId);
 
   // Fail-closed: an unclassified command (no policy entry, or a policy with an
@@ -2572,6 +2746,15 @@ export async function runCli(opts?: {
   'dispatch policy check': 'dispatch_policy_check',
   'dispatch auto': 'dispatch_auto',
   'dispatch watch': 'dispatch_watch',
+  'autopilot policy create': 'autopilot_policy_create',
+  'autopilot policy get': 'autopilot_policy_get',
+  'autopilot policy check': 'autopilot_policy_check',
+  'autopilot run': 'autopilot_run',
+  'autopilot status': 'autopilot_status',
+  'autopilot watch': 'autopilot_watch',
+  'autopilot cancel': 'autopilot_cancel',
+  'autopilot review': 'autopilot_review',
+  'autopilot resume': 'autopilot_resume',
   'overflow auto': 'overflow_auto',
   'handoff create': 'handoff_create',
   'handoff inspect': 'handoff_inspect',
@@ -2662,12 +2845,13 @@ export async function runCli(opts?: {
   }
 
   // Validate
-  const schema = z.object(tool.schema);
+  const schema = validationSchemaForCommand(cmd, tool);
   const v = schema.safeParse(parsed);
   if (!v.success) {
     printValidationFailure(tool, v.error.issues);
     process.exit(1);
   }
+  parsed = v.data as Record<string, unknown>;
 
   // Execute
   const root = resolveRootForCommand(cmd, rootOverride);
@@ -2781,7 +2965,10 @@ export async function runCli(opts?: {
         status: entry.success ? 'ok' : 'fail',
         result: entry.success ? null : undefined,
         error: entry.error || null,
-        storyId: storyIdFromArgs(entry.args as Record<string, unknown>, activeStory),
+        storyId: storyIdFromArgs(entry.args as Record<string, unknown>, activeStory, {
+          command: entry.command,
+          projectRoot: effectiveRoot,
+        }),
         phase: activeStory?.phase || null,
         role: inferActivityRole(entry.args, process.env.KOALA_ACTIVITY_ROLE || process.env.KOALA_AGENT),
       };
@@ -2807,7 +2994,7 @@ export async function runCli(opts?: {
     const argsObject = entry.args && typeof entry.args === 'object' && !Array.isArray(entry.args)
       ? entry.args as Record<string, unknown>
       : {};
-    const storyId = storyIdFromArgs(argsObject, activeStory);
+    const storyId = storyIdFromArgs(argsObject, activeStory, { command: entry.command, projectRoot: root });
     if (!storyId) return;
     try {
       let phase = activeStory?.phase || '';
@@ -3061,5 +3248,9 @@ export async function runCli(opts?: {
   const handler = handlers[cmd];
   if (!handler) { console.error(`handler not found: ${cmd}`); process.exit(1); }
 
-  await run(() => Object.keys(tool.schema).length === 0 ? handler() : handler(v.data));
+  await run(() => Object.keys(tool.schema).length === 0 ? handler() : handler(
+    isAutopilotCommand(cmd)
+      ? parsed
+      : (v.data as Record<string, unknown>),
+  ));
 }
