@@ -42,7 +42,7 @@
       "desc": "quality-cleanup: scripts/verify-codex-assets.mjs:267-280 assertSessionBriefCommand tests cover candidates 1 (bin/lattice-codex.js), 2 (bin/koala-codex.js), 4 (bin/koala.js) and global-thin, but the 3rd priority candidate bin/lattice.js → \"node bin/lattice.js session_brief\" (codex-adapter-checks.ts:80) has no direct test case. If the mapping is changed in future, there is no regression guard for this path. Minor test coverage gap only.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-04T00:20:34.845Z",
@@ -52,7 +52,9 @@
       "files": [
         "scripts/verify-codex-assets.mjs",
         "packages/main/src/core/codex-adapter-checks.ts"
-      ]
+      ],
+      "resolvedReason": "Fixed by commit d07174d4: scripts/verify-codex-assets.mjs now includes a direct resolveCodexSessionBriefCommand test for bin/lattice.js-only fallback returning node bin/lattice.js session_brief. Verified npm run test:codex-assets plus full build, entrypoints, validate --json parse, and verify_codex.",
+      "resolvedAt": "2026-06-04T00:25:04.252Z"
     }
   ]
 }
