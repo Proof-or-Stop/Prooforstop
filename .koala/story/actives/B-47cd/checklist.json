@@ -336,7 +336,7 @@
         "docs/requirements/decisions/session-ownership-and-write-leases.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "userSees": "Autopilot explains whether it integrated a story branch, produced a merge plan, or stopped on conflict.",
+      "userSees": "CLI JSON shows: \"mergeDecision\":{\"manualOnly\":true,\"mainMerged\":false}.",
       "verificationIntent": {
         "happy": [
           {
