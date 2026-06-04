@@ -85,7 +85,7 @@
       "desc": "Authority-Verified and Full Autopilot do not require an actually verified server authority receipt. classifyAuthorityReceiptCandidate marks the gate verified for any local object with authority-like shape or even just server-ish markers such as source=\"server\" / authorityReceipt=true (lattice-autopilot.ts:426-457), so a caller can satisfy authorityReceiptGate.verified without any real authority round-trip or receipt verification. Runtime repro: autopilot_run --mode=authority-verified --serverAuthorityReceipt={\"source\":\"server\"} returned authorityReceiptGate.verified=true in a temp repo. That conflicts with the product intent in README.md:196-238 and host-overflow.md:68-108 that only a verified server authority receipt should satisfy the gate and that local diagnostic data must not become server authority.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-concept",
       "createdAt": "2026-06-04T03:43:05.288Z",
@@ -97,7 +97,9 @@
         "docs/requirements/decisions/host-overflow.md",
         "packages/main/src/core/lattice-autopilot.ts",
         "packages/main/src/tasks/autopilot-run-smoke.ts"
-      ]
+      ],
+      "resolvedReason": "Resolved by narrowing authority receipt classification: {source:'server'} and local diagnostics no longer verify; only explicit verified fake-test-server or authority-server style receipts with ref/digest/signature pass the gate. Smoke asserts forged server object stops before dispatch. Evidence: npm --prefix packages/main run test:autopilot-run-smoke.",
+      "resolvedAt": "2026-06-04T04:11:03.916Z"
     },
     {
       "id": "B-47cd:F-006",
