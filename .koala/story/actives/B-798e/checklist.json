@@ -1,0 +1,30 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Fix invalid or incomplete task annotation headers",
+      "context": "cli-validate reports 10 errors: missing @changes in observability/story-authority files and invalid @type test in observability smoke task annotations. Update only the required annotation metadata, not runtime behavior.",
+      "relatedDocs": [
+        "docs/requirements/decisions/annotation-system.md",
+        "docs/requirements/decisions/host-neutral-observability-console.md"
+      ],
+      "userSees": "cli-validate no longer reports the 10 task annotation errors.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Verify annotation validator and convergence output",
+      "context": "Run node packages/main/dist/tasks/cli-validate.js and node bin/lattice.js convergence_check to prove the 10 annotation errors are gone and the code annotation compliance row passes.",
+      "relatedDocs": [
+        "docs/requirements/decisions/annotation-system.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "convergence_check shows code annotation compliance passed instead of 10 errors.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

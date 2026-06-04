@@ -1,0 +1,50 @@
+{
+  "storyId": "B-798e",
+  "name": "fix-legacy-task-annotation-convergence",
+  "title": "Fix legacy task annotation convergence errors",
+  "description": "Fix the remaining legacy task annotation validator errors so convergence_check no longer fails on the code annotation compliance row. Scope is limited to observability and story-authority task annotation headers plus any directly required validation evidence.",
+  "type": "bug",
+  "phase": "INIT_CHECK",
+  "priority": "medium",
+  "keywords": [
+    "convergence_check",
+    "task-annotation",
+    "cli-validate",
+    "observability",
+    "story-authority"
+  ],
+  "riskSignals": [
+    {
+      "category": "合规/隐私",
+      "matched": "compliance"
+    }
+  ],
+  "createdAt": "2026-06-04T10:56:19.782Z",
+  "startedAt": "2026-06-04T10:56:19.782Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-04T10:56:19.788Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-04T10:56:54.028Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "riskSignalsDismissed": [
+    {
+      "category": "合规/隐私",
+      "reason": "This story only fixes legacy task annotation metadata required by the local cli-validate/convergence_check validator. It does not modify privacy, compliance policy, regulated data handling, auth, production release, or user data behavior.",
+      "at": "2026-06-04T10:56:35.137Z"
+    }
+  ]
+}
