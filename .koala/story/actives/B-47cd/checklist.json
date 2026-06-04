@@ -431,7 +431,7 @@
         "docs/requirements/decisions/host-overflow.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "userSees": "Maintainers get a stable regression gate proving the three autopilot modes and safety boundaries still work; user-facing usage and delivery closure are handled separately in CHK-011.",
+      "userSees": "Test output shows: \"autopilot-run-smoke: ok\" after build.",
       "verificationIntent": {
         "happy": [
           {
