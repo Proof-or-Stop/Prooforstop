@@ -200,9 +200,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-04T03:05:45.078Z",
-      "endTime": null,
+      "endTime": "2026-06-04T03:36:23.811Z",
       "files": {
         "modify": [
           "packages/main/src/registry.ts",
@@ -217,7 +217,45 @@
         "test": [
           "packages/main/src/tasks/autopilot-run-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/core/lattice-autopilot.ts",
+          "command": "npm --prefix packages/main run test:autopilot-run-smoke",
+          "result": "pass",
+          "note": "Conservative autopilot_run creates dispatch evidence, review, and manual merge decision.",
+          "headHash": "db871d58bdf2fa83f570035b1ac1d1eb9727ce18",
+          "materialHash": "e2c8ee230f3543444d07f00861e5d4bc4bde588d8b05c725024382ba85782e92",
+          "timestamp": "2026-06-04T03:36:23.883Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/core/lattice-autopilot.ts",
+          "command": "npm --prefix packages/main run test:autopilot-run-smoke",
+          "result": "pass",
+          "note": "Smoke covers blocked stop states such as max_iterations and missing authority classification.",
+          "headHash": "db871d58bdf2fa83f570035b1ac1d1eb9727ce18",
+          "materialHash": "e2c8ee230f3543444d07f00861e5d4bc4bde588d8b05c725024382ba85782e92",
+          "timestamp": "2026-06-04T03:36:23.933Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/autopilot-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:autopilot-run-smoke",
+          "result": "pass",
+          "note": "Authority invariant helper recursively checks conservative run authorityChanged/receiptVerified/productionDone remain false.",
+          "headHash": "db871d58bdf2fa83f570035b1ac1d1eb9727ce18",
+          "materialHash": "e2c8ee230f3543444d07f00861e5d4bc4bde588d8b05c725024382ba85782e92",
+          "timestamp": "2026-06-04T03:36:23.993Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -712,6 +750,16 @@
       "timestamp": "2026-06-04T03:36:22.663Z",
       "phase": "DEV",
       "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "DEV implementation and verification completed",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-06-04T03:36:23.811Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
       "action": "update",
       "from": "in_progress",
       "to": "done",
