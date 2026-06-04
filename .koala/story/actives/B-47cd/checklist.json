@@ -800,9 +800,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-04T03:05:52.775Z",
-      "endTime": null,
+      "endTime": "2026-06-04T03:36:32.160Z",
       "files": {
         "modify": [
           "packages/main/package.json"
@@ -813,7 +813,45 @@
         "test": [
           "packages/main/src/tasks/autopilot-run-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-010:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/autopilot-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:autopilot-run-smoke",
+          "result": "pass",
+          "note": "Autopilot smoke covers conservative, authority-verified fake server gate, and full-autopilot bounded run.",
+          "headHash": "db871d58bdf2fa83f570035b1ac1d1eb9727ce18",
+          "materialHash": "e2c8ee230f3543444d07f00861e5d4bc4bde588d8b05c725024382ba85782e92",
+          "timestamp": "2026-06-04T03:36:32.216Z"
+        },
+        {
+          "intentRef": "CHK-010:edge:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/autopilot-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:autopilot-run-smoke",
+          "result": "pass",
+          "note": "Smoke covers missing authority, maxIterations, cancel, and resume refusal.",
+          "headHash": "db871d58bdf2fa83f570035b1ac1d1eb9727ce18",
+          "materialHash": "e2c8ee230f3543444d07f00861e5d4bc4bde588d8b05c725024382ba85782e92",
+          "timestamp": "2026-06-04T03:36:32.275Z"
+        },
+        {
+          "intentRef": "CHK-010:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/autopilot-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:autopilot-run-smoke",
+          "result": "pass",
+          "note": "Recursive authority invariant checks prevent local receipt overclaim regression.",
+          "headHash": "db871d58bdf2fa83f570035b1ac1d1eb9727ce18",
+          "materialHash": "e2c8ee230f3543444d07f00861e5d4bc4bde588d8b05c725024382ba85782e92",
+          "timestamp": "2026-06-04T03:36:32.332Z"
+        }
+      ]
     },
     {
       "id": "CHK-011",
@@ -1048,6 +1086,16 @@
       "timestamp": "2026-06-04T03:36:30.988Z",
       "phase": "DEV",
       "itemId": "CHK-009",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "DEV implementation and verification completed",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-06-04T03:36:32.160Z",
+      "phase": "DEV",
+      "itemId": "CHK-010",
       "action": "update",
       "from": "in_progress",
       "to": "done",
