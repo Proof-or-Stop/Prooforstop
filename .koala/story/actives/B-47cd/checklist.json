@@ -196,7 +196,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/host-overflow.md"
       ],
-      "userSees": "Autopilot can use the existing policy-bound dispatch_auto path for controlled Claude or fake-host execution.",
+      "userSees": "CLI JSON shows: \"dispatch\":{\"status\":\"accepted_local\"} and \"policyCheck\":{\"authorized\":true}.",
       "verificationIntent": {
         "happy": [
           {
