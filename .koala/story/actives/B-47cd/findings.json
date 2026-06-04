@@ -409,7 +409,7 @@
       "desc": "autopilot_review derives a new review status from dispatch receipt/transcript and can project an already cancelled or failed run as manual_review_ready or needs_receipt, making cancel/status/watch/review disagree for the same terminal run. It should preserve terminal persisted status and only add review/merge evidence.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-04T06:48:27.878Z",
@@ -418,7 +418,9 @@
       "_hash": "b546803025f0056067a2624a48260b7079e5f1a00e727f775774073b6e3f8f92",
       "files": [
         "packages/main/src/core/lattice-autopilot.ts"
-      ]
+      ],
+      "resolvedReason": "Resolved by making autopilot_review preserve persisted terminal statuses instead of projecting cancelled/failed runs into manual_review_ready or needs_receipt. Review still returns dispatch review/merge evidence but keeps the cancelled nextAction and leaves run.json byte-identical. Evidence: npm --prefix packages/main run build; npm --prefix packages/main run test:autopilot-run-smoke cancelled review immutability assertions.",
+      "resolvedAt": "2026-06-04T07:03:58.487Z"
     }
   ]
 }
