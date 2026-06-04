@@ -381,6 +381,24 @@
         "packages/main/src/tasks/autopilot-run-smoke.ts",
         "packages/main/src/tasks/unattended-dispatch-smoke.ts"
       ]
+    },
+    {
+      "id": "B-47cd:F-021",
+      "desc": "autopilot_cancel/autopilot_resume only require runId to mutate run metadata, but the CLI owner gate derives target ownership only from storyId/story/activeStory and allows storyId missing, so cross-story ownership can be bypassed. autopilot_policy_create is also classified as storyScopedMutating and accepts owner meta despite having no stable story target.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-04T06:48:19.912Z",
+      "reviewRound": "2026-06-04T06:36:38.276Z",
+      "reviewRunId": "B-47cd:RR-021",
+      "_hash": "513c33c1819f0f75633fc7415c179c4b4c18d4efb3ce5c7977cdaf7968c8c571",
+      "files": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/handlers/lattice-autopilot.ts"
+      ]
     }
   ]
 }
