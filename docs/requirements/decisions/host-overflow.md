@@ -66,30 +66,32 @@ The three user-facing modes are:
 | Mode | Purpose | Authority boundary |
 |---|---|---|
 | Conservative | Execute only a bounded, policy-authorized local/fake path or produce a host-native delegation pack for a supervised host. | Local diagnostic receipts stay diagnostic-only; `receiptVerified=false`, `productionDone=false`, and no automatic merge. |
-| Authority-Verified | Require a verified authority receipt before accepting the run. The fake authority server is allowed for deterministic smoke coverage. | Missing, malformed, or unverifiable authority receipts refuse the run. A verified authority receipt may set `receiptVerified=true`, but it still does not imply `productionDone=true`. |
-| Full Autopilot | Continue through bounded plan/run/watch/review loops within explicit policy, path, runtime, budget, and `maxSteps` limits. | Stops at bounds, conflict, stale base, denied path, missing receipt, or review risk. Merge and DONE remain manual. |
+| Authority-Verified | Require a verified server authority receipt before stronger integration can be considered. A fake server-shaped receipt is allowed for deterministic smoke coverage. | Missing, malformed, or unverifiable authority receipts stop at `missing_authority_receipt`. Local CLI output still keeps `receiptVerified=false` and `productionDone=false`. |
+| Full Autopilot | Continue through bounded plan/run/watch/review loops within explicit policy, path, runtime, budget, and `maxIterations` limits. | Stops at bounds, conflict, stale base, denied path, missing receipt, or review risk. Merge and DONE remain manual. |
 
 The intended command surface is flat-first with nested aliases for human use:
 
 ```bash
-lattice autopilot_policy_create --policy=fake \
-  --modes=conservative,authority-verified,full-autopilot \
+lattice dispatch_policy_create --policy=fake \
   --allowedHosts=fake --allowedPaths=packages/main/src/generated/ \
-  --maxParallel=2 --maxRuntimeMinutes=10 --allowAutoMerge=false \
-  --allowProductionDone=false --json
+  --maxParallel=2 --maxRuntimeMinutes=10 --maxBudgetUSD=5 \
+  --network=none --commandAllowlist='node -e "process.exit(0)"' \
+  --requireReceipt=true --requireReview=true \
+  --allowAutoMerge=false --allowProductionDone=false
 
 lattice autopilot policy create --policy=fake \
-  --modes=conservative --allowedHosts=fake \
-  --allowedPaths=packages/main/src/generated/ \
-  --allowAutoMerge=false --allowProductionDone=false --json
+  --mode=conservative --allowAutoDispatch=true --allowAutoValidate=true \
+  --allowMainMerge=false --requireServerReceipt=false \
+  --maxIterations=1 --maxRuntimeMinutes=10 \
+  --stopOnConflict=true --stopOnScopeViolation=true --json
 
-lattice autopilot_policy_check --policy=fake --mode=conservative --json
+lattice autopilot_policy_check --policy=fake --json
 lattice autopilot_run --mode=conservative --storyId=B-demo --policy=fake --json
-lattice autopilot_status --autopilotId=A-B-demo-1234 --json
-lattice autopilot_watch --autopilotId=A-B-demo-1234 --json
-lattice autopilot_review --autopilotId=A-B-demo-1234 --json
-lattice autopilot_cancel --autopilotId=A-B-demo-1234 --json
-lattice autopilot_resume --autopilotId=A-B-demo-1234 --json
+lattice autopilot_status --runId=AP-B-demo-abc123 --json
+lattice autopilot_watch --runId=AP-B-demo-abc123 --json
+lattice autopilot_review --runId=AP-B-demo-abc123 --json
+lattice autopilot_cancel --runId=AP-B-demo-abc123 --json
+lattice autopilot_resume --runId=AP-B-demo-abc123 --json
 ```
 
 Host-native delegation is a shape contract, not an authority transfer. The

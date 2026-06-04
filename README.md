@@ -194,43 +194,48 @@ auto-merge, auto-DONE, or claim production authority.
 | Mode | What it can do | Acceptance boundary |
 |---|---|---|
 | Conservative | Runs a bounded fake/local or supervised host-native delegation path from an explicit policy. | Local diagnostic receipts only; `receiptVerified=false` and `productionDone=false`. |
-| Authority-Verified | Requires a verified authority receipt before the run is accepted. The fake authority server can be used for deterministic tests. | Missing or unverifiable authority receipts are refused. A verified authority receipt may set `receiptVerified=true`, but still does not imply `productionDone=true`. |
-| Full Autopilot | May continue through bounded plan/run/watch/review loops within `maxSteps`, runtime, scope, and policy limits. | Stops at the declared bound or conflict boundary. Review and merge remain manual-only. |
+| Authority-Verified | Requires a verified server authority receipt before stronger integration can be considered. A fake server-shaped receipt can be used for deterministic tests. | Missing or unverifiable authority receipts stop at `missing_authority_receipt`. Local CLI output still keeps `receiptVerified=false` and `productionDone=false`. |
+| Full Autopilot | May continue through bounded plan/run/watch/review loops within `maxIterations`, runtime, scope, and policy limits. | Stops at the declared bound or conflict boundary. Review and merge remain manual-only. |
 
-Policy setup supports both flat and nested CLI forms:
+Autopilot uses two policies: a dispatch policy for host/path/command execution,
+and an autopilot policy for mode permissions. Flat and nested CLI forms are both
+supported:
 
 ```bash
-lattice autopilot_policy_create --policy=fake \
-  --modes=conservative,authority-verified,full-autopilot \
+lattice dispatch_policy_create --policy=fake \
   --allowedHosts=fake --allowedPaths=packages/main/src/generated/ \
-  --maxParallel=2 --maxRuntimeMinutes=10 --allowAutoMerge=false \
-  --allowProductionDone=false --json
+  --maxParallel=2 --maxRuntimeMinutes=10 --maxBudgetUSD=5 \
+  --network=none --commandAllowlist='node -e "process.exit(0)"' \
+  --requireReceipt=true --requireReview=true \
+  --allowAutoMerge=false --allowProductionDone=false
 
 lattice autopilot policy create --policy=fake \
-  --modes=conservative --allowedHosts=fake \
-  --allowedPaths=packages/main/src/generated/ \
-  --allowAutoMerge=false --allowProductionDone=false --json
+  --mode=conservative --allowAutoDispatch=true --allowAutoValidate=true \
+  --allowMainMerge=false --requireServerReceipt=false \
+  --maxIterations=1 --maxRuntimeMinutes=10 \
+  --stopOnConflict=true --stopOnScopeViolation=true --json
 
-lattice autopilot_policy_check --policy=fake --mode=conservative --json
+lattice autopilot_policy_check --policy=fake --json
 ```
 
 Run and inspect a conservative autopilot attempt:
 
 ```bash
 lattice autopilot_run --mode=conservative --storyId=B-demo --policy=fake --json
-lattice autopilot_status --autopilotId=A-B-demo-1234 --json
-lattice autopilot_watch --autopilotId=A-B-demo-1234 --json
-lattice autopilot_review --autopilotId=A-B-demo-1234 --json
-lattice autopilot_cancel --autopilotId=A-B-demo-1234 --json
-lattice autopilot_resume --autopilotId=A-B-demo-1234 --json
+lattice autopilot_status --runId=AP-B-demo-abc123 --json
+lattice autopilot_watch --runId=AP-B-demo-abc123 --json
+lattice autopilot_review --runId=AP-B-demo-abc123 --json
+lattice autopilot_cancel --runId=AP-B-demo-abc123 --json
+lattice autopilot_resume --runId=AP-B-demo-abc123 --json
 ```
 
 Host-native delegation is execution-only. A delegated Claude Code, Gemini, Codex,
 or fake host receives a bounded pack/prompt shape and returns transcript,
 changed-file, command, and local diagnostic receipt data for review. Those local
 diagnostic receipts do not imply `receiptVerified=true` or `productionDone=true`.
-Only the Authority-Verified path may set `receiptVerified=true`, and only after a
-verified authority receipt is bound to the run.
+Authority-Verified mode may report `authorityReceiptGate.verified=true` when a
+server authority receipt is bound to the run; the local CLI still keeps the
+top-level `receiptVerified=false` and `productionDone=false`.
 
 Merge and conflict handling stay outside autopilot. `autopilot_review` may
 surface a manual merge plan, changed files, conflicts, or resume guidance, but it

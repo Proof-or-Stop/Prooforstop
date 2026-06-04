@@ -1,13 +1,28 @@
 import { lstatSync, mkdirSync, realpathSync, writeFileSync } from 'node:fs';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import type { HandlerContext } from './context.js';
+import {
+  checkAutopilotPolicy,
+  createAutopilotPolicy,
+  getAutopilotPolicy,
+  renderAutopilotPolicyCheckText,
+  renderAutopilotPolicyText,
+} from '../core/autopilot-policy.js';
+import {
+  autopilotCancel,
+  autopilotResume,
+  autopilotReview,
+  autopilotRun,
+  autopilotStatus,
+  autopilotWatch,
+  renderAutopilotCancelText,
+  renderAutopilotResumeText,
+  renderAutopilotReviewText,
+  renderAutopilotRunText,
+  renderAutopilotWatchText,
+} from '../core/lattice-autopilot.js';
 
 type FormatArgs = { format?: 'text' | 'json'; json?: boolean; output?: string };
-type CoreModule = Record<string, unknown>;
-type CoreFn = (...args: any[]) => unknown | Promise<unknown>;
-
-const AUTOPILOT_POLICY_MODULE = '../core/autopilot-policy.js';
-const LATTICE_AUTOPILOT_MODULE = '../core/lattice-autopilot.js';
 
 function wantsJson(args: FormatArgs | undefined): boolean {
   return args?.format === 'json' || args?.json === true;
@@ -126,31 +141,6 @@ function policyCheckOptions(args: Record<string, unknown>): Record<string, unkno
   return { serverAuthorityReceipt: args.serverAuthorityReceipt };
 }
 
-async function loadCoreModule(modulePath: string, expectedExports: string[]): Promise<CoreModule> {
-  try {
-    return await import(modulePath) as CoreModule;
-  } catch (error) {
-    const reason = error instanceof Error ? error.message : String(error);
-    throw new Error(`autopilot core module is unavailable: ${modulePath}; expected exports: ${expectedExports.join(', ')}; ${reason}`);
-  }
-}
-
-function pickFunction(module: CoreModule, candidates: string[]): CoreFn {
-  for (const candidate of candidates) {
-    const value = module[candidate];
-    if (typeof value === 'function') return value as CoreFn;
-  }
-  throw new Error(`autopilot core export missing; expected one of: ${candidates.join(', ')}`);
-}
-
-function maybeFunction(module: CoreModule, candidates: string[]): CoreFn | undefined {
-  for (const candidate of candidates) {
-    const value = module[candidate];
-    if (typeof value === 'function') return value as CoreFn;
-  }
-  return undefined;
-}
-
 function readBooleanFact(result: unknown, key: 'authorityChanged' | 'receiptVerified' | 'productionDone'): boolean {
   if (result && typeof result === 'object') {
     const top = (result as Record<string, unknown>)[key];
@@ -192,130 +182,77 @@ function renderFallback(title: string, result: unknown): string {
   return lines.join('\n');
 }
 
-function renderResult(render: CoreFn | undefined, fallbackTitle: string, result: unknown): string {
+function renderResult(render: ((result: any) => string) | undefined, fallbackTitle: string, result: unknown): string {
   if (render) return String(render(result));
   return renderFallback(fallbackTitle, result);
 }
 
-async function loadPolicyCore(): Promise<CoreModule> {
-  return loadCoreModule(AUTOPILOT_POLICY_MODULE, [
-    'createAutopilotPolicy',
-    'getAutopilotPolicy',
-    'checkAutopilotPolicy',
-    'renderAutopilotPolicyText',
-    'renderAutopilotPolicyCheckText',
-  ]);
-}
-
-async function loadRunCore(): Promise<CoreModule> {
-  return loadCoreModule(LATTICE_AUTOPILOT_MODULE, [
-    'autopilotRun',
-    'autopilotStatus',
-    'autopilotWatch',
-    'autopilotCancel',
-    'autopilotReview',
-    'autopilotResume',
-    'renderAutopilotRunText',
-    'renderAutopilotWatchText',
-    'renderAutopilotCancelText',
-    'renderAutopilotReviewText',
-    'renderAutopilotResumeText',
-  ]);
-}
-
-function requireRunId(args: { runId?: string }): string {
-  const runId = args.runId?.trim();
+function requireRunId(args: { runId?: string; autopilotId?: string }): string {
+  const runId = args.runId?.trim() || args.autopilotId?.trim();
   if (!runId) throw new Error('runId is required');
   return runId;
 }
 
 export function createLatticeAutopilotHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
   return {
-    async autopilot_policy_create(args: Record<string, unknown> & FormatArgs) {
-      const core = await loadPolicyCore();
-      const createPolicy = pickFunction(core, ['createAutopilotPolicy']);
-      const renderPolicy = maybeFunction(core, ['renderAutopilotPolicyText']);
-      const result = await createPolicy(ctx.root, normalizePolicyArgs(args), policyCheckOptions(args));
+    autopilot_policy_create(args: Record<string, unknown> & FormatArgs) {
+      const result = createAutopilotPolicy(ctx.root, normalizePolicyArgs(args) as any, policyCheckOptions(args) as any);
       const outputNote = maybeWriteOutput(ctx.root, args.output, result);
       if (wantsJson(args)) return result;
-      return `${renderResult(renderPolicy, 'Autopilot policy', result)}${outputNote}`;
+      return `${renderResult(renderAutopilotPolicyText, 'Autopilot policy', result)}${outputNote}`;
     },
-    async autopilot_policy_get(args: { policy: string } & FormatArgs) {
-      const core = await loadPolicyCore();
-      const getPolicy = pickFunction(core, ['getAutopilotPolicy']);
-      const renderPolicy = maybeFunction(core, ['renderAutopilotPolicyText']);
-      const result = await getPolicy(ctx.root, args.policy);
+    autopilot_policy_get(args: { policy: string } & FormatArgs) {
+      const result = getAutopilotPolicy(ctx.root, args.policy);
       const outputNote = maybeWriteOutput(ctx.root, args.output, result);
       if (wantsJson(args)) return result;
-      return `${renderResult(renderPolicy, 'Autopilot policy', result)}${outputNote}`;
+      return `${renderResult(renderAutopilotPolicyText, 'Autopilot policy', result)}${outputNote}`;
     },
-    async autopilot_policy_check(args: { policy: string } & FormatArgs) {
-      const core = await loadPolicyCore();
-      const checkPolicy = pickFunction(core, ['checkAutopilotPolicy']);
-      const renderCheck = maybeFunction(core, ['renderAutopilotPolicyCheckText']);
-      const result = await checkPolicy(ctx.root, args.policy, policyCheckOptions(args));
+    autopilot_policy_check(args: { policy: string } & FormatArgs) {
+      const result = checkAutopilotPolicy(ctx.root, args.policy, policyCheckOptions(args));
       const outputNote = maybeWriteOutput(ctx.root, args.output, result);
       if (wantsJson(args)) return result;
-      return `${renderResult(renderCheck, 'Autopilot policy check', result)}${outputNote}`;
+      return `${renderResult(renderAutopilotPolicyCheckText, 'Autopilot policy check', result)}${outputNote}`;
     },
-    async autopilot_run(args: Record<string, unknown> & FormatArgs) {
-      const core = await loadRunCore();
-      const runAutopilot = pickFunction(core, ['autopilotRun', 'runAutopilot']);
-      const renderRun = maybeFunction(core, ['renderAutopilotRunText']);
-      const result = await runAutopilot(ctx.store, ctx.root, normalizeRunArgs(args));
+    autopilot_run(args: Record<string, unknown> & FormatArgs) {
+      const result = autopilotRun(ctx.store, ctx.root, normalizeRunArgs(args) as any);
       const outputNote = maybeWriteOutput(ctx.root, args.output, result);
       if (wantsJson(args)) return result;
-      return `${renderResult(renderRun, 'Autopilot run', result)}${outputNote}`;
+      return `${renderResult(renderAutopilotRunText, 'Autopilot run', result)}${outputNote}`;
     },
-    async autopilot_status(args: { runId?: string } & FormatArgs) {
+    autopilot_status(args: { runId?: string; autopilotId?: string } & FormatArgs) {
       const runId = requireRunId(args);
-      const core = await loadRunCore();
-      const status = pickFunction(core, ['autopilotStatus']);
-      const renderStatus = maybeFunction(core, ['renderAutopilotRunText', 'renderAutopilotStatusText']);
-      const result = await status(ctx.root, runId);
+      const result = autopilotStatus(ctx.root, runId);
       const outputNote = maybeWriteOutput(ctx.root, args.output, result);
       if (wantsJson(args)) return result;
-      return `${renderResult(renderStatus, 'Autopilot status', result)}${outputNote}`;
+      return `${renderResult(renderAutopilotRunText, 'Autopilot status', result)}${outputNote}`;
     },
-    async autopilot_watch(args: { runId?: string } & FormatArgs) {
+    autopilot_watch(args: { runId?: string; autopilotId?: string } & FormatArgs) {
       const runId = requireRunId(args);
-      const core = await loadRunCore();
-      const watch = pickFunction(core, ['autopilotWatch']);
-      const renderWatch = maybeFunction(core, ['renderAutopilotWatchText']);
-      const result = await watch(ctx.root, runId);
+      const result = autopilotWatch(ctx.root, runId);
       const outputNote = maybeWriteOutput(ctx.root, args.output, result);
       if (wantsJson(args)) return result;
-      return `${renderResult(renderWatch, 'Autopilot watch', result)}${outputNote}`;
+      return `${renderResult(renderAutopilotWatchText, 'Autopilot watch', result)}${outputNote}`;
     },
-    async autopilot_cancel(args: { runId?: string } & FormatArgs) {
+    autopilot_cancel(args: { runId?: string; autopilotId?: string } & FormatArgs) {
       const runId = requireRunId(args);
-      const core = await loadRunCore();
-      const cancel = pickFunction(core, ['autopilotCancel', 'cancelAutopilot']);
-      const renderStatus = maybeFunction(core, ['renderAutopilotCancelText', 'renderAutopilotStatusText', 'renderAutopilotRunText']);
-      const result = await cancel(ctx.root, runId, stripFormatArgs(args));
+      const result = autopilotCancel(ctx.root, runId);
       const outputNote = maybeWriteOutput(ctx.root, args.output, result);
       if (wantsJson(args)) return result;
-      return `${renderResult(renderStatus, 'Autopilot status', result)}${outputNote}`;
+      return `${renderResult(renderAutopilotCancelText, 'Autopilot status', result)}${outputNote}`;
     },
-    async autopilot_review(args: { runId?: string } & FormatArgs) {
+    autopilot_review(args: { runId?: string; autopilotId?: string } & FormatArgs) {
       const runId = requireRunId(args);
-      const core = await loadRunCore();
-      const review = pickFunction(core, ['autopilotReview', 'reviewAutopilot']);
-      const renderReview = maybeFunction(core, ['renderAutopilotReviewText']);
-      const result = await review(ctx.root, runId);
+      const result = autopilotReview(ctx.root, runId);
       const outputNote = maybeWriteOutput(ctx.root, args.output, result);
       if (wantsJson(args)) return result;
-      return `${renderResult(renderReview, 'Autopilot review', result)}${outputNote}`;
+      return `${renderResult(renderAutopilotReviewText, 'Autopilot review', result)}${outputNote}`;
     },
-    async autopilot_resume(args: { runId?: string } & Record<string, unknown> & FormatArgs) {
+    autopilot_resume(args: { runId?: string; autopilotId?: string } & Record<string, unknown> & FormatArgs) {
       const runId = requireRunId(args);
-      const core = await loadRunCore();
-      const resume = pickFunction(core, ['autopilotResume', 'resumeAutopilot']);
-      const renderRun = maybeFunction(core, ['renderAutopilotResumeText', 'renderAutopilotRunText']);
-      const result = await resume(ctx.store, ctx.root, { ...normalizeRunArgs(args), runId });
+      const result = autopilotResume(ctx.store, ctx.root, { ...normalizeRunArgs(args), runId });
       const outputNote = maybeWriteOutput(ctx.root, args.output, result);
       if (wantsJson(args)) return result;
-      return `${renderResult(renderRun, 'Autopilot run', result)}${outputNote}`;
+      return `${renderResult(renderAutopilotResumeText, 'Autopilot run', result)}${outputNote}`;
     },
   };
 }
