@@ -348,7 +348,7 @@
       "desc": "authority-verified/full-autopilot currently accepts a caller-supplied fake-test-server receipt shape as authorityReceiptGate.verified=true, so the server-authority gate is bypassable by forged local JSON instead of an independently verified server receipt.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-concept",
       "createdAt": "2026-06-04T06:24:39.162Z",
@@ -360,7 +360,9 @@
         "packages/main/src/tasks/autopilot-run-smoke.ts",
         "README.md",
         "docs/requirements/decisions/host-overflow.md"
-      ]
+      ],
+      "resolvedReason": "Resolved by making fake-test-server acceptance internal-test-only via trustedTestAuthorityReceipt, keeping public serverAuthorityReceipt fake-test-server JSON invalid, and adding smoke coverage for caller-supplied fake-test-server refusal plus CLI rejection of trustedTestAuthorityReceipt. Evidence: npm --prefix packages/main run build; npm --prefix packages/main run test:autopilot-run-smoke; npm --prefix packages/main run test:dispatch-run-smoke; npm --prefix packages/main run test:unattended-dispatch-smoke; npm --prefix packages/main run test:command-ownership-contract; npm --prefix packages/main run test:flow-stability-smoke; node bin/lattice.js validate --story=B-47cd --json (33/33 PASS).",
+      "resolvedAt": "2026-06-04T06:37:00.816Z"
     }
   ]
 }
