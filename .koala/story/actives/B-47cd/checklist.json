@@ -658,15 +658,15 @@
         },
         {
           "intentRef": "CHK-008:edge:0",
-          "kind": "docs_check",
+          "kind": "integration_test",
           "verdict": "success",
-          "file": "README.md",
-          "command": "rg -n \"Merge and conflict handling|manual merge plan|manual-only\" README.md docs/requirements/decisions/host-overflow.md",
+          "file": "packages/main/src/tasks/autopilot-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:autopilot-run-smoke",
           "result": "pass",
-          "note": "Docs state conflicts/merge remain manual and evidence is preserved.",
-          "headHash": "f9f75b60af4ad02445ed8f953d8c65f417bb44d2",
-          "materialHash": "394141b96aeb0c183e449d0ccaeb0c8e5b3008f6e1ab29346b506c32778523a6",
-          "timestamp": "2026-06-04T06:34:13.767Z"
+          "note": "Autopilot smoke now drives the maxParallel conflict path and asserts status=failed, stopReason=conflict, one preserved iteration, preserved refusal errors, a dispatch_auto_failed event, and a manual repair nextAction without deleting evidence.",
+          "headHash": "6f4113f35907ec0af0570a7849d7d754709f82e6",
+          "materialHash": "7a6dbfde6f2c2c27f94b7be18f6b9f33d8cd8b9bbbd22ed7c86cb457e499c88c",
+          "timestamp": "2026-06-04T07:01:45.506Z"
         },
         {
           "intentRef": "CHK-008:adversarial:0",
