@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-04T00:15:42.994Z",
       "reviewRunId": "B-5cea:RR-005",
       "_hash": "c15c46cd8f340cd45c4bc817c8e03bcfd39cf965e06e5f41fc08cc41b3dec5cd"
+    },
+    {
+      "id": "B-5cea:RP-006",
+      "agent": "koala-review-quality",
+      "note": "F-001 verified fixed: resolveCodexSessionBriefCommand now uses explicit 4-candidate array (lines 77-82, codex-adapter-checks.ts) with no suffix slicing. Tests in verify-codex-assets.mjs cover candidates 1/2/4 and global-thin explicitly. No dead imports, no type safety issues, no shell/fn.ts isolation violations in changed files. One low-severity gap registered as F-003 (bin/lattice.js-only test case missing). No blocking issues this round.",
+      "createdAt": "2026-06-04T00:20:41.344Z",
+      "reviewRound": "2026-06-04T00:15:42.994Z",
+      "reviewRunId": "B-5cea:RR-008",
+      "_hash": "d53136aaf61cc406535940501610b0e09f04e0ab51fa91b93bead04e5a52e541"
     }
   ]
 }
