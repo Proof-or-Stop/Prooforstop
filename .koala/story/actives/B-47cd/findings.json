@@ -216,6 +216,22 @@
       ],
       "resolvedReason": "Resolved by requiring measurable spend before budget-capped full-autopilot retries: fake-host retries count as measured 0 spend, and non-measurable provider retries fail closed with stopReason=budget_exhausted before another iteration. Evidence: npm --prefix packages/main run build; npm --prefix packages/main run test:autopilot-run-smoke; docs/requirements/decisions/host-overflow.md documents the fail-closed budget rule.",
       "resolvedAt": "2026-06-04T04:58:45.617Z"
+    },
+    {
+      "id": "B-47cd:F-012",
+      "desc": "autopilot_review is advertised and classified as read-only, but autopilotReview() persists refreshed run state/events and can rewrite status/nextAction on inspection. Make it compute review data in memory without mutating run.json, or reclassify/update contracts if mutation is intended.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-04T05:15:19.502Z",
+      "reviewRound": "2026-06-04T04:57:58.179Z",
+      "reviewRunId": "B-47cd:RR-008",
+      "_hash": "054f63999edfbe4551aff8671fcc4f2f8de1285e3b478b63f981e4af6ec60c6f",
+      "files": [
+        "packages/main/src/core/lattice-autopilot.ts,packages/main/src/cli-engine.ts,packages/main/src/core/command-policy.ts"
+      ]
     }
   ]
 }

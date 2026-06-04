@@ -335,6 +335,56 @@
         "bindingHash": "fca9f4cd1467bcce8deaf9cbe74437db5195f60951cce9920ae7196f03aeaaff"
       },
       "_hash": "0a596c242c92723a2f9f67f147b0bfe6782f37972ccb73c6eba43921c4dce89a"
+    },
+    {
+      "reviewRunId": "B-47cd:RR-008",
+      "storyId": "B-47cd",
+      "agent": "koala-review-quality",
+      "lane": "koala-review-quality",
+      "reviewRound": "2026-06-04T04:57:58.179Z",
+      "startedAt": "2026-06-04T05:15:04.863Z",
+      "headHash": "5c2697b7119daf3ce96f7c993cc48c11a6ec44ea",
+      "materialHash": "aefdbee1ca16995fda4529fbe73acadf473881c953ef02d9963d6fe7f2b96d7e",
+      "promptHash": "f5293c613c35e1ea70ad83a5eec0fc759a1a1edb60562c95f6415ee18862800b",
+      "scopeBinding": {
+        "scopeContractHash": "dd5ca2b69c5eabca9d10c683d0a3ca46d2346d0680ba5cbc74543256a4df6873",
+        "diffPackHash": "ed05e23fe305a1c51305943e3fead7aaa474baadbf766fc738d9d61e0edfce39",
+        "reviewedChangedFiles": [
+          "README.md",
+          "docs/requirements/decisions/host-overflow.md",
+          "packages/main/package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/autopilot-policy.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/lattice-autopilot.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/lattice-autopilot.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/autopilot-run-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "040fd1d39d1ffd047a0a79abf1845e8839d12da405a63b00fd4e27bf680eb267",
+          "16bc8fd293c594b0b76747b283c8ef46b1c8bd07cd9eb3a16f820918fd57ab75",
+          "1a3a05989dd10da7a9fc42f85dff4f091f7944a0e651706184c40d8ae3f076c6",
+          "1e865bde35f41dcd5bc3900668962480bea4777c89fc94784547b49a19034b8b",
+          "23c2a5005e0c96caa051eaba76289a3a6b2310ddf1084579ad7b336ef8458aea",
+          "36ccc245c96d142fbfad980825f7625e9567c968b1dd12b84ba362c3cd47769a",
+          "46080c9793ec6e2275185e205174199f55148ec885adbf71c084a2ccef9cf526",
+          "559c95ade226954d73be9bdd064ef0b7dea298a436e1c59c2ee767d4cf674543",
+          "92ead8741fda96d1bf2a2897c9f7433405ea6c7bfadbd1c9b9a929ced16c7bef",
+          "9a6a94eb65994b89cd15c4e8e71f71f1b826bbb0e9207440bf98ab8ac814fd01",
+          "b7eabd2d331f59874e53b2e6ef0c62323ecd7b656ce4dc8c22e390610fb21f98",
+          "c4681cc6f505f3405fc78442e3ba08fce1c605e96f8aa57efe005ee52a997d6e",
+          "d05b97f7fefab4ae872281b1858c2c1fae2f1bd4f4a437c3a5a88ddcb7805e3b",
+          "d63168d9ee1c329cff991f4bf812a73bafe11a3e70fbfc0d4934ed87eacc204c",
+          "ec47d5014e7533cb04d4ed09cd226adcd82bb90722a482e626416c82b7605de0",
+          "ecb505a685c0f14656ad80c062572dbc965bdca39a1ed978b5482daccd691502",
+          "f5fdd036b92738115613559ac82b297135a65d3efc6e717b0502f2c075afb449"
+        ],
+        "bindingHash": "a0854563d14ed53b3bbfc89e2a0f19f96e51b9fb1e2fb0dc89ea082bb9e7bc02"
+      },
+      "_hash": "58ddf6b3a351a474e407e4052893a97b6debea27e687b0902b47f1084c029758"
     }
   ]
 }
