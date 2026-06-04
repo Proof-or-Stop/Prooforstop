@@ -159,13 +159,13 @@
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
           "verdict": "success",
-          "file": "packages/main/src/core/autopilot-policy.ts",
-          "command": "npm --prefix packages/main run build",
+          "file": "packages/main/src/tasks/autopilot-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:autopilot-run-smoke",
           "result": "pass",
-          "note": "Full-autopilot bounded policy validation compiles and is exercised by smoke setup.",
-          "headHash": "f9f75b60af4ad02445ed8f953d8c65f417bb44d2",
-          "materialHash": "394141b96aeb0c183e449d0ccaeb0c8e5b3008f6e1ab29346b506c32778523a6",
-          "timestamp": "2026-06-04T06:34:13.767Z"
+          "note": "Autopilot smoke executes full-autopilot policy refusal assertions for missing bounded maxIterations/maxRuntimeMinutes/maxBudgetUSD and missing stopOnConflict/stopOnScopeViolation, so this adversarial policy bound is proven by behavior rather than build-only compilation.",
+          "headHash": "b7cb5934efa2797a0a2558e30ca216c44c68d5ff",
+          "materialHash": "7a6dbfde6f2c2c27f94b7be18f6b9f33d8cd8b9bbbd22ed7c86cb457e499c88c",
+          "timestamp": "2026-06-04T07:01:37.237Z"
         }
       ]
     },

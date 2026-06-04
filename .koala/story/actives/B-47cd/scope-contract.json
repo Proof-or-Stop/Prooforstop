@@ -39,8 +39,16 @@
         "packages/main/src/core/review-run.ts",
         "packages/main/src/tasks/flow-stability-smoke.ts"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Required to verify the F-021 owner lease contract fix for autopilot_policy_create classification and runId-gated autopilot_cancel/autopilot_resume behavior.",
+      "timestamp": "2026-06-04T07:01:22.487Z",
+      "paths": [
+        "packages/main/src/tasks/command-ownership-contract.ts"
+      ]
     }
   ],
   "createdAt": "2026-06-04T03:02:23.381Z",
-  "updatedAt": "2026-06-04T06:14:30.470Z"
+  "updatedAt": "2026-06-04T07:01:22.487Z"
 }
