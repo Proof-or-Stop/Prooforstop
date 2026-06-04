@@ -145,7 +145,7 @@
       "desc": "cli-engine.ts:944-967 accepts dispatchPolicy/allowedHosts/allowedPaths/deniedPaths/commandAllowlist/requiredCommands/requireReview/stopOnValidationFailure on autopilot_policy_create, but core/autopilot-policy.ts:147-162 and 483-516 have no fields for them and silently drop the input. This breaks the published JSON/CLI contract and can mislead operators into thinking scope or command restrictions were persisted when they were discarded. Fix by either removing unsupported schema fields from the CLI surface or extending the AutopilotPolicy model/checker to persist and enforce them.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-04T03:43:24.306Z",
@@ -155,7 +155,9 @@
       "files": [
         "packages/main/src/cli-engine.ts",
         "packages/main/src/core/autopilot-policy.ts"
-      ]
+      ],
+      "resolvedReason": "Resolved by removing unsupported host/path/command/review/validation fields from autopilot_policy_create CLI schema, adding persisted dispatchPolicy, and making core reject unsupported create fields instead of silently dropping them. Evidence: autopilot_run smoke unsupported-field assertion and autopilot_policy_create --help.",
+      "resolvedAt": "2026-06-04T04:12:07.798Z"
     },
     {
       "id": "B-47cd:F-009",
