@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-04T00:02:11.613Z",
       "reviewRunId": "B-5cea:RR-003",
       "_hash": "2c1de3264701236dac59e69e07b99ec652e50275f450c5d5368044435cb01d18"
+    },
+    {
+      "id": "B-5cea:RP-003",
+      "agent": "koala-review-docs",
+      "note": "Step 1: 6 symbols extracted (resolveLocalCodexVerifyCommand, resolveCodexSessionBriefCommand, GLOBAL_THIN_CODEX_VERIFY_COMMAND, commandLabel, assertGateStatusLattice, assertGlobalThinAssets). Step 2: 0 direct doc references; applied Fallback 2 to README Codex adapter sections (~5 sections reviewed). Step 3 no blocking drift: (1) Global lattice/koala heartbeat-only requirement SATISFIED — README line 343 adds English sentence explicitly, README line 436 adds guidance in no-wrapper section, bin/bootstrap-runner.js updated to label global CLI as heartbeat-only; (2) Wrapper priority docs SATISFIED — README line 291 documents lattice-codex > koala-codex > lattice.js; README line 414 further lists all three in prose; session_brief section shows lattice-codex with koala-codex as commented legacy fallback. Verified lattice codex verify IS a valid CLI command (codex + verify resolves to verify_codex). One low/advisory finding registered (F-002): bin/koala.js missing from priority list, low severity, ultra-legacy edge case.",
+      "createdAt": "2026-06-04T00:10:11.553Z",
+      "reviewRound": "2026-06-04T00:02:11.613Z",
+      "reviewRunId": "B-5cea:RR-002",
+      "_hash": "18edb6fb63220af2843a81ab16dacb021fdd3fb8fd8bde30784abbda4807c0a4"
     }
   ]
 }
