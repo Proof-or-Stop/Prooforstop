@@ -232,6 +232,22 @@
       "files": [
         "packages/main/src/core/lattice-autopilot.ts,packages/main/src/cli-engine.ts,packages/main/src/core/command-policy.ts"
       ]
+    },
+    {
+      "id": "B-47cd:F-013",
+      "desc": "Unknown/deprecated autopilot flags are still accepted on non-strict autopilot commands such as autopilot_policy_check, because only three commands use strict schemas and runCli dispatches the original parsed object instead of validated data. Apply fail-closed unknown-key validation across autopilot command surfaces and dispatch validated args.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-04T05:15:33.846Z",
+      "reviewRound": "2026-06-04T04:57:58.179Z",
+      "reviewRunId": "B-47cd:RR-008",
+      "_hash": "8f6b3414139aa75c13a8f3c11011a02c872f986ea327a25d5f5ad9f4a46b226a",
+      "files": [
+        "packages/main/src/cli-engine.ts,packages/main/src/handlers/lattice-autopilot.ts,packages/main/src/tasks/autopilot-run-smoke.ts"
+      ]
     }
   ]
 }
