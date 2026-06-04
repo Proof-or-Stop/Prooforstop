@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-04T00:02:11.613Z",
       "reviewRunId": "B-5cea:RR-002",
       "_hash": "18edb6fb63220af2843a81ab16dacb021fdd3fb8fd8bde30784abbda4807c0a4"
+    },
+    {
+      "id": "B-5cea:RP-004",
+      "agent": "koala-review-docs",
+      "note": "Step 1: 3 relevant exported symbols (resolveLocalCodexVerifyCommand, resolveCodexSessionBriefCommand, GLOBAL_THIN_CODEX_VERIFY_COMMAND). Step 2: 0 direct name references in README/CLAUDE.md/docs — Fallback 2 applied, checked README module section. Step 3: F-002 verified fixed — wrapper priority (lattice-codex.js > koala-codex.js > lattice.js > koala.js) matches candidates array order exactly; heartbeat-only language present at README:343 and README:436; no doc-code drift found. No blocker.",
+      "createdAt": "2026-06-04T00:19:22.454Z",
+      "reviewRound": "2026-06-04T00:15:42.994Z",
+      "reviewRunId": "B-5cea:RR-006",
+      "_hash": "32bdfebbd8bb74847411f9bcf8600f0be4374f83c124b829281919fdbfea0eca"
     }
   ]
 }
