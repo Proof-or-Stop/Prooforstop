@@ -15,6 +15,23 @@
       "files": [
         "packages/main/src/core/codex-adapter-checks.ts"
       ]
+    },
+    {
+      "id": "B-5cea:F-002",
+      "desc": "doc-code-drift: README wrapper priority list (line 291) documents 3 resolver candidates (`bin/lattice-codex.js > bin/koala-codex.js > bin/lattice.js`) but resolveLocalCodexVerifyCommand in codex-adapter-checks.ts has a 4th legacy fallback `bin/koala.js` → LEGACY_LOCAL_MAIN_VERIFY_COMMAND. A user whose repo has only `bin/koala.js` (no codex or lattice wrappers) would receive gate remediation `node bin/koala.js verify_codex` but the documented priority list omits this candidate. The plan.md CHK-001 plan explicitly lists all four candidates including `bin/koala.js`. `bin/koala.js` is mentioned elsewhere in README as `legacy bootstrap alias` (line 12) but not in the priority guidance paragraph.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-04T00:10:01.091Z",
+      "reviewRound": "2026-06-04T00:02:11.613Z",
+      "reviewRunId": "B-5cea:RR-002",
+      "_hash": "c90aaef56f1fdbb5f20e8088621629c6bb02ec0c5846984b704b83f9e750e099",
+      "files": [
+        "README.md",
+        "packages/main/src/core/codex-adapter-checks.ts"
+      ]
     }
   ]
 }
