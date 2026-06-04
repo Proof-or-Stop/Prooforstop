@@ -369,7 +369,7 @@
       "desc": "test-evidence.json overstates executable coverage for required intents: CHK-002:adversarial:0 is recorded as covered by npm build instead of the smoke refusal assertions; CHK-008:edge:0 is recorded as docs-only for a runtime conflict/evidence-preservation claim; CHK-009:edge:0 claims autopilot cancel evidence preservation while the autopilot smoke only checks cancelled/refused and explicit preservation assertions exist only at dispatch level.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-06-04T06:48:09.841Z",
@@ -380,7 +380,9 @@
         ".koala/story/actives/B-47cd/test-evidence.json",
         "packages/main/src/tasks/autopilot-run-smoke.ts",
         "packages/main/src/tasks/unattended-dispatch-smoke.ts"
-      ]
+      ],
+      "resolvedReason": "Resolved by adding stronger executable verification evidence for CHK-002:adversarial:0, CHK-008:edge:0, and CHK-009:edge:0, all bound to npm --prefix packages/main run test:autopilot-run-smoke. The smoke now asserts full-autopilot policy refusal behavior, conflict stop evidence preservation, cancel evidence preservation, and cancelled review immutability. Evidence: npm --prefix packages/main run build; npm --prefix packages/main run test:autopilot-run-smoke; node bin/lattice.js validate --story=B-47cd --json shows 33/33 covered with these intents no longer build/docs-only.",
+      "resolvedAt": "2026-06-04T07:03:34.054Z"
     },
     {
       "id": "B-47cd:F-021",
