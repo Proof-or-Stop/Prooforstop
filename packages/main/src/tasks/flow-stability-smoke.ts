@@ -1270,6 +1270,27 @@ function assertSupersededReviewPassDoesNotBlockLatestReviewerRun(): void {
       /不是当前 lane 最新 run/,
       'supersede logic applies only to stale passes, not stale findings',
     );
+
+    const resolvedStaleFinding = {
+      ...staleFinding,
+      status: 'resolved' as const,
+      resolvedReason: 'fixed and rechecked by latest reviewer run',
+      resolvedAt: '2026-04-27T11:04:00.000Z',
+    };
+    store.writeFindings(storyId, {
+      findings: [
+        makeFinding(storyId, 'koala-review-concept', reviewRound, '068', runIds.get('koala-review-concept')!),
+        makeFinding(storyId, 'koala-review-quality', reviewRound, '069', runIds.get('koala-review-quality')!),
+        resolvedStaleFinding,
+      ],
+    });
+    const resolvedStaleFindingState = collectReviewerEvidenceState(store, storyId, root);
+    assert.equal(
+      resolvedStaleFindingState.invalid.some(issue => issue.kind === 'finding' && issue.code === 'stale_run'),
+      false,
+      'resolved stale findings should be superseded by a newer valid pass for the same lane',
+    );
+    assert.equal(getGuardFailureReason(storyId, store, 'TEST', root), null);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
