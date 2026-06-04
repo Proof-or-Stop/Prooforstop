@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-04T00:02:11.613Z",
       "reviewRunId": "B-5cea:RR-001",
       "_hash": "4f9b16c2293b199455c227c71ca9cbb739c1cdbf35d4444d0950ef6efe12bc79"
+    },
+    {
+      "id": "B-5cea:RP-002",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: 已检查全部 9 条 must verificationIntent（CHK-001~003 各 happy/edge/adversarial），均有明确 passing verificationEvidence 覆盖。CHK-001:happy/edge/adversarial 由 verify-codex-assets.mjs assertGateStatus/assertGateStatusLattice 系列自动化覆盖，lattice vs legacy 两路命令分支均有专用断言；CHK-002:happy 由 verify-entrypoints.mjs 适配器 manifest 断言覆盖，edge 由 live verify_codex 手动观察 + verify-codex-assets.mjs 全局 fallback warn 自动回归双重覆盖，adversarial 由 verify-codex-assets.mjs fake-bin 回归覆盖；CHK-003:happy/edge/adversarial 分别由 npm run test:codex-assets / npm run test:entrypoints / validate --json JSON 可解析手动 transcript 覆盖。review-preflight.ts 和 phase-gates.ts 均调用 resolveLocalCodexVerifyCommand() 而非硬编码标签，adversarial 意图已验证。Advisory：CHK-003 files.create 声明 packages/main/src/tasks/worktree-codex-gate-command-smoke.ts 但该文件不存在，覆盖由 scripts/ 两个脚本提供，属 delivery-artifact 差异，不在 test-coverage 阻塞范围。无 blocker。",
+      "createdAt": "2026-06-04T00:08:38.650Z",
+      "reviewRound": "2026-06-04T00:02:11.613Z",
+      "reviewRunId": "B-5cea:RR-003",
+      "_hash": "2c1de3264701236dac59e69e07b99ec652e50275f450c5d5368044435cb01d18"
     }
   ]
 }
