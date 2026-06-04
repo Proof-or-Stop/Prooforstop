@@ -32,9 +32,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-04T03:05:42.743Z",
-      "endTime": null,
+      "endTime": "2026-06-04T03:36:21.507Z",
       "files": {
         "modify": [
           "README.md",
@@ -43,7 +43,45 @@
         ],
         "create": [],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "README.md",
+          "command": "rg -n \"Autopilot execution modes|Conservative|Authority-Verified|Full Autopilot\" README.md docs/requirements/decisions/host-overflow.md",
+          "result": "pass",
+          "note": "README and host-overflow document the three-mode autopilot matrix with conservative manual-review boundaries.",
+          "headHash": "db871d58bdf2fa83f570035b1ac1d1eb9727ce18",
+          "materialHash": "e2c8ee230f3543444d07f00861e5d4bc4bde588d8b05c725024382ba85782e92",
+          "timestamp": "2026-06-04T03:36:21.562Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/host-overflow.md",
+          "command": "rg -n \"receiptVerified=false|productionDone=false|manual\" README.md docs/requirements/decisions/host-overflow.md",
+          "result": "pass",
+          "note": "Docs distinguish unattended development from production authority and main merge authority.",
+          "headHash": "db871d58bdf2fa83f570035b1ac1d1eb9727ce18",
+          "materialHash": "e2c8ee230f3543444d07f00861e5d4bc4bde588d8b05c725024382ba85782e92",
+          "timestamp": "2026-06-04T03:36:21.605Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/autopilot-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:autopilot-run-smoke",
+          "result": "pass",
+          "note": "Smoke asserts no local result overclaims productionDone or receiptVerified.",
+          "headHash": "db871d58bdf2fa83f570035b1ac1d1eb9727ce18",
+          "materialHash": "e2c8ee230f3543444d07f00861e5d4bc4bde588d8b05c725024382ba85782e92",
+          "timestamp": "2026-06-04T03:36:21.651Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -620,6 +658,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "DEV parallel implementation lane started",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-06-04T03:36:21.507Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "DEV implementation and verification completed",
       "agent": "codex-main"
     }
   ]
