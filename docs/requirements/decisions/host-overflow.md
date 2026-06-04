@@ -55,6 +55,56 @@ The unattended extension must still keep `productionDone=false`,
 auto-DONE, expand scope, treat a host transcript as gate evidence, or treat a
 local diagnostic receipt as a verified authority receipt.
 
+## B-47cd autopilot execution modes
+
+B-47cd defines the host-to-host autopilot layer above dispatch. Autopilot may
+sequence policy checks, bounded runs, status/watch, review, cancel, and resume
+surfaces, but it does not replace Lattice story/scope/review authority.
+
+The three user-facing modes are:
+
+| Mode | Purpose | Authority boundary |
+|---|---|---|
+| Conservative | Execute only a bounded, policy-authorized local/fake path or produce a host-native delegation pack for a supervised host. | Local diagnostic receipts stay diagnostic-only; `receiptVerified=false`, `productionDone=false`, and no automatic merge. |
+| Authority-Verified | Require a verified authority receipt before accepting the run. The fake authority server is allowed for deterministic smoke coverage. | Missing, malformed, or unverifiable authority receipts refuse the run. A verified authority receipt may set `receiptVerified=true`, but it still does not imply `productionDone=true`. |
+| Full Autopilot | Continue through bounded plan/run/watch/review loops within explicit policy, path, runtime, budget, and `maxSteps` limits. | Stops at bounds, conflict, stale base, denied path, missing receipt, or review risk. Merge and DONE remain manual. |
+
+The intended command surface is flat-first with nested aliases for human use:
+
+```bash
+lattice autopilot_policy_create --policy=fake \
+  --modes=conservative,authority-verified,full-autopilot \
+  --allowedHosts=fake --allowedPaths=packages/main/src/generated/ \
+  --maxParallel=2 --maxRuntimeMinutes=10 --allowAutoMerge=false \
+  --allowProductionDone=false --json
+
+lattice autopilot policy create --policy=fake \
+  --modes=conservative --allowedHosts=fake \
+  --allowedPaths=packages/main/src/generated/ \
+  --allowAutoMerge=false --allowProductionDone=false --json
+
+lattice autopilot_policy_check --policy=fake --mode=conservative --json
+lattice autopilot_run --mode=conservative --storyId=B-demo --policy=fake --json
+lattice autopilot_status --autopilotId=A-B-demo-1234 --json
+lattice autopilot_watch --autopilotId=A-B-demo-1234 --json
+lattice autopilot_review --autopilotId=A-B-demo-1234 --json
+lattice autopilot_cancel --autopilotId=A-B-demo-1234 --json
+lattice autopilot_resume --autopilotId=A-B-demo-1234 --json
+```
+
+Host-native delegation is a shape contract, not an authority transfer. The
+delegation artifact must identify the selected host, command preview, prompt or
+pack path, allowed/denied paths, expected receipts, transcript location, and the
+`execution-only` authority boundary. Claude Code, Gemini, Codex, and fake hosts
+can execute the bounded objective, but their local diagnostic receipts do not
+imply `receiptVerified=true` or `productionDone=true`.
+
+Autopilot review/merge output is guidance only. It may report changed files,
+runner status, receipt status, conflict risks, and manual commands, but it must
+not run a main merge, mark production done, clear conflicts silently, or convert
+local diagnostic receipts into verified authority receipts. Full Autopilot stops
+instead of crossing any merge/conflict or authority boundary.
+
 ## Boundaries
 
 Lattice keeps these responsibilities:

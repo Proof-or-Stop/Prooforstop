@@ -184,6 +184,61 @@ field will point you to `dispatch_auto` as the policy-authorized path.
 - All authority fields remain fixed: `productionDone=false`,
   `receiptVerified=false`, `authorityChanged=false`.
 
+### Autopilot execution modes
+
+`autopilot_run` is the host-to-host autopilot layer above dispatch. It keeps the
+same Host Overflow authority boundary: hosts may execute bounded work, but
+Lattice keeps story/scope/review authority. Autopilot completion does not
+auto-merge, auto-DONE, or claim production authority.
+
+| Mode | What it can do | Acceptance boundary |
+|---|---|---|
+| Conservative | Runs a bounded fake/local or supervised host-native delegation path from an explicit policy. | Local diagnostic receipts only; `receiptVerified=false` and `productionDone=false`. |
+| Authority-Verified | Requires a verified authority receipt before the run is accepted. The fake authority server can be used for deterministic tests. | Missing or unverifiable authority receipts are refused. A verified authority receipt may set `receiptVerified=true`, but still does not imply `productionDone=true`. |
+| Full Autopilot | May continue through bounded plan/run/watch/review loops within `maxSteps`, runtime, scope, and policy limits. | Stops at the declared bound or conflict boundary. Review and merge remain manual-only. |
+
+Policy setup supports both flat and nested CLI forms:
+
+```bash
+lattice autopilot_policy_create --policy=fake \
+  --modes=conservative,authority-verified,full-autopilot \
+  --allowedHosts=fake --allowedPaths=packages/main/src/generated/ \
+  --maxParallel=2 --maxRuntimeMinutes=10 --allowAutoMerge=false \
+  --allowProductionDone=false --json
+
+lattice autopilot policy create --policy=fake \
+  --modes=conservative --allowedHosts=fake \
+  --allowedPaths=packages/main/src/generated/ \
+  --allowAutoMerge=false --allowProductionDone=false --json
+
+lattice autopilot_policy_check --policy=fake --mode=conservative --json
+```
+
+Run and inspect a conservative autopilot attempt:
+
+```bash
+lattice autopilot_run --mode=conservative --storyId=B-demo --policy=fake --json
+lattice autopilot_status --autopilotId=A-B-demo-1234 --json
+lattice autopilot_watch --autopilotId=A-B-demo-1234 --json
+lattice autopilot_review --autopilotId=A-B-demo-1234 --json
+lattice autopilot_cancel --autopilotId=A-B-demo-1234 --json
+lattice autopilot_resume --autopilotId=A-B-demo-1234 --json
+```
+
+Host-native delegation is execution-only. A delegated Claude Code, Gemini, Codex,
+or fake host receives a bounded pack/prompt shape and returns transcript,
+changed-file, command, and local diagnostic receipt data for review. Those local
+diagnostic receipts do not imply `receiptVerified=true` or `productionDone=true`.
+Only the Authority-Verified path may set `receiptVerified=true`, and only after a
+verified authority receipt is bound to the run.
+
+Merge and conflict handling stay outside autopilot. `autopilot_review` may
+surface a manual merge plan, changed files, conflicts, or resume guidance, but it
+must not run `git merge`, clean up the story worktree, advance DONE, or claim
+`productionDone=true`. If a bounded Full Autopilot run hits a conflict, stale
+base, denied path, missing receipt, or exhausted bound, it stops and reports the
+manual next action.
+
 Architecture and non-goals:
 [`docs/requirements/decisions/host-overflow.md`](docs/requirements/decisions/host-overflow.md)
 
