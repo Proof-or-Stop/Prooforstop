@@ -288,6 +288,12 @@ function assertCliRejectsUnknownFlag(root: string, args: string[], flag: string)
   assert.match(output, /unrecognized|unknown|unsupported/i, 'CLI error should reject the unknown flag before core handling');
 }
 
+function assertNoCliMetaLeak(result: unknown, label: string): void {
+  const record = result as Record<string, unknown>;
+  assert.equal(record.takeover, undefined, `${label} must not expose takeover in JSON output`);
+  assert.equal(record.forceTakeover, undefined, `${label} must not expose forceTakeover in JSON output`);
+}
+
 const sandboxRoot = mkdtempSync(join(tmpdir(), 'lattice-autopilot-run-suite-'));
 const root = join(sandboxRoot, 'repo', 'root');
 
@@ -781,6 +787,13 @@ try {
   ], 'policy');
 
   assertCliRejectsUnknownFlag(root, [
+    'autopilot_watch',
+    `--runId=${conservative.runId}`,
+    '--policy=fake',
+    '--json',
+  ], 'policy');
+
+  assertCliRejectsUnknownFlag(root, [
     'autopilot_review',
     `--runId=${conservative.runId}`,
     '--policy=fake',
@@ -980,6 +993,13 @@ try {
   assert.equal(cancellable.status, 'manual_review_ready');
   assertAuthorityFalse(cancellable, 'cancellable');
 
+  assertCliRejectsUnknownFlag(root, [
+    'autopilot_cancel',
+    `--runId=${cancellable.runId}`,
+    '--policy=fake',
+    '--json',
+  ], 'policy');
+
   const cancelled = run<AutopilotStatusResult>('autopilot_cancel', {
     runId: cancellable.runId,
   });
@@ -1027,6 +1047,55 @@ try {
   assert.equal(cliConservative.status, 'manual_review_ready');
   assertAuthorityFalse(cliConservative, 'cliConservative');
 
+  const cliTakeoverRun = runCliJson<AutopilotRunResult>(root, [
+    'autopilot_run',
+    '--mode=conservative',
+    '--storyId=B-demo',
+    '--policy=fake',
+    '--allowedPaths=packages/main/src/generated/cli-takeover-run.txt',
+    '--requiredCommands=node -e "process.exit(0)"',
+    '--forceTakeover=true',
+    '--json',
+  ]);
+  assert.equal(cliTakeoverRun.status, 'manual_review_ready');
+  assertNoCliMetaLeak(cliTakeoverRun, 'cliTakeoverRun');
+  assertAuthorityFalse(cliTakeoverRun, 'cliTakeoverRun');
+
+  const cliTakeoverCancel = runCliJson<AutopilotStatusResult>(root, [
+    'autopilot_cancel',
+    `--runId=${cliTakeoverRun.runId}`,
+    '--takeover=true',
+    '--json',
+  ]);
+  assert.equal(cliTakeoverCancel.status, 'cancelled');
+  assertNoCliMetaLeak(cliTakeoverCancel, 'cliTakeoverCancel');
+  assertAuthorityFalse(cliTakeoverCancel, 'cliTakeoverCancel');
+
+  const cliResumeTarget = runCliJson<AutopilotRunResult>(root, [
+    'autopilot_run',
+    '--mode=conservative',
+    '--storyId=B-demo',
+    '--policy=fake',
+    '--allowedPaths=packages/main/src/generated/cli-resume-target.txt',
+    '--requiredCommands=node -e "process.exit(0)"',
+    '--takeover=true',
+    '--json',
+  ]);
+  assert.equal(cliResumeTarget.status, 'manual_review_ready');
+  assertNoCliMetaLeak(cliResumeTarget, 'cliResumeTarget');
+  assertAuthorityFalse(cliResumeTarget, 'cliResumeTarget');
+
+  const cliTakeoverResume = runCliJson<Record<string, unknown> & AuthorityBoundary>(root, [
+    'autopilot_resume',
+    `--runId=${cliResumeTarget.runId}`,
+    '--forceTakeover=true',
+    '--json',
+  ]);
+  assert.equal(cliTakeoverResume.schemaVersion, 'lattice.autopilot_resume.v1');
+  assert.equal(cliTakeoverResume.status, 'refused');
+  assertNoCliMetaLeak(cliTakeoverResume, 'cliTakeoverResume');
+  assertAuthorityFalse(cliTakeoverResume, 'cliTakeoverResume');
+
   assertNoProductionOverclaim([
     conservative,
     conservativeStatus,
@@ -1049,9 +1118,13 @@ try {
     cliPolicyCheck,
     cliNestedPolicyCheck,
     cliConservative,
+    cliTakeoverRun,
+    cliTakeoverCancel,
+    cliResumeTarget,
+    cliTakeoverResume,
   ], 'allResults');
 
-  console.log('autopilot-run smoke passed: registration, two-policy linkage, policy gates, deprecated CLI flag refusal, strict autopilot read-only flag refusal, read-only review immutability, dispatch-only refusal, mode-override refusal, forged authority refusal, fully-shaped server receipt refusal, authority-verified fake server gate success/refusal, full-autopilot bounded retry, budget-capped retry fail-closed, conflict stop, host-native delegation contract, cancel, resume refusal, and authority boundaries verified');
+  console.log('autopilot-run smoke passed: registration, two-policy linkage, policy gates, deprecated CLI flag refusal, full autopilot-surface unknown flag refusal, owner meta preservation, strict autopilot read-only flag refusal, read-only review immutability, dispatch-only refusal, mode-override refusal, forged authority refusal, fully-shaped server receipt refusal, authority-verified fake server gate success/refusal, full-autopilot bounded retry, budget-capped retry fail-closed, conflict stop, host-native delegation contract, cancel, resume refusal, and authority boundaries verified');
 } finally {
   rmSync(sandboxRoot, { recursive: true, force: true });
 }

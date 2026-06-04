@@ -66,8 +66,10 @@ commands, installers, evidence submission, or receipt verification. External
 projects and non-git projects are normalized into PASS/WARN/FAIL records with a
 next action instead of opaque command failures. `authority_status` and
 `conduit_status` are receipt-aware but conservative: without verified server
-receipt support they report `productionDone=false`, `receiptVerified=false`,
-and `canClaimProductionDone=false`.
+receipt support they report `productionDone=false` and `receiptVerified=false`.
+`authority_status` additionally reports `canClaimProductionDone=false`;
+`conduit_status` keeps `authorityChanged=false` without exposing that
+authority-specific field.
 
 ## Host Overflow
 
