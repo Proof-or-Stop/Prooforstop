@@ -270,6 +270,22 @@
       ],
       "resolvedReason": "Resolved by removing shape/string heuristic acceptance for real server-looking receipts in classifyAuthorityReceiptCandidate. Until real verification exists, only deterministic fake-test-server receipts can satisfy the smoke gate; fully-shaped caller-supplied python-authority-server receipts fail closed as invalid/missing_authority_receipt in both authority-verified and full-autopilot modes. Evidence: npm --prefix packages/main run build; npm --prefix packages/main run test:autopilot-run-smoke.",
       "resolvedAt": "2026-06-04T05:38:41.062Z"
+    },
+    {
+      "id": "B-47cd:F-015",
+      "desc": "Owner-meta preservation is not covered for owner-gated autopilot_run, autopilot_cancel, and autopilot_resume after strict CLI hardening. Add CLI smoke cases with --takeover/--forceTakeover and assert meta keys do not leak into JSON outputs.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-04T05:51:53.510Z",
+      "reviewRound": "2026-06-04T05:36:09.666Z",
+      "reviewRunId": "B-47cd:RR-010",
+      "_hash": "9f804c5ba464704102139b9f10c72b312732b5e052f0310962f3b7c7fdeb8481",
+      "files": [
+        "packages/main/src/cli-engine.ts,packages/main/src/tasks/autopilot-run-smoke.ts"
+      ]
     }
   ]
 }
