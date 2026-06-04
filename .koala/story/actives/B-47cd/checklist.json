@@ -78,7 +78,20 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "create": [
+          "packages/main/src/core/autopilot-policy.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/autopilot-run-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-003",
