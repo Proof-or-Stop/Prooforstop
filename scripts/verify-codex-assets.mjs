@@ -275,6 +275,11 @@ assertSessionBriefCommand(
   'legacy koala-codex wrapper resolves to koala-codex session_brief',
 );
 assertSessionBriefCommand(
+  (dir) => writeFileSync(join(dir, 'bin', 'lattice.js'), '// lattice bootstrap'),
+  'node bin/lattice.js session_brief',
+  'lattice.js-only fallback resolves to lattice session_brief',
+);
+assertSessionBriefCommand(
   (dir) => writeFileSync(join(dir, 'bin', 'koala.js'), '// koala bootstrap'),
   'node bin/koala.js session_brief',
   'koala.js-only fallback resolves to koala session_brief',
