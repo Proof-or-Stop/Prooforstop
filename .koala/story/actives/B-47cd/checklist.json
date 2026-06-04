@@ -317,8 +317,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-04T03:05:49.453Z",
       "endTime": null,
       "files": {
         "modify": [
@@ -576,6 +576,16 @@
       "timestamp": "2026-06-04T03:05:48.385Z",
       "phase": "DEV",
       "itemId": "CHK-006",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "DEV parallel implementation lane started",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-06-04T03:05:49.453Z",
+      "phase": "DEV",
+      "itemId": "CHK-007",
       "action": "update",
       "from": "pending",
       "to": "in_progress",
