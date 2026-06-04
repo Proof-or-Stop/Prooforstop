@@ -276,7 +276,7 @@
       "desc": "Owner-meta preservation is not covered for owner-gated autopilot_run, autopilot_cancel, and autopilot_resume after strict CLI hardening. Add CLI smoke cases with --takeover/--forceTakeover and assert meta keys do not leak into JSON outputs.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-06-04T05:51:53.510Z",
@@ -285,7 +285,9 @@
       "_hash": "9f804c5ba464704102139b9f10c72b312732b5e052f0310962f3b7c7fdeb8481",
       "files": [
         "packages/main/src/cli-engine.ts,packages/main/src/tasks/autopilot-run-smoke.ts"
-      ]
+      ],
+      "resolvedReason": "Resolved by adding CLI smoke coverage for owner-gated autopilot_run, autopilot_cancel, and autopilot_resume with --takeover/--forceTakeover accepted under strict validation and asserted not to leak into JSON output. Evidence: npm --prefix packages/main run build; npm --prefix packages/main run test:autopilot-run-smoke.",
+      "resolvedAt": "2026-06-04T05:59:26.902Z"
     },
     {
       "id": "B-47cd:F-016",
