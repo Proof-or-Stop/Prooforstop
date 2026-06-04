@@ -306,6 +306,22 @@
       ],
       "resolvedReason": "Resolved by adding assertCliRejectsUnknownFlag coverage for autopilot_watch and autopilot_cancel stray --policy flags, completing explicit unknown/deprecated flag refusal coverage across the autopilot command surface. Evidence: npm --prefix packages/main run build; npm --prefix packages/main run test:autopilot-run-smoke.",
       "resolvedAt": "2026-06-04T05:59:41.900Z"
+    },
+    {
+      "id": "B-47cd:F-017",
+      "desc": "README.md and authority-client-role.md implied conduit_status includes canClaimProductionDone=false, but actual conduit status JSON does not expose that authority_status-specific field. Narrow docs so canClaimProductionDone=false belongs to authority_status only; conduit_status keeps productionDone=false, receiptVerified=false, and authorityChanged=false.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-04T06:00:13.274Z",
+      "reviewRound": "2026-06-04T05:59:09.542Z",
+      "reviewRunId": "B-47cd:RR-011",
+      "_hash": "f3d03510ef065a54ef19c74a39ca38a9c057e6a03c21c435bb50a94b566a76fd",
+      "files": [
+        "README.md,docs/requirements/decisions/authority-client-role.md"
+      ]
     }
   ]
 }
