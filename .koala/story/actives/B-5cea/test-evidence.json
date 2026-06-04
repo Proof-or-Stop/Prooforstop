@@ -1,15 +1,15 @@
 {
   "command": "koala validate --story=B-5cea --json",
-  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"fail\",\"allPass\":false,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery; verification coverage missing 9 required intent(s)\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.5 test\",\"  > npm run test:e2e\",\"  > koala@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ℹ Reading legacy koala.config.json at /Users/jek/Documents/Work/Orchestrate/.worktrees/lattice-entrypoint-gate-base/.worktrees/B-5cea; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ℹ Reading legacy koala.config.json at .; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-MsTwfG; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-IL26at; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 0/9 covered (9 required missing)\",\"  ✗ CHK-001:happy:0 [happy/must/logic] stale via logic_test (scripts/verify-codex-assets.mjs) — In a repo containing bin/lattice-codex.js, summarizeCodexEvidence and rendered REVIEW preflight recommend `node bin/lattice-codex.js verify_codex`.\",\"  ✗ CHK-001:edge:0 [edge/must/logic] stale via logic_test (scripts/verify-codex-assets.mjs) — In a legacy repo containing bin/koala-codex.js but no bin/lattice-codex.js, missing/failing/stale Codex evidence recommends `node bin/koala-codex.js verify_codex` and never recommends the absent wrapper.\",\"  ✗ CHK-001:adversarial:0 [adversarial/must/logic] stale via logic_test (scripts/verify-codex-assets.mjs) — renderPreflight and phase-gate failure hints must not bypass the resolved command by using the stale LOCAL_CODEX_VERIFY_COMMAND label.\",\"  ✗ CHK-002:happy:0 [happy/must/docs] stale via docs_check (README.md) — Bootstrap/docs guidance for current story worktrees names local wrapper or current dist CLI as the evidence path for status/validate/gate checks.\",\"  ✗ CHK-002:edge:0 [edge/must/logic] stale via logic_test (packages/main/src/core/codex-adapter-checks.ts) — When global @koala-agent/core resolves outside current worktree, diagnostics keep the result advisory and describe global CLI as heartbeat-only rather than current-worktree evidence.\",\"  ✗ CHK-002:adversarial:0 [adversarial/must/logic] stale via logic_test (scripts/verify-codex-assets.mjs) — The implementation must not hard-fail all global lattice drift or force global lattice to point at a story worktree.\",\"  ✗ CHK-003:happy:0 [happy/must/cli] stale via manual_transcript (scripts/verify-codex-assets.mjs) — Focused tests cover lattice wrapper and legacy wrapper command resolution, and pass after the implementation.\",\"  ✗ CHK-003:edge:0 [edge/must/cli] stale via manual_transcript (scripts/verify-entrypoints.mjs) — Focused tests cover stale-global/current-worktree guidance without depending on global install mutation.\",\"  ✗ CHK-003:adversarial:0 [adversarial/must/cli] stale via manual_transcript (packages/main/dist/cli.js) — Validation evidence must preserve JSON stdout parseability and must not include Swift/Mac Native App fallback commands.\"],\"warnings\":[],\"timestamp\":\"2026-06-04T00:37:30.175Z\",\"headSha\":\"154a80fa33e3a5feaff1ebe1f022396fd9b236d9\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\nℹ Reading legacy koala.config.json at /Users/jek/Documents/Work/Orchestrate/.worktrees/lattice-entrypoint-gate-base/.worktrees/B-5cea; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\nℹ Reading legacy koala.config.json at .; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-MsTwfG; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-IL26at; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":2046}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":9,\"reason\":\"verificationIntent entries present (9)\"},\"verificationCoverage\":{\"total\":9,\"required\":9,\"covered\":0,\"missingRequired\":9,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"In a repo containing bin/lattice-codex.js, summarizeCodexEvidence and rendered REVIEW preflight recommend `node bin/lattice-codex.js verify_codex`.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"file\":\"scripts/verify-codex-assets.mjs\",\"command\":\"npm run test:codex-assets\",\"result\":\"pass\",\"note\":\"Regression covers a lattice-wrapper temp repo and asserts missing evidence remediates with node bin/lattice-codex.js verify_codex.\",\"headHash\":\"92a09473a7eec66095eb535d79d41c0ac69e5705\",\"materialHash\":\"264bd599287b6a8e011a7f5e92b37277edb411a3bbf54c991b5493fb6fe82224\",\"timestamp\":\"2026-06-04T00:25:04.486Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"In a legacy repo containing bin/koala-codex.js but no bin/lattice-codex.js, missing/failing/stale Codex evidence recommends `node bin/koala-codex.js verify_codex` and never recommends the absent wrapper.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"file\":\"scripts/verify-codex-assets.mjs\",\"command\":\"npm run test:codex-assets\",\"result\":\"pass\",\"note\":\"Legacy temp repo contains bin/koala-codex.js and asserts missing evidence remediates with node bin/koala-codex.js verify_codex.\",\"headHash\":\"92a09473a7eec66095eb535d79d41c0ac69e5705\",\"materialHash\":\"264bd599287b6a8e011a7f5e92b37277edb411a3bbf54c991b5493fb6fe82224\",\"timestamp\":\"2026-06-04T00:25:04.487Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"renderPreflight and phase-gate failure hints must not bypass the resolved command by using the stale LOCAL_CODEX_VERIFY_COMMAND label.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"scripts/verify-codex-assets.mjs\",\"command\":\"npm run test:codex-assets\",\"result\":\"pass\",\"note\":\"Preflight/evidence summary assertions consume resolved commands instead of the stale LOCAL_CODEX_VERIFY_COMMAND label.\",\"headHash\":\"92a09473a7eec66095eb535d79d41c0ac69e5705\",\"materialHash\":\"264bd599287b6a8e011a7f5e92b37277edb411a3bbf54c991b5493fb6fe82224\",\"timestamp\":\"2026-06-04T00:25:04.487Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"Bootstrap/docs guidance for current story worktrees names local wrapper or current dist CLI as the evidence path for status/validate/gate checks.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"docs_check\",\"file\":\"README.md\",\"command\":\"npm run test:entrypoints\",\"result\":\"pass\",\"note\":\"Docs/bootstrap assertions now distinguish current-worktree local CLI evidence from global-thin/global fallback guidance.\",\"headHash\":\"92a09473a7eec66095eb535d79d41c0ac69e5705\",\"materialHash\":\"264bd599287b6a8e011a7f5e92b37277edb411a3bbf54c991b5493fb6fe82224\",\"timestamp\":\"2026-06-04T00:25:04.487Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"When global @koala-agent/core resolves outside current worktree, diagnostics keep the result advisory and describe global CLI as heartbeat-only rather than current-worktree evidence.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/core/codex-adapter-checks.ts\",\"command\":\"KOALA_SESSION_ID=codex-B-5cea-dev node bin/koala-codex.js verify_codex\",\"result\":\"pass\",\"note\":\"Live verify_codex reported global @koala-agent/core outside the worktree as a non-hard heartbeat-only warning and suggested the resolved local wrapper session_brief command.\",\"headHash\":\"92a09473a7eec66095eb535d79d41c0ac69e5705\",\"materialHash\":\"264bd599287b6a8e011a7f5e92b37277edb411a3bbf54c991b5493fb6fe82224\",\"timestamp\":\"2026-06-04T00:25:04.487Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"The implementation must not hard-fail all global lattice drift or force global lattice to point at a story worktree.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"scripts/verify-codex-assets.mjs\",\"command\":\"npm run test:codex-assets\",\"result\":\"pass\",\"note\":\"Regression fakes global lattice/koala without mutating the real global install and keeps stale global drift advisory, not a hard failure.\",\"headHash\":\"92a09473a7eec66095eb535d79d41c0ac69e5705\",\"materialHash\":\"264bd599287b6a8e011a7f5e92b37277edb411a3bbf54c991b5493fb6fe82224\",\"timestamp\":\"2026-06-04T00:25:04.487Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Focused tests cover lattice wrapper and legacy wrapper command resolution, and pass after the implementation.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"manual_transcript\",\"file\":\"scripts/verify-codex-assets.mjs\",\"command\":\"npm run test:codex-assets\",\"result\":\"pass\",\"note\":\"Focused regression passes for lattice wrapper and legacy wrapper command resolution.\",\"headHash\":\"92a09473a7eec66095eb535d79d41c0ac69e5705\",\"materialHash\":\"264bd599287b6a8e011a7f5e92b37277edb411a3bbf54c991b5493fb6fe82224\",\"timestamp\":\"2026-06-04T00:25:04.487Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Focused tests cover stale-global/current-worktree guidance without depending on global install mutation.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"manual_transcript\",\"file\":\"scripts/verify-entrypoints.mjs\",\"command\":\"npm run test:entrypoints\",\"result\":\"pass\",\"note\":\"Entrypoint smoke covers stale global guidance without mutating the real global install and keeps local/current worktree paths explicit.\",\"headHash\":\"92a09473a7eec66095eb535d79d41c0ac69e5705\",\"materialHash\":\"264bd599287b6a8e011a7f5e92b37277edb411a3bbf54c991b5493fb6fe82224\",\"timestamp\":\"2026-06-04T00:25:04.487Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Validation evidence must preserve JSON stdout parseability and must not include Swift/Mac Native App fallback commands.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/dist/cli.js\",\"command\":\"node --input-type=module -e \\\"import { execFileSync } from node:child_process; const raw = execFileSync(process.execPath, [packages/main/dist/cli.js, validate, --json], { encoding: utf8 }); JSON.parse(raw.slice(raw.indexOf({)));\\\"\",\"result\":\"pass\",\"note\":\"Lattice CLI validate --json stdout remains parseable; verification set used Node/Lattice commands and did not run Swift or Mac Native App validation.\",\"headHash\":\"92a09473a7eec66095eb535d79d41c0ac69e5705\",\"materialHash\":\"264bd599287b6a8e011a7f5e92b37277edb411a3bbf54c991b5493fb6fe82224\",\"timestamp\":\"2026-06-04T00:25:04.487Z\"}}]}}",
-  "result": "FAIL",
-  "timestamp": "2026-06-04T00:37:30.741Z",
-  "headHash": "154a80fa33e3a5feaff1ebe1f022396fd9b236d9",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.5 test\",\"  > npm run test:e2e\",\"  > koala@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ℹ Reading legacy koala.config.json at /Users/jek/Documents/Work/Orchestrate/.worktrees/lattice-entrypoint-gate-base/.worktrees/B-5cea; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ℹ Reading legacy koala.config.json at .; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-wRLcL3; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-PcZu1s; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 9/9 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/logic] covered via logic_test (scripts/verify-codex-assets.mjs) — In a repo containing bin/lattice-codex.js, summarizeCodexEvidence and rendered REVIEW preflight recommend `node bin/lattice-codex.js verify_codex`.\",\"  ✓ CHK-001:edge:0 [edge/must/logic] covered via logic_test (scripts/verify-codex-assets.mjs) — In a legacy repo containing bin/koala-codex.js but no bin/lattice-codex.js, missing/failing/stale Codex evidence recommends `node bin/koala-codex.js verify_codex` and never recommends the absent wrapper.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/logic] covered via logic_test (scripts/verify-codex-assets.mjs) — renderPreflight and phase-gate failure hints must not bypass the resolved command by using the stale LOCAL_CODEX_VERIFY_COMMAND label.\",\"  ✓ CHK-002:happy:0 [happy/must/docs] covered via docs_check (README.md) — Bootstrap/docs guidance for current story worktrees names local wrapper or current dist CLI as the evidence path for status/validate/gate checks.\",\"  ✓ CHK-002:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/core/codex-adapter-checks.ts) — When global @koala-agent/core resolves outside current worktree, diagnostics keep the result advisory and describe global CLI as heartbeat-only rather than current-worktree evidence.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/logic] covered via logic_test (scripts/verify-codex-assets.mjs) — The implementation must not hard-fail all global lattice drift or force global lattice to point at a story worktree.\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via manual_transcript (scripts/verify-codex-assets.mjs) — Focused tests cover lattice wrapper and legacy wrapper command resolution, and pass after the implementation.\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via manual_transcript (scripts/verify-entrypoints.mjs) — Focused tests cover stale-global/current-worktree guidance without depending on global install mutation.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/cli] covered via manual_transcript (packages/main/dist/cli.js) — Validation evidence must preserve JSON stdout parseability and must not include Swift/Mac Native App fallback commands.\"],\"warnings\":[],\"timestamp\":\"2026-06-04T00:37:56.488Z\",\"headSha\":\"cd81c3e43623dbf26cd18c85b0e3a06d0473d502\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\nℹ Reading legacy koala.config.json at /Users/jek/Documents/Work/Orchestrate/.worktrees/lattice-entrypoint-gate-base/.worktrees/B-5cea; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\nℹ Reading legacy koala.config.json at .; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-wRLcL3; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-PcZu1s; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":2150}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":9,\"reason\":\"verificationIntent entries present (9)\"},\"verificationCoverage\":{\"total\":9,\"required\":9,\"covered\":9,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"In a repo containing bin/lattice-codex.js, summarizeCodexEvidence and rendered REVIEW preflight recommend `node bin/lattice-codex.js verify_codex`.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"file\":\"scripts/verify-codex-assets.mjs\",\"command\":\"npm run test:codex-assets\",\"result\":\"pass\",\"note\":\"Regression covers a lattice-wrapper temp repo and asserts missing evidence remediates with node bin/lattice-codex.js verify_codex.\",\"headHash\":\"154a80fa33e3a5feaff1ebe1f022396fd9b236d9\",\"materialHash\":\"a4e67e3961941d3f7aaa1271db14a077d1893fb6603747e6933bb49046526fc7\",\"timestamp\":\"2026-06-04T00:37:43.957Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"In a legacy repo containing bin/koala-codex.js but no bin/lattice-codex.js, missing/failing/stale Codex evidence recommends `node bin/koala-codex.js verify_codex` and never recommends the absent wrapper.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"file\":\"scripts/verify-codex-assets.mjs\",\"command\":\"npm run test:codex-assets\",\"result\":\"pass\",\"note\":\"Legacy temp repo contains bin/koala-codex.js and asserts missing evidence remediates with node bin/koala-codex.js verify_codex.\",\"headHash\":\"154a80fa33e3a5feaff1ebe1f022396fd9b236d9\",\"materialHash\":\"a4e67e3961941d3f7aaa1271db14a077d1893fb6603747e6933bb49046526fc7\",\"timestamp\":\"2026-06-04T00:37:43.957Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"renderPreflight and phase-gate failure hints must not bypass the resolved command by using the stale LOCAL_CODEX_VERIFY_COMMAND label.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"scripts/verify-codex-assets.mjs\",\"command\":\"npm run test:codex-assets\",\"result\":\"pass\",\"note\":\"Preflight/evidence summary assertions consume resolved commands instead of the stale LOCAL_CODEX_VERIFY_COMMAND label.\",\"headHash\":\"154a80fa33e3a5feaff1ebe1f022396fd9b236d9\",\"materialHash\":\"a4e67e3961941d3f7aaa1271db14a077d1893fb6603747e6933bb49046526fc7\",\"timestamp\":\"2026-06-04T00:37:43.957Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"Bootstrap/docs guidance for current story worktrees names local wrapper or current dist CLI as the evidence path for status/validate/gate checks.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"docs_check\",\"file\":\"README.md\",\"command\":\"npm run test:entrypoints\",\"result\":\"pass\",\"note\":\"Docs/bootstrap assertions now distinguish current-worktree local CLI evidence from global-thin/global fallback guidance.\",\"headHash\":\"154a80fa33e3a5feaff1ebe1f022396fd9b236d9\",\"materialHash\":\"a4e67e3961941d3f7aaa1271db14a077d1893fb6603747e6933bb49046526fc7\",\"timestamp\":\"2026-06-04T00:37:43.957Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"When global @koala-agent/core resolves outside current worktree, diagnostics keep the result advisory and describe global CLI as heartbeat-only rather than current-worktree evidence.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/core/codex-adapter-checks.ts\",\"command\":\"KOALA_SESSION_ID=codex-B-5cea-dev node bin/koala-codex.js verify_codex\",\"result\":\"pass\",\"note\":\"Live verify_codex reported global @koala-agent/core outside the worktree as a non-hard heartbeat-only warning and suggested the resolved local wrapper session_brief command.\",\"headHash\":\"154a80fa33e3a5feaff1ebe1f022396fd9b236d9\",\"materialHash\":\"a4e67e3961941d3f7aaa1271db14a077d1893fb6603747e6933bb49046526fc7\",\"timestamp\":\"2026-06-04T00:37:43.957Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"The implementation must not hard-fail all global lattice drift or force global lattice to point at a story worktree.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"scripts/verify-codex-assets.mjs\",\"command\":\"npm run test:codex-assets\",\"result\":\"pass\",\"note\":\"Regression fakes global lattice/koala without mutating the real global install and keeps stale global drift advisory, not a hard failure.\",\"headHash\":\"154a80fa33e3a5feaff1ebe1f022396fd9b236d9\",\"materialHash\":\"a4e67e3961941d3f7aaa1271db14a077d1893fb6603747e6933bb49046526fc7\",\"timestamp\":\"2026-06-04T00:37:43.957Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Focused tests cover lattice wrapper and legacy wrapper command resolution, and pass after the implementation.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"manual_transcript\",\"file\":\"scripts/verify-codex-assets.mjs\",\"command\":\"npm run test:codex-assets\",\"result\":\"pass\",\"note\":\"Focused regression passes for lattice wrapper and legacy wrapper command resolution.\",\"headHash\":\"154a80fa33e3a5feaff1ebe1f022396fd9b236d9\",\"materialHash\":\"a4e67e3961941d3f7aaa1271db14a077d1893fb6603747e6933bb49046526fc7\",\"timestamp\":\"2026-06-04T00:37:43.957Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Focused tests cover stale-global/current-worktree guidance without depending on global install mutation.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"manual_transcript\",\"file\":\"scripts/verify-entrypoints.mjs\",\"command\":\"npm run test:entrypoints\",\"result\":\"pass\",\"note\":\"Entrypoint smoke covers stale global guidance without mutating the real global install and keeps local/current worktree paths explicit.\",\"headHash\":\"154a80fa33e3a5feaff1ebe1f022396fd9b236d9\",\"materialHash\":\"a4e67e3961941d3f7aaa1271db14a077d1893fb6603747e6933bb49046526fc7\",\"timestamp\":\"2026-06-04T00:37:43.957Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Validation evidence must preserve JSON stdout parseability and must not include Swift/Mac Native App fallback commands.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/dist/cli.js\",\"command\":\"node --input-type=module -e \\\"import { execFileSync } from node:child_process; const raw = execFileSync(process.execPath, [packages/main/dist/cli.js, validate, --json], { encoding: utf8 }); JSON.parse(raw.slice(raw.indexOf({)));\\\"\",\"result\":\"pass\",\"note\":\"Lattice CLI validate --json stdout remains parseable; verification set used Node/Lattice commands and did not run Swift or Mac Native App validation.\",\"headHash\":\"154a80fa33e3a5feaff1ebe1f022396fd9b236d9\",\"materialHash\":\"a4e67e3961941d3f7aaa1271db14a077d1893fb6603747e6933bb49046526fc7\",\"timestamp\":\"2026-06-04T00:37:43.957Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-04T00:37:57.090Z",
+  "headHash": "cd81c3e43623dbf26cd18c85b0e3a06d0473d502",
   "materialHash": "a4e67e3961941d3f7aaa1271db14a077d1893fb6603747e6933bb49046526fc7",
   "verificationCoverage": {
     "total": 9,
     "required": 9,
-    "covered": 0,
-    "missingRequired": 9,
+    "covered": 9,
+    "missingRequired": 0,
     "entries": [
       {
         "intentRef": "CHK-001:happy:0",
@@ -18,7 +18,7 @@
         "desc": "In a repo containing bin/lattice-codex.js, summarizeCodexEvidence and rendered REVIEW preflight recommend `node bin/lattice-codex.js verify_codex`.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:happy:0",
           "kind": "logic_test",
@@ -26,9 +26,9 @@
           "command": "npm run test:codex-assets",
           "result": "pass",
           "note": "Regression covers a lattice-wrapper temp repo and asserts missing evidence remediates with node bin/lattice-codex.js verify_codex.",
-          "headHash": "92a09473a7eec66095eb535d79d41c0ac69e5705",
-          "materialHash": "264bd599287b6a8e011a7f5e92b37277edb411a3bbf54c991b5493fb6fe82224",
-          "timestamp": "2026-06-04T00:25:04.486Z"
+          "headHash": "154a80fa33e3a5feaff1ebe1f022396fd9b236d9",
+          "materialHash": "a4e67e3961941d3f7aaa1271db14a077d1893fb6603747e6933bb49046526fc7",
+          "timestamp": "2026-06-04T00:37:43.957Z"
         }
       },
       {
@@ -38,7 +38,7 @@
         "desc": "In a legacy repo containing bin/koala-codex.js but no bin/lattice-codex.js, missing/failing/stale Codex evidence recommends `node bin/koala-codex.js verify_codex` and never recommends the absent wrapper.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:edge:0",
           "kind": "logic_test",
@@ -46,9 +46,9 @@
           "command": "npm run test:codex-assets",
           "result": "pass",
           "note": "Legacy temp repo contains bin/koala-codex.js and asserts missing evidence remediates with node bin/koala-codex.js verify_codex.",
-          "headHash": "92a09473a7eec66095eb535d79d41c0ac69e5705",
-          "materialHash": "264bd599287b6a8e011a7f5e92b37277edb411a3bbf54c991b5493fb6fe82224",
-          "timestamp": "2026-06-04T00:25:04.487Z"
+          "headHash": "154a80fa33e3a5feaff1ebe1f022396fd9b236d9",
+          "materialHash": "a4e67e3961941d3f7aaa1271db14a077d1893fb6603747e6933bb49046526fc7",
+          "timestamp": "2026-06-04T00:37:43.957Z"
         }
       },
       {
@@ -58,7 +58,7 @@
         "desc": "renderPreflight and phase-gate failure hints must not bypass the resolved command by using the stale LOCAL_CODEX_VERIFY_COMMAND label.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "logic_test",
@@ -66,9 +66,9 @@
           "command": "npm run test:codex-assets",
           "result": "pass",
           "note": "Preflight/evidence summary assertions consume resolved commands instead of the stale LOCAL_CODEX_VERIFY_COMMAND label.",
-          "headHash": "92a09473a7eec66095eb535d79d41c0ac69e5705",
-          "materialHash": "264bd599287b6a8e011a7f5e92b37277edb411a3bbf54c991b5493fb6fe82224",
-          "timestamp": "2026-06-04T00:25:04.487Z"
+          "headHash": "154a80fa33e3a5feaff1ebe1f022396fd9b236d9",
+          "materialHash": "a4e67e3961941d3f7aaa1271db14a077d1893fb6603747e6933bb49046526fc7",
+          "timestamp": "2026-06-04T00:37:43.957Z"
         }
       },
       {
@@ -78,7 +78,7 @@
         "desc": "Bootstrap/docs guidance for current story worktrees names local wrapper or current dist CLI as the evidence path for status/validate/gate checks.",
         "type": "docs",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:happy:0",
           "kind": "docs_check",
@@ -86,9 +86,9 @@
           "command": "npm run test:entrypoints",
           "result": "pass",
           "note": "Docs/bootstrap assertions now distinguish current-worktree local CLI evidence from global-thin/global fallback guidance.",
-          "headHash": "92a09473a7eec66095eb535d79d41c0ac69e5705",
-          "materialHash": "264bd599287b6a8e011a7f5e92b37277edb411a3bbf54c991b5493fb6fe82224",
-          "timestamp": "2026-06-04T00:25:04.487Z"
+          "headHash": "154a80fa33e3a5feaff1ebe1f022396fd9b236d9",
+          "materialHash": "a4e67e3961941d3f7aaa1271db14a077d1893fb6603747e6933bb49046526fc7",
+          "timestamp": "2026-06-04T00:37:43.957Z"
         }
       },
       {
@@ -98,7 +98,7 @@
         "desc": "When global @koala-agent/core resolves outside current worktree, diagnostics keep the result advisory and describe global CLI as heartbeat-only rather than current-worktree evidence.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
@@ -106,9 +106,9 @@
           "command": "KOALA_SESSION_ID=codex-B-5cea-dev node bin/koala-codex.js verify_codex",
           "result": "pass",
           "note": "Live verify_codex reported global @koala-agent/core outside the worktree as a non-hard heartbeat-only warning and suggested the resolved local wrapper session_brief command.",
-          "headHash": "92a09473a7eec66095eb535d79d41c0ac69e5705",
-          "materialHash": "264bd599287b6a8e011a7f5e92b37277edb411a3bbf54c991b5493fb6fe82224",
-          "timestamp": "2026-06-04T00:25:04.487Z"
+          "headHash": "154a80fa33e3a5feaff1ebe1f022396fd9b236d9",
+          "materialHash": "a4e67e3961941d3f7aaa1271db14a077d1893fb6603747e6933bb49046526fc7",
+          "timestamp": "2026-06-04T00:37:43.957Z"
         }
       },
       {
@@ -118,7 +118,7 @@
         "desc": "The implementation must not hard-fail all global lattice drift or force global lattice to point at a story worktree.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
@@ -126,9 +126,9 @@
           "command": "npm run test:codex-assets",
           "result": "pass",
           "note": "Regression fakes global lattice/koala without mutating the real global install and keeps stale global drift advisory, not a hard failure.",
-          "headHash": "92a09473a7eec66095eb535d79d41c0ac69e5705",
-          "materialHash": "264bd599287b6a8e011a7f5e92b37277edb411a3bbf54c991b5493fb6fe82224",
-          "timestamp": "2026-06-04T00:25:04.487Z"
+          "headHash": "154a80fa33e3a5feaff1ebe1f022396fd9b236d9",
+          "materialHash": "a4e67e3961941d3f7aaa1271db14a077d1893fb6603747e6933bb49046526fc7",
+          "timestamp": "2026-06-04T00:37:43.957Z"
         }
       },
       {
@@ -138,7 +138,7 @@
         "desc": "Focused tests cover lattice wrapper and legacy wrapper command resolution, and pass after the implementation.",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:happy:0",
           "kind": "manual_transcript",
@@ -146,9 +146,9 @@
           "command": "npm run test:codex-assets",
           "result": "pass",
           "note": "Focused regression passes for lattice wrapper and legacy wrapper command resolution.",
-          "headHash": "92a09473a7eec66095eb535d79d41c0ac69e5705",
-          "materialHash": "264bd599287b6a8e011a7f5e92b37277edb411a3bbf54c991b5493fb6fe82224",
-          "timestamp": "2026-06-04T00:25:04.487Z"
+          "headHash": "154a80fa33e3a5feaff1ebe1f022396fd9b236d9",
+          "materialHash": "a4e67e3961941d3f7aaa1271db14a077d1893fb6603747e6933bb49046526fc7",
+          "timestamp": "2026-06-04T00:37:43.957Z"
         }
       },
       {
@@ -158,7 +158,7 @@
         "desc": "Focused tests cover stale-global/current-worktree guidance without depending on global install mutation.",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:edge:0",
           "kind": "manual_transcript",
@@ -166,9 +166,9 @@
           "command": "npm run test:entrypoints",
           "result": "pass",
           "note": "Entrypoint smoke covers stale global guidance without mutating the real global install and keeps local/current worktree paths explicit.",
-          "headHash": "92a09473a7eec66095eb535d79d41c0ac69e5705",
-          "materialHash": "264bd599287b6a8e011a7f5e92b37277edb411a3bbf54c991b5493fb6fe82224",
-          "timestamp": "2026-06-04T00:25:04.487Z"
+          "headHash": "154a80fa33e3a5feaff1ebe1f022396fd9b236d9",
+          "materialHash": "a4e67e3961941d3f7aaa1271db14a077d1893fb6603747e6933bb49046526fc7",
+          "timestamp": "2026-06-04T00:37:43.957Z"
         }
       },
       {
@@ -178,7 +178,7 @@
         "desc": "Validation evidence must preserve JSON stdout parseability and must not include Swift/Mac Native App fallback commands.",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "manual_transcript",
@@ -186,9 +186,9 @@
           "command": "node --input-type=module -e \"import { execFileSync } from node:child_process; const raw = execFileSync(process.execPath, [packages/main/dist/cli.js, validate, --json], { encoding: utf8 }); JSON.parse(raw.slice(raw.indexOf({)));\"",
           "result": "pass",
           "note": "Lattice CLI validate --json stdout remains parseable; verification set used Node/Lattice commands and did not run Swift or Mac Native App validation.",
-          "headHash": "92a09473a7eec66095eb535d79d41c0ac69e5705",
-          "materialHash": "264bd599287b6a8e011a7f5e92b37277edb411a3bbf54c991b5493fb6fe82224",
-          "timestamp": "2026-06-04T00:25:04.487Z"
+          "headHash": "154a80fa33e3a5feaff1ebe1f022396fd9b236d9",
+          "materialHash": "a4e67e3961941d3f7aaa1271db14a077d1893fb6603747e6933bb49046526fc7",
+          "timestamp": "2026-06-04T00:37:43.957Z"
         }
       }
     ]
