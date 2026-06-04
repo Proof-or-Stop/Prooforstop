@@ -644,6 +644,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
      *   - [CHK-002] Move legacy docs/story/actives to .koala/legacy-backup on confirm
      *   - [B-281f/CHK-001] Merge legacy docs/story/activity.jsonl into .koala/activity.jsonl
      *   - [B-281f/CHK-002] Remove docs/story only when it becomes empty after migration
+     * @test story-storage-migration
      */
     story_migrate_storage(args?: { dryRun?: boolean; confirm?: boolean }): string {
       const cfg = loadConfig(ctx.root);
@@ -749,6 +750,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
      *   - [CHK-001] Add dry-run/confirm guarded story_sync_main command
      *   - [CHK-002] Auto-resolve only current story metadata conflicts with --ours
      *   - [CHK-002] Leave non-story conflicts unresolved with explicit guidance
+     * @test story-sync-main
      */
     story_sync_main(args: { storyId: string; dryRun?: boolean; confirm?: boolean }): string {
       const story = ctx.store.readStory(args.storyId);
