@@ -36,6 +36,23 @@
       ],
       "resolvedReason": "Fixed by commit d7796b6f: README wrapper priority paragraph now documents bin/koala.js as the fourth legacy generic bootstrap fallback, matching resolveLocalCodexVerifyCommand. Verified npm run test:codex-assets and npm run test:entrypoints.",
       "resolvedAt": "2026-06-04T00:16:14.742Z"
+    },
+    {
+      "id": "B-5cea:F-003",
+      "desc": "quality-cleanup: scripts/verify-codex-assets.mjs:267-280 assertSessionBriefCommand tests cover candidates 1 (bin/lattice-codex.js), 2 (bin/koala-codex.js), 4 (bin/koala.js) and global-thin, but the 3rd priority candidate bin/lattice.js → \"node bin/lattice.js session_brief\" (codex-adapter-checks.ts:80) has no direct test case. If the mapping is changed in future, there is no regression guard for this path. Minor test coverage gap only.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-04T00:20:34.845Z",
+      "reviewRound": "2026-06-04T00:15:42.994Z",
+      "reviewRunId": "B-5cea:RR-008",
+      "_hash": "e408a98f7691183c6aad29fc9c025b55b165bf7a6197fe0493f1939bf4b14148",
+      "files": [
+        "scripts/verify-codex-assets.mjs",
+        "packages/main/src/core/codex-adapter-checks.ts"
+      ]
     }
   ]
 }
