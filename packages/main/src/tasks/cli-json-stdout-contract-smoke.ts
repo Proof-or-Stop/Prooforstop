@@ -31,6 +31,8 @@
  *     happy:  text-mode validate keeps "→ 验证全绿" hint
  *     edge:   validate --json stdout contains no human hint markers
  *     adversarial: stdout has exactly one JSON document (no trailing decoration)
+ * @changes
+ *   - [CHK-001] Add validator-required changes metadata for the CLI JSON stdout smoke task header.
  */
 
 import assert from 'node:assert/strict';

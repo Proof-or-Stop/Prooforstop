@@ -8,10 +8,85 @@
         "docs/requirements/decisions/annotation-system.md",
         "docs/requirements/decisions/host-neutral-observability-console.md"
       ],
-      "userSees": "cli-validate no longer reports the 10 task annotation errors.",
-      "status": "pending",
+      "userSees": "Terminal no longer prints the previous 10 ERROR lines for observability/story-authority task annotations.",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-04T11:04:13.275Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/observability-snapshot.ts",
+          "packages/main/src/core/story-authority-resolver.ts",
+          "packages/main/src/handlers/observability-snapshot.ts",
+          "packages/main/src/handlers/story-authority-resolve.ts",
+          "packages/main/src/tasks/cli-json-stdout-contract-smoke.ts",
+          "packages/main/src/tasks/observability-contract-smoke.ts",
+          "packages/main/src/tasks/observability-snapshot-smoke.ts",
+          "packages/main/src/tasks/story-authority-resolve-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validate.ts",
+          "packages/main/src/tasks/gap-analyze.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "All files previously reported by cli-validate have validator-compliant @task headers with required @changes fields.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke task annotations use validator-accepted @type values without weakening or editing the validator.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The patch does not modify runtime code below the annotation headers.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/cli-validate.ts",
+          "command": "node packages/main/dist/tasks/cli-validate.js",
+          "result": "pass",
+          "note": "cli-validate no longer reports the previous missing @changes errors for observability/story-authority task headers; output ends with PASSED: All task annotations are valid.",
+          "headHash": "706995a27fb902da95561671eecca896189ff3e3",
+          "materialHash": "eff5cf9cc98b3105f25f437edc84362137b92c5b8f989a3bacd423a8b497ed9c",
+          "timestamp": "2026-06-04T11:04:13.307Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validate.ts",
+          "command": "node packages/main/dist/tasks/cli-validate.js",
+          "result": "pass",
+          "note": "The validator accepted chore task types for smoke annotations without changing validator code or weakening allowed type checks.",
+          "headHash": "706995a27fb902da95561671eecca896189ff3e3",
+          "materialHash": "eff5cf9cc98b3105f25f437edc84362137b92c5b8f989a3bacd423a8b497ed9c",
+          "timestamp": "2026-06-04T11:04:13.334Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/observability-contract-smoke.ts",
+          "command": "git diff HEAD~1..HEAD -- packages/main/src/core/observability-snapshot.ts packages/main/src/core/story-authority-resolver.ts packages/main/src/handlers/observability-snapshot.ts packages/main/src/handlers/story-authority-resolve.ts packages/main/src/tasks/cli-json-stdout-contract-smoke.ts packages/main/src/tasks/observability-contract-smoke.ts packages/main/src/tasks/observability-snapshot-smoke.ts packages/main/src/tasks/story-authority-resolve-smoke.ts",
+          "result": "pass",
+          "note": "The committed diff only adds @changes metadata and changes two @type fields from test to chore in task headers; no runtime code below the headers changed.",
+          "headHash": "706995a27fb902da95561671eecca896189ff3e3",
+          "materialHash": "eff5cf9cc98b3105f25f437edc84362137b92c5b8f989a3bacd423a8b497ed9c",
+          "timestamp": "2026-06-04T11:04:13.360Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -21,10 +96,82 @@
         "docs/requirements/decisions/annotation-system.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "userSees": "convergence_check shows code annotation compliance passed instead of 10 errors.",
-      "status": "pending",
+      "userSees": "convergence_check prints code annotation compliance as passed, not detail: 10 annotation errors.",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-04T11:06:02.545Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/observability-snapshot.ts",
+          "packages/main/src/core/story-authority-resolver.ts",
+          "packages/main/src/handlers/observability-snapshot.ts",
+          "packages/main/src/handlers/story-authority-resolve.ts",
+          "packages/main/src/tasks/cli-json-stdout-contract-smoke.ts",
+          "packages/main/src/tasks/observability-contract-smoke.ts",
+          "packages/main/src/tasks/observability-snapshot-smoke.ts",
+          "packages/main/src/tasks/story-authority-resolve-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/cli-validate.ts",
+          "packages/main/src/tasks/gap-analyze.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node packages/main/dist/tasks/cli-validate.js exits 0 and prints PASSED: All task annotations are valid.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "node bin/lattice.js convergence_check shows the code annotation compliance row passed.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "convergence_check has no remaining false row caused by annotation errors after this patch.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/cli-validate.js",
+          "result": "pass",
+          "note": "Task annotation validator exits 0 and prints PASSED: All task annotations are valid.",
+          "headHash": "706995a27fb902da95561671eecca896189ff3e3",
+          "materialHash": "eff5cf9cc98b3105f25f437edc84362137b92c5b8f989a3bacd423a8b497ed9c",
+          "timestamp": "2026-06-04T11:06:02.575Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js convergence_check",
+          "result": "pass",
+          "note": "The code annotation compliance row is passed with detail 49 个注释全部合规.",
+          "headHash": "706995a27fb902da95561671eecca896189ff3e3",
+          "materialHash": "eff5cf9cc98b3105f25f437edc84362137b92c5b8f989a3bacd423a8b497ed9c",
+          "timestamp": "2026-06-04T11:06:02.599Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js convergence_check",
+          "result": "pass",
+          "note": "No failing convergence row remains because of annotation metadata errors; the only false row in the worktree was the current unfinished B-798e story.",
+          "headHash": "706995a27fb902da95561671eecca896189ff3e3",
+          "materialHash": "eff5cf9cc98b3105f25f437edc84362137b92c5b8f989a3bacd423a8b497ed9c",
+          "timestamp": "2026-06-04T11:06:02.623Z"
+        }
+      ]
     }
   ]
 }

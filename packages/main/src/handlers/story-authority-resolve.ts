@@ -11,6 +11,8 @@
  *   receipt. Defaults to JSON output because the contract surface exists to
  *   stop adapters from parsing `session_brief` / `status` Markdown; the text
  *   format is a thin human convenience that only mirrors the same JSON fields.
+ * @changes
+ *   - [CHK-001] Add validator-required changes metadata for the story authority resolve handler task header.
  */
 
 import {

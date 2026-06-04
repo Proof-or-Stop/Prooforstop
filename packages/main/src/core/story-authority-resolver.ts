@@ -17,6 +17,8 @@
  *   hardcoded `false`: this resolver is L0 read-only and never promotes a
  *   local host result into a production receipt — that path stays gated on
  *   B-2522.
+ * @changes
+ *   - [CHK-001] Add validator-required changes metadata for the story authority resolver task header.
  */
 
 import { existsSync } from 'node:fs';

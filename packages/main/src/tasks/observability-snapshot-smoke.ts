@@ -3,7 +3,7 @@
  * @task B-381e
  * @checklist CHK-002
  * @title observability_snapshot adapter smoke
- * @type test
+ * @type chore
  * @priority high
  * @description
  *   Focused smoke for the host-neutral observability snapshot adapter. Drives
@@ -13,6 +13,9 @@
  *   surfaced. Asserts schema version, read-only authority boundary, presence
  *   of every section, and that the adapter routes per-row reads through the
  *   resolver's `authoritativeCwd` instead of the repo root.
+ * @changes
+ *   - [CHK-001] Use validator-accepted task type metadata for the observability snapshot smoke.
+ *   - [CHK-002] Add validator-required changes metadata for convergence checking.
  */
 
 import assert from 'node:assert/strict';

@@ -14,6 +14,8 @@
  *   stale main mirror. All authority fields stay conservative
  *   (`productionDone=false` / `receiptVerified=false` / `authorityChanged=false`):
  *   the snapshot is L0 host-neutral observation, never a production claim.
+ * @changes
+ *   - [CHK-002] Add validator-required changes metadata for the observability snapshot adapter task header.
  */
 
 import {
