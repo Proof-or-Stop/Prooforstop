@@ -177,6 +177,24 @@
       ],
       "resolvedReason": "Resolved by documenting explicit dispatchPolicy linkage in README and docs/requirements/decisions/host-overflow.md, including dispatch_policy_create --policy=fake-dispatch then autopilot policy create --policy=fake --dispatchPolicy=fake-dispatch examples and same-name fallback note. Evidence: docs diff plus autopilot-run smoke two-policy linkage assertions.",
       "resolvedAt": "2026-06-04T04:12:15.242Z"
+    },
+    {
+      "id": "B-47cd:F-010",
+      "desc": "CLI parser strips unknown autopilot flags before core validation, so removed autopilot_policy_create/autopilot_resume flags such as --allowedHosts or --policy can still be accepted and ignored instead of rejected. Fix by making these command schemas strict or adding explicit unknown-flag rejection before safeParse.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-04T04:32:44.034Z",
+      "reviewRound": "2026-06-04T04:09:09.144Z",
+      "reviewRunId": "B-47cd:RR-007",
+      "_hash": "facc52d8c4a278a9735c8456aeffd3d066f94a5bec0abd8a92f2d084f9eb7605",
+      "files": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/handlers/lattice-autopilot.ts",
+        "packages/main/src/core/autopilot-policy.ts"
+      ]
     }
   ]
 }
