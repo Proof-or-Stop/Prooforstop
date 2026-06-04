@@ -681,6 +681,14 @@ try {
   ], 'maxBudgetUSD');
 
   assertCliRejectsUnknownFlag(root, [
+    'autopilot_run',
+    '--storyId=B-demo',
+    '--policy=fake',
+    '--trustedTestAuthorityReceipt=fake-test-server',
+    '--json',
+  ], 'trustedTestAuthorityReceipt');
+
+  assertCliRejectsUnknownFlag(root, [
     'autopilot_resume',
     '--runId=AP-B-demo-deprecated',
     '--policy=fake',
@@ -850,11 +858,28 @@ try {
   assert.equal(forgedShapedServerAuthority.authorityReceiptGate.source, 'invalid');
   assertAuthorityFalse(forgedShapedServerAuthority, 'forgedShapedServerAuthority');
 
-  const verified = run<AutopilotRunResult>('autopilot_run', {
+  const forgedFakeTestServerAuthority = run<AutopilotRunResult>('autopilot_run', {
     mode: 'authority-verified',
     storyId: 'B-demo',
     policy: 'fake-authority',
     serverAuthorityReceipt: fakeServerAuthorityReceipt,
+    objective: 'Caller-supplied fake-test-server receipts must not self-verify.',
+    allowedPaths: ['packages/main/src/generated/forged-fake-test-authority.txt'],
+    requiredCommands: ['node -e "process.exit(0)"'],
+  });
+  assert.equal(forgedFakeTestServerAuthority.status, 'missing_authority_receipt');
+  assert.equal(forgedFakeTestServerAuthority.stopReason, 'missing_authority');
+  assert.equal(forgedFakeTestServerAuthority.dispatchId, undefined, 'caller-supplied fake-test-server receipt must stop before dispatch_auto');
+  assert.equal(forgedFakeTestServerAuthority.authorityReceiptGate.present, true);
+  assert.equal(forgedFakeTestServerAuthority.authorityReceiptGate.verified, false);
+  assert.equal(forgedFakeTestServerAuthority.authorityReceiptGate.source, 'invalid');
+  assertAuthorityFalse(forgedFakeTestServerAuthority, 'forgedFakeTestServerAuthority');
+
+  const verified = run<AutopilotRunResult>('autopilot_run', {
+    mode: 'authority-verified',
+    storyId: 'B-demo',
+    policy: 'fake-authority',
+    trustedTestAuthorityReceipt: fakeServerAuthorityReceipt,
     objective: 'Authority-verified fake server autopilot smoke run.',
     allowedPaths: ['packages/main/src/generated/authority-verified.txt'],
     requiredCommands: ['node -e "process.exit(0)"'],
@@ -885,7 +910,7 @@ try {
     mode: 'full-autopilot',
     storyId: 'B-demo',
     policy: 'fake-full',
-    serverAuthorityReceipt: fakeServerAuthorityReceipt,
+    trustedTestAuthorityReceipt: fakeServerAuthorityReceipt,
     objective: 'Full autopilot bounded smoke run.',
     allowedPaths: ['packages/main/src/generated/full-autopilot.txt'],
     requiredCommands: ['node -e "process.exit(0)"'],
@@ -924,7 +949,7 @@ try {
     mode: 'full-autopilot',
     storyId: 'B-retry-demo',
     policy: 'fake-retry',
-    serverAuthorityReceipt: fakeServerAuthorityReceipt,
+    trustedTestAuthorityReceipt: fakeServerAuthorityReceipt,
     objective: 'Full autopilot retry must stay bounded by maxIterations.',
     allowedPaths: ['packages/main/src/generated/retry.txt'],
     requiredCommands: ['node -e "process.exit(1)"'],
@@ -942,7 +967,7 @@ try {
     mode: 'full-autopilot',
     storyId: 'B-budget-retry-demo',
     policy: 'fake-retry-budget',
-    serverAuthorityReceipt: fakeServerAuthorityReceipt,
+    trustedTestAuthorityReceipt: fakeServerAuthorityReceipt,
     objective: 'Budget-capped retry must fail closed when spend cannot be measured.',
     allowedPaths: ['packages/main/src/generated/budget-retry.txt'],
     requiredCommands: ['node -e "process.exit(1)"'],
@@ -1105,6 +1130,7 @@ try {
     modeOverrideRefused,
     forgedServerAuthority,
     forgedShapedServerAuthority,
+    forgedFakeTestServerAuthority,
     verified,
     missingAuthority,
     full,
@@ -1124,7 +1150,7 @@ try {
     cliTakeoverResume,
   ], 'allResults');
 
-  console.log('autopilot-run smoke passed: registration, two-policy linkage, policy gates, deprecated CLI flag refusal, full autopilot-surface unknown flag refusal, owner meta preservation, strict autopilot read-only flag refusal, read-only review immutability, dispatch-only refusal, mode-override refusal, forged authority refusal, fully-shaped server receipt refusal, authority-verified fake server gate success/refusal, full-autopilot bounded retry, budget-capped retry fail-closed, conflict stop, host-native delegation contract, cancel, resume refusal, and authority boundaries verified');
+  console.log('autopilot-run smoke passed: registration, two-policy linkage, policy gates, deprecated CLI flag refusal, full autopilot-surface unknown flag refusal, owner meta preservation, strict autopilot read-only flag refusal, read-only review immutability, dispatch-only refusal, mode-override refusal, forged authority refusal, fully-shaped server receipt refusal, caller-supplied fake-test-server receipt refusal, authority-verified fake server gate success/refusal, full-autopilot bounded retry, budget-capped retry fail-closed, conflict stop, host-native delegation contract, cancel, resume refusal, and authority boundaries verified');
 } finally {
   rmSync(sandboxRoot, { recursive: true, force: true });
 }

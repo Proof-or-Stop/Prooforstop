@@ -184,6 +184,7 @@ export interface AutopilotRunArgs {
   serverAuthorityReceipt?: unknown;
   verifiedAuthorityReceipt?: unknown;
   serverReceipt?: unknown;
+  trustedTestAuthorityReceipt?: unknown;
 }
 
 export interface AutopilotWatchResult {
@@ -439,7 +440,7 @@ function authorityReceiptShape(candidate: Record<string, unknown>): {
   };
 }
 
-function classifyAuthorityReceiptCandidate(candidate: unknown, required: boolean): AutopilotAuthorityReceiptGate {
+function classifyAuthorityReceiptCandidate(candidate: unknown, required: boolean, options: { trustedTestReceipt?: boolean } = {}): AutopilotAuthorityReceiptGate {
   if (!required) {
     return {
       required: false,
@@ -475,7 +476,7 @@ function classifyAuthorityReceiptCandidate(candidate: unknown, required: boolean
   const hasRequiredReceiptShape = !!shape.receiptRef && !!shape.subjectDigest && !!shape.signature && shape.verified;
   const fakeTestServerMarked = /fake-test-server/i.test(shape.sourceText);
 
-  if (hasRequiredReceiptShape && fakeTestServerMarked) {
+  if (hasRequiredReceiptShape && fakeTestServerMarked && options.trustedTestReceipt === true) {
     return {
       required: true,
       present: true,
@@ -689,7 +690,12 @@ export function autopilotRun(store: StoryStore, root: string, args: AutopilotRun
   const preliminaryPolicyCheck = checkAutopilotPolicy(root, policyName);
   const preliminaryPolicy = preliminaryPolicyCheck.normalizedPolicy;
   const preliminaryAuthorityRequired = preliminaryPolicy.requireServerReceipt || preliminaryPolicy.mode !== 'conservative';
-  const authorityReceiptGate = classifyAuthorityReceiptCandidate(firstExplicitAuthorityReceipt(args), preliminaryAuthorityRequired);
+  const trustedTestReceipt = args.trustedTestAuthorityReceipt !== undefined;
+  const authorityReceiptGate = classifyAuthorityReceiptCandidate(
+    trustedTestReceipt ? args.trustedTestAuthorityReceipt : firstExplicitAuthorityReceipt(args),
+    preliminaryAuthorityRequired,
+    { trustedTestReceipt },
+  );
   const policyCheck = checkAutopilotPolicy(root, policyName, policyCheckOptionsFromGate(authorityReceiptGate));
   const policy = policyCheck.normalizedPolicy;
   const mode = policy.mode as PersistedAutopilotMode;
