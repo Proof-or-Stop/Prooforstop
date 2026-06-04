@@ -55,9 +55,9 @@
           "command": "npm run test:codex-assets",
           "result": "pass",
           "note": "Regression covers a lattice-wrapper temp repo and asserts missing evidence remediates with node bin/lattice-codex.js verify_codex.",
-          "headHash": "25d65068d5b870a239ac848d2fcfd4d0353cbdec",
-          "materialHash": "c5c9b7b3ff2fd5ff7e851e52978e7248c2a6c66b60dd8175368f3aebfcc61795",
-          "timestamp": "2026-06-04T00:16:26.994Z"
+          "headHash": "92a09473a7eec66095eb535d79d41c0ac69e5705",
+          "materialHash": "264bd599287b6a8e011a7f5e92b37277edb411a3bbf54c991b5493fb6fe82224",
+          "timestamp": "2026-06-04T00:25:04.486Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -66,9 +66,9 @@
           "command": "npm run test:codex-assets",
           "result": "pass",
           "note": "Legacy temp repo contains bin/koala-codex.js and asserts missing evidence remediates with node bin/koala-codex.js verify_codex.",
-          "headHash": "25d65068d5b870a239ac848d2fcfd4d0353cbdec",
-          "materialHash": "c5c9b7b3ff2fd5ff7e851e52978e7248c2a6c66b60dd8175368f3aebfcc61795",
-          "timestamp": "2026-06-04T00:16:26.994Z"
+          "headHash": "92a09473a7eec66095eb535d79d41c0ac69e5705",
+          "materialHash": "264bd599287b6a8e011a7f5e92b37277edb411a3bbf54c991b5493fb6fe82224",
+          "timestamp": "2026-06-04T00:25:04.487Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -77,9 +77,9 @@
           "command": "npm run test:codex-assets",
           "result": "pass",
           "note": "Preflight/evidence summary assertions consume resolved commands instead of the stale LOCAL_CODEX_VERIFY_COMMAND label.",
-          "headHash": "25d65068d5b870a239ac848d2fcfd4d0353cbdec",
-          "materialHash": "c5c9b7b3ff2fd5ff7e851e52978e7248c2a6c66b60dd8175368f3aebfcc61795",
-          "timestamp": "2026-06-04T00:16:26.994Z"
+          "headHash": "92a09473a7eec66095eb535d79d41c0ac69e5705",
+          "materialHash": "264bd599287b6a8e011a7f5e92b37277edb411a3bbf54c991b5493fb6fe82224",
+          "timestamp": "2026-06-04T00:25:04.487Z"
         }
       ]
     },
@@ -139,9 +139,9 @@
           "command": "npm run test:entrypoints",
           "result": "pass",
           "note": "Docs/bootstrap assertions now distinguish current-worktree local CLI evidence from global-thin/global fallback guidance.",
-          "headHash": "25d65068d5b870a239ac848d2fcfd4d0353cbdec",
-          "materialHash": "c5c9b7b3ff2fd5ff7e851e52978e7248c2a6c66b60dd8175368f3aebfcc61795",
-          "timestamp": "2026-06-04T00:16:26.994Z"
+          "headHash": "92a09473a7eec66095eb535d79d41c0ac69e5705",
+          "materialHash": "264bd599287b6a8e011a7f5e92b37277edb411a3bbf54c991b5493fb6fe82224",
+          "timestamp": "2026-06-04T00:25:04.487Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -150,9 +150,9 @@
           "command": "KOALA_SESSION_ID=codex-B-5cea-dev node bin/koala-codex.js verify_codex",
           "result": "pass",
           "note": "Live verify_codex reported global @koala-agent/core outside the worktree as a non-hard heartbeat-only warning and suggested the resolved local wrapper session_brief command.",
-          "headHash": "25d65068d5b870a239ac848d2fcfd4d0353cbdec",
-          "materialHash": "c5c9b7b3ff2fd5ff7e851e52978e7248c2a6c66b60dd8175368f3aebfcc61795",
-          "timestamp": "2026-06-04T00:16:26.994Z"
+          "headHash": "92a09473a7eec66095eb535d79d41c0ac69e5705",
+          "materialHash": "264bd599287b6a8e011a7f5e92b37277edb411a3bbf54c991b5493fb6fe82224",
+          "timestamp": "2026-06-04T00:25:04.487Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -161,9 +161,9 @@
           "command": "npm run test:codex-assets",
           "result": "pass",
           "note": "Regression fakes global lattice/koala without mutating the real global install and keeps stale global drift advisory, not a hard failure.",
-          "headHash": "25d65068d5b870a239ac848d2fcfd4d0353cbdec",
-          "materialHash": "c5c9b7b3ff2fd5ff7e851e52978e7248c2a6c66b60dd8175368f3aebfcc61795",
-          "timestamp": "2026-06-04T00:16:26.994Z"
+          "headHash": "92a09473a7eec66095eb535d79d41c0ac69e5705",
+          "materialHash": "264bd599287b6a8e011a7f5e92b37277edb411a3bbf54c991b5493fb6fe82224",
+          "timestamp": "2026-06-04T00:25:04.487Z"
         }
       ]
     },
@@ -225,9 +225,9 @@
           "command": "npm run test:codex-assets",
           "result": "pass",
           "note": "Focused regression passes for lattice wrapper and legacy wrapper command resolution.",
-          "headHash": "25d65068d5b870a239ac848d2fcfd4d0353cbdec",
-          "materialHash": "c5c9b7b3ff2fd5ff7e851e52978e7248c2a6c66b60dd8175368f3aebfcc61795",
-          "timestamp": "2026-06-04T00:16:26.994Z"
+          "headHash": "92a09473a7eec66095eb535d79d41c0ac69e5705",
+          "materialHash": "264bd599287b6a8e011a7f5e92b37277edb411a3bbf54c991b5493fb6fe82224",
+          "timestamp": "2026-06-04T00:25:04.487Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -236,9 +236,9 @@
           "command": "npm run test:entrypoints",
           "result": "pass",
           "note": "Entrypoint smoke covers stale global guidance without mutating the real global install and keeps local/current worktree paths explicit.",
-          "headHash": "25d65068d5b870a239ac848d2fcfd4d0353cbdec",
-          "materialHash": "c5c9b7b3ff2fd5ff7e851e52978e7248c2a6c66b60dd8175368f3aebfcc61795",
-          "timestamp": "2026-06-04T00:16:26.994Z"
+          "headHash": "92a09473a7eec66095eb535d79d41c0ac69e5705",
+          "materialHash": "264bd599287b6a8e011a7f5e92b37277edb411a3bbf54c991b5493fb6fe82224",
+          "timestamp": "2026-06-04T00:25:04.487Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -247,9 +247,9 @@
           "command": "node --input-type=module -e \"import { execFileSync } from node:child_process; const raw = execFileSync(process.execPath, [packages/main/dist/cli.js, validate, --json], { encoding: utf8 }); JSON.parse(raw.slice(raw.indexOf({)));\"",
           "result": "pass",
           "note": "Lattice CLI validate --json stdout remains parseable; verification set used Node/Lattice commands and did not run Swift or Mac Native App validation.",
-          "headHash": "25d65068d5b870a239ac848d2fcfd4d0353cbdec",
-          "materialHash": "c5c9b7b3ff2fd5ff7e851e52978e7248c2a6c66b60dd8175368f3aebfcc61795",
-          "timestamp": "2026-06-04T00:16:26.994Z"
+          "headHash": "92a09473a7eec66095eb535d79d41c0ac69e5705",
+          "materialHash": "264bd599287b6a8e011a7f5e92b37277edb411a3bbf54c991b5493fb6fe82224",
+          "timestamp": "2026-06-04T00:25:04.487Z"
         }
       ]
     }
