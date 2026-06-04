@@ -30,7 +30,17 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "B-47cd PLAN scope refreshed after story_review touchpoint coverage fix.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "REVIEW gate bug surfaced during B-47cd delivery: resolved reviewer findings with stale reviewRunId should not block after latest valid reviewer evidence; flow-stability smoke covers the boundary.",
+      "timestamp": "2026-06-04T06:14:30.470Z",
+      "paths": [
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ]
+    }
+  ],
   "createdAt": "2026-06-04T03:02:23.381Z",
-  "updatedAt": "2026-06-04T03:04:07.341Z"
+  "updatedAt": "2026-06-04T06:14:30.470Z"
 }
