@@ -399,6 +399,22 @@
         "packages/main/src/core/command-policy.ts",
         "packages/main/src/handlers/lattice-autopilot.ts"
       ]
+    },
+    {
+      "id": "B-47cd:F-022",
+      "desc": "autopilot_review derives a new review status from dispatch receipt/transcript and can project an already cancelled or failed run as manual_review_ready or needs_receipt, making cancel/status/watch/review disagree for the same terminal run. It should preserve terminal persisted status and only add review/merge evidence.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-04T06:48:27.878Z",
+      "reviewRound": "2026-06-04T06:36:38.276Z",
+      "reviewRunId": "B-47cd:RR-021",
+      "_hash": "b546803025f0056067a2624a48260b7079e5f1a00e727f775774073b6e3f8f92",
+      "files": [
+        "packages/main/src/core/lattice-autopilot.ts"
+      ]
     }
   ]
 }
