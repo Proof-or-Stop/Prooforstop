@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add @test metadata for story query handlers",
+      "context": "Add function-level @test annotations for story_migrate_storage and story_sync_main in packages/main/src/handlers/story-query.ts, without changing runtime logic.",
+      "relatedDocs": [
+        "docs/requirements/decisions/annotation-system.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "cli-validate no longer prints WARN lines for story_migrate_storage or story_sync_main.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "cli-validate reports Errors: 0 and Warnings: 0 after adding the two @test annotations.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "git diff shows only @test annotation metadata changed in story-query.ts.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "convergence_check remains converged:true after the warning cleanup.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
