@@ -16,6 +16,23 @@
         "packages/main/src/core/autopilot-policy.ts",
         "packages/main/src/tasks/autopilot-run-smoke.ts"
       ]
+    },
+    {
+      "id": "B-47cd:F-002",
+      "desc": "CHK-007 edge intent is unmet at packages/main/src/core/lattice-autopilot.ts:625-748. The implementation has no bounded retry path tied to allowAutoFix after validation failure, and packages/main/src/tasks/autopilot-run-smoke.ts:493-519 only covers a successful full-autopilot run plus a maxIterations stop. The recorded evidence maps this must-have retry intent to max_iterations, which is a different behavior.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-04T03:42:30.414Z",
+      "reviewRound": "2026-06-04T03:37:35.517Z",
+      "reviewRunId": "B-47cd:RR-003",
+      "_hash": "d3e43f9e41ae75fc23f63fece0732a3b6949e52a1b765f923fc53f94e7b8aa53",
+      "files": [
+        "packages/main/src/core/lattice-autopilot.ts",
+        "packages/main/src/tasks/autopilot-run-smoke.ts"
+      ]
     }
   ]
 }
