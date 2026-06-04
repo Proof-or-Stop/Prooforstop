@@ -713,9 +713,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-04T03:05:51.611Z",
-      "endTime": null,
+      "endTime": "2026-06-04T03:36:30.988Z",
       "files": {
         "modify": [
           "packages/main/src/core/lattice-autopilot.ts",
@@ -728,7 +728,45 @@
         "test": [
           "packages/main/src/tasks/autopilot-run-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-009:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/handlers/lattice-autopilot.ts",
+          "command": "npm --prefix packages/main run test:autopilot-run-smoke",
+          "result": "pass",
+          "note": "Status/watch/review expose run id, mode, dispatch, merge decision, nextAction, and authority fields.",
+          "headHash": "db871d58bdf2fa83f570035b1ac1d1eb9727ce18",
+          "materialHash": "e2c8ee230f3543444d07f00861e5d4bc4bde588d8b05c725024382ba85782e92",
+          "timestamp": "2026-06-04T03:36:31.042Z"
+        },
+        {
+          "intentRef": "CHK-009:edge:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/core/lattice-autopilot.ts",
+          "command": "npm --prefix packages/main run test:autopilot-run-smoke",
+          "result": "pass",
+          "note": "Cancel preserves run evidence and returns cancelled state.",
+          "headHash": "db871d58bdf2fa83f570035b1ac1d1eb9727ce18",
+          "materialHash": "e2c8ee230f3543444d07f00861e5d4bc4bde588d8b05c725024382ba85782e92",
+          "timestamp": "2026-06-04T03:36:31.095Z"
+        },
+        {
+          "intentRef": "CHK-009:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/core/lattice-autopilot.ts",
+          "command": "npm --prefix packages/main run test:autopilot-run-smoke",
+          "result": "pass",
+          "note": "Resume refuses unsafe v1 state instead of continuing silently.",
+          "headHash": "db871d58bdf2fa83f570035b1ac1d1eb9727ce18",
+          "materialHash": "e2c8ee230f3543444d07f00861e5d4bc4bde588d8b05c725024382ba85782e92",
+          "timestamp": "2026-06-04T03:36:31.141Z"
+        }
+      ]
     },
     {
       "id": "CHK-010",
@@ -1000,6 +1038,16 @@
       "timestamp": "2026-06-04T03:36:29.864Z",
       "phase": "DEV",
       "itemId": "CHK-008",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "DEV implementation and verification completed",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-06-04T03:36:30.988Z",
+      "phase": "DEV",
+      "itemId": "CHK-009",
       "action": "update",
       "from": "in_progress",
       "to": "done",
