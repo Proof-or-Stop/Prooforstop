@@ -4,7 +4,7 @@
   "title": "Clear story_query @test annotation warnings",
   "description": "Remove the remaining cli-validate warnings by adding function-level @test annotation metadata to story_migrate_storage and story_sync_main without changing runtime behavior.",
   "type": "chore",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "low",
   "keywords": [
     "annotation",
@@ -19,6 +19,14 @@
       "phase": "INIT",
       "action": "create",
       "timestamp": "2026-06-04T11:23:50.239Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-04T11:24:14.006Z",
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
