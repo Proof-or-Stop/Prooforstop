@@ -286,6 +286,22 @@
       "files": [
         "packages/main/src/cli-engine.ts,packages/main/src/tasks/autopilot-run-smoke.ts"
       ]
+    },
+    {
+      "id": "B-47cd:F-016",
+      "desc": "Strict unknown/deprecated flag rejection is not explicitly covered for the full autopilot command set: autopilot_watch and autopilot_cancel lack stray-flag refusal smoke cases. Add assertCliRejectsUnknownFlag coverage for both.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-04T05:52:10.047Z",
+      "reviewRound": "2026-06-04T05:36:09.666Z",
+      "reviewRunId": "B-47cd:RR-010",
+      "_hash": "fb83e44f8ed1bac66dc09270ab5894325aa05eecf046ebc8bccca1c819ff2b23",
+      "files": [
+        "packages/main/src/cli-engine.ts,packages/main/src/tasks/autopilot-run-smoke.ts"
+      ]
     }
   ]
 }
