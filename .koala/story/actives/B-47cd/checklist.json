@@ -545,9 +545,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-04T03:05:49.453Z",
-      "endTime": null,
+      "endTime": "2026-06-04T03:36:28.845Z",
       "files": {
         "modify": [
           "packages/main/src/core/lattice-autopilot.ts",
@@ -557,7 +557,45 @@
         "test": [
           "packages/main/src/tasks/autopilot-run-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/core/lattice-autopilot.ts",
+          "command": "npm --prefix packages/main run test:autopilot-run-smoke",
+          "result": "pass",
+          "note": "Full-autopilot fake run completes bounded review path within maxIterations.",
+          "headHash": "db871d58bdf2fa83f570035b1ac1d1eb9727ce18",
+          "materialHash": "e2c8ee230f3543444d07f00861e5d4bc4bde588d8b05c725024382ba85782e92",
+          "timestamp": "2026-06-04T03:36:28.892Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/core/lattice-autopilot.ts",
+          "command": "npm --prefix packages/main run test:autopilot-run-smoke",
+          "result": "pass",
+          "note": "Bounded stop behavior is covered by max_iterations smoke case.",
+          "headHash": "db871d58bdf2fa83f570035b1ac1d1eb9727ce18",
+          "materialHash": "e2c8ee230f3543444d07f00861e5d4bc4bde588d8b05c725024382ba85782e92",
+          "timestamp": "2026-06-04T03:36:28.938Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/core/lattice-autopilot.ts",
+          "command": "npm --prefix packages/main run test:autopilot-run-smoke",
+          "result": "pass",
+          "note": "Loop stop reasons are classified without accepted production completion.",
+          "headHash": "db871d58bdf2fa83f570035b1ac1d1eb9727ce18",
+          "materialHash": "e2c8ee230f3543444d07f00861e5d4bc4bde588d8b05c725024382ba85782e92",
+          "timestamp": "2026-06-04T03:36:28.984Z"
+        }
+      ]
     },
     {
       "id": "CHK-008",
@@ -904,6 +942,16 @@
       "timestamp": "2026-06-04T03:36:27.712Z",
       "phase": "DEV",
       "itemId": "CHK-006",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "DEV implementation and verification completed",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-06-04T03:36:28.845Z",
+      "phase": "DEV",
+      "itemId": "CHK-007",
       "action": "update",
       "from": "in_progress",
       "to": "done",
