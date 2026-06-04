@@ -125,7 +125,7 @@
       "desc": "cli-engine.ts:1036-1046 documents autopilot_resume as resuming a run under policy and safety checks with optional policy/runtime/budget/server-receipt inputs, but handlers/lattice-autopilot.ts:250-252 forwards those args into core/lattice-autopilot.ts:862-887 where every call is unconditionally persisted as status=refused and all of the advertised resume/policy inputs are ignored. Fix by narrowing the public schema to the current refusal-only behavior or implementing an actual safe resume path that validates the stored run against the supplied policy/receipt/bounds.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-04T03:43:24.259Z",
@@ -136,7 +136,9 @@
         "packages/main/src/cli-engine.ts",
         "packages/main/src/handlers/lattice-autopilot.ts",
         "packages/main/src/core/lattice-autopilot.ts"
-      ]
+      ],
+      "resolvedReason": "Resolved by narrowing autopilot_resume public CLI/help and command/process-fact rationale to current refusal-only v1 behavior; policy/runtime/budget/server-receipt resume inputs are no longer advertised. Evidence: npm --prefix packages/main run build and node bin/lattice.js autopilot_resume --help.",
+      "resolvedAt": "2026-06-04T04:11:40.928Z"
     },
     {
       "id": "B-47cd:F-008",
