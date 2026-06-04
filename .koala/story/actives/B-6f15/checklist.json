@@ -8,7 +8,7 @@
         "docs/requirements/decisions/annotation-system.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "userSees": "cli-validate no longer prints WARN lines for story_migrate_storage or story_sync_main.",
+      "userSees": "cli-validate output contains \"Errors:           0\" and \"Warnings:         0\", with no WARN story_migrate_storage/story_sync_main lines.",
       "verificationIntent": {
         "happy": [
           {
@@ -34,7 +34,17 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/story-query.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validate.ts",
+          "packages/main/src/tasks/cli-validate.ts"
+        ]
+      }
     }
   ]
 }
