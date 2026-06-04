@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-04T00:15:42.994Z",
       "reviewRunId": "B-5cea:RR-006",
       "_hash": "32bdfebbd8bb74847411f9bcf8600f0be4374f83c124b829281919fdbfea0eca"
+    },
+    {
+      "id": "B-5cea:RP-005",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: 已检查所有 3 个 checklist item 的 verificationIntent 与 verificationEvidence 覆盖关系。CHK-001/CHK-002/CHK-003 各 happy/edge/adversarial must intent 均有 result=pass 的有效 evidence（logic_test / docs_check / manual_transcript），覆盖 wrapper 命令解析、stale global 导向、JSON stdout 可解析性和无 Swift/Mac Native 命令四项专项场景。headHash delta（25d65068 → 3d4e140）为纯 process-metadata commit，无代码变更，evidence freshness 无缺口。无 blocker。",
+      "createdAt": "2026-06-04T00:19:28.837Z",
+      "reviewRound": "2026-06-04T00:15:42.994Z",
+      "reviewRunId": "B-5cea:RR-005",
+      "_hash": "c15c46cd8f340cd45c4bc817c8e03bcfd39cf965e06e5f41fc08cc41b3dec5cd"
     }
   ]
 }
