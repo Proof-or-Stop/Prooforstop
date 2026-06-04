@@ -5,7 +5,7 @@
       "desc": "CHK-002 adversarial evidence is not credible at packages/main/src/core/autopilot-policy.ts:408-422. Those lines reject unbounded full-autopilot policies, but packages/main/src/tasks/autopilot-run-smoke.ts:347-365 only asserts successful creation of a bounded policy and never exercises the refusal cases. The checklist evidence note pointing to build/smoke therefore overclaims coverage for missing maxIterations/maxRuntimeMinutes/maxBudgetUSD/stop flags.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-06-04T03:42:19.185Z",
@@ -15,7 +15,9 @@
       "files": [
         "packages/main/src/core/autopilot-policy.ts",
         "packages/main/src/tasks/autopilot-run-smoke.ts"
-      ]
+      ],
+      "resolvedReason": "Resolved by extending autopilot-run smoke with adversarial full-autopilot policy refusal assertions for missing required bounds and stop flags. Evidence: npm --prefix packages/main run test:autopilot-run-smoke.",
+      "resolvedAt": "2026-06-04T04:09:33.161Z"
     },
     {
       "id": "B-47cd:F-002",
