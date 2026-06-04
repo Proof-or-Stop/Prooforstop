@@ -362,7 +362,18 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-autopilot.ts",
+          "README.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/autopilot-run-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-009",
