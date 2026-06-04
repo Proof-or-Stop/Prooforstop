@@ -739,9 +739,12 @@ try {
     assert.ok(metaLines.includes('B-META-framework-audit'), 'B-META block names the container');
     assert.ok(metaLines.includes('NO per-story owner lease'), 'B-META block states it carries no owner lease');
     assert.ok(metaLines.includes('main write lock'), 'B-META block notes the main write lock serializes its writes');
-    // The only `story_advance` mention is the explicit "Do not story_advance"
+    // The only `story_advance` mention is the explicit "Do not run lattice story_advance"
     // negative — the block never recommends advancing a B-META container.
-    assert.ok(metaLines.includes('Do not story_advance'), 'B-META block explicitly tells the agent not to story_advance');
+    assert.ok(
+      metaLines.includes('Do not run `lattice story_advance`'),
+      'B-META block explicitly tells the agent not to run lattice story_advance',
+    );
     assert.equal(
       (metaLines.match(/story_advance/g) ?? []).length, 1,
       'B-META block mentions story_advance exactly once — only in the "Do not story_advance" prohibition',

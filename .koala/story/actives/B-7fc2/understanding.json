@@ -1,0 +1,26 @@
+{
+  "task": "修复 Lattice CLI 在 --json / --format=json 机器模式下把人类 next-step hint 拼进 stdout 的契约 bug。",
+  "outcome": "用户运行 node packages/main/dist/cli.js validate --json | node -e \"const fs=require(\\\"fs\\\"); JSON.parse(fs.readFileSync(0,\\\"utf8\\\")); console.log(\\\"parse-ok\\\")\" 时终端最后看到 parse-ok；运行 node packages/main/dist/cli.js validate 时仍能看到 → 验证全绿。可以提交。",
+  "facts": [
+    "B-38d6 验收已复现 validate --json stdout 先输出 JSON 后追加 → 验证全绿。可以提交，JSON.parse(stdout) 失败。",
+    "根因在 cli-engine 调 decorateResult 后由 handlers/hints.ts 的 validateHint 把 hint 拼入 string result。",
+    "许多 --format=json 命令已有 smoke 直接 JSON.parse(stdout)，说明修复应保持正常 JSON 命令不回退。",
+    "host-neutral dashboard 设计要求只读消费 Lattice CLI JSON surface，不能依赖 substring parser。"
+  ],
+  "constraints": [
+    "JSON mode stdout 必须只包含机器可解析 JSON payload。",
+    "text mode 现有人类 next-step hint 需要保留。",
+    "修复应在 CLI 输出 choke point 完成，不在 dashboard/adapter 侧绕过。",
+    "高风险 story 需要 decision_set preMortem、story_review、delivery_check_set 和真实 CLI transcript。"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/handlers/hints.ts",
+    "packages/main/src/tasks/cli-json-stdout-contract-smoke.ts",
+    "docs/requirements/decisions/host-neutral-observability-console.md",
+    "docs/requirements/decisions/testing-infra.md",
+    "README.md"
+  ],
+  "timestamp": "2026-06-03T21:48:10.793Z"
+}

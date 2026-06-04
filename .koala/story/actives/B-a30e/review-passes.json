@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-a30e:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "All 15 must-priority intents covered across CHK-001..CHK-005. Evidence kinds appropriate: logic_test for unit/integration cases, manual_transcript for build integration. All 6 referenced smoke tests (validation-protocol, semantic-scope-guard, flow-stability, command-ownership-contract, scope-contract, story-owner-lease) run clean at current HEAD. Process fact contract passes. No coverage gaps.",
+      "createdAt": "2026-06-03T22:21:31.225Z",
+      "reviewRound": "2026-06-03T22:18:07.980Z",
+      "reviewRunId": "B-a30e:RR-001",
+      "_hash": "67be0fa6109da8c380a55f2af01449d4f782b0398b2b28e47cd0d070921b920f"
+    },
+    {
+      "id": "B-a30e:RP-002",
+      "agent": "koala-review-concept",
+      "note": "All four concept goals pass: storyId alias fails on conflict + routes to evidence path (not diagnostic); TEST/DONE scope stale copy is post-review advisory (REVIEW still instructs review_run_start before REVIEW→TEST); ownerLeaseHelpBlock activates only for storyScopedMutating/dangerousMutating, gate logic unchanged; no broad JSON/machine-readable output refactor (B-7fc2 boundary clean).",
+      "createdAt": "2026-06-03T22:21:41.698Z",
+      "reviewRound": "2026-06-03T22:18:07.980Z",
+      "reviewRunId": "B-a30e:RR-003",
+      "_hash": "4c45bd12e355f5e1bb4a5061e606b0285f5799d053f6f7d50b026a99a8c24b9a"
+    },
+    {
+      "id": "B-a30e:RP-003",
+      "agent": "koala-review-quality",
+      "note": "All implementation quality checks pass. Five changes reviewed: (1) storyId alias in verifier.ts — clean conflict detection with trim-aware comparison and correct mutation ordering before assertCwdInWorktree; (2) ownerLeaseHelpBlock in cli-engine.ts — static classification intentional since storyId not available at help-render time, validate special-cased for boundary rule 2 note, block correctly appears in both zero-param and multi-param printToolHelp branches; (3) review-scope-binding.ts — stale/missing messages are correctly phase-conditional (REVIEW → instructs review_run_start, TEST/DONE → post-review advisory), warn message is a single static multi-clause sentence covering all phases; (4) phase-gates.ts advisory copy — fail still throws (gate not weakened), warn is phase-conditional (TEST/DONE → roll back to DEV, REVIEW/DEV → acknowledge); (5) all five smoke tests pass: validation-protocol-smoke, command-ownership-contract, scope-contract-smoke, semantic-scope-guard-smoke, story-owner-lease-smoke. No blocking quality issues found.",
+      "createdAt": "2026-06-03T22:23:13.602Z",
+      "reviewRound": "2026-06-03T22:18:07.980Z",
+      "reviewRunId": "B-a30e:RR-002",
+      "_hash": "4e99d42f77de9e8dc1a55cb89076966a17a5f9d02ee3583803adb76b90e389cc"
+    }
+  ]
+}

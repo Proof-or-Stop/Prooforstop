@@ -1,0 +1,43 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Resolve Codex adapter verify command from available wrappers",
+      "context": "Update codex-adapter evidence summaries and REVIEW preflight rendering so missing/failing/stale evidence recommends an existing local command: lattice-codex when present, otherwise koala-codex, lattice.js, koala.js, or documented global-thin fallback. Must cover legacy wrapper-only and lattice wrapper cases.",
+      "relatedDocs": [
+        "README.md",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "When Codex adapter evidence is missing, failing, or stale, REVIEW/DONE preflight prints a verify_codex command that exists in the current repository instead of a missing lattice-codex wrapper."
+    },
+    {
+      "id": "CHK-002",
+      "title": "Make worktree acceptance guidance prefer current worktree CLI",
+      "context": "Strengthen runtime/preflight/docs guidance so story worktree acceptance points to node bin/lattice.js or node packages/main/dist/cli.js for current code, and labels bare global lattice as heartbeat/post-merge main fallback when it may lag the worktree.",
+      "relatedDocs": [
+        "README.md",
+        "docs/requirements/decisions/host-neutral-observability-console.md",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "A developer in a story worktree sees guidance that uses the current worktree local CLI for status/validate/gate evidence and labels stale global lattice as advisory fallback only."
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add focused regression tests and delivery evidence",
+      "context": "Add smoke/unit coverage for both resolver behavior and stale-global guidance, then run the focused Lattice CLI validation set without reintroducing Swift/Mac Native App validation.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "The story delivers focused smoke/test commands whose output proves the resolver and worktree guidance behavior without using Swift or Mac Native App validation."
+    }
+  ]
+}

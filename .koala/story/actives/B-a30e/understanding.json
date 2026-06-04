@@ -1,0 +1,37 @@
+{
+  "task": "Fix four Lattice lifecycle UX/API papercuts discovered during B-4ee0 delivery without weakening lifecycle gates or overlapping B-7fc2 JSON-stdout work.",
+  "outcome": "A user can run validate with storyId JSON and see story evidence refresh, TEST/DONE scope hints no longer point backward to REVIEW→TEST, owner-gated command help exposes takeover recovery flags, and scope warnings clearly say whether they are advisory or blocking.",
+  "facts": [
+    "validate schema exposes story but not storyId, while owner lease resolution already treats either story or storyId as a story target; adding storyId to validate schema and normalizing before handler execution is the narrow fix.",
+    "validate handler persists story test-evidence only when args.story is present, so the handler must receive a canonical story value after alias normalization; conflicting story/storyId must fail explicitly.",
+    "printToolHelp currently renders only command schema entries; takeover and forceTakeover are common meta options consumed by enforceStoryOwnerLeaseGate before Zod validation and should be shown for owner-gated commands.",
+    "review-scope-binding deriveNextAction currently renders stale reviewer binding as a REVIEW→TEST instruction regardless of phase; the function already receives phase, so copy can be made phase-aware without altering gate predicates.",
+    "scope transition gates already render shadow/local warnings as non-blocking and throw only on fail/corrupt; copy should make advisory vs blocking semantics and recovery paths clearer.",
+    "B-7fc2 is a separate active story for keeping Lattice CLI --json stdout machine-parseable while preserving human hints; B-a30e must not perform broad stdout formatting changes."
+  ],
+  "constraints": [
+    "Do not weaken REVIEW/TEST/DONE gates, owner lease enforcement, validation evidence freshness, or scope contract phase limits.",
+    "Do not directly edit story/fixture JSON; use Lattice CLI for story/checklist/evidence operations.",
+    "Parallel Claude agents may edit code/tests/docs in isolated branches/worktrees, but the supervising Codex session owns story metadata, phase changes, evidence, review, and final integration.",
+    "Keep changes small and lifecycle-specific; avoid broad CLI output refactors owned by B-7fc2.",
+    "Preserve existing --story validate behavior and no-story diagnostic validate behavior.",
+    "Use existing smoke suites where possible: validation-protocol, story-owner-lease, command-ownership-contract, semantic-scope-guard, scope-contract, flow-stability, and process-fact contract."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/core/review-scope-binding.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "packages/main/src/handlers/scope-contract.ts",
+    "packages/main/src/tasks/validation-protocol-smoke.ts",
+    "packages/main/src/tasks/story-owner-lease-smoke.ts",
+    "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
+    "packages/main/src/tasks/scope-contract-smoke.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/tasks/command-ownership-contract.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "timestamp": "2026-06-03T21:57:36.189Z"
+}

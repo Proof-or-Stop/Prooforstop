@@ -1838,7 +1838,11 @@ function assertRealCliValidateHintFollowsActiveStoryPhase(): void {
     story.phase = 'DEV';
     store.writeStory(storyId, story);
 
-    const output = execFileSync('node', [localCliPath(), 'validate', '--json'], {
+    // B-7fc2 keeps --json stdout machine-parseable, so human next-step hints
+    // are intentionally text-mode only. This flow assertion covers that the
+    // real CLI hint still follows the active story phase; JSON purity is
+    // covered separately by cli-json-stdout-contract-smoke.
+    const output = execFileSync('node', [localCliPath(), 'validate'], {
       cwd: root,
       encoding: 'utf-8',
       stdio: ['ignore', 'pipe', 'pipe'],

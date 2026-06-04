@@ -4,7 +4,7 @@
   "title": "Fix Lattice lifecycle UX papercuts found during B-4ee0 delivery",
   "description": "Fix four lifecycle UX/API papercuts discovered while delivering B-4ee0: validate JSON storyId silently becoming diagnostic validate, TEST-phase scope freshness hints saying REVIEW→TEST, hidden owner-lease takeover flags, and unclear scope-warning recovery guidance.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "source": "B-4ee0 delivery retrospective",
   "keywords": [
@@ -22,7 +22,7 @@
   ],
   "createdAt": "2026-06-03T21:48:37.959Z",
   "startedAt": "2026-06-03T21:48:37.959Z",
-  "endedAt": null,
+  "endedAt": "2026-06-03T22:50:46.283Z",
   "events": [
     {
       "phase": "INIT",
@@ -39,11 +39,51 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-03T21:51:46.638Z",
+      "branch": "story/B-a30e",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-03T22:01:54.059Z",
+      "branch": "story/B-a30e",
+      "user": "Harmonygo",
+      "sessionId": "codex-supervisor-B-a30e",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-03T22:18:07.980Z",
+      "branch": "story/B-a30e",
+      "user": "Harmonygo",
+      "sessionId": "codex-supervisor-B-a30e",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-03T22:24:02.740Z",
+      "branch": "story/B-a30e",
+      "user": "Harmonygo",
+      "sessionId": "codex-supervisor-B-a30e",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-03T22:50:46.283Z",
+      "branch": "story/B-a30e",
+      "user": "Harmonygo",
+      "sessionId": "codex-supervisor-B-a30e",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-a30e",
-    "branch": "story/B-a30e",
-    "createdAt": "2026-06-03T21:51:00.687Z"
-  }
+  "currentReviewRound": "2026-06-03T22:18:07.980Z"
 }

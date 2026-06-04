@@ -4,7 +4,7 @@
   "title": "Keep Lattice CLI --json stdout machine-parseable while preserving human hints",
   "description": "Fix the Lattice CLI output contract so dashboard and adapter consumers can parse --json / --format=json stdout directly, without substring extraction or special cases for human next-step hints.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "source": "user-request-2026-06-03",
   "keywords": [
@@ -22,7 +22,7 @@
   ],
   "createdAt": "2026-06-03T21:43:22.263Z",
   "startedAt": "2026-06-03T21:43:22.263Z",
-  "endedAt": null,
+  "endedAt": "2026-06-03T22:40:33.210Z",
   "events": [
     {
       "phase": "INIT",
@@ -39,11 +39,50 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-03T21:47:32.653Z",
+      "branch": "story/B-7fc2",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-03T21:52:05.856Z",
+      "branch": "story/B-7fc2",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-03T22:21:59.769Z",
+      "branch": "story/B-7fc2",
+      "user": "Harmonygo",
+      "sessionId": "codex-b7fc2",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-03T22:32:19.273Z",
+      "branch": "story/B-7fc2",
+      "user": "Harmonygo",
+      "sessionId": "codex-b7fc2",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-03T22:40:33.210Z",
+      "branch": "story/B-7fc2",
+      "user": "Harmonygo",
+      "sessionId": "codex-b7fc2",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-7fc2",
-    "branch": "story/B-7fc2",
-    "createdAt": "2026-06-03T21:46:44.554Z"
-  }
+  "currentReviewRound": "2026-06-03T22:21:59.769Z"
 }

@@ -69,6 +69,7 @@ import {
   REVIEWER_READONLY_ENV,
   isReviewerReadOnlyModeEnabled,
   enforceReviewerReadOnlyCommandGate,
+  ownerLeaseHelpBlock,
 } from '../cli-engine.js';
 import {
   acquireOwnerLease,
@@ -493,6 +494,70 @@ try {
     }
   }
 
+  // ── 7. OWNER LEASE HELP BLOCK (B-a30e CHK-003) ─────────────────────────
+  // Verify that `ownerLeaseHelpBlock` returns takeover guidance for owner-gated
+  // commands and null for commands that are not owner-gated, without changing
+  // any gate behavior.
+  {
+    // 7a. storyScopedMutating commands must include both flags and describe
+    //     stale/active lease semantics.
+    for (const cmd of ['story_advance', 'checklist_update', 'verification_evidence_add', 'finding_resolve']) {
+      const block = ownerLeaseHelpBlock(cmd);
+      assert.ok(block !== null, `${cmd} is owner-gated (storyScopedMutating) and must have an owner lease help block`);
+      assert.ok(block!.includes('--takeover'), `${cmd} help block must mention --takeover`);
+      assert.ok(block!.includes('--forceTakeover'), `${cmd} help block must mention --forceTakeover`);
+      assert.ok(block!.includes('stale'), `${cmd} help block must describe stale lease recovery (--takeover semantics)`);
+      assert.ok(block!.includes('active'), `${cmd} help block must describe active lease override (--forceTakeover semantics)`);
+    }
+
+    // 7b. validate — static ownershipClass is storyScopedMutating so the block
+    //     IS present; it must note that takeover applies when --story is supplied.
+    const validateBlock = ownerLeaseHelpBlock('validate');
+    assert.ok(validateBlock !== null, 'validate has storyScopedMutating static class and must have an owner lease help block');
+    assert.ok(validateBlock!.includes('--takeover'), 'validate help block must mention --takeover');
+    assert.ok(validateBlock!.includes('--forceTakeover'), 'validate help block must mention --forceTakeover');
+    assert.ok(
+      validateBlock!.includes('--story'),
+      'validate help block must note that takeover applies when --story is supplied (boundary rule 2)',
+    );
+    assert.ok(
+      validateBlock!.includes('read-only'),
+      'validate help block must note that diagnostic validate without --story is always read-only',
+    );
+
+    // 7c. readOnly commands must NOT advertise takeover (they are never owner-gated).
+    for (const roCmd of ['story_get', 'checklist_get', 'finding_list', 'session_brief', 'status']) {
+      assert.equal(
+        ownerLeaseHelpBlock(roCmd),
+        null,
+        `${roCmd} is readOnly and must NOT have an owner lease help block — users should not be told to use --takeover on read-only commands`,
+      );
+    }
+
+    // 7d. reviewerWrite commands must NOT advertise takeover (owner-lease exempt).
+    for (const rwCmd of ['review_pass_set', 'finding_add', 'init_check_set', 'review_run_start']) {
+      assert.equal(
+        ownerLeaseHelpBlock(rwCmd),
+        null,
+        `${rwCmd} is reviewerWrite (owner-lease exempt) and must NOT have an owner lease help block`,
+      );
+    }
+
+    // 7e. mainSharedMutating commands must NOT advertise takeover (main write lock, not owner lease).
+    assert.equal(
+      ownerLeaseHelpBlock('story_create'),
+      null,
+      'story_create is mainSharedMutating and must NOT have an owner lease help block',
+    );
+
+    // 7f. An unknown/unclassified command returns null (fail-closed, same as gate).
+    assert.equal(
+      ownerLeaseHelpBlock('no_such_command_xyz'),
+      null,
+      'an unclassified command returns null — no spurious takeover guidance for unknown commands',
+    );
+  }
+
   if (divergences.length > 0) {
     console.error('command-ownership contract: FAIL');
     console.error(`  ${divergences.length} divergence(s) found:`);
@@ -507,11 +572,13 @@ try {
   console.log('✓ KOALA_REVIEWER_READONLY=1 enables read-only reviewer mode');
   console.log('✓ enforceReviewerReadOnlyCommandGate: allows readOnly, blocks reviewerWrite/storyScopedMutating/unclassified');
   console.log('✓ with env unset, normal reviewerWrite reaches enforceStoryOwnerLeaseGate unblocked');
+  console.log('✓ ownerLeaseHelpBlock: owner-gated commands have takeover/forceTakeover guidance; readOnly/reviewerWrite/mainSharedMutating return null');
   console.log(
     `✓ command-ownership contract passed — ${cliCommands.length} CLI commands all carry a valid ` +
     `ownershipClass and a dispatchable handler; unclassified commands fail-closed; finding B-META / ` +
     `validate --story / delivery_check_set boundary rules resolve as ruled; ` +
-    `read-only reviewer command gate (B-4f15 CHK-002) assertions all pass`,
+    `read-only reviewer command gate (B-4f15 CHK-002) assertions all pass; ` +
+    `owner lease help block (B-a30e CHK-003) discoverable for gated commands, absent for read-only`,
   );
 } finally {
   rmSync(root, { recursive: true, force: true });

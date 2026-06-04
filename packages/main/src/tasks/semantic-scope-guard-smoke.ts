@@ -983,4 +983,84 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
   assert.match(missingSummary.nextAction, /review_run_start/, 'missing freshness next action requires a bound reviewer run');
 }
 
+// ── 17. CHK-002/CHK-004 B-a30e: Phase-aware scope freshness + advisory warning copy ─
+{
+  const bindContract = makeContract({ mode: 'enforce', allowedModify: ['src/allowed.ts'] });
+  const bindPack = makePack([makeHunk('src/allowed.ts', { anchor: 'fn', digest: 'aabbccdd11223344' })]);
+  const binding = computeReviewScopeBinding({ contract: bindContract, diffPack: bindPack })!;
+  const round = '2026-05-23T12:01:00.000Z';
+
+  // A stale run: pack has different hunks from what was bound.
+  const stalePack = makePack([makeHunk('src/allowed.ts', { anchor: 'fn', digest: 'deadbeef99887766' })]);
+  const boundRun: ReviewRun = {
+    reviewRunId: 'B-p:RR-1', storyId: 'B-p', agent: 'koala-review-quality', lane: 'koala-review-quality',
+    reviewRound: round, startedAt: round, headHash: 'h', materialHash: 'm', promptHash: '',
+    scopeBinding: binding,
+  };
+  const proseRun: ReviewRun = { ...boundRun, scopeBinding: undefined };
+
+  // 17a. CHK-002 REVIEW stale → instructs review_run_start, mentions REVIEW→TEST.
+  const reviewStale = buildScopeProtectionSummary({
+    contract: bindContract, diffPack: stalePack, guardSession: null, reviewRuns: [boundRun],
+    currentReviewRound: round, phase: 'REVIEW',
+  });
+  assert.equal(reviewStale.reviewHashFreshness, 'stale', '17a: stale binding reads as stale in REVIEW');
+  assert.match(reviewStale.nextAction, /review_run_start/, '17a: REVIEW stale next action names review_run_start');
+  assert.match(reviewStale.nextAction, /REVIEW.{0,5}TEST/, '17a: REVIEW stale next action mentions REVIEW→TEST transition');
+
+  // 17b. CHK-002 TEST stale → post-review advisory, must NOT mention REVIEW→TEST.
+  const testStale = buildScopeProtectionSummary({
+    contract: bindContract, diffPack: stalePack, guardSession: null, reviewRuns: [boundRun],
+    currentReviewRound: round, phase: 'TEST',
+  });
+  assert.equal(testStale.reviewHashFreshness, 'stale', '17b: stale binding reads as stale in TEST');
+  assert.match(testStale.nextAction, /post-review advisory/, '17b: TEST stale next action says post-review advisory');
+  assert.doesNotMatch(testStale.nextAction, /REVIEW.{0,5}TEST/, '17b: TEST stale next action must not say before REVIEW→TEST');
+
+  // 17c. CHK-002 REVIEW missing → instructs review_run_start.
+  const reviewMissing = buildScopeProtectionSummary({
+    contract: bindContract, diffPack: bindPack, guardSession: null, reviewRuns: [proseRun],
+    currentReviewRound: round, phase: 'REVIEW',
+  });
+  assert.equal(reviewMissing.reviewHashFreshness, 'missing', '17c: prose-only run reads as missing in REVIEW');
+  assert.match(reviewMissing.nextAction, /review_run_start/, '17c: REVIEW missing next action names review_run_start');
+
+  // 17d. CHK-002 TEST missing → post-review advisory, must NOT say "before REVIEW→TEST".
+  const testMissing = buildScopeProtectionSummary({
+    contract: bindContract, diffPack: bindPack, guardSession: null, reviewRuns: [proseRun],
+    currentReviewRound: round, phase: 'TEST',
+  });
+  assert.equal(testMissing.reviewHashFreshness, 'missing', '17d: prose-only run reads as missing in TEST');
+  assert.match(testMissing.nextAction, /post-review advisory/, '17d: TEST missing next action says post-review advisory');
+  assert.doesNotMatch(testMissing.nextAction, /REVIEW.{0,5}TEST/, '17d: TEST missing next action must not say before REVIEW→TEST');
+
+  // 17e. CHK-002 path/semantic fail in TEST remains blocking — not softened by advisory copy.
+  const failContract = makeContract({
+    mode: 'enforce',
+    allowedModify: ['src/allowed.ts'],
+    fileRules: [{ path: 'src/allowed.ts', deniedAnchors: ['secretFn'] }],
+  });
+  const failPack = makePack([makeHunk('src/allowed.ts', { anchor: 'secretFn' })]);
+  const testFail = buildScopeProtectionSummary({
+    contract: failContract, diffPack: failPack, guardSession: null, reviewRuns: [],
+    phase: 'TEST',
+  });
+  assert.equal(testFail.semanticGate, 'fail', '17e: semantic fail gate stays fail in TEST');
+  assert.match(testFail.nextAction, /blocks the gate|Out-of-scope/, '17e: fail next action names blocking gate in TEST');
+  assert.doesNotMatch(testFail.nextAction, /advisory/, '17e: fail next action must not say advisory — it is blocking');
+
+  // 17f. CHK-004 warn → advisory/not blocking copy with recovery options.
+  const warnContract = makeContract({ mode: 'shadow', allowedModify: ['src/allowed.ts'] });
+  const outPack = makePack([makeHunk('src/other.ts', { anchor: 'fn' })]);
+  const warnSummary = buildScopeProtectionSummary({
+    contract: warnContract, diffPack: outPack, guardSession: null, reviewRuns: [],
+    phase: 'DEV',
+  });
+  assert.equal(warnSummary.pathGate, 'warn', '17f: shadow mode out-of-scope produces path gate warn');
+  assert.match(warnSummary.nextAction, /advisory, not blocking/, '17f: warn next action says advisory, not blocking');
+  assert.match(warnSummary.nextAction, /scope_contract_acknowledge/, '17f: warn next action names scope_contract_acknowledge');
+  assert.match(warnSummary.nextAction, /roll back to DEV/, '17f: warn next action names roll back to DEV when in TEST');
+  assert.match(warnSummary.nextAction, /delivery reviewer/, '17f: warn next action mentions delivery reviewer');
+}
+
 console.log('semantic scope guard smoke passed');

@@ -18,7 +18,7 @@ import type { HandlerContext } from './handlers/context.js';
 import { execFileSync, execSync } from 'child_process';
 import { loadConfig, isCommandAllowed, getAllowedPatterns, hasProjectConfigFile } from './core/config.js';
 import { formatCommandLifecycleHint } from './core/command-policy.js';
-import { decorateResult, type ActiveStoryInfo } from './handlers/hints.js';
+import { decorateResult, wantsMachineJson, type ActiveStoryInfo } from './handlers/hints.js';
 import { reportHealthIssue } from './core/health.js';
 import { detectStaleState } from './core/stale-detector.js';
 import { runHooks, truncateForEnv, buildHookEnv as buildSharedHookEnv, HOOK_TIMEOUT_MS } from './core/hooks.js';
@@ -1050,6 +1050,7 @@ export const MAIN_TOOLS: ToolDef[] = [
   { name: 'validate', description: '运行项目验证（静态 + 逻辑 + 集成测试）', longHelp: VALIDATE_LONG, schema: {
     full: z.union([z.string(), z.boolean()]).optional().describe('含真机测试（--full 或 --full=PvE 按名称过滤）'),
     story: z.string().optional().describe('只跑 story 改动涉及的 transition（TEST gate 用）'),
+    storyId: z.string().optional().describe('B-a30e: --story 的别名；两者同时提供且值不同时报错'),
     json: z.boolean().optional().describe('结构化 JSON 输出（ExternalVerifierResult）'),
     // B-9d95 CHK-006: REVIEW→TEST preflight CLI gate 独立分流 flag
     // 任一 flag 命中 → 只跑对应 CLI gate，不 spawn pytest（秒级返回）
@@ -1519,6 +1520,37 @@ type HelpOutputOptions = {
   includeFooter?: boolean;
 };
 
+/**
+ * Returns a multi-line help block describing the `--takeover` / `--forceTakeover`
+ * meta options for owner-gated CLI commands, or `null` for commands that are
+ * not owner-gated (readOnly / reviewerWrite / mainSharedMutating).
+ *
+ * Owner-gated means `storyScopedMutating` or `dangerousMutating` — the gate in
+ * `enforceStoryOwnerLeaseGate` checks both. `validate` is statically classified
+ * `storyScopedMutating` so the block is shown, with a note that it only applies
+ * when `--story` is supplied (boundary rule 2 downgrades it to readOnly without
+ * a story argument).
+ *
+ * Exported so contract tests can assert the block is present for gated commands
+ * and absent for read-only / reviewer-lane commands without spawning a subprocess.
+ */
+export function ownerLeaseHelpBlock(cmd: string): string | null {
+  const policy = getCommandPolicy(cmd);
+  if (!policy || !isOwnershipClass(policy.ownershipClass)) return null;
+  const cls = policy.ownershipClass;
+  if (cls === 'readOnly' || cls === 'reviewerWrite' || cls === 'mainSharedMutating') return null;
+  // storyScopedMutating or dangerousMutating — owner-gated.
+  const note = cmd === 'validate'
+    ? ' (applies when --story is supplied; diagnostic validate without --story is always read-only)'
+    : '';
+  return [
+    ``,
+    `  Owner lease meta options${note}:`,
+    `    --takeover          recover a stale foreign lease (no heartbeat for 30+ min)`,
+    `    --forceTakeover     seize an active foreign lease (deliberate human override; also transfers stale)`,
+  ].join('\n');
+}
+
 function printToolHelp(tool: ToolDef, options: HelpOutputOptions = {}) {
   const brand = detectLatticeBrand();
   const out = (line = '') => {
@@ -1540,6 +1572,8 @@ function printToolHelp(tool: ToolDef, options: HelpOutputOptions = {}) {
   if (entries.length === 0) {
     out('  无参数\n');
     out(`  用法: ${brand.primaryBin} ${tool.name}`);
+    const ownerBlock = ownerLeaseHelpBlock(tool.name);
+    if (ownerBlock) out(ownerBlock);
     if (includeFooter) out(SESSION_BRIEF_FOOTER);
     return;
   }
@@ -1567,6 +1601,8 @@ function printToolHelp(tool: ToolDef, options: HelpOutputOptions = {}) {
   out(`\n  用法: ${brand.primaryBin} ${tool.name} ${[...reqParts, ...optParts].join(' ')}`);
   out(`  兼容: ${brand.legacyAlias} ${tool.name} ...`);
   out('  (* = 必填)');
+  const ownerBlock = ownerLeaseHelpBlock(tool.name);
+  if (ownerBlock) out(ownerBlock);
   if (includeFooter) out(SESSION_BRIEF_FOOTER);
 }
 
@@ -2826,17 +2862,24 @@ export async function runCli(opts?: {
       }
       writeCodexProcessEvent({ command: cmd, args: parsed, success: true });
       // 注入 next-step hint（hints.ts 注册的命令才有效；其它命令原样返回）
+      // B-7fc2: `--json` / `--format=json` stdout is a machine-only payload.
+      // Skip hint decoration entirely in machine JSON mode so JSON.parse(stdout)
+      // succeeds for dashboard / host adapters / smoke tests. Text mode still
+      // gets the existing decorateResult treatment so human users keep the
+      // next-step hint (e.g. "→ 验证全绿").
       const hintActive: ActiveStoryInfo | null = activeStory
         ? { storyId: activeStory.storyId, phase: activeStory.phase }
         : null;
-      result = decorateResult({
-        cmd,
-        args: parsed,
-        result,
-        store,
-        root,
-        activeStory: hintActive,
-      });
+      if (!wantsMachineJson(parsed)) {
+        result = decorateResult({
+          cmd,
+          args: parsed,
+          result,
+          store,
+          root,
+          activeStory: hintActive,
+        });
+      }
       // postCommand hook — runs before we exit; failure does not block exit(0)
       const resultText = typeof result === 'string' ? result : JSON.stringify(result);
       if (config0?.hooks?.postCommand && !READ_ONLY_COMMANDS.has(cmd)) {

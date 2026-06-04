@@ -1,2 +1,14 @@
 {"type":"dispatch","storyId":"B-a30e","phase":"INIT","source":"lattice dispatch","targetKind":"init-review","agentType":"product-reviewer","timestamp":"2026-06-03T21:49:21.383Z"}
 {"type":"dispatch","storyId":"B-a30e","phase":"INIT","source":"lattice dispatch","targetKind":"init-review","agentType":"koala-review-story-init","timestamp":"2026-06-03T21:49:23.928Z"}
+{"type":"plan_reviewed","round":1,"blockerCount":1,"issueCount":6,"timestamp":"2026-06-03T22:00:13.849Z"}
+{"type":"plan_reviewed","round":2,"blockerCount":0,"issueCount":5,"timestamp":"2026-06-03T22:01:37.628Z"}
+{"type":"subagent_result","checklistId":"CHK-001","success":true,"timestamp":"2026-06-03T22:17:50.517Z"}
+{"type":"subagent_result","checklistId":"CHK-002","success":true,"timestamp":"2026-06-03T22:17:51.249Z"}
+{"type":"subagent_result","checklistId":"CHK-003","success":true,"timestamp":"2026-06-03T22:17:51.951Z"}
+{"type":"subagent_result","checklistId":"CHK-004","success":true,"timestamp":"2026-06-03T22:17:52.662Z"}
+{"type":"subagent_result","checklistId":"CHK-005","success":true,"timestamp":"2026-06-03T22:17:53.406Z"}
+{"type":"review_pass","storyId":"B-a30e","command":"review_pass_set","role":"reviewer","agent":"koala-review-test-coverage","result":"pass","reviewPassId":"B-a30e:RP-001","timestamp":"2026-06-03T22:21:31.225Z"}
+{"type":"review_pass","storyId":"B-a30e","command":"review_pass_set","role":"reviewer","agent":"koala-review-concept","result":"pass","reviewPassId":"B-a30e:RP-002","timestamp":"2026-06-03T22:21:41.699Z"}
+{"type":"review_pass","storyId":"B-a30e","command":"review_pass_set","role":"reviewer","agent":"koala-review-quality","result":"pass","reviewPassId":"B-a30e:RP-003","timestamp":"2026-06-03T22:23:13.603Z"}
+{"type":"dirty_gate_audit","storyId":"B-a30e","gate":"done-gate","category":"koala_metadata_changes","pathCount":3,"paths":[".koala/story/actives/B-a30e/index.json",".koala/story/actives/B-a30e/process-metrics.json",".koala/story/actives/B-a30e/test-evidence.json"],"reason":"koala-owned story metadata; auto-committed by B-3506 helper","timestamp":"2026-06-03T22:26:17.257Z"}
+{"type":"dirty_gate_audit","storyId":"B-a30e","gate":"done-gate","category":"koala_metadata_changes","pathCount":1,"paths":[".koala/story/actives/B-a30e/test-evidence.json"],"reason":"koala-owned story metadata; auto-committed by B-3506 helper","timestamp":"2026-06-03T22:35:47.491Z"}
