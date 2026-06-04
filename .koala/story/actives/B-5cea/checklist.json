@@ -174,8 +174,8 @@
       "relatedDocs": [
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-04T00:01:24.557Z",
       "endTime": null,
       "userSees": "Focused verification output includes passing Node/Lattice commands such as `npm run test:codex-assets`, `npm run test:entrypoints`, and a JSON stdout parse check; no delivery evidence command is `swift test` or Mac Native App validation.",
       "files": {
@@ -217,6 +217,17 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-04T00:01:24.557Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Implementing committed wrapper-aware regression coverage and delivery evidence."
     }
   ]
 }
