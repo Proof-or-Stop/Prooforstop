@@ -886,9 +886,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-04T03:36:51.313Z",
-      "endTime": null,
+      "endTime": "2026-06-04T03:37:24.297Z",
       "files": {
         "modify": [
           "README.md",
@@ -898,7 +898,45 @@
         "test": [
           "packages/main/src/tasks/autopilot-run-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-011:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "README.md",
+          "command": "rg -n \"autopilot_run|autopilot_status|--runId|dispatch_policy_create\" README.md docs/requirements/decisions/host-overflow.md",
+          "result": "pass",
+          "note": "README and host-overflow include current user-facing usage for all autopilot surfaces with --runId and dispatch policy setup.",
+          "headHash": "ee372613ea33713273af8d96f8ad05c5b6f84c0c",
+          "materialHash": "e2c8ee230f3543444d07f00861e5d4bc4bde588d8b05c725024382ba85782e92",
+          "timestamp": "2026-06-04T03:37:24.360Z"
+        },
+        {
+          "intentRef": "CHK-011:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/autopilot-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:autopilot-run-smoke",
+          "result": "pass",
+          "note": "Actual smoke output says registration, policy gates, conservative manual_review_ready, authority fake server gate success/refusal, full-autopilot bounded run, delegation contract, cancel, resume refusal, and authority boundaries verified.",
+          "headHash": "ee372613ea33713273af8d96f8ad05c5b6f84c0c",
+          "materialHash": "e2c8ee230f3543444d07f00861e5d4bc4bde588d8b05c725024382ba85782e92",
+          "timestamp": "2026-06-04T03:37:24.403Z"
+        },
+        {
+          "intentRef": "CHK-011:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/host-overflow.md",
+          "command": "rg -n \"receiptVerified=false|productionDone=false|manual-only|does not auto-merge|local diagnostic receipts\" README.md docs/requirements/decisions/host-overflow.md",
+          "result": "pass",
+          "note": "Docs and smoke evidence state that local diagnostic receipts cannot overclaim automatic main merge, productionDone, or verified server authority; delivery reviewer will still gate DONE separately.",
+          "headHash": "ee372613ea33713273af8d96f8ad05c5b6f84c0c",
+          "materialHash": "e2c8ee230f3543444d07f00861e5d4bc4bde588d8b05c725024382ba85782e92",
+          "timestamp": "2026-06-04T03:37:24.449Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -1110,6 +1148,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "DEV final delivery closure started",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-06-04T03:37:24.297Z",
+      "phase": "DEV",
+      "itemId": "CHK-011",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "DEV docs and delivery-prep evidence completed; REVIEW/TEST/DONE gates remain separate",
       "agent": "codex-main"
     }
   ]
