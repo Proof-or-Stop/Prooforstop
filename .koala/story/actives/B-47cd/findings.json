@@ -106,7 +106,7 @@
       "desc": "packages/main/src/core/lattice-autopilot.ts:558-568 and 651-652 never load or check the persisted autopilot policy that cli-engine.ts:985-1006 advertises as the authorization source. The run mode, receipt requirement, and bounds come from CLI args instead of .koala/autopilot-policies/<name>.json, so a conservative policy can be executed as full-autopilot or authority-verified just by changing --mode. Fix by loading checkAutopilotPolicy() before dispatch, refusing supervised/refused policies, and deriving mode/maxIterations/runtime/budget/receipt requirements from the normalized autopilot policy rather than raw CLI overrides.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-04T03:43:24.258Z",
@@ -116,7 +116,9 @@
       "files": [
         "packages/main/src/core/lattice-autopilot.ts",
         "packages/main/src/cli-engine.ts"
-      ]
+      ],
+      "resolvedReason": "Resolved by deriving mode, receipt requirement, maxIterations, runtime, budget, allowAutoFix, and dispatchPolicy from checkAutopilotPolicy(). CLI --mode is now only an assertion and a conservative policy cannot be widened to full-autopilot. Evidence: npm --prefix packages/main run test:autopilot-run-smoke.",
+      "resolvedAt": "2026-06-04T04:11:12.118Z"
     },
     {
       "id": "B-47cd:F-007",
