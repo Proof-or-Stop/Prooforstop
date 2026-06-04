@@ -142,6 +142,23 @@
         "packages/main/src/cli-engine.ts",
         "packages/main/src/core/autopilot-policy.ts"
       ]
+    },
+    {
+      "id": "B-47cd:F-009",
+      "desc": "README.md:200-218 and docs/requirements/decisions/host-overflow.md:72-89 say autopilot uses two policies, but the examples never show how the autopilot policy is linked to the dispatch policy. Current CLI help exposes optional --dispatchPolicy on autopilot_policy_create (packages/main/src/cli-engine.ts:944-948), while autopilot_run only accepts a single --policy and persists/uses that one name (packages/main/src/core/lattice-autopilot.ts:558-582). Fix: either document the same-name coupling explicitly, or include the dispatch-policy linkage in the autopilot policy example/prose so the two-policy model is unambiguous.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-04T03:43:32.643Z",
+      "reviewRound": "2026-06-04T03:37:35.517Z",
+      "reviewRunId": "B-47cd:RR-006",
+      "_hash": "9b448d3f976d32f8986062d9222d5d84a71b673bedf7529eb58f77110131e672",
+      "files": [
+        "README.md",
+        "docs/requirements/decisions/host-overflow.md"
+      ]
     }
   ]
 }
