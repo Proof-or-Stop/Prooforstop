@@ -130,7 +130,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "README.md",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "Docs/bootstrap assertions now distinguish current-worktree local CLI evidence from global-thin/global fallback guidance.",
+          "headHash": "5665ff481ba2ac92cdf8c29277552f244e90762e",
+          "materialHash": "6a583152cbec31c51a60a0b32a2682082783d7a8f9ba71b8ef83360e161e596e",
+          "timestamp": "2026-06-04T00:01:09.290Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/codex-adapter-checks.ts",
+          "command": "KOALA_SESSION_ID=codex-B-5cea-dev node bin/koala-codex.js verify_codex",
+          "result": "pass",
+          "note": "Live verify_codex reported global @koala-agent/core outside the worktree as a non-hard heartbeat-only warning and suggested the resolved local wrapper session_brief command.",
+          "headHash": "5665ff481ba2ac92cdf8c29277552f244e90762e",
+          "materialHash": "6a583152cbec31c51a60a0b32a2682082783d7a8f9ba71b8ef83360e161e596e",
+          "timestamp": "2026-06-04T00:01:09.358Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-codex-assets.mjs",
+          "command": "npm run test:codex-assets",
+          "result": "pass",
+          "note": "Regression fakes global lattice/koala without mutating the real global install and keeps stale global drift advisory, not a hard failure.",
+          "headHash": "5665ff481ba2ac92cdf8c29277552f244e90762e",
+          "materialHash": "6a583152cbec31c51a60a0b32a2682082783d7a8f9ba71b8ef83360e161e596e",
+          "timestamp": "2026-06-04T00:01:09.417Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
