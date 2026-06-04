@@ -629,9 +629,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-04T03:05:50.530Z",
-      "endTime": null,
+      "endTime": "2026-06-04T03:36:29.864Z",
       "files": {
         "modify": [
           "packages/main/src/core/lattice-autopilot.ts",
@@ -642,7 +642,45 @@
         "test": [
           "packages/main/src/tasks/autopilot-run-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-008:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/core/lattice-autopilot.ts",
+          "command": "npm --prefix packages/main run test:autopilot-run-smoke",
+          "result": "pass",
+          "note": "MergeDecision reports manualOnly for conservative and authority-gated paths.",
+          "headHash": "db871d58bdf2fa83f570035b1ac1d1eb9727ce18",
+          "materialHash": "e2c8ee230f3543444d07f00861e5d4bc4bde588d8b05c725024382ba85782e92",
+          "timestamp": "2026-06-04T03:36:29.917Z"
+        },
+        {
+          "intentRef": "CHK-008:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "README.md",
+          "command": "rg -n \"Merge and conflict handling|manual merge plan|manual-only\" README.md docs/requirements/decisions/host-overflow.md",
+          "result": "pass",
+          "note": "Docs state conflicts/merge remain manual and evidence is preserved.",
+          "headHash": "db871d58bdf2fa83f570035b1ac1d1eb9727ce18",
+          "materialHash": "e2c8ee230f3543444d07f00861e5d4bc4bde588d8b05c725024382ba85782e92",
+          "timestamp": "2026-06-04T03:36:29.960Z"
+        },
+        {
+          "intentRef": "CHK-008:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/autopilot-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:autopilot-run-smoke",
+          "result": "pass",
+          "note": "No smoke path merges main or claims productionDone.",
+          "headHash": "db871d58bdf2fa83f570035b1ac1d1eb9727ce18",
+          "materialHash": "e2c8ee230f3543444d07f00861e5d4bc4bde588d8b05c725024382ba85782e92",
+          "timestamp": "2026-06-04T03:36:30.007Z"
+        }
+      ]
     },
     {
       "id": "CHK-009",
@@ -952,6 +990,16 @@
       "timestamp": "2026-06-04T03:36:28.845Z",
       "phase": "DEV",
       "itemId": "CHK-007",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "DEV implementation and verification completed",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-06-04T03:36:29.864Z",
+      "phase": "DEV",
+      "itemId": "CHK-008",
       "action": "update",
       "from": "in_progress",
       "to": "done",
