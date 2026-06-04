@@ -258,7 +258,7 @@
       "desc": "Authority-verified and full-autopilot modes accepted fully-shaped but caller-supplied self-asserted server authority receipts (for example source=python-authority-server with verified=true/signature fields) without independent verification. Fail closed for non-test server-looking receipts until real receipt verification exists, and add adversarial smoke coverage.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-concept",
       "createdAt": "2026-06-04T05:37:11.652Z",
@@ -267,7 +267,9 @@
       "_hash": "09e8f637e989eee08091fbeb5209c6a1c53ff44f601e9447a170bf1c0a80d989",
       "files": [
         "packages/main/src/core/lattice-autopilot.ts,packages/main/src/tasks/autopilot-run-smoke.ts,docs/requirements/decisions/host-overflow.md,docs/requirements/decisions/authority-client-role.md"
-      ]
+      ],
+      "resolvedReason": "Resolved by removing shape/string heuristic acceptance for real server-looking receipts in classifyAuthorityReceiptCandidate. Until real verification exists, only deterministic fake-test-server receipts can satisfy the smoke gate; fully-shaped caller-supplied python-authority-server receipts fail closed as invalid/missing_authority_receipt in both authority-verified and full-autopilot modes. Evidence: npm --prefix packages/main run build; npm --prefix packages/main run test:autopilot-run-smoke.",
+      "resolvedAt": "2026-06-04T05:38:41.062Z"
     }
   ]
 }
