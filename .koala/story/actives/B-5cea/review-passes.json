@@ -62,6 +62,15 @@
       "reviewRound": "2026-06-04T00:15:42.994Z",
       "reviewRunId": "B-5cea:RR-007",
       "_hash": "3f1ca97685f4ca125f93a102497ba7fc934f7120db31a943aad99891945cfad3"
+    },
+    {
+      "id": "B-5cea:RP-008",
+      "agent": "koala-review-docs",
+      "note": "Step 1: ~40 exported symbols extracted from diff (resolveLocalCodexVerifyCommand, resolveCodexSessionBriefCommand, assertGlobalThinAssets, GLOBAL_THIN_CODEX_VERIFY_COMMAND, etc.) — none referenced by name in README/CLAUDE.md (internal symbols; Fallback 2 applied). Step 2: Checked all README.md diff-touched paragraphs — wrapper priority, heartbeat-only guidance (lines 343, 436), session_brief section (lines 368-373), and no-local-wrapper section (lines 430-436). Step 3: All four README changes consistent with code: (1) F-002 fix present — 4-candidate priority list bin/lattice-codex.js > bin/koala-codex.js > bin/lattice.js > bin/koala.js matches resolveLocalCodexVerifyCommand candidate array; (2) heartbeat-only guidance matches checkGlobalFallback warning; (3) global fallback uses lattice matching verify-entrypoints.mjs; (4) session_brief section shows correct wrapper selection order. No drift found, no blocker.",
+      "createdAt": "2026-06-04T00:27:37.939Z",
+      "reviewRound": "2026-06-04T00:24:47.118Z",
+      "reviewRunId": "B-5cea:RR-011",
+      "_hash": "2693bc1c8f3765770557d06cca17e99a59648f877eb276b7b73fac299f4299b6"
     }
   ]
 }
