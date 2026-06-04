@@ -28,7 +28,7 @@
 
 import type { HandlerContext } from './context.js';
 import type { StoryStore } from '../core/store.js';
-import type { StoryPhase } from '../core/types.js';
+import type { ChecklistData, StoryPhase } from '../core/types.js';
 import { getStateName, getGuardFailureReason } from '../core/machine.js';
 import { resolveLocalCodexVerifyCommand } from '../core/codex-adapter-checks.js';
 import { currentMaterialHash } from '../core/evidence-freshness.js';
@@ -43,6 +43,26 @@ import {
   runScopeGate,
 } from './scope-contract.js';
 import { renderScopeCheckResult } from '../core/scope-contract.js';
+
+/**
+ * Returns true if any checklist item has non-empty file declarations
+ * (files.modify / files.create / files.test). Used to distinguish "new-scope"
+ * stories (which require a scope contract) from legacy stories (which predate
+ * file declarations and remain backward-compatible without one).
+ */
+export function checklistHasFileDeclarations(checklist: ChecklistData | null | undefined): boolean {
+  if (!checklist) return false;
+  for (const item of checklist.items) {
+    if (
+      (item.files?.modify && item.files.modify.length > 0) ||
+      (item.files?.create && item.files.create.length > 0) ||
+      (item.files?.test && item.files.test.length > 0)
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
 
 /**
  * cwd/guard-failure adapter.
@@ -134,10 +154,16 @@ export async function runReviewToTestPreflightGate(
 /**
  * Scope contract gate for transitions that freeze, verify, or complete work.
  *
- * Missing contract remains backward-compatible. When a contract exists:
- * - enforce + fail blocks the transition.
+ * New-scope stories (checklist items declare files) require a scope contract:
+ * - Missing contract BLOCKS the transition [missing_scope_contract].
+ * - Corrupt contract BLOCKS the transition [scope_contract_unreadable].
+ * - enforce + fail BLOCKS the transition.
  * - shadow/local warnings are rendered but do not block.
  * - pass is rendered so users can see the scope check ran.
+ *
+ * Legacy stories (no file declarations in checklist) remain backward-compatible:
+ * - Missing contract emits a visible degradation warning at REVIEW only (silent
+ *   at TEST/DONE to avoid noise on repeated transitions).
  */
 export function runScopeTransitionGate(
   ctx: HandlerContext,
@@ -160,7 +186,27 @@ export function runScopeTransitionGate(
       `   Refusing to advance: a corrupt scope contract must not downgrade a scope-protected story to no scope protection.`,
     );
   }
-  if (!result) return '';
+  if (!result) {
+    // No scope contract: distinguish new-scope stories (must have contract) from
+    // legacy stories (backward-compatible, visible degradation at REVIEW only).
+    let checklist: ChecklistData | null = null;
+    try { checklist = ctx.store.readChecklist(storyId); } catch { /* missing checklist → legacy */ }
+    if (checklistHasFileDeclarations(checklist)) {
+      // New-scope story: BLOCK — file declarations require an explicit contract.
+      throw new Error(
+        `Cannot enter ${phase}: scope-contract.json missing for a new-scope story [missing_scope_contract]\n\n` +
+        `Story ${storyId} declares file scopes in its checklist but has no scope contract.\n` +
+        `→ Run: koala scope_contract_init_from_plan '{"storyId":"${storyId}"}'\n` +
+        `   Then rerun story_advance --phase=${phase}`,
+      );
+    }
+    // Legacy story: degrade visibly at REVIEW only; silent at TEST/DONE.
+    if (phase === 'REVIEW') {
+      return `\n\n⚠ Scope protection: none (legacy story — checklist items have no file declarations; ` +
+        `add files to checklist items and run scope_contract_init_from_plan to enable scope enforcement)`;
+    }
+    return '';
+  }
   const rendered = renderScopeCheckResult(result);
   if (result.status === 'fail') {
     throw new Error(
@@ -177,6 +223,35 @@ export function runScopeTransitionGate(
     return `\n\n${rendered}\n\n${recoveryHint}`;
   }
   return `\n\n${rendered}`;
+}
+
+/**
+ * PLAN→DEV scope contract advisory.
+ *
+ * When advancing to DEV, if the story declares file scopes in its checklist
+ * but no scope-contract.json has been created yet, emit a soft advisory
+ * recommending scope_contract_init_from_plan. Does NOT block — the contract
+ * can still be created during DEV — but the advisory is visible early so
+ * developers know to run it before REVIEW (which will hard-block without it).
+ *
+ * Returns '' if no advisory needed (legacy story, or contract already exists).
+ */
+export function runPlanToDevScopeAdvice(ctx: HandlerContext, storyId: string): string {
+  let checklist: ChecklistData | null = null;
+  try { checklist = ctx.store.readChecklist(storyId); } catch { return ''; }
+  if (!checklistHasFileDeclarations(checklist)) return '';
+
+  // Contract already exists — no advisory needed.
+  try {
+    const contract = ctx.store.readScopeContract(storyId);
+    if (contract !== null) return '';
+  } catch { /* corrupt contract → still show advisory; REVIEW will fail-closed */ }
+
+  return (
+    `\n\n⚠ Scope contract: not initialized — this story declares file scopes in its checklist.\n` +
+    `   Run before REVIEW: koala scope_contract_init_from_plan '{"storyId":"${storyId}"}'\n` +
+    `   Advancing to REVIEW without a scope contract will BLOCK for this new-scope story.`
+  );
 }
 
 /**

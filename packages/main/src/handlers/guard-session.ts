@@ -1,13 +1,12 @@
 /**
  * Guard Session handlers — koala guard_session_start / status / check
  *
- * guard_session_start  — start (or restart) a story-scoped scope-guard session
- *                        projection bound to the current scope contract.
- * guard_session_status — read the current guard session projection.
- * guard_session_check  — check the current diff (plus optional simulated writes)
- *                        against the guard session scope contract, record any
- *                        forbidden writes as violations, and surface status.
- *
+ * guard_session_start    — start (or restart) a story-scoped scope-guard session
+ *                          projection bound to the current scope contract.
+ * guard_session_status   — read the current guard session projection.
+ * guard_session_check    — check the current diff (plus optional simulated writes)
+ *                          against the guard session scope contract, record any
+ *                          forbidden writes as violations, and surface status.
  * The guard session is a scope-protection projection. It does NOT replace the
  * story owner lease (which stays authoritative for writes) and is NOT a
  * competing session truth source.
@@ -22,6 +21,7 @@ import {
   digestScopeContract,
   renderGuardSession,
   resolveGuardMode,
+  type GuardModeContext,
 } from '../core/guard-session.js';
 import { buildScopeDiffPack } from '../core/scope-diff-pack.js';
 
@@ -32,6 +32,8 @@ export function createGuardSessionHandlers(ctx: HandlerContext): Record<string, 
     guard_session_start(args: {
       storyId: string;
       provider: string;
+      nativeHookVerified?: boolean;
+      viaDispatch?: boolean;
       json?: boolean;
     }): string {
       if (!args.storyId) throw new Error('storyId is required');
@@ -40,14 +42,19 @@ export function createGuardSessionHandlers(ctx: HandlerContext): Record<string, 
       // ensure story exists (throws if not)
       store.readStory(args.storyId);
 
+      const context: GuardModeContext = {
+        nativeHookVerified: args.nativeHookVerified === true,
+        viaDispatch: args.viaDispatch === true,
+      };
       const contract = store.readScopeContract(args.storyId);
       const scopeContractHash = contract ? digestScopeContract(contract) : undefined;
-      const guardMode = resolveGuardMode(provider);
+      const guardMode = resolveGuardMode(provider, context);
 
       const session = buildGuardSession({
         storyId: args.storyId,
         provider,
         scopeContractHash,
+        context,
       });
       store.writeGuardSession(args.storyId, session);
 
@@ -56,6 +63,8 @@ export function createGuardSessionHandlers(ctx: HandlerContext): Record<string, 
           type: 'guard_session_start',
           provider,
           guardMode,
+          nativeHookVerified: context.nativeHookVerified ?? false,
+          viaDispatch: context.viaDispatch ?? false,
           scopeContractHash: scopeContractHash ?? null,
         });
       } catch (e) {
@@ -174,7 +183,8 @@ export function runGuardSessionGate(
       `\n\n→ 移除 out-of-scope 改动，或用 scope_contract_acknowledge 记录必要扩展后重跑 story_advance --phase=${phase}`,
     );
   }
-  return `\n\nGuard session: pass (${session.guardMode}, 0 violations)`;
+  const modeLabel = session.guardMode === 'active' ? 'native-pretool' : session.guardMode;
+  return `\n\nGuard session: pass (${modeLabel}, 0 violations)`;
 }
 
 export type { GuardSessionData };

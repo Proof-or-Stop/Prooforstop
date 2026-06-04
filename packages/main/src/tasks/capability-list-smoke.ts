@@ -111,6 +111,9 @@ for (const host of list.hosts) {
   }
 }
 
+// prewrite-guard is included as a capability category.
+assert.ok(list.categories.some(c => c.id === 'prewrite-guard'), 'prewrite-guard category exists in list');
+
 // Human output is present and useful.
 const text = renderCapabilityListText(list);
 assert.match(text, /Koala capability profiles/);

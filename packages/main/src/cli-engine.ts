@@ -1343,7 +1343,9 @@ export const MAIN_TOOLS: ToolDef[] = [
   }},
   { name: 'guard_session_start', description: 'Start (or restart) a Koala-managed scope-guard session projection for a story', schema: {
     storyId: z.string().describe('Story ID'),
-    provider: z.string().min(1, 'provider is required').describe('Agent provider runtime (e.g. claude-code, codex). Providers without pre-tool hooks run as watcher-fallback.'),
+    provider: z.string().min(1, 'provider is required').describe('Agent provider runtime (e.g. claude-code, codex). Guard mode depends on provider and context flags.'),
+    nativeHookVerified: z.boolean().optional().describe('(Claude Code only) Set true when a PreToolUse hook is confirmed installed, enabling native-pretool mode. Without this, Claude Code uses watcher-fallback.'),
+    viaDispatch: z.boolean().optional().describe('(Codex/Gemini only) Set true when running via Lattice dispatch/pre-apply flow, enabling wrapped-preapply mode. Without this, those hosts use watcher-fallback.'),
     json: z.boolean().optional().describe('Output structured JSON'),
   }},
   { name: 'guard_session_status', description: 'Read the current guard session projection for a story', schema: {
@@ -1353,6 +1355,19 @@ export const MAIN_TOOLS: ToolDef[] = [
   { name: 'guard_session_check', description: 'Check current diff against the guard session scope contract and record any forbidden writes', schema: {
     storyId: z.string().describe('Story ID'),
     simulatedWrites: z.array(z.string()).optional().describe('Paths to evaluate as if written (test/dry-run forbidden-write simulation)'),
+    json: z.boolean().optional().describe('Output structured JSON'),
+  }},
+  // Pre-write scope enforcement — pre-tool hook guard for write-like operations.
+  // Returns allow/deny/ask/shadow verdict before the write lands.
+  // Fail-closed on corrupt scope contracts or ambiguous active guard sessions.
+  // Backward-compatible allow when no guard session or story context exists.
+  { name: 'prewrite_guard_check', description: 'Pre-write scope enforcement for Claude Code PreToolUse hooks and Lattice dispatch pre-apply checks', schema: {
+    storyId: z.string().optional().describe('Story ID (auto-discovered from active guard sessions when absent)'),
+    provider: z.string().optional().describe('Agent provider (informational; used to log who triggered the check)'),
+    toolName: z.string().describe('Name of the write-like tool being invoked (e.g. Edit, Write, MultiEdit, NotebookEdit)'),
+    toolInputJson: z.string().optional().describe('JSON-encoded tool input from which target paths are extracted (used when targetPaths is absent)'),
+    targetPaths: z.union([z.string(), z.array(z.string())]).optional().describe('Explicit target path(s) to evaluate (overrides tool-input extraction)'),
+    cwd: z.string().optional().describe('Working directory for resolving relative paths (defaults to project root)'),
     json: z.boolean().optional().describe('Output structured JSON'),
   }},
 

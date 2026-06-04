@@ -39,34 +39,87 @@ import { checkScopeContract } from './scope-contract.js';
 import { checkSemanticScope } from './semantic-scope-gate.js';
 
 /**
- * Providers whose agent runtime exposes a pre-tool (PreToolUse-style) hook that
- * can block a forbidden write before it lands. Everything else is watch-only.
+ * Providers whose agent runtime CAN expose a native PreToolUse hook for
+ * pre-write interception. Being in this set does NOT mean the hook is currently
+ * installed — that requires nativeHookVerified=true in resolveGuardMode context.
  * Matched case-insensitively after trim; common aliases included.
  */
-export const GUARD_PRELAUNCH_PROVIDERS: ReadonlySet<string> = new Set([
+export const GUARD_NATIVE_PRETOOL_PROVIDERS: ReadonlySet<string> = new Set([
   'claude',
   'claude-code',
   'claude_code',
   'claudecode',
 ]);
 
+/**
+ * Providers that support wrapped-preapply mode when invoked through Lattice
+ * dispatch/pre-apply flow. Without dispatch context they fall back to
+ * watcher-fallback — never pretend pre-write interception exists without it.
+ */
+export const GUARD_WRAPPED_PREAPPLY_PROVIDERS: ReadonlySet<string> = new Set([
+  'codex',
+  'gemini',
+]);
+
+/** @deprecated Use GUARD_NATIVE_PRETOOL_PROVIDERS. */
+export const GUARD_PRELAUNCH_PROVIDERS: ReadonlySet<string> = GUARD_NATIVE_PRETOOL_PROVIDERS;
+
 /** Normalize a provider string for capability lookup. */
 export function normalizeProvider(provider: string): string {
   return provider.trim().toLowerCase();
 }
 
-/** True when the provider runtime supports pre-tool blocking of forbidden writes. */
+/** @deprecated Use resolveGuardMode with context. True only when provider CAN support native hook. */
 export function providerSupportsPreToolBlocking(provider: string): boolean {
-  return GUARD_PRELAUNCH_PROVIDERS.has(normalizeProvider(provider));
+  return GUARD_NATIVE_PRETOOL_PROVIDERS.has(normalizeProvider(provider));
 }
 
 /**
- * Resolve the guard capability mode for a provider. Supported providers run in
- * 'active' (pre-tool blocking) mode; everything else falls back to
- * 'watcher-fallback' rather than pretending pre-tool blocking exists.
+ * Context for resolving the guard mode of a provider invocation.
+ *
+ * - nativeHookVerified: true when a PreToolUse hook is confirmed installed and
+ *   active in the Claude Code session (e.g. prewrite_guard_check is wired).
+ *   Without this, Claude Code falls back to watcher-fallback.
+ * - viaDispatch: true when Codex or Gemini is running through Lattice
+ *   dispatch/pre-apply flow, enabling wrapped-preapply mode.
+ *   Without this, those providers fall back to watcher-fallback.
  */
-export function resolveGuardMode(provider: string): GuardSessionMode {
-  return providerSupportsPreToolBlocking(provider) ? 'active' : 'watcher-fallback';
+export interface GuardModeContext {
+  nativeHookVerified?: boolean;
+  viaDispatch?: boolean;
+}
+
+/**
+ * Resolve the guard capability mode for a provider and invocation context.
+ *
+ * Truth table:
+ * - Claude Code + nativeHookVerified=true  → 'native-pretool'
+ * - Claude Code + nativeHookVerified≠true  → 'watcher-fallback'
+ * - Codex/Gemini + viaDispatch=true        → 'wrapped-preapply'
+ * - Codex/Gemini + viaDispatch≠true        → 'watcher-fallback'
+ * - fake / other                           → 'watcher-fallback'
+ *
+ * Never returns 'active' for new sessions — 'active' is a legacy alias kept
+ * only for backwards compat when reading stored GuardSessionData.
+ */
+export function resolveGuardMode(provider: string, context: GuardModeContext = {}): GuardSessionMode {
+  const normalized = normalizeProvider(provider);
+  if (GUARD_NATIVE_PRETOOL_PROVIDERS.has(normalized)) {
+    return context.nativeHookVerified === true ? 'native-pretool' : 'watcher-fallback';
+  }
+  if (GUARD_WRAPPED_PREAPPLY_PROVIDERS.has(normalized)) {
+    return context.viaDispatch === true ? 'wrapped-preapply' : 'watcher-fallback';
+  }
+  return 'watcher-fallback';
+}
+
+/**
+ * Return a human-readable label for a guard mode, normalizing the legacy
+ * 'active' alias to 'native-pretool' for display purposes.
+ */
+export function guardModeLabel(mode: GuardSessionMode): string {
+  if (mode === 'active') return 'native-pretool (legacy)';
+  return mode;
 }
 
 /**
@@ -97,13 +150,14 @@ export function buildGuardSession(args: {
   provider: string;
   scopeContractHash?: string;
   now?: string;
+  context?: GuardModeContext;
 }): GuardSessionData {
   const now = args.now ?? new Date().toISOString();
   const provider = args.provider.trim();
   return {
     storyId: args.storyId,
     provider,
-    guardMode: resolveGuardMode(provider),
+    guardMode: resolveGuardMode(provider, args.context ?? {}),
     status: 'active',
     ...(args.scopeContractHash ? { scopeContractHash: args.scopeContractHash } : {}),
     startedAt: now,
@@ -194,12 +248,13 @@ export function guardSessionHasBlockingViolations(
   return !!session && session.status !== 'stopped' && session.violations.length > 0;
 }
 
-export type GuardSessionStateLabel = 'active' | 'watcher-fallback' | 'inactive' | 'violations detected';
+export type GuardSessionStateLabel = 'native-pretool' | 'wrapped-preapply' | 'watcher-fallback' | 'inactive' | 'violations detected';
 
 /**
  * The single-line state label rendered under the story scope protection block.
  * Violations take priority over the capability mode; a stopped or absent session
- * reads as 'inactive'.
+ * reads as 'inactive'. The legacy 'active' mode is normalized to 'native-pretool'
+ * for display to avoid overclaiming.
  */
 export function guardSessionStateLabel(
   session: GuardSessionData | null | undefined,
@@ -209,7 +264,10 @@ export function guardSessionStateLabel(
     return 'violations detected';
   }
   if (session.status === 'stopped') return 'inactive';
-  return session.guardMode === 'watcher-fallback' ? 'watcher-fallback' : 'active';
+  const mode = session.guardMode;
+  if (mode === 'native-pretool' || mode === 'active') return 'native-pretool';
+  if (mode === 'wrapped-preapply') return 'wrapped-preapply';
+  return 'watcher-fallback';
 }
 
 /** session_brief line: `guard session: <label>`. */
@@ -227,11 +285,12 @@ export function renderGuardSession(session: GuardSessionData | null | undefined)
       'No guard session is running. Use guard_session_start to begin scope-guarded protection.',
     ].join('\n');
   }
+  const displayMode = guardModeLabel(session.guardMode);
   const lines = [
     renderGuardSessionLine(session),
     `Story: ${session.storyId}`,
     `provider: ${session.provider}`,
-    `guardMode: ${session.guardMode}`,
+    `guardMode: ${displayMode}`,
     `status: ${session.status}`,
     `scopeContractHash: ${session.scopeContractHash ?? '(none)'}`,
     `startedAt: ${session.startedAt}`,
@@ -246,8 +305,30 @@ export function renderGuardSession(session: GuardSessionData | null | undefined)
   }
   if (session.guardMode === 'watcher-fallback') {
     lines.push(
-      'Note: provider has no pre-tool blocking; forbidden writes are detected after the fact (watcher-fallback).',
+      'Note: provider has no pre-write interception; forbidden writes are detected after the fact (watcher-fallback).',
+    );
+  } else if (session.guardMode === 'wrapped-preapply') {
+    lines.push(
+      'Note: wrapped-preapply mode — pre-write checks run through the Lattice dispatch/pre-apply flow.',
+    );
+  } else if (session.guardMode === 'native-pretool' || session.guardMode === 'active') {
+    lines.push(
+      'Note: native-pretool mode — PreToolUse hook is installed; forbidden writes are intercepted before they land.',
     );
   }
   return lines.join('\n');
+}
+
+/**
+ * Produce a one-line guard mode summary suitable for doctor / status diagnostics.
+ * Avoids overclaiming by explicitly stating what the mode does NOT guarantee.
+ */
+export function renderGuardModeDiagnostic(mode: GuardSessionMode): string {
+  if (mode === 'native-pretool' || mode === 'active') {
+    return 'native-pretool: Claude Code PreToolUse hook verified; writes intercepted before landing.';
+  }
+  if (mode === 'wrapped-preapply') {
+    return 'wrapped-preapply: running via Lattice dispatch/pre-apply; scope checked before each write.';
+  }
+  return 'watcher-fallback: no pre-write interception; violations detected after the fact only.';
 }

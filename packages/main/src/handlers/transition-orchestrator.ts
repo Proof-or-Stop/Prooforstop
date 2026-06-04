@@ -52,6 +52,7 @@ import { checkMainDivergence } from '../core/done-oracle.js';
 import {
   resolveGuardFailure,
   runScopeTransitionGate,
+  runPlanToDevScopeAdvice,
   runReviewToTestPreflightGate,
   runValidateGate,
 } from './phase-gates.js';
@@ -273,6 +274,11 @@ export async function runStoryTransition(
       // forbidden writes. Backward compatible: stories without a guard session
       // get '' and are unaffected.
       guardGateReport = runGuardSessionGate(ctx, args.storyId, args.phase);
+    }
+    // PLAN→DEV: soft advisory when a new-scope story has no scope contract yet.
+    // Does not block — advisory only; REVIEW will hard-block if still missing.
+    if (args.phase === 'DEV') {
+      scopeGateReport = runPlanToDevScopeAdvice(ctx, args.storyId);
     }
 
     // B-56d3: REVIEW→TEST CLI preflight gate (runReviewToTestPreflightGate).

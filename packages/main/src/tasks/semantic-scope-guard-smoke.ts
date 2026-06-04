@@ -319,7 +319,9 @@ function mergedFor(contract: ScopeContractData, pack: ScopeDiffPack) {
   );
 }
 
-// ── 7. CHK-004 Happy: guard_session_start records provider/guardMode/hash/active ─
+// ── 7. CHK-004 Happy: guard_session_start records provider/guardMode/hash ─────
+//   Guard mode truth: claude-code requires nativeHookVerified=true for native-pretool;
+//   without it, falls back to watcher-fallback. viaDispatch is irrelevant for Claude Code.
 {
   const contract = makeContract({
     mode: 'enforce',
@@ -329,17 +331,35 @@ function mergedFor(contract: ScopeContractData, pack: ScopeDiffPack) {
   const scopeContractHash = digestScopeContract(contract);
   assert.match(scopeContractHash, /^[0-9a-f]{64}$/, 'scopeContractHash must be a sha256 hex digest');
 
-  assert.equal(providerSupportsPreToolBlocking('claude-code'), true, 'claude-code supports pre-tool blocking');
-  assert.equal(resolveGuardMode('claude-code'), 'active', 'supported provider must resolve to active guard mode');
+  assert.equal(providerSupportsPreToolBlocking('claude-code'), true, 'claude-code CAN support native pre-tool blocking');
 
-  const session = buildGuardSession({ storyId: 'B-guard', provider: 'claude-code', scopeContractHash });
+  // native-pretool only when hook is verified
+  assert.equal(
+    resolveGuardMode('claude-code', { nativeHookVerified: true }),
+    'native-pretool',
+    'claude-code + nativeHookVerified=true → native-pretool',
+  );
+  // without hook verification, falls back
+  assert.equal(
+    resolveGuardMode('claude-code'),
+    'watcher-fallback',
+    'claude-code without nativeHookVerified context → watcher-fallback (avoids overclaiming)',
+  );
+
+  // Session built with hook verified
+  const session = buildGuardSession({
+    storyId: 'B-guard',
+    provider: 'claude-code',
+    scopeContractHash,
+    context: { nativeHookVerified: true },
+  });
   assert.equal(session.provider, 'claude-code', 'guard session records provider');
-  assert.equal(session.guardMode, 'active', 'guard session records active guardMode for supported provider');
+  assert.equal(session.guardMode, 'native-pretool', 'guard session records native-pretool when hook verified');
   assert.equal(session.scopeContractHash, scopeContractHash, 'guard session records scopeContractHash');
   assert.equal(session.status, 'active', 'fresh guard session starts active');
   assert.equal(session.violations.length, 0, 'fresh guard session has no violations');
-  assert.equal(guardSessionStateLabel(session), 'active', 'active guard session renders as active');
-  assert.match(renderGuardSessionLine(session), /guard session: active/, 'session_brief line shows active');
+  assert.equal(guardSessionStateLabel(session), 'native-pretool', 'native-pretool session renders as native-pretool');
+  assert.match(renderGuardSessionLine(session), /guard session: native-pretool/, 'session_brief line shows native-pretool');
 
   // Digest stability: same contract → same hash; changed rules → different hash.
   assert.equal(digestScopeContract(contract), scopeContractHash, 'digestScopeContract is stable for identical contracts');
@@ -347,13 +367,14 @@ function mergedFor(contract: ScopeContractData, pack: ScopeDiffPack) {
   assert.notEqual(digestScopeContract(changed), scopeContractHash, 'changing scope rules changes the hash');
 }
 
-// ── 8. CHK-004 Edge: unsupported provider is watcher-fallback (no pretend block) ─
+// ── 8. CHK-004 Edge: watcher-fallback when no interception context available ─
 {
-  assert.equal(providerSupportsPreToolBlocking('codex'), false, 'codex has no pre-tool blocking hook');
-  assert.equal(resolveGuardMode('codex'), 'watcher-fallback', 'unsupported provider must be watcher-fallback');
+  assert.equal(providerSupportsPreToolBlocking('codex'), false, 'codex is not a native-pretool provider');
+  assert.equal(resolveGuardMode('codex'), 'watcher-fallback', 'codex without dispatch context → watcher-fallback');
+  assert.equal(resolveGuardMode('codex', { viaDispatch: false }), 'watcher-fallback', 'codex + viaDispatch=false → watcher-fallback');
 
   const session = buildGuardSession({ storyId: 'B-guard', provider: 'codex' });
-  assert.equal(session.guardMode, 'watcher-fallback', 'guard session records watcher-fallback, not active');
+  assert.equal(session.guardMode, 'watcher-fallback', 'guard session records watcher-fallback when no dispatch context');
   assert.equal(guardSessionStateLabel(session), 'watcher-fallback', 'watcher-fallback session renders as watcher-fallback');
   assert.match(renderGuardSessionLine(session), /guard session: watcher-fallback/, 'session_brief line shows watcher-fallback');
 
