@@ -342,6 +342,25 @@
       ],
       "resolvedReason": "Resolved in latest docs run by narrowing README.md and authority-client-role.md wording: canClaimProductionDone=false is authority_status-only, while conduit_status is documented with actual conservative fields productionDone=false, receiptVerified=false, and authorityChanged=false. Evidence: docs final reviewer PASS and rg canClaimProductionDone/conduit_status wording check.",
       "resolvedAt": "2026-06-04T06:07:05.603Z"
+    },
+    {
+      "id": "B-47cd:F-019",
+      "desc": "authority-verified/full-autopilot currently accepts a caller-supplied fake-test-server receipt shape as authorityReceiptGate.verified=true, so the server-authority gate is bypassable by forged local JSON instead of an independently verified server receipt.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-04T06:24:39.162Z",
+      "reviewRound": "2026-06-04T06:15:05.733Z",
+      "reviewRunId": "B-47cd:RR-016",
+      "_hash": "fb125c2cf06325ad33327fdfdc7ad0122d86d3c3d98210b74dc7034c719d7761",
+      "files": [
+        "packages/main/src/core/lattice-autopilot.ts",
+        "packages/main/src/tasks/autopilot-run-smoke.ts",
+        "README.md",
+        "docs/requirements/decisions/host-overflow.md"
+      ]
     }
   ]
 }
