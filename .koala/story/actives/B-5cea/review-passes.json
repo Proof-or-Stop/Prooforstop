@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-04T00:15:42.994Z",
       "reviewRunId": "B-5cea:RR-008",
       "_hash": "d53136aaf61cc406535940501610b0e09f04e0ab51fa91b93bead04e5a52e541"
+    },
+    {
+      "id": "B-5cea:RP-007",
+      "agent": "koala-review-concept",
+      "note": "Second round concept review of d7796b6f fix. Verified: (1) resolveCodexSessionBriefCommand uses explicit 4-candidate priority array (lattice-codex > koala-codex > lattice > koala) matching README, no string-slicing residuals found. (2) README now documents all 4 wrapper priorities including bin/koala.js. (3) verify-codex-assets.mjs tests cover 3 explicit wrapper cases + global-thin. (4) checkGlobalFallback uses resolveCodexSessionBriefCommand(root) not hardcoded string. (5) runHeartbeat line 390 hardcoded fallback is pre-existing dead code (localWrapperHeartbeatCommand always provides displayCommand), not a residual from this story. Zero concept residuals detected.",
+      "createdAt": "2026-06-04T00:22:38.222Z",
+      "reviewRound": "2026-06-04T00:15:42.994Z",
+      "reviewRunId": "B-5cea:RR-007",
+      "_hash": "3f1ca97685f4ca125f93a102497ba7fc934f7120db31a943aad99891945cfad3"
     }
   ]
 }
