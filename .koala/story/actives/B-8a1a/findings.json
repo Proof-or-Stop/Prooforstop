@@ -102,7 +102,7 @@
       "desc": "CHK-005:adversarial:0 points to cli-real-claude-canary.md and that artifact exists, but the verificationEvidence command/note also claims a \"missing launcher refusal\" result that is not present in the artifact body. The canary remains valid for the real claude-code success/manualOnly path, yet this specific refusal claim is not independently auditable from the referenced file, so the evidence should be narrowed or the artifact should include the refusal transcript/result.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-06-03T23:59:25.754Z",
@@ -112,7 +112,9 @@
       "files": [
         ".koala/story/actives/B-8a1a/checklist.json",
         ".koala/story/actives/B-8a1a/evidence/cli-real-claude-canary.md"
-      ]
+      ],
+      "resolvedReason": "Resolved by updating .koala/story/actives/B-8a1a/evidence/cli-real-claude-canary.md to include the missing launcher refusal command and result: dispatch_auto exits non-zero, mentions commandAllowlist and claude --print <prompt-file>, and creates no dispatch record.",
+      "resolvedAt": "2026-06-04T00:04:22.293Z"
     }
   ]
 }
