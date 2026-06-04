@@ -222,7 +222,7 @@
       "desc": "autopilot_review is advertised and classified as read-only, but autopilotReview() persists refreshed run state/events and can rewrite status/nextAction on inspection. Make it compute review data in memory without mutating run.json, or reclassify/update contracts if mutation is intended.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-04T05:15:19.502Z",
@@ -231,7 +231,9 @@
       "_hash": "054f63999edfbe4551aff8671fcc4f2f8de1285e3b478b63f981e4af6ec60c6f",
       "files": [
         "packages/main/src/core/lattice-autopilot.ts,packages/main/src/cli-engine.ts,packages/main/src/core/command-policy.ts"
-      ]
+      ],
+      "resolvedReason": "Resolved by making autopilotReview read persisted run state, compute dispatch_review/merge_plan in memory, and return a review projection without persist(), event append, or run.json mutation. Smoke captures run.json before/after autopilot_review and asserts byte-identical content. Evidence: npm --prefix packages/main run build; npm --prefix packages/main run test:autopilot-run-smoke.",
+      "resolvedAt": "2026-06-04T05:37:42.062Z"
     },
     {
       "id": "B-47cd:F-013",
