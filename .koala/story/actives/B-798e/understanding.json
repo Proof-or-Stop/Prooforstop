@@ -1,0 +1,28 @@
+{
+  "task": "Fix the remaining legacy task annotation validator errors that keep convergence_check red.",
+  "outcome": "After the fix, running node packages/main/dist/tasks/cli-validate.js prints PASSED: All task annotations are valid, and node bin/lattice.js convergence_check shows the code annotation compliance row as passed instead of 10 annotation errors.",
+  "facts": [
+    "cli-validate reports 10 annotation errors before the fix",
+    "All errors are missing @changes or invalid @type=test in observability/story-authority task headers",
+    "The runtime behavior should not change"
+  ],
+  "constraints": [
+    "Only edit annotation metadata headers needed by the validator",
+    "Do not modify docs/story or fixture JSON directly",
+    "Keep .koala story state local after DONE"
+  ],
+  "unknowns": [
+    "Whether fixing the 10 hard errors will leave only warnings or make convergence fully green"
+  ],
+  "touchpoints": [
+    "packages/main/src/core/observability-snapshot.ts",
+    "packages/main/src/core/story-authority-resolver.ts",
+    "packages/main/src/handlers/observability-snapshot.ts",
+    "packages/main/src/handlers/story-authority-resolve.ts",
+    "packages/main/src/tasks/cli-json-stdout-contract-smoke.ts",
+    "packages/main/src/tasks/observability-contract-smoke.ts",
+    "packages/main/src/tasks/observability-snapshot-smoke.ts",
+    "packages/main/src/tasks/story-authority-resolve-smoke.ts"
+  ],
+  "timestamp": "2026-06-04T11:00:35.039Z"
+}

@@ -4,7 +4,7 @@
   "title": "Fix legacy task annotation convergence errors",
   "description": "Fix the remaining legacy task annotation validator errors so convergence_check no longer fails on the code annotation compliance row. Scope is limited to observability and story-authority task annotation headers plus any directly required validation evidence.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "medium",
   "keywords": [
     "convergence_check",
@@ -36,6 +36,14 @@
       "action": "advance",
       "timestamp": "2026-06-04T10:56:54.028Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-04T11:00:15.689Z",
+      "branch": "story/B-798e",
       "user": "Harmonygo",
       "agent": "main"
     }
