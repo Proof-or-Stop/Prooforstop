@@ -194,15 +194,18 @@ auto-merge, auto-DONE, or claim production authority.
 | Mode | What it can do | Acceptance boundary |
 |---|---|---|
 | Conservative | Runs a bounded fake/local or supervised host-native delegation path from an explicit policy. | Local diagnostic receipts only; `receiptVerified=false` and `productionDone=false`. |
-| Authority-Verified | Requires a verified server authority receipt before stronger integration can be considered. A fake server-shaped receipt can be used for deterministic tests. | Missing or unverifiable authority receipts stop at `missing_authority_receipt`. Local CLI output still keeps `receiptVerified=false` and `productionDone=false`. |
+| Authority-Verified | Requires a verified server authority receipt before stronger integration can be considered. Deterministic tests use an explicit verified `fake-test-server` receipt shape. | Missing, forged, or unverifiable authority receipts stop at `missing_authority_receipt`. Local CLI output still keeps `receiptVerified=false` and `productionDone=false`. |
 | Full Autopilot | May continue through bounded plan/run/watch/review loops within `maxIterations`, runtime, scope, and policy limits. | Stops at the declared bound or conflict boundary. Review and merge remain manual-only. |
 
 Autopilot uses two policies: a dispatch policy for host/path/command execution,
-and an autopilot policy for mode permissions. Flat and nested CLI forms are both
-supported:
+and an autopilot policy for mode permissions. The autopilot policy stores
+`dispatchPolicy` as the explicit link to the underlying dispatch policy. If
+`dispatchPolicy` is omitted, Lattice falls back to the same policy name for
+compatibility, but new configs should link it explicitly. Flat and nested CLI
+forms are both supported:
 
 ```bash
-lattice dispatch_policy_create --policy=fake \
+lattice dispatch_policy_create --policy=fake-dispatch \
   --allowedHosts=fake --allowedPaths=packages/main/src/generated/ \
   --maxParallel=2 --maxRuntimeMinutes=10 --maxBudgetUSD=5 \
   --network=none --commandAllowlist='node -e "process.exit(0)"' \
@@ -210,6 +213,7 @@ lattice dispatch_policy_create --policy=fake \
   --allowAutoMerge=false --allowProductionDone=false
 
 lattice autopilot policy create --policy=fake \
+  --dispatchPolicy=fake-dispatch \
   --mode=conservative --allowAutoDispatch=true --allowAutoValidate=true \
   --allowMainMerge=false --requireServerReceipt=false \
   --maxIterations=1 --maxRuntimeMinutes=10 \
@@ -229,13 +233,20 @@ lattice autopilot_cancel --runId=AP-B-demo-abc123 --json
 lattice autopilot_resume --runId=AP-B-demo-abc123 --json
 ```
 
+`autopilot_run --mode=<mode>` is an assertion against the saved autopilot policy,
+not an override. The run derives mode, retry count, runtime, budget, receipt
+requirement, and dispatch policy from `.koala/autopilot-policies/<policy>.json`
+before any worker is started.
+
 Host-native delegation is execution-only. A delegated Claude Code, Gemini, Codex,
 or fake host receives a bounded pack/prompt shape and returns transcript,
 changed-file, command, and local diagnostic receipt data for review. Those local
 diagnostic receipts do not imply `receiptVerified=true` or `productionDone=true`.
-Authority-Verified mode may report `authorityReceiptGate.verified=true` when a
-server authority receipt is bound to the run; the local CLI still keeps the
-top-level `receiptVerified=false` and `productionDone=false`.
+Authority-Verified mode may report `authorityReceiptGate.verified=true` only
+when a clearly verified server authority receipt is bound to the run; local
+diagnostic receipts or server-ish objects such as `{ "source": "server" }` do
+not satisfy the gate. The local CLI still keeps the top-level
+`receiptVerified=false` and `productionDone=false`.
 
 Merge and conflict handling stay outside autopilot. `autopilot_review` may
 surface a manual merge plan, changed files, conflicts, or resume guidance, but it

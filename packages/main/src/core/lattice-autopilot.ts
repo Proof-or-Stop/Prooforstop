@@ -1,6 +1,13 @@
 import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import {
+  checkAutopilotPolicy,
+  type AutopilotPolicyCheckOptions,
+  type AutopilotPolicyCheckResult,
+  type AutopilotPolicy as PersistedAutopilotPolicy,
+  type AutopilotMode as PersistedAutopilotMode,
+} from './autopilot-policy.js';
+import {
   buildDispatchMergePlan,
   cancelDispatch,
   dispatchAuto,
@@ -32,6 +39,7 @@ export const AUTOPILOT_STOP_REASONS = [
 ] as const;
 
 export type AutopilotMode = 'conservative' | 'authority-verified' | 'full-autopilot';
+type AutopilotModeAssertion = AutopilotMode | 'authority_verified' | 'full_autopilot';
 export type AutopilotStatus =
   | 'created'
   | 'running'
@@ -84,6 +92,7 @@ export interface AutopilotAuthorityReceiptGate {
   present: boolean;
   verified: boolean;
   source: 'missing' | 'local-diagnostic' | 'server' | 'fake-test-server' | 'invalid';
+  receiptRef?: string;
   missing: string[];
   nextAction: string;
 }
@@ -119,6 +128,8 @@ export interface AutopilotRunRecord {
   runFile: string;
   repoRoot: string;
   policy?: string;
+  dispatchPolicy?: string;
+  policyCheck?: AutopilotPolicyCheckResult;
   host?: HostRuntimeId | string;
   dispatchId?: string;
   maxIterations: number;
@@ -149,7 +160,7 @@ export interface AutopilotRunRecord {
 
 export interface AutopilotRunArgs {
   storyId: string;
-  mode?: AutopilotMode | 'authority_verified' | 'full_autopilot';
+  mode?: AutopilotModeAssertion;
   runId?: string;
   policy?: string;
   host?: string;
@@ -250,7 +261,7 @@ function normalizeList(value: string[] | string | undefined): string[] | undefin
   return undefined;
 }
 
-function normalizeMode(mode: AutopilotRunArgs['mode']): AutopilotMode {
+function normalizeMode(mode: AutopilotModeAssertion | undefined): AutopilotMode {
   if (mode === undefined || mode === 'conservative') return 'conservative';
   if (mode === 'authority-verified' || mode === 'authority_verified') return 'authority-verified';
   if (mode === 'full-autopilot' || mode === 'full_autopilot') return 'full-autopilot';
@@ -391,6 +402,39 @@ function stringField(value: Record<string, unknown>, field: string): string {
   return typeof raw === 'string' ? raw : '';
 }
 
+function receiptRefField(value: Record<string, unknown>): string {
+  for (const field of ['receiptRef', 'receiptId', 'id', 'ref']) {
+    const candidate = stringField(value, field).trim();
+    if (candidate) return candidate;
+  }
+  return '';
+}
+
+function authorityReceiptShape(candidate: Record<string, unknown>): {
+  receiptRef: string;
+  subjectDigest: string;
+  signature: string;
+  verified: boolean;
+  sourceText: string;
+} {
+  const sourceText = [
+    stringField(candidate, 'schemaVersion'),
+    stringField(candidate, 'source'),
+    stringField(candidate, 'issuer'),
+    stringField(candidate, 'type'),
+    stringField(candidate, 'kind'),
+    stringField(candidate, 'klass'),
+    stringField(candidate, 'classification'),
+  ].join(' ');
+  return {
+    receiptRef: receiptRefField(candidate),
+    subjectDigest: stringField(candidate, 'subjectDigest').trim(),
+    signature: stringField(candidate, 'signature').trim(),
+    verified: candidate.verified === true || candidate.receiptVerified === true || stringField(candidate, 'status') === 'verified',
+    sourceText,
+  };
+}
+
 function classifyAuthorityReceiptCandidate(candidate: unknown, required: boolean): AutopilotAuthorityReceiptGate {
   if (!required) {
     return {
@@ -423,35 +467,23 @@ function classifyAuthorityReceiptCandidate(candidate: unknown, required: boolean
     };
   }
 
-  const sourceText = [
-    schemaVersion,
-    stringField(candidate, 'source'),
-    stringField(candidate, 'issuer'),
-    stringField(candidate, 'type'),
-    stringField(candidate, 'kind'),
-    stringField(candidate, 'klass'),
-    stringField(candidate, 'classification'),
-  ].join(' ');
-  const hasAuthorityReceiptShape =
-    typeof candidate.receiptId === 'string'
-    && typeof candidate.subjectDigest === 'string'
-    && (typeof candidate.signature === 'string' || candidate.verified === true || candidate.receiptVerified === true);
-  const hasReceiptBackedClassification =
-    candidate.klass === 'receipt-backed-l2-plus'
-    || candidate.classification === 'receipt-backed-l2-plus';
-  const hasVerifiedAuthorityReceipt = isRecord(candidate.verifiedAuthorityReceipt);
-  const serverMarked =
-    /authority|server|python/i.test(sourceText)
-    || candidate.serverReceipt === true
-    || candidate.authorityReceipt === true;
-  const fakeTestServerMarked = /fake|test/i.test(sourceText) && /server|authority|python/i.test(sourceText);
+  const shape = authorityReceiptShape(candidate);
+  const hasRequiredReceiptShape = !!shape.receiptRef && !!shape.subjectDigest && !!shape.signature && shape.verified;
+  const fakeTestServerMarked = /fake-test-server/i.test(shape.sourceText);
+  const realAuthorityServerMarked =
+    /lattice-authority-server|authority-server|python-authority-server/i.test(shape.sourceText)
+    || (
+      (candidate.klass === 'receipt-backed-l2-plus' || candidate.classification === 'receipt-backed-l2-plus')
+      && /authority|server/i.test(shape.sourceText)
+    );
 
-  if (hasReceiptBackedClassification || hasVerifiedAuthorityReceipt || hasAuthorityReceiptShape || serverMarked) {
+  if (hasRequiredReceiptShape && (fakeTestServerMarked || realAuthorityServerMarked)) {
     return {
       required: true,
       present: true,
       verified: true,
       source: fakeTestServerMarked ? 'fake-test-server' : 'server',
+      receiptRef: shape.receiptRef,
       missing: [],
       nextAction: 'Server authority receipt is present. Continue to manual review; this autopilot still will not auto-merge, auto-DONE, or claim productionDone.',
     };
@@ -464,6 +496,19 @@ function classifyAuthorityReceiptCandidate(candidate: unknown, required: boolean
     source: 'invalid',
     missing: ['verifiedAuthorityReceipt'],
     nextAction: 'The provided receipt is not recognizable as a verified server authority receipt. Stay before integration, DONE, and main merge.',
+  };
+}
+
+function policyCheckOptionsFromGate(gate: AutopilotAuthorityReceiptGate): AutopilotPolicyCheckOptions | undefined {
+  if (!gate.verified || !gate.receiptRef) return undefined;
+  return {
+    serverAuthorityReceipt: {
+      authority: 'server',
+      verified: true,
+      receiptRef: gate.receiptRef,
+      verifiedBy: gate.source,
+      verifiedAt: nowIso(),
+    },
   };
 }
 
@@ -527,6 +572,11 @@ function classifyDispatchError(message: string): AutopilotStopReason {
   return 'validation_failed';
 }
 
+function classifyFailedDispatchResult(message: string): AutopilotStopReason {
+  if (/command failed|hit command failure|required command|process\.exit/i.test(message)) return 'validation_failed';
+  return classifyDispatchError(message);
+}
+
 function budgetExhausted(record: Pick<AutopilotRunRecord, 'maxBudgetUSD' | 'budgetSpentUSD'>): boolean {
   return record.maxBudgetUSD !== undefined && record.budgetSpentUSD >= record.maxBudgetUSD;
 }
@@ -535,10 +585,10 @@ function timedOut(startMs: number, timeoutMs: number): boolean {
   return Date.now() - startMs >= timeoutMs;
 }
 
-function dispatchArgs(args: AutopilotRunArgs): Parameters<typeof dispatchAuto>[2] {
+function dispatchArgs(args: AutopilotRunArgs, dispatchPolicy: string): Parameters<typeof dispatchAuto>[2] {
   return {
     storyId: args.storyId,
-    policy: args.policy ?? '',
+    policy: dispatchPolicy,
     host: args.host,
     fromHost: args.fromHost,
     role: args.role,
@@ -555,17 +605,52 @@ function dispatchArgs(args: AutopilotRunArgs): Parameters<typeof dispatchAuto>[2
   };
 }
 
+function shouldRetryValidationFailure(
+  policy: Pick<PersistedAutopilotPolicy, 'mode' | 'allowAutoFix'>,
+  stopReason: AutopilotStopReason,
+  index: number,
+  maxIterations: number,
+  startMs: number,
+  timeoutMs: number,
+  record: Pick<AutopilotRunRecord, 'maxBudgetUSD' | 'budgetSpentUSD'>,
+): boolean {
+  return policy.mode === 'full-autopilot'
+    && policy.allowAutoFix === true
+    && stopReason === 'validation_failed'
+    && index + 1 < maxIterations
+    && !timedOut(startMs, timeoutMs)
+    && !budgetExhausted(record);
+}
+
+function mergePlanStopReason(mergePlan: DispatchMergePlanResult): AutopilotStopReason {
+  return classifyFailedDispatchResult([
+    ...mergePlan.warnings,
+    mergePlan.nextAction,
+  ].join('\n'));
+}
+
 export function autopilotRun(store: StoryStore, root: string, args: AutopilotRunArgs): AutopilotRunRecord {
   if (!args.storyId || !args.storyId.trim()) {
     throw new Error('autopilot_run requires storyId');
   }
-  const mode = normalizeMode(args.mode);
+  const policyName = (args.policy ?? '').trim();
+  if (!policyName) {
+    throw new Error('autopilot_run requires an autopilot policy name; set --policy=<autopilot-policy>');
+  }
+
+  const preliminaryPolicyCheck = checkAutopilotPolicy(root, policyName);
+  const preliminaryPolicy = preliminaryPolicyCheck.normalizedPolicy;
+  const preliminaryAuthorityRequired = preliminaryPolicy.requireServerReceipt || preliminaryPolicy.mode !== 'conservative';
+  const authorityReceiptGate = classifyAuthorityReceiptCandidate(firstExplicitAuthorityReceipt(args), preliminaryAuthorityRequired);
+  const policyCheck = checkAutopilotPolicy(root, policyName, policyCheckOptionsFromGate(authorityReceiptGate));
+  const policy = policyCheck.normalizedPolicy;
+  const mode = policy.mode as PersistedAutopilotMode;
+  const assertedMode = args.mode !== undefined ? normalizeMode(args.mode) : undefined;
   const runId = safeSegment(args.runId ?? generateRunId(args.storyId), 'runId');
-  const authorityRequired = mode === 'authority-verified' || mode === 'full-autopilot';
-  const authorityReceiptGate = classifyAuthorityReceiptCandidate(firstExplicitAuthorityReceipt(args), authorityRequired);
+  const authorityRequired = policy.requireServerReceipt || mode !== 'conservative';
   const createdAt = nowIso();
-  const maxIterations = Math.max(0, Math.floor(args.maxIterations ?? (mode === 'full-autopilot' ? 3 : 1)));
-  const timeoutMs = Math.max(1, Math.floor(args.timeoutMs ?? 5 * 60 * 1000));
+  const maxIterations = Math.max(0, Math.floor(policy.maxIterations));
+  const timeoutMs = Math.max(1, Math.floor((policy.maxRuntimeMinutes ?? 5) * 60 * 1000));
   const startMs = Date.now();
 
   let record: AutopilotRunRecord = {
@@ -578,19 +663,24 @@ export function autopilotRun(store: StoryStore, root: string, args: AutopilotRun
     updatedAt: createdAt,
     runFile: runJsonRelPath(runId),
     repoRoot: resolve(root),
-    policy: args.policy,
+    policy: policyName,
+    dispatchPolicy: policy.dispatchPolicy,
+    policyCheck,
     host: args.host,
     maxIterations,
     timeoutMs,
-    maxBudgetUSD: args.maxBudgetUSD,
+    maxBudgetUSD: policy.maxBudgetUSD,
     budgetSpentUSD: args.budgetSpentUSD ?? 0,
     delegation: buildDelegationContract(mode),
     authorityReceiptGate,
     iterations: [],
-    events: [event('run_started', `autopilot_run started in ${mode} mode`)],
+    events: [
+      event('run_started', `autopilot_run started in ${mode} mode using autopilot policy ${policyName} and dispatch policy ${policy.dispatchPolicy}`),
+      event('policy_checked', `autopilot policy ${policyName} check status=${policyCheck.status}`),
+    ],
     warnings: [],
     errors: [],
-    nextAction: 'Starting policy-authorized dispatch_auto.',
+    nextAction: 'Checking autopilot policy authorization before dispatch_auto.',
     authority: {
       ...emptyAuthority(authorityRequired),
       serverReceiptPresent: authorityReceiptGate.present,
@@ -601,6 +691,48 @@ export function autopilotRun(store: StoryStore, root: string, args: AutopilotRun
     productionDone: false,
   };
   record = persist(root, record);
+
+  if (policyCheck.status === 'refused') {
+    return finalize(root, record, {
+      status: 'failed',
+      stopReason: 'validation_failed',
+      stopDetails: policyCheck.reasons.join('; ') || policyCheck.nextAction,
+      errors: [...record.errors, ...policyCheck.reasons],
+      nextAction: policyCheck.nextAction,
+      events: [...record.events, event('policy_refused', policyCheck.nextAction, { stopReason: 'validation_failed' })],
+    });
+  }
+
+  if (assertedMode && assertedMode !== mode) {
+    const message = `autopilot_run mode assertion "${assertedMode}" does not match persisted autopilot policy "${policyName}" mode "${mode}"`;
+    return finalize(root, record, {
+      status: 'failed',
+      stopReason: 'validation_failed',
+      stopDetails: message,
+      errors: [...record.errors, message],
+      nextAction: 'Edit the autopilot policy or rerun without a conflicting --mode assertion. CLI mode cannot widen persisted policy authority.',
+      events: [...record.events, event('policy_mode_mismatch', message, { stopReason: 'validation_failed' })],
+    });
+  }
+
+  if (policyCheck.status === 'supervised') {
+    const missingAuthority = policy.requireServerReceipt && !authorityReceiptGate.verified;
+    const nextAction = missingAuthority
+      ? 'missing_authority_receipt: provide a verified server AuthorityReceipt before starting unattended autopilot. Local dispatch receipts are diagnostic only.'
+      : policyCheck.nextAction;
+    return finalize(root, record, {
+      status: missingAuthority ? 'missing_authority_receipt' : 'failed',
+      stopReason: missingAuthority ? 'missing_authority' : 'validation_failed',
+      stopDetails: policyCheck.degradations.join('; ') || policyCheck.nextAction,
+      warnings: [...record.warnings, ...policyCheck.degradations],
+      nextAction,
+      events: [...record.events, event(
+        missingAuthority ? 'missing_authority_receipt' : 'policy_supervised',
+        nextAction,
+        { stopReason: missingAuthority ? 'missing_authority' : 'validation_failed' },
+      )],
+    });
+  }
 
   if (maxIterations <= 0) {
     return finalize(root, record, {
@@ -648,18 +780,36 @@ export function autopilotRun(store: StoryStore, root: string, args: AutopilotRun
 
     let auto: DispatchAutoResult;
     try {
-      auto = dispatchAuto(store, root, dispatchArgs(args));
+      auto = dispatchAuto(store, root, dispatchArgs(args, policy.dispatchPolicy));
     } catch (error) {
       const message = String((error as { message?: unknown }).message ?? error);
       const stopReason = classifyDispatchError(message);
       const ended = markIterationEnded(iteration, 'failed', 'dispatch_auto refused or failed before any integration step.', stopReason);
+      const nextIterations = [...record.iterations.slice(0, -1), ended];
+      const retry = shouldRetryValidationFailure(policy, stopReason, index, maxIterations, startMs, timeoutMs, record);
+      if (retry) {
+        record = persist(root, {
+          ...record,
+          iterations: nextIterations,
+          errors: [...record.errors, message],
+          nextAction: 'Validation failed and policy allowAutoFix=true; scheduling the next bounded full-autopilot iteration.',
+          events: [
+            ...record.events,
+            event('dispatch_auto_failed', message, { stopReason }),
+            event('retry_scheduled', `iteration ${index + 1} scheduled after validation failure`, { stopReason }),
+          ],
+        });
+        continue;
+      }
       return finalize(root, record, {
         status: 'failed',
         stopReason,
         stopDetails: message,
-        iterations: [...record.iterations.slice(0, -1), ended],
+        iterations: nextIterations,
         errors: [...record.errors, message],
-        nextAction: 'Fix the dispatch policy, host readiness, scope, or command validation issue and rerun autopilot_run.',
+        nextAction: stopReason === 'conflict'
+          ? 'Manual repair required: resolve active dispatch or merge conflict evidence before rerunning autopilot_run.'
+          : 'Fix the dispatch policy, host readiness, scope, or command validation issue and rerun autopilot_run.',
         events: [...record.events, event('dispatch_auto_failed', message, { stopReason })],
       });
     }
@@ -683,6 +833,38 @@ export function autopilotRun(store: StoryStore, root: string, args: AutopilotRun
       warnings: [...record.warnings, ...warnings],
       events: [...record.events, event('dispatch_auto_completed', `dispatch_auto produced ${dispatchId} with status ${auto.status}`, { dispatchId })],
     });
+
+    if (auto.status === 'failed') {
+      const message = [...auto.warnings, auto.nextAction].join('; ') || 'dispatch_auto returned failed status';
+      const stopReason = classifyFailedDispatchResult(message);
+      const nextAction = 'dispatch_auto returned failed status; autopilot preserved dispatch evidence before any integration step.';
+      const ended = markIterationEnded(iteration, 'failed', nextAction, stopReason);
+      const nextIterations = [...record.iterations.slice(0, -1), { ...ended, dispatchId, warnings }];
+      const retry = shouldRetryValidationFailure(policy, stopReason, index, maxIterations, startMs, timeoutMs, record);
+      if (retry) {
+        record = persist(root, {
+          ...record,
+          iterations: nextIterations,
+          errors: [...record.errors, message],
+          nextAction: 'Validation failed and policy allowAutoFix=true; scheduling the next bounded full-autopilot iteration.',
+          events: [
+            ...record.events,
+            event('validation_failed', message, { dispatchId, stopReason }),
+            event('retry_scheduled', `iteration ${index + 1} scheduled after validation failure`, { dispatchId, stopReason }),
+          ],
+        });
+        continue;
+      }
+      return finalize(root, record, {
+        status: 'failed',
+        stopReason,
+        stopDetails: message,
+        iterations: nextIterations,
+        errors: [...record.errors, message],
+        nextAction,
+        events: [...record.events, event('validation_failed', message, { dispatchId, stopReason })],
+      });
+    }
 
     if (!hasLocalReceipt || !hasTranscript) {
       const missing = [
@@ -726,15 +908,35 @@ export function autopilotRun(store: StoryStore, root: string, args: AutopilotRun
     }
 
     if (mode === 'full-autopilot' && !mergePlan.mergeable) {
-      const nextAction = 'Full-autopilot stopped before integration because dispatch_merge_plan withheld merge guidance. Review conflict or validation diagnostics manually.';
-      const ended = markIterationEnded(iteration, 'failed', nextAction, 'validation_failed');
+      const stopReason = mergePlanStopReason(mergePlan);
+      const nextAction = stopReason === 'conflict'
+        ? 'Full-autopilot stopped at a conflict boundary. Manual repair required before rerunning autopilot_run.'
+        : 'Full-autopilot stopped before integration because dispatch_merge_plan withheld merge guidance. Review validation diagnostics manually.';
+      const ended = markIterationEnded(iteration, 'failed', nextAction, stopReason);
+      const nextIterations = [...record.iterations.slice(0, -1), { ...ended, dispatchId, warnings }];
+      const stopDetails = mergePlan.warnings.join('; ') || 'dispatch_merge_plan was not mergeable';
+      const retry = shouldRetryValidationFailure(policy, stopReason, index, maxIterations, startMs, timeoutMs, record);
+      if (retry) {
+        record = persist(root, {
+          ...record,
+          iterations: nextIterations,
+          errors: [...record.errors, stopDetails],
+          nextAction: 'Validation failed and policy allowAutoFix=true; scheduling the next bounded full-autopilot iteration.',
+          events: [
+            ...record.events,
+            event('validation_failed', stopDetails, { dispatchId, stopReason }),
+            event('retry_scheduled', `iteration ${index + 1} scheduled after validation failure`, { dispatchId, stopReason }),
+          ],
+        });
+        continue;
+      }
       return finalize(root, record, {
         status: 'failed',
-        stopReason: 'validation_failed',
-        stopDetails: mergePlan.warnings.join('; ') || 'dispatch_merge_plan was not mergeable',
-        iterations: [...record.iterations.slice(0, -1), { ...ended, dispatchId, warnings }],
+        stopReason,
+        stopDetails,
+        iterations: nextIterations,
         nextAction,
-        events: [...record.events, event('validation_failed', 'dispatch_merge_plan was not mergeable', { dispatchId, stopReason: 'validation_failed' })],
+        events: [...record.events, event('validation_failed', 'dispatch_merge_plan was not mergeable', { dispatchId, stopReason })],
       });
     }
 

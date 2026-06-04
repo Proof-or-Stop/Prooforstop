@@ -66,13 +66,23 @@ The three user-facing modes are:
 | Mode | Purpose | Authority boundary |
 |---|---|---|
 | Conservative | Execute only a bounded, policy-authorized local/fake path or produce a host-native delegation pack for a supervised host. | Local diagnostic receipts stay diagnostic-only; `receiptVerified=false`, `productionDone=false`, and no automatic merge. |
-| Authority-Verified | Require a verified server authority receipt before stronger integration can be considered. A fake server-shaped receipt is allowed for deterministic smoke coverage. | Missing, malformed, or unverifiable authority receipts stop at `missing_authority_receipt`. Local CLI output still keeps `receiptVerified=false` and `productionDone=false`. |
+| Authority-Verified | Require a verified server authority receipt before stronger integration can be considered. Deterministic smoke coverage uses an explicit verified `fake-test-server` receipt shape. | Missing, forged, malformed, or unverifiable authority receipts stop at `missing_authority_receipt`. Local CLI output still keeps `receiptVerified=false` and `productionDone=false`. |
 | Full Autopilot | Continue through bounded plan/run/watch/review loops within explicit policy, path, runtime, budget, and `maxIterations` limits. | Stops at bounds, conflict, stale base, denied path, missing receipt, or review risk. Merge and DONE remain manual. |
+
+Autopilot is intentionally a two-policy model:
+
+- `dispatch_policy_create` controls host/path/command/runtime constraints for
+  worker scheduling.
+- `autopilot policy create` controls the user-visible execution mode, receipt
+  requirements, retry bounds, and authority posture.
+- `dispatchPolicy` on the autopilot policy is the explicit link to the dispatch
+  policy. Same-name fallback is preserved for compatibility, but product docs
+  should show the explicit link.
 
 The intended command surface is flat-first with nested aliases for human use:
 
 ```bash
-lattice dispatch_policy_create --policy=fake \
+lattice dispatch_policy_create --policy=fake-dispatch \
   --allowedHosts=fake --allowedPaths=packages/main/src/generated/ \
   --maxParallel=2 --maxRuntimeMinutes=10 --maxBudgetUSD=5 \
   --network=none --commandAllowlist='node -e "process.exit(0)"' \
@@ -80,6 +90,7 @@ lattice dispatch_policy_create --policy=fake \
   --allowAutoMerge=false --allowProductionDone=false
 
 lattice autopilot policy create --policy=fake \
+  --dispatchPolicy=fake-dispatch \
   --mode=conservative --allowAutoDispatch=true --allowAutoValidate=true \
   --allowMainMerge=false --requireServerReceipt=false \
   --maxIterations=1 --maxRuntimeMinutes=10 \
@@ -94,6 +105,12 @@ lattice autopilot_cancel --runId=AP-B-demo-abc123 --json
 lattice autopilot_resume --runId=AP-B-demo-abc123 --json
 ```
 
+`autopilot_run --mode=<mode>` is an assertion against the saved autopilot policy,
+not an override. A conservative saved policy cannot be widened to
+`full-autopilot` by changing CLI flags. The run derives mode, retry count,
+runtime, budget, receipt requirement, and dispatch policy from the saved
+autopilot policy before any worker is started.
+
 Host-native delegation is a shape contract, not an authority transfer. The
 delegation artifact must identify the selected host, command preview, prompt or
 pack path, allowed/denied paths, expected receipts, transcript location, and the
@@ -104,8 +121,12 @@ imply `receiptVerified=true` or `productionDone=true`.
 Autopilot review/merge output is guidance only. It may report changed files,
 runner status, receipt status, conflict risks, and manual commands, but it must
 not run a main merge, mark production done, clear conflicts silently, or convert
-local diagnostic receipts into verified authority receipts. Full Autopilot stops
-instead of crossing any merge/conflict or authority boundary.
+local diagnostic receipts into verified authority receipts. Server-ish local
+objects such as `{ "source": "server" }` are not enough to satisfy the
+authority gate. Full Autopilot may retry validation failures only when the saved
+policy explicitly sets `allowAutoFix=true` and the retry remains inside
+`maxIterations`, runtime, and budget bounds; it stops instead of crossing any
+merge/conflict or authority boundary.
 
 ## Boundaries
 

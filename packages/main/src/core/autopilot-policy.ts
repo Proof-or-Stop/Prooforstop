@@ -116,6 +116,7 @@ export const AUTOPILOT_MODE_PERMISSION_MATRIX = {
 export interface AutopilotPolicy {
   schemaVersion: typeof AUTOPILOT_POLICY_SCHEMA_VERSION;
   policy: string;
+  dispatchPolicy: string;
   mode: AutopilotMode;
   allowAutoDispatch: boolean;
   allowAutoValidate: boolean;
@@ -147,6 +148,7 @@ export interface AutopilotPolicyCheckOptions {
 export interface CreateAutopilotPolicyArgs {
   policy: string;
   mode?: AutopilotMode | string;
+  dispatchPolicy?: string;
   allowAutoDispatch?: boolean;
   allowAutoValidate?: boolean;
   allowAutoFix?: boolean;
@@ -196,6 +198,23 @@ export interface AutopilotPolicyCheckResult {
 }
 
 const POLICY_NAME_PATTERN = /^[a-zA-Z0-9_-]{1,64}$/;
+const CREATE_AUTOPILOT_POLICY_KEYS = new Set([
+  'policy',
+  'mode',
+  'dispatchPolicy',
+  'allowAutoDispatch',
+  'allowAutoValidate',
+  'allowAutoFix',
+  'allowStoryIntegration',
+  'allowDoneAdvance',
+  'allowMainMerge',
+  'requireServerReceipt',
+  'maxIterations',
+  'maxRuntimeMinutes',
+  'maxBudgetUSD',
+  'stopOnConflict',
+  'stopOnScopeViolation',
+]);
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === 'object' && !Array.isArray(value);
@@ -301,6 +320,7 @@ function normalizeAutopilotPolicyRecord(raw: unknown): AutopilotPolicy {
   return {
     schemaVersion: AUTOPILOT_POLICY_SCHEMA_VERSION,
     policy: maybeString(record.policy, ''),
+    dispatchPolicy: maybeString(record.dispatchPolicy, maybeString(record.policy, '')),
     mode,
     allowAutoDispatch: maybeBoolean(record.allowAutoDispatch, permissions.allowAutoDispatch),
     allowAutoValidate: maybeBoolean(record.allowAutoValidate, permissions.allowAutoValidate),
@@ -328,6 +348,13 @@ function validateCreateArgs(
 ): { errors: string[]; normalized: Partial<AutopilotPolicy> } {
   const errors: string[] = [];
   const normalized: Partial<AutopilotPolicy> = {};
+  const rawArgs = args as unknown as Record<string, unknown>;
+
+  for (const key of Object.keys(rawArgs)) {
+    if (!CREATE_AUTOPILOT_POLICY_KEYS.has(key)) {
+      errors.push(`unsupported autopilot policy field "${key}"; put host/path/command restrictions in dispatch_policy_create and link it via dispatchPolicy`);
+    }
+  }
 
   const policyName = (args.policy ?? '').trim();
   if (!policyName) {
@@ -336,6 +363,24 @@ function validateCreateArgs(
     errors.push(`invalid policy name "${policyName}": must be 1-64 alphanumeric, hyphen, or underscore characters`);
   } else {
     normalized.policy = policyName;
+  }
+
+  const rawDispatchPolicy = rawArgs.dispatchPolicy;
+  let dispatchPolicyName = policyName;
+  if (rawDispatchPolicy !== undefined) {
+    if (typeof rawDispatchPolicy === 'string') {
+      dispatchPolicyName = rawDispatchPolicy.trim();
+    } else {
+      dispatchPolicyName = '';
+      errors.push(`dispatchPolicy must be a string; got ${String(rawDispatchPolicy)}`);
+    }
+  }
+  if (!dispatchPolicyName) {
+    errors.push('dispatchPolicy is required when policy name is empty');
+  } else if (!isValidAutopilotPolicyName(dispatchPolicyName)) {
+    errors.push(`invalid dispatchPolicy "${dispatchPolicyName}": must be 1-64 alphanumeric, hyphen, or underscore characters`);
+  } else {
+    normalized.dispatchPolicy = dispatchPolicyName;
   }
 
   const mode = args.mode ?? 'conservative';
@@ -444,6 +489,12 @@ function collectPolicyShapeReasons(raw: unknown, normalized: AutopilotPolicy): s
   if (!isValidAutopilotPolicyName(normalized.policy)) {
     reasons.push(`invalid policy name: ${normalized.policy || '(empty)'}`);
   }
+  if (!isValidAutopilotPolicyName(normalized.dispatchPolicy)) {
+    reasons.push(`invalid dispatchPolicy: ${normalized.dispatchPolicy || '(empty)'}`);
+  }
+  if (raw.dispatchPolicy !== undefined && typeof raw.dispatchPolicy !== 'string') {
+    reasons.push(`dispatchPolicy must be a string; got ${String(raw.dispatchPolicy)}`);
+  }
   if (!isAutopilotMode(raw.mode)) {
     reasons.push(`mode must be one of: ${AUTOPILOT_MODES.join(', ')}; got ${String(raw.mode)}`);
   }
@@ -493,6 +544,7 @@ export function createAutopilotPolicy(
   const policy: AutopilotPolicy = {
     schemaVersion: AUTOPILOT_POLICY_SCHEMA_VERSION,
     policy: normalized.policy!,
+    dispatchPolicy: normalized.dispatchPolicy!,
     mode: normalized.mode!,
     allowAutoDispatch: normalized.allowAutoDispatch!,
     allowAutoValidate: normalized.allowAutoValidate!,
@@ -637,6 +689,7 @@ function placeholderPolicy(policy: string): AutopilotPolicy {
   return {
     schemaVersion: AUTOPILOT_POLICY_SCHEMA_VERSION,
     policy,
+    dispatchPolicy: policy,
     mode: 'conservative',
     allowAutoDispatch: CONSERVATIVE_AUTOPILOT_DEFAULTS.allowAutoDispatch,
     allowAutoValidate: CONSERVATIVE_AUTOPILOT_DEFAULTS.allowAutoValidate,
@@ -683,6 +736,7 @@ export function renderAutopilotPolicyText(policy: AutopilotPolicy): string {
   const lines = [
     `Autopilot policy (${policy.schemaVersion})`,
     `policy: ${policy.policy}`,
+    `dispatchPolicy: ${policy.dispatchPolicy}`,
     `mode: ${policy.mode}`,
     `allowAutoDispatch: ${policy.allowAutoDispatch}`,
     `allowAutoValidate: ${policy.allowAutoValidate}`,

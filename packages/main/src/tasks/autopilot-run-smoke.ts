@@ -63,6 +63,7 @@ interface AuthorityBoundary {
 interface AutopilotPolicy extends AuthorityBoundary {
   schemaVersion: 'lattice.autopilot_policy.v1';
   policy: string;
+  dispatchPolicy: string;
   mode: AutopilotMode;
   allowAutoDispatch: boolean;
   allowAutoValidate: boolean;
@@ -74,6 +75,8 @@ interface AutopilotPolicy extends AuthorityBoundary {
   maxIterations: number;
   maxRuntimeMinutes?: number;
   maxBudgetUSD?: number;
+  stopOnConflict: boolean;
+  stopOnScopeViolation: boolean;
 }
 
 interface AutopilotPolicyCheckResult extends AuthorityBoundary {
@@ -92,11 +95,20 @@ interface AutopilotRunResult extends AuthorityBoundary {
   storyId: string;
   mode: AutopilotMode;
   policy: string;
+  dispatchPolicy?: string;
   host?: string;
   dispatchId?: string;
   status: 'created' | 'running' | 'needs_receipt' | 'manual_review_ready' | 'missing_authority_receipt' | 'cancelled' | 'failed';
   maxIterations: number;
   stopReason?: string;
+  stopDetails?: string;
+  iterations: Array<{
+    index: number;
+    status: string;
+    stopReason?: string;
+    dispatchId?: string;
+  }>;
+  errors?: string[];
   delegation?: {
     hostNative: true;
     receiptRequired: true;
@@ -256,6 +268,8 @@ try {
 
   const store = new StoryStore(root);
   seedStory(store, 'B-demo');
+  seedStory(store, 'B-retry-demo');
+  seedStory(store, 'B-conflict-demo');
   seedStory(store, 'B-cancel-demo');
   const ctx: HandlerContext = { store, root, scanRoot: join(root, 'packages/main') };
   const registry = createMainRegistry(ctx);
@@ -268,7 +282,7 @@ try {
   for (const command of EXPECTED_COMMANDS) assertFiveWayRegistration(command, registry);
 
   const dispatchPolicy = run<Record<string, unknown>>('dispatch_policy_create', {
-    policy: 'fake',
+    policy: 'fake-dispatch',
     allowedHosts: ['fake'],
     allowedPaths: ['packages/main/src/generated/'],
     deniedPaths: ['README.md'],
@@ -286,7 +300,7 @@ try {
   assertAuthorityFalse(dispatchPolicy, 'dispatchPolicy');
 
   const authorityDispatchPolicy = run<Record<string, unknown>>('dispatch_policy_create', {
-    policy: 'fake-authority',
+    policy: 'fake-authority-dispatch',
     allowedHosts: ['fake'],
     allowedPaths: ['packages/main/src/generated/'],
     deniedPaths: ['README.md'],
@@ -303,8 +317,63 @@ try {
   assert.equal(authorityDispatchPolicy.schemaVersion, 'lattice.dispatch_policy.v1');
   assertAuthorityFalse(authorityDispatchPolicy, 'authorityDispatchPolicy');
 
+  const fullDispatchPolicy = run<Record<string, unknown>>('dispatch_policy_create', {
+    policy: 'fake-full-dispatch',
+    allowedHosts: ['fake'],
+    allowedPaths: ['packages/main/src/generated/'],
+    deniedPaths: ['README.md'],
+    maxParallel: 1,
+    maxRuntimeMinutes: 10,
+    maxBudgetUSD: 5,
+    network: 'none',
+    commandAllowlist: ['node -e "process.exit(0)"'],
+    requireReceipt: true,
+    requireReview: true,
+    allowAutoMerge: false,
+    allowProductionDone: false,
+  });
+  assert.equal(fullDispatchPolicy.schemaVersion, 'lattice.dispatch_policy.v1');
+  assertAuthorityFalse(fullDispatchPolicy, 'fullDispatchPolicy');
+
+  const retryDispatchPolicy = run<Record<string, unknown>>('dispatch_policy_create', {
+    policy: 'fake-retry-dispatch',
+    allowedHosts: ['fake'],
+    allowedPaths: ['packages/main/src/generated/'],
+    deniedPaths: ['README.md'],
+    maxParallel: 1,
+    maxRuntimeMinutes: 10,
+    maxBudgetUSD: 5,
+    network: 'none',
+    commandAllowlist: ['node -e "process.exit(1)"'],
+    requireReceipt: true,
+    requireReview: true,
+    allowAutoMerge: false,
+    allowProductionDone: false,
+  });
+  assert.equal(retryDispatchPolicy.schemaVersion, 'lattice.dispatch_policy.v1');
+  assertAuthorityFalse(retryDispatchPolicy, 'retryDispatchPolicy');
+
+  const conflictDispatchPolicy = run<Record<string, unknown>>('dispatch_policy_create', {
+    policy: 'fake-conflict-dispatch',
+    allowedHosts: ['fake'],
+    allowedPaths: ['packages/main/src/generated/'],
+    deniedPaths: ['README.md'],
+    maxParallel: 1,
+    maxRuntimeMinutes: 10,
+    maxBudgetUSD: 5,
+    network: 'none',
+    commandAllowlist: ['node -e "process.exit(0)"'],
+    requireReceipt: true,
+    requireReview: true,
+    allowAutoMerge: false,
+    allowProductionDone: false,
+  });
+  assert.equal(conflictDispatchPolicy.schemaVersion, 'lattice.dispatch_policy.v1');
+  assertAuthorityFalse(conflictDispatchPolicy, 'conflictDispatchPolicy');
+
   const policy = run<AutopilotPolicy>('autopilot_policy_create', {
     policy: 'fake',
+    dispatchPolicy: 'fake-dispatch',
     mode: 'conservative',
     allowAutoDispatch: true,
     allowAutoValidate: true,
@@ -320,6 +389,7 @@ try {
   });
   assert.equal(policy.schemaVersion, 'lattice.autopilot_policy.v1');
   assert.equal(policy.policy, 'fake');
+  assert.equal(policy.dispatchPolicy, 'fake-dispatch');
   assert.equal(policy.mode, 'conservative');
   assert.equal(policy.allowMainMerge, false);
   assert.equal(policy.requireServerReceipt, false);
@@ -327,6 +397,7 @@ try {
 
   const authorityPolicy = run<AutopilotPolicy>('autopilot_policy_create', {
     policy: 'fake-authority',
+    dispatchPolicy: 'fake-authority-dispatch',
     mode: 'authority-verified',
     allowAutoDispatch: true,
     allowAutoValidate: true,
@@ -341,11 +412,13 @@ try {
     stopOnScopeViolation: true,
   });
   assert.equal(authorityPolicy.policy, 'fake-authority');
+  assert.equal(authorityPolicy.dispatchPolicy, 'fake-authority-dispatch');
   assert.equal(authorityPolicy.requireServerReceipt, true);
   assertAuthorityFalse(authorityPolicy, 'authorityPolicy');
 
   const fullPolicy = run<AutopilotPolicy>('autopilot_policy_create', {
     policy: 'fake-full',
+    dispatchPolicy: 'fake-full-dispatch',
     mode: 'full-autopilot',
     allowAutoDispatch: true,
     allowAutoValidate: true,
@@ -361,8 +434,96 @@ try {
     stopOnScopeViolation: true,
   });
   assert.equal(fullPolicy.mode, 'full-autopilot');
+  assert.equal(fullPolicy.dispatchPolicy, 'fake-full-dispatch');
   assert.equal(fullPolicy.maxIterations, 2);
   assertAuthorityFalse(fullPolicy, 'fullPolicy');
+
+  const retryPolicy = run<AutopilotPolicy>('autopilot_policy_create', {
+    policy: 'fake-retry',
+    dispatchPolicy: 'fake-retry-dispatch',
+    mode: 'full-autopilot',
+    allowAutoDispatch: true,
+    allowAutoValidate: true,
+    allowAutoFix: true,
+    allowStoryIntegration: false,
+    allowDoneAdvance: false,
+    allowMainMerge: false,
+    requireServerReceipt: true,
+    maxIterations: 2,
+    maxRuntimeMinutes: 10,
+    maxBudgetUSD: 5,
+    stopOnConflict: true,
+    stopOnScopeViolation: true,
+  });
+  assert.equal(retryPolicy.mode, 'full-autopilot');
+  assert.equal(retryPolicy.dispatchPolicy, 'fake-retry-dispatch');
+  assertAuthorityFalse(retryPolicy, 'retryPolicy');
+
+  const conflictPolicy = run<AutopilotPolicy>('autopilot_policy_create', {
+    policy: 'fake-conflict',
+    dispatchPolicy: 'fake-conflict-dispatch',
+    mode: 'conservative',
+    allowAutoDispatch: true,
+    allowAutoValidate: true,
+    allowAutoFix: false,
+    allowStoryIntegration: false,
+    allowDoneAdvance: false,
+    allowMainMerge: false,
+    requireServerReceipt: false,
+    maxIterations: 1,
+    maxRuntimeMinutes: 10,
+    stopOnConflict: true,
+    stopOnScopeViolation: true,
+  });
+  assert.equal(conflictPolicy.mode, 'conservative');
+  assert.equal(conflictPolicy.dispatchPolicy, 'fake-conflict-dispatch');
+  assertAuthorityFalse(conflictPolicy, 'conflictPolicy');
+
+  assert.throws(
+    () => run<AutopilotPolicy>('autopilot_policy_create', {
+      policy: 'bad-full-missing-bounds',
+      dispatchPolicy: 'fake-full-dispatch',
+      mode: 'full-autopilot',
+      allowAutoDispatch: true,
+      allowAutoValidate: true,
+      allowAutoFix: true,
+      requireServerReceipt: true,
+      stopOnConflict: true,
+      stopOnScopeViolation: true,
+    }),
+    /full-autopilot requires bounded maxIterations|full-autopilot requires bounded maxRuntimeMinutes|full-autopilot requires bounded maxBudgetUSD/,
+    'unbounded full-autopilot policy must be refused',
+  );
+
+  assert.throws(
+    () => run<AutopilotPolicy>('autopilot_policy_create', {
+      policy: 'bad-full-stop-flags',
+      dispatchPolicy: 'fake-full-dispatch',
+      mode: 'full-autopilot',
+      allowAutoDispatch: true,
+      allowAutoValidate: true,
+      allowAutoFix: true,
+      requireServerReceipt: true,
+      maxIterations: 2,
+      maxRuntimeMinutes: 10,
+      maxBudgetUSD: 5,
+      stopOnConflict: false,
+      stopOnScopeViolation: false,
+    }),
+    /full-autopilot requires stopOnConflict=true|full-autopilot requires stopOnScopeViolation=true/,
+    'full-autopilot policy must require conflict/scope stop flags',
+  );
+
+  assert.throws(
+    () => run<AutopilotPolicy>('autopilot_policy_create', {
+      policy: 'bad-unsupported-autopilot-field',
+      dispatchPolicy: 'fake-dispatch',
+      mode: 'conservative',
+      allowedHosts: ['fake'],
+    }),
+    /unsupported autopilot policy field "allowedHosts"/,
+    'autopilot policy must not silently drop host/path/command restrictions',
+  );
 
   const policyCheck = run<AutopilotPolicyCheckResult>('autopilot_policy_check', {
     policy: 'fake',
@@ -376,6 +537,7 @@ try {
   const cliFlatCreate = runCliJson<AutopilotPolicy>(root, [
     'autopilot_policy_create',
     '--policy=cli-flat',
+    '--dispatchPolicy=fake-dispatch',
     '--mode=conservative',
     '--allowAutoDispatch=true',
     '--allowAutoValidate=true',
@@ -388,6 +550,7 @@ try {
     '--json',
   ]);
   assert.equal(cliFlatCreate.policy, 'cli-flat');
+  assert.equal(cliFlatCreate.dispatchPolicy, 'fake-dispatch');
   assertAuthorityFalse(cliFlatCreate, 'cliFlatCreate');
 
   const cliNestedCreate = runCliJson<AutopilotPolicy>(root, [
@@ -395,6 +558,7 @@ try {
     'policy',
     'create',
     '--policy=cli-nested',
+    '--dispatchPolicy=fake-dispatch',
     '--mode=conservative',
     '--allowAutoDispatch=true',
     '--allowAutoValidate=true',
@@ -407,7 +571,43 @@ try {
     '--json',
   ]);
   assert.equal(cliNestedCreate.policy, 'cli-nested');
+  assert.equal(cliNestedCreate.dispatchPolicy, 'fake-dispatch');
   assertAuthorityFalse(cliNestedCreate, 'cliNestedCreate');
+
+  const missingAutopilotPolicy = run<AutopilotRunResult>('autopilot_run', {
+    storyId: 'B-demo',
+    policy: 'fake-dispatch',
+    objective: 'Dispatch-only policy must not satisfy autopilot policy.',
+    allowedPaths: ['packages/main/src/generated/dispatch-only.txt'],
+    requiredCommands: ['node -e "process.exit(0)"'],
+  });
+  assert.equal(missingAutopilotPolicy.status, 'failed');
+  assert.equal(missingAutopilotPolicy.stopReason, 'validation_failed');
+  assert.equal(missingAutopilotPolicy.dispatchId, undefined, 'missing autopilot policy must stop before dispatch_auto');
+  assert.match(missingAutopilotPolicy.nextAction ?? '', /Create the policy first|autopilot_policy_create/);
+  assertAuthorityFalse(missingAutopilotPolicy, 'missingAutopilotPolicy');
+
+  const modeOverrideRefused = run<AutopilotRunResult>('autopilot_run', {
+    mode: 'full-autopilot',
+    storyId: 'B-demo',
+    policy: 'fake',
+    serverAuthorityReceipt: {
+      schemaVersion: 'lattice.authority_receipt.v1',
+      source: 'fake-test-server',
+      receiptId: 'AUTH-mode-override',
+      subjectDigest: 'abc123',
+      signature: 'fake-signature',
+      verified: true,
+    },
+    objective: 'CLI mode assertion cannot widen a conservative policy.',
+    allowedPaths: ['packages/main/src/generated/mode-override.txt'],
+    requiredCommands: ['node -e "process.exit(0)"'],
+  });
+  assert.equal(modeOverrideRefused.status, 'failed');
+  assert.equal(modeOverrideRefused.stopReason, 'validation_failed');
+  assert.equal(modeOverrideRefused.dispatchId, undefined, 'mode mismatch must stop before dispatch_auto');
+  assert.match(modeOverrideRefused.stopDetails ?? '', /does not match persisted autopilot policy/);
+  assertAuthorityFalse(modeOverrideRefused, 'modeOverrideRefused');
 
   const conservative = run<AutopilotRunResult>('autopilot_run', {
     mode: 'conservative',
@@ -420,6 +620,7 @@ try {
   });
   assert.equal(conservative.schemaVersion, 'lattice.autopilot_run.v1');
   assert.equal(conservative.mode, 'conservative');
+  assert.equal(conservative.dispatchPolicy, 'fake-dispatch');
   assert.equal(conservative.storyId, 'B-demo');
   assert.equal(conservative.policy, 'fake');
   assert.equal(conservative.host, 'fake');
@@ -460,6 +661,23 @@ try {
     verified: true,
   };
 
+  const forgedServerAuthority = run<AutopilotRunResult>('autopilot_run', {
+    mode: 'authority-verified',
+    storyId: 'B-demo',
+    policy: 'fake-authority',
+    serverAuthorityReceipt: { source: 'server' },
+    objective: 'Server-ish local objects must not satisfy authority receipt gate.',
+    allowedPaths: ['packages/main/src/generated/forged-authority.txt'],
+    requiredCommands: ['node -e "process.exit(0)"'],
+  });
+  assert.equal(forgedServerAuthority.status, 'missing_authority_receipt');
+  assert.equal(forgedServerAuthority.stopReason, 'missing_authority');
+  assert.equal(forgedServerAuthority.dispatchId, undefined, 'forged authority receipt must stop before dispatch_auto');
+  assert.equal(forgedServerAuthority.authorityReceiptGate.present, true);
+  assert.equal(forgedServerAuthority.authorityReceiptGate.verified, false);
+  assert.equal(forgedServerAuthority.authorityReceiptGate.source, 'invalid');
+  assertAuthorityFalse(forgedServerAuthority, 'forgedServerAuthority');
+
   const verified = run<AutopilotRunResult>('autopilot_run', {
     mode: 'authority-verified',
     storyId: 'B-demo',
@@ -487,36 +705,67 @@ try {
   });
   assert.equal(missingAuthority.status, 'missing_authority_receipt');
   assert.equal(missingAuthority.stopReason, 'missing_authority');
+  assert.equal(missingAuthority.dispatchId, undefined, 'missing authority must stop before dispatch_auto');
   assert.equal(missingAuthority.authorityReceiptGate.verified, false);
   assertAuthorityFalse(missingAuthority, 'missingAuthority');
 
   const full = run<AutopilotRunResult>('autopilot_run', {
     mode: 'full-autopilot',
     storyId: 'B-demo',
-    policy: 'fake',
+    policy: 'fake-full',
     serverAuthorityReceipt: fakeServerAuthorityReceipt,
     objective: 'Full autopilot bounded smoke run.',
     allowedPaths: ['packages/main/src/generated/full-autopilot.txt'],
     requiredCommands: ['node -e "process.exit(0)"'],
-    maxIterations: 2,
-    maxBudgetUSD: 5,
   });
   assert.equal(full.mode, 'full-autopilot');
+  assert.equal(full.dispatchPolicy, 'fake-full-dispatch');
   assert.equal(full.status, 'manual_review_ready');
   assert.equal(full.authorityReceiptGate.verified, true);
   assertAuthorityFalse(full, 'full');
 
-  const maxIterationStop = run<AutopilotRunResult>('autopilot_run', {
-    mode: 'conservative',
-    storyId: 'B-demo',
-    policy: 'fake',
-    objective: 'Max iteration stop smoke run.',
-    allowedPaths: ['packages/main/src/generated/max-iterations.txt'],
-    maxIterations: 0,
+  const retryStop = run<AutopilotRunResult>('autopilot_run', {
+    mode: 'full-autopilot',
+    storyId: 'B-retry-demo',
+    policy: 'fake-retry',
+    serverAuthorityReceipt: fakeServerAuthorityReceipt,
+    objective: 'Full autopilot retry must stay bounded by maxIterations.',
+    allowedPaths: ['packages/main/src/generated/retry.txt'],
+    requiredCommands: ['node -e "process.exit(1)"'],
   });
-  assert.equal(maxIterationStop.status, 'failed');
-  assert.equal(maxIterationStop.stopReason, 'max_iterations');
-  assertAuthorityFalse(maxIterationStop, 'maxIterationStop');
+  assert.equal(retryStop.status, 'failed');
+  assert.equal(retryStop.stopReason, 'validation_failed');
+  assert.equal(retryStop.maxIterations, 2);
+  assert.equal(retryStop.iterations.length, 2, 'allowAutoFix full-autopilot retry should consume exactly two bounded iterations');
+  assert.deepEqual(retryStop.iterations.map(iteration => iteration.stopReason), ['validation_failed', 'validation_failed']);
+  assert.equal(retryStop.dispatchPolicy, 'fake-retry-dispatch');
+  assert.match((retryStop.errors ?? []).join('\n'), /command failed|validation/i);
+  assertAuthorityFalse(retryStop, 'retryStop');
+
+  const activeConflictDispatch = run<Record<string, unknown>>('dispatch_prepare', {
+    storyId: 'B-conflict-demo',
+    host: 'fake',
+    allowedPaths: ['packages/main/src/generated/conflict-active.txt'],
+    requiredCommands: ['node -e "process.exit(0)"'],
+  });
+  assert.equal(activeConflictDispatch.schemaVersion, 'lattice.dispatch_record.v1');
+
+  const conflictStop = run<AutopilotRunResult>('autopilot_run', {
+    mode: 'conservative',
+    storyId: 'B-conflict-demo',
+    policy: 'fake-conflict',
+    objective: 'Existing active dispatch should trigger conflict stop.',
+    allowedPaths: ['packages/main/src/generated/conflict-stop.txt'],
+    requiredCommands: ['node -e "process.exit(0)"'],
+  });
+  assert.equal(conflictStop.status, 'failed');
+  assert.equal(conflictStop.stopReason, 'conflict');
+  assert.equal(conflictStop.dispatchId, undefined, 'maxParallel conflict must stop before creating a new dispatch');
+  assert.equal(conflictStop.iterations.length, 1);
+  assert.equal(conflictStop.iterations[0]?.stopReason, 'conflict');
+  assert.match(conflictStop.nextAction ?? '', /Manual repair|required|resolve/i);
+  assert.match((conflictStop.errors ?? []).join('\n'), /maxParallel|active dispatch|conflict/i);
+  assertAuthorityFalse(conflictStop, 'conflictStop');
 
   const cancellable = run<AutopilotRunResult>('autopilot_run', {
     mode: 'conservative',
@@ -582,10 +831,14 @@ try {
     conservativeStatus,
     conservativeWatch,
     conservativeReview,
+    missingAutopilotPolicy,
+    modeOverrideRefused,
+    forgedServerAuthority,
     verified,
     missingAuthority,
     full,
-    maxIterationStop,
+    retryStop,
+    conflictStop,
     cancellable,
     cancelled,
     resumeRefusal,
@@ -594,7 +847,7 @@ try {
     cliConservative,
   ], 'allResults');
 
-  console.log('autopilot-run smoke passed: registration, policy gates, conservative manual_review_ready, authority-verified fake server gate success/refusal, full-autopilot bounded run, host-native delegation contract, cancel, resume refusal, and authority boundaries verified');
+  console.log('autopilot-run smoke passed: registration, two-policy linkage, policy gates, dispatch-only refusal, mode-override refusal, forged authority refusal, conservative manual_review_ready, authority-verified fake server gate success/refusal, full-autopilot bounded retry, conflict stop, host-native delegation contract, cancel, resume refusal, and authority boundaries verified');
 } finally {
   rmSync(sandboxRoot, { recursive: true, force: true });
 }

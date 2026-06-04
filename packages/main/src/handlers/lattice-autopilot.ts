@@ -133,6 +133,7 @@ function normalizePolicyArgs(args: Record<string, unknown>): Record<string, unkn
   if (rest.requireServerReceipt === undefined && typeof rest.requireServerAuthorityReceipt === 'boolean') {
     rest.requireServerReceipt = rest.requireServerAuthorityReceipt;
   }
+  delete rest.requireServerAuthorityReceipt;
   return rest;
 }
 
