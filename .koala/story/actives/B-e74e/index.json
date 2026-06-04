@@ -1,0 +1,48 @@
+{
+  "storyId": "B-e74e",
+  "name": "done-main-worktree-preflight",
+  "title": "Make DONE merge fail before marking DONE when main worktree is unavailable",
+  "description": "Fix the B-a30e delivery failure mode where story_advance DONE marked a story DONE before the main-merge side effect could run, leaving partial-DONE recovery work when main was held by another worktree or not available from the inferred main repo root.",
+  "type": "bug",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "keywords": [
+    "DONE",
+    "worktree",
+    "main-merge",
+    "partial-DONE",
+    "recovery"
+  ],
+  "riskSignals": [
+    {
+      "category": "状态机/门禁",
+      "matched": "story_advance"
+    }
+  ],
+  "createdAt": "2026-06-04T02:24:00.433Z",
+  "startedAt": "2026-06-04T02:24:00.433Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-04T02:24:00.446Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-04T02:29:16.482Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-e74e",
+    "branch": "story/B-e74e",
+    "createdAt": "2026-06-04T02:29:16.669Z"
+  }
+}
