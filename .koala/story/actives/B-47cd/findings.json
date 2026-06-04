@@ -389,7 +389,7 @@
       "desc": "autopilot_cancel/autopilot_resume only require runId to mutate run metadata, but the CLI owner gate derives target ownership only from storyId/story/activeStory and allows storyId missing, so cross-story ownership can be bypassed. autopilot_policy_create is also classified as storyScopedMutating and accepts owner meta despite having no stable story target.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-04T06:48:19.912Z",
@@ -400,7 +400,9 @@
         "packages/main/src/cli-engine.ts",
         "packages/main/src/core/command-policy.ts",
         "packages/main/src/handlers/lattice-autopilot.ts"
-      ]
+      ],
+      "resolvedReason": "Resolved by deriving the owner-gated storyId for autopilot_cancel and autopilot_resume from .koala/autopilot-runs/<runId>/run.json before owner lease enforcement. autopilot_policy_create is now mainSharedMutating and strict CLI parsing rejects takeover/forceTakeover owner meta. Evidence: npm --prefix packages/main run build; npm --prefix packages/main run test:autopilot-run-smoke covers runId owner-gate refusal/takeover and owner meta non-leakage; npm --prefix packages/main run test:command-ownership-contract covers autopilot_policy_create ownership classification/help boundary.",
+      "resolvedAt": "2026-06-04T07:03:45.613Z"
     },
     {
       "id": "B-47cd:F-022",
