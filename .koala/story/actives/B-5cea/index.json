@@ -4,7 +4,7 @@
   "title": "Make Codex adapter verification guidance wrapper-aware and worktree-aware",
   "description": "Fix two Lattice CLI self-development pitfalls discovered after B-7fc2: Codex adapter gates can recommend a nonexistent lattice-codex wrapper in legacy/full-ish repos, and story worktree acceptance can accidentally trust a stale global lattice entrypoint backed by main dist instead of the current worktree local CLI.",
   "type": "bug",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "keywords": [
     "codex-adapter",
@@ -88,6 +88,15 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-04T00:24:47.118Z",
+      "branch": "story/B-5cea",
+      "user": "Harmonygo",
+      "sessionId": "codex-B-5cea-dev",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-04T00:30:36.598Z",
       "branch": "story/B-5cea",
       "user": "Harmonygo",
       "sessionId": "codex-B-5cea-dev",
