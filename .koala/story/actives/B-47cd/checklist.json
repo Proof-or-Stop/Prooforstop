@@ -53,9 +53,9 @@
           "command": "rg -n \"Autopilot execution modes|Conservative|Authority-Verified|Full Autopilot\" README.md docs/requirements/decisions/host-overflow.md",
           "result": "pass",
           "note": "README and host-overflow document the three-mode autopilot matrix with conservative manual-review boundaries.",
-          "headHash": "7adf3c22cdab8f449fcd39336e052453fa110292",
-          "materialHash": "389b541ce384847ec3922525177e423a755f2ef1c463850abba9b09e85dc88de",
-          "timestamp": "2026-06-04T06:14:06.735Z"
+          "headHash": "f9f75b60af4ad02445ed8f953d8c65f417bb44d2",
+          "materialHash": "394141b96aeb0c183e449d0ccaeb0c8e5b3008f6e1ab29346b506c32778523a6",
+          "timestamp": "2026-06-04T06:34:13.767Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -65,9 +65,9 @@
           "command": "rg -n \"receiptVerified=false|productionDone=false|manual\" README.md docs/requirements/decisions/host-overflow.md",
           "result": "pass",
           "note": "Docs distinguish unattended development from production authority and main merge authority.",
-          "headHash": "7adf3c22cdab8f449fcd39336e052453fa110292",
-          "materialHash": "389b541ce384847ec3922525177e423a755f2ef1c463850abba9b09e85dc88de",
-          "timestamp": "2026-06-04T06:14:06.735Z"
+          "headHash": "f9f75b60af4ad02445ed8f953d8c65f417bb44d2",
+          "materialHash": "394141b96aeb0c183e449d0ccaeb0c8e5b3008f6e1ab29346b506c32778523a6",
+          "timestamp": "2026-06-04T06:34:13.767Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -77,9 +77,9 @@
           "command": "npm --prefix packages/main run test:autopilot-run-smoke",
           "result": "pass",
           "note": "Smoke asserts no local result overclaims productionDone or receiptVerified.",
-          "headHash": "7adf3c22cdab8f449fcd39336e052453fa110292",
-          "materialHash": "389b541ce384847ec3922525177e423a755f2ef1c463850abba9b09e85dc88de",
-          "timestamp": "2026-06-04T06:14:06.735Z"
+          "headHash": "f9f75b60af4ad02445ed8f953d8c65f417bb44d2",
+          "materialHash": "394141b96aeb0c183e449d0ccaeb0c8e5b3008f6e1ab29346b506c32778523a6",
+          "timestamp": "2026-06-04T06:34:13.767Z"
         }
       ]
     },
@@ -139,9 +139,9 @@
           "command": "npm --prefix packages/main run test:autopilot-run-smoke",
           "result": "pass",
           "note": "Smoke covers conservative policy defaults and authorization.",
-          "headHash": "7adf3c22cdab8f449fcd39336e052453fa110292",
-          "materialHash": "389b541ce384847ec3922525177e423a755f2ef1c463850abba9b09e85dc88de",
-          "timestamp": "2026-06-04T06:14:06.735Z"
+          "headHash": "f9f75b60af4ad02445ed8f953d8c65f417bb44d2",
+          "materialHash": "394141b96aeb0c183e449d0ccaeb0c8e5b3008f6e1ab29346b506c32778523a6",
+          "timestamp": "2026-06-04T06:34:13.767Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -151,9 +151,9 @@
           "command": "npm --prefix packages/main run test:autopilot-run-smoke",
           "result": "pass",
           "note": "Authority policy requires server receipt before authority-gated behavior.",
-          "headHash": "7adf3c22cdab8f449fcd39336e052453fa110292",
-          "materialHash": "389b541ce384847ec3922525177e423a755f2ef1c463850abba9b09e85dc88de",
-          "timestamp": "2026-06-04T06:14:06.735Z"
+          "headHash": "f9f75b60af4ad02445ed8f953d8c65f417bb44d2",
+          "materialHash": "394141b96aeb0c183e449d0ccaeb0c8e5b3008f6e1ab29346b506c32778523a6",
+          "timestamp": "2026-06-04T06:34:13.767Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -163,9 +163,9 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "Full-autopilot bounded policy validation compiles and is exercised by smoke setup.",
-          "headHash": "7adf3c22cdab8f449fcd39336e052453fa110292",
-          "materialHash": "389b541ce384847ec3922525177e423a755f2ef1c463850abba9b09e85dc88de",
-          "timestamp": "2026-06-04T06:14:06.735Z"
+          "headHash": "f9f75b60af4ad02445ed8f953d8c65f417bb44d2",
+          "materialHash": "394141b96aeb0c183e449d0ccaeb0c8e5b3008f6e1ab29346b506c32778523a6",
+          "timestamp": "2026-06-04T06:34:13.767Z"
         }
       ]
     },
@@ -227,9 +227,9 @@
           "command": "npm --prefix packages/main run test:autopilot-run-smoke",
           "result": "pass",
           "note": "Conservative autopilot_run creates dispatch evidence, review, and manual merge decision.",
-          "headHash": "7adf3c22cdab8f449fcd39336e052453fa110292",
-          "materialHash": "389b541ce384847ec3922525177e423a755f2ef1c463850abba9b09e85dc88de",
-          "timestamp": "2026-06-04T06:14:06.735Z"
+          "headHash": "f9f75b60af4ad02445ed8f953d8c65f417bb44d2",
+          "materialHash": "394141b96aeb0c183e449d0ccaeb0c8e5b3008f6e1ab29346b506c32778523a6",
+          "timestamp": "2026-06-04T06:34:13.767Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -239,9 +239,9 @@
           "command": "npm --prefix packages/main run test:autopilot-run-smoke",
           "result": "pass",
           "note": "Smoke covers blocked stop states such as max_iterations and missing authority classification.",
-          "headHash": "7adf3c22cdab8f449fcd39336e052453fa110292",
-          "materialHash": "389b541ce384847ec3922525177e423a755f2ef1c463850abba9b09e85dc88de",
-          "timestamp": "2026-06-04T06:14:06.735Z"
+          "headHash": "f9f75b60af4ad02445ed8f953d8c65f417bb44d2",
+          "materialHash": "394141b96aeb0c183e449d0ccaeb0c8e5b3008f6e1ab29346b506c32778523a6",
+          "timestamp": "2026-06-04T06:34:13.767Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -251,9 +251,9 @@
           "command": "npm --prefix packages/main run test:autopilot-run-smoke",
           "result": "pass",
           "note": "Authority invariant helper recursively checks conservative run authorityChanged/receiptVerified/productionDone remain false.",
-          "headHash": "7adf3c22cdab8f449fcd39336e052453fa110292",
-          "materialHash": "389b541ce384847ec3922525177e423a755f2ef1c463850abba9b09e85dc88de",
-          "timestamp": "2026-06-04T06:14:06.735Z"
+          "headHash": "f9f75b60af4ad02445ed8f953d8c65f417bb44d2",
+          "materialHash": "394141b96aeb0c183e449d0ccaeb0c8e5b3008f6e1ab29346b506c32778523a6",
+          "timestamp": "2026-06-04T06:34:13.767Z"
         }
       ]
     },
@@ -311,9 +311,9 @@
           "command": "npm --prefix packages/main run test:autopilot-run-smoke",
           "result": "pass",
           "note": "Every run exposes host-native delegation evidence contract fields for receipt/transcript expectations.",
-          "headHash": "7adf3c22cdab8f449fcd39336e052453fa110292",
-          "materialHash": "389b541ce384847ec3922525177e423a755f2ef1c463850abba9b09e85dc88de",
-          "timestamp": "2026-06-04T06:14:06.735Z"
+          "headHash": "f9f75b60af4ad02445ed8f953d8c65f417bb44d2",
+          "materialHash": "394141b96aeb0c183e449d0ccaeb0c8e5b3008f6e1ab29346b506c32778523a6",
+          "timestamp": "2026-06-04T06:34:13.767Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -323,9 +323,9 @@
           "command": "npm --prefix packages/main run test:autopilot-run-smoke",
           "result": "pass",
           "note": "Missing required receipt/authority evidence remains classified instead of completed.",
-          "headHash": "7adf3c22cdab8f449fcd39336e052453fa110292",
-          "materialHash": "389b541ce384847ec3922525177e423a755f2ef1c463850abba9b09e85dc88de",
-          "timestamp": "2026-06-04T06:14:06.735Z"
+          "headHash": "f9f75b60af4ad02445ed8f953d8c65f417bb44d2",
+          "materialHash": "394141b96aeb0c183e449d0ccaeb0c8e5b3008f6e1ab29346b506c32778523a6",
+          "timestamp": "2026-06-04T06:34:13.767Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -335,9 +335,9 @@
           "command": "npm --prefix packages/main run test:autopilot-run-smoke",
           "result": "pass",
           "note": "Smoke requires structured receipt/transcript contract rather than accepting natural-language host claims.",
-          "headHash": "7adf3c22cdab8f449fcd39336e052453fa110292",
-          "materialHash": "389b541ce384847ec3922525177e423a755f2ef1c463850abba9b09e85dc88de",
-          "timestamp": "2026-06-04T06:14:06.735Z"
+          "headHash": "f9f75b60af4ad02445ed8f953d8c65f417bb44d2",
+          "materialHash": "394141b96aeb0c183e449d0ccaeb0c8e5b3008f6e1ab29346b506c32778523a6",
+          "timestamp": "2026-06-04T06:34:13.767Z"
         }
       ]
     },
@@ -398,9 +398,9 @@
           "command": "npm --prefix packages/main run test:autopilot-run-smoke",
           "result": "pass",
           "note": "Autopilot invokes dispatch_auto under an authorized fake dispatch policy and exposes dispatch evidence.",
-          "headHash": "7adf3c22cdab8f449fcd39336e052453fa110292",
-          "materialHash": "389b541ce384847ec3922525177e423a755f2ef1c463850abba9b09e85dc88de",
-          "timestamp": "2026-06-04T06:14:06.735Z"
+          "headHash": "f9f75b60af4ad02445ed8f953d8c65f417bb44d2",
+          "materialHash": "394141b96aeb0c183e449d0ccaeb0c8e5b3008f6e1ab29346b506c32778523a6",
+          "timestamp": "2026-06-04T06:34:13.767Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -410,9 +410,9 @@
           "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
           "result": "pass",
           "note": "Existing unattended dispatch regression still refuses unsafe real-host and out-of-policy execution paths.",
-          "headHash": "7adf3c22cdab8f449fcd39336e052453fa110292",
-          "materialHash": "389b541ce384847ec3922525177e423a755f2ef1c463850abba9b09e85dc88de",
-          "timestamp": "2026-06-04T06:14:06.735Z"
+          "headHash": "f9f75b60af4ad02445ed8f953d8c65f417bb44d2",
+          "materialHash": "394141b96aeb0c183e449d0ccaeb0c8e5b3008f6e1ab29346b506c32778523a6",
+          "timestamp": "2026-06-04T06:34:13.767Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -422,9 +422,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke",
           "result": "pass",
           "note": "Dispatch policy hardening and manual merge guidance regressions remain passing.",
-          "headHash": "7adf3c22cdab8f449fcd39336e052453fa110292",
-          "materialHash": "389b541ce384847ec3922525177e423a755f2ef1c463850abba9b09e85dc88de",
-          "timestamp": "2026-06-04T06:14:06.735Z"
+          "headHash": "f9f75b60af4ad02445ed8f953d8c65f417bb44d2",
+          "materialHash": "394141b96aeb0c183e449d0ccaeb0c8e5b3008f6e1ab29346b506c32778523a6",
+          "timestamp": "2026-06-04T06:34:13.767Z"
         }
       ]
     },
@@ -483,9 +483,9 @@
           "command": "npm --prefix packages/main run test:autopilot-run-smoke",
           "result": "pass",
           "note": "Authority-verified fake server-shaped receipt passes the authorityReceiptGate while top-level production authority remains false.",
-          "headHash": "7adf3c22cdab8f449fcd39336e052453fa110292",
-          "materialHash": "389b541ce384847ec3922525177e423a755f2ef1c463850abba9b09e85dc88de",
-          "timestamp": "2026-06-04T06:14:06.735Z"
+          "headHash": "f9f75b60af4ad02445ed8f953d8c65f417bb44d2",
+          "materialHash": "394141b96aeb0c183e449d0ccaeb0c8e5b3008f6e1ab29346b506c32778523a6",
+          "timestamp": "2026-06-04T06:34:13.767Z"
         },
         {
           "intentRef": "CHK-006:edge:0",
@@ -495,9 +495,9 @@
           "command": "npm --prefix packages/main run test:autopilot-run-smoke",
           "result": "pass",
           "note": "Authority-verified mode without server receipt stops at missing_authority_receipt before integration.",
-          "headHash": "7adf3c22cdab8f449fcd39336e052453fa110292",
-          "materialHash": "389b541ce384847ec3922525177e423a755f2ef1c463850abba9b09e85dc88de",
-          "timestamp": "2026-06-04T06:14:06.735Z"
+          "headHash": "f9f75b60af4ad02445ed8f953d8c65f417bb44d2",
+          "materialHash": "394141b96aeb0c183e449d0ccaeb0c8e5b3008f6e1ab29346b506c32778523a6",
+          "timestamp": "2026-06-04T06:34:13.767Z"
         },
         {
           "intentRef": "CHK-006:adversarial:0",
@@ -507,9 +507,9 @@
           "command": "npm --prefix packages/main run test:autopilot-run-smoke",
           "result": "pass",
           "note": "Smoke proves local diagnostic receipts cannot flip top-level receiptVerified or productionDone.",
-          "headHash": "7adf3c22cdab8f449fcd39336e052453fa110292",
-          "materialHash": "389b541ce384847ec3922525177e423a755f2ef1c463850abba9b09e85dc88de",
-          "timestamp": "2026-06-04T06:14:06.735Z"
+          "headHash": "f9f75b60af4ad02445ed8f953d8c65f417bb44d2",
+          "materialHash": "394141b96aeb0c183e449d0ccaeb0c8e5b3008f6e1ab29346b506c32778523a6",
+          "timestamp": "2026-06-04T06:34:13.767Z"
         }
       ]
     },
@@ -567,9 +567,9 @@
           "command": "npm --prefix packages/main run test:autopilot-run-smoke",
           "result": "pass",
           "note": "Full-autopilot fake run completes bounded review path within maxIterations.",
-          "headHash": "7adf3c22cdab8f449fcd39336e052453fa110292",
-          "materialHash": "389b541ce384847ec3922525177e423a755f2ef1c463850abba9b09e85dc88de",
-          "timestamp": "2026-06-04T06:14:06.735Z"
+          "headHash": "f9f75b60af4ad02445ed8f953d8c65f417bb44d2",
+          "materialHash": "394141b96aeb0c183e449d0ccaeb0c8e5b3008f6e1ab29346b506c32778523a6",
+          "timestamp": "2026-06-04T06:34:13.767Z"
         },
         {
           "intentRef": "CHK-007:edge:0",
@@ -579,9 +579,9 @@
           "command": "npm --prefix packages/main run test:autopilot-run-smoke",
           "result": "pass",
           "note": "Bounded stop behavior is covered by max_iterations smoke case.",
-          "headHash": "7adf3c22cdab8f449fcd39336e052453fa110292",
-          "materialHash": "389b541ce384847ec3922525177e423a755f2ef1c463850abba9b09e85dc88de",
-          "timestamp": "2026-06-04T06:14:06.735Z"
+          "headHash": "f9f75b60af4ad02445ed8f953d8c65f417bb44d2",
+          "materialHash": "394141b96aeb0c183e449d0ccaeb0c8e5b3008f6e1ab29346b506c32778523a6",
+          "timestamp": "2026-06-04T06:34:13.767Z"
         },
         {
           "intentRef": "CHK-007:adversarial:0",
@@ -591,9 +591,9 @@
           "command": "npm --prefix packages/main run test:autopilot-run-smoke",
           "result": "pass",
           "note": "Loop stop reasons are classified without accepted production completion.",
-          "headHash": "7adf3c22cdab8f449fcd39336e052453fa110292",
-          "materialHash": "389b541ce384847ec3922525177e423a755f2ef1c463850abba9b09e85dc88de",
-          "timestamp": "2026-06-04T06:14:06.735Z"
+          "headHash": "f9f75b60af4ad02445ed8f953d8c65f417bb44d2",
+          "materialHash": "394141b96aeb0c183e449d0ccaeb0c8e5b3008f6e1ab29346b506c32778523a6",
+          "timestamp": "2026-06-04T06:34:13.767Z"
         }
       ]
     },
@@ -652,9 +652,9 @@
           "command": "npm --prefix packages/main run test:autopilot-run-smoke",
           "result": "pass",
           "note": "MergeDecision reports manualOnly for conservative and authority-gated paths.",
-          "headHash": "7adf3c22cdab8f449fcd39336e052453fa110292",
-          "materialHash": "389b541ce384847ec3922525177e423a755f2ef1c463850abba9b09e85dc88de",
-          "timestamp": "2026-06-04T06:14:06.735Z"
+          "headHash": "f9f75b60af4ad02445ed8f953d8c65f417bb44d2",
+          "materialHash": "394141b96aeb0c183e449d0ccaeb0c8e5b3008f6e1ab29346b506c32778523a6",
+          "timestamp": "2026-06-04T06:34:13.767Z"
         },
         {
           "intentRef": "CHK-008:edge:0",
@@ -664,9 +664,9 @@
           "command": "rg -n \"Merge and conflict handling|manual merge plan|manual-only\" README.md docs/requirements/decisions/host-overflow.md",
           "result": "pass",
           "note": "Docs state conflicts/merge remain manual and evidence is preserved.",
-          "headHash": "7adf3c22cdab8f449fcd39336e052453fa110292",
-          "materialHash": "389b541ce384847ec3922525177e423a755f2ef1c463850abba9b09e85dc88de",
-          "timestamp": "2026-06-04T06:14:06.735Z"
+          "headHash": "f9f75b60af4ad02445ed8f953d8c65f417bb44d2",
+          "materialHash": "394141b96aeb0c183e449d0ccaeb0c8e5b3008f6e1ab29346b506c32778523a6",
+          "timestamp": "2026-06-04T06:34:13.767Z"
         },
         {
           "intentRef": "CHK-008:adversarial:0",
@@ -676,9 +676,9 @@
           "command": "npm --prefix packages/main run test:autopilot-run-smoke",
           "result": "pass",
           "note": "No smoke path merges main or claims productionDone.",
-          "headHash": "7adf3c22cdab8f449fcd39336e052453fa110292",
-          "materialHash": "389b541ce384847ec3922525177e423a755f2ef1c463850abba9b09e85dc88de",
-          "timestamp": "2026-06-04T06:14:06.735Z"
+          "headHash": "f9f75b60af4ad02445ed8f953d8c65f417bb44d2",
+          "materialHash": "394141b96aeb0c183e449d0ccaeb0c8e5b3008f6e1ab29346b506c32778523a6",
+          "timestamp": "2026-06-04T06:34:13.767Z"
         }
       ]
     },
@@ -738,9 +738,9 @@
           "command": "npm --prefix packages/main run test:autopilot-run-smoke",
           "result": "pass",
           "note": "Status/watch/review expose run id, mode, dispatch, merge decision, nextAction, and authority fields.",
-          "headHash": "7adf3c22cdab8f449fcd39336e052453fa110292",
-          "materialHash": "389b541ce384847ec3922525177e423a755f2ef1c463850abba9b09e85dc88de",
-          "timestamp": "2026-06-04T06:14:06.735Z"
+          "headHash": "f9f75b60af4ad02445ed8f953d8c65f417bb44d2",
+          "materialHash": "394141b96aeb0c183e449d0ccaeb0c8e5b3008f6e1ab29346b506c32778523a6",
+          "timestamp": "2026-06-04T06:34:13.767Z"
         },
         {
           "intentRef": "CHK-009:edge:0",
@@ -750,9 +750,9 @@
           "command": "npm --prefix packages/main run test:autopilot-run-smoke",
           "result": "pass",
           "note": "Cancel preserves run evidence and returns cancelled state.",
-          "headHash": "7adf3c22cdab8f449fcd39336e052453fa110292",
-          "materialHash": "389b541ce384847ec3922525177e423a755f2ef1c463850abba9b09e85dc88de",
-          "timestamp": "2026-06-04T06:14:06.735Z"
+          "headHash": "f9f75b60af4ad02445ed8f953d8c65f417bb44d2",
+          "materialHash": "394141b96aeb0c183e449d0ccaeb0c8e5b3008f6e1ab29346b506c32778523a6",
+          "timestamp": "2026-06-04T06:34:13.767Z"
         },
         {
           "intentRef": "CHK-009:adversarial:0",
@@ -762,9 +762,9 @@
           "command": "npm --prefix packages/main run test:autopilot-run-smoke",
           "result": "pass",
           "note": "Resume refuses unsafe v1 state instead of continuing silently.",
-          "headHash": "7adf3c22cdab8f449fcd39336e052453fa110292",
-          "materialHash": "389b541ce384847ec3922525177e423a755f2ef1c463850abba9b09e85dc88de",
-          "timestamp": "2026-06-04T06:14:06.735Z"
+          "headHash": "f9f75b60af4ad02445ed8f953d8c65f417bb44d2",
+          "materialHash": "394141b96aeb0c183e449d0ccaeb0c8e5b3008f6e1ab29346b506c32778523a6",
+          "timestamp": "2026-06-04T06:34:13.767Z"
         }
       ]
     },
@@ -823,9 +823,9 @@
           "command": "npm --prefix packages/main run test:autopilot-run-smoke",
           "result": "pass",
           "note": "Autopilot smoke covers conservative, authority-verified fake server gate, and full-autopilot bounded run.",
-          "headHash": "7adf3c22cdab8f449fcd39336e052453fa110292",
-          "materialHash": "389b541ce384847ec3922525177e423a755f2ef1c463850abba9b09e85dc88de",
-          "timestamp": "2026-06-04T06:14:06.735Z"
+          "headHash": "f9f75b60af4ad02445ed8f953d8c65f417bb44d2",
+          "materialHash": "394141b96aeb0c183e449d0ccaeb0c8e5b3008f6e1ab29346b506c32778523a6",
+          "timestamp": "2026-06-04T06:34:13.767Z"
         },
         {
           "intentRef": "CHK-010:edge:0",
@@ -835,9 +835,9 @@
           "command": "npm --prefix packages/main run test:autopilot-run-smoke",
           "result": "pass",
           "note": "Smoke covers missing authority, maxIterations, cancel, and resume refusal.",
-          "headHash": "7adf3c22cdab8f449fcd39336e052453fa110292",
-          "materialHash": "389b541ce384847ec3922525177e423a755f2ef1c463850abba9b09e85dc88de",
-          "timestamp": "2026-06-04T06:14:06.735Z"
+          "headHash": "f9f75b60af4ad02445ed8f953d8c65f417bb44d2",
+          "materialHash": "394141b96aeb0c183e449d0ccaeb0c8e5b3008f6e1ab29346b506c32778523a6",
+          "timestamp": "2026-06-04T06:34:13.767Z"
         },
         {
           "intentRef": "CHK-010:adversarial:0",
@@ -847,9 +847,9 @@
           "command": "npm --prefix packages/main run test:autopilot-run-smoke",
           "result": "pass",
           "note": "Recursive authority invariant checks prevent local receipt overclaim regression.",
-          "headHash": "7adf3c22cdab8f449fcd39336e052453fa110292",
-          "materialHash": "389b541ce384847ec3922525177e423a755f2ef1c463850abba9b09e85dc88de",
-          "timestamp": "2026-06-04T06:14:06.735Z"
+          "headHash": "f9f75b60af4ad02445ed8f953d8c65f417bb44d2",
+          "materialHash": "394141b96aeb0c183e449d0ccaeb0c8e5b3008f6e1ab29346b506c32778523a6",
+          "timestamp": "2026-06-04T06:34:13.767Z"
         }
       ]
     },
@@ -908,9 +908,9 @@
           "command": "rg -n \"autopilot_run|autopilot_status|--runId|dispatch_policy_create\" README.md docs/requirements/decisions/host-overflow.md",
           "result": "pass",
           "note": "README and host-overflow include current user-facing usage for all autopilot surfaces with --runId and dispatch policy setup.",
-          "headHash": "7adf3c22cdab8f449fcd39336e052453fa110292",
-          "materialHash": "389b541ce384847ec3922525177e423a755f2ef1c463850abba9b09e85dc88de",
-          "timestamp": "2026-06-04T06:14:06.735Z"
+          "headHash": "f9f75b60af4ad02445ed8f953d8c65f417bb44d2",
+          "materialHash": "394141b96aeb0c183e449d0ccaeb0c8e5b3008f6e1ab29346b506c32778523a6",
+          "timestamp": "2026-06-04T06:34:13.767Z"
         },
         {
           "intentRef": "CHK-011:edge:0",
@@ -920,9 +920,9 @@
           "command": "npm --prefix packages/main run test:autopilot-run-smoke",
           "result": "pass",
           "note": "Actual smoke output says registration, policy gates, conservative manual_review_ready, authority fake server gate success/refusal, full-autopilot bounded run, delegation contract, cancel, resume refusal, and authority boundaries verified.",
-          "headHash": "7adf3c22cdab8f449fcd39336e052453fa110292",
-          "materialHash": "389b541ce384847ec3922525177e423a755f2ef1c463850abba9b09e85dc88de",
-          "timestamp": "2026-06-04T06:14:06.735Z"
+          "headHash": "f9f75b60af4ad02445ed8f953d8c65f417bb44d2",
+          "materialHash": "394141b96aeb0c183e449d0ccaeb0c8e5b3008f6e1ab29346b506c32778523a6",
+          "timestamp": "2026-06-04T06:34:13.767Z"
         },
         {
           "intentRef": "CHK-011:adversarial:0",
@@ -932,9 +932,9 @@
           "command": "rg -n \"receiptVerified=false|productionDone=false|manual-only|does not auto-merge|local diagnostic receipts\" README.md docs/requirements/decisions/host-overflow.md",
           "result": "pass",
           "note": "Docs and smoke evidence state that local diagnostic receipts cannot overclaim automatic main merge, productionDone, or verified server authority; delivery reviewer will still gate DONE separately.",
-          "headHash": "7adf3c22cdab8f449fcd39336e052453fa110292",
-          "materialHash": "389b541ce384847ec3922525177e423a755f2ef1c463850abba9b09e85dc88de",
-          "timestamp": "2026-06-04T06:14:06.735Z"
+          "headHash": "f9f75b60af4ad02445ed8f953d8c65f417bb44d2",
+          "materialHash": "394141b96aeb0c183e449d0ccaeb0c8e5b3008f6e1ab29346b506c32778523a6",
+          "timestamp": "2026-06-04T06:34:13.767Z"
         }
       ]
     }
