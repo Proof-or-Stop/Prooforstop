@@ -23,18 +23,28 @@ production authority.
 B-106b landed the manual-first Host Overflow base. B-a5c2 extends that base with
 `dispatch_auto` as the selected `policy-authorized-unattended-scheduler`:
 `chosen: policy-authorized-unattended-scheduler`, `preMortem: 6`.
+The v1.0.1 real-subprocess contract is Claude Code first: a policy must set
+`allowRealHostSubprocess=true` before Lattice may attempt a Claude Code real
+subprocess. Gemini and Codex remain scaffolded/refused real-subprocess targets
+in this version.
 
 The product finish line is concrete and user-visible:
 
-1. The user defines or selects an explicit unattended policy.
+1. The user defines or selects an explicit unattended policy; real Claude Code
+   subprocess launch additionally requires `allowRealHostSubprocess=true`.
 2. Lattice checks policy authorization, including allowed hosts, allowed and
    denied paths, max parallelism, timeouts, retry limits, command templates,
    budget/network posture, and environment allow/deny filtering.
 3. Lattice probes host capability and reports unavailable or supervised-only
    when login, noninteractive mode, cwd isolation, timeout, transcript, network,
-   or env-safety guarantees are missing.
-4. `dispatch_auto` starts only policy-authorized, unattended-safe workers in
-   isolated worktrees and records worker lease/conflict state.
+   or env-safety guarantees are missing. The standalone
+   `host_runtime_probe.unattendedSafe` fact stays conservatively `false`.
+4. `dispatch_auto` performs the actual unattended launch decision by combining
+   policy authorization, Claude availability, `claude --print` support,
+   launcher allowlisting, timeout/env filtering, scope checks, and worker
+   lease/conflict state before starting isolated worktrees. For v1.0.1, the
+   only real-host subprocess target is Claude Code under explicit policy
+   opt-in; fake remains the deterministic local harness.
 5. `dispatch_watch` and `dispatch_cancel` keep the run visible and stoppable.
 6. `dispatch_review` and manual `dispatch_merge_plan` surface transcripts,
    changed files, command output, and local diagnostic receipts as evidence
@@ -98,8 +108,11 @@ The supervised dispatch layer is now landed as explicit Lattice surfaces:
   `start=true` alone must remain suggest-only and emit a warning about the
   missing counterpart flag.
 - `dispatch_auto` is reserved for the B-a5c2 unattended extension. Unlike
-  `overflow_auto`, it may start external host workers, but only after explicit
-  user policy authorization and host unattended-safety checks pass.
+  `overflow_auto`, it may start unattended workers, but only after explicit user
+  policy authorization and host unattended-safety checks pass. Real-host
+  subprocess launch in v1.0.1 is Claude Code only and requires
+  `allowRealHostSubprocess=true`; Gemini/Codex are not supported real-subprocess
+  targets.
 
 ## Workflow
 
@@ -127,6 +140,7 @@ Lattice Host Overflow does **not**:
 - Turn host availability into production authority
 - Require the Mac App
 - Introduce a new model-runner runtime inside Lattice
+- Claim Gemini or Codex real-subprocess support in v1.0.1
 
 ## Claude Code note
 
@@ -150,5 +164,6 @@ claude-code (works whether or not the CLI is installed), `dispatch_auto` with
 fake policy (deterministic parallel workers), `dispatch_watch` lifecycle,
 `dispatch_cancel` evidence preservation, `dispatch_review` transcript/runner
 evidence, `dispatch_merge_plan` `manualOnly=true`, explicit refusals for missing
-policy / unavailable host / `unattendedSafe=false` host, all authority flags
-fixed at `false`, and `overflow_auto` `nextAction` pointing to `dispatch_auto`.
+policy / unavailable host / missing real-host subprocess opt-in /
+`unattendedSafe=false` host, all authority flags fixed at `false`, and
+`overflow_auto` `nextAction` pointing to `dispatch_auto`.

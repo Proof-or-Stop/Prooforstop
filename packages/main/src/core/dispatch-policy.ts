@@ -20,6 +20,7 @@ export interface DispatchPolicy {
   retryLimit: number;
   requireReceipt: boolean;
   requireReview: boolean;
+  allowRealHostSubprocess?: boolean;
   allowAutoMerge: boolean;
   allowProductionDone: boolean;
   createdAt: string;
@@ -76,6 +77,7 @@ export interface CreateDispatchPolicyArgs {
   retryLimit?: number;
   requireReceipt?: boolean;
   requireReview?: boolean;
+  allowRealHostSubprocess?: boolean;
   allowAutoMerge?: boolean;
   allowProductionDone?: boolean;
 }
@@ -219,6 +221,19 @@ function validatePolicyArgs(args: CreateDispatchPolicyArgs): { errors: string[];
     normalized.requireReview = requireReview;
   }
 
+  const allowRealHostSubprocess = args.allowRealHostSubprocess ?? false;
+  if (typeof allowRealHostSubprocess !== 'boolean') {
+    errors.push(`allowRealHostSubprocess must be a boolean; got ${String(allowRealHostSubprocess)}`);
+  } else {
+    const unsupportedRealHosts = allowedHosts.filter(host => host === 'gemini' || host === 'codex');
+    if (allowRealHostSubprocess && unsupportedRealHosts.length > 0) {
+      errors.push(
+        `allowRealHostSubprocess currently supports claude-code only; ${unsupportedRealHosts.join(', ')} remain scaffolded/refused real-host subprocess targets`,
+      );
+    }
+    normalized.allowRealHostSubprocess = allowRealHostSubprocess;
+  }
+
   const allowAutoMerge = args.allowAutoMerge ?? false;
   if (allowAutoMerge === true) {
     errors.push('allowAutoMerge must be false; auto-merge is never permitted for unattended execution');
@@ -258,6 +273,7 @@ export function createDispatchPolicy(root: string, args: CreateDispatchPolicyArg
     retryLimit: normalized.retryLimit ?? 0,
     requireReceipt: normalized.requireReceipt!,
     requireReview: normalized.requireReview!,
+    allowRealHostSubprocess: normalized.allowRealHostSubprocess ?? false,
     allowAutoMerge: false,
     allowProductionDone: false,
     createdAt: new Date().toISOString(),
@@ -287,7 +303,7 @@ export function getDispatchPolicy(root: string, policy: string): DispatchPolicy 
     throw new Error(`dispatch policy not found: ${name} (expected at .koala/dispatch-policies/${name}.json)`);
   }
   const raw = JSON.parse(readFileSync(filePath, 'utf8')) as DispatchPolicy;
-  return raw;
+  return normalizeDispatchPolicyRecord(raw);
 }
 
 function fakePolicyRecord(): DispatchPolicy {
@@ -307,9 +323,17 @@ function fakePolicyRecord(): DispatchPolicy {
     retryLimit: 0,
     requireReceipt: true,
     requireReview: true,
+    allowRealHostSubprocess: false,
     allowAutoMerge: false,
     allowProductionDone: false,
     createdAt: '2026-01-01T00:00:00.000Z',
+  };
+}
+
+function normalizeDispatchPolicyRecord(policy: DispatchPolicy): DispatchPolicy {
+  return {
+    ...policy,
+    allowRealHostSubprocess: policy.allowRealHostSubprocess === true,
   };
 }
 
@@ -332,10 +356,10 @@ export function checkDispatchPolicy(root: string, policy: string | DispatchPolic
       if (!existsSync(filePath)) {
         return refusedResult(policyName, [`policy not found: ${policyName} (no file at .koala/dispatch-policies/${policyName}.json)`], `Create the policy first with dispatch_policy_create --policy=${policyName}`);
       }
-      policyRecord = JSON.parse(readFileSync(filePath, 'utf8')) as DispatchPolicy;
+      policyRecord = normalizeDispatchPolicyRecord(JSON.parse(readFileSync(filePath, 'utf8')) as DispatchPolicy);
     }
   } else {
-    policyRecord = policy;
+    policyRecord = normalizeDispatchPolicyRecord(policy);
     policyName = policyRecord.policy;
   }
 
@@ -346,6 +370,14 @@ export function checkDispatchPolicy(root: string, policy: string | DispatchPolic
   if (policyRecord.allowProductionDone === true) reasons.push('allowProductionDone must be false; productionDone cannot be claimed by unattended execution');
   if (policyRecord.requireReceipt === false) reasons.push('requireReceipt must be true; unattended use without a receipt is unsafe');
   if (policyRecord.requireReview === false) reasons.push('requireReview must be true; unattended use without review is unsafe');
+  if (policyRecord.allowRealHostSubprocess === true) {
+    const unsupportedRealHosts = (policyRecord.allowedHosts ?? []).filter(host => host === 'gemini' || host === 'codex');
+    if (unsupportedRealHosts.length > 0) {
+      reasons.push(
+        `allowRealHostSubprocess currently supports claude-code only; ${unsupportedRealHosts.join(', ')} remain scaffolded/refused real-host subprocess targets`,
+      );
+    }
+  }
 
   if (!policyRecord.allowedHosts || policyRecord.allowedHosts.length === 0) {
     reasons.push('allowedHosts is empty; at least one host must be authorized');
@@ -458,6 +490,7 @@ function refusedResult(
       retryLimit: 0,
       requireReceipt: true,
       requireReview: true,
+      allowRealHostSubprocess: false,
       allowAutoMerge: false,
       allowProductionDone: false,
       createdAt: '',
@@ -482,6 +515,7 @@ export function renderDispatchPolicyText(result: DispatchPolicy): string {
     ...(result.network !== undefined ? [`network: ${result.network}`] : []),
     `requireReceipt: ${result.requireReceipt}`,
     `requireReview: ${result.requireReview}`,
+    `allowRealHostSubprocess: ${result.allowRealHostSubprocess === true}`,
     `allowAutoMerge: ${result.allowAutoMerge}`,
     `allowProductionDone: ${result.allowProductionDone}`,
     `commandAllowlist: ${result.commandAllowlist.join(', ') || '(empty)'}`,

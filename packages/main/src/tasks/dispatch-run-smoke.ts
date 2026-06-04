@@ -13,7 +13,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join, resolve, win32 } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { MAIN_TOOLS } from '../cli-engine.js';
 import { COMMAND_POLICIES } from '../core/command-policy.js';
@@ -40,6 +40,7 @@ import type {
   HostRuntimeList,
   HostRuntimeProbe,
 } from '../core/lattice-dispatch.js';
+import { relativePathStaysWithinRoot } from '../core/lattice-dispatch.js';
 import type {
   DispatchPolicy,
   DispatchPolicyCheckResult,
@@ -248,6 +249,11 @@ try {
     assert.ok(handler, `${name} handler must be registered`);
     return handler(args) as string;
   };
+
+  assert.equal(relativePathStaysWithinRoot('', win32.isAbsolute), true, 'empty relative path stays within root');
+  assert.equal(relativePathStaysWithinRoot(`nested${win32.sep}file.txt`, win32.isAbsolute), true, 'nested win32 relative path stays within root');
+  assert.equal(relativePathStaysWithinRoot(`..${win32.sep}outside`, win32.isAbsolute), false, 'parent traversal must escape root');
+  assert.equal(relativePathStaysWithinRoot('D:\\outside', win32.isAbsolute), false, 'win32 cross-drive absolute relative() result must escape root');
 
   for (const command of EXPECTED_COMMANDS) assertFiveWayRegistration(command, registry);
 

@@ -108,8 +108,15 @@ The contract is conservative by design:
 ### Unattended dispatch: `dispatch_auto` (policy-authorized)
 
 `dispatch_auto` is the policy-authorized unattended scheduler. Unlike
-`overflow_auto`, it may start external host workers automatically — but only
-after explicit user policy authorization and host unattended-safety checks pass.
+`overflow_auto`, it may start unattended workers automatically — but only after
+explicit user policy authorization and the full `dispatch_auto` launch gates
+pass. The standalone `host_runtime_probe.unattendedSafe` fact remains
+conservatively `false`; actual launch authorization is computed by
+`dispatch_auto` from policy authorization plus Claude availability,
+`claude --print` support, `commandAllowlist`, timeout/env, and scope checks. In
+v1.0.1, real-host subprocess launch is Claude Code only and additionally
+requires `allowRealHostSubprocess=true`; Gemini and Codex remain
+scaffolded/refused real-subprocess targets.
 
 **Opt-in command sequence:**
 
@@ -119,10 +126,14 @@ lattice dispatch_policy_create --policy=nightly-safe \
   --allowedHosts=fake --allowedPaths=packages/main/src/generated/ \
   --maxParallel=2 --maxRuntimeMinutes=30 --maxBudgetUSD=5.0 \
   --network=none --commandAllowlist='node -e "process.exit(0)"' \
+  --allowRealHostSubprocess=false \
   --requireReceipt=true --requireReview=true \
   --allowAutoMerge=false --allowProductionDone=false
 
 lattice dispatch_policy_check --policy=nightly-safe --format=json
+
+# Claude Code real subprocess v1.0.1 requires a separate explicit opt-in policy:
+# --allowedHosts=claude-code ... --allowRealHostSubprocess=true
 
 # 2. Probe host capability (works whether or not the CLI is installed)
 lattice host_runtime_probe --host=claude-code --json
@@ -148,9 +159,9 @@ lattice dispatch_merge_plan --dispatchId=D-B-xxxx-1234 --format=json
 | | `overflow_auto` | `dispatch_auto` |
 |---|---|---|
 | Mode | Supervised/manual-first | Policy-authorized unattended |
-| Starts workers automatically | Only with `approve=true --start=true` | Yes, after policy + host checks pass |
+| Starts workers automatically | Only with `approve=true --start=true` | Yes for fake; Claude Code real subprocess only with `allowRealHostSubprocess=true` |
 | Policy required | No | Yes — refuses if missing or unauthorized |
-| Host safety check | No | Yes — refuses if `unattendedSafe=false` |
+| Host safety check | No | Yes — Gemini/Codex real subprocess support is not claimed |
 | Unattended mode | No (suggest-only by default) | Yes (policy-gated) |
 | Migration | Current default | Use this for unattended mode |
 
@@ -160,9 +171,12 @@ field will point you to `dispatch_auto` as the policy-authorized path.
 
 **Unattended mode remains user-authorized and authority-safe:**
 
-- `dispatch_auto` starts workers only after policy authorization and host
-  unattended-safety checks pass — it refuses missing policy, unsafe host, unsafe
-  scope, denied environment, exceeded limits, and lease/conflict risks.
+- `host_runtime_probe.unattendedSafe` is intentionally conservative and remains
+  `false`; `dispatch_auto` is the component that combines policy authorization,
+  Claude availability, `claude --print` support, launcher allowlisting,
+  timeout/env filtering, scope checks, and lease/conflict checks before
+  starting work. Real subprocess launch in v1.0.1 is Claude Code only and
+  requires `allowRealHostSubprocess=true`.
 - Worker output is evidence only. `dispatch_review` surfaces transcripts, diffs,
   receipts, and runner metadata as **evidence candidates**, not as gate authority.
 - `dispatch_merge_plan` is always `manualOnly=true` — dispatch completion never

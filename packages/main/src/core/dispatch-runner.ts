@@ -9,7 +9,7 @@ const SENSITIVE_ENV_PATTERNS = [
 // Only names starting with these prefixes are included in the safe-name summary.
 const SAFE_ENV_PREFIXES = [
   'PATH', 'HOME', 'USER', 'SHELL', 'TERM', 'LANG', 'LC_', 'TZ',
-  'PWD', 'OLDPWD', 'NODE_', 'npm_', 'KOALA_', 'CI', 'GITHUB_',
+  'PWD', 'OLDPWD', 'NODE_', 'npm_', 'LATTICE_', 'KOALA_', 'CI', 'GITHUB_',
   'RUNNER_', 'TMPDIR', 'TEMP', 'TMP', 'LOGNAME',
 ];
 
@@ -22,7 +22,7 @@ export interface DispatchRunnerEnvSummary {
   note: string;
 }
 
-export type RunnerKind = 'fake' | 'scaffolded' | 'refused';
+export type RunnerKind = 'fake' | 'scaffolded' | 'refused' | 'claude-code-real';
 
 export interface DispatchRunnerRecord {
   schemaVersion: 'lattice.dispatch_runner.v1';
@@ -126,6 +126,38 @@ export function buildScaffoldedRunnerRecord(opts: {
     refusalReasons: [
       'supervised-only: no external host process was launched; manual invocation required.',
     ],
+    ...authorityState(),
+  };
+}
+
+export function buildClaudeCodeRealRunnerRecord(opts: {
+  dispatchId: string;
+  host: string;
+  commandTemplate: string[];
+  invocation: string[];
+  cwd: string;
+  transcriptPath: string;
+  startedAt: string;
+  endedAt: string;
+  exitCode: number;
+  timedOut: boolean;
+  env: Record<string, string | undefined>;
+}): DispatchRunnerRecord {
+  return {
+    schemaVersion: 'lattice.dispatch_runner.v1',
+    dispatchId: opts.dispatchId,
+    host: opts.host,
+    runnerKind: 'claude-code-real',
+    commandTemplate: opts.commandTemplate,
+    invocation: opts.invocation,
+    cwd: opts.cwd,
+    transcriptPath: opts.transcriptPath,
+    startedAt: opts.startedAt,
+    endedAt: opts.endedAt,
+    exitCode: opts.exitCode,
+    timedOut: opts.timedOut,
+    envSummary: buildEnvSummary(opts.env),
+    refusalReasons: [],
     ...authorityState(),
   };
 }

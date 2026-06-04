@@ -879,6 +879,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     retryLimit: z.number().int().min(0).optional().describe('Retry limit per worker (default 0)'),
     requireReceipt: z.boolean().optional().describe('Require a local receipt; must be true'),
     requireReview: z.boolean().optional().describe('Require manual review; must be true'),
+    allowRealHostSubprocess: z.boolean().optional().describe('Explicit opt-in for real-host subprocess launch; defaults false and currently supports claude-code only'),
     allowAutoMerge: z.boolean().optional().describe('Allow auto-merge; must be false'),
     allowProductionDone: z.boolean().optional().describe('Allow productionDone; must be false'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
@@ -897,7 +898,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for policy check JSON; refuses to overwrite'),
   }},
-  { name: 'dispatch_auto', description: 'Policy-authorized unattended scheduler: reads dispatch_policy_check, enforces maxParallel/host/scope limits, starts deterministic fake workers or refuses real hosts. Alias: lattice dispatch auto', schema: {
+  { name: 'dispatch_auto', description: 'Policy-authorized unattended scheduler: reads dispatch_policy_check, enforces maxParallel/host/scope limits, starts deterministic fake workers; real subprocess v1.0.1 is claude-code only with explicit policy opt-in. Alias: lattice dispatch auto', schema: {
     storyId: z.string().describe('Story ID to schedule dispatch for'),
     policy: z.string().describe('Policy name that authorizes unattended scheduling'),
     host: z.string().optional().describe('Override host (must be in policy allowedHosts; defaults to first policy-allowed host)'),

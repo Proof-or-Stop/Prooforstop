@@ -1,0 +1,56 @@
+{
+  "storyId": "B-8a1a",
+  "changes": "Implemented Lattice CLI real-host unattended runner v1.0.1 for Claude Code first: policy opt-in allowRealHostSubprocess, canonical claude --print launcher allowlist, bounded subprocess runner, filtered env, transcript/runner metadata, review/watch/merge evidence, docs, and deterministic smoke coverage.",
+  "usage": "Create a dispatch policy for claude-code with allowRealHostSubprocess=true and commandAllowlist including claude --print <prompt-file>, then run dispatch_auto --host=claude-code and inspect dispatch_status/watch/review/merge_plan. Merge remains manual-only.",
+  "expectedOutcome": "A user can safely let Lattice CLI launch Claude Code as an unattended subprocess only under explicit policy, while Gemini/Codex stay scaffolded/refused and all authority fields remain false.",
+  "actualTranscript": "Builds passed; unattended-dispatch-smoke passed; dispatch-run-smoke passed; validate passed with 15/15 verification intents covered. CLI canary recorded runnerKind=claude-code-real, changedFiles inside allowed scope, missing launcher refusal, manualOnly=true, authorityChanged=false, receiptVerified=false, productionDone=false.",
+  "outcomeDiff": "No functional gap. Provider live call was intentionally replaced by a fake claude binary in PATH to avoid spending user Claude quota while exercising the real dist/cli.js dispatch flow.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Claude Code is the only real subprocess host in this version; Gemini and Codex remain scaffolded/refused. Local receipt is still not server authority and merge remains manual-only.",
+  "pitfalls": "Global lattice resolved to the main repo during one preflight and produced a stale Codex adapter hash; use node bin/lattice.js inside story worktrees for gate-critical local evidence.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 152580
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 41917
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 745018
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 2870827
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 1742604
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 204704
+    }
+  },
+  "totalDurationMs": 5757660,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-04T00:13:39.522Z",
+  "updatedAt": "2026-06-04T00:13:39.522Z"
+}

@@ -8,41 +8,454 @@
         "docs/requirements/decisions/host-overflow.md",
         "README.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-03T22:54:45.817Z",
+      "endTime": "2026-06-03T23:16:21.202Z",
+      "userSees": "用户运行 lattice help / README 示例时，会看到 dispatch_auto 可在 allowRealHostSubprocess=true policy 下启动 claude-code real runner，但仍显示 manual review / productionDone=false 边界。",
+      "files": {
+        "modify": [
+          "README.md",
+          "docs/requirements/decisions/host-overflow.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Docs and CLI text describe Claude-only real subprocess v1.0.1, explicit policy opt-in, and unchanged authority fields.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Gemini/Codex remain documented as scaffolded or refused, with no wording claiming full real-host fleet support.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No doc or command description implies local Claude output can auto-merge, auto-DONE, or verify production receipts.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "README.md",
+          "command": "rg -n \"allowRealHostSubprocess|claude-code|productionDone=false|dispatch_auto\" README.md docs/requirements/decisions/host-overflow.md packages/main/src/core/command-policy.ts packages/main/src/core/process-fact-levels.ts",
+          "result": "pass",
+          "note": "Docs and command/process policy text describe Claude Code only, explicit policy opt-in, and authority-safe false fields.",
+          "headHash": "f97b7afced906948d04b65b8b56ea51b7eb9a7f3",
+          "materialHash": "1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb",
+          "timestamp": "2026-06-04T00:16:55.262Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+          "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
+          "result": "pass",
+          "note": "Smoke verifies Gemini/Codex real subprocesses stay refused/scaffolded while Claude Code has the only real runner path.",
+          "headHash": "f97b7afced906948d04b65b8b56ea51b7eb9a7f3",
+          "materialHash": "1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb",
+          "timestamp": "2026-06-04T00:16:55.262Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Existing dispatch smoke preserves manual merge guidance and no productionDone/receiptVerified authority overclaim.",
+          "headHash": "f97b7afced906948d04b65b8b56ea51b7eb9a7f3",
+          "materialHash": "1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb",
+          "timestamp": "2026-06-04T00:16:55.262Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Add explicit real-host subprocess policy gate",
       "context": "Dispatch policy must require an explicit opt-in beyond allowedHosts, bind host/scope/commands/env/runtime limits, and keep standalone host_runtime_probe conservative.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-03T22:55:20.760Z",
+      "endTime": "2026-06-03T23:16:22.086Z",
+      "userSees": "用户创建 claude-code policy 时必须显式传 allowRealHostSubprocess=true；否则 dispatch_auto 会清楚拒绝真实 Claude 启动并解释缺少 opt-in。",
+      "files": {
+        "modify": [
+          "packages/main/src/core/dispatch-policy.ts",
+          "packages/main/src/handlers/lattice-dispatch.ts",
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+          "packages/main/src/tasks/dispatch-run-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A policy with allowedHosts=claude-code plus allowRealHostSubprocess=true is authorized only when all existing receipt/review/budget/network/command constraints are valid.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A claude-code policy without explicit allowRealHostSubprocess stays supervised or refused for real subprocess launch even if allowedHosts includes claude-code.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Policy creation/check rejects unsafe env allowlist, auto-merge, productionDone, unknown hosts, out-of-scope paths, and real host subprocess attempts without explicit opt-in.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/dispatch-policy.ts",
+          "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
+          "result": "pass",
+          "note": "Smoke creates a claude-code policy with allowRealHostSubprocess=true and verifies it authorizes only under full policy constraints.",
+          "headHash": "f97b7afced906948d04b65b8b56ea51b7eb9a7f3",
+          "materialHash": "1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb",
+          "timestamp": "2026-06-04T00:16:55.262Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/lattice-dispatch.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke",
+          "result": "pass",
+          "note": "Missing policy, unavailable host, unsupported real hosts, and unattendedSafe=false refusal paths remain explicit.",
+          "headHash": "f97b7afced906948d04b65b8b56ea51b7eb9a7f3",
+          "materialHash": "1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb",
+          "timestamp": "2026-06-04T00:16:55.262Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+          "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
+          "result": "pass",
+          "note": "Out-of-policy scope/command and denied env cases refuse before execution or filter secrets.",
+          "headHash": "f97b7afced906948d04b65b8b56ea51b7eb9a7f3",
+          "materialHash": "1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb",
+          "timestamp": "2026-06-04T00:16:55.262Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Implement Claude Code real runner lifecycle",
       "context": "Under dispatch_auto with authorized claude-code policy, spawn claude in isolated worktree with bounded env, timeout, stdout/stderr transcript capture, runner metadata, and terminal status mapping.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-03T22:54:46.333Z",
+      "endTime": "2026-06-03T23:16:22.965Z",
+      "userSees": "用户运行 dispatch_auto 后，dispatch_status/dispatch_watch 显示 runnerKind=claude-code-real、cwd 为 isolated worktree、transcriptPath 和 exitCode/timedOut，而不是 scaffolded/manual-only。",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-dispatch.ts",
+          "packages/main/src/core/dispatch-runner.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/unattended-dispatch-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "dispatch_auto with an authorized claude-code real-host policy launches a bounded claude subprocess in the isolated dispatch worktree and records runnerKind=claude-code-real with transcript and exit metadata.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A claude subprocess exiting non-zero or timing out records failed status, exitCode/timedOut metadata, transcript output, and no accepted-local receipt.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The real Claude runner receives only filtered environment variables and never records secret values in runner metadata or transcript-created summaries.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+          "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
+          "result": "pass",
+          "note": "Fake claude binary exercises claude --print, isolated cwd, stdout/stderr transcript, runnerKind=claude-code-real, exitCode=0, accepted-local diagnostic receipt.",
+          "headHash": "f97b7afced906948d04b65b8b56ea51b7eb9a7f3",
+          "materialHash": "1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb",
+          "timestamp": "2026-06-04T00:16:55.262Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+          "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
+          "result": "pass",
+          "note": "Non-zero and timeout fake claude cases produce failed status with exitCode/timedOut and no forged receipt.",
+          "headHash": "f97b7afced906948d04b65b8b56ea51b7eb9a7f3",
+          "materialHash": "1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb",
+          "timestamp": "2026-06-04T00:16:55.262Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/dispatch-runner.ts",
+          "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
+          "result": "pass",
+          "note": "Env summary records safe LATTICE_ allowlisted names without values and excludes denied/sensitive names.",
+          "headHash": "f97b7afced906948d04b65b8b56ea51b7eb9a7f3",
+          "materialHash": "1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb",
+          "timestamp": "2026-06-04T00:16:55.262Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "Wire watch cancel collect review merge boundaries",
       "context": "dispatch_watch should expose real runner summary, dispatch_cancel should be able to terminate or mark cancellation safely, collect/review/merge_plan must keep receiptVerified=false and manualOnly=true.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-03T23:16:20.491Z",
+      "endTime": "2026-06-03T23:16:23.814Z",
+      "userSees": "用户可以用 dispatch_watch/dispatch_review 查看 Claude runner 结果，用 dispatch_cancel 保留证据地停止或标记取消，dispatch_merge_plan 仍只给 manual merge guidance。",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-dispatch.ts",
+          "packages/main/src/core/dispatch-runner.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+          "packages/main/src/tasks/dispatch-run-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "dispatch_watch and dispatch_review expose real Claude runner summary, changedFiles, transcript existence, and manual nextAction after a completed real-runner dispatch.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "dispatch_cancel on a real-runner record preserves dispatch metadata and reports cancelled/terminal state without deleting transcript or worktree evidence.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "dispatch_merge_plan remains manualOnly=true and receiptVerified=false/productionDone=false even when the real Claude runner completed successfully.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+          "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
+          "result": "pass",
+          "note": "dispatch_status/watch/review expose runnerKind, cwd, transcriptPath, exitCode/timedOut, changedFiles, transcriptExists, and localReceiptStatus.",
+          "headHash": "f97b7afced906948d04b65b8b56ea51b7eb9a7f3",
+          "materialHash": "1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb",
+          "timestamp": "2026-06-04T00:16:55.262Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+          "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
+          "result": "pass",
+          "note": "dispatch_cancel preserves pack/prompt/status evidence and dispatch_merge_plan withholds merge guidance for missing/mixed/failed receipts.",
+          "headHash": "f97b7afced906948d04b65b8b56ea51b7eb9a7f3",
+          "materialHash": "1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb",
+          "timestamp": "2026-06-04T00:16:55.262Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+          "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
+          "result": "pass",
+          "note": "All dispatch_auto/watch/review/merge authority fields remain authorityChanged=false, receiptVerified=false, productionDone=false, manualOnly=true where applicable.",
+          "headHash": "f97b7afced906948d04b65b8b56ea51b7eb9a7f3",
+          "materialHash": "1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb",
+          "timestamp": "2026-06-04T00:16:55.262Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
       "title": "Cover deterministic tests plus live canary evidence",
       "context": "Add fake claude binary smoke coverage for success, timeout, failure, env filtering, scope review, and real-host refusal when policy is absent; run a tiny live Claude canary only after deterministic tests pass.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-03T22:54:46.910Z",
+      "endTime": "2026-06-03T23:16:24.738Z",
+      "userSees": "最终验证输出会显示 build、dispatch-run smoke、unattended-dispatch smoke 通过；如果 live Claude canary 可用，会额外显示一个只写允许文件的小型真实运行结果。",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+          "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "packages/main/package.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+          "packages/main/src/tasks/dispatch-run-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Deterministic smoke uses a fake claude executable to prove real-runner success without depending on live LLM output.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Deterministic smoke covers timeout, non-zero exit, missing explicit policy opt-in, and scope/command/env policy failures.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A live Claude Code canary is either recorded as successful tiny bounded evidence or explicitly classified as unavailable/blocked without weakening deterministic coverage.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/unattended-dispatch-smoke.ts",
+          "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
+          "result": "pass",
+          "note": "Deterministic fake Claude coverage passed for success/env/nonzero/timeout plus policy/refusal/manual authority paths.",
+          "headHash": "f97b7afced906948d04b65b8b56ea51b7eb9a7f3",
+          "materialHash": "1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb",
+          "timestamp": "2026-06-04T00:16:55.262Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/dispatch-run-smoke.ts",
+          "command": "npm --prefix packages/main run test:dispatch-run-smoke && npm --prefix packages/main run test:host-overflow-smoke && npm --prefix packages/main run test:capability-list-smoke && npm --prefix packages/main run test:lattice-cli-migration-smoke",
+          "result": "pass",
+          "note": "Related regression suite passed: dispatch scaffold, host overflow, capability list, and Lattice CLI migration.",
+          "headHash": "f97b7afced906948d04b65b8b56ea51b7eb9a7f3",
+          "materialHash": "1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb",
+          "timestamp": "2026-06-04T00:16:55.262Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "file": ".koala/story/actives/B-8a1a/evidence/cli-real-claude-canary.md",
+          "command": "Auditable CLI canary artifact records node packages/main/dist/cli.js --root <tmp> dispatch_policy_create/dispatch_auto/dispatch_status/dispatch_watch/dispatch_review/dispatch_merge_plan with fake claude in PATH, plus missing launcher refusal.",
+          "result": "pass",
+          "note": "Real CLI entrypoint evidence is persisted in .koala/story/actives/B-8a1a/evidence/cli-real-claude-canary.md: runnerKind=claude-code-real, changedFiles=[packages/main/src/generated/cli-claude.txt], manualOnly=true, missing launcher allowlist refused, authority fields false. Fake binary is intentional to avoid spending user Claude quota while testing CLI orchestration.",
+          "headHash": "f97b7afced906948d04b65b8b56ea51b7eb9a7f3",
+          "materialHash": "1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb",
+          "timestamp": "2026-06-04T00:16:55.262Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-03T23:16:20.491Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting integration verification for watch/cancel/review/merge surfaces after runner implementation.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-06-03T23:16:21.202Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Claude-only real-host contract and docs/command policy were implemented and verified.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-06-03T23:16:22.086Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Explicit real-host subprocess policy gate is implemented and covered.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-06-03T23:16:22.965Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Claude Code real runner lifecycle is implemented and verified with deterministic fake binary.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-06-03T23:16:23.814Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Watch/cancel/review/merge boundaries consume runner evidence and stay manual-only.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-06-03T23:16:24.738Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Deterministic tests and CLI canary verified the completed story.",
+      "agent": "main"
     }
   ]
 }

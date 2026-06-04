@@ -1,4 +1,4 @@
-import { execFileSync, execSync } from 'node:child_process';
+import { execFileSync, execSync, spawnSync } from 'node:child_process';
 import {
   existsSync,
   lstatSync,
@@ -26,6 +26,7 @@ import {
   type HandoffReceiptSubmission,
 } from './lattice-handoff.js';
 import {
+  buildClaudeCodeRealRunnerRecord,
   buildFakeRunnerRecord,
   buildRefusedRunnerRecord,
   buildScaffoldedRunnerRecord,
@@ -61,6 +62,8 @@ export type TranscriptSupport = 'supported' | 'unverified';
 export type EnvSafetyPosture = 'sandboxed' | 'inherited' | 'unverified';
 export type LoginReadiness = 'ready' | 'requires-login' | 'unknown';
 export type ReceiptSupport = 'structured' | 'transcript-capture' | 'unverified';
+
+const CLAUDE_PRINT_LAUNCHER = 'claude --print <prompt-file>';
 
 export interface HostRuntimeProbe {
   schemaVersion: 'lattice.host_runtime_probe.v1';
@@ -370,6 +373,7 @@ type DispatchPrepareArgs = DispatchPlanArgs & {
 type DispatchRunArgs = DispatchPrepareArgs & {
   dispatchId?: string;
   executionPolicy?: DispatchCommandExecutionPolicy;
+  allowRealHostSubprocess?: boolean;
 };
 
 type DispatchCommandExecutionPolicy = {
@@ -1109,9 +1113,34 @@ function assertWorktreeRelativePath(worktreeAbs: string, candidatePath: string, 
   return candidateRel || '.';
 }
 
+export function relativePathStaysWithinRoot(
+  rel: string,
+  absolutePathDetector: (path: string) => boolean = isAbsolute,
+): boolean {
+  return rel === ''
+    || (rel !== '..'
+      && !rel.startsWith('../')
+      && !rel.startsWith('..\\')
+      && !absolutePathDetector(rel));
+}
+
 function pathResolvesWithinRoot(rootReal: string, candidateReal: string): boolean {
   const rel = relative(rootReal, candidateReal);
-  return rel === '' || (rel !== '..' && !rel.startsWith(`..${sep}`));
+  return relativePathStaysWithinRoot(rel);
+}
+
+function commandAllowlistAllowsClaudePrint(commandAllowlist: string[] | undefined): boolean {
+  return normalizeList(commandAllowlist).includes(CLAUDE_PRINT_LAUNCHER);
+}
+
+function assertClaudePrintLauncherAllowed(
+  commandAllowlist: string[] | undefined,
+  refusalPrefix: string,
+): void {
+  if (commandAllowlistAllowsClaudePrint(commandAllowlist)) return;
+  throw new Error(
+    `${refusalPrefix} policy commandAllowlist must include canonical launcher "${CLAUDE_PRINT_LAUNCHER}" before Lattice may start claude --print.`,
+  );
 }
 
 function assertCanonicalWorktreePath(worktreeAbs: string, candidatePath: string, label: string): string {
@@ -1428,6 +1457,92 @@ function runRequiredCommands(
   });
 }
 
+function spawnOutputText(value: unknown): string {
+  if (value === undefined || value === null) return '';
+  return Buffer.isBuffer(value) ? value.toString('utf8') : String(value);
+}
+
+function spawnTimedOut(result: ReturnType<typeof spawnSync>, timeoutMs: number): boolean {
+  const error = result.error as NodeJS.ErrnoException | undefined;
+  const message = String(error?.message || '');
+  return error?.code === 'ETIMEDOUT'
+    || result.signal === 'SIGTERM'
+    || /timed out|timeout|ETIMEDOUT/i.test(message)
+    || (result.status === null && timeoutMs > 0 && Boolean(error));
+}
+
+function spawnExitCode(result: ReturnType<typeof spawnSync>, timedOut: boolean): number {
+  if (typeof result.status === 'number') return result.status;
+  return timedOut ? 124 : 1;
+}
+
+function gitStatusPaths(worktreeAbs: string): string[] {
+  const output = execFileSync('git', ['status', '--porcelain=v1', '--untracked-files=all'], {
+    cwd: worktreeAbs,
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+  return output
+    .split(/\r?\n/)
+    .map(line => line.trimEnd())
+    .filter(Boolean)
+    .map((line) => {
+      const pathPart = line.slice(3);
+      return pathPart.includes(' -> ') ? pathPart.split(' -> ').pop()! : pathPart;
+    });
+}
+
+function packAllowsChangedPath(pack: HandoffPack, changedPath: string): boolean {
+  return pack.allowedPaths.some(allowedPath => pathIsWithinScope(changedPath, allowedPath))
+    && !pack.deniedPaths.some(deniedPath => pathIsWithinScope(changedPath, deniedPath));
+}
+
+function removeScaffoldedOnlyWarnings(warnings: string[]): string[] {
+  return warnings.filter(warning => !/scaffolded only|does not auto-drive/i.test(warning));
+}
+
+function createClaudeCodeReceipt(opts: {
+  pack: HandoffPack;
+  record: Pick<DispatchRecord, 'dispatchId' | 'selectedHost'>;
+  headSha: string;
+  changedFiles: string[];
+  command: string;
+  diagnosticWarnings: string[];
+}): HandoffReceipt {
+  const verdict: HandoffReceipt['verdict'] =
+    opts.changedFiles.length > 0 && opts.diagnosticWarnings.length === 0 ? 'pass' : 'warn';
+  return {
+    schemaVersion: 'lattice.handoff_receipt.v1',
+    storyId: opts.pack.storyId,
+    host: dispatchReceiptHost(opts.record, opts.pack),
+    packId: opts.pack.packId,
+    packHash: opts.pack.packHash,
+    fromHost: opts.pack.fromHost,
+    toHost: opts.pack.toHost,
+    ...(opts.pack.baseSha ? { baseSha: opts.pack.baseSha } : {}),
+    ...(opts.pack.role ? { role: opts.pack.role } : {}),
+    ...(opts.pack.objective ? { objective: opts.pack.objective } : {}),
+    allowedPaths: [...opts.pack.allowedPaths],
+    deniedPaths: [...opts.pack.deniedPaths],
+    requiredCommands: [...opts.pack.requiredCommands],
+    successCriteria: [...opts.pack.successCriteria],
+    authorityBoundary: opts.pack.authorityBoundary,
+    executionInstructions: [...opts.pack.executionInstructions],
+    headSha: opts.headSha,
+    changedFiles: [...opts.changedFiles],
+    commands: [opts.command],
+    verdict,
+    summary: verdict === 'pass'
+      ? `Claude Code dispatch ${opts.record.dispatchId} completed with a local reviewable diff.`
+      : `Claude Code dispatch ${opts.record.dispatchId} completed but needs diagnostic review before acceptance.`,
+    limitations: [
+      'Claude Code subprocess receipt is local diagnostic evidence only.',
+      'receiptVerified=false, authorityChanged=false, productionDone=false.',
+      ...opts.diagnosticWarnings,
+    ],
+  };
+}
+
 function dispatchReceiptHost(record: Pick<DispatchRecord, 'selectedHost'>, pack: HandoffPack): string {
   return normalizeHostRuntimeId(record.selectedHost) ?? pack.toHost;
 }
@@ -1720,6 +1835,168 @@ function runFakeLeafDispatch(
   };
 }
 
+function runClaudeCodeRealLeafDispatch(
+  root: string,
+  record: DispatchRecord,
+  pack: HandoffPack,
+  runtime: HostRuntimeProbe,
+  worktreeAbs: string,
+  executionPolicy: DispatchCommandExecutionPolicy,
+): DispatchRunResult {
+  const runnerStartedAt = nowIso();
+  const promptFile = resolve(root, record.promptFile);
+  assertClaudePrintLauncherAllowed(executionPolicy.commandAllowlist, 'dispatch_run:');
+  const commandTemplate = runtime.invocationTemplate ?? ['claude', '--print', '<prompt-file>'];
+  const invocation = ['claude', '--print', promptFile];
+  const commandLabel = CLAUDE_PRINT_LAUNCHER;
+  const transcriptPath = resolve(root, record.transcriptFile);
+  const commandEnv = buildRequiredCommandEnv(executionPolicy);
+  const timeoutMs = Math.ceil(executionPolicy.maxRuntimeMs);
+  appendTranscript(transcriptPath, [
+    `[${nowIso()}] claude-code real subprocess starting`,
+    `[${nowIso()}] cwd ${record.worktree.worktreePath} (${worktreeAbs})`,
+    `[${nowIso()}] invocation ${invocation.join(' ')}`,
+  ]);
+
+  const result = spawnSync('claude', ['--print', promptFile], {
+    cwd: worktreeAbs,
+    env: commandEnv,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+    timeout: timeoutMs,
+  });
+  const timedOut = spawnTimedOut(result, timeoutMs);
+  const exitCode = spawnExitCode(result, timedOut);
+  const stdout = spawnOutputText(result.stdout).trimEnd();
+  const stderr = spawnOutputText(result.stderr).trimEnd();
+  const spawnError = result.error ? String(result.error.message || result.error).trim() : '';
+  const runnerEndedAt = nowIso();
+  appendTranscript(transcriptPath, [
+    `[${nowIso()}] claude-code real subprocess exitCode=${exitCode} timedOut=${timedOut}`,
+    ...(stdout ? ['[stdout]', stdout] : ['[stdout]', '(empty)']),
+    ...(stderr ? ['[stderr]', stderr] : ['[stderr]', '(empty)']),
+    ...(spawnError ? ['[spawn-error]', spawnError] : []),
+  ]);
+
+  const runnerRecord = buildClaudeCodeRealRunnerRecord({
+    dispatchId: record.dispatchId,
+    host: record.selectedHost,
+    commandTemplate,
+    invocation,
+    cwd: record.worktree.worktreePath,
+    transcriptPath: record.transcriptFile,
+    startedAt: runnerStartedAt,
+    endedAt: runnerEndedAt,
+    exitCode,
+    timedOut,
+    env: commandEnv,
+  });
+  if (record.runnerFile) {
+    writeJson(resolve(root, record.runnerFile), runnerRecord);
+  }
+
+  const baseWarnings = removeScaffoldedOnlyWarnings(record.warnings);
+  if (exitCode !== 0 || timedOut) {
+    const failureWarning = timedOut
+      ? `claude-code real subprocess timed out after ${timeoutMs}ms`
+      : `claude-code real subprocess exited non-zero: ${exitCode}`;
+    const failed = writeRecord(root, {
+      ...record,
+      status: 'failed',
+      warnings: [...baseWarnings, failureWarning],
+      nextAction: `Claude Code subprocess failed for ${record.dispatchId}. Inspect ${record.transcriptFile} and the isolated worktree before retrying.`,
+    });
+    writeJson(resolve(root, failed.collectFile), leafDispatchCollection(root, failed, pack));
+    return {
+      schemaVersion: 'lattice.dispatch_run.v1',
+      dispatchId: failed.dispatchId,
+      storyId: failed.storyId,
+      host: failed.selectedHost,
+      status: 'failed',
+      parallel: failed.parallel,
+      runtime: failed.runtime,
+      workers: [],
+      warnings: [...failed.warnings],
+      nextAction: failed.nextAction,
+      authorityChanged: false,
+      receiptVerified: false,
+      productionDone: false,
+    };
+  }
+
+  const changedWorktreeFiles = gitStatusPaths(worktreeAbs);
+  const allowedChangedFiles = changedWorktreeFiles.filter(path => packAllowsChangedPath(pack, path));
+  const outOfScopeChangedFiles = changedWorktreeFiles.filter(path => !packAllowsChangedPath(pack, path));
+  if (allowedChangedFiles.length > 0) {
+    execFileSync('git', ['add', '-A', '--', ...allowedChangedFiles], {
+      cwd: worktreeAbs,
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    try {
+      gitOutput(worktreeAbs, ['commit', '-m', `claude-code dispatch ${record.dispatchId}`]);
+    } catch {
+      gitOutput(worktreeAbs, ['commit', '--allow-empty', '-m', `claude-code dispatch ${record.dispatchId} (empty)`]);
+    }
+  }
+
+  const headSha = currentGitHead(worktreeAbs);
+  if (!headSha) {
+    throw new Error(`claude-code dispatch ${record.dispatchId} could not resolve HEAD after subprocess run`);
+  }
+  const changedFiles = pack.baseSha ? changedFilesBetween(root, pack.baseSha, headSha) : allowedChangedFiles;
+  const diagnosticWarnings = [
+    ...(allowedChangedFiles.length === 0 ? ['Claude Code subprocess exited 0 but produced no policy-allowed git changes.'] : []),
+    ...outOfScopeChangedFiles.map(path => `Claude Code left an unstaged out-of-policy change in the isolated worktree: ${path}`),
+  ];
+  const receipt = createClaudeCodeReceipt({
+    pack,
+    record,
+    headSha,
+    changedFiles,
+    command: commandLabel,
+    diagnosticWarnings,
+  });
+  writeJson(resolve(root, record.receiptFile), receipt);
+  const submission = submitHandoffReceipt(root, receipt);
+  writeJson(resolve(root, record.receiptSubmissionFile), submission);
+  const warnings = [...baseWarnings, ...diagnosticWarnings, ...submission.warnings];
+  const collection = leafDispatchCollection(root, {
+    ...record,
+    latestHeadSha: headSha,
+    warnings,
+  }, pack);
+  writeJson(resolve(root, record.collectFile), collection);
+  const nextStatus: DispatchLifecycleStatus =
+    submission.status === 'accepted-local' ? 'accepted_local' : 'diagnostic';
+  const nextAction = submission.status === 'accepted-local'
+    ? 'Claude Code subprocess completed with a local diagnostic receipt. Review the isolated diff and transcript manually before merge planning.'
+    : submission.nextAction;
+  const updated = writeRecord(root, {
+    ...record,
+    status: nextStatus,
+    latestHeadSha: headSha,
+    warnings,
+    nextAction,
+  });
+  return {
+    schemaVersion: 'lattice.dispatch_run.v1',
+    dispatchId: updated.dispatchId,
+    storyId: updated.storyId,
+    host: updated.selectedHost,
+    status: nextStatus,
+    parallel: updated.parallel,
+    runtime: updated.runtime,
+    workers: [],
+    receipt: submission,
+    warnings: [...updated.warnings],
+    nextAction,
+    authorityChanged: false,
+    receiptVerified: false,
+    productionDone: false,
+  };
+}
+
 function childDispatchArgs(parentPack: HandoffPack, parent: DispatchRecord, workerIndex: number): DispatchPrepareArgs {
   const childId = `${parent.dispatchId}-w${workerIndex + 1}`;
   return {
@@ -1929,6 +2206,9 @@ export function runDispatch(store: StoryStore, root: string, args: DispatchRunAr
       receiptVerified: false,
       productionDone: false,
     };
+  }
+  if (record.selectedHost === 'claude-code' && args.allowRealHostSubprocess === true && args.executionPolicy) {
+    return runClaudeCodeRealLeafDispatch(root, record, pack, runtime, worktreeAbs, args.executionPolicy);
   }
   const scaffoldStartedAt = nowIso();
   const promptFile = resolve(root, record.promptFile);
@@ -2395,6 +2675,10 @@ function buildDispatchCommandExecutionPolicy(policy: DispatchPolicy): DispatchCo
   };
 }
 
+function policyAllowsRealHostSubprocess(policy: DispatchPolicy): boolean {
+  return (policy as DispatchPolicy & { allowRealHostSubprocess?: boolean }).allowRealHostSubprocess === true;
+}
+
 function bindDispatchAutoArgsToPolicy(
   root: string,
   args: DispatchRunArgs,
@@ -2410,6 +2694,7 @@ function bindDispatchAutoArgsToPolicy(
     deniedPaths: paths.deniedPaths,
     requiredCommands,
     executionPolicy: buildDispatchCommandExecutionPolicy(policy),
+    allowRealHostSubprocess: selectedHost === 'claude-code' && policyAllowsRealHostSubprocess(policy),
   };
 }
 
@@ -2469,6 +2754,12 @@ export function dispatchAuto(store: StoryStore, root: string, args: DispatchAuto
     );
   }
 
+  if (!policyCheck.authorized) {
+    throw new Error(
+      `dispatch_auto: policy "${policyName}" is supervised-only and cannot authorize unattended scheduling. ${policyCheck.nextAction}`,
+    );
+  }
+
   if (selectedHost !== 'fake') {
     const probe = probeHostRuntime(selectedHost);
     if (!probe.available) {
@@ -2476,15 +2767,22 @@ export function dispatchAuto(store: StoryStore, root: string, args: DispatchAuto
         `dispatch_auto: host "${selectedHost}" is not available in PATH; install or expose ${probe.cliCommand ?? selectedHost} and retry, or use host=fake for deterministic local coverage.`,
       );
     }
-    throw new Error(
-      `dispatch_auto: host "${selectedHost}" is not unattended-safe (unattendedSafe=false). Real host unattended execution is not yet authorized for policy-driven scheduling. Run dispatch_prepare/dispatch_run manually and return a receipt, or use host=fake for deterministic local coverage.`,
-    );
-  }
-
-  if (!policyCheck.authorized) {
-    throw new Error(
-      `dispatch_auto: policy "${policyName}" is supervised-only and cannot authorize unattended scheduling. ${policyCheck.nextAction}`,
-    );
+    if (selectedHost !== 'claude-code') {
+      throw new Error(
+        `dispatch_auto: host "${selectedHost}" is not unattended-safe (unattendedSafe=false). Real host subprocess policy is currently limited to claude-code; use host=fake for deterministic local coverage.`,
+      );
+    }
+    if (!policyAllowsRealHostSubprocess(policy)) {
+      throw new Error(
+        `dispatch_auto: host "${selectedHost}" is not unattended-safe (unattendedSafe=false). Policy "${policyName}" must set allowRealHostSubprocess=true before Lattice may start claude --print.`,
+      );
+    }
+    if (probe.noninteractiveSupport !== 'supported') {
+      throw new Error(
+        `dispatch_auto: host "${selectedHost}" is not unattended-safe (unattendedSafe=false). claude --print support is ${probe.noninteractiveSupport}; refusing real subprocess launch.`,
+      );
+    }
+    assertClaudePrintLauncherAllowed(policy.commandAllowlist, 'dispatch_auto:');
   }
 
   const parallel = Math.min(Math.max(1, args.parallel ?? 1), policy.maxParallel);
