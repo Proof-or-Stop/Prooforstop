@@ -151,7 +151,7 @@
         "docs/requirements/decisions/verification-context-pack.md",
         "docs/requirements/decisions/host-overflow.md"
       ],
-      "userSees": "Users can choose host-native delegation and receive exact handoff/receipt/transcript instructions instead of an opaque runner.",
+      "userSees": "CLI JSON shows: \"hostNativeDelegation\":{\"receiptRequired\":true,\"transcriptRequired\":true}.",
       "verificationIntent": {
         "happy": [
           {
