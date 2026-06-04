@@ -886,8 +886,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-04T03:36:51.313Z",
       "endTime": null,
       "files": {
         "modify": [
@@ -1100,6 +1100,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "DEV implementation and verification completed",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-06-04T03:36:51.313Z",
+      "phase": "DEV",
+      "itemId": "CHK-011",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "DEV final delivery closure started",
       "agent": "codex-main"
     }
   ]
