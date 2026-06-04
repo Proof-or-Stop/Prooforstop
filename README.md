@@ -288,7 +288,7 @@ node bin/lattice-codex.js story_create '...'
 node bin/lattice-codex.js lab create --target=test-case-reviewer --profile=reviewer-quality-v1
 ```
 
-Wrapper 优先级：`bin/lattice-codex.js`（本仓标准）> `bin/koala-codex.js`（legacy 项目等价 fallback）> `bin/lattice.js`（通用 bootstrap，不带 `source=codex` 标记）。legacy 项目或新 worktree 只有 `bin/koala-codex.js` 时，直接替换前缀，语义等价。
+Wrapper 优先级：`bin/lattice-codex.js`（本仓标准）> `bin/koala-codex.js`（legacy 项目等价 fallback）> `bin/lattice.js`（通用 bootstrap，不带 `source=codex` 标记）> `bin/koala.js`（legacy 通用 bootstrap fallback）。legacy 项目或新 worktree 只有 `bin/koala-codex.js` 时，直接替换前缀，语义等价。
 
 原因：
 

@@ -26,6 +26,7 @@ import {
   LOCAL_INIT_VERIFY_COMMAND,
   LOCAL_MAIN_VERIFY_COMMAND,
   renderCodexAdapterChecks,
+  resolveCodexSessionBriefCommand,
   runCodexAdapterChecks,
   summarizeCodexEvidence,
 } from '../packages/main/dist/core/codex-adapter-checks.js';
@@ -249,6 +250,48 @@ function assertGlobalFallbackHeartbeatIgnoresParentCodexEntrypoint() {
 }
 
 assertGlobalFallbackHeartbeatIgnoresParentCodexEntrypoint();
+
+// resolveCodexSessionBriefCommand: explicit wrapper candidate mapping tests
+function assertSessionBriefCommand(setup, expectedCommand, label) {
+  const dir = mkdtempSync(join(tmpdir(), 'koala-session-brief-'));
+  try {
+    mkdirSync(join(dir, 'bin'), { recursive: true });
+    setup(dir);
+    const cmd = resolveCodexSessionBriefCommand(dir);
+    assert(cmd === expectedCommand, `${label}: expected "${expectedCommand}", got "${cmd}"`);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+assertSessionBriefCommand(
+  (dir) => writeFileSync(join(dir, 'bin', 'lattice-codex.js'), '// lattice-codex wrapper'),
+  'node bin/lattice-codex.js session_brief',
+  'lattice wrapper resolves to lattice-codex session_brief',
+);
+assertSessionBriefCommand(
+  (dir) => writeFileSync(join(dir, 'bin', 'koala-codex.js'), '// koala-codex wrapper'),
+  'node bin/koala-codex.js session_brief',
+  'legacy koala-codex wrapper resolves to koala-codex session_brief',
+);
+assertSessionBriefCommand(
+  (dir) => writeFileSync(join(dir, 'bin', 'koala.js'), '// koala bootstrap'),
+  'node bin/koala.js session_brief',
+  'koala.js-only fallback resolves to koala session_brief',
+);
+
+{
+  const dir = mkdtempSync(join(tmpdir(), 'koala-session-brief-global-thin-'));
+  try {
+    mkdirSync(join(dir, '.Lattice'), { recursive: true });
+    writeFileSync(join(dir, '.Lattice', 'lattice.json'), JSON.stringify({ assetMode: 'global-thin' }));
+    const cmd = resolveCodexSessionBriefCommand(dir);
+    const expected = `${GLOBAL_CODEX_FALLBACK_COMMAND} session_brief`;
+    assert(cmd === expected, `global-thin resolves to fallback command: expected "${expected}", got "${cmd}"`);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
 
 function seedCodexStory(dir) {
   mkdirSync(join(dir, '.koala', 'story', 'actives'), { recursive: true });

@@ -74,10 +74,16 @@ export function resolveLocalCodexVerifyCommand(root: string): string {
 
 export function resolveCodexSessionBriefCommand(root: string): string {
   if (isGlobalThinProject(root)) return `${GLOBAL_CODEX_FALLBACK_COMMAND} session_brief`;
-  const verifyCommand = resolveLocalCodexVerifyCommand(root);
-  return verifyCommand.endsWith(' verify_codex')
-    ? verifyCommand.slice(0, -' verify_codex'.length) + ' session_brief'
-    : 'node bin/lattice-codex.js session_brief';
+  const candidates: Array<[string, string]> = [
+    ['bin/lattice-codex.js', 'node bin/lattice-codex.js session_brief'],
+    ['bin/koala-codex.js',   'node bin/koala-codex.js session_brief'],
+    ['bin/lattice.js',       'node bin/lattice.js session_brief'],
+    ['bin/koala.js',         'node bin/koala.js session_brief'],
+  ];
+  for (const [rel, cmd] of candidates) {
+    if (existsSync(join(root, rel))) return cmd;
+  }
+  return 'node bin/lattice-codex.js session_brief';
 }
 
 const CODEX_MATERIAL_PATHS = [
