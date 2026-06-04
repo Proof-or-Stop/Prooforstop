@@ -1,15 +1,15 @@
 {
   "command": "koala validate --story=B-8a1a --json",
-  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"fail\",\"allPass\":false,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery; verification coverage missing 15 required intent(s)\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.5 test\",\"  > npm run test:e2e\",\"  > koala@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ℹ Reading legacy koala.config.json at /Users/jek/Documents/Work/Orchestrate/.worktrees/B-8a1a; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ℹ Reading legacy koala.config.json at .; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-YXlSXg; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-RwDzdx; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 0/15 covered (15 required missing)\",\"  ✗ CHK-001:happy:0 [happy/must/docs] stale via docs_check (README.md) — Docs and CLI text describe Claude-only real subprocess v1.0.1, explicit policy opt-in, and unchanged authority fields.\",\"  ✗ CHK-001:edge:0 [edge/must/docs] stale via logic_test (packages/main/src/tasks/unattended-dispatch-smoke.ts) — Gemini/Codex remain documented as scaffolded or refused, with no wording claiming full real-host fleet support.\",\"  ✗ CHK-001:adversarial:0 [adversarial/must/docs] stale via logic_test (packages/main/src/tasks/dispatch-run-smoke.ts) — No doc or command description implies local Claude output can auto-merge, auto-DONE, or verify production receipts.\",\"  ✗ CHK-002:happy:0 [happy/must/logic] stale via logic_test (packages/main/src/core/dispatch-policy.ts) — A policy with allowedHosts=claude-code plus allowRealHostSubprocess=true is authorized only when all existing receipt/review/budget/network/command constraints are valid.\",\"  ✗ CHK-002:edge:0 [edge/must/logic] stale via logic_test (packages/main/src/core/lattice-dispatch.ts) — A claude-code policy without explicit allowRealHostSubprocess stays supervised or refused for real subprocess launch even if allowedHosts includes claude-code.\",\"  ✗ CHK-002:adversarial:0 [adversarial/must/logic] stale via logic_test (packages/main/src/tasks/unattended-dispatch-smoke.ts) — Policy creation/check rejects unsafe env allowlist, auto-merge, productionDone, unknown hosts, out-of-scope paths, and real host subprocess attempts without explicit opt-in.\",\"  ✗ CHK-003:happy:0 [happy/must/cli] stale via integration_test (packages/main/src/tasks/unattended-dispatch-smoke.ts) — dispatch_auto with an authorized claude-code real-host policy launches a bounded claude subprocess in the isolated dispatch worktree and records runnerKind=claude-code-real with transcript and exit metadata.\",\"  ✗ CHK-003:edge:0 [edge/must/cli] stale via integration_test (packages/main/src/tasks/unattended-dispatch-smoke.ts) — A claude subprocess exiting non-zero or timing out records failed status, exitCode/timedOut metadata, transcript output, and no accepted-local receipt.\",\"  ✗ CHK-003:adversarial:0 [adversarial/must/logic] stale via logic_test (packages/main/src/core/dispatch-runner.ts) — The real Claude runner receives only filtered environment variables and never records secret values in runner metadata or transcript-created summaries.\",\"  ✗ CHK-004:happy:0 [happy/must/cli] stale via integration_test (packages/main/src/tasks/unattended-dispatch-smoke.ts) — dispatch_watch and dispatch_review expose real Claude runner summary, changedFiles, transcript existence, and manual nextAction after a completed real-runner dispatch.\",\"  ✗ CHK-004:edge:0 [edge/must/cli] stale via logic_test (packages/main/src/tasks/unattended-dispatch-smoke.ts) — dispatch_cancel on a real-runner record preserves dispatch metadata and reports cancelled/terminal state without deleting transcript or worktree evidence.\",\"  ✗ CHK-004:adversarial:0 [adversarial/must/logic] stale via logic_test (packages/main/src/tasks/unattended-dispatch-smoke.ts) — dispatch_merge_plan remains manualOnly=true and receiptVerified=false/productionDone=false even when the real Claude runner completed successfully.\",\"  ✗ CHK-005:happy:0 [happy/must/cli] stale via integration_test (packages/main/src/tasks/unattended-dispatch-smoke.ts) — Deterministic smoke uses a fake claude executable to prove real-runner success without depending on live LLM output.\",\"  ✗ CHK-005:edge:0 [edge/must/cli] stale via integration_test (packages/main/src/tasks/dispatch-run-smoke.ts) — Deterministic smoke covers timeout, non-zero exit, missing explicit policy opt-in, and scope/command/env policy failures.\",\"  ✗ CHK-005:adversarial:0 [adversarial/must/manual] stale via manual_transcript (.koala/story/actives/B-8a1a/evidence/cli-real-claude-canary.md) — A live Claude Code canary is either recorded as successful tiny bounded evidence or explicitly classified as unavailable/blocked without weakening deterministic coverage.\"],\"warnings\":[],\"timestamp\":\"2026-06-04T00:16:40.415Z\",\"headSha\":\"f97b7afced906948d04b65b8b56ea51b7eb9a7f3\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\nℹ Reading legacy koala.config.json at /Users/jek/Documents/Work/Orchestrate/.worktrees/B-8a1a; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\nℹ Reading legacy koala.config.json at .; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-YXlSXg; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-RwDzdx; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1981}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":15,\"reason\":\"verificationIntent entries present (15)\"},\"verificationCoverage\":{\"total\":15,\"required\":15,\"covered\":0,\"missingRequired\":15,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Docs and CLI text describe Claude-only real subprocess v1.0.1, explicit policy opt-in, and unchanged authority fields.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"docs_check\",\"file\":\"README.md\",\"command\":\"rg -n \\\"allowRealHostSubprocess|claude-code|productionDone=false|dispatch_auto\\\" README.md docs/requirements/decisions/host-overflow.md packages/main/src/core/command-policy.ts packages/main/src/core/process-fact-levels.ts\",\"result\":\"pass\",\"note\":\"Docs and command/process policy text describe Claude Code only, explicit policy opt-in, and authority-safe false fields.\",\"headHash\":\"b30b54cdbe2f02be1064be2145acc3c106aad568\",\"materialHash\":\"379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b\",\"timestamp\":\"2026-06-03T23:50:28.073Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Gemini/Codex remain documented as scaffolded or refused, with no wording claiming full real-host fleet support.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/unattended-dispatch-smoke.ts\",\"command\":\"npm --prefix packages/main run test:unattended-dispatch-smoke\",\"result\":\"pass\",\"note\":\"Smoke verifies Gemini/Codex real subprocesses stay refused/scaffolded while Claude Code has the only real runner path.\",\"headHash\":\"b30b54cdbe2f02be1064be2145acc3c106aad568\",\"materialHash\":\"379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b\",\"timestamp\":\"2026-06-03T23:50:28.073Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"No doc or command description implies local Claude output can auto-merge, auto-DONE, or verify production receipts.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/dispatch-run-smoke.ts\",\"command\":\"npm --prefix packages/main run test:dispatch-run-smoke\",\"result\":\"pass\",\"note\":\"Existing dispatch smoke preserves manual merge guidance and no productionDone/receiptVerified authority overclaim.\",\"headHash\":\"b30b54cdbe2f02be1064be2145acc3c106aad568\",\"materialHash\":\"379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b\",\"timestamp\":\"2026-06-03T23:50:28.073Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"A policy with allowedHosts=claude-code plus allowRealHostSubprocess=true is authorized only when all existing receipt/review/budget/network/command constraints are valid.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/core/dispatch-policy.ts\",\"command\":\"npm --prefix packages/main run test:unattended-dispatch-smoke\",\"result\":\"pass\",\"note\":\"Smoke creates a claude-code policy with allowRealHostSubprocess=true and verifies it authorizes only under full policy constraints.\",\"headHash\":\"b30b54cdbe2f02be1064be2145acc3c106aad568\",\"materialHash\":\"379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b\",\"timestamp\":\"2026-06-03T23:50:28.073Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"A claude-code policy without explicit allowRealHostSubprocess stays supervised or refused for real subprocess launch even if allowedHosts includes claude-code.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/core/lattice-dispatch.ts\",\"command\":\"npm --prefix packages/main run test:dispatch-run-smoke\",\"result\":\"pass\",\"note\":\"Missing policy, unavailable host, unsupported real hosts, and unattendedSafe=false refusal paths remain explicit.\",\"headHash\":\"b30b54cdbe2f02be1064be2145acc3c106aad568\",\"materialHash\":\"379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b\",\"timestamp\":\"2026-06-03T23:50:28.073Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Policy creation/check rejects unsafe env allowlist, auto-merge, productionDone, unknown hosts, out-of-scope paths, and real host subprocess attempts without explicit opt-in.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/unattended-dispatch-smoke.ts\",\"command\":\"npm --prefix packages/main run test:unattended-dispatch-smoke\",\"result\":\"pass\",\"note\":\"Out-of-policy scope/command and denied env cases refuse before execution or filter secrets.\",\"headHash\":\"b30b54cdbe2f02be1064be2145acc3c106aad568\",\"materialHash\":\"379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b\",\"timestamp\":\"2026-06-03T23:50:28.073Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"dispatch_auto with an authorized claude-code real-host policy launches a bounded claude subprocess in the isolated dispatch worktree and records runnerKind=claude-code-real with transcript and exit metadata.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/unattended-dispatch-smoke.ts\",\"command\":\"npm --prefix packages/main run test:unattended-dispatch-smoke\",\"result\":\"pass\",\"note\":\"Fake claude binary exercises claude --print, isolated cwd, stdout/stderr transcript, runnerKind=claude-code-real, exitCode=0, accepted-local diagnostic receipt.\",\"headHash\":\"b30b54cdbe2f02be1064be2145acc3c106aad568\",\"materialHash\":\"379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b\",\"timestamp\":\"2026-06-03T23:50:28.073Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"A claude subprocess exiting non-zero or timing out records failed status, exitCode/timedOut metadata, transcript output, and no accepted-local receipt.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/unattended-dispatch-smoke.ts\",\"command\":\"npm --prefix packages/main run test:unattended-dispatch-smoke\",\"result\":\"pass\",\"note\":\"Non-zero and timeout fake claude cases produce failed status with exitCode/timedOut and no forged receipt.\",\"headHash\":\"b30b54cdbe2f02be1064be2145acc3c106aad568\",\"materialHash\":\"379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b\",\"timestamp\":\"2026-06-03T23:50:28.073Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"The real Claude runner receives only filtered environment variables and never records secret values in runner metadata or transcript-created summaries.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/core/dispatch-runner.ts\",\"command\":\"npm --prefix packages/main run test:unattended-dispatch-smoke\",\"result\":\"pass\",\"note\":\"Env summary records safe LATTICE_ allowlisted names without values and excludes denied/sensitive names.\",\"headHash\":\"b30b54cdbe2f02be1064be2145acc3c106aad568\",\"materialHash\":\"379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b\",\"timestamp\":\"2026-06-03T23:50:28.073Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"dispatch_watch and dispatch_review expose real Claude runner summary, changedFiles, transcript existence, and manual nextAction after a completed real-runner dispatch.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/unattended-dispatch-smoke.ts\",\"command\":\"npm --prefix packages/main run test:unattended-dispatch-smoke\",\"result\":\"pass\",\"note\":\"dispatch_status/watch/review expose runnerKind, cwd, transcriptPath, exitCode/timedOut, changedFiles, transcriptExists, and localReceiptStatus.\",\"headHash\":\"b30b54cdbe2f02be1064be2145acc3c106aad568\",\"materialHash\":\"379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b\",\"timestamp\":\"2026-06-03T23:50:28.073Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"dispatch_cancel on a real-runner record preserves dispatch metadata and reports cancelled/terminal state without deleting transcript or worktree evidence.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/unattended-dispatch-smoke.ts\",\"command\":\"npm --prefix packages/main run test:unattended-dispatch-smoke\",\"result\":\"pass\",\"note\":\"dispatch_cancel preserves pack/prompt/status evidence and dispatch_merge_plan withholds merge guidance for missing/mixed/failed receipts.\",\"headHash\":\"b30b54cdbe2f02be1064be2145acc3c106aad568\",\"materialHash\":\"379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b\",\"timestamp\":\"2026-06-03T23:50:28.073Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"dispatch_merge_plan remains manualOnly=true and receiptVerified=false/productionDone=false even when the real Claude runner completed successfully.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/unattended-dispatch-smoke.ts\",\"command\":\"npm --prefix packages/main run test:unattended-dispatch-smoke\",\"result\":\"pass\",\"note\":\"All dispatch_auto/watch/review/merge authority fields remain authorityChanged=false, receiptVerified=false, productionDone=false, manualOnly=true where applicable.\",\"headHash\":\"b30b54cdbe2f02be1064be2145acc3c106aad568\",\"materialHash\":\"379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b\",\"timestamp\":\"2026-06-03T23:50:28.073Z\"}},{\"intentRef\":\"CHK-005:happy:0\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"Deterministic smoke uses a fake claude executable to prove real-runner success without depending on live LLM output.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-005:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/unattended-dispatch-smoke.ts\",\"command\":\"npm --prefix packages/main run test:unattended-dispatch-smoke\",\"result\":\"pass\",\"note\":\"Deterministic fake Claude coverage passed for success/env/nonzero/timeout plus policy/refusal/manual authority paths.\",\"headHash\":\"b30b54cdbe2f02be1064be2145acc3c106aad568\",\"materialHash\":\"379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b\",\"timestamp\":\"2026-06-03T23:50:49.674Z\"}},{\"intentRef\":\"CHK-005:edge:0\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"Deterministic smoke covers timeout, non-zero exit, missing explicit policy opt-in, and scope/command/env policy failures.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-005:edge:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/dispatch-run-smoke.ts\",\"command\":\"npm --prefix packages/main run test:dispatch-run-smoke && npm --prefix packages/main run test:host-overflow-smoke && npm --prefix packages/main run test:capability-list-smoke && npm --prefix packages/main run test:lattice-cli-migration-smoke\",\"result\":\"pass\",\"note\":\"Related regression suite passed: dispatch scaffold, host overflow, capability list, and Lattice CLI migration.\",\"headHash\":\"b30b54cdbe2f02be1064be2145acc3c106aad568\",\"materialHash\":\"379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b\",\"timestamp\":\"2026-06-03T23:50:49.798Z\"}},{\"intentRef\":\"CHK-005:adversarial:0\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"A live Claude Code canary is either recorded as successful tiny bounded evidence or explicitly classified as unavailable/blocked without weakening deterministic coverage.\",\"type\":\"manual\",\"priority\":\"must\",\"status\":\"stale\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:0\",\"kind\":\"manual_transcript\",\"file\":\".koala/story/actives/B-8a1a/evidence/cli-real-claude-canary.md\",\"command\":\"Auditable CLI canary artifact records node packages/main/dist/cli.js --root <tmp> dispatch_policy_create/dispatch_auto/dispatch_status/dispatch_watch/dispatch_review/dispatch_merge_plan with fake claude in PATH, plus missing launcher refusal.\",\"result\":\"pass\",\"note\":\"Real CLI entrypoint evidence is persisted in .koala/story/actives/B-8a1a/evidence/cli-real-claude-canary.md: runnerKind=claude-code-real, changedFiles=[packages/main/src/generated/cli-claude.txt], manualOnly=true, missing launcher allowlist refused, authority fields false. Fake binary is intentional to avoid spending user Claude quota while testing CLI orchestration.\",\"headHash\":\"b30b54cdbe2f02be1064be2145acc3c106aad568\",\"materialHash\":\"379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b\",\"timestamp\":\"2026-06-03T23:50:49.878Z\"}}]}}",
-  "result": "FAIL",
-  "timestamp": "2026-06-04T00:16:41.302Z",
-  "headHash": "f97b7afced906948d04b65b8b56ea51b7eb9a7f3",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.5 test\",\"  > npm run test:e2e\",\"  > koala@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ℹ Reading legacy koala.config.json at /Users/jek/Documents/Work/Orchestrate/.worktrees/B-8a1a; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ℹ Reading legacy koala.config.json at .; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-yC6nqt; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-DwAftM; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 15/15 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/docs] covered via docs_check (README.md) — Docs and CLI text describe Claude-only real subprocess v1.0.1, explicit policy opt-in, and unchanged authority fields.\",\"  ✓ CHK-001:edge:0 [edge/must/docs] covered via logic_test (packages/main/src/tasks/unattended-dispatch-smoke.ts) — Gemini/Codex remain documented as scaffolded or refused, with no wording claiming full real-host fleet support.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/docs] covered via logic_test (packages/main/src/tasks/dispatch-run-smoke.ts) — No doc or command description implies local Claude output can auto-merge, auto-DONE, or verify production receipts.\",\"  ✓ CHK-002:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/core/dispatch-policy.ts) — A policy with allowedHosts=claude-code plus allowRealHostSubprocess=true is authorized only when all existing receipt/review/budget/network/command constraints are valid.\",\"  ✓ CHK-002:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/core/lattice-dispatch.ts) — A claude-code policy without explicit allowRealHostSubprocess stays supervised or refused for real subprocess launch even if allowedHosts includes claude-code.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/unattended-dispatch-smoke.ts) — Policy creation/check rejects unsafe env allowlist, auto-merge, productionDone, unknown hosts, out-of-scope paths, and real host subprocess attempts without explicit opt-in.\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via integration_test (packages/main/src/tasks/unattended-dispatch-smoke.ts) — dispatch_auto with an authorized claude-code real-host policy launches a bounded claude subprocess in the isolated dispatch worktree and records runnerKind=claude-code-real with transcript and exit metadata.\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via integration_test (packages/main/src/tasks/unattended-dispatch-smoke.ts) — A claude subprocess exiting non-zero or timing out records failed status, exitCode/timedOut metadata, transcript output, and no accepted-local receipt.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/core/dispatch-runner.ts) — The real Claude runner receives only filtered environment variables and never records secret values in runner metadata or transcript-created summaries.\",\"  ✓ CHK-004:happy:0 [happy/must/cli] covered via integration_test (packages/main/src/tasks/unattended-dispatch-smoke.ts) — dispatch_watch and dispatch_review expose real Claude runner summary, changedFiles, transcript existence, and manual nextAction after a completed real-runner dispatch.\",\"  ✓ CHK-004:edge:0 [edge/must/cli] covered via logic_test (packages/main/src/tasks/unattended-dispatch-smoke.ts) — dispatch_cancel on a real-runner record preserves dispatch metadata and reports cancelled/terminal state without deleting transcript or worktree evidence.\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/unattended-dispatch-smoke.ts) — dispatch_merge_plan remains manualOnly=true and receiptVerified=false/productionDone=false even when the real Claude runner completed successfully.\",\"  ✓ CHK-005:happy:0 [happy/must/cli] covered via integration_test (packages/main/src/tasks/unattended-dispatch-smoke.ts) — Deterministic smoke uses a fake claude executable to prove real-runner success without depending on live LLM output.\",\"  ✓ CHK-005:edge:0 [edge/must/cli] covered via integration_test (packages/main/src/tasks/dispatch-run-smoke.ts) — Deterministic smoke covers timeout, non-zero exit, missing explicit policy opt-in, and scope/command/env policy failures.\",\"  ✓ CHK-005:adversarial:0 [adversarial/must/manual] covered via manual_transcript (.koala/story/actives/B-8a1a/evidence/cli-real-claude-canary.md) — A live Claude Code canary is either recorded as successful tiny bounded evidence or explicitly classified as unavailable/blocked without weakening deterministic coverage.\"],\"warnings\":[],\"timestamp\":\"2026-06-04T00:17:11.563Z\",\"headSha\":\"4aded061504d70fad6385dd26c39a0b0dc794aea\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\nℹ Reading legacy koala.config.json at /Users/jek/Documents/Work/Orchestrate/.worktrees/B-8a1a; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\nℹ Reading legacy koala.config.json at .; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-yC6nqt; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-DwAftM; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1857}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":15,\"reason\":\"verificationIntent entries present (15)\"},\"verificationCoverage\":{\"total\":15,\"required\":15,\"covered\":15,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Docs and CLI text describe Claude-only real subprocess v1.0.1, explicit policy opt-in, and unchanged authority fields.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"docs_check\",\"file\":\"README.md\",\"command\":\"rg -n \\\"allowRealHostSubprocess|claude-code|productionDone=false|dispatch_auto\\\" README.md docs/requirements/decisions/host-overflow.md packages/main/src/core/command-policy.ts packages/main/src/core/process-fact-levels.ts\",\"result\":\"pass\",\"note\":\"Docs and command/process policy text describe Claude Code only, explicit policy opt-in, and authority-safe false fields.\",\"headHash\":\"f97b7afced906948d04b65b8b56ea51b7eb9a7f3\",\"materialHash\":\"1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb\",\"timestamp\":\"2026-06-04T00:16:55.262Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Gemini/Codex remain documented as scaffolded or refused, with no wording claiming full real-host fleet support.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/unattended-dispatch-smoke.ts\",\"command\":\"npm --prefix packages/main run test:unattended-dispatch-smoke\",\"result\":\"pass\",\"note\":\"Smoke verifies Gemini/Codex real subprocesses stay refused/scaffolded while Claude Code has the only real runner path.\",\"headHash\":\"f97b7afced906948d04b65b8b56ea51b7eb9a7f3\",\"materialHash\":\"1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb\",\"timestamp\":\"2026-06-04T00:16:55.262Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"No doc or command description implies local Claude output can auto-merge, auto-DONE, or verify production receipts.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/dispatch-run-smoke.ts\",\"command\":\"npm --prefix packages/main run test:dispatch-run-smoke\",\"result\":\"pass\",\"note\":\"Existing dispatch smoke preserves manual merge guidance and no productionDone/receiptVerified authority overclaim.\",\"headHash\":\"f97b7afced906948d04b65b8b56ea51b7eb9a7f3\",\"materialHash\":\"1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb\",\"timestamp\":\"2026-06-04T00:16:55.262Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"A policy with allowedHosts=claude-code plus allowRealHostSubprocess=true is authorized only when all existing receipt/review/budget/network/command constraints are valid.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/core/dispatch-policy.ts\",\"command\":\"npm --prefix packages/main run test:unattended-dispatch-smoke\",\"result\":\"pass\",\"note\":\"Smoke creates a claude-code policy with allowRealHostSubprocess=true and verifies it authorizes only under full policy constraints.\",\"headHash\":\"f97b7afced906948d04b65b8b56ea51b7eb9a7f3\",\"materialHash\":\"1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb\",\"timestamp\":\"2026-06-04T00:16:55.262Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"A claude-code policy without explicit allowRealHostSubprocess stays supervised or refused for real subprocess launch even if allowedHosts includes claude-code.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/core/lattice-dispatch.ts\",\"command\":\"npm --prefix packages/main run test:dispatch-run-smoke\",\"result\":\"pass\",\"note\":\"Missing policy, unavailable host, unsupported real hosts, and unattendedSafe=false refusal paths remain explicit.\",\"headHash\":\"f97b7afced906948d04b65b8b56ea51b7eb9a7f3\",\"materialHash\":\"1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb\",\"timestamp\":\"2026-06-04T00:16:55.262Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Policy creation/check rejects unsafe env allowlist, auto-merge, productionDone, unknown hosts, out-of-scope paths, and real host subprocess attempts without explicit opt-in.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/unattended-dispatch-smoke.ts\",\"command\":\"npm --prefix packages/main run test:unattended-dispatch-smoke\",\"result\":\"pass\",\"note\":\"Out-of-policy scope/command and denied env cases refuse before execution or filter secrets.\",\"headHash\":\"f97b7afced906948d04b65b8b56ea51b7eb9a7f3\",\"materialHash\":\"1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb\",\"timestamp\":\"2026-06-04T00:16:55.262Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"dispatch_auto with an authorized claude-code real-host policy launches a bounded claude subprocess in the isolated dispatch worktree and records runnerKind=claude-code-real with transcript and exit metadata.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/unattended-dispatch-smoke.ts\",\"command\":\"npm --prefix packages/main run test:unattended-dispatch-smoke\",\"result\":\"pass\",\"note\":\"Fake claude binary exercises claude --print, isolated cwd, stdout/stderr transcript, runnerKind=claude-code-real, exitCode=0, accepted-local diagnostic receipt.\",\"headHash\":\"f97b7afced906948d04b65b8b56ea51b7eb9a7f3\",\"materialHash\":\"1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb\",\"timestamp\":\"2026-06-04T00:16:55.262Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"A claude subprocess exiting non-zero or timing out records failed status, exitCode/timedOut metadata, transcript output, and no accepted-local receipt.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/unattended-dispatch-smoke.ts\",\"command\":\"npm --prefix packages/main run test:unattended-dispatch-smoke\",\"result\":\"pass\",\"note\":\"Non-zero and timeout fake claude cases produce failed status with exitCode/timedOut and no forged receipt.\",\"headHash\":\"f97b7afced906948d04b65b8b56ea51b7eb9a7f3\",\"materialHash\":\"1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb\",\"timestamp\":\"2026-06-04T00:16:55.262Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"The real Claude runner receives only filtered environment variables and never records secret values in runner metadata or transcript-created summaries.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/core/dispatch-runner.ts\",\"command\":\"npm --prefix packages/main run test:unattended-dispatch-smoke\",\"result\":\"pass\",\"note\":\"Env summary records safe LATTICE_ allowlisted names without values and excludes denied/sensitive names.\",\"headHash\":\"f97b7afced906948d04b65b8b56ea51b7eb9a7f3\",\"materialHash\":\"1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb\",\"timestamp\":\"2026-06-04T00:16:55.262Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"dispatch_watch and dispatch_review expose real Claude runner summary, changedFiles, transcript existence, and manual nextAction after a completed real-runner dispatch.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/unattended-dispatch-smoke.ts\",\"command\":\"npm --prefix packages/main run test:unattended-dispatch-smoke\",\"result\":\"pass\",\"note\":\"dispatch_status/watch/review expose runnerKind, cwd, transcriptPath, exitCode/timedOut, changedFiles, transcriptExists, and localReceiptStatus.\",\"headHash\":\"f97b7afced906948d04b65b8b56ea51b7eb9a7f3\",\"materialHash\":\"1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb\",\"timestamp\":\"2026-06-04T00:16:55.262Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"dispatch_cancel on a real-runner record preserves dispatch metadata and reports cancelled/terminal state without deleting transcript or worktree evidence.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/unattended-dispatch-smoke.ts\",\"command\":\"npm --prefix packages/main run test:unattended-dispatch-smoke\",\"result\":\"pass\",\"note\":\"dispatch_cancel preserves pack/prompt/status evidence and dispatch_merge_plan withholds merge guidance for missing/mixed/failed receipts.\",\"headHash\":\"f97b7afced906948d04b65b8b56ea51b7eb9a7f3\",\"materialHash\":\"1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb\",\"timestamp\":\"2026-06-04T00:16:55.262Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"dispatch_merge_plan remains manualOnly=true and receiptVerified=false/productionDone=false even when the real Claude runner completed successfully.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/unattended-dispatch-smoke.ts\",\"command\":\"npm --prefix packages/main run test:unattended-dispatch-smoke\",\"result\":\"pass\",\"note\":\"All dispatch_auto/watch/review/merge authority fields remain authorityChanged=false, receiptVerified=false, productionDone=false, manualOnly=true where applicable.\",\"headHash\":\"f97b7afced906948d04b65b8b56ea51b7eb9a7f3\",\"materialHash\":\"1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb\",\"timestamp\":\"2026-06-04T00:16:55.262Z\"}},{\"intentRef\":\"CHK-005:happy:0\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"Deterministic smoke uses a fake claude executable to prove real-runner success without depending on live LLM output.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/unattended-dispatch-smoke.ts\",\"command\":\"npm --prefix packages/main run test:unattended-dispatch-smoke\",\"result\":\"pass\",\"note\":\"Deterministic fake Claude coverage passed for success/env/nonzero/timeout plus policy/refusal/manual authority paths.\",\"headHash\":\"f97b7afced906948d04b65b8b56ea51b7eb9a7f3\",\"materialHash\":\"1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb\",\"timestamp\":\"2026-06-04T00:16:55.262Z\"}},{\"intentRef\":\"CHK-005:edge:0\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"Deterministic smoke covers timeout, non-zero exit, missing explicit policy opt-in, and scope/command/env policy failures.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:edge:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/dispatch-run-smoke.ts\",\"command\":\"npm --prefix packages/main run test:dispatch-run-smoke && npm --prefix packages/main run test:host-overflow-smoke && npm --prefix packages/main run test:capability-list-smoke && npm --prefix packages/main run test:lattice-cli-migration-smoke\",\"result\":\"pass\",\"note\":\"Related regression suite passed: dispatch scaffold, host overflow, capability list, and Lattice CLI migration.\",\"headHash\":\"f97b7afced906948d04b65b8b56ea51b7eb9a7f3\",\"materialHash\":\"1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb\",\"timestamp\":\"2026-06-04T00:16:55.262Z\"}},{\"intentRef\":\"CHK-005:adversarial:0\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"A live Claude Code canary is either recorded as successful tiny bounded evidence or explicitly classified as unavailable/blocked without weakening deterministic coverage.\",\"type\":\"manual\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:0\",\"kind\":\"manual_transcript\",\"file\":\".koala/story/actives/B-8a1a/evidence/cli-real-claude-canary.md\",\"command\":\"Auditable CLI canary artifact records node packages/main/dist/cli.js --root <tmp> dispatch_policy_create/dispatch_auto/dispatch_status/dispatch_watch/dispatch_review/dispatch_merge_plan with fake claude in PATH, plus missing launcher refusal.\",\"result\":\"pass\",\"note\":\"Real CLI entrypoint evidence is persisted in .koala/story/actives/B-8a1a/evidence/cli-real-claude-canary.md: runnerKind=claude-code-real, changedFiles=[packages/main/src/generated/cli-claude.txt], manualOnly=true, missing launcher allowlist refused, authority fields false. Fake binary is intentional to avoid spending user Claude quota while testing CLI orchestration.\",\"headHash\":\"f97b7afced906948d04b65b8b56ea51b7eb9a7f3\",\"materialHash\":\"1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb\",\"timestamp\":\"2026-06-04T00:16:55.262Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-04T00:17:12.375Z",
+  "headHash": "4aded061504d70fad6385dd26c39a0b0dc794aea",
   "materialHash": "1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb",
   "verificationCoverage": {
     "total": 15,
     "required": 15,
-    "covered": 0,
-    "missingRequired": 15,
+    "covered": 15,
+    "missingRequired": 0,
     "entries": [
       {
         "intentRef": "CHK-001:happy:0",
@@ -18,7 +18,7 @@
         "desc": "Docs and CLI text describe Claude-only real subprocess v1.0.1, explicit policy opt-in, and unchanged authority fields.",
         "type": "docs",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:happy:0",
           "kind": "docs_check",
@@ -26,9 +26,9 @@
           "command": "rg -n \"allowRealHostSubprocess|claude-code|productionDone=false|dispatch_auto\" README.md docs/requirements/decisions/host-overflow.md packages/main/src/core/command-policy.ts packages/main/src/core/process-fact-levels.ts",
           "result": "pass",
           "note": "Docs and command/process policy text describe Claude Code only, explicit policy opt-in, and authority-safe false fields.",
-          "headHash": "b30b54cdbe2f02be1064be2145acc3c106aad568",
-          "materialHash": "379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b",
-          "timestamp": "2026-06-03T23:50:28.073Z"
+          "headHash": "f97b7afced906948d04b65b8b56ea51b7eb9a7f3",
+          "materialHash": "1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb",
+          "timestamp": "2026-06-04T00:16:55.262Z"
         }
       },
       {
@@ -38,7 +38,7 @@
         "desc": "Gemini/Codex remain documented as scaffolded or refused, with no wording claiming full real-host fleet support.",
         "type": "docs",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:edge:0",
           "kind": "logic_test",
@@ -46,9 +46,9 @@
           "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
           "result": "pass",
           "note": "Smoke verifies Gemini/Codex real subprocesses stay refused/scaffolded while Claude Code has the only real runner path.",
-          "headHash": "b30b54cdbe2f02be1064be2145acc3c106aad568",
-          "materialHash": "379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b",
-          "timestamp": "2026-06-03T23:50:28.073Z"
+          "headHash": "f97b7afced906948d04b65b8b56ea51b7eb9a7f3",
+          "materialHash": "1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb",
+          "timestamp": "2026-06-04T00:16:55.262Z"
         }
       },
       {
@@ -58,7 +58,7 @@
         "desc": "No doc or command description implies local Claude output can auto-merge, auto-DONE, or verify production receipts.",
         "type": "docs",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "logic_test",
@@ -66,9 +66,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke",
           "result": "pass",
           "note": "Existing dispatch smoke preserves manual merge guidance and no productionDone/receiptVerified authority overclaim.",
-          "headHash": "b30b54cdbe2f02be1064be2145acc3c106aad568",
-          "materialHash": "379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b",
-          "timestamp": "2026-06-03T23:50:28.073Z"
+          "headHash": "f97b7afced906948d04b65b8b56ea51b7eb9a7f3",
+          "materialHash": "1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb",
+          "timestamp": "2026-06-04T00:16:55.262Z"
         }
       },
       {
@@ -78,7 +78,7 @@
         "desc": "A policy with allowedHosts=claude-code plus allowRealHostSubprocess=true is authorized only when all existing receipt/review/budget/network/command constraints are valid.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:happy:0",
           "kind": "logic_test",
@@ -86,9 +86,9 @@
           "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
           "result": "pass",
           "note": "Smoke creates a claude-code policy with allowRealHostSubprocess=true and verifies it authorizes only under full policy constraints.",
-          "headHash": "b30b54cdbe2f02be1064be2145acc3c106aad568",
-          "materialHash": "379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b",
-          "timestamp": "2026-06-03T23:50:28.073Z"
+          "headHash": "f97b7afced906948d04b65b8b56ea51b7eb9a7f3",
+          "materialHash": "1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb",
+          "timestamp": "2026-06-04T00:16:55.262Z"
         }
       },
       {
@@ -98,7 +98,7 @@
         "desc": "A claude-code policy without explicit allowRealHostSubprocess stays supervised or refused for real subprocess launch even if allowedHosts includes claude-code.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
@@ -106,9 +106,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke",
           "result": "pass",
           "note": "Missing policy, unavailable host, unsupported real hosts, and unattendedSafe=false refusal paths remain explicit.",
-          "headHash": "b30b54cdbe2f02be1064be2145acc3c106aad568",
-          "materialHash": "379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b",
-          "timestamp": "2026-06-03T23:50:28.073Z"
+          "headHash": "f97b7afced906948d04b65b8b56ea51b7eb9a7f3",
+          "materialHash": "1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb",
+          "timestamp": "2026-06-04T00:16:55.262Z"
         }
       },
       {
@@ -118,7 +118,7 @@
         "desc": "Policy creation/check rejects unsafe env allowlist, auto-merge, productionDone, unknown hosts, out-of-scope paths, and real host subprocess attempts without explicit opt-in.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
@@ -126,9 +126,9 @@
           "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
           "result": "pass",
           "note": "Out-of-policy scope/command and denied env cases refuse before execution or filter secrets.",
-          "headHash": "b30b54cdbe2f02be1064be2145acc3c106aad568",
-          "materialHash": "379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b",
-          "timestamp": "2026-06-03T23:50:28.073Z"
+          "headHash": "f97b7afced906948d04b65b8b56ea51b7eb9a7f3",
+          "materialHash": "1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb",
+          "timestamp": "2026-06-04T00:16:55.262Z"
         }
       },
       {
@@ -138,7 +138,7 @@
         "desc": "dispatch_auto with an authorized claude-code real-host policy launches a bounded claude subprocess in the isolated dispatch worktree and records runnerKind=claude-code-real with transcript and exit metadata.",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:happy:0",
           "kind": "integration_test",
@@ -146,9 +146,9 @@
           "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
           "result": "pass",
           "note": "Fake claude binary exercises claude --print, isolated cwd, stdout/stderr transcript, runnerKind=claude-code-real, exitCode=0, accepted-local diagnostic receipt.",
-          "headHash": "b30b54cdbe2f02be1064be2145acc3c106aad568",
-          "materialHash": "379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b",
-          "timestamp": "2026-06-03T23:50:28.073Z"
+          "headHash": "f97b7afced906948d04b65b8b56ea51b7eb9a7f3",
+          "materialHash": "1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb",
+          "timestamp": "2026-06-04T00:16:55.262Z"
         }
       },
       {
@@ -158,7 +158,7 @@
         "desc": "A claude subprocess exiting non-zero or timing out records failed status, exitCode/timedOut metadata, transcript output, and no accepted-local receipt.",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:edge:0",
           "kind": "integration_test",
@@ -166,9 +166,9 @@
           "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
           "result": "pass",
           "note": "Non-zero and timeout fake claude cases produce failed status with exitCode/timedOut and no forged receipt.",
-          "headHash": "b30b54cdbe2f02be1064be2145acc3c106aad568",
-          "materialHash": "379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b",
-          "timestamp": "2026-06-03T23:50:28.073Z"
+          "headHash": "f97b7afced906948d04b65b8b56ea51b7eb9a7f3",
+          "materialHash": "1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb",
+          "timestamp": "2026-06-04T00:16:55.262Z"
         }
       },
       {
@@ -178,7 +178,7 @@
         "desc": "The real Claude runner receives only filtered environment variables and never records secret values in runner metadata or transcript-created summaries.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "logic_test",
@@ -186,9 +186,9 @@
           "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
           "result": "pass",
           "note": "Env summary records safe LATTICE_ allowlisted names without values and excludes denied/sensitive names.",
-          "headHash": "b30b54cdbe2f02be1064be2145acc3c106aad568",
-          "materialHash": "379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b",
-          "timestamp": "2026-06-03T23:50:28.073Z"
+          "headHash": "f97b7afced906948d04b65b8b56ea51b7eb9a7f3",
+          "materialHash": "1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb",
+          "timestamp": "2026-06-04T00:16:55.262Z"
         }
       },
       {
@@ -198,7 +198,7 @@
         "desc": "dispatch_watch and dispatch_review expose real Claude runner summary, changedFiles, transcript existence, and manual nextAction after a completed real-runner dispatch.",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-004:happy:0",
           "kind": "integration_test",
@@ -206,9 +206,9 @@
           "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
           "result": "pass",
           "note": "dispatch_status/watch/review expose runnerKind, cwd, transcriptPath, exitCode/timedOut, changedFiles, transcriptExists, and localReceiptStatus.",
-          "headHash": "b30b54cdbe2f02be1064be2145acc3c106aad568",
-          "materialHash": "379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b",
-          "timestamp": "2026-06-03T23:50:28.073Z"
+          "headHash": "f97b7afced906948d04b65b8b56ea51b7eb9a7f3",
+          "materialHash": "1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb",
+          "timestamp": "2026-06-04T00:16:55.262Z"
         }
       },
       {
@@ -218,7 +218,7 @@
         "desc": "dispatch_cancel on a real-runner record preserves dispatch metadata and reports cancelled/terminal state without deleting transcript or worktree evidence.",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-004:edge:0",
           "kind": "logic_test",
@@ -226,9 +226,9 @@
           "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
           "result": "pass",
           "note": "dispatch_cancel preserves pack/prompt/status evidence and dispatch_merge_plan withholds merge guidance for missing/mixed/failed receipts.",
-          "headHash": "b30b54cdbe2f02be1064be2145acc3c106aad568",
-          "materialHash": "379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b",
-          "timestamp": "2026-06-03T23:50:28.073Z"
+          "headHash": "f97b7afced906948d04b65b8b56ea51b7eb9a7f3",
+          "materialHash": "1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb",
+          "timestamp": "2026-06-04T00:16:55.262Z"
         }
       },
       {
@@ -238,7 +238,7 @@
         "desc": "dispatch_merge_plan remains manualOnly=true and receiptVerified=false/productionDone=false even when the real Claude runner completed successfully.",
         "type": "logic",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-004:adversarial:0",
           "kind": "logic_test",
@@ -246,9 +246,9 @@
           "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
           "result": "pass",
           "note": "All dispatch_auto/watch/review/merge authority fields remain authorityChanged=false, receiptVerified=false, productionDone=false, manualOnly=true where applicable.",
-          "headHash": "b30b54cdbe2f02be1064be2145acc3c106aad568",
-          "materialHash": "379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b",
-          "timestamp": "2026-06-03T23:50:28.073Z"
+          "headHash": "f97b7afced906948d04b65b8b56ea51b7eb9a7f3",
+          "materialHash": "1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb",
+          "timestamp": "2026-06-04T00:16:55.262Z"
         }
       },
       {
@@ -258,7 +258,7 @@
         "desc": "Deterministic smoke uses a fake claude executable to prove real-runner success without depending on live LLM output.",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-005:happy:0",
           "kind": "integration_test",
@@ -266,9 +266,9 @@
           "command": "npm --prefix packages/main run test:unattended-dispatch-smoke",
           "result": "pass",
           "note": "Deterministic fake Claude coverage passed for success/env/nonzero/timeout plus policy/refusal/manual authority paths.",
-          "headHash": "b30b54cdbe2f02be1064be2145acc3c106aad568",
-          "materialHash": "379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b",
-          "timestamp": "2026-06-03T23:50:49.674Z"
+          "headHash": "f97b7afced906948d04b65b8b56ea51b7eb9a7f3",
+          "materialHash": "1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb",
+          "timestamp": "2026-06-04T00:16:55.262Z"
         }
       },
       {
@@ -278,7 +278,7 @@
         "desc": "Deterministic smoke covers timeout, non-zero exit, missing explicit policy opt-in, and scope/command/env policy failures.",
         "type": "cli",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-005:edge:0",
           "kind": "integration_test",
@@ -286,9 +286,9 @@
           "command": "npm --prefix packages/main run test:dispatch-run-smoke && npm --prefix packages/main run test:host-overflow-smoke && npm --prefix packages/main run test:capability-list-smoke && npm --prefix packages/main run test:lattice-cli-migration-smoke",
           "result": "pass",
           "note": "Related regression suite passed: dispatch scaffold, host overflow, capability list, and Lattice CLI migration.",
-          "headHash": "b30b54cdbe2f02be1064be2145acc3c106aad568",
-          "materialHash": "379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b",
-          "timestamp": "2026-06-03T23:50:49.798Z"
+          "headHash": "f97b7afced906948d04b65b8b56ea51b7eb9a7f3",
+          "materialHash": "1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb",
+          "timestamp": "2026-06-04T00:16:55.262Z"
         }
       },
       {
@@ -298,7 +298,7 @@
         "desc": "A live Claude Code canary is either recorded as successful tiny bounded evidence or explicitly classified as unavailable/blocked without weakening deterministic coverage.",
         "type": "manual",
         "priority": "must",
-        "status": "stale",
+        "status": "covered",
         "evidence": {
           "intentRef": "CHK-005:adversarial:0",
           "kind": "manual_transcript",
@@ -306,9 +306,9 @@
           "command": "Auditable CLI canary artifact records node packages/main/dist/cli.js --root <tmp> dispatch_policy_create/dispatch_auto/dispatch_status/dispatch_watch/dispatch_review/dispatch_merge_plan with fake claude in PATH, plus missing launcher refusal.",
           "result": "pass",
           "note": "Real CLI entrypoint evidence is persisted in .koala/story/actives/B-8a1a/evidence/cli-real-claude-canary.md: runnerKind=claude-code-real, changedFiles=[packages/main/src/generated/cli-claude.txt], manualOnly=true, missing launcher allowlist refused, authority fields false. Fake binary is intentional to avoid spending user Claude quota while testing CLI orchestration.",
-          "headHash": "b30b54cdbe2f02be1064be2145acc3c106aad568",
-          "materialHash": "379f91373c55c51764404a6dafa42595a0fd6bdda13f2847ebf672f8c3a5916b",
-          "timestamp": "2026-06-03T23:50:49.878Z"
+          "headHash": "f97b7afced906948d04b65b8b56ea51b7eb9a7f3",
+          "materialHash": "1ca140975afa37578f2f665d37e5da6b50469a7215d35a6b5ff8b1765c9508bb",
+          "timestamp": "2026-06-04T00:16:55.262Z"
         }
       }
     ]
