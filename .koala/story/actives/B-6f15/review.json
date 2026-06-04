@@ -1,0 +1,41 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-06-04T11:26:00.362Z",
+      "issueCount": 3,
+      "blockerCount": 2,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees 可能太抽象（未包含引号括起来的具体输出文本）。应该写用户看到的精确文字，不是\"功能正常工作\"这类描述"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/dist/tasks/cli-validate.js 未被任何 checklist item 的 files 字段覆盖（请为相应 item 的 files.modify/create/test 加上此路径或用 excludes 显式排除）"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "未跑 scope check。请先启动 koala-review-scope-plan agent，agent 会自动调 scope_check_save 写入结果"
+        }
+      ],
+      "_hash": "bb3e471c75629d8ec4105c5c20a6992c239210d201e205620076c27bfbd44b14"
+    },
+    {
+      "timestamp": "2026-06-04T11:26:31.423Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "review_advisory",
+          "severity": "advisory",
+          "message": "审查未发现 blocker，但建议对照 _reviewPrompt 中的真相源文档人工复核 checklist 完整性"
+        }
+      ],
+      "_hash": "d1fde655ff084cab414329e8cb13584a5b1c451055ab6298355e79776b3b0fa1"
+    }
+  ]
+}

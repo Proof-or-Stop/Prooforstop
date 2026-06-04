@@ -1,0 +1,21 @@
+{
+  "task": "Clear the final two cli-validate @test warning lines for story_query handlers.",
+  "outcome": "用户运行 node packages/main/dist/tasks/cli-validate.js 后看到 Errors: 0、Warnings: 0，并且不再出现 story_migrate_storage 或 story_sync_main missing @test annotation。",
+  "facts": [
+    "cli-validate currently reports exactly two warning lines in packages/main/src/handlers/story-query.ts",
+    "story_migrate_storage and story_sync_main already have @task and @changes metadata",
+    "B-798e already made convergence_check true except for these non-blocking warnings"
+  ],
+  "constraints": [
+    "Do not change runtime behavior",
+    "Only touch annotation metadata unless validation reveals a direct need",
+    "Keep .koala story metadata local after DONE"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/story-query.ts",
+    "packages/main/src/tasks/validate.ts",
+    "packages/main/src/tasks/cli-validate.ts"
+  ],
+  "timestamp": "2026-06-04T11:26:19.193Z"
+}
