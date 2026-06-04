@@ -125,8 +125,10 @@ local diagnostic receipts into verified authority receipts. Server-ish local
 objects such as `{ "source": "server" }` are not enough to satisfy the
 authority gate. Full Autopilot may retry validation failures only when the saved
 policy explicitly sets `allowAutoFix=true` and the retry remains inside
-`maxIterations`, runtime, and budget bounds; it stops instead of crossing any
-merge/conflict or authority boundary.
+`maxIterations`, runtime, and budget bounds. If provider spend is not measurable,
+budget-capped retries fail closed instead of pretending the budget bound was
+enforced. Full Autopilot stops instead of crossing any merge/conflict or
+authority boundary.
 
 ## Boundaries
 

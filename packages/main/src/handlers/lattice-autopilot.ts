@@ -104,7 +104,14 @@ function maybeWriteOutput(root: string, output: string | undefined, value: unkno
 }
 
 function stripFormatArgs<T extends Record<string, unknown>>(args: T): Record<string, unknown> {
-  const { format: _format, json: _json, output: _output, ...rest } = args;
+  const {
+    format: _format,
+    json: _json,
+    output: _output,
+    takeover: _takeover,
+    forceTakeover: _forceTakeover,
+    ...rest
+  } = args;
   return rest;
 }
 

@@ -1932,6 +1932,24 @@ export function addValue(obj: Record<string, unknown>, key: string, val: unknown
   }
 }
 
+const STRICT_UNKNOWN_KEY_COMMANDS = new Set([
+  'autopilot_policy_create',
+  'autopilot_run',
+  'autopilot_resume',
+]);
+
+const CLI_META_SCHEMA = {
+  takeover: z.boolean().optional(),
+  forceTakeover: z.boolean().optional(),
+};
+
+function validationSchemaForCommand(cmd: string, tool: ToolDef): z.ZodObject<Record<string, ZodType>> {
+  if (STRICT_UNKNOWN_KEY_COMMANDS.has(cmd)) {
+    return z.object({ ...tool.schema, ...CLI_META_SCHEMA }).strict();
+  }
+  return z.object(tool.schema);
+}
+
 // ── Resolve root ──
 
 function resolveRoot(explicit?: string): string {
@@ -2771,7 +2789,7 @@ export async function runCli(opts?: {
   }
 
   // Validate
-  const schema = z.object(tool.schema);
+  const schema = validationSchemaForCommand(cmd, tool);
   const v = schema.safeParse(parsed);
   if (!v.success) {
     printValidationFailure(tool, v.error.issues);

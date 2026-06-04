@@ -100,6 +100,7 @@ interface AutopilotRunResult extends AuthorityBoundary {
   dispatchId?: string;
   status: 'created' | 'running' | 'needs_receipt' | 'manual_review_ready' | 'missing_authority_receipt' | 'cancelled' | 'failed';
   maxIterations: number;
+  maxBudgetUSD?: number;
   stopReason?: string;
   stopDetails?: string;
   iterations: Array<{
@@ -259,6 +260,33 @@ function runCliJson<T>(root: string, args: string[]): T {
   })) as T;
 }
 
+function runCliFailure(root: string, args: string[]): string {
+  const here = dirname(fileURLToPath(import.meta.url));
+  const cliPath = join(here, '..', 'cli.js');
+  try {
+    execFileSync(process.execPath, [
+      cliPath,
+      '--root',
+      root,
+      ...args,
+    ], {
+      cwd: root,
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+  } catch (error) {
+    const failed = error as { stdout?: string | Buffer; stderr?: string | Buffer };
+    return `${String(failed.stdout ?? '')}\n${String(failed.stderr ?? '')}`;
+  }
+  assert.fail(`expected CLI failure for: ${args.join(' ')}`);
+}
+
+function assertCliRejectsUnknownFlag(root: string, args: string[], flag: string): void {
+  const output = runCliFailure(root, args);
+  assert.match(output, new RegExp(flag, 'i'), `CLI error should mention rejected flag ${flag}`);
+  assert.match(output, /unrecognized|unknown|unsupported/i, 'CLI error should reject the unknown flag before core handling');
+}
+
 const sandboxRoot = mkdtempSync(join(tmpdir(), 'lattice-autopilot-run-suite-'));
 const root = join(sandboxRoot, 'repo', 'root');
 
@@ -269,6 +297,7 @@ try {
   const store = new StoryStore(root);
   seedStory(store, 'B-demo');
   seedStory(store, 'B-retry-demo');
+  seedStory(store, 'B-budget-retry-demo');
   seedStory(store, 'B-conflict-demo');
   seedStory(store, 'B-cancel-demo');
   const ctx: HandlerContext = { store, root, scanRoot: join(root, 'packages/main') };
@@ -352,6 +381,25 @@ try {
   });
   assert.equal(retryDispatchPolicy.schemaVersion, 'lattice.dispatch_policy.v1');
   assertAuthorityFalse(retryDispatchPolicy, 'retryDispatchPolicy');
+
+  const unmeasuredBudgetDispatchPolicy = run<Record<string, unknown>>('dispatch_policy_create', {
+    policy: 'unmeasured-spend-dispatch',
+    allowedHosts: ['claude-code'],
+    allowedPaths: ['packages/main/src/generated/'],
+    deniedPaths: ['README.md'],
+    maxParallel: 1,
+    maxRuntimeMinutes: 10,
+    maxBudgetUSD: 5,
+    network: 'none',
+    commandAllowlist: ['node -e "process.exit(1)"'],
+    requireReceipt: true,
+    requireReview: true,
+    allowRealHostSubprocess: false,
+    allowAutoMerge: false,
+    allowProductionDone: false,
+  });
+  assert.equal(unmeasuredBudgetDispatchPolicy.schemaVersion, 'lattice.dispatch_policy.v1');
+  assertAuthorityFalse(unmeasuredBudgetDispatchPolicy, 'unmeasuredBudgetDispatchPolicy');
 
   const conflictDispatchPolicy = run<Record<string, unknown>>('dispatch_policy_create', {
     policy: 'fake-conflict-dispatch',
@@ -438,6 +486,28 @@ try {
   assert.equal(fullPolicy.maxIterations, 2);
   assertAuthorityFalse(fullPolicy, 'fullPolicy');
 
+  const budgetRetryPolicy = run<AutopilotPolicy>('autopilot_policy_create', {
+    policy: 'fake-retry-budget',
+    dispatchPolicy: 'unmeasured-spend-dispatch',
+    mode: 'full-autopilot',
+    allowAutoDispatch: true,
+    allowAutoValidate: true,
+    allowAutoFix: true,
+    allowStoryIntegration: false,
+    allowDoneAdvance: false,
+    allowMainMerge: false,
+    requireServerReceipt: true,
+    maxIterations: 2,
+    maxRuntimeMinutes: 10,
+    maxBudgetUSD: 5,
+    stopOnConflict: true,
+    stopOnScopeViolation: true,
+  });
+  assert.equal(budgetRetryPolicy.mode, 'full-autopilot');
+  assert.equal(budgetRetryPolicy.dispatchPolicy, 'unmeasured-spend-dispatch');
+  assert.equal(budgetRetryPolicy.maxBudgetUSD, 5);
+  assertAuthorityFalse(budgetRetryPolicy, 'budgetRetryPolicy');
+
   const retryPolicy = run<AutopilotPolicy>('autopilot_policy_create', {
     policy: 'fake-retry',
     dispatchPolicy: 'fake-retry-dispatch',
@@ -457,6 +527,7 @@ try {
   });
   assert.equal(retryPolicy.mode, 'full-autopilot');
   assert.equal(retryPolicy.dispatchPolicy, 'fake-retry-dispatch');
+  assert.equal(retryPolicy.maxBudgetUSD, 5);
   assertAuthorityFalse(retryPolicy, 'retryPolicy');
 
   const conflictPolicy = run<AutopilotPolicy>('autopilot_policy_create', {
@@ -491,7 +562,7 @@ try {
       stopOnConflict: true,
       stopOnScopeViolation: true,
     }),
-    /full-autopilot requires bounded maxIterations|full-autopilot requires bounded maxRuntimeMinutes|full-autopilot requires bounded maxBudgetUSD/,
+    /full-autopilot requires bounded maxIterations|full-autopilot requires bounded maxRuntimeMinutes/,
     'unbounded full-autopilot policy must be refused',
   );
 
@@ -568,11 +639,46 @@ try {
     '--maxRuntimeMinutes=5',
     '--stopOnConflict=true',
     '--stopOnScopeViolation=true',
+    '--forceTakeover=true',
     '--json',
   ]);
   assert.equal(cliNestedCreate.policy, 'cli-nested');
   assert.equal(cliNestedCreate.dispatchPolicy, 'fake-dispatch');
+  assert.equal((cliNestedCreate as unknown as Record<string, unknown>).forceTakeover, undefined);
   assertAuthorityFalse(cliNestedCreate, 'cliNestedCreate');
+
+  assertCliRejectsUnknownFlag(root, [
+    'autopilot_policy_create',
+    '--policy=bad-cli-deprecated-policy-field',
+    '--dispatchPolicy=fake-dispatch',
+    '--mode=conservative',
+    '--allowAutoDispatch=true',
+    '--allowAutoValidate=true',
+    '--allowMainMerge=false',
+    '--requireServerReceipt=false',
+    '--maxIterations=1',
+    '--maxRuntimeMinutes=5',
+    '--stopOnConflict=true',
+    '--stopOnScopeViolation=true',
+    '--allowedHosts=fake',
+    '--json',
+  ], 'allowedHosts');
+
+  assertCliRejectsUnknownFlag(root, [
+    'autopilot_run',
+    '--mode=conservative',
+    '--storyId=B-demo',
+    '--policy=fake',
+    '--maxBudgetUSD=1',
+    '--json',
+  ], 'maxBudgetUSD');
+
+  assertCliRejectsUnknownFlag(root, [
+    'autopilot_resume',
+    '--runId=AP-B-demo-deprecated',
+    '--policy=fake',
+    '--json',
+  ], 'policy');
 
   const missingAutopilotPolicy = run<AutopilotRunResult>('autopilot_run', {
     storyId: 'B-demo',
@@ -742,6 +848,24 @@ try {
   assert.match((retryStop.errors ?? []).join('\n'), /command failed|validation/i);
   assertAuthorityFalse(retryStop, 'retryStop');
 
+  const budgetRetryStop = run<AutopilotRunResult>('autopilot_run', {
+    mode: 'full-autopilot',
+    storyId: 'B-budget-retry-demo',
+    policy: 'fake-retry-budget',
+    serverAuthorityReceipt: fakeServerAuthorityReceipt,
+    objective: 'Budget-capped retry must fail closed when spend cannot be measured.',
+    allowedPaths: ['packages/main/src/generated/budget-retry.txt'],
+    requiredCommands: ['node -e "process.exit(1)"'],
+  });
+  assert.equal(budgetRetryStop.status, 'failed');
+  assert.equal(budgetRetryStop.stopReason, 'budget_exhausted');
+  assert.equal(budgetRetryStop.maxBudgetUSD, 5);
+  assert.equal(budgetRetryStop.iterations.length, 1, 'budget-capped retry must fail closed before a second iteration without measured spend');
+  assert.deepEqual(budgetRetryStop.iterations.map(iteration => iteration.stopReason), ['validation_failed']);
+  assert.match(budgetRetryStop.stopDetails ?? '', /cannot measure provider spend/);
+  assert.match(budgetRetryStop.nextAction ?? '', /Fail closed|measured spend/i);
+  assertAuthorityFalse(budgetRetryStop, 'budgetRetryStop');
+
   const activeConflictDispatch = run<Record<string, unknown>>('dispatch_prepare', {
     storyId: 'B-conflict-demo',
     host: 'fake',
@@ -838,6 +962,7 @@ try {
     missingAuthority,
     full,
     retryStop,
+    budgetRetryStop,
     conflictStop,
     cancellable,
     cancelled,
@@ -847,7 +972,7 @@ try {
     cliConservative,
   ], 'allResults');
 
-  console.log('autopilot-run smoke passed: registration, two-policy linkage, policy gates, dispatch-only refusal, mode-override refusal, forged authority refusal, conservative manual_review_ready, authority-verified fake server gate success/refusal, full-autopilot bounded retry, conflict stop, host-native delegation contract, cancel, resume refusal, and authority boundaries verified');
+  console.log('autopilot-run smoke passed: registration, two-policy linkage, policy gates, deprecated CLI flag refusal, dispatch-only refusal, mode-override refusal, forged authority refusal, conservative manual_review_ready, authority-verified fake server gate success/refusal, full-autopilot bounded retry, budget-capped retry fail-closed, conflict stop, host-native delegation contract, cancel, resume refusal, and authority boundaries verified');
 } finally {
   rmSync(sandboxRoot, { recursive: true, force: true });
 }

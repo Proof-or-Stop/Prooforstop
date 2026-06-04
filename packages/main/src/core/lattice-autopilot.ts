@@ -605,7 +605,17 @@ function dispatchArgs(args: AutopilotRunArgs, dispatchPolicy: string): Parameter
   };
 }
 
-function shouldRetryValidationFailure(
+interface ValidationRetryDecision {
+  retry: boolean;
+  refusal?: {
+    stopReason: AutopilotStopReason;
+    stopDetails: string;
+    nextAction: string;
+  };
+  budgetSpentUSD?: number;
+}
+
+function validationRetryDecision(
   policy: Pick<PersistedAutopilotPolicy, 'mode' | 'allowAutoFix'>,
   stopReason: AutopilotStopReason,
   index: number,
@@ -613,13 +623,53 @@ function shouldRetryValidationFailure(
   startMs: number,
   timeoutMs: number,
   record: Pick<AutopilotRunRecord, 'maxBudgetUSD' | 'budgetSpentUSD'>,
-): boolean {
-  return policy.mode === 'full-autopilot'
+  measuredSpendDeltaUSD?: number,
+): ValidationRetryDecision {
+  const retryCandidate = policy.mode === 'full-autopilot'
     && policy.allowAutoFix === true
     && stopReason === 'validation_failed'
     && index + 1 < maxIterations
-    && !timedOut(startMs, timeoutMs)
-    && !budgetExhausted(record);
+    && !timedOut(startMs, timeoutMs);
+  if (!retryCandidate) return { retry: false };
+
+  if (budgetExhausted(record)) {
+    return {
+      retry: false,
+      refusal: {
+        stopReason: 'budget_exhausted',
+        stopDetails: `budgetSpentUSD=${record.budgetSpentUSD} reached maxBudgetUSD=${record.maxBudgetUSD}`,
+        nextAction: 'Budget cap reached. Review the existing run manually before any further retry.',
+      },
+    };
+  }
+
+  if (record.maxBudgetUSD !== undefined && measuredSpendDeltaUSD === undefined) {
+    return {
+      retry: false,
+      refusal: {
+        stopReason: 'budget_exhausted',
+        stopDetails: `full-autopilot retry refused: maxBudgetUSD=${record.maxBudgetUSD} is set, but autopilot v1 cannot measure provider spend after dispatch attempts.`,
+        nextAction: 'Fail closed: remove maxBudgetUSD to allow retries bounded by maxIterations/runtime only, or add measured spend support before budget-capped retries.',
+      },
+    };
+  }
+
+  const budgetSpentUSD = measuredSpendDeltaUSD === undefined
+    ? record.budgetSpentUSD
+    : record.budgetSpentUSD + measuredSpendDeltaUSD;
+  if (record.maxBudgetUSD !== undefined && budgetSpentUSD >= record.maxBudgetUSD) {
+    return {
+      retry: false,
+      refusal: {
+        stopReason: 'budget_exhausted',
+        stopDetails: `budgetSpentUSD=${budgetSpentUSD} reached maxBudgetUSD=${record.maxBudgetUSD}`,
+        nextAction: 'Budget cap reached. Review the existing run manually before any further retry.',
+      },
+      budgetSpentUSD,
+    };
+  }
+
+  return { retry: true, budgetSpentUSD };
 }
 
 function mergePlanStopReason(mergePlan: DispatchMergePlanResult): AutopilotStopReason {
@@ -786,10 +836,11 @@ export function autopilotRun(store: StoryStore, root: string, args: AutopilotRun
       const stopReason = classifyDispatchError(message);
       const ended = markIterationEnded(iteration, 'failed', 'dispatch_auto refused or failed before any integration step.', stopReason);
       const nextIterations = [...record.iterations.slice(0, -1), ended];
-      const retry = shouldRetryValidationFailure(policy, stopReason, index, maxIterations, startMs, timeoutMs, record);
-      if (retry) {
+      const retryDecision = validationRetryDecision(policy, stopReason, index, maxIterations, startMs, timeoutMs, record);
+      if (retryDecision.retry) {
         record = persist(root, {
           ...record,
+          ...(retryDecision.budgetSpentUSD !== undefined ? { budgetSpentUSD: retryDecision.budgetSpentUSD } : {}),
           iterations: nextIterations,
           errors: [...record.errors, message],
           nextAction: 'Validation failed and policy allowAutoFix=true; scheduling the next bounded full-autopilot iteration.',
@@ -800,6 +851,22 @@ export function autopilotRun(store: StoryStore, root: string, args: AutopilotRun
           ],
         });
         continue;
+      }
+      if (retryDecision.refusal) {
+        return finalize(root, record, {
+          status: 'failed',
+          stopReason: retryDecision.refusal.stopReason,
+          stopDetails: retryDecision.refusal.stopDetails,
+          ...(retryDecision.budgetSpentUSD !== undefined ? { budgetSpentUSD: retryDecision.budgetSpentUSD } : {}),
+          iterations: nextIterations,
+          errors: [...record.errors, message, retryDecision.refusal.stopDetails],
+          nextAction: retryDecision.refusal.nextAction,
+          events: [
+            ...record.events,
+            event('dispatch_auto_failed', message, { stopReason }),
+            event('retry_refused', retryDecision.refusal.stopDetails, { stopReason: retryDecision.refusal.stopReason }),
+          ],
+        });
       }
       return finalize(root, record, {
         status: 'failed',
@@ -840,10 +907,12 @@ export function autopilotRun(store: StoryStore, root: string, args: AutopilotRun
       const nextAction = 'dispatch_auto returned failed status; autopilot preserved dispatch evidence before any integration step.';
       const ended = markIterationEnded(iteration, 'failed', nextAction, stopReason);
       const nextIterations = [...record.iterations.slice(0, -1), { ...ended, dispatchId, warnings }];
-      const retry = shouldRetryValidationFailure(policy, stopReason, index, maxIterations, startMs, timeoutMs, record);
-      if (retry) {
+      const measuredSpendDeltaUSD = auto.host === 'fake' ? 0 : undefined;
+      const retryDecision = validationRetryDecision(policy, stopReason, index, maxIterations, startMs, timeoutMs, record, measuredSpendDeltaUSD);
+      if (retryDecision.retry) {
         record = persist(root, {
           ...record,
+          ...(retryDecision.budgetSpentUSD !== undefined ? { budgetSpentUSD: retryDecision.budgetSpentUSD } : {}),
           iterations: nextIterations,
           errors: [...record.errors, message],
           nextAction: 'Validation failed and policy allowAutoFix=true; scheduling the next bounded full-autopilot iteration.',
@@ -854,6 +923,22 @@ export function autopilotRun(store: StoryStore, root: string, args: AutopilotRun
           ],
         });
         continue;
+      }
+      if (retryDecision.refusal) {
+        return finalize(root, record, {
+          status: 'failed',
+          stopReason: retryDecision.refusal.stopReason,
+          stopDetails: retryDecision.refusal.stopDetails,
+          ...(retryDecision.budgetSpentUSD !== undefined ? { budgetSpentUSD: retryDecision.budgetSpentUSD } : {}),
+          iterations: nextIterations,
+          errors: [...record.errors, message, retryDecision.refusal.stopDetails],
+          nextAction: retryDecision.refusal.nextAction,
+          events: [
+            ...record.events,
+            event('validation_failed', message, { dispatchId, stopReason }),
+            event('retry_refused', retryDecision.refusal.stopDetails, { dispatchId, stopReason: retryDecision.refusal.stopReason }),
+          ],
+        });
       }
       return finalize(root, record, {
         status: 'failed',
@@ -915,10 +1000,12 @@ export function autopilotRun(store: StoryStore, root: string, args: AutopilotRun
       const ended = markIterationEnded(iteration, 'failed', nextAction, stopReason);
       const nextIterations = [...record.iterations.slice(0, -1), { ...ended, dispatchId, warnings }];
       const stopDetails = mergePlan.warnings.join('; ') || 'dispatch_merge_plan was not mergeable';
-      const retry = shouldRetryValidationFailure(policy, stopReason, index, maxIterations, startMs, timeoutMs, record);
-      if (retry) {
+      const measuredSpendDeltaUSD = auto.host === 'fake' ? 0 : undefined;
+      const retryDecision = validationRetryDecision(policy, stopReason, index, maxIterations, startMs, timeoutMs, record, measuredSpendDeltaUSD);
+      if (retryDecision.retry) {
         record = persist(root, {
           ...record,
+          ...(retryDecision.budgetSpentUSD !== undefined ? { budgetSpentUSD: retryDecision.budgetSpentUSD } : {}),
           iterations: nextIterations,
           errors: [...record.errors, stopDetails],
           nextAction: 'Validation failed and policy allowAutoFix=true; scheduling the next bounded full-autopilot iteration.',
@@ -929,6 +1016,22 @@ export function autopilotRun(store: StoryStore, root: string, args: AutopilotRun
           ],
         });
         continue;
+      }
+      if (retryDecision.refusal) {
+        return finalize(root, record, {
+          status: 'failed',
+          stopReason: retryDecision.refusal.stopReason,
+          stopDetails: retryDecision.refusal.stopDetails,
+          ...(retryDecision.budgetSpentUSD !== undefined ? { budgetSpentUSD: retryDecision.budgetSpentUSD } : {}),
+          iterations: nextIterations,
+          errors: [...record.errors, stopDetails, retryDecision.refusal.stopDetails],
+          nextAction: retryDecision.refusal.nextAction,
+          events: [
+            ...record.events,
+            event('validation_failed', stopDetails, { dispatchId, stopReason }),
+            event('retry_refused', retryDecision.refusal.stopDetails, { dispatchId, stopReason: retryDecision.refusal.stopReason }),
+          ],
+        });
       }
       return finalize(root, record, {
         status: 'failed',
