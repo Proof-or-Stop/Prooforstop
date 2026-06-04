@@ -71,6 +71,25 @@
         "packages/main/src/core/autopilot-policy.ts",
         "packages/main/src/core/lattice-autopilot.ts"
       ]
+    },
+    {
+      "id": "B-47cd:F-005",
+      "desc": "Authority-Verified and Full Autopilot do not require an actually verified server authority receipt. classifyAuthorityReceiptCandidate marks the gate verified for any local object with authority-like shape or even just server-ish markers such as source=\"server\" / authorityReceipt=true (lattice-autopilot.ts:426-457), so a caller can satisfy authorityReceiptGate.verified without any real authority round-trip or receipt verification. Runtime repro: autopilot_run --mode=authority-verified --serverAuthorityReceipt={\"source\":\"server\"} returned authorityReceiptGate.verified=true in a temp repo. That conflicts with the product intent in README.md:196-238 and host-overflow.md:68-108 that only a verified server authority receipt should satisfy the gate and that local diagnostic data must not become server authority.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-04T03:43:05.288Z",
+      "reviewRound": "2026-06-04T03:37:35.517Z",
+      "reviewRunId": "B-47cd:RR-005",
+      "_hash": "ccb86447fcab0f5d186f6e530ebddd14647e6df57ad2fd7a7d6ca0618d2c0248",
+      "files": [
+        "README.md",
+        "docs/requirements/decisions/host-overflow.md",
+        "packages/main/src/core/lattice-autopilot.ts",
+        "packages/main/src/tasks/autopilot-run-smoke.ts"
+      ]
     }
   ]
 }
