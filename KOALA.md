@@ -81,12 +81,12 @@ Koala 开发时遵循数据、逻辑、渲染三层解耦。
 | 阶段 | 谁负责 | 主要动作 | 关键产物 | 门禁/完成条件 | 下一步 |
 |---|---|---|---|---|---|
 | INIT | 主 agent | `story_create` 创建 story | story metadata | story 已创建 | `story_advance INIT_CHECK` |
-| INIT_CHECK | CLI 自动 | 创建 `.worktrees/B-xxx/`，切 `story/B-xxx` 分支 | 独立 worktree | worktree 创建成功，提示 `cd` | 进入 worktree 后推进 PLAN |
+| INIT_CHECK | CLI 自动 | 创建 `.worktrees/B-xxx/`，切本地 `story/B-xxx` 分支 | 独立 worktree | worktree 创建成功，提示 `cd` | 进入 worktree 后推进 PLAN |
 | PLAN / 快速跳过 | 主 agent + test-intent agent | 理解需求、拆 checklist、写 `verificationIntent`、必要时写 decision | understanding、checklist、verificationIntent、decision | story review / 计划审查无 blocker；高风险 story 要有 decision + preMortem | DEV |
 | DEV | 主 agent | 实现代码、逐项更新 checklist、记录 `verificationEvidence` | 代码改动、evidence、done checklist | checklist 的用户可观察结果已实现；改动已提交 | REVIEW |
 | REVIEW | reviewer / CLI gate | 实现审查、测试覆盖审查、`koala-review-test-coverage` | review result、coverage result、findings | reviewer 认可；coverage 对应 verificationIntent；问题已回 DEV 修复 | TEST |
 | TEST | CLI 自动 + 主 agent 处理失败 | 跑 `koala validate` / story 级验证 / 必要回归 | validation evidence、bug report | 全部 PASS；bug 全 fixed；evidence 对应当前 HEAD | DONE |
-| DONE | CLI 自动 + 用户价值验收 | 合并回 main、清理 worktree、确认用户价值 | merged story、清理后的 worktree 状态 | 测试证据新鲜，story 分支包含 main，用户从产品角度认可 | 结束 |
+| DONE | CLI 自动 + 用户价值验收 | 合并回本地 main、清理 worktree、确认用户价值 | merged story、清理后的 worktree 状态 | 测试证据新鲜，story 分支包含 main，用户从产品角度认可 | 结束 |
 
 ## 回退规则
 
@@ -115,8 +115,10 @@ Koala 开发时遵循数据、逻辑、渲染三层解耦。
 | 10 | `git add` + `git commit` | 进入 REVIEW / TEST 前保持干净 |
 | 11 | REVIEW | 实现审查 + 覆盖审查 |
 | 12 | TEST | `koala validate`，失败回 DEV |
-| 13 | DONE | merge main、清理 worktree |
+| 13 | DONE | merge 本地 main、清理 worktree |
 | 14 | 用户价值确认 | 用户从产品视角认可，才是真完成 |
+
+并行开发只使用本地 git worktree + 本地分支。`story/*`、`codex/*`、`lab/*` 等任务分支是本地实现细节，不要 push 到 GitHub/origin；需要远端发布时，只在本地 main 干净且已验证后 push main。
 
 ## Phase 里的工具边界
 
@@ -147,7 +149,7 @@ Koala 里“工程完成”不等于“任务完成”。
 1. Story phase 到 DONE。
 2. 验证证据对应当前 story HEAD。
 3. bug 全部 fixed。
-4. worktree / branch 生命周期被正确收束。
+4. worktree / 本地 branch 生命周期被正确收束，没有残留任务 worktree，也没有把任务分支推到远端。
 5. 用户能从产品视角说“好了”。
 
 因此，Koala 的完成不是“函数返回正确”或“链路打通”，而是：

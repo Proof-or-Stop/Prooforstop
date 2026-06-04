@@ -1704,7 +1704,7 @@ function printHelp(activeStory?: ActiveStory | null) {
   开发流程:
     ── PLAN ──
     1. lattice story_create '{"name":"x","title":"..","description":"..","type":"feature","priority":"high","checklist":[{"title":"做什么","context":"上下文"}]}'
-    2. lattice story_advance --storyId=B-xxx --phase=INIT_CHECK # 创建 worktree
+    2. lattice story_advance --storyId=B-xxx --phase=INIT_CHECK # 创建本地 worktree/local branch
     3. cd .worktrees/B-xxx
     4. lattice story_review --storyId=B-xxx                     # 审查通过后进 DEV
     5. lattice story_advance --storyId=B-xxx --phase=DEV
@@ -1720,7 +1720,11 @@ function printHelp(activeStory?: ActiveStory | null) {
 
     ── TEST → DONE ──
    11. lattice story_advance --storyId=B-xxx --phase=TEST
-   12. lattice story_advance --storyId=B-xxx --phase=DONE
+   12. lattice story_advance --storyId=B-xxx --phase=DONE     # 合并回本地 main 并清理 worktree
+
+  并行/分支纪律:
+    Lattice 并行开发只使用本地 git worktree + 本地分支；不要创建或 push GitHub/origin feature branch。
+    如需发布远端，先让 DONE 合回本地 main、确认 main 干净，再只 push main。
 
   初始化新项目:
     lattice init                          # 在当前目录初始化 Lattice/Koala project state

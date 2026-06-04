@@ -5,6 +5,11 @@
 # 这是 `koala validate --lint` 的外部兜底防线。快速通道 REVIEW→TEST 会 skip
 # lint gate，pre-push 是类型错误进 main 前的唯一兜底。
 #
+# 远端分支纪律：Lattice 并行开发只使用本地 git worktree + 本地分支。
+# agent 默认不应该在 GitHub/origin 创建 story/codex/lab 分支；完成路径是本地 DONE
+# 合并回 main、清理 worktree，然后只推 main（如果需要推送）。因此本 hook 默认拒绝
+# 推送任何非 main 的 refs/heads/*。
+#
 # 核心约束：本 hook **不调用 `koala` 命令**。它要防御的就是「全局 koala 可执行
 # 文件版本错位」情形——若 hook 自己依赖 koala，koala 翻车时 hook 会一起翻
 # （B-9bd9 假 DONE 根因之一）。实现只用 git / find / node / npx tsc / npm run build。
@@ -45,6 +50,23 @@ if [ -z "$REPO_ROOT" ]; then
   # 不在 git 仓库内（理论上 hook 不会被这样调用），放行
   exit 0
 fi
+
+REF_UPDATES="$TMPDIR_PREPUSH/ref-updates.txt"
+cat >"$REF_UPDATES"
+while read -r local_ref local_sha remote_ref remote_sha; do
+  [ -z "${remote_ref:-}" ] && continue
+  case "$remote_ref" in
+    refs/heads/main)
+      ;;
+    refs/heads/*)
+      branch="${remote_ref#refs/heads/}"
+      echo "[pre-push] REJECTED: refusing to push remote branch '$branch'." >&2
+      echo "[pre-push] Lattice parallel work is local-only: use local worktrees/branches, merge to local main, clean the worktree, then push main only." >&2
+      echo "[pre-push] If a human explicitly wants a remote branch, run that workflow outside the Lattice agent flow." >&2
+      exit 1
+      ;;
+  esac
+done <"$REF_UPDATES"
 
 MAIN_PKG="$REPO_ROOT/packages/main/package.json"
 

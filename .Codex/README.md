@@ -34,7 +34,7 @@ fallback 说明：
 - 新 session 第一条命令跑 `node bin/koala-codex.js session_brief`
 - 日常所有 story/checklist/fixture/bug 操作尽量保持同一入口
 - 在 Koala 仓库自身开发时，若完整 wrapper 暂不可用，用 `node packages/main/dist/cli.js <command>` 做当前 worktree 的 status/gate/validate 判断
-- 改动 Codex adapter 资产后运行 `node bin/koala-codex.js verify_codex`（或 `node bin/koala.js verify_codex`）；它会验证 manifest、agent mirror、wrapper heartbeat、global fallback heartbeat 和 runtime 排除项，并写入 gate 可消费的 process-event evidence
+- 改动 Codex adapter 资产后运行 `node bin/koala-codex.js verify_codex`（或 `node bin/koala.js verify_codex`）；它会验证 manifest、agent mirror、native hook、wrapper heartbeat、global fallback heartbeat 和 runtime 排除项，并写入 gate 可消费的 process-event evidence
 - 运行 `koala check` 检查 Koala 管理资产/模板漂移；确认后用 `koala check --apply` 或 `koala check --upgrade` 同步安全项
 - 初始化脚本可用 `npx koala-init --verify-codex` 做同源资产校验
 - 诊断 Codex adapter 时运行 `node bin/koala-codex.js doctor`，可同时查看共享检查、health 和 worktree 状态
@@ -42,7 +42,6 @@ fallback 说明：
 
 边界：
 
-- 不创建 `.Codex/hooks`，因为 Codex runtime 不会执行 Claude Code hooks
 - 不创建 `.Codex/settings.json`，因为 Codex runtime 不会读取 Claude Code settings
-- Codex 官方 PreToolUse hook 使用小写 `.codex/hooks.json` 和 `.codex/hooks/lattice-scope-pretool.cjs`，由 Lattice init/check 管理
+- Codex 官方 PreToolUse hook 使用小写 `.codex/hooks.json` 和 `.codex/hooks/lattice-scope-pretool.cjs`，由 Lattice init/check 管理；大小写不敏感文件系统上可能显示为 `.Codex/hooks` alias
 - 需要观测 Codex 活动时，使用 `.Codex/koala.json` 记录的 wrapper 或带 `KOALA_ACTIVITY_RECORD_READONLY=1` 的 fallback

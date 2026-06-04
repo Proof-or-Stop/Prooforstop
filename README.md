@@ -529,7 +529,7 @@ node scripts/real-story-replay-benchmark.mjs
 
 ## Claude Code
 
-Claude Code 侧仍然使用 `.claude/` 下的 hooks、settings 和 skill。Codex 不消费这些 Claude runtime 配置，也不会读取 `.Codex/hooks` 或 `.Codex/settings.json`。Lattice 为 Codex 生成的是 adapter 资产：full mode 会把 agent prompt 从 `.claude/agents` 全量受控生成到 `.Codex/agents`；thin mode 则在 `.Codex/lattice.json` 记录 package prompt registry 的版本和 material hash，不要求本地 prompt copies。`.Codex/lattice.json` 同时记录 Lattice-managed adapter 的推荐入口、`source=codex` 活动标记、session 环境变量和明确排除的 runtime 资产；旧 `.Codex/koala.json` 仍作为 legacy manifest 被识别。Codex 侧的说明放在：
+Claude Code 侧仍然使用 `.claude/` 下的 hooks、settings 和 skill。Codex 不消费这些 Claude runtime 配置，也不会读取 `.Codex/settings.json`。Lattice 为 Codex 生成的是 adapter 资产：full mode 会把 agent prompt 从 `.claude/agents` 全量受控生成到 `.Codex/agents`；thin mode 则在 `.Codex/lattice.json` 记录 package prompt registry 的版本和 material hash，不要求本地 prompt copies。Codex native PreToolUse hook 使用官方小写 `.codex/hooks.json` 与 `.codex/hooks/lattice-scope-pretool.cjs`；在大小写不敏感文件系统上可能显示为 `.Codex/hooks` alias。`.Codex/lattice.json` 同时记录 Lattice-managed adapter 的推荐入口、`source=codex` 活动标记、session 环境变量和明确排除的 runtime 资产；旧 `.Codex/koala.json` 仍作为 legacy manifest 被识别。Codex 侧的说明放在：
 
 - [AGENTS.md](/Users/jek/Documents/Work/Orchestrate/AGENTS.md:1)
 - [.Codex/README.md](/Users/jek/Documents/Work/Orchestrate/.Codex/README.md:1)

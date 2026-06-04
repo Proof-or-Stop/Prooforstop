@@ -366,7 +366,7 @@ checks.push(() => {
     assertIncludes(codexReadme, `${GLOBAL_CODEX_FALLBACK} session_brief`, '.Codex/README.md');
     assertIncludes(codexReadme, '不要把 fallback 的 `status` / `next` / `validate` 输出当作 gate 证据', '.Codex/README.md');
     assertIncludes(codexReadme, '.Codex/lattice.json', '.Codex/README.md');
-    assertIncludes(codexReadme, '不创建 `.Codex/hooks`', '.Codex/README.md');
+    assertIncludes(codexReadme, 'Codex 官方 PreToolUse hook 使用小写 `.codex/hooks.json`', '.Codex/README.md');
 
     const codexManifest = readJson(tempDir, '.Codex/lattice.json');
     assert(codexManifest.adapterOwner === 'lattice', 'adapter manifest should be owned by lattice');
@@ -394,9 +394,10 @@ checks.push(() => {
       'adapter manifest should document Codex/OpenAI/terminal session env candidates',
     );
     assert(codexManifest.sessionEnv.recordReadOnly === 'KOALA_ACTIVITY_RECORD_READONLY', 'adapter manifest should document read-only activity opt-in');
-    assert(codexManifest.excludedRuntimeAssets.includes('.Codex/hooks'), 'adapter manifest should exclude .Codex/hooks');
+    assert(!codexManifest.excludedRuntimeAssets.includes('.Codex/hooks'), 'adapter manifest should allow managed Codex native hooks');
     assert(codexManifest.excludedRuntimeAssets.includes('.Codex/settings.json'), 'adapter manifest should exclude .Codex/settings.json');
-    assertPathMissing(tempDir, '.Codex/hooks', 'koala init .Codex/hooks');
+    assertPathExists(tempDir, '.codex/hooks', 'lattice init .codex/hooks');
+    assertPathExists(tempDir, '.codex/hooks.json', 'lattice init .codex/hooks.json');
     assertPathMissing(tempDir, '.Codex/settings.json', 'koala init .Codex/settings.json');
 
     const codexAgents = readdirSync(join(tempDir, '.Codex', 'agents'));
@@ -486,14 +487,15 @@ checks.push(() => {
     );
     writeFileSync(join(tempDir, 'CLAUDE.md'), originalClaude);
 
-    mkdirSync(join(tempDir, '.Codex', 'hooks'), { recursive: true });
+    mkdirSync(join(tempDir, '.Codex', 'settings.json'), { recursive: true });
     const checkExcludedDirectory = JSON.parse(run(process.execPath, [join(repoRoot, CORE_ENTRYPOINT), 'check', '--json'], { cwd: tempDir }));
-    const excludedDirectoryItem = checkExcludedDirectory.items.find(item => item.relPath === '.Codex/hooks');
+    const excludedDirectoryItem = checkExcludedDirectory.items.find(item => item.relPath === '.Codex/settings.json');
     assert(checkExcludedDirectory.ok === false, 'koala check should report excluded directory drift');
     assert(
       excludedDirectoryItem?.status === 'INCOMPATIBLE' && excludedDirectoryItem.reason.includes('directory'),
       'koala check should classify directory at excluded asset path without throwing EISDIR',
     );
+    rmSync(join(tempDir, '.Codex', 'settings.json'), { recursive: true, force: true });
 
     rmSync(join(tempDir, '.Codex', 'README.md'), { force: true });
     mkdirSync(join(tempDir, '.Codex', 'README.md'));

@@ -145,13 +145,19 @@ assertCheckFails(
   'manifest',
   'manifest drift',
 );
-assertCheckFails(
-  (dir) => {
-    mkdirSync(join(dir, '.Codex', 'hooks'), { recursive: true });
-  },
-  'excluded-assets',
-  'forbidden .Codex/hooks',
-);
+{
+  const dir = copyCodexAssetsToTemp();
+  try {
+    const checkResult = runCodexAdapterChecks(dir, { executeHeartbeats: false });
+    const exclusions = checkResult.checks.find(check => check.id === 'excluded-assets');
+    const nativeHooks = checkResult.checks.find(check => check.id === 'codex-native-hooks');
+    assert(checkResult.ok, 'managed Codex native hooks should pass adapter checks');
+    assert(exclusions?.status === 'pass', `managed Codex native hooks should not count as excluded assets: ${exclusions?.detail}`);
+    assert(nativeHooks?.status === 'pass', `Codex native hook check should pass: ${nativeHooks?.detail}`);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
 assertCheckFails(
   (dir) => writeFileSync(join(dir, '.Codex', 'settings.json'), '{}\n'),
   'excluded-assets',

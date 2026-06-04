@@ -26,6 +26,7 @@ export const AGENTS_MD_TEMPLATE = `# AGENTS.md
 - At the start of a new session, or when resuming interrupted work, run \`node bin/lattice.js session_brief\`.
 - Before acting, run \`node bin/lattice.js aux_doc_list\` to inspect relevant docs; if the current global core-only environment lacks aux commands, fall back to the local bootstrap or shell search.
 - Prefer \`node bin/lattice.js\` (or global \`lattice\`) for Story / checklist / fixture / bug operations. Do not edit story/fixture JSON directly; \`koala\` is only a legacy alias.
+- Parallel Lattice work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree, and do not create or push GitHub/origin feature branches unless a human explicitly asks outside the Lattice flow.
 - Codex subagent prompts use the Lattice adapter: full asset mode materializes \`.Codex/agents\`, while thin asset mode resolves prompts from the package registry. Claude Code-only assets are generated only when the Claude profile is enabled.
 - After changing the Codex adapter, \`.Codex\`, or \`bin/lattice-codex.js\`, run \`node bin/lattice-codex.js verify_codex\` so REVIEW/DONE gates can consume hard evidence.
 - For Codex adapter diagnostics, run \`node bin/lattice-codex.js doctor\`.
@@ -44,6 +45,7 @@ export const LATTICE_MD_TEMPLATE = `# LATTICE.md
 - At the start of a new session, or when resuming interrupted work, run \`node bin/lattice.js session_brief\`.
 - Before acting, run \`node bin/lattice.js aux_doc_list\` to inspect relevant docs; if the current global core-only environment lacks aux commands, fall back to the local bootstrap or shell search.
 - Prefer \`node bin/lattice.js\` (or global \`lattice\`) for Story / checklist / fixture / bug operations. Do not edit story/fixture JSON directly; \`koala\` remains a legacy alias.
+- Parallel Lattice work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree, and do not create or push GitHub/origin feature branches unless a human explicitly asks outside the Lattice flow.
 - The default local entrypoint is \`node bin/lattice.js\`; if the profile generated a Codex adapter, also use \`node bin/lattice-codex.js\`.
 - Codex-specific notes live in \`AGENTS.md\` and \`.Codex/README.md\`; Claude-specific notes live in \`CLAUDE.md\` and \`.claude/\`.
 - After changing Lattice adapter assets, run the corresponding verification: project validation uses \`node bin/lattice.js validate\`, and the Codex adapter additionally uses \`node bin/lattice-codex.js verify_codex\`.
@@ -63,6 +65,7 @@ export const KOALA_MD_TEMPLATE = `# KOALA.md
 - At the start of a new session, or when resuming interrupted work, run \`koala session_brief\`.
 - Before acting, run \`koala aux_doc_list\` to inspect relevant docs; if the current global core-only environment lacks aux commands, fall back to the local bootstrap or shell search.
 - Prefer the \`koala\` CLI for Story / checklist / fixture / bug operations. Do not edit story/fixture JSON directly.
+- Parallel Koala/Lattice work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree, and do not create or push GitHub/origin feature branches unless a human explicitly asks outside the Lattice flow.
 - The default local entrypoint is \`node bin/koala.js\`; if the profile generated a Codex adapter, also use \`node bin/koala-codex.js\`.
 - Codex-specific notes live in \`AGENTS.md\` and \`.Codex/README.md\`; Claude-specific notes live in \`CLAUDE.md\` and \`.claude/\`.
 - After changing Koala adapter assets, run the corresponding verification: project validation uses \`koala validate\`, and the Codex adapter additionally uses \`node bin/koala-codex.js verify_codex\`.
@@ -78,6 +81,7 @@ export const CLAUDE_MD_TEMPLATE = `# CLAUDE.md
 
 - \`LATTICE.md\` is the canonical, host-neutral Lattice guide; Story lifecycle facts and shared rules derive from it.
 - Claude Code entrypoints should first run \`node bin/lattice.js session_brief\`; daily operations should use \`node bin/lattice.js\` or global \`lattice\`. \`koala\` is only a legacy alias.
+- Parallel Lattice work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree, and do not create or push GitHub/origin feature branches unless a human explicitly asks outside the Lattice flow.
 - Claude Code subagents live in \`.claude/agents\`.
 - Claude Code hooks live in \`.claude/hooks\`, and Claude settings live in \`.claude/settings.json\`.
 - The Claude Code \`/koala\` skill lives in \`.claude/skills/koala\`.
@@ -102,6 +106,7 @@ export const LATTICE_DOT_DIR_MD_TEMPLATE = `# Lattice.md
 - At the start of a new session, or when resuming interrupted work, run \`lattice session_brief\`.
 - Before acting, run \`lattice aux_doc_list\` to inspect relevant docs.
 - Use the global \`lattice\` CLI for Story / checklist / fixture / bug operations. Do not edit story/fixture JSON directly; \`koala\` is a legacy alias.
+- Parallel Lattice work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree, and do not create or push GitHub/origin feature branches unless a human explicitly asks outside the Lattice flow.
 - Codex adapter verification and diagnostics use the global CLI: \`lattice codex verify\` and \`lattice codex doctor\`.
 - Run \`lattice check\` to check Lattice managed asset/template drift; after review, use \`lattice check --apply\` to sync safe items.
 - Legacy projects may expose \`KOALA.md\`, \`LATTICE.md\`, \`bin/lattice.js\`, \`bin/lattice-codex.js\`, and \`.Codex/\` assets as compatibility assets. New global-thin init no longer generates those files.
@@ -118,6 +123,7 @@ export const AGENTS_MD_GLOBAL_THIN_TEMPLATE = `# AGENTS.md
 - At the start of a new session, or when resuming interrupted work, run \`lattice session_brief\`.
 - Before acting, run \`lattice aux_doc_list\` to inspect relevant docs.
 - Use the global \`lattice\` CLI for Story / checklist / fixture / bug operations. Do not edit story/fixture JSON directly; \`koala\` is only a legacy alias.
+- Parallel Lattice work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree, and do not create or push GitHub/origin feature branches unless a human explicitly asks outside the Lattice flow.
 - Codex adapter verification uses the global CLI: \`lattice codex verify\`. For diagnostics, run \`lattice codex doctor\`.
 - Run \`lattice check\` to check Lattice managed asset/template drift; after review, use \`lattice check --apply\` to sync safe items.
 
@@ -295,7 +301,7 @@ fallback 说明：
 - 新 session 第一条命令跑 \`node bin/koala-codex.js session_brief\`
 - 日常所有 story/checklist/fixture/bug 操作尽量保持同一入口
 - 在 Koala 仓库自身开发时，若完整 wrapper 暂不可用，用 \`node packages/main/dist/cli.js <command>\` 做当前 worktree 的 status/gate/validate 判断
-- 改动 Codex adapter 资产后运行 \`node bin/koala-codex.js verify_codex\`（或 \`node bin/koala.js verify_codex\`）；它会验证 manifest、agent mirror、wrapper heartbeat、global fallback heartbeat 和 runtime 排除项，并写入 gate 可消费的 process-event evidence
+- 改动 Codex adapter 资产后运行 \`node bin/koala-codex.js verify_codex\`（或 \`node bin/koala.js verify_codex\`）；它会验证 manifest、agent mirror、native hook、wrapper heartbeat、global fallback heartbeat 和 runtime 排除项，并写入 gate 可消费的 process-event evidence
 - 运行 \`koala check\` 检查 Koala 管理资产/模板漂移；确认后用 \`koala check --apply\` 或 \`koala check --upgrade\` 同步安全项
 - 初始化脚本可用 \`npx koala-init --verify-codex\` 做同源资产校验
 - 诊断 Codex adapter 时运行 \`node bin/koala-codex.js doctor\`，可同时查看共享检查、health 和 worktree 状态
@@ -303,9 +309,8 @@ fallback 说明：
 
 边界：
 
-- 不创建 \`.Codex/hooks\`，因为 Codex runtime 不会执行 Claude Code hooks
 - 不创建 \`.Codex/settings.json\`，因为 Codex runtime 不会读取 Claude Code settings
-- Codex 官方 PreToolUse hook 使用小写 \`.codex/hooks.json\` 和 \`.codex/hooks/lattice-scope-pretool.cjs\`，由 Lattice init/check 管理
+- Codex 官方 PreToolUse hook 使用小写 \`.codex/hooks.json\` 和 \`.codex/hooks/lattice-scope-pretool.cjs\`，由 Lattice init/check 管理；大小写不敏感文件系统上可能显示为 \`.Codex/hooks\` alias
 - 需要观测 Codex 活动时，使用 \`.Codex/koala.json\` 记录的 wrapper 或带 \`KOALA_ACTIVITY_RECORD_READONLY=1\` 的 fallback
 `;
 
