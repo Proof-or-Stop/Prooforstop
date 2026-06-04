@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-5cea:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Concept review complete. Three new exports introduced: resolveLocalCodexVerifyCommand (priority: bin/lattice-codex.js > bin/koala-codex.js > bin/lattice.js > bin/koala.js > LOCAL_CODEX_VERIFY_COMMAND fallback), resolveCodexSessionBriefCommand (derives session_brief variant; global-thin uses GLOBAL_CODEX_FALLBACK_COMMAND), GLOBAL_THIN_CODEX_VERIFY_COMMAND=lattice codex verify (confirmed alias registered in cli-engine.ts L2552). Old hardcoded node bin/lattice-codex.js session_brief in checkGlobalFallback replaced with resolveCodexSessionBriefCommand. Both gate creation sites in review-preflight.ts now add commandLabel:resolvedLabel; LOCAL_CODEX_VERIFY_COMMAND remaining at renderPreflight line 387 is a legitimate ?? fallback only reached for non-codex-adapter gates. phase-gates.ts error messages updated to resolveLocalCodexVerifyCommand. codex-adapter.ts verify_codex event command updated. verify-codex-assets.mjs adds assertGateStatusLattice (lattice wrapper regression) alongside assertGateStatus (legacy koala). verify-entrypoints.mjs GLOBAL_CODEX_FALLBACK switched from koala to lattice; init default changed to core+global-thin. No deleted symbols with stale residue. No blocking concept regression.",
+      "createdAt": "2026-06-04T00:07:35.171Z",
+      "reviewRound": "2026-06-04T00:02:11.613Z",
+      "reviewRunId": "B-5cea:RR-001",
+      "_hash": "4f9b16c2293b199455c227c71ca9cbb739c1cdbf35d4444d0950ef6efe12bc79"
+    }
+  ]
+}
