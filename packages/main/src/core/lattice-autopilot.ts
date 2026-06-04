@@ -523,6 +523,10 @@ function buildMergeDecision(mergePlan: DispatchMergePlanResult | undefined): Aut
   };
 }
 
+function isPersistedTerminalStatus(status: AutopilotStatus): boolean {
+  return status !== 'created' && status !== 'running';
+}
+
 function finalize(
   root: string,
   record: AutopilotRunRecord,
@@ -1134,8 +1138,11 @@ export function autopilotReview(root: string, runId: string): AutopilotReviewRes
     dispatchReviewResult = reviewDispatch(root, persistedRecord.dispatchId);
     mergePlan = buildDispatchMergePlan(root, persistedRecord.dispatchId);
     const mergeDecision = buildMergeDecision(mergePlan);
+    const isTerminal = isPersistedTerminalStatus(persistedRecord.status);
     const status: AutopilotStatus =
-      dispatchReviewResult.localReceiptStatus === 'accepted-local' && dispatchReviewResult.transcriptExists
+      isTerminal
+        ? persistedRecord.status
+        : dispatchReviewResult.localReceiptStatus === 'accepted-local' && dispatchReviewResult.transcriptExists
         ? persistedRecord.status === 'missing_authority_receipt' ? 'missing_authority_receipt' : 'manual_review_ready'
         : 'needs_receipt';
     reviewRecord = {
@@ -1147,7 +1154,7 @@ export function autopilotReview(root: string, runId: string): AutopilotReviewRes
         mergePlan,
       },
       mergeDecision,
-      nextAction: status === 'needs_receipt'
+      nextAction: !isTerminal && status === 'needs_receipt'
         ? 'Host-native receipt or transcript evidence is still missing. Stay before integration, DONE, and main merge.'
         : reviewRecord.nextAction,
     };

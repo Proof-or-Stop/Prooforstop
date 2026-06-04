@@ -13,6 +13,7 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import {
+  existsSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -128,6 +129,12 @@ interface AutopilotRunResult extends AuthorityBoundary {
     mergeable: boolean;
     nextAction: string;
   };
+  dispatch?: {
+    auto?: unknown;
+    watch?: unknown;
+    review?: unknown;
+    mergePlan?: unknown;
+  };
   nextAction?: string;
 }
 
@@ -141,6 +148,16 @@ interface AutopilotStatusResult extends AuthorityBoundary {
     manualOnly: true;
   };
   nextAction?: string;
+}
+
+interface AutopilotCancelResult extends AuthorityBoundary {
+  schemaVersion: 'lattice.autopilot_cancel.v1';
+  runId: string;
+  storyId?: string;
+  status: 'cancelled';
+  dispatchId?: string;
+  nextAction?: string;
+  record: AutopilotRunResult;
 }
 
 function git(root: string, args: string[]): string {
@@ -246,7 +263,7 @@ function assertFiveWayRegistration(command: string, registry: ReturnType<typeof 
   }
 }
 
-function runCliJson<T>(root: string, args: string[]): T {
+function runCliJson<T>(root: string, args: string[], env: Record<string, string | undefined> = {}): T {
   const here = dirname(fileURLToPath(import.meta.url));
   const cliPath = join(here, '..', 'cli.js');
   return JSON.parse(execFileSync(process.execPath, [
@@ -258,10 +275,11 @@ function runCliJson<T>(root: string, args: string[]): T {
     cwd: root,
     encoding: 'utf8',
     stdio: ['pipe', 'pipe', 'pipe'],
+    env: { ...process.env, ...env },
   })) as T;
 }
 
-function runCliFailure(root: string, args: string[]): string {
+function runCliFailure(root: string, args: string[], env: Record<string, string | undefined> = {}): string {
   const here = dirname(fileURLToPath(import.meta.url));
   const cliPath = join(here, '..', 'cli.js');
   try {
@@ -274,6 +292,7 @@ function runCliFailure(root: string, args: string[]): string {
       cwd: root,
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
+      env: { ...process.env, ...env },
     });
   } catch (error) {
     const failed = error as { stdout?: string | Buffer; stderr?: string | Buffer };
@@ -282,16 +301,24 @@ function runCliFailure(root: string, args: string[]): string {
   assert.fail(`expected CLI failure for: ${args.join(' ')}`);
 }
 
-function assertCliRejectsUnknownFlag(root: string, args: string[], flag: string): void {
-  const output = runCliFailure(root, args);
+function assertCliRejectsUnknownFlag(root: string, args: string[], flag: string, env: Record<string, string | undefined> = {}): void {
+  const output = runCliFailure(root, args, env);
   assert.match(output, new RegExp(flag, 'i'), `CLI error should mention rejected flag ${flag}`);
   assert.match(output, /unrecognized|unknown|unsupported/i, 'CLI error should reject the unknown flag before core handling');
 }
 
 function assertNoCliMetaLeak(result: unknown, label: string): void {
+  if (Array.isArray(result)) {
+    result.forEach((entry, index) => assertNoCliMetaLeak(entry, `${label}[${index}]`));
+    return;
+  }
+  if (!result || typeof result !== 'object') return;
   const record = result as Record<string, unknown>;
   assert.equal(record.takeover, undefined, `${label} must not expose takeover in JSON output`);
   assert.equal(record.forceTakeover, undefined, `${label} must not expose forceTakeover in JSON output`);
+  for (const [key, nested] of Object.entries(record)) {
+    if (nested && typeof nested === 'object') assertNoCliMetaLeak(nested, `${label}.${key}`);
+  }
 }
 
 const sandboxRoot = mkdtempSync(join(tmpdir(), 'lattice-autopilot-run-suite-'));
@@ -307,6 +334,8 @@ try {
   seedStory(store, 'B-budget-retry-demo');
   seedStory(store, 'B-conflict-demo');
   seedStory(store, 'B-cancel-demo');
+  seedStory(store, 'B-owner-gate-cancel-demo');
+  seedStory(store, 'B-owner-gate-resume-demo');
   const ctx: HandlerContext = { store, root, scanRoot: join(root, 'packages/main') };
   const registry = createMainRegistry(ctx);
   const run = <T>(name: string, args: Record<string, unknown> = {}): T => {
@@ -646,13 +675,28 @@ try {
     '--maxRuntimeMinutes=5',
     '--stopOnConflict=true',
     '--stopOnScopeViolation=true',
-    '--forceTakeover=true',
     '--json',
   ]);
   assert.equal(cliNestedCreate.policy, 'cli-nested');
   assert.equal(cliNestedCreate.dispatchPolicy, 'fake-dispatch');
-  assert.equal((cliNestedCreate as unknown as Record<string, unknown>).forceTakeover, undefined);
   assertAuthorityFalse(cliNestedCreate, 'cliNestedCreate');
+
+  assertCliRejectsUnknownFlag(root, [
+    'autopilot_policy_create',
+    '--policy=bad-cli-owner-meta',
+    '--dispatchPolicy=fake-dispatch',
+    '--mode=conservative',
+    '--allowAutoDispatch=true',
+    '--allowAutoValidate=true',
+    '--allowMainMerge=false',
+    '--requireServerReceipt=false',
+    '--maxIterations=1',
+    '--maxRuntimeMinutes=5',
+    '--stopOnConflict=true',
+    '--stopOnScopeViolation=true',
+    '--forceTakeover=true',
+    '--json',
+  ], 'forceTakeover');
 
   assertCliRejectsUnknownFlag(root, [
     'autopilot_policy_create',
@@ -1001,9 +1045,24 @@ try {
   assert.equal(conflictStop.stopReason, 'conflict');
   assert.equal(conflictStop.dispatchId, undefined, 'maxParallel conflict must stop before creating a new dispatch');
   assert.equal(conflictStop.iterations.length, 1);
+  assert.equal(conflictStop.iterations[0]?.status, 'failed');
   assert.equal(conflictStop.iterations[0]?.stopReason, 'conflict');
   assert.match(conflictStop.nextAction ?? '', /Manual repair|required|resolve/i);
   assert.match((conflictStop.errors ?? []).join('\n'), /maxParallel|active dispatch|conflict/i);
+  const conflictRunPath = join(root, '.koala', 'autopilot-runs', conflictStop.runId, 'run.json');
+  assert.equal(existsSync(conflictRunPath), true, 'conflict stop must persist run.json evidence');
+  const conflictRecord = JSON.parse(readFileSync(conflictRunPath, 'utf8')) as AutopilotRunResult & { events?: Array<{ type?: string; stopReason?: string }> };
+  assert.equal(conflictRecord.status, 'failed', 'conflict run.json preserves failed status');
+  assert.equal(conflictRecord.stopReason, 'conflict', 'conflict run.json preserves stopReason');
+  assert.equal(conflictRecord.iterations.length, 1, 'conflict run.json preserves the failed iteration');
+  assert.equal(conflictRecord.iterations[0]?.status, 'failed', 'conflict run.json preserves iteration status');
+  assert.equal(conflictRecord.iterations[0]?.stopReason, 'conflict', 'conflict run.json preserves iteration stopReason');
+  assert.match(conflictRecord.nextAction ?? '', /Manual repair|required|resolve/i, 'conflict run.json preserves manual-repair nextAction');
+  assert.match((conflictRecord.errors ?? []).join('\n'), /maxParallel|active dispatch|conflict/i, 'conflict run.json preserves refusal error evidence');
+  assert.ok(
+    (conflictRecord.events ?? []).some(event => event.type === 'dispatch_auto_failed' && event.stopReason === 'conflict'),
+    'conflict run.json preserves dispatch_auto_failed event evidence',
+  );
   assertAuthorityFalse(conflictStop, 'conflictStop');
 
   const cancellable = run<AutopilotRunResult>('autopilot_run', {
@@ -1016,6 +1075,15 @@ try {
     maxIterations: 1,
   });
   assert.equal(cancellable.status, 'manual_review_ready');
+  assert.ok(cancellable.dispatchId, 'cancellable run must preserve a dispatchId before cancel');
+  assert.equal(cancellable.iterations.length, 1, 'cancellable run must preserve one completed iteration before cancel');
+  assert.equal(cancellable.iterations[0]?.dispatchId, cancellable.dispatchId, 'cancellable iteration must reference the dispatch');
+  assert.ok(cancellable.dispatch?.auto, 'cancellable run must preserve dispatch auto evidence before cancel');
+  assert.ok(cancellable.dispatch?.watch, 'cancellable run must preserve dispatch watch evidence before cancel');
+  assert.ok(cancellable.dispatch?.review, 'cancellable run must preserve dispatch review evidence before cancel');
+  assert.ok(cancellable.dispatch?.mergePlan, 'cancellable run must preserve dispatch merge-plan evidence before cancel');
+  const cancellableRunPath = join(root, '.koala', 'autopilot-runs', cancellable.runId, 'run.json');
+  assert.equal(existsSync(cancellableRunPath), true, 'cancellable run.json must exist before cancel');
   assertAuthorityFalse(cancellable, 'cancellable');
 
   assertCliRejectsUnknownFlag(root, [
@@ -1025,11 +1093,34 @@ try {
     '--json',
   ], 'policy');
 
-  const cancelled = run<AutopilotStatusResult>('autopilot_cancel', {
+  const cancelled = run<AutopilotCancelResult>('autopilot_cancel', {
     runId: cancellable.runId,
   });
   assert.equal(cancelled.status, 'cancelled');
+  assert.equal(cancelled.dispatchId, cancellable.dispatchId, 'cancelled result keeps dispatchId evidence');
+  assert.equal(cancelled.record.status, 'cancelled', 'cancelled result embeds the updated run record');
+  assert.equal(cancelled.record.dispatchId, cancellable.dispatchId, 'cancelled record preserves dispatchId');
+  assert.equal(cancelled.record.iterations.length, cancellable.iterations.length, 'cancelled record preserves iteration evidence');
+  assert.equal(cancelled.record.iterations[0]?.dispatchId, cancellable.dispatchId, 'cancelled iteration preserves dispatch ref');
+  assert.ok(cancelled.record.dispatch?.auto, 'cancelled record preserves dispatch auto evidence');
+  assert.ok(cancelled.record.dispatch?.watch, 'cancelled record preserves dispatch watch evidence');
+  assert.ok(cancelled.record.dispatch?.review, 'cancelled record preserves dispatch review evidence');
+  assert.ok(cancelled.record.dispatch?.mergePlan, 'cancelled record preserves dispatch merge-plan evidence');
+  assert.equal(existsSync(cancellableRunPath), true, 'cancelled run.json must still exist');
+  const cancelledRunBeforeReview = readFileSync(cancellableRunPath, 'utf8');
+  const cancelledReview = run<AutopilotStatusResult>('autopilot_review', {
+    runId: cancellable.runId,
+  });
+  assert.equal(cancelledReview.schemaVersion, 'lattice.autopilot_review.v1');
+  assert.equal(cancelledReview.status, 'cancelled', 'autopilot_review must preserve persisted cancelled status');
+  assert.equal(cancelledReview.nextAction, cancelled.record.nextAction, 'autopilot_review must preserve persisted cancelled nextAction');
+  assert.equal(
+    cancelledRunBeforeReview,
+    readFileSync(cancellableRunPath, 'utf8'),
+    'autopilot_review must not rewrite cancelled run.json',
+  );
   assertAuthorityFalse(cancelled, 'cancelled');
+  assertAuthorityFalse(cancelledReview, 'cancelledReview');
 
   const resumeRefusal = run<Record<string, unknown> & AuthorityBoundary>('autopilot_resume', {
     runId: cancellable.runId,
@@ -1121,6 +1212,66 @@ try {
   assertNoCliMetaLeak(cliTakeoverResume, 'cliTakeoverResume');
   assertAuthorityFalse(cliTakeoverResume, 'cliTakeoverResume');
 
+  const ownerGateCancelRun = runCliJson<AutopilotRunResult>(root, [
+    'autopilot_run',
+    '--mode=conservative',
+    '--storyId=B-owner-gate-cancel-demo',
+    '--policy=fake',
+    '--allowedPaths=packages/main/src/generated/owner-gate-cancel.txt',
+    '--requiredCommands=node -e "process.exit(0)"',
+    '--json',
+  ], { KOALA_SESSION_ID: 'sess-autopilot-owner' });
+  assert.equal(ownerGateCancelRun.status, 'manual_review_ready');
+  assert.equal(ownerGateCancelRun.storyId, 'B-owner-gate-cancel-demo');
+  const ownerGateCancelRefusal = runCliFailure(root, [
+    'autopilot_cancel',
+    `--runId=${ownerGateCancelRun.runId}`,
+    '--json',
+  ], { KOALA_SESSION_ID: 'sess-autopilot-intruder' });
+  assert.match(ownerGateCancelRefusal, /B-owner-gate-cancel-demo/, 'autopilot_cancel owner gate must resolve storyId from runId');
+  assert.match(ownerGateCancelRefusal, /sess-autopilot-owner/, 'autopilot_cancel owner gate must reject the non-owner session');
+  assert.match(ownerGateCancelRefusal, /owner-gated/, 'autopilot_cancel runId owner gate refusal must name owner-gated semantics');
+  const ownerGateCancelTakeover = runCliJson<AutopilotCancelResult>(root, [
+    'autopilot_cancel',
+    `--runId=${ownerGateCancelRun.runId}`,
+    '--forceTakeover=true',
+    '--json',
+  ], { KOALA_SESSION_ID: 'sess-autopilot-intruder' });
+  assert.equal(ownerGateCancelTakeover.status, 'cancelled');
+  assert.equal(ownerGateCancelTakeover.record.storyId, 'B-owner-gate-cancel-demo');
+  assertNoCliMetaLeak(ownerGateCancelTakeover, 'ownerGateCancelTakeover');
+  assertAuthorityFalse(ownerGateCancelTakeover, 'ownerGateCancelTakeover');
+
+  const ownerGateResumeRun = runCliJson<AutopilotRunResult>(root, [
+    'autopilot_run',
+    '--mode=conservative',
+    '--storyId=B-owner-gate-resume-demo',
+    '--policy=fake',
+    '--allowedPaths=packages/main/src/generated/owner-gate-resume.txt',
+    '--requiredCommands=node -e "process.exit(0)"',
+    '--json',
+  ], { KOALA_SESSION_ID: 'sess-autopilot-owner' });
+  assert.equal(ownerGateResumeRun.status, 'manual_review_ready');
+  assert.equal(ownerGateResumeRun.storyId, 'B-owner-gate-resume-demo');
+  const ownerGateResumeRefusal = runCliFailure(root, [
+    'autopilot_resume',
+    `--runId=${ownerGateResumeRun.runId}`,
+    '--json',
+  ], { KOALA_SESSION_ID: 'sess-autopilot-intruder' });
+  assert.match(ownerGateResumeRefusal, /B-owner-gate-resume-demo/, 'autopilot_resume owner gate must resolve storyId from runId');
+  assert.match(ownerGateResumeRefusal, /sess-autopilot-owner/, 'autopilot_resume owner gate must reject the non-owner session');
+  assert.match(ownerGateResumeRefusal, /owner-gated/, 'autopilot_resume runId owner gate refusal must name owner-gated semantics');
+  const ownerGateResumeTakeover = runCliJson<Record<string, unknown> & AuthorityBoundary>(root, [
+    'autopilot_resume',
+    `--runId=${ownerGateResumeRun.runId}`,
+    '--forceTakeover=true',
+    '--json',
+  ], { KOALA_SESSION_ID: 'sess-autopilot-intruder' });
+  assert.equal(ownerGateResumeTakeover.schemaVersion, 'lattice.autopilot_resume.v1');
+  assert.equal(ownerGateResumeTakeover.status, 'refused');
+  assertNoCliMetaLeak(ownerGateResumeTakeover, 'ownerGateResumeTakeover');
+  assertAuthorityFalse(ownerGateResumeTakeover, 'ownerGateResumeTakeover');
+
   assertNoProductionOverclaim([
     conservative,
     conservativeStatus,
@@ -1148,9 +1299,13 @@ try {
     cliTakeoverCancel,
     cliResumeTarget,
     cliTakeoverResume,
+    ownerGateCancelRun,
+    ownerGateCancelTakeover,
+    ownerGateResumeRun,
+    ownerGateResumeTakeover,
   ], 'allResults');
 
-  console.log('autopilot-run smoke passed: registration, two-policy linkage, policy gates, deprecated CLI flag refusal, full autopilot-surface unknown flag refusal, owner meta preservation, strict autopilot read-only flag refusal, read-only review immutability, dispatch-only refusal, mode-override refusal, forged authority refusal, fully-shaped server receipt refusal, caller-supplied fake-test-server receipt refusal, authority-verified fake server gate success/refusal, full-autopilot bounded retry, budget-capped retry fail-closed, conflict stop, host-native delegation contract, cancel, resume refusal, and authority boundaries verified');
+  console.log('autopilot-run smoke passed: registration, two-policy linkage, policy gates, deprecated CLI flag refusal, autopilot_policy_create owner-meta refusal, full autopilot-surface unknown flag refusal, runId owner-gate refusal/takeover for cancel/resume, owner meta preservation, strict autopilot read-only flag refusal, read-only review immutability, dispatch-only refusal, mode-override refusal, forged authority refusal, fully-shaped server receipt refusal, caller-supplied fake-test-server receipt refusal, authority-verified fake server gate success/refusal, full-autopilot bounded retry, budget-capped retry fail-closed, conflict stop evidence preservation, host-native delegation contract, cancel evidence preservation, cancelled review immutability, resume refusal, and authority boundaries verified');
 } finally {
   rmSync(sandboxRoot, { recursive: true, force: true });
 }

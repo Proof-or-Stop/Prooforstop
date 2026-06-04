@@ -549,6 +549,16 @@ try {
       null,
       'story_create is mainSharedMutating and must NOT have an owner lease help block',
     );
+    assert.equal(
+      ownerLeaseHelpBlock('autopilot_policy_create'),
+      null,
+      'autopilot_policy_create has no story target, is mainSharedMutating, and must NOT have an owner lease help block',
+    );
+    assert.equal(
+      resolveEffectiveOwnershipClass('autopilot_policy_create', { forceTakeover: true }, 'B-gate1'),
+      'mainSharedMutating',
+      'autopilot_policy_create must not become storyScopedMutating when stale owner meta is present',
+    );
 
     // 7f. An unknown/unclassified command returns null (fail-closed, same as gate).
     assert.equal(

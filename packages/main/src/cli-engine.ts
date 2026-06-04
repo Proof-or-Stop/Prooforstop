@@ -1933,7 +1933,6 @@ export function addValue(obj: Record<string, unknown>, key: string, val: unknown
 }
 
 const STRICT_OWNER_META_COMMANDS = new Set([
-  'autopilot_policy_create',
   'autopilot_run',
   'autopilot_cancel',
   'autopilot_resume',
@@ -2092,9 +2091,47 @@ function inferCodexEntrypoint(): string {
   return 'cli';
 }
 
-function storyIdFromArgs(args: Record<string, unknown>, activeStory?: ActiveStory | null): string | null {
+const AUTOPILOT_RUN_OWNER_GATED_COMMANDS = new Set([
+  'autopilot_cancel',
+  'autopilot_resume',
+]);
+
+function safeAutopilotRunId(value: unknown): string | null {
+  if (typeof value !== 'string') return null;
+  const trimmed = value.trim();
+  return /^[a-zA-Z0-9_.-]{1,128}$/.test(trimmed) ? trimmed : null;
+}
+
+export function storyIdFromAutopilotRunId(projectRoot: string, args: Record<string, unknown>): string | null {
+  const runId = safeAutopilotRunId(args.runId ?? args.autopilotId);
+  if (!runId) return null;
+  const file = join(projectRoot, '.koala', 'autopilot-runs', runId, 'run.json');
+  if (!existsSync(file)) return null;
+  try {
+    const parsed = JSON.parse(readFileSync(file, 'utf8')) as { storyId?: unknown };
+    return typeof parsed.storyId === 'string' && parsed.storyId.trim()
+      ? parsed.storyId.trim()
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+function storyIdFromArgs(
+  args: Record<string, unknown>,
+  activeStory?: ActiveStory | null,
+  context?: { command?: string; projectRoot?: string },
+): string | null {
   if (typeof args.storyId === 'string' && args.storyId.trim()) return args.storyId.trim();
   if (typeof args.story === 'string' && args.story.trim()) return args.story.trim();
+  if (
+    context?.command &&
+    context.projectRoot &&
+    AUTOPILOT_RUN_OWNER_GATED_COMMANDS.has(context.command)
+  ) {
+    const runStoryId = storyIdFromAutopilotRunId(context.projectRoot, args);
+    if (runStoryId) return runStoryId;
+  }
   return activeStory?.storyId || null;
 }
 
@@ -2259,7 +2296,7 @@ export function enforceStoryOwnerLeaseGate(
   activeStory: ActiveStory | null,
   projectRoot: string,
 ): void {
-  const storyId = storyIdFromArgs(args, activeStory);
+  const storyId = storyIdFromArgs(args, activeStory, { command: cmd, projectRoot });
   const cls = resolveEffectiveOwnershipClass(cmd, args, storyId);
 
   // Fail-closed: an unclassified command (no policy entry, or a policy with an
@@ -2917,7 +2954,10 @@ export async function runCli(opts?: {
         status: entry.success ? 'ok' : 'fail',
         result: entry.success ? null : undefined,
         error: entry.error || null,
-        storyId: storyIdFromArgs(entry.args as Record<string, unknown>, activeStory),
+        storyId: storyIdFromArgs(entry.args as Record<string, unknown>, activeStory, {
+          command: entry.command,
+          projectRoot: effectiveRoot,
+        }),
         phase: activeStory?.phase || null,
         role: inferActivityRole(entry.args, process.env.KOALA_ACTIVITY_ROLE || process.env.KOALA_AGENT),
       };
@@ -2943,7 +2983,7 @@ export async function runCli(opts?: {
     const argsObject = entry.args && typeof entry.args === 'object' && !Array.isArray(entry.args)
       ? entry.args as Record<string, unknown>
       : {};
-    const storyId = storyIdFromArgs(argsObject, activeStory);
+    const storyId = storyIdFromArgs(argsObject, activeStory, { command: entry.command, projectRoot: root });
     if (!storyId) return;
     try {
       let phase = activeStory?.phase || '';
