@@ -43,7 +43,7 @@
       "desc": "CHK-008 edge evidence relies on docs instead of an executable conflict-path check. packages/main/src/core/lattice-autopilot.ts:522-527 and 728-738 classify conflict/validation stop behavior, but packages/main/src/tasks/autopilot-run-smoke.ts:412-597 never drives a conflict case or verifies that evidence is preserved with a repair nextAction. README.md:240-245 is a boundary statement, not credible test coverage for this logic intent.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-06-04T03:42:43.423Z",
@@ -54,7 +54,9 @@
         "packages/main/src/core/lattice-autopilot.ts",
         "packages/main/src/tasks/autopilot-run-smoke.ts",
         "README.md"
-      ]
+      ],
+      "resolvedReason": "Resolved by adding an executable conflict stop smoke: a prepared active dispatch hits dispatch policy maxParallel, autopilot_run classifies conflict, preserves one failed iteration/error evidence, and returns manual repair nextAction. Evidence: npm --prefix packages/main run test:autopilot-run-smoke.",
+      "resolvedAt": "2026-06-04T04:10:15.862Z"
     },
     {
       "id": "B-47cd:F-004",
