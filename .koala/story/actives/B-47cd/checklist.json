@@ -746,13 +746,13 @@
           "intentRef": "CHK-009:edge:0",
           "kind": "integration_test",
           "verdict": "success",
-          "file": "packages/main/src/core/lattice-autopilot.ts",
+          "file": "packages/main/src/tasks/autopilot-run-smoke.ts",
           "command": "npm --prefix packages/main run test:autopilot-run-smoke",
           "result": "pass",
-          "note": "Cancel preserves run evidence and returns cancelled state.",
-          "headHash": "f9f75b60af4ad02445ed8f953d8c65f417bb44d2",
-          "materialHash": "394141b96aeb0c183e449d0ccaeb0c8e5b3008f6e1ab29346b506c32778523a6",
-          "timestamp": "2026-06-04T06:34:13.767Z"
+          "note": "Autopilot smoke now verifies cancel evidence preservation: dispatchId, iteration dispatch refs, dispatch auto/watch/review/mergePlan evidence, run.json existence, and a read-only cancelled review that preserves cancelled status and does not rewrite run.json.",
+          "headHash": "66f1e8ea475a07365cfeb51e021dcc75a87f94ce",
+          "materialHash": "7a6dbfde6f2c2c27f94b7be18f6b9f33d8cd8b9bbbd22ed7c86cb457e499c88c",
+          "timestamp": "2026-06-04T07:01:54.271Z"
         },
         {
           "intentRef": "CHK-009:adversarial:0",
