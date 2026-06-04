@@ -457,7 +457,18 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/autopilot-run-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/autopilot-run-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-011",
