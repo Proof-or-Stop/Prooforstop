@@ -195,6 +195,23 @@
         "packages/main/src/handlers/lattice-autopilot.ts",
         "packages/main/src/core/autopilot-policy.ts"
       ]
+    },
+    {
+      "id": "B-47cd:F-011",
+      "desc": "Full-autopilot maxBudgetUSD is advertised as a retry bound, but budgetSpentUSD is initialized once and never updated after dispatch attempts, so retries can continue regardless of actual spend. Fix by either measuring/persisting per-iteration spend before retry or refusing budget-bound retries when spend cannot be measured.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-04T04:32:54.747Z",
+      "reviewRound": "2026-06-04T04:09:09.144Z",
+      "reviewRunId": "B-47cd:RR-007",
+      "_hash": "1f2a0e9bda5a33ea5473317a790de4a501f3b757bc2a426e629a5aa442e89c57",
+      "files": [
+        "packages/main/src/core/lattice-autopilot.ts",
+        "packages/main/src/tasks/autopilot-run-smoke.ts"
+      ]
     }
   ]
 }
