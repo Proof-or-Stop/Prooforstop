@@ -50,6 +50,7 @@ export interface PrewriteGuardResult {
  * Matched case-insensitively after stripping non-alphanumeric chars.
  */
 const WRITE_TOOL_NORMALIZED = new Set([
+  'applypatch',
   'edit',
   'write',
   'multiedit',
@@ -88,6 +89,11 @@ export function extractPathsFromToolInput(toolName: string, toolInputJson: strin
 
   const normalized = normalizeToolName(toolName);
 
+  if (normalized === 'applypatch') {
+    const command = input['command'];
+    return typeof command === 'string' ? extractPathsFromApplyPatchCommand(command) : [];
+  }
+
   // NotebookEdit uses notebook_path
   if (normalized === 'notebookedit' || normalized === 'notebookeditortool') {
     const p = input['notebook_path'] ?? input['path'] ?? input['file_path'];
@@ -99,6 +105,17 @@ export function extractPathsFromToolInput(toolName: string, toolInputJson: strin
   if (typeof p === 'string' && p.trim().length > 0) return [p.trim()];
 
   return [];
+}
+
+export function extractPathsFromApplyPatchCommand(command: string): string[] {
+  const paths = new Set<string>();
+  for (const line of command.split(/\r?\n/)) {
+    const match = line.match(/^\*\*\*\s+(?:(?:Add|Update|Delete|Move) File|Move to):\s+(.+?)\s*$/);
+    if (!match) continue;
+    const p = match[1]?.trim();
+    if (p) paths.add(p);
+  }
+  return [...paths];
 }
 
 // ── Path normalization ──

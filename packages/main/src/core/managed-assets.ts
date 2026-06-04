@@ -20,10 +20,18 @@ import {
   KOALA_MD_TEMPLATE,
   LATTICE_DOT_DIR_MD_TEMPLATE,
   LATTICE_MD_TEMPLATE,
+  getCodexHooks,
   getKoalaHooks,
+  codexHookCommand,
+  hookCommand,
+  LEGACY_SCOPE_PRETOOL_HOOK_FILE,
+  LATTICE_SCOPE_PRETOOL_HOOK_FILE,
   listAgentPromptFiles,
+  migrateHookCommandEntries,
   renderCodexAdapterManifest,
   renderCodexAgentContent,
+  renderCodexHooksJson,
+  renderCodexPretoolScopeHookScript,
   renderCodexReadmeTemplate,
   renderCodexWrapperScript,
   renderLatticeBootstrapScript,
@@ -53,6 +61,7 @@ export type ManagedAssetKind =
   | 'whole-file'
   | 'gitignore-runtime'
   | 'claude-settings'
+  | 'codex-hooks'
   | 'excluded-path'
   | 'remove-extra';
 
@@ -187,7 +196,9 @@ function findCaseVariant(root: string, relPath: string): string | null {
 
 function managedAssetPathInfo(root: string, relPath: string): ManagedAssetPathInfo {
   const caseVariant = findCaseVariant(root, relPath);
-  if (caseVariant) return { kind: 'case-mismatch', actualRelPath: caseVariant };
+  if (caseVariant && existsSync(join(root, caseVariant))) {
+    return { kind: 'case-mismatch', actualRelPath: caseVariant };
+  }
   const full = join(root, relPath);
   if (!existsSync(full)) return { kind: 'missing' };
   try {
@@ -206,9 +217,32 @@ function managedAssetPathKind(root: string, relPath: string): ManagedAssetPathKi
   return managedAssetPathInfo(root, relPath).kind;
 }
 
+function isCodexCaseInsensitiveAlias(root: string, relPath: string, actualRelPath?: string): boolean {
+  if (!relPath.startsWith('.codex/') || !actualRelPath?.startsWith('.Codex/')) return false;
+  try {
+    const lower = statSync(join(root, relPath));
+    const upper = statSync(join(root, actualRelPath));
+    return lower.dev === upper.dev && lower.ino === upper.ino;
+  } catch {
+    return false;
+  }
+}
+
 function readText(root: string, relPath: string): string | null {
   const full = join(root, relPath);
-  if (managedAssetPathKind(root, relPath) !== 'file') return null;
+  const pathInfo = managedAssetPathInfo(root, relPath);
+  if (pathInfo.kind !== 'file') {
+    const actualRelPath = pathInfo.actualRelPath;
+    if (pathInfo.kind === 'case-mismatch' && actualRelPath && isCodexCaseInsensitiveAlias(root, relPath, actualRelPath)) {
+      const aliasFull = join(root, actualRelPath);
+      try {
+        if (statSync(aliasFull).isFile()) return readFileSync(aliasFull, 'utf-8');
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  }
   return readFileSync(full, 'utf-8');
 }
 
@@ -217,6 +251,33 @@ function writeText(root: string, relPath: string, content: string, executable = 
   mkdirSync(dirname(full), { recursive: true });
   writeFileSync(full, normalizeContent(content));
   if (executable) chmodSync(full, 0o755);
+}
+
+function removeGeneratedFileIfExact(root: string, relPath: string, expectedContent: string): void {
+  const actual = readText(root, relPath);
+  if (actual === null) return;
+  if (normalizeContent(actual) !== normalizeContent(expectedContent)) return;
+  unlinkSync(join(root, relPath));
+}
+
+function removeLegacyScopePretoolHookIfGenerated(root: string, host: 'claude' | 'codex'): void {
+  if (host === 'codex') {
+    removeGeneratedFileIfExact(
+      root,
+      `.codex/hooks/${LEGACY_SCOPE_PRETOOL_HOOK_FILE}`,
+      renderCodexPretoolScopeHookScript(),
+    );
+    return;
+  }
+
+  const hooks = hookTemplateDir();
+  const template = hooks ? join(hooks, LATTICE_SCOPE_PRETOOL_HOOK_FILE) : '';
+  if (!template || !existsSync(template)) return;
+  removeGeneratedFileIfExact(
+    root,
+    `.claude/hooks/${LEGACY_SCOPE_PRETOOL_HOOK_FILE}`,
+    readFileSync(template, 'utf-8'),
+  );
 }
 
 function extractKoalaSection(content: string): string {
@@ -303,6 +364,53 @@ function mergeClaudeHooks(existing: any): { updated: any; changed: boolean; inco
     if (!Array.isArray(hooks[event])) {
       incompatible.push(event);
       continue;
+    }
+    const migrated = migrateHookCommandEntries(
+      hooks[event],
+      hookCommand(LEGACY_SCOPE_PRETOOL_HOOK_FILE),
+      command || '',
+    );
+    if (migrated.changed) {
+      hooks[event] = migrated.entries;
+      changed = true;
+    }
+    if (command && !hasHookCommand(hooks[event], command)) {
+      hooks[event] = [...hooks[event], ...eventHooks];
+      changed = true;
+    }
+  }
+  updated.hooks = hooks;
+  return { updated, changed, incompatible };
+}
+
+function mergeCodexHooks(existing: any): { updated: any; changed: boolean; incompatible: string[] } {
+  const codexHooks = getCodexHooks();
+  const updated = existing && typeof existing === 'object' && !Array.isArray(existing) ? { ...existing } : {};
+  const hooks = updated.hooks && typeof updated.hooks === 'object' && !Array.isArray(updated.hooks)
+    ? { ...updated.hooks }
+    : {};
+  const incompatible: string[] = [];
+  let changed = !updated.hooks;
+
+  for (const [event, eventHooks] of Object.entries(codexHooks)) {
+    const command = eventHooks[0]?.hooks?.[0]?.command;
+    if (!hooks[event]) {
+      hooks[event] = eventHooks;
+      changed = true;
+      continue;
+    }
+    if (!Array.isArray(hooks[event])) {
+      incompatible.push(event);
+      continue;
+    }
+    const migrated = migrateHookCommandEntries(
+      hooks[event],
+      codexHookCommand(LEGACY_SCOPE_PRETOOL_HOOK_FILE),
+      command || '',
+    );
+    if (migrated.changed) {
+      hooks[event] = migrated.entries;
+      changed = true;
     }
     if (command && !hasHookCommand(hooks[event], command)) {
       hooks[event] = [...hooks[event], ...eventHooks];
@@ -495,6 +603,18 @@ export function listManagedAssetDefinitions(
         ),
       );
     }
+    if (wantsCodex) {
+      defs.push(
+        { id: '.codex:hooks.json', relPath: '.codex/hooks.json', kind: 'codex-hooks' },
+        wholeFile(
+          '.codex/hooks:lattice-scope-pretool.cjs',
+          '.codex/hooks/lattice-scope-pretool.cjs',
+          renderCodexPretoolScopeHookScript(),
+          actual => actual.includes('Codex PreToolUse hook') && actual.includes('prewrite_guard_check'),
+          true,
+        ),
+      );
+    }
     if (wantsClaude) {
       defs.push(
         managedDoc(
@@ -584,7 +704,14 @@ export function listManagedAssetDefinitions(
           : renderLatticeCodexAdapterManifest(assetMode === 'thin' ? { promptMode: 'registry' } : {}),
         () => true,
       ),
-      { id: 'excluded:.Codex/hooks', relPath: '.Codex/hooks', kind: 'excluded-path' },
+      { id: '.codex:hooks.json', relPath: '.codex/hooks.json', kind: 'codex-hooks' },
+      wholeFile(
+        '.codex/hooks:lattice-scope-pretool.cjs',
+        '.codex/hooks/lattice-scope-pretool.cjs',
+        renderCodexPretoolScopeHookScript(),
+        actual => actual.includes('Codex PreToolUse hook') && actual.includes('prewrite_guard_check'),
+        true,
+      ),
       { id: 'excluded:.Codex/settings.json', relPath: '.Codex/settings.json', kind: 'excluded-path' },
     );
     if (assetMode === 'full' && templates) {
@@ -658,7 +785,9 @@ function evaluateDefinition(root: string, def: ManagedAssetDefinition, manifest:
   const actualHash = actual === null ? undefined : sha256(actual);
   const manifestEntry = manifest?.assets?.[def.id];
 
-  if (pathKind === 'case-mismatch') {
+  const codexCaseAlias = pathKind === 'case-mismatch'
+    && isCodexCaseInsensitiveAlias(root, def.relPath, pathInfo.actualRelPath);
+  if (pathKind === 'case-mismatch' && !codexCaseAlias) {
     return {
       id: def.id,
       relPath: def.relPath,
@@ -721,6 +850,24 @@ function evaluateDefinition(root: string, def: ManagedAssetDefinition, manifest:
     return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'STALE_SAFE', actualHash, reason: 'Koala Claude hooks are missing from settings.json', action: 'merge missing Koala hook commands' };
   }
 
+  if (def.kind === 'codex-hooks') {
+    if (actual === null) {
+      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'MISSING', reason: 'Codex hooks.json is missing', action: 'create hooks.json with Lattice PreToolUse hook' };
+    }
+    const parsed = safeJsonParse(actual);
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', actualHash, reason: 'hooks.json is not a JSON object', action: 'fix manually: repair hooks.json as a JSON object' };
+    }
+    const merged = mergeCodexHooks(parsed);
+    if (merged.incompatible.length > 0) {
+      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', actualHash, reason: `hook event(s) have incompatible shape: ${merged.incompatible.join(', ')}`, action: 'fix manually: repair hook array shape' };
+    }
+    if (!merged.changed) {
+      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', actualHash, reason: 'Lattice Codex PreToolUse hook is present', action: 'none' };
+    }
+    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'STALE_SAFE', actualHash, reason: 'Lattice Codex PreToolUse hook is missing from hooks.json', action: 'merge missing Lattice hook command' };
+  }
+
   if (actual === null) {
     return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'MISSING', expectedHash, reason: 'managed asset is missing', action: 'create from managed template' };
   }
@@ -776,6 +923,15 @@ function applyDefinition(root: string, def: ManagedAssetDefinition, item: Manage
     const parsed = existing ? safeJsonParse(existing) : {};
     const merged = mergeClaudeHooks(parsed && typeof parsed === 'object' ? parsed : {});
     writeText(root, def.relPath, JSON.stringify(merged.updated, null, 2));
+    removeLegacyScopePretoolHookIfGenerated(root, 'claude');
+    return true;
+  }
+  if (def.kind === 'codex-hooks') {
+    const existing = readText(root, def.relPath);
+    const parsed = existing ? safeJsonParse(existing) : {};
+    const merged = mergeCodexHooks(parsed && typeof parsed === 'object' ? parsed : {});
+    writeText(root, def.relPath, JSON.stringify(merged.updated, null, 2));
+    removeLegacyScopePretoolHookIfGenerated(root, 'codex');
     return true;
   }
   if (def.kind === 'managed-block') {

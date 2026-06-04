@@ -5,6 +5,7 @@ import { join, relative, resolve } from 'node:path';
 import {
   CODEX_ADAPTER_MANIFEST,
   LATTICE_CODEX_ADAPTER_MANIFEST,
+  CODEX_PRETOOL_SCOPE_HOOK_MATCHER,
   listAgentPromptFiles,
   renderCodexAdapterManifest,
   renderCodexAgentContent,
@@ -91,6 +92,8 @@ const CODEX_MATERIAL_PATHS = [
   '.Codex/lattice.json',
   '.Codex/koala.json',
   '.Codex/agents',
+  '.codex/hooks.json',
+  '.codex/hooks',
   '.claude/agents',
   'AGENTS.md',
   'README.md',
@@ -361,11 +364,79 @@ function checkPromptRegistry(checks: CodexAdapterCheck[]): void {
 
 function checkExcludedAssets(root: string, checks: CodexAdapterCheck[]): void {
   const offenders = CODEX_ADAPTER_MANIFEST.excludedRuntimeAssets.filter(asset => existsSync(join(root, asset)));
+  const upperHooks = join(root, '.Codex', 'hooks');
+  const lowerHooks = join(root, '.codex', 'hooks');
+  if (existsSync(upperHooks)) {
+    let isLowercaseAlias = false;
+    try {
+      if (existsSync(lowerHooks)) {
+        const upper = statSync(upperHooks);
+        const lower = statSync(lowerHooks);
+        isLowercaseAlias = upper.dev === lower.dev && upper.ino === lower.ino;
+      }
+    } catch {
+      isLowercaseAlias = false;
+    }
+    if (!isLowercaseAlias) offenders.push('.Codex/hooks');
+  }
   if (offenders.length > 0) {
     push(checks, 'excluded-assets', 'Codex runtime exclusions', 'fail', true, `unexpected asset(s): ${offenders.join(', ')}`, `rm -rf ${offenders.join(' ')}`);
     return;
   }
-  push(checks, 'excluded-assets', 'Codex runtime exclusions', 'pass', true, 'no .Codex/hooks or .Codex/settings.json');
+  push(checks, 'excluded-assets', 'Codex runtime exclusions', 'pass', true, 'no uppercase-only .Codex/hooks or .Codex/settings.json');
+}
+
+function hookEntriesContainCommand(entries: unknown, commandNeedle: string): boolean {
+  return Array.isArray(entries) && entries.some((entry: any) =>
+    Array.isArray(entry?.hooks)
+    && entry.hooks.some((hook: any) => hook?.type === 'command' && String(hook?.command || '').includes(commandNeedle)));
+}
+
+function checkCodexNativeHooks(root: string, checks: CodexAdapterCheck[]): void {
+  const hooksJsonPath = join(root, '.codex', 'hooks.json');
+  const hookScriptPath = join(root, '.codex', 'hooks', 'lattice-scope-pretool.cjs');
+  if (!existsSync(hooksJsonPath)) {
+    push(checks, 'codex-native-hooks', 'Codex native PreToolUse hook', 'fail', true, 'missing .codex/hooks.json with Lattice PreToolUse hook', LOCAL_INIT_VERIFY_COMMAND);
+    return;
+  }
+  if (!existsSync(hookScriptPath)) {
+    push(checks, 'codex-native-hooks', 'Codex native PreToolUse hook', 'fail', true, 'missing .codex/hooks/lattice-scope-pretool.cjs', LOCAL_INIT_VERIFY_COMMAND);
+    return;
+  }
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(readText(hooksJsonPath));
+  } catch {
+    push(checks, 'codex-native-hooks', 'Codex native PreToolUse hook', 'fail', true, '.codex/hooks.json is not valid JSON', LOCAL_INIT_VERIFY_COMMAND);
+    return;
+  }
+  if (!isRecord(parsed) || !isRecord(parsed.hooks)) {
+    push(checks, 'codex-native-hooks', 'Codex native PreToolUse hook', 'fail', true, '.codex/hooks.json is missing hooks object', LOCAL_INIT_VERIFY_COMMAND);
+    return;
+  }
+  const preToolUse = parsed.hooks.PreToolUse;
+  if (!Array.isArray(preToolUse)) {
+    push(checks, 'codex-native-hooks', 'Codex native PreToolUse hook', 'fail', true, '.codex/hooks.json hooks.PreToolUse is missing or not an array', LOCAL_INIT_VERIFY_COMMAND);
+    return;
+  }
+  const hasMatcher = preToolUse.some((entry: any) => {
+    const matcher = String(entry?.matcher || '');
+    return matcher === CODEX_PRETOOL_SCOPE_HOOK_MATCHER
+      || (/apply_patch/.test(matcher) && /Edit|Write/.test(matcher));
+  });
+  if (!hasMatcher || !hookEntriesContainCommand(preToolUse, '.codex/hooks/lattice-scope-pretool.cjs')) {
+    push(checks, 'codex-native-hooks', 'Codex native PreToolUse hook', 'fail', true, '.codex/hooks.json does not wire lattice-scope-pretool.cjs for apply_patch/Edit/Write', LOCAL_INIT_VERIFY_COMMAND);
+    return;
+  }
+
+  const hookScript = readText(hookScriptPath);
+  if (!/provider:\s*['"]codex['"]/.test(hookScript) || !hookScript.includes('prewrite_guard_check')) {
+    push(checks, 'codex-native-hooks', 'Codex native PreToolUse hook', 'fail', true, '.codex/hooks/lattice-scope-pretool.cjs does not delegate to prewrite_guard_check as provider=codex', LOCAL_INIT_VERIFY_COMMAND);
+    return;
+  }
+
+  push(checks, 'codex-native-hooks', 'Codex native PreToolUse hook', 'pass', true, '.codex/hooks.json wires apply_patch/Edit/Write to lattice-scope-pretool.cjs');
 }
 
 function activityFor(root: string, session: string, tool: string): Record<string, unknown> | null {
@@ -610,6 +681,7 @@ export function runCodexAdapterChecks(root: string, options: RunCodexChecksOptio
     checkAgentMirror(root, checks);
   }
   checkExcludedAssets(root, checks);
+  checkCodexNativeHooks(root, checks);
   checkLocalWrapper(root, checks, executeLocalHeartbeat, timeoutMs);
   checkGlobalFallback(root, checks, executeGlobalHeartbeat, timeoutMs);
   checkAuxAvailability(checks, options.registryNames);

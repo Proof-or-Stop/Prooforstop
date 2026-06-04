@@ -12,6 +12,8 @@
  * competing session truth source.
  */
 
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import type { HandlerContext } from './context.js';
 import type { GuardSessionData } from '../core/types.js';
 import {
@@ -21,9 +23,42 @@ import {
   digestScopeContract,
   renderGuardSession,
   resolveGuardMode,
+  normalizeProvider,
   type GuardModeContext,
 } from '../core/guard-session.js';
 import { buildScopeDiffPack } from '../core/scope-diff-pack.js';
+
+function codexNativeHookInstalled(root: string): boolean {
+  const hooksJson = join(root, '.codex', 'hooks.json');
+  const hookScript = join(root, '.codex', 'hooks', 'lattice-scope-pretool.cjs');
+  if (!existsSync(hooksJson) || !existsSync(hookScript)) return false;
+
+  try {
+    const parsed = JSON.parse(readFileSync(hooksJson, 'utf8'));
+    const preToolUse = parsed?.hooks?.PreToolUse;
+    if (!Array.isArray(preToolUse)) return false;
+    const wired = preToolUse.some((entry: any) => {
+      const matcher = String(entry?.matcher || '');
+      const hooks = Array.isArray(entry?.hooks) ? entry.hooks : [];
+      return /apply_patch/.test(matcher)
+        && hooks.some((hook: any) => hook?.type === 'command' && String(hook?.command || '').includes('.codex/hooks/lattice-scope-pretool.cjs'));
+    });
+    if (!wired) return false;
+
+    const script = readFileSync(hookScript, 'utf8');
+    return /provider:\s*['"]codex['"]/.test(script) && script.includes('prewrite_guard_check');
+  } catch {
+    return false;
+  }
+}
+
+function assertNativeHookVerified(root: string, provider: string): void {
+  const normalized = normalizeProvider(provider);
+  const isCodex = normalized === 'codex' || normalized === 'openai-codex' || normalized === 'openai_codex';
+  if (!isCodex) return;
+  if (codexNativeHookInstalled(root)) return;
+  throw new Error('nativeHookVerified=true for provider=codex requires .codex/hooks.json and .codex/hooks/lattice-scope-pretool.cjs wired to prewrite_guard_check. Run lattice init --profile=codex or lattice check --apply, then trust hooks with /hooks.');
+}
 
 export function createGuardSessionHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
   const { store, root } = ctx;
@@ -41,6 +76,7 @@ export function createGuardSessionHandlers(ctx: HandlerContext): Record<string, 
       if (provider.length === 0) throw new Error('provider is required (e.g. claude-code, codex)');
       // ensure story exists (throws if not)
       store.readStory(args.storyId);
+      if (args.nativeHookVerified === true) assertNativeHookVerified(root, provider);
 
       const context: GuardModeContext = {
         nativeHookVerified: args.nativeHookVerified === true,

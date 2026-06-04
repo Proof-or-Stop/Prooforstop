@@ -44,4 +44,5 @@ fallback 说明：
 
 - 不创建 `.Codex/hooks`，因为 Codex runtime 不会执行 Claude Code hooks
 - 不创建 `.Codex/settings.json`，因为 Codex runtime 不会读取 Claude Code settings
+- Codex 官方 PreToolUse hook 使用小写 `.codex/hooks.json` 和 `.codex/hooks/lattice-scope-pretool.cjs`，由 Lattice init/check 管理
 - 需要观测 Codex 活动时，使用 `.Codex/koala.json` 记录的 wrapper 或带 `KOALA_ACTIVITY_RECORD_READONLY=1` 的 fallback

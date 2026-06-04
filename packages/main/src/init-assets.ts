@@ -186,12 +186,12 @@ export const CODEX_ADAPTER_MANIFEST: CodexAdapterManifest = {
     ],
   },
   excludedRuntimeAssets: [
-    '.Codex/hooks',
     '.Codex/settings.json',
   ],
   notes: [
     'This file is read by Koala tooling, not by the Codex runtime.',
     'Codex agent prompts live in .Codex/agents and are generated from .claude/agents.',
+    'Codex native hooks are official lowercase .codex assets; case-insensitive file systems may project them through the same .Codex directory entry.',
     'Claude Code hooks, settings, and skills remain under .claude only.',
     'Run node bin/koala-codex.js verify_codex after changing Codex adapter assets; it records codex_adapter_verification evidence for gates.',
   ],
@@ -215,6 +215,7 @@ export const LATTICE_CODEX_ADAPTER_MANIFEST: CodexAdapterManifest = {
   notes: [
     'This file is read by Lattice tooling, not by the Codex runtime.',
     'Codex agent prompts live in .Codex/agents and are generated from .claude/agents in full asset mode.',
+    'Codex native hooks are official lowercase .codex assets; case-insensitive file systems may project them through the same .Codex directory entry.',
     'Claude Code hooks, settings, and skills remain under .claude only.',
     'Run node bin/lattice-codex.js verify_codex after changing Codex adapter assets; it records codex_adapter_verification evidence for gates.',
     'Legacy Koala projects may still use .Codex/koala.json and bin/koala-codex.js as compatibility assets.',
@@ -304,6 +305,7 @@ fallback 说明：
 
 - 不创建 \`.Codex/hooks\`，因为 Codex runtime 不会执行 Claude Code hooks
 - 不创建 \`.Codex/settings.json\`，因为 Codex runtime 不会读取 Claude Code settings
+- Codex 官方 PreToolUse hook 使用小写 \`.codex/hooks.json\` 和 \`.codex/hooks/lattice-scope-pretool.cjs\`，由 Lattice init/check 管理
 - 需要观测 Codex 活动时，使用 \`.Codex/koala.json\` 记录的 wrapper 或带 \`KOALA_ACTIVITY_RECORD_READONLY=1\` 的 fallback
 `;
 
@@ -492,12 +494,190 @@ export function hookCommand(hookFile: string): string {
 }
 
 export const PRETOOL_SCOPE_HOOK_MATCHER = 'Edit|Write|MultiEdit|NotebookEdit';
+export const CODEX_PRETOOL_SCOPE_HOOK_MATCHER = 'apply_patch|Edit|Write';
+export const LEGACY_SCOPE_PRETOOL_HOOK_FILE = 'scope-pretool.cjs';
+export const LATTICE_SCOPE_PRETOOL_HOOK_FILE = 'lattice-scope-pretool.cjs';
+
+export function migrateHookCommandEntries(entries: unknown, oldCommand: string, newCommand: string): { entries: unknown; changed: boolean } {
+  if (!Array.isArray(entries)) return { entries, changed: false };
+  const alreadyHasNew = entries.some((entry: any) =>
+    Array.isArray(entry?.hooks)
+    && entry.hooks.some((hook: any) => hook?.type === 'command' && hook?.command === newCommand));
+  let changed = false;
+  const migrated = entries.map((entry: any) => {
+    if (!entry || typeof entry !== 'object' || Array.isArray(entry) || !Array.isArray(entry.hooks)) return entry;
+    let entryChanged = false;
+    const hooks = entry.hooks
+      .map((hook: any) => {
+        if (hook?.type === 'command' && hook?.command === oldCommand) {
+          changed = true;
+          entryChanged = true;
+          return alreadyHasNew ? null : { ...hook, command: newCommand };
+        }
+        return hook;
+      })
+      .filter(Boolean);
+    return entryChanged ? { ...entry, hooks } : entry;
+  });
+  return { entries: migrated, changed };
+}
 
 export function getKoalaHooks() {
   return {
     UserPromptSubmit: [{ matcher: '', hooks: [{ type: 'command', command: hookCommand('session-brief-reminder.cjs') }] }],
-    PreToolUse: [{ matcher: PRETOOL_SCOPE_HOOK_MATCHER, hooks: [{ type: 'command', command: hookCommand('scope-pretool.cjs') }] }],
+    PreToolUse: [{ matcher: PRETOOL_SCOPE_HOOK_MATCHER, hooks: [{ type: 'command', command: hookCommand(LATTICE_SCOPE_PRETOOL_HOOK_FILE) }] }],
     PostToolUse: [{ matcher: '', hooks: [{ type: 'command', command: hookCommand('log-tools.cjs') }] }],
     PostToolUseFailure: [{ matcher: '', hooks: [{ type: 'command', command: hookCommand('log-tools.cjs') }] }],
   };
+}
+
+export function codexHookCommand(hookFile: string): string {
+  return `node "$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.codex/hooks/${hookFile}"`;
+}
+
+export function getCodexHooks() {
+  return {
+    PreToolUse: [{
+      matcher: CODEX_PRETOOL_SCOPE_HOOK_MATCHER,
+      hooks: [{
+        type: 'command',
+        command: codexHookCommand(LATTICE_SCOPE_PRETOOL_HOOK_FILE),
+        timeout: 30,
+        statusMessage: 'Checking Lattice scope',
+      }],
+    }],
+  };
+}
+
+export function renderCodexHooksJson(): string {
+  return JSON.stringify({ hooks: getCodexHooks() }, null, 2) + '\n';
+}
+
+export function renderCodexPretoolScopeHookScript(): string {
+  return `#!/usr/bin/env node
+/**
+ * Codex PreToolUse hook: scope pre-write guard
+ *
+ * Intercepts Codex file edits surfaced as apply_patch before they execute.
+ * Codex hook input reports tool_name="apply_patch" and stores the patch command
+ * in tool_input.command. The hook delegates policy to lattice prewrite_guard_check.
+ *
+ * Exit 0  -> pass (tool proceeds)
+ * Exit 2  -> block (Codex rejects the supported tool call; reason on stderr)
+ *
+ * Graceful degradation: if this hook cannot find or run the Lattice CLI, it
+ * passes through rather than trapping the host in a broken local hook.
+ */
+'use strict';
+
+const { spawnSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+
+const GUARD_TIMEOUT_MS = 25000;
+const WRITE_TOOLS = new Set(['apply_patch', 'Edit', 'Write']);
+
+let input = '';
+process.stdin.setEncoding('utf8');
+process.stdin.on('data', chunk => { input += chunk; });
+process.stdin.on('error', () => process.exit(0));
+process.stdin.on('end', () => {
+  try {
+    const payload = parseHookInput(input);
+    if (!payload) { process.exit(0); return; }
+
+    const toolName = String(payload.tool_name || '').trim();
+    if (!WRITE_TOOLS.has(toolName)) { process.exit(0); return; }
+
+    const cwd = payload.cwd || process.cwd();
+    const root = findRepoRoot(cwd);
+    const cli = resolveCli(root);
+    if (!cli) { process.exit(0); return; }
+
+    const checkArgs = JSON.stringify({
+      provider: 'codex',
+      toolName,
+      toolInputJson: JSON.stringify(payload.tool_input || {}),
+      cwd,
+      json: true,
+    });
+
+    const result = spawnSync(cli.command, [...cli.args, 'prewrite_guard_check', checkArgs], {
+      cwd: root,
+      encoding: 'utf8',
+      timeout: GUARD_TIMEOUT_MS,
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+
+    if (result.signal || result.error) {
+      process.stderr.write('Codex PreToolUse scope guard timed out or failed after CLI resolution. Blocking fail-closed.\\n');
+      process.exit(2);
+    }
+
+    if (result.status === 0 && !result.signal) {
+      const verdict = parseGuardVerdict(result.stdout);
+      if (verdict && verdict.verdict === 'deny') {
+        const reason = Array.isArray(verdict.reasons)
+          ? verdict.reasons.join('\\n')
+          : 'Codex PreToolUse scope guard denied this write.';
+        process.stderr.write(reason + '\\n');
+        process.exit(2);
+      }
+    }
+  } catch {
+    // PROBE: hook errors must never block the agent unexpectedly.
+  }
+  process.exit(0);
+});
+
+function parseHookInput(raw) {
+  if (!raw || !raw.trim()) return {};
+  try { return JSON.parse(raw); } catch { return null; }
+}
+
+function parseGuardVerdict(raw) {
+  if (!raw || !raw.trim()) return null;
+  try { return JSON.parse(raw); } catch { return null; }
+}
+
+function findRepoRoot(start) {
+  let dir = path.resolve(String(start || process.cwd()));
+  for (let i = 0; i < 20; i++) {
+    if (
+      fs.existsSync(path.join(dir, '.koala')) ||
+      fs.existsSync(path.join(dir, '.Lattice')) ||
+      fs.existsSync(path.join(dir, '.Codex')) ||
+      fs.existsSync(path.join(dir, '.codex')) ||
+      fs.existsSync(path.join(dir, 'koala.config.json')) ||
+      fs.existsSync(path.join(dir, 'lattice.config.json')) ||
+      fs.existsSync(path.join(dir, '.git'))
+    ) return dir;
+    const parent = path.dirname(dir);
+    if (parent === dir) return path.resolve(String(start || process.cwd()));
+    dir = parent;
+  }
+  return path.resolve(String(start || process.cwd()));
+}
+
+function resolveCli(root) {
+  const jsCandidates = [
+    path.join(root, 'packages', 'main', 'dist', 'cli.js'),
+    path.join(root, 'node_modules', '@koala-agent', 'core', 'dist', 'cli.js'),
+    path.join(root, 'bin', 'lattice.js'),
+    path.join(root, 'bin', 'koala.js'),
+  ];
+  for (const candidate of jsCandidates) {
+    if (fs.existsSync(candidate)) return { command: process.execPath, args: [candidate] };
+  }
+
+  const found = spawnSync('sh', ['-lc', 'command -v lattice || command -v koala'], {
+    cwd: root,
+    encoding: 'utf8',
+    timeout: 2000,
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+  const command = String(found.stdout || '').split(/\\r?\\n/).find(Boolean);
+  return command ? { command, args: [] } : null;
+}
+`;
 }

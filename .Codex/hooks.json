@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "apply_patch|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.codex/hooks/lattice-scope-pretool.cjs\"",
+            "timeout": 30,
+            "statusMessage": "Checking Lattice scope"
+          }
+        ]
+      }
+    ]
+  }
+}
