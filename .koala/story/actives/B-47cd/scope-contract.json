@@ -1,0 +1,33 @@
+{
+  "storyId": "B-47cd",
+  "mode": "enforce",
+  "allowedModify": [
+    "README.md",
+    "docs/requirements/decisions/host-overflow.md",
+    "docs/requirements/decisions/story-lifecycle.md",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/core/lattice-autopilot.ts",
+    "packages/main/src/core/autopilot-policy.ts",
+    "packages/main/src/handlers/lattice-autopilot.ts",
+    "docs/requirements/decisions/authority-client-role.md",
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/autopilot-policy.ts",
+    "packages/main/src/core/lattice-autopilot.ts",
+    "packages/main/src/handlers/lattice-autopilot.ts",
+    "packages/main/src/tasks/autopilot-run-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/autopilot-run-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "B-47cd PLAN declared autopilot policy, run engine, CLI registration, tests, and docs scope before DEV implementation.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-04T03:02:23.381Z",
+  "updatedAt": "2026-06-04T03:02:23.381Z"
+}
