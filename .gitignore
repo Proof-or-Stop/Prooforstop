@@ -7,6 +7,7 @@ dist
 **/activity.jsonl
 .koala/runtime/
 .koala/traces/
+.lattice/tmp/
 .koala-serve.json
 $PROJECT_ROOT/
 browser-test.log
@@ -31,17 +32,7 @@ env/
 # OS
 .DS_Store
 Thumbs.db
-.koala/*
-!.koala/story/
-!.koala/story/**
-# B-c55d: per-story owner lease is runtime process metadata, never tracked.
-# MUST come after the !.koala/story/** un-ignore above — last matching gitignore
-# pattern wins, so this re-ignores owner-lease.json under the story subtree.
-.koala/story/actives/*/owner-lease.json
-# B-1148: project dev-memory has project lifetime and meaningful JSONL diffs (dev-memory.md).
-# Must unignore after .koala/* catch-all above.
-!.koala/dev-memory/
-!.koala/dev-memory/**
+.koala/
 packages/koala-observer-cli/
 
 # koala runtime artifacts (managed)

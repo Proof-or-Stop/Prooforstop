@@ -1,8 +1,0 @@
-{
-  "storyId": "B-fc3b",
-  "verdict": "pass",
-  "findings": [],
-  "summary": "packages/main/src/core/phase-flow.ts defines read-only ordinal/transition helpers; session.ts consumes them for display only; summary.ts reuses ACTIVE_PHASE_ORDER. No xstate transition or gate mutation behavior changed, and build passes.",
-  "createdAt": "2026-04-19T19:42:37.513Z",
-  "updatedAt": "2026-04-19T19:42:37.513Z"
-}

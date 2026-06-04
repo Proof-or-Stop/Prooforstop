@@ -107,7 +107,7 @@ INIT → INIT_CHECK → PLAN/快速跳过 → DEV → REVIEW → TEST → DONE
 4. `story_advance PLAN` → cwd 门禁通过，正式进入开发流程
 5. PLAN/DEV/REVIEW/TEST 全部在 worktree 里完成
 6. `story_advance --phase=TEST` → 进入 TEST，按 hint 运行 `koala validate`
-7. `story_advance --phase=DONE` → 内部自动合并回本地 main 并清理 worktree（dev_finish/dev_merge 是内部 handler，无独立 CLI 入口）；如果需要远端发布，只在本地 main 干净且已验证后 push main
+7. `story_advance --phase=DONE` → 内部自动合并回本地 main 并清理 worktree（dev_finish/dev_merge 是内部 handler，无独立 CLI 入口）；如果需要远端发布，只在本地 main 干净且已验证后，由人类显式运行 `lattice release_approve_push --confirm` 创建短 TTL 一次性 approval，再手动 `git push origin main`
 
 **cwd 门禁**：PLAN 起所有 phase 的 `story_advance` 都会校验当前 cwd 是 story 的 worktree。不在 worktree 时报错并提示 cd。
 
@@ -115,7 +115,7 @@ INIT → INIT_CHECK → PLAN/快速跳过 → DEV → REVIEW → TEST → DONE
 
 **配置**：worktree 路径默认 `.worktrees`，可在 `koala.config.json` 的 `worktreeDir` 字段自定义。`.worktrees/` 自动加入 `.gitignore`。
 
-**远端分支纪律**：Lattice/Koala 的 story 分支是本地实现细节，用于隔离 worktree 和 DONE merge；不要把 `story/*`、`codex/*`、`lab/*` 等任务分支推到 GitHub。并行任务完成后的收束路径是本地 merge main + 清理 worktree，不是开远端 PR 分支。
+**远端写入纪律**：Lattice/Koala 的 story 分支是本地实现细节，用于隔离 worktree 和 DONE merge；不要把 `story/*`、`codex/*`、`lab/*` 等任务分支推到 GitHub。并行任务完成后的收束路径是本地 merge main + 清理 worktree，不是开远端 PR 分支。任何远端 publish 都默认被 `.githooks/pre-push` 拒绝；只有人类在干净本地 main 上运行 `lattice release_approve_push --confirm` 后，hook 才允许一次 exact `refs/heads/main` + exact SHA 的 `git push origin main`。
 
 **Codex / Claude 入口资产**：story worktree 不需要额外手工复制 `.Codex` 或 `.claude`。`git worktree` 会把当前分支里**已被 git 跟踪**的仓库文件一起展开，所以只要根目录里的 `.Codex`、`.claude`、`AGENTS.md`、`CLAUDE.md` 已经提交，新建的 `.worktrees/B-xxx/` 就会自然包含它们。若 worktree 里缺少这些入口，先检查文件是否真的被 git 跟踪，或该 worktree 是否从尚未包含这些资产的旧分支/旧提交创建。
 

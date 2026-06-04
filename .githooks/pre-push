@@ -5,10 +5,11 @@
 # 这是 `koala validate --lint` 的外部兜底防线。快速通道 REVIEW→TEST 会 skip
 # lint gate，pre-push 是类型错误进 main 前的唯一兜底。
 #
-# 远端分支纪律：Lattice 并行开发只使用本地 git worktree + 本地分支。
-# agent 默认不应该在 GitHub/origin 创建 story/codex/lab 分支；完成路径是本地 DONE
-# 合并回 main、清理 worktree，然后只推 main（如果需要推送）。因此本 hook 默认拒绝
-# 推送任何非 main 的 refs/heads/*。
+# 远端写入纪律：Lattice 并行开发只使用本地 git worktree + 本地分支。
+# agent 默认不应该在 GitHub/origin 创建 story/codex/lab 分支，也不应该顺手 push
+# main。完成路径是本地 DONE 合并回 main、清理 worktree 后停止。若人类确实要发布
+# 远端，必须先运行 `lattice release_approve_push --confirm` 创建短 TTL 的一次性
+# 本地 approval；本 hook 只在 approval 的 remote/ref/sha/TTL 全匹配时允许 refs/heads/main。
 #
 # 核心约束：本 hook **不调用 `koala` 命令**。它要防御的就是「全局 koala 可执行
 # 文件版本错位」情形——若 hook 自己依赖 koala，koala 翻车时 hook 会一起翻
@@ -53,16 +54,73 @@ fi
 
 REF_UPDATES="$TMPDIR_PREPUSH/ref-updates.txt"
 cat >"$REF_UPDATES"
+REMOTE_NAME="${1:-origin}"
+
+check_release_push_approval() {
+  local local_sha="$1"
+  local remote_ref="$2"
+  node -e '
+const fs = require("fs");
+const path = require("path");
+const [root, remoteName, localSha, remoteRef] = process.argv.slice(1);
+const approvalPath = path.join(root, ".lattice", "tmp", "remote-push-approval.json");
+function reject(message) {
+  console.error(`[pre-push] REJECTED: ${message}`);
+  console.error("[pre-push] Remote writes are default-denied. Run `lattice release_approve_push --confirm` from a clean local main, then retry `git push origin main` before the approval expires.");
+  process.exit(1);
+}
+let approval;
+try {
+  approval = JSON.parse(fs.readFileSync(approvalPath, "utf8"));
+} catch {
+  reject(`missing one-shot approval file: ${path.relative(root, approvalPath)}`);
+}
+if (!approval || approval.schema !== "lattice.remote-push-approval.v1") {
+  reject("approval schema is missing or invalid");
+}
+if (approval.branch !== "refs/heads/main" || remoteRef !== "refs/heads/main") {
+  reject(`approval is only valid for refs/heads/main (got approval=${approval.branch || ""}, push=${remoteRef})`);
+}
+if (approval.remote && approval.remote !== remoteName) {
+  reject(`approval remote mismatch: expected ${approval.remote}, got ${remoteName}`);
+}
+if (approval.sha !== localSha) {
+  reject(`approval sha mismatch: expected ${approval.sha}, got ${localSha}`);
+}
+const expiresAt = Date.parse(approval.expiresAt || "");
+if (!Number.isFinite(expiresAt)) {
+  reject("approval expiresAt is missing or invalid");
+}
+if (Date.now() > expiresAt) {
+  reject(`approval expired at ${approval.expiresAt}`);
+}
+try {
+  fs.unlinkSync(approvalPath);
+} catch (error) {
+  reject(`could not consume one-shot approval: ${error.message}`);
+}
+console.error(`[pre-push] one-shot remote publish approval consumed for ${remoteName} ${remoteRef} ${localSha}`);
+' "$REPO_ROOT" "$REMOTE_NAME" "$local_sha" "$remote_ref"
+}
+
 while read -r local_ref local_sha remote_ref remote_sha; do
   [ -z "${remote_ref:-}" ] && continue
   case "$remote_ref" in
     refs/heads/main)
+      if ! command -v node >/dev/null 2>&1; then
+        echo "[pre-push] FAIL: 'node' not found in PATH — cannot validate Lattice remote publish approval." >&2
+        echo "[pre-push] Refusing push (fail-closed)." >&2
+        exit 1
+      fi
+      if ! check_release_push_approval "$local_sha" "$remote_ref"; then
+        exit 1
+      fi
       ;;
     refs/heads/*)
       branch="${remote_ref#refs/heads/}"
       echo "[pre-push] REJECTED: refusing to push remote branch '$branch'." >&2
-      echo "[pre-push] Lattice parallel work is local-only: use local worktrees/branches, merge to local main, clean the worktree, then push main only." >&2
-      echo "[pre-push] If a human explicitly wants a remote branch, run that workflow outside the Lattice agent flow." >&2
+      echo "[pre-push] Lattice parallel work is local-only: use local worktrees/branches, merge to local main, clean the worktree, and do not push task branches." >&2
+      echo "[pre-push] Remote publish is main-only and requires a one-shot local approval." >&2
       exit 1
       ;;
   esac

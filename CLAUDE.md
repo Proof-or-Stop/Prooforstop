@@ -380,11 +380,11 @@ project/
 4. `story_advance PLAN` → 正式进入开发流程
 5. PLAN / DEV / TEST 全部在 worktree 里完成
 6. `story_advance --phase=TEST` → 推进 TEST
-7. `story_advance --phase=DONE` → 合并回本地 main 并清理 worktree（可从 worktree 子目录触发，清理目标仍是 git 顶层 worktree）；如果需要远端发布，只在本地 main 干净且已验证后 push main
+7. `story_advance --phase=DONE` → 合并回本地 main 并清理 worktree（可从 worktree 子目录触发，清理目标仍是 git 顶层 worktree）；如果需要远端发布，只在本地 main 干净且已验证后，由人类显式运行 `lattice release_approve_push --confirm` 创建短 TTL 一次性 approval，再手动 `git push origin main`
 
 **cwd 门禁**：PLAN 起所有 `story_advance` 都校验 cwd 是 story 的 worktree。
 
-**远端分支纪律**：Lattice/Koala 的 story 分支是本地实现细节，用于隔离 worktree 和 DONE merge；不要把 `story/*`、`codex/*`、`lab/*` 等任务分支推到 GitHub。并行任务完成后的收束路径是本地 merge main + 清理 worktree，不是开远端 PR 分支。
+**远端写入纪律**：Lattice/Koala 的 story 分支是本地实现细节，用于隔离 worktree 和 DONE merge；不要把 `story/*`、`codex/*`、`lab/*` 等任务分支推到 GitHub。并行任务完成后的收束路径是本地 merge main + 清理 worktree，不是开远端 PR 分支。任何远端 publish 都默认被 `.githooks/pre-push` 拒绝；只有人类在干净本地 main 上运行 `lattice release_approve_push --confirm` 后，hook 才允许一次 exact `refs/heads/main` + exact SHA 的 `git push origin main`。
 
 **依赖准备（INIT_CHECK 后，F-003）**：git worktree **不**继承主仓 gitignored 的 `node_modules`，新 worktree 默认缺依赖，直接跑 tsc / `koala validate` 会因解析不到模块而失败。worktree 创建时若缺依赖会输出告警：
 
@@ -961,7 +961,7 @@ B-5a28 针对「koala 自举开发」场景引入两条防线：(1) `koala valid
 git config core.hooksPath .githooks
 ```
 
-`.githooks/pre-push` 跟仓库一起提交，启用后每次 `git push` 前先拒绝非 `main` 的远端分支 push，再自动跑递归 tsc gate。
+`.githooks/pre-push` 跟仓库一起提交，启用后每次 `git push` 前先默认拒绝远端写入；非 `main` 的远端分支 push 直接拒绝，`main` push 也必须携带 `lattice release_approve_push --confirm` 写入的短 TTL 一次性 approval，匹配后才继续跑递归 tsc gate。
 
 ### 外部防线原则
 
@@ -973,7 +973,7 @@ pre-push hook 的核心设计约束：**不调用 `koala` 命令**。原因：ho
 
 - 临时文件用 `mktemp -d` 创建唯一临时目录，`trap '... cleanup' EXIT` 在 hook 退出时清理（避免并发 push 同名互覆盖、`/tmp` 累积）。`mktemp` 失败 → push 被拒
 - 先 `git rev-parse --show-toplevel` 拿 REPO_ROOT
-- **远端分支纪律**：读取 pre-push stdin 的 ref update；`refs/heads/main` 放行，任何其它 `refs/heads/*` 直接拒绝。Lattice 并行开发只使用本地 worktree/local branch，完成后合回本地 main、清理 worktree，再只 push main。
+- **远端写入纪律**：读取 pre-push stdin 的 ref update；任何非 `refs/heads/main` 的 `refs/heads/*` 直接拒绝。`refs/heads/main` 也默认拒绝，除非 `.lattice/tmp/remote-push-approval.json` 的 schema / remote / branch / exact SHA / TTL 全匹配；匹配后 hook 会消费该 one-shot approval。Lattice 并行开发只使用本地 worktree/local branch，完成后合回本地 main、清理 worktree，并停止在本地。
 - **koala 自举仓检测**：
   1. `$REPO_ROOT/packages/main/package.json` 文件存在——不存在则非 koala 仓，立即 `exit 0`（对非 koala 仓零摩擦）
   2. **`node` 可用性检测**：用 `command -v node` 探测。`node` 缺失时 **fail-closed**——无法判断本仓是否 koala 自举仓，向 stderr 打印明确警告并 `exit 1` 拒绝 push（不静默 `exit 0`，否则 tsc gate 会被无声绕过）

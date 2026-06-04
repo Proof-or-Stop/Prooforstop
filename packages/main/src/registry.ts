@@ -74,6 +74,7 @@ import { createRolloutCheckHandlers } from './handlers/rollout-check.js';
 import { createStoryAuthorityResolveHandlers } from './handlers/story-authority-resolve.js';
 import { createObservabilitySnapshotHandlers } from './handlers/observability-snapshot.js';
 import { createPrewriteGuardHandlers } from './handlers/prewrite-guard.js';
+import { createReleaseHandlers } from './handlers/release.js';
 import { nextStoryId } from './handlers/context.js';
 
 export type HandlerFn = (...args: any[]) => any;
@@ -230,6 +231,10 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
 
   // prewrite scope enforcement — pre-tool hook guard for write-like operations
   registry.registerBatch(createPrewriteGuardHandlers(ctx));
+
+  // Remote publish approval is local-only: it writes a one-shot pre-push token,
+  // never performs the push itself.
+  registry.registerBatch(createReleaseHandlers(ctx));
 
   // 内部辅助：返回下一个 story id（fixture/测试 runner 用）
   registry.register('_nextStoryId', (prefix?: string) => nextStoryId(ctx.store, prefix));

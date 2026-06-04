@@ -26,7 +26,7 @@ export const AGENTS_MD_TEMPLATE = `# AGENTS.md
 - At the start of a new session, or when resuming interrupted work, run \`node bin/lattice.js session_brief\`.
 - Before acting, run \`node bin/lattice.js aux_doc_list\` to inspect relevant docs; if the current global core-only environment lacks aux commands, fall back to the local bootstrap or shell search.
 - Prefer \`node bin/lattice.js\` (or global \`lattice\`) for Story / checklist / fixture / bug operations. Do not edit story/fixture JSON directly; \`koala\` is only a legacy alias.
-- Parallel Lattice work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree, and do not create or push GitHub/origin feature branches unless a human explicitly asks outside the Lattice flow.
+- Parallel Lattice work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree. Remote publish is default-denied; a human must run \`lattice release_approve_push --confirm\` for a short-lived one-shot approval before any \`git push origin main\`.
 - Codex subagent prompts use the Lattice adapter: full asset mode materializes \`.Codex/agents\`, while thin asset mode resolves prompts from the package registry. Claude Code-only assets are generated only when the Claude profile is enabled.
 - After changing the Codex adapter, \`.Codex\`, or \`bin/lattice-codex.js\`, run \`node bin/lattice-codex.js verify_codex\` so REVIEW/DONE gates can consume hard evidence.
 - For Codex adapter diagnostics, run \`node bin/lattice-codex.js doctor\`.
@@ -45,7 +45,7 @@ export const LATTICE_MD_TEMPLATE = `# LATTICE.md
 - At the start of a new session, or when resuming interrupted work, run \`node bin/lattice.js session_brief\`.
 - Before acting, run \`node bin/lattice.js aux_doc_list\` to inspect relevant docs; if the current global core-only environment lacks aux commands, fall back to the local bootstrap or shell search.
 - Prefer \`node bin/lattice.js\` (or global \`lattice\`) for Story / checklist / fixture / bug operations. Do not edit story/fixture JSON directly; \`koala\` remains a legacy alias.
-- Parallel Lattice work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree, and do not create or push GitHub/origin feature branches unless a human explicitly asks outside the Lattice flow.
+- Parallel Lattice work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree. Remote publish is default-denied; a human must run \`lattice release_approve_push --confirm\` for a short-lived one-shot approval before any \`git push origin main\`.
 - The default local entrypoint is \`node bin/lattice.js\`; if the profile generated a Codex adapter, also use \`node bin/lattice-codex.js\`.
 - Codex-specific notes live in \`AGENTS.md\` and \`.Codex/README.md\`; Claude-specific notes live in \`CLAUDE.md\` and \`.claude/\`.
 - After changing Lattice adapter assets, run the corresponding verification: project validation uses \`node bin/lattice.js validate\`, and the Codex adapter additionally uses \`node bin/lattice-codex.js verify_codex\`.
@@ -65,7 +65,7 @@ export const KOALA_MD_TEMPLATE = `# KOALA.md
 - At the start of a new session, or when resuming interrupted work, run \`koala session_brief\`.
 - Before acting, run \`koala aux_doc_list\` to inspect relevant docs; if the current global core-only environment lacks aux commands, fall back to the local bootstrap or shell search.
 - Prefer the \`koala\` CLI for Story / checklist / fixture / bug operations. Do not edit story/fixture JSON directly.
-- Parallel Koala/Lattice work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree, and do not create or push GitHub/origin feature branches unless a human explicitly asks outside the Lattice flow.
+- Parallel Koala/Lattice work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree. Remote publish is default-denied; a human must run \`lattice release_approve_push --confirm\` for a short-lived one-shot approval before any \`git push origin main\`.
 - The default local entrypoint is \`node bin/koala.js\`; if the profile generated a Codex adapter, also use \`node bin/koala-codex.js\`.
 - Codex-specific notes live in \`AGENTS.md\` and \`.Codex/README.md\`; Claude-specific notes live in \`CLAUDE.md\` and \`.claude/\`.
 - After changing Koala adapter assets, run the corresponding verification: project validation uses \`koala validate\`, and the Codex adapter additionally uses \`node bin/koala-codex.js verify_codex\`.
@@ -81,7 +81,7 @@ export const CLAUDE_MD_TEMPLATE = `# CLAUDE.md
 
 - \`LATTICE.md\` is the canonical, host-neutral Lattice guide; Story lifecycle facts and shared rules derive from it.
 - Claude Code entrypoints should first run \`node bin/lattice.js session_brief\`; daily operations should use \`node bin/lattice.js\` or global \`lattice\`. \`koala\` is only a legacy alias.
-- Parallel Lattice work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree, and do not create or push GitHub/origin feature branches unless a human explicitly asks outside the Lattice flow.
+- Parallel Lattice work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree. Remote publish is default-denied; a human must run \`lattice release_approve_push --confirm\` for a short-lived one-shot approval before any \`git push origin main\`.
 - Claude Code subagents live in \`.claude/agents\`.
 - Claude Code hooks live in \`.claude/hooks\`, and Claude settings live in \`.claude/settings.json\`.
 - The Claude Code \`/koala\` skill lives in \`.claude/skills/koala\`.
@@ -106,7 +106,7 @@ export const LATTICE_DOT_DIR_MD_TEMPLATE = `# Lattice.md
 - At the start of a new session, or when resuming interrupted work, run \`lattice session_brief\`.
 - Before acting, run \`lattice aux_doc_list\` to inspect relevant docs.
 - Use the global \`lattice\` CLI for Story / checklist / fixture / bug operations. Do not edit story/fixture JSON directly; \`koala\` is a legacy alias.
-- Parallel Lattice work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree, and do not create or push GitHub/origin feature branches unless a human explicitly asks outside the Lattice flow.
+- Parallel Lattice work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree. Remote publish is default-denied; a human must run \`lattice release_approve_push --confirm\` for a short-lived one-shot approval before any \`git push origin main\`.
 - Codex adapter verification and diagnostics use the global CLI: \`lattice codex verify\` and \`lattice codex doctor\`.
 - Run \`lattice check\` to check Lattice managed asset/template drift; after review, use \`lattice check --apply\` to sync safe items.
 - Legacy projects may expose \`KOALA.md\`, \`LATTICE.md\`, \`bin/lattice.js\`, \`bin/lattice-codex.js\`, and \`.Codex/\` assets as compatibility assets. New global-thin init no longer generates those files.
@@ -123,7 +123,7 @@ export const AGENTS_MD_GLOBAL_THIN_TEMPLATE = `# AGENTS.md
 - At the start of a new session, or when resuming interrupted work, run \`lattice session_brief\`.
 - Before acting, run \`lattice aux_doc_list\` to inspect relevant docs.
 - Use the global \`lattice\` CLI for Story / checklist / fixture / bug operations. Do not edit story/fixture JSON directly; \`koala\` is only a legacy alias.
-- Parallel Lattice work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree, and do not create or push GitHub/origin feature branches unless a human explicitly asks outside the Lattice flow.
+- Parallel Lattice work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree. Remote publish is default-denied; a human must run \`lattice release_approve_push --confirm\` for a short-lived one-shot approval before any \`git push origin main\`.
 - Codex adapter verification uses the global CLI: \`lattice codex verify\`. For diagnostics, run \`lattice codex doctor\`.
 - Run \`lattice check\` to check Lattice managed asset/template drift; after review, use \`lattice check --apply\` to sync safe items.
 
