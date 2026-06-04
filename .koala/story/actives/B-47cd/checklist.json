@@ -290,7 +290,7 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "userSees": "Full-autopilot can loop through bounded repair attempts and stops truthfully when a gate blocks completion.",
+      "userSees": "CLI JSON shows: \"stopReason\":\"max_iterations\" or \"status\":\"completed_local\" within bounded iterations.",
       "verificationIntent": {
         "happy": [
           {
