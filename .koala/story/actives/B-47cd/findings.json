@@ -294,7 +294,7 @@
       "desc": "Strict unknown/deprecated flag rejection is not explicitly covered for the full autopilot command set: autopilot_watch and autopilot_cancel lack stray-flag refusal smoke cases. Add assertCliRejectsUnknownFlag coverage for both.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-06-04T05:52:10.047Z",
@@ -303,7 +303,9 @@
       "_hash": "fb83e44f8ed1bac66dc09270ab5894325aa05eecf046ebc8bccca1c819ff2b23",
       "files": [
         "packages/main/src/cli-engine.ts,packages/main/src/tasks/autopilot-run-smoke.ts"
-      ]
+      ],
+      "resolvedReason": "Resolved by adding assertCliRejectsUnknownFlag coverage for autopilot_watch and autopilot_cancel stray --policy flags, completing explicit unknown/deprecated flag refusal coverage across the autopilot command surface. Evidence: npm --prefix packages/main run build; npm --prefix packages/main run test:autopilot-run-smoke.",
+      "resolvedAt": "2026-06-04T05:59:41.900Z"
     }
   ]
 }
