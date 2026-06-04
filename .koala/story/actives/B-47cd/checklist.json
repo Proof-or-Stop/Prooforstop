@@ -100,7 +100,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/host-overflow.md"
       ],
-      "userSees": "A conservative run returns evidence and a manual merge plan while saying no automatic merge was performed.",
+      "userSees": "CLI JSON shows: \"mode\":\"conservative\",\"status\":\"manual_review_ready\",\"mergePlan\":{\"manualOnly\":true}.",
       "verificationIntent": {
         "happy": [
           {
