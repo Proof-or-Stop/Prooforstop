@@ -324,6 +324,22 @@
       ],
       "resolvedReason": "Resolved by narrowing README.md and authority-client-role.md wording: authority_status reports canClaimProductionDone=false, while conduit_status is described only with actual conservative fields productionDone=false, receiptVerified=false, and authorityChanged=false. Evidence: rg -n 'canClaimProductionDone|conduit_status|conduit status' README.md docs/requirements/decisions/authority-client-role.md.",
       "resolvedAt": "2026-06-04T06:00:28.161Z"
+    },
+    {
+      "id": "B-47cd:F-018",
+      "desc": "README.md and authority-client-role.md must not imply conduit_status includes canClaimProductionDone=false; canClaimProductionDone=false belongs to authority_status only, while conduit_status keeps productionDone=false, receiptVerified=false, and authorityChanged=false.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-04T06:06:50.255Z",
+      "reviewRound": "2026-06-04T05:59:09.542Z",
+      "reviewRunId": "B-47cd:RR-015",
+      "_hash": "1693340331aac86310e891a3ad033c6512bc0660c7b31c4bdad8e8b6ac01f3b9",
+      "files": [
+        "README.md,docs/requirements/decisions/authority-client-role.md"
+      ]
     }
   ]
 }
