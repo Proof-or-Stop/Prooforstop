@@ -5,7 +5,7 @@
       "desc": "quality-cleanup: codex-adapter-checks.ts:77-81 resolveCodexSessionBriefCommand uses a fragile magic-suffix string slice (verifyCommand.slice(0, -\" verify_codex\".length)) to derive the session_brief command. The fallback at line 80 is hardcoded to \"node bin/lattice-codex.js session_brief\" regardless of project branding. If a future resolve candidate does not end with \" verify_codex\" (e.g. \"lattice codex verify\" which is already returned by the global-thin branch of resolveLocalCodexVerifyCommand), koala-branded projects would silently receive lattice-branded guidance. The invariant that all resolveLocalCodexVerifyCommand outputs end with \" verify_codex\" is implicit and has no dedicated test coverage protecting it.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-04T00:06:46.022Z",
@@ -14,7 +14,9 @@
       "_hash": "cabe16b187b82bf0edf1b4978711c381eab4320d6ee0be00e69bc12d8ca83958",
       "files": [
         "packages/main/src/core/codex-adapter-checks.ts"
-      ]
+      ],
+      "resolvedReason": "Fixed by commit d7796b6f: resolveCodexSessionBriefCommand now uses explicit session_brief candidates for bin/lattice-codex.js, bin/koala-codex.js, bin/lattice.js, and bin/koala.js instead of suffix slicing; scripts/verify-codex-assets.mjs adds direct tests for lattice wrapper, legacy wrapper, koala.js-only fallback, and global-thin fallback. Verified build, test:codex-assets, test:entrypoints, validate --json parse, and node bin/koala-codex.js verify_codex.",
+      "resolvedAt": "2026-06-04T00:16:00.754Z"
     },
     {
       "id": "B-5cea:F-002",
