@@ -1,0 +1,397 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Define execution mode contract and story scope",
+      "context": "Docs define conservative, authority-verified, and full-autopilot modes as completion policies, including what each mode may automate, what each mode must leave manual, and which authority claims remain forbidden.",
+      "relatedDocs": [
+        "docs/requirements/decisions/host-overflow.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "Users can read docs and CLI help that state exactly where conservative, authority-verified, and full-autopilot modes stop.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "README and host-overflow docs include a three-mode matrix with Conservative as default/manual-merge.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Docs explicitly distinguish unattended development from unattended production authority and main merge authority.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Docs do not claim receiptVerified=true or productionDone=true for local diagnostic receipts or conservative runs.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add autopilot policy schema and mode permission matrix",
+      "context": "Add normalized autopilot mode policy fields for auto dispatch, validate, fix, story integration, DONE advance, main merge, server receipt, iteration/runtime/budget limits, and stop conditions.",
+      "relatedDocs": [
+        "docs/requirements/decisions/host-overflow.md"
+      ],
+      "userSees": "Users can run policy/help/status commands and see which automation permissions are active for the selected mode.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Conservative mode normalizes with allowAutoDispatch/allowAutoValidate true and auto integration/main merge false.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Authority-verified mode requires server authority receipt before auto DONE/main merge privileges are considered allowed.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Full-autopilot policy refuses missing maxIterations, unbounded runtime/budget, or missing stopOnConflict/stopOnScopeViolation.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Implement conservative autopilot_run",
+      "context": "Create lattice autopilot_run --mode=conservative to dispatch, watch/review, validate, and generate merge plans without auto-integrating or marking production authority.",
+      "relatedDocs": [
+        "docs/requirements/decisions/host-overflow.md"
+      ],
+      "userSees": "A conservative run returns evidence and a manual merge plan while saying no automatic merge was performed.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Conservative autopilot_run creates/uses a dispatch, reviews it, runs validation, and records a manual merge plan.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Conservative mode classifies dispatch failure or validation failure as blocked/diagnostic without claiming accepted completion.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Conservative mode never auto-merges and always keeps authorityChanged=false, receiptVerified=false, productionDone=false.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Define host-native delegation evidence contract",
+      "context": "Add a host-native delegation contract for Codex calling Claude or Claude calling Codex externally while Lattice supplies handoff pack, receipt schema, transcript path, and review commands.",
+      "relatedDocs": [
+        "docs/requirements/decisions/verification-context-pack.md",
+        "docs/requirements/decisions/host-overflow.md"
+      ],
+      "userSees": "Users can choose host-native delegation and receive exact handoff/receipt/transcript instructions instead of an opaque runner.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Host-native plan output includes handoff pack path, prompt path, receipt path, transcript expectation, and review command.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A host-native delegation with missing receipt remains needs_receipt and produces nextAction instructions.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A natural-language host claim without receipt/transcript is not accepted as completed evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Integrate Lattice-controlled dispatch path",
+      "context": "Wire autopilot into existing dispatch_auto and Claude Code real runner while preserving policy opt-in, allowed paths, command allowlist, transcript, and runner metadata.",
+      "relatedDocs": [
+        "docs/requirements/decisions/host-overflow.md"
+      ],
+      "userSees": "Autopilot can use the existing policy-bound dispatch_auto path for controlled Claude or fake-host execution.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Autopilot invokes dispatch_auto under an authorized fake policy and exposes dispatchId/status/review evidence.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Autopilot refuses Claude real subprocess when policy lacks allowRealHostSubprocess or claude --print launcher allowlist.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Autopilot cannot widen dispatch policy allowedPaths or commandAllowlist at runtime.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Implement authority-verified mode gate",
+      "context": "Allow stronger integration only when server authority receipt, tests, scope, and review gates pass; otherwise stop with a classified missing-authority result.",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-client-role.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "Authority-verified mode either integrates with proof or tells users which authority evidence is missing.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Authority-verified mode accepts a fake server authority receipt plus passing validation and marks story integration allowed.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Authority-verified mode without server receipt stops before auto DONE or main merge.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A local diagnostic receipt cannot satisfy server authority receipt requirements.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "Implement full-autopilot loop with stop conditions",
+      "context": "Add bounded loop state machine for plan, dispatch, watch, review, validate, optional fix retry, integrate, and repeat with maxIterations/maxRuntime/maxBudget and conflict/scope stop conditions.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "userSees": "Full-autopilot can loop through bounded repair attempts and stops truthfully when a gate blocks completion.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Full-autopilot fake run completes within maxIterations after validation passes.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Validation failure triggers one bounded retry when allowAutoFix is true and budget/iteration limits allow it.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Loop stops on maxIterations, scope violation, conflict, timeout, or budget exhaustion without claiming accepted completion.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-008",
+      "title": "Add merge and conflict manager boundaries",
+      "context": "Separate story-branch integration, main merge, manual merge plan, conflict stop state, and authority/human requirements.",
+      "relatedDocs": [
+        "docs/requirements/decisions/session-ownership-and-write-leases.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "Autopilot explains whether it integrated a story branch, produced a merge plan, or stopped on conflict.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Merge manager reports manualOnly for conservative and integrationAllowed for authority-verified when gates pass.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Conflict state produces a repair task/nextAction and does not delete evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No mode merges main unless allowMainMerge plus required authority gate are satisfied.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-009",
+      "title": "Add autopilot observability commands",
+      "context": "Add autopilot_status, autopilot_watch, autopilot_cancel, autopilot_review, and autopilot_resume around persisted run records.",
+      "relatedDocs": [
+        "docs/requirements/decisions/host-neutral-observability-console.md"
+      ],
+      "userSees": "Users can watch, cancel, resume, and review autopilot runs using stable CLI commands.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Status/watch/review show run id, mode, policy, current step, dispatch ids, validation result, and authority fields.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Cancel preserves run evidence and prevents further automation steps.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Resume refuses if policy, material evidence, or authority posture is stale/unsafe.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-010",
+      "title": "Add deterministic autopilot smoke test suite",
+      "context": "Add fake-host and fake-authority smoke coverage for conservative, authority-verified, full-autopilot, stop conditions, observability, and no-authority-overclaim invariants.",
+      "relatedDocs": [
+        "docs/requirements/decisions/host-overflow.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "userSees": "Maintainers get a stable regression gate proving the three autopilot modes and safety boundaries still work; user-facing usage and delivery closure are handled separately in CHK-011.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Autopilot smoke covers conservative success, authority-verified fake-authority success, and full-autopilot bounded success.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Autopilot smoke covers missing server receipt, validation failure retry, cancel, and resume refusal.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Autopilot smoke proves local receipts cannot forge productionDone or receiptVerified.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-011",
+      "title": "Complete docs, review, delivery, and DONE gate",
+      "context": "Keep final user-facing docs, transcript diff, summary, delivery-check, review evidence, and DONE gate separate from the deterministic smoke test implementation.",
+      "relatedDocs": [
+        "docs/requirements/decisions/host-overflow.md",
+        "docs/requirements/decisions/testing-completeness.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "The final delivery states what modes exist, how to run them, what evidence passed, and which authority boundaries remain.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "README and host-overflow docs include user-facing usage and mode boundaries for all three autopilot modes.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Transcript diff and summary compare expected unattended host-to-host development with actual CLI smoke outputs.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Delivery reviewer confirms no docs or commands overclaim automatic main merge, productionDone, or verified server authority without proof.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

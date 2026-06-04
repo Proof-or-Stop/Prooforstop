@@ -1,0 +1,53 @@
+{
+  "storyId": "B-47cd",
+  "name": "autopilot-execution-modes",
+  "title": "Lattice unattended host-to-host autopilot execution modes",
+  "description": "Productize Conservative, Authority-Verified, and Full Autopilot modes so Lattice CLI can coordinate unattended host-to-host development while preserving evidence, receipt, scope, review, and merge authority boundaries.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "source": "codex",
+  "keywords": [
+    "autopilot",
+    "host-to-host",
+    "dispatch_auto",
+    "authority-verified",
+    "full-autopilot"
+  ],
+  "riskSignals": [
+    {
+      "category": "状态机/门禁",
+      "matched": "state machine"
+    },
+    {
+      "category": "生产环境/紧急",
+      "matched": "production"
+    }
+  ],
+  "createdAt": "2026-06-04T02:37:02.954Z",
+  "startedAt": "2026-06-04T02:37:02.954Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-04T02:37:03.011Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-04T02:50:35.406Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-47cd",
+    "branch": "story/B-47cd",
+    "createdAt": "2026-06-04T02:50:35.584Z"
+  }
+}
