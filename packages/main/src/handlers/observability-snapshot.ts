@@ -12,6 +12,8 @@
  *   downstream UI / dashboard surfaces. Never reads backing story JSON
  *   directly, never parses `session_brief` / `status` Markdown, and never
  *   promotes a local result to production authority.
+ * @changes
+ *   - [CHK-002] Add validator-required changes metadata for the observability snapshot handler task header.
  */
 
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';

@@ -16,6 +16,8 @@
  *     to the worktree-side phase and cwd, not the main mirror.
  *   - adversarial: output cannot set productionDone / receiptVerified /
  *     authorityChanged to true.
+ * @changes
+ *   - [CHK-001] Add validator-required changes metadata for the story authority resolve smoke task header.
  */
 
 import assert from 'node:assert/strict';

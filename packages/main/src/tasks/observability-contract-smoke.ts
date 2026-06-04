@@ -3,7 +3,7 @@
  * @task B-381e
  * @checklist CHK-003
  * @title observability resolver/snapshot contract smoke
- * @type test
+ * @type chore
  * @priority high
  * @description
  *   Contract smoke for the host-neutral observability M1 surfaces. It proves
@@ -11,6 +11,9 @@
  *   L0 read-only diagnostics, keep authority fields conservative, and do not
  *   depend on parsing status/session Markdown or touching the terminal
  *   dashboard UI.
+ * @changes
+ *   - [CHK-001] Use validator-accepted task type metadata for the observability contract smoke.
+ *   - [CHK-002] Add validator-required changes metadata for convergence checking.
  */
 
 import assert from 'node:assert/strict';
