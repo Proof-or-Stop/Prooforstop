@@ -243,7 +243,7 @@
         "docs/requirements/decisions/authority-client-role.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "userSees": "Authority-verified mode either integrates with proof or tells users which authority evidence is missing.",
+      "userSees": "CLI JSON shows: \"authorityGate\":{\"status\":\"missing_authority_receipt\"} when no server receipt is provided.",
       "verificationIntent": {
         "happy": [
           {
