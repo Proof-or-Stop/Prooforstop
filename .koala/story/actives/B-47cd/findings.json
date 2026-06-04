@@ -63,7 +63,7 @@
       "desc": "autopilot_run does not enforce the advertised two-policy autopilot contract. Docs and CLI say autopilot uses a dispatch policy plus an autopilot policy (README.md:200-225, host-overflow.md:72-94, cli-engine.ts:944-1009), but the persisted AutopilotPolicy shape has no dispatch/host/path/command fields (autopilot-policy.ts:116-162) and autopilotRun never loads or checks an autopilot policy before execution; it just forwards args.policy directly to dispatchAuto (lattice-autopilot.ts:538-555, 558-651). Runtime repro: in a temp repo, dispatch_policy_create followed by autopilot_run --policy=dispatch-only reached story lookup failure instead of rejecting missing autopilot policy. This collapses the dispatch/autopilot distinction and means Conservative / Authority-Verified / Full Autopilot semantics are not actually policy-authorized by the saved autopilot policy.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-concept",
       "createdAt": "2026-06-04T03:42:52.420Z",
@@ -76,7 +76,9 @@
         "packages/main/src/cli-engine.ts",
         "packages/main/src/core/autopilot-policy.ts",
         "packages/main/src/core/lattice-autopilot.ts"
-      ]
+      ],
+      "resolvedReason": "Resolved by adding dispatchPolicy to persisted autopilot policies and making autopilot_run check the saved autopilot policy before dispatch. dispatchAuto now receives normalizedPolicy.dispatchPolicy, and dispatch-only policies fail before worker startup. Evidence: npm --prefix packages/main run test:autopilot-run-smoke and build.",
+      "resolvedAt": "2026-06-04T04:10:38.023Z"
     },
     {
       "id": "B-47cd:F-005",
