@@ -1,13 +1,13 @@
 /**
- * lattice doctor — 输出最近 24 小时的 health issue（按 category 分组）
+ * lattice doctor — output health issues from the last 24 hours (grouped by category)
  *
- * 让用户能定期 `lattice doctor` 检查 Lattice 自己有没有隐藏的 PERSIST 失败。
- * 之前这些失败被 silent catch 吞掉，事后无法回溯。
+ * Lets users periodically run `lattice doctor` to check whether Lattice itself has hidden PERSIST failures.
+ * Previously these failures were silently swallowed by catch, making post-hoc retrospection impossible.
  *
- * B-7241 follow-up: `--repair` 模式扫 `.worktrees/` 下的孤儿目录
- * （git worktree list 里没有但目录还在的）并 rm -rf 清理。针对
- * DONE 合并后因为 activity.jsonl / tmp 运行时产物残留导致 git
- * worktree remove 静默只清 registry 不清目录的场景。
+ * B-7241 follow-up: `--repair` mode scans for orphan directories under `.worktrees/`
+ * (those not in git worktree list but whose directories still exist) and rm -rf cleans them up. Targets
+ * the scenario where after DONE merge, git worktree remove silently only clears the registry without
+ * clearing the directory because of leftover runtime artifacts like activity.jsonl / tmp.
  */
 
 import { execFileSync, execSync } from 'child_process';
@@ -154,7 +154,7 @@ export function createDoctorHandlers(ctx: HandlerContext) {
         };
       }
 
-      // text 输出
+      // text output
       const lines: string[] = [];
       lines.push(renderRuntimeFootprintSummary(runtime.runtimeMode));
       lines.push('');
@@ -193,8 +193,8 @@ export function createDoctorHandlers(ctx: HandlerContext) {
           lines.push(`  ... and ${summary.recent.length - 20} more (use --format=json for full list)`);
         }
         lines.push('');
-        lines.push(`→ 这些 issue 都是非致命错误（被 reportHealthIssue 接住），但可能预示数据/审计不完整。`);
-        lines.push(`→ 如需清空：rm ${getHealthPath()}`);
+        lines.push(`→ These issues are all non-fatal errors (caught by reportHealthIssue), but may indicate incomplete data/audit.`);
+        lines.push(`→ To clear: rm ${getHealthPath()}`);
         lines.push('');
       }
 
@@ -252,10 +252,10 @@ export function createDoctorHandlers(ctx: HandlerContext) {
           for (const f of repairFailed) lines.push(`  ✗ ${f.path}: ${f.error}`);
         } else {
           lines.push('');
-          lines.push(`→ terminal registered = story 已 DONE/DISCARDED 但 git 仍注册 worktree。`);
-          lines.push(`→ orphan dirs = 目录仍在 .worktrees/ 下但 git worktree list 已不认识。`);
-          lines.push(`→ terminal dirs = DONE/DISCARDED story 的 worktree 目录仍存在。`);
-          lines.push(`→ 重跑: lattice doctor --repair 清理这些残留。`);
+          lines.push(`→ terminal registered = story already DONE/DISCARDED but git still registers the worktree.`);
+          lines.push(`→ orphan dirs = directory still exists under .worktrees/ but git worktree list no longer recognizes it.`);
+          lines.push(`→ terminal dirs = worktree directory of DONE/DISCARDED story still exists.`);
+          lines.push(`→ Rerun: lattice doctor --repair to clean up these leftovers.`);
         }
       }
 
@@ -382,11 +382,11 @@ function scanTrackedRuntimeArtifacts(root: string): TrackedRuntimeArtifact[] {
 }
 
 /**
- * 扫描 .worktrees/ 目录下的孤儿条目。
+ * Scans for orphan entries under the .worktrees/ directory.
  *
- * 孤儿 = 目录存在于 worktreeDir 下，但 `git worktree list --porcelain` 没有
- * 把它列为活动的 worktree。典型成因：`git worktree remove` 因为 activity.jsonl
- * 等 gitignored 运行时产物被 hook 持续写入，git 静默只清 registry 而没删目录。
+ * Orphan = directory exists under worktreeDir, but `git worktree list --porcelain` does not
+ * list it as an active worktree. Typical cause: `git worktree remove` because gitignored runtime
+ * artifacts like activity.jsonl are continuously written by hooks, git silently only clears the registry without removing the directory.
  */
 function scanOrphanWorktrees(root: string, store: HandlerContext['store']): {
   registered: string[];

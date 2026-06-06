@@ -1,15 +1,15 @@
 /**
- * B-e8c8 CHK-005: commit message Resolves: CL-xxx 自动 resolve 整簇。
+ * B-e8c8 CHK-005: commit message Resolves: CL-xxx auto-resolves the entire cluster.
  *
- * 设计要点（见 plan.md CHK-005 + decision.json preMortem 1）：
- *   - 纯 sub-function `applyCommitResolves(findings, clusters, commitMessages)` 承担核心逻辑，
- *     便于 fixture 内脱离 git 环境直接测试（scratch-first）。
- *   - `syncClusterResolves` 外壳负责跑 `git log --format=%H%x00%B main..HEAD` 拿真实 commit，
- *     解析成 `{ sha, message }[]` 后喂给 pure fn。git 失败（非 git 目录 / 无 main 分支）→ zeros。
- *   - 正则 /Resolves?:\s+(CL-\d{3})/gi 宽容大小写和单复数。
- *   - 幂等：finding.status !== 'open' 的跳过（不覆盖已 resolved/dismissed 的条目）。
+ * Design points (see plan.md CHK-005 + decision.json preMortem 1):
+ *   - Pure sub-function `applyCommitResolves(findings, clusters, commitMessages)` carries the core logic,
+ *     making it easy to test directly in fixtures without a git environment (scratch-first).
+ *   - The `syncClusterResolves` shell is responsible for running `git log --format=%H%x00%B main..HEAD` to fetch real commits,
+ *     parsing them into `{ sha, message }[]` and feeding them to the pure fn. git failure (non-git dir / no main branch) → zeros.
+ *   - Regex /Resolves?:\s+(CL-\d{3})/gi is lenient about case and singular/plural.
+ *   - Idempotent: skip findings where finding.status !== 'open' (do not overwrite already resolved/dismissed entries).
  *
- * CHK-010 会在此基础上追加 `resolvedBy` 审计字段 + unknown-cluster warning。
+ * CHK-010 will add `resolvedBy` audit field + unknown-cluster warning on top of this.
  */
 
 import { execSync } from 'child_process';
@@ -18,27 +18,27 @@ import type { Finding } from './types.js';
 import type { ClusterRecord } from './cluster-types.js';
 
 export interface CommitMeta {
-  /** 完整 commit sha (40 char) */
+  /** Full commit sha (40 char) */
   sha: string;
   /** commit message (full body) */
   message: string;
 }
 
 export interface ClusterSyncResult {
-  /** 本次扫描新标记为 resolved 的 finding 数量 */
+  /** Number of findings newly marked as resolved in this scan */
   resolved: number;
-  /** 非致命告警（如 Resolves: CL-xxx references unknown cluster） */
+  /** Non-fatal warnings (e.g., Resolves: CL-xxx references unknown cluster) */
   warnings: string[];
-  /** 命中的 commit → clusterId 映射（按扫描顺序） */
+  /** Map of matched commit → clusterId (in scan order) */
   matchedCommits: Array<{ sha: string; clusterId: string }>;
 }
 
 /**
- * 正则模板：Resolves: CL-001 / Resolve: CL-002 / resolves: CL-003（大小写 + 单复数不敏感）。
+ * Regex template: Resolves: CL-001 / Resolve: CL-002 / resolves: CL-003 (case + singular/plural insensitive).
  *
- * F-010: 每次 applyCommitResolves 执行时在函数体内 new RegExp 生成新实例，
- * 避免模块级带 /g flag 的 lastIndex 在并发/重入场景被污染。
- * F-030: CL-\d{3,} 允许 3 位及以上数字（padStart(3) 保证最小宽度，CL-1000+ 4 位自然匹配）。
+ * F-010: Each applyCommitResolves invocation creates a new RegExp instance inside the function body,
+ * avoiding lastIndex pollution on module-level /g flag regex under concurrent/reentrant scenarios.
+ * F-030: CL-\d{3,} allows 3 or more digits (padStart(3) guarantees minimum width, CL-1000+ 4 digits matches naturally).
  */
 const RESOLVES_LINE_RE_SOURCE = '^\\s*Resolves?:\\s+(.+)$';
 const RESOLVES_TOKEN_RE_SOURCE = '(?:[A-Za-z0-9_-]+:)?F-\\d{3,}|CL-\\d{3,}';
@@ -48,10 +48,10 @@ function findingDisplayRef(finding: Finding, rawRef: string): string {
 }
 
 /**
- * Pure sub-function：给定 findings / clusters / commitMessages，返回应用 Resolves 后的结果。
+ * Pure sub-function: given findings / clusters / commitMessages, returns the result after applying Resolves.
  *
- * 副作用限定在传入的 findings 数组（就地修改 status）——调用方负责持久化。
- * 不读 git，不读文件；便于 fixture 直接喂 commit message 字符串数组测试。
+ * Side effects are limited to the passed-in findings array (in-place status mutation) — caller is responsible for persistence.
+ * Does not read git, does not read files; easy to feed commit message string arrays directly for fixture testing.
  */
 export function applyCommitResolves(
   findings: Finding[],
@@ -72,7 +72,7 @@ export function applyCommitResolves(
   const warnings: string[] = [];
   let resolved = 0;
 
-  // F-010: 函数局部 RegExp，每次调用独立 lastIndex，线程/重入安全。
+  // F-010: function-local RegExp, each call has independent lastIndex, thread/reentry safe.
   const lineRe = new RegExp(RESOLVES_LINE_RE_SOURCE, 'gim');
   const tokenRe = new RegExp(RESOLVES_TOKEN_RE_SOURCE, 'gi');
   for (const { sha, message } of commitMessages) {
@@ -86,7 +86,7 @@ export function applyCommitResolves(
       while ((tokenMatch = tokenRe.exec(refsText)) !== null) {
         const rawRef = tokenMatch[0];
         const ref = rawRef.toUpperCase();
-        if (seenInThisCommit.has(ref)) continue; // 同 commit 重复 tag 只算一次
+        if (seenInThisCommit.has(ref)) continue; // duplicate tags within the same commit count only once
         seenInThisCommit.add(ref);
 
         const shortSha = sha.slice(0, 7);
@@ -101,9 +101,9 @@ export function applyCommitResolves(
           for (const fid of cluster.findingIds) {
             const f = findingById.get(fid.toUpperCase());
             if (!f) continue;
-            if (f.status !== 'open') continue; // 幂等：已 resolved/dismissed 的跳过，不覆盖 resolvedBy
+            if (f.status !== 'open') continue; // idempotent: skip already resolved/dismissed, do not overwrite resolvedBy
             f.status = 'resolved';
-            // CHK-010: 审计字段 — 记录是哪个 cluster 的哪个 commit 导致的 resolve
+            // CHK-010: audit field — record which cluster's which commit triggered the resolve
             f.resolvedBy = `${ref}@${shortSha}`;
             resolved += 1;
           }
@@ -128,11 +128,11 @@ export function applyCommitResolves(
 }
 
 /**
- * 从 `git log --format=%H%x00%B main..HEAD` 解析 commit list。
+ * Parse commit list from `git log --format=%H%x00%B main..HEAD`.
  *
- * Git 不可用（非 git 目录 / 无 main 分支 / 无 commits）→ 返回 { commits: [], error? }。
- * F-023: `fatal: bad revision 'main..HEAD'` / `unknown revision` 之类错误不静默吞，
- * 通过返回值暴露给 syncClusterResolves，由外壳转成 warning 通过 ctx.log 输出。
+ * Git unavailable (non-git directory / no main branch / no commits) → return { commits: [], error? }.
+ * F-023: errors like `fatal: bad revision 'main..HEAD'` / `unknown revision` are not silently swallowed,
+ * but exposed to syncClusterResolves via return value, and the outer shell converts them into warnings output via ctx.log.
  */
 export function readCommitsSinceMain(projectRoot: string): { commits: CommitMeta[]; error?: string } {
   let raw: string;
@@ -150,7 +150,7 @@ export function readCommitsSinceMain(projectRoot: string): { commits: CommitMeta
   }
   if (!raw || !raw.trim()) return { commits: [] };
 
-  // 每条 commit 结构: <sha>\x00<body>\x1e
+  // each commit structure: <sha>\x00<body>\x1e
   const commits: CommitMeta[] = [];
   for (const entry of raw.split('\x1e')) {
     const chunk = entry.trim();
@@ -165,16 +165,16 @@ export function readCommitsSinceMain(projectRoot: string): { commits: CommitMeta
 }
 
 /**
- * Sync 入口：扫 story 的 commits + clusters，对命中 Resolves: CL-xxx 的簇内 open finding 标 resolved。
+ * Sync entry: scan the story's commits + clusters, mark open findings within clusters hit by Resolves: CL-xxx as resolved.
  *
- * 调用方：
- *   - `finding_list` handler（每次 list 前扫一遍保持及时）
- *   - `validate` handler（跑 validate 前扫，便于 TEST gate 正确计数）
+ * Callers:
+ *   - `finding_list` handler (scan once before each list to stay timely)
+ *   - `validate` handler (scan before running validate, so TEST gate counts correctly)
  *
- * 幂等保护：已 resolved 的不重复标。git 不可用 → 返回 warning（不抛错）。
+ * Idempotency guard: already resolved ones are not re-marked. Git unavailable → return warning (do not throw).
  *
- * F-007: 调用方传 `log` 回调，syncClusterResolves 把每条 warning 直接 ctx.log 到 validate
- * 主输出 log stream（而非 console.warn 到 stderr 被 validate 吞掉）。
+ * F-007: the caller passes a `log` callback, syncClusterResolves directly ctx.logs each warning into validate's
+ * main output log stream (rather than console.warn to stderr which gets swallowed by validate).
  */
 export function syncClusterResolves(
   storyId: string,
@@ -185,7 +185,7 @@ export function syncClusterResolves(
   const clustersData = store.readClusters(storyId);
   const { commits, error } = readCommitsSinceMain(projectRoot);
   if (error) {
-    // F-023: git fatal (bad revision / main 分支不存在 / 非 git 目录) 转 warning 暴露给用户。
+    // F-023: git fatal (bad revision / main branch missing / non-git directory) converted to warning exposed to user.
     const short = summarizeGitError(error);
     const w = `cluster-sync skipped: ${short}`;
     log?.(w);
@@ -199,7 +199,7 @@ export function syncClusterResolves(
   if (result.resolved > 0) {
     store.writeFindings(storyId, findingsData);
   }
-  // F-007: 每条 warning 主动经 log 回调落地到 validate 主输出
+  // F-007: each warning is actively routed via the log callback into validate's main output
   if (log) {
     for (const w of result.warnings) log(w);
   }
@@ -207,9 +207,9 @@ export function syncClusterResolves(
 }
 
 /**
- * 浓缩 git stderr 为人类可读的一行 warning 摘要。
- * F-023: 把 `fatal: ambiguous argument 'main..HEAD': unknown revision ...` 压成
- * `main branch not found` 之类简短提示，避免 warning 里混入长 stderr。
+ * Condense git stderr into a human-readable one-line warning summary.
+ * F-023: compress `fatal: ambiguous argument 'main..HEAD': unknown revision ...` into
+ * Short hints like `main branch not found`, avoiding mixing long stderr into the warning.
  */
 function summarizeGitError(err: string): string {
   const lower = err.toLowerCase();
@@ -219,7 +219,7 @@ function summarizeGitError(err: string): string {
   if (lower.includes('not a git repository')) {
     return 'not a git repository';
   }
-  // 其它情况取第一行，截短到 120 字符
+  // For other cases, take the first line and truncate to 120 characters
   const firstLine = err.split('\n')[0].trim();
   return firstLine.length > 120 ? firstLine.slice(0, 117) + '...' : firstLine;
 }

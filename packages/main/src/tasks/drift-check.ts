@@ -59,7 +59,7 @@ export function parseDiffFunctions(root: string, scanRoot: string, base = 'HEAD'
       if (funcContext) {
         const fnName = extractFunctionName(funcContext);
         if (fnName) {
-          // currentFile 是 git 相对路径，转为相对 scanRoot 的路径
+          // currentFile is a git-relative path; convert to a path relative to scanRoot
           const absFile = join(root, currentFile);
           const relFile = relative(scanRoot, absFile);
           const key = `${relFile}:${fnName}`;

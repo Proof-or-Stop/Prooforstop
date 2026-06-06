@@ -503,6 +503,13 @@ export interface AuthorityPolicyContract {
     preset: string;
     [key: string]: unknown;
   };
+  serverKey?: {
+    keyId: string;
+    algorithm: string;
+    encoding: string;
+    publicKeyHex: string;
+    [key: string]: unknown;
+  };
   /** Object containing compatibility metadata (supportedAuthorityModes, minClientVersions, etc.). */
   compatibility: {
     supportedAuthorityModes: string[];
@@ -515,6 +522,13 @@ export interface AuthorityPolicyContract {
     productionEnforceAuthority: boolean;
     requireActorKeyBinding: boolean;
     requireRunnerHeartbeatForL2: boolean;
+    serverKey?: {
+      keyId: string;
+      algorithm: string;
+      encoding: string;
+      publicKeyHex: string;
+      [key: string]: unknown;
+    };
     [key: string]: unknown;
   };
   [key: string]: unknown;
@@ -535,6 +549,12 @@ export const AuthorityPolicyContractSchema = z.object({
   evidencePolicy: z.object({
     preset: z.string(),
   }).passthrough(),
+  serverKey: z.object({
+    keyId: z.string(),
+    algorithm: z.string(),
+    encoding: z.string(),
+    publicKeyHex: z.string(),
+  }).passthrough().optional(),
   compatibility: z.object({
     supportedAuthorityModes: z.array(z.string()),
     requiredAuthorityMode: z.string(),
@@ -546,6 +566,12 @@ export const AuthorityPolicyContractSchema = z.object({
     productionEnforceAuthority: z.boolean(),
     requireActorKeyBinding: z.boolean(),
     requireRunnerHeartbeatForL2: z.boolean(),
+    serverKey: z.object({
+      keyId: z.string(),
+      algorithm: z.string(),
+      encoding: z.string(),
+      publicKeyHex: z.string(),
+    }).passthrough().optional(),
   }).passthrough(),
 }).passthrough();
 
@@ -554,7 +580,7 @@ export const AuthorityPolicyContractSchema = z.object({
  * undefined when clean. Called BEFORE schema validation so a malicious server
  * cannot sneak in overclaim data inside a schema-valid response.
  *
- * Per "Handler 编码约定": runtime re-validation beyond Zod, because the same
+ * Per "Handler coding conventions": runtime re-validation beyond Zod, because the same
  * body is read from network text that may bypass Zod on exceptional paths.
  */
 export function detectPolicyOverclaim(body: unknown): string | undefined {

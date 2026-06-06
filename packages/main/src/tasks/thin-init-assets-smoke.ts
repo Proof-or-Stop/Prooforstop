@@ -76,7 +76,12 @@ try {
   assert.equal(existsSync(join(thinRoot, '.Codex', 'agents')), false, 'thin init should not create .Codex/agents');
   const manifest = JSON.parse(readFileSync(join(thinRoot, '.Codex', 'lattice.json'), 'utf8'));
   assert.equal(manifest.adapterOwner, 'lattice');
-  assert.equal(manifest.recommendedEntrypoints[0]?.command, 'node bin/lattice-codex.js');
+  assert.equal(manifest.recommendedEntrypoints[0]?.command, 'lattice codex');
+  assert.equal(
+    manifest.recommendedEntrypoints.some((entry: { command?: string }) => entry.command === 'node bin/lattice-codex.js'),
+    true,
+    'manifest should retain the local wrapper fallback',
+  );
   assert.equal(manifest.promptMode, 'registry');
   assert.equal(typeof manifest.promptRegistry?.materialHash, 'string');
   const thinAgentsMd = readFileSync(join(thinRoot, 'AGENTS.md'), 'utf8');

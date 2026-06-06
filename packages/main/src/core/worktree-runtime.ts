@@ -172,19 +172,19 @@ export function getStoryWorktreeRuntime(
       warnings.push(`linked worktree: ${linkedPath}`);
       if (recordedAbsPath) warnings.push(`recorded path: ${recordedAbsPath}`);
       recoveryHint = canRepairPath
-        ? `可按 git worktree list 自动修正到 ${linkedPath}`
-        : '先确认当前活跃 linked worktree，再决定是否回写 story.worktree.path';
+        ? `Can be auto-corrected to ${linkedPath} via git worktree list`
+        : 'First confirm the currently active linked worktree, then decide whether to write back story.worktree.path';
     }
   } else if (recordedForeignPath) {
     status = 'foreign';
     summary = 'story worktree path is from another platform';
     warnings.push(`foreign stale path: ${recordedAbsPath || recordedPath}`);
-    recoveryHint = `分支 ${branch} 已不存在或 worktree path 属于其它平台，先检查是否应 reconcile / discard / 重新 INIT_CHECK`;
+    recoveryHint = `Branch ${branch} no longer exists or the worktree path belongs to another platform; first check whether to reconcile / discard / re-run INIT_CHECK`;
   } else if (recordedExists) {
     status = 'orphaned';
     summary = 'recorded worktree directory exists but git registry has no matching linked worktree';
     warnings.push(`recorded path: ${recordedAbsPath}`);
-    recoveryHint = '先检查 git worktree list / git worktree repair；若目录是残留，再清理并重建';
+    recoveryHint = 'First check git worktree list / git worktree repair; if the directory is leftover residue, then clean up and rebuild';
   } else if (recordedPath || branchExists) {
     status = 'missing';
     summary = branchExists
@@ -193,8 +193,8 @@ export function getStoryWorktreeRuntime(
     if (recordedAbsPath) warnings.push(`missing path: ${recordedAbsPath}`);
     if (branchMerged) warnings.push(`branch ${branch} already merged into main`);
     recoveryHint = branchExists
-      ? `运行 koala story_advance --storyId=${storyId} --phase=INIT_CHECK 重新建立 worktree`
-      : `分支 ${branch} 已不存在，先检查是否应 reconcile / discard / 重新 INIT_CHECK`;
+      ? `Run koala story_advance --storyId=${storyId} --phase=INIT_CHECK to re-establish the worktree`
+      : `Branch ${branch} no longer exists; first check whether to reconcile / discard / re-run INIT_CHECK`;
   }
 
   if (linkedPath && branchContainsMain === false) {

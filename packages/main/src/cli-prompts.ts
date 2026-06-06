@@ -1,7 +1,7 @@
 /**
  * Long-form PROMPTs for Lattice CLI core commands
  *
- * 出现在 `lattice <cmd> --help` 输出里，教 agent 怎么用。
+ * Displayed by `lattice <cmd> --help` to teach agents how to use commands.
  */
 
 export const STORY_CREATE_LONG = `
@@ -10,7 +10,7 @@ export const STORY_CREATE_LONG = `
 ══════════════════════════════════════════════════════════
 
 WHEN TO USE
-  ✓ User says "我要做 X / 帮我开发 X / 修一个 bug"
+  ✓ User requests building, developing, or fixing something in any language
   ✓ User describes a concrete need with checklist-able items
   ✓ Onboarding existing code: backfill DONE stories with --phase=DONE
 
@@ -18,7 +18,7 @@ WHEN NOT TO USE
   ✗ User is still discussing / brainstorming — wait
   ✗ User asks a question — answer first
   ✗ Adding item to existing story — use lattice checklist_add
-  ✗ Trivial 2-line edits user said "立刻改" — just do it
+  ✗ Trivial 2-line edits where the user explicitly asks for an immediate edit in any language — just do it
 
 REQUIRED FIELDS
   name        — short slug
@@ -30,9 +30,9 @@ REQUIRED FIELDS
                 the requested value: even priority=low is elevated to the
                 effective high-risk gate with decision + ≥3 preMortem.
   background  — four markdown sections:
-                ## 触发事件 / ## 关键洞察 / ## 方案取舍 / ## 对话纹理
+                ## Trigger Event / ## Key Insights / ## Solution Tradeoffs / ## Conversational Texture
                 Each section needs >= 50 chars; total >= 300 chars.
-                The 触发事件 section needs an concrete ID/date:
+                The Trigger Event section needs a concrete ID/date:
                 B-xxxx / F-123 / CHK-001 / commit hash / YYYY-MM-DD.
 
 OPTIONAL BUT RECOMMENDED
@@ -43,14 +43,14 @@ EXAMPLES
 
   lattice story_create '{
     "name":"add-pagination",
-    "title":"列表页加分页",
-    "description":"商品列表 1k+ 条时全量渲染卡顿",
+    "title":"Add pagination to the list page",
+    "description":"Rendering 1k+ product rows at once makes the product list slow",
     "type":"feature",
     "priority":"high",
-    "background":"## 触发事件\n2026-05-03 用户反馈商品列表 1k+ 条时全量渲染卡顿，滚动和搜索都明显延迟，需要把性能问题记录为可追踪 story。\n\n## 关键洞察\n问题不只是页面慢，而是列表加载、分页状态和用户可见反馈共同影响体验；验收要覆盖正常加载、空结果和异常接口。\n\n## 方案取舍\n优先选择 cursor 分页并保持现有列表组件结构，避免一次性引入虚拟列表和接口重写，降低当前 story 风险。\n\n## 对话纹理\n用户关注的是实际使用时不卡顿，而不是内部实现名词；输出和验收都应该围绕可见响应速度与操作连续性。",
+    "background":"## Trigger Event\nOn 2026-05-03, a user reported that rendering 1k+ product rows made the product list noticeably slow during scrolling and search, so the performance issue needs to be tracked as a story.\n\n## Key Insights\nThe issue is not only page speed; list loading, pagination state, and visible user feedback all shape the experience, so acceptance should cover normal loading, empty results, and API errors.\n\n## Solution Tradeoffs\nPrefer cursor pagination while keeping the existing list component structure, avoiding a larger virtual-list rollout or API rewrite in this story.\n\n## Conversational Texture\nThe user cares about smooth real-world use rather than internal implementation terms, so outputs and acceptance should focus on visible responsiveness and continuous interaction.",
     "checklist":[
-      {"title":"后端 API 加 cursor 参数","context":"参考 docs/api/pagination.md"},
-      {"title":"前端列表组件接入分页","context":"复用 InfiniteScroll"}
+      {"title":"Add a cursor parameter to the backend API","context":"Reference docs/api/pagination.md"},
+      {"title":"Wire pagination into the frontend list component","context":"Reuse InfiniteScroll"}
     ]
   }'
 
@@ -221,21 +221,21 @@ OPTIONAL
 EXAMPLES
 
   # Simple bug report
-  lattice bug_report '{"storyId":"B-a3f7","id":"BUG-001","title":"guard 函数缺少 default return 导致 undefined"}'
+  lattice bug_report '{"storyId":"B-a3f7","id":"BUG-001","title":"guard function missing default return produces undefined"}'
 
   # Bug linked to checklist item
   lattice bug_report '{
     "storyId":"B-a3f7","id":"BUG-002",
-    "title":"validate --lint 跳过子包 tsconfig",
+    "title":"validate --lint skips nested package tsconfig files",
     "checklistId":"CHK-003"
   }'
 
   # After fixing, update with evidence:
   lattice bug_update '{"storyId":"B-a3f7","id":"BUG-001","status":"fixed","evidence":{
-    "symptom":"validate 报 TypeError: x is not a function",
-    "reproSteps":["跑 lattice validate","fn.ts:42 的 guard 返回 undefined"],
-    "rootCause":"guard 函数缺少 default return",
-    "fixEvidence":"加 return false 兜底，logicTest guard_missing_default 覆盖",
+    "symptom":"validate reports TypeError: x is not a function",
+    "reproSteps":["Run lattice validate","fn.ts:42 guard returns undefined"],
+    "rootCause":"guard function has no default return",
+    "fixEvidence":"Added return false fallback, covered by logicTest guard_missing_default",
     "reproTest":"tests/logic.ts#guard_missing_default"
   }}'
 `.trim();
@@ -293,4 +293,4 @@ STEP-BY-STEP
   4. git commit + lattice checklist_update --status=done
 `.trim();
 
-export const SESSION_BRIEF_FOOTER = '\n→ 不知道现在该做什么？跑 lattice session_brief 看项目全貌（koala 仍是 legacy alias）\n';
+export const SESSION_BRIEF_FOOTER = '\n-> Not sure what to do next? Run lattice session_brief to recover the project context (koala remains a legacy alias).\n';

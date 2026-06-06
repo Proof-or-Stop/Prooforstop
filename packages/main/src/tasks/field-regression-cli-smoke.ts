@@ -197,7 +197,7 @@ async function assertPlanRemoveIsHardBlocked(): Promise<void> {
       justification: 'Trying to replace a frozen checklist item',
     });
     assert.notEqual(failed.code, 0);
-    assert.match(failed.stderr, /remove\+add 绕过/);
+    assert.match(failed.stderr, /remove\+add bypass/);
     assert.equal(new StoryStore(root).readChecklist(storyId).items.length, 1);
   } finally {
     rmSync(root, { recursive: true, force: true });
@@ -340,16 +340,16 @@ async function assertReviewRunStartCliSurface(): Promise<void> {
       note: 'stale run should be rejected after material change.',
     });
     assert.notEqual(stalePass.code, 0);
-    assert.match(stalePass.stderr, /已 stale|stale/i);
+    assert.match(stalePass.stderr, /already stale|stale/i);
     assert.match(stalePass.stderr, /DEV.*REVIEW|DEV → REVIEW/);
-    assert.doesNotMatch(stalePass.stderr, /重新执行 koala review_run_start/);
+    assert.doesNotMatch(stalePass.stderr, /re-run koala review_run_start/);
 
     const unsupported = await runKoalaRaw(root, 'review_run_start', {
       storyId,
       lane: 'koala-review-delivery',
     });
     assert.notEqual(unsupported.code, 0);
-    assert.match(unsupported.stderr, /Invalid enum value|Invalid option: expected one of|不在受支持的 REVIEW reviewer lane/);
+    assert.match(unsupported.stderr, /Invalid enum value|Invalid option: expected one of|not in supported REVIEW reviewer lane/);
 
     const mainStoryId = 'B-main';
     store.writeStory(mainStoryId, {
@@ -372,7 +372,7 @@ async function assertReviewRunStartCliSurface(): Promise<void> {
       agent: 'koala-review-quality',
     });
     assert.notEqual(missingRound.code, 0);
-    assert.match(missingRound.stderr, /没有 currentReviewRound/);
+    assert.match(missingRound.stderr, /no currentReviewRound/);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -454,7 +454,7 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
 
     const passOutput = await runKoala(root, 'finding_add', {
       storyId,
-      desc: '文档一致性检查通过：Step 1 抽出 2 个符号，Step 2 比对 3 个段落；consistency check PASSED。',
+      desc: 'Docs consistency check passed: Step 1 extracted 2 symbols, Step 2 compared 3 sections; consistency check PASSED.',
       severity: 'low',
       category: 'happy',
       agent: 'koala-review-docs',
@@ -465,14 +465,14 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
     const passes = store.readReviewPasses(storyId).passes;
     assert.equal(passes.length, 1);
     assert.equal(passes[0].agent, 'koala-review-docs');
-    assert.match(passes[0].note, /文档一致性检查通过/);
+    assert.match(passes[0].note, /Docs consistency check passed/);
     assertIsoReviewRound(passes[0].reviewRound, now(), 'pass-only converted review pass reviewRound');
     const emptyFindingList = await runKoala(root, 'finding_list', { storyId });
     assert.match(emptyFindingList, /"findings":\s*\[\]/, 'pass-only finding_add should not appear in finding_list');
 
     const noDriftOutput = await runKoala(root, 'finding_add', {
       storyId,
-      desc: '文档一致性检查通过：未发现不一致。',
+      desc: 'Docs consistency check passed: no inconsistencies found.',
       severity: 'low',
       category: 'happy',
       agent: 'koala-review-docs',
@@ -483,7 +483,7 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
 
     const conceptPassOutput = await runKoala(root, 'finding_add', {
       storyId,
-      desc: '本次无概念变更',
+      desc: 'No concept changes this round',
       severity: 'low',
       category: 'happy',
       agent: 'koala-review-concept',
@@ -494,7 +494,7 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
 
     const channelPassOutput = await runKoala(root, 'finding_add', {
       storyId,
-      desc: '极速通道（≤2 items，无 riskSignals），主 agent 自写合规',
+      desc: 'Express channel (≤2 items, no riskSignals), main agent self-write compliant',
       severity: 'low',
       category: 'happy',
       agent: 'koala-review-channel',
@@ -516,7 +516,7 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
 
     const genericPassOutput = await runKoala(root, 'finding_add', {
       storyId,
-      desc: '检查通过：流程事实入口都有 hardcoded fallback。',
+      desc: 'Check passed: all flow fact entry points have hardcoded fallback.',
       severity: 'low',
       category: 'happy',
       agent: 'koala-review-behavior',
@@ -536,9 +536,20 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
     assert.match(explicitPassOutput, /Review pass B-passonly:RP-007 recorded by koala-review-docs/);
     assert.equal(store.readFindings(storyId).findings.length, 0, 'explicit PASS wording should convert to review pass');
 
+    const localizedPassOutput = await runKoala(root, 'finding_add', {
+      storyId,
+      desc: '\u5ba1\u67e5\u901a\u8fc7\uff1a\u5df2\u68c0\u67e5\u8303\u56f4\uff0c\u65e0\u963b\u585e\u95ee\u9898\u3002',
+      severity: 'low',
+      category: 'happy',
+      agent: 'koala-review-docs',
+      reviewRunId: docsRunId,
+    });
+    assert.match(localizedPassOutput, /Review pass B-passonly:RP-008 recorded by koala-review-docs/);
+    assert.equal(store.readFindings(storyId).findings.length, 0, 'localized pass-only finding_add should convert to review pass');
+
     const findingOutput = await runKoala(root, 'finding_add', {
       storyId,
-      desc: '文档一致性检查通过但是 README 示例命令失败，需修正文档。',
+      desc: 'Docs consistency check passed but README example command failed; docs need fixing.',
       severity: 'low',
       category: 'edge',
       agent: 'koala-review-docs',
@@ -551,7 +562,7 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
 
     const cleanupOutput = await runKoala(root, 'finding_add', {
       storyId,
-      desc: 'concept-cleanup: 概念 X 删除不完整，Y 文件仍有 2 处引用。',
+      desc: 'concept-cleanup: concept X deletion incomplete, Y file still has 2 references.',
       severity: 'critical',
       category: 'cleanup',
       agent: 'koala-review-concept',
@@ -564,7 +575,7 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
 
     const docPromiseOutput = await runKoala(root, 'finding_add', {
       storyId,
-      desc: 'doc-promise-undelivered: README 承诺了 koala foo 命令，但 registry 中不存在。',
+      desc: 'doc-promise-undelivered: README promised koala foo command but it does not exist in registry.',
       severity: 'critical',
       category: 'doc-promise-undelivered',
       agent: 'koala-review-quality',
@@ -620,6 +631,50 @@ async function assertPassOnlyFindingConvertsToReviewPassCliSurface(): Promise<vo
       /category must be one of happy\|edge\|adversarial\|missing/,
       'unknown finding category must be rejected before pass-only review normalization',
     );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+async function assertDecisionSetAcceptsLocalizedExclusionRationale(): Promise<void> {
+  const root = initRepo('koala-field-decision-localized-');
+  try {
+    const storyId = 'B-decision';
+    const store = new StoryStore(root);
+    const timestamp = now();
+    store.writeStory(storyId, {
+      storyId,
+      name: 'localized-decision',
+      title: 'Localized decision',
+      description: 'Synthetic story for localized decision rationale.',
+      type: 'chore',
+      phase: 'PLAN',
+      priority: 'medium',
+      createdAt: timestamp,
+      startedAt: timestamp,
+      endedAt: null,
+      events: [{ phase: 'PLAN', action: 'advance', timestamp }],
+    });
+    store.writeChecklist(storyId, { items: [] });
+
+    const rationale = [
+      '\u6392\u9664\u5176\u4ed6\u5907\u9009\uff1a\u5f53\u524d\u5de5\u4f5c\u53ea\u662f\u6062\u590d\u5df2\u6709\u884c\u4e3a\uff0c',
+      '\u66ff\u4ee3\u65b9\u6848\u4f1a\u6269\u5927\u8303\u56f4\u5e76\u589e\u52a0\u4e0d\u5fc5\u8981\u98ce\u9669\uff0c',
+      '\u6240\u4ee5\u4fdd\u7559\u5355\u4e00\u65b9\u6848\u5e76\u8bb0\u5f55\u539f\u56e0\u3002',
+    ].join('');
+
+    const output = await runKoala(root, 'decision_set', {
+      storyId,
+      principles: ['Preserve behavior', 'Keep scope narrow', 'Prefer reversible changes'],
+      drivers: ['Localized rationale must not be rejected by an English keyword check'],
+      options: [],
+      chosen: 'single-solution',
+      rationale,
+    });
+    assert.match(output, /Decision saved for B-decision/);
+    const decision = store.readDecision(storyId);
+    assert.ok(decision);
+    assert.equal(decision.rationale, rationale);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -766,17 +821,17 @@ async function assertHotfixPriorityElevationCliSurface(): Promise<void> {
   const root = initRepo('koala-field-hotfix-priority-');
   try {
     const background = [
-      '## 触发事件',
-      '2026-05-08 B-hotfix 用户报告 hotfix 修复需要记录，即使请求低优先级也应该显式进入高风险审查路径，避免紧急词被文档口径隐藏。',
+      '## Trigger Event',
+      '2026-05-08 B-hotfix user reported hotfix fixes need to be recorded; even if the request is low priority, it should explicitly enter the high-risk review path to avoid emergency keywords being hidden by docs wording.',
       '',
-      '## 关键洞察',
-      '这里要验证的不是业务功能，而是 CLI surface 是否诚实说明 effective priority 会覆盖原始 priority，并让 agent 预期 preMortem gate。',
+      '## Key Insight',
+      'What needs to be verified here is not the business function, but whether the CLI surface honestly explains that effective priority overrides the original priority, and lets the agent anticipate the preMortem gate.',
       '',
-      '## 方案取舍',
-      '保留 hotfix 自动 elevate 行为，因为它保护生产和紧急修复路径；本 smoke 只锁住输出文案和持久化 priority。',
+      '## Trade-offs',
+      'Keep the hotfix auto-elevate behavior, since it protects production and emergency fix paths; this smoke only locks the output wording and persisted priority.',
       '',
-      '## 对话纹理',
-      '用户之前观察到 low priority hotfix 也会要求 preMortem，这个行为可以接受，但文档和命令输出必须直接讲清楚。',
+      '## Conversation Texture',
+      'The user previously observed that low priority hotfixes also require preMortem; this behavior is acceptable, but the documentation and command output must state it clearly.',
     ].join('\n');
     const result = await runKoalaRaw(root, 'story_create', {
       name: 'hotfix-priority-surface',
@@ -788,14 +843,124 @@ async function assertHotfixPriorityElevationCliSurface(): Promise<void> {
       checklist: [{ title: 'Record effective priority wording', context: 'CLI output should explain low hotfix elevation' }],
     });
     assert.equal(result.code, 0);
-    assert.doesNotMatch(result.stdout, /已自动 elevate priority|原始 priority=low/);
-    assert.match(result.stderr, /已自动 elevate priority: low → high/);
-    assert.match(result.stderr, /原始 priority=low/);
+    assert.doesNotMatch(result.stdout, /Auto-elevated priority|Original priority=low/);
+    assert.match(result.stderr, /Auto-elevated priority: low → high/);
+    assert.match(result.stderr, /Original priority=low/);
     const [storyId] = new StoryStore(root).listStoryIds();
     assert.ok(storyId);
     const story = new StoryStore(root).readStory(storyId);
     assert.equal(story.priority, 'high');
     assert.ok((story.riskSignals || []).some(sig => sig.matched.toLowerCase() === 'hotfix'));
+
+    const localizedResult = await runKoalaRaw(root, 'story_create', {
+      name: 'localized-risk-surface',
+      title: '\u751f\u4ea7\u4e8b\u6545\u7d27\u6025\u4fee\u590d',
+      description: '\u751f\u4ea7\u4e8b\u6545\u9700\u8981\u7d27\u6025\u4fee\u590d\uff0c\u6d89\u53ca\u5bc6\u7801\u548c\u9274\u6743\u98ce\u9669',
+      type: 'chore',
+      priority: 'low',
+      background: [
+        '## Trigger Event',
+        '2026-06-03 B-localized-risk user wrote a localized production incident and credential-risk request; it should be treated the same as the English hotfix path.',
+        '',
+        '## Key Insights',
+        'Risk auto-detection is behavior, not wording-only documentation; localized security and emergency terms must still trigger the high-risk gate.',
+        '',
+        '## Solution Tradeoffs',
+        'Keep localized matching scoped to high-signal risk terms so ordinary prose does not auto-elevate.',
+        '',
+        '## Conversational Texture',
+        'The user asked whether translations match real outcomes; this locks the real CLI behavior.',
+      ].join('\n'),
+      checklist: [{ title: 'Record localized risk detection', context: 'CLI output should elevate localized emergency/security wording' }],
+    });
+    assert.equal(localizedResult.code, 0);
+    assert.doesNotMatch(localizedResult.stdout, /Auto-elevated priority|Original priority=low/);
+    assert.match(localizedResult.stderr, /Auto-elevated priority: low → high/);
+    const localizedStore = new StoryStore(root);
+    const localizedStoryId = localizedStore.listStoryIds().find(id => localizedStore.readStory(id).name === 'localized-risk-surface');
+    assert.ok(localizedStoryId);
+    const localizedStory = localizedStore.readStory(localizedStoryId);
+    assert.equal(localizedStory.priority, 'high');
+    const localizedCategories = new Set((localizedStory.riskSignals || []).map(sig => sig.category));
+    assert.ok(localizedCategories.has('Production/Emergency'));
+    assert.ok(localizedCategories.has('Security/Credentials'));
+
+    const localizedRiskCases = [
+      {
+        name: 'localized-data-migration-risk',
+        title: '\u6570\u636e\u8fc1\u79fb\u7834\u574f\u6027\u53d8\u66f4',
+        description: '\u6570\u636e\u5e93\u8fc1\u79fb\u9700\u8981\u8c03\u6574\u8868\u7ed3\u6784\u5e76\u9632\u6b62\u5220\u8868\u98ce\u9669',
+        category: 'Data Migration/Destructive',
+        backgroundSuffix: 'B-lr01',
+      },
+      {
+        name: 'localized-state-machine-risk',
+        title: '\u72b6\u6001\u673a\u95e8\u7981\u4fee\u6539',
+        description: '\u9636\u6bb5\u6d41\u8f6c\u548c\u5b88\u536b\u903b\u8f91\u9700\u8981\u8c03\u6574',
+        category: 'State Machine/Gate',
+        backgroundSuffix: 'B-lr02',
+      },
+      {
+        name: 'localized-validation-framework-risk',
+        title: '\u9a8c\u8bc1\u6846\u67b6\u56de\u5f52',
+        description: '\u9a8c\u8bc1\u534f\u8bae\u548c\u6d4b\u8bd5\u8fd0\u884c\u5668\u9700\u8981\u66f4\u65b0',
+        category: 'Validation Framework',
+        backgroundSuffix: 'B-lr03',
+      },
+      {
+        name: 'localized-git-destructive-risk',
+        title: 'git \u5f3a\u63a8\u9632\u62a4',
+        description: 'git \u5f3a\u63a8\u548c\u91cd\u7f6e\u64cd\u4f5c\u9700\u8981\u9ad8\u98ce\u9669\u5ba1\u67e5',
+        category: 'git Destructive Operation',
+        backgroundSuffix: 'B-lr04',
+      },
+      {
+        name: 'localized-compliance-risk',
+        title: '\u9690\u79c1\u5408\u89c4\u4fee\u590d',
+        description: '\u654f\u611f\u4fe1\u606f\u548c\u7528\u6237\u6570\u636e\u5904\u7406\u9700\u8981\u5408\u89c4\u5ba1\u67e5',
+        category: 'Compliance/Privacy',
+        backgroundSuffix: 'B-lr05',
+      },
+      {
+        name: 'localized-breaking-api-risk',
+        title: '\u516c\u5171 API \u7834\u574f\u6027\u53d8\u66f4',
+        description: '\u516c\u5171 API \u4e0d\u517c\u5bb9\u53d8\u66f4\u9700\u8981\u9ad8\u98ce\u9669\u8def\u5f84',
+        category: 'Breaking API Change',
+        backgroundSuffix: 'B-lr06',
+      },
+    ];
+
+    for (const riskCase of localizedRiskCases) {
+      const riskResult = await runKoalaRaw(root, 'story_create', {
+        name: riskCase.name,
+        title: riskCase.title,
+        description: riskCase.description,
+        type: 'chore',
+        priority: 'low',
+        background: [
+          '## Trigger Event',
+          `2026-06-03 ${riskCase.backgroundSuffix} user wrote a localized high-risk request; it should be treated the same as the matching English risk category.`,
+          '',
+          '## Key Insights',
+          'Localized wording must map to the same effective high-risk behavior and persisted riskSignals category.',
+          '',
+          '## Solution Tradeoffs',
+          'Keep each localized case scoped to one category so this regression catches category drift.',
+          '',
+          '## Conversational Texture',
+          'The user asked whether translation wording and real outcomes stay aligned.',
+        ].join('\n'),
+        checklist: [{ title: `Record ${riskCase.category} localized detection`, context: 'CLI output should elevate localized high-risk wording' }],
+      });
+      assert.equal(riskResult.code, 0, `${riskCase.name} should create successfully`);
+      assert.doesNotMatch(riskResult.stdout, /Auto-elevated priority|Original priority=low/, `${riskCase.name} should keep advisory off stdout`);
+      assert.match(riskResult.stderr, /Auto-elevated priority: low → high/, `${riskCase.name} should show auto-elevation on stderr`);
+      const riskStoryId = localizedStore.listStoryIds().find(id => localizedStore.readStory(id).name === riskCase.name);
+      assert.ok(riskStoryId, `${riskCase.name} should persist a story`);
+      const riskStory = localizedStore.readStory(riskStoryId);
+      assert.equal(riskStory.priority, 'high', `${riskCase.name} should persist elevated priority`);
+      assert.ok((riskStory.riskSignals || []).some(sig => sig.category === riskCase.category), `${riskCase.name} should persist ${riskCase.category}`);
+    }
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -920,7 +1085,7 @@ async function assertDoneMergeCleansMainUntrackedReviewPasses(): Promise<void> {
     write(root, `.koala/story/actives/${storyId}/review-passes.json`, '{"passes":[]}\n');
     const output = await runKoala(worktree, 'story_advance', { storyId, phase: 'DONE' });
 
-    assert.match(output, /清理主仓未追踪副本: .*review-passes\.json/);
+    assert.match(output, /Cleaned untracked copy in main repo: .*review-passes\.json/);
     assert.match(output, /advanced to DONE/);
     assert.equal(git(root, ['status', '--porcelain', '--', `.koala/story/actives/${storyId}/review-passes.json`]), '');
     assert.equal(git(root, ['branch', '--list', `story/${storyId}`]), '');
@@ -960,7 +1125,7 @@ async function assertStaleWarningCooldownCliSurface(): Promise<void> {
     const last = JSON.parse(lines[lines.length - 1]);
     assert.ok(Array.isArray(last.staleWarnings));
     last.staleWarnings = last.staleWarnings.map((warning: string) =>
-      warning.replace(/\d+h(?: \d+ 分钟)?|\d+ 分钟/, '999h'),
+      warning.replace(/\d+h(?: \d+ min)?|\d+ min/, '999h'),
     );
     lines[lines.length - 1] = JSON.stringify(last);
     writeFileSync(logPath, `${lines.join('\n')}\n`);
@@ -979,6 +1144,7 @@ await assertReviewRunStartCliSurface();
 await assertReviewerListForceReviewerLaneContract();
 await assertReviewPassConcurrentCliSurface();
 await assertPassOnlyFindingConvertsToReviewPassCliSurface();
+await assertDecisionSetAcceptsLocalizedExclusionRationale();
 await assertChannelGateAcceptsSubagentResultCliSurface();
 await assertEvidenceFreshAfterMetadataOnlyCliSurface();
 await assertVerificationEvidenceKindAliasesCliSurface();

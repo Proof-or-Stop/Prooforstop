@@ -5,7 +5,7 @@ import { scan } from './extract.js';
 import { loadConfig } from '../core/config.js';
 import type { TaskAnnotation } from './types.js';
 
-/** 生成结果 */
+/** Generation result */
 export interface FixtureGenResult {
   generated: Array<{ functionName: string; fixturePath: string }>;
   skipped: Array<{ functionName: string; reason: string }>;
@@ -53,12 +53,12 @@ export function generateFixtureTemplate(
   const fixture = {
     cases: [
       {
-        name: `${task.functionName} - 正常调用`,
+        name: `${task.functionName} - normal call`,
         input: defaultInput,
         expect: {},
       },
       {
-        name: `${task.functionName} - 边界情况`,
+        name: `${task.functionName} - edge case`,
         input: defaultInput,
         expect: {},
       },

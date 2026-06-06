@@ -160,7 +160,7 @@ export async function runStoryTransition(
   // finally — covering success, guard failure, gate failure, and exceptions.
   let actor: ReturnType<typeof createStoryActor> | undefined;
   try {
-    // B-9bd9 CHK-002: meta-story 永不进 DONE（跨 story 长存容器，只挂 finding）
+    // B-9bd9 CHK-002: meta-story never enters DONE (long-lived cross-story container, only carries findings)
     const metaGuardErr = checkMetaStoryAdvanceGuard(args.storyId, args.phase);
     if (metaGuardErr) {
       throw new Error(metaGuardErr);
@@ -169,13 +169,13 @@ export async function runStoryTransition(
     const story = store.readStory(args.storyId);
     const oldPhase: string = story.phase as string;
 
-    // CWD 门禁：PLAN/DEV/TEST 阶段必须在 worktree 里执行
+    // CWD gate: PLAN/DEV/TEST phases must execute inside the worktree
     const CWD_GATED: StoryPhase[] = ['PLAN', 'DEV', 'REVIEW', 'TEST'];
     if (CWD_GATED.includes(args.phase) && story.worktree) {
       assertCwdInWorktree(store, args.storyId);
     }
 
-    // 依赖完成度检查（soft warning，不阻塞）
+    // Dependency completion check (soft warning, non-blocking)
     let depsWarning = '';
     if (story.depends && story.depends.length > 0) {
       const unfinished: string[] = [];
@@ -190,11 +190,11 @@ export async function runStoryTransition(
         }
       }
       if (unfinished.length > 0) {
-        depsWarning = `\n⚠ 依赖未完成: ${unfinished.join(', ')}`;
+        depsWarning = `\n⚠ Unfinished dependencies: ${unfinished.join(', ')}`;
       }
     }
 
-    // Session 占用检查
+    // Session ownership check
     let sessionWarning = '';
     if (args.phase === 'DEV' && story.events) {
       const devEvents = story.events.filter(e => e.phase === 'DEV' && e.action === 'advance');
@@ -204,13 +204,13 @@ export async function runStoryTransition(
         if (lastDev.sessionId && lastDev.sessionId !== currentSession) {
           const who = lastDev.user || lastDev.agent || 'unknown';
           const when = lastDev.timestamp;
-          sessionWarning = `\n⚠ Warning: Story ${args.storyId} 已被 ${who} 于 ${when} 领取开发（session: ${lastDev.sessionId}）`;
+          sessionWarning = `\n⚠ Warning: Story ${args.storyId} was already claimed for development by ${who} at ${when} (session: ${lastDev.sessionId})`;
           console.error(sessionWarning.trim());
         }
       }
     }
 
-    // IDEA→PLAN 需要 checklist
+    // IDEA→PLAN requires checklist
     if (args.phase === 'PLAN' && story.phase === 'IDEA') {
       if (!args.checklist || args.checklist.length === 0) {
         throw new Error('Cannot advance to PLAN: checklist is required');
@@ -232,7 +232,7 @@ export async function runStoryTransition(
       }
       const divergence = checkMainDivergence(ctx.root);
       if (divergence.needsSync) {
-        ctx.log?.(`DONE pre-check: 当前分支落后 main ${divergence.behind} 个提交，自动同步...`);
+        ctx.log?.(`DONE pre-check: current branch is ${divergence.behind} commits behind main, auto-syncing...`);
         const syncResult = autoSyncMain(ctx.root);
         if (syncResult.ok) {
           ctx.log?.(`✓ ${syncResult.message}`);
@@ -252,11 +252,11 @@ export async function runStoryTransition(
     if (!eventType) {
       throw new Error(`Invalid target phase: ${args.phase}`);
     }
-    // 回退映射：目标阶段比当前阶段早时，选择对应的回退事件
+    // Rollback mapping: when the target phase is earlier than the current phase, pick the matching rollback event
     if (args.phase === 'PLAN' && story.phase === 'DEV') {
       eventType = 'REPLAN';
     }
-    // TEST→DEV 回退：PHASE_TO_EVENT['DEV']='START' 自动命中
+    // TEST→DEV rollback: PHASE_TO_EVENT['DEV']='START' matches automatically
 
     const canSend = actor.getSnapshot().can({ type: eventType } as any);
     if (!canSend) {
@@ -305,7 +305,7 @@ export async function runStoryTransition(
     actor.send({ type: eventType } as any);
     const newState = getStateName(actor);
 
-    // IDEA→PLAN：写入 checklist
+    // IDEA→PLAN: write checklist
     if (args.phase === 'PLAN' && args.checklist && args.checklist.length > 0) {
       const checklist = {
         items: args.checklist.map(c => ({
@@ -319,7 +319,7 @@ export async function runStoryTransition(
       store.writeChecklist(args.storyId, checklist);
     }
 
-    // 持久化状态
+    // Persist state
     const now = new Date().toISOString();
     if (args.phase === 'PLAN' && !story.startedAt) {
       story.startedAt = now;
@@ -330,7 +330,7 @@ export async function runStoryTransition(
     story.phase = newState as StoryPhase;
     if (!story.events) story.events = [];
     story.events.push(collectContext(args.phase, 'advance'));
-    // 推进到 REVIEW 时，生成新的 review round ID
+    // When advancing to REVIEW, generate a new review round ID
     if (args.phase === 'REVIEW') {
       story.currentReviewRound = now;
     }
@@ -353,7 +353,7 @@ export async function runStoryTransition(
       metadataCommitReport = commitReviewMetadata(ctx.root, args.storyId, args.phase);
     }
 
-    // CHK-002: PLAN→DEV / DONE 时收集 relatedDocs。
+    // CHK-002: collect relatedDocs on PLAN→DEV / DONE.
     let docsHint = '';
     if (args.phase === 'DEV' || args.phase === 'DONE') {
       docsHint = renderRelatedDocsHint(store, ctx.root, args.storyId, args.phase);
@@ -364,7 +364,7 @@ export async function runStoryTransition(
     let doneSummarySuffix = '';
     let doneMergeReport = '';
     if (args.phase === 'DONE') {
-      // DONE 成功后把 summary 内容拼到返回里。
+      // After DONE succeeds, append the summary content to the return value.
       try {
         const summary = store.readSummary(args.storyId);
         if (summary) {
@@ -388,12 +388,12 @@ export async function runStoryTransition(
         const risk = collectBaselineRisk(ctx.root);
         if (risk.materialTotal > 0) {
           const lines = renderBaselineRiskLines(risk);
-          baselineRiskWarning = `\n\n⚠ 基线风险（${risk.materialTotal} 个未提交文件可能污染 worktree）:\n${lines.map(l => '  ' + l).join('\n')}\n→ 建议先 git stash 或 git commit 后再创建 worktree`;
+          baselineRiskWarning = `\n\n⚠ Baseline risk (${risk.materialTotal} uncommitted files may pollute the worktree):\n${lines.map(l => '  ' + l).join('\n')}\n→ Recommend git stash or git commit before creating the worktree`;
         }
       } catch { /* ignore */ }
     }
 
-    // INIT→INIT_CHECK 成功后 echo non-blocking init reviewer issues。
+    // After INIT→INIT_CHECK succeeds, echo non-blocking init reviewer issues.
     let initCheckAdvisory = '';
     if (args.phase === 'INIT_CHECK' && oldPhase === 'INIT') {
       try {
@@ -406,7 +406,7 @@ export async function runStoryTransition(
             i => i && typeof i.desc === 'string' && i.desc.trim().length >= 1 && (i.severity === 'medium' || i.severity === 'low'),
           ).length;
           if (advisoryCount > 0) {
-            initCheckAdvisory = `\n\n⚠ init reviewer 记录 ${advisoryCount} 个 medium/low advisory，建议在 PLAN 前消化`;
+            initCheckAdvisory = `\n\n⚠ init reviewer recorded ${advisoryCount} medium/low advisories, recommend digesting them before PLAN`;
           }
         }
       } catch { /* ignore */ }

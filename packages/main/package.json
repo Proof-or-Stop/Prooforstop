@@ -9,7 +9,7 @@
     "directory": "packages/main"
   },
   "version": "0.3.5",
-  "description": "通用项目开发框架 — AI-driven Story 工作流 CLI",
+  "description": "General project development framework - AI-driven Story workflow CLI",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
@@ -64,6 +64,7 @@
     "test:checklist-reload-hint-smoke": "node dist/tasks/checklist-reload-hint-smoke.js",
     "test:story-capsule-smoke": "node dist/tasks/story-capsule-smoke.js",
     "test:evidence-quality-smoke": "node dist/tasks/evidence-quality-smoke.js",
+    "test:language-compatibility-smoke": "node dist/tasks/language-compatibility-smoke.js",
     "test:evidence-quality-contract": "node ../../scripts/verify-evidence-quality.mjs",
     "test:reviewer-quorum-smoke": "node dist/tasks/reviewer-quorum-smoke.js",
     "test:attestation-smoke": "node dist/tasks/attestation-smoke.js",
@@ -92,6 +93,9 @@
     "test:authority-enforce-runner": "node dist/tasks/authority-enforce-runner-smoke.js",
     "test:authority-runner-events": "node dist/tasks/authority-runner-events-smoke.js",
     "test:authority-enforce-matrix": "node dist/tasks/authority-enforce-matrix-smoke.js",
+    "test:autopilot-authority-smoke": "node dist/tasks/autopilot-authority-smoke.js",
+    "test:autopilot-execute-smoke": "node dist/tasks/autopilot-execute-smoke.js",
+    "test:planner-unattended-smoke": "node dist/tasks/planner-unattended-smoke.js",
     "test:authority-live-python": "node dist/tasks/authority-live-python-smoke.js"
   },
   "dependencies": {

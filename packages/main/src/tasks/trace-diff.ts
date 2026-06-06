@@ -102,23 +102,23 @@ function collectDescendants(node: ProfileNode, target: DiffNode[], visited: Set<
 export function summarizeDiff(diff: TraceDiffResult): string {
   const lines: string[] = [];
   if (diff.added.length > 0) {
-    lines.push(`新增 ${diff.added.length} 个节点:`);
+    lines.push(`Added ${diff.added.length} nodes:`);
     for (const n of diff.added.slice(0, 10)) lines.push(`  + ${n.fn} (${n.file}:${n.line})`);
-    if (diff.added.length > 10) lines.push(`  ... 和其他 ${diff.added.length - 10} 个`);
+    if (diff.added.length > 10) lines.push(`  ... and ${diff.added.length - 10} more`);
   }
   if (diff.removed.length > 0) {
-    lines.push(`消失 ${diff.removed.length} 个节点:`);
+    lines.push(`Removed ${diff.removed.length} nodes:`);
     for (const n of diff.removed.slice(0, 10)) lines.push(`  - ${n.fn} (${n.file}:${n.line})`);
-    if (diff.removed.length > 10) lines.push(`  ... 和其他 ${diff.removed.length - 10} 个`);
+    if (diff.removed.length > 10) lines.push(`  ... and ${diff.removed.length - 10} more`);
   }
   if (diff.forked.length > 0) {
-    lines.push(`分叉 ${diff.forked.length} 个节点:`);
+    lines.push(`Forked ${diff.forked.length} nodes:`);
     for (const n of diff.forked.slice(0, 5)) {
       lines.push(`  ⑂ ${n.fn} (${n.file}:${n.line})`);
-      lines.push(`    旧: ${n.oldChildren.map(c => c.fn).join(', ')}`);
-      lines.push(`    新: ${n.newChildren.map(c => c.fn).join(', ')}`);
+      lines.push(`    old: ${n.oldChildren.map(c => c.fn).join(', ')}`);
+      lines.push(`    new: ${n.newChildren.map(c => c.fn).join(', ')}`);
     }
   }
-  if (lines.length === 0) lines.push('调用链无变化');
+  if (lines.length === 0) lines.push('Call chain unchanged');
   return lines.join('\n');
 }

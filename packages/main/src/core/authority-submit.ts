@@ -195,7 +195,7 @@ export function createAuthoritySubmitter(
   client?: AuthorityClient,
 ): AuthoritySubmitter {
   const mode = settings.mode;
-  // Runtime re-validation (CLAUDE.md Handler 编码约定): never trust that the caller
+  // Runtime re-validation (CLAUDE.md Handler coding convention): never trust that the caller
   // already filtered off; an off mode must never reach a real POST.
   if (!authorityModeEnabled(mode)) {
     throw new Error(`createAuthoritySubmitter called with non-enabled mode '${mode}'`);
@@ -206,7 +206,7 @@ export function createAuthoritySubmitter(
     if (!settings.baseURL) {
       return {
         missingURLError: new Error(
-          `KOALA_AUTHORITY_URL is required when KOALA_AUTHORITY_MODE='${mode}'`,
+          `LATTICE_AUTHORITY_URL is required when LATTICE_AUTHORITY_MODE='${mode}'`,
         ),
       };
     }

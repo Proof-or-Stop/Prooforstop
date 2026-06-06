@@ -1,9 +1,9 @@
 /**
- * 双向校验：task.json vs 源码
+ * Bidirectional validation: task.json vs source code
  *
- * 1. 存储有但源码函数不存在 → 函数已删除，record 过期
- * 2. 源码函数有但存储没有 → 新函数未录入
- * 3. 函数签名不匹配 → 代码已修改
+ * 1. Stored but source function does not exist → function deleted, record stale
+ * 2. Source function exists but not stored → new function not registered
+ * 3. Function signature mismatch → code has been modified
  */
 
 import ts from 'typescript';
@@ -81,7 +81,7 @@ export function validateMetadata(tasks: TaskRecord[], scanRoot: string): Validat
 
     if (!existsSync(filePath)) {
       for (const t of fileTasks) {
-        orphanRecords.push({ key: t.key, reason: `文件已删除: ${file}` });
+        orphanRecords.push({ key: t.key, reason: `File deleted: ${file}` });
       }
       continue;
     }
@@ -92,7 +92,7 @@ export function validateMetadata(tasks: TaskRecord[], scanRoot: string): Validat
       if (!t.functionName) continue; // file-level record, skip
       const fn = functions.find(f => f.name === t.functionName);
       if (!fn) {
-        orphanRecords.push({ key: t.key, reason: `函数已删除: ${t.functionName} in ${file}` });
+        orphanRecords.push({ key: t.key, reason: `Function deleted: ${t.functionName} in ${file}` });
       }
     }
   }

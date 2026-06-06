@@ -1,8 +1,8 @@
 /**
- * Fixture runner 共享内核 — 被 test_auto / test_story / test_fixture 三个 handler 复用。
+ * Fixture runner shared kernel — reused by the three handlers test_auto / test_story / test_fixture.
  *
- * 这里只放纯函数和工厂函数，不直接挂 handler。任何状态都通过参数传入；上层 handler
- * 决定怎么扫描文件、分组、写 bug、写 evidence。
+ * Only pure functions and factory functions go here; no handlers are attached directly. All state is passed in via parameters; the upper-layer handler
+ * decides how to scan files, group, write bugs, and write evidence.
  */
 
 import { execSync } from 'child_process';
@@ -32,13 +32,13 @@ export interface FixtureResult {
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
-/** $file 占位符替换为编译后 .js 路径 */
+/** $file placeholder is replaced with the compiled .js path */
 export function resolveFilePlaceholder(execute: string, file: string, root: string): string {
   const config = loadConfig(root);
   const outDir = config.outDir || 'dist';
   const relPath = file.replace(/\.ts$/, '') + '.js';
   let jsPath = join(root, outDir, relPath);
-  // fallback: worktree 下 dist 可能不存在，尝试从 git toplevel 查找
+  // fallback: dist may not exist under the worktree, try looking it up from git toplevel
   if (!existsSync(jsPath)) {
     try {
       const toplevel = execSync('git rev-parse --show-toplevel', { cwd: root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
@@ -50,7 +50,7 @@ export function resolveFilePlaceholder(execute: string, file: string, root: stri
   return execute.replace(/\$file/g, jsUrl);
 }
 
-/** Promise 超时包装 */
+/** Promise timeout wrapper */
 export function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   return Promise.race([
     promise,
@@ -58,7 +58,7 @@ export function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   ]);
 }
 
-/** 递归 deep equal — 顺序无关（object key 不依赖插入顺序） */
+/** Recursive deep equal — order-independent (object keys do not depend on insertion order) */
 function deepEqual(a: unknown, b: unknown): boolean {
   if (a === b) return true;
   if (a === null || b === null) return false;
@@ -85,17 +85,17 @@ function deepEqual(a: unknown, b: unknown): boolean {
 }
 
 /**
- * B-5010 CHK-001: 对象 subset 匹配。actual 必须包含 expect 的每个键且值相等
- * （递归进入嵌套对象时同样 subset 语义；数组仍然严格 deep equal；原始值严格相等）。
- * 允许 actual 含有 expect 之外的字段，这样 execute return 可以放调试信息而不
- * 导致 case fail。
+ * B-5010 CHK-001: object subset matching. actual must contain every key of expect with equal values
+ * (subset semantics also apply recursively to nested objects; arrays still use strict deep equal; primitives use strict equality).
+ * actual is allowed to have fields beyond what expect specifies, so that the execute return can include debug info without
+ * causing the case to fail.
  */
 function subsetMatch(actual: unknown, expect: unknown): boolean {
-  // 原始值或 null：严格相等。
+  // Primitive value or null: strict equality.
   if (expect === null || typeof expect !== 'object') return actual === expect;
-  // 数组：sequence 语义严格相等（不做 subset，避免漏掉元素 silently pass）。
+  // Array: strict equality with sequence semantics (no subset, to avoid silently passing when elements are missing).
   if (Array.isArray(expect)) return deepEqual(actual, expect);
-  // 对象：actual 也得是非 null 对象且非数组。
+  // Object: actual must also be a non-null object and not an array.
   if (actual === null || typeof actual !== 'object' || Array.isArray(actual)) return false;
   const ao = actual as Record<string, unknown>;
   const eo = expect as Record<string, unknown>;
@@ -107,15 +107,15 @@ function subsetMatch(actual: unknown, expect: unknown): boolean {
 }
 
 /**
- * expect 匹配。三种模式：
- *   1. `{pattern: "regex"}` — 把 actual 字符串化后做正则匹配（旧行为）
- *   2. 对象 — **subset match**（B-5010 CHK-001 新语义）：actual 必须包含 expect
- *      的所有键且值相等；actual 可含额外字段而不 fail，方便 execute return
- *      里放调试信息
- *   3. 原始值 / 数组 — 严格 deep equal（旧行为）
+ * expect matching. Three modes:
+ *   1. `{pattern: "regex"}` — stringify actual and perform regex matching (legacy behavior)
+ *   2. Object — **subset match** (B-5010 CHK-001 new semantics): actual must contain
+ *      all keys of expect with equal values; actual may contain additional fields without failing, convenient for putting debug info
+ *      in the execute return
+ *   3. Primitive value / array — strict deep equal (legacy behavior)
  *
- * 向后兼容：旧 fixture 里所有 expect 字段都能被 actual 精确匹配的 case 仍然 pass；
- * 新行为只对"actual 多字段"的场景变成 pass（原本会 fail）。
+ * Backward compatibility: cases in old fixtures where all expect fields can be exactly matched by actual still pass;
+ * The new behavior only turns "actual has extra fields" scenarios into pass (which would have failed before).
  */
 export function matchExpect(actual: unknown, expect: unknown): { passed: boolean; error?: string } {
   const exp = expect as Record<string, unknown>;
@@ -125,19 +125,19 @@ export function matchExpect(actual: unknown, expect: unknown): { passed: boolean
     if (regex.test(testStr)) return { passed: true };
     return { passed: false, error: `Pattern /${exp.pattern}/ did not match: ${typeof testStr === 'string' ? testStr.slice(0, 200) : testStr}` };
   }
-  // 对象 subset 匹配 / 数组 / 原始值 走 subsetMatch（内部决定严格或子集）
+  // Object subset match / array / primitive value go through subsetMatch (which internally decides strict or subset)
   if (subsetMatch(actual, expect)) return { passed: true };
   return { passed: false, error: `Expected ${JSON.stringify(expect)}, got ${JSON.stringify(actual)}` };
 }
 
-/** 禁止的 execute 模式 — 防止 agent 通过 fs/child_process 绕过沙箱 */
+/** Forbidden execute patterns — prevent agents from bypassing the sandbox via fs/child_process */
 const SANDBOX_BLOCKED_PATTERNS = [
-  { pattern: /\bimport\s*\(\s*["']fs["']/, msg: 'import("fs") 被禁止，文件操作请使用 $handlers' },
-  { pattern: /\bimport\s*\(\s*["']node:fs["']/, msg: 'import("node:fs") 被禁止，文件操作请使用 $handlers' },
-  { pattern: /\bimport\s*\(\s*["']child_process["']/, msg: 'import("child_process") 被禁止' },
-  { pattern: /\bimport\s*\(\s*["']node:child_process["']/, msg: 'import("node:child_process") 被禁止' },
-  { pattern: /\brequire\s*\(\s*["']fs["']/, msg: 'require("fs") 被禁止，文件操作请使用 $handlers' },
-  { pattern: /\brequire\s*\(\s*["']child_process["']/, msg: 'require("child_process") 被禁止' },
+  { pattern: /\bimport\s*\(\s*["']fs["']/, msg: 'import("fs") is forbidden, use $handlers for file operations' },
+  { pattern: /\bimport\s*\(\s*["']node:fs["']/, msg: 'import("node:fs") is forbidden, use $handlers for file operations' },
+  { pattern: /\bimport\s*\(\s*["']child_process["']/, msg: 'import("child_process") is forbidden' },
+  { pattern: /\bimport\s*\(\s*["']node:child_process["']/, msg: 'import("node:child_process") is forbidden' },
+  { pattern: /\brequire\s*\(\s*["']fs["']/, msg: 'require("fs") is forbidden, use $handlers for file operations' },
+  { pattern: /\brequire\s*\(\s*["']child_process["']/, msg: 'require("child_process") is forbidden' },
 ];
 
 export function validateSandbox(execute: string): string | null {
@@ -149,7 +149,7 @@ export function validateSandbox(execute: string): string | null {
 
 export { isExecutableCase };
 
-/** 执行单条 case 的 execute 函数体。execute 中可用 $handlers、$root、$ctx、$testStory */
+/** Body of the execute function for running a single case. $handlers, $root, $ctx, $testStory are available inside execute */
 export async function runCase(
   c: any,
   root: string,
@@ -169,7 +169,7 @@ export async function runCase(
 
     const executor = getFixtureExecutor(c);
     if (!executor) {
-      return { name: c.name, passed: false, error: 'fixture case 缺少可用 executor（需要 executor/execute/command）', durationMs: Date.now() - start };
+      return { name: c.name, passed: false, error: 'fixture case is missing a usable executor (requires executor/execute/command)', durationMs: Date.now() - start };
     }
     const execute = () => executor.run(c, {
       root,
@@ -207,7 +207,7 @@ export async function runCase(
       const durationMs = Date.now() - start;
       if (c.expect !== undefined) {
         const r = matchExpect(actual, c.expect);
-        // B-5010 CHK-001: 失败时附带 case.debug 字段（执行期产生的辅助诊断信息）
+        // B-5010 CHK-001: attach case.debug field on failure (auxiliary diagnostic info produced during execution)
         let error = r.error;
         if (!r.passed && c.debug !== undefined) {
           try { error = `${error}\n  debug: ${JSON.stringify(c.debug)}`; } catch { /* ignore */ }
@@ -235,9 +235,9 @@ export async function runCase(
   }
 }
 
-// ─── case 拓扑 / 查找 ────────────────────────────────────────────────────────
+// ─── case topology / lookup ────────────────────────────────────────────────────────
 
-/** CHK-003: 构建链拓扑 — 将 cases 分为独立 case 和链式 case 组 */
+/** CHK-003: build chain topology — split cases into standalone cases and chained case groups */
 export function buildChainGroups(cases: any[]): { chains: any[][]; standalone: any[] } {
   const byId = new Map<string, any>();
   for (const c of cases) { if (c._id) byId.set(c._id, c); }
@@ -250,10 +250,10 @@ export function buildChainGroups(cases: any[]): { chains: any[][]; standalone: a
     if (!c._id) { standalone.push(c); continue; }
     if (visited.has(c._id)) continue;
 
-    // 没有链关系 → 独立
+    // No chain relationship → standalone
     if (!c.prevCaseId && !c.nextCaseId) { standalone.push(c); visited.add(c._id); continue; }
 
-    // 找链头（无 prevCaseId 或 prev 不在当前集合中）
+    // Find the chain head (no prevCaseId or prev is not in the current set)
     let head = c;
     const seen = new Set<string>();
     while (head.prevCaseId && byId.has(head.prevCaseId) && !seen.has(head.prevCaseId)) {
@@ -261,7 +261,7 @@ export function buildChainGroups(cases: any[]): { chains: any[][]; standalone: a
       head = byId.get(head.prevCaseId)!;
     }
 
-    // 沿 nextCaseId 遍历整条链
+    // Walk the entire chain along nextCaseId
     const chain: any[] = [];
     let cur: any = head;
     const chainSeen = new Set<string>();
@@ -277,7 +277,7 @@ export function buildChainGroups(cases: any[]): { chains: any[][]; standalone: a
   return { chains, standalone };
 }
 
-/** CHK-006: 在所有 fixture 中按 _id 查找 case 及其所在 fixture 信息 */
+/** CHK-006: look up a case by _id across all fixtures and return the fixture info it belongs to */
 export function findCaseById(fixturesDir: string, fixtureId: string): { filePath: string; fileName: string; cases: any[]; targetCase: any } | null {
   for (const fp of scanFixtureFiles(fixturesDir)) {
     try {
@@ -292,7 +292,7 @@ export function findCaseById(fixturesDir: string, fixtureId: string): { filePath
   return null;
 }
 
-/** 在 fixture 文件中按 name 查找 case（用于获取 _id） */
+/** Look up a case by name in a fixture file (used to obtain _id) */
 export function findCaseByName(fixturesDir: string, fileName: string, caseName: string): any | null {
   try {
     const fp = join(fixturesDir, fileName);
@@ -301,7 +301,7 @@ export function findCaseByName(fixturesDir: string, fileName: string, caseName: 
   } catch { return null; }
 }
 
-/** 扫描 fixture 目录，返回所有 .json 文件路径（跳过 .trace.json） */
+/** Scan the fixture directory and return all .json file paths (skipping .trace.json) */
 export function scanFixtureFiles(fixturesDir: string): string[] {
   const files: string[] = [];
   if (!existsSync(fixturesDir)) return files;
@@ -317,12 +317,12 @@ export function scanFixtureFiles(fixturesDir: string): string[] {
   return files;
 }
 
-// ─── 隔离 handlers / 临时 story ──────────────────────────────────────────────
+// ─── Isolated handlers / temporary stories ──────────────────────────────────────────────
 
 /**
- * 创建一组隔离的 handlers，专供 fixture runner 在子上下文里调用 $handlers.* 用。
+ * Creates a set of isolated handlers, dedicated for the fixture runner to call $handlers.* within sub-contexts.
  *
- * 通过 dynamic import 拿 createToolHandlers，避免 runtime 循环引用。
+ * Obtains createToolHandlers via dynamic import to avoid runtime circular references.
  */
 export async function createIsolatedHandlers(root: string, log?: (msg: string) => void) {
   const { StoryStore } = await import('../core/store.js');
@@ -333,9 +333,9 @@ export async function createIsolatedHandlers(root: string, log?: (msg: string) =
 }
 
 /**
- * 工厂函数：创建一个 $testStory factory 闭包，用于 fixture case 在 execute 中
- * 申请临时 story（指定 phase / checklist）。所有创建的 storyId 会 push 进
- * tempStoryIds 数组供清理。
+ * Factory function: creates a $testStory factory closure for fixture cases to use in execute to
+ * request temporary stories (specifying phase / checklist). All created storyIds are pushed into
+ * the tempStoryIds array for cleanup.
  */
 export function createTempStoryFactory(
   handlers: Record<string, Function>,
@@ -361,7 +361,7 @@ export function createTempStoryFactory(
   };
 }
 
-/** 清理 fixture runner 创建的临时 story 目录 */
+/** Clean up the temporary story directories created by the fixture runner */
 export function cleanupTempStories(root: string, tempStoryIds: string[]): void {
   const cfg = loadConfig(root);
   for (const id of tempStoryIds) {
@@ -370,7 +370,7 @@ export function cleanupTempStories(root: string, tempStoryIds: string[]): void {
   }
 }
 
-/** 跑完一组 case 后清理 fixture 目录的未提交改动 */
+/** Clean up uncommitted changes in the fixture directory after running a group of cases */
 export function cleanupFixtureDir(root: string, fixturesDirRel: string): void {
   try {
     execSync(`git restore "${fixturesDirRel}"`, { cwd: root, stdio: 'pipe' });

@@ -211,7 +211,7 @@ export class StoryStore {
     this.writeJson(storyId, 'test-evidence.json', data);
   }
 
-  // ── Eval Evidence (evaluator agent 打分) ──
+  // ── Eval Evidence (evaluator agent scoring) ──
 
   readEvalEvidence(storyId: string): EvalEvidenceData | null {
     try {
@@ -253,7 +253,7 @@ export class StoryStore {
     this.writeJson(storyId, 'implementation-review.json', data);
   }
 
-  // ── Understanding (Pre-context Intake snapshot, OMX 风格) ──
+  // ── Understanding (Pre-context Intake snapshot, OMX style) ──
 
   readUnderstanding(storyId: string): UnderstandingData | null {
     try {
@@ -283,7 +283,7 @@ export class StoryStore {
     this.writeJson(storyId, 'grill.json', data);
   }
 
-  // ── Decision (RALPLAN-DR 结构化决策，OMX 风格) ──
+  // ── Decision (RALPLAN-DR structured decision, OMX style) ──
 
   readDecision(storyId: string): DecisionData | null {
     try {
@@ -311,10 +311,10 @@ export class StoryStore {
     this.writeJson(storyId, 'summary.json', data);
   }
 
-  // ── Findings (koala-reviewer 发现项) ──
-  // B-9bd9 CHK-002: Finding 类型扩展 driftHash / lastSeenAt / firstSeenRound / resolvedReason / resolvedAt
-  // 三个新字段仅 audit meta-store（B-META-framework-audit）使用；老 finding 无此字段视为 legacy，
-  // JSON passthrough 不影响序列化。
+  // ── Findings (koala-reviewer findings) ──
+  // B-9bd9 CHK-002: Finding type extended with driftHash / lastSeenAt / firstSeenRound / resolvedReason / resolvedAt
+  // The three new fields are only used by the audit meta-store (B-META-framework-audit); legacy findings without these fields are treated as legacy,
+  // JSON passthrough does not affect serialization.
 
   readFindings(storyId: string): FindingData {
     try {
@@ -352,10 +352,10 @@ export class StoryStore {
     this.writeJson(storyId, 'review-runs.json', data);
   }
 
-  // ── Clusters (B-e8c8 / B-9d95 CHK-005: finding 聚簇) ──
+  // ── Clusters (B-e8c8 / B-9d95 CHK-005: finding clustering) ──
   //
-  // 存储位置：docs/story/actives/<storyId>/clusters.json
-  // 读缺失时返回 { clusters: [] }（与 findings/review 的 null-safe 风格一致）。
+  // Storage location: docs/story/actives/<storyId>/clusters.json
+  // Returns { clusters: [] } when read is missing (consistent with the null-safe style of findings/review).
 
   readClusters(storyId: string): ClusterData {
     try {
@@ -404,8 +404,8 @@ export class StoryStore {
   readScopeCheck(storyId: string): ScopeCheckData | null {
     try {
       const raw = this.readJson<ScopeCheckData>(storyId, 'scope-check.json');
-      // B-ed3e CHK-002: 老 scope-check.json 无 summary.orphanSuspect/drift / feature.source 字段，
-      // 反序列化时用 ?? 兜底，避免 PLAN gate 崩溃。签名域不含这些字段故不影响 _hash。
+      // B-ed3e CHK-002: legacy scope-check.json lacks summary.orphanSuspect/drift / feature.source fields,
+      // use ?? as fallback during deserialization to avoid PLAN gate crashes. Signature domain excludes these fields so _hash is unaffected.
       return {
         ...raw,
         summary: {
@@ -423,7 +423,7 @@ export class StoryStore {
   }
 
   writeScopeCheck(storyId: string, data: ScopeCheckData): void {
-    // 原样序列化，不剥新字段（新字段不入签名域故对老 gate 无影响）。
+    // Serialize as-is, do not strip new fields (new fields are not in the signature domain so have no impact on legacy gates).
     this.writeJson(storyId, 'scope-check.json', data);
   }
 
@@ -441,7 +441,7 @@ export class StoryStore {
     this.writeJson(storyId, 'init-check.json', data);
   }
 
-  // ── Delivery Check (B-35ed: TEST→DONE 硬门槛产物 delivery-check.json) ──
+  // ── Delivery Check (B-35ed: TEST→DONE hard gate artifact delivery-check.json) ──
 
   readDeliveryCheck(storyId: string): DeliveryCheckData | null {
     try {
@@ -478,9 +478,9 @@ export class StoryStore {
 
   // ── Guard Session (B-6bfd CHK-004: scope-guard projection, NOT a write authority) ──
   //
-  // 存储位置：<storyDir>/<storyId>/guard-session.json
-  // 这是 scope 保护投影，不是写权威；owner lease 仍是写协调真相源。
-  // 读缺失时返回 null（与 scope-contract 同风格的 null-safe）。
+  // Storage location: <storyDir>/<storyId>/guard-session.json
+  // This is a scope protection projection, not a write authority; owner lease is still the source of truth for write coordination.
+  // Returns null when read is missing (null-safe in the same style as scope-contract).
 
   readGuardSession(storyId: string): GuardSessionData | null {
     try {
@@ -496,8 +496,8 @@ export class StoryStore {
 
   // ── Declared Artifacts (B-cf60: per-story declared product output paths) ──
   //
-  // 存储位置：<storyDir>/<storyId>/declared-artifacts.json
-  // 读缺失时返回 { entries: [] }（与 findings/review 的 null-safe 风格一致）。
+  // Storage location: <storyDir>/<storyId>/declared-artifacts.json
+  // Returns { entries: [] } when read is missing (consistent with the null-safe style of findings/review).
 
   readDeclaredArtifacts(storyId: string): DeclaredArtifactsData {
     try {

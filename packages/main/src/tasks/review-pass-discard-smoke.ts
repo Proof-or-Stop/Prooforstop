@@ -255,7 +255,7 @@ async function assertDiscardRemovesUntrackedWorktreeAndBranch(): Promise<void> {
 
     const output = await runKoala(root, 'story_discard', { storyId, force: true, reason: 'smoke cleanup' });
 
-    assert.doesNotMatch(output, /worktree 和分支已清理/, 'discard hint must not claim blanket cleanup');
+    assert.doesNotMatch(output, /worktree and branch have been cleaned up/, 'discard hint must not claim blanket cleanup');
     assert.doesNotMatch(git(root, ['worktree', 'list', '--porcelain']), new RegExp(`branch refs/heads/story/${storyId}`));
     assert.equal(git(root, ['branch', '--list', `story/${storyId}`]), '');
     assert.equal(new StoryStore(root).readStory(storyId).phase, 'DISCARDED');
@@ -289,7 +289,7 @@ async function assertDiscardCanCleanAlreadyDiscardedResidue(): Promise<void> {
 
     const output = await runKoala(root, 'story_discard', { storyId, force: true, reason: 'smoke residue cleanup' });
 
-    assert.match(output, /已是 DISCARDED；残留已检查\/清理/);
+    assert.match(output, /Already DISCARDED; residue checked\/cleaned/);
     assert.doesNotMatch(git(root, ['worktree', 'list', '--porcelain']), new RegExp(`branch refs/heads/story/${storyId}`));
     assert.equal(git(root, ['branch', '--list', `story/${storyId}`]), '');
     assert.equal(new StoryStore(root).readStory(storyId).phase, 'DISCARDED');
@@ -329,7 +329,7 @@ async function assertDiscardPrunesMissingWorktreeRegistry(): Promise<void> {
 
     const output = await runKoala(root, 'story_discard', { storyId, force: true, reason: 'smoke prunable cleanup' });
 
-    assert.match(output, /stale worktree metadata 已 prune/);
+    assert.match(output, /stale worktree metadata has been pruned/);
     assert.doesNotMatch(git(root, ['worktree', 'list', '--porcelain']), new RegExp(`branch refs/heads/story/${storyId}`));
     assert.equal(git(root, ['branch', '--list', `story/${storyId}`]), '');
     assert.equal(existsSync(join(root, '.worktrees', storyId)), false, 'missing worktree dir should stay gone');
@@ -374,7 +374,7 @@ async function assertDiscardCleansInvalidGitPointerResidue(): Promise<void> {
     try {
       await runKoala(root, 'story_discard', { storyId, reason: 'smoke invalid pointer cleanup' });
     } catch (error) {
-      refusedWithoutForce = String((error as Error).message).includes('Worktree git metadata 已损坏');
+      refusedWithoutForce = String((error as Error).message).includes('Worktree git metadata is corrupted');
     }
     assert.equal(refusedWithoutForce, true, 'invalid pointer cleanup should ask for force before deleting a physical residue dir');
     assert.equal(existsSync(worktreePath), true, 'non-forced invalid pointer cleanup should keep the residue dir');
@@ -382,7 +382,7 @@ async function assertDiscardCleansInvalidGitPointerResidue(): Promise<void> {
 
     const output = await runKoala(root, 'story_discard', { storyId, force: true, reason: 'smoke invalid pointer cleanup' });
 
-    assert.match(output, /invalid worktree residue 已清理/);
+    assert.match(output, /invalid worktree residue has been cleaned up/);
     assert.equal(existsSync(worktreePath), false, 'forced invalid pointer cleanup should remove the physical residue dir');
     assert.equal(git(root, ['branch', '--list', `story/${storyId}`]), '');
     assert.equal(new StoryStore(root).readStory(storyId).phase, 'DISCARDED');
@@ -431,7 +431,7 @@ async function assertDiscardForceFromInvalidWorktreeCwd(): Promise<void> {
       reason: 'smoke invalid cwd cleanup',
     });
 
-    assert.match(output, /invalid worktree residue 已清理|Worktree .* 已清理/);
+    assert.match(output, /invalid worktree residue has been cleaned up|Worktree .* has been cleaned up/);
     assert.equal(existsSync(worktreePath), false, 'forced discard from broken worktree cwd should remove the physical residue dir');
     assert.equal(git(root, ['branch', '--list', `story/${storyId}`]), '');
     assert.equal(new StoryStore(root).readStory(storyId).phase, 'DISCARDED');
@@ -468,7 +468,7 @@ async function assertDiscardFailureDoesNotMarkSuccess(): Promise<void> {
     try {
       await runKoala(root, 'story_discard', { storyId, force: true, reason: 'smoke fail closed' });
     } catch (error) {
-      failed = String((error as Error).message).includes('已停止 discard');
+      failed = String((error as Error).message).includes('discard has been stopped');
     }
     assert.equal(failed, true, 'story_discard should fail closed when worktree metadata cannot be removed');
     assert.equal(new StoryStore(root).readStory(storyId).phase, 'INIT_CHECK', 'failed discard must not mark story DISCARDED');
@@ -492,7 +492,7 @@ async function assertPurgeDropsSafeInitCommit(): Promise<void> {
 
     const output = await runKoala(root, 'story_discard', { storyId, force: true, purge: true, reason: 'smoke purge' });
 
-    assert.match(output, /main init commit 已安全回退/, 'purge should report a safe reset');
+    assert.match(output, /main init commit has been safely rolled back/, 'purge should report a safe reset');
     assert.equal(git(root, ['rev-parse', 'HEAD']), before, 'safe init commit should be reset');
     assert.equal(existsSync(join(root, '.koala', 'story', 'actives', storyId)), false);
   } finally {
@@ -595,8 +595,8 @@ async function assertInitDispatchPromptHasTimeoutGuidance(): Promise<void> {
     const output = await runKoala(root, 'dispatch', { storyId, agentType: 'koala-review-story-init' });
     assert.match(output, /INIT_REVIEW_START/, 'init dispatch should ask reviewer to emit start heartbeat');
     assert.match(output, /INIT_REVIEW_READ_DONE/, 'init dispatch should ask reviewer to emit read heartbeat');
-    assert.match(output, /5 分钟/, 'init dispatch should include an upper time bound');
-    assert.match(output, /4 分钟/, 'init dispatch should include main-agent retry guidance');
+    assert.match(output, /5 minutes/, 'init dispatch should include an upper time bound');
+    assert.match(output, /4 minutes/, 'init dispatch should include main-agent retry guidance');
     assert.match(output, /init_check_set/, 'init dispatch should still require result recording');
     const events = new StoryStore(root).readProcessEvents(storyId);
     const dispatchEvent = events.find(ev => ev.type === 'dispatch');
@@ -621,8 +621,8 @@ async function assertItemDispatchWritesChannelEvidence(): Promise<void> {
     });
     assert.match(output, /CHK-001/, 'item dispatch should still return the item prompt');
     assert.match(output, /DISPATCH_START:koala-implementer\/CHK-001/, 'item dispatch should ask worker to emit a liveness heartbeat');
-    assert.match(output, /4 分钟/, 'item dispatch should include status-check timing');
-    assert.match(output, /10 分钟\/600s/, 'item dispatch should include stalled retry timing');
+    assert.match(output, /4 minutes/, 'item dispatch should include status-check timing');
+    assert.match(output, /10 minutes\/600s/, 'item dispatch should include stalled retry timing');
 
     const events = new StoryStore(root).readProcessEvents(storyId);
     const dispatchEvent = events.find(ev => ev.type === 'dispatch' && ev.itemId === 'CHK-001');
@@ -647,14 +647,14 @@ async function assertReviewerItemDispatchUsesReviewerPrompt(): Promise<void> {
       itemId: 'CHK-001',
       agentType: 'koala-review-quality',
     });
-    assert.match(output, /作为 koala-review-quality 审查/, 'reviewer item dispatch should identify reviewer role');
-    assert.match(output, /只审查/, 'reviewer item dispatch should constrain the role to review only');
+    assert.match(output, /as koala-review-quality reviewer/, 'reviewer item dispatch should identify reviewer role');
+    assert.match(output, /only review/, 'reviewer item dispatch should constrain the role to review only');
     assert.match(output, /review_run_start/, 'reviewer item dispatch should require review_run_start before REVIEW evidence');
     assert.match(output, /finding_add/, 'reviewer item dispatch should tell reviewers how to record findings');
     assert.match(output, /review_pass_set/, 'reviewer item dispatch should tell reviewers how to record pass evidence');
     assert.match(output, /<reviewRunId from review_run_start>/, 'reviewer item dispatch should use the fresh returned reviewRunId placeholder');
     assert.doesNotMatch(output, /:RR-001/, 'reviewer item dispatch must not hard-code a synthetic reviewRunId');
-    assert.doesNotMatch(output, /作为 koala-implementer/, 'reviewer item dispatch must not generate implementer prompt');
+    assert.doesNotMatch(output, /as koala-implementer/, 'reviewer item dispatch must not generate implementer prompt');
     assert.doesNotMatch(output, /git commit/, 'reviewer item dispatch must not ask reviewer to commit');
     assert.doesNotMatch(output, /checklist_update/, 'reviewer item dispatch must not ask reviewer to mark checklist done');
 

@@ -101,7 +101,7 @@ function isNonEmptyString(value: unknown): value is string {
  * so receipt issuers (authority server, tests, fixtures) compute the SAME
  * digest the consumer will recompute — there is exactly one definition.
  *
- * Runtime re-validation (Handler 编码约定): we recompute the digest from the
+ * Runtime re-validation (Handler coding convention): we recompute the digest from the
  * caller-supplied envelope every time; we never trust a precomputed digest
  * passed alongside the envelope.
  */

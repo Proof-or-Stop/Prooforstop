@@ -19,7 +19,8 @@ export interface EvidenceQualityResult {
 const STRONG_CMD_RE = /\b(test|spec|jest|mocha|vitest|pytest|rspec|cypress|playwright|smoke|e2e|assert|verify|check)\b/i;
 // Note: 'pass' is intentionally excluded — it is a natural-language claim, not an assertion/regression signal.
 // Strong note signals require assertion/regression/verification-style wording.
-const STRONG_NOTE_RE = /\b(assert|verif\w*|regression|spec|smoke|scenario|coverage|checklist|expected|actual)\b/i;
+const STRONG_NOTE_RE = /\b(assert|verif\w*|regression|spec|smoke|scenario|coverage|checklist|expected|actual)\b|(?:\u65ad\u8a00|\u9a8c\u8bc1|\u6838\u9a8c|\u6821\u9a8c|\u56de\u5f52|\u573a\u666f|\u7528\u4f8b|\u8986\u76d6|\u8986\u76d6\u7387|\u6e05\u5355|\u68c0\u67e5\u9879|\u52fe\u9009\u9879|\u9884\u671f|\u671f\u671b|\u5b9e\u9645|\u771f\u5b9e|\u771f\u6b63)/iu;
+const PASS_ONLY_NOTE_RE = /^(?:\s*(?:pass(?:ed)?|all pass|ok|okay|looks good|test passed|tests passed|verification passed|check passed)\s*[.!?;:]*\s*|\s*(?:\u901a\u8fc7|\u5df2\u901a\u8fc7|\u5168\u90e8\u901a\u8fc7|\u6d4b\u8bd5\u901a\u8fc7|\u6d4b\u8bd5\u9a8c\u8bc1\u901a\u8fc7|\u9a8c\u8bc1\u901a\u8fc7|\u6821\u9a8c\u901a\u8fc7|\u68c0\u67e5\u901a\u8fc7|\u68c0\u6d4b\u901a\u8fc7|\u9a8c\u6536\u901a\u8fc7|\u770b\u8d77\u6765\u6ca1\u95ee\u9898)\s*(?:[\u3002\uff01\uff1f\uff1b\uff1a]|\.)*\s*)$/iu;
 // Strong file: test/spec files, or smoke/task files under packages/*/src/tasks or tests/spec/__tests__
 const STRONG_FILE_RE = /(?:\.(test|spec)\.[a-z]+$|\/tasks\/[^/]*smoke[^/]*\.[a-z]+$|\/tests\/spec\/__tests__\/[^/]+\.[a-z]+$)/i;
 
@@ -43,6 +44,14 @@ export function classifyEvidenceQuality(evidence: VerificationEvidence): Evidenc
 
   // Strong command signal: test runner or assertion keyword
   if (command && STRONG_CMD_RE.test(command)) return { quality: 'strong' };
+
+  if (kind === 'manual_transcript' && !command && !file && note && PASS_ONLY_NOTE_RE.test(note)) {
+    return {
+      quality: 'weak',
+      weaknessReason: 'commandless_fileless',
+      detail: 'manual_transcript evidence has no command or file reference',
+    };
+  }
 
   // Strong note signal: assertion/regression/test keywords
   if (note && STRONG_NOTE_RE.test(note)) return { quality: 'strong' };

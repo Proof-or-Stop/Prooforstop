@@ -6,13 +6,13 @@ import { resolveAuditConfig as _resolveAuditConfig, type AuditConfig } from './a
 import { getCommandLifecyclePolicy, getCommandPolicyEntries, policyAllowedPhaseLabels } from './command-policy.js';
 
 /**
- * audit-config 扩展点（B-9bd9 CHK-004）：
- *   - profile 默认值由 `resolveAuditConfig` 接管（light=10, balanced=5, strict=3）
- *   - 项目级覆盖文件为 `<projectRoot>/.koala/audit-config.json`
- *   - 详见 packages/koala/CLAUDE.md「框架自省 audit 配置」
+ * audit-config extension points (B-9bd9 CHK-004):
+ *   - profile defaults are taken over by `resolveAuditConfig` (light=10, balanced=5, strict=3)
+ *   - project-level override file is `<projectRoot>/.koala/audit-config.json`
+ *   - see packages/koala/CLAUDE.md "Framework introspection audit configuration"
  *
- * 这里以 re-export 的形式挂到 config 入口，**不**改动现有 `loadConfig` /
- * `isCommandAllowed` 等 profile 消费者的行为；没有用到 audit 的调用方无感知。
+ * Mounted at the config entry as a re-export here; does **not** change the behavior of
+ * existing profile consumers like `loadConfig` / `isCommandAllowed`; callers not using audit are unaffected.
  */
 export { _resolveAuditConfig as resolveAuditConfig };
 export type { AuditConfig };
@@ -24,9 +24,9 @@ export interface KoalaFlowConfig {
 
 export interface KoalaConfig {
   scanRoot: string;
-  /** 源码子目录（相对 scanRoot，对应 tsconfig rootDir，默认和 scanRoot 相同） */
+  /** Source subdirectory (relative to scanRoot, corresponds to tsconfig rootDir, defaults to same as scanRoot) */
   rootDir?: string;
-  /** 编译输出目录（相对项目根，TS 项目设为 dist 所在路径） */
+  /** Compilation output directory (relative to project root, set to the dist path for TS projects) */
   outDir?: string;
   testsDir: string;
   fixturesDir: string;
@@ -35,13 +35,13 @@ export interface KoalaConfig {
   storyPrefix: string;
   flows: KoalaFlowConfig;
   wrappersDir?: string;
-  /** 项目语言：js（默认）或 python */
+  /** Project language: js (default) or python */
   language?: 'js' | 'python';
-  /** CLI 测试配置 */
+  /** CLI test configuration */
   cli?: {
     command: string;
   };
-  /** 项目级验证命令；没有 validate.ts/js 时由 lattice validate 使用 */
+  /** Project-level validation command; used by lattice validate when validate.ts/js is absent */
   validate?: {
     command?: string;
     commands?: Array<string | {
@@ -55,42 +55,42 @@ export interface KoalaConfig {
       optional?: boolean;
     }>;
   };
-  /** 浏览器测试配置 */
+  /** Browser test configuration */
   browser?: {
-    /** dev server 启动命令（如 "npx vite"） */
+    /** dev server startup command (e.g. "npx vite") */
     devCommand: string;
-    /** WS bridge 端口（默认 9876） */
+    /** WS bridge port (default 9876) */
     wsPort?: number;
   };
-  /** trace snapshot 最大保留份数（默认 5） */
+  /** Maximum number of trace snapshots to retain (default 5) */
   maxTraceSnapshots?: number;
-  /** 各阶段可用命令白名单（key=阶段名，value=命令名数组，支持通配符 *） */
+  /** Whitelist of available commands per phase (key=phase name, value=array of command names, wildcard * supported) */
   phaseTools?: Record<string, string[]>;
-  /** Story worktree 根目录（相对 git repo root，默认 .worktrees） */
+  /** Story worktree root directory (relative to git repo root, default .worktrees) */
   worktreeDir?: string;
-  /** doc_list 扫描的文档目录（相对项目根，默认 ['docs', 'requirements']） */
+  /** Documentation directories scanned by doc_list (relative to project root, default ['docs', 'requirements']) */
   docDirs?: string[];
-  /** Workflow profile：治理强度配置 */
+  /** Workflow profile: governance strictness configuration */
   workflow?: {
     profile?: WorkflowProfile;
   };
-  /** stale-detector 阈值（分钟，缺失走 DEFAULT_STALE_THRESHOLDS） */
+  /** stale-detector threshold (in minutes, falls back to DEFAULT_STALE_THRESHOLDS when missing) */
   staleThresholds?: {
-    /** phase 没 advance 多久算卡死（默认 30） */
+    /** How long before a phase that hasn't advanced is considered stuck (default 30) */
     phaseStale?: number;
-    /** checklist item 卡 in_progress 多久算遗忘（默认 30） */
+    /** How long a checklist item stuck in in_progress is considered forgotten (default 30) */
     itemStale?: number;
-    /** 距离上次任意 koala 命令多久算 idle（默认 60） */
+    /** How long since the last any koala command is considered idle (default 60) */
     idleKoala?: number;
-    /** open bug 多久没修算超期（默认 1440=24h） */
+    /** How long an open bug goes unfixed before it's considered overdue (default 1440=24h) */
     bugStale?: number;
   };
   /**
-   * Lifecycle hooks — spawn shell commands at koala 命令的 4 个事件点。
-   * 每个事件下用 commandName 或 "*" 通配匹配，value 是 shell 命令数组。
-   * onPhaseChange 的 key 用 "FROM->TO" 格式（或 "*"）。
+   * Lifecycle hooks — spawn shell commands at the 4 event points of koala commands.
+   * Under each event, match by commandName or "*" wildcard; the value is an array of shell commands.
+   * The key for onPhaseChange uses the "FROM->TO" format (or "*").
    *
-   * 失败/超时不阻塞主命令，详见 core/hooks.ts 和 packages/koala/docs/guide-hooks.md。
+   * Failures/timeouts do not block the main command; see core/hooks.ts and packages/koala/docs/guide-hooks.md for details.
    */
   hooks?: {
     preCommand?: Record<string, string[]>;
@@ -100,28 +100,28 @@ export interface KoalaConfig {
   };
 }
 
-/** 默认各阶段可用命令白名单 */
+/** Default whitelist of available commands per phase */
 export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
   '*': [
     'session_brief', // read-only recovery entrypoint; must work in every phase
     'next',          // read-only single next action, shares session_brief authority rules
     'story_get', 'story_list', 'story_reconcile', 'story_discard',
-    'aux_*', // 全部辅助工具：scan/detail/coverage/locate/sync/trace/diagnose/doc_list
+    'aux_*', // All auxiliary tools: scan/detail/coverage/locate/sync/trace/diagnose/doc_list
     'checklist_get',
     'truth_*', 'gap_*', 'convergence_check',
-    'story_advance', // 任何阶段都可以推进（cwd 门禁负责保护）
-    'status',        // 全局：项目全貌（story 进度 + 代码验证）
-    'doctor',        // 全局：health 巡检，任何阶段都可以查
-    'done_recover',  // 全局：显式恢复 partial-DONE（先检查 main clean / merge-tree）
-    'check',         // 全局：Koala 管理资产/模板漂移检查；--apply/--upgrade 显式同步安全项
-    'test_list',     // 全局：读取测试证据快照，TEST/DEV 排障都需要
-    'bug_list',      // 全局：读取 bug 状态，便于复核 dashboard
-    'finding_list',  // 全局：只读查看 reviewer 结果，避免阶段 UX 陷阱
-    'audit',         // 全局：B-9bd9 框架自省 audit（advisory，任何阶段都可以跑）
-    'verify_codex',  // Codex adapter 资产/heartbeat 硬证据验证（优先通过本地 wrapper 调用）
-    'summary_get',   // 全局：读取 summary，任何阶段都可以查
-    'grill_get',     // 全局：读取 PLAN grill planning context；不会写证据
-    'summary_set',   // 全局：DONE 前强制落总结，koala short-path story 也需要
+    'story_advance', // Can be advanced in any phase (the cwd gate is responsible for protection)
+    'status',        // Global: project overview (story progress + code validation)
+    'doctor',        // Global: health inspection, can be queried in any phase
+    'done_recover',  // Global: explicitly recover partial-DONE (first check main clean / merge-tree)
+    'check',         // Global: Koala managed asset/template drift check; --apply/--upgrade explicitly syncs safe items
+    'test_list',     // Global: read the test evidence snapshot, needed for both TEST and DEV troubleshooting
+    'bug_list',      // Global: read bug status, convenient for reviewing the dashboard
+    'finding_list',  // Global: read-only view of reviewer results, avoiding phase UX traps
+    'audit',         // Global: B-9bd9 framework introspection audit (advisory, can be run in any phase)
+    'verify_codex',  // Codex adapter asset/heartbeat hard evidence verification (preferably invoked via the local wrapper)
+    'summary_get',   // global: read summary, available in any phase
+    'grill_get',     // global: read PLAN grill planning context; does not write evidence
+    'summary_set',   // global: force summary before DONE, also needed for koala short-path story
     'verification_evidence_add', 'verification_evidence_batch_add', 'verification_evidence_refresh_stale', // verification evidence is metadata, allowed across phases for reviewer/test handoff
     'verification_context_pack_create', 'verification_context_pack_expand', // read-only verifier context packets for authority-backed runs
     'recover_evidence', // B-a2f1 CHK-003: single-shot stale-evidence recovery, safe in any phase (refuses on non-metadata dirt)
@@ -132,17 +132,20 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'guard_session_status', // B-6bfd CHK-004: read-only guard session projection
     'guard_session_check', // B-6bfd CHK-004: NOT read-only — refreshes/writes guard-session.json + appends a guard_session_check process event, so it is an owner-gated storyScopedMutating write (see command-policy.ts); listed here because the check itself is allowed in every phase, while guard_session_start is phase-scoped below
     'plan_get',
-    'workflow_*',    // 全局：profile 查看/设置/解释，任何阶段都可以
-    'background_*',  // B-45ed CHK-007: background 是元数据，任何阶段可读写
-    'dispatch',      // B-9d95 CHK-004: 统一派发入口，全阶段开放（INIT_CHECK 起）
-    'reviewer_list', // B-fdcf CHK-001: 全阶段可查询 opt-in reviewer 名单
-    'story_draft',   // B-9975: draft 操作全阶段可用（不分配 story id）
+    'workflow_*',    // global: profile view/set/explain, available in any phase
+    'background_*',  // B-45ed CHK-007: background is metadata, readable/writable in any phase
+    'dispatch',      // B-9d95 CHK-004: unified dispatch entry, open in all phases (from INIT_CHECK onward)
+    'reviewer_list', // B-fdcf CHK-001: query opt-in reviewer list in all phases
+    'story_draft',   // B-9975: draft operations available in all phases (no story id assigned)
     'story_draft_list',
     'story_draft_discard',
-    'draft_check_set',      // B-9975 CHK-002: draft check 全阶段可用
+    'draft_check_set',      // B-9975 CHK-002: draft check available in all phases
     'draft_issue_resolve',
     'authority_enforce_policy', // B-ea92 M1: read-only authority policy discovery, no side-effects
-    'authority_enforce_runner', // B-5cdc: read-only enforce runner readiness/dry-run projection; no provider execution
+    'authority_enforce_runner', // Lattice Authority control-plane runner; --live still avoids provider execution
+    'authority_receipt_verify', // Native Lattice Authority receipt verification; read-only local inputs
+    'authority_verdict_submit', 'authority_verdict_list', 'authority_job_status', // Lattice Authority multi-host verdict/status surfaces; never mint native receipts
+    'planner_*', 'story_resolve', // Natural-language planner and plannedStep context resolution surfaces
     'capability_list', // B-f26a M2: read-only host capability diagnostics for cross-host degradation
     'capability_probe', // B-cd31 CHK-002: productized single-host capability diagnostics
     'host_*', // Lattice CLI 0.3.5: host list/probe/install guidance; dry-run/read-only diagnostics only
@@ -157,15 +160,16 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'evidence_manifest', 'evidence_inspect', // B-cd31 CHK-006: portable evidence freshness diagnostics
     'parallel_wave_create', 'parallel_wave_inspect', 'parallel_plan', // B-29b6: read-only Lattice Parallel Wave planning surfaces; no authority mutation
     'parallel_dispatch', 'parallel_status', 'parallel_merge_queue', 'parallel_report', // B-e70f: read-only Parallel Dispatch projections; no spawning or authority mutation
+    'autopilot_*', // Lattice autopilot surfaces; status/doctor are read-only, run is projection-first, execute is the owner-gated bounded executor
     'dev_memory_*',  // B-1148: dev_memory_capture/list/search/preflight/finish/start declared allowedPhases:all in command-policy; phaseTools must match
   ],
   INIT: [
     'story_update', 'checklist_update',
-    'init_check_set', // B-e71f CHK-003: koala-review-story-init reviewer 在 INIT 阶段写 init-check.json
-    'init_check_repair', // B-95d8 CHK-001: 受控 fallback——无 subagent 环境下显式生成签名 init-check.json
+    'init_check_set', // B-e71f CHK-003: koala-review-story-init reviewer writes init-check.json in INIT phase
+    'init_check_repair', // B-95d8 CHK-001: controlled fallback—explicitly generate signed init-check.json in environments without subagent
   ],
   INIT_CHECK: [
-    // story_advance 内部会代调 dev_start 创建 worktree，无需独立白名单
+    // story_advance internally proxies dev_start to create worktree, no separate whitelist needed
   ],
   PLAN: [
     'story_update', 'story_review', 'story_review_dismiss',
@@ -176,7 +180,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'plan_set',
     'testintent_handoff',
     'scope_check_save',
-    'scope_question_resolve', // B-ed3e CHK-003: 主 agent 消解 OQ
+    'scope_question_resolve', // B-ed3e CHK-003: main agent resolves OQ
     'scope_contract_set',
     'scope_contract_init_from_plan', // B-6bfd CHK-006: seed scope contract from PLAN checklist files
   ],
@@ -186,9 +190,9 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'finding_add',
     'validate', 'status', 'serve',
     'story_advance',
-    'story_dispatch', // B-45ed CHK-005: 主 agent 派发 implementer
-    'finding_dispatch', // B-45ed CHK-010: 主 agent 派发 finding 修复（DEV 阶段可能提前出现 finding）
-    'finding_cluster',  // B-8bb5: DEV 中已有 finding 时，允许先聚簇再派发修复
+    'story_dispatch', // B-45ed CHK-005: main agent dispatches implementer
+    'finding_dispatch', // B-45ed CHK-010: main agent dispatches finding fix (findings may appear early in DEV phase)
+    'finding_cluster',  // B-8bb5: when findings already exist in DEV, allow clustering before dispatching fix
     'scope_contract_set', 'scope_contract_acknowledge',
     'scope_contract_init_from_plan', // B-6bfd CHK-006: seed scope contract from PLAN checklist files
     'guard_session_start', // B-6bfd CHK-004: start scope-guard session during implementation
@@ -198,20 +202,20 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'finding_add', 'finding_list', 'finding_resolve', 'finding_dismiss',
     'review_pass_set',
     'understanding_get', 'decision_get',
-    'finding_dispatch', // B-45ed CHK-010: 主 agent 派发 finding 修复
-    'finding_cluster',  // B-9d95 CHK-005: auto/merge/split 聚簇
+    'finding_dispatch', // B-45ed CHK-010: main agent dispatches finding fix
+    'finding_cluster',  // B-9d95 CHK-005: auto/merge/split clustering
     'validate', 'status',
     'bug_report', 'bug_update', 'bug_list',
-    'delivery_check_set', 'delivery_waiver_add', // delivery reviewer 在 REVIEW 阶段写签名/豁免，TEST→DONE gate 消费
+    'delivery_check_set', 'delivery_waiver_add', // delivery reviewer writes signature/waiver in REVIEW phase, consumed by TEST→DONE gate
     'story_advance',
     'scope_contract_acknowledge',
     'guard_session_start', // B-6bfd CHK-004: start scope-guard session during review
   ],
   TEST: [
-    'finding_list', 'finding_cluster', // B-9d95 CHK-005: 聚簇视图在 TEST 也允许查询
+    'finding_list', 'finding_cluster', // B-9d95 CHK-005: cluster view also queryable in TEST
     'validate', 'evaluate', 'evaluate_save',
     'bug_report', 'bug_update', 'bug_list', 'bug_analyze',
-    'delivery_check_set', 'delivery_waiver_add', // B-b089: delivery reviewer 在 TEST 阶段写签名
+    'delivery_check_set', 'delivery_waiver_add', // B-b089: delivery reviewer writes signature during TEST phase
     'story_advance',
   ],
 };
@@ -270,7 +274,7 @@ const DEFAULT_CONFIG: KoalaConfig = {
 
 const _cache = new Map<string, KoalaConfig>();
 
-/** 从 cwd 向上查找 koala.config.json，返回项目根目录 */
+/** Search upward from cwd for koala.config.json, return the project root directory */
 function resolveProjectRoot(): string {
   if (process.env.KOALA_PROJECT_ROOT) return process.env.KOALA_PROJECT_ROOT;
   let dir = process.cwd();
@@ -284,7 +288,7 @@ function resolveProjectRoot(): string {
 }
 
 export function loadConfig(projectRoot?: string): KoalaConfig {
-  // 有参数用参数，没参数从 cwd 向上查找
+  // Use the argument if provided, otherwise search upward from cwd
   const root = projectRoot || resolveProjectRoot();
   if (_cache.has(root)) return _cache.get(root)!;
   const configPath = join(root, 'koala.config.json');
@@ -309,15 +313,15 @@ export function loadConfig(projectRoot?: string): KoalaConfig {
   return _cached;
 }
 
-/** 重置缓存（测试用） */
+/** Reset cache (for testing) */
 export function resetConfigCache(): void {
   _cache.clear();
 }
 
 /**
- * 判断命令是否在指定阶段的白名单中。
- * 支持通配符：'truth_*' 匹配 truth_scan / truth_extract 等。
- * '*' key 中的命令对所有阶段可用。
+ * Determine whether a command is in the whitelist for the specified phase.
+ * Supports wildcards: 'truth_*' matches truth_scan / truth_extract, etc.
+ * Commands in the '*' key are available for all phases.
  */
 export function isCommandAllowed(cmd: string, phase: string, phaseTools?: Record<string, string[]>): boolean {
   if (ALWAYS_ALLOWED_READ_ONLY_COMMANDS.has(cmd)) return true;
@@ -328,7 +332,7 @@ export function isCommandAllowed(cmd: string, phase: string, phaseTools?: Record
 }
 
 /**
- * 获取指定阶段所有允许的命令模式列表。
+ * Get the list of all allowed command patterns for the specified phase.
  */
 export function getAllowedPatterns(phase: string, phaseTools?: Record<string, string[]>): string[] {
   const pt = isPhaseToolsRecord(phaseTools) ? phaseTools : DEFAULT_PHASE_TOOLS;

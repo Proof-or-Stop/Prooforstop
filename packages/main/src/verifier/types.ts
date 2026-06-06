@@ -1,12 +1,12 @@
 // ============================================================
-// verifier/types — koala 内建 verifier 类型定义
+// verifier/types — koala built-in verifier type definitions
 // ============================================================
 
 import type { CliStep } from './cli-executor.js';
 import type { BrowserStep } from './browser-executor.js';
 import type { Finding } from '../core/types.js';
 
-/** Input schema 字段定义（用于 Dashboard 自动生成表单，可选） */
+/** Input schema field definition (used for Dashboard auto-generated forms, optional) */
 export interface InputFieldSchema {
   type: 'number' | 'string' | 'boolean' | 'select';
   label?: string;
@@ -16,21 +16,21 @@ export interface InputFieldSchema {
   options?: Array<{ value: any; label: string }>;
 }
 
-/** Circuit 跨端引用：声明跨 machine 的事件路由 */
+/** Circuit cross-endpoint reference: declares cross-machine event routing */
 export interface CircuitRef {
-  /** 链路名称，同名 circuit 的 transition 自动串联 */
+  /** Link name; transitions of circuits with the same name are automatically chained */
   name: string;
-  /** 跨端跳转目标，格式 "endpoint:EVENT"，数组表示 fan-out */
+  /** Cross-endpoint jump target, format "endpoint:EVENT"; array indicates fan-out */
   next?: string | string[];
-  /** 超时毫秒数 */
+  /** Timeout in milliseconds */
   timeout?: number;
-  /** 超时后触发的事件 */
+  /** Event triggered after timeout */
   onTimeout?: string;
-  /** input 中用于关联不同实例的字段名（跨设备场景按此字段精确匹配） */
+  /** Field name in input used to correlate different instances (exact match by this field in cross-device scenarios) */
   key?: string;
 }
 
-/** 状态转换 */
+/** State transition */
 export interface Transition {
   from: string;
   to: string;
@@ -38,25 +38,25 @@ export interface Transition {
   guard: { name: string; fn: (...args: any[]) => boolean };
   action: { name: string; fn: (...args: any[]) => any };
   planned?: boolean;
-  /** 这条转换做什么（给人和 AI 看的说明，必填） */
+  /** What this transition does (description for humans and AI, required) */
   description: string;
-  /** Input 结构描述（可选，Dashboard 用来生成表单，不影响 API） */
+  /** Input structure description (optional, used by Dashboard to generate forms, does not affect API) */
   inputSchema?: Record<string, InputFieldSchema>;
-  /** Circuit 跨端路由声明（可选，用于 koala serve --circuit 多 machine 联调） */
+  /** Circuit cross-endpoint routing declaration (optional, used for koala serve --circuit multi-machine joint debugging) */
   circuit?: CircuitRef;
 }
 
-/** 性能约束 */
+/** Performance constraints */
 export interface Constraint {
   name: string;
   time: number;
 }
 
-/** Machine 配置 */
+/** Machine configuration */
 export interface MachineConfig {
-  /** Machine 名称 */
+  /** Machine name */
   name: string;
-  /** 这个 Machine 做什么（项目级描述） */
+  /** What this Machine does (project-level description) */
   description: string;
   initial: string;
   states: string[];
@@ -67,48 +67,48 @@ export interface MachineConfig {
   shells?: ('cli' | 'browser' | 'core')[];
 }
 
-/** 单项检查结果 */
+/** Single check result */
 export interface CheckResult {
   name: string;
   pass: boolean;
   details: string;
 }
 
-/** 逻辑链路测试：纯函数走 Machine 路径（白盒，内存里跑） */
+/** Logic chain test: pure functions walking through the Machine path (white-box, runs in memory) */
 export interface LogicTest {
   name: string;
   initialState: any;
-  /** 初始 machine state（默认 machine.initial） */
+  /** Initial machine state (defaults to machine.initial) */
   initialMachineState?: string;
   expectedPath: string[];
   steps: Array<{ event: string; input: any }>;
   resolveArgs: (state: any, input: any) => { guardArgs: any[]; actionArgs: any[] };
   extractState: (actionResult: any) => any;
-  /** 关联的 Finding ID（如 B-xxx:F-001） */
+  /** Associated Finding ID (e.g. B-xxx:F-001) */
   findingRef?: string;
-  /** 关联的 verificationIntent refs（如 CHK-001:happy:0） */
+  /** Associated verificationIntent refs (e.g., CHK-001:happy:0) */
   intentRefs?: string[];
 }
 
-/** Core test step：在当前进程内通过 bridge 直接驱动 */
+/** Core test step: drive directly via bridge within the current process */
 export interface CoreStep {
   sendEvent: string;
   input: any;
-  /** 期望 sendEvent 返回值（true=处理了, false=无匹配 transition） */
+  /** Expected sendEvent return value (true=handled, false=no matching transition) */
   expectResult?: boolean;
-  /** 期望的 machine state（如 'waiting_white'） */
+  /** Expected machine state (e.g., 'waiting_white') */
   expectMachine?: string;
-  /** 期望的 game state 部分匹配 */
+  /** Expected partial match of game state */
   expectState?: Record<string, any>;
 }
 
-/** 真机集成测试：spawn 真进程，发真输入，验真输出（黑盒） */
+/** Real machine integration test: spawn real process, send real input, verify real output (black box) */
 export interface IntegrationTest {
   type: 'cli' | 'browser' | 'core';
   name: string;
-  /** 这条测试覆盖哪些 transition（格式：'from→to'） */
+  /** Which transitions this test covers (format: 'from→to') */
   covers: string[];
-  /** 超时 ms（默认 30000） */
+  /** Timeout in ms (default 30000) */
   timeout?: number;
 
   // ---- CLI-specific fields ----
@@ -134,40 +134,40 @@ export interface IntegrationTest {
   projectRoot?: string;
   /** Pattern to detect dev server ready */
   serverReadyPattern?: string;
-  /** 关联的 Finding ID（如 B-xxx:F-001） */
+  /** Associated Finding ID (e.g., B-xxx:F-001) */
   findingRef?: string;
-  /** 关联的 verificationIntent refs（如 CHK-001:happy:0） */
+  /** Associated verificationIntent refs (e.g., CHK-001:happy:0) */
   intentRefs?: string[];
 }
 
-/** validate 选项 */
+/** validate options */
 export interface ValidateOptions {
   fnExports: Record<string, unknown>;
   extraExports?: Record<string, unknown>;
   machineSource?: string;
-  /** 逻辑链路测试（白盒） */
+  /** Logic chain test (white box) */
   logicTests?: LogicTest[];
-  /** 真机集成测试（黑盒） */
+  /** Real machine integration test (black box) */
   integrationTests?: IntegrationTest[];
-  /** 只跑 covers 包含指定 transition 的集成测试 */
+  /** Only run integration tests whose covers include the specified transition */
   integrationFilter?: string[];
-  /** constraint 测量次数（默认 10，设 0 跳过） */
+  /** Number of constraint measurements (default 10, set to 0 to skip) */
   constraintRuns?: number;
-  /** Shell 源码文本（key=文件名, value=源码），用于 Bridge I/O 隔离检查 */
+  /** Shell source text (key=filename, value=source), used for Bridge I/O isolation check */
   shellSources?: Record<string, string>;
-  /** Finding 列表（koala-reviewer 发现项），用于覆盖率检查 */
+  /** Finding list (items discovered by koala-reviewer), used for coverage check */
   findings?: Finding[];
-  /** Core test 用的 bridge 工厂函数（由项目 validate.ts 提供） */
+  /** Bridge factory function for core test (provided by project validate.ts) */
   bridgeFactory?: () => { sendEvent(event: string, input: any): boolean; getState(): any; getMachineState(): string; reset(): void };
 }
 
-/** validate 返回结果 */
+/** validate return result */
 export interface ValidateResult {
   results: CheckResult[];
   allPass: boolean;
 }
 
-/** koala validate --json 结构化输出（给 gate 消费） */
+/** koala validate --json structured output (consumed by gate) */
 export interface ExternalVerifierResult {
   provider: 'koala-verifier';
   status: 'pass' | 'fail' | 'warn';

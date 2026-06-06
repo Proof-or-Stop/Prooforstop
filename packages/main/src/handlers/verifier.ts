@@ -426,7 +426,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
       full?: string | boolean;
       story?: string;
       json?: boolean;
-      // B-9d95 CHK-006: REVIEW→TEST preflight CLI gate 独立分流
+      // B-9d95 CHK-006: REVIEW→TEST preflight CLI gate independent routing
       channel?: boolean;
       concept?: boolean;
       lint?: boolean;
@@ -443,8 +443,8 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         }
       }
 
-      // B-9d95 CHK-006: CLI gate flag 分流——任一命中即只跑对应 gate，
-      // 不 spawn pytest 的全量 validate.ts。多个 flag 同时传 → Promise.all 并行。
+      // B-9d95 CHK-006: CLI gate flag routing — any match runs only the corresponding gate,
+      // does not spawn the full validate.ts with pytest. Multiple flags passed simultaneously → Promise.all in parallel.
       if (args.channel || args.concept || args.lint) {
         type GateTask = () => Promise<{ name: string; ok: boolean; rendered: string; result: unknown }>;
         const tasks: GateTask[] = [];
@@ -503,12 +503,12 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
             status: 'warn',
             summary: 'No project validator configured; skipped project-specific validation',
             details: [
-              `当前目录: ${projectRoot}`,
-              '未找到 validate.ts/js/mts，也未在 koala.config.json 配置 validate.command(s)',
-              '未自动发现 pytest/go test/cargo test/swift test/mvn test/gradle test/npm test 等 fallback 标准入口',
+              `Current directory: ${projectRoot}`,
+              'No validate.ts/js/mts found, and validate.command(s) not configured in koala.config.json',
+              'No fallback standard entry such as pytest/go test/cargo test/swift test/mvn test/gradle test/npm test was auto-discovered',
             ],
             warnings: [
-              '这是 skip/warn，不是代码失败。需要强门禁时请在 koala.config.json 配置 validate.command 或 validate.commands。',
+              'This is skip/warn, not a code failure. For strict gating, configure validate.command or validate.commands in koala.config.json.',
             ],
             headSha: currentHead(projectRoot),
           });
@@ -564,7 +564,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
       }
       if (args.story) {
         tsArgs.push(`--story=${args.story}`);
-        // Git diff 推断：把全部改动文件传给 validate.ts，让项目自己决定跑哪���测试
+        // Git diff inference: pass all changed files to validate.ts, let the project decide which tests to run
         try {
           const diff = execSync('git diff main...HEAD --name-only', {
             cwd: projectRoot,
@@ -573,11 +573,11 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           }).trim();
           if (diff) {
             const changedFiles = diff.split('\n').filter(Boolean);
-            // 传全部改动文件给 validate.ts，不假设项目遵循 D/M/F 范式
+            // Pass all changed files to validate.ts, do not assume the project follows the D/M/F paradigm
             tsArgs.push(`--changed-files=${changedFiles.join(',')}`);
-            ctx.log?.(`story ${args.story}: git diff 发现 ${changedFiles.length} 个改动文件`);
+            ctx.log?.(`story ${args.story}: git diff found ${changedFiles.length} changed files`);
           }
-        } catch { /* git diff 失败不阻塞 */ }
+        } catch { /* git diff failure does not block */ }
       }
       if (args.json) {
         tsArgs.push('--json');
@@ -727,7 +727,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
       const sections = [brief, verifier].filter(s => s.length > 0);
 
       if (sections.length === 0) {
-        return `✗ 无项目状态可显示\n  当前目录: ${projectRoot}`;
+        return `✗ No project status to display\n  Current directory: ${projectRoot}`;
       }
       return sections.join('\n');
     },
@@ -763,7 +763,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         // Find it relative to the koala package
         const verifierServe = join(__dirname, '..', 'verifier', 'serve.js');
         if (!existsSync(verifierServe)) {
-          return `✗ 找不到 serve.ts（项目根目录）或内建 verifier serve 模块\n  当前目录: ${projectRoot}`;
+          return `✗ Cannot find serve.ts (project root) or built-in verifier serve module\n  Current directory: ${projectRoot}`;
         }
         tsArgs.push(verifierServe);
       }

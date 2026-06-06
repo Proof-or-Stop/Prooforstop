@@ -26,7 +26,7 @@ export function createScopeCheckHandlers(ctx: HandlerContext): Record<string, (.
       features: Array<{
         feature: string;
         covered_by: string | null;
-        // B-ed3e CHK-002: 5 档 status
+        // B-ed3e CHK-002: 5-tier status
         status: 'covered' | 'excluded' | 'gap' | 'orphan-suspect' | 'drift';
         excluded_by: string | null;
         source?: string;
@@ -36,12 +36,12 @@ export function createScopeCheckHandlers(ctx: HandlerContext): Record<string, (.
         covered: number;
         excluded: number;
         gaps: number;
-        // B-ed3e CHK-002: 新字段可选（向后兼容老调用者），默认 0
+        // B-ed3e CHK-002: new field is optional (backward compatible with old callers), defaults to 0
         orphanSuspect?: number;
         drift?: number;
       };
-      // B-ed3e CHK-003: 第 6 通道 Open Questions（可选）。reviewer 写入时不校验
-      // 业务完整性（只做类型校验），主 agent 之后用 scope_question_resolve 消解。
+      // B-ed3e CHK-003: 6th channel Open Questions (optional). Not validated when reviewer writes
+      // business integrity (only type check); main agent later resolves via scope_question_resolve.
       openQuestions?: OpenQuestion[];
     }): string {
       // Verify story exists and read currentReviewRound
@@ -53,7 +53,7 @@ export function createScopeCheckHandlers(ctx: HandlerContext): Record<string, (.
         throw new Error(`Story ${args.storyId} not found`);
       }
       const timestamp = new Date().toISOString();
-      // 签名域不变：仅 storyId / timestamp / gaps / covered / reviewRound
+      // Signature domain unchanged: only storyId / timestamp / gaps / covered / reviewRound
       const _hash = signScopeCheck(args.storyId, timestamp, args.summary.gaps, args.summary.covered, reviewRound);
       const orphanSuspect = args.summary.orphanSuspect ?? 0;
       const drift = args.summary.drift ?? 0;
@@ -72,9 +72,9 @@ export function createScopeCheckHandlers(ctx: HandlerContext): Record<string, (.
         reviewRound,
         _hash,
       };
-      // B-ed3e CHK-003: openQuestions 原样透传（不入签名域），省略时不写字段。
-      // F-007/F-015: 空数组 [] 也保留为 openQuestions:[]，区分 "扫完 0 OQ"（新 agent）
-      // 与 "未生成 OQ 字段"（老 agent）两种语义。只有传 undefined 才不写字段。
+      // B-ed3e CHK-003: openQuestions passed through as-is (not in signature domain), field omitted when absent.
+      // F-007/F-015: empty array [] is preserved as openQuestions:[], distinguishing "scanned with 0 OQ" (new agent)
+      // from "OQ field not generated" (old agent), two distinct semantics. Only passing undefined omits the field.
       if (Array.isArray(args.openQuestions)) {
         data.openQuestions = args.openQuestions;
       }

@@ -709,7 +709,7 @@ try {
     encoding: 'utf-8',
   });
   assert.notEqual(invalidVerificationIntent.status, 0, 'invalid nested verificationIntent enum should fail');
-  assert.match(invalidVerificationIntent.stderr, /参数校验失败/);
+  assert.match(invalidVerificationIntent.stderr, /parameter validation failed/);
   assert.match(invalidVerificationIntent.stderr, /verificationIntent\.happy\.0\.type/);
   assert.match(invalidVerificationIntent.stderr, /integration_test/);
   assert.match(invalidVerificationIntent.stderr, /logic[\s\S]*cli[\s\S]*browser[\s\S]*manual[\s\S]*docs/);
@@ -727,8 +727,8 @@ try {
     encoding: 'utf-8',
   });
   assert.notEqual(malformedJson.status, 0, 'malformed JSON body should fail');
-  assert.match(malformedJson.stderr, /JSON 解析失败|JSON parse|Unexpected end of JSON input/);
-  assert.match(malformedJson.stderr.trim().split('\n')[0], /JSON 解析失败|JSON parse/);
+  assert.match(malformedJson.stderr, /JSON parse failed|JSON parse|Unexpected end of JSON input/);
+  assert.match(malformedJson.stderr.trim().split('\n')[0], /JSON parse failed|JSON parse/);
   assert.equal(existsSync(join(malformedJsonCwd, '.koala')), false, 'malformed JSON should not create project metadata');
   rmSync(malformedJsonCwd, { recursive: true, force: true });
 
@@ -1121,7 +1121,7 @@ try {
     const actor = { stop() { stopped = true; } };
     await assert.rejects(
       () => runValidateGate({ store, root: gateFailRoot, scanRoot: gateFailRoot }, storyId, actor),
-      /Cannot enter TEST: koala validate 未通过/,
+      /Cannot enter TEST: koala validate did not pass/,
       'runValidateGate must block TEST when koala validate fails',
     );
     assert.equal(stopped, false, 'runValidateGate must leave actor stop to transition-orchestrator');

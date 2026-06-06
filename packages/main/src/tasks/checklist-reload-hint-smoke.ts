@@ -47,13 +47,13 @@ function run(root: string, command: string, args: Record<string, unknown>): stri
 }
 
 const background = [
-  '## 触发事件',
+  '## Trigger Event',
   '2026-05-21 B-0000 smoke needs trigger detail to satisfy background validation for the reload-hint path.',
-  '## 关键洞察',
+  '## Key Insights',
   'Long sessions trust a stale pre-write checklist snapshot; a stderr reload reminder reduces that drift without polluting stdout.',
-  '## 方案取舍',
+  '## Trade-offs',
   'The reminder reuses the B-6812 advisory-to-stderr precedent so stdout stays the pure conclusion.',
-  '## 对话纹理',
+  '## Conversation Texture',
   'A maintainer sees the conclusion on stdout and a separate reload reminder on stderr after each checklist_update.',
 ].join('\n\n');
 
@@ -105,12 +105,12 @@ try {
   assert.match(upd.stdout, /Checklist CHK-001:.*status → in_progress/, 'stdout must carry the status conclusion');
   // reminder must NOT appear on stdout (pipeline-safe)
   assert.ok(!/↻/.test(upd.stdout), 'reload reminder (↻) must NOT pollute stdout');
-  assert.ok(!/重新加载/.test(upd.stdout), 'reload reminder text must NOT appear on stdout');
+  assert.ok(!/reload/.test(upd.stdout), 'reload reminder text must NOT appear on stdout');
 
   // stderr carries the reload reminder reflecting the FINAL persisted state
   assert.match(upd.stderr, /↻/, 'stderr must carry the reload reminder marker');
-  assert.match(upd.stderr, /CHK-001 当前 status=in_progress/, 'reminder must name the final persisted status');
-  assert.match(upd.stderr, /重新加载/, 'reminder must advise reloading');
+  assert.match(upd.stderr, /CHK-001 current status=in_progress/, 'reminder must name the final persisted status');
+  assert.match(upd.stderr, /reload/, 'reminder must advise reloading');
 
   // ── Test 2: write semantics unchanged — only the intended field changed ──────
   const after = JSON.parse(readFileSync(checklistPath, 'utf8'));

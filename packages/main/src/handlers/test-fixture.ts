@@ -1,8 +1,8 @@
 /**
- * test_fixture — 单 case / 单链测试（按 fixtureId 定位）
+ * test_fixture — single case / single chain test (located by fixtureId)
  *
- * 拒绝传链中间节点（必须传链头），跑完用 git restore 清掉 fixture 改动。
- * 不写 bug、不写 evidence、不跑 browser。
+ * Rejects chain middle nodes (must pass chain head); after running, uses git restore to clean up fixture changes.
+ * Does not write bugs, does not write evidence, does not run browser.
  */
 
 import { join } from 'path';
@@ -23,14 +23,14 @@ export function createTestFixtureHandlers(ctx: HandlerContext) {
       const fixturesDir = join(root, config.fixturesDir);
 
       const found = findCaseById(fixturesDir, args.fixtureId);
-      if (!found) throw new Error(`未找到 _id="${args.fixtureId}" 的 fixture case`);
+      if (!found) throw new Error(`fixture case with _id="${args.fixtureId}" not found`);
 
-      // 拒绝链中间节点：有 prevCaseId 说明不是链头
+      // Reject chain middle node: having prevCaseId means not the chain head
       if (found.targetCase.prevCaseId) {
-        throw new Error(`fixtureId="${args.fixtureId}" 是链中间节点（有 prevCaseId），请传链头 case 的 fixtureId`);
+        throw new Error(`fixtureId="${args.fixtureId}" is a chain middle node (has prevCaseId), please pass the fixtureId of the chain head case`);
       }
 
-      // 沿 nextCaseId 收集链
+      // Collect chain along nextCaseId
       const byId = new Map<string, any>();
       for (const c of found.cases) { if (c._id) byId.set(c._id, c); }
 
@@ -43,11 +43,11 @@ export function createTestFixtureHandlers(ctx: HandlerContext) {
         cur = cur.nextCaseId ? byId.get(cur.nextCaseId) : null;
       }
 
-      // 跑语言无关 fixture protocol：executor / command / legacy JS execute
+      // Run language-agnostic fixture protocol: executor / command / legacy JS execute
       const executableCases = chain.filter((c: any) => isExecutableCase(c));
-      if (executableCases.length === 0) throw new Error('链中无可执行 case');
+      if (executableCases.length === 0) throw new Error('no executable cases in chain');
 
-      // 创建隔离 handlers
+      // Create isolated handlers
       const { handlers } = await createIsolatedHandlers(root, ctx.log);
 
       const sharedCtx: Record<string, unknown> = {};
@@ -66,7 +66,7 @@ export function createTestFixtureHandlers(ctx: HandlerContext) {
 
       const allPassed = caseResults.every(r => r.passed);
       return JSON.stringify({
-        hint: allPassed ? '→ 全部通过' : '→ 有失败项',
+        hint: allPassed ? '→ all passed' : '→ has failures',
         fixtureId: args.fixtureId,
         fileName: found.fileName,
         totalCases: caseResults.length,

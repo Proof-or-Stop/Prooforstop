@@ -116,7 +116,7 @@ function formatDuration(ms: number): string {
 function assertOutcomeKind(value: unknown): asserts value is StoryOutcomeKind | undefined {
   if (value === undefined) return;
   if (!STORY_OUTCOME_KINDS.includes(value as StoryOutcomeKind)) {
-    throw new Error(`summary.outcomeKind 必须是 ${STORY_OUTCOME_KINDS.join('/')} 之一，收到: ${String(value)}`);
+    throw new Error(`summary.outcomeKind must be one of ${STORY_OUTCOME_KINDS.join('/')}, received: ${String(value)}`);
   }
 }
 
@@ -152,25 +152,25 @@ export function createSummaryHandlers(ctx: HandlerContext) {
       assertOutcomeKind(args.outcomeKind);
 
       if (!args.changes || args.changes.trim().length < 10) {
-        throw new Error('summary.changes 必须非空且 ≥ 10 字符（描述改了什么文件的关键改动）');
+        throw new Error('summary.changes must be non-empty and ≥ 10 characters (describe the key changes to which files)');
       }
       if (!args.usage || args.usage.trim().length < 10) {
-        throw new Error('summary.usage 必须非空且 ≥ 10 字符（描述如何使用新功能 — slash / tool / 示例）');
+        throw new Error('summary.usage must be non-empty and ≥ 10 characters (describe how to use the new feature — slash / tool / example)');
       }
       if (args.expectedOutcome !== undefined && args.expectedOutcome.trim().length < 10) {
-        throw new Error('summary.expectedOutcome 如提供则必须 ≥ 10 字符（用户预期看到什么）');
+        throw new Error('summary.expectedOutcome must be ≥ 10 characters if provided (what the user expects to see)');
       }
       if (args.actualTranscript !== undefined && args.actualTranscript.trim().length < 10) {
-        throw new Error('summary.actualTranscript 如提供则必须 ≥ 10 字符（真实运行看到什么）');
+        throw new Error('summary.actualTranscript must be ≥ 10 characters if provided (what was actually seen at runtime)');
       }
       if (args.outcomeDiff !== undefined && args.outcomeDiff.trim().length < 5) {
-        throw new Error('summary.outcomeDiff 如提供则必须 ≥ 5 字符（expected vs actual 差异，没有差异也要明说）');
+        throw new Error('summary.outcomeDiff must be ≥ 5 characters if provided (expected vs actual diff; state explicitly if there is no diff)');
       }
       if (typeof args.limitations !== 'string' || args.limitations.trim().length < 2) {
-        throw new Error('summary.limitations 必须非空（没有限制就写 "none — fully covered"）');
+        throw new Error('summary.limitations must be non-empty (if there are no limitations, write "none — fully covered")');
       }
       if (!args.pitfalls || args.pitfalls.trim().length < 10) {
-        throw new Error('summary.pitfalls 必须非空且 ≥ 10 字符（这是强制段：做这个 story 的时候卡在哪、绕了几次路、下个人应该知道什么 — 禁止空话）');
+        throw new Error('summary.pitfalls must be non-empty and ≥ 10 characters (this is a mandatory section: where you got stuck working on this story, how many detours you took, what the next person should know — empty platitudes forbidden)');
       }
 
       // B-1522: compute auto-stats from story.events / test-runs.json / bug.json
@@ -245,36 +245,36 @@ export function createSummaryHandlers(ctx: HandlerContext) {
  */
 export function renderSummaryForHint(summary: StorySummaryData): string {
   const lines: string[] = [];
-  lines.push(`📋 Story 总结 (${summary.storyId}) — 请把以下内容用你自己的话告诉用户:`);
+  lines.push(`📋 Story summary (${summary.storyId}) — please relay the following to the user in your own words:`);
   lines.push('');
-  lines.push('## 改了什么');
+  lines.push('## What changed');
   lines.push(summary.changes);
   lines.push('');
-  lines.push('## 怎么用');
+  lines.push('## How to use it');
   lines.push(summary.usage);
   lines.push('');
-  lines.push('## 用户价值验收');
+  lines.push('## User-value acceptance');
   lines.push(`  verdict: ${summary.acceptanceVerdict || 'not recorded'}`);
   lines.push(`  outcome: ${formatStoryOutcomeKind(normalizeStoryOutcomeKind(summary.outcomeKind))}${summary.outcomeKind ? '' : ' (default)'}`);
   if (summary.expectedOutcome) lines.push(`  expected: ${summary.expectedOutcome}`);
   if (summary.actualTranscript) lines.push(`  actual: ${summary.actualTranscript}`);
   if (summary.outcomeDiff) lines.push(`  diff: ${summary.outcomeDiff}`);
   lines.push('');
-  lines.push('## 真机验证覆盖');
-  lines.push(`  ✓ 跑过: ${summary.realMachineCoverage.ran.length} 条`);
+  lines.push('## Real-machine verification coverage');
+  lines.push(`  ✓ Ran: ${summary.realMachineCoverage.ran.length} items`);
   for (const r of summary.realMachineCoverage.ran) {
     lines.push(`    - ${r.name}  (${r.where})`);
   }
-  lines.push(`  ✗ 没跑: ${summary.realMachineCoverage.skipped.length} 条`);
+  lines.push(`  ✗ Not run: ${summary.realMachineCoverage.skipped.length} items`);
   for (const s of summary.realMachineCoverage.skipped) {
     lines.push(`    - ${s.name}  (${s.where})`);
-    lines.push(`      原因: ${s.reason}`);
+    lines.push(`      Reason: ${s.reason}`);
   }
   lines.push('');
-  // B-1522: 各阶段进入次数 + 耗时
+  // B-1522: entry count + duration per phase
   if (summary.phaseStats && Object.keys(summary.phaseStats).length > 0) {
-    lines.push('## 各阶段耗时');
-    // 按常见 phase 顺序排序，未列入的放最后
+    lines.push('## Time spent per phase');
+    // Sort by common phase order; unlisted ones go last
     const phaseOrder = ['INIT', 'INIT_CHECK', 'PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE', 'TEST_CASE', 'TEST_CASE_REVIEW'];
     const ordered = Object.keys(summary.phaseStats).sort((a, b) => {
       const ia = phaseOrder.indexOf(a);
@@ -286,32 +286,32 @@ export function renderSummaryForHint(summary: StorySummaryData): string {
     });
     for (const p of ordered) {
       const s = summary.phaseStats[p];
-      lines.push(`  - ${p}: 进入 ${s.count} 次，累计 ${formatDuration(s.durationMs)}`);
+      lines.push(`  - ${p}: entered ${s.count} times, cumulative ${formatDuration(s.durationMs)}`);
     }
-    lines.push(`  总计: ${formatDuration(summary.totalDurationMs || 0)}`);
+    lines.push(`  Total: ${formatDuration(summary.totalDurationMs || 0)}`);
     lines.push('');
   }
-  // B-1522: fixture 统计
+  // B-1522: fixture statistics
   if (summary.fixtureStats) {
     const fs = summary.fixtureStats;
-    lines.push('## Fixture 执行统计');
-    lines.push(`  - 当前 story 绑定 case: ${fs.totalCases} 条`);
-    lines.push(`  - validate 累计调用: ${fs.totalRuns} 次`);
-    lines.push(`  - 累计执行次数（∑ totalCases）: ${fs.cumulativeCasesRun}`);
-    lines.push(`  - 累计 PASS 次数（∑ passedCases）: ${fs.cumulativePassedCases}`);
+    lines.push('## Fixture Execution Statistics');
+    lines.push(`  - Cases bound to current story: ${fs.totalCases}`);
+    lines.push(`  - Cumulative validate invocations: ${fs.totalRuns}`);
+    lines.push(`  - Cumulative executions (∑ totalCases): ${fs.cumulativeCasesRun}`);
+    lines.push(`  - Cumulative PASS count (∑ passedCases): ${fs.cumulativePassedCases}`);
     lines.push('');
   }
-  // B-1522: bug 统计
+  // B-1522: bug statistics
   if (summary.bugStats) {
     const bs = summary.bugStats;
-    lines.push('## Bug 统计');
-    lines.push(`  - 发现: ${bs.found}   修复: ${bs.fixed}   遗留: ${bs.open}`);
+    lines.push('## Bug Statistics');
+    lines.push(`  - Found: ${bs.found}   Fixed: ${bs.fixed}   Open: ${bs.open}`);
     lines.push('');
   }
-  lines.push('## 已知限制 / 设计偏离');
+  lines.push('## Known Limitations / Design Deviations');
   lines.push(summary.limitations);
   lines.push('');
-  lines.push('## 踩坑记录');
+  lines.push('## Pitfalls Encountered');
   lines.push(summary.pitfalls);
   return lines.join('\n');
 }

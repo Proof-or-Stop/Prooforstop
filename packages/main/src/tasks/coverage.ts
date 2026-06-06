@@ -3,7 +3,7 @@ import { scan } from './extract.js';
 import type { StoryStore } from '../core/store.js';
 import type { CoverageResult } from './types.js';
 
-/** 检查指定 Story 的 checklist 覆盖率 */
+/** Check checklist coverage for the specified Story */
 export function checkCoverage(
   storyId: string,
   store: StoryStore,
@@ -12,7 +12,7 @@ export function checkCoverage(
   const checklist = store.readChecklist(storyId);
   const tasks = scan(scanRoot);
 
-  // 构建 checklistId → 源码位置 的映射
+  // Build checklistId → source location mapping
   const locationMap = new Map<string, Array<{ file: string; line: number; functionName?: string }>>();
   for (const t of tasks) {
     if (!t.checklist) continue;

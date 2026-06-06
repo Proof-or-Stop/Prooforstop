@@ -329,7 +329,7 @@ export const AuthorityReceiptSchema = z.object({
 /**
  * Sign a runner envelope and attach the signature in-place.
  *
- * Runtime re-validation (Handler 编码约定): we enforce non-empty actorId /
+ * Runtime re-validation (Handler coding convention): we enforce non-empty actorId /
  * nonce / createdAt at the runtime entry point, *not* only via Zod. A caller
  * who bypasses the schema (e.g. through internal fn re-use) still cannot
  * produce a signed envelope with an empty actor binding.
@@ -359,7 +359,7 @@ export function verifyRunnerEnvelope<T extends RunnerEnvelopeHeader>(
   envelope: T,
   publicKey: PublicKeyBase64,
 ): boolean {
-  // Runtime re-validation (Handler 编码约定): missing actor binding cannot
+  // Runtime re-validation (Handler coding convention): missing actor binding cannot
   // verify regardless of signature presence.
   if (!isNonEmptyString(envelope.actorId)) return false;
   if (!isNonEmptyString(envelope.nonce)) return false;
@@ -502,7 +502,7 @@ export function runnerEnvelopeIsL2PlusCandidate(input: RunnerL2ClassificationInp
 }
 
 // ===========================================================================
-// Schema parse helpers (Handler 编码约定: runtime re-validation entry points)
+// Schema parse helpers (Handler coding convention: runtime re-validation entry points)
 // ===========================================================================
 
 function parseOrThrow<T>(schema: z.ZodType<T>, value: unknown, label: string): T {

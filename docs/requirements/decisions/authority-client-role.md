@@ -150,6 +150,48 @@ CLI ergonomics: both `--json` (shortcut) and `--format=json` work on
 `lattice authority status --json` produces the readiness JSON directly without
 remembering the long form.
 
+### Dual-mode Autopilot Boundary
+
+Lattice autopilot is split into three explicit modes:
+
+- `local` (default): pure local Lattice workflow. It projects the ordinary story
+  commands and never requires Python authority.
+- `shadow`: local workflow plus authority readiness diagnostics. Missing Python
+  authority prerequisites become warnings, not blockers.
+- `authority`: fail-closed authority-backed projection. Python authority
+  readiness is required, and a target of `DONE` also requires a signed
+  `AuthorityReceipt` verified with the provided public key and explicitly bound
+  by `receiptSubjectId` / `receiptSubjectKind`.
+
+The command surface is:
+
+- `autopilot_status` / `lattice autopilot status`
+- `autopilot_doctor` / `lattice autopilot doctor`
+- `autopilot_run` / `lattice autopilot run`
+- `autopilot_execute` / `lattice autopilot execute`
+
+`autopilot_run` is dry-run by default and is dynamically treated as read-only by
+the command ownership policy. Only explicit `dryRun=false` may append a
+story-scoped `autopilot_projection` event. That projection is coordination
+metadata only: it is not lifecycle gate evidence, does not execute providers,
+does not submit evidence, and cannot promote local DONE to production DONE.
+
+`autopilot_execute` is the true bounded executor loop. It is always
+story-scoped mutating for non-dry-run execution, requires a concrete `storyId`,
+runs only safe argv-mapped Lattice commands, and may append a
+non-authoritative `autopilot_execution` event. That event is an execution audit
+receipt only; it is not a Python `AuthorityReceipt` and cannot replace signed
+authority subject binding for production DONE. Claude Code CLI repair is an
+explicit local-mode repair hook and is disabled unless requested.
+
+Mechanical guard: `packages/main/src/tasks/autopilot-authority-smoke.ts`
+verifies local mode remains usable without Python authority, shadow mode stays
+advisory, authority mode fail-closes without readiness or a DONE receipt, and no
+JSON path overclaims `productionDone`, `receiptVerified`, or authority changes.
+`packages/main/src/tasks/autopilot-execute-smoke.ts` verifies the local executor,
+story binding, authority fail-closed behavior, and explicit Claude repair retry
+path.
+
 Docs that match this contract:
 [`README.md`](../../../README.md) and [`docs/guide.md`](../../guide.md) document
 the three modes so users know `off` is the default free/local workflow,

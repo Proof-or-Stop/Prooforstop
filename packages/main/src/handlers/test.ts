@@ -13,11 +13,11 @@ export function createTestHandlers(ctx: HandlerContext) {
       output: string;
       result: 'PASS' | 'FAIL';
     }): string {
-      // B-c622 CHK-009: 记录 headHash 供 DONE gate evidence freshness 检查
+      // B-c622 CHK-009: Record headHash for DONE gate evidence freshness check
       let headHash = '';
       try {
         headHash = execSync('git rev-parse HEAD', { cwd: ctx.root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
-      } catch { /* 无法获取 HEAD，跳过 */ }
+      } catch { /* Cannot get HEAD, skip */ }
       const materialHash = currentMaterialHash(ctx.root);
       const data: TestEvidenceData = {
         command: args.command,
@@ -41,13 +41,13 @@ export function createTestHandlers(ctx: HandlerContext) {
         return {
           _empty: true,
           _mode: 'latest_snapshot',
-          _hint: 'test_list 当前返回的是“最后一条 test evidence 快照”，不是历史列表。还没有任何 test evidence。',
+          _hint: 'test_list currently returns the "last test evidence snapshot", not a historical list. There is no test evidence yet.',
         };
       }
       return {
         _mode: 'latest_snapshot',
         latest,
-        _hint: 'test_list 当前返回的是“最后一条 test evidence 快照”，不是历史列表。若要看历史，应结合 test-runs / validate 记录扩展。',
+        _hint: 'test_list currently returns the "last test evidence snapshot", not a historical list. To view history, combine with test-runs / validate records to extend.',
       };
     },
   };

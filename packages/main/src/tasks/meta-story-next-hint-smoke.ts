@@ -8,7 +8,7 @@
  * audit/finding-flow guidance and stay out of the lifecycle/worktree
  * suggestion ordering.
  *
- * Note: the guidance text itself contains the word `story_advance` ("不要
+ * Note: the guidance text itself contains the word `story_advance` ("do not
  * story_advance ...") — so the assertion targets the actionable hint
  * `story_advance --storyId=<id>` / `--phase=INIT_CHECK`, never the bare word.
  */
@@ -196,7 +196,7 @@ function assertBothMetaCriteriaDetectedIndependently(): void {
 /** S4: the active-story-branch path. When the working tree is checked out on
  *  a `story/B-META-*` branch, session_brief routes through computeNextStep —
  *  which must early-return META guidance instead of falling through to a
- *  lifecycle/`未知 phase` hint. Also covers a forged phase=META on a
+ *  lifecycle/`unknown phase` hint. Also covers a forged phase=META on a
  *  non-B-META- branch (computeNextStep must still not suggest story_advance).
  *  Covers CHK-001:happy:0, CHK-001:adversarial:1. */
 function assertComputeNextStepHandlesMetaOnBranch(): void {
@@ -208,7 +208,7 @@ function assertComputeNextStepHandlesMetaOnBranch(): void {
     const brief = runKoala(rootA, 'session_brief');
     assert.ok(!brief.includes(advanceHintFor(META_STORY_ID)), `computeNextStep must not advance a META container:\n${brief}`);
     assert.ok(!brief.includes(INIT_CHECK_HINT), `computeNextStep must not surface INIT_CHECK for a META container:\n${brief}`);
-    assert.ok(!brief.includes('未知 phase'), `computeNextStep must not fall through to the unknown-phase branch:\n${brief}`);
+    assert.ok(!brief.includes('unknown phase'), `computeNextStep must not fall through to the unknown-phase branch:\n${brief}`);
     assertAuditGuidance(brief, 'computeNextStep (session_brief on META branch)');
   } finally {
     rmSync(rootA, { recursive: true, force: true });

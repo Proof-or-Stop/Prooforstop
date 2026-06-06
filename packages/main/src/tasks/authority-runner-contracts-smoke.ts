@@ -11,7 +11,7 @@
 //      envelope (ActorKeyRegistration, RunnerRegistration, RunnerHeartbeat,
 //      JobClaim, JobLeaseHeartbeat, JobRelease, ProviderEventsEnvelope).
 //   5. Empty / missing actorId / nonce / createdAt cause sign-time throw and
-//      verify-time false (Handler 编码约定: runtime re-validation beyond Zod).
+//      verify-time false (Handler coding convention: runtime re-validation beyond Zod).
 //   6. Same producer/verifier run id collapses
 //      independentVerifierRunId in missingRunnerL2Requirements().
 //   7. Adversarial invariant: signing primitives alone do NOT promote ordinary

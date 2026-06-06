@@ -88,15 +88,15 @@ export const storyMachine = setup({
       const policy = resolveWorkflowPolicy(loadConfig(context.projectRoot), story);
       return getBlockingVerificationEvidenceIssues(cl, undefined, policy.profile).length === 0;
     },
-    // B-e71f CHK-006: INIT→INIT_CHECK 硬门槛 xstate 端兜底。
-    // getGuardFailureReason 在 phase-gates.ts 的 resolveGuardFailure 里仅当 actor.can() 返回 false 时才被调用，
-    // 因此必须在这里给 INIT→INIT_CHECK 转换挂 guard，否则 can() 始终 true，gate 永不触发。
-    // guard 与 getGuardFailureReason 共享同一判定逻辑：缺 init-check.json → false；
-    // _hash 失配 → false；通过 → true。失败原因由 getGuardFailureReason 渲染人类可读消息。
+    // B-e71f CHK-006: xstate-side fallback for the INIT→INIT_CHECK hard gate.
+    // getGuardFailureReason in phase-gates.ts is only invoked by resolveGuardFailure when actor.can() returns false,
+    // so a guard must be attached to the INIT→INIT_CHECK transition here; otherwise can() will always be true and the gate will never fire.
+    // The guard and getGuardFailureReason share the same decision logic: missing init-check.json → false;
+    // _hash mismatch → false; pass → true. The failure reason is rendered as a human-readable message by getGuardFailureReason.
     canEnterInitCheck: ({ context }) => {
       try {
         const story = context.store.readStory(context.storyId);
-        if (story.phase !== 'INIT') return true; // IDEA→INIT_CHECK 等其他来源不门禁
+        if (story.phase !== 'INIT') return true; // Other sources such as IDEA→INIT_CHECK are not gated
         const initCheck = context.store.readInitCheck(context.storyId);
         if (!initCheck) return false;
         const expected = recomputeInitCheckHash(context.storyId, context.store, context.projectRoot);
@@ -104,16 +104,16 @@ export const storyMachine = setup({
           && missingRequiredInitCheckAgents(initCheck).length === 0
           && blockingInitCheckIssues(initCheck).length === 0;
       } catch (err) {
-        // B-e71f F-016: xstate guard 不能 throw（会让 actor 进 error state），但完全静默会
-        // 让 store 异常根因（fs 读不到 / json parse 失败 / recompute 路径 bug）被吞——
-        // 用户只看到 gate 拒绝、拿不到诊断。此处 console.warn 不影响 guard 返回值。
+        // B-e71f F-016: xstate guard must not throw (it would push the actor into the error state), but going completely silent
+        // would swallow the underlying store exceptions (fs read failure / json parse failure / recompute path bug)——
+        // the user would only see the gate rejection without any diagnostics. console.warn here does not affect the guard return value.
         const msg = err instanceof Error ? err.message : String(err);
         console.warn(`[canEnterInitCheck] ${context.storyId}: ${msg}`);
         return false;
       }
     },
     canStartDev: ({ context }) => {
-      // story_review 通过是进 DEV 的前提（除非 policy 不要求）
+      // Passing story_review is a prerequisite for entering DEV (unless policy does not require it)
       try {
         const config = loadConfig(context.projectRoot);
         const story = context.store.readStory(context.storyId);
@@ -132,7 +132,7 @@ export const storyMachine = setup({
       }
     },
     canSkipPlan: ({ context }) => {
-      // 快速通道：由 WorkflowPolicy 决定是否允许跳过 PLAN
+      // Express channel: WorkflowPolicy decides whether skipping PLAN is allowed
       try {
         const config = loadConfig(context.projectRoot);
         const story = context.store.readStory(context.storyId);
@@ -196,8 +196,8 @@ export const storyMachine = setup({
         const { effectiveBlockingSeverities, roundCount } = resolveEffectiveBlockingSeverities(context.store, context.storyId, policy);
 
         // Check blocking severities from policy (with round decay).
-        // B-3fad CHK-001: evidenceState 维度 — 只有 verified（或 legacy 缺字段）的 open finding 阻塞；
-        // suspected / disproven 不阻塞 REVIEW→TEST。
+        // B-3fad CHK-001: evidenceState dimension — only verified (or legacy missing-field) open findings block;
+        // suspected / disproven do not block REVIEW→TEST.
         const blocking = evidenceState.valid
           .map((e) => e.finding)
           .filter((finding): finding is Finding => !!finding)
@@ -243,8 +243,8 @@ export const storyMachine = setup({
     },
     INIT: {
       on: {
-        // B-e71f CHK-006: 必须挂 guard，否则 actor.can() 始终 true，
-        // phase-gates.ts 的 getGuardFailureReason 失败消息渲染永不触发。
+        // B-e71f CHK-006: The guard must be attached; otherwise actor.can() will always be true,
+        // and the failure message rendering in phase-gates.ts's getGuardFailureReason will never trigger.
         INIT_CHECK: { target: 'INIT_CHECK', guard: 'canEnterInitCheck' },
       },
     },
@@ -331,77 +331,77 @@ export function getGuardFailureReason(
   targetPhase: string,
   projectRoot?: string,
 ): string | null {
-  // B-e71f CHK-005: INIT→INIT_CHECK 硬门槛。
-  // 仅当 story.phase === 'INIT' 时启用，IDEA→INIT_CHECK 等其他来源不门禁。
-  // 缺 init-check.json → missing_init_check；_hash 失配 → init_check_tampered。
-  // recomputeInitCheckHash 复用 CHK-001 已导出函数（禁两份实现）。
+  // B-e71f CHK-005: INIT→INIT_CHECK hard gate.
+  // Only enabled when story.phase === 'INIT'; other sources such as IDEA→INIT_CHECK are not gated.
+  // Missing init-check.json → missing_init_check; _hash mismatch → init_check_tampered.
+  // recomputeInitCheckHash reuses the function already exported by CHK-001 (no duplicate implementations).
   if (targetPhase === 'INIT_CHECK') {
     const story = store.readStory(storyId);
     if (story.phase !== 'INIT') return null;
     const initCheck = store.readInitCheck(storyId);
     if (!initCheck) {
-      return `Cannot enter INIT_CHECK: 缺 init-check.json。 [missing_init_check]\n` +
-        `缺少必需 reviewer 记录: ${REQUIRED_INIT_CHECK_AGENTS.join(', ')}\n` +
-        `→ 首选：spawn 独立 reviewer\n` +
+      return `Cannot enter INIT_CHECK: init-check.json is missing. [missing_init_check]\n` +
+        `Missing required reviewer records: ${REQUIRED_INIT_CHECK_AGENTS.join(', ')}\n` +
+        `→ Preferred: spawn an independent reviewer\n` +
         `   Agent({ subagent_type: "koala-review-story-init", prompt: \`koala dispatch '{"storyId":"${storyId}","agentType":"koala-review-story-init"}'\` })\n` +
-        `   并让 product-reviewer 同样调用 init_check_set；若 reviewer 4 分钟无输出，重新 dispatch 并重启 reviewer。\n` +
-        `→ Fallback（仅当无法 spawn subagent 时，受控且会留审计）：\n` +
-        `   koala init_check_repair '{"storyId":"${storyId}","acknowledge":true,"fallbackReason":"<为何 reviewer 无法运行 + 你人工核查了什么，≥30 字符>"}'`;
+        `   and have product-reviewer call init_check_set as well; if the reviewer produces no output for 4 minutes, re-dispatch and restart the reviewer.\n` +
+        `→ Fallback (only when subagents cannot be spawned, controlled and audited):\n` +
+        `   koala init_check_repair '{"storyId":"${storyId}","acknowledge":true,"fallbackReason":"<why the reviewer cannot run + what you manually verified, >=30 chars>"}'`;
     }
     const expected = recomputeInitCheckHash(storyId, store, projectRoot ?? process.cwd());
     if (initCheck._hash !== expected) {
-      return `Cannot enter INIT_CHECK: init-check.json _hash 失配（背景/标题/描述/checklist 已修改），请重跑 koala-review-story-init agent。 [init_check_tampered]`;
+      return `Cannot enter INIT_CHECK: init-check.json _hash mismatch (background/title/description/checklist were modified); please re-run the koala-review-story-init agent. [init_check_tampered]`;
     }
     const missingAgents = missingRequiredInitCheckAgents(initCheck);
     if (missingAgents.length > 0) {
-      return `Cannot enter INIT_CHECK: init-check.json 缺少必需 reviewer 记录: ${missingAgents.join(', ')}。 [missing_init_check_agent]\n` +
-        `→ 首选：分别运行 koala dispatch '{"storyId":"${storyId}","agentType":"koala-review-story-init"}' 和 product-reviewer；每个 reviewer 无论 pass/fail 都必须调用 init_check_set。\n` +
-        `→ Fallback（仅当无法 spawn subagent 时，受控且会留审计）：\n` +
-        `   koala init_check_repair '{"storyId":"${storyId}","acknowledge":true,"fallbackReason":"<为何 reviewer 无法运行 + 你人工核查了什么，≥30 字符>"}'`;
+      return `Cannot enter INIT_CHECK: init-check.json is missing required reviewer records: ${missingAgents.join(', ')}. [missing_init_check_agent]\n` +
+        `→ Preferred: separately run koala dispatch '{"storyId":"${storyId}","agentType":"koala-review-story-init"}' and product-reviewer; every reviewer must call init_check_set regardless of pass/fail.\n` +
+        `→ Fallback (only when subagents cannot be spawned, controlled and audited):\n` +
+        `   koala init_check_repair '{"storyId":"${storyId}","acknowledge":true,"fallbackReason":"<why the reviewer cannot run + what you manually verified, >=30 chars>"}'`;
     }
     const blockers = blockingInitCheckIssues(initCheck);
     if (blockers.length > 0) {
       const lines = blockers.slice(0, 8).map(({ agentId, issue }) =>
         `  - ${agentId}: ${issue.severity} ${issue.id ? `${issue.id} ` : ''}${issue.desc}`,
       );
-      return `Cannot enter INIT_CHECK: init-check reviewer 记录了 high/critical issue，必须先修复并重跑对应 reviewer。 [init_check_blocking_issues]\n${lines.join('\n')}`;
+      return `Cannot enter INIT_CHECK: init-check reviewer recorded high/critical issues; you must fix them and re-run the corresponding reviewer first. [init_check_blocking_issues]\n${lines.join('\n')}`;
     }
     return null;
   }
 
   if (targetPhase === 'DEV') {
-    // 先检查是否从 INIT_CHECK 走快速通道
+    // First check whether taking the express channel from INIT_CHECK
     const story = store.readStory(storyId);
     if (story.phase === 'INIT_CHECK') {
-      // 快速通道失败原因 — 读 WorkflowPolicy
+      // Express channel failure reasons — read WorkflowPolicy
       const reasons: string[] = [];
       try {
         const config = loadConfig(projectRoot);
         const policy = resolveWorkflowPolicy(config, story);
         if (!policy.quickPath.enabled) {
-          reasons.push(`当前 profile=${policy.profile} 禁用快速通道`);
+          reasons.push(`Current profile=${policy.profile} disables the express channel`);
         } else {
           if (!policy.quickPath.allowRiskSignals && story.riskSignals && story.riskSignals.length > 0) {
-            reasons.push(`有高风险信号（${story.riskSignals.map(r => r.category).join(', ')}），必须走完整 PLAN`);
+            reasons.push(`Has high-risk signals (${story.riskSignals.map(r => r.category).join(', ')}); must go through the full PLAN`);
           }
           try {
             const cl = store.readChecklist(storyId);
             if (cl.items.length > policy.quickPath.maxChecklistItems) {
-              reasons.push(`checklist 有 ${cl.items.length} 项（> ${policy.quickPath.maxChecklistItems}），必须走完整 PLAN`);
+              reasons.push(`Checklist has ${cl.items.length} items (> ${policy.quickPath.maxChecklistItems}); must go through the full PLAN`);
             }
           } catch {
-            reasons.push('无 checklist，必须先 story_advance PLAN');
+            reasons.push('No checklist; must run story_advance PLAN first');
           }
         }
       } catch {
-        reasons.push('无法加载配置，必须走完整 PLAN');
+        reasons.push('Unable to load configuration; must go through the full PLAN');
       }
       if (reasons.length > 0) {
-        return `Cannot skip PLAN:\n${reasons.map(r => `  - ${r}`).join('\n')}\n→ story_advance '{"storyId":"${storyId}","phase":"PLAN"}' 进入完整 PLAN 流程`;
+        return `Cannot skip PLAN:\n${reasons.map(r => `  - ${r}`).join('\n')}\n→ story_advance '{"storyId":"${storyId}","phase":"PLAN"}' to enter the full PLAN flow`;
       }
     }
 
-    // 正常 PLAN → DEV 路径：需要 story_review 通过（除非 policy 不要求）
+    // Normal PLAN → DEV path: requires story_review to pass (unless policy does not require it)
     try {
       const config2 = loadConfig(projectRoot);
       const story2 = store.readStory(storyId);
@@ -413,20 +413,20 @@ export function getGuardFailureReason(
         try {
           const review = store.readReview(storyId);
           if (!review || !review.reviews || review.reviews.length === 0) {
-            reasons.push('未通过 story_review 审查（无审查记录）');
+            reasons.push('story_review check not passed (no review record)');
           } else {
             const lastRound = review.reviews[review.reviews.length - 1];
             const REVIEW_SALT = 'koala-review-integrity-v1';
             const hashInput = `${storyId}:${lastRound.timestamp}:${lastRound.issueCount}:${lastRound.blockerCount ?? lastRound.issueCount}:${REVIEW_SALT}`;
             const expectedHash = createHash('sha256').update(hashInput).digest('hex');
             if (!lastRound._hash || lastRound._hash !== expectedHash) {
-              reasons.push('review.json 签名校验失败，审查报告必须由 story_review CLI 生成');
+              reasons.push('review.json signature verification failed; review report must be generated by story_review CLI');
             } else if ((lastRound.blockerCount ?? lastRound.issueCount) > 0) {
-              reasons.push(`最近一轮 story_review 有 ${lastRound.blockerCount ?? lastRound.issueCount} 个 blocker 未修复`);
+              reasons.push(`Latest story_review round has ${lastRound.blockerCount ?? lastRound.issueCount} unresolved blocker(s)`);
             }
           }
         } catch {
-          reasons.push('未通过 story_review 审查（无审查记录）');
+          reasons.push('story_review check not passed (no review record)');
         }
         if (reasons.length > 0) {
           return `Cannot enter DEV:\n${reasons.map(r => `  - ${r}`).join('\n')}`;
@@ -447,7 +447,7 @@ export function getGuardFailureReason(
     const reviewPolicy = resolveWorkflowPolicy(loadConfig(projectRoot), reviewStory);
     const missingEvidence = getBlockingVerificationEvidenceIssues(cl, undefined, reviewPolicy.profile);
     if (missingEvidence.length > 0) {
-      return `Cannot enter REVIEW: ${missingEvidence.length} required verification intent(s) lack passing evidence or waiver:\n${missingEvidence.map(i => `  - ${i}`).join('\n')}\n→ 运行 verification_evidence_add 记录 logic/integration/browser/manual 证据，或用 waiver 明确豁免`;
+      return `Cannot enter REVIEW: ${missingEvidence.length} required verification intent(s) lack passing evidence or waiver:\n${missingEvidence.map(i => `  - ${i}`).join('\n')}\n→ Run verification_evidence_add to record logic/integration/browser/manual evidence, or use waiver to explicitly exempt`;
     }
   }
 
@@ -464,11 +464,11 @@ export function getGuardFailureReason(
         const findings = store.readFindings(storyId);
         const reviewPasses = store.readReviewPasses(storyId);
         if ((!findings.findings || findings.findings.length === 0) && (!reviewPasses.passes || reviewPasses.passes.length === 0)) {
-          return `Cannot enter TEST: reviewer 未跑（无 findings 或 review pass）\n→ 按 opt-in 结果启动 reviewer（见 koala reviewer_list）；无问题时用 review_pass_set 记录通过`;
+          return `Cannot enter TEST: reviewer not run (no findings or review pass)\n→ Start reviewers per opt-in results (see koala reviewer_list); when no issues, use review_pass_set to record pass`;
         }
         const evidenceState = collectReviewerEvidenceState(store, storyId, projectRoot ?? process.cwd());
         if (evidenceState.invalid.length > 0) {
-          return `Cannot enter TEST: reviewer evidence 存在无效/过期的 review run 绑定：\n${evidenceState.invalid.slice(0, 5).map(issue => `  - ${issue.message}`).join('\n')}`;
+          return `Cannot enter TEST: reviewer evidence has invalid/expired review run bindings:\n${evidenceState.invalid.slice(0, 5).map(issue => `  - ${issue.message}`).join('\n')}`;
         }
         if (policy.review.requireReviewerFinding) {
           const currentRound = story.currentReviewRound;
@@ -491,8 +491,8 @@ export function getGuardFailureReason(
             if (missing.length > 0) {
               const names = optIn.map(r => r.name).join(',');
               const missingNames = missing.map(r => r.name).join(',');
-              const presentAgents = Array.from(new Set(currentRoundReviewerEvidence.map(e => e.agent))).join(', ') || '无';
-              return `Cannot enter TEST: Round 1 期望 ${optIn.length} 个 reviewer（opt-in: ${names}）当前 ${currentRoundReviewerEvidence.length} 个 reviewer 证据覆盖 ${optIn.length - missing.length} 个 reviewer（缺: ${missingNames}；已见 agent: ${presentAgents}）\n→ 并行启动缺失的 koala-review-* agent；无问题时用 review_pass_set`;
+              const presentAgents = Array.from(new Set(currentRoundReviewerEvidence.map(e => e.agent))).join(', ') || 'none';
+              return `Cannot enter TEST: Expected ${optIn.length} reviewers (opt-in: ${names}); currently ${currentRoundReviewerEvidence.length} reviewer evidence covers ${optIn.length - missing.length} reviewer(s) (Missing: ${missingNames}; agents seen: ${presentAgents})\n→ Start the missing koala-review-* agents in parallel; when no issues, use review_pass_set`;
             }
 
             // B-1fca CHK-002: quorum diagnostics for round 1 disputes/missing lanes
@@ -502,28 +502,28 @@ export function getGuardFailureReason(
               profile: policy.profile as 'light' | 'balanced' | 'strict',
             });
             if (!quorumR1.ok) {
-              return `Cannot enter TEST: Reviewer quorum not met (Round 1):\n${quorumR1.blocking.map(m => `  - ${m}`).join('\n')}\n→ 修复 reviewer dispute 后重新运行对应 reviewer；无问题时用 review_pass_set`;
+              return `Cannot enter TEST: Reviewer quorum not met (Round 1):\n${quorumR1.blocking.map(m => `  - ${m}`).join('\n')}\n→ Re-run the corresponding reviewer after fixing reviewer dispute; when no issues, use review_pass_set`;
             }
           } else {
             if (currentRoundReviewerEvidence.length === 0) {
               return currentRound
-                ? `Cannot enter TEST: Round ${rc} 当前 review round (${currentRound}) 无 reviewer finding/pass，请启动对应的 koala-review-* agent`
-                : `Cannot enter TEST: findings 全部来自 main agent（reviewer 未跑）\n→ 启动 koala-review-* subagent`;
+                ? `Cannot enter TEST: Round ${rc} current review round (${currentRound}) has no reviewer finding/pass; please start the corresponding koala-review-* agents`
+                : `Cannot enter TEST: findings all come from main agent (reviewer not run)\n→ Start koala-review-* subagent`;
             }
           }
         }
         const { effectiveBlockingSeverities, roundCount } = resolveEffectiveBlockingSeverities(store, storyId, policy);
 
-        // B-3fad CHK-001: evidenceState 维度 — 只有 verified（或 legacy 缺字段）的 open finding 阻塞。
+        // B-3fad CHK-001: evidenceState dimension — only verified (or legacy missing-field) open findings block.
         const blocking = evidenceState.valid
           .map((e) => e.finding)
           .filter((finding): finding is Finding => !!finding)
           .filter((f) => isFindingBlocking(f, effectiveBlockingSeverities, roundCount));
         if (blocking.length > 0) {
-          return `Cannot enter TEST: ${blocking.length} blocking finding(s) open (Round ${roundCount}, blocking: ${effectiveBlockingSeverities.join('/')}):\n${blocking.map(f => `  - ${f.id} [${f.severity}] ${f.desc}`).join('\n')}\n→ 修复后 finding_resolve，或确认不修 finding_dismiss（需说明理由 ≥10 字符）`;
+          return `Cannot enter TEST: ${blocking.length} blocking finding(s) open (Round ${roundCount}, blocking: ${effectiveBlockingSeverities.join('/')}):\n${blocking.map(f => `  - ${f.id} [${f.severity}] ${f.desc}`).join('\n')}\n→ After fixing, finding_resolve, or to confirm not fixing use finding_dismiss (reason ≥10 characters required)`;
         }
       } catch {
-        return `Cannot enter TEST: reviewer 未跑（无 findings.json）\n→ 按 opt-in 结果启动 reviewer（见 koala reviewer_list）`;
+        return `Cannot enter TEST: reviewer not run (no findings.json)\n→ Start reviewers per opt-in results (see koala reviewer_list)`;
       }
     }
   }
@@ -542,14 +542,14 @@ export function getGuardFailureReason(
       return `Cannot enter DONE: ${openBugs.length} unfixed bug(s): ${openBugs.map(b => b.id).join(', ')}`;
     }
 
-    // delivery-check.json 签名校验
+    // delivery-check.json signature verification
     const deliveryCheck = store.readDeliveryCheck(storyId);
     if (!deliveryCheck) {
-      return `Cannot enter DONE: 缺 delivery-check.json（需 koala-review-delivery reviewer 签名）。 [missing_delivery_check] → 运行 story_advance DEV 回炉补齐`;
+      return `Cannot enter DONE: missing delivery-check.json (requires koala-review-delivery reviewer signature). [missing_delivery_check] → Run story_advance DEV to rework and fill in`;
     }
     const expectedDeliveryHash = recomputeDeliveryCheckHash(storyId, store);
     if (expectedDeliveryHash === null || deliveryCheck._hash !== expectedDeliveryHash) {
-      return `Cannot enter DONE: delivery-check.json _hash 失配（内容已被篡改），请重跑 koala-review-delivery reviewer。 [delivery_check_tampered] → 运行 story_advance DEV 回炉补齐`;
+      return `Cannot enter DONE: delivery-check.json _hash mismatch (content has been tampered with); please re-run koala-review-delivery reviewer. [delivery_check_tampered] → Run story_advance DEV to rework and fill in`;
     }
 
     // every docsPromise must be verified or waived
@@ -558,7 +558,7 @@ export function getGuardFailureReason(
     );
     if (unverifiedPromises.length > 0) {
       const names = unverifiedPromises.map(p => p.docPath).join(', ');
-      return `Cannot enter DONE: ${unverifiedPromises.length} 条 docsPromise 未验证且无豁免: ${names}。 [unverified_promise] → 用 delivery_waiver_add 写豁免或重跑 reviewer → 运行 story_advance DEV 回炉补齐`;
+      return `Cannot enter DONE: ${unverifiedPromises.length} docsPromise entries unverified and not waived: ${names}. [unverified_promise] → Use delivery_waiver_add to write a waiver or re-run reviewer → Run story_advance DEV to rework and fill in`;
     }
   }
 

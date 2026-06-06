@@ -58,6 +58,12 @@ export type CommandDestructiveRisk =
  *     story evidence); a diagnostic `validate` without `--story` is `readOnly`.
  *  3. `delivery_check_set` is `reviewerWrite` only when the resolved actor is
  *     `koala-review-delivery`; otherwise it is treated as `storyScopedMutating`.
+ *  4. `dev_memory_finish --scope=global` with no explicit story target is
+ *     `mainSharedMutating`.
+ *  5. `autopilot_run` is `readOnly` by default; it becomes
+ *     `storyScopedMutating` only for explicit `dryRun=false` projection writes.
+ *     `autopilot_execute` is always `storyScopedMutating` because it is the
+ *     actual unattended executor loop.
  *
  * UNCLASSIFIED IS FAIL-CLOSED: a command without an `ownershipClass` is rejected
  * by the gate, never default-allowed. The `command-ownership-contract` task
@@ -72,7 +78,7 @@ export type OwnershipClass =
 
 /**
  * The canonical set of `OwnershipClass` values. Used for runtime re-validation
- * (per "Handler 编码约定": an enum field is re-checked at every consumer, not
+ * (per "Handler coding conventions": an enum field is re-checked at every consumer, not
  * only at the Zod boundary) and by the contract test.
  */
 export const OWNERSHIP_CLASSES: readonly OwnershipClass[] = [
@@ -112,6 +118,7 @@ export const COMMAND_POLICIES = {
   story_create: { status: 'rootOnly', rootOnly: true, ownershipClass: 'mainSharedMutating', destructiveRisk: 'metadata-write', reason: 'Creates a new story envelope; run from the project root before entering a story worktree. Serialized by the B-f60c main write lock, not the per-story owner lease.' },
   story_advance: { status: 'gateEvidence', gateEvidence: true, ownershipClass: 'storyScopedMutating', allowedPhases: 'all', destructiveRisk: 'metadata-write', reason: 'Lifecycle transition command guarded by story phase preflight checks.' },
   story_update: { status: 'supported', ownershipClass: 'storyScopedMutating', allowedPhases: ['INIT', 'PLAN'], destructiveRisk: 'metadata-write', reason: 'Story metadata may be edited only before development freezes scope.' },
+  story_resolve: { status: 'supported', ownershipClass: 'readOnly', allowedPhases: 'all', destructiveRisk: 'none', reason: 'Resolves Story context, phase, and authoritative working directory for plannedSteps. It reads Story metadata only and does not create evidence or mutate lifecycle state.' },
   story_get: { status: 'supported', ownershipClass: 'readOnly', allowedPhases: 'all', destructiveRisk: 'none', reason: 'Read-only story inspection.' },
   story_list: { status: 'supported', ownershipClass: 'readOnly', allowedPhases: 'all', destructiveRisk: 'none', reason: 'Read-only story listing.' },
   story_reconcile: { status: 'maintenance', ownershipClass: 'mainSharedMutating', allowedPhases: 'all', destructiveRisk: 'metadata-write', reason: 'Repairs zombie story/worktree residue through explicit maintenance flow; touches shared worktree state, not single-story authoring.' },
@@ -249,7 +256,27 @@ export const COMMAND_POLICIES = {
   workflow_explain: { status: 'supported', ownershipClass: 'readOnly', allowedPhases: 'all', destructiveRisk: 'none', reason: 'Read-only effective workflow explanation.' },
   // B-ea92 M1: read-only authority policy discovery — never submits evidence or claims jobs.
   authority_enforce_policy: { status: 'supported', ownershipClass: 'readOnly', allowedPhases: 'all', destructiveRisk: 'none', reason: 'Read-only authority policy discovery command stub (M1). Queries GET /v1/authority/policy and prints discovered fields. Never submits evidence, claims jobs, registers actor keys, executes providers, signs envelopes, or verifies receipts.' },
-  authority_enforce_runner: { status: 'supported', ownershipClass: 'readOnly', allowedPhases: 'all', destructiveRisk: 'none', reason: 'Explicit enforce-mode runner readiness command. Current milestone projects register/heartbeat/claim steps and dry-run readiness only; it never submits evidence, claims jobs, registers actor keys, executes real providers, or verifies receipts.' },
+  authority_enforce_runner: { status: 'supported', ownershipClass: 'readOnly', allowedPhases: 'all', destructiveRisk: 'none', reason: 'Explicit enforce-mode runner command. Default dry-run projects register/heartbeat/claim readiness only; --live mutates the remote Lattice Authority control plane by registering/heartbeating/claiming and immediately releasing any claimed job, without local Story writes, provider execution, evidence submission, or production DONE receipts.' },
+  authority_receipt_verify: { status: 'supported', ownershipClass: 'readOnly', allowedPhases: 'all', destructiveRisk: 'none', reason: 'Verifies a native Lattice Authority receipt signature and optional bindings from local inputs. It does not write Story state, submit evidence, contact authority, execute providers, or claim production DONE by itself.' },
+  authority_job_status: { status: 'supported', ownershipClass: 'readOnly', allowedPhases: 'all', destructiveRisk: 'none', reason: 'Reads Authority job host verdict summary and multi-host projection. It does not mint native receipts, submit evidence, execute providers, or claim authorityDone.' },
+  autopilot_status: { status: 'supported', ownershipClass: 'readOnly', allowedPhases: 'all', destructiveRisk: 'none', reason: 'Read-only autopilot availability and authority readiness report. Confirms local mode is available and never submits evidence, executes providers, verifies receipts, or claims productionDone.' },
+  autopilot_doctor: { status: 'supported', ownershipClass: 'readOnly', allowedPhases: 'all', destructiveRisk: 'none', reason: 'Read-only autopilot diagnostic. Projects local and authority readiness while preserving local workflow usability and avoiding authority mutation.' },
+  autopilot_run: { status: 'supported', ownershipClass: 'storyScopedMutating', allowedPhases: 'all', destructiveRisk: 'metadata-write', reason: 'Projects a bounded autopilot loop. The default dry-run invocation is dynamically treated as readOnly; explicit dryRun=false may append a story-scoped autopilot_projection event and remains non-authoritative gate evidence.' },
+  autopilot_execute: { status: 'supported', ownershipClass: 'storyScopedMutating', allowedPhases: 'all', destructiveRisk: 'metadata-write', reason: 'Runs the bounded unattended autopilot executor loop through safe argv-mapped Lattice commands. It may append a story-scoped autopilot_execution event, but that receipt is non-authoritative and cannot replace Python authority receipts for production DONE.' },
+  planner_draft: { status: 'supported', ownershipClass: 'readOnly', allowedPhases: 'all', destructiveRisk: 'none', reason: 'Builds a structured planner draft and planner run record from natural language. It does not create a Story, job, provider execution, or authority receipt.' },
+  planner_review: { status: 'supported', ownershipClass: 'readOnly', allowedPhases: 'all', destructiveRisk: 'none', reason: 'Reviews planner draft structure, ambiguity, policy, and verification coverage. It records planner run state only and cannot satisfy lifecycle gates by itself.' },
+  planner_create_story: { status: 'supported', ownershipClass: 'mainSharedMutating', allowedPhases: 'all', destructiveRisk: 'metadata-write', reason: 'Creates a Lattice Story through the planner-controlled Story creation path after draft review and confirmation gates. It must not bypass normal Story lifecycle.' },
+  planner_create_job: { status: 'supported', ownershipClass: 'storyScopedMutating', allowedPhases: 'all', destructiveRisk: 'metadata-write', reason: 'Creates a local run plan or unsigned Authority job-create envelope with typed plannedSteps. It does not execute providers or claim Authority DONE.' },
+  planner_status: { status: 'supported', ownershipClass: 'readOnly', allowedPhases: 'all', destructiveRisk: 'none', reason: 'Reads persisted planner run state without mutation.' },
+  planner_answer: { status: 'supported', ownershipClass: 'mainSharedMutating', allowedPhases: 'all', destructiveRisk: 'metadata-write', reason: 'Records structured interview answers and optional confirmation digest for a paused planner run.' },
+  planner_decision_submit: { status: 'supported', ownershipClass: 'mainSharedMutating', allowedPhases: 'all', destructiveRisk: 'metadata-write', reason: 'Records structured decision evidence for a paused decision-gated planner run.' },
+  planner_resume: { status: 'supported', ownershipClass: 'mainSharedMutating', allowedPhases: 'all', destructiveRisk: 'metadata-write', reason: 'Resumes a paused planner run from persisted state; it does not execute providers by itself.' },
+  planner_run: { status: 'supported', ownershipClass: 'mainSharedMutating', allowedPhases: 'all', destructiveRisk: 'metadata-write', reason: 'Composes planner draft/review/story/job planning. It remains bounded by planner policy and may block instead of executing when confirmation or authority policy is missing.' },
+  planner_source_manifest: { status: 'supported', ownershipClass: 'readOnly', allowedPhases: 'all', destructiveRisk: 'none', reason: 'Extracts a deterministic source manifest digest for source-aligned redevelopment. It excludes secrets/cache paths and does not mutate source repositories.' },
+  autopilot_review_submit: { status: 'supported', ownershipClass: 'storyScopedMutating', allowedPhases: 'all', destructiveRisk: 'metadata-write', reason: 'Records a local non-authority independent host verdict. It may certify localReviewCertified through summary only; it must never set authorityDone or fullAuthorityDone.' },
+  autopilot_review_status: { status: 'supported', ownershipClass: 'readOnly', allowedPhases: 'all', destructiveRisk: 'none', reason: 'Reads local host verdicts and reports localReviewCertified without claiming Authority DONE.' },
+  authority_verdict_submit: { status: 'supported', ownershipClass: 'mainSharedMutating', allowedPhases: 'all', destructiveRisk: 'metadata-write', reason: 'Records an Authority-mode host verdict keyed by job/run. It does not mint receipts, execute providers, or make a single-host production DONE claim.' },
+  authority_verdict_list: { status: 'supported', ownershipClass: 'readOnly', allowedPhases: 'all', destructiveRisk: 'none', reason: 'Reads Authority host verdicts and reports multi-host fullAuthorityDone projection only when independent verdict policy passes; native gate receipts remain separately required.' },
   // B-ad2c: dev-memory — lightweight non-authoritative experience capture outside story gates.
   dev_memory_capture: { status: 'supported', ownershipClass: 'mainSharedMutating', allowedPhases: 'all', destructiveRisk: 'metadata-write', reason: 'Captures a non-authoritative dev experience entry to file-backed JSONL storage (auxiliary non-gate project/global memory write). Cannot satisfy Koala DONE gate evidence. Cross-session serialized by shared file append; not per-story owner lease.' },
   dev_memory_list: { status: 'supported', ownershipClass: 'readOnly', allowedPhases: 'all', destructiveRisk: 'none', reason: 'Lists dev-memory experience entries from project/global storage. Read-only.' },

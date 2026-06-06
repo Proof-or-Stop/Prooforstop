@@ -185,7 +185,7 @@ export function acquireMainWriteLock(
   options: MainWriteLockOptions = {},
 ): AcquiredMkdirLock {
   // Runtime re-validation of the constraint Zod cannot express here: the lock
-  // root must be a non-empty path. Mirrors the "Handler 编码约定" rule that
+  // root must be a non-empty path. Mirrors the "Handler coding convention" rule that
   // every consumer re-checks load-bearing invariants instead of trusting an
   // upstream schema.
   const root = String(mainRepoRoot ?? '').trim();
@@ -198,7 +198,7 @@ export function acquireMainWriteLock(
   const lockDir = mainWriteLockPath(root);
   // Default contention mode is fail-fast (long DONE-class critical sections).
   // Runtime guard: an out-of-enum value falls back to 'fail-fast' rather than
-  // silently behaving as 'wait' (mirrors the "Handler 编码约定" enum re-check).
+  // silently behaving as 'wait' (mirrors the "Handler coding convention" enum re-check).
   const onContention: 'fail-fast' | 'wait' =
     options.onContention === 'wait' ? 'wait' : 'fail-fast';
 

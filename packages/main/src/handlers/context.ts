@@ -13,9 +13,9 @@ export interface HandlerContext {
   store: StoryStore;
   root: string;
   scanRoot: string;
-  /** 流式日志输出（MCP 环境走 sendLoggingMessage，其他环境走 console.log） */
+  /** Streaming log output (MCP environments use sendLoggingMessage, others use console.log) */
   log?: (msg: string) => void;
-  /** 延迟获取所有已注册工具名（由 tools.ts 注入，避免循环依赖） */
+  /** Lazily retrieve all registered tool names (injected by tools.ts to avoid circular dependencies) */
   getAllToolNames?: () => Set<string>;
   /**
    * B-94a6: authority submission injection point. Production leaves these unset and
@@ -25,6 +25,8 @@ export interface HandlerContext {
    */
   authoritySettings?: import('../core/authority-mode.js').AuthoritySettings;
   authoritySubmitter?: import('../core/authority-submit.js').AuthoritySubmitter;
+  /** Test seam for autopilot executor command execution. Production uses the built-in argv runner. */
+  autopilotCommandRunner?: import('../core/autopilot-executor.js').AutopilotCommandRunner;
 }
 
 const PHASE_TO_EVENT: Record<string, string> = { ...PHASE_EVENT_BY_TARGET };
@@ -48,26 +50,26 @@ export function collectContext(phase: StoryPhase, action: 'create' | 'advance' |
   return event;
 }
 
-/** PLAN ~ TEST 阶段必须在 worktree 里执行 koala 命令 */
+/** PLAN ~ TEST phases must execute koala commands inside the worktree */
 export const CWD_GATED_PHASES: Set<StoryPhase> = new Set(CWD_GATED_LIFECYCLE_PHASES);
 
 /**
- * 检查当前 cwd 是否在 story 的 worktree 中。
- * 调用者负责判断"是否应该检查"（基于目标 phase 等），本函数只做 cwd 比对。
- * 抛错时给出修复指引。
+ * Check whether the current cwd is inside the story's worktree.
+ * The caller is responsible for deciding "whether to check" (based on target phase, etc.); this function only compares cwd.
+ * Provide remediation guidance when throwing.
  */
 export function assertCwdInWorktree(store: StoryStore, storyId: string): void {
   let story;
   try {
     story = store.readStory(storyId);
   } catch {
-    return; // story 不存在，跳过
+    return; // story does not exist, skip
   }
   if (story.phase === 'DONE' || story.phase === 'DISCARDED') return;
 
-  // B-9d95 CHK-001 whitelist: cwd 门禁——本函数的职责就是校验调用方 cwd 是否在 story 的 worktree。
-  // 这里必须读 process.cwd()（调用方视角），不能用 ctx.root（那是 handler 初始化时确定的，
-  // 不等于调用方真实 cwd）。故此 process.cwd() 调用点在白名单内。
+  // B-9d95 CHK-001 whitelist: cwd gate — this function's responsibility is to verify whether the caller's cwd is inside the story's worktree.
+  // Must read process.cwd() here (caller's perspective); cannot use ctx.root (that is fixed at handler init,
+  // which is not equal to the caller's real cwd). So this process.cwd() call site is in the whitelist.
   const cwd = process.cwd();
   let expectedAbsPath: string | null = null;
   let repoRoot = cwd;
@@ -77,7 +79,7 @@ export function assertCwdInWorktree(store: StoryStore, storyId: string): void {
     repoRoot = runtime.repoRoot;
   } catch { /* PROBE: fall back to stored story.worktree below */ }
 
-  if (!expectedAbsPath && !story.worktree) return; // 没有 worktree，跳过（兼容旧 story）
+  if (!expectedAbsPath && !story.worktree) return; // no worktree, skip (compatible with legacy stories)
 
   try {
     // Use git common-dir to find the MAIN repo root, not the worktree root.
@@ -106,9 +108,9 @@ export function assertCwdInWorktree(store: StoryStore, storyId: string): void {
   const normalizedExpected = canonicalPath(expectedAbsPath);
   if (normalizedCwd !== normalizedExpected && !normalizedCwd.startsWith(normalizedExpected + '/') && !normalizedCwd.startsWith(normalizedExpected + '\\')) {
     throw new Error(
-      `Story ${storyId} 必须在 worktree 里执行 koala 命令\n` +
-      `期望 cwd: ${normalizedExpected}\n` +
-      `当前 cwd: ${cwd}\n` +
+      `Story ${storyId} must execute koala commands inside the worktree\n` +
+      `Expected cwd: ${normalizedExpected}\n` +
+      `Current cwd: ${cwd}\n` +
       `→ cd ${normalizedExpected}`
     );
   }

@@ -2793,8 +2793,8 @@ const inventory = [
           'runReviewCliGates',
           'koala validate --json',
           'writeTestEvidence',
-          'Cannot enter TEST: CLI gate preflight 执行异常',
-          'Cannot enter TEST: koala validate 执行异常',
+          'Cannot enter TEST: CLI gate preflight execution error',
+          'Cannot enter TEST: koala validate execution error',
         ],
       },
       {
@@ -2982,14 +2982,14 @@ const inventory = [
       {
         // B-3fad CHK-003: B-56d3 moved the REVIEW→TEST gate machinery
         // (runReviewCliGates / writeTestEvidence / the `koala validate --json`
-        // gate / the two `Cannot enter TEST` strings) into phase-gates.ts.
+        // gate / the two English `Cannot enter TEST` strings) into phase-gates.ts.
         // story-advance.ts keeps buildDoneChecklist (DONE checklist assembly).
         relPath: 'packages/main/src/handlers/story-advance.ts',
         patterns: ['buildDoneChecklist'],
       },
       {
         relPath: 'packages/main/src/handlers/phase-gates.ts',
-        patterns: ['runReviewCliGates', 'koala validate --json', 'buildDoneChecklist', 'writeTestEvidence', 'Cannot enter TEST: CLI gate preflight 执行异常', 'Cannot enter TEST: koala validate 执行异常'],
+        patterns: ['runReviewCliGates', 'koala validate --json', 'buildDoneChecklist', 'writeTestEvidence', 'Cannot enter TEST: CLI gate preflight execution error', 'Cannot enter TEST: koala validate execution error'],
       },
       {
         relPath: 'packages/main/src/handlers/review-preflight.ts',

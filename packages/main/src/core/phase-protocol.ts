@@ -33,27 +33,27 @@ function buildHumanHint(
 ): string | null {
   switch (reasonCode) {
     case 'missing_test_intent':
-      return `运行 testintent_handoff --storyId=${storyId} 生成交接包，交给 test-intent agent 补齐 testIntent.happy，然后重新执行 story_review 与 story_advance --storyId=${storyId} --phase=${targetPhase}`;
+      return `Run testintent_handoff --storyId=${storyId} to generate the handoff package, hand it to the test-intent agent to fill in testIntent.happy, then re-run story_review and story_advance --storyId=${storyId} --phase=${targetPhase}`;
     case 'story_review_missing':
-      return `先执行 story_review --storyId=${storyId} 生成审查记录，再推进 ${targetPhase}`;
+      return `First run story_review --storyId=${storyId} to generate the review record, then advance to ${targetPhase}`;
     case 'review_signature_invalid':
-      return `不要手改 review.json。重新执行 story_review --storyId=${storyId}，让 CLI 重建合法签名。`;
+      return `Do not manually edit review.json. Re-run story_review --storyId=${storyId} to let the CLI rebuild a valid signature.`;
     case 'story_review_failed':
-      return `先修复最近一轮 story_review 的 blocker，再执行 story_advance --storyId=${storyId} --phase=${targetPhase}`;
+      return `First fix the blockers from the most recent story_review round, then run story_advance --storyId=${storyId} --phase=${targetPhase}`;
     case 'dev_checklist_incomplete':
-      return `先把 DEV 阶段 checklist 做完并标成 done，再推进到 ${targetPhase}`;
+      return `First complete the DEV phase checklist and mark items as done, then advance to ${targetPhase}`;
     case 'review_failed':
       return rollbackPhase
-        ? `reviewer 还没通过。先回 ${rollbackPhase} 修代码或 case，再重新申请进入 ${targetPhase}`
-        : `reviewer 还没通过。先修代码或 case，再重新申请进入 ${targetPhase}`;
+        ? `Reviewer has not passed yet. First go back to ${rollbackPhase} to fix code or cases, then re-request entry into ${targetPhase}`
+        : `Reviewer has not passed yet. First fix code or cases, then re-request entry into ${targetPhase}`;
     case 'test_evidence_missing':
-      return `先执行 test_story --storyId=${storyId} 生成测试证据，再推进到 ${targetPhase}`;
+      return `First run test_story --storyId=${storyId} to generate test evidence, then advance to ${targetPhase}`;
     case 'test_failed':
-      return `先修复失败测试并确认最新 evidence=PASS，再推进到 ${targetPhase}`;
+      return `First fix failing tests and confirm the latest evidence=PASS, then advance to ${targetPhase}`;
     case 'bug_open':
-      return `先修复所有 open bug 并标 fixed，再推进到 ${targetPhase}`;
+      return `First fix all open bugs and mark them fixed, then advance to ${targetPhase}`;
     case 'transition_blocked':
-      return `检查 ${targetPhase} 的 phase gate 缺口，补齐后再执行 story_advance --storyId=${storyId} --phase=${targetPhase}`;
+      return `Check the phase gate gaps for ${targetPhase}, fill them in, then run story_advance --storyId=${storyId} --phase=${targetPhase}`;
     default:
       return null;
   }

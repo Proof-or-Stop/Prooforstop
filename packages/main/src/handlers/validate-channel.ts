@@ -1,14 +1,14 @@
 /**
  * validate-channel — CLI gate: structured normal-channel evidence check
  *
- * 校验正常通道是否有结构化执行证据：
- * - 快速通道（checklist ≤ 2 且 riskSignals 空）：跳过，返回 skipped
- * - 正常通道：优先要求每个非 main-agent Owner 的 checklist item 有 dispatch 或
- *   subagent_result process-event 证据。commit author 只作为 legacy fallback：
- *   当缺少 process-event 且全部实现 commit 均为 author == "koala-implementer"
- *   或 metadata-only koala commit 时才可通过。
+ * Validate whether the normal channel has structured execution evidence:
+ * - Fast channel (checklist ≤ 2 and no riskSignals): skip, return skipped
+ * - Normal channel: first require each checklist item with non-main-agent Owner to have dispatch or
+ *   subagent_result process-event evidence. commit author is only a legacy fallback:
+ *   only when process-event is missing and all implementation commits have author == "koala-implementer"
+ *   or are metadata-only koala commits can it pass.
  *
- * 输出结构：
+ * Output structure:
  *   {
  *     provider: "koala-channel",
  *     status: "pass" | "fail" | "skipped",
@@ -17,7 +17,7 @@
  *     offenders?: Array<{ sha, author, subject }>,
  *   }
  *
- * 参考 docs/koala/reviewer-redesign.md §三 S1 第 1 条。
+ * See docs/koala/reviewer-redesign.md §III S1 item 1.
  */
 
 import { execSync } from 'node:child_process';
@@ -44,20 +44,20 @@ export interface ChannelCheckResult {
   details: string[];
   offenders?: ChannelOffender[];
   /**
-   * F-003 (B-fdcf Round 1): 证据来源标签，供 renderChannelResult 输出
-   * userSees 承诺的 `all CHK covered (via <source>)` 短语。
-   * - 'subagent_result' — 全部通过 Agent() 直派路径（subagent_result 事件）
-   * - 'dispatch'        — 全部通过 koala dispatch（dispatch 事件）
-   * - 'dispatch + subagent_result' — 混合
-   * - 'commit_author' — commit author=koala-implementer 作为直派 Agent 执行信号
-   * 仅在 status=pass 且存在 evidencedItems 时设置；纯豁免 / 无 commit 等场景 undefined。
+   * F-003 (B-fdcf Round 1): evidence source label, used by renderChannelResult to output
+   * the `all CHK covered (via <source>)` phrase promised by userSees.
+   * - 'subagent_result' — all via Agent() direct dispatch path (subagent_result events)
+   * - 'dispatch'        — all via koala dispatch (dispatch events)
+   * - 'dispatch + subagent_result' — mixed
+   * - 'commit_author' — commit author=koala-implementer as a signal of direct Agent execution
+   * Set only when status=pass and evidencedItems exists; undefined for pure waiver / no-commit scenarios.
    */
   evidenceSource?: 'subagent_result' | 'dispatch' | 'dispatch + subagent_result' | 'commit_author';
 }
 
 /**
- * 读 git log 原始输出的回调，便于测试注入。
- * 默认实现 = execSync `git log <base>..<branch> --format=%H|%an|%s`。
+ * Callback that reads raw git log output, for test injection.
+ * Default implementation = execSync `git log <base>..<branch> --format=%H|%an|%s`.
  */
 export type GitLogReader = (args: {
   base: string;
@@ -100,7 +100,7 @@ const defaultGitChangedFilesReader: GitChangedFilesReader = ({ sha, projectRoot 
   return raw.split('\n').map(line => line.trim()).filter(Boolean);
 };
 
-/** 解析 `%H|%an|%s` 行，容忍 subject 中含 `|` */
+/** Parse `%H|%an|%s` lines, tolerating `|` inside subject */
 export function parseGitLogLine(line: string): ChannelOffender | null {
   const trimmed = line.trim();
   if (!trimmed) return null;
@@ -116,39 +116,39 @@ export function parseGitLogLine(line: string): ChannelOffender | null {
 }
 
 /**
- * 正常通道判定。F-015 (B-9d95 Round 1 review): 改为与 workflow-policy.ts 的
- * computeChannel 口径一致，避免 3-5 item 无 riskSignals story 被误判 normal。
+ * Normal channel determination. F-015 (B-9d95 Round 1 review): aligned with workflow-policy.ts
+ * computeChannel semantics, to avoid 3-5 item stories without riskSignals being misjudged as normal.
  *
  * computeChannel:
- *   express: items ≤ 2 且无 risk
- *   fast:    items ≤ 5 且无 risk 且单一解（decision.options ≤ 1 或无 decision）
- *   normal:  其他
+ *   express: items ≤ 2 and no risk
+ *   fast:    items ≤ 5 and no risk and single solution (decision.options ≤ 1 or no decision)
+ *   normal:  otherwise
  *
- * channel gate 只在 normal 通道启用。
+ * channel gate is enabled only on the normal channel.
  *
- * 保留旧的 2-arg 签名（itemCount + riskSignalCount）做 back-compat，行为
- * 调整为"无 decision 视作单一解 → ≤ 5 items 且无 risk → fast（非 normal）"，
- * 与 computeChannel(story, checklist, undefined) 结果一致。
+ * Keep the old 2-arg signature (itemCount + riskSignalCount) for back-compat, with behavior
+ * adjusted to "no decision treated as single solution → ≤ 5 items and no risk → fast (not normal)",
+ * consistent with computeChannel(story, checklist, undefined) result.
  *
- * 新增 isNormalChannelWithStory(story, checklist, decision?) 做完整判定，
- * 让 checkCommitAuthor 传 decision 时 decision.options.length > 1 仍按 normal 判。
+ * Added isNormalChannelWithStory(story, checklist, decision?) for full determination,
+ * so when checkCommitAuthor is passed a decision, decision.options.length > 1 is still judged as normal.
  */
 export function isNormalChannel(opts: {
   itemCount: number;
   riskSignalCount: number;
 }): boolean {
-  // 构造最小的 computeChannel 输入。无 decision → computeChannel 视为单一解，
-  // items ≤ 5 且无 risk → fast；> 5 或有 risk → normal。
+  // Construct minimal computeChannel input. No decision → computeChannel treats as single solution,
+  // items ≤ 5 and no risk → fast; > 5 or has risk → normal.
   const stubStory = { riskSignals: Array.from({ length: opts.riskSignalCount }, () => ({ category: 'stub', matched: 'stub' })) };
   const stubChecklist = { items: Array.from({ length: opts.itemCount }, () => ({})) };
   return computeChannel(stubStory as unknown as StoryInfo, stubChecklist as unknown as ChecklistData, undefined) === 'normal';
 }
 
 /**
- * F-015: 带完整上下文的 normal 判定。检查点：
- *   - decision.options.length > 1 → 多解 → normal
- *   - 上面任一 normal 条件触发 → true
- * 若 decision 为 null/undefined，等价 isNormalChannel（单一解路径）。
+ * F-015: normal determination with full context. Checks:
+ *   - decision.options.length > 1 → multi-solution → normal
+ *   - any of the above normal conditions triggered → true
+ * If decision is null/undefined, equivalent to isNormalChannel (single solution path).
  */
 export function isNormalChannelWithStory(
   story: Pick<StoryInfo, 'riskSignals'> & Partial<Pick<StoryInfo, 'riskSignalsDismissed'>>,
@@ -159,10 +159,10 @@ export function isNormalChannelWithStory(
 }
 
 /**
- * 判定单个 commit 是否可作为 legacy fallback。
- * - author == "koala-implementer" 通过
- * - subject 以 "koala:" 前缀且只触及 story metadata 时通过
- * - 否则不能作为 fallback；但若 dispatch/subagent_result 结构化证据完整，author 不再硬阻塞
+ * Determine whether a single commit can serve as legacy fallback.
+ * - author == "koala-implementer" passes
+ * - subject prefixed with "koala:" and only touches story metadata passes
+ * - otherwise cannot serve as fallback; but if dispatch/subagent_result structured evidence is complete, author no longer hard-blocks
  */
 export function isStoryMetadataPath(file: string): boolean {
   return isSharedStoryMetadataPath(file);
@@ -182,9 +182,9 @@ export function isAcceptableCommit(c: ChannelOffender): boolean {
 }
 
 /**
- * F-021 (B-fdcf CHK-003): 读 plan.md 抽出声明 `**Owner**: main-agent` 的 CHK-id 集合。
- * 解析规则：按 `^## (CHK-\d+)` 段落拆分，在每段内找第一行 `**Owner**: main-agent`
- * （宽松空白）。plan.md 不存在或解析失败 → 返回空集（fail-open，继续要求事件证据）。
+ * F-021 (B-fdcf CHK-003): read plan.md to extract the set of CHK-ids declaring `**Owner**: main-agent`.
+ * Parsing rule: split by `^## (CHK-\d+)` sections, find the first line `**Owner**: main-agent` within each section
+ * (whitespace tolerant). plan.md missing or parsing failure → return empty set (fail-open, continue requiring event evidence).
  */
 export type PlanReader = (storyId: string, projectRoot: string) => string | null;
 
@@ -215,9 +215,9 @@ export function parseMainAgentOwnedItems(planContent: string | null): Set<string
     if (!currentChk) continue;
     const om = ownerRe.exec(line);
     if (om) {
-      // Owner 行匹配 main-agent（允许 "main-agent" / "main-agent | ..." 首位）
+      // Owner line matches main-agent (allow "main-agent" / "main-agent | ..." in the first position)
       const ownerValue = om[1].trim();
-      // 取第一个 token（可能含 "|" 分隔替代项，main-agent 必须作为首选）
+      // Take the first token (may contain "|" as separator for alternatives, main-agent must be the primary choice)
       const firstToken = ownerValue.split(/[\s|]+/)[0];
       if (firstToken === 'main-agent') {
         owned.add(currentChk);
@@ -228,11 +228,11 @@ export function parseMainAgentOwnedItems(planContent: string | null): Set<string
 }
 
 /**
- * F-021 (B-fdcf CHK-003): dispatch 证据判定。
+ * F-021 (B-fdcf CHK-003): dispatch evidence determination.
  *
- * 每个 CHK-xxx 必须有证据：`dispatch` 事件 OR `subagent_result` 事件，按 checklistId / itemId 去重。
- * 若只有 subagent_result 且 success=false → 报 `dispatch 存在但 subagent 失败`。
- * plan.md 声明 `**Owner**: main-agent` 的 CHK 豁免。
+ * Each CHK-xxx must have evidence: `dispatch` event OR `subagent_result` event, deduplicated by checklistId / itemId.
+ * If only subagent_result exists and success=false → report `dispatch exists but subagent failed`.
+ * CHKs declaring `**Owner**: main-agent` in plan.md are exempt.
  */
 export interface DispatchEvidenceIssue {
   itemId: string;
@@ -243,9 +243,9 @@ export interface DispatchEvidenceIssue {
 export interface DispatchEvidenceResult {
   ok: boolean;
   issues: DispatchEvidenceIssue[];
-  /** plan.md 豁免的 item id */
+  /** item ids exempt by plan.md */
   exemptedItems: string[];
-  /** 已找到证据的 item id（dispatch 或 success=true 的 subagent_result） */
+  /** item ids with evidence found (dispatch or success=true subagent_result) */
   evidencedItems: string[];
   details: string[];
 }
@@ -258,7 +258,7 @@ export function checkDispatchEvidence(opts: {
   const { checklist, events, mainAgentOwnedItems } = opts;
   const items = checklist?.items ?? [];
 
-  // 去重收集：每个 itemId 的证据集合
+  // Dedup collection: evidence set per itemId
   type Evidence = { hasDispatch: boolean; successResult: boolean; failureResult: boolean };
   const byItem = new Map<string, Evidence>();
   const getOrInit = (id: string): Evidence => {
@@ -279,8 +279,8 @@ export function checkDispatchEvidence(opts: {
     } else if (ev.type === 'subagent_result') {
       const id = (ev as any).checklistId ?? (ev as any).itemId;
       if (typeof id === 'string' && /^CHK-\d+$/.test(id)) {
-        // F-013 (B-fdcf Round 1): ProcessEvent 是 index-signature 类型（[key]:unknown），
-        // 消费 success 字段时窄化到 boolean | undefined，避免 as any 丢类型。
+        // F-013 (B-fdcf Round 1): ProcessEvent is an index-signature type ([key]:unknown),
+        // narrow to boolean | undefined when consuming the success field to avoid losing types via as any.
         const success = ev.success as boolean | undefined;
         if (success === false) getOrInit(id).failureResult = true;
         else getOrInit(id).successResult = true;
@@ -293,7 +293,7 @@ export function checkDispatchEvidence(opts: {
   const evidencedItems: string[] = [];
 
   for (const item of items) {
-    // F-012 (B-fdcf Round 1): ChecklistItem.id 已是 string，无需 as any 强转
+    // F-012 (B-fdcf Round 1): ChecklistItem.id is already string, no need to force-cast as any
     const id = item.id;
     if (!id) continue;
     if (mainAgentOwnedItems.has(id)) {
@@ -306,17 +306,17 @@ export function checkDispatchEvidence(opts: {
       issues.push({
         itemId: id,
         reason: 'missing_evidence',
-        message: `channel gate fail: ${id} 无 dispatch/subagent_result 证据`,
+        message: `channel gate fail: ${id} has no dispatch/subagent_result evidence`,
       });
       continue;
     }
-    // F-006 (B-fdcf Round 1): 根据 dispatch 是否存在分别报不同文案
-    //   !hasDispatch && failureResult && !successResult → subagent 失败且无 dispatch 证据
-    //    hasDispatch && failureResult && !successResult → dispatch 存在但 subagent 失败
+    // F-006 (B-fdcf Round 1): emit different messages depending on whether dispatch exists
+    //   !hasDispatch && failureResult && !successResult → subagent failed and no dispatch evidence
+    //    hasDispatch && failureResult && !successResult → dispatch exists but subagent failed
     if (ev && ev.failureResult && !ev.successResult) {
       const message = ev.hasDispatch
-        ? `channel gate fail: ${id} dispatch 存在但 subagent 失败`
-        : `channel gate fail: ${id} subagent 失败且无 dispatch 证据`;
+        ? `channel gate fail: ${id} dispatch exists but subagent failed`
+        : `channel gate fail: ${id} subagent failed and no dispatch evidence`;
       issues.push({
         itemId: id,
         reason: 'subagent_failed',
@@ -324,16 +324,16 @@ export function checkDispatchEvidence(opts: {
       });
       continue;
     }
-    // 两者都有 / 只有 dispatch / 只有成功 result → 通过（即便 failureResult=true 但有成功记录，视为重试成功）
+    // Both / only dispatch / only success result → pass (even if failureResult=true but a success record exists, treat as retry success)
     evidencedItems.push(id);
   }
 
   const details: string[] = [];
   if (exemptedItems.length > 0) {
-    details.push(`plan.md Owner=main-agent 豁免: ${exemptedItems.join(', ')}`);
+    details.push(`plan.md Owner=main-agent exempted: ${exemptedItems.join(', ')}`);
   }
   if (evidencedItems.length > 0) {
-    details.push(`已覆盖: ${evidencedItems.join(', ')}`);
+    details.push(`Covered: ${evidencedItems.join(', ')}`);
   }
   for (const iss of issues) {
     details.push(iss.message);
@@ -359,8 +359,8 @@ export interface CheckCommitAuthorDeps {
 }
 
 /**
- * 核心入口：读 story → 判定通道 → 跑 git log → 输出结构化结果。
- * story 不存在 → 结构化 fail。
+ * Core entry: read story → determine channel → run git log → emit structured result.
+ * story does not exist → structured fail.
  */
 export function checkCommitAuthor(
   storyId: string,
@@ -375,7 +375,7 @@ export function checkCommitAuthor(
     planReader = defaultPlanReader,
   } = deps;
 
-  // story 存在性校验
+  // story existence check
   if (!store.storyExists(storyId)) {
     return {
       provider: 'koala-channel',
@@ -411,7 +411,7 @@ export function checkCommitAuthor(
 
   const itemCount = checklist?.items?.length ?? 0;
   const riskSignalCount = story.riskSignals?.length ?? 0;
-  // F-015: 若存在 decision.json，其 options.length > 1 也会让 computeChannel 判 normal
+  // F-015: if decision.json exists, options.length > 1 also makes computeChannel rule it normal
   let decision: Pick<DecisionData, 'options' | 'chosen'> | null = null;
   try {
     decision = store.readDecision(storyId);
@@ -422,7 +422,7 @@ export function checkCommitAuthor(
     return {
       provider: 'koala-channel',
       status: 'skipped',
-      summary: '非正常通道不检查 normal-channel dispatch/subagent evidence',
+      summary: 'Non-normal channel does not check normal-channel dispatch/subagent evidence',
       details: [
         `story=${storyId}`,
         `checklist items=${itemCount} & riskSignals=${riskSignalCount} → channel=express/fast`,
@@ -430,7 +430,7 @@ export function checkCommitAuthor(
     };
   }
 
-  // 跑 git log
+  // run git log
   const branch = `story/${storyId}`;
   let raw: string;
   try {
@@ -458,8 +458,8 @@ export function checkCommitAuthor(
 
   const offenders = commits.filter((c) => !isAcceptableCommit(c));
 
-  // F-021 (B-fdcf CHK-003): dispatch 证据检查。事件源 = dispatch ∪ subagent_result，
-  // plan.md 声明 `**Owner**: main-agent` 的 CHK 豁免。解析失败 fail-open 继续要求事件。
+  // F-021 (B-fdcf CHK-003): dispatch evidence check. Event sources = dispatch ∪ subagent_result,
+  // CHKs declared `**Owner**: main-agent` in plan.md are exempt. Fail-open on parse failure and still require events.
   let events: ProcessEvent[] = [];
   try {
     events = store.readProcessEvents(storyId);
@@ -472,14 +472,14 @@ export function checkCommitAuthor(
     mainAgentOwnedItems: ownedByMain,
   });
 
-  // 无 commit 的边界：author 检查通过。证据检查仍然要跑——normal channel 无 commit 也应有 dispatch/subagent_result 记录
-  // 但为保持 back-compat（历史测试 "no commits → pass"），当 commits 为 0 时也跳过证据检查。
+  // No-commit boundary: author check passes. Evidence check still runs—normal channel with no commits should still have dispatch/subagent_result records
+  // but for back-compat (legacy test "no commits → pass"), skip the evidence check too when commits is 0.
   if (commits.length === 0) {
     return {
       provider: 'koala-channel',
       status: 'pass',
       summary: `no commits between ${base} and ${branch}`,
-      details: [`正常通道 story=${storyId}，但 ${base}..${branch} 无新增 commit`],
+      details: [`Normal channel story=${storyId}, but no new commits in ${base}..${branch}`],
     };
   }
 
@@ -495,10 +495,10 @@ export function checkCommitAuthor(
     && evidence.issues.every(issue => issue.reason === 'missing_evidence');
 
   if (structuredEvidenceOk || authorEvidenceCoversMissing) {
-    // F-003 (B-fdcf Round 1): 判定 evidenceSource 标签，供 renderChannelResult 嵌入
-    // userSees 承诺的 "all CHK covered (via <source>)" 短语。扫 events 判断每个
-    // evidencedItems 的证据来源：只看 dispatch → dispatch；只看 subagent_result → subagent_result；
-    // 同时看到 → dispatch + subagent_result。纯豁免（evidencedItems 空）时不设。
+    // F-003 (B-fdcf Round 1): determine the evidenceSource label, for renderChannelResult to embed
+    // the "all CHK covered (via <source>)" phrase promised in userSees. Scan events to determine each
+    // evidencedItems' evidence source: dispatch only → dispatch; subagent_result only → subagent_result;
+    // both seen → dispatch + subagent_result. Not set when purely exempt (evidencedItems empty).
     let evidenceSource: ChannelCheckResult['evidenceSource'] | undefined;
     if (authorEvidenceCoversMissing) {
       evidenceSource = 'commit_author';
@@ -517,12 +517,12 @@ export function checkCommitAuthor(
       else if (anySubagent) evidenceSource = 'subagent_result';
     }
     const summary = allItemsOwnedByMain && offenders.length > 0
-      ? `正常通道：${commits.length} 条 commit 由 plan.md Owner=main-agent 明确豁免；dispatch/subagent_result 证据覆盖完整`
+      ? `Normal channel: ${commits.length} commits explicitly exempted by plan.md Owner=main-agent; dispatch/subagent_result evidence coverage complete`
       : authorEvidenceCoversMissing
-        ? `正常通道：${commits.length} 条 commit 全部由 koala-implementer 或 metadata-only koala CLI 产出；commit author 作为直派执行证据`
+        ? `Normal channel: ${commits.length} commits all produced by koala-implementer or metadata-only koala CLI; commit author as direct-dispatch execution evidence`
         : offenders.length > 0
-          ? `正常通道：dispatch/subagent_result 结构化证据覆盖完整；commit author 仅作辅助信号`
-          : `正常通道：${commits.length} 条 commit 全部由 koala-implementer 或 metadata-only koala CLI 产出；dispatch/subagent_result 证据覆盖完整`;
+          ? `Normal channel: dispatch/subagent_result structured evidence coverage complete; commit author only as auxiliary signal`
+          : `Normal channel: ${commits.length} commits all produced by koala-implementer or metadata-only koala CLI; dispatch/subagent_result evidence coverage complete`;
     return {
       provider: 'koala-channel',
       status: 'pass',
@@ -531,12 +531,12 @@ export function checkCommitAuthor(
         ...commits.map((c) => `${c.sha.slice(0, 7)} ${c.author} — ${c.subject}`),
         ...(structuredEvidenceOk && offenders.length > 0
           ? [
-              `commit author advisory: ${offenders.length} 条非 koala-implementer commit 已由结构化 dispatch/subagent_result 证据覆盖`,
+              `commit author advisory: ${offenders.length} non-koala-implementer commits already covered by structured dispatch/subagent_result evidence`,
               ...offenders.map((c) => `  advisory ${c.sha.slice(0, 7)} ${c.author} — ${c.subject}`),
             ]
           : []),
         ...(allItemsOwnedByMain && offenders.length > 0
-          ? ['plan.md Owner=main-agent author 豁免: all checklist items']
+          ? ['plan.md Owner=main-agent author exemption: all checklist items']
           : []),
         ...(authorEvidenceCoversMissing
           ? ['commit author=koala-implementer fallback: no dispatch/subagent_result process event required for direct Agent execution']
@@ -547,17 +547,17 @@ export function checkCommitAuthor(
     };
   }
 
-  // 聚合失败信息
+  // Aggregate failure info
   const failDetails: string[] = [];
   const summaryParts: string[] = [];
   if (!evidence.ok) {
-    summaryParts.push(`${evidence.issues.length} 个 CHK 缺 dispatch/subagent_result 证据`);
+    summaryParts.push(`${evidence.issues.length} CHKs missing dispatch/subagent_result evidence`);
     for (const d of evidence.details) failDetails.push(d);
   }
   if (!authorFallbackOk) {
-    summaryParts.push(`${offenders.length}/${commits.length} 条 commit 不能作为 author fallback`);
-    failDetails.push('commit author 只作为 legacy fallback；正常通道主证据必须是 dispatch/subagent_result process-event');
-    failDetails.push('author fallback 仅接受 author="koala-implementer" 或 metadata-only subject="koala:*" commit');
+    summaryParts.push(`${offenders.length}/${commits.length} commits cannot be used as author fallback`);
+    failDetails.push('commit author is only a legacy fallback; normal channel primary evidence must be dispatch/subagent_result process-events');
+    failDetails.push('author fallback only accepts author="koala-implementer" or metadata-only subject="koala:*" commits');
     failDetails.push('offenders:');
     for (const c of offenders) {
       failDetails.push(`  ${c.sha.slice(0, 7)} ${c.author} — ${c.subject}`);
@@ -567,7 +567,7 @@ export function checkCommitAuthor(
   return {
     provider: 'koala-channel',
     status: 'fail',
-    summary: `正常通道 gate 失败：${summaryParts.join('；')}`,
+    summary: `Normal channel gate failure: ${summaryParts.join('; ')}`,
     details: failDetails,
     offenders: authorFallbackOk ? undefined : offenders,
   };
@@ -576,13 +576,13 @@ export function checkCommitAuthor(
 /**
  * B-9d95 CHK-006: CLI entry for `koala validate --channel`.
  *
- * 不 spawn pytest / 不跑全量 validate.ts——直接调 checkCommitAuthor，输出
- * 结构化结果 + 人类可读渲染。用于 REVIEW→TEST preflight 独立分流。
+ * Does not spawn pytest / does not run full validate.ts—directly calls checkCommitAuthor, emitting
+ * structured result + human-readable render. Used as an independent branch in REVIEW→TEST preflight.
  *
- * 返回:
- *   - ok: true 当 status ∈ {pass, skipped}
- *   - result: ChannelCheckResult（完整结构）
- *   - rendered: 人类可读多行字符串（供 stdout 直接打印）
+ * Returns:
+ *   - ok: true when status ∈ {pass, skipped}
+ *   - result: ChannelCheckResult (full structure)
+ *   - rendered: human-readable multi-line string (for direct stdout printing)
  */
 export interface ChannelCliResult {
   ok: boolean;
@@ -598,8 +598,8 @@ export function runChannelGateCli(
     const fail: ChannelCheckResult = {
       provider: 'koala-channel',
       status: 'fail',
-      summary: 'validate --channel 需要 --story=B-xxx 参数',
-      details: ['缺少 storyId：请使用 --story=<id> 或 --channel=<id>'],
+      summary: 'validate --channel requires the --story=B-xxx argument',
+      details: ['Missing storyId: please use --story=<id> or --channel=<id>'],
     };
     return {
       ok: false,
@@ -612,13 +612,13 @@ export function runChannelGateCli(
   return { ok, result, rendered: renderChannelResult(result) };
 }
 
-/** 渲染 ChannelCheckResult 为人类可读文本 */
+/** Render ChannelCheckResult as human-readable text */
 export function renderChannelResult(r: ChannelCheckResult): string {
   const lines: string[] = [];
   const icon = r.status === 'pass' ? '✓' : r.status === 'skipped' ? '·' : '✗';
-  // F-003 (B-fdcf Round 1): pass 分支追加 userSees 承诺的
-  // `all CHK covered (via <evidenceSource>)` 短语。evidenceSource 未设（例如
-  // 纯豁免 / 无 commit 边界）时省略，保留原前缀。
+  // F-003 (B-fdcf Round 1): pass branch appends the userSees-promised
+  // `all CHK covered (via <evidenceSource>)` phrase. When evidenceSource is unset (e.g.
+  // pure waiver / no commit boundary), omit it and keep the original prefix.
   let summary = r.summary;
   if (r.status === 'pass' && r.evidenceSource) {
     summary = `${summary} — all CHK covered (via ${r.evidenceSource})`;

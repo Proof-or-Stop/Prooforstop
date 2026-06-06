@@ -1,25 +1,25 @@
 /**
- * review-preflight — REVIEW→TEST gate 的 CLI gate 预检。
+ * review-preflight — CLI gate preflight for the REVIEW→TEST gate.
  *
- * 在 story_advance 推进 REVIEW→TEST 前聚合调用：
+ * Aggregated invocation before story_advance promotes REVIEW→TEST:
  *   - checkCommitAuthor  (validate-channel.ts)
  *   - checkConcept       (validate-concept.ts)
  *   - checkLint          (validate-lint.ts)
  *   - runDocsDriftGate   (validate-docs-drift.ts)  ← B-805f CHK-002
  *
- * 判定规则（对齐 plan.md CHK-007 DoneWhen）：
- *   - channel:    status === 'pass'   → ok；'skipped'（快速通道） → ok；'fail' → block
- *   - concept:    status === 'pass'   → ok；'warn' 且 residuals < 5 → ok；
- *                 'warn'/'fail' 且 residuals ≥ 5 → 要求当前 REVIEW round 有
- *                 concept reviewer finding 或 review_pass_set 记录；
- *                 否则 block（recommendation=dispatch 且 reviewer 未登记）
- *   - lint:       status === 'pass' 或 'skipped' → ok；'fail' → block
- *   - docs-drift: status === 'pass' 或 'skipped' → ok；'fail' → block
+ * Decision rules (aligned with plan.md CHK-007 DoneWhen):
+ *   - channel:    status === 'pass'   → ok; 'skipped' (express channel) → ok; 'fail' → block
+ *   - concept:    status === 'pass'   → ok; 'warn' and residuals < 5 → ok;
+ *                 'warn'/'fail' and residuals ≥ 5 → require the current REVIEW round to have
+ *                 a concept reviewer finding or a review_pass_set record;
+ *                 otherwise block (recommendation=dispatch and reviewer not registered)
+ *   - lint:       status === 'pass' or 'skipped' → ok; 'fail' → block
+ *   - docs-drift: status === 'pass' or 'skipped' → ok; 'fail' → block
  *
- * 快速通道（checklist ≤ 2 且 riskSignals 为空）整体 skip——所有 CLI gate 视为 pass，
- * 与现有的"快速通道 REVIEW reviewer 不检查"保持对称。
+ * Express channel (checklist ≤ 2 and riskSignals empty) skips entirely — all CLI gates treated as pass,
+ * symmetric with the existing "express channel REVIEW reviewer not checked".
  *
- * 参考 docs/koala/reviewer-redesign.md §三 S1 第 7 条。
+ * See docs/koala/reviewer-redesign.md §3 S1 item 7.
  */
 
 import { existsSync, readFileSync } from 'node:fs';
@@ -104,7 +104,7 @@ export interface PreflightResult {
  * (checklist.items.length ≤ 2 AND riskSignals empty). We don't use
  * WorkflowPolicy's quickPath here because quickPath is about "can skip
  * PLAN"; the REVIEW-gate channel rule is explicitly the fixed 2-item /
- * no-risk definition (see CLAUDE.md "两条通道的角色约束" and
+ * no-risk definition (see CLAUDE.md "Role constraints for the two channels" and
  * validate-channel.ts isNormalChannel).
  */
 function detectFastChannel(store: StoryStore, storyId: string): boolean {
@@ -162,7 +162,7 @@ function conceptReviewerHandledResiduals(
       return {
         handled: false,
         reason: conceptIssues[0]?.message
-          ?? '当前 REVIEW round 未见 koala-review-concept 的 finding/review pass（reviewer 未跑或未 register 任何结果）',
+          ?? 'No finding/review pass from koala-review-concept seen in the current REVIEW round (reviewer did not run or did not register any result)',
       };
     }
     return {
@@ -170,7 +170,7 @@ function conceptReviewerHandledResiduals(
       reason: `${conceptFindings.length} concept finding(s), ${conceptPasses.length} concept pass(es) registered in round ${story.currentReviewRound ?? '(unknown)'} → reviewer ran`,
     };
   } catch (e: any) {
-    return { handled: false, reason: `读 findings 失败: ${String(e?.message ?? e)}` };
+    return { handled: false, reason: `Failed to read findings: ${String(e?.message ?? e)}` };
   }
 }
 
@@ -190,8 +190,8 @@ function defaultMdFileReader(projectRoot: string): string[] {
 }
 
 /**
- * 运行 CLI gate 并聚合为一个结构化结果。
- * 快速通道 → 四个 gate 均 forced-pass（不实际跑 channel/concept/lint/docs-drift）。
+ * Run CLI gates and aggregate into one structured result.
+ * Express channel → all four gates forced-pass (channel/concept/lint/docs-drift not actually run).
  */
 export function runReviewCliGates(
   storyId: string,
@@ -205,28 +205,28 @@ export function runReviewCliGates(
       name: 'channel',
       ok: true,
       status: 'skipped',
-      summary: '快速通道不检查 CLI gate',
-      details: ['checklist ≤ 2 & riskSignals 为空 → gate 统一 skip'],
+      summary: 'Express channel does not check CLI gates',
+      details: ['checklist ≤ 2 & riskSignals empty → gates uniformly skipped'],
     });
     gates.push({
       name: 'concept',
       ok: true,
       status: 'skipped',
-      summary: '快速通道不检查 CLI gate',
+      summary: 'Express channel does not check CLI gate',
       details: [],
     });
     gates.push({
       name: 'lint',
       ok: true,
       status: 'skipped',
-      summary: '快速通道不检查 CLI gate',
+      summary: 'Express channel does not check CLI gate',
       details: [],
     });
     gates.push({
       name: 'docs-drift',
       ok: true,
       status: 'skipped',
-      summary: '快速通道不检查 CLI gate',
+      summary: 'Express channel does not check CLI gate',
       details: [],
     });
     if (storyRequiresCodexEvidence(deps.store, storyId)) {
@@ -268,19 +268,19 @@ export function runReviewCliGates(
   if (concept.status === 'pass') {
     conceptOk = true;
   } else if (concept.status === 'warn' && concept.residuals.length < 5) {
-    // residuals 1..4 → warn，不阻断
+    // residuals 1..4 → warn, do not block
     conceptOk = true;
   } else if (concept.residuals.length >= 5) {
-    // F-017: residuals ≥ 5 现在为 status='fail'（旧实现是 warn）。
-    // 行为保持：要求 concept reviewer 跑过（reviewer 处理了 → 通过）。
+    // F-017: residuals ≥ 5 is now status='fail' (old implementation was warn).
+    // Behavior preserved: requires concept reviewer to have run (reviewer handled → pass).
       const handled = conceptReviewerHandledResiduals(deps.store, storyId, deps.projectRoot);
     conceptOk = handled.handled;
     conceptExtra = [
-      `residuals=${concept.residuals.length} (≥5) → 需 concept reviewer 处理`,
+      `residuals=${concept.residuals.length} (≥5) → concept reviewer needs to handle`,
       handled.reason,
     ];
   } else {
-    // 任何 unknown 状态 → block
+    // Any unknown status → block
     conceptOk = false;
   }
   gates.push({
@@ -345,7 +345,7 @@ export function runReviewCliGates(
       name: 'docs-drift',
       ok: true,
       status: 'skipped',
-      summary: 'registry 命令名未传入，跳过 docs-drift 检查',
+      summary: 'registry command name not provided, skipping docs-drift check',
       details: [],
     });
   }
@@ -366,13 +366,13 @@ export function runReviewCliGates(
 }
 
 /**
- * 把 PreflightResult 渲染成人类可读字符串（story_advance 错误消息用）。
+ * Render PreflightResult into a human-readable string (used by story_advance error messages).
  */
 export function renderPreflight(result: PreflightResult): string {
   const lines: string[] = [];
   lines.push(
     result.fastChannel
-      ? 'REVIEW→TEST CLI gate preflight (快速通道，全部 skip):'
+      ? 'REVIEW→TEST CLI gate preflight (express channel, all skipped):'
       : 'REVIEW→TEST CLI gate preflight:',
   );
   for (const g of result.gates) {

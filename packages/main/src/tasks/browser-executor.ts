@@ -1,12 +1,12 @@
 /**
- * browser-executor: 浏览器真机测试执行器
+ * browser-executor: browser real-machine test executor
  *
- * 架构：
- *   浏览器 ←→ 代理(:proxyPort) ←→ dev server(:devPort)
- *                ↓ 拦截 HTML，注入 client.js
+ * Architecture:
+ *   browser ←→ proxy(:proxyPort) ←→ dev server(:devPort)
+ *                ↓ intercept HTML, inject client.js
  *   client.js ←WS→ bridge(:9876) ←HTTP→ executor(:9877)
  *
- * 项目不需要改任何代码。只需配置 devCommand。
+ * The project doesn't need to change any code. Just configure devCommand.
  */
 
 import { spawn, ChildProcess } from 'child_process';
@@ -27,13 +27,13 @@ function log(msg: string) {
 const DEFAULT_HTTP_PORT = 9877;
 const DEFAULT_PROXY_PORT = 5174;
 
-/** 根据项目路径生成确定性端口（同项目永远同端口，旧 tab 可重连） */
+/** Generate a deterministic port from project path (same project always same port, old tabs can reconnect) */
 function stablePort(projectRoot: string, offset: number): number {
   let hash = 0;
   for (let i = 0; i < projectRoot.length; i++) {
     hash = ((hash << 5) - hash + projectRoot.charCodeAt(i)) | 0;
   }
-  // 映射到 10000-60000 范围
+  // Map to the 10000-60000 range
   return 10000 + (Math.abs(hash + offset * 7919) % 50000);
 }
 
@@ -61,9 +61,9 @@ export interface BrowserCaseResult {
 
 export interface BrowserTestResult {
   cases: BrowserCaseResult[];
-  /** 运行时 trace：被调用的函数列表 */
+  /** Runtime trace: list of called functions */
   trace: Array<{ fn: string; file: string }>;
-  /** trace 覆盖的唯一函数名集合 */
+  /** Set of unique function names covered by the trace */
   coveredFunctions: string[];
 }
 
@@ -75,7 +75,7 @@ export interface BrowserTestConfig {
   assertTimeout?: number;
   assertInterval?: number;
   screenshotDir?: string;
-  /** 进度回调：每个阶段/步骤完成时调用，实现流式输出 */
+  /** Progress callback: called when each stage/step completes, enabling streaming output */
   onProgress?: (msg: string) => void;
 }
 
@@ -83,7 +83,7 @@ function stripAnsi(str: string): string {
   return str.replace(/\x1B\[[0-9;]*m/g, '');
 }
 
-/** 读取编译后的 browser-client.js */
+/** Read the compiled browser-client.js */
 function loadClientScript(): string {
   const candidates = [
     join(__dirname, 'browser-client.js'),
@@ -91,7 +91,7 @@ function loadClientScript(): string {
   ];
   for (const p of candidates) {
     if (existsSync(p)) {
-      // 去掉 ESM export 语句，浏览器 <script> 标签不支持
+      // Strip ESM export statements; browser <script> tags don't support them
       return readFileSync(p, 'utf-8')
         .replace(/^export\s*\{[^}]*\};?\s*$/gm, '')
         .replace(/^\/\/# sourceMappingURL=.*$/gm, '');
@@ -105,7 +105,7 @@ interface TrackedModule {
   functions: string[]; // e.g. ["createGame", "checkWin", "place", "undo"]
 }
 
-/** 从 task.json 读取需要追踪的模块和函数 */
+/** Read the modules and functions to trace from task.json */
 function loadTrackedModules(projectRoot: string): TrackedModule[] {
   const taskPath = join(projectRoot, 'docs', 'metadata', 'task.json');
   if (!existsSync(taskPath)) return [];
@@ -122,47 +122,47 @@ function loadTrackedModules(projectRoot: string): TrackedModule[] {
   } catch { return []; }
 }
 
-/** 在 JS 源码中注入 trace：对所有有花括号的函数在 { 后插入 trace 代码 */
+/** Inject trace into JS source: for every function with braces, insert trace code after { */
 function wrapExportsWithTrace(js: string, mod: TrackedModule): string {
   const file = mod.sourceFile;
 
-  // 通用匹配：所有 function name(...) { 和 name(...) { 和 name = (...) => {
-  // 捕获函数名用于 trace
+  // Generic match: all function name(...) { and name(...) { and name = (...) => {
+  // Capture the function name for tracing
   let result = js;
 
   const traceCode = (name: string) =>
     `if(typeof window!=='undefined'&&window.__trace){try{var __a=[...arguments].map(a=>{try{return JSON.parse(JSON.stringify(a))}catch{return'[unserializable]'}});window.__trace.push({fn:'${name}',file:'${file}',time:Date.now(),args:__a});}catch{window.__trace.push({fn:'${name}',file:'${file}',time:Date.now()});}}`;
 
-  // 方式1: [export] [async] function name(...) {
+  // Form 1: [export] [async] function name(...) {
   result = result.replace(
     /((?:export\s+)?(?:async\s+)?function\s+(\w+)\s*\([^)]*\)\s*\{)/g,
     (_m, full, name) => `${full}${traceCode(name)}`
   );
 
-  // 方式2: const/let/var name = [async] (...) => {
+  // Form 2: const/let/var name = [async] (...) => {
   result = result.replace(
     /((?:const|let|var)\s+(\w+)\s*=\s*(?:async\s+)?(?:\([^)]*\)|\w+)\s*=>\s*\{)/g,
     (_m, full, name) => `${full}${traceCode(name)}`
   );
 
-  // 方式3: 类方法 — [static] [async] [get/set] methodName(...) { (不含 function 关键字)
-  // 排除已被方式1匹配的 function 声明，和控制流语句
+  // Form 3: class methods — [static] [async] [get/set] methodName(...) { (no function keyword)
+  // Exclude function declarations already matched by form 1, and control-flow statements
   const controlFlow = new Set(['if', 'else', 'for', 'while', 'switch', 'catch', 'return', 'throw', 'new', 'typeof', 'instanceof', 'delete', 'void', 'in', 'of']);
   result = result.replace(
     /((?:static\s+)?(?:async\s+)?(?:get\s+|set\s+)?(\w+)\s*\([^)]*\)\s*\{)/g,
     (m, full, name, matchOffset) => {
-      // 跳过控制流关键字
+      // Skip control flow keywords
       if (controlFlow.has(name)) return m;
-      // 跳过已有 function 关键字的（已被方式1处理，避免重复注入）
+      // Skip those that already have the function keyword (already handled by method 1, avoid duplicate injection)
       const before = result.slice(Math.max(0, matchOffset - 30), matchOffset);
       if (/function\s*$/.test(before)) return m;
-      // 跳过已被方式2匹配的箭头函数（=>\s*{ 前面的部分）
+      // Skip arrow functions already matched by method 2 (the portion before =>\s*{)
       if (/=>\s*$/.test(before)) return m;
       return `${full}${traceCode(name)}`;
     }
   );
 
-  // 末尾追加 __koala_modules 注册（用于 call action）
+  // Append __koala_modules registration at the end (used for call action)
   const moduleRegistrations = mod.functions.map(fn =>
     `if(typeof ${fn}==='function')window.__koala_modules['${mod.sourceFile}'].${fn}=${fn};`
   ).join('\n');
@@ -176,28 +176,28 @@ function wrapExportsWithTrace(js: string, mod: TrackedModule): string {
 }
 `;
 
-  // __trace 初始化放在文件开头，确保模块执行时就有
+  // __trace initialization placed at the beginning of the file, ensuring it exists when the module executes
   const prefix = `;if(typeof window!=='undefined'){window.__trace=window.__trace||[];}\n`;
   return prefix + result + suffix;
 }
 
-/** 启动 HTML 注入 + JS tracing 代理 */
+/** Start HTML injection + JS tracing proxy */
 function startProxy(
   devUrl: string, proxyPort: number, clientScript: string, trackedModules: TrackedModule[], wsPort: number,
 ): Promise<{ server: ReturnType<typeof createServer>; close: () => void }> {
   return new Promise((resolve) => {
     const devOrigin = new URL(devUrl);
 
-    // 建立 URL 路径 → TrackedModule 的映射
+    // Build URL path → TrackedModule mapping
     const moduleMap = new Map<string, TrackedModule>();
     for (const mod of trackedModules) {
-      // vite 请求路径格式：/src/game-logic.ts
+      // vite request path format: /src/game-logic.ts
       moduleMap.set('/' + mod.sourceFile, mod);
     }
 
     const server = createServer(async (req: IncomingMessage, res: ServerResponse) => {
       const url = req.url || '/';
-      const cleanUrl = url.split('?')[0]; // 去掉查询参数
+      const cleanUrl = url.split('?')[0]; // Strip query parameters
 
       try {
         const resp = await fetch(`${devOrigin.origin}${url}`, {
@@ -208,7 +208,7 @@ function startProxy(
         const contentType = resp.headers.get('content-type') || '';
 
         if (contentType.includes('text/html')) {
-          // HTML：注入 WS 端口 + client.js
+          // HTML: inject WS port + client.js
           let html = await resp.text();
           const injection = `<script>window.__KOALA_WS_PORT=${wsPort};${clientScript}</script>`;
           if (html.includes('</head>')) {
@@ -219,14 +219,14 @@ function startProxy(
           res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
           res.end(html);
         } else if (contentType.includes('javascript') && moduleMap.has(cleanUrl)) {
-          // 需要追踪的 JS 文件：追加 tracing 注册代码
+          // JS files that need tracing: append tracing registration code
           const js = await resp.text();
           const mod = moduleMap.get(cleanUrl)!;
           const wrapped = wrapExportsWithTrace(js, mod);
           res.writeHead(200, { 'Content-Type': contentType });
           res.end(wrapped);
         } else {
-          // 其他请求：透传
+          // Other requests: pass through
           const body = Buffer.from(await resp.arrayBuffer());
           const headers: Record<string, string> = {};
           resp.headers.forEach((v, k) => { headers[k] = v; });
@@ -240,7 +240,7 @@ function startProxy(
       }
     });
 
-    // WS 升级：透传给 dev server
+    // WS upgrade: pass through to dev server
     server.on('upgrade', (req, socket, head) => {
       const devSocket = net.connect(Number(devOrigin.port) || 80, devOrigin.hostname, () => {
         devSocket.write(
@@ -259,7 +259,7 @@ function startProxy(
   });
 }
 
-/** HTTP 请求 bridge API */
+/** HTTP request bridge API */
 async function api(port: number, path: string, body?: unknown, method?: string): Promise<any> {
   const url = `http://localhost:${port}${path}`;
   const opts: RequestInit = { method: method || (body ? 'POST' : 'GET') };
@@ -291,7 +291,7 @@ function startProcess(command: string, cwd: string): ChildProcess {
   return spawn(cmd, args, { cwd, shell: true, stdio: ['ignore', 'pipe', 'pipe'] });
 }
 
-/** kill 整个进程树 + 清理 pipe */
+/** Kill the entire process tree + clean up pipes */
 function killProcess(child: ChildProcess) {
   if (!child.pid) return;
   try {
@@ -301,7 +301,7 @@ function killProcess(child: ChildProcess) {
       child.kill('SIGTERM');
     }
   } catch { /* ignore */ }
-  // 清理 pipe，防止阻止 Node 退出
+  // Clean up pipes to prevent blocking Node from exiting
   try { child.stdout?.destroy(); } catch {}
   try { child.stderr?.destroy(); } catch {}
   try { child.stdin?.destroy(); } catch {}
@@ -410,7 +410,7 @@ async function executeStep(
     }
 
     case 'call': {
-      // 调用 __koala_modules 里的函数
+      // Call the function in __koala_modules
       const fn = step.code || ''; // fn name
       const args = step.text ? JSON.parse(step.text) : []; // args as JSON array
       const code = `(() => {
@@ -429,7 +429,7 @@ async function executeStep(
     }
 
     case 'trace': {
-      // 获取调用链
+      // Get the call chain
       const code = 'JSON.parse(JSON.stringify(window.__trace || []))';
       const r = await api(port, '/eval', { code });
       if (!r.ok) return { passed: false, error: r.error };
@@ -441,7 +441,7 @@ async function executeStep(
   }
 }
 
-/** 每个项目的常驻进程（bridge + dev + proxy），跨测试运行复用 */
+/** Long-running process per project (bridge + dev + proxy), reused across test runs */
 interface ProjectEnv {
   bridgeProcess: ChildProcess;
   devProcess: ChildProcess;
@@ -454,36 +454,36 @@ interface ProjectEnv {
 
 const _envCache = new Map<string, ProjectEnv>();
 
-/** 检查进程是否还活着 */
+/** Check whether the process is still alive */
 function isAlive(proc: ChildProcess): boolean {
   try {
     if (!proc.pid) return false;
-    // exitCode 非 null 说明已退出
+    // exitCode not null means already exited
     if (proc.exitCode !== null) return false;
     return true;
   } catch { return false; }
 }
 
-/** 检查缓存的环境是否可用 */
+/** Check if the cached environment is available */
 async function isEnvHealthy(env: ProjectEnv): Promise<boolean> {
   if (!isAlive(env.bridgeProcess) || !isAlive(env.devProcess)) return false;
   try {
     const status = await api(env.httpPort, '/status');
-    return !!status; // bridge 响应即可
+    return !!status; // bridge response is sufficient
   } catch { return false; }
 }
 
-/** 清理项目环境（同步强杀，不等待） */
+/** Clean up project environment (synchronous force kill, no waiting) */
 function cleanupEnv(env: ProjectEnv) {
   try { env.proxy.close(); } catch {}
   killProcess(env.devProcess);
   killProcess(env.bridgeProcess);
-  // 清除所有 listener 防止残留 handle
+  // Clear all listeners to prevent residual handles
   env.devProcess.removeAllListeners();
   env.bridgeProcess.removeAllListeners();
 }
 
-/** 手动清理指定项目或所有项目的常驻进程 */
+/** Manually clean up resident processes for a specified project or all projects */
 export function cleanupBrowserEnv(projectRoot?: string) {
   if (projectRoot) {
     const env = _envCache.get(projectRoot);
@@ -493,7 +493,7 @@ export function cleanupBrowserEnv(projectRoot?: string) {
   }
 }
 
-// 进程退出时清理所有常驻环境
+// Clean up all resident environments on process exit
 process.on('exit', () => cleanupBrowserEnv());
 
 export async function executeBrowserCases(
@@ -511,7 +511,7 @@ export async function executeBrowserCases(
   let trace: Array<{ fn: string; file: string }> = [];
   let coveredFunctions: string[] = [];
 
-  // 复用或创建项目环境
+  // Reuse or create project environment
   let env = _envCache.get(config.projectRoot);
   if (env) {
     const healthy = await isEnvHealthy(env);
@@ -526,13 +526,13 @@ export async function executeBrowserCases(
   }
 
   if (!env) {
-    // 0. 确定性端口（同项目同端口，旧 tab 可重连）
+    // 0. Deterministic port (same project same port, old tab can reconnect)
     const wsPort = stablePort(config.projectRoot, 0);
     const actualHttpPort = stablePort(config.projectRoot, 1);
     const actualProxyPort = stablePort(config.projectRoot, 2);
     log(`ports: ws=${wsPort} http=${actualHttpPort} proxy=${actualProxyPort}`);
 
-    // 清理旧进程（确定性端口，上次可能残留）
+    // Clean up old processes (deterministic port, may have leftovers from last time)
     if (process.platform === 'win32') {
       for (const port of [wsPort, actualHttpPort, actualProxyPort]) {
         try {
@@ -570,7 +570,7 @@ export async function executeBrowserCases(
     const devUrl = await waitForServerReady(devProcess);
     log(`dev server ready: ${devUrl}`);
 
-    // 3. Start proxy with HTML injection (传 wsPort 给 client.js)
+    // 3. Start proxy with HTML injection (pass wsPort to client.js)
     const clientScript = loadClientScript();
     const trackedModules = loadTrackedModules(config.projectRoot);
     log(`loaded client script (${clientScript.length} chars), tracking ${trackedModules.length} modules`);
@@ -582,11 +582,11 @@ export async function executeBrowserCases(
   }
 
   try {
-    // 4. 浏览器复用：等旧 tab 重连（确定性端口），否则开新页面
+    // 4. Browser reuse: wait for old tab to reconnect (deterministic port), otherwise open new page
     const proxyUrl = `http://localhost:${env.proxyPort}`;
     let browserReused = false;
 
-    // 先等 3 秒看旧 tab 是否自动重连
+    // Wait 3 seconds first to see if old tab auto-reconnects
     for (let i = 0; i < 6; i++) {
       try {
         const status = await api(env.httpPort, '/status');
@@ -646,12 +646,12 @@ export async function executeBrowserCases(
       results.push({ name: c.name, passed: allPassed, steps: stepResults, screenshotPaths, durationMs: caseMs, trace: caseTrace });
     }
 
-    // 7. 收集 trace（浏览器端 JSON → gzip → base64，Node 端解压）
+    // 7. Collect trace (browser-side JSON → gzip → base64, Node-side decompress)
     try {
       const traceResult = await api(env.httpPort, '/eval', { code: `(async () => {
         const t = window.__trace || [];
         const json = JSON.stringify(t);
-        // 压缩：CompressionStream API（浏览器原生）
+        // Compression: CompressionStream API (browser native)
         if (typeof CompressionStream !== 'undefined') {
           const stream = new Blob([json]).stream().pipeThrough(new CompressionStream('gzip'));
           const compressed = await new Response(stream).arrayBuffer();
@@ -660,14 +660,14 @@ export async function executeBrowserCases(
           for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
           return { compressed: true, data: btoa(binary), count: t.length };
         }
-        // fallback：不压缩，直接返回
+        // fallback: no compression, return directly
         return { compressed: false, data: json, count: t.length };
       })()` });
       if (traceResult.ok && traceResult.result) {
         const r = traceResult.result;
         let traceData: any[];
         if (r.compressed) {
-          // Node 端解压：base64 → buffer → gunzip
+          // Node-side decompression: base64 → buffer → gunzip
           const { gunzipSync } = await import('zlib');
           const buf = Buffer.from(r.data, 'base64');
           const json = gunzipSync(buf).toString('utf-8');
@@ -684,13 +684,13 @@ export async function executeBrowserCases(
     }
 
   } catch (e) {
-    // 环境出错时清理缓存，下次重建
+    // Clean up cache when environment errors, rebuild next time
     log(`error during test execution: ${e}`);
     cleanupEnv(env);
     _envCache.delete(config.projectRoot);
     throw e;
   }
-  // 注意：不在 finally 中清理 — 保留环境供下次复用
+  // Note: do not clean up in finally — keep environment for next reuse
 
   log(`done: ${results.filter(r => r.passed).length}/${results.length} passed`);
   return { cases: results, trace, coveredFunctions };

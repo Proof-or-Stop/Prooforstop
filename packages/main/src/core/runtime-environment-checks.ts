@@ -84,7 +84,7 @@ const MIN_NODE_MAJOR = 20;
 const URL_RE = /\bhttps?:\/\/[^\s<>"')\]]+/gi;
 const HOST_PORT_RE = /\b(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}:\d{2,5}\b/g;
 const LOCAL_HOST_RE = /^(?:https?:\/\/)?(?:localhost|127\.0\.0\.1|\[?::1\]?)(?::\d+)?(?:[/?#]|$)/i;
-const HEALTH_SEMANTICS_RE = /\b(health\s*check|healthcheck|health\s*command|doctor|ping|readiness|liveness)\b|健康检查|健康命令/i;
+const HEALTH_SEMANTICS_RE = /\b(health\s*check|healthcheck|health\s*command|doctor|ping|readiness|liveness)\b|health check|health command/i;
 const RUNTIME_MODE_AUTHORITY: RuntimeModeAuthority = 'local-runtime-diagnostic-only';
 
 export function runRuntimeEnvironmentChecks(

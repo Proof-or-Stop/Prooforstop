@@ -25,7 +25,7 @@ function withChecklistLock<T>(ctx: HandlerContext, storyId: string, fn: () => T)
 }
 
 /**
- * B-45ed CHK-008: 给定 storyId，若 background.md 存在则返回相对路径，否则返回 null。
+ * B-45ed CHK-008: Given a storyId, return the relative path if background.md exists, otherwise return null.
  */
 function resolveBackgroundPath(root: string, store: HandlerContext['store'], storyId: string): string | null {
   const rel = `${store.storyDirRel()}/${storyId}/background.md`;
@@ -95,16 +95,16 @@ export function createChecklistHandlers(ctx: HandlerContext) {
     }): string {
       if (!args.title) throw new Error('title is required');
 
-      // 验证 story 存在；进入 worktree 流程后，checklist 只能在 story worktree 写。
+      // Verify the story exists; once the worktree flow begins, checklist can only be written in the story worktree.
       const story = assertChecklistMutationCwd(store, args.storyId);
       if (story.phase === 'PLAN' && (!args.reason || args.reason.trim().length < 10)) {
-        throw new Error('PLAN 阶段 checklist_add 必须提供 reason ≥ 10 字符，作为 replan/scope audit 信号，避免绕过 title/context 冻结');
+        throw new Error('checklist_add in PLAN phase must provide reason ≥ 10 characters as a replan/scope audit signal, to prevent bypassing title/context freeze');
       }
 
       return withChecklistLock(ctx, args.storyId, () => {
       const cl = store.readChecklist(args.storyId);
 
-      // 从已有 item 中找最大 CHK 编号，分配下一个
+      // Find the largest CHK number from existing items and allocate the next one
       let maxNum = 0;
       for (const item of cl.items) {
         const m = item.id.match(/^CHK-(\d+)$/);
@@ -115,18 +115,18 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       }
       const nextId = `CHK-${String(maxNum + 1).padStart(3, '0')}`;
 
-      // B-45ed CHK-008: 当 relatedDocs 未提供 / 为空数组时，自动注入 background.md 路径（若文件存在）。
-      // 若调用方已显式提供 relatedDocs 且非空，尊重其选择，不自动插入。
+      // B-45ed CHK-008: When relatedDocs is not provided / is an empty array, automatically inject the background.md path (if the file exists).
+      // If the caller has explicitly provided a non-empty relatedDocs, respect that choice and do not auto-insert.
       let effectiveRelatedDocs: string[] | undefined = args.relatedDocs;
       if (!effectiveRelatedDocs || effectiveRelatedDocs.length === 0) {
         const bgRel = resolveBackgroundPath(root, store, args.storyId);
         if (bgRel) {
           effectiveRelatedDocs = [bgRel];
         } else if (args.relatedDocs !== undefined) {
-          // 用户显式传了空数组且 background.md 不存在 → 保持空数组
+          // User explicitly passed an empty array and background.md does not exist → keep as empty array
           effectiveRelatedDocs = args.relatedDocs;
         } else {
-          // 未传 && 无 background → 不写 relatedDocs 字段
+          // Not passed && no background → do not write the relatedDocs field
           effectiveRelatedDocs = undefined;
         }
       }
@@ -185,13 +185,13 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       disposition: 'accept' | 'reject' | 'partial';
       justification: string;
     }): string {
-      // 必须给出裁决理由
+      // Justification must be given
       if (!args.justification || args.justification.trim().length < 10) {
-        throw new Error('justification 必须 ≥ 10 字符，说明为什么要删除这条 checklist item');
+        throw new Error('justification must be ≥ 10 characters, explaining why this checklist item is being removed');
       }
       const validDispositions = ['accept', 'reject', 'partial'];
       if (!validDispositions.includes(args.disposition)) {
-        throw new Error(`disposition 必须是 accept/reject/partial 之一，收到: ${args.disposition}`);
+        throw new Error(`disposition must be one of accept/reject/partial, received: ${args.disposition}`);
       }
 
       return withChecklistLock(ctx, args.storyId, () => {
@@ -204,17 +204,17 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         throw new Error(`Cannot remove ${args.itemId}: already done. Re-open first if needed.`);
       }
 
-      // 只有 INIT 阶段允许删除。INIT_CHECK 起 title/context 已冻结；
-      // 若 PLAN 仍允许 remove+add，就等价于绕过 checklist_update 的冻结门禁。
+      // Only the INIT phase allows removal. From INIT_CHECK onward, title/context is frozen;
+      // if PLAN still allowed remove+add, it would be equivalent to bypassing the freeze gate of checklist_update.
       const story = assertChecklistMutationCwd(store, args.storyId);
       const allowedPhases = ['INIT'];
       if (!allowedPhases.includes(story.phase)) {
-        throw new Error(`${story.phase} 阶段不允许删除 checklist item；INIT_CHECK 起 checklist title/context 冻结，避免 remove+add 绕过。需要新增范围只能 checklist_add，原 item 继续保留给 gate 审查`);
+        throw new Error(`${story.phase} phase does not allow removing checklist items; from INIT_CHECK onward checklist title/context is frozen, to prevent remove+add bypass. New scope can only be added via checklist_add, the original item must remain for gate review`);
       }
 
       const removed = cl.items.splice(idx, 1)[0];
 
-      // 审计日志：记录完整的被删 item 信息 + 裁决，自动写入
+      // Audit log: record the complete removed item info + disposition, written automatically
       if (!cl.auditLog) cl.auditLog = [];
       cl.auditLog.push({
         timestamp: new Date().toISOString(),
@@ -246,7 +246,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       return `Checklist item ${args.itemId} ("${removed.title}") removed from ${args.storyId}\n` +
         `  disposition: ${args.disposition}\n` +
         `  justification: ${args.justification.trim()}\n` +
-        `⚠ scope 变更已记录，story_review 会展示此删除供 reviewer 审查`;
+        `⚠ scope change recorded, story_review will display this removal for reviewer audit`;
       });
     },
 
@@ -270,13 +270,13 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       }
 
       return withChecklistLock(ctx, args.storyId, () => {
-      // Truth source protection: DEV 及之后阶段禁止修改 checklist 的根本信息
-      // checklist 是真相源，执行者（主 agent / subagent）不能在执行过程中篡改需求定义
+      // Truth source protection: DEV and later phases forbid modifying the fundamental information of checklist
+      // checklist is the truth source; executors (main agent / subagent) cannot tamper with the requirement definition during execution
       //
-      // B-9d95 CHK-008: userSees 从 title/context 的保护域拆出，单独分档
-      //   - title/context 在 INIT_CHECK 起保护（PLAN 想改也拒，需 story_advance 回 INIT_CHECK）
-      //   - userSees 是 PLAN 产物（见 CLAUDE.md checklist 写法），允许 PLAN 阶段补写/修改，
-      //     DEV 起冻结（执行者不得在实现过程中篡改验收描述）
+      // B-9d95 CHK-008: userSees is split out from the protection scope of title/context and gated separately
+      //   - title/context are protected from INIT_CHECK onward (PLAN modifications are rejected, requires story_advance back to INIT_CHECK)
+      //   - userSees is a PLAN artifact (see CLAUDE.md checklist conventions), allowed to be added/modified during the PLAN phase,
+      //     frozen from DEV onward (the executor must not tamper with the acceptance description during implementation)
       const story = assertChecklistMutationCwd(store, args.storyId);
       const titleContextFields = ['title', 'context'] as const;
       const titleContextProtectedPhases = ['INIT_CHECK', 'PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE'];
@@ -286,23 +286,23 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       const attemptedTitleContext = titleContextFields.filter(f => args[f] !== undefined);
       if (attemptedTitleContext.length > 0 && titleContextProtectedPhases.includes(story.phase)) {
         throw new Error(
-          `${args.itemId} 的 ${attemptedTitleContext.join('/')} 在 ${story.phase} 阶段不可修改。` +
-          `checklist 是真相源，INIT_CHECK 起执行者不得篡改需求定义。` +
-          `如需变更标题/上下文，先 story_advance 回 INIT_CHECK`
+          `${attemptedTitleContext.join('/')} of ${args.itemId} cannot be modified during the ${story.phase} phase. ` +
+          `checklist is the source of truth; from INIT_CHECK onward the executor must not tamper with requirement definitions. ` +
+          `To change title/context, first story_advance back to INIT_CHECK`
         );
       }
 
       if (args.userSees !== undefined && userSeesProtectedPhases.includes(story.phase)) {
         throw new Error(
-          `${args.itemId} 的 userSees 在 ${story.phase} 阶段不可修改。` +
-          `userSees 冻结于 PLAN 末尾，DEV 起执行者不得改验收描述。` +
-          `如需调整走 finding_add 申请回 PLAN`
+          `userSees of ${args.itemId} cannot be modified during the ${story.phase} phase. ` +
+          `userSees is frozen at the end of PLAN; from DEV onward the executor must not change the acceptance description. ` +
+          `To adjust, use finding_add to request going back to PLAN`
         );
       }
       if (args.verificationIntent !== undefined && verificationIntentProtectedPhases.includes(story.phase)) {
         throw new Error(
-          `${args.itemId} 的 verificationIntent 在 ${story.phase} 阶段不可修改。` +
-          `verificationIntent 是 PLAN 阶段的测试意图真相源；DEV 之后只能追加 verificationEvidence 或由 finding 申请回 PLAN。`
+          `verificationIntent of ${args.itemId} cannot be modified during the ${story.phase} phase. ` +
+          `verificationIntent is the source of truth for test intent in the PLAN phase; after DEV you can only append verificationEvidence or use a finding to request going back to PLAN.`
         );
       }
 
@@ -356,7 +356,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           item.endTime = now;
         }
 
-        // 修改操作写审计日志（新建 pending→pending 不算修改）
+        // Modification operations write audit logs (new pending→pending does not count as a modification)
         if (oldStatus !== args.status && args.reason) {
           const story = store.readStory(args.storyId);
           if (!cl.auditLog) cl.auditLog = [];
@@ -409,8 +409,8 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         const persisted = store.readChecklist(args.storyId).items.find(i => i.id === args.itemId);
         const persistedStatus = persisted ? persisted.status : '<unknown>';
         process.stderr.write(
-          `↻ 已写入并确认持久化：${args.itemId} 当前 status=${persistedStatus}。` +
-          `长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\n`,
+          `↻ Written and persistence confirmed: ${args.itemId} current status=${persistedStatus}. ` +
+          `For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\n`,
         );
       } catch (e) {
         // Reminder is advisory only — a read-back failure must never change the
@@ -418,8 +418,8 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         console.warn(`[checklist_update] post-write reload reminder skipped for ${args.storyId}: ${(e as Error).message}`);
       }
 
-      // CHK-003: pending/in_progress → done 且 item 有 relatedDocs 时，hint 关联文档清单
-      // B-45ed CHK-008: done hint 列表统一包含 background.md（若存在且不在 item.relatedDocs 内），保证下游同步对齐
+      // CHK-003: when pending/in_progress → done and the item has relatedDocs, hint the related document list
+      // B-45ed CHK-008: the done hint list uniformly includes background.md (if it exists and is not in item.relatedDocs), ensuring downstream sync alignment
       const transitionedToDone = args.status === 'done' && oldStatus !== 'done';
       if (transitionedToDone) {
         const docsList: string[] = [];
@@ -432,7 +432,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         }
         if (docsList.length > 0) {
           const lines = docsList.map(d => `  - ${d}`).join('\n');
-          return `Checklist ${args.itemId}: ${results.join(', ')}\n\n📄 关联文档（请检查代码改动是否影响这些文档，趁记忆热及时同步）：\n${lines}${commitHint}`;
+          return `Checklist ${args.itemId}: ${results.join(', ')}\n\n📄 Related documents (please check whether the code changes affect these documents and sync them while memory is fresh):\n${lines}${commitHint}`;
         }
       }
 
@@ -493,14 +493,14 @@ export function createChecklistHandlers(ctx: HandlerContext) {
     }): string | Promise<string> {
       // --- LOCAL PREFLIGHT (must run BEFORE any authority POST; A-prepost) -------
       // These guards are duplicated here at the handler entry (not Zod-only) per
-      // CLAUDE.md Handler 编码约定. They MUST stay first so a local failure produces
+      // CLAUDE.md Handler coding convention. They MUST stay first so a local failure produces
       // ZERO authority POST and ZERO local write (Blockers 1+2).
       if (!args.note || args.note.trim().length < 5) {
-        throw new Error('verification_evidence_add: note 必须 ≥ 5 字符，说明 evidence 为什么覆盖该 intent');
+        throw new Error('verification_evidence_add: note must be ≥ 5 characters, explaining why the evidence covers the intent');
       }
       const kind = normalizeEvidenceKind(args.kind);
       if (args.waiverType && kind !== 'waiver') {
-        throw new Error('verification_evidence_add: waiverType 只能用于 kind=waiver');
+        throw new Error('verification_evidence_add: waiverType can only be used with kind=waiver');
       }
 
       const settings = resolveAuthoritySettings(ctx.authoritySettings);
@@ -599,7 +599,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       }>;
     }): string | Promise<string> {
       if (!Array.isArray(args.evidences) || args.evidences.length === 0) {
-        throw new Error('verification_evidence_batch_add: evidences 必须是非空数组');
+        throw new Error('verification_evidence_batch_add: evidences must be a non-empty array');
       }
 
       const settings = resolveAuthoritySettings(ctx.authoritySettings);
@@ -608,15 +608,15 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       // Validate every entry's note/waiver/kind FIRST. itemId existence is checked
       // against the on-disk checklist inside `runPreflight`. Any failure throws here
       // -> ZERO batch POST + ZERO local write (no partial tail). Re-validated (not
-      // Zod-only) per CLAUDE.md Handler 编码约定.
+      // Zod-only) per CLAUDE.md Handler coding convention.
       const normalizedKinds: VerificationEvidence['kind'][] = [];
       for (const entry of args.evidences) {
         if (!entry.note || entry.note.trim().length < 5) {
-          throw new Error(`verification_evidence_batch_add: ${entry.itemId} → ${entry.intentRef} note 必须 ≥ 5 字符`);
+          throw new Error(`verification_evidence_batch_add: ${entry.itemId} → ${entry.intentRef} note must be ≥ 5 characters`);
         }
         const kind = normalizeEvidenceKind(entry.kind);
         if (entry.waiverType && kind !== 'waiver') {
-          throw new Error(`verification_evidence_batch_add: ${entry.itemId} → ${entry.intentRef} waiverType 只能用于 kind=waiver`);
+          throw new Error(`verification_evidence_batch_add: ${entry.itemId} → ${entry.intentRef} waiverType can only be used with kind=waiver`);
         }
         normalizedKinds.push(kind);
       }
@@ -716,7 +716,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       try {
         headHash = execSync('git rev-parse HEAD', { cwd: root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
       } catch {
-        throw new Error('verification_evidence_refresh_stale: 当前目录无法读取 git HEAD，不能刷新 freshness');
+        throw new Error('verification_evidence_refresh_stale: cannot read git HEAD in current directory, unable to refresh freshness');
       }
       const materialHash = currentMaterialHash(root);
       const coverage = buildVerificationCoverage(
@@ -762,7 +762,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
 
       if (!args.dryRun) store.writeChecklist(args.storyId, cl);
       lines.push(args.dryRun
-        ? '→ 重跑上述 command 后去掉 dryRun 刷新 evidence metadata'
+        ? '→ Rerun the above command without dryRun to refresh evidence metadata'
         : `Refreshed ${refreshed}/${stale.length} stale evidence item(s). Re-run lattice validate --story=${args.storyId} --json`);
       if (!args.dryRun) {
         const commitHint = autoCommitStoryMetadata(root, args.storyId, 'verification_evidence_refresh_stale');

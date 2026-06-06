@@ -14,7 +14,7 @@
  *   debugging, review discipline, and subagent collaboration metrics.
  *   This supports the goal that code is managed through an automated interface
  *   used by both humans and AI, with traceable artifacts instead of memory.
- *   整个代码仓库应该是原生高效适配ai 并且可解释 可追述的；需求完整性没有银弹，靠多层防线降低遗漏概率。
+ *   The entire code repository should be natively efficient for AI adaptation and should be explainable and traceable; there is no silver bullet for requirement completeness, relying on multiple layers of defense to reduce the probability of omissions.
  * @changes
  *   - [CHK-001] Aggregate story artifacts into explainable process metrics
  *   - [CHK-001] Surface requirement completeness and multi-layer defense gaps
@@ -405,11 +405,11 @@ function computeSubagentCollaboration(
 ): ProcessDimensionMetrics {
   const gaps: string[] = [];
 
-  // 三档通道（express/fast/normal）：只有 normal 触发正常通道约束
-  // express（≤2）/ fast（≤5 单一解）都视为"非正常通道"，主 agent 可自写代码
+  // Three-tier channels (express/fast/normal): only normal triggers normal-channel constraints
+  // express (≤2) / fast (≤5 single solution) are both treated as "non-normal channels", main agent can write code itself
   const channel = computeChannel(story, checklist);
   const isNormalChannel = channel === 'normal';
-  const nonNormalReason = `${channel} channel — main agent 允许自写代码`;
+  const nonNormalReason = `${channel} channel — main agent allowed to write code itself`;
 
   // normalChannelUsesSubagent
   const normalChannelUsesSubagent = isNormalChannel

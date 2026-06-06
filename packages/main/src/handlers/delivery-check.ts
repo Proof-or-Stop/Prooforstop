@@ -1,16 +1,16 @@
 /**
  * Delivery Check handler — koala delivery_check_set
  *
- * TEST → DONE 硬门槛产物 delivery-check.json 的签名工具函数。
+ * Signing utility functions for the TEST → DONE hard gate artifact delivery-check.json.
  *
- * 由 koala-review-delivery reviewer 在 TEST 末尾 spawn 时调用，
- * 逆向扫 git diff 列 docsPromises + 真机 transcript + 闭合自检，
- * 写签名 JSON 作为 DONE 的第三把钥匙（前两把：test-evidence PASS + bug 全 fixed）。
+ * Invoked when the koala-review-delivery reviewer is spawned at the end of TEST,
+ * reverse-scans git diff to list docsPromises + real-machine transcript + closing self-check,
+ * writes a signed JSON as the third key for DONE (first two: test-evidence PASS + all bugs fixed).
  *
- * 签名域：storyId + JSON.stringify(docsPromises) + JSON.stringify(realMachineTests)
+ * Signing domain: storyId + JSON.stringify(docsPromises) + JSON.stringify(realMachineTests)
  *          + JSON.stringify(closingSelfCheck) + reviewRound + salt
  *
- * waiverReason (≥ 30 字符) 入 realMachineTests 的 JSON.stringify，自动纳入签名。
+ * waiverReason (≥ 30 chars) enters JSON.stringify of realMachineTests, automatically included in the signature.
  */
 
 import type { HandlerContext } from './context.js';
@@ -24,12 +24,12 @@ import { signDeliveryCheck } from '../core/delivery-check-hash.js';
 // import directly from core/delivery-check-hash.js — keep that the only path.
 
 /**
- * delivery_check_set handler 工厂。
+ * delivery_check_set handler factory.
  *
- * 由 koala-review-delivery subagent 调用，写入 delivery-check.json。
- * 校验逻辑：
- * - waiverReason 非空时必须 ≥ 30 字符（入 _hash 防事后篡改）
- * - closingSelfCheck.summary ≥ 10 字符
+ * Invoked by the koala-review-delivery subagent, writes delivery-check.json.
+ * Validation logic:
+ * - When waiverReason is non-empty it must be ≥ 30 chars (enters _hash to prevent post-hoc tampering)
+ * - closingSelfCheck.summary ≥ 10 chars
  */
 export function createDeliveryCheckHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
   const { store, root } = ctx;
@@ -39,24 +39,24 @@ export function createDeliveryCheckHandlers(ctx: HandlerContext): Record<string,
       promiseId: string;
       waiverReason: string;
     }): string {
-      // 1) waiverReason 长度校验
+      // 1) waiverReason length check
       if (!args.waiverReason || args.waiverReason.trim().length < 30) {
         throw new Error('waiverReason must be at least 30 characters');
       }
 
-      // 2) 读取现有 delivery-check.json
+      // 2) Read existing delivery-check.json
       const data = store.readDeliveryCheck(args.storyId);
       if (!data) {
         throw new Error('delivery-check.json not found, run delivery reviewer first');
       }
 
-      // 3) 找到 matching promise by docPath
+      // 3) Find matching promise by docPath
       const promise = data.docsPromises.find(p => p.docPath === args.promiseId);
       if (!promise) {
         throw new Error(`promiseId "${args.promiseId}" not found in docsPromises`);
       }
 
-      // 3.5) 验证现有 _hash 合法（防止在已篡改的文件上追加 waiver 洗白签名）
+      // 3.5) Verify the existing _hash is valid (prevent laundering the signature by appending a waiver on an already-tampered file)
       const currentExpected = signDeliveryCheck(
         data.storyId,
         data.docsPromises,
@@ -65,14 +65,14 @@ export function createDeliveryCheckHandlers(ctx: HandlerContext): Record<string,
         data.reviewRound,
       );
       if (data._hash !== currentExpected) {
-        throw new Error('delivery-check.json _hash 已失效（文件可能被篡改），请重跑 koala-review-delivery reviewer');
+        throw new Error('delivery-check.json _hash is invalid (file may have been tampered with), please re-run the koala-review-delivery reviewer');
       }
 
-      // 4) 设置 waiverReason
+      // 4) Set waiverReason
       promise.waiverReason = args.waiverReason.trim();
       promise.status = 'waived';
 
-      // 5) 重新签名（docsPromises 含 waiverReason 后 hash 变化）
+      // 5) Re-sign (hash changes after docsPromises includes waiverReason)
       data._hash = signDeliveryCheck(
         data.storyId,
         data.docsPromises,
@@ -81,7 +81,7 @@ export function createDeliveryCheckHandlers(ctx: HandlerContext): Record<string,
         data.reviewRound,
       );
 
-      // 6) 写回
+      // 6) Write back
       store.writeDeliveryCheck(args.storyId, data);
 
       const commitHint = autoCommitStoryMetadata(root, args.storyId, 'delivery_waiver_add');
@@ -95,7 +95,7 @@ export function createDeliveryCheckHandlers(ctx: HandlerContext): Record<string,
       closingSelfCheck: ClosingSelfCheck;
       agentId?: string;
     }): string {
-      // 1) story 存在性校验
+      // 1) story existence check
       let reviewRound = '';
       try {
         const story = store.readStory(args.storyId);
@@ -104,13 +104,13 @@ export function createDeliveryCheckHandlers(ctx: HandlerContext): Record<string,
         throw new Error(`Story ${args.storyId} not found`);
       }
 
-      // 2) runtime 校验
+      // 2) runtime validation
       const docsPromises = Array.isArray(args.docsPromises) ? args.docsPromises.map(p => ({ ...p })) : [];
       const realMachineTests = Array.isArray(args.realMachineTests) ? args.realMachineTests : [];
       const closingSelfCheck = args.closingSelfCheck;
 
       if (!closingSelfCheck || typeof closingSelfCheck.summary !== 'string' || closingSelfCheck.summary.trim().length < 10) {
-        throw new Error('delivery_check_set: closingSelfCheck.summary 必须 ≥ 10 字符');
+        throw new Error('delivery_check_set: closingSelfCheck.summary must be ≥ 10 characters');
       }
 
       for (const promise of docsPromises) {
@@ -119,22 +119,22 @@ export function createDeliveryCheckHandlers(ctx: HandlerContext): Record<string,
         } else if (promise.status === 'waived') {
           if (!promise.waiverReason || promise.waiverReason.trim().length < 30) {
             throw new Error(
-              `delivery_check_set: docsPromises status=waived 时 waiverReason 必须 ≥ 30 字符（docPath: ${promise.docPath}）`,
+              `delivery_check_set: when docsPromises status=waived, waiverReason must be ≥ 30 characters (docPath: ${promise.docPath})`,
             );
           }
         }
       }
 
-      // waiverReason 校验：非空时必须 ≥ 30 字符
+      // waiverReason validation: when non-empty, must be ≥ 30 characters
       for (const test of realMachineTests) {
         if (test.waiverReason && test.waiverReason.trim().length < 30) {
           throw new Error(
-            `delivery_check_set: waiverReason 非空时必须 ≥ 30 字符（featureId: ${test.featureId}）`,
+            `delivery_check_set: when waiverReason is non-empty, it must be ≥ 30 characters (featureId: ${test.featureId})`,
           );
         }
       }
 
-      // 3) 计算签名
+      // 3) compute signature
       const _hash = signDeliveryCheck(
         args.storyId,
         docsPromises,
@@ -143,7 +143,7 @@ export function createDeliveryCheckHandlers(ctx: HandlerContext): Record<string,
         reviewRound,
       );
 
-      // 4) 构造 DeliveryCheckData 并落盘
+      // 4) construct DeliveryCheckData and persist to disk
       const data: DeliveryCheckData = {
         storyId: args.storyId,
         checkedAt: new Date().toISOString(),
@@ -156,7 +156,7 @@ export function createDeliveryCheckHandlers(ctx: HandlerContext): Record<string,
       };
       store.writeDeliveryCheck(args.storyId, data);
 
-      // 5) 返回摘要
+      // 5) return summary
       const unverified = docsPromises.filter(p => !p.verifiedBy).length;
       const waived = realMachineTests.filter(t => !!t.waiverReason).length;
       const commitHint = autoCommitStoryMetadata(root, args.storyId, 'delivery_check_set');

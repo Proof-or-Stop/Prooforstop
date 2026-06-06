@@ -8,10 +8,10 @@ import type { StoryInfo, BugRecord } from '../core/types.js';
 
 export type BugSource =
   | 'story_type_bug'     // story type="bug"
-  | 'bug_json'           // bug.json 记录
+  | 'bug_json'           // bug.json record
   | 'test_fail'          // test-evidence FAIL
-  | 'checklist_fix'      // checklist 含修复关键词
-  | 'git_fix_commit';    // git commit message 含 fix/bug
+  | 'checklist_fix'      // checklist contains fix keyword
+  | 'git_fix_commit';    // git commit message contains fix/bug
 
 export interface BugEntry {
   id: string;
@@ -44,28 +44,28 @@ export interface BugReport {
     bugsBySource: Record<BugSource, number>;
     bugsByStatus: { open: number; fixed: number };
     bugsBySeverity: Record<string, number>;
-    /** bug story 数 / 总 story 数 */
+    /** bug story count / total story count */
     storyBugRate: string;
-    /** 总 bug 数 / 总 story 数 */
+    /** total bug count / total story count */
     bugPerStory: string;
-    /** FAIL 数 / 总测试数 */
+    /** FAIL count / total test count */
     testFailRate: string;
-    /** 含 fix 的 commit 数 / 总 commit 数 */
+    /** commit count containing fix / total commit count */
     gitFixRate: string;
     avgFixTimeHours: string;
   };
   bugs: BugEntry[];
   storyMetrics: StoryMetrics[];
-  /** Markdown 格式的可读报告 */
+  /** Human-readable report in Markdown format */
   markdown: string;
 }
 
 // ── Keyword matching ──
 
-/** checklist 用严格匹配：只匹配明确修 bug 的关键词 */
-const CHECKLIST_FIX_PATTERNS = [/修复/, /修正/, /\bfix\b/i, /\bbugfix\b/i, /\bhotfix\b/i, /缺陷/];
-/** git commit 用宽松匹配 */
-const GIT_FIX_PATTERNS = [/\bfix\b/i, /修复/, /修正/, /缺陷/];
+/** checklist uses strict matching: only matches keywords explicitly fixing bugs */
+const CHECKLIST_FIX_PATTERNS = [/fix/i, /correct/i, /\bfix\b/i, /\bbugfix\b/i, /\bhotfix\b/i, /defect/i];
+/** git commit uses loose matching */
+const GIT_FIX_PATTERNS = [/\bfix\b/i, /repair/i, /correct/i, /defect/i];
 
 function isChecklistFix(text: string): boolean {
   return CHECKLIST_FIX_PATTERNS.some(p => p.test(text));
@@ -77,9 +77,9 @@ function isGitFix(message: string): boolean {
 
 function inferSeverity(text: string): BugEntry['severity'] {
   const lower = text.toLowerCase();
-  if (/critical|严重|紧急|crash|数据丢失/.test(lower)) return 'critical';
-  if (/high|高|阻塞|block/.test(lower)) return 'high';
-  if (/low|低|minor|微小/.test(lower)) return 'low';
+  if (/critical|severe|urgent|crash|data loss/.test(lower)) return 'critical';
+  if (/high|blocker|block/.test(lower)) return 'high';
+  if (/low|minor|tiny/.test(lower)) return 'low';
   return 'medium';
 }
 
@@ -135,7 +135,7 @@ function extractFromTestEvidence(store: StoryStore, storyIds: string[]): BugEntr
         id: `${sid}-test-fail`,
         source: 'test_fail',
         storyId: sid,
-        title: `测试失败: ${evidence.command}`,
+        title: `Test failed: ${evidence.command}`,
         severity: 'medium',
         status: 'open',
         foundAt: evidence.timestamp,
@@ -218,7 +218,7 @@ function dedup(bugs: BugEntry[]): BugEntry[] {
   const seen = new Set<string>();
   const result: BugEntry[] = [];
   for (const b of bugs) {
-    // 同一 story 的 story_type_bug 和 git_fix_commit 可能重复
+    // story_type_bug and git_fix_commit for the same story may be duplicated
     const key = `${b.storyId}:${b.title.substring(0, 40)}`;
     if (!seen.has(key)) {
       seen.add(key);
@@ -262,32 +262,32 @@ function renderMarkdown(report: Omit<BugReport, 'markdown'>): string {
   const s = report.summary;
   const lines: string[] = [];
 
-  lines.push('# Bug 质量报告');
-  lines.push(`> 生成时间: ${report.generatedAt}`);
+  lines.push('# Bug Quality Report');
+  lines.push(`> Generated at: ${report.generatedAt}`);
   lines.push('');
 
   // Summary
-  lines.push('## 概览');
-  lines.push('| 指标 | 值 |');
+  lines.push('## Overview');
+  lines.push('| Metric | Value |');
   lines.push('|---|---|');
-  lines.push(`| Story 总数 | ${s.totalStories} |`);
-  lines.push(`| Bug 总数 | ${s.totalBugs} |`);
-  lines.push(`| Bug Story 比率 | ${s.storyBugRate} |`);
+  lines.push(`| Total Stories | ${s.totalStories} |`);
+  lines.push(`| Total Bugs | ${s.totalBugs} |`);
+  lines.push(`| Bug-to-Story Ratio | ${s.storyBugRate} |`);
   lines.push(`| Bug / Story | ${s.bugPerStory} |`);
-  lines.push(`| 测试失败率 | ${s.testFailRate} |`);
-  lines.push(`| Git fix commit 比率 | ${s.gitFixRate} |`);
-  lines.push(`| 平均修复时长 | ${s.avgFixTimeHours} |`);
+  lines.push(`| Test Failure Rate | ${s.testFailRate} |`);
+  lines.push(`| Git fix commit Ratio | ${s.gitFixRate} |`);
+  lines.push(`| Average Fix Time | ${s.avgFixTimeHours} |`);
   lines.push('');
 
   // By source
-  lines.push('## Bug 来源分布');
-  lines.push('| 来源 | 数量 |');
+  lines.push('## Bug Source Distribution');
+  lines.push('| Source | Count |');
   lines.push('|---|---|');
   const sourceLabels: Record<BugSource, string> = {
-    story_type_bug: 'Bug 类型 Story',
-    bug_json: 'bug.json 记录',
-    test_fail: '测试失败(FAIL)',
-    checklist_fix: 'Checklist 修复项',
+    story_type_bug: 'Bug-type Story',
+    bug_json: 'bug.json Record',
+    test_fail: 'Test Failure (FAIL)',
+    checklist_fix: 'Checklist Fix Item',
     git_fix_commit: 'Git fix commit',
   };
   for (const [src, label] of Object.entries(sourceLabels)) {
@@ -297,8 +297,8 @@ function renderMarkdown(report: Omit<BugReport, 'markdown'>): string {
   lines.push('');
 
   // By severity
-  lines.push('## Bug 严重性分布');
-  lines.push('| 严重性 | 数量 |');
+  lines.push('## Bug Severity Distribution');
+  lines.push('| Severity | Count |');
   lines.push('|---|---|');
   for (const sev of ['critical', 'high', 'medium', 'low']) {
     const count = s.bugsBySeverity[sev] || 0;
@@ -307,8 +307,8 @@ function renderMarkdown(report: Omit<BugReport, 'markdown'>): string {
   lines.push('');
 
   // Bug list
-  lines.push('## Bug 明细');
-  lines.push('| ID | Story | 标题 | 来源 | 严重性 | 状态 |');
+  lines.push('## Bug Details');
+  lines.push('| ID | Story | Title | Source | Severity | Status |');
   lines.push('|---|---|---|---|---|---|');
   for (const b of report.bugs) {
     lines.push(`| ${b.id} | ${b.storyId} | ${b.title.substring(0, 50)} | ${sourceLabels[b.source]} | ${b.severity} | ${b.status} |`);
@@ -316,8 +316,8 @@ function renderMarkdown(report: Omit<BugReport, 'markdown'>): string {
   lines.push('');
 
   // Story metrics
-  lines.push('## Story 质量矩阵');
-  lines.push('| Story | 标题 | 类型 | Bug数 | 测试数 | 失败数 | 开发时长(h) |');
+  lines.push('## Story Quality Matrix');
+  lines.push('| Story | Title | Type | Bugs | Tests | Failures | Dev Time (h) |');
   lines.push('|---|---|---|---|---|---|---|');
   for (const m of report.storyMetrics) {
     lines.push(`| ${m.storyId} | ${m.title.substring(0, 30)} | ${m.type} | ${m.bugCount} | ${m.testTotal} | ${m.testFail} | ${m.devDurationHours ?? '-'} |`);

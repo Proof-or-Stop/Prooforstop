@@ -1,22 +1,22 @@
 /**
- * B-45ed CHK-006: background.md 四段式格式校验器
+ * B-45ed CHK-006: background.md four-section format validator
  *
- * 真相源层级中，background.md 承担"为什么"维度，是 story 知识库的第一层。
- * 本模块抽成纯函数以供 CHK-007 的 background_set / background_append 复用。
+ * In the source-of-truth hierarchy, background.md carries the "why" dimension and is the first layer of the story knowledge base.
+ * This module is extracted as pure functions for reuse by CHK-007's background_set / background_append.
  *
- * 硬下限（与 CLAUDE.md "background.md 四段式格式" 小节对齐）：
- *   - 4 段头齐全（顺序不强制，但每段必须出现恰一次）
- *   - 每段正文 ≥ 50 字符（段头之后、下个段头之前的内容，去掉段头本身）
- *   - 总长 ≥ 300 字符
- *   - "## 触发事件" 段必含 id 正则之一：
- *       B-[a-z0-9]{4} / F-\d+ / CHK-\d+ / [a-f0-9]{7,} hash / ISO 日期 \d{4}-\d{2}-\d{2}
+ * Hard minimums (aligned with the "background.md four-section format" subsection of CLAUDE.md):
+ *   - All 4 section headers present (order not enforced, but each must appear exactly once)
+ *   - Each section body >= 50 characters (content after the section header and before the next section header, excluding the header itself)
+ *   - Total length >= 300 characters
+ *   - The "## Trigger Event" section must contain one of the id regexes:
+ *       B-[a-z0-9]{4} / F-\d+ / CHK-\d+ / [a-f0-9]{7,} hash / ISO date \d{4}-\d{2}-\d{2}
  */
 
 export const REQUIRED_SECTIONS = [
-  '触发事件',
-  '关键洞察',
-  '方案取舍',
-  '对话纹理',
+  'Trigger Event',
+  'Key Insights',
+  'Solution Tradeoffs',
+  'Conversational Texture',
 ] as const;
 
 export type RequiredSection = typeof REQUIRED_SECTIONS[number];
@@ -31,22 +31,32 @@ export const BACKGROUND_SECTION_IDS = [
 export type BackgroundSectionId = typeof BACKGROUND_SECTION_IDS[number];
 
 export const BACKGROUND_SECTION_TITLES: Record<BackgroundSectionId, RequiredSection> = {
-  trigger_event: '触发事件',
-  key_insight: '关键洞察',
-  tradeoff: '方案取舍',
-  conversation_texture: '对话纹理',
+  trigger_event: 'Trigger Event',
+  key_insight: 'Key Insights',
+  tradeoff: 'Solution Tradeoffs',
+  conversation_texture: 'Conversational Texture',
 };
 
 const BACKGROUND_SECTION_ID_BY_TITLE = new Map<string, BackgroundSectionId>(
   Object.entries(BACKGROUND_SECTION_TITLES).map(([id, title]) => [title, id as BackgroundSectionId]),
 );
 
+const BACKGROUND_SECTION_ALIASES = new Map<string, BackgroundSectionId>([
+  ['Key Insight', 'key_insight'],
+  ['Tradeoff', 'tradeoff'],
+  ['Tradeoffs', 'tradeoff'],
+  ['Trade-offs', 'tradeoff'],
+  ['Option Tradeoffs', 'tradeoff'],
+  ['Conversation Texture', 'conversation_texture'],
+  ['Dialogue Texture', 'conversation_texture'],
+]);
+
 export function normalizeBackgroundSection(value: string): BackgroundSectionId | null {
   const trimmed = value.trim();
   if ((BACKGROUND_SECTION_IDS as readonly string[]).includes(trimmed)) {
     return trimmed as BackgroundSectionId;
   }
-  return BACKGROUND_SECTION_ID_BY_TITLE.get(trimmed) ?? null;
+  return BACKGROUND_SECTION_ID_BY_TITLE.get(trimmed) ?? BACKGROUND_SECTION_ALIASES.get(trimmed) ?? null;
 }
 
 export function backgroundSectionTitle(sectionId: BackgroundSectionId): RequiredSection {
@@ -66,9 +76,9 @@ export type ValidateResult =
   | { ok: false; errors: string[] };
 
 /**
- * 把 markdown 文本按 "## <title>" 段头拆分，返回每段内容 map。
- * 段头前的 preamble（如 "# Background: xxx" 标题）被忽略。
- * 同名段头多次出现 → 保留首次出现的内容（校验层会单独报错"段头重复"）。
+ * Split the markdown text by "## <title>" section headers and return a map of each section's content.
+ * The preamble before the section headers (e.g. the "# Background: xxx" title) is ignored.
+ * If the same section header appears multiple times -> keep the content of the first occurrence (the validation layer separately reports a "duplicate section header" error).
  */
 export function parseSections(content: string): { sections: Map<string, string>; headers: string[]; duplicates: string[] } {
   const lines = content.split(/\r?\n/);
@@ -92,7 +102,8 @@ export function parseSections(content: string): { sections: Map<string, string>;
     const m = line.match(/^##\s+(.+?)\s*$/);
     if (m) {
       flush();
-      current = m[1];
+      const sectionId = normalizeBackgroundSection(m[1]);
+      current = sectionId ? backgroundSectionTitle(sectionId) : m[1];
       headers.push(current);
       buf = [];
     } else if (current !== null) {
@@ -107,12 +118,12 @@ export function validateBackground(content: string): ValidateResult {
   const errors: string[] = [];
 
   if (typeof content !== 'string' || content.trim().length === 0) {
-    return { ok: false, errors: ['background 内容为空'] };
+    return { ok: false, errors: ['background content is empty'] };
   }
 
   const totalLen = content.length;
   if (totalLen < 300) {
-    errors.push(`总长 ${totalLen} 字符 < 300（硬下限）`);
+    errors.push(`total length ${totalLen} chars < 300 (hard minimum)`);
   }
 
   const { sections, headers, duplicates } = parseSections(content);
@@ -120,35 +131,35 @@ export function validateBackground(content: string): ValidateResult {
   const missing = REQUIRED_SECTIONS.filter(s => !sections.has(s));
   if (missing.length > 0) {
     errors.push(
-      `缺少段头: ${missing.map(s => `"## ${s}"`).join(', ')}；` +
-      `期望 4 段: ${REQUIRED_SECTIONS.map(s => `"## ${s}"`).join(' / ')}；` +
-      `当前识别到: ${headers.length > 0 ? headers.map(h => `"## ${h}"`).join(', ') : '(无)'}`
+      `missing section headers: ${missing.map(s => `"## ${s}"`).join(', ')}; ` +
+      `expected 4 sections: ${REQUIRED_SECTIONS.map(s => `"## ${s}"`).join(' / ')}; ` +
+      `currently detected: ${headers.length > 0 ? headers.map(h => `"## ${h}"`).join(', ') : '(none)'}`
     );
   }
 
   if (duplicates.length > 0) {
-    errors.push(`段头重复: ${duplicates.map(s => `"## ${s}"`).join(', ')}（每段仅允许一次）`);
+    errors.push(`duplicate section headers: ${duplicates.map(s => `"## ${s}"`).join(', ')} (each section allowed only once)`);
   }
 
-  // 各段正文长度检查（段存在才查，避免重复报错）
+  // Per-section body length check (only check if section exists, to avoid duplicate errors)
   for (const name of REQUIRED_SECTIONS) {
     const body = sections.get(name);
-    if (body === undefined) continue; // 已在 missing 里报过
+    if (body === undefined) continue; // already reported in missing
     const trimmed = body.trim();
     if (trimmed.length < 50) {
-      errors.push(`"## ${name}" 段正文 ${trimmed.length} 字符 < 50（硬下限）`);
+      errors.push(`"## ${name}" section body ${trimmed.length} chars < 50 (hard minimum)`);
     }
   }
 
-  // 触发事件必须含 id
-  const triggerBody = sections.get('触发事件');
+  // Trigger Event must contain id
+  const triggerBody = sections.get('Trigger Event');
   if (triggerBody !== undefined && triggerBody.trim().length > 0) {
     const matched = TRIGGER_ID_PATTERNS.some(re => re.test(triggerBody));
     if (!matched) {
       errors.push(
-        '"## 触发事件" 段未匹配任一 id 正则：' +
-        'B-[a-z0-9]{4} / F-\\d+ / CHK-\\d+ / [a-f0-9]{7,} / \\d{4}-\\d{2}-\\d{2}；' +
-        '必须含具体 story/finding/commit/日期编号，不允许"流程需要优化"类抽象措辞'
+        '"## Trigger Event" section did not match any id regex: ' +
+        'B-[a-z0-9]{4} / F-\\d+ / CHK-\\d+ / [a-f0-9]{7,} / \\d{4}-\\d{2}-\\d{2}; ' +
+        'must contain a specific story/finding/commit/date identifier; abstract phrasing like "process needs improvement" is not allowed'
       );
     }
   }

@@ -281,7 +281,7 @@ export function resetSessionIdForTest(): void {
  *
  * `storyDir` MUST be the absolute story directory
  * (`.koala/story/actives/<storyId>`). Runtime re-validation rejects an empty
- * path rather than silently joining onto `''` — mirrors the "Handler 编码约定"
+ * path rather than silently joining onto `''` — mirrors the "Handler Coding Conventions"
  * rule that load-bearing invariants are re-checked at every consumer instead of
  * trusting an upstream schema.
  */
@@ -318,7 +318,7 @@ export function readOwnerLease(storyDir: string): StoryOwnerLease | null {
 /**
  * Validate a parsed object against the `StoryOwnerLease` schema.
  *
- * Runtime field-by-field re-validation (per "Handler 编码约定"): every required
+ * Runtime field-by-field re-validation (per "Handler Coding Conventions"): every required
  * field must be a non-empty string / finite number. `label` is optional and
  * only kept when it is a non-empty string. Any failure → `null`.
  */
@@ -568,8 +568,8 @@ export function isOwnedByCurrentSession(storyDir: string): boolean {
  *
  * A lease whose `heartbeatAt` is older than this is considered stale and is
  * eligible for plain `--takeover`. Kept as an exported constant so the gate,
- * doctor checks, and tests all reference the SAME literal — per "Handler 编码
- * 约定" the 30-minute rule is re-checked at every consumer, never re-typed.
+ * doctor checks, and tests all reference the SAME literal — per "Handler Coding
+ * Conventions" the 30-minute rule is re-checked at every consumer, never re-typed.
  */
 export const STALE_LEASE_THRESHOLD_MS = 30 * 60 * 1000;
 
@@ -579,7 +579,7 @@ export const STALE_LEASE_THRESHOLD_MS = 30 * 60 * 1000;
  *
  * Pure and unit-testable — `now` is injectable (defaults to `Date.now()`).
  *
- * Runtime re-validation (per "Handler 编码约定"): a lease whose `heartbeatAt`
+ * Runtime re-validation (per "Handler Coding Conventions"): a lease whose `heartbeatAt`
  * is not a parseable ISO 8601 timestamp has NO trustworthy age, so it is
  * conservatively treated as stale (`true`) — an unparseable heartbeat must
  * never masquerade as a fresh, protected lease. A `null` lease is NOT stale
@@ -671,7 +671,7 @@ export interface TakeoverEvent {
  * transfer is never silent: who took it from whom, when, the previous
  * `heartbeatAt`, and whether it was stale.
  *
- * Runtime re-validation (per "Handler 编码约定"): `kind` is re-checked against
+ * Runtime re-validation (per "Handler Coding Conventions"): `kind` is re-checked against
  * the `{takeover, forceTakeover}` enum here, not trusted from an upstream
  * schema; an invalid `kind` throws.
  */

@@ -13,7 +13,7 @@ const VALID_VALUES: Record<string, string[]> = {
   scope: ['file', 'module', 'function', 'block'],
 };
 
-/** 校验单个注释块 */
+/** Validate a single comment block */
 function validateBlock(
   parsed: Record<string, string | string[]>,
   filePath: string,
@@ -22,7 +22,7 @@ function validateBlock(
   const issues: ValidationIssue[] = [];
   const loc = `${filePath}:${line}`;
 
-  // 必填字段
+  // Required fields
   for (const field of REQUIRED_FIELDS) {
     const val = parsed[field];
     if (!val || (Array.isArray(val) && val.length === 0)) {
@@ -30,7 +30,7 @@ function validateBlock(
     }
   }
 
-  // 枚举值
+  // Enum values
   for (const [field, allowed] of Object.entries(VALID_VALUES)) {
     if (parsed[field] && typeof parsed[field] === 'string' && !allowed.includes(parsed[field] as string)) {
       issues.push({
@@ -41,7 +41,7 @@ function validateBlock(
     }
   }
 
-  // task ID 格式
+  // task ID format
   if (parsed.task && typeof parsed.task === 'string' && !/^[A-Z][\w-]+$/.test(parsed.task)) {
     issues.push({
       loc,
@@ -50,7 +50,7 @@ function validateBlock(
     });
   }
 
-  // description 不能太短
+  // description must not be too short
   if (parsed.description && typeof parsed.description === 'string') {
     if (parsed.description.length < 10) {
       issues.push({ loc, level: 'warn', msg: `@description too short (${parsed.description.length} chars)` });
@@ -60,7 +60,7 @@ function validateBlock(
   return issues;
 }
 
-/** 扫描并校验所有文件 */
+/** Scan and validate all files */
 export function validate(scanRoot: string): ValidationResult {
   let files: string[];
   try {
@@ -111,7 +111,7 @@ export function validate(scanRoot: string): ValidationResult {
         warnings.push({
           loc: `${rel}:${line}`,
           level: 'warn',
-          msg: `文件级 @task 不应含 @test（${parsed.test}），请移到函数级 @task 块`,
+          msg: `File-level @task must not contain @test (${parsed.test}); move it to a function-level @task block`,
         });
       }
       // CHK-001 / CHK-002: check @test on function-level annotations

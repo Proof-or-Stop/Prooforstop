@@ -162,7 +162,7 @@ export function classifyAuthorityEvidence(
       klass: 'local-only',
       label: 'local-only (off mode; no POST)',
       missing,
-      reason: `KOALA_AUTHORITY_MODE=off; local evidence never POSTed; missing L2+ fields: ${missing.join(', ')}`,
+      reason: `LATTICE_AUTHORITY_MODE=off; local evidence never POSTed; missing L2+ fields: ${missing.join(', ')}`,
     };
   }
 

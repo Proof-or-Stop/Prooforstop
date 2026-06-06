@@ -341,7 +341,7 @@ function assertDirtyGatePolicyAcrossGates(): void {
   assert.equal(DIRTY_GATE_POLICY.runtime_artifact_changes.blocking, false);
   assert.equal(DIRTY_GATE_POLICY.declared_artifact_changes.blocking, false);
 
-  // (2) blocking 3 类共存 → allPass=false with names + counts.
+  // (2) blocking 3 categories coexist → allPass=false with names + counts.
   const blockingFixture = buildClassification([
     { category: 'material_source_changes', path: 'packages/main/src/foo.ts' },
     { category: 'fixture_changes', path: 'packages/main/tests/fixtures/x.json' },
@@ -362,7 +362,7 @@ function assertDirtyGatePolicyAcrossGates(): void {
   assert.match(blockingResult.summary, /unexpected_dirty_files=1/);
   assert.equal(blockingResult.auditEvents.length, 0, 'pure-blocking fixture must emit zero audit events');
 
-  // (3) passing 3 类共存 → allPass=true with 3 audit events.
+  // (3) passing 3 categories coexist → allPass=true with 3 audit events.
   const passingFixture = buildClassification([
     { category: 'koala_metadata_changes', path: '.koala/story/actives/B-x/index.json' },
     { category: 'runtime_artifact_changes', path: '.koala/activity.jsonl' },
@@ -693,6 +693,24 @@ function assertFlowFactPolicyRegistry(): void {
   );
   assert.equal(
     isPassOnlyReviewFindingRecord({
+      desc: '\u5ba1\u67e5\u901a\u8fc7\uff1a\u5df2\u68c0\u67e5\u8303\u56f4\uff0c\u65e0\u963b\u585e\u95ee\u9898\u3002',
+      severity: 'low',
+      agent: 'koala-review-quality',
+    }),
+    true,
+    'localized pass-only reviewer finding should normalize to review pass',
+  );
+  assert.equal(
+    isPassOnlyReviewFindingRecord({
+      desc: '\u5ba1\u67e5\u901a\u8fc7\uff0c\u4f46\u4ecd\u7136\u6709\u95ee\u9898\u9700\u8981\u4fee\u590d\u3002',
+      severity: 'low',
+      agent: 'koala-review-quality',
+    }),
+    false,
+    'localized pass text with an explicit problem must remain a real finding',
+  );
+  assert.equal(
+    isPassOnlyReviewFindingRecord({
       desc: 'PASS: docs consistency check PASSED.',
       severity: 'medium',
       agent: 'koala-review-docs',
@@ -754,7 +772,7 @@ function assertPhaseGatePolicyHints(): void {
   const supported = createActiveStoryRoot('DEV');
   try {
     const output = runBlockedCli(supported.root, ['bug_report']);
-    assert.match(output, /命令 "bug_report" 在 DEV 阶段不可用/);
+    assert.match(output, /Command "bug_report" is not available in DEV phase/);
     assert.match(output, /Lifecycle: supported/);
     assert.match(output, /Requested phase: DEV/);
     assert.match(output, /Allowed phases: REVIEW, TEST/);
@@ -788,7 +806,7 @@ function assertPhaseToolsOverrideStillBlocks(): void {
   });
   try {
     const output = runBlockedCli(override.root, ['finding_add']);
-    assert.match(output, /命令 "finding_add" 在 DEV 阶段不可用/);
+    assert.match(output, /Command "finding_add" is not available in DEV phase/);
     assert.match(output, /Lifecycle: gateEvidence/);
     assert.match(output, /Requested phase: DEV/);
     assert.match(output, /Allowed phases: DEV, REVIEW/);
@@ -999,18 +1017,18 @@ function assertStoryAdvanceTestGateFailClosedContracts(): void {
   const phaseGatesSource = readFileSync(join(root, 'src', 'handlers', 'phase-gates.ts'), 'utf-8');
   assert.match(
     phaseGatesSource,
-    /Cannot enter TEST: CLI gate preflight 执行异常/,
+    /Cannot enter TEST: CLI gate preflight execution error/,
     'REVIEW->TEST preflight infrastructure errors must be fail-closed',
   );
   assert.match(
     phaseGatesSource,
-    /Cannot enter TEST: koala validate 执行异常/,
+    /Cannot enter TEST: koala validate execution error/,
     'validate execution errors must be fail-closed before entering TEST',
   );
   for (const src of [source, phaseGatesSource]) {
     assert.doesNotMatch(
       src,
-      /CLI gate preflight 自身错误（不阻塞推进）|validate 执行失败（不阻塞推进）/,
+      /CLI gate preflight self error \(does not block advancement\)|validate execution failed \(does not block advancement\)/,
       'TEST gate infrastructure errors must not use the old warn-and-advance path',
     );
   }
@@ -1068,10 +1086,10 @@ function assertReviewGateUsesOptIn(): void {
     });
 
     const missing = getGuardFailureReason(storyId, store, 'TEST', root);
-    assert.match(missing ?? '', /期望 3 个 reviewer（opt-in: concept,quality,test-coverage）/);
-    assert.match(missing ?? '', /缺: test-coverage/);
+    assert.match(missing ?? '', /Expected 3 reviewers \(opt-in: concept,quality,test-coverage\)/);
+    assert.match(missing ?? '', /Missing: test-coverage/);
     assert.match(missing ?? '', /koala-review-docs/);
-    assert.doesNotMatch(missing ?? '', /全部 5 个 reviewer/);
+    assert.doesNotMatch(missing ?? '', /all 5 reviewers/);
 
     store.writeFindings(storyId, {
       findings: [
@@ -1140,7 +1158,7 @@ function assertReviewRunBindingRejectsInvalidEvidence(): void {
       'review-run evidence collection must reject reviewRunId-retrofitted legacy signatures',
     );
     const retrofitFailure = getGuardFailureReason(storyId, store, 'TEST', root);
-    assert.match(retrofitFailure ?? '', /签名无效|reviewRunId/, 'review gate must fail retrofitted legacy signatures');
+    assert.match(retrofitFailure ?? '', /Invalid signature|reviewRunId/, 'review gate must fail retrofitted legacy signatures');
     store.writeFindings(storyId, { findings: [] });
 
     store.writeReviewPasses(storyId, {
@@ -1151,14 +1169,14 @@ function assertReviewRunBindingRejectsInvalidEvidence(): void {
       ],
     });
     const missingRun = getGuardFailureReason(storyId, store, 'TEST', root);
-    assert.match(missingRun ?? '', /缺少 reviewRunId/, 'current REVIEW evidence without reviewRunId must be rejected');
+    assert.match(missingRun ?? '', /Missing reviewRunId/, 'current REVIEW evidence without reviewRunId must be rejected');
     const missingRunStatus = summarizeReviewerStatus(store, storyId, root);
     const missingRunByName = new Map(missingRunStatus.entries.map(e => [e.name, e]));
     const qualityStatus = missingRunByName.get('quality');
     assert.equal(qualityStatus?.present, true, 'invalid reviewer evidence should count as present evidence');
     assert.equal(qualityStatus?.verdict, 'fail', 'invalid reviewer evidence must not be shown as pending');
     assert.equal(qualityStatus?.blockerCount, 1, 'invalid reviewer evidence should count as a blocking reviewer issue');
-    assert.match(qualityStatus?.detail ?? '', /缺少 reviewRunId/);
+    assert.match(qualityStatus?.detail ?? '', /Missing reviewRunId/);
     assert.equal(missingRunStatus.totalBlockers, 1, 'invalid reviewer evidence should surface in totalBlockers');
     assert.equal(missingRunStatus.allPassed, false);
 
@@ -1183,7 +1201,7 @@ function assertReviewRunBindingRejectsInvalidEvidence(): void {
       ],
     });
     const tamperedRun = getGuardFailureReason(storyId, store, 'TEST', root);
-    assert.match(tamperedRun ?? '', /签名无效|被篡改/, 'tampered review-runs.json signature must be rejected');
+    assert.match(tamperedRun ?? '', /Invalid signature|tampered/, 'tampered review-runs.json signature must be rejected');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -1267,7 +1285,7 @@ function assertSupersededReviewPassDoesNotBlockLatestReviewerRun(): void {
     );
     assert.match(
       getGuardFailureReason(storyId, store, 'TEST', root) ?? '',
-      /不是当前 lane 最新 run/,
+      /Not the latest run on the current lane/,
       'supersede logic applies only to stale passes, not stale findings',
     );
   } finally {
@@ -1630,7 +1648,7 @@ function assertSessionBriefStatusHintsMatchGates(): void {
       scanRoot: join(reviewRoot, 'packages/main'),
     }).next({ concise: true });
     assert.doesNotMatch(reviewBrief, /REVIEW blocked by unresolved findings/);
-    assert.match(reviewNext, /reviewer gate 全部通过/);
+    assert.match(reviewNext, /All reviewer gates passed/);
     assert.match(reviewNext, /phase=TEST/);
 
     const testStory = store.readStory(storyId);
@@ -1655,7 +1673,7 @@ function assertSessionBriefStatusHintsMatchGates(): void {
     }).next({ concise: true });
     assert.match(testBrief, /\[FAIL\] delivery-check/);
     assert.match(testBrief, /\[FAIL\] Story summary/);
-    assert.match(testBrief, /DONE pre-check 还有/);
+    assert.match(testBrief, /DONE pre-check still has/);
     // B-4b22: koala_metadata_changes is a passing category, so the git-working-tree
     // row now reports PASS with "pass: blocking=0 ...; passed=N (koala_metadata_changes=N)".
     // The KOALA_WRITE side-effect hint only appears when the row fails, so it is
@@ -1670,10 +1688,10 @@ function assertSessionBriefStatusHintsMatchGates(): void {
     // B-4b22: koala_metadata-only pollution passes via dirty-gate-policy, so
     // git-working-tree no longer appears in the blocked-row list.
     assert.match(nextStep, /delivery-check, story-summary/);
-    assert.match(nextStep, /全部通过后再 lattice story_advance --phase=DONE/);
-    assert.match(testBrief, /全部通过后再 lattice story_advance --phase=DONE/);
-    assert.doesNotMatch(testBrief, /下一步：story_advance --storyId=B-smoke --phase=DONE/);
-    assert.doesNotMatch(testBrief, /下一步：先 git add \+ git commit 提交所有改动，再 advance DONE/);
+    assert.match(nextStep, /After all pass, run lattice story_advance --phase=DONE/);
+    assert.match(testBrief, /After all pass, run lattice story_advance --phase=DONE/);
+    assert.doesNotMatch(testBrief, /Next step: story_advance --storyId=B-smoke --phase=DONE/);
+    assert.doesNotMatch(testBrief, /Next step: first git add \+ git commit to commit all changes, then advance DONE/);
   } finally {
     rmSync(reviewRoot, { recursive: true, force: true });
   }
@@ -1702,13 +1720,13 @@ function assertReviewNextUsesReviewerGateState(): void {
       scanRoot: join(root, 'packages/main'),
     });
     const pendingNext = handlers.next({ concise: true });
-    assert.match(pendingNext, /等待 reviewer evidence/);
+    assert.match(pendingNext, /Waiting for reviewer evidence/);
     assert.match(pendingNext, /story-review/);
     assert.match(pendingNext, /concept/);
     assert.match(pendingNext, /quality/);
     assert.match(pendingNext, /test-coverage/);
     assert.doesNotMatch(pendingNext, /channel/);
-    assert.doesNotMatch(pendingNext, /critical\/high finding 全部 resolved/);
+    assert.doesNotMatch(pendingNext, /All critical\/high findings resolved/);
 
     const id = `${storyId}:F-open`;
     const createdAt = '2026-04-27T12:30:00.000Z';
@@ -1743,7 +1761,7 @@ function assertReviewNextUsesReviewerGateState(): void {
       ],
     });
     const blockerNext = handlers.next({ concise: true });
-    assert.match(blockerNext, /1 个 blocking finding/);
+    assert.match(blockerNext, /1 blocking finding/);
     assert.match(blockerNext, /concept\(1\)/);
   } finally {
     rmSync(root, { recursive: true, force: true });
@@ -1771,7 +1789,7 @@ function assertDevGuidanceUsesReviewPhase(): void {
       scanRoot: join(root, 'packages/main'),
     }).session_brief({ concise: true });
     assert.match(brief, /phase=REVIEW/);
-    assert.doesNotMatch(brief, /phase=TEST 进入验证/);
+    assert.doesNotMatch(brief, /enter verification via phase=TEST/);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -1877,7 +1895,7 @@ function assertBugUpdateTestHintUsesDonePrecheck(): void {
     }));
     assert.match(output, /DONE pre-check/);
     assert.match(output, /phase=DONE/);
-    assert.doesNotMatch(output, /下一步：story_advance --storyId=.*--phase=DONE/);
+    assert.doesNotMatch(output, /Next step: story_advance --storyId=.*--phase=DONE/);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -1905,10 +1923,10 @@ function assertChannelGateRejectsKoalaSubjectForRealFiles(): void {
 
     const result = checkCommitAuthor(storyId, { store, projectRoot: root });
     assert.equal(result.status, 'fail');
-    assert.match(result.summary, /缺 dispatch\/subagent_result 证据/);
-    assert.match(result.summary, /不能作为 author fallback/);
+    assert.match(result.summary, /missing dispatch\/subagent_result evidence/);
+    assert.match(result.summary, /cannot be used as author fallback/);
     assert.match(result.details.join('\n'), /koala: implement real code/);
-    assert.match(result.details.join('\n'), /正常通道主证据必须是 dispatch\/subagent_result/);
+    assert.match(result.details.join('\n'), /normal channel primary evidence must be dispatch\/subagent_result/);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -1944,7 +1962,7 @@ function assertChannelGateAcceptsStructuredEvidenceWithSharedGitAuthor(): void {
     const result = checkCommitAuthor(storyId, { store, projectRoot: root });
     assert.equal(result.status, 'pass');
     assert.equal(result.evidenceSource, 'subagent_result');
-    assert.match(result.summary, /结构化证据覆盖完整/);
+    assert.match(result.summary, /structured evidence coverage complete/);
     assert.match(result.details.join('\n'), /commit author advisory/);
   } finally {
     rmSync(root, { recursive: true, force: true });
@@ -1974,7 +1992,7 @@ function assertChannelGateAcceptsImplementerAuthorWithoutDispatch(): void {
     const result = checkCommitAuthor(storyId, { store, projectRoot: root });
     assert.equal(result.status, 'pass');
     assert.equal(result.evidenceSource, 'commit_author');
-    assert.match(result.summary, /commit author 作为直派执行证据/);
+    assert.match(result.summary, /commit author as direct-dispatch execution evidence/);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -2010,7 +2028,7 @@ function assertChannelGateAcceptsSuccessfulSubagentResultEvidence(): void {
     const result = checkCommitAuthor(storyId, { store, projectRoot: root });
     assert.equal(result.status, 'pass');
     assert.equal(result.evidenceSource, 'subagent_result');
-    assert.match(renderedDetails(result), /已覆盖: CHK-001, CHK-002, CHK-003/);
+    assert.match(renderedDetails(result), /Covered: CHK-001, CHK-002, CHK-003/);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -2045,7 +2063,7 @@ function assertChannelGateAcceptsDispatchEvidence(): void {
     const result = checkCommitAuthor(storyId, { store, projectRoot: root });
     assert.equal(result.status, 'pass');
     assert.equal(result.evidenceSource, 'dispatch');
-    assert.match(renderedDetails(result), /已覆盖: CHK-001, CHK-002, CHK-003/);
+    assert.match(renderedDetails(result), /Covered: CHK-001, CHK-002, CHK-003/);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -2128,7 +2146,7 @@ function assertDoneChecklistUsesStableOracleRows(): void {
     assert.match(byId.get('git-working-tree')?.hint ?? '', /fixture_changes/);
     assert.match(byId.get('git-working-tree')?.hint ?? '', /unexpected_dirty_files/);
     assert.match(byId.get('git-working-tree')?.hint ?? '', /packages\/main\/tests\/output\/bl21_lacz_ecoli_minicell\/prodenovo_viewer\.json/);
-    assert.match(byId.get('git-working-tree')?.hint ?? '', /默认无副作用|side-effect-free|KOALA_WRITE/);
+    assert.match(byId.get('git-working-tree')?.hint ?? '', /side-effect-free by default|side-effect-free|KOALA_WRITE/);
     assert.match(byId.get('delivery-check')?.hint ?? '', /delivery_check_set/);
     assert.equal(byId.get('delivery-check')?.source, 'delivery-check.json');
     assert.equal(byId.get('story-summary')?.status, 'fail');
@@ -2184,7 +2202,7 @@ function assertGlobalLinkRepair(): void {
           throw new Error('mock unlink failure');
         },
       }),
-      /已阻止删除 .*mock unlink failure/,
+      /Blocked deletion of .*mock unlink failure/,
     );
     assert.equal(resolve(dirname(failingGlobalPackage), readlinkSync(failingGlobalPackage)), resolve(worktreePackage));
   } finally {
@@ -2402,7 +2420,7 @@ function assertAutoCommitMetadataAcrossHandlers(): void {
       writeFakeMetadata(root, storyId);
       writeFileSync(join(root, '.git', 'index.lock'), 'locked');
       const out = autoCommitStoryMetadata(root, storyId, 'finding_add');
-      assert.match(out, /koala metadata 自动提交失败/, 'real git failures still return the user-visible warning');
+    assert.match(out, /koala metadata auto-commit failed/, 'real git failures still return the user-visible warning');
       const issues = readHealthIssues().filter(issue => issue.category === 'mutation:storyMetadataCommit');
       assert.equal(issues.length, 1, 'real git checkout failures still produce one metadata health issue');
       assert.equal(issues[0].context.storyId, storyId);
@@ -2441,7 +2459,7 @@ function assertAutoCommitMetadataAcrossHandlers(): void {
   }
 
   // Test 9 (prefix vocabulary parity with story-advance precedent — CHK-003
-  // adversarial: byte-equal prefix `\n✓ koala metadata 已自动提交:`).
+  // adversarial: byte-equal prefix `\n✓ koala metadata auto-committed:`).
   {
     const { root, storyId } = setupAutoCommitFixture();
     try {
@@ -2452,7 +2470,7 @@ function assertAutoCommitMetadataAcrossHandlers(): void {
       assert.equal(
         out.slice(0, AUTO_COMMIT_METADATA_PREFIX.length),
         AUTO_COMMIT_METADATA_PREFIX,
-        'user-visible prefix must be byte-equal `\\n✓ koala metadata 已自动提交:`',
+        'user-visible prefix must be byte-equal `\\n✓ koala metadata auto-committed:`',
       );
     } finally {
       rmSync(root, { recursive: true, force: true });
@@ -3004,7 +3022,7 @@ function assertDeclaredArtifactDoneCommittedRow(): void {
     assert.equal(row.status, 'fail', 'untracked declared artifact → committed row fails');
     assert.equal(row.blocking, true, 'untracked declared artifact → committed row blocking');
     assert.match(row.detail, /uncommitted/, 'detail must name the uncommitted path');
-    assert.match(row.hint ?? '', /commit|删除/, 'hint must give commit/cleanup guidance');
+    assert.match(row.hint ?? '', /commit|delete/, 'hint must give commit/cleanup guidance');
 
     // === committed-and-clean → pass ===
     git(root, ['add', GENERATED_OUTPUT]);
@@ -3132,12 +3150,12 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
   assert.match(
     phaseGatesSrc,
     /if \(e\.message\?\.includes\('Cannot enter TEST'\)\) throw e;/,
-    'runValidateGate catch must rethrow gate errors before the 执行异常 throw',
+    'runValidateGate catch must rethrow gate errors before the execution exception throw',
   );
   assert.match(
     phaseGatesSrc,
     /if \(e\?\.message\?\.startsWith\('Cannot enter TEST'\)\) throw e;/,
-    'runReviewToTestPreflightGate catch must rethrow gate errors before the 执行异常 throw',
+    'runReviewToTestPreflightGate catch must rethrow gate errors before the execution exception throw',
   );
   assert.doesNotMatch(
     phaseGatesSrc,
@@ -3153,7 +3171,7 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
   // --- 2. Fail-closed gate behavior ---
   // 2a. runValidateGate: validate FAIL → block TEST. The verifier judges the
   //     configured validate command by exit code, so a non-zero exit is a real
-  //     validate failure (allPass=false) → first throw "未通过".
+  //     validate failure (allPass=false) → first throw "did not pass".
   const failRoot = mkdtempSync(join(tmpdir(), 'koala-phase-gates-validate-fail-'));
   try {
     const store = new StoryStore(failRoot);
@@ -3178,7 +3196,7 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
     const actor = { stop() { stopped = true; } };
     await assert.rejects(
       () => runValidateGate({ store, root: failRoot, scanRoot: join(failRoot, 'packages/main') }, storyId, actor),
-      /Cannot enter TEST: koala validate 未通过/,
+      /Cannot enter TEST: koala validate did not pass/,
       'runValidateGate must block TEST when koala validate fails',
     );
     assert.equal(stopped, false, 'runValidateGate must leave actor stop to transition-orchestrator');
@@ -3241,26 +3259,26 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
     const nextSteps = buildNextSteps(store, effectRoot, storyId);
     assert.equal(
       nextSteps.PLAN,
-      `→ 建议立即切到 Claude Code plan 模式（shift-tab 两次到 plan mode）——PLAN 阶段只拆 checklist / 写 understanding_set / decision_set，不应改代码。Edit/Write 被 plan mode 禁掉能防误触。
-→ 下一步: checklist_get(${storyId}) 查看待开发项，然后 story_advance(${storyId}, DEV) 开始开发
-⚠ 用户价值验收（强制）: understanding_set 的 outcome 字段必须写成一段具体的 user-facing transcript ——用户跑完这个 story 后会在终端/UI 看到的精确文字，不是 "事件 X 通了" 这种抽象描述。判定方法: outcome 读起来必须能让人想象出"用户什么时候说'好了搞定'"的那一刻。详见 CLAUDE.md「用户价值验收」段。`,
+      `→ Recommend switching to Claude Code plan mode immediately (shift-tab twice to plan mode) — the PLAN stage only breaks down checklist / writes understanding_set / decision_set, and should not modify code. Edit/Write being disabled in plan mode prevents accidental edits.
+→ Next step: checklist_get(${storyId}) to view pending items, then story_advance(${storyId}, DEV) to begin development
+⚠ User value acceptance (mandatory): the outcome field of understanding_set must be written as a concrete user-facing transcript — the exact text the user will see in the terminal/UI after running this story, not an abstract description like "event X is wired up". Judgment method: outcome must read in a way that lets one imagine the moment when the user considers the work done. See the "User value acceptance" section in CLAUDE.md for details.`,
       'buildNextSteps PLAN text must be byte-identical to the inline original',
     );
     assert.equal(
       nextSteps.TEST_CASE,
-      `→ Legacy phase. 建议直接 story_advance(${storyId}, TEST) 进入验证`,
+      `→ Legacy phase. Recommend directly story_advance(${storyId}, TEST) to enter verification`,
       'buildNextSteps TEST_CASE text must be byte-identical to the inline original',
     );
     assert.equal(
       nextSteps.DONE,
-      `→ 必须立即执行: 把下面的 Story 总结段落用你自己的话告诉用户（改了什么/怎么用/真机覆盖/限制/踩坑），然后 convergence_check 检查项目收敛状态
-⚠ DONE 自检 5 题（CLAUDE.md「用户价值验收」段）: (1) PLAN outcome 是具体 transcript 还是抽象? (2) 真机测试时读了用户视角输出还是只看事件日志? (3) 用户看到 actual transcript 最后一行会说"完成"还是"然后呢"? (4) 有没有工程 log 在用户眼里是噪音/重复? (5) 有没有一句人话总结任务结果? 任何一题答"没做到"就回 DEV，不要硬推 DONE。`,
+      `→ Must execute immediately: tell the user the Story summary paragraph below in your own words (what changed / how to use / real-machine coverage / limitations / pitfalls), then convergence_check to check project convergence state
+⚠ DONE self-check 5 questions (CLAUDE.md "User value acceptance" section): (1) Is the PLAN outcome a concrete transcript or abstract? (2) During real-machine testing, did you read the user-perspective output or only look at the event log? (3) When the user sees the last line of the actual transcript, would they consider the work done or still wonder what comes next? (4) Are there any engineering logs that are noise/duplicates in the user's eyes? (5) Is there a plain-language summary of the task result? If any question is answered "not done", return to DEV and do not force-push DONE.`,
       'buildNextSteps DONE text must be byte-identical to the inline original',
     );
     // The REVIEW entry depends on opt-in routing; it must at least surface the
     // reviewer Agent call lines and the liveness reminder unchanged.
-    assert.match(nextSteps.REVIEW, /并行启动上述 reviewer 审查代码/);
-    assert.match(nextSteps.REVIEW, /reviewer liveness：每个 reviewer 启动后应先输出 REVIEW_START/);
+    assert.match(nextSteps.REVIEW, /launch the above reviewers in parallel to review code/);
+    assert.match(nextSteps.REVIEW, /reviewer liveness: each reviewer should first output REVIEW_START after starting/);
 
     // 3b. renderRelatedDocsHint: with checklist relatedDocs, the DEV header +
     //     line shape must be byte-identical to the inline original.
@@ -3278,13 +3296,13 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
     const devHint = renderRelatedDocsHint(store, effectRoot, storyId, 'DEV');
     assert.equal(
       devHint,
-      `\n\n📄 本 story 关联文档（改代码时注意同步）:\n  - docs/requirements/decisions/story-lifecycle.md  (CHK-001)`,
+      `\n\n📄 Documents associated with this story (note synchronization when modifying code):\n  - docs/requirements/decisions/story-lifecycle.md  (CHK-001)`,
       'renderRelatedDocsHint DEV output must be byte-identical to the inline original',
     );
     const doneHint = renderRelatedDocsHint(store, effectRoot, storyId, 'DONE');
     assert.equal(
       doneHint,
-      `\n\n📄 本 story 关联文档（DONE 收尾前核对是否已同步）:\n  - docs/requirements/decisions/story-lifecycle.md  (CHK-001)`,
+      `\n\n📄 Documents associated with this story (verify synchronization before DONE wrap-up):\n  - docs/requirements/decisions/story-lifecycle.md  (CHK-001)`,
       'renderRelatedDocsHint DONE output must be byte-identical to the inline original',
     );
   } finally {

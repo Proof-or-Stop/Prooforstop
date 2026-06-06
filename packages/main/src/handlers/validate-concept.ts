@@ -1,14 +1,14 @@
 /**
  * validate-concept — CLI gate: deleted-symbol residual check
  *
- * 从 `git diff main...HEAD` 抽被删除的导出符号（TS / Python），再对每个符号
- * 全仓 grep，列出尚未被清理的残留引用。阈值 5：
+ * Extract deleted exported symbols (TS / Python) from `git diff main...HEAD`, then for each symbol
+ * grep the entire repo, listing residual references that have not yet been cleaned up. Threshold 5:
  *
  * - residuals.length == 0     → status=pass, recommendation="skip concept LLM reviewer"
  * - 1 ≤ residuals.length < 5  → status=warn, recommendation="skip concept LLM reviewer"
  * - residuals.length ≥ 5      → status=warn, recommendation="dispatch koala-review-concept"
  *
- * 输出结构：
+ * Output structure:
  *   {
  *     provider: "koala-concept",
  *     status: "pass" | "warn",
@@ -18,7 +18,7 @@
  *     recommendation: "skip concept LLM reviewer" | "dispatch koala-review-concept"
  *   }
  *
- * 参考 docs/koala/reviewer-redesign.md §三 S1 第 2 条。
+ * See docs/koala/reviewer-redesign.md §III S1 item 2.
  */
 
 import { execSync } from 'node:child_process';
@@ -32,8 +32,8 @@ export interface ConceptResidual {
 }
 
 export interface ConceptCheckResult {
-  // F-017 (B-9d95 Round 1 review): residuals ≥ 5 升级为 fail（而非 warn），
-  // 与 runConceptGateCli/CLI gate 返回 ok=false 的语义对齐，渲染显示 ✗ fail。
+  // F-017 (B-9d95 Round 1 review): residuals ≥ 5 upgraded to fail (instead of warn),
+  // aligned with the ok=false semantics returned by runConceptGateCli/CLI gate, rendering shows ✗ fail.
   provider: 'koala-concept';
   status: 'pass' | 'warn' | 'fail';
   summary: string;
@@ -100,14 +100,14 @@ const defaultGrepReader: GrepReader = ({ symbol, projectRoot }) => {
 // ── symbol extraction from diff ──
 
 /**
- * 从 `git diff` 原文抽被删除的导出符号（TS / Python）。
+ * Extract deleted exported symbols (TS / Python) from the raw `git diff` text.
  *
- * 规则：只看以 `-` 开头且不是 `--` 的行（`---` 是 diff header）。忽略注释行。
+ * Rule: only look at lines starting with `-` but not `--` (`---` is a diff header). Ignore comment lines.
  *
  * TS:     `-export (async )?function NAME`, `-export class NAME`, `-export const NAME`
  * Python: `-def NAME`, `-class NAME`
  *
- * 返回去重且排序的 symbol 列表。
+ * Returns a deduplicated and sorted symbol list.
  */
 export function scanDeletedSymbols(diff: string): string[] {
   const out = new Set<string>();
@@ -148,8 +148,8 @@ export function scanDeletedSymbols(diff: string): string[] {
 // ── residual grep ──
 
 /**
- * 解析 `grep -rn` 的输出为 { file, line, snippet }。
- * 形如 `./path/to/file.ts:42:snippet content`
+ * Parse the output of `grep -rn` into { file, line, snippet }.
+ * In the form `./path/to/file.ts:42:snippet content`
  */
 export function parseGrepLine(
   raw: string,
@@ -157,7 +157,7 @@ export function parseGrepLine(
 ): Omit<ConceptResidual, 'symbol'> | null {
   const trimmed = raw.replace(/\r$/, '');
   if (!trimmed) return null;
-  // file:line:content  — file can contain `:`（unlikely on unix），但简单取前两个 `:`
+  // file:line:content  — file can contain `:` (unlikely on unix), but simply take the first two `:`
   const firstColon = trimmed.indexOf(':');
   if (firstColon < 0) return null;
   const file = trimmed.slice(0, firstColon);
@@ -178,12 +178,12 @@ export function parseGrepLine(
 }
 
 /**
- * 对每个 symbol 全仓 grep，合并所有命中为 residuals。
- * 自引用保护：跳过 diff 自身出现过的文件（diff-changed files 里命中当前 symbol
- * 很可能是"仍在 diff 范围内"而非真残留；真残留判定靠代码主体行）。
+ * Grep the entire repo for each symbol, merging all hits as residuals.
+ * Self-reference protection: skip files that appear in the diff itself (hits on the current symbol in diff-changed files
+ * are likely "still within diff scope" rather than true residuals; true residuals are determined by code body lines).
  *
- * 简化版：在 grep 层面已经 exclude node_modules/dist/.git/tmp/.worktrees，
- * 这里不再做文件路径二次过滤。
+ * Simplified version: node_modules/dist/.git/tmp/.worktrees are already excluded at the grep level,
+ * no secondary file path filtering is done here.
  */
 export function grepResiduals(
   symbols: string[],
@@ -196,7 +196,7 @@ export function grepResiduals(
     try {
       raw = grepReader({ symbol, projectRoot: deps.projectRoot });
     } catch {
-      // grep 失败视为该 symbol 无残留（不阻塞其他 symbol）
+      // grep failure treated as no residuals for that symbol (does not block other symbols)
       continue;
     }
     for (const line of raw.split('\n')) {
@@ -219,10 +219,10 @@ export interface CheckConceptDeps {
 }
 
 /**
- * 核心入口：读 diff → 抽 deleted symbols → grep 残留 → 判定 status + recommendation。
+ * Core entry point: read diff → extract deleted symbols → grep residuals → determine status + recommendation.
  *
- * 注：不依赖 StoryStore；story 存在性由调用方（verifier handler）在 CLI 层校验。
- * 传 story 参数纯粹为了以后扩展 per-story diff base；当前 base 默认 "main"。
+ * Note: does not depend on StoryStore; story existence is validated by the caller (verifier handler) at the CLI layer.
+ * The story argument is passed purely for future per-story diff base extension; the current base defaults to "main".
  */
 export function checkConcept(deps: CheckConceptDeps): ConceptCheckResult {
   const {
@@ -278,8 +278,8 @@ export function checkConcept(deps: CheckConceptDeps): ConceptCheckResult {
   const recommendation: ConceptCheckResult['recommendation'] =
     residuals.length >= 5 ? 'dispatch koala-review-concept' : 'skip concept LLM reviewer';
 
-  // F-017: residuals ≥ 5 → status=fail（会阻断 CLI gate 并渲染 ✗ fail），
-  // residuals 1..4 → status=warn（保持原语义，建议 skip reviewer，不阻断）
+  // F-017: residuals ≥ 5 → status=fail (blocks CLI gate and renders ✗ fail),
+  // residuals 1..4 → status=warn (preserves original semantics, suggests skip reviewer, non-blocking)
   const status: ConceptCheckResult['status'] = residuals.length >= 5 ? 'fail' : 'warn';
 
   return {
@@ -295,16 +295,16 @@ export function checkConcept(deps: CheckConceptDeps): ConceptCheckResult {
 /**
  * B-9d95 CHK-006: CLI entry for `koala validate --concept`.
  *
- * 不 spawn pytest / 不跑全量 validate.ts——直接调 checkConcept，输出
- * 结构化结果 + 人类可读渲染。用于 REVIEW→TEST preflight 独立分流。
+ * Does not spawn pytest / does not run full validate.ts — directly calls checkConcept, outputs
+ * structured results + human-readable rendering. Used for independent REVIEW→TEST preflight routing.
  *
- * 判定：
+ * Determination:
  *   - status=pass                        → ok
- *   - status=warn, residuals < 5         → ok（建议：skip LLM reviewer）
- *   - status=warn, residuals ≥ 5         → ok=false（建议：dispatch concept reviewer）
+ *   - status=warn, residuals < 5         → ok (suggestion: skip LLM reviewer)
+ *   - status=warn, residuals ≥ 5         → ok=false (suggestion: dispatch concept reviewer)
  *
- * 注：CLI 入口仅返回 CLI 层 ok/fail，reviewer-already-ran 判定在 review-preflight
- * 里做（那里能访问 StoryStore）。
+ * Note: The CLI entry only returns CLI-level ok/fail; the reviewer-already-ran determination is done in review-preflight
+ * (which has access to StoryStore).
  */
 export interface ConceptCliResult {
   ok: boolean;
@@ -320,16 +320,16 @@ export function runConceptGateCli(deps: CheckConceptDeps): ConceptCliResult {
   } else if (result.status === 'warn' && result.residuals.length < 5) {
     ok = true;
   } else {
-    // residuals ≥ 5 (status='fail') / 其他状态 → CLI 层报 fail
+    // residuals ≥ 5 (status='fail') / other statuses → CLI layer reports fail
     ok = false;
   }
   return { ok, result, rendered: renderConceptResult(result) };
 }
 
-/** 渲染 ConceptCheckResult 为人类可读文本 */
+/** Render ConceptCheckResult as human-readable text */
 export function renderConceptResult(r: ConceptCheckResult): string {
   const lines: string[] = [];
-  // F-017: fail 显示 ✗，warn 显示 ⚠，pass 显示 ✓
+  // F-017: fail shows ✗, warn shows ⚠, pass shows ✓
   const icon = r.status === 'pass' ? '✓' : r.status === 'fail' ? '✗' : '⚠';
   lines.push(`[concept] ${icon} ${r.status}: ${r.summary}`);
   if (r.deletedSymbols.length > 0) {

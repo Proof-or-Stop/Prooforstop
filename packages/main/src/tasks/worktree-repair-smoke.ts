@@ -184,7 +184,7 @@ async function assertStoryDiscardRepairsMissingRegistry(): Promise<void> {
       reason: 'smoke registry repair',
     });
 
-    assert.match(output, /stale worktree metadata 已 prune|stale git worktree admin 已清理/);
+    assert.match(output, /stale worktree metadata pruned|stale git worktree admin cleaned/);
     assert.equal(new StoryStore(root).readStory('B-discard').phase, 'DISCARDED');
     assert.doesNotMatch(git(root, ['worktree', 'list', '--porcelain']), /story\/B-discard/);
     assert.equal(git(root, ['branch', '--list', 'story/B-discard']), '');

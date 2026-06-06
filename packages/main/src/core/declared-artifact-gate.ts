@@ -26,7 +26,7 @@ export interface DeclaredArtifactRefResult {
 const INTENT_REF_RE = /^CHK-\d+:(?:happy|edge|adversarial):\d+$/;
 
 /**
- * 解析 `CHK-NNN:lane:idx` → 返回 itemId/lane/idx；非该形态返回 null。
+ * Parses `CHK-NNN:lane:idx` → returns itemId/lane/idx; returns null if not in this form.
  */
 export function parseIntentRef(ref: string): { itemId: string; lane: 'happy' | 'edge' | 'adversarial'; index: number } | null {
   if (typeof ref !== 'string' || !INTENT_REF_RE.test(ref)) return null;

@@ -30,7 +30,7 @@ import {
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const packageRoot = join(__dirname, '..'); // @koala/main 的根目录
+const packageRoot = join(__dirname, '..'); // Root directory of @koala/main
 const agentTemplateDir = [
   join(packageRoot, 'templates', 'agents'),
   join(packageRoot, '..', '..', '.claude', 'agents'),
@@ -38,14 +38,14 @@ const agentTemplateDir = [
 const skillSrc = join(packageRoot, '..', '..', '.claude', 'skills', 'koala');
 const hookSrcDir = join(packageRoot, '..', '..', '.claude', 'hooks');
 const HOOK_FILES = ['log-tools.cjs', 'session-brief-reminder.cjs'] as const;
-const KOALA_SKILL_FALLBACK = `# /koala — 项目管理入口
+const KOALA_SKILL_FALLBACK = `# /koala — Project management entry
 
-你是项目管理引擎。执行 /koala 了解项目全貌并开始工作。
+You are the project management engine. Execute /koala to understand the project overview and start working.
 
-详细用法参考 @koala/main 文档。
+See @koala/main documentation for detailed usage.
 `;
 
-// 通过 koala init 调用时 argv[2]='init'，跳过；直接 npx koala-init 时 argv[2] 是目标目录
+// When invoked via koala init, argv[2]='init', skip; when running npx koala-init directly, argv[2] is the target directory
 const initArgs = process.argv[2] === 'init' ? process.argv.slice(3) : process.argv.slice(2);
 const INIT_DOC_SECTION_RE = /<!--\s*koala:start\s*-->[\s\S]*?<!--\s*koala:end\s*-->/;
 const GITIGNORE_RUNTIME_BLOCK_RE = new RegExp(
@@ -219,44 +219,44 @@ const arg = parseTargetDir(initArgs);
 
 if (initArgs.includes('--help') || initArgs.includes('-h') || initArgs.includes('help')) {
   console.log(`
-lattice init — 初始化 Lattice/Koala 开发框架
+lattice init — Initialize the Lattice/Koala development framework
 
-用法:
-  lattice init [目标目录]                    在指定目录初始化（默认当前目录）
-  lattice init --profile <profile> [目标目录]
-                                        选择 init profile: codex | claude | all | core
-  lattice init --asset-mode <mode> [目标目录]
-                                        选择 Codex prompt asset mode: full | thin（默认 full）
-  lattice init --starter [目标目录]          额外生成旧版 starter 业务模板
-  lattice init --with-template [目标目录]    --starter 的同义 alias
-  lattice init --upgrade [目标目录]          同步 Lattice 管理资产到当前版本
-  lattice init --verify-codex [目标目录]     初始化后校验 Codex adapter 资产
-  lattice init --help                        显示帮助
+Usage:
+  lattice init [target directory]                    Initialize in the specified directory (defaults to current directory)
+  lattice init --profile <profile> [target directory]
+                                        Select init profile: codex | claude | all | core
+  lattice init --asset-mode <mode> [target directory]
+                                        Select Codex prompt asset mode: full | thin (default full)
+  lattice init --starter [target directory]          Additionally generate legacy starter business template
+  lattice init --with-template [target directory]    Synonym alias for --starter
+  lattice init --upgrade [target directory]          Sync Lattice management assets to the current version
+  lattice init --verify-codex [target directory]     Verify Codex adapter assets after initialization
+  lattice init --help                        Show help
 
 Legacy npm package entrypoint \`npx koala-init\` remains accepted as an alias.
 
-初始化内容:
-  koala.config.json             项目配置（扫描路径、Story 前缀）
-  LATTICE.md                    canonical host-neutral Lattice 指南
-  bin/lattice.js                本地 Lattice bootstrap
-  host adapter assets           由 --profile 控制（codex / claude / all / core）
-  Codex prompt assets           由 --asset-mode 控制（full 生成 .Codex/agents；thin 使用 registry）
-  .claude/skills/koala/         /koala skill 文件
-  docs/story/actives/           Story 数据目录
-  docs/requirements/            真相源目录
+Initialized contents:
+  koala.config.json             Project configuration (scan paths, Story prefix)
+  LATTICE.md                    canonical host-neutral Lattice guide
+  bin/lattice.js                Local Lattice bootstrap
+  host adapter assets           Controlled by --profile (codex / claude / all / core)
+  Codex prompt assets           Controlled by --asset-mode (full generates .Codex/agents; thin uses registry)
+  .claude/skills/koala/         /koala skill files
+  docs/story/actives/           Story data directory
+  docs/requirements/            Source-of-truth directory
 
-可选 starter 内容（仅 --starter / --with-template）:
-  src/core/app.ts               应用组装（平台无关）
-  src/core/debug.ts             调试入口（devHost）
-  src/core/machines/game/bridge.ts  Bridge 接口模板
-  src/shells/cli/main.ts        CLI shell 模板
-  src/shells/web/               Web shell 目录
-  tests/                        测试目录
+Optional starter contents (only with --starter / --with-template):
+  src/core/app.ts               Application assembly (platform-neutral)
+  src/core/debug.ts             Debug entry (devHost)
+  src/core/machines/game/bridge.ts  Bridge interface template
+  src/shells/cli/main.ts        CLI shell template
+  src/shells/web/               Web shell directory
+  tests/                        Tests directory
 
-初始化后:
-  1. 阅读 LATTICE.md，并使用 profile 生成的入口
-  2. 编辑 koala.config.json 调整 scanRoot 等路径
-  3. 可选: lattice validate 跑项目验证
+After initialization:
+  1. Read LATTICE.md and use the entry generated by the profile
+  2. Edit koala.config.json to adjust scanRoot and other paths
+  3. Optional: lattice validate to run project validation
 `);
   process.exit(0);
 }
@@ -449,8 +449,8 @@ function enforceProfileCleanup(profile: InitProfile) {
 
 enforceProfileCleanup(selectedProfile);
 
-// 1. 目录
-console.log('[1/6] 创建目录...');
+// 1. Directories
+console.log('[1/6] Creating directories...');
 const dirs = [
   'docs/story/actives',
   'docs/requirements/decisions',
@@ -466,7 +466,7 @@ for (const d of dirs) {
   }
 }
 
-// 1.5 .gitignore（从 koala 项目复制）
+// 1.5 .gitignore (copied from the koala project)
 const giPath = join(targetDir, '.gitignore');
 const giSrc = join(packageRoot, '..', '..', '.gitignore');
 if (!existsSync(giPath)) {
@@ -486,7 +486,7 @@ if (!existsSync(giPath)) {
       renderManagedRuntimeIgnoreBlock(listRuntimeArtifactIgnorePatterns()),
       '',
     ].join('\n');
-    // B-5010 CHK-005: tmp/ 要整个 ignore，避免 agent 写一次性 helper 脚本被 git add 收进去
+    // B-5010 CHK-005: ignore the entire tmp/ to prevent agent-written one-off helper scripts from being picked up by git add
     writeFileSync(giPath, minimalGitignore);
     console.log('  ✓ .gitignore (created minimal)');
   }
@@ -500,7 +500,7 @@ if (!existsSync(giPath)) {
   }
 }
 
-// 1.6 可选 starter 项目代码目录（src/core + src/shells）
+// 1.6 Optional starter project code directories (src/core + src/shells)
 if (withStarter) {
   const codeDirs = [
     'src/core/machines/game',
@@ -530,14 +530,14 @@ if (wantsCodex && !existsSync(codexWrapperPath)) {
   console.log('  - bin/lattice-codex.js (profile skip)');
 }
 
-// 生成 CLI shell 模板
+// Generate CLI shell template
 const cliMainPath = join(targetDir, 'src', 'shells', 'cli', 'main.ts');
 if (withStarter && !existsSync(cliMainPath)) {
   const dir = dirname(cliMainPath);
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-  writeFileSync(cliMainPath, `// CLI shell — 完整版交互入口
-// CLI 不是降级版，是完整版。覆盖所有 machine transitions。
-// 只通过 bridge 交互，不直接 import fn.ts。
+  writeFileSync(cliMainPath, `// CLI shell — full-fledged interactive entry
+// The CLI is not a degraded version; it is the full version. Covers all machine transitions.
+// Interacts only via bridge, does not directly import fn.ts.
 
 import * as readline from 'readline';
 import { createLocalBridge } from '../../core/machines/game/bridge.js';
@@ -546,7 +546,7 @@ const bridge = createLocalBridge();
 const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 
 bridge.onStateChange((state) => {
-  // TODO: 根据 state 渲染 CLI 输出
+  // TODO: render CLI output based on state
   console.log(JSON.stringify(state, null, 2));
 });
 
@@ -557,7 +557,7 @@ function prompt() {
       rl.close();
       return;
     }
-    // TODO: 解析用户输入，调用 bridge.sendEvent(event, input)
+    // TODO: parse user input and call bridge.sendEvent(event, input)
     bridge.sendEvent(trimmed, {});
     prompt();
   });
@@ -565,16 +565,16 @@ function prompt() {
 
 prompt();
 `);
-  console.log('  ✓ src/shells/cli/main.ts (CLI shell 模板)');
+  console.log('  ✓ src/shells/cli/main.ts (CLI shell template)');
 }
 
-// 生成 bridge 模板
+// Generate bridge template
 const bridgePath = join(targetDir, 'src', 'core', 'machines', 'game', 'bridge.ts');
 if (withStarter && !existsSync(bridgePath)) {
   const dir = dirname(bridgePath);
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-  writeFileSync(bridgePath, `// Bridge — 逻辑层与 UI 层的隔离接口
-// Shell（CLI/Browser）只 import bridge.ts，不 import fn.ts。
+  writeFileSync(bridgePath, `// Bridge — isolation interface between logic layer and UI layer
+// Shells (CLI/Browser) only import bridge.ts, not fn.ts.
 
 // import type { GameState } from './data.js';
 // import { GameMachine } from './machine.js';
@@ -588,9 +588,9 @@ export interface GameBridge {
   reset(): void;
 }
 
-// LocalBridge：同进程直连
+// LocalBridge: in-process direct connection
 export function createLocalBridge(): GameBridge {
-  // TODO: import machine + fn，实现事件分发
+  // TODO: import machine + fn, implement event dispatch
   let state: any = {};
   const listeners = new Set<(state: any) => void>();
 
@@ -600,7 +600,7 @@ export function createLocalBridge(): GameBridge {
 
   return {
     sendEvent(event: string, input: any): boolean {
-      // TODO: 从 machine 找 transition，调 guard + action
+      // TODO: find transition from machine, invoke guard + action
       console.log(\`[bridge] event: \${event}\`, input);
       return false;
     },
@@ -618,7 +618,7 @@ export function createLocalBridge(): GameBridge {
   };
 }
 
-// WSBridge：开发时通过 WS 连 core 进程
+// WSBridge: connect to core process via WS during development
 export function createWSBridge(wsUrl: string): GameBridge {
   const WS = typeof WebSocket !== 'undefined' ? WebSocket : (globalThis as any).WebSocket;
   const ws = new WS(wsUrl);
@@ -653,23 +653,23 @@ export function createWSBridge(wsUrl: string): GameBridge {
   };
 }
 `);
-  console.log('  ✓ src/core/machines/game/bridge.ts (Bridge 模板)');
+  console.log('  ✓ src/core/machines/game/bridge.ts (Bridge template)');
 }
 
-// 生成 app.ts 模板
+// Generate app.ts template
 const appPath = join(targetDir, 'src', 'core', 'app.ts');
 if (withStarter && !existsSync(appPath)) {
   const dir = dirname(appPath);
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-  writeFileSync(appPath, `// app.ts — 应用组装（平台无关）
-// 浏览器和 Node.js 都能运行。不依赖 fs/ws/process。
+  writeFileSync(appPath, `// app.ts — application composition (platform-agnostic)
+// Runs in both browser and Node.js. Does not depend on fs/ws/process.
 
 import { createLocalBridge } from './machines/game/bridge.js';
 
 export async function createApp() {
   const bridge = createLocalBridge();
 
-  // IO 调度示例：
+  // IO dispatch example:
   // bridge.onStateChange((state) => {
   //   if (needsAI(state)) {
   //     getAIMove(state).then(move => bridge.sendEvent('MOVE', move));
@@ -679,16 +679,16 @@ export async function createApp() {
   return { bridge };
 }
 `);
-  console.log('  ✓ src/core/app.ts (应用组装模板)');
+  console.log('  ✓ src/core/app.ts (application composition template)');
 }
 
-// 生成 debug.ts 模板
+// Generate debug.ts template
 const debugPath = join(targetDir, 'src', 'core', 'debug.ts');
 if (withStarter && !existsSync(debugPath)) {
   const dir = dirname(debugPath);
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-  writeFileSync(debugPath, `// debug.ts — 调试入口
-// 框架的 devHost() 负责：WS server + .koala-serve.json + cleanup
+  writeFileSync(debugPath, `// debug.ts — debug entry point
+// The framework's devHost() handles: WS server + .koala-serve.json + cleanup
 
 import { devHost } from '@koala-agent/core/dev-host';
 import { createApp } from './app.js';
@@ -701,11 +701,11 @@ import { createApp } from './app.js';
 //   startCliShell(app.bridge);
 // }
 `);
-  console.log('  ✓ src/core/debug.ts (调试入口模板)');
+  console.log('  ✓ src/core/debug.ts (debug entry template)');
 }
 
 // 2. koala.config.json
-console.log('\n[2/6] 生成 koala.config.json...');
+console.log('\n[2/6] Generating koala.config.json...');
 const koalaConfig: Record<string, unknown> = {
   scanRoot: withStarter || hadSrcBeforeInit ? 'src' : '.',
   testsDir: 'tests',
@@ -716,10 +716,10 @@ const koalaConfig: Record<string, unknown> = {
 if (isPython) {
   koalaConfig.language = 'python';
   koalaConfig.scanRoot = withStarter || hadSrcBeforeInit ? 'src' : '.';
-  console.log('  ✓ 检测到 Python 项目');
+  console.log('  ✓ Detected Python project');
 }
 
-// 自动检测浏览器项目
+// Auto-detect browser project
 const pkgPath = join(targetDir, 'package.json');
 if (existsSync(pkgPath)) {
   try {
@@ -729,14 +729,14 @@ if (existsSync(pkgPath)) {
     if (hasHtml || deps?.vite || deps?.webpack || deps?.next) {
       const devCmd = deps?.vite ? 'npx vite' : deps?.next ? 'npx next dev' : deps?.webpack ? 'npx webpack serve' : 'npx serve';
       koalaConfig.browser = { devCommand: devCmd };
-      console.log(`  ✓ 检测到浏览器项目，browser.devCommand = "${devCmd}"`);
+      console.log(`  ✓ Detected browser project, browser.devCommand = "${devCmd}"`);
     }
   } catch { /* ignore */ }
 }
 write('koala.config.json', JSON.stringify(koalaConfig, null, 2) + '\n');
 
-// 3. 文档入口
-console.log('\n[3/6] 配置 Lattice / host 文档...');
+// 3. Documentation entry point
+console.log('\n[3/6] Configuring Lattice / host documentation...');
 writeManagedMarkdown('LATTICE.md', LATTICE_MD_TEMPLATE, 'LATTICE.md');
 
 if (wantsClaude) {
@@ -751,8 +751,8 @@ if (wantsCodex) {
   console.log('  - AGENTS.md (profile skip)');
 }
 
-// 4. 复制 skill
-console.log('\n[4/6] 复制 /koala skill...');
+// 4. Copy skill
+console.log('\n[4/6] Copying /koala skill...');
 const skillDst = join(targetDir, '.claude', 'skills', 'koala');
 if (wantsClaude && existsSync(skillSrc)) {
   const skillFile = join(skillSrc, 'skill.md');
@@ -765,14 +765,14 @@ if (wantsClaude && existsSync(skillSrc)) {
     console.log('  - .claude/skills/koala/skill.md (exists, skip)');
   }
 } else if (wantsClaude) {
-  // 从模板生成最小 skill
+  // Generate minimal skill from template
   write('.claude/skills/koala/skill.md', KOALA_SKILL_FALLBACK);
 } else {
   console.log('  - .claude/skills/koala/skill.md (profile skip)');
 }
 
-// 5. agent 模板 → symlink/copy（发布包内置模板）
-console.log('\n[5/6] 同步 agent 模板...');
+// 5. agent templates → symlink/copy (templates bundled in the published package)
+console.log('\n[5/6] Syncing agent templates...');
 const agentDstDir = join(targetDir, '.claude', 'agents');
 if (wantsClaude && agentTemplateDir) {
   for (const file of readdirSync(agentTemplateDir)) {
@@ -781,7 +781,7 @@ if (wantsClaude && agentTemplateDir) {
     const dst = join(agentDstDir, file);
     const linkTarget = src;
 
-    // 已是正确 symlink → skip
+    // Already a correct symlink → skip
     if (existsSync(dst)) {
       try {
         const stat = lstatSync(dst);
@@ -789,11 +789,11 @@ if (wantsClaude && agentTemplateDir) {
           console.log(`  - .claude/agents/${file} (symlink ok)`);
           continue;
         }
-        // 旧 copy 或错误 symlink → 替换
+        // Old copy or incorrect symlink → replace
         unlinkSync(dst);
         console.log(`  ↻ .claude/agents/${file} (replacing copy with symlink)`);
       } catch {
-        // lstat 失败（断链等）→ 删除重建
+        // lstat failed (broken link, etc.) → delete and recreate
         try { unlinkSync(dst); } catch {}
       }
     }
@@ -802,7 +802,7 @@ if (wantsClaude && agentTemplateDir) {
     console.log(`  ✓ .claude/agents/${file} → ${linkTarget}`);
   }
 } else if (wantsClaude) {
-  console.log('  - agent 模板目录不存在, skip');
+  console.log('  - agent template directory does not exist, skip');
 } else {
   console.log('  - .claude/agents (profile skip)');
 }
@@ -853,7 +853,7 @@ if (wantsCodex && selectedAssetMode === 'thin') {
 }
 
 // 6. hooks + settings.json
-console.log('\n[6/6] 配置 hooks...');
+console.log('\n[6/6] Configuring hooks...');
 const hooksDir = join(targetDir, '.claude', 'hooks');
 if (wantsClaude) {
   for (const hookFile of HOOK_FILES) {
@@ -868,31 +868,31 @@ if (wantsClaude) {
     }
   }
   
-  // 合并 settings.json（不覆盖已有配置）
+  // Merge settings.json (do not overwrite existing configuration)
   const settingsPath = join(targetDir, '.claude', 'settings.json');
   const koalaHooks = getKoalaHooks();
   if (existsSync(settingsPath)) {
     try {
       const existing = JSON.parse(readFileSync(settingsPath, 'utf-8'));
       if (!existing.hooks) existing.hooks = {};
-      // 只添加缺失的 koala hook，不覆盖用户已有配置。
+      // Only add missing koala hook, do not overwrite user's existing configuration.
       for (const [event, hooks] of Object.entries(koalaHooks)) {
         const command = hooks[0]?.hooks?.[0]?.command;
         if (!existing.hooks[event]) {
           existing.hooks[event] = hooks;
-          console.log(`  ✓ settings.json: 添加 ${event} hook`);
+          console.log(`  ✓ settings.json: added ${event} hook`);
         } else if (!Array.isArray(existing.hooks[event])) {
-          console.log(`  - settings.json: ${event} hook 已存在但格式不兼容, skip`);
+          console.log(`  - settings.json: ${event} hook already exists but format is incompatible, skip`);
         } else if (command && !hasHookCommand(existing.hooks[event], command)) {
           existing.hooks[event].push(...hooks);
-          console.log(`  ✓ settings.json: 合并 ${event} koala hook`);
+          console.log(`  ✓ settings.json: merged ${event} koala hook`);
         } else {
-          console.log(`  - settings.json: ${event} hook 已存在, skip`);
+          console.log(`  - settings.json: ${event} hook already exists, skip`);
         }
       }
       writeFileSync(settingsPath, JSON.stringify(existing, null, 2) + '\n');
     } catch (e: any) {
-      console.log(`  ⚠ settings.json 合并失败: ${e.message}`);
+      console.log(`  ⚠ settings.json merge failed: ${e.message}`);
     }
   } else {
     writeFileSync(settingsPath, JSON.stringify({ hooks: koalaHooks }, null, 2) + '\n');
@@ -904,14 +904,14 @@ if (wantsClaude) {
 }
 
 if (upgradeManagedAssets) {
-  console.log('\n[upgrade] 同步 Lattice 管理资产...');
+  console.log('\n[upgrade] Syncing Lattice managed assets...');
   const result = runManagedAssetCheck(targetDir, { apply: true, profile: selectedProfile, assetMode: selectedAssetMode });
   console.log(renderManagedAssetCheck(result));
   if (!result.ok) process.exit(1);
 }
 
 console.log(`
-✓ 初始化完成
+✓ Initialization complete
 
 Next steps:
   1. Read LATTICE.md, then use the entrypoints generated for profile ${selectedProfile}

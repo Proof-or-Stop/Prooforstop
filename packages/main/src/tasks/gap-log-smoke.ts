@@ -83,7 +83,7 @@ function readMetaFindings(root: string): FindingData {
 
 /**
  * Direct handler invocation that bypasses the CLI Zod schema.
- * CLAUDE.md「Handler 编码约定」requires runtime guards to reject even when callers
+ * CLAUDE.md "Handler coding conventions" requires runtime guards to reject even when callers
  * skip the Zod layer (old JSON / internal fn paths). callGapLogRaw exercises that path.
  */
 function callGapLogRaw(root: string, args: Record<string, unknown>): { ok: boolean; message: string } {
@@ -104,7 +104,7 @@ const VALID = {
 };
 
 // ── 1: missing each required field -> rejected, nothing written ──
-// Two layers per CLAUDE.md「Handler 编码约定」:
+// Two layers per CLAUDE.md "Handler coding conventions":
 //  (a) CLI Zod schema rejects missing required fields (first defense line);
 //  (b) handler runtime guard rejects the same even when Zod is bypassed (old JSON /
 //      internal fn callers). Both layers asserted below.
@@ -139,7 +139,7 @@ function assertMissingRequiredFieldsRejected(): void {
     const root = createMainProject('koala-gaplog-cli-src-');
     try {
       const out = runGapLogExpectFail(root, { category: 'missing', severity: 'medium', evidence: VALID.evidence });
-      assert.match(out, /source 必填/, 'handler runtime must reject missing source');
+      assert.match(out, /source is required/, 'handler runtime must reject missing source');
       assert.equal(readMetaFindings(root).findings.length, 0, 'no-source gap_log must not write a finding');
     } finally { rmSync(root, { recursive: true, force: true }); }
   }
@@ -150,27 +150,27 @@ function assertMissingRequiredFieldsRejected(): void {
     try {
       const noCat = callGapLogRaw(root, { severity: 'medium', evidence: VALID.evidence, sourceRefs: VALID.sourceRefs });
       assert.equal(noCat.ok, false);
-      assert.match(noCat.message, /category 必填/, 'handler runtime must reject missing category even without Zod');
+      assert.match(noCat.message, /category is required/, 'handler runtime must reject missing category even without Zod');
 
       const badCat = callGapLogRaw(root, { category: 'nonsense', severity: 'medium', evidence: VALID.evidence, sourceRefs: VALID.sourceRefs });
       assert.equal(badCat.ok, false);
-      assert.match(badCat.message, /category 必填/, 'handler runtime must reject an invalid category enum value');
+      assert.match(badCat.message, /category is required/, 'handler runtime must reject an invalid category enum value');
 
       const noSev = callGapLogRaw(root, { category: 'missing', evidence: VALID.evidence, sourceRefs: VALID.sourceRefs });
       assert.equal(noSev.ok, false);
-      assert.match(noSev.message, /severity 必填/, 'handler runtime must reject missing severity even without Zod');
+      assert.match(noSev.message, /severity is required/, 'handler runtime must reject missing severity even without Zod');
 
       const badSev = callGapLogRaw(root, { category: 'missing', severity: 'urgent', evidence: VALID.evidence, sourceRefs: VALID.sourceRefs });
       assert.equal(badSev.ok, false);
-      assert.match(badSev.message, /severity 必填/, 'handler runtime must reject an invalid severity enum value');
+      assert.match(badSev.message, /severity is required/, 'handler runtime must reject an invalid severity enum value');
 
       const noEv = callGapLogRaw(root, { category: 'missing', severity: 'medium', sourceRefs: VALID.sourceRefs });
       assert.equal(noEv.ok, false);
-      assert.match(noEv.message, /evidence 必填/, 'handler runtime must reject missing evidence even without Zod');
+      assert.match(noEv.message, /evidence is required/, 'handler runtime must reject missing evidence even without Zod');
 
       const noSrc = callGapLogRaw(root, { category: 'missing', severity: 'medium', evidence: VALID.evidence });
       assert.equal(noSrc.ok, false);
-      assert.match(noSrc.message, /source 必填/, 'handler runtime must reject missing source even without Zod');
+      assert.match(noSrc.message, /source is required/, 'handler runtime must reject missing source even without Zod');
 
       assert.equal(readMetaFindings(root).findings.length, 0,
         'every Zod-bypassing rejection must leave B-META findings empty');
@@ -210,7 +210,7 @@ function assertVerifiedWithoutEvidenceCannotBeVerified(): void {
     const out = runGapLogExpectFail(root, {
       category: 'missing', severity: 'low', evidence: VALID.evidence, evidenceState: 'verified',
     });
-    assert.match(out, /source 必填/, 'verified request with no structured evidence is blocked by the source gate');
+    assert.match(out, /source is required/, 'verified request with no structured evidence is blocked by the source gate');
     assert.equal(readMetaFindings(root).findings.length, 0, 'rejected verified-without-evidence must not be written');
 
     // Unit-level: appendGapFinding is the storage primitive; the handler is the only place
@@ -243,7 +243,7 @@ function assertVerifiedWithEvidenceAllowed(): void {
       evidenceState: 'verified',
     });
     assert.match(out, /evidenceState=verified/, 'verified WITH structured evidence must be allowed');
-    assert.doesNotMatch(out, /强制降回 suspected/, 'no downgrade warning when structured evidence is present');
+    assert.doesNotMatch(out, /forcibly downgraded to suspected/, 'no downgrade warning when structured evidence is present');
     const findings = readMetaFindings(root).findings;
     assert.equal(findings.length, 1);
     assert.equal(findings[0].evidenceState, 'verified');
@@ -261,7 +261,7 @@ function assertBlankEvidenceRejected(): void {
       const out = runGapLogExpectFail(root, {
         category: 'missing', severity: 'medium', evidence: blank, sourceRefs: VALID.sourceRefs,
       });
-      assert.match(out, /evidence 必填/, `blank evidence ${JSON.stringify(blank)} must be rejected`);
+      assert.match(out, /evidence is required/, `blank evidence ${JSON.stringify(blank)} must be rejected`);
       assert.equal(readMetaFindings(root).findings.length, 0, 'blank-evidence gap_log must not write a finding');
     } finally { rmSync(root, { recursive: true, force: true }); }
   }
@@ -275,7 +275,7 @@ function assertContainerBootstrap(): void {
     assert.equal(new StoryStore(root).storyExists(META_STORY_ID), false,
       'fixture must start without the B-META container');
     const out = runGapLog(root, VALID);
-    assert.match(out, new RegExp(`${META_STORY_ID} 容器不存在，已自动 bootstrap`),
+    assert.match(out, new RegExp(`${META_STORY_ID} container does not exist, auto-bootstrapped`),
       'first gap_log must report container bootstrap');
     const store = new StoryStore(root);
     assert.equal(store.storyExists(META_STORY_ID), true, 'gap_log must ensureMetaStory the container');
@@ -285,7 +285,7 @@ function assertContainerBootstrap(): void {
 
     // second gap_log into an already-bootstrapped container -> no bootstrap notice, finding appended
     const out2 = runGapLog(root, { ...VALID, evidence: 'second framework gap reuses the existing container' });
-    assert.doesNotMatch(out2, /已自动 bootstrap/, 'second gap_log must not re-report bootstrap');
+    assert.doesNotMatch(out2, /auto-bootstrapped/, 'second gap_log must not re-report bootstrap');
     assert.equal(store.readFindings(META_STORY_ID).findings.length, 2, 'second gap_log appends, no parallel store');
     console.log('✓ gap-log-6: B-META container is auto-bootstrapped, then reused');
   } finally { rmSync(root, { recursive: true, force: true }); }
@@ -322,7 +322,7 @@ function assertIdenticalGapDeduped(): void {
     // second identical call must report dedup, not a fresh write
     assert.match(out2, /Gap deduped: B-META-framework-audit:F-/,
       'second identical gap_log must report dedup, not a new finding');
-    assert.match(out2, /相同 gap 已存在/, 'dedup hint explains the canonical finding was reused');
+    assert.match(out2, /identical gap already exists/, 'dedup hint explains the canonical finding was reused');
     const findings = readMetaFindings(root).findings;
     assert.equal(findings.length, 1,
       'identical gap logged twice must collapse into ONE canonical finding (B-f60c CHK-003 in-lock dedup)');
@@ -405,13 +405,13 @@ function assertDisprovenRejected(): void {
     // (b) handler runtime layer (Zod bypassed) gives the explicit disproven guidance
     const rtDisproven = callGapLogRaw(root, { ...VALID, evidenceState: 'disproven' });
     assert.equal(rtDisproven.ok, false);
-    assert.match(rtDisproven.message, /disproven 反证请走 finding 流程/,
+    assert.match(rtDisproven.message, /disproven counter-evidence must go through the finding flow/,
       'handler runtime must reject disproven with explicit guidance');
 
     // handler runtime also rejects any out-of-enum value
     const rtBad = callGapLogRaw(root, { ...VALID, evidenceState: 'confirmed' });
     assert.equal(rtBad.ok, false);
-    assert.match(rtBad.message, /evidenceState 非法值/, 'handler runtime must reject an out-of-enum evidenceState');
+    assert.match(rtBad.message, /invalid evidenceState value/, 'handler runtime must reject an out-of-enum evidenceState');
     assert.equal(readMetaFindings(root).findings.length, 0, 'no rejected evidenceState write may land');
     console.log('✓ gap-log-9: evidenceState=disproven and out-of-enum values rejected by Zod and handler runtime');
   } finally { rmSync(root, { recursive: true, force: true }); }

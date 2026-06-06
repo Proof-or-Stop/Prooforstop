@@ -1,23 +1,23 @@
 /**
- * audit-trigger — DONE 推进后的「每 N 个 story + CLAUDE.md 有 diff」双条件
- * 触发逻辑（B-9bd9 CHK-003）。
+ * audit-trigger — Dual condition "every N stories + CLAUDE.md has diff" after DONE advance
+ * trigger logic (B-9bd9 CHK-003).
  *
- * 职责：
- *   - 读写 `<projectRoot>/.koala/runtime/framework-audit/state.json`（字段见 AuditState）
- *   - 递增 doneSinceLastAudit 计数
- *   - 按 config（CHK-004 的 resolveAuditConfig）判定是否触发 audit
- *   - semi-auto → 只返回提示文本（不 spawn agent）；full-auto → 同进程直接跑 audit handler
+ * Responsibilities:
+ *   - Read/write `<projectRoot>/.koala/runtime/framework-audit/state.json` (fields see AuditState)
+ *   - Increment doneSinceLastAudit counter
+ *   - Determine whether to trigger audit based on config (CHK-004's resolveAuditConfig)
+ *   - semi-auto → only return prompt text (no agent spawn); full-auto → run audit handler directly in same process
  *
- * **meta-story 免触发**：storyId.startsWith('B-META-') → 直接返回 triggered=false，
- * 既不递增计数也不跑 audit（避免 audit-meta-story 自己 DONE 时嵌套）。
+ * **meta-story exemption**: storyId.startsWith('B-META-') → directly return triggered=false,
+ * neither increment counter nor run audit (to avoid nesting when audit-meta-story itself DONEs).
  *
- * **字段所有权分工**（与 audit.ts 的 touchAuditState 协作）：
- *   - audit-trigger 只管 `doneSinceLastAudit` 计数
- *   - audit handler（audit.ts）跑完后刷 `lastAuditAt` 等其他字段
- *   - full-auto 下，audit handler 会在同进程里把计数重置（通过它自己的 touchAuditState）
+ * **Field ownership split** (coordinates with touchAuditState in audit.ts):
+ *   - audit-trigger only manages `doneSinceLastAudit` counter
+ *   - audit handler (audit.ts) refreshes `lastAuditAt` and other fields after running
+ *   - Under full-auto, audit handler resets the counter in the same process (via its own touchAuditState)
  *
- * 设计硬规则：整个函数外层包 try/catch，任何异常 → console.warn + 返回
- * {triggered:false, reason:"error:..."}，**绝不抛出**。DONE hook 永远不受 audit 触发影响。
+ * Hard design rule: wrap entire function in outer try/catch, any exception → console.warn + return
+ * {triggered:false, reason:"error:..."}, **never throw**. DONE hook is never affected by audit trigger.
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -30,10 +30,10 @@ import type { WorkflowProfile } from './types.js';
 /**
  * state.json schema.
  *
- * - `lastAuditAt`: 上次 audit 跑完的 ISO 时间（由 audit handler 刷）
- * - `lastAuditCommit`: 上次 audit 对应的 commit SHA（git log --since 的基准；暂由 audit handler 管理）
- * - `doneSinceLastAudit`: 上次 audit 后 DONE 过多少 story（本模块维护）
- * - `lastAuditStoryId`: 上次触发 audit 的 story id（由 audit handler 刷）
+ * - `lastAuditAt`: ISO timestamp of last audit completion (refreshed by audit handler)
+ * - `lastAuditCommit`: commit SHA corresponding to last audit (baseline for git log --since; currently managed by audit handler)
+ * - `doneSinceLastAudit`: how many stories have been DONE since last audit (maintained by this module)
+ * - `lastAuditStoryId`: story id that triggered the last audit (refreshed by audit handler)
  */
 export interface AuditState {
   lastAuditAt: string | null;
@@ -44,11 +44,11 @@ export interface AuditState {
 
 export interface AuditTriggerResult {
   triggered: boolean;
-  /** 人类可读的触发/未触发原因（主要给调用方 console.log / stderr 输出用） */
+  /** Human-readable trigger/non-trigger reason (mainly for caller's console.log / stderr output) */
   reason: string;
-  /** 提示文本（semi-auto 才有；semi-auto 下调用方应 console.log 显示它） */
+  /** Prompt text (semi-auto only; under semi-auto the caller should console.log it) */
   hint?: string;
-  /** 写回后的 state（调试/测试用）；error 分支可能是初始值 */
+  /** State after write-back (for debugging/testing); error branch may be the initial value */
   stateAfter: AuditState;
 }
 
@@ -60,22 +60,22 @@ const INITIAL_STATE: AuditState = {
 };
 
 /**
- * state.json 相对 projectRoot 的位置。
+ * Location of state.json relative to projectRoot.
  * Mutable trigger state lives under ignored `.koala/runtime/`, deliberately
  * not the legacy `.koala/framework-audit/state.json` path. Some repos tracked
  * that old path before `.koala/` became runtime-only, so writing there made
  * read/status verification appear dirty.
- * 单一真相源：audit.ts 的 touchAuditState 也 import 此函数，避免路径双重硬编码。
+ * Single source of truth: touchAuditState in audit.ts also imports this function to avoid double-hardcoding the path.
  */
 export function stateFilePath(projectRoot: string): string {
   return join(projectRoot, '.koala', 'runtime', 'framework-audit', 'state.json');
 }
 
 /**
- * 读 state.json。
- *   - 文件不存在 → INITIAL_STATE（不写盘）
- *   - JSON.parse 失败 / 不是对象 → warn + 重写 INITIAL_STATE + 返回
- *   - 字段缺失 → 用 INITIAL_STATE 的字段兜底
+ * Read state.json.
+ *   - File does not exist → INITIAL_STATE (no disk write)
+ *   - JSON.parse failure / not an object → warn + rewrite INITIAL_STATE + return
+ *   - Missing fields → fall back to fields from INITIAL_STATE
  */
 function readState(projectRoot: string): AuditState {
   const path = stateFilePath(projectRoot);
@@ -127,16 +127,16 @@ function writeStateSafe(projectRoot: string, state: AuditState): void {
 }
 
 /**
- * `git log --since=<from> -- CLAUDE.md 'packages/**\/CLAUDE.md'` 有输出？
+ * Does `git log --since=<from> -- CLAUDE.md 'packages/**\/CLAUDE.md'` produce output?
  *
- * - `lastAuditCommit` 存在 → `--since=<ISO timestamp of that commit's author date>`，
- *   简化起见当前实现按「state.lastAuditAt ?? 30 天前」做时间窗口
- *   （commit SHA 作为时间锚点待 audit handler 写入后才好用；当前 semi-auto 下 commit 锚点可能为 null）
- * - 任何 git 调用失败 → 视为"无 diff"（保守：不触发提示比误触发更克制）
+ * - `lastAuditCommit` exists → `--since=<ISO timestamp of that commit's author date>`,
+ *   for simplicity the current implementation uses "state.lastAuditAt ?? 30 days ago" as the time window
+ *   (the commit SHA as a time anchor only becomes usable once the audit handler writes it; under the current semi-auto mode the commit anchor may be null)
+ * - Any git call failure → treated as "no diff" (conservative: not triggering the prompt is more restrained than triggering it by mistake)
  *
- * MVP 接受 limitation：semi-auto 模式下若用户持续忽略 audit 提示，state.lastAuditAt
- * 永远是 null，兜底 30 天窗口可能漏检距上次 audit 紧邻（>30 天前）发生的 CLAUDE.md
- * 改动。后续可用 state.lastAuditCommit（commit SHA）替换时间窗口，彻底消除该 limitation。
+ * MVP accepted limitation: under semi-auto mode, if the user keeps ignoring audit prompts, state.lastAuditAt
+ * stays null forever, and the fallback 30-day window may miss CLAUDE.md changes that happened close to (>30 days before) the last audit.
+ * Later, state.lastAuditCommit (commit SHA) can replace the time window to fully eliminate this limitation.
  */
 function claudeMdChangedSince(projectRoot: string, sinceIso: string | null): boolean {
   const since = sinceIso ?? thirtyDaysAgoIso();
@@ -147,7 +147,7 @@ function claudeMdChangedSince(projectRoot: string, sinceIso: string | null): boo
     ).trim();
     return out.length > 0;
   } catch {
-    // git 不可用 / 非 git 仓库 → 保守返回 false
+    // git not available / not a git repo → conservatively return false
     return false;
   }
 }
@@ -158,33 +158,33 @@ function thirtyDaysAgoIso(): string {
   return d.toISOString();
 }
 
-/** 提示文本统一生成（前后各空一行单独成段）。 */
+/** Unified generation of prompt text (with a blank line before and after, as its own paragraph). */
 function buildSemiAutoHint(window: number): string {
-  return `\n⚠ ${window} story 窗口 + CLAUDE.md 已改动，建议跑: koala audit --framework\n`;
+  return `\n⚠ ${window} story window + CLAUDE.md has changed, suggested run: koala audit --framework\n`;
 }
 
 /**
- * maybeTriggerAudit — DONE 推进成功后调用。
+ * maybeTriggerAudit — called after a successful DONE advance.
  *
- * 正常流程：
+ * Normal flow:
  *   1. meta-story → no-op
- *   2. 读 state（损坏自动重建）
- *   3. 读 config（audit mode / window / requireClaudeMdDiff）
- *   4. doneSinceLastAudit++ 写回（注意：mode=off 也刷，以便将来 off→on 切换时计数连续）
- *   5. mode=off → 返回 triggered=false
- *   6. 未达窗口 → 返回 triggered=false
- *   7. requireClaudeMdDiff + 无 CLAUDE.md diff → 返回 triggered=false
- *   8. 触发：
- *      - semi-auto：返回带 hint 的 triggered=true（**不**清计数——用户忽略提示下次还会继续提示）
- *      - full-auto：同进程调 audit handler，返回 triggered=true（audit handler 负责刷 state 其他字段）
+ *   2. Read state (auto-rebuild if corrupted)
+ *   3. Read config (audit mode / window / requireClaudeMdDiff)
+ *   4. doneSinceLastAudit++ and write back (note: flush even when mode=off, so counts remain continuous across future off→on switches)
+ *   5. mode=off → return triggered=false
+ *   6. Window not reached → return triggered=false
+ *   7. requireClaudeMdDiff + no CLAUDE.md diff → return triggered=false
+ *   8. Trigger:
+ *      - semi-auto: return triggered=true with hint (do **not** clear the counter—if the user ignores the hint it will prompt again next time)
+ *      - full-auto: call audit handler in the same process, return triggered=true (audit handler is responsible for flushing the other state fields)
  *
- * 任何异常都被外层 try/catch 吞掉，返回 triggered=false + reason。
+ * Any exception is swallowed by the outer try/catch, returning triggered=false + reason.
  */
 export async function maybeTriggerAudit(storyId: string, projectRoot: string): Promise<AuditTriggerResult> {
   try {
-    // 1. meta-story 免触发（含计数——避免嵌套）
-    //    直接返回 INITIAL_STATE 拷贝，不读磁盘——避免 readState 内部异常（如磁盘损坏）
-    //    逃出外层 catch 影响 DONE 流程。meta-story 路径不关心 state 真实内容。
+    // 1. meta-story is exempt from triggering (including counting—avoid nesting)
+    //    Return a copy of INITIAL_STATE directly, do not read disk—avoid internal readState exceptions (such as disk corruption)
+    //    escaping the outer catch and impacting the DONE flow. The meta-story path does not care about the real state content.
     if (storyId.startsWith('B-META-')) {
       return {
         triggered: false,
@@ -193,15 +193,15 @@ export async function maybeTriggerAudit(storyId: string, projectRoot: string): P
       };
     }
 
-    // 2. 读 state（损坏会自愈 + 返回初始值）
+    // 2. Read state (self-heals on corruption + returns initial value)
     const prev = readState(projectRoot);
 
-    // 3. 读 config
+    // 3. Read config
     const cfg = loadConfig(projectRoot);
     const profile: WorkflowProfile = cfg.workflow?.profile ?? 'balanced';
     const auditCfg = resolveAuditConfig(profile, projectRoot);
 
-    // 4. 递增 doneSinceLastAudit 并持久化
+    // 4. Increment doneSinceLastAudit and persist
     const bumped: AuditState = {
       ...prev,
       doneSinceLastAudit: prev.doneSinceLastAudit + 1,
@@ -210,12 +210,12 @@ export async function maybeTriggerAudit(storyId: string, projectRoot: string): P
 
     const mode: AuditMode = auditCfg.mode;
 
-    // 5. mode=off → 只刷计数不触发
+    // 5. mode=off → only flush counter, do not trigger
     if (mode === 'off') {
       return { triggered: false, reason: 'mode=off', stateAfter: bumped };
     }
 
-    // 6. 未达窗口
+    // 6. Window not reached
     if (bumped.doneSinceLastAudit < auditCfg.auditTriggerWindow) {
       return {
         triggered: false,
@@ -224,7 +224,7 @@ export async function maybeTriggerAudit(storyId: string, projectRoot: string): P
       };
     }
 
-    // 7. requireClaudeMdDiff：git log 检测
+    // 7. requireClaudeMdDiff: detect via git log
     if (auditCfg.requireClaudeMdDiff) {
       const changed = claudeMdChangedSince(projectRoot, prev.lastAuditAt);
       if (!changed) {
@@ -236,9 +236,9 @@ export async function maybeTriggerAudit(storyId: string, projectRoot: string): P
       }
     }
 
-    // 8. 触发
+    // 8. Trigger
     if (mode === 'semi-auto') {
-      // 只提示，不 spawn；保持计数不清，下次还会继续提示直到用户真跑 audit
+      // Prompt only, do not spawn; keep counter uncleared, will keep prompting next time until user actually runs audit
       const hint = buildSemiAutoHint(bumped.doneSinceLastAudit);
       return {
         triggered: true,
@@ -252,7 +252,7 @@ export async function maybeTriggerAudit(storyId: string, projectRoot: string): P
       return await runAuditInProcess(storyId, projectRoot, bumped);
     }
 
-    // 理论上 resolveAuditConfig 已把非法 mode 规整，这里兜底
+    // In theory resolveAuditConfig has already normalized invalid mode, fallback here
     return { triggered: false, reason: `unknown mode: ${mode}`, stateAfter: bumped };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
@@ -266,17 +266,17 @@ export async function maybeTriggerAudit(storyId: string, projectRoot: string): P
 }
 
 /**
- * full-auto 分支：同进程调 audit handler（CHK-001 交付）。
+ * full-auto branch: invoke audit handler in same process (CHK-001 deliverable).
  *
- * audit handler 自己会 touchAuditState 刷 lastAuditAt；此处不重复刷。
- * 任何异常都吞掉（audit handler 内部已是 advisory）。
+ * audit handler itself will touchAuditState to refresh lastAuditAt; no need to refresh again here.
+ * Swallow any exception (audit handler is already advisory internally).
  *
- * 实现说明：用 ESM 顶层 `await import(...)` 做运行时动态 load。
- *   - 不用 `require('node:module')` + createRequire：ESM 模块里没有全局 require，
- *     在 strict ESM 环境下会抛 ReferenceError（F-001/F-014 根因）。
- *   - 取舍：CLAUDE.md「core/ 不做 I/O」约束在纯代码静态依赖层面；动态 import 仍会走
- *     handlers 层，但发生在 runtime 边界，静态 import graph 依然是 core→core。我们接受
- *     这个取舍——full-auto 是显式选择的「DONE 同进程跑 audit」模式，必须触达 handlers。
+ * Implementation note: use ESM top-level `await import(...)` for runtime dynamic load.
+ *   - Don't use `require('node:module')` + createRequire: there's no global require in ESM modules,
+ *     and it throws ReferenceError under strict ESM (root cause of F-001/F-014).
+ *   - Tradeoff: the CLAUDE.md "core/ does no I/O" constraint applies at the pure code static dependency layer; dynamic import still goes through
+ *     the handlers layer, but happens at the runtime boundary, the static import graph is still core→core. We accept
+ *     this tradeoff—full-auto is the explicitly chosen "run audit in same process after DONE" mode, which must reach handlers.
  */
 async function runAuditInProcess(_storyId: string, projectRoot: string, state: AuditState): Promise<AuditTriggerResult> {
   try {
@@ -308,8 +308,8 @@ async function runAuditInProcess(_storyId: string, projectRoot: string, state: A
 }
 
 /**
- * 测试友好：导出内部纯函数别名，方便单测直接验证状态读写。
- * （只用于 test，不期望业务代码调。）
+ * Test-friendly: export internal pure function aliases for unit tests to directly verify state read/write.
+ * (Only for test, not expected to be called by business code.)
  */
 export const _internal = {
   readState,

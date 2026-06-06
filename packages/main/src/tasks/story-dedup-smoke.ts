@@ -65,7 +65,7 @@ check('normalizeName: all-special-character name → "" (separator-only)', () =>
 
 check('normalizeName preserves Unicode letters (only cases them)', () => {
   assert.equal(normalizeName('Café-Story'), 'café-story');
-  assert.equal(normalizeName('日本語 タスク'), '日本語-タスク');
+  assert.equal(normalizeName('Japanese task'), 'Japanese-task');
   assert.equal(normalizeName('Über_Fix'), 'über-fix');
 });
 

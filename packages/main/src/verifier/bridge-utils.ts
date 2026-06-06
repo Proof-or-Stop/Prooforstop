@@ -1,16 +1,16 @@
 /**
- * bridge-utils.ts — 框架提供的 bridge 自动选择工具
+ * bridge-utils.ts — bridge auto-selection utility provided by the framework
  *
- * 浏览器端：自动 fetch /.koala-serve.json 检测是否有 core 进程
- *   - 有 wsPort → 用 wsFactory 连 WS（开发模式）
- *   - 没有 → 用 localFactory 直连（正式/发布模式）
- * Node.js 端：直接用 localFactory
+ * Browser side: automatically fetch /.koala-serve.json to detect whether a core process exists
+ *   - has wsPort → use wsFactory to connect via WS (development mode)
+ *   - none → use localFactory for direct connection (production/release mode)
+ * Node.js side: use localFactory directly
  */
 
 export interface CreateBridgeOptions<T> {
-  /** 本地 bridge 工厂（同进程直连） */
+  /** Local bridge factory (same-process direct connection) */
   localFactory: () => T;
-  /** WS bridge 工厂（开发模式，连 core 进程） */
+  /** WS bridge factory (development mode, connects to core process) */
   wsFactory?: (wsUrl: string) => T;
 }
 

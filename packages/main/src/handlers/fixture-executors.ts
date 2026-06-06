@@ -44,7 +44,7 @@ function shellQuote(s: string): string {
 
 function splitCommand(command: string): { cmd: string; args: string[] } {
   const parts = command.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) throw new Error('command 不能为空');
+  if (parts.length === 0) throw new Error('command cannot be empty');
   return { cmd: parts[0], args: parts.slice(1) };
 }
 
@@ -104,12 +104,12 @@ const jsExecuteExecutor: FixtureExecutor = {
   id: 'js.execute',
   async run(c, ctx) {
     if (typeof c.execute !== 'string' || !c.execute.trim()) {
-      throw new Error('js.execute 需要非空 execute 字符串');
+      throw new Error('js.execute requires a non-empty execute string');
     }
     if (c.sandbox !== false) {
       const sandboxError = ctx.validateSandbox(c.execute as string);
       if (sandboxError) {
-        throw new Error(`[sandbox] ${sandboxError}，如确需直接访问请在 case 中设置 sandbox: false`);
+        throw new Error(`[sandbox] ${sandboxError}; if direct access is truly needed, set sandbox: false in the case`);
       }
     }
 
@@ -118,13 +118,13 @@ const jsExecuteExecutor: FixtureExecutor = {
 
     const safeHandlers: Record<string, Function> = { ...ctx.handlers };
     for (const blocked of ['test_auto', 'test_story']) {
-      safeHandlers[blocked] = () => { throw new Error(blocked + ' 禁止在 fixture case 内调用'); };
+      safeHandlers[blocked] = () => { throw new Error(blocked + ' is forbidden inside a fixture case'); };
     }
     if (ctx.currentCaseIds && ctx.currentCaseIds.size > 0) {
       const origTestFixture = ctx.handlers.test_fixture;
       safeHandlers.test_fixture = (args: { fixtureId: string }) => {
         if (ctx.currentCaseIds!.has(args.fixtureId)) {
-          throw new Error('test_fixture 禁止调用当前 fixture 中的 case（自引用）');
+          throw new Error('test_fixture forbids calling cases in the current fixture (self-reference)');
         }
         return origTestFixture(args);
       };
@@ -149,7 +149,7 @@ const commandExecutor: FixtureExecutor = {
     let command: string;
     let args: string[];
     if (Array.isArray(c.command)) {
-      if (c.command.length === 0) throw new Error('command 不能为空');
+      if (c.command.length === 0) throw new Error('command cannot be empty');
       command = String(c.command[0]);
       args = c.command.slice(1).map(String);
     } else if (typeof c.command === 'string') {
@@ -157,7 +157,7 @@ const commandExecutor: FixtureExecutor = {
       command = parsed.cmd;
       args = parsed.args;
     } else {
-      throw new Error('command executor 需要 command 字段');
+      throw new Error('command executor requires a command field');
     }
     if (Array.isArray(c.args)) args.push(...c.args.map(String));
     return runProcess(c, command, args, ctx.root).trimEnd();
@@ -167,8 +167,8 @@ const commandExecutor: FixtureExecutor = {
 const pythonFunctionExecutor: FixtureExecutor = {
   id: 'python.function',
   async run(c, ctx) {
-    if (!c.file || typeof c.file !== 'string') throw new Error('python.function 需要 file 字段');
-    if (!c.fn || typeof c.fn !== 'string') throw new Error('python.function 需要 fn 字段');
+    if (!c.file || typeof c.file !== 'string') throw new Error('python.function requires a file field');
+    if (!c.fn || typeof c.fn !== 'string') throw new Error('python.function requires a fn field');
 
     const filePath = isAbsolute(c.file) ? c.file : join(ctx.root, c.file);
     if (!existsSync(filePath)) throw new Error(`python file not found: ${filePath}`);
@@ -235,7 +235,7 @@ const javaJUnitExecutor: FixtureExecutor = {
       return runCommandLike(c, ctx, command, explicitArgs ?? ['test']);
     }
     if (buildTool !== 'maven') {
-      throw new Error('java.junit 的 buildTool 必须是 "maven" 或 "gradle"');
+      throw new Error('java.junit buildTool must be "maven" or "gradle"');
     }
     const command = typeof c.maven === 'string' ? c.maven : 'mvn';
     return runCommandLike(c, ctx, command, explicitArgs ?? ['test']);
@@ -248,7 +248,7 @@ const cppBinaryExecutor: FixtureExecutor = {
     const command = typeof c.binary === 'string'
       ? c.binary
       : (typeof c.command === 'string' ? c.command : '');
-    if (!command) throw new Error('cpp.binary 需要 binary 或 command 字段');
+    if (!command) throw new Error('cpp.binary requires a binary or command field');
     return runCommandLike(c, ctx, command, stringArray(c.args) ?? []);
   },
 };

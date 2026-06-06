@@ -109,16 +109,16 @@ function spawnStoryAdvance(cwd: string, args: Record<string, unknown>): Promise<
 
 function validBackground(): string {
   return [
-    '## 触发事件',
+    '## Trigger Event',
     '2026-05-08 B-from-draft smoke reproduces the field report where story_create fromDraft reached INIT_CHECK but did not create a worktree, leaving the next command unable to proceed without manual git worktree add.',
     '',
-    '## 关键洞察',
+    '## Key Insights',
     'The draft path already has reviewed story material, so the missing behavior is not planning validation. The CLI must run the same worktree bootstrap that story_advance INIT_CHECK uses after materializing the story.',
     '',
-    '## 方案取舍',
+    '## Solution Tradeoffs',
     'The smoke keeps the story tiny and validates the user visible path. It prefers exercising the public CLI over importing private helper internals because the bug lived in CLI orchestration.',
     '',
-    '## 对话纹理',
+    '## Conversation Texture',
     'A user expects a completed from-draft command to print the worktree path and a direct cd instruction. Seeing phase INIT_CHECK without a directory is confusing and blocks the workflow.',
     '',
   ].join('\n');
@@ -185,7 +185,7 @@ function assertRecordedWorktreeRejectsMainCwd(): void {
     process.chdir(root);
     assert.throws(
       () => assertCwdInWorktree(store, storyId),
-      /必须在 worktree 里执行 koala 命令/,
+      /must execute koala commands inside the worktree/,
     );
     process.chdir(worktreePath);
     assert.doesNotThrow(() => assertCwdInWorktree(store, storyId));
@@ -229,7 +229,7 @@ function assertInitCheckChecklistMutationRejectsMainCwd(): void {
       title: 'Should not land in main',
       context: 'INIT_CHECK linked stories must still use the story worktree authority.',
     });
-    assert.match(output, /必须在 worktree 里执行 koala 命令/);
+    assert.match(output, /must execute koala commands inside the worktree/);
     assert.equal(new StoryStore(root).readChecklist(storyId).items.length, 1);
   } finally {
     process.chdir(previousCwd);
@@ -768,7 +768,7 @@ function assertDoneSuccessPathOutputAndOrdering(): void {
 
     const output = runKoalaFromCwd(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
 
-    // DONE Gate Checklist段 — the pre-merge gate's rendered checklist is
+    // DONE Gate Checklist section — the pre-merge gate's rendered checklist is
     // prefixed onto the success message (via doneChecklistPrefix).
     assert.match(output, new RegExp(`DONE Gate Checklist \\(${storyId}\\):`), 'DONE success output must include the rendered DONE Gate Checklist header');
     assert.match(output, /\[✓\] Test evidence: PASS/, 'checklist must include the test-evidence row');
@@ -781,17 +781,17 @@ function assertDoneSuccessPathOutputAndOrdering(): void {
 
     // advance line + merge-report lines, byte-identical. The worktree-cleanup
     // line embeds the canonical (symlink-resolved) absolute worktree path, so
-    // it is matched structurally — the line is `✓ Worktree <abs>/<storyId> 已清理`.
-    const cleanupLine = new RegExp(`✓ Worktree [^\\n]*${storyId} 已清理`);
+    // it is matched structurally — the line is `✓ Worktree <abs>/<storyId> cleaned up`.
+    const cleanupLine = new RegExp(`✓ Worktree [^\\n]*${storyId} cleaned up`);
     assert.ok(output.includes(`Story ${storyId} advanced to DONE`), 'DONE success output must include the advance line');
-    assert.ok(output.includes(`✓ 分支 story/${storyId} 已合并到 main`), 'DONE success output must include the merge confirmation');
+    assert.ok(output.includes(`✓ Branch story/${storyId} merged into main`), 'DONE success output must include the merge confirmation');
     assert.match(output, cleanupLine, 'DONE success output must include the worktree-cleanup confirmation naming the canonical worktree path');
-    assert.ok(output.includes(`✓ 分支 story/${storyId} 已删除`), 'DONE success output must include the branch-delete confirmation');
+    assert.ok(output.includes(`✓ Branch story/${storyId} deleted`), 'DONE success output must include the branch-delete confirmation');
 
     // Step ordering: metadata commit → merge → worktree remove → branch delete.
-    const mergeIdx = output.indexOf(`✓ 分支 story/${storyId} 已合并到 main`);
+    const mergeIdx = output.indexOf(`✓ Branch story/${storyId} merged into main`);
     const cleanIdx = output.search(cleanupLine);
-    const deleteIdx = output.indexOf(`✓ 分支 story/${storyId} 已删除`);
+    const deleteIdx = output.indexOf(`✓ Branch story/${storyId} deleted`);
     assert.ok(mergeIdx >= 0 && cleanIdx > mergeIdx && deleteIdx > cleanIdx, 'merge → worktree remove → branch delete must appear in that order');
 
     // Step1 (metadata commit) — the DONE commit landed on the merged branch.
@@ -1022,7 +1022,7 @@ function assertMergeConflictPreMergeGateKeepsStoryTest(): void {
 
     const output = runKoalaFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
     assert.match(output, /Cannot enter DONE/, 'a merge conflict must trip a DONE pre-merge gate');
-    assert.match(output, new RegExp(`story/${storyId} 落后 main`), 'the gate must report the branch is behind main');
+    assert.match(output, new RegExp(`story/${storyId} is behind main`), 'the gate must report the branch is behind main');
 
     // phase=DONE never written — block A threw before actor.send.
     assert.equal(new StoryStore(worktreePath).readStory(storyId).phase, 'TEST', 'a merge-conflict pre-merge gate failure must not mark the worktree story DONE');
@@ -1076,7 +1076,7 @@ function assertRealMergeFailureMarksDoneAndThrows(): void {
     writeFileSync(join(root, 'shared.txt'), 'untracked main file that blocks merge\n');
 
     const output = runKoalaFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
-    assert.match(output, new RegExp(`Story ${storyId} 已标记为 DONE 但自动合并失败`), 'real merge failure must announce the story is already DONE');
+    assert.match(output, new RegExp(`Story ${storyId} has been marked DONE but auto-merge failed`), 'real merge failure must announce the story is already DONE');
     // Manual-recovery guidance — must not swallow the failure.
     assert.match(output, /cd "/, 'merge failure guidance must include a cd step');
     assert.match(output, /git merge story\//, 'merge failure guidance must include git merge');
@@ -1094,7 +1094,7 @@ function assertRealMergeFailureMarksDoneAndThrows(): void {
 
 /**
  * CHK-002 case ③ — a worktree cleanup failure (post-merge) leaves the story
- * DONE and merged but throws the "已合并，但 worktree 清理未完成" error with the
+ * DONE and merged but throws the "merged, but worktree cleanup did not complete" error with the
  * koala doctor recovery hint. The cleanup is forced to fail by making the
  * .worktrees/ parent directory read-only so neither `git worktree remove` nor
  * the residual `rm -rf` can rmdir the worktree.
@@ -1121,7 +1121,7 @@ function assertWorktreeCleanupFailureMarksDoneMergedAndThrows(): void {
     chmodSync(worktreesDir, 0o500);
 
     const output = runKoalaFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
-    assert.match(output, new RegExp(`Story ${storyId} 已合并，但 worktree 清理未完成`), 'cleanup failure must announce the story merged but cleanup is incomplete');
+    assert.match(output, new RegExp(`Story ${storyId} merged, but worktree cleanup did not complete`), 'cleanup failure must announce the story merged but cleanup is incomplete');
     assert.match(output, /koala doctor/, 'cleanup failure must point at koala doctor for recovery');
 
     // phase=DONE persisted and the merge DID land on main (cleanup failed AFTER merge).
@@ -1260,13 +1260,13 @@ function assertInitCheckLeavesNoUncommittedMainMirrorForDone(): void {
       type: 'chore',
       priority: 'medium',
       background: [
-        '## 触发事件',
+        '## Trigger Event',
         '2026-05-18 B-f60c F-008 smoke reproduces the partial-DONE incident where INIT_CHECK left an uncommitted story metadata mirror in the main checkout.',
-        '## 关键洞察',
+        '## Key Insights',
         'The DONE merge runs from the main repo root and aborts when the story dir is untracked there while committed on the story branch.',
-        '## 方案取舍',
+        '## Solution Tradeoffs',
         'The smoke drives the real INIT_CHECK CLI path and replays the DONE Step-3 merge instead of importing private helpers, because the bug lived in CLI orchestration.',
-        '## 对话纹理',
+        '## Conversation Texture',
         'A maintainer expects story_advance DONE to merge the branch cleanly rather than mark the story DONE while leaving the branch unmerged.',
       ].join('\n\n'),
       checklist: [{ title: 'Verify INIT_CHECK metadata mirror is committed', context: 'INIT_CHECK must not leave an uncommitted main-side mirror.' }],

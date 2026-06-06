@@ -394,30 +394,50 @@ function isKoalaSelfRepoBootstrap(actual: string, root: string): boolean {
 }
 
 function isExpandedKoalaAgentsGuide(actual: string): boolean {
-  return actual.includes('# AGENTS.md')
+  const english = actual.includes('# AGENTS.md')
     && actual.includes('Current lifecycle override')
     && actual.includes('koala session_brief')
-    && actual.includes('流程事实双层契约')
-    && actual.includes('Story 阶段流转')
+    && actual.includes('Two-Layer Process Fact Contract')
+    && actual.includes('Story Phase Transitions')
     && actual.includes('Fail-fast policy');
+  const legacyChinese = actual.includes('# AGENTS.md')
+    && actual.includes('koala session_brief')
+    && actual.includes('\u6d41\u7a0b\u4e8b\u5b9e\u53cc\u5c42\u5951\u7ea6')
+    && actual.includes('Story \u9636\u6bb5\u6d41\u8f6c')
+    && actual.includes('Fail-fast policy');
+  return english || legacyChinese;
 }
 
 function isExpandedKoalaOverview(actual: string): boolean {
-  return actual.includes('# Koala 模块分类与流程')
+  const english = actual.includes('# Koala Module Classification and Flow')
     && actual.includes('project execution and verification substrate')
     && actual.includes('verificationIntent')
     && actual.includes('verificationEvidence')
-    && actual.includes('Story 流程总表')
-    && actual.includes('完成定义');
+    && actual.includes('Story Flow Master Table')
+    && actual.includes('Definition of Done');
+  const legacyChinese = actual.includes('# Koala \u6a21\u5757\u5206\u7c7b\u4e0e\u6d41\u7a0b')
+    && actual.includes('project execution and verification substrate')
+    && actual.includes('verificationIntent')
+    && actual.includes('verificationEvidence')
+    && actual.includes('Story \u6d41\u7a0b\u603b\u8868')
+    && actual.includes('\u5b8c\u6210\u5b9a\u4e49');
+  return english || legacyChinese;
 }
 
 function isExpandedKoalaClaudeGuide(actual: string): boolean {
-  return actual.includes('# CLAUDE.md')
+  const english = actual.includes('# CLAUDE.md')
     && actual.includes('koala session_brief')
     && actual.includes('REVIEW→TEST')
     && actual.includes('Claude Prompt Hook')
     && actual.includes('Reviewer opt-in')
-    && actual.includes('框架自省 audit 配置');
+    && actual.includes('Framework Introspection audit Configuration');
+  const legacyChinese = actual.includes('# CLAUDE.md')
+    && actual.includes('koala session_brief')
+    && actual.includes('REVIEW→TEST')
+    && actual.includes('Claude Prompt Hook')
+    && actual.includes('Reviewer opt-in')
+    && actual.includes('\u6846\u67b6\u81ea\u7701 audit \u914d\u7f6e');
+  return english || legacyChinese;
 }
 
 function useLegacyAssetPath(projectRoot: string, primaryRelPath: string, legacyRelPath: string): boolean {
@@ -442,14 +462,14 @@ export function listManagedAssetDefinitions(
         'doc:KOALA.md',
         'KOALA.md',
         KOALA_MD_TEMPLATE,
-        actual => actual.includes('canonical、host-neutral') || actual.includes('所有 init profile 都会创建或同步这个文件'),
+        actual => actual.includes('canonical, host-neutral') || actual.includes('All init profiles will create or sync this file'),
         actual => isExpandedKoalaOverview(actual),
       )
       : managedDoc(
         'doc:LATTICE.md',
         'LATTICE.md',
         LATTICE_MD_TEMPLATE,
-        actual => actual.includes('canonical、host-neutral') || actual.includes('新的 init profile'),
+        actual => actual.includes('canonical, host-neutral') || actual.includes('New init profile'),
         actual => isExpandedKoalaOverview(actual),
       ),
     useLegacyBootstrap
@@ -482,7 +502,7 @@ export function listManagedAssetDefinitions(
         'doc:AGENTS.md',
         'AGENTS.md',
         AGENTS_MD_TEMPLATE,
-        actual => actual.includes('Codex / AGENTS') || actual.includes('Codex subagent prompts 位于'),
+        actual => actual.includes('Codex / AGENTS') || actual.includes('Codex subagent prompts are located at'),
         actual => isExpandedKoalaAgentsGuide(actual),
       ),
       wholeFile(
@@ -529,7 +549,7 @@ export function listManagedAssetDefinitions(
         'doc:CLAUDE.md',
         'CLAUDE.md',
         CLAUDE_MD_TEMPLATE,
-        actual => actual.includes('Koala For Claude Code') || actual.includes('Claude Code subagents 位于'),
+        actual => actual.includes('Koala For Claude Code') || actual.includes('Claude Code subagents are located at'),
         actual => isExpandedKoalaClaudeGuide(actual),
       ),
       { id: '.claude:settings.json', relPath: '.claude/settings.json', kind: 'claude-settings' },

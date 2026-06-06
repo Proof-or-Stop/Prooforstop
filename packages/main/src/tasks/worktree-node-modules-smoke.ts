@@ -36,14 +36,14 @@ try {
     const wt = freshWorktree('missing');
     const warning = detectMissingNodeModulesWarning(wt);
     assert.ok(warning, 'missing node_modules must produce a warning');
-    assert.match(warning!, /⚠ worktree 缺 node_modules/, 'warning must carry the marker');
-    assert.match(warning!, /worktree 根/, 'warning must name the worktree root');
+    assert.match(warning!, /⚠ worktree missing node_modules/, 'warning must carry the marker');
+    assert.match(warning!, /worktree root/, 'warning must name the worktree root');
     assert.match(warning!, /npm install/, 'warning must offer npm install as primary remediation');
     assert.match(warning!, /symlink/, 'warning must mention symlink as advanced option');
     // CHK-002: npm install is presented as the recommended/primary path,
     // symlink only as advanced/optional — never as the default.
-    assert.match(warning!, /补救（推荐）：[^\n]*npm install/, 'npm install must be marked the recommended remediation');
-    assert.match(warning!, /高级可选：[^\n]*symlink/, 'symlink must be marked advanced/optional, not default');
+    assert.match(warning!, /Remediation \(recommended\):[^\n]*npm install/, 'npm install must be marked the recommended remediation');
+    assert.match(warning!, /Advanced optional:[^\n]*symlink/, 'symlink must be marked advanced/optional, not default');
   }
 
   // ── happy: missing node_modules in key subpackage packages/main ─────────────
@@ -54,7 +54,7 @@ try {
     const warning = detectMissingNodeModulesWarning(wt);
     assert.ok(warning, 'missing packages/main node_modules must produce a warning');
     assert.match(warning!, /packages\/main\/node_modules/, 'warning must name the missing subpackage');
-    assert.ok(!/worktree 根/.test(warning!), 'present root must not be flagged');
+    assert.ok(!/worktree root/.test(warning!), 'present root must not be flagged');
   }
 
   // ── edge: node_modules present as a real dir → no warning ────────────────────

@@ -1,32 +1,32 @@
 /**
  * artifact_declare — per-story declared product artifact registration (B-cf60).
  *
- * 流程位置：
- *   - PLAN/DEV/REVIEW/TEST 任何阶段都可以调用，把一个生成物路径声明为本 story
- *     的预期产出，让 dirty-worktree classifier 把它归到 declared_artifact_changes
- *     而不是 unexpected_dirty_files。
- *   - 写入 .koala/story/actives/<storyId>/declared-artifacts.json（store 接口）。
- *   - 写入完成后调用 autoCommitStoryMetadata(B-3506) 自动提交 metadata。
+ * Flow position:
+ *   - Can be called at any PLAN/DEV/REVIEW/TEST stage to declare a generated artifact path as the expected output
+ *     of this story, so the dirty-worktree classifier categorizes it as declared_artifact_changes
+ *     instead of unexpected_dirty_files.
+ *   - Writes to .koala/story/actives/<storyId>/declared-artifacts.json (store interface).
+ *   - After writing, calls autoCommitStoryMetadata(B-3506) to automatically commit metadata.
  *
- * 三层校验（packages/koala/CLAUDE.md「Handler 编码约定」）：
- *   - Zod schema（cli-engine.ts 注册端）：min(1) / min(10) / regex 等结构约束。
- *   - Handler runtime（本文件入口 sanitizeArgs）：重复同标准 trim / 路径形态校验，
- *     防止内部调用或老 JSON 路径绕过 Zod。
- *   - gate 决策点（buildDoneChecklist + declared-artifact-gate.ts）：消费时再校验
- *     reference 是否存在于 checklist.verificationIntent 或 delivery-check.docsPromises。
+ * Three-layer validation (packages/koala/CLAUDE.md "Handler coding conventions"):
+ *   - Zod schema (cli-engine.ts registration side): structural constraints like min(1) / min(10) / regex.
+ *   - Handler runtime (sanitizeArgs entry in this file): repeats same-standard trim / path-shape validation,
+ *     preventing internal calls or legacy JSON paths from bypassing Zod.
+ *   - Gate decision points (buildDoneChecklist + declared-artifact-gate.ts): re-validate on consumption whether
+ *     the reference exists in checklist.verificationIntent or delivery-check.docsPromises.
  *
- * 路径形态约束（preMortem #1 anchor — defends against backdoor wildcards）：
- *   - 不含 `*` / `?` / `[` / `]`（glob 字符）
- *   - 不以 `/` 开头（绝对路径）
- *   - 不含 `..` 路径段（防 traversal）
- *   - 长度 ≥ 1（trim 后）
+ * Path shape constraints (preMortem #1 anchor — defends against backdoor wildcards):
+ *   - No `*` / `?` / `[` / `]` (glob characters)
+ *   - Does not start with `/` (absolute path)
+ *   - No `..` path segments (prevent traversal)
+ *   - Length ≥ 1 (after trim)
  *
- * relatedIntent 约束：
- *   - 形式一：`CHK-NNN:(happy|edge|adversarial):INDEX`（指向 verificationIntent）
- *   - 形式二：`promise:<docPath>`（指向 delivery-check.docsPromises[*].docPath）
- *   handler 只校验"形态"；reference 实际是否存在由 DONE gate 决定。
+ * relatedIntent constraints:
+ *   - Form 1: `CHK-NNN:(happy|edge|adversarial):INDEX` (points to verificationIntent)
+ *   - Form 2: `promise:<docPath>` (points to delivery-check.docsPromises[*].docPath)
+ *   handler only validates "shape"; whether the reference actually exists is determined by the DONE gate.
  *
- * 幂等：同 path 重复声明 → 覆盖原 entry（按 path 去重），返回值含 "overwritten"。
+ * Idempotent: repeated declaration with the same path → overwrites the original entry (deduplicated by path), return value contains "overwritten".
  */
 
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
@@ -50,9 +50,9 @@ const RELATED_INTENT_INTENT_RE = /^CHK-\d+:(?:happy|edge|adversarial):\d+$/;
 const RELATED_INTENT_PROMISE_RE = /^promise:.+$/;
 
 /**
- * 运行时路径校验。Zod 已经检查过 min(1)，但 handler 入口必须重做一次，因为
- * 内部调用或 JSON 反序列化路径都可能绕过 Zod。这条 throw 是 preMortem #1
- * 的 hard anchor，扩展时一律走 PATH_FORBIDDEN_RE 集中规则。
+ * Runtime path validation. Zod has already checked min(1), but the handler entry must redo it, because
+ * internal calls or JSON deserialization paths may bypass Zod. This throw is the hard anchor
+ * for preMortem #1; when extending, always go through the centralized PATH_FORBIDDEN_RE rules.
  */
 function assertSafePath(rawPath: string): string {
   if (typeof rawPath !== 'string') {
@@ -95,7 +95,7 @@ function assertSafePath(rawPath: string): string {
  * silently surfacing as a mis-classification much later. The classifier reorder
  * remains the hard gate for hand-injected declared-artifacts.json entries.
  *
- * Runtime check at handler entry (Handler 编码约定) — internal callers that
+ * Runtime check at handler entry (Handler coding convention) — internal callers that
  * bypass Zod still hit this throw.
  */
 function assertDeclarablePath(path: string, root: string): void {
@@ -162,7 +162,7 @@ export function createArtifactDeclareHandlers(ctx: HandlerContext): Record<strin
   return {
     artifact_declare(args: ArtifactDeclareArgs): string {
       // 1) Runtime double-validation (mirrors Zod min/regex; defends against
-      //    internal callers that bypass schema parsing — Handler 编码约定).
+      //    internal callers that bypass schema parsing — Handler coding convention).
       const storyId = assertSafeStoryId(args?.storyId);
       const path = assertSafePath(args?.path);
       const reason = assertSafeReason(args?.reason);

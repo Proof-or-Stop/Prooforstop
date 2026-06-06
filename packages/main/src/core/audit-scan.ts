@@ -1,14 +1,14 @@
 /**
- * audit-scan — 机械扫 CLAUDE.md 承诺 vs 实际 CLI 行为 drift（B-9bd9 CHK-001）。
+ * audit-scan — mechanically scan for drift between CLAUDE.md promises and actual CLI behavior (B-9bd9 CHK-001).
  *
- * 三个 scanner 纯函数：
- *   - scanCommandDrift: 抽 `koala <cmd>` 命令名 → 跑 `koala <cmd> --help`，exit≠0 → drift
- *   - scanFlagDrift:    抽 `koala <cmd> ... --<flag>` → `koala <cmd> --help` 不含 → drift
- *   - scanPathDrift:    抽文档里的路径断言 → 全仓 grep → 找不到 → drift
+ * Three pure scanner functions:
+ *   - scanCommandDrift: extract `koala <cmd>` command name → run `koala <cmd> --help`, exit≠0 → drift
+ *   - scanFlagDrift:    extract `koala <cmd> ... --<flag>` → `koala <cmd> --help` doesn't contain → drift
+ *   - scanPathDrift:    extract path assertions from docs → grep whole repo → not found → drift
  *
- * 所有 scanner 都是纯函数（输入 md 文本 + 仓根）；顶层 `runMechanicalAudit`
- * 聚合，返回 `{drifts, skipped}`。skipped 记录跑不起来的命令（ENOENT / 超时 /
- * 权限），不计入 drift，避免把 koala 自己没安装当成文档错误。
+ * All scanners are pure functions (input md text + repo root); the top-level `runMechanicalAudit`
+ * aggregates and returns `{drifts, skipped}`. skipped records commands that couldn't be run (ENOENT / timeout /
+ * permissions), not counted as drift, to avoid treating koala itself not being installed as a doc error.
  */
 
 import { execFileSync, execSync } from 'node:child_process';
@@ -20,12 +20,12 @@ import {
 } from '../handlers/validate-docs-drift.js';
 
 export interface DriftCandidate {
-  sectionPath: string; // 例："CLAUDE.md#koala CLI 速查"
-  symbol: string;      // 例："koala finding_cluster" / "--channel" / "foo/bar.json"
+  sectionPath: string; // e.g., "CLAUDE.md#koala CLI quick reference"
+  symbol: string;      // e.g., "koala finding_cluster" / "--channel" / "foo/bar.json"
   driftType: 'missing-command' | 'missing-flag' | 'missing-path';
   severity: 'medium' | 'low';
-  desc: string;        // 一行可读描述（finding desc 用）
-  evidence: string;    // 证据（help 输出片段 / grep 缺失信息）
+  desc: string;        // one-line readable description (used for finding desc)
+  evidence: string;    // evidence (help output snippet / grep missing info)
 }
 
 export interface SkippedEntry {
@@ -40,7 +40,7 @@ export interface AuditReport {
   skipped: SkippedEntry[];
 }
 
-/** 内部：抽每行最近的一级 heading（"# " / "## " / "### " 等） */
+/** Internal: extract the nearest top-level heading for each line ("# " / "## " / "### " etc.) */
 function buildHeadingIndex(md: string): Array<{ line: number; heading: string }> {
   const out: Array<{ line: number; heading: string }> = [];
   const lines = md.split('\n');
@@ -61,28 +61,28 @@ function headingFor(lineNo: number, headings: Array<{ line: number; heading: str
 }
 
 /**
- * 命令名白名单——不是真的 koala 命令（文档里的关键字），扫到这些不发 drift。
- * help/status/init 都是真命令但不走 --help 检测（有专门 bin 入口或者会 hang）。
+ * Command name whitelist — not real koala commands (keywords in docs); don't emit drift when these are scanned.
+ * help/status/init are real commands but don't go through --help detection (have dedicated bin entry or would hang).
  */
 const COMMAND_SCAN_IGNORE = new Set<string>([
   'help', 'init', 'status',
 ]);
 
 /**
- * 明确 YAGNI 的命令白名单——CLAUDE.md 文本明确说明「为何不提供此 CLI」的命令。
- * 扫到这些不报 missing-command drift（是 false positive），记入 skipped with reason=explicit-yagni-whitelist。
- * 例：`koala audit_config_set`（packages/koala/CLAUDE.md 明确说明改 JSON 即可，不造命令）。
+ * Explicit YAGNI command whitelist — commands for which CLAUDE.md text explicitly explains "why this CLI is not provided".
+ * Don't report missing-command drift when these are scanned (it's a false positive); record in skipped with reason=explicit-yagni-whitelist.
+ * Example: `koala audit_config_set` (packages/koala/CLAUDE.md explicitly states editing JSON is enough, no command created).
  */
 const EXPLICIT_YAGNI_COMMANDS = new Set<string>([
   'audit_config_set',
 ]);
 
 /**
- * scanCommandDrift: 从 md 里抽形如 `koala <cmd>` 的命令名；
- * 对每个不在 ignore 列表的，跑 `koala <cmd> --help`，exit≠0 → drift。
+ * scanCommandDrift: extract command names of the form `koala <cmd>` from md;
+ * for each one not in the ignore list, run `koala <cmd> --help`, exit≠0 → drift.
  *
- * 正则：\bkoala\s+([a-z][a-z0-9_]*)\b
- * 裸 koala（无参数）不抽；$(koala) 等表达式也不会误抽（前缀不是 $ 字母直连）。
+ * Regex: \bkoala\s+([a-z][a-z0-9_]*)\b
+ * Bare koala (without arguments) is not extracted; expressions like $(koala) are also not falsely extracted (the prefix is not $ directly followed by a letter).
  */
 export function scanCommandDrift(
   md: string,
@@ -96,7 +96,7 @@ export function scanCommandDrift(
   const drifts: DriftCandidate[] = [];
   const skipped: SkippedEntry[] = [];
 
-  // 命令必须以字母或数字结尾，不允许裸 `story_` / `checklist_` 等前缀泛匹配
+  // Commands must end with a letter or digit; bare prefixes like `story_` / `checklist_` are not allowed as wildcard matches
   const re = /\bkoala\s+([a-z](?:[a-z0-9_]*[a-z0-9])?)\b/g;
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
@@ -109,7 +109,7 @@ export function scanCommandDrift(
       seen.add(cmd);
       const sectionPath = `${mdPath}#${headingFor(i, headings)}`;
       const symbol = `koala ${cmd}`;
-      // 明确 YAGNI 的命令（CLAUDE.md 自己说明为何不提供此 CLI）→ 记 skipped 不报 drift
+      // Commands explicitly marked YAGNI (CLAUDE.md itself explains why this CLI is not provided) → record as skipped, do not report drift
       if (EXPLICIT_YAGNI_COMMANDS.has(cmd)) {
         skipped.push({ sectionPath, symbol, driftType: 'missing-command', reason: 'explicit-yagni-whitelist' });
         continue;
@@ -117,7 +117,7 @@ export function scanCommandDrift(
       const r = runHelp(cmd);
       if (r.ok) continue;
       if (r.reason && r.reason !== 'exit-nonzero') {
-        // 跑不起来：ENOENT / timeout / 其他异常，记 skipped 不报 drift
+        // Cannot run: ENOENT / timeout / other exceptions, record as skipped, do not report drift
         skipped.push({ sectionPath, symbol, driftType: 'missing-command', reason: r.reason });
         continue;
       }
@@ -126,7 +126,7 @@ export function scanCommandDrift(
         symbol,
         driftType: 'missing-command',
         severity: 'medium',
-        desc: `CLAUDE.md 引用命令 \`koala ${cmd}\`，但 \`koala ${cmd} --help\` 非零退出（命令未注册或已删除）`,
+        desc: `CLAUDE.md references command \`koala ${cmd}\`, but \`koala ${cmd} --help\` exited non-zero (command not registered or removed)`,
         evidence: (r.output || '').slice(0, 400),
       });
     }
@@ -135,11 +135,11 @@ export function scanCommandDrift(
 }
 
 /**
- * scanFlagDrift: 抽形如 `koala <cmd> [^\n]*--<flag>` 的 flag 断言；
- * 对每对 <cmd, flag> 跑 `koala <cmd> --help`，输出不含 `--<flag>` → drift。
+ * scanFlagDrift: extract flag assertions of the form `koala <cmd> [^\n]*--<flag>`;
+ * for each pair <cmd, flag>, run `koala <cmd> --help`; output not containing `--<flag>` → drift.
  *
- * 注意：只扫 code fence / inline code 里的 flag，避免把"带 --json 选项"这种散文误抽。
- * 简化：直接用正则扫全文（文档 flag 一般都在 bash 片段里）。
+ * Note: only scan flags inside code fences / inline code, to avoid falsely extracting prose like "with --json option".
+ * Simplification: scan the full text directly with regex (doc flags are generally in bash snippets).
  */
 export function scanFlagDrift(
   md: string,
@@ -154,7 +154,7 @@ export function scanFlagDrift(
   const skipped: SkippedEntry[] = [];
   const helpCache = new Map<string, { ok: boolean; reason?: string; output?: string }>();
 
-  // 单行可能出现多个 flag：`koala validate --full --json`
+  // Multiple flags may appear on a single line: `koala validate --full --json`
   const cmdRe = /\bkoala\s+([a-z](?:[a-z0-9_]*[a-z0-9])?)\b([^\n`]*)/g;
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
@@ -179,20 +179,20 @@ export function scanFlagDrift(
           helpCache.set(cmd, r);
         }
         if (!r.ok) {
-          // help 跑不起来（命令本身不存在 / 超时）：不在这里报 flag drift
-          // scanCommandDrift 已经报过 missing-command，这里只记 skipped 一笔
+          // help cannot run (command itself does not exist / timeout): do not report flag drift here
+          // scanCommandDrift has already reported missing-command, just record a skipped entry here
           skipped.push({ sectionPath, symbol, driftType: 'missing-flag', reason: r.reason || 'help-not-runnable' });
           continue;
         }
         const output = r.output || '';
-        // 简单包含搜索：--<flag> 出现即算存在
+        // Simple containment search: --<flag> appearing counts as present
         if (output.includes(`--${flag}`)) continue;
         drifts.push({
           sectionPath,
           symbol,
           driftType: 'missing-flag',
           severity: 'medium',
-          desc: `CLAUDE.md 引用 \`koala ${cmd} --${flag}\`，但 help 输出不含 \`--${flag}\` 参数`,
+          desc: `CLAUDE.md references \`koala ${cmd} --${flag}\`, but help output does not contain the \`--${flag}\` parameter`,
           evidence: output.slice(0, 400),
         });
       }
@@ -202,14 +202,14 @@ export function scanFlagDrift(
 }
 
 /**
- * scanPathDrift: 从 md 里抽文档断言的文件路径，仓内 grep string literal 找不到 → drift（low）。
+ * scanPathDrift: extract file paths asserted in docs from md; in-repo grep for string literal not found → drift (low).
  *
- * 两种句式：
- *   1. 单独一个 a/b/c.{json|md|ts|js|py} 形式的相对路径
- *   2. "写入 <path>" / "存储于 <path>" / "存储位置：<path>"
+ * Two sentence patterns:
+ *   1. A standalone relative path of the form a/b/c.{json|md|ts|js|py}
+ *   2. "written to <path>" / "stored at <path>" / "storage location: <path>"
  *
- * grep 策略：fs.existsSync 判文件实际存在；若不存在再 grep 全仓源代码（字符串字面量）。
- * 两者都失败 → drift。noise control：忽略路径自身以 "docs/story/" 开头（story 自己的路径不该被审计）。
+ * grep strategy: use fs.existsSync to check if the file actually exists; if not, grep the full repo source code (string literals).
+ * Both fail → drift. Noise control: ignore paths that themselves start with "docs/story/" (story's own paths should not be audited).
  */
 export function scanPathDrift(
   md: string,
@@ -228,17 +228,17 @@ export function scanPathDrift(
     try { return existsSync(abs); } catch { return false; }
   });
 
-  // 句式 1：纯路径断言 a/b/c.ext
+  // Pattern 1: pure path assertion a/b/c.ext
   const pathRe = /(?<![\w./-])((?:[a-z0-9][a-z0-9-_]*\/){1,}[a-z0-9][a-z0-9-_.]*\.(?:json|md|ts|js|py))/gi;
-  // 句式 2：中文"写入 <path>" / "存储于 <path>" / "存储位置：<path>"
-  const cnRe = /(?:写入|存储于|存储位置[:：]|路径[:：])\s*([a-zA-Z0-9./_\-]+\.(?:json|md|ts|js|py))/g;
+  // Pattern 2: legacy Chinese prose variants for "<path> was written/stored here".
+  const cnRe = /(?:\u5199\u5165|\u5b58\u50a8\u4e8e|\u5b58\u50a8\u4f4d\u7f6e[:\uff1a]|\u8def\u5f84[:\uff1a])\s*([a-zA-Z0-9./_\-]+\.(?:json|md|ts|js|py))/g;
 
   const collect = (p: string, lineNo: number) => {
     if (seen.has(p)) return;
     seen.add(p);
-    // 忽略 story 自身产物路径（audit 不审 story 内产物）
+    // Ignore story's own artifact paths (audit does not check artifacts inside story)
     if (p.startsWith('docs/story/')) return;
-    // 忽略明显是模板占位（含大写 X 或中文）
+    // Ignore obvious template placeholders (containing uppercase X or Han characters)
     if (/[A-Z]{3,}/.test(p)) return;
 
     const sectionPath = `${mdPath}#${headingFor(lineNo, headings)}`;
@@ -265,7 +265,7 @@ export function scanPathDrift(
       symbol,
       driftType: 'missing-path',
       severity: 'low',
-      desc: `CLAUDE.md 提到路径 \`${p}\` 但仓内文件不存在且无 string literal 引用`,
+      desc: `CLAUDE.md references path \`${p}\` but the file does not exist in the repo and no string literal reference was found`,
       evidence: `path not found at <repo>/${p}, no grep hit in source`,
     });
   };
@@ -282,10 +282,10 @@ export function scanPathDrift(
 }
 
 /**
- * runMechanicalAudit: 顶层聚合 scanner。
+ * runMechanicalAudit: top-level aggregating scanner.
  *
- * 读 mdPaths（绝对路径数组），分别跑三个 scanner，合并 drifts/skipped。
- * mdPath 在 sectionPath 里以相对 repoRoot 的形式呈现（稳定 driftHash）。
+ * Reads mdPaths (array of absolute paths), runs the three scanners separately, and merges drifts/skipped.
+ * mdPath is presented in sectionPath as a path relative to repoRoot (stable driftHash).
  */
 export function runMechanicalAudit(
   mdPaths: string[],
@@ -294,7 +294,7 @@ export function runMechanicalAudit(
     runHelp?: (cmd: string) => { ok: boolean; reason?: string; output?: string };
     grepLiteral?: (literal: string) => boolean;
     pathExists?: (abs: string) => boolean;
-    /** B-805f CHK-003: registry 命令名集合，提供时追加 docs-drift 纯函数对比（advisory） */
+    /** B-805f CHK-003: set of registry command names; when provided, appends docs-drift pure-function comparison (advisory) */
     registryNames?: Set<string>;
   } = {},
 ): AuditReport {
@@ -333,8 +333,8 @@ export function runMechanicalAudit(
           symbol: `koala ${cmd}`,
           driftType: 'missing-command',
           severity: 'low',
-          desc: `CLAUDE.md 引用 \`koala ${cmd}\` 但 registry 无此命令（docs-drift advisory）`,
-          evidence: 'registry.list() 不含此命令',
+          desc: `CLAUDE.md references \`koala ${cmd}\` but registry has no such command (docs-drift advisory)`,
+          evidence: 'registry.list() does not contain this command',
         });
       }
     }
@@ -343,7 +343,7 @@ export function runMechanicalAudit(
   return { drifts, skipped };
 }
 
-/** 默认 runHelp：调 `koala <cmd> --help`，2 秒超时。 */
+/** Default runHelp: invokes `koala <cmd> --help` with a 2-second timeout. */
 function defaultRunHelp(cmd: string): { ok: boolean; reason?: string; output?: string } {
   try {
     const out = execFileSync('koala', [cmd, '--help'], {
@@ -356,14 +356,14 @@ function defaultRunHelp(cmd: string): { ok: boolean; reason?: string; output?: s
     const err = e as { code?: string; signal?: string; killed?: boolean; status?: number; stdout?: Buffer | string; stderr?: Buffer | string };
     if (err?.code === 'ENOENT') return { ok: false, reason: 'ENOENT' };
     if (err?.signal === 'SIGTERM' || err?.killed) return { ok: false, reason: 'timeout' };
-    // koala 主入口通常把 stderr 当 help 输出
+    // The koala main entry typically uses stderr for help output
     const merged = (err?.stdout?.toString?.() || '') + (err?.stderr?.toString?.() || '');
     if (err?.status === 0) return { ok: true, output: merged };
     return { ok: false, reason: 'exit-nonzero', output: merged };
   }
 }
 
-/** 默认 grepLiteral：用 `git grep -F` 搜字符串字面量，不限文件类型。 */
+/** Default grepLiteral: searches string literals using `git grep -F`, not restricted by file type. */
 function defaultGrepLiteral(literal: string, repoRoot: string): boolean {
   try {
     execSync(`git grep -F -l -- ${JSON.stringify(literal)}`, {
@@ -375,7 +375,7 @@ function defaultGrepLiteral(literal: string, repoRoot: string): boolean {
     return true;
   } catch (e: unknown) {
     const err = e as { status?: number };
-    // git grep exit 1 = no match；其它 code 视为 grep 失败（往上抛会被 scanPathDrift 接住记 skipped）
+    // git grep exit 1 = no match; other codes are treated as grep failure (propagated upward and caught by scanPathDrift to be recorded as skipped)
     if (err?.status === 1) return false;
     if (err?.status === 0) return true;
     throw e;

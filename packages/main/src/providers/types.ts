@@ -1,33 +1,33 @@
 
 export interface LLMCallOptions {
-  /** 调用标签（用于日志） */
+  /** Call label (for logging) */
   label?: string;
-  /** 超时时间（ms） */
+  /** Timeout (ms) */
   timeout?: number;
-  /** 重试次数 */
+  /** Retry count */
   retries?: number;
-  /** 流式回调 */
+  /** Streaming callback */
   onStream?: (type: string, data: unknown) => void;
-  /** 心跳回调 */
+  /** Heartbeat callback */
   onHeartbeat?: (elapsedSec: number, stdoutBytes: number, stderrBytes: number) => void;
-  /** 调试回调 */
+  /** Debug callback */
   onDebug?: (msg: string) => void;
 }
 
 export interface LLMResponse {
-  /** 模型输出文本 */
+  /** Model output text */
   text: string;
-  /** 耗时（ms） */
+  /** Elapsed time (ms) */
   elapsed: number;
 }
 
 export interface ILLMProvider {
-  /** Provider 名称 */
+  /** Provider name */
   readonly name: string;
 
-  /** 单次调用 */
+  /** Single call */
   call(prompt: string, options?: LLMCallOptions): Promise<LLMResponse>;
 
-  /** 带重试的调用 */
+  /** Call with retry */
   callWithRetry(prompt: string, options?: LLMCallOptions): Promise<LLMResponse>;
 }

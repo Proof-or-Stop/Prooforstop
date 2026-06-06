@@ -19,7 +19,7 @@ import {
 import { getLegacyActivityLogPath, getRuntimeActivityLogPath } from '../core/activity-log.js';
 import { initCheckAttestationMode } from '../core/init-check-gate.js';
 
-/** B-45ed CHK-008: 若 story 的 background.md 文件存在则返回 true。 */
+/** B-45ed CHK-008: Returns true if the story's background.md file exists. */
 function hasBackground(store: StoryStore, storyId: string): boolean {
   return existsSync(store.storyFilePath(storyId, 'background.md'));
 }
@@ -168,8 +168,8 @@ function gitPorcelainPaths(cwd: string): string[] {
 }
 
 /**
- * 检测"僵尸" story：phase 非终态但分支已合并到 main（或分支已删除）。
- * 返回所有异常 story 列表。
+ * Detects "zombie" stories: phase is not terminal but the branch has been merged to main (or the branch has been deleted).
+ * Returns the list of all anomalous stories.
  */
 export function detectZombieStories(store: StoryStore, root: string): ZombieInfo[] {
   const zombies: ZombieInfo[] = [];
@@ -206,8 +206,8 @@ export function detectZombieStories(store: StoryStore, root: string): ZombieInfo
     const recordedAbsPath = resolveWorktreePath(repoRoot, recordedPath);
     const recordedExists = Boolean(recordedAbsPath && !recordedForeignPath && existsSync(recordedAbsPath));
 
-    // INIT 还没创建分支属于正常；INIT_CHECK 若已经有 worktree 记录/历史动作
-    // 但 branch/worktree 都消失，就是 phase 被覆盖后的僵尸状态。
+    // INIT not yet having a branch is normal; for INIT_CHECK, if there is already a worktree record/historical action
+    // but both branch/worktree have disappeared, it's a zombie state after the phase was overwritten.
     if (story.phase === 'INIT') {
       if (!branchExists) continue;
     }
@@ -413,7 +413,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
         const pm = sourceStore.readProcessMetrics(id);
         const metricsField = pm ? formatProcessMetricsSummary(pm, 'verbose') : null;
 
-        // B-45ed CHK-008: bg:✓ 标记（仅在 background.md 存在时输出字段，不存在时省略字段不报错）
+        // B-45ed CHK-008: bg:✓ marker (only outputs the field when background.md exists, omits the field without error when absent)
         const bgFlag = hasBackground(sourceStore, id) ? 'bg:✓' : null;
 
         // B-5fa4 CHK-002: append [zombie] / [terminal-worktree] labels
@@ -444,7 +444,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
         ? results.filter(r => ACTIVE_PHASES.has(r.phase as StoryPhase))
         : results;
 
-      // 仪表盘摘要（无 phase/active 过滤时生成）
+      // Dashboard summary (generated when there is no phase/active filter)
       if (!args?.phase && !args?.active) {
         const total = results.length;
         const done = results.filter(r => r.phase === 'DONE').length;
@@ -453,12 +453,12 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
           phases[r.phase] = (phases[r.phase] || 0) + 1;
         }
 
-        // 测试统计
+        // Test statistics
         const withTests = results.filter(r => r.tests !== 'none');
         const withoutTests = results.filter(r => r.tests === 'none');
         const passedTests = results.filter(r => r.tests === 'pass');
 
-        // Bug 统计
+        // Bug statistics
         const bugStories = results.filter(r => r.type === 'bug');
         const storiesWithBugs = results.filter(r => r.bugs !== 'none');
         let totalBugsOpen = 0;
@@ -477,47 +477,47 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
         const bugFreePct = total > 0 ? Math.round((total - storiesWithBugs.length - bugStories.length) / total * 100) : 0;
 
         const dashboard = [
-          `Story 完成率    ${mkBar(storyPct)} ${storyPct}% (${done}/${total} DONE)`,
-          `测试覆盖        ${mkBar(testPct)} ${testPct}% (${withTests.length}/${total} 有测试证据)`,
-          `测试通过        ${mkBar(passPct)} ${passPct}% (${passedTests.length}/${total} PASS)`,
-          `无 Bug 率       ${mkBar(bugFreePct)} ${bugFreePct}% (${total - storiesWithBugs.length - bugStories.length}/${total} 无 bug)`,
-          `Bug 总计        ${totalBugs} (open: ${totalBugsOpen}, fixed: ${totalBugsFixed}, bug story: ${bugStories.length})`,
+          `Story Completion ${mkBar(storyPct)} ${storyPct}% (${done}/${total} DONE)`,
+          `Test Coverage    ${mkBar(testPct)} ${testPct}% (${withTests.length}/${total} with test evidence)`,
+          `Test Pass        ${mkBar(passPct)} ${passPct}% (${passedTests.length}/${total} PASS)`,
+          `Bug-Free Rate    ${mkBar(bugFreePct)} ${bugFreePct}% (${total - storiesWithBugs.length - bugStories.length}/${total} bug-free)`,
+          `Bug Total        ${totalBugs} (open: ${totalBugsOpen}, fixed: ${totalBugsFixed}, bug story: ${bugStories.length})`,
         ].join('\n');
 
-        // Bug 建议
+        // Bug suggestions
         const bugSuggestions: string[] = [];
         if (totalBugsOpen > 0) {
-          bugSuggestions.push(`⚠ ${totalBugsOpen} 个 open bug 待修复，建议优先处理`);
+          bugSuggestions.push(`⚠ ${totalBugsOpen} open bugs awaiting fix, recommend prioritizing`);
         }
         if (bugStories.filter(r => r.phase !== 'DONE').length > 0) {
           const openBugStories = bugStories.filter(r => r.phase !== 'DONE');
-          bugSuggestions.push(`⚠ Bug Story 未关闭: ${openBugStories.map(r => r.storyId).join(', ')}`);
+          bugSuggestions.push(`⚠ Bug Story not closed: ${openBugStories.map(r => r.storyId).join(', ')}`);
         }
         if (totalBugs > 0 && total > 0) {
           const bugRate = (totalBugs / total).toFixed(2);
-          bugSuggestions.push(`Bug/Story 比率: ${bugRate}，可运行 bug_analyze() 查看详细报告`);
+          bugSuggestions.push(`Bug/Story ratio: ${bugRate}, run bug_analyze() to see the detailed report`);
         }
 
         // B-5fa4 CHK-002: zombie + residue warnings in dashboard
         if (zombies.length > 0) {
           bugSuggestions.push(
-            `⚠ 僵尸 story (${zombies.length}): ${zombies.map(z => z.storyId).join(', ')} — 分支已合并/删除但 phase 非终态`,
+            `⚠ Zombie stories (${zombies.length}): ${zombies.map(z => z.storyId).join(', ')} — branch merged/deleted but phase is not terminal`,
           );
         }
         if (residues.length > 0) {
           bugSuggestions.push(
-            `⚠ Terminal worktrees (${residues.length}): ${residues.map(r => r.storyId).join(', ')} — phase 已终态但 .worktrees/ 下仍有目录（可能仍 registered，也可能是 orphan）`,
+            `⚠ Terminal worktrees (${residues.length}): ${residues.map(r => r.storyId).join(', ')} — phase is terminal but directories still exist under .worktrees/ (may still be registered, or may be orphan)`,
           );
         }
 
         return {
           _dashboard: dashboard,
-          _hint: '请将仪表盘展示在最前面',
+          _hint: 'Please display the dashboard at the front',
           _phases: phases,
-          _bugSummary: bugSuggestions.length > 0 ? bugSuggestions.join('\n') : '无 bug 问题',
+          _bugSummary: bugSuggestions.length > 0 ? bugSuggestions.join('\n') : 'No bug issues',
           _testMissing: withoutTests.length > 0
-            ? `缺少测试的 Story: ${withoutTests.map(r => r.storyId).join(', ')}`
-            : '所有 Story 都有测试证据',
+            ? `Stories missing tests: ${withoutTests.map(r => r.storyId).join(', ')}`
+            : 'All Stories have test evidence',
           stories: filtered,
         };
       }
@@ -525,87 +525,87 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
     },
 
     /**
-     * story_reconcile — 检测并修复"僵尸" story
+     * story_reconcile — Detect and repair "zombie" stories
      *
-     * 场景：分支已手动合并回 main 或被删除，但 story 状态文件仍停在非终态。
-     * dryRun=true（默认）只报告，不修改；dryRun=false 执行修复。
+     * Scenario: branch has been manually merged back to main or deleted, but the story state file remains in a non-terminal state.
+     * dryRun=true (default) only reports without modifying; dryRun=false performs the repair.
      */
     story_reconcile(args?: { dryRun?: boolean }): string {
-      const dryRun = args?.dryRun !== false; // 默认 dry run
+      const dryRun = args?.dryRun !== false; // Default to dry run
       const zombies = detectZombieStories(store, ctx.root);
       const residues = scanTerminalStoryResidues(store, ctx.root);
 
       if (zombies.length === 0 && residues.length === 0) {
-        return 'story_reconcile: 未检测到僵尸 story，所有非终态 story 的分支状态正常。';
+        return 'story_reconcile: No zombie stories detected, branch state is normal for all non-terminal stories.';
       }
 
       const lines: string[] = [];
-      lines.push(`检测到 ${zombies.length} 个僵尸 story（分支已合并/删除但 phase 非终态），${residues.length} 个终态 story residue：`);
+      lines.push(`Detected ${zombies.length} zombie stories (branch merged/deleted but phase non-terminal), ${residues.length} terminal story residues:`);
       lines.push('');
 
       for (const z of zombies) {
         const reason = z.branchMerged
-          ? `分支 ${z.branch} 已合并到 main`
-          : `分支 ${z.branch} 已不存在`;
+          ? `Branch ${z.branch} has been merged into main`
+          : `Branch ${z.branch} no longer exists`;
         lines.push(`  ${z.storyId}  phase=${z.phase}  ${reason}`);
 
         if (z.worktreeForeignPath && z.worktreePath) {
           lines.push(`    worktree: ${z.worktreePath} (foreign stale path)`);
         } else if (z.worktreeExists) {
-          lines.push(`    worktree: ${z.worktreePath} (仍存在)`);
+          lines.push(`    worktree: ${z.worktreePath} (still exists)`);
         } else if (z.worktreePath) {
-          lines.push(`    worktree: ${z.worktreePath} (已不存在)`);
+          lines.push(`    worktree: ${z.worktreePath} (no longer exists)`);
         }
 
         if (!dryRun) {
           const story = store.readStory(z.storyId);
           const actions: string[] = [];
 
-          // 清理 worktree 目录
+          // Clean up worktree directory
           if (z.worktreeExists && z.worktreePath) {
             try {
               execSync(`git worktree remove --force "${z.worktreePath}"`, {
                 cwd: ctx.root, stdio: 'pipe',
               });
-              actions.push('worktree 已移除');
+              actions.push('worktree removed');
             } catch {
-              // worktree remove 失败时尝试直接删目录
+              // When worktree remove fails, try deleting the directory directly
               try {
                 rmSync(z.worktreePath, { recursive: true, force: true });
-                actions.push('worktree 目录已强制删除');
-              } catch { actions.push('worktree 清理失败'); }
+                actions.push('worktree directory force-deleted');
+              } catch { actions.push('worktree cleanup failed'); }
             }
           }
 
-          // 删除已合并的分支
+          // Delete the merged branch
           if (z.branchExists) {
             try {
               execSync(`git branch -d "${z.branch}"`, { cwd: ctx.root, stdio: 'pipe' });
-              actions.push(`分支 ${z.branch} 已删除`);
+              actions.push(`Branch ${z.branch} deleted`);
             } catch {
-              actions.push(`分支 ${z.branch} 删除失败（可能有未合并提交）`);
+              actions.push(`Branch ${z.branch} deletion failed (may have unmerged commits)`);
             }
           }
 
-          // 更新 story 状态为 DONE
+          // Update story status to DONE
           story.phase = 'DONE' as StoryPhase;
           story.endedAt = new Date().toISOString();
           story.worktree = undefined;
           if (!story.events) story.events = [];
           const event = collectContext('DONE' as StoryPhase, 'advance');
           (event as any).reconciled = true;
-          (event as any).reason = `story_reconcile: ${z.branchMerged ? '分支已合并到 main' : '分支已删除'}`;
+          (event as any).reason = `story_reconcile: ${z.branchMerged ? 'branch merged into main' : 'branch deleted'}`;
           story.events.push(event);
           store.writeStory(z.storyId, story);
           actions.push('phase → DONE');
 
-          lines.push(`    → 已修复: ${actions.join(', ')}`);
+          lines.push(`    → Fixed: ${actions.join(', ')}`);
         }
       }
 
       if (residues.length > 0) {
         lines.push('');
-        lines.push('终态 story residue:');
+        lines.push('Terminal-state story residue:');
         for (const residue of residues) {
           lines.push(`  ${residue.storyId} phase=${residue.phase} ${residue.safe ? 'safe-untracked' : 'unsafe-tracked/staged'} — ${residue.path}`);
           if (residue.status) {
@@ -613,15 +613,15 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
           }
           if (!dryRun && residue.safe) {
             rmSync(residue.path, { recursive: true, force: true });
-            lines.push('    → 已清理 residue 目录');
+            lines.push('    → Residue directory cleaned up');
           }
         }
       }
 
       if (dryRun) {
         lines.push('');
-        lines.push('以上为 dry run 结果，未做任何修改。');
-        lines.push('执行修复: koala story_reconcile \'{"dryRun":false}\'');
+        lines.push('Above is dry run result, no modifications made.');
+        lines.push('Apply fixes: koala story_reconcile \'{"dryRun":false}\'');
       }
 
       return lines.join('\n');
@@ -691,7 +691,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
           lines.push('  will backup legacy activity to .koala/legacy-backup/docs-story-activity-<timestamp>.jsonl');
         }
         lines.push('  will remove docs/story only if it is empty after migration');
-        lines.push('→ 确认迁移: koala story_migrate_storage \'{"dryRun":false,"confirm":true}\'');
+        lines.push('→ Confirm migration: koala story_migrate_storage \'{"dryRun":false,"confirm":true}\'');
         return lines.join('\n');
       }
 
@@ -753,7 +753,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
     story_sync_main(args: { storyId: string; dryRun?: boolean; confirm?: boolean }): string {
       const story = ctx.store.readStory(args.storyId);
       if (!story.worktree) {
-        throw new Error(`Story ${args.storyId} 没有 worktree metadata，无法安全 sync main。请先检查 story 状态。`);
+        throw new Error(`Story ${args.storyId} has no worktree metadata, cannot safely sync main. Please check story status first.`);
       }
       assertCwdInWorktree(ctx.store, args.storyId);
 
@@ -768,8 +768,8 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
 
       if (currentBranch !== expectedBranch) {
         throw new Error(
-          `Story ${args.storyId} 当前分支不匹配，拒绝 sync main。\n` +
-          `期望: ${expectedBranch}\n当前: ${currentBranch}`,
+          `Story ${args.storyId} current branch does not match, refusing to sync main.\n` +
+          `Expected: ${expectedBranch}\nCurrent: ${currentBranch}`,
         );
       }
 
@@ -791,7 +791,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
           : '  status     : confirm will run git merge main');
         lines.push('  metadata conflicts under the protected path will be resolved with --ours');
         lines.push('  source/other conflicts will remain unresolved and stop the command');
-        lines.push(`→ 确认同步: koala story_sync_main '{"storyId":"${args.storyId}","confirm":true}'`);
+        lines.push(`→ Confirm sync: koala story_sync_main '{"storyId":"${args.storyId}","confirm":true}'`);
         return lines.join('\n');
       }
 
@@ -804,7 +804,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
         const out = gitOutput(cwd, `-c commit.gpgsign=false merge ${shellQuote(mainRef)} --no-ff -m ${shellQuote(`sync main into ${args.storyId}`)}`);
         lines.push(out || '✓ main already merged');
         lines.push(`✓ Story ${args.storyId} is synced with main`);
-        lines.push(`→ 请重跑: koala test_story '{"storyId":"${args.storyId}"}'`);
+        lines.push(`→ Please rerun: koala test_story '{"storyId":"${args.storyId}"}'`);
         return lines.join('\n');
       } catch {
         const unmerged = gitUnmergedPaths(cwd);
@@ -823,7 +823,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
               ? `Story metadata conflicts auto-resolved with --ours:\n${protectedConflicts.map(path => `  - ${path}`).join('\n')}\n`
               : '') +
             `Unresolved conflicts:\n${unresolved.map(path => `  - ${path}`).join('\n')}\n\n` +
-            `请手动解决上述真实冲突后 git add + git commit，再重跑 koala test_story '{"storyId":"${args.storyId}"}'。`,
+            `Please manually resolve the above real conflicts then git add + git commit, then rerun koala test_story '{"storyId":"${args.storyId}"}'.`,
           );
         }
 
@@ -834,7 +834,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
         lines.push('Story metadata conflicts auto-resolved with --ours:');
         for (const path of protectedConflicts) lines.push(`  - ${path}`);
         lines.push(`✓ Story ${args.storyId} is synced with main`);
-        lines.push(`→ 请重跑: koala test_story '{"storyId":"${args.storyId}"}'`);
+        lines.push(`→ Please rerun: koala test_story '{"storyId":"${args.storyId}"}'`);
         return lines.join('\n');
       }
     },

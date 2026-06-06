@@ -10,7 +10,8 @@ phase、gate、review、evidence 和 handoff 语义。
 - `packages/utils`：`aux_*`、`truth_*`、`tool_status` 等扩展工具
 - `bin/lattice.js`：完整 bootstrap 主入口（`main + utils`）
 - `bin/koala.js`：legacy bootstrap alias（`main + utils`）
-- `bin/lattice-codex.js`：Codex 专用入口，会把活动记成 `source=codex`
+- `lattice codex ...`：Codex primary global entrypoint，会把活动记成 `source=codex`
+- `bin/lattice-codex.js`：Codex local wrapper fallback / current-wrapper heartbeat 入口
 - `bin/koala-codex.js`：legacy Codex wrapper alias for existing repositories
 
 ## Lattice CLI 0.3.5 Migration
@@ -102,7 +103,8 @@ Architecture and non-goals:
 
 ### Authority modes (off / shadow / enforce)
 
-Lattice CLI 0.3.5 exposes three authority modes through `KOALA_AUTHORITY_MODE`.
+Lattice CLI 0.3.5 exposes three authority modes through `LATTICE_AUTHORITY_MODE`
+(legacy `KOALA_AUTHORITY_MODE` is still accepted).
 All three keep ordinary local story development free, local, and unblocked —
 `authority_status` will always report `localWorkflowUsable: true`. Local
 lifecycle gates (`story_advance`, `verification_evidence_add`, DONE) do **not**
@@ -113,7 +115,7 @@ consume server receipts; missing enforce prerequisites are reported as
 |------|-------------|-------------------|-----------------------|
 | `off` (default) | Normal local Koala/Lattice story development. **Free, local-only.** | Zero network. Local evidence and DONE gate work exactly as without authority. | No — `productionDone=false`, `receiptVerified=false`. |
 | `shadow` | You want to observe Python authority responses while still running locally. | Best-effort observational POST. Failure becomes a single stderr warning; the local evidence write still succeeds. | No — `accepted: true` from the transport is `thin-client-transport-accepted`, not a verified receipt. |
-| `enforce` (future runner path) | Reserved namespace for the isolated headless runner. Requires the Python authority server, a registered actor key, and a runner identity. | Not implemented end-to-end yet: `authority_enforce_policy` is read-only policy discovery; envelope submission, signing, receipt verification are deferred to M2+. | No today — `productionDone` and `receiptVerified` stay `false` until an explicit receipt-backed authority path verifies a signed receipt. |
+| `enforce` | Isolated headless runner control plane. Requires Lattice Authority, a registered actor key, runner identity, project id, and session id. | `authority enforce runner --dry-run` projects readiness. `--live` signs native envelopes, registers/heartbeats the runner, claims at most one job, and immediately releases any claimed job without provider execution. | Only native Lattice Authority `gate_decision` receipts can satisfy authority DONE; runner heartbeat/claim alone is not production authority. |
 
 Inspect what the local CLI thinks the authority surface looks like:
 
@@ -122,8 +124,8 @@ Inspect what the local CLI thinks the authority surface looks like:
 lattice authority status --json
 
 # Probe what's missing if you try shadow / enforce
-KOALA_AUTHORITY_MODE=shadow lattice authority status --json
-KOALA_AUTHORITY_MODE=enforce lattice authority status --json
+LATTICE_AUTHORITY_MODE=shadow lattice authority status --json
+LATTICE_AUTHORITY_MODE=enforce lattice authority status --json
 
 # Conduit-side mirror of the same readiness fields
 lattice conduit status --json
@@ -134,25 +136,163 @@ lattice conduit explain --json
 
 - `mode` — `off` | `shadow` | `enforce`
 - `localWorkflowUsable: true` — local Story workflow is never blocked
-- `authorityUrlConfigured` — is `KOALA_AUTHORITY_URL` set?
-- `actorKeyConfigured` — is `KOALA_AUTHORITY_ACTOR_KEY` / `_PATH` set?
-- `runnerConfigured` — is `KOALA_AUTHORITY_RUNNER_ID` set?
+- `authorityUrlConfigured` — is `LATTICE_AUTHORITY_URL` set?
+- `actorKeyConfigured` — is `LATTICE_AUTHORITY_ACTOR_KEY` / `_PATH` set?
+- `runnerConfigured` — is `LATTICE_AUTHORITY_RUNNER_ID` set?
 - `readinessWarnings: string[]` — actionable, only populated when `shadow` / `enforce` is configured but prerequisites are missing
 - `nextActions: string[]` — suggested env / command fixes
 - `productionDone: false`, `receiptVerified: false`, `canClaimProductionDone: false`
 
 **Important boundary**: this local JSON output (or `lattice` text output) is
 **not** authority evidence. The Python authority is the only source of a
-verified `AuthorityReceipt`. Even with `KOALA_AUTHORITY_URL`,
-`KOALA_AUTHORITY_ACTOR_KEY`, and `KOALA_AUTHORITY_RUNNER_ID` all set,
-`productionDone` stays `false` until a signed receipt is verified by a future
-receipt-backed runner path. See
+verified `AuthorityReceipt`. Even with `LATTICE_AUTHORITY_URL`,
+`LATTICE_AUTHORITY_ACTOR_KEY`, and `LATTICE_AUTHORITY_RUNNER_ID` all set,
+`productionDone` stays `false` until a signed native Lattice Authority receipt
+is verified. See
 [`docs/requirements/decisions/authority-client-role.md`](docs/requirements/decisions/authority-client-role.md)
 for the PD-1 / PD-2 trust boundary.
 
 The Mac App is no longer required for release or provider/config status. It is
 an optional dashboard/archive surface unless a future, explicitly reviewed
 receipt-backed runner path lands.
+
+### Autopilot modes (local / shadow / authority)
+
+`lattice autopilot ...` exposes a bounded unattended-development control plane.
+It is intentionally split into local and authority-backed modes so local
+autopilot remains usable even when the Python authority is absent.
+
+```bash
+lattice autopilot status --json
+lattice autopilot doctor --json
+lattice autopilot run --mode=local --storyId=B-xxxx --until=TEST --json
+lattice autopilot execute --mode=local --storyId=B-xxxx --until=TEST --maxSteps=20 --json
+lattice autopilot run --mode=shadow --storyId=B-xxxx --until=TEST --json
+lattice autopilot run --mode=authority --storyId=B-xxxx --until=DONE \
+  --receiptFile=receipt.json --serverPublicKey="$SERVER_PUBLIC_KEY_HEX" \
+  --receiptKind=gate_decision --receiptProjectId="$PROJECT_ID" \
+  --receiptStoryId=B-xxxx --serverKeyId="$SERVER_KEY_ID" \
+  --expectedDecisionDigest="$DECISION_DIGEST" --json
+```
+
+Mode contract:
+
+- `local` is the default. It plans the ordinary local Lattice workflow
+  (`session_brief`, `aux_doc_list`, story inspection, `validate`, `check`, and
+  optional `codex verify`) and never requires Python authority.
+- `shadow` preserves the local workflow and adds authority readiness warnings.
+  Missing `LATTICE_AUTHORITY_URL` / actor key / runner id is advisory.
+- `authority` fail-closes on missing Lattice Authority readiness. When the target
+  is `DONE`, it also requires a signed native `gate_decision` receipt, server
+  public key, and explicit project/story/server-key/decision binding before
+  reporting `status: pass`.
+
+`autopilot_run` is dry-run by default. A default invocation only returns a plan
+and is treated as read-only by the command policy. Passing `--dryRun=false` may
+append a story-scoped `autopilot_projection` process event, but that event is
+not lifecycle gate evidence, does not execute providers, and cannot claim
+`productionDone`.
+
+`autopilot_execute` is the true bounded executor loop. It requires `--storyId`
+for non-dry-run execution, runs only argv-mapped Lattice commands, appends a
+non-authoritative `autopilot_execution` event, and can optionally invoke Claude
+Code CLI repair with `--allowClaudeRepair=true`. The repair hook is disabled by
+default and every repaired step is re-run before the executor continues.
+
+Regression coverage:
+
+```bash
+npm --prefix packages/main run test:autopilot-authority-smoke
+npm --prefix packages/main run test:autopilot-execute-smoke
+```
+
+### Planner (natural language → Story + plan)
+
+`lattice planner ...` is the Lattice-native planner surface. It turns a
+natural-language request into a Lattice Story draft, checklist, verification
+intent, and typed `plannedSteps[]` that the autopilot executor can run. It does
+not hand Story, job, or receipt authority to any external framework.
+
+```bash
+lattice planner draft --request="Add a hello command that prints hi" --json
+lattice planner review --draftFile=draft.json --json
+lattice planner status --runId=<plannerRun> --json
+lattice planner source-manifest --sourceRepo=<path> --json
+lattice planner run --request="<one sentence>" --mode=local --until=DONE --json
+lattice planner run --request="<one sentence>" --mode=authority --until=DONE --json
+```
+
+Boundaries:
+
+- `planner draft`, `planner review`, `planner status`, and
+  `planner source-manifest` are read-only. `planner create-story` /
+  `planner create-job` mutate only through Lattice commands.
+- Interaction mode is `--interactionMode=autonomous|interview|decision-gated`
+  (default `autonomous`); paused runs use `planner answer` /
+  `planner decision submit` / `planner resume`.
+- `planner run` composes draft → review → Story → job-or-local-plan → executor,
+  but DONE still obeys the same gates as autopilot: `local` reaches at most local
+  certified completion, and authority DONE still requires a verified native
+  `gate_decision` receipt. The planner surface is being hardened against its
+  fixtures; treat it as the planning entrypoint, not a guarantee of unattended
+  DONE.
+
+### Multi-host verdicts and run status
+
+Release certification can require independent host verdicts. There are two
+verdict paths, and they are deliberately not interchangeable:
+
+```bash
+# Authority (server-backed) path
+lattice authority verdict submit --jobId=<job> --runId=<run> --verdictFile=<verdict.json> --json
+lattice authority verdict list   --jobId=<job> --json
+lattice authority job status      --jobId=<job> --json
+
+# Local (non-authority) path
+lattice autopilot review submit --storyId=<story> --runId=<run> --verdictFile=<verdict.json> --json
+lattice autopilot review status --storyId=<story> --runId=<run> --json
+
+# Read-only worktree/phase resolution for planned steps
+lattice story resolve --storyId=<story> --json
+```
+
+Boundaries:
+
+- `authority verdict submit` is the Authority path; `autopilot review submit` is
+  the local path. The local path records verifier verdicts in local run state
+  keyed by `storyId` / `runId` and never creates an Authority receipt or sets
+  Authority DONE flags.
+- `authority verdict list`, `authority job status`, and `story resolve` are
+  read-only. `authority job status` summarizes host-verdict status without
+  minting or replacing native receipts; `multiHostVerified` / `fullAuthorityDone`
+  stay `false` until the real Authority criteria are met.
+
+### Source-Aligned Redevelopment Workflow
+
+`planner run --workflow=source-aligned-redevelopment` composes a source-aligned
+redevelopment plan: take an authorized source codebase and reproduce its
+modules, functions, behavior, and fine details in a target project and target
+language, with project-name-based identifier renaming.
+
+```bash
+lattice planner run --workflow=source-aligned-redevelopment \
+  --sourceRepo=<path-or-ref> --targetProject=<path> --targetProjectName=<name> \
+  --sourceLanguage=typescript --targetLanguage=rust \
+  --mode=local --until=DONE --json
+```
+
+Boundaries:
+
+- It is a development workflow, not a new interaction mode; it runs under
+  `autonomous` / `interview` / `decision-gated` and under `local` or `authority`.
+- The source codebase is read-only input; target files are written only through
+  the story worktree and normal lifecycle gates. The workflow is language-pair
+  agnostic (e.g. `typescript -> rust`, `swift -> kotlin`).
+- It preserves license/attribution notices and excludes secrets, `.git`, caches,
+  and build outputs from prompts/output/evidence. It produces evidence-backed
+  alignment, not a promise of perfect semantic identity; unverifiable in-scope
+  details are recorded as explicit gaps. This is a current-pass capability gated
+  on its fixtures, not part of the already-shipped baseline.
 
 ### CHK-002 authority enforce matrix smoke
 
@@ -206,13 +346,13 @@ npm --prefix packages/utils run build
 npm --prefix packages/lab run build
 ```
 
-### 2. 在 Codex 里优先用仓库内入口
+### 2. 在 Codex 里优先用全局 Lattice primary 入口
 
 ```bash
-node bin/lattice-codex.js session_brief
-node bin/lattice-codex.js aux_doc_list --format=json
-node bin/lattice-codex.js story_create '...'
-node bin/lattice-codex.js lab create --target=test-case-reviewer --profile=reviewer-quality-v1
+lattice codex session_brief
+lattice codex aux_doc_list --format=json
+lattice codex story_create '...'
+lattice codex lab create --target=test-case-reviewer --profile=reviewer-quality-v1
 ```
 
 原因：
@@ -289,7 +429,7 @@ npm --prefix packages/main run test:outcome-semantics-smoke
 ### 3. 新 session 的第一步
 
 ```bash
-node bin/lattice-codex.js session_brief
+lattice codex session_brief
 ```
 
 项目里的 [AGENTS.md](/Users/jek/Documents/Work/Orchestrate/AGENTS.md:1) 也要求每个新 session 先跑这条命令。
@@ -297,7 +437,7 @@ node bin/lattice-codex.js session_brief
 ### 4. 查看 Codex 自己的 Koala 活动
 
 ```bash
-node bin/lattice.js tool_status --source=codex --days=1 --limit=10
+lattice tool_status --source=codex --days=1 --limit=10
 ```
 
 ### 5. 跑入口回归验证
@@ -319,7 +459,7 @@ npm run test:entrypoints
 
 ```bash
 npm run test:codex-assets
-node bin/lattice-codex.js verify_codex
+lattice codex verify
 ```
 
 这会检查：
@@ -331,18 +471,18 @@ node bin/lattice-codex.js verify_codex
 - `.Codex/README.md` 是否保留正确的 Codex fallback 入口
 - `README.md` / `AGENTS.md` 是否仍然包含关键的 Codex 接入说明
 
-`node bin/lattice-codex.js verify_codex`（legacy 项目也可继续用 `node bin/koala-codex.js verify_codex`；通用本地入口是 `node bin/lattice.js verify_codex`）复用同一套共享检查，并额外执行本地 wrapper 与全局 fallback heartbeat：它确认 activity 记录包含 `source=codex`、session、entrypoint，并把带当前 HEAD/material hash 的 `codex_adapter_verification` 追加到当前 story 的 `process-events.jsonl`。触及 Codex adapter 的 story 在 REVIEW/DONE gate 会区分这条证据是 missing / failing / stale / passing，并给出可直接重跑的本地 wrapper 命令。
+`lattice codex verify` 复用同一套共享检查，并额外执行本地 wrapper 与全局 heartbeat：它确认 activity 记录包含 `source=codex`、session、entrypoint，并把带当前 HEAD/material hash 的 `codex_adapter_verification` 追加到当前 story 的 `process-events.jsonl`。触及 Codex adapter 的 story 在 REVIEW/DONE gate 会区分这条证据是 missing / failing / stale / passing，并给出可直接重跑的 Lattice Codex primary 命令。本地 wrapper 路径 `node bin/lattice-codex.js verify_codex` 仍可用于证明当前 checkout 的 wrapper 心跳；legacy Koala 项目继续走自己的兼容 wrapper。
 
 诊断同一组 Codex adapter 检查、health 和 worktree 状态：
 
 ```bash
-node bin/lattice-codex.js doctor
+lattice codex doctor
 ```
 
 初始化新项目时也可以直接跑：
 
 ```bash
-npx koala-init --verify-codex
+lattice init --verify-codex
 ```
 
 ## 没有本地 wrapper 时
@@ -439,7 +579,7 @@ Claude Code 侧仍然使用 `.claude/` 下的 hooks、settings 和 skill。Codex
 
 - [AGENTS.md](/Users/jek/Documents/Work/Orchestrate/AGENTS.md:1)
 - [.Codex/README.md](/Users/jek/Documents/Work/Orchestrate/.Codex/README.md:1)
-- `.Codex/lattice.json`（new init primary；this repository may still show legacy [.Codex/koala.json](/Users/jek/Documents/Work/Orchestrate/.Codex/koala.json:1) until migrated）
+- [.Codex/lattice.json](/Users/jek/Documents/Work/Orchestrate/.Codex/lattice.json:1)（new init primary；legacy `.Codex/koala.json` is still recognized for older projects）
 - [.Codex/agents/](/Users/jek/Documents/Work/Orchestrate/.Codex/agents:1)（full mode materialization；thin mode 可省略）
 
-full mode 仓库里的 `.Codex/agents` 由 `.claude/agents` 经过受控 transform 全量生成，并通过 `npm run test:codex-assets` 防止后续漂移；thin mode 仓库由 `node bin/lattice-codex.js verify_codex` 校验 registry manifest/hash/renderability。
+full mode 仓库里的 `.Codex/agents` 由 `.claude/agents` 经过受控 transform 全量生成，并通过 `npm run test:codex-assets` 防止后续漂移；thin mode 仓库由 `lattice codex verify` 校验 registry manifest/hash/renderability。

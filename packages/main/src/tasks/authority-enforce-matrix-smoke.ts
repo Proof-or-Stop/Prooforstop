@@ -248,7 +248,7 @@ function createTmpRepo(): { root: string; store: StoryStore } {
   } as Parameters<typeof submitter.submitSingle>[0]);
   assert.equal(decision.proceed, false, 'cell4: enforce + no baseURL must return proceed=false');
   assert.ok(decision.error, 'cell4: enforce + no baseURL must return an error');
-  assert.match(decision.error!.message, /KOALA_AUTHORITY_URL/, 'cell4: error must mention KOALA_AUTHORITY_URL');
+  assert.match(decision.error!.message, /LATTICE_AUTHORITY_URL/, 'cell4: error must mention LATTICE_AUTHORITY_URL');
 }
 
 // ─── cell 5: parallel_report productionDone=false ─────────────────────────────

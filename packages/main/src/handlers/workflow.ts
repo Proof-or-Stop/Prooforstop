@@ -88,7 +88,7 @@ export function createWorkflowHandlers(ctx: HandlerContext) {
       const story = store.readStory(args.storyId);
       const explanation = explainProfile(config, story);
 
-      // B-45ed CHK-004: 实时算通道（三档）
+      // B-45ed CHK-004: Real-time channel calculation (three tiers)
       let channel: 'express' | 'fast' | 'normal' = 'normal';
       let itemsCount = 0;
       let hasDecision = false;
@@ -113,19 +113,19 @@ export function createWorkflowHandlers(ctx: HandlerContext) {
       for (const r of explanation.reasons) {
         lines.push(`  - ${r}`);
       }
-      // 通道判定依据
+      // Channel determination basis
       const activeRisk = (story.riskSignals || []).filter(
         (r: any) => !(story.riskSignalsDismissed || []).some((d: any) => d.category === r.category)
       );
       const channelReason = (() => {
-        if (activeRisk.length > 0) return `riskSignals 非空 (${activeRisk.map((r: any) => r.category).join(', ')}) → 强制 normal`;
-        if (itemsCount <= 2) return `items=${itemsCount} ≤ 2 且无 riskSignals → express`;
+        if (activeRisk.length > 0) return `riskSignals non-empty (${activeRisk.map((r: any) => r.category).join(', ')}) → forced normal`;
+        if (itemsCount <= 2) return `items=${itemsCount} ≤ 2 and no riskSignals → express`;
         if (itemsCount <= 5) {
           const singleSolution = !hasDecision || optionCount <= 1;
           if (singleSolution) {
-            return `items=${itemsCount} ≤ 5 且单一解（${hasDecision ? `options=${optionCount}` : '无 decision'}） → fast`;
+            return `items=${itemsCount} ≤ 5 and single option (${hasDecision ? `options=${optionCount}` : 'no decision'}) → fast`;
           }
-          return `items=${itemsCount} ≤ 5 但多选项 (options=${optionCount}) → normal`;
+          return `items=${itemsCount} ≤ 5 but multiple options (options=${optionCount}) → normal`;
         }
         return `items=${itemsCount} > 5 → normal`;
       })();

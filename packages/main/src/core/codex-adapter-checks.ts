@@ -50,6 +50,8 @@ export const LOCAL_MAIN_VERIFY_COMMAND = 'node bin/lattice.js verify_codex';
 export const LEGACY_LOCAL_CODEX_VERIFY_COMMAND = 'node bin/koala-codex.js verify_codex';
 export const LEGACY_LOCAL_MAIN_VERIFY_COMMAND = 'node bin/koala.js verify_codex';
 export const LOCAL_INIT_VERIFY_COMMAND = 'lattice init --verify-codex';
+export const GLOBAL_CODEX_VERIFY_COMMAND = 'lattice codex verify';
+export const GLOBAL_CODEX_DOCTOR_COMMAND = 'lattice codex doctor';
 export const GLOBAL_CODEX_FALLBACK_COMMAND = 'KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 KOALA_CODEX_ENTRYPOINT=global-fallback lattice';
 
 const CODEX_MATERIAL_PATHS = [
@@ -249,10 +251,10 @@ function checkManifest(root: string, checks: CodexAdapterCheck[]): CodexPromptMo
     return null;
   }
   if (actual !== expected) {
-    push(checks, 'manifest', 'Codex manifest', 'fail', true, `${selection.relPath} drifted from ${selection.brand === 'lattice' ? 'Lattice' : 'Koala'} legacy template`, LOCAL_INIT_VERIFY_COMMAND);
+    push(checks, 'manifest', 'Codex manifest', 'fail', true, `${selection.relPath} drifted from ${selection.brand === 'lattice' ? 'Lattice template' : 'Koala legacy template'}`, LOCAL_INIT_VERIFY_COMMAND);
     return 'legacy-mirror';
   }
-  push(checks, 'manifest', 'Codex manifest', 'pass', true, `${selection.relPath} matches ${selection.brand === 'lattice' ? 'Lattice' : 'Koala'} legacy template`);
+  push(checks, 'manifest', 'Codex manifest', 'pass', true, `${selection.relPath} matches ${selection.brand === 'lattice' ? 'Lattice template' : 'Koala legacy template'}`);
   return 'legacy-mirror';
 }
 
@@ -531,7 +533,7 @@ function checkGlobalFallback(root: string, checks: CodexAdapterCheck[], executeH
 
 function checkAuxAvailability(checks: CodexAdapterCheck[], registryNames?: Set<string>): void {
   if (!registryNames) {
-    push(checks, 'aux-availability', 'Aux command availability', 'warn', false, 'registry not provided; run through koala doctor for live command inventory');
+    push(checks, 'aux-availability', 'Aux command availability', 'warn', false, 'registry not provided; run through lattice codex doctor for live command inventory');
     return;
   }
   if (!registryNames.has('aux_doc_list')) {
@@ -590,7 +592,7 @@ export function storyRequiresCodexEvidence(store: StoryStore, storyId: string): 
       ...(story.riskSignals || []).flatMap(signal => [signal.category, signal.matched]),
       ...checklist.items.flatMap(item => [item.title, item.context || '', ...(item.relatedDocs || [])]),
     ].join('\n');
-    return /\bCodex\b|\.Codex|lattice-codex|koala-codex|codex adapter|verify_codex/i.test(haystack);
+    return /\bCodex\b|\.Codex|lattice-codex|koala-codex|lattice codex|codex adapter|verify_codex/i.test(haystack);
   } catch {
     return false;
   }
@@ -619,14 +621,14 @@ export function summarizeCodexEvidence(store: StoryStore, storyId: string, root?
     return {
       status: 'missing',
       detail: 'no codex_adapter_verification process-event recorded',
-      command: LOCAL_CODEX_VERIFY_COMMAND,
+      command: GLOBAL_CODEX_VERIFY_COMMAND,
     };
   }
   if (event.result !== 'pass') {
     return {
       status: 'failing',
-      detail: String(event.summary || `latest ${LOCAL_CODEX_VERIFY_COMMAND} failed`),
-      command: LOCAL_CODEX_VERIFY_COMMAND,
+      detail: String(event.summary || `latest ${GLOBAL_CODEX_VERIFY_COMMAND} failed`),
+      command: GLOBAL_CODEX_VERIFY_COMMAND,
     };
   }
   if (root) {
@@ -636,19 +638,19 @@ export function summarizeCodexEvidence(store: StoryStore, storyId: string, root?
       return {
         status: 'stale',
         detail: 'latest codex_adapter_verification lacks a material hash snapshot',
-        command: LOCAL_CODEX_VERIFY_COMMAND,
+        command: GLOBAL_CODEX_VERIFY_COMMAND,
       };
     }
     if (eventMaterialHash !== current.materialHash) {
       return {
         status: 'stale',
         detail: `material changed since verification (${eventMaterialHash.slice(0, 12)} != ${current.materialHash.slice(0, 12)})`,
-        command: LOCAL_CODEX_VERIFY_COMMAND,
+        command: GLOBAL_CODEX_VERIFY_COMMAND,
       };
     };
   }
   return {
     status: 'passing',
-    detail: String(event.summary || `${LOCAL_CODEX_VERIFY_COMMAND} passed at ${event.timestamp}`),
+    detail: String(event.summary || `${GLOBAL_CODEX_VERIFY_COMMAND} passed at ${event.timestamp}`),
   };
 }

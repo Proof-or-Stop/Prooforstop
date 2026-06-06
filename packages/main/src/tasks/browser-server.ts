@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * test-ws-server: WebSocket(:9876) + HTTP(:9877) 桥接服务
- * 浏览器通过 WS 连接，Claude 通过 HTTP API 发送命令
+ * test-ws-server: WebSocket(:9876) + HTTP(:9877) bridge service
+ * Browser connects via WS, Claude sends commands via HTTP API
  */
 
 // @ts-ignore
@@ -21,7 +21,7 @@ const wss = new WebSocketServer({ port: WS_PORT });
 
 wss.on('connection', (ws: any) => {
   console.log('[ws] browser connected');
-  // 踢掉旧客户端：发 close 指令让它自杀
+  // Kick out old clients: send close command to make them self-terminate
   if (browserSocket && browserSocket.readyState === WebSocket.OPEN) {
     try { browserSocket.send(JSON.stringify({ type: 'close' })); } catch {}
     browserSocket.close();

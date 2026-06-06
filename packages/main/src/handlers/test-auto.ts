@@ -1,11 +1,11 @@
 /**
- * test_auto — 全量回归
+ * test_auto — full regression
  *
- * 扫描 fixturesDir 下所有 .json，按链拓扑分组执行所有可执行 case，
- * 跑完顺手对比 trace 快照、执行 browser case，最后输出汇总。
+ * Scan all .json under fixturesDir, group by chain topology and execute all executable cases,
+ * after running, compare trace snapshots, execute browser cases, and finally output the summary.
  *
- * 与 test_story 的区别：不写 bug.json 也不写 test-evidence。
- * 与 test_fixture 的区别：跑全部，不按 _id 过滤。
+ * Difference from test_story: does not write bug.json nor test-evidence.
+ * Difference from test_fixture: runs everything, does not filter by _id.
  */
 
 import { execSync } from 'child_process';
@@ -30,13 +30,13 @@ import {
  * @type feature
  * @priority high
  * @description
- *   test_auto 会扫描全部 fixture，并在执行后对 fixture 目录做 git restore /
- *   git clean，属于 destructive test runner 路径。这里补上 dry-run 计划输出，
- *   让用户在 --confirm 前先看到扫描范围、cleanup 行为和 profiler/trace 影响。
+ *   test_auto scans all fixtures, and after execution runs git restore /
+ *   git clean on the fixture directory, which is a destructive test runner path. Add a dry-run plan output here,
+ *   so users can see the scan scope, cleanup behavior, and profiler/trace impact before --confirm.
  * @changes
- *   - [CHK-001] test_auto 新增 dryRun/confirm 参数并在最前面短路返回计划
- *   - [CHK-001] dry-run 明确列出 fixture 扫描数量与 git restore + git clean 范围
- *   - [CHK-001] 真实执行路径仍沿用原有 full regression 逻辑
+ *   - [CHK-001] test_auto adds dryRun/confirm parameters and short-circuits to return the plan at the very front
+ *   - [CHK-001] dry-run explicitly lists the fixture scan count and the git restore + git clean scope
+ *   - [CHK-001] the real execution path still follows the original full regression logic
  * @test test-auto-guardrails
  */
 export function createTestAutoHandlers(ctx: HandlerContext) {
@@ -45,9 +45,9 @@ export function createTestAutoHandlers(ctx: HandlerContext) {
 
   return {
     async test_auto(args: { storyId?: string; trace?: boolean; enableProfiler?: boolean; dryRun?: boolean; confirm?: boolean }): Promise<string> {
-      // 递归防护：fixture case 里调 $handlers.test_auto() 时跳过，防止无限递归卡死
+      // Recursion guard: skip when fixture case calls $handlers.test_auto() to prevent infinite recursion lock-up
       if ((globalThis as any).__koalaTestAutoRunning) {
-        return JSON.stringify({ hint: '→ test_auto 递归调用被跳过', allPassed: true, totalCases: 0, passedCases: 0, failedCases: 0, warnings: [], details: [] });
+        return JSON.stringify({ hint: '→ test_auto recursive call skipped', allPassed: true, totalCases: 0, passedCases: 0, failedCases: 0, warnings: [], details: [] });
       }
       (globalThis as any).__koalaTestAutoRunning = true;
       try {
@@ -65,7 +65,7 @@ export function createTestAutoHandlers(ctx: HandlerContext) {
           `- execute ${fixtureFiles.length} fixture file(s) worth of CLI/browser cases`,
           `- cleanup fixture workspace via git restore + git clean on ${config.fixturesDir}`,
           `- ${args.trace === true || args.enableProfiler === true ? 'refresh' : 'skip'} profiler/trace snapshots`,
-          '→ 加 --confirm 真实执行',
+          '→ Add --confirm for real execution',
         ];
         return JSON.stringify({
           dryRun: true,
@@ -75,36 +75,36 @@ export function createTestAutoHandlers(ctx: HandlerContext) {
         }, null, 2);
       }
 
-      // koala 自身项目禁止全量测试（自己测自己会副作用污染）
+      // The koala project itself forbids full regression testing (testing itself causes side-effect contamination)
       try {
         const pkgPath = join(root, 'packages', 'main', 'package.json');
         if (existsSync(pkgPath)) {
           const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'));
           if (pkg.name === '@koala-agent/core') {
-            throw new Error('koala 自身项目禁止 test_auto 全量测试（会自己测自己导致副作用污染）。请运行 koala validate --story=<storyId>，并用 checklist_update 或 verification_evidence_add 记录 verificationEvidence');
+            throw new Error('The koala project itself forbids test_auto full regression testing (testing itself causes side-effect contamination). Please run koala validate --story=<storyId>, and use checklist_update or verification_evidence_add to record verificationEvidence');
           }
         }
       } catch (e: any) {
-        if (e.message.includes('禁止 test_auto')) throw e;
+        if (e.message.includes('forbids test_auto')) throw e;
       }
 
       if (args.confirm !== true) {
-        throw new Error('test_auto 真实执行需要 confirm:true；请先用 dryRun:true 查看 git restore/git clean cleanup 范围');
+        throw new Error('test_auto real execution requires confirm:true; please first use dryRun:true to view the git restore/git clean cleanup scope');
       }
 
-      // CHK-004: storyId 已废弃
+      // CHK-004: storyId is deprecated
       if (args.storyId) {
-        warnings.push('⚠ storyId 已废弃，test_auto 现在始终执行全量回归。当前 story 验证请用 koala validate --story=<storyId> 并记录 verificationEvidence');
+        warnings.push('⚠ storyId is deprecated, test_auto now always runs full regression. For current story validation, use koala validate --story=<storyId> and record verificationEvidence');
       }
       progress(`[DEBUG] root=${root}`);
       progress(`[DEBUG] config.fixturesDir=${config.fixturesDir}`);
       try { progress(`[DEBUG] koala.config.json: ${readFileSync(join(root, 'koala.config.json'), 'utf-8').slice(0, 50).replace(/\n/g, ' ')}`); } catch(e: any) { progress(`[DEBUG] config read err: ${e.message}`); }
       progress(`test_auto start: full regression`);
 
-      // 创建隔离的 handlers + testStore
+      // Create isolated handlers + testStore
       const { handlers, testStore } = await createIsolatedHandlers(root, ctx.log);
 
-      // 快照：记录 test_auto 开始前已有的分支，用于结束后清理
+      // Snapshot: record branches that existed before test_auto started, for cleanup at the end
       let branchesBefore: Set<string>;
       try {
         branchesBefore = new Set(
@@ -112,50 +112,50 @@ export function createTestAutoHandlers(ctx: HandlerContext) {
         );
       } catch { branchesBefore = new Set(); }
 
-      // $testStory 工厂
+      // $testStory factory
       const tempStoryIds: string[] = [];
       const testStoryFactory = createTempStoryFactory(handlers, testStore, tempStoryIds);
 
-      // Step 1: 扫描所有 fixture 文件
+      // Step 1: Scan all fixture files
       const fixtureResults: FixtureResult[] = [];
       const errors: string[] = [];
 
       if (!existsSync(fixturesDir)) {
-        return JSON.stringify({ hint: '→ fixture 目录不存在', warnings: ['fixture 目录不存在'], allPassed: true });
+        return JSON.stringify({ hint: '→ fixture directory does not exist', warnings: ['fixture directory does not exist'], allPassed: true });
       }
 
       const fixtureFiles = scanFixtureFiles(fixturesDir);
       progress(`[DEBUG] fixturesDir=${fixturesDir} files=${fixtureFiles.length}`);
       if (fixtureFiles.length > 0) progress(`[DEBUG] first file: ${fixtureFiles[0]}`);
 
-      // Step 2: 逐文件执行 case（CHK-004: 全量回归，不再按 storyId 过滤）
+      // Step 2: Execute cases file by file (CHK-004: full regression, no longer filtered by storyId)
       for (const fp of fixtureFiles) {
         let content: any;
         try {
           content = JSON.parse(readFileSync(fp, 'utf-8'));
         } catch (e: any) {
-          warnings.push(`fixture 解析失败: ${fp}: ${e.message}`);
+          warnings.push(`fixture parse failed: ${fp}: ${e.message}`);
           continue;
         }
 
         const cases = content.cases || [];
         if (cases.length === 0) continue;
 
-        // 执行语言无关 fixture protocol：executor / command / legacy JS execute
+        // Execute language-agnostic fixture protocol: executor / command / legacy JS execute
         const executableCases = cases.filter((c: any) => isExecutableCase(c));
         progress(`[DEBUG] ${fp.split(/[/\\]/).pop()}: total=${cases.length} executable=${executableCases.length}`);
         if (executableCases.length === 0) continue;
 
         const fileName = fp.replace(fixturesDir + '/', '').replace(fixturesDir + '\\', '');
         const caseResults: CaseResult[] = [];
-        // 当前 fixture 的所有 case _id，用于 test_fixture 自引用检测
+        // All case _ids of the current fixture, used for test_fixture self-reference detection
         const fileCaseIds = new Set<string>(cases.map((c: any) => c._id).filter(Boolean));
 
-        // V8 profiler trace 默认关闭（占大头开销）。仅 test_auto 显式 trace:true 时启用，
-        // 用于刷新 trace 快照供 aux_trace 使用。enableProfiler:true 作为兼容别名。
+        // V8 profiler trace is disabled by default (accounts for most overhead). Enabled only when test_auto explicitly sets trace:true,
+        // used to refresh trace snapshot for aux_trace. enableProfiler:true is kept as a compatibility alias.
         const enableProfiler = args.trace === true || args.enableProfiler === true;
 
-        // CHK-003: 按链拓扑分组执行
+        // CHK-003: Group execution by chain topology
         const { chains, standalone } = buildChainGroups(executableCases);
         const groups: { cases: any[]; isChain: boolean }[] = [
           ...standalone.map(c => ({ cases: [c], isChain: false })),
@@ -173,7 +173,7 @@ export function createTestAutoHandlers(ctx: HandlerContext) {
           }
           try {
             for (const c of group.cases) {
-              // DEBUG: 追踪 koala.config.json 被谁改了
+              // DEBUG: trace who modified koala.config.json
               const _cfgPath = join(root, 'koala.config.json');
               let _cfgBefore = '';
               try { _cfgBefore = readFileSync(_cfgPath, 'utf-8').slice(0, 30); } catch {}
@@ -192,7 +192,7 @@ export function createTestAutoHandlers(ctx: HandlerContext) {
                   const diff = diffTraces(lastSnap.trace, result.trace);
                   if (diff.added.length > 0 || diff.removed.length > 0 || diff.forked.length > 0) {
                     const summary = summarizeDiff(diff);
-                    traceWarnings.push(`${fileName}:${c.name}: trace 变化 — ${summary.split('\n')[0]}`);
+                    traceWarnings.push(`${fileName}:${c.name}: trace changed — ${summary.split('\n')[0]}`);
                   }
                 }
                 if (result.passed) {
@@ -204,7 +204,7 @@ export function createTestAutoHandlers(ctx: HandlerContext) {
             errors.push(`${fileName}: ${e.message}`);
           } finally {
             if (profilerSession) { try { await profilerSession.close(); } catch {} }
-            // 每组执行完 cleanup
+            // Cleanup after each group finishes
             cleanupFixtureDir(root, config.fixturesDir);
           }
         }
@@ -216,10 +216,10 @@ export function createTestAutoHandlers(ctx: HandlerContext) {
         });
       }
 
-      // 清理 $testStory 创建的临时 story
+      // Clean up temporary stories created by $testStory
       cleanupTempStories(root, tempStoryIds);
 
-      // 清理 fixture 执行中创建的临时分支
+      // Clean up temporary branches created during fixture execution
       try {
         const branchesAfter = execSync('git branch --format="%(refname:short)"', { cwd: root, encoding: 'utf8' }).trim().split('\n').filter(Boolean);
         for (const b of branchesAfter) {
@@ -261,17 +261,17 @@ export function createTestAutoHandlers(ctx: HandlerContext) {
         }
       }
 
-      // CHK-004: test_auto 全量回归不写 bug/evidence（当前流程用 koala validate + verificationEvidence）
+      // CHK-004: test_auto full regression does not write bug/evidence (current flow uses koala validate + verificationEvidence)
       const totalCases = fixtureResults.reduce((sum, r) => sum + r.cases.length, 0);
       const passedCases = fixtureResults.reduce((sum, r) => sum + r.cases.filter(c => c.passed).length, 0);
       const browserAllPassed = browserResults.every(r => r.passed);
       const allPassed = fixtureResults.every(r => r.allPassed) && errors.length === 0 && browserAllPassed;
 
-      const hint = allPassed ? '→ 全量回归通过' : '→ 有失败项，请修复后重跑';
+      const hint = allPassed ? '→ Full regression passed' : '→ There are failures, please fix and rerun';
 
       return JSON.stringify({
         hint,
-        _hint: warnings.length > 0 ? '⚠ 请审查 warnings' : undefined,
+        _hint: warnings.length > 0 ? '⚠ Please review warnings' : undefined,
         warnings,
         traceWarnings: traceWarnings.length > 0 ? traceWarnings : undefined,
         totalCases,

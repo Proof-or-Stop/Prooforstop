@@ -1,6 +1,7 @@
 import { execSync } from 'node:child_process';
 import type { HandlerContext } from './context.js';
 import {
+  GLOBAL_CODEX_VERIFY_COMMAND,
   LOCAL_CODEX_VERIFY_COMMAND,
   renderCodexAdapterChecks,
   runCodexAdapterChecks,
@@ -23,6 +24,10 @@ export function createCodexAdapterHandlers(ctx: HandlerContext) {
   return {
     verify_codex(args: { json?: boolean; storyId?: string } = {}) {
       const storyId = args.storyId || detectStoryIdFromBranch(ctx.root) || undefined;
+      const invoked = process.argv.slice(2);
+      const evidenceCommand = invoked[0] === 'codex' && invoked[1] === 'verify'
+        ? GLOBAL_CODEX_VERIFY_COMMAND
+        : LOCAL_CODEX_VERIFY_COMMAND;
       const result = runCodexAdapterChecks(ctx.root, {
         executeHeartbeats: true,
         registryNames: ctx.getAllToolNames?.(),
@@ -34,7 +39,7 @@ export function createCodexAdapterHandlers(ctx: HandlerContext) {
           ctx.store.appendProcessEvent(storyId, {
             type: 'codex_adapter_verification',
             storyId,
-            command: LOCAL_CODEX_VERIFY_COMMAND,
+            command: evidenceCommand,
             result: result.ok ? 'pass' : 'fail',
             summary: result.summary,
             headHash: result.materialSnapshot.headHash,

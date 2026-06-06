@@ -26,12 +26,12 @@ export function createPlanHandlers(ctx: HandlerContext) {
     plan_set(args: { storyId: string; content: string }): { path: string; bytes: number; checklistSections: number } {
       if (!args.storyId) throw new Error('storyId is required');
       if (typeof args.content !== 'string' || args.content.trim().length < 20) {
-        throw new Error('plan_set: content 必须是 ≥ 20 字符的 plan.md 内容');
+        throw new Error('plan_set: content must be plan.md content of at least 20 characters');
       }
       ctx.store.readStory(args.storyId);
       const missing = missingChecklistSections(ctx, args.storyId, args.content);
       if (missing.length > 0) {
-        throw new Error(`plan_set: plan.md 缺少 checklist 章节: ${missing.join(', ')}。每项需有形如 "## CHK-001" 的段落`);
+        throw new Error(`plan_set: plan.md is missing checklist sections: ${missing.join(', ')}. Each item requires a section like "## CHK-001"`);
       }
       const content = args.content.endsWith('\n') ? args.content : `${args.content}\n`;
       const p = planPath(ctx, args.storyId);

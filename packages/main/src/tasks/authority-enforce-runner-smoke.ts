@@ -10,10 +10,10 @@ const PASS_LINE =
   '✓ authority enforce runner smoke passed: dry-run planned register/heartbeat/claim without provider execution';
 
 const configuredEnv = {
-  KOALA_AUTHORITY_MODE: 'enforce',
-  KOALA_AUTHORITY_URL: 'https://authority.test',
-  KOALA_AUTHORITY_ACTOR_KEY: 'test-actor-key',
-  KOALA_AUTHORITY_RUNNER_ID: 'runner-1',
+  LATTICE_AUTHORITY_MODE: 'enforce',
+  LATTICE_AUTHORITY_URL: 'https://authority.test',
+  LATTICE_AUTHORITY_ACTOR_KEY: 'test-actor-key',
+  LATTICE_AUTHORITY_RUNNER_ID: 'runner-1',
 };
 
 {
@@ -30,14 +30,20 @@ const configuredEnv = {
 
 {
   const missing = buildAuthorityEnforceRunnerPlan({ once: true, dryRun: true }, {
-    KOALA_AUTHORITY_MODE: 'enforce',
+    LATTICE_AUTHORITY_MODE: 'enforce',
   });
   assert.equal(missing.status, 'fail');
   assert.equal(missing.localWorkflowUsable, true);
   assert.equal(missing.spawned, false);
   assert.deepEqual(missing.providerEvents, []);
   assert.equal(missing.readinessWarnings.length, 3);
-  assert(missing.nextActions.some(action => action.includes('KOALA_AUTHORITY_URL')));
+  assert(missing.nextActions.some(action => action.includes('LATTICE_AUTHORITY_URL')));
+}
+
+{
+  const liveMissingProject = buildAuthorityEnforceRunnerPlan({ once: true, live: true }, configuredEnv);
+  assert.equal(liveMissingProject.status, 'fail');
+  assert(liveMissingProject.readinessWarnings.some(warning => warning.includes('LATTICE_AUTHORITY_PROJECT_ID')));
 }
 
 {

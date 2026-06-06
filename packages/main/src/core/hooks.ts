@@ -1,26 +1,26 @@
 /**
  * Hook dispatcher — spawn shell commands at koala lifecycle events.
  *
- * 灵感来自 Claude Code 的 PreToolUse / PostToolUse / SessionStart / Stop hooks。
- * koala 的事件点：
- *   - preCommand     : 在每条 koala command handler 执行前
- *   - postCommand    : 每条 command 成功后
- *   - onError        : 每条 command 抛错时
- *   - onPhaseChange  : story_advance 成功后，按 "FROM->TO" 匹配
+ * Inspired by Claude Code's PreToolUse / PostToolUse / SessionStart / Stop hooks.
+ * koala event points:
+ *   - preCommand     : before each koala command handler executes
+ *   - postCommand    : after each command succeeds
+ *   - onError        : when each command throws
+ *   - onPhaseChange  : after story_advance succeeds, matched by "FROM->TO"
  *
- * 用户在 koala.config.json 的 hooks 字段配置：
+ * Users configure via the hooks field in koala.config.json:
  *   "hooks": {
  *     "preCommand": { "*": ["./scripts/notify"] , "story_advance": ["./scripts/sync"] },
  *     "onPhaseChange": { "*": ["echo $KOALA_OLD_PHASE"], "DEV->TEST": ["./scripts/freeze"] }
  *   }
  *
- * 设计原则：
- *   - 非阻塞：任何 hook 失败 / 超时都只 stderr warning + reportHealthIssue('hook:...'),
- *     不影响主命令继续
- *   - 30 秒 timeout：每条 hook 命令独立计时，超时 SIGKILL
- *   - stdout 限制：只在 stderr echo 前 200 字符，避免污染主命令的 JSON 输出
- *   - 顺序执行：精确匹配 + "*" 通配，两组都跑（不是 fallback），按数组顺序串行
- *   - env 隔离：基于 process.env 派生，每条 hook 拿到完整 KOALA_* 变量
+ * Design principles:
+ *   - Non-blocking: any hook failure / timeout only emits stderr warning + reportHealthIssue('hook:...'),
+ *     does not affect the main command continuing
+ *   - 30 second timeout: each hook command timed independently, SIGKILL on timeout
+ *   - stdout limit: only echo first 200 chars to stderr, avoid polluting main command's JSON output
+ *   - Sequential execution: exact match + "*" wildcard, both groups run (not fallback), serial in array order
+ *   - env isolation: derived from process.env, each hook receives full KOALA_* variables
  */
 
 import { spawn } from 'child_process';
@@ -88,7 +88,7 @@ export function buildHookEnv(opts: {
 }
 
 interface ResolvedHookCmd {
-  /** "exact" 或 "*" 来源，仅用于 health 上下文 */
+  /** "exact" or "*" source, only used for health context */
   source: 'exact' | 'wildcard';
   cmd: string;
 }

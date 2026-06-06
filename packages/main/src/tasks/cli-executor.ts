@@ -1,11 +1,11 @@
 /**
- * cli-executor: CLI 交互式真机测试执行器
+ * cli-executor: CLI interactive real-machine test executor
  *
- * 完整生命周期：
- * 1. spawn 目标 CLI 进程
- * 2. 按 fixture steps 顺序驱动交互（stdin write → stdout expect）
- * 3. 收集每步结果
- * 4. kill 进程，返回结果
+ * Complete lifecycle:
+ * 1. spawn the target CLI process
+ * 2. Drive interactions in fixture steps order (stdin write → stdout expect)
+ * 3. Collect results for each step
+ * 4. kill the process and return the results
  */
 
 import { spawn, ChildProcess } from 'child_process';
@@ -13,11 +13,11 @@ import { spawn, ChildProcess } from 'child_process';
 const DEFAULT_TIMEOUT = 5000;
 
 export interface CliStep {
-  /** 发送到 stdin 的文本（自动追加 \n） */
+  /** Text sent to stdin (\n is auto-appended) */
   input?: string;
-  /** 期望 stdout 中出现的文本或正则 */
+  /** Text or regex expected to appear in stdout */
   expect?: string;
-  /** expect 等待超时（ms），默认 5000 */
+  /** expect wait timeout (ms), default 5000 */
   timeoutMs?: number;
 }
 
@@ -33,17 +33,17 @@ export interface CliTestResult {
 }
 
 export interface CliTestConfig {
-  /** 启动命令，如 "node dist/main.js" */
+  /** Startup command, e.g. "node dist/main.js" */
   command: string;
-  /** 工作目录 */
+  /** Working directory */
   cwd: string;
-  /** 全局超时（ms） */
+  /** Global timeout (ms) */
   timeoutMs?: number;
-  /** 额外环境变量 */
+  /** Extra environment variables */
   env?: Record<string, string>;
 }
 
-/** 去除 ANSI 颜色码和 emoji */
+/** Strip ANSI color codes and emoji */
 function stripAnsi(str: string): string {
   return str.replace(/\x1B\[[0-9;]*m/g, '');
 }
@@ -51,13 +51,13 @@ function stripAnsi(str: string): string {
 class CliDriver {
   private proc: ChildProcess;
   private buffer = '';
-  /** 已消费到的位置，waitFor 只在 cursor 之后的内容中匹配 */
+  /** Position already consumed; waitFor only matches content after the cursor */
   private cursor = 0;
   private waiters: Array<{ pattern: string; resolve: (matched: string) => void; reject: (e: Error) => void; timer: NodeJS.Timeout }> = [];
 
   constructor(command: string, cwd: string, env?: Record<string, string>) {
     const [cmd, ...args] = command.split(' ');
-    // Python 命令自动加 unbuffered 环境变量
+    // Python commands automatically get the unbuffered environment variable
     const isPython = cmd.includes('python');
     const pythonEnv = isPython ? { PYTHONUNBUFFERED: '1', PYTHONIOENCODING: 'utf-8' } : {};
     this.proc = spawn(cmd, args, {
@@ -93,7 +93,7 @@ class CliDriver {
     }
   }
 
-  /** 等待 stdout 中（cursor 之后）出现匹配文本，匹配后推进 cursor */
+  /** Wait for matching text to appear in stdout (after the cursor); advance the cursor after a match */
   waitFor(pattern: string, timeoutMs = DEFAULT_TIMEOUT): Promise<string> {
     if (this.tail().includes(pattern)) {
       const matched = this.tail();
@@ -110,17 +110,17 @@ class CliDriver {
     });
   }
 
-  /** 发送输入到 stdin */
+  /** Send input to stdin */
   send(text: string): void {
     this.proc.stdin?.write(text + '\n');
   }
 
-  /** 获取 cursor 之后的 buffer 内容 */
+  /** Get the buffer content after the cursor */
   getBuffer(): string {
     return this.tail();
   }
 
-  /** 关闭进程 */
+  /** Close the process */
   kill(): void {
     this.proc.stdin?.end();
     this.proc.kill();
@@ -147,7 +147,7 @@ export async function executeCliCases(
       for (const step of tc.steps) {
         const timeoutMs = step.timeoutMs || config.timeoutMs || DEFAULT_TIMEOUT;
 
-        // 如果有 expect，先等待期望输出
+        // If expect is provided, wait for the expected output first
         if (step.expect) {
           try {
             const actual = await driver.waitFor(step.expect, timeoutMs);
@@ -159,7 +159,7 @@ export async function executeCliCases(
           }
         }
 
-        // 如果有 input，发送到 stdin
+        // If input is provided, send it to stdin
         if (step.input !== undefined) {
           driver.send(step.input);
         }

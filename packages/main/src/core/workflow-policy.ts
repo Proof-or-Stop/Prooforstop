@@ -95,22 +95,22 @@ export function explainProfile(config: KoalaConfig, story: StoryInfo): ProfileEx
 }
 
 // ─────────────────────────────────────────────────────────────────
-// Channel (B-45ed CHK-004): 三档通道
-//   express  极速：items ≤ 2 且无 riskSignals
-//   fast     快速：items ≤ 5 且单一解（decision 缺失 or options.length ≤ 1）且无 riskSignals
-//   normal   正常：其他情况
-// 硬规则：riskSignals 非空 → 强制 normal（即便 items ≤ 2）
+// Channel (B-45ed CHK-004): three-tier channels
+//   express  ultra-fast: items ≤ 2 and no riskSignals
+//   fast     fast: items ≤ 5 and single solution (decision missing or options.length ≤ 1) and no riskSignals
+//   normal   normal: other cases
+// Hard rule: riskSignals non-empty → force normal (even if items ≤ 2)
 // ─────────────────────────────────────────────────────────────────
 export type StoryChannel = 'express' | 'fast' | 'normal';
 export type VerificationIntentPolicyKind = 'express-exempt' | 'explicit-intent' | 'missing-intent';
 
 /**
- * Channel 中文显示名（workflow_explain 输出用）
+ * Channel English display name (for workflow_explain output)
  */
 export const CHANNEL_LABELS: Record<StoryChannel, string> = {
-  express: '极速',
-  fast: '快速',
-  normal: '正常',
+  express: 'express',
+  fast: 'fast',
+  normal: 'normal',
 };
 
 type ChannelStory = Pick<StoryInfo, 'riskSignals'> & Partial<Pick<StoryInfo, 'riskSignalsDismissed'>>;
@@ -126,20 +126,20 @@ export interface VerificationIntentPolicyResolution {
 }
 
 /**
- * 实时计算 story 的通道分档。不持久化，每次调用重新算。
+ * Compute the story's channel tier in real time. Not persisted; recomputed on every call.
  *
- * 参数兼容旧调用方：decision 可省略（等价于"尚未决策 → 按单一解路径判"）。
+ * Parameters are compatible with legacy callers: decision can be omitted (equivalent to "not yet decided → judge by single-solution path").
  *
- * @param story  至少含 riskSignals；可选 riskSignalsDismissed（被驳回的不计入 risk）
- * @param checklist 至少含 items 数组
- * @param decision 可选 decision.json 内容（含 options + chosen）
+ * @param story  must at least contain riskSignals; optional riskSignalsDismissed (dismissed ones do not count as risk)
+ * @param checklist must at least contain the items array
+ * @param decision optional decision.json content (containing options + chosen)
  */
 export function computeChannel(
   story: ChannelStory,
   checklist: ChannelChecklist,
   decision?: ChannelDecision,
 ): StoryChannel {
-  // 风险判定：过滤掉已 dismiss 的 category（与 story_review 口径一致）
+  // Risk determination: filter out dismissed categories (consistent with story_review's criteria)
   const dismissed = new Set(
     (story.riskSignalsDismissed || []).map((d: { category: string }) => d.category),
   );
@@ -148,17 +148,17 @@ export function computeChannel(
   );
   const hasRisk = activeRisk.length > 0;
 
-  // 硬规则：有 riskSignals → normal
+  // Hard rule: has riskSignals → normal
   if (hasRisk) return 'normal';
 
   const n = Array.isArray(checklist.items) ? checklist.items.length : 0;
 
-  // 极速：≤ 2
+  // express: ≤ 2
   if (n <= 2) return 'express';
 
-  // 快速：≤ 5 且单一解
-  // 单一解判定：decision 不存在 → 视为"尚未决策，按 items 长度走"（≤5 即 fast）
-  //              decision 存在 → options.length ≤ 1 才算单一解
+  // fast: ≤ 5 and single solution
+  // Single-solution determination: decision does not exist → treat as "not yet decided, go by items length" (≤5 means fast)
+  //                                 decision exists → only options.length ≤ 1 counts as single solution
   if (n <= 5) {
     const isSingleSolution = !decision || !Array.isArray(decision.options) || decision.options.length <= 1;
     if (isSingleSolution) return 'fast';

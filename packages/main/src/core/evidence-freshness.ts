@@ -100,7 +100,7 @@ export function checkEvidenceFreshnessForGit(
   if (!evidenceHash) {
     return {
       fresh: true,
-      reason: 'evidence 无 headHash（旧格式，跳过新鲜度检查）',
+      reason: 'evidence has no headHash (legacy format, skipping freshness check)',
       changedFiles: [],
       materialFiles: [],
     };
@@ -110,7 +110,7 @@ export function checkEvidenceFreshnessForGit(
   if (!currentHead) {
     return {
       fresh: true,
-      reason: '无法获取 git HEAD，跳过新鲜度检查',
+      reason: 'Unable to get git HEAD, skipping freshness check',
       changedFiles: [],
       materialFiles: [],
     };
@@ -122,7 +122,7 @@ export function checkEvidenceFreshnessForGit(
       if (materialHash === evidenceMaterialHash) {
         return {
           fresh: true,
-          reason: 'evidence materialHash 对应当前实体文件状态',
+          reason: 'evidence materialHash matches current entity file state',
           currentHead,
           changedFiles: [],
           materialFiles: [],
@@ -130,7 +130,7 @@ export function checkEvidenceFreshnessForGit(
       }
       return {
         fresh: false,
-        reason: `evidence materialHash 与当前实体文件状态不匹配`,
+        reason: `evidence materialHash does not match current entity file state`,
         currentHead,
         changedFiles: [],
         materialFiles: ['<material-tree-changed>'],
@@ -141,7 +141,7 @@ export function checkEvidenceFreshnessForGit(
   if (headMatches(evidenceHash, currentHead)) {
     return {
       fresh: true,
-      reason: 'evidence 对应当前 HEAD',
+      reason: 'evidence corresponds to current HEAD',
       currentHead,
       changedFiles: [],
       materialFiles: [],
@@ -154,7 +154,7 @@ export function checkEvidenceFreshnessForGit(
     if (materialFiles.length === 0) {
       return {
         fresh: true,
-        reason: `evidence 后有 ${changedFiles.length} 个 metadata-only 变更，不失效`,
+        reason: `evidence followed by ${changedFiles.length} metadata-only changes, not invalidated`,
         currentHead,
         changedFiles,
         materialFiles,
@@ -162,7 +162,7 @@ export function checkEvidenceFreshnessForGit(
     }
     return {
       fresh: false,
-      reason: `evidence 基于 ${evidenceHash.slice(0, 7)}，但 HEAD 是 ${currentHead.slice(0, 7)}，有代码变更: ${materialFiles.slice(0, 5).join(', ')}`,
+      reason: `evidence based on ${evidenceHash.slice(0, 7)}, but HEAD is ${currentHead.slice(0, 7)}, has code changes: ${materialFiles.slice(0, 5).join(', ')}`,
       currentHead,
       changedFiles,
       materialFiles,
@@ -170,7 +170,7 @@ export function checkEvidenceFreshnessForGit(
   } catch {
     return {
       fresh: false,
-      reason: `evidence hash ${evidenceHash.slice(0, 7)} 与 HEAD ${currentHead.slice(0, 7)} 不匹配，且无法比较 git diff`,
+      reason: `evidence hash ${evidenceHash.slice(0, 7)} does not match HEAD ${currentHead.slice(0, 7)}, and unable to compare git diff`,
       currentHead,
       changedFiles: [],
       materialFiles: [],

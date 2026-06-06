@@ -1,10 +1,10 @@
 /**
- * koala CLI 引擎
+ * koala CLI engine
  *
- * 把 dispatch / parse / log / phase gate 这些通用逻辑包成可调用的 runCli 函数。
- * main 自己的 cli.ts 是 bin 入口，直接调 runCli()；
- * 第三方 bootstrap 脚本可以在 runCli({extraTools, extraRegister}) 时把 utils
- * 的工具和 handler 一起合进来。
+ * Wraps the common logic (dispatch / parse / log / phase gate) into a callable
+ * runCli function. main's own cli.ts is the bin entrypoint and calls runCli()
+ * directly; third-party bootstrap scripts can merge their tools and handlers
+ * via runCli({extraTools, extraRegister}).
  */
 
 import { z, ZodType, ZodOptional, ZodEnum, ZodArray, ZodUnion, ZodString, ZodBoolean, ZodNumber, ZodObject } from 'zod';
@@ -55,9 +55,9 @@ import {
 
 export interface ToolDef {
   name: string;
-  /** 一行描述（出现在 lattice help 列表里） */
+  /** One-line description (shown in the lattice help list) */
   description: string;
-  /** 完整 PROMPT（出现在 lattice <cmd> --help 里）。可选；缺省时只显示 description */
+  /** Full PROMPT (shown in lattice <cmd> --help). Optional; only the description is shown when omitted */
   longHelp?: string;
   schema: Record<string, ZodType>;
 }
@@ -83,11 +83,11 @@ const verificationIntentTypeSchema = z.preprocess((value) => {
  *   - [CHK-003] Keep old testIntent types untouched; only verificationIntent is normalized
  */
 const verificationIntentItemSchema = z.object({
-  id: z.string().optional().describe('可选稳定 id；缺省时自动按 CHK-001:happy:0 推导'),
-  desc: z.string().describe('验证意图描述'),
-  type: verificationIntentTypeSchema.describe('验证类型'),
-  requiredIn: z.enum(['light', 'balanced', 'strict']).optional().describe('从哪个 workflow profile 起要求'),
-  priority: z.enum(['must', 'should', 'nice']).optional().describe('must 会进入 evidence gate'),
+  id: z.string().optional().describe('Optional stable id; auto-derived as CHK-001:happy:0 when omitted'),
+  desc: z.string().describe('Verification intent description'),
+  type: verificationIntentTypeSchema.describe('Verification type'),
+  requiredIn: z.enum(['light', 'balanced', 'strict']).optional().describe('Workflow profile from which this becomes required'),
+  priority: z.enum(['must', 'should', 'nice']).optional().describe('must items participate in the evidence gate'),
 });
 
 /**
@@ -101,7 +101,7 @@ const verificationIntentItemSchema = z.object({
  *   people and AI both go through CLI schemas, command gates, handlers, and logs.
  *   Superpowers can trigger workflow by registering extra tools and handlers, but
  *   main command definitions win because MAIN_TOOLS are searched before extras.
- *   更准确的说法是代码应该是被一个自动化的接口所管理的，人和ai都是通过这个接口来操作代码。
+ *   More precisely: code should be managed through an automated interface, and humans and AI both operate on code via that interface.
  * @changes
  *   - [CHK-001] Preserve CLI schema/handler dispatch as the operation interface for humans and AI
  *   - [CHK-001] Allow superpowers to trigger workflow through extraRegister without redefining core workflow
@@ -122,20 +122,20 @@ const verificationEvidenceKindSchema = z.enum([
   'waiver',
   'cli',
   'logic',
-]).describe('证据类型；aliases: cli→manual_transcript, logic→logic_test');
+]).describe('Evidence type; aliases: cli→manual_transcript, logic→logic_test');
 
 const verificationEvidenceSchema = z.object({
-  intentRef: z.string().describe('如 CHK-001:happy:0 或自定义 intent id'),
+  intentRef: z.string().describe('e.g. CHK-001:happy:0 or a custom intent id'),
   kind: verificationEvidenceKindSchema,
-  verdict: z.enum(VERIFICATION_EVIDENCE_VERDICTS).optional().describe('证据结论语义；不覆盖 result pass/fail gate'),
-  waiverType: z.enum(['permanent', 'deferred_gate_evidence']).optional().describe('kind=waiver 时可标记为临时 gate 自测 evidence；后续 validate 会要求替换真实证据'),
-  file: z.string().optional().describe('测试/文档文件路径'),
-  command: z.string().optional().describe('执行命令'),
-  result: z.enum(['pass', 'fail']).optional().describe('执行结果'),
-  note: z.string().describe('为什么此证据覆盖该 intent'),
-  headHash: z.string().optional().describe('记录证据时的 git HEAD'),
-  materialHash: z.string().optional().describe('记录证据时的非 story-metadata 实体文件哈希'),
-  timestamp: z.string().optional().describe('记录时间'),
+  verdict: z.enum(VERIFICATION_EVIDENCE_VERDICTS).optional().describe('Evidence verdict semantics; does not override the result pass/fail gate'),
+  waiverType: z.enum(['permanent', 'deferred_gate_evidence']).optional().describe('When kind=waiver, may mark this as temporary gate self-test evidence; subsequent validate runs will require replacing it with real evidence'),
+  file: z.string().optional().describe('Test or documentation file path'),
+  command: z.string().optional().describe('Command to execute'),
+  result: z.enum(['pass', 'fail']).optional().describe('Execution result'),
+  note: z.string().describe('Why this evidence covers the intent'),
+  headHash: z.string().optional().describe('git HEAD at the time the evidence was recorded'),
+  materialHash: z.string().optional().describe('Hash of non-story-metadata material files at the time the evidence was recorded'),
+  timestamp: z.string().optional().describe('Record timestamp'),
 });
 
 const capsuleEvidenceRefSchema = z.object({
@@ -174,212 +174,217 @@ const storyTypeSchema = z.preprocess((value) => {
   return value;
 }, z.enum(['feature','bug','refactor','chore']));
 
-/** main 自带的 CLI 工具定义 */
+/** main's built-in CLI tool definitions */
 export const MAIN_TOOLS: ToolDef[] = [
   // Story
-  { name: 'story_create', description: '创建 Story 条目', longHelp: STORY_CREATE_LONG, schema: {
-    name: z.string().optional().describe('短名称'),
-    title: z.string().optional().describe('标题'),
-    description: z.string().optional().describe('描述'),
-    type: storyTypeSchema.optional().describe('类型；test 会归一为 chore'),
-    priority: z.string().optional().describe('优先级'),
-    source: z.string().optional().describe('来源'),
-    depends: z.array(z.string()).optional().describe('依赖 Story ID'),
-    keywords: z.array(z.string()).optional().describe('关键词（领域/模块/概念，用于查重）'),
-    checklist: z.array(z.object({ title: z.string(), context: z.string().optional(), relatedDocs: z.array(z.string()).optional().describe('关联文档路径（用于三次提醒）'), userSees: z.string().optional().describe('用户可见输出'), excludes: z.array(z.string()).optional().describe('显式声明不做的功能点'), verificationIntent: verificationIntentSchema.optional().describe('happy/edge/adversarial 验证意图') })).optional().describe('开发清单'),
-    prefix: z.string().optional().describe('ID 前缀(默认 B)'),
-    phase: z.enum(['IDEA','INIT','INIT_CHECK','PLAN','DEV','REVIEW','TEST','DONE']).optional().describe('直接指定阶段'),
-    forceNew: z.boolean().optional().describe('B-0af4: 绕过同名 story idempotency 强制新建（同名未完成 story 默认会被复用）'),
-    background: z.string().optional().describe('B-45ed CHK-006: 四段式 background.md 内容。需含 "## 触发事件" / "## 关键洞察" / "## 方案取舍" / "## 对话纹理" 4 段，每段 ≥ 50 字符，总长 ≥ 300，触发事件段须含具体编号（B-xxxx / F-xxx / CHK-xxx / commit hash / YYYY-MM-DD）。fromDraft 模式下不需要'),
-    fromDraft: z.string().optional().describe('B-9975: 从已审查的 draft 创建 story（传 draft name）。三层 gate 校验后直接进 INIT_CHECK'),
+  { name: 'story_create', description: 'Create a Story entry', longHelp: STORY_CREATE_LONG, schema: {
+    name: z.string().optional().describe('Short name'),
+    title: z.string().optional().describe('Title'),
+    description: z.string().optional().describe('Description'),
+    type: storyTypeSchema.optional().describe('Type; test is normalized to chore'),
+    priority: z.string().optional().describe('Priority'),
+    source: z.string().optional().describe('Source'),
+    depends: z.array(z.string()).optional().describe('Dependent Story IDs'),
+    keywords: z.array(z.string()).optional().describe('Keywords (domain / module / concept, used for duplicate detection)'),
+    checklist: z.array(z.object({ title: z.string(), context: z.string().optional(), relatedDocs: z.array(z.string()).optional().describe('Related document paths (used for the three reminders)'), userSees: z.string().optional().describe('User-visible output'), excludes: z.array(z.string()).optional().describe('Feature points explicitly declared out of scope'), verificationIntent: verificationIntentSchema.optional().describe('happy / edge / adversarial verification intents') })).optional().describe('Development checklist'),
+    prefix: z.string().optional().describe('ID prefix (default B)'),
+    phase: z.enum(['IDEA','INIT','INIT_CHECK','PLAN','DEV','REVIEW','TEST','DONE']).optional().describe('Directly specify the phase'),
+    forceNew: z.boolean().optional().describe('B-0af4: bypass same-name story idempotency and force creation (an unfinished same-name story is reused by default)'),
+    background: z.string().optional().describe('B-45ed CHK-006: four-section background.md content. Must contain "## Trigger Event" / "## Key Insight" / "## Tradeoffs" / "## Conversation Texture", each ≥ 50 characters, total length ≥ 300; the Trigger Event section must contain a concrete identifier (B-xxxx / F-xxx / CHK-xxx / commit hash / YYYY-MM-DD). Not required in fromDraft mode'),
+    fromDraft: z.string().optional().describe('B-9975: create a story from a reviewed draft (pass the draft name). After the three-layer gate check, enters INIT_CHECK directly'),
   }},
-  { name: 'story_advance', description: '推进 Story 到下一阶段', longHelp: STORY_ADVANCE_LONG, schema: {
-    storyId: z.string().describe('Story ID'), phase: z.enum(['IDEA','INIT','INIT_CHECK','PLAN','DEV','REVIEW','TEST','DONE']).describe('目标阶段'),
-    checklist: z.array(z.object({ id: z.string(), title: z.string() })).optional().describe('开发清单'),
-    dryRun: z.boolean().optional().describe('只预览 INIT_CHECK bootstrap，不推进 phase/创建 worktree'),
-    confirm: z.boolean().optional().describe('确认执行有副作用的推进（兼容脚本参数）'),
+  { name: 'story_advance', description: 'Advance the Story to the next phase', longHelp: STORY_ADVANCE_LONG, schema: {
+    storyId: z.string().describe('Story ID'), phase: z.enum(['IDEA','INIT','INIT_CHECK','PLAN','DEV','REVIEW','TEST','DONE']).describe('Target phase'),
+    checklist: z.array(z.object({ id: z.string(), title: z.string() })).optional().describe('Development checklist'),
+    dryRun: z.boolean().optional().describe('Only preview the INIT_CHECK bootstrap; do not advance the phase or create a worktree'),
+    confirm: z.boolean().optional().describe('Confirm side-effecting advancement (kept for script compatibility)'),
   }},
-  { name: 'story_update', description: '编辑 Story 信息', schema: {
-    storyId: z.string().describe('Story ID'), title: z.string().optional().describe('新标题'),
-    description: z.string().optional().describe('新描述'), priority: z.string().optional().describe('新优先级'),
+  { name: 'story_update', description: 'Edit Story metadata', schema: {
+    storyId: z.string().describe('Story ID'), title: z.string().optional().describe('New title'),
+    description: z.string().optional().describe('New description'), priority: z.string().optional().describe('New priority'),
   }},
-  { name: 'story_get', description: '读取 Story 详情', schema: { storyId: z.string().describe('Story ID'), detail: z.boolean().optional().describe('附带 index.json 全字段（phase/priority/name/description/...）到 result.index') }},
-  { name: 'story_list', description: '列出全部 Story', schema: {
-    phase: z.enum(['IDEA','INIT','INIT_CHECK','PLAN','DEV','REVIEW','TEST','DONE','DISCARDED']).optional().describe('按阶段过滤（与 active 互斥）'),
-    active: z.boolean().optional().describe('仅列出非终态 story（排除 DONE/DISCARDED/IDEA）。B-89c7 CHK-016 新增'),
-  }},
-  { name: 'story_reconcile', description: '检测并修复僵尸 story / 终态 worktree residue（默认 dry run）', schema: {
-    dryRun: z.boolean().optional().describe('true=只报告；false=执行修复（默认 true）'),
-  }},
-  { name: 'story_discard', description: '废弃 Story：清理 worktree/分支并标记为 DISCARDED', schema: {
+  { name: 'story_get', description: 'Read Story details', schema: { storyId: z.string().describe('Story ID'), detail: z.boolean().optional().describe('Include the full index.json fields (phase / priority / name / description / ...) under result.index') }},
+  { name: 'story_resolve', description: 'Resolve Story context, current phase, and authoritative working directory for plannedSteps. Alias: lattice story resolve', schema: {
     storyId: z.string().describe('Story ID'),
-    reason: z.string().optional().describe('废弃原因（写入事件记录）'),
-    force: z.boolean().optional().describe('强制丢弃未提交改动'),
-    purge: z.boolean().optional().describe('临时 story 专用：删除 story metadata，并在安全时回退纯 metadata init commit'),
+    json: z.boolean().optional().describe('Output JSON'),
+    format: z.enum(['text', 'json']).optional().describe('Output format'),
+  }},
+  { name: 'story_list', description: 'List all Stories', schema: {
+    phase: z.enum(['IDEA','INIT','INIT_CHECK','PLAN','DEV','REVIEW','TEST','DONE','DISCARDED']).optional().describe('Filter by phase (mutually exclusive with active)'),
+    active: z.boolean().optional().describe('Only list non-terminal stories (excluding DONE / DISCARDED / IDEA). Added in B-89c7 CHK-016'),
+  }},
+  { name: 'story_reconcile', description: 'Detect and repair zombie stories / terminal worktree residue (dry run by default)', schema: {
+    dryRun: z.boolean().optional().describe('true = report only; false = perform repair (default true)'),
+  }},
+  { name: 'story_discard', description: 'Discard a Story: clean up the worktree / branch and mark it as DISCARDED', schema: {
+    storyId: z.string().describe('Story ID'),
+    reason: z.string().optional().describe('Discard reason (written to the event log)'),
+    force: z.boolean().optional().describe('Force-discard uncommitted changes'),
+    purge: z.boolean().optional().describe('Temporary-story only: delete story metadata and, when safe, revert the pure-metadata init commit'),
   }},
 
   // Draft (B-9975: iterate on story shape before formal story_create)
-  { name: 'story_draft', description: '创建 draft（不分配 B-xxxx id，写到 docs/story/drafts/<name>/）', schema: {
-    name: z.string().describe('短名称（字母数字+连字符，3-60 字符）'),
-    title: z.string().describe('标题（≥ 5 字符）'),
-    description: z.string().describe('描述（≥ 5 字符）'),
-    type: storyTypeSchema.describe('类型；test 会归一为 chore'),
-    priority: z.string().describe('优先级'),
-    checklist: z.array(z.object({ title: z.string(), context: z.string().optional() })).describe('开发清单（≥ 1 项）'),
-    background: z.string().describe('四段式 background.md 内容（必填，同 story_create 校验）'),
-    keywords: z.array(z.string()).optional().describe('关键词'),
+  { name: 'story_draft', description: 'Create a draft without assigning a B-xxxx id; writes to docs/story/drafts/<name>/', schema: {
+    name: z.string().describe('Short name (alphanumeric plus hyphens, 3-60 characters)'),
+    title: z.string().describe('Title (≥ 5 characters)'),
+    description: z.string().describe('Description (≥ 5 characters)'),
+    type: storyTypeSchema.describe('Type; test is normalized to chore'),
+    priority: z.string().describe('Priority'),
+    checklist: z.array(z.object({ title: z.string(), context: z.string().optional() })).describe('Development checklist (≥ 1 item)'),
+    background: z.string().describe('Four-section background.md content (required; same validation as story_create)'),
+    keywords: z.array(z.string()).optional().describe('Keywords'),
   }},
-  { name: 'story_draft_list', description: '列出所有 draft', schema: {} },
-  { name: 'story_draft_discard', description: '删除指定 draft', schema: {
-    name: z.string().describe('要删除的 draft 名称'),
+  { name: 'story_draft_list', description: 'List all drafts', schema: {} },
+  { name: 'story_draft_discard', description: 'Delete a draft', schema: {
+    name: z.string().describe('Draft name to delete'),
   }},
-  { name: 'draft_check_set', description: '保存 draft check 结果（由 reviewer 调用，签名 draft 的 background + checklist）', schema: {
-    draftName: z.string().describe('Draft 名称'),
+  { name: 'draft_check_set', description: 'Save draft check results (called by reviewers; signs the draft background + checklist)', schema: {
+    draftName: z.string().describe('Draft name'),
     issues: z.array(z.object({
-      id: z.string().optional().describe('reviewer 自分配 id（如 INIT-001），可选（自动分配）'),
-      severity: z.enum(['critical', 'high', 'medium', 'low']).describe('issue 严重度'),
-      desc: z.string().min(1, 'desc 必填且 ≥ 1 字符').describe('issue 具体描述'),
-    })).describe('Reviewer 提出的 issue 列表（允许空数组）'),
-    agentId: z.string().optional().describe('Reviewer 自报 agent id，仅审计追溯用'),
+      id: z.string().optional().describe('Optional reviewer-assigned id (for example INIT-001); auto-assigned when omitted'),
+      severity: z.enum(['critical', 'high', 'medium', 'low']).describe('Issue severity'),
+      desc: z.string().min(1, 'desc is required and must be at least 1 character').describe('Concrete issue description'),
+    })).describe('Issues raised by the reviewer (empty array allowed)'),
+    agentId: z.string().optional().describe('Reviewer self-reported agent id, used only for audit traceability'),
   }},
-  { name: 'draft_issue_resolve', description: '对 draft check 中的 issue 写入 resolution（≥ 20 字符）', schema: {
-    draftName: z.string().describe('Draft 名称'),
-    issueId: z.string().describe('Issue ID（如 INIT-001）'),
-    resolution: z.string().min(20, 'resolution ≥ 20 字符').describe('书面消解结论'),
+  { name: 'draft_issue_resolve', description: 'Record a resolution for a draft-check issue (≥ 20 characters)', schema: {
+    draftName: z.string().describe('Draft name'),
+    issueId: z.string().describe('Issue ID (for example INIT-001)'),
+    resolution: z.string().min(20, 'resolution must be at least 20 characters').describe('Written resolution conclusion'),
   }},
 
   // Review
-  { name: 'story_review', description: '对抗审查 checklist 完整性', longHelp: STORY_REVIEW_LONG, schema: {
+  { name: 'story_review', description: 'Adversarially review checklist completeness', longHelp: STORY_REVIEW_LONG, schema: {
     storyId: z.string().describe('Story ID'),
   }},
-  { name: 'story_review_dismiss', description: '驳回一个被误报的 riskSignal 分类（B-5010）', schema: {
+  { name: 'story_review_dismiss', description: 'Dismiss a false-positive riskSignal category (B-5010)', schema: {
     storyId: z.string().describe('Story ID'),
-    category: z.string().describe('要驳回的 riskSignal.category（如 "状态机/门禁"、"test runner 框架"）'),
-    reason: z.string().describe('驳回理由（≥ 5 字符，写清楚为什么该 signal 在本 story 是误报）'),
+    category: z.string().describe('riskSignal.category to dismiss (for example "state machine/gate" or "test runner framework")'),
+    reason: z.string().describe('Dismissal reason (≥ 5 characters; explain why this signal is a false positive for this story)'),
   }},
-  { name: 'testintent_handoff', description: '生成 test-intent agent 交接包（PLAN 阶段）', schema: {
+  { name: 'testintent_handoff', description: 'Generate a test-intent agent handoff pack (PLAN phase)', schema: {
     storyId: z.string().describe('Story ID'),
-    itemIds: z.array(z.string()).optional().describe('只交接指定 checklist item ID；缺省为全部'),
+    itemIds: z.array(z.string()).optional().describe('Only hand off the specified checklist item IDs; defaults to all items'),
   }},
 
   // Checklist
-  { name: 'checklist_get', description: '读取 checklist', schema: { storyId: z.string().describe('Story ID') }},
-  { name: 'checklist_add', description: '向已有 story 追加 checklist item', schema: {
-    storyId: z.string().describe('Story ID'), title: z.string().describe('做什么（一句话）'),
-    context: z.string().optional().describe('根因/参考方案'),
-    relatedDocs: z.array(z.string()).optional().describe('关联文档路径（用于三次提醒）'),
-    userSees: z.string().optional().describe('用户完成此 item 后在终端/UI 看到的具体文本'),
-    excludes: z.array(z.string()).optional().describe('显式声明不做的功能点'),
+  { name: 'checklist_get', description: 'Read the checklist', schema: { storyId: z.string().describe('Story ID') }},
+  { name: 'checklist_add', description: 'Append a checklist item to an existing story', schema: {
+    storyId: z.string().describe('Story ID'), title: z.string().describe('What to do (one sentence)'),
+    context: z.string().optional().describe('Root cause or reference approach'),
+    relatedDocs: z.array(z.string()).optional().describe('Related document paths (used for the three reminders)'),
+    userSees: z.string().optional().describe('Concrete terminal/UI text the user sees after this item is complete'),
+    excludes: z.array(z.string()).optional().describe('Feature points explicitly declared out of scope'),
     files: z.object({
       modify: z.array(z.string()),
       create: z.array(z.string()),
       test: z.array(z.string()),
-    }).optional().describe('B-45ed: 受影响的文件集合（PLAN 阶段声明，story_review 做 touchpoints→files 覆盖校验）'),
-    verificationIntent: verificationIntentSchema.optional().describe('happy/edge/adversarial 验证意图（PLAN 阶段）'),
-    reason: z.string().optional().describe('PLAN 阶段追加 item 时必须提供的 replan/scope audit 理由（≥10 字符）'),
+    }).optional().describe('B-45ed: affected file set (declared in PLAN; story_review validates touchpoints-to-files coverage)'),
+    verificationIntent: verificationIntentSchema.optional().describe('happy/edge/adversarial verification intents (PLAN phase)'),
+    reason: z.string().optional().describe('Required replan/scope-audit reason when adding an item during PLAN (≥10 characters)'),
   }},
-  { name: 'checklist_remove', description: '从 story 中移除一个 checklist item（必须给出裁决 + 理由）', schema: {
-    storyId: z.string().describe('Story ID'), itemId: z.string().describe('要移除的项 ID'),
-    disposition: z.enum(['accept', 'reject', 'partial']).describe('裁决: accept=确认删除合理 / reject=不该删但要移除 / partial=部分合理'),
-    justification: z.string().describe('删除理由（≥10 字符）'),
+  { name: 'checklist_remove', description: 'Remove a checklist item from a story (requires disposition + reason)', schema: {
+    storyId: z.string().describe('Story ID'), itemId: z.string().describe('Item ID to remove'),
+    disposition: z.enum(['accept', 'reject', 'partial']).describe('Disposition: accept=deletion is valid / reject=should not be deleted but remove anyway / partial=partly valid'),
+    justification: z.string().describe('Removal reason (≥10 characters)'),
   }},
-  { name: 'checklist_update', description: '更新 checklist 项 (status/relatedDocs；title/context 从 PLAN 冻结，userSees 从 DEV 冻结)', longHelp: CHECKLIST_UPDATE_LONG, schema: {
-    storyId: z.string().describe('Story ID'), itemId: z.string().describe('项 ID'),
-    status: z.enum(['pending','in_progress','done']).optional().describe('新状态'),
-    title: z.string().optional().describe('新标题（PLAN 起冻结）'),
-    context: z.string().optional().describe('新 context（PLAN 起冻结）'),
-    relatedDocs: z.array(z.string()).optional().describe('关联文档路径（用于三次提醒）'),
-    userSees: z.string().optional().describe('用户完成此 item 后在终端/UI 看到的具体文本（PLAN 之前可写，DEV 起冻结）'),
+  { name: 'checklist_update', description: 'Update a checklist item (status/relatedDocs; title/context freeze from PLAN, userSees freezes from DEV)', longHelp: CHECKLIST_UPDATE_LONG, schema: {
+    storyId: z.string().describe('Story ID'), itemId: z.string().describe('Item ID'),
+    status: z.enum(['pending','in_progress','done']).optional().describe('New status'),
+    title: z.string().optional().describe('New title (frozen from PLAN onward)'),
+    context: z.string().optional().describe('New context (frozen from PLAN onward)'),
+    relatedDocs: z.array(z.string()).optional().describe('Related document paths (used for the three reminders)'),
+    userSees: z.string().optional().describe('Concrete terminal/UI text the user sees after this item is complete (editable before PLAN, frozen from DEV onward)'),
     files: z.object({
       modify: z.array(z.string()),
       create: z.array(z.string()),
       test: z.array(z.string()),
-    }).optional().describe('B-45ed: 受影响的文件集合（PLAN 阶段声明）'),
-    verificationIntent: verificationIntentSchema.optional().describe('happy/edge/adversarial 验证意图（DEV 起冻结）'),
-    verificationEvidence: z.array(verificationEvidenceSchema).optional().describe('覆盖 verificationIntent 的证据列表'),
-    reason: z.string().optional().describe('变更原因'), agent: z.string().optional().describe('操作者'),
-    success: z.boolean().optional().describe('subagent 结果是否成功（仅 status=done 时有效，默认 true）'),
+    }).optional().describe('B-45ed: affected file set (declared in PLAN)'),
+    verificationIntent: verificationIntentSchema.optional().describe('happy/edge/adversarial verification intents (frozen from DEV onward)'),
+    verificationEvidence: z.array(verificationEvidenceSchema).optional().describe('Evidence list covering verificationIntent'),
+    reason: z.string().optional().describe('Change reason'), agent: z.string().optional().describe('Actor'),
+    success: z.boolean().optional().describe('Whether the subagent result succeeded (only valid when status=done; default true)'),
   }},
-  { name: 'verification_evidence_add', description: '为 checklist item 追加/更新 verificationIntent 覆盖证据', schema: {
+  { name: 'verification_evidence_add', description: 'Append or update verificationIntent coverage evidence for a checklist item', schema: {
     storyId: z.string().describe('Story ID'),
     itemId: z.string().describe('Checklist item ID'),
-    intentRef: z.string().describe('如 CHK-001:happy:0 或自定义 intent id'),
+    intentRef: z.string().describe('For example CHK-001:happy:0 or a custom intent id'),
     kind: verificationEvidenceKindSchema,
-    verdict: z.enum(VERIFICATION_EVIDENCE_VERDICTS).optional().describe('证据结论语义；不覆盖 result pass/fail gate'),
-    waiverType: z.enum(['permanent', 'deferred_gate_evidence']).optional().describe('kind=waiver 时可标记为临时 gate 自测 evidence'),
-    file: z.string().optional().describe('测试/文档文件路径'),
-    command: z.string().optional().describe('执行命令'),
-    result: z.enum(['pass', 'fail']).optional().describe('执行结果'),
-    note: z.string().describe('为什么此证据覆盖该 intent'),
+    verdict: z.enum(VERIFICATION_EVIDENCE_VERDICTS).optional().describe('Evidence verdict semantics; does not override the result pass/fail gate'),
+    waiverType: z.enum(['permanent', 'deferred_gate_evidence']).optional().describe('When kind=waiver, may mark this as temporary gate self-test evidence'),
+    file: z.string().optional().describe('Test or documentation file path'),
+    command: z.string().optional().describe('Command to execute'),
+    result: z.enum(['pass', 'fail']).optional().describe('Execution result'),
+    note: z.string().describe('Why this evidence covers the intent'),
   }},
-  { name: 'verification_evidence_batch_add', description: '批量追加/更新 verificationIntent 覆盖证据（避免并发写 checklist 丢 evidence）', schema: {
+  { name: 'verification_evidence_batch_add', description: 'Batch append or update verificationIntent coverage evidence (avoids losing evidence during concurrent checklist writes)', schema: {
     storyId: z.string().describe('Story ID'),
     evidences: z.array(z.object({
       itemId: z.string().describe('Checklist item ID'),
-      intentRef: z.string().describe('如 CHK-001:happy:0 或自定义 intent id'),
+      intentRef: z.string().describe('For example CHK-001:happy:0 or a custom intent id'),
       kind: verificationEvidenceKindSchema,
-      verdict: z.enum(VERIFICATION_EVIDENCE_VERDICTS).optional().describe('证据结论语义；不覆盖 result pass/fail gate'),
-      waiverType: z.enum(['permanent', 'deferred_gate_evidence']).optional().describe('kind=waiver 时可标记为临时 gate 自测 evidence'),
-      file: z.string().optional().describe('测试/文档文件路径'),
-      command: z.string().optional().describe('执行命令'),
-      result: z.enum(['pass', 'fail']).optional().describe('执行结果'),
-      note: z.string().describe('为什么此证据覆盖该 intent'),
-    })).describe('证据数组；同一次调用内读写 checklist 一次'),
+      verdict: z.enum(VERIFICATION_EVIDENCE_VERDICTS).optional().describe('Evidence verdict semantics; does not override the result pass/fail gate'),
+      waiverType: z.enum(['permanent', 'deferred_gate_evidence']).optional().describe('When kind=waiver, may mark this as temporary gate self-test evidence'),
+      file: z.string().optional().describe('Test or documentation file path'),
+      command: z.string().optional().describe('Command to execute'),
+      result: z.enum(['pass', 'fail']).optional().describe('Execution result'),
+      note: z.string().describe('Why this evidence covers the intent'),
+    })).describe('Evidence array; reads/writes the checklist once in this call'),
   }},
-  { name: 'verification_evidence_refresh_stale', description: '刷新 stale verificationEvidence 的 HEAD/material hash（需先重跑对应验证命令）', schema: {
+  { name: 'verification_evidence_refresh_stale', description: 'Refresh stale verificationEvidence HEAD/material hashes (rerun the corresponding verification command first)', schema: {
     storyId: z.string().describe('Story ID'),
-    dryRun: z.boolean().optional().describe('只报告将刷新的 stale evidence，不写入'),
+    dryRun: z.boolean().optional().describe('Only report stale evidence that would be refreshed; do not write'),
   }},
-  { name: 'verification_context_pack_create', description: '从当前 git diff 机械生成 Verification Context Pack（供 verifier job/Runner 消费）', schema: {
-    producerRunId: z.string().min(1).describe('实现者 run id'),
+  { name: 'verification_context_pack_create', description: 'Mechanically generate a Verification Context Pack from the current git diff (for verifier jobs/Runners)', schema: {
+    producerRunId: z.string().min(1).describe('Implementer run id'),
     storyId: z.string().optional().describe('Story ID'),
-    baseRef: z.string().optional().describe('diff base ref，默认 HEAD'),
-    headRef: z.string().optional().describe('diff head ref；默认 WORKTREE 表示未提交工作区'),
-    packId: z.string().optional().describe('显式 pack id；缺省由 diff 生成稳定 id'),
-    checklistItemIds: z.array(z.string()).optional().describe('该 pack 关联的 checklist item IDs'),
-    testIntentRefs: z.array(z.string()).optional().describe('该 pack 必须覆盖的 verificationIntent refs'),
-    acceptanceCriteria: z.array(z.string()).optional().describe('验收标准摘要'),
-    requiredRefs: z.array(z.string()).optional().describe('额外 required refs'),
-    requiredCommands: z.array(VerificationCommandContractSchema).optional().describe('verifier 必须执行/覆盖的命令约束'),
+    baseRef: z.string().optional().describe('diff base ref, default HEAD'),
+    headRef: z.string().optional().describe('diff head ref; default WORKTREE means uncommitted working tree'),
+    packId: z.string().optional().describe('Explicit pack id; defaults to a stable id generated from the diff'),
+    checklistItemIds: z.array(z.string()).optional().describe('Checklist item IDs associated with this pack'),
+    testIntentRefs: z.array(z.string()).optional().describe('verificationIntent refs this pack must cover'),
+    acceptanceCriteria: z.array(z.string()).optional().describe('Acceptance criteria summary'),
+    requiredRefs: z.array(z.string()).optional().describe('Additional required refs'),
+    requiredCommands: z.array(VerificationCommandContractSchema).optional().describe('Command constraints the verifier must execute/cover'),
     oracleRefs: z.array(z.string()).optional().describe('oracle refs'),
     tokenBudget: z.number().int().nonnegative().optional().describe('source snippets token budget'),
-    excludedPaths: z.array(z.string()).optional().describe('被排除路径，进入 pack 供审计'),
-    metadata: z.record(z.string(), z.unknown()).optional().describe('附加 metadata'),
+    excludedPaths: z.array(z.string()).optional().describe('Excluded paths, included in the pack for audit'),
+    metadata: z.record(z.string(), z.unknown()).optional().describe('Additional metadata'),
   }},
-  { name: 'verification_context_pack_expand', description: '基于 parent pack 生成受控扩展包（必须说明扩展原因）', schema: {
-    parentPack: VerificationContextPackContractSchema.describe('上一个 Verification Context Pack'),
-    packId: z.string().optional().describe('新 pack id'),
-    expansionReason: z.string().min(10).describe('扩展原因（≥10 字符）'),
-    impactedFiles: z.array(z.string()).optional().describe('新增 impacted files'),
-    impactedSymbols: z.array(ContextPackSymbolContractSchema).optional().describe('新增 impacted symbols'),
-    sourceSnippets: z.array(ContextPackSnippetContractSchema).optional().describe('新增 source snippets'),
-    dependencyEdges: z.array(ContextPackDependencyEdgeContractSchema).optional().describe('新增 dependency edges'),
-    requiredRefs: z.array(z.string()).optional().describe('新增 required refs'),
-    tokenBudget: z.number().int().nonnegative().optional().describe('新 token budget'),
-    metadata: z.record(z.string(), z.unknown()).optional().describe('附加 metadata'),
+  { name: 'verification_context_pack_expand', description: 'Generate a controlled expansion pack from a parent pack (must explain the expansion reason)', schema: {
+    parentPack: VerificationContextPackContractSchema.describe('Previous Verification Context Pack'),
+    packId: z.string().optional().describe('New pack id'),
+    expansionReason: z.string().min(10).describe('Expansion reason (≥10 characters)'),
+    impactedFiles: z.array(z.string()).optional().describe('Additional impacted files'),
+    impactedSymbols: z.array(ContextPackSymbolContractSchema).optional().describe('Additional impacted symbols'),
+    sourceSnippets: z.array(ContextPackSnippetContractSchema).optional().describe('Additional source snippets'),
+    dependencyEdges: z.array(ContextPackDependencyEdgeContractSchema).optional().describe('Additional dependency edges'),
+    requiredRefs: z.array(z.string()).optional().describe('Additional required refs'),
+    tokenBudget: z.number().int().nonnegative().optional().describe('New token budget'),
+    metadata: z.record(z.string(), z.unknown()).optional().describe('Additional metadata'),
   }},
   // B-a2f1 CHK-003: single-shot recover — refresh stale evidence + revalidate.
-  { name: 'recover_evidence', description: 'Single-shot recover：refresh stale evidence + revalidate（仅在 worktree 只剩 koala metadata / runtime / declared artifact 时放行）', schema: {
+  { name: 'recover_evidence', description: 'Single-shot recover: refresh stale evidence + revalidate (allowed only when the worktree contains only koala metadata / runtime / declared artifacts)', schema: {
     storyId: z.string().min(1).describe('Story ID'),
   }},
   // B-cf60: per-story declared product artifact — register a generated path so
   // the dirty-worktree classifier groups it under declared_artifact_changes
   // instead of unexpected_dirty_files. DONE gate then checks every declared
   // path is referenced from verificationEvidence or delivery-check.docsPromises.
-  { name: 'artifact_declare', description: '把一个生成物路径声明为本 story 的预期产出，使 dirty classifier 归为 declared_artifact_changes，并要求 DONE gate 有匹配的 verificationEvidence/promise 引用', schema: {
+  { name: 'artifact_declare', description: 'Declare a generated path as an expected output for this story, classify it as declared_artifact_changes, and require matching verificationEvidence/promise references at the DONE gate', schema: {
     storyId: z.string().min(1).describe('Story ID'),
-    path: z.string().min(1).describe('相对仓库根的精确路径（无 glob/通配符；无 leading slash；无 .. 段）'),
-    reason: z.string().min(10, 'reason ≥ 10 characters').describe('为什么把此文件声明为本 story 的预期产出'),
-    relatedIntent: z.string().min(1).describe('关联引用：CHK-NNN:(happy|edge|adversarial):IDX 或 promise:<docPath>'),
+    path: z.string().min(1).describe('Exact path relative to the repository root (no glob/wildcards, no leading slash, no .. segments)'),
+    reason: z.string().min(10, 'reason ≥ 10 characters').describe('Why this file is an expected output for the story'),
+    relatedIntent: z.string().min(1).describe('Related reference: CHK-NNN:(happy|edge|adversarial):IDX or promise:<docPath>'),
   }},
-  { name: 'light_review', description: '记录一次轻量 review（DEV 阶段每完成一批 item 后调用）', schema: {
+  { name: 'light_review', description: 'Record a lightweight review (called after each batch of DEV items is completed)', schema: {
     storyId: z.string().describe('Story ID'),
-    checklistIds: z.array(z.string()).describe('本次 review 覆盖的 checklist item ID 列表'),
-    note: z.string().optional().describe('review 备注'),
+    checklistIds: z.array(z.string()).describe('Checklist item IDs covered by this review'),
+    note: z.string().optional().describe('Review note'),
   }},
-  { name: 'review_run_start', description: '启动一次当前 REVIEW round 的 reviewer run，并写入 signed review-runs.json', schema: {
+  { name: 'review_run_start', description: 'Start a reviewer run for the current REVIEW round and write signed review-runs.json', schema: {
     storyId: z.string().describe('Story ID'),
-    agent: z.string().optional().describe('reviewer agent id（如 koala-review-quality；默认 KOALA_AGENT）'),
+    agent: z.string().optional().describe('Reviewer agent id (for example koala-review-quality; defaults to KOALA_AGENT)'),
     lane: z.enum([
       'koala-review-concept',
       'koala-review-quality',
@@ -387,221 +392,221 @@ export const MAIN_TOOLS: ToolDef[] = [
       'koala-review-behavior',
       'koala-review-docs',
       'koala-review-channel',
-    ]).optional().describe('显式 reviewer lane；与 agent 同义，传一个即可'),
-    prompt: z.string().optional().describe('reviewer 实际收到的 prompt 文本；若提供会自动计算 promptHash'),
-    promptHash: z.string().optional().describe('reviewer prompt 的 sha256；若同时传 prompt，必须与 prompt 实际哈希一致'),
-    reviewedIntentRefs: z.array(z.string()).optional().describe('scope-protected story：reviewer 本轮检查的 verification intent refs（计入 scope binding，可选）'),
+    ]).optional().describe('Explicit reviewer lane; synonymous with agent, pass only one'),
+    prompt: z.string().optional().describe('Actual prompt text received by the reviewer; promptHash is computed automatically when provided'),
+    promptHash: z.string().optional().describe('sha256 of the reviewer prompt; when prompt is also provided, it must match the actual prompt hash'),
+    reviewedIntentRefs: z.array(z.string()).optional().describe('Scope-protected story: verification intent refs checked by this reviewer round (optional; counted in scope binding)'),
   }},
-  { name: 'review_pass_set', description: '记录 reviewer 已审查且无 blocking finding 的通过凭证', schema: {
+  { name: 'review_pass_set', description: 'Record pass evidence that a reviewer inspected the scope and found no blocking findings', schema: {
     storyId: z.string().describe('Story ID'),
-    agent: z.string().optional().describe('reviewer agent id（如 koala-review-quality；默认 KOALA_AGENT）'),
-    reviewRunId: z.string().describe('当前 reviewer run id（先调用 review_run_start 获取）'),
-    note: z.string().describe('审查范围与无 blocker 理由（≥10 字符）'),
+    agent: z.string().optional().describe('Reviewer agent id (for example koala-review-quality; defaults to KOALA_AGENT)'),
+    reviewRunId: z.string().describe('Current reviewer run id (obtain it by calling review_run_start first)'),
+    note: z.string().describe('Reviewed scope and why there are no blockers (≥10 characters)'),
   }},
 
-  // Understanding (Pre-context Intake snapshot, OMX 风格)
-  { name: 'understanding_set', description: 'PLAN 阶段落 task 理解快照（task/outcome/facts/constraints/unknowns/touchpoints）', schema: {
+  // Understanding (Pre-context Intake snapshot, OMX style)
+  { name: 'understanding_set', description: 'Record a PLAN-phase task understanding snapshot (task/outcome/facts/constraints/unknowns/touchpoints)', schema: {
     storyId: z.string().describe('Story ID'),
-    task: z.string().describe('一句话描述要解决的问题'),
-    outcome: z.string().describe('完成后能观察到什么变化'),
-    facts: z.array(z.string()).describe('已知事实'),
-    constraints: z.array(z.string()).describe('约束条件'),
-    unknowns: z.array(z.string()).describe('未知问题（拆 checklist 前应消化）'),
-    touchpoints: z.array(z.string()).describe('可能的代码触点'),
+    task: z.string().describe('One-sentence description of the problem to solve'),
+    outcome: z.string().describe('Observable change after completion'),
+    facts: z.array(z.string()).describe('Known facts'),
+    constraints: z.array(z.string()).describe('Constraints'),
+    unknowns: z.array(z.string()).describe('Unknowns that should be resolved before splitting the checklist'),
+    touchpoints: z.array(z.string()).describe('Likely code touchpoints'),
   }},
-  { name: 'understanding_get', description: '读取 understanding snapshot', schema: {
+  { name: 'understanding_get', description: 'Read the understanding snapshot', schema: {
     storyId: z.string().describe('Story ID'),
   }},
-  // Decision (RALPLAN-DR 结构化决策, OMX ralplan 风格)
-  { name: 'decision_set', description: 'PLAN 阶段落结构化决策（principles/drivers/options/chosen/preMortem）', schema: {
+  // Decision (RALPLAN-DR structured decision, OMX ralplan style)
+  { name: 'decision_set', description: 'Record a PLAN-phase structured decision (principles/drivers/options/chosen/preMortem)', schema: {
     storyId: z.string().describe('Story ID'),
-    principles: z.array(z.string()).describe('3-5 条设计原则'),
-    drivers: z.array(z.string()).describe('top 3 关键约束'),
+    principles: z.array(z.string()).describe('3-5 design principles'),
+    drivers: z.array(z.string()).describe('Top 3 key constraints'),
     options: z.array(z.object({
       name: z.string(),
       pros: z.array(z.string()),
       cons: z.array(z.string()),
-    })).describe('≥ 2 个备选 + pros/cons'),
-    chosen: z.string().describe('选择的 option.name'),
-    rationale: z.string().describe('选择理由 (≥ 10 字符)'),
+    })).describe('≥ 2 options with pros/cons'),
+    chosen: z.string().describe('Chosen option.name'),
+    rationale: z.string().describe('Selection rationale (≥ 10 characters)'),
     preMortem: z.array(z.object({
       scenario: z.string(),
       trigger: z.string(),
       consequence: z.string(),
       mitigation: z.string(),
-    })).optional().describe('预演失败场景（高风险 story 要求 ≥ 3）'),
+    })).optional().describe('Pre-mortem failure scenarios (high-risk stories require ≥ 3)'),
   }},
-  { name: 'decision_get', description: '读取 decision snapshot', schema: {
+  { name: 'decision_get', description: 'Read the decision snapshot', schema: {
     storyId: z.string().describe('Story ID'),
   }},
   // Grill planning artifact (PLAN context only; not verification/validation evidence)
-  { name: 'grill_start', description: '启动 PLAN grill 澄清 session（写 grill.json，不写证据）', schema: {
+  { name: 'grill_start', description: 'Start a PLAN grill clarification session (writes grill.json, not evidence)', schema: {
     storyId: z.string().describe('Story ID'),
-    topic: z.string().optional().describe('本轮 grill 的主题或焦点'),
+    topic: z.string().optional().describe('Topic or focus for this grill round'),
   }},
-  { name: 'grill_record', description: '记录 grill 问题和回答（无回答则 unresolved）', schema: {
+  { name: 'grill_record', description: 'Record a grill question and answer (unresolved if no answer is provided)', schema: {
     storyId: z.string().describe('Story ID'),
-    sessionId: z.string().optional().describe('Grill session ID；缺省使用最新 open session'),
-    question: z.string().describe('澄清问题'),
-    answer: z.string().optional().describe('回答；缺省时记录为 unresolved'),
-    status: z.enum(['answered', 'unresolved']).optional().describe('问题状态；缺省由 answer 是否存在推断'),
-    source: z.string().optional().describe('可选来源，如 user / reviewer / implementer'),
+    sessionId: z.string().optional().describe('Grill session ID; defaults to the latest open session'),
+    question: z.string().describe('Clarifying question'),
+    answer: z.string().optional().describe('Answer; recorded as unresolved when omitted'),
+    status: z.enum(['answered', 'unresolved']).optional().describe('Question status; defaults based on whether answer exists'),
+    source: z.string().optional().describe('Optional source, such as user / reviewer / implementer'),
   }},
-  { name: 'grill_close', description: '关闭 grill session，并返回 remainingUnknowns', schema: {
+  { name: 'grill_close', description: 'Close a grill session and return remainingUnknowns', schema: {
     storyId: z.string().describe('Story ID'),
-    sessionId: z.string().optional().describe('Grill session ID；缺省使用最新 open session'),
-    note: z.string().optional().describe('关闭备注'),
-    closedBy: z.string().optional().describe('关闭者标识'),
+    sessionId: z.string().optional().describe('Grill session ID; defaults to the latest open session'),
+    note: z.string().optional().describe('Close note'),
+    closedBy: z.string().optional().describe('Closer identifier'),
   }},
-  { name: 'grill_get', description: '读取 grill planning artifact', schema: {
+  { name: 'grill_get', description: 'Read the grill planning artifact', schema: {
     storyId: z.string().describe('Story ID'),
-    sessionId: z.string().optional().describe('只读取指定 grill session'),
+    sessionId: z.string().optional().describe('Read only the specified grill session'),
   }},
   // Summary (B-093b: DONE-gate forced completion summary)
-  { name: 'summary_set', description: 'DONE 前必须落：story 完成总结（changes/usage/user acceptance/limitations/pitfalls + 自动扫真机覆盖骨架）', schema: {
+  { name: 'summary_set', description: 'Required before DONE: story completion summary (changes/usage/user acceptance/limitations/pitfalls + automatically scanned real-machine coverage skeleton)', schema: {
     storyId: z.string().describe('Story ID'),
-    changes: z.string().describe('改了什么（每个文件关键改动，用户视角，≥ 10 字符）'),
-    usage: z.string().describe('怎么用（slash / tool / 调用示例，≥ 10 字符）'),
-    expectedOutcome: z.string().optional().describe('DONE gate 必填：用户视角的预期可见结果 / expected transcript（≥ 10 字符）'),
-    actualTranscript: z.string().optional().describe('DONE gate 必填：实际运行看到的用户可见 transcript / 输出摘要（≥ 10 字符）'),
-    outcomeDiff: z.string().optional().describe('DONE gate 必填：expected vs actual 差异；没有差异也要明说（≥ 5 字符）'),
-    acceptanceVerdict: z.enum(['accepted', 'partial', 'rejected']).optional().describe('DONE gate 必填：用户价值验收结论'),
+    changes: z.string().describe('What changed (key per-file changes from the user perspective, ≥ 10 characters)'),
+    usage: z.string().describe('How to use it (slash/tool/call examples, ≥ 10 characters)'),
+    expectedOutcome: z.string().optional().describe('Required by DONE gate: expected user-visible result / expected transcript (≥ 10 characters)'),
+    actualTranscript: z.string().optional().describe('Required by DONE gate: actual user-visible transcript / output summary (≥ 10 characters)'),
+    outcomeDiff: z.string().optional().describe('Required by DONE gate: expected vs actual difference; explicitly say if there is no difference (≥ 5 characters)'),
+    acceptanceVerdict: z.enum(['accepted', 'partial', 'rejected']).optional().describe('Required by DONE gate: user-value acceptance verdict'),
     outcomeKind: z.enum(STORY_OUTCOME_KINDS).optional().describe('DONE outcome classification: success / blocked / audit_only'),
-    limitations: z.string().describe('已知限制 / 设计偏离（没有就写 "none — fully covered"）'),
-    pitfalls: z.string().describe('踩坑记录（卡在哪、绕了几次路、下个人应该知道什么，≥ 10 字符；禁止空话）'),
-    skipReasons: z.record(z.string(), z.string()).optional().describe('{case name: reason} 对每条 sandbox:false 但没跑的 case 说明原因；未提供则 Lattice 报错列出缺失项'),
+    limitations: z.string().describe('Known limitations / design deviations (write "none — fully covered" when there are none)'),
+    pitfalls: z.string().describe('Pitfall log (where it got stuck, how many retries, what the next person should know, ≥ 10 characters; no empty boilerplate)'),
+    skipReasons: z.record(z.string(), z.string()).optional().describe('{case name: reason}; explain every sandbox:false case that was not run. If omitted, Lattice reports missing items'),
   }},
-  { name: 'summary_get', description: '读取 story summary', schema: {
+  { name: 'summary_get', description: 'Read the story summary', schema: {
     storyId: z.string().describe('Story ID'),
   }},
   // Bug
-  { name: 'bug_report', description: '报告 bug', longHelp: BUG_REPORT_LONG, schema: {
+  { name: 'bug_report', description: 'Report a bug', longHelp: BUG_REPORT_LONG, schema: {
     storyId: z.string().describe('Story ID'), id: z.string().describe('Bug ID'),
-    title: z.string().describe('描述'), checklistId: z.string().optional().describe('关联 checklist ID'),
+    title: z.string().describe('Description'), checklistId: z.string().optional().describe('Related checklist ID'),
   }},
-  { name: 'bug_update', description: '更新 bug 状态', schema: {
+  { name: 'bug_update', description: 'Update bug status', schema: {
     storyId: z.string().describe('Story ID'), id: z.string().describe('Bug ID'),
-    status: z.enum(['open','fixed']).describe('新状态'),
+    status: z.enum(['open','fixed']).describe('New status'),
     evidence: z.object({
-      symptom: z.string().describe('用户可观测的症状'),
-      reproSteps: z.array(z.string()).describe('最小复现步骤'),
-      hypothesis: z.string().optional().describe('验证过的假设'),
-      rootCause: z.string().describe('确认的根因'),
-      fixEvidence: z.string().describe('修复点说明'),
-      reproTest: z.string().optional().describe('复现测试路径'),
-    }).optional().describe('调试证据链（标 fixed 时建议提供）'),
+      symptom: z.string().describe('User-observable symptom'),
+      reproSteps: z.array(z.string()).describe('Minimal reproduction steps'),
+      hypothesis: z.string().optional().describe('Verified hypothesis'),
+      rootCause: z.string().describe('Confirmed root cause'),
+      fixEvidence: z.string().describe('Fix evidence description'),
+      reproTest: z.string().optional().describe('Reproduction test path'),
+    }).optional().describe('Debug evidence chain (recommended when marking fixed)'),
   }},
-  { name: 'bug_list', description: '查看 bug 列表（不传 storyId 时全局汇总）', schema: { storyId: z.string().optional().describe('Story ID；不传则列出全部 story 的 bugs') }},
-  { name: 'bug_analyze', description: '跨 story bug 质量仪表盘（markdown/json）', schema: {
-    format: z.enum(['json','markdown']).optional().describe('输出格式（默认 json）'),
+  { name: 'bug_list', description: 'View bug list (global summary when storyId is omitted)', schema: { storyId: z.string().optional().describe('Story ID; omitted means list bugs for all stories') }},
+  { name: 'bug_analyze', description: 'Cross-story bug quality dashboard (markdown/json)', schema: {
+    format: z.enum(['json','markdown']).optional().describe('Output format (default json)'),
   }},
 
   // Test
-  { name: 'test_add', description: '记录测试证据', schema: {
+  { name: 'test_add', description: 'Record test evidence', schema: {
     storyId: z.string().describe('Story ID'), id: z.string().describe('TE ID'),
-    scenario: z.string().describe('场景'), command: z.string().describe('命令'),
-    output: z.string().describe('输出'), expected: z.string().describe('预期'),
-    result: z.enum(['PASS','FAIL']).describe('结果'),
+    scenario: z.string().describe('Scenario'), command: z.string().describe('Command'),
+    output: z.string().describe('Output'), expected: z.string().describe('Expected result'),
+    result: z.enum(['PASS','FAIL']).describe('Result'),
   }},
-  { name: 'test_list', description: '查看最新测试证据快照（当前不是历史列表）', schema: { storyId: z.string().describe('Story ID') }},
-  { name: 'fixture_get', description: '读取 fixture 文件', schema: {
-    fixturePath: z.string().describe('fixture 路径（相对 fixturesDir，不含 .json）'),
+  { name: 'test_list', description: 'View the latest test evidence snapshot (currently not a history list)', schema: { storyId: z.string().describe('Story ID') }},
+  { name: 'fixture_get', description: 'Read a fixture file', schema: {
+    fixturePath: z.string().describe('Fixture path relative to fixturesDir, without .json'),
   }},
-  { name: 'fixture_update', description: '替换 fixture cases（兼容维护命令）', schema: {
-    fixturePath: z.string().describe('fixture 路径（相对 fixturesDir，不含 .json）'),
-    cases: z.array(z.record(z.string(), z.unknown())).describe('完整 cases 数组'),
+  { name: 'fixture_update', description: 'Replace fixture cases (compatibility maintenance command)', schema: {
+    fixturePath: z.string().describe('Fixture path relative to fixturesDir, without .json'),
+    cases: z.array(z.record(z.string(), z.unknown())).describe('Complete cases array'),
   }},
-  { name: 'fixture_batch_add', description: '批量追加 fixture case（支持 executor / command / legacy execute）', schema: {
-    fixturePath: z.string().describe('fixture 路径（相对 fixturesDir，不含 .json）'),
-    cases: z.array(z.record(z.string(), z.unknown())).describe('要追加的 case 数组'),
-    storyId: z.string().optional().describe('用于自动补全 intentRef story 前缀'),
-    dryRun: z.boolean().optional().describe('只预览，不落盘'),
-    validateExecute: z.boolean().optional().describe('追加前预执行 CLI case'),
+  { name: 'fixture_batch_add', description: 'Batch append fixture cases (supports executor / command / legacy execute)', schema: {
+    fixturePath: z.string().describe('Fixture path relative to fixturesDir, without .json'),
+    cases: z.array(z.record(z.string(), z.unknown())).describe('Cases to append'),
+    storyId: z.string().optional().describe('Used to auto-fill the intentRef story prefix'),
+    dryRun: z.boolean().optional().describe('Preview only; do not write'),
+    validateExecute: z.boolean().optional().describe('Pre-execute CLI cases before appending'),
   }},
-  { name: 'test_auto', description: 'legacy 全量 fixture 回归（真实执行需 confirm；dryRun 预览）', schema: {
-    storyId: z.string().optional().describe('已废弃；当前 story 验证请用 lattice validate --story=<storyId> 并记录 verificationEvidence'),
-    trace: z.boolean().optional().describe('收集 trace'),
-    enableProfiler: z.boolean().optional().describe('启用 profiler'),
-    dryRun: z.boolean().optional().describe('只输出执行计划'),
-    confirm: z.boolean().optional().describe('确认执行有副作用的全量回归'),
+  { name: 'test_auto', description: 'Legacy full fixture regression (real execution requires confirm; dryRun previews)', schema: {
+    storyId: z.string().optional().describe('Deprecated; for current-story verification, use lattice validate --story=<storyId> and record verificationEvidence'),
+    trace: z.boolean().optional().describe('Collect trace'),
+    enableProfiler: z.boolean().optional().describe('Enable profiler'),
+    dryRun: z.boolean().optional().describe('Only print the execution plan'),
+    confirm: z.boolean().optional().describe('Confirm side-effecting full regression execution'),
   }},
-  { name: 'test_story', description: '按 story 过滤并执行关联 fixture case', schema: {
+  { name: 'test_story', description: 'Filter by story and run related fixture cases', schema: {
     storyId: z.string().describe('Story ID'),
-    trace: z.boolean().optional().describe('收集 trace'),
+    trace: z.boolean().optional().describe('Collect trace'),
   }},
-  { name: 'test_fixture', description: '按 fixtureId 执行单 case 或链', schema: {
+  { name: 'test_fixture', description: 'Run a single case or chain by fixtureId', schema: {
     fixtureId: z.string().describe('fixture case _id'),
   }},
-  { name: 'task_coverage', description: '检查 story checklist 与代码任务元数据覆盖率', schema: {
-    storyId: z.union([z.string(), z.array(z.string())]).describe('Story ID 或 Story ID 数组'),
+  { name: 'task_coverage', description: 'Check coverage between story checklist and code task metadata', schema: {
+    storyId: z.union([z.string(), z.array(z.string())]).describe('Story ID or array of Story IDs'),
   }},
 
   // Truth / Gap
-  { name: 'truth_scan', description: '扫描真相源目录，提取需求点/决策/约束/问题', schema: {
-    summary: z.boolean().optional().describe('只返回统计摘要'),
+  { name: 'truth_scan', description: 'Scan truth-source directories and extract requirements/decisions/constraints/questions', schema: {
+    summary: z.boolean().optional().describe('Return statistics summary only'),
   }},
-  { name: 'truth_nav', description: '生成真相源导航', schema: {} },
-  { name: 'truth_analyze', description: '分析真相源中的矛盾/模糊/缺失', schema: {} },
-  { name: 'truth_to_story', description: '从真相源提取候选 story', schema: {} },
-  { name: 'truth_extract', description: '从代码元数据提取 requirements 文档', schema: {} },
-  { name: 'gap_analyze', description: '对比真相源 vs 代码现实，输出差距报告', schema: {} },
-  { name: 'convergence_check', description: '判断项目是否收敛（需求覆盖、测试通过、无差距）', schema: {} },
-  // Dashboard (实时看板)
-  { name: 'dashboard', description: '实时 story 进度看板（每 N 秒刷新，支持多项目切换）', schema: {
-    roots: z.string().optional().describe('项目根目录（逗号分隔多个路径；默认当前目录）'),
-    interval: z.number().optional().describe('刷新间隔秒数（默认 5）'),
+  { name: 'truth_nav', description: 'Generate truth-source navigation', schema: {} },
+  { name: 'truth_analyze', description: 'Analyze contradictions, ambiguities, and gaps in truth sources', schema: {} },
+  { name: 'truth_to_story', description: 'Extract candidate stories from truth sources', schema: {} },
+  { name: 'truth_extract', description: 'Extract requirements documents from code metadata', schema: {} },
+  { name: 'gap_analyze', description: 'Compare truth sources against code reality and output a gap report', schema: {} },
+  { name: 'convergence_check', description: 'Decide whether the project has converged (requirements covered, tests pass, no gaps)', schema: {} },
+  // Dashboard (live board)
+  { name: 'dashboard', description: 'Live story progress dashboard (refreshes every N seconds, supports multiple projects)', schema: {
+    roots: z.string().optional().describe('Project roots (comma-separated paths; defaults to current directory)'),
+    interval: z.number().optional().describe('Refresh interval in seconds (default 5)'),
   }},
-  { name: 'session_brief', description: '跨 session 开场简报（active story / phase / checklist / bug / next step）', schema: {
-    concise: z.boolean().optional().describe('轻量模式（默认 false）'),
+  { name: 'session_brief', description: 'Cross-session opening brief (active story / phase / checklist / bugs / next step)', schema: {
+    concise: z.boolean().optional().describe('Concise mode (default false)'),
   }},
-  { name: 'next', description: '只输出当前最可信的下一步（复用 session_brief 的权威 phase 判断）', schema: {
-    concise: z.boolean().optional().describe('轻量模式（默认 true）'),
+  { name: 'next', description: 'Print only the most trustworthy current next step (reuses session_brief authoritative phase judgment)', schema: {
+    concise: z.boolean().optional().describe('Concise mode (default true)'),
   }},
-  { name: 'capsule_show', description: '显示 story session capsule（投影状态，不是 gate evidence）', schema: {
+  { name: 'capsule_show', description: 'Show the story session capsule (projected state, not gate evidence)', schema: {
     storyId: z.string().optional().describe('Story ID'),
     story: z.string().optional().describe('Story ID alias'),
-    format: z.enum(['text', 'json']).optional().describe('输出格式'),
-    strict: z.boolean().optional().describe('引用缺失时 hard fail'),
+    format: z.enum(['text', 'json']).optional().describe('Output format'),
+    strict: z.boolean().optional().describe('Hard fail when references are missing'),
   }},
-  { name: 'capsule_update', description: '创建/更新 story session capsule 投影', schema: {
+  { name: 'capsule_update', description: 'Create/update a story session capsule projection', schema: {
     storyId: z.string().optional().describe('Story ID'),
     story: z.string().optional().describe('Story ID alias'),
-    rebuild: z.boolean().optional().describe('从 story/checklist/process-events 重建基础 capsule'),
-    summary: z.string().optional().describe('摘要'),
-    nextAction: z.string().optional().describe('下一步'),
-    currentChecklistId: z.string().optional().describe('当前 checklist item'),
-    activeRunId: z.string().optional().describe('当前/最近 run id'),
-    openBlockers: z.array(z.string()).optional().describe('未解决 blocker 摘要'),
-    evidenceRefs: z.array(capsuleEvidenceRefSchema).optional().describe('证据引用'),
-    processEventRefs: z.array(capsuleProcessEventRefSchema).optional().describe('process-events 引用'),
-    strict: z.boolean().optional().describe('引用缺失时拒绝写入'),
+    rebuild: z.boolean().optional().describe('Rebuild the base capsule from story/checklist/process-events'),
+    summary: z.string().optional().describe('Summary'),
+    nextAction: z.string().optional().describe('Next action'),
+    currentChecklistId: z.string().optional().describe('Current checklist item'),
+    activeRunId: z.string().optional().describe('Current/recent run id'),
+    openBlockers: z.array(z.string()).optional().describe('Open blocker summaries'),
+    evidenceRefs: z.array(capsuleEvidenceRefSchema).optional().describe('Evidence refs'),
+    processEventRefs: z.array(capsuleProcessEventRefSchema).optional().describe('process-events refs'),
+    strict: z.boolean().optional().describe('Refuse to write when references are missing'),
   }},
-  { name: 'capsule_handoff', description: '写入 handoff.md 并更新 capsule next action', schema: {
+  { name: 'capsule_handoff', description: 'Write handoff.md and update the capsule next action', schema: {
     storyId: z.string().optional().describe('Story ID'),
     story: z.string().optional().describe('Story ID alias'),
-    nextAction: z.string().describe('下一步'),
-    notes: z.string().optional().describe('交接备注'),
-    openBlockers: z.array(z.string()).optional().describe('未解决 blocker 摘要'),
+    nextAction: z.string().describe('Next action'),
+    notes: z.string().optional().describe('Handoff notes'),
+    openBlockers: z.array(z.string()).optional().describe('Open blocker summaries'),
   }},
-  { name: 'capsule_run_add', description: '记录 story capsule run 摘要和指标', schema: {
+  { name: 'capsule_run_add', description: 'Record story capsule run summary and metrics', schema: {
     storyId: z.string().optional().describe('Story ID'),
     story: z.string().optional().describe('Story ID alias'),
     runId: z.string().optional().describe('Run ID'),
-    checklistId: z.string().optional().describe('关联 checklist item'),
-    provider: z.string().optional().describe('CLI/provider，如 codex/claude-code/gemini'),
-    model: z.string().optional().describe('模型'),
-    vendor: z.string().optional().describe('供应商'),
-    role: z.enum(['implementer', 'reviewer', 'tester', 'verifier', 'main', 'other']).optional().describe('run 角色'),
-    result: z.enum(['pass', 'fail', 'blocked', 'unknown']).optional().describe('run 结果'),
-    commands: z.array(z.string()).optional().describe('执行命令摘要'),
-    transcript: z.string().optional().describe('关键 transcript 摘录'),
-    evidenceRefs: z.array(capsuleEvidenceRefSchema).optional().describe('证据引用'),
-    processEventRefs: z.array(capsuleProcessEventRefSchema).optional().describe('process-events 引用'),
-    metrics: z.record(z.string(), z.unknown()).optional().describe('指标摘要'),
-    artifacts: z.record(z.string(), z.unknown()).optional().describe('artifact 摘要'),
+    checklistId: z.string().optional().describe('Related checklist item'),
+    provider: z.string().optional().describe('CLI/provider, such as codex/claude-code/gemini'),
+    model: z.string().optional().describe('Model'),
+    vendor: z.string().optional().describe('Vendor'),
+    role: z.enum(['implementer', 'reviewer', 'tester', 'verifier', 'main', 'other']).optional().describe('Run role'),
+    result: z.enum(['pass', 'fail', 'blocked', 'unknown']).optional().describe('Run result'),
+    commands: z.array(z.string()).optional().describe('Executed command summary'),
+    transcript: z.string().optional().describe('Key transcript excerpt'),
+    evidenceRefs: z.array(capsuleEvidenceRefSchema).optional().describe('Evidence refs'),
+    processEventRefs: z.array(capsuleProcessEventRefSchema).optional().describe('process-events refs'),
+    metrics: z.record(z.string(), z.unknown()).optional().describe('Metrics summary'),
+    artifacts: z.record(z.string(), z.unknown()).optional().describe('Artifact summary'),
   }},
-  { name: 'aux_doc_list', description: '列出项目文档（PLAN 阶段挑选 relatedDocs 用）', schema: {
-    format: z.enum(['text', 'json']).optional().describe('输出格式（默认 text）'),
+  { name: 'aux_doc_list', description: 'List project documents (used to choose relatedDocs during PLAN)', schema: {
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
   }},
   { name: 'capability_list', description: 'List host-neutral Koala capability profiles and degradations (text/json)', schema: {
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
@@ -784,89 +789,90 @@ export const MAIN_TOOLS: ToolDef[] = [
     output: z.string().optional().describe('Optional file path for report JSON; refuses to overwrite'),
   }},
 
-  // Doctor (health issue 巡检)
-  { name: 'doctor', description: '查看 Lattice 自身的 health issue（被 silent catch 接住的 PERSIST 失败）+ 扫 .worktrees/ 孤儿目录', schema: {
-    format: z.enum(['text', 'json']).optional().describe('输出格式（默认 text）'),
-    limit: z.number().optional().describe('最多读取条数（默认 1000）'),
-    repair: z.boolean().optional().describe('清理 DONE/DISCARDED terminal worktree 注册项、孤儿目录与 prunable 元数据'),
+  // Doctor (health issue inspection)
+  { name: 'doctor', description: 'Inspect Lattice health issues (PERSIST failures caught by silent catches) and scan .worktrees/ orphan directories', schema: {
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    limit: z.number().optional().describe('Maximum entries to read (default 1000)'),
+    repair: z.boolean().optional().describe('Clean DONE/DISCARDED terminal worktree registrations, orphan directories, and prunable metadata'),
   }},
-  { name: 'done_recover', description: '恢复 phase 已 DONE 但 story 分支尚未合并 main 的 partial-DONE story', schema: {
-    storyId: z.string().describe('要恢复的 Story ID'),
+  { name: 'done_recover', description: 'Recover a partial-DONE story whose phase is DONE but whose story branch has not merged into main', schema: {
+    storyId: z.string().describe('Story ID to recover'),
   }},
-  { name: 'verify_codex', description: '验证 Codex adapter 资产、入口 heartbeat 与硬证据', schema: {
-    json: z.boolean().optional().describe('结构化 JSON 输出'),
-    storyId: z.string().optional().describe('可选 Story ID；缺省从 story/* 分支推断并记录 process-event evidence'),
+  { name: 'verify_codex', description: 'Verify Codex adapter assets, entrypoint heartbeat, and hard evidence', schema: {
+    json: z.boolean().optional().describe('Structured JSON output'),
+    storyId: z.string().optional().describe('Optional Story ID; defaults to inferring from story/* branch and recording process-event evidence'),
   }},
-  { name: 'check', description: '检查 Koala 管理资产/模板漂移；--apply/--upgrade 显式同步安全项', schema: {
-    json: z.boolean().optional().describe('结构化 JSON 输出'),
-    apply: z.boolean().optional().describe('同步 MISSING/STALE_SAFE 管理资产；不会覆盖 CASE_MISMATCH/STALE_LOCAL_EDIT/INCOMPATIBLE'),
-    upgrade: z.boolean().optional().describe('同步 MISSING/STALE_SAFE 管理资产到当前 Koala 模板；等价于 --apply'),
-    reviewLocalEdits: z.boolean().optional().describe('输出 STALE_LOCAL_EDIT 的结构化人工审查摘要'),
-    profile: z.enum(['codex', 'claude', 'all', 'core']).optional().describe('覆盖自动检测的 init profile'),
-    assetMode: z.enum(['full', 'thin']).optional().describe('覆盖 Codex prompt asset 模式；full=生成 .Codex/agents，thin=使用 prompt registry'),
-  }},
-
-  // Audit (framework self-audit — 跨 story 扫 CLAUDE.md 承诺 vs 实际 CLI 行为 drift)
-  { name: 'audit', description: '框架自省 audit（机械扫 CLAUDE.md drift → 写 B-META-framework-audit finding + report.md）', schema: {
-    framework: z.boolean().optional().describe('扫 CLAUDE.md / packages/koala/CLAUDE.md 的 CLI 命令/flag/路径 drift（当前 MVP 唯一档）'),
-    mode: z.enum(['semi-auto', 'full-auto', 'off']).optional().describe('覆盖配置默认模式；off = 直接退出不跑'),
+  { name: 'check', description: 'Check Koala managed asset/template drift; --apply/--upgrade explicitly sync safe items', schema: {
+    json: z.boolean().optional().describe('Structured JSON output'),
+    apply: z.boolean().optional().describe('Sync MISSING/STALE_SAFE managed assets; never overwrite CASE_MISMATCH/STALE_LOCAL_EDIT/INCOMPATIBLE'),
+    upgrade: z.boolean().optional().describe('Sync MISSING/STALE_SAFE managed assets to current Koala templates; equivalent to --apply'),
+    reviewLocalEdits: z.boolean().optional().describe('Output a structured human-review summary for STALE_LOCAL_EDIT items'),
+    profile: z.enum(['codex', 'claude', 'all', 'core']).optional().describe('Override the auto-detected init profile'),
+    assetMode: z.enum(['full', 'thin']).optional().describe('Override Codex prompt asset mode; full=generate .Codex/agents, thin=use prompt registry'),
   }},
 
-  // Gap Log (B-3fad CHK-002: 框架 gap 手动归档入口)
-  // 写 B-META-framework-audit findings（不存在则 ensureMetaStory bootstrap）；不依赖 reviewer /
-  // review round / story worktree，不参与 lifecycle gate。默认 evidenceState=suspected；
-  // verified 需配套结构化 evidence（runtime 同标准校验，见 CLAUDE.md「Handler 编码约定」）。
-  { name: 'gap_log', description: '手动归档一个框架 gap 进 B-META-framework-audit backlog', schema: {
-    category: z.enum(['happy', 'edge', 'adversarial', 'missing']).describe('finding 分类'),
-    severity: z.enum(['critical', 'high', 'medium', 'low']).describe('严重度'),
-    evidence: z.string().min(1, 'evidence 必填且 ≥ 1 字符').describe('gap 描述（即 finding 的 evidence note）'),
-    sourceRefs: z.array(z.string()).optional().describe('来源溯源：源码/文档位置（如 src/foo.ts:42）'),
-    reproCommand: z.string().optional().describe('来源溯源：复现/观察命令'),
-    observedOutput: z.string().optional().describe('来源溯源：观察到的实际输出'),
-    analysisNote: z.string().optional().describe('来源溯源：分析说明'),
+  // Audit (framework self-audit: scan CLAUDE.md promises vs actual CLI behavior drift across stories)
+  { name: 'audit', description: 'Framework self-audit (mechanically scans CLAUDE.md drift -> writes B-META-framework-audit finding + report.md)', schema: {
+    framework: z.boolean().optional().describe('Scan CLI command/flag/path drift in CLAUDE.md / packages/koala/CLAUDE.md (currently the only MVP mode)'),
+    mode: z.enum(['semi-auto', 'full-auto', 'off']).optional().describe('Override the configured default mode; off = exit immediately without running'),
+  }},
+
+  // Gap Log (B-3fad CHK-002: manual framework gap archival entrypoint)
+  // Writes B-META-framework-audit findings (bootstrap ensureMetaStory if missing).
+  // Does not depend on reviewer / review round / story worktree and does not
+  // participate in lifecycle gates. Defaults evidenceState to suspected; verified
+  // requires matching structured evidence (runtime uses the same standard validation).
+  { name: 'gap_log', description: 'Manually archive a framework gap into the B-META-framework-audit backlog', schema: {
+    category: z.enum(['happy', 'edge', 'adversarial', 'missing']).describe('Finding category'),
+    severity: z.enum(['critical', 'high', 'medium', 'low']).describe('Severity'),
+    evidence: z.string().min(1, 'evidence is required and must be at least 1 character').describe('Gap description (the finding evidence note)'),
+    sourceRefs: z.array(z.string()).optional().describe('Source trace: source/documentation locations (for example src/foo.ts:42)'),
+    reproCommand: z.string().optional().describe('Source trace: reproduction/observation command'),
+    observedOutput: z.string().optional().describe('Source trace: observed actual output'),
+    analysisNote: z.string().optional().describe('Source trace: analysis note'),
     evidenceState: z.enum(['suspected', 'verified']).optional()
-      .describe('证据状态：默认 suspected；verified 仅当提供结构化 evidence，否则强制降回 suspected'),
-    uncertaintyReason: z.string().optional().describe('suspected 时的怀疑理由（可选，缺省自动兜底）'),
-    files: z.array(z.string()).optional().describe('关联文件路径'),
-    agent: z.string().optional().describe('调用者身份（审计字段，默认从 KOALA_AGENT 读）'),
+      .describe('Evidence state: default suspected; verified only when structured evidence is provided, otherwise forced back to suspected'),
+    uncertaintyReason: z.string().optional().describe('Reason for suspicion when suspected (optional; defaults automatically)'),
+    files: z.array(z.string()).optional().describe('Related file paths'),
+    agent: z.string().optional().describe('Caller identity (audit field; defaults from KOALA_AGENT)'),
   }},
 
-  // Verifier (koala 内建代码验证)
-  { name: 'validate', description: '运行项目验证（静态 + 逻辑 + 集成测试）', longHelp: VALIDATE_LONG, schema: {
-    full: z.union([z.string(), z.boolean()]).optional().describe('含真机测试（--full 或 --full=PvE 按名称过滤）'),
-    story: z.string().optional().describe('只跑 story 改动涉及的 transition（TEST gate 用）'),
-    json: z.boolean().optional().describe('结构化 JSON 输出（ExternalVerifierResult）'),
-    // B-9d95 CHK-006: REVIEW→TEST preflight CLI gate 独立分流 flag
-    // 任一 flag 命中 → 只跑对应 CLI gate，不 spawn pytest（秒级返回）
-    // 同时传多个 flag → Promise.all 并行；任一 fail → exit 1
-    channel: z.boolean().optional().describe('B-9d95: 只跑 --channel gate（commit author 扫描，需配合 --story）'),
-    concept: z.boolean().optional().describe('B-9d95: 只跑 --concept gate（deleted symbol 残留扫描）'),
-    lint: z.boolean().optional().describe('B-9d95: 只跑 --lint gate（tsc + ruff + import-graph）'),
-    noSync: z.boolean().optional().describe('跳过 validate 前的 cluster commit auto-resolve 同步（诊断用）'),
+  // Verifier (built-in Koala code verification)
+  { name: 'validate', description: 'Run project verification (static + logic + integration tests)', longHelp: VALIDATE_LONG, schema: {
+    full: z.union([z.string(), z.boolean()]).optional().describe('Include real-machine tests (--full or --full=PvE to filter by name)'),
+    story: z.string().optional().describe('Run only transitions touched by the story (used by TEST gate)'),
+    json: z.boolean().optional().describe('Structured JSON output (ExternalVerifierResult)'),
+    // B-9d95 CHK-006: REVIEW->TEST preflight CLI gate split flags.
+    // Any matching flag runs only the corresponding CLI gate and skips spawning pytest.
+    // Multiple flags run in parallel via Promise.all; any failure exits 1.
+    channel: z.boolean().optional().describe('B-9d95: run only the --channel gate (commit author scan; requires --story)'),
+    concept: z.boolean().optional().describe('B-9d95: run only the --concept gate (deleted-symbol residue scan)'),
+    lint: z.boolean().optional().describe('B-9d95: run only the --lint gate (tsc + ruff + import-graph)'),
+    noSync: z.boolean().optional().describe('Skip pre-validate cluster commit auto-resolve sync (diagnostics only)'),
   }},
-  { name: 'status', description: '项目全貌（story 进度 + 代码验证状态）', schema: {
-    concise: z.boolean().optional().describe('轻量模式（跳过代码验证，< 4KB，用于 hook 注入）'),
+  { name: 'status', description: 'Project overview (story progress + code verification status)', schema: {
+    concise: z.boolean().optional().describe('Concise mode (skips code verification, < 4KB, intended for hook injection)'),
   }},
-  { name: 'serve', description: '启动 HTTP API 调试服务（watch 文件 + 实时验证 + 浏览器代理）', schema: {
-    dev: z.string().optional().describe('Dev server 命令（如 "npm run dev"），启用浏览器代理'),
-    port: z.number().optional().describe('API 端口（默认 3456）'),
-  }},
-
-  // Evaluate (browser 项目 AI 评估)
-  { name: 'evaluate', description: '调 evaluator agent 对 browser 应用打分（功能完整性 + 可用性）', schema: {
-    storyId: z.string().describe('Story ID'),
-    port: z.number().optional().describe('lattice serve 端口（默认 3456）'),
-  }},
-  { name: 'evaluate_save', description: '保存 evaluator 打分结果到 eval-evidence.json', schema: {
-    storyId: z.string().describe('Story ID'),
-    result: z.string().describe('evaluator 输出的 JSON 字符串'),
+  { name: 'serve', description: 'Start the HTTP API debug service (watch files + live verification + browser proxy)', schema: {
+    dev: z.string().optional().describe('Dev server command (for example "npm run dev"); enables browser proxy'),
+    port: z.number().optional().describe('API port (default 3456)'),
   }},
 
-  // Finding (koala-reviewer 发现项)
-  { name: 'finding_add', description: '添加 finding（koala-reviewer 发现项）', schema: {
+  // Evaluate (AI evaluation for browser projects)
+  { name: 'evaluate', description: 'Ask the evaluator agent to score a browser app (functional completeness + usability)', schema: {
     storyId: z.string().describe('Story ID'),
-    desc: z.string().describe('发现描述'),
-    severity: z.enum(['critical', 'high', 'medium', 'low']).describe('严重程度'),
+    port: z.number().optional().describe('lattice serve port (default 3456)'),
+  }},
+  { name: 'evaluate_save', description: 'Save evaluator scoring result to eval-evidence.json', schema: {
+    storyId: z.string().describe('Story ID'),
+    result: z.string().describe('JSON string output by the evaluator'),
+  }},
+
+  // Finding (koala-reviewer findings)
+  { name: 'finding_add', description: 'Add a finding (koala-reviewer finding)', schema: {
+    storyId: z.string().describe('Story ID'),
+    desc: z.string().describe('Finding description'),
+    severity: z.enum(['critical', 'high', 'medium', 'low']).describe('Severity'),
     category: z.enum([
       'happy',
       'edge',
@@ -876,213 +882,221 @@ export const MAIN_TOOLS: ToolDef[] = [
       'doc-promise-undelivered',
       'doc-code-drift',
       'spec-boundary',
-    ]).describe('分类（legacy category 会归一为 missing）'),
-    agent: z.string().optional().describe('调用者身份（可选，默认从 KOALA_AGENT 环境变量读）'),
-    reviewRunId: z.string().optional().describe('koala-review-* reviewer 当前 run id（先调用 review_run_start 获取；main finding 可省略）'),
-    files: z.array(z.string()).optional().describe('关联文件路径（用于 reviewer finding cluster 与溯源）'),
-    // B-3fad CHK-001: 证据状态轴。省略时默认 verified（REVIEW 阶段 reviewer finding，保持现有 gate 行为）。
-    // suspected 必须带 uncertaintyReason；disproven 必须带 disprovenEvidence.summary（runtime 同标准校验）。
+    ]).describe('Category (legacy categories are normalized to missing)'),
+    agent: z.string().optional().describe('Caller identity (optional; defaults from KOALA_AGENT environment variable)'),
+    reviewRunId: z.string().optional().describe('Current koala-review-* reviewer run id (obtain via review_run_start; optional for main findings)'),
+    files: z.array(z.string()).optional().describe('Related file paths (used for reviewer finding clustering and traceability)'),
+    // B-3fad CHK-001: evidence-state axis. Omitted means verified by default
+    // for REVIEW-phase reviewer findings to preserve existing gate behavior.
+    // suspected requires uncertaintyReason; disproven requires disprovenEvidence.summary.
     evidenceState: z.enum(['suspected', 'verified', 'disproven']).optional()
-      .describe('证据状态：suspected（怀疑，不阻塞 gate）/ verified（默认，有证据，阻塞）/ disproven（已反证，不阻塞）'),
+      .describe('Evidence state: suspected (uncertain, non-blocking) / verified (default, evidenced, blocking) / disproven (counter-evidenced, non-blocking)'),
     uncertaintyReason: z.string().optional()
-      .describe('evidenceState=suspected 时必填（≥10 字符）：为什么只是怀疑'),
+      .describe('Required when evidenceState=suspected (≥10 characters): why this is only suspected'),
     disprovenEvidence: z.object({
-      summary: z.string().describe('反证摘要：为什么这条 finding 不成立'),
-      sourceRefs: z.array(z.string()).optional().describe('反证引用的源码/文档位置'),
-      reproCommand: z.string().optional().describe('反证用到的复现/验证命令'),
-    }).optional().describe('evidenceState=disproven 时必填：反证摘要 + 命令 + 源码引用'),
+      summary: z.string().describe('Counter-evidence summary: why this finding is invalid'),
+      sourceRefs: z.array(z.string()).optional().describe('Source/documentation refs used as counter-evidence'),
+      reproCommand: z.string().optional().describe('Reproduction/verification command used for counter-evidence'),
+    }).optional().describe('Required when evidenceState=disproven: counter-evidence summary + command + source refs'),
   }},
-  { name: 'finding_list', description: '查看 story 的 findings', schema: {
+  { name: 'finding_list', description: 'View findings for a story', schema: {
     storyId: z.string().describe('Story ID'),
-    cluster: z.boolean().optional().describe('B-9d95 CHK-005: 返回 cluster 视图 { clusters, ungrouped } 而非 findings 平铺'),
+    cluster: z.boolean().optional().describe('B-9d95 CHK-005: return cluster view { clusters, ungrouped } instead of flat findings'),
   }},
-  { name: 'finding_resolve', description: '标记 finding 为已解决', schema: {
+  { name: 'finding_resolve', description: 'Mark a finding as resolved', schema: {
     storyId: z.string().describe('Story ID'),
-    findingId: z.string().describe('Finding ID（如 B-xxx:F-001）'),
-    resolution: z.string().optional().describe('可选：记录具体修复/验证证据说明'),
+    findingId: z.string().describe('Finding ID (for example B-xxx:F-001)'),
+    resolution: z.string().optional().describe('Optional: record concrete fix/verification evidence details'),
   }},
-  { name: 'finding_dismiss', description: '确认 finding 不修（需说明理由）', schema: {
+  { name: 'finding_dismiss', description: 'Confirm a finding will not be fixed (reason required)', schema: {
     storyId: z.string().describe('Story ID'),
-    findingId: z.string().describe('Finding ID（如 B-xxx:F-001）'),
-    reason: z.string().describe('不修的理由（≥10 字符）'),
+    findingId: z.string().describe('Finding ID (for example B-xxx:F-001)'),
+    reason: z.string().describe('Reason for not fixing (≥10 characters)'),
   }},
 
-  // Finding Cluster (B-e8c8 / B-9d95 CHK-005: 自动聚簇 + 手动 merge/split)
+  // Finding Cluster (B-e8c8 / B-9d95 CHK-005: automatic clustering + manual merge/split)
   //
-  // 无参（默认模式）：按 files 交集 ≥ 50% + severity 一致自动聚簇，写回 clusters.json + findings.clusterId。
-  // merge：将给定 finding id 列表强制合为一个新簇。
-  // split：删除该簇，成员 finding 回 singleton。
-  // 阶段：与 finding_list 对齐，REVIEW/TEST 可用（详见 config.ts DEFAULT_PHASE_TOOLS）。
-  { name: 'finding_cluster', description: 'B-9d95: 聚簇 findings（auto / merge / split），输出簇摘要', schema: {
+  // No args (default mode): auto-cluster by files overlap >= 50% plus matching
+  // severity, then write clusters.json + findings.clusterId.
+  // merge: force the given finding id list into a new cluster.
+  // split: delete the cluster and return members to singleton findings.
+  // Phase availability matches finding_list: REVIEW/TEST.
+  { name: 'finding_cluster', description: 'B-9d95: cluster findings (auto / merge / split) and output cluster summary', schema: {
     storyId: z.string().describe('Story ID'),
-    merge: z.union([z.array(z.string()), z.string()]).optional().describe('强制合为一个新簇：finding id 数组或逗号分隔字符串（F-001,F-002）'),
-    split: z.string().optional().describe('拆分目标簇 ID（CL-xxx），成员 finding 回 singleton'),
+    merge: z.union([z.array(z.string()), z.string()]).optional().describe('Force-merge into a new cluster: finding id array or comma-separated string (F-001,F-002)'),
+    split: z.string().optional().describe('Cluster ID to split (CL-xxx); members return to singleton findings'),
   }},
 
   // Init Check (B-e71f CHK-003: init reviewers write signed init-check.json)
-  // INIT→INIT_CHECK 硬门槛产物。EXP-001 已证伪调用方机械可校验性，故 agentId/agent 仍是自报；
-  // gate 会校验必需 reviewer 名称是否已记录，prompt 必须传准确名称。
-  // 三层校验中的 Zod 层（CLAUDE.md「Handler 编码约定」）：severity enum + desc.min(1)。
-  { name: 'init_check_set', description: '保存 init check 结果（由 INIT reviewer 调用）', schema: {
+  // INIT->INIT_CHECK hard gate artifact. EXP-001 disproved mechanical caller
+  // verifiability, so agentId/agent remain self-reported. The gate verifies that
+  // required reviewer names were recorded, so prompts must pass exact names.
+  // Zod layer in the three-layer validation: severity enum + desc.min(1).
+  { name: 'init_check_set', description: 'Save init check results (called by INIT reviewers)', schema: {
     storyId: z.string().describe('Story ID'),
     issues: z.array(z.object({
-      id: z.string().optional().describe('reviewer 自分配 id（如 I-1），可选'),
-      severity: z.enum(['critical', 'high', 'medium', 'low']).describe('issue 严重度'),
-      desc: z.string().min(1, 'desc 必填且 ≥ 1 字符').describe('issue 具体描述（reviewer 主观判断需具体）'),
-    })).describe('Reviewer 提出的 issue 列表；critical/high 会阻塞 INIT_CHECK，允许空数组'),
-    agent: z.string().optional().describe('Reviewer 自报 agent 名；product-reviewer 必须传 product-reviewer'),
-    agentId: z.string().optional().describe('Reviewer 自报 agent id；product-reviewer 必须传 product-reviewer，不能传 koala-review-story-init'),
+      id: z.string().optional().describe('Optional reviewer-assigned id (for example I-1)'),
+      severity: z.enum(['critical', 'high', 'medium', 'low']).describe('Issue severity'),
+      desc: z.string().min(1, 'desc is required and must be at least 1 character').describe('Concrete issue description (reviewer judgment must be specific)'),
+    })).describe('Issues raised by the reviewer; critical/high block INIT_CHECK, empty array allowed'),
+    agent: z.string().optional().describe('Reviewer self-reported agent name; product-reviewer must pass product-reviewer'),
+    agentId: z.string().optional().describe('Reviewer self-reported agent id; product-reviewer must pass product-reviewer, not koala-review-story-init'),
   }},
 
   // Init Check fallback/repair (B-95d8 CHK-001: explicit, auditable INIT_CHECK exit
   // for environments that cannot spawn the init reviewer subagent).
   // Default-disabled: refuses without BOTH acknowledge=true AND fallbackReason (>=30).
   // Reuses signInitCheck — does NOT weaken the gate or add agentId identity checks.
-  { name: 'init_check_repair', description: '受控 fallback：无法 spawn INIT reviewer 时显式、可审计地生成签名 init-check.json（默认禁用，需 acknowledge + fallbackReason）', schema: {
+  { name: 'init_check_repair', description: 'Controlled fallback: explicitly and auditably generate signed init-check.json when INIT reviewers cannot be spawned (disabled by default; requires acknowledge + fallbackReason)', schema: {
     storyId: z.string().describe('Story ID'),
-    fallbackReason: z.string().min(30, 'fallbackReason 必须 ≥ 30 字符').describe('为什么 INIT reviewer 无法运行 + 你人工核查了什么（durable 审计 attestation）'),
-    acknowledge: z.boolean().describe('必须显式传 true：确认你在刻意顶替独立 INIT reviewer 做 attestation'),
-    mode: z.enum(['repair', 'fallback']).optional().describe("审计分类：repair（修复缺失出口）/ fallback（无 subagent 环境顶替），默认 repair"),
-    evidenceRefs: z.array(z.string()).optional().describe('可选：人工核查依据的证据引用（文件/URL/transcript 摘要）'),
+    fallbackReason: z.string().min(30, 'fallbackReason must be at least 30 characters').describe('Why INIT reviewers could not run + what you manually checked (durable audit attestation)'),
+    acknowledge: z.boolean().describe('Must explicitly pass true: confirms deliberate attestation in place of independent INIT reviewers'),
+    mode: z.enum(['repair', 'fallback']).optional().describe("Audit classification: repair (missing exit repair) / fallback (subagent-less environment substitution), default repair"),
+    evidenceRefs: z.array(z.string()).optional().describe('Optional evidence refs for manual checks (file/URL/transcript summary)'),
     issues: z.array(z.object({
-      id: z.string().optional().describe('自分配 id，可选'),
-      severity: z.enum(['critical', 'high', 'medium', 'low']).describe('issue 严重度'),
-      desc: z.string().min(1, 'desc 必填且 ≥ 1 字符').describe('issue 具体描述'),
-    })).optional().describe('可选：人工 attestation 提出的 issue；high/critical 仍会阻塞 INIT_CHECK'),
-    actor: z.string().optional().describe('可选：操作者标识；缺省取 git user.name'),
+      id: z.string().optional().describe('Optional self-assigned id'),
+      severity: z.enum(['critical', 'high', 'medium', 'low']).describe('Issue severity'),
+      desc: z.string().min(1, 'desc is required and must be at least 1 character').describe('Concrete issue description'),
+    })).optional().describe('Optional issues raised by manual attestation; high/critical still block INIT_CHECK'),
+    actor: z.string().optional().describe('Optional actor identifier; defaults to git user.name'),
   }},
 
   // Delivery Check (B-35ed: koala-review-delivery reviewer writes signed delivery-check.json)
-  // TEST→DONE 硬门槛产物。签名域：storyId + docsPromises + realMachineTests + closingSelfCheck + reviewRound。
-  { name: 'delivery_check_set', description: '保存 delivery check 结果（由 koala-review-delivery reviewer 调用）', schema: {
+  // TEST->DONE hard gate artifact. Signature domain: storyId + docsPromises +
+  // realMachineTests + closingSelfCheck + reviewRound.
+  { name: 'delivery_check_set', description: 'Save delivery check results (called by koala-review-delivery reviewer)', schema: {
     storyId: z.string().describe('Story ID'),
     docsPromises: z.array(z.object({
-      docPath: z.string().describe('文档路径'),
-      promise: z.string().describe('文档中的承诺描述'),
-      status: z.enum(['met', 'verified', 'waived', 'unverified']).optional().describe('可选状态；met/verified 视为已验证，waived 需 waiverReason'),
-      verifiedBy: z.string().optional().describe('验证方式（如 grep/test/manual）'),
-      evidence: z.string().optional().describe('验证证据'),
-      waiverReason: z.string().optional().describe('文档承诺豁免理由（status=waived 时 ≥ 30 字符）'),
-    })).describe('文档承诺列表'),
+      docPath: z.string().describe('Document path'),
+      promise: z.string().describe('Promise described in the document'),
+      status: z.enum(['met', 'verified', 'waived', 'unverified']).optional().describe('Optional status; met/verified count as verified, waived requires waiverReason'),
+      verifiedBy: z.string().optional().describe('Verification method (for example grep/test/manual)'),
+      evidence: z.string().optional().describe('Verification evidence'),
+      waiverReason: z.string().optional().describe('Document-promise waiver reason (≥ 30 characters when status=waived)'),
+    })).describe('Document promise list'),
     realMachineTests: z.array(z.object({
-      featureId: z.string().describe('功能点 ID（如 CHK-xxx）'),
-      transcript: z.string().describe('真机测试 transcript 或摘要'),
-      waiverReason: z.string().optional().describe('豁免理由（非空时 ≥ 30 字符，入签名）'),
-    })).describe('真机测试记录'),
+      featureId: z.string().describe('Feature ID (for example CHK-xxx)'),
+      transcript: z.string().describe('Real-machine test transcript or summary'),
+      waiverReason: z.string().optional().describe('Waiver reason (≥ 30 characters when non-empty; included in signature)'),
+    })).describe('Real-machine test records'),
     closingSelfCheck: z.object({
-      hasRealMachineTest: z.boolean().describe('是否有真机测试'),
-      hasEdgeCaseCoverage: z.boolean().describe('是否覆盖边界情况'),
-      hasUnresolvedTodos: z.boolean().describe('是否有未解决的 TODO'),
-      summary: z.string().min(10, 'summary ≥ 10 字符').describe('闭合自检总结'),
-    }).describe('闭合自检'),
-    agentId: z.string().optional().describe('Reviewer 自报 agent id，仅审计追溯'),
+      hasRealMachineTest: z.boolean().describe('Whether real-machine testing exists'),
+      hasEdgeCaseCoverage: z.boolean().describe('Whether edge cases are covered'),
+      hasUnresolvedTodos: z.boolean().describe('Whether unresolved TODOs exist'),
+      summary: z.string().min(10, 'summary must be at least 10 characters').describe('Closing self-check summary'),
+    }).describe('Closing self-check'),
+    agentId: z.string().optional().describe('Reviewer self-reported agent id, used only for audit traceability'),
   }},
 
-  // Delivery Waiver (B-35ed CHK-005: 豁免审计，主 agent 为未验证的 docsPromise 补充豁免理由)
-  { name: 'delivery_waiver_add', description: '为 delivery-check.json 中某条 docsPromise 添加豁免理由（重签名）', schema: {
+  // Delivery Waiver (B-35ed CHK-005: waiver audit; main agent adds waiver
+  // reasons for unverified docsPromises)
+  { name: 'delivery_waiver_add', description: 'Add a waiver reason to one docsPromise in delivery-check.json (re-signs)', schema: {
     storyId: z.string().describe('Story ID'),
-    promiseId: z.string().describe('要豁免的 docPath（匹配 docsPromises[].docPath）'),
-    waiverReason: z.string().min(30, 'waiverReason must be at least 30 characters').describe('豁免理由（≥ 30 字符）'),
+    promiseId: z.string().describe('docPath to waive (matches docsPromises[].docPath)'),
+    waiverReason: z.string().min(30, 'waiverReason must be at least 30 characters').describe('Waiver reason (≥ 30 characters)'),
   }},
 
   // Scope Check (B-d4d1: scope agent writes signed scope-check.json)
-  { name: 'scope_check_save', description: '保存 scope check 结果（由 scope agent 调用）', schema: {
+  { name: 'scope_check_save', description: 'Save scope check results (called by the scope agent)', schema: {
     storyId: z.string().describe('Story ID'),
     features: z.array(z.object({
       feature: z.string(),
       covered_by: z.string().nullable(),
-      // B-ed3e CHK-002: 5 档 status
+      // B-ed3e CHK-002: five status levels
       status: z.enum(['covered', 'excluded', 'gap', 'orphan-suspect', 'drift']),
       excluded_by: z.string().nullable(),
-      // B-ed3e CHK-002: source 标注来源（description / decisions:<path> / relatedDocs:<path>）
+      // B-ed3e CHK-002: source records origin (description / decisions:<path> / relatedDocs:<path>)
       source: z.string().optional(),
-    })).describe('功能点覆盖分析结果'),
+    })).describe('Feature coverage analysis results'),
     summary: z.object({
       total: z.number(),
       covered: z.number(),
       excluded: z.number(),
       gaps: z.number(),
-      // B-ed3e CHK-002: 新字段可选，默认 0；drift PLAN 阶段恒 0
+      // B-ed3e CHK-002: optional new fields, default 0; drift is always 0 in PLAN
       orphanSuspect: z.number().optional(),
       drift: z.number().optional(),
-    }).describe('汇总'),
-    // B-ed3e CHK-003: 第 6 通道 Open Questions（可选）。reviewer 写入时只做类型校验，
-    // 不校验业务完整性；主 agent 之后用 scope_question_resolve 书面消解。
+    }).describe('Summary'),
+    // B-ed3e CHK-003: sixth-channel Open Questions (optional). Reviewer writes
+    // only receive type validation, not business completeness validation; the
+    // main agent later resolves them in writing via scope_question_resolve.
     openQuestions: z.array(z.object({
       id: z.string(),
       q: z.string(),
       evidence: z.string(),
       sourcePointers: z.array(z.string()),
-    })).optional().describe('Open Questions：reviewer 在 decisions/ 扫到"看见但不归类"的矛盾/疑问，主 agent 必须用 scope_question_resolve 消解'),
+    })).optional().describe('Open Questions: contradictions/questions the reviewer saw in decisions/ but did not classify; the main agent must resolve them with scope_question_resolve'),
   }},
 
-  // B-ed3e CHK-003: scope_question_resolve — 主 agent 对 reviewer 抛出的 OQ 写入书面 resolution
-  // 设计原则：resolution 不入签名 _hash（resolution 是 main agent 动作，不污染 reviewer 判定签名域）
-  { name: 'scope_question_resolve', description: '主 agent 对 scope reviewer 抛出的 Open Question 写入书面 resolution（防自我赦免）', schema: {
+  // B-ed3e CHK-003: scope_question_resolve — main agent writes resolutions for
+  // Open Questions raised by the reviewer. Design principle: resolution is not
+  // included in signature _hash because it is a main-agent action and must not
+  // pollute the reviewer judgment signature domain.
+  { name: 'scope_question_resolve', description: 'Write a main-agent resolution for an Open Question raised by the scope reviewer (prevents self-absolution)', schema: {
     storyId: z.string().describe('Story ID'),
-    oqId: z.string().describe('Open Question ID（如 OQ-1）'),
-    resolution: z.string().min(20, 'resolution 必填且 ≥ 20 字符（书面消解，防自我赦免）').describe('主 agent 的书面消解结论（≥ 20 字符，应引 decisions/ 原文）'),
-    sourcePointers: z.array(z.string()).optional().describe('resolution 的证据指针（decisions/ 路径或 checklist item id），默认 []'),
+    oqId: z.string().describe('Open Question ID (for example OQ-1)'),
+    resolution: z.string().min(20, 'resolution is required and must be at least 20 characters (written resolution prevents self-absolution)').describe('Main-agent written resolution (≥ 20 characters; should cite decisions/ source text)'),
+    sourcePointers: z.array(z.string()).optional().describe('Evidence pointers for the resolution (decisions/ paths or checklist item ids), default []'),
   }},
 
   // Story dispatch (B-45ed CHK-005: implementer prompt generator)
-  { name: 'story_dispatch', description: '生成标准 implementer prompt 字符串（主 agent 派发 CHK-xxx 用）', schema: {
+  { name: 'story_dispatch', description: 'Generate the standard implementer prompt string (used by the main agent to dispatch CHK-xxx)', schema: {
     storyId: z.string().describe('Story ID'),
-    itemId: z.string().describe('Checklist item ID（如 CHK-001）'),
-    agentType: z.string().optional().describe('subagent 类型（如 koala-implementer / koala-review-channel）；CHK-008 will expand matrix'),
+    itemId: z.string().describe('Checklist item ID (for example CHK-001)'),
+    agentType: z.string().optional().describe('subagent type (for example koala-implementer / koala-review-channel); CHK-008 will expand matrix'),
   }},
 
-  // Finding dispatch (B-45ed CHK-010: reviewer-finding 修复 prompt generator，与 story_dispatch 同构)
-  // B-9d95 CHK-004: deprecated alias，首行 stdout 打印 deprecation warning，建议改用 `lattice dispatch`
-  { name: 'finding_dispatch', description: '[deprecated: 请改用 lattice dispatch] 生成标准 reviewer-finding 修复 prompt 字符串', schema: {
+  // Finding dispatch (B-45ed CHK-010: reviewer-finding repair prompt generator, isomorphic with story_dispatch)
+  // B-9d95 CHK-004: deprecated alias; first stdout line prints deprecation warning and recommends `lattice dispatch`.
+  { name: 'finding_dispatch', description: '[deprecated: use lattice dispatch] Generate the standard reviewer-finding repair prompt string', schema: {
     storyId: z.string().describe('Story ID'),
-    findingId: z.string().describe('Finding ID（如 F-001 或 B-xxx:F-001 完整形式）'),
-    agentType: z.string().optional().describe('subagent 类型（如 koala-implementer / koala-review-channel）；复用 CHK-008 分级矩阵'),
+    findingId: z.string().describe('Finding ID (for example F-001 or full B-xxx:F-001 form)'),
+    agentType: z.string().optional().describe('subagent type (for example koala-implementer / koala-review-channel); reuses the CHK-008 tier matrix'),
   }},
 
-  // Unified dispatch (B-9d95 CHK-004: story_dispatch / finding_dispatch 合并为 `lattice dispatch`，全阶段开放)
-  { name: 'dispatch', description: '统一派发入口：按 itemId / findingId / clusterId 恰好一个生成 subagent prompt（全阶段可用）', schema: {
+  // Unified dispatch (B-9d95 CHK-004: story_dispatch / finding_dispatch merged into `lattice dispatch`, available in all phases)
+  { name: 'dispatch', description: 'Unified dispatch entrypoint: provide exactly one of itemId / findingId / clusterId to generate a subagent prompt (available in all phases)', schema: {
     storyId: z.string().describe('Story ID'),
-    itemId: z.string().optional().describe('Checklist item ID（CHK-xxx）；与 findingId / clusterId 互斥，恰好提供一个'),
-    findingId: z.string().optional().describe('Finding ID（F-xxx 或 B-xxx:F-xxx）；与 itemId / clusterId 互斥'),
-    clusterId: z.string().optional().describe('Cluster ID（CL-xxx）；与 itemId / findingId 互斥'),
-    agentType: z.string().optional().describe('subagent 类型；INIT reviewer 可只传 koala-review-story-init，其他场景与 itemId/findingId/clusterId 搭配'),
+    itemId: z.string().optional().describe('Checklist item ID (CHK-xxx); mutually exclusive with findingId / clusterId, provide exactly one'),
+    findingId: z.string().optional().describe('Finding ID (F-xxx or B-xxx:F-xxx); mutually exclusive with itemId / clusterId'),
+    clusterId: z.string().optional().describe('Cluster ID (CL-xxx); mutually exclusive with itemId / findingId'),
+    agentType: z.string().optional().describe('subagent type; INIT reviewers may pass only koala-review-story-init, other cases pair this with itemId/findingId/clusterId'),
   }},
 
-  // Background CLI 三件套 (B-45ed CHK-007: background.md set/append/get)
-  { name: 'background_set', description: '全量写入 background.md（四段式格式校验，复用 CHK-006 validator）', schema: {
+  // Background CLI trio (B-45ed CHK-007: background.md set/append/get)
+  { name: 'background_set', description: 'Write the full background.md (four-section format validation, reuses CHK-006 validator)', schema: {
     storyId: z.string().describe('Story ID'),
-    content: z.string().describe('background.md 完整内容（四段式）'),
+    content: z.string().describe('Complete background.md content (four sections)'),
   }},
-  { name: 'background_append', description: '追加内容到 background.md 指定段末尾，不影响其他段', schema: {
+  { name: 'background_append', description: 'Append content to the end of a specific background.md section without changing other sections', schema: {
     storyId: z.string().describe('Story ID'),
-    section: backgroundSectionSchema.describe('目标段 id：trigger_event / key_insight / tradeoff / conversation_texture；legacy 中文段名会归一'),
-    content: z.string().describe('要追加的内容（通常是单行 bullet 或若干行）'),
+    section: backgroundSectionSchema.describe('Target section id: trigger_event / key_insight / tradeoff / conversation_texture; legacy localized section names are normalized'),
+    content: z.string().describe('Content to append (usually a single bullet or several lines)'),
   }},
-  { name: 'background_get', description: '读取 background.md 全文', schema: {
+  { name: 'background_get', description: 'Read the full background.md', schema: {
     storyId: z.string().describe('Story ID'),
   }},
-  { name: 'plan_set', description: '全量写入 plan.md（每个 checklist item 需有 ## CHK-xxx 章节）', schema: {
+  { name: 'plan_set', description: 'Write the full plan.md (each checklist item needs a ## CHK-xxx section)', schema: {
     storyId: z.string().describe('Story ID'),
-    content: z.string().describe('plan.md 完整内容'),
+    content: z.string().describe('Complete plan.md content'),
   }},
-  { name: 'plan_get', description: '读取 plan.md 全文', schema: {
+  { name: 'plan_get', description: 'Read the full plan.md', schema: {
     storyId: z.string().describe('Story ID'),
   }},
 
-  // Reviewer list (B-fdcf CHK-001: opt-in 名单查询，按 riskSignals / touchpoints 实时计算)
-  { name: 'reviewer_list', description: '列出当前 story 的 opt-in reviewer 名单（baseline concept/quality/test-coverage + 按信号挂载 behavior/docs；channel LLM 已退役）', schema: {
+  // Reviewer list (B-fdcf CHK-001: opt-in list query, computed live from riskSignals / touchpoints)
+  { name: 'reviewer_list', description: 'List opt-in reviewers for the current story (baseline concept/quality/test-coverage + behavior/docs mounted by signals; channel LLM is retired)', schema: {
     storyId: z.string().describe('Story ID'),
-    json: z.boolean().optional().describe('输出结构化 JSON（含 reviewers 数组）'),
-    forceReviewer: z.string().optional().describe('逗号分隔的内置 REVIEW reviewer lane 或短名，强制加挂；写入 story.events 审计（reviewer_forced）'),
+    json: z.boolean().optional().describe('Output structured JSON (including reviewers array)'),
+    forceReviewer: z.string().optional().describe('Comma-separated built-in REVIEW reviewer lane or short name to force-mount; writes reviewer_forced audit event to story.events'),
   }},
 
   // Workflow profile
-  { name: 'workflow_set', description: '设置项目 workflow profile（light/balanced/strict）', schema: {
-    profile: z.string().describe('目标 profile：light / balanced / strict'),
+  { name: 'workflow_set', description: 'Set project workflow profile (light/balanced/strict)', schema: {
+    profile: z.string().describe('Target profile: light / balanced / strict'),
   }},
-  { name: 'workflow_show', description: '显示当前 workflow profile 和生效策略', schema: {} },
-  { name: 'workflow_explain', description: '解释某个 story 的实际生效 profile（project / required / effective）', schema: {
+  { name: 'workflow_show', description: 'Show current workflow profile and effective policy', schema: {} },
+  { name: 'workflow_explain', description: 'Explain a story\'s effective profile (project / required / effective)', schema: {
     storyId: z.string().describe('Story ID'),
   }},
 
@@ -1143,71 +1157,312 @@ export const MAIN_TOOLS: ToolDef[] = [
   // B-ea92 M1: read-only authority policy discovery.
   // Alias: lattice authority enforce policy → authority_enforce_policy (resolved in runCli).
   { name: 'authority_enforce_policy', description: 'Discover authority policy (GET /v1/authority/policy). Read-only: no receipt, no gate pass, no evidence submission. Alias: lattice authority enforce policy', schema: {
-    authorityURL: z.string().optional().describe('Authority server base URL (overrides KOALA_AUTHORITY_URL)'),
-    authorityTimeoutMS: z.number().optional().describe('Request timeout in milliseconds (overrides KOALA_AUTHORITY_TIMEOUT_MS)'),
+    authorityURL: z.string().optional().describe('Authority server base URL (overrides LATTICE_AUTHORITY_URL; legacy KOALA_AUTHORITY_URL is still accepted)'),
+    authorityTimeoutMS: z.number().optional().describe('Request timeout in milliseconds (overrides LATTICE_AUTHORITY_TIMEOUT_MS; legacy KOALA_AUTHORITY_TIMEOUT_MS is still accepted)'),
   }},
-  { name: 'authority_enforce_runner', description: 'Explicit enforce-only headless runner command. Dry-run projects register/heartbeat/claim without provider execution. Alias: lattice authority enforce runner', schema: {
+  { name: 'authority_enforce_runner', description: 'Explicit enforce-only headless runner command. Dry-run projects register/heartbeat/claim; --live performs register/heartbeat/claim/release without provider execution. Alias: lattice authority enforce runner', schema: {
     once: z.boolean().optional().describe('Claim at most one job'),
     dryRun: z.boolean().optional().describe('Project planned steps without network mutation or provider execution'),
+    live: z.boolean().optional().describe('Run live Lattice Authority control-plane smoke: register, heartbeat, claim, then release any claimed job without provider execution'),
     json: z.boolean().optional().describe('Output JSON'),
     format: z.enum(['text', 'json']).optional().describe('Output format'),
     authorityMode: z.string().optional().describe('Authority mode override; runner treats missing override as enforce'),
     authorityURL: z.string().optional().describe('Authority server base URL override'),
     authorityTimeoutMS: z.number().optional().describe('Request timeout override'),
   }},
+  { name: 'authority_receipt_verify', description: 'Verify a native Lattice Authority receipt signature and optional bindings. Alias: lattice authority receipt verify', schema: {
+    receiptFile: z.string().describe('Signed native Lattice Authority receipt JSON file'),
+    serverPublicKey: z.string().describe('Ed25519 server public key, hex by default'),
+    serverPublicKeyEncoding: z.enum(['hex', 'base64', 'auto']).optional().describe('Encoding of serverPublicKey (default auto)'),
+    receiptKind: z.string().optional().describe('Expected receipt kind, e.g. gate_decision'),
+    receiptProjectId: z.string().optional().describe('Expected receipt projectId'),
+    receiptStoryId: z.string().optional().describe('Expected receipt storyId'),
+    serverKeyId: z.string().optional().describe('Expected serverKeyId'),
+    expectedDecisionDigest: z.string().optional().describe('Expected decisionDigest for gate receipts'),
+    receiptMaxAgeMs: z.number().optional().describe('Maximum receipt age in milliseconds (default LATTICE_AUTHORITY_RECEIPT_MAX_AGE_MS or 600000)'),
+    receiptClockSkewMs: z.number().optional().describe('Allowed receipt clock skew in milliseconds (default LATTICE_AUTHORITY_RECEIPT_CLOCK_SKEW_MS or 300000)'),
+    json: z.boolean().optional().describe('Output JSON'),
+    format: z.enum(['text', 'json']).optional().describe('Output format'),
+  }},
+  { name: 'autopilot_run', description: 'Project or record a Lattice autopilot loop. Modes: local keeps the workflow purely local, shadow reports authority readiness warnings, authority requires Python authority readiness and a verified receipt for DONE. Alias: lattice autopilot run', schema: {
+    mode: z.enum(['local', 'shadow', 'authority']).optional().describe('Autopilot mode: local, shadow, or authority'),
+    storyId: z.string().optional().describe('Story ID to bind the autopilot loop to'),
+    until: z.enum(['PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE']).optional().describe('Target phase to plan toward'),
+    once: z.boolean().optional().describe('Plan a single loop iteration'),
+    dryRun: z.boolean().optional().describe('Project planned steps without recording an autopilot projection (default true)'),
+    maxSteps: z.number().optional().describe('Maximum projected local steps when dryRun=false'),
+    requireMultiHost: z.boolean().optional().describe('Require independent host verdict certification before final DONE projection'),
+    requiredHostVerdictCount: z.number().optional().describe('Required independent passing host verdicts when multi-host review is required'),
+    maxReviewWaves: z.number().optional().describe('Maximum bounded multi-host review waves'),
+    authorityURL: z.string().optional().describe('Authority server base URL override'),
+    authorityTimeoutMS: z.number().optional().describe('Request timeout override'),
+    receiptFile: z.string().optional().describe('Signed authority receipt JSON file for authority DONE verification'),
+    authorityPublicKey: z.string().optional().describe('Legacy base64 subject-receipt public key; does not satisfy native authority DONE'),
+    receiptSubjectId: z.string().optional().describe('Legacy expected subjectId; does not satisfy native authority DONE'),
+    receiptSubjectKind: z.string().optional().describe('Legacy expected subjectKind; does not satisfy native authority DONE'),
+    serverPublicKey: z.string().optional().describe('Native Lattice Authority Ed25519 server public key, hex by default'),
+    serverPublicKeyEncoding: z.enum(['hex', 'base64', 'auto']).optional().describe('Encoding of serverPublicKey (default auto)'),
+    serverKeyId: z.string().optional().describe('Expected native Lattice Authority serverKeyId'),
+    receiptKind: z.string().optional().describe('Expected native receipt kind, e.g. gate_decision'),
+    receiptProjectId: z.string().optional().describe('Expected native receipt projectId'),
+    receiptStoryId: z.string().optional().describe('Expected native receipt storyId'),
+    expectedDecisionDigest: z.string().optional().describe('Expected native gate decisionDigest'),
+    receiptMaxAgeMs: z.number().optional().describe('Maximum native receipt age in milliseconds'),
+    receiptClockSkewMs: z.number().optional().describe('Allowed native receipt clock skew in milliseconds'),
+    json: z.boolean().optional().describe('Output JSON'),
+    format: z.enum(['text', 'json']).optional().describe('Output format'),
+  }},
+  { name: 'autopilot_execute', description: 'Execute a bounded unattended Lattice autopilot loop. Local mode runs local Lattice commands, shadow warns on authority readiness, authority fails closed for DONE without a verified receipt. Alias: lattice autopilot execute', schema: {
+    mode: z.enum(['local', 'shadow', 'authority']).optional().describe('Autopilot mode: local, shadow, or authority'),
+    storyId: z.string().optional().describe('Story ID to bind the autopilot executor to'),
+    until: z.enum(['PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE']).optional().describe('Target phase to execute toward'),
+    once: z.boolean().optional().describe('Execute a single loop iteration'),
+    dryRun: z.boolean().optional().describe('Preview the executor loop without running commands'),
+    maxSteps: z.number().optional().describe('Maximum planned steps to execute (default 20)'),
+    requireMultiHost: z.boolean().optional().describe('Require independent host verdict certification before final DONE execution'),
+    requiredHostVerdictCount: z.number().optional().describe('Required independent passing host verdicts when multi-host review is required'),
+    maxReviewWaves: z.number().optional().describe('Maximum bounded multi-host review waves'),
+    allowClaudeRepair: z.boolean().optional().describe('Allow a bounded Claude Code CLI repair attempt when an execution step fails'),
+    claudeCommand: z.string().optional().describe('Claude Code CLI executable for repair attempts (default claude)'),
+    claudePermissionMode: z.string().optional().describe('Optional Claude Code CLI --permission-mode value for repair attempts'),
+    maxRepairAttempts: z.number().optional().describe('Maximum Claude repair attempts per failed step when allowClaudeRepair=true'),
+    commandTimeoutMS: z.number().optional().describe('Timeout for each Lattice executor command in milliseconds'),
+    claudeTimeoutMS: z.number().optional().describe('Timeout for each Claude repair command in milliseconds'),
+    authorityURL: z.string().optional().describe('Authority server base URL override'),
+    authorityTimeoutMS: z.number().optional().describe('Request timeout override'),
+    receiptFile: z.string().optional().describe('Signed authority receipt JSON file for authority DONE verification'),
+    authorityPublicKey: z.string().optional().describe('Legacy base64 subject-receipt public key; does not satisfy native authority DONE'),
+    receiptSubjectId: z.string().optional().describe('Legacy expected subjectId; does not satisfy native authority DONE'),
+    receiptSubjectKind: z.string().optional().describe('Legacy expected subjectKind; does not satisfy native authority DONE'),
+    serverPublicKey: z.string().optional().describe('Native Lattice Authority Ed25519 server public key, hex by default'),
+    serverPublicKeyEncoding: z.enum(['hex', 'base64', 'auto']).optional().describe('Encoding of serverPublicKey (default auto)'),
+    serverKeyId: z.string().optional().describe('Expected native Lattice Authority serverKeyId'),
+    receiptKind: z.string().optional().describe('Expected native receipt kind, e.g. gate_decision'),
+    receiptProjectId: z.string().optional().describe('Expected native receipt projectId'),
+    receiptStoryId: z.string().optional().describe('Expected native receipt storyId'),
+    expectedDecisionDigest: z.string().optional().describe('Expected native gate decisionDigest'),
+    receiptMaxAgeMs: z.number().optional().describe('Maximum native receipt age in milliseconds'),
+    receiptClockSkewMs: z.number().optional().describe('Allowed native receipt clock skew in milliseconds'),
+    json: z.boolean().optional().describe('Output JSON'),
+    format: z.enum(['text', 'json']).optional().describe('Output format'),
+  }},
+  { name: 'autopilot_status', description: 'Report Lattice autopilot mode availability and Python authority readiness without mutating workflow state. Alias: lattice autopilot status', schema: {
+    json: z.boolean().optional().describe('Output JSON'),
+    format: z.enum(['text', 'json']).optional().describe('Output format'),
+  }},
+  { name: 'autopilot_doctor', description: 'Diagnose local and authority autopilot readiness while confirming local autopilot remains usable. Alias: lattice autopilot doctor', schema: {
+    json: z.boolean().optional().describe('Output JSON'),
+    format: z.enum(['text', 'json']).optional().describe('Output format'),
+  }},
+  { name: 'planner_draft', description: 'Create a structured Lattice planner draft from a natural-language request. Alias: lattice planner draft', schema: {
+    request: z.string().optional().describe('One sentence or paragraph request'),
+    requestFile: z.string().optional().describe('Request document path'),
+    interactionMode: z.enum(['autonomous', 'interview', 'decision-gated']).optional().describe('Planner interaction mode (default autonomous)'),
+    mode: z.enum(['local', 'authority']).optional().describe('Execution mode for the generated plan'),
+    until: z.enum(['PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE']).optional().describe('Target phase'),
+    workflow: z.enum(['standard', 'source-aligned-redevelopment', 'source_aligned_redevelopment']).optional().describe('Development workflow'),
+    sourceRepo: z.string().optional().describe('Source repo path for source-aligned redevelopment'),
+    targetProject: z.string().optional().describe('Target project path for source-aligned redevelopment'),
+    targetProjectName: z.string().optional().describe('Target project name for source-aligned redevelopment'),
+    sourceLanguage: z.string().optional().describe('Canonical source language id'),
+    targetLanguage: z.string().optional().describe('Canonical target language id'),
+    renameMap: z.union([z.record(z.string(), z.string()), z.string()]).optional().describe('Rename map object or JSON string'),
+    includedPaths: z.union([z.array(z.string()), z.string()]).optional().describe('Included source paths (array or comma-separated string)'),
+    excludedPaths: z.union([z.array(z.string()), z.string()]).optional().describe('Excluded source paths (array or comma-separated string)'),
+    languageAdapterPolicy: z.union([z.record(z.string(), z.unknown()), z.string()]).optional().describe('Language adapter policy object or JSON string'),
+    semanticMappingPolicy: z.union([z.record(z.string(), z.unknown()), z.string()]).optional().describe('Semantic mapping policy object or JSON string'),
+    parityOraclePolicy: z.union([z.record(z.string(), z.unknown()), z.string()]).optional().describe('Parity oracle policy object or JSON string'),
+    alignmentVerificationIntent: z.union([z.array(z.string()), z.string()]).optional().describe('Alignment verification intents'),
+    allowUnattendedPlanning: z.boolean().optional().describe('Allow unattended Story/job creation for authority mode'),
+    forceNewRun: z.boolean().optional().describe('Request a distinct planner idempotency scope'),
+    forceNewRunReason: z.string().optional().describe('Reason for forceNewRun'),
+    json: z.boolean().optional().describe('Output JSON'),
+    format: z.enum(['text', 'json']).optional().describe('Output format'),
+  }},
+  { name: 'planner_review', description: 'Review a planner draft for placeholders, ambiguity, policy, and verification gaps. Alias: lattice planner review', schema: {
+    draftFile: z.string().optional().describe('Planner draft JSON file'),
+    runId: z.string().optional().describe('Planner run id'),
+    json: z.boolean().optional().describe('Output JSON'),
+    format: z.enum(['text', 'json']).optional().describe('Output format'),
+  }},
+  { name: 'planner_create_story', description: 'Create a Lattice Story from a reviewed planner draft. Alias: lattice planner create-story', schema: {
+    draftFile: z.string().optional().describe('Planner draft JSON file'),
+    runId: z.string().optional().describe('Planner run id'),
+    forceNew: z.boolean().optional().describe('Force a new Story through the planner-controlled path'),
+    json: z.boolean().optional().describe('Output JSON'),
+    format: z.enum(['text', 'json']).optional().describe('Output format'),
+  }},
+  { name: 'planner_create_job', description: 'Create a local run plan or unsigned Authority job-create envelope with typed plannedSteps. Alias: lattice planner create-job', schema: {
+    storyId: z.string().optional().describe('Story id'),
+    draftFile: z.string().optional().describe('Planner draft JSON file'),
+    runId: z.string().optional().describe('Planner run id'),
+    projectId: z.string().optional().describe('Authority project id'),
+    json: z.boolean().optional().describe('Output JSON'),
+    format: z.enum(['text', 'json']).optional().describe('Output format'),
+  }},
+  { name: 'planner_status', description: 'Read planner run status without mutation. Alias: lattice planner status', schema: {
+    runId: z.string().optional().describe('Planner run id'),
+    json: z.boolean().optional().describe('Output JSON'),
+    format: z.enum(['text', 'json']).optional().describe('Output format'),
+  }},
+  { name: 'planner_answer', description: 'Record structured interview answers for a paused planner run. Alias: lattice planner answer', schema: {
+    runId: z.string().describe('Planner run id'),
+    answersFile: z.string().describe('Structured answers JSON file'),
+    json: z.boolean().optional().describe('Output JSON'),
+    format: z.enum(['text', 'json']).optional().describe('Output format'),
+  }},
+  { name: 'planner_decision_submit', description: 'Record structured decision evidence for a paused decision-gated planner run. Alias: lattice planner decision submit', schema: {
+    runId: z.string().describe('Planner run id'),
+    decisionFile: z.string().describe('Structured decision JSON file'),
+    json: z.boolean().optional().describe('Output JSON'),
+    format: z.enum(['text', 'json']).optional().describe('Output format'),
+  }},
+  { name: 'planner_resume', description: 'Resume a paused planner run after answers or decisions. Alias: lattice planner resume', schema: {
+    runId: z.string().describe('Planner run id'),
+    json: z.boolean().optional().describe('Output JSON'),
+    format: z.enum(['text', 'json']).optional().describe('Output format'),
+  }},
+  { name: 'planner_run', description: 'Compose draft, review, Story creation, and job/local plan creation. Alias: lattice planner run', schema: {
+    request: z.string().optional().describe('One sentence or paragraph request'),
+    requestFile: z.string().optional().describe('Request document path'),
+    interactionMode: z.enum(['autonomous', 'interview', 'decision-gated']).optional().describe('Planner interaction mode'),
+    mode: z.enum(['local', 'authority']).optional().describe('Execution mode'),
+    until: z.enum(['PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE']).optional().describe('Target phase'),
+    workflow: z.enum(['standard', 'source-aligned-redevelopment', 'source_aligned_redevelopment']).optional().describe('Development workflow'),
+    projectId: z.string().optional().describe('Authority project id'),
+    requireMultiHost: z.boolean().optional().describe('Require local/authority multi-host certification in the generated plan'),
+    sourceRepo: z.string().optional(),
+    targetProject: z.string().optional(),
+    targetProjectName: z.string().optional(),
+    sourceLanguage: z.string().optional(),
+    targetLanguage: z.string().optional(),
+    renameMap: z.union([z.record(z.string(), z.string()), z.string()]).optional(),
+    includedPaths: z.union([z.array(z.string()), z.string()]).optional(),
+    excludedPaths: z.union([z.array(z.string()), z.string()]).optional(),
+    languageAdapterPolicy: z.union([z.record(z.string(), z.unknown()), z.string()]).optional(),
+    semanticMappingPolicy: z.union([z.record(z.string(), z.unknown()), z.string()]).optional(),
+    parityOraclePolicy: z.union([z.record(z.string(), z.unknown()), z.string()]).optional(),
+    alignmentVerificationIntent: z.union([z.array(z.string()), z.string()]).optional(),
+    allowUnattendedPlanning: z.boolean().optional(),
+    forceNewRun: z.boolean().optional(),
+    forceNewRunReason: z.string().optional(),
+    json: z.boolean().optional().describe('Output JSON'),
+    format: z.enum(['text', 'json']).optional().describe('Output format'),
+  }},
+  { name: 'planner_source_manifest', description: 'Extract a deterministic digest manifest for source-aligned redevelopment intake. Alias: lattice planner source-manifest', schema: {
+    sourceRepo: z.string().describe('Source repo path'),
+    includedPaths: z.union([z.array(z.string()), z.string()]).optional().describe('Included source paths'),
+    excludedPaths: z.union([z.array(z.string()), z.string()]).optional().describe('Excluded source paths'),
+    json: z.boolean().optional().describe('Output JSON'),
+    format: z.enum(['text', 'json']).optional().describe('Output format'),
+  }},
+  { name: 'autopilot_review_submit', description: 'Submit a local non-authority independent host verdict. Alias: lattice autopilot review submit', schema: {
+    verdictFile: z.string().optional().describe('Verdict JSON file'),
+    storyId: z.string().optional().describe('Story id'),
+    runId: z.string().optional().describe('Local run id'),
+    hostId: z.string().optional(),
+    provider: z.string().optional(),
+    sessionId: z.string().optional(),
+    keyId: z.string().optional(),
+    decision: z.enum(['pass', 'fail', 'blocked']).optional(),
+    materialDigest: z.string().optional(),
+    validationDigest: z.string().optional(),
+    promptDigest: z.string().optional(),
+    note: z.string().optional(),
+    json: z.boolean().optional().describe('Output JSON'),
+    format: z.enum(['text', 'json']).optional().describe('Output format'),
+  }},
+  { name: 'autopilot_review_status', description: 'Summarize local independent host verdicts. Alias: lattice autopilot review status', schema: {
+    storyId: z.string().describe('Story id'),
+    runId: z.string().optional().describe('Local run id'),
+    requiredHosts: z.number().optional().describe('Required independent passing hosts'),
+    json: z.boolean().optional().describe('Output JSON'),
+    format: z.enum(['text', 'json']).optional().describe('Output format'),
+  }},
+  { name: 'authority_verdict_submit', description: 'Submit an Authority-mode independent host verdict record. Alias: lattice authority verdict submit', schema: {
+    verdictFile: z.string().optional().describe('Verdict JSON file'),
+    jobId: z.string().optional().describe('Authority job id'),
+    runId: z.string().optional().describe('Authority run id'),
+    hostId: z.string().optional(),
+    provider: z.string().optional(),
+    sessionId: z.string().optional(),
+    keyId: z.string().optional(),
+    decision: z.enum(['pass', 'fail', 'blocked']).optional(),
+    materialDigest: z.string().optional(),
+    gateInputDigest: z.string().optional(),
+    receiptId: z.string().optional(),
+    promptDigest: z.string().optional(),
+    note: z.string().optional(),
+    json: z.boolean().optional().describe('Output JSON'),
+    format: z.enum(['text', 'json']).optional().describe('Output format'),
+  }},
+  { name: 'authority_verdict_list', description: 'Summarize Authority independent host verdicts. Alias: lattice authority verdict list', schema: {
+    jobId: z.string().describe('Authority job id'),
+    runId: z.string().optional().describe('Authority run id'),
+    requiredHosts: z.number().optional().describe('Required independent passing hosts'),
+    json: z.boolean().optional().describe('Output JSON'),
+    format: z.enum(['text', 'json']).optional().describe('Output format'),
+  }},
+  { name: 'authority_job_status', description: 'Summarize Authority job host-verdict status without minting or replacing native receipts. Alias: lattice authority job status', schema: {
+    jobId: z.string().describe('Authority job id'),
+    runId: z.string().optional().describe('Authority run id'),
+    requiredHosts: z.number().optional().describe('Required independent passing hosts'),
+    json: z.boolean().optional().describe('Output JSON'),
+    format: z.enum(['text', 'json']).optional().describe('Output format'),
+  }},
 
   // B-ad2c: dev-memory — lightweight non-authoritative experience capture
-  { name: 'dev_memory_capture', description: '捕获一条非权威 dev-memory 经验条目到 file-backed JSONL 存储（不能满足 Koala gate evidence）', schema: {
-    category: z.enum(['failure-mode','pattern','anti-pattern','workflow','tool-quirk','guard-bypass','debugging','communication','other']).describe('经验类别'),
-    scope: z.enum(['project','global','story-candidate']).optional().describe('存储范围（默认 project）'),
-    summary: z.string().describe('一句话摘要（≥10 字符）'),
-    trigger: z.string().describe('触发场景（≥5 字符）'),
-    lesson: z.string().describe('可复用的教训（≥10 字符）'),
-    reusePrompt: z.string().describe('如何在下次会话中调出这条经验（≥5 字符）'),
-    tags: z.union([z.array(z.string()), z.string()]).optional().describe('关键词标签（逗号分隔字符串或数组）'),
-    sourceAgent: z.string().optional().describe('来源 agent（默认 koala-implementer）'),
-    sourceStoryId: z.string().optional().describe('来源 story ID'),
-    evidenceRefs: z.array(z.string()).optional().describe('证据引用（文件路径/commit sha）'),
+  { name: 'dev_memory_capture', description: 'Capture a non-authoritative dev-memory experience entry to file-backed JSONL storage (does not satisfy Koala gate evidence)', schema: {
+    category: z.enum(['failure-mode','pattern','anti-pattern','workflow','tool-quirk','guard-bypass','debugging','communication','other']).describe('Experience category'),
+    scope: z.enum(['project','global','story-candidate']).optional().describe('Storage scope (default project)'),
+    summary: z.string().describe('One-sentence summary (≥10 characters)'),
+    trigger: z.string().describe('Trigger scenario (≥5 characters)'),
+    lesson: z.string().describe('Reusable lesson (≥10 characters)'),
+    reusePrompt: z.string().describe('How to recall this experience in a future session (≥5 characters)'),
+    tags: z.union([z.array(z.string()), z.string()]).optional().describe('Keyword tags (comma-separated string or array)'),
+    sourceAgent: z.string().optional().describe('Source agent (default koala-implementer)'),
+    sourceStoryId: z.string().optional().describe('Source story ID'),
+    evidenceRefs: z.array(z.string()).optional().describe('Evidence refs (file paths/commit sha)'),
   }},
-  { name: 'dev_memory_list', description: '列出 dev-memory 经验条目', schema: {
-    scope: z.enum(['project','global','story-candidate']).optional().describe('存储范围（默认 project）'),
-    limit: z.number().optional().describe('最多返回条数（默认 50）'),
-    json: z.boolean().optional().describe('JSON 格式输出'),
+  { name: 'dev_memory_list', description: 'List dev-memory experience entries', schema: {
+    scope: z.enum(['project','global','story-candidate']).optional().describe('Storage scope (default project)'),
+    limit: z.number().optional().describe('Maximum entries to return (default 50)'),
+    json: z.boolean().optional().describe('JSON output'),
   }},
-  { name: 'dev_memory_search', description: '按 query/category/agent/tags 搜索 dev-memory 经验条目', schema: {
-    query: z.string().optional().describe('全文搜索关键词'),
-    category: z.string().optional().describe('按类别过滤'),
-    agent: z.string().optional().describe('按来源 agent 过滤'),
-    tags: z.union([z.array(z.string()), z.string()]).optional().describe('按标签过滤（逗号分隔字符串或数组）'),
-    limit: z.number().optional().describe('最多返回条数（默认 20）'),
-    global: z.boolean().optional().describe('同时搜索 global 存储'),
-    json: z.boolean().optional().describe('JSON 格式输出'),
+  { name: 'dev_memory_search', description: 'Search dev-memory experience entries by query/category/agent/tags', schema: {
+    query: z.string().optional().describe('Full-text search query'),
+    category: z.string().optional().describe('Filter by category'),
+    agent: z.string().optional().describe('Filter by source agent'),
+    tags: z.union([z.array(z.string()), z.string()]).optional().describe('Filter by tags (comma-separated string or array)'),
+    limit: z.number().optional().describe('Maximum entries to return (default 20)'),
+    global: z.boolean().optional().describe('Also search global storage'),
+    json: z.boolean().optional().describe('JSON output'),
   }},
-  { name: 'dev_memory_preflight', description: '输出非权威 dev-memory 预飞上下文包（会话开始时调用）', schema: {
-    query: z.string().optional().describe('相关性查询词'),
-    maxEntries: z.number().optional().describe('最多包含条目数（默认 5）'),
-    maxLines: z.number().optional().describe('行数预算（默认 60）'),
-    json: z.boolean().optional().describe('JSON 格式输出'),
+  { name: 'dev_memory_preflight', description: 'Output a non-authoritative dev-memory preflight context pack (called at session start)', schema: {
+    query: z.string().optional().describe('Relevance query'),
+    maxEntries: z.number().optional().describe('Maximum included entries (default 5)'),
+    maxLines: z.number().optional().describe('Line budget (default 60)'),
+    json: z.boolean().optional().describe('JSON output'),
   }},
-  { name: 'dev_memory_finish', description: '结束会话：active story 中默认写入 story 候选；无 story 时报告/晋升项目条目（不需 story 目录）', schema: {
-    storyId: z.string().optional().describe('活动 story ID（如 B-xxx）；省略时 active story 分支会自动推断；Koala 外部会话可省略'),
-    storyDir: z.string().optional().describe('story 目录根路径（默认 <root>/.koala/story/actives）'),
-    query: z.string().optional().describe('可选：相关性过滤词'),
-    scope: z.enum(['global']).optional().describe('无 storyId 时：global=将项目经验晋升到全局 dev-memory；即使在 active story 中也不写 story 候选'),
+  { name: 'dev_memory_finish', description: 'End the session: writes story candidates by default inside an active story; without a story, reports/promotes project entries (no story directory required)', schema: {
+    storyId: z.string().optional().describe('Active story ID (for example B-xxx); omitted means infer from active story branch; may be omitted outside Koala sessions'),
+    storyDir: z.string().optional().describe('Story directory root (default <root>/.koala/story/actives)'),
+    query: z.string().optional().describe('Optional relevance filter'),
+    scope: z.enum(['global']).optional().describe('Without storyId: global=promote project experience into global dev-memory; even in an active story, do not write story candidates'),
   }},
-  { name: 'dev_memory_start', description: '会话启动包装器：输出 dev-memory 预飞上下文 + 结束时调 dev_memory_finish 的提醒（不启动外部 agent 二进制；不是生命周期 dev_start，不创建 worktree 或推进 phase）', schema: {
-    agent: z.string().optional().describe('agent 名称（如 claude / codex；仅用于显示，不启动进程）'),
-    query: z.string().optional().describe('预飞相关性查询词'),
-    maxEntries: z.number().optional().describe('预飞最多条目数（默认 5）'),
-    dryRun: z.boolean().optional().describe('兼容参数，始终为 dry-run 模式（不启动外部进程）'),
+  { name: 'dev_memory_start', description: 'Session-start wrapper: outputs dev-memory preflight context + reminder to call dev_memory_finish at the end (does not start external agent binaries; not lifecycle dev_start; does not create worktrees or advance phase)', schema: {
+    agent: z.string().optional().describe('Agent name (for example claude / codex; display only, does not start a process)'),
+    query: z.string().optional().describe('Preflight relevance query'),
+    maxEntries: z.number().optional().describe('Maximum preflight entries (default 5)'),
+    dryRun: z.boolean().optional().describe('Compatibility parameter; always dry-run mode (does not start external processes)'),
   }},
 
 ];
 
 /**
- * 运行时工具列表 — runCli() 启动时会赋值，包括 main 自带的 + extras。
- * 之后所有 helper（printHelp、dispatch lookup 等）都通过这个变量访问，
- * 不直接引用 MAIN_TOOLS。
+ * Runtime tool list assigned when runCli() starts, including main built-ins plus
+ * extras. All helpers (printHelp, dispatch lookup, etc.) access this variable
+ * afterward instead of directly referencing MAIN_TOOLS.
  */
 let TOOLS: ToolDef[] = MAIN_TOOLS;
 
@@ -1216,9 +1471,9 @@ let TOOLS: ToolDef[] = MAIN_TOOLS;
 interface ActiveStory { storyId: string; phase: string; }
 
 /**
- * 从 git 分支名检测 active story。
- * 分支格式: story/B-xxxx → storyId = B-xxxx
- * 返回 null 表示非 story 分支（全量可用）。
+ * Detect the active story from the git branch name.
+ * Branch format: story/B-xxxx -> storyId = B-xxxx.
+ * Returns null for non-story branches (all commands available).
  */
 function detectActiveStory(root: string): ActiveStory | null {
   try {
@@ -1231,11 +1486,11 @@ function detectActiveStory(root: string): ActiveStory | null {
       const story = store.readStory(storyId);
       return { storyId, phase: story.phase };
     } catch {
-      // story 文件不存在，不过滤
+      // Story file does not exist, so do not filter.
       return null;
     }
   } catch {
-    // 非 git 目录或其他错误，不过滤
+    // Non-git directory or other error, so do not filter.
     return null;
   }
 }
@@ -1315,7 +1570,7 @@ function printToolHelp(tool: ToolDef, options: HelpOutputOptions = {}) {
   out(`\n  ${brand.primaryBin} ${tool.name} — ${tool.description}\n`);
   out(`  ${formatLatticeProductLine(brand)}; legacy alias: ${brand.legacyAlias}\n`);
 
-  // 如果有 longHelp（核心命令），先打印完整 PROMPT
+  // If a core command has longHelp, print the full prompt first.
   if (tool.longHelp) {
     out(tool.longHelp);
     out('');
@@ -1323,12 +1578,12 @@ function printToolHelp(tool: ToolDef, options: HelpOutputOptions = {}) {
 
   const entries = Object.entries(tool.schema);
   if (entries.length === 0) {
-    out('  无参数\n');
-    out(`  用法: ${brand.primaryBin} ${tool.name}`);
+    out('  No arguments\n');
+    out(`  Usage: ${brand.primaryBin} ${tool.name}`);
     if (includeFooter) out(SESSION_BRIEF_FOOTER);
     return;
   }
-  out('  参数:');
+  out('  Arguments:');
   const maxN = Math.max(...entries.map(([k]) => k.length));
   for (const [name, type] of entries) {
     const opt = type instanceof ZodOptional;
@@ -1343,15 +1598,15 @@ function printToolHelp(tool: ToolDef, options: HelpOutputOptions = {}) {
   }
   const required = entries.filter(([, t]) => !(t instanceof ZodOptional));
   const optional = entries.filter(([, t]) => t instanceof ZodOptional);
-  const reqParts = required.map(([k]) => `--${k}=值`);
+  const reqParts = required.map(([k]) => `--${k}=value`);
   const optParts = optional.map(([k]) => {
     const inner = (entries.find(([n]) => n === k)?.[1] as any);
     const base = inner instanceof ZodOptional ? (inner as any)._def.innerType : inner;
-    return base instanceof ZodBoolean ? `[--${k}]` : `[--${k}=值]`;
+    return base instanceof ZodBoolean ? `[--${k}]` : `[--${k}=value]`;
   });
-  out(`\n  用法: ${brand.primaryBin} ${tool.name} ${[...reqParts, ...optParts].join(' ')}`);
-  out(`  兼容: ${brand.legacyAlias} ${tool.name} ...`);
-  out('  (* = 必填)');
+  out(`\n  Usage: ${brand.primaryBin} ${tool.name} ${[...reqParts, ...optParts].join(' ')}`);
+  out(`  Compatible alias: ${brand.legacyAlias} ${tool.name} ...`);
+  out('  (* = required)');
   if (includeFooter) out(SESSION_BRIEF_FOOTER);
 }
 
@@ -1362,10 +1617,10 @@ function formatValidationIssue(issue: z.ZodIssue): string {
 
 function printValidationFailure(tool: ToolDef, issues: z.ZodIssue[]) {
   const lines = issues.map(formatValidationIssue);
-  process.stderr.write('参数校验失败:\n');
+  process.stderr.write('Argument validation failed:\n');
   for (const line of lines) process.stderr.write(`${line}\n`);
   printToolHelp(tool, { stream: process.stderr, includeFooter: false });
-  process.stderr.write('\n参数校验失败（摘要）:\n');
+  process.stderr.write('\nArgument validation failed (summary):\n');
   for (const line of lines) process.stderr.write(`${line}\n`);
 }
 
@@ -1374,20 +1629,20 @@ function printHelp(activeStory?: ActiveStory | null) {
   console.log(`\n  ${formatLatticeProductLine(brand)} — CLI-first project workflow and host migration surface\n`);
   console.log(`  Primary entrypoint: ${brand.primaryBin}`);
   console.log(`  Legacy alias:       ${brand.legacyAlias}\n`);
-  console.log(`  用法: ${brand.primaryBin} <command> --key=value         执行命令`);
-  console.log(`        ${brand.primaryBin} <command> --help              查看参数`);
-  console.log(`        ${brand.primaryBin} help                          显示此帮助`);
-  console.log(`        ${brand.primaryBin} --version                     显示版本`);
-  console.log(`        ${brand.primaryBin} --root <path> ...             指定项目根目录\n`);
+  console.log(`  Usage: ${brand.primaryBin} <command> --key=value         Run a command`);
+  console.log(`         ${brand.primaryBin} <command> --help              Show arguments`);
+  console.log(`         ${brand.primaryBin} help                          Show this help`);
+  console.log(`         ${brand.primaryBin} --version                     Show version`);
+  console.log(`         ${brand.primaryBin} --root <path> ...             Set project root\n`);
 
   if (activeStory) {
-    console.log(`  当前 Story: ${activeStory.storyId}  阶段: ${activeStory.phase}\n`);
+    console.log(`  Current Story: ${activeStory.storyId}  Phase: ${activeStory.phase}\n`);
   }
 
   const config = loadConfig();
   const phaseTools = config.phaseTools;
 
-  // 已知前缀 → 显示分组名（特殊情况优先）
+  // Known prefixes -> display group names (special cases first).
   const KNOWN_GROUP: Record<string, string> = {
     story: 'Story',
     checklist: 'Checklist',
@@ -1408,18 +1663,18 @@ function printHelp(activeStory?: ActiveStory | null) {
     authority: 'Authority',
     conduit: 'Conduit',
   };
-  // 已知分组的展示顺序；不在列表里的分组（来自 extras）按字母序追加
+  // Display order for known groups; groups not listed here (from extras) append alphabetically.
   const KNOWN_ORDER = ['Host', 'Lattice', 'Authority', 'Conduit', 'Story', 'Review', 'Checklist', 'Grill', 'Bug', 'Test', 'Validate', 'Evaluate', 'Workflow', 'Status', 'Check', 'Serve', 'Session', 'Aux', 'Audit'];
 
   const groups: Record<string, ToolDef[]> = {};
   for (const t of TOOLS) {
-    // 有 active story 时只列出当前阶段可用命令
+    // With an active story, list only commands available in the current phase.
     if (activeStory && !isCommandAllowed(t.name, activeStory.phase, phaseTools)) continue;
     const p = t.name.split('_')[0];
     let g: string;
     if (t.name === 'story_review' || t.name === 'story_review_dismiss') g = 'Review';
     else if (KNOWN_GROUP[p]) g = KNOWN_GROUP[p];
-    else g = p.charAt(0).toUpperCase() + p.slice(1); // 未知前缀：首字母大写
+    else g = p.charAt(0).toUpperCase() + p.slice(1); // Unknown prefix: capitalize first letter.
     (groups[g] = groups[g] || []).push(t);
   }
   const filteredTools = activeStory ? TOOLS.filter(t => isCommandAllowed(t.name, activeStory.phase, phaseTools)) : TOOLS;
@@ -1435,38 +1690,51 @@ function printHelp(activeStory?: ActiveStory | null) {
     for (const t of groups[g]) console.log(`    ${t.name.padEnd(maxN + 2)} ${t.description}`);
   }
   console.log(`
-  开发流程:
+	  Development flow:
     ── PLAN ──
-    1. lattice story_create '{"name":"x","title":"..","description":"..","type":"feature","priority":"high","checklist":[{"title":"做什么","context":"上下文"}]}'
-    2. lattice story_advance --storyId=B-xxx --phase=INIT_CHECK # 创建 worktree
+    1. lattice story_create '{"name":"x","title":"..","description":"..","type":"feature","priority":"high","checklist":[{"title":"Do the work","context":"Context"}]}'
+    2. lattice story_advance --storyId=B-xxx --phase=INIT_CHECK # create worktree
     3. cd .worktrees/B-xxx
-    4. lattice story_review --storyId=B-xxx                     # 审查通过后进 DEV
+    4. lattice story_review --storyId=B-xxx                     # enter DEV after review passes
     5. lattice story_advance --storyId=B-xxx --phase=DEV
 
     ── DEV ──
-    6. 写代码 + 写验证（fixture / 项目原生测试 / validate.ts 可选）
-    7. lattice validate                                         # 验证（按项目语言自动发现或读取配置）
+    6. Write code + verification (fixture / project-native tests / optional validate.ts)
+    7. lattice validate                                         # verify (auto-discovers by project language or reads config)
     8. lattice checklist_update --storyId=B-xxx --itemId=CHK-001 --status=done
 
     ── REVIEW ──
-    9. lattice story_advance --storyId=B-xxx --phase=REVIEW    # 进入代码审查
-   10. koala-reviewer 审查代码，提 finding                     # critical/high 必须 resolve
+    9. lattice story_advance --storyId=B-xxx --phase=REVIEW    # enter code review
+   10. koala-reviewer reviews code and raises findings         # critical/high must be resolved
 
     ── TEST → DONE ──
    11. lattice story_advance --storyId=B-xxx --phase=TEST
    12. lattice story_advance --storyId=B-xxx --phase=DONE
 
-  初始化新项目:
-    lattice init                          # 在当前目录初始化 Lattice/Koala project state
+  Initialize a new project:
+    lattice init                          # initialize Lattice/Koala project state in the current directory
 
-  提示: 简单参数用 --key=value，复杂参数(array/object)用 JSON 格式
-  出错? 用 lattice <command> --help 查看完整参数说明
+  Tip: use --key=value for simple arguments; use JSON for complex arguments (array/object)
+  Error? Run lattice <command> --help to see the full argument reference
 `);
+}
+
+function printCodexHelp() {
+  const brand = detectLatticeBrand();
+  console.log(`\n  ${brand.primaryBin} codex <command> — Codex-tagged Lattice entrypoint\n`);
+  console.log(`  Usage: ${brand.primaryBin} codex session_brief`);
+  console.log(`         ${brand.primaryBin} codex aux_doc_list --format=json`);
+  console.log(`         ${brand.primaryBin} codex verify`);
+  console.log(`         ${brand.primaryBin} codex doctor\n`);
+  console.log('  Aliases:');
+  console.log('    verify  -> verify_codex');
+  console.log('    doctor  -> doctor\n');
+  console.log('  The codex namespace marks activity with source=codex before dispatching the underlying Lattice command.');
 }
 
 // ── Flag parser ──
 
-/** 测试入口：接受 JSON 描述的 schema（"string"|"number"|"boolean"|"array"|"object"），内部转 Zod */
+/** Test entrypoint: accepts JSON-described schema ("string"|"number"|"boolean"|"array"|"object") and converts it to Zod internally. */
 export function parseFlagsTest(rawArgs: string[], schemaDesc: Record<string, string>): Record<string, unknown> {
   const schema: Record<string, ZodType> = {};
   for (const [k, v] of Object.entries(schemaDesc)) {
@@ -1507,7 +1775,7 @@ export function parseFlags(rawArgs: string[], schema: Record<string, ZodType>): 
         addValue(result, key, coerce(val, schema[key]), arrayKeys.has(key));
       } else {
         const key = normalizeFlagKey(arg.slice(2), schema);
-        // 下一个参数不是 flag → 当作 value
+        // Next argument is not a flag -> treat it as a value.
         if (i + 1 < rawArgs.length && !rawArgs[i + 1].startsWith('--')) {
           addValue(result, key, coerce(rawArgs[i + 1], schema[key]), arrayKeys.has(key));
           i++;
@@ -1517,13 +1785,13 @@ export function parseFlags(rawArgs: string[], schema: Record<string, ZodType>): 
         }
       }
     } else if (arg.includes('=') && !arg.startsWith('{')) {
-      // key=value (无 -- 前缀，兼容旧格式)
+      // key=value (without -- prefix, kept for legacy compatibility)
       const eqIdx = arg.indexOf('=');
       const key = normalizeFlagKey(arg.slice(0, eqIdx), schema);
       const val = arg.slice(eqIdx + 1);
       addValue(result, key, coerce(val, schema[key]), arrayKeys.has(key));
     }
-    // 忽略无法识别的 positional 参数
+    // Ignore unrecognized positional arguments.
     i++;
   }
   return result;
@@ -1561,7 +1829,7 @@ export function addValue(obj: Record<string, unknown>, key: string, val: unknown
 function resolveRoot(explicit?: string): string {
   if (explicit) return explicit;
   if (process.env.KOALA_PROJECT_ROOT) return process.env.KOALA_PROJECT_ROOT;
-  // 向上查找 koala.config.json 确定项目根
+  // Walk upward to find koala.config.json and determine the project root.
   let dir = process.cwd();
   for (let i = 0; i < 10; i++) {
     if (existsSync(join(dir, 'koala.config.json'))) return dir;
@@ -1638,6 +1906,8 @@ const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'lattice_config_doctor',
   'rollout_check',
   'authority_status',
+  'autopilot_status',
+  'autopilot_doctor',
   'conduit_status',
   'conduit_explain',
   'story_export',
@@ -1663,6 +1933,7 @@ const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'help',
   'authority_enforce_policy',
   'authority_enforce_runner',
+  'authority_receipt_verify',
 ]);
 
 function inferCodexEntrypoint(): string {
@@ -1703,6 +1974,11 @@ function storyIdFromArgs(args: Record<string, unknown>, activeStory?: ActiveStor
  *  4. `dev_memory_finish --scope=global` with no explicit story target is
  *     `mainSharedMutating`: it promotes non-authoritative project memory to
  *     global memory and must not be owner-lease-gated by the active story.
+ *  5. `autopilot_run` is `readOnly` by default because it projects steps only;
+ *     explicit `dryRun=false` asks it to append an autopilot_projection event,
+ *     so that invocation is `storyScopedMutating`.
+ *     `autopilot_execute` is always `storyScopedMutating` because the command
+ *     is the true unattended executor loop and may run lifecycle/evidence steps.
  *
  * Returns `null` when the command has no policy entry OR its `ownershipClass`
  * is not a valid enum value — the gate treats `null` as FAIL-CLOSED (an
@@ -1714,7 +1990,7 @@ export function resolveEffectiveOwnershipClass(
   storyId: string | null,
 ): OwnershipClass | null {
   const policy = getCommandPolicy(cmd);
-  // Runtime enum re-validation (CLAUDE.md「Handler 编码约定」): a missing policy
+  // Runtime enum re-validation (CLAUDE.md "Handler coding convention"): a missing policy
   // OR a policy whose `ownershipClass` is not a valid enum value is fail-closed.
   if (!policy || !isOwnershipClass(policy.ownershipClass)) return null;
   let cls: OwnershipClass = policy.ownershipClass;
@@ -1746,6 +2022,15 @@ export function resolveEffectiveOwnershipClass(
     if (!hasExplicitStory && args.scope === 'global') {
       cls = 'mainSharedMutating';
     }
+  }
+
+  // Boundary rule 5: autopilot_run defaults to dry-run projection; only an
+  // explicit false records the story-scoped autopilot_projection event.
+  if (cmd === 'autopilot_run') {
+    cls = args.dryRun === false || args.dryRun === 'false' ? 'storyScopedMutating' : 'readOnly';
+  }
+  if (cmd === 'autopilot_execute') {
+    cls = 'storyScopedMutating';
   }
 
   return cls;
@@ -1790,7 +2075,7 @@ export type TakeoverIntent = 'none' | 'takeover' | 'forceTakeover';
  *
  * `parseFlags` records a bare `--takeover` / `--forceTakeover` as boolean
  * `true`; an `=value` form may also yield a string. Runtime re-validation (per
- * "Handler 编码约定"): the flag counts as set ONLY for a real boolean `true` or
+ * "Handler coding convention"): the flag counts as set ONLY for a real boolean `true` or
  * the literal string `"true"` — any other value (a typo'd `--takeover=maybe`)
  * is treated as NOT set, so a malformed flag can never silently authorize a
  * dangerous lease transfer. `--forceTakeover` outranks `--takeover`.
@@ -1980,6 +2265,8 @@ export function shouldWriteActivityLog(cmdName: string, args: Record<string, unk
   if (READ_ONLY_COMMANDS.has(cmdName)) {
     return process.env.KOALA_ACTIVITY_RECORD_READONLY === '1';
   }
+  if (cmdName === 'autopilot_run' && args.dryRun !== false && args.dryRun !== 'false') return false;
+  if (cmdName === 'autopilot_execute' && (args.dryRun === true || args.dryRun === 'true')) return false;
   if (args.dryRun === true) return false;
   return true;
 }
@@ -2195,17 +2482,17 @@ function commitInitCheckMetadataAndMergeMain(root: string, store: StoryStore, st
 // ── Main ──
 
 /**
- * runCli — koala CLI 运行时入口
+ * runCli — koala CLI runtime entrypoint
  *
- * @param opts.extraTools     第三方包的 ToolDef 列表，会合进 help 和 dispatch
- * @param opts.extraRegister  第三方包的 register 函数，在 createMainRegistry 之后调用
- *                            （收到 Registry 实例后用 registry.registerBatch(...) 注入 handler）
+ * @param opts.extraTools     ToolDef list from third-party packages, merged into help and dispatch
+ * @param opts.extraRegister  Third-party register function called after createMainRegistry
+ *                            (receives the Registry instance and can inject handlers with registry.registerBatch(...))
  */
 export async function runCli(opts?: {
   extraTools?: ToolDef[];
   extraRegister?: (registry: Registry, ctx: HandlerContext) => void;
 }): Promise<void> {
-  // 注入 extras：合并 tool defs，并保留 extras register 待会儿调用
+  // Inject extras: merge tool defs and retain extra register for later.
   TOOLS = opts?.extraTools && opts.extraTools.length > 0
     ? [...MAIN_TOOLS, ...opts.extraTools]
     : MAIN_TOOLS;
@@ -2231,20 +2518,44 @@ export async function runCli(opts?: {
     return;
   }
 
-  // init 走独立脚本
+  if (cmd === 'lattice' && argv[1] === 'codex') {
+    argv.shift();
+    cmd = argv[0];
+    arg = argv[1];
+  }
+
+  if (cmd === 'codex') {
+    const subcommand = argv[1];
+    if (!subcommand || subcommand === 'help' || subcommand === '--help' || subcommand === '-h') {
+      printCodexHelp();
+      return;
+    }
+    process.env.KOALA_ACTIVITY_SOURCE = 'codex';
+    process.env.KOALA_ACTIVITY_RECORD_READONLY = process.env.KOALA_ACTIVITY_RECORD_READONLY || '1';
+    process.env.KOALA_CODEX_ENTRYPOINT = process.env.KOALA_CODEX_ENTRYPOINT || 'global-codex';
+    const codexAliases: Record<string, string> = {
+      verify: 'verify_codex',
+      doctor: 'doctor',
+    };
+    argv.splice(0, 2, codexAliases[subcommand] || subcommand);
+    cmd = argv[0];
+    arg = argv[1];
+  }
+
+  // init uses a standalone script.
   if (cmd === 'init') {
     const initPath = new URL('./cli-init.js', import.meta.url).pathname.replace(/^\/([A-Z]:)/, '$1');
     await import(`file://${initPath}`);
     return;
   }
 
-  // dashboard 走独立长驻模式
+  // dashboard uses its own long-running mode.
   if (cmd === 'dashboard') {
     const dashArgs = parseFlags(argv.slice(1), {
       roots: z.string().optional(),
       interval: z.number().optional(),
     });
-    // 如果没指定 roots，用 --root（或自动检测）作为默认
+    // If roots were not specified, use --root (or auto-detected root) as default.
     if (!dashArgs.roots) dashArgs.roots = root0;
     const { runDashboard } = await import('./dashboard.js');
     await runDashboard(dashArgs as { roots?: string; interval?: number });
@@ -2272,6 +2583,27 @@ export async function runCli(opts?: {
     'authority status': 'authority_status',
     'authority enforce policy': 'authority_enforce_policy',
     'authority enforce runner': 'authority_enforce_runner',
+    'authority receipt verify': 'authority_receipt_verify',
+    'authority job status': 'authority_job_status',
+    'authority verdict submit': 'authority_verdict_submit',
+    'authority verdict list': 'authority_verdict_list',
+    'autopilot run': 'autopilot_run',
+    'autopilot execute': 'autopilot_execute',
+    'autopilot status': 'autopilot_status',
+    'autopilot doctor': 'autopilot_doctor',
+    'autopilot review submit': 'autopilot_review_submit',
+    'autopilot review status': 'autopilot_review_status',
+    'planner draft': 'planner_draft',
+    'planner review': 'planner_review',
+    'planner create-story': 'planner_create_story',
+    'planner create-job': 'planner_create_job',
+    'planner status': 'planner_status',
+    'planner answer': 'planner_answer',
+    'planner decision submit': 'planner_decision_submit',
+    'planner resume': 'planner_resume',
+    'planner run': 'planner_run',
+    'planner source-manifest': 'planner_source_manifest',
+    'story resolve': 'story_resolve',
     'conduit status': 'conduit_status',
     'conduit explain': 'conduit_explain',
   };
@@ -2291,47 +2623,47 @@ export async function runCli(opts?: {
 
   const tool = TOOLS.find(t => t.name === cmd);
   if (!tool) {
-    console.error(`未知命令: ${cmd}`);
+    console.error(`Unknown command: ${cmd}`);
     const m = TOOLS.filter(t => t.name.includes(cmd) || cmd.includes(t.name.split('_')[0]));
-    if (m.length) { console.error('你是不是要找:'); for (const t of m) console.error(`  lattice ${t.name}`); }
-    console.error('用 lattice help 查看所有命令（legacy alias: koala）');
+    if (m.length) { console.error('Did you mean:'); for (const t of m) console.error(`  lattice ${t.name}`); }
+    console.error('Run lattice help to see all commands (legacy alias: koala)');
     process.exit(1);
   }
 
   if (arg === '--help' || arg === '-h') { printToolHelp(tool); return; }
 
-  // Phase gate: 有 active story 时，拒绝不在白名单中的命令
+  // Phase gate: with an active story, reject commands outside the allowlist.
   if (activeStory) {
     const config = loadConfig(root0);
     if (!isCommandAllowed(cmd, activeStory.phase, config.phaseTools)) {
       const allowed = getAllowedPatterns(activeStory.phase, config.phaseTools);
-      console.error(`❌ 命令 "${cmd}" 在 ${activeStory.phase} 阶段不可用`);
+      console.error(`Command "${cmd}" is not available in ${activeStory.phase} phase`);
       console.error(`   Story: ${activeStory.storyId}  Phase: ${activeStory.phase}`);
       for (const line of formatCommandLifecycleHint(cmd, activeStory.phase, allowed)) console.error(line);
-      console.error(`   当前阶段可用命令: ${allowed.join(', ')}`);
+      console.error(`   Commands available in this phase: ${allowed.join(', ')}`);
       process.exit(1);
     }
   }
 
-  // Parse arguments — 支持三种格式：
-  //   1. --key=value --flag (标准 flag)
-  //   2. key=value          (简写 flag)
-  //   3. '{"key":"value"}'  (JSON body, 兼容旧用法)
+  // Parse arguments — supports three formats:
+  //   1. --key=value --flag (standard flags)
+  //   2. key=value          (short flags)
+  //   3. '{"key":"value"}'  (JSON body, legacy-compatible)
   let parsed: Record<string, unknown> = {};
   {
     const rawArgs = argv.slice(1);
     if (rawArgs.length === 0) {
-      // 无参数，空对象
+      // No arguments, empty object.
     } else if (rawArgs.length === 1 && rawArgs[0].startsWith('{')) {
-      // JSON body 格式（兼容旧用法）
+      // JSON body format (legacy-compatible)
       try { parsed = JSON.parse(rawArgs[0]); }
       catch (e) {
-        console.error(`JSON 解析失败: ${(e as Error).message}\n输入: ${rawArgs[0]}`);
+        console.error(`JSON parse failed: ${(e as Error).message}\nInput: ${rawArgs[0]}`);
         printToolHelp(tool, { stream: process.stderr, includeFooter: false });
         process.exit(1);
       }
     } else {
-      // flag 格式解析
+      // Flag-format parsing.
       parsed = parseFlags(rawArgs, tool.schema);
     }
   }
@@ -2390,9 +2722,9 @@ export async function runCli(opts?: {
     }
   } catch { /* never block */ }
 
-  // 心跳：默认 5 分钟无输出 = 卡死；15 分钟绝对保底。
-  // 可通过 KOALA_IDLE_TIMEOUT_MS / KOALA_MAX_TIMEOUT_MS 覆盖，
-  // 真机 smoke 的单轮 LLM 调用偶尔 > 2 分钟（text-adventure 卸载等非确定性 case）。
+  // Watchdog: by default, 5 minutes without output means stuck; 15 minutes is
+  // the absolute cap. Override with KOALA_IDLE_TIMEOUT_MS / KOALA_MAX_TIMEOUT_MS.
+  // Real-machine smoke tests can occasionally spend > 2 minutes in one LLM call.
   const IDLE_TIMEOUT = Number(process.env.KOALA_IDLE_TIMEOUT_MS) || (5 * 60 * 1000);
   const MAX_TIMEOUT = Number(process.env.KOALA_MAX_TIMEOUT_MS) || (15 * 60 * 1000);
   const startTime = Date.now();
@@ -2403,19 +2735,20 @@ export async function runCli(opts?: {
   const watchdog = setInterval(() => {
     const now = Date.now();
     if (now - startTime > MAX_TIMEOUT) {
-      originalLog(`${cmd} 超过 10 分钟，强制退出`);
+      originalLog(`${cmd} exceeded 10 minutes; forcing exit`);
       process.exit(2);
     }
     if (now - lastActivity > IDLE_TIMEOUT) {
-      originalLog(`${cmd} 卡死：${IDLE_TIMEOUT / 1000} 秒无输出，强制退出`);
+      originalLog(`${cmd} appears stuck: no output for ${IDLE_TIMEOUT / 1000} seconds; forcing exit`);
       process.exit(2);
     }
   }, 10000);
   watchdog.unref();
 
-  // 统一日志：写入 .koala/activity.jsonl（双源模块，legacy 路径只读兼容）
-  // 写入失败属于 PERSIST 类（audit 不完整 → 事后无法回溯），改为 reportHealthIssue
-  // staleWarnings 也一并落盘，便于事后做趋势分析（agent 多久会忘记 advance 一次）
+  // Unified logging: writes .koala/activity.jsonl (dual-source module, legacy
+  // path kept read-only compatible). Write failures are PERSIST-class issues
+  // (incomplete audit trail -> cannot reconstruct later), so reportHealthIssue.
+  // Persist staleWarnings too for trend analysis.
   function writeLog(entry: {
     command: string;
     args: unknown;
@@ -2543,7 +2876,7 @@ export async function runCli(opts?: {
     } catch (e: any) {
       clearInterval(watchdog);
       log(`${cmd} failed: ${e.message}`);
-      process.stderr.write(`错误: ${e.message}\n`);
+      process.stderr.write(`Error: ${e.message}\n`);
       process.exitCode = 1;
       return;
     }
@@ -2574,7 +2907,7 @@ export async function runCli(opts?: {
         writeLog({ command: cmd, args: parsed, startTime: runStart, endTime: new Date().toISOString(), success: true, staleWarnings });
       }
       writeCodexProcessEvent({ command: cmd, args: parsed, success: true });
-      // 注入 next-step hint（hints.ts 注册的命令才有效；其它命令原样返回）
+      // Inject next-step hint (only commands registered in hints.ts are affected; others return unchanged).
       const hintActive: ActiveStoryInfo | null = activeStory
         ? { storyId: activeStory.storyId, phase: activeStory.phase }
         : null;
@@ -2615,13 +2948,13 @@ export async function runCli(opts?: {
       await runHooks('onError', cmd, buildHookEnvLocal('onError', {
         KOALA_ERROR: String(e?.message || e),
       }), config0, root);
-      process.stderr.write(`错误: ${e.message}\n`);
+      process.stderr.write(`Error: ${e.message}\n`);
       process.exitCode = 1;
       return;
     }
   }
 
-  // story_create: 停在 INIT 时追加下一步提示
+  // story_create: when it stops at INIT, append next-step guidance.
   if (cmd === 'story_create') {
     await run(() => {
       const fromDraftName = typeof (v.data as any).fromDraft === 'string' ? (v.data as any).fromDraft : '';
@@ -2633,35 +2966,36 @@ export async function runCli(opts?: {
         const storyId = result.match(/Story\s+([\w-]+)/)?.[1];
         if (!storyId) return result;
         if (!gitReady) {
-          return `${result}\n⚠ 当前目录不是 git 仓库：story 已记录，但 from-draft worktree 不能自动创建。\n→ 先 git init + 首次 commit 后重试 lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}'`;
+          return `${result}\nCurrent directory is not a git repository: story was recorded, but the from-draft worktree cannot be created automatically.\n-> Run git init and make the first commit, then retry lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}'`;
         }
         try {
           const wtResult = handlers.dev_start({ storyId });
           const syncResult = commitFromDraftMetadataAndMergeMain(root, store, storyId, fromDraftName);
-          return `${result}\n\n${wtResult}\n\n${syncResult}\n\n→ 现在请 cd 到上述 worktree 路径，然后调 lattice story_advance phase=PLAN 进入 PLAN`;
+          return `${result}\n\n${wtResult}\n\n${syncResult}\n\n-> Now cd into the worktree path above, then run lattice story_advance phase=PLAN to enter PLAN`;
         } catch (e: any) {
           throw new Error(
             `from-draft worktree bootstrap failed for ${storyId}: ${e.message}\n` +
-            `→ 排查后再次执行 lattice story_advance --phase=INIT_CHECK 自动重试，或手动 lattice dev_start '{"storyId":"${storyId}"}'`,
+            `-> After diagnosing, run lattice story_advance --phase=INIT_CHECK again to auto-retry, or manually run lattice dev_start '{"storyId":"${storyId}"}'`,
           );
         }
       }
       if (!result.includes('(INIT)')) return result;
       const storyId = result.match(/Story\s+([\w-]+)/)?.[1];
       if (!storyId) return result;
-      if (result.includes('当前目录不是 git 仓库')) return result;
+      if (result.includes('Current directory is not a git repository')) return result;
       if (!gitReady) {
-        return `${result}\n⚠ 当前目录不是 git 仓库：story 已记录，但 INIT_CHECK/worktree 流程还不能顺畅跑。\n→ 先在项目根执行 git init && git add . && git commit -m \"init\"，再 lattice story_advance '{\"storyId\":\"${storyId}\",\"phase\":\"INIT_CHECK\"}'`;
+        return `${result}\nCurrent directory is not a git repository: story was recorded, but the INIT_CHECK/worktree flow cannot run smoothly yet.\n-> Run git init && git add . && git commit -m \"init\" at the project root, then run lattice story_advance '{\"storyId\":\"${storyId}\",\"phase\":\"INIT_CHECK\"}'`;
       }
-      return `${result}\n→ Story 停在 INIT 阶段。下一步:\n  1. lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}' 创建 worktree\n  2. cd 到提示的 worktree 路径\n  3. lattice story_advance '{"storyId":"${storyId}","phase":"PLAN"}' 进入 PLAN（cwd 必须是 worktree）`;
+      return `${result}\n-> Story is in INIT. Next steps:\n  1. lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}' to create the worktree\n  2. cd into the suggested worktree path\n  3. lattice story_advance '{"storyId":"${storyId}","phase":"PLAN"}' to enter PLAN (cwd must be the worktree)`;
     });
     return;
   }
 
-  // story_advance phase=INIT_CHECK：成功后自动调 dev_start 创建 worktree
-  // B-5246: phase 已经在 INIT_CHECK 时（重试场景）允许 dev_start 重跑而不抛
-  // "Cannot transition INIT_CHECK→INIT_CHECK"。这样 worktree 第一次创建失败时 agent
-  // 可以再次调 story_advance INIT_CHECK 重试，不必走 manual dev_start 这条隐藏路径。
+  // story_advance phase=INIT_CHECK: on success, automatically call dev_start to
+  // create the worktree. B-5246: when phase is already INIT_CHECK (retry case),
+  // allow dev_start to rerun without throwing "Cannot transition INIT_CHECK->INIT_CHECK".
+  // This lets agents retry story_advance INIT_CHECK after first worktree creation
+  // failure without using the hidden manual dev_start path.
   if (cmd === 'story_advance' && (v.data as any)?.phase === 'INIT_CHECK') {
     await run(async () => {
       const storyId = (v.data as any).storyId;
@@ -2677,19 +3011,19 @@ export async function runCli(opts?: {
           `- no phase, branch, commit, or worktree changes were made`,
         ].join('\n');
       }
-      // 探测当前 phase；若已在 INIT_CHECK 就跳过 advance 直接 dev_start 重试
-      // story_get 默认返回 {checklist, review}；phase 需要 detail:true 才在 result.index.phase
+      // Probe current phase; if already INIT_CHECK, skip advance and retry dev_start directly.
+      // story_get returns {checklist, review} by default; phase needs detail:true at result.index.phase.
       let advanceResult = '';
       try {
         const story: any = handlers.story_get({ storyId, detail: true });
         const currentPhase = story?.index?.phase;
         if (currentPhase === 'INIT_CHECK') {
-          advanceResult = `Story ${storyId} 已在 INIT_CHECK 阶段，重试 worktree 创建`;
+          advanceResult = `Story ${storyId} is already in INIT_CHECK; retrying worktree creation`;
         } else {
           advanceResult = await handlers.story_advance(v.data);
         }
       } catch {
-        // story_get 失败时退回原行为
+        // If story_get fails, fall back to the original behavior.
         advanceResult = await handlers.story_advance(v.data);
       }
       try {
@@ -2703,9 +3037,9 @@ export async function runCli(opts?: {
           syncResult = commitInitCheckMetadataAndMergeMain(root, store, storyId);
         }
         const syncSegment = syncResult ? `\n\n${syncResult}` : '';
-        return `${advanceResult}\n\n${wtResult}${syncSegment}\n\n→ 现在请 cd 到上述 worktree 路径，然后调 lattice story_advance phase=PLAN 进入 PLAN`;
+        return `${advanceResult}\n\n${wtResult}${syncSegment}\n\n-> Now cd into the worktree path above, then run lattice story_advance phase=PLAN to enter PLAN`;
       } catch (e: any) {
-        return `${advanceResult}\n⚠ worktree 创建失败: ${e.message}\n→ 排查后再次执行 lattice story_advance --phase=INIT_CHECK 自动重试，或手动 lattice dev_start '{"storyId":"${storyId}"}'`;
+        return `${advanceResult}\nWorktree creation failed: ${e.message}\n-> After diagnosing, run lattice story_advance --phase=INIT_CHECK again to auto-retry, or manually run lattice dev_start '{"storyId":"${storyId}"}'`;
       }
     });
     return;

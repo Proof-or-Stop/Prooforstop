@@ -405,7 +405,7 @@ function assertSuspectedWithoutReasonRejected(): void {
       threw = [e?.stdout?.toString?.() ?? '', e?.stderr?.toString?.() ?? '', e?.message ?? ''].join('\n');
     }
     assert.ok(threw, 'finding_add with suspected but no uncertaintyReason must fail');
-    assert.match(threw, /evidenceState=suspected 必须带 uncertaintyReason/);
+    assert.match(threw, /evidenceState=suspected must include uncertaintyReason/);
     // and the finding was not persisted
     assert.equal(wstore.readFindings(STORY_ID).findings.length, 0, 'rejected finding must not be written');
 
@@ -476,7 +476,7 @@ function assertHandlerRejectionCases(): void {
 
     // CHK-001:edge:2 — disproven without disprovenEvidence summary -> rejected
     const noDisproof = callFindingAdd({ evidenceState: 'disproven' });
-    assert.match(noDisproof, /evidenceState=disproven 必须带 disprovenEvidence\.summary/);
+    assert.match(noDisproof, /evidenceState=disproven must include disprovenEvidence\.summary/);
     assert.equal(wstore.readFindings(STORY_ID).findings.length, 0, 'disproven without evidence must not be written');
 
     // CHK-001:edge:4 — invalid evidenceState value -> rejected (Zod enum first line of defense)
@@ -486,7 +486,7 @@ function assertHandlerRejectionCases(): void {
 
     // CHK-001:adversarial:0 — 1-char uncertaintyReason -> rejected (>=10 char guard)
     const trivialReason = callFindingAdd({ evidenceState: 'suspected', uncertaintyReason: 'x' });
-    assert.match(trivialReason, /evidenceState=suspected 必须带 uncertaintyReason/);
+    assert.match(trivialReason, /evidenceState=suspected must include uncertaintyReason/);
     assert.equal(wstore.readFindings(STORY_ID).findings.length, 0, 'trivial uncertaintyReason must not be written');
 
     console.log('✓ extra: disproven-without-summary / invalid-value / 1-char-reason all rejected by handler');

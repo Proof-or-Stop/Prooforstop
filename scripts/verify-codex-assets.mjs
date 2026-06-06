@@ -12,13 +12,13 @@ import {
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { CODEX_README_TEMPLATE, renderCodexAdapterManifest } from '../packages/main/dist/init-assets.js';
+import { renderCodexReadmeTemplate, renderLatticeCodexAdapterManifest } from '../packages/main/dist/init-assets.js';
 import {
   computeCodexAdapterMaterialSnapshot,
+  GLOBAL_CODEX_DOCTOR_COMMAND,
   GLOBAL_CODEX_FALLBACK_COMMAND,
-  LOCAL_CODEX_VERIFY_COMMAND,
+  GLOBAL_CODEX_VERIFY_COMMAND,
   LOCAL_INIT_VERIFY_COMMAND,
-  LOCAL_MAIN_VERIFY_COMMAND,
   renderCodexAdapterChecks,
   runCodexAdapterChecks,
   summarizeCodexEvidence,
@@ -44,33 +44,36 @@ if (!result.ok) {
   process.exit(1);
 }
 
-assert(CODEX_README_TEMPLATE.includes('node bin/koala-codex.js session_brief'), 'template missing preferred wrapper command');
-assert(CODEX_README_TEMPLATE.includes(`${GLOBAL_CODEX_FALLBACK_COMMAND} session_brief`), 'template missing fallback command');
-assert(CODEX_README_TEMPLATE.includes(LOCAL_CODEX_VERIFY_COMMAND), 'template missing local verify_codex guidance');
-assert(CODEX_README_TEMPLATE.includes(LOCAL_MAIN_VERIFY_COMMAND), 'template missing main wrapper verify_codex guidance');
-assert(CODEX_README_TEMPLATE.includes(LOCAL_INIT_VERIFY_COMMAND), 'template missing init verification guidance');
-assert(CODEX_README_TEMPLATE.includes('node bin/koala-codex.js doctor'), 'template missing Codex doctor guidance');
-assertNotIncludes(CODEX_README_TEMPLATE, '`koala verify_codex`', 'template bare global verify guidance');
-assertNotIncludes(CODEX_README_TEMPLATE, '`koala init --verify-codex`', 'template bare global init guidance');
-assert(renderCodexAdapterManifest().includes('"activitySource": "codex"'), 'manifest template missing codex source');
-assert(renderCodexAdapterManifest().includes(LOCAL_CODEX_VERIFY_COMMAND), 'manifest template missing local verify note');
+const LATTICE_CODEX_README_TEMPLATE = renderCodexReadmeTemplate('full', 'lattice');
+
+assert(LATTICE_CODEX_README_TEMPLATE.includes('lattice codex session_brief'), 'template missing primary Codex namespace command');
+assert(LATTICE_CODEX_README_TEMPLATE.includes('lattice codex aux_doc_list --format=json'), 'template missing primary Codex aux command');
+assert(LATTICE_CODEX_README_TEMPLATE.includes('node bin/lattice-codex.js session_brief'), 'template missing local wrapper fallback command');
+assert(LATTICE_CODEX_README_TEMPLATE.includes(GLOBAL_CODEX_VERIFY_COMMAND), 'template missing global Codex verify guidance');
+assert(LATTICE_CODEX_README_TEMPLATE.includes(LOCAL_INIT_VERIFY_COMMAND), 'template missing init verification guidance');
+assert(LATTICE_CODEX_README_TEMPLATE.includes(GLOBAL_CODEX_DOCTOR_COMMAND), 'template missing Codex doctor guidance');
+assertNotIncludes(LATTICE_CODEX_README_TEMPLATE, '`lattice verify_codex`', 'template bare global verify guidance');
+assert(renderLatticeCodexAdapterManifest().includes('"activitySource": "codex"'), 'manifest template missing codex source');
+assert(renderLatticeCodexAdapterManifest().includes('"command": "lattice codex"'), 'manifest template missing primary global Codex entrypoint');
+assert(renderLatticeCodexAdapterManifest().includes(GLOBAL_CODEX_VERIFY_COMMAND), 'manifest template missing global verify note');
+assert(renderLatticeCodexAdapterManifest().includes('node bin/lattice-codex.js'), 'manifest template missing local wrapper fallback');
 
 const codexReadme = readFileSync(join(root, '.Codex', 'README.md'), 'utf8');
-const manifest = readFileSync(join(root, '.Codex', 'koala.json'), 'utf8');
+const manifest = readFileSync(join(root, '.Codex', 'lattice.json'), 'utf8');
 const rootReadme = readFileSync(join(root, 'README.md'), 'utf8');
 const agents = readFileSync(join(root, 'AGENTS.md'), 'utf8');
 
-assert(codexReadme === CODEX_README_TEMPLATE, '.Codex/README.md drifted from template');
-assert(manifest === renderCodexAdapterManifest(), '.Codex/koala.json drifted from template');
+assert(codexReadme === LATTICE_CODEX_README_TEMPLATE, '.Codex/README.md drifted from template');
+assert(manifest === renderLatticeCodexAdapterManifest(), '.Codex/lattice.json drifted from template');
 for (const [label, text] of [
   ['.Codex/README.md', codexReadme],
   ['README.md', rootReadme],
   ['AGENTS.md', agents],
 ]) {
-  assertIncludes(text, LOCAL_CODEX_VERIFY_COMMAND, label);
-  assertIncludes(text, 'node bin/koala-codex.js doctor', label);
-  assertNotIncludes(text, '`koala verify_codex`', label);
-  assertNotIncludes(text, '`koala init --verify-codex`', label);
+  assertIncludes(text, GLOBAL_CODEX_VERIFY_COMMAND, label);
+  assertIncludes(text, GLOBAL_CODEX_DOCTOR_COMMAND, label);
+  assertNotIncludes(text, '`lattice verify_codex`', label);
+  assertNotIncludes(text, 'node bin/koala-codex.js verify_codex', label);
 }
 
 function writeTempConfig(dir) {
@@ -93,8 +96,8 @@ function copyCodexAssetsToTemp() {
   for (const rel of [
     '.Codex',
     '.claude',
-    'bin/koala-codex.js',
-    'bin/koala.js',
+    'bin/lattice-codex.js',
+    'bin/lattice.js',
     'bin/bootstrap-runner.js',
     'README.md',
     'AGENTS.md',
@@ -124,7 +127,7 @@ function assertCheckFails(mutator, expectedId, label) {
 }
 
 assertCheckFails(
-  (dir) => writeFileSync(join(dir, '.Codex', 'koala.json'), `${renderCodexAdapterManifest()}\n`),
+  (dir) => writeFileSync(join(dir, '.Codex', 'lattice.json'), `${renderLatticeCodexAdapterManifest()}\n`),
   'manifest',
   'manifest drift',
 );
@@ -141,7 +144,7 @@ assertCheckFails(
   'forbidden .Codex/settings.json',
 );
 assertCheckFails(
-  (dir) => rmSync(join(dir, 'bin', 'koala.js'), { force: true }),
+  (dir) => rmSync(join(dir, 'bin', 'lattice.js'), { force: true }),
   'local-wrapper',
   'missing sibling local bootstrap',
 );
@@ -174,7 +177,7 @@ assertCheckFails(
   const previousPath = process.env.PATH;
   try {
     process.env.KOALA_DESKTOP_PACKAGED_RUNTIME = '1';
-    process.env.PATH = '/definitely-no-global-koala';
+    process.env.PATH = '/definitely-no-global-lattice';
     const checkResult = runCodexAdapterChecks(dir, {
       executeLocalHeartbeat: false,
       executeGlobalHeartbeat: true,
@@ -200,16 +203,16 @@ function shellQuote(value) {
 }
 
 function assertGlobalFallbackHeartbeatIgnoresParentCodexEntrypoint() {
-  const fakeBin = mkdtempSync(join(tmpdir(), 'koala-codex-fake-global-'));
-  const fakeKoala = join(fakeBin, 'koala');
+  const fakeBin = mkdtempSync(join(tmpdir(), 'lattice-codex-fake-global-'));
+  const fakeLattice = join(fakeBin, 'lattice');
   const previousPath = process.env.PATH;
   const previousEntrypoint = process.env.KOALA_CODEX_ENTRYPOINT;
   try {
     writeFileSync(
-      fakeKoala,
+      fakeLattice,
       `#!/bin/sh\nexec ${shellQuote(process.execPath)} ${shellQuote(join(root, 'packages/main/dist/cli.js'))} "$@"\n`,
     );
-    chmodSync(fakeKoala, 0o755);
+    chmodSync(fakeLattice, 0o755);
     process.env.PATH = `${fakeBin}:${previousPath || ''}`;
     process.env.KOALA_CODEX_ENTRYPOINT = 'local-wrapper';
 
@@ -270,7 +273,7 @@ function assertGateStatus(setup, expectedStatus, label) {
     const gate = summarizeCodexEvidence(store, 'B-codex', dir);
     assert(gate.status === expectedStatus, `${label} expected ${expectedStatus}, got ${gate.status}: ${gate.detail}`);
     if (expectedStatus !== 'passing') {
-      assert(gate.command === LOCAL_CODEX_VERIFY_COMMAND, `${label} should remediate with local wrapper command`);
+      assert(gate.command === GLOBAL_CODEX_VERIFY_COMMAND, `${label} should remediate with Lattice Codex primary command`);
     }
   } finally {
     rmSync(dir, { recursive: true, force: true });
@@ -282,7 +285,7 @@ assertGateStatus((_dir, store) => {
   store.appendProcessEvent('B-codex', {
     type: 'codex_adapter_verification',
     storyId: 'B-codex',
-    command: LOCAL_CODEX_VERIFY_COMMAND,
+    command: GLOBAL_CODEX_VERIFY_COMMAND,
     result: 'fail',
     summary: 'Codex adapter checks failed',
   });
@@ -291,7 +294,7 @@ assertGateStatus((_dir, store) => {
   store.appendProcessEvent('B-codex', {
     type: 'codex_adapter_verification',
     storyId: 'B-codex',
-    command: LOCAL_CODEX_VERIFY_COMMAND,
+    command: GLOBAL_CODEX_VERIFY_COMMAND,
     result: 'pass',
     summary: 'legacy pass without material hash',
   });
@@ -301,7 +304,7 @@ assertGateStatus((dir, store) => {
   store.appendProcessEvent('B-codex', {
     type: 'codex_adapter_verification',
     storyId: 'B-codex',
-    command: LOCAL_CODEX_VERIFY_COMMAND,
+    command: GLOBAL_CODEX_VERIFY_COMMAND,
     result: 'pass',
     summary: 'fresh pass before later adapter edit',
     headHash: snapshot.headHash,
@@ -314,7 +317,7 @@ assertGateStatus((dir, store) => {
   store.appendProcessEvent('B-codex', {
     type: 'codex_adapter_verification',
     storyId: 'B-codex',
-    command: LOCAL_CODEX_VERIFY_COMMAND,
+    command: GLOBAL_CODEX_VERIFY_COMMAND,
     result: 'pass',
     summary: 'fresh pass',
     headHash: snapshot.headHash,

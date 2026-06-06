@@ -214,7 +214,7 @@ try {
   write(root, '.omx/context.md', 'OMX context summary\n');
   write(root, '.omx/metrics.json', '{"tokens":10}\n');
   const removedImport = run(root, 'capsule_import_omx', { storyId: 'B-caps' }, true);
-  assert.match(removedImport, /Unknown command|未知命令/, 'capsule_import_omx should not be available as a capsule command');
+  assert.match(removedImport, /Unknown command|Unknown command/, 'capsule_import_omx should not be available as a capsule command');
   run(root, 'capsule_update', {
     storyId: 'B-caps',
     summary: 'capsule remains independent of local .omx runtime data',

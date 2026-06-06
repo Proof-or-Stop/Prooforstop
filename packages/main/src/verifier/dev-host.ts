@@ -1,8 +1,8 @@
 /**
- * dev-host.ts — 框架提供的调试宿主
+ * dev-host.ts — debug host provided by the framework
  *
- * 项目的 debug.ts 只需调用 devHost(createApp, machine)，
- * 框架负责：杀旧进程 → bridge-host → 写发现文件 → cleanup → 挂壳
+ * The project's debug.ts only needs to call devHost(createApp, machine),
+ * the framework handles: killing old processes → bridge-host → writing the discovery file → cleanup → mounting the shell
  */
 
 import { readFileSync, writeFileSync, unlinkSync, existsSync } from 'node:fs';
@@ -16,7 +16,7 @@ interface DevHostOptions {
     getMachineState(): string;
     reset(): void;
   };
-  [key: string]: any; // 允许项目返回任意额外字段
+  [key: string]: any; // Allow the project to return arbitrary extra fields
 }
 
 interface MachineInfo {
@@ -25,7 +25,7 @@ interface MachineInfo {
   transitions: any[];
 }
 
-/** 端口哈希（和 serve.ts / dev-cli.ts 一致） */
+/** Port hash (consistent with serve.ts / dev-cli.ts) */
 function stablePort(s: string, offset: number): number {
   let h = 0;
   for (let i = 0; i < s.length; i++) h = ((h << 5) - h + s.charCodeAt(i)) | 0;
@@ -33,10 +33,10 @@ function stablePort(s: string, offset: number): number {
 }
 
 /**
- * 启动调试宿主
+ * Start the debug host
  *
- * @param createApp 项目的 createApp 函数（async，返回 { bridge, ...项目自定义字段 }）
- * @param machine 项目的 Machine 配置（用于 bridge-host 的元数据）
+ * @param createApp The project's createApp function (async, returns { bridge, ...project-custom fields })
+ * @param machine The project's Machine config (used as metadata for bridge-host)
  */
 export async function devHost(
   createApp: () => Promise<DevHostOptions> | DevHostOptions,
@@ -45,7 +45,7 @@ export async function devHost(
   const wsPort = Number(process.env.KOALA_SERVE_PORT || stablePort(process.cwd(), 4));
   const infoPath = '.koala-serve.json';
 
-  // 杀旧 core
+  // Kill old core
   try {
     const old = JSON.parse(readFileSync(infoPath, 'utf-8'));
     if (old.pid && old.pid !== process.pid) {
@@ -57,14 +57,14 @@ export async function devHost(
     }
   } catch {}
 
-  // 创建 app
+  // Create app
   const app = await createApp();
-  console.log(`[core] ${machine.name} 就绪`);
+  console.log(`[core] ${machine.name} ready`);
 
-  // 启动 bridge-host
+  // Start bridge-host
   await startBridgeHost(app.bridge, machine, wsPort);
 
-  // 写发现文件
+  // Write discovery file
   writeFileSync(infoPath, JSON.stringify({
     pid: process.pid,
     wsPort,

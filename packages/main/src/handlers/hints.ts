@@ -1,8 +1,8 @@
 /**
- * Result hint registry — 给每个 state-mutating 命令的成功返回追加 next-step 提示
+ * Result hint registry — appends next-step hints to the success return of every state-mutating command
  *
- * hint 函数是纯函数：不抛错、不做副作用、不写 store。
- * 返回 null → 不追加；返回 string → 追加到结果尾部。
+ * hint functions are pure: no throws, no side effects, no writes to store.
+ * Return null → no append; return string → append to the end of the result.
  */
 
 import type { StoryStore } from '../core/store.js';
@@ -75,7 +75,7 @@ function summarizeChecklist(cl: { items: Array<{ id: string; status: string }> }
   return summary;
 }
 
-// ── hint 函数 ──
+// ── hint functions ──
 
 const checklistUpdateHint: HintFn = (ctx) => {
   const storyId = getStoryId(ctx);
@@ -88,22 +88,22 @@ const checklistUpdateHint: HintFn = (ctx) => {
   if (!summary) return null;
 
   if (args.status === 'in_progress') {
-    return `→ 标记为 in_progress。写代码，完成后 git commit + lattice checklist_update --status=done`;
+    return `→ Marked as in_progress. Write code, then git commit + lattice checklist_update --status=done when finished`;
   }
 
   if (args.status === 'done') {
     if (summary.allDone) {
       const phase = story?.phase ?? '';
       if (phase === 'DEV') {
-        return `→ 所有 ${summary.total} 个 item 已 done。下一步：git commit，然后 lattice story_advance --storyId=${storyId} --phase=REVIEW 进入代码审查`;
+        return `→ All ${summary.total} items are done. Next: git commit, then lattice story_advance --storyId=${storyId} --phase=REVIEW to enter code review`;
       }
-      return `→ 所有 ${summary.total} 个 item 已 done。下一步：git commit + lattice story_advance 推进到下一阶段`;
+      return `→ All ${summary.total} items are done. Next: git commit + lattice story_advance to advance to the next phase`;
     }
     if (summary.inProgress > 0) {
-      return `→ 还有 ${summary.inProgress} 个 in_progress item（${summary.inProgressIds.slice(0, 3).join(', ')}），继续完成`;
+      return `→ ${summary.inProgress} in_progress items remain (${summary.inProgressIds.slice(0, 3).join(', ')}), keep going`;
     }
     if (summary.pending > 0) {
-      return `→ 完成 ${summary.done}/${summary.total}。下一项：lattice checklist_update --storyId=${storyId} --itemId=${summary.pendingIds[0]} --status=in_progress`;
+      return `→ Completed ${summary.done}/${summary.total}. Next item: lattice checklist_update --storyId=${storyId} --itemId=${summary.pendingIds[0]} --status=in_progress`;
     }
   }
 
@@ -113,24 +113,24 @@ const checklistUpdateHint: HintFn = (ctx) => {
 const checklistAddHint: HintFn = (ctx) => {
   const storyId = getStoryId(ctx);
   if (!storyId) return null;
-  return `→ 新 item 已加入 checklist。下一步：跑 lattice story_review 审查完整性`;
+  return `→ New item added to checklist. Next: run lattice story_review to audit completeness`;
 };
 
 const storyCreateHint: HintFn = (ctx) => {
   const result = ctx.result;
   if (typeof result !== 'string') return null;
-  if (result.includes('(INIT)')) return null; // cli-engine wrapper 已处理
+  if (result.includes('(INIT)')) return null; // cli-engine wrapper already handles this
   if (result.includes('(IDEA)')) {
-    return `→ Story 停在 IDEA（无 checklist）。下一步：lattice checklist_add 追加，或重新 lattice story_create 带 checklist`;
+    return `→ Story stopped at IDEA (no checklist). Next: lattice checklist_add to append, or re-run lattice story_create with checklist`;
   }
   if (result.includes('(DONE)')) {
-    return `→ Story 直接创建在 DONE（onboard 模式）。已无后续步骤`;
+    return `→ Story created directly in DONE (onboard mode). No further steps`;
   }
   return null;
 };
 
 const bugReportHint: HintFn = (ctx) => {
-  return `→ Bug 已记录。修复后跑 lattice validate 验证，然后 lattice bug_update --status=fixed`;
+  return `→ Bug recorded. After fixing, run lattice validate to verify, then lattice bug_update --status=fixed`;
 };
 
 const bugUpdateHint: HintFn = (ctx) => {
@@ -144,11 +144,11 @@ const bugUpdateHint: HintFn = (ctx) => {
   if (open.length === 0) {
     const story = getStory(ctx, storyId);
     if (story?.phase === 'TEST') {
-      return `→ 所有 bug 已 fixed。下一步：运行 lattice next 或 lattice session_brief 查看 DONE pre-check；全部通过后再 lattice story_advance --storyId=${storyId} --phase=DONE，未通过先补 gate`;
+      return `→ All bugs are fixed. Next: run lattice next or lattice session_brief to view the DONE pre-check; once all pass, run lattice story_advance --storyId=${storyId} --phase=DONE, otherwise satisfy the gates first`;
     }
-    return `→ 所有 bug 已 fixed。继续推进 story`;
+    return `→ All bugs are fixed. Continue advancing the story`;
   }
-  return `→ 还有 ${open.length} 个 open bug：${open.slice(0, 3).map((b: any) => b.id).join(', ')}。继续修复`;
+  return `→ ${open.length} open bugs remain: ${open.slice(0, 3).map((b: any) => b.id).join(', ')}. Keep fixing`;
 };
 
 const understandingSetHint: HintFn = (ctx) => {
@@ -156,36 +156,36 @@ const understandingSetHint: HintFn = (ctx) => {
   if (!storyId) return null;
   const args = ctx.args as { unknowns?: string[] };
   if (Array.isArray(args.unknowns) && args.unknowns.length > 0) {
-    return `→ Understanding 已记录但有 ${args.unknowns.length} 个 unknown。建议先调研消化 unknown，再开拆 checklist`;
+    return `→ Understanding recorded but has ${args.unknowns.length} unknowns. Recommend investigating to resolve unknowns first before splitting the checklist`;
   }
-  return `→ Understanding 已记录。下一步：拆 checklist（title + context + relatedDocs），然后 lattice story_review`;
+  return `→ Understanding recorded. Next: split the checklist (title + context + relatedDocs), then lattice story_review`;
 };
 
 const decisionSetHint: HintFn = (ctx) => {
   const storyId = getStoryId(ctx);
   if (!storyId) return null;
-  return `→ Decision 已落档。下一步：根据 chosen option 拆 checklist item`;
+  return `→ Decision filed. Next: split checklist items based on the chosen option`;
 };
 
 const devStartHint: HintFn = (ctx) => {
   const storyId = getStoryId(ctx);
   if (!storyId) return null;
-  return `→ Worktree 已创建。cd 到上述路径，然后 lattice story_advance --storyId=${storyId} --phase=PLAN`;
+  return `→ Worktree created. cd into the path above, then lattice story_advance --storyId=${storyId} --phase=PLAN`;
 };
 
 const devFinishHint: HintFn = (ctx) => {
-  return `→ Worktree 已合并回 main。可以开始下一个 story 或 git push`;
+  return `→ Worktree merged back to main. You can start the next story or git push`;
 };
 
 const storyDiscardHint: HintFn = (ctx) => {
   const result = String(ctx.result || '');
   if (result.includes('⚠')) {
-    return `→ Story discard 已执行，但存在未清理项；按上方 warning 处理后重试`;
+    return `→ Story discard executed, but uncleaned items remain; address the warnings above and retry`;
   }
-  if (result.includes('Story metadata 已清理')) {
-    return `→ 临时 Story metadata 已清理；如上方提示未回退 init commit，请按提示手动确认`;
+  if (result.includes('Story metadata cleaned')) {
+    return `→ Temporary Story metadata cleaned up; if the prompt above did not revert the init commit, please confirm manually as prompted`;
   }
-  return `→ Story discard 已完成；清理明细以上方输出为准`;
+  return `→ Story discard completed; refer to the output above for cleanup details`;
 };
 
 const validateHint: HintFn = (ctx) => {
@@ -206,28 +206,28 @@ const validateHint: HintFn = (ctx) => {
       const staleEntries = storyId ? safeRead(() => findStaleEvidence(ctx.root, storyId)) : null;
       if (storyId && staleEntries && staleEntries.length > 0) {
         const block = renderEvidenceStaleHint(storyId, staleEntries, { currentHead: currentGitHead(ctx.root) });
-        return `→ 验证命令通过，但 verification evidence 有 ${staleEntries.length} 项 stale。\n${block}`;
+        return `→ Validation command passed, but ${staleEntries.length} verification evidence entries are stale.\n${block}`;
       }
-      return `→ 验证未通过：verification coverage 缺 ${missing} 项 required intent。补 evidence 后重跑 lattice validate`;
+      return `→ Validation failed: verification coverage is missing ${missing} required intents. Add evidence and rerun lattice validate`;
     }
-    return `→ 验证未通过。按上方 details 修复后重跑 lattice validate`;
+    return `→ Validation failed. Fix per the details above and rerun lattice validate`;
   }
   if (parsed ? parsed.allPass === true : (result.includes('allPass') && result.includes('true'))) {
     const storyId = getStoryId(ctx);
     if (storyId) {
       const phase = getStory(ctx, storyId)?.phase ?? ctx.activeStory?.phase;
       if (phase === 'DEV') {
-        return `→ 验证全绿。下一步：git commit，然后 lattice story_advance --storyId=${storyId} --phase=REVIEW 进入代码审查`;
+        return `→ Validation all green. Next step: git commit, then lattice story_advance --storyId=${storyId} --phase=REVIEW to enter code review`;
       }
       if (phase === 'REVIEW') {
-        return `→ 验证全绿。下一步：lattice story_advance --storyId=${storyId} --phase=TEST 进入正式验证`;
+        return `→ Validation all green. Next step: lattice story_advance --storyId=${storyId} --phase=TEST to enter formal verification`;
       }
       if (phase === 'TEST') {
-        return `→ 验证全绿。下一步：运行 lattice next 或 lattice session_brief 查看 DONE pre-check；全部通过后 lattice story_advance --storyId=${storyId} --phase=DONE，未通过先补 gate`;
+        return `→ Validation all green. Next step: run lattice next or lattice session_brief to view the DONE pre-check; once all pass, lattice story_advance --storyId=${storyId} --phase=DONE, otherwise address the gates first`;
       }
-      return `→ 验证全绿。当前 story 在 ${phase ?? '未知'} 阶段；下一步先运行 lattice next 确认当前 gate`;
+      return `→ Validation all green. The current story is in the ${phase ?? 'unknown'} phase; next step, run lattice next first to confirm the current gate`;
     }
-    return `→ 验证全绿。可以提交`;
+    return `→ Validation all green. Ready to commit`;
   }
   return null;
 };
@@ -253,7 +253,7 @@ export function listHintCommands(): string[] {
 }
 
 /**
- * 装饰命令返回值：尝试追加 next-step 提示。
+ * Decorate command return value: try to append a next-step hint.
  */
 export function decorateResult(ctx: HintContext): unknown {
   const fn = HINTS[ctx.cmd];

@@ -73,11 +73,11 @@ export function resolveGuardFailure(
 /**
  * REVIEW→TEST CLI preflight gate.
  *
- * F-019 (B-9d95 Round 1 review): REVIEW→TEST preflight 跑 CLI gates。
- * runReviewCliGates 聚合 checkCommitAuthor / checkConcept / checkLint /
- * docs-drift，并在 Codex adapter 触点存在时追加 codex-adapter gate。
- * 任一 fail 即 block；快速通道走 runReviewCliGates 内部的 fastChannel
- * 路径（常规 gate 统一 skip），与 F-015 修正后的 computeChannel 口径一致。
+ * F-019 (B-9d95 Round 1 review): REVIEW→TEST preflight runs CLI gates.
+ * runReviewCliGates aggregates checkCommitAuthor / checkConcept / checkLint /
+ * docs-drift, and appends the codex-adapter gate when Codex adapter touchpoints exist.
+ * Any fail blocks; the fast channel goes through the fastChannel
+ * path inside runReviewCliGates (regular gates uniformly skip), aligned with the F-015 corrected computeChannel semantics.
  *
  * Fail-closed (preMortem #1): the same try/catch shape as the inline original
  * — a preflight infrastructure failure (e.g. review-preflight.ts import
@@ -109,22 +109,22 @@ export async function runReviewToTestPreflightGate(
       const rendered = renderPreflight(preflight);
       const failedGates = preflight.gates.filter(g => !g.ok).map(g => g.name).join(', ');
       throw new Error(
-        `Cannot enter TEST: CLI gate preflight 失败 (${failedGates})\n\n` +
+        `Cannot enter TEST: CLI gate preflight failed (${failedGates})\n\n` +
         rendered +
-        `\n\n→ 修复上述 gate 后重跑 koala story_advance --phase=TEST\n` +
-        `→ 单独复跑: koala validate --channel --story=${storyId} / --concept / --lint；docs-drift 随 preflight 执行；Codex adapter 用 ${LOCAL_CODEX_VERIFY_COMMAND}`,
+        `\n\n→ After fixing the above gates, rerun koala story_advance --phase=TEST\n` +
+        `→ Rerun individually: koala validate --channel --story=${storyId} / --concept / --lint; docs-drift runs with preflight; for Codex adapter use ${LOCAL_CODEX_VERIFY_COMMAND}`,
       );
     }
     ctx.log?.('CLI gate preflight: all pass');
   } catch (e: any) {
     if (e?.message?.startsWith('Cannot enter TEST')) throw e;
-    // 预检查本身失败（review-preflight.ts import 失败等）→ fail-closed
+    // Preflight itself failed (review-preflight.ts import failure, etc.) → fail-closed
     const message = e instanceof Error ? e.message : String(e);
     throw new Error(
-      `Cannot enter TEST: CLI gate preflight 执行异常\n` +
+      `Cannot enter TEST: CLI gate preflight execution error\n` +
       `${message}\n\n` +
-      `→ 修复 review-preflight gate 后重跑 koala story_advance --phase=TEST\n` +
-      `→ 单独复跑: koala validate --channel --story=${storyId} / --concept / --lint；docs-drift 随 preflight 执行；Codex adapter 用 ${LOCAL_CODEX_VERIFY_COMMAND}`,
+      `→ After fixing the review-preflight gate, rerun koala story_advance --phase=TEST\n` +
+      `→ Rerun individually: koala validate --channel --story=${storyId} / --concept / --lint; docs-drift runs with preflight; for Codex adapter use ${LOCAL_CODEX_VERIFY_COMMAND}`,
     );
   }
 }
@@ -164,7 +164,7 @@ export function runScopeTransitionGate(
     throw new Error(
       `Cannot enter ${phase}: ${result.summary}\n\n` +
       rendered +
-      `\n\n→ 修复 out-of-scope diff，或用 scope_contract_acknowledge 记录必要扩展后重跑 story_advance --phase=${phase}`,
+      `\n\n→ Fix the out-of-scope diff, or record the necessary extension with scope_contract_acknowledge and then rerun story_advance --phase=${phase}`,
     );
   }
   return `\n\n${rendered}`;
@@ -173,7 +173,7 @@ export function runScopeTransitionGate(
 /**
  * DEV→TEST koala validate gate.
  *
- * 自动调 koala validate，写 test-evidence.json。
+ * Automatically calls koala validate and writes test-evidence.json.
  *
  * behavior-preserving side effect: this gate writes test-evidence.json via
  * store.writeTestEvidence — both on the PASS path (DONE gate consumes it) and
@@ -207,12 +207,12 @@ export async function runValidateGate(
     const jsonResult = await verifierHandlers.validate({ json: true, story: storyId });
     const parsed = JSON.parse(String(jsonResult));
 
-    // 写入 test-evidence.json（DONE gate 消费）
-    // B-c622 CHK-009: 记录 headHash 供 DONE gate evidence freshness 检查
+    // Write test-evidence.json (consumed by the DONE gate)
+    // B-c622 CHK-009: record headHash for the DONE gate evidence freshness check
     let evidenceHeadHash = '';
     try {
       evidenceHeadHash = execSync('git rev-parse HEAD', { cwd: ctx.root, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
-    } catch { /* 无法获取 HEAD，跳过 */ }
+    } catch { /* unable to obtain HEAD, skip */ }
     const evidenceMaterialHash = currentMaterialHash(ctx.root);
     store.writeTestEvidence(storyId, {
       command: `koala validate --story=${storyId} --json`,
@@ -236,17 +236,17 @@ export async function runValidateGate(
       const sections = [
         failedDetails.length > 0 ? failedDetails.join('\n') : '',
         missingCoverage > 0
-          ? `Verification coverage 不足: ${coverage.covered}/${coverage.total} covered, ${missingCoverage} required missing\n${coverageLines.join('\n')}`
+          ? `Insufficient verification coverage: ${coverage.covered}/${coverage.total} covered, ${missingCoverage} required missing\n${coverageLines.join('\n')}`
           : '',
         parsed.summary ? `Summary: ${parsed.summary}` : '',
       ].filter(Boolean);
       throw new Error(
-        `Cannot enter TEST: koala validate 未通过` +
-        (failedDetails.length > 0 ? `（${failedDetails.length} 项命令失败）` : '') +
-        (missingCoverage > 0 ? `（verification coverage 缺 ${missingCoverage} 项）` : '') +
+        `Cannot enter TEST: koala validate did not pass` +
+        (failedDetails.length > 0 ? ` (${failedDetails.length} command(s) failed)` : '') +
+        (missingCoverage > 0 ? `(verification coverage missing ${missingCoverage} items)` : '') +
         '\n' +
         sections.join('\n') +
-        '\n\n→ 修复后重跑 koala validate，再 story_advance --phase=TEST'
+        '\n\n→ After fixing, re-run koala validate, then story_advance --phase=TEST'
       );
     }
     ctx.log?.('validate PASS, writing test-evidence.json');
@@ -268,10 +268,10 @@ export async function runValidateGate(
       });
     }
     throw new Error(
-      `Cannot enter TEST: koala validate 执行异常\n` +
+      `Cannot enter TEST: koala validate execution error\n` +
       `${message}\n\n` +
-      `→ 修复 validate runner 后重跑 koala validate --story=${storyId} --json\n` +
-      `→ 然后重跑 koala story_advance --phase=TEST`,
+      `→ After fixing the validate runner, re-run koala validate --story=${storyId} --json\n` +
+      `→ Then re-run koala story_advance --phase=TEST`,
     );
   }
 }
@@ -279,9 +279,9 @@ export async function runValidateGate(
 /**
  * TEST→DONE done-oracle gate adapter.
  *
- * 构建并渲染 DONE Final Checklist（consumes core/done-oracle.ts —
- * buildDoneChecklist + renderDoneChecklist）。无论 advance 成功失败都会输出
- * 这份 checklist，强制主 agent 读一遍多层验证状态。对应 OMX ralph 的
+ * Build and render the DONE Final Checklist (consumes core/done-oracle.ts —
+ * buildDoneChecklist + renderDoneChecklist). This checklist is output whether advance
+ * succeeds or fails, forcing the main agent to read through the multi-layer verification state. Corresponds to OMX ralph's
  * <Final_Checklist>。
  *
  * On gate failure this throws; on success it returns the rendered checklist
@@ -309,8 +309,8 @@ export function runDoneOracleGate(
     const hints = failed.flatMap(r => r.hint ? [r.hint] : []);
     throw new Error(
       rendered + '\n\n' +
-      `Cannot enter DONE: ${failed.length} 项检查未通过` +
-      (hints.length > 0 ? '\n\n修复建议:\n' + hints.map(h => `→ ${h}`).join('\n') : '')
+      `Cannot enter DONE: ${failed.length} checks did not pass` +
+      (hints.length > 0 ? '\n\nFix suggestions:\n' + hints.map(h => `→ ${h}`).join('\n') : '')
     );
   }
 

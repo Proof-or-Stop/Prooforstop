@@ -9,7 +9,7 @@ const scanRoot = join(rootDir, loadConfig(rootDir).scanRoot);
 
 const result = validate(scanRoot);
 
-// 输出错误
+// Output error
 for (const e of result.errors) {
   console.error(`  ERROR  ${e.loc}  ${e.msg}`);
 }
@@ -17,7 +17,7 @@ for (const w of result.warnings) {
   console.warn(`  WARN   ${w.loc}  ${w.msg}`);
 }
 
-// 汇总
+// Summary
 console.log('');
 console.log('── Task Annotation Report ──');
 console.log(`  Files scanned:    ${result.filesScanned}`);

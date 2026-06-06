@@ -34,7 +34,7 @@ const SINGLE_FIELDS = new Set([
 ]);
 const MULTI_FIELDS = new Set(['description', 'changes', 'affected']);
 
-/** 递归遍历目录，收集常见语言源码文件 */
+/** Recursively traverse directories, collecting source files of common languages */
 export function walkDir(dir: string): string[] {
   const results: string[] = [];
   let entries: string[];
@@ -198,7 +198,7 @@ export function parseFunctionAfterBlock(
   return null;
 }
 
-/** 解析单个注释块为结构化对象 */
+/** Parse a single comment block into a structured object */
 export function parseBlock(raw: string): Record<string, string | string[]> {
   const normalized = raw
     .replace(/^\/\*\*\s*/, '')
@@ -242,7 +242,7 @@ export function parseBlock(raw: string): Record<string, string | string[]> {
   }
   flush();
 
-  // depends / checklist 拆分为数组
+  // Split depends / checklist into arrays
   if (typeof result.depends === 'string') {
     result.depends = result.depends.split(/[,;]\s*/).filter(Boolean);
   }
@@ -254,8 +254,8 @@ export function parseBlock(raw: string): Record<string, string | string[]> {
 }
 
 export function scan(scanRoot: string): TaskAnnotation[] {
-  // 优先从 metadata store（task.json）读取，不再扫描源码
-  // 从 scanRoot 向上查找 koala.config.json 确定项目根，再定位 docs/metadata/task.json
+  // Read from the metadata store (task.json) first; no longer scan source code
+  // Walk up from scanRoot to find koala.config.json to determine the project root, then locate docs/metadata/task.json
   let metadataPath = '';
   let searchDir = scanRoot;
   for (let i = 0; i < 10; i++) {
@@ -277,7 +277,7 @@ export function scan(scanRoot: string): TaskAnnotation[] {
         const sr = join(projectRoot, config.scanRoot);
 
         return store.tasks.map((t: any) => {
-          // functionSignature 缺失时从源码正则提取
+          // When functionSignature is missing, extract it from source code via regex
           let sig = t.functionSignature || '';
           if (!sig && t.sourceFile && t.functionName) {
             try {
@@ -285,7 +285,7 @@ export function scan(scanRoot: string): TaskAnnotation[] {
               if (existsSync(filePath)) {
                 const code = readFileSync(filePath, 'utf-8');
                 const name = t.functionName;
-                // 匹配: [export] [async] function name(...) / name(...) { / name = (...) =>
+                // Match: [export] [async] function name(...) / name(...) { / name = (...) =>
                 const patterns = [
                   new RegExp(`((?:export\\s+)?(?:async\\s+)?function\\s+${name}\\s*\\([^)]*\\)[^{]*)\\{`),
                   new RegExp(`((?:static\\s+)?(?:async\\s+)?${name}\\s*\\([^)]*\\)[^{]*)\\{`),
@@ -329,7 +329,7 @@ export function scan(scanRoot: string): TaskAnnotation[] {
     } catch { /* fallback to source scan */ }
   }
 
-  // Fallback: 扫描源码（兼容未迁移的项目）
+  // Fallback: scan source code (compatible with unmigrated projects)
   const files = walkDir(scanRoot);
   const tasks: TaskAnnotation[] = [];
 
@@ -373,7 +373,7 @@ export function scan(scanRoot: string): TaskAnnotation[] {
   return tasks;
 }
 
-/** 按条件筛选 */
+/** Filter by criteria */
 export function filterTasks(tasks: TaskAnnotation[], filters: ExtractFilters): TaskAnnotation[] {
   return tasks.filter(t => {
     if (filters.type && t.type !== filters.type) return false;
@@ -421,7 +421,7 @@ export function extractFlows(tasks: TaskAnnotation[]): FlowChain[] {
   return chains;
 }
 
-/** 转换为 Markdown 报告 */
+/** Convert to Markdown report */
 export function toMarkdown(tasks: TaskAnnotation[]): string {
   if (tasks.length === 0) return '> No tasks found.\n';
 
