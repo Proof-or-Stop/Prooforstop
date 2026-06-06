@@ -42,24 +42,24 @@ export function validateFixtureCase(c: Record<string, unknown>): string[] {
   const errors: string[] = [];
 
   if (!c.name || typeof c.name !== 'string') {
-    errors.push('缺少 name 字段');
+    errors.push('Missing name field');
   }
 
-  // 拒绝旧格式字段
+  // Reject legacy format fields
   const deprecated = Object.keys(c).filter(k => DEPRECATED_FIELDS.has(k));
   if (deprecated.length > 0) {
-    errors.push(`旧格式字段不允许: ${deprecated.join(', ')}，请使用新格式（run_type/executor 或 run_type/execute）`);
-    return errors; // 旧格式不继续校验
+    errors.push(`Legacy format fields not allowed: ${deprecated.join(', ')}, please use new format (run_type/executor or run_type/execute)`);
+    return errors; // Skip further validation for legacy format
   }
 
-  // run_type 必填
+  // run_type is required
   if (!c.run_type || !['cli', 'browser'].includes(c.run_type as string)) {
-    errors.push('run_type 必须是 "cli" 或 "browser"');
+    errors.push('run_type must be "cli" or "browser"');
   }
 
   if (c.executor !== undefined) {
     if (typeof c.executor !== 'string' || !EXECUTOR_IDS.has(c.executor)) {
-      errors.push(`executor 必须是 ${Array.from(EXECUTOR_IDS).join(' / ')} 之一`);
+      errors.push(`executor must be one of ${Array.from(EXECUTOR_IDS).join(' / ')}`);
     }
   }
 
@@ -67,57 +67,57 @@ export function validateFixtureCase(c: Record<string, unknown>): string[] {
   const hasExecute = typeof c.execute === 'string' && (c.execute as string).trim() !== '';
   const hasCommand = typeof c.command === 'string' || Array.isArray(c.command);
   if (!executor && !hasExecute && !hasCommand) {
-    errors.push('case 必须提供 executor、execute 或 command');
+    errors.push('case must provide executor, execute, or command');
   }
   if (c.execute !== undefined && typeof c.execute !== 'string') {
-    errors.push('execute 必须是字符串');
+    errors.push('execute must be a string');
   }
   if (executor === 'js.execute' && !hasExecute) {
-    errors.push('js.execute case 的 execute 必须是非空字符串');
+    errors.push('execute for js.execute case must be a non-empty string');
   }
   if ((executor === 'js.execute' || hasExecute) && (!c.file || typeof c.file !== 'string' || (c.file as string).trim() === '')) {
-    errors.push('js.execute case 的 file 必须是非空字符串（源文件路径）');
+    errors.push('file for js.execute case must be a non-empty string (source file path)');
   }
   if (executor === 'python.function') {
     if (!c.file || typeof c.file !== 'string' || (c.file as string).trim() === '') {
-      errors.push('python.function case 的 file 必须是非空字符串（Python 源文件路径）');
+      errors.push('file for python.function case must be a non-empty string (Python source file path)');
     }
     if (!c.fn || typeof c.fn !== 'string' || (c.fn as string).trim() === '') {
-      errors.push('python.function case 的 fn 必须是非空字符串');
+      errors.push('fn for python.function case must be a non-empty string');
     }
   }
   if (executor === 'cpp.binary' && (!c.binary && !c.command)) {
-    errors.push('cpp.binary case 需要 binary 或 command 字段');
+    errors.push('cpp.binary case requires binary or command field');
   }
   if (executor === 'java.junit' && c.buildTool !== undefined && c.buildTool !== 'maven' && c.buildTool !== 'gradle') {
-    errors.push('java.junit 的 buildTool 必须是 "maven" 或 "gradle"');
+    errors.push('buildTool for java.junit must be "maven" or "gradle"');
   }
   if ((executor === 'command' || (!executor && hasCommand)) && !hasCommand) {
-    errors.push('command executor 需要 command 字段');
+    errors.push('command executor requires command field');
   }
   if (c.command !== undefined && typeof c.command !== 'string' && !Array.isArray(c.command)) {
-    errors.push('command 必须是字符串或字符串数组');
+    errors.push('command must be a string or array of strings');
   }
   if (c.args !== undefined && (!Array.isArray(c.args) || (c.args as unknown[]).some(v => typeof v !== 'string'))) {
-    errors.push('args 必须是字符串数组');
+    errors.push('args must be an array of strings');
   }
 
-  // expect 和 throws 互斥
+  // expect and throws are mutually exclusive
   if (c.throws !== undefined && c.expect !== undefined) {
-    errors.push('throws 和 expect 不能同时存在');
+    errors.push('throws and expect cannot coexist');
   }
   if (c.throws !== undefined && typeof c.throws !== 'string') {
-    errors.push(`throws 必须是 string，当前是 ${typeof c.throws}`);
+    errors.push(`throws must be a string, currently ${typeof c.throws}`);
   }
 
-  // pattern 正则合法性
+  // pattern regex validity
   if (c.expect && typeof c.expect === 'object' && (c.expect as any).pattern) {
     try { new RegExp((c.expect as any).pattern); } catch {
-      errors.push(`pattern 正则语法错误: ${(c.expect as any).pattern}`);
+      errors.push(`pattern regex syntax error: ${(c.expect as any).pattern}`);
     }
   }
 
-  // intentRef 格式校验
+  // intentRef format validation
   // B-c745: accept both legacy "CHK-001:happy:0" and story-scoped
   // "B-xxxx:CHK-001:happy:0" forms. fixture_batch_add auto-prefixes
   // the legacy form when a storyId can be inferred from the git branch.
@@ -126,21 +126,21 @@ export function validateFixtureCase(c: Record<string, unknown>): string[] {
     const legacyOk = isString && /^CHK-\d+:(happy|edge|adversarial):\d+$/.test(c.intentRef as string);
     const scopedOk = isString && /^B-[a-z0-9]+:CHK-\d+:(happy|edge|adversarial):\d+$/.test(c.intentRef as string);
     if (!legacyOk && !scopedOk) {
-      errors.push(`intentRef 格式错误: "${c.intentRef}"，应为 CHK-001:happy:0 或 B-xxxx:CHK-001:happy:0`);
+      errors.push(`intentRef format error: "${c.intentRef}", expected CHK-001:happy:0 or B-xxxx:CHK-001:happy:0`);
     }
   }
 
-  // _id / prevCaseId / nextCaseId 类型校验（可选字段）
+  // _id / prevCaseId / nextCaseId type validation (optional fields)
   for (const f of ['_id', 'prevCaseId', 'nextCaseId'] as const) {
     if (c[f] !== undefined && typeof c[f] !== 'string') {
-      errors.push(`${f} 必须是 string`);
+      errors.push(`${f} must be a string`);
     }
   }
 
-  // 非标准字段
+  // non-standard fields
   const unknown = Object.keys(c).filter(k => !NEW_FORMAT_FIELDS.has(k));
   if (unknown.length > 0) {
-    errors.push(`非标准字段: ${unknown.join(', ')}`);
+    errors.push(`non-standard fields: ${unknown.join(', ')}`);
   }
 
   return errors;
@@ -188,7 +188,7 @@ export function createFixtureHandlers(ctx: HandlerContext) {
       const data = readFixture(args.fixturePath);
       const c = { ...args.case };
 
-      // CHK-001: executeFile → 从文件读取 execute 内容
+      // CHK-001: executeFile → read execute content from file
       if (c.executeFile) {
         const filePath = isAbsolute(c.executeFile) ? c.executeFile : join(root, c.executeFile);
         if (!existsSync(filePath)) {
@@ -201,12 +201,12 @@ export function createFixtureHandlers(ctx: HandlerContext) {
       if (args.action === 'add') {
         const validationErrors = validateFixtureCase(c as Record<string, unknown>);
         if (validationErrors.length > 0) {
-          throw new Error(`case 格式错误: ${validationErrors.join('; ')}`);
+          throw new Error(`case format error: ${validationErrors.join('; ')}`);
         }
         if (data.cases.find((x: any) => x.name === c.name)) {
           throw new Error(`case "${c.name}" already exists`);
         }
-        // CHK-001: 强制生成 _id（忽略外部传入）
+        // CHK-001: force-generate _id (ignore externally passed value)
         (c as any)._id = randomUUID();
         data.cases.push(c);
         writeFixture(args.fixturePath, data);
@@ -255,11 +255,11 @@ export function createFixtureHandlers(ctx: HandlerContext) {
      * @type feature
      * @priority high
      * @description
-     *   fixture_batch_add 会批量写入 fixture 文件，属于高成本误操作面。这里让它
-     *   支持 dry-run 预览新增/跳过/报错结果，在真正写文件前先展示会发生什么。
+     *   fixture_batch_add writes fixture files in batch and is a high-cost mis-operation surface. Here we let it
+     *   support a dry-run preview of add/skip/error results, showing what would happen before actually writing files.
      * @changes
-     *   - [CHK-001] dry-run 只返回 would add / SKIP / ERROR 计划，不写 fixture 文件
-     *   - [CHK-001] 真实执行继续沿用 batchCases + 链关系落盘逻辑
+     *   - [CHK-001] dry-run only returns the would add / SKIP / ERROR plan, does not write fixture files
+     *   - [CHK-001] real execution continues to use the batchCases + chain-relation persistence logic
      * @test dangerous-command-guardrails
      */
     fixture_batch_add(args: { fixturePath: string; cases: Array<Record<string, unknown>>; storyId?: string; dryRun?: boolean; validateExecute?: boolean }) {
@@ -269,10 +269,10 @@ export function createFixtureHandlers(ctx: HandlerContext) {
       // auto-prefixed to `<storyId>:CHK-xxx:lane:idx` so checklist_update
       // only counts them as covering the *current* story.
       const inferredStoryId = args.storyId || inferStoryIdFromGit(root);
-      // CHK-001+002: 先为所有 case 生成 _id，再建立链关系
+      // CHK-001+002: first generate _id for all cases, then establish chain relations
       const batchCases: Array<Record<string, unknown>> = [];
       for (let c of args.cases) {
-        // executeFile → 从文件读取 execute 内容
+        // executeFile → read execute content from file
         if (c.executeFile) {
           c = { ...c };
           const filePath = isAbsolute(c.executeFile as string) ? c.executeFile as string : join(root, c.executeFile as string);
@@ -293,7 +293,7 @@ export function createFixtureHandlers(ctx: HandlerContext) {
         const errs = validateFixtureCase(c);
         if (errs.length) { added.push(`${c.name}: ERROR ${errs.join('; ')}`); continue; }
         if (data.cases.find((x: any) => x.name === c.name)) { added.push(`${c.name}: SKIP (exists)`); continue; }
-        // CHK-001: 强制生成 _id（忽略外部传入）
+        // CHK-001: force-generate _id (ignore externally passed value)
         c._id = randomUUID();
         batchCases.push(c);
         added.push(`${c.name}: OK`);
@@ -320,11 +320,11 @@ export function createFixtureHandlers(ctx: HandlerContext) {
               }
             }
           }
-          return `[DRY-RUN] fixture_batch_add ${args.fixturePath} would add ${batchCases.length}/${args.cases.length} cases (current total: ${data.cases.length}, next total: ${data.cases.length + batchCases.length})\n${added.join('\n')}\n→ 去掉 --dryRun 真实执行`;
+          return `[DRY-RUN] fixture_batch_add ${args.fixturePath} would add ${batchCases.length}/${args.cases.length} cases (current total: ${data.cases.length}, next total: ${data.cases.length + batchCases.length})\n${added.join('\n')}\n→ remove --dryRun for real execution`;
         };
         return preview();
       }
-      // CHK-002: 批量添加时按顺序建立链关系（仅同批 case 之间）
+      // CHK-002: When adding in batch, establish chain relationships in order (only between cases in the same batch)
       if (batchCases.length > 1) {
         for (let i = 0; i < batchCases.length; i++) {
           if (i > 0 && !batchCases[i].prevCaseId) {

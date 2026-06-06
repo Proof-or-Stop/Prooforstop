@@ -216,7 +216,7 @@ export function runGuardSessionGate(
     throw new Error(
       `Cannot enter ${phase}: guard session detected ${violations.length} forbidden write(s)\n\n` +
       renderGuardSession(updated) +
-      `\n\n→ 移除 out-of-scope 改动，或用 scope_contract_acknowledge 记录必要扩展后重跑 story_advance --phase=${phase}`,
+      `\n\n→ Remove out-of-scope changes, or record the necessary expansion with scope_contract_acknowledge and re-run story_advance --phase=${phase}`,
     );
   }
   const modeLabel = session.guardMode === 'active' ? 'native-pretool' : session.guardMode;

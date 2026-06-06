@@ -46,13 +46,13 @@ function run(root: string, command: string, args: Record<string, unknown>, allow
 }
 
 const background = [
-  '## 触发事件',
+  '## Trigger Event',
   '2026-05-21 B-0000 smoke needs enough trigger detail to satisfy background validation for the init-check fallback path.',
-  '## 关键洞察',
+  '## Key Insights',
   'Environments without a spawnable init reviewer still need an explicit, auditable exit that does not weaken the signature gate.',
-  '## 方案取舍',
+  '## Tradeoffs',
   'The fallback reuses signInitCheck and marks reviewer records as fallback rather than faking an independent reviewer run.',
-  '## 对话纹理',
+  '## Conversation Texture',
   'A maintainer sees a clear blocker that names the missing reviewers and offers the controlled init_check_repair fallback command.',
 ].join('\n\n');
 
@@ -116,7 +116,7 @@ try {
   );
   assert.doesNotMatch(
     refuseNoAck,
-    /现在可运行 koala story_advance|now can story_advance/,
+    /now can run koala story_advance|now can story_advance/,
     'refused repair (no-ack) must NOT emit the story_advance continuation hint',
   );
 
@@ -135,7 +135,7 @@ try {
   );
   assert.doesNotMatch(
     refuseShortReason,
-    /現在可運行 koala story_advance|现在可运行 koala story_advance|now can story_advance/,
+    /now can run koala story_advance|now can run koala story_advance|now can story_advance/,
     'refused repair (short reason) must NOT emit the story_advance continuation hint',
   );
 
@@ -150,8 +150,8 @@ try {
     fallbackReason: 'No init reviewer subagent can be spawned here; I manually reviewed background, checklist and product value.',
     evidenceRefs: ['manual-review-2026-05-21'],
   });
-  assert.match(repaired, /init-check\.json 已生成/, 'repair should report init-check.json generated');
-  assert.match(repaired, /审计事件/, 'repair should report an audit event was recorded');
+  assert.match(repaired, /init-check\.json generated/, 'repair should report init-check.json generated');
+  assert.match(repaired, /audit event/, 'repair should report an audit event was recorded');
   // B-6894: repair success output must include the authorization boundary message.
   assert.match(
     repaired,
@@ -250,8 +250,8 @@ try {
     fallbackReason: 'No reviewer subagent; manual review found a high-severity gap that must be fixed before INIT_CHECK.',
     issues: [{ severity: 'high', desc: 'Manual review found an unresolved high-severity scope gap.' }],
   });
-  assert.match(blockRepair, /仍会阻塞|high/, 'repair attesting a high issue should warn the gate still blocks');
-  // Blocking output must also include the exact authorization boundary text (not just 仍会阻塞/high).
+  assert.match(blockRepair, /still blocks|high/, 'repair attesting a high issue should warn the gate still blocks');
+  // Blocking output must also include the exact authorization boundary text (not just still blocks/high).
   assert.match(
     blockRepair,
     /Fallback only repairs INIT_CHECK.*does not authorize implementation.*does not replace later PLAN\/DEV\/REVIEW\/TEST reviewers/s,
@@ -260,7 +260,7 @@ try {
   // Blocking output must NOT include the story_advance continuation hint.
   assert.doesNotMatch(
     blockRepair,
-    /现在可运行 koala story_advance/,
+    /now can run koala story_advance/,
     'blocking fallback output must NOT emit the story_advance continuation hint',
   );
   const blockedByIssue = run(root, 'story_advance', { storyId: blockStory, phase: 'INIT_CHECK' }, true);

@@ -1,15 +1,15 @@
 /**
- * B-e8c8 CHK-007: 轮次递减 advisory 规则（共享函数）
+ * B-e8c8 CHK-007: Round-based decreasing advisory rule (shared function)
  *
- * REVIEW 阶段 finding 的 blocking 严重级别随 Round 递减：
- *   - Round 1: critical + high + medium 为 blocking；low 始终 advisory（policy 的
- *     effectiveBlockingSeverities 从不含 low，让 low 在 Round 1 返 false 会误导
- *     finding_list 把 low 归到 Blocking 分组里，与 gate 实际行为不一致）
- *   - Round 2: medium 降为 advisory；critical + high 仍 blocking；low 仍 advisory
- *   - Round 3+: high 降为 advisory；critical 仍 blocking（critical 永远 blocking）
+ * The blocking severity level of REVIEW phase findings decreases with each Round:
+ *   - Round 1: critical + high + medium are blocking; low is always advisory (policy's
+ *     effectiveBlockingSeverities never includes low; returning false for low in Round 1 would mislead
+ *     finding_list into grouping low under Blocking, which is inconsistent with actual gate behavior)
+ *   - Round 2: medium is downgraded to advisory; critical + high remain blocking; low remains advisory
+ *   - Round 3+: high is downgraded to advisory; critical remains blocking (critical is always blocking)
  *
- * 该函数由 handlers/finding.ts（finding_list 打标签）和 core/machine.ts
- * （canPassReview gate 判断是否跳过 blocker 计算）共用，避免两处各写一份硬编码。
+ * This function is shared by handlers/finding.ts (finding_list label tagging) and core/machine.ts
+ * (canPassReview gate's decision on whether to skip blocker computation), to avoid duplicating hardcoded logic in two places.
  */
 import type { StoryStore } from './store.js';
 import type { Finding, FindingEvidenceState, StoryEvent } from './types.js';
@@ -17,37 +17,37 @@ import type { Finding, FindingEvidenceState, StoryEvent } from './types.js';
 export type FindingSeverity = 'critical' | 'high' | 'medium' | 'low';
 
 /**
- * B-3fad CHK-001: 合法 evidenceState 取值集合。
- * handler runtime / gate 消费点都要按此集合校验（不只靠 Zod，见 CLAUDE.md「Handler 编码约定」）。
+ * B-3fad CHK-001: The set of valid evidenceState values.
+ * Both handler runtime / gate consumption points must validate against this set (not just rely on Zod; see CLAUDE.md "Handler coding conventions").
  */
 export const FINDING_EVIDENCE_STATES: readonly FindingEvidenceState[] = ['suspected', 'verified', 'disproven'] as const;
 
-/** B-3fad CHK-001: runtime narrow，拒非法 evidenceState 字符串。 */
+/** B-3fad CHK-001: runtime narrow, rejects invalid evidenceState strings. */
 export function isFindingEvidenceState(value: unknown): value is FindingEvidenceState {
   return typeof value === 'string' && (FINDING_EVIDENCE_STATES as readonly string[]).includes(value);
 }
 
 /**
- * B-3fad CHK-001: REVIEW→TEST gate blocking 判定的 evidenceState 维度。
+ * B-3fad CHK-001: The evidenceState dimension of the REVIEW→TEST gate blocking decision.
  *
- * 一条 finding 只有 evidenceState 为 'verified'（或字段缺失 = legacy 兼容视同 verified）
- * 才可能阻塞 REVIEW→TEST。'suspected' / 'disproven' 一律不阻塞（suspected 只 advisory，
- * disproven 已被反证）。非法字符串保守视同非 verified（不阻塞，避免污染 gate）。
+ * A finding can only block REVIEW→TEST when its evidenceState is 'verified' (or the field is missing = legacy compat treated as verified).
+ * 'suspected' / 'disproven' never block (suspected is advisory only,
+ * disproven has been refuted). Invalid strings are conservatively treated as non-verified (non-blocking, to avoid polluting the gate).
  *
- * 完整 gate predicate（machine.ts canPassReview / guard-utils.ts）：
+ * Full gate predicate (machine.ts canPassReview / guard-utils.ts):
  *   status === 'open'
- *   && severity ∈ {critical,high}（来自 effectiveBlockingSeverities）
+ *   && severity ∈ {critical,high} (from effectiveBlockingSeverities)
  *   && isEvidenceStateBlocking(evidenceState)
  *   && !isAdvisoryThisRound(severity, round)
  */
 export function isEvidenceStateBlocking(evidenceState: FindingEvidenceState | string | undefined | null): boolean {
-  if (evidenceState == null) return true; // legacy finding 缺字段 → 视同 verified
+  if (evidenceState == null) return true; // legacy finding missing field → treated as verified
   return evidenceState === 'verified';
 }
 
 /**
- * B-3fad CHK-001: 完整的「这条 finding 是否阻塞 REVIEW→TEST」判定。
- * effectiveBlockingSeverities 由调用方按 round decay 解析后传入。
+ * B-3fad CHK-001: The complete decision for "whether this finding blocks REVIEW→TEST".
+ * effectiveBlockingSeverities is passed in by the caller after resolving round decay.
  */
 export function isFindingBlocking(
   finding: Pick<Finding, 'status' | 'severity' | 'evidenceState'>,
@@ -61,29 +61,29 @@ export function isFindingBlocking(
 }
 
 /**
- * 判断某个 severity 的 finding 在当前 round 是否为 advisory（不 blocking）。
- * critical 永远返回 false（任何轮次都 blocking）。
- * low 永远返回 true（policy.blockingSeverities 从不含 low，low 从不 blocking）。
+ * Determines whether a finding of a given severity is advisory (not blocking) in the current round.
+ * critical always returns false (blocking in any round).
+ * low always returns true (policy.blockingSeverities never contains low; low is never blocking).
  */
 export function isAdvisoryThisRound(severity: FindingSeverity | string, round: number): boolean {
   if (severity === 'critical') return false;
-  // low 从不 blocking：policy.review.blockingSeverities 在任何 profile 都不含 low，
-  // 所以 low 在所有 round 都按 advisory 归组，避免 finding_list 把 low 错挂到 Blocking。
+  // low is never blocking: policy.review.blockingSeverities never contains low under any profile,
+  // so low is grouped as advisory in all rounds, preventing finding_list from misplacing low into Blocking.
   if (severity === 'low') return true;
   if (round >= 3) {
-    // Round 3+: high 与 medium 降为 advisory
+    // Round 3+: high and medium are downgraded to advisory
     return severity === 'high' || severity === 'medium';
   }
   if (round >= 2) {
-    // Round 2: medium 降为 advisory
+    // Round 2: medium is downgraded to advisory
     return severity === 'medium';
   }
-  // Round 1: critical/high/medium 全 blocking（low 已在上面短路）
+  // Round 1: critical/high/medium are all blocking (low has already short-circuited above)
   return false;
 }
 
 /**
- * 给出 Round N 的 advisory 标签文本（如 "R2-ADVISORY"），Round 1 或 critical 返回 null。
+ * Gives the advisory label text for Round N (e.g. "R2-ADVISORY"); returns null for Round 1 or critical.
  */
 export function advisoryLabelFor(severity: FindingSeverity | string, round: number): string | null {
   if (!isAdvisoryThisRound(severity, round)) return null;
@@ -91,16 +91,16 @@ export function advisoryLabelFor(severity: FindingSeverity | string, round: numb
 }
 
 /**
- * 从 story.events 推导当前 REVIEW roundCount。
- * 与 machine.ts 的 resolveEffectiveBlockingSeverities 保持同源：
- *   roundCount = events 中 phase==='REVIEW' && action==='advance' 的条目数，
- *   无匹配时默认 1（避免除零 / 首轮边界）。
+ * Derives the current REVIEW roundCount from story.events.
+ * Stays consistent with resolveEffectiveBlockingSeverities in machine.ts:
+ *   roundCount = number of entries in events where phase==='REVIEW' && action==='advance',
+ *   defaulting to 1 when there is no match (to avoid divide-by-zero / first-round edge cases).
  *
- * 依据：handlers/transition-orchestrator.ts 在 DEV→REVIEW（以及 REVIEW 回退后再推进）时
- * 调用 collectContext('REVIEW', 'advance') 写入 events（见 handlers/context.ts
- * 的 collectContext 签名 `action: 'create' | 'advance' | 'discard'` + transition-orchestrator
- * 里 story.events.push(collectContext(args.phase, 'advance'))）。因此
- * phase==='REVIEW' && action==='advance' 恰好匹配每次进入 REVIEW 的那次事件。
+ * Rationale: handlers/transition-orchestrator.ts writes events on DEV→REVIEW (and on re-advance after REVIEW rollback)
+ * by calling collectContext('REVIEW', 'advance') (see the collectContext signature
+ * `action: 'create' | 'advance' | 'discard'` in handlers/context.ts plus the
+ * story.events.push(collectContext(args.phase, 'advance')) in transition-orchestrator). Therefore
+ * phase==='REVIEW' && action==='advance' precisely matches each event of entering REVIEW.
  */
 export function resolveReviewRoundCount(store: StoryStore, storyId: string): number {
   try {

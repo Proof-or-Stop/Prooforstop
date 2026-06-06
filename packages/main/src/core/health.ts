@@ -1,21 +1,21 @@
 /**
- * Health issue tracking — silent catch 分类处理的接收端
+ * Health issue tracking — receiver for silent catch classification
  *
- * 设计目的：
- *   koala 之前有几十处 silent catch（try ... catch ignore），按 CC 的 fail-fast
- *   原则分四类处理：
- *     - DEBUG  (日志/进度)         → 保留 silent
- *     - PROBE  (探测，如文件不存在) → 保留 silent
- *     - PERSIST (writeLog/save 失败) → 改为 reportHealthIssue（不抛错，但留痕）
- *     - MUTATION (git/fs.write 失败) → 改为 throw
+ * Design purpose:
+ *   koala previously had dozens of silent catches (try ... catch ignore). Following CC's fail-fast
+ *   principle, classify into four categories:
+ *     - DEBUG  (logging/progress)         → keep silent
+ *     - PROBE  (probes, e.g. file not found) → keep silent
+ *     - PERSIST (writeLog/save failure) → switch to reportHealthIssue (does not throw, but leaves a trace)
+ *     - MUTATION (git/fs.write failure) → switch to throw
  *
- *   PERSIST 类失败之前会被 swallow，事后无法回溯。本模块提供一个轻量的
- *   JSONL append 接收器：每条 issue 写到 ~/.koala/health.jsonl，
- *   `koala doctor` 可以读出来。
+ *   PERSIST-class failures were previously swallowed and could not be traced afterward. This module provides a lightweight
+ *   JSONL append receiver: each issue is written to ~/.koala/health.jsonl,
+ *   and `koala doctor` can read them out.
  *
- * 设计约束：
- *   - reportHealthIssue 自身不能抛错。health 模块崩溃不能拖死主流程。
- *   - JSONL 行格式稳定（schemaVersion=1），方便外部 tooling 消费。
+ * Design constraints:
+ *   - reportHealthIssue itself must not throw. A crash in the health module must not drag down the main flow.
+ *   - JSONL line format is stable (schemaVersion=1) for easy consumption by external tooling.
  *
  * @task B-ef9c
  * @checklist CHK-001
@@ -37,28 +37,28 @@ import { homedir } from 'os';
 
 export interface HealthIssue {
   schemaVersion: 1;
-  /** 写入时间 (ISO 8601) */
+  /** Write timestamp (ISO 8601) */
   timestamp: string;
-  /** 分类标签：persist:writeLog / persist:state / mutation:git / etc */
+  /** Category tag: persist:writeLog / persist:state / mutation:git / etc */
   category: string;
-  /** 错误消息（不含 stack） */
+  /** Error message (without stack) */
   error: string;
-  /** 上下文：命令名、storyId、文件路径等 */
+  /** Context: command name, storyId, file path, etc. */
   context: Record<string, unknown>;
 }
 
-/** 默认 health.jsonl 路径：~/.koala/health.jsonl */
+/** Default health.jsonl path: ~/.koala/health.jsonl */
 export function getHealthPath(): string {
-  // 允许通过 env 覆盖路径，方便测试
+  // Allow overriding the path via env for easier testing
   if (process.env.KOALA_HEALTH_PATH) return process.env.KOALA_HEALTH_PATH;
   return join(homedir(), '.koala', 'health.jsonl');
 }
 
 /**
- * 记录一条 health issue。
+ * Record a health issue.
  *
- * **本函数永不抛错** — 即使 health 文件写入失败也不影响主流程。
- * 写入失败时会尝试 stderr 输出一条警告，但不抛出。
+ * **This function never throws** — even if writing the health file fails, the main flow is unaffected.
+ * On write failure, it attempts to emit a warning to stderr but does not throw.
  */
 export function reportHealthIssue(
   category: string,
@@ -80,17 +80,17 @@ export function reportHealthIssue(
     };
     appendFileSync(healthPath, JSON.stringify(issue) + '\n');
   } catch (e: unknown) {
-    // 最后防线：health 自己崩了，写 stderr 但不抛错
+    // Last line of defense: health itself crashed; write to stderr but do not throw
     try {
       const msg = e instanceof Error ? e.message : String(e);
       process.stderr.write(`[koala-health] failed to record health issue: ${msg}\n`);
-    } catch { /* 真的没辙了 */ }
+    } catch { /* Truly nothing else to do */ }
   }
 }
 
 /**
- * 读取所有 health issue（最新在前）。
- * 返回空数组表示没有 issue 或 health.jsonl 不存在。
+ * Read all health issues (newest first).
+ * An empty array means there are no issues or health.jsonl does not exist.
  */
 export function readHealthIssues(maxCount = 1000): HealthIssue[] {
   const healthPath = getHealthPath();
@@ -99,14 +99,14 @@ export function readHealthIssues(maxCount = 1000): HealthIssue[] {
     const content = readFileSync(healthPath, 'utf-8');
     const lines = content.split('\n').filter(l => l.trim().length > 0);
     const issues: HealthIssue[] = [];
-    // 从尾部往前读，保证最新在前
+    // Read from the tail backwards to ensure newest first
     for (let i = lines.length - 1; i >= 0 && issues.length < maxCount; i--) {
       try {
         const parsed = JSON.parse(lines[i]) as HealthIssue;
         if (parsed && typeof parsed.timestamp === 'string' && typeof parsed.category === 'string') {
           issues.push(parsed);
         }
-      } catch { /* 跳过损坏行 */ }
+      } catch { /* Skip corrupted line */ }
     }
     return issues;
   } catch {
@@ -115,7 +115,7 @@ export function readHealthIssues(maxCount = 1000): HealthIssue[] {
 }
 
 /**
- * 按分类聚合 issues — doctor 命令用。
+ * Aggregate issues by category — used by the doctor command.
  */
 export function summarizeHealthIssues(issues: HealthIssue[]): {
   total: number;

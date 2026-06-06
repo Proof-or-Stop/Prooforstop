@@ -43,14 +43,15 @@ import { z } from 'zod';
 
 /**
  * HTTP client that POSTs verification evidence envelopes to the cross-repo Python
- * authority server (KOALA_AUTHORITY_URL). The defining responsibility for B-94a6 is
+ * authority server (LATTICE_AUTHORITY_URL; legacy KOALA_AUTHORITY_URL remains accepted).
+ * The defining responsibility for B-94a6 is
  * to mechanically distinguish every transport / server outcome, so that shadow mode
  * (CHK-003) can degrade ANY failure to a warning while enforce mode (CHK-004) can
  * gate strictly on success.
  *
  * Outcome taxonomy (mutually exclusive, see {@link AuthorityClientOutcome}):
  *  - success           : HTTP 2xx + non-empty body that PASSES the submission-result
- *                        schema (Handler 编码约定: a 2xx whose body fails schema is
+ *                        schema (Handler coding convention: a 2xx whose body fails schema is
  *                        NOT treated as success — see `error`). An empty 2xx body is a
  *                        success with `data = {}` (server gave nothing to validate).
  *  - http_error        : HTTP 4xx / 5xx (server reachable, request rejected)
@@ -400,7 +401,7 @@ export class AuthorityClient {
   /**
    * @param schema Submission-result schema used to validate a non-empty 2xx body.
    *   On parse failure the outcome becomes `kind:'error'` (ok:false) — a 2xx with a
-   *   malformed body is never reported as success (Handler 编码约定 / evidence
+   *   malformed body is never reported as success (Handler coding convention / evidence
    *   integrity). An empty 2xx body short-circuits to `{}` success (nothing to validate).
    */
   private async post<T>(
@@ -483,7 +484,7 @@ export function joinURL(baseURL: string, path: string): string {
 // Runner-client gate (B-1123 milestone 2)
 //
 // The headless runner endpoints must not be reachable when authority mode is
-// `off` or KOALA_AUTHORITY_URL is unset. Off-mode callers must observe zero
+// `off` or LATTICE_AUTHORITY_URL is unset. Off-mode callers must observe zero
 // network calls (verification intent CHK-002 adversarial). This guard is the
 // single mechanical entry point for "should the runner client even exist?".
 // ─────────────────────────────────────────────────────────────────────────────
@@ -509,7 +510,7 @@ export interface RunnerClientGateResult {
  * settings. Centralizes the "off-mode = zero network calls" guarantee so the
  * smoke harness can prove it without spawning network code.
  *
- * Runtime re-validation (Handler 编码约定): we re-check mode and URL here, not
+ * Runtime re-validation (Handler coding convention): we re-check mode and URL here, not
  * only at env load time — a caller passing an arbitrary AuthoritySettings
  * object still cannot bypass the off / missing-URL gate.
  */
@@ -529,7 +530,7 @@ export function createRunnerAuthorityClient(
     return {
       settings,
       enabled: false,
-      refusedReason: 'KOALA_AUTHORITY_URL is not configured; runner client refuses to instantiate (zero network calls)',
+      refusedReason: 'LATTICE_AUTHORITY_URL is not configured; runner client refuses to instantiate (zero network calls)',
     };
   }
   const client = new AuthorityClient(
@@ -567,7 +568,7 @@ const AuthorityReceiptOrEmptySchema: ZodType<AuthorityReceipt | Record<string, u
 const JobSpecOrNullSchema: ZodType<JobSpec | null> =
   z.union([JobSpecSchema, z.null()]);
 
-/** Runtime re-validation: non-empty string path parameter (Handler 编码约定). */
+/** Runtime re-validation: non-empty string path parameter (Handler coding convention). */
 function assertNonEmpty(value: string, label: string): void {
   if (typeof value !== 'string' || value.trim().length === 0) {
     throw new Error(`${label} must be a non-empty string`);

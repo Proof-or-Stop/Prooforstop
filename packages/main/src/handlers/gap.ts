@@ -5,12 +5,12 @@
  * @type feature
  * @priority high
  * @description
- *   当前默认 koala CLI 已不再暴露 gap_analyze / convergence_check，
- *   但底层 analyzeGap / checkConvergence 实现仍在 tasks/gap-analyze.ts。
- *   这里把两条命令重新接回 main registry，让 CLI help、派发和 DONE hint
- *   不再引用一个用户实际跑不到的命令。
+ *   The current default koala CLI no longer exposes gap_analyze / convergence_check,
+ *   but the underlying analyzeGap / checkConvergence implementations remain in tasks/gap-analyze.ts.
+ *   This re-wires the two commands back into the main registry so that CLI help, dispatch, and DONE hints
+ *   no longer reference a command the user cannot actually run.
  * @changes
- *   - [CHK-001] 新增 main CLI 的 gap/convergence handler，直接复用 analyzeGap/checkConvergence
+ *   - [CHK-001] Add gap/convergence handlers to the main CLI, directly reusing analyzeGap/checkConvergence
  */
 
 import type { HandlerContext } from './context.js';

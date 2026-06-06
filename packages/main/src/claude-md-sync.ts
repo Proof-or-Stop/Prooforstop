@@ -20,9 +20,9 @@ export function generateProfileSection(profile: WorkflowProfile): string {
   lines.push(`## Workflow Profile: ${profile}\n`);
 
   if (policy.quickPath.enabled) {
-    lines.push(`**快速通道**：checklist ≤ ${policy.quickPath.maxChecklistItems} 项且无 riskSignals 时可跳过 PLAN。`);
+    lines.push(`**Express channel**: when checklist ≤ ${policy.quickPath.maxChecklistItems} items and no riskSignals, PLAN can be skipped.`);
   } else {
-    lines.push('**快速通道**：已禁用，所有 story 必须走完整 PLAN。');
+    lines.push('**Express channel**: disabled; all stories must go through full PLAN.');
   }
   lines.push('');
 
@@ -31,39 +31,39 @@ export function generateProfileSection(profile: WorkflowProfile): string {
   if (policy.plan.requireUnderstanding !== 'never') planParts.push(`understanding=${policy.plan.requireUnderstanding}`);
   if (policy.plan.requireDecision !== 'never') planParts.push(`decision=${policy.plan.requireDecision}`);
   if (policy.plan.requirePlanMd !== 'never') planParts.push(`plan.md=${policy.plan.requirePlanMd}`);
-  if (policy.plan.requireStoryReview) planParts.push('story_review=必须');
+  if (policy.plan.requireStoryReview) planParts.push('story_review=required');
   if (planParts.length > 0) {
-    lines.push(`**PLAN 阶段**：${planParts.join('，')}。`);
+    lines.push(`**PLAN phase**: ${planParts.join(', ')}.`);
   } else {
-    lines.push('**PLAN 阶段**：低风险 story 可省略 understanding / decision / plan.md / story_review。');
+    lines.push('**PLAN phase**: low-risk stories may omit understanding / decision / plan.md / story_review.');
   }
 
   // Subagent requirements
   if (policy.subagents.requireWorkerInNormalChannel) {
-    lines.push('**正常通道**：必须使用 koala-implementer subagent 写代码，主 agent 不写业务代码。');
+    lines.push('**Normal channel**: must use the koala-implementer subagent to write code; the main agent does not write business code.');
   } else {
-    lines.push('**正常通道**：subagent 推荐但不强制，主 agent 可以自己写代码。');
+    lines.push('**Normal channel**: subagent is recommended but not required; the main agent may write code itself.');
   }
 
   // Review requirements
   if (policy.review.requireReviewer) {
-    lines.push(`**REVIEW**：必须有 reviewer finding，blocking 级别：[${policy.review.blockingSeverities.join(', ')}]。`);
+    lines.push(`**REVIEW**: reviewer findings required; blocking severities: [${policy.review.blockingSeverities.join(', ')}].`);
   } else {
-    lines.push('**REVIEW**：reviewer 可选，主 agent 可自审。');
+    lines.push('**REVIEW**: reviewer optional; the main agent may self-review.');
   }
 
   // Test requirements (evaluator)
   if (policy.test.requireEvaluatorForBrowser) {
-    lines.push('**TEST**：browser 项目必须有 evaluator 打分（hard gate）。');
+    lines.push('**TEST**: browser projects must have evaluator scoring (hard gate).');
   } else {
-    lines.push('**TEST**：evaluator 为 advisory（不阻塞推进）。');
+    lines.push('**TEST**: evaluator is advisory (does not block progression).');
   }
 
   // Summary requirements
-  lines.push(`**DONE**：summary 要求 = ${policy.done.requireSummary}。`);
+  lines.push(`**DONE**: summary requirement = ${policy.done.requireSummary}.`);
 
   lines.push('');
-  lines.push('> 高风险 story（riskSignals 命中）会自动加严到 strict，不受项目默认 profile 影响。');
+  lines.push('> High-risk stories (riskSignals hit) are automatically escalated to strict, regardless of the project default profile.');
   lines.push('<!-- koala-profile:end -->');
 
   return lines.join('\n');

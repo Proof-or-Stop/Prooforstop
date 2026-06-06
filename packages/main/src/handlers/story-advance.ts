@@ -6,9 +6,9 @@ import type { StoryPhase } from '../core/types.js';
 // entrypoint and legacy exports.
 import { runStoryTransition, renderTransitionResult } from './transition-orchestrator.js';
 
-// B-9d95 CHK-003: re-export 供 DONE merge 前 stray 文件清理。主实现在独立
-// 文件（stray-file-cleanup.ts），logicTest 直接 import，避免把 xstate/machine
-// 等重依赖拖进测试进程。
+// B-9d95 CHK-003: re-export for stray file cleanup before DONE merge. The main implementation is in a standalone
+// file (stray-file-cleanup.ts), imported directly by logicTest, to avoid pulling heavy dependencies like xstate/machine
+// into the test process.
 export { cleanStrayWorktreeFiles, STRAY_FILE_WHITELIST } from './stray-file-cleanup.js';
 
 

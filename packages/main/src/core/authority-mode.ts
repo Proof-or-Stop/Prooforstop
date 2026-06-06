@@ -4,7 +4,7 @@ import { z } from 'zod';
  * Authority submission mode for verification evidence commands.
  *
  * - `off`    : byte-identical to post-B-2157 main; zero network. Default whenever
- *              KOALA_AUTHORITY_MODE is unset / empty / whitespace / not one of the
+ *              LATTICE_AUTHORITY_MODE is unset / empty / whitespace / not one of the
  *              three canonical values.
  * - `shadow` : best-effort observational POST; any authority result (success / HTTP
  *              error / timeout / connection-refused / thrown error) never mutates or
@@ -18,7 +18,7 @@ export type AuthorityMode = 'off' | 'shadow' | 'enforce';
 
 export const AUTHORITY_MODES: readonly AuthorityMode[] = ['off', 'shadow', 'enforce'] as const;
 
-/** Default authority timeout (ms) used when KOALA_AUTHORITY_TIMEOUT_MS is unset / invalid. */
+/** Default authority timeout (ms) used when LATTICE_AUTHORITY_TIMEOUT_MS is unset / invalid. */
 export const DEFAULT_AUTHORITY_TIMEOUT_MS = 10_000;
 
 export interface AuthoritySettings {
@@ -39,9 +39,18 @@ export interface AuthoritySettingsOverride {
   authorityTimeoutMS?: number;
 }
 
+export function readAuthorityEnv(
+  env: Record<string, string | undefined>,
+  name: 'MODE' | 'URL' | 'TIMEOUT_MS',
+): string | undefined {
+  const lattice = env[`LATTICE_AUTHORITY_${name}`];
+  if (typeof lattice === 'string') return lattice;
+  return env[`KOALA_AUTHORITY_${name}`];
+}
+
 /**
  * Zod schema kept as the first line of defense / API documentation. Per CLAUDE.md
- * "Handler 编码约定", the runtime re-validation in {@link normalizeAuthorityMode} is
+ * "Handler coding convention", the runtime re-validation in {@link normalizeAuthorityMode} is
  * the authoritative gate — callers must never trust Zod alone, because the same env
  * value is read from multiple paths (env load / CLI override / gate decision).
  */
@@ -97,9 +106,9 @@ export function loadAuthoritySettings(
   env: Record<string, string | undefined> = process.env,
   override: AuthoritySettingsOverride = {},
 ): AuthoritySettings {
-  const envMode = env.KOALA_AUTHORITY_MODE;
-  const envURL = env.KOALA_AUTHORITY_URL;
-  const envTimeout = env.KOALA_AUTHORITY_TIMEOUT_MS;
+  const envMode = readAuthorityEnv(env, 'MODE');
+  const envURL = readAuthorityEnv(env, 'URL');
+  const envTimeout = readAuthorityEnv(env, 'TIMEOUT_MS');
 
   const mode = normalizeAuthorityMode(
     override.authorityMode !== undefined ? override.authorityMode : envMode,

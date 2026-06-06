@@ -180,7 +180,7 @@ export function getArtifactContractStatus(
       name: 'init-check',
       required: phase !== 'INIT' && phase !== 'IDEA',
       present: hasInitCheck(store, storyId),
-      detail: 'init reviewer 签名产物（INIT→INIT_CHECK 硬门槛）',
+      detail: 'init reviewer signed artifact (INIT→INIT_CHECK hard gate)',
     },
 
     // understanding: required from PLAN onward
@@ -188,7 +188,7 @@ export function getArtifactContractStatus(
       name: 'understanding',
       required: inPhaseSet(phase, PLAN_AND_AFTER),
       present: hasUnderstanding(store, storyId),
-      detail: 'task / outcome / facts / constraints / unknowns / touchpoints 快照',
+      detail: 'task / outcome / facts / constraints / unknowns / touchpoints snapshot',
     },
 
     // decision: required for high-risk stories from PLAN onward
@@ -197,8 +197,8 @@ export function getArtifactContractStatus(
       required: inPhaseSet(phase, PLAN_AND_AFTER) && highRisk,
       present: hasDecision(store, storyId),
       detail: highRisk
-        ? '高风险 story 必须有 principles / drivers / options / rationale / preMortem'
-        : '非高风险 story 可选',
+        ? 'High-risk story must have principles / drivers / options / rationale / preMortem'
+        : 'Optional for non-high-risk story',
     },
 
     // scope-check: required from PLAN onward (normal channel)
@@ -206,7 +206,7 @@ export function getArtifactContractStatus(
       name: 'scope-check',
       required: inPhaseSet(phase, PLAN_AND_AFTER),
       present: hasScopeCheck(store, storyId),
-      detail: 'scope-plan reviewer 签名产物（PLAN→DEV 硬门槛）',
+      detail: 'scope-plan reviewer signed artifact (PLAN→DEV hard gate)',
     },
 
     // plan.md: required from DEV onward (normal channel, if projectRoot available)
@@ -215,8 +215,8 @@ export function getArtifactContractStatus(
       required: inPhaseSet(phase, DEV_AND_AFTER),
       present: storyDir ? hasPlanMd(storyDir) : false,
       detail: storyDir
-        ? '执行计划（每个 CHK-xxx 一个章节）'
-        : '执行计划（需 projectRoot 检测）',
+        ? 'Execution plan (one section per CHK-xxx)'
+        : 'Execution plan (requires projectRoot detection)',
     },
 
     // checklist-all-done: required from REVIEW onward
@@ -224,7 +224,7 @@ export function getArtifactContractStatus(
       name: 'checklist-all-done',
       required: phase === 'REVIEW' || inPhaseSet(phase, TEST_AND_AFTER),
       present: isChecklistAllDone(store, storyId),
-      detail: 'checklist 所有 item status=done',
+      detail: 'All checklist items status=done',
     },
 
     // findings-clear: required at TEST (all blocking findings resolved)
@@ -239,7 +239,7 @@ export function getArtifactContractStatus(
           return false;
         }
       })(),
-      detail: '所有 blocking finding 已 resolved/dismissed',
+      detail: 'All blocking findings resolved/dismissed',
     },
 
     // test-evidence PASS: required from TEST onward
@@ -247,7 +247,7 @@ export function getArtifactContractStatus(
       name: 'test-evidence',
       required: inPhaseSet(phase, TEST_AND_AFTER),
       present: hasTestEvidencePass(store, storyId),
-      detail: 'koala validate 最新结果为 PASS',
+      detail: 'Latest koala validate result is PASS',
     },
 
     // delivery-check: required at DONE
@@ -255,7 +255,7 @@ export function getArtifactContractStatus(
       name: 'delivery-check',
       required: phase === 'DONE' || phase === 'TEST',
       present: hasDeliveryCheck(store, storyId),
-      detail: 'delivery reviewer 签名产物（TEST→DONE 硬门槛）',
+      detail: 'delivery reviewer signed artifact (TEST→DONE hard gate)',
     },
 
     // eval-evidence: advisory at DONE (browser projects)
@@ -263,7 +263,7 @@ export function getArtifactContractStatus(
       name: 'eval-evidence',
       required: phase === 'DONE',
       present: hasEvalEvidence(store, storyId),
-      detail: 'evaluator 打分证据（browser 项目 DONE gate 消费）',
+      detail: 'evaluator scoring evidence (consumed by browser project DONE gate)',
     },
 
     // summary: required at DONE
@@ -271,7 +271,7 @@ export function getArtifactContractStatus(
       name: 'summary',
       required: phase === 'DONE',
       present: hasSummary(store, storyId),
-      detail: 'changes / usage / limitations / pitfalls 完成摘要',
+      detail: 'changes / usage / limitations / pitfalls completion summary',
     },
   ];
 

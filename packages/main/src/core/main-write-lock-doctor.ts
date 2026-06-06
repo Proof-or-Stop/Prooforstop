@@ -55,7 +55,7 @@ export interface MainWriteLockScan {
 export function scanMainWriteLock(root: string, staleMs?: number): MainWriteLockScan {
   // Runtime re-validation: a non-positive / non-finite threshold would make
   // every held lock classify as stuck (age > 0 always). Mirrors the
-  // "Handler 编码约定" rule — every consumer re-checks load-bearing invariants
+  // "Handler coding convention" rule — every consumer re-checks load-bearing invariants
   // instead of trusting the caller. Fall back to the canonical default.
   const threshold =
     typeof staleMs === 'number' && Number.isFinite(staleMs) && staleMs > 0

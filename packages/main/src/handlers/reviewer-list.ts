@@ -1,22 +1,22 @@
 /**
  * B-fdcf CHK-001: koala reviewer_list CLI
  *
- * 输出当前 story 的 opt-in reviewer 名单（按 5 档条件实时计算）：
- *   - concept  / quality / test-coverage → baseline（永远开）
- *   - behavior             → story.riskSignals 命中 {state machine / guard / gate}
- *   - docs                 → understanding.touchpoints 含 .md 文件（兜底扫 git diff）
- *   - channel LLM reviewer 已退役；normal-channel 由 validate --channel CLI gate 接管
+ * Output the opt-in reviewer roster for the current story (computed in real time based on 5 conditions):
+ *   - concept  / quality / test-coverage → baseline (always on)
+ *   - behavior             → story.riskSignals hits {state machine / guard / gate}
+ *   - docs                 → understanding.touchpoints contains .md files (fallback scans git diff)
+ *   - channel LLM reviewer is retired; normal-channel is taken over by the validate --channel CLI gate
  *
- * 设计说明（decision.json A1）：
- *   - 纯函数 computeActiveReviewers 供 canPassReview (CHK-002) / story_advance REVIEW 命令输出的 reviewer echo 共用
- *   - 多条 riskSignal 命中 behavior 触发集时，reason 扁平化为单字符串
- *     （"riskSignal: gate, guard" 而不是多条 entry）
- *   - forceReviewer 走逗号分隔字符串，限定为 review_run_start 支持的 lane；写 StoryEvent.action='reviewer_forced' 审计
- *   - 每次调用实时计算，不 cache（preMortem 1: 状态变化立刻生效）
+ * Design notes (decision.json A1):
+ *   - Pure function computeActiveReviewers shared by canPassReview (CHK-002) / reviewer echo output of the story_advance REVIEW command
+ *   - When multiple riskSignals hit the behavior trigger set, reason is flattened into a single string
+ *     ("riskSignal: gate, guard" rather than multiple entries)
+ *   - forceReviewer takes a comma-separated string, restricted to lanes supported by review_run_start; writes StoryEvent.action='reviewer_forced' for audit
+ *   - Computed in real time on every call, not cached (preMortem 1: state changes take effect immediately)
  *
- * 复用 workflow-policy.computeChannel（三档 express/fast/normal），不用
- * 老的 reviewer-opt-in.resolveChannel（两档 quick/normal，items>2 就 normal，
- * 与三档模型不一致，见 B-fdcf background 方案取舍 A 方案）。
+ * Reuses workflow-policy.computeChannel (three tiers express/fast/normal), not
+ * the old reviewer-opt-in.resolveChannel (two tiers quick/normal, normal once items>2,
+ * inconsistent with the three-tier model; see B-fdcf background option A).
  *
  * @task B-ef9c
  * @checklist CHK-001
@@ -39,21 +39,21 @@ import { detectMdTouchpointsFromGit } from '../core/touchpoints-fallback.js';
 import { REVIEW_RUN_LANES, isReviewRunLane } from '../core/review-run.js';
 
 export interface ActiveReviewer {
-  /** reviewer 短名：concept / quality / test-coverage / behavior / docs / channel */
+  /** reviewer short name: concept / quality / test-coverage / behavior / docs / channel */
   name: string;
-  /** 为什么启用：baseline / "riskSignal: <cats>" / "touchpoints .md" / forced */
+  /** why enabled: baseline / "riskSignal: <cats>" / "touchpoints .md" / forced */
   reason: string;
-  /** 是否通过 forceReviewer 强制加挂 */
+  /** whether forcibly attached via forceReviewer */
   forced?: boolean;
 }
 
-/** riskSignal.category 命中后触发 behavior reviewer 的关键词集合 */
+/** Keyword set that triggers the behavior reviewer when matched by riskSignal.category */
 const BEHAVIOR_TRIGGERS = ['state machine', 'guard', 'gate'];
 
 /**
- * 固定输出顺序（B-fdcf F-002）：baseline-first concept → quality → test-coverage → behavior → docs → channel。
- * CHK-001 userSees 声明的顺序与此一致，不可改为 alphabetical。forced 名称以及任何
- * 其他受支持 reviewer 名追加在末尾（按插入顺序）。
+ * Fixed output order (B-fdcf F-002): baseline-first concept → quality → test-coverage → behavior → docs → channel.
+ * The order declared in CHK-001 userSees matches this and must not be changed to alphabetical. Forced names and any
+ * Other supported reviewer names are appended at the end (in insertion order).
  */
 const REVIEWER_ORDER: readonly string[] = ['concept', 'quality', 'test-coverage', 'behavior', 'docs', 'channel'];
 
@@ -88,16 +88,16 @@ export function parseForceReviewers(forceReviewer?: string): string[] | undefine
 }
 
 /**
- * 纯函数：按 story + checklist + decision 计算应启用的 reviewer 列表。
+ * Pure function: computes the list of reviewers to enable based on story + checklist + decision.
  *
- * 返回顺序：按 name 字母序排序（稳定，便于断言 / 文本渲染）。
- * 同名 forced reviewer 会覆盖 auto-computed 的 entry，标 forced=true。
+ * Return order: sorted alphabetically by name (stable, convenient for assertions / text rendering).
+ * A forced reviewer with the same name overrides the auto-computed entry, marked forced=true.
  *
- * @param story       至少含 riskSignals；复用 StoryInfo 类型
- * @param checklist   至少含 items 数组（{ items: Array<unknown> } 即可）
- * @param decision    可选 decision.json 内容（影响 computeChannel 判定）
- * @param touchpoints 可选 touchpoints 列表（默认读 story 的 understanding.json）
- * @param forced      可选强制加挂的 reviewer name 列表（逗号分隔字符串已解析）
+ * @param story       must at least contain riskSignals; reuses the StoryInfo type
+ * @param checklist   must at least contain the items array ({ items: Array<unknown> } suffices)
+ * @param decision    optional decision.json content (affects computeChannel decision)
+ * @param touchpoints optional touchpoints list (defaults to reading story's understanding.json)
+ * @param forced      optional list of reviewer names to force-mount (comma-separated string already parsed)
  */
 export function computeActiveReviewers(
   story: Pick<StoryInfo, 'riskSignals'> & Partial<Pick<StoryInfo, 'riskSignalsDismissed'>>,
@@ -108,15 +108,15 @@ export function computeActiveReviewers(
 ): ActiveReviewer[] {
   const map = new Map<string, ActiveReviewer>();
 
-  // BASELINE: concept + quality + test-coverage 永远启用.
+  // BASELINE: concept + quality + test-coverage are always enabled.
   // test-coverage is the old TEST_CASE_REVIEW responsibility folded into REVIEW:
   // it checks verificationIntent -> verificationEvidence coverage instead of owning a lifecycle phase.
   map.set('concept', { name: 'concept', reason: 'baseline' });
   map.set('quality', { name: 'quality', reason: 'baseline' });
   map.set('test-coverage', { name: 'test-coverage', reason: 'baseline' });
 
-  // behavior: riskSignals ∩ {state machine, guard, gate} 非空
-  // 扁平化所有命中的 category（同时命中 gate+guard → "riskSignal: gate, guard"）
+  // behavior: riskSignals ∩ {state machine, guard, gate} is non-empty
+  // Flatten all matched categories (matching both gate+guard → "riskSignal: gate, guard")
   const dismissed = new Set((story.riskSignalsDismissed || []).map(d => d.category));
   const activeCategories = (story.riskSignals || [])
     .map(r => r.category)
@@ -129,16 +129,16 @@ export function computeActiveReviewers(
     });
   }
 
-  // docs: touchpoints 含 .md 文件
+  // docs: touchpoints contain .md files
   if (touchpoints && touchpoints.some(t => typeof t === 'string' && t.endsWith('.md'))) {
     map.set('docs', { name: 'docs', reason: 'touchpoints .md' });
   }
 
-  // channel LLM reviewer 已退役；normal-channel 机械约束由 REVIEW→TEST 的
-  // `koala validate --channel --story=<id>` preflight 负责。
+  // channel LLM reviewer has been retired; normal-channel mechanical constraints are handled by the
+  // `koala validate --channel --story=<id>` preflight in REVIEW→TEST.
 
-  // forced override：命令行 --forceReviewer=a,b,c 显式加挂（输入已限定为 review_run_start 支持的 lane）
-  // 同名 auto reviewer 会被 override 成 reason='forced' + forced=true
+  // forced override: command-line --forceReviewer=a,b,c explicitly mounts (input already constrained to lanes supported by review_run_start)
+  // Auto reviewers with the same name will be overridden to reason='forced' + forced=true
   if (forced && forced.length > 0) {
     for (const f of forced) {
       const name = String(f).trim();
@@ -147,7 +147,7 @@ export function computeActiveReviewers(
     }
   }
 
-  // F-002: 固定 baseline-first 顺序，而不是 alphabetical。非自动启用的受支持 forced 名追加末尾。
+  // F-002: fixed baseline-first order rather than alphabetical. Supported forced names that are not auto-enabled are appended at the end.
   const ordered: ActiveReviewer[] = [];
   const seen = new Set<string>();
   for (const name of REVIEWER_ORDER) {
@@ -163,7 +163,7 @@ export function computeActiveReviewers(
   return ordered;
 }
 
-/** 文本输出单行格式：`Active reviewers: concept, quality, behavior (riskSignal: gate)` */
+/** Text output single-line format: `Active reviewers: concept, quality, behavior (riskSignal: gate)` */
 export function renderActiveReviewersText(reviewers: ActiveReviewer[]): string {
   const parts = reviewers.map(r =>
     r.reason === 'baseline' ? r.name : `${r.name} (${r.reason})`,
@@ -171,14 +171,14 @@ export function renderActiveReviewersText(reviewers: ActiveReviewer[]): string {
   return `Active reviewers: ${parts.join(', ')}`;
 }
 
-/** handler factory — 与其他 handler 保持一致的结构 */
+/** handler factory — keeps a structure consistent with other handlers */
 export function createReviewerListHandlers(ctx: HandlerContext) {
   const { store } = ctx;
   return {
     reviewer_list(args: { storyId: string; json?: boolean; forceReviewer?: string }): string {
       const story = store.readStory(args.storyId);
 
-      // checklist — 缺失则视为 items 空（computeChannel 按 express 处理）
+      // checklist — treat as empty items when missing (computeChannel handles as express)
       let checklist: { items: unknown[] } = { items: [] };
       try {
         checklist = store.readChecklist(args.storyId);
@@ -186,9 +186,9 @@ export function createReviewerListHandlers(ctx: HandlerContext) {
         /* no checklist yet — items.length = 0 → express */
       }
 
-      // F-005: 防御性兜底——store.readDecision 当前版本 file-not-exists 返回 null，
-      // 但若未来校验加严 / JSON 损坏抛错，也不要把异常冒泡给 CLI。
-      // computeChannel 对 undefined decision 有 fall-through 路径。
+      // F-005: defensive fallback — store.readDecision currently returns null on file-not-exists,
+      // but if validation tightens / JSON corruption throws in the future, don't bubble the exception to CLI.
+      // computeChannel has a fall-through path for undefined decision.
       let decision = null;
       try {
         decision = store.readDecision(args.storyId);
@@ -196,12 +196,12 @@ export function createReviewerListHandlers(ctx: HandlerContext) {
         decision = null;
       }
 
-      // touchpoints: understanding.touchpoints 优先；否则回扫 git diff 的 .md 改动
+      // touchpoints: understanding.touchpoints takes priority; otherwise fall back to scanning .md changes in git diff
       const understanding = store.readUnderstanding(args.storyId);
       const touchpoints = understanding?.touchpoints
         ?? detectMdTouchpointsFromGit(ctx.root);
 
-      // forceReviewer 解析：逗号分隔 → 去空 → 规范化到 reviewer 短名；拒绝 review_run_start 不支持的 lane。
+      // forceReviewer parsing: comma-separated → strip empties → normalize to reviewer short names; reject lanes not supported by review_run_start.
       const forced = parseForceReviewers(args.forceReviewer);
 
       const reviewers = computeActiveReviewers(
@@ -212,12 +212,12 @@ export function createReviewerListHandlers(ctx: HandlerContext) {
         forced,
       );
 
-      // 审计：每次 forceReviewer 调用写一条 reviewer_forced 事件，names[] 表达本次加挂的全集
+      // Audit: each forceReviewer call writes one reviewer_forced event, names[] expresses the full set added this time
       if (forced && forced.length > 0) {
         if (!story.events) story.events = [];
         const timestamp = new Date().toISOString();
         const agent = process.env.KOALA_AGENT || 'main';
-        // 每个 forced name 一条事件（兼容 StoryEvent.reviewer 单值字段 + 方便按 reviewer 查询）
+        // One event per forced name (compatible with StoryEvent.reviewer single-value field + convenient for querying by reviewer)
         for (const name of forced) {
           const event: StoryEvent = {
             phase: story.phase,

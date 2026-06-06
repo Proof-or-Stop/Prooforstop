@@ -17,8 +17,8 @@
 //   3. Success responses parse against the AuthorityReceipt union OR JobSpec.
 //   4. HTTP error / malformed body / connection-refused outcomes map to
 //      `http_error` / `error` / `connection_refused` respectively (Handler
-//      编码约定: malformed 2xx body is `error`, never silently `success`).
-//   5. Off mode (KOALA_AUTHORITY_MODE=off) and missing KOALA_AUTHORITY_URL
+//      Coding convention: malformed 2xx body is `error`, never silently `success`).
+//   5. Off mode (LATTICE_AUTHORITY_MODE=off) and missing LATTICE_AUTHORITY_URL
 //      cause `createRunnerAuthorityClient` to refuse instantiation and
 //      perform ZERO network calls.
 //   6. Policy discovery still NEVER POSTs evidence or runner mutations
@@ -277,7 +277,7 @@ function header() {
   assert.equal(out.status, 503);
 }
 {
-  // Malformed JSON in 2xx body → kind:'error' (Handler 编码约定: malformed body
+  // Malformed JSON in 2xx body → kind:'error' (Handler coding convention: malformed body
   // is NOT silently success). Job claim takes JobSpec | null union, so a
   // string body like "not-json-but-junk" rejects.
   const { fetch } = recordingFetch(() => jsonResponse(200, 'not-json-but-junk'));
@@ -338,7 +338,7 @@ function header() {
   );
   assert.equal(gate.enabled, false, 'missing URL refuses');
   assert.equal(gate.client, undefined);
-  assert.match(gate.refusedReason ?? '', /KOALA_AUTHORITY_URL/);
+  assert.match(gate.refusedReason ?? '', /LATTICE_AUTHORITY_URL/);
   assert.equal(invoked, 0, 'missing URL gate performs zero network calls');
 }
 {
@@ -366,8 +366,8 @@ function header() {
 
   // shadow env + URL → enabled
   const gateShadow = loadRunnerAuthorityClient({
-    KOALA_AUTHORITY_MODE: 'shadow',
-    KOALA_AUTHORITY_URL: BASE_URL,
+    LATTICE_AUTHORITY_MODE: 'shadow',
+    LATTICE_AUTHORITY_URL: BASE_URL,
   });
   assert.equal(gateShadow.enabled, true);
   assert.equal(gateShadow.settings.mode, 'shadow');
@@ -375,14 +375,14 @@ function header() {
 
   // illegal mode env → off via normalizer → refuse
   const gateIllegal = loadRunnerAuthorityClient({
-    KOALA_AUTHORITY_MODE: 'bogus',
-    KOALA_AUTHORITY_URL: BASE_URL,
+    LATTICE_AUTHORITY_MODE: 'bogus',
+    LATTICE_AUTHORITY_URL: BASE_URL,
   });
   assert.equal(gateIllegal.enabled, false, 'illegal mode normalizes to off → refuse');
 
   // override beats env
   const gateOverride = loadRunnerAuthorityClient(
-    { KOALA_AUTHORITY_MODE: 'off', KOALA_AUTHORITY_URL: '' },
+    { LATTICE_AUTHORITY_MODE: 'off', LATTICE_AUTHORITY_URL: '' },
     { authorityMode: 'enforce', authorityURL: BASE_URL },
   );
   assert.equal(gateOverride.enabled, true);

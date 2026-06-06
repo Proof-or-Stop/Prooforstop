@@ -75,7 +75,7 @@ export function createDraftCheckHandlers(ctx: HandlerContext): Record<string, (.
       // 7) Auto-assign issue ids if missing
       const issues: InitCheckIssue[] = (Array.isArray(args.issues) ? args.issues : []).map((issue, i) => {
         if (!issue || typeof issue.desc !== 'string' || issue.desc.trim().length < 1) {
-          throw new Error('draft_check_set: 每个 issue.desc 必须 trim 后 ≥ 1 字符');
+          throw new Error('draft_check_set: each issue.desc must be ≥ 1 character after trim');
         }
         return {
           id: issue.id || `INIT-${String(i + 1).padStart(3, '0')}`,
@@ -115,7 +115,7 @@ export function createDraftCheckHandlers(ctx: HandlerContext): Record<string, (.
     }): string {
       // Validate resolution length
       if (!args.resolution || args.resolution.trim().length < 20) {
-        throw new Error('resolution 必须 trim 后 ≥ 20 字符');
+        throw new Error('resolution must be ≥ 20 characters after trim');
       }
 
       const draftsDir = getDraftsDir(ctx);

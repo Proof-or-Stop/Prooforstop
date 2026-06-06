@@ -16,7 +16,7 @@
  *       readinessWarnings=[] (off is intentional opt-out, not a misconfig).
  *
  *   Edge / shadow + missing prerequisites:
- *     - shadow without KOALA_AUTHORITY_URL surfaces actionable readinessWarnings
+ *     - shadow without LATTICE_AUTHORITY_URL surfaces actionable readinessWarnings
  *       and nextActions, but keeps localWorkflowUsable=true and productionDone=false.
  *
  *   Edge / enforce + missing prerequisites:
@@ -37,7 +37,7 @@
  *   Boundary preserved by this story:
  *     - No actor key generation, no job claim, no provider execution, no signed
  *       envelope, no receipt verification, no L2+ promotion are introduced.
- *     - Env vars (KOALA_AUTHORITY_ACTOR_KEY / KOALA_AUTHORITY_RUNNER_ID etc.)
+ *     - Env vars (LATTICE_AUTHORITY_ACTOR_KEY / LATTICE_AUTHORITY_RUNNER_ID etc.)
  *       are presence-only diagnostics; the CLI never *uses* them to do anything.
  * @changes
  *   Add focused smoke coverage for B-b710 enforce readiness diagnostics
@@ -118,13 +118,13 @@ function assertNoProductionOverclaim(value: unknown, label: string): void {
 
 // Helper: only inject mode + prerequisite envs; never inherit ambient ones.
 const EMPTY_AUTHORITY_ENV: EnvOverride = {
-  KOALA_AUTHORITY_MODE: '',
-  KOALA_AUTHORITY_URL: '',
-  KOALA_AUTHORITY_TIMEOUT_MS: '',
-  KOALA_AUTHORITY_ACTOR_KEY: '',
-  KOALA_AUTHORITY_ACTOR_KEY_PATH: '',
-  KOALA_AUTHORITY_RUNNER_ID: '',
-  KOALA_AUTHORITY_SESSION_ID: '',
+  LATTICE_AUTHORITY_MODE: '',
+  LATTICE_AUTHORITY_URL: '',
+  LATTICE_AUTHORITY_TIMEOUT_MS: '',
+  LATTICE_AUTHORITY_ACTOR_KEY: '',
+  LATTICE_AUTHORITY_ACTOR_KEY_PATH: '',
+  LATTICE_AUTHORITY_RUNNER_ID: '',
+  LATTICE_AUTHORITY_SESSION_ID: '',
 };
 
 // ── Pure-function unit checks (in-process, no env crosstalk) ────────────────
@@ -149,17 +149,17 @@ const EMPTY_AUTHORITY_ENV: EnvOverride = {
 
 // Shadow + missing URL: warning fired, productionDone still false.
 {
-  const env: EnvOverride = { ...EMPTY_AUTHORITY_ENV, KOALA_AUTHORITY_MODE: 'shadow' };
+  const env: EnvOverride = { ...EMPTY_AUTHORITY_ENV, LATTICE_AUTHORITY_MODE: 'shadow' };
   const result = buildAuthorityStatus({}, env as Record<string, string | undefined>);
   assert.equal(result.mode, 'shadow', 'shadow mode reported');
   assert.equal(result.localWorkflowUsable, true, 'shadow-missing-url localWorkflowUsable true');
   assert.ok(
-    result.readinessWarnings.some(w => /shadow.*KOALA_AUTHORITY_URL/.test(w)),
+    result.readinessWarnings.some(w => /shadow.*LATTICE_AUTHORITY_URL/.test(w)),
     'shadow + missing URL emits actionable readiness warning',
   );
   assert.ok(
-    result.nextActions.some(a => /KOALA_AUTHORITY_URL/.test(a)),
-    'shadow + missing URL suggests setting KOALA_AUTHORITY_URL',
+    result.nextActions.some(a => /LATTICE_AUTHORITY_URL/.test(a)),
+    'shadow + missing URL suggests setting LATTICE_AUTHORITY_URL',
   );
   assert.equal(result.productionDone, false, 'shadow productionDone still false');
   assert.equal(result.canClaimProductionDone, false, 'shadow canClaimProductionDone still false');
@@ -168,20 +168,20 @@ const EMPTY_AUTHORITY_ENV: EnvOverride = {
 
 // Enforce + missing URL + missing actor key + missing runner: three warnings.
 {
-  const env: EnvOverride = { ...EMPTY_AUTHORITY_ENV, KOALA_AUTHORITY_MODE: 'enforce' };
+  const env: EnvOverride = { ...EMPTY_AUTHORITY_ENV, LATTICE_AUTHORITY_MODE: 'enforce' };
   const result = buildAuthorityStatus({}, env as Record<string, string | undefined>);
   assert.equal(result.mode, 'enforce', 'enforce mode reported');
   assert.equal(result.localWorkflowUsable, true, 'enforce-missing-prereqs localWorkflowUsable true');
   assert.ok(
-    result.readinessWarnings.some(w => /enforce.*KOALA_AUTHORITY_URL/.test(w)),
+    result.readinessWarnings.some(w => /enforce.*LATTICE_AUTHORITY_URL/.test(w)),
     'enforce + missing URL emits URL readiness warning',
   );
   assert.ok(
-    result.readinessWarnings.some(w => /KOALA_AUTHORITY_ACTOR_KEY/.test(w)),
+    result.readinessWarnings.some(w => /LATTICE_AUTHORITY_ACTOR_KEY/.test(w)),
     'enforce + missing actor key emits actor key warning',
   );
   assert.ok(
-    result.readinessWarnings.some(w => /runner/i.test(w) && /KOALA_AUTHORITY_RUNNER_ID/.test(w)),
+    result.readinessWarnings.some(w => /runner/i.test(w) && /LATTICE_AUTHORITY_RUNNER_ID/.test(w)),
     'enforce + missing runner id emits runner readiness warning',
   );
   assert.equal(result.productionDone, false, 'enforce productionDone still false');
@@ -194,11 +194,11 @@ const EMPTY_AUTHORITY_ENV: EnvOverride = {
 {
   const env: EnvOverride = {
     ...EMPTY_AUTHORITY_ENV,
-    KOALA_AUTHORITY_MODE: 'enforce',
-    KOALA_AUTHORITY_URL: 'https://authority.example',
-    KOALA_AUTHORITY_ACTOR_KEY: 'fake-key-blob',
-    KOALA_AUTHORITY_RUNNER_ID: 'runner-1',
-    KOALA_AUTHORITY_SESSION_ID: 'session-1',
+    LATTICE_AUTHORITY_MODE: 'enforce',
+    LATTICE_AUTHORITY_URL: 'https://authority.example',
+    LATTICE_AUTHORITY_ACTOR_KEY: 'fake-key-blob',
+    LATTICE_AUTHORITY_RUNNER_ID: 'runner-1',
+    LATTICE_AUTHORITY_SESSION_ID: 'session-1',
   };
   const result = buildAuthorityStatus({}, env as Record<string, string | undefined>);
   assert.equal(result.mode, 'enforce', 'enforce reported even when env complete');
@@ -224,7 +224,7 @@ const EMPTY_AUTHORITY_ENV: EnvOverride = {
 
 // conduit_status mirrors readiness without promoting authority.
 {
-  const env: EnvOverride = { ...EMPTY_AUTHORITY_ENV, KOALA_AUTHORITY_MODE: 'shadow' };
+  const env: EnvOverride = { ...EMPTY_AUTHORITY_ENV, LATTICE_AUTHORITY_MODE: 'shadow' };
   const result = buildConduitStatus(env as Record<string, string | undefined>);
   assert.equal(result.mode, 'shadow', 'conduit mode mirrors authority status');
   assert.equal(result.localWorkflowUsable, true, 'conduit localWorkflowUsable true');
@@ -273,7 +273,7 @@ const EMPTY_AUTHORITY_ENV: EnvOverride = {
 {
   const json = runJson<any>(['authority_status', '--json'], {
     ...EMPTY_AUTHORITY_ENV,
-    KOALA_AUTHORITY_MODE: 'shadow',
+    LATTICE_AUTHORITY_MODE: 'shadow',
   });
   assert.equal(json.mode, 'shadow', 'shadow CLI JSON mode shadow');
   assert.equal(json.localWorkflowUsable, true, 'shadow CLI JSON localWorkflowUsable true');
@@ -289,7 +289,7 @@ const EMPTY_AUTHORITY_ENV: EnvOverride = {
 {
   const json = runJson<any>(['authority_status', '--json'], {
     ...EMPTY_AUTHORITY_ENV,
-    KOALA_AUTHORITY_MODE: 'enforce',
+    LATTICE_AUTHORITY_MODE: 'enforce',
   });
   assert.equal(json.mode, 'enforce', 'enforce CLI JSON mode enforce');
   assert.ok(
@@ -297,7 +297,7 @@ const EMPTY_AUTHORITY_ENV: EnvOverride = {
     `enforce CLI JSON readinessWarnings includes URL/actor/runner; got ${json.readinessWarnings.length}`,
   );
   assert.ok(
-    json.nextActions.some((a: string) => /KOALA_AUTHORITY_URL/.test(a)),
+    json.nextActions.some((a: string) => /LATTICE_AUTHORITY_URL/.test(a)),
     'enforce CLI JSON suggests URL next action',
   );
   assert.equal(json.productionDone, false, 'enforce CLI JSON productionDone still false');
@@ -309,10 +309,10 @@ const EMPTY_AUTHORITY_ENV: EnvOverride = {
 {
   const json = runJson<any>(['authority_status', '--json'], {
     ...EMPTY_AUTHORITY_ENV,
-    KOALA_AUTHORITY_MODE: 'enforce',
-    KOALA_AUTHORITY_URL: 'https://authority.example',
-    KOALA_AUTHORITY_ACTOR_KEY_PATH: '/tmp/fake-key.pem',
-    KOALA_AUTHORITY_RUNNER_ID: 'runner-x',
+    LATTICE_AUTHORITY_MODE: 'enforce',
+    LATTICE_AUTHORITY_URL: 'https://authority.example',
+    LATTICE_AUTHORITY_ACTOR_KEY_PATH: '/tmp/fake-key.pem',
+    LATTICE_AUTHORITY_RUNNER_ID: 'runner-x',
   });
   assert.equal(json.authorityUrlConfigured, true);
   assert.equal(json.actorKeyConfigured, true);
@@ -332,7 +332,7 @@ const EMPTY_AUTHORITY_ENV: EnvOverride = {
 {
   const json = runJson<any>(['conduit_status', '--json'], {
     ...EMPTY_AUTHORITY_ENV,
-    KOALA_AUTHORITY_MODE: 'enforce',
+    LATTICE_AUTHORITY_MODE: 'enforce',
   });
   assert.equal(json.mode, 'enforce', 'conduit CLI JSON mode enforce');
   assert.equal(json.localWorkflowUsable, true, 'conduit CLI JSON localWorkflowUsable true');
@@ -356,7 +356,7 @@ const EMPTY_AUTHORITY_ENV: EnvOverride = {
     'conduit explain documents off mode as default local-only workflow',
   );
   assert.ok(
-    json.explanation.some((line: string) => /enforce.*Python authority server.*actor key.*runner/i.test(line)),
+    json.explanation.some((line: string) => /enforce.*Lattice Authority server.*actor key.*runner/i.test(line)),
     'conduit explain documents enforce mode prerequisites',
   );
   assertNoProductionOverclaim(json, 'CLI conduit_explain --json');

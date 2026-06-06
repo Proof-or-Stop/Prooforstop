@@ -1,20 +1,20 @@
 /**
- * audit-config — 解析 framework audit 的运行配置（B-9bd9 CHK-004）。
+ * audit-config — resolve runtime configuration for framework audit (B-9bd9 CHK-004).
  *
- * 纯函数模块：`resolveAuditConfig(profile, projectRoot)`.
+ * Pure function module: `resolveAuditConfig(profile, projectRoot)`.
  *
- * 优先级（高 → 低）：
- *   1. `<projectRoot>/.koala/audit-config.json` 中的字段（逐字段覆盖）
- *   2. profile 默认：auditTriggerWindow 维度按 light=10 / balanced=5 / strict=3 分档
- *      （requireClaudeMdDiff 和 mode 无 profile 差别，用硬编码默认）
- *   3. 硬编码兜底：auditTriggerWindow=5, requireClaudeMdDiff=true, mode="semi-auto"
+ * Priority (high → low):
+ *   1. Fields in `<projectRoot>/.koala/audit-config.json` (per-field override)
+ *   2. Profile defaults: auditTriggerWindow tiered as light=10 / balanced=5 / strict=3
+ *      (requireClaudeMdDiff and mode have no profile differences, use hardcoded defaults)
+ *   3. Hardcoded fallback: auditTriggerWindow=5, requireClaudeMdDiff=true, mode="semi-auto"
  *
- * 失败策略：
- *   - 配置文件不存在 → 静默使用 profile 默认
- *   - JSON 解析失败 → 一次性 console.warn + fallback 到 profile 默认
- *   - mode 字段非法值 → console.warn + fallback "semi-auto"
+ * Failure policy:
+ *   - Config file missing → silently use profile defaults
+ *   - JSON parse failure → one-time console.warn + fallback to profile defaults
+ *   - Invalid mode field value → console.warn + fallback to "semi-auto"
  *
- * 该模块**不**注册专用 CLI 命令（YAGNI，手改 JSON 足够）。
+ * This module does **not** register a dedicated CLI command (YAGNI, hand-editing JSON suffices).
  */
 
 import { existsSync, readFileSync } from 'node:fs';
@@ -29,14 +29,14 @@ export interface AuditConfig {
   mode: AuditMode;
 }
 
-/** 硬编码兜底（所有字段都缺时的最后一道防线）。 */
+/** Hardcoded fallback (last line of defense when all fields are missing). */
 const HARD_DEFAULTS: AuditConfig = {
   auditTriggerWindow: 5,
   requireClaudeMdDiff: true,
   mode: 'semi-auto',
 };
 
-/** profile → auditTriggerWindow 默认映射。其他字段所有 profile 共用硬编码兜底。 */
+/** profile → auditTriggerWindow default mapping. All other fields share hardcoded fallback across profiles. */
 const PROFILE_TRIGGER_WINDOW: Record<WorkflowProfile, number> = {
   light: 10,
   balanced: 5,
@@ -46,20 +46,20 @@ const PROFILE_TRIGGER_WINDOW: Record<WorkflowProfile, number> = {
 const VALID_MODES: ReadonlySet<AuditMode> = new Set<AuditMode>(['semi-auto', 'full-auto', 'off']);
 
 /**
- * 计算 audit 配置。
+ * Compute audit configuration.
  *
- * @param profile      当前 workflow profile（已由上层 resolveProfile 解析完毕）
- * @param projectRoot  项目根路径（.koala/audit-config.json 读取基准）
+ * @param profile      current workflow profile (already resolved by upstream resolveProfile)
+ * @param projectRoot  project root path (base for reading .koala/audit-config.json)
  */
 export function resolveAuditConfig(profile: WorkflowProfile, projectRoot: string): AuditConfig {
-  // 1. 先算 profile 默认（只在 triggerWindow 维度分档）
+  // 1. First compute profile defaults (only triggerWindow is tiered)
   const profileDefaults: AuditConfig = {
     auditTriggerWindow: PROFILE_TRIGGER_WINDOW[profile] ?? HARD_DEFAULTS.auditTriggerWindow,
     requireClaudeMdDiff: HARD_DEFAULTS.requireClaudeMdDiff,
     mode: HARD_DEFAULTS.mode,
   };
 
-  // 2. 尝试读项目级配置（逐字段覆盖）
+  // 2. Try reading project-level config (per-field override)
   const userOverrides = readUserConfig(projectRoot);
   if (!userOverrides) return profileDefaults;
 
@@ -67,12 +67,12 @@ export function resolveAuditConfig(profile: WorkflowProfile, projectRoot: string
 
   if (typeof userOverrides.auditTriggerWindow === 'number' && Number.isFinite(userOverrides.auditTriggerWindow)) {
     const w = userOverrides.auditTriggerWindow;
-    // 非整数 / <= 0 都非法（0 会让 bumped.doneSinceLastAudit < 0 永远 false，窗口形同虚设）
+    // Non-integer / <= 0 are invalid (0 makes bumped.doneSinceLastAudit < 0 always false, rendering the window meaningless)
     if (!Number.isInteger(w) || w <= 0) {
       console.warn(
         `[audit-config] auditTriggerWindow must be a positive integer (>=1), got ${w}, falling back to profile default (${profileDefaults.auditTriggerWindow}).`,
       );
-      // 保持 profileDefaults.auditTriggerWindow
+      // Keep profileDefaults.auditTriggerWindow
     } else {
       merged.auditTriggerWindow = w;
     }
@@ -95,9 +95,9 @@ export function resolveAuditConfig(profile: WorkflowProfile, projectRoot: string
 }
 
 /**
- * 读取 `.koala/audit-config.json`。
- *   - 文件不存在 → 返回 null（静默）
- *   - JSON 解析失败 → warn 一次 + 返回 null
+ * Read `.koala/audit-config.json`.
+ *   - File does not exist → return null (silent)
+ *   - JSON parse failure → warn once + return null
  */
 function readUserConfig(projectRoot: string): Partial<AuditConfig> | null {
   const path = join(projectRoot, '.koala', 'audit-config.json');

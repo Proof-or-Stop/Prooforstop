@@ -19,7 +19,7 @@ import type { Finding, StoryInfo, StoryPhase } from '../core/types.js';
 import { existsSync, readFileSync } from 'fs';
 import { execFileSync } from 'child_process';
 
-/** 差距项 */
+/** Gap item */
 export interface GapItem {
   type: 'no_code' | 'no_test' | 'no_flow' | 'broken_flow' | 'uncovered_requirement';
   description: string;
@@ -27,7 +27,7 @@ export interface GapItem {
   severity: 'high' | 'medium' | 'low';
 }
 
-/** 差距分析结果 */
+/** Gap analysis result */
 export interface GapResult {
   _dashboard?: string;
   _hint?: string;
@@ -39,7 +39,7 @@ export interface GapResult {
   healthy: boolean;
 }
 
-/** 收敛检查结果 */
+/** Convergence check result */
 export interface ConvergenceResult {
   converged: boolean;
   checks: Array<{
@@ -185,7 +185,7 @@ export function analyzeGap(projectRoot: string, store?: StoryStore): GapResult {
     if (!hasMatch) {
       gaps.push({
         type: 'uncovered_requirement',
-        description: `需求未在代码中找到对应实现: ${req.summary}`,
+        description: `Requirement has no corresponding implementation in code: ${req.summary}`,
         source: { file: req.file, line: req.line },
         severity: 'high',
       });
@@ -197,7 +197,7 @@ export function analyzeGap(projectRoot: string, store?: StoryStore): GapResult {
     if (t.functionName && !t.test) {
       gaps.push({
         type: 'no_test',
-        description: `函数 ${t.functionName} 缺少 @test 注释 (${t.sourceFile}:${t.sourceLine})`,
+        description: `Function ${t.functionName} is missing @test annotation (${t.sourceFile}:${t.sourceLine})`,
         severity: t.flow ? 'high' : 'medium',
       });
     }
@@ -208,7 +208,7 @@ export function analyzeGap(projectRoot: string, store?: StoryStore): GapResult {
     if (issue.level === 'error') {
       gaps.push({
         type: 'broken_flow',
-        description: `Flow 校验错误: ${issue.msg}`,
+        description: `Flow validation error: ${issue.msg}`,
         severity: 'high',
       });
     }
@@ -229,8 +229,8 @@ export function analyzeGap(projectRoot: string, store?: StoryStore): GapResult {
 
   const highGaps = gaps.filter(g => g.severity === 'high').length;
   const mediumGaps = gaps.filter(g => g.severity === 'medium').length;
-  // 函数级测试覆盖率：分子分母都基于"有 functionName 的 task"，避免 file-level @task
-  // 让分子大于分母导致百分比 > 100（会让 ░.repeat(负数) 崩溃）
+  // Function-level test coverage: both numerator and denominator are based on "tasks with functionName", avoiding file-level @task
+  // making numerator larger than denominator and causing percentage > 100 (which would make ░.repeat(negative) crash)
   const fnTasks = tasks.filter(t => t.functionName);
   const testPct = fnTasks.length > 0
     ? Math.round(fnTasks.filter(t => t.test).length / fnTasks.length * 100)
@@ -244,11 +244,11 @@ export function analyzeGap(projectRoot: string, store?: StoryStore): GapResult {
 
   return {
     _dashboard: [
-      `需求覆盖率 ${covBar} ${coveragePercent}%`,
-      `测试覆盖率 ${testBar} ${testPct}%`,
-      `差距: ${highGaps} high / ${mediumGaps} medium`,
+      `Requirement coverage ${covBar} ${coveragePercent}%`,
+      `Test coverage ${testBar} ${testPct}%`,
+      `Gaps: ${highGaps} high / ${mediumGaps} medium`,
     ].join('\n'),
-    _hint: '请将仪表盘展示在最前面',
+    _hint: 'Please display the dashboard at the very top',
     truthEntries: truth.entries.length,
     codeAnnotations: tasks.length,
     flows: chains.length,
@@ -289,30 +289,30 @@ export function checkConvergence(projectRoot: string, store: StoryStore): Conver
   // 1. No high-severity gaps
   const highGaps = gap.gaps.filter(g => g.severity === 'high');
   checks.push({
-    name: '无高优先级差距',
+    name: 'No high-priority gaps',
     passed: highGaps.length === 0,
-    detail: highGaps.length === 0 ? '所有需求已覆盖' : `${highGaps.length} 个高优先级差距待解决`,
+    detail: highGaps.length === 0 ? 'All requirements are covered' : `${highGaps.length} high-priority gaps to resolve`,
   });
 
   // 2. All flows valid
   checks.push({
-    name: 'Flow 链路完整',
+    name: 'Flow chain complete',
     passed: flowValidation.passed,
-    detail: flowValidation.passed ? `${chains.length} 条链路全部通过` : `${flowValidation.issues.filter(i => i.level === 'error').length} 个 flow 错误`,
+    detail: flowValidation.passed ? `All ${chains.length} chains passed` : `${flowValidation.issues.filter(i => i.level === 'error').length} flow errors`,
   });
 
   // 3. Code annotations valid
   checks.push({
-    name: '代码注释合规',
+    name: 'Code annotations compliant',
     passed: codeValidation.passed,
-    detail: codeValidation.passed ? `${codeValidation.tasksFound} 个注释全部合规` : `${codeValidation.errors.length} 个注释错误`,
+    detail: codeValidation.passed ? `All ${codeValidation.tasksFound} annotations compliant` : `${codeValidation.errors.length} annotation errors`,
   });
 
   // 4. All stories DONE
   checks.push({
-    name: '所有 Story 完成',
+    name: 'All Stories completed',
     passed: activeStories.length === 0,
-    detail: activeStories.length === 0 ? '无未完成业务 Story' : `${activeStories.length} 个 Story 未完成: ${activeStories.join(', ')}`,
+    detail: activeStories.length === 0 ? 'No unfinished business Stories' : `${activeStories.length} Stories unfinished: ${activeStories.join(', ')}`,
   });
 
   // 5. Parked backlog advisory
@@ -320,8 +320,8 @@ export function checkConvergence(projectRoot: string, store: StoryStore): Conver
     name: 'Parked backlog',
     passed: true,
     detail: parkedBacklogStories.length === 0
-      ? '无 parked backlog'
-      : `${parkedBacklogStories.length} 个 parked backlog advisory: ${parkedBacklogStories.join(', ')}`,
+      ? 'No parked backlog'
+      : `${parkedBacklogStories.length} parked backlog advisory: ${parkedBacklogStories.join(', ')}`,
   });
 
   // 6. Audit backlog
@@ -329,7 +329,7 @@ export function checkConvergence(projectRoot: string, store: StoryStore): Conver
     name: 'Audit backlog',
     passed: blockingAuditFindings.length === 0,
     detail: auditFindings.length === 0
-      ? '无 open audit findings'
+      ? 'No open audit findings'
       : [
         `${blockingAuditFindings.length} blocking`,
         blockingAuditFindings.length > 0 ? blockingAuditFindings.map(formatAuditFinding).join(', ') : null,
@@ -340,7 +340,7 @@ export function checkConvergence(projectRoot: string, store: StoryStore): Conver
 
   // 7. Requirements coverage
   checks.push({
-    name: '需求覆盖率',
+    name: 'Requirements coverage',
     passed: gap.coveragePercent === 100,
     detail: `${gap.coveragePercent}%`,
   });

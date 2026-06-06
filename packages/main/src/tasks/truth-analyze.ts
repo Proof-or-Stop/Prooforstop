@@ -2,7 +2,7 @@
 import type { TruthEntry, TruthScanResult } from './truth.js';
 import { scanTruth } from './truth.js';
 
-/** 分析发现的问题 */
+/** Issues found during analysis */
 export interface AnalysisIssue {
   type: 'contradiction' | 'ambiguity' | 'missing' | 'question';
   description: string;
@@ -10,7 +10,7 @@ export interface AnalysisIssue {
   severity: 'high' | 'medium' | 'low';
 }
 
-/** 分析结果 */
+/** Analysis result */
 export interface AnalysisResult {
   totalEntries: number;
   requirements: number;
@@ -21,7 +21,7 @@ export interface AnalysisResult {
   healthy: boolean;
 }
 
-/** 自动拆解的 Story 建议 */
+/** Auto-decomposed Story suggestions */
 export interface StorySuggestion {
   title: string;
   description: string;
@@ -44,7 +44,7 @@ export function analyzeTruth(projectRoot: string): AnalysisResult {
   for (const q of questions) {
     issues.push({
       type: 'question',
-      description: `未解决的问题: ${q.summary}`,
+      description: `Unresolved question: ${q.summary}`,
       sources: [{ file: q.file, line: q.line }],
       severity: 'medium',
     });
@@ -55,7 +55,7 @@ export function analyzeTruth(projectRoot: string): AnalysisResult {
   if (requirements.length > 0 && decisions.length === 0) {
     issues.push({
       type: 'missing',
-      description: `有 ${requirements.length} 条需求但没有任何技术决策记录`,
+      description: `Has ${requirements.length} requirements but no technical decision records`,
       sources: requirements.slice(0, 3).map(r => ({ file: r.file, line: r.line })),
       severity: 'high',
     });
@@ -87,7 +87,7 @@ export function analyzeTruth(projectRoot: string): AnalysisResult {
       if (files.size > 1) {
         issues.push({
           type: 'ambiguity',
-          description: `关键词"${keyword}"在多个文件中被提及，可能存在不一致`,
+          description: `Keyword "${keyword}" is mentioned in multiple files, possible inconsistency`,
           sources: entries.slice(0, 3).map(e => ({ file: e.file, line: e.line })),
           severity: 'low',
         });
@@ -126,10 +126,10 @@ export function truthToStory(projectRoot: string): StorySuggestion[] {
     const topicName = file.replace(/\.md$/, '').replace(/[\\/]/g, ' ').trim();
 
     suggestions.push({
-      title: `${topicName} 功能实现`,
+      title: `${topicName} feature implementation`,
       description: entries.map(e => e.summary).join('\n'),
       type: 'feature',
-      priority: '中',
+      priority: 'medium',
       checklist: entries.map((e, i) => ({
         id: `CHK-${String(chkCounter + i).padStart(3, '0')}`,
         title: e.summary.length > 80 ? e.summary.slice(0, 80) + '...' : e.summary,

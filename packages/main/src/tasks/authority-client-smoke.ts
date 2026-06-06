@@ -91,9 +91,9 @@ assert.equal(normalizeAuthorityTimeout(undefined), DEFAULT_AUTHORITY_TIMEOUT_MS)
 // --- loadAuthoritySettings: env vs override -----------------------------------
 {
   const fromEnv = loadAuthoritySettings({
-    KOALA_AUTHORITY_MODE: 'shadow',
-    KOALA_AUTHORITY_URL: 'https://env.test',
-    KOALA_AUTHORITY_TIMEOUT_MS: '2500',
+    LATTICE_AUTHORITY_MODE: 'shadow',
+    LATTICE_AUTHORITY_URL: 'https://env.test',
+    LATTICE_AUTHORITY_TIMEOUT_MS: '2500',
   });
   assert.deepEqual(fromEnv, { mode: 'shadow', baseURL: 'https://env.test', timeoutMS: 2500 });
 
@@ -102,7 +102,7 @@ assert.equal(normalizeAuthorityTimeout(undefined), DEFAULT_AUTHORITY_TIMEOUT_MS)
 
   // CLI inline override beats env
   const overridden = loadAuthoritySettings(
-    { KOALA_AUTHORITY_MODE: 'off', KOALA_AUTHORITY_URL: 'https://env.test' },
+    { LATTICE_AUTHORITY_MODE: 'off', LATTICE_AUTHORITY_URL: 'https://env.test' },
     { authorityMode: 'enforce', authorityURL: 'https://override.test', authorityTimeoutMS: 1234 },
   );
   assert.deepEqual(overridden, {
@@ -113,7 +113,7 @@ assert.equal(normalizeAuthorityTimeout(undefined), DEFAULT_AUTHORITY_TIMEOUT_MS)
 
   // illegal override mode still falls back to off (runtime re-validation)
   const illegalOverride = loadAuthoritySettings(
-    { KOALA_AUTHORITY_MODE: 'enforce' },
+    { LATTICE_AUTHORITY_MODE: 'enforce' },
     { authorityMode: 'garbage' },
   );
   assert.equal(illegalOverride.mode, 'off');

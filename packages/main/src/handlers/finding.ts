@@ -1,5 +1,5 @@
 /**
- * Finding handlers — reviewer 发现项管理（带签名防伪造）
+ * Finding handlers — reviewer finding management (signed to prevent forgery)
  */
 
 import { mkdirSync, rmSync, statSync } from 'fs';
@@ -101,13 +101,13 @@ function normalizeFindingCategory(category: string): Finding['category'] {
 }
 
 /**
- * B-3fad CHK-001: 解析 finding_add 的 evidenceState 输入并做 runtime 校验 + guard。
+ * B-3fad CHK-001: Parse evidenceState input of finding_add and perform runtime validation + guard.
  *
- * 默认表（plan.md#CHK-001）：
- * - 未传 evidenceState → 默认 'verified'（reviewer 在 REVIEW 阶段提的 finding；保持现有 gate 行为）。
- * - 显式 'suspected' → 必须带 uncertaintyReason（≥10 字符），缺则报错（防止把 suspected 当绕 gate 按钮）。
- * - 显式 'disproven' → 必须带 disprovenEvidence.summary（≥10 字符），缺则报错（disproven 必须带反证）。
- * - 非法字符串 → 报错（不只靠 Zod，runtime 同标准校验，见 CLAUDE.md「Handler 编码约定」）。
+ * Default table (plan.md#CHK-001):
+ * - evidenceState not provided → default 'verified' (finding raised by reviewer during REVIEW phase; preserves existing gate behavior).
+ * - Explicit 'suspected' → must include uncertaintyReason (≥10 characters); error if missing (prevents using suspected as a button to bypass the gate).
+ * - Explicit 'disproven' → must include disprovenEvidence.summary (≥10 characters); error if missing (disproven must carry counter-evidence).
+ * - Invalid string → error (don't rely on Zod alone; runtime validates to the same standard, see CLAUDE.md "Handler Coding Conventions").
  */
 function resolveEvidenceState(args: {
   evidenceState?: string;
@@ -119,7 +119,7 @@ function resolveEvidenceState(args: {
   disprovenEvidence?: DisprovenEvidence;
 } {
   const raw = args.evidenceState;
-  // 默认 verified（reviewer REVIEW 阶段 finding_add）
+  // Default verified (reviewer finding_add during REVIEW phase)
   if (raw === undefined || raw === null || raw === '') {
     return { evidenceState: 'verified' };
   }
@@ -132,8 +132,8 @@ function resolveEvidenceState(args: {
     const reason = (args.uncertaintyReason ?? '').trim();
     if (reason.length < 10) {
       throw new Error(
-        'finding_add: evidenceState=suspected 必须带 uncertaintyReason（≥10 字符），' +
-        '说明为什么只是怀疑（未复现 / 缺源码证据），防止把 suspected 当绕 gate 的按钮',
+        'finding_add: evidenceState=suspected must include uncertaintyReason (≥10 characters), ' +
+        'explaining why it is merely suspected (not reproduced / lacking source evidence), to prevent using suspected as a button to bypass the gate',
       );
     }
     return { evidenceState: 'suspected', uncertaintyReason: reason };
@@ -142,8 +142,8 @@ function resolveEvidenceState(args: {
     const summary = (args.disprovenEvidence?.summary ?? '').trim();
     if (summary.length < 10) {
       throw new Error(
-        'finding_add: evidenceState=disproven 必须带 disprovenEvidence.summary（≥10 字符），' +
-        '记录反证摘要；可附 sourceRefs / reproCommand',
+        'finding_add: evidenceState=disproven must include disprovenEvidence.summary (≥10 characters), ' +
+        'recording the counter-evidence summary; may attach sourceRefs / reproCommand',
       );
     }
     const sourceRefs = args.disprovenEvidence?.sourceRefs?.filter(r => r.trim().length > 0);
@@ -157,7 +157,7 @@ function resolveEvidenceState(args: {
       },
     };
   }
-  // verified：不需要附加字段
+  // verified: no additional fields required
   return { evidenceState: 'verified' };
 }
 
@@ -228,11 +228,11 @@ export function createFindingHandlers(ctx: HandlerContext) {
     }): string {
       assertCwdInWorktree(store, args.storyId);
 
-      // 记录调用者身份（环境变量 KOALA_AGENT 由 subagent 设置）
+      // Record caller identity (env var KOALA_AGENT is set by subagent)
       const missingAttribution = !args.agent && !process.env.KOALA_AGENT;
       const agent = args.agent || process.env.KOALA_AGENT || 'main';
       const category = normalizeFindingCategory(args.category);
-      // B-3fad CHK-001: evidenceState 默认 verified；显式 suspected/disproven 需配套字段。
+      // B-3fad CHK-001: evidenceState defaults to verified; explicit suspected/disproven requires the accompanying fields.
       const evidence = resolveEvidenceState(args);
       const isReviewerAgent = agent.startsWith('koala-review-');
       const reviewerLane = isReviewerAgent ? resolveReviewRunLane(agent) : undefined;
@@ -246,7 +246,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
         return recordReviewPass(ctx, args.storyId, reviewerLane || agent, `Converted pass-only finding_add record: ${args.desc}`, args.reviewRunId || '');
       }
 
-      // 自动注入当前 review round（reviewer 无需传参）
+      // Auto-inject the current review round (reviewer does not need to pass it)
       const reviewRound = story.currentReviewRound || '';
 
       // B-f60c CHK-003: the readFindings → push → writeFindings critical section
@@ -306,20 +306,20 @@ export function createFindingHandlers(ctx: HandlerContext) {
       }
 
       const warning = missingAttribution
-        ? '\n⚠ finding_add 缺少 agent/KOALA_AGENT，已记录为 main；reviewer 必须传 agent="koala-review-*"，否则不会算 reviewer evidence。'
+        ? '\n⚠ finding_add is missing agent/KOALA_AGENT and has been recorded as main; reviewer must pass agent="koala-review-*", otherwise it will not count as reviewer evidence.'
         : '';
       const commitHint = autoCommitStoryMetadata(ctx.root, args.storyId, 'finding_add');
       const advisoryHint = evidence.evidenceState === 'suspected'
-        ? '\n→ evidenceState=suspected：不阻塞 REVIEW→TEST，仅作 advisory/attention item 进 review summary。'
+        ? '\n→ evidenceState=suspected: does not block REVIEW→TEST; treated only as an advisory/attention item in the review summary.'
         : evidence.evidenceState === 'disproven'
-          ? '\n→ evidenceState=disproven：已被反证，不阻塞 REVIEW→TEST。'
+          ? '\n→ evidenceState=disproven: has been refuted by counter-evidence, does not block REVIEW→TEST.'
           : '';
       return `Finding ${id} created by ${agent}: [${args.severity}/${category}] (evidenceState=${evidence.evidenceState}) ${args.desc}${warning}${advisoryHint}${commitHint}`;
     },
 
     review_pass_set(args: { storyId: string; agent?: string; note: string; reviewRunId?: string }): string {
       if (!args.note || args.note.trim().length < 10) {
-        throw new Error('review_pass_set: note 必须 ≥ 10 字符，说明 reviewer 检查了什么以及为什么无 blocker');
+        throw new Error('review_pass_set: note must be ≥ 10 characters, explaining what the reviewer checked and why there is no blocker');
       }
       const agent = resolveReviewRunLane(args.agent || process.env.KOALA_AGENT || 'main');
       assertCwdInWorktree(store, args.storyId);
@@ -332,7 +332,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
       if (synced.resolved > 0) {
         ctx.log?.(`cluster-sync: auto-resolved ${synced.resolved} finding(s) before finding_list`);
       }
-      // B-9d95 CHK-005: cluster 视图 — 读 clusters.json + findings.json，按簇归类 + 未归簇列表。
+      // B-9d95 CHK-005: cluster view — reads clusters.json + findings.json, groups by cluster + lists ungrouped items.
       if (args.cluster) {
         const findingsData = store.readFindings(args.storyId);
         const clustersData = store.readClusters(args.storyId);
@@ -353,9 +353,9 @@ export function createFindingHandlers(ctx: HandlerContext) {
       }
       const data = store.readFindings(args.storyId);
       const findings = data.findings.map(normalizeFindingForList);
-      // B-3fad CHK-001: review summary 分区 — suspected/disproven open finding 进 advisory/attention 区，
-      // 不进 blocking 区（与 REVIEW→TEST gate 的 evidenceState 维度同源）。
-      // 每条 finding 自带 evidenceState 字段，缺失时按 legacy verified 渲染。
+      // B-3fad CHK-001: review summary partitioning — suspected/disproven open findings go into advisory/attention sections,
+      // not into the blocking section (same source as the evidenceState dimension of the REVIEW→TEST gate).
+      // Each finding carries its own evidenceState field; when missing, render as legacy verified.
       const attention = {
         suspected: findings
           .filter(f => f.status === 'open' && f.evidenceState === 'suspected')
@@ -368,7 +368,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
         ...data,
         findings: findings.map(f => ({
           ...f,
-          // 渲染显式 evidenceState（legacy 缺字段 → verified，gate 同口径）
+          // Render explicit evidenceState (legacy missing field → verified, same convention as gate)
           evidenceState: f.evidenceState ?? 'verified',
         })),
         attention,
@@ -405,7 +405,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
     finding_dismiss(args: { storyId: string; findingId: string; reason: string }): string {
       assertCwdInWorktree(store, args.storyId);
       if (!args.reason || args.reason.trim().length < 10) {
-        throw new Error('finding_dismiss: reason 必须 ≥ 10 字符，说清楚为什么不修');
+        throw new Error('finding_dismiss: reason must be >= 10 characters, explaining why it will not be fixed');
       }
       // B-f60c CHK-003: a B-META finding mutation is serialized under the main
       // write lock; a normal story runs unchanged (pass-through). `alreadyResolved`
@@ -418,9 +418,9 @@ export function createFindingHandlers(ctx: HandlerContext) {
         if (f.status === 'resolved') {
           return true;
         }
-        // B-0f47: critical finding 不允许 dismiss（放在 resolved 检查之后）
+        // B-0f47: critical findings cannot be dismissed (placed after the resolved check)
         if (f.severity === 'critical') {
-          throw new Error(`critical finding 不允许 dismiss，任何轮次都必须修复。Finding: ${args.findingId}`);
+          throw new Error(`critical findings cannot be dismissed, must be fixed in any round. Finding: ${args.findingId}`);
         }
         f.status = 'dismissed';
         f.dismissReason = args.reason.trim();
@@ -429,7 +429,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
         return false;
       });
       if (alreadyResolved) {
-        return `Finding ${args.findingId} 已经 resolved，不需要 dismiss`;
+        return `Finding ${args.findingId} is already resolved, no need to dismiss`;
       }
 
       // B-abd8: auto-recompute process metrics

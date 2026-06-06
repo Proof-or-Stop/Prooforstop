@@ -1,13 +1,13 @@
 /**
- * B-e8c8 CHK-002: finding_cluster handler — 自动聚簇 findings + 手动 merge/split。
+ * B-e8c8 CHK-002: finding_cluster handler — auto-cluster findings + manual merge/split.
  *
- * 三种模式（以 merge / split 参数区分）：
- *   - 默认：跑 clusterFindings 重算全量 cluster，回写 findings.clusterId + clusters.json
- *   - merge: string[]（finding id 列表）→ 强制合为新簇，不动其他簇
- *   - split: string（clusterId）→ 删除该簇，成员 finding.clusterId 清空（singleton）
+ * Three modes (distinguished by merge / split parameter):
+ *   - Default: run clusterFindings to recompute all clusters, write back findings.clusterId + clusters.json
+ *   - merge: string[] (list of finding ids) → force merge into a new cluster, leave other clusters untouched
+ *   - split: string (clusterId) → delete the cluster, clear member finding.clusterId (singleton)
  *
- * 幂等：默认模式同一输入多次运行产生同一 ClusterRecord 排序（clusterFindings 内部稳定排序）。
- * CHK-005 将扩展 commit Resolves: CL-xxx 自动解析；本 CHK 不涉及。
+ * Idempotent: in default mode, the same input run multiple times produces the same ClusterRecord ordering (clusterFindings has stable internal sorting).
+ * CHK-005 will extend commit Resolves: CL-xxx auto-parsing; not covered in this CHK.
  */
 
 import type { HandlerContext } from './context.js';
@@ -20,7 +20,7 @@ export function createClusterHandlers(ctx: HandlerContext) {
   return {
     finding_cluster(args: { storyId: string; merge?: string[] | string; split?: string }): string {
       if (args.merge && args.split) {
-        throw new Error('finding_cluster 不能同时传 merge 和 split');
+        throw new Error('finding_cluster cannot pass both merge and split');
       }
 
       const findingsData = store.readFindings(args.storyId);
@@ -30,7 +30,7 @@ export function createClusterHandlers(ctx: HandlerContext) {
         return handleSplit(args.storyId, args.split, findings, store);
       }
       if (args.merge) {
-        // F-013: 支持 CLI 逗号分隔（--merge=F-001,F-002）；数组形式直接透传。
+        // F-013: support CLI comma-separated (--merge=F-001,F-002); array form is passed through directly.
         const mergeIds = Array.isArray(args.merge)
           ? args.merge
           : args.merge.split(',').map(s => s.trim()).filter(Boolean);
@@ -40,11 +40,11 @@ export function createClusterHandlers(ctx: HandlerContext) {
     },
 
     /**
-     * B-e8c8 CHK-004: finding_dispatch — 生成 implementer prompt 文本。
+     * B-e8c8 CHK-004: finding_dispatch — generate implementer prompt text.
      *
-     * 与 B-45ed story_dispatch 对称：输出包含 background.md 引用，让 implementer
-     * 理解 cluster 背后的业务动机而非只看 finding 条目。commit 约定 `Resolves: CL-xxx`
-     * 由 CHK-005 的 cluster-sync 扫描自动解析并 resolve 全簇。
+     * Symmetric to B-45ed story_dispatch: output includes a background.md reference, letting the implementer
+     * understand the business motivation behind the cluster rather than only seeing finding entries. The commit convention `Resolves: CL-xxx`
+     * is auto-parsed by CHK-005's cluster-sync scan to resolve the whole cluster.
      */
     finding_dispatch(args: { storyId: string; clusterId: string }): string {
       const { storyId, clusterId } = args;
@@ -68,12 +68,12 @@ function handleDefault(
   findings: Finding[],
   store: HandlerContext['store']
 ): string {
-  // F-012: 保留已存在的 cluster，避免重新编号后与已 commit "Resolves: CL-001" 历史引用冲突。
-  // existingClusters 非空 → clusterFindings 只对未归属 finding 新建 cluster，新编号从 max(existing)+1 起。
+  // F-012: preserve existing clusters to avoid conflicts with already-committed "Resolves: CL-001" historical references after renumbering.
+  // existingClusters non-empty → clusterFindings only creates new clusters for unassigned findings, with new numbering starting from max(existing)+1.
   const existing = store.readClusters(storyId).clusters;
   const clusters = clusterFindings(findings, new Date().toISOString(), existing);
 
-  // 写回 finding.clusterId（clusterId 归属以新计算结果为准；未参与任一簇 = 清空）
+  // Write back finding.clusterId (clusterId assignment follows the newly computed result; not participating in any cluster = cleared)
   const byId = new Map<string, string>();
   for (const c of clusters) {
     for (const fid of c.findingIds) byId.set(fid, c.clusterId);
@@ -100,7 +100,7 @@ function handleMerge(
   const existing = clustersData.clusters;
   const newCluster = forceMergeCluster(existing, findings, mergeIds);
 
-  // 从现有簇里移除被 merge 的 finding（防重复归属）
+  // Remove merged findings from existing clusters (prevent duplicate assignment)
   const mergeSet = new Set(mergeIds);
   const remaining: ClusterRecord[] = [];
   for (const c of existing) {
@@ -114,11 +114,11 @@ function handleMerge(
         files: recomputeFilesUnion(kept, findings),
       });
     }
-    // kept.length === 0 → 整簇已被 merge，丢弃
+    // kept.length === 0 → entire cluster has been merged, discard
   }
 
   const updated = [...remaining, newCluster];
-  // 更新 finding.clusterId
+  // Update finding.clusterId
   for (const f of findings) {
     if (mergeSet.has(f.id)) f.clusterId = newCluster.clusterId;
   }
@@ -137,7 +137,7 @@ function handleSplit(
   const clustersData = store.readClusters(storyId);
   const target = clustersData.clusters.find(c => c.clusterId === clusterId);
   if (!target) {
-    throw new Error(`Cluster ${clusterId} 不存在`);
+    throw new Error(`Cluster ${clusterId} does not exist`);
   }
   const memberSet = new Set(target.findingIds);
   for (const f of findings) {
@@ -205,7 +205,7 @@ function renderDispatchPrompt(
 }
 
 function renderSummary(totalFindings: number, clusters: ClusterRecord[]): string {
-  // F-028: 无 finding 时输出 "No findings to cluster"，避免 "Clustered 0 findings into 0 clusters" 歧义。
+  // F-028: When there are no findings, output "No findings to cluster" to avoid the ambiguity of "Clustered 0 findings into 0 clusters".
   if (totalFindings === 0) {
     return `No findings to cluster`;
   }

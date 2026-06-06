@@ -47,7 +47,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
       assertCwdInWorktree(store, args.storyId);
       const story = store.readStory(args.storyId);
       if (!story.currentReviewRound) {
-        throw new Error(`review_run_start: story ${args.storyId} 当前没有 currentReviewRound；先推进到 REVIEW 再启动 reviewer run`);
+        throw new Error(`review_run_start: story ${args.storyId} currently has no currentReviewRound; advance to REVIEW before starting reviewer run`);
       }
       const lane = resolveReviewRunLane(args.agent || process.env.KOALA_AGENT, args.lane);
       const promptHash = resolveReviewPromptHash(args.prompt, args.promptHash);

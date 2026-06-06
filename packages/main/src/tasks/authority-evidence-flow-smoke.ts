@@ -314,7 +314,7 @@ for (const [status, body] of [[500, 'down'], [503, 'unavailable'], [422, 'reject
       });
     } catch (e) {
       threw = true;
-      assert.match((e as Error).message, /note 必须 ≥ 5 字符/);
+      assert.match((e as Error).message, /note must be ≥ 5 characters/);
     }
     assert.equal(threw, true, 'note < 5 must reject');
     assert.equal(server.calls, 0, 'note < 5: ZERO authority POST (Blocker 2)');
@@ -348,7 +348,7 @@ for (const [status, body] of [[500, 'down'], [503, 'unavailable'], [422, 'reject
       });
     } catch (e) {
       threw = true;
-      assert.match((e as Error).message, /waiverType 只能用于 kind=waiver/);
+      assert.match((e as Error).message, /waiverType can only be used with kind=waiver/);
     }
     assert.equal(threw, true, 'waiverType-kind mismatch must reject');
     assert.equal(server.calls, 0, 'waiverType mismatch: ZERO authority POST (Blocker 2)');
@@ -414,7 +414,7 @@ for (const [status, body] of [[500, 'down'], [503, 'unavailable'], [422, 'reject
       });
     } catch (e) {
       threw = true;
-      assert.match((e as Error).message, /note 必须 ≥ 5 字符/);
+      assert.match((e as Error).message, /note must be ≥ 5 characters/);
     }
     assert.equal(threw, true, 'batch with short note must reject');
     assert.equal(server.calls, 0, 'batch short note: whole batch ZERO POST');

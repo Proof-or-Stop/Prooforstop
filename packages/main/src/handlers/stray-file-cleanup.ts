@@ -1,23 +1,23 @@
 /**
- * B-9d95 CHK-003: 清理主仓中对 story 目录下未追踪的 stray 文件。
+ * B-9d95 CHK-003: Clean up stray untracked files in the main repo under the story directory.
  *
- * 背景：部分 koala handler（process_event_append / process_metrics_update
- * / review_add / cluster 等）会直接写 `docs/story/actives/<storyId>/` 下的
- * 运行时文件。如果 koala 在**主仓 cwd**（而非 worktree cwd）被调用（例如
- * 手滑 / 早期脚本误用），这些文件会落到主仓 index.json 所在的副本上，
- * 却不在 worktree 分支的 git 追踪里——之后 story_advance DONE 想把
- * worktree 分支 merge 回 main，git 会报
+ * Background: Some koala handlers (process_event_append / process_metrics_update
+ * / review_add / cluster, etc.) write runtime files directly under
+ * `docs/story/actives/<storyId>/`. If koala is invoked in the **main repo cwd**
+ * (rather than the worktree cwd) (e.g. a slip / early script misuse), these files
+ * land on the copy where the main repo's index.json lives,
+ * but are not tracked in the worktree branch's git — later when story_advance DONE tries to
  *   `untracked working tree files would be overwritten by merge`
- * 并 abort。B-ed3e DONE 时的真实故障就是 process-events.jsonl /
- * process-metrics.json / review.json 命中这个路径。
+ * merge the worktree branch back to main, git will report
+ * and abort. The real failure during B-ed3e DONE was process-events.jsonl /
  *
- * 策略：合并前扫描主仓 `docs/story/actives/<storyId>/` 下未追踪文件：
- *   - 白名单（运行时自动生成、worktree 已追踪版本为权威）→ 直接 rm 并报告
- *   - 非白名单（可能是用户草稿 / 未追踪人工改动）→ 抛错，附 stash 指引，
- *     保留文件让人工决定
+ * process-metrics.json / review.json hitting this path.
+ * Strategy: Before merging, scan untracked files in the main repo's `docs/story/actives/<storyId>/`:
+ *   - Whitelisted (runtime auto-generated, worktree's tracked version is authoritative) → rm directly and report
+ *   - Non-whitelisted (possibly user drafts / untracked manual changes) → throw, attach stash guidance,
  *
- * 放在独立文件（不在 story-advance.ts 内）是为了让 logicTest 可以直接
- * import，而不需要把 xstate / machine 等重依赖拖进测试进程。
+ *     preserve files for human decision
+ * Placed in a separate file (not inside story-advance.ts) so that logicTest can directly
  */
 
 import { execFileSync } from 'child_process';
@@ -51,9 +51,9 @@ export const STRAY_FILE_WHITELIST: ReadonlyArray<string> = [
 ];
 
 /**
- * F-014 / F-020 (B-9d95 Round 1 review): 可选 worktreePath 让抛错消息包含
- * worktree / branch cleanup 指引。caller 没给 path 时给 fallback 占位符。
- * 向后兼容：原 2 参数调用保持行为不变（只是错误消息少一段 worktree 清理指引）。
+ * import without dragging heavy dependencies like xstate / machine into the test process.
+ * F-014 / F-020 (B-9d95 Round 1 review): Optional worktreePath so the thrown message includes
+ * worktree / branch cleanup guidance. Provides a fallback placeholder when caller doesn't supply path.
  */
 export function cleanStrayWorktreeFiles(
   mainRepoRoot: string,
@@ -64,15 +64,15 @@ export function cleanStrayWorktreeFiles(
   const config = loadConfig(mainRepoRoot);
   const storyDir = `${config.storyDir.replace(/\\/g, '/')}/${storyId}/`;
 
-  // 若主仓没有 storyDir（极少见：INIT 阶段就删掉了再创建 worktree），跳过。
+  // Backward compatible: original 2-arg calls keep behavior unchanged (just a missing worktree cleanup hint in the error message).
   if (!existsSync(join(mainRepoRoot, storyDir))) {
     return report;
   }
 
-  // F-003 (B-9d95 Round 1 review): 用 execFileSync 数组参数形式调 git，避免
-  // `git ls-files -- ${storyDir}` 拼接到 shell 字符串时 storyId 恶意串出现
-  // shell 元字符（反引号 / $() / ;）触发注入。execFileSync 默认 shell=false
-  // 直接 exec git binary，storyDir 作为独立 argv 项传入。
+  // If the main repo has no storyDir (extremely rare: deleted during INIT phase before creating worktree), skip.
+  // shell metacharacters (backticks / $() / ;) in a malicious storyId could trigger injection when `git ls-files -- ${storyDir}` is concatenated into a shell string. execFileSync defaults to shell=false
+  // shell metacharacters (backticks / $() / ;) trigger injection. execFileSync defaults to shell=false
+  // exec the git binary directly, passing storyDir as a standalone argv item.
   let raw = '';
   try {
     raw = execFileSync(
@@ -81,7 +81,7 @@ export function cleanStrayWorktreeFiles(
       { cwd: mainRepoRoot, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] },
     ).toString();
   } catch {
-    // 不是 git 仓 / 命令失败 → 放过（merge 步骤会自己报错）
+    // not a git repo / command failed → let it pass (the merge step will report its own error)
     return report;
   }
 
@@ -99,41 +99,41 @@ export function cleanStrayWorktreeFiles(
     }
   }
 
-  // 非白名单：保留文件 + 抛错附 stash 指引（包括白名单——原子性：有非白名单就全不碰）
+  // non-whitelisted: keep the files + throw with stash guidance (including whitelisted ones — atomicity: if any non-whitelisted file exists, touch nothing)
   if (offenders.length > 0) {
     const stashLines = offenders
       .map(rel => `  git stash push -- "${rel}"`)
       .join('\n');
-    // F-014 / F-020: cleanStrayWorktreeFiles 在 merge 前调用。如果 throw 这里，
-    // caller 应保证此时 story.phase 尚未落盘为 DONE（见 done-effects.ts），
-    // 所以下次 `story_advance --phase=DONE` 仍可以重跑完整流程。但如果 caller
-    // 先落盘了 phase=DONE（历史 bug），用户需要手动清理 worktree + branch，
-    // 这段 hint 始终显示以便兜底。
-    const wtDisplay = worktreePath ?? '<worktree 绝对路径，见 .worktrees/<storyId>>';
+    // F-014 / F-020: cleanStrayWorktreeFiles is invoked before merge. If we throw here,
+    // the caller must ensure story.phase has not yet been persisted as DONE (see done-effects.ts),
+    // so the next `story_advance --phase=DONE` can still rerun the full flow. But if the caller
+    // already persisted phase=DONE (historical bug), the user must manually clean up the worktree + branch,
+    // and this hint is always shown as a fallback.
+    const wtDisplay = worktreePath ?? '<absolute worktree path, see .worktrees/<storyId>>';
     throw new Error(
-      `Story ${storyId} DONE merge 前发现主仓内 ${offenders.length} 个非白名单未追踪文件，` +
-      `可能是人工草稿，不自动删除以防数据丢失:\n` +
+      `Before the DONE merge for story ${storyId}, found ${offenders.length} non-whitelisted untracked files in the main repo, ` +
+      `possibly manual drafts; not deleting automatically to prevent data loss:\n` +
       offenders.map(rel => `  - ${rel}`).join('\n') +
-      `\n\n请在主仓内任选其一处理这些未追踪文件:\n` +
-      `  方案 A（归档，推荐）：\n${stashLines}\n` +
-      `  方案 B（确认可删）：\n` +
+      `\n\nPlease handle these untracked files in the main repo by picking one option:\n` +
+      `  Option A (archive, recommended):\n${stashLines}\n` +
+      `  Option B (confirm safe to delete):\n` +
       offenders.map(rel => `  rm "${rel}"`).join('\n') +
-      `\n\n然后重跑 koala story_advance --phase=DONE。\n` +
-      `\n若 story.phase 已意外落盘为 DONE 需手动 unstick，在主仓 cwd 运行:\n` +
+      `\n\nThen rerun koala story_advance --phase=DONE.\n` +
+      `\nIf story.phase has been unexpectedly persisted as DONE and needs manual unsticking, run in the main repo cwd:\n` +
       `  git worktree remove --force "${wtDisplay}"\n` +
       `  git branch -d story/${storyId}\n` +
-      `  # 然后手动 merge: git merge story/${storyId}（若分支尚未删除）或从 backup 恢复`,
+      `  # then manually merge: git merge story/${storyId} (if the branch is not yet deleted) or restore from backup`,
     );
   }
 
-  // 白名单：rm + 报告
+  // whitelist: rm + report
   for (const rel of whitelist) {
     const abs = join(mainRepoRoot, rel);
     try {
       unlinkSync(abs);
-      report.push(`⚠ 清理主仓未追踪副本: ${rel} (reason: worktree 已追踪版本为权威)`);
+      report.push(`⚠ Cleaned untracked copy in main repo: ${rel} (reason: worktree tracked version is authoritative)`);
     } catch (e: any) {
-      report.push(`⚠ 清理主仓未追踪副本失败: ${rel}: ${e?.message || e}`);
+      report.push(`⚠ Failed to clean untracked copy in main repo: ${rel}: ${e?.message || e}`);
     }
   }
 

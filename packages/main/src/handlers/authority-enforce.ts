@@ -56,7 +56,7 @@ export async function runAuthorityEnforcePolicy(
     return {
       ok: false,
       disclaimer: AUTHORITY_ENFORCE_POLICY_DISCLAIMER,
-      error: 'KOALA_AUTHORITY_URL is not set; authority policy discovery requires an authority server URL.',
+      error: 'LATTICE_AUTHORITY_URL is not set; authority policy discovery requires an authority server URL.',
     };
   }
 

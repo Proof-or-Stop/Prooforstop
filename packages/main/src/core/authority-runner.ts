@@ -1,8 +1,15 @@
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
+import { hostname } from 'node:os';
 import type { JobSpec, ProviderEventsEnvelope } from './authority-runner-contracts.js';
 import { signRunnerEnvelope } from './authority-runner-contracts.js';
 import type { PrivateKeyBase64 } from './authority-signing.js';
+import {
+  derivePublicKeyHexFromPrivateKey,
+  signLatticeAuthorityEnvelope,
+  type LatticeAuthorityKeyEncoding,
+} from './lattice-authority-native.js';
 
 export const AUTHORITY_RUNNER_PLANNED_STEPS = [
   'register_runner',
@@ -17,14 +24,49 @@ export interface AuthorityRunnerPlan {
   mode: 'enforce';
   once: boolean;
   dryRun: boolean;
+  live?: boolean;
   plannedSteps: AuthorityRunnerPlannedStep[];
   spawned: false;
   providerEvents: [];
+  networkEvents?: AuthorityRunnerNetworkEvent[];
+  claimedJobId?: string | null;
+  releasedJobId?: string | null;
+  releaseReason?: string;
   localWorkflowUsable: true;
   status: 'pass' | 'fail';
   readinessWarnings: string[];
   nextActions: string[];
   note: string;
+}
+
+export interface AuthorityRunnerNetworkEvent {
+  step: AuthorityRunnerPlannedStep | 'release_job';
+  ok: boolean;
+  status?: number;
+  message?: string;
+}
+
+export interface LatticeAuthorityLiveRunnerOptions {
+  baseURL: string;
+  timeoutMS: number;
+  actorId: string;
+  role: string;
+  actorKeyId: string;
+  actorPrivateKey: string;
+  actorPrivateKeyEncoding?: LatticeAuthorityKeyEncoding;
+  runnerId: string;
+  sessionId: string;
+  projectId: string;
+  bootstrapToken?: string;
+  once: boolean;
+  fetchImpl?: typeof fetch;
+}
+
+interface PostJsonResult {
+  ok: boolean;
+  status?: number;
+  body?: unknown;
+  message?: string;
 }
 
 export interface FakeProviderExecutionOptions {
@@ -56,6 +98,263 @@ function requireString(value: unknown, label: string): string {
     throw new Error(`${label} is required`);
   }
   return value;
+}
+
+function joinURL(baseURL: string, path: string): string {
+  return `${baseURL.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`;
+}
+
+function nonce(prefix: string): string {
+  return `${prefix}:${Date.now()}:${Math.random().toString(16).slice(2)}`;
+}
+
+function pythonCanonicalTimestamp(date: Date = new Date()): string {
+  return date.toISOString().replace(/\.(\d{3})Z$/, '.$1000Z');
+}
+
+async function postJson(
+  options: LatticeAuthorityLiveRunnerOptions,
+  path: string,
+  body: unknown,
+  extraHeaders: Record<string, string> = {},
+): Promise<PostJsonResult> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), options.timeoutMS);
+  const fetchImpl = options.fetchImpl ?? fetch;
+  try {
+    const response = await fetchImpl(joinURL(options.baseURL, path), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        ...extraHeaders,
+      },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+    const text = await response.text();
+    let parsed: unknown = {};
+    if (text) {
+      try {
+        parsed = JSON.parse(text);
+      } catch {
+        parsed = text;
+      }
+    }
+    return {
+      ok: response.ok,
+      status: response.status,
+      body: parsed,
+      message: response.ok ? undefined : `authority server rejected request (${response.status})${text ? `: ${text}` : ''}`,
+    };
+  } catch (error: any) {
+    return {
+      ok: false,
+      message: error?.name === 'AbortError'
+        ? 'authority request timed out'
+        : (error?.message || String(error)),
+    };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function signedEnvelope<T extends { actorId: string; role: string; nonce: string; timestamp: string; signature?: string }>(
+  options: LatticeAuthorityLiveRunnerOptions,
+  envelope: T,
+): T & { signature: string } {
+  return signLatticeAuthorityEnvelope(
+    envelope,
+    options.actorPrivateKey,
+    options.actorPrivateKeyEncoding ?? 'auto',
+  ).signed;
+}
+
+function runnerCapability() {
+  return {
+    provider: 'codex',
+    available: true,
+    cliPathMode: 'path',
+    loggedIn: true,
+    supportsNonInteractive: true,
+    supportsPty: false,
+    supportsSandbox: true,
+    supportsWorktreeIsolation: true,
+    metadata: {
+      source: 'lattice-cli',
+      providerExecution: 'disabled-control-plane-smoke',
+    },
+  };
+}
+
+function extractJobId(claimBody: unknown): string | null {
+  const record = claimBody as { job?: { jobId?: unknown } | null } | null;
+  const jobId = record?.job?.jobId;
+  return typeof jobId === 'string' && jobId.length > 0 ? jobId : null;
+}
+
+function eventFromResult(
+  step: AuthorityRunnerNetworkEvent['step'],
+  result: PostJsonResult,
+): AuthorityRunnerNetworkEvent {
+  return {
+    step,
+    ok: result.ok,
+    status: result.status,
+    message: result.message,
+  };
+}
+
+export function readActorPrivateKeyFromPath(path: string): string {
+  return readFileSync(path, 'utf8').trim();
+}
+
+export async function runLatticeAuthorityControlPlaneOnce(
+  options: LatticeAuthorityLiveRunnerOptions,
+): Promise<Pick<AuthorityRunnerPlan, 'networkEvents' | 'claimedJobId' | 'releasedJobId' | 'releaseReason' | 'status' | 'note'>> {
+  const events: AuthorityRunnerNetworkEvent[] = [];
+  const publicKeyHex = derivePublicKeyHexFromPrivateKey(
+    options.actorPrivateKey,
+    options.actorPrivateKeyEncoding ?? 'auto',
+  );
+  const registrationHeaders: Record<string, string> = options.bootstrapToken
+    ? { Authorization: `Bearer ${options.bootstrapToken}` }
+    : {};
+  const actorKey = await postJson(
+    options,
+    `/v1/actors/${encodeURIComponent(options.actorId)}/keys`,
+    {
+      role: options.role,
+      publicKeyHex,
+      keyId: options.actorKeyId,
+      status: 'active',
+      runnerId: options.runnerId,
+      capabilities: {
+        source: 'lattice-cli',
+        providerExecution: 'disabled-control-plane-smoke',
+      },
+    },
+    registrationHeaders,
+  );
+  events.push(eventFromResult('register_runner', actorKey));
+  if (!actorKey.ok) {
+    return { networkEvents: events, claimedJobId: null, releasedJobId: null, status: 'fail', note: 'Live runner stopped at actor key registration.' };
+  }
+
+  const capability = runnerCapability();
+  const timestamp = pythonCanonicalTimestamp();
+  const registerRunner = await postJson(
+    options,
+    '/v1/runners/register',
+    signedEnvelope(options, {
+      actorId: options.actorId,
+      role: options.role,
+      nonce: nonce(`${options.runnerId}:register`),
+      timestamp,
+      request: {
+        runnerId: options.runnerId,
+        projectId: options.projectId,
+        sessionId: options.sessionId,
+        capabilities: [capability],
+        hostname: hostname(),
+        heartbeatTtlSeconds: 60,
+        metadata: {
+          source: 'lattice-cli',
+          providerExecution: 'disabled-control-plane-smoke',
+        },
+      },
+    }),
+  );
+  events.push(eventFromResult('register_runner', registerRunner));
+  if (!registerRunner.ok) {
+    return { networkEvents: events, claimedJobId: null, releasedJobId: null, status: 'fail', note: 'Live runner stopped at runner registration.' };
+  }
+
+  const heartbeat = await postJson(
+    options,
+    `/v1/runners/${encodeURIComponent(options.runnerId)}/heartbeat`,
+    signedEnvelope(options, {
+      actorId: options.actorId,
+      role: options.role,
+      nonce: nonce(`${options.runnerId}:heartbeat`),
+      timestamp: pythonCanonicalTimestamp(),
+      runnerId: options.runnerId,
+      heartbeat: {
+        sessionId: options.sessionId,
+        capabilities: [capability],
+        heartbeatTtlSeconds: 60,
+        metadata: {
+          source: 'lattice-cli',
+          providerExecution: 'disabled-control-plane-smoke',
+        },
+      },
+    }),
+  );
+  events.push(eventFromResult('runner_heartbeat', heartbeat));
+  if (!heartbeat.ok) {
+    return { networkEvents: events, claimedJobId: null, releasedJobId: null, status: 'fail', note: 'Live runner stopped at runner heartbeat.' };
+  }
+
+  const claim = await postJson(
+    options,
+    `/v1/runners/${encodeURIComponent(options.runnerId)}/jobs/claim`,
+    signedEnvelope(options, {
+      actorId: options.actorId,
+      role: options.role,
+      nonce: nonce(`${options.runnerId}:claim`),
+      timestamp: pythonCanonicalTimestamp(),
+      runnerId: options.runnerId,
+      claim: {
+        sessionId: options.sessionId,
+        provider: 'codex',
+        leaseTtlSeconds: 60,
+      },
+    }),
+  );
+  events.push(eventFromResult('claim_job', claim));
+  if (!claim.ok) {
+    return { networkEvents: events, claimedJobId: null, releasedJobId: null, status: 'fail', note: 'Live runner stopped at job claim.' };
+  }
+
+  const claimedJobId = extractJobId(claim.body);
+  if (!claimedJobId) {
+    return {
+      networkEvents: events,
+      claimedJobId: null,
+      releasedJobId: null,
+      status: 'pass',
+      note: 'Live runner registered, heartbeated, and claimed no job; provider execution stayed disabled.',
+    };
+  }
+
+  const releaseReason = 'control-plane-smoke-no-provider-execution';
+  const release = await postJson(
+    options,
+    `/v1/jobs/${encodeURIComponent(claimedJobId)}/release`,
+    signedEnvelope(options, {
+      actorId: options.actorId,
+      role: options.role,
+      nonce: nonce(`${claimedJobId}:release`),
+      timestamp: pythonCanonicalTimestamp(),
+      jobId: claimedJobId,
+      release: {
+        runnerId: options.runnerId,
+        sessionId: options.sessionId,
+        reason: releaseReason,
+      },
+    }),
+  );
+  events.push(eventFromResult('release_job', release));
+  return {
+    networkEvents: events,
+    claimedJobId,
+    releasedJobId: release.ok ? claimedJobId : null,
+    releaseReason,
+    status: release.ok ? 'pass' : 'fail',
+    note: release.ok
+      ? 'Live runner claimed one job and immediately released it without provider execution.'
+      : 'Live runner claimed a job but release failed; inspect networkEvents before retrying.',
+  };
 }
 
 function commandFromJob(jobSpec: JobSpec): string[] {

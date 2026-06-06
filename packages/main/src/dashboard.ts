@@ -1,8 +1,8 @@
 /**
- * koala dashboard — 实时 story 进度看板
+ * koala dashboard — real-time story progress board
  *
- * 每 N 秒刷新一次，支持多项目目录切换。
- * 按数字键切换项目，按 q 退出。
+ * Refreshes every N seconds, supports switching between multiple project directories.
+ * Press a number key to switch projects, press q to quit.
  */
 
 import { execSync } from 'child_process';

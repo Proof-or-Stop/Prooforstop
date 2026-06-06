@@ -336,7 +336,7 @@ const LIFECYCLE_ARTIFACT_SET: ReadonlySet<string> = new Set(LIFECYCLE_ARTIFACTS)
  * Runtime guard for the artifacts enum. Used by the consistency contract and
  * by any consumer that needs to validate an artifact name parsed from JSON or
  * an internal fn-call path that bypasses the compile-time `LifecycleArtifact`
- * type (Handler 编码约定: re-check enum constraints at runtime).
+ * type (Handler coding convention: re-check enum constraints at runtime).
  */
 export function isLifecycleArtifact(value: string): value is LifecycleArtifact {
   return LIFECYCLE_ARTIFACT_SET.has(value);

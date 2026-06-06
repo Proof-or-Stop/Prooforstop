@@ -368,6 +368,7 @@ lattice authority enforce runner --dry-run --json
 lattice authority enforce runner --live --once --json
 lattice authority job status --jobId=<job> --json
 lattice authority verdict submit --jobId=<job> --runId=<run> --verdictFile=<verdict.json> --json
+lattice authority verdict list --jobId=<job> --json
 lattice authority receipt verify --receiptFile=<receipt.json> --json
 lattice story resolve --storyId=<story> --json
 lattice autopilot status --json
@@ -1435,6 +1436,7 @@ lattice planner status --runId=<plannerRun> --json
 lattice planner answer --runId=<plannerRun> --answersFile=<answers.json> --json
 lattice planner decision submit --runId=<plannerRun> --decisionFile=<decisions.json> --json
 lattice planner resume --runId=<plannerRun> --json
+lattice planner source-manifest --sourceRepo=<path-or-ref> --includedPaths=<paths> --excludedPaths=<paths> --json
 lattice planner run --request="<one sentence or paragraph>" --interactionMode=autonomous --mode=local --until=DONE --requireMultiHost --json
 lattice planner run --request="<one sentence or paragraph>" --interactionMode=autonomous --mode=authority --until=DONE --json
 lattice planner run --workflow=source-aligned-redevelopment --sourceRepo=<path-or-ref> --targetProject=<path> --targetProjectName=<name> --sourceLanguage=<source-language> --targetLanguage=<target-language> --interactionMode=autonomous --mode=local --until=DONE --json
@@ -1465,6 +1467,9 @@ Command behavior:
   `decision-gated` run.
 - `planner resume` continues a paused run after required answers or decisions
   are recorded.
+- `planner source-manifest` is read-only and extracts the deterministic
+  `sourceManifestDigest` for source-aligned redevelopment intake (C2a) before any
+  provider execution starts.
 - `planner run` composes draft, review, story creation, job creation or local
   execution-plan creation, and the Stage B executor according to interaction
   mode and policy.

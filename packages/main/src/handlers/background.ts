@@ -1,18 +1,18 @@
 /**
- * background CLI 三件套 — B-45ed CHK-007
+ * background CLI trio — B-45ed CHK-007
  *
- * background.md 是真相源层级中"为什么"维度（第一层），
- * 路径固定：docs/story/actives/{storyId}/background.md
+ * background.md is the "why" dimension (first layer) in the source-of-truth hierarchy,
+ * fixed path: docs/story/actives/{storyId}/background.md
  *
- * 三个命令：
- *   - background_set({ storyId, content })        全量覆盖，复用 CHK-006 的 validateBackground 格式校验
- *   - background_append({ storyId, section, content }) 追加内容到指定段末尾，不影响其他段
- *   - background_get({ storyId })                  返回当前 background.md 内容
+ * Three commands:
+ *   - background_set({ storyId, content })        full overwrite, reuses CHK-006's validateBackground format check
+ *   - background_append({ storyId, section, content }) appends content to the end of the specified section, leaves other sections untouched
+ *   - background_get({ storyId })                  returns current background.md content
  *
- * 设计约束：
- *   - 不读写 docs/story/actives/{storyId}/ 之外路径
- *   - append 的 section 白名单 = BACKGROUND_SECTION_IDS（4 个）；legacy 中文段名在入口归一
- *   - background.md 不存在时 append / get 报错引导 `background_set`
+ * Design constraints:
+ *   - Does not read/write paths outside docs/story/actives/{storyId}/
+ *   - append's section whitelist = BACKGROUND_SECTION_IDS (4 entries); legacy Chinese section names are normalized at entry
+ *   - When background.md does not exist, append / get errors out and points to `background_set`
  */
 
 import { existsSync, readFileSync, writeFileSync } from 'fs';
@@ -50,15 +50,15 @@ export function createBackgroundHandlers(ctx: HandlerContext) {
       const result = validateBackground(args.content);
       if (!result.ok) {
         throw new Error(
-          'background 格式校验失败:\n' +
+          'background format validation failed:\n' +
           result.errors.map(e => `  - ${e}`).join('\n') + '\n' +
-          '期望 4 段: "## 触发事件" / "## 关键洞察" / "## 方案取舍" / "## 对话纹理"\n' +
-          '每段 ≥ 50 字符，总长 ≥ 300 字符，触发事件段须含具体编号'
+          'expected 4 sections: "## Trigger Event" / "## Key Insights" / "## Solution Tradeoffs" / "## Conversational Texture"\n' +
+          'each section ≥ 50 chars, total length ≥ 300 chars, the trigger event section must include a concrete id'
         );
       }
 
       const p = backgroundPath(ctx, args.storyId);
-      // 保证以换行结尾，与 story_create 落盘惯例一致
+      // ensure trailing newline, consistent with story_create on-disk convention
       const content = args.content.endsWith('\n') ? args.content : args.content + '\n';
       writeFileSync(p, content, 'utf-8');
       return { path: p, bytes: Buffer.byteLength(content, 'utf-8') };
@@ -78,8 +78,8 @@ export function createBackgroundHandlers(ctx: HandlerContext) {
       const targetSectionId = normalizeBackgroundSection(args.section);
       if (!targetSectionId) {
         throw new Error(
-          `非法 section "${args.section}"；合法 section id: ${BACKGROUND_SECTION_IDS.map(s => `"${s}"`).join(' / ')}；` +
-          `legacy 中文段名兼容: ${REQUIRED_SECTIONS.map(s => `"${s}"`).join(' / ')}`
+          `illegal section "${args.section}"; valid section ids: ${BACKGROUND_SECTION_IDS.map(s => `"${s}"`).join(' / ')}; ` +
+          `legacy Chinese section name compatibility: ${REQUIRED_SECTIONS.map(s => `"${s}"`).join(' / ')}`
         );
       }
       const targetSection = backgroundSectionTitle(targetSectionId);
@@ -93,25 +93,25 @@ export function createBackgroundHandlers(ctx: HandlerContext) {
 
       const original = readFileSync(p, 'utf-8');
       const lines = original.split(/\r?\n/);
-      // 记录原文是否以换行结尾（split 会产生末尾空字符串），写回时保持一致
+      // record whether the original ends with a newline (split produces a trailing empty string); preserve when writing back
       const hadTrailingNewline = original.endsWith('\n');
       const workLines = hadTrailingNewline && lines[lines.length - 1] === ''
         ? lines.slice(0, -1)
         : lines;
 
-      // 定位目标段：段头行 index + 段结束 index（下一个 "## " 或 EOF）
+      // locate target section: section header line index + section end index (next "## " or EOF)
       let startIdx = -1;
       for (let i = 0; i < workLines.length; i++) {
         const m = workLines[i].match(/^##\s+(.+?)\s*$/);
         if (m && m[1] === targetSection) { startIdx = i; break; }
       }
       if (startIdx === -1) {
-        // 段头不存在（background.md 缺段）— 报错引导用 background_set 修复格式
+        // section header missing (background.md missing the section) — error out and point to background_set to fix the format
         const existing = parseSections(original);
         throw new Error(
-          `段 "## ${targetSection}" 在 background.md 中未找到；` +
-          `当前段头: ${existing.headers.length > 0 ? existing.headers.map(h => `"## ${h}"`).join(', ') : '(无)'}；` +
-          `请先用 background_set 修复四段式格式`
+          `Section "## ${targetSection}" not found in background.md; ` +
+          `current section headers: ${existing.headers.length > 0 ? existing.headers.map(h => `"## ${h}"`).join(', ') : '(none)'}; ` +
+          `please fix the four-section format with background_set first`
         );
       }
 
@@ -120,13 +120,13 @@ export function createBackgroundHandlers(ctx: HandlerContext) {
         if (/^##\s+/.test(workLines[i])) { endIdx = i; break; }
       }
 
-      // 向前回退，跳过段末的空行，找到最后一个非空内容行后的插入点
+      // Walk backward, skipping trailing blank lines at the end of the section, to find the insertion point after the last non-empty content line
       let insertAfter = endIdx - 1;
       while (insertAfter > startIdx && workLines[insertAfter].trim() === '') {
         insertAfter--;
       }
 
-      // 追加：在 insertAfter 之后插入新内容（原段内容 + \n + content）
+      // Append: insert new content after insertAfter (original section content + \n + content)
       const contentLines = args.content.split(/\r?\n/);
       const newLines = [
         ...workLines.slice(0, insertAfter + 1),

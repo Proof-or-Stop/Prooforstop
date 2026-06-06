@@ -22,7 +22,7 @@
  *     an empty staged set and returns ''.
  *
  * Vocabulary (preMortem #3 anchor):
- *   - User-visible prefix is the literal `\n✓ koala metadata 已自动提交:`,
+ *   - User-visible prefix is the literal `\n✓ koala metadata auto-committed:`,
  *     re-exported as AUTO_COMMIT_METADATA_PREFIX so callers and tests can pin it.
  *   - Coexisting non-metadata dirt is announced with the anchor word
  *     `untouched` — never `handled` / `committed` / `all clean`.
@@ -43,7 +43,7 @@ import { loadConfig } from './config.js';
  * Literal byte-equal user-visible prefix. Pinned for vocabulary consistency
  * across handlers + smoke (preMortem #3 anchor — CHK-003 / CHK-004).
  */
-export const AUTO_COMMIT_METADATA_PREFIX = '\n✓ koala metadata 已自动提交:';
+export const AUTO_COMMIT_METADATA_PREFIX = '\n✓ koala metadata auto-committed:';
 
 /** Canonical literal path prefix the helper is allowed to stage. */
 export const AUTO_COMMIT_STORY_DIR_PREFIX = '.koala/story/actives/';
@@ -124,7 +124,7 @@ function isNonGitRepositoryError(error: unknown): boolean {
  *
  * @returns User-visible suffix (multi-line) to append to the handler's primary
  *          response. Empty string when no commit was produced (non-story branch,
- *          no dirty metadata, etc.). On failure, returns a `⚠ ... 失败` warning
+ *          no dirty metadata, etc.). On failure, returns a `⚠ ... failed` warning
  *          line and also writes a health issue (never throws).
  */
 export function autoCommitStoryMetadata(
@@ -213,6 +213,6 @@ export function autoCommitStoryMetadata(
       reason,
       projectRoot,
     });
-    return `\n⚠ koala metadata 自动提交失败: ${e?.message || e}`;
+    return `\n⚠ koala metadata auto-commit failed: ${e?.message || e}`;
   }
 }

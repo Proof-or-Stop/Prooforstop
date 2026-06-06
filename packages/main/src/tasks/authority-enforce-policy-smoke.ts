@@ -18,7 +18,7 @@
  *   - Malformed / non-JSON body → non-success outcome.
  *   - Overclaim response (body contains `receipt`, `receiptId`, `gatePassed`, or
  *     `accepted`) → non-success outcome.
- *   - Missing KOALA_AUTHORITY_URL → non-success with descriptive message.
+ *   - Missing LATTICE_AUTHORITY_URL → non-success with descriptive message.
  *   - GET /v1/authority/policy is called (correct path).
  *   - /v1/evidence and /v1/evidence/batch POST are NEVER called.
  *   - Real CLI child-process: authority_enforce_policy and nested alias
@@ -127,7 +127,7 @@ const BASE_URL = 'https://authority.test';
   const { fetch, calls } = fetchStub(200, JSON.stringify(fakePolicy()));
   const result = await runAuthorityEnforcePolicy(
     { authorityURL: BASE_URL, _fetchImpl: fetch },
-    { KOALA_AUTHORITY_URL: BASE_URL },
+    { LATTICE_AUTHORITY_URL: BASE_URL },
   );
 
   assert.equal(result.ok, true, 'valid policy → ok:true');
@@ -272,11 +272,11 @@ for (const overclaim of ['receipt', 'receiptId', 'gatePassed', 'accepted']) {
   const { fetch, calls } = fetchStub(200, JSON.stringify(fakePolicy()));
   const result = await runAuthorityEnforcePolicy(
     { _fetchImpl: fetch },
-    {}, // no KOALA_AUTHORITY_URL
+    {}, // no LATTICE_AUTHORITY_URL
   );
   assert.equal(result.ok, false, 'missing URL → ok:false');
   assert.equal(result.disclaimer, AUTHORITY_ENFORCE_POLICY_DISCLAIMER, 'missing URL → disclaimer');
-  assert.ok(result.error?.includes('KOALA_AUTHORITY_URL'), 'missing URL → error names the env var');
+  assert.ok(result.error?.includes('LATTICE_AUTHORITY_URL'), 'missing URL → error names the env var');
   assert.equal(calls.length, 0, 'missing URL → no network call made');
 }
 

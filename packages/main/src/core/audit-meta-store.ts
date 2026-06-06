@@ -1,16 +1,16 @@
 /**
- * B-9bd9 CHK-002: meta-story B-META-framework-audit 容器 + drift hash + round 管理
+ * B-9bd9 CHK-002: meta-story B-META-framework-audit container + drift hash + round management
  *
- * 职责：
- *   - ensureMetaStory(): 幂等创建 meta-story（固定 ID: B-META-framework-audit，phase=META，永不进 DONE）
- *   - beginRound(storyId): 读 story.events 推出下一轮 round number（1-based，单调递增）
- *   - upsertDrift(round, drift): driftHash 已存在 → 刷 lastSeenAt + reviewRound；不存在 → 新建 finding（带签名）
- *   - autoResolveMissing(round, seenHashes): 上一轮存在、本轮未见的 → 批量 auto-resolve
+ * Responsibilities:
+ *   - ensureMetaStory(): idempotently creates the meta-story (fixed ID: B-META-framework-audit, phase=META, never enters DONE)
+ *   - beginRound(storyId): reads story.events to derive the next round number (1-based, monotonically increasing)
+ *   - upsertDrift(round, drift): driftHash already exists → refresh lastSeenAt + reviewRound; doesn't exist → create new finding (with signature)
+ *   - autoResolveMissing(round, seenHashes): existed in last round, not seen this round → batch auto-resolve
  *
- * driftHash 输入严格只有 (sectionPath, symbol, driftType) 三元组（crypto sha1 前 10 位），
- * 不含时间戳/pid/随机，保证跨进程 + 跨轮次稳定。
+ * driftHash input is strictly only the (sectionPath, symbol, driftType) triple (first 10 chars of crypto sha1),
+ * without timestamp/pid/random, ensuring stability across processes + across rounds.
  *
- * 所有函数都是纯函数，通过注入 StoryStore 实例解耦文件 I/O。
+ * All functions are pure functions, decoupled from file I/O via injected StoryStore instances.
  */
 
 import { createHash } from 'crypto';
@@ -18,30 +18,30 @@ import type { StoryStore } from './store.js';
 import type { DisprovenEvidence, Finding, FindingEvidenceState, StoryInfo, StoryEvent } from './types.js';
 import { signFinding } from './finding-verify.js';
 
-/** Meta-story 的固定 ID（全仓唯一容器） */
+/** Fixed ID of the meta-story (unique container across the repo) */
 export const META_STORY_ID = 'B-META-framework-audit';
 
 /**
- * Guard: meta-story 能否进 target phase。
- * 返回 null 表示允许；返回 string 是拒绝理由（供 transition-orchestrator 抛错消息使用）。
+ * Guard: whether the meta-story can enter the target phase.
+ * Returns null to allow; returns a string for the rejection reason (used by transition-orchestrator's thrown error message).
  *
- * 规则：B-META-* 前缀的 story 是容器，**任何 phase 推进都被拒**——它们不走 INIT/PLAN/DEV/
- * REVIEW/TEST/DONE 常规流程，只通过 audit round 累积 finding。若不在此处拦截，transition-orchestrator
- * 后续 `createStoryActor(..., 'META', ...)` 会在 xstate machine 中找不到 META 状态节点，
- * 抛出令人困惑的通用错误 `Cannot transition from META to X`。这里给出明确错误文案。
+ * Rules: stories with the B-META-* prefix are containers, **any phase advance is rejected**——they do not follow the regular INIT/PLAN/DEV/
+ * REVIEW/TEST/DONE flow, only accumulating findings through audit rounds. Without intercepting here, transition-orchestrator's
+ * subsequent `createStoryActor(..., 'META', ...)` would fail to find the META state node in the xstate machine,
+ * throwing the confusing generic error `Cannot transition from META to X`. Provide a clear error message here.
  */
 export function checkMetaStoryAdvanceGuard(storyId: string, _targetPhase: string): string | null {
   if (storyId.startsWith('B-META-')) {
     return (
       `Cannot advance meta-story ${storyId}: META stories are containers; cannot advance via story_advance. ` +
-      `meta-story 只通过 audit round 累积 finding，不走常规 phase 流转。` +
-      `若需停止 audit 请改 .koala/audit-config.json 的 mode=off。`
+      `meta-story only accumulates findings through audit rounds, it does not follow regular phase transitions. ` +
+      `To stop audit, change mode=off in .koala/audit-config.json.`
     );
   }
   return null;
 }
 
-/** Drift 输入三元组（driftHash 唯一输入，任何字段变化 → hash 变） */
+/** Drift input triple (sole input to driftHash, any field change → hash change) */
 export interface DriftInput {
   sectionPath: string;
   symbol: string;
@@ -50,7 +50,7 @@ export interface DriftInput {
   severity: 'critical' | 'high' | 'medium' | 'low';
 }
 
-/** upsertDrift 返回的三态，方便上层（CHK-001 audit 命令）区分 */
+/** Tri-state returned by upsertDrift, for upper layer (CHK-001 audit command) to distinguish */
 export type DriftState = 'new' | 'still-drifting';
 
 export interface UpsertResult {
@@ -60,8 +60,8 @@ export interface UpsertResult {
 }
 
 /**
- * driftHash = sha1(sectionPath + '|' + symbol + '|' + driftType) 前 10 位。
- * 严格三元组输入，跨进程稳定。desc/severity 不入签名（允许描述微调而不新增 finding）。
+ * driftHash = first 10 chars of sha1(sectionPath + '|' + symbol + '|' + driftType).
+ * Strict triple input, stable across processes. desc/severity are not part of the signature (allows minor description tweaks without creating a new finding).
  */
 export function driftHash(sectionPath: string, symbol: string, driftType: string): string {
   return createHash('sha1')
@@ -71,8 +71,8 @@ export function driftHash(sectionPath: string, symbol: string, driftType: string
 }
 
 /**
- * 幂等创建 meta-story：已存在则跳过，否则按标准 StoryInfo 写入。
- * phase=META 是特殊值（types.ts 里已加），永不进 DONE；由 transition-orchestrator 的 guard 拦截。
+ * Idempotently create the meta-story: skip if it already exists, otherwise write as a standard StoryInfo.
+ * phase=META is a special value (already added in types.ts), never advances to DONE; intercepted by the transition-orchestrator's guard.
  */
 export function ensureMetaStory(store: StoryStore): { created: boolean; storyId: string } {
   if (store.storyExists(META_STORY_ID)) {
@@ -82,10 +82,10 @@ export function ensureMetaStory(store: StoryStore): { created: boolean; storyId:
   const story: StoryInfo = {
     storyId: META_STORY_ID,
     name: 'framework-audit',
-    title: 'koala 框架自省 audit（跨 story 长存容器）',
+    title: 'koala framework introspection audit (cross-story long-lived container)',
     description:
-      'B-9bd9 引入的 meta-story 容器：承载「CLAUDE.md 承诺 vs 实际代码行为」drift finding。' +
-      '每次 audit 新增一个 round，drift hash 稳定签名防重复；此 story 永不进 DONE。',
+      'Meta-story container introduced by B-9bd9: carries drift findings for "CLAUDE.md promises vs actual code behavior". ' +
+      'Each audit appends a new round, drift hash provides stable signature to prevent duplicates; this story never advances to DONE.',
     type: 'meta',
     phase: 'META',
     priority: 'low',
@@ -99,12 +99,12 @@ export function ensureMetaStory(store: StoryStore): { created: boolean; storyId:
 }
 
 /**
- * beginRound: 返回下一轮 round number（1-based）。
- * 通过读 story.events 中 action='advance' 且 phase='REVIEW' 的条目推断已有轮数，+1 即为本轮。
- * 此函数本身不写事件——由上层（CHK-001 audit 命令）在跑完 audit 后自行 append。
+ * beginRound: returns the next round number (1-based).
+ * Infers existing round count by reading entries in story.events with action='advance' and phase='REVIEW', +1 gives the current round.
+ * This function itself does not write events — the upper layer (CHK-001 audit command) appends them after running the audit.
  *
- * 对 meta-story：events 里只有 audit round 记录（因为 meta-story 不走常规 REVIEW），
- * 所以我们用 `phase=META` + `action=advance` 作为 round 标记。首次调用返回 1。
+ * For meta-story: events only contain audit round records (because meta-story does not go through regular REVIEW),
+ * so we use `phase=META` + `action=advance` as the round marker. First call returns 1.
  */
 export function beginRound(store: StoryStore, storyId: string = META_STORY_ID): number {
   try {
@@ -119,9 +119,9 @@ export function beginRound(store: StoryStore, storyId: string = META_STORY_ID): 
 }
 
 /**
- * 记录一轮 audit round（append event 到 meta-story.events）。
- * 与 beginRound 配对使用：beginRound 读当前轮数，audit 跑完后调此函数落盘。
- * 对测试也有用：不依赖真实 audit 流程即可模拟 round 递增。
+ * Record one audit round (append event to meta-story.events).
+ * Used in pair with beginRound: beginRound reads the current round number, this function persists after the audit completes.
+ * Also useful for tests: can simulate round increments without relying on the real audit flow.
  */
 export function recordRound(store: StoryStore, round: number, storyId: string = META_STORY_ID): void {
   const story = store.readStory(storyId);
@@ -139,12 +139,12 @@ export function recordRound(store: StoryStore, round: number, storyId: string = 
 
 /**
  * upsertDrift:
- *   - hash 已存在于 findings → 更新 lastSeenAt + reviewRound（标识本轮仍漂移），status 保持 open；
- *     若之前 auto-resolved 过（status=resolved）则重置为 open（drift 又回来了）。
- *   - hash 不存在 → 调 finding_add 路径，创建带签名 finding。
+ *   - hash already exists in findings → update lastSeenAt + reviewRound (mark that drift still exists this round), status stays open;
+ *     if previously auto-resolved (status=resolved), reset to open (drift came back).
+ *   - hash does not exist → call the finding_add path to create a signed finding.
  *
- * 返回 {state, driftHash, findingId}，state='new' 或 'still-drifting'。
- * 'resolved-by-nature' 状态由 autoResolveMissing 产出，不在此函数的返回里。
+ * Returns {state, driftHash, findingId}, state='new' or 'still-drifting'.
+ * The 'resolved-by-nature' state is produced by autoResolveMissing and is not part of this function's return.
  */
 export function upsertDrift(
   store: StoryStore,
@@ -161,7 +161,7 @@ export function upsertDrift(
   if (existing) {
     existing.lastSeenAt = now;
     existing.reviewRound = roundStr;
-    // drift 又回来了：之前 auto-resolved 的重新开
+    // drift returns: previously auto-resolved ones reopen
     if (existing.status === 'resolved') {
       existing.status = 'open';
     }
@@ -169,14 +169,14 @@ export function upsertDrift(
     return { state: 'still-drifting', driftHash: hash, findingId: existing.id };
   }
 
-  // 新 finding：走 finding_add 签名路径
+  // New finding: go through finding_add signature path
   const nextNum = data.findings.length + 1;
   const id = `${storyId}:F-${String(nextNum).padStart(3, '0')}`;
   const finding: Finding = {
     id,
     desc: drift.desc,
     severity: drift.severity,
-    category: 'missing', // audit drift 本质是「承诺 vs 实际」缺失，归 missing 类
+    category: 'missing', // audit drift is essentially "promise vs actual" missing, classified as missing
     status: 'open',
     agent: 'koala-audit',
     createdAt: now,
@@ -192,11 +192,11 @@ export function upsertDrift(
 }
 
 /**
- * autoResolveMissing: 上一轮存在（状态 open）、本轮传入 seen set 里缺失的 finding → 批量 auto-resolve。
+ * autoResolveMissing: findings that existed in the previous round (status open) but are absent from the seen set passed in this round → batch auto-resolve.
  * reason = "drift cleared at round ${round}"。
  *
- * 判定「上一轮存在」的依据：finding.reviewRound < round（即不是本轮刚更新的）且 status=open 且有 driftHash。
- * 只 resolve audit finding（有 driftHash 字段），普通 finding 不受影响。
+ * Basis for determining "existed in previous round": finding.reviewRound < round (i.e., not just updated this round) and status=open and has driftHash.
+ * Only resolves audit findings (those with driftHash field); regular findings are unaffected.
  */
 export function autoResolveMissing(
   store: StoryStore,
@@ -210,11 +210,11 @@ export function autoResolveMissing(
   const roundStr = String(round);
 
   for (const f of data.findings) {
-    if (!f.driftHash) continue; // 不是 audit finding
+    if (!f.driftHash) continue; // Not an audit finding
     if (f.status !== 'open') continue;
-    if (seenHashes.has(f.driftHash)) continue; // 本轮仍然出现
-    // 显式检查 reviewRound 字段存在性：缺失/null/undefined 视为老式数据，
-    // 保守不 resolve 以免误伤（F-021）。本轮 roundStr 相等则跳过（本轮刚新建/更新）。
+    if (seenHashes.has(f.driftHash)) continue; // Still present this round
+    // Explicitly check reviewRound field existence: missing/null/undefined treated as legacy data,
+    // conservatively don't resolve to avoid false positives (F-021). Skip if roundStr equals this round (just created/updated this round).
     if (f.reviewRound == null) continue;
     if (f.reviewRound === roundStr) continue;
     f.status = 'resolved';
@@ -229,38 +229,38 @@ export function autoResolveMissing(
 }
 
 /**
- * B-3fad CHK-002: 人工框架 gap 归档入口（gap_log handler 调用）。
+ * B-3fad CHK-002: Manual framework gap archive entry point (called by gap_log handler).
  *
- * 与 upsertDrift（机械 audit scan 写入）平行的「人工补录」路径：
- *   - upsertDrift: 机械 scan 确定 drift，可 verified，按 driftHash 幂等去重；
- *   - appendGapFinding: 人工发现的框架 gap，默认 suspected（未经机械确认），无 driftHash。
+ * Parallel "manual supplement" path to upsertDrift (mechanical audit scan writes):
+ *   - upsertDrift: mechanical scan determines drift, can be verified, idempotent dedup by driftHash;
+ *   - appendGapFinding: manually discovered framework gap, defaults to suspected (no mechanical confirmation), no driftHash.
  *
- * 复用 audit-meta-store 的存储路径（B-META findings.json），不造平行存储。
- * 调用方负责先做 ensureMetaStory(store) bootstrap 容器（gap_log handler 已做）。
+ * Reuses audit-meta-store's storage path (B-META findings.json), does not create parallel storage.
+ * Caller is responsible for first doing ensureMetaStory(store) bootstrap container (gap_log handler already does this).
  *
- * evidenceState 护栏：默认 suspected；只有调用方已校验存在结构化 evidence 字段
- * 才允许传 verified —— 本函数原样信任入参的 evidenceState（runtime 降级校验在
- * gap-log.ts handler 入口完成，与 CLAUDE.md「Handler 编码约定」一致）。
+ * evidenceState guardrail: defaults to suspected; only when the caller has verified that structured evidence fields exist
+ * is passing verified allowed — this function trusts the input evidenceState as-is (runtime downgrade validation happens at
+ * the gap-log.ts handler entry, consistent with CLAUDE.md "Handler Coding Convention").
  *
- * B-f60c CHK-003: gap_log 现在在 main write lock 内做 idempotency 去重
+ * B-f60c CHK-003: gap_log now does idempotency dedup inside the main write lock
  * （session-ownership-and-write-leases.md "Idempotency Requirements"）。
  */
 export interface GapFindingInput {
-  /** finding 分类（happy/edge/adversarial/missing） */
+  /** finding category (happy/edge/adversarial/missing) */
   category: Finding['category'];
-  /** 严重度 */
+  /** severity */
   severity: 'critical' | 'high' | 'medium' | 'low';
-  /** gap 描述（已 trim 非空，由 handler 校验） */
+  /** gap description (trimmed and non-empty, validated by handler) */
   desc: string;
-  /** 证据状态：默认 suspected；verified 仅当 handler 已校验结构化 evidence */
+  /** evidence status: defaults to suspected; verified only when handler has validated structured evidence */
   evidenceState: FindingEvidenceState;
-  /** suspected 时填：为什么只是怀疑 */
+  /** filled when suspected: why it is only a suspicion */
   uncertaintyReason?: string;
-  /** disproven 时填：反证摘要 + 命令 + 源码引用 */
+  /** filled when disproven: counter-evidence summary + command + source reference */
   disprovenEvidence?: DisprovenEvidence;
-  /** 关联文件路径（来源溯源用） */
+  /** related file paths (for source traceability) */
   files?: string[];
-  /** 记录调用者身份（审计字段，不入签名） */
+  /** records caller identity (audit field, not included in signature) */
   agent?: string;
   /**
    * B-f60c CHK-003: structured evidence source fields that feed the

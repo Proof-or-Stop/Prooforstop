@@ -1,19 +1,29 @@
 /**
- * Decision (RALPLAN-DR 结构化决策，OMX ralplan 风格).
+ * Decision (RALPLAN-DR structured decision, OMX ralplan style).
  *
- * PLAN 阶段为每个非 trivial story 落一份 decision.json：
- *   - principles (3-5 条)
- *   - drivers (top 3 关键约束)
- *   - options (≥ 2 个备选 + pros/cons；允许 options=[] 的"单一解"出口，
- *             但要求 rationale ≥ 50 字符且含"排除"关键词说明为何不枚举备选)
+ * The PLAN phase produces a decision.json for each non-trivial story:
+ *   - principles (3-5 items)
+ *   - drivers (top 3 key constraints)
+ *   - options (≥ 2 alternatives + pros/cons; allows an options=[] "single-solution" exit,
+ *             but requires rationale ≥ 50 chars and an exclusion rationale explaining why alternatives are not enumerated)
  *   - chosen + rationale
- *   - preMortem (高风险 story 强制 ≥ 3)
+ *   - preMortem (mandatory ≥ 3 for high-risk stories)
  *
- * 第一版软引入：priority=high 或 riskSignals 非空时 story_review 强制要求。
+ * First-version soft introduction: required by story_review when priority=high or riskSignals is non-empty.
  */
 
 import type { HandlerContext } from './context.js';
 import type { DecisionData, DecisionOption, PreMortemScenario } from '../core/types.js';
+
+const EXCLUSION_RATIONALE_RE =
+  /\b(excluded?|exclusion|ruled\s+out|not\s+enumerated|not\s+listing|not\s+listed|alternatives?\s+omitted|single[-\s]?solution)\b/i;
+
+const LOCALIZED_EXCLUSION_RATIONALE_RE =
+  /(?:\u6392\u9664|\u4e0d\u679a\u4e3e|\u4e0d\u5217\u51fa|\u4e0d\u8003\u8651|\u4e0d\u9700\u8981\u5907\u9009|\u5355\u4e00\u65b9\u6848|\u5176\u4ed6\u5907\u9009|\u66ff\u4ee3\u65b9\u6848)/u;
+
+function hasExclusionRationale(rationale: string): boolean {
+  return EXCLUSION_RATIONALE_RE.test(rationale) || LOCALIZED_EXCLUSION_RATIONALE_RE.test(rationale);
+}
 
 export function createDecisionHandlers(ctx: HandlerContext) {
   const { store } = ctx;
@@ -28,69 +38,71 @@ export function createDecisionHandlers(ctx: HandlerContext) {
       rationale: string;
       preMortem?: PreMortemScenario[];
     }): string {
-      store.readStory(args.storyId); // 校验存在
+      store.readStory(args.storyId); // verify existence
 
-      // 字段校验
+      // field validation
       if (!Array.isArray(args.principles) || args.principles.length < 3 || args.principles.length > 5) {
-        throw new Error('decision.principles 必须是 3-5 条');
+        throw new Error('decision.principles must be 3-5 items');
       }
       if (!Array.isArray(args.drivers) || args.drivers.length < 1 || args.drivers.length > 5) {
-        throw new Error('decision.drivers 必须是 1-5 条（建议 top 3）');
+        throw new Error('decision.drivers must be 1-5 items (top 3 recommended)');
       }
       if (!Array.isArray(args.options)) {
-        throw new Error('decision.options 必须是数组');
+        throw new Error('decision.options must be an array');
       }
       if (args.options.length === 0) {
-        // 空数组出口：要求 rationale ≥ 50 字符且含"排除"关键词，显式列出被排除的方案理由
+        // Empty-array exit: requires rationale >= 50 chars and an exclusion
+        // rationale. Accept common localized phrasing via escaped Unicode so
+        // non-English planning text is not rejected by an English keyword check.
         const rationale = args.rationale || '';
-        if (rationale.trim().length < 50 || !rationale.includes('排除')) {
+        if (rationale.trim().length < 50 || !hasExclusionRationale(rationale)) {
           throw new Error(
-            'options=[] 时 rationale 需 ≥50 字符且含"排除"关键词列出被排除的方案理由；或请提供 ≥ 2 个 options'
+            'when options=[], rationale must be >=50 chars and include an exclusion rationale explaining why alternatives were not enumerated; or please provide >= 2 options'
           );
         }
       } else if (args.options.length < 2) {
-        // 单选项必须说明为什么
+        // a single option must explain why
         const opt = args.options[0];
         if (!opt.cons || opt.cons.length === 0) {
           throw new Error(
-            'decision.options 只有 1 个时必须在 cons 里写明"为什么其他备选被排除"的 invalidation rationale。' +
-            '否则 review 视为"缺少 fair alternatives"（OMX Critic 同款要求）。'
+            'when decision.options has only 1 entry, the cons must state the invalidation rationale of "why other alternatives are excluded".' +
+            'Otherwise review treats it as "missing fair alternatives" (same requirement as OMX Critic).'
           );
         }
       }
       for (const opt of args.options) {
         if (!opt.name || opt.name.trim().length < 3) {
-          throw new Error(`option.name 必须 ≥ 3 字符: ${JSON.stringify(opt)}`);
+          throw new Error(`option.name must be ≥ 3 chars: ${JSON.stringify(opt)}`);
         }
         if (!Array.isArray(opt.pros) || opt.pros.length === 0) {
-          throw new Error(`option "${opt.name}" 缺少 pros`);
+          throw new Error(`option "${opt.name}" is missing pros`);
         }
         if (!Array.isArray(opt.cons) || opt.cons.length === 0) {
-          throw new Error(`option "${opt.name}" 缺少 cons（不能只列好处）`);
+          throw new Error(`option "${opt.name}" is missing cons (cannot list only benefits)`);
         }
       }
       if (args.options.length > 0) {
         if (!args.chosen || args.chosen.trim().length < 3) {
-          throw new Error('decision.chosen 必须指向某个 option.name');
+        throw new Error('decision.chosen must point to one of the option.name values');
         }
         const chosenExists = args.options.some(o => o.name === args.chosen);
         if (!chosenExists) {
           throw new Error(
-            `decision.chosen "${args.chosen}" 不在 options 列表里。可选: ${args.options.map(o => o.name).join(', ')}`
+            `decision.chosen "${args.chosen}" is not in the options list. Available: ${args.options.map(o => o.name).join(', ')}`
           );
         }
       } else {
-        // options=[] 出口：chosen 字段语义淡化（无 option 可指向），允许任意非空字符串作为单一解代号
+        // options=[] exit: chosen field semantics are weakened (no option to point to); allow any non-empty string as the single-solution identifier
         if (!args.chosen || args.chosen.trim().length === 0) {
-          throw new Error('decision.chosen 不能为空（即使 options=[] 也需给单一解一个代号）');
+          throw new Error('decision.chosen cannot be empty (even when options=[], the single solution still needs an identifier)');
         }
       }
       if (!args.rationale || args.rationale.trim().length < 10) {
-        throw new Error('decision.rationale 必须 ≥ 10 字符（说明为什么选这个）');
+        throw new Error('decision.rationale must be ≥ 10 characters (explain why this was chosen)');
       }
 
-      // 高风险 story 强制 ≥ 3 preMortem
-      // B-5010 CHK-004: 被 dismiss 的 riskSignal 不计入高风险判定
+      // High-risk stories require ≥ 3 preMortem entries
+      // B-5010 CHK-004: dismissed riskSignals are not counted toward the high-risk determination
       const story = store.readStory(args.storyId);
       const dismissedCats = new Set((story.riskSignalsDismissed || []).map(d => d.category));
       const activeRiskSignals = (story.riskSignals || []).filter(r => !dismissedCats.has(r.category));
@@ -99,15 +111,15 @@ export function createDecisionHandlers(ctx: HandlerContext) {
       if (isHighRisk) {
         if (!args.preMortem || args.preMortem.length < 3) {
           throw new Error(
-            `高风险 story（priority=${story.priority}${story.riskSignals ? ', riskSignals 非空' : ''}）` +
-            `必须提供 ≥ 3 个 preMortem 场景（当前: ${args.preMortem?.length ?? 0}）。` +
-            `每个场景包含 scenario/trigger/consequence/mitigation 4 个字段。`
+            `High-risk story (priority=${story.priority}${story.riskSignals ? ', riskSignals non-empty' : ''}) ` +
+            `must provide ≥ 3 preMortem scenarios (current: ${args.preMortem?.length ?? 0}). ` +
+            `Each scenario must include the 4 fields scenario/trigger/consequence/mitigation.`
           );
         }
         for (const pm of args.preMortem) {
           if (!pm.scenario || !pm.trigger || !pm.consequence || !pm.mitigation) {
             throw new Error(
-              `preMortem 条目必须同时包含 scenario/trigger/consequence/mitigation 4 个非空字段: ${JSON.stringify(pm)}`
+              `preMortem entry must contain all 4 non-empty fields scenario/trigger/consequence/mitigation: ${JSON.stringify(pm)}`
             );
           }
         }
@@ -130,7 +142,7 @@ export function createDecisionHandlers(ctx: HandlerContext) {
         `  principles:  ${args.principles.length}`,
         `  drivers:     ${args.drivers.length}`,
         `  options:     ${args.options.length} (chosen: ${args.chosen})`,
-        `  preMortem:   ${args.preMortem?.length ?? 0}${isHighRisk ? ' (高风险强制 ≥ 3)' : ''}`,
+        `  preMortem:   ${args.preMortem?.length ?? 0}${isHighRisk ? ' (high-risk requires ≥ 3)' : ''}`,
       ];
       return lines.join('\n');
     },

@@ -10,8 +10,8 @@
  * file imports them and re-exports them for backward-compatible callers while
  * keeping the init_check_set handler factory and the metadata-write lock here.
  *
- * INIT → INIT_CHECK 硬门槛产物 init-check.json 的签名结构与 gate 语义详见
- * core/init-check-gate.ts 模块注释。
+ * For the signature structure and gate semantics of init-check.json (the artifact of the INIT → INIT_CHECK hard gate), see
+ * the module comment in core/init-check-gate.ts.
  */
 
 import { mkdirSync, rmSync, statSync } from 'fs';
@@ -89,17 +89,17 @@ function withInitCheckLock<T>(store: StoryStore, storyId: string, fn: () => T): 
 }
 
 /**
- * init_check_set handler 工厂。
+ * init_check_set handler factory.
  *
- * 由 koala-review-story-init subagent 调用（CHK-002 模板），写入 init-check.json。
- * 不校验调用方 agentId（EXP-001 已证伪 subagent 与主 agent 在 CLI 视角下机械可区分性）；
- * agentId 仅作为 reviewer 自报的审计字段透传。反自豁免靠 (1) 签名机制 +
- * (2) reviewer 模板 fence + (3) CLAUDE.md 行为规约 三层（同 B-ed3e scope-check 已落地架构）。
+ * Called by the koala-review-story-init subagent (CHK-002 template); writes init-check.json.
+ * Does not validate the caller's agentId (EXP-001 has falsified the mechanical distinguishability between subagent and main agent from the CLI perspective);
+ * agentId is passed through purely as a reviewer-self-reported audit field. Anti-self-exemption relies on three layers: (1) the signature mechanism +
+ * (2) the reviewer template fence + (3) CLAUDE.md behavioral conventions (same architecture as the landed B-ed3e scope-check).
  *
- * 三层校验（packages/koala/CLAUDE.md「Handler 编码约定」）：
- * - Zod schema：cli-engine.ts 注册端定义 issues 数组结构 + severity enum + desc min(1)
- * - runtime（本 handler 入口）：再校验 desc.trim().length >= 1，防绕过 Zod 路径
- * - gate 决策点（CHK-005 实现）：消费 init-check.json.issues 时按同标准 trim 校验
+ * Three-layer validation (packages/koala/CLAUDE.md "Handler coding conventions"):
+ * - Zod schema: the cli-engine.ts registration side defines the issues array structure + severity enum + desc min(1)
+ * - runtime (this handler's entry): re-validates desc.trim().length >= 1 to prevent paths that bypass Zod
+ * - gate decision point (CHK-005 implementation): when consuming init-check.json.issues, applies trim validation by the same standard
  */
 export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
   const { store, root } = ctx;
@@ -111,7 +111,7 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
       agentId?: string;
     }): string {
       return withInitCheckLock(store, args.storyId, () => {
-      // 1) story 存在性校验（同 scope_check_save 套路）
+      // 1) story existence check (same approach as scope_check_save)
       let title = '';
       let description = '';
       let reviewRound = '';
@@ -124,31 +124,31 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
         throw new Error(`Story ${args.storyId} not found`);
       }
 
-      // 2) issues runtime 校验（防 Zod 绕过路径，与 gate 端 trim 标准对齐）
+      // 2) runtime validation of issues (guards against Zod-bypass paths, aligned with the gate-side trim standard)
       const issues = Array.isArray(args.issues) ? args.issues : [];
       for (const issue of issues) {
         if (!issue || typeof issue.desc !== 'string' || issue.desc.trim().length < 1) {
           throw new Error(
-            `init_check_set: 每个 issue.desc 必须 trim 后 ≥ 1 字符（reviewer 主观判断需具体）`,
+            `init_check_set: each issue.desc must be >= 1 character after trim (reviewer subjective judgments need to be concrete)`,
           );
         }
       }
 
-      // 3) 计算签名所需的三块 hash
+      // 3) compute the three hashes required for the signature
       const backgroundHash = computeBackgroundHash(root, args.storyId);
       let items: Array<{ title: string; context?: string }> = [];
       try {
         const checklist = store.readChecklist(args.storyId);
         items = checklist.items.map(i => ({ title: i.title, context: i.context }));
       } catch {
-        // checklist.json 不存在时按空数组算 hash（与 recomputeInitCheckHash 行为一致）
+        // when checklist.json does not exist, hash is computed against an empty array (consistent with recomputeInitCheckHash behavior)
       }
       const checklistHash = computeChecklistHash(items);
 
-      // 4) 调签名函数（与 recomputeInitCheckHash 共用 signInitCheck，单一真相源）
+      // 4) invoke the signing function (shares signInitCheck with recomputeInitCheckHash — single source of truth)
       const _hash = signInitCheck(args.storyId, backgroundHash, title, description, checklistHash, reviewRound);
 
-      // 5) 构造 InitCheckData 并落盘
+      // 5) construct InitCheckData and persist to disk
       const checkedAt = new Date().toISOString();
       const agentId = normalizeAgentId(args.agentId || args.agent);
       const previous = store.readInitCheck(args.storyId);
@@ -168,8 +168,8 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
       };
       store.writeInitCheck(args.storyId, data);
 
-      // 6) 返回值含按 severity 分桶的 issue 计数（advisory 模式：critical 也不阻塞这里，
-      //    由 reviewer 模板自律拒调；CHK-005 gate 端 advance 成功消息再 echo critical 警告）
+      // 6) return value contains issue counts bucketed by severity (advisory mode: critical does not block here either,
+      //    the reviewer template self-disciplines and refuses the call; the CHK-005 gate-side advance success message will then echo a critical warning)
       let critical = 0, high = 0, medium = 0, low = 0;
       for (const issue of issues) {
         switch (issue.severity) {
@@ -217,7 +217,7 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
       issues?: InitCheckIssue[];
       actor?: string;
     }): string {
-      // --- Controlled-opt-in preflight (runtime, NOT Zod-only; CLAUDE.md Handler 约定) ---
+      // --- Controlled-opt-in preflight (runtime, NOT Zod-only; CLAUDE.md Handler convention) ---
       // These guards MUST run before any read/write so a refusal produces ZERO file
       // write and ZERO phase change. Default-disabled = both ack + reason required.
       if (args.acknowledge !== true) {
@@ -244,7 +244,7 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
       const issues = Array.isArray(args.issues) ? args.issues : [];
       for (const issue of issues) {
         if (!issue || typeof issue.desc !== 'string' || issue.desc.trim().length < 1) {
-          throw new Error('init_check_repair: 每个 issue.desc 必须 trim 后 ≥ 1 字符');
+          throw new Error('init_check_repair: each issue.desc must be ≥ 1 character after trim');
         }
       }
 
@@ -338,14 +338,14 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
 
         const blockers = blockingInitCheckIssues(data);
         const commitHint = autoCommitStoryMetadata(root, args.storyId, 'init_check_repair');
-        const auditLine = `⚠ fallback 已记入审计事件（actor=${actor || '<unknown>'}, mode=${mode}${session ? `, session=${session}` : ''}），未绕过签名校验`;
+        const auditLine = `⚠ fallback has been recorded in audit events (actor=${actor || '<unknown>'}, mode=${mode}${session ? `, session=${session}` : ''}), signature verification was not bypassed`;
         const boundaryLine = `⚠ Fallback only repairs INIT_CHECK; it does not authorize implementation and does not replace later PLAN/DEV/REVIEW/TEST reviewers.`;
         if (blockers.length > 0) {
           // Operator attested blocking issues → gate still blocks. Be explicit.
           const lines = blockers.slice(0, 8).map(({ issue }) => `  - ${issue.severity} ${issue.id ? `${issue.id} ` : ''}${issue.desc}`);
-          return `✓ init-check.json 已生成（fallback 通道，签名域不变）\n${auditLine}\n${boundaryLine}\n⚠ 但记录了 high/critical issue，INIT_CHECK gate 仍会阻塞，请先修复并重跑：\n${lines.join('\n')}${commitHint}`;
+          return `✓ init-check.json generated (fallback channel, signature domain unchanged)\n${auditLine}\n${boundaryLine}\n⚠ but high/critical issues were recorded, the INIT_CHECK gate will still block. Please fix them and rerun first:\n${lines.join('\n')}${commitHint}`;
         }
-        return `✓ init-check.json 已生成（fallback 通道，签名域不变）\n${auditLine}\n${boundaryLine}\n→ 现在可运行 koala story_advance --storyId=${args.storyId} --phase=INIT_CHECK${commitHint}`;
+        return `✓ init-check.json generated (fallback channel, signature domain unchanged)\n${auditLine}\n${boundaryLine}\n→ You can now run koala story_advance --storyId=${args.storyId} --phase=INIT_CHECK${commitHint}`;
       });
     },
   };

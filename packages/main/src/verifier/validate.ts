@@ -1,5 +1,5 @@
 // ============================================================
-// verifier/validate — 通用 Machine 校验器
+// verifier/validate — Generic Machine validator
 // ============================================================
 
 import type { MachineConfig, CheckResult, ValidateOptions, ValidateResult, ExternalVerifierResult } from './types.js';
@@ -13,48 +13,48 @@ function check(results: CheckResult[], name: string, pass: boolean, details: str
   results.push({ name, pass, details });
 }
 
-/** 校验单个 Machine 的完整性和一致性 */
+/** Validate integrity and consistency of a single Machine */
 export async function validateMachine(machine: MachineConfig, options: ValidateOptions): Promise<ValidateResult> {
   const results: CheckResult[] = [];
   const { fnExports, extraExports, machineSource } = options;
 
   // ═══════════════════════════════════════════════
-  // 第一层：静态传感器（声明一致性）
+  // Layer 1: Static sensors (declaration consistency)
   // ═══════════════════════════════════════════════
 
-  // 1. 所有 action 引用都是真实函数
+  // 1. All action references are real functions
   {
     const missing: string[] = [];
     for (const t of machine.transitions) {
       if (typeof t.action.fn !== 'function') {
-        missing.push(`${t.from}→${t.to}: action "${t.action.name}" 不是函数`);
+        missing.push(`${t.from}→${t.to}: action "${t.action.name}" is not a function`);
       }
     }
-    check(results, 'Action 函数存在',
+    check(results, 'Action functions exist',
       missing.length === 0,
       missing.length === 0
-        ? `全部 ${machine.transitions.length} 条转换的 action 均为有效函数`
+        ? `All ${machine.transitions.length} transitions have valid action functions`
         : missing.join('; ')
     );
   }
 
-  // 2. 所有 guard 引用都是真实函数
+  // 2. All guard references are real functions
   {
     const missing: string[] = [];
     for (const t of machine.transitions) {
       if (typeof t.guard.fn !== 'function') {
-        missing.push(`${t.from}→${t.to}: guard "${t.guard.name}" 不是函数`);
+        missing.push(`${t.from}→${t.to}: guard "${t.guard.name}" is not a function`);
       }
     }
-    check(results, 'Guard 函数存在',
+    check(results, 'Guard functions exist',
       missing.length === 0,
       missing.length === 0
-        ? `全部 ${machine.transitions.length} 条转换的 guard 均为有效函数`
+        ? `All ${machine.transitions.length} transitions have valid guard functions`
         : missing.join('; ')
     );
   }
 
-  // 3. 所有转换中的状态都在 states 列表中
+  // 3. All states in transitions are in the states list
   {
     const stateSet = new Set(machine.states);
     const undeclared: string[] = [];
@@ -65,15 +65,15 @@ export async function validateMachine(machine: MachineConfig, options: ValidateO
     if (!stateSet.has(machine.initial)) {
       undeclared.push(`initial: "${machine.initial}"`);
     }
-    check(results, '状态声明完整',
+    check(results, 'State declarations complete',
       undeclared.length === 0,
       undeclared.length === 0
-        ? `全部 ${stateSet.size} 个状态声明一致`
-        : `未声明的状态: ${undeclared.join(', ')}`
+        ? `All ${stateSet.size} states declared consistently`
+        : `Undeclared states: ${undeclared.join(', ')}`
     );
   }
 
-  // 4. 所有状态从初始状态可达
+  // 4. All states reachable from initial state
   {
     const reachable = new Set<string>();
     const queue: string[] = [machine.initial];
@@ -88,15 +88,15 @@ export async function validateMachine(machine: MachineConfig, options: ValidateO
       }
     }
     const unreachable = machine.states.filter(s => !reachable.has(s));
-    check(results, '所有状态可达',
+    check(results, 'All states reachable',
       unreachable.length === 0,
       unreachable.length === 0
-        ? `从 "${machine.initial}" 可达全部 ${machine.states.length} 个状态`
-        : `不可达状态: ${unreachable.join(', ')}`
+        ? `All ${machine.states.length} states reachable from "${machine.initial}"`
+        : `Unreachable states: ${unreachable.join(', ')}`
     );
   }
 
-  // 5. 非终止状态不存在死路
+  // 5. No dead-ends in non-terminal states
   {
     const terminalSet = new Set(machine.terminalStates);
     const deadEnds: string[] = [];
@@ -105,26 +105,26 @@ export async function validateMachine(machine: MachineConfig, options: ValidateO
       const hasOutgoing = machine.transitions.some(t => t.from === state);
       if (!hasOutgoing) deadEnds.push(state);
     }
-    check(results, '无死路状态',
+    check(results, 'No dead-end states',
       deadEnds.length === 0,
       deadEnds.length === 0
-        ? '全部非终止状态都有出边'
-        : `死路状态: ${deadEnds.join(', ')}`
+        ? 'All non-terminal states have outgoing edges'
+        : `Dead-end states: ${deadEnds.join(', ')}`
     );
   }
 
-  // 6. 所有 transition 必须有 description
+  // 6. All transitions must have a description
   {
     const missing = machine.transitions.filter(t => !t.description?.trim());
-    check(results, 'Transition 描述完整',
+    check(results, 'Transition descriptions complete',
       missing.length === 0,
       missing.length === 0
-        ? `全部 ${machine.transitions.length} 条转换都有 description`
-        : `缺少描述: ${missing.map(t => `${t.from}→${t.to} [${t.event}]`).join(', ')}`
+        ? `All ${machine.transitions.length} transitions have descriptions`
+        : `Missing descriptions: ${missing.map(t => `${t.from}→${t.to} [${t.event}]`).join(', ')}`
     );
   }
 
-  // 7. Machine 纯配置检查
+  // 7. Machine pure-config check
   if (machineSource) {
     const fnDefs = [...machineSource.matchAll(/^(?:export\s+)?function\s+(\w+)/gm)];
     const plannedStubNames = machine.transitions
@@ -136,45 +136,45 @@ export async function validateMachine(machine: MachineConfig, options: ValidateO
         violations.push(m[1]);
       }
     }
-    check(results, 'Machine 纯配置（无函数定义）',
+    check(results, 'Machine pure config (no function definitions)',
       violations.length === 0,
       violations.length === 0
-        ? 'machine.ts 仅含 planned stub，无非法函数定义'
-        : `machine.ts 中发现非 stub 函数: ${violations.join(', ')}（应移到 fn.ts）`
+        ? 'machine.ts contains only planned stubs, no illegal function definitions'
+        : `Non-stub functions found in machine.ts: ${violations.join(', ')} (should be moved to fn.ts)`
     );
   }
 
-  // 8. 非 planned action 必须来自 fn.ts
+  // 8. Non-planned actions must come from fn.ts
   {
     const fnNames = new Set(Object.keys(fnExports));
     const violations: string[] = [];
     for (const t of machine.transitions) {
       if (t.planned) continue;
       if (!fnNames.has(t.action.name)) {
-        violations.push(`${t.from}→${t.to}: action "${t.action.name}" 不在 fn.ts 中`);
+        violations.push(`${t.from}→${t.to}: action "${t.action.name}" not in fn.ts`);
       }
     }
-    check(results, 'Action 来源合规（非 planned）',
+    check(results, 'Action source compliance (non-planned)',
       violations.length === 0,
       violations.length === 0
-        ? '全部活跃转换的 action 均来自 fn.ts'
+        ? 'All active transition actions come from fn.ts'
         : violations.join('; ')
     );
   }
 
-  // 9. Planned 转换清单
+  // 9. Planned transition list
   {
     const plannedList = machine.transitions.filter(t => t.planned);
     if (plannedList.length > 0) {
       const items = plannedList.map(t => `${t.from}→${t.to} [${t.event}]`);
-      check(results, 'Planned 转换（待实现）',
+      check(results, 'Planned transitions (to be implemented)',
         true,
-        `${plannedList.length} 条待实现: ${items.join(', ')}`
+        `${plannedList.length} pending implementation: ${items.join(', ')}`
       );
     }
   }
 
-  // 10. Constraint 引用的函数存在
+  // 10. Constraint-referenced functions exist
   {
     const allNames = new Set([
       ...Object.keys(fnExports),
@@ -186,15 +186,15 @@ export async function validateMachine(machine: MachineConfig, options: ValidateO
         missing.push(`"${c.name}" (time: ${c.time}ms)`);
       }
     }
-    check(results, '性能约束函数存在',
+    check(results, 'Performance constraint functions exist',
       missing.length === 0,
       missing.length === 0
-        ? `全部 ${machine.constraints.length} 条约束引用的函数均存在`
-        : `缺失: ${missing.join(', ')}`
+        ? `All functions referenced by ${machine.constraints.length} constraints exist`
+        : `Missing: ${missing.join(', ')}`
     );
   }
 
-  // 11. 孤儿函数检测
+  // 11. Orphan function detection
   {
     const referencedFns = new Set<Function>();
     for (const t of machine.transitions) {
@@ -212,7 +212,7 @@ export async function validateMachine(machine: MachineConfig, options: ValidateO
       if (fnExports[c.name]) directlyReferenced.add(c.name);
     }
 
-    // BFS 找间接引用
+    // BFS to find indirect references
     const visited = new Set<string>(directlyReferenced);
     const queue = [...directlyReferenced];
     while (queue.length > 0) {
@@ -231,31 +231,31 @@ export async function validateMachine(machine: MachineConfig, options: ValidateO
     const orphans = fnEntries.map(([n]) => n).filter(n => !visited.has(n));
 
     if (orphans.length > 0) {
-      check(results, '孤儿函数检测',
-        true, // warning 不是 error
-        `⚠ fn.ts 中 ${orphans.length} 个函数未被 Machine 引用（可能是残留代码）: ${orphans.join(', ')}`
+      check(results, 'Orphan function detection',
+        true, // warning, not error
+        `⚠ ${orphans.length} functions in fn.ts not referenced by Machine (possibly leftover code): ${orphans.join(', ')}`
       );
     }
   }
 
-  // 12. shellSources 检查：I/O 壳不应直接 import fn.ts
+  // 12. shellSources check: I/O shells must not directly import fn.ts
   if (options.shellSources) {
     const violations: string[] = [];
     for (const [file, content] of Object.entries(options.shellSources)) {
-      // 匹配 import ... from '...fn.js' 或 './fn' 等
+      // Match import ... from '...fn.js' or './fn' etc.
       if (/from\s+['"][^'"]*\/fn(?:\.js|\.ts)?['"]/m.test(content) || /from\s+['"]\.\/fn(?:\.js|\.ts)?['"]/m.test(content)) {
         violations.push(file);
       }
     }
-    check(results, 'I/O 壳隔离（Bridge）',
+    check(results, 'I/O shell isolation (Bridge)',
       violations.length === 0,
       violations.length === 0
-        ? '所有 shell 文件通过 bridge 交互，未直接 import fn'
-        : `以下 shell 文件直接 import 了 fn（应通过 bridge 交互）: ${violations.join(', ')}`
+        ? 'All shell files interact via bridge, none directly import fn'
+        : `The following shell files directly import fn (should interact via bridge): ${violations.join(', ')}`
     );
   }
 
-  // 13. Finding 覆盖率检查（如果传入 findings + integrationTests/logicTests with findingRef）
+  // 13. Finding coverage check (if findings + integrationTests/logicTests with findingRef are provided)
   if (options.findings && options.findings.length > 0) {
     const criticalFindings = options.findings.filter(f => f.severity === 'critical' || f.severity === 'high');
     const coveredIds = new Set<string>();
@@ -270,16 +270,16 @@ export async function validateMachine(machine: MachineConfig, options: ValidateO
       }
     }
     const uncovered = criticalFindings.filter(f => !coveredIds.has(f.id));
-    check(results, 'Finding 覆盖率',
+    check(results, 'Finding coverage',
       uncovered.length === 0,
       uncovered.length === 0
-        ? `全部 ${criticalFindings.length} 条 critical/high finding 都有测试覆盖`
-        : `${uncovered.length} 条 critical/high finding 无测试覆盖: ${uncovered.map(f => `${f.id} (${f.severity}) ${f.desc}`).join('; ')}`
+        ? `All ${criticalFindings.length} critical/high findings have test coverage`
+        : `${uncovered.length} critical/high findings lack test coverage: ${uncovered.map(f => `${f.id} (${f.severity}) ${f.desc}`).join('; ')}`
     );
   }
 
   // ═══════════════════════════════════════════════
-  // 第二层：逻辑链路测试（白盒，内存里跑纯函数）
+  // Second layer: logic path tests (white box, run pure functions in memory)
   // ═══════════════════════════════════════════════
 
   if (options.logicTests && options.logicTests.length > 0) {
@@ -306,11 +306,11 @@ export async function validateMachine(machine: MachineConfig, options: ValidateO
               matched = t;
               break;
             }
-          } catch { /* guard 抛异常 = 不匹配 */ }
+          } catch { /* guard threw = no match */ }
         }
 
         if (!matched) {
-          failures.push(`[${pt.name}] 步骤 ${i + 1}: 在 "${currentState}" 无匹配转换 (event=${step.event})`);
+          failures.push(`[${pt.name}] step ${i + 1}: no matching transition at "${currentState}" (event=${step.event})`);
           failed = true;
           break;
         }
@@ -319,7 +319,7 @@ export async function validateMachine(machine: MachineConfig, options: ValidateO
           const result = matched.action.fn(...actionArgs);
           state = pt.extractState(result);
         } catch (e) {
-          failures.push(`[${pt.name}] 步骤 ${i + 1}: action "${matched.action.name}" 抛异常: ${e}`);
+          failures.push(`[${pt.name}] step ${i + 1}: action "${matched.action.name}" threw: ${e}`);
           failed = true;
           break;
         }
@@ -332,13 +332,13 @@ export async function validateMachine(machine: MachineConfig, options: ValidateO
         const expected = pt.expectedPath.join(' → ');
         const actual = actualPath.join(' → ');
         if (expected !== actual) {
-          failures.push(`[${pt.name}] 路径不匹配\n      期望: ${expected}\n      实际: ${actual}`);
+          failures.push(`[${pt.name}] path mismatch\n      expected: ${expected}\n      actual: ${actual}`);
         }
       }
     }
 
     const passedTests = options.logicTests.map(pt => `[${pt.name}] ${pt.expectedPath.join(' → ')}`);
-    check(results, `逻辑链路测试（${options.logicTests.length} 条）`,
+    check(results, `Logic path tests (${options.logicTests.length})`,
       failures.length === 0,
       failures.length === 0
         ? passedTests.join('\n    ')
@@ -346,7 +346,7 @@ export async function validateMachine(machine: MachineConfig, options: ValidateO
     );
   }
 
-  // 逻辑测试覆盖率
+  // Logic test coverage
   {
     const active = machine.transitions.filter(t => !t.planned);
     const coveredSet = new Set<string>();
@@ -358,16 +358,16 @@ export async function validateMachine(machine: MachineConfig, options: ValidateO
       }
     }
     const uncovered = active.filter(t => !coveredSet.has(`${t.from}→${t.to}`));
-    check(results, '逻辑测试覆盖率',
+    check(results, 'Logic test coverage',
       uncovered.length === 0,
       uncovered.length === 0
-        ? `全部 ${active.length} 条活跃转换都有逻辑测试覆盖`
-        : `${uncovered.length} 条未覆盖: ${uncovered.map(t => `${t.from}→${t.to} [${t.event}]`).join(', ')}`
+        ? `All ${active.length} active transitions have logic test coverage`
+        : `${uncovered.length} uncovered: ${uncovered.map(t => `${t.from}→${t.to} [${t.event}]`).join(', ')}`
     );
   }
 
   // ═══════════════════════════════════════════════
-  // 第三层：真机集成测试（黑盒，spawn 真进程）
+  // Third layer: real-machine integration tests (black box, spawn real processes)
   // ═══════════════════════════════════════════════
 
   if (options.integrationTests && options.integrationTests.length > 0) {
@@ -379,14 +379,14 @@ export async function validateMachine(machine: MachineConfig, options: ValidateO
       for (const c of it.covers) coveredByIntegration.add(c);
     }
     const uncovered = active.filter(t => !coveredByIntegration.has(`${t.from}→${t.to}`));
-    check(results, '真机测试覆盖声明',
+    check(results, 'Real-machine test coverage declaration',
       uncovered.length === 0,
       uncovered.length === 0
-        ? `全部 ${active.length} 条活跃转换都有真机测试声明覆盖`
-        : `${uncovered.length} 条未覆盖: ${uncovered.map(t => `${t.from}→${t.to}`).join(', ')}`
+        ? `All ${active.length} active transitions have real-machine test declarations`
+        : `${uncovered.length} uncovered: ${uncovered.map(t => `${t.from}→${t.to}`).join(', ')}`
     );
 
-    // Per-shell coverage check（未声明 shells 时默认 ['cli']，CLI 完整性原则；有 core test 时用 core 兜底）
+    // Per-shell coverage check (defaults to ['cli'] when shells not declared, CLI completeness principle; falls back to core when core test exists)
     const hasCoreTests = options.integrationTests.some(it => it.type === 'core');
     const effectiveShells = (machine.shells && machine.shells.length > 0)
       ? machine.shells
@@ -399,11 +399,11 @@ export async function validateMachine(machine: MachineConfig, options: ValidateO
           for (const c of it.covers) shellCovered.add(c);
         }
         const shellUncovered = active.filter(t => !shellCovered.has(`${t.from}→${t.to}`));
-        check(results, `${shell} 测试覆盖率`,
+        check(results, `${shell} test coverage`,
           shellUncovered.length === 0,
           shellUncovered.length === 0
-            ? `全部 ${active.length} 条活跃转换都有 ${shell} 测试覆盖`
-            : `${shellUncovered.length} 条未被 ${shell} 覆盖: ${shellUncovered.map(t => `${t.from}→${t.to}`).join(', ')}`
+            ? `All ${active.length} active transitions have ${shell} test coverage`
+            : `${shellUncovered.length} not covered by ${shell}: ${shellUncovered.map(t => `${t.from}→${t.to}`).join(', ')}`
         );
       }
     }
@@ -419,8 +419,8 @@ export async function validateMachine(machine: MachineConfig, options: ValidateO
       : options.integrationTests;
 
     if (testsToRun.length === 0 && filter) {
-      check(results, '真机集成测试', true,
-        `过滤后无匹配测试（filter: ${filter.join(', ')}）`);
+      check(results, 'Real-machine integration tests', true,
+        `No matching tests after filtering (filter: ${filter.join(', ')})`);
     }
 
     // Split by type and execute
@@ -435,7 +435,7 @@ export async function validateMachine(machine: MachineConfig, options: ValidateO
     if (coreTests.length > 0) {
       if (!options.bridgeFactory) {
         for (const it of coreTests) {
-          failures.push(`[${it.name}] 需要 bridgeFactory（项目 validate.ts 未提供）`);
+          failures.push(`[${it.name}] requires bridgeFactory (project validate.ts did not provide one)`);
         }
       } else {
         for (const it of coreTests) {
@@ -447,14 +447,14 @@ export async function validateMachine(machine: MachineConfig, options: ValidateO
               const result = bridge.sendEvent(step.sendEvent, step.input);
 
               if (step.expectResult !== undefined && result !== step.expectResult) {
-                failures.push(`[${it.name}] 步骤 ${i + 1}: sendEvent("${step.sendEvent}") 返回 ${result}，期望 ${step.expectResult}`);
+                failures.push(`[${it.name}] step ${i + 1}: sendEvent("${step.sendEvent}") returned ${result}, expected ${step.expectResult}`);
                 allStepsPassed = false;
                 break;
               }
               if (step.expectMachine !== undefined) {
                 const ms = bridge.getMachineState();
                 if (ms !== step.expectMachine) {
-                  failures.push(`[${it.name}] 步骤 ${i + 1}: machineState="${ms}"，期望 "${step.expectMachine}"`);
+                  failures.push(`[${it.name}] step ${i + 1}: machineState="${ms}", expected "${step.expectMachine}"`);
                   allStepsPassed = false;
                   break;
                 }
@@ -463,7 +463,7 @@ export async function validateMachine(machine: MachineConfig, options: ValidateO
                 const state = bridge.getState();
                 for (const [key, val] of Object.entries(step.expectState)) {
                   if (JSON.stringify(state[key]) !== JSON.stringify(val)) {
-                    failures.push(`[${it.name}] 步骤 ${i + 1}: state.${key}=${JSON.stringify(state[key])}，期望 ${JSON.stringify(val)}`);
+                    failures.push(`[${it.name}] step ${i + 1}: state.${key}=${JSON.stringify(state[key])}, expected ${JSON.stringify(val)}`);
                     allStepsPassed = false;
                     break;
                   }
@@ -475,7 +475,7 @@ export async function validateMachine(machine: MachineConfig, options: ValidateO
               testResults.push(`[${it.name}] ✓`);
             }
           } catch (e) {
-            failures.push(`[${it.name}] 执行失败: ${e}`);
+            failures.push(`[${it.name}] execution failed: ${e}`);
           }
         }
       }
@@ -519,7 +519,7 @@ export async function validateMachine(machine: MachineConfig, options: ValidateO
           }
         } catch (e) {
           for (const it of group) {
-            failures.push(`[${it.name}] 执行失败: ${e}`);
+            failures.push(`[${it.name}] execution failed: ${e}`);
           }
         }
       }
@@ -562,13 +562,13 @@ export async function validateMachine(machine: MachineConfig, options: ValidateO
           }
         } catch (e) {
           for (const it of group) {
-            failures.push(`[${it.name}] 执行失败: ${e}`);
+            failures.push(`[${it.name}] execution failed: ${e}`);
           }
         }
       }
     }
 
-    check(results, `真机集成测试（${testsToRun.length} 条: ${cliTests.length} cli, ${coreTests.length} core, ${browserTests.length} browser）`,
+    check(results, `Real-machine integration tests (${testsToRun.length}: ${cliTests.length} cli, ${coreTests.length} core, ${browserTests.length} browser)`,
       failures.length === 0,
       failures.length === 0
         ? testResults.join('\n    ')
@@ -579,7 +579,7 @@ export async function validateMachine(machine: MachineConfig, options: ValidateO
   return { results, allPass: results.every(r => r.pass) };
 }
 
-/** 项目状态摘要（打印到 stdout） */
+/** Project status summary (printed to stdout) */
 export function statusReport(machine: MachineConfig, options?: { logicTests?: Array<{ name: string, steps: Array<{ event: string }>, expectedPath: string[] }>, integrationTests?: Array<{ name: string }> }): void {
   const active = machine.transitions.filter(t => !t.planned);
   const planned = machine.transitions.filter(t => t.planned);
@@ -605,26 +605,26 @@ export function statusReport(machine: MachineConfig, options?: { logicTests?: Ar
 
   console.log(`\n── ${machine.name} ──`);
   console.log(`  ${machine.description}\n`);
-  console.log(`  状态: ${machine.states.length} 个（${activeStates.size} 活跃, ${plannedOnlyStates.length} 仅 planned）`);
-  console.log(`  转换: ${machine.transitions.length} 条（${active.length} 活跃, ${planned.length} planned）`);
-  console.log(`  终态: ${machine.terminalStates.length} 个`);
+  console.log(`  States: ${machine.states.length} (${activeStates.size} active, ${plannedOnlyStates.length} planned only)`);
+  console.log(`  Transitions: ${machine.transitions.length} (${active.length} active, ${planned.length} planned)`);
+  console.log(`  Terminal states: ${machine.terminalStates.length}`);
 
   if (options?.logicTests) {
-    console.log(`  逻辑链路测试: ${options.logicTests.length} 条，覆盖 ${coveredTransitions.size}/${active.length} 活跃转换`);
+    console.log(`  Logic path tests: ${options.logicTests.length}, covering ${coveredTransitions.size}/${active.length} active transitions`);
     for (const pt of options.logicTests) {
       console.log(`    · ${pt.name} (${pt.expectedPath.join(' → ')})`);
     }
   }
 
   if (options?.integrationTests) {
-    console.log(`  真机集成测试: ${options.integrationTests.length} 条`);
+    console.log(`  Real-machine integration tests: ${options.integrationTests.length}`);
     for (const it of options.integrationTests) {
       console.log(`    · ${it.name}`);
     }
   }
 
   if (active.length > 0) {
-    console.log('\n  已实现:');
+    console.log('\n  Implemented:');
     for (const t of active) {
       const covered = coveredTransitions.has(`${t.from}→${t.to}`) ? ' ✓tested' : ' ⚠untested';
       const desc = t.description ? ` — ${t.description}` : '';
@@ -633,7 +633,7 @@ export function statusReport(machine: MachineConfig, options?: { logicTests?: Ar
   }
 
   if (planned.length > 0) {
-    console.log('\n  待实现 (planned):');
+    console.log('\n  Pending (planned):');
     for (const t of planned) {
       const desc = t.description ? ` — ${t.description}` : '';
       console.log(`    ${t.from} → ${t.to} [${t.event}]${desc}`);
@@ -641,14 +641,14 @@ export function statusReport(machine: MachineConfig, options?: { logicTests?: Ar
   }
 
   if (uncovered.length > 0) {
-    console.log('\n  \x1b[33m⚠ 未被逻辑测试覆盖:\x1b[0m');
+    console.log('\n  \x1b[33m⚠ Not covered by logic tests:\x1b[0m');
     for (const t of uncovered) {
       console.log(`    ${t.from} → ${t.to} [${t.event}]`);
     }
   }
 
   if (plannedOnlyStates.length > 0) {
-    console.log('\n  \x1b[33m⚠ 仅由 planned 引用的状态（planned 取消时需一起删除）:\x1b[0m');
+    console.log('\n  \x1b[33m⚠ States only referenced by planned (must be deleted together when planned is cancelled):\x1b[0m');
     for (const s of plannedOnlyStates) {
       console.log(`    ${s}`);
     }
@@ -657,9 +657,9 @@ export function statusReport(machine: MachineConfig, options?: { logicTests?: Ar
   console.log('');
 }
 
-/** 打印校验报告 */
+/** Print validation report */
 export function printReport(result: ValidateResult, title?: string): void {
-  const label = title ?? '状态机校验报告';
+  const label = title ?? 'State machine validation report';
   const pad = Math.max(label.length * 2 + 6, 38);
   const border = '═'.repeat(pad);
 
@@ -677,15 +677,15 @@ export function printReport(result: ValidateResult, title?: string): void {
 
   console.log('');
   if (result.allPass) {
-    console.log('\x1b[32m  全部检查通过！\x1b[0m\n');
+    console.log('\x1b[32m  All checks passed!\x1b[0m\n');
   } else {
-    console.log('\x1b[31m  存在校验失败项，请修复后重新运行。\x1b[0m\n');
+    console.log('\x1b[31m  Validation failures exist, please fix and rerun.\x1b[0m\n');
   }
 }
 
-/** 模块依赖图：分析多个模块之间的 import 关系 */
+/** Module dependency graph: analyze import relationships among multiple modules */
 export function dependencyReport(modules: Array<{ name: string; sources: string[] }>): void {
-  // sources 是源码文本数组（调用方自己读文件传进来）
+  // sources is an array of source code text (the caller reads the files and passes them in)
   const deps = new Map<string, Set<string>>();
 
   for (const mod of modules) {
@@ -705,16 +705,16 @@ export function dependencyReport(modules: Array<{ name: string; sources: string[
     deps.set(mod.name, modDeps);
   }
 
-  console.log('\n── 模块依赖 ──');
+  console.log('\n── Module Dependencies ──');
   for (const [name, modDeps] of deps) {
     if (modDeps.size === 0) {
-      console.log(`  ${name} → 无外部依赖`);
+      console.log(`  ${name} → no external dependencies`);
     } else {
-      console.log(`  ${name} → 依赖 ${[...modDeps].join(', ')}`);
+      console.log(`  ${name} → depends on ${[...modDeps].join(', ')}`);
     }
   }
 
-  // 检查循环依赖
+  // Check for circular dependencies
   const cycles: string[] = [];
   for (const [a, aDeps] of deps) {
     for (const b of aDeps) {
@@ -726,12 +726,12 @@ export function dependencyReport(modules: Array<{ name: string; sources: string[
     }
   }
   if (cycles.length > 0) {
-    console.log(`\n  \x1b[31m✗ 循环依赖: ${cycles.join(', ')}\x1b[0m`);
+    console.log(`\n  \x1b[31m✗ Circular dependency: ${cycles.join(', ')}\x1b[0m`);
   }
   console.log('');
 }
 
-/** 将 ValidateResult 转换为 ExternalVerifierResult（给 koala gate 消费） */
+/** Convert ValidateResult to ExternalVerifierResult (for koala gate consumption) */
 export function toExternalResult(result: ValidateResult, machineName?: string): ExternalVerifierResult {
   let headSha: string | undefined;
   try {

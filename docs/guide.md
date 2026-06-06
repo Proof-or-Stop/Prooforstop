@@ -106,6 +106,114 @@ authority。即使 `KOALA_AUTHORITY_URL`、`KOALA_AUTHORITY_ACTOR_KEY`、
 trust boundary 见
 [`requirements/decisions/authority-client-role.md`](requirements/decisions/authority-client-role.md)。
 
+### Autopilot modes: local / shadow / authority
+
+`lattice autopilot` is the unattended-development control surface. It keeps the
+local workflow available by default and only uses Python authority in the
+explicit authority mode.
+
+```bash
+lattice autopilot status --json
+lattice autopilot doctor --json
+lattice autopilot run --mode=local --storyId=B-xxxx --until=TEST --json
+lattice autopilot execute --mode=local --storyId=B-xxxx --until=TEST --maxSteps=20 --json
+lattice autopilot run --mode=authority --storyId=B-xxxx --until=DONE \
+  --receiptFile=receipt.json --authorityPublicKey="$AUTHORITY_PUBLIC_KEY" \
+  --receiptSubjectId="$RECEIPT_SUBJECT_ID" --receiptSubjectKind="$RECEIPT_SUBJECT_KIND" --json
+```
+
+- `local` is the default and never requires Python authority.
+- `shadow` reports authority readiness warnings without blocking local work.
+- `authority` fail-closes on missing Python authority readiness; `DONE` also
+  requires a signed receipt verified with the supplied public key and explicit
+  receipt subject binding.
+- `autopilot_run` is dry-run by default. Only `--dryRun=false` records an
+  `autopilot_projection` process event, and that projection is not gate
+  evidence or production authority.
+- `autopilot_execute` is the true bounded executor loop. Non-dry-run execution
+  requires `--storyId`, runs only argv-mapped Lattice commands, records a
+  non-authoritative `autopilot_execution` event, and only invokes Claude Code
+  CLI repair when `--allowClaudeRepair=true` is explicit.
+
+### Planner：自然语言 → Story + 计划
+
+`lattice planner ...` 是 Lattice 原生的 planner 入口：把一句自然语言需求转成
+Lattice Story 草稿、checklist、verification intent 和带类型的 `plannedSteps[]`，
+供 autopilot 执行器消费。它不会把 Story / job / receipt authority 交给外部框架。
+
+```bash
+lattice planner draft --request="Add a hello command that prints hi" --json
+lattice planner review --draftFile=draft.json --json
+lattice planner status --runId=<plannerRun> --json
+lattice planner source-manifest --sourceRepo=<path> --json
+lattice planner run --request="<一句话>" --mode=local --until=DONE --json
+lattice planner run --request="<一句话>" --mode=authority --until=DONE --json
+```
+
+边界：
+
+- `planner draft` / `review` / `status` / `source-manifest` 只读；
+  `planner create-story` / `create-job` 只通过 Lattice 命令写状态。
+- 交互模式 `--interactionMode=autonomous|interview|decision-gated`（默认
+  `autonomous`）；暂停的 run 用 `planner answer` / `planner decision submit` /
+  `planner resume` 续跑。
+- `planner run` 串起 draft → review → Story → job/local plan → 执行器，但 DONE
+  仍受与 autopilot 相同的 gate 约束：`local` 最多到本地认证完成，authority DONE
+  仍需验签的原生 `gate_decision` receipt。planner 仍在按 fixtures 收敛，请把它
+  当作规划入口，而不是无人值守 DONE 的保证。
+
+### 多主机 verdict 与运行状态
+
+发布认证可能要求独立主机 verdict。存在两条 verdict 路径，且刻意不可互换：
+
+```bash
+# Authority（服务器背书）路径
+lattice authority verdict submit --jobId=<job> --runId=<run> --verdictFile=<verdict.json> --json
+lattice authority verdict list   --jobId=<job> --json
+lattice authority job status      --jobId=<job> --json
+
+# 本地（non-authority）路径
+lattice autopilot review submit --storyId=<story> --runId=<run> --verdictFile=<verdict.json> --json
+lattice autopilot review status --storyId=<story> --runId=<run> --json
+
+# 只读地解析 planned step 的 worktree / phase
+lattice story resolve --storyId=<story> --json
+```
+
+边界：
+
+- `authority verdict submit` 是 Authority 路径；`autopilot review submit` 是本地
+  路径。本地路径只把 verifier verdict 记进按 `storyId` / `runId` 索引的本地 run
+  state，永远不创建 Authority receipt，也不置 Authority DONE 标志。
+- `authority verdict list` / `authority job status` / `story resolve` 均只读。
+  `authority job status` 汇总 host-verdict 状态，不铸造也不替换原生 receipt；在
+  真正满足 Authority 条件前，`multiHostVerified` / `fullAuthorityDone` 保持
+  `false`。
+
+### Source-Aligned Redevelopment Workflow
+
+`planner run --workflow=source-aligned-redevelopment` 组合源码对齐重开发计划：
+把一份已授权的源码工程，在目标工程与目标语言中复刻其模块、函数、行为与细节，
+并按项目名做标识符重命名。
+
+```bash
+lattice planner run --workflow=source-aligned-redevelopment \
+  --sourceRepo=<path-or-ref> --targetProject=<path> --targetProjectName=<name> \
+  --sourceLanguage=typescript --targetLanguage=rust \
+  --mode=local --until=DONE --json
+```
+
+边界：
+
+- 它是一种开发 workflow，不是新的交互模式；运行在 `autonomous` / `interview` /
+  `decision-gated` 之一，以及 `local` 或 `authority` 之一下。
+- 源码是只读输入；目标文件只通过 story worktree 和正常 lifecycle gate 写入。
+  workflow 与语言对无关（如 `typescript -> rust`、`swift -> kotlin`）。
+- 它保留 license/署名声明，并把 secrets、`.git`、缓存和构建产物排除在
+  prompt/输出/证据之外。它产出证据背书的对齐，而非完美语义等价的承诺；范围内
+  无法验证的细节记为显式 gap。这是按 fixtures 收敛中的当期能力，尚不属于已发布
+  baseline。
+
 ### CHK-002 enforce matrix smoke
 
 `npm run test:authority-enforce-matrix` 通过一个纯 in-process 矩阵验证以下五个格：

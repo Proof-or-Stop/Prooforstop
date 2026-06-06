@@ -8,30 +8,30 @@ import { createToolHandlers } from '../registry.js';
 import { scan, extractFlows } from './extract.js';
 import { loadConfig } from '../core/config.js';
 
-// ── 配置加载 ──
+// ── Configuration loading ──
 
 /**
- * 加载用户覆盖配置（从 koala.config.json 的 flows.defaults），支持按 flow 名称分组。
+ * Load user override config (from koala.config.json's flows.defaults), supports grouping by flow name.
  */
 let _userOverrides: Record<string, unknown> | null = null;
 
 function defaultBackground(): string {
   return [
-    '## 触发事件',
-    '2026-04-26 B-e2e 自动回归需要创建一个最小 story，用来确认当前 CLI 生命周期仍能从创建、推进到 checklist 更新都保持可执行。',
-    '这段背景刻意写成完整上下文，而不是短占位符，避免 e2e 绕过 story_create 的真实四段式门禁。',
+    '## Trigger Event',
+    '2026-04-26 B-e2e automated regression requires creating a minimal story to confirm that the current CLI lifecycle remains executable from creation, advancement, through checklist updates.',
+    'This background is deliberately written as complete context rather than a short placeholder, to avoid e2e bypassing the real four-part gate of story_create.',
     '',
-    '## 关键洞察',
-    '当前 Koala 的 story_create 已经要求 background 成为真相源输入，旧 e2e 只传 title 和 description 会误报流程失败。',
-    '所以自动默认值必须模拟真实用户提供的上下文，而不是依赖 handler 放宽校验。',
+    '## Key Insights',
+    'The current Koala story_create already requires background to be a source-of-truth input; old e2e passing only title and description would falsely report process failures.',
+    'So the auto-default values must simulate context provided by a real user, rather than relying on the handler relaxing validation.',
     '',
-    '## 方案取舍',
-    'e2e 采用最小但有效的 story 输入，保留当前门禁和签名机制，不在测试路径里添加特殊豁免。',
-    '这样可以验证 CLI 公开流程，也能在未来 background schema 漂移时尽早暴露问题。',
+    '## Solution Tradeoffs',
+    'e2e adopts a minimal but valid story input, preserving the current gates and signing mechanism, without adding special exemptions in the test path.',
+    'This validates the public CLI flow and also surfaces issues early when background schema drifts in the future.',
     '',
-    '## 对话纹理',
-    '用户关心的是最新版 Koala 能不能被项目可靠使用，因此这条回归要像真实会话一样提供清晰动机、约束和验收语境。',
-    '测试内容保持简洁，但不牺牲对产品流程的基本尊重。',
+    '## Conversational Texture',
+    'What the user cares about is whether the latest Koala can be reliably used by projects, so this regression should provide clear motivation, constraints, and acceptance context like a real session.',
+    'Test content stays concise, but does not sacrifice basic respect for the product flow.',
   ].join('\n');
 }
 
@@ -41,12 +41,12 @@ function loadUserOverrides(flowName?: string): Record<string, unknown> {
     _userOverrides = {};
     Object.assign(_userOverrides, config.flows.defaults || {});
   }
-  // 按 flow 名称取分组覆盖，没有则取顶层
+  // Take group override by flow name; fall back to top-level if absent
   const flowSpecific = flowName && typeof (_userOverrides as any)[flowName] === 'object'
     ? (_userOverrides as any)[flowName] as Record<string, unknown>
     : {};
   const topLevel = { ..._userOverrides };
-  // 删掉非值字段
+  // Drop non-value fields
   for (const k of Object.keys(topLevel)) {
     if (typeof topLevel[k] === 'object' && topLevel[k] !== null && !Array.isArray(topLevel[k])
         && k !== '_patterns' && k !== 'checklist') {
@@ -57,8 +57,8 @@ function loadUserOverrides(flowName?: string): Record<string, unknown> {
 }
 
 /**
- * 自动生成默认值：根据字段名推导类型，生成合理的 mock 值。
- * 用户配置覆盖自动值。
+ * Auto-generate defaults: infer type from field name and produce reasonable mock values.
+ * User config overrides auto values.
  */
 function autoDefaults(
   inputFields: string[],
@@ -67,12 +67,12 @@ function autoDefaults(
 ): Record<string, unknown> {
   const auto: Record<string, unknown> = {};
 
-  // 按字段名猜测类型并生成默认值
+  // Guess type by field name and produce default values
   for (const field of inputFields) {
-    if (field in context) continue; // context 已有的不需要默认值
+    if (field in context) continue; // No default needed for fields already in context
 
-    // 常见命名模式 → 默认值
-    // 精确匹配优先，模糊匹配在后
+    // Common naming patterns → default values
+    // Exact match takes priority, fuzzy match comes after
     if (/^checklist$/i.test(field)) auto[field] = [
       {
         title: 'Verify current story lifecycle e2e path',
@@ -98,7 +98,7 @@ function autoDefaults(
     else auto[field] = 'test';
   }
 
-  // 动态推导 phase
+  // Dynamically derive phase
   if (inputFields.includes('phase') && !context.phase) {
     auto.phase = 'DEV';
   } else if (inputFields.includes('phase')) {
@@ -108,7 +108,7 @@ function autoDefaults(
     auto.phase = phaseOrder[Math.min(nextIdx, phaseOrder.length - 1)];
   }
 
-  // 用户配置覆盖
+  // User config override
   const overrides = loadUserOverrides(flowName);
   return { ...auto, ...overrides };
 }
@@ -170,7 +170,7 @@ export async function createSandbox(realProjectRoot?: string): Promise<Sandbox> 
 // ── Field Parsing ──
 
 /**
- * 解析 @input/@output 注释字符串，提取字段名列表。
+ * Parse @input/@output comment strings, extract list of field names.
  * "{ name, title, description }" → ["name", "title", "description"]
  * "{ storyId, phase, checklist? }" → ["storyId", "phase", "checklist"]
  * "(none)" → []
@@ -179,7 +179,7 @@ export async function createSandbox(realProjectRoot?: string): Promise<Sandbox> 
 function parseFieldNames(annotation: string | undefined): string[] {
   if (!annotation || annotation === '(none)') return [];
 
-  // 尝试匹配 { field1, field2, field3? } 格式
+  // Try to match { field1, field2, field3? } format
   const braceMatch = annotation.match(/\{([^}]+)\}/);
   if (braceMatch) {
     return braceMatch[1]
@@ -188,7 +188,7 @@ function parseFieldNames(annotation: string | undefined): string[] {
       .filter(s => s.length > 0 && /^[a-zA-Z_]\w*$/.test(s));
   }
 
-  // 尝试匹配开头的标识符：如 "storyId (IDEA or PLAN)"
+  // Try to match leading identifier: e.g. "storyId (IDEA or PLAN)"
   const idMatch = annotation.match(/^([a-zA-Z_]\w*)/);
   if (idMatch) return [idMatch[1]];
 
@@ -196,8 +196,8 @@ function parseFieldNames(annotation: string | undefined): string[] {
 }
 
 /**
- * 从函数返回值中提取键值对，合并到 context。
- * 支持 JSON 字符串、普通对象、含 ID 的文本。
+ * Extract key-value pairs from function return value, merge into context.
+ * Supports JSON strings, plain objects, and text containing IDs.
  */
 function extractOutputToContext(
   result: unknown,
@@ -209,15 +209,15 @@ function extractOutputToContext(
   let obj: Record<string, unknown> = {};
 
   if (typeof result === 'string') {
-    // 尝试 JSON 解析
+    // Try JSON parsing
     try {
       const parsed = JSON.parse(result);
       if (typeof parsed === 'object' && parsed !== null) {
         obj = parsed;
       }
     } catch {
-      // 非 JSON，从文本中提取常见 ID 模式
-      // 从文本中提取字段的模式（内置 + 可通过 flow-defaults.json 的 _patterns 扩展）
+      // Not JSON, extract common ID patterns from text
+      // Patterns for extracting fields from text (built-in + extensible via _patterns in flow-defaults.json)
       const builtinPatterns: Array<{ field: string; regex: RegExp }> = [
         { field: 'storyId', regex: /Story\s+(B-[a-f0-9]+)/i },
         { field: 'bugId', regex: /Bug\s+(BUG-\d+)/ },
@@ -239,8 +239,8 @@ function extractOutputToContext(
     obj = result as Record<string, unknown>;
   }
 
-  // 只提取 outputFields 中声明的字段（如果有声明）
-  // 如果 outputFields 为空，提取所有
+  // Only extract fields declared in outputFields (if declared)
+  // If outputFields is empty, extract all
   if (outputFields.length > 0) {
     for (const field of outputFields) {
       if (field in obj) {
@@ -258,8 +258,8 @@ function extractOutputToContext(
 }
 
 /**
- * 根据 @input 字段名从 context 构建输入参数。
- * 如果 context 中没有某个字段，用默认 mock 值。
+ * Build input arguments from context based on @input field names.
+ * If a field is missing from context, use default mock value.
  */
 function buildInputFromContext(
   inputFields: string[],
@@ -272,7 +272,7 @@ function buildInputFromContext(
 
   const input: Record<string, unknown> = {};
   for (const field of inputFields) {
-    // phase 特殊处理：永远用推导的下一步，不用 context 中的当前值
+    // phase special handling: always use derived next step, not current value from context
     if (field === 'phase') {
       input[field] = defaults[field];
     } else if (field in context) {
@@ -288,8 +288,8 @@ function buildInputFromContext(
 // ── Sandbox Preparation ──
 
 /**
- * 确保 sandbox 环境满足函数执行的前置条件。
- * 基于 context 中的数据自动判断，不按函数名硬编码。
+ * Ensure sandbox environment meets preconditions for function execution.
+ * Auto-determine based on data in context, not hardcoded by function name.
  */
 function ensureSandboxReady(
   sandboxDir: string,
@@ -299,7 +299,7 @@ function ensureSandboxReady(
   const storyId = context.storyId as string | undefined;
   if (!storyId) return;
 
-  // 从 checklist 中提取第一个 itemId 到 context（如果还没有）
+  // Extract first itemId from checklist into context (if not already present)
   if (!context.itemId) {
     try {
       const cl = handlers.checklist_get({ storyId });
@@ -309,7 +309,7 @@ function ensureSandboxReady(
     } catch { /* ignore */ }
   }
 
-  // 确保有 stub 代码文件（让 task_coverage 通过）
+  // Ensure stub code files exist (so task_coverage passes)
   const fakeSrcDir = join(sandboxDir, 'packages', 'main', 'src');
   if (!existsSync(join(fakeSrcDir, 'e2e-stub.ts'))) {
     mkdirSync(fakeSrcDir, { recursive: true });
@@ -323,7 +323,7 @@ function ensureSandboxReady(
     );
   }
 
-  // 确保 checklist item 有完整 testIntent（PLAN→DEV 门禁要求）
+  // Ensure checklist items have complete testIntent (required by PLAN→DEV gate)
   try {
     const cl = handlers.checklist_get({ storyId });
     const defaultIntent = {
@@ -340,7 +340,7 @@ function ensureSandboxReady(
     // ignore
   }
 
-  // 确保 INIT→INIT_CHECK 的 reviewer 签名产物存在。
+  // Ensure the INIT→INIT_CHECK reviewer signature artifact exists.
   try {
     const detail = handlers.story_get({ storyId, detail: true });
     const phase = detail?.index?.phase || context.phase;
@@ -352,14 +352,14 @@ function ensureSandboxReady(
     // ignore
   }
 
-  // 确保 story_review 通过（PLAN→DEV 门禁要求 blockerCount=0）
+  // Ensure story_review passes (PLAN→DEV gate requires blockerCount=0)
   try {
     handlers.story_review({ storyId });
   } catch {
-    // ignore — review 可能已通过或 story 不在 PLAN 阶段
+    // ignore — review may have already passed or the story is not in PLAN phase
   }
 
-  // 确保 checklist 全 done
+  // Ensure all checklist items are done
   try {
     const cl = handlers.checklist_get({ storyId });
     for (const item of cl.items) {
@@ -375,7 +375,7 @@ function ensureSandboxReady(
 // ── Failure Diagnosis ──
 
 /**
- * 根据错误信息生成修复提示。
+ * Generate a fix hint based on the error message.
  */
 function diagnoseFailure(
   errorMsg: string,
@@ -386,35 +386,35 @@ function diagnoseFailure(
 ): string {
   const inputObj = input as Record<string, unknown> | undefined;
 
-  // 字段缺失/undefined
+  // Missing/undefined fields
   if (/undefined|not found|missing/i.test(errorMsg)) {
     const undefinedFields = inputFields.filter(f =>
       inputObj && (inputObj[f] === undefined || inputObj[f] === null)
     );
     if (undefinedFields.length > 0) {
-      return `输入字段 [${undefinedFields.join(', ')}] 为空。` +
-        `请在 flow-defaults.json 中为这些字段配置默认值，` +
-        `或检查上一步的 @output 是否包含这些字段。`;
+      return `Input fields [${undefinedFields.join(', ')}] are empty. ` +
+        `Please configure default values for these fields in flow-defaults.json, ` +
+        `or check whether the previous step's @output contains these fields.`;
     }
   }
 
-  // 状态转换失败
+  // State transition failed
   if (/cannot transition|invalid.*phase/i.test(errorMsg)) {
-    return `状态转换失败。当前 context.phase=${context.phase || '未知'}。` +
-      `检查 @flow 步骤顺序是否正确，或前置步骤是否成功完成。`;
+    return `State transition failed. Current context.phase=${context.phase || 'unknown'}. ` +
+      `Check whether the @flow step order is correct, or whether the preceding steps completed successfully.`;
   }
 
-  // 文件不存在
+  // File does not exist
   if (/file not found|ENOENT/i.test(errorMsg)) {
-    return `依赖文件不存在。如果是 sandbox 环境问题，检查 ensureSandboxReady 是否覆盖了该场景。` +
-      `如果是代码路径问题，检查 @input 中的路径字段是否正确。`;
+    return `Dependency file does not exist. If this is a sandbox environment issue, check whether ensureSandboxReady covers this scenario. ` +
+      `If this is a code path issue, check whether the path fields in @input are correct.`;
   }
 
-  // 通用提示
-  return `函数 ${functionName} 执行出错。` +
-    `传入的参数: ${JSON.stringify(input)}。` +
-    `当前 context: ${JSON.stringify(Object.keys(context))}。` +
-    `请检查函数逻辑或 @input/@output 注释是否匹配。`;
+  // Generic hint
+  return `Function ${functionName} threw an error. ` +
+    `Arguments passed in: ${JSON.stringify(input)}. ` +
+    `Current context: ${JSON.stringify(Object.keys(context))}。` +
+    `Please check whether the function logic or @input/@output annotations match.`;
 }
 
 // ── Flow E2E Runner ──
@@ -474,7 +474,7 @@ export async function runFlowE2E(flowName: string, scanRoot: string): Promise<Fl
 
         steps.push({ step: stepName, passed: true, input, output: result });
       } catch (err: any) {
-        // 生成修复提示
+        // Generate fix hint
         const hint = diagnoseFailure(err.message, flowStep.functionName, inputFields, input, context);
         steps.push({ step: stepName, passed: false, error: err.message, input, hint });
       }

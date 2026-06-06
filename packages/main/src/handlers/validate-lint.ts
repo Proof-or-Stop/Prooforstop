@@ -1,16 +1,16 @@
 /**
- * validate-lint — CLI gate: tsc + ruff + import-graph 边界
+ * validate-lint — CLI gate: tsc + ruff + import-graph boundaries
  *
- * koala validate 默认在 spawn validate.ts 前先跑三类 lint；任一 fail 则整体 fail
- * 并提前返回不 spawn。工具不可用（tsc 缺失、ruff 未安装）或对应配置文件不存在
- * → 该子检查 skipped，整体不因此 fail（graceful degrade）。
+ * koala validate runs three lint categories before spawning validate.ts by default; any failure causes overall failure
+ * and returns early without spawning. When tools are unavailable (tsc missing, ruff not installed) or the corresponding config file does not exist
+ * → that sub-check is skipped, and the overall result does not fail because of it (graceful degrade).
  *
- * 三类子检查：
- *   (a) tsc --noEmit        — 若 projectRoot/tsconfig.json 存在
- *   (b) ruff check          — 若 projectRoot/pyproject.toml 存在且 ruff 可用
- *   (c) import-graph 边界    — 扫 src/shells/**\/*.ts，禁止 import 任何 `.../fn` 或 `.../fn.js`
+ * Three sub-checks:
+ *   (a) tsc --noEmit        — if projectRoot/tsconfig.json exists
+ *   (b) ruff check          — if projectRoot/pyproject.toml exists and ruff is available
+ *   (c) import-graph boundaries — scan src/shells/**\/*.ts, forbid importing any `.../fn` or `.../fn.js`
  *
- * 输出结构：
+ * Output structure:
  *   {
  *     provider: "koala-lint",
  *     status: "pass" | "fail" | "skipped",
@@ -23,17 +23,17 @@
  *     }
  *   }
  *
- * 参考 docs/koala/reviewer-redesign.md §三 S1 第 3 条。
+ * See docs/koala/reviewer-redesign.md §3 S1 item 3.
  */
 
 import { spawnSync } from 'node:child_process';
 import { existsSync, lstatSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
-// B-5a28 CHK-002: 递归扫 tsconfig 时跳过的目录。抽为常量便于测试覆盖 +
-// 后续 story 按需扩展。不含通用 IDE/editor 目录（.idea / .vscode 不会有
-// tsconfig 污染）。`.worktrees` 避免 sub-agent 在自己的 worktree 里又扫到
-// 其他 story 的 worktree（自递归）。
+// B-5a28 CHK-002: directories to skip when recursively scanning tsconfig. Extracted as a constant for test coverage +
+// to be extended by future stories as needed. Does not include common IDE/editor directories (.idea / .vscode won't have
+// tsconfig pollution). `.worktrees` prevents a sub-agent in its own worktree from scanning into
+// other stories' worktrees (self-recursion).
 export const TSCONFIG_IGNORE_DIRS: ReadonlySet<string> = new Set([
   'node_modules',
   'dist',
@@ -52,7 +52,7 @@ type LintSubStatus = 'pass' | 'fail' | 'skipped';
 
 interface TscCheck {
   status: LintSubStatus;
-  /** 工具报错/输出片段（skip 时可缺省） */
+  /** Tool error / output snippet (optional when skipped) */
   output?: string;
 }
 
@@ -86,12 +86,12 @@ export interface LintResult {
   checks: LintChecks;
 }
 
-// ── 依赖注入 ──
+// ── Dependency injection ──
 
 export interface CommandRunner {
   /**
-   * 执行命令，返回 { code, output, spawnError }。
-   * spawnError=true 表示 binary 不存在（ENOENT）——调用方应把这类视为 skipped。
+   * Execute a command, return { code, output, spawnError }.
+   * spawnError=true means the binary does not exist (ENOENT) — callers should treat this as skipped.
    */
   (cmd: string, args: string[], cwd: string): {
     code: number;
@@ -118,38 +118,38 @@ const defaultRunner: CommandRunner = (cmd, args, cwd) => {
   return { code: r.status ?? 1, output: out, spawnError: false };
 };
 
-/** 文件枚举器（测试可注入） */
+/** File enumerator (injectable for tests) */
 export type FileReader = (filePath: string) => string;
 export type FileExists = (filePath: string) => boolean;
 
 // ── tsc ──
 
 /**
- * B-5a28 CHK-002: 递归枚举 projectRoot 下所有 tsconfig.json。
+ * B-5a28 CHK-002: recursively enumerate all tsconfig.json under projectRoot.
  *
- * 为什么递归：monorepo 子包（如 packages/koala/packages/main/tsconfig.json）
- * 的编译错误被单根扫描漏掉——整个 koala 包 TS2451 编译错误在 B-9bd9 / B-9d95
- * 两个 story DONE 后才被独立 sonnet reviewer 发现。根因是旧 runTsc 写死
- * `<projectRoot>/tsconfig.json`，avalon 根无 tsconfig.json → skipped → 永远
- * 看不到子包错误。
+ * Why recursive: compilation errors in monorepo sub-packages (e.g. packages/koala/packages/main/tsconfig.json)
+ * were missed by single-root scanning — the entire koala package's TS2451 compilation errors were only found by an independent sonnet reviewer after the
+ * two stories B-9bd9 / B-9d95 reached DONE. The root cause was that the old runTsc hardcoded
+ * `<projectRoot>/tsconfig.json`, and the avalon root has no tsconfig.json → skipped → sub-package errors
+ * were never visible.
  *
- * 排除 TSCONFIG_IGNORE_DIRS（node_modules / dist / build / .worktrees / .git），
- * 否则会扫进依赖里的 tsconfig 或相邻 worktree 的副本。
+ * Excludes TSCONFIG_IGNORE_DIRS (node_modules / dist / build / .worktrees / .git),
+ * otherwise it would scan into tsconfigs inside dependencies or copies of adjacent worktrees.
  *
- * **F-005 symlink 防护**：默认用 `lstatSync`（不跟随 symlink），并一律跳过
- * symlink 目录。理由：npm link / pnpm / workspace protocol 场景下 node_modules
- * 下常有 symlink 指回仓库根或其它 package 目录，若 stat() 跟随这些链接，
- * TSCONFIG_IGNORE_DIRS 的名字匹配只剪「叫 node_modules 的目录」而管不到「经
- * symlink 到达的 node_modules 目标」，会导致无限递归 / 栈无限增长。跳过
- * symlink 比 visited realpath Set 更简单且零误伤（需要扫 symlink 到的目标
- * 是极少见的边缘需求，当真需要再补 followSymlinks 开关）。
+ * **F-005 symlink protection**: defaults to `lstatSync` (does not follow symlinks), and always skips
+ * symlink directories. Rationale: in npm link / pnpm / workspace protocol scenarios, symlinks under node_modules
+ * often point back to the repo root or other package directories; if stat() follows these links,
+ * TSCONFIG_IGNORE_DIRS name matching only prunes "directories named node_modules" and cannot handle "node_modules targets reached via
+ * symlink", leading to infinite recursion / unbounded stack growth. Skipping
+ * symlinks is simpler than a visited realpath Set and has zero collateral damage (needing to scan into symlink targets
+ * is an extremely rare edge case; add a followSymlinks switch if it ever becomes a real need).
  *
- * 返回**绝对路径数组**（依赖 fileExists 判目录存在；readdir/stat 允许注入便于
- * 单测 fixture 化）。失败路径（stat/readdir 抛错）静默跳过，不 fail 整个扫描。
+ * Returns an **array of absolute paths** (relies on fileExists to check directory existence; readdir/stat can be injected for
+ * unit test fixturing). Failure paths (stat/readdir throwing) are silently skipped, not failing the entire scan.
  *
- * **签名**：`findTsconfigs(projectRoot, deps?: { readdir?, stat?, fileExists? })`。
- * 第二参是**依赖注入接口**（不是 options）——黑名单由模块级常量
- * TSCONFIG_IGNORE_DIRS 固定，扩展需改常量，不从调用方传入。
+ * **Signature**: `findTsconfigs(projectRoot, deps?: { readdir?, stat?, fileExists? })`.
+ * The second parameter is a **dependency injection interface** (not options) — the blacklist is fixed by the module-level constant
+ * TSCONFIG_IGNORE_DIRS; extensions require modifying the constant, not passing from the caller.
  */
 export function findTsconfigs(
   projectRoot: string,
@@ -160,8 +160,8 @@ export function findTsconfigs(
   },
 ): string[] {
   const readdir = deps?.readdir ?? ((p) => readdirSync(p));
-  // F-005: 默认用 lstat（不跟随 symlink），同时保留 deps.stat 注入接口；
-  // 注入的 stat 也应提供 isSymbolicLink() 以便同样跳过软链（测试可省略）。
+  // F-005: defaults to lstat (does not follow symlinks), while preserving the deps.stat injection interface;
+  // an injected stat should also provide isSymbolicLink() to skip symlinks the same way (tests may omit).
   const stat = deps?.stat ?? ((p) => lstatSync(p));
   const fileExists = deps?.fileExists ?? existsSync;
   try {
@@ -180,7 +180,7 @@ export function findTsconfigs(
       const full = join(dir, e);
       let s: { isDirectory(): boolean; isFile(): boolean; isSymbolicLink?(): boolean };
       try { s = stat(full); } catch { continue; }
-      // F-005: symlink 一律跳过，防止 npm link 指向仓库根 / 其它包造成的无限递归。
+      // F-005: always skip symlinks to prevent infinite recursion caused by npm link pointing back to the repo root / other packages.
       if (typeof s.isSymbolicLink === 'function' && s.isSymbolicLink()) continue;
       if (s.isDirectory()) {
         stack.push(full);
@@ -190,7 +190,7 @@ export function findTsconfigs(
       if (e === 'tsconfig.json') out.push(full);
     }
   }
-  // 稳定排序便于测试断言 + 失败输出可读
+  // Stable ordering for test assertion convenience + readable failure output
   out.sort();
   return out;
 }
@@ -198,10 +198,10 @@ export function findTsconfigs(
 /**
  * Run `npx tsc --noEmit -p <tsconfigPath>` for a single tsconfig.
  *
- * 返回值：
+ * Return values:
  *   - { kind: 'pass' }
  *   - { kind: 'fail', output }
- *   - { kind: 'toolMissing', output } —— 工具（tsc / npx）都不可用
+ *   - { kind: 'toolMissing', output } — tools (tsc / npx) are all unavailable
  */
 function runSingleTsc(
   tsconfigPath: string,
@@ -219,7 +219,7 @@ function runSingleTsc(
       lastOutput = r.output;
       continue;
     }
-    // F-018: npx exit 非 0 + "could not determine executable" 这类输出视为工具缺失
+    // F-018: npx exit non-zero + output like "could not determine executable" is treated as tool missing
     if (isNpxToolNotFound(r.output)) {
       lastOutput = r.output;
       continue;
@@ -232,19 +232,19 @@ function runSingleTsc(
 }
 
 /**
- * B-5a28 CHK-002: 递归扫 projectRoot 下所有 tsconfig.json 并逐个 `tsc --noEmit -p`。
+ * B-5a28 CHK-002: recursively scan all tsconfig.json under projectRoot and run `tsc --noEmit -p` on each one by one.
  *
- * 整体规则：
- *   - 空结果（无任何 tsconfig）→ skipped，output='no tsconfig.json found'
- *   - 任一工具缺失导致无法跑任何 tsc → skipped，output='tsc not found: ...'
- *     （即第一个 tsconfig 就 toolMissing，后续的也必然同样 —— 直接短路）
- *   - 任一 tsconfig fail → 整体 fail；output 汇总所有失败 tsconfig 的
- *     路径 + 编译器输出，以便人眼和 cluster reviewer 定位
- *   - 全部 pass → 整体 pass，output='tsc: checked N tsconfigs'
- *     （格式固定为 "tsc: checked N tsconfigs"，N=扫到的 tsconfig 数量）
+ * Overall rules:
+ *   - Empty result (no tsconfig at all) → skipped, output='no tsconfig.json found'
+ *   - Any tool missing causing no tsc to be runnable → skipped, output='tsc not found: ...'
+ *     (i.e., if the first tsconfig is toolMissing, subsequent ones inevitably are too — short-circuit directly)
+ *   - Any tsconfig fail → overall fail; output aggregates all failed tsconfigs'
+ *     paths + compiler output, so humans and cluster reviewers can locate them
+ *   - All pass → overall pass, output='tsc: checked N tsconfigs'
+ *     (format fixed as "tsc: checked N tsconfigs", N=number of tsconfigs scanned)
  *
- * 接口不变：仍接受 projectRoot + 可选 run/fileExists；额外接受 readdir/stat
- * 注入给 findTsconfigs，便于 CHK-003 单测不真扫磁盘。
+ * Interface unchanged: still accepts projectRoot + optional run/fileExists; additionally accepts readdir/stat
+ * injected into findTsconfigs, so CHK-003 unit tests don't actually scan disk.
  */
 export function runTsc(deps: {
   projectRoot: string;
@@ -263,22 +263,22 @@ export function runTsc(deps: {
     return { status: 'skipped', output: 'no tsconfig.json found' };
   }
 
-  // F-007 / F-014: 显式追踪 passes 计数，别拿 fails.length === 0 当「没跑过」
-  // 的代理条件。旧代码场景 [pass, pass, toolMissing] 会错误短路返回 skipped，
-  // 吞掉所有前面 pass 的结果。正确语义：
-  //   - 「一个 tsc 都没成功启动过」（passes=0 && fails=0）→ skipped
-  //   - 「至少跑过一个」→ 后续任意 toolMissing 当 fail 记录（别无声吞）
+  // F-007 / F-014: Explicitly track passes count, don't use fails.length === 0 as a proxy for "never ran".
+  // The old code path [pass, pass, toolMissing] would erroneously short-circuit and return skipped,
+  // swallowing all the prior pass results. Correct semantics:
+  //   - "no tsc ever started successfully" (passes=0 && fails=0) → skipped
+  //   - "at least one ran" → any subsequent toolMissing is recorded as fail (don't silently swallow)
   const fails: Array<{ path: string; output: string }> = [];
   let passes = 0;
   for (const tsconfig of tsconfigs) {
     const r = runSingleTsc(tsconfig, deps.projectRoot, run);
     if (r.kind === 'toolMissing') {
-      // 工具缺失：只有「从未有过 pass 且从未有过 fail」时视为 skipped。
+      // Tool missing: only treat as skipped when "never had a pass and never had a fail".
       if (passes === 0 && fails.length === 0) {
         return { status: 'skipped', output: `tsc not found: ${r.output}` };
       }
-      // 前面已经有 pass 或 fail（证明工具能跑），后续突然 toolMissing 很怪，
-      // 当成一个 fail 记录进去让人看到——别让 pass 被静默吞掉。
+      // If a pass or fail occurred earlier (proving the tool can run), a sudden later toolMissing is odd;
+      // record it as a fail so it's visible — don't let earlier passes be silently swallowed.
       fails.push({ path: tsconfig, output: `tsc tool missing: ${r.output}` });
       continue;
     }
@@ -305,20 +305,20 @@ export function runTsc(deps: {
 /**
  * F-018: detect `npx --no-install tsc` style "tool not found" output.
  *
- * npx 在目标工具不可用时会打印以下几种信息（不同版本略有不同）：
+ * When the target tool is unavailable, npx prints the following kinds of messages (varies slightly by version):
  *   - "npm ERR! could not determine executable to run"
  *   - "could not determine executable to run"
  *   - "npm ERR! 404 Not Found"
- *   - "npx: installed" / "npx: command not found"（旧版）
- *   - "npm error could not determine executable to run"（npm 10 之后）
+ *   - "npx: installed" / "npx: command not found" (older versions)
+ *   - "npm error could not determine executable to run" (npm 10+)
  *
- * 这些都意味着 tsc 本身没装，与 tsc 编译失败（真实 lint fail）是两回事。
+ * These all mean tsc itself is not installed, which is different from tsc compilation failure (real lint fail).
  */
 export function isNpxToolNotFound(output: string): boolean {
   if (!output) return false;
-  // 只匹配明确的 npx-找不到-工具 模式，避免把 tsc 真实 lint fail（如
-  // "error TS2307: Cannot find module ..." 或包含 "not found" 的源码错误）
-  // 误判为 skipped。这里的模式都是 npx/npm 本身输出的管理级错误。
+  // Only match explicit npx-can't-find-tool patterns, to avoid mistaking real tsc lint fails (such as
+  // "error TS2307: Cannot find module ..." or source errors containing "not found")
+  // as skipped. The patterns here are all management-level errors output by npx/npm itself.
   const patterns = [
     /could not determine executable to run/i,
     /npm\s+ERR!\s+404\s+not\s+found/i,
@@ -334,7 +334,7 @@ export function isNpxToolNotFound(output: string): boolean {
 
 /**
  * Run `ruff check <projectRoot>`.
- * skipped 场景：pyproject.toml 不存在 or ruff 命令不可用。
+ * Skipped scenarios: pyproject.toml does not exist or the ruff command is unavailable.
  */
 export function runRuff(deps: {
   projectRoot: string;
@@ -359,10 +359,10 @@ export function runRuff(deps: {
 // ── import-graph ──
 
 /**
- * 判定某个 import 字符串是否违反 shells→fn 边界：
- *   - 路径的 basename 去掉 .js 扩展后恰为 "fn"
+ * Determine whether an import string violates the shells→fn boundary:
+ *   - The path's basename, with .js extension stripped, is exactly "fn"
  *
- * 只匹配看起来像 core/fn 模块的 import，不会误伤 `from 'fastify'` 之类。
+ * Only matches imports that look like core/fn modules; won't accidentally hit things like `from 'fastify'`.
  */
 export function isFnImport(importee: string): boolean {
   // strip surrounding whitespace
@@ -376,8 +376,8 @@ export function isFnImport(importee: string): boolean {
 }
 
 /**
- * 扫描单个文件的 import 违规（按行号报告）。
- * 仅识别 static `import ... from '...'` / `export ... from '...'`，不扫动态 import()。
+ * Scan import violations in a single file (reported by line number).
+ * Only recognizes static `import ... from '...'` / `export ... from '...'`; does not scan dynamic import().
  */
 export function scanImportsInFile(
   file: string,
@@ -405,8 +405,8 @@ export function scanImportsInFile(
 }
 
 /**
- * 递归枚举 src/shells/ 下所有 .ts / .tsx 文件。
- * 目录不存在 → 返回 null（调用方视为 skipped）。
+ * Recursively enumerate all .ts / .tsx files under src/shells/.
+ * Directory does not exist → returns null (caller treats as skipped).
  */
 export function listShellFiles(
   projectRoot: string,
@@ -444,8 +444,8 @@ export function listShellFiles(
 }
 
 /**
- * Run import-graph 边界检查：扫 src/shells/**\/*.ts，禁止 import 任何 fn/fn.js。
- * 空目录或 src/shells/ 不存在 → skipped（不 fail）。
+ * Run import-graph boundary check: scan src/shells/**\/*.ts, forbid importing any fn/fn.js.
+ * Empty directory or src/shells/ not existing → skipped (not fail).
  */
 export function runImportGraph(deps: {
   projectRoot: string;
@@ -484,9 +484,9 @@ export function runImportGraph(deps: {
 
 export interface CheckLintDeps {
   projectRoot: string;
-  /** 注入 command runner（测试用）*/
+  /** Inject command runner (for testing) */
   run?: CommandRunner;
-  /** 注入 fs helpers（测试用）*/
+  /** Inject fs helpers (for testing) */
   fileExists?: FileExists;
   readFile?: FileReader;
   readdir?: (p: string) => string[];
@@ -494,12 +494,12 @@ export interface CheckLintDeps {
 }
 
 /**
- * 核心入口：跑三类 lint，汇总结果。
+ * Core entry: run the three kinds of lint, aggregate results.
  *
- * 整体 status：
- *   - 任一子检查 fail → fail
- *   - 全部 skipped    → skipped
- *   - 其他（至少一个 pass，其余 skipped 或 pass）→ pass
+ * Overall status:
+ *   - Any sub-check fail → fail
+ *   - All skipped    → skipped
+ *   - Otherwise (at least one pass, the rest skipped or pass) → pass
  */
 export function checkLint(deps: CheckLintDeps): LintResult {
   const tsc = runTsc({
@@ -553,8 +553,8 @@ export function checkLint(deps: CheckLintDeps): LintResult {
         }
       }
     } else {
-      // B-5a28 CHK-002: tsc pass 时把 "tsc: checked N tsconfigs" 带出，
-      // 让 `koala validate --lint` 输出能直接看到扫描了几个 tsconfig。
+      // B-5a28 CHK-002: When tsc passes, include "tsc: checked N tsconfigs" in the output,
+      // so `koala validate --lint` output directly shows how many tsconfigs were scanned.
       const passOut =
         name === 'tsc' ? tsc.output ?? '' :
         '';
@@ -594,11 +594,11 @@ export function checkLint(deps: CheckLintDeps): LintResult {
 /**
  * B-9d95 CHK-006: CLI entry for `koala validate --lint`.
  *
- * 不 spawn pytest / 不跑全量 validate.ts——直接调 checkLint，输出
- * 结构化结果 + 人类可读渲染。用于 REVIEW→TEST preflight 独立分流。
+ * Doesn't spawn pytest / doesn't run full validate.ts — directly calls checkLint, outputs
+ * structured result + human-readable rendering. Used for REVIEW→TEST preflight as an independent branch.
  *
- * 判定：
- *   - status=pass 或 skipped → ok
+ * Determination:
+ *   - status=pass or skipped → ok
  *   - status=fail            → ok=false
  */
 export interface LintCliResult {
@@ -613,7 +613,7 @@ export function runLintGateCli(deps: CheckLintDeps): LintCliResult {
   return { ok, result, rendered: renderLintResult(result) };
 }
 
-/** 渲染 LintResult 为人类可读文本 */
+/** Render LintResult as human-readable text */
 export function renderLintResult(r: LintResult): string {
   const lines: string[] = [];
   const icon = r.status === 'pass' ? '✓' : r.status === 'skipped' ? '·' : '✗';

@@ -20,34 +20,34 @@ export function validateMetadataCrossCheck(
   const validChecklistIds = new Set(checklistItems.map(i => i.id));
   const errors: string[] = [];
 
-  // CHK-001: task.json 中当前 story 的条目，task 字段校验
+  // CHK-001: entry for current story in task.json, validate task field
   for (const t of storyTasks) {
     if (!t.task || t.task.trim() === '') {
-      errors.push(`${t.key}: task 字段为空`);
+      errors.push(`${t.key}: task field is empty`);
     }
     if (!t.checklist || t.checklist.length === 0) {
-      errors.push(`${t.key}: checklist 字段为空`);
+      errors.push(`${t.key}: checklist field is empty`);
     }
   }
 
-  // CHK-002: task.json 中的 checklist ID 必须存在于 checklist.json
+  // CHK-002: checklist IDs in task.json must exist in checklist.json
   for (const t of storyTasks) {
     for (const chkId of t.checklist || []) {
       if (!validChecklistIds.has(chkId)) {
-        errors.push(`${t.key}: 引用了不存在的 ${chkId}（checklist.json 中无此 ID）`);
+        errors.push(`${t.key}: references non-existent ${chkId} (no such ID in checklist.json)`);
       }
     }
   }
 
-  // CHK-003: checklist done item 必须有对应的 task.json 条目
+  // CHK-003: checklist done items must have a corresponding entry in task.json
   const referencedChkIds = new Set(storyTasks.flatMap(t => t.checklist || []));
   for (const item of checklistItems) {
     if (item.status === 'done' && !referencedChkIds.has(item.id)) {
-      errors.push(`${item.id}「${item.title}」已标 done，但 task.json 中无任何条目引用它`);
+      errors.push(`${item.id} "${item.title}" is marked done, but no entry in task.json references it`);
     }
   }
 
-  // 空 task.json 给 warning（不阻塞）
+  // empty task.json gives a warning (non-blocking)
   if (storyTasks.length === 0) {
     return { errors: [], passed: true };
   }

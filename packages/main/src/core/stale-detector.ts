@@ -1,14 +1,14 @@
 /**
  * Stale state detector — soft warning before each koala command runs.
  *
- * 灵感来自 Claude Code 的 todo_reminder：每隔一段时间没动作就注入 system-reminder。
- * koala 把 activity.jsonl + checklist.startTime + story.events + bug.foundAt 当输入，
- * 在每条 koala 命令真正执行前打 warning 到 stderr 提醒主 agent，避免 stuck phase。
+ * Inspired by Claude Code's todo_reminder: inject system-reminder after periods of inactivity.
+ * koala takes activity.jsonl + checklist.startTime + story.events + bug.foundAt as inputs,
+ * and emits a warning to stderr before each koala command actually runs to remind the main agent and avoid stuck phases.
  *
- * 设计原则：
- *   - 永不抛错（PROBE 类）。任意一条 rule 出错只影响该条 rule，整体 return [] 兜底
- *   - 不写 health（warning 是软提醒，不是 health issue）
- *   - 没有 active story 时直接 return []，避免 koala help / koala doctor 被打扰
+ * Design principles:
+ *   - Never throw (PROBE class). An error in any single rule only affects that rule; the overall fallback is return [].
+ *   - Do not write health (warnings are soft reminders, not health issues)
+ *   - When there is no active story, return [] directly to avoid disturbing koala help / koala doctor
  */
 
 import { execSync } from 'child_process';
@@ -18,13 +18,13 @@ import { loadConfig } from './config.js';
 import { readActivityLogTail } from './activity-log.js';
 
 export interface StaleThresholds {
-  /** phase 没 advance 多久算卡死（分钟） */
+  /** How long a phase can go without advance before being treated as stale, in minutes. */
   phaseStale: number;
-  /** checklist item 卡 in_progress 多久算遗忘（分钟） */
+  /** How long a checklist item can stay in_progress before it is treated as forgotten, in minutes. */
   itemStale: number;
-  /** 距离上次任意 koala 命令多久算 idle（分钟） */
+  /** How long since the last koala command counts as idle, in minutes. */
   idleKoala: number;
-  /** open bug 多久没修算超期（分钟，默认 24h=1440） */
+  /** How long an open bug can remain unfixed before it is overdue, in minutes. Default: 24h = 1440. */
   bugStale: number;
 }
 
@@ -39,10 +39,10 @@ const STALE_WARNING_COOLDOWN_MS = 30 * 60_000;
 
 function formatMinutes(diffMs: number): string {
   const totalMin = Math.max(1, Math.round(diffMs / 60000));
-  if (totalMin < 60) return `${totalMin} 分钟`;
+  if (totalMin < 60) return `${totalMin} minutes`;
   const h = Math.floor(totalMin / 60);
   const m = totalMin - h * 60;
-  return m > 0 ? `${h}h ${m} 分钟` : `${h}h`;
+  return m > 0 ? `${h}h ${m} minutes` : `${h}h`;
 }
 
 function resolveThresholds(root: string): StaleThresholds {
@@ -80,9 +80,9 @@ function detectActiveStoryId(root: string): string | null {
 }
 
 /**
- * Rule 1: phase 在某阶段长时间没 advance。
- * 读 story.events 的最后一条 timestamp 作为"上次 phase 动作时间"，
- * 超过阈值则 warn。
+ * Rule 1: phase has not advanced for a long time at some stage.
+ * Read the timestamp of the last entry in story.events as the "time of last phase action",
+ * and warn if it exceeds the threshold.
  */
 function checkPhaseStale(story: StoryInfo, thresholds: StaleThresholds, now: number): string | null {
   try {
@@ -94,14 +94,14 @@ function checkPhaseStale(story: StoryInfo, thresholds: StaleThresholds, now: num
     if (!Number.isFinite(lastTs)) return null;
     const diff = now - lastTs;
     if (diff > thresholds.phaseStale * 60_000) {
-      return `Story ${story.storyId} 已在 ${story.phase} 阶段 ${formatMinutes(diff)} 未 advance`;
+      return `Story ${story.storyId} has been in ${story.phase} phase for ${formatMinutes(diff)} without advance`;
     }
   } catch { /* PROBE */ }
   return null;
 }
 
 /**
- * Rule 2: checklist item 卡 in_progress 太久。
+ * Rule 2: checklist item stuck in_progress for too long.
  */
 function checkItemStale(checklist: ChecklistData, thresholds: StaleThresholds, now: number): string[] {
   const out: string[] = [];
@@ -114,7 +114,7 @@ function checkItemStale(checklist: ChecklistData, thresholds: StaleThresholds, n
       if (!Number.isFinite(ts)) continue;
       const diff = now - ts;
       if (diff > thresholds.itemStale * 60_000) {
-        out.push(`${item.id} 已 in_progress ${formatMinutes(diff)}，是不是已经做完忘记标 done?`);
+        out.push(`${item.id} has been in_progress for ${formatMinutes(diff)}; maybe it is done but was not marked done?`);
       }
     }
   } catch { /* PROBE */ }
@@ -122,7 +122,7 @@ function checkItemStale(checklist: ChecklistData, thresholds: StaleThresholds, n
 }
 
 /**
- * Rule 3: 距离上次任意 koala 命令超过阈值。
+ * Rule 3: more than the threshold since the last koala command of any kind.
  * Uses readActivityLogTail (dual-source: .koala/activity.jsonl + legacy docs/story/activity.jsonl).
  */
 function checkIdleKoala(root: string, thresholds: StaleThresholds, now: number): string | null {
@@ -136,14 +136,14 @@ function checkIdleKoala(root: string, thresholds: StaleThresholds, now: number):
     if (!Number.isFinite(ts)) return null;
     const diff = now - ts;
     if (diff > thresholds.idleKoala * 60_000) {
-      return `距离上次 koala 命令已过 ${formatMinutes(diff)}，记得继续走流程`;
+      return `It has been ${formatMinutes(diff)} since the last koala command; remember to continue the flow`;
     }
   } catch { /* PROBE */ }
   return null;
 }
 
 /**
- * Rule 4: open bug 长时间未 fixed。
+ * Rule 4: open bug not fixed for a long time.
  */
 function checkBugStale(bugs: BugData, thresholds: StaleThresholds, now: number): string[] {
   const out: string[] = [];
@@ -156,7 +156,7 @@ function checkBugStale(bugs: BugData, thresholds: StaleThresholds, now: number):
       if (!Number.isFinite(ts)) continue;
       const diff = now - ts;
       if (diff > thresholds.bugStale * 60_000) {
-        out.push(`Bug ${bug.id} 已 open ${formatMinutes(diff)}，建议优先修复`);
+        out.push(`Bug ${bug.id} has been open for ${formatMinutes(diff)}; consider fixing it first`);
       }
     }
   } catch { /* PROBE */ }
@@ -164,15 +164,17 @@ function checkBugStale(bugs: BugData, thresholds: StaleThresholds, now: number):
 }
 
 function cooldownKeyForWarning(warning: string): string {
-  return warning
-    .replace(/(已在 \S+ 阶段 )\d+h(?: \d+ 分钟)?( 未 advance)/, '$1<duration>$2')
-    .replace(/(已在 \S+ 阶段 )\d+ 分钟( 未 advance)/, '$1<duration>$2')
-    .replace(/(已 in_progress )\d+h(?: \d+ 分钟)?/, '$1<duration>')
-    .replace(/(已 in_progress )\d+ 分钟/, '$1<duration>')
-    .replace(/(已过 )\d+h(?: \d+ 分钟)?(，记得继续走流程)/, '$1<duration>$2')
-    .replace(/(已过 )\d+ 分钟(，记得继续走流程)/, '$1<duration>$2')
-    .replace(/(已 open )\d+h(?: \d+ 分钟)?(，建议优先修复)/, '$1<duration>$2')
-    .replace(/(已 open )\d+ 分钟(，建议优先修复)/, '$1<duration>$2');
+  const withDurationTokensNormalized = warning
+    .replace(/\d+h(?: \d+ (?:min|minutes))?|\d+ (?:min|minutes)/g, '<duration>');
+  return withDurationTokensNormalized
+    .replace(/(has been in .+? phase for )\d+h(?: \d+ (?:min|minutes))?( without advance)/, '$1<duration>$2')
+    .replace(/(has been in .+? phase for )\d+ (?:min|minutes)( without advance)/, '$1<duration>$2')
+    .replace(/(has been in_progress for )\d+h(?: \d+ (?:min|minutes))?/, '$1<duration>')
+    .replace(/(has been in_progress for )\d+ (?:min|minutes)/, '$1<duration>')
+    .replace(/(It has been )\d+h(?: \d+ (?:min|minutes))?( since the last koala command; remember to continue the flow)/, '$1<duration>$2')
+    .replace(/(It has been )\d+ (?:min|minutes)( since the last koala command; remember to continue the flow)/, '$1<duration>$2')
+    .replace(/(has been open for )\d+h(?: \d+ (?:min|minutes))?(; consider fixing it first)/, '$1<duration>$2')
+    .replace(/(has been open for )\d+ (?:min|minutes)(; consider fixing it first)/, '$1<duration>$2');
 }
 
 function suppressRecentlyEmittedWarnings(root: string, warnings: string[], now: number): string[] {
@@ -199,7 +201,7 @@ function suppressRecentlyEmittedWarnings(root: string, warnings: string[], now: 
 /**
  * Public API. Returns warning lines (no leading prefix). Caller prints to stderr.
  *
- * 永不抛错，任何内部异常都被吞掉返回 []。
+ * Never throws; any internal exception is swallowed and returns [].
  */
 export function detectStaleState(ctx: HandlerContext): string[] {
   try {
@@ -208,7 +210,7 @@ export function detectStaleState(ctx: HandlerContext): string[] {
 
     let story: StoryInfo | null = null;
     try { story = ctx.store.readStory(storyId); } catch { /* PROBE */ }
-    // 没有 story 文件就只跑 idle rule（idle 不依赖 story）
+    // If there is no story file, only run the idle rule (idle does not depend on story)
     const thresholds = resolveThresholds(ctx.root);
     const now = Date.now();
     const warnings: string[] = [];
