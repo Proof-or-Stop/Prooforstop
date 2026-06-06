@@ -1,6 +1,6 @@
 # 真相源导航
 
-> 27 个文件
+> 28 个文件
 
 ## decisions
 
@@ -15,6 +15,7 @@
 - [framework](decisions/framework.md)
 - [Host-Neutral Observability Console（CLI-backed read-only Dashboard 设计）](decisions/host-neutral-observability-console.md)
 - [Lattice Host Overflow](decisions/host-overflow.md)
+- [Lattice Authority Unattended Development Requirements](decisions/lattice-authority-live-integration.md)
 - [Lattice Parallel Wave](decisions/lattice-parallel-wave.md)
 - [Lifecycle Artifact Scope Policy](decisions/lifecycle-artifact-scope.md)
 - [Lifecycle Gate Receipt Consumption](decisions/lifecycle-gate-receipt-consumption.md)
