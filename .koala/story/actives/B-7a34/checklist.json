@@ -339,9 +339,9 @@
         "docs/requirements/decisions/host-overflow.md",
         "docs/requirements/decisions/project-vision.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-08T14:04:41.524Z",
       "userSees": "用户在最终汇报里看到 `Claude host review: no must-fix`、`Codex host review: no must-fix` 或具体 accepted must-fix 列表，并看到对应 verificationEvidence refs。",
       "files": {
         "modify": [],
@@ -370,7 +370,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "Claude CLI host A + Claude CLI host B + Codex CLI focused re-audit",
+          "result": "pass",
+          "note": "Two Claude CLI lanes and one Codex CLI lane performed read-only review. Final re-audit PASS from all three; no unresolved must-fix correctness issue remained.",
+          "headHash": "52b61f7689fbf1665f539ee2abf9bafa23db3e15",
+          "materialHash": "6f7a04f57e4185459cdf5d5ba828a5e28a85b760434e341b759d69dd60342ccf",
+          "timestamp": "2026-06-08T14:04:41.554Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "Codex CLI first audit and follow-up fix review",
+          "result": "pass",
+          "note": "Codex reported three real correctness findings: resolved close invariant, duplicate explicit loopId/status inconsistency, and --outcome hint drift. All were fixed, tested, and Codex re-audit returned PASS.",
+          "headHash": "52b61f7689fbf1665f539ee2abf9bafa23db3e15",
+          "materialHash": "6f7a04f57e4185459cdf5d5ba828a5e28a85b760434e341b759d69dd60342ccf",
+          "timestamp": "2026-06-08T14:04:41.584Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "Multi-host disagreement policy application",
+          "result": "pass",
+          "note": "Advisory-only notes were not implemented unless tied to source-grounded correctness. The accepted changes were limited to executable correctness and logic consistency.",
+          "headHash": "52b61f7689fbf1665f539ee2abf9bafa23db3e15",
+          "materialHash": "6f7a04f57e4185459cdf5d5ba828a5e28a85b760434e341b759d69dd60342ccf",
+          "timestamp": "2026-06-08T14:04:41.612Z"
+        }
+      ]
     }
   ]
 }
