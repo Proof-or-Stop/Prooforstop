@@ -1,0 +1,79 @@
+{
+  "principles": [
+    "只补可验证的文档执行缺口，不实现 memory 系统。",
+    "所有 baseline/scoring 只能证明 future implementation 的候选能力，不改变 Lattice gate authority。",
+    "1M recall 口径必须可执行、可抽样、可失败分类，但不绑定具体数据库或 provider。",
+    "Host 输出是复查证据，不是生产权威。"
+  ],
+  "drivers": [
+    "用户明确要求 baseline、评分机制和 100 万数据量 recall。",
+    "当前文档已有可行性和非目标，但缺少量化评估口径。",
+    "未来 memory work 若没有 baseline 会难以区分真实 improvement 与叙事优化。"
+  ],
+  "options": [
+    {
+      "name": "A: 文档补齐 benchmark contract",
+      "pros": [
+        "直接修复当前执行方案缺口。",
+        "不实现存储或召回引擎，符合不要任意优化。",
+        "可为后续 story 提供明确验收口径。"
+      ],
+      "cons": [
+        "不会立即提供可运行的 1M recall harness。",
+        "需要清楚标注为 future implementation gate，而不是当前能力。"
+      ]
+    },
+    {
+      "name": "B: 立即实现 memory benchmark harness",
+      "pros": [
+        "可以产生更强的自动化数据。",
+        "能直接跑 recall 指标。"
+      ],
+      "cons": [
+        "超出用户当前文档复查范围。",
+        "容易引入数据库/vector/provider 任意优化。",
+        "缺少先验需求和真实 failure，不符合只修 correctness issue。"
+      ]
+    },
+    {
+      "name": "C: 不修改文档，只在回复中解释 baseline",
+      "pros": [
+        "最小改动。",
+        "不会触碰现有文档。"
+      ],
+      "cons": [
+        "用户要求检查当前文档是否可执行，缺口不会落到可复用方案里。",
+        "后续 story 仍没有统一 baseline/scoring truth。"
+      ]
+    }
+  ],
+  "chosen": "A: 文档补齐 benchmark contract",
+  "rationale": "选择 A，因为当前真实问题是文档执行方案缺少可量化 memory baseline，而不是缺少具体 memory engine。A 能补齐评分、1M recall、阈值和失败分类，同时保持 host-neutral 和 non-authoritative 边界。",
+  "preMortem": [
+    {
+      "scenario": "文档把 benchmark 写成必须实现 vector DB 或外部 provider。",
+      "trigger": "为了说明 1M recall 而指定 SQLite/vector/Mem0 等具体存储。",
+      "consequence": "违反不任意优化和 host-neutral 原则。",
+      "mitigation": "只定义 corpus、queries、metrics、thresholds、failure taxonomy 和 harness contract，不指定实现 backend。"
+    },
+    {
+      "scenario": "评分机制被误解为 gate evidence 或 production authority。",
+      "trigger": "文档把 benchmark PASS 和 Koala DONE/productionDone 混在一起。",
+      "consequence": "破坏 dev-memory non_authoritative 和 Lattice gate authority。",
+      "mitigation": "显式写 benchmark 是 future implementation validation，不能替代 verificationEvidence、review_pass、delivery_check、receipt 或 productionDone。"
+    },
+    {
+      "scenario": "1M recall baseline 过于抽象，后续无法执行。",
+      "trigger": "只写需要评估 recall，没有定义数据规模、query set、指标、阈值、采样和资源记录。",
+      "consequence": "后续 story 仍无法判断 memory 能力是否正确。",
+      "mitigation": "补齐数据集结构、golden queries、Recall@K/MRR/precision/latency/memory footprint、cold/warm run、failure buckets 和最低通过阈值。"
+    },
+    {
+      "scenario": "三 Host 复查输出互相冲突。",
+      "trigger": "Claude-A 倾向扩展能力，Claude-B 倾向拒绝，Codex 给出折中。",
+      "consequence": "文档可能变成 host opinion 拼盘。",
+      "mitigation": "用 authority-preserving synthesis：只有能被 truth source 和执行性缺口支持的内容进入文档；其余作为 advisory 或 non-goal。"
+    }
+  ],
+  "timestamp": "2026-06-08T12:55:16.558Z"
+}

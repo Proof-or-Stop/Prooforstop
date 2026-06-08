@@ -13,7 +13,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "\"Second host review: Claude-A / Claude-B / Codex artifacts summarize whether the document is executable and whether baseline/scoring/1M recall is a real gap.\"",
+      "files": {
+        "modify": [],
+        "create": [
+          ".omx/artifacts/lifecycle-memory-baseline-claude-a-B-ec81.md",
+          ".omx/artifacts/lifecycle-memory-baseline-claude-b-B-ec81.md",
+          ".omx/artifacts/lifecycle-memory-baseline-codex-B-ec81.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "三 Host 复查 artifact 分别给出 Claude-A、Claude-B、Codex 对当前文档可执行性和 baseline/scoring 缺口的判断。",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "若某 host 认为 baseline 属于过度优化，最终 synthesis 必须说明为何采纳或排除，并保留不确定边界。",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Host 输出不能直接变成 Lattice truth 或 gate evidence；文档采纳必须经过 host-neutral authority-preserving synthesis。",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
