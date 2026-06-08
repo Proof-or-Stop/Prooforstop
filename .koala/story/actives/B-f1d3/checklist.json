@@ -12,9 +12,9 @@
         "docs/requirements/decisions/project-vision.md",
         "docs/requirements/decisions/stack-layering.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-08T09:51:11.422Z",
-      "endTime": null,
+      "endTime": "2026-06-08T09:51:31.673Z",
       "userSees": "\"Multi-host analysis: Claude-A / Claude-B / Codex conclusions recorded, disagreements listed, unsupported claims marked uncertain.\"",
       "verificationIntent": {
         "happy": [
@@ -47,7 +47,42 @@
           ".omx/artifacts/lifecycle-memory-codex-B-f1d3.md"
         ],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "Lattice-lifecycle-memory-Evolving.md",
+          "command": "omx ask claude (Claude-A), omx ask claude (Claude-B), codex exec -C /Users/jek/Documents/Work/Orchestrate/.worktrees/B-f1d3 -s read-only -o .omx/artifacts/lifecycle-memory-codex-B-f1d3.md ...",
+          "result": "pass",
+          "note": "The Multi-host analysis table cites Claude-A, Claude-B, and Codex artifacts and records each host conclusion plus disagreement handling.",
+          "headHash": "0eabadae0a7c3176d0666950e48b880b02ab2c95",
+          "materialHash": "3dceba47ac51e3c807ff04336e4698b717072c5a4bdc28e7e10cee36da763be1",
+          "timestamp": "2026-06-08T09:51:31.836Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "file": "Lattice-lifecycle-memory-Evolving.md",
+          "command": "review .omx/artifacts/claude-role-claude-a-architecture-reviewer-worktree-users-jek-docum-2026-06-08T09-36-18-528Z.md .omx/artifacts/claude-role-claude-b-skeptical-reviewer-worktree-users-jek-document-2026-06-08T09-39-02-035Z.md .omx/artifacts/lifecycle-memory-codex-B-f1d3.md",
+          "result": "pass",
+          "note": "The synthesis records limits from skeptical review and Codex read-only analysis, including unsupported Codex/Gemini subprocess support and non-authoritative host transcript boundaries.",
+          "headHash": "0eabadae0a7c3176d0666950e48b880b02ab2c95",
+          "materialHash": "3dceba47ac51e3c807ff04336e4698b717072c5a4bdc28e7e10cee36da763be1",
+          "timestamp": "2026-06-08T09:51:31.924Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "Lattice-lifecycle-memory-Evolving.md",
+          "command": "rg -n \"authority-preserving|Host 是证据来源|不能变成 production authority|不能被宣传为已可真实派发\" Lattice-lifecycle-memory-Evolving.md",
+          "result": "pass",
+          "note": "The final document separates observed host evidence from Lattice authority and excludes unsupported claims instead of converting them into current capabilities.",
+          "headHash": "0eabadae0a7c3176d0666950e48b880b02ab2c95",
+          "materialHash": "3dceba47ac51e3c807ff04336e4698b717072c5a4bdc28e7e10cee36da763be1",
+          "timestamp": "2026-06-08T09:51:32.000Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
