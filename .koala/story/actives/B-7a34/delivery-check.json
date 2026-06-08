@@ -1,0 +1,72 @@
+{
+  "storyId": "B-7a34",
+  "checkedAt": "2026-06-08T14:10:33.137Z",
+  "reviewRound": "2026-06-08T14:05:04.587Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "Lattice-Review-reflection-loop.md",
+      "promise": "Active loop blocks REVIEW to TEST and resolved close requires fresh trigger resolution at current material hash.",
+      "status": "verified",
+      "verifiedBy": "npm --prefix packages/main run test:review-loop-smoke",
+      "evidence": "Smoke 37/37 covers open loop blocker, resolved close evidence refs, current materialHash invariant, corrupt evidence fail-closed, and duplicate loopId rejection."
+    },
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md",
+      "promise": "REVIEW gates must consume structured facts and normal reviewer/finding/validation gates still apply after loop closure.",
+      "status": "verified",
+      "verifiedBy": "node bin/koala.js validate --story=B-7a34 plus reviewer passes",
+      "evidence": "validate PASS with 15/15 verification intent coverage; reviewer passes recorded for concept, quality, and test-coverage."
+    },
+    {
+      "docPath": "docs/requirements/decisions/host-overflow.md",
+      "promise": "Host guidance must not mutate authority, spawn handoff automatically, or execute provider-specific behavior.",
+      "status": "verified",
+      "verifiedBy": "Claude/Codex host audit",
+      "evidence": "Two Claude CLI lanes and Codex CLI re-audit found no host spawning, rollback execution, authority mutation, auto-DONE, or auto-merge."
+    },
+    {
+      "docPath": "docs/requirements/decisions/session-ownership-and-write-leases.md",
+      "promise": "Story-scoped mutating commands remain owner gated while read commands are available across phases.",
+      "status": "verified",
+      "verifiedBy": "phase allowlist probe and command policy review",
+      "evidence": "Mutating review_loop_start/iteration_add/close are REVIEW-only storyScopedMutating; status/policy_show are readOnly all phases."
+    },
+    {
+      "docPath": "docs/requirements/decisions/testing-completeness.md",
+      "promise": "Verification evidence must cover happy, edge, and adversarial intent lanes.",
+      "status": "verified",
+      "verifiedBy": "node bin/koala.js validate --story=B-7a34",
+      "evidence": "Validation reported verification intent coverage 15/15 covered, 0 required missing."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm --prefix packages/main run test:review-loop-smoke -> review-loop-smoke: 37 passed, 0 failed; covers data model, storage, strict JSONL parse, and context-only reusableLearning."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node packages/main/dist/cli.js review_loop_close --help showed --status resolved|escalated|blocked and recording-only description; phase probe showed mutating commands REVIEW only and status/policy all phases."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "review-loop-smoke verified open loops block, corrupt review-loops evidence fails closed, and gate hint uses review_loop_close --status=resolved."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "npm run build passed; node scripts/verify-process-fact-contract.mjs had no review_loop failures, only pre-existing autopilot/release drift."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Claude host A PASS, Claude host B PASS, Codex CLI re-audit PASS after three accepted correctness fixes."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery check passed: build, smoke, validate, CLI help, phase allowlist, process-fact review_loop entries, and multi-host audits all support the user-visible review reflection loop behavior without host automation or authority mutation."
+  },
+  "_hash": "ba7e344927b6efb0fc119a0f6f5701bb110a2fabf500880bf2cfbd3368c634a6"
+}
