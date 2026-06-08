@@ -4,7 +4,7 @@
   "title": "补齐 memory baseline 100 分评分公式",
   "description": "在 Lattice-lifecycle-memory-Evolving.md 中补齐用户确认的 memory baseline 评分机制：历史精确召回、精确答案命中、证据关联、6 层记忆路由、规模稳定性等权重和 10万/100万数据阈值。只修本文档的真实可执行性缺口，不引入 benchmark harness、存储引擎或生产授权语义。",
   "type": "chore",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "medium",
   "keywords": [
     "memory",
@@ -21,7 +21,7 @@
   ],
   "createdAt": "2026-06-08T14:45:45.242Z",
   "startedAt": "2026-06-08T14:45:45.242Z",
-  "endedAt": null,
+  "endedAt": "2026-06-08T15:18:41.632Z",
   "events": [
     {
       "phase": "INIT",
@@ -112,6 +112,15 @@
       "user": "Harmonygo",
       "sessionId": "sess-d2d13ad122d42347",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-08T15:18:41.632Z",
+      "branch": "story/B-4980",
+      "user": "Harmonygo",
+      "sessionId": "sess-d2d13ad122d42347",
+      "agent": "main"
     }
   ],
   "riskSignalsDismissed": [
@@ -121,10 +130,5 @@
       "at": "2026-06-08T14:46:51.195Z"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-4980",
-    "branch": "story/B-4980",
-    "createdAt": "2026-06-08T14:50:28.380Z"
-  },
   "currentReviewRound": "2026-06-08T15:07:31.590Z"
 }
