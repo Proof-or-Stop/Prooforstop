@@ -20,7 +20,7 @@
       "desc": "Lattice-lifecycle-memory-Evolving.md:135 CHK-001 promises a visible 100-point MemoryScore formula, but the doc only defines QualityScore and then uses `MemoryScore = QualityScore + 10 * ScaleStabilityScore`, forcing readers to expand the weights themselves. Fix by adding the fully expanded MemoryScore equation inline next to the helper notation so the user-visible formula is explicit.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-08T15:06:19.113Z",
@@ -29,7 +29,9 @@
       "_hash": "b3dd35ab1b714f23b9307435d3ff16697bfd4f929e6dde70d92b34521a4d8fdd",
       "files": [
         "Lattice-lifecycle-memory-Evolving.md"
-      ]
+      ],
+      "resolvedReason": "Fixed in commit 0e708241: added fully expanded MemoryScore formula alongside QualityScore helper notation.",
+      "resolvedAt": "2026-06-08T15:07:32.358Z"
     },
     {
       "id": "B-4980:F-003",
