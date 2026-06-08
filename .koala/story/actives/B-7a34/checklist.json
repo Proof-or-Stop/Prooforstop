@@ -213,7 +213,36 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "用户在最终汇报里看到 `Claude host review: no must-fix`、`Codex host review: no must-fix` 或具体 accepted must-fix 列表，并看到对应 verificationEvidence refs。",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Two Claude CLI lanes and one Codex CLI lane review the implementation and return no unresolved must-fix correctness issues.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If a host reports advisory-only optimization, it is recorded as advisory and not implemented unless tied to executable correctness.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "If hosts disagree, the main agent records the disagreement and accepts only source-grounded correctness findings, not preference changes.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
