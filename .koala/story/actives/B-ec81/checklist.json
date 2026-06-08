@@ -60,7 +60,38 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "\"Lattice-lifecycle-memory-Evolving.md includes a baseline/scoring/1M recall contract without adding storage/provider implementation.\"",
+      "files": {
+        "modify": [
+          "Lattice-lifecycle-memory-Evolving.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "文档新增 memory baseline/scoring/1M recall section，包含 corpus、query set、metrics、thresholds、failure taxonomy 和资源记录。",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "1M recall 方案必须可作为 future story 的执行契约，但不得承诺当前已实现 memory harness 或具体 backend。",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "新增 baseline 不能引入 SQLite/vector DB/external provider、auto skill replay、auto-DONE 或 production authority 扩张。",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
