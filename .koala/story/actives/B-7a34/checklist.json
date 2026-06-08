@@ -60,7 +60,47 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "用户运行 `lattice help | grep review_loop` 能看到 `review_loop_start`、`review_loop_iteration_add`、`review_loop_status`、`review_loop_close`、`review_loop_policy_show` 五个命令。",
+      "files": {
+        "modify": [
+          "packages/main/src/registry.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts"
+        ],
+        "create": [
+          "packages/main/src/handlers/review-loop.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/review-loop-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "All five review_loop commands are registered, have CLI schemas/help, and return text/json without spawning hosts or executing agents.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Mutating commands are story-scoped metadata writes and enforce valid phases/ownership through command policy.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No command writes productionDone, authorityChanged, receiptVerified, receiptRefs, or any authority receipt field.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
