@@ -38,7 +38,7 @@
       "desc": "Lattice-lifecycle-memory-Evolving.md:127 adds `current-state query has stale truth hit => FAIL`, but the Failure taxonomy at Lattice-lifecycle-memory-Evolving.md:204 does not name any stale-truth or freshness failure type. Fix by adding a matching taxonomy row or explicitly mapping this hard-fail path to an existing failure class so the contract stays internally consistent.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-08T15:06:19.124Z",
@@ -47,7 +47,9 @@
       "_hash": "7a82f706582571b112b0692b4edfd6a752efa940cb815f435c3bee32783cf7af",
       "files": [
         "Lattice-lifecycle-memory-Evolving.md"
-      ]
+      ],
+      "resolvedReason": "Fixed in commit 0e708241: added staleTruthHit to Failure taxonomy for current-state stale truth hard fail.",
+      "resolvedAt": "2026-06-08T15:07:32.910Z"
     }
   ]
 }
