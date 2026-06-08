@@ -50,9 +50,9 @@
           "command": "omx ask claude <architecture prompt>; omx ask claude <skeptical prompt>; codex exec -C . -s read-only -o .omx/artifacts/lifecycle-memory-baseline-codex-B-ec81.md <review prompt>",
           "result": "pass",
           "note": "Three host review completed. Artifacts: .omx/artifacts/lifecycle-memory-baseline-claude-a-B-ec81.md, .omx/artifacts/lifecycle-memory-baseline-claude-b-B-ec81.md, .omx/artifacts/lifecycle-memory-baseline-codex-B-ec81.md. All three reviewed document executability, host-neutral boundaries, and baseline/scoring/1M recall scope.",
-          "headHash": "843c932e9bbfe28e1803a9acc3fde1a8518e8850",
-          "materialHash": "47cf20257affd205dd0cea52531cd7585b85525af3c256c0f495823031108019",
-          "timestamp": "2026-06-08T13:20:48.255Z"
+          "headHash": "3b6a63466b29d82dc713207bb862b5e4c279352e",
+          "materialHash": "8a0a502fb5136e36efa0cab9cbecc92edebd038155bc0dc9fd05410eb1b197f3",
+          "timestamp": "2026-06-08T13:28:12.266Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -60,9 +60,9 @@
           "command": "sed -n 1,220p .omx/artifacts/lifecycle-memory-baseline-claude-a-B-ec81.md .omx/artifacts/lifecycle-memory-baseline-claude-b-B-ec81.md .omx/artifacts/lifecycle-memory-baseline-codex-B-ec81.md",
           "result": "pass",
           "note": "Disagreement resolved conservatively: baseline/scoring is accepted only as a future validation contract and boundary-integrity scoring; 1M recall is stress-tier only, not v0 hard implementation or arbitrary advisory-memory quality optimization.",
-          "headHash": "843c932e9bbfe28e1803a9acc3fde1a8518e8850",
-          "materialHash": "47cf20257affd205dd0cea52531cd7585b85525af3c256c0f495823031108019",
-          "timestamp": "2026-06-08T13:20:48.255Z"
+          "headHash": "3b6a63466b29d82dc713207bb862b5e4c279352e",
+          "materialHash": "8a0a502fb5136e36efa0cab9cbecc92edebd038155bc0dc9fd05410eb1b197f3",
+          "timestamp": "2026-06-08T13:28:12.266Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -70,9 +70,9 @@
           "command": "git check-ignore -v .omx/artifacts/lifecycle-memory-baseline-*-B-ec81.md; koala checklist_update CHK-001 files create empty",
           "result": "pass",
           "note": "Host outputs remain local manual review evidence, not committed deliverables or Lattice truth. Checklist file declarations were narrowed so ignored .omx transcripts are not mistaken for gate artifacts; synthesis must be applied through the document itself.",
-          "headHash": "843c932e9bbfe28e1803a9acc3fde1a8518e8850",
-          "materialHash": "47cf20257affd205dd0cea52531cd7585b85525af3c256c0f495823031108019",
-          "timestamp": "2026-06-08T13:20:48.255Z"
+          "headHash": "3b6a63466b29d82dc713207bb862b5e4c279352e",
+          "materialHash": "8a0a502fb5136e36efa0cab9cbecc92edebd038155bc0dc9fd05410eb1b197f3",
+          "timestamp": "2026-06-08T13:28:12.266Z"
         }
       ]
     },
@@ -127,9 +127,9 @@
           "command": "rg -n \"Memory Recall Validation Contract|Corpus|Query Set|recall@10|MRR@10|1,000,000|authorityLeakCount|gateEvidence:false|non_authoritative|productionDone:false|auto-DONE\" Lattice-lifecycle-memory-Evolving.md",
           "result": "pass",
           "note": "Document now contains the future Memory Recall Validation Contract with corpus/data sources, excluded sources, query families, contract scoring, tiers including 1,000,000 candidates, authority boundary terms, and non-goals.",
-          "headHash": "0428b81fa73440a1257ac9c8a5b06f0a72176e11",
-          "materialHash": "47cf20257affd205dd0cea52531cd7585b85525af3c256c0f495823031108019",
-          "timestamp": "2026-06-08T13:19:31.440Z"
+          "headHash": "3b6a63466b29d82dc713207bb862b5e4c279352e",
+          "materialHash": "8a0a502fb5136e36efa0cab9cbecc92edebd038155bc0dc9fd05410eb1b197f3",
+          "timestamp": "2026-06-08T13:28:12.266Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -137,9 +137,9 @@
           "command": "rg -n \"future implementation prerequisite|stress-only|not current|Koala REVIEW / TEST / DONE gate evidence|storage engine|benchmark runner|vector DB|SQLite/DuckDB|external provider|embedding model\" Lattice-lifecycle-memory-Evolving.md",
           "result": "pass",
           "note": "1,000,000 candidates are documented as stress-only future validation, not a current harness, current implementation, backend selection, or production guarantee.",
-          "headHash": "0428b81fa73440a1257ac9c8a5b06f0a72176e11",
-          "materialHash": "47cf20257affd205dd0cea52531cd7585b85525af3c256c0f495823031108019",
-          "timestamp": "2026-06-08T13:19:31.475Z"
+          "headHash": "3b6a63466b29d82dc713207bb862b5e4c279352e",
+          "materialHash": "8a0a502fb5136e36efa0cab9cbecc92edebd038155bc0dc9fd05410eb1b197f3",
+          "timestamp": "2026-06-08T13:28:12.266Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -147,9 +147,9 @@
           "command": "rg -n \"productionDone:true|gateEvidence:true|Gate meaning|hard gate\" Lattice-lifecycle-memory-Evolving.md || true; git diff --check -- Lattice-lifecycle-memory-Evolving.md",
           "result": "pass",
           "note": "No positive productionDone:true or gateEvidence:true wording remains; gate-like wording was reduced to contract-level checks. diff check passed after commit 0428b81f.",
-          "headHash": "0428b81fa73440a1257ac9c8a5b06f0a72176e11",
-          "materialHash": "47cf20257affd205dd0cea52531cd7585b85525af3c256c0f495823031108019",
-          "timestamp": "2026-06-08T13:19:31.510Z"
+          "headHash": "3b6a63466b29d82dc713207bb862b5e4c279352e",
+          "materialHash": "8a0a502fb5136e36efa0cab9cbecc92edebd038155bc0dc9fd05410eb1b197f3",
+          "timestamp": "2026-06-08T13:28:12.266Z"
         }
       ]
     },
@@ -206,9 +206,9 @@
           "command": "rg -n \"Memory Recall Validation Contract|Corpus / data sources|Excluded sources|Query set|Scoring and thresholds|T3|1,000,000 candidates|Failure taxonomy|Contract boundary\" Lattice-lifecycle-memory-Evolving.md",
           "result": "pass",
           "note": "Required baseline/scoring/1M recall contract sections and terms are present and discoverable in the final document.",
-          "headHash": "9029ba1459a0f8604443d46ac1c4e0d844d1243d",
-          "materialHash": "47cf20257affd205dd0cea52531cd7585b85525af3c256c0f495823031108019",
-          "timestamp": "2026-06-08T13:20:26.574Z"
+          "headHash": "3b6a63466b29d82dc713207bb862b5e4c279352e",
+          "materialHash": "8a0a502fb5136e36efa0cab9cbecc92edebd038155bc0dc9fd05410eb1b197f3",
+          "timestamp": "2026-06-08T13:28:12.266Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -216,9 +216,9 @@
           "command": "rg -n \"B-f1d3|historical v0 review input|koala validate --story=<current-story>|输出当前 story\" Lattice-lifecycle-memory-Evolving.md; git show --check --stat --oneline 0428b81f -- Lattice-lifecycle-memory-Evolving.md",
           "result": "pass",
           "note": "Historical B-f1d3 artifact references are labeled as historical v0 review input; current validation is generalized to <current-story>. The committed document patch has no whitespace/check errors.",
-          "headHash": "9029ba1459a0f8604443d46ac1c4e0d844d1243d",
-          "materialHash": "47cf20257affd205dd0cea52531cd7585b85525af3c256c0f495823031108019",
-          "timestamp": "2026-06-08T13:20:26.625Z"
+          "headHash": "3b6a63466b29d82dc713207bb862b5e4c279352e",
+          "materialHash": "8a0a502fb5136e36efa0cab9cbecc92edebd038155bc0dc9fd05410eb1b197f3",
+          "timestamp": "2026-06-08T13:28:12.266Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -226,9 +226,9 @@
           "command": "rg -n \"productionDone:true|gateEvidence:true|Gate meaning|hard gate|review_pass_set.*benchmark|koala validate evidence.*benchmark\" Lattice-lifecycle-memory-Evolving.md || true",
           "result": "pass",
           "note": "No positive productionDone:true/gateEvidence:true or benchmark-to-gate wording remains. Benchmark PASS is documented only as a future contract result, not Koala gate evidence, review pass, delivery check, receipt, or production authority.",
-          "headHash": "9029ba1459a0f8604443d46ac1c4e0d844d1243d",
-          "materialHash": "47cf20257affd205dd0cea52531cd7585b85525af3c256c0f495823031108019",
-          "timestamp": "2026-06-08T13:20:26.675Z"
+          "headHash": "3b6a63466b29d82dc713207bb862b5e4c279352e",
+          "materialHash": "8a0a502fb5136e36efa0cab9cbecc92edebd038155bc0dc9fd05410eb1b197f3",
+          "timestamp": "2026-06-08T13:28:12.266Z"
         }
       ]
     }
