@@ -1,0 +1,20 @@
+{
+  "findings": [
+    {
+      "id": "B-f1d3:F-001",
+      "desc": "Lattice-lifecycle-memory-Evolving.md:85 defines a current-scope cli check as `koala session_brief` expecting phase `DEV`, but the story is already in REVIEW and the document says v0 is documentation-only. That makes the matrix command non-executable as written for the current scope and the doc-only validation set insufficiently accurate for this story state.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-08T09:56:52.532Z",
+      "reviewRound": "2026-06-08T09:53:20.818Z",
+      "reviewRunId": "B-f1d3:RR-001",
+      "_hash": "277c8d1bdedc704ff79b924af456c22bbe5ca10a236fc0fabebc13ad805bea52",
+      "files": [
+        "Lattice-lifecycle-memory-Evolving.md"
+      ]
+    }
+  ]
+}
