@@ -136,23 +136,23 @@
           "intentRef": "CHK-002:happy:0",
           "kind": "docs_check",
           "file": "Lattice-lifecycle-memory-Evolving.md",
-          "command": "rg -n \"True correctness / logic gaps|Non-goals|Current capability|Host-neutral lifecycle infrastructure\" Lattice-lifecycle-memory-Evolving.md",
+          "command": "rg -n \"True correctness / logic gaps|Non-goals|当前能力对比|Host-neutral lifecycle infrastructure\" Lattice-lifecycle-memory-Evolving.md",
           "result": "pass",
           "note": "The document separates existing lifecycle surfaces, true correctness gaps, and non-goals with references to Lattice truth-source docs.",
-          "headHash": "b79ab306e2ffa53aa89f539964f195b2ba18edbf",
-          "materialHash": "3dceba47ac51e3c807ff04336e4698b717072c5a4bdc28e7e10cee36da763be1",
-          "timestamp": "2026-06-08T09:52:09.323Z"
+          "headHash": "3b5e3d023af664b35b7491bc23c8a5924b3f1297",
+          "materialHash": "28152e2103855d003daf5cdf926796c19ee4c8c48957003b2590fbaf114e2c91",
+          "timestamp": "2026-06-08T10:04:06.724Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "docs_check",
           "file": "Lattice-lifecycle-memory-Evolving.md",
-          "command": "rg -n \"只有在真实恢复失败被证明时才算 gap|条件性或待验证|未来待证实 gap|不能被宣传为已可真实派发\" Lattice-lifecycle-memory-Evolving.md",
+          "command": "rg -n \"只有在真实恢复失败被证明时才算 gap|未来待证实 gap|不能被宣传为已可真实派发|待验证\" Lattice-lifecycle-memory-Evolving.md",
           "result": "pass",
           "note": "Ambiguous or insufficiently proven capabilities are written as conditional future gaps or excluded from current capability claims.",
-          "headHash": "b79ab306e2ffa53aa89f539964f195b2ba18edbf",
-          "materialHash": "3dceba47ac51e3c807ff04336e4698b717072c5a4bdc28e7e10cee36da763be1",
-          "timestamp": "2026-06-08T09:52:09.374Z"
+          "headHash": "3b5e3d023af664b35b7491bc23c8a5924b3f1297",
+          "materialHash": "28152e2103855d003daf5cdf926796c19ee4c8c48957003b2590fbaf114e2c91",
+          "timestamp": "2026-06-08T10:04:06.764Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -161,9 +161,9 @@
           "command": "rg -n \"SQLite|vector DB|auto-DONE|gateEvidence:false|productionDone=false|Codex/Gemini|non_authoritative\" Lattice-lifecycle-memory-Evolving.md",
           "result": "pass",
           "note": "The document explicitly rejects arbitrary optimization, authority expansion, and host-experience differences as correctness gaps.",
-          "headHash": "b79ab306e2ffa53aa89f539964f195b2ba18edbf",
-          "materialHash": "3dceba47ac51e3c807ff04336e4698b717072c5a4bdc28e7e10cee36da763be1",
-          "timestamp": "2026-06-08T09:52:09.424Z"
+          "headHash": "3b5e3d023af664b35b7491bc23c8a5924b3f1297",
+          "materialHash": "28152e2103855d003daf5cdf926796c19ee4c8c48957003b2590fbaf114e2c91",
+          "timestamp": "2026-06-08T10:04:06.803Z"
         }
       ]
     },
