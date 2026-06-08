@@ -109,7 +109,7 @@
         "docs/requirements/decisions/truth-source.md",
         "docs/requirements/decisions/project-vision.md"
       ],
-      "userSees": "仓库根目录出现 Lattice-lifecycle-memory-Evolving.md，内容包含可行性结论、分阶段执行方案和测试矩阵。",
+      "userSees": "\"Lattice-lifecycle-memory-Evolving.md contains feasibility, staged execution plan, and validation matrix without authority-boundary drift.\"",
       "status": "pending",
       "startTime": null,
       "endTime": null,
@@ -134,6 +134,15 @@
             "type": "docs",
             "priority": "must"
           }
+        ]
+      },
+      "files": {
+        "modify": [],
+        "create": [
+          "Lattice-lifecycle-memory-Evolving.md"
+        ],
+        "test": [
+          "Lattice-lifecycle-memory-Evolving.md"
         ]
       }
     }
