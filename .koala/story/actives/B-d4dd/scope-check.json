@@ -1,0 +1,87 @@
+{
+  "storyId": "B-d4dd",
+  "checkedAt": "2026-06-08T23:44:54.100Z",
+  "features": [
+    {
+      "feature": "deterministic memory benchmark core and scoring engine",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "local lifecycle synthetic corpus and gold query generation for benchmark runs",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "CLI input/output contract with candidateCount/queryCount/seed/tier and json/text report schema",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "10k/100k/1M tier comparison on the same benchmark harness",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "benchmark smoke task plus package test script wiring",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "necessary Lattice-lifecycle-memory-Evolving.md usage update for the benchmark contract",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "REVIEW/TEST/DONE gate authority semantics remain unchanged by benchmark work",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "story description and understanding constraints keep benchmark output non-authoritative",
+      "source": "description"
+    },
+    {
+      "feature": "process fact registry and runtime authority runner changes stay out of scope",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope limited to benchmark core or handler or cli or smoke surfaces; no gate authority plumbing",
+      "source": "description"
+    },
+    {
+      "feature": "dev-memory authority semantics remain non-authoritative",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "understanding facts and constraints keep dev-memory advisory only",
+      "source": "decisions:decisions/dev-memory.md"
+    },
+    {
+      "feature": "external vector DB or production memory runtime changes stay out of scope",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "decision chooses deterministic virtual corpus and rejects external vector database benchmark",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "covered": 6,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "7e1d3362ea7d169f9c6732c79747fad0959e3e2bf3686c8cbe678de46c6c3f3e",
+  "openQuestions": []
+}
