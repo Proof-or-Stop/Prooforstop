@@ -14,6 +14,38 @@
       "_hash": "a9b00158f1c8f56c755bc3c265e11ef4c5d92f50d29f6375a321a2547d248336",
       "resolvedReason": "Fixed in commit 7dbfbf10: advisory_memory and host_transcript_memory are now explicitly boundary-only labels and cannot enter corpus truth, gold truth, HistoricalRetrievalScore, recall, or precision.",
       "resolvedAt": "2026-06-08T15:02:54.791Z"
+    },
+    {
+      "id": "B-4980:F-002",
+      "desc": "Lattice-lifecycle-memory-Evolving.md:135 CHK-001 promises a visible 100-point MemoryScore formula, but the doc only defines QualityScore and then uses `MemoryScore = QualityScore + 10 * ScaleStabilityScore`, forcing readers to expand the weights themselves. Fix by adding the fully expanded MemoryScore equation inline next to the helper notation so the user-visible formula is explicit.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-08T15:06:19.113Z",
+      "reviewRound": "2026-06-08T15:02:54.028Z",
+      "reviewRunId": "B-4980:RR-009",
+      "_hash": "b3dd35ab1b714f23b9307435d3ff16697bfd4f929e6dde70d92b34521a4d8fdd",
+      "files": [
+        "Lattice-lifecycle-memory-Evolving.md"
+      ]
+    },
+    {
+      "id": "B-4980:F-003",
+      "desc": "Lattice-lifecycle-memory-Evolving.md:127 adds `current-state query has stale truth hit => FAIL`, but the Failure taxonomy at Lattice-lifecycle-memory-Evolving.md:204 does not name any stale-truth or freshness failure type. Fix by adding a matching taxonomy row or explicitly mapping this hard-fail path to an existing failure class so the contract stays internally consistent.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-08T15:06:19.124Z",
+      "reviewRound": "2026-06-08T15:02:54.028Z",
+      "reviewRunId": "B-4980:RR-009",
+      "_hash": "7a82f706582571b112b0692b4edfd6a752efa940cb815f435c3bee32783cf7af",
+      "files": [
+        "Lattice-lifecycle-memory-Evolving.md"
+      ]
     }
   ]
 }
