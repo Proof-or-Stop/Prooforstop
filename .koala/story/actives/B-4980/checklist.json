@@ -60,12 +60,13 @@
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "docs_check",
-          "command": "rg -n \"exact recall@1.*1\\.0|recall@10.*0\\.90|MRR@10.*0\\.75|precision@10.*0\\.70|10,000.*>= 92|100,000.*>= 90|1,000,000.*>= 86\" Lattice-lifecycle-memory-Evolving.md",
+          "file": "Lattice-lifecycle-memory-Evolving.md",
+          "command": "rg -n \"exact recall@1.*1\\.0|recall@10.*0\\.90|MRR@10.*0\\.75|precision@10.*0\\.70|10,000.*>= 92|100,000.*>= 90|1,000,000.*>= 86|staleTruthHit\" Lattice-lifecycle-memory-Evolving.md",
           "result": "pass",
-          "note": "The original contract thresholds remain visible, and 10k/100k/1M MemoryScore thresholds are documented.",
-          "headHash": "4895766cfc272d2ffa17298d9753b751d880c7f3",
+          "note": "Covers original retrieval thresholds, 10k/100k/1M MemoryScore thresholds, and the staleTruthHit failure taxonomy for current-state stale truth hard fail.",
+          "headHash": "c4590b6f94ee76ed89c5bf0d2bc84e2d757ea8d5",
           "materialHash": "08b10678a2a0a1f866130d9ae4658f049de3dec8201a358ff7dfed3ef8b00483",
-          "timestamp": "2026-06-08T15:07:56.371Z"
+          "timestamp": "2026-06-08T15:11:48.237Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
