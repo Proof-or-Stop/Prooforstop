@@ -180,9 +180,9 @@
         "docs/requirements/decisions/project-vision.md"
       ],
       "userSees": "\"Lattice-lifecycle-memory-Evolving.md contains feasibility, staged execution plan, and validation matrix without authority-boundary drift.\"",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-08T09:52:43.635Z",
-      "endTime": null,
+      "endTime": "2026-06-08T09:52:59.520Z",
       "verificationIntent": {
         "happy": [
           {
@@ -216,7 +216,53 @@
         "test": [
           "Lattice-lifecycle-memory-Evolving.md"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "Lattice-lifecycle-memory-Evolving.md",
+          "command": "rg -n \"^# Lattice Lifecycle Memory Evolving|^## 执行结论|^## 执行计划|^## 测试矩阵|manual_transcript|docs_check|cli\" Lattice-lifecycle-memory-Evolving.md",
+          "result": "pass",
+          "note": "The final file exists and contains feasibility conclusion, staged execution plan, and validation matrix with docs_check, manual_transcript, and cli evidence types.",
+          "headHash": "3ba925b1f69c3cde174f97bd3d0f06e6eb84dd28",
+          "materialHash": "3dceba47ac51e3c807ff04336e4698b717072c5a4bdc28e7e10cee36da763be1",
+          "timestamp": "2026-06-08T09:52:59.577Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "file": "Lattice-lifecycle-memory-Evolving.md",
+          "command": "rg -n \"manual_transcript|若后续 story|只有在跨 host handoff 真实恢复失败可复现时做|暂定证据\" Lattice-lifecycle-memory-Evolving.md",
+          "result": "pass",
+          "note": "The plan records manual transcript paths for host analysis and limits non-automated future recovery evidence to proven failures and bounded follow-up stories.",
+          "headHash": "3ba925b1f69c3cde174f97bd3d0f06e6eb84dd28",
+          "materialHash": "3dceba47ac51e3c807ff04336e4698b717072c5a4bdc28e7e10cee36da763be1",
+          "timestamp": "2026-06-08T09:52:59.629Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "Lattice-lifecycle-memory-Evolving.md",
+          "command": "rg -n \"gateEvidence:false|productionDone=false|不能让 `productionDone=true`|auto-DONE|authority\" Lattice-lifecycle-memory-Evolving.md && git diff --check -- Lattice-lifecycle-memory-Evolving.md",
+          "result": "pass",
+          "note": "The test strategy preserves dev-memory advisory and gate authority boundaries, and the document has no whitespace or patch formatting issues.",
+          "headHash": "3ba925b1f69c3cde174f97bd3d0f06e6eb84dd28",
+          "materialHash": "3dceba47ac51e3c807ff04336e4698b717072c5a4bdc28e7e10cee36da763be1",
+          "timestamp": "2026-06-08T09:52:59.683Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "file": ".gitignore",
+          "command": "git check-ignore -v .koala/story/actives/B-f1d3/index.json .koala/story/actives/B-001/index.json .koala/runtime .koala/locks || true",
+          "result": "pass",
+          "note": "The story branch .gitignore only exposes current story metadata needed for Koala commits while historical story metadata and runtime artifacts remain ignored.",
+          "headHash": "3ba925b1f69c3cde174f97bd3d0f06e6eb84dd28",
+          "materialHash": "3dceba47ac51e3c807ff04336e4698b717072c5a4bdc28e7e10cee36da763be1",
+          "timestamp": "2026-06-08T09:52:59.736Z"
+        }
+      ]
     }
   ]
 }
