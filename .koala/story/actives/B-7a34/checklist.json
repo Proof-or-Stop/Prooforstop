@@ -162,7 +162,45 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "用户运行 `npm --prefix packages/main run test:review-loop-smoke` 和 `node scripts/verify-process-fact-contract.mjs` 后看到 review loop smoke 与 process fact contract 均通过。",
+      "files": {
+        "modify": [
+          "package.json",
+          "packages/main/package.json",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [
+          "packages/main/src/tasks/review-loop-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/review-loop-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Smoke test covers start, iteration, status, close, and policy priority behavior with deterministic assertions.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Contract verification fails if a review_loop L4 command lacks command policy, process fact level, artifact registry, or CLI schema entry.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Tests prove review_loop commands do not execute hosts, perform rollback, auto-merge, auto-DONE, or set authority receipt fields.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
