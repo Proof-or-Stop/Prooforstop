@@ -5,7 +5,7 @@
       "desc": "[MEDIUM] Lattice-lifecycle-memory-Evolving.md:21-28 and :186 call the second-round host synthesis/manual transcript an evidence input, but :58 says host transcript \"cannot satisfy verificationEvidence\". That wording is too absolute and drifts from current Koala semantics: this story already records CHK-001 as manual_transcript verificationEvidence via checklist_get. Narrow the claim to authority/gate/validation scope (for example, not authoritative lifecycle truth, not review pass, not delivery check, not koala validate evidence) so readers do not misread manual transcript evidence as categorically invalid.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-08T13:23:13.879Z",
@@ -14,7 +14,9 @@
       "_hash": "f7a122e9059c4b1a9974d0442b0fcc7389030113b746acd2849acf1f745d1a55",
       "files": [
         "Lattice-lifecycle-memory-Evolving.md"
-      ]
+      ],
+      "resolvedReason": "Fixed by commit c1028b52. The document now explicitly allows manual/host transcript to be cited as non-authoritative manual_transcript verificationEvidence that a host review happened, while forbidding it from serving as authoritative lifecycle truth, review_pass_set, delivery check, koala validate validation evidence, signed receipt, gate evidence, or production authority. Verified by rg: no remaining `不能满足 verificationEvidence` wording.",
+      "resolvedAt": "2026-06-08T13:27:36.556Z"
     }
   ]
 }
