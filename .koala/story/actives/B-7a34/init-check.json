@@ -1,0 +1,33 @@
+{
+  "storyId": "B-7a34",
+  "checkedAt": "2026-06-08T12:57:21.518Z",
+  "reviewRound": "",
+  "agentId": "koala-review-story-init",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-08T12:55:18.318Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "Background explains the engineering gap but not the user-facing problem. Add 1-2 sentences on what goes wrong today without review loop tracking."
+        },
+        {
+          "severity": "medium",
+          "desc": "All 5 checklist items missing userSees fields. Each should state concrete output the user observes on completion."
+        },
+        {
+          "severity": "medium",
+          "desc": "No post-completion outcome summary. Background should describe what the end-to-end user experience looks like after all items are done."
+        }
+      ]
+    },
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-06-08T12:57:21.518Z",
+      "issues": []
+    }
+  ],
+  "_hash": "5226b74f53a3670d8a8e87df371da217604627069e6c0902adf2f3787dc2d223"
+}

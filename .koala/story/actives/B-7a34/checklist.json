@@ -1,0 +1,69 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Implement review loop data model and storage",
+      "context": "Add the minimal story-scoped review loop record model from Lattice-Review-reflection-loop.md: start, iteration, close, status, trigger refs, rollback/material hashes, reflection reason, policy decision reason, and latest-record state derivation. Reuse existing StoryStore/process artifact patterns; do not introduce a new external service.",
+      "relatedDocs": [
+        "Lattice-Review-reflection-loop.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Expose minimal review_loop CLI surface",
+      "context": "Add review_loop_start, review_loop_iteration_add, review_loop_status, review_loop_close, and review_loop_policy_show as recording/status commands only. They must not execute agents, spawn hosts, auto-DONE, auto-merge, or claim authority.",
+      "relatedDocs": [
+        "Lattice-Review-reflection-loop.md",
+        "docs/requirements/decisions/host-overflow.md",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Integrate active loop blocking with REVIEW gate and status surfaces",
+      "context": "REVIEW to TEST must block while latest ReviewLoopRecord.status is open. A resolved close may only unblock the loop gate when trigger refs are resolved or superseded by fresh evidence at the current material hash; blocked/escalated close does not unblock underlying finding/bug/scope/validation gates.",
+      "relatedDocs": [
+        "Lattice-Review-reflection-loop.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add focused contract and smoke tests",
+      "context": "Cover policy priority, open-loop REVIEW gate blocking, close invariants, JSON command shape, host-neutral no-authority behavior, and command registry/process-fact integration. Keep tests scoped to executable correctness only.",
+      "relatedDocs": [
+        "Lattice-Review-reflection-loop.md",
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/truth-source.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Run multi-host implementation review and record evidence",
+      "context": "Use two Claude CLI review lanes and Codex CLI review to inspect the implementation. Accept only real correctness issues; record verificationEvidence and keep advisory optimization out of scope.",
+      "relatedDocs": [
+        "Lattice-Review-reflection-loop.md",
+        "docs/requirements/decisions/host-overflow.md",
+        "docs/requirements/decisions/project-vision.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
