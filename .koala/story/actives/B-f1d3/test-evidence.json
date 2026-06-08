@@ -1,0 +1,196 @@
+{
+  "command": "koala validate --story=B-f1d3 --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.5 test\",\"  > npm run test:e2e\",\"  > koala@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ℹ Reading legacy koala.config.json at /Users/jek/Documents/Work/Orchestrate/.worktrees/B-f1d3; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ℹ Reading legacy koala.config.json at .; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-t5T4eL; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-EVLMTS; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 9/9 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/docs] covered via manual_transcript (Lattice-lifecycle-memory-Evolving.md) — 多 host 分析 artifact 明确列出 Claude-A、Claude-B、Codex 的结论、分歧点与可引用出处。\",\"  ✓ CHK-001:edge:0 [edge/must/manual] covered via manual_transcript (Lattice-lifecycle-memory-Evolving.md) — 若某 host 无法直接验证附件或能力，artifact 必须记录限制、替代观察路径与未验证边界，而不是补写成等价结论。\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/docs] covered via docs_check (Lattice-lifecycle-memory-Evolving.md) — artifact 必须区分已观察事实与推测，未被 transcript 或文档支持的能力判断要标为不确定或排除。\",\"  ✓ CHK-002:happy:0 [happy/must/docs] covered via docs_check (Lattice-lifecycle-memory-Evolving.md) — 能力判断把事项分成已存在能力、命名或叙事差异、真实缺口、非目标项，并给出当前 truth source 或代码 surface 依据。\",\"  ✓ CHK-002:edge:0 [edge/must/docs] covered via docs_check (Lattice-lifecycle-memory-Evolving.md) — 对证据不足或边界模糊的项，结论必须显式写成条件性或待验证，不得强行归类为已有或缺口。\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via manual_transcript (Lattice-lifecycle-memory-Evolving.md) — 任何优化诉求、未授权 authority 扩张或仅 host 体验差异，不能被误判为 correctness 缺口。\",\"  ✓ CHK-003:happy:0 [happy/must/docs] covered via docs_check (Lattice-lifecycle-memory-Evolving.md) — 最终文档存在且包含可行性结论、阶段化执行方案、测试或验证矩阵，并把验证项映射到 docs_check、manual_transcript 或 cli 证据类型。\",\"  ✓ CHK-003:edge:0 [edge/must/manual] covered via manual_transcript (Lattice-lifecycle-memory-Evolving.md) — 若某阶段或验证点无法自动化，方案必须明确记录人工 transcript 或文档校验作为暂定证据路径及适用范围。\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/docs] covered via docs_check (Lattice-lifecycle-memory-Evolving.md) — 测试策略不得把 dev-memory advisory 或非 gate 事实当作 gate evidence，且方案必须保持 gate evidence authority boundary 一致。\"],\"warnings\":[],\"timestamp\":\"2026-06-08T10:17:18.490Z\",\"headSha\":\"1e16c2d6cca6b6ecadbcedec27fa82783abcae03\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\nℹ Reading legacy koala.config.json at /Users/jek/Documents/Work/Orchestrate/.worktrees/B-f1d3; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\nℹ Reading legacy koala.config.json at .; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-t5T4eL; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-EVLMTS; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1578}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":9,\"reason\":\"verificationIntent entries present (9)\"},\"verificationCoverage\":{\"total\":9,\"required\":9,\"covered\":9,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"多 host 分析 artifact 明确列出 Claude-A、Claude-B、Codex 的结论、分歧点与可引用出处。\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"manual_transcript\",\"file\":\"Lattice-lifecycle-memory-Evolving.md\",\"command\":\"omx ask claude (Claude-A), omx ask claude (Claude-B), codex exec -C /Users/jek/Documents/Work/Orchestrate/.worktrees/B-f1d3 -s read-only -o .omx/artifacts/lifecycle-memory-codex-B-f1d3.md ...\",\"result\":\"pass\",\"note\":\"The Multi-host analysis table cites Claude-A, Claude-B, and Codex artifacts and records each host conclusion plus disagreement handling.\",\"headHash\":\"90b1372e7b00e12567e9df9293218b351dcb046e\",\"materialHash\":\"28152e2103855d003daf5cdf926796c19ee4c8c48957003b2590fbaf114e2c91\",\"timestamp\":\"2026-06-08T10:04:37.135Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"若某 host 无法直接验证附件或能力，artifact 必须记录限制、替代观察路径与未验证边界，而不是补写成等价结论。\",\"type\":\"manual\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"manual_transcript\",\"file\":\"Lattice-lifecycle-memory-Evolving.md\",\"command\":\"review .omx/artifacts/claude-role-claude-a-architecture-reviewer-worktree-users-jek-docum-2026-06-08T09-36-18-528Z.md .omx/artifacts/claude-role-claude-b-skeptical-reviewer-worktree-users-jek-document-2026-06-08T09-39-02-035Z.md .omx/artifacts/lifecycle-memory-codex-B-f1d3.md\",\"result\":\"pass\",\"note\":\"The synthesis records limits from skeptical review and Codex read-only analysis, including unsupported Codex/Gemini subprocess support and non-authoritative host transcript boundaries.\",\"headHash\":\"90b1372e7b00e12567e9df9293218b351dcb046e\",\"materialHash\":\"28152e2103855d003daf5cdf926796c19ee4c8c48957003b2590fbaf114e2c91\",\"timestamp\":\"2026-06-08T10:04:37.135Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"artifact 必须区分已观察事实与推测，未被 transcript 或文档支持的能力判断要标为不确定或排除。\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"Lattice-lifecycle-memory-Evolving.md\",\"command\":\"rg -n \\\"authority-preserving|Host 是证据来源|不能变成 production authority|不能被宣传为已可真实派发\\\" Lattice-lifecycle-memory-Evolving.md\",\"result\":\"pass\",\"note\":\"The final document separates observed host evidence from Lattice authority and excludes unsupported claims instead of converting them into current capabilities.\",\"headHash\":\"90b1372e7b00e12567e9df9293218b351dcb046e\",\"materialHash\":\"28152e2103855d003daf5cdf926796c19ee4c8c48957003b2590fbaf114e2c91\",\"timestamp\":\"2026-06-08T10:04:37.135Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"能力判断把事项分成已存在能力、命名或叙事差异、真实缺口、非目标项，并给出当前 truth source 或代码 surface 依据。\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"docs_check\",\"file\":\"Lattice-lifecycle-memory-Evolving.md\",\"command\":\"rg -n \\\"True correctness / logic gaps|Non-goals|当前能力对比|Host-neutral lifecycle infrastructure\\\" Lattice-lifecycle-memory-Evolving.md\",\"result\":\"pass\",\"note\":\"The document separates existing lifecycle surfaces, true correctness gaps, and non-goals with references to Lattice truth-source docs.\",\"headHash\":\"3b5e3d023af664b35b7491bc23c8a5924b3f1297\",\"materialHash\":\"28152e2103855d003daf5cdf926796c19ee4c8c48957003b2590fbaf114e2c91\",\"timestamp\":\"2026-06-08T10:04:06.724Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"对证据不足或边界模糊的项，结论必须显式写成条件性或待验证，不得强行归类为已有或缺口。\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"docs_check\",\"file\":\"Lattice-lifecycle-memory-Evolving.md\",\"command\":\"rg -n \\\"只有在真实恢复失败被证明时才算 gap|未来待证实 gap|不能被宣传为已可真实派发|待验证\\\" Lattice-lifecycle-memory-Evolving.md\",\"result\":\"pass\",\"note\":\"Ambiguous or insufficiently proven capabilities are written as conditional future gaps or excluded from current capability claims.\",\"headHash\":\"3b5e3d023af664b35b7491bc23c8a5924b3f1297\",\"materialHash\":\"28152e2103855d003daf5cdf926796c19ee4c8c48957003b2590fbaf114e2c91\",\"timestamp\":\"2026-06-08T10:04:06.764Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"任何优化诉求、未授权 authority 扩张或仅 host 体验差异，不能被误判为 correctness 缺口。\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"manual_transcript\",\"file\":\"Lattice-lifecycle-memory-Evolving.md\",\"command\":\"rg -n \\\"SQLite|vector DB|auto-DONE|gateEvidence:false|productionDone=false|Codex/Gemini|non_authoritative\\\" Lattice-lifecycle-memory-Evolving.md\",\"result\":\"pass\",\"note\":\"The document explicitly rejects arbitrary optimization, authority expansion, and host-experience differences as correctness gaps.\",\"headHash\":\"3b5e3d023af664b35b7491bc23c8a5924b3f1297\",\"materialHash\":\"28152e2103855d003daf5cdf926796c19ee4c8c48957003b2590fbaf114e2c91\",\"timestamp\":\"2026-06-08T10:04:06.803Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"最终文档存在且包含可行性结论、阶段化执行方案、测试或验证矩阵，并把验证项映射到 docs_check、manual_transcript 或 cli 证据类型。\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"docs_check\",\"file\":\"Lattice-lifecycle-memory-Evolving.md\",\"command\":\"rg -n \\\"^# Lattice Lifecycle Memory Evolving|^## 执行结论|^## 执行计划|^## 测试矩阵|manual_transcript|docs_check|cli\\\" Lattice-lifecycle-memory-Evolving.md\",\"result\":\"pass\",\"note\":\"The final file exists and contains feasibility conclusion, staged execution plan, and validation matrix with docs_check, manual_transcript, and cli evidence types.\",\"headHash\":\"0c90e3e188c3fa107486cb7eae97cbb80be38796\",\"materialHash\":\"28152e2103855d003daf5cdf926796c19ee4c8c48957003b2590fbaf114e2c91\",\"timestamp\":\"2026-06-08T10:04:20.922Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"若某阶段或验证点无法自动化，方案必须明确记录人工 transcript 或文档校验作为暂定证据路径及适用范围。\",\"type\":\"manual\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"manual_transcript\",\"file\":\"Lattice-lifecycle-memory-Evolving.md\",\"command\":\"rg -n \\\"manual_transcript|若后续 story|只有在跨 host handoff 真实恢复失败可复现时做|经真实失败证明\\\" Lattice-lifecycle-memory-Evolving.md\",\"result\":\"pass\",\"note\":\"The plan records manual transcript paths for host analysis and limits non-automated future recovery evidence to proven failures and bounded follow-up stories.\",\"headHash\":\"0c90e3e188c3fa107486cb7eae97cbb80be38796\",\"materialHash\":\"28152e2103855d003daf5cdf926796c19ee4c8c48957003b2590fbaf114e2c91\",\"timestamp\":\"2026-06-08T10:04:20.962Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"测试策略不得把 dev-memory advisory 或非 gate 事实当作 gate evidence，且方案必须保持 gate evidence authority boundary 一致。\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"Lattice-lifecycle-memory-Evolving.md\",\"command\":\"rg -n \\\"gateEvidence:false|productionDone=false|不能让 `productionDone=true`|auto-DONE|authority\\\" Lattice-lifecycle-memory-Evolving.md && git show --check --stat --oneline HEAD -- Lattice-lifecycle-memory-Evolving.md\",\"result\":\"pass\",\"note\":\"The test strategy preserves dev-memory advisory and gate authority boundaries, and the committed document has no whitespace or patch formatting issues.\",\"headHash\":\"0c90e3e188c3fa107486cb7eae97cbb80be38796\",\"materialHash\":\"28152e2103855d003daf5cdf926796c19ee4c8c48957003b2590fbaf114e2c91\",\"timestamp\":\"2026-06-08T10:04:21.003Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-08T10:17:18.914Z",
+  "headHash": "1e16c2d6cca6b6ecadbcedec27fa82783abcae03",
+  "materialHash": "28152e2103855d003daf5cdf926796c19ee4c8c48957003b2590fbaf114e2c91",
+  "verificationCoverage": {
+    "total": 9,
+    "required": 9,
+    "covered": 9,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "多 host 分析 artifact 明确列出 Claude-A、Claude-B、Codex 的结论、分歧点与可引用出处。",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "Lattice-lifecycle-memory-Evolving.md",
+          "command": "omx ask claude (Claude-A), omx ask claude (Claude-B), codex exec -C /Users/jek/Documents/Work/Orchestrate/.worktrees/B-f1d3 -s read-only -o .omx/artifacts/lifecycle-memory-codex-B-f1d3.md ...",
+          "result": "pass",
+          "note": "The Multi-host analysis table cites Claude-A, Claude-B, and Codex artifacts and records each host conclusion plus disagreement handling.",
+          "headHash": "90b1372e7b00e12567e9df9293218b351dcb046e",
+          "materialHash": "28152e2103855d003daf5cdf926796c19ee4c8c48957003b2590fbaf114e2c91",
+          "timestamp": "2026-06-08T10:04:37.135Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "若某 host 无法直接验证附件或能力，artifact 必须记录限制、替代观察路径与未验证边界，而不是补写成等价结论。",
+        "type": "manual",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "file": "Lattice-lifecycle-memory-Evolving.md",
+          "command": "review .omx/artifacts/claude-role-claude-a-architecture-reviewer-worktree-users-jek-docum-2026-06-08T09-36-18-528Z.md .omx/artifacts/claude-role-claude-b-skeptical-reviewer-worktree-users-jek-document-2026-06-08T09-39-02-035Z.md .omx/artifacts/lifecycle-memory-codex-B-f1d3.md",
+          "result": "pass",
+          "note": "The synthesis records limits from skeptical review and Codex read-only analysis, including unsupported Codex/Gemini subprocess support and non-authoritative host transcript boundaries.",
+          "headHash": "90b1372e7b00e12567e9df9293218b351dcb046e",
+          "materialHash": "28152e2103855d003daf5cdf926796c19ee4c8c48957003b2590fbaf114e2c91",
+          "timestamp": "2026-06-08T10:04:37.135Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "artifact 必须区分已观察事实与推测，未被 transcript 或文档支持的能力判断要标为不确定或排除。",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "Lattice-lifecycle-memory-Evolving.md",
+          "command": "rg -n \"authority-preserving|Host 是证据来源|不能变成 production authority|不能被宣传为已可真实派发\" Lattice-lifecycle-memory-Evolving.md",
+          "result": "pass",
+          "note": "The final document separates observed host evidence from Lattice authority and excludes unsupported claims instead of converting them into current capabilities.",
+          "headHash": "90b1372e7b00e12567e9df9293218b351dcb046e",
+          "materialHash": "28152e2103855d003daf5cdf926796c19ee4c8c48957003b2590fbaf114e2c91",
+          "timestamp": "2026-06-08T10:04:37.135Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "能力判断把事项分成已存在能力、命名或叙事差异、真实缺口、非目标项，并给出当前 truth source 或代码 surface 依据。",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "Lattice-lifecycle-memory-Evolving.md",
+          "command": "rg -n \"True correctness / logic gaps|Non-goals|当前能力对比|Host-neutral lifecycle infrastructure\" Lattice-lifecycle-memory-Evolving.md",
+          "result": "pass",
+          "note": "The document separates existing lifecycle surfaces, true correctness gaps, and non-goals with references to Lattice truth-source docs.",
+          "headHash": "3b5e3d023af664b35b7491bc23c8a5924b3f1297",
+          "materialHash": "28152e2103855d003daf5cdf926796c19ee4c8c48957003b2590fbaf114e2c91",
+          "timestamp": "2026-06-08T10:04:06.724Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "对证据不足或边界模糊的项，结论必须显式写成条件性或待验证，不得强行归类为已有或缺口。",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "Lattice-lifecycle-memory-Evolving.md",
+          "command": "rg -n \"只有在真实恢复失败被证明时才算 gap|未来待证实 gap|不能被宣传为已可真实派发|待验证\" Lattice-lifecycle-memory-Evolving.md",
+          "result": "pass",
+          "note": "Ambiguous or insufficiently proven capabilities are written as conditional future gaps or excluded from current capability claims.",
+          "headHash": "3b5e3d023af664b35b7491bc23c8a5924b3f1297",
+          "materialHash": "28152e2103855d003daf5cdf926796c19ee4c8c48957003b2590fbaf114e2c91",
+          "timestamp": "2026-06-08T10:04:06.764Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "任何优化诉求、未授权 authority 扩张或仅 host 体验差异，不能被误判为 correctness 缺口。",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "Lattice-lifecycle-memory-Evolving.md",
+          "command": "rg -n \"SQLite|vector DB|auto-DONE|gateEvidence:false|productionDone=false|Codex/Gemini|non_authoritative\" Lattice-lifecycle-memory-Evolving.md",
+          "result": "pass",
+          "note": "The document explicitly rejects arbitrary optimization, authority expansion, and host-experience differences as correctness gaps.",
+          "headHash": "3b5e3d023af664b35b7491bc23c8a5924b3f1297",
+          "materialHash": "28152e2103855d003daf5cdf926796c19ee4c8c48957003b2590fbaf114e2c91",
+          "timestamp": "2026-06-08T10:04:06.803Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "最终文档存在且包含可行性结论、阶段化执行方案、测试或验证矩阵，并把验证项映射到 docs_check、manual_transcript 或 cli 证据类型。",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "Lattice-lifecycle-memory-Evolving.md",
+          "command": "rg -n \"^# Lattice Lifecycle Memory Evolving|^## 执行结论|^## 执行计划|^## 测试矩阵|manual_transcript|docs_check|cli\" Lattice-lifecycle-memory-Evolving.md",
+          "result": "pass",
+          "note": "The final file exists and contains feasibility conclusion, staged execution plan, and validation matrix with docs_check, manual_transcript, and cli evidence types.",
+          "headHash": "0c90e3e188c3fa107486cb7eae97cbb80be38796",
+          "materialHash": "28152e2103855d003daf5cdf926796c19ee4c8c48957003b2590fbaf114e2c91",
+          "timestamp": "2026-06-08T10:04:20.922Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "若某阶段或验证点无法自动化，方案必须明确记录人工 transcript 或文档校验作为暂定证据路径及适用范围。",
+        "type": "manual",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "file": "Lattice-lifecycle-memory-Evolving.md",
+          "command": "rg -n \"manual_transcript|若后续 story|只有在跨 host handoff 真实恢复失败可复现时做|经真实失败证明\" Lattice-lifecycle-memory-Evolving.md",
+          "result": "pass",
+          "note": "The plan records manual transcript paths for host analysis and limits non-automated future recovery evidence to proven failures and bounded follow-up stories.",
+          "headHash": "0c90e3e188c3fa107486cb7eae97cbb80be38796",
+          "materialHash": "28152e2103855d003daf5cdf926796c19ee4c8c48957003b2590fbaf114e2c91",
+          "timestamp": "2026-06-08T10:04:20.962Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "测试策略不得把 dev-memory advisory 或非 gate 事实当作 gate evidence，且方案必须保持 gate evidence authority boundary 一致。",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "Lattice-lifecycle-memory-Evolving.md",
+          "command": "rg -n \"gateEvidence:false|productionDone=false|不能让 `productionDone=true`|auto-DONE|authority\" Lattice-lifecycle-memory-Evolving.md && git show --check --stat --oneline HEAD -- Lattice-lifecycle-memory-Evolving.md",
+          "result": "pass",
+          "note": "The test strategy preserves dev-memory advisory and gate authority boundaries, and the committed document has no whitespace or patch formatting issues.",
+          "headHash": "0c90e3e188c3fa107486cb7eae97cbb80be38796",
+          "materialHash": "28152e2103855d003daf5cdf926796c19ee4c8c48957003b2590fbaf114e2c91",
+          "timestamp": "2026-06-08T10:04:21.003Z"
+        }
+      }
+    ]
+  }
+}
