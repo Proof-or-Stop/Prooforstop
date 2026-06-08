@@ -54,10 +54,13 @@
       "q": "Should the .gitignore correction be removed from B-f1d3, or is it a separately authorized prerequisite that needs explicit scope approval instead of being bundled into this documentation-only story?",
       "evidence": "CHK-003 plans to modify .gitignore and commit that fix with the story, but decision_get selects a documentation-only feasibility plan and the story task/user outcome are about lifecycle-memory analysis artifacts plus Lattice-lifecycle-memory-Evolving.md.",
       "sourcePointers": [
-        "plan_get CHK-003 Files/Verify/DoneWhen",
-        "decision_get chosen=A: Documentation-only feasibility plan grounded in existing surfaces",
-        "understanding_get facts: current worktree bootstrap exposed .koala story store and .gitignore conflict"
-      ]
+        "CHK-003",
+        "docs/requirements/decisions/story-lifecycle.md#运行时文件事实单独登记",
+        "docs/requirements/decisions/testing-infra.md#Runtime-artifacts",
+        "koala.config.json:storyDir"
+      ],
+      "resolution": "Authorize the .gitignore correction as a prerequisite correctness fix for this story, not as lifecycle-memory feature expansion. The story flow failed because koala.config.json stores active Story evidence under .koala/story/actives while the existing ignore rule hid the entire .koala directory from git add. The planned change only allows .koala/story/actives/** to be tracked and keeps runtime artifacts such as .koala/runtime, .koala/traces, and .koala/locks ignored. This is therefore required to preserve Lattice process evidence consistency for B-f1d3 and is explicitly scoped in CHK-003; it does not authorize packages/main/src changes or new lifecycle-memory behavior.",
+      "resolvedAt": "2026-06-08T09:30:02.747Z"
     }
   ]
 }
