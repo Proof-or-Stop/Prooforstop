@@ -47,7 +47,30 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "同一组 candidateCount/queryCount/seed/tier 输入多次运行 deterministic benchmark engine 时，单次 benchmark 命令输出的 metrics、MemoryScore、hardChecks 和 verdict 必须稳定一致，证明 engine 不是随机漂移。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "单次 benchmark CLI 在不走 comparison report 的情况下也能独立运行，并按约定输出可追溯 schema：json 模式保留结构化 fields，text 模式保留人工可读摘要，不要求用户先生成 10k/100k/1M 对比表。",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "engine 对 lifecycle truth 边界做机械过滤：只有 raw_event_memory、lifecycle_state_memory、checklist_evidence_memory、summary_memory 能参与检索计分；如果 boundary-only layers 混入 recall/precision，或 current-state query 命中 stale truth / lifecycle evidence linkage 不达标，run 必须转成 hard fail。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
