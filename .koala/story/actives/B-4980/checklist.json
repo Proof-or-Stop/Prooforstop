@@ -53,9 +53,9 @@
           "command": "rg -n \"MemoryScore \\(100-point baseline\\)|HistoricalRetrievalScore =|exact recall@1 \\+ recall@10 \\+ MRR@10 \\+ precision@10|QualityScore =|25 \\* HistoricalRetrievalScore|25 \\* ExactAnswerHit|25 \\* EvidenceLinkageRate|15 \\* LayerRoutingAccuracy|10 \\* ScaleStabilityScore\" Lattice-lifecycle-memory-Evolving.md",
           "result": "pass",
           "note": "MemoryScore section is present; HistoricalRetrievalScore includes exact recall@1, recall@10, MRR@10, and precision@10; QualityScore and MemoryScore weights are present.",
-          "headHash": "86f48516444eace8a64a6684b3a4c5bae78515f1",
-          "materialHash": "e48b351c4c4cbbdf12612624ed20d1eae547ccce9bb8e0d2b12e4f7279b16937",
-          "timestamp": "2026-06-08T15:03:17.670Z"
+          "headHash": "4895766cfc272d2ffa17298d9753b751d880c7f3",
+          "materialHash": "08b10678a2a0a1f866130d9ae4658f049de3dec8201a358ff7dfed3ef8b00483",
+          "timestamp": "2026-06-08T15:07:56.371Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -63,9 +63,9 @@
           "command": "rg -n \"exact recall@1.*1\\.0|recall@10.*0\\.90|MRR@10.*0\\.75|precision@10.*0\\.70|10,000.*>= 92|100,000.*>= 90|1,000,000.*>= 86\" Lattice-lifecycle-memory-Evolving.md",
           "result": "pass",
           "note": "The original contract thresholds remain visible, and 10k/100k/1M MemoryScore thresholds are documented.",
-          "headHash": "86f48516444eace8a64a6684b3a4c5bae78515f1",
-          "materialHash": "e48b351c4c4cbbdf12612624ed20d1eae547ccce9bb8e0d2b12e4f7279b16937",
-          "timestamp": "2026-06-08T15:03:17.670Z"
+          "headHash": "4895766cfc272d2ffa17298d9753b751d880c7f3",
+          "materialHash": "08b10678a2a0a1f866130d9ae4658f049de3dec8201a358ff7dfed3ef8b00483",
+          "timestamp": "2026-06-08T15:07:56.371Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -73,9 +73,9 @@
           "command": "rg -n \"MemoryScore is not Koala lifecycle truth|Benchmark PASS can only be future implementation validation evidence|million-candidate harness\" Lattice-lifecycle-memory-Evolving.md; git show --check --stat --oneline HEAD -- Lattice-lifecycle-memory-Evolving.md",
           "result": "pass",
           "note": "The scoring formula is explicitly bounded as future validation evidence only, and the committed document patch has no git show --check issues.",
-          "headHash": "86f48516444eace8a64a6684b3a4c5bae78515f1",
-          "materialHash": "e48b351c4c4cbbdf12612624ed20d1eae547ccce9bb8e0d2b12e4f7279b16937",
-          "timestamp": "2026-06-08T15:03:17.670Z"
+          "headHash": "4895766cfc272d2ffa17298d9753b751d880c7f3",
+          "materialHash": "08b10678a2a0a1f866130d9ae4658f049de3dec8201a358ff7dfed3ef8b00483",
+          "timestamp": "2026-06-08T15:07:56.371Z"
         }
       ]
     },
@@ -131,9 +131,9 @@
           "command": "rg -n \"MemoryScore 用来回答一个窄问题|MemoryScore is not Koala lifecycle truth|future implementation validation evidence\" Lattice-lifecycle-memory-Evolving.md",
           "result": "pass",
           "note": "The scoring section states MemoryScore is a narrow future-memory correctness score and not lifecycle truth or production authority.",
-          "headHash": "86f48516444eace8a64a6684b3a4c5bae78515f1",
-          "materialHash": "e48b351c4c4cbbdf12612624ed20d1eae547ccce9bb8e0d2b12e4f7279b16937",
-          "timestamp": "2026-06-08T15:03:17.670Z"
+          "headHash": "4895766cfc272d2ffa17298d9753b751d880c7f3",
+          "materialHash": "08b10678a2a0a1f866130d9ae4658f049de3dec8201a358ff7dfed3ef8b00483",
+          "timestamp": "2026-06-08T15:07:56.371Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -141,9 +141,9 @@
           "command": "rg -n \"10,000.*>= 92|100,000.*>= 90|1,000,000.*>= 86|stress-only|million-candidate harness|T1 \\| 10,000 candidates|T2 \\| 100,000 candidates|T3 \\| 1,000,000 candidates\" Lattice-lifecycle-memory-Evolving.md",
           "result": "pass",
           "note": "10k/100k/1M thresholds and tiers are present; 1M remains stress-only and not a claim that a million-candidate harness exists today.",
-          "headHash": "86f48516444eace8a64a6684b3a4c5bae78515f1",
-          "materialHash": "e48b351c4c4cbbdf12612624ed20d1eae547ccce9bb8e0d2b12e4f7279b16937",
-          "timestamp": "2026-06-08T15:03:17.670Z"
+          "headHash": "4895766cfc272d2ffa17298d9753b751d880c7f3",
+          "materialHash": "08b10678a2a0a1f866130d9ae4658f049de3dec8201a358ff7dfed3ef8b00483",
+          "timestamp": "2026-06-08T15:07:56.371Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -151,9 +151,9 @@
           "command": "rg -n \"raw_event_memory|lifecycle_state_memory|checklist_evidence_memory|summary_memory|advisory_memory|host_transcript_memory|MemoryScore is not Koala lifecycle truth|review pass|validation evidence|delivery check|receipt|production authority|Benchmark PASS\" Lattice-lifecycle-memory-Evolving.md",
           "result": "pass",
           "note": "Six layer labels and explicit score-boundary wording are present; host transcript and advisory memory remain non-authoritative.",
-          "headHash": "86f48516444eace8a64a6684b3a4c5bae78515f1",
-          "materialHash": "e48b351c4c4cbbdf12612624ed20d1eae547ccce9bb8e0d2b12e4f7279b16937",
-          "timestamp": "2026-06-08T15:03:17.670Z"
+          "headHash": "4895766cfc272d2ffa17298d9753b751d880c7f3",
+          "materialHash": "08b10678a2a0a1f866130d9ae4658f049de3dec8201a358ff7dfed3ef8b00483",
+          "timestamp": "2026-06-08T15:07:56.371Z"
         }
       ]
     }
