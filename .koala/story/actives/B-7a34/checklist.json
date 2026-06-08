@@ -90,9 +90,9 @@
         "docs/requirements/decisions/host-overflow.md",
         "docs/requirements/decisions/session-ownership-and-write-leases.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-08T14:04:01.466Z",
       "userSees": "用户运行 `lattice help | grep review_loop` 能看到 `review_loop_start`、`review_loop_iteration_add`、`review_loop_status`、`review_loop_close`、`review_loop_policy_show` 五个命令。",
       "files": {
         "modify": [
@@ -132,7 +132,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js review_loop_start --help && node packages/main/dist/cli.js review_loop_status --help && node packages/main/dist/cli.js review_loop_close --help",
+          "result": "pass",
+          "note": "CLI help exists for review_loop commands and describes recording/read-only behavior without host execution.",
+          "headHash": "1458278cd9176fb847066a3babcbf0a18b595620",
+          "materialHash": "6f7a04f57e4185459cdf5d5ba828a5e28a85b760434e341b759d69dd60342ccf",
+          "timestamp": "2026-06-08T14:04:01.504Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node -e import(\"./packages/main/dist/core/config.js\").then(({isCommandAllowed})=>{const phases=[\"INIT\",\"INIT_CHECK\",\"PLAN\",\"DEV\",\"REVIEW\",\"TEST\",\"DONE\"]; for(const cmd of [\"review_loop_start\",\"review_loop_iteration_add\",\"review_loop_close\",\"review_loop_status\",\"review_loop_policy_show\"]) console.log(cmd, phases.filter(p=>isCommandAllowed(cmd,p)).join(\",\"));})",
+          "result": "pass",
+          "note": "Phase probe showed start/iteration_add/close are REVIEW-only, while status/policy_show are available in all phases.",
+          "headHash": "1458278cd9176fb847066a3babcbf0a18b595620",
+          "materialHash": "6f7a04f57e4185459cdf5d5ba828a5e28a85b760434e341b759d69dd60342ccf",
+          "timestamp": "2026-06-08T14:04:01.534Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:review-loop-smoke",
+          "result": "pass",
+          "note": "Smoke asserts no productionDone, authorityChanged, receiptVerified, or receiptRefs fields exist on review loop records.",
+          "headHash": "1458278cd9176fb847066a3babcbf0a18b595620",
+          "materialHash": "6f7a04f57e4185459cdf5d5ba828a5e28a85b760434e341b759d69dd60342ccf",
+          "timestamp": "2026-06-08T14:04:01.564Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
