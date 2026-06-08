@@ -1,0 +1,66 @@
+{
+  "storyId": "B-f1d3",
+  "checkedAt": "2026-06-08T09:28:49.745Z",
+  "features": [
+    {
+      "feature": "Multi-host analysis artifacts for Claude-A, Claude-B, and Codex",
+      "covered_by": "CHK-001; .omx/artifacts/lifecycle-memory-claude-a-B-f1d3.md; .omx/artifacts/lifecycle-memory-claude-b-B-f1d3.md; .omx/artifacts/lifecycle-memory-codex-B-f1d3.md",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get CHK-001 files.create; plan_get CHK-001"
+    },
+    {
+      "feature": "Capability map separating existing surfaces, narrative-only deltas, real gaps, and non-goals",
+      "covered_by": "CHK-002; Lattice-lifecycle-memory-Evolving.md",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get CHK-002 userSees/files.create; plan_get CHK-002"
+    },
+    {
+      "feature": "Feasibility conclusion, staged execution plan, and validation matrix in the root plan document",
+      "covered_by": "CHK-003; Lattice-lifecycle-memory-Evolving.md",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get CHK-003 verificationIntent/files; understanding_get outcome; plan_get CHK-003"
+    },
+    {
+      "feature": "Implementation of new lifecycle-memory behavior in truth-source docs or packages/main source",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "decision_get chosen=A documentation-only feasibility plan; understanding_get constraints: host-neutral/no authority expansion",
+      "source": "decision_get chosen/rationale; understanding_get constraints/touchpoints"
+    },
+    {
+      "feature": "Repository-wide .gitignore correction for .koala/story/actives tracking",
+      "covered_by": "CHK-003; .gitignore",
+      "status": "drift",
+      "excluded_by": "decision_get chosen=A documentation-only feasibility plan; story title/task focus on evaluating and planning lifecycle memory",
+      "source": "plan_get CHK-003 Files/Verify/DoneWhen; understanding_get facts mentions prior .gitignore repair; git diff -- .gitignore"
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "covered": 3,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 1
+  },
+  "reviewRound": "",
+  "_hash": "006976cd8050459150816f4feec9ade05441a0e8232738b14cb64e7d975d3062",
+  "openQuestions": [
+    {
+      "id": "SQ-001",
+      "q": "Should the .gitignore correction be removed from B-f1d3, or is it a separately authorized prerequisite that needs explicit scope approval instead of being bundled into this documentation-only story?",
+      "evidence": "CHK-003 plans to modify .gitignore and commit that fix with the story, but decision_get selects a documentation-only feasibility plan and the story task/user outcome are about lifecycle-memory analysis artifacts plus Lattice-lifecycle-memory-Evolving.md.",
+      "sourcePointers": [
+        "CHK-003",
+        "docs/requirements/decisions/story-lifecycle.md#运行时文件事实单独登记",
+        "docs/requirements/decisions/testing-infra.md#Runtime-artifacts",
+        "koala.config.json:storyDir"
+      ],
+      "resolution": "Authorize the .gitignore correction as a prerequisite correctness fix for this story, not as lifecycle-memory feature expansion. The story flow failed because koala.config.json stores active Story evidence under .koala/story/actives while the existing ignore rule hid the entire .koala directory from git add. The planned change only allows .koala/story/actives/** to be tracked and keeps runtime artifacts such as .koala/runtime, .koala/traces, and .koala/locks ignored. This is therefore required to preserve Lattice process evidence consistency for B-f1d3 and is explicitly scoped in CHK-003; it does not authorize packages/main/src changes or new lifecycle-memory behavior.",
+      "resolvedAt": "2026-06-08T09:30:02.747Z"
+    }
+  ]
+}

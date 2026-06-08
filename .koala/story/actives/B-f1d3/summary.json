@@ -1,0 +1,56 @@
+{
+  "storyId": "B-f1d3",
+  "changes": "新增根目录 Lattice-lifecycle-memory-Evolving.md，汇总附件能力分析、两个 Claude CLI 视角和 Codex CLI host 视角，对比 Lattice 当前 host-neutral lifecycle 能力，分类真实缺口、非目标和后续执行方案；同时收窄 .gitignore 只允许当前 story metadata 被 Koala 跟踪。",
+  "usage": "打开 Lattice-lifecycle-memory-Evolving.md 即可阅读可行性结论、当前能力对比、host-neutral 约束、执行计划和测试矩阵；后续若决定实现 Phase 1/2/3，需要按文档中的真实 gap 和测试矩阵新建独立 story。",
+  "expectedOutcome": "用户能看到一个完整可执行方案：说明附件能力是否适合 Lattice、为什么符合或不符合 host-neutral 核心思想、哪些只是不应做的优化、哪些是真实 correctness gap，并包含测试策略。",
+  "actualTranscript": "rg 定位到文档标题、多 Host 分析摘要、当前能力对比、Host-neutral 对齐与约束、执行计划、测试矩阵和非目标；validate 输出 allPass:true，npm test/e2e ALL PASS，verification intent coverage 9/9 covered；delivery-check 验证 10 个 docsPromises。",
+  "outcomeDiff": "expected and actual match；review 中发现的 DEV-only session_brief 与 git diff --check stale wording 已修成 phase-agnostic session context 和 git show --check committed-change check。",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "文档 v0 只产出方案和边界，不直接实现 Thread/Trajectory projection、recovery resume contract 或 receipt-backed production authority；这些必须以后续 story 证明真实 correctness gap 后再做。",
+  "pitfalls": "TEST preflight 需要 current-worktree Codex adapter verification，不能用全局 koala 作为 gate/status 证据；scope-contract 缺失会阻塞 REVIEW/TEST，需要在 DEV 初始化并重新绑定 reviewer pass。",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 270556
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 117802
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 788864
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 1579487
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 1033024
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 256129
+    }
+  },
+  "totalDurationMs": 4045876,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-08T10:21:13.038Z",
+  "updatedAt": "2026-06-08T10:21:13.038Z"
+}

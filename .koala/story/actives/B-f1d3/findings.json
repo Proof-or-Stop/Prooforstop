@@ -1,0 +1,52 @@
+{
+  "findings": [
+    {
+      "id": "B-f1d3:F-001",
+      "desc": "Lattice-lifecycle-memory-Evolving.md:85 defines a current-scope cli check as `koala session_brief` expecting phase `DEV`, but the story is already in REVIEW and the document says v0 is documentation-only. That makes the matrix command non-executable as written for the current scope and the doc-only validation set insufficiently accurate for this story state.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-08T09:56:52.532Z",
+      "reviewRound": "2026-06-08T09:53:20.818Z",
+      "reviewRunId": "B-f1d3:RR-001",
+      "_hash": "277c8d1bdedc704ff79b924af456c22bbe5ca10a236fc0fabebc13ad805bea52",
+      "files": [
+        "Lattice-lifecycle-memory-Evolving.md"
+      ]
+    },
+    {
+      "id": "B-f1d3:F-002",
+      "desc": "Lattice-lifecycle-memory-Evolving.md:83-85 contains stale/misleading validation guidance. The matrix uses `git diff --check -- Lattice-lifecycle-memory-Evolving.md`, which only inspects the current worktree diff and becomes a no-op after the document is committed, and it says `koala session_brief` should report phase `DEV`, but the story lifecycle docs and the current story state show B-f1d3 is in REVIEW. Update the matrix to use a phase-agnostic worktree/story-context check and a diff check that still validates the reviewed change set.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-08T09:57:49.105Z",
+      "reviewRound": "2026-06-08T09:53:20.818Z",
+      "reviewRunId": "B-f1d3:RR-002",
+      "_hash": "077a0d322330d4c0304d50d2da67279af5c38fe38a7196b6b94e19b13d4c545f",
+      "files": [
+        "Lattice-lifecycle-memory-Evolving.md"
+      ]
+    },
+    {
+      "id": "B-f1d3:F-003",
+      "desc": "Lattice-lifecycle-memory-Evolving.md:85 hard-codes the `koala session_brief` check to pass only when story B-f1d3 is in `phase DEV`, but the story is already in REVIEW. That makes the v0 test matrix non-executable as written and overstates what this command should verify; the criterion should validate worktree/cwd authority and story identity, not require DEV specifically.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-08T09:58:19.653Z",
+      "reviewRound": "2026-06-08T09:53:20.818Z",
+      "reviewRunId": "B-f1d3:RR-003",
+      "_hash": "e6b94afd79e90b66459d521e6150c989a2722ac67c0db9b68408fa965c3d1c75",
+      "files": [
+        "Lattice-lifecycle-memory-Evolving.md"
+      ]
+    }
+  ]
+}

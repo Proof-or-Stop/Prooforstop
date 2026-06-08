@@ -1,0 +1,29 @@
+{
+  "task": "评估附件提出的 Host-neutral lifecycle memory / Evolving Work Lifecycle 能力是否应纳入 Lattice，并产出可执行方案文档。",
+  "outcome": "用户将看到仓库根目录的 Lattice-lifecycle-memory-Evolving.md：文档明确说明可行性结论、当前能力对比、真实缺口、非目标项、分阶段执行方案和测试矩阵；同时看到本次已使用两个 Claude CLI 分析与 Codex CLI host 判断作为输入。",
+  "facts": [
+    "附件主张 Lattice 应定位为 lifecycle infrastructure，目标是让 work survive across hosts，而不是做用户记忆产品。",
+    "现有 project-vision 已声明 Lattice 是 host-neutral 项目开发编排 CLI，Claude Code/Codex 等是 execution hosts，Lattice 持有 story/scope/receipt/merge authority。",
+    "dev-memory 已存在，但明确是 non-authoritative advisory context，不能满足 verificationEvidence、review pass、delivery 或 DONE gate。",
+    "parallel wave 和 host overflow 已存在 read-only/non-authority 投影，明确不自动 spawn、不 auto-merge、不 claim productionDone。",
+    "host-neutral observability console 已把 Lineage、Thread、Trajectory、Recovery Point 作为投影概念，其中 Thread/Trajectory 尚未一等 schema 化。",
+    "当前 worktree bootstrap 暴露了 .koala story store 与 .gitignore 冲突，已做最小 .gitignore 修正以恢复流程。"
+  ],
+  "constraints": [
+    "不为优化而优化，不做任意优化，只处理真实 correctness 或逻辑一致性问题。",
+    "不得把 dev-memory 或 host transcript 当作 gate evidence。",
+    "不得让 handoff/parallel/wave/local CLI PASS 升级为 productionDone 或 verified receipt。",
+    "Story/fixture 受保护目录不得直接读写，story 操作必须通过 Koala/Lattice CLI。",
+    "最终文档必须命名为 Lattice-lifecycle-memory-Evolving.md。",
+    "方案应保持 host-neutral：Claude Code、Codex、Gemini、Hermes 等只能作为 host/adapter，不成为 Lattice 核心权威。"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "Lattice-lifecycle-memory-Evolving.md",
+    ".gitignore",
+    ".omx/artifacts/lifecycle-memory-claude-a-B-f1d3.md",
+    ".omx/artifacts/lifecycle-memory-claude-b-B-f1d3.md",
+    ".omx/artifacts/lifecycle-memory-codex-B-f1d3.md"
+  ],
+  "timestamp": "2026-06-08T09:30:43.809Z"
+}

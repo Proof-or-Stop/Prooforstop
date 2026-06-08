@@ -1,0 +1,85 @@
+{
+  "passes": [
+    {
+      "id": "B-f1d3:RP-001",
+      "agent": "koala-review-docs",
+      "note": "Pass: the document is readable, includes a clear feasibility conclusion, multi-host comparison, source references to project-vision/host-overflow/story-lifecycle/testing/observability docs, an executable phased plan, a concrete test matrix, and explicit non-goals that avoid claiming unsupported memory, auto-DONE, or real subprocess authority.",
+      "createdAt": "2026-06-08T09:57:14.392Z",
+      "reviewRound": "2026-06-08T09:53:20.818Z",
+      "reviewRunId": "B-f1d3:RR-004",
+      "_hash": "9acde3a40743acb1c18aa258e93551d8597b9a0ef84ed79063a2a6a8d47682cd"
+    },
+    {
+      "id": "B-f1d3:RP-002",
+      "agent": "koala-review-docs",
+      "note": "Reviewed Lattice-lifecycle-memory-Evolving.md in the B-f1d3 worktree. The final document remains readable and complete after the review-matrix fix: it includes the multi-host analysis summary, feasibility conclusion, execution plan, testing matrix, and non-goals, and the test matrix no longer hardcodes a DEV-only phase requirement (it explicitly says the lifecycle phase does not have to be fixed to DEV).",
+      "createdAt": "2026-06-08T10:07:06.344Z",
+      "reviewRound": "2026-06-08T10:04:53.633Z",
+      "reviewRunId": "B-f1d3:RR-007",
+      "_hash": "d62e84bc6202af37b359ba14adcf2b1c0451e3475eb70d28a7defd695f204d96"
+    },
+    {
+      "id": "B-f1d3:RP-003",
+      "agent": "koala-review-test-coverage",
+      "note": "Round 2 test-coverage review passed. Verified the fixed matrix in Lattice-lifecycle-memory-Evolving.md now uses git show --check for committed markdown validation and koala session_brief only checks story/owner/worktree/cwd context without requiring DEV. Current checklist evidence was refreshed after the doc fix commit, references the updated commands, and keeps doc-only validation scoped to docs_check/manual_transcript evidence without treating dev-memory or host transcripts as authority-expanding gate evidence.",
+      "createdAt": "2026-06-08T10:07:42.267Z",
+      "reviewRound": "2026-06-08T10:04:53.633Z",
+      "reviewRunId": "B-f1d3:RR-005",
+      "_hash": "035c6b8446d98cd8692d7b6dbd0f55e35fc8eb9b84c319c74921b6d932a5a9d9"
+    },
+    {
+      "id": "B-f1d3:RP-004",
+      "agent": "koala-review-quality",
+      "note": "Reviewed round 2 against prior finding B-f1d3:F-002. Lattice-lifecycle-memory-Evolving.md now uses committed-change validation via git show --check --stat --oneline HEAD -- Lattice-lifecycle-memory-Evolving.md in the v0 plan and docs_check matrix, and the session_brief acceptance text checks story/worktree/cwd context plus current lifecycle phase without requiring DEV. Diff scope remains doc + story metadata only; I found no new quality blocker in the document or metadata wording for this lane.",
+      "createdAt": "2026-06-08T10:07:44.630Z",
+      "reviewRound": "2026-06-08T10:04:53.633Z",
+      "reviewRunId": "B-f1d3:RR-008",
+      "_hash": "897ea123c37ee5268b8e4ac735c4e82a4e32273a7ae6364cc58e3c7f6b4d82cb"
+    },
+    {
+      "id": "B-f1d3:RP-005",
+      "agent": "koala-review-concept",
+      "note": "Reviewed Lattice-lifecycle-memory-Evolving.md after findings F-001/F-003. The test matrix at line 85 now uses phase-agnostic owner/worktree/cwd lifecycle language for koala session_brief, which matches the current REVIEW state, and the document still preserves host-neutral authority boundaries by keeping host outputs non-authoritative and Lattice in charge of story/scope/receipt/merge authority.",
+      "createdAt": "2026-06-08T10:07:58.955Z",
+      "reviewRound": "2026-06-08T10:04:53.633Z",
+      "reviewRunId": "B-f1d3:RR-006",
+      "_hash": "7f1e220aefe081449fd1c45611e46494b0995390dddfeac37a70a5b0e1693ffc"
+    },
+    {
+      "id": "B-f1d3:RP-006",
+      "agent": "koala-review-docs",
+      "note": "Pass: Lattice-lifecycle-memory-Evolving.md remains complete and readable after the scope contract metadata addition. Verified the required sections are present (multi-host summary, feasibility, execution plan, testing matrix, non-goals), and no stale DEV-only language was introduced; all DEV references are lifecycle definitions or planned validation, not scope leakage.",
+      "createdAt": "2026-06-08T10:14:20.800Z",
+      "reviewRound": "2026-06-08T10:12:12.775Z",
+      "reviewRunId": "B-f1d3:RR-010",
+      "_hash": "56ea068d00f5f446de5f45804ca774d61c6f5d56d514167f2695980f899c98e1"
+    },
+    {
+      "id": "B-f1d3:RP-007",
+      "agent": "koala-review-quality",
+      "note": "Quality review round 3 passed: scope contract allowlists match checklist-delivered files (.gitignore modify; Lattice-lifecycle-memory-Evolving.md create/test), git diff vs main shows no unrelated source changes, .gitignore only re-exposes the current story subtree while runtime/history paths stay ignored, and the final document uses current validate guidance plus existing future-phase script names without authority-boundary drift.",
+      "createdAt": "2026-06-08T10:14:52.304Z",
+      "reviewRound": "2026-06-08T10:12:12.775Z",
+      "reviewRunId": "B-f1d3:RR-011",
+      "_hash": "d013ad8a92d23d09a66e7927eeec73b7c83f51e166ddc0adfa2a93ebd57e57c0"
+    },
+    {
+      "id": "B-f1d3:RP-008",
+      "agent": "koala-review-test-coverage",
+      "note": "Verified test-coverage scope for round 3: Lattice-lifecycle-memory-Evolving.md lines 83 and 85 now use committed-change validation (`git show --check --stat --oneline HEAD -- ...`) and a phase-agnostic `koala session_brief` owner/worktree/cwd check. Checklist evidence stays fresh under materialHash `28152e2103855d003daf5cdf926796c19ee4c8c48957003b2590fbaf114e2c91`; diffs after the recorded evidence heads are metadata-only under .koala/story/actives/B-f1d3. Scope contract remains aligned with the documented surface (.gitignore modify, document/artifact create, document test) and does not introduce additional uncovered validation surface for this doc-only story.",
+      "createdAt": "2026-06-08T10:15:30.749Z",
+      "reviewRound": "2026-06-08T10:12:12.775Z",
+      "reviewRunId": "B-f1d3:RR-009",
+      "_hash": "a21caa1a7512ee45220d7fa746a058b81a4a03c61e498eec93e6e22788d17071"
+    },
+    {
+      "id": "B-f1d3:RP-009",
+      "agent": "koala-review-concept",
+      "note": "Concept review pass for round 3. Verified Lattice-lifecycle-memory-Evolving.md still answers the feasibility request with host-neutral and non-authoritative boundaries intact; confirmed the test matrix session_brief row is phase-agnostic (reports current lifecycle phase and explicitly says it need not be DEV); confirmed scope_contract_init_from_plan binding did not widen scope unexpectedly by matching scope-contract.json to checklist-declared modify/create/test paths exactly (.gitignore, three host-analysis artifacts, and Lattice-lifecycle-memory-Evolving.md). Checked cited truth-source docs project-vision, host-overflow, dev-memory, host-neutral-observability-console, lattice-parallel-wave, and story-lifecycle against the document synthesis.",
+      "createdAt": "2026-06-08T10:16:24.413Z",
+      "reviewRound": "2026-06-08T10:12:12.775Z",
+      "reviewRunId": "B-f1d3:RR-012",
+      "_hash": "3eb8901e025f787cf13756aff4e6b9dad3544b31e93cdcb1aa0c62931406d058"
+    }
+  ]
+}
