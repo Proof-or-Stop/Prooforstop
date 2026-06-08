@@ -32,7 +32,13 @@ env/
 # OS
 .DS_Store
 Thumbs.db
-.koala/
+.koala/*
+!.koala/story/
+.koala/story/*
+!.koala/story/actives/
+.koala/story/actives/*
+!.koala/story/actives/B-f1d3/
+!.koala/story/actives/B-f1d3/**
 packages/koala-observer-cli/
 
 # koala runtime artifacts (managed)

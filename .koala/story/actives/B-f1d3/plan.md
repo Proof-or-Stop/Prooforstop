@@ -48,11 +48,11 @@
 - Test: Lattice-lifecycle-memory-Evolving.md
 
 **Verify**:
-- Confirm `.gitignore` allows `.koala/story/actives/**` while keeping `.koala/runtime`, `.koala/traces`, and `.koala/locks` ignored.
+- Confirm `.gitignore` allows `.koala/story/actives/B-f1d3/**` while keeping historical active stories, `.koala/runtime`, `.koala/traces`, and `.koala/locks` ignored.
 - Inspect `Lattice-lifecycle-memory-Evolving.md` for required sections: feasibility conclusion, current capability comparison, real gaps, non-goals, staged execution plan, and test matrix.
 - Run `koala validate --story=B-f1d3` in TEST after committing DEV work.
 
 **DoneWhen**:
 - `Lattice-lifecycle-memory-Evolving.md` exists at repo root and contains the full execution plan and testing strategy.
 - The plan preserves dev-memory advisory boundaries and gate evidence authority.
-- The `.gitignore` correctness fix is committed with the story changes.
+- The `.gitignore` correctness fix is committed with the story changes without exposing unrelated historical story directories.
