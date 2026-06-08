@@ -1,0 +1,46 @@
+{
+  "storyId": "B-7a34",
+  "checkedAt": "2026-06-08T13:12:00.506Z",
+  "features": [
+    {
+      "feature": "review loop data model and persistent review-loop artifact",
+      "covered_by": "CHK-001 creates review-loop.ts and modifies store.ts/types.ts; DoneWhen requires start/iteration/close record persistence and reflection-not-evidence invariant; verificationIntent covers all three must intents.",
+      "status": "covered",
+      "excluded_by": ""
+    },
+    {
+      "feature": "CLI commands for start, iteration, status, close, policy",
+      "covered_by": "CHK-002 registers all five commands (review_loop_start, review_loop_iteration_add, review_loop_status, review_loop_close, review_loop_policy_show) via registry.ts and cli-engine.ts; handlers/review-loop.ts created; DoneWhen enforces no host-execution or authority fields.",
+      "status": "covered",
+      "excluded_by": ""
+    },
+    {
+      "feature": "REVIEW to TEST open-loop blocking plus status/session visibility",
+      "covered_by": "CHK-003 modifies machine.ts, phase-gates.ts, session.ts; userSees specifies exact Cannot-enter-TEST output with loopId/decision/nextAction; adversarial intent proves blocked/escalated close does not unblock underlying gates.",
+      "status": "covered",
+      "excluded_by": ""
+    },
+    {
+      "feature": "process fact / command policy / contract verification coverage for loop commands",
+      "covered_by": "CHK-002 modifies command-policy.ts, process-fact-levels.ts, process-fact-registry.ts; CHK-004 updates verify-process-fact-contract.mjs; edge intent requires contract failure when any classification is missing.",
+      "status": "covered",
+      "excluded_by": ""
+    },
+    {
+      "feature": "smoke verification proving open loop blocks and close does not bypass existing gates",
+      "covered_by": "CHK-004 creates review-loop-smoke.ts with policy priority, open-loop gate blocking, close invariants, and host-neutral no-authority adversarial assertions; DependsOn CHK-001+002+003.",
+      "status": "covered",
+      "excluded_by": ""
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "covered": 5,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "ae8e4e9c5a96c10520ea8510414742ee8af3096b78110dbc1d38bf893d51c313"
+}

@@ -1,0 +1,301 @@
+{
+  "command": "koala validate --story=B-7a34 --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.5 test\",\"  > npm run test:e2e\",\"  > koala@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ℹ Reading legacy koala.config.json at /Users/jek/Documents/Work/Orchestrate/.worktrees/B-7a34; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ℹ Reading legacy koala.config.json at .; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-FbIovT; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-0BVhb4; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 15/15 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/logic] covered via logic_test — Starting a loop persists a story-scoped start record with loopId, trigger refs, rollbackRef, materialHash, status=open, and actor.\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via logic_test — Missing trigger refs or missing storyId is rejected with a clear CLI/schema error and does not write review-loops state.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/logic] covered via logic_test — Reflection/reusableLearning fields are stored as context only and are not exposed as review pass or validation gate evidence.\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via manual_transcript — All five review_loop commands are registered, have CLI schemas/help, and return text/json without spawning hosts or executing agents.\",\"  ✓ CHK-002:edge:0 [edge/must/logic] covered via logic_test — Mutating commands are story-scoped metadata writes and enforce valid phases/ownership through command policy.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/logic] covered via logic_test — No command writes productionDone, authorityChanged, receiptVerified, receiptRefs, or any authority receipt field.\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via logic_test — An open latest ReviewLoopRecord blocks REVIEW->TEST and status/session output surfaces loopId, decision, and nextAction.\",\"  ✓ CHK-003:edge:0 [edge/must/logic] covered via logic_test — A resolved close only clears the loop gate when materialHash is current and trigger refs are resolved or superseded; normal reviewer/finding/validation gates still apply.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/logic] covered via logic_test — Blocked or escalated close records do not unblock REVIEW by themselves and cannot mask an open finding, bug, scope violation, or validation failure.\",\"  ✓ CHK-004:happy:0 [happy/must/logic] covered via logic_test — Smoke test covers start, iteration, status, close, and policy priority behavior with deterministic assertions.\",\"  ✓ CHK-004:edge:0 [edge/must/cli] covered via manual_transcript — Contract verification fails if a review_loop L4 command lacks command policy, process fact level, artifact registry, or CLI schema entry.\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/logic] covered via logic_test — Tests prove review_loop commands do not execute hosts, perform rollback, auto-merge, auto-DONE, or set authority receipt fields.\",\"  ✓ CHK-005:happy:0 [happy/must/manual] covered via manual_transcript — Two Claude CLI lanes and one Codex CLI lane review the implementation and return no unresolved must-fix correctness issues.\",\"  ✓ CHK-005:edge:0 [edge/must/manual] covered via manual_transcript — If a host reports advisory-only optimization, it is recorded as advisory and not implemented unless tied to executable correctness.\",\"  ✓ CHK-005:adversarial:0 [adversarial/must/manual] covered via manual_transcript — If hosts disagree, the main agent records the disagreement and accepts only source-grounded correctness findings, not preference changes.\"],\"warnings\":[],\"timestamp\":\"2026-06-08T14:11:25.674Z\",\"headSha\":\"1e7ed12fe38a90c17c276f5e503aefda150c2c55\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\nℹ Reading legacy koala.config.json at /Users/jek/Documents/Work/Orchestrate/.worktrees/B-7a34; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\nℹ Reading legacy koala.config.json at .; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-FbIovT; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-0BVhb4; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1055}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":15,\"reason\":\"verificationIntent entries present (15)\"},\"verificationCoverage\":{\"total\":15,\"required\":15,\"covered\":15,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Starting a loop persists a story-scoped start record with loopId, trigger refs, rollbackRef, materialHash, status=open, and actor.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:review-loop-smoke\",\"result\":\"pass\",\"note\":\"review-loop-smoke 37/37 passed; start records, latest status derivation, JSONL storage, and handler status projection cover persisted story-scoped loop state.\",\"headHash\":\"61b34cf6b69080f659c1259b1e48e6dc7530d490\",\"materialHash\":\"48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807\",\"timestamp\":\"2026-06-08T14:11:15.098Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Missing trigger refs or missing storyId is rejected with a clear CLI/schema error and does not write review-loops state.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:review-loop-smoke\",\"result\":\"pass\",\"note\":\"Smoke covers empty trigger rejection and strict malformed review-loops.jsonl parsing, proving invalid input does not silently write usable loop state.\",\"headHash\":\"61b34cf6b69080f659c1259b1e48e6dc7530d490\",\"materialHash\":\"48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807\",\"timestamp\":\"2026-06-08T14:11:15.098Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Reflection/reusableLearning fields are stored as context only and are not exposed as review pass or validation gate evidence.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:review-loop-smoke\",\"result\":\"pass\",\"note\":\"Smoke asserts reusableLearning remains reflection context only and is not promoted to top-level evidence, review pass, validation, or authority fields.\",\"headHash\":\"61b34cf6b69080f659c1259b1e48e6dc7530d490\",\"materialHash\":\"48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807\",\"timestamp\":\"2026-06-08T14:11:15.098Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"All five review_loop commands are registered, have CLI schemas/help, and return text/json without spawning hosts or executing agents.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/dist/cli.js review_loop_start --help && node packages/main/dist/cli.js review_loop_status --help && node packages/main/dist/cli.js review_loop_close --help\",\"result\":\"pass\",\"note\":\"CLI help exists for review_loop commands and describes recording/read-only behavior without host execution.\",\"headHash\":\"61b34cf6b69080f659c1259b1e48e6dc7530d490\",\"materialHash\":\"48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807\",\"timestamp\":\"2026-06-08T14:11:15.098Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Mutating commands are story-scoped metadata writes and enforce valid phases/ownership through command policy.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"command\":\"node -e import(\\\"./packages/main/dist/core/config.js\\\").then(({isCommandAllowed})=>{const phases=[\\\"INIT\\\",\\\"INIT_CHECK\\\",\\\"PLAN\\\",\\\"DEV\\\",\\\"REVIEW\\\",\\\"TEST\\\",\\\"DONE\\\"]; for(const cmd of [\\\"review_loop_start\\\",\\\"review_loop_iteration_add\\\",\\\"review_loop_close\\\",\\\"review_loop_status\\\",\\\"review_loop_policy_show\\\"]) console.log(cmd, phases.filter(p=>isCommandAllowed(cmd,p)).join(\\\",\\\"));})\",\"result\":\"pass\",\"note\":\"Phase probe showed start/iteration_add/close are REVIEW-only, while status/policy_show are available in all phases.\",\"headHash\":\"61b34cf6b69080f659c1259b1e48e6dc7530d490\",\"materialHash\":\"48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807\",\"timestamp\":\"2026-06-08T14:11:15.098Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"No command writes productionDone, authorityChanged, receiptVerified, receiptRefs, or any authority receipt field.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:review-loop-smoke\",\"result\":\"pass\",\"note\":\"Smoke asserts no productionDone, authorityChanged, receiptVerified, or receiptRefs fields exist on review loop records.\",\"headHash\":\"61b34cf6b69080f659c1259b1e48e6dc7530d490\",\"materialHash\":\"48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807\",\"timestamp\":\"2026-06-08T14:11:15.098Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"An open latest ReviewLoopRecord blocks REVIEW->TEST and status/session output surfaces loopId, decision, and nextAction.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:review-loop-smoke\",\"result\":\"pass\",\"note\":\"Smoke covers open loop blocking runReviewLoopGate and getGuardFailureReason with loopId, decision, and nextAction in the TEST blocker message.\",\"headHash\":\"61b34cf6b69080f659c1259b1e48e6dc7530d490\",\"materialHash\":\"48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807\",\"timestamp\":\"2026-06-08T14:11:15.098Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"A resolved close only clears the loop gate when materialHash is current and trigger refs are resolved or superseded; normal reviewer/finding/validation gates still apply.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:review-loop-smoke\",\"result\":\"pass\",\"note\":\"Smoke covers resolved close invariants: resolved close requires resolved/superseding evidence refs and a current materialHash before handler acceptance.\",\"headHash\":\"61b34cf6b69080f659c1259b1e48e6dc7530d490\",\"materialHash\":\"48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807\",\"timestamp\":\"2026-06-08T14:11:15.098Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Blocked or escalated close records do not unblock REVIEW by themselves and cannot mask an open finding, bug, scope violation, or validation failure.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:review-loop-smoke\",\"result\":\"pass\",\"note\":\"Smoke confirms blocked/escalated close records clear only the loop gate and do not create review pass, validation, production, or authority fields; other lifecycle gates remain separate.\",\"headHash\":\"61b34cf6b69080f659c1259b1e48e6dc7530d490\",\"materialHash\":\"48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807\",\"timestamp\":\"2026-06-08T14:11:15.098Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"Smoke test covers start, iteration, status, close, and policy priority behavior with deterministic assertions.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm run build && npm --prefix packages/main run test:review-loop-smoke\",\"result\":\"pass\",\"note\":\"Build passed and review-loop-smoke reported 37 passed, 0 failed across policy helpers, gate behavior, status JSON, duplicate loopId, and no-authority assertions.\",\"headHash\":\"61b34cf6b69080f659c1259b1e48e6dc7530d490\",\"materialHash\":\"48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807\",\"timestamp\":\"2026-06-08T14:11:15.098Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"Contract verification fails if a review_loop L4 command lacks command policy, process fact level, artifact registry, or CLI schema entry.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node scripts/verify-process-fact-contract.mjs\",\"result\":\"pass\",\"note\":\"Process fact contract output registered review_loop_start/iteration_add/close as L4 gate-evidence and review_loop_status/policy_show as L0; remaining script failure was pre-existing autopilot_* and release_approve_push drift, with no review_loop failure entries.\",\"headHash\":\"61b34cf6b69080f659c1259b1e48e6dc7530d490\",\"materialHash\":\"48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807\",\"timestamp\":\"2026-06-08T14:11:15.098Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"Tests prove review_loop commands do not execute hosts, perform rollback, auto-merge, auto-DONE, or set authority receipt fields.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:review-loop-smoke\",\"result\":\"pass\",\"note\":\"Smoke proves review_loop records do not execute hosts, perform rollback, auto-merge, auto-DONE, or set authority/receipt fields; rollback and handoff remain hints only.\",\"headHash\":\"61b34cf6b69080f659c1259b1e48e6dc7530d490\",\"materialHash\":\"48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807\",\"timestamp\":\"2026-06-08T14:11:15.098Z\"}},{\"intentRef\":\"CHK-005:happy:0\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"Two Claude CLI lanes and one Codex CLI lane review the implementation and return no unresolved must-fix correctness issues.\",\"type\":\"manual\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"Claude CLI host A + Claude CLI host B + Codex CLI focused re-audit\",\"result\":\"pass\",\"note\":\"Two Claude CLI lanes and one Codex CLI lane performed read-only review. Final re-audit PASS from all three; no unresolved must-fix correctness issue remained.\",\"headHash\":\"61b34cf6b69080f659c1259b1e48e6dc7530d490\",\"materialHash\":\"48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807\",\"timestamp\":\"2026-06-08T14:11:15.098Z\"}},{\"intentRef\":\"CHK-005:edge:0\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"If a host reports advisory-only optimization, it is recorded as advisory and not implemented unless tied to executable correctness.\",\"type\":\"manual\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"Codex CLI first audit and follow-up fix review\",\"result\":\"pass\",\"note\":\"Codex reported three real correctness findings: resolved close invariant, duplicate explicit loopId/status inconsistency, and --outcome hint drift. All were fixed, tested, and Codex re-audit returned PASS.\",\"headHash\":\"61b34cf6b69080f659c1259b1e48e6dc7530d490\",\"materialHash\":\"48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807\",\"timestamp\":\"2026-06-08T14:11:15.098Z\"}},{\"intentRef\":\"CHK-005:adversarial:0\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"If hosts disagree, the main agent records the disagreement and accepts only source-grounded correctness findings, not preference changes.\",\"type\":\"manual\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"Multi-host disagreement policy application\",\"result\":\"pass\",\"note\":\"Advisory-only notes were not implemented unless tied to source-grounded correctness. The accepted changes were limited to executable correctness and logic consistency.\",\"headHash\":\"61b34cf6b69080f659c1259b1e48e6dc7530d490\",\"materialHash\":\"48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807\",\"timestamp\":\"2026-06-08T14:11:15.098Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-08T14:11:26.077Z",
+  "headHash": "1e7ed12fe38a90c17c276f5e503aefda150c2c55",
+  "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+  "verificationCoverage": {
+    "total": 15,
+    "required": 15,
+    "covered": 15,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "Starting a loop persists a story-scoped start record with loopId, trigger refs, rollbackRef, materialHash, status=open, and actor.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:review-loop-smoke",
+          "result": "pass",
+          "note": "review-loop-smoke 37/37 passed; start records, latest status derivation, JSONL storage, and handler status projection cover persisted story-scoped loop state.",
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Missing trigger refs or missing storyId is rejected with a clear CLI/schema error and does not write review-loops state.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:review-loop-smoke",
+          "result": "pass",
+          "note": "Smoke covers empty trigger rejection and strict malformed review-loops.jsonl parsing, proving invalid input does not silently write usable loop state.",
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Reflection/reusableLearning fields are stored as context only and are not exposed as review pass or validation gate evidence.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:review-loop-smoke",
+          "result": "pass",
+          "note": "Smoke asserts reusableLearning remains reflection context only and is not promoted to top-level evidence, review pass, validation, or authority fields.",
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "All five review_loop commands are registered, have CLI schemas/help, and return text/json without spawning hosts or executing agents.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js review_loop_start --help && node packages/main/dist/cli.js review_loop_status --help && node packages/main/dist/cli.js review_loop_close --help",
+          "result": "pass",
+          "note": "CLI help exists for review_loop commands and describes recording/read-only behavior without host execution.",
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Mutating commands are story-scoped metadata writes and enforce valid phases/ownership through command policy.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node -e import(\"./packages/main/dist/core/config.js\").then(({isCommandAllowed})=>{const phases=[\"INIT\",\"INIT_CHECK\",\"PLAN\",\"DEV\",\"REVIEW\",\"TEST\",\"DONE\"]; for(const cmd of [\"review_loop_start\",\"review_loop_iteration_add\",\"review_loop_close\",\"review_loop_status\",\"review_loop_policy_show\"]) console.log(cmd, phases.filter(p=>isCommandAllowed(cmd,p)).join(\",\"));})",
+          "result": "pass",
+          "note": "Phase probe showed start/iteration_add/close are REVIEW-only, while status/policy_show are available in all phases.",
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "No command writes productionDone, authorityChanged, receiptVerified, receiptRefs, or any authority receipt field.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:review-loop-smoke",
+          "result": "pass",
+          "note": "Smoke asserts no productionDone, authorityChanged, receiptVerified, or receiptRefs fields exist on review loop records.",
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "An open latest ReviewLoopRecord blocks REVIEW->TEST and status/session output surfaces loopId, decision, and nextAction.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:review-loop-smoke",
+          "result": "pass",
+          "note": "Smoke covers open loop blocking runReviewLoopGate and getGuardFailureReason with loopId, decision, and nextAction in the TEST blocker message.",
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "A resolved close only clears the loop gate when materialHash is current and trigger refs are resolved or superseded; normal reviewer/finding/validation gates still apply.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:review-loop-smoke",
+          "result": "pass",
+          "note": "Smoke covers resolved close invariants: resolved close requires resolved/superseding evidence refs and a current materialHash before handler acceptance.",
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Blocked or escalated close records do not unblock REVIEW by themselves and cannot mask an open finding, bug, scope violation, or validation failure.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:review-loop-smoke",
+          "result": "pass",
+          "note": "Smoke confirms blocked/escalated close records clear only the loop gate and do not create review pass, validation, production, or authority fields; other lifecycle gates remain separate.",
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "Smoke test covers start, iteration, status, close, and policy priority behavior with deterministic assertions.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "npm run build && npm --prefix packages/main run test:review-loop-smoke",
+          "result": "pass",
+          "note": "Build passed and review-loop-smoke reported 37 passed, 0 failed across policy helpers, gate behavior, status JSON, duplicate loopId, and no-authority assertions.",
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "Contract verification fails if a review_loop L4 command lacks command policy, process fact level, artifact registry, or CLI schema entry.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process fact contract output registered review_loop_start/iteration_add/close as L4 gate-evidence and review_loop_status/policy_show as L0; remaining script failure was pre-existing autopilot_* and release_approve_push drift, with no review_loop failure entries.",
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "Tests prove review_loop commands do not execute hosts, perform rollback, auto-merge, auto-DONE, or set authority receipt fields.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:review-loop-smoke",
+          "result": "pass",
+          "note": "Smoke proves review_loop records do not execute hosts, perform rollback, auto-merge, auto-DONE, or set authority/receipt fields; rollback and handoff remain hints only.",
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:happy:0",
+        "itemId": "CHK-005",
+        "lane": "happy",
+        "desc": "Two Claude CLI lanes and one Codex CLI lane review the implementation and return no unresolved must-fix correctness issues.",
+        "type": "manual",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "Claude CLI host A + Claude CLI host B + Codex CLI focused re-audit",
+          "result": "pass",
+          "note": "Two Claude CLI lanes and one Codex CLI lane performed read-only review. Final re-audit PASS from all three; no unresolved must-fix correctness issue remained.",
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:edge:0",
+        "itemId": "CHK-005",
+        "lane": "edge",
+        "desc": "If a host reports advisory-only optimization, it is recorded as advisory and not implemented unless tied to executable correctness.",
+        "type": "manual",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "Codex CLI first audit and follow-up fix review",
+          "result": "pass",
+          "note": "Codex reported three real correctness findings: resolved close invariant, duplicate explicit loopId/status inconsistency, and --outcome hint drift. All were fixed, tested, and Codex re-audit returned PASS.",
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:adversarial:0",
+        "itemId": "CHK-005",
+        "lane": "adversarial",
+        "desc": "If hosts disagree, the main agent records the disagreement and accepts only source-grounded correctness findings, not preference changes.",
+        "type": "manual",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "Multi-host disagreement policy application",
+          "result": "pass",
+          "note": "Advisory-only notes were not implemented unless tied to source-grounded correctness. The accepted changes were limited to executable correctness and logic consistency.",
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
+        }
+      }
+    ]
+  }
+}

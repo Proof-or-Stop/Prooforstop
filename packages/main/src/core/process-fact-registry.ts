@@ -97,6 +97,9 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   verification_evidence_refresh_stale: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
   review_run_start: ['review-run', 'schema-contract', 'gate-evidence'],
   review_pass_set: ['review-pass', 'no-blocker-evidence', 'gate-evidence'],
+  review_loop_start: ['blocker-state', 'schema-contract', 'gate-evidence'],
+  review_loop_iteration_add: ['blocker-state', 'schema-contract', 'gate-evidence'],
+  review_loop_close: ['blocker-state', 'schema-contract', 'gate-evidence'],
   finding_add: ['finding-state', 'blocker-state', 'gate-evidence'],
   finding_resolve: ['finding-state', 'blocker-state', 'gate-evidence'],
   finding_dismiss: ['finding-state', 'blocker-state', 'gate-evidence'],
@@ -174,6 +177,27 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     signed: true,
     signature: 'signReviewPass/verifyReviewPass; reviewRunId-inclusive records do not fall back to legacy signatures',
     producerCommand: 'review_pass_set',
+    consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
+  },
+  review_loop_start: {
+    name: 'review-loops.jsonl',
+    path: 'review-loops.jsonl',
+    signed: false,
+    producerCommand: 'review_loop_start',
+    consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
+  },
+  review_loop_iteration_add: {
+    name: 'review-loops.jsonl',
+    path: 'review-loops.jsonl',
+    signed: false,
+    producerCommand: 'review_loop_iteration_add',
+    consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
+  },
+  review_loop_close: {
+    name: 'review-loops.jsonl',
+    path: 'review-loops.jsonl',
+    signed: false,
+    producerCommand: 'review_loop_close',
     consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
   },
   finding_add: {
@@ -445,6 +469,7 @@ function artifactFactSemantics(artifact: ProcessFactArtifactRef): ProcessFactSem
   const semantics: ProcessFactSemantic[] = ['artifact'];
   if (artifact.signed) semantics.push('signed-artifact');
   if (artifact.path === 'review-runs.json') semantics.push('review-run', 'schema-contract');
+  if (artifact.path === 'review-loops.jsonl') semantics.push('blocker-state', 'schema-contract');
   if (artifact.path === 'test-evidence.json') semantics.push('validation-result', 'test-evidence');
   if (artifact.path === 'eval-evidence.json') semantics.push('validation-result');
   return semantics;
@@ -589,6 +614,16 @@ export const PROCESS_FACT_ARTIFACTS = [
     consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.review_pass_set,
     rationale: 'No-blocker review pass signatures are accepted by the review gate.',
+  },
+  {
+    name: 'artifact:review-loops.jsonl',
+    kind: 'artifact',
+    semantics: ['artifact', 'gate-evidence', 'blocker-state', 'schema-contract'],
+    level: 'L4',
+    producer: 'handlers/review-loop',
+    consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
+    artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.review_loop_start,
+    rationale: 'Review reflection loop start/iteration/close records provide REVIEW blocker-state for bounded retry and escalation policy.',
   },
   {
     name: 'artifact:draft-check.json',

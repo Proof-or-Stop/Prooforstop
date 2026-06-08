@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, renameSync, rmSync } from 'fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, renameSync, rmSync, appendFileSync } from 'fs';
 import { dirname, join } from 'path';
 import type {
   StoryInfo, ChecklistData, BugData, TestEvidenceData, ReviewData,
@@ -6,8 +6,9 @@ import type {
   StoryTestRun, StoryTestRunsData, FindingData, EvalEvidenceData,
   StoryProcessMetrics, ProcessEvent, ScopeCheckData, InitCheckData, ReviewPassData,
   DeliveryCheckData, ImplementationReviewResultData, ReviewRunData, GrillData,
-  DeclaredArtifactsData, ScopeContractData, GuardSessionData,
+  DeclaredArtifactsData, ScopeContractData, GuardSessionData, ReviewLoopRecord,
 } from './types.js';
+import { REVIEW_LOOP_FILENAME } from './review-loop.js';
 import { CAPSULE_DIR_NAME, type StoryCapsuleData, type StoryCapsuleRunData } from './story-capsule.js';
 import type { ClusterData } from './cluster-types.js';
 import { appendProcessEvent as appendProcessEventFn, readProcessEvents as readProcessEventsFn } from './process-events.js';
@@ -572,5 +573,45 @@ export class StoryStore {
   readProcessEvents(storyId: string): ProcessEvent[] {
     const dir = this.storyDir(storyId);
     return readProcessEventsFn(dir);
+  }
+
+  // ── Review Loop (B-7a34: append-only JSONL loop records) ──
+  //
+  // Physical file: <storyDir>/<storyId>/review-loops.jsonl
+  // Gate consumers group records by loopId and read the latest record's status.
+  // status='open' blocks REVIEW -> TEST.
+
+  readReviewLoopRecords(storyId: string): ReviewLoopRecord[] {
+    const filePath = join(this.storyDir(storyId), REVIEW_LOOP_FILENAME);
+    if (!existsSync(filePath)) return [];
+    const content = readFileSync(filePath, 'utf-8');
+    const records: ReviewLoopRecord[] = [];
+    const lines = content.split('\n');
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const trimmed = line.trim();
+      if (!trimmed) continue;
+      try {
+        records.push(JSON.parse(trimmed) as ReviewLoopRecord);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        throw new Error(`${REVIEW_LOOP_FILENAME}:${i + 1} malformed JSON: ${msg}`);
+      }
+    }
+    return records;
+  }
+
+  appendReviewLoopRecord(storyId: string, record: ReviewLoopRecord): void {
+    this.ensureDir(storyId);
+    const filePath = join(this.storyDir(storyId), REVIEW_LOOP_FILENAME);
+    appendFileSync(filePath, JSON.stringify(record) + '\n', 'utf-8');
+  }
+
+  /** Write the full record list (replaces file). Intended for tests only. */
+  writeReviewLoopRecords(storyId: string, records: ReviewLoopRecord[]): void {
+    this.ensureDir(storyId);
+    const filePath = join(this.storyDir(storyId), REVIEW_LOOP_FILENAME);
+    const lines = records.map(r => JSON.stringify(r)).join('\n');
+    writeFileSync(filePath, lines ? lines + '\n' : '', 'utf-8');
   }
 }

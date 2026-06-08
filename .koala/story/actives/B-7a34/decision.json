@@ -1,0 +1,78 @@
+{
+  "principles": [
+    "Host-neutral first: loop records and guides work without trusting a specific host transcript as authority.",
+    "Gate compatibility first: existing REVIEW/TEST/DONE gates remain authoritative and cannot be bypassed by reflection.",
+    "Minimal executable surface: implement only commands and gate predicates required for mechanical correctness.",
+    "No arbitrary optimization: defer automation, policy mutation, host spawning, and rollback execution."
+  ],
+  "drivers": [
+    "User approved executing the reviewed plan, but explicitly rejected scope creep and arbitrary optimization.",
+    "Without persisted loop open/close state, REVIEW gate cannot mechanically enforce loop boundaries.",
+    "Without CLI commands, the proposal remains documentation only."
+  ],
+  "options": [
+    {
+      "name": "A: Minimal recording and gate protocol",
+      "pros": [
+        "Matches v0.1 document scope.",
+        "Small enough to verify with contract tests.",
+        "Preserves host-neutral authority boundaries."
+      ],
+      "cons": [
+        "Does not automate repairs or dispatch hosts.",
+        "Requires users/agents to run commands explicitly."
+      ]
+    },
+    {
+      "name": "B: Full autonomous loop executor",
+      "pros": [
+        "Could reduce manual command steps.",
+        "Looks more complete as an automation story."
+      ],
+      "cons": [
+        "Violates the user constraint against building for its own sake.",
+        "Raises rollback, cost, host spawning, and authority risks before the protocol is proven."
+      ]
+    },
+    {
+      "name": "C: Documentation-only milestone",
+      "pros": [
+        "Very low code risk.",
+        "Preserves current repo behavior."
+      ],
+      "cons": [
+        "Does not execute the approved plan.",
+        "Leaves REVIEW loop gate unenforceable."
+      ]
+    }
+  ],
+  "chosen": "A: Minimal recording and gate protocol",
+  "rationale": "Choose the minimal recording and gate protocol because it is the smallest implementation that makes the reviewed plan mechanically executable while preserving existing lifecycle authority. It closes the real correctness gap without adding autonomous behavior.",
+  "preMortem": [
+    {
+      "scenario": "Open loop does not actually block REVIEW to TEST.",
+      "trigger": "Gate integration only updates status text or CLI commands, not machine/preflight predicates.",
+      "consequence": "Agents can continue past unresolved review-loop failure, amplifying the exact failure the feature is meant to stop.",
+      "mitigation": "Add a gate-consumed read of latest ReviewLoopRecord.status and tests that open loop blocks REVIEW to TEST."
+    },
+    {
+      "scenario": "Resolved close becomes fake review pass.",
+      "trigger": "review_loop_close --outcome=resolved is treated as sufficient gate evidence.",
+      "consequence": "Reflection replaces reviewer findings, review passes, or validation evidence, violating core Lattice evidence discipline.",
+      "mitigation": "Resolved close only clears loop gate; original finding/bug/scope/validation gates still run and are explicitly tested."
+    },
+    {
+      "scenario": "Host-neutral boundary erodes into auto-dispatch or authority claim.",
+      "trigger": "Implementation adds host execution, receipt refs, or productionDone-style fields to make the loop feel complete.",
+      "consequence": "The loop becomes host-specific automation rather than Lattice-governed lifecycle state.",
+      "mitigation": "Do not implement execute/dispatch/authority fields; tests assert commands do not spawn hosts or claim authority."
+    },
+    {
+      "scenario": "Process fact registry drifts from commands.",
+      "trigger": "CLI handlers are added without command policy/process fact/contract verification updates.",
+      "consequence": "Future reviewers cannot know which commands are gate-consumed L4 facts, causing audit gaps.",
+      "mitigation": "Register new mutating commands in command policy, process fact levels, process fact registry, and verify-process-fact-contract."
+    }
+  ],
+  "timestamp": "2026-06-08T13:01:32.519Z"
+}

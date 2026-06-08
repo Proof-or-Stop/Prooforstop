@@ -103,6 +103,9 @@ const requiredProcessFactSemantics = {
   verification_evidence_refresh_stale: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
   review_run_start: ['review-run', 'schema-contract', 'gate-evidence'],
   review_pass_set: ['review-pass', 'no-blocker-evidence', 'gate-evidence'],
+  review_loop_start: ['blocker-state', 'schema-contract', 'gate-evidence'],
+  review_loop_iteration_add: ['blocker-state', 'schema-contract', 'gate-evidence'],
+  review_loop_close: ['blocker-state', 'schema-contract', 'gate-evidence'],
   finding_add: ['finding-state', 'blocker-state', 'gate-evidence'],
   finding_resolve: ['finding-state', 'blocker-state', 'gate-evidence'],
   finding_dismiss: ['finding-state', 'blocker-state', 'gate-evidence'],
@@ -129,11 +132,21 @@ const requiredArtifactFacts = [
   { name: 'artifact:review-runs.json', path: 'review-runs.json', signed: true, signaturePattern: /signReviewRun\/verifyReviewRun/ },
   { name: 'artifact:findings.json', path: 'findings.json', signed: true, signaturePattern: /signFinding\/verifyFinding; reviewRunId-inclusive records do not fall back to legacy signatures/ },
   { name: 'artifact:review-passes.json', path: 'review-passes.json', signed: true, signaturePattern: /signReviewPass\/verifyReviewPass; reviewRunId-inclusive records do not fall back to legacy signatures/ },
+  { name: 'artifact:review-loops.jsonl', path: 'review-loops.jsonl', signed: false },
   { name: 'artifact:draft-check.json', path: 'draft-check.json', signed: true, signaturePattern: /computeDraftCheckHash/ },
   { name: 'artifact:summary.json', path: 'summary.json', signed: false },
   { name: 'artifact:test-evidence.json', path: 'test-evidence.json', signed: false },
   { name: 'artifact:eval-evidence.json', path: 'eval-evidence.json', signed: false },
   { name: 'artifact:process-events.jsonl', path: 'process-events.jsonl', signed: false },
+];
+const requiredReviewLoopL4Commands = [
+  'review_loop_start',
+  'review_loop_iteration_add',
+  'review_loop_close',
+];
+const requiredReviewLoopReadOnlyCommands = [
+  'review_loop_status',
+  'review_loop_policy_show',
 ];
 const legacyCommandPolicyGuidance = {
   test_auto: {
@@ -301,6 +314,7 @@ const processFactCommandNamePatterns = [
   /^story_review$/,
   /^review_run_start$/,
   /^review_pass_set$/,
+  /^review_loop_(start|iteration_add|close)$/,
   /^finding_(add|resolve|dismiss|cluster)$/,
   /^verification_evidence_/,
   /_check_set$/,
@@ -1739,6 +1753,81 @@ function assertCommandPolicyInventory(cliToolNames) {
   }
 }
 
+function policyBlockHasOwnershipClass(policy, ownershipClass) {
+  return new RegExp(`ownershipClass\\s*:\\s*(['"\`])${ownershipClass}\\1`).test(policy.block)
+    || policy.block.includes(`"ownershipClass":"${ownershipClass}"`);
+}
+
+function assertReviewLoopCommandContract(cliToolNameSet, registry, levelRegistry, policyByName) {
+  const artifact = registry.get('artifact:review-loops.jsonl');
+  assert(artifact, `${processFactRegistryPath}: review-loop artifact missing: artifact:review-loops.jsonl`);
+  if (artifact) {
+    assert(artifact.artifact?.path === 'review-loops.jsonl', `${processFactRegistryPath}: review-loop artifact path drift`);
+    assert(artifact.level === 'L4', `${processFactRegistryPath}: review-loop artifact must stay L4`);
+    assert(artifact.semantics.includes('blocker-state'), `${processFactRegistryPath}: review-loop artifact missing blocker-state semantic`);
+    assert(artifact.semantics.includes('gate-evidence'), `${processFactRegistryPath}: review-loop artifact missing gate-evidence semantic`);
+    assert(/storyMachine\.canPassReview/.test(artifact.consumerGate), `${processFactRegistryPath}: review-loop artifact consumerGate drifted (${artifact.consumerGate})`);
+  }
+
+  for (const commandName of requiredReviewLoopL4Commands) {
+    assert(cliToolNameSet.has(commandName), `CLI schema: required review-loop command missing from MAIN_TOOLS: ${commandName}`);
+
+    const policy = policyByName.get(commandName);
+    assert(policy, `${commandPolicyPath}: required review-loop command missing lifecycle policy: ${commandName}`);
+    if (policy) {
+      assert(policy.gateEvidence, `${commandPolicyPath}: ${commandName} must stay gateEvidence`);
+      assert(
+        policy.allowedPhases.length === 1 && policy.allowedPhases[0] === 'REVIEW',
+        `${commandPolicyPath}: ${commandName} must be REVIEW-only`,
+      );
+      assert(policy.destructiveRisk === 'metadata-write', `${commandPolicyPath}: ${commandName} destructiveRisk must stay metadata-write`);
+      assert(
+        policyBlockHasOwnershipClass(policy, 'storyScopedMutating'),
+        `${commandPolicyPath}: ${commandName} must stay storyScopedMutating`,
+      );
+    }
+
+    const levelEntry = levelRegistry.get(commandName);
+    assert(levelEntry, `${processFactLevelRegistryPath}: required review-loop command missing level entry: ${commandName}`);
+    if (levelEntry) {
+      assert(levelEntry.level === 'L4', `${processFactLevelRegistryPath}: ${commandName} must stay L4`);
+      assert(levelEntry.category === 'review-loop', `${processFactLevelRegistryPath}: ${commandName} category must stay review-loop`);
+      assert(levelEntry.owner === 'handlers/review-loop', `${processFactLevelRegistryPath}: ${commandName} owner drifted`);
+      assert(/storyMachine\.canPassReview/.test(levelEntry.gateConsumer || ''), `${processFactLevelRegistryPath}: ${commandName} gateConsumer drifted`);
+    }
+
+    const registryEntry = registry.get(commandName);
+    assert(registryEntry, `${processFactRegistryPath}: required review-loop command missing registry entry: ${commandName}`);
+    if (registryEntry) {
+      assert(registryEntry.level === 'L4', `${processFactRegistryPath}: ${commandName} registry level must stay L4`);
+      assert(registryEntry.gateEvidence === true, `${processFactRegistryPath}: ${commandName} registry gateEvidence must stay true`);
+      assert(registryEntry.artifact?.path === 'review-loops.jsonl', `${processFactRegistryPath}: ${commandName} must write review-loops.jsonl`);
+      for (const semantic of ['blocker-state', 'schema-contract', 'gate-evidence']) {
+        assert(registryEntry.semantics.includes(semantic), `${processFactRegistryPath}: ${commandName} missing ${semantic} semantic`);
+      }
+      assert(/storyMachine\.canPassReview/.test(registryEntry.consumerGate), `${processFactRegistryPath}: ${commandName} consumerGate drifted (${registryEntry.consumerGate})`);
+    }
+  }
+
+  for (const commandName of requiredReviewLoopReadOnlyCommands) {
+    assert(cliToolNameSet.has(commandName), `CLI schema: required review-loop read command missing from MAIN_TOOLS: ${commandName}`);
+    const policy = policyByName.get(commandName);
+    assert(policy, `${commandPolicyPath}: required review-loop read command missing lifecycle policy: ${commandName}`);
+    if (policy) {
+      assert(!policy.gateEvidence, `${commandPolicyPath}: ${commandName} must not be gateEvidence`);
+      assert(policy.allowedPhases.length === ALL_PHASES.length, `${commandPolicyPath}: ${commandName} must be allowed in all phases`);
+      assert(policy.destructiveRisk === 'none', `${commandPolicyPath}: ${commandName} destructiveRisk must stay none`);
+      assert(policyBlockHasOwnershipClass(policy, 'readOnly'), `${commandPolicyPath}: ${commandName} must stay readOnly`);
+    }
+    const levelEntry = levelRegistry.get(commandName);
+    assert(levelEntry, `${processFactLevelRegistryPath}: required review-loop read command missing level entry: ${commandName}`);
+    if (levelEntry) {
+      assert(levelEntry.level === 'L0', `${processFactLevelRegistryPath}: ${commandName} must stay L0`);
+      assert(levelEntry.category === 'review-loop-read', `${processFactLevelRegistryPath}: ${commandName} category must stay review-loop-read`);
+    }
+  }
+}
+
 function assertActiveLifecycleDocGuidance() {
   for (const relPath of activeLifecycleDocPaths) {
     const text = read(relPath);
@@ -2564,6 +2653,7 @@ function assertProcessFactCommandInventory() {
   assertCommandPolicyInventory(cliToolNames);
   assertCommandPolicyPhaseAlignment(policyEntries, configText);
   assertProcessFactRegistryContract(cliToolNames, policyEntries, configText);
+  assertReviewLoopCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
 
   const definitionLevels = new Set(parseProcessFactLevelDefinitions());
   for (const level of ['L0', 'L1', 'L2', 'L3', 'L4']) {

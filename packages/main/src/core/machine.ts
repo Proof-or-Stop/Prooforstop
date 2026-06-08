@@ -6,6 +6,8 @@ import { loadConfig } from './config.js';
 import { resolveWorkflowPolicy } from './workflow-policy.js';
 import type { Finding } from './types.js';
 import { REQUIRED_INIT_CHECK_AGENTS, blockingInitCheckIssues, missingRequiredInitCheckAgents, recomputeInitCheckHash } from './init-check-gate.js';
+import { listActiveLoops, deriveLatestLoopRecord } from './review-loop.js';
+import type { ReviewLoopIteration } from './types.js';
 import { recomputeDeliveryCheckHash } from './delivery-check-hash.js';
 import { getBlockingVerificationEvidenceIssues } from './verification.js';
 import { normalizeLegacyPhase } from './phase-flow.js';
@@ -146,6 +148,13 @@ export const storyMachine = setup({
       }
     },
     canPassReview: ({ context }) => {
+      try {
+        // B-7a34 CHK-003: open review loop blocks REVIEW→TEST (fail-closed).
+        const loopRecords = context.store.readReviewLoopRecords(context.storyId);
+        if (listActiveLoops(loopRecords).length > 0) return false;
+      } catch {
+        return false;
+      }
       try {
         const config = loadConfig(context.projectRoot);
         const story = context.store.readStory(context.storyId);
@@ -452,6 +461,38 @@ export function getGuardFailureReason(
   }
 
   if (targetPhase === 'TEST') {
+    // B-7a34 CHK-003: review loop gate — checked first, highest priority.
+    // Open loop always blocks regardless of reviewer/finding state.
+    try {
+      const loopRecords = store.readReviewLoopRecords(storyId);
+      const activeLoops = listActiveLoops(loopRecords);
+      if (activeLoops.length > 0) {
+        const details = activeLoops.map(loopId => {
+          const latest = deriveLatestLoopRecord(loopRecords, loopId);
+          const parts: string[] = [`loopId=${loopId}`];
+          if (latest && latest.event === 'iteration') {
+            const iter = latest as ReviewLoopIteration;
+            parts.push(`decision=${iter.decision}`);
+            if (iter.nextAction) {
+              const naEntries = Object.entries(iter.nextAction)
+                .filter(([, v]) => v != null)
+                .map(([k, v]) => `${k}=${String(v)}`);
+              if (naEntries.length > 0) parts.push(`nextAction={${naEntries.join(', ')}}`);
+            }
+          }
+          return `  [open_loop] ${parts.join(', ')}`;
+        });
+        return (
+          `Cannot enter TEST: active review loop(s) block REVIEW→TEST [open_review_loop]\n` +
+          `${details.join('\n')}\n` +
+          `→ 关闭所有 open loop（review_loop_close --status=resolved）后确保 trigger refs 已 resolved，再重跑 story_advance --phase=TEST`
+        );
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      return `Cannot enter TEST: review loop records could not be read [review_loop_record_error]\n  - ${msg}\n→ 修复 review-loops evidence 后重跑 story_advance --phase=TEST`;
+    }
+
     const config = loadConfig(projectRoot);
     const story = store.readStory(storyId);
     const policy = resolveWorkflowPolicy(config, story);

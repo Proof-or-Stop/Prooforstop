@@ -9,9 +9,77 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/lifecycle-artifact-scope.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-08T14:03:44.505Z",
+      "userSees": "用户运行 `lattice review_loop_status --storyId=B-xxxx --json` 后看到 `records`、`latest.status` 和 `active` 字段来自 story-scoped review-loops artifact。",
+      "files": {
+        "modify": [
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts"
+        ],
+        "create": [
+          "packages/main/src/core/review-loop.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/review-loop-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Starting a loop persists a story-scoped start record with loopId, trigger refs, rollbackRef, materialHash, status=open, and actor.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Missing trigger refs or missing storyId is rejected with a clear CLI/schema error and does not write review-loops state.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Reflection/reusableLearning fields are stored as context only and are not exposed as review pass or validation gate evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:review-loop-smoke",
+          "result": "pass",
+          "note": "review-loop-smoke 37/37 passed; start records, latest status derivation, JSONL storage, and handler status projection cover persisted story-scoped loop state.",
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:review-loop-smoke",
+          "result": "pass",
+          "note": "Smoke covers empty trigger rejection and strict malformed review-loops.jsonl parsing, proving invalid input does not silently write usable loop state.",
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:review-loop-smoke",
+          "result": "pass",
+          "note": "Smoke asserts reusableLearning remains reflection context only and is not promoted to top-level evidence, review pass, validation, or authority fields.",
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -22,9 +90,81 @@
         "docs/requirements/decisions/host-overflow.md",
         "docs/requirements/decisions/session-ownership-and-write-leases.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-08T14:04:01.466Z",
+      "userSees": "用户运行 `lattice help | grep review_loop` 能看到 `review_loop_start`、`review_loop_iteration_add`、`review_loop_status`、`review_loop_close`、`review_loop_policy_show` 五个命令。",
+      "files": {
+        "modify": [
+          "packages/main/src/registry.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts"
+        ],
+        "create": [
+          "packages/main/src/handlers/review-loop.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/review-loop-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "All five review_loop commands are registered, have CLI schemas/help, and return text/json without spawning hosts or executing agents.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Mutating commands are story-scoped metadata writes and enforce valid phases/ownership through command policy.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No command writes productionDone, authorityChanged, receiptVerified, receiptRefs, or any authority receipt field.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js review_loop_start --help && node packages/main/dist/cli.js review_loop_status --help && node packages/main/dist/cli.js review_loop_close --help",
+          "result": "pass",
+          "note": "CLI help exists for review_loop commands and describes recording/read-only behavior without host execution.",
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node -e import(\"./packages/main/dist/core/config.js\").then(({isCommandAllowed})=>{const phases=[\"INIT\",\"INIT_CHECK\",\"PLAN\",\"DEV\",\"REVIEW\",\"TEST\",\"DONE\"]; for(const cmd of [\"review_loop_start\",\"review_loop_iteration_add\",\"review_loop_close\",\"review_loop_status\",\"review_loop_policy_show\"]) console.log(cmd, phases.filter(p=>isCommandAllowed(cmd,p)).join(\",\"));})",
+          "result": "pass",
+          "note": "Phase probe showed start/iteration_add/close are REVIEW-only, while status/policy_show are available in all phases.",
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:review-loop-smoke",
+          "result": "pass",
+          "note": "Smoke asserts no productionDone, authorityChanged, receiptVerified, or receiptRefs fields exist on review loop records.",
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -35,9 +175,77 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-08T14:04:16.746Z",
+      "userSees": "当 REVIEW 阶段存在 open loop 时，用户运行 `lattice story_advance --storyId=B-xxxx --phase=TEST` 会看到 `Cannot enter TEST` 和 active review loop 的 loopId/decision/nextAction。",
+      "files": {
+        "modify": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/session.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-loop-smoke.ts",
+          "packages/main/tests/fixtures/phase-gate-protocol.json"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "An open latest ReviewLoopRecord blocks REVIEW->TEST and status/session output surfaces loopId, decision, and nextAction.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A resolved close only clears the loop gate when materialHash is current and trigger refs are resolved or superseded; normal reviewer/finding/validation gates still apply.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Blocked or escalated close records do not unblock REVIEW by themselves and cannot mask an open finding, bug, scope violation, or validation failure.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:review-loop-smoke",
+          "result": "pass",
+          "note": "Smoke covers open loop blocking runReviewLoopGate and getGuardFailureReason with loopId, decision, and nextAction in the TEST blocker message.",
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:review-loop-smoke",
+          "result": "pass",
+          "note": "Smoke covers resolved close invariants: resolved close requires resolved/superseding evidence refs and a current materialHash before handler acceptance.",
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:review-loop-smoke",
+          "result": "pass",
+          "note": "Smoke confirms blocked/escalated close records clear only the loop gate and do not create review pass, validation, production, or authority fields; other lifecycle gates remain separate.",
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -48,9 +256,79 @@
         "docs/requirements/decisions/testing-infra.md",
         "docs/requirements/decisions/truth-source.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-08T14:04:30.459Z",
+      "userSees": "用户运行 `npm --prefix packages/main run test:review-loop-smoke` 和 `node scripts/verify-process-fact-contract.mjs` 后看到 review loop smoke 与 process fact contract 均通过。",
+      "files": {
+        "modify": [
+          "package.json",
+          "packages/main/package.json",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [
+          "packages/main/src/tasks/review-loop-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/review-loop-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Smoke test covers start, iteration, status, close, and policy priority behavior with deterministic assertions.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Contract verification fails if a review_loop L4 command lacks command policy, process fact level, artifact registry, or CLI schema entry.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Tests prove review_loop commands do not execute hosts, perform rollback, auto-merge, auto-DONE, or set authority receipt fields.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "npm run build && npm --prefix packages/main run test:review-loop-smoke",
+          "result": "pass",
+          "note": "Build passed and review-loop-smoke reported 37 passed, 0 failed across policy helpers, gate behavior, status JSON, duplicate loopId, and no-authority assertions.",
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process fact contract output registered review_loop_start/iteration_add/close as L4 gate-evidence and review_loop_status/policy_show as L0; remaining script failure was pre-existing autopilot_* and release_approve_push drift, with no review_loop failure entries.",
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:review-loop-smoke",
+          "result": "pass",
+          "note": "Smoke proves review_loop records do not execute hosts, perform rollback, auto-merge, auto-DONE, or set authority/receipt fields; rollback and handoff remain hints only.",
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -61,9 +339,70 @@
         "docs/requirements/decisions/host-overflow.md",
         "docs/requirements/decisions/project-vision.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-08T14:04:41.524Z",
+      "userSees": "用户在最终汇报里看到 `Claude host review: no must-fix`、`Codex host review: no must-fix` 或具体 accepted must-fix 列表，并看到对应 verificationEvidence refs。",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Two Claude CLI lanes and one Codex CLI lane review the implementation and return no unresolved must-fix correctness issues.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If a host reports advisory-only optimization, it is recorded as advisory and not implemented unless tied to executable correctness.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "If hosts disagree, the main agent records the disagreement and accepts only source-grounded correctness findings, not preference changes.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "Claude CLI host A + Claude CLI host B + Codex CLI focused re-audit",
+          "result": "pass",
+          "note": "Two Claude CLI lanes and one Codex CLI lane performed read-only review. Final re-audit PASS from all three; no unresolved must-fix correctness issue remained.",
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "Codex CLI first audit and follow-up fix review",
+          "result": "pass",
+          "note": "Codex reported three real correctness findings: resolved close invariant, duplicate explicit loopId/status inconsistency, and --outcome hint drift. All were fixed, tested, and Codex re-audit returned PASS.",
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "Multi-host disagreement policy application",
+          "result": "pass",
+          "note": "Advisory-only notes were not implemented unless tied to source-grounded correctness. The accepted changes were limited to executable correctness and logic consistency.",
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
+        }
+      ]
     }
   ]
 }

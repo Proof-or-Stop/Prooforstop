@@ -1,0 +1,56 @@
+{
+  "storyId": "B-7a34",
+  "changes": "Implemented Lattice Review Reflection Loop as host-neutral lifecycle evidence: added review loop record types and JSONL storage, five review_loop CLI commands, REVIEW gate blocking for open loops, resolved-close freshness/evidence invariants, status/session projections, process-fact registry coverage, and focused smoke tests.",
+  "usage": "In REVIEW, run review_loop_start to open a loop, review_loop_iteration_add to record reflection/evaluation/decision, review_loop_status to inspect active/latest state, and review_loop_close --status=resolved|blocked|escalated to close recording-only loop state. Use review_loop_policy_show to inspect the conservative policy.",
+  "expectedOutcome": "User expects Lattice to track bounded reflection loops during REVIEW without becoming an autopilot: open loops block REVIEW to TEST, resolved closes require fresh evidence, and no command executes rollback, host handoff, DONE, merge, or authority receipt changes.",
+  "actualTranscript": "Observed: npm run build passed; npm --prefix packages/main run test:review-loop-smoke reported 37 passed and 0 failed; node bin/koala.js validate --story=B-7a34 passed npm test and verification intent coverage 15/15; three reviewer lanes and two Claude CLI plus Codex CLI host audits returned PASS after fixing Codex-reported correctness issues.",
+  "outcomeDiff": "No expected-vs-actual product gap remains. One process-fact script still reports pre-existing autopilot/release drift, but review_loop contract entries themselves pass and are recorded as unrelated residual risk.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Process fact contract still has unrelated pre-existing autopilot_* and release_approve_push drift; review_loop-specific contract checks are registered and show no failure entries.",
+  "pitfalls": "Use local worktree wrapper node bin/koala.js for gates; global lattice can point at another worktree and misreport Codex adapter material hash. Resolved close must include evidence refs and current materialHash.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 242716
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 99356
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 792241
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 3143888
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 251858
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 56837
+    }
+  },
+  "totalDurationMs": 4586911,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-08T14:10:13.282Z",
+  "updatedAt": "2026-06-08T14:10:13.282Z"
+}

@@ -138,6 +138,68 @@ const verificationEvidenceSchema = z.object({
   timestamp: z.string().optional().describe('记录时间'),
 });
 
+const reviewLoopDecisionSchema = z.enum([
+  'continue',
+  'retry',
+  'revise',
+  'rollback_required',
+  'handoff_recommended',
+  'human_gate_required',
+  'close_candidate',
+  'stop_blocked',
+]);
+
+const reviewLoopTriggerSchema = z.object({
+  findingIds: z.array(z.string().min(1)).optional().describe('触发 loop 的 finding id 列表'),
+  bugIds: z.array(z.string().min(1)).optional().describe('触发 loop 的 bug id 列表'),
+  validationFailureRefs: z.array(z.string().min(1)).optional().describe('触发 loop 的 validation failure 引用'),
+  scopeViolationRefs: z.array(z.string().min(1)).optional().describe('触发 loop 的 scope violation 引用'),
+});
+
+const reviewLoopRollbackRefSchema = z.object({
+  headHash: z.string().min(1).describe('loop 开始或迭代前的 HEAD hash'),
+  diffHash: z.string().min(1).describe('loop 开始或迭代前的 diff hash'),
+  materialHash: z.string().min(1).describe('loop 开始或迭代前的 material hash'),
+  scopeContractHash: z.string().min(1).optional().describe('可选 scope contract hash'),
+});
+
+const reviewLoopHostSchema = z.object({
+  hostId: z.string().min(1).describe('参与本次 reflection iteration 的 host id'),
+  capabilitySnapshotRef: z.string().min(1).optional().describe('能力快照引用；只记录，不验证 receipt'),
+  visibleDegradations: z.array(z.string().min(1)).optional().describe('本次可见 host 降级'),
+});
+
+const reviewLoopReflectionSchema = z.object({
+  progress: z.enum(['improved', 'unchanged', 'regressed']).describe('相对上一轮是否改善'),
+  evidenceQuality: z.enum(['strong', 'medium', 'weak']).describe('本轮证据质量'),
+  failureType: z.enum(['prompt', 'context', 'tool', 'host', 'requirement', 'external']).optional().describe('失败类型'),
+  riskLevel: z.enum(['low', 'medium', 'high']).describe('继续 loop 的风险水平'),
+  rootCauseHypothesis: z.string().min(1).describe('当前根因假设'),
+  nextPromptPatch: z.string().min(1).optional().describe('下一轮 prompt patch 建议；只记录，不执行'),
+  recommendedDecision: reviewLoopDecisionSchema.describe('reflection 建议决策'),
+  reason: z.string().min(1).describe('建议理由'),
+  reusableLearning: z.string().min(1).optional().describe('可复用经验；上下文记录，不是 gate evidence'),
+});
+
+const reviewLoopEvaluationSchema = z.object({
+  progressScore: z.number().optional().describe('进展评分'),
+  riskScore: z.number().optional().describe('风险评分'),
+  regressionScore: z.number().optional().describe('回归评分'),
+  confidenceScore: z.number().optional().describe('置信评分'),
+  costMeasured: z.boolean().optional().describe('是否实际测量成本；默认 false'),
+  costUsedUSD: z.number().optional().describe('本轮成本记录；只记录'),
+  timeUsedMs: z.number().optional().describe('本轮耗时记录；只记录'),
+  commandsRun: z.array(z.string().min(1)).optional().describe('本轮实际运行命令记录'),
+  evidenceRefs: z.array(z.string().min(1)).optional().describe('本轮参考 evidence refs；不验证 receipt'),
+});
+
+const reviewLoopNextActionSchema = z.object({
+  nextPrompt: z.string().min(1).optional().describe('下一步 prompt 建议；只记录，不执行'),
+  rollbackCommandHint: z.string().min(1).optional().describe('人工 rollback 命令提示；只记录，不执行'),
+  handoffHostId: z.string().min(1).optional().describe('建议 handoff host；只记录，不自动 handoff'),
+  humanQuestion: z.string().min(1).optional().describe('需要人类回答的问题'),
+});
+
 const stringOrStringArraySchema = z.union([z.string(), z.array(z.string())]);
 const autopilotModeSchema = z.enum([
   'conservative',
@@ -414,6 +476,56 @@ export const MAIN_TOOLS: ToolDef[] = [
     agent: z.string().optional().describe('reviewer agent id（如 koala-review-quality；默认 KOALA_AGENT）'),
     reviewRunId: z.string().describe('当前 reviewer run id（先调用 review_run_start 获取）'),
     note: z.string().describe('审查范围与无 blocker 理由（≥10 字符）'),
+  }},
+  { name: 'review_loop_start', description: '记录 REVIEW reflection loop 开始事件（recording-only，不执行 host/rollback）', schema: {
+    storyId: z.string().min(1).describe('Story ID'),
+    loopId: z.string().min(1).optional().describe('可选 loop id；缺省由 handler 生成'),
+    reviewRound: z.string().min(1).optional().describe('可选 REVIEW round；缺省使用 story.currentReviewRound'),
+    trigger: reviewLoopTriggerSchema.describe('触发 loop 的结构化来源'),
+    rollbackRef: reviewLoopRollbackRefSchema.describe('人工 rollback 所需引用；只记录，不执行'),
+    actor: z.string().min(1).optional().describe('记录者；默认 KOALA_AGENT/USER/main'),
+    json: z.boolean().optional().describe('输出 JSON'),
+    format: z.enum(['text', 'json']).optional().describe('输出格式'),
+  }},
+  { name: 'review_loop_iteration_add', description: '记录 REVIEW reflection loop 迭代（recording-only，不执行 host/rollback/handoff）', schema: {
+    storyId: z.string().min(1).describe('Story ID'),
+    loopId: z.string().min(1).describe('review_loop_start 返回的 loopId'),
+    reviewRound: z.string().min(1).optional().describe('可选 REVIEW round；缺省使用 story.currentReviewRound'),
+    trigger: reviewLoopTriggerSchema.describe('本轮触发上下文'),
+    host: reviewLoopHostSchema.describe('本轮 host/capability 记录；不启动 host'),
+    rollbackRef: reviewLoopRollbackRefSchema.describe('人工 rollback 所需引用；只记录，不执行'),
+    reflection: reviewLoopReflectionSchema.describe('本轮 reflection 判断'),
+    evaluation: reviewLoopEvaluationSchema.optional().describe('本轮成本/证据/命令记录'),
+    decision: reviewLoopDecisionSchema.describe('本轮最终决策'),
+    decisionReason: z.string().min(1).describe('最终决策理由'),
+    nextAction: reviewLoopNextActionSchema.optional().describe('下一步建议；只记录，不执行'),
+    actor: z.string().min(1).optional().describe('记录者；默认 KOALA_AGENT/USER/main'),
+    json: z.boolean().optional().describe('输出 JSON'),
+    format: z.enum(['text', 'json']).optional().describe('输出格式'),
+  }},
+  { name: 'review_loop_status', description: '读取 REVIEW reflection loop 状态（read-only）', schema: {
+    storyId: z.string().min(1).describe('Story ID'),
+    loopId: z.string().min(1).optional().describe('可选 loop id 过滤'),
+    json: z.boolean().optional().describe('输出 JSON'),
+    format: z.enum(['text', 'json']).optional().describe('输出格式'),
+  }},
+  { name: 'review_loop_close', description: '记录 REVIEW reflection loop 关闭事件（recording-only，不执行 merge/DONE/receipt）', schema: {
+    storyId: z.string().min(1).describe('Story ID'),
+    loopId: z.string().min(1).describe('要关闭的 loopId'),
+    reviewRound: z.string().min(1).optional().describe('可选 REVIEW round；缺省使用 story.currentReviewRound'),
+    status: z.enum(['resolved', 'escalated', 'blocked']).describe('关闭状态'),
+    trigger: reviewLoopTriggerSchema.describe('关闭时关联的触发上下文'),
+    materialHash: z.string().min(1).describe('关闭时 material hash'),
+    resolvedEvidenceRefs: z.array(z.string().min(1)).optional().describe('已解决证据引用'),
+    supersedingEvidenceRefs: z.array(z.string().min(1)).optional().describe('替代证据引用'),
+    closeReason: z.string().min(1).describe('关闭原因'),
+    actor: z.string().min(1).optional().describe('记录者；默认 KOALA_AGENT/USER/main'),
+    json: z.boolean().optional().describe('输出 JSON'),
+    format: z.enum(['text', 'json']).optional().describe('输出格式'),
+  }},
+  { name: 'review_loop_policy_show', description: '显示 REVIEW reflection loop 记录策略（read-only）', schema: {
+    json: z.boolean().optional().describe('输出 JSON'),
+    format: z.enum(['text', 'json']).optional().describe('输出格式'),
   }},
 
   // Understanding (Pre-context Intake snapshot, OMX 风格)

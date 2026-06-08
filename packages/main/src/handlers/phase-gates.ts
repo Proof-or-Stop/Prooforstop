@@ -28,7 +28,8 @@
 
 import type { HandlerContext } from './context.js';
 import type { StoryStore } from '../core/store.js';
-import type { ChecklistData, StoryPhase } from '../core/types.js';
+import type { ChecklistData, StoryPhase, ReviewLoopIteration } from '../core/types.js';
+import { listActiveLoops, deriveLatestLoopRecord } from '../core/review-loop.js';
 import { getStateName, getGuardFailureReason } from '../core/machine.js';
 import { resolveLocalCodexVerifyCommand } from '../core/codex-adapter-checks.js';
 import { currentMaterialHash } from '../core/evidence-freshness.js';
@@ -91,6 +92,59 @@ export function resolveGuardFailure(
 }
 
 /**
+ * B-7a34 CHK-003: Review loop gate for REVIEW→TEST.
+ *
+ * Blocks REVIEW→TEST while any review loop record has status='open'.
+ * Resolved close (status='resolved') clears this gate only; blocked and
+ * escalated closes (status='blocked'|'escalated') also clear this gate
+ * because they are not 'open' — but they do not unblock underlying
+ * finding/review/validation gates.
+ *
+ * Runs synchronously before CLI preflight gates so a clear error is
+ * surfaced without needing CLI tooling to execute.
+ *
+ * On gate failure: throws "Cannot enter TEST" with loopId, decision, and
+ * nextAction for each open loop. On success: returns normally (no-op).
+ */
+export function runReviewLoopGate(storyId: string, store: StoryStore): void {
+  let records;
+  try {
+    records = store.readReviewLoopRecords(storyId);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    throw new Error(
+      `Cannot enter TEST: review loop records could not be read [review_loop_record_error]\n` +
+      `  - ${msg}\n\n` +
+      `→ 修复 review-loops evidence 后重跑 story_advance --phase=TEST`,
+    );
+  }
+  const activeLoops = listActiveLoops(records);
+  if (activeLoops.length === 0) return;
+
+  const details = activeLoops.map(loopId => {
+    const latest = deriveLatestLoopRecord(records, loopId);
+    const parts: string[] = [`loopId=${loopId}`];
+    if (latest && latest.event === 'iteration') {
+      const iter = latest as ReviewLoopIteration;
+      parts.push(`decision=${iter.decision}`);
+      if (iter.nextAction) {
+        const naEntries = Object.entries(iter.nextAction)
+          .filter(([, v]) => v != null)
+          .map(([k, v]) => `${k}=${String(v)}`);
+        if (naEntries.length > 0) parts.push(`nextAction={${naEntries.join(', ')}}`);
+      }
+    }
+    return `  [open_loop] ${parts.join(', ')}`;
+  });
+
+  throw new Error(
+    `Cannot enter TEST: active review loop(s) block REVIEW→TEST [open_review_loop]\n` +
+    `${details.join('\n')}\n\n` +
+    `→ 关闭所有 open loop（review_loop_close --status=resolved）后确保 trigger refs 已 resolved，再重跑 story_advance --phase=TEST`,
+  );
+}
+
+/**
  * REVIEW→TEST CLI preflight gate.
  *
  * F-019 (B-9d95 Round 1 review): REVIEW→TEST preflight 跑 CLI gates。
@@ -117,6 +171,8 @@ export async function runReviewToTestPreflightGate(
   _actor: { stop(): void },
 ): Promise<void> {
   const { store } = ctx;
+  // B-7a34 CHK-003: review loop gate runs before CLI gates (sync, no tooling required).
+  runReviewLoopGate(storyId, store);
   ctx.log?.('REVIEW→TEST preflight: running CLI gates (channel/concept/lint/docs-drift plus conditional codex-adapter)...');
   try {
     const { runReviewCliGates, renderPreflight } = await import('./review-preflight.js');
