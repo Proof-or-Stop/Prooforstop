@@ -13,7 +13,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Lattice-lifecycle-memory-Evolving.md shows a 100-point MemoryScore formula where exact recall@1, recall@10, MRR@10, and precision@10 are included inside the historical retrieval component.",
+      "userSees": "\"MemoryScore = 25 * HistoricalRetrievalScore + 25 * ExactAnswerHit + 25 * EvidenceLinkageRate + 15 * LayerRoutingAccuracy + 10 * ScaleStabilityScore\" appears in Lattice-lifecycle-memory-Evolving.md, and HistoricalRetrievalScore includes exact recall@1, recall@10, MRR@10, and precision@10.",
       "files": {
         "modify": [
           "Lattice-lifecycle-memory-Evolving.md"
