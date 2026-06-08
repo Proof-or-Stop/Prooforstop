@@ -31,6 +31,22 @@
       "files": [
         "Lattice-lifecycle-memory-Evolving.md"
       ]
+    },
+    {
+      "id": "B-f1d3:F-003",
+      "desc": "Lattice-lifecycle-memory-Evolving.md:85 hard-codes the `koala session_brief` check to pass only when story B-f1d3 is in `phase DEV`, but the story is already in REVIEW. That makes the v0 test matrix non-executable as written and overstates what this command should verify; the criterion should validate worktree/cwd authority and story identity, not require DEV specifically.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-08T09:58:19.653Z",
+      "reviewRound": "2026-06-08T09:53:20.818Z",
+      "reviewRunId": "B-f1d3:RR-003",
+      "_hash": "e6b94afd79e90b66459d521e6150c989a2722ac67c0db9b68408fa965c3d1c75",
+      "files": [
+        "Lattice-lifecycle-memory-Evolving.md"
+      ]
     }
   ]
 }
