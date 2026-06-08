@@ -12,9 +12,20 @@ Evolving Work Lifecycle / lifecycle memory 对当前 Lattice **可行**，但可
 |---|---|---|---|
 | Claude-A architecture reviewer | 可行，而且 Lattice 已覆盖 Story Memory、Lineage、Evidence、Recovery、Handoff、Frozen/Live 分离的大部分语义。真实增量应集中在 Thread/Trajectory 一等化、productionDone receipt 闭环和受控 recovery contract。 | `.omx/artifacts/claude-role-claude-a-architecture-reviewer-worktree-users-jek-docum-2026-06-08T09-36-18-528Z.md` | 采纳正向可行性，但把 L0/L1/L5、外部 memory provider、自动 skill replay 降级为非目标或未来待证实 gap。 |
 | Claude-B skeptical reviewer | 提案中超过一半具体实现会越过 host-neutral、dev-memory non-authority、receipt/gate 语义边界；最小安全子集只有只读投影、Thread/Trajectory schema、经真实失败证明的 recovery contract。 | `.omx/artifacts/claude-role-claude-b-skeptical-reviewer-worktree-users-jek-document-2026-06-08T09-39-02-035Z.md` | 采纳边界约束，作为最终分类的 guardrail：没有 correctnessEvidence 的优化不进入 v0 或 future story。 |
-| Codex host analysis | 从 Codex 视角可行，但应组装现有 lifecycle surfaces；host 输出只能是本地诊断、local evidence candidate 或 transcript，不能变成 production authority。 | `.omx/artifacts/lifecycle-memory-codex-B-f1d3.md` | 采纳 capability comparison 和测试建议，但不把 Codex/Gemini subprocess 写成当前已支持能力。 |
+| Codex host analysis | 从 Codex 视角可行，但应组装现有 lifecycle surfaces；host 输出只能是本地诊断、local evidence candidate 或 transcript，不能变成 production authority。 | `.omx/artifacts/lifecycle-memory-codex-B-f1d3.md`（historical v0 review input） | 采纳 capability comparison 和测试建议，但不把 Codex/Gemini subprocess 写成当前已支持能力。 |
 
 分歧解决：Claude-A 和 Codex 提供「可以如何表达」；Claude-B 提供「哪些不能做」。最终口径是 authority-preserving synthesis：host 输出是输入证据，最终分类以 Lattice 真相源和 gate 边界为准。
+
+## 第二轮 host synthesis（advisory transcript only）
+
+这一轮 synthesis 只把 Claude-A、Claude-B、Codex CLI 的结论整理成 manual transcript evidence。它们是 host-side advisory inputs，不是 Lattice truth，也不是 gate evidence。
+
+| Host | 结论 | 使用方式 |
+|---|---|---|
+| Claude-A | bounded memory baseline 可以作为 future validation contract 讨论，但前提是先把 corpus、评分、阈值和边界写死，且不把 transcript 升级成权威记忆。 | 只作为 manual transcript evidence；不进入 truth source、gate 或 auto-pass。 |
+| Claude-B | 任何 authority/scope leak 都必须零容忍；dev-memory、host transcript、手工转录都只能是 advisory，不能变成当前实现或验证前提。 | 只作为 manual transcript evidence；不把 non_authoritative 输入误写成 Lattice truth。 |
+| Codex CLI | 1,000,000 candidates 只能定义为 stress-only tier；该故事不应引入 storage engine、benchmark runner、vector DB、SQLite/DuckDB、embedding model 或外部 provider。 | 只作为 manual transcript evidence；不把 stress tier 误解成生产能力。 |
+| 合成结论 | 采用 future implementation prerequisite 的 memory recall validation contract：先约束 corpus / excluded sources / query set / scoring / thresholds，再谈后续实现。 | 只作为 manual transcript evidence；不构成 Lattice truth、review pass 或 gate evidence。 |
 
 ## 当前能力对比
 
@@ -54,6 +65,97 @@ Evolving Work Lifecycle / lifecycle memory 对当前 Lattice **可行**，但可
 
 如果未来某个 lifecycle projection 引用 dev-memory 或 transcript，输出中必须保留非权威字段或文案，例如 `gateEvidence:false`、`authority:"non_authoritative"`、`receiptVerified:false`、`productionDone:false`。引用它们的正确语义是「帮助人或 agent 理解上下文」，不是「证明任务完成」。
 
+## Memory Recall Validation Contract (future implementation prerequisite)
+
+这个 contract 只定义未来的验证边界，不定义当前实现。它不引入 storage engine、benchmark runner、vector DB、SQLite/DuckDB、外部 provider、embedding model、host context-window benchmark、auto skill replay、auto-trust、auto-merge、auto-DONE 或 production authority。
+
+### Corpus / data sources
+
+Corpus 只允许来自 Lattice 的 lifecycle truth sources：
+
+- requirements / decision docs 中已经定稿的生命周期事实。
+- story / checklist / verification / validation / receipt / gate artifacts 中的结构化事实。
+- process-event / runtime gate / signed artifact 里与 lifecycle 语义直接相关的记录。
+- 需要做边界说明时，可引用 `docs/requirements/decisions/dev-memory.md` 作为 non_authoritative 边界说明，但不把它当 corpus truth source。
+
+### Excluded sources
+
+以下来源不进入 corpus，也不作为 gold truth：
+
+- `dev-memory` JSONL、host transcript、manual transcript、review transcript、prompt transcript。
+- 用户偏好、persona、identity registry、技能回放、自动生成的总结、scratch notes。
+- 外部搜索 / 外部 provider / shadow index / cache / benchmark runner output。
+- 任何带 `gateEvidence:false`、`authority:"non_authoritative"`、`productionDone:false` 的记录，只能作为 boundary example，不能升级为 truth。
+
+### Query set
+
+Query set 只针对 lifecycle facts，且必须可追溯到 corpus 中的单一 gold fact 或明确的 fact set。
+
+建议的 query families：
+
+| Family | 目的 | 约束 |
+|---|---|---|
+| Exact fact lookup | 直接定位某条生命周期事实。 | 只测 lifecycle facts，不测用户偏好、host persona 或实现细节。 |
+| Multi-hop lifecycle reasoning | 跨 story / checklist / evidence / receipt 追踪事实链。 | 只能在 corpus 内跳转，不得引入 excluded sources。 |
+| Contradiction check | 检测同一 lifecycle fact 的冲突版本。 | 冲突处理必须保留 sourceRefs 和最新真相源。 |
+| Boundary / authority check | 验证某条内容是否属于 non_authoritative、gateEvidence:false 或 productionDone:false。 | authority / scope 规则是 hard contract check，不是排序题。 |
+| Drift / freshness check | 验证检索结果是否落到最新的 lifecycle truth source。 | 只测事实新鲜度，不测 host 输出风格。 |
+
+### Scoring and thresholds
+
+评分只对 lifecycle-fact queries 生效。authority / scope 失败是 hard zero-tolerance checks，先于任何 recall 分数。
+
+| Check | Rule | Contract result |
+|---|---|---|
+| authorityLeakCount | 必须为 `0`。任何把 non_authoritative、host transcript 或 manual transcript 升级为权威的结果都算失败。 | contract-level fail。 |
+| scopeLeakCount | 必须为 `0`。任何把 excluded sources 或非 lifecycle facts 混入 gold / answer 都算失败。 | contract-level fail。 |
+| exact recall@1 | 只在 exact lifecycle-fact queries 上计算；目标 `= 1.0`。 | 低于阈值为 contract-level fail。 |
+| recall@10 | 只在 resume / handoff / lineage lifecycle queries 上计算；初始目标 `>= 0.90`。 | 低于阈值为 contract-level fail。 |
+| MRR@10 | 只在 resume / handoff / lineage lifecycle queries 上计算；初始目标 `>= 0.75`。 | 低于阈值为 contract-level fail。 |
+| precision@10 | 只在 resume / handoff / lineage lifecycle queries 上计算；初始目标 `>= 0.70`。 | 低于阈值为 contract-level fail。 |
+
+这些阈值是 future contract 的起点，不是当前实现的生产保证，也不是 Koala REVIEW / TEST / DONE gate evidence。只有 future story 明确写出更高预算或更严格基线时，才能改动。
+
+### Tiers
+
+| Tier | Candidate count | 目的 | 是否可作为当前 gate / authority 依据 |
+|---|---|---|---|
+| T0 | small / smoke corpus | 验证 query schema、gold label 和 authority boundary。 | 可以作为 contract smoke，不作为生产 authority。 |
+| T1 | bounded baseline corpus | 验证 lifecycle facts 的正常 recall / ranking。 | 不能作为当前 gate / authority；只可作为 future validation 输入。 |
+| T2 | expanded baseline corpus | 验证事实漂移、冲突与 freshness。 | 不能作为当前 gate / authority；只可作为 future validation 输入。 |
+| T3 | 1,000,000 candidates | stress-only，验证检索在大候选集下是否仍保持 zero-tolerance 边界与可观测性。 | 仅作压力测试，不作为当前门禁或生产授权。 |
+
+### Resource reporting
+
+除非未来 story 单独定义预算，否则以下指标只报告、不门禁：
+
+- `latencyP50`
+- `latencyP95`
+- `peakRSS`
+- `cpuSeconds`
+- `candidateCount`
+- `queryCount`
+- `corpusSize`
+- `indexBuildTime`（如果 future implementation 引入索引，但这里不指定实现）
+
+若任何 resource 指标超过 future story 设定的预算，按该 future story 的预算规则处理；本 contract 本身不把资源超限自动升级为 production authority 失败。
+
+### Failure taxonomy
+
+| Failure type | Definition | Severity |
+|---|---|---|
+| `authorityLeak` | 把 transcript、dev-memory 或其他 advisory 输入当成权威 truth。 | hard fail |
+| `scopeLeak` | query / gold / answer 混入 excluded sources 或非 lifecycle facts。 | hard fail |
+| `labelDrift` | gold label 与当前 truth source 不一致。 | hard fail |
+| `queryAmbiguity` | query 无法稳定映射到单一 lifecycle fact 或明确 fact set。 | hard fail until repaired |
+| `metricRegression` | lifecycle-fact recall / ranking 低于阈值。 | fail |
+| `resourceRegression` | 资源指标超出 future budget。 | report-only unless future budget says otherwise |
+| `nondeterminism` | 同一 corpus / query set 下结果不稳定。 | fail |
+
+### Contract boundary
+
+这个 contract 明确只适用于 future implementation prerequisite。它不要求现在增加 storage、runner、provider、embedding、host benchmark 或自动化升级路径；也不允许把 host review artifacts、dev-memory 或 manual transcript 误写成 Lattice truth。
+
 ## 跨场景处理
 
 当 Host 分析和 capability gap 分类同时发生时，本文档采用两步处理：
@@ -81,11 +183,11 @@ v0 的边界是「把话说准」。后续只有当 gap 有真实 failure、sour
 |---|---|---|---|
 | docs_check | 本文件包含必需标题、结论、三方摘要、能力分类、权威边界、non-goals、执行计划和测试矩阵。 | `rg -n "^# Lattice Lifecycle Memory Evolving|可行|host-neutral|non_authoritative|auto-DONE|SQLite|Codex/Gemini" Lattice-lifecycle-memory-Evolving.md` | 所有关键短语可定位；没有把 non-goal 写成 current capability。 |
 | docs_check | 已提交版本的 Markdown 无尾随空白或 patch 格式问题。 | `git show --check --stat --oneline HEAD -- Lattice-lifecycle-memory-Evolving.md` | 命令 exit 0。 |
-| manual_transcript | 三方 Host 分析被作为输入证据读取，不作为权威结论直接采纳。 | 附件：`/Users/jek/.codex/attachments/85e74934-0860-4165-a4d6-d1040d2a130a/pasted-text.txt`；artifacts：`.omx/artifacts/claude-role-claude-a-architecture-reviewer-worktree-users-jek-docum-2026-06-08T09-36-18-528Z.md`、`.omx/artifacts/claude-role-claude-b-skeptical-reviewer-worktree-users-jek-document-2026-06-08T09-39-02-035Z.md`、`.omx/artifacts/lifecycle-memory-codex-B-f1d3.md` | 文档有三方摘要和 disagreement resolution；authority boundary 不由 host 输出覆盖。 |
-| cli | story 当前处于正确 owner/worktree/cwd lifecycle 上下文。 | `koala session_brief` | 输出 story `B-f1d3`、owner/worktree/cwd 为 `.worktrees/B-f1d3`，并报告当前 lifecycle phase；不要求固定为 DEV。 |
+| manual_transcript | 三方 Host 分析被作为输入证据读取，不作为权威结论直接采纳。 | 附件：`/Users/jek/.codex/attachments/85e74934-0860-4165-a4d6-d1040d2a130a/pasted-text.txt`；artifacts：`.omx/artifacts/claude-role-claude-a-architecture-reviewer-worktree-users-jek-docum-2026-06-08T09-36-18-528Z.md`、`.omx/artifacts/claude-role-claude-b-skeptical-reviewer-worktree-users-jek-document-2026-06-08T09-39-02-035Z.md`、`.omx/artifacts/lifecycle-memory-codex-B-f1d3.md`（historical v0 review input） | 文档有三方摘要和 disagreement resolution；authority boundary 不由 host 输出覆盖。 |
+| cli | story 当前处于正确 owner/worktree/cwd lifecycle 上下文。 | `koala session_brief` | 输出当前 story、owner/worktree/cwd 和 lifecycle phase；不要求固定为某个历史 story ID。 |
 | cli | 若后续 story 实现投影能力，验证不污染 gate authority。 | `npm --prefix packages/main run test:authority-enforce-matrix`; `npm --prefix packages/main run test:lattice-parallel-wave-smoke`; `npm --prefix packages/main run test:lattice-handoff-smoke` | 所有 projection / handoff / wave 输出保持非权威边界，不能产生 production authority。 |
 | cli | 若后续 story 修改 process facts、gate evidence 或 lifecycle registry，验证 registry 不漂移。 | `node scripts/verify-process-fact-contract.mjs`; `node scripts/verify-runtime-fact-contract.mjs` | 新事实必须登记；runtime facts 不混入 process facts。 |
-| cli | TEST 阶段最终项目验证。 | `koala validate --story=B-f1d3` | 仅在 story 进入 TEST 且所有 checklist evidence 齐全时作为 validation evidence；v0 文档阶段不伪造该 evidence。 |
+| cli | TEST 阶段最终项目验证。 | `koala validate --story=<current-story>` | 仅在 story 进入 TEST 且所有 checklist evidence 齐全时作为 validation evidence；v0 文档阶段不伪造该 evidence。 |
 
 ## 非目标
 
@@ -94,7 +196,7 @@ v0 的边界是「把话说准」。后续只有当 gap 有真实 failure、sour
 - SQLite、DuckDB、vector DB、Mem0、Supermemory、Honcho 或任何 external memory provider。
 - Hermes-style personal memory、SOUL.md 替代品、用户偏好长期画像、agent identity registry。
 - automatic skill replay、自动从成功 story 抽取并执行 playbook、自动 prompt 注入顺序管理。
-- auto-trust、auto-merge、auto-DONE、自动 claim `productionDone=true`。
+- auto-trust、auto-merge、auto-DONE、自动把 productionDone 置为 true。
 - 把 dev-memory、host transcript、本地 PASS、本地 diagnostic receipt、observability snapshot 当成 gate evidence。
 - 新建 `.lineage.jsonl` 作为绕开 process-events / signed artifact 的证据旁路。
 - 把 Codex/Gemini subprocess support 写成当前能力；当前 Host Overflow 口径中 real-subprocess 主线仍是受控 Claude Code opt-in，Codex/Gemini 不能被宣传为已可真实派发。
