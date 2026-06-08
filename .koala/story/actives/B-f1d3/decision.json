@@ -1,0 +1,82 @@
+{
+  "principles": [
+    "Lattice remembers work, not the agent persona: lifecycle state and evidence remain the center.",
+    "Authority boundaries must stay mechanical: advisory memory cannot satisfy gates or receipts.",
+    "Host-neutral means hosts are adapters/execution surfaces, not core state owners.",
+    "Only implement or propose changes tied to real correctness, recovery, handoff, or logic consistency gaps.",
+    "Prefer projection and contract clarification before adding new storage or scheduler behavior."
+  ],
+  "drivers": [
+    "User asked for feasibility and execution plan based on the attachment.",
+    "Current docs already contain dev-memory, handoff, parallel wave, observability, and authority-boundary pieces.",
+    "The attachment introduces useful language around evolving lifecycle memory but risks overlapping with existing non-authoritative dev-memory.",
+    "High-risk domain: lifecycle/evidence/handoff/recovery semantics affect gates and authority."
+  ],
+  "options": [
+    {
+      "name": "A: Documentation-only feasibility plan grounded in existing surfaces",
+      "pros": [
+        "Safest for current request because user asked for an analysis and execution plan, not immediate feature implementation.",
+        "Avoids authority drift while still mapping attachment capabilities to Lattice architecture.",
+        "Can identify real future work with tests before coding."
+      ],
+      "cons": [
+        "Does not immediately add new CLI capabilities.",
+        "Requires later stories to implement any selected gaps."
+      ]
+    },
+    {
+      "name": "B: Extend dev-memory into lifecycle memory immediately",
+      "pros": [
+        "Reuses existing JSONL memory commands and project/global storage.",
+        "Fast to expose more memory-like behavior."
+      ],
+      "cons": [
+        "Risks violating the existing dev-memory non-authoritative boundary.",
+        "Would blur user/team preference memory with Story/Lineage/Evidence memory, a consistency problem the attachment explicitly warns against.",
+        "Could optimize arbitrarily without a proven correctness gap."
+      ]
+    },
+    {
+      "name": "C: Add a new lifecycle-memory projection/contract in code now",
+      "pros": [
+        "Could make Thread/Trajectory/Recovery patterns first-class sooner.",
+        "Would directly support host-neutral handoff snapshots if carefully bounded."
+      ],
+      "cons": [
+        "Too large for the current ask because the precise schema and gate interactions need review first.",
+        "Touches process facts and possibly registries, so premature implementation can create authority bugs.",
+        "Requires broader tests and reviewer lanes before safe rollout."
+      ]
+    }
+  ],
+  "chosen": "A: Documentation-only feasibility plan grounded in existing surfaces",
+  "rationale": "Choose A because the current user request asks for a detailed feasibility analysis and executable plan document. It preserves Lattice authority boundaries, lets us compare existing surfaces before proposing code changes, and avoids arbitrary optimization. Future implementation should be split into smaller stories only for confirmed correctness or consistency gaps.",
+  "preMortem": [
+    {
+      "scenario": "The plan accidentally treats dev-memory as lifecycle gate evidence.",
+      "trigger": "Wording says memory entries can prove test/review/delivery state or satisfy DONE.",
+      "consequence": "Violates existing dev-memory contract and could weaken Lattice evidence authority.",
+      "mitigation": "State repeatedly that dev-memory is advisory only; lifecycle/evidence memory must reference signed artifacts and receipts without replacing them."
+    },
+    {
+      "scenario": "The plan becomes a broad memory product roadmap instead of Lattice infrastructure.",
+      "trigger": "It imports Identity/User/Preference memory into Lattice core rather than keeping them adapter/context layers.",
+      "consequence": "Host-neutral substrate becomes bloated and competes with Hermes-like agent systems.",
+      "mitigation": "Keep L0-L2 identity/user/project memory as adapter/preflight context and focus L3-L5 on Story, Lineage, Evidence, Recovery, Skill patterns."
+    },
+    {
+      "scenario": "Host outputs are upgraded into authority by narrative convenience.",
+      "trigger": "Claude/Codex transcript or local diagnostic receipt is described as production done.",
+      "consequence": "Breaks host overflow and parallel wave authority boundary, creating false completion claims.",
+      "mitigation": "Require every planned surface to carry productionDone=false / receiptVerified=false unless a future verified authority receipt path exists."
+    },
+    {
+      "scenario": "The proposed implementation adds storage without a real correctness gap.",
+      "trigger": "We recommend SQLite/vector DB/session search because the attachment mentions them, not because Lattice currently fails.",
+      "consequence": "Increases complexity and maintenance cost without improving correctness.",
+      "mitigation": "Classify external memory providers and DBs as later adapter options; v0 should reuse current story export, process events, handoff packs, and dev-memory refs."
+    }
+  ],
+  "timestamp": "2026-06-08T09:21:30.815Z"
+}
