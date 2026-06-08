@@ -156,16 +156,16 @@ MemoryScore =
 | `LayerRoutingAccuracy` | 15 | query 被路由到正确 memory layer。 | 6 层记忆不互相越权。 |
 | `ScaleStabilityScore` | 10 | `min(1, QualityScoreAtScale / QualityScoreAt10kBaseline)`，避免用含 scale 的 MemoryScore 递归计算自身。 | 10 万 / 100 万候选下退化可控。 |
 
-`LayerRoutingAccuracy` 的 baseline layer label 只用于评分，不新增 runtime 架构承诺。评分时每条 query 的 expected layer 应标成以下六类之一：
+`LayerRoutingAccuracy` 的 baseline layer label 只用于验证路由边界，不新增 runtime 架构承诺。前四类是 scoreable lifecycle truth layers，可以进入 corpus / gold / recall / precision 计算；后两类是 boundary-only labels，只用于 authority-boundary queries，不能进入 corpus truth、gold truth、`HistoricalRetrievalScore`、recall 或 precision。
 
-| Layer label | 应承载的事实 |
-|---|---|
-| `raw_event_memory` | 原始 process event / activity 记录。 |
-| `lifecycle_state_memory` | story phase、gate 状态、DONE / REVIEW / TEST 等 lifecycle state。 |
-| `checklist_evidence_memory` | `verificationIntent`、`verificationEvidence`、checklist status。 |
-| `summary_memory` | 用户可读 summary、delivery result、transcript diff。 |
-| `advisory_memory` | dev-memory、notes、经验提示，只能 advisory。 |
-| `host_transcript_memory` | Claude / Codex / host transcript，只能证明 review happened，不能变成 truth。 |
+| Layer label | 应承载的事实 | Scoring use |
+|---|---|---|
+| `raw_event_memory` | 原始 process event / activity 记录。 | scoreable lifecycle truth layer |
+| `lifecycle_state_memory` | story phase、gate 状态、DONE / REVIEW / TEST 等 lifecycle state。 | scoreable lifecycle truth layer |
+| `checklist_evidence_memory` | `verificationIntent`、`verificationEvidence`、checklist status。 | scoreable lifecycle truth layer |
+| `summary_memory` | 用户可读 summary、delivery result、transcript diff。 | scoreable lifecycle truth layer |
+| `advisory_memory` | dev-memory、notes、经验提示，只能 advisory。 | boundary-only；不参与 corpus / gold / recall / precision |
+| `host_transcript_memory` | Claude / Codex / host transcript，只能证明 review happened，不能变成 truth。 | boundary-only；不参与 corpus / gold / recall / precision |
 
 建议的 score thresholds：
 
