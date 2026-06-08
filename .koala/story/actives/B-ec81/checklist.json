@@ -163,9 +163,9 @@
         "docs/requirements/decisions/testing-completeness.md",
         "docs/requirements/decisions/host-overflow.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-08T13:19:48.068Z",
-      "endTime": null,
+      "endTime": "2026-06-08T13:20:26.518Z",
       "userSees": "\"Validation confirms the updated document is executable, benchmark-focused, and keeps memory/host outputs non-authoritative.\"",
       "files": {
         "modify": [
@@ -198,7 +198,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Memory Recall Validation Contract|Corpus / data sources|Excluded sources|Query set|Scoring and thresholds|T3|1,000,000 candidates|Failure taxonomy|Contract boundary\" Lattice-lifecycle-memory-Evolving.md",
+          "result": "pass",
+          "note": "Required baseline/scoring/1M recall contract sections and terms are present and discoverable in the final document.",
+          "headHash": "9029ba1459a0f8604443d46ac1c4e0d844d1243d",
+          "materialHash": "47cf20257affd205dd0cea52531cd7585b85525af3c256c0f495823031108019",
+          "timestamp": "2026-06-08T13:20:26.574Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"B-f1d3|historical v0 review input|koala validate --story=<current-story>|输出当前 story\" Lattice-lifecycle-memory-Evolving.md; git show --check --stat --oneline 0428b81f -- Lattice-lifecycle-memory-Evolving.md",
+          "result": "pass",
+          "note": "Historical B-f1d3 artifact references are labeled as historical v0 review input; current validation is generalized to <current-story>. The committed document patch has no whitespace/check errors.",
+          "headHash": "9029ba1459a0f8604443d46ac1c4e0d844d1243d",
+          "materialHash": "47cf20257affd205dd0cea52531cd7585b85525af3c256c0f495823031108019",
+          "timestamp": "2026-06-08T13:20:26.625Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"productionDone:true|gateEvidence:true|Gate meaning|hard gate|review_pass_set.*benchmark|koala validate evidence.*benchmark\" Lattice-lifecycle-memory-Evolving.md || true",
+          "result": "pass",
+          "note": "No positive productionDone:true/gateEvidence:true or benchmark-to-gate wording remains. Benchmark PASS is documented only as a future contract result, not Koala gate evidence, review pass, delivery check, receipt, or production authority.",
+          "headHash": "9029ba1459a0f8604443d46ac1c4e0d844d1243d",
+          "materialHash": "47cf20257affd205dd0cea52531cd7585b85525af3c256c0f495823031108019",
+          "timestamp": "2026-06-08T13:20:26.675Z"
+        }
+      ]
     }
   ]
 }
