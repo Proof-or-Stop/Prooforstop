@@ -50,9 +50,9 @@
           "command": "omx ask claude <architecture prompt>; omx ask claude <skeptical prompt>; codex exec -C . -s read-only -o .omx/artifacts/lifecycle-memory-baseline-codex-B-ec81.md <review prompt>",
           "result": "pass",
           "note": "Three host review completed. Artifacts: .omx/artifacts/lifecycle-memory-baseline-claude-a-B-ec81.md, .omx/artifacts/lifecycle-memory-baseline-claude-b-B-ec81.md, .omx/artifacts/lifecycle-memory-baseline-codex-B-ec81.md. All three reviewed document executability, host-neutral boundaries, and baseline/scoring/1M recall scope.",
-          "headHash": "7b2bec8aef7e243c926be7d22d21079fc925a992",
-          "materialHash": "b900cbac6f157355db3dd54f755fd1de4a8ba1abe0751a59ebec316dd0fe48ea",
-          "timestamp": "2026-06-08T13:12:37.933Z"
+          "headHash": "843c932e9bbfe28e1803a9acc3fde1a8518e8850",
+          "materialHash": "47cf20257affd205dd0cea52531cd7585b85525af3c256c0f495823031108019",
+          "timestamp": "2026-06-08T13:20:48.255Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -60,9 +60,9 @@
           "command": "sed -n 1,220p .omx/artifacts/lifecycle-memory-baseline-claude-a-B-ec81.md .omx/artifacts/lifecycle-memory-baseline-claude-b-B-ec81.md .omx/artifacts/lifecycle-memory-baseline-codex-B-ec81.md",
           "result": "pass",
           "note": "Disagreement resolved conservatively: baseline/scoring is accepted only as a future validation contract and boundary-integrity scoring; 1M recall is stress-tier only, not v0 hard implementation or arbitrary advisory-memory quality optimization.",
-          "headHash": "7b2bec8aef7e243c926be7d22d21079fc925a992",
-          "materialHash": "b900cbac6f157355db3dd54f755fd1de4a8ba1abe0751a59ebec316dd0fe48ea",
-          "timestamp": "2026-06-08T13:12:37.980Z"
+          "headHash": "843c932e9bbfe28e1803a9acc3fde1a8518e8850",
+          "materialHash": "47cf20257affd205dd0cea52531cd7585b85525af3c256c0f495823031108019",
+          "timestamp": "2026-06-08T13:20:48.255Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -70,9 +70,9 @@
           "command": "git check-ignore -v .omx/artifacts/lifecycle-memory-baseline-*-B-ec81.md; koala checklist_update CHK-001 files create empty",
           "result": "pass",
           "note": "Host outputs remain local manual review evidence, not committed deliverables or Lattice truth. Checklist file declarations were narrowed so ignored .omx transcripts are not mistaken for gate artifacts; synthesis must be applied through the document itself.",
-          "headHash": "7b2bec8aef7e243c926be7d22d21079fc925a992",
-          "materialHash": "b900cbac6f157355db3dd54f755fd1de4a8ba1abe0751a59ebec316dd0fe48ea",
-          "timestamp": "2026-06-08T13:12:38.032Z"
+          "headHash": "843c932e9bbfe28e1803a9acc3fde1a8518e8850",
+          "materialHash": "47cf20257affd205dd0cea52531cd7585b85525af3c256c0f495823031108019",
+          "timestamp": "2026-06-08T13:20:48.255Z"
         }
       ]
     },
