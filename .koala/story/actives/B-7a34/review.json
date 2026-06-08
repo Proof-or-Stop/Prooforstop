@@ -147,6 +147,29 @@
         }
       ],
       "_hash": "a5baecd7fdaa82694de57142f8c7851713ad2b51fd9a822c543745899a2b4125"
+    },
+    {
+      "timestamp": "2026-06-08T13:07:58.552Z",
+      "issueCount": 3,
+      "blockerCount": 2,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Implement review loop data model and storage + Expose minimal review_loop CLI surface are performed simultaneously?)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/core/evidence-freshness.ts is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "scope check not run. Please start the koala-review-scope-plan agent first; the agent will automatically call scope_check_save to write the result"
+        }
+      ],
+      "_hash": "715daf404901bcd5aa264921f466de083ddde868bfb72bf5514246f19698acdc"
     }
   ]
 }

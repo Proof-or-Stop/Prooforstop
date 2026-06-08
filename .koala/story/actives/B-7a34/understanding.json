@@ -3,7 +3,7 @@
   "outcome": "用户在终端运行 review_loop_start / review_loop_iteration_add / review_loop_status / review_loop_close 时能看到结构化 loop 状态；当 story 处于 REVIEW 且 loop 仍 open 时，进入 TEST 会被明确阻止并显示 loopId/decision/nextAction；关闭为 resolved 后仍必须满足原有 finding/review/validation gate。",
   "facts": [
     "方案文档已定义 v0.1 scope: REVIEW-stage recording/status loop only, no auto execution, no host spawn, no authority claim.",
-    "StoryStore 没有现成 review-loop helper，但已有 readJson/writeJson artifact 模式，可新增 readReviewLoops/writeReviewLoops 读写 review-loops.jsonl 或 JSON records artifact.",
+    "StoryStore 没有现成 review-loop helper，但已有 artifact 持久化模式，可新增 review-loops artifact helpers。",
     "currentMaterialHash(projectRoot) 是现有 material freshness helper；resolved close 应记录 materialHash，并由 gate/status 与当前 materialHash 对比。",
     "现有 registry 通过 createMainRegistry 注册 handler，CLI schema/help 在 packages/main/src/cli-engine.ts 声明。",
     "review_run_start/review_pass_set/finding_add/finding_resolve 是现有 REVIEW gate evidence 模式，可作为 process fact 集成参考。",
@@ -19,7 +19,6 @@
   "touchpoints": [
     "packages/main/src/core/store.ts",
     "packages/main/src/core/types.ts",
-    "packages/main/src/core/evidence-freshness.ts",
     "packages/main/src/core/command-policy.ts",
     "packages/main/src/core/process-fact-levels.ts",
     "packages/main/src/core/process-fact-registry.ts",
@@ -31,5 +30,5 @@
     "scripts/verify-process-fact-contract.mjs",
     "packages/main/tests/fixtures/phase-gate-protocol.json"
   ],
-  "timestamp": "2026-06-08T13:00:49.183Z"
+  "timestamp": "2026-06-08T13:10:02.330Z"
 }

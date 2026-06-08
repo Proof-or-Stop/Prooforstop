@@ -1,0 +1,35 @@
+{
+  "storyId": "B-7a34",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/store.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "packages/main/src/handlers/session.ts",
+    "package.json",
+    "packages/main/package.json",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/review-loop.ts",
+    "packages/main/src/handlers/review-loop.ts",
+    "packages/main/src/tasks/review-loop-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/review-loop-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/tests/fixtures/phase-gate-protocol.json"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-08T13:05:10.314Z",
+  "updatedAt": "2026-06-08T13:05:10.314Z"
+}
