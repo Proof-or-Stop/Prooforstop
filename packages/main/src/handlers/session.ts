@@ -40,6 +40,8 @@ import { buildScopeProtectionSummary, renderScopeProtectionSummary } from '../co
 import { buildScopeDiffPack } from '../core/scope-diff-pack.js';
 import type { ScopeContractData, GuardSessionData, ScopeDiffPack, ReviewRun } from '../core/types.js';
 import { initCheckAttestationMode } from '../core/init-check-gate.js';
+import { listActiveLoops, deriveLatestLoopRecord } from '../core/review-loop.js';
+import type { ReviewLoopIteration } from '../core/types.js';
 
 interface ActiveStoryDetected {
   storyId: string;
@@ -953,6 +955,39 @@ export function createSessionHandlers(ctx: HandlerContext) {
             lines.push(`  [${marker}] ${entry.name}${entry.blockerCount > 0 ? ` (${entry.blockerCount} blockers)` : ''}${entry.detail ? ` — ${entry.detail}` : ''}`);
           }
         } catch { /* probe: reviewer status unavailable */ }
+      }
+
+      // B-7a34 CHK-003: active review loop summary for REVIEW phase.
+      // Surfaces loopId, decision, and nextAction so the agent immediately
+      // knows an open loop is blocking REVIEW→TEST before trying to advance.
+      if (story.phase === 'REVIEW') {
+        try {
+          const loopRecords = ctx.store.readReviewLoopRecords(storyId);
+          const activeLoopIds = listActiveLoops(loopRecords);
+          if (activeLoopIds.length > 0) {
+            lines.push('');
+            lines.push(`## Active review loops (${activeLoopIds.length}) — blocking REVIEW→TEST`);
+            for (const loopId of activeLoopIds) {
+              const latest = deriveLatestLoopRecord(loopRecords, loopId);
+              lines.push(`  loopId: ${loopId}`);
+              if (latest && latest.event === 'iteration') {
+                const iter = latest as ReviewLoopIteration;
+                lines.push(`  decision: ${iter.decision}`);
+                lines.push(`  decisionReason: ${iter.decisionReason}`);
+                if (iter.nextAction) {
+                  const na = iter.nextAction;
+                  if (na.nextPrompt) lines.push(`  nextAction.nextPrompt: ${na.nextPrompt.slice(0, 120)}`);
+                  if (na.humanQuestion) lines.push(`  nextAction.humanQuestion: ${na.humanQuestion}`);
+                  if (na.handoffHostId) lines.push(`  nextAction.handoffHostId: ${na.handoffHostId}`);
+                  if (na.rollbackCommandHint) lines.push(`  nextAction.rollbackCommandHint: ${na.rollbackCommandHint}`);
+                }
+              } else if (latest && latest.event === 'start') {
+                lines.push(`  status: open (no iterations yet)`);
+              }
+              lines.push(`  → review_loop_close to resolve; resolve trigger refs before advancing to TEST`);
+            }
+          }
+        } catch { /* probe — never block session_brief on loop read failure */ }
       }
 
       // Understanding / Decision — probe only in PLAN phase (B-89c7 CHK-017

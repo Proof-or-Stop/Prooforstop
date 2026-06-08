@@ -1359,6 +1359,129 @@ export interface ReviewScopeBinding {
   bindingHash: string;
 }
 
+// ── Review Reflection Loop (B-7a34) ──
+
+export type ReviewLoopDecision =
+  | 'continue'
+  | 'retry'
+  | 'revise'
+  | 'rollback_required'
+  | 'handoff_recommended'
+  | 'human_gate_required'
+  | 'close_candidate'
+  | 'stop_blocked';
+
+export type ReviewLoopStatus = 'open' | 'resolved' | 'escalated' | 'blocked';
+
+export interface ReviewLoopTrigger {
+  findingIds?: string[];
+  bugIds?: string[];
+  validationFailureRefs?: string[];
+  scopeViolationRefs?: string[];
+}
+
+export interface ReviewLoopRollbackRef {
+  headHash: string;
+  diffHash: string;
+  materialHash: string;
+  scopeContractHash?: string;
+}
+
+export interface ReviewLoopStart {
+  schemaVersion: 'lattice.review_loop_start.v1';
+  event: 'start';
+  loopId: string;
+  storyId: string;
+  reviewRound: string;
+  status: 'open';
+  trigger: ReviewLoopTrigger;
+  rollbackRef: ReviewLoopRollbackRef;
+  openedAt: string;
+  actor: string;
+}
+
+export interface ReviewLoopIteration {
+  schemaVersion: 'lattice.review_loop_iteration.v1';
+  event: 'iteration';
+  loopId: string;
+  storyId: string;
+  reviewRound: string;
+  status: 'open';
+  iteration: number;
+  trigger: ReviewLoopTrigger;
+  host: {
+    hostId: string;
+    capabilitySnapshotRef?: string;
+    visibleDegradations?: string[];
+  };
+  rollbackRef: ReviewLoopRollbackRef;
+  reflection: {
+    progress: 'improved' | 'unchanged' | 'regressed';
+    evidenceQuality: 'strong' | 'medium' | 'weak';
+    failureType?: 'prompt' | 'context' | 'tool' | 'host' | 'requirement' | 'external';
+    riskLevel: 'low' | 'medium' | 'high';
+    rootCauseHypothesis: string;
+    nextPromptPatch?: string;
+    recommendedDecision: ReviewLoopDecision;
+    reason: string;
+    /** Context-only learning capture. Not review pass, validation, or authority evidence. */
+    reusableLearning?: string;
+  };
+  evaluation: {
+    progressScore?: number;
+    riskScore?: number;
+    regressionScore?: number;
+    confidenceScore?: number;
+    costMeasured: boolean;
+    costUsedUSD?: number;
+    timeUsedMs?: number;
+    commandsRun: string[];
+    evidenceRefs: string[];
+  };
+  decision: ReviewLoopDecision;
+  decisionReason: string;
+  nextAction?: {
+    nextPrompt?: string;
+    rollbackCommandHint?: string;
+    handoffHostId?: string;
+    humanQuestion?: string;
+  };
+  createdAt: string;
+  actor: string;
+}
+
+export interface ReviewLoopClose {
+  schemaVersion: 'lattice.review_loop_close.v1';
+  event: 'close';
+  loopId: string;
+  storyId: string;
+  reviewRound: string;
+  status: 'resolved' | 'escalated' | 'blocked';
+  trigger: ReviewLoopTrigger;
+  materialHash: string;
+  resolvedEvidenceRefs?: string[];
+  supersedingEvidenceRefs?: string[];
+  closeReason: string;
+  closedAt: string;
+  actor: string;
+}
+
+export type ReviewLoopRecord = ReviewLoopStart | ReviewLoopIteration | ReviewLoopClose;
+
+export interface ReviewLoopPolicy {
+  schemaVersion: 'lattice.review_loop_policy.v1';
+  maxIterations: number;
+  maxNoProgressIterations: number;
+  maxRuntimeMinutes: number;
+  maxCostUSD: number;
+  allowAutoHandoff: boolean;
+  allowAutoRollback: boolean;
+  requireHumanForScopeExpansion: boolean;
+  requireHumanForProtectedFiles: boolean;
+  stopOnTestRegression: boolean;
+  stopOnScopeViolation: boolean;
+}
+
 export const WORKFLOW_PRESETS: Record<WorkflowProfile, WorkflowPolicy> = {
   light: {
     profile: 'light',

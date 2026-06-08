@@ -166,6 +166,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'evidence_manifest', 'evidence_inspect', // B-cd31 CHK-006: portable evidence freshness diagnostics
     'parallel_wave_create', 'parallel_wave_inspect', 'parallel_plan', // B-29b6: read-only Lattice Parallel Wave planning surfaces; no authority mutation
     'parallel_dispatch', 'parallel_status', 'parallel_merge_queue', 'parallel_report', // B-e70f: read-only Parallel Dispatch projections; no spawning or authority mutation
+    'review_loop_status', 'review_loop_policy_show', // B-7a34: read-only review loop projections; REVIEW-only mutators are phase-scoped below
     'dev_memory_*',  // B-1148: dev_memory_capture/list/search/preflight/finish/start declared allowedPhases:all in command-policy; phaseTools must match
   ],
   INIT: [
@@ -212,6 +213,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'validate', 'status',
     'bug_report', 'bug_update', 'bug_list',
     'delivery_check_set', 'delivery_waiver_add', // delivery reviewer 在 REVIEW 阶段写签名/豁免，TEST→DONE gate 消费
+    'review_loop_start', 'review_loop_iteration_add', 'review_loop_close',
     'story_advance',
     'scope_contract_acknowledge',
     'guard_session_start', // B-6bfd CHK-004: start scope-guard session during review

@@ -29,7 +29,16 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-audit",
+      "reason": "review_loop commands are registered and policy-classified, but DEFAULT_PHASE_TOOLS currently rejects their lifecycle entrypoints; acknowledging config.ts is required to make the new review loop CLI executable and keep process-fact contract logic consistent, not an optimization.",
+      "timestamp": "2026-06-08T13:32:21.262Z",
+      "paths": [
+        "packages/main/src/core/config.ts"
+      ]
+    }
+  ],
   "createdAt": "2026-06-08T13:05:10.314Z",
-  "updatedAt": "2026-06-08T13:05:10.314Z"
+  "updatedAt": "2026-06-08T13:32:21.262Z"
 }
