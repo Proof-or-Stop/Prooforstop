@@ -53,12 +53,13 @@ Evolving Work Lifecycle / lifecycle memory 对当前 Lattice **可行**，但可
 
 ## 权威边界
 
-`dev-memory` 和 host transcript 是 advisory / local evidence only：
+`dev-memory` 和 host transcript 是 advisory / local evidence only。manual transcript / host transcript 可以作为非权威 `manual_transcript` `verificationEvidence` 引用，证明某次 host review 确实发生过；但其权威边界如下：
 
-- 不能满足 `verificationEvidence`。
-- 不能满足 `review_pass_set`。
+- 不能作为 authoritative lifecycle truth 或 production authority。
+- 不能满足或替代 review pass / `review_pass_set`。
 - 不能满足 delivery check。
 - 不能满足 `koala validate` validation evidence。
+- 不能作为 REVIEW / TEST / DONE gate evidence。
 - 不能生成或替代 signed receipt。
 - 不能让 `productionDone=true`。
 - 不能触发 auto-trust、auto-merge、auto-DONE。
