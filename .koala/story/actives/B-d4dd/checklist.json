@@ -83,7 +83,30 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "scale comparison 入口用同一 harness 对 10k、100k、1M 三个 candidateCount 输出逐 tier 结果，并且每个 tier 都复用单次 benchmark 的同一 schema：score、threshold、verdict、hardFails、核心 metrics 和 note 可逐 tier 对齐比较。",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "对比报告的 text/json 两种输出都必须明确 benchmark PASS 只是 benchmark verdict，不是 Koala review/test/done gate authority；该 authority boundary 既出现在人类可读文案，也出现在结构化 note/field 语义里。",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "comparison report 不能用总体高分掩盖单 tier 失败：任一 tier 的 authorityLeak、scopeLeak、staleTruthHit、boundary-only layer leakage 或 threshold miss 都必须在对应 tier 明确暴露，并保持 non-authoritative benchmark 边界不被提升成 gate evidence。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
