@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-08T10:04:53.633Z",
       "reviewRunId": "B-f1d3:RR-008",
       "_hash": "897ea123c37ee5268b8e4ac735c4e82a4e32273a7ae6364cc58e3c7f6b4d82cb"
+    },
+    {
+      "id": "B-f1d3:RP-005",
+      "agent": "koala-review-concept",
+      "note": "Reviewed Lattice-lifecycle-memory-Evolving.md after findings F-001/F-003. The test matrix at line 85 now uses phase-agnostic owner/worktree/cwd lifecycle language for koala session_brief, which matches the current REVIEW state, and the document still preserves host-neutral authority boundaries by keeping host outputs non-authoritative and Lattice in charge of story/scope/receipt/merge authority.",
+      "createdAt": "2026-06-08T10:07:58.955Z",
+      "reviewRound": "2026-06-08T10:04:53.633Z",
+      "reviewRunId": "B-f1d3:RR-006",
+      "_hash": "7f1e220aefe081449fd1c45611e46494b0995390dddfeac37a70a5b0e1693ffc"
     }
   ]
 }
