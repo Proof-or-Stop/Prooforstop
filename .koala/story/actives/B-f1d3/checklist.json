@@ -1,0 +1,56 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "完成三方 Host 分析证据采集",
+      "context": "分别获取两个 Claude CLI 视角和 Codex CLI host 视角，对附件能力、现有 Lattice 能力、host-neutral 边界和真实缺口进行独立判断；该 item 的完成信号是本地可引用的多 host 分析 artifact/摘要，而不是最终方案文档本身。",
+      "relatedDocs": [
+        "docs/requirements/decisions/dev-memory.md",
+        "docs/requirements/decisions/lattice-parallel-wave.md",
+        "docs/requirements/decisions/host-overflow.md",
+        "docs/requirements/decisions/host-neutral-observability-console.md",
+        "docs/requirements/decisions/project-vision.md",
+        "docs/requirements/decisions/stack-layering.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "多 Host 分析摘要明确列出 Claude-A、Claude-B、Codex 三方结论及分歧点。"
+    },
+    {
+      "id": "CHK-002",
+      "title": "完成 Lattice 当前能力与真实缺口判断",
+      "context": "基于附件、三方 host 分析、现有真相源和代码 surface，判断哪些能力已经存在、哪些只是命名/叙事差异、哪些是真实 correctness 或逻辑一致性缺口；明确排除任意优化和未授权 authority 扩张。",
+      "relatedDocs": [
+        "docs/requirements/decisions/dev-memory.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-completeness.md",
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/truth-source.md",
+        "docs/requirements/decisions/host-overflow.md",
+        "docs/requirements/decisions/lattice-parallel-wave.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "能力对比结论能说明可行/不可行、已有能力、真实缺口、非目标项。"
+    },
+    {
+      "id": "CHK-003",
+      "title": "产出执行方案文档与测试策略",
+      "context": "在完成高风险 PLAN 的 understanding/decision/preMortem 和 verificationIntent 准备后，将可行性判断、阶段化实施方案、测试/验证矩阵、文档落点写入 Lattice-lifecycle-memory-Evolving.md；方案必须保持 gate evidence authority 与 dev-memory advisory boundary 的一致性。",
+      "relatedDocs": [
+        "docs/requirements/decisions/dev-memory.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-completeness.md",
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/truth-source.md",
+        "docs/requirements/decisions/project-vision.md"
+      ],
+      "userSees": "仓库根目录出现 Lattice-lifecycle-memory-Evolving.md，内容包含可行性结论、分阶段执行方案和测试矩阵。",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
