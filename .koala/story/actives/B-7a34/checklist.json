@@ -55,9 +55,9 @@
           "command": "npm --prefix packages/main run test:review-loop-smoke",
           "result": "pass",
           "note": "review-loop-smoke 37/37 passed; start records, latest status derivation, JSONL storage, and handler status projection cover persisted story-scoped loop state.",
-          "headHash": "197374343d25287f36e1407b69112d40fc634a64",
-          "materialHash": "6f7a04f57e4185459cdf5d5ba828a5e28a85b760434e341b759d69dd60342ccf",
-          "timestamp": "2026-06-08T14:03:44.570Z"
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -65,9 +65,9 @@
           "command": "npm --prefix packages/main run test:review-loop-smoke",
           "result": "pass",
           "note": "Smoke covers empty trigger rejection and strict malformed review-loops.jsonl parsing, proving invalid input does not silently write usable loop state.",
-          "headHash": "197374343d25287f36e1407b69112d40fc634a64",
-          "materialHash": "6f7a04f57e4185459cdf5d5ba828a5e28a85b760434e341b759d69dd60342ccf",
-          "timestamp": "2026-06-08T14:03:44.605Z"
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -75,9 +75,9 @@
           "command": "npm --prefix packages/main run test:review-loop-smoke",
           "result": "pass",
           "note": "Smoke asserts reusableLearning remains reflection context only and is not promoted to top-level evidence, review pass, validation, or authority fields.",
-          "headHash": "197374343d25287f36e1407b69112d40fc634a64",
-          "materialHash": "6f7a04f57e4185459cdf5d5ba828a5e28a85b760434e341b759d69dd60342ccf",
-          "timestamp": "2026-06-08T14:03:44.639Z"
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
         }
       ]
     },
@@ -140,9 +140,9 @@
           "command": "node packages/main/dist/cli.js review_loop_start --help && node packages/main/dist/cli.js review_loop_status --help && node packages/main/dist/cli.js review_loop_close --help",
           "result": "pass",
           "note": "CLI help exists for review_loop commands and describes recording/read-only behavior without host execution.",
-          "headHash": "1458278cd9176fb847066a3babcbf0a18b595620",
-          "materialHash": "6f7a04f57e4185459cdf5d5ba828a5e28a85b760434e341b759d69dd60342ccf",
-          "timestamp": "2026-06-08T14:04:01.504Z"
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -150,9 +150,9 @@
           "command": "node -e import(\"./packages/main/dist/core/config.js\").then(({isCommandAllowed})=>{const phases=[\"INIT\",\"INIT_CHECK\",\"PLAN\",\"DEV\",\"REVIEW\",\"TEST\",\"DONE\"]; for(const cmd of [\"review_loop_start\",\"review_loop_iteration_add\",\"review_loop_close\",\"review_loop_status\",\"review_loop_policy_show\"]) console.log(cmd, phases.filter(p=>isCommandAllowed(cmd,p)).join(\",\"));})",
           "result": "pass",
           "note": "Phase probe showed start/iteration_add/close are REVIEW-only, while status/policy_show are available in all phases.",
-          "headHash": "1458278cd9176fb847066a3babcbf0a18b595620",
-          "materialHash": "6f7a04f57e4185459cdf5d5ba828a5e28a85b760434e341b759d69dd60342ccf",
-          "timestamp": "2026-06-08T14:04:01.534Z"
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -160,9 +160,9 @@
           "command": "npm --prefix packages/main run test:review-loop-smoke",
           "result": "pass",
           "note": "Smoke asserts no productionDone, authorityChanged, receiptVerified, or receiptRefs fields exist on review loop records.",
-          "headHash": "1458278cd9176fb847066a3babcbf0a18b595620",
-          "materialHash": "6f7a04f57e4185459cdf5d5ba828a5e28a85b760434e341b759d69dd60342ccf",
-          "timestamp": "2026-06-08T14:04:01.564Z"
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
         }
       ]
     },
@@ -221,9 +221,9 @@
           "command": "npm --prefix packages/main run test:review-loop-smoke",
           "result": "pass",
           "note": "Smoke covers open loop blocking runReviewLoopGate and getGuardFailureReason with loopId, decision, and nextAction in the TEST blocker message.",
-          "headHash": "91346f3966fc05cfd4f8dbfd379188e7d553137b",
-          "materialHash": "6f7a04f57e4185459cdf5d5ba828a5e28a85b760434e341b759d69dd60342ccf",
-          "timestamp": "2026-06-08T14:04:16.781Z"
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -231,9 +231,9 @@
           "command": "npm --prefix packages/main run test:review-loop-smoke",
           "result": "pass",
           "note": "Smoke covers resolved close invariants: resolved close requires resolved/superseding evidence refs and a current materialHash before handler acceptance.",
-          "headHash": "91346f3966fc05cfd4f8dbfd379188e7d553137b",
-          "materialHash": "6f7a04f57e4185459cdf5d5ba828a5e28a85b760434e341b759d69dd60342ccf",
-          "timestamp": "2026-06-08T14:04:16.809Z"
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -241,9 +241,9 @@
           "command": "npm --prefix packages/main run test:review-loop-smoke",
           "result": "pass",
           "note": "Smoke confirms blocked/escalated close records clear only the loop gate and do not create review pass, validation, production, or authority fields; other lifecycle gates remain separate.",
-          "headHash": "91346f3966fc05cfd4f8dbfd379188e7d553137b",
-          "materialHash": "6f7a04f57e4185459cdf5d5ba828a5e28a85b760434e341b759d69dd60342ccf",
-          "timestamp": "2026-06-08T14:04:16.837Z"
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
         }
       ]
     },
@@ -304,9 +304,9 @@
           "command": "npm run build && npm --prefix packages/main run test:review-loop-smoke",
           "result": "pass",
           "note": "Build passed and review-loop-smoke reported 37 passed, 0 failed across policy helpers, gate behavior, status JSON, duplicate loopId, and no-authority assertions.",
-          "headHash": "3abef67174d485c6a3b5c8a4a51cfaf8f3fd494a",
-          "materialHash": "6f7a04f57e4185459cdf5d5ba828a5e28a85b760434e341b759d69dd60342ccf",
-          "timestamp": "2026-06-08T14:04:30.494Z"
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -314,9 +314,9 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Process fact contract output registered review_loop_start/iteration_add/close as L4 gate-evidence and review_loop_status/policy_show as L0; remaining script failure was pre-existing autopilot_* and release_approve_push drift, with no review_loop failure entries.",
-          "headHash": "3abef67174d485c6a3b5c8a4a51cfaf8f3fd494a",
-          "materialHash": "6f7a04f57e4185459cdf5d5ba828a5e28a85b760434e341b759d69dd60342ccf",
-          "timestamp": "2026-06-08T14:04:30.522Z"
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -324,9 +324,9 @@
           "command": "npm --prefix packages/main run test:review-loop-smoke",
           "result": "pass",
           "note": "Smoke proves review_loop records do not execute hosts, perform rollback, auto-merge, auto-DONE, or set authority/receipt fields; rollback and handoff remain hints only.",
-          "headHash": "3abef67174d485c6a3b5c8a4a51cfaf8f3fd494a",
-          "materialHash": "6f7a04f57e4185459cdf5d5ba828a5e28a85b760434e341b759d69dd60342ccf",
-          "timestamp": "2026-06-08T14:04:30.549Z"
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
         }
       ]
     },
@@ -378,9 +378,9 @@
           "command": "Claude CLI host A + Claude CLI host B + Codex CLI focused re-audit",
           "result": "pass",
           "note": "Two Claude CLI lanes and one Codex CLI lane performed read-only review. Final re-audit PASS from all three; no unresolved must-fix correctness issue remained.",
-          "headHash": "52b61f7689fbf1665f539ee2abf9bafa23db3e15",
-          "materialHash": "6f7a04f57e4185459cdf5d5ba828a5e28a85b760434e341b759d69dd60342ccf",
-          "timestamp": "2026-06-08T14:04:41.554Z"
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -388,9 +388,9 @@
           "command": "Codex CLI first audit and follow-up fix review",
           "result": "pass",
           "note": "Codex reported three real correctness findings: resolved close invariant, duplicate explicit loopId/status inconsistency, and --outcome hint drift. All were fixed, tested, and Codex re-audit returned PASS.",
-          "headHash": "52b61f7689fbf1665f539ee2abf9bafa23db3e15",
-          "materialHash": "6f7a04f57e4185459cdf5d5ba828a5e28a85b760434e341b759d69dd60342ccf",
-          "timestamp": "2026-06-08T14:04:41.584Z"
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -398,9 +398,9 @@
           "command": "Multi-host disagreement policy application",
           "result": "pass",
           "note": "Advisory-only notes were not implemented unless tied to source-grounded correctness. The accepted changes were limited to executable correctness and logic consistency.",
-          "headHash": "52b61f7689fbf1665f539ee2abf9bafa23db3e15",
-          "materialHash": "6f7a04f57e4185459cdf5d5ba828a5e28a85b760434e341b759d69dd60342ccf",
-          "timestamp": "2026-06-08T14:04:41.612Z"
+          "headHash": "61b34cf6b69080f659c1259b1e48e6dc7530d490",
+          "materialHash": "48c69fc38a8faf46e69e33727f48a16fde62154eb255e3078db92a99c4f20807",
+          "timestamp": "2026-06-08T14:11:15.098Z"
         }
       ]
     }
