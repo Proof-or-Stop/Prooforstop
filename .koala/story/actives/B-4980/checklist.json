@@ -10,9 +10,9 @@
         "docs/requirements/decisions/truth-source.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-08T14:55:16.935Z",
-      "endTime": null,
+      "endTime": "2026-06-08T14:57:46.138Z",
       "userSees": "\"MemoryScore = 25 * HistoricalRetrievalScore + 25 * ExactAnswerHit + 25 * EvidenceLinkageRate + 15 * LayerRoutingAccuracy + 10 * ScaleStabilityScore\" appears in Lattice-lifecycle-memory-Evolving.md, and HistoricalRetrievalScore includes exact recall@1, recall@10, MRR@10, and precision@10.",
       "files": {
         "modify": [
@@ -45,7 +45,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"MemoryScore \\(100-point baseline\\)|HistoricalRetrievalScore =|exact recall@1 \\+ recall@10 \\+ MRR@10 \\+ precision@10|QualityScore =|25 \\* HistoricalRetrievalScore|25 \\* ExactAnswerHit|25 \\* EvidenceLinkageRate|15 \\* LayerRoutingAccuracy|10 \\* ScaleStabilityScore\" Lattice-lifecycle-memory-Evolving.md",
+          "result": "pass",
+          "note": "MemoryScore section is present; HistoricalRetrievalScore includes exact recall@1, recall@10, MRR@10, and precision@10; QualityScore and MemoryScore weights are present.",
+          "headHash": "0b55c962e4ddab831207cad26fa39f48c1682c3f",
+          "materialHash": "3ba69a6cda118b53d173ffe84425564af8d7993baf055c430e954fe2970021a1",
+          "timestamp": "2026-06-08T14:57:46.171Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"exact recall@1.*1\\.0|recall@10.*0\\.90|MRR@10.*0\\.75|precision@10.*0\\.70|10,000.*>= 92|100,000.*>= 90|1,000,000.*>= 86\" Lattice-lifecycle-memory-Evolving.md",
+          "result": "pass",
+          "note": "The original contract thresholds remain visible, and 10k/100k/1M MemoryScore thresholds are documented.",
+          "headHash": "0b55c962e4ddab831207cad26fa39f48c1682c3f",
+          "materialHash": "3ba69a6cda118b53d173ffe84425564af8d7993baf055c430e954fe2970021a1",
+          "timestamp": "2026-06-08T14:57:46.202Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"MemoryScore is not Koala lifecycle truth|Benchmark PASS can only be future implementation validation evidence|million-candidate harness\" Lattice-lifecycle-memory-Evolving.md; git show --check --stat --oneline HEAD -- Lattice-lifecycle-memory-Evolving.md",
+          "result": "pass",
+          "note": "The scoring formula is explicitly bounded as future validation evidence only, and the committed document patch has no git show --check issues.",
+          "headHash": "0b55c962e4ddab831207cad26fa39f48c1682c3f",
+          "materialHash": "3ba69a6cda118b53d173ffe84425564af8d7993baf055c430e954fe2970021a1",
+          "timestamp": "2026-06-08T14:57:46.228Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
