@@ -1,0 +1,43 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "定义 benchmark 输入输出契约",
+      "context": "新增 memory benchmark harness 的用户可见契约：输入包含 candidateCount/queryCount/seed/tier，输出包含 recall@10、MRR@10、precision@10、exact recall@1、ExactAnswerHit、EvidenceLinkageRate、LayerRoutingAccuracy、ScaleStabilityScore、MemoryScore、hard fail 计数和 tier 判定。多 host 审查作为 evidence，不作为 checklist 交付项。",
+      "relatedDocs": [
+        "Lattice-lifecycle-memory-Evolving.md",
+        "docs/requirements/decisions/dev-memory.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "实现 deterministic benchmark engine 和 CLI",
+      "context": "实现本地 deterministic benchmark engine / CLI 命令，能生成 lifecycle-style corpus、gold queries 和检索结果，并机械计算 MemoryScore。该 item 不负责 10k/100k/1M 对比表，只负责单次 benchmark run 可执行、可输出 JSON、可追溯 source evidence。",
+      "relatedDocs": [
+        "Lattice-lifecycle-memory-Evolving.md",
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/truth-source.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "提供 scale tier 对比报告入口",
+      "context": "提供 10k/100k/1M scale tier comparison command/report，能基于同一 harness 输出同一 schema 的分数、阈值、hard fail 和 tier verdict。测试和 verificationEvidence 会验证该 item，但交付项本身是对比报告入口；单次 run engine 仍由 CHK-002 负责。覆盖 boundary-only layers、staleTruthHit、非权威边界和不把 benchmark score 当作 Koala gate evidence。",
+      "relatedDocs": [
+        "Lattice-lifecycle-memory-Evolving.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/host-overflow.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

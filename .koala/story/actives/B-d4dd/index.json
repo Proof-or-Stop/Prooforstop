@@ -1,0 +1,31 @@
+{
+  "storyId": "B-d4dd",
+  "name": "memory-baseline-benchmark-harness",
+  "title": "实现 memory baseline benchmark harness",
+  "description": "实现真实可运行的 memory baseline benchmark harness：提供本地 deterministic lifecycle memory synthetic corpus、gold query、retrieval scoring、10k/100k/1M tier comparison 和 JSON/text report。该 harness 只证明 memory benchmark scoring 与召回百分比计算可执行，不把分数写成 Koala lifecycle gate authority，也不修改现有 DONE/REVIEW/TEST gate 语义。",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "medium",
+  "keywords": [
+    "memory",
+    "baseline",
+    "benchmark",
+    "harness",
+    "recall",
+    "score"
+  ],
+  "createdAt": "2026-06-08T23:29:24.605Z",
+  "startedAt": "2026-06-08T23:29:24.605Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-08T23:29:24.616Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-benchmark-memory",
+      "agent": "main"
+    }
+  ]
+}
