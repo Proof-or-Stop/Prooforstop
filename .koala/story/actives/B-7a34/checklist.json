@@ -175,9 +175,9 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-08T14:04:16.746Z",
       "userSees": "当 REVIEW 阶段存在 open loop 时，用户运行 `lattice story_advance --storyId=B-xxxx --phase=TEST` 会看到 `Cannot enter TEST` 和 active review loop 的 loopId/decision/nextAction。",
       "files": {
         "modify": [
@@ -213,7 +213,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:review-loop-smoke",
+          "result": "pass",
+          "note": "Smoke covers open loop blocking runReviewLoopGate and getGuardFailureReason with loopId, decision, and nextAction in the TEST blocker message.",
+          "headHash": "91346f3966fc05cfd4f8dbfd379188e7d553137b",
+          "materialHash": "6f7a04f57e4185459cdf5d5ba828a5e28a85b760434e341b759d69dd60342ccf",
+          "timestamp": "2026-06-08T14:04:16.781Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:review-loop-smoke",
+          "result": "pass",
+          "note": "Smoke covers resolved close invariants: resolved close requires resolved/superseding evidence refs and a current materialHash before handler acceptance.",
+          "headHash": "91346f3966fc05cfd4f8dbfd379188e7d553137b",
+          "materialHash": "6f7a04f57e4185459cdf5d5ba828a5e28a85b760434e341b759d69dd60342ccf",
+          "timestamp": "2026-06-08T14:04:16.809Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:review-loop-smoke",
+          "result": "pass",
+          "note": "Smoke confirms blocked/escalated close records clear only the loop gate and do not create review pass, validation, production, or authority fields; other lifecycle gates remain separate.",
+          "headHash": "91346f3966fc05cfd4f8dbfd379188e7d553137b",
+          "materialHash": "6f7a04f57e4185459cdf5d5ba828a5e28a85b760434e341b759d69dd60342ccf",
+          "timestamp": "2026-06-08T14:04:16.837Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
