@@ -56,13 +56,15 @@
       "desc": ".koala/story/actives/B-4980/checklist.json:61 refreshed CHK-001 verificationEvidence covers thresholds and authority wording, but it never asserts the new hard-fail taxonomy entry at Lattice-lifecycle-memory-Evolving.md:218 (`staleTruthHit`). Expanded formula, boundary-only labels, and non-authority wording are covered elsewhere, but this missing docs_check leaves the refreshed evidence incomplete for the added failure taxonomy. severity: medium",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-06-08T15:10:24.092Z",
       "reviewRound": "2026-06-08T15:07:31.590Z",
       "reviewRunId": "B-4980:RR-010",
-      "_hash": "1b4a99e55c5feaabd25fc66d443da10f8b7429c37b39386d37b6a10b30a39668"
+      "_hash": "1b4a99e55c5feaabd25fc66d443da10f8b7429c37b39386d37b6a10b30a39668",
+      "resolvedReason": "Added explicit CHK-001:edge:0 docs_check evidence for staleTruthHit taxonomy via verification_evidence_add.",
+      "resolvedAt": "2026-06-08T15:11:48.810Z"
     }
   ]
 }
