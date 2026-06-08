@@ -86,9 +86,9 @@
         "docs/requirements/decisions/testing-infra.md",
         "docs/requirements/decisions/truth-source.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-08T13:12:45.566Z",
-      "endTime": null,
+      "endTime": "2026-06-08T13:19:31.392Z",
       "userSees": "\"Lattice-lifecycle-memory-Evolving.md includes a baseline/scoring/1M recall contract without adding storage/provider implementation.\"",
       "files": {
         "modify": [
@@ -119,7 +119,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Memory Recall Validation Contract|Corpus|Query Set|recall@10|MRR@10|1,000,000|authorityLeakCount|gateEvidence:false|non_authoritative|productionDone:false|auto-DONE\" Lattice-lifecycle-memory-Evolving.md",
+          "result": "pass",
+          "note": "Document now contains the future Memory Recall Validation Contract with corpus/data sources, excluded sources, query families, contract scoring, tiers including 1,000,000 candidates, authority boundary terms, and non-goals.",
+          "headHash": "0428b81fa73440a1257ac9c8a5b06f0a72176e11",
+          "materialHash": "47cf20257affd205dd0cea52531cd7585b85525af3c256c0f495823031108019",
+          "timestamp": "2026-06-08T13:19:31.440Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"future implementation prerequisite|stress-only|not current|Koala REVIEW / TEST / DONE gate evidence|storage engine|benchmark runner|vector DB|SQLite/DuckDB|external provider|embedding model\" Lattice-lifecycle-memory-Evolving.md",
+          "result": "pass",
+          "note": "1,000,000 candidates are documented as stress-only future validation, not a current harness, current implementation, backend selection, or production guarantee.",
+          "headHash": "0428b81fa73440a1257ac9c8a5b06f0a72176e11",
+          "materialHash": "47cf20257affd205dd0cea52531cd7585b85525af3c256c0f495823031108019",
+          "timestamp": "2026-06-08T13:19:31.475Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"productionDone:true|gateEvidence:true|Gate meaning|hard gate\" Lattice-lifecycle-memory-Evolving.md || true; git diff --check -- Lattice-lifecycle-memory-Evolving.md",
+          "result": "pass",
+          "note": "No positive productionDone:true or gateEvidence:true wording remains; gate-like wording was reduced to contract-level checks. diff check passed after commit 0428b81f.",
+          "headHash": "0428b81fa73440a1257ac9c8a5b06f0a72176e11",
+          "materialHash": "47cf20257affd205dd0cea52531cd7585b85525af3c256c0f495823031108019",
+          "timestamp": "2026-06-08T13:19:31.510Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
