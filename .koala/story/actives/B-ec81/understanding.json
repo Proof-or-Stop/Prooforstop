@@ -1,0 +1,30 @@
+{
+  "task": "复查并补齐 Lattice lifecycle memory 文档的 baseline/scoring/1M recall 执行口径",
+  "outcome": "用户打开 Lattice-lifecycle-memory-Evolving.md 后，可以看到第二轮三 Host 复查结论，以及 memory baseline、评分机制、100 万数据召回压测、阈值和非目标说明。",
+  "facts": [
+    "B-f1d3 已新增 Lattice-lifecycle-memory-Evolving.md，并明确 lifecycle memory 可行形态是 host-neutral lifecycle projection / contract layer。",
+    "现有文档已排除 SQLite/vector DB/external provider、auto-DONE、automatic skill replay 和 authority 扩张。",
+    "dev-memory truth source 明确 dev-memory 是 non-authoritative context，gateEvidence 永远 false，不替代 verificationEvidence 或 gate evidence。",
+    "当前文档缺少 memory baseline、评分机制、1M recall 压测和通过/失败阈值，这会影响后续 memory 能力是否可执行验证。",
+    "用户明确要求再次用 2 个 Claude CLI 和 Codex CLI host 多 Agent 检查当前文档是否可执行。"
+  ],
+  "constraints": [
+    "不为了优化而优化。",
+    "不任意优化。",
+    "只修真实 correctness issue。",
+    "保持 host-neutral 和 authority 逻辑一致。",
+    "本 story 只更新文档方案和验证证据，不实现存储、召回引擎、数据库、daemon 或 adapter。",
+    "Claude/Codex host 输出只作 advisory/manual transcript，不进入 production authority。"
+  ],
+  "unknowns": [
+    "三 Host 复查是否一致认为 baseline/scoring 缺失是当前文档可执行性真实 gap。",
+    "1M recall benchmark 在文档中需要多具体才能可执行但不越界为实现承诺。"
+  ],
+  "touchpoints": [
+    "Lattice-lifecycle-memory-Evolving.md",
+    ".omx/artifacts/lifecycle-memory-baseline-claude-a-B-ec81.md",
+    ".omx/artifacts/lifecycle-memory-baseline-claude-b-B-ec81.md",
+    ".omx/artifacts/lifecycle-memory-baseline-codex-B-ec81.md"
+  ],
+  "timestamp": "2026-06-08T12:54:47.847Z"
+}
