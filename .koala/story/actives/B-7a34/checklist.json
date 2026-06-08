@@ -9,9 +9,9 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/lifecycle-artifact-scope.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-08T14:03:44.505Z",
       "userSees": "用户运行 `lattice review_loop_status --storyId=B-xxxx --json` 后看到 `records`、`latest.status` 和 `active` 字段来自 story-scoped review-loops artifact。",
       "files": {
         "modify": [
@@ -47,7 +47,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:review-loop-smoke",
+          "result": "pass",
+          "note": "review-loop-smoke 37/37 passed; start records, latest status derivation, JSONL storage, and handler status projection cover persisted story-scoped loop state.",
+          "headHash": "197374343d25287f36e1407b69112d40fc634a64",
+          "materialHash": "6f7a04f57e4185459cdf5d5ba828a5e28a85b760434e341b759d69dd60342ccf",
+          "timestamp": "2026-06-08T14:03:44.570Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:review-loop-smoke",
+          "result": "pass",
+          "note": "Smoke covers empty trigger rejection and strict malformed review-loops.jsonl parsing, proving invalid input does not silently write usable loop state.",
+          "headHash": "197374343d25287f36e1407b69112d40fc634a64",
+          "materialHash": "6f7a04f57e4185459cdf5d5ba828a5e28a85b760434e341b759d69dd60342ccf",
+          "timestamp": "2026-06-08T14:03:44.605Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:review-loop-smoke",
+          "result": "pass",
+          "note": "Smoke asserts reusableLearning remains reflection context only and is not promoted to top-level evidence, review pass, validation, or authority fields.",
+          "headHash": "197374343d25287f36e1407b69112d40fc634a64",
+          "materialHash": "6f7a04f57e4185459cdf5d5ba828a5e28a85b760434e341b759d69dd60342ccf",
+          "timestamp": "2026-06-08T14:03:44.639Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
