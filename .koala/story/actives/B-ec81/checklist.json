@@ -105,7 +105,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "\"Validation confirms the updated document is executable, benchmark-focused, and keeps memory/host outputs non-authoritative.\"",
+      "files": {
+        "modify": [
+          "Lattice-lifecycle-memory-Evolving.md"
+        ],
+        "create": [],
+        "test": [
+          "Lattice-lifecycle-memory-Evolving.md"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "docs_check 命令能定位 baseline/scoring/1M recall、阈值、测试矩阵和非目标关键词。",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "验证路径必须说明 benchmark PASS 只是 future implementation validation，不能替代 Koala validation evidence、review pass、delivery check 或 receipt。",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "最终 validate 与 reviewer 检查必须确认文档没有把 dev-memory、host transcript 或 benchmark score 当成 gate evidence。",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
