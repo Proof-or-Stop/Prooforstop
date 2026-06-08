@@ -12,7 +12,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Lattice-lifecycle-memory-Evolving.md shows a 100-point MemoryScore formula where exact recall@1, recall@10, MRR@10, and precision@10 are included inside the historical retrieval component.",
+      "files": {
+        "modify": [
+          "Lattice-lifecycle-memory-Evolving.md"
+        ],
+        "create": [],
+        "test": [
+          "Lattice-lifecycle-memory-Evolving.md"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "文档新增 MemoryScore 100 分公式，并把 exact recall@1、recall@10、MRR@10、precision@10 纳入 HistoricalRetrievalScore 子项。",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "公式必须保留原有阈值语义：exact recall@1 目标 1.0，recall@10 >= 0.90，MRR@10 >= 0.75，precision@10 >= 0.70；低于阈值仍是 contract-level fail。",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "新增权重不得把 retrieval 分数或 benchmark score 升格为 Koala lifecycle truth、validation evidence 或 production authority。",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
