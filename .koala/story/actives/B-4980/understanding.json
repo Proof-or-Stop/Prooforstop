@@ -1,0 +1,21 @@
+{
+  "task": "在 Lattice lifecycle memory 文档中补齐 100 分制 memory baseline 评分公式。",
+  "outcome": "用户打开 Lattice-lifecycle-memory-Evolving.md 后，可以直接看到 MemoryScore = 25*HistoricalExactRecall@10 + 25*ExactAnswerHit + 25*EvidenceLinkageRate + 15*LayerRoutingAccuracy + 10*ScaleStabilityScore，并看到 10k/100k/1M 阈值与 score 不能替代 lifecycle truth 的边界说明，然后能说：好了，这个 baseline 能证明记忆能力如何计分。",
+  "facts": [
+    "当前文档已有 Memory Recall Validation Contract、Scoring and thresholds、Tiers、Failure taxonomy 与 Contract boundary。",
+    "用户明确同意细化评分 baseline，目标是验证记忆能力，而不是随意优化。",
+    "新增内容应覆盖历史精确召回、精确答案命中、证据关联、6 层记忆路由、规模稳定性。",
+    "100 万数据应保持 stress-only，不代表当前已实现 harness。"
+  ],
+  "constraints": [
+    "只修改 Lattice-lifecycle-memory-Evolving.md 和 Koala story metadata。",
+    "不实现 benchmark runner、storage engine、vector DB、embedding model 或 external provider。",
+    "MemoryScore 不得替代 Koala lifecycle truth、review pass、validation evidence、delivery check、receipt 或 production authority。",
+    "权重应解释为 baseline 初始权重，后续只有基于真实数据或 future story 才能调整。"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "Lattice-lifecycle-memory-Evolving.md"
+  ],
+  "timestamp": "2026-06-08T14:51:44.564Z"
+}

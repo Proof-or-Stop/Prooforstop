@@ -1,0 +1,67 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-06-08T14:52:54.839Z",
+      "issueCount": 6,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees 可能太抽象（未包含引号括起来的具体输出文本）。应该写用户看到的精确文字，不是\"功能正常工作\"这类描述"
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 userSees 可能太抽象（未包含引号括起来的具体输出文本）。应该写用户看到的精确文字，不是\"功能正常工作\"这类描述"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 个 checklist item，请检查是否有组合场景遗漏（如：补充 MemoryScore 100 分制计算公式 + 补充评分结果的权威边界说明 同时操作会怎样？）"
+        },
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "1 个 risk signal 已被主 agent 驳回（理由见 story.riskSignalsDismissed）: 生产环境/紧急"
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "advisory",
+          "message": "未找到 plan.md。正常通道建议写 plan.md 明确执行顺序和依赖"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "未跑 scope check。请先启动 koala-review-scope-plan agent，agent 会自动调 scope_check_save 写入结果"
+        }
+      ],
+      "_hash": "ca6ad643864f91d028da0dca0d9ca98a9e018e5f1cfe086400ef091ee3c44676"
+    },
+    {
+      "timestamp": "2026-06-08T14:54:57.527Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 个 checklist item，请检查是否有组合场景遗漏（如：补充 MemoryScore 100 分制计算公式 + 补充评分结果的权威边界说明 同时操作会怎样？）"
+        },
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "1 个 risk signal 已被主 agent 驳回（理由见 story.riskSignalsDismissed）: 生产环境/紧急"
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "advisory",
+          "message": "未找到 plan.md。正常通道建议写 plan.md 明确执行顺序和依赖"
+        }
+      ],
+      "_hash": "74e1965332d1b2564653074dbe55f473f2709f540f42b9cf829df07fc264511f"
+    }
+  ]
+}

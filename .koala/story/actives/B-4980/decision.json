@@ -1,0 +1,46 @@
+{
+  "principles": [
+    "只修文档中真实缺失的评分可执行性，不扩大实现范围。",
+    "评分必须证明记忆能力的 correctness，而不是优化展示效果。",
+    "权威边界优先于总分，任何越权都应先 hard fail。"
+  ],
+  "drivers": [
+    "用户需要知道如何用 10 万和 100 万候选验证 Lattice 记忆是否真的找得回、答得准、能举证。",
+    "当前文档的 scoring section 缺少完整 100 分制权重和示例公式。"
+  ],
+  "options": [
+    {
+      "name": "A: 加入 100 分制 MemoryScore 权重模型",
+      "pros": [
+        "直接回应用户对分数和权重的要求。",
+        "保留 hard fail 门禁，避免高分掩盖权威泄漏。",
+        "不需要实现 harness 或 backend。"
+      ],
+      "cons": [
+        "权重是初始 baseline，需要说明后续只能用真实数据校准。"
+      ]
+    },
+    {
+      "name": "B: 只保留 recall/MRR/precision 阈值",
+      "pros": [
+        "改动更少。",
+        "延续当前文档结构。"
+      ],
+      "cons": [
+        "不能回答用户关于几分权重和如何验证记忆能力的问题。",
+        "缺少 6 层记忆路由与规模稳定性的计分表达。"
+      ]
+    }
+  ],
+  "chosen": "A: 加入 100 分制 MemoryScore 权重模型",
+  "rationale": "选择 A，因为它补齐当前文档的真实可执行性缺口，同时通过 hard fail 和 future-only 边界避免任意优化或生产授权扩张。",
+  "preMortem": [
+    {
+      "scenario": "新增权重被误读为生产门禁",
+      "trigger": "文案没有说明 future baseline 与 Koala lifecycle gate 的区别",
+      "consequence": "benchmark score 被误当成权威证据",
+      "mitigation": "在评分段旁边加入 score boundary，列明不能替代 lifecycle truth、review pass、validation evidence、delivery check、receipt 或 production authority。"
+    }
+  ],
+  "timestamp": "2026-06-08T14:51:58.063Z"
+}

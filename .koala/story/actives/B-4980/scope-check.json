@@ -1,0 +1,45 @@
+{
+  "storyId": "B-4980",
+  "checkedAt": "2026-06-08T14:54:40.382Z",
+  "features": [
+    {
+      "feature": "MemoryScore 100-point formula",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "Lattice-lifecycle-memory-Evolving.md + B-4980 checklist"
+    },
+    {
+      "feature": "HistoricalRetrievalScore includes exact recall@1/recall@10/MRR@10/precision@10",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "Lattice-lifecycle-memory-Evolving.md + B-4980 checklist"
+    },
+    {
+      "feature": "Score boundary: MemoryScore cannot replace lifecycle truth/review pass/validation evidence/delivery check/receipt/production authority",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "Lattice-lifecycle-memory-Evolving.md + docs/requirements/decisions/dev-memory.md + docs/requirements/decisions/truth-source.md + docs/requirements/decisions/testing-completeness.md + docs/requirements/decisions/host-overflow.md + docs/requirements/decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "Benchmark harness/storage/provider implementation",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "story constraints",
+      "source": "Story scope excludes harness, storage engine, vector DB, embedding model, and external provider"
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "covered": 3,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "12b8b8d488fb942aebe2b2d81275d9bc1ee21214f83e2516ac231c6e2d06aa00",
+  "openQuestions": []
+}

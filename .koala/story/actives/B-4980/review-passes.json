@@ -1,0 +1,85 @@
+{
+  "passes": [
+    {
+      "id": "B-4980:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "reviewed CHK-001 and CHK-002: verified the coverage intents map to the added MemoryScore formula, threshold semantics, and authority-boundary wording in Lattice-lifecycle-memory-Evolving.md; no blocker found.",
+      "createdAt": "2026-06-08T15:00:32.652Z",
+      "reviewRound": "2026-06-08T14:58:20.832Z",
+      "reviewRunId": "B-4980:RR-002",
+      "_hash": "dc42ab4c5ce306c789ab99749a9de28c2d6456f86af0c08bc791e89cc2c93695"
+    },
+    {
+      "id": "B-4980:RP-002",
+      "agent": "koala-review-docs",
+      "note": "reviewed CHK-001 and CHK-002: the MemoryScore baseline, hard-fail conditions, and authority boundary language are consistent with dev-memory, truth-source, story-lifecycle, and host-overflow decisions; no blocker found.",
+      "createdAt": "2026-06-08T15:00:34.990Z",
+      "reviewRound": "2026-06-08T14:58:20.832Z",
+      "reviewRunId": "B-4980:RR-001",
+      "_hash": "98cabd63e42acb5c817419ef530b4ffbd31c6fc22a5f71539ff311905103f55e"
+    },
+    {
+      "id": "B-4980:RP-003",
+      "agent": "koala-review-quality",
+      "note": "reviewed CHK-001 and CHK-002: MemoryScore scoring formula, thresholds, and authority boundary wording in Lattice-lifecycle-memory-Evolving.md match the checklist context and I found no blocker.",
+      "createdAt": "2026-06-08T15:01:25.439Z",
+      "reviewRound": "2026-06-08T14:58:20.832Z",
+      "reviewRunId": "B-4980:RR-005",
+      "_hash": "b0c31fe6b933965e7a1779ffecda16bae2a2b6f7e603dc3d1fd864306df55d3a"
+    },
+    {
+      "id": "B-4980:RP-004",
+      "agent": "koala-review-concept",
+      "note": "reviewed CHK-001: verified F-001 is fixed in Lattice-lifecycle-memory-Evolving.md; advisory_memory and host_transcript_memory are now explicitly boundary-only labels and are excluded from corpus truth, gold truth, HistoricalRetrievalScore, recall, and precision. No blocker found.",
+      "createdAt": "2026-06-08T15:05:22.383Z",
+      "reviewRound": "2026-06-08T15:02:54.028Z",
+      "reviewRunId": "B-4980:RR-007",
+      "_hash": "ed96eb4d1eb5fa6ef20b5b1d237825b6e80cb432d49fadf5401fa0cbf5f67820"
+    },
+    {
+      "id": "B-4980:RP-005",
+      "agent": "koala-review-docs",
+      "note": "Reviewed CHK-001 against dev-memory, host-overflow, and story-lifecycle boundaries; MemoryScore remains advisory and does not leak into lifecycle truth, receipts, or production authority.",
+      "createdAt": "2026-06-08T15:05:33.239Z",
+      "reviewRound": "2026-06-08T15:02:54.028Z",
+      "reviewRunId": "B-4980:RR-008",
+      "_hash": "621f626980721e5a884d5baf24a4ae6a2b3f92efd50aeae795733d09c66af284"
+    },
+    {
+      "id": "B-4980:RP-006",
+      "agent": "koala-review-test-coverage",
+      "note": "reviewed CHK-001: verificationEvidence covers the 100-point MemoryScore formula, original threshold semantics, the F-001 boundary-only layer routing fix, and the non-authoritative boundary. Evidence headHash is 86f48516 while current HEAD is 184013ab, but the target document is unchanged across that metadata-only head advance, so I found no blocker.",
+      "createdAt": "2026-06-08T15:05:51.462Z",
+      "reviewRound": "2026-06-08T15:02:54.028Z",
+      "reviewRunId": "B-4980:RR-006",
+      "_hash": "36fa807d64bafdd4c0c0da37f5652b987a6ea8c07672e1bf6027be5aa2bc9773"
+    },
+    {
+      "id": "B-4980:RP-007",
+      "agent": "koala-review-docs",
+      "note": "reviewed CHK-001: checked the scoring baseline against dev-memory, host-overflow, story-lifecycle, truth-source, and testing-completeness; found no blocker or authority-boundary mismatch.",
+      "createdAt": "2026-06-08T15:10:13.685Z",
+      "reviewRound": "2026-06-08T15:07:31.590Z",
+      "reviewRunId": "B-4980:RR-012",
+      "_hash": "1bfbc821078d62fbb82ff6e5dd04d8394a67f8ef9515048aeedb63c9267a860d"
+    },
+    {
+      "id": "B-4980:RP-008",
+      "agent": "koala-review-quality",
+      "note": "reviewed CHK-001: confirmed F-002 and F-003 are fixed. Lattice-lifecycle-memory-Evolving.md now includes the fully expanded MemoryScore equation at lines 148-153 alongside helper notation, and the stale-truth hard-fail path at line 130 is mapped into Failure taxonomy as staleTruthHit at line 218; no blocker found.",
+      "createdAt": "2026-06-08T15:10:31.995Z",
+      "reviewRound": "2026-06-08T15:07:31.590Z",
+      "reviewRunId": "B-4980:RR-013",
+      "_hash": "0c8ce81e2de703aeb489ed89e0613defbb4a360142d3902fb79d431fed2d8d6b"
+    },
+    {
+      "id": "B-4980:RP-009",
+      "agent": "koala-review-concept",
+      "note": "reviewed CHK-001 with fresh context; the 100-point MemoryScore formula, threshold semantics, and six-layer routing boundary are internally consistent. The first four layers remain scoreable lifecycle truth layers, while advisory_memory and host_transcript_memory stay boundary-only and excluded from corpus/gold/recall/precision, so no blocker found.",
+      "createdAt": "2026-06-08T15:10:49.185Z",
+      "reviewRound": "2026-06-08T15:07:31.590Z",
+      "reviewRunId": "B-4980:RR-011",
+      "_hash": "33e25fee97eee92ef290a25e3830c1e48fb21d62627821a024ad02b1a6deed93"
+    }
+  ]
+}

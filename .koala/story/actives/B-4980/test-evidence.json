@@ -1,0 +1,131 @@
+{
+  "command": "koala validate --story=B-4980 --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.5 test\",\"  > npm run test:e2e\",\"  > koala@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ℹ Reading legacy koala.config.json at /Users/jek/Documents/Work/Orchestrate/.worktrees/B-4980; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ℹ Reading legacy koala.config.json at .; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-iAnTrG; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-eyVwqt; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 6/6 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/docs] covered via docs_check — 文档新增 MemoryScore 100 分公式，并把 exact recall@1、recall@10、MRR@10、precision@10 纳入 HistoricalRetrievalScore 子项。\",\"  ✓ CHK-001:edge:0 [edge/must/docs] covered via docs_check (Lattice-lifecycle-memory-Evolving.md) — 公式必须保留原有阈值语义：exact recall@1 目标 1.0，recall@10 >= 0.90，MRR@10 >= 0.75，precision@10 >= 0.70；低于阈值仍是 contract-level fail。\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/docs] covered via docs_check — 新增权重不得把 retrieval 分数或 benchmark score 升格为 Koala lifecycle truth、validation evidence 或 production authority。\",\"  ✓ CHK-002:happy:0 [happy/must/docs] covered via docs_check — 文档在 MemoryScore 附近新增 score boundary，说明分数用于 future memory implementation recall correctness。\",\"  ✓ CHK-002:edge:0 [edge/must/docs] covered via docs_check — 文档必须说明 10k/100k/1M 的 score thresholds 是 baseline/stress validation，不代表当前已实现 million-candidate harness。\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/docs] covered via docs_check — 文档不得出现把 MemoryScore、benchmark PASS、host transcript 或 advisory memory 当成 gate evidence / production authority 的正向语义。\"],\"warnings\":[],\"timestamp\":\"2026-06-08T15:14:53.623Z\",\"headSha\":\"c159a79e56451d3a2b1ab2fadd59b228f071d7e2\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\nℹ Reading legacy koala.config.json at /Users/jek/Documents/Work/Orchestrate/.worktrees/B-4980; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\nℹ Reading legacy koala.config.json at .; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-iAnTrG; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-eyVwqt; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1060}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"express\",\"intentCount\":6,\"reason\":\"verificationIntent entries present (6)\"},\"verificationCoverage\":{\"total\":6,\"required\":6,\"covered\":6,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"文档新增 MemoryScore 100 分公式，并把 exact recall@1、recall@10、MRR@10、precision@10 纳入 HistoricalRetrievalScore 子项。\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"docs_check\",\"command\":\"rg -n \\\"MemoryScore \\\\(100-point baseline\\\\)|HistoricalRetrievalScore =|exact recall@1 \\\\+ recall@10 \\\\+ MRR@10 \\\\+ precision@10|QualityScore =|25 \\\\* HistoricalRetrievalScore|25 \\\\* ExactAnswerHit|25 \\\\* EvidenceLinkageRate|15 \\\\* LayerRoutingAccuracy|10 \\\\* ScaleStabilityScore\\\" Lattice-lifecycle-memory-Evolving.md\",\"result\":\"pass\",\"note\":\"MemoryScore section is present; HistoricalRetrievalScore includes exact recall@1, recall@10, MRR@10, and precision@10; QualityScore and MemoryScore weights are present.\",\"headHash\":\"4895766cfc272d2ffa17298d9753b751d880c7f3\",\"materialHash\":\"08b10678a2a0a1f866130d9ae4658f049de3dec8201a358ff7dfed3ef8b00483\",\"timestamp\":\"2026-06-08T15:07:56.371Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"公式必须保留原有阈值语义：exact recall@1 目标 1.0，recall@10 >= 0.90，MRR@10 >= 0.75，precision@10 >= 0.70；低于阈值仍是 contract-level fail。\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"docs_check\",\"file\":\"Lattice-lifecycle-memory-Evolving.md\",\"command\":\"rg -n \\\"exact recall@1.*1\\\\.0|recall@10.*0\\\\.90|MRR@10.*0\\\\.75|precision@10.*0\\\\.70|10,000.*>= 92|100,000.*>= 90|1,000,000.*>= 86|staleTruthHit\\\" Lattice-lifecycle-memory-Evolving.md\",\"result\":\"pass\",\"note\":\"Covers original retrieval thresholds, 10k/100k/1M MemoryScore thresholds, and the staleTruthHit failure taxonomy for current-state stale truth hard fail.\",\"headHash\":\"c4590b6f94ee76ed89c5bf0d2bc84e2d757ea8d5\",\"materialHash\":\"08b10678a2a0a1f866130d9ae4658f049de3dec8201a358ff7dfed3ef8b00483\",\"timestamp\":\"2026-06-08T15:11:48.237Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"新增权重不得把 retrieval 分数或 benchmark score 升格为 Koala lifecycle truth、validation evidence 或 production authority。\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"docs_check\",\"command\":\"rg -n \\\"MemoryScore is not Koala lifecycle truth|Benchmark PASS can only be future implementation validation evidence|million-candidate harness\\\" Lattice-lifecycle-memory-Evolving.md; git show --check --stat --oneline HEAD -- Lattice-lifecycle-memory-Evolving.md\",\"result\":\"pass\",\"note\":\"The scoring formula is explicitly bounded as future validation evidence only, and the committed document patch has no git show --check issues.\",\"headHash\":\"4895766cfc272d2ffa17298d9753b751d880c7f3\",\"materialHash\":\"08b10678a2a0a1f866130d9ae4658f049de3dec8201a358ff7dfed3ef8b00483\",\"timestamp\":\"2026-06-08T15:07:56.371Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"文档在 MemoryScore 附近新增 score boundary，说明分数用于 future memory implementation recall correctness。\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"docs_check\",\"command\":\"rg -n \\\"MemoryScore 用来回答一个窄问题|MemoryScore is not Koala lifecycle truth|future implementation validation evidence\\\" Lattice-lifecycle-memory-Evolving.md\",\"result\":\"pass\",\"note\":\"The scoring section states MemoryScore is a narrow future-memory correctness score and not lifecycle truth or production authority.\",\"headHash\":\"4895766cfc272d2ffa17298d9753b751d880c7f3\",\"materialHash\":\"08b10678a2a0a1f866130d9ae4658f049de3dec8201a358ff7dfed3ef8b00483\",\"timestamp\":\"2026-06-08T15:07:56.371Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"文档必须说明 10k/100k/1M 的 score thresholds 是 baseline/stress validation，不代表当前已实现 million-candidate harness。\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"docs_check\",\"command\":\"rg -n \\\"10,000.*>= 92|100,000.*>= 90|1,000,000.*>= 86|stress-only|million-candidate harness|T1 \\\\| 10,000 candidates|T2 \\\\| 100,000 candidates|T3 \\\\| 1,000,000 candidates\\\" Lattice-lifecycle-memory-Evolving.md\",\"result\":\"pass\",\"note\":\"10k/100k/1M thresholds and tiers are present; 1M remains stress-only and not a claim that a million-candidate harness exists today.\",\"headHash\":\"4895766cfc272d2ffa17298d9753b751d880c7f3\",\"materialHash\":\"08b10678a2a0a1f866130d9ae4658f049de3dec8201a358ff7dfed3ef8b00483\",\"timestamp\":\"2026-06-08T15:07:56.371Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"文档不得出现把 MemoryScore、benchmark PASS、host transcript 或 advisory memory 当成 gate evidence / production authority 的正向语义。\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"docs_check\",\"command\":\"rg -n \\\"raw_event_memory|lifecycle_state_memory|checklist_evidence_memory|summary_memory|advisory_memory|host_transcript_memory|MemoryScore is not Koala lifecycle truth|review pass|validation evidence|delivery check|receipt|production authority|Benchmark PASS\\\" Lattice-lifecycle-memory-Evolving.md\",\"result\":\"pass\",\"note\":\"Six layer labels and explicit score-boundary wording are present; host transcript and advisory memory remain non-authoritative.\",\"headHash\":\"4895766cfc272d2ffa17298d9753b751d880c7f3\",\"materialHash\":\"08b10678a2a0a1f866130d9ae4658f049de3dec8201a358ff7dfed3ef8b00483\",\"timestamp\":\"2026-06-08T15:07:56.371Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-08T15:14:53.828Z",
+  "headHash": "c159a79e56451d3a2b1ab2fadd59b228f071d7e2",
+  "materialHash": "08b10678a2a0a1f866130d9ae4658f049de3dec8201a358ff7dfed3ef8b00483",
+  "verificationCoverage": {
+    "total": 6,
+    "required": 6,
+    "covered": 6,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "文档新增 MemoryScore 100 分公式，并把 exact recall@1、recall@10、MRR@10、precision@10 纳入 HistoricalRetrievalScore 子项。",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"MemoryScore \\(100-point baseline\\)|HistoricalRetrievalScore =|exact recall@1 \\+ recall@10 \\+ MRR@10 \\+ precision@10|QualityScore =|25 \\* HistoricalRetrievalScore|25 \\* ExactAnswerHit|25 \\* EvidenceLinkageRate|15 \\* LayerRoutingAccuracy|10 \\* ScaleStabilityScore\" Lattice-lifecycle-memory-Evolving.md",
+          "result": "pass",
+          "note": "MemoryScore section is present; HistoricalRetrievalScore includes exact recall@1, recall@10, MRR@10, and precision@10; QualityScore and MemoryScore weights are present.",
+          "headHash": "4895766cfc272d2ffa17298d9753b751d880c7f3",
+          "materialHash": "08b10678a2a0a1f866130d9ae4658f049de3dec8201a358ff7dfed3ef8b00483",
+          "timestamp": "2026-06-08T15:07:56.371Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "公式必须保留原有阈值语义：exact recall@1 目标 1.0，recall@10 >= 0.90，MRR@10 >= 0.75，precision@10 >= 0.70；低于阈值仍是 contract-level fail。",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "Lattice-lifecycle-memory-Evolving.md",
+          "command": "rg -n \"exact recall@1.*1\\.0|recall@10.*0\\.90|MRR@10.*0\\.75|precision@10.*0\\.70|10,000.*>= 92|100,000.*>= 90|1,000,000.*>= 86|staleTruthHit\" Lattice-lifecycle-memory-Evolving.md",
+          "result": "pass",
+          "note": "Covers original retrieval thresholds, 10k/100k/1M MemoryScore thresholds, and the staleTruthHit failure taxonomy for current-state stale truth hard fail.",
+          "headHash": "c4590b6f94ee76ed89c5bf0d2bc84e2d757ea8d5",
+          "materialHash": "08b10678a2a0a1f866130d9ae4658f049de3dec8201a358ff7dfed3ef8b00483",
+          "timestamp": "2026-06-08T15:11:48.237Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "新增权重不得把 retrieval 分数或 benchmark score 升格为 Koala lifecycle truth、validation evidence 或 production authority。",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"MemoryScore is not Koala lifecycle truth|Benchmark PASS can only be future implementation validation evidence|million-candidate harness\" Lattice-lifecycle-memory-Evolving.md; git show --check --stat --oneline HEAD -- Lattice-lifecycle-memory-Evolving.md",
+          "result": "pass",
+          "note": "The scoring formula is explicitly bounded as future validation evidence only, and the committed document patch has no git show --check issues.",
+          "headHash": "4895766cfc272d2ffa17298d9753b751d880c7f3",
+          "materialHash": "08b10678a2a0a1f866130d9ae4658f049de3dec8201a358ff7dfed3ef8b00483",
+          "timestamp": "2026-06-08T15:07:56.371Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "文档在 MemoryScore 附近新增 score boundary，说明分数用于 future memory implementation recall correctness。",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"MemoryScore 用来回答一个窄问题|MemoryScore is not Koala lifecycle truth|future implementation validation evidence\" Lattice-lifecycle-memory-Evolving.md",
+          "result": "pass",
+          "note": "The scoring section states MemoryScore is a narrow future-memory correctness score and not lifecycle truth or production authority.",
+          "headHash": "4895766cfc272d2ffa17298d9753b751d880c7f3",
+          "materialHash": "08b10678a2a0a1f866130d9ae4658f049de3dec8201a358ff7dfed3ef8b00483",
+          "timestamp": "2026-06-08T15:07:56.371Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "文档必须说明 10k/100k/1M 的 score thresholds 是 baseline/stress validation，不代表当前已实现 million-candidate harness。",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"10,000.*>= 92|100,000.*>= 90|1,000,000.*>= 86|stress-only|million-candidate harness|T1 \\| 10,000 candidates|T2 \\| 100,000 candidates|T3 \\| 1,000,000 candidates\" Lattice-lifecycle-memory-Evolving.md",
+          "result": "pass",
+          "note": "10k/100k/1M thresholds and tiers are present; 1M remains stress-only and not a claim that a million-candidate harness exists today.",
+          "headHash": "4895766cfc272d2ffa17298d9753b751d880c7f3",
+          "materialHash": "08b10678a2a0a1f866130d9ae4658f049de3dec8201a358ff7dfed3ef8b00483",
+          "timestamp": "2026-06-08T15:07:56.371Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "文档不得出现把 MemoryScore、benchmark PASS、host transcript 或 advisory memory 当成 gate evidence / production authority 的正向语义。",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"raw_event_memory|lifecycle_state_memory|checklist_evidence_memory|summary_memory|advisory_memory|host_transcript_memory|MemoryScore is not Koala lifecycle truth|review pass|validation evidence|delivery check|receipt|production authority|Benchmark PASS\" Lattice-lifecycle-memory-Evolving.md",
+          "result": "pass",
+          "note": "Six layer labels and explicit score-boundary wording are present; host transcript and advisory memory remain non-authoritative.",
+          "headHash": "4895766cfc272d2ffa17298d9753b751d880c7f3",
+          "materialHash": "08b10678a2a0a1f866130d9ae4658f049de3dec8201a358ff7dfed3ef8b00483",
+          "timestamp": "2026-06-08T15:07:56.371Z"
+        }
+      }
+    ]
+  }
+}

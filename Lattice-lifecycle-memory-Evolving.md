@@ -117,13 +117,80 @@ Query set 只针对 lifecycle facts，且必须可追溯到 corpus 中的单一 
 
 这些阈值是 future contract 的起点，不是当前实现的生产保证，也不是 Koala REVIEW / TEST / DONE gate evidence。只有 future story 明确写出更高预算或更严格基线时，才能改动。
 
+### MemoryScore (100-point baseline)
+
+MemoryScore 用来回答一个窄问题：在给定候选规模下，future memory implementation 是否能把 lifecycle memory 找回、答准、连回证据、走对记忆层，并且在扩大数据量后不明显退化。它不是“聪明程度”总评，也不是生产授权。
+
+先执行 hard checks，再计算分数：
+
+```text
+if authorityLeakCount > 0 => FAIL
+if scopeLeakCount > 0 => FAIL
+if lifecycle/gate fact EvidenceLinkageRate < 1.0 => FAIL
+if current-state query has stale truth hit => FAIL
+
+HistoricalRetrievalScore =
+  (exact recall@1 + recall@10 + MRR@10 + precision@10) / 4
+
+QualityScore =
+  25 * HistoricalRetrievalScore
++ 25 * ExactAnswerHit
++ 25 * EvidenceLinkageRate
++ 15 * LayerRoutingAccuracy
+
+ScaleStabilityScore =
+  min(1, QualityScoreAtScale / QualityScoreAt10kBaseline)
+
+MemoryScore =
+  QualityScore
++ 10 * ScaleStabilityScore
+
+Expanded MemoryScore =
+  25 * HistoricalRetrievalScore
++ 25 * ExactAnswerHit
++ 25 * EvidenceLinkageRate
++ 15 * LayerRoutingAccuracy
++ 10 * ScaleStabilityScore
+```
+
+除 `QualityScore` / `MemoryScore` 外，各项取值范围均为 `0.0..1.0`；`QualityScore` 范围为 `0..90`，最终 MemoryScore 范围为 `0..100`。这里使用 25/25/25/15/10 作为初始 baseline 权重，是因为当前没有真实历史数据证明某个子项应被任意放大；后续只能在 future story 明确提供 benchmark evidence 后调整。
+
+| Component | Weight | Includes | What it proves |
+|---|---:|---|---|
+| `HistoricalRetrievalScore` | 25 | `exact recall@1`、`recall@10`、`MRR@10`、`precision@10`。 | 历史事实能被找回，且排序质量足够。 |
+| `ExactAnswerHit` | 25 | key fields exact match、temporal correctness、no hallucinated fields。 | 找回后能答准，不乱补字段。 |
+| `EvidenceLinkageRate` | 25 | source exists、source supports answer、evidence type is valid。 | 答案能关联到有效 source evidence。 |
+| `LayerRoutingAccuracy` | 15 | query 被路由到正确 memory layer。 | 6 层记忆不互相越权。 |
+| `ScaleStabilityScore` | 10 | `min(1, QualityScoreAtScale / QualityScoreAt10kBaseline)`，避免用含 scale 的 MemoryScore 递归计算自身。 | 10 万 / 100 万候选下退化可控。 |
+
+`LayerRoutingAccuracy` 的 baseline layer label 只用于验证路由边界，不新增 runtime 架构承诺。前四类是 scoreable lifecycle truth layers，可以进入 corpus / gold / recall / precision 计算；后两类是 boundary-only labels，只用于 authority-boundary queries，不能进入 corpus truth、gold truth、`HistoricalRetrievalScore`、recall 或 precision。
+
+| Layer label | 应承载的事实 | Scoring use |
+|---|---|---|
+| `raw_event_memory` | 原始 process event / activity 记录。 | scoreable lifecycle truth layer |
+| `lifecycle_state_memory` | story phase、gate 状态、DONE / REVIEW / TEST 等 lifecycle state。 | scoreable lifecycle truth layer |
+| `checklist_evidence_memory` | `verificationIntent`、`verificationEvidence`、checklist status。 | scoreable lifecycle truth layer |
+| `summary_memory` | 用户可读 summary、delivery result、transcript diff。 | scoreable lifecycle truth layer |
+| `advisory_memory` | dev-memory、notes、经验提示，只能 advisory。 | boundary-only；不参与 corpus / gold / recall / precision |
+| `host_transcript_memory` | Claude / Codex / host transcript，只能证明 review happened，不能变成 truth。 | boundary-only；不参与 corpus / gold / recall / precision |
+
+建议的 score thresholds：
+
+| Candidate count | Minimum MemoryScore | Additional requirement |
+|---:|---:|---|
+| 10,000 | `>= 92` | hard checks 全部通过，`exact recall@1 = 1.0`。 |
+| 100,000 | `>= 90` | hard checks 全部通过，`EvidenceLinkageRate = 1.0` for lifecycle/gate facts。 |
+| 1,000,000 | `>= 86` | stress-only；hard checks 全部通过，不代表当前已实现 million-candidate harness。 |
+
+MemoryScore is not Koala lifecycle truth, review pass, validation evidence, delivery check, receipt, or production authority. Benchmark PASS can only be future implementation validation evidence inside the story that implements the benchmark harness.
+
 ### Tiers
 
 | Tier | Candidate count | 目的 | 是否可作为当前 gate / authority 依据 |
 |---|---|---|---|
 | T0 | small / smoke corpus | 验证 query schema、gold label 和 authority boundary。 | 可以作为 contract smoke，不作为生产 authority。 |
-| T1 | bounded baseline corpus | 验证 lifecycle facts 的正常 recall / ranking。 | 不能作为当前 gate / authority；只可作为 future validation 输入。 |
-| T2 | expanded baseline corpus | 验证事实漂移、冲突与 freshness。 | 不能作为当前 gate / authority；只可作为 future validation 输入。 |
+| T1 | 10,000 candidates | 验证 lifecycle facts 的正常 recall / ranking。 | 不能作为当前 gate / authority；只可作为 future validation 输入。 |
+| T2 | 100,000 candidates | 验证事实漂移、冲突、freshness 与规模退化。 | 不能作为当前 gate / authority；只可作为 future validation 输入。 |
 | T3 | 1,000,000 candidates | stress-only，验证检索在大候选集下是否仍保持 zero-tolerance 边界与可观测性。 | 仅作压力测试，不作为当前门禁或生产授权。 |
 
 ### Resource reporting
@@ -148,6 +215,7 @@ Query set 只针对 lifecycle facts，且必须可追溯到 corpus 中的单一 
 | `authorityLeak` | 把 transcript、dev-memory 或其他 advisory 输入当成权威 truth。 | hard fail |
 | `scopeLeak` | query / gold / answer 混入 excluded sources 或非 lifecycle facts。 | hard fail |
 | `labelDrift` | gold label 与当前 truth source 不一致。 | hard fail |
+| `staleTruthHit` | current-state query 命中过期 lifecycle truth，而不是最新 truth source。 | hard fail |
 | `queryAmbiguity` | query 无法稳定映射到单一 lifecycle fact 或明确 fact set。 | hard fail until repaired |
 | `metricRegression` | lifecycle-fact recall / ranking 低于阈值。 | fail |
 | `resourceRegression` | 资源指标超出 future budget。 | report-only unless future budget says otherwise |

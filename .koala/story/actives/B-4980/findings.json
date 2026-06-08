@@ -1,0 +1,70 @@
+{
+  "findings": [
+    {
+      "id": "B-4980:F-001",
+      "desc": "Lattice-lifecycle-memory-Evolving.md:167-168 - `advisory_memory` and `host_transcript_memory` are defined as scoreable expected layers, but lines 84-89 exclude dev-memory and host/manual transcripts from corpus and gold truth. This makes the MemoryScore contract self-contradictory and could lead a future benchmark to score retrieval over non-authoritative sources. Severity: medium.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-08T15:01:15.980Z",
+      "reviewRound": "2026-06-08T14:58:20.832Z",
+      "reviewRunId": "B-4980:RR-003",
+      "_hash": "a9b00158f1c8f56c755bc3c265e11ef4c5d92f50d29f6375a321a2547d248336",
+      "resolvedReason": "Fixed in commit 7dbfbf10: advisory_memory and host_transcript_memory are now explicitly boundary-only labels and cannot enter corpus truth, gold truth, HistoricalRetrievalScore, recall, or precision.",
+      "resolvedAt": "2026-06-08T15:02:54.791Z"
+    },
+    {
+      "id": "B-4980:F-002",
+      "desc": "Lattice-lifecycle-memory-Evolving.md:135 CHK-001 promises a visible 100-point MemoryScore formula, but the doc only defines QualityScore and then uses `MemoryScore = QualityScore + 10 * ScaleStabilityScore`, forcing readers to expand the weights themselves. Fix by adding the fully expanded MemoryScore equation inline next to the helper notation so the user-visible formula is explicit.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-08T15:06:19.113Z",
+      "reviewRound": "2026-06-08T15:02:54.028Z",
+      "reviewRunId": "B-4980:RR-009",
+      "_hash": "b3dd35ab1b714f23b9307435d3ff16697bfd4f929e6dde70d92b34521a4d8fdd",
+      "files": [
+        "Lattice-lifecycle-memory-Evolving.md"
+      ],
+      "resolvedReason": "Fixed in commit 0e708241: added fully expanded MemoryScore formula alongside QualityScore helper notation.",
+      "resolvedAt": "2026-06-08T15:07:32.358Z"
+    },
+    {
+      "id": "B-4980:F-003",
+      "desc": "Lattice-lifecycle-memory-Evolving.md:127 adds `current-state query has stale truth hit => FAIL`, but the Failure taxonomy at Lattice-lifecycle-memory-Evolving.md:204 does not name any stale-truth or freshness failure type. Fix by adding a matching taxonomy row or explicitly mapping this hard-fail path to an existing failure class so the contract stays internally consistent.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-08T15:06:19.124Z",
+      "reviewRound": "2026-06-08T15:02:54.028Z",
+      "reviewRunId": "B-4980:RR-009",
+      "_hash": "7a82f706582571b112b0692b4edfd6a752efa940cb815f435c3bee32783cf7af",
+      "files": [
+        "Lattice-lifecycle-memory-Evolving.md"
+      ],
+      "resolvedReason": "Fixed in commit 0e708241: added staleTruthHit to Failure taxonomy for current-state stale truth hard fail.",
+      "resolvedAt": "2026-06-08T15:07:32.910Z"
+    },
+    {
+      "id": "B-4980:F-004",
+      "desc": ".koala/story/actives/B-4980/checklist.json:61 refreshed CHK-001 verificationEvidence covers thresholds and authority wording, but it never asserts the new hard-fail taxonomy entry at Lattice-lifecycle-memory-Evolving.md:218 (`staleTruthHit`). Expanded formula, boundary-only labels, and non-authority wording are covered elsewhere, but this missing docs_check leaves the refreshed evidence incomplete for the added failure taxonomy. severity: medium",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-08T15:10:24.092Z",
+      "reviewRound": "2026-06-08T15:07:31.590Z",
+      "reviewRunId": "B-4980:RR-010",
+      "_hash": "1b4a99e55c5feaabd25fc66d443da10f8b7429c37b39386d37b6a10b30a39668",
+      "resolvedReason": "Added explicit CHK-001:edge:0 docs_check evidence for staleTruthHit taxonomy via verification_evidence_add.",
+      "resolvedAt": "2026-06-08T15:11:48.810Z"
+    }
+  ]
+}
