@@ -1,0 +1,99 @@
+{
+  "storyId": "B-f1d3",
+  "checkedAt": "2026-06-08T10:20:26.042Z",
+  "reviewRound": "2026-06-08T10:12:12.775Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "Lattice-lifecycle-memory-Evolving.md",
+      "promise": "Feasibility conclusion states lifecycle memory is feasible only as a host-neutral lifecycle projection / contract layer, not a new memory product.",
+      "status": "verified",
+      "verifiedBy": "nl -ba",
+      "evidence": "Lattice-lifecycle-memory-Evolving.md:5-7; command: nl -ba Lattice-lifecycle-memory-Evolving.md | sed -n \"1,220p\""
+    },
+    {
+      "docPath": "Lattice-lifecycle-memory-Evolving.md",
+      "promise": "Multi-host analysis summary includes Claude-A, Claude-B, and Codex with artifact references and disagreement resolution.",
+      "status": "verified",
+      "verifiedBy": "nl -ba",
+      "evidence": "Lattice-lifecycle-memory-Evolving.md:9-17; command: nl -ba Lattice-lifecycle-memory-Evolving.md | sed -n \"1,220p\""
+    },
+    {
+      "docPath": "Lattice-lifecycle-memory-Evolving.md",
+      "promise": "Current capability comparison separates existing lifecycle surfaces from the proposal and ties them to truth-source decision docs.",
+      "status": "verified",
+      "verifiedBy": "nl -ba",
+      "evidence": "Lattice-lifecycle-memory-Evolving.md:19-30; command: nl -ba Lattice-lifecycle-memory-Evolving.md | sed -n \"1,220p\""
+    },
+    {
+      "docPath": "Lattice-lifecycle-memory-Evolving.md",
+      "promise": "Real gaps and non-goals are called out explicitly instead of being folded into current capability claims.",
+      "status": "verified",
+      "verifiedBy": "nl -ba",
+      "evidence": "Lattice-lifecycle-memory-Evolving.md:29-30, 90-101; command: nl -ba Lattice-lifecycle-memory-Evolving.md | sed -n \"1,220p\""
+    },
+    {
+      "docPath": "Lattice-lifecycle-memory-Evolving.md",
+      "promise": "Host-neutral authority boundary keeps host transcript and dev-memory out of gate evidence and production authority.",
+      "status": "verified",
+      "verifiedBy": "nl -ba",
+      "evidence": "Lattice-lifecycle-memory-Evolving.md:43-55, 61-64; command: nl -ba Lattice-lifecycle-memory-Evolving.md | sed -n \"1,220p\""
+    },
+    {
+      "docPath": "Lattice-lifecycle-memory-Evolving.md",
+      "promise": "Execution plan is staged and bounded, with v0 document-only scope plus optional later gaps.",
+      "status": "verified",
+      "verifiedBy": "nl -ba",
+      "evidence": "Lattice-lifecycle-memory-Evolving.md:66-76; command: nl -ba Lattice-lifecycle-memory-Evolving.md | sed -n \"1,220p\""
+    },
+    {
+      "docPath": "Lattice-lifecycle-memory-Evolving.md",
+      "promise": "Test matrix names docs_check, manual_transcript, and cli evidence types and maps them to validation targets.",
+      "status": "verified",
+      "verifiedBy": "nl -ba",
+      "evidence": "Lattice-lifecycle-memory-Evolving.md:78-88; command: nl -ba Lattice-lifecycle-memory-Evolving.md | sed -n \"1,220p\""
+    },
+    {
+      "docPath": "Lattice-lifecycle-memory-Evolving.md",
+      "promise": "Committed-change check is fixed by validating the committed markdown with git show --check against HEAD, not a dirty-worktree diff.",
+      "status": "verified",
+      "verifiedBy": "git show --check",
+      "evidence": "Lattice-lifecycle-memory-Evolving.md:70, 83; command: git show --check --stat --oneline HEAD -- Lattice-lifecycle-memory-Evolving.md (exit 0)"
+    },
+    {
+      "docPath": "Lattice-lifecycle-memory-Evolving.md",
+      "promise": "session_brief is phase-agnostic and explicitly does not require DEV to be the active phase.",
+      "status": "verified",
+      "verifiedBy": "koala session_brief",
+      "evidence": "Lattice-lifecycle-memory-Evolving.md:85; command: node bin/koala.js session_brief"
+    },
+    {
+      "docPath": ".gitignore",
+      "promise": "Scoped .gitignore behavior keeps the story tree tracked only for B-f1d3 while ignoring other .koala/story content.",
+      "status": "verified",
+      "verifiedBy": "nl -ba",
+      "evidence": ".gitignore:35-41; command: nl -ba .gitignore | sed -n \"1,220p\""
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "transcript-diff.md says the expected and actual story content match, with multi-host analysis citing Claude-A, Claude-B, and Codex artifact references plus disagreement handling. validate --json then covered CHK-001 happy/edge/adversarial with manual_transcript and docs_check evidence and reported allPass:true."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "transcript-diff.md records the capability comparison split across existing lifecycle surfaces, true correctness gaps, and non-goals. validate --json reported 9/9 verificationIntent coverage and explicitly covered CHK-002 happy/edge/adversarial without turning optimization or authority expansion into a gap."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "transcript-diff.md records the staged execution plan, test matrix, fixed committed-change check, phase-agnostic session_brief, and scoped .gitignore behavior. validate --json passed with npm test -> npm run test:e2e -> ALL PASS and 9/9 intent coverage."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "The deliverable is a committed documentation update whose promise set is backed by line-level doc evidence, committed-change validation, transcript summaries, and a passing koala validate run."
+  },
+  "_hash": "bab776427debcea6d23de0c5935b2dee3a64acbd2448ccccbf7fd989d384501e"
+}
