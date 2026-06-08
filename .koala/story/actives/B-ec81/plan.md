@@ -11,17 +11,19 @@
 
 **Approach**:
 - Ask Claude-A for an architecture/executability review of the current document and baseline/scoring gap.
-- Ask Claude-B for a skeptical review focused on arbitrary optimization, authority drift, and whether 1M recall baseline is over-specified.
+- Ask Claude-B for a skeptical review focused on arbitrary optimization, authority drift, and whether any proposed 1M recall details are over-specified.
 - Ask Codex CLI host for a host-neutral synthesis and implementation-boundary review.
 - Treat all host outputs as advisory manual transcript only.
+- The host review may refine thresholds, failure classes, and non-goals, but it does not veto CHK-002 wholesale: decision A already selected a bounded benchmark contract as the document correctness fix.
 
 **Verify**:
 - Each artifact exists locally and is cited in final document or evidence.
-- Final synthesis explicitly records disagreement and uncertainty, especially if a host rejects baseline as over-optimization.
+- Final synthesis explicitly records disagreement and uncertainty, especially if a host flags a metric or scale assumption as over-specified.
+- Any rejected host suggestion is classified as non-goal, advisory, or future-story input rather than silently dropped.
 
 **DoneWhen**:
 - Three host conclusions are summarized.
-- Baseline/scoring/1M recall is classified as real document executability gap or rejected with reason.
+- Baseline/scoring/1M recall is treated as the selected document executability gap, with host feedback used to constrain the benchmark contract.
 - No host output is promoted to Lattice authority.
 
 ## CHK-002: 补齐 memory baseline 与评分机制方案
@@ -38,6 +40,7 @@
 - Include corpus construction, one-million-item scale target, query/golden set, metrics, thresholds, latency/resource reporting, failure taxonomy, and non-goals.
 - Keep wording backend-neutral: no required SQLite/vector DB/provider/daemon.
 - Preserve dev-memory and host transcript non-authoritative boundary.
+- Include any host-review pushback as constraints on the benchmark contract rather than as a reason to skip the baseline section.
 
 **Verify**:
 - `rg -n "Baseline|Scoring|1M|Recall@|MRR|precision|latency|non_authoritative|gateEvidence|auto-DONE" Lattice-lifecycle-memory-Evolving.md` locates the new contract and boundaries.

@@ -47,12 +47,13 @@
       "q": "Do CHK-001 host-review results have authority to veto the baseline/scoring/1M recall document update, or is the host round only allowed to refine a benchmark contract that background.md and decision_get already selected?",
       "evidence": "background.md treats the baseline/scoring section as a correctness requirement and decision_get chooses option A (document benchmark contract), but CHK-002 is conditional on the three-host review confirming the gap. If hosts reject the gap, the current plan leaves the executor guessing between leaving Lattice-lifecycle-memory-Evolving.md unchanged or still adding a narrowed contract to satisfy the stated outcome/userSees.",
       "sourcePointers": [
-        ".koala/story/actives/B-ec81/background.md:4-8",
-        ".koala/story/actives/B-ec81/plan.md:18-25",
-        ".koala/story/actives/B-ec81/plan.md:36-49",
-        "koala understanding_get B-ec81 outcome",
-        "koala decision_get B-ec81 chosen/rationale"
-      ]
+        "decision.json:chosen=A: 文档补齐 benchmark contract",
+        "CHK-001",
+        "CHK-002",
+        ".koala/story/actives/B-ec81/plan.md"
+      ],
+      "resolution": "Resolved: baseline/scoring/1M recall is the selected bounded documentation correctness fix from decision option A. CHK-001 host review can challenge metrics, thresholds, over-specification, and authority boundaries, but it cannot veto CHK-002 wholesale; rejected host suggestions must be classified as non-goal/advisory/future-story input.",
+      "resolvedAt": "2026-06-08T13:03:34.176Z"
     }
   ]
 }
