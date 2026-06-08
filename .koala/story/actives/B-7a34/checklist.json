@@ -256,9 +256,9 @@
         "docs/requirements/decisions/testing-infra.md",
         "docs/requirements/decisions/truth-source.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-08T14:04:30.459Z",
       "userSees": "用户运行 `npm --prefix packages/main run test:review-loop-smoke` 和 `node scripts/verify-process-fact-contract.mjs` 后看到 review loop smoke 与 process fact contract 均通过。",
       "files": {
         "modify": [
@@ -296,7 +296,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "npm run build && npm --prefix packages/main run test:review-loop-smoke",
+          "result": "pass",
+          "note": "Build passed and review-loop-smoke reported 37 passed, 0 failed across policy helpers, gate behavior, status JSON, duplicate loopId, and no-authority assertions.",
+          "headHash": "3abef67174d485c6a3b5c8a4a51cfaf8f3fd494a",
+          "materialHash": "6f7a04f57e4185459cdf5d5ba828a5e28a85b760434e341b759d69dd60342ccf",
+          "timestamp": "2026-06-08T14:04:30.494Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process fact contract output registered review_loop_start/iteration_add/close as L4 gate-evidence and review_loop_status/policy_show as L0; remaining script failure was pre-existing autopilot_* and release_approve_push drift, with no review_loop failure entries.",
+          "headHash": "3abef67174d485c6a3b5c8a4a51cfaf8f3fd494a",
+          "materialHash": "6f7a04f57e4185459cdf5d5ba828a5e28a85b760434e341b759d69dd60342ccf",
+          "timestamp": "2026-06-08T14:04:30.522Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:review-loop-smoke",
+          "result": "pass",
+          "note": "Smoke proves review_loop records do not execute hosts, perform rollback, auto-merge, auto-DONE, or set authority/receipt fields; rollback and handoff remain hints only.",
+          "headHash": "3abef67174d485c6a3b5c8a4a51cfaf8f3fd494a",
+          "materialHash": "6f7a04f57e4185459cdf5d5ba828a5e28a85b760434e341b759d69dd60342ccf",
+          "timestamp": "2026-06-08T14:04:30.549Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
