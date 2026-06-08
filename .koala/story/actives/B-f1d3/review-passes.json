@@ -62,6 +62,15 @@
       "reviewRound": "2026-06-08T10:12:12.775Z",
       "reviewRunId": "B-f1d3:RR-011",
       "_hash": "d013ad8a92d23d09a66e7927eeec73b7c83f51e166ddc0adfa2a93ebd57e57c0"
+    },
+    {
+      "id": "B-f1d3:RP-008",
+      "agent": "koala-review-test-coverage",
+      "note": "Verified test-coverage scope for round 3: Lattice-lifecycle-memory-Evolving.md lines 83 and 85 now use committed-change validation (`git show --check --stat --oneline HEAD -- ...`) and a phase-agnostic `koala session_brief` owner/worktree/cwd check. Checklist evidence stays fresh under materialHash `28152e2103855d003daf5cdf926796c19ee4c8c48957003b2590fbaf114e2c91`; diffs after the recorded evidence heads are metadata-only under .koala/story/actives/B-f1d3. Scope contract remains aligned with the documented surface (.gitignore modify, document/artifact create, document test) and does not introduce additional uncovered validation surface for this doc-only story.",
+      "createdAt": "2026-06-08T10:15:30.749Z",
+      "reviewRound": "2026-06-08T10:12:12.775Z",
+      "reviewRunId": "B-f1d3:RR-009",
+      "_hash": "a21caa1a7512ee45220d7fa746a058b81a4a03c61e498eec93e6e22788d17071"
     }
   ]
 }
