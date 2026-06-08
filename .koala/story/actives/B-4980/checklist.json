@@ -58,7 +58,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The scoring section explicitly says MemoryScore is a future baseline quality score and cannot replace lifecycle truth, review pass, validation evidence, delivery check, receipt, or production authority.",
+      "files": {
+        "modify": [
+          "Lattice-lifecycle-memory-Evolving.md"
+        ],
+        "create": [],
+        "test": [
+          "Lattice-lifecycle-memory-Evolving.md"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "文档在 MemoryScore 附近新增 score boundary，说明分数用于 future memory implementation recall correctness。",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "文档必须说明 10k/100k/1M 的 score thresholds 是 baseline/stress validation，不代表当前已实现 million-candidate harness。",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "文档不得出现把 MemoryScore、benchmark PASS、host transcript 或 advisory memory 当成 gate evidence / production authority 的正向语义。",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
