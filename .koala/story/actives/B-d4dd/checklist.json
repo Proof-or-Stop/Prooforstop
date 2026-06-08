@@ -11,7 +11,30 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "输入契约和输出契约与真相源一致：输入至少包含 candidateCount/queryCount/seed/tier，综合分数权重固定为 HistoricalRetrievalScore 25 + ExactAnswerHit 25 + EvidenceLinkageRate 25 + LayerRoutingAccuracy 15 + ScaleStabilityScore 10，tier threshold 固定覆盖 10k=92、100k=90、1M=86。",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "CLI contract 同时支持 text 和 json 两种输出形态：text 至少逐 run 呈现 score/threshold/verdict/核心 metrics/hardFails，json 至少包含 metrics、scores、hardChecks、threshold、verdict、note，且两种格式表达的是同一组字段语义。",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "contract 明确 hard fail 优先于加权分数：authorityLeak、scopeLeak、staleTruthHit 任一命中都不能给出 PASS；boundary-only 的 advisory/host transcript layers 不能进入 corpus/gold，也不能计入 recall/precision。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
