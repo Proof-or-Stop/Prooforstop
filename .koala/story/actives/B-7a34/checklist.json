@@ -11,7 +11,43 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "用户运行 `lattice review_loop_status --storyId=B-xxxx --json` 后看到 `records`、`latest.status` 和 `active` 字段来自 story-scoped review-loops artifact。",
+      "files": {
+        "modify": [
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts"
+        ],
+        "create": [
+          "packages/main/src/core/review-loop.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/review-loop-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Starting a loop persists a story-scoped start record with loopId, trigger refs, rollbackRef, materialHash, status=open, and actor.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Missing trigger refs or missing storyId is rejected with a clear CLI/schema error and does not write review-loops state.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Reflection/reusableLearning fields are stored as context only and are not exposed as review pass or validation gate evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
