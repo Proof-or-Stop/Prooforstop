@@ -1,0 +1,44 @@
+{
+  "storyId": "B-ec81",
+  "name": "lifecycle-memory-baseline-review",
+  "title": "复查并补齐 Lattice lifecycle memory baseline 评估方案",
+  "description": "用户要求再次使用两个 Claude CLI 和 Codex CLI host 进行多 Agent 检查，确认 Lattice-lifecycle-memory-Evolving.md 当前方案是否可执行，并在不任意优化、不为优化而优化、只修真实 correctness issue、保持逻辑一致的前提下，补齐 memory baseline、评分机制以及 100 万数据量记忆召回评估方案。",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "keywords": [
+    "lifecycle-memory",
+    "baseline",
+    "recall",
+    "scoring",
+    "host-neutral",
+    "codex",
+    "claude"
+  ],
+  "createdAt": "2026-06-08T12:51:03.828Z",
+  "startedAt": "2026-06-08T12:51:03.828Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-08T12:51:03.844Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-08T12:52:52.598Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-ec81",
+    "branch": "story/B-ec81",
+    "createdAt": "2026-06-08T12:53:42.765Z"
+  }
+}
