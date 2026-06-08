@@ -144,6 +144,13 @@ ScaleStabilityScore =
 MemoryScore =
   QualityScore
 + 10 * ScaleStabilityScore
+
+Expanded MemoryScore =
+  25 * HistoricalRetrievalScore
++ 25 * ExactAnswerHit
++ 25 * EvidenceLinkageRate
++ 15 * LayerRoutingAccuracy
++ 10 * ScaleStabilityScore
 ```
 
 除 `QualityScore` / `MemoryScore` 外，各项取值范围均为 `0.0..1.0`；`QualityScore` 范围为 `0..90`，最终 MemoryScore 范围为 `0..100`。这里使用 25/25/25/15/10 作为初始 baseline 权重，是因为当前没有真实历史数据证明某个子项应被任意放大；后续只能在 future story 明确提供 benchmark evidence 后调整。
@@ -208,6 +215,7 @@ MemoryScore is not Koala lifecycle truth, review pass, validation evidence, deli
 | `authorityLeak` | 把 transcript、dev-memory 或其他 advisory 输入当成权威 truth。 | hard fail |
 | `scopeLeak` | query / gold / answer 混入 excluded sources 或非 lifecycle facts。 | hard fail |
 | `labelDrift` | gold label 与当前 truth source 不一致。 | hard fail |
+| `staleTruthHit` | current-state query 命中过期 lifecycle truth，而不是最新 truth source。 | hard fail |
 | `queryAmbiguity` | query 无法稳定映射到单一 lifecycle fact 或明确 fact set。 | hard fail until repaired |
 | `metricRegression` | lifecycle-fact recall / ranking 低于阈值。 | fail |
 | `resourceRegression` | 资源指标超出 future budget。 | report-only unless future budget says otherwise |
