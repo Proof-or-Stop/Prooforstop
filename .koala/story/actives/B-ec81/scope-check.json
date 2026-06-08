@@ -1,0 +1,58 @@
+{
+  "storyId": "B-ec81",
+  "checkedAt": "2026-06-08T13:01:43.956Z",
+  "features": [
+    {
+      "feature": "Second-round advisory host artifacts for Claude-A, Claude-B, and Codex baseline review",
+      "covered_by": "CHK-001; .omx/artifacts/lifecycle-memory-baseline-claude-a-B-ec81.md; .omx/artifacts/lifecycle-memory-baseline-claude-b-B-ec81.md; .omx/artifacts/lifecycle-memory-baseline-codex-B-ec81.md",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "description; checklist_get CHK-001 files.create/verificationIntent; plan.md#CHK-001"
+    },
+    {
+      "feature": "Root document update adds a bounded memory baseline/scoring/1M recall contract while preserving host-neutral and non-authoritative boundaries",
+      "covered_by": "CHK-002; CHK-003; Lattice-lifecycle-memory-Evolving.md",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "background.md lines 4-8; decision_get chosen=A; checklist_get CHK-002/CHK-003; plan.md#CHK-002-CHK-003"
+    },
+    {
+      "feature": "Validation path proves the updated benchmark contract stays future-only and cannot act as gate evidence or production authority",
+      "covered_by": "CHK-003; Lattice-lifecycle-memory-Evolving.md; koala validate --story=B-ec81 --json; git show --check --stat --oneline HEAD -- Lattice-lifecycle-memory-Evolving.md",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get CHK-003 verificationIntent/files.test; plan.md#CHK-003; docs/requirements/decisions/story-lifecycle.md; docs/requirements/decisions/testing-infra.md"
+    },
+    {
+      "feature": "Implementation of a memory engine, storage backend, external provider, or authority expansion",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "decision_get chosen=A documentation-only benchmark contract; understanding_get constraints; docs/requirements/decisions/dev-memory.md; docs/requirements/decisions/host-overflow.md",
+      "source": "decision_get; understanding_get constraints; dev-memory.md; host-overflow.md"
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "covered": 3,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "cf761187996c9e4e240f3042b24ef0585e30792001431a5137e22b94318bda3d",
+  "openQuestions": [
+    {
+      "id": "SQ-001",
+      "q": "Do CHK-001 host-review results have authority to veto the baseline/scoring/1M recall document update, or is the host round only allowed to refine a benchmark contract that background.md and decision_get already selected?",
+      "evidence": "background.md treats the baseline/scoring section as a correctness requirement and decision_get chooses option A (document benchmark contract), but CHK-002 is conditional on the three-host review confirming the gap. If hosts reject the gap, the current plan leaves the executor guessing between leaving Lattice-lifecycle-memory-Evolving.md unchanged or still adding a narrowed contract to satisfy the stated outcome/userSees.",
+      "sourcePointers": [
+        ".koala/story/actives/B-ec81/background.md:4-8",
+        ".koala/story/actives/B-ec81/plan.md:18-25",
+        ".koala/story/actives/B-ec81/plan.md:36-49",
+        "koala understanding_get B-ec81 outcome",
+        "koala decision_get B-ec81 chosen/rationale"
+      ]
+    }
+  ]
+}

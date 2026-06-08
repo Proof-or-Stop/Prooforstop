@@ -1,0 +1,27 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-06-08T12:56:37.240Z",
+      "issueCount": 3,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when 完成第二轮三 Host 可执行性复查 + 补齐 memory baseline 与评分机制方案 are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 2 undigested unknowns: 三 Host 复查是否一致认为 baseline/scoring 缺失是当前文档可执行性真实 gap。; 1M recall benchmark 在文档中需要多具体才能可执行但不越界为实现承诺。"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "scope check not run. Please start the koala-review-scope-plan agent first; the agent will automatically call scope_check_save to write the result"
+        }
+      ],
+      "_hash": "6f1122c0bfbae2f97a797c2951cc2671b9a0c29fbbef84875724eace5a88ae0d"
+    }
+  ]
+}
