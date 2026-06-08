@@ -1,0 +1,17 @@
+{
+  "findings": [
+    {
+      "id": "B-4980:F-001",
+      "desc": "Lattice-lifecycle-memory-Evolving.md:167-168 - `advisory_memory` and `host_transcript_memory` are defined as scoreable expected layers, but lines 84-89 exclude dev-memory and host/manual transcripts from corpus and gold truth. This makes the MemoryScore contract self-contradictory and could lead a future benchmark to score retrieval over non-authoritative sources. Severity: medium.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-08T15:01:15.980Z",
+      "reviewRound": "2026-06-08T14:58:20.832Z",
+      "reviewRunId": "B-4980:RR-003",
+      "_hash": "a9b00158f1c8f56c755bc3c265e11ef4c5d92f50d29f6375a321a2547d248336"
+    }
+  ]
+}
