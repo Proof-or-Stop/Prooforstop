@@ -1,0 +1,103 @@
+{
+  "passes": [
+    {
+      "id": "B-ec81:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Concept review: baseline/scoring/1M recall is framed as a future validation contract for lifecycle-fact correctness, with explicit zero-tolerance authority boundaries and B-f1d3 kept as historical provenance only.",
+      "createdAt": "2026-06-08T13:22:41.491Z",
+      "reviewRound": "2026-06-08T13:20:41.827Z",
+      "reviewRunId": "B-ec81:RR-001",
+      "_hash": "764edafbf5c267eab73305f47634b57cfc484c279ad4cd5c945e6d703e1b1dcf"
+    },
+    {
+      "id": "B-ec81:RP-002",
+      "agent": "koala-review-test-coverage",
+      "note": "Coverage review passed: CHK-001/002/003 each has evidence across happy/edge/adversarial lanes, and the doc keeps host transcripts and benchmark results non-authoritative and out of gate evidence.",
+      "createdAt": "2026-06-08T13:23:07.230Z",
+      "reviewRound": "2026-06-08T13:20:41.827Z",
+      "reviewRunId": "B-ec81:RR-003",
+      "_hash": "5ddaeb02ce2617adbae703c60f4a185ab495e09d86ef6ea50cfd1ca3d649fd1e"
+    },
+    {
+      "id": "B-ec81:RP-003",
+      "agent": "koala-review-docs",
+      "note": "Docs scope checked against dev-memory, host-overflow, project-vision, testing-completeness, and truth-source. No blockers: the new contract keeps dev-memory non-authoritative, preserves host-neutral boundaries, and does not elevate transcripts or validation metadata into truth source or gate evidence.",
+      "createdAt": "2026-06-08T13:23:34.572Z",
+      "reviewRound": "2026-06-08T13:20:41.827Z",
+      "reviewRunId": "B-ec81:RR-004",
+      "_hash": "00e87c3f57827f6424af7695dd3d6ed78db1fb09ebff62b8b7a067500991972d"
+    },
+    {
+      "id": "B-ec81:RP-004",
+      "agent": "koala-review-concept",
+      "note": "Concept boundaries remain authority-safe after transcript fix.",
+      "createdAt": "2026-06-08T13:32:56.683Z",
+      "reviewRound": "2026-06-08T13:27:15.393Z",
+      "reviewRunId": "B-ec81:RR-005",
+      "_hash": "576e3f3a91d574bc5fa58e39128a1b56bdf7b15bdf61f0aef3f1f627ced2bdd9"
+    },
+    {
+      "id": "B-ec81:RP-005",
+      "agent": "koala-review-test-coverage",
+      "note": "Coverage is complete and fresh; validate PASS is current.",
+      "createdAt": "2026-06-08T13:45:28.346Z",
+      "reviewRound": "2026-06-08T13:27:15.393Z",
+      "reviewRunId": "B-ec81:RR-006",
+      "_hash": "90865a921f42892bd3105884fa59294627cf5569f7ee04007137589b684aab8c"
+    },
+    {
+      "id": "B-ec81:RP-006",
+      "agent": "koala-review-quality",
+      "note": "Confirmed F-001 is fixed. The document now allows non-authoritative manual_transcript verificationEvidence while still forbidding manual or host transcripts from replacing lifecycle truth, review pass, delivery check, validation evidence, gate evidence, or production authority. I found no new contradictory gate, backend, or provider wording in the recall contract or surrounding boundary sections.",
+      "createdAt": "2026-06-08T13:45:37.602Z",
+      "reviewRound": "2026-06-08T13:27:15.393Z",
+      "reviewRunId": "B-ec81:RR-007",
+      "_hash": "0d7ef52fcc40a523d623e7ce2f019332683abb8e5a567d8dce7e3c0c0e985bc8"
+    },
+    {
+      "id": "B-ec81:RP-007",
+      "agent": "koala-review-docs",
+      "note": "Checked manual_transcript boundary and memory recall contract; no authority leak or gate contradiction found.",
+      "createdAt": "2026-06-08T13:47:08.978Z",
+      "reviewRound": "2026-06-08T13:27:15.393Z",
+      "reviewRunId": "B-ec81:RR-008",
+      "_hash": "7081ad5430d92e4bd577f8001634dc3e05920e4cabcaeebecf496e2d0d87fa50"
+    },
+    {
+      "id": "B-ec81:RP-008",
+      "agent": "koala-review-test-coverage",
+      "note": "Coverage review passed: checklist 3/3 done, 9/9 evidence covered, latest validation evidence PASS, resolved finding closed, scope contract present and limited.",
+      "createdAt": "2026-06-08T13:54:14.932Z",
+      "reviewRound": "2026-06-08T13:52:44.589Z",
+      "reviewRunId": "B-ec81:RR-013",
+      "_hash": "342629e6bc8d38120bd5fc48858e99532f2f0b3d3d951dda7161d94e4a094f4c"
+    },
+    {
+      "id": "B-ec81:RP-009",
+      "agent": "koala-review-concept",
+      "note": "Concept pass for round 3 after scope contract initialization: scope contract is enforce-mode with allowed modify/test limited to Lattice-lifecycle-memory-Evolving.md; current non-metadata diff stays within that file; document remains host-neutral, keeps dev-memory/manual transcript/non_authoritative inputs out of gate authority, and frames the recall contract as a future prerequisite rather than a current implementation or authority upgrade.",
+      "createdAt": "2026-06-08T13:54:25.872Z",
+      "reviewRound": "2026-06-08T13:52:44.589Z",
+      "reviewRunId": "B-ec81:RR-009",
+      "_hash": "6eb0960f75fb28d5c800f23d758de8af9c1f3919df5800f913edcd7515f9cf63"
+    },
+    {
+      "id": "B-ec81:RP-010",
+      "agent": "koala-review-quality",
+      "note": "Round 3 quality review pass: F-001 remains fixed; manual_transcript wording is now bounded to non-authoritative verificationEvidence and explicitly excluded from review_pass_set, delivery check, koala validate evidence, gate evidence, and production authority. The future memory recall contract stays stress-only/future-only, does not overclaim backend/provider support, and the scope contract remains narrowly limited to Lattice-lifecycle-memory-Evolving.md.",
+      "createdAt": "2026-06-08T13:54:37.092Z",
+      "reviewRound": "2026-06-08T13:52:44.589Z",
+      "reviewRunId": "B-ec81:RR-010",
+      "_hash": "6d3b4a0b2112b9b02549255ed0d927a1504f010f65194bad823af7ec506d7999"
+    },
+    {
+      "id": "B-ec81:RP-011",
+      "agent": "koala-review-docs",
+      "note": "Docs stay within dev-memory/host-overflow/testing/truth boundaries; no drift found in Lattice-lifecycle-memory-Evolving.md.",
+      "createdAt": "2026-06-08T13:55:33.308Z",
+      "reviewRound": "2026-06-08T13:52:44.589Z",
+      "reviewRunId": "B-ec81:RR-012",
+      "_hash": "7d168f45fd286269cc52e994f54a9004dbc1187e361609722ade0bc0ba7a9898"
+    }
+  ]
+}

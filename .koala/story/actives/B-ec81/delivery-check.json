@@ -1,0 +1,49 @@
+{
+  "storyId": "B-ec81",
+  "checkedAt": "2026-06-08T13:59:14.989Z",
+  "reviewRound": "2026-06-08T13:52:44.589Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "Lattice-lifecycle-memory-Evolving.md",
+      "promise": "Second 2-Claude + Codex host synthesis is present and advisory only.",
+      "status": "verified",
+      "verifiedBy": "manual/docs-check",
+      "evidence": "Final doc sections 多 Host 分析摘要 and 第二轮 host synthesis（advisory transcript only） enumerate Claude-A, Claude-B, and Codex and explicitly label them as manual transcript evidence only, not Lattice truth or gate evidence."
+    },
+    {
+      "docPath": "Lattice-lifecycle-memory-Evolving.md",
+      "promise": "Memory Recall Validation Contract covers corpus, excluded sources, query set, scoring, 1,000,000 candidates stress tier, resource reporting, and failure taxonomy.",
+      "status": "verified",
+      "verifiedBy": "grep/manual",
+      "evidence": "Final doc section Memory Recall Validation Contract (future implementation prerequisite) includes Corpus / data sources, Excluded sources, Query set, Scoring and thresholds, T3 1,000,000 candidates, Resource reporting, and Failure taxonomy. See .koala/story/actives/B-ec81/evidence/transcript-diff.md for the matching verification transcript."
+    },
+    {
+      "docPath": "Lattice-lifecycle-memory-Evolving.md",
+      "promise": "No storage/backend/provider implementation is claimed.",
+      "status": "verified",
+      "verifiedBy": "manual/docs-check",
+      "evidence": "Final doc section 非目标 excludes SQLite, DuckDB, vector DB, Mem0, Supermemory, Honcho, external memory provider, benchmark runner, embedding model, and other storage/provider claims; the contract boundary also says it does not require storage, runner, provider, or host benchmark implementation."
+    },
+    {
+      "docPath": "Lattice-lifecycle-memory-Evolving.md",
+      "promise": "manual_transcript boundary is consistent: can prove review happened, cannot become truth, gate evidence, validation evidence, receipt, or production authority.",
+      "status": "verified",
+      "verifiedBy": "manual/docs-check",
+      "evidence": "Final doc section 权威边界 says manual transcript can prove a host review happened, but cannot replace lifecycle truth, review pass, delivery check, koala validate validation evidence, signed receipt, gate evidence, or production authority. This is mirrored in .koala/story/actives/B-ec81/evidence/transcript-diff.md."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "B-ec81-validation",
+      "transcript": "koala validate --story=B-ec81 --json => PASS. Latest snapshot is recorded in .koala/story/actives/B-ec81/test-evidence.json, and the transcript diff exists at .koala/story/actives/B-ec81/evidence/transcript-diff.md."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All requested delivery promises are supported by the final document, transcript diff, test evidence, and the latest koala validate PASS snapshot."
+  },
+  "_hash": "c9840c43916fac41a4d29cac3b744897b6e3fea0d0c74b31f751b737670d3682"
+}
