@@ -23,6 +23,26 @@
         "test": [
           "packages/main/src/tasks/memory-real-data-benchmark-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "运行 real-data baseline 命令后，终端或 JSON 输出展示 non-empty corpus/gold/query/result 统计，并包含真实 sourcePath、sourceHash、recordId，使用户能审计 baseline 来自真实项目数据而非占位样本。",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "当结果同时包含 scoreable lifecycle layers 与 boundary-only/advisory layers 时，输出必须把两者分开展示并给出各自计数，证明 boundary-only 数据没有被伪装成可评分真相源。",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "即使 real-data baseline 产物看起来完整，输出也必须保留 non-authoritative 基线说明，不得把 benchmark 结果表述成 gate evidence 或最终真相源结论。",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
