@@ -85,9 +85,9 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/host-overflow.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-09T19:16:23.050Z",
-      "endTime": null,
+      "endTime": "2026-06-09T19:18:00.751Z",
       "userSees": "用户打开文档时看到标题 \"Lattice Loop Engineering Baseline Execution Plan\"，并看到 \"bounded, evidence-driven, host-neutral development loop\" 和 UDM-* baseline 验证表。",
       "files": {
         "modify": [],
@@ -115,7 +115,42 @@
             "type": "docs"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "Lattice-Loop-Engineering-baseline.md",
+          "command": "rg -n \"UDM-INTAKE-PLAN-1|UDM-EXECUTOR-1|UDM-REPAIR-LOOP-1|UDM-REVIEW-LOOP-1|UDM-EVIDENCE-GATE-1|UDM-NO-FALSE-DONE-1\" Lattice-Loop-Engineering-baseline.md && git diff --check -- Lattice-Loop-Engineering-baseline.md",
+          "result": "pass",
+          "note": "Loop Engineering document covers intake, planner/executor, repair loop, review loop, evidence gate, block/escalate, multi-host review, and no false DONE.",
+          "headHash": "cc3feab51c53f001773318e03f994057b63f13c6",
+          "materialHash": "f7984a22b6c7b57fad60186a2fa7872f4ef07af0a8bed1db519b5a8f5ccb97b0",
+          "timestamp": "2026-06-09T19:18:00.775Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "Lattice-Loop-Engineering-baseline.md",
+          "command": "rg -n \"maxIterations|maxNoProgressIterations|maxRuntimeMinutes|maxCostUSD|budget_exceeded|human handoff|EXPECTED_BLOCK\" Lattice-Loop-Engineering-baseline.md",
+          "result": "pass",
+          "note": "Document defines loop budgets, stop conditions, blocked outcomes, and human handoff behavior.",
+          "headHash": "cc3feab51c53f001773318e03f994057b63f13c6",
+          "materialHash": "f7984a22b6c7b57fad60186a2fa7872f4ef07af0a8bed1db519b5a8f5ccb97b0",
+          "timestamp": "2026-06-09T19:18:00.795Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "Lattice-Loop-Engineering-baseline.md",
+          "command": "rg -n \"prompt trick|automatic script|bounded|Forbidden wording|unlimited autonomous\" Lattice-Loop-Engineering-baseline.md",
+          "result": "pass",
+          "note": "Document frames Loop Engineering as a bounded evidence-driven system and explicitly forbids unlimited autonomous coding claims.",
+          "headHash": "cc3feab51c53f001773318e03f994057b63f13c6",
+          "materialHash": "f7984a22b6c7b57fad60186a2fa7872f4ef07af0a8bed1db519b5a8f5ccb97b0",
+          "timestamp": "2026-06-09T19:18:00.815Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
