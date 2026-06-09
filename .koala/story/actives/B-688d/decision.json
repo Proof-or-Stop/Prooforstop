@@ -1,0 +1,79 @@
+{
+  "principles": [
+    "Implementation may proceed in parallel, but capability proof and claim unlock remain sequential.",
+    "Fail closed when lower-layer proof, authority evidence, or shared schema is missing or stale.",
+    "Keep Parallel Development thin: coordination protocol, not a new capability layer or product claim.",
+    "Only fix real correctness issues; do not optimize or split work arbitrarily."
+  ],
+  "drivers": [
+    "User needs a go/blocked decision before launching four parallel Baseline 2-5 workstreams.",
+    "Current authority docs keep CLI as thin local/shadow client and forbid L2+ receipt claims.",
+    "Current baseline_run surface does not yet expose ENG/UDM/SAFE/CLAIM runner IDs, so implementation readiness must be audited before coding claims."
+  ],
+  "options": [
+    {
+      "name": "A: coordination audit first, then parallel implementation only if gates are clear",
+      "pros": [
+        "Directly resolves product-reviewer advisory by producing a user-visible go/blocked decision.",
+        "Prevents schema drift across Engineering, Loop, Production Safety, and Claim workstreams.",
+        "Preserves sequential proof and fail-closed claim lock."
+      ],
+      "cons": [
+        "Delays immediate coding by one story.",
+        "May produce BLOCKED if runner source or Layer 1 proof is insufficient."
+      ]
+    },
+    {
+      "name": "B: start four implementation workstreams immediately",
+      "pros": [
+        "Maximizes apparent parallel speed.",
+        "Agents can discover gaps while coding."
+      ],
+      "cons": [
+        "Risks each line inventing a different artifact schema or authority boundary.",
+        "Could create false capability claim before lower layers pass.",
+        "Does not answer the user-visible go/blocked question first."
+      ]
+    },
+    {
+      "name": "C: serialize all Baseline 2-5 implementation",
+      "pros": [
+        "Minimizes merge conflicts and coordination overhead.",
+        "Simpler to audit one line at a time."
+      ],
+      "cons": [
+        "Leaves available host parallelism unused even when write scopes can be separated.",
+        "Conflates implementation order with proof order and slows safe development unnecessarily."
+      ]
+    }
+  ],
+  "chosen": "A: coordination audit first, then parallel implementation only if gates are clear",
+  "rationale": "选择 A，因为当前任务的真实用户价值是先给出可审计的 go/blocked 判定，并冻结共享契约与 ownership，之后才能安全并行写代码；直接并行实现会放大 false claim 和 schema drift 风险。",
+  "preMortem": [
+    {
+      "scenario": "False GO decision",
+      "trigger": "Layer 1 baseline suite fails or lacks independent review evidence but the coordination artifact still says parallel coding may start.",
+      "consequence": "Lattice begins higher-layer work on an unproven foundation and later capability claims become misleading.",
+      "mitigation": "Record Layer 1 as blocked/not_authorized unless local evidence and independent review evidence both exist and match current material hash."
+    },
+    {
+      "scenario": "Schema drift across workstreams",
+      "trigger": "Engineering, Loop, Production Safety, or Claim agents define their own final-report/baseline-suite/claim-report fields.",
+      "consequence": "Integration becomes subjective and claim evaluator cannot mechanically compare artifacts.",
+      "mitigation": "Freeze shared contract and ownership before dispatch; any schema change requires coordinator review and sequential gate update."
+    },
+    {
+      "scenario": "Authority overclaim",
+      "trigger": "A local/shadow or transport-accepted report is treated as receipt-backed L2+ authority evidence.",
+      "consequence": "Production Safety or Capability Claim claims more than Lattice can prove.",
+      "mitigation": "Use canonical authorityMode/evidenceClass and keep authority.receiptVerified=false, productionDone=false, authorityChanged=false, receiptRefs=[] unless verified receipt-backed path exists."
+    },
+    {
+      "scenario": "Parallel work creates write conflict",
+      "trigger": "Multiple agents edit shared gates/schema/validator files simultaneously.",
+      "consequence": "One workstream silently overwrites another or bypasses a lower-layer proof condition.",
+      "mitigation": "Ownership map must assign disjoint ownedPaths; shared files are read-only unless an explicit merge-queue change is approved."
+    }
+  ],
+  "timestamp": "2026-06-09T22:58:03.374Z"
+}

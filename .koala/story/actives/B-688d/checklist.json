@@ -25,7 +25,17 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "用户看到冻结的 shared contract、ownership map、merge queue 和 claim lock，能检查四条线是否可以同时写代码而不写散 schema 或提前 PASS。"
+      "userSees": "User sees \"sharedContractVersion: baseline-parallel-v1\" plus frozen authorityMode/evidenceClass/final-report/merge-queue/claim-lock schemas in .omx/artifacts/parallel-development/B-688d/.",
+      "files": {
+        "modify": [],
+        "create": [
+          ".omx/artifacts/parallel-development/B-688d/shared-contract.json",
+          ".omx/artifacts/parallel-development/B-688d/ownership-map.json",
+          ".omx/artifacts/parallel-development/B-688d/merge-queue.json",
+          ".omx/artifacts/parallel-development/B-688d/claim-lock-status.json"
+        ],
+        "test": []
+      }
     },
     {
       "id": "CHK-003",
