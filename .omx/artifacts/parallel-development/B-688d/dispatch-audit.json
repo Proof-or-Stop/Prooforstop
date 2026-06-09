@@ -18,69 +18,114 @@
   ],
   "lanes": [
     {
-      "laneId": "impl-claude-1",
+      "laneId": "impl-claude-eng",
       "role": "implementer",
       "host": "claude-code",
-      "track": "natural-language",
-      "baselineIds": ["NL-CLI-1", "NL-API-1", "NL-REPAIR-1"]
+      "workstream": "engineering-runner",
+      "baselineIds": ["NL-CLI-1", "RED-CLI-TS-PY-1"],
+      "ownedPaths": [".omx/artifacts/parallel-development/B-688d/engineering-runner/"],
+      "readOnlyPaths": ["docs/requirements/", "CLAUDE.md"],
+      "mode": "active",
+      "allowedOutputs": ["engineering-runner artifacts", "baseline run evidence"],
+      "stopConditions": ["baseline FAIL without review evidence", "host unavailable"],
+      "sequentialProofLock": "layer-1-must-pass-before-layer-2"
     },
     {
-      "laneId": "impl-claude-2",
+      "laneId": "impl-claude-loop",
       "role": "implementer",
       "host": "claude-code",
-      "track": "redevelopment",
-      "baselineIds": ["RED-CLI-TS-PY-1", "RED-API-TS-GO-1"]
+      "workstream": "loop-engine",
+      "baselineIds": ["NL-API-1", "RED-API-TS-GO-1"],
+      "ownedPaths": [".omx/artifacts/parallel-development/B-688d/loop-engine/"],
+      "readOnlyPaths": ["docs/requirements/", "CLAUDE.md"],
+      "mode": "active",
+      "allowedOutputs": ["loop-engine artifacts", "baseline run evidence"],
+      "stopConditions": ["baseline FAIL without review evidence", "host unavailable"],
+      "sequentialProofLock": "layer-1-must-pass-before-layer-2"
     },
     {
-      "laneId": "impl-codex-1",
+      "laneId": "impl-codex-safety",
       "role": "implementer",
       "host": "codex-cli",
-      "track": "natural-language",
-      "baselineIds": ["NL-CLI-1", "NL-API-1", "NL-REPAIR-1"]
+      "workstream": "production-safety",
+      "baselineIds": ["RED-GAP-BLOCK-1"],
+      "ownedPaths": [".omx/artifacts/parallel-development/B-688d/production-safety/"],
+      "readOnlyPaths": ["docs/requirements/", "CLAUDE.md"],
+      "mode": "active",
+      "allowedOutputs": ["safety block evidence", "gap-block artifacts"],
+      "stopConditions": ["expected block not triggered", "host unavailable"],
+      "sequentialProofLock": "layer-1-must-pass-before-layer-2"
     },
     {
-      "laneId": "impl-codex-2",
+      "laneId": "impl-codex-claim",
       "role": "implementer",
       "host": "codex-cli",
-      "track": "redevelopment",
-      "baselineIds": ["RED-CLI-TS-PY-1", "RED-API-TS-GO-1"]
+      "workstream": "claim-evaluator",
+      "baselineIds": ["NL-REPAIR-1"],
+      "ownedPaths": [".omx/artifacts/parallel-development/B-688d/claim-evaluator/"],
+      "readOnlyPaths": ["docs/requirements/", "CLAUDE.md"],
+      "mode": "shadow",
+      "allowedOutputs": ["claim evaluation drafts"],
+      "stopConditions": ["layer-1 not yet passed", "host unavailable"],
+      "sequentialProofLock": "layer-1-must-pass-before-layer-2"
     },
     {
-      "laneId": "review-codex-1",
+      "laneId": "review-codex-eng",
       "role": "reviewer",
       "host": "codex-cli",
-      "track": "natural-language",
-      "oppositeOf": "impl-claude-1",
-      "note": "opposite-host reviewer for claude-code implementer lanes"
+      "workstream": "engineering-runner",
+      "oppositeOf": "impl-claude-eng",
+      "ownedPaths": [".omx/artifacts/parallel-development/B-688d/reviews/codex-eng/"],
+      "readOnlyPaths": [".omx/artifacts/parallel-development/B-688d/engineering-runner/"],
+      "mode": "audit_only",
+      "allowedOutputs": ["review findings", "localReviewCertified assertion"],
+      "stopConditions": ["implementer lane not complete", "host unavailable"],
+      "sequentialProofLock": "layer-1-must-pass-before-layer-2"
     },
     {
-      "laneId": "review-codex-2",
+      "laneId": "review-codex-loop",
       "role": "reviewer",
       "host": "codex-cli",
-      "track": "redevelopment",
-      "oppositeOf": "impl-claude-2",
-      "note": "opposite-host reviewer for claude-code implementer lanes"
+      "workstream": "loop-engine",
+      "oppositeOf": "impl-claude-loop",
+      "ownedPaths": [".omx/artifacts/parallel-development/B-688d/reviews/codex-loop/"],
+      "readOnlyPaths": [".omx/artifacts/parallel-development/B-688d/loop-engine/"],
+      "mode": "audit_only",
+      "allowedOutputs": ["review findings", "localReviewCertified assertion"],
+      "stopConditions": ["implementer lane not complete", "host unavailable"],
+      "sequentialProofLock": "layer-1-must-pass-before-layer-2"
     },
     {
-      "laneId": "review-claude-1",
+      "laneId": "review-claude-safety",
       "role": "reviewer",
       "host": "claude-code",
-      "track": "natural-language",
-      "oppositeOf": "impl-codex-1",
-      "note": "opposite-host reviewer for codex-cli implementer lanes"
+      "workstream": "production-safety",
+      "oppositeOf": "impl-codex-safety",
+      "ownedPaths": [".omx/artifacts/parallel-development/B-688d/reviews/claude-safety/"],
+      "readOnlyPaths": [".omx/artifacts/parallel-development/B-688d/production-safety/"],
+      "mode": "audit_only",
+      "allowedOutputs": ["review findings", "localReviewCertified assertion"],
+      "stopConditions": ["implementer lane not complete", "host unavailable"],
+      "sequentialProofLock": "layer-1-must-pass-before-layer-2"
     },
     {
-      "laneId": "review-claude-2",
+      "laneId": "review-claude-claim",
       "role": "reviewer",
       "host": "claude-code",
-      "track": "redevelopment",
-      "oppositeOf": "impl-codex-2",
-      "note": "opposite-host reviewer for codex-cli implementer lanes"
+      "workstream": "claim-evaluator",
+      "oppositeOf": "impl-codex-claim",
+      "ownedPaths": [".omx/artifacts/parallel-development/B-688d/reviews/claude-claim/"],
+      "readOnlyPaths": [".omx/artifacts/parallel-development/B-688d/claim-evaluator/"],
+      "mode": "not_authorized",
+      "allowedOutputs": ["review findings"],
+      "stopConditions": ["layer-1 not yet passed", "implementer lane not complete", "host unavailable"],
+      "sequentialProofLock": "layer-1-must-pass-before-layer-2"
     }
   ],
   "failClosedPolicy": {
     "missingHost": "BLOCKED — lane cannot execute if host binary is unavailable",
     "missingReview": "BLOCKED — no localReviewCertified without independent review artifact",
-    "missingReceipt": "BLOCKED — no receipt-backed authority without verified receipt"
+    "missingReceipt": "BLOCKED — no receipt-backed authority without verified receipt",
+    "higherLayerWithoutLowerPass": "BLOCKED — L2+ lanes stay shadow/audit_only/not_authorized until Layer 1 formal proof passes"
   }
 }

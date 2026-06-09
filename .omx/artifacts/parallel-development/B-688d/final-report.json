@@ -21,6 +21,21 @@
     "laneCount": 8,
     "runnerSourceLocatable": false
   },
+  "authorityBoundary": {
+    "authorityMode": "off",
+    "evidenceClass": "local-lifecycle",
+    "authority": {
+      "receiptVerified": false,
+      "productionDone": false,
+      "authorityChanged": false,
+      "receiptRefs": []
+    }
+  },
+  "claimLockSummary": {
+    "totalLocks": 4,
+    "lockedScopes": ["engineering-runner", "loop-engine", "production-safety", "capability-claim-unlock"],
+    "unlockRequires": "Layer 1 formal proof (≥70% correctness-protected success rate) plus independent opposite-host review evidence for all passing runs"
+  },
   "nextSteps": [
     "Obtain independent local review evidence for the 5 failing baseline runs",
     "Locate or vendor the baseline runner source into this repository",

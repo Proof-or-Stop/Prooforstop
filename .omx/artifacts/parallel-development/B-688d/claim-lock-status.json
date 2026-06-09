@@ -10,7 +10,32 @@
     "receiptBackedAuthorityClaimed": false,
     "fullAuthorityDoneClaimed": false
   },
-  "locks": [],
+  "locks": [
+    {
+      "lockId": "lock-eng-runner",
+      "scope": "engineering-runner",
+      "reason": "Layer 1 baseline runs for engineering workstream (NL-CLI-1, RED-CLI-TS-PY-1) lack local independent review evidence",
+      "requiredEvidence": "opposite-host review artifact with localReviewCertified=true for engineering-runner baseline IDs"
+    },
+    {
+      "lockId": "lock-loop-engine",
+      "scope": "loop-engine",
+      "reason": "Layer 1 baseline runs for loop workstream (NL-API-1, RED-API-TS-GO-1) lack local independent review evidence",
+      "requiredEvidence": "opposite-host review artifact with localReviewCertified=true for loop-engine baseline IDs"
+    },
+    {
+      "lockId": "lock-prod-safety",
+      "scope": "production-safety",
+      "reason": "Production safety baseline (RED-GAP-BLOCK-1) passed expected-block but independent review has not certified the block evidence",
+      "requiredEvidence": "opposite-host review artifact confirming safety block was genuine and not circumvented"
+    },
+    {
+      "lockId": "lock-capability-claims",
+      "scope": "capability-claim-unlock",
+      "reason": "No Layer 1 formal proof exists; all higher-layer capability claims remain locked until Layer 1 suite passes at ≥70% correctness-protected success rate",
+      "requiredEvidence": "Layer 1 baseline suite PASS (≥70% correctness-protected success rate) plus independent review evidence for all passing runs"
+    }
+  ],
   "authority": {
     "receiptVerified": false,
     "productionDone": false,
