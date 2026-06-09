@@ -1,0 +1,38 @@
+{
+  "storyId": "B-7621",
+  "checkedAt": "2026-06-09T20:43:44.707Z",
+  "features": [
+    {
+      "feature": "Create Lattice-Parallel-Development-Capability.md execution document",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "user request 2026-06-09"
+    },
+    {
+      "feature": "Implement runtime parallel scheduler or parallel_wave command changes",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "This story is documentation only; runtime implementation must be separate story.",
+      "source": "decision A scope boundary"
+    },
+    {
+      "feature": "Modify Loop Engineering, Production Safety, Capability Claim, or Authority gates",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "This story defines coordination guidance and must not change baseline/gate runtime semantics.",
+      "source": "decision constraints"
+    }
+  ],
+  "summary": {
+    "total": 3,
+    "covered": 1,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "9dceb4dbe6fc2a9dbb2ee9e1c6b0b7a3d0e888ee0021b3ef6756a27fd0a82c20",
+  "openQuestions": []
+}
