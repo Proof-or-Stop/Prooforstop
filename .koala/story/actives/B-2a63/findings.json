@@ -50,6 +50,23 @@
         "packages/main/src/core/memory-benchmark-real-data.ts",
         "packages/main/src/core/command-policy.ts"
       ]
+    },
+    {
+      "id": "B-2a63:F-004",
+      "desc": "[MEDIUM] packages/main/src/core/memory-benchmark-real-data.ts:364-379 reads activity entries from command/type/success, but the real runtime log format uses tool/detail/status. On the live worktree run, exported raw_event_memory rows rendered as command=unknown and success=n/a for every sample taken from .koala/activity.jsonl, so the “real-data” corpus loses the actual lifecycle command names and outcomes. Fix by parsing tool/detail/status first (with command/type/success as legacy fallbacks) and add a smoke assertion against the current activity log schema.",
+      "severity": "medium",
+      "category": "happy",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-09T02:11:41.856Z",
+      "reviewRound": "2026-06-09T02:06:12.444Z",
+      "reviewRunId": "B-2a63:RR-002",
+      "_hash": "5023e617070aa1a31ba1425776fde23e5cc7a8ad6af8d5e4e5df1a7347ec23e5",
+      "files": [
+        "packages/main/src/core/memory-benchmark-real-data.ts",
+        "packages/main/src/core/activity-log.ts"
+      ]
     }
   ]
 }
