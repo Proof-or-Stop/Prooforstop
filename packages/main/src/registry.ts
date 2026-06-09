@@ -217,7 +217,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   // Non-authoritative: entries cannot satisfy Koala DONE gate evidence.
   registry.registerBatch(createDevMemoryHandlers(ctx));
 
-  // B-d4dd: deterministic virtual lifecycle memory benchmark harness.
+  // B-d4dd/B-2a63: deterministic virtual benchmark + real-data export baseline harnesses.
   registry.registerBatch(createMemoryBenchmarkHandlers(ctx));
 
   // Host-neutral capability discovery for Koala/Lattice adapters.

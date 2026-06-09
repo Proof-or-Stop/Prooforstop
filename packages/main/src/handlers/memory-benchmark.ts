@@ -6,6 +6,10 @@ import {
   runMemoryBenchmark,
   type CandidateCountInput,
 } from '../core/memory-benchmark.js';
+import {
+  renderMemoryBenchmarkRealDataText,
+  runMemoryBenchmarkRealData,
+} from '../core/memory-benchmark-real-data.js';
 
 interface MemoryBenchmarkRunArgs {
   tier?: string;
@@ -20,6 +24,12 @@ interface MemoryBenchmarkCompareArgs {
   candidateCounts?: CandidateCountInput[] | CandidateCountInput;
   queryCount?: number;
   seed?: number;
+  format?: 'text' | 'json';
+  json?: boolean;
+}
+
+interface MemoryBenchmarkRealDataArgs {
+  outputDir?: string;
   format?: 'text' | 'json';
   json?: boolean;
 }
@@ -48,6 +58,14 @@ export function createMemoryBenchmarkHandlers(_ctx: HandlerContext): Record<stri
       });
       if (wantsJson(args)) return result;
       return renderMemoryBenchmarkComparisonText(result);
+    },
+    memory_benchmark_real_data(args: MemoryBenchmarkRealDataArgs = {}) {
+      const result = runMemoryBenchmarkRealData({
+        root: _ctx.root,
+        outputDir: args.outputDir,
+      });
+      if (wantsJson(args)) return result;
+      return renderMemoryBenchmarkRealDataText(result);
     },
   };
 }

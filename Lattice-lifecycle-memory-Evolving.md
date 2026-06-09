@@ -200,6 +200,37 @@ MemoryScore is not Koala lifecycle truth, review pass, validation evidence, deli
 - `memory_benchmark_run`：输出单一 tier 的 deterministic baseline；`qualityScore` 有值，但 `scaleStabilityScore` / `memoryScore` 保持 `null`。
 - `memory_benchmark_compare`：始终以 10k `QualityScore` 作为 baseline 计算 `ScaleStabilityScore` 和 `MemoryScore`，用于比较不同 candidate-count tier 的稳定性。
 
+`memory_benchmark_real_data` 是补充的 **real lifecycle artifact export baseline**。它读取当前项目根目录下已有的 `.koala/activity.jsonl`、`.koala/story/actives/**` story artifacts，以及 `.koala/dev-memory/experience.jsonl`，导出可检查的 `corpus` / `gold` / `queries` / `result` 统计。每条导出的 corpus / gold / query / result 记录都带 `sourcePath`、`sourceHash`、`recordId`、`layer` 和 non-authoritative note，方便人工确认数据确实来自项目生命周期产物。
+
+Usage:
+
+```bash
+node bin/koala.js memory_benchmark_real_data --format=text
+node bin/koala.js memory_benchmark_real_data --format=json
+node bin/koala.js memory_benchmark_real_data --outputDir=.tmp/memory-real-baseline --format=text
+```
+
+When `--outputDir` is provided, the command writes:
+
+- `corpus.jsonl`
+- `gold.jsonl`
+- `queries.jsonl`
+- `result.json`
+
+Scoreable layers are limited to real lifecycle facts:
+
+- `raw_event_memory`: real activity / process events.
+- `lifecycle_state_memory`: real story state and phase facts.
+- `checklist_evidence_memory`: real checklist, verification intent, and verification evidence facts.
+- `summary_memory`: real story summary facts.
+
+Boundary-only layers are exported for visibility but excluded from gold/query scoring:
+
+- `advisory_memory`: project or story dev-memory.
+- `host_transcript_memory`: reserved boundary-only transcript/advisory class.
+
+The command returns `FAIL` with concrete reasons when real activity or story lifecycle scoreable data is missing or empty. Dev-memory alone can never make the benchmark pass. This command is artifact/export proof only: it does not introduce a vector DB, ranking architecture, production memory service, lifecycle authority, review pass, validation evidence, delivery check, receipt verification, or DONE gate evidence.
+
 ### Resource reporting
 
 除非未来 story 单独定义预算，否则以下指标只报告、不门禁：
