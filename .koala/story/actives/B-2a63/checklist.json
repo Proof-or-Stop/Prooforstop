@@ -124,6 +124,26 @@
         "test": [
           "packages/main/src/tasks/memory-real-data-benchmark-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "基于真实 activity/story 数据运行 smoke 或 CLI transcript 时，用户能看到非空 real data 被用于 scoring，gold query 可以匹配到真实记录，且 recall/answer/evidence linkage 分数被实际计算出来。",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "若数据集中同时存在可评分真实数据和仅用于边界说明的 dev-memory 内容，输出必须证明 dev-memory 仅停留在 boundary-only exclusion，不进入 recall/precision 或 gold 命中计算。",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "当 real activity/story 数据为空、不可解析或只剩 boundary-only 内容时，命令必须显式 FAIL 并解释缺少真实数据，而不是生成看似成功的空 baseline 或 fake PASS。",
+            "type": "cli"
+          }
+        ]
       }
     }
   ]
