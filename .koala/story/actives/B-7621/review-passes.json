@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-7621:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Concept review passed: the document defines Parallel Development as horizontal coordination, explicitly not a sixth baseline, and cleanly separates outer workstream scheduling from inner Loop Engineering loops.",
+      "createdAt": "2026-06-09T20:49:26.308Z",
+      "reviewRound": "2026-06-09T20:48:48.857Z",
+      "reviewRunId": "B-7621:RR-001",
+      "_hash": "341cfb09d9d99df80e2d9e3da43d0ec5160d42077bba88d20a4ec7ffe5a9635e"
+    },
+    {
+      "id": "B-7621:RP-002",
+      "agent": "koala-review-quality",
+      "note": "Quality review passed: document has executable sections for shared contract freeze, workstream ownership, shadow mode, merge queue, stop conditions, and DONE criteria; git diff --check passed.",
+      "createdAt": "2026-06-09T20:49:35.646Z",
+      "reviewRound": "2026-06-09T20:48:48.857Z",
+      "reviewRunId": "B-7621:RR-002",
+      "_hash": "497327885aa0621cec86e6c6965239a7a1da829d4b07fd01577c091b284fcfa7"
+    },
+    {
+      "id": "B-7621:RP-003",
+      "agent": "koala-review-test-coverage",
+      "note": "Test coverage review passed: CHK-001 happy, edge, and adversarial docs_check evidence covers definition/core rule, non-goal boundaries, and fail-closed risks for false DONE, schema drift, stale evidence, and lower-layer proof gaps.",
+      "createdAt": "2026-06-09T20:49:45.388Z",
+      "reviewRound": "2026-06-09T20:48:48.857Z",
+      "reviewRunId": "B-7621:RR-003",
+      "_hash": "b2a090784a3515b43ca12178a5e705407fbb52ec250345f73e137a9e51e082d3"
+    },
+    {
+      "id": "B-7621:RP-004",
+      "agent": "koala-review-docs",
+      "note": "Docs review passed: the new document is complete, has no TODO/FIXME/PLACEHOLDER/TBD markers, and keeps referenced Parallel Wave, Loop Engineering, Capability Claim, and Authority boundaries intact.",
+      "createdAt": "2026-06-09T20:49:54.171Z",
+      "reviewRound": "2026-06-09T20:48:48.857Z",
+      "reviewRunId": "B-7621:RR-004",
+      "_hash": "ad529f23085f889fece0d6dd6ed7e6449a93d97d07824b2b76feedf53c7e9edb"
+    }
+  ]
+}

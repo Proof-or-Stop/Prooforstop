@@ -1,0 +1,68 @@
+{
+  "principles": [
+    "Parallel Development 是横向协调能力，不是新的 baseline 层。",
+    "并行实现可以提高吞吐，但能力证明和 claim unlock 必须顺序、fail-closed。",
+    "共享契约、ownership、merge queue 和 evidence gate 是并行开发的底线。",
+    "Loop Engineering 是 workstream 内部机制，Parallel Development 是 workstream 外部协调机制。"
+  ],
+  "drivers": [
+    "用户需要明确可执行方案来加速后续 baseline 开发。",
+    "文档必须避免让高层能力提前 PASS 或提前宣传。",
+    "现有 Parallel Wave、Loop Engineering、Capability Claim 文档已经有边界，不能冲突。"
+  ],
+  "options": [
+    {
+      "name": "A: 新增独立 Parallel Development 能力文档",
+      "pros": [
+        "横向能力边界清楚，不污染 2-5 层 baseline 文档。",
+        "可以详细写 workstream、shared contract、shadow mode、merge queue、dogfooding。",
+        "后续开发可直接引用一份协调协议。"
+      ],
+      "cons": [
+        "会多一个文档，需要清楚声明不是第 6 层 baseline。"
+      ]
+    },
+    {
+      "name": "B: 合并进 Capability Claim 文档",
+      "pros": [
+        "减少文档数量。",
+        "claim 顺序边界已经在那里。"
+      ],
+      "cons": [
+        "Parallel Development 是开发协调，不只是 claim 授权，塞进 claim 文档会混淆执行与声明。"
+      ]
+    },
+    {
+      "name": "C: 合并进 Loop Engineering 文档",
+      "pros": [
+        "Loop 与并行工作流有关系。"
+      ],
+      "cons": [
+        "Loop Engineering 管单个 workstream 内部闭环，Parallel Development 管多个 workstream 外部调度，合并会制造职责混乱。"
+      ]
+    }
+  ],
+  "chosen": "A: 新增独立 Parallel Development 能力文档",
+  "rationale": "选择独立文档可以把它定义为横向加速能力，同时明确不是第 6 层 baseline，也不改变顺序 proof/claim gate。",
+  "preMortem": [
+    {
+      "scenario": "文档被误读成第 6 层 baseline",
+      "trigger": "标题或 suite acceptance 写成新的层级证明",
+      "consequence": "后续团队会试图并行证明能力，破坏 claim discipline",
+      "mitigation": "在 Purpose/Non-goals/Core Rule 中明确不是 baseline，不授权新 claim"
+    },
+    {
+      "scenario": "Parallel Development 绕过 Loop Engineering",
+      "trigger": "workstream marked complete while internal loop still open",
+      "consequence": "false DONE 或未闭合 review loop 被合并",
+      "mitigation": "要求每个 workstream 完成前 loop closed/blocked/escalated 且 evidence fresh"
+    },
+    {
+      "scenario": "并行开发导致共享 schema drift",
+      "trigger": "多个 workstream 同时修改 artifact schema 或 gate semantics",
+      "consequence": "集成时无法比较 evidence 和 claim report",
+      "mitigation": "先冻结 shared contract，共享契约变更走 coordinator approval 和 merge queue"
+    }
+  ],
+  "timestamp": "2026-06-09T20:43:10.080Z"
+}

@@ -1,0 +1,31 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-06-09T20:43:50.420Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        }
+      ],
+      "_hash": "ec6f19d6d6442a7ab279f1cf32e4a534a984e4d199917d4441635991d518304a"
+    },
+    {
+      "timestamp": "2026-06-09T20:45:01.417Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "review_advisory",
+          "severity": "advisory",
+          "message": "The review found no blockers, but it is recommended to manually verify checklist completeness against the source-of-truth documents in _reviewPrompt"
+        }
+      ],
+      "_hash": "cfca6903707e831ce79834c994295fe24ba50ecd29a022ede69e0c682e6240ce"
+    }
+  ]
+}
