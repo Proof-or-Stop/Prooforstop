@@ -759,7 +759,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     json: z.boolean().optional().describe('Shortcut for --format=json'),
   }},
   { name: 'memory_benchmark_real_data', description: 'Export a non-authoritative real lifecycle data baseline corpus/gold/query/result set (text/json)', schema: {
-    outputDir: z.string().optional().describe('Optional output directory for corpus.jsonl, gold.jsonl, queries.jsonl, and result.json'),
+    outputDir: z.string().optional().describe('Optional output directory for corpus.jsonl, gold.jsonl, queries.jsonl, and result.json; refuses to overwrite existing output files'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
   }},

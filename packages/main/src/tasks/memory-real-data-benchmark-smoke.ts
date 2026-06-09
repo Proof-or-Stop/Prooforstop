@@ -124,7 +124,7 @@ function seedRealLifecycleData(root: string): string {
     changes: 'Added memory_benchmark_real_data export.',
     usage: 'Run memory_benchmark_real_data with optional outputDir.',
     expectedOutcome: 'User sees PASS and output paths.',
-    actualTranscript: 'Memory Real-Data Benchmark: PASS',
+    actualTranscript: 'Real Memory Benchmark Data: PASS',
     outcomeDiff: 'Actual matches expected.',
     acceptanceVerdict: 'accepted',
     realMachineCoverage: { ran: [], skipped: [] },
@@ -197,6 +197,21 @@ function assertTraceFields(row: { recordId?: unknown; layer?: unknown; sourcePat
     assert.equal(lineCount(outputResult.outputFiles!.corpus), outputResult.stats.corpusRecords);
     assert.equal(lineCount(outputResult.outputFiles!.gold), outputResult.stats.goldRecords);
     assert.equal(lineCount(outputResult.outputFiles!.queries), outputResult.stats.queryRecords);
+    assert.throws(
+      () => runMemoryBenchmarkRealData({ root, outputDir }),
+      /refuses to overwrite output files/,
+      'outputDir writes refuse to overwrite existing benchmark artifacts',
+    );
+    assert.throws(
+      () => runMemoryBenchmarkRealData({ root, outputDir: join(root, 'docs/story/memory-real-baseline') }),
+      /refuses to write outputDir under docs\/story/,
+      'outputDir writes refuse to target story state',
+    );
+    assert.throws(
+      () => runMemoryBenchmarkRealData({ root, outputDir: join(root, 'packages/main/tests/fixtures/memory-real-baseline') }),
+      /refuses to write outputDir under packages\/main\/tests\/fixtures/,
+      'outputDir writes refuse to target fixture state',
+    );
 
     const handlers = createMemoryBenchmarkHandlers({
       root,
@@ -243,7 +258,10 @@ function assertTraceFields(row: { recordId?: unknown; layer?: unknown; sourcePat
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     });
-    assert.match(cliText, /Memory Real-Data Benchmark: PASS/);
+    assert.match(cliText, /Real Memory Benchmark Data: PASS/);
+    assert.match(cliText, /corpusRecords=/);
+    assert.match(cliText, /goldRecords=/);
+    assert.match(cliText, /devMemoryExcludedFromScoring=true/);
     assert.match(cliText, /corpus\.jsonl/);
     assert.match(cliText, /result\.json/);
   } finally {

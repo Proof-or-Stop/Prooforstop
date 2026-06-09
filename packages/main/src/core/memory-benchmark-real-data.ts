@@ -842,6 +842,13 @@ function assertAllowedOutputDir(root: string, outputDir: string): string {
   return absOutputDir;
 }
 
+function assertOutputFilesDoNotExist(files: MemoryBenchmarkRealDataOutputFiles): void {
+  const existing = Object.values(files).filter((filePath) => existsSync(filePath));
+  if (existing.length > 0) {
+    throw new Error(`memory_benchmark_real_data refuses to overwrite output files: ${existing.join(', ')}`);
+  }
+}
+
 function writeOutputFiles(
   root: string,
   outputDir: string,
@@ -851,13 +858,14 @@ function writeOutputFiles(
   result: Omit<MemoryBenchmarkRealDataRunResult, 'corpus' | 'gold' | 'queries'>,
 ): MemoryBenchmarkRealDataOutputFiles {
   const absOutputDir = assertAllowedOutputDir(root, outputDir);
-  mkdirSync(absOutputDir, { recursive: true });
   const files: MemoryBenchmarkRealDataOutputFiles = {
     corpus: join(absOutputDir, 'corpus.jsonl'),
     gold: join(absOutputDir, 'gold.jsonl'),
     queries: join(absOutputDir, 'queries.jsonl'),
     result: join(absOutputDir, 'result.json'),
   };
+  assertOutputFilesDoNotExist(files);
+  mkdirSync(absOutputDir, { recursive: true });
   writeJsonl(files.corpus, corpus);
   writeJsonl(files.gold, gold);
   writeJsonl(files.queries, queries);
@@ -923,12 +931,14 @@ function fileSize(path: string): number | null {
 
 export function renderMemoryBenchmarkRealDataText(result: MemoryBenchmarkRealDataRunResult): string {
   const lines = [
-    `Memory Real-Data Benchmark: ${result.verdict}`,
+    `Real Memory Benchmark Data: ${result.verdict}`,
     `note: ${result.note}`,
-    `corpus=${result.stats.corpusRecords} scoreable=${result.stats.scoreableCorpusRecords} boundaryOnly=${result.stats.boundaryOnlyCorpusRecords}`,
-    `gold=${result.stats.goldRecords} queries=${result.stats.queryRecords} results=${result.stats.resultRecords} exactRecordMatchRate=${result.stats.exactRecordMatchRate.toFixed(3)}`,
+    `corpusRecords=${result.stats.corpusRecords} scoreableCorpusRecords=${result.stats.scoreableCorpusRecords} boundaryOnlyRecords=${result.stats.boundaryOnlyCorpusRecords}`,
+    `goldRecords=${result.stats.goldRecords} queryRecords=${result.stats.queryRecords} resultRecords=${result.stats.resultRecords} exactRecordMatchRate=${result.stats.exactRecordMatchRate.toFixed(3)}`,
+    `scoreableLayers=${result.layers.scoreable.join(',')}`,
+    `boundaryOnlyLayers=${result.layers.boundaryOnly.join(',')} boundaryOnlyRecords=${result.stats.boundaryOnlyCorpusRecords} excludedFromScoring=true`,
     `scoreable by source: activity=${result.stats.activityScoreableRecords} story=${result.stats.storyScoreableRecords} checklist=${result.stats.checklistScoreableRecords} summary=${result.stats.summaryScoreableRecords} evidence=${result.stats.evidenceScoreableRecords}`,
-    `boundary-only dev-memory=${result.stats.devMemoryBoundaryRecords} (excluded from gold/query scoring)`,
+    `devMemoryExcludedFromScoring=true devMemoryBoundaryRecords=${result.stats.devMemoryBoundaryRecords}`,
   ];
   if (result.reasons.length > 0) {
     lines.push('FAIL reasons:');

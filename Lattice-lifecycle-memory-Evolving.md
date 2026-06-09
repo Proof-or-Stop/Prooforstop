@@ -207,10 +207,10 @@ Usage:
 ```bash
 node bin/koala.js memory_benchmark_real_data --format=text
 node bin/koala.js memory_benchmark_real_data --format=json
-node bin/koala.js memory_benchmark_real_data --outputDir=.tmp/memory-real-baseline --format=text
+node bin/koala.js memory_benchmark_real_data --outputDir=.lattice/tmp/memory-real-baseline --format=text
 ```
 
-When `--outputDir` is provided, the command writes:
+Text output starts with `Real Memory Benchmark Data: PASS` or `Real Memory Benchmark Data: FAIL`, then reports `corpusRecords`, `goldRecords`, `queryRecords`, `resultRecords`, `exactRecordMatchRate`, scoreable layers, boundary-only layers, and per-source `sourcePath` / `sourceHash` / record counts. When `--outputDir` is provided, the command writes the following files and refuses to overwrite an existing target file:
 
 - `corpus.jsonl`
 - `gold.jsonl`
