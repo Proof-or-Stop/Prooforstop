@@ -76,6 +76,26 @@
         "test": [
           "packages/main/src/tasks/memory-real-data-benchmark-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "执行 real-data benchmark CLI 并传入 outputDir 后，用户能在指定目录看到 corpus.jsonl、gold.jsonl、queries.jsonl、result.json 四个文件，且终端明确打印这些路径与 PASS/FAIL 汇总。",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "写出的 result.json 和终端摘要必须明确标注哪些内容处于 non-authority boundary，尤其是 boundary-only 或 advisory 数据不能被写成 scoreable gold/result 主体。",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "当输入跨越真实 authority 数据与 dev-memory 边界时，artifact 只能导出 real-data baseline 所需的真实数据与 boundary 注释；dev-memory 内容若仅属 boundary-only，应被排除在 scoreable corpus/gold/query/result 之外。",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
