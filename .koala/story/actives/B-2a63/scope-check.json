@@ -1,6 +1,6 @@
 {
   "storyId": "B-2a63",
-  "checkedAt": "2026-06-09T01:40:32.230Z",
+  "checkedAt": "2026-06-09T02:29:40.199Z",
   "features": [
     {
       "feature": "Real-data baseline output exposes non-empty corpus/gold/query/result stats plus real source metadata for audit",
@@ -31,6 +31,13 @@
       "source": "description"
     },
     {
+      "feature": "Protected lifecycle-managed outputDir paths are rejected so the real-data benchmark stays within read-only lifecycle policy",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "finding-fix"
+    },
+    {
       "feature": "Smoke verification proves real activity/story data can be scored while boundary-only dev-memory stays out of recall and precision",
       "covered_by": "CHK-003",
       "status": "covered",
@@ -46,28 +53,14 @@
     }
   ],
   "summary": {
-    "total": 6,
-    "covered": 6,
+    "total": 7,
+    "covered": 7,
     "excluded": 0,
     "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
-  "reviewRound": "",
-  "_hash": "56b167b4612aa5ef96993489083a8e9f2ad9c75a6f27d0152a4d4a87e2f728f0",
-  "openQuestions": [
-    {
-      "id": "OQ-1",
-      "q": "Should the story explicitly own or exclude the existing virtual benchmark files packages/main/src/core/memory-benchmark.ts and packages/main/src/tasks/memory-benchmark-smoke.ts?",
-      "evidence": "The story background and understanding frame this work as adding a real-data path alongside the existing deterministic virtual harness, and the current review metadata already flags those legacy files as uncovered touchpoints. The current understanding.touchpoints and checklist files omit both files, so it is unclear whether they are intentionally unchanged or accidentally missing from scope ownership.",
-      "sourcePointers": [
-        "Lattice-lifecycle-memory-Evolving.md#current-cli-harness-usage",
-        "CHK-001",
-        "CHK-002",
-        "CHK-003"
-      ],
-      "resolution": "Resolution: packages/main/src/core/memory-benchmark.ts and packages/main/src/tasks/memory-benchmark-smoke.ts are explicitly protected legacy virtual-harness surfaces for this story. Lattice-lifecycle-memory-Evolving.md already states current memory_benchmark_run/compare are deterministic virtual corpus harness commands; B-2a63 adds a separate real-data path instead of changing those commands. Checklist CHK-001/002/003 own the new real-data core and smoke files plus handler/CLI wiring only. If implementation discovers a true correctness issue requiring changes to the virtual files, the story must return to PLAN and update scope before editing them.",
-      "resolvedAt": "2026-06-09T01:41:09.972Z"
-    }
-  ]
+  "reviewRound": "2026-06-09T02:06:12.444Z",
+  "_hash": "aa31c8c2cdfdc24e07478644c6e79640b73d9cbf8541f0df4b840c453d4bd6b4",
+  "openQuestions": []
 }
