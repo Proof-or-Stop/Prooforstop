@@ -93,7 +93,35 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "用户打开 Lattice-Production-Safety-baseline.md，看到 Production Safety Baseline 的 false DONE trap、unsafe block、Authority receipt、多 host、stale verdict、no local fallback、soak、recovery、auditability 验证方案。",
+      "files": {
+        "modify": [],
+        "create": [
+          "Lattice-Production-Safety-baseline.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "文档列出 SAFE-*、AUTH-*、PROD-* baseline，并为每项写清 test setup、required artifacts、pass criteria、fail criteria。",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "文档必须把 0 false DONE 写成 suite-level hard gate，并说明任何 false DONE 都使该层和上层 claim 失效。",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "文档不得把 safety pass 简化为一次测试通过；必须包含长期 soak、stale evidence、receipt verification 和 no silent fallback。",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
