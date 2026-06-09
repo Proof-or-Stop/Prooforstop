@@ -11,7 +11,7 @@
       ],
       "status": "done",
       "startTime": "2026-06-09T01:42:55.138Z",
-      "endTime": "2026-06-09T01:54:48.568Z",
+      "endTime": "2026-06-09T02:05:28.755Z",
       "userSees": "Terminal includes: \"Real Memory Benchmark Data: PASS\", \"corpusRecords=... goldRecords=... queries=...\", \"scoreableLayers=raw_event_memory,lifecycle_state_memory,checklist_evidence_memory,summary_memory\", \"boundaryOnlyRecords=... excludedFromScoring=true\" and \"note: Benchmark PASS is not Koala lifecycle gate authority\".",
       "files": {
         "modify": [
@@ -48,22 +48,22 @@
         {
           "intentRef": "CHK-001:happy:0",
           "kind": "manual_transcript",
-          "command": "node bin/koala.js memory_benchmark_real_data --format=text",
+          "command": "node bin/koala.js memory_benchmark_real_data --outputDir=.lattice/tmp/memory-real-baseline-audit --format=text",
           "result": "pass",
-          "note": "Text output returned PASS with corpus=374, gold=374, queries=374, results=374 and sample scoreable records carrying sourcePath/sourceHash/recordId/layer.",
-          "headHash": "9e5b2ced04fbbe060fa506af23c2efca3997a134",
-          "materialHash": "e42f3d3199ec1705b8a13c0d0967eb135a8a008ec980f8af47c546fb5720c05f",
-          "timestamp": "2026-06-09T01:54:48.604Z"
+          "note": "Real repository lifecycle data returned Real Memory Benchmark Data: PASS with corpusRecords=389, goldRecords=389, queryRecords=389, resultRecords=389, exactRecordMatchRate=1.000, and printed sourcePath/sourceHash/record counts for 36 sources.",
+          "headHash": "5e96d6123c6f9c23381337405f22b8fe3a45a3e9",
+          "materialHash": "09f2d0bbb82d930c7a4f531a258e73fa37539a979b1a645af7dda9868e763f1c",
+          "timestamp": "2026-06-09T02:05:28.787Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "manual_transcript",
-          "command": "npm --prefix packages/main run test:memory-real-data-benchmark-smoke",
+          "command": "node -e inspect .lattice/tmp/memory-real-baseline-audit/result.json",
           "result": "pass",
-          "note": "Smoke seeded scoreable lifecycle records plus dev-memory; asserted devMemoryBoundaryRecords=1 and no dev-memory rows in gold or queries.",
-          "headHash": "9e5b2ced04fbbe060fa506af23c2efca3997a134",
-          "materialHash": "e42f3d3199ec1705b8a13c0d0967eb135a8a008ec980f8af47c546fb5720c05f",
-          "timestamp": "2026-06-09T01:54:48.635Z"
+          "note": "Result artifact reports scoreable layers raw_event_memory,lifecycle_state_memory,checklist_evidence_memory,summary_memory; boundary-only layers advisory_memory,host_transcript_memory; boundaryGoldRecords=0 and boundaryQueryRecords=0.",
+          "headHash": "5e96d6123c6f9c23381337405f22b8fe3a45a3e9",
+          "materialHash": "09f2d0bbb82d930c7a4f531a258e73fa37539a979b1a645af7dda9868e763f1c",
+          "timestamp": "2026-06-09T02:05:28.819Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -71,10 +71,10 @@
           "file": "Lattice-lifecycle-memory-Evolving.md",
           "command": "node bin/koala.js memory_benchmark_real_data --format=json",
           "result": "pass",
-          "note": "JSON output and docs preserve the non-authoritative note: not gate authority, review pass, validation evidence, delivery check, receipt, vector DB, or production memory architecture.",
-          "headHash": "9e5b2ced04fbbe060fa506af23c2efca3997a134",
-          "materialHash": "e42f3d3199ec1705b8a13c0d0967eb135a8a008ec980f8af47c546fb5720c05f",
-          "timestamp": "2026-06-09T01:54:48.661Z"
+          "note": "JSON output and docs preserve the non-authoritative note: not lifecycle gate authority, review pass, validation evidence, delivery check, receipt, vector DB, or production memory architecture.",
+          "headHash": "5e96d6123c6f9c23381337405f22b8fe3a45a3e9",
+          "materialHash": "09f2d0bbb82d930c7a4f531a258e73fa37539a979b1a645af7dda9868e763f1c",
+          "timestamp": "2026-06-09T02:05:28.845Z"
         }
       ]
     },
