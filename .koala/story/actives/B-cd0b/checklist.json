@@ -84,9 +84,9 @@
         "Lattice-Parallel-Development-Capability.md",
         "docs/requirements/decisions/authority-client-role.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-09T22:28:05.839Z",
-      "endTime": null,
+      "endTime": "2026-06-09T22:33:07.396Z",
       "verificationIntent": {
         "happy": [
           {
@@ -117,7 +117,39 @@
         ],
         "create": [],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"authorityMode|evidenceClass|receiptVerified|productionDone|authorityChanged|authorityReceiptRefs\" Lattice-Parallel-Development-Capability.md",
+          "result": "pass",
+          "note": "The final-report example, readiness checklist, before-claiming checklist, anti-patterns, and DONE criteria use the same authority boundary fields consistently.",
+          "headHash": "d9473d8c5f063c4106b731f214636a52590b5120",
+          "materialHash": "31ffec8184c373af519ccf3aa7868f142528f9b4d22f14996690c656e72d903c",
+          "timestamp": "2026-06-09T22:33:07.463Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "command": "nl -ba Lattice-Parallel-Development-Capability.md | sed -n \"608,688p\"",
+          "result": "pass",
+          "note": "The final-report and readiness/DONE text present a future-facing contract while preserving false receiptVerified/productionDone/authorityChanged for local/off and shadow runs.",
+          "headHash": "d9473d8c5f063c4106b731f214636a52590b5120",
+          "materialHash": "31ffec8184c373af519ccf3aa7868f142528f9b4d22f14996690c656e72d903c",
+          "timestamp": "2026-06-09T22:33:07.514Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Local CLI REVIEW/TEST/DONE described as production authority|Transport `accepted: true` described as receipt verification|Shadow diagnostics setting `receiptVerified=true`\" Lattice-Parallel-Development-Capability.md",
+          "result": "pass",
+          "note": "Anti-patterns explicitly reject local/shadow/transport evidence being treated as production authority, and DONE criteria require receipt-backed conditions before authority wording.",
+          "headHash": "d9473d8c5f063c4106b731f214636a52590b5120",
+          "materialHash": "31ffec8184c373af519ccf3aa7868f142528f9b4d22f14996690c656e72d903c",
+          "timestamp": "2026-06-09T22:33:07.566Z"
+        }
+      ]
     }
   ]
 }
