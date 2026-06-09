@@ -23,7 +23,7 @@
       "desc": "memory_benchmark_real_data is not config-driven for story roots: resolveStoryRootPaths only adds loadConfig(root).storyDir when it starts with \".koala/\" (packages/main/src/core/memory-benchmark-real-data.ts:384-392), while buildReasons still hard-fails on missing \".koala/story/actives\" (packages/main/src/core/memory-benchmark-real-data.ts:795-802). That conflicts with the project config/default contract where storyDir is configurable and defaults to docs/story/actives (packages/main/src/core/config.ts:269-274), and StoryStore reads the configured path plus legacy fallback (packages/main/src/core/store.ts:35-61). Verified repros: (1) storyDir=\".koala/custom-actives\" with real activity + index.json => FAIL \"missing real story source root: .koala/story/actives\"; (2) storyDir=\"docs/story/actives\" with real activity + index.json => collector ignores the configured root and returns the same false FAIL. This breaks host-neutral/boundary correctness because PASS/FAIL depends on repo layout instead of whether real lifecycle data exists.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-concept",
       "createdAt": "2026-06-09T02:10:56.256Z",
@@ -34,7 +34,9 @@
         "packages/main/src/core/memory-benchmark-real-data.ts",
         "packages/main/src/core/config.ts",
         "packages/main/src/core/store.ts"
-      ]
+      ],
+      "resolvedReason": "Resolved in commit d286e2fe: real-data benchmark now includes configured storyDir plus .koala/docs defaults, buildReasons accepts any existing configured/default story root with scoreable lifecycle data, and smoke proves .koala/custom-actives and docs/story/actives configured roots pass.",
+      "resolvedAt": "2026-06-09T02:31:33.636Z"
     },
     {
       "id": "B-2a63:F-003",
