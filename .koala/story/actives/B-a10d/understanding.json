@@ -5,7 +5,8 @@
     "Development Baseline 已经在另一个工作流中开发，本 story 不重写 Layer 1。",
     "用户要求第 2 到第 5 层每层单独一份详细执行方案文档。",
     "层级顺序是 Development -> Engineering -> Loop Engineering -> Production Safety -> Capability Claim。",
-    "0 false DONE 是所有层的硬门槛，而不是某一个可选 baseline。"
+    "0 false DONE 是所有层的硬门槛，而不是某一个可选 baseline。",
+    "Lattice-Review-reflection-loop.md 和 docs/requirements/decisions 下的文档只作为参考，不在本 story 修改。"
   ],
   "constraints": [
     "只写文档，不修改 Lattice runtime、Authority、security、migration 或生产逻辑。",
@@ -18,10 +19,7 @@
     "Lattice-Engineering-baseline.md",
     "Lattice-Loop-Engineering-baseline.md",
     "Lattice-Production-Safety-baseline.md",
-    "Lattice-Capability-Claim-baseline.md",
-    "Lattice-Review-reflection-loop.md",
-    "docs/requirements/decisions/testing-completeness.md",
-    "docs/requirements/decisions/story-lifecycle.md"
+    "Lattice-Capability-Claim-baseline.md"
   ],
-  "timestamp": "2026-06-09T19:10:31.027Z"
+  "timestamp": "2026-06-09T19:13:01.191Z"
 }
