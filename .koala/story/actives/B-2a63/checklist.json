@@ -25,7 +25,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "memory_benchmark_real_data --outputDir=<dir> writes corpus.jsonl, gold.jsonl, queries.jsonl, result.json and prints their paths plus PASS/FAIL status.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/memory-benchmark.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/package.json",
+          "Lattice-lifecycle-memory-Evolving.md"
+        ],
+        "create": [
+          "packages/main/src/core/memory-benchmark-real-data.ts",
+          "packages/main/src/tasks/memory-real-data-benchmark-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/memory-real-data-benchmark-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-003",
