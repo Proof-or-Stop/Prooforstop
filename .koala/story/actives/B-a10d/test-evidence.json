@@ -1,0 +1,256 @@
+{
+  "command": "koala validate --story=B-a10d --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.5 test\",\"  > npm run test:e2e\",\"  > koala@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-po46al; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-HFgrL0; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 12/12 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/docs] covered via docs_check (Lattice-Engineering-baseline.md) — 文档包含 ENG-MULTI-FILE、ENG-EXISTING-REPO、ENG-BUGFIX、ENG-REGRESSION、ENG-DATA-MIGRATION、ENG-AUTH-SECURITY、ENG-FRONTEND-VISUAL、ENG-LONG-RUN、ENG-LOOP-REVIEW，并为每项写明输入、步骤、证据、pass/fail。\",\"  ✓ CHK-001:edge:0 [edge/must/docs] covered via docs_check (Lattice-Engineering-baseline.md) — 文档必须明确 Engineering Baseline 依赖 Development Baseline 通过，且不能宣称 production-grade 或 unattended development。\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/docs] covered via docs_check (Lattice-Engineering-baseline.md) — 搜索文档不得出现把未验证能力写成 already production-ready 或 arbitrary project development 的 overclaim。\",\"  ✓ CHK-002:happy:0 [happy/must/docs] covered via docs_check (Lattice-Loop-Engineering-baseline.md) — 文档包含 Loop Engineering/UDM 的核心闭环组件：intake、planner、executor、repair loop、review loop、evidence、gate、block/escalate、multi-host review、no false DONE。\",\"  ✓ CHK-002:edge:0 [edge/must/docs] covered via docs_check (Lattice-Loop-Engineering-baseline.md) — 文档必须明确 loop 有预算、停止条件、人类交接和 blocked/escalated 结果，不能描述为无限自动循环。\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/docs] covered via docs_check (Lattice-Loop-Engineering-baseline.md) — 文档不得把 Loop Engineering 描述成 prompt trick 或自动脚本；必须是 bounded evidence-driven engineering system。\",\"  ✓ CHK-003:happy:0 [happy/must/docs] covered via docs_check (Lattice-Production-Safety-baseline.md) — 文档列出 SAFE-*、AUTH-*、PROD-* baseline，并为每项写清 test setup、required artifacts、pass criteria、fail criteria。\",\"  ✓ CHK-003:edge:0 [edge/must/docs] covered via docs_check (Lattice-Production-Safety-baseline.md) — 文档必须把 0 false DONE 写成 suite-level hard gate，并说明任何 false DONE 都使该层和上层 claim 失效。\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/docs] covered via docs_check (Lattice-Production-Safety-baseline.md) — 文档不得把 safety pass 简化为一次测试通过；必须包含长期 soak、stale evidence、receipt verification 和 no silent fallback。\",\"  ✓ CHK-004:happy:0 [happy/must/docs] covered via docs_check (Lattice-Capability-Claim-baseline.md) — 文档包含 CLAIM-BASIC-DEV、CLAIM-ENGINEERING-DEV、CLAIM-LOOP-ENGINEERING、CLAIM-PRODUCTION-SAFETY 的 unlock 条件和 required evidence。\",\"  ✓ CHK-004:edge:0 [edge/must/docs] covered via docs_check (Lattice-Capability-Claim-baseline.md) — 文档必须说明高层 baseline 可以提前实现，但高层 claim 必须等待所有低层通过。\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/docs] covered via docs_check (Lattice-Capability-Claim-baseline.md) — 文档必须包含 prohibited claims，禁止在缺少 suite artifacts、final reports、Authority evidence 或 0 false DONE 证明时宣传能力。\"],\"warnings\":[],\"timestamp\":\"2026-06-09T20:02:36.376Z\",\"headSha\":\"8a324c893c6e805c9346ab233ef6c2e949ad6255\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-po46al; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-HFgrL0; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":856}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":12,\"reason\":\"verificationIntent entries present (12)\"},\"verificationCoverage\":{\"total\":12,\"required\":12,\"covered\":12,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"文档包含 ENG-MULTI-FILE、ENG-EXISTING-REPO、ENG-BUGFIX、ENG-REGRESSION、ENG-DATA-MIGRATION、ENG-AUTH-SECURITY、ENG-FRONTEND-VISUAL、ENG-LONG-RUN、ENG-LOOP-REVIEW，并为每项写明输入、步骤、证据、pass/fail。\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"docs_check\",\"file\":\"Lattice-Engineering-baseline.md\",\"command\":\"git diff --check -- Lattice-Engineering-baseline.md && rg -n \\\"required_engineering_runs|overall_correctness_protected_success_rate|required_correctness_rate|maturity_target\\\" Lattice-Engineering-baseline.md\",\"result\":\"pass\",\"note\":\"Engineering Baseline now defines maturity_target, required_engineering_runs, and a mechanical weighted correctness-protected success-rate formula so suite acceptance is executable.\",\"headHash\":\"0ac484d95652047aea8cd52f8eededb5a3cf5699\",\"materialHash\":\"1b7bf76214c6db328db81b42dd2273b98cf3d38246c17bbd875f2a3d32a816b2\",\"timestamp\":\"2026-06-09T19:53:26.077Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"文档必须明确 Engineering Baseline 依赖 Development Baseline 通过，且不能宣称 production-grade 或 unattended development。\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"docs_check\",\"file\":\"Lattice-Engineering-baseline.md\",\"command\":\"rg -n \\\"Depends on: Development Baseline real PASS|does not allow|production-grade unattended\\\" Lattice-Engineering-baseline.md\",\"result\":\"pass\",\"note\":\"Engineering document still explicitly depends on Development Baseline real PASS and forbids production-grade unattended claims from this layer.\",\"headHash\":\"6aecd32b308b2b18f5a5868742a808271589f4c6\",\"materialHash\":\"1b7bf76214c6db328db81b42dd2273b98cf3d38246c17bbd875f2a3d32a816b2\",\"timestamp\":\"2026-06-09T19:55:22.140Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"搜索文档不得出现把未验证能力写成 already production-ready 或 arbitrary project development 的 overclaim。\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"Lattice-Engineering-baseline.md\",\"command\":\"rg -n \\\"Forbidden wording|Lattice can develop any project|Lattice is production-ready\\\" Lattice-Engineering-baseline.md\",\"result\":\"pass\",\"note\":\"Engineering document still contains forbidden wording examples that block arbitrary-project and production-ready overclaims.\",\"headHash\":\"6aecd32b308b2b18f5a5868742a808271589f4c6\",\"materialHash\":\"1b7bf76214c6db328db81b42dd2273b98cf3d38246c17bbd875f2a3d32a816b2\",\"timestamp\":\"2026-06-09T19:55:22.140Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"文档包含 Loop Engineering/UDM 的核心闭环组件：intake、planner、executor、repair loop、review loop、evidence、gate、block/escalate、multi-host review、no false DONE。\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"docs_check\",\"file\":\"Lattice-Loop-Engineering-baseline.md\",\"command\":\"rg -n \\\"UDM-INTAKE-PLAN-1|UDM-EXECUTOR-1|UDM-REPAIR-LOOP-1|UDM-REVIEW-LOOP-1|UDM-EVIDENCE-GATE-1|UDM-NO-FALSE-DONE-1\\\" Lattice-Loop-Engineering-baseline.md\",\"result\":\"pass\",\"note\":\"Loop Engineering document still covers the UDM intake, executor, repair loop, review loop, evidence gate, and no false DONE baselines.\",\"headHash\":\"6aecd32b308b2b18f5a5868742a808271589f4c6\",\"materialHash\":\"1b7bf76214c6db328db81b42dd2273b98cf3d38246c17bbd875f2a3d32a816b2\",\"timestamp\":\"2026-06-09T19:55:22.140Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"文档必须明确 loop 有预算、停止条件、人类交接和 blocked/escalated 结果，不能描述为无限自动循环。\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"docs_check\",\"file\":\"Lattice-Loop-Engineering-baseline.md\",\"command\":\"git diff --check -- Lattice-Loop-Engineering-baseline.md && rg -n \\\"trigger_requires_human_decision|humanDecisionEvidence|DONE is blocked|run resumes only\\\" Lattice-Loop-Engineering-baseline.md\",\"result\":\"pass\",\"note\":\"UDM-HUMAN-HANDOFF-1 now seeds a human-only decision and requires blocked/escalated outcome, no DONE before human evidence, and resume only after human evidence.\",\"headHash\":\"434164b0e872b35831a049fc07f6eb26698ad127\",\"materialHash\":\"1b7bf76214c6db328db81b42dd2273b98cf3d38246c17bbd875f2a3d32a816b2\",\"timestamp\":\"2026-06-09T19:53:33.277Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"文档不得把 Loop Engineering 描述成 prompt trick 或自动脚本；必须是 bounded evidence-driven engineering system。\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"Lattice-Loop-Engineering-baseline.md\",\"command\":\"rg -n \\\"prompt trick|automatic script|bounded|Forbidden wording|unlimited autonomous\\\" Lattice-Loop-Engineering-baseline.md\",\"result\":\"pass\",\"note\":\"Loop Engineering remains framed as bounded engineering rather than prompt trick or unlimited automation, with forbidden wording retained.\",\"headHash\":\"6aecd32b308b2b18f5a5868742a808271589f4c6\",\"materialHash\":\"1b7bf76214c6db328db81b42dd2273b98cf3d38246c17bbd875f2a3d32a816b2\",\"timestamp\":\"2026-06-09T19:55:22.140Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"文档列出 SAFE-*、AUTH-*、PROD-* baseline，并为每项写清 test setup、required artifacts、pass criteria、fail criteria。\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"docs_check\",\"file\":\"Lattice-Production-Safety-baseline.md\",\"command\":\"rg -n \\\"SAFE-FALSE-DONE-1|SAFE-BLOCK-UNSAFE-1|AUTH-MULTI-HOST-1|AUTH-RECEIPT-1|AUTH-STALE-VERDICT-1|AUTH-NO-LOCAL-FALLBACK-1|PROD-SOAK-1\\\" Lattice-Production-Safety-baseline.md\",\"result\":\"pass\",\"note\":\"Production Safety document still lists the required SAFE, AUTH, and PROD baseline IDs after audit fixes.\",\"headHash\":\"6aecd32b308b2b18f5a5868742a808271589f4c6\",\"materialHash\":\"1b7bf76214c6db328db81b42dd2273b98cf3d38246c17bbd875f2a3d32a816b2\",\"timestamp\":\"2026-06-09T19:55:22.140Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"文档必须把 0 false DONE 写成 suite-level hard gate，并说明任何 false DONE 都使该层和上层 claim 失效。\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"docs_check\",\"file\":\"Lattice-Production-Safety-baseline.md\",\"command\":\"rg -n \\\"false_done_count must always be 0|If false_done_count > 0|all higher capability claims are locked\\\" Lattice-Production-Safety-baseline.md\",\"result\":\"pass\",\"note\":\"Production Safety document still makes zero false DONE a hard suite gate that locks higher capability claims if violated.\",\"headHash\":\"6aecd32b308b2b18f5a5868742a808271589f4c6\",\"materialHash\":\"1b7bf76214c6db328db81b42dd2273b98cf3d38246c17bbd875f2a3d32a816b2\",\"timestamp\":\"2026-06-09T19:55:22.140Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"文档不得把 safety pass 简化为一次测试通过；必须包含长期 soak、stale evidence、receipt verification 和 no silent fallback。\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"Lattice-Production-Safety-baseline.md\",\"command\":\"git diff --check -- Lattice-Production-Safety-baseline.md && rg -n \\\"requiredIndependentHosts >= 2 per review wave|observedIndependentHostsPerWave|valid_suite_runs|minimum_cadence|excluded_soak_runs\\\" Lattice-Production-Safety-baseline.md\",\"result\":\"pass\",\"note\":\"Production Safety now makes multi-host independence unconditional and adds production soak run count, cadence, gap, and exclusion criteria so safety cannot be proven by duration alone.\",\"headHash\":\"eeff60ca57295248778ddd53e342d95a5825eddb\",\"materialHash\":\"1b7bf76214c6db328db81b42dd2273b98cf3d38246c17bbd875f2a3d32a816b2\",\"timestamp\":\"2026-06-09T19:53:40.472Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"文档包含 CLAIM-BASIC-DEV、CLAIM-ENGINEERING-DEV、CLAIM-LOOP-ENGINEERING、CLAIM-PRODUCTION-SAFETY 的 unlock 条件和 required evidence。\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"docs_check\",\"file\":\"Lattice-Capability-Claim-baseline.md\",\"command\":\"rg -n \\\"CLAIM-BASIC-DEV|CLAIM-ENGINEERING-DEV|CLAIM-LOOP-ENGINEERING|CLAIM-PRODUCTION-SAFETY\\\" Lattice-Capability-Claim-baseline.md\",\"result\":\"pass\",\"note\":\"Capability Claim document still contains the required claim IDs and unlock sections after table wording was tightened.\",\"headHash\":\"6aecd32b308b2b18f5a5868742a808271589f4c6\",\"materialHash\":\"1b7bf76214c6db328db81b42dd2273b98cf3d38246c17bbd875f2a3d32a816b2\",\"timestamp\":\"2026-06-09T19:55:22.140Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"文档必须说明高层 baseline 可以提前实现，但高层 claim 必须等待所有低层通过。\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"docs_check\",\"file\":\"Lattice-Capability-Claim-baseline.md\",\"command\":\"rg -n \\\"implementation_order may be parallel|claim_unlock_order must be sequential|Higher-layer baselines may be implemented early\\\" Lattice-Capability-Claim-baseline.md\",\"result\":\"pass\",\"note\":\"Capability Claim document still states implementation can be parallel but claim unlock order must remain sequential.\",\"headHash\":\"6aecd32b308b2b18f5a5868742a808271589f4c6\",\"materialHash\":\"1b7bf76214c6db328db81b42dd2273b98cf3d38246c17bbd875f2a3d32a816b2\",\"timestamp\":\"2026-06-09T19:55:22.140Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"文档必须包含 prohibited claims，禁止在缺少 suite artifacts、final reports、Authority evidence 或 0 false DONE 证明时宣传能力。\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"Lattice-Capability-Claim-baseline.md\",\"command\":\"git diff --check -- Lattice-Capability-Claim-baseline.md && rg -n \\\"tested task classes|stated maturity target\\\" Lattice-Capability-Claim-baseline.md\",\"result\":\"pass\",\"note\":\"Claim Baseline Suite table now keeps Loop Engineering bounded to tested task classes and Production Safety bounded to tested project classes plus stated maturity target.\",\"headHash\":\"f33aa50b2b7d9aa1f327ed7adc694c2225805e1a\",\"materialHash\":\"1b7bf76214c6db328db81b42dd2273b98cf3d38246c17bbd875f2a3d32a816b2\",\"timestamp\":\"2026-06-09T19:53:47.791Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-09T20:02:36.653Z",
+  "headHash": "8a324c893c6e805c9346ab233ef6c2e949ad6255",
+  "materialHash": "1b7bf76214c6db328db81b42dd2273b98cf3d38246c17bbd875f2a3d32a816b2",
+  "verificationCoverage": {
+    "total": 12,
+    "required": 12,
+    "covered": 12,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "文档包含 ENG-MULTI-FILE、ENG-EXISTING-REPO、ENG-BUGFIX、ENG-REGRESSION、ENG-DATA-MIGRATION、ENG-AUTH-SECURITY、ENG-FRONTEND-VISUAL、ENG-LONG-RUN、ENG-LOOP-REVIEW，并为每项写明输入、步骤、证据、pass/fail。",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "Lattice-Engineering-baseline.md",
+          "command": "git diff --check -- Lattice-Engineering-baseline.md && rg -n \"required_engineering_runs|overall_correctness_protected_success_rate|required_correctness_rate|maturity_target\" Lattice-Engineering-baseline.md",
+          "result": "pass",
+          "note": "Engineering Baseline now defines maturity_target, required_engineering_runs, and a mechanical weighted correctness-protected success-rate formula so suite acceptance is executable.",
+          "headHash": "0ac484d95652047aea8cd52f8eededb5a3cf5699",
+          "materialHash": "1b7bf76214c6db328db81b42dd2273b98cf3d38246c17bbd875f2a3d32a816b2",
+          "timestamp": "2026-06-09T19:53:26.077Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "文档必须明确 Engineering Baseline 依赖 Development Baseline 通过，且不能宣称 production-grade 或 unattended development。",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "Lattice-Engineering-baseline.md",
+          "command": "rg -n \"Depends on: Development Baseline real PASS|does not allow|production-grade unattended\" Lattice-Engineering-baseline.md",
+          "result": "pass",
+          "note": "Engineering document still explicitly depends on Development Baseline real PASS and forbids production-grade unattended claims from this layer.",
+          "headHash": "6aecd32b308b2b18f5a5868742a808271589f4c6",
+          "materialHash": "1b7bf76214c6db328db81b42dd2273b98cf3d38246c17bbd875f2a3d32a816b2",
+          "timestamp": "2026-06-09T19:55:22.140Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "搜索文档不得出现把未验证能力写成 already production-ready 或 arbitrary project development 的 overclaim。",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "Lattice-Engineering-baseline.md",
+          "command": "rg -n \"Forbidden wording|Lattice can develop any project|Lattice is production-ready\" Lattice-Engineering-baseline.md",
+          "result": "pass",
+          "note": "Engineering document still contains forbidden wording examples that block arbitrary-project and production-ready overclaims.",
+          "headHash": "6aecd32b308b2b18f5a5868742a808271589f4c6",
+          "materialHash": "1b7bf76214c6db328db81b42dd2273b98cf3d38246c17bbd875f2a3d32a816b2",
+          "timestamp": "2026-06-09T19:55:22.140Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "文档包含 Loop Engineering/UDM 的核心闭环组件：intake、planner、executor、repair loop、review loop、evidence、gate、block/escalate、multi-host review、no false DONE。",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "Lattice-Loop-Engineering-baseline.md",
+          "command": "rg -n \"UDM-INTAKE-PLAN-1|UDM-EXECUTOR-1|UDM-REPAIR-LOOP-1|UDM-REVIEW-LOOP-1|UDM-EVIDENCE-GATE-1|UDM-NO-FALSE-DONE-1\" Lattice-Loop-Engineering-baseline.md",
+          "result": "pass",
+          "note": "Loop Engineering document still covers the UDM intake, executor, repair loop, review loop, evidence gate, and no false DONE baselines.",
+          "headHash": "6aecd32b308b2b18f5a5868742a808271589f4c6",
+          "materialHash": "1b7bf76214c6db328db81b42dd2273b98cf3d38246c17bbd875f2a3d32a816b2",
+          "timestamp": "2026-06-09T19:55:22.140Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "文档必须明确 loop 有预算、停止条件、人类交接和 blocked/escalated 结果，不能描述为无限自动循环。",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "Lattice-Loop-Engineering-baseline.md",
+          "command": "git diff --check -- Lattice-Loop-Engineering-baseline.md && rg -n \"trigger_requires_human_decision|humanDecisionEvidence|DONE is blocked|run resumes only\" Lattice-Loop-Engineering-baseline.md",
+          "result": "pass",
+          "note": "UDM-HUMAN-HANDOFF-1 now seeds a human-only decision and requires blocked/escalated outcome, no DONE before human evidence, and resume only after human evidence.",
+          "headHash": "434164b0e872b35831a049fc07f6eb26698ad127",
+          "materialHash": "1b7bf76214c6db328db81b42dd2273b98cf3d38246c17bbd875f2a3d32a816b2",
+          "timestamp": "2026-06-09T19:53:33.277Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "文档不得把 Loop Engineering 描述成 prompt trick 或自动脚本；必须是 bounded evidence-driven engineering system。",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "Lattice-Loop-Engineering-baseline.md",
+          "command": "rg -n \"prompt trick|automatic script|bounded|Forbidden wording|unlimited autonomous\" Lattice-Loop-Engineering-baseline.md",
+          "result": "pass",
+          "note": "Loop Engineering remains framed as bounded engineering rather than prompt trick or unlimited automation, with forbidden wording retained.",
+          "headHash": "6aecd32b308b2b18f5a5868742a808271589f4c6",
+          "materialHash": "1b7bf76214c6db328db81b42dd2273b98cf3d38246c17bbd875f2a3d32a816b2",
+          "timestamp": "2026-06-09T19:55:22.140Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "文档列出 SAFE-*、AUTH-*、PROD-* baseline，并为每项写清 test setup、required artifacts、pass criteria、fail criteria。",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "Lattice-Production-Safety-baseline.md",
+          "command": "rg -n \"SAFE-FALSE-DONE-1|SAFE-BLOCK-UNSAFE-1|AUTH-MULTI-HOST-1|AUTH-RECEIPT-1|AUTH-STALE-VERDICT-1|AUTH-NO-LOCAL-FALLBACK-1|PROD-SOAK-1\" Lattice-Production-Safety-baseline.md",
+          "result": "pass",
+          "note": "Production Safety document still lists the required SAFE, AUTH, and PROD baseline IDs after audit fixes.",
+          "headHash": "6aecd32b308b2b18f5a5868742a808271589f4c6",
+          "materialHash": "1b7bf76214c6db328db81b42dd2273b98cf3d38246c17bbd875f2a3d32a816b2",
+          "timestamp": "2026-06-09T19:55:22.140Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "文档必须把 0 false DONE 写成 suite-level hard gate，并说明任何 false DONE 都使该层和上层 claim 失效。",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": "Lattice-Production-Safety-baseline.md",
+          "command": "rg -n \"false_done_count must always be 0|If false_done_count > 0|all higher capability claims are locked\" Lattice-Production-Safety-baseline.md",
+          "result": "pass",
+          "note": "Production Safety document still makes zero false DONE a hard suite gate that locks higher capability claims if violated.",
+          "headHash": "6aecd32b308b2b18f5a5868742a808271589f4c6",
+          "materialHash": "1b7bf76214c6db328db81b42dd2273b98cf3d38246c17bbd875f2a3d32a816b2",
+          "timestamp": "2026-06-09T19:55:22.140Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "文档不得把 safety pass 简化为一次测试通过；必须包含长期 soak、stale evidence、receipt verification 和 no silent fallback。",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "Lattice-Production-Safety-baseline.md",
+          "command": "git diff --check -- Lattice-Production-Safety-baseline.md && rg -n \"requiredIndependentHosts >= 2 per review wave|observedIndependentHostsPerWave|valid_suite_runs|minimum_cadence|excluded_soak_runs\" Lattice-Production-Safety-baseline.md",
+          "result": "pass",
+          "note": "Production Safety now makes multi-host independence unconditional and adds production soak run count, cadence, gap, and exclusion criteria so safety cannot be proven by duration alone.",
+          "headHash": "eeff60ca57295248778ddd53e342d95a5825eddb",
+          "materialHash": "1b7bf76214c6db328db81b42dd2273b98cf3d38246c17bbd875f2a3d32a816b2",
+          "timestamp": "2026-06-09T19:53:40.472Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "文档包含 CLAIM-BASIC-DEV、CLAIM-ENGINEERING-DEV、CLAIM-LOOP-ENGINEERING、CLAIM-PRODUCTION-SAFETY 的 unlock 条件和 required evidence。",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "file": "Lattice-Capability-Claim-baseline.md",
+          "command": "rg -n \"CLAIM-BASIC-DEV|CLAIM-ENGINEERING-DEV|CLAIM-LOOP-ENGINEERING|CLAIM-PRODUCTION-SAFETY\" Lattice-Capability-Claim-baseline.md",
+          "result": "pass",
+          "note": "Capability Claim document still contains the required claim IDs and unlock sections after table wording was tightened.",
+          "headHash": "6aecd32b308b2b18f5a5868742a808271589f4c6",
+          "materialHash": "1b7bf76214c6db328db81b42dd2273b98cf3d38246c17bbd875f2a3d32a816b2",
+          "timestamp": "2026-06-09T19:55:22.140Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "文档必须说明高层 baseline 可以提前实现，但高层 claim 必须等待所有低层通过。",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "file": "Lattice-Capability-Claim-baseline.md",
+          "command": "rg -n \"implementation_order may be parallel|claim_unlock_order must be sequential|Higher-layer baselines may be implemented early\" Lattice-Capability-Claim-baseline.md",
+          "result": "pass",
+          "note": "Capability Claim document still states implementation can be parallel but claim unlock order must remain sequential.",
+          "headHash": "6aecd32b308b2b18f5a5868742a808271589f4c6",
+          "materialHash": "1b7bf76214c6db328db81b42dd2273b98cf3d38246c17bbd875f2a3d32a816b2",
+          "timestamp": "2026-06-09T19:55:22.140Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "文档必须包含 prohibited claims，禁止在缺少 suite artifacts、final reports、Authority evidence 或 0 false DONE 证明时宣传能力。",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "file": "Lattice-Capability-Claim-baseline.md",
+          "command": "git diff --check -- Lattice-Capability-Claim-baseline.md && rg -n \"tested task classes|stated maturity target\" Lattice-Capability-Claim-baseline.md",
+          "result": "pass",
+          "note": "Claim Baseline Suite table now keeps Loop Engineering bounded to tested task classes and Production Safety bounded to tested project classes plus stated maturity target.",
+          "headHash": "f33aa50b2b7d9aa1f327ed7adc694c2225805e1a",
+          "materialHash": "1b7bf76214c6db328db81b42dd2273b98cf3d38246c17bbd875f2a3d32a816b2",
+          "timestamp": "2026-06-09T19:53:47.791Z"
+        }
+      }
+    ]
+  }
+}

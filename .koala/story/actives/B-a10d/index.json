@@ -4,7 +4,7 @@
   "title": "编写 Lattice baseline 2-5 层执行方案文档",
   "description": "为 Lattice baseline 分层能力体系补齐第 2 到第 5 层的详细执行方案文档：Engineering Baseline、Loop Engineering Baseline、Production Safety Baseline、Capability Claim Baseline。Development Baseline 已在开发中，本 story 只写后续四层文档，明确先后依赖、测试验证、通过标准和能力声明边界。",
   "type": "chore",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "medium",
   "keywords": [
     "baseline",
@@ -82,6 +82,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-09T19:55:27.712Z",
+      "branch": "story/B-a10d",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-09T20:02:29.138Z",
       "branch": "story/B-a10d",
       "user": "Harmonygo",
       "agent": "main"
