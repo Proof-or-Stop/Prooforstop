@@ -87,9 +87,9 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-09T01:55:00.125Z",
       "userSees": "memory_benchmark_real_data --outputDir=<dir> writes corpus.jsonl, gold.jsonl, queries.jsonl, result.json and prints their paths plus PASS/FAIL status.",
       "files": {
         "modify": [
@@ -129,7 +129,39 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node bin/koala.js memory_benchmark_real_data --outputDir=.tmp/memory-real-baseline --format=text && ls -l .tmp/memory-real-baseline && wc -l .tmp/memory-real-baseline/corpus.jsonl .tmp/memory-real-baseline/gold.jsonl .tmp/memory-real-baseline/queries.jsonl",
+          "result": "pass",
+          "note": "OutputDir run printed PASS plus four paths; inspected corpus.jsonl/gold.jsonl/queries.jsonl/result.json existed, with 374 lines in each JSONL file.",
+          "headHash": "f9edddd7ed7f0383b00d0bfe59da40d2a220baeb",
+          "materialHash": "e42f3d3199ec1705b8a13c0d0967eb135a8a008ec980f8af47c546fb5720c05f",
+          "timestamp": "2026-06-09T01:55:00.159Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node -e inspect .tmp/memory-real-baseline first rows and result.json",
+          "result": "pass",
+          "note": "Inspected first corpus/gold/query rows: each carried recordId, layer, sourcePath, sourceHash; result.json reported PASS with corpus/gold/query counts of 374.",
+          "headHash": "f9edddd7ed7f0383b00d0bfe59da40d2a220baeb",
+          "materialHash": "e42f3d3199ec1705b8a13c0d0967eb135a8a008ec980f8af47c546fb5720c05f",
+          "timestamp": "2026-06-09T01:55:00.192Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:memory-real-data-benchmark-smoke",
+          "result": "pass",
+          "note": "Smoke asserted dev-memory advisory records remain boundary-only and excluded from scoreable gold/query; command policy is readOnly, non-gate evidence, destructiveRisk=none, process fact level L0.",
+          "headHash": "f9edddd7ed7f0383b00d0bfe59da40d2a220baeb",
+          "materialHash": "e42f3d3199ec1705b8a13c0d0967eb135a8a008ec980f8af47c546fb5720c05f",
+          "timestamp": "2026-06-09T01:55:00.222Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
