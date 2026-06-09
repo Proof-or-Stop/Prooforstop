@@ -43,7 +43,7 @@
       "desc": "Codex CLI claim-boundary audit found that the Claim Baseline Suite table allowed-claim wording is broader than the detailed allowed wording: Loop Engineering omits the tested task class boundary, and Production Safety omits the stated maturity target boundary. Because this table is a structured claim authorization surface, it could be quoted as authorizing broader claims than the evidence supports.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-docs",
       "createdAt": "2026-06-09T19:47:50.319Z",
@@ -52,7 +52,9 @@
       "_hash": "b4ac46cce34b4ad21a3c9ac75bf2d06719e387e430761f459e5725cedfeb0945",
       "files": [
         "Lattice-Capability-Claim-baseline.md"
-      ]
+      ],
+      "resolvedReason": "Resolved in docs commit 0ac484d9 with evidence through bd7e02d/5aac291: Capability Claim table now says Loop Engineering claim is for tested task classes and Production Safety claim is for tested project classes plus stated maturity target, matching detailed allowed wording.",
+      "resolvedAt": "2026-06-09T19:55:49.720Z"
     }
   ]
 }
