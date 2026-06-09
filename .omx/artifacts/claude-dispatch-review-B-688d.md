@@ -8,7 +8,7 @@ The dispatch package defines 2 host categories (Claude Code 2.1.88, Codex CLI 0.
 
 ## Lane Structure
 
-All 8 lanes now declare: `ownedPaths`, `readOnlyPaths`, `mode`, `allowedOutputs`, `stopConditions`, `sequentialProofLock`. Higher-layer lanes (claim-evaluator implementer, its reviewer) are set to `shadow`/`not_authorized` mode until Layer 1 formal proof passes. Reviewer lanes are `audit_only`.
+All 8 lanes now declare: `ownedPaths`, `readOnlyPaths`, `mode`, `allowedOutputs`, `stopConditions`, `sequentialProofLock`. All implementer lanes are set to `not_authorized` while the final decision remains GO-NOT-YET — no implementer work is authorized until Layer 1 formal proof exists. Reviewer lanes are `audit_only` or `not_authorized` as appropriate.
 
 ## Fail-Closed Properties
 

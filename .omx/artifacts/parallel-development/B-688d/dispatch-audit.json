@@ -25,9 +25,9 @@
       "baselineIds": ["NL-CLI-1", "RED-CLI-TS-PY-1"],
       "ownedPaths": [".omx/artifacts/parallel-development/B-688d/engineering-runner/"],
       "readOnlyPaths": ["docs/requirements/", "CLAUDE.md"],
-      "mode": "active",
+      "mode": "not_authorized",
       "allowedOutputs": ["engineering-runner artifacts", "baseline run evidence"],
-      "stopConditions": ["baseline FAIL without review evidence", "host unavailable"],
+      "stopConditions": ["GO-NOT-YET: Layer 1 formal proof is missing", "baseline FAIL without review evidence", "host unavailable"],
       "sequentialProofLock": "layer-1-must-pass-before-layer-2"
     },
     {
@@ -38,9 +38,9 @@
       "baselineIds": ["NL-API-1", "RED-API-TS-GO-1"],
       "ownedPaths": [".omx/artifacts/parallel-development/B-688d/loop-engine/"],
       "readOnlyPaths": ["docs/requirements/", "CLAUDE.md"],
-      "mode": "active",
+      "mode": "not_authorized",
       "allowedOutputs": ["loop-engine artifacts", "baseline run evidence"],
-      "stopConditions": ["baseline FAIL without review evidence", "host unavailable"],
+      "stopConditions": ["GO-NOT-YET: Layer 1 formal proof is missing", "baseline FAIL without review evidence", "host unavailable"],
       "sequentialProofLock": "layer-1-must-pass-before-layer-2"
     },
     {
@@ -51,9 +51,9 @@
       "baselineIds": ["RED-GAP-BLOCK-1"],
       "ownedPaths": [".omx/artifacts/parallel-development/B-688d/production-safety/"],
       "readOnlyPaths": ["docs/requirements/", "CLAUDE.md"],
-      "mode": "active",
+      "mode": "not_authorized",
       "allowedOutputs": ["safety block evidence", "gap-block artifacts"],
-      "stopConditions": ["expected block not triggered", "host unavailable"],
+      "stopConditions": ["GO-NOT-YET: Layer 1 formal proof is missing", "expected block not triggered", "host unavailable"],
       "sequentialProofLock": "layer-1-must-pass-before-layer-2"
     },
     {
@@ -64,9 +64,9 @@
       "baselineIds": ["NL-REPAIR-1"],
       "ownedPaths": [".omx/artifacts/parallel-development/B-688d/claim-evaluator/"],
       "readOnlyPaths": ["docs/requirements/", "CLAUDE.md"],
-      "mode": "shadow",
+      "mode": "not_authorized",
       "allowedOutputs": ["claim evaluation drafts"],
-      "stopConditions": ["layer-1 not yet passed", "host unavailable"],
+      "stopConditions": ["GO-NOT-YET: Layer 1 formal proof is missing", "layer-1 not yet passed", "host unavailable"],
       "sequentialProofLock": "layer-1-must-pass-before-layer-2"
     },
     {
