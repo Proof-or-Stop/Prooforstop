@@ -1,0 +1,29 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "文档区分本地生命周期证据链和 receipt-backed authority 证据链",
+      "context": "Parallel Development 当前文档已有 non-authority 防线，但缺少 explicit mode matrix。需要基于 authority-client-role.md 的 PD-1/PD-2 决策，写明 local/off、shadow、enforce/receipt-backed 三类模式各自能证明什么、不能证明什么。",
+      "relatedDocs": [
+        "Lattice-Parallel-Development-Capability.md",
+        "docs/requirements/decisions/authority-client-role.md",
+        "docs/requirements/decisions/lattice-parallel-wave.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "报告字段和验收清单体现 authority mode 边界",
+      "context": "final-report.json、readiness checklist、DONE criteria 和 anti-patterns 需要体现 authorityMode/evidenceClass/receiptVerified/productionDone/authorityChanged 等字段，避免本地 CLI PASS 或 transport accepted 被解读为 production authority。",
+      "relatedDocs": [
+        "Lattice-Parallel-Development-Capability.md",
+        "docs/requirements/decisions/authority-client-role.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "storyId": "B-cd0b",
+  "checkedAt": "2026-06-09T22:15:06.234Z",
+  "reviewRound": "",
+  "agentId": "koala-review-story-init",
+  "issues": [
+    {
+      "severity": "medium",
+      "desc": "CHK-002 scope is ambiguous. Background says this story is documentation-only, but the item wording around final-report.json/readiness checklist/authorityMode/evidenceClass/receiptVerified can be read as requiring schema or gate changes. Clarify whether the task is only to document these boundaries in the capability doc, or split any real process-fact/runtime changes into a separate story."
+    },
+    {
+      "severity": "low",
+      "desc": "This story touches authority/proof/DONE semantics, so the checklist should state how consistency will be verified across the mode matrix and the report/readiness/DONE sections. Add explicit verification prep in checklist context so DEV/REVIEW do not have to infer the acceptance shape from background alone."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-09T22:15:00.962Z",
+      "issues": []
+    },
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-06-09T22:15:06.234Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "CHK-002 scope is ambiguous. Background says this story is documentation-only, but the item wording around final-report.json/readiness checklist/authorityMode/evidenceClass/receiptVerified can be read as requiring schema or gate changes. Clarify whether the task is only to document these boundaries in the capability doc, or split any real process-fact/runtime changes into a separate story."
+        },
+        {
+          "severity": "low",
+          "desc": "This story touches authority/proof/DONE semantics, so the checklist should state how consistency will be verified across the mode matrix and the report/readiness/DONE sections. Add explicit verification prep in checklist context so DEV/REVIEW do not have to infer the acceptance shape from background alone."
+        }
+      ]
+    }
+  ],
+  "_hash": "0387d6ed3650e4b4d9aa60004fdce44eacaae60c8329646f26381dec7d5096e0"
+}
