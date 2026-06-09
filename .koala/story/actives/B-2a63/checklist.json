@@ -110,7 +110,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Smoke test and CLI transcript show real activity/story data is non-empty, dev-memory stays boundary-only, empty real data fails, and benchmark note remains non-authoritative.",
+      "userSees": "Smoke/CLI transcript includes: \"realDataScore=...\", \"goldHitRate=1.000\", \"evidenceLinkageRate=1.000\", \"devMemoryExcludedFromScoring=true\", and empty activity/story input returns \"Real Memory Benchmark Data: FAIL\" with a missing-real-data reason.",
       "files": {
         "modify": [
           "packages/main/src/core/memory-benchmark-real-data.ts",
