@@ -121,6 +121,76 @@ No workstream may be marked complete until its loop is closed, blocked, or escal
 Parallel merge is allowed only after participating loops produce fresh evidence.
 ```
 
+## Parallel Wave Integration
+
+Parallel Development should build on Parallel Wave without changing Parallel
+Wave's authority boundary.
+
+Short form:
+
+```text
+Parallel Wave plans.
+Parallel Development coordinates execution.
+Story, review, validation, receipt, and claim gates prove.
+```
+
+Parallel Wave remains an L0 read-only planning projection. Its outputs can help
+choose workstreams, candidate hosts, dependencies, and merge guidance, but they
+must not become lifecycle evidence, receipt evidence, or capability proof.
+Parallel Development may consume a frozen Parallel Wave snapshot as an input
+contract, then add ownership, execution state, evidence freshness, merge queue
+enforcement, and sequential proof discipline around it.
+
+Recommended composition:
+
+```text
+parallel_wave_create / parallel_plan / parallel_report
+  -> operator confirms candidate workstreams
+  -> coordinator freezes shared contract and workstream partition
+  -> parallel_development_run binds waveId, waveHash, materialHash, and sharedContractVersion
+  -> workstreams execute through normal story lifecycle gates
+  -> parallel development merge queue consumes real review and validation evidence
+  -> sequential proof gate unlocks claims one layer at a time
+```
+
+Boundary mapping:
+
+| Parallel Wave field | Parallel Development use | Not allowed |
+|---|---|---|
+| `waveId` | Stable reference to the planning snapshot. | It is not a run id or proof id by itself. |
+| `storyRefs` | Candidate workstream sources and lifecycle context. | They do not authorize mutation outside each story's owner lease. |
+| `hostCandidates` | Possible `ownerHost` suggestions. | They are not independent host verdicts. |
+| `evidenceRefs` | Lineage hints for recovery and verification planning. | They are not fresh gate evidence. |
+| `mergeOrder` | Initial merge queue seed. | It is not merge permission. |
+| `authority` | Must remain non-authoritative. | It must not set production completion, receipts, or claim unlock. |
+
+Required frozen snapshot fields:
+
+```text
+waveId
+waveHash
+waveSchemaVersion
+materialHash
+sharedContractVersion
+createdFromCommands
+createdAt
+```
+
+Rules:
+
+```text
+Parallel Development may consume Wave output.
+Parallel Development must not mutate Wave output in place.
+Wave evidenceRefs are lineage only; fresh proof comes from story/review/validate/receipt gates.
+Wave mergeOrder is guidance only; merge queue readiness must re-check ownership, review, evidence, and blockers.
+Claim unlock must ignore Wave success wording and read only lower-layer gate evidence.
+```
+
+This means Parallel Wave can be the recommended planning entrypoint for a
+Parallel Development run, but it does not become the execution engine. A future
+implementation should add separate `parallel_development_*` surfaces for frozen
+run state, workstream status, merge queue enforcement, and final reporting.
+
 ## When To Use Parallel Development
 
 Use it when all are true:
