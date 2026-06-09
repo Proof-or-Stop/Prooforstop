@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-09T02:06:12.444Z",
       "reviewRunId": "B-2a63:RR-004",
       "_hash": "428d599cf08b53f3c0d4bd3e765af163c704a72771e43e4d6d8d6883106fd1c9"
+    },
+    {
+      "id": "B-2a63:RP-002",
+      "agent": "koala-review-test-coverage",
+      "note": "Fresh re-review after CHK-002 adversarial:1: smoke covers configured storyDir roots (.koala/custom-actives and docs/story/actives), refuses protected outputDir under configured story/fixture roots and .koala/story/docs/story, preserves current activity schema fields and review-passes.json export, keeps dev-memory boundary-only and out of gold/query scoring, and FAILs when only boundary-only data exists. Verified by npm --prefix packages/main run test:memory-real-data-benchmark-smoke and inspection of packages/main/src/tasks/memory-real-data-benchmark-smoke.ts:190-216, 238-251, 269-287, 346-380 plus packages/main/src/core/memory-benchmark-real-data.ts:876-922.",
+      "createdAt": "2026-06-09T02:32:55.844Z",
+      "reviewRound": "2026-06-09T02:30:43.349Z",
+      "reviewRunId": "B-2a63:RR-005",
+      "_hash": "978363ead47d0cf0d7ee1bc3630d7191999b4a5c9a00acdb631295beffe8178e"
     }
   ]
 }
