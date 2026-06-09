@@ -4,7 +4,7 @@
   "title": "实现 memory baseline benchmark harness",
   "description": "实现真实可运行的 memory baseline benchmark harness：提供本地 deterministic lifecycle memory synthetic corpus、gold query、retrieval scoring、10k/100k/1M tier comparison 和 JSON/text report。该 harness 只证明 memory benchmark scoring 与召回百分比计算可执行，不把分数写成 Koala lifecycle gate authority，也不修改现有 DONE/REVIEW/TEST gate 语义。",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "medium",
   "keywords": [
     "memory",
@@ -16,7 +16,7 @@
   ],
   "createdAt": "2026-06-08T23:29:24.605Z",
   "startedAt": "2026-06-08T23:29:24.605Z",
-  "endedAt": null,
+  "endedAt": "2026-06-09T00:43:18.529Z",
   "events": [
     {
       "phase": "INIT",
@@ -107,12 +107,16 @@
       "user": "Harmonygo",
       "sessionId": "sess-benchmark-memory",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-09T00:43:18.529Z",
+      "branch": "story/B-d4dd",
+      "user": "Harmonygo",
+      "sessionId": "sess-benchmark-memory",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-d4dd",
-    "branch": "story/B-d4dd",
-    "createdAt": "2026-06-08T23:36:20.454Z"
-  },
   "currentReviewRound": "2026-06-09T00:32:41.917Z"
 }
