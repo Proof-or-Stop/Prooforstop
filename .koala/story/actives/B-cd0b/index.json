@@ -1,0 +1,41 @@
+{
+  "storyId": "B-cd0b",
+  "name": "parallel-development-authority-modes",
+  "title": "补充 Parallel Development 的 Authority 与本地证据链模式",
+  "description": "在 Lattice-Parallel-Development-Capability.md 中补充 local/non-authority Lattice CLI 模式与 Authority Server receipt-backed 模式的证据链边界，避免 Parallel Development 文档把本地生命周期证据、shadow 诊断、transport acceptance 或 Parallel Wave 输出误写成 production authority。",
+  "type": "chore",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Production/Emergency",
+      "matched": "production"
+    }
+  ],
+  "createdAt": "2026-06-09T22:13:45.593Z",
+  "startedAt": "2026-06-09T22:13:45.593Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-09T22:13:45.595Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-09T22:15:23.872Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-cd0b",
+    "branch": "story/B-cd0b",
+    "createdAt": "2026-06-09T22:16:23.306Z"
+  }
+}
