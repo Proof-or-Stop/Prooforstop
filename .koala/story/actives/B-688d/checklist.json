@@ -106,6 +106,26 @@
           ".omx/artifacts/claude-dispatch-review-B-688d.md"
         ],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The dispatch audit assigns exactly two host categories, four implementer lanes, and four opposite-host reviewer lanes with ownedPaths/readOnlyPaths and stop conditions.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If one host is degraded or unavailable, the dispatch decision becomes GO-NOT-YET or BLOCKED with the degraded lane named.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The dispatch pack does not authorize capability proof, claim unlock, auto-merge, or production DONE from local agent output.",
+            "type": "cli"
+          }
+        ]
       }
     }
   ]
