@@ -1,0 +1,44 @@
+{
+  "storyId": "B-688d",
+  "mode": "enforce",
+  "allowedModify": [],
+  "allowedCreate": [
+    ".omx/artifacts/baseline/B-688d/",
+    ".omx/artifacts/baseline/B-688d/development/",
+    ".omx/artifacts/parallel-development/B-688d/",
+    ".omx/artifacts/parallel-development/B-688d/shared-contract.json",
+    ".omx/artifacts/parallel-development/B-688d/ownership-map.json",
+    ".omx/artifacts/parallel-development/B-688d/merge-queue.json",
+    ".omx/artifacts/parallel-development/B-688d/claim-lock-status.json",
+    ".omx/artifacts/parallel-development/B-688d/dispatch-audit.json",
+    ".omx/artifacts/parallel-development/B-688d/host-probes.json",
+    ".omx/artifacts/parallel-development/B-688d/final-report.json",
+    ".omx/artifacts/parallel-development/B-688d/final-report.md",
+    ".omx/artifacts/claude-baseline-audit-B-688d.md",
+    ".omx/artifacts/claude-dispatch-review-B-688d.md",
+    ".omx/artifacts/claude-scope-check-B-688d-20260609T230010Z.md"
+  ],
+  "allowedTest": [],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialize missing scope contract before re-review; no scope expansion beyond existing PLAN checklist.",
+  "acknowledgements": [
+    {
+      "actor": "main-auditor",
+      "reason": "Acknowledges necessary Codex adapter gate repair discovered during REVIEW/TEST: native hook, canonical manifest, and local wrapper evidence were required to make verify_codex mechanically true; this does not expand the baseline capability claim.",
+      "timestamp": "2026-06-09T23:47:42.957Z",
+      "paths": [
+        ".Codex/hooks/lattice-scope-pretool.cjs",
+        ".Codex/lattice.json",
+        "bin/lattice-codex.js"
+      ],
+      "anchors": [
+        "codex_adapter_gate",
+        "native_pretool_hook",
+        "local_wrapper_entrypoint"
+      ]
+    }
+  ],
+  "createdAt": "2026-06-09T23:46:44.878Z",
+  "updatedAt": "2026-06-09T23:47:42.957Z"
+}
