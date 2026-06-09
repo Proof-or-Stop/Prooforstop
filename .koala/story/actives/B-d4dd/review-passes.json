@@ -62,6 +62,15 @@
       "reviewRound": "2026-06-09T00:32:41.917Z",
       "reviewRunId": "B-d4dd:RR-009",
       "_hash": "927ff6f3fbf2b4b5e6e605eb2bb8cc2d8a9b0395dcc505e0aa3b7c5c6cc4cfc6"
+    },
+    {
+      "id": "B-d4dd:RP-008",
+      "agent": "koala-review-quality",
+      "note": "Reviewed HEAD bc4c0a7 for F-002 and F-003. Unsupported candidate counts now reject 50000 with fixed-tier guidance; per-metric minima exactRecallAt1=1.0, recallAt10>=0.90, MRR@10>=0.75, precision@10>=0.70 fail verdict even when memoryScore remains above threshold. Hard checks still return HARD_FAIL and default 10k/100k/1M compare remains PASS. Verified via npm build, test:memory-benchmark-smoke, CLI compare runs, and direct dist runtime probes.",
+      "createdAt": "2026-06-09T00:35:29.052Z",
+      "reviewRound": "2026-06-09T00:32:41.917Z",
+      "reviewRunId": "B-d4dd:RR-012",
+      "_hash": "05a4e2c7fe530f04d7f0e34ecb98ed256604f67ea50237e154ba0c94625ddd8b"
     }
   ]
 }
