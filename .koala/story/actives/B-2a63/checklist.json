@@ -38,7 +38,22 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Smoke test and CLI transcript show real activity/story data is non-empty, dev-memory stays boundary-only, empty real data fails, and benchmark note remains non-authoritative.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/memory-benchmark-real-data.ts",
+          "packages/main/src/handlers/memory-benchmark.ts",
+          "packages/main/package.json",
+          "Lattice-lifecycle-memory-Evolving.md"
+        ],
+        "create": [
+          "packages/main/src/tasks/memory-real-data-benchmark-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/memory-real-data-benchmark-smoke.ts"
+        ]
+      }
     }
   ]
 }

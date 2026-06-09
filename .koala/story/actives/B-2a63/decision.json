@@ -1,0 +1,79 @@
+{
+  "principles": [
+    "真实数据 baseline 必须可复跑、可审计，并保留 source metadata。",
+    "benchmark artifact 不能变成 Koala lifecycle gate authority。",
+    "只增加证明能力，不引入生产 memory/vector DB 优化。",
+    "scoreable lifecycle truth 与 boundary-only advisory memory 必须机械分离。"
+  ],
+  "drivers": [
+    "用户需要真实数据证明 baseline，而不是 synthetic score。",
+    "现有仓库已有 activity/story/dev-memory 数据源。",
+    "B-d4dd 的评分合同和 non-authority boundary 必须保持一致。"
+  ],
+  "options": [
+    {
+      "name": "A: 新增 memory_benchmark_real_data 导出真实 corpus/gold/query/result",
+      "pros": [
+        "用户可直接运行命令得到真实 artifact。",
+        "不会破坏现有 virtual benchmark compare。",
+        "可以机械验证 sourceHash、layer boundary 和 non-authority note。"
+      ],
+      "cons": [
+        "实现需要读取多个真实数据源并处理缺失/坏 JSONL。",
+        "outputDir 写文件需要清楚标记为 artifact 输出而非 gate evidence。"
+      ]
+    },
+    {
+      "name": "B: 只在文档中说明如何手工收集真实数据",
+      "pros": [
+        "改动最小。",
+        "不会引入新的 CLI 写文件行为。"
+      ],
+      "cons": [
+        "不能满足用户要求的产出真实数据。",
+        "无法形成可复跑 baseline 验证。"
+      ]
+    },
+    {
+      "name": "C: 引入真实 vector DB/索引并跑百万候选召回",
+      "pros": [
+        "更接近未来生产 memory retrieval。",
+        "可以测真实性能曲线。"
+      ],
+      "cons": [
+        "超出当前 correctness gap，会变成任意优化。",
+        "需要额外依赖、索引策略和生产架构承诺。",
+        "容易把 benchmark 和生产 authority 混在一起。"
+      ]
+    }
+  ],
+  "chosen": "A: 新增 memory_benchmark_real_data 导出真实 corpus/gold/query/result",
+  "rationale": "选 A，因为它直接满足用户要真实数据 baseline 的可观察结果，同时保留 B-d4dd 的 host-neutral/non-authoritative 边界；B 太弱，C 超出当前范围。",
+  "preMortem": [
+    {
+      "scenario": "真实数据命令把 dev-memory advisory 当成 scoreable truth",
+      "trigger": "导出时只按文件存在分类，没有检查 authority/gateEvidence 字段。",
+      "consequence": "baseline 分数可能证明了错误的权威来源，违背 Lattice host-neutral truth boundary。",
+      "mitigation": "dev-memory 永远输出 boundaryOnlyRecords，excludedFromScoring=true，并在 smoke 中断言不进入 gold/recall/precision。"
+    },
+    {
+      "scenario": "outputDir artifact 被误认为 Koala validation evidence",
+      "trigger": "命令写 result.json 但文案或 policy 没注明 non-authoritative。",
+      "consequence": "后续 agent 可能拿 benchmark PASS 冒充 review/test/done gate evidence。",
+      "mitigation": "CLI note、command policy、process fact level 和 docs 都标注 benchmark-only；不写 story evidence、review pass、delivery check。"
+    },
+    {
+      "scenario": "真实数据源为空或 JSONL 损坏时返回漂亮 PASS",
+      "trigger": "reader 把缺失文件当空数据并仍计算默认满分。",
+      "consequence": "用户以为真实数据被验证，实际没有 corpus/gold/query。",
+      "mitigation": "real-data result 必须要求 scoreable corpus/gold/query 非空；缺失时 FAIL 并输出原因。"
+    },
+    {
+      "scenario": "为了证明百万数据而引入随机 synthetic filler 混淆真实数据",
+      "trigger": "candidate count 不够时用随机或重复记录填充。",
+      "consequence": "真实 baseline 变成 synthetic benchmark，证明力下降。",
+      "mitigation": "本 story 只导出当前仓库真实数据和真实计数；百万压力仍留给 future production story。"
+    }
+  ],
+  "timestamp": "2026-06-09T01:35:09.768Z"
+}
