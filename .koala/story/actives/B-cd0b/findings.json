@@ -16,6 +16,24 @@
         "Lattice-Parallel-Development-Capability.md",
         "docs/requirements/decisions/authority-client-role.md"
       ]
+    },
+    {
+      "id": "B-cd0b:F-002",
+      "desc": "[MEDIUM] Lattice-Parallel-Development-Capability.md:233, 622-627, 668-685, and 701-703 invent `authorityReceiptRefs` as a required final-report field, while the existing authority surfaces and Parallel Wave docs consistently use the nested `authority.receiptRefs` shape (README.md:333-335, docs/requirements/decisions/lattice-parallel-wave.md:183-184). Without an explicit migration note, this reads as an accidental schema fork and weakens the patch’s format clarity. Fix: either reuse the established `authority.receiptRefs` naming or explicitly define why Parallel Development needs a different schema and how it maps back to the existing authority object.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-09T22:36:28.273Z",
+      "reviewRound": "2026-06-09T22:33:22.169Z",
+      "reviewRunId": "B-cd0b:RR-003",
+      "_hash": "fadd66b1ee35c82a961c3d7887ea9f0a1f556d106bd7f9a45ee3eb6adf3926f7",
+      "files": [
+        "Lattice-Parallel-Development-Capability.md",
+        "README.md",
+        "docs/requirements/decisions/lattice-parallel-wave.md"
+      ]
     }
   ]
 }
