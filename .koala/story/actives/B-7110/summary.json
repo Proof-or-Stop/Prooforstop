@@ -1,0 +1,55 @@
+{
+  "storyId": "B-7110",
+  "changes": "Added a Parallel Wave Integration section to Lattice-Parallel-Development-Capability.md and refined it through reviewer feedback so frozen Parallel Development snapshots use full-envelope Wave artifacts only.",
+  "usage": "Open Lattice-Parallel-Development-Capability.md and read the Parallel Wave Integration section after Relationship To Existing Concepts to see how Wave planning composes with Parallel Development execution coordination.",
+  "expectedOutcome": "The user sees the agreed integration model written into the document: Parallel Wave plans, Parallel Development coordinates execution, and proof remains in story/review/validation/receipt/claim gates.",
+  "actualTranscript": "sed -n 124,205p Lattice-Parallel-Development-Capability.md showed the new Parallel Wave Integration section. lattice parallel_wave_create --format=json showed schemaVersion/generatedAt, full-envelope fields, and non-authoritative authority fields; lattice validate --story=B-7110 passed via npm test.",
+  "outcomeDiff": "Expected and actual match. Reviewers caught and the final document corrected two edge details: projection-only parallel_report is summary-only, and parallel_wave_create uses schemaVersion/generatedAt while inspect/plan expose waveSchemaVersion.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The document remains an execution plan and capability definition; it does not claim that parallel_development_* runtime execution surfaces already exist.",
+  "pitfalls": "Do not treat Parallel Wave output as authority evidence or use projection-only reports as frozen snapshot binding artifacts.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 30361
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 81978
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 109063
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 224284
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 1123221
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 250101
+    }
+  },
+  "totalDurationMs": 1819024,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-09T22:01:04.085Z",
+  "updatedAt": "2026-06-09T22:01:04.085Z"
+}
