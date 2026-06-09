@@ -1,0 +1,56 @@
+{
+  "storyId": "B-cd0b",
+  "changes": "Updated Lattice-Parallel-Development-Capability.md with an authority/evidence mode matrix using the existing off, shadow, enforce, and receipt-backed-l2-plus vocabulary; added a detailed Baseline 2-5 Parallel Implementation Plan with Layer 1 status, 2 CLI hosts, 8 workstream/review agents, 1 coordinator, ownership, sequential proof, integration, stop, rollback, and DONE criteria.",
+  "usage": "Open Lattice-Parallel-Development-Capability.md and read Authority Modes And Evidence Chains plus Baseline 2-5 Parallel Implementation Plan before starting parallel baseline implementation. Use it to assign Codex/Claude hosts, freeze shared schema, keep Production Safety shadow-only, keep Claim fail-closed, and prove layers sequentially.",
+  "expectedOutcome": "User can see exactly whether Layer 1 is ready and how many hosts and agents to use for parallel implementation without confusing implementation speed with capability proof or receipt-backed authority.",
+  "actualTranscript": "lattice validate --story=B-cd0b --json --forceTakeover passed; npm test ran npm run test:e2e and node packages/main/dist/tasks/cli-e2e.js, ending with ALL PASS; verification coverage was 6/6; reviewer findings F-001 and F-002 were resolved.",
+  "outcomeDiff": "No user-visible gap remains. Layer 1 runner support exists, but formal Layer 1 proof remains incomplete until independent review evidence and a PASS baseline-suite-report.json exist, so higher-layer claims stay locked.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "This story updates the execution document only. It does not implement a runtime scheduler, receipt verification, authority enforcement, or a new capability claim.",
+  "pitfalls": "The initial document used drifted terms local/off, receipt-backed-authority, and authorityReceiptRefs; reviewer findings forced alignment to off|shadow|enforce, receipt-backed-l2-plus, and authority.receiptRefs. Worktree validate required npm run build because dist was missing.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 98277
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 79694
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 647761
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 660895
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 444030
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 67644
+    }
+  },
+  "totalDurationMs": 1998303,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-09T22:47:03.897Z",
+  "updatedAt": "2026-06-09T22:47:03.897Z"
+}
