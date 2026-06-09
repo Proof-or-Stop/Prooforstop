@@ -93,6 +93,23 @@
       ],
       "resolvedReason": "Resolved in commit d286e2fe: STORY_EVIDENCE_JSON_FILES now includes current review-passes.json, review-runs.json, and findings.json while retaining legacy review-pass.json; smoke seeds review-passes.json and asserts it is exported as story_evidence_artifact.",
       "resolvedAt": "2026-06-09T02:31:05.458Z"
+    },
+    {
+      "id": "B-2a63:F-006",
+      "desc": "High: protected outputDir refusal is case-sensitive only, so on this case-insensitive filesystem the command allows writes under story-managed state via mixed-case paths. `assertAllowedOutputDir` compares the relative path string against lowercase protected roots without canonicalizing case ([packages/main/src/core/memory-benchmark-real-data.ts:876], [packages/main/src/core/memory-benchmark-real-data.ts:892]), and the smoke covers only lowercase `.koala/story`, `docs/story`, and fixtures cases ([packages/main/src/tasks/memory-real-data-benchmark-smoke.ts:274], [packages/main/src/tasks/memory-real-data-benchmark-smoke.ts:284]) plus configured exact-case storyDir checks ([packages/main/src/tasks/memory-real-data-benchmark-smoke.ts:190], [packages/main/src/tasks/memory-real-data-benchmark-smoke.ts:212]). Repro on this host: the filesystem reports `case-insensitive`, and invoking `runMemoryBenchmarkRealData({ root, outputDir: join(root, \"Docs/story/actives/B-real/benchmark-output\") })` with `storyDir: \"docs/story/actives\"` succeeds instead of refusing. That violates CHK-002 adversarial intent and allows a read-only benchmark command to write inside lifecycle-managed story state.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-09T02:34:55.908Z",
+      "reviewRound": "2026-06-09T02:30:43.349Z",
+      "reviewRunId": "B-2a63:RR-006",
+      "_hash": "afe807121aa6f68a0ff34c7c50f5aba58088322bf2b67f41ee0cb8be74581e4b",
+      "files": [
+        "packages/main/src/core/memory-benchmark-real-data.ts",
+        "packages/main/src/tasks/memory-real-data-benchmark-smoke.ts"
+      ]
     }
   ]
 }
