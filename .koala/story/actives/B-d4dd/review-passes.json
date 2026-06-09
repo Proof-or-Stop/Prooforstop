@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-09T00:20:04.726Z",
       "reviewRunId": "B-d4dd:RR-007",
       "_hash": "d344b4373e0d0be319159d64ab48665bfe6ce6e7bdaa7f7df3c6cf964ff9443f"
+    },
+    {
+      "id": "B-d4dd:RP-006",
+      "agent": "koala-review-test-coverage",
+      "note": "Focused coverage review passed. packages/main/src/tasks/memory-benchmark-smoke.ts mechanically asserts lifecycleGateEvidenceLinkageRate<1 => HARD_FAIL, rejects unsupported candidateCounts=50000 with supported fixed-tier list, and fails each per-metric minimum even when MemoryScore remains above threshold. Verified with npm --prefix packages/main run test:memory-benchmark-smoke.",
+      "createdAt": "2026-06-09T00:34:23.951Z",
+      "reviewRound": "2026-06-09T00:32:41.917Z",
+      "reviewRunId": "B-d4dd:RR-010",
+      "_hash": "b213b40c39dd35e82c741adeab50946445ba1da58707917f1c4e38fe50ed804b"
     }
   ]
 }
