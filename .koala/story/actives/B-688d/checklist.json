@@ -18,6 +18,26 @@
           ".omx/artifacts/baseline/B-688d/development/"
         ],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "When the six Development Baseline audit is complete, the final report shows the exact Layer 1 formalProofStatus and startDecision.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If local runner outputs exist but independent review evidence is missing, the status is blocked/not_authorized rather than PASS.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A tempting PASS claim without fresh suite/report evidence is rejected and recorded with a specific blockedReason.",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
