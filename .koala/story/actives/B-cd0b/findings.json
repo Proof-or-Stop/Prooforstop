@@ -16,8 +16,8 @@
         "Lattice-Parallel-Development-Capability.md",
         "docs/requirements/decisions/authority-client-role.md"
       ],
-      "resolvedReason": "Resolved by replacing local/off and receipt-backed/enforce-capable wording with the PD-1/PD-2 vocabulary off|shadow|enforce, and by replacing receipt-backed-authority with receipt-backed-l2-plus. Verified with rg that the old terms local/off, receipt-backed-authority, and receipt-backed/enforce are absent.",
-      "resolvedAt": "2026-06-09T22:44:13.678Z"
+      "resolvedReason": "Fixed in commit c8840c3b and verified at HEAD 621e72e: authorityMode now uses off|shadow|enforce, evidenceClass uses receipt-backed-l2-plus, and grep for old terms local/off, receipt-backed-authority, authorityReceiptRefs, receipt-backed/enforce-capable returns no matches.",
+      "resolvedAt": "2026-06-09T22:44:15.079Z"
     },
     {
       "id": "B-cd0b:F-002",
