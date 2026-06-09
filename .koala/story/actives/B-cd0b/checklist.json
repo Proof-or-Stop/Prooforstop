@@ -51,9 +51,9 @@
           "command": "rg -n 'Authority Modes And Evidence Chains|\\| `local/off` \\||\\| `shadow` \\||receipt-backed/enforce-capable future path|What it can prove|What it cannot prove' Lattice-Parallel-Development-Capability.md",
           "result": "pass",
           "note": "Document has an explicit authority/local mode matrix separating local/off, shadow, and future receipt-backed authority modes, including what each mode can and cannot prove.",
-          "headHash": "41a7dcea7bf278259962ae9c7e8a567e6535ef00",
-          "materialHash": "31ffec8184c373af519ccf3aa7868f142528f9b4d22f14996690c656e72d903c",
-          "timestamp": "2026-06-09T22:37:49.658Z"
+          "headHash": "91a476bcd4011be330541c0d61820bc65f7de7cb",
+          "materialHash": "64d719ea906b74cf2297d6b07d6fcb593c7a08cac6fc3795d851278b640da963",
+          "timestamp": "2026-06-09T22:38:56.469Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -62,9 +62,9 @@
           "command": "rg -n \"accepted: true != receiptVerified|local PASS does not imply productionDone|thin-client-transport-accepted|productionDone=false|receiptVerified=false|authorityChanged=false\" Lattice-Parallel-Development-Capability.md",
           "result": "pass",
           "note": "Transport acceptance, local PASS, and shadow diagnostics are documented only as non-authority evidence and cannot imply productionDone or receipt verification.",
-          "headHash": "41a7dcea7bf278259962ae9c7e8a567e6535ef00",
-          "materialHash": "31ffec8184c373af519ccf3aa7868f142528f9b4d22f14996690c656e72d903c",
-          "timestamp": "2026-06-09T22:37:49.710Z"
+          "headHash": "91a476bcd4011be330541c0d61820bc65f7de7cb",
+          "materialHash": "64d719ea906b74cf2297d6b07d6fcb593c7a08cac6fc3795d851278b640da963",
+          "timestamp": "2026-06-09T22:38:56.469Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -73,9 +73,9 @@
           "command": "rg -n \"not a claim that the runtime has already implemented|not a runtime scheduler|does not implement|does not verify receipts|receipt-backed enforcement|future implementation\" Lattice-Parallel-Development-Capability.md",
           "result": "pass",
           "note": "The document remains documentation-only and does not claim runtime gate, receipt verification, or receipt-backed enforcement implementation.",
-          "headHash": "41a7dcea7bf278259962ae9c7e8a567e6535ef00",
-          "materialHash": "31ffec8184c373af519ccf3aa7868f142528f9b4d22f14996690c656e72d903c",
-          "timestamp": "2026-06-09T22:37:49.758Z"
+          "headHash": "91a476bcd4011be330541c0d61820bc65f7de7cb",
+          "materialHash": "64d719ea906b74cf2297d6b07d6fcb593c7a08cac6fc3795d851278b640da963",
+          "timestamp": "2026-06-09T22:38:56.469Z"
         }
       ]
     },
@@ -129,9 +129,9 @@
           "command": "rg -n \"authorityMode|evidenceClass|receiptVerified|productionDone|authorityChanged|authorityReceiptRefs|final-report.json|Readiness Checklist|DONE Criteria|Anti-Patterns\" Lattice-Parallel-Development-Capability.md",
           "result": "pass",
           "note": "The report, readiness, DONE, and anti-pattern sections consistently use authorityMode, evidenceClass, receiptVerified, productionDone, authorityChanged, and authorityReceiptRefs without contradicting the mode matrix.",
-          "headHash": "fb30581c69670869e1630c7094fc7ab29ce411b7",
-          "materialHash": "31ffec8184c373af519ccf3aa7868f142528f9b4d22f14996690c656e72d903c",
-          "timestamp": "2026-06-09T22:38:14.844Z"
+          "headHash": "91a476bcd4011be330541c0d61820bc65f7de7cb",
+          "materialHash": "64d719ea906b74cf2297d6b07d6fcb593c7a08cac6fc3795d851278b640da963",
+          "timestamp": "2026-06-09T22:38:56.469Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -140,9 +140,9 @@
           "command": "rg -n \"accepted: true != receiptVerified|local PASS does not imply productionDone|final-report.json|Readiness Checklist|DONE Criteria|local/off|shadow\" Lattice-Parallel-Development-Capability.md",
           "result": "pass",
           "note": "The document treats final-report/readiness/DONE as a future-facing contract while saying local CLI PASS or transport acceptance is not production authority.",
-          "headHash": "fb30581c69670869e1630c7094fc7ab29ce411b7",
-          "materialHash": "31ffec8184c373af519ccf3aa7868f142528f9b4d22f14996690c656e72d903c",
-          "timestamp": "2026-06-09T22:38:14.908Z"
+          "headHash": "91a476bcd4011be330541c0d61820bc65f7de7cb",
+          "materialHash": "64d719ea906b74cf2297d6b07d6fcb593c7a08cac6fc3795d851278b640da963",
+          "timestamp": "2026-06-09T22:38:56.469Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -151,9 +151,9 @@
           "command": "rg -n \"Any attempt to set `receiptVerified=true`, `productionDone=true`, or|Local CLI REVIEW/TEST/DONE described as production authority|Transport `accepted: true` described as receipt verification|Shadow diagnostics setting `receiptVerified=true`|not a claim that the runtime has already implemented\" Lattice-Parallel-Development-Capability.md",
           "result": "pass",
           "note": "The document blocks local/shadow evidence from satisfying production authority or DONE, and does not imply runtime authority field enforcement already exists.",
-          "headHash": "fb30581c69670869e1630c7094fc7ab29ce411b7",
-          "materialHash": "31ffec8184c373af519ccf3aa7868f142528f9b4d22f14996690c656e72d903c",
-          "timestamp": "2026-06-09T22:38:14.970Z"
+          "headHash": "91a476bcd4011be330541c0d61820bc65f7de7cb",
+          "materialHash": "64d719ea906b74cf2297d6b07d6fcb593c7a08cac6fc3795d851278b640da963",
+          "timestamp": "2026-06-09T22:38:56.469Z"
         }
       ]
     }
