@@ -5,7 +5,7 @@
       "desc": "Lattice-Parallel-Development-Capability.md:233-235 and :622-623 introduce a second authority contract instead of reusing the PD-1/PD-2 source vocabulary: the new matrix/report fields use `authorityMode=local/off|shadow|receipt-backed/enforce-capable` and `evidenceClass=...|receipt-backed-authority`, while docs/requirements/decisions/authority-client-role.md:138 and :249-260 define the existing mode/classification terms as `off|shadow|enforce` and `receipt-backed-l2-plus`. The docs-only story correctly preserves the non-authority boundary, but this term drift makes the boundary ambiguous for future implementers and breaks the requested consistency with authority-client-role.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-concept",
       "createdAt": "2026-06-09T22:35:57.622Z",
@@ -15,7 +15,9 @@
       "files": [
         "Lattice-Parallel-Development-Capability.md",
         "docs/requirements/decisions/authority-client-role.md"
-      ]
+      ],
+      "resolvedReason": "Resolved by replacing local/off and receipt-backed/enforce-capable wording with the PD-1/PD-2 vocabulary off|shadow|enforce, and by replacing receipt-backed-authority with receipt-backed-l2-plus. Verified with rg that the old terms local/off, receipt-backed-authority, and receipt-backed/enforce are absent.",
+      "resolvedAt": "2026-06-09T22:44:13.678Z"
     },
     {
       "id": "B-cd0b:F-002",
