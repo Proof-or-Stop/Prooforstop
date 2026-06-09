@@ -132,7 +132,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "User sees a 2-host/8-agent dispatch audit package assigning Codex CLI and Claude CLI implementer/reviewer lanes, with stop conditions and sequential proof locks.",
+      "userSees": "User sees \"dispatchDecision\" with GO/GO-NOT-YET/BLOCKED plus exact Codex CLI and Claude CLI lane assignments, ownedPaths/readOnlyPaths, stop conditions, and sequentialProofLock.",
       "files": {
         "modify": [],
         "create": [
@@ -141,7 +141,8 @@
           ".omx/artifacts/parallel-development/B-688d/final-report.json",
           ".omx/artifacts/parallel-development/B-688d/final-report.md",
           ".omx/artifacts/claude-baseline-audit-B-688d.md",
-          ".omx/artifacts/claude-dispatch-review-B-688d.md"
+          ".omx/artifacts/claude-dispatch-review-B-688d.md",
+          ".omx/artifacts/claude-scope-check-B-688d-20260609T230010Z.md"
         ],
         "test": []
       },
