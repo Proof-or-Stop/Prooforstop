@@ -125,7 +125,11 @@
         ],
         "adversarial": [
           {
-            "desc": "当输入跨越真实 authority 数据与 dev-memory 边界时，artifact 只能导出 real-data baseline 所需的真实数据与 boundary 注释；dev-memory 内容若仅属 boundary-only，应被排除在 scoreable corpus/gold/query/result 之外。",
+            "desc": "当输入跨越真实 authority 数据与 dev-memory 边界时，artifact 只能导出 real-data baseline 所需的真实数据与边界注释；dev-memory 若仅属 boundary-only，应被排除在 scoreable corpus/gold/query/result 之外。",
+            "type": "cli"
+          },
+          {
+            "desc": "当用户把 outputDir 指向 story-managed lifecycle state 或 fixture-managed paths（例如 .koala/story/**、配置的 storyDir、docs/story/**、packages/main/tests/fixtures/**）时，命令必须拒绝写入，保持 readOnly lifecycle policy 不绕过 owner/gate 保护。",
             "type": "cli"
           }
         ]
