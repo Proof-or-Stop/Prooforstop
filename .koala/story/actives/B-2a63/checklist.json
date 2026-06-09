@@ -89,7 +89,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-06-09T01:55:00.125Z",
+      "endTime": "2026-06-09T02:05:41.397Z",
       "userSees": "memory_benchmark_real_data --outputDir=<dir> writes corpus.jsonl, gold.jsonl, queries.jsonl, result.json and prints their paths plus PASS/FAIL status.",
       "files": {
         "modify": [
@@ -134,32 +134,32 @@
         {
           "intentRef": "CHK-002:happy:0",
           "kind": "manual_transcript",
-          "command": "node bin/koala.js memory_benchmark_real_data --outputDir=.tmp/memory-real-baseline --format=text && ls -l .tmp/memory-real-baseline && wc -l .tmp/memory-real-baseline/corpus.jsonl .tmp/memory-real-baseline/gold.jsonl .tmp/memory-real-baseline/queries.jsonl",
+          "command": "node bin/koala.js memory_benchmark_real_data --outputDir=.lattice/tmp/memory-real-baseline-audit --format=text && wc -l .lattice/tmp/memory-real-baseline-audit/corpus.jsonl .lattice/tmp/memory-real-baseline-audit/gold.jsonl .lattice/tmp/memory-real-baseline-audit/queries.jsonl",
           "result": "pass",
-          "note": "OutputDir run printed PASS plus four paths; inspected corpus.jsonl/gold.jsonl/queries.jsonl/result.json existed, with 374 lines in each JSONL file.",
-          "headHash": "f9edddd7ed7f0383b00d0bfe59da40d2a220baeb",
-          "materialHash": "e42f3d3199ec1705b8a13c0d0967eb135a8a008ec980f8af47c546fb5720c05f",
-          "timestamp": "2026-06-09T01:55:00.159Z"
+          "note": "OutputDir run printed PASS plus corpus/gold/query/result paths; corpus.jsonl, gold.jsonl, and queries.jsonl each contain 389 real lifecycle rows.",
+          "headHash": "c4874331b3f5f68aaeb4f3266ae85a8d838d3473",
+          "materialHash": "09f2d0bbb82d930c7a4f531a258e73fa37539a979b1a645af7dda9868e763f1c",
+          "timestamp": "2026-06-09T02:05:41.434Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
-          "kind": "manual_transcript",
-          "command": "node -e inspect .tmp/memory-real-baseline first rows and result.json",
-          "result": "pass",
-          "note": "Inspected first corpus/gold/query rows: each carried recordId, layer, sourcePath, sourceHash; result.json reported PASS with corpus/gold/query counts of 374.",
-          "headHash": "f9edddd7ed7f0383b00d0bfe59da40d2a220baeb",
-          "materialHash": "e42f3d3199ec1705b8a13c0d0967eb135a8a008ec980f8af47c546fb5720c05f",
-          "timestamp": "2026-06-09T01:55:00.192Z"
-        },
-        {
-          "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:memory-real-data-benchmark-smoke",
           "result": "pass",
-          "note": "Smoke asserted dev-memory advisory records remain boundary-only and excluded from scoreable gold/query; command policy is readOnly, non-gate evidence, destructiveRisk=none, process fact level L0.",
-          "headHash": "f9edddd7ed7f0383b00d0bfe59da40d2a220baeb",
-          "materialHash": "e42f3d3199ec1705b8a13c0d0967eb135a8a008ec980f8af47c546fb5720c05f",
-          "timestamp": "2026-06-09T01:55:00.222Z"
+          "note": "Smoke validates output file line counts, source trace fields on corpus/gold/query/result, non-authoritative note, and protected outputDir refusals for docs/story and packages/main/tests/fixtures.",
+          "headHash": "c4874331b3f5f68aaeb4f3266ae85a8d838d3473",
+          "materialHash": "09f2d0bbb82d930c7a4f531a258e73fa37539a979b1a645af7dda9868e763f1c",
+          "timestamp": "2026-06-09T02:05:41.470Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node bin/koala.js memory_benchmark_real_data --outputDir=.lattice/tmp/memory-real-baseline-audit --format=text",
+          "result": "pass",
+          "note": "Second run to same outputDir fails with refuses to overwrite output files, preventing stale baseline artifacts from being silently replaced.",
+          "headHash": "c4874331b3f5f68aaeb4f3266ae85a8d838d3473",
+          "materialHash": "09f2d0bbb82d930c7a4f531a258e73fa37539a979b1a645af7dda9868e763f1c",
+          "timestamp": "2026-06-09T02:05:41.501Z"
         }
       ]
     },
