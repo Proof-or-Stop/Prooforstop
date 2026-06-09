@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-09T02:30:43.349Z",
       "reviewRunId": "B-2a63:RR-008",
       "_hash": "85d979d42a6333bf47a224ae27824bd7a9bbefa9ab500ae9ca0fa55a7c19f286"
+    },
+    {
+      "id": "B-2a63:RP-004",
+      "agent": "koala-review-quality",
+      "note": "Re-review after d286e2fe and finding resolves: verified memory_benchmark_real_data stays readOnly for lifecycle-managed paths, preserves current activity tool/status schema, exports current review-passes.json evidence, and adds no unrelated optimization. Evidence: npm --prefix packages/main exec -- tsc -p packages/main/tsconfig.json --noEmit; direct source-level tsx assertions against configured storyDir/current-schema activity/review-passes/protected outputDir refusals; live command checks node bin/koala.js memory_benchmark_real_data --format=json and protected outputDir refusals under .koala/story/actives and packages/main/tests/fixtures. No blocker found.",
+      "createdAt": "2026-06-09T02:36:30.055Z",
+      "reviewRound": "2026-06-09T02:30:43.349Z",
+      "reviewRunId": "B-2a63:RR-007",
+      "_hash": "d048dbf2b3546ff1ce7cf58264b171e2bf5e50a8ca061d7fa839910ca4fea6c9"
     }
   ]
 }
