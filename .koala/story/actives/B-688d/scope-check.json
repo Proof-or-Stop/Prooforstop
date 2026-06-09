@@ -1,0 +1,38 @@
+{
+  "storyId": "B-688d",
+  "checkedAt": "2026-06-09T23:02:24.921Z",
+  "features": [
+    {
+      "feature": "CHK-001: 验证 Layer 1 Development Baseline 正式 proof 状态",
+      "covered_by": "Lattice-Parallel-Development-Capability.md §Layer 1 Development Baseline Status and §Execution Phases Phase 0",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "Lattice-Parallel-Development-Capability.md"
+    },
+    {
+      "feature": "CHK-002: 冻结 Baseline 2-5 并行开发共享契约",
+      "covered_by": "Lattice-Parallel-Development-Capability.md §Shared Contract Freeze and §Workstream Partition; authority-client-role.md constrains authorityMode=off",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "Lattice-Parallel-Development-Capability.md, authority-client-role.md"
+    },
+    {
+      "feature": "CHK-003: 生成 2 host / 8 agent 并行 dispatch 审计包",
+      "covered_by": "Lattice-Parallel-Development-Capability.md §Host And Agent Count and §Agent Assignment",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "Lattice-Parallel-Development-Capability.md"
+    }
+  ],
+  "summary": {
+    "total": 3,
+    "covered": 3,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "99924284c22749290f7ecc4f64c3ad866f8f5e523fc03c50f34cd15c1b868837",
+  "openQuestions": []
+}
