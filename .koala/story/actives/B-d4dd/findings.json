@@ -24,7 +24,7 @@
       "desc": "memory_benchmark_compare accepts arbitrary candidateCounts, but resolveMemoryBenchmarkTierConfig maps any unmapped count >=10000 to tier T3 with threshold=null. Repro: `node bin/koala.js memory_benchmark_compare --candidateCounts=50000 --format=json` returns `{ tier: \"T3\", candidateCount: 50000 }`, which contradicts the documented fixed tier contract (10k/100k/1M) and makes the report semantically misleading. Reject unsupported counts or introduce an explicit custom tier/threshold contract, and add smoke coverage for this edge case.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-09T00:12:12.947Z",
@@ -34,7 +34,9 @@
       "files": [
         "packages/main/src/core/memory-benchmark.ts",
         "packages/main/src/tasks/memory-benchmark-smoke.ts"
-      ]
+      ],
+      "resolvedReason": "Fixed by commit 192f5ef2: unsupported fixed-tier candidate counts now throw an explicit error instead of being labeled T3; smoke covers run and compare unsupported-count paths. Revalidated with npm --prefix packages/main run test:memory-benchmark-smoke, npm --prefix packages/main run build, node bin/koala.js memory_benchmark_compare --candidateCounts=50000 --format=json (clean rejection), and 10k/100k/1M compare output preserving PASS metrics.",
+      "resolvedAt": "2026-06-09T00:20:21.915Z"
     }
   ]
 }
