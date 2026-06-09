@@ -134,7 +134,35 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "用户打开 Lattice-Capability-Claim-baseline.md，看到每一层 baseline 通过后允许声明什么、禁止声明什么、claim unlock matrix 和机器可检查证据要求。",
+      "files": {
+        "modify": [],
+        "create": [
+          "Lattice-Capability-Claim-baseline.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "文档包含 CLAIM-BASIC-DEV、CLAIM-ENGINEERING-DEV、CLAIM-LOOP-ENGINEERING、CLAIM-PRODUCTION-SAFETY 的 unlock 条件和 required evidence。",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "文档必须说明高层 baseline 可以提前实现，但高层 claim 必须等待所有低层通过。",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "文档必须包含 prohibited claims，禁止在缺少 suite artifacts、final reports、Authority evidence 或 0 false DONE 证明时宣传能力。",
+            "type": "docs"
+          }
+        ]
+      }
     }
   ]
 }
