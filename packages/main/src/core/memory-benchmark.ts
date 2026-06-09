@@ -190,8 +190,11 @@ const TIER_ALIAS_TO_NAME: Record<string, MemoryBenchmarkTier> = {
   '1000000': 'T3',
 };
 
+const FIXED_TIER_CONFIGS = [TIER_CONFIG_BY_NAME.T1, TIER_CONFIG_BY_NAME.T2, TIER_CONFIG_BY_NAME.T3] as const;
+const SUPPORTED_FIXED_TIER_CANDIDATE_COUNTS = FIXED_TIER_CONFIGS.map((entry) => entry.candidateCount);
+
 const TIER_CONFIG_BY_CANDIDATE_COUNT = new Map<number, MemoryBenchmarkTierConfig>(
-  Object.values(TIER_CONFIG_BY_NAME).map((entry) => [entry.candidateCount, entry]),
+  FIXED_TIER_CONFIGS.map((entry) => [entry.candidateCount, entry]),
 );
 
 const BASE_QUERY_BLUEPRINTS: readonly QueryBlueprint[] = [
@@ -251,18 +254,27 @@ function parseTier(input: string | undefined): MemoryBenchmarkTier | undefined {
   return tier;
 }
 
+function resolveFixedTierCandidateCountConfig(candidateCount: number, label: 'candidateCount' | 'candidateCounts'): MemoryBenchmarkTierConfig {
+  const mapped = TIER_CONFIG_BY_CANDIDATE_COUNT.get(candidateCount);
+  if (!mapped) {
+    throw new Error(
+      `unsupported ${label}=${candidateCount}; supported fixed-tier candidate counts are ${SUPPORTED_FIXED_TIER_CANDIDATE_COUNTS.join(', ')}`,
+    );
+  }
+  return mapped;
+}
+
 export function resolveMemoryBenchmarkTierConfig(options: Pick<MemoryBenchmarkOptions, 'tier' | 'candidateCount'>): MemoryBenchmarkTierConfig {
   const tier = parseTier(typeof options.tier === 'string' ? options.tier : undefined);
   const candidateCount = normalizePositiveIntInput(options.candidateCount, 'candidateCount');
+  const candidateCountConfig = candidateCount === undefined
+    ? undefined
+    : resolveFixedTierCandidateCountConfig(candidateCount, 'candidateCount');
   if (tier && candidateCount !== undefined && TIER_CONFIG_BY_NAME[tier].candidateCount !== candidateCount) {
     throw new Error(`tier ${tier} requires candidateCount=${TIER_CONFIG_BY_NAME[tier].candidateCount}, got ${candidateCount}`);
   }
   if (tier) return TIER_CONFIG_BY_NAME[tier];
-  if (candidateCount !== undefined) {
-    const mapped = TIER_CONFIG_BY_CANDIDATE_COUNT.get(candidateCount);
-    if (mapped) return mapped;
-    return { tier: candidateCount < 10000 ? 'T0' : 'T3', candidateCount, threshold: null };
-  }
+  if (candidateCountConfig) return candidateCountConfig;
   return TIER_CONFIG_BY_NAME.T1;
 }
 
@@ -273,7 +285,8 @@ export function normalizeCandidateCounts(input: MemoryBenchmarkCompareOptions['c
   const normalized: number[] = [];
   for (const raw of rawValues) {
     if (typeof raw === 'number') {
-      normalized.push(positiveInt(raw, raw));
+      const candidateCount = positiveInt(raw, raw);
+      normalized.push(resolveFixedTierCandidateCountConfig(candidateCount, 'candidateCounts').candidateCount);
       continue;
     }
     if (typeof raw !== 'string') {
@@ -286,7 +299,8 @@ export function normalizeCandidateCounts(input: MemoryBenchmarkCompareOptions['c
       if (!/^\d+$/.test(part)) {
         throw new Error(`candidateCounts must contain only integers, got "${part}"`);
       }
-      normalized.push(positiveInt(Number(part), 0));
+      const candidateCount = positiveInt(Number(part), 0);
+      normalized.push(resolveFixedTierCandidateCountConfig(candidateCount, 'candidateCounts').candidateCount);
     }
   }
   const uniqueSorted = [...new Set(normalized)].sort((a, b) => a - b);

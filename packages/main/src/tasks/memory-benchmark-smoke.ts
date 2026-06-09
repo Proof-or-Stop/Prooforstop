@@ -23,6 +23,27 @@ import type { HandlerContext } from '../handlers/context.js';
 import { createMemoryBenchmarkHandlers } from '../handlers/memory-benchmark.js';
 import { createMainRegistry } from '../registry.js';
 
+function errorText(error: unknown): string {
+  const record = error as { stdout?: unknown; stderr?: unknown; message?: unknown };
+  return [record.stdout, record.stderr, record.message]
+    .filter((part) => part !== undefined)
+    .map((part) => String(part))
+    .join('\n');
+}
+
+function assertUnsupportedFixedTierCount(action: () => unknown, label: 'candidateCount' | 'candidateCounts'): void {
+  assert.throws(
+    action,
+    (error) => {
+      const text = errorText(error);
+      assert.match(text, new RegExp(`unsupported ${label}=50000`));
+      assert.match(text, /supported fixed-tier candidate counts are 10000, 100000, 1000000/);
+      assert.doesNotMatch(text, /\bT3\b/);
+      return true;
+    },
+  );
+}
+
 const singleRun = runMemoryBenchmark({ tier: 'T1' });
 const singleRunRepeat = runMemoryBenchmark({ tier: 'T1' });
 
@@ -127,6 +148,8 @@ assert.throws(
   () => runMemoryBenchmark({ tier: 'T2', candidateCount: 10000 }),
   /tier T2 requires candidateCount=100000, got 10000/,
 );
+assertUnsupportedFixedTierCount(() => runMemoryBenchmark({ candidateCount: 50000 }), 'candidateCount');
+assertUnsupportedFixedTierCount(() => compareMemoryBenchmarks({ candidateCounts: '50000' }), 'candidateCounts');
 
 {
   const handlers = createMemoryBenchmarkHandlers({} as HandlerContext);
@@ -135,6 +158,10 @@ assert.throws(
   assert.throws(
     () => handlers.memory_benchmark_run({ tier: 'T3', candidateCount: '100000', format: 'json' }),
     /tier T3 requires candidateCount=1000000, got 100000/,
+  );
+  assertUnsupportedFixedTierCount(
+    () => handlers.memory_benchmark_compare({ candidateCounts: '50000', format: 'json' }),
+    'candidateCounts',
   );
 }
 
@@ -164,6 +191,10 @@ assert.ok(DEFAULT_PHASE_TOOLS['*']?.includes('memory_benchmark_*'), 'phase tools
     assert.equal(run.scores.memoryScore, null);
     const compare = registry.get('memory_benchmark_compare')!({ candidateCounts: '10000,100000', format: 'json' }) as typeof comparison;
     assert.deepEqual(compare.candidateCounts, [10000, 100000]);
+    assertUnsupportedFixedTierCount(
+      () => registry.get('memory_benchmark_compare')!({ candidateCounts: '50000', format: 'json' }),
+      'candidateCounts',
+    );
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -194,6 +225,14 @@ assert.ok(DEFAULT_PHASE_TOOLS['*']?.includes('memory_benchmark_*'), 'phase tools
     assert.deepEqual(parsedCompare.candidateCounts, [10000, 100000]);
     assert.equal(parsedCompare.runs.every((run) => run.scores.memoryScore !== null), true);
     assert.equal(parsedCompare.runs.every((run) => run.scores.exactRecallAt1 === 1), true);
+    assertUnsupportedFixedTierCount(
+      () => execFileSync(process.execPath, [cliPath, '--root', root, 'memory_benchmark_compare', '--candidateCounts=50000', '--format=json'], {
+        cwd: root,
+        encoding: 'utf8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+      }),
+      'candidateCounts',
+    );
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
