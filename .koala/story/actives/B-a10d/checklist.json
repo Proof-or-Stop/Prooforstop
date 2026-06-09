@@ -237,9 +237,9 @@
         "docs/requirements/decisions/truth-source.md",
         "docs/requirements/NAV.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-09T19:19:35.369Z",
-      "endTime": null,
+      "endTime": "2026-06-09T19:21:13.826Z",
       "userSees": "用户打开文档时看到标题 \"Lattice Capability Claim Baseline Execution Plan\"，并看到 CLAIM-BASIC-DEV 到 CLAIM-PRODUCTION-SAFETY 的 unlock matrix 和 prohibited claims。",
       "files": {
         "modify": [],
@@ -267,7 +267,42 @@
             "type": "docs"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "file": "Lattice-Capability-Claim-baseline.md",
+          "command": "rg -n \"CLAIM-BASIC-DEV|CLAIM-ENGINEERING-DEV|CLAIM-LOOP-ENGINEERING|CLAIM-PRODUCTION-SAFETY\" Lattice-Capability-Claim-baseline.md && git diff --check -- Lattice-Capability-Claim-baseline.md",
+          "result": "pass",
+          "note": "Capability Claim document contains the required claim IDs, unlock conditions, and evidence requirements.",
+          "headHash": "ed7aaffbc67f8699e5e2d471bac56757b55c803d",
+          "materialHash": "fba211c65dfb01b1310b035149fd5e294cfe9257f795b79fbf64a735c51fa851",
+          "timestamp": "2026-06-09T19:21:13.858Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "file": "Lattice-Capability-Claim-baseline.md",
+          "command": "rg -n \"implementation_order may be parallel|claim_unlock_order must be sequential|Higher-layer baselines may be implemented early\" Lattice-Capability-Claim-baseline.md",
+          "result": "pass",
+          "note": "Document explicitly states that implementation may be parallel but claim unlock must be sequential after lower layers pass.",
+          "headHash": "ed7aaffbc67f8699e5e2d471bac56757b55c803d",
+          "materialHash": "fba211c65dfb01b1310b035149fd5e294cfe9257f795b79fbf64a735c51fa851",
+          "timestamp": "2026-06-09T19:21:13.879Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "file": "Lattice-Capability-Claim-baseline.md",
+          "command": "rg -n \"Global Prohibited Claims|CLAIM-OVERCLAIM-TRAP|CLAIM-NON-AUTHORITY-TRAP|CLAIM-STALE-EVIDENCE-TRAP|fullAuthorityDone = false\" Lattice-Capability-Claim-baseline.md",
+          "result": "pass",
+          "note": "Document includes prohibited claims and traps for overclaim, non-authority authority claims, and stale evidence.",
+          "headHash": "ed7aaffbc67f8699e5e2d471bac56757b55c803d",
+          "materialHash": "fba211c65dfb01b1310b035149fd5e294cfe9257f795b79fbf64a735c51fa851",
+          "timestamp": "2026-06-09T19:21:13.901Z"
+        }
+      ]
     }
   ]
 }
