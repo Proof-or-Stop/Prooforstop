@@ -97,6 +97,16 @@ const staleTruthHit = runMemoryBenchmark({
 });
 assert.equal(staleTruthHit.verdict, 'HARD_FAIL');
 
+const lifecycleGateEvidenceLinkageHardFail = runMemoryBenchmark({
+  tier: 'T1',
+  baselineQualityScore: 90,
+  overrides: { lifecycleGateEvidenceLinkageRate: 0.999 },
+});
+assert.equal(lifecycleGateEvidenceLinkageHardFail.hardChecks.evidenceLinkageRateLifecycleGate < 1, true);
+assert.equal(lifecycleGateEvidenceLinkageHardFail.verdict, 'HARD_FAIL');
+assert.equal(lifecycleGateEvidenceLinkageHardFail.thresholdPassed, false);
+assert.equal(lifecycleGateEvidenceLinkageHardFail.scores.memoryScore, 100);
+
 const scoreFail = runMemoryBenchmark({
   tier: 'T1',
   baselineQualityScore: 90,
