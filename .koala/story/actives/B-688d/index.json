@@ -4,7 +4,7 @@
   "title": "执行 Baseline 2-5 并行开发前置协调审计",
   "description": "按照 Parallel Implementation Plan 执行第一阶段：验证 Layer 1 Development Baseline 的正式 proof 状态，冻结 Baseline 2-5 并行开发共享契约，给 Engineering Runner、Loop Engine、Production Safety、Claim Evaluator 分配 ownedPaths/readOnlyPaths、2 host/8 agent dispatch 包和 fail-closed 启动条件。该 story 不宣称 L2-L5 能力通过，不实现 receipt-backed authority，也不绕过顺序 proof。",
   "type": "chore",
-  "phase": "PLAN",
+  "phase": "DEV",
   "priority": "high",
   "riskSignals": [
     {
@@ -40,6 +40,14 @@
       "phase": "PLAN",
       "action": "advance",
       "timestamp": "2026-06-09T22:56:13.077Z",
+      "branch": "story/B-688d",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-09T23:03:53.497Z",
       "branch": "story/B-688d",
       "user": "Harmonygo",
       "agent": "main"
