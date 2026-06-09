@@ -144,14 +144,23 @@ enforcement, and sequential proof discipline around it.
 Recommended composition:
 
 ```text
-parallel_wave_create / parallel_plan / parallel_report
+parallel_wave_create --output wave.json
+  -> optional parallel_wave_inspect / parallel_plan for full-envelope planning
+  -> optional parallel_report for human-readable summary only
   -> operator confirms candidate workstreams
   -> coordinator freezes shared contract and workstream partition
-  -> parallel_development_run binds waveId, waveHash, materialHash, and sharedContractVersion
+  -> parallel_development_run binds the full-envelope Wave artifact plus coordinator freeze metadata
   -> workstreams execute through normal story lifecycle gates
   -> parallel development merge queue consumes real review and validation evidence
   -> sequential proof gate unlocks claims one layer at a time
 ```
+
+Only full-envelope Wave surfaces may seed the frozen snapshot:
+`parallel_wave_create`, `parallel_wave_inspect`, and `parallel_plan`.
+Projection-only surfaces such as `parallel_report`, `parallel_status`, and
+`parallel_merge_queue` may help an operator read the plan, but they omit parts of
+the full envelope and must not be used as the binding artifact for a Parallel
+Development run unless paired with the original full-envelope Wave artifact.
 
 Boundary mapping:
 
@@ -164,16 +173,26 @@ Boundary mapping:
 | `mergeOrder` | Initial merge queue seed. | It is not merge permission. |
 | `authority` | Must remain non-authoritative. | It must not set production completion, receipts, or claim unlock. |
 
-Required frozen snapshot fields:
+Frozen snapshot fields from the full-envelope Wave artifact:
 
 ```text
 waveId
-waveHash
 waveSchemaVersion
+storyRefs
+hostCandidates
+evidenceRefs
+mergeOrder
+authority
+```
+
+Coordinator-added freeze metadata:
+
+```text
+waveHash
 materialHash
 sharedContractVersion
 createdFromCommands
-createdAt
+frozenAt
 ```
 
 Rules:
