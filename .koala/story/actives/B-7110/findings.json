@@ -50,7 +50,7 @@
       "desc": "Lattice-Parallel-Development-Capability.md:158-180 [MEDIUM] B-7110:F-001 is only partially resolved. The new section correctly limits frozen-snapshot seeds to full-envelope Wave surfaces and demotes `parallel_report` to summary-only, but it still says the frozen snapshot fields from any allowed full-envelope artifact include `waveSchemaVersion`. That conflicts with docs/requirements/decisions/lattice-parallel-wave.md:82-100 and the live `lattice parallel_wave_create --format=json` output, where `parallel_wave_create` exposes `schemaVersion` and `generatedAt` but not `waveSchemaVersion`; only `parallel_wave_inspect` and `parallel_plan` add `waveSchemaVersion`. Future implementers can still choose `parallel_wave_create` per the capability doc and then fail to satisfy the documented frozen snapshot contract. Fix by either requiring inspect/plan when `waveSchemaVersion` is mandatory, or by documenting that the coordinator freeze wrapper derives/normalizes this field when the seed artifact is `parallel_wave_create`.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-09T21:50:10.326Z",
@@ -61,7 +61,9 @@
         "Lattice-Parallel-Development-Capability.md",
         "docs/requirements/decisions/lattice-parallel-wave.md",
         "packages/main/src/core/lattice-parallel-wave.ts"
-      ]
+      ],
+      "resolvedReason": "Fixed in commit e585465b: the document no longer implies parallel_wave_create has waveSchemaVersion; it records the source-surface schema marker distinction and preserves original source artifact/source command in coordinator freeze wrapper wording. Re-verified with git diff --check and live lattice parallel_wave_create --format=json field extraction.",
+      "resolvedAt": "2026-06-09T21:51:55.612Z"
     }
   ]
 }
