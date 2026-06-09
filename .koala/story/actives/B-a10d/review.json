@@ -190,6 +190,29 @@
         }
       ],
       "_hash": "d3ca2254145f2c5056c777872b8969d6d2422a5b5efb821498b84b6594f5e1c0"
+    },
+    {
+      "timestamp": "2026-06-09T19:13:45.750Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 个 checklist item，请检查是否有组合场景遗漏（如：编写 Engineering Baseline 执行方案 + 编写 Loop Engineering Baseline 执行方案 同时操作会怎样？）"
+        },
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "3 个 risk signal 已被主 agent 驳回（理由见 story.riskSignalsDismissed）: 安全/凭证, 数据迁移/破坏性, 生产环境/紧急"
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "advisory",
+          "message": "未找到 plan.md。正常通道建议写 plan.md 明确执行顺序和依赖"
+        }
+      ],
+      "_hash": "eadaf4952b90181250e1ff5e1e27f831e2b2d42a24f865a789a1904a108186c6"
     }
   ]
 }
