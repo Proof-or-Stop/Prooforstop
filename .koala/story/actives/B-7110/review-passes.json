@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-09T21:51:42.725Z",
       "reviewRunId": "B-7110:RR-009",
       "_hash": "14b28849331c691c3c57f920bef0acdca28ebc5c8d9ab6137117895880ae2265"
+    },
+    {
+      "id": "B-7110:RP-006",
+      "agent": "koala-review-concept",
+      "note": "Pass. Reviewed HEAD faea2919 for F-003/F-004 only. Lattice-Parallel-Development-Capability.md:178-192 now states frozen snapshots accept schemaVersion or waveSchemaVersion, explains parallel_wave_create provides schemaVersion/generatedAt, and says parallel_wave_inspect plus parallel_plan provide waveSchemaVersion. This matches the implementation contracts in packages/main/src/core/lattice-parallel-wave.ts:111-140 and the builders at 781-859, so the doc no longer overclaims a single schema marker across all wave-related outputs.",
+      "createdAt": "2026-06-09T21:54:14.497Z",
+      "reviewRound": "2026-06-09T21:51:42.725Z",
+      "reviewRunId": "B-7110:RR-010",
+      "_hash": "b717d5bd2486d57dc782a9912a39321fc2485f30f4efe486e66c652e9b0dab47"
     }
   ]
 }
