@@ -7,7 +7,8 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { MAIN_TOOLS } from '../cli-engine.js';
-import { resetConfigCache } from '../core/config.js';
+import { getCommandLifecyclePolicy } from '../core/command-policy.js';
+import { DEFAULT_PHASE_TOOLS, resetConfigCache } from '../core/config.js';
 import {
   MEMORY_BENCHMARK_BASELINE_CANDIDATE_COUNT,
   MEMORY_BENCHMARK_CONSTANTS,
@@ -16,6 +17,7 @@ import {
   renderMemoryBenchmarkRunText,
   runMemoryBenchmark,
 } from '../core/memory-benchmark.js';
+import { getProcessFactLevelEntry } from '../core/process-fact-levels.js';
 import { StoryStore } from '../core/store.js';
 import type { HandlerContext } from '../handlers/context.js';
 import { createMemoryBenchmarkHandlers } from '../handlers/memory-benchmark.js';
@@ -38,6 +40,11 @@ assert.equal(singleRun.verdict, 'PASS');
 assert.equal(singleRun.scores.scaleStabilityScore, null);
 assert.equal(singleRun.scores.memoryScore, null);
 assert.equal(singleRun.thresholdPassed, null);
+assert.equal(singleRun.scores.exactRecallAt1, 1);
+assert.equal(singleRun.scores.recallAt10, 1);
+assert.equal(singleRun.scores.mrrAt10, 1);
+assert.equal(singleRun.scores.precisionAt10, 1);
+assert.equal(singleRun.scores.qualityScore, 90);
 assert.equal(singleRun.hardChecks.authorityLeakCount, 0);
 assert.equal(singleRun.hardChecks.scopeLeakCount, 0);
 assert.equal(singleRun.hardChecks.staleTruthHitCount, 0);
@@ -53,8 +60,58 @@ assert.equal(comparison.comparison.baselineQualityScore, singleRun.scores.qualit
 assert.equal(comparison.runs.length, 3);
 assert.equal(comparison.runs.every((run) => run.scores.scaleStabilityScore !== null), true);
 assert.equal(comparison.runs.every((run) => run.scores.memoryScore !== null), true);
+assert.equal(comparison.runs.every((run) => run.scores.memoryScore === 100), true);
+assert.equal(comparison.runs.every((run) => run.scores.exactRecallAt1 === 1), true);
 assert.equal(comparison.runs.every((run) => run.verdict === 'PASS'), true);
-assert.match(renderMemoryBenchmarkComparisonText(comparison), /baselineQualityScore:/);
+const comparisonText = renderMemoryBenchmarkComparisonText(comparison);
+assert.match(comparisonText, /baselineQualityScore:/);
+assert.match(comparisonText, /exactRecall@1=1\.000/);
+assert.match(comparisonText, /recall@10=1\.000/);
+assert.match(comparisonText, /MRR@10=1\.000/);
+assert.match(comparisonText, /precision@10=1\.000/);
+assert.match(comparisonText, /hardFails=0/);
+
+const authorityHardFail = runMemoryBenchmark({
+  tier: 'T1',
+  baselineQualityScore: 90,
+  overrides: { authorityLeakCount: 1 },
+});
+assert.equal(authorityHardFail.verdict, 'HARD_FAIL');
+assert.equal(authorityHardFail.scores.memoryScore, 100);
+assert.equal(authorityHardFail.thresholdPassed, false);
+
+const boundaryLeak = runMemoryBenchmark({
+  tier: 'T1',
+  baselineQualityScore: 90,
+  overrides: { forceBoundaryLayerIntoRetrieval: true },
+});
+assert.equal(boundaryLeak.verdict, 'HARD_FAIL');
+assert.equal(boundaryLeak.hardChecks.authorityLeakCount, 1);
+assert.equal(boundaryLeak.hardChecks.scopeLeakCount, 1);
+assert.deepEqual(boundaryLeak.routing.excludedFromRetrievalLayers, ['advisory_memory', 'host_transcript_memory']);
+
+const staleTruthHit = runMemoryBenchmark({
+  tier: 'T1',
+  baselineQualityScore: 90,
+  overrides: { staleTruthHitCount: 1 },
+});
+assert.equal(staleTruthHit.verdict, 'HARD_FAIL');
+
+const scoreFail = runMemoryBenchmark({
+  tier: 'T1',
+  baselineQualityScore: 90,
+  overrides: {
+    exactRecallAt1: 0.1,
+    recallAt10: 0.1,
+    mrrAt10: 0.1,
+    precisionAt10: 0.1,
+    exactAnswerHit: 0.1,
+    evidenceLinkageRate: 0.1,
+    layerRoutingAccuracy: 0.1,
+  },
+});
+assert.equal(scoreFail.verdict, 'FAIL');
+assert.equal(scoreFail.hardChecks.authorityLeakCount, 0);
 
 assert.throws(
   () => runMemoryBenchmark({ tier: 'T2', candidateCount: 10000 }),
@@ -73,6 +130,15 @@ assert.throws(
 
 assert.ok(MAIN_TOOLS.some((tool) => tool.name === 'memory_benchmark_run'));
 assert.ok(MAIN_TOOLS.some((tool) => tool.name === 'memory_benchmark_compare'));
+for (const command of ['memory_benchmark_run', 'memory_benchmark_compare']) {
+  const policy = getCommandLifecyclePolicy(command);
+  assert.equal(policy?.ownershipClass, 'readOnly', `${command} is read-only`);
+  assert.equal(policy?.allowedPhases, 'all', `${command} is allowed in all phases`);
+  assert.equal(policy?.gateEvidence, undefined, `${command} is not gate evidence`);
+  assert.equal(policy?.destructiveRisk, 'none', `${command} is non-destructive`);
+  assert.equal(getProcessFactLevelEntry(command)?.level, 'L0', `${command} process fact level is L0`);
+}
+assert.ok(DEFAULT_PHASE_TOOLS['*']?.includes('memory_benchmark_*'), 'phase tools allow memory benchmark read-only commands');
 
 {
   const root = mkdtempSync(join(tmpdir(), 'koala-memory-benchmark-registry-'));
@@ -117,6 +183,7 @@ assert.ok(MAIN_TOOLS.some((tool) => tool.name === 'memory_benchmark_compare'));
     const parsedCompare = JSON.parse(compareStdout) as typeof comparison;
     assert.deepEqual(parsedCompare.candidateCounts, [10000, 100000]);
     assert.equal(parsedCompare.runs.every((run) => run.scores.memoryScore !== null), true);
+    assert.equal(parsedCompare.runs.every((run) => run.scores.exactRecallAt1 === 1), true);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

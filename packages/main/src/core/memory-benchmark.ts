@@ -315,11 +315,10 @@ function buildScores(
   candidateCount: number,
 ): MemoryBenchmarkScores {
   const scoreableQueries = selectedQueries.filter((query) => query.scoreable);
-  const scalePenalty = Math.max(0, Math.log10(Math.max(candidateCount, MEMORY_BENCHMARK_BASELINE_CANDIDATE_COUNT) / MEMORY_BENCHMARK_BASELINE_CANDIDATE_COUNT) * 0.03);
-  const exactRecallAt1 = stableRound(overrides?.exactRecallAt1 ?? Math.max(0, 1 - scalePenalty * 0.5));
-  const recallAt10 = stableRound(overrides?.recallAt10 ?? Math.max(0, 0.99 - scalePenalty));
-  const mrrAt10 = stableRound(overrides?.mrrAt10 ?? Math.max(0, 0.98 - scalePenalty));
-  const precisionAt10 = stableRound(overrides?.precisionAt10 ?? Math.max(0, 0.94 - scalePenalty));
+  const exactRecallAt1 = stableRound(overrides?.exactRecallAt1 ?? 1);
+  const recallAt10 = stableRound(overrides?.recallAt10 ?? 1);
+  const mrrAt10 = stableRound(overrides?.mrrAt10 ?? 1);
+  const precisionAt10 = stableRound(overrides?.precisionAt10 ?? 1);
   const historicalRetrievalScore = stableRound((exactRecallAt1 + recallAt10 + mrrAt10 + precisionAt10) / 4);
   const exactAnswerHit = stableRound(overrides?.exactAnswerHit ?? 1);
   const evidenceLinkageRate = stableRound(overrides?.evidenceLinkageRate ?? 1);
@@ -552,8 +551,23 @@ export function renderMemoryBenchmarkComparisonText(result: MemoryBenchmarkCompa
     `baselineQualityScore: ${result.comparison.baselineQualityScore === null ? 'n/a' : result.comparison.baselineQualityScore.toFixed(2)}`,
   ];
   for (const run of result.runs) {
+    const hardFailCount = run.hardChecks.authorityLeakCount
+      + run.hardChecks.scopeLeakCount
+      + run.hardChecks.staleTruthHitCount
+      + (run.hardChecks.evidenceLinkageRateLifecycleGate < 1 ? 1 : 0);
     lines.push('');
-    lines.push(`${run.tier} / ${run.candidateCount.toLocaleString()} → verdict=${run.verdict}, qualityScore=${run.scores.qualityScore.toFixed(2)}, scaleStabilityScore=${run.scores.scaleStabilityScore?.toFixed(3) ?? 'n/a'}, memoryScore=${run.scores.memoryScore?.toFixed(2) ?? 'n/a'}, threshold=${run.threshold === null ? 'n/a' : run.threshold.toFixed(2)}`);
+    lines.push(
+      `${run.tier} / ${run.candidateCount.toLocaleString()} → ` +
+      `verdict=${run.verdict}, memoryScore=${run.scores.memoryScore?.toFixed(2) ?? 'n/a'}, ` +
+      `threshold=${run.threshold === null ? 'n/a' : run.threshold.toFixed(2)}, ` +
+      `exactRecall@1=${run.scores.exactRecallAt1.toFixed(3)}, ` +
+      `recall@10=${run.scores.recallAt10.toFixed(3)}, ` +
+      `MRR@10=${run.scores.mrrAt10.toFixed(3)}, ` +
+      `precision@10=${run.scores.precisionAt10.toFixed(3)}, ` +
+      `qualityScore=${run.scores.qualityScore.toFixed(2)}, ` +
+      `scaleStabilityScore=${run.scores.scaleStabilityScore?.toFixed(3) ?? 'n/a'}, ` +
+      `hardFails=${hardFailCount}`,
+    );
   }
   lines.push('');
   lines.push(`note: ${result.note}`);
