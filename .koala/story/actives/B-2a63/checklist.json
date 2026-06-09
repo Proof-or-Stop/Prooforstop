@@ -138,22 +138,22 @@
         {
           "intentRef": "CHK-002:happy:0",
           "kind": "manual_transcript",
-          "command": "node bin/koala.js memory_benchmark_real_data --outputDir=.lattice/tmp/memory-real-baseline-post-fix --format=text && wc -l .lattice/tmp/memory-real-baseline-post-fix/corpus.jsonl .lattice/tmp/memory-real-baseline-post-fix/gold.jsonl .lattice/tmp/memory-real-baseline-post-fix/queries.jsonl",
+          "command": "node bin/koala.js memory_benchmark_real_data --outputDir=.lattice/tmp/memory-real-baseline-case-fix --format=text && wc -l .lattice/tmp/memory-real-baseline-case-fix/corpus.jsonl .lattice/tmp/memory-real-baseline-case-fix/gold.jsonl .lattice/tmp/memory-real-baseline-case-fix/queries.jsonl",
           "result": "pass",
-          "note": "Post-fix real repository run printed PASS plus corpus/gold/query/result paths; corpus.jsonl, gold.jsonl, and queries.jsonl each contain 435 real lifecycle rows.",
-          "headHash": "b4aa7fe1efbc5097efbbdcda7d51db429faa6f4e",
-          "materialHash": "ab8e5933d348074e56781ada64e96430a4311ac63fdf854593bae52ec8635c31",
-          "timestamp": "2026-06-09T02:27:15.016Z"
+          "note": "Case-fix real repository run printed PASS plus corpus/gold/query/result paths; corpus.jsonl, gold.jsonl, and queries.jsonl each contain 473 real lifecycle rows.",
+          "headHash": "ecce1a6d9dfa9e45d2174f5e591ff7c5e14bc199",
+          "materialHash": "3d6c6e23d4cc82c047029872921598495d906ee40af4f9eab5dbd373544d0198",
+          "timestamp": "2026-06-09T02:40:56.145Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "manual_transcript",
-          "command": "node -e inspect .lattice/tmp/memory-real-baseline-post-fix/result.json and corpus samples",
+          "command": "node -e inspect .lattice/tmp/memory-real-baseline-case-fix/result.json and corpus samples",
           "result": "pass",
-          "note": "Post-fix result reports boundaryGoldRecords=0 and boundaryQueryRecords=0, scoreable lifecycle layers only; sampled activity rows preserve command/status and review-passes.json is included as evidence source.",
-          "headHash": "b4aa7fe1efbc5097efbbdcda7d51db429faa6f4e",
-          "materialHash": "ab8e5933d348074e56781ada64e96430a4311ac63fdf854593bae52ec8635c31",
-          "timestamp": "2026-06-09T02:27:15.045Z"
+          "note": "Case-fix result reports boundaryGoldRecords=0 and boundaryQueryRecords=0, scoreable lifecycle layers only; sampled activity rows preserve command/status and review-passes.json is included as evidence source.",
+          "headHash": "ecce1a6d9dfa9e45d2174f5e591ff7c5e14bc199",
+          "materialHash": "3d6c6e23d4cc82c047029872921598495d906ee40af4f9eab5dbd373544d0198",
+          "timestamp": "2026-06-09T02:40:56.169Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -161,19 +161,19 @@
           "command": "npm --prefix packages/main run test:memory-real-data-benchmark-smoke",
           "result": "pass",
           "note": "Smoke asserts dev-memory advisory records remain boundary-only and excluded from scoreable gold/query while real lifecycle data passes.",
-          "headHash": "b4aa7fe1efbc5097efbbdcda7d51db429faa6f4e",
-          "materialHash": "ab8e5933d348074e56781ada64e96430a4311ac63fdf854593bae52ec8635c31",
-          "timestamp": "2026-06-09T02:27:15.069Z"
+          "headHash": "ecce1a6d9dfa9e45d2174f5e591ff7c5e14bc199",
+          "materialHash": "3d6c6e23d4cc82c047029872921598495d906ee40af4f9eab5dbd373544d0198",
+          "timestamp": "2026-06-09T02:40:56.189Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
           "kind": "logic_test",
-          "command": "npm --prefix packages/main run test:memory-real-data-benchmark-smoke",
+          "command": "npm --prefix packages/main run test:memory-real-data-benchmark-smoke && node bin/koala.js memory_benchmark_real_data --outputDir=Docs/story/actives/B-2a63/memory-real-baseline --format=text",
           "result": "pass",
-          "note": "Smoke asserts outputDir refuses .koala/story, docs/story, configured storyDir variants, and packages/main/tests/fixtures, and refuses overwrite of existing output files.",
-          "headHash": "b4aa7fe1efbc5097efbbdcda7d51db429faa6f4e",
-          "materialHash": "ab8e5933d348074e56781ada64e96430a4311ac63fdf854593bae52ec8635c31",
-          "timestamp": "2026-06-09T02:27:15.092Z"
+          "note": "Smoke asserts outputDir refuses .koala/story, docs/story, configured storyDir variants, mixed-case Docs/story and Fixtures paths, packages/main/tests/fixtures, and overwrite; live mixed-case Docs/story command failed with refuses to write outputDir under docs/story.",
+          "headHash": "ecce1a6d9dfa9e45d2174f5e591ff7c5e14bc199",
+          "materialHash": "3d6c6e23d4cc82c047029872921598495d906ee40af4f9eab5dbd373544d0198",
+          "timestamp": "2026-06-09T02:40:56.209Z"
         }
       ]
     },

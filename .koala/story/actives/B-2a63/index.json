@@ -4,7 +4,7 @@
   "title": "产出 real lifecycle data baseline 验证 memory benchmark",
   "description": "基于当前仓库真实 lifecycle 数据源（.koala/activity.jsonl、StoryStore/summary/evidence、dev-memory advisory records）产出可审计的 memory baseline 数据 artifact，并提供 CLI 验证真实 corpus/gold/query/result。保持 host-neutral 和 non-authoritative：benchmark result 不能升级为 Koala REVIEW/TEST/DONE gate authority；只修真实 correctness gaps，不为了优化而优化。",
   "type": "feature",
-  "phase": "REVIEW",
+  "phase": "DEV",
   "priority": "high",
   "riskSignals": [
     {
@@ -92,6 +92,15 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-09T02:30:43.349Z",
+      "branch": "story/B-2a63",
+      "user": "Harmonygo",
+      "sessionId": "sess-real-baseline-data",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-09T02:37:14.446Z",
       "branch": "story/B-2a63",
       "user": "Harmonygo",
       "sessionId": "sess-real-baseline-data",
