@@ -1,0 +1,17 @@
+{
+  "findings": [
+    {
+      "id": "B-7110:F-001",
+      "desc": "Lattice-Parallel-Development-Capability.md:147 and Lattice-Parallel-Development-Capability.md:167-176 [MEDIUM] The new integration section says a frozen Parallel Development input can come from `parallel_wave_create / parallel_plan / parallel_report`, then immediately requires snapshot fields like `waveHash`, `materialHash`, `sharedContractVersion`, `createdFromCommands`, and `createdAt`. That conflicts with docs/requirements/decisions/lattice-parallel-wave.md:82-134, which says only create/inspect/plan carry the full wave envelope and `parallel_report` is a projection that omits core fields such as `storyRefs`, `hostCandidates`, top-level `evidenceRefs`, and raw `mergeOrder`. Future implementers could choose `parallel_report` as the binding artifact and then have to invent or re-derive the missing contract. Clarify which artifact is allowed to seed the frozen snapshot and whether the required fields come from existing Wave output or from a coordinator-added wrapper.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-09T21:43:37.382Z",
+      "reviewRound": "2026-06-09T21:35:59.479Z",
+      "reviewRunId": "B-7110:RR-004",
+      "_hash": "5088a62ff5eeb73f6f198e995766f681caa3f0385c9415189d076628e2d51fb9"
+    }
+  ]
+}
