@@ -1,0 +1,73 @@
+{
+  "storyId": "B-2a63",
+  "checkedAt": "2026-06-09T01:40:32.230Z",
+  "features": [
+    {
+      "feature": "Real-data baseline output exposes non-empty corpus/gold/query/result stats plus real source metadata for audit",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Real-data output separates scoreable lifecycle layers from boundary-only or advisory layers and keeps the benchmark non-authoritative",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "CLI adds a real-data benchmark path with text/json output and optional outputDir artifact export",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Artifact export writes corpus.jsonl, gold.jsonl, queries.jsonl, and result.json as user-visible benchmark artifacts rather than gate evidence",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke verification proves real activity/story data can be scored while boundary-only dev-memory stays out of recall and precision",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "The benchmark fails clearly when no scoreable real data is available instead of emitting a fake PASS",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "covered": 6,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "56b167b4612aa5ef96993489083a8e9f2ad9c75a6f27d0152a4d4a87e2f728f0",
+  "openQuestions": [
+    {
+      "id": "OQ-1",
+      "q": "Should the story explicitly own or exclude the existing virtual benchmark files packages/main/src/core/memory-benchmark.ts and packages/main/src/tasks/memory-benchmark-smoke.ts?",
+      "evidence": "The story background and understanding frame this work as adding a real-data path alongside the existing deterministic virtual harness, and the current review metadata already flags those legacy files as uncovered touchpoints. The current understanding.touchpoints and checklist files omit both files, so it is unclear whether they are intentionally unchanged or accidentally missing from scope ownership.",
+      "sourcePointers": [
+        ".koala/story/actives/B-2a63/background.md:1",
+        ".koala/story/actives/B-2a63/understanding.json:5",
+        ".koala/story/actives/B-2a63/understanding.json:12",
+        ".koala/story/actives/B-2a63/review.json:33",
+        ".koala/story/actives/B-2a63/review.json:38",
+        "Lattice-lifecycle-memory-Evolving.md:198"
+      ]
+    }
+  ]
+}
