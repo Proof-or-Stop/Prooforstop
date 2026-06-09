@@ -50,6 +50,10 @@ import {
   formatLatticeProductLine,
   formatLatticeVersionLine,
 } from './core/lattice-brand.js';
+import {
+  MEMORY_BENCHMARK_DEFAULT_QUERY_COUNT,
+  MEMORY_BENCHMARK_DEFAULT_SEED,
+} from './core/memory-benchmark.js';
 
 // ── Tool Registry ──
 
@@ -738,6 +742,21 @@ export const MAIN_TOOLS: ToolDef[] = [
   { name: 'capability_probe', description: 'Probe one host-neutral Koala capability profile and visible degradations (text/json)', schema: {
     host: z.string().describe('Host profile id, for example codex, claude-code, local-runner, browser, server, desktop-app'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+  }},
+  { name: 'memory_benchmark_run', description: 'Run the deterministic virtual lifecycle memory benchmark baseline (text/json)', schema: {
+    tier: z.string().optional().describe('Tier alias: T0/T1/T2/T3 or 10k/100k/1m'),
+    candidateCount: z.union([z.number(), z.string()]).optional().describe('Candidate count override; must match --tier when both are provided'),
+    queryCount: z.number().optional().describe(`Query count (default ${MEMORY_BENCHMARK_DEFAULT_QUERY_COUNT})`),
+    seed: z.number().optional().describe(`Deterministic seed (default ${MEMORY_BENCHMARK_DEFAULT_SEED})`),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    json: z.boolean().optional().describe('Shortcut for --format=json'),
+  }},
+  { name: 'memory_benchmark_compare', description: 'Compare the deterministic lifecycle memory benchmark across candidate-count tiers (text/json)', schema: {
+    candidateCounts: z.union([z.array(z.union([z.number(), z.string()])), z.string(), z.number()]).optional().describe('Candidate counts via repeated flags, JSON array, or comma-separated string (default 10000,100000,1000000)'),
+    queryCount: z.number().optional().describe(`Query count (default ${MEMORY_BENCHMARK_DEFAULT_QUERY_COUNT})`),
+    seed: z.number().optional().describe(`Deterministic seed (default ${MEMORY_BENCHMARK_DEFAULT_SEED})`),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    json: z.boolean().optional().describe('Shortcut for --format=json'),
   }},
   { name: 'host_list', description: 'List Lattice host profiles, visible degradations, and migration authority boundaries (text/json). Alias: lattice host list', schema: {
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
@@ -2155,6 +2174,8 @@ const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'aux_doc_list',
   'capability_list',
   'capability_probe',
+  'memory_benchmark_run',
+  'memory_benchmark_compare',
   'host_list',
   'host_probe',
   'host_status',

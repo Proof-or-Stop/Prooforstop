@@ -193,6 +193,13 @@ MemoryScore is not Koala lifecycle truth, review pass, validation evidence, deli
 | T2 | 100,000 candidates | 验证事实漂移、冲突、freshness 与规模退化。 | 不能作为当前 gate / authority；只可作为 future validation 输入。 |
 | T3 | 1,000,000 candidates | stress-only，验证检索在大候选集下是否仍保持 zero-tolerance 边界与可观测性。 | 仅作压力测试，不作为当前门禁或生产授权。 |
 
+### Current CLI harness usage
+
+当前仓库提供 `memory_benchmark_run` / `memory_benchmark_compare` 作为 **deterministic virtual corpus harness**。它只输出合成 benchmark 结果，帮助固定 corpus/scoring/threshold contract；不是当前 Koala gate authority，也不会生成 review pass、validation evidence、delivery check 或 production authority。
+
+- `memory_benchmark_run`：输出单一 tier 的 deterministic baseline；`qualityScore` 有值，但 `scaleStabilityScore` / `memoryScore` 保持 `null`。
+- `memory_benchmark_compare`：始终以 10k `QualityScore` 作为 baseline 计算 `ScaleStabilityScore` 和 `MemoryScore`，用于比较不同 candidate-count tier 的稳定性。
+
 ### Resource reporting
 
 除非未来 story 单独定义预算，否则以下指标只报告、不门禁：

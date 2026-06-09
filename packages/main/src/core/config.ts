@@ -146,6 +146,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'authority_enforce_runner', // B-5cdc: read-only enforce runner readiness/dry-run projection; no provider execution
     'capability_list', // B-f26a M2: read-only host capability diagnostics for cross-host degradation
     'capability_probe', // B-cd31 CHK-002: productized single-host capability diagnostics
+    'memory_benchmark_*', // B-d4dd: deterministic virtual lifecycle memory benchmark harness is read-only in all phases
     'host_*', // Lattice CLI 0.3.5: host list/probe/install guidance; dry-run/read-only diagnostics only
     'host_runtime_*', // B-106b: dispatch runtime readiness probes for fake/claude-code/gemini/codex
     'lattice_config_doctor', // Lattice CLI 0.3.5: CLI-first migration/config status; no Mac App dependency
