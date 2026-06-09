@@ -24,7 +24,7 @@
       "desc": "Codex CLI coverage audit found real baseline coverage gaps: PROD-SOAK-1 requires duration but no production-stage minimum valid run count/cadence, and UDM-HUMAN-HANDOFF-1 can pass by emitting handoff-shaped artifacts without proving a human-required decision blocks DONE and resumes only with human evidence. These gaps can let a suite pass while the claimed safety or handoff behavior is false.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-06-09T19:47:36.120Z",
@@ -34,7 +34,9 @@
       "files": [
         "Lattice-Production-Safety-baseline.md",
         "Lattice-Loop-Engineering-baseline.md"
-      ]
+      ],
+      "resolvedReason": "Resolved in docs commit 0ac484d9 with evidence through bd7e02d/5aac291: PROD-SOAK-1 production soak now requires valid_suite_runs >= 30, minimum cadence of one valid suite run per UTC day, max 36-hour gap, and exclusion rules; UDM-HUMAN-HANDOFF-1 now seeds a human-only decision and requires EXPECTED_BLOCK/ESCALATED, no DONE before humanDecisionEvidence, and resume only after human evidence.",
+      "resolvedAt": "2026-06-09T19:55:41.753Z"
     },
     {
       "id": "B-a10d:F-003",
