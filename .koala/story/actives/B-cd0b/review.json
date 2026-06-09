@@ -84,6 +84,24 @@
         }
       ],
       "_hash": "1a501adf30a605f60f98f16861af7129ea5811261d95d31db3c1ad3f0ef41df5"
+    },
+    {
+      "timestamp": "2026-06-09T22:27:17.589Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 checklist items; please check for missing combined scenarios (e.g., what happens when 文档区分本地生命周期证据链和 receipt-backed authority 证据链 + 报告字段和验收清单体现 authority mode 边界 are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Production/Emergency. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run koala story_review_dismiss '{\"storyId\":\"B-cd0b\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        }
+      ],
+      "_hash": "619975b2728bc062c78bab8b330dc59fbba5fb730865560d5cb571ba8838a0a1"
     }
   ]
 }
