@@ -9,9 +9,9 @@
         "docs/requirements/decisions/authority-client-role.md",
         "docs/requirements/decisions/lattice-parallel-wave.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-09T22:28:05.406Z",
-      "endTime": null,
+      "endTime": "2026-06-09T22:32:55.553Z",
       "verificationIntent": {
         "happy": [
           {
@@ -42,7 +42,39 @@
         ],
         "create": [],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Authority Modes And Evidence Chains|local-lifecycle|receipt-backed-authority|thin-client-transport-accepted\" Lattice-Parallel-Development-Capability.md",
+          "result": "pass",
+          "note": "The document now has an Authority Modes And Evidence Chains section with a mode matrix separating local/off, shadow, and receipt-backed authority modes.",
+          "headHash": "d9473d8c5f063c4106b731f214636a52590b5120",
+          "materialHash": "31ffec8184c373af519ccf3aa7868f142528f9b4d22f14996690c656e72d903c",
+          "timestamp": "2026-06-09T22:32:55.617Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"accepted: true|receiptVerified=false|productionDone=false|authorityChanged=false\" Lattice-Parallel-Development-Capability.md",
+          "result": "pass",
+          "note": "The matrix and rules keep transport acceptance, local state, and shadow diagnostics in non-authority posture unless receipt verification succeeds.",
+          "headHash": "d9473d8c5f063c4106b731f214636a52590b5120",
+          "materialHash": "31ffec8184c373af519ccf3aa7868f142528f9b4d22f14996690c656e72d903c",
+          "timestamp": "2026-06-09T22:32:55.666Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"runtime gates|receipt verification|Authority Server behavior|receipt-backed enforcement|implemented the full capability\" Lattice-Parallel-Development-Capability.md",
+          "result": "pass",
+          "note": "The text explicitly says the section is documentation/future implementation contract only and does not implement runtime gates, receipt verification, Authority Server behavior, or receipt-backed enforcement.",
+          "headHash": "d9473d8c5f063c4106b731f214636a52590b5120",
+          "materialHash": "31ffec8184c373af519ccf3aa7868f142528f9b4d22f14996690c656e72d903c",
+          "timestamp": "2026-06-09T22:32:55.717Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
