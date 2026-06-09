@@ -99,7 +99,7 @@
       "desc": "High: protected outputDir refusal is case-sensitive only, so on this case-insensitive filesystem the command allows writes under story-managed state via mixed-case paths. `assertAllowedOutputDir` compares the relative path string against lowercase protected roots without canonicalizing case ([packages/main/src/core/memory-benchmark-real-data.ts:876], [packages/main/src/core/memory-benchmark-real-data.ts:892]), and the smoke covers only lowercase `.koala/story`, `docs/story`, and fixtures cases ([packages/main/src/tasks/memory-real-data-benchmark-smoke.ts:274], [packages/main/src/tasks/memory-real-data-benchmark-smoke.ts:284]) plus configured exact-case storyDir checks ([packages/main/src/tasks/memory-real-data-benchmark-smoke.ts:190], [packages/main/src/tasks/memory-real-data-benchmark-smoke.ts:212]). Repro on this host: the filesystem reports `case-insensitive`, and invoking `runMemoryBenchmarkRealData({ root, outputDir: join(root, \"Docs/story/actives/B-real/benchmark-output\") })` with `storyDir: \"docs/story/actives\"` succeeds instead of refusing. That violates CHK-002 adversarial intent and allows a read-only benchmark command to write inside lifecycle-managed story state.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-concept",
       "createdAt": "2026-06-09T02:34:55.908Z",
@@ -109,7 +109,9 @@
       "files": [
         "packages/main/src/core/memory-benchmark-real-data.ts",
         "packages/main/src/tasks/memory-real-data-benchmark-smoke.ts"
-      ]
+      ],
+      "resolvedReason": "Resolved in commit ecce1a6d: protected path comparison is case-insensitive, smoke asserts mixed-case Docs/story and Fixtures paths are refused, and live command node bin/koala.js memory_benchmark_real_data --outputDir=Docs/story/actives/B-2a63/memory-real-baseline --format=text fails with refuses to write outputDir under docs/story.",
+      "resolvedAt": "2026-06-09T02:41:37.481Z"
     }
   ]
 }
