@@ -40,32 +40,48 @@ function lineCount(filePath: string): number {
   return readFileSync(filePath, 'utf-8').split('\n').filter((line) => line.trim()).length;
 }
 
-function seedRealLifecycleData(root: string): string {
+function seedRealLifecycleData(root: string, options: { storyDir?: string } = {}): string {
+  const storyDirRel = options.storyDir ?? '.koala/story/actives';
   writeJson(join(root, 'koala.config.json'), {
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.koala/story/actives',
+    fixturesDir: 'packages/main/tests/fixtures',
+    storyDir: storyDirRel,
   });
 
   const activityPath = join(root, '.koala', 'activity.jsonl');
   writeJsonl(activityPath, [
     {
-      command: 'story_advance',
+      source: 'cli',
+      entrypoint: 'cli',
+      tool: 'story_advance',
+      detail: 'story_advance',
       args: { storyId: 'B-real', phase: 'DEV' },
       startTime: '2026-06-09T00:00:00.000Z',
       endTime: '2026-06-09T00:00:01.000Z',
-      success: true,
+      status: 'ok',
+      result: null,
+      error: null,
+      storyId: 'B-real',
+      phase: 'INIT_CHECK',
     },
     {
-      command: 'checklist_update',
+      source: 'cli',
+      entrypoint: 'cli',
+      tool: 'checklist_update',
+      detail: 'checklist_update',
       args: { storyId: 'B-real', itemId: 'CHK-001', status: 'done' },
       startTime: '2026-06-09T00:01:00.000Z',
       endTime: '2026-06-09T00:01:01.000Z',
-      success: true,
+      status: 'ok',
+      result: null,
+      error: null,
+      storyId: 'B-real',
+      phase: 'DEV',
     },
   ]);
 
-  const storyDir = join(root, '.koala', 'story', 'actives', 'B-real');
+  const storyDir = join(root, storyDirRel, 'B-real');
   writeJson(join(storyDir, 'index.json'), {
     storyId: 'B-real',
     name: 'real-data-baseline',
@@ -134,6 +150,17 @@ function seedRealLifecycleData(root: string): string {
   writeJsonl(join(storyDir, 'process-events.jsonl'), [
     { type: 'validation_evidence', timestamp: '2026-06-09T00:09:10.000Z', storyId: 'B-real', result: 'pass' },
   ]);
+  writeJson(join(storyDir, 'review-passes.json'), {
+    passes: [
+      {
+        lane: 'koala-review-quality',
+        reviewRunId: 'B-real:RR-001',
+        storyId: 'B-real',
+        note: 'Reviewer pass evidence uses the current plural artifact filename.',
+        timestamp: '2026-06-09T00:09:20.000Z',
+      },
+    ],
+  });
   writeJsonl(join(root, '.koala', 'dev-memory', 'experience.jsonl'), [
     {
       id: 'devreal1',
@@ -160,6 +187,38 @@ function assertTraceFields(row: { recordId?: unknown; layer?: unknown; sourcePat
   assert.equal(typeof row.sourceHash, 'string', `${label} has sourceHash`);
 }
 
+function assertConfiguredStoryDirWorks(storyDir: string): void {
+  const root = mkdtempSync(join(tmpdir(), 'koala-memory-real-data-configured-'));
+  try {
+    seedRealLifecycleData(root, { storyDir });
+    resetConfigCache();
+    const result = runMemoryBenchmarkRealData({ root });
+    assert.equal(result.verdict, 'PASS', `${storyDir} configured storyDir should pass with real lifecycle data`);
+    assert.equal(
+      result.sources.some((source) => source.sourcePath === storyDir && source.exists),
+      true,
+      `${storyDir} source root should be registered as existing`,
+    );
+    assert.equal(
+      result.corpus.some((row) => row.sourcePath.startsWith(`${storyDir}/B-real/`)),
+      true,
+      `${storyDir} story artifacts should be exported`,
+    );
+    assert.equal(
+      result.reasons.some((reason) => reason.includes('missing real story source root')),
+      false,
+      `${storyDir} should not fail because another default story root is absent`,
+    );
+    assert.throws(
+      () => runMemoryBenchmarkRealData({ root, outputDir: join(root, storyDir, 'B-real', 'benchmark-output') }),
+      /refuses to write outputDir under/,
+      `${storyDir} outputDir should be refused as configured story-managed state`,
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 {
   const root = mkdtempSync(join(tmpdir(), 'koala-memory-real-data-'));
   try {
@@ -181,6 +240,16 @@ function assertTraceFields(row: { recordId?: unknown; layer?: unknown; sourcePat
     assert.equal(result.stats.boundaryQueryRecords, 0);
     assert.equal(result.gold.some((row) => row.sourcePath.includes('dev-memory')), false);
     assert.equal(result.queries.some((row) => row.sourcePath.includes('dev-memory')), false);
+    const activityRecord = result.corpus.find((row) => row.sourceType === 'activity' && row.fact.command === 'story_advance');
+    assert.ok(activityRecord, 'current-schema activity exports the real tool name');
+    assert.equal(activityRecord.fact.status, 'ok', 'current-schema activity exports the real status/outcome');
+    assert.doesNotMatch(activityRecord.text, /command=unknown/, 'activity text should not lose current-schema tool');
+    assert.doesNotMatch(activityRecord.text, /outcome=n\/a/, 'activity text should not lose current-schema status');
+    assert.equal(
+      result.corpus.some((row) => row.sourcePath.endsWith('/review-passes.json') && row.factType === 'story_evidence_artifact'),
+      true,
+      'current plural review-passes.json artifact should be exported',
+    );
     assertTraceFields(result.corpus[0], 'corpus row');
     assertTraceFields(result.gold[0], 'gold row');
     assertTraceFields(result.queries[0], 'query row');
@@ -211,6 +280,11 @@ function assertTraceFields(row: { recordId?: unknown; layer?: unknown; sourcePat
       () => runMemoryBenchmarkRealData({ root, outputDir: join(root, 'packages/main/tests/fixtures/memory-real-baseline') }),
       /refuses to write outputDir under packages\/main\/tests\/fixtures/,
       'outputDir writes refuse to target fixture state',
+    );
+    assert.throws(
+      () => runMemoryBenchmarkRealData({ root, outputDir: join(root, '.koala/story/actives/B-real/memory-real-baseline') }),
+      /refuses to write outputDir under \.koala\/story/,
+      'outputDir writes refuse to target Koala story state',
     );
 
     const handlers = createMemoryBenchmarkHandlers({
@@ -268,6 +342,9 @@ function assertTraceFields(row: { recordId?: unknown; layer?: unknown; sourcePat
     rmSync(root, { recursive: true, force: true });
   }
 }
+
+assertConfiguredStoryDirWorks('.koala/custom-actives');
+assertConfiguredStoryDirWorks('docs/story/actives');
 
 {
   const root = mkdtempSync(join(tmpdir(), 'koala-memory-real-data-empty-'));

@@ -200,7 +200,7 @@ MemoryScore is not Koala lifecycle truth, review pass, validation evidence, deli
 - `memory_benchmark_run`：输出单一 tier 的 deterministic baseline；`qualityScore` 有值，但 `scaleStabilityScore` / `memoryScore` 保持 `null`。
 - `memory_benchmark_compare`：始终以 10k `QualityScore` 作为 baseline 计算 `ScaleStabilityScore` 和 `MemoryScore`，用于比较不同 candidate-count tier 的稳定性。
 
-`memory_benchmark_real_data` 是补充的 **real lifecycle artifact export baseline**。它读取当前项目根目录下已有的 `.koala/activity.jsonl`、`.koala/story/actives/**` story artifacts，以及 `.koala/dev-memory/experience.jsonl`，导出可检查的 `corpus` / `gold` / `queries` / `result` 统计。每条导出的 corpus / gold / query / result 记录都带 `sourcePath`、`sourceHash`、`recordId`、`layer` 和 non-authoritative note，方便人工确认数据确实来自项目生命周期产物。
+`memory_benchmark_real_data` 是补充的 **real lifecycle artifact export baseline**。它读取当前项目根目录下已有的 `.koala/activity.jsonl`、配置的 `storyDir`（并兼容 `.koala/story/actives/**` / `docs/story/actives/**` story artifacts），以及 `.koala/dev-memory/experience.jsonl`，导出可检查的 `corpus` / `gold` / `queries` / `result` 统计。每条导出的 corpus / gold / query / result 记录都带 `sourcePath`、`sourceHash`、`recordId`、`layer` 和 non-authoritative note，方便人工确认数据确实来自项目生命周期产物。
 
 Usage:
 
@@ -210,7 +210,7 @@ node bin/koala.js memory_benchmark_real_data --format=json
 node bin/koala.js memory_benchmark_real_data --outputDir=.lattice/tmp/memory-real-baseline --format=text
 ```
 
-Text output starts with `Real Memory Benchmark Data: PASS` or `Real Memory Benchmark Data: FAIL`, then reports `corpusRecords`, `goldRecords`, `queryRecords`, `resultRecords`, `exactRecordMatchRate`, scoreable layers, boundary-only layers, and per-source `sourcePath` / `sourceHash` / record counts. When `--outputDir` is provided, the command writes the following files and refuses to overwrite an existing target file:
+Text output starts with `Real Memory Benchmark Data: PASS` or `Real Memory Benchmark Data: FAIL`, then reports `corpusRecords`, `goldRecords`, `queryRecords`, `resultRecords`, `exactRecordMatchRate`, scoreable layers, boundary-only layers, and per-source `sourcePath` / `sourceHash` / record counts. When `--outputDir` is provided, the command writes the following files and refuses lifecycle-managed story paths, fixture paths, or an existing target file:
 
 - `corpus.jsonl`
 - `gold.jsonl`

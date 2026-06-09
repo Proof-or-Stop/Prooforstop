@@ -184,13 +184,18 @@ interface AddRecordInput {
   fact: Record<string, unknown>;
 }
 
-const STORY_ROOTS = ['.koala/story/actives'] as const;
+const DEFAULT_STORY_ROOTS = ['.koala/story/actives', 'docs/story/actives'] as const;
+const PROTECTED_STORY_OUTPUT_ROOTS = ['.koala/story', 'docs/story'] as const;
+const PROTECTED_FIXTURE_OUTPUT_ROOTS = ['packages/main/tests/fixtures'] as const;
 const ACTIVITY_SOURCE = '.koala/activity.jsonl';
 const DEV_MEMORY_SOURCE = '.koala/dev-memory/experience.jsonl';
 
 const STORY_EVIDENCE_JSON_FILES = [
   'test-evidence.json',
   'delivery-check.json',
+  'review-passes.json',
+  'review-runs.json',
+  'findings.json',
   'review-pass.json',
   'implementation-review.json',
 ] as const;
@@ -213,6 +218,20 @@ function normalizeRelPath(root: string, absPath: string): string {
 
 function sourceAbsPath(root: string, sourcePath: string): string {
   return join(root, sourcePath);
+}
+
+function normalizeProjectRelPath(root: string, candidate: unknown): string | null {
+  if (typeof candidate !== 'string') return null;
+  const trimmed = candidate.trim().replace(/\\/g, '/').replace(/\/+$/, '');
+  if (!trimmed) return null;
+  const absPath = isAbsolute(trimmed) ? resolve(trimmed) : resolve(root, trimmed);
+  const rel = relative(root, absPath).replace(/\\/g, '/');
+  if (!rel || rel === '.' || rel === '..' || rel.startsWith('../') || isAbsolute(rel)) return null;
+  return rel;
+}
+
+function isPathUnderOrEqual(relPath: string, protectedRelPath: string): boolean {
+  return relPath === protectedRelPath || relPath.startsWith(`${protectedRelPath}/`);
 }
 
 function safeString(value: unknown): string | undefined {
@@ -360,12 +379,30 @@ function collectActivity(
   if (!source) return;
   for (const entry of parseJsonl(source, 'activity', sources)) {
     if (!isRecord(entry.value)) continue;
-    const args = isRecord(entry.value.args) ? entry.value.args : {};
+    const detail = isRecord(entry.value.detail) ? entry.value.detail : {};
+    const args = isRecord(entry.value.args)
+      ? entry.value.args
+      : isRecord(detail.args)
+        ? detail.args
+        : {};
     const storyId = safeString(entry.value.storyId) || safeString(args.storyId) || safeString(args.story);
-    const command = safeString(entry.value.command) || safeString(entry.value.type) || 'unknown';
-    const success = typeof entry.value.success === 'boolean' ? entry.value.success : undefined;
+    const command =
+      safeString(entry.value.tool)
+      || safeString(detail.tool)
+      || safeString(detail.command)
+      || safeString(detail.type)
+      || safeString(entry.value.detail)
+      || safeString(entry.value.command)
+      || safeString(entry.value.type)
+      || 'unknown';
+    const status = safeString(entry.value.status) || safeString(detail.status);
+    const legacySuccess = typeof entry.value.success === 'boolean' ? entry.value.success : undefined;
+    const success = legacySuccess ?? (
+      status ? ['ok', 'success', 'pass', 'passed'].includes(status.toLowerCase()) : undefined
+    );
+    const outcome = status || (legacySuccess === undefined ? undefined : legacySuccess ? 'success' : 'failure');
     const timestamp = safeString(entry.value.timestamp) || safeString(entry.value.startTime) || safeString(entry.value.endTime);
-    const text = `activity command=${command} story=${storyId ?? 'n/a'} success=${success ?? 'n/a'} time=${timestamp ?? 'n/a'}`;
+    const text = `activity command=${command} story=${storyId ?? 'n/a'} outcome=${outcome ?? 'n/a'} success=${success ?? 'n/a'} time=${timestamp ?? 'n/a'}`;
     addCorpusRecord(sources, corpus, {
       layer: 'raw_event_memory',
       sourceType: 'activity',
@@ -376,16 +413,16 @@ function collectActivity(
       factType: 'activity_event',
       scoreable: true,
       text,
-      fact: { command, storyId, success, timestamp },
+      fact: { command, storyId, status: outcome, success, timestamp },
     });
   }
 }
 
 function resolveStoryRootPaths(root: string): string[] {
-  const roots = new Set<string>(STORY_ROOTS);
+  const roots = new Set<string>(DEFAULT_STORY_ROOTS);
   try {
-    const configured = loadConfig(root).storyDir.replace(/\\/g, '/');
-    if (configured.startsWith('.koala/') && !configured.includes('..')) roots.add(configured);
+    const configured = normalizeProjectRelPath(root, loadConfig(root).storyDir);
+    if (configured) roots.add(configured);
   } catch {
     // Missing config should not make path resolution nondeterministic.
   }
@@ -795,11 +832,17 @@ function buildStats(
 function buildReasons(stats: MemoryBenchmarkRealDataStats, sources: readonly MemoryBenchmarkRealDataSourceStats[]): string[] {
   const reasons: string[] = [];
   const activitySource = sources.find((source) => source.sourcePath === ACTIVITY_SOURCE);
-  const storyRoot = sources.find((source) => source.sourcePath === STORY_ROOTS[0]);
+  const storyRoots = sources.filter((source) => source.sourceType === 'story-root');
+  const existingStoryRoots = storyRoots.filter((source) => source.exists);
   if (!activitySource?.exists) reasons.push(`missing real activity source: ${ACTIVITY_SOURCE}`);
   if (activitySource?.exists && stats.activityScoreableRecords === 0) reasons.push(`no scoreable activity records found in ${ACTIVITY_SOURCE}`);
-  if (!storyRoot?.exists) reasons.push(`missing real story source root: ${STORY_ROOTS[0]}`);
-  if (storyRoot?.exists && stats.storyScoreableRecords === 0) reasons.push(`no scoreable story lifecycle records found in ${STORY_ROOTS[0]}`);
+  if (existingStoryRoots.length === 0) {
+    const expectedRoots = storyRoots.map((source) => source.sourcePath).join(', ') || DEFAULT_STORY_ROOTS.join(', ');
+    reasons.push(`missing real story source root: ${expectedRoots}`);
+  }
+  if (existingStoryRoots.length > 0 && stats.storyScoreableRecords === 0) {
+    reasons.push(`no scoreable story lifecycle records found in ${existingStoryRoots.map((source) => source.sourcePath).join(', ')}`);
+  }
   if (stats.scoreableCorpusRecords === 0) reasons.push('no scoreable lifecycle corpus records were exported');
   if (stats.goldRecords === 0) reasons.push('no scoreable gold records were generated from real lifecycle data');
   if (stats.queryRecords === 0) reasons.push('no scoreable query records were generated from real lifecycle data');
@@ -833,11 +876,23 @@ function writeJsonl(filePath: string, rows: readonly unknown[]): void {
 function assertAllowedOutputDir(root: string, outputDir: string): string {
   const absOutputDir = isAbsolute(outputDir) ? outputDir : resolve(root, outputDir);
   const rel = relative(root, absOutputDir).replace(/\\/g, '/');
-  if (rel === 'docs/story' || rel.startsWith('docs/story/')) {
-    throw new Error('memory_benchmark_real_data refuses to write outputDir under docs/story');
+  const protectedRoots = new Set<string>([
+    ...PROTECTED_STORY_OUTPUT_ROOTS,
+    ...PROTECTED_FIXTURE_OUTPUT_ROOTS,
+  ]);
+  try {
+    const config = loadConfig(root);
+    const configuredStoryDir = normalizeProjectRelPath(root, config.storyDir);
+    const configuredFixturesDir = normalizeProjectRelPath(root, config.fixturesDir);
+    if (configuredStoryDir) protectedRoots.add(configuredStoryDir);
+    if (configuredFixturesDir) protectedRoots.add(configuredFixturesDir);
+  } catch {
+    // Config read failures should not weaken the built-in lifecycle protections.
   }
-  if (rel === 'packages/main/tests/fixtures' || rel.startsWith('packages/main/tests/fixtures/')) {
-    throw new Error('memory_benchmark_real_data refuses to write outputDir under packages/main/tests/fixtures');
+  for (const protectedRoot of [...protectedRoots].sort((a, b) => b.length - a.length)) {
+    if (isPathUnderOrEqual(rel, protectedRoot)) {
+      throw new Error(`memory_benchmark_real_data refuses to write outputDir under ${protectedRoot}`);
+    }
   }
   return absOutputDir;
 }
