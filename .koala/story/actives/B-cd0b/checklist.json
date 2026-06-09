@@ -9,7 +9,7 @@
         "docs/requirements/decisions/authority-client-role.md",
         "docs/requirements/decisions/lattice-parallel-wave.md"
       ],
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-06-09T22:28:05.406Z",
       "endTime": "2026-06-09T22:37:49.593Z",
       "verificationIntent": {
@@ -156,6 +156,17 @@
           "timestamp": "2026-06-09T22:38:56.469Z"
         }
       ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-09T22:40:54.266Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Resolve F-001 by aligning authorityMode and evidenceClass vocabulary with authority-client-role truth source."
     }
   ]
 }
