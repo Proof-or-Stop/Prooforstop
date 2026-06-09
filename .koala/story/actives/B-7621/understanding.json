@@ -1,0 +1,21 @@
+{
+  "task": "编写 Lattice Parallel Development 能力执行文档",
+  "outcome": "用户打开 Lattice-Parallel-Development-Capability.md 后，可以看到 Parallel Development 是横向能力、不是第 6 层 baseline，并能按文档执行并行开发但顺序证明能力。",
+  "facts": [
+    "Capability Claim 文档已经规定 implementation_order may be parallel, claim_unlock_order must be sequential。",
+    "Parallel Wave 现有文档是 L0/read-only 调度投影，不是 authority evidence，也不替代 lifecycle gate。",
+    "Loop Engineering 文档定义每条工作流内部的 bounded repair/review loop、budget、handoff、evidence gate 和 no false DONE。",
+    "用户明确要求这个能力用于加速开发，但不能为了优化而优化，不能让系统变臃肿。"
+  ],
+  "constraints": [
+    "新增能力文档不能变成第 6 层 baseline。",
+    "Parallel Development 可以协调并行实现，但不能提前解锁 capability claim。",
+    "高层 workstream 在低层未证明前只能 shadow/audit-only/not_authorized/fail-closed。",
+    "文档必须明确 Parallel Development 与 Loop Engineering 是外层调度和内层 loop 的嵌套关系。"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "Lattice-Parallel-Development-Capability.md"
+  ],
+  "timestamp": "2026-06-09T20:42:52.681Z"
+}

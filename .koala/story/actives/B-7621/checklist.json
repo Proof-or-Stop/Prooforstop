@@ -13,7 +13,35 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "用户打开 Lattice-Parallel-Development-Capability.md 时，能看到标题 Lattice Parallel Development Capability Execution Plan，并看到 core rule: parallel implementation, sequential proof，以及 Relationship To Loop Engineering、Shared Contract Freeze、Workstream Ownership、Shadow Mode、Merge Queue、Dogfooding Plan。",
+      "files": {
+        "modify": [],
+        "create": [
+          "Lattice-Parallel-Development-Capability.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "文档包含 Lattice Parallel Development 的定义、核心规则 parallel implementation / sequential proof、共享契约冻结、workstream 分区、ownership、merge queue 和 dogfooding plan。",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "文档必须明确 Parallel Development 不是第 6 层 baseline，不产生新的能力声明，不替代 Parallel Wave、Loop Engineering、Capability Claim 或 Authority gates。",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "文档必须防止并行开发导致 false DONE、schema drift、host 自证、共享文件互相覆盖、高层 claim 提前 PASS；相关情况必须 fail closed 或 human handoff。",
+            "type": "docs"
+          }
+        ]
+      }
     }
   ]
 }
