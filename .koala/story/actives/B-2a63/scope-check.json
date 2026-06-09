@@ -1,0 +1,66 @@
+{
+  "storyId": "B-2a63",
+  "checkedAt": "2026-06-09T02:29:40.199Z",
+  "features": [
+    {
+      "feature": "Real-data baseline output exposes non-empty corpus/gold/query/result stats plus real source metadata for audit",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Real-data output separates scoreable lifecycle layers from boundary-only or advisory layers and keeps the benchmark non-authoritative",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "CLI adds a real-data benchmark path with text/json output and optional outputDir artifact export",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Artifact export writes corpus.jsonl, gold.jsonl, queries.jsonl, and result.json as user-visible benchmark artifacts rather than gate evidence",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Protected lifecycle-managed outputDir paths are rejected so the real-data benchmark stays within read-only lifecycle policy",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "finding-fix"
+    },
+    {
+      "feature": "Smoke verification proves real activity/story data can be scored while boundary-only dev-memory stays out of recall and precision",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "The benchmark fails clearly when no scoreable real data is available instead of emitting a fake PASS",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "covered": 7,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "2026-06-09T02:06:12.444Z",
+  "_hash": "aa31c8c2cdfdc24e07478644c6e79640b73d9cbf8541f0df4b840c453d4bd6b4",
+  "openQuestions": []
+}

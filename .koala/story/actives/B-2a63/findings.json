@@ -1,0 +1,117 @@
+{
+  "findings": [
+    {
+      "id": "B-2a63:F-001",
+      "desc": "Verification coverage gap: protected outputDir refusal is asserted in the smoke at packages/main/src/tasks/memory-real-data-benchmark-smoke.ts:205 and :211, but no verificationIntent explicitly owns that behavior. CHK-002 edge intent only covers non-authority boundary labeling, so protected outputDir remains untracked by checklist acceptance criteria even though the evidence note mentions it.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-09T02:09:36.782Z",
+      "reviewRound": "2026-06-09T02:06:12.444Z",
+      "reviewRunId": "B-2a63:RR-003",
+      "_hash": "510e9f9e74b93d0e7f3e8e972768928c8f14a297c7832a04f028c52cc03b4cad",
+      "files": [
+        "packages/main/src/tasks/memory-real-data-benchmark-smoke.ts"
+      ],
+      "resolvedReason": "Resolved by returning to PLAN and updating CHK-002 verificationIntent to add CHK-002:adversarial:1 explicitly covering outputDir refusal for story-managed lifecycle state and fixture paths, then refreshed CHK-002 evidence with npm --prefix packages/main run test:memory-real-data-benchmark-smoke.",
+      "resolvedAt": "2026-06-09T02:31:05.133Z"
+    },
+    {
+      "id": "B-2a63:F-002",
+      "desc": "memory_benchmark_real_data is not config-driven for story roots: resolveStoryRootPaths only adds loadConfig(root).storyDir when it starts with \".koala/\" (packages/main/src/core/memory-benchmark-real-data.ts:384-392), while buildReasons still hard-fails on missing \".koala/story/actives\" (packages/main/src/core/memory-benchmark-real-data.ts:795-802). That conflicts with the project config/default contract where storyDir is configurable and defaults to docs/story/actives (packages/main/src/core/config.ts:269-274), and StoryStore reads the configured path plus legacy fallback (packages/main/src/core/store.ts:35-61). Verified repros: (1) storyDir=\".koala/custom-actives\" with real activity + index.json => FAIL \"missing real story source root: .koala/story/actives\"; (2) storyDir=\"docs/story/actives\" with real activity + index.json => collector ignores the configured root and returns the same false FAIL. This breaks host-neutral/boundary correctness because PASS/FAIL depends on repo layout instead of whether real lifecycle data exists.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-09T02:10:56.256Z",
+      "reviewRound": "2026-06-09T02:06:12.444Z",
+      "reviewRunId": "B-2a63:RR-001",
+      "_hash": "99150e3404a2410cae13dd6c6e3a10473990f28407a073416c202c58c0c1d1ee",
+      "files": [
+        "packages/main/src/core/memory-benchmark-real-data.ts",
+        "packages/main/src/core/config.ts",
+        "packages/main/src/core/store.ts"
+      ],
+      "resolvedReason": "Resolved in commit d286e2fe: real-data benchmark now includes configured storyDir plus .koala/docs defaults, buildReasons accepts any existing configured/default story root with scoreable lifecycle data, and smoke proves .koala/custom-actives and docs/story/actives configured roots pass.",
+      "resolvedAt": "2026-06-09T02:31:33.636Z"
+    },
+    {
+      "id": "B-2a63:F-003",
+      "desc": "[HIGH] packages/main/src/core/memory-benchmark-real-data.ts:833-873 allows --outputDir inside .koala/story/actives, so memory_benchmark_real_data can write corpus/gold/query/result files into story-managed state even though packages/main/src/core/command-policy.ts marks it readOnly. A temporary-root repro wrote files under .koala/story/actives/B-x/benchmark-artifacts successfully. Fix by rejecting configured storyDir/.koala lifecycle paths in assertAllowedOutputDir or by reclassifying the command as a mutating command with owner/phase gates.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-09T02:11:33.904Z",
+      "reviewRound": "2026-06-09T02:06:12.444Z",
+      "reviewRunId": "B-2a63:RR-002",
+      "_hash": "e28c427108bf88cbea0d17dc3b9e87d51ed37b2e39fb0858ccdae12d1bd43f37",
+      "files": [
+        "packages/main/src/core/memory-benchmark-real-data.ts",
+        "packages/main/src/core/command-policy.ts"
+      ],
+      "resolvedReason": "Resolved in commit d286e2fe: assertAllowedOutputDir rejects .koala/story, docs/story, configured storyDir, configured fixturesDir, packages/main/tests/fixtures, and existing output files; command policy reason updated to preserve readOnly lifecycle boundary.",
+      "resolvedAt": "2026-06-09T02:31:42.564Z"
+    },
+    {
+      "id": "B-2a63:F-004",
+      "desc": "[MEDIUM] packages/main/src/core/memory-benchmark-real-data.ts:364-379 reads activity entries from command/type/success, but the real runtime log format uses tool/detail/status. On the live worktree run, exported raw_event_memory rows rendered as command=unknown and success=n/a for every sample taken from .koala/activity.jsonl, so the “real-data” corpus loses the actual lifecycle command names and outcomes. Fix by parsing tool/detail/status first (with command/type/success as legacy fallbacks) and add a smoke assertion against the current activity log schema.",
+      "severity": "medium",
+      "category": "happy",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-09T02:11:41.856Z",
+      "reviewRound": "2026-06-09T02:06:12.444Z",
+      "reviewRunId": "B-2a63:RR-002",
+      "_hash": "5023e617070aa1a31ba1425776fde23e5cc7a8ad6af8d5e4e5df1a7347ec23e5",
+      "files": [
+        "packages/main/src/core/memory-benchmark-real-data.ts",
+        "packages/main/src/core/activity-log.ts"
+      ],
+      "resolvedReason": "Resolved in commit d286e2fe: collectActivity parses current runtime activity schema tool/detail/status first with legacy fallbacks; smoke asserts activity command is story_advance, status is ok, and text no longer contains command=unknown or outcome=n/a.",
+      "resolvedAt": "2026-06-09T02:31:05.134Z"
+    },
+    {
+      "id": "B-2a63:F-005",
+      "desc": "[MEDIUM] packages/main/src/core/memory-benchmark-real-data.ts:191-196 and 683-685 only ingest test-evidence.json, delivery-check.json, review-pass.json, and implementation-review.json. The real story artifacts in this worktree use review-passes.json (plural), plus findings.json/review metadata, so the live memory_benchmark_real_data export silently omits current reviewer evidence sources altogether. Fix by aligning STORY_EVIDENCE_JSON_FILES with the actual lifecycle artifact names (at least review-passes.json) and add a smoke test that exercises the filenames present in .koala/story/actives today.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-09T02:11:49.969Z",
+      "reviewRound": "2026-06-09T02:06:12.444Z",
+      "reviewRunId": "B-2a63:RR-002",
+      "_hash": "1563dee771c7a2e7c54c4ac348a2ea4f77849b4e659dffc44ad5c9f989dae5e5",
+      "files": [
+        "packages/main/src/core/memory-benchmark-real-data.ts"
+      ],
+      "resolvedReason": "Resolved in commit d286e2fe: STORY_EVIDENCE_JSON_FILES now includes current review-passes.json, review-runs.json, and findings.json while retaining legacy review-pass.json; smoke seeds review-passes.json and asserts it is exported as story_evidence_artifact.",
+      "resolvedAt": "2026-06-09T02:31:05.458Z"
+    },
+    {
+      "id": "B-2a63:F-006",
+      "desc": "High: protected outputDir refusal is case-sensitive only, so on this case-insensitive filesystem the command allows writes under story-managed state via mixed-case paths. `assertAllowedOutputDir` compares the relative path string against lowercase protected roots without canonicalizing case ([packages/main/src/core/memory-benchmark-real-data.ts:876], [packages/main/src/core/memory-benchmark-real-data.ts:892]), and the smoke covers only lowercase `.koala/story`, `docs/story`, and fixtures cases ([packages/main/src/tasks/memory-real-data-benchmark-smoke.ts:274], [packages/main/src/tasks/memory-real-data-benchmark-smoke.ts:284]) plus configured exact-case storyDir checks ([packages/main/src/tasks/memory-real-data-benchmark-smoke.ts:190], [packages/main/src/tasks/memory-real-data-benchmark-smoke.ts:212]). Repro on this host: the filesystem reports `case-insensitive`, and invoking `runMemoryBenchmarkRealData({ root, outputDir: join(root, \"Docs/story/actives/B-real/benchmark-output\") })` with `storyDir: \"docs/story/actives\"` succeeds instead of refusing. That violates CHK-002 adversarial intent and allows a read-only benchmark command to write inside lifecycle-managed story state.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-09T02:34:55.908Z",
+      "reviewRound": "2026-06-09T02:30:43.349Z",
+      "reviewRunId": "B-2a63:RR-006",
+      "_hash": "afe807121aa6f68a0ff34c7c50f5aba58088322bf2b67f41ee0cb8be74581e4b",
+      "files": [
+        "packages/main/src/core/memory-benchmark-real-data.ts",
+        "packages/main/src/tasks/memory-real-data-benchmark-smoke.ts"
+      ],
+      "resolvedReason": "Resolved in commit ecce1a6d: protected path comparison is case-insensitive, smoke asserts mixed-case Docs/story and Fixtures paths are refused, and live command node bin/koala.js memory_benchmark_real_data --outputDir=Docs/story/actives/B-2a63/memory-real-baseline --format=text fails with refuses to write outputDir under docs/story.",
+      "resolvedAt": "2026-06-09T02:41:37.481Z"
+    }
+  ]
+}

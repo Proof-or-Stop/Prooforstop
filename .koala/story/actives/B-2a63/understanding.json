@@ -1,0 +1,32 @@
+{
+  "task": "产出基于当前仓库真实 lifecycle 数据的 memory baseline 验证能力。",
+  "outcome": "用户运行 node bin/koala.js memory_benchmark_real_data --outputDir=.tmp/memory-real-baseline --format=text 后，终端看到 Real Memory Benchmark Data: PASS，corpusRecords>0，goldRecords>0，queries>0，scoreableLayers 包含 raw_event_memory/lifecycle_state_memory/checklist_evidence_memory/summary_memory，boundaryOnlyRecords>0 且 excludedFromScoring=true，并看到已写出 corpus.jsonl、gold.jsonl、queries.jsonl、result.json；同时 note 明确 benchmark 不是 Koala gate authority。",
+  "facts": [
+    "B-d4dd 已提供 deterministic virtual memory_benchmark_run / memory_benchmark_compare，但文档明确它不是真实数据 harness。",
+    "当前仓库有真实 .koala/activity.jsonl 约 1990 行，可作为 raw lifecycle event corpus 来源。",
+    "当前仓库有 .koala/story/actives 下大量 StoryStore artifacts，可提供 lifecycle state、checklist evidence、summary/evidence records。",
+    ".koala/dev-memory/experience.jsonl 是真实数据，但根据 dev-memory 文档必须 non_authoritative，只能作为 boundary-only/advisory 记录。",
+    "benchmark PASS 不能升级为 REVIEW/TEST/DONE gate authority。"
+  ],
+  "constraints": [
+    "不改变 B-d4dd 既有 virtual benchmark scoring 语义和固定 10k/100k/1M compare。",
+    "真实数据导出必须可复跑、可审计，记录 sourcePath/sourceHash/recordId/layer。",
+    "outputDir 写文件是 artifact 输出，不得写 gate evidence、review pass、delivery check 或 production authority。",
+    "dev-memory 和 host transcript/advisory 不能进入 scoreable recall/precision gold。",
+    "只修真实 correctness issues，不为了优化而引入 vector DB 或大规模索引。"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/memory-benchmark-real-data.ts",
+    "packages/main/src/handlers/memory-benchmark.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/tasks/memory-real-data-benchmark-smoke.ts",
+    "packages/main/package.json",
+    "Lattice-lifecycle-memory-Evolving.md"
+  ],
+  "timestamp": "2026-06-09T01:37:39.675Z"
+}

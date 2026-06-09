@@ -1,0 +1,76 @@
+{
+  "passes": [
+    {
+      "id": "B-2a63:RP-001",
+      "agent": "koala-review-docs",
+      "note": "Reviewed lifecycle doc and CLI text; no accuracy blockers found.",
+      "createdAt": "2026-06-09T02:11:00.468Z",
+      "reviewRound": "2026-06-09T02:06:12.444Z",
+      "reviewRunId": "B-2a63:RR-004",
+      "_hash": "428d599cf08b53f3c0d4bd3e765af163c704a72771e43e4d6d8d6883106fd1c9"
+    },
+    {
+      "id": "B-2a63:RP-002",
+      "agent": "koala-review-test-coverage",
+      "note": "Fresh re-review after CHK-002 adversarial:1: smoke covers configured storyDir roots (.koala/custom-actives and docs/story/actives), refuses protected outputDir under configured story/fixture roots and .koala/story/docs/story, preserves current activity schema fields and review-passes.json export, keeps dev-memory boundary-only and out of gold/query scoring, and FAILs when only boundary-only data exists. Verified by npm --prefix packages/main run test:memory-real-data-benchmark-smoke and inspection of packages/main/src/tasks/memory-real-data-benchmark-smoke.ts:190-216, 238-251, 269-287, 346-380 plus packages/main/src/core/memory-benchmark-real-data.ts:876-922.",
+      "createdAt": "2026-06-09T02:32:55.844Z",
+      "reviewRound": "2026-06-09T02:30:43.349Z",
+      "reviewRunId": "B-2a63:RR-005",
+      "_hash": "978363ead47d0cf0d7ee1bc3630d7191999b4a5c9a00acdb631295beffe8178e"
+    },
+    {
+      "id": "B-2a63:RP-003",
+      "agent": "koala-review-docs",
+      "note": "Reviewed configured storyDir compatibility, lifecycle-managed outputDir refusal, and non-authoritative boundary text; verified command behavior matches docs with no blockers.",
+      "createdAt": "2026-06-09T02:33:28.342Z",
+      "reviewRound": "2026-06-09T02:30:43.349Z",
+      "reviewRunId": "B-2a63:RR-008",
+      "_hash": "85d979d42a6333bf47a224ae27824bd7a9bbefa9ab500ae9ca0fa55a7c19f286"
+    },
+    {
+      "id": "B-2a63:RP-004",
+      "agent": "koala-review-quality",
+      "note": "Re-review after d286e2fe and finding resolves: verified memory_benchmark_real_data stays readOnly for lifecycle-managed paths, preserves current activity tool/status schema, exports current review-passes.json evidence, and adds no unrelated optimization. Evidence: npm --prefix packages/main exec -- tsc -p packages/main/tsconfig.json --noEmit; direct source-level tsx assertions against configured storyDir/current-schema activity/review-passes/protected outputDir refusals; live command checks node bin/koala.js memory_benchmark_real_data --format=json and protected outputDir refusals under .koala/story/actives and packages/main/tests/fixtures. No blocker found.",
+      "createdAt": "2026-06-09T02:36:30.055Z",
+      "reviewRound": "2026-06-09T02:30:43.349Z",
+      "reviewRunId": "B-2a63:RR-007",
+      "_hash": "d048dbf2b3546ff1ce7cf58264b171e2bf5e50a8ca061d7fa839910ca4fea6c9"
+    },
+    {
+      "id": "B-2a63:RP-005",
+      "agent": "koala-review-test-coverage",
+      "note": "Verified the final test-coverage scope after ecce1a6d: smoke covers mixed-case protected outputDir refusal, configured storyDir handling, dev-memory remaining boundary-only, empty-data FAIL behavior, review-passes.json export, and current activity schema/status fields; current npm smoke run passed and a live Docs/story mixed-case CLI invocation failed with the expected lifecycle-path refusal.",
+      "createdAt": "2026-06-09T02:43:21.626Z",
+      "reviewRound": "2026-06-09T02:41:25.211Z",
+      "reviewRunId": "B-2a63:RR-009",
+      "_hash": "507d57f59c262a966e22298d195f71fbbbe519063fb35da72693887d4c947032"
+    },
+    {
+      "id": "B-2a63:RP-006",
+      "agent": "koala-review-docs",
+      "note": "Docs match runtime behavior: the real-data benchmark is explicitly non-authoritative/read-only and does not claim production retrieval, gate evidence, review pass, validation evidence, delivery check, receipt, vector DB, or production memory architecture; the mixed-case outputDir guard is covered by the smoke test and passes.",
+      "createdAt": "2026-06-09T02:43:38.300Z",
+      "reviewRound": "2026-06-09T02:41:25.211Z",
+      "reviewRunId": "B-2a63:RR-012",
+      "_hash": "27d84ed58126f031af055818217eabe2c9d5cb0f7499a68569d11a3f2d5324f4"
+    },
+    {
+      "id": "B-2a63:RP-007",
+      "agent": "koala-review-quality",
+      "note": "Checked ecce1a6d: outputDir protection now compares paths case-insensitively; smoke coverage includes mixed-case docs/story and fixtures paths; prior overwrite and configured storyDir protections still pass; no unrelated behavior change observed.",
+      "createdAt": "2026-06-09T02:44:23.341Z",
+      "reviewRound": "2026-06-09T02:41:25.211Z",
+      "reviewRunId": "B-2a63:RR-011",
+      "_hash": "6d4dc3ba1f685086b437b160b69e0d432885cd96f76f3ec84136bf55fe54eb3e"
+    },
+    {
+      "id": "B-2a63:RP-008",
+      "agent": "koala-review-concept",
+      "note": "Checked concept boundaries only: configured storyDir is sourced from config and exported/refused consistently; real-data baseline remains non-authoritative and boundary-only data stays out of scoring; outputDir refusal now blocks mixed-case lifecycle/fixture paths.",
+      "createdAt": "2026-06-09T02:44:27.209Z",
+      "reviewRound": "2026-06-09T02:41:25.211Z",
+      "reviewRunId": "B-2a63:RR-010",
+      "_hash": "3b14bf046c906e3946cf90296e98748a3500c491f71a2b809f1950eaf00caba5"
+    }
+  ]
+}
