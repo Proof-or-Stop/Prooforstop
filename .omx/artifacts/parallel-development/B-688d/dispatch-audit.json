@@ -1,0 +1,86 @@
+{
+  "schemaVersion": "lattice.parallel-development.dispatch-audit.v1",
+  "storyId": "B-688d",
+  "generatedAt": "2026-06-09T23:07:00Z",
+  "hostCategories": [
+    {
+      "id": "claude-code",
+      "name": "Claude Code",
+      "version": "2.1.88",
+      "available": true
+    },
+    {
+      "id": "codex-cli",
+      "name": "Codex CLI",
+      "version": "0.137.0",
+      "available": true
+    }
+  ],
+  "lanes": [
+    {
+      "laneId": "impl-claude-1",
+      "role": "implementer",
+      "host": "claude-code",
+      "track": "natural-language",
+      "baselineIds": ["NL-CLI-1", "NL-API-1", "NL-REPAIR-1"]
+    },
+    {
+      "laneId": "impl-claude-2",
+      "role": "implementer",
+      "host": "claude-code",
+      "track": "redevelopment",
+      "baselineIds": ["RED-CLI-TS-PY-1", "RED-API-TS-GO-1"]
+    },
+    {
+      "laneId": "impl-codex-1",
+      "role": "implementer",
+      "host": "codex-cli",
+      "track": "natural-language",
+      "baselineIds": ["NL-CLI-1", "NL-API-1", "NL-REPAIR-1"]
+    },
+    {
+      "laneId": "impl-codex-2",
+      "role": "implementer",
+      "host": "codex-cli",
+      "track": "redevelopment",
+      "baselineIds": ["RED-CLI-TS-PY-1", "RED-API-TS-GO-1"]
+    },
+    {
+      "laneId": "review-codex-1",
+      "role": "reviewer",
+      "host": "codex-cli",
+      "track": "natural-language",
+      "oppositeOf": "impl-claude-1",
+      "note": "opposite-host reviewer for claude-code implementer lanes"
+    },
+    {
+      "laneId": "review-codex-2",
+      "role": "reviewer",
+      "host": "codex-cli",
+      "track": "redevelopment",
+      "oppositeOf": "impl-claude-2",
+      "note": "opposite-host reviewer for claude-code implementer lanes"
+    },
+    {
+      "laneId": "review-claude-1",
+      "role": "reviewer",
+      "host": "claude-code",
+      "track": "natural-language",
+      "oppositeOf": "impl-codex-1",
+      "note": "opposite-host reviewer for codex-cli implementer lanes"
+    },
+    {
+      "laneId": "review-claude-2",
+      "role": "reviewer",
+      "host": "claude-code",
+      "track": "redevelopment",
+      "oppositeOf": "impl-codex-2",
+      "note": "opposite-host reviewer for codex-cli implementer lanes"
+    }
+  ],
+  "failClosedPolicy": {
+    "missingHost": "BLOCKED — lane cannot execute if host binary is unavailable",
+    "missingReview": "BLOCKED — no localReviewCertified without independent review artifact",
+    "missingReceipt": "BLOCKED — no receipt-backed authority without verified receipt"
+  }
+}

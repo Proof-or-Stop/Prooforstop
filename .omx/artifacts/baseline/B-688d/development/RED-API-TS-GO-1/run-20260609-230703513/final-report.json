@@ -1,0 +1,60 @@
+{
+  "schemaVersion": "lattice.baseline.final-report.v1",
+  "baselineId": "RED-API-TS-GO-1",
+  "runId": "run-20260609-230703513",
+  "track": "redevelopment",
+  "expectedOutcome": "PASS",
+  "outcome": "FAIL",
+  "invalidReason": null,
+  "blockedReason": "local independent review evidence is missing",
+  "weight": 4,
+  "authority": {
+    "mode": "non-authority",
+    "authorityDone": false,
+    "receiptVerified": false,
+    "multiHostVerified": false,
+    "fullAuthorityDone": false,
+    "status": "not-applicable"
+  },
+  "local": {
+    "localReviewCertified": false,
+    "authorityServerContact": false,
+    "status": "blocked",
+    "evidenceRefs": [],
+    "requiredIndependentHosts": 2,
+    "independentHosts": 0,
+    "passingIndependentHosts": 0,
+    "failingIndependentHosts": 0,
+    "staleVerdicts": 0,
+    "blockedReason": "local independent review evidence is missing"
+  },
+  "metrics": {
+    "durationSeconds": 0,
+    "retryCount": 0,
+    "repairCount": 0,
+    "evidenceCount": 0,
+    "hostVerdictCount": 0,
+    "reviewWaveCount": 0
+  },
+  "failure": {
+    "code": "terminal_criteria_not_met",
+    "message": "baseline terminal criteria were not satisfied"
+  },
+  "artifacts": {
+    "story": "story.json",
+    "checklist": "checklist.json",
+    "jobPlan": "job-plan.json",
+    "executionLog": "execution-log.jsonl",
+    "evidenceIndex": null,
+    "gateReceipt": null,
+    "hostVerdicts": null,
+    "authorityStatus": null,
+    "localReviewStatus": "local-review-status.json",
+    "sourceManifest": "source-manifest.json",
+    "semanticMap": "semantic-map.json",
+    "parityFixtures": "parity-fixtures.json",
+    "sourceRunnerLog": "source-runner.log",
+    "targetRunnerLog": "target-runner.log",
+    "gapLog": "gap-log.json"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "lattice.parallel-development.final-report.v1",
+  "storyId": "B-688d",
+  "generatedAt": "2026-06-09T23:07:00Z",
+  "decision": "GO-NOT-YET",
+  "blockedReasons": [
+    "Layer 1 baseline suite status is FAIL: 5/6 runs lack local independent review evidence (only RED-GAP-BLOCK-1 EXPECTED_BLOCK passed)",
+    "Runner source (baseline_run, baseline_suite_report, baselineId) is not locatable in this repository — provided by external Lattice CLI v0.3.5",
+    "No independent local review artifact exists to satisfy localReviewCertified"
+  ],
+  "summary": {
+    "baselineSuiteStatus": "FAIL",
+    "baselineRunsTotal": 6,
+    "baselineRunsPassed": 1,
+    "baselineRunsFailed": 5,
+    "safetySuccessRate": 1.0,
+    "overallCorrectnessProtectedSuccessRate": 0.166667,
+    "authorityMode": "off",
+    "evidenceClass": "local-lifecycle",
+    "hostCount": 2,
+    "laneCount": 8,
+    "runnerSourceLocatable": false
+  },
+  "nextSteps": [
+    "Obtain independent local review evidence for the 5 failing baseline runs",
+    "Locate or vendor the baseline runner source into this repository",
+    "Re-run baseline suite after review evidence is available"
+  ]
+}

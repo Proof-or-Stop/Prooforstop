@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "lattice.baseline.source-manifest.v1",
+  "baselineId": "RED-API-TS-GO-1",
+  "commands": [
+    "source test"
+  ],
+  "publicApis": [
+    "GET /health",
+    "POST /items"
+  ],
+  "behaviorSurfaces": [
+    "stdout",
+    "stderr",
+    "exitCode",
+    "errorSemantics"
+  ]
+}
