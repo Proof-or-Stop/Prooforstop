@@ -1,0 +1,32 @@
+{
+  "storyId": "B-2a63",
+  "checkedAt": "2026-06-09T01:31:42.059Z",
+  "reviewRound": "",
+  "agentId": "product-reviewer",
+  "issues": [
+    {
+      "id": "PR-001",
+      "severity": "medium",
+      "desc": "CHK-001 wording is now product-facing, but the promised user-visible flow still fails. In the current repo state, `node bin/koala.js memory_benchmark_compare --candidateCounts=10000,100000,1000000 --queryCount=120 --seed=7 --format=text` returns `未知命令: memory_benchmark_compare`, and `lattice help` exposes no `memory_benchmark_*` command. The only traced implementation remains the deterministic virtual benchmark from B-d4dd (`packages/main/src/core/memory-benchmark.ts` and `.koala/story/actives/B-d4dd/summary.json`), which does not provide one real-data baseline flow with auditable non-empty corpus/gold/query/result artifacts plus boundary-enforcement and validation behavior. CHK-001 is therefore still not user-observable yet."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-06-09T01:29:19.760Z",
+      "issues": []
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-09T01:31:42.059Z",
+      "issues": [
+        {
+          "id": "PR-001",
+          "severity": "medium",
+          "desc": "CHK-001 wording is now product-facing, but the promised user-visible flow still fails. In the current repo state, `node bin/koala.js memory_benchmark_compare --candidateCounts=10000,100000,1000000 --queryCount=120 --seed=7 --format=text` returns `未知命令: memory_benchmark_compare`, and `lattice help` exposes no `memory_benchmark_*` command. The only traced implementation remains the deterministic virtual benchmark from B-d4dd (`packages/main/src/core/memory-benchmark.ts` and `.koala/story/actives/B-d4dd/summary.json`), which does not provide one real-data baseline flow with auditable non-empty corpus/gold/query/result artifacts plus boundary-enforcement and validation behavior. CHK-001 is therefore still not user-observable yet."
+        }
+      ]
+    }
+  ],
+  "_hash": "2eccdff011b606e545827cc0331dd1614f3d2b3d6341962424101d7c370da9c5"
+}
