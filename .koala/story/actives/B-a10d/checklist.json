@@ -11,7 +11,35 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "用户打开 Lattice-Engineering-baseline.md，看到 Engineering Baseline 的目标、依赖 Development Baseline、ENG-* baseline 清单、每项测试验证和通过/失败标准。",
+      "files": {
+        "modify": [],
+        "create": [
+          "Lattice-Engineering-baseline.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "文档包含 ENG-MULTI-FILE、ENG-EXISTING-REPO、ENG-BUGFIX、ENG-REGRESSION、ENG-DATA-MIGRATION、ENG-AUTH-SECURITY、ENG-FRONTEND-VISUAL、ENG-LONG-RUN、ENG-LOOP-REVIEW，并为每项写明输入、步骤、证据、pass/fail。",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "文档必须明确 Engineering Baseline 依赖 Development Baseline 通过，且不能宣称 production-grade 或 unattended development。",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "搜索文档不得出现把未验证能力写成 already production-ready 或 arbitrary project development 的 overclaim。",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -24,7 +52,35 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "用户打开 Lattice-Loop-Engineering-baseline.md，看到 Loop Engineering Baseline 如何验证 intake、planner、executor、repair loop、review reflection loop、evidence gate、stop/block/escalate 和 multi-host review。",
+      "files": {
+        "modify": [],
+        "create": [
+          "Lattice-Loop-Engineering-baseline.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "文档包含 Loop Engineering/UDM 的核心闭环组件：intake、planner、executor、repair loop、review loop、evidence、gate、block/escalate、multi-host review、no false DONE。",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "文档必须明确 loop 有预算、停止条件、人类交接和 blocked/escalated 结果，不能描述为无限自动循环。",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "文档不得把 Loop Engineering 描述成 prompt trick 或自动脚本；必须是 bounded evidence-driven engineering system。",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",

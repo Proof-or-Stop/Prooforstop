@@ -4,8 +4,8 @@
   "title": "编写 Lattice baseline 2-5 层执行方案文档",
   "description": "为 Lattice baseline 分层能力体系补齐第 2 到第 5 层的详细执行方案文档：Engineering Baseline、Loop Engineering Baseline、Production Safety Baseline、Capability Claim Baseline。Development Baseline 已在开发中，本 story 只写后续四层文档，明确先后依赖、测试验证、通过标准和能力声明边界。",
   "type": "chore",
-  "phase": "INIT_CHECK",
-  "priority": "high",
+  "phase": "PLAN",
+  "priority": "medium",
   "keywords": [
     "baseline",
     "capability-claim",
@@ -26,7 +26,6 @@
       "matched": "Production"
     }
   ],
-  "priorityElevatedFrom": "medium",
   "createdAt": "2026-06-09T19:08:23.125Z",
   "startedAt": "2026-06-09T19:08:23.125Z",
   "endedAt": null,
@@ -46,11 +45,36 @@
       "branch": "main",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-09T19:09:49.973Z",
+      "branch": "story/B-a10d",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-a10d",
     "branch": "story/B-a10d",
     "createdAt": "2026-06-09T19:09:21.930Z"
-  }
+  },
+  "riskSignalsDismissed": [
+    {
+      "category": "安全/凭证",
+      "reason": "本 story 只编写 auth/security baseline 执行方案文档，不修改认证、凭证、权限或运行时安全逻辑。",
+      "at": "2026-06-09T19:10:11.603Z"
+    },
+    {
+      "category": "数据迁移/破坏性",
+      "reason": "本 story 只描述 data/schema migration baseline 的验证方案，不执行数据迁移、不改 schema、不运行破坏性操作。",
+      "at": "2026-06-09T19:10:11.625Z"
+    },
+    {
+      "category": "生产环境/紧急",
+      "reason": "本 story 只编写 Production Safety Baseline 文档，不改生产环境配置、不发布、不接触线上执行路径。",
+      "at": "2026-06-09T19:10:11.774Z"
+    }
+  ]
 }

@@ -1,0 +1,27 @@
+{
+  "task": "为 Lattice baseline 第 2 到第 5 层补齐可执行方案文档",
+  "outcome": "用户打开仓库后能看到 4 个新 Markdown 文档：Lattice-Engineering-baseline.md、Lattice-Loop-Engineering-baseline.md、Lattice-Production-Safety-baseline.md、Lattice-Capability-Claim-baseline.md；每个文档都包含目标、依赖层、baseline 清单、测试验证、通过标准、失败判定和允许/禁止的能力声明。",
+  "facts": [
+    "Development Baseline 已经在另一个工作流中开发，本 story 不重写 Layer 1。",
+    "用户要求第 2 到第 5 层每层单独一份详细执行方案文档。",
+    "层级顺序是 Development -> Engineering -> Loop Engineering -> Production Safety -> Capability Claim。",
+    "0 false DONE 是所有层的硬门槛，而不是某一个可选 baseline。"
+  ],
+  "constraints": [
+    "只写文档，不修改 Lattice runtime、Authority、security、migration 或生产逻辑。",
+    "不要把未验证能力写成已具备能力；所有 claim 必须绑定 baseline 通过证据。",
+    "文档要可执行：每个 baseline 需要输入、步骤、证据、通过标准和失败标准。",
+    "遵守用户原则：不为了优化而优化，不任意优化，只修真实 correctness issue，逻辑一致。"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "Lattice-Engineering-baseline.md",
+    "Lattice-Loop-Engineering-baseline.md",
+    "Lattice-Production-Safety-baseline.md",
+    "Lattice-Capability-Claim-baseline.md",
+    "Lattice-Review-reflection-loop.md",
+    "docs/requirements/decisions/testing-completeness.md",
+    "docs/requirements/decisions/story-lifecycle.md"
+  ],
+  "timestamp": "2026-06-09T19:10:31.027Z"
+}
