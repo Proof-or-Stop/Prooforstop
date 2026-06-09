@@ -67,6 +67,22 @@
         "packages/main/src/core/memory-benchmark-real-data.ts",
         "packages/main/src/core/activity-log.ts"
       ]
+    },
+    {
+      "id": "B-2a63:F-005",
+      "desc": "[MEDIUM] packages/main/src/core/memory-benchmark-real-data.ts:191-196 and 683-685 only ingest test-evidence.json, delivery-check.json, review-pass.json, and implementation-review.json. The real story artifacts in this worktree use review-passes.json (plural), plus findings.json/review metadata, so the live memory_benchmark_real_data export silently omits current reviewer evidence sources altogether. Fix by aligning STORY_EVIDENCE_JSON_FILES with the actual lifecycle artifact names (at least review-passes.json) and add a smoke test that exercises the filenames present in .koala/story/actives today.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-09T02:11:49.969Z",
+      "reviewRound": "2026-06-09T02:06:12.444Z",
+      "reviewRunId": "B-2a63:RR-002",
+      "_hash": "1563dee771c7a2e7c54c4ac348a2ea4f77849b4e659dffc44ad5c9f989dae5e5",
+      "files": [
+        "packages/main/src/core/memory-benchmark-real-data.ts"
+      ]
     }
   ]
 }
