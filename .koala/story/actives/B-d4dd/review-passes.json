@@ -71,6 +71,15 @@
       "reviewRound": "2026-06-09T00:32:41.917Z",
       "reviewRunId": "B-d4dd:RR-012",
       "_hash": "05a4e2c7fe530f04d7f0e34ecb98ed256604f67ea50237e154ba0c94625ddd8b"
+    },
+    {
+      "id": "B-d4dd:RP-009",
+      "agent": "koala-review-concept",
+      "note": "Concept review passed: deterministic virtual harness with fixed 10k/100k/1M comparison tiers, per-metric minima enforced independently from weighted score, boundary-only layers excluded from retrieval scoring, and benchmark output explicitly marked non-authoritative/read-only. Verified via npm --prefix packages/main run test:memory-benchmark-smoke, npm --prefix packages/main run test:command-ownership-contract, npm exec tsc -- -p tsconfig.json --noEmit, and direct memory_benchmark_run/compare CLI checks.",
+      "createdAt": "2026-06-09T00:36:06.666Z",
+      "reviewRound": "2026-06-09T00:32:41.917Z",
+      "reviewRunId": "B-d4dd:RR-014",
+      "_hash": "9f2aef39009da7339cf611130f5a8229fe0ccca0e24e029c60b65f5bcbac3169"
     }
   ]
 }
