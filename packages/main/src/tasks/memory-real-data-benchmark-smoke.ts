@@ -42,7 +42,7 @@ function lineCount(filePath: string): number {
 
 function seedRealLifecycleData(root: string, options: { storyDir?: string } = {}): string {
   const storyDirRel = options.storyDir ?? '.koala/story/actives';
-  writeJson(join(root, 'koala.config.json'), {
+  writeJson(join(root, 'lattice.config.json'), {
     scanRoot: 'packages/main',
     rootDir: 'src',
     fixturesDir: 'packages/main/tests/fixtures',
@@ -116,7 +116,7 @@ function seedRealLifecycleData(root: string, options: { storyDir?: string } = {}
           {
             intentRef: 'CHK-001:happy:0',
             kind: 'cli',
-            command: 'node bin/koala.js memory_benchmark_real_data --outputDir=.tmp/real',
+            command: 'node bin/lattice.js memory_benchmark_real_data --outputDir=.tmp/real',
             result: 'pass',
             note: 'Command produced real baseline files.',
           },
@@ -188,7 +188,7 @@ function assertTraceFields(row: { recordId?: unknown; layer?: unknown; sourcePat
 }
 
 function assertConfiguredStoryDirWorks(storyDir: string): void {
-  const root = mkdtempSync(join(tmpdir(), 'koala-memory-real-data-configured-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-memory-real-data-configured-'));
   try {
     seedRealLifecycleData(root, { storyDir });
     resetConfigCache();
@@ -220,7 +220,7 @@ function assertConfiguredStoryDirWorks(storyDir: string): void {
 }
 
 {
-  const root = mkdtempSync(join(tmpdir(), 'koala-memory-real-data-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-memory-real-data-'));
   try {
     const activityPath = seedRealLifecycleData(root);
     resetConfigCache();
@@ -357,9 +357,9 @@ assertConfiguredStoryDirWorks('.koala/custom-actives');
 assertConfiguredStoryDirWorks('docs/story/actives');
 
 {
-  const root = mkdtempSync(join(tmpdir(), 'koala-memory-real-data-empty-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-memory-real-data-empty-'));
   try {
-    writeJson(join(root, 'koala.config.json'), {
+    writeJson(join(root, 'lattice.config.json'), {
       scanRoot: 'packages/main',
       rootDir: 'src',
       storyDir: '.koala/story/actives',

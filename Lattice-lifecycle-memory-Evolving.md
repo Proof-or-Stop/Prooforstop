@@ -58,7 +58,7 @@ Evolving Work Lifecycle / lifecycle memory 对当前 Lattice **可行**，但可
 - 不能作为 authoritative lifecycle truth 或 production authority。
 - 不能满足或替代 review pass / `review_pass_set`。
 - 不能满足 delivery check。
-- 不能满足 `koala validate` validation evidence。
+- 不能满足 `lattice validate` validation evidence。
 - 不能作为 REVIEW / TEST / DONE gate evidence。
 - 不能生成或替代 signed receipt。
 - 不能让 `productionDone=true`。
@@ -182,7 +182,7 @@ Expanded MemoryScore =
 | 100,000 | `>= 90` | hard checks 全部通过，`EvidenceLinkageRate = 1.0` for lifecycle/gate facts。 |
 | 1,000,000 | `>= 86` | stress-only；hard checks 全部通过，不代表当前已实现 million-candidate harness。 |
 
-MemoryScore is not Koala lifecycle truth, review pass, validation evidence, delivery check, receipt, or production authority. Benchmark PASS can only be future implementation validation evidence inside the story that implements the benchmark harness.
+MemoryScore is not Lattice lifecycle truth, review pass, validation evidence, delivery check, receipt, or production authority. Benchmark PASS can only be future implementation validation evidence inside the story that implements the benchmark harness.
 
 ### Tiers
 
@@ -205,9 +205,9 @@ MemoryScore is not Koala lifecycle truth, review pass, validation evidence, deli
 Usage:
 
 ```bash
-node bin/koala.js memory_benchmark_real_data --format=text
-node bin/koala.js memory_benchmark_real_data --format=json
-node bin/koala.js memory_benchmark_real_data --outputDir=.lattice/tmp/memory-real-baseline --format=text
+node bin/lattice.js memory_benchmark_real_data --format=text
+node bin/lattice.js memory_benchmark_real_data --format=json
+node bin/lattice.js memory_benchmark_real_data --outputDir=.lattice/tmp/memory-real-baseline --format=text
 ```
 
 Text output starts with `Real Memory Benchmark Data: PASS` or `Real Memory Benchmark Data: FAIL`, then reports `corpusRecords`, `goldRecords`, `queryRecords`, `resultRecords`, `exactRecordMatchRate`, scoreable layers, boundary-only layers, and per-source `sourcePath` / `sourceHash` / record counts. When `--outputDir` is provided, the command writes the following files and refuses lifecycle-managed story paths, fixture paths, or an existing target file:
@@ -291,10 +291,10 @@ v0 的边界是「把话说准」。后续只有当 gap 有真实 failure、sour
 | docs_check | 本文件包含必需标题、结论、三方摘要、能力分类、权威边界、non-goals、执行计划和测试矩阵。 | `rg -n "^# Lattice Lifecycle Memory Evolving|可行|host-neutral|non_authoritative|auto-DONE|SQLite|Codex/Gemini" Lattice-lifecycle-memory-Evolving.md` | 所有关键短语可定位；没有把 non-goal 写成 current capability。 |
 | docs_check | 已提交版本的 Markdown 无尾随空白或 patch 格式问题。 | `git show --check --stat --oneline HEAD -- Lattice-lifecycle-memory-Evolving.md` | 命令 exit 0。 |
 | manual_transcript | 三方 Host 分析被作为输入证据读取，不作为权威结论直接采纳。 | 附件：`/Users/jek/.codex/attachments/85e74934-0860-4165-a4d6-d1040d2a130a/pasted-text.txt`；artifacts：`.omx/artifacts/claude-role-claude-a-architecture-reviewer-worktree-users-jek-docum-2026-06-08T09-36-18-528Z.md`、`.omx/artifacts/claude-role-claude-b-skeptical-reviewer-worktree-users-jek-document-2026-06-08T09-39-02-035Z.md`、`.omx/artifacts/lifecycle-memory-codex-B-f1d3.md`（historical v0 review input） | 文档有三方摘要和 disagreement resolution；authority boundary 不由 host 输出覆盖。 |
-| cli | story 当前处于正确 owner/worktree/cwd lifecycle 上下文。 | `koala session_brief` | 输出当前 story、owner/worktree/cwd 和 lifecycle phase；不要求固定为某个历史 story ID。 |
+| cli | story 当前处于正确 owner/worktree/cwd lifecycle 上下文。 | `lattice session_brief` | 输出当前 story、owner/worktree/cwd 和 lifecycle phase；不要求固定为某个历史 story ID。 |
 | cli | 若后续 story 实现投影能力，验证不污染 gate authority。 | `npm --prefix packages/main run test:authority-enforce-matrix`; `npm --prefix packages/main run test:lattice-parallel-wave-smoke`; `npm --prefix packages/main run test:lattice-handoff-smoke` | 所有 projection / handoff / wave 输出保持非权威边界，不能产生 production authority。 |
 | cli | 若后续 story 修改 process facts、gate evidence 或 lifecycle registry，验证 registry 不漂移。 | `node scripts/verify-process-fact-contract.mjs`; `node scripts/verify-runtime-fact-contract.mjs` | 新事实必须登记；runtime facts 不混入 process facts。 |
-| cli | TEST 阶段最终项目验证。 | `koala validate --story=<current-story>` | 仅在 story 进入 TEST 且所有 checklist evidence 齐全时作为 validation evidence；v0 文档阶段不伪造该 evidence。 |
+| cli | TEST 阶段最终项目验证。 | `lattice validate --story=<current-story>` | 仅在 story 进入 TEST 且所有 checklist evidence 齐全时作为 validation evidence；v0 文档阶段不伪造该 evidence。 |
 
 ## 非目标
 
