@@ -12,7 +12,18 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "memory_benchmark_real_data 输出 non-empty corpus/gold/query/result stats，并列出真实 source paths、source hashes、scoreable/boundary layer counts 和 non-authoritative note。"
+      "userSees": "memory_benchmark_real_data 输出 non-empty corpus/gold/query/result stats，并列出真实 source paths、source hashes、scoreable/boundary layer counts 和 non-authoritative note。",
+      "files": {
+        "modify": [
+          "Lattice-lifecycle-memory-Evolving.md"
+        ],
+        "create": [
+          "packages/main/src/core/memory-benchmark-real-data.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/memory-real-data-benchmark-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-002",
