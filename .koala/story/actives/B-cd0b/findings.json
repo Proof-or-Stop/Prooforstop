@@ -24,7 +24,7 @@
       "desc": "[MEDIUM] Lattice-Parallel-Development-Capability.md:233, 622-627, 668-685, and 701-703 invent `authorityReceiptRefs` as a required final-report field, while the existing authority surfaces and Parallel Wave docs consistently use the nested `authority.receiptRefs` shape (README.md:333-335, docs/requirements/decisions/lattice-parallel-wave.md:183-184). Without an explicit migration note, this reads as an accidental schema fork and weakens the patch’s format clarity. Fix: either reuse the established `authority.receiptRefs` naming or explicitly define why Parallel Development needs a different schema and how it maps back to the existing authority object.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-09T22:36:28.273Z",
@@ -35,7 +35,9 @@
         "Lattice-Parallel-Development-Capability.md",
         "README.md",
         "docs/requirements/decisions/lattice-parallel-wave.md"
-      ]
+      ],
+      "resolvedReason": "Resolved by replacing the invented authorityReceiptRefs field with the established nested authority.receiptRefs shape, and aligning report posture text to authority.receiptVerified, authority.productionDone, authority.authorityChanged, and authority.receiptRefs. Verified with rg and git diff check.",
+      "resolvedAt": "2026-06-09T22:44:14.673Z"
     }
   ]
 }
