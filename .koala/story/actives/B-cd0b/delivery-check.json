@@ -1,0 +1,39 @@
+{
+  "storyId": "B-cd0b",
+  "checkedAt": "2026-06-09T22:46:45.141Z",
+  "reviewRound": "2026-06-09T22:44:03.878Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "Lattice-Parallel-Development-Capability.md",
+      "promise": "Document separates local lifecycle evidence from receipt-backed authority evidence using the established off, shadow, enforce, and receipt-backed-l2-plus vocabulary.",
+      "status": "verified",
+      "verifiedBy": "rg + reviewer findings resolved + lattice validate",
+      "evidence": "Mode matrix uses off, shadow, enforce; old drift terms local/off, receipt-backed-authority, receipt-backed/enforce, and authorityReceiptRefs are absent; validate passed with 6/6 verification coverage."
+    },
+    {
+      "docPath": "Lattice-Parallel-Development-Capability.md",
+      "promise": "Document provides a detailed baseline parallel implementation plan including Layer 1 status, host/agent counts, workstream assignment, ownership, sequential proof, integration, stop, rollback, and DONE criteria.",
+      "status": "verified",
+      "verifiedBy": "rg + lattice validate",
+      "evidence": "Baseline 2-5 Parallel Implementation Plan states 2 CLI hosts, 8 parallel workstream/review agents, 1 coordinator, Layer 1 implementation present but formal proof incomplete until independent review evidence and PASS suite report exist."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "lattice validate --story=B-cd0b --json --forceTakeover PASS; npm test -> npm run test:e2e -> node packages/main/dist/tasks/cli-e2e.js -> ALL PASS; verification intent coverage 6/6 covered."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "rg checks verified authorityMode/evidenceClass plus nested authority.receiptVerified, authority.productionDone, authority.authorityChanged, and authority.receiptRefs; reviewer findings F-001 and F-002 resolved."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "The delivery is a documentation-only execution plan. It preserves PD-1/PD-2 authority boundaries, gives a concrete 2-host/8-agent parallel implementation model, records Layer 1 as implementation-present but proof-incomplete, and keeps capability proof sequential."
+  },
+  "_hash": "defbd463a0a7c7b50daf4058dcc70cbc0da3737c55912f39724ffbc424cfa95a"
+}
