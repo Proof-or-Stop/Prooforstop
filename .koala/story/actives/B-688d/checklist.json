@@ -22,20 +22,38 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "When the six Development Baseline audit is complete, the final report shows the exact Layer 1 formalProofStatus and startDecision.",
-            "type": "cli"
+            "desc": "Run baseline_run on the local/off baseline set and show the command succeeds while explicitly labeling runner support versus independent proof.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Generate baseline_suite_report from the same material hash and confirm it reports the formal proof status separately from raw runner availability.",
+            "type": "cli",
+            "priority": "must"
           }
         ],
         "edge": [
           {
-            "desc": "If local runner outputs exist but independent review evidence is missing, the status is blocked/not_authorized rather than PASS.",
-            "type": "cli"
+            "desc": "A baseline suite may execute successfully even when independent review evidence is absent; the report must still classify the result as blocked or not-authorized instead of PASS.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "If evidence is stale, local-only, or from a shadow runner, the report must preserve the missing or insufficient-proof reason instead of collapsing it into a formal pass.",
+            "type": "logic",
+            "priority": "must"
           }
         ],
         "adversarial": [
           {
-            "desc": "A tempting PASS claim without fresh suite/report evidence is rejected and recorded with a specific blockedReason.",
-            "type": "cli"
+            "desc": "Reject any false Layer 1 PASS that is inferred from runner support alone when no independent proof exists.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Reject any report text that upgrades local/off evidence into a production-formal proof claim.",
+            "type": "logic",
+            "priority": "must"
           }
         ]
       }
