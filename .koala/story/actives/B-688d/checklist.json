@@ -11,7 +11,14 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "用户看到 Layer 1 Development Baseline 的正式状态：formal-pass、blocked-missing-review-evidence 或 runner-source-unclear，并知道是否能作为 Baseline 2-5 并行开发前置条件。"
+      "userSees": "User sees \"Layer 1 formalProofStatus\" with PASS/BLOCKED, exact missingEvidence, and the resulting Baseline 2-5 startDecision in the B-688d final report.",
+      "files": {
+        "modify": [],
+        "create": [
+          ".omx/artifacts/baseline/B-688d/development/"
+        ],
+        "test": []
+      }
     },
     {
       "id": "CHK-002",
