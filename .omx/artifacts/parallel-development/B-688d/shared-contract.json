@@ -15,7 +15,7 @@
     ]
   },
   "material": {
-    "headHash": "7163a6dd18b81abef8c3488b3e2e86c67a0c3cda",
+    "headHash": "76b383c5217f5dfb6ab35ca4a4d7c36a688eec9e",
     "materialHash": "sha256:2d260c1521b4ef69364723d167aa66eebac930c332be020e34171460d3ae8848",
     "materialHashSource": ".omx/artifacts/baseline/B-688d/baseline-suite-report.json",
     "runIds": [
@@ -54,7 +54,19 @@
     },
     "claimLockStatus": {
       "path": ".omx/artifacts/parallel-development/B-688d/claim-lock-status.json",
-      "sha256": "87ce66b7d4616fc997bf1bddc70e448aa765a0ddc5cb5e5012f90498b6b2d40d"
+      "sha256": "54431d8cc89fc41a1d656593aa68de1697857921e7132eade196340deffb5e2f"
+    },
+    "ownershipMap": {
+      "path": ".omx/artifacts/parallel-development/B-688d/ownership-map.json",
+      "sha256": "c41b9480532a413ce67de455394b5fbda52f3c657049735846338eb0fbe7e891"
+    },
+    "mergeQueue": {
+      "path": ".omx/artifacts/parallel-development/B-688d/merge-queue.json",
+      "sha256": "118cb99bf6de1e2574a108d22c4231aab3959e76a1d67b12381014185a9bf494"
+    },
+    "scopeAdvisory": {
+      "path": ".omx/artifacts/claude-scope-check-B-688d-20260609T230010Z.md",
+      "sha256": "1189a5ceeb3e9c78de665be87af5aa2a20e179d375d2cf85b9adaec33824cb45"
     }
   },
   "frozenFields": [
@@ -66,7 +78,10 @@
     "baselineClaimReport",
     "dispatchClaimReport",
     "authorityMode",
-    "evidenceClass"
+    "evidenceClass",
+    "ownershipMap",
+    "mergeQueue",
+    "scopeAdvisory"
   ],
   "authorityMode": "off",
   "evidenceClass": "local-lifecycle",
