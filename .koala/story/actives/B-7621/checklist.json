@@ -11,9 +11,9 @@
         "docs/requirements/decisions/session-ownership-and-write-leases.md",
         "README.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-09T20:47:22.031Z",
-      "endTime": null,
+      "endTime": "2026-06-09T20:48:33.338Z",
       "userSees": "用户打开 Lattice-Parallel-Development-Capability.md 会看到标题 \"Lattice Parallel Development Capability Execution Plan\"，并看到核心规则 \"Implementation may proceed in parallel; capability proof and claim unlock must remain sequential.\" 文档还包含 Relationship To Loop Engineering、Shared Contract Freeze、Workstream Ownership、Shadow Mode、Merge Queue、Dogfooding Plan。",
       "files": {
         "modify": [],
@@ -41,7 +41,42 @@
             "type": "docs"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "Lattice-Parallel-Development-Capability.md",
+          "command": "git diff --check -- Lattice-Parallel-Development-Capability.md && rg -n \"Lattice Parallel Development|parallel implementation, sequential proof|Shared Contract Freeze|Workstream Partition|Ownership And Lease Rules|Merge Queue|Dogfooding Plan\" Lattice-Parallel-Development-Capability.md",
+          "result": "pass",
+          "note": "Document defines Lattice Parallel Development and includes the core rule, shared contract freeze, workstream partition, ownership, merge queue, and dogfooding plan.",
+          "headHash": "ccd0529261cebb764a606da3cc50941d4ee2623c",
+          "materialHash": "8a7c906c87e38df977b1874091f4f1798be672f873f16353d97d27841066d66a",
+          "timestamp": "2026-06-09T20:48:33.382Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "Lattice-Parallel-Development-Capability.md",
+          "command": "rg -n \"not a sixth baseline|Non-Goals|Replace Loop Engineering|Replace REVIEW, TEST, DONE|Parallel Wave|Capability Claim|Authority gates\" Lattice-Parallel-Development-Capability.md",
+          "result": "pass",
+          "note": "Document explicitly says Parallel Development is not a sixth baseline and does not replace Parallel Wave, Loop Engineering, Capability Claim, lifecycle gates, or Authority gates.",
+          "headHash": "ccd0529261cebb764a606da3cc50941d4ee2623c",
+          "materialHash": "8a7c906c87e38df977b1874091f4f1798be672f873f16353d97d27841066d66a",
+          "timestamp": "2026-06-09T20:48:33.414Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "Lattice-Parallel-Development-Capability.md",
+          "command": "rg -n \"Fail-Closed Rules|false_done|shared_contract_drift|insufficient_independent_hosts|stale_evidence|ownership_conflict|lower_layer_not_proven|human_decision_required\" Lattice-Parallel-Development-Capability.md",
+          "result": "pass",
+          "note": "Document includes fail-closed handling for false DONE, schema drift, host self-certification, stale evidence, ownership conflicts, lower-layer proof gaps, and human-only decisions.",
+          "headHash": "ccd0529261cebb764a606da3cc50941d4ee2623c",
+          "materialHash": "8a7c906c87e38df977b1874091f4f1798be672f873f16353d97d27841066d66a",
+          "timestamp": "2026-06-09T20:48:33.445Z"
+        }
+      ]
     }
   ]
 }
