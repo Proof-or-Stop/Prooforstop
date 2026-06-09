@@ -9,9 +9,9 @@
         "docs/requirements/decisions/testing-completeness.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-09T19:14:50.594Z",
-      "endTime": null,
+      "endTime": "2026-06-09T19:16:17.379Z",
       "userSees": "用户打开文档时看到标题 \"Lattice Engineering Baseline Execution Plan\"，并看到表格列出 ENG-MULTI-FILE-1 到 ENG-LOOP-REVIEW-1 的 inputs、required artifacts、pass criteria、fail criteria。",
       "files": {
         "modify": [],
@@ -39,7 +39,42 @@
             "type": "docs"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "Lattice-Engineering-baseline.md",
+          "command": "rg -n \"ENG-MULTI-FILE-1|ENG-LOOP-REVIEW-1|false_done_count|Forbidden wording\" Lattice-Engineering-baseline.md && git diff --check -- Lattice-Engineering-baseline.md",
+          "result": "pass",
+          "note": "Engineering document includes the ENG baseline matrix, required pass/fail language, false DONE gate, and prohibited wording section.",
+          "headHash": "3736522c0cb3951193341270bf4a38c98e307546",
+          "materialHash": "7930699c8bcca249e561f98212f2e37b429e876f890e8bd27007699392ce2590",
+          "timestamp": "2026-06-09T19:16:17.403Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "Lattice-Engineering-baseline.md",
+          "command": "rg -n \"Depends on: Development Baseline real PASS|does not allow|production-grade unattended\" Lattice-Engineering-baseline.md",
+          "result": "pass",
+          "note": "Document explicitly depends on Development Baseline and forbids claiming production-grade unattended development from this layer.",
+          "headHash": "3736522c0cb3951193341270bf4a38c98e307546",
+          "materialHash": "7930699c8bcca249e561f98212f2e37b429e876f890e8bd27007699392ce2590",
+          "timestamp": "2026-06-09T19:16:17.423Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "Lattice-Engineering-baseline.md",
+          "command": "rg -n \"Forbidden wording|Lattice can develop any project|Lattice is production-ready\" Lattice-Engineering-baseline.md",
+          "result": "pass",
+          "note": "Document includes explicit prohibited claims to prevent arbitrary-project or production-ready overclaim.",
+          "headHash": "3736522c0cb3951193341270bf4a38c98e307546",
+          "materialHash": "7930699c8bcca249e561f98212f2e37b429e876f890e8bd27007699392ce2590",
+          "timestamp": "2026-06-09T19:16:17.445Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
