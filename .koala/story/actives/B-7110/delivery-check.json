@@ -1,0 +1,28 @@
+{
+  "storyId": "B-7110",
+  "checkedAt": "2026-06-09T21:59:42.840Z",
+  "reviewRound": "2026-06-09T21:51:42.725Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "Lattice-Parallel-Development-Capability.md",
+      "promise": "The doc records Parallel Wave as read-only planning, Parallel Development as execution coordination over a frozen Wave snapshot, projection-only outputs as non-binding, and the schema marker distinction between create and inspect/plan surfaces.",
+      "status": "verified",
+      "verifiedBy": "grep + transcript",
+      "evidence": "Lattice-Parallel-Development-Capability.md:121-205 adds the Parallel Wave Integration section; .koala/story/actives/B-7110/evidence/transcript-diff.md and .koala/story/actives/B-7110/test-evidence.json both confirm the intended boundary and schema-marker behavior."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "sed -n \"121,205p\" Lattice-Parallel-Development-Capability.md shows the new Parallel Wave Integration section with the read-only boundary, frozen snapshot rule, projection-only non-binding surfaces, and schema marker rule; lattice parallel_wave_create --format=json reports schemaVersion/generatedAt and a fullEnvelope containing storyRefs, hostCandidates, evidenceRefs, mergeOrder, and authority, with authority.productionDone=false and authority.authorityChanged=false; lattice validate --story=B-7110 --json returned PASS."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery check is backed by doc diff, transcript diff, and PASS validation evidence."
+  },
+  "_hash": "be7a2652aefed4acd4e20ed894bf6636710db2ea6fd10d3ed645f1205ce55e4f"
+}
