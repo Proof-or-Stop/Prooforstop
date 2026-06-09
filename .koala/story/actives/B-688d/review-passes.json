@@ -116,6 +116,15 @@
       "reviewRound": "2026-06-09T23:40:30.598Z",
       "reviewRunId": "B-688d:RR-026",
       "_hash": "bee0b1a5cd0357357f96504cc3431c3bdd4852bae4ae2160cf81d46257b36c80"
+    },
+    {
+      "id": "B-688d:RP-014",
+      "agent": "koala-review-concept",
+      "note": "Concept review pass: Codex adapter repair (lattice-scope-pretool.cjs) correctly implements fail-open/fail-closed semantics; lattice.json declares proper adapter metadata; bin/lattice-codex.js env cascade and fail-closed fallback are sound; verify_codex 7/8 pass (codex-native-hooks pass, global-fallback-heartbeat warn is soft/non-hard); parallel-development logic correctly blocks at GO-NOT-YET with authorityMode=off, 4 active claim locks, and no false authority escalation. No conceptual blocker.",
+      "createdAt": "2026-06-09T23:42:55.742Z",
+      "reviewRound": "2026-06-09T23:40:30.598Z",
+      "reviewRunId": "B-688d:RR-022",
+      "_hash": "b39b4bc552c2dba0fbfe71aa34515481e3e09c24df2aeaa3538f83886077676b"
     }
   ]
 }
