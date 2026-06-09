@@ -1,0 +1,33 @@
+{
+  "task": "执行 Baseline 2-5 并行开发前置协调审计",
+  "outcome": "用户看到 B-688d 的最终报告后，能明确知道：Layer 1 formal proof 是否成立；Baseline 2-5 是否可以开始 2-host/8-agent 并行开发；若不能开始，具体 blockedReason、缺失证据和下一步是什么。",
+  "facts": [
+    "用户要求使用 2 个宿主类别：Claude CLI 与 Codex CLI，采用多 Agent 开发并符合 Lattice host-neutral 思想。",
+    "当前 Codex app shell 不在 tmux 内，因此 tmux-based omx team 不能安全启动；本机 claude、codex、omx、tmux 命令均存在。",
+    "Lattice-Parallel-Development-Capability.md 已定义 Baseline 2-5 前置计划、host/agent 分工、authority mode 和 sequential proof lock。",
+    "baseline_run 支持六个 Development Baseline 最小 suite 的 local/off 审计输入。",
+    "baseline_suite_report 可以聚合 final-report 并判定 minimumSuite、falseDoneCount 和 review evidence 缺口。",
+    "Parallel dispatch/report surfaces 是 L0/read-only projection，不产生 authority 或 lifecycle mutation。",
+    "本次只修真实 correctness issue：Layer 1 proof 状态、共享契约一致性、dispatch 包是否可审计；不做任意优化或扩大 scope。"
+  ],
+  "constraints": [
+    "不把 local/off 或 shadow evidence 写成 production authority。",
+    "不启动 Baseline 2-5 实际实现，除非前置审计给出可启动的明确 GO。",
+    "不为了优化而优化；只修正真实 correctness gap。",
+    "逻辑必须一致：authorityMode/evidenceClass/final-report/claim-lock/merge-queue 使用同一套字段。",
+    "尽量使用 host-neutral 证据：Claude CLI 和 Codex CLI 都只能提供独立意见或执行记录，不能单独自证权威。",
+    "不直接读写 docs/story 或 tests/fixtures；story 元数据和 evidence 通过 lattice 命令。"
+  ],
+  "unknowns": [
+    "baseline_run 产出的最小 suite 是否已经具备 independent local review evidence。",
+    "host_probe 对 claude-code/codex 的当前可用性和 degradations 如何呈现。",
+    "最终结果是 GO、GO-NOT-YET 还是 BLOCKED，需要由真实命令结果决定。"
+  ],
+  "touchpoints": [
+    ".omx/artifacts/baseline/B-688d/",
+    ".omx/artifacts/parallel-development/B-688d/",
+    ".omx/artifacts/claude-baseline-audit-B-688d.md",
+    ".omx/artifacts/claude-dispatch-review-B-688d.md"
+  ],
+  "timestamp": "2026-06-09T22:57:29.097Z"
+}

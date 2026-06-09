@@ -8,9 +8,124 @@
         "Lattice-Parallel-Development-Capability.md",
         "Lattice-Capability-Claim-baseline.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-09T23:14:52.301Z",
+      "userSees": "User sees \"Layer 1 formalProofStatus\" with PASS/BLOCKED, exact missingEvidence, and the resulting Baseline 2-5 startDecision in the B-688d final report.",
+      "files": {
+        "modify": [],
+        "create": [
+          ".omx/artifacts/baseline/B-688d/",
+          ".omx/artifacts/baseline/B-688d/development/"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run baseline_run on the local/off baseline set and show the command succeeds while explicitly labeling runner support versus independent proof.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Generate baseline_suite_report from the same material hash and confirm it reports the formal proof status separately from raw runner availability.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A baseline suite may execute successfully even when independent review evidence is absent; the report must still classify the result as blocked or not-authorized instead of PASS.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "If evidence is stale, local-only, or from a shadow runner, the report must preserve the missing or insufficient-proof reason instead of collapsing it into a formal pass.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Reject any false Layer 1 PASS that is inferred from runner support alone when no independent proof exists.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Reject any report text that upgrades local/off evidence into a production-formal proof claim.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "blocked_classified",
+          "command": "lattice baseline_run --baselineId=<six Development IDs> --authorityMode non-authority --outputRoot .omx/artifacts/baseline/B-688d/development",
+          "result": "pass",
+          "note": "Six local/non-authority baseline runs were captured under .omx/artifacts/baseline/B-688d/development; runner support exists but five expected-PASS runs remain FAIL because localReviewCertified evidence is absent.",
+          "headHash": "ca8b67c8913a04d70200c3c092dcedb9c302c508",
+          "materialHash": "a4cb9a4663d458d1fab51ad1a2886508f88b6a44321481cd2dd899117037e399",
+          "timestamp": "2026-06-09T23:40:19.990Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "blocked_classified",
+          "command": "lattice baseline_suite_report --reports .omx/artifacts/baseline/B-688d/development --outputDir .omx/artifacts/baseline/B-688d",
+          "result": "pass",
+          "note": "baseline-suite-report.json reports minimumSuite.satisfied=true, suiteStatus=FAIL, falseDoneCount=0, safetySuccessRate=1, and overall correctness-protected success rate 0.166667.",
+          "headHash": "ca8b67c8913a04d70200c3c092dcedb9c302c508",
+          "materialHash": "a4cb9a4663d458d1fab51ad1a2886508f88b6a44321481cd2dd899117037e399",
+          "timestamp": "2026-06-09T23:40:19.990Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "blocked_classified",
+          "command": "jq . .omx/artifacts/baseline/B-688d/baseline-suite-report.json",
+          "result": "pass",
+          "note": "The report preserves that valid runner execution is not formal proof: five runs are blocked by missing independent local review evidence.",
+          "headHash": "ca8b67c8913a04d70200c3c092dcedb9c302c508",
+          "materialHash": "a4cb9a4663d458d1fab51ad1a2886508f88b6a44321481cd2dd899117037e399",
+          "timestamp": "2026-06-09T23:40:19.990Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "verdict": "blocked_classified",
+          "command": "jq .runs[].local .omx/artifacts/baseline/B-688d/baseline-suite-report.json",
+          "result": "pass",
+          "note": "All runs preserve non-authority/local status with localReviewCertified=false and authorityServerContact=false, so stale/local/shadow evidence is not upgraded.",
+          "headHash": "ca8b67c8913a04d70200c3c092dcedb9c302c508",
+          "materialHash": "a4cb9a4663d458d1fab51ad1a2886508f88b6a44321481cd2dd899117037e399",
+          "timestamp": "2026-06-09T23:40:19.990Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node artifact consistency check: validates decision=GO-NOT-YET, canonical hosts codex/claude-code, 8 lanes, required lane fields, shared evidence sha refs, 4 active locks, and no authority claim",
+          "result": "pass",
+          "note": "Consistency script rejects false Layer 1 PASS by asserting final decision GO-NOT-YET and suiteStatus FAIL while keeping safety EXPECTED_BLOCK separate.",
+          "headHash": "ca8b67c8913a04d70200c3c092dcedb9c302c508",
+          "materialHash": "a4cb9a4663d458d1fab51ad1a2886508f88b6a44321481cd2dd899117037e399",
+          "timestamp": "2026-06-09T23:40:19.991Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "jq .authorityBoundary .omx/artifacts/parallel-development/B-688d/final-report.json",
+          "result": "pass",
+          "note": "Final report records authorityMode=off, evidenceClass=local-lifecycle, receiptVerified=false, productionDone=false, and no receiptRefs.",
+          "headHash": "ca8b67c8913a04d70200c3c092dcedb9c302c508",
+          "materialHash": "a4cb9a4663d458d1fab51ad1a2886508f88b6a44321481cd2dd899117037e399",
+          "timestamp": "2026-06-09T23:40:19.991Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -21,9 +136,127 @@
         "docs/requirements/decisions/authority-client-role.md",
         "docs/requirements/decisions/lattice-parallel-wave.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-09T23:14:52.670Z",
+      "userSees": "User sees \"sharedContractVersion: baseline-parallel-v1\" plus frozen authorityMode/evidenceClass/final-report/merge-queue/claim-lock schemas in .omx/artifacts/parallel-development/B-688d/.",
+      "files": {
+        "modify": [],
+        "create": [
+          ".omx/artifacts/parallel-development/B-688d/",
+          ".omx/artifacts/parallel-development/B-688d/shared-contract.json",
+          ".omx/artifacts/parallel-development/B-688d/ownership-map.json",
+          ".omx/artifacts/parallel-development/B-688d/merge-queue.json",
+          ".omx/artifacts/parallel-development/B-688d/claim-lock-status.json"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Verify the shared-contract, ownership-map, merge-queue, and claim-lock artifacts all freeze the same runId, materialHash, evidenceRef, and report field set.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Confirm authorityMode and evidenceClass remain consistent across every frozen artifact and that no workstream adds custom schema fields.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A partial artifact update must be detected if any frozen field diverges or any non-authority projection omits a required field.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "The contract must tolerate read-only projections without granting authority, while still preserving the canonical field names and values.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Reject any local evidence that claims production authority or receipt-backed authority without the canonical authority fields proving it.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Reject any attempt to smuggle workstream-specific schema into the frozen shared contract by renaming or expanding authority-related fields.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node artifact consistency check: validates decision=GO-NOT-YET, canonical hosts codex/claude-code, 8 lanes, required lane fields, shared evidence sha refs, 4 active locks, and no authority claim",
+          "result": "pass",
+          "note": "Shared-contract, ownership-map, merge-queue, and claim-lock-status now carry the same contractVersion, authorityMode, evidenceClass, materialHash, and evidenceRefs.",
+          "headHash": "ca8b67c8913a04d70200c3c092dcedb9c302c508",
+          "materialHash": "a4cb9a4663d458d1fab51ad1a2886508f88b6a44321481cd2dd899117037e399",
+          "timestamp": "2026-06-09T23:40:19.991Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "jq . .omx/artifacts/parallel-development/B-688d/{shared-contract,ownership-map,merge-queue,claim-lock-status}.json",
+          "result": "pass",
+          "note": "Frozen artifacts keep authorityMode=off and evidenceClass=local-lifecycle; workstream lanes reference canonical schema fields rather than local schema variants.",
+          "headHash": "ca8b67c8913a04d70200c3c092dcedb9c302c508",
+          "materialHash": "a4cb9a4663d458d1fab51ad1a2886508f88b6a44321481cd2dd899117037e399",
+          "timestamp": "2026-06-09T23:40:19.991Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node artifact consistency check: validates decision=GO-NOT-YET, canonical hosts codex/claude-code, 8 lanes, required lane fields, shared evidence sha refs, 4 active locks, and no authority claim",
+          "result": "pass",
+          "note": "The script verifies every shared evidenceRef path exists and sha256 matches, detecting partial artifact drift.",
+          "headHash": "ca8b67c8913a04d70200c3c092dcedb9c302c508",
+          "materialHash": "a4cb9a4663d458d1fab51ad1a2886508f88b6a44321481cd2dd899117037e399",
+          "timestamp": "2026-06-09T23:40:19.991Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "jq .evidenceRefs .omx/artifacts/parallel-development/B-688d/ownership-map.json .omx/artifacts/parallel-development/B-688d/merge-queue.json .omx/artifacts/parallel-development/B-688d/claim-lock-status.json",
+          "result": "pass",
+          "note": "Read-only/non-authority projections preserve canonical evidence fields without granting authority.",
+          "headHash": "ca8b67c8913a04d70200c3c092dcedb9c302c508",
+          "materialHash": "a4cb9a4663d458d1fab51ad1a2886508f88b6a44321481cd2dd899117037e399",
+          "timestamp": "2026-06-09T23:40:19.991Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "jq .claims .omx/artifacts/parallel-development/B-688d/claim-lock-status.json",
+          "result": "pass",
+          "note": "Claim locks keep l2PlusClaimed=false, productionAuthorityClaimed=false, receiptBackedAuthorityClaimed=false, and fullAuthorityDoneClaimed=false.",
+          "headHash": "ca8b67c8913a04d70200c3c092dcedb9c302c508",
+          "materialHash": "a4cb9a4663d458d1fab51ad1a2886508f88b6a44321481cd2dd899117037e399",
+          "timestamp": "2026-06-09T23:40:19.991Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "jq .schemaDefinition .omx/artifacts/parallel-development/B-688d/dispatch-audit.json",
+          "result": "pass",
+          "note": "Dispatch schemaDefinition freezes required fields and canonical host ids, rejecting workstream-specific renames or schema expansion for authority fields.",
+          "headHash": "ca8b67c8913a04d70200c3c092dcedb9c302c508",
+          "materialHash": "a4cb9a4663d458d1fab51ad1a2886508f88b6a44321481cd2dd899117037e399",
+          "timestamp": "2026-06-09T23:40:19.991Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -32,9 +265,129 @@
       "relatedDocs": [
         "Lattice-Parallel-Development-Capability.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-09T23:14:53.032Z",
+      "userSees": "User sees \"dispatchDecision\" with GO/GO-NOT-YET/BLOCKED plus exact Codex CLI and Claude CLI lane assignments, ownedPaths/readOnlyPaths, stop conditions, and sequentialProofLock.",
+      "files": {
+        "modify": [],
+        "create": [
+          ".omx/artifacts/parallel-development/B-688d/dispatch-audit.json",
+          ".omx/artifacts/parallel-development/B-688d/host-probes.json",
+          ".omx/artifacts/parallel-development/B-688d/final-report.json",
+          ".omx/artifacts/parallel-development/B-688d/final-report.md",
+          ".omx/artifacts/claude-baseline-audit-B-688d.md",
+          ".omx/artifacts/claude-dispatch-review-B-688d.md",
+          ".omx/artifacts/claude-scope-check-B-688d-20260609T230010Z.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Produce a 2-host/8-agent dispatch audit with four Codex CLI lanes and four Claude CLI lanes, including implementer and opposite-host reviewer roles.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Show host-neutral boundaries via ownedPaths, readOnlyPaths, mode, allowed outputs, stop conditions, and sequential proof lock for every lane.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If one host is degraded or unavailable, the dispatch package must preserve the same boundaries and stop conditions instead of rebalancing ownership or optimizing for speed.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "The audit should remain valid even when a lane is read-only only; it must not convert a reviewer lane into an implementer lane.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Block any dispatch package that launches work before the required proof exists or before the sequential proof lock is satisfied.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Reject arbitrary optimization, lane collapsing, or scope expansion that tries to make the package look more productive than the proof actually supports.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "lattice host_probe --host=codex --format=json; lattice host_probe --host=claude-code --format=json; jq '.lanes | {total:length, implementers: map(select(.role==\"implementer\")) | length, reviewers: map(select(.role==\"reviewer\")) | length, hosts: map(.host) | unique}' .omx/artifacts/parallel-development/B-688d/dispatch-audit.json",
+          "result": "pass",
+          "note": "Covers the full 2-host/8-agent dispatch audit directly: canonical hosts codex and claude-code are probed without fallback, dispatch-audit.json has exactly 8 lanes, 4 implementers, 4 opposite-host reviewers, and reviewer lanes declare oppositeOf.",
+          "headHash": "ca8b67c8913a04d70200c3c092dcedb9c302c508",
+          "materialHash": "a4cb9a4663d458d1fab51ad1a2886508f88b6a44321481cd2dd899117037e399",
+          "timestamp": "2026-06-09T23:40:19.991Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node artifact consistency check: validates decision=GO-NOT-YET, canonical hosts codex/claude-code, 8 lanes, required lane fields, shared evidence sha refs, 4 active locks, and no authority claim",
+          "result": "pass",
+          "note": "dispatch-audit.json contains exactly 8 lanes: 4 implementers and 4 opposite-host reviewers, each with ownedPaths/readOnlyPaths/mode/allowedOutputs/stopConditions/sequentialProofLock.",
+          "headHash": "ca8b67c8913a04d70200c3c092dcedb9c302c508",
+          "materialHash": "a4cb9a4663d458d1fab51ad1a2886508f88b6a44321481cd2dd899117037e399",
+          "timestamp": "2026-06-09T23:40:19.991Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "jq .failClosedPolicy .omx/artifacts/parallel-development/B-688d/dispatch-audit.json",
+          "result": "pass",
+          "note": "Missing host, missing review, missing receipt, and higher layer without lower pass all fail closed to BLOCKED rather than rebalancing or optimizing ownership.",
+          "headHash": "ca8b67c8913a04d70200c3c092dcedb9c302c508",
+          "materialHash": "a4cb9a4663d458d1fab51ad1a2886508f88b6a44321481cd2dd899117037e399",
+          "timestamp": "2026-06-09T23:40:19.991Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "jq .lanes .omx/artifacts/parallel-development/B-688d/dispatch-audit.json",
+          "result": "pass",
+          "note": "Reviewer lanes remain audit_only/not_authorized and are not converted into implementer lanes.",
+          "headHash": "ca8b67c8913a04d70200c3c092dcedb9c302c508",
+          "materialHash": "a4cb9a4663d458d1fab51ad1a2886508f88b6a44321481cd2dd899117037e399",
+          "timestamp": "2026-06-09T23:40:19.991Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "blocked_classified",
+          "command": "jq .dispatchDecision .omx/artifacts/parallel-development/B-688d/final-report.json",
+          "result": "pass",
+          "note": "Dispatch is blocked as GO-NOT-YET until Layer 1 formal proof and independent evidence exist; sequential proof locks remain active.",
+          "headHash": "ca8b67c8913a04d70200c3c092dcedb9c302c508",
+          "materialHash": "a4cb9a4663d458d1fab51ad1a2886508f88b6a44321481cd2dd899117037e399",
+          "timestamp": "2026-06-09T23:40:19.991Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node artifact consistency check: validates decision=GO-NOT-YET, canonical hosts codex/claude-code, 8 lanes, required lane fields, shared evidence sha refs, 4 active locks, and no authority claim",
+          "result": "pass",
+          "note": "The dispatch package keeps exactly 2 hosts and 8 lanes, rejecting arbitrary optimization, lane collapse, or scope expansion.",
+          "headHash": "ca8b67c8913a04d70200c3c092dcedb9c302c508",
+          "materialHash": "a4cb9a4663d458d1fab51ad1a2886508f88b6a44321481cd2dd899117037e399",
+          "timestamp": "2026-06-09T23:40:19.991Z"
+        }
+      ]
     }
   ]
 }

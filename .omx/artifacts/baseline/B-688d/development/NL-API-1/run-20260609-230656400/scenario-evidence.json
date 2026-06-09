@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.baseline.scenario-evidence.v1",
+  "baselineId": "NL-API-1",
+  "runId": "run-20260609-230656400",
+  "track": "natural-language",
+  "scenarioProofValid": true,
+  "assertions": {
+    "apiHealthPassed": true,
+    "apiValidationPassed": true,
+    "apiCreatePassed": true
+  },
+  "commands": [
+    {
+      "command": [
+        "/Users/jek/.nvm/versions/node/v22.13.0/bin/node",
+        ".omx/artifacts/baseline/B-688d/development/NL-API-1/run-20260609-230656400/scenario-api.js"
+      ],
+      "exitCode": 0,
+      "stdout": "{\"health\":{\"status\":200,\"body\":{\"ok\":true}},\"invalidCreate\":{\"status\":400,\"body\":{\"error\":\"name is required\"}},\"validCreate\":{\"status\":201,\"body\":{\"id\":\"item-1\",\"name\":\"lattice\"}}}\n",
+      "stderr": ""
+    }
+  ]
+}

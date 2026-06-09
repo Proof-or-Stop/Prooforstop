@@ -1,0 +1,158 @@
+{
+  "schemaVersion": "lattice.parallel-development.dispatch-audit.v1",
+  "storyId": "B-688d",
+  "generatedAt": "2026-06-09T23:07:00Z",
+  "producer": {
+    "artifactPath": ".omx/artifacts/parallel-development/B-688d/dispatch-audit.json",
+    "method": "B-688d DEV audit package from baseline_suite_report, host_probe, and shared-contract artifacts",
+    "inputs": [
+      ".omx/artifacts/baseline/B-688d/baseline-suite-report.json",
+      ".omx/artifacts/parallel-development/B-688d/shared-contract.json",
+      ".omx/artifacts/parallel-development/B-688d/host-probes.json"
+    ]
+  },
+  "schemaDefinition": {
+    "hostCategoryRequiredFields": ["id", "displayName", "binaryName", "version", "available"],
+    "laneRequiredFields": [
+      "laneId",
+      "role",
+      "host",
+      "workstream",
+      "ownedPaths",
+      "readOnlyPaths",
+      "mode",
+      "allowedOutputs",
+      "stopConditions",
+      "sequentialProofLock"
+    ],
+    "hostProfileIds": ["codex", "claude-code"]
+  },
+  "hostCategories": [
+    {
+      "id": "claude-code",
+      "displayName": "Claude CLI (Claude Code)",
+      "binaryName": "claude",
+      "version": "2.1.88",
+      "available": true
+    },
+    {
+      "id": "codex",
+      "displayName": "Codex CLI",
+      "binaryName": "codex",
+      "version": "0.137.0",
+      "available": true
+    }
+  ],
+  "lanes": [
+    {
+      "laneId": "impl-claude-eng",
+      "role": "implementer",
+      "host": "claude-code",
+      "workstream": "engineering-runner",
+      "baselineIds": ["NL-CLI-1", "RED-CLI-TS-PY-1"],
+      "ownedPaths": [".omx/artifacts/parallel-development/B-688d/engineering-runner/"],
+      "readOnlyPaths": ["docs/requirements/", "CLAUDE.md"],
+      "mode": "not_authorized",
+      "allowedOutputs": ["engineering-runner artifacts", "baseline run evidence"],
+      "stopConditions": ["GO-NOT-YET: Layer 1 formal proof is missing", "baseline FAIL without review evidence", "host unavailable"],
+      "sequentialProofLock": "layer-1-must-pass-before-layer-2"
+    },
+    {
+      "laneId": "impl-claude-loop",
+      "role": "implementer",
+      "host": "claude-code",
+      "workstream": "loop-engine",
+      "baselineIds": ["NL-API-1", "RED-API-TS-GO-1"],
+      "ownedPaths": [".omx/artifacts/parallel-development/B-688d/loop-engine/"],
+      "readOnlyPaths": ["docs/requirements/", "CLAUDE.md"],
+      "mode": "not_authorized",
+      "allowedOutputs": ["loop-engine artifacts", "baseline run evidence"],
+      "stopConditions": ["GO-NOT-YET: Layer 1 formal proof is missing", "baseline FAIL without review evidence", "host unavailable"],
+      "sequentialProofLock": "layer-1-must-pass-before-layer-2"
+    },
+    {
+      "laneId": "impl-codex-safety",
+      "role": "implementer",
+      "host": "codex",
+      "workstream": "production-safety",
+      "baselineIds": ["RED-GAP-BLOCK-1"],
+      "ownedPaths": [".omx/artifacts/parallel-development/B-688d/production-safety/"],
+      "readOnlyPaths": ["docs/requirements/", "CLAUDE.md"],
+      "mode": "not_authorized",
+      "allowedOutputs": ["safety block evidence", "gap-block artifacts"],
+      "stopConditions": ["GO-NOT-YET: Layer 1 formal proof is missing", "expected block not triggered", "host unavailable"],
+      "sequentialProofLock": "layer-1-must-pass-before-layer-2"
+    },
+    {
+      "laneId": "impl-codex-claim",
+      "role": "implementer",
+      "host": "codex",
+      "workstream": "claim-evaluator",
+      "baselineIds": ["NL-REPAIR-1"],
+      "ownedPaths": [".omx/artifacts/parallel-development/B-688d/claim-evaluator/"],
+      "readOnlyPaths": ["docs/requirements/", "CLAUDE.md"],
+      "mode": "not_authorized",
+      "allowedOutputs": ["claim evaluation drafts"],
+      "stopConditions": ["GO-NOT-YET: Layer 1 formal proof is missing", "layer-1 not yet passed", "host unavailable"],
+      "sequentialProofLock": "layer-1-must-pass-before-layer-2"
+    },
+    {
+      "laneId": "review-codex-eng",
+      "role": "reviewer",
+      "host": "codex",
+      "workstream": "engineering-runner",
+      "oppositeOf": "impl-claude-eng",
+      "ownedPaths": [".omx/artifacts/parallel-development/B-688d/reviews/codex-eng/"],
+      "readOnlyPaths": [".omx/artifacts/parallel-development/B-688d/engineering-runner/"],
+      "mode": "audit_only",
+      "allowedOutputs": ["review findings", "localReviewCertified assertion"],
+      "stopConditions": ["implementer lane not complete", "host unavailable"],
+      "sequentialProofLock": "layer-1-must-pass-before-layer-2"
+    },
+    {
+      "laneId": "review-codex-loop",
+      "role": "reviewer",
+      "host": "codex",
+      "workstream": "loop-engine",
+      "oppositeOf": "impl-claude-loop",
+      "ownedPaths": [".omx/artifacts/parallel-development/B-688d/reviews/codex-loop/"],
+      "readOnlyPaths": [".omx/artifacts/parallel-development/B-688d/loop-engine/"],
+      "mode": "audit_only",
+      "allowedOutputs": ["review findings", "localReviewCertified assertion"],
+      "stopConditions": ["implementer lane not complete", "host unavailable"],
+      "sequentialProofLock": "layer-1-must-pass-before-layer-2"
+    },
+    {
+      "laneId": "review-claude-safety",
+      "role": "reviewer",
+      "host": "claude-code",
+      "workstream": "production-safety",
+      "oppositeOf": "impl-codex-safety",
+      "ownedPaths": [".omx/artifacts/parallel-development/B-688d/reviews/claude-safety/"],
+      "readOnlyPaths": [".omx/artifacts/parallel-development/B-688d/production-safety/"],
+      "mode": "audit_only",
+      "allowedOutputs": ["review findings", "localReviewCertified assertion"],
+      "stopConditions": ["implementer lane not complete", "host unavailable"],
+      "sequentialProofLock": "layer-1-must-pass-before-layer-2"
+    },
+    {
+      "laneId": "review-claude-claim",
+      "role": "reviewer",
+      "host": "claude-code",
+      "workstream": "claim-evaluator",
+      "oppositeOf": "impl-codex-claim",
+      "ownedPaths": [".omx/artifacts/parallel-development/B-688d/reviews/claude-claim/"],
+      "readOnlyPaths": [".omx/artifacts/parallel-development/B-688d/claim-evaluator/"],
+      "mode": "not_authorized",
+      "allowedOutputs": ["review findings"],
+      "stopConditions": ["layer-1 not yet passed", "implementer lane not complete", "host unavailable"],
+      "sequentialProofLock": "layer-1-must-pass-before-layer-2"
+    }
+  ],
+  "failClosedPolicy": {
+    "missingHost": "BLOCKED — lane cannot execute if host binary is unavailable",
+    "missingReview": "BLOCKED — no localReviewCertified without independent review artifact",
+    "missingReceipt": "BLOCKED — no receipt-backed authority without verified receipt",
+    "higherLayerWithoutLowerPass": "BLOCKED — L2+ lanes stay shadow/audit_only/not_authorized until Layer 1 formal proof passes"
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "lattice.parallel-development.final-report.v1",
+  "contractVersion": "baseline-parallel-v1",
+  "storyId": "B-688d",
+  "generatedAt": "2026-06-09T23:07:00Z",
+  "decision": "GO-NOT-YET",
+  "dispatchDecision": "GO-NOT-YET",
+  "producer": {
+    "artifactPath": ".omx/artifacts/parallel-development/B-688d/final-report.json",
+    "method": "B-688d DEV coordinator audit after Claude CLI implementer and Codex/Lattice host probe checks",
+    "inputs": [
+      ".omx/artifacts/baseline/B-688d/baseline-suite-report.json",
+      ".omx/artifacts/parallel-development/B-688d/shared-contract.json",
+      ".omx/artifacts/parallel-development/B-688d/dispatch-audit.json",
+      ".omx/artifacts/parallel-development/B-688d/host-probes.json",
+      ".omx/artifacts/parallel-development/B-688d/claim-lock-status.json",
+      ".omx/artifacts/claude-scope-check-B-688d-20260609T230010Z.md"
+    ]
+  },
+  "blockedReasons": [
+    "Layer 1 baseline suite status is FAIL: 5/6 runs lack local independent review evidence (only RED-GAP-BLOCK-1 EXPECTED_BLOCK passed)",
+    "Runner source (baseline_run, baseline_suite_report, baselineId) is not locatable in this repository — provided by external Lattice CLI v0.3.5",
+    "No independent local review artifact exists to satisfy localReviewCertified"
+  ],
+  "summary": {
+    "baselineSuiteStatus": "FAIL",
+    "baselineRunsTotal": 6,
+    "baselineRunsPassed": 1,
+    "baselineRunsFailed": 5,
+    "safetySuccessRate": 1.0,
+    "overallCorrectnessProtectedSuccessRate": 0.166667,
+    "authorityMode": "off",
+    "evidenceClass": "local-lifecycle",
+    "hostCount": 2,
+    "hostProfileIds": ["codex", "claude-code"],
+    "laneCount": 8,
+    "runnerSourceLocatable": false
+  },
+  "evidenceRefs": {
+    "baselineSuiteReport": ".omx/artifacts/baseline/B-688d/baseline-suite-report.json",
+    "finalReport": ".omx/artifacts/parallel-development/B-688d/final-report.json",
+    "baselineClaimReport": ".omx/artifacts/claude-baseline-audit-B-688d.md",
+    "dispatchClaimReport": ".omx/artifacts/claude-dispatch-review-B-688d.md",
+    "hostProbes": ".omx/artifacts/parallel-development/B-688d/host-probes.json",
+    "dispatchAudit": ".omx/artifacts/parallel-development/B-688d/dispatch-audit.json",
+    "claimLockStatus": ".omx/artifacts/parallel-development/B-688d/claim-lock-status.json",
+    "scopeAdvisory": ".omx/artifacts/claude-scope-check-B-688d-20260609T230010Z.md"
+  },
+  "authorityBoundary": {
+    "authorityMode": "off",
+    "evidenceClass": "local-lifecycle",
+    "authority": {
+      "receiptVerified": false,
+      "productionDone": false,
+      "authorityChanged": false,
+      "receiptRefs": []
+    }
+  },
+  "claimLockSummary": {
+    "totalLocks": 4,
+    "lockedScopes": ["engineering-runner", "loop-engine", "production-safety", "capability-claim-unlock"],
+    "unlockRequires": "Layer 1 formal proof (≥70% correctness-protected success rate) plus independent opposite-host review evidence for all passing runs"
+  },
+  "nextSteps": [
+    "Obtain independent local review evidence for the 5 failing baseline runs",
+    "Locate or vendor the baseline runner source into this repository",
+    "Re-run baseline suite after review evidence is available"
+  ]
+}

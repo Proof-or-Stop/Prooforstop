@@ -1,0 +1,57 @@
+{
+  "schemaVersion": "lattice.parallel-development.claim-lock-status.v1",
+  "storyId": "B-688d",
+  "generatedAt": "2026-06-09T23:07:00Z",
+  "contractVersion": "baseline-parallel-v1",
+  "authorityMode": "off",
+  "evidenceClass": "local-lifecycle",
+  "materialHash": "sha256:2d260c1521b4ef69364723d167aa66eebac930c332be020e34171460d3ae8848",
+  "evidenceRefs": {
+    "baselineSuiteReport": ".omx/artifacts/baseline/B-688d/baseline-suite-report.json",
+    "finalReport": ".omx/artifacts/parallel-development/B-688d/final-report.json",
+    "baselineClaimReport": ".omx/artifacts/claude-baseline-audit-B-688d.md",
+    "dispatchClaimReport": ".omx/artifacts/claude-dispatch-review-B-688d.md",
+    "hostProbes": ".omx/artifacts/parallel-development/B-688d/host-probes.json",
+    "dispatchAudit": ".omx/artifacts/parallel-development/B-688d/dispatch-audit.json",
+    "claimLockStatus": ".omx/artifacts/parallel-development/B-688d/claim-lock-status.json",
+    "scopeAdvisory": ".omx/artifacts/claude-scope-check-B-688d-20260609T230010Z.md"
+  },
+  "claims": {
+    "l2PlusClaimed": false,
+    "productionAuthorityClaimed": false,
+    "receiptBackedAuthorityClaimed": false,
+    "fullAuthorityDoneClaimed": false
+  },
+  "locks": [
+    {
+      "lockId": "lock-eng-runner",
+      "scope": "engineering-runner",
+      "reason": "Layer 1 baseline runs for engineering workstream (NL-CLI-1, RED-CLI-TS-PY-1) lack local independent review evidence",
+      "requiredEvidence": "opposite-host review artifact with localReviewCertified=true for engineering-runner baseline IDs"
+    },
+    {
+      "lockId": "lock-loop-engine",
+      "scope": "loop-engine",
+      "reason": "Layer 1 baseline runs for loop workstream (NL-API-1, RED-API-TS-GO-1) lack local independent review evidence",
+      "requiredEvidence": "opposite-host review artifact with localReviewCertified=true for loop-engine baseline IDs"
+    },
+    {
+      "lockId": "lock-prod-safety",
+      "scope": "production-safety",
+      "reason": "Production safety baseline (RED-GAP-BLOCK-1) passed expected-block but independent review has not certified the block evidence",
+      "requiredEvidence": "opposite-host review artifact confirming safety block was genuine and not circumvented"
+    },
+    {
+      "lockId": "lock-capability-claims",
+      "scope": "capability-claim-unlock",
+      "reason": "No Layer 1 formal proof exists; all higher-layer capability claims remain locked until Layer 1 suite passes at ≥70% correctness-protected success rate",
+      "requiredEvidence": "Layer 1 baseline suite PASS (≥70% correctness-protected success rate) plus independent review evidence for all passing runs"
+    }
+  ],
+  "authority": {
+    "receiptVerified": false,
+    "productionDone": false,
+    "authorityChanged": false,
+    "receiptRefs": []
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "lattice.baseline.final-report.v1",
+  "baselineId": "NL-REPAIR-1",
+  "runId": "run-20260609-230656891",
+  "track": "natural-language",
+  "expectedOutcome": "PASS",
+  "outcome": "FAIL",
+  "invalidReason": null,
+  "blockedReason": "local independent review evidence is missing",
+  "weight": 3,
+  "authority": {
+    "mode": "non-authority",
+    "authorityDone": false,
+    "receiptVerified": false,
+    "multiHostVerified": false,
+    "fullAuthorityDone": false,
+    "status": "not-applicable"
+  },
+  "local": {
+    "localReviewCertified": false,
+    "authorityServerContact": false,
+    "status": "blocked",
+    "evidenceRefs": [],
+    "requiredIndependentHosts": 2,
+    "independentHosts": 0,
+    "passingIndependentHosts": 0,
+    "failingIndependentHosts": 0,
+    "staleVerdicts": 0,
+    "blockedReason": "local independent review evidence is missing"
+  },
+  "metrics": {
+    "durationSeconds": 0,
+    "retryCount": 1,
+    "repairCount": 1,
+    "evidenceCount": 0,
+    "hostVerdictCount": 0,
+    "reviewWaveCount": 0
+  },
+  "failure": {
+    "code": "terminal_criteria_not_met",
+    "message": "baseline terminal criteria were not satisfied"
+  },
+  "artifacts": {
+    "story": "story.json",
+    "checklist": "checklist.json",
+    "jobPlan": "job-plan.json",
+    "executionLog": "execution-log.jsonl",
+    "evidenceIndex": null,
+    "gateReceipt": null,
+    "hostVerdicts": null,
+    "authorityStatus": null,
+    "localReviewStatus": "local-review-status.json",
+    "scenarioEvidence": "scenario-evidence.json"
+  }
+}

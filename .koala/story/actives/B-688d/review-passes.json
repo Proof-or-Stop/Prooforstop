@@ -1,0 +1,184 @@
+{
+  "passes": [
+    {
+      "id": "B-688d:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "All CHK-001/002/003 verificationIntent entries are covered by concrete verificationEvidence. The blocked_classified evidence is consistent with GO-NOT-YET/fail-closed artifacts: final-report.json shows dispatchDecision=GO-NOT-YET and authorityBoundary off/local-lifecycle, dispatch-audit.json encodes fail-closed BLOCKED stop conditions, and baseline-suite-report.json remains suiteStatus=FAIL with localReviewCertified=false.",
+      "createdAt": "2026-06-09T23:20:29.579Z",
+      "reviewRound": "2026-06-09T23:18:44.418Z",
+      "reviewRunId": "B-688d:RR-009",
+      "_hash": "b7eebf663999e634a497f4fcf648e0aa564f71d593f7f6aadb813a4a3788045e"
+    },
+    {
+      "id": "B-688d:RP-002",
+      "agent": "koala-review-concept",
+      "note": "Concept review passed: final-report, shared-contract, dispatch-audit, claim-lock-status, host-probes, and baseline-suite artifacts stay internally consistent, keep codex and claude-code host treatment symmetric, fail closed on missing independent review or authority evidence, and preserve GO-NOT-YET without upgrading local runner evidence into Layer 1 or production capability claims.",
+      "createdAt": "2026-06-09T23:22:11.978Z",
+      "reviewRound": "2026-06-09T23:18:44.418Z",
+      "reviewRunId": "B-688d:RR-011",
+      "_hash": "df12a1d96c17c87856abc378a47f4c40ac47f300fb682e56dd4be100b9a9a98f"
+    },
+    {
+      "id": "B-688d:RP-003",
+      "agent": "koala-review-docs",
+      "note": "Docs review pass: all 10 SHA256 hashes in shared-contract.json match on-disk files; materialHash consistent across 4 contract artifacts; decision GO-NOT-YET consistent across final-report.json/.md, dispatch-review.md, scope-check advisory; authorityMode=off + evidenceClass=local-lifecycle consistent across 7 artifacts; baseline counts 6/1/5 and rates 16.67%/100% consistent across 5 reports; 4 claim locks consistent; host profiles codex+claude-code consistent; 8 lanes verified; contractVersion baseline-parallel-v1 everywhere; headHash 7c1b412a is real commit; no false claims; no doc drift.",
+      "createdAt": "2026-06-09T23:22:17.563Z",
+      "reviewRound": "2026-06-09T23:18:44.418Z",
+      "reviewRunId": "B-688d:RR-010",
+      "_hash": "00dbe0b0e8f9f6075b6619677149f737cfc48c7a23cb8364055517e4d243e76e"
+    },
+    {
+      "id": "B-688d:RP-004",
+      "agent": "koala-review-quality",
+      "note": "Quality review pass: all 40+ JSON files valid, 10/10 SHA256 evidence refs in shared-contract.json verified against actual files, authorityMode/evidenceClass/contractVersion consistent across all 5 parallel-development artifacts, 4 claim locks active with all claims false and decision GO-NOT-YET, zero source/doc scope creep (all changes in .omx/ and .koala/ only), dispatch-audit has exactly 8 lanes (4 impl + 4 reviewer) with all required fields present and no reviewer-to-implementer mode escalation, no false authority claims.",
+      "createdAt": "2026-06-09T23:23:08.035Z",
+      "reviewRound": "2026-06-09T23:18:44.418Z",
+      "reviewRunId": "B-688d:RR-012",
+      "_hash": "a72f36eb448a7275ed25134fb29a9c5a2cbc759d34a13d0f6bcaa7751424579d"
+    },
+    {
+      "id": "B-688d:RP-005",
+      "agent": "koala-review-concept",
+      "note": "Concept PASS: final-report answers the product question with GO-NOT-YET, distinguishes runner support from formal proof, keeps blocked reasons actionable, and makes no authority or L2+ overclaim.",
+      "createdAt": "2026-06-09T23:27:46.226Z",
+      "reviewRound": "2026-06-09T23:27:15.488Z",
+      "reviewRunId": "B-688d:RR-015",
+      "_hash": "9b9256a31b33493f027fa03355b9e4cb11499c8c4d2e18e680db53b0ba0a513d"
+    },
+    {
+      "id": "B-688d:RP-006",
+      "agent": "koala-review-quality",
+      "note": "Quality PASS: Codex CLI read-only audit found no real correctness defects; canonical host ids are codex/claude-code, baseline counts match final report, claim locks remain active, shared-contract hashes match referenced artifacts, and no arbitrary optimization or false done claim is present.",
+      "createdAt": "2026-06-09T23:27:46.615Z",
+      "reviewRound": "2026-06-09T23:27:15.488Z",
+      "reviewRunId": "B-688d:RR-016",
+      "_hash": "cf76a9dc4c0978cf2b4df808615c764f83853452da70da669f111c641f1d1946"
+    },
+    {
+      "id": "B-688d:RP-007",
+      "agent": "koala-review-test-coverage",
+      "note": "Test-coverage PASS: all verificationIntent refs are covered; prior CHK-003:happy:0 host-only evidence was corrected with direct 2-host/8-agent dispatch evidence, Lattice reports no stale verification evidence, and no false Layer 1 PASS claim remains.",
+      "createdAt": "2026-06-09T23:27:47.002Z",
+      "reviewRound": "2026-06-09T23:27:15.488Z",
+      "reviewRunId": "B-688d:RR-017",
+      "_hash": "d6796af731ff909b7e8279acd76dd11d2804777c5f2c296707c1c90e7d5c480f"
+    },
+    {
+      "id": "B-688d:RP-008",
+      "agent": "koala-review-docs",
+      "note": "Docs PASS: final-report.md, shared-contract.json, and scope advisory consistently describe GO-NOT-YET, authorityMode=off, evidenceClass=local-lifecycle, canonical host ids, claim locks, and next steps without cosmetic-only changes.",
+      "createdAt": "2026-06-09T23:27:47.378Z",
+      "reviewRound": "2026-06-09T23:27:15.488Z",
+      "reviewRunId": "B-688d:RR-018",
+      "_hash": "e48edff7b4ef33744120a96a66bf219bd2ffef56987ea2a41fa0d645193955a3"
+    },
+    {
+      "id": "B-688d:RP-009",
+      "agent": "koala-review-quality",
+      "note": "Quality PASS on latest run: Codex CLI read-only audit found no correctness defects; host ids, baseline/final counts, claim locks, evidence hashes, and authority boundary are consistent.",
+      "createdAt": "2026-06-09T23:28:09.951Z",
+      "reviewRound": "2026-06-09T23:27:15.488Z",
+      "reviewRunId": "B-688d:RR-019",
+      "_hash": "a5ed79dc96a19dd51f334d201e239944cb20a1260611acdd8ab1c2838fc08158"
+    },
+    {
+      "id": "B-688d:RP-010",
+      "agent": "koala-review-docs",
+      "note": "Docs PASS on latest run: final-report.md and audit artifacts consistently state GO-NOT-YET, canonical host ids, local-lifecycle evidence, and active claim locks without authority overclaim.",
+      "createdAt": "2026-06-09T23:28:10.350Z",
+      "reviewRound": "2026-06-09T23:27:15.488Z",
+      "reviewRunId": "B-688d:RR-020",
+      "_hash": "078db3f88e6c6f63c4d35493aa94206e815cb533844ef959d3de6c55073edf85"
+    },
+    {
+      "id": "B-688d:RP-011",
+      "agent": "koala-review-test-coverage",
+      "note": "Test-coverage PASS on latest run: Codex CLI finding about CHK-003:happy:0 was fixed with direct 2-host/8-agent dispatch evidence; all intent refs are covered, Lattice reports no stale verification evidence, and no false Layer 1 PASS claim remains.",
+      "createdAt": "2026-06-09T23:28:28.123Z",
+      "reviewRound": "2026-06-09T23:27:15.488Z",
+      "reviewRunId": "B-688d:RR-021",
+      "_hash": "2d420e14f0f4b14abf4327ecbac94f2154da3e1bc2b3e900501a7714e4bb8d6b"
+    },
+    {
+      "id": "B-688d:RP-012",
+      "agent": "koala-review-test-coverage",
+      "note": "All 3 checklist items have complete verificationIntent coverage, the evidence set is fresh under the current material hash, and verification_evidence_refresh_stale --dryRun reported no stale evidence.",
+      "createdAt": "2026-06-09T23:28:31.636Z",
+      "reviewRound": "2026-06-09T23:27:15.488Z",
+      "reviewRunId": "B-688d:RR-021",
+      "_hash": "43c5df679eccc74185ea4af18bafc51f23aafed5fea1046627368469c4256ba9"
+    },
+    {
+      "id": "B-688d:RP-013",
+      "agent": "koala-review-docs",
+      "note": "Reviewed all touched .md artifacts and referenced docs (Lattice-Parallel-Development-Capability.md, Lattice-Capability-Claim-baseline.md, authority-client-role.md, lattice-parallel-wave.md, Claude implementer artifact). All authority boundary constraints preserved: authorityMode=off, evidenceClass=local-lifecycle, all authority fields false/empty. GO-NOT-YET decision consistent with suite FAIL (5/6 missing review evidence). No doc promise contradicted. Claim locks correctly active. No blocker found.",
+      "createdAt": "2026-06-09T23:42:55.634Z",
+      "reviewRound": "2026-06-09T23:40:30.598Z",
+      "reviewRunId": "B-688d:RR-026",
+      "_hash": "bee0b1a5cd0357357f96504cc3431c3bdd4852bae4ae2160cf81d46257b36c80"
+    },
+    {
+      "id": "B-688d:RP-014",
+      "agent": "koala-review-concept",
+      "note": "Concept review pass: Codex adapter repair (lattice-scope-pretool.cjs) correctly implements fail-open/fail-closed semantics; lattice.json declares proper adapter metadata; bin/lattice-codex.js env cascade and fail-closed fallback are sound; verify_codex 7/8 pass (codex-native-hooks pass, global-fallback-heartbeat warn is soft/non-hard); parallel-development logic correctly blocks at GO-NOT-YET with authorityMode=off, 4 active claim locks, and no false authority escalation. No conceptual blocker.",
+      "createdAt": "2026-06-09T23:42:55.742Z",
+      "reviewRound": "2026-06-09T23:40:30.598Z",
+      "reviewRunId": "B-688d:RR-022",
+      "_hash": "b39b4bc552c2dba0fbfe71aa34515481e3e09c24df2aeaa3538f83886077676b"
+    },
+    {
+      "id": "B-688d:RP-015",
+      "agent": "koala-review-test-coverage",
+      "note": "Test-coverage PASS: 18/18 verificationIntent refs covered by evidence. Evidence headHash ca8b67c8→HEAD 76d495fb diff is koala metadata only (no deliverable drift). Codex adapter repaired at 3277a8b5, subsequent verify_codex passed 7/8 (global-fallback-heartbeat soft warn only). Baseline suite correctly reports suiteStatus=FAIL with falseDoneCount=0 and safetySuccessRate=1, preserving blocked classification for local/non-authority evidence. TEST can be trusted.",
+      "createdAt": "2026-06-09T23:43:05.679Z",
+      "reviewRound": "2026-06-09T23:40:30.598Z",
+      "reviewRunId": "B-688d:RR-025",
+      "_hash": "6e4099c34ed1f6773e55b268e7560714337116de7381f397bff6b8fba5a1dd5c"
+    },
+    {
+      "id": "B-688d:RP-016",
+      "agent": "koala-review-quality",
+      "note": "Quality review pass. Inspected: (1) bin/lattice-codex.js — clean Lattice-branded Codex adapter wrapper, proper error handling with recovery instructions, correct env setup; (2) .Codex/lattice.json — well-structured adapter config parallel to existing koala.json, no drift; (3) All 6 parallel-development artifacts internally consistent: contractVersion=baseline-parallel-v1, authorityMode=off, evidenceClass=local-lifecycle, materialHash aligned; (4) All 10 evidence refs in shared-contract.json verified: files exist and SHA256 hashes match; (5) No false authority claims — decision=GO-NOT-YET, all claim locks active, receiptVerified=false; (6) Baseline suite correctly classifies 5/6 runs as FAIL due to missing independent review evidence. No blocker.",
+      "createdAt": "2026-06-09T23:43:47.581Z",
+      "reviewRound": "2026-06-09T23:40:30.598Z",
+      "reviewRunId": "B-688d:RR-027",
+      "_hash": "d7e5c2b3b9ac4a631d2e55ea5016e417da0d36ca4bb296442471317e1a904daa"
+    },
+    {
+      "id": "B-688d:RP-017",
+      "agent": "koala-review-test-coverage",
+      "note": "18/18 verificationIntent entries covered (0 missing required). All 3 CHK items have full happy/edge/adversarial coverage with appropriate evidence kinds (manual_transcript for CLI runs, logic_test for artifact assertions). Verdicts correctly distinguish blocked_classified (runner support without formal proof) from success. Spot-checked baseline-suite-report.json (suiteStatus=FAIL, minimumSuite.satisfied=true), final-report.json (dispatchDecision=GO-NOT-YET, authorityMode=off), and dispatch-audit.json (8 lanes, failClosedPolicy present). Evidence materialHash consistent. koala validate PASS with e2e suites green. Scope contract acknowledged. No gaps found.",
+      "createdAt": "2026-06-09T23:50:01.047Z",
+      "reviewRound": "2026-06-09T23:48:01.370Z",
+      "reviewRunId": "B-688d:RR-029",
+      "_hash": "6c0c835b7dde0c5270269215644182ed51831c38e862b3cef722d17c2fbd6d77"
+    },
+    {
+      "id": "B-688d:RP-018",
+      "agent": "koala-review-quality",
+      "note": "Quality pass: scope contract minimal, adapter code clean, artifact schema consistent, no false authority claims.",
+      "createdAt": "2026-06-09T23:50:13.558Z",
+      "reviewRound": "2026-06-09T23:48:01.370Z",
+      "reviewRunId": "B-688d:RR-032",
+      "_hash": "36a95b395d9847e732cddf4ba02273494b133797b4feb01fe0edcc3ba38398de"
+    },
+    {
+      "id": "B-688d:RP-019",
+      "agent": "koala-review-concept",
+      "note": "No conceptual blockers. Acknowledged Codex adapter paths (pretool hook, lattice.json manifest, local wrapper) are correctly scoped as gate repair without capability expansion. GO-NOT-YET claim locks are self-consistent with 4 locks preventing capability escalation until independent review evidence exists. Pretool hook fail-closed logic is correct: pass-through when CLI not found (prevents agent trap), block when CLI resolved but errors. Host-neutral architecture preserved with both codex and claude-code probes available.",
+      "createdAt": "2026-06-09T23:50:23.134Z",
+      "reviewRound": "2026-06-09T23:48:01.370Z",
+      "reviewRunId": "B-688d:RR-033",
+      "_hash": "0e0b9d18797460db07d4da60c97803ddf79aba6b47c7242003eea2f842ec4f89"
+    },
+    {
+      "id": "B-688d:RP-020",
+      "agent": "koala-review-docs",
+      "note": "Post scope-contract-acknowledgement docs review: GO-NOT-YET decision consistent across all artifacts (final-report.json/md, shared-contract, claim-lock-status, dispatch-audit, baseline-audit md); no document claims Layer 2-5 can start; all 8 lanes not_authorized; 4 claim locks active; authority off/local-lifecycle everywhere; scope contract acknowledgement for Codex adapter paths explicitly does not expand capability claims; SHA hashes and cross-references internally consistent.",
+      "createdAt": "2026-06-09T23:51:06.298Z",
+      "reviewRound": "2026-06-09T23:48:01.370Z",
+      "reviewRunId": "B-688d:RR-028",
+      "_hash": "7a6c07b195de8deac63675d7dc9835c404d9a7503ed52b0415be23babda1af78"
+    }
+  ]
+}

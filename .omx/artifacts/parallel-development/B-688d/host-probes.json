@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "lattice.parallel-development.host-probes.v1",
+  "storyId": "B-688d",
+  "generatedAt": "2026-06-09T23:07:00Z",
+  "producer": {
+    "artifactPath": ".omx/artifacts/parallel-development/B-688d/host-probes.json",
+    "method": "B-688d DEV host-neutral probe capture",
+    "inputs": [
+      "lattice host_probe --host=codex --format=json",
+      "lattice host_probe --host=claude-code --format=json",
+      "codex --version",
+      "claude --version"
+    ]
+  },
+  "schemaDefinition": {
+    "probeRequiredFields": [
+      "profileId",
+      "displayName",
+      "latticeCommand",
+      "latticeMatchedFallback",
+      "binaryCommand",
+      "binaryOutput",
+      "exitCode",
+      "available"
+    ],
+    "canonicalHostProfileIds": ["codex", "claude-code"]
+  },
+  "probes": {
+    "codex": {
+      "profileId": "codex",
+      "displayName": "Codex CLI",
+      "latticeCommand": "lattice host_probe --host=codex --format=json",
+      "latticeMatchedFallback": false,
+      "binaryCommand": "codex --version",
+      "binaryOutput": "codex-cli 0.137.0",
+      "exitCode": 0,
+      "available": true
+    },
+    "claude-code": {
+      "profileId": "claude-code",
+      "displayName": "Claude CLI (Claude Code)",
+      "latticeCommand": "lattice host_probe --host=claude-code --format=json",
+      "latticeMatchedFallback": false,
+      "binaryCommand": "claude --version",
+      "binaryOutput": "2.1.88 (Claude Code)",
+      "exitCode": 0,
+      "available": true
+    }
+  }
+}
