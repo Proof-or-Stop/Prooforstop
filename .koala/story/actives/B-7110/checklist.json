@@ -1,0 +1,17 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "补充 Parallel Wave Integration 章节",
+      "context": "用户同意采用组合式融合：Parallel Wave 负责只读排兵布阵，Parallel Development 消费 frozen wave snapshot 并添加 ownership、execution state、evidence freshness、merge queue enforcement、sequential proof discipline。文档必须保留 Wave 的 L0/non-authoritative 边界，避免把它描述成执行器或证明来源。",
+      "relatedDocs": [
+        "Lattice-Parallel-Development-Capability.md",
+        "docs/requirements/decisions/lattice-parallel-wave.md",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
