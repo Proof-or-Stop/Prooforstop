@@ -1,0 +1,64 @@
+{
+  "storyId": "B-2a63",
+  "checkedAt": "2026-06-09T02:51:06.603Z",
+  "reviewRound": "2026-06-09T02:41:25.211Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "Lattice-lifecycle-memory-Evolving.md",
+      "promise": "memory_benchmark_real_data 是 real lifecycle artifact export baseline，读取 .koala/activity.jsonl、配置的 storyDir，并兼容 .koala/story/actives、docs/story/actives 与 .koala/dev-memory/experience.jsonl。",
+      "status": "verified",
+      "verifiedBy": "grep + nl",
+      "evidence": "Lattice-lifecycle-memory-Evolving.md:203-204 明确写出 real lifecycle artifact export baseline、.koala/activity.jsonl、storyDir 兼容项与 .koala/dev-memory/experience.jsonl。"
+    },
+    {
+      "docPath": "Lattice-lifecycle-memory-Evolving.md",
+      "promise": "命令可输出 text/json，并在 outputDir 写 corpus.jsonl、gold.jsonl、queries.jsonl、result.json。",
+      "status": "verified",
+      "verifiedBy": "grep + nl",
+      "evidence": "Lattice-lifecycle-memory-Evolving.md:205-218 明确列出 text/json usage 和 outputDir 写出的四个文件。"
+    },
+    {
+      "docPath": "Lattice-lifecycle-memory-Evolving.md",
+      "promise": "命令拒绝写入 lifecycle-managed story paths、fixture paths、existing target file，且 smoke 覆盖大小写变体保护。",
+      "status": "verified",
+      "verifiedBy": "grep + smoke",
+      "evidence": "Lattice-lifecycle-memory-Evolving.md:213-218 写明拒绝 lifecycle-managed story paths / fixture paths / existing target file；packages/main/src/tasks/memory-real-data-benchmark-smoke.ts:275-296 覆盖 docs/story、Docs/story、fixtures、Fixtures、.koala/story 拒绝。"
+    },
+    {
+      "docPath": "Lattice-lifecycle-memory-Evolving.md",
+      "promise": "输出包含 Real Memory Benchmark Data PASS、record counts、exactRecordMatchRate、sourcePath/sourceHash，并标注 non-authoritative boundary。",
+      "status": "verified",
+      "verifiedBy": "result.json + transcript",
+      "evidence": ".lattice/tmp/memory-real-baseline-user-final/result.json 含 verdict=PASS、stats.corpusRecords=495、goldRecords=495、queryRecords=495、resultRecords=495、exactRecordMatchRate=1，以及 note/virtualBenchmarkNote 的 non-authoritative boundary 文案。"
+    },
+    {
+      "docPath": "Lattice-lifecycle-memory-Evolving.md",
+      "promise": "文档明确当前不声称 production retrieval/vector DB/million-candidate harness 已实现。",
+      "status": "verified",
+      "verifiedBy": "grep + nl",
+      "evidence": "Lattice-lifecycle-memory-Evolving.md:71, 118, 183, 185, 232 明确把这些能力排除在当前实现之外，并将 1,000,000 标为 stress-only。"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node bin/koala.js memory_benchmark_real_data --outputDir=.lattice/tmp/memory-real-baseline-user-final --format=text => Real Memory Benchmark Data: PASS；.lattice/tmp/memory-real-baseline-user-final/result.json 显示 corpus/gold/queries/results 均为 495，exactRecordMatchRate=1.000，且 note/virtualBenchmarkNote 明确 non-authoritative boundary。"
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "npm --prefix packages/main run test:memory-real-data-benchmark-smoke 通过，且 smoke 覆盖 docs/story、Docs/story、packages/main/tests/fixtures、Fixtures、.koala/story 的拒写；mixed-case story/fixture 保护已验证。"
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "KOALA_SESSION_ID=sess-real-baseline-data node bin/koala.js validate --story=B-2a63 --json => PASS，10/10 verification intent covered，0 required missing。"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "交付证明是真实生命周期 artifact baseline，不是生产向量召回或百万级 retrieval 证明；real machine 输出、拒写边界和 validate 证据都已对齐。"
+  },
+  "_hash": "86e1b9a4690cb590834de25f89d62a82d2b84385947853c78d7a40ca95eca802"
+}
