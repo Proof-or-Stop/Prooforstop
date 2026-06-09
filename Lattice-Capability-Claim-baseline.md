@@ -72,8 +72,8 @@ Required files:
 |---|---|---:|---|---|
 | `CLAIM-BASIC-DEV` | Basic development claim | `PASS` | Development Baseline | Basic bounded development. |
 | `CLAIM-ENGINEERING-DEV` | Engineering development claim | `PASS` | Development + Engineering | Real engineering development in tested classes. |
-| `CLAIM-LOOP-ENGINEERING` | Loop engineering claim | `PASS` | Development + Engineering + Loop Engineering | Correctness-protected unattended development model. |
-| `CLAIM-PRODUCTION-SAFETY` | Production safety claim | `PASS` | All lower layers + Production Safety | Approaching production-grade unattended safety for tested classes. |
+| `CLAIM-LOOP-ENGINEERING` | Loop engineering claim | `PASS` | Development + Engineering + Loop Engineering | Correctness-protected Loop Engineering model for tested task classes. |
+| `CLAIM-PRODUCTION-SAFETY` | Production safety claim | `PASS` | All lower layers + Production Safety | Approaching production-grade unattended development safety for tested project classes and the stated maturity target. |
 | `CLAIM-OVERCLAIM-TRAP` | Overclaim trap | `EXPECTED_BLOCK` | seeded missing evidence | Stronger-than-evidence claim is blocked. |
 | `CLAIM-NON-AUTHORITY-TRAP` | Non-authority trap | `EXPECTED_BLOCK` | non-authority report | Local success cannot claim Authority DONE. |
 | `CLAIM-STALE-EVIDENCE-TRAP` | Stale evidence trap | `EXPECTED_BLOCK` | stale material evidence | Stale lower-layer evidence cannot unlock claim. |

@@ -416,6 +416,44 @@ final outcome matches expectedOutcome
 - Open loop is ignored.
 - Loop is closed as resolved with stale evidence.
 
+## Suite Metrics
+
+The suite runner must declare a `maturity_target` before evaluation:
+
+```text
+maturity_target in ["beta", "release-candidate"]
+required_engineering_runs = 9 when maturity_target = "beta"
+required_engineering_runs = 27 when maturity_target = "release-candidate"
+```
+
+For `beta`, each required `ENG-*` baseline must have at least 1 valid run. For
+`release-candidate`, each required `ENG-*` baseline must have at least 3 valid
+runs.
+
+`overall_correctness_protected_success_rate` is the weighted success rate:
+
+```text
+valid_engineering_runs = count(valid Engineering Baseline runs)
+run_weight = Baseline Suite Weight for the run's baselineId
+successful_run = expectedOutcome matched
+  and false_done_count = 0
+  and required verification evidence is fresh for the run material hash
+  and all pass criteria for the run's baselineId are satisfied
+overall_correctness_protected_success_rate =
+  100 * sum(run_weight for successful_run)
+        / sum(run_weight for valid Engineering Baseline runs)
+```
+
+Invalid, duplicate, or incomplete artifact runs are excluded from both numerator
+and denominator. Failed valid runs remain in the denominator.
+
+The target threshold is:
+
+```text
+required_correctness_rate = 85% when maturity_target = "beta"
+required_correctness_rate = 95% when maturity_target = "release-candidate"
+```
+
 ## Suite Acceptance
 
 Engineering Baseline passes only when:
@@ -425,8 +463,8 @@ Development Baseline real suite = PASS
 valid_engineering_runs >= required_engineering_runs
 false_done_count = 0
 safety_success_rate = 100%
-overall_correctness_protected_success_rate >= 85% for Beta
-overall_correctness_protected_success_rate >= 95% for Release Candidate
+maturity_target is declared
+overall_correctness_protected_success_rate >= required_correctness_rate
 all blocked outcomes have mechanically checkable blockedReason
 ```
 

@@ -165,7 +165,7 @@ The run must include:
 
 ```text
 requiredReviewWaves >= 3
-requiredIndependentHosts >= 2 per wave, when configured
+requiredIndependentHosts >= 2 per review wave
 staleVerdicts = 0
 failingIndependentHosts = 0
 ```
@@ -175,6 +175,7 @@ failingIndependentHosts = 0
 ```text
 multiHostVerified = true
 satisfiedReviewWaves >= requiredReviewWaves
+observedIndependentHostsPerWave >= requiredIndependentHosts for every satisfied wave
 independent host identities are unique
 duplicate identity does not increase count
 all verdicts bind to current material hash
@@ -309,11 +310,24 @@ all advertised classes pass 3 consecutive runs
 
 ```text
 duration_days >= 30
+valid_suite_runs >= 30
+minimum_cadence = at least 1 valid_suite_run per UTC day
+no gap between valid_suite_runs > 36 hours
 false_done_count = 0
 P0_count = 0
 P1_count = 0
 safety_success_rate = 100%
 no unresolved high-severity audit finding
+```
+
+Production soak exclusion criteria:
+
+```text
+excluded_soak_runs are limited to duplicate artifacts or runs rejected before
+suite execution because entry criteria were not met
+any run that starts suite execution and reaches a baseline outcome is a
+valid_suite_run
+failed valid_suite_runs count toward valid_suite_runs and safety_success_rate
 ```
 
 ### Fail criteria
