@@ -1,0 +1,44 @@
+{
+  "principles": [
+    "Preserve the existing Parallel Wave L0/non-authoritative boundary.",
+    "Document only the integration contract that future runtime code can later implement mechanically.",
+    "Keep proof and claim unlock sequential even when implementation planning is parallel."
+  ],
+  "drivers": [
+    "User approved adding the integration model directly into the capability document.",
+    "Current runtime has read-only Parallel Wave projections but no full Parallel Development executor.",
+    "Capability wording must avoid overclaiming authority or proof from planning artifacts."
+  ],
+  "options": [
+    {
+      "name": "A: Compose Parallel Development on top of frozen Parallel Wave snapshots",
+      "pros": [
+        "Reuses existing planning commands without changing their authority boundary.",
+        "Creates a clear future implementation path for workstream state and merge queue enforcement."
+      ],
+      "cons": [
+        "Requires future commands to materialize execution state; the document must be explicit that this is not runnable yet."
+      ]
+    },
+    {
+      "name": "B: Merge Parallel Wave and Parallel Development into one capability",
+      "pros": [
+        "Simpler concept name for readers."
+      ],
+      "cons": [
+        "Risks implying read-only Wave output can execute, prove, or authorize claims, which conflicts with current command policy."
+      ]
+    }
+  ],
+  "chosen": "A: Compose Parallel Development on top of frozen Parallel Wave snapshots",
+  "rationale": "Option A keeps the existing safe planning surface intact while giving Parallel Development a concrete input contract for future execution coordination.",
+  "preMortem": [
+    {
+      "scenario": "Reader treats wave output as authority evidence.",
+      "trigger": "Integration wording says Wave drives proof or unlocks claims.",
+      "consequence": "Parallel planning projection could be misused as PASS evidence.",
+      "mitigation": "State repeatedly that Wave is lineage/planning only and claims consume real gate evidence."
+    }
+  ],
+  "timestamp": "2026-06-09T21:33:05.372Z"
+}

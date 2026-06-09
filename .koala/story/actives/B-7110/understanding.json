@@ -1,0 +1,20 @@
+{
+  "task": "把 Parallel Wave 与 Parallel Development 的组合式融合写进能力文档。",
+  "outcome": "用户看到 Lattice-Parallel-Development-Capability.md 新增 Parallel Wave Integration 章节，能清楚知道 Wave 只负责只读规划，Parallel Development 消费 frozen snapshot 后再协调执行、证据新鲜度、merge queue 和顺序证明。",
+  "facts": [
+    "Parallel Wave 已有 parallel_wave_create、parallel_plan、parallel_status、parallel_merge_queue、parallel_report 等只读规划投影。",
+    "Parallel Wave 命令是 L0/non-authoritative，不能写 story state、gate evidence、receipt 或 authority。",
+    "Parallel Development 文档当前是能力定义/执行计划，不是已落地执行器。",
+    "用户已同意采用组合式融合，而不是把 Parallel Wave 升级成执行器。"
+  ],
+  "constraints": [
+    "不得把 Wave 输出描述为 PASS、receipt、proof 或 authority evidence。",
+    "必须区分 today-available Parallel Wave planning 和 future Parallel Development execution surfaces。",
+    "文档改动应保持简单，插入到 Relationship To Existing Concepts 附近最利于阅读。"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "Lattice-Parallel-Development-Capability.md"
+  ],
+  "timestamp": "2026-06-09T21:32:52.788Z"
+}
