@@ -42,9 +42,9 @@
           "command": "npm --prefix packages/main run test:memory-benchmark-smoke",
           "result": "pass",
           "note": "Smoke asserts MemoryScore constants: weights 25/25/25/15/10, thresholds 10k=92, 100k=90, 1M=86, scoreable layers, and boundary-only layers.",
-          "headHash": "192f5ef25ff9d695395b8eede13c10f504c76ad8",
-          "materialHash": "50c1357d008590436f25f40583e0c4a9b1604bcc0882c2c2cd55cafbd54041cf",
-          "timestamp": "2026-06-09T00:19:37.199Z"
+          "headHash": "e245b1454b5940dbcfa56bf47c4a4da2fa0c1597",
+          "materialHash": "2816e6c78aab8ad4f3570b72465e0b4042ad263adab28e1a06194d1ba25e6069",
+          "timestamp": "2026-06-09T00:32:18.075Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -52,9 +52,9 @@
           "command": "node bin/koala.js memory_benchmark_compare --candidateCounts=10000,100000,1000000 --queryCount=120 --seed=7 --format=text && node bin/koala.js memory_benchmark_compare --candidateCounts=10000,100000,1000000 --queryCount=120 --seed=7 --format=json",
           "result": "pass",
           "note": "Both text and JSON comparison outputs expose MemoryScore, threshold, verdict, exactRecall@1, recall@10, MRR@10, precision@10, hard checks, and note fields for the same 10k/100k/1M tier semantics.",
-          "headHash": "192f5ef25ff9d695395b8eede13c10f504c76ad8",
-          "materialHash": "50c1357d008590436f25f40583e0c4a9b1604bcc0882c2c2cd55cafbd54041cf",
-          "timestamp": "2026-06-09T00:19:37.199Z"
+          "headHash": "e245b1454b5940dbcfa56bf47c4a4da2fa0c1597",
+          "materialHash": "2816e6c78aab8ad4f3570b72465e0b4042ad263adab28e1a06194d1ba25e6069",
+          "timestamp": "2026-06-09T00:32:18.075Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -62,9 +62,9 @@
           "command": "npm --prefix packages/main run test:memory-benchmark-smoke",
           "result": "pass",
           "note": "Smoke asserts hard-fail precedence for authorityLeak/staleTruthHit/boundary layer leakage and confirms advisory_memory/host_transcript_memory remain excluded from retrieval metrics.",
-          "headHash": "192f5ef25ff9d695395b8eede13c10f504c76ad8",
-          "materialHash": "50c1357d008590436f25f40583e0c4a9b1604bcc0882c2c2cd55cafbd54041cf",
-          "timestamp": "2026-06-09T00:19:37.199Z"
+          "headHash": "e245b1454b5940dbcfa56bf47c4a4da2fa0c1597",
+          "materialHash": "2816e6c78aab8ad4f3570b72465e0b4042ad263adab28e1a06194d1ba25e6069",
+          "timestamp": "2026-06-09T00:32:18.075Z"
         }
       ]
     },
@@ -110,9 +110,9 @@
           "command": "npm --prefix packages/main run test:memory-benchmark-smoke",
           "result": "pass",
           "note": "Smoke calls runMemoryBenchmark twice with the same tier and asserts deterministicSignature/resources are stable for the same deterministic inputs.",
-          "headHash": "192f5ef25ff9d695395b8eede13c10f504c76ad8",
-          "materialHash": "50c1357d008590436f25f40583e0c4a9b1604bcc0882c2c2cd55cafbd54041cf",
-          "timestamp": "2026-06-09T00:19:37.199Z"
+          "headHash": "e245b1454b5940dbcfa56bf47c4a4da2fa0c1597",
+          "materialHash": "2816e6c78aab8ad4f3570b72465e0b4042ad263adab28e1a06194d1ba25e6069",
+          "timestamp": "2026-06-09T00:32:18.075Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -120,9 +120,9 @@
           "command": "node bin/koala.js memory_benchmark_run --tier=T1 --queryCount=120 --seed=7 --format=json && node bin/koala.js memory_benchmark_run --tier=T1 --queryCount=120 --seed=7 --format=text",
           "result": "pass",
           "note": "Single-run CLI independently emits parseable JSON and human text with schemaVersion, metrics, hardChecks, qualityScore, null scaleStabilityScore/memoryScore, routing, resources, deterministicSignature, and non-authority note.",
-          "headHash": "192f5ef25ff9d695395b8eede13c10f504c76ad8",
-          "materialHash": "50c1357d008590436f25f40583e0c4a9b1604bcc0882c2c2cd55cafbd54041cf",
-          "timestamp": "2026-06-09T00:19:37.199Z"
+          "headHash": "e245b1454b5940dbcfa56bf47c4a4da2fa0c1597",
+          "materialHash": "2816e6c78aab8ad4f3570b72465e0b4042ad263adab28e1a06194d1ba25e6069",
+          "timestamp": "2026-06-09T00:32:18.075Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -130,9 +130,9 @@
           "command": "npm --prefix packages/main run test:memory-benchmark-smoke",
           "result": "pass",
           "note": "Smoke asserts scoreable lifecycle layers are the only retrieval-scored layers and that boundary-only leakage or stale truth converts the run to HARD_FAIL.",
-          "headHash": "192f5ef25ff9d695395b8eede13c10f504c76ad8",
-          "materialHash": "50c1357d008590436f25f40583e0c4a9b1604bcc0882c2c2cd55cafbd54041cf",
-          "timestamp": "2026-06-09T00:19:37.199Z"
+          "headHash": "e245b1454b5940dbcfa56bf47c4a4da2fa0c1597",
+          "materialHash": "2816e6c78aab8ad4f3570b72465e0b4042ad263adab28e1a06194d1ba25e6069",
+          "timestamp": "2026-06-09T00:32:18.075Z"
         }
       ]
     },
@@ -178,9 +178,9 @@
           "command": "node bin/koala.js memory_benchmark_compare --candidateCounts=10000,100000,1000000 --queryCount=120 --seed=7 --format=text && node bin/koala.js memory_benchmark_compare --candidateCounts=10000,100000,1000000 --queryCount=120 --seed=7 --format=json",
           "result": "pass",
           "note": "Real CLI comparison covers 10k/100k/1M tiers and reports PASS with MemoryScore=100.00, exactRecall@1=1.000, recall@10=1.000, MRR@10=1.000, precision@10=1.000, hardFails=0 for every tier.",
-          "headHash": "192f5ef25ff9d695395b8eede13c10f504c76ad8",
-          "materialHash": "50c1357d008590436f25f40583e0c4a9b1604bcc0882c2c2cd55cafbd54041cf",
-          "timestamp": "2026-06-09T00:19:37.199Z"
+          "headHash": "e245b1454b5940dbcfa56bf47c4a4da2fa0c1597",
+          "materialHash": "2816e6c78aab8ad4f3570b72465e0b4042ad263adab28e1a06194d1ba25e6069",
+          "timestamp": "2026-06-09T00:32:18.075Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -188,9 +188,9 @@
           "command": "node bin/koala.js memory_benchmark_compare --candidateCounts=10000,100000,1000000 --queryCount=120 --seed=7 --format=text",
           "result": "pass",
           "note": "Text report ends with the explicit note that Benchmark PASS is not Koala lifecycle gate authority, review pass, validation evidence, or delivery check; JSON contains the same note field.",
-          "headHash": "192f5ef25ff9d695395b8eede13c10f504c76ad8",
-          "materialHash": "50c1357d008590436f25f40583e0c4a9b1604bcc0882c2c2cd55cafbd54041cf",
-          "timestamp": "2026-06-09T00:19:37.199Z"
+          "headHash": "e245b1454b5940dbcfa56bf47c4a4da2fa0c1597",
+          "materialHash": "2816e6c78aab8ad4f3570b72465e0b4042ad263adab28e1a06194d1ba25e6069",
+          "timestamp": "2026-06-09T00:32:18.075Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -198,9 +198,9 @@
           "command": "npm --prefix packages/main run test:memory-benchmark-smoke && npm --prefix packages/main run test:command-ownership-contract",
           "result": "pass",
           "note": "Smoke asserts tier failures cannot be hidden by score, while command ownership contract confirms memory_benchmark_run/compare are readOnly/non-destructive/non-gate commands available through CLI policy.",
-          "headHash": "192f5ef25ff9d695395b8eede13c10f504c76ad8",
-          "materialHash": "50c1357d008590436f25f40583e0c4a9b1604bcc0882c2c2cd55cafbd54041cf",
-          "timestamp": "2026-06-09T00:19:37.199Z"
+          "headHash": "e245b1454b5940dbcfa56bf47c4a4da2fa0c1597",
+          "materialHash": "2816e6c78aab8ad4f3570b72465e0b4042ad263adab28e1a06194d1ba25e6069",
+          "timestamp": "2026-06-09T00:32:18.075Z"
         }
       ]
     }
