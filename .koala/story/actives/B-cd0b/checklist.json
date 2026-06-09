@@ -11,7 +11,30 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Read Lattice-Parallel-Development-Capability.md and confirm it presents an explicit authority/local mode matrix that separates local/off, shadow, and enforce/receipt-backed modes, including what each mode can and cannot prove about authority and lifecycle state.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Confirm the matrix stays precise when it mentions transport acceptance, local PASS, or shadow diagnostics: those phrases may appear only as non-authority evidence and must not be collapsed into production authority or productionDone.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Grep the docs for any claim that this story implements runtime/gate/receipt verification or adds enforcement code, and verify none exists; the change must remain documentation-only and fail closed on production authority claims.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
