@@ -29,6 +29,19 @@
       "_hash": "169f52ed8588b09e2678cdb53bf0a0f82fe88455034f622980d39354e70b919b",
       "resolvedReason": "Fixed in commit b85c7a52: the section no longer treats parallel_report as the binding artifact and explicitly distinguishes full-envelope Wave artifact fields from future coordinator-added freeze metadata. Re-verified with git diff --check and lattice parallel_wave_create --format=json.",
       "resolvedAt": "2026-06-09T21:45:45.245Z"
+    },
+    {
+      "id": "B-7110:F-003",
+      "desc": "Lattice-Parallel-Development-Capability.md:176 WHY medium: the section now correctly excludes projection-only surfaces, but it still says the frozen snapshot fields from the full-envelope Wave artifact include `waveSchemaVersion`. That conflicts with the very next allowed seed surface list at :158-163 plus docs/requirements/decisions/lattice-parallel-wave.md:82-101 and the current `lattice parallel_wave_create --format=json` output, where `parallel_wave_create` carries `schemaVersion` and `generatedAt` but not `waveSchemaVersion`. An implementer following this text could still treat `parallel_wave_create` as missing a required field and invent or re-derive schema metadata. Split the required fields by surface, or require `schemaVersion` from create and `waveSchemaVersion` only when the source artifact is inspect/plan.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-09T21:49:18.521Z",
+      "reviewRound": "2026-06-09T21:45:24.696Z",
+      "reviewRunId": "B-7110:RR-006",
+      "_hash": "512b2e411ba69f10d60f6c39611f801be8ef614f6855b20fad992f1f6c71373d"
     }
   ]
 }
