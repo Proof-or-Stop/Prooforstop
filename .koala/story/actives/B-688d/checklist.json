@@ -146,20 +146,38 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "The dispatch audit assigns exactly two host categories, four implementer lanes, and four opposite-host reviewer lanes with ownedPaths/readOnlyPaths and stop conditions.",
-            "type": "cli"
+            "desc": "Produce a 2-host/8-agent dispatch audit with four Codex CLI lanes and four Claude CLI lanes, including implementer and opposite-host reviewer roles.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Show host-neutral boundaries via ownedPaths, readOnlyPaths, mode, allowed outputs, stop conditions, and sequential proof lock for every lane.",
+            "type": "logic",
+            "priority": "must"
           }
         ],
         "edge": [
           {
-            "desc": "If one host is degraded or unavailable, the dispatch decision becomes GO-NOT-YET or BLOCKED with the degraded lane named.",
-            "type": "cli"
+            "desc": "If one host is degraded or unavailable, the dispatch package must preserve the same boundaries and stop conditions instead of rebalancing ownership or optimizing for speed.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "The audit should remain valid even when a lane is read-only only; it must not convert a reviewer lane into an implementer lane.",
+            "type": "logic",
+            "priority": "must"
           }
         ],
         "adversarial": [
           {
-            "desc": "The dispatch pack does not authorize capability proof, claim unlock, auto-merge, or production DONE from local agent output.",
-            "type": "cli"
+            "desc": "Block any dispatch package that launches work before the required proof exists or before the sequential proof lock is satisfied.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Reject arbitrary optimization, lane collapsing, or scope expansion that tries to make the package look more productive than the proof actually supports.",
+            "type": "logic",
+            "priority": "must"
           }
         ]
       }
