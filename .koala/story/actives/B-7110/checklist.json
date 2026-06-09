@@ -11,37 +11,37 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-06-09T21:45:11.601Z",
+      "endTime": "2026-06-09T21:51:27.289Z",
       "verificationEvidence": [
         {
           "intentRef": "CHK-001:docs:0",
           "kind": "docs_check",
           "command": "git diff --check",
           "result": "pass",
-          "note": "Whitespace and patch-format check passed after clarifying that only full-envelope Wave artifacts can seed a frozen Parallel Development snapshot.",
-          "headHash": "b85c7a52c742981048f7b90f2a0d9efdb4a7b163",
-          "materialHash": "d4a3af555a9543606289984b59e3b4502230ef4eed9e62be414847cbf0ad3606",
-          "timestamp": "2026-06-09T21:45:11.666Z"
+          "note": "Whitespace and patch-format check passed after clarifying full-envelope Wave snapshot and schema marker wording.",
+          "headHash": "e585465b568880089754e4bfa37665a10dafe5c8",
+          "materialHash": "813f0803bad2e1825cc55b5489c1019ba062058912e10773dfee5e1b7365c739",
+          "timestamp": "2026-06-09T21:51:27.355Z"
         },
         {
           "intentRef": "CHK-001:cli:0",
           "kind": "manual_transcript",
           "command": "lattice parallel_report --format=json",
           "result": "pass",
-          "note": "Existing Parallel Wave report surface remains non-authoritative: authority.productionDone=false, authority.authorityChanged=false, and receiptRefs=[]; the document now treats it as human-readable summary only.",
-          "headHash": "b85c7a52c742981048f7b90f2a0d9efdb4a7b163",
-          "materialHash": "d4a3af555a9543606289984b59e3b4502230ef4eed9e62be414847cbf0ad3606",
-          "timestamp": "2026-06-09T21:45:11.719Z"
+          "note": "Existing Parallel Wave report surface remains non-authoritative: authority.productionDone=false, authority.authorityChanged=false, and receiptRefs=[]; the document treats it as human-readable summary only.",
+          "headHash": "e585465b568880089754e4bfa37665a10dafe5c8",
+          "materialHash": "813f0803bad2e1825cc55b5489c1019ba062058912e10773dfee5e1b7365c739",
+          "timestamp": "2026-06-09T21:51:27.405Z"
         },
         {
           "intentRef": "CHK-001:cli:1",
           "kind": "manual_transcript",
           "command": "lattice parallel_wave_create --format=json",
           "result": "pass",
-          "note": "Full-envelope Parallel Wave output includes waveId, waveSchemaVersion, storyRefs, hostCandidates, evidenceRefs, mergeOrder, and authority, matching the documented frozen snapshot source.",
-          "headHash": "b85c7a52c742981048f7b90f2a0d9efdb4a7b163",
-          "materialHash": "d4a3af555a9543606289984b59e3b4502230ef4eed9e62be414847cbf0ad3606",
-          "timestamp": "2026-06-09T21:45:11.770Z"
+          "note": "Full-envelope Parallel Wave output includes schemaVersion and generatedAt, not waveSchemaVersion, while still including storyRefs, hostCandidates, evidenceRefs, mergeOrder, and authority. The document now records that source-surface schema marker distinction.",
+          "headHash": "e585465b568880089754e4bfa37665a10dafe5c8",
+          "materialHash": "813f0803bad2e1825cc55b5489c1019ba062058912e10773dfee5e1b7365c739",
+          "timestamp": "2026-06-09T21:51:27.459Z"
         }
       ]
     }
