@@ -61,13 +61,13 @@
       "q": "Should the story explicitly own or exclude the existing virtual benchmark files packages/main/src/core/memory-benchmark.ts and packages/main/src/tasks/memory-benchmark-smoke.ts?",
       "evidence": "The story background and understanding frame this work as adding a real-data path alongside the existing deterministic virtual harness, and the current review metadata already flags those legacy files as uncovered touchpoints. The current understanding.touchpoints and checklist files omit both files, so it is unclear whether they are intentionally unchanged or accidentally missing from scope ownership.",
       "sourcePointers": [
-        ".koala/story/actives/B-2a63/background.md:1",
-        ".koala/story/actives/B-2a63/understanding.json:5",
-        ".koala/story/actives/B-2a63/understanding.json:12",
-        ".koala/story/actives/B-2a63/review.json:33",
-        ".koala/story/actives/B-2a63/review.json:38",
-        "Lattice-lifecycle-memory-Evolving.md:198"
-      ]
+        "Lattice-lifecycle-memory-Evolving.md#current-cli-harness-usage",
+        "CHK-001",
+        "CHK-002",
+        "CHK-003"
+      ],
+      "resolution": "Resolution: packages/main/src/core/memory-benchmark.ts and packages/main/src/tasks/memory-benchmark-smoke.ts are explicitly protected legacy virtual-harness surfaces for this story. Lattice-lifecycle-memory-Evolving.md already states current memory_benchmark_run/compare are deterministic virtual corpus harness commands; B-2a63 adds a separate real-data path instead of changing those commands. Checklist CHK-001/002/003 own the new real-data core and smoke files plus handler/CLI wiring only. If implementation discovers a true correctness issue requiring changes to the virtual files, the story must return to PLAN and update scope before editing them.",
+      "resolvedAt": "2026-06-09T01:41:09.972Z"
     }
   ]
 }
