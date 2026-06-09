@@ -1,0 +1,78 @@
+{
+  "principles": [
+    "实现必须直接服务 baseline 证明，不为了优化而优化。",
+    "评分公式、权重、阈值和层边界必须与 Lattice-lifecycle-memory-Evolving.md 保持一致。",
+    "benchmark output 只能作为 future implementation validation evidence，不能成为 Koala gate authority。",
+    "百万候选验证要可执行且可重复，但不能要求用户安装外部数据库或向量服务。"
+  ],
+  "drivers": [
+    "用户需要看到真实 recall 百分比和 MemoryScore 对比，而不是只有文档公式。",
+    "当前仓库已经有 CLI/handler/task smoke 测试模式，新增 harness 应沿用本地模式。",
+    "scoreable lifecycle truth 与 boundary-only advisory/host transcript 必须机械分离。"
+  ],
+  "options": [
+    {
+      "name": "A: deterministic virtual corpus harness",
+      "pros": [
+        "可在本地生成 10k/100k/1M 候选规模并稳定复现分数。",
+        "不引入外部依赖，符合 host-neutral 和 CLI-first 思路。",
+        "容易把 hard fail、staleTruthHit、boundary-only source 等 contract 写进测试。"
+      ],
+      "cons": [
+        "证明的是 benchmark harness 与公式正确，不证明未来生产 memory retriever 已经具备真实百万级能力。",
+        "synthetic corpus 的表现不能替代后续真实历史数据 benchmark。"
+      ]
+    },
+    {
+      "name": "B: wire benchmark to existing dev-memory files",
+      "pros": [
+        "更贴近日常 memory 文件。",
+        "可以复用已有 dev_memory_search 入口。"
+      ],
+      "cons": [
+        "dev-memory 是 non-authoritative advisory context，拿它做 lifecycle truth benchmark 会混淆边界。",
+        "现有数据规模不足以支撑 10k/100k/1M 对比。"
+      ]
+    },
+    {
+      "name": "C: introduce external vector database benchmark",
+      "pros": [
+        "更接近未来高性能 retrieval stack。",
+        "可扩展到真实 embedding/index 测试。"
+      ],
+      "cons": [
+        "会为了 benchmark 引入当前不需要的外部依赖和配置成本。",
+        "超出本 story 的正确性范围，容易变成 arbitrary optimization。"
+      ]
+    }
+  ],
+  "chosen": "A: deterministic virtual corpus harness",
+  "rationale": "选择 A，因为用户当前要的是可执行 baseline 和百分比分数证明，而不是引入生产 memory 架构。虚拟 deterministic corpus 能真实运行 10k/100k/1M candidateCount 的同一评分流程，并把 hard checks、层边界、staleTruthHit 和 scale stability 固定成机械测试。",
+  "preMortem": [
+    {
+      "scenario": "MemoryScore 输出和文档公式漂移。",
+      "trigger": "代码里手写权重、阈值或层 label，与文档不一致。",
+      "consequence": "用户看到的分数无法证明文档 baseline，后续实现会误用错误权重。",
+      "mitigation": "集中在 core/memory-benchmark.ts 定义权重、阈值和 layer constants，并用 smoke test 校验关键字段。"
+    },
+    {
+      "scenario": "benchmark accidentally treats host transcript or dev-memory as authoritative truth。",
+      "trigger": "boundary-only labels 进入 corpus/gold/retrieval metrics。",
+      "consequence": "分数看起来更高，但违反 Lattice host-neutral/non-authoritative 核心思想。",
+      "mitigation": "engine 显式分离 scoreable layers 和 boundary-only layers，测试断言 boundary-only 不参与 recall/precision 且泄漏会 hard fail。"
+    },
+    {
+      "scenario": "1M benchmark 太重导致本地验证不可用。",
+      "trigger": "为每个 candidate 分配大对象或做全量排序。",
+      "consequence": "用户无法实际跑百万候选 baseline，harness 变成纸面功能。",
+      "mitigation": "使用 virtual addressable corpus，只 materialize query windows/top-k evidence，candidateCount 仍进入 deterministic id space 和 report。"
+    },
+    {
+      "scenario": "benchmark PASS 被误读为 Koala lifecycle gate pass。",
+      "trigger": "CLI 文案或 JSON 没有说明 authority 边界。",
+      "consequence": "用户或 agent 可能拿分数替代 verificationEvidence/review_pass/validate evidence。",
+      "mitigation": "输出 note 和 docs 明确 non_authoritative，并保持 CLI 不写 gate artifact。"
+    }
+  ],
+  "timestamp": "2026-06-08T23:38:10.265Z"
+}

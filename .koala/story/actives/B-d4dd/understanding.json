@@ -1,0 +1,29 @@
+{
+  "task": "实现真实可运行的 memory baseline benchmark harness，用来计算 lifecycle memory 在 10k、100k、1M 候选规模下的召回、命中、证据关联、层路由和综合 MemoryScore。",
+  "outcome": "用户运行 `node bin/koala.js memory_benchmark_compare --candidateCounts=10000,100000,1000000 --queryCount=120 --seed=7 --format=text` 后，终端能看到类似：`Memory benchmark comparison\n10,000  score=100.00 threshold=92 verdict=PASS exactRecall@1=1.000 recall@10=1.000 MRR@10=1.000 precision@10=1.000 evidence=1.000 hardFails=0\n100,000 score=100.00 threshold=90 verdict=PASS ...\n1,000,000 score=100.00 threshold=86 verdict=PASS ...`。运行 `--format=json` 时输出包含 metrics、scores、hardChecks、threshold、verdict 和 note，明确 benchmark PASS 不是 Koala gate authority。",
+  "facts": [
+    "Lattice-lifecycle-memory-Evolving.md 定义 MemoryScore: 25*HistoricalRetrievalScore + 25*ExactAnswerHit + 25*EvidenceLinkageRate + 15*LayerRoutingAccuracy + 10*ScaleStabilityScore。",
+    "hard checks 必须先执行：authorityLeakCount=0、scopeLeakCount=0、lifecycle/gate EvidenceLinkageRate=1.0、current-state query 不能 staleTruthHit。",
+    "scoreable lifecycle truth layers 只有 raw_event_memory、lifecycle_state_memory、checklist_evidence_memory、summary_memory。",
+    "advisory_memory 和 host_transcript_memory 是 boundary-only labels，不进入 corpus/gold/recall/precision。",
+    "dev-memory 和 host transcript 是 non-authoritative context，不能变成 review/test/done gate evidence。"
+  ],
+  "constraints": [
+    "Do not optimize for the sake of optimization; 只实现证明 baseline 可执行所需的 harness。",
+    "Dont optimize arbitrarily; 不引入外部数据库、向量索引或生产 memory runtime 改造。",
+    "only fix real correctness issues; 实现围绕评分公式、hard fail、边界层和 scale comparison 的正确性。",
+    "consistency of logic; CLI、engine、tests、文档使用同一权重、阈值和层边界。",
+    "Benchmark score 不能被写入 Koala lifecycle gate authority，也不能替代 verificationEvidence、review pass、delivery check 或 validate evidence。"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "Lattice-lifecycle-memory-Evolving.md",
+    "packages/main/src/core/memory-benchmark.ts",
+    "packages/main/src/handlers/memory-benchmark.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/tasks/memory-benchmark-smoke.ts",
+    "packages/main/package.json"
+  ],
+  "timestamp": "2026-06-08T23:37:47.961Z"
+}

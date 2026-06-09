@@ -63,6 +63,7 @@ import { createScopeContractHandlers } from './handlers/scope-contract.js';
 import { createGuardSessionHandlers } from './handlers/guard-session.js';
 import { createAuthorityEnforceHandlers } from './handlers/authority-enforce.js';
 import { createDevMemoryHandlers } from './handlers/dev-memory.js';
+import { createMemoryBenchmarkHandlers } from './handlers/memory-benchmark.js';
 import { createCapabilityListHandlers } from './handlers/capability-list.js';
 import { createStoryExportHandlers } from './handlers/story-export.js';
 import { createLatticeHandoffHandlers } from './handlers/lattice-handoff.js';
@@ -215,6 +216,9 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   // B-ad2c: dev_memory_* — lightweight experience capture outside Koala story gates.
   // Non-authoritative: entries cannot satisfy Koala DONE gate evidence.
   registry.registerBatch(createDevMemoryHandlers(ctx));
+
+  // B-d4dd: deterministic virtual lifecycle memory benchmark harness.
+  registry.registerBatch(createMemoryBenchmarkHandlers(ctx));
 
   // Host-neutral capability discovery for Koala/Lattice adapters.
   registry.registerBatch(createCapabilityListHandlers());

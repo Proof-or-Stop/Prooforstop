@@ -9,9 +9,64 @@
         "docs/requirements/decisions/dev-memory.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-09T00:05:56.552Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "输入契约和输出契约与真相源一致：输入至少包含 candidateCount/queryCount/seed/tier，综合分数权重固定为 HistoricalRetrievalScore 25 + ExactAnswerHit 25 + EvidenceLinkageRate 25 + LayerRoutingAccuracy 15 + ScaleStabilityScore 10，tier threshold 固定覆盖 10k=92、100k=90、1M=86。",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "CLI contract 同时支持 text 和 json 两种输出形态：text 至少逐 run 呈现 score/threshold/verdict/核心 metrics/hardFails，json 至少包含 metrics、scores、hardChecks、threshold、verdict、note，且两种格式表达的是同一组字段语义。",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "contract 明确 hard fail 优先于加权分数：authorityLeak、scopeLeak、staleTruthHit 任一命中都不能给出 PASS；boundary-only 的 advisory/host transcript layers 不能进入 corpus/gold，也不能计入 recall/precision。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:memory-benchmark-smoke",
+          "result": "pass",
+          "note": "Smoke asserts MemoryScore constants: weights 25/25/25/15/10, thresholds 10k=92, 100k=90, 1M=86, scoreable layers, and boundary-only layers.",
+          "headHash": "e245b1454b5940dbcfa56bf47c4a4da2fa0c1597",
+          "materialHash": "2816e6c78aab8ad4f3570b72465e0b4042ad263adab28e1a06194d1ba25e6069",
+          "timestamp": "2026-06-09T00:32:18.075Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "command": "node bin/koala.js memory_benchmark_compare --candidateCounts=10000,100000,1000000 --queryCount=120 --seed=7 --format=text && node bin/koala.js memory_benchmark_compare --candidateCounts=10000,100000,1000000 --queryCount=120 --seed=7 --format=json",
+          "result": "pass",
+          "note": "Both text and JSON comparison outputs expose MemoryScore, threshold, verdict, exactRecall@1, recall@10, MRR@10, precision@10, hard checks, and note fields for the same 10k/100k/1M tier semantics.",
+          "headHash": "e245b1454b5940dbcfa56bf47c4a4da2fa0c1597",
+          "materialHash": "2816e6c78aab8ad4f3570b72465e0b4042ad263adab28e1a06194d1ba25e6069",
+          "timestamp": "2026-06-09T00:32:18.075Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:memory-benchmark-smoke",
+          "result": "pass",
+          "note": "Smoke asserts hard-fail precedence for authorityLeak/staleTruthHit/boundary layer leakage and confirms advisory_memory/host_transcript_memory remain excluded from retrieval metrics.",
+          "headHash": "e245b1454b5940dbcfa56bf47c4a4da2fa0c1597",
+          "materialHash": "2816e6c78aab8ad4f3570b72465e0b4042ad263adab28e1a06194d1ba25e6069",
+          "timestamp": "2026-06-09T00:32:18.075Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -22,9 +77,64 @@
         "docs/requirements/decisions/testing-infra.md",
         "docs/requirements/decisions/truth-source.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-09T00:06:15.430Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "同一组 candidateCount/queryCount/seed/tier 输入多次运行 deterministic benchmark engine 时，单次 benchmark 命令输出的 metrics、MemoryScore、hardChecks 和 verdict 必须稳定一致，证明 engine 不是随机漂移。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "单次 benchmark CLI 在不走 comparison report 的情况下也能独立运行，并按约定输出可追溯 schema：json 模式保留结构化 fields，text 模式保留人工可读摘要，不要求用户先生成 10k/100k/1M 对比表。",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "engine 对 lifecycle truth 边界做机械过滤：只有 raw_event_memory、lifecycle_state_memory、checklist_evidence_memory、summary_memory 能参与检索计分；如果 boundary-only layers 混入 recall/precision，或 current-state query 命中 stale truth / lifecycle evidence linkage 不达标，run 必须转成 hard fail。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:memory-benchmark-smoke",
+          "result": "pass",
+          "note": "Smoke calls runMemoryBenchmark twice with the same tier and asserts deterministicSignature/resources are stable for the same deterministic inputs.",
+          "headHash": "e245b1454b5940dbcfa56bf47c4a4da2fa0c1597",
+          "materialHash": "2816e6c78aab8ad4f3570b72465e0b4042ad263adab28e1a06194d1ba25e6069",
+          "timestamp": "2026-06-09T00:32:18.075Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "command": "node bin/koala.js memory_benchmark_run --tier=T1 --queryCount=120 --seed=7 --format=json && node bin/koala.js memory_benchmark_run --tier=T1 --queryCount=120 --seed=7 --format=text",
+          "result": "pass",
+          "note": "Single-run CLI independently emits parseable JSON and human text with schemaVersion, metrics, hardChecks, qualityScore, null scaleStabilityScore/memoryScore, routing, resources, deterministicSignature, and non-authority note.",
+          "headHash": "e245b1454b5940dbcfa56bf47c4a4da2fa0c1597",
+          "materialHash": "2816e6c78aab8ad4f3570b72465e0b4042ad263adab28e1a06194d1ba25e6069",
+          "timestamp": "2026-06-09T00:32:18.075Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:memory-benchmark-smoke",
+          "result": "pass",
+          "note": "Smoke asserts scoreable lifecycle layers are the only retrieval-scored layers and that boundary-only leakage or stale truth converts the run to HARD_FAIL.",
+          "headHash": "e245b1454b5940dbcfa56bf47c4a4da2fa0c1597",
+          "materialHash": "2816e6c78aab8ad4f3570b72465e0b4042ad263adab28e1a06194d1ba25e6069",
+          "timestamp": "2026-06-09T00:32:18.075Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -35,9 +145,64 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/host-overflow.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-09T00:06:26.990Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "scale comparison 入口用同一 harness 对 10k、100k、1M 三个 candidateCount 输出逐 tier 结果，并且每个 tier 都复用单次 benchmark 的同一 schema：score、threshold、verdict、hardFails、核心 metrics 和 note 可逐 tier 对齐比较。",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "对比报告的 text/json 两种输出都必须明确 benchmark PASS 只是 benchmark verdict，不是 Koala review/test/done gate authority；该 authority boundary 既出现在人类可读文案，也出现在结构化 note/field 语义里。",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "comparison report 不能用总体高分掩盖单 tier 失败：任一 tier 的 authorityLeak、scopeLeak、staleTruthHit、boundary-only layer leakage 或 threshold miss 都必须在对应 tier 明确暴露，并保持 non-authoritative benchmark 边界不被提升成 gate evidence。",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "command": "node bin/koala.js memory_benchmark_compare --candidateCounts=10000,100000,1000000 --queryCount=120 --seed=7 --format=text && node bin/koala.js memory_benchmark_compare --candidateCounts=10000,100000,1000000 --queryCount=120 --seed=7 --format=json",
+          "result": "pass",
+          "note": "Real CLI comparison covers 10k/100k/1M tiers and reports PASS with MemoryScore=100.00, exactRecall@1=1.000, recall@10=1.000, MRR@10=1.000, precision@10=1.000, hardFails=0 for every tier.",
+          "headHash": "e245b1454b5940dbcfa56bf47c4a4da2fa0c1597",
+          "materialHash": "2816e6c78aab8ad4f3570b72465e0b4042ad263adab28e1a06194d1ba25e6069",
+          "timestamp": "2026-06-09T00:32:18.075Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node bin/koala.js memory_benchmark_compare --candidateCounts=10000,100000,1000000 --queryCount=120 --seed=7 --format=text",
+          "result": "pass",
+          "note": "Text report ends with the explicit note that Benchmark PASS is not Koala lifecycle gate authority, review pass, validation evidence, or delivery check; JSON contains the same note field.",
+          "headHash": "e245b1454b5940dbcfa56bf47c4a4da2fa0c1597",
+          "materialHash": "2816e6c78aab8ad4f3570b72465e0b4042ad263adab28e1a06194d1ba25e6069",
+          "timestamp": "2026-06-09T00:32:18.075Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:memory-benchmark-smoke && npm --prefix packages/main run test:command-ownership-contract",
+          "result": "pass",
+          "note": "Smoke asserts tier failures cannot be hidden by score, while command ownership contract confirms memory_benchmark_run/compare are readOnly/non-destructive/non-gate commands available through CLI policy.",
+          "headHash": "e245b1454b5940dbcfa56bf47c4a4da2fa0c1597",
+          "materialHash": "2816e6c78aab8ad4f3570b72465e0b4042ad263adab28e1a06194d1ba25e6069",
+          "timestamp": "2026-06-09T00:32:18.075Z"
+        }
+      ]
     }
   ]
 }

@@ -1,0 +1,56 @@
+{
+  "storyId": "B-d4dd",
+  "changes": "Added a deterministic memory benchmark harness with core scoring, CLI handlers, registry wiring, command policy/read-only fact classification, smoke coverage, package script, and Lattice-lifecycle-memory-Evolving.md usage notes. The harness now enforces fixed 10k/100k/1M tiers, hard checks, per-metric minima, and non-authoritative benchmark boundaries.",
+  "usage": "Run node bin/koala.js memory_benchmark_run --tier=T1 --format=text for a single tier, or node bin/koala.js memory_benchmark_compare --candidateCounts=10000,100000,1000000 --queryCount=120 --seed=7 --format=text for the baseline comparison. Use --format=json for machine-readable results.",
+  "expectedOutcome": "A user can run a real CLI benchmark harness for memory baseline scoring and see 10k/100k/1M recall metrics, MemoryScore, hard-fail counts, thresholds, and a clear note that benchmark PASS is not Koala lifecycle gate authority.",
+  "actualTranscript": "The 10k/100k/1M compare returned PASS for T1/T2/T3 with MemoryScore=100.00, exactRecall@1=1.000, recall@10=1.000, MRR@10=1.000, precision@10=1.000, hardFails=0, and the non-authority note. candidateCounts=50000 was rejected. exactRecallAt1=0.9, recallAt10=0.89, mrrAt10=0.74, and precisionAt10=0.69 each returned FAIL despite MemoryScore above threshold.",
+  "outcomeDiff": "No product-facing gap: actual output matches the expected fixed-tier baseline, exposes the requested score proof, rejects unsupported tiers, and preserves the authority boundary.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The harness uses a deterministic virtual corpus and synthetic resource estimates. It proves the baseline contract and scoring mechanics, not production vector-store performance or a deployed million-candidate memory system.",
+  "pitfalls": "Review found three correctness gaps that were fixed: lifecycle evidence linkage below 1 needed direct HARD_FAIL coverage, unsupported candidate counts could not be mislabeled as T3, and per-metric minima must fail independently of a high aggregate MemoryScore.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 415763
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 40363
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 543117
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 2163856
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 897650
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 105962
+    }
+  },
+  "totalDurationMs": 4166722,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-09T00:38:51.327Z",
+  "updatedAt": "2026-06-09T00:38:51.327Z"
+}

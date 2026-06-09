@@ -1,0 +1,61 @@
+{
+  "storyId": "B-d4dd",
+  "checkedAt": "2026-06-09T00:42:25.704Z",
+  "reviewRound": "2026-06-09T00:32:41.917Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "Lattice-lifecycle-memory-Evolving.md#memoryscore-100-point-baseline",
+      "promise": "Documents a fixed 10k/100k/1M comparison baseline and per-tier thresholds rather than arbitrary candidate-count tiers.",
+      "status": "verified",
+      "verifiedBy": "koala-review-delivery",
+      "evidence": "Verified against memory_benchmark_compare default output (10k/100k/1M only), unsupported 50000 rejection, and compareMemoryBenchmarks/normalizeCandidateCounts in packages/main/src/core/memory-benchmark.ts."
+    },
+    {
+      "docPath": "Lattice-lifecycle-memory-Evolving.md#scoring-and-thresholds",
+      "promise": "Documents fixed scoring weights, per-metric minima, and hard-check precedence for authority/scope/stale-truth/evidence-linkage failures.",
+      "status": "verified",
+      "verifiedBy": "koala-review-delivery",
+      "evidence": "Verified against MEMORY_BENCHMARK_LAYER_WEIGHTS, passesMetricMinima(), determineVerdict(), focused minima probes, and the dedicated smoke task."
+    },
+    {
+      "docPath": "Lattice-lifecycle-memory-Evolving.md#current-cli-harness-usage",
+      "promise": "Documents that benchmark PASS is benchmark-only and not Koala lifecycle gate authority, review pass, validation evidence, or delivery check.",
+      "status": "verified",
+      "verifiedBy": "koala-review-delivery",
+      "evidence": "Verified in CLI compare note text, MEMORY_BENCHMARK_TEXT_NOTE, read-only command policy/process-fact registration, and handler wiring that only renders output."
+    },
+    {
+      "docPath": "Lattice-lifecycle-memory-Evolving.md#current-cli-harness-usage",
+      "promise": "Documents the harness as a deterministic virtual corpus/non-production baseline rather than a production million-candidate memory system.",
+      "status": "verified",
+      "verifiedBy": "koala-review-delivery",
+      "evidence": "Verified in document wording, synthetic resource generation in buildResources(), deterministicSignature behavior, and smoke coverage proving virtual contract mechanics rather than real storage performance."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "compare-output",
+      "transcript": "node bin/koala.js memory_benchmark_compare --format=text returned PASS for T1/T2/T3 with candidate counts 10,000/100,000/1,000,000, MemoryScore=100.00, exactRecall@1=1.000, recall@10=1.000, MRR@10=1.000, precision@10=1.000, hardFails=0, and the explicit non-authority note."
+    },
+    {
+      "featureId": "unsupported-candidate-count",
+      "transcript": "node bin/koala.js memory_benchmark_compare --candidateCounts=50000 --format=json failed with unsupported candidateCounts=50000; supported fixed-tier candidate counts are 10000, 100000, 1000000."
+    },
+    {
+      "featureId": "per-metric-minima",
+      "transcript": "Direct dist runtime probes with runMemoryBenchmark({tier:\"T1\",baselineQualityScore:90,overrides}) showed exactRecallAt1=0.9, recallAt10=0.89, mrrAt10=0.74, and precisionAt10=0.69 each return verdict FAIL and thresholdPassed=false even while MemoryScore remains above the tier threshold."
+    },
+    {
+      "featureId": "smoke-coverage",
+      "transcript": "npm --prefix packages/main run test:memory-benchmark-smoke passed, covering deterministic signatures, fixed-tier compare semantics, unsupported-count rejection, hard-fail precedence, and per-metric minima regressions."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review reproduced the benchmark CLI contract, fixed-tier rejection, minima failures, and smoke coverage; the story is deliverable as a deterministic virtual benchmark harness with explicit non-authority boundaries."
+  },
+  "_hash": "148a4a64c3bb1191779a9fc1407ef72ddc600b98a4140d8fb61920ee169e5c19"
+}
