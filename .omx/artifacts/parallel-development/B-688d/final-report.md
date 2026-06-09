@@ -63,6 +63,7 @@ No authority claims are active. All evidence is scoped to local lifecycle only.
 - **hostProbes**: `.omx/artifacts/parallel-development/B-688d/host-probes.json`
 - **dispatchAudit**: `.omx/artifacts/parallel-development/B-688d/dispatch-audit.json`
 - **claimLockStatus**: `.omx/artifacts/parallel-development/B-688d/claim-lock-status.json`
+- **scopeAdvisory**: `.omx/artifacts/claude-scope-check-B-688d-20260609T230010Z.md`
 
 ## Blocked Reasons
 
