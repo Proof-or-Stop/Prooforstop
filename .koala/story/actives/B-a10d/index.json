@@ -1,0 +1,56 @@
+{
+  "storyId": "B-a10d",
+  "name": "baseline-layers-2-to-5-docs",
+  "title": "编写 Lattice baseline 2-5 层执行方案文档",
+  "description": "为 Lattice baseline 分层能力体系补齐第 2 到第 5 层的详细执行方案文档：Engineering Baseline、Loop Engineering Baseline、Production Safety Baseline、Capability Claim Baseline。Development Baseline 已在开发中，本 story 只写后续四层文档，明确先后依赖、测试验证、通过标准和能力声明边界。",
+  "type": "chore",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "keywords": [
+    "baseline",
+    "capability-claim",
+    "loop-engineering",
+    "production-safety"
+  ],
+  "riskSignals": [
+    {
+      "category": "安全/凭证",
+      "matched": "security"
+    },
+    {
+      "category": "数据迁移/破坏性",
+      "matched": "migration"
+    },
+    {
+      "category": "生产环境/紧急",
+      "matched": "Production"
+    }
+  ],
+  "priorityElevatedFrom": "medium",
+  "createdAt": "2026-06-09T19:08:23.125Z",
+  "startedAt": "2026-06-09T19:08:23.125Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-09T19:08:23.131Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-09T19:08:59.516Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-a10d",
+    "branch": "story/B-a10d",
+    "createdAt": "2026-06-09T19:09:21.930Z"
+  }
+}

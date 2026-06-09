@@ -1,0 +1,56 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "编写 Engineering Baseline 执行方案",
+      "context": "定义真实工程开发能力 baseline，包括 multi-file、existing repo、bugfix、regression、migration、security、frontend visual、long-running 等验证项。",
+      "relatedDocs": [
+        "Lattice-Review-reflection-loop.md",
+        "docs/requirements/decisions/testing-completeness.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "编写 Loop Engineering Baseline 执行方案",
+      "context": "定义 UDM/Loop Engineering baseline，覆盖 intake、planner、executor、repair loop、review reflection loop、evidence gate、stop/block/escalate、多 host review 和 no false DONE。",
+      "relatedDocs": [
+        "Lattice-Review-reflection-loop.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/host-overflow.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "编写 Production Safety Baseline 执行方案",
+      "context": "定义 production-grade unattended safety baseline，覆盖 false DONE trap、unsafe block、authority receipt、多 host、stale verdict、no local fallback、soak、recovery、auditability。",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-client-role.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "编写 Capability Claim Baseline 执行方案",
+      "context": "定义能力声明 baseline，控制每层通过后允许 Lattice 宣称什么能力，明确 claim unlock、证据输入、禁止 overclaim 和机器可检查规则。",
+      "relatedDocs": [
+        "docs/requirements/decisions/project-vision.md",
+        "docs/requirements/decisions/truth-source.md",
+        "docs/requirements/NAV.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

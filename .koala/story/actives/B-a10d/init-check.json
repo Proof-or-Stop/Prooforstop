@@ -1,0 +1,34 @@
+{
+  "storyId": "B-a10d",
+  "checkedAt": "2026-06-09T19:08:51.778Z",
+  "reviewRound": "",
+  "agentId": "koala-review-story-init@fallback",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "koala-review-story-init@fallback",
+      "checkedAt": "2026-06-09T19:08:51.778Z",
+      "issues": []
+    },
+    {
+      "agentId": "product-reviewer@fallback",
+      "checkedAt": "2026-06-09T19:08:51.778Z",
+      "issues": []
+    }
+  ],
+  "fallback": {
+    "mode": "fallback",
+    "reason": "当前 Codex 会话未收到用户要求启用多 agent；可用 subagent 工具策略限制不能为普通文档 story 主动 spawn。人工核查了 story background、四个 checklist 与相关文档引用，确认本 story 只新增 baseline 执行方案文档，不修改生产安全、migration 或 security 逻辑。",
+    "evidenceRefs": [
+      "AGENTS.md#Story阶段流转",
+      "koala aux_doc_list output 2026-06-09",
+      "user request 2026-06-09 baseline layers 2-5 docs"
+    ],
+    "actor": "codex-main",
+    "session": "sess-607b0838f5d7881a",
+    "attestedAt": "2026-06-09T19:08:51.778Z",
+    "headHash": "7d85408deac04a1a853621943048ec927aadc433",
+    "materialHash": "92ae235f7b76cab5929dba0c32c451f53bcbb7c8841e127c5f7687f6e4964c11"
+  },
+  "_hash": "1dd191728e2bb513093fc144f5287633fb9969282d8211e1bfb737f4a9be03c1"
+}
