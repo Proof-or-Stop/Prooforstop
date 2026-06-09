@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-688d:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "All CHK-001/002/003 verificationIntent entries are covered by concrete verificationEvidence. The blocked_classified evidence is consistent with GO-NOT-YET/fail-closed artifacts: final-report.json shows dispatchDecision=GO-NOT-YET and authorityBoundary off/local-lifecycle, dispatch-audit.json encodes fail-closed BLOCKED stop conditions, and baseline-suite-report.json remains suiteStatus=FAIL with localReviewCertified=false.",
+      "createdAt": "2026-06-09T23:20:29.579Z",
+      "reviewRound": "2026-06-09T23:18:44.418Z",
+      "reviewRunId": "B-688d:RR-009",
+      "_hash": "b7eebf663999e634a497f4fcf648e0aa564f71d593f7f6aadb813a4a3788045e"
+    }
+  ]
+}
