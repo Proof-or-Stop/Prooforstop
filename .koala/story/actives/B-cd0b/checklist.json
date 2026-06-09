@@ -87,9 +87,9 @@
         "Lattice-Parallel-Development-Capability.md",
         "docs/requirements/decisions/authority-client-role.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-09T22:28:05.839Z",
-      "endTime": "2026-06-09T22:38:14.775Z",
+      "endTime": "2026-06-09T22:43:38.966Z",
       "verificationIntent": {
         "happy": [
           {
@@ -126,34 +126,34 @@
           "intentRef": "CHK-002:happy:0",
           "kind": "docs_check",
           "file": "Lattice-Parallel-Development-Capability.md",
-          "command": "rg -n \"authorityMode|evidenceClass|receiptVerified|productionDone|authorityChanged|authorityReceiptRefs|final-report.json|Readiness Checklist|DONE Criteria|Anti-Patterns\" Lattice-Parallel-Development-Capability.md",
+          "command": "rg -n \"authorityMode|evidenceClass|authority.receiptVerified|authority.productionDone|authority.authorityChanged|authority.receiptRefs|final-report.json|Readiness Checklist|DONE Criteria|Anti-Patterns\" Lattice-Parallel-Development-Capability.md",
           "result": "pass",
-          "note": "The report, readiness, DONE, and anti-pattern sections consistently use authorityMode, evidenceClass, receiptVerified, productionDone, authorityChanged, and authorityReceiptRefs without contradicting the mode matrix.",
-          "headHash": "c8840c3b0972a4adb5dfb1d975deda866000bd03",
+          "note": "The report, readiness, DONE, and anti-pattern sections consistently use authorityMode, evidenceClass, and the nested authority.* fields without contradicting the mode matrix.",
+          "headHash": "f84dc2a98810804a8d720c1ef00ba5dfd37256a6",
           "materialHash": "095f3260284efedced6dbbcf455bf92d708cf6aa5d9369ae938272f629e18213",
-          "timestamp": "2026-06-09T22:42:37.840Z"
+          "timestamp": "2026-06-09T22:43:39.040Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "docs_check",
           "file": "Lattice-Parallel-Development-Capability.md",
-          "command": "rg -n \"accepted: true != receiptVerified|local PASS does not imply productionDone|final-report.json|Readiness Checklist|DONE Criteria|local/off|shadow\" Lattice-Parallel-Development-Capability.md",
+          "command": "rg -n 'accepted: true != receiptVerified|local PASS does not imply productionDone|final-report.json|Readiness Checklist|DONE Criteria|\\| `off` \\||\\| `shadow` \\|' Lattice-Parallel-Development-Capability.md",
           "result": "pass",
           "note": "The document treats final-report/readiness/DONE as a future-facing contract while saying local CLI PASS or transport acceptance is not production authority.",
-          "headHash": "c8840c3b0972a4adb5dfb1d975deda866000bd03",
+          "headHash": "f84dc2a98810804a8d720c1ef00ba5dfd37256a6",
           "materialHash": "095f3260284efedced6dbbcf455bf92d708cf6aa5d9369ae938272f629e18213",
-          "timestamp": "2026-06-09T22:42:37.840Z"
+          "timestamp": "2026-06-09T22:43:39.093Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "docs_check",
           "file": "Lattice-Parallel-Development-Capability.md",
-          "command": "rg -n \"Any attempt to set `receiptVerified=true`, `productionDone=true`, or|Local CLI REVIEW/TEST/DONE described as production authority|Transport `accepted: true` described as receipt verification|Shadow diagnostics setting `receiptVerified=true`|not a claim that the runtime has already implemented\" Lattice-Parallel-Development-Capability.md",
+          "command": "rg -n 'Any attempt to set `authority.receiptVerified=true`|Local CLI REVIEW/TEST/DONE described as production authority|Transport `accepted: true` described as receipt verification|Shadow diagnostics setting `authority.receiptVerified=true`|not a claim that the runtime has already implemented' Lattice-Parallel-Development-Capability.md",
           "result": "pass",
           "note": "The document blocks local/shadow evidence from satisfying production authority or DONE, and does not imply runtime authority field enforcement already exists.",
-          "headHash": "c8840c3b0972a4adb5dfb1d975deda866000bd03",
+          "headHash": "f84dc2a98810804a8d720c1ef00ba5dfd37256a6",
           "materialHash": "095f3260284efedced6dbbcf455bf92d708cf6aa5d9369ae938272f629e18213",
-          "timestamp": "2026-06-09T22:42:37.840Z"
+          "timestamp": "2026-06-09T22:43:39.146Z"
         }
       ]
     }
