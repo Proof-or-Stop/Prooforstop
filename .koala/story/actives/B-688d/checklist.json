@@ -323,14 +323,14 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-003:happy:0",
-          "kind": "manual_transcript",
+          "kind": "logic_test",
           "verdict": "success",
-          "command": "lattice host_probe --host=codex --format=json && lattice host_probe --host=claude-code --format=json",
+          "command": "lattice host_probe --host=codex --format=json; lattice host_probe --host=claude-code --format=json; jq '.lanes | {total:length, implementers: map(select(.role==\"implementer\")) | length, reviewers: map(select(.role==\"reviewer\")) | length, hosts: map(.host) | unique}' .omx/artifacts/parallel-development/B-688d/dispatch-audit.json",
           "result": "pass",
-          "note": "host-probes.json records canonical host profiles codex and claude-code with binary display names Codex CLI and Claude CLI, both available without fallback.",
-          "headHash": "4b0415527bda879dc1388ede613e178e9c0b03a0",
+          "note": "Covers the full 2-host/8-agent dispatch audit directly: canonical hosts codex and claude-code are probed without fallback, dispatch-audit.json has exactly 8 lanes, 4 implementers, 4 opposite-host reviewers, and reviewer lanes declare oppositeOf.",
+          "headHash": "a43be72e4c898d0ca4bd647c6c3358a805c5bac8",
           "materialHash": "77e12252a561080de5606f965e2825ed0e72148704616ee2f01345aa43fe3420",
-          "timestamp": "2026-06-09T23:26:36.935Z"
+          "timestamp": "2026-06-09T23:26:50.721Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
