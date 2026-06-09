@@ -219,6 +219,54 @@ Parallel Development run, but it does not become the execution engine. A future
 implementation should add separate `parallel_development_*` surfaces for frozen
 run state, workstream status, merge queue enforcement, and final reporting.
 
+## Authority Modes And Evidence Chains
+
+Parallel Development must keep local lifecycle proof separate from production
+authority proof. This section is a documentation and future implementation
+contract only. It does not implement runtime gates, receipt verification,
+Authority Server behavior, or any receipt-backed enforcement path.
+
+Mode matrix:
+
+| Mode | Evidence class | What it can prove | What it cannot prove | Required report posture |
+|---|---|---|---|---|
+| `local/off` | `local-lifecycle` | Local CLI REVIEW, TEST, DONE, validation, checklist, and merge readiness for the current repository material hash. | Production authority, Authority Server acceptance, signed receipt verification, or production DONE. | `receiptVerified=false`, `productionDone=false`, `authorityChanged=false`, `authorityReceiptRefs=[]`. |
+| `shadow` | `lineage-context` or `thin-client-transport-accepted` | Diagnostic submission, observability, migration readiness, and lineage/context useful to humans and future verifiers. | Production authority. Transport `accepted: true` is only transport acceptance; it is not receipt verification. | Same as `local/off`; shadow evidence must not flip authority fields. |
+| `receipt-backed/enforce-capable future path` | `receipt-backed-authority` only after dedicated implementation | Production authority only when a signed envelope and a verified signed AuthorityReceipt are both present and fresh. | Authority from local JSON, shadow diagnostics, Parallel Wave projections, or transport acceptance alone. | Authority fields may change only when receipt verification succeeds and the receipt refs are recorded. |
+
+Local CLI lifecycle gates remain valuable, but their boundary is narrow:
+
+```text
+local REVIEW/TEST/DONE proves local lifecycle state only
+local REVIEW/TEST/DONE does not prove production authority
+local PASS does not imply productionDone
+```
+
+Authority Server production authority requires all receipt-backed conditions:
+
+```text
+independent producerRunId and verifierRunId
+provider, model, and vendor
+commandDigest, transcriptHash, and diffHash
+envelopeSignature over the evidence envelope
+verified signed AuthorityReceipt
+```
+
+`producerRunId` and `verifierRunId` must name different runs. A same-run
+producer/verifier envelope collapses independent verification and must not be
+classified as receipt-backed production authority.
+
+Transport acceptance rule:
+
+```text
+accepted: true != receiptVerified
+```
+
+Parallel Wave evidence remains lineage and context only. A Wave `evidenceRefs`
+entry may help a coordinator find prior work, recovery notes, or verification
+inputs, but it must not satisfy REVIEW, TEST, DONE, production authority,
+receipt verification, or claim unlock.
+
 ## When To Use Parallel Development
 
 Use it when all are true:
@@ -253,8 +301,8 @@ Required shared contract:
 | `runId` format | Stable unique id for a baseline/workstream run. |
 | `baselineId` format | Names such as `ENG-*`, `UDM-*`, `SAFE-*`, `AUTH-*`, `CLAIM-*`. |
 | `materialHash` semantics | Which files/artifacts make evidence fresh or stale. |
-| `evidenceRef` format | How commands, files, artifacts, receipts, and host verdicts are referenced. |
-| `final-report.json` | Per-run expected outcome, actual outcome, and authority/local status. |
+| `evidenceRef` format | How commands, files, artifacts, receipts, host verdicts, and evidence classes are referenced. |
+| `final-report.json` | Per-run expected outcome, actual outcome, local lifecycle status, authority mode, evidence class, receipt verification state, production DONE state, authority mutation state, and AuthorityReceipt refs. |
 | `baseline-suite-report.json` | Aggregated suite outcome, rates, false DONE count, maturity target. |
 | `host-verdicts.json` | Independent host identity, material hash binding, verdict, and freshness. |
 | `claim-report.json` | Highest authorized claim, blocked reason, missing evidence, stale evidence. |
@@ -571,16 +619,30 @@ An implementation of this capability should produce:
   "blockedMergeCount": 0,
   "falseDoneCount": 0,
   "overclaimBlocked": true,
+  "authorityMode": "local/off | shadow | receipt-backed/enforce-capable",
+  "evidenceClass": "local-lifecycle | lineage-context | thin-client-transport-accepted | receipt-backed-authority",
+  "receiptVerified": false,
+  "productionDone": false,
+  "authorityChanged": false,
+  "authorityReceiptRefs": [],
   "authorizedClaimLevel": "none | development | engineering | loop | production-safety",
   "claimUnlockOrderPreserved": true
 }
 ```
+
+For `local/off` and `shadow` runs, `receiptVerified`, `productionDone`, and
+`authorityChanged` must remain `false`, and `authorityReceiptRefs` must remain
+empty. A future receipt-backed run may set them only after the signed envelope
+conditions are satisfied and the signed AuthorityReceipt has been verified.
 
 ## Readiness Checklist
 
 Before starting a parallel development run:
 
 - Shared contract is frozen.
+- Authority mode is declared as `local/off`, `shadow`, or future
+  `receipt-backed/enforce-capable`.
+- The declared `evidenceClass` matches the authority mode.
 - Workstreams have disjoint owned paths.
 - Shared paths are coordinator-owned.
 - Each workstream has a loop policy.
@@ -589,6 +651,11 @@ Before starting a parallel development run:
 - Merge queue order exists.
 - Claim evaluator fails closed on missing lower-layer evidence.
 - Human handoff triggers are explicit.
+- If the run is `local/off` or `shadow`, the operator understands that local
+  REVIEW/TEST/DONE is local lifecycle proof only.
+- If the run is future `receipt-backed/enforce-capable`, the implementation
+  track must include signed envelope production and verified signed
+  AuthorityReceipt handling.
 
 Before merging a workstream:
 
@@ -598,14 +665,25 @@ Before merging a workstream:
 - Its owned paths do not conflict with earlier merge entries.
 - It did not modify shared contract without approval.
 - It did not authorize a claim beyond proven lower layers.
+- Its `final-report.json` authority fields match the mode boundary.
+- Any Parallel Wave evidence is used as lineage/context only.
+- Any transport `accepted: true` response remains transport evidence only.
 
 Before claiming capability:
 
 - Lower layers have PASS evidence.
+- Local CLI REVIEW/TEST/DONE is treated as local lifecycle proof only.
 - `false_done_count = 0`.
 - No dependent evidence is stale.
 - Required host verdicts exist and are independent.
-- Required authority receipt is verified where authority wording is used.
+- Required authority receipt is verified where production authority wording is
+  used.
+- Authority wording is backed by independent producer/verifier run ids,
+  provider/model/vendor, command/transcript/diff hashes, envelope signature, and
+  a verified signed AuthorityReceipt.
+- `receiptVerified`, `productionDone`, `authorityChanged`, and
+  `authorityReceiptRefs` are consistent with `authorityMode` and
+  `evidenceClass`.
 - Claim report names the highest authorized claim and any blocked stronger
   claim.
 
@@ -616,6 +694,13 @@ Do not treat these as Parallel Development success:
 - Four agents all editing the same schema file.
 - A high-layer runner returning `PASS` because its local test passed.
 - A claim evaluator authorizing production wording from local JSON.
+- Local CLI REVIEW/TEST/DONE described as production authority.
+- Transport `accepted: true` described as receipt verification.
+- Shadow diagnostics setting `receiptVerified=true`, `productionDone=true`, or
+  `authorityChanged=true`.
+- A final report that omits `authorityMode`, `evidenceClass`,
+  `receiptVerified`, `productionDone`, `authorityChanged`, or
+  `authorityReceiptRefs`.
 - A merge queue that ignores open loops.
 - A coordinator that summarizes success without evidence refs.
 - A workstream that expands scope because it is blocked.
@@ -635,9 +720,16 @@ each workstream loop closes, blocks, or escalates
 merge queue blocks unresolved conflicts
 high-layer outputs remain shadow/audit-only until lower proof exists
 claim evaluator fails closed on missing or stale evidence
+final-report.json records authorityMode, evidenceClass, receiptVerified,
+  productionDone, authorityChanged, and authorityReceiptRefs
+local/off and shadow runs never claim production authority
+receipt-backed authority requires signed envelope conditions plus verified
+  signed AuthorityReceipt
 sequential proof order is preserved
 false_done_count = 0
 ```
 
-Until then, this document is an execution plan and capability definition, not a
-claim that the runtime has already implemented the full capability.
+Until then, this document is an execution plan, capability definition, and
+future implementation contract. It is not a claim that the runtime has already
+implemented the full capability, runtime authority gates, receipt verification,
+or receipt-backed enforcement.
