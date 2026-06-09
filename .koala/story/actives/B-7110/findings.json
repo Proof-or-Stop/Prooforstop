@@ -42,6 +42,24 @@
       "reviewRound": "2026-06-09T21:45:24.696Z",
       "reviewRunId": "B-7110:RR-006",
       "_hash": "512b2e411ba69f10d60f6c39611f801be8ef614f6855b20fad992f1f6c71373d"
+    },
+    {
+      "id": "B-7110:F-004",
+      "desc": "Lattice-Parallel-Development-Capability.md:158-180 [MEDIUM] B-7110:F-001 is only partially resolved. The new section correctly limits frozen-snapshot seeds to full-envelope Wave surfaces and demotes `parallel_report` to summary-only, but it still says the frozen snapshot fields from any allowed full-envelope artifact include `waveSchemaVersion`. That conflicts with docs/requirements/decisions/lattice-parallel-wave.md:82-100 and the live `lattice parallel_wave_create --format=json` output, where `parallel_wave_create` exposes `schemaVersion` and `generatedAt` but not `waveSchemaVersion`; only `parallel_wave_inspect` and `parallel_plan` add `waveSchemaVersion`. Future implementers can still choose `parallel_wave_create` per the capability doc and then fail to satisfy the documented frozen snapshot contract. Fix by either requiring inspect/plan when `waveSchemaVersion` is mandatory, or by documenting that the coordinator freeze wrapper derives/normalizes this field when the seed artifact is `parallel_wave_create`.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-09T21:50:10.326Z",
+      "reviewRound": "2026-06-09T21:45:24.696Z",
+      "reviewRunId": "B-7110:RR-005",
+      "_hash": "ae2f8b451b232247a529fb3d66cb7d66f993e0bed0fe888e75a08907cf909091",
+      "files": [
+        "Lattice-Parallel-Development-Capability.md",
+        "docs/requirements/decisions/lattice-parallel-wave.md",
+        "packages/main/src/core/lattice-parallel-wave.ts"
+      ]
     }
   ]
 }
