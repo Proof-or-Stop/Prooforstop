@@ -46,7 +46,30 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Read the report/readiness/DONE/anti-pattern sections and confirm they all use the same authority boundary vocabulary: authorityMode, evidenceClass, receiptVerified, productionDone, and authorityChanged are described consistently and do not contradict the mode matrix.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Confirm the docs can mention final-report.json, readiness checklist, and DONE criteria as a coherent future-facing contract while still making clear that local CLI PASS or transport acceptance is not sufficient evidence of production authority.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Verify that no report/readiness/DONE/anti-pattern statement implies the runtime already emits or enforces authority fields, and that none of them allow shadow/local evidence to satisfy production authority or DONE by implication.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
