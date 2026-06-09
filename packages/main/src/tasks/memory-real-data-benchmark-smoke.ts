@@ -277,9 +277,19 @@ function assertConfiguredStoryDirWorks(storyDir: string): void {
       'outputDir writes refuse to target story state',
     );
     assert.throws(
+      () => runMemoryBenchmarkRealData({ root, outputDir: join(root, 'Docs/story/memory-real-baseline') }),
+      /refuses to write outputDir under docs\/story/,
+      'outputDir writes refuse mixed-case story state paths',
+    );
+    assert.throws(
       () => runMemoryBenchmarkRealData({ root, outputDir: join(root, 'packages/main/tests/fixtures/memory-real-baseline') }),
       /refuses to write outputDir under packages\/main\/tests\/fixtures/,
       'outputDir writes refuse to target fixture state',
+    );
+    assert.throws(
+      () => runMemoryBenchmarkRealData({ root, outputDir: join(root, 'packages/main/tests/Fixtures/memory-real-baseline') }),
+      /refuses to write outputDir under packages\/main\/tests\/fixtures/,
+      'outputDir writes refuse mixed-case fixture state paths',
     );
     assert.throws(
       () => runMemoryBenchmarkRealData({ root, outputDir: join(root, '.koala/story/actives/B-real/memory-real-baseline') }),

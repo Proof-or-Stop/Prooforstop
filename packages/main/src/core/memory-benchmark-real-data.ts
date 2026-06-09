@@ -231,7 +231,9 @@ function normalizeProjectRelPath(root: string, candidate: unknown): string | nul
 }
 
 function isPathUnderOrEqual(relPath: string, protectedRelPath: string): boolean {
-  return relPath === protectedRelPath || relPath.startsWith(`${protectedRelPath}/`);
+  const normalizedRelPath = relPath.toLowerCase();
+  const normalizedProtectedRelPath = protectedRelPath.toLowerCase();
+  return normalizedRelPath === normalizedProtectedRelPath || normalizedRelPath.startsWith(`${normalizedProtectedRelPath}/`);
 }
 
 function safeString(value: unknown): string | undefined {
