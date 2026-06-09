@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-09T00:07:05.573Z",
       "reviewRunId": "B-d4dd:RR-001",
       "_hash": "713cca65d7caa05da23495d23e75d999e5bf498d75ef43ffec98d35762b6501a"
+    },
+    {
+      "id": "B-d4dd:RP-002",
+      "agent": "koala-review-docs",
+      "note": "PASS: Lattice-lifecycle-memory-Evolving.md:196-201 correctly documents the deterministic virtual corpus harness, the 10k baseline comparison rule, and the non-authority boundary. Verified against packages/main/src/core/memory-benchmark.ts:431-519, packages/main/src/cli-engine.ts:746-759, and packages/main/src/tasks/memory-benchmark-smoke.ts:39-67,133-140, which keep memory_benchmark_* read-only/L0, baselineQualityScore anchored to 10k, default compare tiers at 10k/100k/1M, and explicitly non-gate/non-authority.",
+      "createdAt": "2026-06-09T00:09:26.989Z",
+      "reviewRound": "2026-06-09T00:07:05.573Z",
+      "reviewRunId": "B-d4dd:RR-004",
+      "_hash": "1017862cdaccd015739ad47e6c27de729e54ac00e8308e5ff6756f51aa128148"
     }
   ]
 }
