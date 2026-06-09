@@ -33,6 +33,23 @@
         "packages/main/src/core/config.ts",
         "packages/main/src/core/store.ts"
       ]
+    },
+    {
+      "id": "B-2a63:F-003",
+      "desc": "[HIGH] packages/main/src/core/memory-benchmark-real-data.ts:833-873 allows --outputDir inside .koala/story/actives, so memory_benchmark_real_data can write corpus/gold/query/result files into story-managed state even though packages/main/src/core/command-policy.ts marks it readOnly. A temporary-root repro wrote files under .koala/story/actives/B-x/benchmark-artifacts successfully. Fix by rejecting configured storyDir/.koala lifecycle paths in assertAllowedOutputDir or by reclassifying the command as a mutating command with owner/phase gates.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-09T02:11:33.904Z",
+      "reviewRound": "2026-06-09T02:06:12.444Z",
+      "reviewRunId": "B-2a63:RR-002",
+      "_hash": "e28c427108bf88cbea0d17dc3b9e87d51ed37b2e39fb0858ccdae12d1bd43f37",
+      "files": [
+        "packages/main/src/core/memory-benchmark-real-data.ts",
+        "packages/main/src/core/command-policy.ts"
+      ]
     }
   ]
 }
