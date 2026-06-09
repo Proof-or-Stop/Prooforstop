@@ -47,7 +47,19 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "用户看到 2 host / 8 agent 的具体分工、每个 agent 的边界、allowed outputs、stop conditions，以及最终 go/blocked decision。"
+      "userSees": "User sees a 2-host/8-agent dispatch audit package assigning Codex CLI and Claude CLI implementer/reviewer lanes, with stop conditions and sequential proof locks.",
+      "files": {
+        "modify": [],
+        "create": [
+          ".omx/artifacts/parallel-development/B-688d/dispatch-audit.json",
+          ".omx/artifacts/parallel-development/B-688d/host-probes.json",
+          ".omx/artifacts/parallel-development/B-688d/final-report.json",
+          ".omx/artifacts/parallel-development/B-688d/final-report.md",
+          ".omx/artifacts/claude-baseline-audit-B-688d.md",
+          ".omx/artifacts/claude-dispatch-review-B-688d.md"
+        ],
+        "test": []
+      }
     }
   ]
 }
