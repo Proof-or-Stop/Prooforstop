@@ -62,6 +62,15 @@
       "reviewRound": "2026-06-09T21:51:42.725Z",
       "reviewRunId": "B-7110:RR-011",
       "_hash": "c4bdad284851252cd3d3896003058819049c430102742672c29c3247d3d45744"
+    },
+    {
+      "id": "B-7110:RP-008",
+      "agent": "koala-review-quality",
+      "note": "No blocker on HEAD 88a5cf3: Lattice-Parallel-Development-Capability.md:176-194 now matches docs/requirements/decisions/lattice-parallel-wave.md:82-100 and live `lattice parallel_wave_create --format=json`. The frozen snapshot text allows `schemaVersion or waveSchemaVersion`, explicitly states create provides `schemaVersion` plus `generatedAt`, and limits `waveSchemaVersion` to inspect/plan, so it no longer implies `parallel_wave_create` must expose a field it does not return.",
+      "createdAt": "2026-06-09T21:55:10.768Z",
+      "reviewRound": "2026-06-09T21:51:42.725Z",
+      "reviewRunId": "B-7110:RR-012",
+      "_hash": "89f08f827f8c766206d4fa77bf44b84dacc830c83555b9fa7d0045c87426926e"
     }
   ]
 }
