@@ -119,7 +119,7 @@
       ],
       "status": "done",
       "startTime": "2026-06-09T19:18:06.499Z",
-      "endTime": "2026-06-09T19:19:29.241Z",
+      "endTime": "2026-06-09T19:53:40.450Z",
       "userSees": "用户打开文档时看到标题 \"Lattice Production Safety Baseline Execution Plan\"，并看到 \"false_done_count must always be 0\"、SAFE-*、AUTH-*、PROD-* 验证矩阵。",
       "files": {
         "modify": [],
@@ -150,37 +150,15 @@
       },
       "verificationEvidence": [
         {
-          "intentRef": "CHK-003:happy:0",
-          "kind": "docs_check",
-          "file": "Lattice-Production-Safety-baseline.md",
-          "command": "rg -n \"SAFE-FALSE-DONE-1|SAFE-BLOCK-UNSAFE-1|AUTH-MULTI-HOST-1|AUTH-RECEIPT-1|AUTH-STALE-VERDICT-1|AUTH-NO-LOCAL-FALLBACK-1|PROD-SOAK-1\" Lattice-Production-Safety-baseline.md && git diff --check -- Lattice-Production-Safety-baseline.md",
-          "result": "pass",
-          "note": "Production Safety document lists SAFE, AUTH, and PROD baselines with required setup, artifacts, pass criteria, and fail criteria.",
-          "headHash": "202e0b6f588446ac2ebf69349cf75e49553b4936",
-          "materialHash": "c657c566ad0336a29a0d3ae5134de52d1b29749c6edeb4a6e55ebc791c30db3d",
-          "timestamp": "2026-06-09T19:19:29.269Z"
-        },
-        {
-          "intentRef": "CHK-003:edge:0",
-          "kind": "docs_check",
-          "file": "Lattice-Production-Safety-baseline.md",
-          "command": "rg -n \"false_done_count must always be 0|If false_done_count > 0|all higher capability claims are locked\" Lattice-Production-Safety-baseline.md",
-          "result": "pass",
-          "note": "Document makes zero false DONE a suite-level hard gate that invalidates upper-layer claims.",
-          "headHash": "202e0b6f588446ac2ebf69349cf75e49553b4936",
-          "materialHash": "c657c566ad0336a29a0d3ae5134de52d1b29749c6edeb4a6e55ebc791c30db3d",
-          "timestamp": "2026-06-09T19:19:29.289Z"
-        },
-        {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "docs_check",
           "file": "Lattice-Production-Safety-baseline.md",
-          "command": "rg -n \"PROD-SOAK-1|AUTH-STALE-VERDICT-1|AUTH-RECEIPT-1|AUTH-NO-LOCAL-FALLBACK-1|skip soak\" Lattice-Production-Safety-baseline.md",
+          "command": "git diff --check -- Lattice-Production-Safety-baseline.md && rg -n \"requiredIndependentHosts >= 2 per review wave|observedIndependentHostsPerWave|valid_suite_runs|minimum_cadence|excluded_soak_runs\" Lattice-Production-Safety-baseline.md",
           "result": "pass",
-          "note": "Document prevents simplifying safety to one pass by requiring soak, stale verdict rejection, receipt verification, and no silent fallback.",
-          "headHash": "202e0b6f588446ac2ebf69349cf75e49553b4936",
-          "materialHash": "c657c566ad0336a29a0d3ae5134de52d1b29749c6edeb4a6e55ebc791c30db3d",
-          "timestamp": "2026-06-09T19:19:29.311Z"
+          "note": "Production Safety now makes multi-host independence unconditional and adds production soak run count, cadence, gap, and exclusion criteria so safety cannot be proven by duration alone.",
+          "headHash": "eeff60ca57295248778ddd53e342d95a5825eddb",
+          "materialHash": "1b7bf76214c6db328db81b42dd2273b98cf3d38246c17bbd875f2a3d32a816b2",
+          "timestamp": "2026-06-09T19:53:40.472Z"
         }
       ]
     },
