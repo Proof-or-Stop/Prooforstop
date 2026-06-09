@@ -511,6 +511,323 @@ coordinatorDecisionRequired = true
 recommendedNextAction = repartition | freeze_contract | human_handoff | reduce_parallelism
 ```
 
+## Baseline 2-5 Parallel Implementation Plan
+
+This section is the concrete execution plan for developing the next baseline
+layers in parallel. It is intentionally thin. It coordinates implementation
+only; it does not add a new baseline, does not unlock claims early, and does not
+turn local evidence into receipt-backed authority.
+
+### Layer 1 Development Baseline Status
+
+Layer 1 is the prerequisite for the parallel implementation of layers 2-5.
+Before starting the parallel run, the coordinator must verify Development
+Baseline status from structured artifacts.
+
+Minimum Layer 1 suite:
+
+| Baseline ID | Required outcome |
+|---|---|
+| `NL-CLI-1` | `PASS` |
+| `NL-API-1` | `PASS` |
+| `NL-REPAIR-1` | `PASS` |
+| `RED-CLI-TS-PY-1` | `PASS` |
+| `RED-API-TS-GO-1` | `PASS` |
+| `RED-GAP-BLOCK-1` | `EXPECTED_BLOCK` |
+
+Current audit result:
+
+```text
+Layer 1 runner support exists for the six minimum Development Baseline ids.
+baseline_run can create final-report artifacts for all six ids.
+baseline_suite_report can aggregate the six final-report artifacts.
+```
+
+However, Layer 1 must not be treated as formally proven unless the suite report
+contains all of the following:
+
+```text
+suiteStatus = PASS
+minimumSuite.satisfied = true
+falseDoneCount = 0
+safetySuccessRate = 1
+all five expected PASS scenarios have independent local review evidence
+RED-GAP-BLOCK-1 remains EXPECTED_BLOCK
+```
+
+In the latest local audit run, the six reports were valid and `falseDoneCount`
+was `0`, but the suite still failed because the five expected `PASS` scenarios
+were missing independent local review evidence:
+
+```text
+blockedReason = local independent review evidence is missing
+```
+
+Therefore the correct status is:
+
+```text
+Layer 1 implementation: present
+Layer 1 formal capability proof: not complete until independent review evidence
+  and a PASS baseline-suite-report.json exist
+Allowed next action: prepare layers 2-5 implementation in parallel
+Forbidden next action: claim Engineering, Loop, Production Safety, or Capability
+  Claim readiness from Layer 1 alone
+```
+
+### Host And Agent Count
+
+The first dogfood run should use two coding hosts and one non-authoritative
+coordinator:
+
+| Role | Host count | Agent count | Mutating? | Purpose |
+|---|---:|---:|---|---|
+| Coordinator / auditor | 1 | 1 | Only shared contract and merge queue | Freeze contract, assign ownership, enforce sequential proof. |
+| Implementation hosts | 2 | 4 | Yes, one story/worktree each | Build Engineering, Loop, Production Safety, and Claim workstreams. |
+| Cross-host reviewers | 2 | 4 | Read-only except review artifacts | Review each workstream from the opposite host. |
+
+Minimum host setup:
+
+```text
+Host A = Codex CLI
+Host B = Claude CLI
+Coordinator = current supervising Codex session
+```
+
+The coordinator is not an independent host verdict. It may audit, assign,
+merge, or block, but it must not certify its own coordination as proof.
+
+Maximum parallelism:
+
+```text
+max_mutating_agents = 4
+max_review_agents = 4
+max_total_parallel_agents = 8
+coordinator_agents = 1
+```
+
+That means the full run uses:
+
+```text
+2 CLI hosts
+8 parallel workstream/review agents
+1 coordinator/auditor
+```
+
+Do not increase host or agent count unless there is a real ownership split.
+More agents are not a capability by themselves.
+
+### Agent Assignment
+
+Each workstream has one implementer and one reviewer. The reviewer must run on
+the opposite host from the implementer.
+
+| Workstream | Implementer | Reviewer | Mode before proof |
+|---|---|---|---|
+| Engineering Runner | Codex agent `ENG-impl` | Claude agent `ENG-review` | normal implementation |
+| Loop Engine | Claude agent `LOOP-impl` | Codex agent `LOOP-review` | normal implementation |
+| Production Safety | Codex agent `PROD-impl` | Claude agent `PROD-review` | `shadow` / `audit_only` |
+| Claim Evaluator | Claude agent `CLAIM-impl` | Codex agent `CLAIM-review` | fail-closed / `not_authorized` |
+
+Implementation agents may edit only their owned paths. Review agents may read
+the implementation, run verification commands, and write review artifacts
+through the approved story/review flow. A reviewer must not patch the
+implementation it is reviewing.
+
+### Workstream Ownership
+
+The coordinator must write an ownership map before any implementation agent
+starts:
+
+```json
+{
+  "schemaVersion": "lattice.parallel_ownership.v1",
+  "sharedContractVersion": "baseline-parallel-v1",
+  "workstreams": [
+    {
+      "workstreamId": "engineering-runner",
+      "ownerHost": "codex",
+      "ownedPaths": [],
+      "readOnlyPaths": ["Lattice-Loop-Engineering-baseline.md", "Lattice-Production-Safety-baseline.md", "Lattice-Capability-Claim-baseline.md"]
+    },
+    {
+      "workstreamId": "loop-engine",
+      "ownerHost": "claude",
+      "ownedPaths": [],
+      "readOnlyPaths": ["Lattice-Engineering-baseline.md", "Lattice-Production-Safety-baseline.md", "Lattice-Capability-Claim-baseline.md"]
+    },
+    {
+      "workstreamId": "production-safety",
+      "ownerHost": "codex",
+      "ownedPaths": [],
+      "readOnlyPaths": ["Lattice-Engineering-baseline.md", "Lattice-Loop-Engineering-baseline.md", "Lattice-Capability-Claim-baseline.md"]
+    },
+    {
+      "workstreamId": "claim-evaluator",
+      "ownerHost": "claude",
+      "ownedPaths": [],
+      "readOnlyPaths": ["Lattice-Engineering-baseline.md", "Lattice-Loop-Engineering-baseline.md", "Lattice-Production-Safety-baseline.md"]
+    }
+  ]
+}
+```
+
+The `ownedPaths` arrays must be filled with real files before coding starts.
+Until then, the run is in planning mode and no implementation agent should
+write code.
+
+Shared schema, gate semantics, report aggregation, material hash rules, and
+claim authorization rules are coordinator-owned. A workstream that needs to
+change any of them must stop and request a shared contract change.
+
+### Execution Phases
+
+The run proceeds in seven phases:
+
+| Phase | Parallel? | Required result |
+|---|---|---|
+| 0. Layer 1 audit | No | Development Baseline proof status is known from suite artifacts. |
+| 1. Shared contract freeze | No | `sharedContractVersion` and report schemas are frozen. |
+| 2. Workstream setup | Yes | Four stories/worktrees exist with disjoint ownership. |
+| 3. Implementation | Yes | Four implementation agents produce artifacts in their modes. |
+| 4. Cross-host review | Yes | Four opposite-host reviewers pass, block, or escalate. |
+| 5. Merge queue | Mostly sequential | Entries merge only when ownership, review, and evidence are clean. |
+| 6. Sequential proof | No | Development -> Engineering -> Loop -> Production Safety -> Claim. |
+
+Phase 0 is allowed to finish with this result:
+
+```text
+Layer 1 runner exists, but formal PASS proof is absent.
+```
+
+In that case, phases 1-5 may prepare implementation artifacts, but phase 6
+must lock Engineering and every higher capability claim until Layer 1 has a
+real `PASS` suite report.
+
+### Review And Evidence Rules
+
+Each workstream checkpoint must produce:
+
+```text
+workstream final-report.json
+execution-log.jsonl
+evidence-index.json
+review verdict from opposite host
+materialHash bound to current files
+blockedReason when not PASS
+```
+
+The first dogfood run uses local lifecycle evidence only:
+
+```text
+authorityMode = local/off
+evidenceClass = local-lifecycle
+receiptVerified = false
+productionDone = false
+authorityChanged = false
+```
+
+Production Safety and Claim workstreams may run early only if their outputs stay
+non-authoritative:
+
+```text
+Production Safety -> shadow or audit_only
+Capability Claim -> not_authorized or EXPECTED_BLOCK
+```
+
+Any attempt to set `receiptVerified=true`, `productionDone=true`, or
+`authorityChanged=true` from local CLI evidence must block the run.
+
+### Sequential Proof Unlock
+
+The proof unlock order is fixed:
+
+| Unlock step | Required suite status | Allowed claim after pass |
+|---|---|---|
+| 1 | Development Baseline `PASS` | Basic bounded development for tested scenarios. |
+| 2 | Engineering Baseline `PASS` | Real engineering development for tested project classes. |
+| 3 | Loop Engineering Baseline `PASS` | Correctness-protected unattended loop for tested task classes. |
+| 4 | Production Safety Baseline `PASS` | Approaching production-grade unattended safety for tested classes and maturity target. |
+| 5 | Capability Claim Baseline `PASS` | Only the highest claim authorized by lower-layer evidence. |
+
+If any lower layer is missing, stale, or failed, higher-layer implementation
+artifacts may still exist, but the higher-layer claim output must be:
+
+```text
+authorized = false
+outcome = EXPECTED_BLOCK
+blockedReason = lower_layer_not_proven | stale_evidence | missing_host_verdict
+```
+
+### Integration Plan
+
+Each workstream enters the merge queue with:
+
+```text
+workstreamId
+host
+agentId
+ownedPaths
+sharedContractVersion
+reviewerHost
+reviewVerdict
+evidenceFresh
+authorityMode
+evidenceClass
+rollbackPlan
+```
+
+Merge order:
+
+1. Shared contract and schema definitions.
+2. Development Baseline proof artifacts, if not already present.
+3. Engineering Runner.
+4. Loop Engine.
+5. Production Safety shadow/audit-only implementation.
+6. Claim Evaluator fail-closed implementation.
+
+Claim Evaluator code may merge before every lower layer passes only if its test
+fixture proves it blocks missing lower-layer evidence.
+
+### Stop And Rollback Rules
+
+Stop parallel execution when:
+
+- Layer 1 proof is required for a claim but no PASS suite report exists.
+- Two workstreams need the same owned path.
+- A workstream tries to change shared schema without coordinator approval.
+- A high-layer workstream cannot remain shadow/audit-only.
+- A reviewer and implementer disagree for more than the configured loop budget.
+- Any evidence is stale for the current material hash.
+- Any local evidence is described as receipt-backed authority.
+
+Rollback action:
+
+```text
+revert only the blocked workstream branch/worktree
+keep shared contract artifacts
+record blockedReason
+do not weaken the proof gate to make the merge pass
+```
+
+### DONE Criteria For The Parallel Run
+
+The parallel implementation run is executable only when:
+
+```text
+Layer 1 proof status is recorded
+shared contract is frozen
+2 hosts are assigned
+8 workstream/review agents are assigned
+4 workstreams have disjoint owned paths
+each workstream has an opposite-host reviewer
+Production Safety is shadow/audit-only until authority proof exists
+Claim Evaluator fails closed on missing lower-layer evidence
+merge queue blocks ownership conflicts and stale evidence
+sequential proof order is preserved
+false_done_count = 0
+no capability claim is stronger than the available suite evidence
+```
+
 ## Dogfooding Plan
 
 The first useful validation of this capability is to use it to implement the
