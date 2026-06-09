@@ -1,0 +1,56 @@
+{
+  "storyId": "B-2a63",
+  "changes": "Added memory_benchmark_real_data real lifecycle artifact baseline export; wired CLI/handler/registry/policy/process fact config; documented usage and non-authoritative boundary; added smoke coverage for configured storyDir, protected outputDir, current activity schema, review-passes artifacts, dev-memory exclusion, and empty real-data FAIL.",
+  "usage": "Run node bin/koala.js memory_benchmark_real_data --format=text or --format=json; pass --outputDir=.lattice/tmp/memory-real-baseline-user-final to write corpus.jsonl, gold.jsonl, queries.jsonl, and result.json without overwriting existing files or lifecycle-managed paths.",
+  "expectedOutcome": "User sees Real Memory Benchmark Data: PASS, non-empty corpus/gold/query/result counts, exactRecordMatchRate=1.000, sourcePath/sourceHash rows, scoreable/boundary-only layer separation, non-authoritative note, and output artifact paths.",
+  "actualTranscript": "Real Memory Benchmark Data: PASS; corpusRecords=495; goldRecords=495; queryRecords=495; resultRecords=495; exactRecordMatchRate=1.000; boundaryGoldRecords=0; boundaryQueryRecords=0; output files written under .lattice/tmp/memory-real-baseline-user-final.",
+  "outcomeDiff": "Accepted: actual output matches expected behavior. Counts are higher than earlier DEV transcripts because the command reads live lifecycle metadata produced during review/test, which is expected for a real-data baseline.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "No production retrieval engine, vector DB, million-candidate retrieval harness, receipt authority, review pass, validation evidence, delivery check, or DONE gate authority is claimed by the benchmark output.",
+  "pitfalls": "Key pitfalls fixed during review: configured storyDir false FAIL, read-only command writing into story-managed paths, current activity schema losing tool/status, review-passes.json omission, and mixed-case protected path bypass on case-insensitive filesystems.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 264334
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 93897
+    },
+    "PLAN": {
+      "count": 2,
+      "durationMs": 671488
+    },
+    "DEV": {
+      "count": 4,
+      "durationMs": 2584182
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 1038772
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 113168
+    }
+  },
+  "totalDurationMs": 4765841,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-09T02:47:37.285Z",
+  "updatedAt": "2026-06-09T02:47:37.285Z"
+}

@@ -1,0 +1,207 @@
+{
+  "command": "koala validate --story=B-2a63 --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.5 test\",\"  > npm run test:e2e\",\"  > koala@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ℹ Reading legacy koala.config.json at /Users/jek/Documents/Work/Orchestrate/.worktrees/B-2a63; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ℹ Reading legacy koala.config.json at .; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-NiSEcV; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-7avEZB; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 10/10 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via manual_transcript — 运行 real-data baseline 命令后，终端或 JSON 输出展示 non-empty corpus/gold/query/result 统计，并包含真实 sourcePath、sourceHash、recordId，使用户能审计 baseline 来自真实项目数据而非占位样本。\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via manual_transcript — 当结果同时包含 scoreable lifecycle layers 与 boundary-only/advisory layers 时，输出必须把两者分开展示并给出各自计数，证明 boundary-only 数据没有被伪装成可评分真相源。\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/cli] covered via docs_check (Lattice-lifecycle-memory-Evolving.md) — 即使 real-data baseline 产物看起来完整，输出也必须保留 non-authoritative 基线说明，不得把 benchmark 结果表述成 gate evidence 或最终真相源结论。\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via manual_transcript — 执行 real-data benchmark CLI 并传入 outputDir 后，用户能在指定目录看到 corpus.jsonl、gold.jsonl、queries.jsonl、result.json 四个文件，且终端明确打印这些路径与 PASS/FAIL 汇总。\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via manual_transcript — 写出的 result.json 和终端摘要必须明确标注哪些内容处于 non-authority boundary，尤其是 boundary-only 或 advisory 数据不能被写成 scoreable gold/result 主体。\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via logic_test — 当输入跨越真实 authority 数据与 dev-memory 边界时，artifact 只能导出 real-data baseline 所需的真实数据与边界注释；dev-memory 若仅属 boundary-only，应被排除在 scoreable corpus/gold/query/result 之外。\",\"  ✓ CHK-002:adversarial:1 [adversarial/must/cli] covered via logic_test — 当用户把 outputDir 指向 story-managed lifecycle state 或 fixture-managed paths（例如 .koala/story/**、配置的 storyDir、docs/story/**、packages/main/tests/fixtures/**）时，命令必须拒绝写入，保持 readOnly lifecycle policy 不绕过 owner/gate 保护。\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via logic_test — 基于真实 activity/story 数据运行 smoke 或 CLI transcript 时，用户能看到非空 real data 被用于 scoring，gold query 可以匹配到真实记录，且 recall/answer/evidence linkage 分数被实际计算出来。\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via logic_test — 若数据集中同时存在可评分真实数据和仅用于边界说明的 dev-memory 内容，输出必须证明 dev-memory 仅停留在 boundary-only exclusion，不进入 recall/precision 或 gold 命中计算。\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/cli] covered via logic_test — 当 real activity/story 数据为空、不可解析或只剩 boundary-only 内容时，命令必须显式 FAIL 并解释缺少真实数据，而不是生成看似成功的空 baseline 或 fake PASS。\"],\"warnings\":[],\"timestamp\":\"2026-06-09T02:45:55.695Z\",\"headSha\":\"1946b85b157c369b9f9253e977dc66353bdca5f3\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\nℹ Reading legacy koala.config.json at /Users/jek/Documents/Work/Orchestrate/.worktrees/B-2a63; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\nℹ Reading legacy koala.config.json at .; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-NiSEcV; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-7avEZB; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":848}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":10,\"reason\":\"verificationIntent entries present (10)\"},\"verificationCoverage\":{\"total\":10,\"required\":10,\"covered\":10,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"运行 real-data baseline 命令后，终端或 JSON 输出展示 non-empty corpus/gold/query/result 统计，并包含真实 sourcePath、sourceHash、recordId，使用户能审计 baseline 来自真实项目数据而非占位样本。\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node bin/koala.js memory_benchmark_real_data --outputDir=.lattice/tmp/memory-real-baseline-audit --format=text\",\"result\":\"pass\",\"note\":\"Real repository lifecycle data returned Real Memory Benchmark Data: PASS with corpusRecords=389, goldRecords=389, queryRecords=389, resultRecords=389, exactRecordMatchRate=1.000, and printed sourcePath/sourceHash/record counts for 36 sources.\",\"headHash\":\"b0b83734740b2c8b758f94c487b5c1d80460802b\",\"materialHash\":\"3d6c6e23d4cc82c047029872921598495d906ee40af4f9eab5dbd373544d0198\",\"timestamp\":\"2026-06-09T02:41:08.816Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"当结果同时包含 scoreable lifecycle layers 与 boundary-only/advisory layers 时，输出必须把两者分开展示并给出各自计数，证明 boundary-only 数据没有被伪装成可评分真相源。\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node -e inspect .lattice/tmp/memory-real-baseline-audit/result.json\",\"result\":\"pass\",\"note\":\"Result artifact reports scoreable layers raw_event_memory,lifecycle_state_memory,checklist_evidence_memory,summary_memory; boundary-only layers advisory_memory,host_transcript_memory; boundaryGoldRecords=0 and boundaryQueryRecords=0.\",\"headHash\":\"b0b83734740b2c8b758f94c487b5c1d80460802b\",\"materialHash\":\"3d6c6e23d4cc82c047029872921598495d906ee40af4f9eab5dbd373544d0198\",\"timestamp\":\"2026-06-09T02:41:08.816Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"即使 real-data baseline 产物看起来完整，输出也必须保留 non-authoritative 基线说明，不得把 benchmark 结果表述成 gate evidence 或最终真相源结论。\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"Lattice-lifecycle-memory-Evolving.md\",\"command\":\"node bin/koala.js memory_benchmark_real_data --format=json\",\"result\":\"pass\",\"note\":\"JSON output and docs preserve the non-authoritative note: not lifecycle gate authority, review pass, validation evidence, delivery check, receipt, vector DB, or production memory architecture.\",\"headHash\":\"b0b83734740b2c8b758f94c487b5c1d80460802b\",\"materialHash\":\"3d6c6e23d4cc82c047029872921598495d906ee40af4f9eab5dbd373544d0198\",\"timestamp\":\"2026-06-09T02:41:08.816Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"执行 real-data benchmark CLI 并传入 outputDir 后，用户能在指定目录看到 corpus.jsonl、gold.jsonl、queries.jsonl、result.json 四个文件，且终端明确打印这些路径与 PASS/FAIL 汇总。\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node bin/koala.js memory_benchmark_real_data --outputDir=.lattice/tmp/memory-real-baseline-case-fix --format=text && wc -l .lattice/tmp/memory-real-baseline-case-fix/corpus.jsonl .lattice/tmp/memory-real-baseline-case-fix/gold.jsonl .lattice/tmp/memory-real-baseline-case-fix/queries.jsonl\",\"result\":\"pass\",\"note\":\"Case-fix real repository run printed PASS plus corpus/gold/query/result paths; corpus.jsonl, gold.jsonl, and queries.jsonl each contain 473 real lifecycle rows.\",\"headHash\":\"ecce1a6d9dfa9e45d2174f5e591ff7c5e14bc199\",\"materialHash\":\"3d6c6e23d4cc82c047029872921598495d906ee40af4f9eab5dbd373544d0198\",\"timestamp\":\"2026-06-09T02:40:56.145Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"写出的 result.json 和终端摘要必须明确标注哪些内容处于 non-authority boundary，尤其是 boundary-only 或 advisory 数据不能被写成 scoreable gold/result 主体。\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node -e inspect .lattice/tmp/memory-real-baseline-case-fix/result.json and corpus samples\",\"result\":\"pass\",\"note\":\"Case-fix result reports boundaryGoldRecords=0 and boundaryQueryRecords=0, scoreable lifecycle layers only; sampled activity rows preserve command/status and review-passes.json is included as evidence source.\",\"headHash\":\"ecce1a6d9dfa9e45d2174f5e591ff7c5e14bc199\",\"materialHash\":\"3d6c6e23d4cc82c047029872921598495d906ee40af4f9eab5dbd373544d0198\",\"timestamp\":\"2026-06-09T02:40:56.169Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"当输入跨越真实 authority 数据与 dev-memory 边界时，artifact 只能导出 real-data baseline 所需的真实数据与边界注释；dev-memory 若仅属 boundary-only，应被排除在 scoreable corpus/gold/query/result 之外。\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:memory-real-data-benchmark-smoke\",\"result\":\"pass\",\"note\":\"Smoke asserts dev-memory advisory records remain boundary-only and excluded from scoreable gold/query while real lifecycle data passes.\",\"headHash\":\"ecce1a6d9dfa9e45d2174f5e591ff7c5e14bc199\",\"materialHash\":\"3d6c6e23d4cc82c047029872921598495d906ee40af4f9eab5dbd373544d0198\",\"timestamp\":\"2026-06-09T02:40:56.189Z\"}},{\"intentRef\":\"CHK-002:adversarial:1\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"当用户把 outputDir 指向 story-managed lifecycle state 或 fixture-managed paths（例如 .koala/story/**、配置的 storyDir、docs/story/**、packages/main/tests/fixtures/**）时，命令必须拒绝写入，保持 readOnly lifecycle policy 不绕过 owner/gate 保护。\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:1\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:memory-real-data-benchmark-smoke && node bin/koala.js memory_benchmark_real_data --outputDir=Docs/story/actives/B-2a63/memory-real-baseline --format=text\",\"result\":\"pass\",\"note\":\"Smoke asserts outputDir refuses .koala/story, docs/story, configured storyDir variants, mixed-case Docs/story and Fixtures paths, packages/main/tests/fixtures, and overwrite; live mixed-case Docs/story command failed with refuses to write outputDir under docs/story.\",\"headHash\":\"ecce1a6d9dfa9e45d2174f5e591ff7c5e14bc199\",\"materialHash\":\"3d6c6e23d4cc82c047029872921598495d906ee40af4f9eab5dbd373544d0198\",\"timestamp\":\"2026-06-09T02:40:56.209Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"基于真实 activity/story 数据运行 smoke 或 CLI transcript 时，用户能看到非空 real data 被用于 scoring，gold query 可以匹配到真实记录，且 recall/answer/evidence linkage 分数被实际计算出来。\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:memory-real-data-benchmark-smoke\",\"result\":\"pass\",\"note\":\"Smoke seeded real activity/story/checklist/summary/evidence data, asserted PASS, exactRecordMatchRate=1, non-empty gold/query/results, and trace fields on corpus/gold/query/result rows.\",\"headHash\":\"b0b83734740b2c8b758f94c487b5c1d80460802b\",\"materialHash\":\"3d6c6e23d4cc82c047029872921598495d906ee40af4f9eab5dbd373544d0198\",\"timestamp\":\"2026-06-09T02:41:08.816Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"若数据集中同时存在可评分真实数据和仅用于边界说明的 dev-memory 内容，输出必须证明 dev-memory 仅停留在 boundary-only exclusion，不进入 recall/precision 或 gold 命中计算。\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:memory-real-data-benchmark-smoke\",\"result\":\"pass\",\"note\":\"Smoke seeded dev-memory and asserted devMemoryBoundaryRecords=1 while gold/queries contain no dev-memory sourcePath rows; real repository run reports boundaryGoldRecords=0 and boundaryQueryRecords=0.\",\"headHash\":\"b0b83734740b2c8b758f94c487b5c1d80460802b\",\"materialHash\":\"3d6c6e23d4cc82c047029872921598495d906ee40af4f9eab5dbd373544d0198\",\"timestamp\":\"2026-06-09T02:41:08.816Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"当 real activity/story 数据为空、不可解析或只剩 boundary-only 内容时，命令必须显式 FAIL 并解释缺少真实数据，而不是生成看似成功的空 baseline 或 fake PASS。\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run test:memory-real-data-benchmark-smoke\",\"result\":\"pass\",\"note\":\"Smoke seeded a root with only boundary dev-memory and no real activity/story data; command returned FAIL with missing real activity/story reasons and no fake PASS.\",\"headHash\":\"b0b83734740b2c8b758f94c487b5c1d80460802b\",\"materialHash\":\"3d6c6e23d4cc82c047029872921598495d906ee40af4f9eab5dbd373544d0198\",\"timestamp\":\"2026-06-09T02:41:08.816Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-09T02:45:55.931Z",
+  "headHash": "1946b85b157c369b9f9253e977dc66353bdca5f3",
+  "materialHash": "3d6c6e23d4cc82c047029872921598495d906ee40af4f9eab5dbd373544d0198",
+  "verificationCoverage": {
+    "total": 10,
+    "required": 10,
+    "covered": 10,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "运行 real-data baseline 命令后，终端或 JSON 输出展示 non-empty corpus/gold/query/result 统计，并包含真实 sourcePath、sourceHash、recordId，使用户能审计 baseline 来自真实项目数据而非占位样本。",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node bin/koala.js memory_benchmark_real_data --outputDir=.lattice/tmp/memory-real-baseline-audit --format=text",
+          "result": "pass",
+          "note": "Real repository lifecycle data returned Real Memory Benchmark Data: PASS with corpusRecords=389, goldRecords=389, queryRecords=389, resultRecords=389, exactRecordMatchRate=1.000, and printed sourcePath/sourceHash/record counts for 36 sources.",
+          "headHash": "b0b83734740b2c8b758f94c487b5c1d80460802b",
+          "materialHash": "3d6c6e23d4cc82c047029872921598495d906ee40af4f9eab5dbd373544d0198",
+          "timestamp": "2026-06-09T02:41:08.816Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "当结果同时包含 scoreable lifecycle layers 与 boundary-only/advisory layers 时，输出必须把两者分开展示并给出各自计数，证明 boundary-only 数据没有被伪装成可评分真相源。",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node -e inspect .lattice/tmp/memory-real-baseline-audit/result.json",
+          "result": "pass",
+          "note": "Result artifact reports scoreable layers raw_event_memory,lifecycle_state_memory,checklist_evidence_memory,summary_memory; boundary-only layers advisory_memory,host_transcript_memory; boundaryGoldRecords=0 and boundaryQueryRecords=0.",
+          "headHash": "b0b83734740b2c8b758f94c487b5c1d80460802b",
+          "materialHash": "3d6c6e23d4cc82c047029872921598495d906ee40af4f9eab5dbd373544d0198",
+          "timestamp": "2026-06-09T02:41:08.816Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "即使 real-data baseline 产物看起来完整，输出也必须保留 non-authoritative 基线说明，不得把 benchmark 结果表述成 gate evidence 或最终真相源结论。",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "Lattice-lifecycle-memory-Evolving.md",
+          "command": "node bin/koala.js memory_benchmark_real_data --format=json",
+          "result": "pass",
+          "note": "JSON output and docs preserve the non-authoritative note: not lifecycle gate authority, review pass, validation evidence, delivery check, receipt, vector DB, or production memory architecture.",
+          "headHash": "b0b83734740b2c8b758f94c487b5c1d80460802b",
+          "materialHash": "3d6c6e23d4cc82c047029872921598495d906ee40af4f9eab5dbd373544d0198",
+          "timestamp": "2026-06-09T02:41:08.816Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "执行 real-data benchmark CLI 并传入 outputDir 后，用户能在指定目录看到 corpus.jsonl、gold.jsonl、queries.jsonl、result.json 四个文件，且终端明确打印这些路径与 PASS/FAIL 汇总。",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node bin/koala.js memory_benchmark_real_data --outputDir=.lattice/tmp/memory-real-baseline-case-fix --format=text && wc -l .lattice/tmp/memory-real-baseline-case-fix/corpus.jsonl .lattice/tmp/memory-real-baseline-case-fix/gold.jsonl .lattice/tmp/memory-real-baseline-case-fix/queries.jsonl",
+          "result": "pass",
+          "note": "Case-fix real repository run printed PASS plus corpus/gold/query/result paths; corpus.jsonl, gold.jsonl, and queries.jsonl each contain 473 real lifecycle rows.",
+          "headHash": "ecce1a6d9dfa9e45d2174f5e591ff7c5e14bc199",
+          "materialHash": "3d6c6e23d4cc82c047029872921598495d906ee40af4f9eab5dbd373544d0198",
+          "timestamp": "2026-06-09T02:40:56.145Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "写出的 result.json 和终端摘要必须明确标注哪些内容处于 non-authority boundary，尤其是 boundary-only 或 advisory 数据不能被写成 scoreable gold/result 主体。",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node -e inspect .lattice/tmp/memory-real-baseline-case-fix/result.json and corpus samples",
+          "result": "pass",
+          "note": "Case-fix result reports boundaryGoldRecords=0 and boundaryQueryRecords=0, scoreable lifecycle layers only; sampled activity rows preserve command/status and review-passes.json is included as evidence source.",
+          "headHash": "ecce1a6d9dfa9e45d2174f5e591ff7c5e14bc199",
+          "materialHash": "3d6c6e23d4cc82c047029872921598495d906ee40af4f9eab5dbd373544d0198",
+          "timestamp": "2026-06-09T02:40:56.169Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "当输入跨越真实 authority 数据与 dev-memory 边界时，artifact 只能导出 real-data baseline 所需的真实数据与边界注释；dev-memory 若仅属 boundary-only，应被排除在 scoreable corpus/gold/query/result 之外。",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:memory-real-data-benchmark-smoke",
+          "result": "pass",
+          "note": "Smoke asserts dev-memory advisory records remain boundary-only and excluded from scoreable gold/query while real lifecycle data passes.",
+          "headHash": "ecce1a6d9dfa9e45d2174f5e591ff7c5e14bc199",
+          "materialHash": "3d6c6e23d4cc82c047029872921598495d906ee40af4f9eab5dbd373544d0198",
+          "timestamp": "2026-06-09T02:40:56.189Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:1",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "当用户把 outputDir 指向 story-managed lifecycle state 或 fixture-managed paths（例如 .koala/story/**、配置的 storyDir、docs/story/**、packages/main/tests/fixtures/**）时，命令必须拒绝写入，保持 readOnly lifecycle policy 不绕过 owner/gate 保护。",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:memory-real-data-benchmark-smoke && node bin/koala.js memory_benchmark_real_data --outputDir=Docs/story/actives/B-2a63/memory-real-baseline --format=text",
+          "result": "pass",
+          "note": "Smoke asserts outputDir refuses .koala/story, docs/story, configured storyDir variants, mixed-case Docs/story and Fixtures paths, packages/main/tests/fixtures, and overwrite; live mixed-case Docs/story command failed with refuses to write outputDir under docs/story.",
+          "headHash": "ecce1a6d9dfa9e45d2174f5e591ff7c5e14bc199",
+          "materialHash": "3d6c6e23d4cc82c047029872921598495d906ee40af4f9eab5dbd373544d0198",
+          "timestamp": "2026-06-09T02:40:56.209Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "基于真实 activity/story 数据运行 smoke 或 CLI transcript 时，用户能看到非空 real data 被用于 scoring，gold query 可以匹配到真实记录，且 recall/answer/evidence linkage 分数被实际计算出来。",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:memory-real-data-benchmark-smoke",
+          "result": "pass",
+          "note": "Smoke seeded real activity/story/checklist/summary/evidence data, asserted PASS, exactRecordMatchRate=1, non-empty gold/query/results, and trace fields on corpus/gold/query/result rows.",
+          "headHash": "b0b83734740b2c8b758f94c487b5c1d80460802b",
+          "materialHash": "3d6c6e23d4cc82c047029872921598495d906ee40af4f9eab5dbd373544d0198",
+          "timestamp": "2026-06-09T02:41:08.816Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "若数据集中同时存在可评分真实数据和仅用于边界说明的 dev-memory 内容，输出必须证明 dev-memory 仅停留在 boundary-only exclusion，不进入 recall/precision 或 gold 命中计算。",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:memory-real-data-benchmark-smoke",
+          "result": "pass",
+          "note": "Smoke seeded dev-memory and asserted devMemoryBoundaryRecords=1 while gold/queries contain no dev-memory sourcePath rows; real repository run reports boundaryGoldRecords=0 and boundaryQueryRecords=0.",
+          "headHash": "b0b83734740b2c8b758f94c487b5c1d80460802b",
+          "materialHash": "3d6c6e23d4cc82c047029872921598495d906ee40af4f9eab5dbd373544d0198",
+          "timestamp": "2026-06-09T02:41:08.816Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "当 real activity/story 数据为空、不可解析或只剩 boundary-only 内容时，命令必须显式 FAIL 并解释缺少真实数据，而不是生成看似成功的空 baseline 或 fake PASS。",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:memory-real-data-benchmark-smoke",
+          "result": "pass",
+          "note": "Smoke seeded a root with only boundary dev-memory and no real activity/story data; command returned FAIL with missing real activity/story reasons and no fake PASS.",
+          "headHash": "b0b83734740b2c8b758f94c487b5c1d80460802b",
+          "materialHash": "3d6c6e23d4cc82c047029872921598495d906ee40af4f9eab5dbd373544d0198",
+          "timestamp": "2026-06-09T02:41:08.816Z"
+        }
+      }
+    ]
+  }
+}
