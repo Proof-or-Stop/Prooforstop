@@ -28,6 +28,30 @@
         }
       ],
       "_hash": "20b32567d6165df8d6e85cb0d4a81caa1454153a4446649f22a236d76dc568f2"
+    },
+    {
+      "timestamp": "2026-06-09T21:34:13.082Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "verification_intent_advisory",
+          "severity": "advisory",
+          "message": "express channel allows fast path, but recommend adding at least one verificationIntent.happy for CHK-001 to help REVIEW/test-coverage reviewer align."
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        }
+      ],
+      "_hash": "16a7de78c42a21f6782d747a121f52ff10524b9ee240ec02315987eabbb4ce94"
     }
   ]
 }
