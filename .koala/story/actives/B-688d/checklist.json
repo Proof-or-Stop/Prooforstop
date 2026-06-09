@@ -62,6 +62,26 @@
           ".omx/artifacts/parallel-development/B-688d/claim-lock-status.json"
         ],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The shared contract artifacts define one canonical schema for final-report, baseline-suite-report, claim-report, authorityMode, evidenceClass, and nested authority fields.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If a workstream needs a shared schema or gate change, it is forced into merge-queue rather than direct ownership.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Any local/shadow/transport evidence attempting to set receiptVerified, productionDone, or authorityChanged true is locked out by the contract.",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
