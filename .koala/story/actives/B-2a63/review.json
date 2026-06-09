@@ -49,6 +49,24 @@
         }
       ],
       "_hash": "587ad1f1f28f90dda5c9bce0fd0d880ead0c2317401b8cfce247a974bef381ae"
+    },
+    {
+      "timestamp": "2026-06-09T01:41:31.009Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 个 checklist item，请检查是否有组合场景遗漏（如：用户可看到 real-data corpus/gold/query/result baseline + 新增 real-data benchmark CLI 产出 artifact 同时操作会怎样？）"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story 命中 1 个高风险信号: 状态机/门禁。建议用更严格的审查标准（≥ 3 preMortem 场景、明确的回滚路径）。 若本 story 只是提及而非修改该领域（误报），可 koala story_review_dismiss '{\"storyId\":\"B-2a63\",\"category\":\"<分类>\",\"reason\":\"...\"}' 完整回退 auto-elevation（全部 auto-elevated riskSignal 被 dismiss 后 priority 自动回退、高风险 gate 解除）。"
+        }
+      ],
+      "_hash": "ce2f74c3c73e85e485feae89c71501613783d99ab5f4b48c0059f670bbb88bdd"
     }
   ]
 }
