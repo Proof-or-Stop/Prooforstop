@@ -9,9 +9,9 @@
         "docs/requirements/decisions/dev-memory.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-09T00:05:56.552Z",
       "verificationIntent": {
         "happy": [
           {
@@ -34,7 +34,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:memory-benchmark-smoke",
+          "result": "pass",
+          "note": "Smoke asserts MemoryScore constants: weights 25/25/25/15/10, thresholds 10k=92, 100k=90, 1M=86, scoreable layers, and boundary-only layers.",
+          "headHash": "7f1d014ad24c6d3218a3586621d37f3cd319b8e6",
+          "materialHash": "9cd4671a7f38ba54b4931ea9704e7cc22be77e2220c9017d9f2ce2ab20ac688e",
+          "timestamp": "2026-06-09T00:05:56.586Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "command": "node bin/koala.js memory_benchmark_compare --candidateCounts=10000,100000,1000000 --queryCount=120 --seed=7 --format=text && node bin/koala.js memory_benchmark_compare --candidateCounts=10000,100000,1000000 --queryCount=120 --seed=7 --format=json",
+          "result": "pass",
+          "note": "Both text and JSON comparison outputs expose MemoryScore, threshold, verdict, exactRecall@1, recall@10, MRR@10, precision@10, hard checks, and note fields for the same 10k/100k/1M tier semantics.",
+          "headHash": "7f1d014ad24c6d3218a3586621d37f3cd319b8e6",
+          "materialHash": "9cd4671a7f38ba54b4931ea9704e7cc22be77e2220c9017d9f2ce2ab20ac688e",
+          "timestamp": "2026-06-09T00:05:56.619Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:memory-benchmark-smoke",
+          "result": "pass",
+          "note": "Smoke asserts hard-fail precedence for authorityLeak/staleTruthHit/boundary layer leakage and confirms advisory_memory/host_transcript_memory remain excluded from retrieval metrics.",
+          "headHash": "7f1d014ad24c6d3218a3586621d37f3cd319b8e6",
+          "materialHash": "9cd4671a7f38ba54b4931ea9704e7cc22be77e2220c9017d9f2ce2ab20ac688e",
+          "timestamp": "2026-06-09T00:05:56.646Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
