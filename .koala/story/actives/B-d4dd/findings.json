@@ -37,6 +37,23 @@
       ],
       "resolvedReason": "Fixed by commit 192f5ef2: unsupported fixed-tier candidate counts now throw an explicit error instead of being labeled T3; smoke covers run and compare unsupported-count paths. Revalidated with npm --prefix packages/main run test:memory-benchmark-smoke, npm --prefix packages/main run build, node bin/koala.js memory_benchmark_compare --candidateCounts=50000 --format=json (clean rejection), and 10k/100k/1M compare output preserving PASS metrics.",
       "resolvedAt": "2026-06-09T00:20:21.915Z"
+    },
+    {
+      "id": "B-d4dd:F-003",
+      "desc": "packages/main/src/core/memory-benchmark.ts:406 only gates verdict on hard checks plus memoryScore>=threshold, so documented per-metric minima are unenforced: exactRecall@1<1.0 and recall@10<0.90 still return PASS (repro via built module: candidateCount=10000, baselineQualityScore=90, exactRecallAt1=0.9 => PASS 99.30556; recallAt10=0.89 => PASS 99.23611). This contradicts Lattice-lifecycle-memory-Evolving.md:113-116 and :181, and packages/main/src/tasks/memory-benchmark-smoke.ts lacks a regression asserting those contract-level failures. Fix by making determineVerdict enforce the documented per-metric minima/additional requirements and add smoke coverage for the failing cases.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-09T00:25:37.092Z",
+      "reviewRound": "2026-06-09T00:20:04.726Z",
+      "reviewRunId": "B-d4dd:RR-008",
+      "_hash": "96e4bf27dd47504b2486125fcbdecae44f18bd52336bdf9e3a6f20e9082c4374",
+      "files": [
+        "packages/main/src/core/memory-benchmark.ts",
+        "packages/main/src/tasks/memory-benchmark-smoke.ts"
+      ]
     }
   ]
 }
