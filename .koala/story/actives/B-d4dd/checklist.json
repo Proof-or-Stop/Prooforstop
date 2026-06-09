@@ -77,9 +77,9 @@
         "docs/requirements/decisions/testing-infra.md",
         "docs/requirements/decisions/truth-source.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-09T00:06:15.430Z",
       "verificationIntent": {
         "happy": [
           {
@@ -102,7 +102,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:memory-benchmark-smoke",
+          "result": "pass",
+          "note": "Smoke calls runMemoryBenchmark twice with the same tier and asserts deterministicSignature/resources are stable for the same deterministic inputs.",
+          "headHash": "e27b3e59ce038650529d8bb237791bb30547315d",
+          "materialHash": "9cd4671a7f38ba54b4931ea9704e7cc22be77e2220c9017d9f2ce2ab20ac688e",
+          "timestamp": "2026-06-09T00:06:15.465Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "command": "node bin/koala.js memory_benchmark_run --tier=T1 --queryCount=120 --seed=7 --format=json && node bin/koala.js memory_benchmark_run --tier=T1 --queryCount=120 --seed=7 --format=text",
+          "result": "pass",
+          "note": "Single-run CLI independently emits parseable JSON and human text with schemaVersion, metrics, hardChecks, qualityScore, null scaleStabilityScore/memoryScore, routing, resources, deterministicSignature, and non-authority note.",
+          "headHash": "e27b3e59ce038650529d8bb237791bb30547315d",
+          "materialHash": "9cd4671a7f38ba54b4931ea9704e7cc22be77e2220c9017d9f2ce2ab20ac688e",
+          "timestamp": "2026-06-09T00:06:15.497Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:memory-benchmark-smoke",
+          "result": "pass",
+          "note": "Smoke asserts scoreable lifecycle layers are the only retrieval-scored layers and that boundary-only leakage or stale truth converts the run to HARD_FAIL.",
+          "headHash": "e27b3e59ce038650529d8bb237791bb30547315d",
+          "materialHash": "9cd4671a7f38ba54b4931ea9704e7cc22be77e2220c9017d9f2ce2ab20ac688e",
+          "timestamp": "2026-06-09T00:06:15.524Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
