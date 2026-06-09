@@ -18,13 +18,15 @@
       "desc": "Lattice-Parallel-Development-Capability.md:147 WHY medium: the recommended composition lists `parallel_report` as a valid frozen-wave input, then the section immediately reasons about `storyRefs`, `hostCandidates`, `mergeOrder`, and required fields like `waveHash`/`materialHash`/`createdFromCommands` as if that snapshot already carries the full contract. But docs/requirements/decisions/lattice-parallel-wave.md:82 and :129 say `parallel_report` is a projection that omits top-level `storyRefs`, `hostCandidates`, `evidenceRefs`, and raw `mergeOrder`, and the current Wave contract does not guarantee `waveHash`, `materialHash`, or `createdFromCommands`. Reword to distinguish existing Wave outputs from future coordinator-added freeze metadata, or limit the entrypoint list to the full-envelope surfaces.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-concept",
       "createdAt": "2026-06-09T21:43:50.166Z",
       "reviewRound": "2026-06-09T21:35:59.479Z",
       "reviewRunId": "B-7110:RR-002",
-      "_hash": "169f52ed8588b09e2678cdb53bf0a0f82fe88455034f622980d39354e70b919b"
+      "_hash": "169f52ed8588b09e2678cdb53bf0a0f82fe88455034f622980d39354e70b919b",
+      "resolvedReason": "Fixed in commit b85c7a52: the section no longer treats parallel_report as the binding artifact and explicitly distinguishes full-envelope Wave artifact fields from future coordinator-added freeze metadata. Re-verified with git diff --check and lattice parallel_wave_create --format=json.",
+      "resolvedAt": "2026-06-09T21:45:45.245Z"
     }
   ]
 }
