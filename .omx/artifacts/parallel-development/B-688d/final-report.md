@@ -1,6 +1,8 @@
 # B-688d Parallel Development Audit — Final Report
 
 **Decision: GO-NOT-YET**
+**Dispatch Decision: GO-NOT-YET**
+**Contract Version: baseline-parallel-v1**
 
 ## Layer 1 Baseline Audit
 
@@ -46,11 +48,21 @@ No authority claims are active. All evidence is scoped to local lifecycle only.
 
 ## Dispatch Package
 
-- **2 host categories**: Claude Code (2.1.88), Codex CLI (0.137.0)
+- **2 canonical host profiles**: `claude-code` / Claude CLI (2.1.88), `codex` / Codex CLI (0.137.0)
 - **8 lanes**: 4 implementer + 4 opposite-host reviewer, organized by workstream (engineering-runner, loop-engine, production-safety, claim-evaluator)
 - Each lane declares: ownedPaths, readOnlyPaths, mode, allowedOutputs, stopConditions, sequentialProofLock
 - Higher-layer lanes (claim-evaluator, its reviewer) are shadow/not_authorized until Layer 1 passes
 - **Fail-closed**: missing host → BLOCKED, missing review → BLOCKED, missing receipt → BLOCKED, higher layer without lower pass → BLOCKED
+
+## Evidence References
+
+- **baselineSuiteReport**: `.omx/artifacts/baseline/B-688d/baseline-suite-report.json`
+- **finalReport**: `.omx/artifacts/parallel-development/B-688d/final-report.json`
+- **baselineClaimReport**: `.omx/artifacts/claude-baseline-audit-B-688d.md`
+- **dispatchClaimReport**: `.omx/artifacts/claude-dispatch-review-B-688d.md`
+- **hostProbes**: `.omx/artifacts/parallel-development/B-688d/host-probes.json`
+- **dispatchAudit**: `.omx/artifacts/parallel-development/B-688d/dispatch-audit.json`
+- **claimLockStatus**: `.omx/artifacts/parallel-development/B-688d/claim-lock-status.json`
 
 ## Blocked Reasons
 

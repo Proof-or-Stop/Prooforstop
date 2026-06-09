@@ -2,16 +2,43 @@
   "schemaVersion": "lattice.parallel-development.dispatch-audit.v1",
   "storyId": "B-688d",
   "generatedAt": "2026-06-09T23:07:00Z",
+  "producer": {
+    "artifactPath": ".omx/artifacts/parallel-development/B-688d/dispatch-audit.json",
+    "method": "B-688d DEV audit package from baseline_suite_report, host_probe, and shared-contract artifacts",
+    "inputs": [
+      ".omx/artifacts/baseline/B-688d/baseline-suite-report.json",
+      ".omx/artifacts/parallel-development/B-688d/shared-contract.json",
+      ".omx/artifacts/parallel-development/B-688d/host-probes.json"
+    ]
+  },
+  "schemaDefinition": {
+    "hostCategoryRequiredFields": ["id", "displayName", "binaryName", "version", "available"],
+    "laneRequiredFields": [
+      "laneId",
+      "role",
+      "host",
+      "workstream",
+      "ownedPaths",
+      "readOnlyPaths",
+      "mode",
+      "allowedOutputs",
+      "stopConditions",
+      "sequentialProofLock"
+    ],
+    "hostProfileIds": ["codex", "claude-code"]
+  },
   "hostCategories": [
     {
       "id": "claude-code",
-      "name": "Claude Code",
+      "displayName": "Claude CLI (Claude Code)",
+      "binaryName": "claude",
       "version": "2.1.88",
       "available": true
     },
     {
-      "id": "codex-cli",
-      "name": "Codex CLI",
+      "id": "codex",
+      "displayName": "Codex CLI",
+      "binaryName": "codex",
       "version": "0.137.0",
       "available": true
     }
@@ -46,7 +73,7 @@
     {
       "laneId": "impl-codex-safety",
       "role": "implementer",
-      "host": "codex-cli",
+      "host": "codex",
       "workstream": "production-safety",
       "baselineIds": ["RED-GAP-BLOCK-1"],
       "ownedPaths": [".omx/artifacts/parallel-development/B-688d/production-safety/"],
@@ -59,7 +86,7 @@
     {
       "laneId": "impl-codex-claim",
       "role": "implementer",
-      "host": "codex-cli",
+      "host": "codex",
       "workstream": "claim-evaluator",
       "baselineIds": ["NL-REPAIR-1"],
       "ownedPaths": [".omx/artifacts/parallel-development/B-688d/claim-evaluator/"],
@@ -72,7 +99,7 @@
     {
       "laneId": "review-codex-eng",
       "role": "reviewer",
-      "host": "codex-cli",
+      "host": "codex",
       "workstream": "engineering-runner",
       "oppositeOf": "impl-claude-eng",
       "ownedPaths": [".omx/artifacts/parallel-development/B-688d/reviews/codex-eng/"],
@@ -85,7 +112,7 @@
     {
       "laneId": "review-codex-loop",
       "role": "reviewer",
-      "host": "codex-cli",
+      "host": "codex",
       "workstream": "loop-engine",
       "oppositeOf": "impl-claude-loop",
       "ownedPaths": [".omx/artifacts/parallel-development/B-688d/reviews/codex-loop/"],

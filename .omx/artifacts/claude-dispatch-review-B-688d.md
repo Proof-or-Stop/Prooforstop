@@ -37,3 +37,12 @@ All 8 lanes now declare: `ownedPaths`, `readOnlyPaths`, `mode`, `allowedOutputs`
 ## Overall Assessment
 
 The dispatch package is **host-neutral and fail-closed**. The current decision is GO-NOT-YET because Layer 1 baseline runs lack independent review evidence, runner source is external to this repository, and all 4 claim locks remain active pending formal proof.
+
+## Coordinator Addendum — 2026-06-09T23:13:31Z
+
+After Claude's implementer pass, the coordinator audited host profile ids against `lattice host_list` and `lattice host_probe`.
+
+- Canonical Lattice host profile ids are `codex` and `claude-code`.
+- `Codex CLI` and `Claude CLI` remain display/binary names only.
+- `host-probes.json` and `dispatch-audit.json` now define their producer and required schema fields, so reviewer lanes do not need to infer artifact shape.
+- This addendum does not unlock any claim: decision remains GO-NOT-YET and authority stays `off` / `local-lifecycle`.
