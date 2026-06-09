@@ -29,6 +29,13 @@ export const MEMORY_BENCHMARK_SCORE_THRESHOLDS = {
   1000000: 86,
 } as const;
 
+const MEMORY_BENCHMARK_METRIC_MINIMA = {
+  exactRecallAt1: 1,
+  recallAt10: 0.90,
+  mrrAt10: 0.75,
+  precisionAt10: 0.70,
+} as const;
+
 export const MEMORY_BENCHMARK_DEFAULT_CANDIDATE_COUNTS = [10000, 100000, 1000000] as const;
 export const MEMORY_BENCHMARK_DEFAULT_QUERY_COUNT = 12;
 export const MEMORY_BENCHMARK_DEFAULT_SEED = 17;
@@ -382,6 +389,13 @@ function buildHardChecks(overrides: MemoryBenchmarkOverride | undefined): Memory
   };
 }
 
+function passesMetricMinima(scores: MemoryBenchmarkScores): boolean {
+  return scores.exactRecallAt1 >= MEMORY_BENCHMARK_METRIC_MINIMA.exactRecallAt1
+    && scores.recallAt10 >= MEMORY_BENCHMARK_METRIC_MINIMA.recallAt10
+    && scores.mrrAt10 >= MEMORY_BENCHMARK_METRIC_MINIMA.mrrAt10
+    && scores.precisionAt10 >= MEMORY_BENCHMARK_METRIC_MINIMA.precisionAt10;
+}
+
 function buildResources(
   candidateCount: number,
   selectedQueries: readonly QueryBlueprint[],
@@ -415,6 +429,10 @@ function determineVerdict(
     || hardChecks.staleTruthHitCount > 0
   ) {
     return { verdict: 'HARD_FAIL', thresholdPassed: threshold === null ? null : false };
+  }
+
+  if (!passesMetricMinima(scores)) {
+    return { verdict: 'FAIL', thresholdPassed: threshold === null ? null : false };
   }
 
   if (threshold === null) {

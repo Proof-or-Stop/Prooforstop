@@ -17,6 +17,7 @@ import {
   renderMemoryBenchmarkRunText,
   runMemoryBenchmark,
 } from '../core/memory-benchmark.js';
+import type { MemoryBenchmarkOverride } from '../core/memory-benchmark.js';
 import { getProcessFactLevelEntry } from '../core/process-fact-levels.js';
 import { StoryStore } from '../core/store.js';
 import type { HandlerContext } from '../handlers/context.js';
@@ -41,6 +42,25 @@ function assertUnsupportedFixedTierCount(action: () => unknown, label: 'candidat
       assert.doesNotMatch(text, /\bT3\b/);
       return true;
     },
+  );
+}
+
+function assertMetricContractFail(overrides: MemoryBenchmarkOverride, label: string): void {
+  const result = runMemoryBenchmark({
+    tier: 'T1',
+    baselineQualityScore: 90,
+    overrides,
+  });
+  assert.equal(result.verdict, 'FAIL', label);
+  assert.equal(result.thresholdPassed, false, label);
+  assert.equal(result.hardChecks.authorityLeakCount, 0, label);
+  assert.equal(result.hardChecks.scopeLeakCount, 0, label);
+  assert.equal(result.hardChecks.staleTruthHitCount, 0, label);
+  assert.equal(result.hardChecks.evidenceLinkageRateLifecycleGate, 1, label);
+  assert.equal(
+    result.scores.memoryScore !== null && result.threshold !== null && result.scores.memoryScore >= result.threshold,
+    true,
+    `${label} keeps MemoryScore above the tier threshold`,
   );
 }
 
@@ -127,6 +147,11 @@ assert.equal(lifecycleGateEvidenceLinkageHardFail.hardChecks.evidenceLinkageRate
 assert.equal(lifecycleGateEvidenceLinkageHardFail.verdict, 'HARD_FAIL');
 assert.equal(lifecycleGateEvidenceLinkageHardFail.thresholdPassed, false);
 assert.equal(lifecycleGateEvidenceLinkageHardFail.scores.memoryScore, 100);
+
+assertMetricContractFail({ exactRecallAt1: 0.9 }, 'exactRecallAt1 below 1.0 fails despite high MemoryScore');
+assertMetricContractFail({ recallAt10: 0.89 }, 'recallAt10 below 0.90 fails despite high MemoryScore');
+assertMetricContractFail({ mrrAt10: 0.74 }, 'mrrAt10 below 0.75 fails despite high MemoryScore');
+assertMetricContractFail({ precisionAt10: 0.69 }, 'precisionAt10 below 0.70 fails despite high MemoryScore');
 
 const scoreFail = runMemoryBenchmark({
   tier: 'T1',
