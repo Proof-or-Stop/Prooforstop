@@ -1,0 +1,52 @@
+{
+  "storyId": "B-a10d",
+  "checkedAt": "2026-06-09T19:12:37.166Z",
+  "features": [
+    {
+      "feature": "新增 Engineering Baseline 执行方案文档",
+      "covered_by": "CHK-001 -> Lattice-Engineering-baseline.md",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "user request: baseline layer 2 docs"
+    },
+    {
+      "feature": "新增 Loop Engineering Baseline 执行方案文档",
+      "covered_by": "CHK-002 -> Lattice-Loop-Engineering-baseline.md",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "user request: baseline layer 3 docs"
+    },
+    {
+      "feature": "新增 Production Safety Baseline 执行方案文档",
+      "covered_by": "CHK-003 -> Lattice-Production-Safety-baseline.md",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "user request: baseline layer 4 docs"
+    },
+    {
+      "feature": "新增 Capability Claim Baseline 执行方案文档",
+      "covered_by": "CHK-004 -> Lattice-Capability-Claim-baseline.md",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "user request: baseline layer 5 docs"
+    },
+    {
+      "feature": "修改 Lattice runtime、Authority、安全、migration 或生产逻辑",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "story understanding constraints + riskSignal dismiss reasons",
+      "source": "scope boundary"
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "covered": 4,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "4aea531649d014d25211b494942be16b3e6aea1d54c1766085f3a382e786c2e1",
+  "openQuestions": []
+}

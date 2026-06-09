@@ -1,0 +1,56 @@
+{
+  "storyId": "B-a10d",
+  "changes": "Created and audit-hardened four Lattice baseline execution-plan documents for Engineering, Loop Engineering/UDM, Production Safety, and Capability Claim layers; fixed multi-host, soak, handoff, metric, and claim-boundary correctness gaps found by Claude/Codex review.",
+  "usage": "Open Lattice-Engineering-baseline.md, Lattice-Loop-Engineering-baseline.md, Lattice-Production-Safety-baseline.md, and Lattice-Capability-Claim-baseline.md from the repository root to use them as the execution plan for baseline layers 2-5.",
+  "expectedOutcome": "Four executable baseline documents exist, independent Claude/Codex host review reports no real correctness blockers, and Lattice validation covers all verification intents.",
+  "actualTranscript": "koala validate --story=B-a10d --json returned status=pass, allPass=true, npm test/test:e2e ALL PASS, and Verification intent coverage 12/12 covered. Final Claude/Codex review artifacts all returned PASS with no findings.",
+  "outcomeDiff": "No difference: expected documents, review pass, and validation coverage were observed after resolving the first audit findings.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The documents are execution plans for future baseline implementation; they do not by themselves implement the baseline runner or claim enforcement runtime.",
+  "pitfalls": "Initial review found real correctness gaps rather than style issues. checklist_update replaced evidence for an item, so missing intents had to be restored with verification_evidence_batch_add. transcript-diff was first written outside the story worktree and then moved into the correct worktree path.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 36385
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 50457
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 259012
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 951570
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 1948583
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 219365
+    }
+  },
+  "totalDurationMs": 3465378,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-09T20:06:08.503Z",
+  "updatedAt": "2026-06-09T20:06:08.503Z"
+}

@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-a10d:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Claude CLI final concept audit passed: checked layer sequence, bounded Loop Engineering, claim-control separation, and no new logical contradictions in artifact .omx/artifacts/baseline-doc-audit-20260609/claude-concept-final.md.",
+      "createdAt": "2026-06-09T20:01:18.459Z",
+      "reviewRound": "2026-06-09T19:55:27.712Z",
+      "reviewRunId": "B-a10d:RR-004",
+      "_hash": "5c0c890a36ad67b71fee05a0f311bb409e3adb42f8bca437ca668b1a876e386e"
+    },
+    {
+      "id": "B-a10d:RP-002",
+      "agent": "koala-review-quality",
+      "note": "Claude CLI final quality audit passed: prior executable criteria gaps are closed, including run counts, weighted formula, host floor, soak cadence, human handoff block, and claim table boundaries in artifact .omx/artifacts/baseline-doc-audit-20260609/claude-quality-final.md.",
+      "createdAt": "2026-06-09T20:01:34.055Z",
+      "reviewRound": "2026-06-09T19:55:27.712Z",
+      "reviewRunId": "B-a10d:RR-005",
+      "_hash": "03ab78f03d3d992c5c7a376be670c509ad7149a5b8a67bdf11e871ca5bbd1fcd"
+    },
+    {
+      "id": "B-a10d:RP-003",
+      "agent": "koala-review-test-coverage",
+      "note": "Codex CLI final coverage audit passed: false DONE, stale evidence, multi-host authority, unsafe action blocking, human handoff, production soak, and claim boundary risks are represented with blocking evidence gates in artifact .omx/artifacts/baseline-doc-audit-20260609/codex-coverage-final.md.",
+      "createdAt": "2026-06-09T20:01:49.467Z",
+      "reviewRound": "2026-06-09T19:55:27.712Z",
+      "reviewRunId": "B-a10d:RR-006",
+      "_hash": "86b90c3d01bee61c992abc5cff12b26603feb9b5770ad5d0682874160f4692dc"
+    },
+    {
+      "id": "B-a10d:RP-004",
+      "agent": "koala-review-docs",
+      "note": "Codex CLI final docs audit passed: allowed wording, prohibited wording, unlock matrix, claim table, and detailed claim sections remain bounded and sequential in artifact .omx/artifacts/baseline-doc-audit-20260609/codex-docs-final.md.",
+      "createdAt": "2026-06-09T20:02:04.041Z",
+      "reviewRound": "2026-06-09T19:55:27.712Z",
+      "reviewRunId": "B-a10d:RR-007",
+      "_hash": "7fb90f3d8480905ec7bae6da1ad3bc0774f4df5d6ffa4eaf96c2b91d2003dcee"
+    }
+  ]
+}

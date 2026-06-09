@@ -1,0 +1,61 @@
+{
+  "storyId": "B-a10d",
+  "checkedAt": "2026-06-09T20:05:56.420Z",
+  "reviewRound": "2026-06-09T19:55:27.712Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "Lattice-Engineering-baseline.md",
+      "promise": "Layer 2 Engineering Baseline execution plan with ENG-* baselines, pass/fail criteria, suite metrics, and claim boundaries.",
+      "status": "verified",
+      "verifiedBy": "Claude delivery review plus koala validate docs_check coverage",
+      "evidence": "Document includes ENG-MULTI-FILE-1 through ENG-LOOP-REVIEW-1, suite metrics, weighted success formula, and forbidden wording; validate covered CHK-001 happy/edge/adversarial."
+    },
+    {
+      "docPath": "Lattice-Loop-Engineering-baseline.md",
+      "promise": "Layer 3 Loop Engineering / UDM execution plan with bounded loop, evidence gates, stop conditions, multi-host review, and no false DONE.",
+      "status": "verified",
+      "verifiedBy": "Claude delivery review plus koala validate docs_check coverage",
+      "evidence": "Document includes UDM-* baselines, loop policy oracle, budget stop, human handoff trigger, and no false DONE trap; validate covered CHK-002 happy/edge/adversarial."
+    },
+    {
+      "docPath": "Lattice-Production-Safety-baseline.md",
+      "promise": "Layer 4 Production Safety Baseline with SAFE-*, AUTH-*, PROD-* baselines, multi-host authority, receipt/stale verdict handling, and soak criteria.",
+      "status": "verified",
+      "verifiedBy": "Claude delivery review plus koala validate docs_check coverage",
+      "evidence": "Document includes false_done_count hard gate, unconditional multi-host host floor, receipt/stale verdict checks, no local fallback, and production soak cadence/exclusion criteria; validate covered CHK-003 happy/edge/adversarial."
+    },
+    {
+      "docPath": "Lattice-Capability-Claim-baseline.md",
+      "promise": "Layer 5 Capability Claim Baseline controlling what Lattice can claim after lower layers pass, with overclaim traps and sequential unlock.",
+      "status": "verified",
+      "verifiedBy": "Claude delivery review plus koala validate docs_check coverage",
+      "evidence": "Document includes CLAIM-BASIC-DEV through CLAIM-PRODUCTION-SAFETY, overclaim/non-authority/stale-evidence traps, sequential unlock, claim report schema, and global prohibited claims; validate covered CHK-004 happy/edge/adversarial."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "koala validate --story=B-a10d --json returned allPass=true; CHK-001 happy/edge/adversarial docs_check evidence covered Engineering Baseline IDs, dependency boundary, and prohibited overclaims."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "koala validate --story=B-a10d --json returned allPass=true; CHK-002 happy/edge/adversarial docs_check evidence covered UDM loop components, budget/stop/handoff behavior, and bounded loop framing."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "koala validate --story=B-a10d --json returned allPass=true; CHK-003 happy/edge/adversarial docs_check evidence covered SAFE/AUTH/PROD baselines, zero false DONE hard gate, and soak/stale/receipt/no-fallback constraints."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "koala validate --story=B-a10d --json returned allPass=true; CHK-004 happy/edge/adversarial docs_check evidence covered claim IDs, parallel implementation versus sequential claim unlock, and prohibited claim traps."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery reviewer artifact passed; transcript-diff exists in story worktree; koala validate passed with 12/12 verification intents covered and npm test / test:e2e ALL PASS."
+  },
+  "_hash": "0137c546460dcd22459672413bf2d36305c9e5e5bd872befa18e29e9ca9363bd"
+}

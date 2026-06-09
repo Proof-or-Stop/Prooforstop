@@ -1,0 +1,60 @@
+{
+  "findings": [
+    {
+      "id": "B-a10d:F-001",
+      "desc": "Claude CLI executability audit found real executable criteria gaps: Lattice-Engineering-baseline.md uses undefined required_engineering_runs and undefined overall_correctness_protected_success_rate / weighted success-rate formula, while Lattice-Production-Safety-baseline.md makes requiredIndependentHosts conditional with \"when configured\". These gaps can let teams pass or authorize baselines without a mechanically defined minimum run count, metric formula, or hard multi-host requirement.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-09T19:47:21.619Z",
+      "reviewRound": "2026-06-09T19:22:28.825Z",
+      "reviewRunId": "B-a10d:RR-001",
+      "_hash": "5b99c8dbd3a3f4f3684b859b29436a57c61286b20c737e0dfcb5a20544c53349",
+      "files": [
+        "Lattice-Engineering-baseline.md",
+        "Lattice-Production-Safety-baseline.md"
+      ],
+      "resolvedReason": "Resolved in docs commit 0ac484d9 with evidence through bd7e02d/5aac291: Engineering Baseline defines maturity_target, required_engineering_runs, required_correctness_rate, and the weighted overall_correctness_protected_success_rate formula; Production Safety AUTH-MULTI-HOST-1 now requires requiredIndependentHosts >= 2 per review wave and observedIndependentHostsPerWave for each satisfied wave.",
+      "resolvedAt": "2026-06-09T19:55:35.244Z"
+    },
+    {
+      "id": "B-a10d:F-002",
+      "desc": "Codex CLI coverage audit found real baseline coverage gaps: PROD-SOAK-1 requires duration but no production-stage minimum valid run count/cadence, and UDM-HUMAN-HANDOFF-1 can pass by emitting handoff-shaped artifacts without proving a human-required decision blocks DONE and resumes only with human evidence. These gaps can let a suite pass while the claimed safety or handoff behavior is false.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-09T19:47:36.120Z",
+      "reviewRound": "2026-06-09T19:22:28.825Z",
+      "reviewRunId": "B-a10d:RR-002",
+      "_hash": "7bb0198b17561d026c4cb8885453d9b6f87b6e577c454889926e726fc7d826fc",
+      "files": [
+        "Lattice-Production-Safety-baseline.md",
+        "Lattice-Loop-Engineering-baseline.md"
+      ],
+      "resolvedReason": "Resolved in docs commit 0ac484d9 with evidence through bd7e02d/5aac291: PROD-SOAK-1 production soak now requires valid_suite_runs >= 30, minimum cadence of one valid suite run per UTC day, max 36-hour gap, and exclusion rules; UDM-HUMAN-HANDOFF-1 now seeds a human-only decision and requires EXPECTED_BLOCK/ESCALATED, no DONE before humanDecisionEvidence, and resume only after human evidence.",
+      "resolvedAt": "2026-06-09T19:55:41.753Z"
+    },
+    {
+      "id": "B-a10d:F-003",
+      "desc": "Codex CLI claim-boundary audit found that the Claim Baseline Suite table allowed-claim wording is broader than the detailed allowed wording: Loop Engineering omits the tested task class boundary, and Production Safety omits the stated maturity target boundary. Because this table is a structured claim authorization surface, it could be quoted as authorizing broader claims than the evidence supports.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-09T19:47:50.319Z",
+      "reviewRound": "2026-06-09T19:22:28.825Z",
+      "reviewRunId": "B-a10d:RR-003",
+      "_hash": "b4ac46cce34b4ad21a3c9ac75bf2d06719e387e430761f459e5725cedfeb0945",
+      "files": [
+        "Lattice-Capability-Claim-baseline.md"
+      ],
+      "resolvedReason": "Resolved in docs commit 0ac484d9 with evidence through bd7e02d/5aac291: Capability Claim table now says Loop Engineering claim is for tested task classes and Production Safety claim is for tested project classes plus stated maturity target, matching detailed allowed wording.",
+      "resolvedAt": "2026-06-09T19:55:49.720Z"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "storyId": "B-a10d",
+  "mode": "enforce",
+  "allowedModify": [],
+  "allowedCreate": [
+    "Lattice-Engineering-baseline.md",
+    "Lattice-Loop-Engineering-baseline.md",
+    "Lattice-Production-Safety-baseline.md",
+    "Lattice-Capability-Claim-baseline.md"
+  ],
+  "allowedTest": [],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "codex-main",
+      "reason": "Required to unignore .koala/story/actives/B-a10d lifecycle metadata so this story can commit signed checklist, scope, review, and evidence artifacts; it does not expand product/runtime behavior.",
+      "timestamp": "2026-06-09T19:22:12.751Z",
+      "paths": [
+        ".gitignore"
+      ],
+      "anchors": [
+        "story_metadata_gitignore_whitelist",
+        "B_a10d_lifecycle_evidence_persistence"
+      ]
+    }
+  ],
+  "createdAt": "2026-06-09T19:21:34.833Z",
+  "updatedAt": "2026-06-09T19:22:12.751Z"
+}

@@ -1,0 +1,70 @@
+{
+  "principles": [
+    "能力声明必须由已通过 baseline 解锁，不能由文档话术解锁。",
+    "每层 baseline 必须有可机器检查的 pass/fail 标准。",
+    "文档只定义后续执行方案，不把方案写成已完成能力。",
+    "保持层级递进关系清晰，高层 claim 依赖低层通过。"
+  ],
+  "drivers": [
+    "用户要求第 2 到第 5 层每层一份详细文档。",
+    "Development Baseline 已在开发中，本 story 要避免与 Layer 1 混在一起。",
+    "后续 implementation story 需要可执行、可拆解、可审查的 baseline 文档。"
+  ],
+  "options": [
+    {
+      "name": "A: 四层各写一份独立 Markdown 文档",
+      "pros": [
+        "每层边界清楚，便于后续逐层实现和验证。",
+        "能把 Engineering、Loop、Safety、Claim 的 pass/fail 标准分别写细。",
+        "符合用户要求每个都写一个文档。"
+      ],
+      "cons": [
+        "需要保持四份文档之间的依赖关系一致，避免重复。"
+      ]
+    },
+    {
+      "name": "B: 写一个总览大文档",
+      "pros": [
+        "整体阅读入口集中。",
+        "重复内容较少。"
+      ],
+      "cons": [
+        "每层执行方案容易变成摘要，后续不利于拆 story 和验收。",
+        "不符合用户明确的每个都写一个文档要求。"
+      ]
+    },
+    {
+      "name": "C: 直接开始实现 baseline 命令",
+      "pros": [
+        "更快进入代码开发。"
+      ],
+      "cons": [
+        "缺少清晰能力边界，容易再次出现 overclaim 或 baseline 范围膨胀。",
+        "用户当前请求是详细规划文档，不是代码实现。"
+      ]
+    }
+  ],
+  "chosen": "A: 四层各写一份独立 Markdown 文档",
+  "rationale": "选择四份独立文档，因为本次目标是给后续 baseline implementation 提供可执行分层方案，同时避免把未验证能力写成已完成能力。",
+  "preMortem": [
+    {
+      "scenario": "文档变成宣传材料而不是执行方案",
+      "trigger": "只写能力口号，没有输入、步骤、证据和失败标准",
+      "consequence": "后续 story 无法机械验证 baseline 是否通过",
+      "mitigation": "每个 baseline 都写 Run inputs、Steps、Required artifacts、Pass criteria、Fail criteria"
+    },
+    {
+      "scenario": "四层之间重复或互相矛盾",
+      "trigger": "每份文档独立扩写但没有统一依赖关系",
+      "consequence": "Capability Claim 可能绕过低层 baseline",
+      "mitigation": "每份文档都写 Depends on，并在 Claim 文档中集中定义 unlock matrix"
+    },
+    {
+      "scenario": "把 future baseline 写成 current capability",
+      "trigger": "措辞使用 already can / production-grade 等完成式表达",
+      "consequence": "违反 no false DONE 和 capability claim 边界",
+      "mitigation": "统一使用 proposed / must pass / may claim after evidence，禁止未验证 claim"
+    }
+  ],
+  "timestamp": "2026-06-09T19:10:48.365Z"
+}
