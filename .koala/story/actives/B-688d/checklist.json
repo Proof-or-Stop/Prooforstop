@@ -84,20 +84,38 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "The shared contract artifacts define one canonical schema for final-report, baseline-suite-report, claim-report, authorityMode, evidenceClass, and nested authority fields.",
-            "type": "cli"
+            "desc": "Verify the shared-contract, ownership-map, merge-queue, and claim-lock artifacts all freeze the same runId, materialHash, evidenceRef, and report field set.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Confirm authorityMode and evidenceClass remain consistent across every frozen artifact and that no workstream adds custom schema fields.",
+            "type": "logic",
+            "priority": "must"
           }
         ],
         "edge": [
           {
-            "desc": "If a workstream needs a shared schema or gate change, it is forced into merge-queue rather than direct ownership.",
-            "type": "cli"
+            "desc": "A partial artifact update must be detected if any frozen field diverges or any non-authority projection omits a required field.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "The contract must tolerate read-only projections without granting authority, while still preserving the canonical field names and values.",
+            "type": "logic",
+            "priority": "must"
           }
         ],
         "adversarial": [
           {
-            "desc": "Any local/shadow/transport evidence attempting to set receiptVerified, productionDone, or authorityChanged true is locked out by the contract.",
-            "type": "cli"
+            "desc": "Reject any local evidence that claims production authority or receipt-backed authority without the canonical authority fields proving it.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Reject any attempt to smuggle workstream-specific schema into the frozen shared contract by renaming or expanding authority-related fields.",
+            "type": "logic",
+            "priority": "must"
           }
         ]
       }
