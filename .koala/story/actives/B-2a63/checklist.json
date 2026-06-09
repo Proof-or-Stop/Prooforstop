@@ -51,9 +51,9 @@
           "command": "node bin/koala.js memory_benchmark_real_data --outputDir=.lattice/tmp/memory-real-baseline-audit --format=text",
           "result": "pass",
           "note": "Real repository lifecycle data returned Real Memory Benchmark Data: PASS with corpusRecords=389, goldRecords=389, queryRecords=389, resultRecords=389, exactRecordMatchRate=1.000, and printed sourcePath/sourceHash/record counts for 36 sources.",
-          "headHash": "408778fe4d24157ae1fd75cd28baf58942544b34",
-          "materialHash": "ab8e5933d348074e56781ada64e96430a4311ac63fdf854593bae52ec8635c31",
-          "timestamp": "2026-06-09T02:27:32.265Z"
+          "headHash": "b0b83734740b2c8b758f94c487b5c1d80460802b",
+          "materialHash": "3d6c6e23d4cc82c047029872921598495d906ee40af4f9eab5dbd373544d0198",
+          "timestamp": "2026-06-09T02:41:08.816Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -61,9 +61,9 @@
           "command": "node -e inspect .lattice/tmp/memory-real-baseline-audit/result.json",
           "result": "pass",
           "note": "Result artifact reports scoreable layers raw_event_memory,lifecycle_state_memory,checklist_evidence_memory,summary_memory; boundary-only layers advisory_memory,host_transcript_memory; boundaryGoldRecords=0 and boundaryQueryRecords=0.",
-          "headHash": "408778fe4d24157ae1fd75cd28baf58942544b34",
-          "materialHash": "ab8e5933d348074e56781ada64e96430a4311ac63fdf854593bae52ec8635c31",
-          "timestamp": "2026-06-09T02:27:32.265Z"
+          "headHash": "b0b83734740b2c8b758f94c487b5c1d80460802b",
+          "materialHash": "3d6c6e23d4cc82c047029872921598495d906ee40af4f9eab5dbd373544d0198",
+          "timestamp": "2026-06-09T02:41:08.816Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -72,9 +72,9 @@
           "command": "node bin/koala.js memory_benchmark_real_data --format=json",
           "result": "pass",
           "note": "JSON output and docs preserve the non-authoritative note: not lifecycle gate authority, review pass, validation evidence, delivery check, receipt, vector DB, or production memory architecture.",
-          "headHash": "408778fe4d24157ae1fd75cd28baf58942544b34",
-          "materialHash": "ab8e5933d348074e56781ada64e96430a4311ac63fdf854593bae52ec8635c31",
-          "timestamp": "2026-06-09T02:27:32.265Z"
+          "headHash": "b0b83734740b2c8b758f94c487b5c1d80460802b",
+          "materialHash": "3d6c6e23d4cc82c047029872921598495d906ee40af4f9eab5dbd373544d0198",
+          "timestamp": "2026-06-09T02:41:08.816Z"
         }
       ]
     },
@@ -231,9 +231,9 @@
           "command": "npm --prefix packages/main run test:memory-real-data-benchmark-smoke",
           "result": "pass",
           "note": "Smoke seeded real activity/story/checklist/summary/evidence data, asserted PASS, exactRecordMatchRate=1, non-empty gold/query/results, and trace fields on corpus/gold/query/result rows.",
-          "headHash": "408778fe4d24157ae1fd75cd28baf58942544b34",
-          "materialHash": "ab8e5933d348074e56781ada64e96430a4311ac63fdf854593bae52ec8635c31",
-          "timestamp": "2026-06-09T02:27:32.265Z"
+          "headHash": "b0b83734740b2c8b758f94c487b5c1d80460802b",
+          "materialHash": "3d6c6e23d4cc82c047029872921598495d906ee40af4f9eab5dbd373544d0198",
+          "timestamp": "2026-06-09T02:41:08.816Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -241,9 +241,9 @@
           "command": "npm --prefix packages/main run test:memory-real-data-benchmark-smoke",
           "result": "pass",
           "note": "Smoke seeded dev-memory and asserted devMemoryBoundaryRecords=1 while gold/queries contain no dev-memory sourcePath rows; real repository run reports boundaryGoldRecords=0 and boundaryQueryRecords=0.",
-          "headHash": "408778fe4d24157ae1fd75cd28baf58942544b34",
-          "materialHash": "ab8e5933d348074e56781ada64e96430a4311ac63fdf854593bae52ec8635c31",
-          "timestamp": "2026-06-09T02:27:32.265Z"
+          "headHash": "b0b83734740b2c8b758f94c487b5c1d80460802b",
+          "materialHash": "3d6c6e23d4cc82c047029872921598495d906ee40af4f9eab5dbd373544d0198",
+          "timestamp": "2026-06-09T02:41:08.816Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -251,9 +251,9 @@
           "command": "npm --prefix packages/main run test:memory-real-data-benchmark-smoke",
           "result": "pass",
           "note": "Smoke seeded a root with only boundary dev-memory and no real activity/story data; command returned FAIL with missing real activity/story reasons and no fake PASS.",
-          "headHash": "408778fe4d24157ae1fd75cd28baf58942544b34",
-          "materialHash": "ab8e5933d348074e56781ada64e96430a4311ac63fdf854593bae52ec8635c31",
-          "timestamp": "2026-06-09T02:27:32.265Z"
+          "headHash": "b0b83734740b2c8b758f94c487b5c1d80460802b",
+          "materialHash": "3d6c6e23d4cc82c047029872921598495d906ee40af4f9eab5dbd373544d0198",
+          "timestamp": "2026-06-09T02:41:08.816Z"
         }
       ]
     }
