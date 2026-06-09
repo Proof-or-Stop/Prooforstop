@@ -143,6 +143,15 @@
       "reviewRound": "2026-06-09T23:40:30.598Z",
       "reviewRunId": "B-688d:RR-027",
       "_hash": "d7e5c2b3b9ac4a631d2e55ea5016e417da0d36ca4bb296442471317e1a904daa"
+    },
+    {
+      "id": "B-688d:RP-017",
+      "agent": "koala-review-test-coverage",
+      "note": "18/18 verificationIntent entries covered (0 missing required). All 3 CHK items have full happy/edge/adversarial coverage with appropriate evidence kinds (manual_transcript for CLI runs, logic_test for artifact assertions). Verdicts correctly distinguish blocked_classified (runner support without formal proof) from success. Spot-checked baseline-suite-report.json (suiteStatus=FAIL, minimumSuite.satisfied=true), final-report.json (dispatchDecision=GO-NOT-YET, authorityMode=off), and dispatch-audit.json (8 lanes, failClosedPolicy present). Evidence materialHash consistent. koala validate PASS with e2e suites green. Scope contract acknowledged. No gaps found.",
+      "createdAt": "2026-06-09T23:50:01.047Z",
+      "reviewRound": "2026-06-09T23:48:01.370Z",
+      "reviewRunId": "B-688d:RR-029",
+      "_hash": "6c0c835b7dde0c5270269215644182ed51831c38e862b3cef722d17c2fbd6d77"
     }
   ]
 }
