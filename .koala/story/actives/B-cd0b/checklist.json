@@ -9,9 +9,75 @@
         "docs/requirements/decisions/authority-client-role.md",
         "docs/requirements/decisions/lattice-parallel-wave.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-09T22:28:05.406Z",
+      "endTime": "2026-06-09T22:43:24.897Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Read Lattice-Parallel-Development-Capability.md and confirm it presents an explicit authority/local mode matrix that separates local/off, shadow, and enforce/receipt-backed modes, including what each mode can and cannot prove about authority and lifecycle state.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Confirm the matrix stays precise when it mentions transport acceptance, local PASS, or shadow diagnostics: those phrases may appear only as non-authority evidence and must not be collapsed into production authority or productionDone.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Grep the docs for any claim that this story implements runtime/gate/receipt verification or adds enforcement code, and verify none exists; the change must remain documentation-only and fail closed on production authority claims.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "User sees \"Authority Modes And Evidence Chains\" and a table separating local/off, shadow, and receipt-backed authority modes in Lattice-Parallel-Development-Capability.md.",
+      "files": {
+        "modify": [
+          "Lattice-Parallel-Development-Capability.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "Lattice-Parallel-Development-Capability.md",
+          "command": "rg -n 'Authority Modes And Evidence Chains|\\| `off` \\||\\| `shadow` \\||\\| `enforce`|receipt-backed-l2-plus|What it can prove|What it cannot prove' Lattice-Parallel-Development-Capability.md",
+          "result": "pass",
+          "note": "Document has an explicit mode matrix using PD-1/PD-2 vocabulary off, shadow, enforce and receipt-backed-l2-plus, separating what each mode can and cannot prove.",
+          "headHash": "b119eca7f792fe3006dd15e7aabda4f5cb3e988b",
+          "materialHash": "095f3260284efedced6dbbcf455bf92d708cf6aa5d9369ae938272f629e18213",
+          "timestamp": "2026-06-09T22:43:24.964Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "Lattice-Parallel-Development-Capability.md",
+          "command": "rg -n \"accepted: true != receiptVerified|local PASS does not imply productionDone|thin-client-transport-accepted|authority.productionDone=false|authority.receiptVerified=false|authority.authorityChanged=false\" Lattice-Parallel-Development-Capability.md",
+          "result": "pass",
+          "note": "Transport acceptance, local PASS, and shadow diagnostics remain non-authority evidence and cannot imply productionDone or receipt verification.",
+          "headHash": "b119eca7f792fe3006dd15e7aabda4f5cb3e988b",
+          "materialHash": "095f3260284efedced6dbbcf455bf92d708cf6aa5d9369ae938272f629e18213",
+          "timestamp": "2026-06-09T22:43:25.017Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "Lattice-Parallel-Development-Capability.md",
+          "command": "rg -n \"not a claim that the runtime has already implemented|not a runtime scheduler|does not implement|does not verify receipts|receipt-backed enforcement|future implementation\" Lattice-Parallel-Development-Capability.md",
+          "result": "pass",
+          "note": "The document remains documentation-only and does not claim runtime gate, receipt verification, or receipt-backed enforcement implementation.",
+          "headHash": "b119eca7f792fe3006dd15e7aabda4f5cb3e988b",
+          "materialHash": "095f3260284efedced6dbbcf455bf92d708cf6aa5d9369ae938272f629e18213",
+          "timestamp": "2026-06-09T22:43:25.072Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -21,9 +87,95 @@
         "Lattice-Parallel-Development-Capability.md",
         "docs/requirements/decisions/authority-client-role.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-09T22:28:05.839Z",
+      "endTime": "2026-06-09T22:43:38.966Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Read the report/readiness/DONE/anti-pattern sections and confirm they all use the same authority boundary vocabulary: authorityMode, evidenceClass, receiptVerified, productionDone, and authorityChanged are described consistently and do not contradict the mode matrix.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Confirm the docs can mention final-report.json, readiness checklist, and DONE criteria as a coherent future-facing contract while still making clear that local CLI PASS or transport acceptance is not sufficient evidence of production authority.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Verify that no report/readiness/DONE/anti-pattern statement implies the runtime already emits or enforces authority fields, and that none of them allow shadow/local evidence to satisfy production authority or DONE by implication.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "User sees \"authorityMode\", \"evidenceClass\", \"receiptVerified\", \"productionDone\", and \"authorityChanged\" used consistently in the report, readiness, DONE, and anti-pattern sections.",
+      "files": {
+        "modify": [
+          "Lattice-Parallel-Development-Capability.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "Lattice-Parallel-Development-Capability.md",
+          "command": "rg -n \"authorityMode|evidenceClass|authority.receiptVerified|authority.productionDone|authority.authorityChanged|authority.receiptRefs|final-report.json|Readiness Checklist|DONE Criteria|Anti-Patterns\" Lattice-Parallel-Development-Capability.md",
+          "result": "pass",
+          "note": "The report, readiness, DONE, and anti-pattern sections consistently use authorityMode, evidenceClass, and the nested authority.* fields without contradicting the mode matrix.",
+          "headHash": "f84dc2a98810804a8d720c1ef00ba5dfd37256a6",
+          "materialHash": "095f3260284efedced6dbbcf455bf92d708cf6aa5d9369ae938272f629e18213",
+          "timestamp": "2026-06-09T22:43:39.040Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "Lattice-Parallel-Development-Capability.md",
+          "command": "rg -n 'accepted: true != receiptVerified|local PASS does not imply productionDone|final-report.json|Readiness Checklist|DONE Criteria|\\| `off` \\||\\| `shadow` \\|' Lattice-Parallel-Development-Capability.md",
+          "result": "pass",
+          "note": "The document treats final-report/readiness/DONE as a future-facing contract while saying local CLI PASS or transport acceptance is not production authority.",
+          "headHash": "f84dc2a98810804a8d720c1ef00ba5dfd37256a6",
+          "materialHash": "095f3260284efedced6dbbcf455bf92d708cf6aa5d9369ae938272f629e18213",
+          "timestamp": "2026-06-09T22:43:39.093Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "Lattice-Parallel-Development-Capability.md",
+          "command": "rg -n 'Any attempt to set `authority.receiptVerified=true`|Local CLI REVIEW/TEST/DONE described as production authority|Transport `accepted: true` described as receipt verification|Shadow diagnostics setting `authority.receiptVerified=true`|not a claim that the runtime has already implemented' Lattice-Parallel-Development-Capability.md",
+          "result": "pass",
+          "note": "The document blocks local/shadow evidence from satisfying production authority or DONE, and does not imply runtime authority field enforcement already exists.",
+          "headHash": "f84dc2a98810804a8d720c1ef00ba5dfd37256a6",
+          "materialHash": "095f3260284efedced6dbbcf455bf92d708cf6aa5d9369ae938272f629e18213",
+          "timestamp": "2026-06-09T22:43:39.146Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-09T22:40:54.266Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Resolve F-001 by aligning authorityMode and evidenceClass vocabulary with authority-client-role truth source."
+    },
+    {
+      "timestamp": "2026-06-09T22:40:55.639Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Resolve F-002 by reusing nested authority.receiptRefs instead of introducing authorityReceiptRefs."
     }
   ]
 }

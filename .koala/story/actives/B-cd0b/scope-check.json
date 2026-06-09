@@ -1,0 +1,31 @@
+{
+  "storyId": "B-cd0b",
+  "checkedAt": "2026-06-09T22:26:34.638Z",
+  "features": [
+    {
+      "feature": "Parallel Development capability doc adds an explicit Authority Modes And Evidence Chains matrix that separates local/off lifecycle evidence, shadow transport or diagnostic evidence, and receipt-backed L2+ authority evidence without claiming runtime enforcement.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:authority-client-role.md"
+    },
+    {
+      "feature": "Parallel Development final-report example, readiness checklist, DONE criteria, and anti-patterns use the authorityMode/evidenceClass/receiptVerified/productionDone/authorityChanged/authorityReceiptRefs boundary consistently and keep it future-facing until a verified receipt-backed path exists.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:authority-client-role.md"
+    }
+  ],
+  "summary": {
+    "total": 2,
+    "covered": 2,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "6abe2335f16034e2fb51a4a14b10163915f8a238e81ee7bda13a1054daabb30f",
+  "openQuestions": []
+}

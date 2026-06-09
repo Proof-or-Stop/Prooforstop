@@ -1,0 +1,75 @@
+{
+  "principles": [
+    "本地生命周期证据和 production authority 证据必须冷读可分。",
+    "文档补强不能暗示 runtime/gate/receipt implementation 已存在。",
+    "所有 production authority 表述必须以 verified AuthorityReceipt 和 L2+ 条件为前提。"
+  ],
+  "drivers": [
+    "用户明确要求把 Authority Server 证据链和 Lattice non-authority 本地模式纳入本文档。",
+    "INIT reviewer 要求 CHK-002 澄清 documentation-only scope 和一致性验收形态。",
+    "现有 PD-1/PD-2 真相源已经定义 CLI thin local/shadow posture。"
+  ],
+  "options": [
+    {
+      "name": "A: 在当前能力文档中新增 authority mode/evidence chain section 并同步报告/验收语义",
+      "pros": [
+        "直接修补读者会误解的同一份文档。",
+        "保持 scope 小，适合文档 story。",
+        "能让 proof gate、final-report、readiness、DONE criteria 共享同一边界语言。"
+      ],
+      "cons": [
+        "不会实现 runtime enforcement，需要明确这只是未来实现契约。"
+      ]
+    },
+    {
+      "name": "B: 另建独立 Authority Parallel Development spec",
+      "pros": [
+        "可以更详细展开 Authority Server 集成。"
+      ],
+      "cons": [
+        "当前问题是本文档缺口，另文档会让读者继续在能力定义里看不到关键边界。",
+        "会扩大 scope，容易滑向未批准的 authority implementation design。"
+      ]
+    },
+    {
+      "name": "C: 修改 runtime schema/gate 以落地字段",
+      "pros": [
+        "机械约束更强。"
+      ],
+      "cons": [
+        "超出用户当前文档请求。",
+        "会触碰 Authority/gate 高风险代码，且 parallel_development_* runtime surfaces 尚未实现。",
+        "可能违反 PD-1/PD-2 deferred authority-client 边界。"
+      ]
+    }
+  ],
+  "chosen": "A: 在当前能力文档中新增 authority mode/evidence chain section 并同步报告/验收语义",
+  "rationale": "选 A，因为用户要的是把两种证据链加进当前 Parallel Development 能力文档；A 能修正文档的冷读边界，同时避免实现未批准的 Authority Server runtime 路径。",
+  "preMortem": [
+    {
+      "scenario": "文档字段看起来像已经存在的 runtime schema",
+      "trigger": "final-report.json 示例直接列字段但没有标注 future implementation contract",
+      "consequence": "读者以为当前 CLI 已经输出 authorityMode 或 receipt-backed L2+ 报告",
+      "mitigation": "在 shared contract/report section 明确这些是 implementation should produce 的未来报告字段，不是当前 runtime claim。"
+    },
+    {
+      "scenario": "local PASS 被误读为 production authority",
+      "trigger": "mode matrix 没有明确 local/off 与 receipt-backed 的 proof limits",
+      "consequence": "Parallel Development 被用于过度声明 productionDone 或 authorized claim",
+      "mitigation": "新增 authority mode matrix，写明 local_lifecycle 只能证明 local lifecycle，productionDone 必须 false。"
+    },
+    {
+      "scenario": "transport acceptance 被误写成 receipt verification",
+      "trigger": "文档只说 receipt gate，但没有区分 accepted:true 与 verified AuthorityReceipt",
+      "consequence": "shadow/enforce transport POST 被错误当成 L2+ authority",
+      "mitigation": "加入 receipt-backed evidence chain 条件，明确 accepted:true 不是 receipt verification。"
+    },
+    {
+      "scenario": "Parallel Wave 规划证据进入 authority chain",
+      "trigger": "Parallel Development 消费 frozen Wave snapshot 后没有再次声明 Wave authority=false",
+      "consequence": "wave evidenceRefs 被当作 fresh gate/receipt evidence",
+      "mitigation": "在 mode section 重申 Wave refs 是 lineage/context only，不能进入 production authority proof。"
+    }
+  ],
+  "timestamp": "2026-06-09T22:17:20.147Z"
+}

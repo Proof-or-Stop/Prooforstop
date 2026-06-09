@@ -1,0 +1,58 @@
+{
+  "passes": [
+    {
+      "id": "B-cd0b:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "verificationIntent and verificationEvidence cover both doc-only checklist items across happy/edge/adversarial lanes. Verified the current doc still contains the authority mode matrix and authority-boundary report/readiness/DONE clauses, and confirmed the only post-evidence changes were story metadata (.koala story files), not Lattice-Parallel-Development-Capability.md, so the evidence remains materially fresh for this review.",
+      "createdAt": "2026-06-09T22:35:14.343Z",
+      "reviewRound": "2026-06-09T22:33:22.169Z",
+      "reviewRunId": "B-cd0b:RR-001",
+      "_hash": "53509608f7cb435209a09422c962e6834611414509763d68c837bb96e4ee3383"
+    },
+    {
+      "id": "B-cd0b:RP-002",
+      "agent": "koala-review-docs",
+      "note": "reviewed CHK-001 docs touchpoint quality: the new authority section is placed coherently after the Parallel Wave boundary, the table/readability is clear, terminology matches the linked decision docs, and relatedDocs already cover the relevant sources; no blocker.",
+      "createdAt": "2026-06-09T22:35:21.976Z",
+      "reviewRound": "2026-06-09T22:33:22.169Z",
+      "reviewRunId": "B-cd0b:RR-002",
+      "_hash": "cc9ffae6c5f85e76e4eca2c0f9ac38e9e182903c5b261031fea7c56ba8eb7b6c"
+    },
+    {
+      "id": "B-cd0b:RP-003",
+      "agent": "koala-review-concept",
+      "note": "Reviewed the Parallel Development execution plan after terminology fixes. It now uses PD-1/PD-2 vocabulary off|shadow|enforce, keeps proof sequential, states Layer 1 runner present but formal proof incomplete, and blocks overclaim. No remaining concept blocker.",
+      "createdAt": "2026-06-09T22:44:35.959Z",
+      "reviewRound": "2026-06-09T22:44:03.878Z",
+      "reviewRunId": "B-cd0b:RR-005",
+      "_hash": "2db6ce8c38fe160489a6ae36b4dd357a66ea6133ab069f8cf5f845629e916fb8"
+    },
+    {
+      "id": "B-cd0b:RP-004",
+      "agent": "koala-review-quality",
+      "note": "Reviewed field naming and document consistency. The plan no longer uses authorityReceiptRefs, receipt-backed-authority, or local/off; it reuses authority.receiptRefs and receipt-backed-l2-plus. No remaining quality blocker.",
+      "createdAt": "2026-06-09T22:44:46.220Z",
+      "reviewRound": "2026-06-09T22:44:03.878Z",
+      "reviewRunId": "B-cd0b:RR-006",
+      "_hash": "391cbcfed6e98a16a2eba34e3b86635e4edb495ba6097c6849127b87159e653b"
+    },
+    {
+      "id": "B-cd0b:RP-005",
+      "agent": "koala-review-test-coverage",
+      "note": "Reviewed verification coverage. Six verificationIntent entries are covered with docs_check evidence; validate passed; added plan includes Layer 1 audit status, 2-host/8-agent execution, sequential proof, and fail-closed authority boundaries. No coverage blocker.",
+      "createdAt": "2026-06-09T22:44:58.018Z",
+      "reviewRound": "2026-06-09T22:44:03.878Z",
+      "reviewRunId": "B-cd0b:RR-007",
+      "_hash": "1505919172c3643219dde1ddc70849111bff01f0f629c3e5ba15d4f7219752e0"
+    },
+    {
+      "id": "B-cd0b:RP-006",
+      "agent": "koala-review-docs",
+      "note": "Reviewed docs touchpoints. The document now aligns with authority-client-role off/shadow/enforce and receipt-backed-l2-plus vocabulary, uses authority.receiptRefs, and keeps the plan thin and non-authoritative. No docs blocker.",
+      "createdAt": "2026-06-09T22:45:07.876Z",
+      "reviewRound": "2026-06-09T22:44:03.878Z",
+      "reviewRunId": "B-cd0b:RR-008",
+      "_hash": "407e734c14a2466b0a9c5a2ce3eb7f658201ed209339f6f7b8ee8e3ef68236c3"
+    }
+  ]
+}

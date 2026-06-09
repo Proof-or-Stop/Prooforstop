@@ -1,0 +1,23 @@
+{
+  "task": "补充 Parallel Development 文档中的 authority/local evidence mode 分层",
+  "outcome": "用户打开 Lattice-Parallel-Development-Capability.md 后，可以直接看到本地 Lattice CLI 模式只证明 local lifecycle，Authority Server receipt-backed 模式才可能证明 production authority，并且 final-report/readiness/DONE/anti-patterns 都保持同一边界。",
+  "facts": [
+    "当前文档已有 non-authority 防线，但没有 explicit authority mode matrix。",
+    "docs/requirements/decisions/authority-client-role.md 规定普通 Lattice CLI 是 thin local/shadow lifecycle client。",
+    "Authority Server production authority 需要 signed EvidenceEnvelope、独立 producer/verifier、hash binding 和 verified AuthorityReceipt。",
+    "Parallel Wave 仍是 L0 read-only planning projection，不能产生 receipt 或 productionDone。",
+    "INIT reviewer 指出 CHK-002 需要澄清为文档示例和验收语义，不应被解读为 runtime schema/gate 实现。"
+  ],
+  "constraints": [
+    "只修改 Lattice-Parallel-Development-Capability.md 和必要的 story 元数据。",
+    "不实现或修改 parallel_development_* runtime 命令。",
+    "不修改 Authority submit、receipt verification、gate 或 schema 代码。",
+    "本地 CLI PASS/DONE、shadow diagnostic、transport accepted、Parallel Wave projection 都不能被写成 production authority。",
+    "所有 authority wording 必须 fail closed 到 receipt-backed L2+ 条件。"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "Lattice-Parallel-Development-Capability.md"
+  ],
+  "timestamp": "2026-06-09T22:27:10.272Z"
+}
