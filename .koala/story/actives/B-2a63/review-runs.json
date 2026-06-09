@@ -1,0 +1,176 @@
+{
+  "runs": [
+    {
+      "reviewRunId": "B-2a63:RR-001",
+      "storyId": "B-2a63",
+      "agent": "koala-review-concept",
+      "lane": "koala-review-concept",
+      "reviewRound": "2026-06-09T02:06:12.444Z",
+      "startedAt": "2026-06-09T02:08:15.011Z",
+      "headHash": "4b2a995442d53fa67e856099d53fe297a1b4cb8e",
+      "materialHash": "09f2d0bbb82d930c7a4f531a258e73fa37539a979b1a645af7dda9868e763f1c",
+      "promptHash": "fb7355b47c072eca872a8b0433d6e7b76edd2011d3b7a0ced559ab460a8e1f6d",
+      "scopeBinding": {
+        "scopeContractHash": "5833eeed3f61392a9863381eba196bdc979f3d67566a04028faf9bda3928a114",
+        "diffPackHash": "237a8dc92a56198a026f66aca9a9a373d672321872ef3d19313bc3bfb98f8de4",
+        "reviewedChangedFiles": [
+          "Lattice-lifecycle-memory-Evolving.md",
+          "packages/main/package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/memory-benchmark-real-data.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/memory-benchmark.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/memory-real-data-benchmark-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "06d15b4aa6dafa3a27a704df41135ec95435433d7af15f71cd9bf9d10bbbc98c",
+          "08608d72ba636c3a143c99bb65d51f0195ae48c1acfd287c1433e2ac3cfebb03",
+          "09bc4b4b6399a6a45bb66281c859eaea589c74361f4b5f008e30a72a02640f0d",
+          "36f6feb902a58e1e53445ae5007879695d881e72eedd1006ee93d27cdede2b53",
+          "3ab53563e4b04918bd193f53082b31ebc70bae0ec7d50af4b0bb27975c0d30af",
+          "6f147b03c86152f900983b1a89dbe8e3a56cc7242edf4045fa5a6a9e68a51470",
+          "72092482b35fc81f47da4da4120fbd68ef7c817b2efe2762e4b1415292744260",
+          "75429f0ae2e1552fe1e7ec72cd49ec7543f73c772ad111ef77d5cd7b89a94d8a",
+          "949406408579a4a00f8d8735109ed7056a499c71e9b0eaaf454d98d25b62f0e6",
+          "a33c43e449d84e840c321fe85054b100063caf9c64f7653cbe91222c204ec320",
+          "f2ea7fa93934f42de4f69c023d2ab30a86a433bcbebfcf32ff3b335d6dcc70a2"
+        ],
+        "bindingHash": "b285bc616e3d5250826d897c8502fc0649f1f8daa7e681d6c44ddbd7fbe1e2c2"
+      },
+      "_hash": "000590a1ed28dec39c3fbd4013ec525ebfec5aa6e4add64e2321c6b74d4d1805"
+    },
+    {
+      "reviewRunId": "B-2a63:RR-002",
+      "storyId": "B-2a63",
+      "agent": "koala-review-quality",
+      "lane": "koala-review-quality",
+      "reviewRound": "2026-06-09T02:06:12.444Z",
+      "startedAt": "2026-06-09T02:08:15.713Z",
+      "headHash": "4b2a995442d53fa67e856099d53fe297a1b4cb8e",
+      "materialHash": "09f2d0bbb82d930c7a4f531a258e73fa37539a979b1a645af7dda9868e763f1c",
+      "promptHash": "5d553cbf4609b013270d3962bd6e4895a2ad1e842dabd4ea8af3c3b8c32b1451",
+      "scopeBinding": {
+        "scopeContractHash": "5833eeed3f61392a9863381eba196bdc979f3d67566a04028faf9bda3928a114",
+        "diffPackHash": "237a8dc92a56198a026f66aca9a9a373d672321872ef3d19313bc3bfb98f8de4",
+        "reviewedChangedFiles": [
+          "Lattice-lifecycle-memory-Evolving.md",
+          "packages/main/package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/memory-benchmark-real-data.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/memory-benchmark.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/memory-real-data-benchmark-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "06d15b4aa6dafa3a27a704df41135ec95435433d7af15f71cd9bf9d10bbbc98c",
+          "08608d72ba636c3a143c99bb65d51f0195ae48c1acfd287c1433e2ac3cfebb03",
+          "09bc4b4b6399a6a45bb66281c859eaea589c74361f4b5f008e30a72a02640f0d",
+          "36f6feb902a58e1e53445ae5007879695d881e72eedd1006ee93d27cdede2b53",
+          "3ab53563e4b04918bd193f53082b31ebc70bae0ec7d50af4b0bb27975c0d30af",
+          "6f147b03c86152f900983b1a89dbe8e3a56cc7242edf4045fa5a6a9e68a51470",
+          "72092482b35fc81f47da4da4120fbd68ef7c817b2efe2762e4b1415292744260",
+          "75429f0ae2e1552fe1e7ec72cd49ec7543f73c772ad111ef77d5cd7b89a94d8a",
+          "949406408579a4a00f8d8735109ed7056a499c71e9b0eaaf454d98d25b62f0e6",
+          "a33c43e449d84e840c321fe85054b100063caf9c64f7653cbe91222c204ec320",
+          "f2ea7fa93934f42de4f69c023d2ab30a86a433bcbebfcf32ff3b335d6dcc70a2"
+        ],
+        "bindingHash": "b285bc616e3d5250826d897c8502fc0649f1f8daa7e681d6c44ddbd7fbe1e2c2"
+      },
+      "_hash": "6ff7a2353e8ac1d4f5aa5386dee7b536c071dffa73c2f49528f3336d8ea89f62"
+    },
+    {
+      "reviewRunId": "B-2a63:RR-003",
+      "storyId": "B-2a63",
+      "agent": "koala-review-test-coverage",
+      "lane": "koala-review-test-coverage",
+      "reviewRound": "2026-06-09T02:06:12.444Z",
+      "startedAt": "2026-06-09T02:08:20.909Z",
+      "headHash": "4b2a995442d53fa67e856099d53fe297a1b4cb8e",
+      "materialHash": "09f2d0bbb82d930c7a4f531a258e73fa37539a979b1a645af7dda9868e763f1c",
+      "promptHash": "c8dc776bcf85293e7dfc0228fc085ea5565602381277f82e610972a3ccdea60d",
+      "scopeBinding": {
+        "scopeContractHash": "5833eeed3f61392a9863381eba196bdc979f3d67566a04028faf9bda3928a114",
+        "diffPackHash": "237a8dc92a56198a026f66aca9a9a373d672321872ef3d19313bc3bfb98f8de4",
+        "reviewedChangedFiles": [
+          "Lattice-lifecycle-memory-Evolving.md",
+          "packages/main/package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/memory-benchmark-real-data.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/memory-benchmark.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/memory-real-data-benchmark-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "06d15b4aa6dafa3a27a704df41135ec95435433d7af15f71cd9bf9d10bbbc98c",
+          "08608d72ba636c3a143c99bb65d51f0195ae48c1acfd287c1433e2ac3cfebb03",
+          "09bc4b4b6399a6a45bb66281c859eaea589c74361f4b5f008e30a72a02640f0d",
+          "36f6feb902a58e1e53445ae5007879695d881e72eedd1006ee93d27cdede2b53",
+          "3ab53563e4b04918bd193f53082b31ebc70bae0ec7d50af4b0bb27975c0d30af",
+          "6f147b03c86152f900983b1a89dbe8e3a56cc7242edf4045fa5a6a9e68a51470",
+          "72092482b35fc81f47da4da4120fbd68ef7c817b2efe2762e4b1415292744260",
+          "75429f0ae2e1552fe1e7ec72cd49ec7543f73c772ad111ef77d5cd7b89a94d8a",
+          "949406408579a4a00f8d8735109ed7056a499c71e9b0eaaf454d98d25b62f0e6",
+          "a33c43e449d84e840c321fe85054b100063caf9c64f7653cbe91222c204ec320",
+          "f2ea7fa93934f42de4f69c023d2ab30a86a433bcbebfcf32ff3b335d6dcc70a2"
+        ],
+        "bindingHash": "b285bc616e3d5250826d897c8502fc0649f1f8daa7e681d6c44ddbd7fbe1e2c2"
+      },
+      "_hash": "157f42fc6bcbbeb1327676df918d7ff0edd7490c48bffdd5c0a42de9e77cbdae"
+    },
+    {
+      "reviewRunId": "B-2a63:RR-004",
+      "storyId": "B-2a63",
+      "agent": "koala-review-docs",
+      "lane": "koala-review-docs",
+      "reviewRound": "2026-06-09T02:06:12.444Z",
+      "startedAt": "2026-06-09T02:08:25.664Z",
+      "headHash": "4b2a995442d53fa67e856099d53fe297a1b4cb8e",
+      "materialHash": "09f2d0bbb82d930c7a4f531a258e73fa37539a979b1a645af7dda9868e763f1c",
+      "promptHash": "11eb7bedbd1f6c7487a4942a2a177decee3fdb263f63dd70a2809080ce42d2ed",
+      "scopeBinding": {
+        "scopeContractHash": "5833eeed3f61392a9863381eba196bdc979f3d67566a04028faf9bda3928a114",
+        "diffPackHash": "237a8dc92a56198a026f66aca9a9a373d672321872ef3d19313bc3bfb98f8de4",
+        "reviewedChangedFiles": [
+          "Lattice-lifecycle-memory-Evolving.md",
+          "packages/main/package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/memory-benchmark-real-data.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/memory-benchmark.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/memory-real-data-benchmark-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "06d15b4aa6dafa3a27a704df41135ec95435433d7af15f71cd9bf9d10bbbc98c",
+          "08608d72ba636c3a143c99bb65d51f0195ae48c1acfd287c1433e2ac3cfebb03",
+          "09bc4b4b6399a6a45bb66281c859eaea589c74361f4b5f008e30a72a02640f0d",
+          "36f6feb902a58e1e53445ae5007879695d881e72eedd1006ee93d27cdede2b53",
+          "3ab53563e4b04918bd193f53082b31ebc70bae0ec7d50af4b0bb27975c0d30af",
+          "6f147b03c86152f900983b1a89dbe8e3a56cc7242edf4045fa5a6a9e68a51470",
+          "72092482b35fc81f47da4da4120fbd68ef7c817b2efe2762e4b1415292744260",
+          "75429f0ae2e1552fe1e7ec72cd49ec7543f73c772ad111ef77d5cd7b89a94d8a",
+          "949406408579a4a00f8d8735109ed7056a499c71e9b0eaaf454d98d25b62f0e6",
+          "a33c43e449d84e840c321fe85054b100063caf9c64f7653cbe91222c204ec320",
+          "f2ea7fa93934f42de4f69c023d2ab30a86a433bcbebfcf32ff3b335d6dcc70a2"
+        ],
+        "bindingHash": "b285bc616e3d5250826d897c8502fc0649f1f8daa7e681d6c44ddbd7fbe1e2c2"
+      },
+      "_hash": "d71f6b600a16e95858a6fe568fb84c052ea87e1c5d3aff41570d337a3eadbb09"
+    }
+  ]
+}

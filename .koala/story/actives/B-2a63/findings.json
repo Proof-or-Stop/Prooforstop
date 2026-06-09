@@ -1,0 +1,20 @@
+{
+  "findings": [
+    {
+      "id": "B-2a63:F-001",
+      "desc": "Verification coverage gap: protected outputDir refusal is asserted in the smoke at packages/main/src/tasks/memory-real-data-benchmark-smoke.ts:205 and :211, but no verificationIntent explicitly owns that behavior. CHK-002 edge intent only covers non-authority boundary labeling, so protected outputDir remains untracked by checklist acceptance criteria even though the evidence note mentions it.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-09T02:09:36.782Z",
+      "reviewRound": "2026-06-09T02:06:12.444Z",
+      "reviewRunId": "B-2a63:RR-003",
+      "_hash": "510e9f9e74b93d0e7f3e8e972768928c8f14a297c7832a04f028c52cc03b4cad",
+      "files": [
+        "packages/main/src/tasks/memory-real-data-benchmark-smoke.ts"
+      ]
+    }
+  ]
+}
