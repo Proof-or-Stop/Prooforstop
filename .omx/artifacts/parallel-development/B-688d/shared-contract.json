@@ -1,7 +1,73 @@
 {
   "schemaVersion": "lattice.parallel-development.shared-contract.v1",
+  "contractVersion": "baseline-parallel-v1",
   "storyId": "B-688d",
   "generatedAt": "2026-06-09T23:07:00Z",
+  "producer": {
+    "artifactPath": ".omx/artifacts/parallel-development/B-688d/shared-contract.json",
+    "method": "B-688d DEV audit contract freeze",
+    "inputs": [
+      ".omx/artifacts/baseline/B-688d/baseline-suite-report.json",
+      ".omx/artifacts/parallel-development/B-688d/final-report.json",
+      ".omx/artifacts/parallel-development/B-688d/dispatch-audit.json",
+      ".omx/artifacts/parallel-development/B-688d/host-probes.json",
+      ".omx/artifacts/parallel-development/B-688d/claim-lock-status.json"
+    ]
+  },
+  "material": {
+    "headHash": "7163a6dd18b81abef8c3488b3e2e86c67a0c3cda",
+    "materialHash": "sha256:2d260c1521b4ef69364723d167aa66eebac930c332be020e34171460d3ae8848",
+    "materialHashSource": ".omx/artifacts/baseline/B-688d/baseline-suite-report.json",
+    "runIds": [
+      "run-20260609-230655417",
+      "run-20260609-230656400",
+      "run-20260609-230656891",
+      "run-20260609-230702593",
+      "run-20260609-230703513",
+      "run-20260609-230704678"
+    ]
+  },
+  "evidenceRefs": {
+    "baselineSuiteReport": {
+      "path": ".omx/artifacts/baseline/B-688d/baseline-suite-report.json",
+      "sha256": "2d260c1521b4ef69364723d167aa66eebac930c332be020e34171460d3ae8848"
+    },
+    "finalReport": {
+      "path": ".omx/artifacts/parallel-development/B-688d/final-report.json",
+      "sha256": "249f315294aff938e3151f999a147bd255f7b35578f7d0caf2f44afa534bee2b"
+    },
+    "baselineClaimReport": {
+      "path": ".omx/artifacts/claude-baseline-audit-B-688d.md",
+      "sha256": "9dfebe0e8eee43b2ee74e111c07919f0e60792798f59d1be371ea88520c3037d"
+    },
+    "dispatchClaimReport": {
+      "path": ".omx/artifacts/claude-dispatch-review-B-688d.md",
+      "sha256": "abd5fbe8db03a8612b7ee330cad97dab48e82796b36aa4418818432823342e1a"
+    },
+    "hostProbes": {
+      "path": ".omx/artifacts/parallel-development/B-688d/host-probes.json",
+      "sha256": "7b7d091d48699b06716ca26b3ab0c99cc2ff96a45d6289d8e5fe91805d520175"
+    },
+    "dispatchAudit": {
+      "path": ".omx/artifacts/parallel-development/B-688d/dispatch-audit.json",
+      "sha256": "cf821ffb0cc03c52d5596b865cf14ac2e4fda056ea1b2ac3be3accdb26112a45"
+    },
+    "claimLockStatus": {
+      "path": ".omx/artifacts/parallel-development/B-688d/claim-lock-status.json",
+      "sha256": "87ce66b7d4616fc997bf1bddc70e448aa765a0ddc5cb5e5012f90498b6b2d40d"
+    }
+  },
+  "frozenFields": [
+    "runId",
+    "materialHash",
+    "evidenceRefs",
+    "finalReport",
+    "baselineSuiteReport",
+    "baselineClaimReport",
+    "dispatchClaimReport",
+    "authorityMode",
+    "evidenceClass"
+  ],
   "authorityMode": "off",
   "evidenceClass": "local-lifecycle",
   "authority": {
