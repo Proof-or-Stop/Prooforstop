@@ -1,0 +1,57 @@
+{
+  "storyId": "B-688d",
+  "checkedAt": "2026-06-09T23:54:55.200Z",
+  "reviewRound": "2026-06-09T23:48:01.370Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "Lattice-Parallel-Development-Capability.md",
+      "promise": "Implementation may proceed in parallel; capability proof and claim unlock must remain sequential",
+      "verifiedBy": "diff/grep",
+      "evidence": "final-report.json decision=GO-NOT-YET preserves sequential proof discipline; no capability claim unlocked; claim-lock-status.json has 4 active locks requiring Layer 1 formal proof before any higher-layer claim"
+    },
+    {
+      "docPath": "Lattice-Capability-Claim-baseline.md",
+      "promise": "Higher-layer baselines may be implemented early but higher-layer capability claims remain locked until all lower layers pass",
+      "verifiedBy": "diff/grep",
+      "evidence": "baseline-suite-report.json suiteStatus=FAIL with correctness-protected rate 16.7% (below 70%); claim-lock-status.json lock-capability-claims requires Layer 1 suite PASS plus independent review; no higher-layer claim is made"
+    },
+    {
+      "docPath": "docs/requirements/decisions/authority-client-role.md",
+      "promise": "Ordinary koala workflow commands must never become or be treated as authority evidence submissions",
+      "verifiedBy": "diff/grep",
+      "evidence": "final-report.json authorityBoundary.authorityMode=off, evidenceClass=local-lifecycle, receiptVerified=false; no authority claims active; all evidence scoped to local lifecycle only"
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-parallel-wave.md",
+      "promise": "Wave artifacts are local planning state only and cannot satisfy REVIEW/TEST/DONE/delivery/receipt/production authority gates",
+      "verifiedBy": "diff/grep",
+      "evidence": "All B-688d artifacts are under .omx/artifacts/ local paths; authority boundary shows productionDone=false, authorityChanged=false, receiptRefs=empty; no gate satisfaction claimed from wave artifacts"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "lattice validate --story=B-688d: PASS at 2026-06-09T23:51:49.279Z; baseline-suite-report.json confirms suiteStatus=FAIL, falseDoneCount=0, safetySuccessRate=1.0, overallCorrectnessProtectedSuccessRate=0.166667; 5/6 runs FAIL due missing localReviewCertified evidence; RED-GAP-BLOCK-1 correctly blocked (EXPECTED_BLOCK)"
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "lattice-codex.js verify_codex: 7/8 pass with codex-native-hooks pass; scope-contract.json acknowledges .Codex adapter files with explicit note that Codex adapter gate repair does not expand capability claim; shared-contract.json frozen with material hash and evidence refs"
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "final-report.json inspection: decision=GO-NOT-YET, dispatchDecision=GO-NOT-YET; 3 blockedReasons documented; 4 claim locks active; 8 lanes with fail-closed semantics; higher-layer lanes shadow/not_authorized; nextSteps enumerate required evidence acquisition"
+    },
+    {
+      "featureId": "scope_contract_check",
+      "transcript": "scope-contract.json mode=enforce; acknowledgement for .Codex adapter paths by main-auditor at 2026-06-09T23:47:42.957Z states this does not expand the baseline capability claim; no scope expansion beyond existing PLAN checklist"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "B-688d delivers GO-NOT-YET coordination audit: Layer 1 baseline suite correctly reports FAIL (5/6 missing independent review evidence), safety rate 100%, all capability claims locked, no authority boundary crossed, .Codex adapter scope acknowledged without capability expansion"
+  },
+  "_hash": "171c8578de94dc5e390dca16120727da93d87057b597064b16baff72098e507f"
+}
