@@ -9,9 +9,31 @@
         "docs/requirements/decisions/lattice-parallel-wave.md",
         "docs/requirements/decisions/session-ownership-and-write-leases.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-09T21:35:45.310Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:docs:0",
+          "kind": "docs_check",
+          "command": "git diff --check",
+          "result": "pass",
+          "note": "Whitespace and patch-format check passed for the added Parallel Wave Integration section.",
+          "headHash": "93bb5ac22de1b0107f31a19ca6a170b6a483381f",
+          "materialHash": "869a81259f750a3fd0c254d536bf1904f50c360f3afbe201f17bdf640304a0e6",
+          "timestamp": "2026-06-09T21:35:45.376Z"
+        },
+        {
+          "intentRef": "CHK-001:cli:0",
+          "kind": "manual_transcript",
+          "command": "lattice parallel_report --format=json",
+          "result": "pass",
+          "note": "Existing Parallel Wave report surface remains non-authoritative: authority.productionDone=false, authority.authorityChanged=false, and receiptRefs=[]; this matches the new integration wording.",
+          "headHash": "93bb5ac22de1b0107f31a19ca6a170b6a483381f",
+          "materialHash": "869a81259f750a3fd0c254d536bf1904f50c360f3afbe201f17bdf640304a0e6",
+          "timestamp": "2026-06-09T21:35:45.426Z"
+        }
+      ]
     }
   ]
 }
