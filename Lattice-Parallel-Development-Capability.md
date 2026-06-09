@@ -177,12 +177,21 @@ Frozen snapshot fields from the full-envelope Wave artifact:
 
 ```text
 waveId
-waveSchemaVersion
+schemaVersion or waveSchemaVersion
 storyRefs
 hostCandidates
 evidenceRefs
 mergeOrder
 authority
+```
+
+Schema marker rule:
+
+```text
+parallel_wave_create provides schemaVersion and generatedAt.
+parallel_wave_inspect and parallel_plan provide waveSchemaVersion.
+The coordinator freeze wrapper may normalize these into sourceWaveSchemaVersion,
+but it must preserve the original source artifact and source command.
 ```
 
 Coordinator-added freeze metadata:
