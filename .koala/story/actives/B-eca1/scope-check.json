@@ -96,8 +96,15 @@
       "q": "The 5 missing relatedDocs and 1 missing source file (authority-gate-receipts.ts) all exist on main. Should resolution be git merge main into this story branch before DEV, or cherry-pick individual files? Plan says resolve before source edits but does not prescribe mechanism.",
       "evidence": "plan.md baseline precondition paragraph (lines 5-6). git ls on main confirms all 6 files present. Worktree ls confirms absence.",
       "sourcePointers": [
-        ".koala/story/actives/B-eca1/plan.md"
-      ]
+        ".koala/story/actives/B-eca1/plan.md",
+        "CHK-001",
+        "CHK-002",
+        "CHK-003",
+        "CHK-004",
+        "CHK-005"
+      ],
+      "resolution": "Resolution: Do not merge the entire dirty main working tree into B-eca1. Before source implementation begins, bring only the scoped baseline required by this story into the story branch: the referenced receipt/gate decision docs and the existing authority-gate-receipts.ts baseline, either by recreating those files with a scoped patch in this worktree or by cherry-picking a future committed baseline that contains only those artifacts. Until that scoped baseline is present, DEV source edits are blocked because verifier/gate code would be implemented without its declared truth docs and helper module.",
+      "resolvedAt": "2026-06-10T15:46:01.035Z"
     }
   ]
 }
