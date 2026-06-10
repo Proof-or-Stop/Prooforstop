@@ -285,7 +285,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Terminal output lists each adversarial trap as blocked/locked, including forged suite summary, missing host review, wrong host JSON, reused review artifact, missing lifecycle gate ref, missing receipt evidenceDigest, stale materialHash, and local-only proof.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-baseline.ts",
+          "packages/main/src/tasks/lattice-baseline-smoke.ts"
+        ],
+        "create": [
+          ".lattice/artifacts/baseline/layer2-engineering-unlock/fail-closed-traps/**"
+        ],
+        "test": [
+          "packages/main/src/tasks/lattice-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "All required fail-closed trap commands return BLOCKED/LOCKED and are recorded in evidence.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The traps exercise both suite-level and claim-level lock behavior.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No trap produces suite PASS or authorized=true when evidence is forged, stale, reused, or local-only.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-008",
