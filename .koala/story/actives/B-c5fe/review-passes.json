@@ -71,6 +71,15 @@
       "reviewRound": "2026-06-10T02:50:46.478Z",
       "reviewRunId": "B-c5fe:RR-013",
       "_hash": "85880d45ab4a0dc1a32148451d47c749e9b87153dfebe8efcf1d6990b07c3041"
+    },
+    {
+      "id": "B-c5fe:RP-009",
+      "agent": "koala-review-quality",
+      "note": "Reviewed docs/requirements/decisions/authority-session-receipt-gate-execution.md against the authority-client-role boundary. No blocker: the receipt-ref schema now separates static eligibleGates from per-decision consumptionEvents, no gateConsumers field remains, and the doc no longer overclaims ordinary CLI/gate authority beyond explicit enforce-mode approval and verified receipt consumption.",
+      "createdAt": "2026-06-10T02:53:25.023Z",
+      "reviewRound": "2026-06-10T02:50:46.478Z",
+      "reviewRunId": "B-c5fe:RR-012",
+      "_hash": "08835ba842db427fb678b76e7159658534ba34a88855040065d4b3ed2a8f09d7"
     }
   ]
 }
