@@ -94,7 +94,39 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees formal Engineering final reports marked capabilityProof=true and localOnly=false only after proof validation succeeds.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-baseline.ts",
+          "packages/main/src/handlers/lattice-baseline.ts",
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lattice-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Formal proof-producing path can emit accepted ENG final reports only after validation of evidence, receipts, and gate consumption inputs.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Diagnostic baseline_run reports remain localOnly=true and capabilityProof=false.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A caller cannot set formal proof flags without required proof inputs.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
