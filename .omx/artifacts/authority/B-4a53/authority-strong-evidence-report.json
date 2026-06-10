@@ -1,0 +1,244 @@
+{
+  "schemaVersion": "lattice.authority_strong_evidence_report.v1",
+  "storyId": "B-4a53",
+  "generatedAt": "2026-06-10T01:59:57.742Z",
+  "strongEvidenceResult": "BLOCKED_FAIL_CLOSED",
+  "authorityMode": "off",
+  "receiptVerified": false,
+  "productionDone": false,
+  "strongEvidenceConsumed": false,
+  "authorityReadiness": {
+    "status": "BLOCKED",
+    "authorityUrlConfigured": false,
+    "actorKeyConfigured": false,
+    "runnerConfigured": false,
+    "sessionConfigured": false,
+    "serverPublicKeyPinned": false
+  },
+  "authorityReceipt": {
+    "status": "BLOCKED",
+    "verified": false,
+    "note": "No verified AuthorityReceipt exists in this worktree diagnostic run."
+  },
+  "userVisibleLines": [
+    "Authority readiness: BLOCKED (authorityUrlConfigured=false, actorKeyConfigured=false, runnerConfigured=false, sessionConfigured=false, serverPublicKeyPinned=false)",
+    "Authority receipt: BLOCKED (no verified AuthorityReceipt; receiptVerified=false; productionDone=false)",
+    "Authority strong evidence verification: BLOCKED fail-closed"
+  ],
+  "diagnostics": {
+    "authorityStatus": {
+      "command": "lattice authority_status --json",
+      "exitCode": 0,
+      "parsed": {
+        "schemaVersion": "lattice.authority_status.v1",
+        "product": {
+          "name": "Lattice CLI",
+          "version": "0.3.5"
+        },
+        "authorityMode": "off",
+        "mode": "off",
+        "baseURLConfigured": false,
+        "baseURL": null,
+        "timeoutMS": 10000,
+        "resolvedBaseURL": null,
+        "urlSource": "none",
+        "defaultUrlApplied": false,
+        "authorityMdLoaded": false,
+        "testKeyProfile": null,
+        "productionInert": false,
+        "productionInertReasons": [],
+        "serverReachability": "not-probed",
+        "receiptVerified": false,
+        "productionDone": false,
+        "canClaimProductionDone": false,
+        "status": "not-configured",
+        "localWorkflowUsable": true,
+        "authorityUrlConfigured": false,
+        "customerApiKeyConfigured": false,
+        "customerApiKeySource": "missing",
+        "customerApiKeyValid": "unknown",
+        "actorKeyConfigured": false,
+        "actorKeyRegistered": "unknown",
+        "serverPublicKeyPinned": false,
+        "runnerConfigured": false,
+        "sessionConfigured": false,
+        "productionAuthorityUsable": false,
+        "readinessWarnings": [],
+        "nextActions": [],
+        "localWorkflowNote": "Local workflow (story_advance / verification_evidence_add / DONE gate) does not depend on remote authority; missing enforce prerequisites are readiness warnings, not global blockers.",
+        "note": "Receipt-aware status only: no receipt is verified, no evidence is submitted, and productionDone remains false."
+      },
+      "combinedOutput": "[0.0s] running authority_status...\n[0.0s] authority_status done\n{\n  \"schemaVersion\": \"lattice.authority_status.v1\",\n  \"product\": {\n    \"name\": \"Lattice CLI\",\n    \"version\": \"0.3.5\"\n  },\n  \"authorityMode\": \"off\",\n  \"mode\": \"off\",\n  \"baseURLConfigured\": false,\n  \"baseURL\": null,\n  \"timeoutMS\": 10000,\n  \"resolvedBaseURL\": null,\n  \"urlSource\": \"none\",\n  \"defaultUrlApplied\": false,\n  \"authorityMdLoaded\": false,\n  \"testKeyProfile\": null,\n  \"productionInert\": false,\n  \"productionInertReasons\": [],\n  \"serverReachability\": \"not-probed\",\n  \"receiptVerified\": false,\n  \"productionDone\": false,\n  \"canClaimProductionDone\": false,\n  \"status\": \"not-configured\",\n  \"localWorkflowUsable\": true,\n  \"authorityUrlConfigured\": false,\n  \"customerApiKeyConfigured\": false,\n  \"customerApiKeySource\": \"missing\",\n  \"customerApiKeyValid\": \"unknown\",\n  \"actorKeyConfigured\": false,\n  \"actorKeyRegistered\": \"unknown\",\n  \"serverPublicKeyPinned\": false,\n  \"runnerConfigured\": false,\n  \"sessionConfigured\": false,\n  \"productionAuthorityUsable\": false,\n  \"readinessWarnings\": [],\n  \"nextActions\": [],\n  \"localWorkflowNote\": \"Local workflow (story_advance / verification_evidence_add / DONE gate) does not depend on remote authority; missing enforce prerequisites are readiness warnings, not global blockers.\",\n  \"note\": \"Receipt-aware status only: no receipt is verified, no evidence is submitted, and productionDone remains false.\"\n}"
+    },
+    "conduitStatus": {
+      "command": "lattice conduit_status --json",
+      "exitCode": 0,
+      "parsed": {
+        "schemaVersion": "lattice.conduit_status.v1",
+        "product": {
+          "name": "Lattice CLI",
+          "version": "0.3.5"
+        },
+        "conduitAvailable": true,
+        "conduitRole": "cli-diagnostics-and-handoff",
+        "runnerProvisioned": false,
+        "modelRunnerCreated": false,
+        "productionDone": false,
+        "receiptVerified": false,
+        "authorityChanged": false,
+        "localWorkflowUsable": true,
+        "mode": "off",
+        "authorityUrlConfigured": false,
+        "actorKeyConfigured": false,
+        "runnerConfigured": false,
+        "sessionConfigured": false,
+        "readinessWarnings": [],
+        "nextActions": [],
+        "localWorkflowNote": "Local workflow (story_advance / verification_evidence_add / DONE gate) does not depend on remote authority; missing enforce prerequisites are readiness warnings, not global blockers.",
+        "supportedSurfaces": [
+          "host_list",
+          "host_probe",
+          "host_status",
+          "host_install",
+          "lattice_config_doctor",
+          "authority_status",
+          "handoff_create",
+          "handoff_accept",
+          "handoff_resume",
+          "handoff_receipt_submit",
+          "handoff_worktree_create",
+          "host_dispatch",
+          "evidence_manifest",
+          "evidence_inspect",
+          "parallel_wave_create",
+          "parallel_plan"
+        ],
+        "warnings": [
+          "The CLI conduit coordinates diagnostics and handoff projections only.",
+          "It does not provision a new model runner, sign envelopes, verify receipts, or grant production authority."
+        ]
+      },
+      "combinedOutput": "[0.0s] running conduit_status...\n[0.0s] conduit_status done\n{\n  \"schemaVersion\": \"lattice.conduit_status.v1\",\n  \"product\": {\n    \"name\": \"Lattice CLI\",\n    \"version\": \"0.3.5\"\n  },\n  \"conduitAvailable\": true,\n  \"conduitRole\": \"cli-diagnostics-and-handoff\",\n  \"runnerProvisioned\": false,\n  \"modelRunnerCreated\": false,\n  \"productionDone\": false,\n  \"receiptVerified\": false,\n  \"authorityChanged\": false,\n  \"localWorkflowUsable\": true,\n  \"mode\": \"off\",\n  \"authorityUrlConfigured\": false,\n  \"actorKeyConfigured\": false,\n  \"runnerConfigured\": false,\n  \"sessionConfigured\": false,\n  \"readinessWarnings\": [],\n  \"nextActions\": [],\n  \"localWorkflowNote\": \"Local workflow (story_advance / verification_evidence_add / DONE gate) does not depend on remote authority; missing enforce prerequisites are readiness warnings, not global blockers.\",\n  \"supportedSurfaces\": [\n    \"host_list\",\n    \"host_probe\",\n    \"host_status\",\n    \"host_install\",\n    \"lattice_config_doctor\",\n    \"authority_status\",\n    \"handoff_create\",\n    \"handoff_accept\",\n    \"handoff_resume\",\n    \"handoff_receipt_submit\",\n    \"handoff_worktree_create\",\n    \"host_dispatch\",\n    \"evidence_manifest\",\n    \"evidence_inspect\",\n    \"parallel_wave_create\",\n    \"parallel_plan\"\n  ],\n  \"warnings\": [\n    \"The CLI conduit coordinates diagnostics and handoff projections only.\",\n    \"It does not provision a new model runner, sign envelopes, verify receipts, or grant production authority.\"\n  ]\n}"
+    },
+    "authorityEnforcePolicy": {
+      "command": "lattice authority_enforce_policy --json",
+      "exitCode": 1,
+      "failedClosed": true,
+      "failureReason": "LATTICE_AUTHORITY_URL is not set; authority policy discovery requires an authority server URL.",
+      "combinedOutput": "[0.0s] running authority_enforce_policy...\n[0.0s] authority_enforce_policy failed: \u274c LATTICE_AUTHORITY_URL is not set; authority policy discovery requires an authority server URL.\nAuthority policy discovery only: no receipt, no gate pass, no evidence submission.\nError: \u274c LATTICE_AUTHORITY_URL is not set; authority policy discovery requires an authority server URL.\nAuthority policy discovery only: no receipt, no gate pass, no evidence submission."
+    },
+    "environmentPresence": {
+      "command": "node -e 'const names=[\"KOALA_AUTHORITY_MODE\",\"KOALA_AUTHORITY_URL\",\"KOALA_AUTHORITY_TIMEOUT_MS\",\"KOALA_AUTHORITY_ACTOR_KEY\",\"KOALA_AUTHORITY_ACTOR_KEY_PATH\",\"KOALA_AUTHORITY_RUNNER_ID\",\"KOALA_AUTHORITY_SESSION_ID\",\"KOALA_AUTHORITY_SERVER_PUBLIC_KEY\",\"KOALA_AUTHORITY_SERVER_PUBLIC_KEY_PATH\",\"KOALA_AUTHORITY_LIVE_URL\",\"KOALA_AUTHORITY_LIVE_PUBLIC_KEY\",\"LATTICE_AUTHORITY_MODE\",\"LATTICE_AUTHORITY_URL\",\"LATTICE_AUTHORITY_TIMEOUT_MS\",\"LATTICE_AUTHORITY_ACTOR_KEY\",\"LATTICE_AUTHORITY_ACTOR_KEY_PATH\",\"LATTICE_AUTHORITY_RUNNER_ID\",\"LATTICE_AUTHORITY_SESSION_ID\",\"LATTICE_AUTHORITY_SERVER_PUBLIC_KEY\",\"LATTICE_AUTHORITY_SERVER_PUBLIC_KEY_PATH\"]; ...'",
+      "exitCode": 0,
+      "redacted": true,
+      "parsed": {
+        "checkedAt": "2026-06-10T01:59:57.742Z",
+        "redacted": true,
+        "entries": {
+          "KOALA_AUTHORITY_MODE": {
+            "present": false,
+            "nonEmpty": false
+          },
+          "KOALA_AUTHORITY_URL": {
+            "present": false,
+            "nonEmpty": false
+          },
+          "KOALA_AUTHORITY_TIMEOUT_MS": {
+            "present": false,
+            "nonEmpty": false
+          },
+          "KOALA_AUTHORITY_ACTOR_KEY": {
+            "present": false,
+            "nonEmpty": false
+          },
+          "KOALA_AUTHORITY_ACTOR_KEY_PATH": {
+            "present": false,
+            "nonEmpty": false
+          },
+          "KOALA_AUTHORITY_RUNNER_ID": {
+            "present": false,
+            "nonEmpty": false
+          },
+          "KOALA_AUTHORITY_SESSION_ID": {
+            "present": false,
+            "nonEmpty": false
+          },
+          "KOALA_AUTHORITY_SERVER_PUBLIC_KEY": {
+            "present": false,
+            "nonEmpty": false
+          },
+          "KOALA_AUTHORITY_SERVER_PUBLIC_KEY_PATH": {
+            "present": false,
+            "nonEmpty": false
+          },
+          "KOALA_AUTHORITY_LIVE_URL": {
+            "present": false,
+            "nonEmpty": false
+          },
+          "KOALA_AUTHORITY_LIVE_PUBLIC_KEY": {
+            "present": false,
+            "nonEmpty": false
+          },
+          "LATTICE_AUTHORITY_MODE": {
+            "present": false,
+            "nonEmpty": false
+          },
+          "LATTICE_AUTHORITY_URL": {
+            "present": false,
+            "nonEmpty": false
+          },
+          "LATTICE_AUTHORITY_TIMEOUT_MS": {
+            "present": false,
+            "nonEmpty": false
+          },
+          "LATTICE_AUTHORITY_ACTOR_KEY": {
+            "present": false,
+            "nonEmpty": false
+          },
+          "LATTICE_AUTHORITY_ACTOR_KEY_PATH": {
+            "present": false,
+            "nonEmpty": false
+          },
+          "LATTICE_AUTHORITY_RUNNER_ID": {
+            "present": false,
+            "nonEmpty": false
+          },
+          "LATTICE_AUTHORITY_SESSION_ID": {
+            "present": false,
+            "nonEmpty": false
+          },
+          "LATTICE_AUTHORITY_SERVER_PUBLIC_KEY": {
+            "present": false,
+            "nonEmpty": false
+          },
+          "LATTICE_AUTHORITY_SERVER_PUBLIC_KEY_PATH": {
+            "present": false,
+            "nonEmpty": false
+          }
+        },
+        "grouped": {
+          "urlConfigured": false,
+          "actorKeyConfigured": false,
+          "runnerConfigured": false,
+          "sessionConfigured": false,
+          "serverPublicKeyPinned": false
+        }
+      }
+    },
+    "authorityJobCreate": {
+      "status": "skipped_missing_url",
+      "skipped": true,
+      "reason": "Readiness proved Authority URL absent: authority_status.authorityUrlConfigured=false, authority_status.baseURLConfigured=false, and env grouped.urlConfigured=false. No Authority job create command was run because it could not target an Authority server."
+    }
+  },
+  "nextActions": [
+    "Set an Authority URL, for example KOALA_AUTHORITY_URL=https://<authority-host> or LATTICE_AUTHORITY_URL=https://<authority-host>.",
+    "Configure an actor key or key path, for example KOALA_AUTHORITY_ACTOR_KEY or KOALA_AUTHORITY_ACTOR_KEY_PATH, with the corresponding LATTICE_AUTHORITY_* aliases if that wrapper expects them.",
+    "Configure runner and session identity, for example KOALA_AUTHORITY_RUNNER_ID and KOALA_AUTHORITY_SESSION_ID, with matching LATTICE_AUTHORITY_* aliases if needed.",
+    "Pin the Authority server public key, for example KOALA_AUTHORITY_SERVER_PUBLIC_KEY or KOALA_AUTHORITY_SERVER_PUBLIC_KEY_PATH, with matching LATTICE_AUTHORITY_* aliases if needed."
+  ],
+  "verification": {
+    "mechanicalCommand": "node -e 'const fs=require(\"fs\"); const json=\".omx/artifacts/authority/B-4a53/authority-strong-evidence-report.json\"; const md=\".omx/artifacts/authority/B-4a53/authority-strong-evidence-report.md\"; const tx=\".koala/story/actives/B-4a53/evidence/transcript-diff.md\"; const report=JSON.parse(fs.readFileSync(json,\"utf8\")); const markdown=fs.readFileSync(md,\"utf8\"); const transcript=fs.readFileSync(tx,\"utf8\"); const lines=[\"Authority readiness: BLOCKED (authorityUrlConfigured=false, actorKeyConfigured=false, runnerConfigured=false, sessionConfigured=false, serverPublicKeyPinned=false)\",\"Authority receipt: BLOCKED (no verified AuthorityReceipt; receiptVerified=false; productionDone=false)\",\"Authority strong evidence verification: BLOCKED fail-closed\"]; const failures=[]; function check(cond,msg){if(!cond) failures.push(msg);} function hasKey(value,key){if(Array.isArray(value)) return value.some(v=>hasKey(v,key)); if(value&&typeof value===\"object\") return Object.keys(value).some(k=>k===key||hasKey(value[k],key)); return false;} check(report.storyId===\"B-4a53\",\"storyId\"); check(report.strongEvidenceResult===\"BLOCKED_FAIL_CLOSED\",\"strongEvidenceResult\"); check(report.authorityMode===\"off\",\"authorityMode\"); check(report.receiptVerified===false,\"receiptVerified\"); check(report.productionDone===false,\"productionDone\"); check(report.strongEvidenceConsumed===false,\"strongEvidenceConsumed\"); check(report.authorityReadiness.authorityUrlConfigured===false,\"authorityUrlConfigured\"); check(report.authorityReadiness.actorKeyConfigured===false,\"actorKeyConfigured\"); check(report.authorityReadiness.runnerConfigured===false,\"runnerConfigured\"); check(report.authorityReadiness.sessionConfigured===false,\"sessionConfigured\"); check(report.authorityReadiness.serverPublicKeyPinned===false,\"serverPublicKeyPinned\"); check(!hasKey(report,\"jobId\"),\"unexpected jobId\"); check(!hasKey(report,\"receiptId\"),\"unexpected receiptId\"); check(!hasKey(report,\"receiptFile\"),\"unexpected receiptFile\"); for (const line of lines) { check(markdown.includes(line),`markdown missing ${line}`); check(transcript.includes(line),`transcript missing ${line}`); } if (failures.length) { console.error(failures.join(\"\\n\")); process.exit(1); } console.log(\"authority strong evidence artifact verification: PASS\");'",
+    "result": "authority strong evidence artifact verification: PASS"
+  }
+}

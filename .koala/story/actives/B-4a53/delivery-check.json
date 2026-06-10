@@ -1,0 +1,47 @@
+{
+  "storyId": "B-4a53",
+  "checkedAt": "2026-06-10T02:13:32.865Z",
+  "reviewRound": "2026-06-10T02:06:02.097Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/authority-client-role.md",
+      "promise": "Authority client role boundary: report does not claim L2+ or receipt-backed authority without a verified receipt",
+      "verifiedBy": "grep/json-parse",
+      "evidence": "authority-strong-evidence-report.json: receiptVerified=false, productionDone=false, strongEvidenceConsumed=false, authorityMode=off; no jobId/receiptId/receiptFile keys exist in entire JSON tree; conduit warnings explicitly state it does not sign envelopes, verify receipts, or grant production authority"
+    },
+    {
+      "docPath": ".omx/artifacts/authority/B-4a53/authority-strong-evidence-report.md",
+      "promise": "Markdown report promises blocked fail-closed output and next actions",
+      "verifiedBy": "diff/content-check",
+      "evidence": "Lines 3-5 contain exact text: Authority readiness: BLOCKED (...), Authority receipt: BLOCKED (...), Authority strong evidence verification: BLOCKED fail-closed. Next Actions section (lines 34-37) lists 4 concrete steps for enabling receipt-backed PASS."
+    },
+    {
+      "docPath": ".koala/story/actives/B-4a53/evidence/transcript-diff.md",
+      "promise": "Transcript records real command outputs and mechanical verification PASS",
+      "verifiedBy": "diff/content-check",
+      "evidence": "Transcript contains verbatim authority_status, conduit_status, authority_enforce_policy, env presence check outputs with exit codes. Final mechanical verification section shows node -e invariant checker exiting 0 with authority strong evidence artifact verification: PASS"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "authority_status --json exit 0: authorityMode=off, all readiness fields false, receiptVerified=false, productionDone=false. conduit_status --json exit 0: conduitRole=cli-diagnostics-and-handoff, runnerProvisioned=false, receiptVerified=false. Environment presence check: all 21 KOALA_AUTHORITY_*/LATTICE_AUTHORITY_* vars absent/empty. Mechanical verifier: PASS (no jobId/receiptId/receiptFile, all false invariants hold)."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "authority_enforce_policy --json exit 1: LATTICE_AUTHORITY_URL not set, failed closed. Job create: skipped_missing_url because readiness proved no Authority URL exists (authorityUrlConfigured=false, baseURLConfigured=false, grouped.urlConfigured=false). No jobId, receiptId, or receiptFile invented."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Final report artifacts: authority-strong-evidence-report.json + .md + transcript-diff.md. All three contain the 3 blocked fail-closed lines. Mechanical verification node script checks storyId, strongEvidenceResult=BLOCKED_FAIL_CLOSED, all false booleans, absence of receipt keys, and line presence in markdown+transcript: PASS. lattice validate 9/9 verification intent coverage."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Authority Server strong evidence was blocked because all prerequisites are absent (no URL, no actor key, no runner, no session, no server public key), not falsely passed. Report correctly records BLOCKED_FAIL_CLOSED with receiptVerified=false, productionDone=false, strongEvidenceConsumed=false. No receipt-backed claims are made."
+  },
+  "_hash": "378219fbebb4c8ee60ab2c8328956fe73681df528f8b6c8d229131b12a7df24b"
+}

@@ -1,0 +1,18 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "编写 Authority session 与 receipt-backed gate 执行文档",
+      "context": "产出 docs/requirements/decisions/authority-session-receipt-gate-execution.md，说明 session ID 只是 identity 字段，必须绑定到 job/evidence envelope/receipt/gate predicate 才算强证据链路；文档需要覆盖 server、runner、CLI、cross-repo validation 四层职责和 phased rollout。",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-client-role.md",
+        "docs/requirements/decisions/lattice-parallel-wave.md",
+        "docs/requirements/decisions/verification-context-pack.md",
+        "README.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

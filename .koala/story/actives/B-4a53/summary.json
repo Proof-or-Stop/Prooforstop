@@ -1,0 +1,56 @@
+{
+  "storyId": "B-4a53",
+  "changes": "Created a scoped Authority strong-evidence diagnostic packet: JSON report, Markdown report, and transcript evidence under .omx/artifacts/authority/B-4a53 plus .koala story evidence. The packet records real authority_status/conduit_status/policy/env outputs and keeps the result fail-closed.",
+  "usage": "Open .omx/artifacts/authority/B-4a53/authority-strong-evidence-report.md for the human-readable result, or parse authority-strong-evidence-report.json for machine-readable fields such as strongEvidenceResult, receiptVerified, productionDone, and nextActions.",
+  "expectedOutcome": "Authority readiness: BLOCKED (authorityUrlConfigured=false, actorKeyConfigured=false, runnerConfigured=false, sessionConfigured=false, serverPublicKeyPinned=false)\nAuthority receipt: BLOCKED (no verified AuthorityReceipt; receiptVerified=false; productionDone=false)\nAuthority strong evidence verification: BLOCKED fail-closed",
+  "actualTranscript": "Authority readiness: BLOCKED (authorityUrlConfigured=false, actorKeyConfigured=false, runnerConfigured=false, sessionConfigured=false, serverPublicKeyPinned=false)\nAuthority receipt: BLOCKED (no verified AuthorityReceipt; receiptVerified=false; productionDone=false)\nAuthority strong evidence verification: BLOCKED fail-closed\nlattice validate --story=B-4a53: PASS, verification intent coverage 9/9.",
+  "outcomeDiff": "No difference for the expected blocked/fail-closed user-visible result. Authority Server receipt-backed PASS was not expected in this unconfigured environment.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "blocked",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Authority Server URL, actor key/path, runner id, session id, and server public key are absent, so no remote job, receipt fetch, receipt verification, or productionDone claim was possible. The report is local diagnostic evidence, not receipt-backed Authority evidence.",
+  "pitfalls": "Initial REVIEW to TEST preflight failed because packages/main/dist was missing in the worktree; running npm --prefix packages/main run build restored the dist files and lint passed. Claude CLI prompt option ordering failed on the first quality/docs launch and was retried. review_pass_set required full reviewRunId strings such as B-4a53:RR-001.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 67797
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 45657
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 439242
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 492378
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 307511
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 71648
+    }
+  },
+  "totalDurationMs": 1424261,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-10T02:12:21.256Z",
+  "updatedAt": "2026-06-10T02:12:21.256Z"
+}

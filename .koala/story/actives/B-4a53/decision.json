@@ -1,0 +1,67 @@
+{
+  "principles": [
+    "Receipt-backed Authority is stronger than local lifecycle evidence only when a signed receipt is actually verified.",
+    "Fail-closed is a valid and useful result for strong-evidence readiness validation.",
+    "Do not optimize or redesign Authority flow while validating current capability.",
+    "Keep host-neutral and local/Authority boundaries mechanically visible."
+  ],
+  "drivers": [
+    "User wants to see actual strong-evidence flow and evidence result.",
+    "Existing docs forbid thin CLI local evidence from becoming L2+ Authority evidence.",
+    "The environment may not have Authority Server credentials or server key material."
+  ],
+  "options": [
+    {
+      "name": "A: Real Authority attempt with fail-closed report",
+      "pros": [
+        "Exercises actual CLI Authority commands",
+        "Produces clear receipt-backed or blocked evidence",
+        "Preserves trust boundary"
+      ],
+      "cons": [
+        "May finish as blocked if server credentials are missing"
+      ]
+    },
+    {
+      "name": "B: Simulate a receipt locally",
+      "pros": [
+        "Could demonstrate desired artifact shape"
+      ],
+      "cons": [
+        "Would violate Authority trust boundary and could mislead gate consumers"
+      ]
+    },
+    {
+      "name": "C: Only document the future flow",
+      "pros": [
+        "Low implementation effort"
+      ],
+      "cons": [
+        "Does not answer the user request to verify the current flow and evidence result"
+      ]
+    }
+  ],
+  "chosen": "A: Real Authority attempt with fail-closed report",
+  "rationale": "Option A is the only path that both attempts real strong evidence and preserves correctness if the server path is unavailable.",
+  "preMortem": [
+    {
+      "scenario": "Authority URL is not configured",
+      "trigger": "authority_status shows authorityUrlConfigured=false",
+      "consequence": "No server-backed job or receipt can be produced",
+      "mitigation": "Record BLOCKED fail-closed report with receiptVerified=false and next actions."
+    },
+    {
+      "scenario": "Authority Server accepts job but no receipt can be fetched or verified",
+      "trigger": "job_create succeeds but receipt_fetch/verify fails or server public key is absent",
+      "consequence": "Evidence is not strong enough for Authority gate consumption",
+      "mitigation": "Record jobId separately from verifiedReceipt and keep productionDone=false."
+    },
+    {
+      "scenario": "Local artifact accidentally overclaims Authority",
+      "trigger": "report sets authorityMode=enforce or receiptVerified=true without verified receipt",
+      "consequence": "False strong-evidence claim breaks trust boundary",
+      "mitigation": "Mechanical check fails unless receipt verification output proves the claim."
+    }
+  ],
+  "timestamp": "2026-06-10T01:51:30.984Z"
+}
