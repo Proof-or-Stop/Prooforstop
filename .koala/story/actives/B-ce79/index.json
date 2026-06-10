@@ -4,7 +4,7 @@
   "title": "Formal unlock Layer 2 Engineering Baseline",
   "description": "Execute docs/requirements/decisions/unlock-layer2-ENG-suite.md to formally unlock Layer 2 Engineering Baseline only. The story must preserve host-neutral design, Lattice CLI non-authority boundaries, Authority Server boundaries, fail-closed behavior, and the four principles: do not optimize for optimization, do not optimize arbitrarily, only fix real correctness issues, and preserve consistency of logic.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "riskSignals": [
     {
@@ -37,6 +37,14 @@
       "action": "advance",
       "timestamp": "2026-06-10T20:46:57.192Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-10T20:49:04.686Z",
+      "branch": "story/B-ce79",
       "user": "Harmonygo",
       "agent": "main"
     }

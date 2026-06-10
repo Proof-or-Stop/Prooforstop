@@ -1,0 +1,32 @@
+{
+  "task": "Formally unlock Layer 2 Engineering Baseline only when the ENG suite proof is consumable by gates and Authority-backed evidence is verified.",
+  "outcome": "Terminal output shows: Layer 2 Engineering Baseline UNLOCKED with ENG suite PASS, formal proof reports consumed by gates, Authority receipts verified, and Loop/Production/Global claims remain locked.",
+  "facts": [
+    "Decision source is docs/requirements/decisions/unlock-layer2-ENG-suite.md.",
+    "Layer 1 Development baseline was completed earlier, but Layer 2 requires pinned or ingested lower-layer proof in the selected artifacts root.",
+    "packages/main/src/core/lattice-baseline.ts already defines the nine ENG baselines and rejects localOnly=true or capabilityProof=false reports for suite proof.",
+    "packages/main/src/handlers/lattice-baseline.ts exposes baseline_run, baseline_suite_report, and capability_claim_evaluate; current command policy still classifies them as local/read-only diagnostic surfaces.",
+    "Existing suite logic can PASS only from non-local capabilityProof=true reports, but the formal Authority-backed report production and Layer 2 unlock boundary need implementation or explicit fail-closed handling.",
+    "Layer 5/global Capability Claim remains locked regardless of Layer 2 execution unless separately proven."
+  ],
+  "constraints": [
+    "Do not optimize for the sake of optimization.",
+    "Do not optimize arbitrarily.",
+    "Only fix real correctness issues.",
+    "Keep logic consistent across suite proof, gate consumption, and claim output.",
+    "Fail closed on stale evidence, missing lower-layer proof, local-only reports, missing receipts, mismatched bindings, or insufficient host authority.",
+    "Do not unlock Loop Engineering, Production Safety, or global Capability Claim as part of Layer 2."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/lattice-baseline.ts",
+    "packages/main/src/handlers/lattice-baseline.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/tasks/lattice-baseline-smoke.ts",
+    "packages/main/tests",
+    "docs/requirements/decisions/unlock-layer2-ENG-suite.md"
+  ],
+  "timestamp": "2026-06-10T20:50:05.614Z"
+}

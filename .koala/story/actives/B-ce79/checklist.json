@@ -10,7 +10,37 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees schema freeze output listing artifactsRoot, required ENG baseline IDs, and mandatory binding fields.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-baseline.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lattice-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Schema exposes all nine ENG baseline IDs and required binding fields baselineId, suiteRunId, claimTarget, headHash, materialHash, evidence refs, and receipt refs.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Schema rejects unsupported baseline IDs or missing binding fields instead of silently accepting them.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A report with mismatched layer or missing required proof fields cannot be treated as formal Engineering proof.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
