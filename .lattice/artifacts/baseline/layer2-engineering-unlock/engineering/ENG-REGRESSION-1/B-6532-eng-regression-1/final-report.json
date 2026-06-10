@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "lattice.baseline.final_report.v1",
+  "generatedAt": "2026-06-10T23:02:56.801Z",
+  "layer": "engineering",
+  "baselineId": "ENG-REGRESSION-1",
+  "runId": "B-6532-eng-regression-1",
+  "name": "Regression protection",
+  "expectedOutcome": "PASS",
+  "expectedOutcomes": [
+    "PASS"
+  ],
+  "outcome": "PASS",
+  "status": "pass",
+  "capability": "Fixing one behavior does not break another.",
+  "capabilityProof": true,
+  "localOnly": false,
+  "authorityBoundary": "local-report-only",
+  "blockedReasons": [],
+  "gateEvidenceRefs": [],
+  "suiteRunId": "layer2-engineering-unlock-B-6532",
+  "claimTarget": "engineering",
+  "verifiedAt": "2026-06-10T23:02:56.801Z",
+  "verificationEvidenceRefs": [
+    "artifact:verification-evidence.json#sha256=9463e0e14cf4ba170c9a6c979fceadaa7bf0ed8c313058afbd433c52567982c9"
+  ],
+  "reviewEvidenceRefs": [
+    "review:claude:artifact:review-claude.json#sha256=d729f533daa1eef249270f093a89d13a60000cd3fd6580c28d8e2073ffa55fea",
+    "review:codex:artifact:review-codex.json#sha256=b3d1a327aed459bf8503909d7776743989c96bb6e7f4a408f9a54d22ba892ff3"
+  ],
+  "lifecycleGateEvidenceRefs": [
+    "artifact:lifecycle-gate.json#sha256=be7729bf346816f6c1840719eb285d5b776448a55de881c2d3087e54c54ce92f"
+  ],
+  "formalProof": true,
+  "falseDone": false,
+  "falseDoneCount": 0,
+  "safetySuccess": true,
+  "headHash": "3c545e80277dcda616e9294d64e53b56e7a26554",
+  "materialHash": "44dc5f8e4eb4e5b4e032b98392b7311415a49c29324d9ca507220a3bc26274fb",
+  "authority": {
+    "authorityChanged": false,
+    "receiptVerified": false,
+    "productionDone": false,
+    "fullAuthorityDone": false,
+    "canClaimProductionDone": false,
+    "receiptRefs": []
+  },
+  "authorityChanged": false,
+  "receiptVerified": false,
+  "productionDone": false,
+  "fullAuthorityDone": false,
+  "receiptRefs": [
+    "receipt:;baselineId=ENG-REGRESSION-1;suiteRunId=layer2-engineering-unlock-B-6532;claimTarget=engineering;headHash=3c545e80277dcda616e9294d64e53b56e7a26554;materialHash=44dc5f8e4eb4e5b4e032b98392b7311415a49c29324d9ca507220a3bc26274fb;evidenceDigest=2b41b263b0966de1af8f0abc960ee8aba72ec3c587cd9234ae01db1014e6e18c"
+  ],
+  "artifacts": {
+    "directory": ".lattice/artifacts/baseline/layer2-engineering-unlock/engineering/ENG-REGRESSION-1/B-6532-eng-regression-1",
+    "files": [
+      "input.md",
+      "repo-manifest.json",
+      "story.json",
+      "checklist.json",
+      "scope-contract.json",
+      "execution-log.jsonl",
+      "regression-report.json",
+      "verification-evidence.json",
+      "review-claude.json",
+      "review-codex.json",
+      "lifecycle-gate.json",
+      "final-report.json",
+      "final-report.md"
+    ]
+  },
+  "notes": [
+    "Formal Layer 2 Engineering proof artifact; still not production DONE proof.",
+    "Authority changed and production DONE remain false."
+  ]
+}
