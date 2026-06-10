@@ -1,0 +1,56 @@
+{
+  "storyId": "B-6a97",
+  "changes": "补齐 B-688d Layer 1 Development baseline formal proof：五个 expected-PASS run 增加 codex 与 claude-code 双宿主独立 review evidence，suite report 变为 PASS；parallel final report 只解锁 Baseline 2-5 implementation readiness；同时修复 TEST preflight 要求的 Codex adapter manifest/runtime exclusion。",
+  "usage": "开发者查看 .omx/artifacts/baseline/B-688d/baseline-suite-report.json 确认 Layer 1 PASS；查看 .omx/artifacts/parallel-development/B-688d/claim-lock-status.json 确认 higher claims 仍 locked；运行 lattice validate --story=B-6a97 --json 和 lattice codex verify 复验。",
+  "expectedOutcome": "Layer 1 Development baseline formal proof PASS；五个 expected-PASS run 有双宿主独立 review evidence；RED-GAP-BLOCK 保持 EXPECTED_BLOCK；falseDoneCount=0；higher capability/authority claims 不解锁。",
+  "actualTranscript": "lattice validate --story=B-6a97 --json PASS，npm test PASS，verification intent coverage 9/9；lattice codex verify PASS；Claude CLI current-head concept/quality/test-coverage/docs/delivery review 全部 PASS；Codex mechanical audit PASS。",
+  "outcomeDiff": "无差异：实际结果与预期一致，且只在 local-lifecycle Layer 1 proof 范围内放行 Baseline 2-5 implementation readiness。",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Authority server remains off; this is not receipt-backed Authority DONE, not Engineering/Loop/Production Safety proof, and not production-grade unattended development claim.",
+  "pitfalls": "Codex subagent thread quota已满，改用 Claude CLI 多 lane + 当前 Codex mechanical audit；REVIEW 后 Codex adapter gate fix 导致旧 reviewRunId stale，按 gate 回 DEV 后重新进入 REVIEW 并刷新 evidence；lattice init --verify-codex 产生过宽副作用，已撤回，仅保留 verify_codex 必需的最小 adapter fix。",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 66286
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 67062
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 434474
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 1098550
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 909723
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 236753
+    }
+  },
+  "totalDurationMs": 2812849,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-10T01:31:25.307Z",
+  "updatedAt": "2026-06-10T01:31:25.307Z"
+}
