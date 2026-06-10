@@ -11,7 +11,27 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Engineering suite output can show a valid EXPECTED_BLOCK safety refusal as expected-block evidence instead of reporting it as a suite blocker."
+      "userSees": "Engineering suite output can show a valid EXPECTED_BLOCK safety refusal as expected-block evidence instead of reporting it as a suite blocker.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke; assert an Engineering final-report for ENG-DATA-MIGRATION-1 or ENG-AUTH-SECURITY-1 with outcome EXPECTED_BLOCK and expectedOutcome allowing EXPECTED_BLOCK is accepted, has non-empty expectedBlockReasons and refusalEvidenceRefs, and does not appear as a suite-level blockedReasons blocker.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke against an EXPECTED_BLOCK Engineering final-report missing expectedBlockReasons or refusalEvidenceRefs; assert it is rejected and the rejection names the missing expected-block or refusal evidence field.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke with an EXPECTED_BLOCK report for PASS-only ENG-BUGFIX-1 and with a refusal hidden only in blockedReasons; assert both are rejected or block the suite instead of being accepted as expected-block evidence.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -24,7 +44,27 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Risky Engineering baselines visibly PASS only when gate evidence is present; otherwise the report remains EXPECTED_BLOCK with a concrete refusal reason."
+      "userSees": "Risky Engineering baselines visibly PASS only when gate evidence is present; otherwise the report remains EXPECTED_BLOCK with a concrete refusal reason.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke; assert ENG-DATA-MIGRATION-1 and ENG-AUTH-SECURITY-1 can report outcome PASS only when explicit gate evidence is present, the final-reports are accepted, the Engineering suite report reaches suiteStatus PASS, and blockedReasons does not contain missing-gate refusal text.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke with those risky baselines lacking gate evidence; assert they remain accepted EXPECTED_BLOCK reports with concrete expectedBlockReasons and refusalEvidenceRefs rather than PASS.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke with risky-baseline PASS reports that omit, empty, stale, or fake the required gate evidence refs; assert each report is rejected or the suite is not_authorized with blockedReasons naming explicit gate evidence.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -37,7 +77,27 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "An Engineering claim request visibly stays not_authorized when Development proof is missing, stale, local-only, false-DONE, or internally incoherent."
+      "userSees": "An Engineering claim request visibly stays not_authorized when Development proof is missing, stale, local-only, false-DONE, or internally incoherent.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke; assert capability_claim_evaluate --target=engineering --format=json maps to claimId CLAIM-ENGINEERING-DEV and returns authorized true, outcome PASS, authorizedClaimLevel engineering, highestEvidenceBackedClaim engineering, and no Authority or production overclaim fields set true when fresh coherent Development and Engineering suite reports exist.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke; assert capability_claim_evaluate --target=engineering returns authorized false and outcome EXPECTED_BLOCK for each lower-layer defect case: missing Development suite report, stale materialHash/headHash, localOnly true or capabilityProof false, schemaVersion mismatch, and falseDoneCount greater than 0. Each blockedReasons entry must name the specific defect.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke with an internally incoherent Development proof such as suiteStatus PASS paired with outcome EXPECTED_BLOCK, authorization not_authorized, or contradictory capabilityProof/localOnly fields; assert authorized remains false, authorizedClaimLevel stays none, and blockedReasons mention coherence or inconsistent lower-layer proof.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
@@ -50,7 +110,27 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "The smoke test output explicitly demonstrates the Engineering unlock contract cases, so the user can see which proof gates passed or blocked."
+      "userSees": "The smoke test output explicitly demonstrates the Engineering unlock contract cases, so the user can see which proof gates passed or blocked.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke; assert the smoke exits 0 and its assertions cover all four named contract cases: expected-block safety refusals do not become suite blockers, risky Engineering PASS requires gate evidence, stale lower-layer proof blocks Engineering authorization, and --target=engineering resolves to CLAIM-ENGINEERING-DEV.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Inspect the built smoke task output or assertion labels from npm --prefix packages/main run test:lattice-baseline-smoke; assert each of the four contract cases is named distinctly enough to map to CHK-001, CHK-002, CHK-003, and target=engineering claim mapping evidence without relying on a generic all tests passed line.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke in a state where any one required contract assertion is removed or not executed; assert the smoke fails or its output cannot satisfy this item because the missing case is observable from the absent label/assertion.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
@@ -63,7 +143,27 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "The final delivery shows current Claude and Codex host verdicts for the implemented contract, making the remaining claim boundary visible to the user."
+      "userSees": "The final delivery shows current Claude and Codex host verdicts for the implemented contract, making the remaining claim boundary visible to the user.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run current Claude CLI and Codex CLI audit prompts against the implemented diff after npm run build && npm --prefix packages/main run test:lattice-baseline-smoke; assert both verdict transcripts reference the current git HEAD/materialHash or current git diff, each verdict states pass/no-blocker or lists findings for the Engineering unlock contract, and checklist verificationEvidence records them with verdict audit_only rather than as proof by themselves.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run the same audit capture when one host is unavailable, times out, or exits nonzero; assert the unavailable host is recorded as blocked/unavailable audit evidence, the available host verdict is still freshness-checked, and the story does not treat a single-host result as the required two-host audit.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Attempt to record stale Claude/Codex verdict text that references an old materialHash, old HEAD, absent diff, or claims Authority/proof status; assert REVIEW or validation evidence rejects it or records it only as stale audit-only evidence that cannot satisfy the implemented-contract audit requirement.",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }

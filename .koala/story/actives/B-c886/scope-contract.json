@@ -1,0 +1,31 @@
+{
+  "storyId": "B-c886",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/lattice-baseline.ts",
+    "packages/main/src/tasks/lattice-baseline-smoke.ts"
+  ],
+  "allowedCreate": [
+    ".omx/artifacts/claude-*B-c886*.md",
+    ".omx/artifacts/codex-*B-c886*.md"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/lattice-baseline-smoke.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "docs/requirements/decisions/authority-session-receipt-gate-execution.md"
+  ],
+  "explicitExcludes": [
+    "docs/story/**",
+    "tests/fixtures/**",
+    "packages/main/dist/**",
+    "packages/main/src/core/main-write-lock.ts",
+    "packages/main/src/core/runtime-fact-registry.ts"
+  ],
+  "scopeChangeReason": "Layer 2 contract alignment is limited to baseline report/claim logic and focused smoke coverage; no production authority or lifecycle gate rewrite is in scope.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-10T12:00:47.342Z",
+  "updatedAt": "2026-06-10T12:00:47.342Z"
+}

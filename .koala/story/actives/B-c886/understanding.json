@@ -1,0 +1,26 @@
+{
+  "task": "Align the Engineering Baseline unlock implementation with the audited Layer 2 contract without expanding scope.",
+  "outcome": "The user can run the focused baseline smoke suite and see Engineering unlock contract cases pass or fail closed: expected safety refusals are reported separately, gated PASS requires proof, stale Development proof blocks Engineering authorization, and target=engineering maps to CLAIM-ENGINEERING-DEV.",
+  "facts": [
+    "The audited execution plan is committed at 526ebb6b and defines expectedBlockReasons/refusalEvidenceRefs for expected safety refusals.",
+    "packages/main/src/core/lattice-baseline.ts already defines Engineering baseline IDs and capability_claim_evaluate.",
+    "ENG-DATA-MIGRATION-1 and ENG-AUTH-SECURITY-1 currently default to EXPECTED_BLOCK and do not accept gated PASS in the local definitions.",
+    "baseline_suite_report currently blocks when accepted final reports lack localOnly=false or capabilityProof=true.",
+    "capability_claim_evaluate maps target=engineering to CLAIM-ENGINEERING-DEV in current code."
+  ],
+  "constraints": [
+    "Do not optimize for its own sake or add a new framework layer.",
+    "Only fix real correctness issues between the audited plan and machine contracts.",
+    "Keep Engineering claim fail-closed and do not authorize Loop or Production Safety claims.",
+    "Use Lattice CLI for story/checklist/evidence and do not directly edit story metadata.",
+    "Two-host audit evidence is advisory audit material, not proof by itself."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/lattice-baseline.ts",
+    "packages/main/src/tasks/lattice-baseline-smoke.ts",
+    "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
+    "Lattice-Capability-Claim-baseline.md"
+  ],
+  "timestamp": "2026-06-10T12:00:08.373Z"
+}
