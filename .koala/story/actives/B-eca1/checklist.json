@@ -171,9 +171,9 @@
         "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
         "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-10T16:56:57.674Z",
-      "endTime": null,
+      "endTime": "2026-06-10T17:09:55.944Z",
       "userSees": "In enforce mode, lattice validate --story=<storyId> prints: Authority gate consumption: PASS strongEvidenceConsumed=true receiptId=<id> gate=TEST.",
       "files": {
         "modify": [
@@ -211,7 +211,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:authority-gate-consumption",
+          "result": "pass",
+          "note": "Matching TEST gate_decision receipt is consumed by validate and transition gate; output includes strongEvidenceConsumed=true with receiptId=AR-TEST; repeated validate and transition consumption leave consumptionEvents.length=1.",
+          "headHash": "b3d1d6e372174e32c8f78f256dc59d7c18133e4f",
+          "materialHash": "6e8e6f34bf50277d2608d39dd40a241e52e7493ca73de049de1b6963feb5e97e",
+          "timestamp": "2026-06-10T17:09:55.974Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:authority-gate-consumption && npm --prefix packages/main run test:authority-gate-receipts",
+          "result": "pass",
+          "note": "Shadow mode reports diagnostics without blocking or writing receipt refs; eligibleGates restriction is enforced for same-phase TEST receipts; TEST receipt can cover DONE only when eligibleGates explicitly includes DONE.",
+          "headHash": "b3d1d6e372174e32c8f78f256dc59d7c18133e4f",
+          "materialHash": "6e8e6f34bf50277d2608d39dd40a241e52e7493ca73de049de1b6963feb5e97e",
+          "timestamp": "2026-06-10T17:09:55.996Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:authority-gate-consumption && npm --prefix packages/main run test:authority-gate-receipts && npm --prefix packages/main run test:authority-receipt-proof && npm --prefix packages/main run test:authority-evidence-flow && git diff --check",
+          "result": "pass",
+          "note": "Enforce mode blocks missing receipt and phase mismatch; proof and evidence-flow smokes cover stale/mismatched receipt paths. Codex CLI found eligibleGates same-phase blocker, fix applied and verified; Claude and Codex targeted rechecks both PASS.",
+          "headHash": "b3d1d6e372174e32c8f78f256dc59d7c18133e4f",
+          "materialHash": "6e8e6f34bf50277d2608d39dd40a241e52e7493ca73de049de1b6963feb5e97e",
+          "timestamp": "2026-06-10T17:09:56.018Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",

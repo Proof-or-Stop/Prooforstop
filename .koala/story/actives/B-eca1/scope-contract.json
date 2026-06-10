@@ -38,7 +38,18 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Resume current user-approved execution after session owner id changed; initialize from approved checklist file plan before edits.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Receipt verification must be exposed as a gateEvidence command and lifecycle transitions must call the receipt consumption gate to satisfy B-eca1 CHK-002 through CHK-004 without bypassing host-neutral authority semantics.",
+      "timestamp": "2026-06-10T16:59:26.290Z",
+      "paths": [
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/handlers/authority-enforce.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts"
+      ]
+    }
+  ],
   "createdAt": "2026-06-10T16:25:34.871Z",
-  "updatedAt": "2026-06-10T16:25:34.871Z"
+  "updatedAt": "2026-06-10T16:59:26.290Z"
 }
