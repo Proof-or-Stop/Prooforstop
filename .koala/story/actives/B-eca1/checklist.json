@@ -300,6 +300,83 @@
       "status": "pending",
       "startTime": null,
       "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "Write Layer 2 proof bridge execution plan",
+      "context": "Document the minimum correctness-preserving path from local Engineering baseline diagnostics to legitimate Layer 2 proof without turning host transcripts or L0 diagnostic artifacts into capability proof.",
+      "relatedDocs": [
+        "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
+        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+        "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+        "docs/requirements/decisions/host-overflow.md"
+      ],
+      "userSees": "A new Lattice-Layer2-Proof-Bridge-Execution-Plan.md document explains the implementation sequence, proof boundaries, host roles, gates, tests, and PASS criteria.",
+      "files": {
+        "modify": [],
+        "create": [
+          "Lattice-Layer2-Proof-Bridge-Execution-Plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The document defines a concrete development sequence from Development proof ingestion to Engineering suite PASS without claiming Loop or Production safety.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The document distinguishes Lattice CLI non-authority local diagnostics from Authority-backed proof and lifecycle-backed proof.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The document explicitly forbids setting localOnly=false or capabilityProof=true from host transcripts, local diagnostic receipts, or manual JSON edits.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-10T15:59:45.279Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"baseline_development_proof_import|baseline_proof_create|Engineering suiteStatus = PASS|Loop claim authorized = false|Production Safety claim authorized = false\" Lattice-Layer2-Proof-Bridge-Execution-Plan.md",
+          "result": "pass",
+          "note": "Document defines the concrete implementation sequence from Development proof import through Engineering suite PASS while preserving higher-layer claim blocks.",
+          "headHash": "4886b06949117bcb276f8b6b042abe72343dbefe",
+          "materialHash": "3256c0f10c217b50dd979263927022cff06cc953949c1649890d0ac3ad009c91",
+          "timestamp": "2026-06-10T15:59:45.312Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"local-diagnostic|lifecycle-backed|authority-backed|L0/read-only diagnostic|Authority Server receipt\" Lattice-Layer2-Proof-Bridge-Execution-Plan.md",
+          "result": "pass",
+          "note": "Document distinguishes local diagnostic CLI output, lifecycle-backed proof, and Authority-backed proof.",
+          "headHash": "4886b06949117bcb276f8b6b042abe72343dbefe",
+          "materialHash": "3256c0f10c217b50dd979263927022cff06cc953949c1649890d0ac3ad009c91",
+          "timestamp": "2026-06-10T15:59:45.338Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Do not make `baseline_run` produce `capabilityProof=true`|Do not edit JSON artifacts by hand|No host transcript or local diagnostic report can become proof by relabeling|raw Claude/Codex transcript without manifest|local diagnostic receipt\" Lattice-Layer2-Proof-Bridge-Execution-Plan.md && git diff --check -- Lattice-Layer2-Proof-Bridge-Execution-Plan.md",
+          "result": "pass",
+          "note": "Document explicitly forbids relabeling local diagnostics, host transcripts, or manual JSON edits into formal proof.",
+          "headHash": "4886b06949117bcb276f8b6b042abe72343dbefe",
+          "materialHash": "3256c0f10c217b50dd979263927022cff06cc953949c1649890d0ac3ad009c91",
+          "timestamp": "2026-06-10T15:59:45.363Z"
+        }
+      ]
     }
   ],
   "auditLog": [
