@@ -674,7 +674,7 @@ export function runBaseline(root: string, args: BaselineRunArgs): BaselineFinalR
   const expectedOutcome = args.expectedOutcome ?? scenario.defaultExpectedOutcome;
   const mode = args.authorityMode ?? 'non-authority';
   const runId = args.runId ?? nowRunId();
-  const outputRoot = args.outputRoot ?? join(root, '.omx', 'artifacts', 'baseline');
+  const outputRoot = args.outputRoot ?? join(root, '.lattice', 'artifacts', 'baseline');
   const runDir = join(outputRoot, scenario.baselineId, runId);
   ensureDir(runDir);
 

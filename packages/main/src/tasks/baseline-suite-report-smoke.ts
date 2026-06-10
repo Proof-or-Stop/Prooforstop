@@ -267,7 +267,7 @@ function invalidHarnessReport(): FinalReportFixture {
 }
 
 function writeRun(root: string, report: FinalReportFixture) {
-  const dir = join(root, '.omx', 'artifacts', 'baseline', report.baselineId, report.runId);
+  const dir = join(root, '.lattice', 'artifacts', 'baseline', report.baselineId, report.runId);
   mkdirSync(dir, { recursive: true });
   writeFileSync(join(dir, 'final-report.json'), JSON.stringify(report, null, 2) + '\n', 'utf8');
   const artifacts = report.artifacts as Record<string, unknown> | undefined;
@@ -505,7 +505,7 @@ for (const forbiddenField of ['authorityDone', 'receiptVerified', 'multiHostVeri
   try {
     writeProjectConfig(root);
     const report = authorityPassReport('NL-CLI-1', 'natural-language', 1);
-    const dir = join(root, '.omx', 'artifacts', 'baseline', report.baselineId, report.runId);
+    const dir = join(root, '.lattice', 'artifacts', 'baseline', report.baselineId, report.runId);
     mkdirSync(dir, { recursive: true });
     writeFileSync(join(dir, 'final-report.json'), JSON.stringify(report, null, 2) + '\n', 'utf8');
     writeFileSync(join(dir, 'gate-receipt.json'), JSON.stringify({
@@ -557,7 +557,7 @@ for (const forbiddenField of ['authorityDone', 'receiptVerified', 'multiHostVeri
     writeProjectConfig(root);
     const report = authorityPassReport('NL-CLI-1', 'natural-language', 1);
     writeRun(root, report);
-    const dir = join(root, '.omx', 'artifacts', 'baseline', report.baselineId, report.runId);
+    const dir = join(root, '.lattice', 'artifacts', 'baseline', report.baselineId, report.runId);
     writeFileSync(join(dir, 'host-verdicts.json'), JSON.stringify(hostVerdictsFixture(report.baselineId, report.runId, ['step-validate:evidence']), null, 2) + '\n', 'utf8');
     const suite = buildBaselineSuiteReport({
       root,
@@ -578,7 +578,7 @@ for (const forbiddenField of ['authorityDone', 'receiptVerified', 'multiHostVeri
     writeProjectConfig(root);
     const report = authorityPassReport('NL-CLI-1', 'natural-language', 1);
     writeRun(root, report);
-    const dir = join(root, '.omx', 'artifacts', 'baseline', report.baselineId, report.runId);
+    const dir = join(root, '.lattice', 'artifacts', 'baseline', report.baselineId, report.runId);
     const verdicts = hostVerdictsFixture(report.baselineId, report.runId, []);
     const evidenceIndex = JSON.parse(readFileSync(join(dir, 'evidence-index.json'), 'utf8')) as { evidenceRefs: string[] };
     for (const verdict of verdicts.verdicts as Array<Record<string, unknown>>) {
@@ -671,7 +671,7 @@ for (const forbiddenField of ['authorityDone', 'receiptVerified', 'multiHostVeri
 
     const here = dirname(fileURLToPath(import.meta.url));
     const cliPath = join(here, '..', 'cli.js');
-    const outputDir = join(root, '.omx', 'artifacts', 'baseline', 'suite-output');
+    const outputDir = join(root, '.lattice', 'artifacts', 'baseline', 'suite-output');
     const stdout = execFileSync(process.execPath, [
       cliPath,
       '--root',
@@ -680,7 +680,7 @@ for (const forbiddenField of ['authorityDone', 'receiptVerified', 'multiHostVeri
       'baseline',
       'suite',
       'report',
-      '--reports=.omx/artifacts/baseline',
+      '--reports=.lattice/artifacts/baseline',
       `--outputDir=${outputDir}`,
       '--format=json',
     ], {

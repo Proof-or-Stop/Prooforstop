@@ -130,7 +130,7 @@ export function createBaselineHandlers(ctx: HandlerContext) {
       const reportFiles = splitFiles(args.reportFiles);
       const root = args.reportsRoot
         ? (args.reportsRoot.startsWith('/') ? args.reportsRoot : join(ctx.root, args.reportsRoot))
-        : join(ctx.root, '.omx', 'artifacts', 'baseline');
+        : join(ctx.root, '.lattice', 'artifacts', 'baseline');
       const files = reportFiles.length > 0
         ? reportFiles.map(file => file.startsWith('/') ? file : join(ctx.root, file))
         : collectBaselineReports(root);
