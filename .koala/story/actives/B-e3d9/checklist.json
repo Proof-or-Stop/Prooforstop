@@ -293,7 +293,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/planner-unattended-smoke.ts",
+          "command": "npm --prefix packages/main run test:planner-unattended-smoke",
+          "result": "pass",
+          "note": "planner-unattended smoke records planner_answer confirmationDigest and then planner_create_story succeeds with a persisted Story id when requiresConfirmationBeforeStoryCreate is satisfied",
+          "headHash": "37fbb2f66c04132d21a1a7168593e20623d51b5c",
+          "materialHash": "785b078c2bffbf11791571c3b82476e0a8dd99062ba77cb5feec0f41ca79462e",
+          "timestamp": "2026-06-10T22:59:47.628Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/planner-unattended-smoke.ts",
+          "command": "npm --prefix packages/main run test:planner-unattended-smoke",
+          "result": "pass",
+          "note": "planner-unattended smoke asserts local autonomous plannerPolicy has requiresConfirmationBeforeStoryCreate=false and create-story proceeds without inheriting the stricter confirmation gate",
+          "headHash": "37fbb2f66c04132d21a1a7168593e20623d51b5c",
+          "materialHash": "785b078c2bffbf11791571c3b82476e0a8dd99062ba77cb5feec0f41ca79462e",
+          "timestamp": "2026-06-10T22:59:47.674Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/planner-unattended-smoke.ts",
+          "command": "npm --prefix packages/main run test:planner-unattended-smoke",
+          "result": "pass",
+          "note": "planner-unattended smoke attempts planner_create_story with a confirmation-required draft and no confirmationDigest; it returns blocked with confirmation required before Story creation and status shows no storyId was created",
+          "headHash": "37fbb2f66c04132d21a1a7168593e20623d51b5c",
+          "materialHash": "785b078c2bffbf11791571c3b82476e0a8dd99062ba77cb5feec0f41ca79462e",
+          "timestamp": "2026-06-10T22:59:47.722Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
