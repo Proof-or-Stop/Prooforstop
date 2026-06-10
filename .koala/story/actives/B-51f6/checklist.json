@@ -35,7 +35,20 @@
           }
         ]
       },
-      "userSees": "User sees \"Authority readiness: BLOCKED authorityUrl=https://stagging.hostneutral.net blockers=production_inert_key,missing_receipt_proof_endpoint\" or a PASS line only when all production readiness anchors are present."
+      "userSees": "User sees \"Authority readiness: BLOCKED authorityUrl=https://stagging.hostneutral.net blockers=production_inert_key,missing_receipt_proof_endpoint\" or a PASS line only when all production readiness anchors are present.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "blocked_classified",
+          "command": "curl -fsSL https://stagging.hostneutral.net/health; curl -fsSL https://stagging.hostneutral.net/openapi.json; curl -fsSL https://stagging.hostneutral.net/v1/authority/policy; curl https://stagging.hostneutral.net/v1/receipts/readiness-probe/proof; lattice authority_status --json --authorityMode=enforce --authorityURL=https://stagging.hostneutral.net",
+          "result": "pass",
+          "note": "Readiness happy path is blocked: health is ok, but serverKeyId=dev-server-key is default/local-test, ephemeral=true, productionInert=true, proof endpoint is absent/404, productionEnforceAuthority=false, and required secret/identity sources are absent. No secret values were printed.",
+          "headHash": "67633ebb01ef4d419295f3a6f63f7d44f70681be",
+          "materialHash": "0c5798fc3a0e0731eac5171a15086c0a967883f96be5f4f768d1aece704e736c",
+          "timestamp": "2026-06-10T19:53:06.403Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
