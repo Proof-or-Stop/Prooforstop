@@ -23,7 +23,7 @@
       "desc": "packages/main/src/core/lattice-baseline.ts:1171-1232 and 1277-1279 promote purely local baseline_run stub artifacts into engineering suiteStatus=PASS/authorization=authorized as soon as a development suite file exists. Repro: seed a PASS development baseline-suite-report.json, run baseline_run for each ENG-* id, then run node packages/main/dist/cli.js baseline_suite_report --layer=engineering --format=json; it returns PASS/authorized with no real engineering proof. That violates the documented boundary that Parallel Development is implementation-only and claim/proof unlock stays sequential (Lattice-Parallel-Development-Capability.md:28-31, 82-84), and Engineering suite PASS requires real runs plus maturity/rate checks (Lattice-Engineering-baseline.md:421-469), not local harness presence.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-concept",
       "createdAt": "2026-06-10T02:19:28.230Z",
@@ -35,7 +35,9 @@
         "Lattice-Engineering-baseline.md",
         "Lattice-Capability-Claim-baseline.md",
         "Lattice-Parallel-Development-Capability.md"
-      ]
+      ],
+      "resolvedReason": "Fixed in 6d1fcae6: baseline_suite_report now requires fresh non-local capabilityProof=true final reports and refuses localOnly/capabilityProof=false baseline_run artifacts, so local implementation diagnostics stay BLOCKED/not_authorized and cannot authorize Engineering suite PASS. Verified by lattice-baseline-smoke local-stub-suite scenario and lattice validate allPass=true.",
+      "resolvedAt": "2026-06-10T02:38:41.004Z"
     },
     {
       "id": "B-92e2:F-003",
