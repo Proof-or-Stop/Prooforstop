@@ -27,11 +27,21 @@ import {
   renderLatticeHostStatusText,
   type LatticeFormat,
 } from '../core/lattice-hosts.js';
+import {
+  DEFAULT_AUTHORITY_RECEIPT_MAX_VERIFIED_AGE_MS,
+  eligibleAuthorityGateReceiptDocument,
+  type AuthorityGateDecisionReceiptRef,
+  type AuthorityReceiptRefDocument,
+} from '../core/authority-gate-receipts.js';
+import { normalizeAuthorityGatePhase, type AuthorityGatePhase } from '../core/authority-gate-receipt-verifier.js';
+import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
+import { loadConfig } from '../core/config.js';
+import { resolveWorkflowPolicy } from '../core/workflow-policy.js';
 
 type FormatArgs = { format?: LatticeFormat; json?: boolean };
 
 const AUTHORITY_DISCLAIMER =
-  'Receipt-aware status only: no receipt is verified, no evidence is submitted, and productionDone remains false.';
+  'Receipt-aware status only: existing receipt refs may be reported, no new receipt is verified, no evidence is submitted, and productionDone remains false.';
 
 const LOCAL_WORKFLOW_NOTE =
   'Local workflow (story_advance / verification_evidence_add / DONE gate) does not depend on remote authority; missing enforce prerequisites are readiness warnings, not global blockers.';
@@ -89,6 +99,41 @@ interface AuthorityReadiness {
   readinessWarnings: string[];
   /** Suggested commands / env to address each readiness warning. */
   nextActions: string[];
+}
+
+interface AuthorityStatusArgs extends FormatArgs {
+  authorityMode?: string;
+  authorityURL?: string;
+  authorityTimeoutMS?: number;
+  storyId?: string;
+  targetPhase?: AuthorityGatePhase | string;
+  phase?: AuthorityGatePhase | string;
+  headHash?: string;
+  materialHash?: string;
+  policyMode?: string;
+  now?: string;
+}
+
+interface AuthorityStatusRuntime extends AuthorityConfigLoadOptions {
+  root?: string;
+  store?: HandlerContext['store'];
+}
+
+interface AuthorityReceiptStatus {
+  storyId?: string;
+  targetPhase?: AuthorityGatePhase;
+  headHash?: string;
+  materialHash?: string;
+  policyMode?: string;
+  latestReceiptId?: string;
+  latestDecisionDigest?: string;
+  statusReceiptId?: string;
+  statusDecisionDigest?: string;
+  receiptVerified: boolean;
+  receiptEligible: boolean;
+  receiptConsumed: boolean;
+  eligibilityReason?: string;
+  contextAvailable: boolean;
 }
 
 function buildAuthorityReadiness(
@@ -160,6 +205,118 @@ function buildAuthorityReadiness(
     sessionConfigured,
     readinessWarnings: warnings,
     nextActions: actions,
+  };
+}
+
+function latestReceiptRef(document: AuthorityReceiptRefDocument | null | undefined): AuthorityGateDecisionReceiptRef | undefined {
+  const refs = document?.refs ?? [];
+  if (refs.length === 0) return undefined;
+  return [...refs].sort((left, right) => {
+    const leftTime = Date.parse(left.verifiedAt ?? '');
+    const rightTime = Date.parse(right.verifiedAt ?? '');
+    const normalizedLeft = Number.isFinite(leftTime) ? leftTime : 0;
+    const normalizedRight = Number.isFinite(rightTime) ? rightTime : 0;
+    return normalizedRight - normalizedLeft;
+  })[0];
+}
+
+function isVerifiedProductionGateReceipt(ref: AuthorityGateDecisionReceiptRef | undefined): ref is AuthorityGateDecisionReceiptRef {
+  return ref?.classification === 'production-gate-decision'
+    && ref.receiptKind === 'gate_decision'
+    && ref.status !== 'stale'
+    && ref.status !== 'revoked'
+    && ref.status !== 'superseded';
+}
+
+function latestVerifiedProductionReceiptRef(document: AuthorityReceiptRefDocument | null | undefined): AuthorityGateDecisionReceiptRef | undefined {
+  const refs = document?.refs ?? [];
+  return latestReceiptRef({
+    schemaVersion: 'lattice.authority_receipt_refs.v1',
+    storyId: document?.storyId ?? '',
+    updatedAt: document?.updatedAt ?? '',
+    refs: refs.filter(isVerifiedProductionGateReceipt),
+  });
+}
+
+function matchingConsumption(
+  ref: AuthorityGateDecisionReceiptRef | undefined,
+  args: { storyId?: string; targetPhase?: AuthorityGatePhase; headHash?: string; materialHash?: string },
+): boolean {
+  if (!ref || !args.storyId || !args.targetPhase || !args.headHash || !args.materialHash || !ref.decisionDigest) return false;
+  return (ref.consumptionEvents ?? []).some((event) => (
+    event.storyId === args.storyId
+    && event.targetPhase === args.targetPhase
+    && event.headHash === args.headHash
+    && event.materialHash === args.materialHash
+    && event.decisionDigest === ref.decisionDigest
+  ));
+}
+
+function resolveStatusPolicyMode(
+  args: AuthorityStatusArgs,
+  runtime: AuthorityStatusRuntime | undefined,
+  storyId: string | undefined,
+): string | undefined {
+  if (args.policyMode) return args.policyMode;
+  if (!runtime?.root || !runtime.store || !storyId) return undefined;
+  try {
+    return resolveWorkflowPolicy(loadConfig(runtime.root), runtime.store.readStory(storyId)).profile;
+  } catch {
+    return undefined;
+  }
+}
+
+function buildAuthorityReceiptStatus(
+  args: AuthorityStatusArgs,
+  runtime?: AuthorityStatusRuntime,
+): AuthorityReceiptStatus {
+  const storyId = args.storyId?.trim() || undefined;
+  const targetPhase = normalizeAuthorityGatePhase(args.targetPhase ?? args.phase);
+  const headHash = args.headHash ?? (runtime?.root ? currentGitHead(runtime.root) : undefined);
+  const materialHash = args.materialHash ?? (runtime?.root ? currentMaterialHash(runtime.root) : undefined);
+  const policyMode = resolveStatusPolicyMode(args, runtime, storyId);
+  const document = storyId && runtime?.store ? runtime.store.readAuthorityReceiptRefs(storyId) : undefined;
+  const latest = latestReceiptRef(document);
+  const contextAvailable = Boolean(storyId && targetPhase && headHash && materialHash);
+  let eligibleRef: AuthorityGateDecisionReceiptRef | undefined;
+  let receiptEligible = false;
+  let eligibilityReason: string | undefined;
+  if (contextAvailable) {
+    const eligibility = eligibleAuthorityGateReceiptDocument(document ?? undefined, {
+      storyId: storyId!,
+      targetPhase: targetPhase!,
+      headHash: headHash!,
+      materialHash: materialHash!,
+      now: args.now ?? new Date().toISOString(),
+      maxVerifiedAgeMs: DEFAULT_AUTHORITY_RECEIPT_MAX_VERIFIED_AGE_MS,
+      acceptablePolicyModes: policyMode ? [policyMode] : undefined,
+      acceptableAuthorityModes: ['enforce'],
+    });
+    receiptEligible = eligibility.eligible;
+    eligibilityReason = eligibility.reason;
+    if (eligibility.eligible) eligibleRef = eligibility.ref;
+  }
+  const verifiedRef = eligibleRef ?? latestVerifiedProductionReceiptRef(document);
+  const statusRef = eligibleRef ?? verifiedRef ?? latest;
+  const receiptVerified = Boolean(verifiedRef);
+  if (!contextAvailable && !receiptVerified) {
+    eligibilityReason = 'authority_receipt_missing';
+  }
+  return {
+    storyId,
+    targetPhase,
+    headHash,
+    materialHash,
+    policyMode,
+    latestReceiptId: latest?.receiptId,
+    latestDecisionDigest: latest?.decisionDigest,
+    statusReceiptId: statusRef?.receiptId,
+    statusDecisionDigest: statusRef?.decisionDigest,
+    receiptVerified,
+    receiptEligible,
+    receiptConsumed: matchingConsumption(statusRef, { storyId, targetPhase, headHash, materialHash }),
+    eligibilityReason,
+    contextAvailable,
   };
 }
 
@@ -254,15 +411,15 @@ function renderConfigDoctorText(result: ReturnType<typeof buildConfigDoctor>): s
 }
 
 export function buildAuthorityStatus(
-  args: { authorityMode?: string; authorityURL?: string; authorityTimeoutMS?: number } = {},
+  args: AuthorityStatusArgs = {},
   env: Record<string, string | undefined> = process.env,
-  options: AuthorityConfigLoadOptions = {},
+  runtime: AuthorityStatusRuntime = {},
 ) {
   // Full config (authority.md + localhost default + production-inert verdict).
   // Readiness is based on the same resolved config that live authority execution
   // uses, so authority.md/default URL behavior does not drift from runner behavior.
-  const config = loadAuthorityConfig(env, args, options);
-  const customerKey = resolveAuthorityCustomerApiKey(env, options);
+  const config = loadAuthorityConfig(env, args, runtime);
+  const customerKey = resolveAuthorityCustomerApiKey(env, runtime);
   const actorKeyConfigured =
     readEnforceEnv(env).actorKeyConfigured ||
     typeof config.keyMaterial.actorKey === 'string' ||
@@ -275,6 +432,10 @@ export function buildAuthorityStatus(
     sessionConfigured: typeof config.sessionId === 'string' && config.sessionId.length > 0,
   });
   const baseURLConfigured = readiness.authorityUrlConfigured;
+  const receiptStatus = buildAuthorityReceiptStatus(args, runtime);
+  const authorityReady = config.mode !== 'off'
+    && baseURLConfigured
+    && readiness.readinessWarnings.length === 0;
   return {
     schemaVersion: 'lattice.authority_status.v1' as const,
     product: { name: LATTICE_PRODUCT_NAME, version: LATTICE_CLI_VERSION },
@@ -294,10 +455,22 @@ export function buildAuthorityStatus(
     productionInert: config.productionInert,
     productionInertReasons: config.productionInertReasons,
     serverReachability: 'not-probed' as const,
-    receiptVerified: false as const,
+    authorityReady,
+    receiptVerified: receiptStatus.receiptVerified,
+    receiptEligible: receiptStatus.receiptEligible,
+    receiptConsumed: receiptStatus.receiptConsumed,
     productionDone: false as const,
     canClaimProductionDone: false as const,
-    status: baseURLConfigured ? 'configured-no-verified-receipt' as const : 'not-configured' as const,
+    status: receiptStatus.receiptConsumed
+      ? 'receipt-consumed-no-production-claim' as const
+      : receiptStatus.receiptEligible
+        ? 'verified-receipt-eligible' as const
+        : receiptStatus.receiptVerified
+          ? 'verified-receipt-not-eligible' as const
+          : baseURLConfigured
+            ? 'configured-no-verified-receipt' as const
+            : 'not-configured' as const,
+    receiptStatus,
     // Readiness diagnostics (B-b710 / Milestones 3-4):
     //   - localWorkflowUsable is always true; local lifecycle gates do not consume
     //     server receipts (PD-1 / PD-2 thin-client client role).
@@ -338,12 +511,26 @@ function renderAuthorityStatusText(result: ReturnType<typeof buildAuthorityStatu
     `serverPublicKeyPinned: ${result.serverPublicKeyPinned}`,
     `runnerConfigured: ${result.runnerConfigured}`,
     `serverReachability: ${result.serverReachability}`,
+    `authorityReady: ${result.authorityReady}`,
     `receiptVerified: ${result.receiptVerified}`,
+    `receiptEligible: ${result.receiptEligible}`,
+    `receiptConsumed: ${result.receiptConsumed}`,
     `productionDone: ${result.productionDone}`,
     `canClaimProductionDone: ${result.canClaimProductionDone}`,
     `urlSource: ${result.urlSource}${result.defaultUrlApplied ? ` (${result.resolvedBaseURL})` : ''}`,
     `productionInert: ${result.productionInert}${result.productionInert ? ` (${result.productionInertReasons.join(', ')})` : ''}`,
   ];
+  if (result.receiptStatus.storyId || result.receiptStatus.latestReceiptId) {
+    lines.push(
+      `receiptStoryId: ${result.receiptStatus.storyId ?? '(none)'}`,
+      `receiptTargetPhase: ${result.receiptStatus.targetPhase ?? '(none)'}`,
+      `latestReceiptId: ${result.receiptStatus.latestReceiptId ?? '(none)'}`,
+      `latestDecisionDigest: ${result.receiptStatus.latestDecisionDigest ?? '(none)'}`,
+      `statusReceiptId: ${result.receiptStatus.statusReceiptId ?? '(none)'}`,
+      `statusDecisionDigest: ${result.receiptStatus.statusDecisionDigest ?? '(none)'}`,
+      `receiptEligibilityReason: ${result.receiptStatus.eligibilityReason ?? '(none)'}`,
+    );
+  }
   if (result.readinessWarnings.length > 0) {
     lines.push('', 'readinessWarnings:');
     for (const w of result.readinessWarnings) lines.push(`  - ${w}`);
@@ -738,30 +925,13 @@ export function createLatticeCliHandlers(ctx: HandlerContext) {
       const result = buildConfigDoctor(ctx);
       return wantsJson(args) ? result : renderConfigDoctorText(result);
     },
-    authority_status(args: { format?: LatticeFormat; json?: boolean; authorityMode?: string; authorityURL?: string; authorityTimeoutMS?: number } = {}) {
-      const result = buildAuthorityStatus(args, process.env, { cwd: ctx.root });
+    authority_status(args: AuthorityStatusArgs = {}) {
+      const result = buildAuthorityStatus(args, process.env, { cwd: ctx.root, root: ctx.root, store: ctx.store });
       return wantsJson(args) ? result : renderAuthorityStatusText(result);
     },
     async authority_enforce_runner(args: { format?: LatticeFormat; json?: boolean; once?: boolean; dryRun?: boolean; live?: boolean; authorityMode?: string; authorityURL?: string; authorityTimeoutMS?: number } = {}) {
       const result = await runAuthorityEnforceRunner(args, process.env, { cwd: ctx.root });
       return wantsJson(args) ? result : renderAuthorityEnforceRunnerText(result);
-    },
-    authority_receipt_verify(args: {
-      format?: LatticeFormat;
-      json?: boolean;
-      receiptFile?: string;
-      serverPublicKey?: string;
-      serverPublicKeyEncoding?: LatticeAuthorityKeyEncoding;
-      receiptKind?: string;
-      receiptProjectId?: string;
-      receiptStoryId?: string;
-      serverKeyId?: string;
-      expectedDecisionDigest?: string;
-      receiptMaxAgeMs?: number;
-      receiptClockSkewMs?: number;
-    } = {}) {
-      const result = buildAuthorityReceiptVerify(args);
-      return wantsJson(args) ? result : renderAuthorityReceiptVerifyText(result);
     },
     conduit_status(args: FormatArgs = {}) {
       const result = buildConduitStatus(process.env, { cwd: ctx.root });

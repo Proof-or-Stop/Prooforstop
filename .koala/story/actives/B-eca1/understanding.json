@@ -1,0 +1,38 @@
+{
+  "task": "Verify Lattice Authority receipt proofs, write production gate_decision receipt refs, and consume them in lifecycle gates when Authority-backed evidence is required.",
+  "outcome": "A user running lattice authority receipt verify sees Receipt verification: PASS for a valid proof, and a later lattice validate or DONE gate prints Authority gate consumption: PASS strongEvidenceConsumed=true receiptId=<id> only after consuming the verified server receipt.",
+  "facts": [
+    "The CLI already has Ed25519 canonical signing helpers and can verify Python-compatible hex public keys and signatures.",
+    "The CLI already has a pure authority-gate-receipts predicate for production-gate-decision refs.",
+    "The Server story B-f053 owns the receipt proof bundle endpoint needed for inputDigest and decisionDigest recomputation.",
+    "Transport accepted, local diagnostic receipts, and host transcripts must not set receiptVerified, strongEvidenceConsumed, or productionDone.",
+    "INIT reviewers recorded two medium advisories: add concrete userSees outputs and separate status/operator feedback from DONE gate policy."
+  ],
+  "constraints": [
+    "Default local workflow must not break for stories that do not require Authority-backed evidence.",
+    "Enforce mode must fail closed on missing, stale, corrupt, or non-production receipt refs.",
+    "Receipt consumption must be idempotent and cannot double-derive strongEvidenceConsumed on retry.",
+    "DONE must re-check current head/material and should require a distinct DONE receipt unless policy explicitly allows TEST coverage.",
+    "Do not add multi-tenant key management, UI dashboard, or broad revocation service in this slice."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/authority-client.ts",
+    "packages/main/src/core/authority-gate-receipts.ts",
+    "packages/main/src/core/authority-signing.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/core/workflow-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/core/observability-snapshot.ts",
+    "packages/main/src/tasks/authority-receipt-proof-smoke.ts",
+    "packages/main/src/tasks/authority-gate-consumption-smoke.ts"
+  ],
+  "timestamp": "2026-06-10T15:32:51.742Z"
+}

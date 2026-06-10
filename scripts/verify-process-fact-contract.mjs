@@ -109,6 +109,7 @@ const requiredProcessFactSemantics = {
   finding_add: ['finding-state', 'blocker-state', 'gate-evidence'],
   finding_resolve: ['finding-state', 'blocker-state', 'gate-evidence'],
   finding_dismiss: ['finding-state', 'blocker-state', 'gate-evidence'],
+  authority_receipt_verify: ['gate-evidence'],
 };
 const requiredReviewerLanes = [
   'koala-review-story-init',
@@ -138,6 +139,7 @@ const requiredArtifactFacts = [
   { name: 'artifact:test-evidence.json', path: 'test-evidence.json', signed: false },
   { name: 'artifact:eval-evidence.json', path: 'eval-evidence.json', signed: false },
   { name: 'artifact:process-events.jsonl', path: 'process-events.jsonl', signed: false },
+  { name: 'artifact:authority-receipt-refs.json', path: 'authority-receipt-refs.json', signed: false },
 ];
 const requiredReviewLoopL4Commands = [
   'review_loop_start',

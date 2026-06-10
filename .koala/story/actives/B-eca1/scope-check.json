@@ -1,0 +1,110 @@
+{
+  "storyId": "B-eca1",
+  "checkedAt": "2026-06-10T15:45:23.381Z",
+  "features": [
+    {
+      "feature": "Add receipt proof client and verifier (CHK-001)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "Scope limited to CLI proof verification: Ed25519 signature, canonical digest recomputation, production/local-test classification. No server endpoint. Fixture-based testing until B-f053. relatedDocs reference 3 missing docs — see DRIFT-001."
+    },
+    {
+      "feature": "Add receipt-ref writer command and store support (CHK-002)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "Writer scope is CLI-side: verify command, write authority-receipt-refs.json for production gate_decision only, preserve prior refs, register process facts. Idempotency and negative controls specified. relatedDocs reference 2 missing docs — see DRIFT-001."
+    },
+    {
+      "feature": "Wire idempotent TEST gate consumption (CHK-003)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "Consumption wired through existing phase-gates.ts / verifier.ts / workflow-policy.ts — all CLI-side. Shadow/local default preserved, enforce fails closed. authority-gate-receipts.ts listed as modify but missing from worktree (exists on main) — see DRIFT-002."
+    },
+    {
+      "feature": "Wire DONE gate policy (CHK-004)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "DONE gate policy is CLI lifecycle enforcement. Requires distinct DONE receipt or explicit cross-phase policy. Re-checks head/material freshness. Correctly separated from status rendering (CHK-006)."
+    },
+    {
+      "feature": "CLI smoke tests and process fact coverage (CHK-005)",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "Deterministic fixture-based CLI tests. Explicitly excludes cross-repo live smoke (deferred to integration story). Process fact contract verification included. Negative controls required."
+    },
+    {
+      "feature": "Separate Authority receipt status and operator feedback (CHK-006)",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "Status rendering separated from gate policy per INIT reviewer advisory. Five distinct facts (authorityReady/receiptVerified/receiptEligible/receiptConsumed/productionDone) prevent overclaiming."
+    },
+    {
+      "feature": "Server proof endpoint implementation",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "B-f053",
+      "source": "Owned by Server story B-f053. Plan documents dependency precondition with fixture-based CLI testing mitigation."
+    },
+    {
+      "feature": "Cross-repo live smoke against running server",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "deferred to integration story",
+      "source": "Plan and CHK-005 relatedDocs reference authority-receipt-cross-repo-live-smoke.md. Explicitly deferred to separate integration story after foundations merge."
+    },
+    {
+      "feature": "Multi-tenant key management, rotation, revocation, dashboards",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding constraints + plan Out of Scope",
+      "source": "Explicitly excluded in understanding constraints and plan Out of Scope section."
+    },
+    {
+      "feature": "5 relatedDocs missing from worktree",
+      "covered_by": "",
+      "status": "drift",
+      "excluded_by": "",
+      "source": "CHK-001 through CHK-005 reference 5 decision docs absent from worktree but present on main: authority-receipt-gate-integration-execution-plan.md, lattice-cli-authority-client-receipt-ref.md, lattice-authority-receipt-contract.md, lifecycle-gate-receipt-consumption.md, authority-receipt-cross-repo-live-smoke.md. Plan baseline precondition explicitly warns and requires resolution before source edits."
+    },
+    {
+      "feature": "authority-gate-receipts.ts missing from worktree",
+      "covered_by": "",
+      "status": "drift",
+      "excluded_by": "",
+      "source": "CHK-003 and CHK-004 list packages/main/src/core/authority-gate-receipts.ts as modify target but it is absent from this worktree. Exists on main. Must be brought in before those items can be implemented."
+    }
+  ],
+  "summary": {
+    "total": 11,
+    "covered": 6,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 2
+  },
+  "reviewRound": "",
+  "_hash": "b56be2ef01607c71bb3c3dbb186f2e5e88fc0e88581805a1f0629a0be419152b",
+  "openQuestions": [
+    {
+      "id": "OQ-1",
+      "q": "The 5 missing relatedDocs and 1 missing source file (authority-gate-receipts.ts) all exist on main. Should resolution be git merge main into this story branch before DEV, or cherry-pick individual files? Plan says resolve before source edits but does not prescribe mechanism.",
+      "evidence": "plan.md baseline precondition paragraph (lines 5-6). git ls on main confirms all 6 files present. Worktree ls confirms absence.",
+      "sourcePointers": [
+        ".koala/story/actives/B-eca1/plan.md",
+        "CHK-001",
+        "CHK-002",
+        "CHK-003",
+        "CHK-004",
+        "CHK-005"
+      ],
+      "resolution": "Resolution: Do not merge the entire dirty main working tree into B-eca1. Before source implementation begins, bring only the scoped baseline required by this story into the story branch: the referenced receipt/gate decision docs and the existing authority-gate-receipts.ts baseline, either by recreating those files with a scoped patch in this worktree or by cherry-picking a future committed baseline that contains only those artifacts. Until that scoped baseline is present, DEV source edits are blocked because verifier/gate code would be implemented without its declared truth docs and helper module.",
+      "resolvedAt": "2026-06-10T15:46:01.035Z"
+    }
+  ]
+}

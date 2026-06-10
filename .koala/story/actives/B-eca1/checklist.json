@@ -9,9 +9,78 @@
         "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
         "docs/requirements/decisions/lattice-authority-receipt-contract.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-10T16:19:31.539Z",
+      "endTime": "2026-06-10T16:33:40.700Z",
+      "userSees": "Running lattice authority receipt verify on a valid proof prints: Receipt verification: PASS receiptVerified=true classification=production-gate-decision receiptId=<id> decisionDigest=<sha256>.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/authority-client.ts",
+          "packages/main/src/core/authority-runner-contracts.ts",
+          "packages/main/src/core/authority-signing.ts"
+        ],
+        "create": [
+          "packages/main/src/core/authority-gate-receipt-verifier.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/authority-receipt-proof-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A valid server proof with hex key/signature verifies and classifies production-gate-decision.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A local-test/default server key verifies cryptographically but is classified server-receipt-local-test.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Corrupt signature, input payload, decision payload, story, phase, head, or material mismatch returns a machine-readable failure and writes no production ref.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/authority-receipt-proof-smoke.js",
+          "result": "pass",
+          "note": "Valid gate_decision proof verifies with hex public key/signature only when caller supplies a pinned production authority key digest; result classifies production-gate-decision and exposes receiptId/inputDigest/decisionDigest.",
+          "headHash": "29ec1a9c8d839f9806f0f73616a55c33b6b485e1",
+          "materialHash": "0118edacb4c137c7740c81a46cae89ac1484ff0d94454ec2ef887344c1e5234b",
+          "timestamp": "2026-06-10T18:08:24.839Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/authority-receipt-proof-smoke.js",
+          "result": "pass",
+          "note": "Cryptographically valid local/default/test receipt remains server-receipt-local-test and productionReady=false.",
+          "headHash": "29ec1a9c8d839f9806f0f73616a55c33b6b485e1",
+          "materialHash": "0118edacb4c137c7740c81a46cae89ac1484ff0d94454ec2ef887344c1e5234b",
+          "timestamp": "2026-06-10T18:08:24.839Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/authority-receipt-proof-smoke.js && npm --prefix packages/main run test:authority-receipt-classification && npm --prefix packages/main run test:authority-runner-contracts && npm --prefix packages/main run test:authority-client && git diff --check -- packages/main/src/core/authority-client.ts packages/main/src/core/authority-gate-receipt-verifier.ts packages/main/src/tasks/authority-receipt-proof-smoke.ts",
+          "result": "pass",
+          "note": "Smoke asserts untrusted production-looking key, corrupt signature, input digest mismatch, decision digest mismatch, story/phase/head/material mismatch, and server-relative proof fetch guard; existing Authority receipt and client contracts still pass.",
+          "headHash": "29ec1a9c8d839f9806f0f73616a55c33b6b485e1",
+          "materialHash": "0118edacb4c137c7740c81a46cae89ac1484ff0d94454ec2ef887344c1e5234b",
+          "timestamp": "2026-06-10T18:08:24.839Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -21,9 +90,78 @@
         "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
         "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-10T16:34:20.597Z",
+      "endTime": "2026-06-10T16:56:39.551Z",
+      "userSees": "After verification, the command prints: Receipt ref: PASS path=.koala/story/actives/<storyId>/authority-receipt-refs.json receiptId=<id> status=active.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/store.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/authority-receipt-proof-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A production gate_decision proof writes one active receipt ref and preserves prior refs.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Re-verifying the same receipt id replaces or preserves one ref without duplicating records.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Invalid, contract-only, transport-accepted, or local-test receipts do not write production-gate-decision refs.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:authority-receipt-proof && npm --prefix packages/main run test:authority-gate-receipts",
+          "result": "pass",
+          "note": "Valid production gate_decision proof with caller-pinned production authority key digest writes one active authority-receipt-refs.json ref through StoryStore; receipt ref includes targetPhase, decisionVerdict, digest, status, and path.",
+          "headHash": "29ec1a9c8d839f9806f0f73616a55c33b6b485e1",
+          "materialHash": "0118edacb4c137c7740c81a46cae89ac1484ff0d94454ec2ef887344c1e5234b",
+          "timestamp": "2026-06-10T18:08:24.839Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:authority-receipt-proof && npm --prefix packages/main run test:authority-gate-receipts",
+          "result": "pass",
+          "note": "Proof smoke asserts re-verifying the same receipt id leaves refs.length=1, and gate receipt smoke covers upsert/eligibility behavior without duplicate active refs.",
+          "headHash": "29ec1a9c8d839f9806f0f73616a55c33b6b485e1",
+          "materialHash": "0118edacb4c137c7740c81a46cae89ac1484ff0d94454ec2ef887344c1e5234b",
+          "timestamp": "2026-06-10T18:08:24.839Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:authority-receipt-proof && npm --prefix packages/main run test:authority-boundary-smoke && npm --prefix packages/main run test:authority-evidence-flow && npm --prefix packages/main run test:authority-enforce-matrix && npm --prefix packages/main run test:command-ownership-contract",
+          "result": "pass",
+          "note": "Local-test/untrusted/invalid proofs remain diagnostic-only and written=false; missing storyId/index is rejected before proof load so no orphan receipt refs are created; Codex and Claude read-only follow-up audits both PASS the owner-lease missing-story fix.",
+          "headHash": "29ec1a9c8d839f9806f0f73616a55c33b6b485e1",
+          "materialHash": "0118edacb4c137c7740c81a46cae89ac1484ff0d94454ec2ef887344c1e5234b",
+          "timestamp": "2026-06-10T18:08:24.839Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -33,9 +171,79 @@
         "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
         "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-10T16:56:57.674Z",
+      "endTime": "2026-06-10T17:09:55.944Z",
+      "userSees": "In enforce mode, lattice validate --story=<storyId> prints: Authority gate consumption: PASS strongEvidenceConsumed=true receiptId=<id> gate=TEST.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/authority-gate-receipts.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/core/workflow-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/store.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/authority-gate-consumption-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A matching TEST receipt ref is consumed and output names strongEvidenceConsumed=true and the receipt id.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Shadow mode reports missing or invalid Authority receipt diagnostics without blocking local validation.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Enforce mode blocks missing, stale, wrong phase, wrong story, wrong head, or wrong material receipt refs.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:authority-gate-consumption",
+          "result": "pass",
+          "note": "Matching TEST gate_decision receipt is consumed by validate and transition gate; output includes strongEvidenceConsumed=true with receiptId=AR-TEST; repeated validate and transition consumption leave consumptionEvents.length=1.",
+          "headHash": "29ec1a9c8d839f9806f0f73616a55c33b6b485e1",
+          "materialHash": "0118edacb4c137c7740c81a46cae89ac1484ff0d94454ec2ef887344c1e5234b",
+          "timestamp": "2026-06-10T18:08:24.839Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:authority-gate-consumption && npm --prefix packages/main run test:authority-gate-receipts",
+          "result": "pass",
+          "note": "Shadow mode reports diagnostics without blocking or writing receipt refs; eligibleGates restriction is enforced for same-phase TEST receipts; TEST receipt can cover DONE only when eligibleGates explicitly includes DONE.",
+          "headHash": "29ec1a9c8d839f9806f0f73616a55c33b6b485e1",
+          "materialHash": "0118edacb4c137c7740c81a46cae89ac1484ff0d94454ec2ef887344c1e5234b",
+          "timestamp": "2026-06-10T18:08:24.839Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:authority-gate-consumption && npm --prefix packages/main run test:authority-gate-receipts && npm --prefix packages/main run test:authority-receipt-proof && npm --prefix packages/main run test:authority-evidence-flow && git diff --check",
+          "result": "pass",
+          "note": "Enforce mode blocks missing receipt and phase mismatch; proof and evidence-flow smokes cover stale/mismatched receipt paths. Codex CLI found eligibleGates same-phase blocker, fix applied and verified; Claude and Codex targeted rechecks both PASS.",
+          "headHash": "29ec1a9c8d839f9806f0f73616a55c33b6b485e1",
+          "materialHash": "0118edacb4c137c7740c81a46cae89ac1484ff0d94454ec2ef887344c1e5234b",
+          "timestamp": "2026-06-10T18:08:24.839Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -46,9 +254,78 @@
         "docs/requirements/decisions/host-overflow.md",
         "docs/requirements/decisions/project-vision.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-10T17:10:05.283Z",
+      "endTime": "2026-06-10T17:15:23.877Z",
+      "userSees": "For DONE in enforce mode, story_advance --phase=DONE prints: Authority DONE gate: PASS receiptId=<id> gate=DONE, or blocks with authority_receipt_* reason.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/authority-gate-receipts.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/workflow-policy.ts",
+          "packages/main/src/core/config.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/authority-gate-consumption-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A distinct DONE receipt allows DONE gate consumption and output names the consumed receipt id.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A TEST receipt covers DONE only when policy explicitly allows cross-phase coverage.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "DONE blocks stale material, missing receipt, or a TEST receipt when cross-phase coverage is not configured.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:authority-gate-consumption",
+          "result": "pass",
+          "note": "Distinct DONE gate_decision receipt is consumed by the DONE transition gate and output includes Authority DONE gate: PASS strongEvidenceConsumed=true story=B-done gate=DONE receiptId=AR-DONE.",
+          "headHash": "29ec1a9c8d839f9806f0f73616a55c33b6b485e1",
+          "materialHash": "0118edacb4c137c7740c81a46cae89ac1484ff0d94454ec2ef887344c1e5234b",
+          "timestamp": "2026-06-10T18:08:24.839Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:authority-gate-consumption && npm --prefix packages/main run test:authority-gate-receipts",
+          "result": "pass",
+          "note": "TEST receipt is refused for DONE unless eligibleGates explicitly includes DONE; same-phase eligibleGates restriction is preserved; explicit TEST->DONE coverage passes only with eligibleGates=[TEST,DONE].",
+          "headHash": "29ec1a9c8d839f9806f0f73616a55c33b6b485e1",
+          "materialHash": "0118edacb4c137c7740c81a46cae89ac1484ff0d94454ec2ef887344c1e5234b",
+          "timestamp": "2026-06-10T18:08:24.839Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:authority-gate-consumption && npm --prefix packages/main run test:authority-gate-receipts && npm --prefix packages/main run test:authority-receipt-proof && npm --prefix packages/main run test:authority-evidence-flow && git diff --check",
+          "result": "pass",
+          "note": "Enforce mode blocks missing and wrong-phase refs; receipt helper/proof smokes cover stale material/head/story/phase mismatch. DONE gate reads current root head/material before phase mutation, shadow/off do not persist strongEvidenceConsumed, and Claude/Codex CHK-004 read-only audits both PASS.",
+          "headHash": "29ec1a9c8d839f9806f0f73616a55c33b6b485e1",
+          "materialHash": "0118edacb4c137c7740c81a46cae89ac1484ff0d94454ec2ef887344c1e5234b",
+          "timestamp": "2026-06-10T18:08:24.839Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -58,9 +335,262 @@
         "docs/requirements/decisions/authority-receipt-cross-repo-live-smoke.md",
         "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
+      "startTime": "2026-06-10T17:15:34.604Z",
+      "endTime": "2026-06-10T17:32:56.489Z",
+      "userSees": "The smoke task output includes: authority receipt proof smoke passed and authority gate consumption smoke passed, with negative controls listed as blocked.",
+      "files": {
+        "modify": [
+          "packages/main/package.json",
+          "package.json",
+          "scripts/verify-process-fact-contract.mjs",
+          "packages/main/src/core/process-fact-registry.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/authority-gate-consumption-smoke.ts",
+          "packages/main/src/tasks/authority-receipt-proof-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/authority-gate-consumption-smoke.ts",
+          "packages/main/src/tasks/authority-receipt-proof-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "New proof and gate consumption smoke scripts pass after build.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Process fact registry includes authority-receipt-refs.json and any new strongEvidenceConsumed gate fact entries.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Negative controls for corrupt proof, local-test key, and stale receipt are explicitly asserted as blocked.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm run build; npm --prefix packages/main run test:authority-receipt-proof; npm --prefix packages/main run test:authority-gate-consumption; npm --prefix packages/main run test:authority-status-smoke",
+          "result": "pass",
+          "note": "Build plus proof, gate consumption, and status smoke scripts pass at current HEAD; output includes authority receipt proof smoke passed, authority gate consumption smoke passed, and authority status readiness smoke passed.",
+          "headHash": "29ec1a9c8d839f9806f0f73616a55c33b6b485e1",
+          "materialHash": "0118edacb4c137c7740c81a46cae89ac1484ff0d94454ec2ef887344c1e5234b",
+          "timestamp": "2026-06-10T18:08:24.839Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:command-ownership-contract; rg -n \"authority_receipt_verify|artifact:authority-receipt-refs.json|authority-receipt-refs.json\" packages/main/src/core/process-fact-registry.ts packages/main/src/core/process-fact-levels.ts scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Command ownership contract passes, and process fact registry/contract surfaces include authority_receipt_verify plus artifact:authority-receipt-refs.json. Full process-fact contract was separately classified as blocked by pre-existing autopilot/release_approve_push drift, not by this receipt ref registry path.",
+          "headHash": "29ec1a9c8d839f9806f0f73616a55c33b6b485e1",
+          "materialHash": "0118edacb4c137c7740c81a46cae89ac1484ff0d94454ec2ef887344c1e5234b",
+          "timestamp": "2026-06-10T18:08:24.839Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:authority-receipt-proof; npm --prefix packages/main run test:authority-gate-consumption; npm --prefix packages/main run test:authority-gate-receipts",
+          "result": "pass",
+          "note": "Proof and gate smokes assert corrupt signature, digest mismatch, local-test/untrusted key, missing receipt, wrong phase, wrong story/head/material, and stale/ineligible receipt controls are blocked or diagnostic-only.",
+          "headHash": "29ec1a9c8d839f9806f0f73616a55c33b6b485e1",
+          "materialHash": "0118edacb4c137c7740c81a46cae89ac1484ff0d94454ec2ef887344c1e5234b",
+          "timestamp": "2026-06-10T18:08:24.839Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-006",
+      "title": "Separate Authority receipt status and operator feedback",
+      "context": "Render Authority readiness, latest verified receipt ref, eligibility, and consumed receipt as distinct status facts. This item exists because INIT reviewers flagged that status output should be separate from DONE gate policy wiring.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+        "docs/requirements/decisions/host-overflow.md",
+        "docs/requirements/decisions/project-vision.md"
+      ],
+      "userSees": "lattice status or authority status prints separate lines for authorityReady, receiptVerified, receiptEligible, receiptConsumed, and productionDone without collapsing readiness into completion.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/story-authority-resolve.ts",
+          "packages/main/src/core/observability-snapshot.ts",
+          "packages/main/src/core/lattice-autopilot.ts",
+          "packages/main/src/handlers/lattice-autopilot.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/authority-gate-consumption-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Status output distinguishes configured, verified, eligible, and consumed Authority receipt states.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A verified but unconsumed receipt is shown as verified, not consumed.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Local diagnostic receipts and transport accepted responses keep receiptVerified=false, authorityChanged=false, and productionDone=false.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-06-10T17:22:31.294Z",
+      "endTime": "2026-06-10T17:32:57.185Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "Claude CLI and Codex CLI targeted CHK-006 mixed-ref re-check",
+          "result": "pass",
+          "note": "Two-host targeted re-check after Codex found the mixed-ref status inconsistency: Claude artifact .omx/artifacts/claude-targeted-read-only-re-check-for-lattice-story-b-eca1-chk-006-2026-06-10T17-33-10-615Z.md returned PASS; Codex artifact .omx/artifacts/codex-b-eca1-chk006-mixed-ref-recheck-20260610T173151Z.md returned PASS. The fixed status path derives receiptVerified/receiptEligible/receiptConsumed from the eligible production gate_decision ref while productionDone/canClaimProductionDone remain false.",
+          "headHash": "29ec1a9c8d839f9806f0f73616a55c33b6b485e1",
+          "materialHash": "0118edacb4c137c7740c81a46cae89ac1484ff0d94454ec2ef887344c1e5234b",
+          "timestamp": "2026-06-10T18:08:24.839Z"
+        },
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:authority-status-smoke",
+          "result": "pass",
+          "note": "authority_status distinguishes authorityReady, receiptVerified, receiptEligible, receiptConsumed, productionDone, and canClaimProductionDone; productionDone remains false even when a production receipt ref is verified and eligible.",
+          "headHash": "29ec1a9c8d839f9806f0f73616a55c33b6b485e1",
+          "materialHash": "0118edacb4c137c7740c81a46cae89ac1484ff0d94454ec2ef887344c1e5234b",
+          "timestamp": "2026-06-10T18:08:24.839Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:authority-status-smoke",
+          "result": "pass",
+          "note": "Status smoke covers verified+eligible but unconsumed receipt refs, proving receiptVerified=true does not imply receiptConsumed=true.",
+          "headHash": "29ec1a9c8d839f9806f0f73616a55c33b6b485e1",
+          "materialHash": "0118edacb4c137c7740c81a46cae89ac1484ff0d94454ec2ef887344c1e5234b",
+          "timestamp": "2026-06-10T18:08:24.839Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-007",
+      "title": "Write Layer 2 proof bridge execution plan",
+      "context": "Document the minimum correctness-preserving path from local Engineering baseline diagnostics to legitimate Layer 2 proof without turning host transcripts or L0 diagnostic artifacts into capability proof.",
+      "relatedDocs": [
+        "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
+        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+        "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+        "docs/requirements/decisions/host-overflow.md"
+      ],
+      "userSees": "A new Lattice-Layer2-Proof-Bridge-Execution-Plan.md document explains the implementation sequence, proof boundaries, host roles, gates, tests, and PASS criteria.",
+      "files": {
+        "modify": [],
+        "create": [
+          "Lattice-Layer2-Proof-Bridge-Execution-Plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The document defines a concrete development sequence from Development proof ingestion to Engineering suite PASS without claiming Loop or Production safety.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The document distinguishes Lattice CLI non-authority local diagnostics from Authority-backed proof and lifecycle-backed proof.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The document explicitly forbids setting localOnly=false or capabilityProof=true from host transcripts, local diagnostic receipts, or manual JSON edits.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-10T15:59:45.279Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"baseline_development_proof_import|baseline_proof_create|Engineering suiteStatus = PASS|Loop claim authorized = false|Production Safety claim authorized = false\" Lattice-Layer2-Proof-Bridge-Execution-Plan.md",
+          "result": "pass",
+          "note": "Document defines the concrete implementation sequence from Development proof import through Engineering suite PASS while preserving higher-layer claim blocks.",
+          "headHash": "29ec1a9c8d839f9806f0f73616a55c33b6b485e1",
+          "materialHash": "0118edacb4c137c7740c81a46cae89ac1484ff0d94454ec2ef887344c1e5234b",
+          "timestamp": "2026-06-10T18:08:24.839Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"local-diagnostic|lifecycle-backed|authority-backed|L0/read-only diagnostic|Authority Server receipt\" Lattice-Layer2-Proof-Bridge-Execution-Plan.md",
+          "result": "pass",
+          "note": "Document distinguishes local diagnostic CLI output, lifecycle-backed proof, and Authority-backed proof.",
+          "headHash": "29ec1a9c8d839f9806f0f73616a55c33b6b485e1",
+          "materialHash": "0118edacb4c137c7740c81a46cae89ac1484ff0d94454ec2ef887344c1e5234b",
+          "timestamp": "2026-06-10T18:08:24.839Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Do not make .*baseline_run.*capabilityProof=true|Do not edit JSON artifacts by hand|No host transcript or local diagnostic report can become proof by relabeling|raw Claude/Codex transcript without manifest|local diagnostic receipt\" Lattice-Layer2-Proof-Bridge-Execution-Plan.md && git diff --check -- Lattice-Layer2-Proof-Bridge-Execution-Plan.md",
+          "result": "pass",
+          "note": "Document explicitly forbids relabeling local diagnostics, host transcripts, or manual JSON edits into formal proof.",
+          "headHash": "29ec1a9c8d839f9806f0f73616a55c33b6b485e1",
+          "materialHash": "0118edacb4c137c7740c81a46cae89ac1484ff0d94454ec2ef887344c1e5234b",
+          "timestamp": "2026-06-10T18:08:24.839Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-10T15:31:36.650Z",
+      "phase": "PLAN",
+      "itemId": "CHK-006",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Split status/operator feedback from CHK-004 per INIT reviewer advisory.",
+      "addedTitle": "Separate Authority receipt status and operator feedback",
+      "addedContext": "Render Authority readiness, latest verified receipt ref, eligibility, and consumed receipt as distinct status facts. This item exists because INIT reviewers flagged that status output should be separate from DONE gate policy wiring."
+    },
+    {
+      "timestamp": "2026-06-10T17:32:57.185Z",
+      "phase": "DEV",
+      "itemId": "CHK-006",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Authority status now separates readiness, verified, eligible, consumed, and productionDone facts; smoke and Claude review evidence are recorded at current HEAD."
     }
   ]
 }

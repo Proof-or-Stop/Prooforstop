@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-eca1:RP-001",
+      "agent": "koala-review-concept",
+      "note": "PASS — Claude CLI post-fix review artifact .omx/artifacts/claude-review-the-current-git-diff-for-lattice-story-b-eca1-after-f-2026-06-10T17-50-43-875Z.md confirmed all production receipt consumers now pass the shared freshness policy and authority_status wording matches runtime behavior. No concept/host-neutral authority blocker remains.",
+      "createdAt": "2026-06-10T17:57:25.482Z",
+      "reviewRound": "2026-06-10T17:36:22.750Z",
+      "reviewRunId": "B-eca1:RR-007",
+      "_hash": "0e8817e6a009e1441cb1c1d377e92eb36d20aade3a35b44aeb600d1412b888a8"
+    },
+    {
+      "id": "B-eca1:RP-002",
+      "agent": "koala-review-quality",
+      "note": "PASS — Codex CLI read-only review artifact .omx/artifacts/codex-b-eca1-post-blocker-fix-review-20260610T175001Z.md returned PASS after inspecting the freshness fix, authority_status process-fact wording, adjacent verifier/registry paths, and the server-issued-vs-local-verifiedAt boundary. No real correctness blocker remains.",
+      "createdAt": "2026-06-10T17:57:32.718Z",
+      "reviewRound": "2026-06-10T17:36:22.750Z",
+      "reviewRunId": "B-eca1:RR-008",
+      "_hash": "af676e6d004a88aeba4bd146713355c42d30ff90fcf294cbec4fd23ca5822d09"
+    },
+    {
+      "id": "B-eca1:RP-003",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS — npm build plus authority gate consumption/status/proof/boundary/enforce smoke tests passed, git diff --check passed, and lattice validate --story=B-eca1 --json reported allPass=true with 21/21 verification intents covered. Added stale receipt coverage for both validate TEST consumption and transition TEST/DONE gate consumption.",
+      "createdAt": "2026-06-10T17:57:39.948Z",
+      "reviewRound": "2026-06-10T17:36:22.750Z",
+      "reviewRunId": "B-eca1:RR-009",
+      "_hash": "f7c0aabe9473f5e27cb44b3e67d067bc8d16d799e2c171da0813dbaefe07f8fe"
+    }
+  ]
+}

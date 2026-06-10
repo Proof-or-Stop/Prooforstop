@@ -1,0 +1,65 @@
+{
+  "storyId": "B-eca1",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/authority-client.ts",
+    "packages/main/src/core/authority-runner-contracts.ts",
+    "packages/main/src/core/authority-signing.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/authority-gate-receipts.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/core/workflow-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/package.json",
+    "package.json",
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/handlers/story-authority-resolve.ts",
+    "packages/main/src/core/observability-snapshot.ts",
+    "packages/main/src/core/lattice-autopilot.ts",
+    "packages/main/src/handlers/lattice-autopilot.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/authority-gate-receipt-verifier.ts",
+    "packages/main/src/tasks/authority-gate-consumption-smoke.ts",
+    "packages/main/src/tasks/authority-receipt-proof-smoke.ts",
+    "Lattice-Layer2-Proof-Bridge-Execution-Plan.md"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/authority-receipt-proof-smoke.ts",
+    "packages/main/src/tasks/authority-gate-consumption-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Resume current user-approved execution after session owner id changed; initialize from approved checklist file plan before edits.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Receipt verification must be exposed as a gateEvidence command and lifecycle transitions must call the receipt consumption gate to satisfy B-eca1 CHK-002 through CHK-004 without bypassing host-neutral authority semantics.",
+      "timestamp": "2026-06-10T16:59:26.290Z",
+      "paths": [
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/handlers/authority-enforce.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Authority receipt gate work requires status output to separate verified eligible consumed production facts, and gate receipt smoke coverage must assert eligibleGates TEST-to-DONE behavior plus status diagnostics without broad refactors.",
+      "timestamp": "2026-06-10T17:33:47.877Z",
+      "paths": [
+        "packages/main/src/handlers/lattice-cli.ts",
+        "packages/main/src/tasks/authority-gate-receipts-smoke.ts",
+        "packages/main/src/tasks/authority-status-smoke.ts"
+      ]
+    }
+  ],
+  "createdAt": "2026-06-10T16:25:34.871Z",
+  "updatedAt": "2026-06-10T17:33:47.877Z"
+}

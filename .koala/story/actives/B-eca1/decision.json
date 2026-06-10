@@ -1,0 +1,78 @@
+{
+  "principles": [
+    "Only verified production server gate_decision receipts can satisfy lifecycle Authority gates.",
+    "Local, shadow, and diagnostic host paths must remain truthful and non-authoritative.",
+    "Gate consumption must be idempotent and derived, not caller supplied.",
+    "Do not expand scope beyond receipt proof verification, writer, lifecycle consumption, and truthful status output."
+  ],
+  "drivers": [
+    "The CLI must verify proof bundles from Server story B-f053 before writing production receipt refs.",
+    "Existing local workflow must remain usable unless Authority enforce mode is configured.",
+    "TEST should prove the consumption path before DONE is made stricter."
+  ],
+  "options": [
+    {
+      "name": "verify-write-consume-staged",
+      "pros": [
+        "Separates proof verification, receipt-ref writing, TEST consumption, DONE policy, and status output into testable layers.",
+        "Allows fixture-based CLI development while the server proof endpoint lands.",
+        "Preserves fail-closed enforce behavior without breaking local/shadow defaults."
+      ],
+      "cons": [
+        "Requires several small modules and smoke tasks.",
+        "DONE enforcement must wait for TEST consumption to stabilize."
+      ]
+    },
+    {
+      "name": "wire-gates-first",
+      "pros": [
+        "Makes lifecycle behavior visible quickly.",
+        "Could surface missing proof fields early."
+      ],
+      "cons": [
+        "Would force gates to consume incomplete or fixture-only data.",
+        "Risks confusing readiness with verified authority and violating host-neutral boundary."
+      ]
+    },
+    {
+      "name": "status-only-first",
+      "pros": [
+        "Low risk to local workflow.",
+        "Improves operator visibility before enforcement."
+      ],
+      "cons": [
+        "Does not close the correctness gap because verified receipts still are not written or consumed.",
+        "Could create a polished surface without real authority semantics."
+      ]
+    }
+  ],
+  "chosen": "verify-write-consume-staged",
+  "rationale": "The staged path is the smallest correctness-preserving implementation: verify proof first, write structured refs second, consume in TEST before DONE, then render status facts without overclaiming.",
+  "preMortem": [
+    {
+      "scenario": "CLI accepts a local-test or default server key as production authority.",
+      "trigger": "Verifier checks signature but ignores key profile or pinned digest policy.",
+      "consequence": "A local dev server could satisfy production gates incorrectly.",
+      "mitigation": "Classify cryptographically valid local-test keys as server-receipt-local-test and test that no production ref is written."
+    },
+    {
+      "scenario": "Gate retry appends duplicate consumption events.",
+      "trigger": "Consumption uses append-only behavior without a stable consumerDecisionId.",
+      "consequence": "A retried validate or DONE could double-count evidence or confuse audit history.",
+      "mitigation": "Add idempotent consume-if-not-present semantics and smoke tests for repeated gate runs."
+    },
+    {
+      "scenario": "Authority enforcement breaks existing local stories by default.",
+      "trigger": "Gate adapter treats missing receipt refs as hard failures even when policy is local or shadow.",
+      "consequence": "Existing local workflow becomes unusable and users see unrelated blocks.",
+      "mitigation": "Default to local/shadow diagnostic behavior; fail closed only when Authority-backed evidence is explicitly required."
+    },
+    {
+      "scenario": "DONE consumes a stale TEST receipt after material changes.",
+      "trigger": "DONE gate does not re-check current head/material or phase coverage policy.",
+      "consequence": "ProductionDone could be derived from an obsolete decision.",
+      "mitigation": "Recompute gate context immediately before DONE and require a distinct DONE receipt unless policy explicitly allows TEST coverage."
+    }
+  ],
+  "timestamp": "2026-06-10T15:33:13.714Z"
+}

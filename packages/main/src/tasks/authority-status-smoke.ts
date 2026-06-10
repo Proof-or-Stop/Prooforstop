@@ -25,12 +25,12 @@
  *
  *   Edge / enforce with all env prerequisites set:
  *     - Even when URL, actor key, and runner id are all set, productionDone /
- *       receiptVerified / canClaimProductionDone remain false (no receipt has
- *       actually been verified — env presence alone is not authority).
+ *       receiptVerified / canClaimProductionDone remain false when no stored
+ *       production receipt ref exists — env presence alone is not authority.
  *
  *   Adversarial:
- *     - No combination of env vars / overrides can flip productionDone,
- *       receiptVerified, or canClaimProductionDone to true.
+ *     - No combination of env vars / overrides can flip productionDone or
+ *       canClaimProductionDone to true.
  *     - conduit_status mirrors the same readiness fields and the same negative
  *       authority guarantees.
  *
@@ -56,6 +56,10 @@ import {
   buildAuthorityStatus,
   buildConduitStatus,
 } from '../handlers/lattice-cli.js';
+import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
+import { upsertAuthorityGateReceiptRef, type AuthorityGateDecisionReceiptRef } from '../core/authority-gate-receipts.js';
+import { StoryStore } from '../core/store.js';
+import type { ChecklistData, StoryInfo } from '../core/types.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const cliPath = join(here, '..', 'cli.js');
@@ -87,10 +91,10 @@ function runText(args: string[], env: EnvOverride = {}): string {
 }
 
 /**
- * Walk the JSON tree and ensure none of the authority claim fields is ever
- * `true`. This is the adversarial guard from CHK-001:
- *   "No status/readiness path can claim productionDone or receiptVerified
- *    without verified receipt input."
+ * Walk the JSON tree and ensure status/readiness output cannot claim production
+ * completion or mutate authority. CHK-006 allows receiptVerified=true only when
+ * a stored production receipt ref is present; env-only and local-test paths keep
+ * explicit receiptVerified=false assertions below.
  */
 function assertNoProductionOverclaim(value: unknown, label: string): void {
   const seen: string[] = [];
@@ -104,7 +108,6 @@ function assertNoProductionOverclaim(value: unknown, label: string): void {
       const childPath = path ? `${path}.${k}` : k;
       if (
         (k === 'productionDone' ||
-          k === 'receiptVerified' ||
           k === 'canClaimProductionDone' ||
           k === 'authorityChanged') &&
         child === true
@@ -118,7 +121,7 @@ function assertNoProductionOverclaim(value: unknown, label: string): void {
   assert.deepEqual(
     seen,
     [],
-    `${label} must not contain production/receipt/authority true overclaims`,
+    `${label} must not contain production/authority true overclaims`,
   );
 }
 
@@ -132,6 +135,105 @@ const EMPTY_AUTHORITY_ENV: EnvOverride = {
   LATTICE_AUTHORITY_RUNNER_ID: '',
   LATTICE_AUTHORITY_SESSION_ID: '',
 };
+const NOW = '2026-06-10T00:00:00.000Z';
+
+function git(root: string, args: string[]): string {
+  return execFileSync('git', args, {
+    cwd: root,
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  }).trim();
+}
+
+function makeRoot(): { root: string; store: StoryStore } {
+  const root = mkdtempSync(join(tmpdir(), 'authority-status-'));
+  mkdirSync(join(root, 'packages', 'main', 'src'), { recursive: true });
+  writeFileSync(join(root, 'packages', 'main', 'src', 'index.ts'), 'export const value = 1;\n');
+  writeFileSync(join(root, 'lattice.config.json'), `${JSON.stringify({
+    scanRoot: 'packages/main',
+    rootDir: 'src',
+    outDir: 'packages/main/dist',
+    testsDir: 'packages/main/tests',
+    fixturesDir: 'packages/main/tests/fixtures',
+    storyDir: '.koala/story/actives',
+    requirementsDir: 'docs/requirements',
+    storyPrefix: 'B',
+    workflow: { profile: 'balanced' },
+  }, null, 2)}\n`);
+  git(root, ['init']);
+  git(root, ['config', 'user.email', 'test@example.invalid']);
+  git(root, ['config', 'user.name', 'Authority Status Smoke']);
+  git(root, ['add', 'lattice.config.json', 'packages/main/src/index.ts']);
+  git(root, ['commit', '-m', 'seed']);
+  return { root, store: new StoryStore(root) };
+}
+
+function seedStory(store: StoryStore, storyId: string): void {
+  const story: StoryInfo = {
+    storyId,
+    name: storyId.toLowerCase(),
+    title: 'Authority status smoke story',
+    description: 'Temporary story used to verify authority status receipt facts.',
+    type: 'feature',
+    phase: 'DEV',
+    priority: 'medium',
+    createdAt: NOW,
+    startedAt: null,
+    endedAt: null,
+    events: [],
+  };
+  store.writeStory(storyId, story);
+  const checklist: ChecklistData = {
+    items: [{
+      id: 'CHK-001',
+      title: 'done',
+      status: 'done',
+      startTime: NOW,
+      endTime: NOW,
+    }],
+  };
+  store.writeChecklist(storyId, checklist);
+}
+
+function refFor(
+  root: string,
+  storyId: string,
+  overrides: Partial<AuthorityGateDecisionReceiptRef> = {},
+): AuthorityGateDecisionReceiptRef {
+  const headHash = currentGitHead(root);
+  const materialHash = currentMaterialHash(root);
+  assert.ok(headHash, 'smoke repo must have git HEAD');
+  assert.ok(materialHash, 'smoke repo must have material hash');
+  return {
+    receiptId: 'AR-STATUS',
+    receiptKind: 'gate_decision',
+    classification: 'production-gate-decision',
+    authorityUrl: 'https://authority.example',
+    authorityKeyId: 'server-key-1',
+    authorityPublicKeyDigest: 'sha256:key',
+    decisionId: 'GD-STATUS',
+    stateVersion: 7,
+    gateInputDigest: 'sha256:input',
+    decisionDigest: 'sha256:decision',
+    decisionVerdict: 'pass',
+    storyId,
+    targetPhase: 'TEST',
+    headHash,
+    materialHash,
+    policyMode: 'balanced',
+    authorityMode: 'enforce',
+    producerRunIds: ['run-producer-1'],
+    verifierRunIds: ['run-verifier-1'],
+    runnerSessionIds: ['session-1'],
+    evidenceDigests: ['sha256:evidence-1'],
+    verifiedAt: NOW,
+    verifiedBy: 'lattice authority receipt verify',
+    eligibleGates: ['TEST'],
+    status: 'active',
+    consumptionEvents: [],
+    ...overrides,
+  };
+}
 
 // ── Pure-function unit checks (in-process, no env crosstalk) ────────────────
 
@@ -242,6 +344,159 @@ const EMPTY_AUTHORITY_ENV: EnvOverride = {
     'env-complete enforce canClaimProductionDone still false',
   );
   assertNoProductionOverclaim(result, 'buildAuthorityStatus enforce-env-complete');
+}
+
+// Receipt-ref status facts are separate: verified / eligible / consumed are not
+// collapsed into productionDone.
+{
+  const { root, store } = makeRoot();
+  try {
+    const storyId = 'B-status';
+    seedStory(store, storyId);
+    const ref = refFor(root, storyId);
+    store.writeAuthorityReceiptRefs(storyId, upsertAuthorityGateReceiptRef(undefined, ref, NOW));
+    const env: EnvOverride = {
+      ...EMPTY_AUTHORITY_ENV,
+      LATTICE_AUTHORITY_MODE: 'enforce',
+      LATTICE_AUTHORITY_URL: 'https://authority.example',
+      LATTICE_AUTHORITY_CUSTOMER_API_KEY: 'customer-key-canary',
+      LATTICE_AUTHORITY_ACTOR_KEY: 'fake-key-blob',
+      LATTICE_AUTHORITY_RUNNER_ID: 'runner-1',
+    };
+    const verified = buildAuthorityStatus({
+      storyId,
+      targetPhase: 'TEST',
+      headHash: ref.headHash,
+      materialHash: ref.materialHash,
+      policyMode: 'balanced',
+      now: NOW,
+    }, env as Record<string, string | undefined>, { root, store });
+    assert.equal(verified.authorityReady, true, 'enforce env complete marks authorityReady');
+    assert.equal(verified.receiptVerified, true, 'production receipt ref is reported as verified');
+    assert.equal(verified.receiptEligible, true, 'matching context is reported as eligible');
+    assert.equal(verified.receiptConsumed, false, 'verified but unconsumed receipt stays unconsumed');
+    assert.equal(verified.productionDone, false, 'verified receipt does not claim productionDone');
+    assert.equal(verified.status, 'verified-receipt-eligible');
+
+    const consumedRef: AuthorityGateDecisionReceiptRef = {
+      ...ref,
+      consumptionEvents: [{
+        consumedAt: NOW,
+        targetPhase: 'TEST',
+        storyId,
+        headHash: ref.headHash,
+        materialHash: ref.materialHash,
+        decisionDigest: ref.decisionDigest!,
+      }],
+    };
+    store.writeAuthorityReceiptRefs(storyId, upsertAuthorityGateReceiptRef(undefined, consumedRef, NOW));
+    const consumed = buildAuthorityStatus({
+      storyId,
+      targetPhase: 'TEST',
+      headHash: ref.headHash,
+      materialHash: ref.materialHash,
+      policyMode: 'balanced',
+      now: NOW,
+    }, env as Record<string, string | undefined>, { root, store });
+    assert.equal(consumed.receiptVerified, true, 'consumed receipt remains verified');
+    assert.equal(consumed.receiptEligible, true, 'consumed receipt remains eligible');
+    assert.equal(consumed.receiptConsumed, true, 'matching consumption event is reported separately');
+    assert.equal(consumed.productionDone, false, 'consumed receipt still does not claim productionDone');
+    assert.equal(consumed.status, 'receipt-consumed-no-production-claim');
+    assertNoProductionOverclaim(consumed, 'buildAuthorityStatus consumed ref');
+
+    const mixedStoryId = 'B-mixed';
+    seedStory(store, mixedStoryId);
+    const mixedEligibleRef: AuthorityGateDecisionReceiptRef = {
+      ...refFor(root, mixedStoryId, { receiptId: 'AR-MIXED-TEST' }),
+      consumptionEvents: [{
+        consumedAt: NOW,
+        targetPhase: 'TEST',
+        storyId: mixedStoryId,
+        headHash: ref.headHash,
+        materialHash: ref.materialHash,
+        decisionDigest: 'sha256:decision',
+      }],
+    };
+    store.writeAuthorityReceiptRefs(mixedStoryId, upsertAuthorityGateReceiptRef(undefined, mixedEligibleRef, NOW));
+    const newerNonmatchingRef = refFor(root, mixedStoryId, {
+      receiptId: 'AR-MIXED-DONE',
+      targetPhase: 'DONE',
+      eligibleGates: ['DONE'],
+      verifiedAt: '2026-06-10T00:01:00.000Z',
+    });
+    store.writeAuthorityReceiptRefs(
+      mixedStoryId,
+      upsertAuthorityGateReceiptRef(store.readAuthorityReceiptRefs(mixedStoryId) ?? undefined, newerNonmatchingRef, newerNonmatchingRef.verifiedAt!),
+    );
+    const mixed = buildAuthorityStatus({
+      storyId: mixedStoryId,
+      targetPhase: 'TEST',
+      headHash: mixedEligibleRef.headHash,
+      materialHash: mixedEligibleRef.materialHash,
+      policyMode: 'balanced',
+      now: NOW,
+    }, env as Record<string, string | undefined>, { root, store });
+    assert.equal(mixed.receiptVerified, true, 'multi-ref document reports verified from the eligible production ref');
+    assert.equal(mixed.receiptEligible, true, 'multi-ref document reports eligibility from the eligible production ref');
+    assert.equal(mixed.receiptConsumed, true, 'multi-ref document reports consumption from the eligible production ref');
+    assert.equal(mixed.receiptStatus.latestReceiptId, 'AR-MIXED-DONE', 'raw latest ref remains visible');
+    assert.equal(mixed.receiptStatus.statusReceiptId, 'AR-MIXED-TEST', 'status facts name the ref that backs current context');
+    assert.equal(mixed.productionDone, false, 'multi-ref receipt status still cannot claim productionDone');
+    assertNoProductionOverclaim(mixed, 'buildAuthorityStatus mixed refs');
+
+    const diagnosticStoryId = 'B-local';
+    seedStory(store, diagnosticStoryId);
+    const localRef = refFor(root, diagnosticStoryId, {
+      receiptId: 'AR-LOCAL',
+      classification: 'server-receipt-local-test',
+    });
+    store.writeAuthorityReceiptRefs(diagnosticStoryId, upsertAuthorityGateReceiptRef(undefined, localRef, NOW));
+    const diagnostic = buildAuthorityStatus({
+      storyId: diagnosticStoryId,
+      targetPhase: 'TEST',
+      headHash: localRef.headHash,
+      materialHash: localRef.materialHash,
+      policyMode: 'balanced',
+      now: NOW,
+    }, env as Record<string, string | undefined>, { root, store });
+    assert.equal(diagnostic.receiptVerified, false, 'local diagnostic receipt is not production verified');
+    assert.equal(diagnostic.receiptEligible, false, 'local diagnostic receipt is not gate eligible');
+    assert.equal(diagnostic.receiptConsumed, false, 'local diagnostic receipt is not consumed');
+    assert.equal(diagnostic.productionDone, false, 'local diagnostic receipt cannot claim productionDone');
+    assertNoProductionOverclaim(diagnostic, 'buildAuthorityStatus local diagnostic ref');
+
+    const localMixedStoryId = 'B-mixed-local';
+    seedStory(store, localMixedStoryId);
+    const productionRef = refFor(root, localMixedStoryId, { receiptId: 'AR-PRODUCTION' });
+    const newerLocalRef = refFor(root, localMixedStoryId, {
+      receiptId: 'AR-LOCAL-LATER',
+      classification: 'server-receipt-local-test',
+      verifiedAt: '2026-06-10T00:01:00.000Z',
+    });
+    const mixedDocument = upsertAuthorityGateReceiptRef(
+      upsertAuthorityGateReceiptRef(undefined, productionRef, NOW),
+      newerLocalRef,
+      '2026-06-10T00:01:00.000Z',
+    );
+    store.writeAuthorityReceiptRefs(localMixedStoryId, mixedDocument);
+    const localMixed = buildAuthorityStatus({
+      storyId: localMixedStoryId,
+      targetPhase: 'TEST',
+      headHash: productionRef.headHash,
+      materialHash: productionRef.materialHash,
+      policyMode: 'balanced',
+      now: NOW,
+    }, env as Record<string, string | undefined>, { root, store });
+    assert.equal(localMixed.receiptVerified, true, 'newer local-test ref does not mask production verification');
+    assert.equal(localMixed.receiptEligible, true, 'eligible production ref is used for gate status');
+    assert.equal(localMixed.receiptConsumed, false, 'mixed verified ref is not consumed without event');
+    assert.equal(localMixed.productionDone, false, 'mixed receipt status still does not claim productionDone');
+    assert.equal(localMixed.receiptStatus.latestReceiptId, 'AR-LOCAL-LATER', 'latest diagnostic ref remains visible');
+    assert.equal(localMixed.receiptStatus.statusReceiptId, 'AR-PRODUCTION', 'status uses verified production ref');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 }
 
 // Enforce can resolve URL/customer/actor/runner/session from authority.md.

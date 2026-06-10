@@ -144,7 +144,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'draft_issue_resolve',
     'authority_enforce_policy', // B-ea92 M1: read-only authority policy discovery, no side-effects
     'authority_enforce_runner', // Lattice Authority control-plane runner; --live still avoids provider execution
-    'authority_receipt_verify', // Native Lattice Authority receipt verification; read-only local inputs
+    'authority_receipt_verify', // B-eca1 CHK-002: verifies production Authority gate_decision proof and writes authority-receipt-refs.json only after production classification
     'authority_receipt_fetch', 'authority_job_create', // Explicit Lattice Authority control-plane/artifact bridge; never mint native receipts
     'authority_verdict_submit', 'authority_verdict_list', 'authority_job_status', // Lattice Authority multi-host verdict/status surfaces; never mint native receipts
     'planner_*', 'story_resolve', // Natural-language planner and plannedStep context resolution surfaces

@@ -32,8 +32,15 @@ import type { ChecklistData, StoryPhase, ReviewLoopIteration } from '../core/typ
 import { listActiveLoops, deriveLatestLoopRecord } from '../core/review-loop.js';
 import { getStateName, getGuardFailureReason } from '../core/machine.js';
 import { resolveLocalCodexVerifyCommand } from '../core/codex-adapter-checks.js';
-import { currentMaterialHash } from '../core/evidence-freshness.js';
+import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 import { reportHealthIssue } from '../core/health.js';
+import { loadAuthoritySettings } from '../core/authority-mode.js';
+import {
+  DEFAULT_AUTHORITY_RECEIPT_MAX_VERIFIED_AGE_MS,
+  consumeAuthorityGateReceiptDocument,
+} from '../core/authority-gate-receipts.js';
+import { loadConfig } from '../core/config.js';
+import { resolveWorkflowPolicy } from '../core/workflow-policy.js';
 import { execSync } from 'child_process';
 import {
   buildDoneChecklist,
@@ -308,6 +315,101 @@ export function runPlanToDevScopeAdvice(ctx: HandlerContext, storyId: string): s
     `   Run before REVIEW: koala scope_contract_init_from_plan '{"storyId":"${storyId}"}'\n` +
     `   Advancing to REVIEW without a scope contract will BLOCK for this new-scope story.`
   );
+}
+
+function renderAuthorityReceiptGateLine(args: {
+  status: 'PASS' | 'BLOCKED' | 'WARN';
+  mode: string;
+  storyId: string;
+  targetPhase: string;
+  reason?: string;
+  receiptId?: string;
+}): string {
+  const label = args.targetPhase === 'DONE' ? 'Authority DONE gate' : 'Authority gate consumption';
+  const base = `${label}: ${args.status} strongEvidenceConsumed=${args.status === 'PASS' ? 'true' : 'false'} story=${args.storyId} gate=${args.targetPhase}`;
+  const receipt = args.receiptId ? ` receiptId=${args.receiptId}` : '';
+  const reason = args.reason ? ` reason=${args.reason}` : '';
+  return `${base}${receipt} mode=${args.mode}${reason}`;
+}
+
+/**
+ * TEST/DONE Authority receipt consumption gate.
+ *
+ * off    — no-op, preserving local default behavior.
+ * shadow — visible diagnostics, never blocks or writes strongEvidenceConsumed.
+ * enforce — consumes a verified production gate_decision ref or blocks.
+ */
+export function runAuthorityReceiptTransitionGate(
+  ctx: HandlerContext,
+  storyId: string,
+  targetPhase: Extract<StoryPhase, 'TEST' | 'DONE'>,
+): string {
+  const settings = ctx.authoritySettings ?? loadAuthoritySettings(process.env);
+  if (settings.mode === 'off') return '';
+  const headHash = currentGitHead(ctx.root);
+  const materialHash = currentMaterialHash(ctx.root);
+  if (!headHash || !materialHash) {
+    const reason = !headHash ? 'authority_receipt_head_mismatch' : 'authority_receipt_stale_material';
+    const line = renderAuthorityReceiptGateLine({
+      status: settings.mode === 'enforce' ? 'BLOCKED' : 'WARN',
+      mode: settings.mode,
+      storyId,
+      targetPhase,
+      reason,
+    });
+    if (settings.mode === 'enforce') {
+      throw new Error(`Cannot enter ${targetPhase}: ${line}`);
+    }
+    return `\n\n${line}`;
+  }
+  const story = ctx.store.readStory(storyId);
+  const policy = resolveWorkflowPolicy(loadConfig(ctx.root), story);
+  const consumedAt = new Date().toISOString();
+  const consumed = consumeAuthorityGateReceiptDocument(
+    ctx.store.readAuthorityReceiptRefs(storyId) ?? undefined,
+    {
+      storyId,
+      targetPhase,
+      headHash,
+      materialHash,
+      now: consumedAt,
+      maxVerifiedAgeMs: DEFAULT_AUTHORITY_RECEIPT_MAX_VERIFIED_AGE_MS,
+      acceptablePolicyModes: [policy.profile],
+      acceptableAuthorityModes: ['enforce'],
+    },
+    consumedAt,
+  );
+  if (settings.mode === 'shadow') {
+    return `\n\n${renderAuthorityReceiptGateLine({
+      status: 'WARN',
+      mode: settings.mode,
+      storyId,
+      targetPhase,
+      receiptId: consumed.ref?.receiptId,
+      reason: consumed.consumed ? 'shadow_mode_no_strong_evidence' : consumed.reason,
+    })}`;
+  }
+  if (!consumed.consumed || !consumed.document) {
+    throw new Error(
+      `Cannot enter ${targetPhase}: ${renderAuthorityReceiptGateLine({
+        status: 'BLOCKED',
+        mode: settings.mode,
+        storyId,
+        targetPhase,
+        receiptId: consumed.ref?.receiptId,
+        reason: consumed.reason,
+      })}\n\n` +
+      `→ Run authority_receipt_verify with a production gate_decision proof for story=${storyId} gate=${targetPhase}, then retry story_advance --phase=${targetPhase}.`,
+    );
+  }
+  ctx.store.writeAuthorityReceiptRefs(storyId, consumed.document);
+  return `\n\n${renderAuthorityReceiptGateLine({
+    status: 'PASS',
+    mode: settings.mode,
+    storyId,
+    targetPhase,
+    receiptId: consumed.ref?.receiptId,
+  })}`;
 }
 
 /**

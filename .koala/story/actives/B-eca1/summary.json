@@ -1,0 +1,56 @@
+{
+  "storyId": "B-eca1",
+  "changes": "Implemented the Authority-backed Layer 2 proof bridge path: production gate_decision receipt refs are verified/written, TEST/DONE gate consumption now enforces freshness, authority_status reports verified/eligible/consumed receipt status without claiming productionDone, and the execution plan documents proof boundaries.",
+  "usage": "Use authority_receipt_verify with a production Authority gate_decision proof for a story and phase, then run lattice validate and story_advance through TEST/DONE; use authority_status to inspect receiptVerified/receiptEligible/receiptConsumed without treating the CLI as production authority.",
+  "expectedOutcome": "Expected: stale or mismatched Authority receipt refs cannot unlock lifecycle gates; local diagnostic receipts and host transcripts cannot become formal proof; Layer 2 Engineering proof remains separate from Loop/Production/Capability claims.",
+  "actualTranscript": "Actual: npm build passed; authority receipt proof, gate receipts, gate consumption, status, boundary, and enforce matrix smoke tests passed; Claude CLI and Codex CLI post-fix reviews both returned PASS; lattice validate --story=B-eca1 --json passed with 21/21 verification intents covered.",
+  "outcomeDiff": "No expected-vs-actual difference for this story scope; full process-fact contract still has pre-existing autopilot/release_approve_push drift unrelated to the Authority receipt path.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Authority receipt freshness is enforced as a local proof-verification freshness window; current server stateVersion checking remains conditional on a known server state version, as designed by the receipt contract.",
+  "pitfalls": "Important pitfall: review_run_start outputs full ids like B-eca1:RR-007; using only RR-007 makes review_pass_set fail with unknown reviewRunId. Also refresh stale verification evidence after code commits before re-running REVIEW passes.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 311399
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 35068
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 1092814
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 6583180
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 1300593
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 117736
+    }
+  },
+  "totalDurationMs": 9440798,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-10T18:00:01.081Z",
+  "updatedAt": "2026-06-10T18:00:01.081Z"
+}
