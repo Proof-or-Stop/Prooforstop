@@ -67,7 +67,41 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "A developer can run an Engineering baseline command and inspect `.omx/artifacts/baseline/engineering/.../final-report.json` plus an engineering suite report with PASS or expected gated outcome."
+      "userSees": "A developer can run an Engineering baseline command and inspect `.omx/artifacts/baseline/engineering/.../final-report.json` plus an engineering suite report with PASS or expected gated outcome.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-baseline.ts",
+          "packages/main/src/handlers/lattice-baseline.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lattice-baseline-smoke.ts",
+          "packages/main/package.json"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Running an Engineering baseline such as `ENG-BUGFIX-1` writes an engineering final-report JSON with expected PASS, scope/regression/evidence fields, and local authority boundary fields false.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "High-risk Engineering baselines such as `ENG-DATA-MIGRATION-1` and `ENG-AUTH-SECURITY-1` produce EXPECTED_BLOCK or require explicit gate evidence, not ungated PASS.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Missing scope/regression evidence, changed files outside contract, or stale output prevents Engineering suite PASS and records a specific blocked reason.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
