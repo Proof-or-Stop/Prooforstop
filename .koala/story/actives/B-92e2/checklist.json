@@ -256,9 +256,9 @@
         "docs/requirements/decisions/authority-client-role.md",
         "Lattice-Parallel-Development-Capability.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-10T02:15:01.803Z",
       "userSees": "`node bin/lattice.js baseline_run --baselineId=AUTH-RECEIPT-1 --format=json` prints `\"outcome\":\"EXPECTED_BLOCK\"`, `\"receiptVerified\":false`, and `\"productionDone\":false` when no verified Authority receipt exists.",
       "files": {
         "modify": [
@@ -293,7 +293,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js baseline_run --baselineId=AUTH-RECEIPT-1 --format=json",
+          "result": "pass",
+          "note": "Production Safety runner emits AUTH-RECEIPT-1 report sections and blocked reasons when no verified receipt exists.",
+          "headHash": "fcb9c31d371d2314e120dfbc312d746d8d6a17de",
+          "materialHash": "ecfbe252e6f34e4d0e38ec214fad1ad721ef323e1602d2167f6d45c7d337d4a5",
+          "timestamp": "2026-06-10T02:15:01.843Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js baseline_run --baselineId=AUTH-RECEIPT-1 --format=json",
+          "result": "pass",
+          "note": "AUTH-RECEIPT-1 local/off output and final report keep receiptVerified=false, productionDone=false, fullAuthorityDone=false, and receiptRefs empty.",
+          "headHash": "fcb9c31d371d2314e120dfbc312d746d8d6a17de",
+          "materialHash": "ecfbe252e6f34e4d0e38ec214fad1ad721ef323e1602d2167f6d45c7d337d4a5",
+          "timestamp": "2026-06-10T02:15:01.869Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke verifies missing receipt, stale/forged authority artifacts, and local authority substitution block without flipping authority fields true.",
+          "headHash": "fcb9c31d371d2314e120dfbc312d746d8d6a17de",
+          "materialHash": "ecfbe252e6f34e4d0e38ec214fad1ad721ef323e1602d2167f6d45c7d337d4a5",
+          "timestamp": "2026-06-10T02:15:01.894Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
