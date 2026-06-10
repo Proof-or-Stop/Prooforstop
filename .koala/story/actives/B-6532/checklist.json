@@ -476,9 +476,9 @@
         "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
         "docs/requirements/decisions/lattice-authority-receipt-contract.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-10T23:35:25.325Z",
-      "endTime": null,
+      "endTime": "2026-06-10T23:36:55.349Z",
       "userSees": "Terminal output lists each adversarial trap as blocked/locked, including forged suite summary, missing host review, wrong host JSON, reused review artifact, missing lifecycle gate ref, missing receipt evidenceDigest, stale materialHash, and local-only proof.",
       "files": {
         "modify": [
@@ -511,7 +511,39 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Baseline smoke passed after proof artifact commit and covers required fail-closed traps including forged suite summary, missing/wrong/reused host review artifacts, missing lifecycle refs, missing receipt evidenceDigest, stale materialHash, and local-only diagnostic artifacts.",
+          "headHash": "1106619e4c3dde1506437e0915e3899c494cf3a3",
+          "materialHash": "f7ac7a18d8034bf4e77c88f6b544dccd0e308ca24d7ea791d4c9819900405421",
+          "timestamp": "2026-06-10T23:36:55.408Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "manual_transcript",
+          "command": "cat .lattice/artifacts/baseline/layer2-engineering-unlock/fail-closed-traps/summary.json",
+          "result": "pass",
+          "note": "Fail-closed trap summary records both suite-level and claim-level lock behavior for 8 traps under the .lattice proof root.",
+          "headHash": "1106619e4c3dde1506437e0915e3899c494cf3a3",
+          "materialHash": "f7ac7a18d8034bf4e77c88f6b544dccd0e308ca24d7ea791d4c9819900405421",
+          "timestamp": "2026-06-10T23:36:55.454Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "logic_test",
+          "command": "node summary-json-check for fail-closed-traps/summary.json",
+          "result": "pass",
+          "note": "No recorded trap permits authorized=true or forged suite PASS; all 8 traps are explicitly expected to BLOCK, LOCK, or STALE.",
+          "headHash": "1106619e4c3dde1506437e0915e3899c494cf3a3",
+          "materialHash": "f7ac7a18d8034bf4e77c88f6b544dccd0e308ca24d7ea791d4c9819900405421",
+          "timestamp": "2026-06-10T23:36:55.500Z"
+        }
+      ]
     },
     {
       "id": "CHK-008",
