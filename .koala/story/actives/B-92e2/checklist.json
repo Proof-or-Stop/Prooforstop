@@ -163,7 +163,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "A developer can run Production Safety baseline scenarios and see SAFE/AUTH/PROD reports fail closed when receipts, authority, or soak evidence are missing.",
+      "userSees": "`node bin/lattice.js baseline_run --baselineId=AUTH-RECEIPT-1 --format=json` prints `\"outcome\":\"EXPECTED_BLOCK\"`, `\"receiptVerified\":false`, and `\"productionDone\":false` when no verified Authority receipt exists.",
       "files": {
         "modify": [
           "packages/main/src/core/lattice-baseline.ts",
