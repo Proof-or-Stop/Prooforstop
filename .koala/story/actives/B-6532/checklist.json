@@ -148,7 +148,41 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Terminal output shows 9 Engineering final-report.json files accepted by the formal suite builder, each with formalProof=true, localOnly=false, capabilityProof=true, and no falseDone.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-baseline.ts",
+          "packages/main/src/tasks/lattice-baseline-smoke.ts"
+        ],
+        "create": [
+          ".lattice/artifacts/baseline/layer2-engineering-unlock/engineering/**/final-report.json",
+          ".lattice/artifacts/baseline/layer2-engineering-unlock/engineering/**/final-report.md"
+        ],
+        "test": [
+          "packages/main/src/tasks/lattice-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "All nine required ENG baseline IDs have formal final reports with valid digest-backed verification, lifecycle, review, and receipt refs.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Risk-sensitive ENG-DATA-MIGRATION-1 and ENG-AUTH-SECURITY-1 use only definition-supported PASS or EXPECTED_BLOCK semantics with required gate/refusal evidence.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A final report with reused host review artifact, missing lifecycle ref, or missing receipt evidenceDigest is rejected by the suite builder.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
