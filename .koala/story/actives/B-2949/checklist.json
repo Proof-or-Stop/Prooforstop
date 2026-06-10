@@ -9,10 +9,37 @@
         "Lattice-Engineering-baseline.md",
         "Lattice-Parallel-Development-Capability.md"
       ],
-      "userSees": "The execution document explains the Layer 2 unlock boundary and prevents overclaiming.",
+      "userSees": "The document contains the sentence: \"Layer 2 Engineering Baseline is unlocked only by fresh, evidence-backed Engineering suite PASS.\" It also lists forbidden claims for arbitrary projects, Loop Engineering, Production Safety, and production-grade unattended development.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The edited document states the allowed Engineering claim and the forbidden higher-layer claims in concrete wording.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The document distinguishes implementation readiness, local smoke output, audit-only host transcripts, and formal capability proof.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The document does not imply arbitrary project development, production safety, Authority receipt proof, or unattended development from Layer 2 evidence.",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
