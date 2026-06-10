@@ -2,8 +2,8 @@
   "schemaVersion": "lattice.baseline.suite-report.v1",
   "suiteId": "minimum-baseline-suite",
   "generatedAt": "2026-06-09T23:07:12.290Z",
-  "root": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-688d",
-  "outputDir": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-688d/.omx/artifacts/baseline/B-688d",
+  "root": ".",
+  "outputDir": ".omx/artifacts/baseline/B-688d",
   "suiteStatus": "FAIL",
   "maturityStage": "Failed",
   "counts": {
@@ -62,64 +62,64 @@
   "falseDone": [],
   "blockingFailures": [
     {
-      "path": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-688d/.omx/artifacts/baseline/B-688d/development/NL-API-1/run-20260609-230656400/final-report.json",
+      "path": ".omx/artifacts/baseline/B-688d/development/NL-API-1/run-20260609-230656400/final-report.json",
       "baselineId": "NL-API-1",
       "runId": "run-20260609-230656400",
       "expectedOutcome": "PASS",
       "outcome": "FAIL",
       "reasons": [
-        "baseline terminal criteria were not satisfied",
+        "local independent review evidence is missing",
         "blockedReason=local independent review evidence is missing"
       ]
     },
     {
-      "path": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-688d/.omx/artifacts/baseline/B-688d/development/NL-CLI-1/run-20260609-230655417/final-report.json",
+      "path": ".omx/artifacts/baseline/B-688d/development/NL-CLI-1/run-20260609-230655417/final-report.json",
       "baselineId": "NL-CLI-1",
       "runId": "run-20260609-230655417",
       "expectedOutcome": "PASS",
       "outcome": "FAIL",
       "reasons": [
-        "baseline terminal criteria were not satisfied",
+        "local independent review evidence is missing",
         "blockedReason=local independent review evidence is missing"
       ]
     },
     {
-      "path": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-688d/.omx/artifacts/baseline/B-688d/development/NL-REPAIR-1/run-20260609-230656891/final-report.json",
+      "path": ".omx/artifacts/baseline/B-688d/development/NL-REPAIR-1/run-20260609-230656891/final-report.json",
       "baselineId": "NL-REPAIR-1",
       "runId": "run-20260609-230656891",
       "expectedOutcome": "PASS",
       "outcome": "FAIL",
       "reasons": [
-        "baseline terminal criteria were not satisfied",
+        "local independent review evidence is missing",
         "blockedReason=local independent review evidence is missing"
       ]
     },
     {
-      "path": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-688d/.omx/artifacts/baseline/B-688d/development/RED-API-TS-GO-1/run-20260609-230703513/final-report.json",
+      "path": ".omx/artifacts/baseline/B-688d/development/RED-API-TS-GO-1/run-20260609-230703513/final-report.json",
       "baselineId": "RED-API-TS-GO-1",
       "runId": "run-20260609-230703513",
       "expectedOutcome": "PASS",
       "outcome": "FAIL",
       "reasons": [
-        "baseline terminal criteria were not satisfied",
+        "local independent review evidence is missing",
         "blockedReason=local independent review evidence is missing"
       ]
     },
     {
-      "path": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-688d/.omx/artifacts/baseline/B-688d/development/RED-CLI-TS-PY-1/run-20260609-230702593/final-report.json",
+      "path": ".omx/artifacts/baseline/B-688d/development/RED-CLI-TS-PY-1/run-20260609-230702593/final-report.json",
       "baselineId": "RED-CLI-TS-PY-1",
       "runId": "run-20260609-230702593",
       "expectedOutcome": "PASS",
       "outcome": "FAIL",
       "reasons": [
-        "baseline terminal criteria were not satisfied",
+        "local independent review evidence is missing",
         "blockedReason=local independent review evidence is missing"
       ]
     }
   ],
   "runs": [
     {
-      "path": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-688d/.omx/artifacts/baseline/B-688d/development/NL-API-1/run-20260609-230656400/final-report.json",
+      "path": ".omx/artifacts/baseline/B-688d/development/NL-API-1/run-20260609-230656400/final-report.json",
       "baselineId": "NL-API-1",
       "runId": "run-20260609-230656400",
       "track": "natural-language",
@@ -176,7 +176,7 @@
       },
       "invalidReason": null,
       "blockedReason": "local independent review evidence is missing",
-      "failureSummary": "baseline terminal criteria were not satisfied",
+      "failureSummary": "local independent review evidence is missing",
       "valid": true,
       "excluded": false,
       "excludedReason": null,
@@ -187,7 +187,7 @@
       "falseDoneReasons": []
     },
     {
-      "path": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-688d/.omx/artifacts/baseline/B-688d/development/NL-CLI-1/run-20260609-230655417/final-report.json",
+      "path": ".omx/artifacts/baseline/B-688d/development/NL-CLI-1/run-20260609-230655417/final-report.json",
       "baselineId": "NL-CLI-1",
       "runId": "run-20260609-230655417",
       "track": "natural-language",
@@ -244,7 +244,7 @@
       },
       "invalidReason": null,
       "blockedReason": "local independent review evidence is missing",
-      "failureSummary": "baseline terminal criteria were not satisfied",
+      "failureSummary": "local independent review evidence is missing",
       "valid": true,
       "excluded": false,
       "excludedReason": null,
@@ -255,7 +255,7 @@
       "falseDoneReasons": []
     },
     {
-      "path": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-688d/.omx/artifacts/baseline/B-688d/development/NL-REPAIR-1/run-20260609-230656891/final-report.json",
+      "path": ".omx/artifacts/baseline/B-688d/development/NL-REPAIR-1/run-20260609-230656891/final-report.json",
       "baselineId": "NL-REPAIR-1",
       "runId": "run-20260609-230656891",
       "track": "natural-language",
@@ -312,7 +312,7 @@
       },
       "invalidReason": null,
       "blockedReason": "local independent review evidence is missing",
-      "failureSummary": "baseline terminal criteria were not satisfied",
+      "failureSummary": "local independent review evidence is missing",
       "valid": true,
       "excluded": false,
       "excludedReason": null,
@@ -323,7 +323,7 @@
       "falseDoneReasons": []
     },
     {
-      "path": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-688d/.omx/artifacts/baseline/B-688d/development/RED-API-TS-GO-1/run-20260609-230703513/final-report.json",
+      "path": ".omx/artifacts/baseline/B-688d/development/RED-API-TS-GO-1/run-20260609-230703513/final-report.json",
       "baselineId": "RED-API-TS-GO-1",
       "runId": "run-20260609-230703513",
       "track": "redevelopment",
@@ -380,7 +380,7 @@
       },
       "invalidReason": null,
       "blockedReason": "local independent review evidence is missing",
-      "failureSummary": "baseline terminal criteria were not satisfied",
+      "failureSummary": "local independent review evidence is missing",
       "valid": true,
       "excluded": false,
       "excludedReason": null,
@@ -391,7 +391,7 @@
       "falseDoneReasons": []
     },
     {
-      "path": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-688d/.omx/artifacts/baseline/B-688d/development/RED-CLI-TS-PY-1/run-20260609-230702593/final-report.json",
+      "path": ".omx/artifacts/baseline/B-688d/development/RED-CLI-TS-PY-1/run-20260609-230702593/final-report.json",
       "baselineId": "RED-CLI-TS-PY-1",
       "runId": "run-20260609-230702593",
       "track": "redevelopment",
@@ -448,7 +448,7 @@
       },
       "invalidReason": null,
       "blockedReason": "local independent review evidence is missing",
-      "failureSummary": "baseline terminal criteria were not satisfied",
+      "failureSummary": "local independent review evidence is missing",
       "valid": true,
       "excluded": false,
       "excludedReason": null,
@@ -459,7 +459,7 @@
       "falseDoneReasons": []
     },
     {
-      "path": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-688d/.omx/artifacts/baseline/B-688d/development/RED-GAP-BLOCK-1/run-20260609-230704678/final-report.json",
+      "path": ".omx/artifacts/baseline/B-688d/development/RED-GAP-BLOCK-1/run-20260609-230704678/final-report.json",
       "baselineId": "RED-GAP-BLOCK-1",
       "runId": "run-20260609-230704678",
       "track": "redevelopment-safety",
@@ -528,7 +528,7 @@
     }
   ],
   "writtenFiles": {
-    "json": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-688d/.omx/artifacts/baseline/B-688d/baseline-suite-report.json",
-    "markdown": "/Users/jek/Documents/Work/Orchestrate/.worktrees/B-688d/.omx/artifacts/baseline/B-688d/baseline-suite-report.md"
+    "json": ".omx/artifacts/baseline/B-688d/baseline-suite-report.json",
+    "markdown": ".omx/artifacts/baseline/B-688d/baseline-suite-report.md"
   }
 }

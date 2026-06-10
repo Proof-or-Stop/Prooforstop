@@ -1,0 +1,26 @@
+{
+  "task": "修正 B-688d 合并后 artifact 证据链矛盾",
+  "outcome": "用户看到多 host 审查后的最终报告：B-688d artifacts 的时间戳、路径、failureSummary 和 evidence hash 已一致；GO-NOT-YET 与 authorityMode=off 保持不变；验证输出显示无 artifact provenance contradiction。",
+  "facts": [
+    "B-688d 已 DONE 并合并到 main，审计包位于 .omx/artifacts/parallel-development/B-688d 与 .omx/artifacts/baseline/B-688d。",
+    "多 host review 中 Claude concept/docs PASS，Codex coverage PASS，Codex quality 发现 provenance 时间戳倒挂与 terminal failure 语义矛盾。",
+    "本地机械复核还发现 baseline-suite-report.json 的 root/outputDir/path/writtenFiles 仍引用已清理的 .worktrees/B-688d。",
+    "原始语义必须保留：decision=GO-NOT-YET，authorityMode=off，evidenceClass=local-lifecycle，2 host/8 lane/4 lock。"
+  ],
+  "constraints": [
+    "不为了优化而优化，不任意优化，只修真实 correctness issue，保持逻辑一致性。",
+    "不得直接读写 docs/story 或 tests/fixtures。",
+    "不得把本地 evidence 升级成 receipt-backed authority 或 productionDone。",
+    "不修改 baseline runner 代码；本 story 只修已合并的审计 artifact 证据链。"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    ".omx/artifacts/baseline/B-688d/baseline-suite-report.json",
+    ".omx/artifacts/baseline/B-688d/baseline-suite-report.md",
+    ".omx/artifacts/baseline/B-688d/development/*/*/final-report.json",
+    ".omx/artifacts/baseline/B-688d/development/*/*/final-report.md",
+    ".omx/artifacts/parallel-development/B-688d/*.json",
+    ".omx/artifacts/parallel-development/B-688d/final-report.md"
+  ],
+  "timestamp": "2026-06-10T00:17:14.623Z"
+}

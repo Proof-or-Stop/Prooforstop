@@ -29,20 +29,20 @@ Missing IDs: none
 
 ## Blocking Failures
 
-- NL-API-1/run-20260609-230656400: expected PASS, got FAIL; baseline terminal criteria were not satisfied; blockedReason=local independent review evidence is missing
-- NL-CLI-1/run-20260609-230655417: expected PASS, got FAIL; baseline terminal criteria were not satisfied; blockedReason=local independent review evidence is missing
-- NL-REPAIR-1/run-20260609-230656891: expected PASS, got FAIL; baseline terminal criteria were not satisfied; blockedReason=local independent review evidence is missing
-- RED-API-TS-GO-1/run-20260609-230703513: expected PASS, got FAIL; baseline terminal criteria were not satisfied; blockedReason=local independent review evidence is missing
-- RED-CLI-TS-PY-1/run-20260609-230702593: expected PASS, got FAIL; baseline terminal criteria were not satisfied; blockedReason=local independent review evidence is missing
+- NL-API-1/run-20260609-230656400: expected PASS, got FAIL; local independent review evidence is missing; blockedReason=local independent review evidence is missing
+- NL-CLI-1/run-20260609-230655417: expected PASS, got FAIL; local independent review evidence is missing; blockedReason=local independent review evidence is missing
+- NL-REPAIR-1/run-20260609-230656891: expected PASS, got FAIL; local independent review evidence is missing; blockedReason=local independent review evidence is missing
+- RED-API-TS-GO-1/run-20260609-230703513: expected PASS, got FAIL; local independent review evidence is missing; blockedReason=local independent review evidence is missing
+- RED-CLI-TS-PY-1/run-20260609-230702593: expected PASS, got FAIL; local independent review evidence is missing; blockedReason=local independent review evidence is missing
 
 ## Runs
 
 | Baseline | Run | Expected | Outcome | Weight | Success | Notes |
 |---|---|---|---|---:|---|---|
-| NL-API-1 | run-20260609-230656400 | PASS | FAIL | 2 | false | baseline terminal criteria were not satisfied |
-| NL-CLI-1 | run-20260609-230655417 | PASS | FAIL | 1 | false | baseline terminal criteria were not satisfied |
-| NL-REPAIR-1 | run-20260609-230656891 | PASS | FAIL | 3 | false | baseline terminal criteria were not satisfied |
-| RED-API-TS-GO-1 | run-20260609-230703513 | PASS | FAIL | 4 | false | baseline terminal criteria were not satisfied |
-| RED-CLI-TS-PY-1 | run-20260609-230702593 | PASS | FAIL | 4 | false | baseline terminal criteria were not satisfied |
+| NL-API-1 | run-20260609-230656400 | PASS | FAIL | 2 | false | local independent review evidence is missing |
+| NL-CLI-1 | run-20260609-230655417 | PASS | FAIL | 1 | false | local independent review evidence is missing |
+| NL-REPAIR-1 | run-20260609-230656891 | PASS | FAIL | 3 | false | local independent review evidence is missing |
+| RED-API-TS-GO-1 | run-20260609-230703513 | PASS | FAIL | 4 | false | local independent review evidence is missing |
+| RED-CLI-TS-PY-1 | run-20260609-230702593 | PASS | FAIL | 4 | false | local independent review evidence is missing |
 | RED-GAP-BLOCK-1 | run-20260609-230704678 | EXPECTED_BLOCK | EXPECTED_BLOCK | 4 | true | - |
 

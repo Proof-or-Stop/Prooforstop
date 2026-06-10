@@ -1,0 +1,67 @@
+{
+  "principles": [
+    "Only repair evidence-chain contradictions that reviewers confirmed as real correctness issues.",
+    "Preserve B-688d capability conclusions and authority boundaries exactly.",
+    "Prefer deterministic artifact normalization and hash refresh over redesigning runner behavior."
+  ],
+  "drivers": [
+    "Reviewer-visible provenance must be internally coherent after merge.",
+    "Local artifacts must not reference deleted worktree paths.",
+    "Failure text must not contradict structured terminalCriteria fields."
+  ],
+  "options": [
+    {
+      "name": "A: Patch merged artifacts narrowly and refresh hashes",
+      "pros": [
+        "Directly fixes the evidence-chain contradictions",
+        "Preserves existing decision and authority semantics",
+        "Smallest change surface"
+      ],
+      "cons": [
+        "Does not fix the upstream baseline_suite_report generator that produced the wording"
+      ]
+    },
+    {
+      "name": "B: Change baseline runner generator",
+      "pros": [
+        "Could prevent recurrence for future reports"
+      ],
+      "cons": [
+        "Out of scope for a merged artifact correction",
+        "Higher blast radius and not needed to fix the current user-visible contradiction"
+      ]
+    },
+    {
+      "name": "C: Record findings only without fixing artifacts",
+      "pros": [
+        "No file changes"
+      ],
+      "cons": [
+        "Leaves known incorrect provenance in committed artifacts"
+      ]
+    }
+  ],
+  "chosen": "A: Patch merged artifacts narrowly and refresh hashes",
+  "rationale": "Choose the smallest correction that makes the committed evidence chain true without changing capability claims or implementing unrelated generator work.",
+  "preMortem": [
+    {
+      "scenario": "Hash refresh misses a dependent artifact",
+      "trigger": "shared-contract evidenceRefs still point to old SHA values",
+      "consequence": "Future reviewers see false provenance",
+      "mitigation": "Run a Node consistency check that recomputes every referenced SHA."
+    },
+    {
+      "scenario": "Fix accidentally changes B-688d decision",
+      "trigger": "edited final-report or suite counters drift from GO-NOT-YET",
+      "consequence": "Review appears to unlock capability incorrectly",
+      "mitigation": "Assert decision, suiteStatus, locks, and authority fields in verification."
+    },
+    {
+      "scenario": "Path normalization removes useful traceability",
+      "trigger": "all run paths are collapsed too aggressively",
+      "consequence": "Reviewers cannot locate baseline run files",
+      "mitigation": "Convert deleted worktree absolute paths to current repo-relative artifact paths."
+    }
+  ],
+  "timestamp": "2026-06-10T00:17:28.510Z"
+}

@@ -1,0 +1,52 @@
+{
+  "storyId": "B-0a80",
+  "checkedAt": "2026-06-10T00:20:38.408Z",
+  "features": [
+    {
+      "feature": "CHK-001: Provenance timestamp ordering and worktree path normalization for B-688d artifacts",
+      "covered_by": "plan.md CHK-001 + understanding.json touchpoints targeting .omx/artifacts/baseline/B-688d and .omx/artifacts/parallel-development/B-688d",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist CHK-001 + plan.md CHK-001"
+    },
+    {
+      "feature": "CHK-002: Baseline failure semantic contradiction (terminalCriteriaSatisfied=true vs failure wording)",
+      "covered_by": "plan.md CHK-002 + checklist CHK-002 verificationIntent edge: no contradictory terminal criteria wording when structured fields say criteria passed",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist CHK-002 + plan.md CHK-002"
+    },
+    {
+      "feature": "CHK-003: Evidence hash refresh and authority/host-neutral regression guard",
+      "covered_by": "plan.md CHK-003 + checklist CHK-003 verificationIntent: GO-NOT-YET, authorityMode=off, evidenceClass=local-lifecycle, 2 hosts, 8 lanes, 4 locks unchanged",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist CHK-003 + plan.md CHK-003"
+    },
+    {
+      "feature": "No baseline runner code changes",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding.json constraints: do not modify baseline runner code; decision.json option B explicitly rejected; plan.md guardrails line 9",
+      "source": "understanding.json + decision.json + plan.md"
+    },
+    {
+      "feature": "No authority unlock or evidence upgrade",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding.json constraints: do not upgrade local evidence to receipt-backed authority; CHK-003 adversarial intent rejects GO-NOT-YET to GO or local-lifecycle to receipt-backed",
+      "source": "understanding.json + checklist CHK-003"
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "covered": 3,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "149dc2c7f8fdee74b90776aa804dcd7718c43cff86d6a663760d7ca0aae7fcd0",
+  "openQuestions": []
+}

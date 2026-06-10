@@ -4,4 +4,4 @@ Outcome: FAIL
 Expected: PASS
 Authority mode: non-authority
 False DONE: no
-Failure: terminal_criteria_not_met - baseline terminal criteria were not satisfied
+Failure: local_review_evidence_missing - local independent review evidence is missing

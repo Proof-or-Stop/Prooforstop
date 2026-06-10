@@ -1,0 +1,85 @@
+{
+  "passes": [
+    {
+      "id": "B-0a80:RP-001",
+      "agent": "koala-review-docs",
+      "note": "All artifact changes verified: (1) evidence hashes all match current files, (2) no remaining .worktrees/B-688d paths in data artifacts, (3) failure semantics corrected from contradictory terminal_criteria_not_met to accurate local_review_evidence_missing with JSON/MD consistency, (4) GO-NOT-YET/authorityMode=off/evidenceClass=local-lifecycle/suiteStatus=FAIL invariants preserved, (5) no Baseline 2-5 implementation.",
+      "createdAt": "2026-06-10T00:31:07.537Z",
+      "reviewRound": "2026-06-10T00:28:46.818Z",
+      "reviewRunId": "B-0a80:RR-005",
+      "_hash": "e69990147c1df944de338f5e0a22af8c3a0a9b2c5176810f51bc0a4895353fbf"
+    },
+    {
+      "id": "B-0a80:RP-002",
+      "agent": "koala-review-test-coverage",
+      "note": "All 9 must verification intents (CHK-001/002/003 x happy/edge/adversarial) have evidence with matching mechanical checks: timestamps ordered correctly, zero .worktrees/B-688d path remnants (rg), no contradictory terminal-criteria text (rg), all 10 evidenceRefs SHA256 hashes verified against current files, authority invariants (GO-NOT-YET, authorityMode=off, evidenceClass=local-lifecycle, 2 hosts, 8 lanes, 4 locks) confirmed unchanged.",
+      "createdAt": "2026-06-10T00:31:51.232Z",
+      "reviewRound": "2026-06-10T00:28:46.818Z",
+      "reviewRunId": "B-0a80:RR-007",
+      "_hash": "c6f519bb24dd8469d83e8aedce286405d948b3c5934266fe9648aa13e68893cb"
+    },
+    {
+      "id": "B-0a80:RP-003",
+      "agent": "koala-review-concept",
+      "note": "All 12 invariants verified mechanically: GO-NOT-YET preserved, authorityMode=off across 5 artifacts, evidenceClass=local-lifecycle across 5 artifacts, 2 hosts/8 lanes/4 locks unchanged, no formal proof claimed, zero .worktrees/B-688d paths in repaired artifacts, all 10 evidenceRefs SHA256 match current files, materialHash=baseline-suite-report hash, timestamp ordering valid (shared-contract >= baseline-suite-report), failure.code normalized to local_review_evidence_missing consistently across 5 runs, suiteStatus remains FAIL. No conceptual correctness issues.",
+      "createdAt": "2026-06-10T00:31:54.744Z",
+      "reviewRound": "2026-06-10T00:28:46.818Z",
+      "reviewRunId": "B-0a80:RR-003",
+      "_hash": "62d5a694f54397886a7e2dd16fbfc298367a5a6faad2cfadd26a66a13d5ef541"
+    },
+    {
+      "id": "B-0a80:RP-004",
+      "agent": "koala-review-quality",
+      "note": "Quality review pass. All changes scoped to B-688d .omx artifacts only, zero source/runner changes. Contradictory terminal_criteria_not_met replaced with accurate local_review_evidence_missing; suiteStatus/outcome remain FAIL, no blocks hidden. Absolute worktree paths replaced with repo-relative. Timestamps corrected to post-input provenance. All 8 shared-contract evidenceRefs sha256 mechanically verified. GO-NOT-YET/authorityMode=off/evidenceClass=local-lifecycle unchanged.",
+      "createdAt": "2026-06-10T00:32:06.770Z",
+      "reviewRound": "2026-06-10T00:28:46.818Z",
+      "reviewRunId": "B-0a80:RR-008",
+      "_hash": "c5b070286fce9066995de6b0903f63456f53f470b84101f6a29747f83b7b08b4"
+    },
+    {
+      "id": "B-0a80:RP-005",
+      "agent": "koala-review-docs",
+      "note": "Docs lane PASS: (1) All absolute .worktrees/B-688d paths replaced with repo-relative paths in data artifacts; residual paths only in historical review-prompt records (expected). (2) Terminal criteria failure wording normalized from generic 'baseline terminal criteria were not satisfied' to precise 'local independent review evidence is missing' consistently across JSON + MD. (3) SHA256 hashes in shared-contract.json mechanically verified against all 7 referenced artifact files — all match. (4) Authority/host-neutral invariants preserved: GO-NOT-YET, authorityMode=off, evidenceClass=local-lifecycle, receiptVerified=false, productionDone=false unchanged. (5) Timestamp ordering valid: baseline-suite-report 23:07:12 < shared-contract/final-report 00:23:11. (6) Related docs (authority-client-role.md, lattice-parallel-wave.md, Lattice-Parallel-Development-Capability.md) do not conflict with repair.",
+      "createdAt": "2026-06-10T00:32:33.936Z",
+      "reviewRound": "2026-06-10T00:28:46.818Z",
+      "reviewRunId": "B-0a80:RR-005",
+      "_hash": "94f6a16009929ebcbe5f20ce45fbaf94fd135b72d6b332b2d5a1cd3050a2d851"
+    },
+    {
+      "id": "B-0a80:RP-006",
+      "agent": "koala-review-concept",
+      "note": "PASS. All four correctness principles satisfied. (1) No optimization for optimization sake. (2) No arbitrary optimization. (3) Every fix addresses a real correctness issue: absolute paths to deleted worktree, terminal-criteria text contradiction, timestamp ordering inversion. (4) Logic consistency preserved: decision=GO-NOT-YET, authorityMode=off, evidenceClass=local-lifecycle unchanged; all 8 evidenceRefs SHA256 verified; materialHash matches materialHashSource; no source code changed.",
+      "createdAt": "2026-06-10T00:33:00.711Z",
+      "reviewRound": "2026-06-10T00:28:46.818Z",
+      "reviewRunId": "B-0a80:RR-010",
+      "_hash": "aa6d80df92880b8cc2271bb95c1252c8a5cab8d92c67f939f80421630f4a426c"
+    },
+    {
+      "id": "B-0a80:RP-007",
+      "agent": "koala-review-quality",
+      "note": "PASS: committed artifact repair keeps JSON parseability, refreshed shared-contract hashes match current evidence files, stale B-688d worktree paths are absent, baseline failure semantics remain FAIL due to missing local independent review evidence, and GO-NOT-YET/authorityMode=off/local-lifecycle/2-host/8-lane/4-lock invariants are preserved.",
+      "createdAt": "2026-06-10T00:34:11.202Z",
+      "reviewRound": "2026-06-10T00:28:46.818Z",
+      "reviewRunId": "B-0a80:RR-013",
+      "_hash": "fc91015a8f9e2754f954077f30b3d7bac434d2729209f1ccd42e8c7569fbd1a9"
+    },
+    {
+      "id": "B-0a80:RP-008",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS test-coverage: checklist has all nine happy/edge/adversarial intent refs with logic evidence; read-only review confirmed generatedAt order, no .worktrees path references, no contradictory terminal-criteria wording, expected-PASS runs remain FAIL for missing local independent review evidence, GO-NOT-YET and authorityMode=off/evidenceClass=local-lifecycle remain preserved, shared-contract evidenceRef SHA256 values match current files, and host-neutral shape remains 2 hosts / 8 lanes / 4 locks.",
+      "createdAt": "2026-06-10T00:34:19.638Z",
+      "reviewRound": "2026-06-10T00:28:46.818Z",
+      "reviewRunId": "B-0a80:RR-007",
+      "_hash": "2f849737fc99c8cd6032389382e62e2bbf22fc42eaf436f37459606a66df9688"
+    },
+    {
+      "id": "B-0a80:RP-009",
+      "agent": "koala-review-concept",
+      "note": "Concept review pass: all changes are .omx artifact data corrections only (no source code). Absolute worktree paths correctly replaced with repo-relative paths, failure codes aligned with blockedReason, timestamps maintain causal ordering, materialHash updated consistently. No correctness issues.",
+      "createdAt": "2026-06-10T00:34:19.860Z",
+      "reviewRound": "2026-06-10T00:28:46.818Z",
+      "reviewRunId": "B-0a80:RR-012",
+      "_hash": "1239c3f3dc4460a6294a32e2c5f70773cca88b3818c7dbcb2fdd8cb32544c701"
+    }
+  ]
+}

@@ -7,9 +7,77 @@
       "relatedDocs": [
         "Lattice-Parallel-Development-Capability.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-10T00:21:37.174Z",
+      "endTime": "2026-06-10T00:28:40.020Z",
+      "userSees": "User sees artifact provenance PASS: generatedAt is after declared inputs and no B-688d artifact points to the deleted .worktrees/B-688d path.",
+      "files": {
+        "modify": [
+          ".omx/artifacts/baseline/B-688d/baseline-suite-report.json",
+          ".omx/artifacts/baseline/B-688d/baseline-suite-report.md",
+          ".omx/artifacts/parallel-development/B-688d/*.json"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Generated timestamps are not earlier than their declared input artifacts.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "All old .worktrees/B-688d absolute paths are replaced with current repo-relative artifact paths.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Reject provenance that claims an artifact consumed an input generated in the future or located only in a deleted worktree.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node inline B-0a80 artifact consistency check",
+          "result": "pass",
+          "note": "Verified final-report generatedAt is not earlier than baseline-suite-report generatedAt and no future-input provenance remains.",
+          "headHash": "e467087f4f9a5a2184743fc366c28fbc4bcb9cba",
+          "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
+          "timestamp": "2026-06-10T00:28:40.045Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "rg -n \"\\.worktrees/B-688d\" .omx/artifacts/baseline/B-688d .omx/artifacts/parallel-development/B-688d",
+          "result": "pass",
+          "note": "Search returned no deleted .worktrees/B-688d absolute path references; paths are repo-relative.",
+          "headHash": "e467087f4f9a5a2184743fc366c28fbc4bcb9cba",
+          "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
+          "timestamp": "2026-06-10T00:28:40.067Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node inline B-0a80 artifact consistency check",
+          "result": "pass",
+          "note": "Consistency check rejects future-input provenance or deleted-worktree-only locations; current artifacts passed.",
+          "headHash": "e467087f4f9a5a2184743fc366c28fbc4bcb9cba",
+          "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
+          "timestamp": "2026-06-10T00:28:40.088Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -18,9 +86,78 @@
       "relatedDocs": [
         "Lattice-Capability-Claim-baseline.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-10T00:28:40.449Z",
+      "endTime": "2026-06-10T00:28:40.807Z",
+      "userSees": "User sees baseline failure reason PASS: failed expected-PASS runs cite missing independent local review evidence, not a contradictory terminal criteria failure.",
+      "files": {
+        "modify": [
+          ".omx/artifacts/baseline/B-688d/baseline-suite-report.json",
+          ".omx/artifacts/baseline/B-688d/baseline-suite-report.md",
+          ".omx/artifacts/baseline/B-688d/development/*/*/final-report.json",
+          ".omx/artifacts/baseline/B-688d/development/*/*/final-report.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Expected-PASS failed runs keep outcome=FAIL and blockedReason=local independent review evidence is missing.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "No report says terminal criteria were not satisfied while terminalCriteriaSatisfied=true and terminalCriteriaFailures is empty.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Reject any wording change that turns missing review evidence into PASS or hides the block.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node inline B-0a80 artifact consistency check",
+          "result": "pass",
+          "note": "All five expected-PASS failing baseline runs still have outcome=FAIL and blockedReason=local independent review evidence is missing.",
+          "headHash": "2d87a6b8c53bafc832efe0427f32f3c2780683c1",
+          "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
+          "timestamp": "2026-06-10T00:28:40.831Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "rg -n \"baseline terminal criteria were not satisfied|terminal_criteria_not_met\" .omx/artifacts/baseline/B-688d",
+          "result": "pass",
+          "note": "Search returned no contradictory terminal criteria failure wording after normalization.",
+          "headHash": "2d87a6b8c53bafc832efe0427f32f3c2780683c1",
+          "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
+          "timestamp": "2026-06-10T00:28:40.853Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node inline B-0a80 artifact consistency check",
+          "result": "pass",
+          "note": "The repair did not convert missing independent review evidence into PASS or hide the block; suiteStatus remains FAIL.",
+          "headHash": "2d87a6b8c53bafc832efe0427f32f3c2780683c1",
+          "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
+          "timestamp": "2026-06-10T00:28:40.874Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -30,9 +167,97 @@
         "docs/requirements/decisions/authority-client-role.md",
         "docs/requirements/decisions/lattice-parallel-wave.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-10T00:28:41.252Z",
+      "endTime": "2026-06-10T00:28:41.651Z",
+      "userSees": "User sees authority/host-neutral regression PASS: shared-contract hashes are refreshed and GO-NOT-YET, authorityMode=off, evidenceClass=local-lifecycle, 2 hosts, 8 lanes, and 4 locks are unchanged.",
+      "files": {
+        "modify": [
+          ".omx/artifacts/parallel-development/B-688d/shared-contract.json",
+          ".omx/artifacts/parallel-development/B-688d/final-report.json",
+          ".omx/artifacts/parallel-development/B-688d/final-report.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Shared-contract evidenceRefs match the current SHA256 of every referenced artifact.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The fix does not change host-neutral dispatch shape: canonical codex/claude-code hosts, 8 lanes, 4 locks.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Reject any fix that changes GO-NOT-YET into GO or upgrades local-lifecycle evidence to receipt-backed authority.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node inline B-0a80 artifact consistency check",
+          "result": "pass",
+          "note": "Recomputed every shared-contract evidenceRef SHA256 and verified each matches the current referenced file.",
+          "headHash": "456f28b6e6f84b358fe673b55ac3b417995a44d8",
+          "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
+          "timestamp": "2026-06-10T00:28:41.680Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node inline B-0a80 artifact consistency check",
+          "result": "pass",
+          "note": "Host-neutral dispatch shape is unchanged: canonical codex/claude-code hosts, 8 lanes, and 4 locks.",
+          "headHash": "456f28b6e6f84b358fe673b55ac3b417995a44d8",
+          "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
+          "timestamp": "2026-06-10T00:28:41.707Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node inline B-0a80 artifact consistency check",
+          "result": "pass",
+          "note": "GO-NOT-YET, authorityMode=off, evidenceClass=local-lifecycle, receiptVerified=false, and productionDone=false are unchanged.",
+          "headHash": "456f28b6e6f84b358fe673b55ac3b417995a44d8",
+          "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
+          "timestamp": "2026-06-10T00:28:41.732Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-10T00:28:40.449Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Begin recording committed baseline failure semantic repair evidence."
+    },
+    {
+      "timestamp": "2026-06-10T00:28:41.252Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Begin recording hash refresh and authority invariant evidence."
     }
   ]
 }
