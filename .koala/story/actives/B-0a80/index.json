@@ -4,7 +4,7 @@
   "title": "修正 B-688d 合并后 artifact 证据链矛盾",
   "description": "多 host reviewer 审查发现 B-688d 合并后的审计 artifacts 存在真实 correctness issue：parallel-development artifacts 的 generatedAt 早于其声明输入 baseline-suite-report；baseline suite report 仍引用已清理 worktree 的绝对路径；baseline report 中 failureSummary/reasons 说 terminal criteria 未满足，但同一结构记录 terminalCriteriaSatisfied=true 且 terminalCriteriaFailures=[]。只修这些证据链矛盾，不做任意优化。",
   "type": "bug",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "keywords": [
     "B-688d",
@@ -47,11 +47,21 @@
       "branch": "story/B-0a80",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-10T00:28:46.818Z",
+      "branch": "story/B-0a80",
+      "user": "Harmonygo",
+      "sessionId": "sess-8069be863b31f8a2",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-0a80",
     "branch": "story/B-0a80",
     "createdAt": "2026-06-10T00:16:13.752Z"
-  }
+  },
+  "currentReviewRound": "2026-06-10T00:28:46.818Z"
 }
