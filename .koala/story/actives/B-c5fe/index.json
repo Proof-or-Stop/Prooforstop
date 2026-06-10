@@ -1,0 +1,43 @@
+{
+  "storyId": "B-c5fe",
+  "name": "authority-session-receipt-gate-execution-doc",
+  "title": "编写 Authority session 与 receipt-backed gate 执行文档",
+  "description": "为后续 Authority session identity lifecycle + receipt-backed gate consumption 开发写一份可执行文档，明确 Python Authority Server、Runner host、Lattice CLI、cross-repo validation 的职责、依赖、阶段拆分、gate 机械判定和 fail-closed 验收。本文档只定义执行方案，不实现 actor keys、job claim、provider execution、envelope signing、receipt verification 或 lifecycle gate 变更。",
+  "type": "chore",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "keywords": [
+    "authority",
+    "session",
+    "receipt",
+    "gate",
+    "execution-doc",
+    "documentation"
+  ],
+  "createdAt": "2026-06-10T02:29:34.158Z",
+  "startedAt": "2026-06-10T02:29:34.158Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-10T02:29:34.165Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-10T02:30:41.280Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-c5fe",
+    "branch": "story/B-c5fe",
+    "createdAt": "2026-06-10T02:31:36.623Z"
+  }
+}
