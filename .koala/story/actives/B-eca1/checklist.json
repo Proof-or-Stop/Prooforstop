@@ -1,0 +1,66 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add receipt proof client and verifier",
+      "context": "Add AuthorityClient proof fetch, proof schema, trusted key/digest handling, signature verification, inputDigest and decisionDigest recomputation, production key classification, and precise fail reasons.",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+        "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
+        "docs/requirements/decisions/lattice-authority-receipt-contract.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add receipt-ref writer command and store support",
+      "context": "Expose lattice authority receipt verify, write authority-receipt-refs.json only for production gate_decision receipts, preserve previous refs, and keep invalid/local-test diagnostics non-gating.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
+        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Wire idempotent TEST gate consumption",
+      "context": "Read authority-receipt-refs.json during validate or TEST gate enforcement, consume matching receipts idempotently, derive strongEvidenceConsumed only from the gate adapter, and preserve local/shadow behavior by default.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+        "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Wire DONE gate policy and status output",
+      "context": "Require distinct DONE receipt unless policy allows TEST coverage, re-check head/material before DONE, show readiness/verified/consumed as separate facts, and prevent local diagnostic receipts from setting productionDone.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+        "docs/requirements/decisions/host-overflow.md",
+        "docs/requirements/decisions/project-vision.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Add CLI smoke tests and process fact coverage",
+      "context": "Cover valid proof, corrupt signature, digest mismatch, local-test key, story/phase/material mismatch, writer idempotency, enforce blocking, shadow non-blocking, and process fact registry consistency.",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-receipt-cross-repo-live-smoke.md",
+        "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
