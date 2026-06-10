@@ -307,7 +307,37 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees Layer 3 Loop Engineering, Layer 4 Production Safety, and Layer 5/global Capability Claim remain LOCKED after Layer 2 unlock.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-baseline.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lattice-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After Engineering proof passes, higher-layer claim evaluations remain not_authorized without their own proof.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Production-safety and capability-claim targets report missing lower-layer, soak, or authority prerequisites rather than PASS.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Engineering receipts or suite reports cannot be reused to unlock Loop, Production, or global claims.",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
