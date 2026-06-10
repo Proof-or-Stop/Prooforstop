@@ -41,7 +41,7 @@
       "desc": "docs/requirements/decisions/authority-session-receipt-gate-execution.md:331 and :352 present Phase 3/4 as a normal technical rollout for the Lattice CLI, but docs/requirements/decisions/authority-client-role.md:280, :320, :373, and :401 require any CLI authority-client / gate-consumption work to remain deferred behind explicit enforce-mode product approval and the isolated `koala authority enforce` path. WHY: this doc currently lets an implementer read server/runner readiness as sufficient to start ordinary CLI authority-client or gate-integration work, which violates the current thin-client boundary and milestone routing truth source.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-concept",
       "createdAt": "2026-06-10T02:42:56.539Z",
@@ -51,7 +51,9 @@
       "files": [
         "docs/requirements/decisions/authority-session-receipt-gate-execution.md",
         "docs/requirements/decisions/authority-client-role.md"
-      ]
+      ],
+      "resolvedReason": "Added hard prerequisites to Phase 3 and Phase 4: explicit enforce-mode product approval, isolated koala authority enforce path, and no ordinary CLI authority-client/gate-consumption rollout based only on server/runner readiness.",
+      "resolvedAt": "2026-06-10T02:45:34.330Z"
     }
   ]
 }
