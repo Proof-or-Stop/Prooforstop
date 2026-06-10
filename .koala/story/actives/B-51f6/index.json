@@ -4,7 +4,7 @@
   "title": "Run formal staging Authority receipt gate live smoke",
   "description": "Execute the cross-repo Authority receipt proof and lifecycle gate smoke against https://stagging.hostneutral.net, recording readiness, positive flow, negative controls, and any environment blockers without treating local-test or contract-only receipts as production evidence.",
   "type": "chore",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "source": "user-request",
   "keywords": [
@@ -27,7 +27,7 @@
   ],
   "createdAt": "2026-06-10T19:32:41.190Z",
   "startedAt": "2026-06-10T19:32:41.190Z",
-  "endedAt": null,
+  "endedAt": "2026-06-10T20:21:42.863Z",
   "events": [
     {
       "phase": "INIT",
@@ -108,12 +108,15 @@
       "branch": "story/B-51f6",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-10T20:21:42.863Z",
+      "branch": "story/B-51f6",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-51f6",
-    "branch": "story/B-51f6",
-    "createdAt": "2026-06-10T19:42:57.107Z"
-  },
   "currentReviewRound": "2026-06-10T20:10:08.151Z"
 }
