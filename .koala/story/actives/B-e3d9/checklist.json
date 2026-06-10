@@ -1,0 +1,67 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Reject unsupported production receipt algorithms fail-closed",
+      "context": "Determine whether production receipt verification currently accepts serverKey.algorithm values other than ed25519. If it does, add the smallest runtime guard and focused smoke coverage so unsupported signature/public-key algorithms never satisfy production receipt verification.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+        "docs/requirements/decisions/authority-session-receipt-gate-execution.md",
+        "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Converge supportsDryRun requirement without speculative metadata work",
+      "context": "Inspect the old cc-learnings ToolDef metadata requirement against current COMMAND_POLICIES, command schemas, and dryRun handlers. Either implement a real supportsDryRun metadata surface consumed by help/policy, or narrow the truth source to the current command-policy contract if the old ToolDef field was superseded.",
+      "relatedDocs": [
+        "docs/requirements/decisions/cc-learnings.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "AGENTS.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Link Authority worktree policy requirements to existing runtime enforcement",
+      "context": "For requiresAuthoritativeWorktree and requiresCleanWorktree, verify existing planner emission, consistency checks, executor preflight, dirty worktree handling, and smoke tests. Add precise code annotations or minimal tests only where the gap is coverage linkage, not behavior.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-authority-live-integration.md",
+        "docs/requirements/decisions/lattice-authority-m1-m16-generated-proof-and-live-e2e.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Link planner confirmation policy to story creation blocking behavior",
+      "context": "For requiresConfirmationBeforeStoryCreate, verify default plannerPolicy behavior and planner_create_story blocking behavior. Add precise coverage linkage or focused regression only if current tests do not prove fail-closed story creation.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-authority-live-integration.md",
+        "docs/requirements/decisions/lattice-unattended-completion-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Prove gap convergence and host-neutral review evidence",
+      "context": "Run gap_analyze before/after, relevant focused tests, and lattice validate. Record Codex host execution evidence and two Claude CLI host review attempts or availability downgrades as advisory evidence, while keeping Lattice CLI/test outputs as the authoritative gate facts.",
+      "relatedDocs": [
+        "docs/requirements/decisions/host-neutral-observability-console.md",
+        "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md",
+        "docs/requirements/decisions/truth-source.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
