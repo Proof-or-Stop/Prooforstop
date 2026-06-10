@@ -73,6 +73,29 @@
           "packages/main/src/tasks/worktree-policy-smoke.ts",
           "packages/main/src/tasks/planner-unattended-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run the existing authoritative-worktree/clean-worktree smoke path in the expected authoritative worktree state -> planner emission, executor preflight, and smoke evidence all agree that the command proceeds when policy requirements are satisfied; WHY: proves the documented requirement is already enforced by runtime logic.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run the same flow in a clean but non-authoritative worktree, and separately in an authoritative but dirty worktree -> each requirement fails for its own specific reason without conflating the two policies; WHY: proves consistency of the two gates and their diagnostics.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Try to clear the gap only by adding requirement prose or planner annotations while leaving any enforcement path unproven by smoke coverage -> verification should fail unless runtime evidence still demonstrates fail-closed blocking for both requiresAuthoritativeWorktree and requiresCleanWorktree; WHY: disallows coverage-link claims that are host- or reviewer-opinion-only.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
