@@ -8,9 +8,73 @@
         "docs/requirements/decisions/authority-client-role.md",
         "README.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-10T02:05:25.719Z",
+      "userSees": "User sees \"Authority readiness: BLOCKED (authorityUrlConfigured=false, actorKeyConfigured=false, runnerConfigured=false, sessionConfigured=false, serverPublicKeyPinned=false)\".",
+      "files": {
+        "modify": [],
+        "create": [
+          ".omx/artifacts/authority/B-4a53/authority-strong-evidence-report.json",
+          ".omx/artifacts/authority/B-4a53/authority-strong-evidence-report.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "authority_status and conduit_status are captured without submitting evidence or verifying receipts.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Missing Authority URL / actor / runner / session / server key fields are represented as blockers, not as strong evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Reject any report that sets receiptVerified=true or productionDone=true without verified AuthorityReceipt output.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "lattice authority_status --json && lattice conduit_status --json",
+          "result": "pass",
+          "note": "authority-strong-evidence-report.json captures authority_status and conduit_status outputs without submitting evidence or verifying receipts; receiptVerified=false and productionDone=false.",
+          "headHash": "50c20cba60ad737507223dc47d02b2353d8f5c3f",
+          "materialHash": "47f4d636deb2d912fc830607598f6fed94b86beb3f36d1efc1f7ec8e898cd662",
+          "timestamp": "2026-06-10T02:05:25.746Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node -e artifact invariant check",
+          "result": "pass",
+          "note": "mechanical verifier confirmed authorityUrlConfigured=false, actorKeyConfigured=false, runnerConfigured=false, sessionConfigured=false, serverPublicKeyPinned=false are represented as BLOCKED readiness fields.",
+          "headHash": "50c20cba60ad737507223dc47d02b2353d8f5c3f",
+          "materialHash": "47f4d636deb2d912fc830607598f6fed94b86beb3f36d1efc1f7ec8e898cd662",
+          "timestamp": "2026-06-10T02:05:25.773Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node -e artifact invariant check",
+          "result": "pass",
+          "note": "mechanical verifier rejects receiptVerified=true/productionDone=true; current report keeps both false and no AuthorityReceipt is claimed.",
+          "headHash": "50c20cba60ad737507223dc47d02b2353d8f5c3f",
+          "materialHash": "47f4d636deb2d912fc830607598f6fed94b86beb3f36d1efc1f7ec8e898cd662",
+          "timestamp": "2026-06-10T02:05:25.796Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -19,9 +83,73 @@
       "relatedDocs": [
         "docs/requirements/decisions/authority-client-role.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-10T02:05:33.291Z",
+      "userSees": "User sees \"Authority receipt: BLOCKED (no verified AuthorityReceipt; receiptVerified=false; productionDone=false)\".",
+      "files": {
+        "modify": [],
+        "create": [
+          ".omx/artifacts/authority/B-4a53/authority-strong-evidence-report.json",
+          ".omx/artifacts/authority/B-4a53/authority-strong-evidence-report.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A real authority_job_create attempt is made or skipped only after a prerequisite command proves the Authority URL is absent.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "No jobId, receiptId, or receiptFile is invented when Authority Server submission is unavailable.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Reject treating authority_enforce_policy failure, local storage, or handoff receipts as native AuthorityReceipt verification.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "lattice authority_enforce_policy --json; node -e artifact invariant check",
+          "result": "pass",
+          "note": "policy discovery failed closed because LATTICE_AUTHORITY_URL is unset; report records authorityJobCreate.status=skipped_missing_url only after readiness proved no Authority URL exists.",
+          "headHash": "939a38e7a00f798f8d3f4f152e47866dd7d1a580",
+          "materialHash": "47f4d636deb2d912fc830607598f6fed94b86beb3f36d1efc1f7ec8e898cd662",
+          "timestamp": "2026-06-10T02:05:33.316Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node -e artifact invariant check",
+          "result": "pass",
+          "note": "mechanical verifier confirmed no jobId, receiptId, or receiptFile keys exist anywhere in the JSON report.",
+          "headHash": "939a38e7a00f798f8d3f4f152e47866dd7d1a580",
+          "materialHash": "47f4d636deb2d912fc830607598f6fed94b86beb3f36d1efc1f7ec8e898cd662",
+          "timestamp": "2026-06-10T02:05:33.338Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node -e artifact invariant check",
+          "result": "pass",
+          "note": "report treats authority_enforce_policy failure and local diagnostics as non-receipt evidence; receiptVerified=false, productionDone=false, strongEvidenceConsumed=false.",
+          "headHash": "939a38e7a00f798f8d3f4f152e47866dd7d1a580",
+          "materialHash": "47f4d636deb2d912fc830607598f6fed94b86beb3f36d1efc1f7ec8e898cd662",
+          "timestamp": "2026-06-10T02:05:33.360Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -31,9 +159,74 @@
         "docs/requirements/decisions/lattice-parallel-wave.md",
         "docs/requirements/decisions/authority-client-role.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-10T02:05:42.209Z",
+      "userSees": "User sees \"Authority strong evidence verification: BLOCKED fail-closed\" plus concrete next actions for enabling receipt-backed PASS later.",
+      "files": {
+        "modify": [],
+        "create": [
+          ".omx/artifacts/authority/B-4a53/authority-strong-evidence-report.json",
+          ".omx/artifacts/authority/B-4a53/authority-strong-evidence-report.md",
+          ".koala/story/actives/B-4a53/evidence/transcript-diff.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The final report summarizes readiness, job attempt, receipt verification state, and next actions in one cold-readable artifact.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "B-0a80/B-688d local lifecycle artifacts remain local and are not upgraded to receipt-backed evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Reject any gate or report wording that implies Authority Server strong evidence was consumed when receipt verification did not happen.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node -e artifact invariant check",
+          "result": "pass",
+          "note": "authority-strong-evidence-report.md/json and transcript-diff.md summarize readiness, policy failure, job skip, receipt state, and next actions in one cold-readable evidence packet.",
+          "headHash": "fadf2d5ce3157874447619610e92ddb02a4783e2",
+          "materialHash": "47f4d636deb2d912fc830607598f6fed94b86beb3f36d1efc1f7ec8e898cd662",
+          "timestamp": "2026-06-10T02:05:42.238Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "git show --name-status 50c20cba; node -e artifact invariant check",
+          "result": "pass",
+          "note": "implementation commit only adds B-4a53 authority artifacts and does not modify B-0a80/B-688d artifacts; report states prior local lifecycle artifacts are not upgraded.",
+          "headHash": "fadf2d5ce3157874447619610e92ddb02a4783e2",
+          "materialHash": "47f4d636deb2d912fc830607598f6fed94b86beb3f36d1efc1f7ec8e898cd662",
+          "timestamp": "2026-06-10T02:05:42.260Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node -e artifact invariant check",
+          "result": "pass",
+          "note": "mechanical verifier confirmed strongEvidenceConsumed=false with receiptVerified=false and productionDone=false, so the report cannot imply Authority Server evidence was consumed.",
+          "headHash": "fadf2d5ce3157874447619610e92ddb02a4783e2",
+          "materialHash": "47f4d636deb2d912fc830607598f6fed94b86beb3f36d1efc1f7ec8e898cd662",
+          "timestamp": "2026-06-10T02:05:42.282Z"
+        }
+      ]
     }
   ]
 }
