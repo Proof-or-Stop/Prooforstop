@@ -1,0 +1,25 @@
+{
+  "task": "验证 Lattice Authority Server 强证据路径是否能在当前环境完成。",
+  "outcome": "用户看到终端报告：Authority strong evidence verification: BLOCKED fail-closed；authorityMode=off，authorityUrlConfigured=false，receiptVerified=false，productionDone=false，并列出缺少 URL/actor/runner/session/server key 的阻断原因。",
+  "facts": [
+    "B-0a80/B-688d 前序产物明确保持 authorityMode=off、evidenceClass=local-lifecycle、receiptVerified=false。",
+    "docs/requirements/decisions/authority-client-role.md 规定普通 Lattice CLI 是 thin local/shadow client，不能自称 L2+ authority。",
+    "authority_status --json returned authorityMode=off, authorityUrlConfigured=false, actorKeyConfigured=false, runnerConfigured=false, sessionConfigured=false, serverPublicKeyPinned=false, receiptVerified=false, productionDone=false.",
+    "conduit_status --json returned conduitAvailable=true but runnerProvisioned=false, modelRunnerCreated=false, receiptVerified=false, productionDone=false, and warns that conduit diagnostics do not sign envelopes or verify receipts.",
+    "authority_enforce_policy --json failed because LATTICE_AUTHORITY_URL is not set; it also states no receipt, no gate pass, and no evidence submission.",
+    "Environment presence check found no KOALA/LATTICE Authority URL, actor key, actor key path, runner id, session id, or server public key variables."
+  ],
+  "constraints": [
+    "不得伪造 receipt 或把本地 JSON 当作 AuthorityReceipt。",
+    "如果 Authority URL、actor key、runner/session 或 server receipt 不可用，结果必须 fail-closed。",
+    "只修真实 correctness/evidence-boundary 问题，不做任意优化。",
+    "所有 story lifecycle 命令在 B-4a53 worktree 执行。"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    ".omx/artifacts/authority/B-4a53/authority-strong-evidence-report.json",
+    ".omx/artifacts/authority/B-4a53/authority-strong-evidence-report.md",
+    ".koala/story/actives/B-4a53/evidence/transcript-diff.md"
+  ],
+  "timestamp": "2026-06-10T01:52:03.363Z"
+}

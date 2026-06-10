@@ -10,7 +10,39 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees \"Authority readiness: BLOCKED (authorityUrlConfigured=false, actorKeyConfigured=false, runnerConfigured=false, sessionConfigured=false, serverPublicKeyPinned=false)\".",
+      "files": {
+        "modify": [],
+        "create": [
+          ".omx/artifacts/authority/B-4a53/authority-strong-evidence-report.json",
+          ".omx/artifacts/authority/B-4a53/authority-strong-evidence-report.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "authority_status and conduit_status are captured without submitting evidence or verifying receipts.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Missing Authority URL / actor / runner / session / server key fields are represented as blockers, not as strong evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Reject any report that sets receiptVerified=true or productionDone=true without verified AuthorityReceipt output.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
