@@ -1,6 +1,6 @@
 # Authority Receipt Gate Integration Execution Plan
 
-> Status: execution plan for the next implementation slice.
+> Status: execution plan for the remaining validation and rollout slice.
 > Parent: [Authority Receipt Gate End-to-End Plan](authority-session-receipt-gate-execution.md).
 > Related:
 > [Lattice Authority Receipt Contract](lattice-authority-receipt-contract.md),
@@ -18,8 +18,9 @@ The first slice established the primitives:
 - Lattice CLI has a pure receipt-ref eligibility and consumption predicate.
 - `authority-receipt-refs.json` is registered as an L4 process fact artifact.
 
-This plan defines the next slice: wire real receipt verification, receipt-ref
-writing, and lifecycle gate consumption without changing local workflow
+This plan now tracks the remaining slice: prove the deployed staging path and
+rollout policy around the existing receipt verification, receipt-ref writing,
+and lifecycle gate consumption baseline without changing local workflow
 semantics for stories that do not require Authority-backed evidence.
 
 ## Principles

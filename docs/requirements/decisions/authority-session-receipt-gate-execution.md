@@ -170,8 +170,8 @@ Current contract fields:
 - `signature`
 
 For `gate_decision`, `subjectKind` should be `"gate_decision"` and
-`subjectId` should be the server decision id or gate receipt id. The signed
-payload must also bind the evaluated story id, target phase, policy mode,
+`subjectId` should be the server gate decision id, not the receipt id. The
+signed payload must also bind the evaluated story id, target phase, policy mode,
 authority mode, repo head/material hash, evidence digests, and decision verdict.
 
 ### 2. Evidence Receipt vs Gate Decision Receipt
@@ -367,7 +367,7 @@ records, server public key discovery, and gate decision receipts.
 Deliverables:
 
 - document current vs missing server fields;
-- add or map receipt subject/digest fields;
+- verify receipt subject/digest field mapping against CLI verification needs;
 - ensure `gate_decision` receipts expose enough binding metadata for CLI
   verification;
 - ensure runner `sessionId` is bound to heartbeat, claim, job/evidence, and gate
@@ -460,7 +460,7 @@ Acceptance:
 
 Deliverables:
 
-- one live Authority Server instance;
+- one deployed staging Authority Server instance;
 - one registered runner;
 - one story-scoped job;
 - one signed evidence envelope;
@@ -476,7 +476,7 @@ Authority readiness: PASS
 Authority job: PASS jobId=<id> runId=<id>
 Authority evidence: PASS evidenceDigest=<sha256>
 Authority gate decision: PASS receiptVerified=true receiptId=<id>
-Gate consumption: PASS strongEvidenceConsumed=true story=<storyId> gate=<REVIEW|TEST|DONE>
+Gate consumption: PASS strongEvidenceConsumed=true story=<storyId> gate=<TEST|DONE>
 ```
 
 This transcript is only valid when backed by the structured artifacts above.
