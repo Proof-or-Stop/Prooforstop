@@ -1,0 +1,69 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Align Engineering expected-block final-report contract",
+      "context": "The audited plan requires expectedBlockReasons/refusalEvidenceRefs to distinguish valid EXPECTED_BLOCK safety refusals from suite blockers. Implement the contract only where it affects suite correctness.",
+      "relatedDocs": [
+        "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
+        "Lattice-Engineering-baseline.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "Engineering suite output can show a valid EXPECTED_BLOCK safety refusal as expected-block evidence instead of reporting it as a suite blocker."
+    },
+    {
+      "id": "CHK-002",
+      "title": "Allow gated PASS for risky Engineering baselines only with proof",
+      "context": "ENG-DATA-MIGRATION-1 and ENG-AUTH-SECURITY-1 currently default to EXPECTED_BLOCK, while the plan allows gated PASS. The code must accept PASS only when explicit gate evidence exists and remain fail-closed otherwise.",
+      "relatedDocs": [
+        "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
+        "Lattice-Capability-Claim-baseline.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "Risky Engineering baselines visibly PASS only when gate evidence is present; otherwise the report remains EXPECTED_BLOCK with a concrete refusal reason."
+    },
+    {
+      "id": "CHK-003",
+      "title": "Harden Development lower-layer proof validation for Engineering claims",
+      "context": "Step 1 requires concrete Development suite hard facts, not only authorized=true. Ensure capability_claim_evaluate or the suite reader rejects missing, stale, local-only, false-DONE, or incoherent Development proof before Engineering authorization.",
+      "relatedDocs": [
+        "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
+        "Lattice-Capability-Claim-baseline.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "An Engineering claim request visibly stays not_authorized when Development proof is missing, stale, local-only, false-DONE, or internally incoherent."
+    },
+    {
+      "id": "CHK-004",
+      "title": "Expose focused smoke proof for the Engineering unlock contract",
+      "context": "Add or update tests whose output proves expected-block safety refusals do not become suite blockers, gated PASS requires evidence, stale lower-layer proof blocks, and target=engineering maps to CLAIM-ENGINEERING-DEV.",
+      "relatedDocs": [
+        "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "The smoke test output explicitly demonstrates the Engineering unlock contract cases, so the user can see which proof gates passed or blocked."
+    },
+    {
+      "id": "CHK-005",
+      "title": "Expose two-host audit verdicts for the implemented contract",
+      "context": "Use Claude CLI and Codex CLI as independent host reviewers for the implemented contract. Their verdicts must reference current materialHash or current diff and must be recorded as audit evidence, not as proof by themselves.",
+      "relatedDocs": [
+        "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
+        "Lattice-Parallel-Development-Capability.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "The final delivery shows current Claude and Codex host verdicts for the implemented contract, making the remaining claim boundary visible to the user."
+    }
+  ]
+}
