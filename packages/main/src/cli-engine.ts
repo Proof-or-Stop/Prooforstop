@@ -17,7 +17,7 @@ import { createMainRegistry, type Registry } from './registry.js';
 import type { HandlerContext } from './handlers/context.js';
 import { execFileSync, execSync } from 'child_process';
 import { loadConfig, isCommandAllowed, getAllowedPatterns, hasProjectConfigFile } from './core/config.js';
-import { formatCommandLifecycleHint } from './core/command-policy.js';
+import { formatCommandLifecycleHint, type CommandPolicy } from './core/command-policy.js';
 import { decorateResult, wantsMachineJson, type ActiveStoryInfo } from './handlers/hints.js';
 import { reportHealthIssue } from './core/health.js';
 import { detectStaleState } from './core/stale-detector.js';
@@ -2139,6 +2139,56 @@ type HelpOutputOptions = {
   includeFooter?: boolean;
 };
 
+function normalizeHelpText(text: string | undefined): string {
+  return (text || '').replace(/\s+/g, ' ').trim();
+}
+
+/**
+ * @task B-e3d9
+ * @checklist CHK-002
+ * @title derive supportsDryRun help from live schema and command policy
+ * @type refactor
+ * @priority high
+ * @description
+ *   The abandoned cc-learnings supportsDryRun field is not the main CLI
+ *   contract. Real dry-run behavior already lives in ToolDef schema flags
+ *   (`dryRun` / `confirm`), command descriptions, and COMMAND_POLICIES
+ *   operator-safety prose. Help derives the surfaced contract from those live
+ *   inputs so we do not create a second supportsDryRun registry.
+ * @changes
+ *   - [CHK-002] Summarize supportsDryRun-equivalent behavior in lattice <command> --help
+ *   - [CHK-002] Keep dry-run truth derived from schema/policy instead of speculative metadata
+ * @test dangerous-command-guardrails
+ */
+function dryRunHelpLine(tool: ToolDef, policy?: CommandPolicy): string | null {
+  const toolDescription = normalizeHelpText(tool.description);
+  const policyReason = normalizeHelpText(policy?.reason);
+  const policyReplacement = normalizeHelpText(policy?.replacement);
+  const dryRunField = tool.schema.dryRun;
+  const dryRunDescription = dryRunField ? normalizeHelpText(getDesc(dryRunField)) : '';
+  const combined = [toolDescription, dryRunDescription, policyReason, policyReplacement]
+    .filter(Boolean)
+    .join(' ');
+  const hasConfirmFlag = Object.prototype.hasOwnProperty.call(tool.schema, 'confirm');
+
+  if (dryRunField) {
+    if (/始终为 dry-run|always[- ]on|always dry[- ]run/i.test(combined)) {
+      return `  Dry-run: always-on. ${dryRunDescription || 'This command is projection-only and never executes the side-effect path.'}`;
+    }
+    if (/默认 dry run|默认 dry-run|default dry run|default dry-run|默认 true/i.test(combined)) {
+      return `  Dry-run: default-on via --dryRun=true. ${dryRunDescription || 'Pass --dryRun=false to execute the real path.'}`;
+    }
+    const confirmNote = hasConfirmFlag ? ' Real execution may also require --confirm.' : '';
+    return `  Dry-run: optional via --dryRun. ${dryRunDescription || 'Preview the command without executing the real path.'}${confirmNote}`;
+  }
+
+  if (/dry[- ]run/i.test(combined)) {
+    return '  Dry-run: always-on. This command only projects guidance and does not execute the side-effect path.';
+  }
+
+  return null;
+}
+
 /**
  * Returns a multi-line help block describing the `--takeover` / `--forceTakeover`
  * meta options for owner-gated CLI commands, or `null` for commands that are
@@ -2177,6 +2227,8 @@ function printToolHelp(tool: ToolDef, options: HelpOutputOptions = {}) {
     else console.log(line);
   };
   const includeFooter = options.includeFooter !== false;
+  const policy = getCommandPolicy(tool.name);
+  const dryRunLine = dryRunHelpLine(tool, policy);
 
   out(`\n  ${brand.primaryBin} ${tool.name} — ${tool.description}\n`);
   out(`  ${formatLatticeProductLine(brand)}; legacy alias: ${brand.legacyAlias}\n`);
@@ -2191,6 +2243,7 @@ function printToolHelp(tool: ToolDef, options: HelpOutputOptions = {}) {
   if (entries.length === 0) {
     out('  无参数\n');
     out(`  用法: ${brand.primaryBin} ${tool.name}`);
+    if (dryRunLine) out(dryRunLine);
     const ownerBlock = ownerLeaseHelpBlock(tool.name);
     if (ownerBlock) out(ownerBlock);
     if (includeFooter) out(SESSION_BRIEF_FOOTER);
@@ -2220,6 +2273,7 @@ function printToolHelp(tool: ToolDef, options: HelpOutputOptions = {}) {
   out(`\n  用法: ${brand.primaryBin} ${tool.name} ${[...reqParts, ...optParts].join(' ')}`);
   out(`  兼容: ${brand.legacyAlias} ${tool.name} ...`);
   out('  (* = 必填)');
+  if (dryRunLine) out(dryRunLine);
   const ownerBlock = ownerLeaseHelpBlock(tool.name);
   if (ownerBlock) out(ownerBlock);
   if (includeFooter) out(SESSION_BRIEF_FOOTER);

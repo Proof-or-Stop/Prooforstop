@@ -489,18 +489,18 @@ CC 没有显式 metadata，但 koala 是 CLI 工具，agent 需要知道：
 
 危险命令（story_discard、dev_merge、fixture_migrate、fixture_batch_add 大批量）应该支持 `--dry-run` 显示会做什么但不真做。
 
+2026-06-10 收敛说明：main CLI 没有落地单独的 `ToolDef.supportsDryRun` 字段，这一条不应再作为缺失 requirement 追。当前有效合同已经由命令 schema（`dryRun` / `confirm`）、handler 的 dry-run 短路行为，以及 `COMMAND_POLICIES` 的 operator-safety prose 共同承载；需要补的是把这个现有合同直接 surface 到 help/policy，而不是再造一份平行 metadata。
+
 ### Checklist
 
-1. **title**：ToolDef 加 metadata 字段
+1. **title**：由 schema + COMMAND_POLICIES 派生 dry-run 合同，不新增 `supportsDryRun` 字段
    **context**：
    ```ts
-   interface ToolDef {
-     // 现有字段
-     expectedDuration?: 'fast' | 'medium' | 'slow' | number  // < 1s / 1-10s / > 10s
-     sideEffects?: Array<'read-only' | 'writes-state' | 'writes-fs' | 'spawns-process' | 'irreversible'>
-     stability?: 'stable' | 'experimental' | 'deprecated'
-     supportsDryRun?: boolean
-   }
+   // dry-run 真相源：不新增 ToolDef.supportsDryRun
+   // - schema.dryRun / schema.confirm = 唯一机械信号
+   // - handler dry-run 分支 = 真执行边界
+   // - COMMAND_POLICIES reason/replacement = 用户可读的操作语义
+   // help 输出直接汇总这三层，不再维护第二份 metadata
    ```
 
 2. **title**：为所有 MAIN_TOOLS 填 metadata
