@@ -1,0 +1,37 @@
+{
+  "findings": [
+    {
+      "id": "B-51f6:F-001",
+      "desc": "CHK-002 and CHK-003 verificationEvidence is not reproducible enough for a formal staging audit. The recorded commands use placeholders like \"CHK-001 readiness transcript\" and opaque \"claude -p ...\" labels without the exact prompt text, input anchor payload, or any explicit Codex command/transcript reference, so an auditor cannot replay the skipped-positive-path decision or the claimed same-anchor dual-host review. Persist the exact shell commands/prompts/inputs and the explicit receipt-ref absence check in verificationEvidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-10T19:58:12.676Z",
+      "reviewRound": "2026-06-10T19:53:37.881Z",
+      "reviewRunId": "B-51f6:RR-004",
+      "_hash": "b1b3dd43b74cd8d0b5333be82be9d9934cfec551babf935b1450072b5a5b7280",
+      "files": [
+        ".koala/story/actives/B-51f6/checklist.json"
+      ]
+    },
+    {
+      "id": "B-51f6:F-002",
+      "desc": "The story claims this worktree isolated eight unrelated dirty files from Orchestrate main, but no persisted baseline names those files or records the source git-status snapshot. After main becomes clean, that isolation claim is no longer independently auditable. Record the exact dirty-file list or the captured `git -C <main-root> status --short` output alongside the story evidence.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-10T19:58:12.686Z",
+      "reviewRound": "2026-06-10T19:53:37.881Z",
+      "reviewRunId": "B-51f6:RR-004",
+      "_hash": "d06fca4f2ae01a14c2d6b905a61fed573c5a70ad45a704148e3b287021d744fa",
+      "files": [
+        ".koala/story/actives/B-51f6/understanding.json",
+        ".koala/story/actives/B-51f6/decision.json"
+      ]
+    }
+  ]
+}
