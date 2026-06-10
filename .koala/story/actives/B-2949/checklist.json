@@ -49,10 +49,37 @@
         "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
         "Lattice-Engineering-baseline.md"
       ],
-      "userSees": "The execution document gives future agents enough detail to run and audit the ENG baseline suite.",
+      "userSees": "The document includes a table of ENG-* baselines and states: \"Risky Engineering PASS requires gateEvidenceRefs with digest-checked artifact references; otherwise it must block or remain EXPECTED_BLOCK.\"",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The edited document lists required final-report and suite-report evidence for Engineering baseline proof.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "ENG-DATA-MIGRATION-1 and ENG-AUTH-SECURITY-1 specify both expected-block evidence and gated PASS evidence requirements.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The document blocks fake, stale, local-only, missing-digest, or generic blockedReason evidence from authorizing Engineering unlock.",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
