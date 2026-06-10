@@ -10,6 +10,7 @@ import type {
 } from './types.js';
 import { REVIEW_LOOP_FILENAME } from './review-loop.js';
 import { CAPSULE_DIR_NAME, type StoryCapsuleData, type StoryCapsuleRunData } from './story-capsule.js';
+import type { AuthorityReceiptRefDocument } from './authority-gate-receipts.js';
 import type { ClusterData } from './cluster-types.js';
 import { appendProcessEvent as appendProcessEventFn, readProcessEvents as readProcessEventsFn } from './process-events.js';
 import { loadConfig } from './config.js';
@@ -510,6 +511,21 @@ export class StoryStore {
 
   writeDeclaredArtifacts(storyId: string, data: DeclaredArtifactsData): void {
     this.writeJson(storyId, 'declared-artifacts.json', data);
+  }
+
+  // ── Authority receipt refs (L4 gate evidence projection) ──
+
+  readAuthorityReceiptRefs(storyId: string): AuthorityReceiptRefDocument | null {
+    try {
+      return this.readJson<AuthorityReceiptRefDocument>(storyId, 'authority-receipt-refs.json');
+    } catch (e) {
+      if (e instanceof StoryArtifactMissingError) return null;
+      throw e;
+    }
+  }
+
+  writeAuthorityReceiptRefs(storyId: string, data: AuthorityReceiptRefDocument): void {
+    this.writeJson(storyId, 'authority-receipt-refs.json', data);
   }
 
   // ── Story Capsule (B-42c0: resumable handoff projection) ──

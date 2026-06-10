@@ -113,6 +113,10 @@ export interface AuthorityGateReceiptConsumption {
   fact?: StrongEvidenceConsumedFact;
 }
 
+export interface AuthorityGateReceiptDocumentConsumption extends AuthorityGateReceiptConsumption {
+  document?: AuthorityReceiptRefDocument;
+}
+
 function nonEmpty(value: unknown): value is string {
   return typeof value === 'string' && value.trim().length > 0;
 }
@@ -177,10 +181,17 @@ export function eligibleAuthorityGateReceiptRef(
   if (ref.storyId !== context.storyId) {
     return { eligible: false, reason: 'authority_receipt_story_mismatch', ref };
   }
-  if (ref.targetPhase !== context.targetPhase) {
+  const hasExplicitEligibleGates = Array.isArray(ref.eligibleGates) && ref.eligibleGates.length > 0;
+  const explicitlyEligibleGate = hasExplicitEligibleGates && ref.eligibleGates!.includes(context.targetPhase);
+  const phaseMatches = ref.targetPhase === context.targetPhase;
+  const explicitTestCoversDone =
+    ref.targetPhase === 'TEST'
+    && context.targetPhase === 'DONE'
+    && explicitlyEligibleGate;
+  if (!phaseMatches && !explicitTestCoversDone) {
     return { eligible: false, reason: 'authority_receipt_phase_mismatch', ref };
   }
-  if (Array.isArray(ref.eligibleGates) && ref.eligibleGates.length > 0 && !ref.eligibleGates.includes(context.targetPhase)) {
+  if (hasExplicitEligibleGates && !explicitlyEligibleGate) {
     return { eligible: false, reason: 'authority_receipt_phase_mismatch', ref };
   }
   if (ref.headHash !== context.headHash) {
@@ -240,9 +251,17 @@ export function consumeAuthorityGateReceiptRef(
     materialHash: context.materialHash,
     decisionDigest: eligibility.ref.decisionDigest!,
   };
+  const priorEvents = eligibility.ref.consumptionEvents ?? [];
+  const alreadyConsumed = priorEvents.some((candidate) => (
+    candidate.targetPhase === event.targetPhase
+    && candidate.storyId === event.storyId
+    && candidate.headHash === event.headHash
+    && candidate.materialHash === event.materialHash
+    && candidate.decisionDigest === event.decisionDigest
+  ));
   const consumedRef: AuthorityGateDecisionReceiptRef = {
     ...eligibility.ref,
-    consumptionEvents: [...(eligibility.ref.consumptionEvents ?? []), event],
+    consumptionEvents: alreadyConsumed ? priorEvents : [...priorEvents, event],
   };
   return {
     consumed: true,
@@ -258,6 +277,29 @@ export function consumeAuthorityGateReceiptRef(
       headHash: context.headHash,
       materialHash: context.materialHash,
       decisionDigest: consumedRef.decisionDigest!,
+    },
+  };
+}
+
+export function consumeAuthorityGateReceiptDocument(
+  document: AuthorityReceiptRefDocument | undefined,
+  context: AuthorityGateReceiptContext,
+  consumedAt: string,
+): AuthorityGateReceiptDocumentConsumption {
+  const eligibility = eligibleAuthorityGateReceiptDocument(document, context);
+  if (!eligibility.eligible || !eligibility.ref) {
+    return { consumed: false, reason: eligibility.reason, ref: eligibility.ref };
+  }
+  const consumption = consumeAuthorityGateReceiptRef(eligibility.ref, context, consumedAt);
+  if (!consumption.consumed || !consumption.ref || !document) return consumption;
+  return {
+    ...consumption,
+    document: {
+      ...document,
+      updatedAt: consumedAt,
+      refs: document.refs.map((ref) => (
+        ref.receiptId === consumption.ref?.receiptId ? consumption.ref : ref
+      )),
     },
   };
 }

@@ -53,6 +53,7 @@ import {
   resolveGuardFailure,
   runScopeTransitionGate,
   runPlanToDevScopeAdvice,
+  runAuthorityReceiptTransitionGate,
   runReviewToTestPreflightGate,
   runValidateGate,
 } from './phase-gates.js';
@@ -292,6 +293,7 @@ export async function runStoryTransition(
     // B-6974: gate no longer stops the actor; the orchestrator's finally does.
     if (args.phase === 'TEST') {
       await runValidateGate(ctx, args.storyId, actor);
+      guardGateReport += runAuthorityReceiptTransitionGate(ctx, args.storyId, 'TEST');
     }
 
     // TEST→DONE: block A (done-oracle gate + F-020 stray-file dry-run +
@@ -304,6 +306,7 @@ export async function runStoryTransition(
     let doneRenderedChecklist: string | undefined;
     if (args.phase === 'DONE') {
       doneRenderedChecklist = await runDonePreMergeGate(args.storyId, store, ctx.root, actor);
+      guardGateReport += runAuthorityReceiptTransitionGate(ctx, args.storyId, 'DONE');
     }
 
     // ── state mutation: actor.send → writeStory. Order is byte-identical to

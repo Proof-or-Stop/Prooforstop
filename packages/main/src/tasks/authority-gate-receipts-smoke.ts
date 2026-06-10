@@ -92,6 +92,19 @@ function validRef(overrides: Partial<AuthorityGateDecisionReceiptRef> = {}): Aut
   assert.equal(wrongPhase.eligible, false);
   assert.equal(wrongPhase.reason, 'authority_receipt_phase_mismatch');
 
+  const gateListExcludesCurrentPhase = eligibleAuthorityGateReceiptRef(
+    validRef({ targetPhase: 'TEST', eligibleGates: ['DONE'] }),
+    context,
+  );
+  assert.equal(gateListExcludesCurrentPhase.eligible, false);
+  assert.equal(gateListExcludesCurrentPhase.reason, 'authority_receipt_phase_mismatch');
+
+  const explicitTestCoversDone = eligibleAuthorityGateReceiptRef(
+    validRef({ targetPhase: 'TEST', eligibleGates: ['TEST', 'DONE'] }),
+    { ...context, targetPhase: 'DONE' },
+  );
+  assert.equal(explicitTestCoversDone.eligible, true);
+
   const wrongState = eligibleAuthorityGateReceiptRef(
     validRef({ stateVersion: 6 }),
     context,

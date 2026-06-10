@@ -43,6 +43,11 @@ import { buildVerificationCoverage, renderVerificationCoverage } from '../core/v
 import { checkEvidenceFreshnessForGit, currentMaterialHash } from '../core/evidence-freshness.js';
 import { syncClusterResolves } from '../core/cluster-sync.js';
 import { resolveVerificationIntentPolicy, resolveWorkflowPolicy } from '../core/workflow-policy.js';
+import { loadAuthoritySettings } from '../core/authority-mode.js';
+import {
+  consumeAuthorityGateReceiptDocument,
+  type AuthorityGateReceiptDocumentConsumption,
+} from '../core/authority-gate-receipts.js';
 
 const STATUS_FALLBACK_TIMEOUT_MS = 10_000;
 const SHELL_META_RE = /[;&|<>$()`]/;
@@ -327,6 +332,8 @@ function currentHead(projectRoot: string): string | undefined {
 function decorateStoryVerification(ctx: HandlerContext, storyId: string, result: any): any {
   let coverage;
   let verificationPolicy;
+  let authorityGateConsumption;
+  let authorityGateLine = '';
   try {
     const story = ctx.store.readStory(storyId);
     const cl = ctx.store.readChecklist(storyId);
@@ -341,23 +348,144 @@ function decorateStoryVerification(ctx: HandlerContext, storyId: string, result:
       (headHash, evidence) => checkEvidenceFreshnessForGit(ctx.root, headHash, evidence?.materialHash).fresh,
       { deferredGateEvidence: 'missing', evidenceQualityProfile: effectivePolicy.profile },
     );
+    authorityGateConsumption = evaluateValidationAuthorityGate(ctx, storyId, effectivePolicy.profile, result);
+    authorityGateLine = authorityGateConsumption?.line ?? '';
   } catch {
     return result;
   }
   const rendered = renderVerificationCoverage(coverage, verificationPolicy);
   const details = Array.isArray(result.details) ? [...result.details] : [];
   details.push(...rendered.split('\n'));
-  const allPass = Boolean(result.allPass) && coverage.missingRequired === 0;
+  if (authorityGateLine) details.push(authorityGateLine);
+  const authorityBlocks = authorityGateConsumption?.blocks === true;
+  const allPass = Boolean(result.allPass) && coverage.missingRequired === 0 && !authorityBlocks;
   return {
     ...result,
     status: allPass ? (result.status === 'warn' ? 'warn' : 'pass') : 'fail',
     allPass,
-    summary: coverage.missingRequired > 0
+    summary: authorityBlocks
+      ? `${result.summary || 'Validation'}; Authority gate consumption blocked: ${authorityGateConsumption?.reason ?? 'authority_receipt_missing'}`
+      : coverage.missingRequired > 0
       ? `${result.summary || 'Validation'}; verification coverage missing ${coverage.missingRequired} required intent(s)`
       : result.summary,
     details,
     verificationPolicy,
     verificationCoverage: coverage,
+    ...(authorityGateConsumption ? { authorityGateConsumption: authorityGateConsumption.json } : {}),
+  };
+}
+
+function renderAuthorityGateLine(args: {
+  status: 'PASS' | 'BLOCKED' | 'WARN' | 'SKIP';
+  mode: string;
+  storyId: string;
+  targetPhase: string;
+  reason?: string;
+  receiptId?: string;
+}): string {
+  const base = `Authority gate consumption: ${args.status} strongEvidenceConsumed=${args.status === 'PASS' ? 'true' : 'false'} story=${args.storyId} gate=${args.targetPhase}`;
+  const receipt = args.receiptId ? ` receiptId=${args.receiptId}` : '';
+  const reason = args.reason ? ` reason=${args.reason}` : '';
+  return `${base}${receipt} mode=${args.mode}${reason}`;
+}
+
+function evaluateValidationAuthorityGate(
+  ctx: HandlerContext,
+  storyId: string,
+  policyMode: string,
+  result: any,
+): {
+  blocks: boolean;
+  reason?: string;
+  line: string;
+  json: Record<string, unknown>;
+} | undefined {
+  const settings = ctx.authoritySettings ?? loadAuthoritySettings(process.env);
+  if (settings.mode === 'off') return undefined;
+  const targetPhase = 'TEST';
+  const headHash = currentHead(ctx.root);
+  const materialHash = currentMaterialHash(ctx.root);
+  const baseAllPass = Boolean(result.allPass ?? result.status === 'pass');
+  if (!headHash || !materialHash) {
+    const reason = !headHash ? 'authority_receipt_head_mismatch' : 'authority_receipt_stale_material';
+    return {
+      blocks: settings.mode === 'enforce' && baseAllPass,
+      reason,
+      line: renderAuthorityGateLine({ status: settings.mode === 'enforce' ? 'BLOCKED' : 'WARN', mode: settings.mode, storyId, targetPhase, reason }),
+      json: { mode: settings.mode, targetPhase, consumed: false, strongEvidenceConsumed: false, reason },
+    };
+  }
+  const document = ctx.store.readAuthorityReceiptRefs(storyId) ?? undefined;
+  const consumedAt = new Date().toISOString();
+  const consumed = consumeAuthorityGateReceiptDocument(
+    document,
+    {
+      storyId,
+      targetPhase,
+      headHash,
+      materialHash,
+      now: consumedAt,
+      acceptablePolicyModes: [policyMode],
+      acceptableAuthorityModes: ['enforce'],
+    },
+    consumedAt,
+  );
+  if (settings.mode === 'enforce' && baseAllPass && consumed.consumed && consumed.document) {
+    ctx.store.writeAuthorityReceiptRefs(storyId, consumed.document);
+  }
+  if (settings.mode === 'shadow') {
+    return {
+      blocks: false,
+      reason: consumed.consumed ? undefined : consumed.reason,
+      line: renderAuthorityGateLine({
+        status: 'WARN',
+        mode: settings.mode,
+        storyId,
+        targetPhase,
+        reason: consumed.consumed ? 'shadow_mode_no_strong_evidence' : consumed.reason,
+        receiptId: consumed.ref?.receiptId,
+      }),
+      json: authorityGateJson(settings.mode, targetPhase, consumed, false),
+    };
+  }
+  if (!baseAllPass) {
+    return {
+      blocks: false,
+      reason: 'local_validation_not_pass',
+      line: renderAuthorityGateLine({ status: 'SKIP', mode: settings.mode, storyId, targetPhase, reason: 'local_validation_not_pass', receiptId: consumed.ref?.receiptId }),
+      json: authorityGateJson(settings.mode, targetPhase, consumed, false, 'local_validation_not_pass'),
+    };
+  }
+  return {
+    blocks: !consumed.consumed,
+    reason: consumed.consumed ? undefined : consumed.reason,
+    line: renderAuthorityGateLine({
+      status: consumed.consumed ? 'PASS' : 'BLOCKED',
+      mode: settings.mode,
+      storyId,
+      targetPhase,
+      reason: consumed.consumed ? undefined : consumed.reason,
+      receiptId: consumed.ref?.receiptId,
+    }),
+    json: authorityGateJson(settings.mode, targetPhase, consumed, consumed.consumed),
+  };
+}
+
+function authorityGateJson(
+  mode: string,
+  targetPhase: string,
+  consumed: AuthorityGateReceiptDocumentConsumption,
+  strongEvidenceConsumed: boolean,
+  overrideReason?: string,
+): Record<string, unknown> {
+  return {
+    mode,
+    targetPhase,
+    consumed: consumed.consumed && strongEvidenceConsumed,
+    strongEvidenceConsumed,
+    receiptId: consumed.ref?.receiptId,
+    reason: overrideReason ?? consumed.reason,
+    fact: strongEvidenceConsumed ? consumed.fact : undefined,
   };
 }
 
