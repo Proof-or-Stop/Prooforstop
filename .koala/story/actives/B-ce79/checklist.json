@@ -262,7 +262,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees Layer 2 Engineering claim UNLOCKED only from formal suite proof, or NOT_AUTHORIZED when only diagnostic proof exists.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-baseline.ts",
+          "packages/main/src/handlers/lattice-baseline.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lattice-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Formal Layer 2 claim evaluator unlocks only the Engineering Baseline claim from accepted formal suite proof.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If only the diagnostic evaluator path exists, output remains NOT_AUTHORIZED or BLOCKED rather than unlocked.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A local diagnostic claim report cannot be relabeled as formal authorization.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-008",
