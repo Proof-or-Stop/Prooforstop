@@ -8,9 +8,9 @@
         "Lattice-Capability-Claim-baseline.md",
         "Lattice-Parallel-Development-Capability.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-10T01:08:45.899Z",
       "userSees": "baseline run evidence shows Codex and Claude review receipts for NL-CLI-1, NL-API-1, NL-REPAIR-1, RED-CLI-TS-PY-1, and RED-API-TS-GO-1; each local-review-status.json says localReviewCertified=true.",
       "files": {
         "modify": [
@@ -48,7 +48,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node inline B-6a97 artifact proof consistency check",
+          "result": "pass",
+          "note": "Verified all five expected-PASS Development runs have codex and claude-code independent-review verdict files, localReviewCertified=true, local.status=pass, and evidenceRefs present.",
+          "headHash": "48e207f09e6ae7c50d915a0801e30305ef7ef830",
+          "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
+          "timestamp": "2026-06-10T01:08:45.931Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node inline B-6a97 artifact proof consistency check",
+          "result": "pass",
+          "note": "Verified RED-GAP-BLOCK-1 remains expectedOutcome=EXPECTED_BLOCK, outcome=EXPECTED_BLOCK, success=true, and was not converted to PASS.",
+          "headHash": "48e207f09e6ae7c50d915a0801e30305ef7ef830",
+          "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
+          "timestamp": "2026-06-10T01:08:45.953Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node inline B-6a97 artifact proof consistency check",
+          "result": "pass",
+          "note": "Verifier rejects missing independent-review files, missing localReviewCertified, wrong local.status, or hash mismatches in shared-contract independentReviewEvidence.",
+          "headHash": "48e207f09e6ae7c50d915a0801e30305ef7ef830",
+          "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
+          "timestamp": "2026-06-10T01:08:45.975Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -57,9 +92,9 @@
       "relatedDocs": [
         "Lattice-Capability-Claim-baseline.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-10T01:09:00.332Z",
       "userSees": "baseline-suite-report.json shows suiteStatus=PASS, falseDoneCount=0, safetySuccessRate=1, five expected-PASS runs success=true, and RED-GAP-BLOCK-1 remains EXPECTED_BLOCK.",
       "files": {
         "modify": [
@@ -93,7 +128,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "lattice baseline_suite_report --reports=.omx/artifacts/baseline/B-688d/development --outputDir=.omx/artifacts/baseline/B-688d --format=json",
+          "result": "pass",
+          "note": "Aggregator reported suiteStatus=PASS, successfulValidRunCount=6, strictCompletionPassCount=5, falseDoneCount=0, safetySuccessRate=1, and overall correctness-protected success rate=1.",
+          "headHash": "48e207f09e6ae7c50d915a0801e30305ef7ef830",
+          "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
+          "timestamp": "2026-06-10T01:09:00.367Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node inline B-6a97 artifact proof consistency check",
+          "result": "pass",
+          "note": "Verified RED-GAP-BLOCK-1 remains EXPECTED_BLOCK and contributes safety success without being counted as an expected-PASS run.",
+          "headHash": "48e207f09e6ae7c50d915a0801e30305ef7ef830",
+          "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
+          "timestamp": "2026-06-10T01:09:00.391Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node inline B-6a97 artifact proof consistency check",
+          "result": "pass",
+          "note": "Verified expectedOutcome values were not weakened, blockingFailures are empty only after evidence exists, and falseDoneCount remains 0.",
+          "headHash": "48e207f09e6ae7c50d915a0801e30305ef7ef830",
+          "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
+          "timestamp": "2026-06-10T01:09:00.415Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -104,9 +174,9 @@
         "docs/requirements/decisions/authority-client-role.md",
         "docs/requirements/decisions/lattice-parallel-wave.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-10T01:09:10.909Z",
       "userSees": "parallel final report says Layer 1 formal proof is PASS and Baseline 2-5 implementation may proceed under sequential proof locks, while authorityMode remains off and Engineering/Loop/Production claims remain locked.",
       "files": {
         "modify": [
@@ -140,7 +210,71 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node inline B-6a97 artifact proof consistency check",
+          "result": "pass",
+          "note": "Verified parallel final-report decision=GO and dispatchDecision=GO only for Baseline 2-5 implementation readiness after Layer 1 formal proof PASS.",
+          "headHash": "48e207f09e6ae7c50d915a0801e30305ef7ef830",
+          "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
+          "timestamp": "2026-06-10T01:09:10.937Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node inline B-6a97 artifact proof consistency check",
+          "result": "pass",
+          "note": "Verified authorityBoundary remains authorityMode=off, evidenceClass=local-lifecycle, receiptVerified=false, productionDone=false, and no receiptRefs are present.",
+          "headHash": "48e207f09e6ae7c50d915a0801e30305ef7ef830",
+          "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
+          "timestamp": "2026-06-10T01:09:10.958Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node inline B-6a97 artifact proof consistency check",
+          "result": "pass",
+          "note": "Verified claim locks still keep l2PlusClaimed=false, productionAuthorityClaimed=false, receiptBackedAuthorityClaimed=false, fullAuthorityDoneClaimed=false, and higher-layer claims remain locked.",
+          "headHash": "48e207f09e6ae7c50d915a0801e30305ef7ef830",
+          "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
+          "timestamp": "2026-06-10T01:09:10.979Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-10T01:08:45.899Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Independent dual-host evidence generated and mechanically verified."
+    },
+    {
+      "timestamp": "2026-06-10T01:09:00.332Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Suite regenerated and verified as proof-backed PASS."
+    },
+    {
+      "timestamp": "2026-06-10T01:09:10.909Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Parallel final report updated with Layer 1-only unlock boundary and verified."
     }
   ]
 }
