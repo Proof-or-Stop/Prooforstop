@@ -1,10 +1,14 @@
 # 真相源导航
 
-> 20 个文件
+> 27 个文件
 
 ## decisions
 
 - [结构化注释系统](decisions/annotation-system.md)
+- [Authority Receipt Cross-Repo Live Smoke](decisions/authority-receipt-cross-repo-live-smoke.md)
+- [Authority Receipt Gate Integration Execution Plan](decisions/authority-receipt-gate-integration-execution-plan.md)
+- [Authority Runner Session and Evidence Envelope](decisions/authority-runner-session-evidence-envelope.md)
+- [Authority Receipt Gate End-to-End Plan](decisions/authority-session-receipt-gate-execution.md)
 - [Koala CLI Authority Client Role (PD-1 / PD-2 Decisions)](decisions/authority-client-role.md)
 - [koala 向 Claude Code 学习的改造方案](decisions/cc-learnings.md)
 - [Dev Memory — Lightweight Experience Capture](decisions/dev-memory.md)
@@ -13,6 +17,9 @@
 - [Lattice Host Overflow](decisions/host-overflow.md)
 - [Lattice Parallel Wave](decisions/lattice-parallel-wave.md)
 - [Lifecycle Artifact Scope Policy](decisions/lifecycle-artifact-scope.md)
+- [Lifecycle Gate Receipt Consumption](decisions/lifecycle-gate-receipt-consumption.md)
+- [Lattice Authority Receipt Contract](decisions/lattice-authority-receipt-contract.md)
+- [Lattice CLI Authority Client and Receipt Ref](decisions/lattice-cli-authority-client-receipt-ref.md)
 - [项目愿景与定位](decisions/project-vision.md)
 - [koala 多角色分离改造方案](decisions/role-separation.md)
 - [Session Ownership and Write Leases](decisions/session-ownership-and-write-leases.md)

@@ -137,7 +137,7 @@ const ACTOR_ID = 'actor-1';
 
   // garbage raw bytes throw on import
   assert.throws(() => importPublicKeyRaw('AA=='), /expected 32 raw bytes/);
-  assert.throws(() => importPrivateKeyRaw(''), /expected non-empty base64/);
+  assert.throws(() => importPrivateKeyRaw(''), /expected non-empty raw-key/);
 }
 
 // ─── 4. signEnvelope / verifySignedEnvelope (generic) ─────────────────────────
@@ -429,11 +429,23 @@ function checkRoundtrip<T extends { actorId: string; nonce: string; createdAt: s
   const sig = signCanonical(stripSignature(receipt), keypair.privateKey);
   const signed: AuthorityReceipt = { ...receipt, signature: sig };
   assert.equal(verifyAuthorityReceipt(signed, keypair.publicKey), true);
+  const publicKeyHex = Buffer.from(keypair.publicKey, 'base64').toString('hex');
+  const signatureHex = Buffer.from(sig, 'base64').toString('hex');
+  assert.equal(
+    verifyAuthorityReceipt({ ...receipt, signature: signatureHex }, publicKeyHex),
+    true,
+    'Python-style hex publicKey/signature must verify the same receipt payload',
+  );
 
   // tamper to subjectDigest fails
   assert.equal(
     verifyAuthorityReceipt({ ...signed, subjectDigest: 'sha256:evil' }, keypair.publicKey),
     false,
+  );
+  assert.equal(
+    verifyAuthorityReceipt({ ...receipt, subjectDigest: 'sha256:evil', signature: signatureHex }, publicKeyHex),
+    false,
+    'hex verification must still reject tampered payloads',
   );
   // wrong key fails
   assert.equal(verifyAuthorityReceipt(signed, otherKeypair.publicKey), false);

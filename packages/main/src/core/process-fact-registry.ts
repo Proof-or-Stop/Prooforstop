@@ -333,6 +333,13 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     producerCommand: 'verify_codex',
     consumerGate: 'Codex adapter REVIEW and DONE evidence gate',
   },
+  authority_receipt_refs: {
+    name: 'authority-receipt-refs.json',
+    path: 'authority-receipt-refs.json',
+    signed: false,
+    producerCommand: 'authority receipt verify',
+    consumerGate: 'REVIEW/TEST/DONE Authority gate_decision receipt consumption predicate',
+  },
 };
 
 export const PROCESS_FACT_REVIEWER_LANE_NAMES = [
@@ -684,6 +691,16 @@ export const PROCESS_FACT_ARTIFACTS = [
     consumerGate: 'Codex adapter REVIEW and DONE evidence gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.verify_codex,
     rationale: 'Codex adapter verification evidence is recorded in process events and consumed by adapter gates.',
+  },
+  {
+    name: 'artifact:authority-receipt-refs.json',
+    kind: 'artifact',
+    semantics: ['artifact', 'gate-evidence'],
+    level: 'L4',
+    producer: 'core/authority-gate-receipts',
+    consumerGate: 'REVIEW/TEST/DONE Authority gate_decision receipt consumption predicate',
+    artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.authority_receipt_refs,
+    rationale: 'Verified production gate_decision receipt refs derive strongEvidenceConsumed and production authority facts only after local gate-context rechecks.',
   },
 ] as const satisfies readonly ProcessFactRegistryEntry[];
 

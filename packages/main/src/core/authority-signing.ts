@@ -95,9 +95,16 @@ export function exportPublicKeyRaw(key: ReturnType<typeof generateKeyPairSync>['
   return raw.toString('base64');
 }
 
-function decodeBase64Bytes(input: string, expectedLen: number, label: string): Buffer {
+function isHexBytes(input: string, expectedLen: number): boolean {
+  return input.length === expectedLen * 2 && /^[0-9a-fA-F]+$/.test(input);
+}
+
+function decodeRawBytes(input: string, expectedLen: number, label: string): Buffer {
   if (typeof input !== 'string' || input.length === 0) {
-    throw new Error(`${label}: expected non-empty base64 string`);
+    throw new Error(`${label}: expected non-empty raw-key string`);
+  }
+  if (isHexBytes(input, expectedLen)) {
+    return Buffer.from(input, 'hex');
   }
   // Buffer.from(_, 'base64') silently tolerates malformed base64 (skips invalid
   // chars, never throws); the length check below is the actual validity gate.
@@ -110,14 +117,14 @@ function decodeBase64Bytes(input: string, expectedLen: number, label: string): B
 
 /** Reconstruct a Node KeyObject from a 32-byte raw Ed25519 private seed. */
 export function importPrivateKeyRaw(raw: PrivateKeyBase64) {
-  const seed = decodeBase64Bytes(raw, 32, 'importPrivateKeyRaw');
+  const seed = decodeRawBytes(raw, 32, 'importPrivateKeyRaw');
   const der = Buffer.concat([PRIVATE_KEY_DER_PREFIX, seed]);
   return createPrivateKey({ key: der, format: 'der', type: 'pkcs8' });
 }
 
 /** Reconstruct a Node KeyObject from a 32-byte raw Ed25519 public key. */
 export function importPublicKeyRaw(raw: PublicKeyBase64) {
-  const pub = decodeBase64Bytes(raw, 32, 'importPublicKeyRaw');
+  const pub = decodeRawBytes(raw, 32, 'importPublicKeyRaw');
   const der = Buffer.concat([PUBLIC_KEY_DER_PREFIX, pub]);
   return createPublicKey({ key: der, format: 'der', type: 'spki' });
 }
@@ -148,9 +155,11 @@ export function verifyCanonical(
   publicKey: PublicKeyBase64,
 ): boolean {
   if (typeof signature !== 'string' || signature.length === 0) return false;
+  const sigBuf = isHexBytes(signature, 64)
+    ? Buffer.from(signature, 'hex')
+    : Buffer.from(signature, 'base64');
   // Buffer.from(_, 'base64') silently tolerates malformed base64; the 64-byte
   // length check below is the actual validity gate for an Ed25519 signature.
-  const sigBuf = Buffer.from(signature, 'base64');
   if (sigBuf.length !== 64) return false;
   let key: ReturnType<typeof importPublicKeyRaw>;
   try {
