@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-10T14:38:38.574Z",
       "reviewRunId": "B-2949:RR-007",
       "_hash": "a6f001ece105c8bca8ec7ea5a25d0390f1bc84a157ad7cd7407c7bbab7cd551d"
+    },
+    {
+      "id": "B-2949:RP-005",
+      "agent": "koala-review-quality",
+      "note": "Quality review pass. Inspected current Lattice-Engineering-Baseline-Unlock-Execution-Plan.md and git diff main...HEAD. Verified B-2949:F-001 is fixed: evidence refs now use artifact:<file>#sha256=<64-hex> string refs, refusalType/missing digest field/{ path, digest }/gateEvidenceRefs[].gateType remnants are absent, and AUDIT_ONLY/finalDecision is separated from BaselineOutcome and suiteStatus mappings. git diff --check main...HEAD passed.",
+      "createdAt": "2026-06-10T14:41:49.535Z",
+      "reviewRound": "2026-06-10T14:38:38.574Z",
+      "reviewRunId": "B-2949:RR-010",
+      "_hash": "35afe851984c2fb64550adfea7a914b105e64755fcbb07bad93ef26ad1b4d3c0"
     }
   ]
 }
