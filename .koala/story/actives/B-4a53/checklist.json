@@ -1,0 +1,39 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "盘点 Authority Server 强证据就绪状态",
+      "context": "读取 authority_status / conduit_status / policy discovery，确认 mode、URL、actor key、runner/session、receipt verification prerequisites；不得把 readiness warning 当作强证据。",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-client-role.md",
+        "README.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "尝试提交 Authority job 并获取 receipt 证据",
+      "context": "构造最小 verification job plan 或 planner job，使用 authority_job_create / authority_job_status / receipt fetch/verify 路径。若服务或凭据不可用，记录 fail-closed 阻断原因。",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-client-role.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "输出强证据验证结果并保持 gate 边界一致",
+      "context": "产出本 story 的 evidence 报告：receipt-backed 成功则写 receipt refs 和验证摘要；失败则写 authorityMode 未升级、receiptVerified=false 的 blocked/audit 结果，确保不影响本地 DONE 语义。",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-parallel-wave.md",
+        "docs/requirements/decisions/authority-client-role.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

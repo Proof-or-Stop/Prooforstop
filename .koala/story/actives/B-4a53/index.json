@@ -1,0 +1,49 @@
+{
+  "storyId": "B-4a53",
+  "name": "authority-strong-evidence-verification",
+  "title": "验证 Lattice Authority Server 强证据流程与证据结果",
+  "description": "新开 story/worktree，对前序 B-0a80/B-688d local-lifecycle artifact 修复进行 Authority Server 强证据路径验证：提交 job、获取/验证 receipt、记录 receiptRefs 或 fail-closed readiness 阻断结果。",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "source": "user-request",
+  "keywords": [
+    "authority",
+    "receipt",
+    "strong-evidence",
+    "B-688d",
+    "B-0a80"
+  ],
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "凭据"
+    }
+  ],
+  "createdAt": "2026-06-10T01:48:36.995Z",
+  "startedAt": "2026-06-10T01:48:36.995Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-10T01:48:37.023Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-10T01:49:44.820Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-4a53",
+    "branch": "story/B-4a53",
+    "createdAt": "2026-06-10T01:50:11.042Z"
+  }
+}
