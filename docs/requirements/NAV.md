@@ -1,6 +1,6 @@
 # 真相源导航
 
-> 21 files
+> 26 files
 
 ## decisions
 
@@ -11,7 +11,12 @@
 - [framework](decisions/framework.md)
 - [Host-Neutral Observability Console（CLI-backed read-only Dashboard 设计）](decisions/host-neutral-observability-console.md)
 - [Lattice Host Overflow](decisions/host-overflow.md)
+- [Lattice Baseline Two-Host Multi-Agent Execution Plan](decisions/lattice-baseline-two-host-multi-agent-execution-plan.md)
+- [Lattice Authority Customer API Key Access](decisions/lattice-authority-customer-api-key-access.md)
+- [Lattice Authority M1-M16 Generated Proof And Live E2E Plan](decisions/lattice-authority-m1-m16-generated-proof-and-live-e2e.md)
+- [Lattice Authority Remote Evidence Bundle](decisions/lattice-authority-remote-evidence-bundle.md)
 - [Lattice Authority Unattended Development Requirements](decisions/lattice-authority-live-integration.md)
+- [Lattice Unattended Completion Plan](decisions/lattice-unattended-completion-plan.md)
 - [Lattice Parallel Wave](decisions/lattice-parallel-wave.md)
 - [Lifecycle Artifact Scope Policy](decisions/lifecycle-artifact-scope.md)
 - [项目愿景与定位](decisions/project-vision.md)

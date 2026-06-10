@@ -58,21 +58,26 @@ export interface LatticeAuthorityReceiptVerification {
   reason: string;
 }
 
+const OptionalStringFromAuthoritySchema = z.preprocess(
+  value => value === null ? undefined : value,
+  z.string().min(1).optional(),
+);
+
 export const LatticeAuthorityReceiptSchema = z.object({
   receiptId: z.string().min(1),
   kind: z.string().min(1),
   projectId: z.string().min(1),
-  storyId: z.string().min(1).optional(),
+  storyId: OptionalStringFromAuthoritySchema,
   actorId: z.string().min(1),
   role: z.string().min(1),
-  commandId: z.string().min(1).optional(),
+  commandId: OptionalStringFromAuthoritySchema,
   stateVersion: z.number().int(),
   policyVersion: z.string().min(1),
   inputDigest: z.string().min(1),
-  decisionDigest: z.string().min(1).optional(),
+  decisionDigest: OptionalStringFromAuthoritySchema,
   issuedAt: z.string().min(1),
   serverKeyId: z.string().min(1),
-  signature: z.string().min(1).optional(),
+  signature: OptionalStringFromAuthoritySchema,
 }).passthrough();
 
 function isHexBytes(value: string, bytes: number): boolean {

@@ -196,8 +196,8 @@ function createTmpRepo(): { root: string; store: StoryStore } {
   // 3a: fake AuthorityClient accepted=true → proceed=true for submitter
   const settings = { mode: 'enforce' as const, baseURL: 'https://auth.test', timeoutMS: 1000 };
   const okFetch = fetchReturning(200, JSON.stringify({ accepted: true, evidenceId: 'EV-ok' }));
-  const fakeClient = new AuthorityClient(settings.baseURL, okFetch.fetch);
-  const submitter = createAuthoritySubmitter(settings, fakeClient);
+  const fakeClient = new AuthorityClient(settings.baseURL, okFetch.fetch, settings.timeoutMS, { customerApiKey: 'matrix-test-key' });
+  const submitter = createAuthoritySubmitter(settings, fakeClient, { customerApiKey: 'matrix-test-key' });
   const decision = await submitter.submitSingle({
     storyId: 'B-2522',
     itemId: 'CHK-002',
@@ -235,7 +235,7 @@ function createTmpRepo(): { root: string; store: StoryStore } {
 {
   // createAuthoritySubmitter with enforce + no baseURL → submitSingle returns proceed=false
   const settings = { mode: 'enforce' as const, timeoutMS: 1000 };
-  const submitter = createAuthoritySubmitter(settings);
+  const submitter = createAuthoritySubmitter(settings, undefined, { customerApiKey: 'matrix-test-key' });
   const decision = await submitter.submitSingle({
     storyId: 'B-2522',
     itemId: 'CHK-002',

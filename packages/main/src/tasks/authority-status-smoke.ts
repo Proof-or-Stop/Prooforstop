@@ -48,6 +48,8 @@
 
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
@@ -61,14 +63,18 @@ const repoRoot = join(here, '..', '..', '..', '..');
 
 type EnvOverride = Record<string, string | undefined>;
 
-function runJson<T>(args: string[], env: EnvOverride = {}): T {
-  const out = execFileSync(process.execPath, [cliPath, '--root', repoRoot, ...args], {
-    cwd: repoRoot,
+function runJsonAtRoot<T>(root: string, args: string[], env: EnvOverride = {}, cwd = root): T {
+  const out = execFileSync(process.execPath, [cliPath, '--root', root, ...args], {
+    cwd,
     env: { ...process.env, ...env },
     encoding: 'utf8',
     stdio: ['pipe', 'pipe', 'pipe'],
   });
   return JSON.parse(out) as T;
+}
+
+function runJson<T>(args: string[], env: EnvOverride = {}): T {
+  return runJsonAtRoot<T>(repoRoot, args, env, repoRoot);
 }
 
 function runText(args: string[], env: EnvOverride = {}): string {
@@ -139,8 +145,14 @@ const EMPTY_AUTHORITY_ENV: EnvOverride = {
   assert.equal(result.receiptVerified, false, 'off-mode receiptVerified is false');
   assert.equal(result.canClaimProductionDone, false, 'off-mode canClaimProductionDone is false');
   assert.equal(result.authorityUrlConfigured, false, 'off-mode authorityUrlConfigured is false');
+  assert.equal(result.customerApiKeyConfigured, false, 'off-mode customer key is not configured');
+  assert.equal(result.customerApiKeySource, 'missing', 'off-mode customer key source is missing');
+  assert.equal(result.customerApiKeyValid, 'unknown', 'customer key validity is never inferred locally');
   assert.equal(result.actorKeyConfigured, false, 'off-mode actorKeyConfigured is false');
+  assert.equal(result.actorKeyRegistered, 'unknown', 'actor registration requires a live probe');
+  assert.equal(result.serverPublicKeyPinned, false, 'off-mode server key is not pinned');
   assert.equal(result.runnerConfigured, false, 'off-mode runnerConfigured is false');
+  assert.equal(result.productionAuthorityUsable, false, 'status output never claims production authority usability');
   assert.deepEqual(result.readinessWarnings, [], 'off-mode emits no readiness warnings');
   assert.deepEqual(result.nextActions, [], 'off-mode emits no next actions');
   assert.match(result.localWorkflowNote, /readiness warnings, not global blockers/i, 'off-mode includes local-workflow note');
@@ -166,15 +178,18 @@ const EMPTY_AUTHORITY_ENV: EnvOverride = {
   assertNoProductionOverclaim(result, 'buildAuthorityStatus shadow-missing-url');
 }
 
-// Enforce + missing URL + missing actor key + missing runner: three warnings.
+// Enforce + localhost default + missing customer key + missing actor key + missing runner.
 {
   const env: EnvOverride = { ...EMPTY_AUTHORITY_ENV, LATTICE_AUTHORITY_MODE: 'enforce' };
   const result = buildAuthorityStatus({}, env as Record<string, string | undefined>);
   assert.equal(result.mode, 'enforce', 'enforce mode reported');
   assert.equal(result.localWorkflowUsable, true, 'enforce-missing-prereqs localWorkflowUsable true');
+  assert.equal(result.authorityUrlConfigured, true, 'enforce mode sees the localhost authority default');
+  assert.equal(result.defaultUrlApplied, true, 'enforce mode records the localhost default source');
+  assert.ok(result.productionInert, 'localhost authority default is production-inert');
   assert.ok(
-    result.readinessWarnings.some(w => /enforce.*LATTICE_AUTHORITY_URL/.test(w)),
-    'enforce + missing URL emits URL readiness warning',
+    result.readinessWarnings.some(w => /LATTICE_AUTHORITY_CUSTOMER_API_KEY/.test(w)),
+    'enforce + missing customer key emits customer key warning',
   );
   assert.ok(
     result.readinessWarnings.some(w => /LATTICE_AUTHORITY_ACTOR_KEY/.test(w)),
@@ -196,6 +211,8 @@ const EMPTY_AUTHORITY_ENV: EnvOverride = {
     ...EMPTY_AUTHORITY_ENV,
     LATTICE_AUTHORITY_MODE: 'enforce',
     LATTICE_AUTHORITY_URL: 'https://authority.example',
+    LATTICE_AUTHORITY_CUSTOMER_API_KEY: 'customer-key-canary',
+    LATTICE_AUTHORITY_SERVER_PUBLIC_KEY: 'server-public-key-canary',
     LATTICE_AUTHORITY_ACTOR_KEY: 'fake-key-blob',
     LATTICE_AUTHORITY_RUNNER_ID: 'runner-1',
     LATTICE_AUTHORITY_SESSION_ID: 'session-1',
@@ -203,7 +220,12 @@ const EMPTY_AUTHORITY_ENV: EnvOverride = {
   const result = buildAuthorityStatus({}, env as Record<string, string | undefined>);
   assert.equal(result.mode, 'enforce', 'enforce reported even when env complete');
   assert.equal(result.authorityUrlConfigured, true, 'authority URL detected');
+  assert.equal(result.customerApiKeyConfigured, true, 'customer API key detected');
+  assert.equal(result.customerApiKeySource, 'env', 'customer API key source reported');
+  assert.equal(result.customerApiKeyValid, 'unknown', 'customer API key is not treated as validated by local status');
   assert.equal(result.actorKeyConfigured, true, 'actor key detected');
+  assert.equal(result.actorKeyRegistered, 'unknown', 'actor registration is not inferred from local config');
+  assert.equal(result.serverPublicKeyPinned, true, 'server public key pin is detected');
   assert.equal(result.runnerConfigured, true, 'runner detected');
   assert.equal(result.sessionConfigured, true, 'session detected');
   assert.deepEqual(
@@ -220,6 +242,82 @@ const EMPTY_AUTHORITY_ENV: EnvOverride = {
     'env-complete enforce canClaimProductionDone still false',
   );
   assertNoProductionOverclaim(result, 'buildAuthorityStatus enforce-env-complete');
+}
+
+// Enforce can resolve URL/customer/actor/runner/session from authority.md.
+{
+  const env: EnvOverride = { ...EMPTY_AUTHORITY_ENV, LATTICE_AUTHORITY_MODE: 'enforce' };
+  const result = buildAuthorityStatus({}, env as Record<string, string | undefined>, {
+    cwd: '/proj',
+    fileReader: p => (p.endsWith('.lattice/authority.md')
+      ? [
+        'serverUrl: https://authority-md.example',
+        'customerApiKey: md-customer-key',
+        'actorKey: md-actor-key',
+        'runnerId: md-runner',
+        'sessionId: md-session',
+        'projectId: md-project',
+      ].join('\n')
+      : undefined),
+  });
+  assert.equal(result.authorityMdLoaded, true, 'authority.md is loaded in enforce mode');
+  assert.equal(result.authorityUrlConfigured, true, 'authority.md serverUrl counts as configured');
+  assert.equal(result.customerApiKeyConfigured, true, 'authority.md customer key counts as configured');
+  assert.equal(result.customerApiKeySource, 'authority_md', 'authority.md customer key source is reported');
+  assert.equal(result.actorKeyConfigured, true, 'authority.md actor key counts as configured');
+  assert.equal(result.runnerConfigured, true, 'authority.md runnerId counts as configured');
+  assert.equal(result.sessionConfigured, true, 'authority.md sessionId counts as configured');
+  assert.deepEqual(result.readinessWarnings, [], 'authority.md-backed enforce config emits no missing-prerequisite warnings');
+  assertNoProductionOverclaim(result, 'buildAuthorityStatus enforce-authority-md');
+}
+
+// CLI --root reads authority.md from the selected project root, not the shell cwd.
+{
+  const projectRoot = mkdtempSync(join(tmpdir(), 'lattice-authority-status-root-'));
+  const outsideCwd = mkdtempSync(join(tmpdir(), 'lattice-authority-status-cwd-'));
+  try {
+    mkdirSync(join(projectRoot, '.lattice'), { recursive: true });
+    writeFileSync(join(projectRoot, 'lattice.config.json'), JSON.stringify({
+      scanRoot: '.',
+      rootDir: '.',
+      testsDir: 'tests',
+      fixturesDir: 'tests/fixtures',
+      storyDir: '.koala/story/actives',
+      requirementsDir: 'docs/requirements',
+      storyPrefix: 'B',
+    }, null, 2));
+    writeFileSync(join(projectRoot, '.lattice', 'authority.md'), [
+      'serverUrl: https://authority-root.example',
+      'customerApiKey: root-customer-key',
+      'actorKey: root-actor-key',
+      'runnerId: root-runner',
+      'sessionId: root-session',
+      'projectId: root-project',
+    ].join('\n'));
+
+    const env: EnvOverride = { ...EMPTY_AUTHORITY_ENV, LATTICE_AUTHORITY_MODE: 'enforce' };
+    const status = runJsonAtRoot<any>(projectRoot, ['authority_status', '--json'], env, outsideCwd);
+    assert.equal(status.authorityMdLoaded, true, '--root authority_status loads target authority.md');
+    assert.equal(status.baseURL, 'https://authority-root.example');
+    assert.equal(status.resolvedBaseURL, 'https://authority-root.example');
+    assert.equal(status.customerApiKeyConfigured, true);
+    assert.equal(status.runnerConfigured, true);
+    assert.equal(status.sessionConfigured, true);
+    assert.deepEqual(status.readinessWarnings, [], '--root status uses authority.md prerequisites');
+
+    const conduit = runJsonAtRoot<any>(projectRoot, ['conduit_status', '--json'], env, outsideCwd);
+    assert.equal(conduit.mode, 'enforce', '--root conduit_status keeps enforce mode');
+    assert.equal(conduit.authorityUrlConfigured, true, '--root conduit_status sees authority.md URL');
+    assert.equal(conduit.runnerConfigured, true, '--root conduit_status sees authority.md runner');
+    assert.deepEqual(conduit.readinessWarnings, [], '--root conduit_status uses authority.md prerequisites');
+
+    const runner = runJsonAtRoot<any>(projectRoot, ['authority_enforce_runner', '--json', '--dryRun'], env, outsideCwd);
+    assert.equal(runner.status, 'pass', '--root authority_enforce_runner dry-run uses authority.md prerequisites');
+    assert.deepEqual(runner.readinessWarnings, []);
+  } finally {
+    rmSync(projectRoot, { recursive: true, force: true });
+    rmSync(outsideCwd, { recursive: true, force: true });
+  }
 }
 
 // conduit_status mirrors readiness without promoting authority.
@@ -285,7 +383,7 @@ const EMPTY_AUTHORITY_ENV: EnvOverride = {
   assertNoProductionOverclaim(json, 'CLI authority_status --json shadow');
 }
 
-// enforce + missing prereqs through CLI: three warnings + still safe.
+// enforce + localhost default + missing prereqs through CLI: warnings + still safe.
 {
   const json = runJson<any>(['authority_status', '--json'], {
     ...EMPTY_AUTHORITY_ENV,
@@ -294,11 +392,11 @@ const EMPTY_AUTHORITY_ENV: EnvOverride = {
   assert.equal(json.mode, 'enforce', 'enforce CLI JSON mode enforce');
   assert.ok(
     json.readinessWarnings.length >= 3,
-    `enforce CLI JSON readinessWarnings includes URL/actor/runner; got ${json.readinessWarnings.length}`,
+    `enforce CLI JSON readinessWarnings includes customer/actor/runner; got ${json.readinessWarnings.length}`,
   );
   assert.ok(
-    json.nextActions.some((a: string) => /LATTICE_AUTHORITY_URL/.test(a)),
-    'enforce CLI JSON suggests URL next action',
+    json.nextActions.some((a: string) => /LATTICE_AUTHORITY_CUSTOMER_API_KEY/.test(a)),
+    'enforce CLI JSON suggests customer key next action',
   );
   assert.equal(json.productionDone, false, 'enforce CLI JSON productionDone still false');
   assert.equal(json.canClaimProductionDone, false, 'enforce CLI JSON canClaimProductionDone false');
@@ -311,6 +409,7 @@ const EMPTY_AUTHORITY_ENV: EnvOverride = {
     ...EMPTY_AUTHORITY_ENV,
     LATTICE_AUTHORITY_MODE: 'enforce',
     LATTICE_AUTHORITY_URL: 'https://authority.example',
+    LATTICE_AUTHORITY_CUSTOMER_API_KEY: 'customer-key-canary',
     LATTICE_AUTHORITY_ACTOR_KEY_PATH: '/tmp/fake-key.pem',
     LATTICE_AUTHORITY_RUNNER_ID: 'runner-x',
   });

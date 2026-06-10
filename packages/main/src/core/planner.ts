@@ -92,6 +92,10 @@ export interface PlannerDraft {
     verificationIntent: VerificationIntent;
   }>;
   plannerPolicy: PlannerPolicy;
+  // Resolved, fail-closed provider policy that travels with the draft so the
+  // emitted plannedSteps + JobPlan agree on which provider runs the bounded
+  // implementation step. Defaults to fake-only; real providers require explicit opt-in.
+  providerPolicy: JobProviderPolicy;
   sourceAlignedRedevelopmentSpec?: SourceAlignedRedevelopmentSpec;
   questions: PlannerQuestion[];
   requiredDecisions: PlannerQuestion[];
@@ -100,6 +104,14 @@ export interface PlannerDraft {
   deferredOptimizations: string[];
   status: 'drafted' | 'paused';
   pauseReason?: 'interview_questions' | 'major_decision_required';
+  // When --forceNewRun is supplied the planner intake digest is unchanged
+  // (naturalLanguageDigest still hashes the request verbatim), but the
+  // idempotency SCOPE is forked: plannerRunId / plannerDraftId / story name all
+  // mix in forceScope.scopeDigest so a forced run resolves to a distinct run,
+  // Story, and job plan instead of collapsing onto the default reuse scope.
+  forceNewRun?: boolean;
+  forceNewRunReason?: string;
+  forceScope?: { token: string; scopeDigest: string };
   plannerDigest: string;
 }
 
@@ -141,6 +153,12 @@ export interface PlannedStep {
 
 const PROVIDER_STEP_TYPES = { 'provider.fake': 'fake', 'provider.codex': 'codex', 'provider.claude': 'claude' } as const;
 
+const PLACEHOLDER_TEXT_PATTERN = /\b(todo|tbd|fixme|placeholder|replace me|fill me)\b|{{[^}]+}}|<[^>]+>/i;
+
+function isPlaceholderText(value: string): boolean {
+  return value.trim().length === 0 || PLACEHOLDER_TEXT_PATTERN.test(value);
+}
+
 export const PlannedStepSchema = z.object({
   stepId: z.string().min(1),
   type: z.enum(['lattice.command', 'provider.fake', 'provider.codex', 'provider.claude', 'validate.run', 'codex.verify', 'gate.evaluate', 'story.advance', 'stop.summary']),
@@ -158,6 +176,21 @@ export const PlannedStepSchema = z.object({
   evidenceBinding: z.string().min(1),
   args: z.record(z.string(), z.unknown()),
 }).superRefine((step, ctx) => {
+  for (const field of ['stepId', 'title', 'purpose', 'evidenceBinding'] as const) {
+    if (isPlaceholderText(step[field])) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: [field], message: `step ${step.stepId || '<unknown>'} ${field} must be concrete and must not be a placeholder` });
+    }
+  }
+  for (const field of ['validationBinding', 'repairBinding'] as const) {
+    const value = step[field];
+    if (typeof value === 'string' && isPlaceholderText(value)) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: [field], message: `step ${step.stepId} ${field} must be concrete and must not be a placeholder` });
+    }
+  }
+  const op = step.args.operation;
+  if (typeof op !== 'string' || isPlaceholderText(op)) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['args', 'operation'], message: `step ${step.stepId} must declare a concrete args.operation so executable plannedSteps are not prose-only` });
+  }
   const expectedProvider = PROVIDER_STEP_TYPES[step.type as keyof typeof PROVIDER_STEP_TYPES];
   if (expectedProvider) {
     if (step.provider !== expectedProvider) {
@@ -181,13 +214,180 @@ export const PlannedStepsSchema = z.array(PlannedStepSchema).min(1).superRefine(
   }
 });
 
+// Machine-readable JobPlan policy blocks (lattice-authority-live-integration.md
+// §B1). These travel with every JobPlan (local and authority) so the Stage B
+// executor never has to infer provider, worktree, retry, stop, lease, evidence,
+// or receipt semantics from prose. The planner only ever emits the conservative
+// fail-closed defaults below; `assertJobPolicyConsistency` rejects any plan whose
+// blocks are missing, ambiguous, or suspicious before it is treated as planned.
+
+export const EVIDENCE_RETENTION_CLASSES = ['short_lived_run_log', 'verification_artifact', 'receipt_bound_artifact', 'final_summary'] as const;
+export type EvidenceRetentionClass = typeof EVIDENCE_RETENTION_CLASSES[number];
+
+export type StopBehavior = 'block' | 'return_to_dev' | 'retry_then_block' | 'repair_then_reverify';
+
+// providerPolicy is a superset of the executor's ProviderPolicy (adds secretRefs
+// per the doc). The executor reads it defensively as Partial<ProviderPolicy>, so
+// the extra field is inert there and the executor still resolves the same
+// fail-closed behavior.
+export interface JobProviderPolicy {
+  primaryProvider: 'fake' | 'codex' | 'claude';
+  allowedProviders: Array<'fake' | 'codex' | 'claude'>;
+  fallbackProviders: Array<'fake' | 'codex' | 'claude'>;
+  productionDoneProviders: Array<'codex' | 'claude'>;
+  allowFakeProviderForProductionDone: boolean;
+  credentialsEnvAllowlist: string[];
+  secretRefs: string[];
+  providerAvailability: 'fail_closed';
+}
+
+// The conservative, fail-closed provider policy the planner emits by default: only
+// the deterministic `fake` provider is allowed, it is never production-DONE-eligible,
+// and no credentials are projected. A caller must explicitly opt a real provider in
+// (PlannerProviderPolicyInput) before the planner will emit a provider.codex /
+// provider.claude step — mirroring the executor's DEFAULT_FAIL_CLOSED_PROVIDER_POLICY.
+const DEFAULT_FAKE_PROVIDER_POLICY: JobProviderPolicy = {
+  primaryProvider: 'fake',
+  allowedProviders: ['fake'],
+  fallbackProviders: [],
+  productionDoneProviders: [],
+  allowFakeProviderForProductionDone: false,
+  credentialsEnvAllowlist: [],
+  secretRefs: [],
+  providerAvailability: 'fail_closed',
+};
+
+// Caller-supplied provider preference (CLI / handler input). Everything is optional;
+// `resolveDraftProviderPolicy` normalizes it into a fail-closed JobProviderPolicy.
+// `fake` stays the default so an unattended run never silently spawns a real provider.
+export interface PlannerProviderPolicyInput {
+  primaryProvider?: 'fake' | 'codex' | 'claude';
+  allowedProviders?: Array<'fake' | 'codex' | 'claude'>;
+  fallbackProviders?: Array<'fake' | 'codex' | 'claude'>;
+  productionDoneProviders?: Array<'codex' | 'claude'>;
+  allowFakeProviderForProductionDone?: boolean;
+  credentialsEnvAllowlist?: string[];
+  secretRefs?: string[];
+}
+
+export interface JobWorktreePolicy {
+  resolver: 'lattice.story.resolve';
+  requiresAuthoritativeWorktree: boolean;
+  allowWorktreeRepair: boolean;
+  allowedPathRoots: string[];
+  forbiddenPathGlobs: string[];
+  requiresCleanWorktree: boolean;
+  preserveUnrelatedDirtyChanges: boolean;
+  requireGitStatusEvidence: boolean;
+}
+
+export interface JobRetryPolicy {
+  maxAttemptsPerStep: number;
+  maxRepairAttempts: number;
+  maxNoProgressIterations: number;
+  retryableFailureKinds: string[];
+  repairAllowed: boolean;
+}
+
+export interface JobStopPolicy {
+  maxSteps: number;
+  maxWallClockMs: number;
+  onValidationFailure: StopBehavior;
+  onProviderFailure: StopBehavior;
+  onGateFailure: StopBehavior;
+  onReceiptFailure: StopBehavior;
+  onDirtyWorktree: StopBehavior;
+  onLeaseUnsafe: StopBehavior;
+  onMultiHostDisagreement: StopBehavior;
+}
+
+// Cost/time budget the executor meters and enforces (X6). Travels with every
+// JobPlan (local AND authority) so the Stage B / planner executor can stop
+// `budget_exceeded` without inferring limits from prose. Derived from
+// plannerPolicy at emit time; consumed defensively by core/budget-meter.ts.
+export interface JobBudgetPolicy {
+  maxWallClockMs: number;
+  maxTokenOrCostBudget: number;
+  maxProviderCalls: number;
+}
+
+// Lease claim-time fields (leaseId/leasedBy*/leaseExpiresAt) are null in a plan;
+// they are only populated when a runner actually claims the job. The TTL/renewal
+// config is fixed at plan time so renewal-before-expiry is unambiguous.
+export interface JobLease {
+  leaseId: string | null;
+  leasedByRunnerId: string | null;
+  leasedBySessionId: string | null;
+  leaseExpiresAt: string | null;
+  leaseTtlMs: number;
+  renewalThresholdMs: number;
+  graceMs: number;
+  leaseVersion: number;
+}
+
+export interface JobEvidencePolicy {
+  requiredEvidenceKinds: string[];
+  redactionRequired: boolean;
+  retentionClassByKind: Record<string, EvidenceRetentionClass>;
+  allowContinueWithoutEvidence: boolean;
+  checklistCoverageRequired: boolean;
+}
+
+export interface JobReceiptPolicy {
+  requiredKind: 'gate_decision';
+  expectedDecisionDigest: string | null;
+  freshnessMaxAgeMs: number;
+  clockSkewToleranceMs: number;
+  requiredServerKeyId: string | null;
+}
+
+// Conservative defaults shared by both local and authority plans.
+const RECEIPT_DEFAULT_FRESHNESS_MS = 600_000;
+const RECEIPT_DEFAULT_CLOCK_SKEW_MS = 300_000;
+const LEASE_DEFAULT_TTL_MS = 300_000;
+const LEASE_DEFAULT_RENEWAL_MS = 120_000;
+const LEASE_DEFAULT_GRACE_MS = 30_000;
+
+// The executor must never edit story/fixture JSON directly (Non-Goals + §B2).
+const FORBIDDEN_WORKTREE_GLOBS = ['.koala/story/**', '.lattice/story/**', 'docs/story/**', '**/tests/fixtures/**'] as const;
+
+const REQUIRED_EVIDENCE_KINDS = ['run_record', 'provider_event', 'command_event', 'validation_evidence', 'git_evidence', 'gate_request', 'stop_summary'] as const;
+
+export const DEFAULT_RETENTION_BY_KIND: Record<string, EvidenceRetentionClass> = {
+  run_record: 'short_lived_run_log',
+  provider_event: 'short_lived_run_log',
+  command_event: 'short_lived_run_log',
+  validation_evidence: 'verification_artifact',
+  git_evidence: 'verification_artifact',
+  gate_request: 'receipt_bound_artifact',
+  stop_summary: 'final_summary',
+};
+
+// retryPolicy and stopPolicy must stay disjoint (§B5: a job that mixes the fields
+// ambiguously fails validation before execution).
+const RETRY_ONLY_KEYS = ['maxAttemptsPerStep', 'maxRepairAttempts', 'maxNoProgressIterations', 'retryableFailureKinds', 'repairAllowed'] as const;
+const STOP_ONLY_KEYS = ['maxSteps', 'maxWallClockMs', 'onValidationFailure', 'onProviderFailure', 'onGateFailure', 'onReceiptFailure', 'onDirtyWorktree', 'onLeaseUnsafe', 'onMultiHostDisagreement'] as const;
+
 export interface JobPlan {
   schemaVersion: 'lattice.job_plan.v1';
   plannerRunId: string;
+  /** Server-issued Authority run id for a claimed live job. */
+  authorityRunId?: string;
   storyId: string;
   mode: PlannerRunMode;
   until: PlannerUntilPhase;
   developmentWorkflow: DevelopmentWorkflow;
+  // Machine-readable policy blocks. Optional on the type so legacy/test JobPlan
+  // fixtures still type-check, but buildJobPlan ALWAYS emits them and
+  // assertJobPolicyConsistency rejects any planner-produced plan that omits them.
+  providerPolicy?: JobProviderPolicy;
+  worktreePolicy?: JobWorktreePolicy;
+  retryPolicy?: JobRetryPolicy;
+  stopPolicy?: JobStopPolicy;
+  budgetPolicy?: JobBudgetPolicy;
+  lease?: JobLease;
+  evidencePolicy?: JobEvidencePolicy;
+  receiptPolicy?: JobReceiptPolicy;
   localRunPlan?: {
     runId: string;
     plannedStepsDigest: string;
@@ -233,9 +433,22 @@ export interface JobPlan {
     targetHostsPerWave: number;
     preferredHostsForReleaseCertification: number;
     preferredVerifierProviders: string[];
+    // requireMultiHost / requiredHostVerdictCount mechanically reflect the
+    // --requireMultiHost / --requiredHostVerdictCount planner knobs. They only
+    // TIGHTEN the policy (raise the required independent-host floor); they never
+    // assert that verification happened. The planned-steps executor still keeps
+    // multiHostVerified=false because it collects no host verdicts itself.
+    requireMultiHost: boolean;
+    requiredHostVerdictCount: number;
+    requiredReviewWaveCount?: number;
     fullAuthorityDoneRequired: boolean;
   };
   plannerDigest: string;
+  // Forced-scope provenance copied from the draft so the forked idempotency
+  // scope is visible in the job plan JSON and folded into jobPlanDigest.
+  forceNewRun?: boolean;
+  forceNewRunReason?: string;
+  forceScope?: { token: string; scopeDigest: string };
   jobPlanDigest: string;
   status: 'planned' | 'blocked';
   blockedReason?: string;
@@ -248,6 +461,8 @@ export interface PlannerRunRecord {
   review?: PlannerReviewResult;
   storyId?: string;
   jobPlan?: JobPlan;
+  execution?: unknown;
+  completion?: unknown;
   answersDigest?: string;
   confirmationDigest?: string;
   decisionReceiptDigests: string[];
@@ -274,6 +489,13 @@ export interface PlannerDraftArgs {
   semanticMappingPolicy?: Record<string, unknown> | string;
   parityOraclePolicy?: Record<string, unknown> | string;
   alignmentVerificationIntent?: string[] | string;
+  /**
+   * Explicit provider opt-in. When this selects a real provider (codex/claude) and
+   * lists it in allowedProviders, the planner emits a `provider.codex` /
+   * `provider.claude` bounded step instead of `provider.fake`. Accepts a parsed
+   * object or a JSON string (CLI). Omitted → fail-closed fake-only policy.
+   */
+  providerPolicy?: PlannerProviderPolicyInput | string;
   allowUnattendedPlanning?: boolean;
   forceNewRun?: boolean;
   forceNewRunReason?: string;
@@ -473,6 +695,66 @@ function buildSourceSpec(args: PlannerDraftArgs): SourceAlignedRedevelopmentSpec
   };
 }
 
+const PROVIDER_NAMES: ReadonlyArray<'fake' | 'codex' | 'claude'> = ['fake', 'codex', 'claude'];
+
+function providerNameList(value: unknown): Array<'fake' | 'codex' | 'claude'> {
+  return Array.isArray(value)
+    ? value.filter((x): x is 'fake' | 'codex' | 'claude' => PROVIDER_NAMES.includes(x as never))
+    : [];
+}
+
+/**
+ * Normalize the caller's provider preference into a fail-closed JobProviderPolicy.
+ *
+ * Fail-closed rules (so an explicit opt-in can never produce an inconsistent or
+ * over-claiming policy that `assertJobPolicyConsistency` would reject downstream):
+ *  - no input, or an unrecognized primary → the fake-only default;
+ *  - the primary provider is always forced into allowedProviders;
+ *  - fallbacks must be allowed and distinct from the primary;
+ *  - production-DONE providers are restricted to real providers that are allowed;
+ *  - `fake` can never be a production-DONE provider unless explicitly permitted.
+ */
+function resolveDraftProviderPolicy(input: PlannerProviderPolicyInput | string | undefined): JobProviderPolicy {
+  const raw = typeof input === 'string'
+    ? (input.trim() ? JSON.parse(input) as PlannerProviderPolicyInput : undefined)
+    : input;
+  if (!raw || typeof raw !== 'object') return { ...DEFAULT_FAKE_PROVIDER_POLICY };
+
+  const primaryProvider = PROVIDER_NAMES.includes(raw.primaryProvider as never)
+    ? raw.primaryProvider as 'fake' | 'codex' | 'claude'
+    : 'fake';
+
+  const allowed = new Set<'fake' | 'codex' | 'claude'>(providerNameList(raw.allowedProviders));
+  allowed.add(primaryProvider); // primary is always allowed
+  const allowedProviders = PROVIDER_NAMES.filter(p => allowed.has(p));
+
+  const fallbackProviders = providerNameList(raw.fallbackProviders)
+    .filter(p => allowed.has(p) && p !== primaryProvider);
+
+  const allowFakeProviderForProductionDone = raw.allowFakeProviderForProductionDone === true;
+  const productionDoneProviders = (Array.isArray(raw.productionDoneProviders)
+    ? raw.productionDoneProviders.filter((x): x is 'codex' | 'claude' => x === 'codex' || x === 'claude')
+    : []).filter(p => allowed.has(p));
+
+  const credentialsEnvAllowlist = Array.isArray(raw.credentialsEnvAllowlist)
+    ? raw.credentialsEnvAllowlist.filter((x): x is string => typeof x === 'string' && x.trim() !== '')
+    : [];
+  const secretRefs = Array.isArray(raw.secretRefs)
+    ? raw.secretRefs.filter((x): x is string => typeof x === 'string' && x.trim() !== '')
+    : [];
+
+  return {
+    primaryProvider,
+    allowedProviders,
+    fallbackProviders,
+    productionDoneProviders,
+    allowFakeProviderForProductionDone,
+    credentialsEnvAllowlist,
+    secretRefs,
+    providerAvailability: 'fail_closed',
+  };
+}
+
 export function buildPlannerDraft(root: string, args: PlannerDraftArgs = {}, now = new Date()): PlannerDraft {
   const requestFile = args.requestFile ? resolve(root, args.requestFile) : undefined;
   const request = args.request ?? (requestFile ? readFileSync(requestFile, 'utf8') : '');
@@ -481,13 +763,34 @@ export function buildPlannerDraft(root: string, args: PlannerDraftArgs = {}, now
   const until = normalizeUntil(args.until);
   const developmentWorkflow = normalizeWorkflow(args.workflow);
   const policy = defaultPlannerPolicy(args, mode, interactionMode);
+  // --forceNewRun fails closed without a non-empty reason: a forced fork must be
+  // attributable, so an empty/whitespace reason is rejected before any scope is
+  // computed. This is enforced here (not just in Zod) so every call path — CLI,
+  // planner_run, direct buildPlannerDraft — blocks identically.
+  const forceNewRun = args.forceNewRun === true;
+  const forceNewRunReason = typeof args.forceNewRunReason === 'string' ? args.forceNewRunReason.trim() : '';
+  if (forceNewRun && forceNewRunReason.length === 0) {
+    throw new Error('forceNewRun requires a non-empty forceNewRunReason: a forced new idempotency scope must carry an attributable reason');
+  }
   const digest = textDigest(request);
-  const plannerRunId = `prun-${digest.slice(0, 12)}-${interactionMode}`;
+  // Intake digest (naturalLanguageDigest) stays request-only so identical
+  // inline/requestFile requests keep collapsing onto the same default scope.
+  // The forced scope digest mixes the reason in, forking plannerRunId / Story /
+  // job plan WITHOUT changing the intake identity.
+  const forceScopeToken = forceNewRun ? textDigest(`force:${forceNewRunReason}`).slice(0, 8) : undefined;
+  const scopeDigest = forceNewRun ? textDigest(`${digest} force:${forceNewRunReason}`) : digest;
+  const plannerRunId = forceNewRun
+    ? `prun-${scopeDigest.slice(0, 12)}-${interactionMode}-force-${forceScopeToken}`
+    : `prun-${digest.slice(0, 12)}-${interactionMode}`;
   const title = developmentWorkflow === 'source_aligned_redevelopment'
     ? `Source-aligned redevelopment to ${args.targetLanguage || 'target language'}`
     : request.split(/\n+/)[0]?.trim().slice(0, 96) || 'Lattice planner request';
+  // Fork the Story name on a forced run so story_create's normalized-name
+  // idempotency does NOT reuse the default Story; a repeated forced run with the
+  // same reason still collapses (deterministic), so forced scopes stay idempotent.
+  const storyName = forceNewRun ? `${slug(title)}-force-${forceScopeToken}` : slug(title);
   const storyDraft = {
-    name: slug(title),
+    name: storyName,
     title,
     description: request || 'Planner request was empty; review must block until a concrete request is provided.',
     type: 'feature' as StoryType,
@@ -499,7 +802,7 @@ export function buildPlannerDraft(root: string, args: PlannerDraftArgs = {}, now
   const draftBase = {
     schemaVersion: 'lattice.planner_draft.v1' as const,
     plannerRunId,
-    plannerDraftId: `pdraft-${digest.slice(0, 16)}`,
+    plannerDraftId: `pdraft-${scopeDigest.slice(0, 16)}`,
     createdAt: now.toISOString(),
     interactionMode,
     mode,
@@ -511,12 +814,14 @@ export function buildPlannerDraft(root: string, args: PlannerDraftArgs = {}, now
     storyDraft,
     checklist: buildChecklist(request, developmentWorkflow),
     plannerPolicy: policy,
+    providerPolicy: resolveDraftProviderPolicy(args.providerPolicy),
     ...(sourceSpec ? { sourceAlignedRedevelopmentSpec: sourceSpec } : {}),
     questions,
     requiredDecisions,
     assumptions: interactionMode === 'autonomous' ? ['Low-risk ambiguity may be recorded as explicit assumptions; high-risk ambiguity blocks or uses a host decision wave.'] : [],
     scopeQuestions: request.trim() ? [] : [{ id: 'SQ-001', question: 'Provide a concrete natural-language request.', why: 'Planner cannot create a verifiable Story from an empty request.' }],
     deferredOptimizations: ['Unrequested refactors, architecture rewrites, and nice-to-have UX/performance work are deferred unless required by verification or safety policy.'],
+    ...(forceNewRun ? { forceNewRun: true, forceNewRunReason, forceScope: { token: forceScopeToken!, scopeDigest } } : {}),
     status: (questions.length > 0 || requiredDecisions.length > 0) ? 'paused' as const : 'drafted' as const,
     pauseReason: questions.length > 0 ? 'interview_questions' as const : requiredDecisions.length > 0 ? 'major_decision_required' as const : undefined,
   };
@@ -585,6 +890,54 @@ export function reviewPlannerDraft(draft: PlannerDraft, now = new Date()): Plann
   };
 }
 
+// Bounded, non-interactive argv the planner emits for a real provider step. It is
+// intentionally minimal (it references the story, not the full request) so the
+// argv carries no context that could leak — the executor digests it and never
+// surfaces it raw. `fake` needs no argv (it is deterministic and spawns nothing).
+function providerStepArgv(provider: 'codex' | 'claude', storyId: string): string[] {
+  const prompt = `Implement the smallest scoped step for Lattice story ${storyId} per its checklist; do not over-optimize.`;
+  return provider === 'codex'
+    ? ['exec', '--skip-git-repo-check', prompt]
+    : ['-p', prompt, '--output-format', 'json'];
+}
+
+/**
+ * Build the single bounded provider step. The step TYPE and `provider` field are
+ * driven by the resolved provider policy: a real provider (codex/claude) yields a
+ * `provider.codex` / `provider.claude` step with a bounded argv; `fake` yields the
+ * deterministic, fixtures-only `provider.fake` step that spawns nothing.
+ */
+function buildProviderStep(provider: 'fake' | 'codex' | 'claude', storyId: string): PlannedStep {
+  const common = {
+    stepId: 'step-003-provider',
+    title: 'Run bounded provider',
+    cwdPolicy: 'story-worktree' as const,
+    timeoutMs: 300_000,
+    maxAttempts: 1,
+    requiresCleanWorktree: true,
+    producesEvidence: true,
+    blocksUntilEvidenceUploaded: true,
+    evidenceBinding: `${storyId}:provider`,
+  };
+  if (provider === 'fake') {
+    return {
+      ...common,
+      type: 'provider.fake',
+      purpose: 'Execute the smallest scoped implementation step; fake provider is deterministic for smoke and fixtures.',
+      provider: 'fake',
+      args: { operation: 'implement', antiOverOptimization: true },
+    };
+  }
+  const stepType = provider === 'codex' ? 'provider.codex' : 'provider.claude';
+  return {
+    ...common,
+    type: stepType,
+    purpose: `Execute the smallest scoped implementation step through the bounded ${provider} provider; output is captured as digests and is never validation or gate evidence.`,
+    provider,
+    args: { operation: 'implement', antiOverOptimization: true, argv: providerStepArgv(provider, storyId) },
+  };
+}
+
 export function buildPlannedSteps(draft: PlannerDraft, storyId: string): PlannedStep[] {
   const base: PlannedStep[] = [
     {
@@ -648,21 +1001,7 @@ export function buildPlannedSteps(draft: PlannerDraft, storyId: string): Planned
     }
   }
   base.push(
-    {
-      stepId: 'step-003-provider',
-      type: 'provider.fake',
-      title: 'Run bounded provider',
-      purpose: 'Execute the smallest scoped implementation step; fake provider is deterministic for smoke and fixtures.',
-      cwdPolicy: 'story-worktree',
-      timeoutMs: 300_000,
-      maxAttempts: 1,
-      requiresCleanWorktree: true,
-      producesEvidence: true,
-      blocksUntilEvidenceUploaded: true,
-      provider: 'fake',
-      evidenceBinding: `${storyId}:provider`,
-      args: { operation: 'implement', antiOverOptimization: true },
-    },
+    buildProviderStep(draft.providerPolicy.primaryProvider, storyId),
     {
       stepId: 'step-004-validate',
       type: 'validate.run',
@@ -728,7 +1067,208 @@ function assertDoneClaimNotOverclaimed(plan: JobPlan): JobPlan {
   return plan;
 }
 
-export function buildJobPlan(draft: PlannerDraft, storyId: string, projectId = 'local-project', now = new Date()): JobPlan {
+// Build the conservative, fail-closed JobPlan policy blocks. The planner never
+// enables real providers, production-DONE eligibility, or worktree repair on its
+// own; those require an explicit Authority job that the executor validates.
+function buildJobPolicyBlocks(draft: PlannerDraft, plannedSteps: PlannedStep[]): {
+  providerPolicy: JobProviderPolicy;
+  worktreePolicy: JobWorktreePolicy;
+  retryPolicy: JobRetryPolicy;
+  stopPolicy: JobStopPolicy;
+  budgetPolicy: JobBudgetPolicy;
+  lease: JobLease;
+  evidencePolicy: JobEvidencePolicy;
+  receiptPolicy: JobReceiptPolicy;
+} {
+  const authority = draft.mode === 'authority';
+  return {
+    // The provider policy is resolved once at draft time (fail-closed fake by
+    // default) and reused here so the emitted provider step and the JobPlan policy
+    // can never disagree about which provider is allowed to run.
+    providerPolicy: { ...draft.providerPolicy },
+    worktreePolicy: {
+      resolver: 'lattice.story.resolve',
+      requiresAuthoritativeWorktree: authority,
+      allowWorktreeRepair: false,
+      allowedPathRoots: [],
+      forbiddenPathGlobs: [...FORBIDDEN_WORKTREE_GLOBS],
+      requiresCleanWorktree: false,
+      preserveUnrelatedDirtyChanges: true,
+      requireGitStatusEvidence: true,
+    },
+    retryPolicy: {
+      maxAttemptsPerStep: 2,
+      maxRepairAttempts: 1,
+      maxNoProgressIterations: 2,
+      retryableFailureKinds: ['retryable_failure'],
+      repairAllowed: false,
+    },
+    stopPolicy: {
+      maxSteps: Math.max(plannedSteps.length, 1),
+      maxWallClockMs: draft.plannerPolicy.maxWallClockMs,
+      onValidationFailure: 'return_to_dev',
+      onProviderFailure: 'retry_then_block',
+      onGateFailure: 'block',
+      onReceiptFailure: 'block',
+      onDirtyWorktree: 'block',
+      onLeaseUnsafe: 'block',
+      onMultiHostDisagreement: 'block',
+    },
+    budgetPolicy: {
+      maxWallClockMs: draft.plannerPolicy.maxWallClockMs,
+      maxTokenOrCostBudget: draft.plannerPolicy.maxTokenOrCostBudget,
+      maxProviderCalls: draft.plannerPolicy.maxProviderCalls,
+    },
+    lease: {
+      leaseId: null,
+      leasedByRunnerId: null,
+      leasedBySessionId: null,
+      leaseExpiresAt: null,
+      leaseTtlMs: LEASE_DEFAULT_TTL_MS,
+      renewalThresholdMs: LEASE_DEFAULT_RENEWAL_MS,
+      graceMs: LEASE_DEFAULT_GRACE_MS,
+      leaseVersion: 0,
+    },
+    evidencePolicy: {
+      requiredEvidenceKinds: [...REQUIRED_EVIDENCE_KINDS],
+      redactionRequired: true,
+      retentionClassByKind: { ...DEFAULT_RETENTION_BY_KIND },
+      allowContinueWithoutEvidence: false,
+      checklistCoverageRequired: true,
+    },
+    receiptPolicy: {
+      requiredKind: 'gate_decision',
+      expectedDecisionDigest: null,
+      freshnessMaxAgeMs: RECEIPT_DEFAULT_FRESHNESS_MS,
+      clockSkewToleranceMs: RECEIPT_DEFAULT_CLOCK_SKEW_MS,
+      requiredServerKeyId: null,
+    },
+  };
+}
+
+// Reject any JobPlan whose machine-readable policy blocks are missing, ambiguous,
+// or suspicious. This is the JobPlan-level "review" gate (§B5: schema validation
+// before execution): provider fallback, worktree, retry/stop separation, lease
+// renewal, receipt, evidence, and multi-host invariants must all be unambiguous
+// before a plan is treated as planned. It throws so a bad plan can never be
+// silently executed, mirroring assertDoneClaimNotOverclaimed.
+export function assertJobPolicyConsistency(plan: JobPlan): JobPlan {
+  function fail(msg: string): never {
+    throw new Error(`job policy inconsistency: ${msg}`);
+  }
+
+  const { providerPolicy: pp, worktreePolicy: wt, retryPolicy: rpRaw, stopPolicy: spRaw, lease, evidencePolicy: ep, receiptPolicy: rcp } = plan;
+  if (!pp || !wt || !rpRaw || !spRaw || !lease || !ep || !rcp) {
+    fail('one or more required policy blocks are missing (providerPolicy/worktreePolicy/retryPolicy/stopPolicy/lease/evidencePolicy/receiptPolicy)');
+  }
+
+  if (pp.providerAvailability !== 'fail_closed') fail('providerPolicy.providerAvailability must be fail_closed');
+  if (!pp.allowedProviders.includes(pp.primaryProvider)) fail('providerPolicy.primaryProvider must be listed in allowedProviders');
+  for (const fb of pp.fallbackProviders) {
+    if (!pp.allowedProviders.includes(fb)) fail(`providerPolicy fallback ${fb} is not in allowedProviders; fallback is only allowed to an allowed provider`);
+    if (fb === pp.primaryProvider) fail('providerPolicy.primaryProvider must not also appear in fallbackProviders');
+  }
+  if (!pp.allowFakeProviderForProductionDone && pp.productionDoneProviders.some(p => (p as string) === 'fake')) {
+    fail('fake provider cannot be a production-DONE provider unless allowFakeProviderForProductionDone is true');
+  }
+
+  if (wt.resolver !== 'lattice.story.resolve') fail('worktreePolicy.resolver must be lattice.story.resolve');
+  if (wt.preserveUnrelatedDirtyChanges !== true) fail('worktreePolicy.preserveUnrelatedDirtyChanges must remain true');
+  if (wt.requireGitStatusEvidence !== true) fail('worktreePolicy.requireGitStatusEvidence must remain true');
+  if (plan.mode === 'authority' && wt.requiresAuthoritativeWorktree !== true) fail('authority mode requires worktreePolicy.requiresAuthoritativeWorktree=true');
+
+  const rp = rpRaw as JobRetryPolicy & Record<string, unknown>;
+  const sp = spRaw as JobStopPolicy & Record<string, unknown>;
+  for (const key of STOP_ONLY_KEYS) {
+    if (key in rp) fail(`retryPolicy must not carry stopPolicy field "${key}" (§B5: retry/stop fields must not be mixed)`);
+  }
+  for (const key of RETRY_ONLY_KEYS) {
+    if (key in sp) fail(`stopPolicy must not carry retryPolicy field "${key}" (§B5: retry/stop fields must not be mixed)`);
+  }
+  if (rp.maxAttemptsPerStep < 1) fail('retryPolicy.maxAttemptsPerStep must be >= 1');
+  if (rp.maxRepairAttempts < 0) fail('retryPolicy.maxRepairAttempts must be >= 0');
+  if (rp.maxNoProgressIterations < 1) fail('retryPolicy.maxNoProgressIterations must be >= 1');
+  if (sp.maxSteps < 1) fail('stopPolicy.maxSteps must be >= 1');
+  if (sp.maxWallClockMs <= 0) fail('stopPolicy.maxWallClockMs must be > 0');
+
+  // budgetPolicy (X6): travels with planner-built plans. Validate when present so a
+  // negative / non-finite limit can never silently disable a bound (0 = no limit by
+  // design, e.g. an unknown token budget). Absent block stays tolerated for legacy
+  // hand-built fixtures; the executor resolves limits defensively regardless.
+  const bp = plan.budgetPolicy;
+  if (bp) {
+    const finiteNonNeg = (v: unknown): boolean => typeof v === 'number' && Number.isFinite(v) && v >= 0;
+    if (!finiteNonNeg(bp.maxWallClockMs)) fail('budgetPolicy.maxWallClockMs must be a finite number >= 0 (0 disables the wall-clock budget)');
+    if (!finiteNonNeg(bp.maxTokenOrCostBudget)) fail('budgetPolicy.maxTokenOrCostBudget must be a finite number >= 0 (0 disables the token/cost budget)');
+    if (!finiteNonNeg(bp.maxProviderCalls)) fail('budgetPolicy.maxProviderCalls must be a finite number >= 0 (0 disables the provider-call budget)');
+  }
+
+  if (lease.leaseTtlMs <= 0) fail('lease.leaseTtlMs must be > 0');
+  if (lease.renewalThresholdMs <= 0) fail('lease.renewalThresholdMs must be > 0');
+  if (lease.renewalThresholdMs >= lease.leaseTtlMs) fail('lease.renewalThresholdMs must be < leaseTtlMs so renewal happens before expiry');
+  if (lease.graceMs < 0) fail('lease.graceMs must be >= 0');
+  if (lease.leaseVersion < 0) fail('lease.leaseVersion must be >= 0');
+
+  if (rcp.requiredKind !== 'gate_decision') fail('receiptPolicy.requiredKind must be gate_decision');
+  if (!(rcp.freshnessMaxAgeMs > 0)) fail('receiptPolicy.freshnessMaxAgeMs must be > 0 (enforce-mode rejects 0)');
+  if (rcp.clockSkewToleranceMs < 0) fail('receiptPolicy.clockSkewToleranceMs must be >= 0');
+
+  if (ep.requiredEvidenceKinds.length === 0) fail('evidencePolicy.requiredEvidenceKinds must not be empty');
+  for (const [kind, cls] of Object.entries(ep.retentionClassByKind)) {
+    if (!EVIDENCE_RETENTION_CLASSES.includes(cls)) fail(`evidencePolicy.retentionClassByKind["${kind}"] has unknown retention class "${cls}"`);
+  }
+
+  const mh = plan.multiHostPolicy;
+  if (mh.minIndependentHosts < MULTI_HOST_FLOOR) fail(`multiHostPolicy.minIndependentHosts must be >= ${MULTI_HOST_FLOOR}`);
+  if (mh.targetHostsPerWave < MULTI_HOST_FLOOR) fail(`multiHostPolicy.targetHostsPerWave must be >= ${MULTI_HOST_FLOOR}`);
+  if (mh.requireMultiHost && mh.requiredHostVerdictCount < MULTI_HOST_FLOOR) fail('an active multi-host requirement must require at least the host floor');
+  if (!mh.requireMultiHost && mh.requiredHostVerdictCount !== 0) fail('an inactive multi-host requirement must record zero required host verdicts');
+  if (mh.requiredHostVerdictCount > mh.minIndependentHosts) fail('multiHostPolicy.requiredHostVerdictCount must not exceed minIndependentHosts');
+  if (mh.requireMultiHost && (mh.requiredReviewWaveCount ?? 3) < 3) fail('an active multi-host requirement must require at least three final host-check waves');
+
+  return plan;
+}
+
+export interface MultiHostPolicyInput {
+  requireMultiHost?: boolean;
+  requiredHostVerdictCount?: number;
+}
+
+// Minimum independent hosts when any multi-host requirement is active. The doc
+// (lattice-authority-live-integration.md B.* multiHostPolicy rules) fixes this
+// floor at 2; knobs may only tighten above it, never relax below it.
+const MULTI_HOST_FLOOR = 2;
+
+// Mechanically project the --requireMultiHost / --requiredHostVerdictCount knobs
+// onto the JobPlan.multiHostPolicy. Either an explicit --requireMultiHost flag or
+// a positive --requiredHostVerdictCount activates the requirement (mirrors the
+// autopilot executor's `(requireMultiHost || requiredHostVerdictCount > 0)`),
+// and the required count is floored at MULTI_HOST_FLOOR once active.
+function projectMultiHostPolicyKnobs(input: MultiHostPolicyInput): {
+  requireMultiHost: boolean;
+  requiredHostVerdictCount: number;
+  minIndependentHosts: number;
+} {
+  const requested =
+    typeof input.requiredHostVerdictCount === 'number' &&
+    Number.isFinite(input.requiredHostVerdictCount) &&
+    input.requiredHostVerdictCount > 0
+      ? Math.floor(input.requiredHostVerdictCount)
+      : 0;
+  const requireMultiHost = input.requireMultiHost === true || requested > 0;
+  const requiredHostVerdictCount = requireMultiHost ? Math.max(requested, MULTI_HOST_FLOOR) : 0;
+  const minIndependentHosts = Math.max(MULTI_HOST_FLOOR, requiredHostVerdictCount);
+  return { requireMultiHost, requiredHostVerdictCount, minIndependentHosts };
+}
+
+export function buildJobPlan(
+  draft: PlannerDraft,
+  storyId: string,
+  projectId = 'local-project',
+  multiHostInput: MultiHostPolicyInput = {},
+  now = new Date(),
+): JobPlan {
+  const multiHostKnobs = projectMultiHostPolicyKnobs(multiHostInput);
   const plannedSteps = PlannedStepsSchema.parse(buildPlannedSteps(draft, storyId)) as PlannedStep[];
   if (plannedSteps.length > draft.plannerPolicy.maxPlannedSteps) {
     throw new Error(`generated ${plannedSteps.length} planned steps exceeds plannerPolicy.maxPlannedSteps=${draft.plannerPolicy.maxPlannedSteps}`);
@@ -748,6 +1288,7 @@ export function buildJobPlan(draft: PlannerDraft, storyId: string, projectId = '
         : 'local validation plus required independent local verdicts when requested',
     };
   });
+  const policyBlocks = buildJobPolicyBlocks(draft, plannedSteps);
   const common = {
     schemaVersion: 'lattice.job_plan.v1' as const,
     plannerRunId: draft.plannerRunId,
@@ -755,16 +1296,21 @@ export function buildJobPlan(draft: PlannerDraft, storyId: string, projectId = '
     mode: draft.mode,
     until: draft.until,
     developmentWorkflow: draft.developmentWorkflow,
+    ...policyBlocks,
     plannedSteps,
     coverageMap,
     multiHostPolicy: {
-      minIndependentHosts: 2,
+      minIndependentHosts: multiHostKnobs.minIndependentHosts,
       targetHostsPerWave: 3,
       preferredHostsForReleaseCertification: 3,
       preferredVerifierProviders: ['codex', 'claude', 'gemini'],
+      requireMultiHost: multiHostKnobs.requireMultiHost,
+      requiredHostVerdictCount: multiHostKnobs.requiredHostVerdictCount,
+      requiredReviewWaveCount: 3,
       fullAuthorityDoneRequired: draft.mode === 'authority' && draft.until === 'DONE',
     },
     plannerDigest: draft.plannerDigest,
+    ...(draft.forceNewRun ? { forceNewRun: true, forceNewRunReason: draft.forceNewRunReason, forceScope: draft.forceScope } : {}),
   };
   const jobPlanDigest = sha(common);
   if (draft.mode === 'authority') {
@@ -793,16 +1339,16 @@ export function buildJobPlan(draft: PlannerDraft, storyId: string, projectId = '
       idempotencyKey: sha({ storyId, plannerDigest: draft.plannerDigest, plannedStepsDigest, policyVersion: 'v1' }),
       signatureAlgorithm: 'ed25519' as const,
     };
-    return assertDoneClaimNotOverclaimed({
+    return assertJobPolicyConsistency(assertDoneClaimNotOverclaimed({
       ...common,
       jobCreateRequest: payload,
       jobCreateRequestEnvelope: envelope,
       jobPlanDigest,
       status: draft.plannerPolicy.allowUnattendedPlanning ? 'planned' : 'blocked',
       blockedReason: draft.plannerPolicy.allowUnattendedPlanning ? undefined : 'authority unattended planning is not allowed by plannerPolicy',
-    });
+    }));
   }
-  return assertDoneClaimNotOverclaimed({
+  return assertJobPolicyConsistency(assertDoneClaimNotOverclaimed({
     ...common,
     localRunPlan: {
       runId: `local-${draft.plannerRunId}`,
@@ -810,7 +1356,7 @@ export function buildJobPlan(draft: PlannerDraft, storyId: string, projectId = '
     },
     jobPlanDigest,
     status: 'planned',
-  });
+  }));
 }
 
 export function sourceManifestDigest(root: string, sourceRepo: string, includedPaths: string[], excludedPaths: string[]): {

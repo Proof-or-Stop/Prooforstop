@@ -73,6 +73,8 @@ import { createAutopilotHandlers } from './handlers/autopilot.js';
 import { createPlannerHandlers } from './handlers/planner.js';
 import { createStoryResolveHandlers } from './handlers/story-resolve.js';
 import { createVerdictHandlers } from './handlers/verdict.js';
+import { createBaselineHandlers } from './handlers/baseline.js';
+import { createBaselineSuiteHandlers } from './handlers/baseline-suite.js';
 import { nextStoryId } from './handlers/context.js';
 
 export type HandlerFn = (...args: any[]) => any;
@@ -217,10 +219,25 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
 
   // Lattice productized export and cross-host handoff surfaces.
   registry.registerBatch(createLatticeCliHandlers(ctx));
-  registry.registerBatch(createAutopilotHandlers(ctx));
+  // Autopilot projection/executor surfaces (autopilot_run/status/execute/doctor).
+  //
+  // On this branch createAutopilotHandlers is the sole provider of these names,
+  // so registerBatchMissing registers all four (identical to registerBatch here).
+  //
+  // Merge note: current main ships createLatticeAutopilotHandlers (the autopilot
+  // policy engine) which also owns autopilot_run/autopilot_status. registerBatchMissing
+  // yields those two shared names to whichever factory registered first, so the
+  // main-compatible policy engine is preserved ONLY IF its registerBatch call is
+  // placed before this line during merge resolution; this line then contributes the
+  // net-new autopilot_execute/autopilot_doctor. If this line runs first instead, the
+  // later registerBatch(createLatticeAutopilotHandlers) will still throw on the
+  // duplicate — order matters, so keep the main engine's registration above this one.
+  registry.registerBatchMissing(createAutopilotHandlers(ctx));
   registry.registerBatch(createPlannerHandlers(ctx));
   registry.registerBatch(createStoryResolveHandlers(ctx));
   registry.registerBatch(createVerdictHandlers(ctx));
+  registry.registerBatch(createBaselineHandlers(ctx));
+  registry.registerBatch(createBaselineSuiteHandlers(ctx));
   registry.registerBatch(createRolloutCheckHandlers(ctx));
   registry.registerBatch(createStoryExportHandlers(ctx));
   registry.registerBatch(createLatticeHandoffHandlers(ctx));

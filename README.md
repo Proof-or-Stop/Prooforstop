@@ -115,7 +115,7 @@ consume server receipts; missing enforce prerequisites are reported as
 |------|-------------|-------------------|-----------------------|
 | `off` (default) | Normal local Koala/Lattice story development. **Free, local-only.** | Zero network. Local evidence and DONE gate work exactly as without authority. | No — `productionDone=false`, `receiptVerified=false`. |
 | `shadow` | You want to observe Python authority responses while still running locally. | Best-effort observational POST. Failure becomes a single stderr warning; the local evidence write still succeeds. | No — `accepted: true` from the transport is `thin-client-transport-accepted`, not a verified receipt. |
-| `enforce` | Isolated headless runner control plane. Requires Lattice Authority, a registered actor key, runner identity, project id, and session id. | `authority enforce runner --dry-run` projects readiness. `--live` signs native envelopes, registers/heartbeats the runner, claims at most one job, and immediately releases any claimed job without provider execution. | Only native Lattice Authority `gate_decision` receipts can satisfy authority DONE; runner heartbeat/claim alone is not production authority. |
+| `enforce` | Isolated headless runner / Authority job path. Requires Lattice Authority, customer API key, registered actor key, runner identity, project id, session id, and pinned server key. | `authority enforce runner --dry-run` projects readiness. `--live` signs native envelopes, registers/heartbeats the runner, and claims jobs. Authority job execution consumes typed `plannedSteps[]`, uploads evidence, requests server `gate_decision`, verifies the native receipt, and completes or releases the lease according to policy. | Only a verified native Lattice Authority `gate_decision` receipt can support per-run `authorityDone`; `fullAuthorityDone` also requires final multi-host certification. Runner heartbeat/claim alone is not production authority. |
 
 Inspect what the local CLI thinks the authority surface looks like:
 
@@ -137,7 +137,12 @@ lattice conduit explain --json
 - `mode` — `off` | `shadow` | `enforce`
 - `localWorkflowUsable: true` — local Story workflow is never blocked
 - `authorityUrlConfigured` — is `LATTICE_AUTHORITY_URL` set?
+- `customerApiKeyConfigured` — is `LATTICE_AUTHORITY_CUSTOMER_API_KEY` / `_PATH` set?
+- `customerApiKeySource` — `env` | `path` | `authority_md` | `missing`
+- `customerApiKeyValid` — unknown until a live probe; presence alone is not validity
 - `actorKeyConfigured` — is `LATTICE_AUTHORITY_ACTOR_KEY` / `_PATH` set?
+- `actorKeyRegistered` — is the actor public key registered with Authority?
+- `serverPublicKeyPinned` — is the receipt server public key pinned / verified?
 - `runnerConfigured` — is `LATTICE_AUTHORITY_RUNNER_ID` set?
 - `readinessWarnings: string[]` — actionable, only populated when `shadow` / `enforce` is configured but prerequisites are missing
 - `nextActions: string[]` — suggested env / command fixes
@@ -181,11 +186,12 @@ Mode contract:
   (`session_brief`, `aux_doc_list`, story inspection, `validate`, `check`, and
   optional `codex verify`) and never requires Python authority.
 - `shadow` preserves the local workflow and adds authority readiness warnings.
-  Missing `LATTICE_AUTHORITY_URL` / actor key / runner id is advisory.
+  Missing `LATTICE_AUTHORITY_URL` / customer API key / actor key / runner id is advisory.
 - `authority` fail-closes on missing Lattice Authority readiness. When the target
   is `DONE`, it also requires a signed native `gate_decision` receipt, server
   public key, and explicit project/story/server-key/decision binding before
-  reporting `status: pass`.
+  reporting `status: pass`; `fullAuthorityDone` additionally requires final
+  multi-host certification.
 
 `autopilot_run` is dry-run by default. A default invocation only returns a plan
 and is treated as read-only by the command policy. Passing `--dryRun=false` may

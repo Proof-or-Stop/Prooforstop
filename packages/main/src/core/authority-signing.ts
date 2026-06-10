@@ -17,13 +17,12 @@
 // Determinism contract:
 //   - canonicalJsonBytes() must produce identical bytes for two inputs that are
 //     "the same" by JSON value (insertion-order independent for object keys).
-//   - We reuse authority-contracts.canonicalJson() (proven, already used as
-//     digestVerificationContextPack basis).
+//   - Authority wire signing uses Unicode code point key ordering so Node
+//     signs the same bytes Python verifies with json.dumps(sort_keys=True).
 //   - signCanonical(value, key) ≡ ed25519.sign(privateKey, canonicalJsonBytes(value))
 //   - Verification must reject any tamper to value, signature, or key.
 
-import { createPrivateKey, createPublicKey, generateKeyPairSync, sign, verify } from 'node:crypto';
-import { canonicalJson, digestCanonical } from './authority-contracts.js';
+import { createHash, createPrivateKey, createPublicKey, generateKeyPairSync, sign, verify } from 'node:crypto';
 
 /** Base64-encoded Ed25519 raw public key (32 bytes -> 44-char base64 with padding). */
 export type PublicKeyBase64 = string;
@@ -46,13 +45,47 @@ export interface Ed25519KeyPair {
  *  - undefined fields are omitted (consistent with canonicalJson()).
  *  - Nested objects are recursively sorted by key.
  */
-export function canonicalJsonBytes(value: unknown): Buffer {
-  return Buffer.from(canonicalJson(value), 'utf8');
+type SigningJsonValue = null | boolean | number | string | SigningJsonValue[] | { [key: string]: SigningJsonValue };
+
+function compareByCodePoint(a: string, b: string): number {
+  const aPoints = Array.from(a);
+  const bPoints = Array.from(b);
+  const max = Math.min(aPoints.length, bPoints.length);
+  for (let index = 0; index < max; index += 1) {
+    const aPoint = aPoints[index]?.codePointAt(0) ?? 0;
+    const bPoint = bPoints[index]?.codePointAt(0) ?? 0;
+    if (aPoint !== bPoint) return aPoint - bPoint;
+  }
+  return aPoints.length - bPoints.length;
 }
 
-/** sha256 hex digest over canonical JSON bytes. Re-export for convenience. */
+function normalizeSigningJson(value: unknown): SigningJsonValue | undefined {
+  if (value === undefined || value === null) return undefined;
+  if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') return value;
+  if (Array.isArray(value)) {
+    return value.map(item => normalizeSigningJson(item)).filter(item => item !== undefined) as SigningJsonValue[];
+  }
+  if (typeof value === 'object') {
+    const entries = Object.entries(value as Record<string, unknown>)
+      .map(([key, item]) => [key, normalizeSigningJson(item)] as const)
+      .filter((entry): entry is readonly [string, SigningJsonValue] => entry[1] !== undefined)
+      .sort(([a], [b]) => compareByCodePoint(a, b));
+    return Object.fromEntries(entries) as SigningJsonValue;
+  }
+  return String(value);
+}
+
+export function canonicalJsonForSigning(value: unknown): string {
+  return JSON.stringify(normalizeSigningJson(value));
+}
+
+export function canonicalJsonBytes(value: unknown): Buffer {
+  return Buffer.from(canonicalJsonForSigning(value), 'utf8');
+}
+
+/** sha256 hex digest over Authority signing canonical JSON bytes. */
 export function canonicalDigest(value: unknown): string {
-  return digestCanonical(value);
+  return createHash('sha256').update(canonicalJsonForSigning(value)).digest('hex');
 }
 
 /**
