@@ -1,12 +1,38 @@
 
 import { join } from 'path';
-import { randomUUID } from 'crypto';
+import { randomUUID, createHash } from 'crypto';
 import {
   writeFileSync, unlinkSync, mkdirSync,
   existsSync, rmSync,
 } from 'fs';
-import { spawn } from 'child_process';
-import type { ILLMProvider, LLMCallOptions, LLMResponse } from './types.js';
+import { spawn, spawnSync } from 'child_process';
+import type {
+  ILLMProvider, LLMCallOptions, LLMResponse,
+  ProviderExecRequest, ProviderExecResult,
+} from './types.js';
+
+/** Local Claude Code CLI binary name. */
+export const CLAUDE_CLI_BINARY = 'claude';
+
+/**
+ * Bounded preflight: is the Claude Code CLI binary resolvable on PATH?
+ *
+ * Used by the planned-steps executor to fail closed with `provider_unavailable`
+ * BEFORE a `provider.claude` step starts, instead of discovering a missing CLI
+ * mid-run. Probes via `command -v` and never spawns an interactive session.
+ */
+export function claudeCliAvailable(env: NodeJS.ProcessEnv = process.env): boolean {
+  try {
+    const probe = spawnSync('command', ['-v', CLAUDE_CLI_BINARY], {
+      env,
+      shell: '/bin/sh',
+      stdio: 'ignore',
+    });
+    return probe.status === 0;
+  } catch {
+    return false;
+  }
+}
 
 export interface ClaudeCliProviderOptions {
   model?: string;
@@ -207,4 +233,158 @@ export class ClaudeCliProvider implements ILLMProvider {
   cleanup(): void {
     try { rmSync(this.tmpDir, { recursive: true, force: true }); } catch { /* ignore */ }
   }
+}
+
+// --- Bounded provider.claude execution (M7) ----------------------------------
+//
+// This is the REAL bounded executor for the `provider.claude` planned step type.
+// It is NOT the open-ended ClaudeCliProvider chat above: a bounded action is a
+// single argv-mapped, stdin-closed Claude CLI invocation with explicit cwd, a hard
+// timeout, and an attempt cap. It captures stdout/stderr/exit/duration as DIGESTS
+// only (+ best-effort model metadata) so a provider transcript can never leak
+// secrets or be promoted into validation / gate evidence.
+
+/**
+ * Env vars the Claude Code CLI recognizes for NON-INTERACTIVE authentication.
+ * Unattended bounded execution must authenticate through one of these; it must
+ * never fall back to an interactive login prompt.
+ */
+export const CLAUDE_NONINTERACTIVE_AUTH_ENV_VARS = [
+  'ANTHROPIC_API_KEY',
+  'ANTHROPIC_AUTH_TOKEN',
+  'CLAUDE_CODE_OAUTH_TOKEN',
+] as const;
+
+function nonEmptyEnv(value: string | undefined): boolean {
+  return typeof value === 'string' && value.trim() !== '';
+}
+
+/**
+ * Claude noninteractive auth preflight (B3b). Auth is "available" ONLY when a
+ * recognized Claude auth credential is BOTH allowlisted (so the redacted env
+ * projection will actually carry it to the child) AND present non-empty. A
+ * credential that is not allowlisted would be stripped by redaction and never
+ * reach the CLI, so it does not count — this fails closed against an interactive
+ * login fallback in unattended mode.
+ */
+export function claudeNoninteractiveAuthAvailable(
+  env: NodeJS.ProcessEnv,
+  credentialsEnvAllowlist: readonly string[],
+): boolean {
+  return CLAUDE_NONINTERACTIVE_AUTH_ENV_VARS.some(
+    name => credentialsEnvAllowlist.includes(name) && nonEmptyEnv(env[name]),
+  );
+}
+
+/** Bounded provider.claude availability: the Claude CLI binary must resolve on PATH. */
+export function claudeProviderAvailable(env: NodeJS.ProcessEnv = process.env): boolean {
+  return claudeCliAvailable(env);
+}
+
+/** Injectable process runner so smoke tests never spawn a real Claude CLI. */
+export interface ProviderProcessOutcome {
+  status: number | null;
+  stdout: string;
+  stderr: string;
+  signal?: NodeJS.Signals | null;
+  error?: NodeJS.ErrnoException;
+}
+
+export type ProviderProcessRunner = (
+  binary: string,
+  argv: string[],
+  opts: { cwd: string; env: NodeJS.ProcessEnv; timeoutMs: number },
+) => ProviderProcessOutcome;
+
+const defaultClaudeProcessRunner: ProviderProcessRunner = (binary, argv, opts) => {
+  const proc = spawnSync(binary, argv, {
+    cwd: opts.cwd,
+    env: opts.env,
+    timeout: opts.timeoutMs,
+    // Close stdin: a bounded, non-interactive action must never block waiting for
+    // a prompt. Combined with the auth preflight this keeps unattended runs hang-free.
+    input: '',
+    encoding: 'utf8',
+    maxBuffer: 8 * 1024 * 1024,
+  });
+  return {
+    status: proc.status,
+    stdout: proc.stdout ?? '',
+    stderr: proc.stderr ?? '',
+    signal: proc.signal,
+    error: proc.error as NodeJS.ErrnoException | undefined,
+  };
+};
+
+function providerDigest(value: unknown): string {
+  return createHash('sha256').update(JSON.stringify(value), 'utf8').digest('hex');
+}
+
+/** Best-effort model extraction from Claude stream-json output; never required. */
+function extractClaudeModel(stdout: string): string | undefined {
+  for (const line of stdout.split('\n')) {
+    if (!line.trim()) continue;
+    try {
+      const obj = JSON.parse(line) as { model?: unknown; message?: { model?: unknown } };
+      if (typeof obj.model === 'string') return obj.model;
+      if (obj.message && typeof obj.message.model === 'string') return obj.message.model;
+    } catch { /* skip non-json lines */ }
+  }
+  return undefined;
+}
+
+/**
+ * Run a single bounded `provider.claude` request, capturing structured evidence.
+ *
+ * The caller (planned-steps executor) is responsible for the policy/availability/
+ * credential/auth preflight gates BEFORE this runs; this function performs the
+ * bounded spawn itself: stdin-closed argv invocation with the already-redacted env,
+ * retrying ONLY on timeout (a missing binary or a non-zero exit is terminal — real
+ * provider work never burns repair loops on a definite failure).
+ */
+export function runBoundedClaudeProvider(
+  request: ProviderExecRequest,
+  runner: ProviderProcessRunner = defaultClaudeProcessRunner,
+): ProviderExecResult {
+  const startedAt = Date.now();
+  const maxAttempts = Math.max(1, Math.min(request.maxAttempts, 5));
+  let attempts = 0;
+  let status: number | null = null;
+  let stdout = '';
+  let stderr = '';
+  let spawnError = false;
+  let timedOut = false;
+
+  while (attempts < maxAttempts) {
+    attempts++;
+    const out = runner(CLAUDE_CLI_BINARY, request.argv, {
+      cwd: request.cwd,
+      env: request.env,
+      timeoutMs: request.timeoutMs,
+    });
+    spawnError = !!out.error && out.error.code === 'ENOENT';
+    timedOut = out.signal === 'SIGTERM' || out.signal === 'SIGKILL'
+      || (!!out.error && out.error.code === 'ETIMEDOUT');
+    status = out.status;
+    stdout = out.stdout ?? '';
+    stderr = out.stderr ?? '';
+    if (spawnError) break; // missing binary is not retryable
+    if (!timedOut) break;  // success or non-zero exit is terminal
+  }
+
+  const model = extractClaudeModel(stdout);
+  return {
+    provider: 'claude',
+    ...(model ? { model } : {}),
+    argvDigest: providerDigest(request.argv),
+    exitCode: spawnError ? null : status,
+    stdoutDigest: providerDigest(stdout),
+    stderrDigest: providerDigest(stderr),
+    stdoutBytes: Buffer.byteLength(stdout, 'utf8'),
+    stderrBytes: Buffer.byteLength(stderr, 'utf8'),
+    durationMs: Date.now() - startedAt,
+    attempts,
+    timedOut,
+    spawnError,
+  };
 }

@@ -1,22 +1,22 @@
 /**
  * recover_evidence — single-shot recovery for stale verificationEvidence.
  *
- * 触发流程（B-a2f1 CHK-003）：
- *   1. classifyDirtyWorktree(projectRoot) 走 B-6326 共享 classifier。
- *   2. **Allowlist** 判定（不是 blocklist）：只有 koala_metadata_changes /
- *      runtime_artifact_changes / declared_artifact_changes 三类放行；任何
- *      其他类别（包括未来新增的）→ 立即 refused。
- *      （preMortem #1：classifier 加新 category 后必须默认 refused 而不是放行）
- *   3. 调 verification_evidence_refresh_stale handler（in-process import + call，
- *      不 spawn 子进程）→ 把输出拼进 refreshTranscript。
- *   4. 调 validate handler（同 in-process）→ 把输出拼进 validateTranscript。
- *   5. status: refused / pass / fail；non-pass 在 CLI 入口翻成非零退出码。
+ * Trigger flow (B-a2f1 CHK-003):
+ *   1. classifyDirtyWorktree(projectRoot) uses the B-6326 shared classifier.
+ *   2. **Allowlist** check (not a blocklist): only koala_metadata_changes /
+ *      runtime_artifact_changes / declared_artifact_changes are allowed through; any
+ *      other category (including future additions) → immediately refused.
+ *      (preMortem #1: when classifier adds a new category, it must default to refused rather than allowed)
+ *   3. Call verification_evidence_refresh_stale handler (in-process import + call,
+ *      no child process spawn) → append output into refreshTranscript.
+ *   4. Call validate handler (same in-process) → append output into validateTranscript.
+ *   5. status: refused / pass / fail; non-pass is translated into a non-zero exit code at the CLI entry.
  *
- * 设计原则：
- *   - 拒绝 auto-recover——只在 worktree 干净（仅 metadata/runtime/declared）才动手。
- *   - refresh 必须先于 validate（用户先看到 hash 被刷新的 transcript，再看到 revalidate 输出）。
- *   - refused 时不跑 refresh / validate（短路）。
- *   - storyId runtime + Zod 双校验（Handler 编码约定）。
+ * Design principles:
+ *   - Refuse auto-recover — only act when the worktree is clean (only metadata/runtime/declared).
+ *   - refresh must precede validate (user first sees the transcript of hashes being refreshed, then the revalidate output).
+ *   - When refused, do not run refresh / validate (short-circuit).
+ *   - storyId runtime + Zod dual validation (Handler coding convention).
  */
 
 import { execSync } from 'child_process';
@@ -32,10 +32,10 @@ import { createChecklistHandlers } from './checklist.js';
 import { createVerifierHandlers } from './verifier.js';
 
 /**
- * 允许的 dirty 类别——只有这三类不阻塞 recover_evidence。
+ * Allowed dirty categories — only these three do not block recover_evidence.
  *
- * 必须是 allowlist（不能写成 blocklist），否则 DIRTY_WORKTREE_CATEGORIES 加新
- * category 时新值会默默放行（preMortem #1）。
+ * Must be an allowlist (cannot be written as a blocklist), otherwise when DIRTY_WORKTREE_CATEGORIES adds a new
+ * category, the new value will be silently allowed through (preMortem #1).
  */
 export const RECOVER_EVIDENCE_ALLOWED_CATEGORIES: ReadonlySet<DirtyWorktreeCategory> = new Set<DirtyWorktreeCategory>([
   'koala_metadata_changes',
@@ -121,7 +121,7 @@ export interface RecoverEvidenceArgs {
 export function createRecoverEvidenceHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
   return {
     async recover_evidence(args: RecoverEvidenceArgs): Promise<RecoverEvidenceResult> {
-      // Runtime guard mirrors Zod min(1) — Handler 编码约定 (CLAUDE.md "Handler 编码约定").
+      // Runtime guard mirrors Zod min(1) — Handler coding convention (CLAUDE.md "Handler coding convention").
       const storyId = typeof args?.storyId === 'string' ? args.storyId.trim() : '';
       if (storyId.length < 1) {
         throw new Error('recover_evidence: storyId is required (non-empty string)');

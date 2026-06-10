@@ -4,7 +4,7 @@ import { scan, extractFlows } from './extract.js';
 import { runFlowE2E } from './test-flow-e2e.js';
 import { loadConfig } from '../core/config.js';
 
-// scanRoot 从环境变量或 config 取，CLI 参数只接 flow 名称
+// scanRoot is read from environment variables or config; the CLI argument only accepts the flow name
 const config = loadConfig();
 const scanRoot = process.env.KOALA_SCAN_ROOT || config.scanRoot;
 const targetFlow = process.argv[2];

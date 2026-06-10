@@ -12,13 +12,13 @@ export interface TestCase {
   input: unknown;
   expect?: unknown;
   throws?: string;
-  /** 指定调用哪个函数。支持 "ClassName.methodName" 格式调用类方法 */
+  /** Specifies which function to call. Supports "ClassName.methodName" format to invoke class methods */
   fn?: string;
-  /** 类构造函数参数（仅 fn 为 ClassName.methodName 时有效） */
+  /** Class constructor arguments (only valid when fn is ClassName.methodName) */
   construct?: unknown[];
 }
 
-/** 测试结果 */
+/** Test result */
 export interface TestResult {
   functionName: string;
   sourceFile: string;
@@ -31,7 +31,7 @@ export interface TestResult {
   allPassed: boolean;
 }
 
-/** 白盒测试整体结果 */
+/** Overall white-box test result */
 export interface WhiteBoxResult {
   changedFunctions: string[];
   affectedFlows: string[];
@@ -41,7 +41,7 @@ export interface WhiteBoxResult {
 }
 
 /**
- * 从 git diff 获取改动的文件列表
+ * Get the list of changed files from git diff
  */
 export function getChangedFiles(projectRoot: string, base?: string): string[] {
   const baseRef = base || 'HEAD';
@@ -58,7 +58,7 @@ export function getChangedFiles(projectRoot: string, base?: string): string[] {
 }
 
 /**
- * 从改动文件中找到有 @test 注释的函数
+ * Find functions with @test annotations in the changed files
  */
 export function getChangedFunctionsWithTests(
   changedFiles: string[],
@@ -72,7 +72,7 @@ export function getChangedFunctionsWithTests(
 }
 
 /**
- * 找到受影响的 @flow 链路（改动函数参与的所有 flow）
+ * Find affected @flow chains (all flows that the changed functions participate in)
  */
 export function findAffectedFlows(
   changedFiles: string[],
@@ -93,7 +93,7 @@ export function findAffectedFlows(
 }
 
 /**
- * 加载 fixture 文件
+ * Load fixture file
  */
 export function loadFixture(projectRoot: string, fixturePath: string): TestCase[] | null {
   const fullPath = join(projectRoot, loadConfig(projectRoot).fixturesDir, fixturePath + '.json');
@@ -107,9 +107,9 @@ export function loadFixture(projectRoot: string, fixturePath: string): TestCase[
 }
 
 /**
- * 白盒测试主入口
- * 注意：此函数目前只做"发现 + 匹配"，实际函数执行需要运行时支持。
- * 返回需要测试的函数列表、受影响的 flow、fixture 匹配结果。
+ * White-box test main entry
+ * Note: this function currently only does "discover + match"; actual function execution requires runtime support.
+ * Returns the list of functions to test, affected flows, and fixture match results.
  */
 export function runWhiteBoxAnalysis(
   projectRoot: string,

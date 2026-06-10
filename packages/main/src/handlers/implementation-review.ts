@@ -4,16 +4,16 @@ import type { ImplementationReviewFinding, ImplementationReviewResultData } from
 function validateFindings(findings: ImplementationReviewFinding[]): void {
   for (const finding of findings) {
     if (!finding.file || finding.file.trim().length === 0) {
-      throw new Error('implementation review finding.file 不能为空');
+      throw new Error('implementation review finding.file must not be empty');
     }
     if (!Number.isInteger(finding.line) || finding.line < 1) {
-      throw new Error('implementation review finding.line 必须是 >= 1 的整数');
+      throw new Error('implementation review finding.line must be an integer >= 1');
     }
     if (!finding.why || finding.why.trim().length < 5) {
-      throw new Error('implementation review finding.why 必须 >= 5 字符');
+      throw new Error('implementation review finding.why must be >= 5 characters');
     }
     if (!['info', 'medium', 'high'].includes(finding.severity)) {
-      throw new Error('implementation review finding.severity 必须是 info|medium|high');
+      throw new Error('implementation review finding.severity must be info|medium|high');
     }
   }
 }
@@ -29,13 +29,13 @@ export function createImplementationReviewHandlers(ctx: HandlerContext) {
       summary: string;
     }): string {
       store.readStory(args.storyId);
-      if (!Array.isArray(args.findings)) throw new Error('findings 必须是数组');
+      if (!Array.isArray(args.findings)) throw new Error('findings must be an array');
       if (!args.summary || args.summary.trim().length < 5) {
-        throw new Error('summary 必须 >= 5 字符');
+        throw new Error('summary must be >= 5 characters');
       }
       validateFindings(args.findings);
       if (args.verdict === 'pass' && args.findings.some((f) => f.severity === 'high')) {
-        throw new Error('verdict=pass 时不应包含 high severity finding');
+        throw new Error('verdict=pass must not include high severity finding');
       }
 
       const existing = store.readImplementationReview(args.storyId);

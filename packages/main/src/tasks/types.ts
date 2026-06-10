@@ -13,36 +13,36 @@ export interface TaskAnnotation {
   description?: string;
   changes?: string[];
   affected?: string[];
-  /** 来源文件（相对于扫描根目录） */
+  /** Source file (relative to scan root) */
   sourceFile: string;
-  /** 注释块起始行号 */
+  /** Starting line number of the comment block */
   sourceLine: number;
-  /** 注释紧邻的函数/方法名（如有） */
+  /** Name of the function/method adjacent to the comment (if any) */
   functionName?: string;
-  /** 函数签名（如有），如 `async function foo(bar: string): Promise<void>` */
+  /** Function signature (if any), e.g. `async function foo(bar: string): Promise<void>` */
   functionSignature?: string;
-  /** @flow 链路名称 */
+  /** @flow chain name */
   flow?: string;
-  /** @flow 步骤序号 */
+  /** @flow step number */
   step?: number;
-  /** @flow 输入描述 */
+  /** @flow input description */
   input?: string;
-  /** @flow 输出描述 */
+  /** @flow output description */
   output?: string;
-  /** @flow 下一步函数名 */
+  /** @flow next-step function name */
   next?: string;
-  /** @test fixture 路径 */
+  /** @test fixture path */
   test?: string;
 }
 
-/** 校验问题 */
+/** Validation issue */
 export interface ValidationIssue {
   loc: string;
   level: 'error' | 'warn';
   msg: string;
 }
 
-/** 校验结果 */
+/** Validation result */
 export interface ValidationResult {
   filesScanned: number;
   tasksFound: number;
@@ -52,16 +52,16 @@ export interface ValidationResult {
   passed: boolean;
 }
 
-/** 覆盖率检查项 */
+/** Coverage check item */
 export interface CoverageItem {
   checklistId: string;
   title: string;
   covered: boolean;
-  /** 覆盖该 checklist 项的源码位置列表 */
+  /** List of source code locations covering this checklist item */
   locations: Array<{ file: string; line: number; functionName?: string }>;
 }
 
-/** 覆盖率结果 */
+/** Coverage result */
 export interface CoverageResult {
   storyId: string;
   total: number;
@@ -71,7 +71,7 @@ export interface CoverageResult {
   passed: boolean;
 }
 
-/** 定位结果 */
+/** Location result */
 export interface LocateResult {
   query: string;
   matches: Array<{
@@ -85,7 +85,7 @@ export interface LocateResult {
   }>;
 }
 
-/** 扫描/筛选参数 */
+/** Scan/filter parameters */
 export interface ExtractFilters {
   type?: string;
   priority?: string;
@@ -94,14 +94,14 @@ export interface ExtractFilters {
 }
 
 
-/** 单个 @flow 步骤 */
+/** A single @flow step */
 export interface FlowStep {
   flow: string;
   step: number;
   input?: string;
   output?: string;
   next?: string;
-  /** 来自 TaskAnnotation 的函数信息 */
+  /** Function information from TaskAnnotation */
   functionName: string;
   functionSignature?: string;
   sourceFile: string;
@@ -109,14 +109,14 @@ export interface FlowStep {
   task: string;
 }
 
-/** 完整的业务流转链路 */
+/** Complete business flow chain */
 export interface FlowChain {
   name: string;
   steps: FlowStep[];
   complete: boolean;
 }
 
-/** @flow 校验问题 */
+/** @flow Validation issue */
 export interface FlowValidationIssue {
   flow: string;
   step?: number;
@@ -125,7 +125,7 @@ export interface FlowValidationIssue {
   loc: string;
 }
 
-/** @flow 校验结果 */
+/** @flow Validation result */
 export interface FlowValidationResult {
   flows: FlowChain[];
   issues: FlowValidationIssue[];

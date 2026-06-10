@@ -1,20 +1,20 @@
 // ============================================================
-// koala serve — HTTP API 服务 + Bridge 调试 API + 浏览器代理 + 文件 watch
+// koala serve — HTTP API service + Bridge debug API + browser proxy + file watch
 //
-// 给 AI agent 和人用的实时调试接口：
-//   GET  /status           项目状态
-//   GET  /validate         最新传感器结果（文件变化后自动重跑）
-//   POST /bridge/event     发送事件（自动从 machine.ts 生成）
-//   GET  /bridge/state     当前 machine 状态
-//   GET  /bridge/events    所有合法事件列表
-//   POST /bridge/replay    批量重放事件序列
-//   POST /bridge/reset     重置到初始状态
-//   POST /browser/eval     在浏览器执行 JS
-//   POST /browser/click    模拟点击
-//   POST /browser/type     模拟输入
-//   GET  /browser/console  获取浏览器 console 日志
-//   POST /browser/screenshot  截图
-//   POST /browser/refresh  刷新页面
+// Real-time debug interface for AI agents and humans:
+//   GET  /status           project status
+//   GET  /validate         latest sensor results (auto re-run after file changes)
+//   POST /bridge/event     send event (auto-generated from machine.ts)
+//   GET  /bridge/state     current machine state
+//   GET  /bridge/events    list of all valid events
+//   POST /bridge/replay    batch replay event sequence
+//   POST /bridge/reset     reset to initial state
+//   POST /browser/eval     execute JS in browser
+//   POST /browser/click    simulate click
+//   POST /browser/type     simulate input
+//   GET  /browser/console  get browser console logs
+//   POST /browser/screenshot  take screenshot
+//   POST /browser/refresh  refresh page
 // ============================================================
 
 import { createServer, IncomingMessage, ServerResponse } from 'node:http';
@@ -38,13 +38,13 @@ export interface ServeOptions {
   devCommand?: string;
   projectRoot?: string;
   watchPaths?: string[];
-  /** Circuit 模式：扫描所有 machine，同进程加载，按 circuit.next 自动转发 */
+  /** Circuit mode: scans all machines, loads in same process, auto-forwards by circuit.next */
   circuit?: boolean;
 }
 
-// ---- 浏览器代理层（复用 browser-executor 的 proxy + bridge） ----
+// ---- Browser proxy layer (reuses browser-executor's proxy + bridge) ----
 
-/** 根据项目路径生成确定性端口 */
+/** Generate deterministic port from project path */
 function stablePort(projectRoot: string, offset: number): number {
   let hash = 0;
   for (let i = 0; i < projectRoot.length; i++) {
@@ -57,7 +57,7 @@ function stripAnsi(str: string): string {
   return str.replace(/\x1B\[[0-9;]*m/g, '');
 }
 
-/** 读取 browser-client.js */
+/** Read browser-client.js */
 function loadClientScript(): string {
   const candidates = [
     join(__dirname, 'browser-client.js'),
@@ -71,10 +71,10 @@ function loadClientScript(): string {
         .replace(/^\/\/# sourceMappingURL=.*$/gm, '');
     }
   }
-  return ''; // 没有 client script 就不注入
+  return ''; // no client script, skip injection
 }
 
-/** 找 browser-server.js */
+/** Locate browser-server.js */
 function findBrowserServer(): string | null {
   const candidates = [
     join(__dirname, 'browser-server.js'),
@@ -87,7 +87,7 @@ function findBrowserServer(): string | null {
   return null;
 }
 
-// ---- Console 捕获注入脚本 ----
+// ---- Console capture injection script ----
 
 const CONSOLE_HOOK_SCRIPT = `
 <script>
@@ -125,7 +125,7 @@ const CONSOLE_HOOK_SCRIPT = `
 </script>
 `;
 
-// ---- Validate 缓存 ----
+// ---- Validate cache ----
 
 interface ValidateCache {
   result: string | null;
@@ -207,9 +207,9 @@ function createValidateRunner(projectRoot: string) {
   return { cache, run };
 }
 
-// ---- Bridge Proxy（连接项目进程的 WS Bridge Host） ----
+// ---- Bridge Proxy (connects to the project process's WS Bridge Host) ----
 
-/** 纯 WS 代理：连接项目已启动的 Bridge Host，不 spawn 任何进程 */
+/** Pure WS proxy: connects to the project's already-started Bridge Host, does not spawn any process */
 function createBridgeProxy(wsPort: number) {
   let ws: any = null;
   let machineInfo: any = null;
@@ -224,7 +224,7 @@ function createBridgeProxy(wsPort: number) {
     if (connected) return;
     const { default: WebSocket } = await import('ws');
 
-    // 等项目进程启动 WS server
+    // wait for the project process to start the WS server
     for (let i = 0; i < 30; i++) {
       try {
         await new Promise<void>((resolve, reject) => {
@@ -245,7 +245,7 @@ function createBridgeProxy(wsPort: number) {
                   currentState = msg.state;
                   currentMachineState = msg.machineState || '';
                 } else if (msg.type === 'eventResult') {
-                  // 解析 pending request
+                  // resolve pending request
                   const last = [...pendingRequests.entries()].pop();
                   if (last) {
                     pendingRequests.delete(last[0]);
@@ -294,7 +294,7 @@ function createBridgeProxy(wsPort: number) {
         resolve(result);
       });
       ws.send(JSON.stringify({ type: 'event', event, input }));
-      // 超时 fallback
+      // timeout fallback
       setTimeout(() => {
         if (pendingRequests.has(id)) {
           pendingRequests.delete(id);
@@ -322,7 +322,7 @@ function createBridgeProxy(wsPort: number) {
   return { connect, getMachine, getEvents, sendEvent, reset, getState, stop };
 }
 
-// ---- Browser API 转发 ----
+// ---- Browser API forwarding ----
 
 async function bridgeApi(httpPort: number, path: string, body?: unknown): Promise<any> {
   const url = `http://localhost:${httpPort}${path}`;
@@ -338,7 +338,7 @@ async function bridgeApi(httpPort: number, path: string, body?: unknown): Promis
   return res.json();
 }
 
-// ---- 统一调试控制面板 HTML ----
+// ---- Unified debug control panel HTML ----
 
 function generateDashboardHtml(machineName: string, transitionsJson: string, hasBrowser: boolean, proxyUrl: string, bridgeWsPort: number): string {
   return `<!DOCTYPE html>
@@ -525,7 +525,7 @@ const BASE = location.origin;
 const TRANSITIONS = ${transitionsJson};
 let currentMachineState = '';
 
-// WS 实时推送（替代 HTTP 轮询）
+// WS real-time push (replaces HTTP polling)
 let ws = null;
 let wsConnected = false;
 function connectWS() {
@@ -563,14 +563,14 @@ async function api(path, body) {
 
 // ---- Bridge ----
 
-/** State tab 切换 */
+/** State tab switching */
 function switchStateTab(tab) {
   document.querySelectorAll('.state-tab').forEach(t => t.classList.toggle('active', t.dataset.st === tab));
   document.getElementById('game-state').classList.toggle('hidden', tab !== 'tree');
   document.getElementById('state-raw').classList.toggle('hidden', tab !== 'raw');
 }
 
-/** 通用 JSON 树渲染（可折叠，像 DevTools） */
+/** Generic JSON tree rendering (collapsible, like DevTools) */
 function renderJson(obj, depth) {
   depth = depth || 0;
   if (obj === null) return '<span style="color:#e94560">null</span>';
@@ -580,7 +580,7 @@ function renderJson(obj, depth) {
   if (typeof obj === 'boolean') return '<span style="color:#fbbf24">' + obj + '</span>';
   if (Array.isArray(obj)) {
     if (obj.length === 0) return '<span style="color:#888">[]</span>';
-    // 内层数组（2D 数组的第二维）或短数组：一行显示
+    // inner arrays (second dimension of 2D arrays) or short arrays: display on one line
     if (obj.every(v => v === null || typeof v !== 'object')) {
       return '[' + obj.map(v => renderJson(v, depth+1)).join(', ') + ']';
     }
@@ -611,7 +611,7 @@ function updateBridgeUI(d) {
       '<span class="badge ' + (isTerminal ? 'badge-term' : 'badge-play') + '">' + (d.currentState || 'none') + '</span>';
     if (gs) {
       const modeInfo = gs.mode ? ' | Mode: <span style="color:#53d8fb">' + gs.mode + '</span>' : '';
-      document.getElementById('player-info').innerHTML = (gs.currentPlayer ? '当前: ' + gs.currentPlayer : '') + modeInfo;
+      document.getElementById('player-info').innerHTML = (gs.currentPlayer ? 'Current: ' + gs.currentPlayer : '') + modeInfo;
       document.getElementById('game-state').innerHTML = renderJson(gs, 0);
       document.getElementById('state-raw').textContent = JSON.stringify(gs, null, 2);
     }
@@ -620,7 +620,7 @@ function updateBridgeUI(d) {
     if (available.length === 0) {
       evDiv.innerHTML = '<span style="color:#e94560">Terminal — no events</span>';
     } else {
-      // 按 event 名去重（同一个 event 只渲染一次表单，core 的 guard 自动判定走哪条 transition）
+      // dedupe by event name (the same event is rendered as one form only; core's guard auto-decides which transition)
       const seen = new Set();
       const uniqueEvents = available.filter(t => { if (seen.has(t.event)) return false; seen.add(t.event); return true; });
       evDiv.innerHTML = uniqueEvents.map((t, i) => {
@@ -672,7 +672,7 @@ async function refreshBridge() {
   try {
     const d = await api('/bridge/state');
     const json = JSON.stringify(d);
-    if (json === _lastBridgeJson) return; // 数据没变，不动 DOM
+    if (json === _lastBridgeJson) return; // data unchanged, do not touch DOM
     _lastBridgeJson = json;
     updateBridgeUI(d);
   } catch(e) { console.warn('refresh error', e); }
@@ -682,7 +682,7 @@ async function doEventForm(event, formId) {
   let input = {};
   const form = document.getElementById(formId);
   if (form) {
-    // 从表单字段收集 input
+    // collect input from form fields
     form.querySelectorAll('[data-key]').forEach(el => {
       const key = el.dataset.key;
       if (el.type === 'number') input[key] = Number(el.value);
@@ -691,7 +691,7 @@ async function doEventForm(event, formId) {
       else input[key] = el.value;
     });
   } else {
-    // 没有 schema，fallback 到 prompt
+    // no schema, fallback to prompt
     const raw = prompt('Input JSON for ' + event + ':', '{}');
     if (raw === null) return;
     try { input = JSON.parse(raw); } catch { alert('Invalid JSON'); return; }
@@ -741,7 +741,7 @@ async function runValidate() {
   const raw = typeof r.validate === 'string' ? r.validate : JSON.stringify(r, null, 2);
   const cleanRaw = raw.replace(/\\x1b\\[[0-9;]*m/g, '');
 
-  // 尝试解析结构化输出
+  // try to parse structured output
   try {
     const parsed = JSON.parse(cleanRaw);
     if (parsed.allPass !== undefined) {
@@ -761,7 +761,7 @@ async function runValidate() {
     }
   } catch {}
 
-  // fallback: 原始文本
+  // fallback: raw text
   document.getElementById('validate-output').textContent = cleanRaw;
   document.getElementById('validate-status').textContent = r.running ? 'Running...' : 'Last run: ' + new Date(r.lastRun).toLocaleTimeString();
 }
@@ -782,15 +782,15 @@ async function apiTest() {
 // ---- Auto refresh ----
 refreshBridge();
 runValidate();
-// WS 连接时不轮询；WS 断开时 fallback 到 2s 轮询
+// WS connected: no polling; WS disconnected: fallback to 2s polling
 setInterval(() => { if (!wsConnected) refreshBridge(); }, 2000);
 ${hasBrowser ? 'setInterval(refreshConsole, 3000);' : ''}
 </script></body></html>`;
 }
 
-// ---- 主服务 ----
+// ---- Main service ----
 
-/** 检查已有的 serve 实例是否还活着（pid + HTTP ping 双重验证） */
+/** Check whether an existing serve instance is still alive (double verification via pid + HTTP ping) */
 async function checkExistingServe(projectRoot: string): Promise<{ alive: boolean; info?: any }> {
   const infoPath = join(projectRoot, '.koala-serve.json');
   if (!existsSync(infoPath)) return { alive: false };
@@ -800,17 +800,17 @@ async function checkExistingServe(projectRoot: string): Promise<{ alive: boolean
       try { unlinkSync(infoPath); } catch {}
       return { alive: false };
     }
-    // 1. pid 检查
+    // 1. pid check
     try { process.kill(info.pid, 0); } catch {
       try { unlinkSync(infoPath); } catch {}
       return { alive: false };
     }
-    // 2. HTTP ping — 确认端口上跑的是我们的 serve（防 pid 复用）
+    // 2. HTTP ping — confirm the port is running our serve (guards against pid reuse)
     try {
       const r = await fetch(`${info.api}/bridge/state`, { signal: AbortSignal.timeout(2000) });
       if (r.ok) return { alive: true, info };
     } catch {}
-    // pid 活着但 API 没响应 → 不是我们的进程，清理
+    // pid alive but API does not respond → not our process, clean up
     try { unlinkSync(infoPath); } catch {}
     return { alive: false };
   } catch {}
@@ -819,15 +819,15 @@ async function checkExistingServe(projectRoot: string): Promise<{ alive: boolean
 
 export async function startServe(options: ServeOptions) {
   const projectRoot = resolve(options.projectRoot ?? process.cwd());
-  // 端口基于 projectRoot 哈希自动分配，多 worktree / main 互不冲突
+  // Port is auto-assigned based on projectRoot hash; multiple worktrees / main do not conflict
   const port = options.port ?? stablePort(projectRoot, 3);
   const watchPaths = options.watchPaths ?? ['data.ts', 'fn.ts', 'machine.ts', 'validate.ts'];
 
   console.log(`\n🐨 koala serve`);
-  console.log(`  项目: ${projectRoot}`);
+  console.log(`  Project: ${projectRoot}`);
   console.log(`  API:  http://localhost:${port}`);
 
-  // 连接项目已启动的逻辑核心（读 .koala-serve.json 找 WS 端口）
+  // Connect to the project's already-started logic core (read .koala-serve.json to find the WS port)
   const serveInfoPath = join(projectRoot, '.koala-serve.json');
   let bridgeWsPort = 0;
   for (let i = 0; i < 30; i++) {
@@ -835,27 +835,27 @@ export async function startServe(options: ServeOptions) {
       const info = JSON.parse(readFileSync(serveInfoPath, 'utf-8'));
       if (info.wsPort) { bridgeWsPort = info.wsPort; break; }
     } catch {}
-    if (i === 0) console.log(`  等待项目核心启动（.koala-serve.json）...`);
+    if (i === 0) console.log(`  Waiting for project core to start (.koala-serve.json)...`);
     await new Promise(r => setTimeout(r, 500));
   }
   if (!bridgeWsPort) {
-    console.log(`  ⚠ 未找到项目核心。请先启动项目：`);
+    console.log(`  ⚠ Project core not found. Please start the project first:`);
     console.log(`    KOALA_SERVE_PORT=<port> npx tsx src/main.ts`);
-    console.log(`    或 npm run serve（会自动启动核心）`);
+    console.log(`    or npm run serve (will automatically start the core)`);
     return;
   }
-  console.log(`  核心 WS: ws://localhost:${bridgeWsPort}`);
+  console.log(`  Core WS: ws://localhost:${bridgeWsPort}`);
   const machineBridge = createBridgeProxy(bridgeWsPort);
   await machineBridge.connect();
 
   // Validate runner
   const validator = createValidateRunner(projectRoot);
-  validator.run(); // 启动时跑一次
+  validator.run(); // Run once at startup
 
-  // File watcher — 自动搜索 src/machines/ 下的核心文件 + 根目录 + src/ 下的
+  // File watcher — automatically search core files under src/machines/ + root directory + src/
   const watchedFiles: string[] = [];
   for (const pattern of watchPaths) {
-    // 根目录
+    // Root directory
     const root = join(projectRoot, pattern);
     if (existsSync(root)) watchedFiles.push(root);
     // src/
@@ -874,13 +874,13 @@ export async function startServe(options: ServeOptions) {
   }
   for (const f of watchedFiles) {
     watch(f, () => {
-      console.log(`  📁 ${f.replace(projectRoot + '/', '')} 变更 → 重新验证...`);
+      console.log(`  📁 ${f.replace(projectRoot + '/', '')} changed → revalidating...`);
       validator.run();
     });
   }
-  console.log(`  监听: ${watchedFiles.map(f => f.replace(projectRoot + '/', '')).join(', ')}`);
+  console.log(`  Watching: ${watchedFiles.map(f => f.replace(projectRoot + '/', '')).join(', ')}`);
 
-  // Browser proxy（如果配了 devCommand）
+  // Browser proxy (if devCommand is configured)
   let browserHttpPort = 0;
   let proxyPort = 0;
   let proxyUrl = '';
@@ -890,12 +890,12 @@ export async function startServe(options: ServeOptions) {
     browserHttpPort = stablePort(projectRoot, 1);
     proxyPort = stablePort(projectRoot, 2);
 
-    console.log(`  端口: ws=${wsPort} http=${browserHttpPort} proxy=${proxyPort}`);
+    console.log(`  Ports: ws=${wsPort} http=${browserHttpPort} proxy=${proxyPort}`);
 
-    // 启动 bridge server
+    // Start bridge server
     const serverPath = findBrowserServer();
     if (!serverPath) {
-      console.error('  ✗ browser-server.js 未找到。请先编译: npm run build:koala');
+      console.error('  ✗ browser-server.js not found. Please build first: npm run build:koala');
     }
     if (serverPath) {
       const bridgeProc = spawn('node', [serverPath], {
@@ -909,7 +909,7 @@ export async function startServe(options: ServeOptions) {
         if (msg) console.log(`  [bridge] ${msg}`);
       });
 
-      // 启动 dev server
+      // Start dev server
       const [devCmd, ...devArgs] = options.devCommand.split(' ');
       const devProc = spawn(devCmd, devArgs, {
         cwd: projectRoot,
@@ -917,7 +917,7 @@ export async function startServe(options: ServeOptions) {
         stdio: ['ignore', 'pipe', 'pipe'],
       });
 
-      // 等 dev server 就绪
+      // Wait for dev server to be ready
       let devUrl = '';
       await new Promise<void>((resolve) => {
         let output = '';
@@ -931,11 +931,11 @@ export async function startServe(options: ServeOptions) {
         };
         devProc.stdout?.on('data', onData);
         devProc.stderr?.on('data', onData);
-        setTimeout(() => resolve(), 15000); // 超时也继续
+        setTimeout(() => resolve(), 15000); // Continue even on timeout
       });
 
       if (devUrl) {
-        // 启动 proxy（注入 client.js + console hook）
+        // Start proxy (inject client.js + console hook)
         const clientScript = loadClientScript();
         const { createServer: createProxyServer } = await import('node:http');
 
@@ -970,7 +970,7 @@ export async function startServe(options: ServeOptions) {
           }
         });
 
-        // WS 升级透传
+        // WS upgrade pass-through
         proxy.on('upgrade', (req, socket, head) => {
           const devOrigin = new URL(devUrl);
           const devSocket = net.connect(Number(devOrigin.port) || 80, devOrigin.hostname, () => {
@@ -986,8 +986,8 @@ export async function startServe(options: ServeOptions) {
 
         proxy.listen(proxyPort, () => {
           proxyUrl = `http://localhost:${proxyPort}`;
-          console.log(`  代理: ${proxyUrl} → ${devUrl}`);
-          console.log(`  打开浏览器访问代理地址即可，koala 自动注入控制脚本`);
+          console.log(`  Proxy: ${proxyUrl} → ${devUrl}`);
+          console.log(`  Open the proxy address in the browser, koala will automatically inject the control script`);
         });
       }
     }
@@ -999,7 +999,7 @@ export async function startServe(options: ServeOptions) {
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('Access-Control-Allow-Origin', '*');
 
-    // 读 body
+    // Read body
     let body: any = null;
     if (req.method === 'POST') {
       const chunks: Buffer[] = [];
@@ -1008,7 +1008,7 @@ export async function startServe(options: ServeOptions) {
     }
 
     try {
-      // ---- 统一调试控制面板（GET /） ----
+      // ---- Unified debug control panel (GET /) ----
       if (url === '/' && req.method === 'GET') {
         res.setHeader('Content-Type', 'text/html; charset=utf-8');
         const machine = machineBridge.getMachine();
@@ -1064,7 +1064,7 @@ export async function startServe(options: ServeOptions) {
         const r = await bridgeApi(browserHttpPort, '/status');
         res.end(JSON.stringify(r));
       }
-      // ---- Bridge API（自动从 machine.ts 生成） ----
+      // ---- Bridge API (automatically generated from machine.ts) ----
       else if (url === '/bridge/state') {
         res.end(JSON.stringify(machineBridge.getState()));
       }
@@ -1107,7 +1107,7 @@ export async function startServe(options: ServeOptions) {
     }
   });
 
-  // 更新发现文件（项目核心已写 wsPort/pid，serve 追加 HTTP 信息）
+  // Update discovery file (project core has written wsPort/pid, serve appends HTTP info)
   let serveInfo: any = {};
   try { serveInfo = JSON.parse(readFileSync(serveInfoPath, 'utf-8')); } catch {}
   serveInfo.api = `http://localhost:${port}`;
@@ -1116,42 +1116,42 @@ export async function startServe(options: ServeOptions) {
   serveInfo.proxyUrl = proxyUrl || undefined;
   serveInfo.servePid = process.pid;
 
-  // EADDRINUSE 处理（竞态：两个进程同时通过了 checkExistingServe）
+  // EADDRINUSE handling (race: two processes passed checkExistingServe simultaneously)
   server.on('error', (err: NodeJS.ErrnoException) => {
     if (err.code === 'EADDRINUSE') {
-      console.log(`\n  ⚠ 端口 ${port} 已被占用（另一个 serve 实例？）`);
-      console.log(`  读取 .koala-serve.json 获取已有实例信息。\n`);
+      console.log(`\n  ⚠ Port ${port} is already in use (another serve instance?)`);
+      console.log(`  Read .koala-serve.json to get existing instance information.\n`);
       process.exit(0);
     }
     throw err;
   });
 
   server.listen(port, () => {
-    // 写发现文件
+    // Write discovery file
     writeFileSync(serveInfoPath, JSON.stringify(serveInfo, null, 2) + '\n');
 
-    console.log(`\n  API 就绪: http://localhost:${port}`);
-    console.log(`  控制面板: http://localhost:${port}/`);
-    console.log(`  发现文件: .koala-serve.json`);
-    console.log(`  端点:`);
-    console.log(`    GET  /                    统一调试控制面板`);
-    console.log(`    POST /bridge/event        发送事件 { event, input }`);
-    console.log(`    GET  /bridge/state        当前 machine 状态`);
-    console.log(`    GET  /bridge/events       所有合法事件列表`);
-    console.log(`    POST /bridge/replay       批量重放事件序列`);
-    console.log(`    POST /bridge/reset        重置到初始状态`);
+    console.log(`\n  API ready: http://localhost:${port}`);
+    console.log(`  Control panel: http://localhost:${port}/`);
+    console.log(`  Discovery file: .koala-serve.json`);
+    console.log(`  Endpoints:`);
+    console.log(`    GET  /                    Unified debug control panel`);
+    console.log(`    POST /bridge/event        Send event { event, input }`);
+    console.log(`    GET  /bridge/state        Current machine state`);
+    console.log(`    GET  /bridge/events       List of all valid events`);
+    console.log(`    POST /bridge/replay       Batch replay event sequence`);
+    console.log(`    POST /bridge/reset        Reset to initial state`);
     if (options.devCommand) {
-      console.log(`    POST /browser/eval        执行 JS`);
-      console.log(`    POST /browser/click       模拟点击`);
-      console.log(`    GET  /browser/console     获取 console 日志`);
-      console.log(`    POST /browser/screenshot  截图`);
-      console.log(`    POST /browser/refresh     刷新页面`);
+      console.log(`    POST /browser/eval        Execute JS`);
+      console.log(`    POST /browser/click       Simulate click`);
+      console.log(`    GET  /browser/console     Get console logs`);
+      console.log(`    POST /browser/screenshot  Take screenshot`);
+      console.log(`    POST /browser/refresh     Refresh page`);
     }
-    console.log(`    GET  /status              validate + 项目状态`);
+    console.log(`    GET  /status              validate + project status`);
     console.log('');
   });
 
-  // 清理：serve 退出时断开 WS（项目核心进程自己管自己的生命周期）
+  // Cleanup: disconnect WS when serve exits (project core process manages its own lifecycle)
   const cleanup = () => {
     machineBridge.stop();
   };
@@ -1161,7 +1161,7 @@ export async function startServe(options: ServeOptions) {
 }
 
 // ============================================================
-// Circuit 模式：多 machine 同进程加载 + circuit.next 自动转发
+// Circuit mode: multiple machines loaded in the same process + circuit.next automatic forwarding
 // ============================================================
 
 interface TraceHop {
@@ -1188,7 +1188,7 @@ function genTraceId(): string {
   return `tr-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
 }
 
-/** 创建简单的同进程 state machine runner（不需要项目 bridge） */
+/** Create a simple in-process state machine runner (no project bridge needed) */
 function createInProcessBridge(machineConfig: any) {
   const machine = machineConfig;
   let currentState: string = machine.initial || machine.states?.[0] || 'init';
@@ -1203,14 +1203,14 @@ function createInProcessBridge(machineConfig: any) {
     if (matching.length === 0) return false;
 
     for (const t of matching) {
-      // 执行 guard（如果有）
+      // Execute guard (if any)
       if (t.guard?.fn) {
         try {
           const guardResult = t.guard.fn(gameState, input);
           if (!guardResult) continue;
         } catch { continue; }
       }
-      // 执行 action（如果有）
+      // Execute action (if any)
       if (t.action?.fn) {
         try {
           const newState = t.action.fn(gameState, input);
@@ -1218,7 +1218,7 @@ function createInProcessBridge(machineConfig: any) {
         } catch {}
       }
       currentState = t.to;
-      return true; // true = 有 transition 被匹配并执行了
+      return true; // true = a transition was matched and executed
     }
     return false;
   }
@@ -1234,7 +1234,7 @@ function createInProcessBridge(machineConfig: any) {
   return { sendEvent, getState, getMachineState, reset, getTransitions };
 }
 
-/** 扫描项目下所有 machine.ts 文件 */
+/** Scan all machine.ts files under the project */
 function findMachineFiles(projectRoot: string): Array<{ endpoint: string; filePath: string }> {
   const results: Array<{ endpoint: string; filePath: string }> = [];
   const searchDirs = [
@@ -1260,7 +1260,7 @@ function findMachineFiles(projectRoot: string): Array<{ endpoint: string; filePa
   return results;
 }
 
-/** 生成 Circuit 模式 Dashboard HTML */
+/** Generate Circuit mode Dashboard HTML */
 function generateCircuitDashboardHtml(endpointNames: string[], machineConfigs: Record<string, any>): string {
   const configJson = JSON.stringify(machineConfigs);
   const endpointsJson = JSON.stringify(endpointNames);
@@ -1508,46 +1508,46 @@ loadInitialState().then(() => connectSSE());
 </html>`;
 }
 
-/** 启动 Circuit 模式服务 */
+/** Start Circuit mode service */
 export async function startCircuitServe(options: ServeOptions) {
   const projectRoot = resolve(options.projectRoot ?? process.cwd());
   const port = options.port ?? stablePort(projectRoot, 3);
 
   console.log(`\n🐨 koala serve --circuit`);
-  console.log(`  项目: ${projectRoot}`);
+  console.log(`  Project: ${projectRoot}`);
   console.log(`  API:  http://localhost:${port}`);
 
-  // 1. 扫描所有 machine 文件
+  // 1. Scan all machine files
   const machineFiles = findMachineFiles(projectRoot);
   if (machineFiles.length === 0) {
-    console.error('  ✗ 未找到任何 machine 文件。请确认项目有 src/machines/<name>/machine.ts');
+    console.error('  ✗ No machine files found. Please confirm the project has src/machines/<name>/machine.ts');
     return;
   }
 
-  // 2. 动态 import 每个 machine.ts，创建 in-process bridge
+  // 2. Dynamically import each machine.ts, create in-process bridge
   const endpoints = new Map<string, ReturnType<typeof createInProcessBridge>>();
   const machineConfigs = new Map<string, any>();
 
   for (const { endpoint, filePath } of machineFiles) {
     try {
       const mod = await import(`file://${filePath}`);
-      // 兼容不同导出方式：default export 或 named export（如 GameMachine）
+      // Compatible with different export styles: default export or named export (e.g. GameMachine)
       const config = mod.default || Object.values(mod).find((v: any) => v?.transitions && v?.states);
       if (!config) {
-        console.warn(`  ⚠ ${endpoint}: 未找到 MachineConfig export，跳过`);
+        console.warn(`  ⚠ ${endpoint}: MachineConfig export not found, skipping`);
         continue;
       }
       endpoints.set(endpoint, createInProcessBridge(config));
       machineConfigs.set(endpoint, config);
       console.log(`  ✓ ${endpoint}: ${config.name || endpoint} (${(config.transitions || []).filter((t: any) => !t.planned).length} transitions)`);
     } catch (e: any) {
-      console.warn(`  ⚠ ${endpoint}: 加载失败 — ${e.message}`);
+      console.warn(`  ⚠ ${endpoint}: load failed — ${e.message}`);
     }
   }
 
   console.log(`  Circuit mode: loaded ${endpoints.size} machines (${[...endpoints.keys()].join(', ')})`);
 
-  // 3. 启动时校验 circuit.next 声明的目标是否存在
+  // 3. Validate at startup whether the targets declared in circuit.next exist
   for (const [ep, config] of machineConfigs.entries()) {
     for (const t of (config.transitions || []) as any[]) {
       if (!t.circuit?.next) continue;
@@ -1555,31 +1555,31 @@ export async function startCircuitServe(options: ServeOptions) {
       for (const next of nexts) {
         const [targetEndpoint, targetEvent] = next.split(':');
         if (!endpoints.has(targetEndpoint)) {
-          console.warn(`  ⚠ [circuit] ${ep} transition ${t.from}→${t.to}(${t.event}): next="${next}" 目标 endpoint "${targetEndpoint}" 不存在`);
+          console.warn(`  ⚠ [circuit] ${ep} transition ${t.from}→${t.to}(${t.event}): next="${next}" target endpoint "${targetEndpoint}" does not exist`);
         } else {
           const targetBridge = endpoints.get(targetEndpoint)!;
           const targetTransitions = targetBridge.getTransitions();
           const hasEvent = targetTransitions.some((tt: any) => !tt.planned && tt.event === targetEvent);
           if (!hasEvent) {
-            console.warn(`  ⚠ [circuit] ${ep} → ${next}: event "${targetEvent}" 在 "${targetEndpoint}" 中不存在`);
+            console.warn(`  ⚠ [circuit] ${ep} → ${next}: event "${targetEvent}" does not exist in "${targetEndpoint}"`);
           }
         }
       }
     }
   }
 
-  // 4. TraceContext 管理
+  // 4. TraceContext management
   const traces = new Map<string, TraceContext>();
   const sseClients = new Set<import('http').ServerResponse>();
 
-  // ---- 被动观察：PendingTrace（跨设备模式） ----
+  // ---- Passive observation: PendingTrace (cross-device mode) ----
   interface PendingTrace {
     traceId: string;
     circuitName: string;
     hops: TraceHop[];
     waitingFor: string[];   // ["server:RECEIVE", "worker:NOTIFY"]
-    keyField?: string;      // circuit.key 字段名
-    keyValue?: any;         // input[key] 的值
+    keyField?: string;      // circuit.key field name
+    keyValue?: any;         // value of input[key]
     inputFingerprint?: string; // JSON.stringify(input)
     startTime: number;
     timeoutMs: number;
@@ -1622,7 +1622,7 @@ export async function startCircuitServe(options: ServeOptions) {
     }, pending.timeoutMs);
   }
 
-  /** 被动观察匹配：remote bridge-host 或 POST /circuit/report 上报 stateChange 时调用 */
+  /** Passive observation match: invoked when remote bridge-host or POST /circuit/report reports stateChange */
   function onRemoteStateChange(
     endpoint: string,
     event: string,
@@ -1634,7 +1634,7 @@ export async function startCircuitServe(options: ServeOptions) {
     const hopKey = `${endpoint}:${event}`;
     const fingerprint = JSON.stringify(input);
 
-    // 1. 在 pendingTraces 中找匹配
+    // 1. Look for a match in pendingTraces
     let matched: PendingTrace | null = null;
     let matchIdx = -1;
 
@@ -1643,7 +1643,7 @@ export async function startCircuitServe(options: ServeOptions) {
       if (p.status !== 'active') continue;
       if (!p.waitingFor.includes(hopKey)) continue;
 
-      // 三级匹配
+      // Three-level matching
       if (p.keyField && input != null && input[p.keyField] !== undefined) {
         if (input[p.keyField] === p.keyValue) {
           matched = p; matchIdx = i; break;
@@ -1657,7 +1657,7 @@ export async function startCircuitServe(options: ServeOptions) {
     }
 
     if (matched) {
-      // 重置 timer
+      // Reset timer
       clearTimeout(matched.timeoutTimer);
 
       const hop: TraceHop = {
@@ -1670,7 +1670,7 @@ export async function startCircuitServe(options: ServeOptions) {
       };
       matched.hops.push(hop);
 
-      // 同步到 traces Map
+      // Sync to traces Map
       let trace = traces.get(matched.traceId);
       if (!trace) {
         trace = {
@@ -1687,16 +1687,16 @@ export async function startCircuitServe(options: ServeOptions) {
       }
       broadcastHop(matched.traceId, hop);
 
-      // 从 waitingFor 移除已匹配项
+      // Remove matched item from waitingFor
       const wfIdx = matched.waitingFor.indexOf(hopKey);
       if (wfIdx !== -1) matched.waitingFor.splice(wfIdx, 1);
 
       if (matched.waitingFor.length === 0) {
-        // 检查 circuit.next → 是否要继续等
+        // Check circuit.next → whether to keep waiting
         if (circuit?.next) {
           const nexts = Array.isArray(circuit.next) ? circuit.next : [circuit.next];
           matched.waitingFor = nexts;
-          // 更新 key/fingerprint
+          // Update key/fingerprint
           if (circuit.key && input?.[circuit.key] !== undefined) {
             matched.keyField = circuit.key;
             matched.keyValue = input[circuit.key];
@@ -1706,16 +1706,16 @@ export async function startCircuitServe(options: ServeOptions) {
           if (circuit.timeout) matched.timeoutMs = circuit.timeout;
           startPendingTimer(matched);
         } else {
-          // trace 完成
+          // trace complete
           matched.status = 'completed';
           pendingTraces.splice(matchIdx, 1);
         }
       } else {
-        // 仍有 waitingFor，重新计时
+        // Still has waitingFor, restart timer
         startPendingTimer(matched);
       }
     } else {
-      // 没有匹配的 pendingTrace → 看 circuit.next 是否要开新 trace
+      // No matching pendingTrace → check whether circuit.next requires opening a new trace
       if (circuit?.next) {
         const nexts = Array.isArray(circuit.next) ? circuit.next : [circuit.next];
         const tid = genTraceId();
@@ -1736,13 +1736,13 @@ export async function startCircuitServe(options: ServeOptions) {
           pending.inputFingerprint = fingerprint;
         }
 
-        // 记录触发 hop
+        // Record the triggering hop
         const hop: TraceHop = { endpoint, event, from, to, timestamp: Date.now(), durationMs: 0 };
         pending.hops.push(hop);
 
         pendingTraces.push(pending);
 
-        // 同步到 traces Map
+        // Sync to traces Map
         const trace: TraceContext = {
           traceId: tid,
           circuitName: pending.circuitName,
@@ -1757,7 +1757,7 @@ export async function startCircuitServe(options: ServeOptions) {
         broadcastHop(tid, hop);
         startPendingTimer(pending);
       }
-      // else: 普通 transition，不属于 circuit，忽略
+      // else: ordinary transition, not part of circuit, ignore
     }
   }
 
@@ -1783,7 +1783,7 @@ export async function startCircuitServe(options: ServeOptions) {
         hops: [],
         broken: false,
       });
-      // 超过上限时删除最老的 trace，防止内存泄漏
+      // When exceeding the cap, delete the oldest trace to prevent memory leaks
       if (traces.size > MAX_TRACES) {
         const oldest = traces.keys().next().value;
         if (oldest) traces.delete(oldest);
@@ -1791,7 +1791,7 @@ export async function startCircuitServe(options: ServeOptions) {
     }
     const trace = traces.get(tid)!;
 
-    // 记录当前 hop
+    // Record the current hop
     const hop: TraceHop = {
       endpoint: sourceEndpoint,
       event,
@@ -1805,18 +1805,18 @@ export async function startCircuitServe(options: ServeOptions) {
 
     if (trace.hops.length >= MAX_HOPS) {
       trace.broken = true;
-      console.warn(`  ⚠ [circuit] traceId=${tid} 超过最大 hop 数 ${MAX_HOPS}，circuit-breaker 触发`);
+      console.warn(`  ⚠ [circuit] traceId=${tid} exceeded max hop count ${MAX_HOPS}, circuit-breaker triggered`);
       return;
     }
 
-    // Fan-out 到所有目标
+    // Fan-out to all targets
     for (const next of nexts) {
       const colonIdx = next.indexOf(':');
-      if (colonIdx === -1) { console.warn(`  ⚠ [circuit] next 格式错误: "${next}"，期望 "endpoint:EVENT"`); continue; }
+      if (colonIdx === -1) { console.warn(`  ⚠ [circuit] malformed next: "${next}", expected "endpoint:EVENT"`); continue; }
       const targetEndpoint = next.slice(0, colonIdx);
       const targetEvent = next.slice(colonIdx + 1);
       const targetBridge = endpoints.get(targetEndpoint);
-      if (!targetBridge) { console.warn(`  ⚠ [circuit] 目标 endpoint "${targetEndpoint}" 不存在`); continue; }
+      if (!targetBridge) { console.warn(`  ⚠ [circuit] target endpoint "${targetEndpoint}" does not exist`); continue; }
 
       const tFrom = targetBridge.getMachineState();
       const tStart = Date.now();
@@ -1827,9 +1827,9 @@ export async function startCircuitServe(options: ServeOptions) {
       console.log(`  [circuit] ${sourceEndpoint}→${targetEndpoint}:${targetEvent} from=${tFrom} to=${tTo} trace=${tid}`);
 
       if (changed) {
-        // 记录目标 hop 将被追加的位置（递归调用会把目标 hop 作为第一条 push）
+        // Record the position where the target hop will be appended (recursive calls will push the target hop as the first entry)
         const targetHopIndex = trace.hops.length;
-        // 查找触发的 transition，递归处理 next
+        // Look up the triggered transition, recursively process next
         const targetConfig = machineConfigs.get(targetEndpoint);
         if (targetConfig) {
           const triggered = (targetConfig.transitions || []).find((tt: any) =>
@@ -1839,7 +1839,7 @@ export async function startCircuitServe(options: ServeOptions) {
             await dispatchCircuit(targetEndpoint, targetEvent, input, triggered, tFrom, tTo, tid);
           }
         }
-        // 用 targetHopIndex 更新 durationMs，避免递归追加更多 hop 后 length-1 指向错误
+        // Use targetHopIndex to update durationMs, avoiding length-1 pointing wrong after recursion appends more hops
         if (trace.hops[targetHopIndex]) {
           trace.hops[targetHopIndex].durationMs = durationMs;
         }
@@ -1892,7 +1892,7 @@ export async function startCircuitServe(options: ServeOptions) {
         const changed = bridge.sendEvent(body.event, body.input);
         const to = bridge.getMachineState();
 
-        // 查找触发的 transition，处理 circuit.next
+        // Look up the triggered transition, process circuit.next
         let traceId: string | null = null;
         if (changed) {
           const config = machineConfigs.get(ep);
@@ -1902,10 +1902,10 @@ export async function startCircuitServe(options: ServeOptions) {
             );
             if (triggered?.circuit?.next) {
               traceId = genTraceId();
-              // 同进程模式：dispatchCircuit 负责函数调用链路追踪
+              // Same-process mode: dispatchCircuit is responsible for function call chain tracing
               await dispatchCircuit(ep, body.event, body.input, triggered, from, to, traceId);
             }
-            // 被动观察模式：同时通知 onRemoteStateChange，聚合 trace
+            // Passive observation mode: simultaneously notify onRemoteStateChange to aggregate trace
             if (triggered?.circuit) {
               onRemoteStateChange(ep, body.event, from, to, body.input || {}, triggered.circuit);
             }
@@ -1926,7 +1926,7 @@ export async function startCircuitServe(options: ServeOptions) {
         return;
       }
 
-      // /circuit/states — 所有 endpoint 状态
+      // /circuit/states — states of all endpoints
       if (url === '/circuit/states') {
         const all: Record<string, any> = {};
         for (const [ep, bridge] of endpoints.entries()) {
@@ -1956,7 +1956,7 @@ export async function startCircuitServe(options: ServeOptions) {
         return;
       }
 
-      // /circuit/test — 并发关联策略验证端点
+      // /circuit/test — concurrent correlation strategy verification endpoint
       if (url === '/circuit/test' && req.method === 'POST' && body) {
         const scenario: string = body.scenario || 'all';
 
@@ -2089,7 +2089,7 @@ export async function startCircuitServe(options: ServeOptions) {
         return;
       }
 
-      // /circuit/report — 被动观察上报端点（远程 bridge-host 或测试用）
+      // /circuit/report — passive observation reporting endpoint (for remote bridge-host or testing)
       if (url === '/circuit/report' && req.method === 'POST' && body) {
         const { endpoint, event, from, to, input, circuit } = body;
         if (endpoint && event) {
@@ -2102,7 +2102,7 @@ export async function startCircuitServe(options: ServeOptions) {
         return;
       }
 
-      // /circuit/trace/:id — 单条链路详情
+      // /circuit/trace/:id — single chain details
       const traceDetailMatch = url.match(/^\/circuit\/trace\/([^/]+)$/);
       if (traceDetailMatch && req.method === 'GET') {
         const tid = decodeURIComponent(traceDetailMatch[1]);
@@ -2112,7 +2112,7 @@ export async function startCircuitServe(options: ServeOptions) {
         return;
       }
 
-      // /circuit/live — SSE 实时推送新 hop
+      // /circuit/live — SSE real-time push of new hops
       if (url === '/circuit/live' && req.method === 'GET') {
         res.writeHead(200, {
           'Content-Type': 'text/event-stream',
@@ -2150,7 +2150,7 @@ export async function startCircuitServe(options: ServeOptions) {
   const serveInfoPath = join(projectRoot, '.koala-serve.json');
   server.on('error', (err: NodeJS.ErrnoException) => {
     if (err.code === 'EADDRINUSE') {
-      console.log(`\n  ⚠ 端口 ${port} 已被占用`);
+      console.log(`\n  ⚠ Port ${port} is already in use`);
       process.exit(0);
     }
     throw err;
@@ -2166,17 +2166,17 @@ export async function startCircuitServe(options: ServeOptions) {
       pid: process.pid,
     };
     writeFileSync(serveInfoPath, JSON.stringify(info, null, 2) + '\n');
-    console.log(`\n  API 就绪: http://localhost:${port}`);
-    console.log(`  端点:`);
-    console.log(`    POST /circuit/:endpoint/event   发送事件`);
-    console.log(`    GET  /circuit/:endpoint/state   endpoint 状态`);
-    console.log(`    GET  /circuit/states            所有 endpoint 状态`);
-    console.log(`    POST /circuit/reset             重置所有 machine`);
-    console.log(`    GET  /circuit/traces            查看 circuit trace 历史`);
-    console.log(`    GET  /circuit/trace/:id         单条链路详情`);
-    console.log(`    GET  /circuit/live              SSE 实时 hop 推送`);
-    console.log(`    POST /circuit/report            被动观察上报（跨设备）`);
-    console.log(`    POST /circuit/test              并发关联策略验证（key/fingerprint/fifo）`);
+    console.log(`\n  API ready: http://localhost:${port}`);
+    console.log(`  Endpoints:`);
+    console.log(`    POST /circuit/:endpoint/event   send event`);
+    console.log(`    GET  /circuit/:endpoint/state   endpoint state`);
+    console.log(`    GET  /circuit/states            all endpoint states`);
+    console.log(`    POST /circuit/reset             reset all machines`);
+    console.log(`    GET  /circuit/traces            view circuit trace history`);
+    console.log(`    GET  /circuit/trace/:id         single trace details`);
+    console.log(`    GET  /circuit/live              SSE real-time hop push`);
+    console.log(`    POST /circuit/report            passive observation report (cross-device)`);
+    console.log(`    POST /circuit/test              concurrent correlation strategy verification (key/fingerprint/fifo)`);
     console.log('');
   });
 
@@ -2188,7 +2188,7 @@ export async function startCircuitServe(options: ServeOptions) {
   process.on('SIGTERM', () => { cleanup(); process.exit(0); });
 }
 
-// ---- 直接运行时解析命令行参数 ----
+// ---- Parse command-line arguments when run directly ----
 if (import.meta.url === `file://${process.argv[1]}` || process.argv[1]?.endsWith('/serve.ts') || process.argv[1]?.endsWith('/serve.js')) {
   const args = process.argv.slice(2);
   const devArg = args.find(a => a.startsWith('--dev='));

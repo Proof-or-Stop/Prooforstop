@@ -1,10 +1,10 @@
 /**
- * Understanding (Pre-context Intake snapshot, OMX 风格).
+ * Understanding (Pre-context Intake snapshot, OMX style).
  *
- * 主 agent 在 PLAN 阶段开拆 checklist 之前先把对任务的理解结构化落下。
- * 借鉴 OMX ralph 的 step 0 — "没快照不准开干"。
+ * The main agent structures and records the understanding of the task before breaking down the checklist in the PLAN phase.
+ * Inspired by OMX ralph's step 0 — "no snapshot, no starting work".
  *
- * 第一版软引入：未填只 hint 提醒，不阻塞推进。等数据攒够再决定是否硬门禁。
+ * First version soft introduction: only hint reminder when not filled, does not block advancement. Decide whether to harden the gate once enough data is collected.
  */
 
 import type { HandlerContext } from './context.js';
@@ -22,20 +22,20 @@ export function createUnderstandingHandlers(ctx: HandlerContext) {
       unknowns: string[];
       touchpoints: string[];
     }): string {
-      // 校验 story 存在
+      // Verify the story exists
       store.readStory(args.storyId);
 
-      // 基本字段校验：task / outcome 至少 5 字符
+      // Basic field validation: task / outcome at least 5 characters
       if (!args.task || args.task.trim().length < 5) {
-        throw new Error('understanding.task 必须 ≥ 5 字符（一句话描述要解决的问题）');
+        throw new Error('understanding.task must be ≥ 5 characters (one-sentence description of the problem to solve)');
       }
       if (!args.outcome || args.outcome.trim().length < 5) {
-        throw new Error('understanding.outcome 必须 ≥ 5 字符（完成后能观察到什么变化）');
+        throw new Error('understanding.outcome must be ≥ 5 characters (what change can be observed after completion)');
       }
-      if (!Array.isArray(args.facts)) throw new Error('facts 必须是数组');
-      if (!Array.isArray(args.constraints)) throw new Error('constraints 必须是数组');
-      if (!Array.isArray(args.unknowns)) throw new Error('unknowns 必须是数组');
-      if (!Array.isArray(args.touchpoints)) throw new Error('touchpoints 必须是数组');
+      if (!Array.isArray(args.facts)) throw new Error('facts must be an array');
+      if (!Array.isArray(args.constraints)) throw new Error('constraints must be an array');
+      if (!Array.isArray(args.unknowns)) throw new Error('unknowns must be an array');
+      if (!Array.isArray(args.touchpoints)) throw new Error('touchpoints must be an array');
 
       const data: UnderstandingData = {
         task: args.task,
@@ -59,19 +59,19 @@ export function createUnderstandingHandlers(ctx: HandlerContext) {
         `  touchpoints: ${args.touchpoints.length}`,
       ];
 
-      // 软提醒：unknowns > 0 时建议在拆 checklist 前先消化
+      // Soft reminder: when unknowns > 0, suggest digesting them before breaking down the checklist
       if (args.unknowns.length > 0) {
         summary.push('');
-        summary.push(`⚠ 还有 ${args.unknowns.length} 个 unknowns。建议在拆 checklist 前先调研:`);
+        summary.push(`⚠ There are still ${args.unknowns.length} unknowns. Suggest investigating before breaking down the checklist:`);
         for (const u of args.unknowns.slice(0, 5)) {
           summary.push(`  - ${u}`);
         }
       }
 
-      // 软提醒：touchpoints 为空时提醒补
+      // Soft reminder: prompt to add touchpoints when empty
       if (args.touchpoints.length === 0) {
         summary.push('');
-        summary.push('⚠ touchpoints 为空。可能你还没想清楚这次改动会影响哪些文件——补一下能让 reviewer 更好审。');
+        summary.push('⚠ touchpoints is empty. You may not have figured out which files this change will affect yet — filling it in helps the reviewer review better.');
       }
 
       return summary.join('\n');

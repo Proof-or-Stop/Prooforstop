@@ -10,8 +10,8 @@
 //   4. signRunnerEnvelope / verifyRunnerEnvelope roundtrip for every runner
 //      envelope (ActorKeyRegistration, RunnerRegistration, RunnerHeartbeat,
 //      JobClaim, JobLeaseHeartbeat, JobRelease, ProviderEventsEnvelope).
-//   5. Empty / missing actorId / nonce / createdAt cause sign-time throw and
-//      verify-time false (Handler 编码约定: runtime re-validation beyond Zod).
+//   5. Empty / missing actorId / nonce / timestamp cause sign-time throw and
+//      verify-time false (Handler coding convention: runtime re-validation beyond Zod).
 //   6. Same producer/verifier run id collapses
 //      independentVerifierRunId in missingRunnerL2Requirements().
 //   7. Adversarial invariant: signing primitives alone do NOT promote ordinary
@@ -57,7 +57,9 @@ import {
   type JobClaim,
   type JobLeaseHeartbeat,
   type JobRelease,
+  type PythonSignedEnvelopeHeader,
   type ProviderEventsEnvelope,
+  type RunnerEnvelopeHeader,
   type RunnerHeartbeat,
   type RunnerL2Requirement,
   type RunnerRegistration,
@@ -163,7 +165,11 @@ function header() {
   return { actorId: ACTOR_ID, nonce: NONCE, createdAt: CREATED_AT };
 }
 
-function checkRoundtrip<T extends { actorId: string; nonce: string; createdAt: string; signature?: string }>(
+function pythonHeader() {
+  return { actorId: ACTOR_ID, role: 'runner', nonce: NONCE, timestamp: CREATED_AT };
+}
+
+function checkRoundtrip<T extends RunnerEnvelopeHeader | PythonSignedEnvelopeHeader>(
   envelope: T,
   label: string,
 ): void {
@@ -246,36 +252,43 @@ function checkRoundtrip<T extends { actorId: string; nonce: string; createdAt: s
 // 5f. JobRelease
 {
   const env: JobRelease = {
-    ...header(),
+    ...pythonHeader(),
     jobId: 'job-1',
-    outcome: 'completed',
-    evidenceId: 'EV-1',
+    release: { runnerId: 'runner-1', sessionId: 'session-1', reason: 'not-completed-release' },
   };
   checkRoundtrip(env, 'JobRelease');
   parseJobRelease(signRunnerEnvelope(env, keypair.privateKey).signed);
 
-  // invalid outcome should be rejected at the Zod parse boundary
-  assert.throws(() => parseJobRelease({ ...env, outcome: 'bogus' }), /outcome/);
+  // Python release has no outcome; extra fields are rejected at the schema boundary.
+  assert.throws(() => parseJobRelease({ ...env, outcome: 'completed' }), /outcome/);
+  assert.throws(() => parseJobRelease({ ...env, release: { runnerId: 'runner-1' } }), /sessionId/);
 }
 
 // 5g. ProviderEventsEnvelope
 {
   const env: ProviderEventsEnvelope = {
-    ...header(),
-    runId: 'run-1',
-    events: [
-      { eventId: 'e1', kind: 'start', occurredAt: CREATED_AT },
-      { eventId: 'e2', kind: 'finish', occurredAt: CREATED_AT, payload: { exitCode: 0 } },
-    ],
+    ...pythonHeader(),
+    providerEvent: {
+      eventId: 'e1',
+      runId: 'run-1',
+      provider: 'codex',
+      type: 'completed',
+      occurredAt: CREATED_AT,
+      exitCode: 0,
+      transcriptHash: 'abc123',
+      artifactRefs: [],
+    },
   };
   checkRoundtrip(env, 'ProviderEventsEnvelope');
   parseProviderEventsEnvelope(signRunnerEnvelope(env, keypair.privateKey).signed);
 
-  // empty events array must be rejected (Zod min(1))
+  // Python accepts one providerEvent per POST; legacy events[] is rejected.
   assert.throws(() => parseProviderEventsEnvelope({ ...env, events: [] }), /events/);
+  assert.throws(() => parseProviderEventsEnvelope({ ...env, runId: 'run-1' }), /runId/);
+  assert.throws(() => parseProviderEventsEnvelope({ ...env, providerEvent: { ...env.providerEvent, runId: '' } }), /runId/);
 }
 
-// ─── 6. Missing actor / nonce / createdAt: runtime re-validation ──────────────
+// ─── 6. Missing actor / nonce / timestamp: runtime re-validation ─────────────
 {
   // sign-time throws
   assert.throws(
@@ -287,8 +300,8 @@ function checkRoundtrip<T extends { actorId: string; nonce: string; createdAt: s
     /nonce is required/,
   );
   assert.throws(
-    () => signRunnerEnvelope({ actorId: ACTOR_ID, nonce: NONCE, createdAt: '' } as any, keypair.privateKey),
-    /createdAt is required/,
+    () => signRunnerEnvelope({ actorId: ACTOR_ID, role: 'runner', nonce: NONCE, timestamp: '' } as any, keypair.privateKey),
+    /timestamp is required/,
   );
 
   // verify-time false (no throw) on a forged envelope that omits required fields

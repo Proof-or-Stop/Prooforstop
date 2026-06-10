@@ -1,7 +1,7 @@
 /**
- * 浏览器端 WebSocket 客户端
- * 由 vite plugin 注入到页面，连接 test-ws-server
- * 接收命令 → 执行 → 返回结果
+ * Browser-side WebSocket client
+ * Injected into the page by the vite plugin, connects to test-ws-server
+ * Receive command → execute → return result
  */
 
 const WS_PORT = (window as any).__KOALA_WS_PORT || 9876;
@@ -47,13 +47,13 @@ function connect() {
           response = handleType(msg);
           break;
         case 'close':
-          // 被新客户端踢掉：标记 + 停止重连 + 关闭 tab
+          // Kicked out by a new client: mark + stop reconnecting + close tab
           (window as any).__koala_kicked = true;
           if (reconnectTimer) { clearInterval(reconnectTimer); reconnectTimer = null; }
           ws?.close();
           ws = null;
           try { window.close(); } catch {}
-          return; // 不回复
+          return; // Do not reply
         default:
           response = { ok: false, error: `unknown command: ${type}` };
       }
@@ -65,7 +65,7 @@ function connect() {
   };
 
   ws.onclose = () => {
-    if ((window as any).__koala_kicked) return; // 被踢掉的 tab 不重连
+    if ((window as any).__koala_kicked) return; // Kicked-out tab does not reconnect
     console.log('[web-test] disconnected, reconnecting...');
     ws = null;
     if (!reconnectTimer) {
@@ -154,7 +154,7 @@ function handleType(msg: any) {
   return { ok: true };
 }
 
-// 全局错误捕获 — 通过 WS 发回给调试端
+// Global error capture — sent back to the debug end via WS
 const _errors: string[] = [];
 
 window.addEventListener('error', (e) => {
@@ -169,10 +169,10 @@ window.addEventListener('unhandledrejection', (e) => {
   console.error('[web-test]', msg);
 });
 
-// 暴露给 eval 查询
+// Expose for eval query
 (window as any).__webtest_errors = _errors;
 
-// trace 由代理在函数体内注入，client.js 不再做 Proxy 包装
+// trace is injected into the function body by the proxy; client.js no longer does Proxy wrapping
 
 // auto-connect
 connect();

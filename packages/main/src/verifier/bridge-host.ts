@@ -1,10 +1,10 @@
 /**
- * bridge-host.ts — 通用 Bridge WS 主机
+ * bridge-host.ts — generic Bridge WS host
  *
- * 项目调用 startBridgeHost(bridge, machine, port)，
- * 框架的 koala serve 连上来做 HTTP→WS 代理。
+ * Project calls startBridgeHost(bridge, machine, port),
+ * the framework's koala serve connects to act as an HTTP→WS proxy.
  *
- * 协议：
+ * Protocol:
  *   server→client  {type:'init', machine:{name,transitions,...}, state, machineState}
  *   server→client  {type:'stateChange', state, machineState}
  *   client→server  {type:'event', event, input}
@@ -42,13 +42,13 @@ export async function startBridgeHost(
   machine: BridgeHostMachine,
   port: number,
 ): Promise<{ stop: () => void }> {
-  // 先清理占用端口的旧进程
+  // First clean up old processes occupying the port
   try {
     const pids = execSync(`lsof -ti:${port} 2>/dev/null`).toString().trim();
     if (pids) {
       execSync(`kill -9 ${pids}`);
-      console.log(`  清理旧 Bridge Host 端口 ${port} (pid: ${pids})`);
-      // 等端口释放
+      console.log(`  Cleaning up old Bridge Host on port ${port} (pid: ${pids})`);
+      // Wait for port to be released
       await new Promise(r => setTimeout(r, 500));
     }
   } catch {}
@@ -83,7 +83,7 @@ export async function startBridgeHost(
     }
   }
 
-  // 轮询状态变更（bridge 没有 onChange 回调时的 fallback）
+  // Poll for state changes (fallback when bridge has no onChange callback)
   let lastStateJson = '';
   const poller = setInterval(() => {
     const json = JSON.stringify(bridge.getState());
@@ -96,7 +96,7 @@ export async function startBridgeHost(
   wss.on('connection', (ws) => {
     clients.add(ws);
 
-    // 新连接：发 init（含 machine 元数据 + 当前状态）
+    // New connection: send init (includes machine metadata + current state)
     ws.send(JSON.stringify({
       type: 'init',
       machine: machineInfo,

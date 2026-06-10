@@ -16,19 +16,19 @@ const TRUTH_SKIP_DIRS: ReadonlySet<string> = new Set([
   '.worktrees',
 ]);
 
-/** 从 md 文件中提取的条目 */
+/** Entry extracted from md file */
 export interface TruthEntry {
-  /** 来源文件（相对路径） */
+  /** Source file (relative path) */
   file: string;
-  /** 条目类型 */
+  /** Entry type */
   type: 'requirement' | 'decision' | 'constraint' | 'question';
-  /** 内容摘要 */
+  /** Content summary */
   summary: string;
-  /** 所在行号 */
+  /** Line number */
   line: number;
 }
 
-/** 扫描结果 */
+/** Scan result */
 export interface TruthScanResult {
   filesScanned: number;
   entries: TruthEntry[];
@@ -36,7 +36,7 @@ export interface TruthScanResult {
   _summary?: string;
 }
 
-/** 递归收集 md 文件 */
+/** Recursively collect md files */
 function collectMdFiles(dir: string): string[] {
   if (!existsSync(dir)) return [];
   const results: string[] = [];
@@ -73,14 +73,19 @@ function collectMdFiles(dir: string): string[] {
 }
 
 /**
- * 从 md 内容中提取需求点、决策、约束
+ * Extract requirements, decisions, constraints from md content
  *
- * 识别规则：
- * - 以"需求"、"要求"、"必须"、"应该"开头或包含这些词的段落 → requirement
- * - 以"决定"、"决策"、"选择"、"采用"开头的段落 → decision
- * - 以"约束"、"限制"、"不能"、"禁止"开头的段落 → constraint
- * - 以"?"、"？"结尾或包含"待定"、"待确认"的段落 → question
+ * Recognition rules:
+ * - Paragraphs starting with or containing "requirement", "requires", "must", "should" → requirement
+ * - Paragraphs starting with "decide", "decision", "choose", "adopt" → decision
+ * - Paragraphs starting with "constraint", "restriction", "cannot", "prohibit" → constraint
+ * - Paragraphs ending with "?" or a Unicode full-width question mark, or containing "pending", "to be confirmed" → question
  */
+const QUESTION_RE = /[?\uff1f]$|pending|to be confirmed|to be discussed|TBD/iu;
+const REQUIREMENT_RE = /requirement|requires|must|should|need to support|user can|support/iu;
+const DECISION_RE = /decide|decision|choose|adopt|confirmed to use|solution/iu;
+const CONSTRAINT_RE = /constraint|restriction|cannot|prohibit|not allowed|not permitted/iu;
+
 function extractEntries(content: string, file: string): TruthEntry[] {
   const entries: TruthEntry[] = [];
   const lines = content.split('\n');
@@ -95,13 +100,13 @@ function extractEntries(content: string, file: string): TruthEntry[] {
 
     let type: TruthEntry['type'] | null = null;
 
-    if (/[?？]$/.test(text) || /待定|待确认|待讨论|TBD/i.test(text)) {
+    if (QUESTION_RE.test(text)) {
       type = 'question';
-    } else if (/需求|要求|必须|应该|需要支持|用户可以|支持/.test(text)) {
+    } else if (REQUIREMENT_RE.test(text)) {
       type = 'requirement';
-    } else if (/决定|决策|选择|采用|确定使用|方案/.test(text)) {
+    } else if (DECISION_RE.test(text)) {
       type = 'decision';
-    } else if (/约束|限制|不能|禁止|不允许|不可以/.test(text)) {
+    } else if (CONSTRAINT_RE.test(text)) {
       type = 'constraint';
     }
 
@@ -122,7 +127,7 @@ export function scanTruth(projectRoot: string, options?: { summary?: boolean }):
   const config = loadConfig(projectRoot);
   const reqDir = join(projectRoot, config.requirementsDir);
 
-  // 扫描 decisions/ 和 extracted/ 两个子目录，也扫根目录的 md
+  // Scan decisions/ and extracted/ subdirectories, also scan md in root directory
   const dirs = [reqDir, join(reqDir, 'decisions'), join(reqDir, 'extracted')];
   const fileSet = new Set<string>();
   for (const d of dirs) {
@@ -135,7 +140,7 @@ export function scanTruth(projectRoot: string, options?: { summary?: boolean }):
   const topicSet = new Set<string>();
   const fileSummaries: Array<{ file: string; topic: string; entryCount: number }> = [];
 
-  // summary 模式：只统计，不返回全部 entries
+  // summary mode: only count, do not return all entries
   if (options?.summary) {
     for (const filePath of files) {
       const content = readFileSync(filePath, 'utf-8');
@@ -154,7 +159,7 @@ export function scanTruth(projectRoot: string, options?: { summary?: boolean }):
     };
   }
 
-  // 完整模式
+  // full mode
   const allEntries: TruthEntry[] = [];
   for (const filePath of files) {
     const content = readFileSync(filePath, 'utf-8');
@@ -182,7 +187,7 @@ export function generateNav(projectRoot: string): string {
     return 'No requirement files found in docs/requirements/';
   }
 
-  const lines: string[] = ['# 真相源导航', '', `> ${files.length} 个文件`, ''];
+  const lines: string[] = ['# Source of Truth Navigation', '', `> ${files.length} files`, ''];
 
   // Group by subdirectory
   const groups = new Map<string, Array<{ rel: string; title: string }>>();
@@ -190,7 +195,7 @@ export function generateNav(projectRoot: string): string {
   for (const filePath of files) {
     const rel = relative(reqDir, filePath);
     const parts = rel.split(/[\\/]/);
-    const group = parts.length > 1 ? parts[0] : '根目录';
+    const group = parts.length > 1 ? parts[0] : 'root';
 
     const content = readFileSync(filePath, 'utf-8');
     const headingMatch = content.match(/^#\s+(.+)/m);

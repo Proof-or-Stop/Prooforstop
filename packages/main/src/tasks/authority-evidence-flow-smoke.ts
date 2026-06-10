@@ -81,6 +81,15 @@ function countingFetch(status: number, body: string): { calls: number; fetch: Au
 
 const HANDLER_STORY_ID = 'B-flow';
 const FLOW_NOW = '2026-05-21T00:00:00.000Z';
+const TEST_AUTH = { customerApiKey: 'test-customer-key' };
+
+function testAuthorityClient(baseURL: string, fetchImpl: AuthorityFetch): AuthorityClient {
+  return new AuthorityClient(baseURL, fetchImpl, undefined, TEST_AUTH);
+}
+
+function createTestAuthoritySubmitter(settings: AuthoritySettings, client: AuthorityClient) {
+  return createAuthoritySubmitter(settings, client, TEST_AUTH);
+}
 
 function git(cwd: string, args: string[]): string {
   return execFileSync('git', args, { cwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
@@ -216,7 +225,7 @@ function collectEvidence(id: string): EvidenceEnvelopeContract {
 // --- enabled mode building blocks: success path -------------------------------
 {
   const server = fetchReturning(200, JSON.stringify({ accepted: true, evidenceId: 'EV-ok' }));
-  const client = new AuthorityClient('https://a.test', server.fetch);
+  const client = testAuthorityClient('https://a.test', server.fetch);
   const evidence = collectEvidence('EV-ok');
   const outcome = await client.submitEvidence(evidence);
   assert.equal(server.calls, 1);
@@ -229,7 +238,7 @@ function collectEvidence(id: string): EvidenceEnvelopeContract {
 // shadow (CHK-003) degrades these to a warning; enforce (CHK-004) gates on them.
 for (const [status, body] of [[500, 'down'], [503, 'unavailable'], [422, 'rejected']] as const) {
   const server = fetchReturning(status, body);
-  const client = new AuthorityClient('https://a.test', server.fetch);
+  const client = testAuthorityClient('https://a.test', server.fetch);
   const outcome = await client.submitEvidence(collectEvidence('EV-fail'));
   assert.equal(server.calls, 1);
   assert.equal(outcome.kind, 'http_error');
@@ -242,7 +251,7 @@ for (const [status, body] of [[500, 'down'], [503, 'unavailable'], [422, 'reject
     200,
     JSON.stringify({ accepted: true, results: [{ accepted: true }, { accepted: false, reason: 'dup' }] }),
   );
-  const client = new AuthorityClient('https://a.test', server.fetch);
+  const client = testAuthorityClient('https://a.test', server.fetch);
   const outcome = await client.submitEvidenceBatch([collectEvidence('EV-a'), collectEvidence('EV-b')]);
   assert.equal(server.calls, 1, 'batch is a single POST');
   assert.equal(outcome.kind, 'success');
@@ -264,8 +273,8 @@ for (const [status, body] of [[500, 'down'], [503, 'unavailable'], [422, 'reject
   try {
     const settings = enforceSettings();
     const server = countingFetch(200, JSON.stringify({ accepted: true }));
-    const client = new AuthorityClient(settings.baseURL!, server.fetch);
-    const submitter = createAuthoritySubmitter(settings, client);
+    const client = testAuthorityClient(settings.baseURL!, server.fetch);
+    const submitter = createTestAuthoritySubmitter(settings, client);
     const handlers = createChecklistHandlers({
       root, store, authoritySettings: settings, authoritySubmitter: submitter,
     } as any);
@@ -297,8 +306,8 @@ for (const [status, body] of [[500, 'down'], [503, 'unavailable'], [422, 'reject
   try {
     const settings = enforceSettings();
     const server = countingFetch(200, JSON.stringify({ accepted: true }));
-    const client = new AuthorityClient(settings.baseURL!, server.fetch);
-    const submitter = createAuthoritySubmitter(settings, client);
+    const client = testAuthorityClient(settings.baseURL!, server.fetch);
+    const submitter = createTestAuthoritySubmitter(settings, client);
     const handlers = createChecklistHandlers({
       root, store, authoritySettings: settings, authoritySubmitter: submitter,
     } as any);
@@ -314,7 +323,7 @@ for (const [status, body] of [[500, 'down'], [503, 'unavailable'], [422, 'reject
       });
     } catch (e) {
       threw = true;
-      assert.match((e as Error).message, /note 必须 ≥ 5 字符/);
+      assert.match((e as Error).message, /note must be ≥ 5 characters/);
     }
     assert.equal(threw, true, 'note < 5 must reject');
     assert.equal(server.calls, 0, 'note < 5: ZERO authority POST (Blocker 2)');
@@ -330,8 +339,8 @@ for (const [status, body] of [[500, 'down'], [503, 'unavailable'], [422, 'reject
   try {
     const settings = enforceSettings();
     const server = countingFetch(200, JSON.stringify({ accepted: true }));
-    const client = new AuthorityClient(settings.baseURL!, server.fetch);
-    const submitter = createAuthoritySubmitter(settings, client);
+    const client = testAuthorityClient(settings.baseURL!, server.fetch);
+    const submitter = createTestAuthoritySubmitter(settings, client);
     const handlers = createChecklistHandlers({
       root, store, authoritySettings: settings, authoritySubmitter: submitter,
     } as any);
@@ -348,7 +357,7 @@ for (const [status, body] of [[500, 'down'], [503, 'unavailable'], [422, 'reject
       });
     } catch (e) {
       threw = true;
-      assert.match((e as Error).message, /waiverType 只能用于 kind=waiver/);
+      assert.match((e as Error).message, /waiverType can only be used with kind=waiver/);
     }
     assert.equal(threw, true, 'waiverType-kind mismatch must reject');
     assert.equal(server.calls, 0, 'waiverType mismatch: ZERO authority POST (Blocker 2)');
@@ -364,8 +373,8 @@ for (const [status, body] of [[500, 'down'], [503, 'unavailable'], [422, 'reject
   try {
     const settings = enforceSettings();
     const server = countingFetch(200, JSON.stringify({ accepted: true, results: [{ accepted: true }, { accepted: true }] }));
-    const client = new AuthorityClient(settings.baseURL!, server.fetch);
-    const submitter = createAuthoritySubmitter(settings, client);
+    const client = testAuthorityClient(settings.baseURL!, server.fetch);
+    const submitter = createTestAuthoritySubmitter(settings, client);
     const handlers = createChecklistHandlers({
       root, store, authoritySettings: settings, authoritySubmitter: submitter,
     } as any);
@@ -397,8 +406,8 @@ for (const [status, body] of [[500, 'down'], [503, 'unavailable'], [422, 'reject
   try {
     const settings = enforceSettings();
     const server = countingFetch(200, JSON.stringify({ accepted: true }));
-    const client = new AuthorityClient(settings.baseURL!, server.fetch);
-    const submitter = createAuthoritySubmitter(settings, client);
+    const client = testAuthorityClient(settings.baseURL!, server.fetch);
+    const submitter = createTestAuthoritySubmitter(settings, client);
     const handlers = createChecklistHandlers({
       root, store, authoritySettings: settings, authoritySubmitter: submitter,
     } as any);
@@ -414,7 +423,7 @@ for (const [status, body] of [[500, 'down'], [503, 'unavailable'], [422, 'reject
       });
     } catch (e) {
       threw = true;
-      assert.match((e as Error).message, /note 必须 ≥ 5 字符/);
+      assert.match((e as Error).message, /note must be ≥ 5 characters/);
     }
     assert.equal(threw, true, 'batch with short note must reject');
     assert.equal(server.calls, 0, 'batch short note: whole batch ZERO POST');
@@ -431,12 +440,12 @@ for (const [status, body] of [[500, 'down'], [503, 'unavailable'], [422, 'reject
     // off mode: no authoritySettings override -> resolved from env. Inject a counting
     // submitter that MUST never be touched (off short-circuits before reaching it).
     const offServer = countingFetch(200, JSON.stringify({ accepted: true }));
-    const offClient = new AuthorityClient('https://unused.test', offServer.fetch);
+    const offClient = testAuthorityClient('https://unused.test', offServer.fetch);
     const handlers = createChecklistHandlers({
       root, store,
       authoritySettings: { mode: 'off', timeoutMS: 1000 } as AuthoritySettings,
       // even if a submitter is present, off mode must not call it
-      authoritySubmitter: createAuthoritySubmitter({ mode: 'enforce', baseURL: 'https://unused.test', timeoutMS: 1000 }, offClient),
+      authoritySubmitter: createAuthoritySubmitter({ mode: 'enforce', baseURL: 'https://unused.test', timeoutMS: 1000 }, offClient, TEST_AUTH),
     } as any);
 
     const result = handlers.verification_evidence_add({
@@ -476,8 +485,8 @@ for (const [status, body] of [[500, 'down'], [503, 'unavailable'], [422, 'reject
   try {
     const settings = shadowSettings();
     const server = countingFetch(200, JSON.stringify({ accepted: true, evidenceId: 'EV-shadow-ok' }));
-    const client = new AuthorityClient(settings.baseURL!, server.fetch);
-    const submitter = createAuthoritySubmitter(settings, client);
+    const client = testAuthorityClient(settings.baseURL!, server.fetch);
+    const submitter = createTestAuthoritySubmitter(settings, client);
     const handlers = createChecklistHandlers({
       root, store, authoritySettings: settings, authoritySubmitter: submitter,
     } as any);
@@ -512,7 +521,7 @@ const shadowFailureCases: Array<{
     label: '5xx http_error',
     makeClient: (url) => {
       const server = countingFetch(503, 'service unavailable');
-      return { calls: () => server.calls, client: new AuthorityClient(url, server.fetch) };
+      return { calls: () => server.calls, client: testAuthorityClient(url, server.fetch) };
     },
   },
   {
@@ -520,7 +529,7 @@ const shadowFailureCases: Array<{
     makeClient: (url) => {
       const abort = Object.assign(new Error('aborted'), { name: 'AbortError' });
       const server = fetchThrowing(abort);
-      return { calls: () => server.calls, client: new AuthorityClient(url, server.fetch) };
+      return { calls: () => server.calls, client: testAuthorityClient(url, server.fetch) };
     },
   },
   {
@@ -528,7 +537,7 @@ const shadowFailureCases: Array<{
     makeClient: (url) => {
       const refused = Object.assign(new Error('connect ECONNREFUSED'), { code: 'ECONNREFUSED' });
       const server = fetchThrowing(refused);
-      return { calls: () => server.calls, client: new AuthorityClient(url, server.fetch) };
+      return { calls: () => server.calls, client: testAuthorityClient(url, server.fetch) };
     },
   },
   {
@@ -538,7 +547,7 @@ const shadowFailureCases: Array<{
     label: 'malformed 2xx body',
     makeClient: (url) => {
       const server = countingFetch(200, JSON.stringify({ garbage: true, evidenceId: 'EV-x' }));
-      return { calls: () => server.calls, client: new AuthorityClient(url, server.fetch) };
+      return { calls: () => server.calls, client: testAuthorityClient(url, server.fetch) };
     },
   },
 ];
@@ -548,7 +557,7 @@ for (const { label, makeClient } of shadowFailureCases) {
   try {
     const settings = shadowSettings();
     const { calls, client } = makeClient(settings.baseURL!);
-    const submitter = createAuthoritySubmitter(settings, client);
+    const submitter = createTestAuthoritySubmitter(settings, client);
     const handlers = createChecklistHandlers({
       root, store, authoritySettings: settings, authoritySubmitter: submitter,
     } as any);
@@ -601,7 +610,7 @@ for (const { label, makeClient } of shadowFailureCases) {
         throw new TypeError('boom: non-HTTP exception escaping the client');
       },
     } as unknown as AuthorityClient;
-    const submitter = createAuthoritySubmitter(settings, throwingClient);
+    const submitter = createAuthoritySubmitter(settings, throwingClient, TEST_AUTH);
     const handlers = createChecklistHandlers({
       root, store, authoritySettings: settings, authoritySubmitter: submitter,
     } as any);
@@ -639,8 +648,8 @@ for (const { label, makeClient } of shadowFailureCases) {
     const settings = shadowSettings();
     const refused = Object.assign(new Error('connect ECONNREFUSED'), { code: 'ECONNREFUSED' });
     const server = fetchThrowing(refused);
-    const client = new AuthorityClient(settings.baseURL!, server.fetch);
-    const submitter = createAuthoritySubmitter(settings, client);
+    const client = testAuthorityClient(settings.baseURL!, server.fetch);
+    const submitter = createTestAuthoritySubmitter(settings, client);
     const handlers = createChecklistHandlers({
       root, store, authoritySettings: settings, authoritySubmitter: submitter,
     } as any);
@@ -698,8 +707,8 @@ for (const { label, makeClient } of shadowFailureCases) {
   try {
     const settings = enforceSettings();
     const server = countingFetch(200, JSON.stringify({ accepted: true, evidenceId: 'EV-enforce-ok' }));
-    const client = new AuthorityClient(settings.baseURL!, server.fetch);
-    const submitter = createAuthoritySubmitter(settings, client);
+    const client = testAuthorityClient(settings.baseURL!, server.fetch);
+    const submitter = createTestAuthoritySubmitter(settings, client);
     const handlers = createChecklistHandlers({
       root, store, authoritySettings: settings, authoritySubmitter: submitter,
     } as any);
@@ -735,7 +744,7 @@ const enforceFailureCases: Array<{
     label: '5xx http_error',
     makeClient: (url) => {
       const server = countingFetch(503, 'service unavailable');
-      return { calls: () => server.calls, client: new AuthorityClient(url, server.fetch) };
+      return { calls: () => server.calls, client: testAuthorityClient(url, server.fetch) };
     },
   },
   {
@@ -743,7 +752,7 @@ const enforceFailureCases: Array<{
     makeClient: (url) => {
       const abort = Object.assign(new Error('aborted'), { name: 'AbortError' });
       const server = fetchThrowing(abort);
-      return { calls: () => server.calls, client: new AuthorityClient(url, server.fetch) };
+      return { calls: () => server.calls, client: testAuthorityClient(url, server.fetch) };
     },
   },
   {
@@ -751,7 +760,7 @@ const enforceFailureCases: Array<{
     makeClient: (url) => {
       const refused = Object.assign(new Error('connect ECONNREFUSED'), { code: 'ECONNREFUSED' });
       const server = fetchThrowing(refused);
-      return { calls: () => server.calls, client: new AuthorityClient(url, server.fetch) };
+      return { calls: () => server.calls, client: testAuthorityClient(url, server.fetch) };
     },
   },
   {
@@ -759,7 +768,7 @@ const enforceFailureCases: Array<{
     makeClient: (url) => {
       // HTTP 200 but the authority explicitly refuses the evidence.
       const server = countingFetch(200, JSON.stringify({ accepted: false, reason: 'unverifiable' }));
-      return { calls: () => server.calls, client: new AuthorityClient(url, server.fetch) };
+      return { calls: () => server.calls, client: testAuthorityClient(url, server.fetch) };
     },
   },
   {
@@ -769,7 +778,7 @@ const enforceFailureCases: Array<{
     label: 'malformed 2xx body',
     makeClient: (url) => {
       const server = countingFetch(200, JSON.stringify({ garbage: true, evidenceId: 'EV-x' }));
-      return { calls: () => server.calls, client: new AuthorityClient(url, server.fetch) };
+      return { calls: () => server.calls, client: testAuthorityClient(url, server.fetch) };
     },
   },
 ];
@@ -779,7 +788,7 @@ for (const { label, makeClient } of enforceFailureCases) {
   try {
     const settings = enforceSettings();
     const { calls, client } = makeClient(settings.baseURL!);
-    const submitter = createAuthoritySubmitter(settings, client);
+    const submitter = createTestAuthoritySubmitter(settings, client);
     const handlers = createChecklistHandlers({
       root, store, authoritySettings: settings, authoritySubmitter: submitter,
     } as any);
@@ -825,7 +834,7 @@ for (const { label, makeClient } of enforceFailureCases) {
         throw new TypeError('boom: non-HTTP exception escaping the client');
       },
     } as unknown as AuthorityClient;
-    const submitter = createAuthoritySubmitter(settings, throwingClient);
+    const submitter = createAuthoritySubmitter(settings, throwingClient, TEST_AUTH);
     const handlers = createChecklistHandlers({
       root, store, authoritySettings: settings, authoritySubmitter: submitter,
     } as any);
@@ -857,8 +866,8 @@ for (const { label, makeClient } of enforceFailureCases) {
   try {
     const settings = enforceSettings();
     const server = countingFetch(200, JSON.stringify({ accepted: false, reason: 'whole batch rejected' }));
-    const client = new AuthorityClient(settings.baseURL!, server.fetch);
-    const submitter = createAuthoritySubmitter(settings, client);
+    const client = testAuthorityClient(settings.baseURL!, server.fetch);
+    const submitter = createTestAuthoritySubmitter(settings, client);
     const handlers = createChecklistHandlers({
       root, store, authoritySettings: settings, authoritySubmitter: submitter,
     } as any);
@@ -900,8 +909,8 @@ for (const { label, makeClient } of enforceFailureCases) {
       200,
       JSON.stringify({ accepted: true, results: [{ accepted: true, evidenceId: 'EV-a' }, { accepted: false, evidenceId: 'EV-b', reason: 'duplicate' }] }),
     );
-    const client = new AuthorityClient(settings.baseURL!, server.fetch);
-    const submitter = createAuthoritySubmitter(settings, client);
+    const client = testAuthorityClient(settings.baseURL!, server.fetch);
+    const submitter = createTestAuthoritySubmitter(settings, client);
     const handlers = createChecklistHandlers({
       root, store, authoritySettings: settings, authoritySubmitter: submitter,
     } as any);

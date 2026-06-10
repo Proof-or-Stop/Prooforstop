@@ -7,11 +7,11 @@ export function locateTasks(query: string, scanRoot: string): LocateResult {
   const q = query.trim().toLowerCase();
 
   const matches = tasks.filter(t => {
-    // 匹配 checklist ID
+    // Match checklist ID
     if (t.checklist?.some(c => c.trim().toLowerCase() === q)) return true;
-    // 匹配 task ID
+    // Match task ID
     if (t.task.toLowerCase() === q) return true;
-    // 关键词匹配 title / description
+    // Keyword match against title / description
     if (t.title?.toLowerCase().includes(q)) return true;
     if (t.description?.toLowerCase().includes(q)) return true;
     return false;

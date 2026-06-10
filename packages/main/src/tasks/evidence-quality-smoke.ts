@@ -31,6 +31,10 @@ assert.equal(classifyEvidenceQuality(makeEvidence({ note: 'assert output matches
 assert.equal(classifyEvidenceQuality(makeEvidence({ note: 'verifies the edge case' })).quality, 'strong', 'verifies note should be strong');
 assert.equal(classifyEvidenceQuality(makeEvidence({ note: 'regression check for this path' })).quality, 'strong', 'regression note should be strong');
 assert.equal(classifyEvidenceQuality(makeEvidence({ note: 'expected output matches actual' })).quality, 'strong', 'expected/actual note should be strong');
+assert.equal(classifyEvidenceQuality(makeEvidence({ note: '\u65ad\u8a00\u8f93\u51fa\u7b26\u5408\u9884\u671f' })).quality, 'strong', 'localized assertion note should be strong');
+assert.equal(classifyEvidenceQuality(makeEvidence({ note: '\u56de\u5f52\u573a\u666f\u8986\u76d6\u9884\u671f\u4e0e\u5b9e\u9645\u7ed3\u679c' })).quality, 'strong', 'localized regression/coverage note should be strong');
+assert.equal(classifyEvidenceQuality(makeEvidence({ note: '\u6838\u9a8c\u7528\u4f8b\u8986\u76d6\u771f\u5b9e\u8f93\u51fa' })).quality, 'strong', 'localized verify/scenario/real-output note should be strong');
+assert.equal(classifyEvidenceQuality(makeEvidence({ note: '\u68c0\u67e5\u9879\u6e05\u5355\u8986\u76d6\u7387\u7b26\u5408\u9884\u671f' })).quality, 'strong', 'localized checklist/coverage-rate note should be strong');
 
 // Strong: smoke task file path
 assert.equal(
@@ -58,6 +62,26 @@ assert.equal(
 {
   const r = classifyEvidenceQuality(makeEvidence({ kind: 'manual_transcript', command: undefined, file: undefined, note: 'the test passed' }));
   assert.equal(r.quality, 'weak', 'manual_transcript note="the test passed" without command/file should still be weak');
+  assert.equal(r.weaknessReason, 'commandless_fileless');
+}
+{
+  const r = classifyEvidenceQuality(makeEvidence({ kind: 'manual_transcript', command: undefined, file: undefined, note: '\u6d4b\u8bd5\u901a\u8fc7' }));
+  assert.equal(r.quality, 'weak', 'localized manual_transcript pass-only note without command/file should still be weak');
+  assert.equal(r.weaknessReason, 'commandless_fileless');
+}
+{
+  const r = classifyEvidenceQuality(makeEvidence({ kind: 'manual_transcript', command: undefined, file: undefined, note: '\u9a8c\u8bc1\u901a\u8fc7' }));
+  assert.equal(r.quality, 'weak', 'localized manual_transcript verification-pass-only note without command/file should still be weak');
+  assert.equal(r.weaknessReason, 'commandless_fileless');
+}
+{
+  const r = classifyEvidenceQuality(makeEvidence({ kind: 'manual_transcript', command: undefined, file: undefined, note: '\u6d4b\u8bd5\u9a8c\u8bc1\u901a\u8fc7\u3002' }));
+  assert.equal(r.quality, 'weak', 'localized manual_transcript test-verification-pass-only note without command/file should still be weak');
+  assert.equal(r.weaknessReason, 'commandless_fileless');
+}
+{
+  const r = classifyEvidenceQuality(makeEvidence({ kind: 'manual_transcript', command: undefined, file: undefined, note: '\u5168\u90e8\u901a\u8fc7' }));
+  assert.equal(r.quality, 'weak', 'localized manual_transcript all-pass-only note without command/file should still be weak');
   assert.equal(r.weaknessReason, 'commandless_fileless');
 }
 
@@ -109,6 +133,11 @@ assert.equal(
   classifyEvidenceQuality(makeEvidence({ command: 'npm run build', note: 'build verifies the module loads' })).quality,
   'strong',
   'build with assertion note should be strong',
+);
+assert.equal(
+  classifyEvidenceQuality(makeEvidence({ command: 'npm run build', note: '\u56de\u5f52\u573a\u666f\u8986\u76d6\u9884\u671f\u4e0e\u5b9e\u9645\u7ed3\u679c' })).quality,
+  'strong',
+  'build with localized assertion note should be strong',
 );
 
 // Waiver is always strong (handled elsewhere)

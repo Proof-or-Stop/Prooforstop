@@ -1,31 +1,31 @@
 /**
- * B-e8c8 CHK-001: Finding cluster 数据模型（Data 原子）
+ * B-e8c8 CHK-001: Finding cluster data model (Data atom)
  *
- * Cluster = 多条 finding 根因相同、能被一次改动同时解决的归并单元。
- * 存储位置：docs/story/actives/<storyId>/clusters.json
+ * Cluster = a merging unit where multiple findings share the same root cause and can be resolved by a single change.
+ * Storage location: docs/story/actives/<storyId>/clusters.json
  *
- * 聚簇依据是"一次改动能不能同时解决"，不是描述关键词相似。
- * 详见 background.md "方案取舍" 段与 plan.md CHK-002。
+ * Clustering is based on "whether a single change can resolve them together", not on description keyword similarity.
+ * See background.md "Solution Trade-offs" section and plan.md CHK-002 for details.
  *
- * 本文件只定义类型，不含函数（遵循 data.ts 范式）。聚簇算法在 cluster-compute.ts（CHK-002）。
+ * This file only defines types, no functions (following the data.ts paradigm). The clustering algorithm is in cluster-compute.ts (CHK-002).
  */
 
 import type { Finding } from './types.js';
 
 export interface ClusterRecord {
-  /** 簇 ID，格式 CL-001、CL-002……（story 内唯一，从 001 递增） */
+  /** Cluster ID, format CL-001, CL-002... (unique within a story, incrementing from 001) */
   clusterId: string;
-  /** 根因描述；首轮聚簇可留 "<待主 agent 填写>"，由后续 cluster_update 填实 */
+  /** Root cause description; the first round of clustering may leave "<to be filled by main agent>", to be filled in by subsequent cluster_update */
   rootCause: string;
-  /** 簇内所有 finding 的 id 列表（全量 Finding.id，不只是编号） */
+  /** List of all finding ids in the cluster (full Finding.id, not just the number) */
   findingIds: string[];
-  /** 簇涉及的文件路径去重并集（来自簇内每条 finding 的 files 字段） */
+  /** Deduplicated union of file paths involved in the cluster (from the files field of each finding in the cluster) */
   files: string[];
-  /** 簇内 finding 共享的 severity（合并规则要求 severity 完全一致） */
+  /** Severity shared by findings in the cluster (the merging rule requires severity to be exactly consistent) */
   severity: Finding['severity'];
-  /** 创建时间 ISO8601 */
+  /** Creation time ISO8601 */
   createdAt: string;
-  /** 可选签名，保留给后续 cluster 生成流程（CHK-002+）使用；CHK-001 不强制 */
+  /** Optional signature, reserved for subsequent cluster generation flow (CHK-002+); not enforced in CHK-001 */
   _hash?: string;
 }
 

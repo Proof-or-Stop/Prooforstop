@@ -1,21 +1,21 @@
 /**
- * koala audit — 框架自省 audit（B-9bd9 CHK-001，MVP）
+ * koala audit — framework self-introspection audit (B-9bd9 CHK-001, MVP)
  *
- * 机械扫 CLAUDE.md / packages/koala/CLAUDE.md 承诺 vs 实际 CLI 行为 drift。
+ * Mechanically scans CLAUDE.md / packages/koala/CLAUDE.md promises vs actual CLI behavior drift.
  *
- * 当前只支持 `--framework` 一档（未来可加 `--code` / `--schema` 等）。
+ * Currently only supports `--framework` mode (future may add `--code` / `--schema` etc.).
  *
- * 流程：
- *   1. mode=off → print + 退出
- *   2. 读两份 CLAUDE.md
- *   3. ensureMetaStory（幂等）+ beginRound（下一轮）
- *   4. 跑 scanner → upsertDrift（new / still-drifting）
- *   5. autoResolveMissing（本轮未见 → resolved-by-nature）
- *   6. 生成 report.md 到 docs/koala/framework-audit/YYYY-MM-DD/report.md
- *   7. touchAuditState：只更新 state.json 的 lastAuditAt（其他字段 CHK-003 管）
- *   8. 打印 summary 行
+ * Flow:
+ *   1. mode=off → print + exit
+ *   2. Read both CLAUDE.md files
+ *   3. ensureMetaStory (idempotent) + beginRound (next round)
+ *   4. Run scanner → upsertDrift (new / still-drifting)
+ *   5. autoResolveMissing (not seen this round → resolved-by-nature)
+ *   6. Generate report.md to docs/koala/framework-audit/YYYY-MM-DD/report.md
+ *   7. touchAuditState: only update state.json's lastAuditAt (other fields managed by CHK-003)
+ *   8. Print summary line
  *
- * 全流程 advisory：不调 finding_add 到活动 story；不抛错；不卡 gate。
+ * Entire flow is advisory: does not call finding_add against active stories; does not throw; does not block gates.
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -40,7 +40,7 @@ import { resolveMainRepoRoot } from '../core/partial-done-recovery.js';
 
 export interface AuditArgs {
   framework?: boolean;
-  mode?: AuditMode; // CLI 可覆盖配置默认
+  mode?: AuditMode; // CLI can override config default
 }
 
 export interface AuditResult {
@@ -55,17 +55,17 @@ export interface AuditResult {
 }
 
 /**
- * audit handler 的具名返回类型。用交集类型结合具名字段 + registerBatch 要求的
- * index signature：具名字段 `audit` 保留参数/返回值类型约束（F-002），索引
- * 签名让 createAuditHandlers 的返回能喂给 registerBatch(map: Record<string, HandlerFn>)。
+ * Named return type for the audit handler. Uses an intersection type to combine named fields +
+ * the index signature required by registerBatch: named field `audit` preserves parameter/return type constraints (F-002), while the index
+ * signature lets createAuditHandlers's return be fed to registerBatch(map: Record<string, HandlerFn>).
  */
 export type AuditHandlers = {
   audit(args?: AuditArgs): string | AuditResult;
 } & Record<string, (...args: any[]) => any>;
 
 /**
- * 一条 audit drift 行（rowsNew / rowsStill / ReportInputs 共用）：
- * 原始 DriftCandidate 扩展上「本轮状态 + upsert 返回的 finding 元数据」。
+ * A single audit drift row (shared by rowsNew / rowsStill / ReportInputs):
+ * Extends the raw DriftCandidate with "this round's status + finding metadata returned by upsert".
  */
 interface AuditRowEntry extends DriftCandidate {
   status: string;
@@ -78,9 +78,9 @@ export function createAuditHandlers(ctx: HandlerContext): AuditHandlers {
   const { store, root } = ctx;
   return {
     audit(args: AuditArgs = {}): string | AuditResult {
-      // B-a2c4: fail-fast 如果 ctx.root 不是 repo 根，否则 audit 会把 report 静默写到
-      // 子目录 (如 packages/koala/docs/...) 而非仓根 docs/...。标志物: .git 存在
-      // (worktree 下 .git 是文件，主仓下是目录，existsSync 对两者都返回 true)。
+      // B-a2c4: fail-fast if ctx.root is not the repo root, otherwise audit will silently write report to
+      // subdirectory (e.g. packages/koala/docs/...) rather than the repo root docs/.... Marker: .git exists
+      // (under a worktree .git is a file, under the main repo it is a directory; existsSync returns true for both).
       if (!existsSync(join(root, '.git'))) {
         throw new Error(
           `audit must run from repo root (got: ${root}). ` +
@@ -93,12 +93,12 @@ export function createAuditHandlers(ctx: HandlerContext): AuditHandlers {
       const auditCfg: AuditConfig = resolveAuditConfig(profile, root);
       const effectiveMode: AuditMode = args.mode ?? auditCfg.mode;
 
-      // MVP 只实现 --framework；args.framework 缺省也按 framework 跑（只此一档）
+      // MVP only implements --framework; if args.framework is absent it also runs as framework (the only mode)
       if (effectiveMode === 'off') {
         return 'audit disabled (mode=off)';
       }
 
-      // 1. 定位两份 CLAUDE.md 入口（硬编码，不扩展）
+      // 1. Locate the two CLAUDE.md entries (hardcoded, not extensible)
       const mdEntries = [
         join(root, 'CLAUDE.md'),
         join(root, 'packages', 'koala', 'CLAUDE.md'),
@@ -149,7 +149,7 @@ export function createAuditHandlers(ctx: HandlerContext): AuditHandlers {
             desc: d.desc,
             severity: d.severity,
           });
-          // 读回 finding 拿 firstSeenRound / lastSeenAt（audit-meta-store 已写入）
+          // Read back the finding to get firstSeenRound / lastSeenAt (audit-meta-store already wrote them)
           const data = store.readFindings(META_STORY_ID);
           const f = data.findings.find(x => x.id === r.findingId);
           const row = {
@@ -167,7 +167,7 @@ export function createAuditHandlers(ctx: HandlerContext): AuditHandlers {
         const resolvedIds = autoResolveMissing(store, round, seenHashes);
         const resolvedCount = resolvedIds.length;
 
-        // 记录本轮 round 到 meta-story.events（便于 beginRound 下次递增）
+        // Record this round to meta-story.events (so beginRound can increment next time)
         try { recordRound(store, round); } catch {/* advisory */}
 
         // 6. report.md
@@ -284,15 +284,15 @@ function localDateIsoDay(d = new Date()): string {
 }
 
 /**
- * touchAuditState: 只更新 state.json 的 lastAuditAt 字段。
+ * touchAuditState: only updates the lastAuditAt field of state.json.
  *
- * 这里刻意做得窄：CHK-003 会扩展 {lastAuditCommit, doneSinceLastAudit, lastAuditStoryId}
- * 等字段——CHK-001 先写好 "读 + 部分字段 patch + 写" 的骨架，CHK-003 接手后只要扩 patch
- * 类型即可，不必重写文件 I/O。
+ * Deliberately kept narrow here: CHK-003 will extend with {lastAuditCommit, doneSinceLastAudit, lastAuditStoryId}
+ * and similar fields — CHK-001 first writes the "read + partial-field patch + write" skeleton, and CHK-003 only needs to extend the patch
+ * type, without having to rewrite the file I/O.
  *
- * 读写失败都不抛（advisory）；JSON 解析失败 → 按空对象 fallback 重写。
+ * Read/write failures do not throw (advisory); JSON parse failure → fall back to empty object and rewrite.
  *
- * 模块内部使用（非 export）——state.json 路径的真相源统一在 audit-trigger.stateFilePath。
+ * Module-internal use (not exported) — the source of truth for the state.json path is unified in audit-trigger.stateFilePath.
  */
 function touchAuditState(repoRoot: string, patch: Record<string, unknown>): string {
   const path = stateFilePath(repoRoot);

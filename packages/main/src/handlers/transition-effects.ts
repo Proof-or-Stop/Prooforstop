@@ -74,8 +74,8 @@ export async function runPhaseChangeHooks(
     const env = buildHookEnv({
       stage: 'onPhaseChange',
       command: 'story_advance',
-      // B-9d95 CHK-001 whitelist: hook 执行上下文——hook 子进程需继承调用方真实 cwd（用户 shell 的当前目录）
-      // 而非 ctx.root，否则 hook 脚本看不到调用方的 worktree。这是 hook 协议约定（详见 buildHookEnv docs）。
+      // B-9d95 CHK-001 whitelist: hook execution context — hook subprocess must inherit caller's real cwd (current directory of user's shell)
+      // rather than ctx.root, otherwise the hook script cannot see the caller's worktree. This is the hook protocol convention (see buildHookEnv docs for details).
       cwd: process.cwd(),
       root,
       argsJson: JSON.stringify(args),
@@ -102,8 +102,8 @@ export function commitReviewMetadata(root: string, storyId: string, phase: Story
 }
 
 /**
- * CHK-002: PLAN→DEV 时收集所有 relatedDocs 列出来作为开工提醒。
- * B-45ed CHK-008: PLAN→DEV 和 DONE 的 docsHint 统一含 background.md。
+ * CHK-002: On PLAN→DEV, collect all relatedDocs and list them as a kickoff reminder.
+ * B-45ed CHK-008: The docsHint for PLAN→DEV and DONE both include background.md.
  *
  * Returns the docs-hint string (empty string when there are no related docs).
  * The caller is responsible for only calling this on DEV / DONE transitions —
@@ -128,7 +128,7 @@ export function renderRelatedDocsHint(
         }
       }
     }
-    // B-45ed CHK-008: background.md 若存在且未出现 → 追加到 docMap（用 special 标签标记来源）
+    // B-45ed CHK-008: if background.md exists and has not appeared → append to docMap (mark source with special tag)
     const bgRel = `${store.storyDirRel()}/${storyId}/background.md`;
     const bgAbs = join(root, bgRel);
     if (existsSync(bgAbs) && !docMap.has(bgRel)) {
@@ -140,8 +140,8 @@ export function renderRelatedDocsHint(
         lines.push(`  - ${d}  (${items.join(', ')})`);
       }
       const header = phase === 'DEV'
-        ? '📄 本 story 关联文档（改代码时注意同步）:'
-        : '📄 本 story 关联文档（DONE 收尾前核对是否已同步）:';
+        ? '📄 Documents associated with this story (note synchronization when modifying code):'
+        : '📄 Documents associated with this story (verify synchronization before DONE wrap-up):';
       docsHint = `\n\n${header}\n${lines.join('\n')}`;
     }
   } catch { /* ignore */ }
@@ -162,11 +162,11 @@ export function buildNextSteps(
   storyId: string,
 ): Record<string, string> {
   return {
-    PLAN: `→ 建议立即切到 Claude Code plan 模式（shift-tab 两次到 plan mode）——PLAN 阶段只拆 checklist / 写 understanding_set / decision_set，不应改代码。Edit/Write 被 plan mode 禁掉能防误触。
-→ 下一步: checklist_get(${storyId}) 查看待开发项，然后 story_advance(${storyId}, DEV) 开始开发
-⚠ 用户价值验收（强制）: understanding_set 的 outcome 字段必须写成一段具体的 user-facing transcript ——用户跑完这个 story 后会在终端/UI 看到的精确文字，不是 "事件 X 通了" 这种抽象描述。判定方法: outcome 读起来必须能让人想象出"用户什么时候说'好了搞定'"的那一刻。详见 CLAUDE.md「用户价值验收」段。`,
+    PLAN: `→ Recommend switching to Claude Code plan mode immediately (shift-tab twice to plan mode) — the PLAN stage only breaks down checklist / writes understanding_set / decision_set, and should not modify code. Edit/Write being disabled in plan mode prevents accidental edits.
+→ Next step: checklist_get(${storyId}) to view pending items, then story_advance(${storyId}, DEV) to begin development
+⚠ User value acceptance (mandatory): the outcome field of understanding_set must be written as a concrete user-facing transcript — the exact text the user will see in the terminal/UI after running this story, not an abstract description like "event X is wired up". Judgment method: outcome must read in a way that lets one imagine the moment when the user considers the work done. See the "User value acceptance" section in CLAUDE.md for details.`,
     DEV: (() => {
-      // B-45ed CHK-004: 实时算三档通道（express/fast/normal）
+      // B-45ed CHK-004: real-time compute the three-tier channel (express/fast/normal)
       let channel: 'express' | 'fast' | 'normal' = 'normal';
       try {
         const s = store.readStory(storyId);
@@ -176,22 +176,22 @@ export function buildNextSteps(
         channel = computeChannel(s, cl, decision);
       } catch {}
       if (channel === 'express') {
-        return `→ 极速通道（${CHANNEL_LABELS.express}，≤2 项，无 riskSignals）：主 agent 自己写代码 + 写测试，只需 checklist。
-→ 完成后 story_advance(${storyId}, REVIEW) 进入代码审查`;
+        return `→ Express channel (${CHANNEL_LABELS.express}, ≤2 items, no riskSignals): the main agent writes code + writes tests itself, only checklist is needed.
+→ After completion, story_advance(${storyId}, REVIEW) to enter code review`;
       }
       if (channel === 'fast') {
-        return `→ 快速通道（${CHANNEL_LABELS.fast}，≤5 项，单一解，无 riskSignals）：主 agent 可自己写代码，省 decision + plan.md，保留 understanding。
-→ 完成后 story_advance(${storyId}, REVIEW) 进入代码审查`;
+        return `→ Fast channel (${CHANNEL_LABELS.fast}, ≤5 items, single solution, no riskSignals): the main agent may write code itself, skipping decision + plan.md, keeping understanding.
+→ After completion, story_advance(${storyId}, REVIEW) to enter code review`;
       }
-      return `→ 正常通道（${CHANNEL_LABELS.normal}）：必须启动 koala-implementer subagent 写代码，主 agent 不要自己改业务代码。
-→ 用 Agent({ subagent_type: "koala-implementer", prompt: "..." }) 分配任务
-→ subagent 写完提交后，主 agent 验收合并，然后 story_advance(${storyId}, REVIEW)
-→ sub agent 不要使用 isolation:"worktree"，直接在主 agent 的 worktree 中跑
-⚠ REVIEW 阶段 koala-reviewer 会检查 commit author——正常通道如果全是主 agent 自己写的代码会被提 critical finding`;
+      return `→ Normal channel (${CHANNEL_LABELS.normal}): must launch the koala-implementer subagent to write code; the main agent should not modify business code itself.
+→ Use Agent({ subagent_type: "koala-implementer", prompt: "..." }) to assign tasks
+→ After the subagent finishes and commits, the main agent accepts and merges, then story_advance(${storyId}, REVIEW)
+→ sub agent should not use isolation:"worktree", run directly in the main agent's worktree
+⚠ During the REVIEW phase, koala-reviewer will check the commit author — in the normal channel, if all code is written by the main agent itself, a critical finding will be raised`;
     })(),
     REVIEW: (() => {
-      // B-fdcf CHK-002: 按 opt-in 名单动态 echo（channel LLM reviewer 退役后不再固定 5 个）。
-      let activeLine = 'Active reviewers: concept, quality (fallback: 无法解析 opt-in 名单，按 baseline)';
+      // B-fdcf CHK-002: Dynamic echo by opt-in list (no longer fixed at 5 after channel LLM reviewer was retired).
+      let activeLine = 'Active reviewers: concept, quality (fallback: cannot resolve opt-in list, using baseline)';
       let agentLines = '';
       try {
         const story = store.readStory(storyId);
@@ -210,27 +210,27 @@ export function buildNextSteps(
         );
         activeLine = renderActiveReviewersText(active);
         agentLines = active.map(r =>
-          `  Agent({ subagent_type: "koala-review-${r.name}", prompt: "审查 story ${storyId} (${r.reason})" })`,
+          `  Agent({ subagent_type: "koala-review-${r.name}", prompt: "Review story ${storyId} (${r.reason})" })`,
         ).join('\n');
       } catch {
-        agentLines = `  Agent({ subagent_type: "koala-review-concept", prompt: "审查 story ${storyId}" })
-  Agent({ subagent_type: "koala-review-quality", prompt: "审查 story ${storyId}" })`;
+        agentLines = `  Agent({ subagent_type: "koala-review-concept", prompt: "Review story ${storyId}" })
+  Agent({ subagent_type: "koala-review-quality", prompt: "Review story ${storyId}" })`;
       }
       return `→ ${activeLine}
-→ 并行启动上述 reviewer 审查代码（在同一条消息里发出所有 Agent 调用）：
+→ launch the above reviewers in parallel to review code (issue all Agent calls in a single message):
 ${agentLines}
-→ reviewer liveness：每个 reviewer 启动后应先输出 REVIEW_START:<reviewer>；4 分钟无输出先问状态，10 分钟/600s 无结果视为 stalled，重启该 reviewer 并在 retry prompt 中注明前一次 stalled
-→ 全部回来后 koala finding_list 汇总
-→ critical/high 全 resolved 后：story_advance(${storyId}, TEST)
-→ 需要改代码：story_advance(${storyId}, DEV) 回 DEV
-⚠ reviewer 调 finding_add 时必须传 agent 参数（如 "agent":"koala-review-behavior"），否则 finding 会被标记为 main agent，TEST gate 会拒绝推进`;
+→ reviewer liveness: each reviewer should first output REVIEW_START after starting; if no output for 4 minutes ask for status, if no result for 10 minutes/600s treat as stalled, restart that reviewer and note the previous stall in the retry prompt
+→ After all return, koala finding_list to aggregate
+→ Once critical/high are all resolved: story_advance(${storyId}, TEST)
+→ Need code changes: story_advance(${storyId}, DEV) to return to DEV
+⚠ When reviewers call finding_add they must pass the agent parameter (e.g. "agent":"koala-review-behavior"), otherwise the finding will be marked as main agent and the TEST gate will refuse to advance`;
     })(),
-    TEST_CASE: `→ Legacy phase. 建议直接 story_advance(${storyId}, TEST) 进入验证`,
-    TEST_CASE_REVIEW: `→ Legacy phase. 建议直接 story_advance(${storyId}, TEST) 进入验证`,
-    TEST: `→ 必须立即执行: koala validate 跑验证，写 bug/evidence。fail 自动 aux_diagnose + bug_report，pass 自动标 bug fixed。
-⚠ 工程验证 ≠ 用户验收: 即使 validate 全 pass，也必须用用户视角真机跑一次（节奏: 把 PLAN outcome 当 expected → 跑 → 把实际输出当 actual → diff）。验证完把 actual transcript + 差异说明放到 ${store.storyDirRel()}/${storyId}/evidence/transcript-diff.md。CLAUDE.md「用户价值验收」段有完整 5 题自检清单。
-⚠ delivery-check 硬门槛: DONE 前必须 spawn koala-review-delivery reviewer 写 delivery-check.json 签名。reviewer 逆向扫 git diff 验证文档承诺落地 + 真机测试覆盖。未签名 → story_advance DONE 会卡 [missing_delivery_check]。`,
-    DONE: `→ 必须立即执行: 把下面的 Story 总结段落用你自己的话告诉用户（改了什么/怎么用/真机覆盖/限制/踩坑），然后 convergence_check 检查项目收敛状态
-⚠ DONE 自检 5 题（CLAUDE.md「用户价值验收」段）: (1) PLAN outcome 是具体 transcript 还是抽象? (2) 真机测试时读了用户视角输出还是只看事件日志? (3) 用户看到 actual transcript 最后一行会说"完成"还是"然后呢"? (4) 有没有工程 log 在用户眼里是噪音/重复? (5) 有没有一句人话总结任务结果? 任何一题答"没做到"就回 DEV，不要硬推 DONE。`,
+    TEST_CASE: `→ Legacy phase. Recommend directly story_advance(${storyId}, TEST) to enter verification`,
+    TEST_CASE_REVIEW: `→ Legacy phase. Recommend directly story_advance(${storyId}, TEST) to enter verification`,
+    TEST: `→ Must execute immediately: koala validate to run verification, write bug/evidence. fail auto aux_diagnose + bug_report, pass auto marks bug fixed.
+⚠ Engineering verification ≠ user acceptance: even if validate is fully pass, you must run it once on a real machine from the user's perspective (rhythm: treat PLAN outcome as expected → run → treat actual output as actual → diff). After verifying, put the actual transcript + diff notes in ${store.storyDirRel()}/${storyId}/evidence/transcript-diff.md. The "user value acceptance" section in CLAUDE.md has the complete 5-question self-check list.
+⚠ delivery-check hard gate: before DONE you must spawn the koala-review-delivery reviewer to write the delivery-check.json signature. The reviewer reverse-scans git diff to verify doc promises are delivered + real-machine test coverage. Unsigned → story_advance DONE will be blocked by [missing_delivery_check].`,
+    DONE: `→ Must execute immediately: tell the user the Story summary paragraph below in your own words (what changed / how to use / real-machine coverage / limitations / pitfalls), then convergence_check to check project convergence state
+⚠ DONE self-check 5 questions (CLAUDE.md "User value acceptance" section): (1) Is the PLAN outcome a concrete transcript or abstract? (2) During real-machine testing, did you read the user-perspective output or only look at the event log? (3) When the user sees the last line of the actual transcript, would they consider the work done or still wonder what comes next? (4) Are there any engineering logs that are noise/duplicates in the user's eyes? (5) Is there a plain-language summary of the task result? If any question is answered "not done", return to DEV and do not force-push DONE.`,
   };
 }

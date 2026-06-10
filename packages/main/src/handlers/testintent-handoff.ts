@@ -72,7 +72,7 @@ export function createTestIntentHandoffHandlers(ctx: HandlerContext) {
         checklistJson,
         '',
         'For each testable item, write structured verificationIntent entries:',
-        '{"happy":[{"desc":"操作/条件 -> 预期结果; WHY: 覆盖意图","type":"cli","priority":"must"}],"edge":[{"desc":"边界条件 -> 预期结果; WHY: ...","type":"cli","priority":"must"}],"adversarial":[{"desc":"对抗/失败时序 -> 预期结果; WHY: ...","type":"logic","priority":"must"}]}',
+        '{"happy":[{"desc":"action/condition -> expected result; WHY: coverage intent","type":"cli","priority":"must"}],"edge":[{"desc":"boundary condition -> expected result; WHY: ...","type":"cli","priority":"must"}],"adversarial":[{"desc":"adversarial/failure timing -> expected result; WHY: ...","type":"logic","priority":"must"}]}',
         '',
         'Use type=browser only for browser-visible UI interaction. Use verification evidence kind=waiver for truly non-automatable docs/config/process items; use waiverType=deferred_gate_evidence only for gate-self-test cases that cannot be verified until a later phase.',
         '',

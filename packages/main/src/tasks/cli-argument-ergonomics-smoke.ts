@@ -37,17 +37,17 @@ const storyCreate = schemaFor('story_create').parse({
   type: 'test',
   priority: 'medium',
   background: [
-    '## 触发事件',
-    '2026-05-03 用户反馈验证类 story 使用 type test 会被拒绝，导致第一次创建验证任务时必须猜测 chore 类型。',
+    '## Trigger Event',
+    '2026-05-03 User feedback: validation-type stories using type test are rejected, forcing users to guess the chore type when first creating a validation task.',
     '',
-    '## 关键洞察',
-    '验证类任务在 Koala 语义里更接近 chore，但用户自然会输入 test；CLI 应该吸收这个常见表达差异。',
+    '## Key Insight',
+    'Validation-type tasks are semantically closer to chore in Koala, but users naturally type test; the CLI should absorb this common expression difference.',
     '',
-    '## 方案取舍',
-    '保持持久化 StoryType 集合不扩大，只在 CLI schema 层把 test 归一到 chore，避免破坏下游类型判断。',
+    '## Trade-off Decision',
+    'Keep the persisted StoryType set unchanged, and only normalize test to chore at the CLI schema layer to avoid breaking downstream type checks.',
     '',
-    '## 对话纹理',
-    '用户是在验证框架行为时遇到这个限制，期望命令继续执行，而不是先学习内部四类枚举边界。',
+    '## Conversation Texture',
+    'The user hit this limitation while validating framework behavior, expecting the command to proceed rather than first having to learn the internal four-category enum boundary.',
   ].join('\n'),
 });
 assert.equal(storyCreate.type, 'chore');
@@ -83,13 +83,13 @@ try {
     encoding: 'utf-8',
   });
   assert.notEqual(invalidVerificationIntent.status, 0, 'invalid verificationIntent enum should fail');
-  assert.match(invalidVerificationIntent.stderr, /参数校验失败/);
+  assert.match(invalidVerificationIntent.stderr, /Parameter validation failed/);
   assert.match(invalidVerificationIntent.stderr, /verificationIntent\.happy\.0\.type/);
   assert.match(invalidVerificationIntent.stderr, /integration_test/);
   assert.match(invalidVerificationIntent.stderr, /logic[\s\S]*cli[\s\S]*browser[\s\S]*manual[\s\S]*docs/);
-  assert.match(invalidVerificationIntent.stderr, /参数校验失败（摘要）/);
-  assert.doesNotMatch(invalidVerificationIntent.stderr, /命令 "checklist_update" 在 .* 阶段不可用/);
-  assert.doesNotMatch(invalidVerificationIntent.stdout, /不知道现在该做什么|koala status/);
+  assert.match(invalidVerificationIntent.stderr, /Parameter validation failed \(summary\)/);
+  assert.doesNotMatch(invalidVerificationIntent.stderr, /Command "checklist_update" is not available in .* phase/);
+  assert.doesNotMatch(invalidVerificationIntent.stdout, /Don't know what to do now|koala status/);
 } finally {
   rmSync(isolatedCwd, { recursive: true, force: true });
 }

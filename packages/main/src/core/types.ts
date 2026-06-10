@@ -10,7 +10,7 @@ export type {
 export type StoryPhase = 'IDEA' | 'INIT' | 'INIT_CHECK' | 'PLAN' | 'DEV' | 'REVIEW' | 'TEST' | 'DONE' | 'DISCARDED'
   // Legacy phases kept for backward compat with existing story data
   | 'TEST_CASE' | 'TEST_CASE_REVIEW'
-  // B-9bd9 CHK-002: meta-story 专用 phase，永不进 DONE（跨 story 容器，只挂 finding）
+  // B-9bd9 CHK-002: meta-story dedicated phase, never enters DONE (cross-story container, only attaches findings)
   | 'META';
 
 export type StoryType = 'feature' | 'bug' | 'refactor' | 'chore' | 'meta';
@@ -37,7 +37,7 @@ export interface StoryInfo {
   priority: string;
   source?: string;
   depends?: string[];
-  /** 关键词：领域/模块/概念，用于查重和盘点（不与 checklist item 挂钩） */
+  /** Keywords: domain/module/concept, used for deduplication and inventory (not tied to checklist items) */
   keywords?: string[];
   createdAt: string;
   startedAt: string | null;
@@ -48,22 +48,22 @@ export interface StoryInfo {
     branch: string;
     createdAt: string;
   };
-  /** 当前 REVIEW 轮次 ID（ISO 8601 时间戳），每次进入 REVIEW 时生成 */
+  /** Current REVIEW round ID (ISO 8601 timestamp), generated each time REVIEW is entered */
   currentReviewRound?: string;
-  /** 高风险信号（OMX 风格自动检测）：触发的关键词分类 */
+  /** High-risk signals (OMX-style auto-detection): triggered keyword categories */
   riskSignals?: Array<{ category: string; matched: string }>;
   /**
-   * B-5010 CHK-004: 被主 agent 显式驳回的 risk signal（误报白名单）。
-   * story_review 在判断 isHighRisk / advisory message 时会跳过被 dismiss 的
-   * category。dismiss 是 append-only，不支持撤销（复盘时能看到驳回理由）。
+   * B-5010 CHK-004: risk signal explicitly dismissed by the main agent (false-positive whitelist).
+   * story_review skips dismissed categories when determining isHighRisk / advisory message.
+   * Dismiss is append-only, no revocation supported (so dismissal reasons remain visible during retrospectives).
    */
   riskSignalsDismissed?: Array<{ category: string; reason: string; at: string }>;
   /**
-   * B-30b2 CHK-001: 记录 story_create 因 riskSignals 命中而自动抬升 priority 时的
-   * 原始（抬升前）priority。仅在「自动抬升真实改变了 priority」时写入；用户显式设置的
-   * high/critical 不写此字段。story_review_dismiss 在 dismiss 后若无 active riskSignal
-   * 残留，会把 priority 回退到此值（仅当其为合法且 < high 的 priority），借此解除
-   * auto-elevation 衍生的高风险 gate 代价，且不会误降用户显式设定的 high/critical。
+   * B-30b2 CHK-001: records the original (pre-elevation) priority when story_create automatically
+   * elevates priority due to riskSignals hits. Only written when "auto-elevation actually changed priority"; user-explicitly-set
+   * high/critical does not write this field. After story_review_dismiss, if no active riskSignal
+   * remains, priority is reverted to this value (only when it's a legal priority < high), thereby relieving
+   * the high-risk gate cost derived from auto-elevation, without erroneously downgrading user-explicitly-set high/critical.
    */
   priorityElevatedFrom?: string;
 
@@ -202,18 +202,18 @@ export interface VerificationEvidence {
 export interface ChecklistItem {
   id: string;
   title: string;
-  /** 根因/参考方案，给执行 agent 提供上下文（可选） */
+  /** Root cause/reference solution, provides context to the executing agent (optional) */
   context?: string;
-  /** 关联文档路径，PLAN 阶段手动声明，三次提醒（DEV/done/DONE）使用 */
+  /** Related document paths, manually declared in PLAN phase, used for triple reminders (DEV/done/DONE) */
   relatedDocs?: string[];
-  /** 用户可见输出描述：用户完成此 item 后在终端/UI 看到的具体文本（非抽象描述） */
+  /** User-visible output description: the specific text the user sees in the terminal/UI after completing this item (not an abstract description) */
   userSees?: string;
-  /** 显式声明不做的功能点 */
+  /** Explicitly declared features that are not included */
   excludes?: string[];
   /**
-   * B-45ed CHK-001: 受影响的文件集合，PLAN 阶段声明。
-   * story_review 将用其与 understanding.touchpoints 做覆盖校验（CHK-002）。
-   * modify: 需要修改的文件；create: 需要新建的文件；test: 需要覆盖的测试文件。
+   * B-45ed CHK-001: Set of affected files, declared in PLAN phase.
+   * story_review will use this to perform coverage validation against understanding.touchpoints (CHK-002).
+   * modify: files to be modified; create: files to be newly created; test: test files to be covered.
    */
   files?: {
     readonly modify: readonly string[];
@@ -268,14 +268,14 @@ export interface ChecklistAuditEntry {
   to: ChecklistStatus;
   reason: string;
   agent?: string;
-  /** add 时记录新增 item 的初始内容，供 story_review 展示 PLAN replan/scope audit */
+  /** On add, records the initial content of the newly added item, for story_review to display PLAN replan/scope audit */
   addedTitle?: string;
   addedContext?: string;
-  /** delete 时记录被删 item 的原始内容，供 story_review 门禁展示 */
+  /** On delete, records the original content of the deleted item, for story_review gate display */
   removedTitle?: string;
   removedContext?: string;
   removedUserSees?: string;
-  /** checklist_dispose 裁决结果 */
+  /** checklist_dispose adjudication result */
   disposition?: 'accept' | 'reject' | 'partial';
   justification?: string;
   disposedAt?: string;
@@ -357,19 +357,19 @@ export interface BugDiagnose {
   suggestedFix: string;
 }
 
-/** 人工调试证据链（Systematic Debugging 产物） */
+/** Manual debugging evidence chain (Systematic Debugging artifact) */
 export interface BugEvidence {
-  /** 用户可观测的症状描述 */
+  /** User-observable symptom description */
   symptom: string;
-  /** 最小复现步骤 */
+  /** Minimal reproduction steps */
   reproSteps: string[];
-  /** 调试过程中验证过的假设 */
+  /** Hypotheses validated during debugging */
   hypothesis?: string;
-  /** 确认的根因 */
+  /** Confirmed root cause */
   rootCause: string;
-  /** 修复点说明（改了什么、为什么有效） */
+  /** Fix point description (what was changed, why it works) */
   fixEvidence: string;
-  /** 复现测试路径（logicTest / integrationTest） */
+  /** Reproduction test path (logicTest / integrationTest) */
   reproTest?: string;
 }
 
@@ -379,13 +379,13 @@ export interface BugRecord {
   status: BugStatus;
   foundAt: string;
   fixedAt: string | null;
-  /** 关联的 checklist 项 ID（可选） */
+  /** Associated checklist item ID (optional) */
   checklistId?: string;
-  /** 关联的 fixture case uuid（可选） */
+  /** Associated fixture case uuid (optional) */
   fixtureId?: string;
-  /** 自动诊断结果（validate fail 时填充） */
+  /** Auto-diagnosis result (populated when validate fails) */
   diagnose?: BugDiagnose;
-  /** 人工调试证据链（bug_update status=fixed 时填充） */
+  /** Manual debug evidence chain (populated when bug_update status=fixed) */
   evidence?: BugEvidence;
 }
 
@@ -401,7 +401,7 @@ export type StoryOutcomeKind = typeof STORY_OUTCOME_KINDS[number];
  *
  * Agents call `summary_set` to fill this. The `realMachineCoverage` field is
  * auto-scaffolded by scanning test-evidence + fixtures with `sandbox: false`,
- * so agents can't fabricate "已跑" claims. Agents only supply `skipReasons`
+ * so agents can't fabricate "already ran" claims. Agents only supply `skipReasons`
  * for the cases marked as not-run.
  *
  * Stored at `docs/story/actives/<storyId>/summary.json`.
@@ -409,46 +409,46 @@ export type StoryOutcomeKind = typeof STORY_OUTCOME_KINDS[number];
 export interface StorySummaryData {
   /** Story ID, for sanity check on read/write */
   storyId: string;
-  /** 改了什么：每个文件的关键改动，用户视角 */
+  /** What changed: key changes per file, from the user's perspective */
   changes: string;
-  /** 怎么用：slash command / tool / 调用示例 */
+  /** How to use: slash command / tool / invocation example */
   usage: string;
-  /** 用户价值验收：PLAN/summary 预期的用户可见结果 */
+  /** User-value acceptance: expected user-visible result from PLAN/summary */
   expectedOutcome?: string;
-  /** 用户价值验收：真实运行后看到的 transcript / 输出摘要 */
+  /** User-value acceptance: transcript / output summary observed after real run */
   actualTranscript?: string;
-  /** 用户价值验收：expected vs actual 的差异说明 */
+  /** User-value acceptance: explanation of expected vs actual differences */
   outcomeDiff?: string;
-  /** 用户价值验收结论 */
+  /** User-value acceptance conclusion */
   acceptanceVerdict?: 'accepted' | 'partial' | 'rejected';
   /** Terminal outcome classification for DONE stories; omitted legacy data defaults to success. */
   outcomeKind?: StoryOutcomeKind;
-  /** 真机验证覆盖：auto-scaffolded by koala, agent fills skipReasons only */
+  /** Real-machine verification coverage: auto-scaffolded by koala, agent fills skipReasons only */
   realMachineCoverage: {
     /** Cases that were actually run (auto-populated from test-evidence.json + evidence per fixture) */
     ran: Array<{ name: string; where: string }>;
     /** Cases flagged as real-machine (sandbox:false) but NOT run; agent supplies reason per case */
     skipped: Array<{ name: string; where: string; reason: string }>;
   };
-  /** 已知限制 / 设计偏离：测试没覆盖的场景、intent 和实现的差异 */
+  /** Known limitations / design deviations: scenarios not covered by tests, differences between intent and implementation */
   limitations: string;
-  /** 踩坑记录：做这个 story 的时候卡在哪、绕了几次路、下个人应该知道什么。强制字段，不能空 */
+  /** Pitfall log: where you got stuck doing this story, how many detours, what the next person should know. Required field, cannot be empty */
   pitfalls: string;
   /**
-   * 每阶段进入次数 + 累计耗时（由 summary_set 自动从 story.events 计算）。
-   * count = 进入该 phase 的 advance 事件数（回退再进算多次）；
-   * durationMs = 在该 phase 停留的毫秒数（从进入到下一次 advance 离开，
-   * 当前 phase 未离开时算到 now）。
+   * Entry count per phase + cumulative duration (auto-computed by summary_set from story.events).
+   * count = number of advance events entering this phase (re-entries after rollback count multiple times);
+   * durationMs = milliseconds spent in this phase (from entering until advancing away to the next,
+   * counted up to now if the current phase has not been left yet).
    */
   phaseStats?: Record<string, { count: number; durationMs: number }>;
-  /** 全 story 总耗时（startedAt→endedAt，或 createdAt→now 的 fallback），毫秒 */
+  /** Total duration of the whole story (startedAt→endedAt, or createdAt→now fallback), in milliseconds */
   totalDurationMs?: number;
   /**
-   * Fixture 执行统计（由 summary_set 从 test-runs.json 聚合）。
-   * totalRuns = validate 调用次数；
-   * totalCases = 最近一次 run 的 totalCases（当前 story 绑定的 fixture case 数快照）；
-   * cumulativeCasesRun = 所有 run 的 totalCases 之和（累计执行次数）；
-   * cumulativePassedCases = 所有 run 的 passedCases 之和。
+   * Fixture execution stats (aggregated by summary_set from test-runs.json).
+   * totalRuns = number of validate invocations;
+   * totalCases = totalCases of the most recent run (snapshot of fixture case count bound to current story);
+   * cumulativeCasesRun = sum of totalCases across all runs (cumulative execution count);
+   * cumulativePassedCases = sum of passedCases across all runs.
    */
   fixtureStats?: {
     totalRuns: number;
@@ -456,7 +456,7 @@ export interface StorySummaryData {
     cumulativeCasesRun: number;
     cumulativePassedCases: number;
   };
-  /** Bug 统计（由 summary_set 从 bug.json 聚合）。 */
+  /** Bug stats (aggregated by summary_set from bug.json). */
   bugStats?: {
     found: number;
     fixed: number;
@@ -501,45 +501,45 @@ export interface StoryTestRunsData {
 }
 
 /**
- * B-3fad CHK-001: Finding 证据状态轴。与 status（open/resolved/dismissed）正交。
- * - suspected: 只是怀疑，未复现 / 无源码证据，不能呈现为 confirmed。REVIEW→TEST gate 不阻塞，只 advisory。
- * - verified: 有结构化证据支撑（reviewer REVIEW 阶段 finding_add 默认值，保持现有 gate 行为）。
- * - disproven: 已被反证（带 disprovenEvidence 反证摘要 + 命令 + 源码引用），不阻塞 gate。
- * legacy finding 缺该字段时 gate 视同 verified（不回归）。
+ * B-3fad CHK-001: Finding evidence status axis. Orthogonal to status (open/resolved/dismissed).
+ * - suspected: only a suspicion, not reproduced / no source evidence, cannot be presented as confirmed. REVIEW→TEST gate does not block, advisory only.
+ * - verified: backed by structured evidence (default value for reviewer finding_add in REVIEW phase, preserves existing gate behavior).
+ * - disproven: has been refuted (with disprovenEvidence refutation summary + command + source reference), does not block gate.
+ * Legacy findings missing this field are treated as verified by the gate (no regression).
  */
 export type FindingEvidenceState = 'suspected' | 'verified' | 'disproven';
 
 /**
- * B-3fad CHK-001: disproven finding 的反证证据。
- * evidenceState=disproven 时必填，能存反证摘要 + 复现命令 + 源码引用。
+ * B-3fad CHK-001: Refutation evidence for disproven findings.
+ * Required when evidenceState=disproven; stores counter-evidence summary + reproduction command + source code reference.
  */
 export interface DisprovenEvidence {
-  /** 反证结论摘要：为什么这条 finding 不成立 */
+  /** Counter-evidence conclusion summary: why this finding does not hold */
   summary: string;
-  /** 反证引用的源码 / 文档位置（如 src/foo.ts:42） */
+  /** Source code / documentation location referenced by the counter-evidence (e.g., src/foo.ts:42) */
   sourceRefs?: string[];
-  /** 反证用到的复现 / 验证命令 */
+  /** Reproduction / verification command used for counter-evidence */
   reproCommand?: string;
 }
 
-/** Finding: koala-reviewer 提出的发现项（替代 testIntent） */
+/** Finding: a finding raised by koala-reviewer (replaces testIntent) */
 export interface Finding {
-  id: string;            // 格式 B-xxx:F-001
+  id: string;            // format B-xxx:F-001
   desc: string;
   severity: 'critical' | 'high' | 'medium' | 'low';
   category: 'happy' | 'edge' | 'adversarial' | 'missing';
   status: 'open' | 'resolved' | 'dismissed';
   /**
-   * B-3fad CHK-001: 证据状态轴（与 status 正交）。缺失时 gate 视同 verified（legacy 兼容）。
+   * B-3fad CHK-001: evidence state axis (orthogonal to status). When missing, gate treats as verified (legacy compatibility).
    */
   evidenceState?: FindingEvidenceState;
   /**
-   * B-3fad CHK-001: evidenceState=suspected 时必填，说明为什么只是怀疑（未复现 / 缺源码证据）。
-   * 防止把 suspected 当成绕 gate 的按钮。
+   * B-3fad CHK-001: required when evidenceState=suspected, explains why it is only suspected (not reproduced / lacks source code evidence).
+   * Prevents using suspected as a button to bypass the gate.
    */
   uncertaintyReason?: string;
   /**
-   * B-3fad CHK-001: evidenceState=disproven 时必填，反证摘要 + 命令 + 源码引用。
+   * B-3fad CHK-001: required when evidenceState=disproven, counter-evidence summary + command + source code reference.
    */
   disprovenEvidence?: DisprovenEvidence;
   agent?: string;
@@ -550,17 +550,17 @@ export interface Finding {
   reviewRunId?: string;
   dismissReason?: string;
   dismissedAt?: string;
-  /** B-e8c8 / B-9d95 CHK-005: 关联文件路径（用于 cluster files-overlap 判定 + 兜底从 desc 抽取） */
+  /** B-e8c8 / B-9d95 CHK-005: associated file paths (used for cluster files-overlap determination + fallback extraction from desc) */
   files?: string[];
-  /** B-e8c8: 当前所属 cluster ID（CL-xxx）；未归簇为 undefined */
+  /** B-e8c8: current cluster ID this belongs to (CL-xxx); undefined if not clustered */
   clusterId?: string;
-  /** B-e8c8 CHK-010: commit `Resolves: CL-xxx` 自动 resolve 时的审计字段（格式 "CL-xxx@<sha7>"） */
+  /** B-e8c8 CHK-010: audit field for auto-resolution via commit `Resolves: CL-xxx` (format "CL-xxx@<sha7>") */
   resolvedBy?: string;
   /**
-   * B-9bd9 CHK-002: meta-story audit finding 专用字段（非 audit finding 留空即可，老 finding 视为 legacy）。
-   * driftHash = sha1(sectionPath + symbol + driftType) 前 10 位，跨进程稳定，幂等去重。
-   * lastSeenAt = 每轮 audit 若该 drift 仍存在则刷新（ISO 8601）。
-   * firstSeenRound = 首次发现该 drift 的 round number（1-based，单调递增）。
+   * B-9bd9 CHK-002: dedicated field for meta-story audit findings (non-audit findings can leave empty, old findings treated as legacy).
+   * driftHash = first 10 chars of sha1(sectionPath + symbol + driftType), stable across processes, idempotent deduplication.
+   * lastSeenAt = refreshed each audit round if the drift still exists (ISO 8601).
+   * firstSeenRound = the round number when the drift was first discovered (1-based, monotonically increasing).
    */
   driftHash?: string;
   lastSeenAt?: string;
@@ -574,7 +574,7 @@ export interface Finding {
    * findings (audit drift / reviewer findings).
    */
   gapFingerprint?: string;
-  /** auto-resolve 时留证据链，区别于普通 finding_resolve */
+  /** leave an evidence chain on auto-resolve, distinct from regular finding_resolve */
   resolvedReason?: string;
   resolvedAt?: string;
 }
@@ -626,7 +626,7 @@ export interface ReviewRunData {
   runs: ReviewRun[];
 }
 
-/** Evaluator 打分证据（browser 项目 DONE gate 消费） */
+/** Evaluator scoring evidence (consumed by browser project DONE gate) */
 export interface EvalEvidenceData {
   scores: { functionality: number; usability: number };
   total: number;
@@ -639,24 +639,24 @@ export interface EvalEvidenceData {
 export type TestResult = 'PASS' | 'FAIL';
 
 export interface TestEvidenceData {
-  /** 最后一次测试的命令 */
+  /** command of the last test run */
   command: string;
-  /** 最后一次测试的输出 */
+  /** output of the last test run */
   output: string;
   /** PASS / FAIL */
   result: TestResult;
-  /** 时间戳 */
+  /** timestamp */
   timestamp: string;
-  /** 运行环境 */
+  /** runtime environment */
   environment?: {
     node: string;
     os: string;
   };
-  /** 浏览器 trace 覆盖的函数名列表 */
+  /** list of function names covered by the browser trace */
   traceCoverage?: string[];
-  /** 测试时的 git HEAD hash（用于 DONE gate evidence freshness 检查） */
+  /** git HEAD hash at test time (used by DONE gate evidence freshness check) */
   headHash?: string;
-  /** 测试时的非 Koala 元数据文件树 hash（metadata-only commit 不应让 evidence stale） */
+  /** non-Koala metadata file tree hash at test time (metadata-only commits should not make evidence stale) */
   materialHash?: string;
   /** @deprecated Legacy evidence freshness field. New writes use headHash. */
   git?: {
@@ -695,10 +695,10 @@ export interface VerificationCoverageReport {
 }
 
 /**
- * RALPLAN-DR 结构化决策 (OMX ralplan 风格)。
- * PLAN 阶段应该为每个非 trivial story 落一份 decision.json，
- * 包含原则/驱动/备选/选择/pre-mortem。
- * 第一版软引入：priority=high 或 riskSignals 非空时 story_review 强制要求。
+ * RALPLAN-DR structured decision (OMX ralplan style).
+ * The PLAN stage should produce a decision.json for each non-trivial story,
+ * containing principles/drivers/options/choice/pre-mortem.
+ * First-version soft introduction: story_review enforces it when priority=high or riskSignals is non-empty.
  */
 export interface DecisionOption {
   name: string;
@@ -714,41 +714,41 @@ export interface PreMortemScenario {
 }
 
 export interface DecisionData {
-  /** 3-5 条设计原则 */
+  /** 3-5 design principles */
   principles: string[];
-  /** top 3 关键约束 */
+  /** top 3 key constraints */
   drivers: string[];
-  /** ≥ 2 个备选（或显式 invalidation rationale 说明为什么只剩一个）*/
+  /** ≥ 2 alternatives (or an explicit invalidation rationale explaining why only one remains) */
   options: DecisionOption[];
-  /** 选择的 option name */
+  /** chosen option name */
   chosen: string;
-  /** 选择理由（呼应 drivers）*/
+  /** rationale for the choice (echoing drivers) */
   rationale: string;
-  /** pre-mortem 失败场景（高风险 story 要求 ≥ 3）*/
+  /** pre-mortem failure scenarios (high-risk stories require ≥ 3) */
   preMortem?: PreMortemScenario[];
-  /** 时间戳 */
+  /** timestamp */
   timestamp: string;
 }
 
 /**
- * Pre-context Intake snapshot (OMX 风格)。
- * PLAN 阶段开拆 checklist 之前主 agent 应该先把对任务的理解结构化落下。
- * 第一版软引入：未填只 hint 提醒，不阻塞推进。
+ * Pre-context Intake snapshot (OMX style).
+ * Before breaking down the checklist in the PLAN phase, the main agent should first record a structured understanding of the task.
+ * First-version soft introduction: when not filled, only a hint reminder is shown, without blocking progress.
  */
 export interface UnderstandingData {
-  /** 一句话描述要解决的问题 */
+  /** one-sentence description of the problem to solve */
   task: string;
-  /** 完成后能观察到什么变化 */
+  /** what observable change will occur after completion */
   outcome: string;
-  /** 已知事实（来自真相源、已有代码、上下文）*/
+  /** known facts (from the source of truth, existing code, context) */
   facts: string[];
-  /** 约束条件（必须遵守的规则、性能/兼容性要求）*/
+  /** constraints (rules that must be followed, performance/compatibility requirements) */
   constraints: string[];
-  /** 未知问题（开拆 checklist 时还没想清楚的）*/
+  /** unknowns (questions not yet figured out when breaking down the checklist) */
   unknowns: string[];
-  /** 可能的代码触点（影响范围）*/
+  /** Possible code touchpoints (impact scope) */
   touchpoints: string[];
-  /** 时间戳 */
+  /** Timestamp */
   timestamp: string;
 }
 
@@ -886,6 +886,12 @@ export type ProcessEventType =
   | 'handoff_written'
   | 'run_added'
   | 'run_metrics_recorded'
+  | 'autopilot_projection'
+  | 'autopilot_execution'
+  | 'planner_story_created'
+  | 'planner_job_created'
+  | 'host_verdict'
+  | 'authority_receipt'
   // B-6bfd CHK-004: Koala-managed guard session projection lifecycle events.
   | 'guard_session_start'
   | 'guard_session_check';
@@ -897,26 +903,26 @@ export type ProcessEvent = {
 };
 
 // ── Scope Check (B-d4d1: signed scope-check.json written by koala-review-scope-plan agent) ──
-// B-ed3e CHK-002: schema 扩 5 档 + source 字段（向后兼容，老数据缺字段默认 undefined / 0）。
-// 签名域（signScopeCheck 参数）不变：仍只含 storyId / timestamp / gaps / covered / reviewRound，
-// 新加的 source / orphanSuspect / drift / openQuestions 不入 _hash（见 decision preMortem 1）。
+// B-ed3e CHK-002: schema extended to 5 states + source field (backward compatible, missing fields in old data default to undefined / 0).
+// Signing domain (signScopeCheck parameters) unchanged: still only contains storyId / timestamp / gaps / covered / reviewRound,
+// newly added source / orphanSuspect / drift / openQuestions do not enter _hash (see decision preMortem 1).
 
 export interface ScopeCheckFeature {
   feature: string;
   covered_by: string | null;
   /**
-   * B-ed3e: 5 档状态。老 scope-check.json 只包含 covered/excluded/gap 三档，向后兼容。
-   * - orphan-suspect: reviewer 在 decisions/ 全目录扫到 spec 承诺，但 checklist 未覆盖且未 excluded
-   * - drift: spec 与实现偏离；**PLAN 阶段恒为空集**，留位给 S3（diff 输入 + phase 流程改造）
+   * B-ed3e: 5 states. Old scope-check.json only contains covered/excluded/gap three states, backward compatible.
+   * - orphan-suspect: reviewer scanned spec promise in the entire decisions/ directory, but checklist did not cover it and did not exclude it
+   * - drift: spec deviates from implementation; **always empty set in PLAN phase**, reserved for S3 (diff input + phase flow refactor)
    */
   status: 'covered' | 'excluded' | 'gap' | 'orphan-suspect' | 'drift';
   excluded_by: string | null;
   /**
-   * B-ed3e: 标注该 feature 来源，便于 reviewer 追溯。约定值：
-   * - 'description'            （来自 story description）
-   * - 'decisions:<path>'       （来自 decisions/ 全目录扫描，如 `decisions:docs/requirements/decisions/api.md`）
-   * - 'relatedDocs:<path>'     （来自 checklist.relatedDocs，遗留兼容）
-   * 类型保持 string 不做 literal union，以便未来扩展。老数据此字段缺失 → undefined。
+   * B-ed3e: annotates the source of this feature, for reviewer traceability. Agreed values:
+   * - 'description'            (from story description)
+   * - 'decisions:<path>'       (from full decisions/ directory scan, e.g. `decisions:docs/requirements/decisions/api.md`)
+   * - 'relatedDocs:<path>'     (from checklist.relatedDocs, legacy compatibility)
+   * Type remains string without literal union, for future extension. This field missing in old data → undefined.
    */
   source?: string;
 }
@@ -926,9 +932,9 @@ export interface ScopeCheckData {
   checkedAt: string;
   features: ScopeCheckFeature[];
   /**
-   * B-ed3e: summary 扩 orphanSuspect / drift 计数。
-   * 老数据 readScopeCheck 时用 ?? 0 兜底，保证 PLAN gate 不崩。
-   * drift 在 PLAN 阶段恒为 0（S3 才接 diff 输入）。
+   * B-ed3e: summary extended with orphanSuspect / drift counts.
+   * Old data uses ?? 0 fallback when readScopeCheck is called, ensuring PLAN gate does not crash.
+   * drift is always 0 in the PLAN phase (S3 will add diff input).
    */
   summary: {
     total: number;
@@ -939,10 +945,10 @@ export interface ScopeCheckData {
     drift: number;
   };
   /**
-   * B-ed3e CHK-003: 第 6 通道 Open Questions。reviewer 在 decisions/ 全目录扫到
-   * "看见但不归类"的矛盾/疑问时写入。主 agent 必须用 `koala scope_question_resolve`
-   * 书面消解（防自我赦免）；PLAN gate 会 block 未 resolve 的 OQ。
-   * 签名域不含此字段（resolution 是 main agent 动作，不进 reviewer 签名 _hash）。
+   * B-ed3e CHK-003: 6th channel Open Questions. Reviewer writes here when scanning the full decisions/ directory and finding
+   * contradictions/questions that are "seen but not classified". Main agent must use `koala scope_question_resolve`
+   * to resolve them in writing (prevents self-absolution); the PLAN gate blocks unresolved OQs.
+   * Signature domain excludes this field (resolution is a main agent action, not part of reviewer signature _hash).
    */
   openQuestions?: OpenQuestion[];
   reviewRound?: string;
@@ -950,25 +956,25 @@ export interface ScopeCheckData {
 }
 
 // ── Init Check (B-e71f: signed init-check.json written by koala-review-story-init agent) ──
-// INIT → INIT_CHECK 硬门槛产物。reviewer subagent 审查 background.md + checklist 初版后写入，
-// `_hash` 覆盖 storyId / sha256(background.md) / title / description / sha256(checklist 初版) / reviewRound + INIT_CHECK_SALT。
-// 主 agent 改 background / title / description / checklist 初版后 _hash 失配 → story_advance INIT_CHECK
-// 报 init_check_tampered blocker（CHK-005 / CHK-006）。
-// agentId 字段为 reviewer 自报 id，**仅审计追溯用**（EXP-001 证伪 agentId 机械可校验性，详见
-// docs/story/actives/B-e71f/experiments/exp-001.md），不参与签名也不参与 gate 决策。
-// issues 为 advisory：critical / high 不阻塞 INIT_CHECK 推进，由 reviewer 模板自律拒调 CLI 兜底
-// （critical 时 reviewer 应 stdout 输出 issue list 让主 agent 改 background 后重启 reviewer，
-// 不调 init_check_set）。
+// INIT → INIT_CHECK hard gate artifact. Written by reviewer subagent after reviewing background.md + initial checklist,
+// `_hash` covers storyId / sha256(background.md) / title / description / sha256(initial checklist) / reviewRound + INIT_CHECK_SALT.
+// After main agent modifies background / title / description / initial checklist, _hash mismatches → story_advance INIT_CHECK
+// reports init_check_tampered blocker (CHK-005 / CHK-006).
+// agentId field is reviewer's self-reported id, **for audit traceability only** (EXP-001 disproved mechanical verifiability of agentId, see
+// docs/story/actives/B-e71f/experiments/exp-001.md), not involved in signing nor gate decisions.
+// issues are advisory: critical / high do not block INIT_CHECK advancement, relying on reviewer template self-discipline to refuse calling the CLI as fallback
+// (on critical, reviewer should print issue list to stdout for main agent to fix background then restart reviewer,
+// without calling init_check_set).
 
 export interface InitCheckIssue {
   /**
-   * reviewer 自分配的 id，如 "I-1" / "I-2"。
-   * 与 cli-engine.ts init_check_set Zod schema (`id: z.string().optional()`) 对齐：
-   * reviewer 可省略，省略时 JSON.stringify 会丢字段（不写空串），消费方需 narrow 处理。
+   * Reviewer-assigned id, e.g. "I-1" / "I-2".
+   * Aligned with cli-engine.ts init_check_set Zod schema (`id: z.string().optional()`):
+   * reviewer may omit it; when omitted JSON.stringify drops the field (no empty string written), consumers need narrowing.
    */
   id?: string;
   severity: 'critical' | 'high' | 'medium' | 'low';
-  /** 具体描述（runtime 校验 trim().length >= 1，禁空白串） */
+  /** Concrete description (runtime validation trim().length >= 1, blank strings forbidden) */
   desc: string;
 }
 
@@ -987,28 +993,28 @@ export interface DraftCheckData {
 }
 
 /**
- * B-e71f F-013: 原 `InitCheckResolution` interface 已删除（声明但无引用，且
- * 决策已锁定 Concat-Advisory 通道——主 agent 修 background 后重跑 reviewer 即触发
- * _hash 失配自动重审，不再引入 `init_issue_resolve` 独立 CLI）。如未来需要手动消解
- * 通道，请新建专用类型而不是复活该死类型。
+ * B-e71f F-013: the original `InitCheckResolution` interface has been deleted (declared but unreferenced, and
+ * the decision is locked on the Concat-Advisory channel — after the main agent edits background, rerunning the reviewer triggers
+ * automatic re-review on _hash mismatch, and no standalone `init_issue_resolve` CLI is introduced). If a manual resolution
+ * channel is needed in the future, create a dedicated type instead of resurrecting this dead one.
  */
 export interface InitCheckData {
   storyId: string;
-  /** ISO 8601 写入时刻 */
+  /** ISO 8601 write timestamp */
   checkedAt: string;
   /**
-   * 写入时 story.currentReviewRound 快照（INIT 阶段为 ''）。
-   * 抄 ScopeCheckData / scope-check.ts:14 套路，签名域包含此字段。
+   * Snapshot of story.currentReviewRound at write time (empty string during INIT phase).
+   * Follows the ScopeCheckData / scope-check.ts:14 pattern; this field is part of the signature domain.
    */
   reviewRound: string;
   /**
-   * Reviewer 自报 agent id（subagent session id 或人为标识）。
-   * **不参与签名 / 不参与 gate 校验**，仅作为审计追溯字段（EXP-001 已证伪 agentId 机械区分能力）。
+   * Reviewer's self-reported agent id (subagent session id or human-assigned identifier).
+   * **Not part of the signature / not part of gate validation**, only an audit trace field (EXP-001 has disproved the mechanical distinguishability of agentId).
    */
   agentId: string;
   /**
-   * Reviewer 提出的问题列表，advisory 模式：不阻塞 INIT_CHECK 推进，仅在 advance 成功消息中 echo。
-   * 允许空数组（reviewer 认为完全合格时）。
+   * List of issues raised by the reviewer, advisory mode: does not block INIT_CHECK advancement, only echoed in the advance success message.
+   * Empty array allowed (when the reviewer considers it fully qualified).
    */
   issues: InitCheckIssue[];
   /**
@@ -1027,39 +1033,39 @@ export interface InitCheckData {
    * Present ONLY when init-check.json was produced by the explicit
    * `init_check_repair` command (environments that cannot spawn the init
    * reviewer subagent), NOT by an independent reviewer run via `init_check_set`.
-   * 是审计/surface 字段，**不参与签名 / 不参与 gate 校验**——签名仍由 signInitCheck
-   * 基于 background/title/description/checklist 计算，gate 仍按 missingRequiredInitCheckAgents
-   * + blockingInitCheckIssues 校验（fallback 通过把 agentResults 标记为 `<required>@fallback`
-   * 满足必需 reviewer 校验，而非放宽 gate）。story_get / dashboard 用此字段把 fallback/manual
-   * attestation 与独立 reviewer 区分开。
+   * An audit/surface field, **not part of the signature / not part of gate validation** — signature is still produced by signInitCheck
+   * Computed from background/title/description/checklist; gate is still validated by missingRequiredInitCheckAgents
+   * + blockingInitCheckIssues (fallback passes by marking agentResults as `<required>@fallback`
+   * to satisfy the required reviewer check, rather than relaxing the gate). story_get / dashboard use this field to distinguish fallback/manual
+   * attestation from independent reviewers.
    */
   fallback?: {
-    /** repair（修复缺失出口）/ fallback（无 subagent 环境一次性顶替）。语义等价，仅用于审计分类。 */
+    /** repair (fix missing exit) / fallback (one-time substitute in environments without subagent). Semantically equivalent, only used for audit classification. */
     mode: 'repair' | 'fallback';
-    /** 人工 attestation 理由（runtime 校验 trim().length >= 30）。 */
+    /** Manual attestation reason (runtime validation trim().length >= 30). */
     reason: string;
-    /** 可选：人工核查所依据的证据引用（文件/URL/transcript 摘要等）。 */
+    /** Optional: evidence references the manual verification is based on (file/URL/transcript summary, etc.). */
     evidenceRefs?: string[];
-    /** 操作者标识（git user.name 或显式传入），仅审计追溯。 */
+    /** Operator identifier (git user.name or explicitly passed in), audit traceability only. */
     actor?: string;
-    /** 会话标识（KOALA_SESSION_ID / 派生 session id），仅审计追溯。 */
+    /** Session identifier (KOALA_SESSION_ID / derived session id), audit traceability only. */
     session?: string;
-    /** ISO 8601 attestation 时刻。 */
+    /** ISO 8601 attestation timestamp. */
     attestedAt: string;
-    /** 写入时的 git HEAD（短/全 sha），把 attestation 钉在当时源码状态上。 */
+    /** git HEAD at write time (short/full sha), pinning the attestation to the source state at that moment. */
     headHash?: string;
-    /** 写入时的 material hash（source freshness），与 verificationEvidence 同口径。 */
+    /** material hash at write time (source freshness), same convention as verificationEvidence. */
     materialHash?: string;
   };
   /**
-   * 签名：sha256(`${storyId}:${backgroundHash}:${title}:${description}:${checklistHash}:${reviewRound}:${INIT_CHECK_SALT}`)
-   * 由 signInitCheck 计算。issues / agentId / fallback 不入签名域（issues 是 reviewer 主观判断，allow 后续修；
-   * agentId 是 reviewer 自报易伪造，靠 reviewer 模板 fence 兜底；fallback 是 surface/审计元数据）。
+   * Signature: sha256(`${storyId}:${backgroundHash}:${title}:${description}:${checklistHash}:${reviewRound}:${INIT_CHECK_SALT}`)
+   * Computed by signInitCheck. issues / agentId / fallback are not included in the signature domain (issues are reviewer subjective judgment, allowed to be modified later;
+   * agentId is self-reported by reviewer and easily forged, backed by reviewer template fence; fallback is surface/audit metadata).
    */
   _hash: string;
 }
 
-// ── Delivery Check (B-35ed: TEST→DONE 硬门槛) ──
+// ── Delivery Check (B-35ed: TEST→DONE hard gate) ──
 
 export interface DocsPromise {
   docPath: string;
@@ -1071,14 +1077,14 @@ export interface DocsPromise {
   status?: 'met' | 'verified' | 'waived' | 'unverified';
   verifiedBy?: string;
   evidence?: string;
-  /** 豁免理由（≥ 30 字符），入签名防事后篡改 */
+  /** Waiver reason (≥ 30 characters), included in signature to prevent post-hoc tampering */
   waiverReason?: string;
 }
 
 export interface RealMachineTest {
   featureId: string;
   transcript: string;
-  /** 豁免理由（≥ 30 字符入 _hash 防事后篡改），无真机测试时必填 */
+  /** Waiver reason (≥ 30 characters, included in _hash to prevent post-hoc tampering); required when no real machine test exists */
   waiverReason?: string;
 }
 
@@ -1091,17 +1097,17 @@ export interface ClosingSelfCheck {
 
 export interface DeliveryCheckData {
   storyId: string;
-  /** ISO 8601 写入时刻 */
+  /** ISO 8601 write timestamp */
   checkedAt: string;
-  /** 写入时 story.currentReviewRound 快照 */
+  /** Snapshot of story.currentReviewRound at write time */
   reviewRound: string;
-  /** Reviewer 自报 agent id，仅审计追溯（不参与签名） */
+  /** Reviewer self-reported agent id, for audit traceability only (not part of signature) */
   agentId: string;
   docsPromises: DocsPromise[];
   realMachineTests: RealMachineTest[];
   closingSelfCheck: ClosingSelfCheck;
   /**
-   * 签名：sha256(storyId:JSON(docsPromises):JSON(realMachineTests):JSON(closingSelfCheck):reviewRound:salt)
+   * Signature: sha256(storyId:JSON(docsPromises):JSON(realMachineTests):JSON(closingSelfCheck):reviewRound:salt)
    */
   _hash: string;
 }
@@ -1109,23 +1115,23 @@ export interface DeliveryCheckData {
 /**
  * B-cf60: Per-story declared product artifact.
  *
- * 记录一个 story 显式声明的生成物路径，让 dirty-worktree 分类器把它归到
- * `declared_artifact_changes` 类别而不是 `unexpected_dirty_files`，
- * 并要求 DONE gate 校验该路径有匹配的 verificationEvidence intentRef
- * 或 delivery-check.docsPromises[*].docPath。
+ * Records a generated artifact path explicitly declared by a story, so the dirty-worktree classifier categorizes it as
+ * `declared_artifact_changes` instead of `unexpected_dirty_files`,
+ * and requires the DONE gate to verify the path has a matching verificationEvidence intentRef
+ * or delivery-check.docsPromises[*].docPath.
  */
 export interface DeclaredArtifactEntry {
-  /** 相对仓库根的精确路径（无 glob/通配符；handler 已校验） */
+  /** Exact path relative to repo root (no glob/wildcards; validated by handler) */
   path: string;
-  /** 为什么声明该文件作为本 story 的预期产出（≥10 字符） */
+  /** Why this file is declared as an expected output of this story (≥10 characters) */
   reason: string;
   /**
-   * 关联引用：
-   * - `CHK-NNN:(happy|edge|adversarial):IDX` 形式 → 指向 checklist.items[*].verificationIntent
-   * - `promise:<docPath>` 形式 → 指向 delivery-check.docsPromises[*].docPath
+   * Related references:
+   * - `CHK-NNN:(happy|edge|adversarial):IDX` form → points to checklist.items[*].verificationIntent
+   * - `promise:<docPath>` form → points to delivery-check.docsPromises[*].docPath
    */
   relatedIntent: string;
-  /** 声明写入时刻（ISO） */
+  /** Declared write timestamp (ISO) */
   declaredAt: string;
 }
 
@@ -1134,13 +1140,13 @@ export interface DeclaredArtifactsData {
 }
 
 /**
- * B-ed3e CHK-003: Open Question 条目。
- * - id: 如 "OQ-1" / "OQ-2"（reviewer 自己分配）
- * - q: 疑问文本
- * - evidence: reviewer 的观察证据（哪条 decisions/ 文件的哪段提到了什么）
- * - sourcePointers: 证据指向的 decisions/ 路径或 checklist item id
- * - resolution: 主 agent 通过 scope_question_resolve 填入的消解结论（≥ 20 字符）
- * - resolvedAt: resolution 写入时刻（ISO）
+ * B-ed3e CHK-003: Open Question entry.
+ * - id: e.g. "OQ-1" / "OQ-2" (reviewer assigns itself)
+ * - q: question text
+ * - evidence: reviewer's observed evidence (which section of which decisions/ file mentions what)
+ * - sourcePointers: decisions/ path or checklist item id that the evidence points to
+ * - resolution: resolution conclusion written by the main agent via scope_question_resolve (≥ 20 characters)
+ * - resolvedAt: timestamp when resolution was written (ISO)
  */
 export interface OpenQuestion {
   id: string;
@@ -1151,7 +1157,7 @@ export interface OpenQuestion {
   resolvedAt?: string;
 }
 
-/** 全序：light=0 < balanced=1 < strict=2 */
+/** Total order: light=0 < balanced=1 < strict=2 */
 export const PROFILE_ORDER: Record<WorkflowProfile, number> = {
   light: 0,
   balanced: 1,

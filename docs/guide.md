@@ -70,7 +70,7 @@ PASS；外部项目、旧 wrapper 或非 git 项目会被解释成 WARN/FAIL 加
 |------|----------|----------|------------------------|
 | `off`（默认） | 普通本地 Koala/Lattice story 开发，**免费、纯本地**。 | 完全不发起网络请求；本地 evidence + DONE gate 行为不变。 | 否：`productionDone=false`、`receiptVerified=false`。 |
 | `shadow` | 想观察 Python authority 的响应但保留本地行为。 | 尽力 observational POST；失败仅 stderr warning，不影响本地写入。 | 否：transport `accepted: true` 是 `thin-client-transport-accepted`，不是受签的 receipt。 |
-| `enforce` | 预留给未来 isolated headless runner，**需要** Python authority server + 注册过的 actor key + runner identity。 | 当前只实现到 `authority_enforce_policy` 的只读 policy discovery；envelope 签名、submission、receipt verification 都延后到 M2+。 | 暂时仍是 否：`productionDone` / `receiptVerified` 在没有验签 receipt 之前一直是 `false`。 |
+| `enforce` | isolated headless runner / Authority job path，**需要** Python authority server + customer API key + 注册过的 actor key + runner identity + project id + pinned server key。 | `authority enforce runner --dry-run` 投影 readiness；`--live` 签名原生 envelope、注册/心跳 runner、claim job。Authority job execution consumes typed `plannedSteps[]`, uploads evidence, requests server `gate_decision`, verifies the native receipt, and then completes or releases the lease according to policy. | 只有验签通过的原生 `gate_decision` receipt 可支持 per-run `authorityDone`；`fullAuthorityDone` 还需要最终 multi-host certification。runner 心跳/claim 本身不构成生产 authority。 |
 
 查看本地 CLI 看到的 authority 表面：
 
@@ -91,9 +91,14 @@ lattice conduit explain --json
 
 - `mode` — `off` | `shadow` | `enforce`
 - `localWorkflowUsable: true` — 本地 story workflow 永远不被 authority 阻塞
-- `authorityUrlConfigured` — `KOALA_AUTHORITY_URL` 是否已配置
-- `actorKeyConfigured` — `KOALA_AUTHORITY_ACTOR_KEY` / `_PATH` 是否已配置
-- `runnerConfigured` — `KOALA_AUTHORITY_RUNNER_ID` 是否已配置
+- `authorityUrlConfigured` — `LATTICE_AUTHORITY_URL` / `KOALA_AUTHORITY_URL` 是否已配置
+- `customerApiKeyConfigured` — `LATTICE_AUTHORITY_CUSTOMER_API_KEY` / `_PATH` 是否已配置
+- `customerApiKeySource` — `env` | `path` | `authority_md` | `missing`
+- `customerApiKeyValid` — live probe 前只能是 unknown，不能只因存在就推断有效
+- `actorKeyConfigured` — `LATTICE_AUTHORITY_ACTOR_KEY` / `_PATH` 是否已配置
+- `actorKeyRegistered` — actor public key 是否已在 Authority server 注册
+- `serverPublicKeyPinned` — receipt server public key 是否已固定/验证
+- `runnerConfigured` — `LATTICE_AUTHORITY_RUNNER_ID` 是否已配置
 - `readinessWarnings: string[]` — 只在 shadow/enforce 缺前置时填充
 - `nextActions: string[]` — 对应的 env / 命令建议
 - `productionDone: false`、`receiptVerified: false`、`canClaimProductionDone: false`
@@ -101,10 +106,124 @@ lattice conduit explain --json
 **重要边界**：本地 JSON 或文本输出**不是** authority evidence。只有 Python
 authority 颁发并由 runner / 客户端验签的 `AuthorityReceipt` 才算受签的生产
 authority。即使 `KOALA_AUTHORITY_URL`、`KOALA_AUTHORITY_ACTOR_KEY`、
-`KOALA_AUTHORITY_RUNNER_ID` 都配齐，`productionDone` 仍保持 `false`，直到
-未来的 receipt-backed runner 路径真正验签 receipt 为止。PD-1 / PD-2 的
+`KOALA_AUTHORITY_RUNNER_ID` 都配齐，`productionDone` 仍保持 `false`，直到一份
+签名的原生 Lattice Authority `gate_decision` receipt 被验签为止。完整的
+`fullAuthorityDone` 还需要最终 multi-host certification。
+PD-1 / PD-2 的
 trust boundary 见
 [`requirements/decisions/authority-client-role.md`](requirements/decisions/authority-client-role.md)。
+
+### Autopilot modes: local / shadow / authority
+
+`lattice autopilot` is the unattended-development control surface. It keeps the
+local workflow available by default and only uses Python authority in the
+explicit authority mode.
+
+```bash
+lattice autopilot status --json
+lattice autopilot doctor --json
+lattice autopilot run --mode=local --storyId=B-xxxx --until=TEST --json
+lattice autopilot execute --mode=local --storyId=B-xxxx --until=TEST --maxSteps=20 --json
+lattice autopilot run --mode=authority --storyId=B-xxxx --until=DONE \
+  --receiptFile=receipt.json --serverPublicKey="$SERVER_PUBLIC_KEY_HEX" \
+  --receiptKind=gate_decision --receiptProjectId="$PROJECT_ID" \
+  --receiptStoryId=B-xxxx --serverKeyId="$SERVER_KEY_ID" \
+  --expectedDecisionDigest="$DECISION_DIGEST" --json
+```
+
+- `local` is the default and never requires Python authority.
+- `shadow` reports authority readiness warnings without blocking local work.
+- `authority` fail-closes on missing Python authority readiness; `DONE` also
+  requires a signed native `gate_decision` receipt, server public key, and
+  explicit project/story/server-key/decision binding before reporting
+  `status: pass`. Legacy `subjectId` / `subjectKind` receipts do not satisfy
+  native authority DONE.
+- `autopilot_run` is dry-run by default. Only `--dryRun=false` records an
+  `autopilot_projection` process event, and that projection is not gate
+  evidence or production authority.
+- `autopilot_execute` is the true bounded executor loop. Non-dry-run execution
+  requires `--storyId`, runs only argv-mapped Lattice commands, records a
+  non-authoritative `autopilot_execution` event, and only invokes Claude Code
+  CLI repair when `--allowClaudeRepair=true` is explicit.
+
+### Planner：自然语言 → Story + 计划
+
+`lattice planner ...` 是 Lattice 原生的 planner 入口：把一句自然语言需求转成
+Lattice Story 草稿、checklist、verification intent 和带类型的 `plannedSteps[]`，
+供 autopilot 执行器消费。它不会把 Story / job / receipt authority 交给外部框架。
+
+```bash
+lattice planner draft --request="Add a hello command that prints hi" --json
+lattice planner review --draftFile=draft.json --json
+lattice planner status --runId=<plannerRun> --json
+lattice planner source-manifest --sourceRepo=<path> --json
+lattice planner run --request="<一句话>" --mode=local --until=DONE --json
+lattice planner run --request="<一句话>" --mode=authority --until=DONE --json
+```
+
+边界：
+
+- `planner draft` / `review` / `status` / `source-manifest` 只读；
+  `planner create-story` / `create-job` 只通过 Lattice 命令写状态。
+- 交互模式 `--interactionMode=autonomous|interview|decision-gated`（默认
+  `autonomous`）；暂停的 run 用 `planner answer` / `planner decision submit` /
+  `planner resume` 续跑。
+- `planner run` 串起 draft → review → Story → job/local plan → 执行器，但 DONE
+  仍受与 autopilot 相同的 gate 约束：`local` 最多到本地认证完成，authority DONE
+  仍需验签的原生 `gate_decision` receipt。planner 仍在按 fixtures 收敛，请把它
+  当作规划入口，而不是无人值守 DONE 的保证。
+
+### 多主机 verdict 与运行状态
+
+发布认证可能要求独立主机 verdict。存在两条 verdict 路径，且刻意不可互换：
+
+```bash
+# Authority（服务器背书）路径
+lattice authority verdict submit --jobId=<job> --runId=<run> --verdictFile=<verdict.json> --json
+lattice authority verdict list   --jobId=<job> --json
+lattice authority job status      --jobId=<job> --json
+
+# 本地（non-authority）路径
+lattice autopilot review submit --storyId=<story> --runId=<run> --verdictFile=<verdict.json> --json
+lattice autopilot review status --storyId=<story> --runId=<run> --json
+
+# 只读地解析 planned step 的 worktree / phase
+lattice story resolve --storyId=<story> --json
+```
+
+边界：
+
+- `authority verdict submit` 是 Authority 路径；`autopilot review submit` 是本地
+  路径。本地路径只把 verifier verdict 记进按 `storyId` / `runId` 索引的本地 run
+  state，永远不创建 Authority receipt，也不置 Authority DONE 标志。
+- `authority verdict list` / `authority job status` / `story resolve` 均只读。
+  `authority job status` 汇总 host-verdict 状态，不铸造也不替换原生 receipt；在
+  真正满足 Authority 条件前，`multiHostVerified` / `fullAuthorityDone` 保持
+  `false`。
+
+### Source-Aligned Redevelopment Workflow
+
+`planner run --workflow=source-aligned-redevelopment` 组合源码对齐重开发计划：
+把一份已授权的源码工程，在目标工程与目标语言中复刻其模块、函数、行为与细节，
+并按项目名做标识符重命名。
+
+```bash
+lattice planner run --workflow=source-aligned-redevelopment \
+  --sourceRepo=<path-or-ref> --targetProject=<path> --targetProjectName=<name> \
+  --sourceLanguage=typescript --targetLanguage=rust \
+  --mode=local --until=DONE --json
+```
+
+边界：
+
+- 它是一种开发 workflow，不是新的交互模式；运行在 `autonomous` / `interview` /
+  `decision-gated` 之一，以及 `local` 或 `authority` 之一下。
+- 源码是只读输入；目标文件只通过 story worktree 和正常 lifecycle gate 写入。
+  workflow 与语言对无关（如 `typescript -> rust`、`swift -> kotlin`）。
+- 它保留 license/署名声明，并把 secrets、`.git`、缓存和构建产物排除在
+  prompt/输出/证据之外。它产出证据背书的对齐，而非完美语义等价的承诺；范围内
+  无法验证的细节记为显式 gap。这是按 fixtures 收敛中的当期能力，尚不属于已发布
+  baseline。
 
 ### CHK-002 enforce matrix smoke
 

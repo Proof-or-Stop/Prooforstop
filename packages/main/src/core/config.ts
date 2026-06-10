@@ -143,8 +143,11 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'draft_check_set',      // B-9975 CHK-002: draft check 全阶段可用
     'draft_issue_resolve',
     'authority_enforce_policy', // B-ea92 M1: read-only authority policy discovery, no side-effects
-    'authority_receipt_verify', // B-eca1 CHK-002: verifies production Authority proof and writes authority-receipt-refs.json only after production classification
-    'authority_enforce_runner', // B-5cdc: read-only enforce runner readiness/dry-run projection; no provider execution
+    'authority_enforce_runner', // Lattice Authority control-plane runner; --live still avoids provider execution
+    'authority_receipt_verify', // B-eca1 CHK-002: verifies production Authority gate_decision proof and writes authority-receipt-refs.json only after production classification
+    'authority_receipt_fetch', 'authority_job_create', // Explicit Lattice Authority control-plane/artifact bridge; never mint native receipts
+    'authority_verdict_submit', 'authority_verdict_list', 'authority_job_status', // Lattice Authority multi-host verdict/status surfaces; never mint native receipts
+    'planner_*', 'story_resolve', // Natural-language planner and plannedStep context resolution surfaces
     'capability_list', // B-f26a M2: read-only host capability diagnostics for cross-host degradation
     'capability_probe', // B-cd31 CHK-002: productized single-host capability diagnostics
     'baseline_run', 'baseline_suite', 'baseline_suite_report', 'capability_claim_evaluate', // B-92e2: local read-only baseline artifact/report commands; no lifecycle gate evidence or authority proof
@@ -154,6 +157,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'lattice_config_doctor', // Lattice CLI 0.3.5: CLI-first migration/config status; no Mac App dependency
     'codex_doctor',          // Codex adapter diagnostics (read-only); does not write process-event evidence
     'rollout_check', // Lattice CLI 0.3.5: read-only cross-project rollout diagnostics
+    'baseline_run', 'baseline_suite', 'baseline_suite_report', // Lattice baseline execution and suite reporting; writes baseline artifacts only
     'authority_status', // Lattice CLI 0.3.5: receipt-aware status only; no evidence submission
     'conduit_*', // Lattice CLI 0.3.5: conduit status/explain; no runner provisioning or authority mutation
     'story_export', // B-cd31 CHK-003: Canonical Story v0 export surface
@@ -342,7 +346,7 @@ function findProjectRootByMarker(startDir: string): string | null {
   return null;
 }
 
-/** 从 cwd 向上查找项目配置文件（lattice.config.json 优先，koala.config.json 兜底），返回项目根目录 */
+/** Search upward from cwd for a project config file (lattice.config.json first, koala.config.json fallback), return the project root directory */
 function resolveProjectRoot(): string {
   if (process.env.KOALA_PROJECT_ROOT) return process.env.KOALA_PROJECT_ROOT;
   return findProjectRootByMarker(process.cwd()) ?? process.cwd();

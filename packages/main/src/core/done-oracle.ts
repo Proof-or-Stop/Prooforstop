@@ -40,7 +40,7 @@ import {
   storyRequiresCodexEvidence,
 } from './codex-adapter-checks.js';
 
-// B-c622 CHK-004: DONE 阶段自动同步 main —— detect divergence + auto merge main
+// B-c622 CHK-004: DONE phase auto-syncs main — detect divergence + auto merge main
 
 /** Check how many commits main has that the current branch doesn't. */
 export function checkMainDivergence(projectRoot: string): { behind: number; needsSync: boolean } {
@@ -132,18 +132,18 @@ function gitRefContainsMain(projectRoot: string, ref: string): boolean {
   return true;
 }
 
-// B-c622 CHK-009: evidence freshness 检查 — DONE gate 验证 test-evidence 是否对应当前 HEAD
+// B-c622 CHK-009: evidence freshness check — DONE gate verifies whether test-evidence corresponds to current HEAD
 function checkEvidenceFreshness(store: StoryStore, storyId: string, projectRoot: string): { fresh: boolean; message: string } {
   const evidence = store.readTestEvidence(storyId);
-  if (!evidence) return { fresh: false, message: 'test-evidence.json 不存在' };
+  if (!evidence) return { fresh: false, message: 'test-evidence.json does not exist' };
   const freshness = checkEvidenceFreshnessForGit(projectRoot, evidence.headHash, evidence.materialHash);
   return { fresh: freshness.fresh, message: freshness.reason };
 }
 
 /**
- * DONE Final Checklist：把 DONE 阶段所有验证项收成一份显式清单。
- * 无论 advance 成功失败都打印，强制主 agent 读一遍多层验证状态。
- * 对应 OMX ralph 的 <Final_Checklist>。
+ * DONE Final Checklist: gather all DONE phase verification items into an explicit checklist.
+ * Print regardless of whether advance succeeds or fails, forcing main agent to read multi-layer verification status.
+ * Corresponds to OMX ralph's <Final_Checklist>.
  */
 export type DoneCheckRow = OracleRow;
 
@@ -169,7 +169,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       id: 'test-evidence',
       status: 'fail',
       label: 'Test evidence',
-      detail: '没有测试证据',
+      detail: 'no test evidence',
       hint: `koala validate --json`,
       source: 'test-evidence.json',
     }));
@@ -179,7 +179,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       status: 'fail',
       label: 'Test evidence',
       detail: `${evidence.result}: ${evidence.output.slice(0, 120)}`,
-      hint: '修复失败后重跑 koala validate',
+      hint: 'rerun koala validate after fixing failures',
       source: 'test-evidence.json',
     }));
   } else {
@@ -193,11 +193,11 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
           status: 'fail',
           label: 'Test evidence',
           detail: `allPassed=${parsed.allPass ?? parsed.allPassed}`,
-          hint: '修复失败后重跑 koala validate',
+          hint: 'rerun koala validate after fixing failures',
           source: 'test-evidence.json',
         }));
       }
-    } catch { /* output 不是 JSON 也算 PASS（兼容旧格式）*/ }
+    } catch { /* output is not JSON, also counts as PASS (compatible with old format) */ }
     if (allPassedOk) {
       rows.push(doneCheckRow({
         id: 'test-evidence',
@@ -254,7 +254,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       status: 'fail',
       label: 'Bugs fixed',
       detail: `${openBugs.length} open / ${total} total: ${openBugs.map(b => b.id).join(', ')}`,
-      hint: '修复所有 open bug 后重跑 koala validate',
+      hint: 'rerun koala validate after fixing all open bugs',
       source: 'bugs.json',
     }));
   } else {
@@ -295,14 +295,14 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       ? result.auditFailure
       : (result.allPass
         ? 'all dirty paths matched passing categories; audit lines appended to process-events.jsonl'
-        : '先处理这些 dirty path（按 ownership 分类；dirty 仍会阻塞 DONE）:');
+        : 'First handle these dirty paths (classified by ownership; dirty still blocks DONE):');
     const hintLines = [
       hintHeader,
       `  ${result.summary}`,
       ...renderDirtyWorktreeGroups(classification, { sampleLimit: 6, indent: '  ' }),
     ];
     if (!result.allPass) {
-      hintLines.push('如果这些文件来自 koala validate / npm test 的报告或 snapshot 副作用，请把项目验证改成默认无副作用，或用 env gate（例如 KOALA_WRITE_*_REPORT=1）显式开启写报告。');
+      hintLines.push('If these files come from koala validate / npm test report or snapshot side effects, change project verification to be side-effect-free by default, or use an env gate (e.g. KOALA_WRITE_*_REPORT=1) to explicitly enable report writing.');
     }
     const hint = hintLines.join('\n');
     rows.push(doneCheckRow({
@@ -318,13 +318,13 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       id: 'git-working-tree',
       status: 'fail',
       label: 'git working tree',
-      detail: `无法读取 git status: ${gitStatus.error}`,
-      hint: '确认当前目录是 git worktree，并修复 git status 后重跑 DONE gate',
+      detail: `unable to read git status: ${gitStatus.error}`,
+      hint: 'confirm current directory is a git worktree, fix git status, and rerun DONE gate',
       source: 'git status --porcelain',
     }));
   }
 
-  // 4. branch synced with main (B-c622 CHK-004: 加入 divergence 检测提示)
+  // 4. branch synced with main (B-c622 CHK-004: add divergence detection hint)
   try {
     const story = store.readStory(storyId);
     if (story.worktree?.branch) {
@@ -334,8 +334,8 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
           id: 'branch-synced-main',
           status: 'warn',
           label: 'Branch synced with main',
-          detail: `${branch} 不存在（可能已手动合并并清理）`,
-          hint: `若 story 仍停在 TEST/DONE 边界，用 koala story_reconcile '{"dryRun":false}' 修复 phase/worktree metadata`,
+          detail: `${branch} does not exist (may have been manually merged and cleaned up)`,
+          hint: `if story is still stuck at TEST/DONE boundary, use koala story_reconcile '{"dryRun":false}' to repair phase/worktree metadata`,
           source: 'git worktree metadata',
           blocking: false,
         });
@@ -356,9 +356,9 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
             status: 'fail',
             label: 'Branch synced with main',
             detail: divergence.needsSync
-              ? `${branch} 落后 main ${divergence.behind} 个提交`
-              : `${branch} 未合并 main 的最新提交`,
-            hint: 'DONE 推进时将自动尝试 git merge main；若有冲突请手动解决',
+              ? `${branch} is behind main by ${divergence.behind} commits`
+              : `${branch} has not merged main's latest commits`,
+            hint: 'Will automatically attempt git merge main when advancing to DONE; resolve any conflicts manually',
             source: 'git merge-base --is-ancestor main',
           }));
         }
@@ -371,8 +371,8 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
           id: 'branch-synced-main',
           status: 'fail',
           label: 'Branch synced with main',
-          detail: `当前分支落后 main ${divergence.behind} 个提交`,
-          hint: 'DONE 推进时将自动尝试 git merge main；若有冲突请手动解决',
+          detail: `Current branch is behind main by ${divergence.behind} commits`,
+          hint: 'Will automatically attempt git merge main when advancing to DONE; resolve any conflicts manually',
           source: 'git rev-list HEAD..main',
         }));
       } else {
@@ -385,9 +385,9 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
         }));
       }
     }
-  } catch { /* 读 story 失败不阻塞，guard 已经报过错 */ }
+  } catch { /* Failure to read story does not block; guard has already reported the error */ }
 
-  // 5. relatedDocs (advisory，warn 不影响判定)
+  // 5. relatedDocs (advisory, warn does not affect the verdict)
   try {
     const cl = store.readChecklist(storyId);
     const allDocs = new Map<string, string[]>();
@@ -445,8 +445,8 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       id: 'delivery-check',
       status: 'fail',
       label: 'delivery-check',
-      detail: '缺 delivery-check.json（需 koala-review-delivery reviewer 签名）',
-      hint: '运行 koala-review-delivery reviewer，并用 delivery_check_set 写入签名产物',
+      detail: 'Missing delivery-check.json (requires koala-review-delivery reviewer signature)',
+      hint: 'Run the koala-review-delivery reviewer and use delivery_check_set to write the signed artifact',
       source: 'delivery-check.json',
     }));
   } else {
@@ -456,8 +456,8 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
         id: 'delivery-check',
         status: 'fail',
         label: 'delivery-check',
-        detail: 'delivery-check.json _hash 失配',
-        hint: '重跑 koala-review-delivery reviewer 生成新的 delivery-check.json',
+        detail: 'delivery-check.json _hash mismatch',
+        hint: 'Re-run the koala-review-delivery reviewer to generate a new delivery-check.json',
         source: 'delivery-check.json._hash',
       }));
     } else {
@@ -469,8 +469,8 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
           id: 'delivery-check',
           status: 'fail',
           label: 'delivery-check',
-          detail: `${unverified.length} 条 docsPromise 未验证且无豁免`,
-          hint: '用 delivery_waiver_add 写豁免，或重跑 koala-review-delivery reviewer 补验证证据',
+          detail: `${unverified.length} docsPromise entries are unverified and not waived`,
+          hint: 'Use delivery_waiver_add to write a waiver, or re-run the koala-review-delivery reviewer to add verification evidence',
           source: 'delivery-check.json.docsPromises',
         }));
       } else {
@@ -515,8 +515,8 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
           label: 'declared artifacts referenced',
           detail: `${referenced}/${refResult.total} (unreferenced: ${refResult.unreferenced.length})`,
           hint:
-            '[unreferenced_declared_artifact] 下列 declared artifact 的 relatedIntent 不指向任何 verificationIntent 或 delivery-check docsPromise；' +
-            '请用 verification_evidence_add 补 evidence、把 relatedIntent 改成存在的 intentRef，或用 delivery_check_set / delivery_waiver_add 加 docsPromise：\n' +
+            '[unreferenced_declared_artifact] The relatedIntent of the following declared artifacts does not point to any verificationIntent or delivery-check docsPromise; ' +
+            'use verification_evidence_add to add evidence, change relatedIntent to an existing intentRef, or use delivery_check_set / delivery_waiver_add to add a docsPromise:\n' +
             unrefDetails,
           source: 'declared-artifacts.json',
         }));
@@ -569,16 +569,16 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
         const hintLines: string[] = [];
         if (uncommitted.length > 0) {
           hintLines.push(
-            `[uncommitted_declared_artifact] 下列 declared artifact 未提交，git merge 不会带进 main：`,
+            `[uncommitted_declared_artifact] The following declared artifacts are not committed and will not be carried into main by git merge:`,
             ...uncommitted.map((p) => `  ${p}`),
-            '→ 如果它是交付物，请 commit；如果它是临时产出，请删除并移除该声明（artifact_declare 只声明真正要交付的生成物）。',
+            '→ If it is a deliverable, please commit it; if it is a temporary output, delete it and remove the declaration (artifact_declare only declares generated outputs that are truly meant to be delivered).',
           );
         }
         if (ignored.length > 0) {
           hintLines.push(
-            `[gitignored_declared_artifact] 下列 declared artifact 被 .gitignore 忽略，永远无法提交：`,
+            `[gitignored_declared_artifact] The following declared artifacts are ignored by .gitignore and can never be committed:`,
             ...ignored.map((p) => `  ${p}`),
-            '→ git-ignored 路径不能声明为交付物（git-ignored paths must not be declared as deliverable artifacts）；请改声明一个可提交的路径，或移除该声明。',
+            '→ git-ignored paths must not be declared as deliverable artifacts; please declare a committable path instead, or remove the declaration.',
           );
         }
         const detailParts = commitResult.blockers
@@ -614,8 +614,8 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
         status: requireEval ? 'fail' : 'warn',
         label: 'Evaluator',
         detail: requireEval
-          ? '没有 evaluator 打分（browser 项目必须跑 evaluator）'
-          : '没有 evaluator 打分（advisory — profile 未要求）',
+          ? 'No evaluator score (browser projects must run the evaluator)'
+          : 'No evaluator score (advisory — not required by profile)',
         hint: `koala evaluate '{"storyId":"${storyId}"}'`,
         source: 'eval-evidence.json',
         blocking: requireEval,
@@ -625,8 +625,8 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
         id: 'eval-evidence',
         status: requireEval ? 'fail' : 'warn',
         label: 'Evaluator',
-        detail: `未通过: functionality=${evalEvidence.scores.functionality} usability=${evalEvidence.scores.usability} total=${evalEvidence.total}`,
-        hint: '修复 evaluator 发现的问题后重跑 koala evaluate',
+        detail: `Did not pass: functionality=${evalEvidence.scores.functionality} usability=${evalEvidence.scores.usability} total=${evalEvidence.total}`,
+        hint: 'Re-run koala evaluate after fixing the issues found by evaluator',
         source: 'eval-evidence.json',
         blocking: requireEval,
       }));
@@ -652,9 +652,9 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
         status: summaryReq === 'full' ? 'fail' : 'warn',
         label: 'Story summary',
         detail: summaryReq === 'full'
-          ? '没有 summary.json'
-          : '没有 summary.json（advisory — profile 要求 minimal）',
-        hint: `koala summary_set '{"storyId":"${storyId}","changes":"改了什么（≥10 字符）","usage":"怎么用（≥10 字符）","expectedOutcome":"用户预期看到什么","actualTranscript":"真实运行看到什么","outcomeDiff":"expected vs actual 差异","acceptanceVerdict":"accepted","limitations":"已知限制或 \\"none — fully covered\\"","pitfalls":"踩坑记录（≥10 字符，强制段）"}'`,
+          ? 'No summary.json'
+          : 'No summary.json (advisory — profile requires minimal)',
+        hint: `koala summary_set '{"storyId":"${storyId}","changes":"What changed (≥10 chars)","usage":"How to use (≥10 chars)","expectedOutcome":"What the user expects to see","actualTranscript":"What was actually observed when run","outcomeDiff":"expected vs actual diff","acceptanceVerdict":"accepted","limitations":"Known limitations or \\"none — fully covered\\"","pitfalls":"Pitfall notes (≥10 chars, mandatory section)"}'`,
         source: 'summary.json',
         blocking: summaryReq === 'full',
       }));
@@ -673,8 +673,8 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
           id: 'story-summary',
           status: summaryReq === 'full' ? 'fail' : 'warn',
           label: 'Story summary',
-          detail: `字段缺失/过短: ${missing.join(', ')}`,
-          hint: `重新调 koala summary_set 补齐 ${missing.join(', ')}`,
+          detail: `Missing/too short fields: ${missing.join(', ')}`,
+          hint: `Re-invoke koala summary_set to fill in ${missing.join(', ')}`,
           source: 'summary.json',
           blocking: summaryReq === 'full',
         }));
@@ -731,7 +731,7 @@ export function renderDoneChecklist(storyId: string, rows: DoneCheckRow[]): stri
     let line = `  [${ICONS[row.status]}] ${row.label}`;
     if (row.detail) line += `: ${row.detail}`;
     lines.push(line);
-    // warn 行和用户价值摘要都展开多行明细，方便 DONE 前复述给用户。
+    // Both warn lines and the user-value summary expand multi-line details for easy recap to the user before DONE.
     if ((row.status === 'warn' || row.id === 'user-value-summary') && row.hint) {
       for (const h of row.hint.split('\n')) {
         lines.push(`        - ${h}`);

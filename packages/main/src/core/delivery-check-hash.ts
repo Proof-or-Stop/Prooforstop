@@ -7,11 +7,11 @@
  * without an upward core→handlers import. The delivery_check_set handler
  * (handlers/delivery-check.ts) re-uses these same functions.
  *
- * 签名域：storyId + JSON.stringify(docsPromises) + JSON.stringify(realMachineTests)
+ * Signature domain: storyId + JSON.stringify(docsPromises) + JSON.stringify(realMachineTests)
  *          + JSON.stringify(closingSelfCheck) + reviewRound + salt
  *
- * waiverReason (≥ 30 字符) 入 realMachineTests / docsPromises 的 JSON.stringify，
- * 自动纳入签名。
+ * waiverReason (≥ 30 characters) is included in JSON.stringify of realMachineTests / docsPromises,
+ * automatically incorporated into the signature.
  */
 
 import { createHash } from 'crypto';
@@ -21,9 +21,9 @@ import type { DocsPromise, RealMachineTest, ClosingSelfCheck } from './types.js'
 export const DELIVERY_CHECK_SALT = 'koala-delivery-check-integrity-v1';
 
 /**
- * 签名函数（确定性：同输入同输出）。
+ * Signing function (deterministic: same input yields same output).
  *
- * 签名域：storyId / docsPromises(JSON) / realMachineTests(JSON) / closingSelfCheck(JSON) / reviewRound + salt
+ * Signature domain: storyId / docsPromises(JSON) / realMachineTests(JSON) / closingSelfCheck(JSON) / reviewRound + salt
  */
 export function signDeliveryCheck(
   storyId: string,
@@ -44,8 +44,8 @@ export function signDeliveryCheck(
 }
 
 /**
- * gate 端复用的重算入口：读 delivery-check.json 后取其字段重新签名，
- * 比对 _hash 判断是否被篡改。
+ * Recompute entry reused on the gate side: read delivery-check.json, take its fields and re-sign,
+ * compare _hash to determine whether it has been tampered with.
  */
 export function recomputeDeliveryCheckHash(storyId: string, store: StoryStore): string | null {
   const data = store.readDeliveryCheck(storyId);

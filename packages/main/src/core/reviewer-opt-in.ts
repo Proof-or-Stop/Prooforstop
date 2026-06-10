@@ -3,14 +3,14 @@
  *
  * Baseline reviewers (always active): concept + quality.
  * Additional reviewers opted in by story signals:
- *   - riskSignals.category ∈ { state machine / guard / gate / 状态机/门禁 } → +behavior
- *   - touchpoints 含 `.md` 文件                                         → +docs
+ *   - riskSignals.category ∈ { state machine / guard / gate / state-machine/gate } → +behavior
+ *   - touchpoints contains `.md` files                                  → +docs
  *   - channel === 'normal'                                             → +channel
- *   - forced list (e.g. --force-reviewer=docs,channel)                 → 强制加挂
+ *   - forced list (e.g. --force-reviewer=docs,channel)                 → force-mount
  *
- * Pure function — no I/O. 消费方：machine.canPassReview、reviewer_list handler、
- * story_advance REVIEW 命令输出的 reviewer echo（B-6974 后由 transition-effects.ts
- * buildNextSteps 渲染，经 transition-orchestrator 协调）。
+ * Pure function — no I/O. Consumers: machine.canPassReview, reviewer_list handler,
+ * the reviewer echo output by story_advance REVIEW command (after B-6974 rendered by transition-effects.ts
+ * buildNextSteps, coordinated via transition-orchestrator).
  */
 
 import type { StoryInfo } from './types.js';
@@ -18,25 +18,25 @@ import type { StoryInfo } from './types.js';
 export type Channel = 'quick' | 'normal';
 
 export interface OptInReviewer {
-  /** reviewer short name，如 concept / quality / behavior / docs / channel */
+  /** reviewer short name, e.g. concept / quality / behavior / docs / channel */
   name: string;
-  /** 为什么这个 reviewer 被启用（baseline / riskSignal / touchpoint / channel / forced） */
+  /** why this reviewer is enabled (baseline / riskSignal / touchpoint / channel / forced) */
   reason: string;
-  /** 是否通过 --force-reviewer 强制加挂 */
+  /** whether force-mounted via --force-reviewer */
   forced?: boolean;
 }
 
-/** Signal → +behavior 的触发 category 列表（既支持英文也支持现用的中文分类） */
+/** Signal → list of trigger categories for +behavior (supports both English and the currently-used Chinese categories) */
 const BEHAVIOR_TRIGGER_CATEGORIES = [
   'state machine',
   'guard',
   'gate',
-  '状态机/门禁',
+  'state-machine/gate',
 ];
 
 /**
- * 根据 story 的 riskSignals / channel / touchpoints 计算应启用的 reviewer 列表。
- * 返回按 name 字母序排序的列表（稳定，方便断言与渲染）。
+ * Compute the list of reviewers that should be enabled based on the story's riskSignals / channel / touchpoints.
+ * Returns the list sorted alphabetically by name (stable, convenient for assertions and rendering).
  */
 export function resolveOptInReviewers(
   story: StoryInfo,
@@ -46,28 +46,28 @@ export function resolveOptInReviewers(
 ): OptInReviewer[] {
   const map = new Map<string, OptInReviewer>();
 
-  // BASELINE: concept + quality 永远启用
+  // BASELINE: concept + quality are always enabled
   map.set('concept', { name: 'concept', reason: 'baseline' });
   map.set('quality', { name: 'quality', reason: 'baseline' });
 
-  // riskSignal 路由：命中 state machine/guard/gate 触发 behavior reviewer
+  // riskSignal routing: hitting state machine/guard/gate triggers the behavior reviewer
   const categories = new Set((story.riskSignals || []).map(r => r.category));
   const triggeredBehavior = BEHAVIOR_TRIGGER_CATEGORIES.find(t => categories.has(t));
   if (triggeredBehavior) {
     map.set('behavior', { name: 'behavior', reason: `riskSignal: ${triggeredBehavior}` });
   }
 
-  // touchpoint: 改动涉及 .md 文件 → +docs reviewer
+  // touchpoint: changes involving .md files → +docs reviewer
   if (touchpoints && touchpoints.some(t => typeof t === 'string' && t.endsWith('.md'))) {
     map.set('docs', { name: 'docs', reason: 'touchpoint: md' });
   }
 
-  // normal channel → +channel reviewer（检查 commit author 合规）
+  // normal channel → +channel reviewer (checks commit author compliance)
   if (channel === 'normal') {
     map.set('channel', { name: 'channel', reason: 'channel: normal' });
   }
 
-  // forced override：命令行 --force-reviewer=docs,channel 显式加挂
+  // forced override: command-line --force-reviewer=docs,channel explicit force-mount
   if (forced && forced.length > 0) {
     for (const f of forced) {
       const name = String(f).trim();
@@ -80,10 +80,10 @@ export function resolveOptInReviewers(
 }
 
 /**
- * 实时计算当前 story 的 channel（通道）。
- * 与 transition-effects.ts 的 buildNextSteps 里 DEV nextSteps 的判定保持一致：
- *   - checklist.items.length ≤ 2 且无 riskSignals → quick
- *   - 否则                                         → normal
+ * Compute the current story's channel in real time.
+ * Consistent with the DEV nextSteps determination in buildNextSteps of transition-effects.ts:
+ *   - checklist.items.length ≤ 2 and no riskSignals → quick
+ *   - otherwise                                     → normal
  */
 export function resolveChannel(
   itemsCount: number,
@@ -94,15 +94,15 @@ export function resolveChannel(
 }
 
 /**
- * 根据 reviewer short name 从 finding agent 字符串判断匹配。
- * agent 如 "koala-review-concept" 匹配 name="concept"。
- * 兼容 "concept" 裸名、以及任何形式的 <prefix>-concept / <prefix>:concept。
+ * Match by reviewer short name against the finding agent string.
+ * An agent like "koala-review-concept" matches name="concept".
+ * Supports the bare "concept" name and any form of <prefix>-concept / <prefix>:concept.
  */
 export function findingAgentMatchesReviewer(agent: string | undefined, reviewerName: string): boolean {
   if (!agent) return false;
   const a = agent.toLowerCase();
   const n = reviewerName.toLowerCase();
   if (a === n) return true;
-  // "koala-review-concept" / "review-concept" / "some-concept" — 用边界匹配
+  // "koala-review-concept" / "review-concept" / "some-concept" — use boundary matching
   return a.endsWith(`-${n}`) || a.endsWith(`:${n}`) || a.includes(`-${n}-`) || a.includes(`-${n}:`);
 }

@@ -42,12 +42,12 @@ export function createBugHandlers(ctx: HandlerContext) {
       const bug = data.bugs.find(b => b.id === args.id);
       if (!bug) throw new Error(`Bug ${args.id} not found`);
 
-      // 标记 fixed（验证走 koala validate，不在 bug_update 里自动跑）
+      // Mark fixed (verification runs through koala validate, not auto-triggered inside bug_update)
       let resultMsg: string;
       if (args.status === 'fixed') {
         if (!args.evidence) {
-          return `⚠ Bug ${args.id}: 标 fixed 时建议提供 evidence（symptom / rootCause / fixEvidence）。` +
-            ` 用法: koala bug_update '{"storyId":"...","id":"...","status":"fixed","evidence":{"symptom":"...","reproSteps":["..."],"rootCause":"...","fixEvidence":"..."}}'`;
+          return `⚠ Bug ${args.id}: providing evidence (symptom / rootCause / fixEvidence) is recommended when marking fixed.` +
+            ` Usage: koala bug_update '{"storyId":"...","id":"...","status":"fixed","evidence":{"symptom":"...","reproSteps":["..."],"rootCause":"...","fixEvidence":"..."}}'`;
         }
         bug.status = 'fixed';
         bug.fixedAt = new Date().toISOString();
@@ -106,11 +106,11 @@ export function createBugHandlers(ctx: HandlerContext) {
     bug_analyze(args?: { format?: 'json' | 'markdown' }) {
       const report = extractBugs(ctx.root);
       if (args?.format === 'markdown') {
-        return { _dashboard: report.markdown, _hint: '请完整展示 Markdown 报告' };
+        return { _dashboard: report.markdown, _hint: 'Please display the full Markdown report' };
       }
       return {
         _dashboard: report.markdown,
-        _hint: '请将质量报告展示在最前面，Markdown 格式',
+        _hint: 'Please display the quality report at the top, in Markdown format',
         summary: report.summary,
         bugs: report.bugs,
         storyMetrics: report.storyMetrics,

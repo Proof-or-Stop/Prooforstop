@@ -17,8 +17,8 @@
 //   3. Success responses parse against the AuthorityReceipt union OR JobSpec.
 //   4. HTTP error / malformed body / connection-refused outcomes map to
 //      `http_error` / `error` / `connection_refused` respectively (Handler
-//      编码约定: malformed 2xx body is `error`, never silently `success`).
-//   5. Off mode (KOALA_AUTHORITY_MODE=off) and missing KOALA_AUTHORITY_URL
+//      Coding convention: malformed 2xx body is `error`, never silently `success`).
+//   5. Off mode (LATTICE_AUTHORITY_MODE=off) and missing LATTICE_AUTHORITY_URL
 //      cause `createRunnerAuthorityClient` to refuse instantiation and
 //      perform ZERO network calls.
 //   6. Policy discovery still NEVER POSTs evidence or runner mutations
@@ -55,6 +55,7 @@ import {
 } from '../core/authority-runner-contracts.js';
 import { generateEd25519KeyPair } from '../core/authority-signing.js';
 import { DEFAULT_AUTHORITY_TIMEOUT_MS } from '../core/authority-mode.js';
+import { runLatticeAuthorityControlPlaneOnce } from '../core/authority-runner.js';
 
 const PASS_LINE =
   '✓ authority runner client smoke passed: 7 runner endpoints hit, off-mode performs zero network calls';
@@ -64,6 +65,15 @@ const CREATED_AT = '2026-06-02T18:00:00.000Z';
 const ACTOR_ID = 'actor-1';
 const BASE_URL = 'https://authority.test';
 const KP = generateEd25519KeyPair();
+const TEST_AUTH = { customerApiKey: 'test-customer-key' };
+
+function testAuthorityClient(
+  baseURL: string,
+  fetchImpl: AuthorityFetch,
+  timeoutMS = DEFAULT_AUTHORITY_TIMEOUT_MS,
+): AuthorityClient {
+  return new AuthorityClient(baseURL, fetchImpl, timeoutMS, TEST_AUTH);
+}
 
 // ─── recording fake fetch ─────────────────────────────────────────────────────
 interface RecordedCall {
@@ -112,6 +122,10 @@ function header() {
   return { actorId: ACTOR_ID, nonce: NONCE, createdAt: CREATED_AT };
 }
 
+function pythonHeader() {
+  return { actorId: ACTOR_ID, role: 'runner', nonce: NONCE, timestamp: CREATED_AT };
+}
+
 // ─── 1. Each runner endpoint method hits expected path EXACTLY ONCE ───────────
 {
   const acceptedReceipt = {
@@ -130,7 +144,7 @@ function header() {
   // 1a. registerActorKey
   {
     const { fetch, calls } = recordingFetch(() => jsonResponse(200, acceptedReceipt));
-    const client = new AuthorityClient(BASE_URL, fetch);
+    const client = testAuthorityClient(BASE_URL, fetch);
     const env: ActorKeyRegistration = {
       ...header(),
       publicKey: KP.publicKey,
@@ -151,7 +165,7 @@ function header() {
   // 1b. registerRunner
   {
     const { fetch, calls } = recordingFetch(() => jsonResponse(200, acceptedReceipt));
-    const client = new AuthorityClient(BASE_URL, fetch);
+    const client = testAuthorityClient(BASE_URL, fetch);
     const env: RunnerRegistration = { ...header(), runnerId: 'runner-1', runnerName: 'r1' };
     const { signed } = signRunnerEnvelope(env, KP.privateKey);
     const out = await client.registerRunner(signed);
@@ -164,7 +178,7 @@ function header() {
   // 1c. heartbeatRunner — path encodes runnerId
   {
     const { fetch, calls } = recordingFetch(() => jsonResponse(200, acceptedReceipt));
-    const client = new AuthorityClient(BASE_URL, fetch);
+    const client = testAuthorityClient(BASE_URL, fetch);
     const env: RunnerHeartbeat = { ...header(), runnerId: 'runner/with slash' };
     const { signed } = signRunnerEnvelope(env, KP.privateKey);
     const out = await client.heartbeatRunner('runner/with slash', signed);
@@ -181,7 +195,7 @@ function header() {
   // 1d. claimJob — JobSpec response shape
   {
     const { fetch, calls } = recordingFetch(() => jsonResponse(200, jobSpec));
-    const client = new AuthorityClient(BASE_URL, fetch);
+    const client = testAuthorityClient(BASE_URL, fetch);
     const env: JobClaim = { ...header(), runnerId: 'runner-1', leaseDurationSeconds: 60 };
     const { signed } = signRunnerEnvelope(env, KP.privateKey);
     const out = await client.claimJob('runner-1', signed);
@@ -195,7 +209,7 @@ function header() {
   // claimJob: null response (no eligible job) is still success
   {
     const { fetch, calls } = recordingFetch(() => jsonResponse(200, null));
-    const client = new AuthorityClient(BASE_URL, fetch);
+    const client = testAuthorityClient(BASE_URL, fetch);
     const env: JobClaim = { ...header(), runnerId: 'runner-1' };
     const { signed } = signRunnerEnvelope(env, KP.privateKey);
     const out = await client.claimJob('runner-1', signed);
@@ -207,7 +221,7 @@ function header() {
   // 1e. heartbeatJob
   {
     const { fetch, calls } = recordingFetch(() => jsonResponse(200, acceptedReceipt));
-    const client = new AuthorityClient(BASE_URL, fetch);
+    const client = testAuthorityClient(BASE_URL, fetch);
     const env: JobLeaseHeartbeat = { ...header(), jobId: 'job-1', progress: 0.25 };
     const { signed } = signRunnerEnvelope(env, KP.privateKey);
     const out = await client.heartbeatJob('job-1', signed);
@@ -220,24 +234,36 @@ function header() {
   // 1f. releaseJob
   {
     const { fetch, calls } = recordingFetch(() => jsonResponse(200, acceptedReceipt));
-    const client = new AuthorityClient(BASE_URL, fetch);
-    const env: JobRelease = { ...header(), jobId: 'job-1', outcome: 'completed', evidenceId: 'EV-1' };
+    const client = testAuthorityClient(BASE_URL, fetch);
+    const env: JobRelease = {
+      ...pythonHeader(),
+      jobId: 'job-1',
+      release: { runnerId: 'runner-1', sessionId: 'session-1', reason: 'not-completed-release' },
+    };
     const { signed } = signRunnerEnvelope(env, KP.privateKey);
     const out = await client.releaseJob('job-1', signed);
     assert.equal(out.kind, 'success');
     assert.equal(calls.length, 1);
     assert.equal(calls[0].url, `${BASE_URL}/v1/jobs/job-1/release`);
     JobReleaseSchema.parse(calls[0].body);
+    assert.equal((calls[0].body as { outcome?: unknown }).outcome, undefined, 'Python release body has no outcome');
   }
 
   // 1g. submitProviderEvents
   {
     const { fetch, calls } = recordingFetch(() => jsonResponse(200, acceptedReceipt));
-    const client = new AuthorityClient(BASE_URL, fetch);
+    const client = testAuthorityClient(BASE_URL, fetch);
     const env: ProviderEventsEnvelope = {
-      ...header(),
-      runId: 'run-1',
-      events: [{ eventId: 'e1', kind: 'start', occurredAt: CREATED_AT }],
+      ...pythonHeader(),
+      providerEvent: {
+        eventId: 'e1',
+        runId: 'run-1',
+        provider: 'codex',
+        type: 'message',
+        occurredAt: CREATED_AT,
+        message: 'started',
+        metadata: {},
+      },
     };
     const { signed } = signRunnerEnvelope(env, KP.privateKey);
     const out = await client.submitProviderEvents('run-1', signed);
@@ -245,21 +271,23 @@ function header() {
     assert.equal(calls.length, 1);
     assert.equal(calls[0].url, `${BASE_URL}/v1/runs/run-1/provider-events`);
     ProviderEventsEnvelopeSchema.parse(calls[0].body);
+    assert.equal((calls[0].body as { events?: unknown }).events, undefined, 'Python provider-events body has no events[]');
+    assert.equal((calls[0].body as { runId?: unknown }).runId, undefined, 'Python provider-events envelope has no top-level runId');
   }
 }
 
 // ─── 2. Empty path parameters throw at the client entry ───────────────────────
 {
   const { fetch, calls } = recordingFetch(() => jsonResponse(200, {}));
-  const client = new AuthorityClient(BASE_URL, fetch);
+  const client = testAuthorityClient(BASE_URL, fetch);
   const env: RunnerHeartbeat = { ...header(), runnerId: 'r' };
   const { signed } = signRunnerEnvelope(env, KP.privateKey);
   await assert.rejects(() => client.heartbeatRunner('', signed), /runnerId/);
   await assert.rejects(() => client.heartbeatRunner('   ', signed), /runnerId/);
   await assert.rejects(() => client.claimJob('', { ...header(), runnerId: 'r' } as any), /runnerId/);
   await assert.rejects(() => client.heartbeatJob('', { ...header(), jobId: 'j' } as any), /jobId/);
-  await assert.rejects(() => client.releaseJob('', { ...header(), jobId: 'j', outcome: 'completed' } as any), /jobId/);
-  await assert.rejects(() => client.submitProviderEvents('', { ...header(), runId: 'r', events: [] } as any), /runId/);
+  await assert.rejects(() => client.releaseJob('', { ...pythonHeader(), jobId: 'j', release: { runnerId: 'r', sessionId: 's' } } as any), /jobId/);
+  await assert.rejects(() => client.submitProviderEvents('', { ...pythonHeader(), providerEvent: { eventId: 'e', runId: 'r', provider: 'codex', type: 'message' } } as any), /runId/);
   await assert.rejects(() => client.registerActorKey('', { ...header(), publicKey: 'k' } as any), /actorId/);
   assert.equal(calls.length, 0, 'no network call when path params are empty');
 }
@@ -268,7 +296,7 @@ function header() {
 {
   // http_error (5xx)
   const { fetch } = recordingFetch(() => jsonResponse(503, 'down'));
-  const client = new AuthorityClient(BASE_URL, fetch);
+  const client = testAuthorityClient(BASE_URL, fetch);
   const env: RunnerHeartbeat = { ...header(), runnerId: 'r' };
   const { signed } = signRunnerEnvelope(env, KP.privateKey);
   const out = await client.heartbeatRunner('r', signed);
@@ -277,11 +305,11 @@ function header() {
   assert.equal(out.status, 503);
 }
 {
-  // Malformed JSON in 2xx body → kind:'error' (Handler 编码约定: malformed body
+  // Malformed JSON in 2xx body → kind:'error' (Handler coding convention: malformed body
   // is NOT silently success). Job claim takes JobSpec | null union, so a
   // string body like "not-json-but-junk" rejects.
   const { fetch } = recordingFetch(() => jsonResponse(200, 'not-json-but-junk'));
-  const client = new AuthorityClient(BASE_URL, fetch);
+  const client = testAuthorityClient(BASE_URL, fetch);
   const env: JobClaim = { ...header(), runnerId: 'r' };
   const { signed } = signRunnerEnvelope(env, KP.privateKey);
   const out = await client.claimJob('r', signed);
@@ -291,7 +319,7 @@ function header() {
 {
   // Connection refused
   const err = Object.assign(new Error('boom'), { code: 'ECONNREFUSED' });
-  const client = new AuthorityClient(BASE_URL, thrower(err));
+  const client = testAuthorityClient(BASE_URL, thrower(err));
   const env: RunnerHeartbeat = { ...header(), runnerId: 'r' };
   const { signed } = signRunnerEnvelope(env, KP.privateKey);
   const out = await client.heartbeatRunner('r', signed);
@@ -301,7 +329,7 @@ function header() {
 {
   // Timeout / abort
   const abortErr = Object.assign(new Error('aborted'), { name: 'AbortError' });
-  const client = new AuthorityClient(BASE_URL, thrower(abortErr));
+  const client = testAuthorityClient(BASE_URL, thrower(abortErr));
   const env: RunnerHeartbeat = { ...header(), runnerId: 'r' };
   const { signed } = signRunnerEnvelope(env, KP.privateKey);
   const out = await client.heartbeatRunner('r', signed);
@@ -338,7 +366,7 @@ function header() {
   );
   assert.equal(gate.enabled, false, 'missing URL refuses');
   assert.equal(gate.client, undefined);
-  assert.match(gate.refusedReason ?? '', /KOALA_AUTHORITY_URL/);
+  assert.match(gate.refusedReason ?? '', /LATTICE_AUTHORITY_URL/);
   assert.equal(invoked, 0, 'missing URL gate performs zero network calls');
 }
 {
@@ -352,10 +380,54 @@ function header() {
   const { fetch } = recordingFetch(() => jsonResponse(200, {}));
   const gate = createRunnerAuthorityClient(
     { mode: 'shadow', baseURL: BASE_URL, timeoutMS: DEFAULT_AUTHORITY_TIMEOUT_MS },
-    { fetchImpl: fetch },
+    { fetchImpl: fetch, customerApiKey: 'test-customer-key' },
   );
   assert.equal(gate.enabled, true);
   assert.ok(gate.client instanceof AuthorityClient);
+}
+{
+  // URL alone is not enough for mutating runner traffic: missing customer key refuses with zero calls.
+  let invoked = 0;
+  const fetch: AuthorityFetch = async () => {
+    invoked++;
+    return jsonResponse(200, {});
+  };
+  const gate = createRunnerAuthorityClient(
+    { mode: 'enforce', baseURL: BASE_URL, timeoutMS: DEFAULT_AUTHORITY_TIMEOUT_MS },
+    { fetchImpl: fetch },
+  );
+  assert.equal(gate.enabled, false, 'missing customer key refuses');
+  assert.equal(gate.client, undefined);
+  assert.match(gate.refusedReason ?? '', /CUSTOMER_API_KEY/);
+  assert.equal(invoked, 0, 'missing customer key gate performs zero network calls');
+}
+{
+  // Even if a caller reaches the exported live control-plane helper directly,
+  // missing customer key must fail closed inside the POST helper before fetch.
+  let invoked = 0;
+  const out = await runLatticeAuthorityControlPlaneOnce({
+    baseURL: BASE_URL,
+    timeoutMS: DEFAULT_AUTHORITY_TIMEOUT_MS,
+    actorId: ACTOR_ID,
+    role: 'runner',
+    actorKeyId: 'actor-key-1',
+    actorPrivateKey: KP.privateKey,
+    actorPrivateKeyEncoding: 'base64',
+    runnerId: 'runner-1',
+    sessionId: 'session-1',
+    projectId: 'project-1',
+    once: true,
+    fetchImpl: (async () => {
+      invoked += 1;
+      return jsonResponse(200, {});
+    }) as unknown as typeof fetch,
+  });
+  assert.equal(out.status, 'fail', 'direct live control-plane helper fails without customer key');
+  const events = out.networkEvents ?? [];
+  assert.equal(events[0]?.step, 'register_actor_key');
+  assert.equal(events[0]?.ok, false);
+  assert.match(events[0]?.message ?? '', /customer_api_key_unconfigured_fails_closed/);
+  assert.equal(invoked, 0, 'direct live control-plane helper performs zero network calls without customer key');
 }
 
 // ─── 5. loadRunnerAuthorityClient: env vs override (runtime re-validation) ────
@@ -366,8 +438,9 @@ function header() {
 
   // shadow env + URL → enabled
   const gateShadow = loadRunnerAuthorityClient({
-    KOALA_AUTHORITY_MODE: 'shadow',
-    KOALA_AUTHORITY_URL: BASE_URL,
+    LATTICE_AUTHORITY_MODE: 'shadow',
+    LATTICE_AUTHORITY_URL: BASE_URL,
+    LATTICE_AUTHORITY_CUSTOMER_API_KEY: 'test-customer-key',
   });
   assert.equal(gateShadow.enabled, true);
   assert.equal(gateShadow.settings.mode, 'shadow');
@@ -375,14 +448,14 @@ function header() {
 
   // illegal mode env → off via normalizer → refuse
   const gateIllegal = loadRunnerAuthorityClient({
-    KOALA_AUTHORITY_MODE: 'bogus',
-    KOALA_AUTHORITY_URL: BASE_URL,
+    LATTICE_AUTHORITY_MODE: 'bogus',
+    LATTICE_AUTHORITY_URL: BASE_URL,
   });
   assert.equal(gateIllegal.enabled, false, 'illegal mode normalizes to off → refuse');
 
   // override beats env
   const gateOverride = loadRunnerAuthorityClient(
-    { KOALA_AUTHORITY_MODE: 'off', KOALA_AUTHORITY_URL: '' },
+    { LATTICE_AUTHORITY_MODE: 'off', LATTICE_AUTHORITY_URL: '', LATTICE_AUTHORITY_CUSTOMER_API_KEY: 'test-customer-key' },
     { authorityMode: 'enforce', authorityURL: BASE_URL },
   );
   assert.equal(gateOverride.enabled, true);
@@ -415,7 +488,7 @@ function header() {
       requireRunnerHeartbeatForL2: false,
     },
   }));
-  const client = new AuthorityClient(BASE_URL, fetch);
+  const client = testAuthorityClient(BASE_URL, fetch);
   await client.discoverPolicy();
   assert.equal(calls.length, 1, 'policy discovery makes exactly one call');
   assert.equal(calls[0].method, 'GET', 'policy discovery is GET, not POST');
@@ -460,7 +533,7 @@ function header() {
     // overclaim:
     accepted: true,
   }));
-  const client = new AuthorityClient(BASE_URL, fetch);
+  const client = testAuthorityClient(BASE_URL, fetch);
   const out = await client.discoverPolicy();
   assert.equal(out.kind, 'error', 'overclaim keys in policy body → error');
   assert.equal(out.ok, false);

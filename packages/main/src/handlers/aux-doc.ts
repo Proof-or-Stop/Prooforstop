@@ -146,7 +146,7 @@ export function createAuxDocHandlers(ctx: HandlerContext) {
         }
         lines.push('');
       }
-      lines.push('→ 在 checklist item 的 relatedDocs 字段填写上述路径（可带 #锚点）');
+      lines.push('→ Fill in the above paths in the relatedDocs field of the checklist item (anchors with # are allowed)');
       return lines.join('\n');
     },
   };

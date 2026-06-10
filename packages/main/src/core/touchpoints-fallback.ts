@@ -1,14 +1,14 @@
 /**
- * F-021: touchpoints 回退扫描。
+ * F-021: touchpoints fallback scan.
  *
- * understanding.touchpoints 为空（或 understanding 未落地）时，story 若实际修改了
- * `.md` 文件也会因为 resolveOptInReviewers 只看 touchpoints 而丢掉 docs reviewer。
- * 这里回扫 `git diff main...HEAD --name-only` 的 .md 文件列表，作为 touchpoints
- * 的兜底输入交给 resolveOptInReviewers。
+ * When understanding.touchpoints is empty (or understanding is not yet persisted), if the story actually modifies
+ * `.md` files, the docs reviewer will be dropped because resolveOptInReviewers only looks at touchpoints.
+ * Here we scan back the list of .md files from `git diff main...HEAD --name-only` as a fallback input for touchpoints
+ * and pass it to resolveOptInReviewers.
  *
- * 该函数做 IO（git exec），不放在 reviewer-opt-in.ts（那里保持纯函数）。
- * 所有需要"touchpoints 为空时回退"的调用方（transition-effects / machine guards /
- * reviewer_list）统一从这里拿。
+ * This function performs IO (git exec), so it does not belong in reviewer-opt-in.ts (which stays pure-function).
+ * All callers needing "fallback when touchpoints is empty" (transition-effects / machine guards /
+ * reviewer_list) should obtain it uniformly from here.
  */
 import { execSync } from 'child_process';
 

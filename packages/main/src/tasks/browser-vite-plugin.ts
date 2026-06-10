@@ -1,11 +1,11 @@
 /**
- * Vite plugin: dev 模式自动注入浏览器 WS 客户端
- * build 模式不注入任何代码
+ * Vite plugin: auto-inject browser WS client in dev mode
+ * build mode does not inject any code
  *
- * 注入到 <head> 最前面，确保 WS 调试桥在任何应用代码之前建立
+ * Inject at the very front of <head> to ensure the WS debug bridge is established before any application code
  */
 
-// vite 不是 main 的依赖，用 any 类型
+// vite is not a dependency of main, use any type
 type Plugin = any;
 import { readFileSync, existsSync } from 'fs';
 import { fileURLToPath } from 'url';
@@ -23,8 +23,8 @@ export function browserVitePlugin(): Plugin {
         const __filename = fileURLToPath(import.meta.url);
         const __dirname = dirname(__filename);
         const candidates = [
-          join(__dirname, 'browser-client.js'),                        // 从 dist/tasks/ 运行
-          join(__dirname, '..', '..', 'dist', 'tasks', 'browser-client.js'), // 从 src/tasks/ 运行
+          join(__dirname, 'browser-client.js'),                        // running from dist/tasks/
+          join(__dirname, '..', '..', 'dist', 'tasks', 'browser-client.js'), // running from src/tasks/
         ];
         const compiledPath = candidates.find(p => existsSync(p));
         if (!compiledPath) {

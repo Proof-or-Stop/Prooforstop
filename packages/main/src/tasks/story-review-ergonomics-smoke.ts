@@ -66,7 +66,7 @@ function initStore(): { root: string; store: StoryStore; storyId: string } {
     facts: ['Touchpoint strings may contain explanatory parentheses.'],
     constraints: [],
     unknowns: [],
-    touchpoints: ['packages/main/src/foo.ts (传 result.summary 到 report)'],
+    touchpoints: ['packages/main/src/foo.ts (pass result.summary to report)'],
     timestamp: now,
   });
   createScopeCheckHandlers({ store, root, scanRoot: join(root, 'packages/main') }).scope_check_save({
@@ -141,7 +141,7 @@ function assertPlanRemoveCannotBypassFreeze(): void {
         disposition: 'accept',
         justification: 'Attempting to replace the frozen checklist item',
       }),
-      /不允许删除 checklist item.*remove\+add 绕过/,
+      /Deleting checklist items is not allowed.*remove\+add bypass/,
     );
     assert.equal(store.readChecklist(storyId).items.some(item => item.id === 'CHK-001'), true);
   } finally {

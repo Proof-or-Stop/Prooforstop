@@ -172,7 +172,7 @@ function createStoryRepo(): { root: string; store: StoryStore } {
         storyId: STORY_ID, itemId: 'CHK-001', intentRef: 'CHK-001:happy:0',
         kind: 'integration_test', note: 'x',
       }),
-      /note 必须 ≥ 5 字符/,
+      /note must be ≥ 5 characters/,
     );
 
     // waiverType with non-waiver kind rejected
@@ -181,7 +181,7 @@ function createStoryRepo(): { root: string; store: StoryStore } {
         storyId: STORY_ID, itemId: 'CHK-001', intentRef: 'CHK-001:happy:0',
         kind: 'integration_test', waiverType: 'wont_fix' as any, note: 'should be rejected',
       }),
-      /waiverType 只能用于 kind=waiver/,
+      /waiverType can only be used with kind=waiver/,
     );
 
     // unknown itemId rejected (CHK-002 must reject this BEFORE any POST)

@@ -3,9 +3,9 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { join, dirname } from 'path';
 import type { TaskAnnotation, FlowChain, FlowStep } from './types.js';
 
-/** task.json 中每条记录 */
+/** Each record in task.json */
 export interface TaskRecord {
-  /** 唯一键：sourceFile:functionName */
+  /** Unique key: sourceFile:functionName */
   key: string;
   task: string;
   checklist?: string[];
@@ -25,7 +25,7 @@ export interface TaskRecord {
   functionName?: string;
   functionSignature?: string;
   test?: string;
-  /** flow 信息（如果该函数参与 flow） */
+  /** Flow information (if this function participates in a flow) */
   flow?: {
     name: string;
     step: number;
@@ -35,14 +35,14 @@ export interface TaskRecord {
   };
 }
 
-/** task.json 根结构 */
+/** Root structure of task.json */
 export interface TaskStore {
   version: number;
   updatedAt: string;
   tasks: TaskRecord[];
 }
 
-/** flow.json 根结构 */
+/** Root structure of flow.json */
 export interface FlowStore {
   version: number;
   updatedAt: string;

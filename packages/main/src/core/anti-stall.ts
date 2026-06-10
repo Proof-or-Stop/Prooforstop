@@ -13,7 +13,7 @@
  * @type feature
  * @priority high
  * @description
- *   "卡死不推进" is an anti-pattern. Stalled review, test, or waiting states
+ *   "stuck without progress" is an anti-pattern. Stalled review, test, or waiting states
  *   must surface a concrete retry / fix / discard choice instead of leaving the
  *   agent parked with no next action.
  * @changes

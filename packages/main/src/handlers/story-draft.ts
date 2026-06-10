@@ -33,39 +33,39 @@ export function createStoryDraftHandlers(ctx: HandlerContext) {
     }): string {
       // Validate name
       if (!args.name || args.name.length < 3 || args.name.length > 60) {
-        throw new Error('name 必须 3-60 字符（字母数字 + 连字符）');
+        throw new Error('name must be 3-60 characters (alphanumeric + hyphens)');
       }
       if (!NAME_REGEX.test(args.name)) {
-        throw new Error('name 只允许字母数字和连字符（不能以连字符开头/结尾）');
+        throw new Error('name allows only alphanumeric and hyphens (cannot start/end with a hyphen)');
       }
 
       // Validate title
       if (!args.title || args.title.length < 5) {
-        throw new Error('title 必须 >= 5 字符');
+        throw new Error('title must be >= 5 characters');
       }
 
       // Validate description
       if (!args.description || args.description.length < 5) {
-        throw new Error('description 必须 >= 5 字符');
+        throw new Error('description must be >= 5 characters');
       }
 
       // Validate checklist
       if (!args.checklist || args.checklist.length < 1) {
-        throw new Error('checklist 至少需要 1 项');
+        throw new Error('checklist requires at least 1 item');
       }
 
       // Validate background (4-section format)
       if (typeof args.background !== 'string' || args.background.length === 0) {
         throw new Error(
-          'background 必填（四段式格式）\n' +
-          '期望 4 段: "## 触发事件" / "## 关键洞察" / "## 方案取舍" / "## 对话纹理"\n' +
-          '每段 ≥ 50 字符，总长 ≥ 300 字符，触发事件段须含具体编号'
+          'background is required (four-section format)\n' +
+          'Expected 4 sections: "## Trigger Event" / "## Key Insights" / "## Solution Tradeoffs" / "## Conversational Texture"\n' +
+          'Each section >= 50 characters, total length >= 300 characters, the trigger event section must include a specific identifier'
         );
       }
       const bgResult = validateBackground(args.background);
       if (!bgResult.ok) {
         throw new Error(
-          'background 格式校验失败:\n' +
+          'background format validation failed:\n' +
           bgResult.errors.map(e => `  - ${e}`).join('\n')
         );
       }
@@ -141,7 +141,7 @@ export function createStoryDraftHandlers(ctx: HandlerContext) {
 
     story_draft_discard(args: { name: string }): string {
       if (!args.name) {
-        throw new Error('name 必填');
+        throw new Error('name is required');
       }
       const draftsDir = getDraftsDir(ctx);
       const draftDir = join(draftsDir, args.name);

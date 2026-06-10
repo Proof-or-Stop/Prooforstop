@@ -38,12 +38,12 @@ const targetDocs = [
 ];
 
 const staleFirstSessionPhrases = [
-  '每次新 session 先 `koala status`',
-  '行动前先 `koala status`',
+  'Run `koala status` at the start of every new session',
+  'Run `koala status` before taking action',
   'koala status — check for existing active story',
   'koala status — see current phase',
-  '不知道现在该做什么？跑 koala status',
-  'koala status                # 项目状态一屏看',
+  'Not sure what to do now? Run koala status',
+  'koala status                # one-screen view of project status',
 ];
 
 for (const file of targetDocs) {
@@ -69,29 +69,29 @@ for (const [label, content] of [['README.md', readme], ['docs/guide.md', guide]]
   assert.match(content, /\blattice rollout_check --projects "\$\(pwd\)" --json\b/, `${label} documents rollout_check refresh proof`);
 }
 
-assert.match(readme, /`lattice`\s+[\s\S]{0,80}主入口[\s\S]{0,120}`koala`[\s\S]{0,80}legacy alias/, 'README states lattice primary and koala legacy alias');
+assert.match(readme, /`lattice`\s+[\s\S]{0,80}primary entry[\s\S]{0,120}`koala`[\s\S]{0,80}legacy alias/, 'README states lattice primary and koala legacy alias');
 assert.match(readme, /node bin\/lattice\.js tool_status/, 'README uses lattice local wrapper for generic tool_status');
 assert.match(readme, /node bin\/lattice\.js verify_codex/, 'README uses lattice local wrapper for generic verify_codex fallback');
 assert.match(readme, /node bin\/lattice\.js aux_doc_list/, 'README uses lattice local wrapper for generic aux_doc_list');
 assert.doesNotMatch(readme, /node bin\/koala\.js (?:tool_status|verify_codex|aux_doc_list)\b/, 'README keeps bin/koala.js as legacy alias, not preferred generic command examples');
-assert.match(guide, /`lattice` 是当前主命令入口，`koala` 只保留为 legacy alias/, 'guide states lattice primary and koala legacy alias');
-assert.match(projectVision, /`lattice` 是 0\.3\.5 主产品入口，`koala` 保留为兼容 alias/, 'project vision states primary and legacy aliases');
-assert.match(projectVision, /`lattice rollout_check` 只读扫描/, 'project vision keeps rollout_check read-only constraint');
+assert.match(guide, /`lattice` is the current primary command entry, `koala` is retained only as a legacy alias/, 'guide states lattice primary and koala legacy alias');
+assert.match(projectVision, /`lattice` is the 0\.3\.5 primary product entry, `koala` is retained as a compatibility alias/, 'project vision states primary and legacy aliases');
+assert.match(projectVision, /`lattice rollout_check` read-only scan/, 'project vision keeps rollout_check read-only constraint');
 assert.match(projectVision, /`lattice --version`[\s\S]{0,80}`koala --version`/, 'project vision requires primary and alias version verification');
 
 for (const file of targetDocs) {
   const content = read(file);
   assert.equal(content.includes('**issues advisory**'), false, `${file} should not regress to issues advisory wording`);
-  assert.equal(content.includes('gate 不读 severity'), false, `${file} should not say INIT_CHECK ignores severity`);
-  if (content.includes('INIT→INIT_CHECK 硬门槛')) {
+  assert.equal(content.includes('gate does not read severity'), false, `${file} should not say INIT_CHECK ignores severity`);
+  if (content.includes('INIT→INIT_CHECK hard gate')) {
     assert.match(content, /missing_init_check_agent/, `${file} should document required reviewer blocker`);
     assert.match(content, /init_check_blocking_issues/, `${file} should document high\/critical issue blocker`);
-    assert.match(content, /critical\/high issues 会阻塞 INIT_CHECK；medium\/low 为 advisory/, `${file} should document high/critical vs medium/low behavior`);
+    assert.match(content, /critical\/high issues block INIT_CHECK; medium\/low are advisory/, `${file} should document high/critical vs medium/low behavior`);
   }
 }
 
 const hookPath = join(repoRoot, '.claude', 'hooks', 'session-brief-reminder.cjs');
-const reminder = '建议先运行 lattice session_brief 恢复现场';
+const reminder = 'Suggest running lattice session_brief first to restore context';
 
 function runHook(root: string, input: string): { status: number | null; output: string } {
   const result = spawnSync(process.execPath, [hookPath], {

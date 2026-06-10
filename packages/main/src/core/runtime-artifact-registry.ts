@@ -105,6 +105,15 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
     repairableTrackedArtifact: true,
   },
   {
+    id: 'lattice-authority-key-file',
+    description: 'Internal Lattice Authority key-management file; may contain local private key material.',
+    matchers: [{ kind: 'exact', value: '.lattice/authority.md' }],
+    ignorePatterns: ['.lattice/authority.md'],
+    materialHash: 'exclude',
+    volatile: true,
+    repairableTrackedArtifact: true,
+  },
+  {
     id: 'runtime-temp',
     description: 'Temporary runtime scratch files and directories.',
     matchers: [{ kind: 'regexp', value: rx(String.raw`^\.koala-tmp-[^/]+(?:/.*)?$`) }],
