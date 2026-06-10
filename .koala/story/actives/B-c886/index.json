@@ -1,0 +1,56 @@
+{
+  "storyId": "B-c886",
+  "name": "engineering-baseline-unlock-contract",
+  "title": "Implement Engineering Baseline unlock contract alignment",
+  "description": "Align the local baseline runner, suite aggregation, and claim evaluation contracts with the audited Layer 2 Engineering Baseline unlock execution plan. The work is limited to real correctness gaps between the frozen plan and the current implementation; it must not add new framework layers, arbitrary optimization, or production-grade claims.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "keywords": [
+    "engineering-baseline",
+    "capability-claim",
+    "baseline-suite",
+    "expected-block",
+    "lattice-unlock"
+  ],
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "AUTH"
+    },
+    {
+      "category": "Data Migration/Destructive",
+      "matched": "MIGRATION"
+    },
+    {
+      "category": "Production/Emergency",
+      "matched": "production"
+    }
+  ],
+  "createdAt": "2026-06-10T11:54:53.220Z",
+  "startedAt": "2026-06-10T11:54:53.220Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-10T11:54:53.238Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-10T11:58:28.770Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-c886",
+    "branch": "story/B-c886",
+    "createdAt": "2026-06-10T11:59:14.366Z"
+  }
+}

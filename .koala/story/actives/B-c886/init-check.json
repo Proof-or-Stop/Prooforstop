@@ -1,0 +1,29 @@
+{
+  "storyId": "B-c886",
+  "checkedAt": "2026-06-10T11:58:19.497Z",
+  "reviewRound": "",
+  "agentId": "product-reviewer",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-06-10T11:55:51.233Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "All 5 checklist items are missing the required userSees field (CLAUDE.md checklist format requires userSees with precise expected output text). Items are otherwise clear enough to execute but violate the format contract."
+        },
+        {
+          "severity": "low",
+          "desc": "relatedDocs paths (e.g. Lattice-Engineering-Baseline-Unlock-Execution-Plan.md) lack full directory prefixes; execution agents may need to search for the actual file locations."
+        }
+      ]
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-10T11:58:19.497Z",
+      "issues": []
+    }
+  ],
+  "_hash": "9bc2c52c1442d566c73287dfe816acede203686464403cd5652bf41609c92bca"
+}
