@@ -1,0 +1,90 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add shared local baseline layer schema and suite aggregation for Baseline 2-5",
+      "context": "Local node bin/lattice.js currently lacks baseline_run / baseline_suite_report even though the global CLI exposes them. Add repo-local, typed behavior with shared artifact contracts instead of relying on global install drift.",
+      "relatedDocs": [
+        "Lattice-Engineering-baseline.md",
+        "Lattice-Loop-Engineering-baseline.md",
+        "Lattice-Production-Safety-baseline.md",
+        "Lattice-Capability-Claim-baseline.md",
+        "Lattice-Parallel-Development-Capability.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "`node bin/lattice.js help` lists local Baseline commands, and `node bin/lattice.js baseline_suite_report --help` shows shared layer/report arguments instead of unknown command."
+    },
+    {
+      "id": "CHK-002",
+      "title": "Implement Engineering Baseline runner and report generation",
+      "context": "Support ENG-* baseline ids, required expected outcomes, local artifact generation under .omx/artifacts/baseline/engineering, and suite acceptance with Development baseline entry gate.",
+      "relatedDocs": [
+        "Lattice-Engineering-baseline.md",
+        "Lattice-Parallel-Development-Capability.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "A developer can run an Engineering baseline command and inspect `.omx/artifacts/baseline/engineering/.../final-report.json` plus an engineering suite report with PASS or expected gated outcome."
+    },
+    {
+      "id": "CHK-003",
+      "title": "Implement Loop Engineering Baseline runner and fail-closed loop policy artifacts",
+      "context": "Support UDM-* baseline ids, bounded loop policy/oracle artifacts, expected blocks, and suite acceptance locked behind Engineering evidence.",
+      "relatedDocs": [
+        "Lattice-Loop-Engineering-baseline.md",
+        "Lattice-Review-reflection-loop.md",
+        "Lattice-Parallel-Development-Capability.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "A developer can run Loop Engineering baseline scenarios and see loop-policy, gate-results, host-verdicts, and final reports that either PASS or block with a specific reason."
+    },
+    {
+      "id": "CHK-004",
+      "title": "Implement Production Safety Baseline runner with authority/soak claim locks",
+      "context": "Support SAFE/AUTH/PROD baseline ids, receipt and multi-host status artifacts, expected blocks for missing authority evidence, and no silent local fallback.",
+      "relatedDocs": [
+        "Lattice-Production-Safety-baseline.md",
+        "docs/requirements/decisions/authority-client-role.md",
+        "Lattice-Parallel-Development-Capability.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "A developer can run Production Safety baseline scenarios and see SAFE/AUTH/PROD reports fail closed when receipts, authority, or soak evidence are missing."
+    },
+    {
+      "id": "CHK-005",
+      "title": "Implement Capability Claim evaluator and blocked claim reports",
+      "context": "Read lower-layer suite reports and generate claim-report.json/md that authorizes only evidence-backed wording, blocks overclaim/non-authority/stale evidence, and preserves sequential unlock order.",
+      "relatedDocs": [
+        "Lattice-Capability-Claim-baseline.md",
+        "Lattice-Parallel-Development-Capability.md",
+        "docs/requirements/decisions/lattice-parallel-wave.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "A developer can request a capability claim report and see the highest authorized claim level plus explicit blocked reasons for overclaim, non-authority, or stale evidence."
+    },
+    {
+      "id": "CHK-006",
+      "title": "Add local tests and docs for Baseline 2-5 parallel implementation readiness",
+      "context": "Tests must prove node bin/lattice.js exposes the commands, generated reports are internally consistent, higher-layer claims fail closed when lower layers are missing, and parallel implementation does not imply parallel proof.",
+      "relatedDocs": [
+        "Lattice-Engineering-baseline.md",
+        "Lattice-Loop-Engineering-baseline.md",
+        "Lattice-Production-Safety-baseline.md",
+        "Lattice-Capability-Claim-baseline.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "`npm test`, local baseline command smoke tests, and claim-gate tests pass; generated reports show implementation may proceed in parallel while proof unlock remains sequential."
+    }
+  ]
+}
