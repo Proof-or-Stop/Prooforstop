@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-e3d9:F-001",
+      "desc": "packages/main/src/tasks/planner-unattended-smoke.ts:402 WHY: the smoke that is cited as coverage for planner/worktree linkage does not currently run to completion on this branch. Repro: npm --prefix packages/main run test:planner-unattended-smoke exits 1 with a runtime import failure between packages/main/src/core/store.ts:14 and packages/main/src/core/phase-flow.ts, so CHK-003/004 do not have a passing regression proof right now. severity=medium. Fix: repair the runtime export/import mismatch (or replace this smoke evidence with a passing targeted test) before relying on planner-unattended-smoke as verification evidence.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-10T23:15:53.261Z",
+      "reviewRound": "2026-06-10T23:09:18.249Z",
+      "reviewRunId": "B-e3d9:RR-002",
+      "_hash": "17e2f6064a2b5f0dc866e10133abf57a4d4c202a4473c72f558366aed3aa739d",
+      "files": [
+        "packages/main/src/tasks/planner-unattended-smoke.ts",
+        "packages/main/src/core/store.ts",
+        "packages/main/src/core/phase-flow.ts"
+      ]
+    }
+  ]
+}
