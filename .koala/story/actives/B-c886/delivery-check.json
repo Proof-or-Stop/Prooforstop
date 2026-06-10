@@ -1,0 +1,65 @@
+{
+  "storyId": "B-c886",
+  "checkedAt": "2026-06-10T12:54:47.908Z",
+  "reviewRound": "2026-06-10T12:50:19.476Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
+      "promise": "Engineering expected-block refusals must use expectedBlockReasons/refusalEvidenceRefs and not become suite blockers.",
+      "status": "verified",
+      "verifiedBy": "npm --prefix packages/main run test:lattice-baseline-smoke",
+      "evidence": "Smoke cases 9-10 verify valid expected-block acceptance and missing refusal evidence blocking."
+    },
+    {
+      "docPath": "Lattice-Engineering-baseline.md",
+      "promise": "ENG-DATA-MIGRATION-1 and ENG-AUTH-SECURITY-1 are EXPECTED_BLOCK or gated PASS with explicit gate evidence.",
+      "status": "verified",
+      "verifiedBy": "npm --prefix packages/main run test:lattice-baseline-smoke",
+      "evidence": "Smoke cases 11-13 verify hashed artifact gate refs and malformed/fake gate evidence blocking."
+    },
+    {
+      "docPath": "Lattice-Capability-Claim-baseline.md",
+      "promise": "Engineering claim authorization must not imply Loop, Production Safety, Authority, or production-grade claims.",
+      "status": "verified",
+      "verifiedBy": "lattice validate --story=B-c886",
+      "evidence": "Validation passed; production-safety and parallel higher-layer proof remain blocked in smoke cases 17-18."
+    },
+    {
+      "docPath": "Lattice-Parallel-Development-Capability.md",
+      "promise": "Parallel host audit may support review but must remain audit-only and not unlock capability proof by itself.",
+      "status": "verified",
+      "verifiedBy": "Claude/Codex audit artifacts plus checklist evidence",
+      "evidence": "CHK-005 evidence records both host verdicts as audit_only; formal machine evidence remains build/smoke/validate."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm run build PASS; npm --prefix packages/main run test:lattice-baseline-smoke PASS; expected-block evidence accepted only when explicit refusal fields exist."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "npm run build PASS; npm --prefix packages/main run test:lattice-baseline-smoke PASS; risky PASS requires artifact:<file>#sha256 refs and blocks missing/empty/fake refs."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "lattice validate --story=B-c886 PASS; capability_claim_evaluate --target=engineering mapping and lower-layer fail-closed coverage included in smoke."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Focused smoke suite passed and contains distinct contract cases 9-18 for expected-block, gated PASS, lower-layer proof, and claim mapping."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Claude CLI and Codex CLI final audits both PASS for the implemented diff; verdicts are audit-only, with unavailable-host branch waived because both hosts were available."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Build, focused smoke, Lattice validate, four review passes, and two-host audit-only verdicts are complete. No unresolved correctness blocker remains; scope remains Engineering layer only."
+  },
+  "_hash": "c76e8299b355d5aa33843251b01ed02f88fd5a168ebbc5d887d75c8a9c1dce66"
+}
