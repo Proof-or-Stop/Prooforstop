@@ -1,0 +1,56 @@
+{
+  "storyId": "B-0a80",
+  "changes": "Repaired B-688d merged artifacts: replaced deleted worktree paths with repo-relative paths, corrected baseline failure wording to missing local independent review evidence, refreshed generatedAt/material hashes/evidenceRefs, and preserved GO-NOT-YET local-lifecycle Authority boundary.",
+  "usage": "Inspect .omx/artifacts/baseline/B-688d and .omx/artifacts/parallel-development/B-688d on main; run lattice validate --story=B-0a80 or npm test after npm run build to verify.",
+  "expectedOutcome": "B-688d artifacts show provenance PASS, failure-semantics PASS, and authority/host-neutral regression PASS without upgrading local evidence to Authority receipt evidence.",
+  "actualTranscript": "lattice validate --story=B-0a80 passed: npm test passed, story-lifecycle and gap-convergence passed, and verification intent coverage was 9/9 covered. Mechanical checks printed artifact provenance PASS, baseline failure semantics PASS, and authority/host-neutral regression PASS.",
+  "outcomeDiff": "No user-value difference: the expected artifact evidence-chain repair and local Authority boundary preservation matched the actual validation transcript.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none - fully covered for the scoped B-688d artifact evidence-chain contradictions; this does not claim B-688d is production or Authority complete.",
+  "pitfalls": "Initial TEST entry failed because packages/main/dist was missing; npm run build generated dist, after which npm test and lattice validate both passed. Reviewer run IDs advanced during parallel review, so quality pass had to bind to the latest signed run.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 82787
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 28324
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 276566
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 461324
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 426420
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 205536
+    }
+  },
+  "totalDurationMs": 1480964,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-10T00:39:18.774Z",
+  "updatedAt": "2026-06-10T00:39:18.774Z"
+}
