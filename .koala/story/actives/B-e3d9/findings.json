@@ -38,6 +38,24 @@
       ],
       "resolvedReason": "Fixed in commit de8113c7 and verified after commit ac102936. serverKey.algorithm is now trim/lowercase-normalized before comparing to ed25519; canonical ed25519 and ED25519 casing variant verify, while blank, rsa, and non-string algorithm material fail closed as unsupported. Commands passed: npm --prefix packages/main run build; npm run test:authority-client; node bin/lattice.js validate --story=B-e3d9.",
       "resolvedAt": "2026-06-10T23:45:27.517Z"
+    },
+    {
+      "id": "B-e3d9:F-003",
+      "desc": "packages/main/src/core/authority-client.ts:1833 WHY: CHK-001 is only fail-closed on the policy-discovery fallback path. When a production deployment pins LATTICE_AUTHORITY_SERVER_PUBLIC_KEY / authority.md key material, resolveGateVerifyConfig skips discoverPolicy entirely, so serverKey.algorithm is never loaded into AuthorityGateVerifyConfig and verifyLatticeAuthorityReceipt never sees the unsupported-algorithm guard required by docs/requirements/decisions/lattice-authority-receipt-contract.md:174-181. I reproduced this on the current HEAD with a fake authority server that would publish serverKey.algorithm=\"rsa\" while the local env pins the same Ed25519 public key: resolveAuthorityGateEvaluator returned counts.policy=0 plus decisionStatus=verified / receiptVerified=true, so the gate accepted a receipt even though the declared algorithm was unsupported. packages/main/src/tasks/authority-client-smoke.ts:1118-1235 only covers the discovery path (explicitly unsetting SERVER_KEY_ID / pinned key material), so this regression stays untested. severity=high. Fix: make production receipt verification resolve and enforce serverKey.algorithm even when the public key is pinned locally (for example still discover policy for algorithm/keyId, or require pinned algorithm metadata and fail closed when it is absent), and add a smoke that exercises the pinned-key path.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-10T23:53:09.664Z",
+      "reviewRound": "2026-06-10T23:44:51.813Z",
+      "reviewRunId": "B-e3d9:RR-006",
+      "_hash": "185e9ce3b6e729ebb43d5044269ac7ad3919f7aa0192eab6d6965570455b1761",
+      "files": [
+        "packages/main/src/core/authority-client.ts",
+        "packages/main/src/tasks/authority-client-smoke.ts",
+        "docs/requirements/decisions/lattice-authority-receipt-contract.md"
+      ]
     }
   ]
 }
