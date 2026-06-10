@@ -53,12 +53,13 @@
           "intentRef": "CHK-001:edge:0",
           "kind": "manual_transcript",
           "verdict": "blocked_classified",
-          "command": "curl -fsSL https://stagging.hostneutral.net/openapi.json | jq; curl -fsSL https://stagging.hostneutral.net/v1/authority/policy | jq",
+          "file": ".koala/story/actives/B-51f6/evidence/staging-readiness-audit.md",
+          "command": "curl -fsSL https://stagging.hostneutral.net/health | jq -c . && curl -fsSL https://stagging.hostneutral.net/openapi.json | jq '{apiTitle:.info.title, apiVersion:.info.version, hasReceiptProofEndpoint:(.paths | has(\"/v1/receipts/{receipt_id}/proof\")), hasReceiptFetchEndpoint:(.paths | has(\"/v1/receipts/{receipt_id}\")), hasGateEvaluateEndpoint:(.paths | has(\"/v1/gates/evaluate\"))}' && curl -fsSL https://stagging.hostneutral.net/v1/authority/policy | jq '{productionEnforceAuthority, requiredAuthorityMode, serverKey:{keyId:.serverKey.keyId, profile:.serverKey.profile, ephemeral:.serverKey.ephemeral, isDefaultTestKey:.serverKey.isDefaultTestKey, productionInert:.serverKey.productionInert, algorithm:.serverKey.algorithm}, commandCatalogDigest, evidenceSchemaDigest}' && curl -sS -o /tmp/lattice-proof-probe.json -w 'http_status=%{http_code}\\n' https://stagging.hostneutral.net/v1/receipts/readiness-probe/proof && lattice authority_status --json --authorityMode=enforce --authorityURL=https://stagging.hostneutral.net",
           "result": "pass",
-          "note": "Staging is reachable but classified as invalid production authority/environment-version blocked: local-test production-inert key and missing receipt proof endpoint. Positive production smoke was not run.",
-          "headHash": "e41f21887cfc03b836ad177a08dc95615711f28b",
-          "materialHash": "0c5798fc3a0e0731eac5171a15086c0a967883f96be5f4f768d1aece704e736c",
-          "timestamp": "2026-06-10T19:53:06.722Z"
+          "note": "Exact commands and outputs classify reachable staging as invalid production authority/environment-version blocked, not smoke pass. See staging-readiness-audit.md for replayable anchors.",
+          "headHash": "7be08d0ebf3ba73cab40d1bf200ddce011c64da7",
+          "materialHash": "a9421651d41f770be0e89a2a646d289c132b69bbbd096e536427a8a6ead900a3",
+          "timestamp": "2026-06-10T20:03:41.532Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
