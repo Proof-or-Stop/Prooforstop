@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-10T02:45:18.127Z",
       "reviewRunId": "B-c5fe:RR-006",
       "_hash": "a524e7c46c34c0ad6facfeeb544aa18e94ccd7aa14c6cb412fa3ae0075ff9561"
+    },
+    {
+      "id": "B-c5fe:RP-004",
+      "agent": "koala-review-concept",
+      "note": "Pass. Phase 3/4 now explicitly require enforce-mode product approval and isolate future authority-client work to the koala authority enforce path (docs/requirements/decisions/authority-session-receipt-gate-execution.md:344-348,371-374). The authority-client role decision preserves the same boundary and reserves M2+ enforce work until explicit approval (docs/requirements/decisions/authority-client-role.md:373-417). CLI registration remains bounded to read-only/dry-run authority_enforce_policy and authority_enforce_runner surfaces (packages/main/src/cli-engine.ts:1626-1640, packages/main/src/core/command-policy.ts:291-293), while non-enforce authority commands remain diagnostic-only and cannot promote productionDone/receiptVerified (packages/main/src/handlers/lattice-cli.ts:28-33,39-47,226-260,293-315). Source smoke coverage exists for namespace/promotion regressions (packages/main/src/tasks/authority-boundary-smoke.ts:289-328, packages/main/src/tasks/authority-enforce-matrix-smoke.ts:254-290). Packaged smoke entrypoints were not runnable in this worktree because packages/main/dist/tasks/*.js is absent.",
+      "createdAt": "2026-06-10T02:48:16.597Z",
+      "reviewRound": "2026-06-10T02:45:18.127Z",
+      "reviewRunId": "B-c5fe:RR-005",
+      "_hash": "eb33a5975c82e3270d6c51471d67cb37c4a3448d849e91f64675311b24ac7000"
     }
   ]
 }
