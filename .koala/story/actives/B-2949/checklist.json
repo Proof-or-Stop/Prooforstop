@@ -191,9 +191,9 @@
           "command": "rg -n \"Step 0: Preflight|Step 1: Verify Layer 1 proof|Step 7: Evaluate Engineering claim|Step 8: Delivery\" Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
           "result": "pass",
           "note": "The runbook covers preflight, Layer 1 proof, Engineering claim evaluation, and delivery.",
-          "headHash": "3084e45dad3b8b55401b54d29353649fccb21ff2",
-          "materialHash": "b17428730fad707ea835f2b5b37c1c23c988069f7ec8793d8ead7458c7069872",
-          "timestamp": "2026-06-10T14:31:15.158Z"
+          "headHash": "fdab76313143a88fe4ee33604d3bb0b8f05d88e3",
+          "materialHash": "3256c0f10c217b50dd979263927022cff06cc953949c1649890d0ac3ad009c91",
+          "timestamp": "2026-06-10T14:38:46.483Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -201,9 +201,9 @@
           "command": "rg -n \"Implementation may run in parallel, but proof remains sequential|shared contract frozen|Parallel execution is allowed only\" Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
           "result": "pass",
           "note": "The runbook permits parallel workstreams only after contract freeze and lower-layer proof checks, while keeping proof sequential.",
-          "headHash": "3084e45dad3b8b55401b54d29353649fccb21ff2",
-          "materialHash": "b17428730fad707ea835f2b5b37c1c23c988069f7ec8793d8ead7458c7069872",
-          "timestamp": "2026-06-10T14:31:15.182Z"
+          "headHash": "fdab76313143a88fe4ee33604d3bb0b8f05d88e3",
+          "materialHash": "3256c0f10c217b50dd979263927022cff06cc953949c1649890d0ac3ad009c91",
+          "timestamp": "2026-06-10T14:38:46.483Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -211,9 +211,9 @@
           "command": "rg -n \"Stop if|Rollback action|AUDIT_ONLY|There is no partial unlock\" Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
           "result": "pass",
           "note": "The document defines stop, rollback, blocked, audit-only, and no-partial-unlock outcomes instead of permitting claim escalation.",
-          "headHash": "3084e45dad3b8b55401b54d29353649fccb21ff2",
-          "materialHash": "b17428730fad707ea835f2b5b37c1c23c988069f7ec8793d8ead7458c7069872",
-          "timestamp": "2026-06-10T14:31:15.212Z"
+          "headHash": "fdab76313143a88fe4ee33604d3bb0b8f05d88e3",
+          "materialHash": "3256c0f10c217b50dd979263927022cff06cc953949c1649890d0ac3ad009c91",
+          "timestamp": "2026-06-10T14:38:46.483Z"
         }
       ]
     }
