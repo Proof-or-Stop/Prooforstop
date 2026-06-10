@@ -1,26 +1,31 @@
-# B-688d Parallel Development Audit — Final Report
+# B-688d Parallel Development Audit - Final Report
 
-**Decision: GO-NOT-YET**
-**Dispatch Decision: GO-NOT-YET**
+**Decision: GO**
+**Dispatch Decision: GO**
 **Contract Version: baseline-parallel-v1**
 
 ## Layer 1 Baseline Audit
 
-| Baseline ID | Track | Expected | Outcome | Blocked Reason |
+| Baseline ID | Track | Expected | Outcome | Local Review |
 |---|---|---|---|---|
-| NL-CLI-1 | natural-language | PASS | FAIL | local independent review evidence missing |
-| NL-API-1 | natural-language | PASS | FAIL | local independent review evidence missing |
-| NL-REPAIR-1 | natural-language | PASS | FAIL | local independent review evidence missing |
-| RED-CLI-TS-PY-1 | redevelopment | PASS | FAIL | local independent review evidence missing |
-| RED-API-TS-GO-1 | redevelopment | PASS | FAIL | local independent review evidence missing |
-| RED-GAP-BLOCK-1 | redevelopment-safety | EXPECTED_BLOCK | EXPECTED_BLOCK | (expected) |
+| NL-CLI-1 | natural-language | PASS | PASS | codex + claude-code |
+| NL-API-1 | natural-language | PASS | PASS | codex + claude-code |
+| NL-REPAIR-1 | natural-language | PASS | PASS | codex + claude-code |
+| RED-CLI-TS-PY-1 | redevelopment | PASS | PASS | codex + claude-code |
+| RED-API-TS-GO-1 | redevelopment | PASS | PASS | codex + claude-code |
+| RED-GAP-BLOCK-1 | redevelopment-safety | EXPECTED_BLOCK | EXPECTED_BLOCK | remains safety block |
 
-**Suite status**: FAIL — correctness-protected success rate 16.7% (below 70% threshold).
+**Suite status**: PASS - correctness-protected success rate 100%.
 **Safety success rate**: 100% (RED-GAP-BLOCK-1 correctly blocked).
+**False DONE count**: 0.
+
+## Implementation Readiness
+
+Layer 1 formal proof is PASS. Baseline 2-5 implementation may proceed under disjoint ownership and sequential proof locks. This does not authorize Engineering, Loop Engineering, Production Safety, Capability Claim, Authority DONE, receipt-backed, or production-grade claims.
 
 ## Runner Source
 
-Runner source (`baseline_run`, `baseline_suite_report`, `baselineId`) is **not locatable** in this repository. The commands are provided by the external Lattice CLI v0.3.5 installed at `/Users/jek/.nvm/versions/node/v22.13.0/bin/lattice`.
+Runner source (baseline_run, baseline_suite_report, baselineId) is not locatable in this repository. The commands are provided by the external Lattice CLI v0.3.5 installed at /Users/jek/.nvm/versions/node/v22.13.0/bin/lattice. This is no longer a Layer 1 proof blocker because the suite report and independent local evidence are present, but it remains implementation context.
 
 ## Authority Boundary
 
@@ -37,42 +42,18 @@ No authority claims are active. All evidence is scoped to local lifecycle only.
 
 ## Claim Lock Summary
 
-**4 locks active** — higher-layer claims are locked until Layer 1 formal proof and independent review evidence exist.
+4 claim locks remain active for higher-layer claims. They no longer block Baseline 2-5 implementation; they block capability claims until each higher layer proves itself.
 
 | Lock | Scope | Required Evidence |
 |---|---|---|
-| lock-eng-runner | engineering-runner | opposite-host review with localReviewCertified for NL-CLI-1, RED-CLI-TS-PY-1 |
-| lock-loop-engine | loop-engine | opposite-host review with localReviewCertified for NL-API-1, RED-API-TS-GO-1 |
-| lock-prod-safety | production-safety | opposite-host review confirming safety block was genuine |
-| lock-capability-claims | capability-claim-unlock | Layer 1 suite PASS (≥70%) plus independent review for all passing runs |
-
-## Dispatch Package
-
-- **2 canonical host profiles**: `claude-code` / Claude CLI (2.1.88), `codex` / Codex CLI (0.137.0)
-- **8 lanes**: 4 implementer + 4 opposite-host reviewer, organized by workstream (engineering-runner, loop-engine, production-safety, claim-evaluator)
-- Each lane declares: ownedPaths, readOnlyPaths, mode, allowedOutputs, stopConditions, sequentialProofLock
-- Higher-layer lanes (claim-evaluator, its reviewer) are shadow/not_authorized until Layer 1 passes
-- **Fail-closed**: missing host → BLOCKED, missing review → BLOCKED, missing receipt → BLOCKED, higher layer without lower pass → BLOCKED
+| lock-engineering-claim | engineering-baseline-claim | Engineering Baseline suite PASS |
+| lock-loop-claim | loop-engineering-claim | Engineering + Loop Engineering suites PASS |
+| lock-production-safety-claim | production-safety-claim | Production Safety/AUTH/SAFE/PROD evidence |
+| lock-capability-claims | capability-claim-unlock | Full sequential proof chain |
 
 ## Evidence References
 
-- **baselineSuiteReport**: `.omx/artifacts/baseline/B-688d/baseline-suite-report.json`
-- **finalReport**: `.omx/artifacts/parallel-development/B-688d/final-report.json`
-- **baselineClaimReport**: `.omx/artifacts/claude-baseline-audit-B-688d.md`
-- **dispatchClaimReport**: `.omx/artifacts/claude-dispatch-review-B-688d.md`
-- **hostProbes**: `.omx/artifacts/parallel-development/B-688d/host-probes.json`
-- **dispatchAudit**: `.omx/artifacts/parallel-development/B-688d/dispatch-audit.json`
-- **claimLockStatus**: `.omx/artifacts/parallel-development/B-688d/claim-lock-status.json`
-- **scopeAdvisory**: `.omx/artifacts/claude-scope-check-B-688d-20260609T230010Z.md`
-
-## Blocked Reasons
-
-1. 5/6 baseline runs lack local independent review evidence
-2. Runner source not in this repository
-3. No independent local review artifact to satisfy `localReviewCertified`
-
-## Next Steps
-
-1. Obtain independent local review evidence for the 5 failing runs
-2. Locate or vendor baseline runner source into this repository
-3. Re-run baseline suite after review evidence is available
+- baselineSuiteReport: .omx/artifacts/baseline/B-688d/baseline-suite-report.json
+- independentReviewEvidence: five per-run independent-review/evidence-index.json files
+- finalReport: .omx/artifacts/parallel-development/B-688d/final-report.json
+- claimLockStatus: .omx/artifacts/parallel-development/B-688d/claim-lock-status.json

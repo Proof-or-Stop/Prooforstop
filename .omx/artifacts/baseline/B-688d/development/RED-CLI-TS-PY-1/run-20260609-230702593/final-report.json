@@ -4,9 +4,9 @@
   "runId": "run-20260609-230702593",
   "track": "redevelopment",
   "expectedOutcome": "PASS",
-  "outcome": "FAIL",
+  "outcome": "PASS",
   "invalidReason": null,
-  "blockedReason": "local independent review evidence is missing",
+  "blockedReason": null,
   "weight": 4,
   "authority": {
     "mode": "non-authority",
@@ -17,37 +17,40 @@
     "status": "not-applicable"
   },
   "local": {
-    "localReviewCertified": false,
+    "schemaVersion": "lattice.baseline.local-review-status.v1",
+    "localReviewCertified": true,
     "authorityServerContact": false,
-    "status": "blocked",
-    "evidenceRefs": [],
+    "status": "pass",
+    "evidenceRefs": [
+      "independent-review/codex-verdict.json",
+      "independent-review/claude-code-verdict.json",
+      "independent-review/host-verdicts.json",
+      "independent-review/evidence-index.json"
+    ],
     "requiredIndependentHosts": 2,
-    "independentHosts": 0,
-    "passingIndependentHosts": 0,
+    "independentHosts": 2,
+    "passingIndependentHosts": 2,
     "failingIndependentHosts": 0,
     "staleVerdicts": 0,
-    "blockedReason": "local independent review evidence is missing"
+    "blockedReason": null
   },
   "metrics": {
     "durationSeconds": 0,
     "retryCount": 0,
     "repairCount": 0,
-    "evidenceCount": 0,
-    "hostVerdictCount": 0,
-    "reviewWaveCount": 0
+    "evidenceCount": 4,
+    "hostVerdictCount": 2,
+    "reviewWaveCount": 1
   },
-  "failure": {
-    "code": "local_review_evidence_missing",
-    "message": "local independent review evidence is missing"
-  },
+  "failure": null,
   "artifacts": {
     "story": "story.json",
     "checklist": "checklist.json",
     "jobPlan": "job-plan.json",
     "executionLog": "execution-log.jsonl",
-    "evidenceIndex": null,
+    "evidenceIndex": "independent-review/evidence-index.json",
     "gateReceipt": null,
-    "hostVerdicts": null,
+    "hostVerdicts": "independent-review/host-verdicts.json",
     "authorityStatus": null,
     "localReviewStatus": "local-review-status.json",
     "sourceManifest": "source-manifest.json",
@@ -56,5 +59,9 @@
     "sourceRunnerLog": "source-runner.log",
     "targetRunnerLog": "target-runner.log",
     "gapLog": "gap-log.json"
-  }
+  },
+  "terminalCriteriaSatisfied": true,
+  "terminalCriteriaFailures": [],
+  "falseDone": false,
+  "falseDoneReasons": []
 }

@@ -2,7 +2,7 @@
   "schemaVersion": "lattice.parallel-development.shared-contract.v1",
   "contractVersion": "baseline-parallel-v1",
   "storyId": "B-688d",
-  "generatedAt": "2026-06-10T00:23:11Z",
+  "generatedAt": "2026-06-10T01:06:04.234Z",
   "producer": {
     "artifactPath": ".omx/artifacts/parallel-development/B-688d/shared-contract.json",
     "method": "B-688d DEV audit contract freeze",
@@ -19,7 +19,7 @@
   },
   "material": {
     "headHash": "7c1b412a665e5be5fbcacddaee847d3b501f4a7f",
-    "materialHash": "sha256:29321cfe41397bdd39096ab0a49626995e04b1b22f8da4ed63aabbd8f6b4a092",
+    "materialHash": "sha256:acd756188f5a3a336e34f454bc021871cc95fad852dcc9dc3a4323912b58c9b3",
     "materialHashSource": ".omx/artifacts/baseline/B-688d/baseline-suite-report.json",
     "runIds": [
       "run-20260609-230655417",
@@ -33,11 +33,11 @@
   "evidenceRefs": {
     "baselineSuiteReport": {
       "path": ".omx/artifacts/baseline/B-688d/baseline-suite-report.json",
-      "sha256": "29321cfe41397bdd39096ab0a49626995e04b1b22f8da4ed63aabbd8f6b4a092"
+      "sha256": "acd756188f5a3a336e34f454bc021871cc95fad852dcc9dc3a4323912b58c9b3"
     },
     "finalReport": {
       "path": ".omx/artifacts/parallel-development/B-688d/final-report.json",
-      "sha256": "28bd3e8cc8d32cee3a694551c15e668ee6af5561aef4badb7d15010de7437d61"
+      "sha256": "88f2764ca3b9ac95c9030d9dfe010e31f630bf823ecacea6928d5772282696c1"
     },
     "baselineClaimReport": {
       "path": ".omx/artifacts/claude-baseline-audit-B-688d.md",
@@ -57,7 +57,7 @@
     },
     "claimLockStatus": {
       "path": ".omx/artifacts/parallel-development/B-688d/claim-lock-status.json",
-      "sha256": "bd3ddfb5a257f0109a0b021611466c2babc8cd50310ec66fe12e39386fd32414"
+      "sha256": "f1f385a29b2c357b9a04817219bba6d44954c9d7fe2634a598e24fc9162579ea"
     },
     "ownershipMap": {
       "path": ".omx/artifacts/parallel-development/B-688d/ownership-map.json",
@@ -70,6 +70,28 @@
     "scopeAdvisory": {
       "path": ".omx/artifacts/claude-scope-check-B-688d-20260609T230010Z.md",
       "sha256": "1189a5ceeb3e9c78de665be87af5aa2a20e179d375d2cf85b9adaec33824cb45"
+    },
+    "independentReviewEvidence": {
+      "NL-CLI-1": {
+        "path": ".omx/artifacts/baseline/B-688d/development/NL-CLI-1/run-20260609-230655417/independent-review/evidence-index.json",
+        "sha256": "e6571df3dd28660e94d466b67232c377ea37e4c6a3cb4dc5d483a4b282f546ad"
+      },
+      "NL-API-1": {
+        "path": ".omx/artifacts/baseline/B-688d/development/NL-API-1/run-20260609-230656400/independent-review/evidence-index.json",
+        "sha256": "0951daf7c7deac0bb55755e872a84189f754ce43a6156284f075172a4ed35b1d"
+      },
+      "NL-REPAIR-1": {
+        "path": ".omx/artifacts/baseline/B-688d/development/NL-REPAIR-1/run-20260609-230656891/independent-review/evidence-index.json",
+        "sha256": "9a5d23f2dea1c263df3bb904666c92c8cefd8489cad3f5d48a0cf98c45427694"
+      },
+      "RED-CLI-TS-PY-1": {
+        "path": ".omx/artifacts/baseline/B-688d/development/RED-CLI-TS-PY-1/run-20260609-230702593/independent-review/evidence-index.json",
+        "sha256": "c944cfa9f7210581a7c79a9bd44ed5fe1930ab5163cf2be92b1e41405cabf37f"
+      },
+      "RED-API-TS-GO-1": {
+        "path": ".omx/artifacts/baseline/B-688d/development/RED-API-TS-GO-1/run-20260609-230703513/independent-review/evidence-index.json",
+        "sha256": "6d4a4c210011268ac71d5c0cb08786dbedd66fbc9b3673f70d3a07abd8186d4b"
+      }
     }
   },
   "frozenFields": [
@@ -94,11 +116,8 @@
     "authorityChanged": false,
     "receiptRefs": []
   },
-  "baselineSuiteStatus": "FAIL",
-  "baselineSuiteBlockers": [
-    "overall correctness-protected success rate is below 70%",
-    "5 of 6 runs FAIL due to missing local independent review evidence"
-  ],
+  "baselineSuiteStatus": "PASS",
+  "baselineSuiteBlockers": [],
   "runnerSourceLocatable": false,
   "runnerSourceNote": "baseline_run and baseline_suite_report are provided by the external Lattice CLI (v0.3.5) installed at /Users/jek/.nvm/versions/node/v22.13.0/bin/lattice; no handler source found in packages/main/src, bin, scripts, or package.json",
   "contractTerms": {
@@ -106,5 +125,7 @@
     "noProductionAuthorityClaims": true,
     "noFullAuthorityDoneClaims": true,
     "noReceiptBackedAuthorityClaims": true
-  }
+  },
+  "materialHash": "sha256:acd756188f5a3a336e34f454bc021871cc95fad852dcc9dc3a4323912b58c9b3",
+  "layer1FormalProofStatus": "PASS"
 }

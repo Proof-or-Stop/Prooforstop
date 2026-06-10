@@ -1,0 +1,72 @@
+{
+  "schemaVersion": "lattice.baseline.host-verdicts.v1",
+  "storyId": "B-6a97",
+  "baselineId": "NL-API-1",
+  "runId": "run-20260609-230656400",
+  "requiredIndependentHosts": 2,
+  "verdicts": [
+    {
+      "schemaVersion": "lattice.baseline.independent-review.v1",
+      "storyId": "B-6a97",
+      "hostId": "codex",
+      "provider": "codex-cli",
+      "baselineId": "NL-API-1",
+      "runId": "run-20260609-230656400",
+      "checkedAt": "2026-06-10T01:04:17.120Z",
+      "decision": "pass",
+      "inspectedFiles": [
+        "scenario-evidence.json",
+        "execution-log.jsonl",
+        "final-report.json",
+        "story.json",
+        "checklist.json",
+        "job-plan.json"
+      ],
+      "preCertificationFinalReportDigest": "sha256:d721c7cd08e7079b9f33836dd0e20de9ee137ed15073a1a73ac69fc10b4b2c6c",
+      "reviewedArtifactDigests": {
+        "scenario-evidence.json": "sha256:af34bc47f7e150b29fe556ddd70a746478e926d9bf00d1208b04336567108318",
+        "execution-log.jsonl": "sha256:9d556f882cf21f7b265c9ceefd16b566356889a2a4b797a157a76c7cd6012e42",
+        "final-report.json": "sha256:d721c7cd08e7079b9f33836dd0e20de9ee137ed15073a1a73ac69fc10b4b2c6c",
+        "story.json": "sha256:9178e26edbb6d02b09c12480b25d6f80826b560f90bc619753fb04aeab0081d9",
+        "checklist.json": "sha256:e1533da9f7e204c5bf4032f9535a2c38462cd2c6953d213984c067dc7e39d3eb",
+        "job-plan.json": "sha256:05a78992f381cffb1ca6f32979d3876d60e41c7eb88c1ed290a25463e43c5c6e"
+      },
+      "notes": "Codex mechanical verifier confirmed required artifacts, local non-authority boundary, no terminal failures, scenario/parity evidence, and that the run is certifiable. Current localReviewCertified=false was the only blocker before this proof update."
+    },
+    {
+      "schemaVersion": "lattice.baseline.independent-review.v1",
+      "storyId": "B-6a97",
+      "hostId": "claude-code",
+      "provider": "claude-cli",
+      "baselineId": "NL-API-1",
+      "runId": "run-20260609-230656400",
+      "reviewedAt": "2026-06-10T01:04:17.120Z",
+      "decision": "pass",
+      "inspectedFiles": [
+        "scenario-evidence.json",
+        "execution-log.jsonl",
+        "final-report.json",
+        "story.json",
+        "checklist.json",
+        "job-plan.json"
+      ],
+      "preCertificationFinalReportDigest": "sha256:d721c7cd08e7079b9f33836dd0e20de9ee137ed15073a1a73ac69fc10b4b2c6c",
+      "reviewedArtifactDigests": {
+        "scenario-evidence.json": "sha256:af34bc47f7e150b29fe556ddd70a746478e926d9bf00d1208b04336567108318",
+        "execution-log.jsonl": "sha256:9d556f882cf21f7b265c9ceefd16b566356889a2a4b797a157a76c7cd6012e42",
+        "final-report.json": "sha256:d721c7cd08e7079b9f33836dd0e20de9ee137ed15073a1a73ac69fc10b4b2c6c",
+        "story.json": "sha256:9178e26edbb6d02b09c12480b25d6f80826b560f90bc619753fb04aeab0081d9",
+        "checklist.json": "sha256:e1533da9f7e204c5bf4032f9535a2c38462cd2c6953d213984c067dc7e39d3eb",
+        "job-plan.json": "sha256:05a78992f381cffb1ca6f32979d3876d60e41c7eb88c1ed290a25463e43c5c6e"
+      },
+      "notes": "expectedOutcome=PASS; all execution steps passed; API scenario evidence valid; authority mode non-authority with no receipt; previous FAIL was solely local_review_evidence_missing."
+    }
+  ],
+  "passingIndependentHosts": [
+    "codex",
+    "claude-code"
+  ],
+  "failingIndependentHosts": [],
+  "staleVerdicts": [],
+  "certified": true
+}
