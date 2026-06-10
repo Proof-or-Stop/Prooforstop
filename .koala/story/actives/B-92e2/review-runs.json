@@ -251,6 +251,132 @@
         "bindingHash": "93ead1e0599d9d67163882c573cf32b802bf7148137d955d0182917cac3bcc3a"
       },
       "_hash": "4083d1598b9b6e5f591cbd041aa1a94dc96566f8575a85561f9aeb3703c9d84e"
+    },
+    {
+      "reviewRunId": "B-92e2:RR-007",
+      "storyId": "B-92e2",
+      "agent": "koala-review-test-coverage",
+      "lane": "koala-review-test-coverage",
+      "reviewRound": "2026-06-10T02:49:46.452Z",
+      "startedAt": "2026-06-10T02:50:54.857Z",
+      "headHash": "2b10a7ee803858dd98b6eafa00d782382590630a",
+      "materialHash": "acd7ab27d1b1f8e751681b0eefa0ae43bbad1c840fa420f719f24ab47c039d71",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "f752bfe4c3f996127de44380a36d934783e080914a6815af610e7082378aba3c",
+        "diffPackHash": "5fb973432f8bed1b87cde432500cbe7d2953ad98e69a06090deb452a574f1511",
+        "reviewedChangedFiles": [
+          "packages/main/package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/lattice-baseline.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/lattice-baseline.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/lattice-baseline-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "46eac5992f4e31059b97b2d69070520b8209d8b1081c95eae0f1ad976c93e15b",
+          "6218b2927dc601a054981750cf102885de84179dd497045e2d340dd91f0020fb",
+          "658a10c07d8b0f7c5fe4b1d5346ad2d8f672857abab380f9064f2c98181c8817",
+          "6c5652412d12c5d144398e15dcaf6a6d2bb4712758227a41df2833617f254d20",
+          "7bcdd4633a28dc41b7139f17bdcca1c2ee4849bf47f1c41d4cd7cb7def2f3bd7",
+          "8225aae96117fbea6338725e0a5830af4e5dda29a0401fe1cde7652009868c88",
+          "8c6daaa8af9afae08ddb049fca3c9442a512a618c85e553025cae09cee19df60",
+          "a2c292968bfed43a6d6d9e717c6e87cd0156e56240c0aaa8adc275f805257e50",
+          "ebacc49e381b18b64d627070b66efa6cd7ae62358c439dc594176d5b79d9f23c",
+          "ed5e34b1860b2f715f50408d40e0572b4b28a269f80288c9ba67038181e7220c",
+          "f7d59501f4474e1ccee20b4eb18f2947ecba4bb21e0ae13b407ab120b9c3740d"
+        ],
+        "bindingHash": "5fb0093352c5fe173f3f97f7ce073b499a58e3c4666dface3883f3f39b444658"
+      },
+      "_hash": "f67a77fe985f51073a620b9a122b4ad8fee55c55148d775027495efe189ec16a"
+    },
+    {
+      "reviewRunId": "B-92e2:RR-008",
+      "storyId": "B-92e2",
+      "agent": "koala-review-quality",
+      "lane": "koala-review-quality",
+      "reviewRound": "2026-06-10T02:49:46.452Z",
+      "startedAt": "2026-06-10T02:51:05.792Z",
+      "headHash": "2b10a7ee803858dd98b6eafa00d782382590630a",
+      "materialHash": "acd7ab27d1b1f8e751681b0eefa0ae43bbad1c840fa420f719f24ab47c039d71",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "f752bfe4c3f996127de44380a36d934783e080914a6815af610e7082378aba3c",
+        "diffPackHash": "5fb973432f8bed1b87cde432500cbe7d2953ad98e69a06090deb452a574f1511",
+        "reviewedChangedFiles": [
+          "packages/main/package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/lattice-baseline.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/lattice-baseline.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/lattice-baseline-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "46eac5992f4e31059b97b2d69070520b8209d8b1081c95eae0f1ad976c93e15b",
+          "6218b2927dc601a054981750cf102885de84179dd497045e2d340dd91f0020fb",
+          "658a10c07d8b0f7c5fe4b1d5346ad2d8f672857abab380f9064f2c98181c8817",
+          "6c5652412d12c5d144398e15dcaf6a6d2bb4712758227a41df2833617f254d20",
+          "7bcdd4633a28dc41b7139f17bdcca1c2ee4849bf47f1c41d4cd7cb7def2f3bd7",
+          "8225aae96117fbea6338725e0a5830af4e5dda29a0401fe1cde7652009868c88",
+          "8c6daaa8af9afae08ddb049fca3c9442a512a618c85e553025cae09cee19df60",
+          "a2c292968bfed43a6d6d9e717c6e87cd0156e56240c0aaa8adc275f805257e50",
+          "ebacc49e381b18b64d627070b66efa6cd7ae62358c439dc594176d5b79d9f23c",
+          "ed5e34b1860b2f715f50408d40e0572b4b28a269f80288c9ba67038181e7220c",
+          "f7d59501f4474e1ccee20b4eb18f2947ecba4bb21e0ae13b407ab120b9c3740d"
+        ],
+        "bindingHash": "5fb0093352c5fe173f3f97f7ce073b499a58e3c4666dface3883f3f39b444658"
+      },
+      "_hash": "b5bda2eb69c0f43b063d43d2d75ef52218ef744d8d673c1501e76e1f0a9f24a5"
+    },
+    {
+      "reviewRunId": "B-92e2:RR-009",
+      "storyId": "B-92e2",
+      "agent": "koala-review-concept",
+      "lane": "koala-review-concept",
+      "reviewRound": "2026-06-10T02:49:46.452Z",
+      "startedAt": "2026-06-10T02:51:22.297Z",
+      "headHash": "2b10a7ee803858dd98b6eafa00d782382590630a",
+      "materialHash": "acd7ab27d1b1f8e751681b0eefa0ae43bbad1c840fa420f719f24ab47c039d71",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "f752bfe4c3f996127de44380a36d934783e080914a6815af610e7082378aba3c",
+        "diffPackHash": "5fb973432f8bed1b87cde432500cbe7d2953ad98e69a06090deb452a574f1511",
+        "reviewedChangedFiles": [
+          "packages/main/package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/lattice-baseline.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/lattice-baseline.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/lattice-baseline-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "46eac5992f4e31059b97b2d69070520b8209d8b1081c95eae0f1ad976c93e15b",
+          "6218b2927dc601a054981750cf102885de84179dd497045e2d340dd91f0020fb",
+          "658a10c07d8b0f7c5fe4b1d5346ad2d8f672857abab380f9064f2c98181c8817",
+          "6c5652412d12c5d144398e15dcaf6a6d2bb4712758227a41df2833617f254d20",
+          "7bcdd4633a28dc41b7139f17bdcca1c2ee4849bf47f1c41d4cd7cb7def2f3bd7",
+          "8225aae96117fbea6338725e0a5830af4e5dda29a0401fe1cde7652009868c88",
+          "8c6daaa8af9afae08ddb049fca3c9442a512a618c85e553025cae09cee19df60",
+          "a2c292968bfed43a6d6d9e717c6e87cd0156e56240c0aaa8adc275f805257e50",
+          "ebacc49e381b18b64d627070b66efa6cd7ae62358c439dc594176d5b79d9f23c",
+          "ed5e34b1860b2f715f50408d40e0572b4b28a269f80288c9ba67038181e7220c",
+          "f7d59501f4474e1ccee20b4eb18f2947ecba4bb21e0ae13b407ab120b9c3740d"
+        ],
+        "bindingHash": "5fb0093352c5fe173f3f97f7ce073b499a58e3c4666dface3883f3f39b444658"
+      },
+      "_hash": "d002e7db350efb146af2a5b0a756be0b057cb24f568487860d0ba1e6c0e0219b"
     }
   ]
 }

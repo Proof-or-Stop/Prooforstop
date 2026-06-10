@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-10T02:38:25.968Z",
       "reviewRunId": "B-92e2:RR-004",
       "_hash": "b9553428f53d7866b0e5a5665f98c82d84114a94d9c74e13c5da8e44e44721c0"
+    },
+    {
+      "id": "B-92e2:RP-003",
+      "agent": "koala-review-test-coverage",
+      "note": "Verified final test-coverage review for B-92e2. packages/main/src/tasks/lattice-baseline-smoke.ts keeps existing schema/local-only/stale regressions (cases 5,7,8,9) and adds incoherent suite proof coverage for F-005 (case 11), while packages/main/src/core/lattice-baseline.ts readSuiteReport blocks PASS suite reports whose outcome/authorization/capabilityProof/localOnly fields are incoherent before capability_claim_evaluate can authorize engineering claims. Fresh evidence: npm run build && npm run test:lattice-baseline-smoke passed in the B-92e2 worktree.",
+      "createdAt": "2026-06-10T02:52:13.064Z",
+      "reviewRound": "2026-06-10T02:49:46.452Z",
+      "reviewRunId": "B-92e2:RR-007",
+      "_hash": "d52b4bc7b4f5519499d3a43774e7ba860f35ac5587c2f4d49df66eea59cb6101"
     }
   ]
 }
