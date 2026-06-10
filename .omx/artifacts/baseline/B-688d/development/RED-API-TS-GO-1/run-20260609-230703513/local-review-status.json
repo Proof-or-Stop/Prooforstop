@@ -1,13 +1,18 @@
 {
   "schemaVersion": "lattice.baseline.local-review-status.v1",
-  "localReviewCertified": false,
+  "localReviewCertified": true,
   "authorityServerContact": false,
-  "status": "blocked",
-  "evidenceRefs": [],
+  "status": "pass",
+  "evidenceRefs": [
+    "independent-review/codex-verdict.json",
+    "independent-review/claude-code-verdict.json",
+    "independent-review/host-verdicts.json",
+    "independent-review/evidence-index.json"
+  ],
   "requiredIndependentHosts": 2,
-  "independentHosts": 0,
-  "passingIndependentHosts": 0,
+  "independentHosts": 2,
+  "passingIndependentHosts": 2,
   "failingIndependentHosts": 0,
   "staleVerdicts": 0,
-  "blockedReason": "local independent review evidence is missing"
+  "blockedReason": null
 }

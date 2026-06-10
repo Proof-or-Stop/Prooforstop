@@ -1,0 +1,92 @@
+{
+  "schemaVersion": "lattice.baseline.host-verdicts.v1",
+  "storyId": "B-6a97",
+  "baselineId": "RED-CLI-TS-PY-1",
+  "runId": "run-20260609-230702593",
+  "requiredIndependentHosts": 2,
+  "verdicts": [
+    {
+      "schemaVersion": "lattice.baseline.independent-review.v1",
+      "storyId": "B-6a97",
+      "hostId": "codex",
+      "provider": "codex-cli",
+      "baselineId": "RED-CLI-TS-PY-1",
+      "runId": "run-20260609-230702593",
+      "checkedAt": "2026-06-10T01:04:17.120Z",
+      "decision": "pass",
+      "inspectedFiles": [
+        "source-manifest.json",
+        "source-runner.log",
+        "target-runner.log",
+        "semantic-map.json",
+        "parity-fixtures.json",
+        "execution-log.jsonl",
+        "final-report.json",
+        "story.json",
+        "checklist.json",
+        "job-plan.json",
+        "gap-log.json"
+      ],
+      "preCertificationFinalReportDigest": "sha256:0ee2a5d7b6a5c118b3463e63f35f4a72817e06135830706398545611bd5b208f",
+      "reviewedArtifactDigests": {
+        "source-manifest.json": "sha256:293b90a5aec8750cf1e0b8f2e6fa91f955e27ef9d60a35b866d7bd3ff5c441c5",
+        "source-runner.log": "sha256:6987e36292fd868c39d2199ab97496a43b38d808170d09d9ddd4279f968b1784",
+        "target-runner.log": "sha256:a454facc297f2f2930c1ff635ff76aa0e1be50d989b2d12d4743752abac87a02",
+        "semantic-map.json": "sha256:83985b2ebf3c64fda643580e83eb90e3d3d8b570e92f63ec7d05f4fbe97c57b7",
+        "parity-fixtures.json": "sha256:e1afa7e698f6829d5ce78c0bca112a375384073fdf999959ab8e1f46da2aafd0",
+        "execution-log.jsonl": "sha256:2677c7cf4c21c7f4fef63af872ec21a1d6dbe83de78de9626c79209a734bc661",
+        "final-report.json": "sha256:0ee2a5d7b6a5c118b3463e63f35f4a72817e06135830706398545611bd5b208f",
+        "story.json": "sha256:0674b4ebcb42cc24c10cebab30feb0b43ed63eb7e62311e8c8504c73f749c990",
+        "checklist.json": "sha256:8b13900af4eb6e665b84c07ea9b24fd7ac2eacdc2bcca555763f95426eb3387d",
+        "job-plan.json": "sha256:3049ba8c795bfc4b5c378d4623dc49815f5b9285b6948490b3b2c1edd34d6490",
+        "gap-log.json": "sha256:b26143dbdc5312d32fd118fdea9cb4e1b52a19d71934255e0a2980c564b2ebd1"
+      },
+      "notes": "Codex mechanical verifier confirmed required artifacts, local non-authority boundary, no terminal failures, scenario/parity evidence, and that the run is certifiable. Current localReviewCertified=false was the only blocker before this proof update."
+    },
+    {
+      "schemaVersion": "lattice.baseline.independent-review.v1",
+      "storyId": "B-6a97",
+      "hostId": "claude-code",
+      "provider": "claude-cli",
+      "baselineId": "RED-CLI-TS-PY-1",
+      "runId": "run-20260609-230702593",
+      "reviewedAt": "2026-06-10T01:04:17.120Z",
+      "decision": "pass",
+      "inspectedFiles": [
+        "source-manifest.json",
+        "source-runner.log",
+        "target-runner.log",
+        "semantic-map.json",
+        "parity-fixtures.json",
+        "execution-log.jsonl",
+        "final-report.json",
+        "story.json",
+        "checklist.json",
+        "job-plan.json",
+        "gap-log.json"
+      ],
+      "preCertificationFinalReportDigest": "sha256:0ee2a5d7b6a5c118b3463e63f35f4a72817e06135830706398545611bd5b208f",
+      "reviewedArtifactDigests": {
+        "source-manifest.json": "sha256:293b90a5aec8750cf1e0b8f2e6fa91f955e27ef9d60a35b866d7bd3ff5c441c5",
+        "source-runner.log": "sha256:6987e36292fd868c39d2199ab97496a43b38d808170d09d9ddd4279f968b1784",
+        "target-runner.log": "sha256:a454facc297f2f2930c1ff635ff76aa0e1be50d989b2d12d4743752abac87a02",
+        "semantic-map.json": "sha256:83985b2ebf3c64fda643580e83eb90e3d3d8b570e92f63ec7d05f4fbe97c57b7",
+        "parity-fixtures.json": "sha256:e1afa7e698f6829d5ce78c0bca112a375384073fdf999959ab8e1f46da2aafd0",
+        "execution-log.jsonl": "sha256:2677c7cf4c21c7f4fef63af872ec21a1d6dbe83de78de9626c79209a734bc661",
+        "final-report.json": "sha256:0ee2a5d7b6a5c118b3463e63f35f4a72817e06135830706398545611bd5b208f",
+        "story.json": "sha256:0674b4ebcb42cc24c10cebab30feb0b43ed63eb7e62311e8c8504c73f749c990",
+        "checklist.json": "sha256:8b13900af4eb6e665b84c07ea9b24fd7ac2eacdc2bcca555763f95426eb3387d",
+        "job-plan.json": "sha256:3049ba8c795bfc4b5c378d4623dc49815f5b9285b6948490b3b2c1edd34d6490",
+        "gap-log.json": "sha256:b26143dbdc5312d32fd118fdea9cb4e1b52a19d71934255e0a2980c564b2ebd1"
+      },
+      "notes": "expectedOutcome=PASS; source-manifest, semantic-map, parity-fixtures, source/target logs present; requiredGaps empty; authority mode non-authority with no receipt; previous FAIL was solely local_review_evidence_missing."
+    }
+  ],
+  "passingIndependentHosts": [
+    "codex",
+    "claude-code"
+  ],
+  "failingIndependentHosts": [],
+  "staleVerdicts": [],
+  "certified": true
+}

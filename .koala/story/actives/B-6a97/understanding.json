@@ -1,0 +1,31 @@
+{
+  "task": "补齐 B-688d 五个 expected-PASS Development baseline run 的本地双宿主独立 review evidence，并重新生成可证明 PASS 的 Layer 1 suite report。",
+  "outcome": "用户运行或打开 .omx/artifacts/baseline/B-688d/baseline-suite-report.json 时能看到 \"suiteStatus\": \"PASS\"；五个 expected-PASS run 显示 localReviewCertified=true，RED-GAP-BLOCK-1 仍是 EXPECTED_BLOCK，parallel final report 仍显示 authorityMode=off/evidenceClass=local-lifecycle。",
+  "facts": [
+    "B-0a80 已修复 B-688d artifact provenance 和 failure semantics 矛盾并 merge 到 main。",
+    "当前 B-688d baseline suite 的 minimumSuite 已满足，falseDoneCount=0，但 suiteStatus=FAIL。",
+    "五个 expected-PASS run 的 local-review-status.json 均显示 independentHosts=0、localReviewCertified=false、status=blocked。",
+    "RED-GAP-BLOCK-1 是 expected-block safety baseline，不能被改成 PASS。",
+    "用户要求多 host/多 agent 并行处理，并遵守四条原则：不为优化而优化、不任意优化、只修真实 correctness issue、保持逻辑一致性。"
+  ],
+  "constraints": [
+    "不得修改 baseline runner 源码或放宽 suite gate。",
+    "不得把 local-lifecycle evidence 升级为 Authority receipt 或 production DONE。",
+    "每个 expected-PASS run 至少需要 Codex CLI 与 Claude CLI 两个独立宿主 verdict/evidence。",
+    "所有 evidenceRef 必须指向可追溯 artifact 并可机械校验。",
+    "只更新 B-688d Layer 1 formal proof 相关 artifacts，不扩展到 Engineering/Loop/Production claims。"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    ".omx/artifacts/baseline/B-688d/development/*/*/local-review-status.json",
+    ".omx/artifacts/baseline/B-688d/development/*/*/final-report.json",
+    ".omx/artifacts/baseline/B-688d/development/*/*/independent-review/",
+    ".omx/artifacts/baseline/B-688d/baseline-suite-report.json",
+    ".omx/artifacts/baseline/B-688d/baseline-suite-report.md",
+    ".omx/artifacts/parallel-development/B-688d/final-report.json",
+    ".omx/artifacts/parallel-development/B-688d/final-report.md",
+    ".omx/artifacts/parallel-development/B-688d/shared-contract.json",
+    ".omx/artifacts/parallel-development/B-688d/claim-lock-status.json"
+  ],
+  "timestamp": "2026-06-10T00:47:11.130Z"
+}

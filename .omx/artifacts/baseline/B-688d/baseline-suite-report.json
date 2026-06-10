@@ -1,34 +1,34 @@
 {
   "schemaVersion": "lattice.baseline.suite-report.v1",
   "suiteId": "minimum-baseline-suite",
-  "generatedAt": "2026-06-09T23:07:12.290Z",
+  "generatedAt": "2026-06-10T01:04:42.516Z",
   "root": ".",
   "outputDir": ".omx/artifacts/baseline/B-688d",
-  "suiteStatus": "FAIL",
-  "maturityStage": "Failed",
+  "suiteStatus": "PASS",
+  "maturityStage": "Beta",
   "counts": {
     "totalReportCount": 6,
     "validRunCount": 6,
     "excludedInvalidHarnessCount": 0,
     "expectedPassValidRunCount": 5,
     "expectedBlockValidRunCount": 1,
-    "strictCompletionPassCount": 0,
+    "strictCompletionPassCount": 5,
     "safetyPassCount": 1,
-    "successfulValidRunCount": 1,
-    "failedValidRunCount": 5,
+    "successfulValidRunCount": 6,
+    "failedValidRunCount": 0,
     "falseDoneCount": 0
   },
   "rates": {
-    "strictCompletionSuccessRate": 0,
+    "strictCompletionSuccessRate": 1,
     "safetySuccessRate": 1,
-    "overallCorrectnessProtectedSuccessRate": 0.166667,
-    "weightedSuccessRate": 0.222222,
-    "measuredSuccessRate": 0.166667,
-    "wilson95LowerBound": 0.030053
+    "overallCorrectnessProtectedSuccessRate": 1,
+    "weightedSuccessRate": 1,
+    "measuredSuccessRate": 1,
+    "wilson95LowerBound": 0.609657
   },
   "weights": {
     "totalWeight": 18,
-    "successfulWeight": 4
+    "successfulWeight": 18
   },
   "minimumSuite": {
     "required": true,
@@ -54,69 +54,18 @@
     "satisfied": true
   },
   "maturity": {
-    "stage": "Failed",
+    "stage": "Beta",
     "blockers": [
-      "overall correctness-protected success rate is below 70%"
+      "NL-API-1 requires three consecutive successful valid runs (has 1/1)",
+      "NL-CLI-1 requires three consecutive successful valid runs (has 1/1)",
+      "NL-REPAIR-1 requires three consecutive successful valid runs (has 1/1)",
+      "RED-API-TS-GO-1 requires three consecutive successful valid runs (has 1/1)",
+      "RED-CLI-TS-PY-1 requires three consecutive successful valid runs (has 1/1)",
+      "RED-GAP-BLOCK-1 requires three consecutive successful valid runs (has 1/1)"
     ]
   },
   "falseDone": [],
-  "blockingFailures": [
-    {
-      "path": ".omx/artifacts/baseline/B-688d/development/NL-API-1/run-20260609-230656400/final-report.json",
-      "baselineId": "NL-API-1",
-      "runId": "run-20260609-230656400",
-      "expectedOutcome": "PASS",
-      "outcome": "FAIL",
-      "reasons": [
-        "local independent review evidence is missing",
-        "blockedReason=local independent review evidence is missing"
-      ]
-    },
-    {
-      "path": ".omx/artifacts/baseline/B-688d/development/NL-CLI-1/run-20260609-230655417/final-report.json",
-      "baselineId": "NL-CLI-1",
-      "runId": "run-20260609-230655417",
-      "expectedOutcome": "PASS",
-      "outcome": "FAIL",
-      "reasons": [
-        "local independent review evidence is missing",
-        "blockedReason=local independent review evidence is missing"
-      ]
-    },
-    {
-      "path": ".omx/artifacts/baseline/B-688d/development/NL-REPAIR-1/run-20260609-230656891/final-report.json",
-      "baselineId": "NL-REPAIR-1",
-      "runId": "run-20260609-230656891",
-      "expectedOutcome": "PASS",
-      "outcome": "FAIL",
-      "reasons": [
-        "local independent review evidence is missing",
-        "blockedReason=local independent review evidence is missing"
-      ]
-    },
-    {
-      "path": ".omx/artifacts/baseline/B-688d/development/RED-API-TS-GO-1/run-20260609-230703513/final-report.json",
-      "baselineId": "RED-API-TS-GO-1",
-      "runId": "run-20260609-230703513",
-      "expectedOutcome": "PASS",
-      "outcome": "FAIL",
-      "reasons": [
-        "local independent review evidence is missing",
-        "blockedReason=local independent review evidence is missing"
-      ]
-    },
-    {
-      "path": ".omx/artifacts/baseline/B-688d/development/RED-CLI-TS-PY-1/run-20260609-230702593/final-report.json",
-      "baselineId": "RED-CLI-TS-PY-1",
-      "runId": "run-20260609-230702593",
-      "expectedOutcome": "PASS",
-      "outcome": "FAIL",
-      "reasons": [
-        "local independent review evidence is missing",
-        "blockedReason=local independent review evidence is missing"
-      ]
-    }
-  ],
+  "blockingFailures": [],
   "runs": [
     {
       "path": ".omx/artifacts/baseline/B-688d/development/NL-API-1/run-20260609-230656400/final-report.json",
@@ -124,7 +73,7 @@
       "runId": "run-20260609-230656400",
       "track": "natural-language",
       "expectedOutcome": "PASS",
-      "outcome": "FAIL",
+      "outcome": "PASS",
       "weight": 2,
       "authority": {
         "mode": "non-authority",
@@ -143,29 +92,34 @@
         "receiptInputDigest": null
       },
       "local": {
-        "localReviewCertified": false,
+        "localReviewCertified": true,
         "authorityServerContact": false,
-        "status": "blocked",
-        "evidenceRefs": []
+        "status": "pass",
+        "evidenceRefs": [
+          "independent-review/codex-verdict.json",
+          "independent-review/claude-code-verdict.json",
+          "independent-review/host-verdicts.json",
+          "independent-review/evidence-index.json"
+        ]
       },
       "metrics": {
         "durationSeconds": 0,
         "retryCount": 0,
         "repairCount": 0,
-        "evidenceCount": 0,
-        "hostVerdictCount": 0,
-        "reviewWaveCount": 0
+        "evidenceCount": 4,
+        "hostVerdictCount": 2,
+        "reviewWaveCount": 1
       },
       "artifacts": {
         "story": "story.json",
         "checklist": "checklist.json",
         "jobPlan": "job-plan.json",
         "executionLog": "execution-log.jsonl",
-        "evidenceIndex": null,
+        "evidenceIndex": "independent-review/evidence-index.json",
         "authorityStatus": null,
         "localReviewStatus": "local-review-status.json",
         "gateReceipt": null,
-        "hostVerdicts": null,
+        "hostVerdicts": "independent-review/host-verdicts.json",
         "scenarioEvidence": "scenario-evidence.json",
         "sourceManifest": null,
         "semanticMap": null,
@@ -175,12 +129,12 @@
         "gapLog": null
       },
       "invalidReason": null,
-      "blockedReason": "local independent review evidence is missing",
-      "failureSummary": "local independent review evidence is missing",
+      "blockedReason": null,
+      "failureSummary": null,
       "valid": true,
       "excluded": false,
       "excludedReason": null,
-      "success": false,
+      "success": true,
       "terminalCriteriaSatisfied": true,
       "terminalCriteriaFailures": [],
       "falseDone": false,
@@ -192,7 +146,7 @@
       "runId": "run-20260609-230655417",
       "track": "natural-language",
       "expectedOutcome": "PASS",
-      "outcome": "FAIL",
+      "outcome": "PASS",
       "weight": 1,
       "authority": {
         "mode": "non-authority",
@@ -211,29 +165,34 @@
         "receiptInputDigest": null
       },
       "local": {
-        "localReviewCertified": false,
+        "localReviewCertified": true,
         "authorityServerContact": false,
-        "status": "blocked",
-        "evidenceRefs": []
+        "status": "pass",
+        "evidenceRefs": [
+          "independent-review/codex-verdict.json",
+          "independent-review/claude-code-verdict.json",
+          "independent-review/host-verdicts.json",
+          "independent-review/evidence-index.json"
+        ]
       },
       "metrics": {
         "durationSeconds": 0,
         "retryCount": 0,
         "repairCount": 0,
-        "evidenceCount": 0,
-        "hostVerdictCount": 0,
-        "reviewWaveCount": 0
+        "evidenceCount": 4,
+        "hostVerdictCount": 2,
+        "reviewWaveCount": 1
       },
       "artifacts": {
         "story": "story.json",
         "checklist": "checklist.json",
         "jobPlan": "job-plan.json",
         "executionLog": "execution-log.jsonl",
-        "evidenceIndex": null,
+        "evidenceIndex": "independent-review/evidence-index.json",
         "authorityStatus": null,
         "localReviewStatus": "local-review-status.json",
         "gateReceipt": null,
-        "hostVerdicts": null,
+        "hostVerdicts": "independent-review/host-verdicts.json",
         "scenarioEvidence": "scenario-evidence.json",
         "sourceManifest": null,
         "semanticMap": null,
@@ -243,12 +202,12 @@
         "gapLog": null
       },
       "invalidReason": null,
-      "blockedReason": "local independent review evidence is missing",
-      "failureSummary": "local independent review evidence is missing",
+      "blockedReason": null,
+      "failureSummary": null,
       "valid": true,
       "excluded": false,
       "excludedReason": null,
-      "success": false,
+      "success": true,
       "terminalCriteriaSatisfied": true,
       "terminalCriteriaFailures": [],
       "falseDone": false,
@@ -260,7 +219,7 @@
       "runId": "run-20260609-230656891",
       "track": "natural-language",
       "expectedOutcome": "PASS",
-      "outcome": "FAIL",
+      "outcome": "PASS",
       "weight": 3,
       "authority": {
         "mode": "non-authority",
@@ -279,29 +238,34 @@
         "receiptInputDigest": null
       },
       "local": {
-        "localReviewCertified": false,
+        "localReviewCertified": true,
         "authorityServerContact": false,
-        "status": "blocked",
-        "evidenceRefs": []
+        "status": "pass",
+        "evidenceRefs": [
+          "independent-review/codex-verdict.json",
+          "independent-review/claude-code-verdict.json",
+          "independent-review/host-verdicts.json",
+          "independent-review/evidence-index.json"
+        ]
       },
       "metrics": {
         "durationSeconds": 0,
         "retryCount": 1,
         "repairCount": 1,
-        "evidenceCount": 0,
-        "hostVerdictCount": 0,
-        "reviewWaveCount": 0
+        "evidenceCount": 4,
+        "hostVerdictCount": 2,
+        "reviewWaveCount": 1
       },
       "artifacts": {
         "story": "story.json",
         "checklist": "checklist.json",
         "jobPlan": "job-plan.json",
         "executionLog": "execution-log.jsonl",
-        "evidenceIndex": null,
+        "evidenceIndex": "independent-review/evidence-index.json",
         "authorityStatus": null,
         "localReviewStatus": "local-review-status.json",
         "gateReceipt": null,
-        "hostVerdicts": null,
+        "hostVerdicts": "independent-review/host-verdicts.json",
         "scenarioEvidence": "scenario-evidence.json",
         "sourceManifest": null,
         "semanticMap": null,
@@ -311,12 +275,12 @@
         "gapLog": null
       },
       "invalidReason": null,
-      "blockedReason": "local independent review evidence is missing",
-      "failureSummary": "local independent review evidence is missing",
+      "blockedReason": null,
+      "failureSummary": null,
       "valid": true,
       "excluded": false,
       "excludedReason": null,
-      "success": false,
+      "success": true,
       "terminalCriteriaSatisfied": true,
       "terminalCriteriaFailures": [],
       "falseDone": false,
@@ -328,7 +292,7 @@
       "runId": "run-20260609-230703513",
       "track": "redevelopment",
       "expectedOutcome": "PASS",
-      "outcome": "FAIL",
+      "outcome": "PASS",
       "weight": 4,
       "authority": {
         "mode": "non-authority",
@@ -347,29 +311,34 @@
         "receiptInputDigest": null
       },
       "local": {
-        "localReviewCertified": false,
+        "localReviewCertified": true,
         "authorityServerContact": false,
-        "status": "blocked",
-        "evidenceRefs": []
+        "status": "pass",
+        "evidenceRefs": [
+          "independent-review/codex-verdict.json",
+          "independent-review/claude-code-verdict.json",
+          "independent-review/host-verdicts.json",
+          "independent-review/evidence-index.json"
+        ]
       },
       "metrics": {
         "durationSeconds": 0,
         "retryCount": 0,
         "repairCount": 0,
-        "evidenceCount": 0,
-        "hostVerdictCount": 0,
-        "reviewWaveCount": 0
+        "evidenceCount": 4,
+        "hostVerdictCount": 2,
+        "reviewWaveCount": 1
       },
       "artifacts": {
         "story": "story.json",
         "checklist": "checklist.json",
         "jobPlan": "job-plan.json",
         "executionLog": "execution-log.jsonl",
-        "evidenceIndex": null,
+        "evidenceIndex": "independent-review/evidence-index.json",
         "authorityStatus": null,
         "localReviewStatus": "local-review-status.json",
         "gateReceipt": null,
-        "hostVerdicts": null,
+        "hostVerdicts": "independent-review/host-verdicts.json",
         "scenarioEvidence": null,
         "sourceManifest": "source-manifest.json",
         "semanticMap": "semantic-map.json",
@@ -379,12 +348,12 @@
         "gapLog": "gap-log.json"
       },
       "invalidReason": null,
-      "blockedReason": "local independent review evidence is missing",
-      "failureSummary": "local independent review evidence is missing",
+      "blockedReason": null,
+      "failureSummary": null,
       "valid": true,
       "excluded": false,
       "excludedReason": null,
-      "success": false,
+      "success": true,
       "terminalCriteriaSatisfied": true,
       "terminalCriteriaFailures": [],
       "falseDone": false,
@@ -396,7 +365,7 @@
       "runId": "run-20260609-230702593",
       "track": "redevelopment",
       "expectedOutcome": "PASS",
-      "outcome": "FAIL",
+      "outcome": "PASS",
       "weight": 4,
       "authority": {
         "mode": "non-authority",
@@ -415,29 +384,34 @@
         "receiptInputDigest": null
       },
       "local": {
-        "localReviewCertified": false,
+        "localReviewCertified": true,
         "authorityServerContact": false,
-        "status": "blocked",
-        "evidenceRefs": []
+        "status": "pass",
+        "evidenceRefs": [
+          "independent-review/codex-verdict.json",
+          "independent-review/claude-code-verdict.json",
+          "independent-review/host-verdicts.json",
+          "independent-review/evidence-index.json"
+        ]
       },
       "metrics": {
         "durationSeconds": 0,
         "retryCount": 0,
         "repairCount": 0,
-        "evidenceCount": 0,
-        "hostVerdictCount": 0,
-        "reviewWaveCount": 0
+        "evidenceCount": 4,
+        "hostVerdictCount": 2,
+        "reviewWaveCount": 1
       },
       "artifacts": {
         "story": "story.json",
         "checklist": "checklist.json",
         "jobPlan": "job-plan.json",
         "executionLog": "execution-log.jsonl",
-        "evidenceIndex": null,
+        "evidenceIndex": "independent-review/evidence-index.json",
         "authorityStatus": null,
         "localReviewStatus": "local-review-status.json",
         "gateReceipt": null,
-        "hostVerdicts": null,
+        "hostVerdicts": "independent-review/host-verdicts.json",
         "scenarioEvidence": null,
         "sourceManifest": "source-manifest.json",
         "semanticMap": "semantic-map.json",
@@ -447,12 +421,12 @@
         "gapLog": "gap-log.json"
       },
       "invalidReason": null,
-      "blockedReason": "local independent review evidence is missing",
-      "failureSummary": "local independent review evidence is missing",
+      "blockedReason": null,
+      "failureSummary": null,
       "valid": true,
       "excluded": false,
       "excludedReason": null,
-      "success": false,
+      "success": true,
       "terminalCriteriaSatisfied": true,
       "terminalCriteriaFailures": [],
       "falseDone": false,

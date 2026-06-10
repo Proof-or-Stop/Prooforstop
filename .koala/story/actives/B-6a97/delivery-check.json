@@ -1,0 +1,57 @@
+{
+  "storyId": "B-6a97",
+  "checkedAt": "2026-06-10T01:31:12.002Z",
+  "reviewRound": "2026-06-10T01:22:10.457Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "Lattice-Capability-Claim-baseline.md",
+      "promise": "Layer 1 Development baseline requires dual-host independent review for each expected-PASS run",
+      "status": "verified",
+      "verifiedBy": "artifact inspection",
+      "evidence": "All five expected-PASS runs have codex and claude-code independent-review verdicts, localReviewCertified=true, independentHosts=2, passingIndependentHosts=2, baseline-suite-report suiteStatus=PASS, falseDoneCount=0, safetySuccessRate=1, strictCompletionPassCount=5."
+    },
+    {
+      "docPath": "Lattice-Parallel-Development-Capability.md",
+      "promise": "Parallel final report GO decision is scoped to Baseline 2-5 implementation readiness only and higher claims remain locked",
+      "status": "verified",
+      "verifiedBy": "artifact inspection",
+      "evidence": "parallel final-report decision=GO and dispatchDecision=GO; claim-lock-status keeps engineering, loop, production-safety, and capability-claim-unlock locks claim_locked; authorityMode=off and evidenceClass=local-lifecycle."
+    },
+    {
+      "docPath": "docs/requirements/decisions/authority-client-role.md",
+      "promise": "Authority boundary remains local-lifecycle with no receipt-backed or production claims",
+      "status": "verified",
+      "verifiedBy": "artifact inspection",
+      "evidence": "shared-contract and claim-lock-status show authorityMode=off, receiptVerified=false, productionDone=false, authorityChanged=false, no receiptRefs, and higher claim booleans false."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-parallel-wave.md",
+      "promise": "RED-GAP-BLOCK-1 stays EXPECTED_BLOCK and is not converted to PASS",
+      "status": "verified",
+      "verifiedBy": "artifact inspection",
+      "evidence": "RED-GAP-BLOCK-1 final-report expectedOutcome=EXPECTED_BLOCK and outcome=EXPECTED_BLOCK; no independent-review directory; suite counts it as expectedBlockValidRunCount=1, not strictCompletionPassCount."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Inspected five expected-PASS run directories; each has independent-review codex-verdict, claude-code-verdict, host-verdicts, evidence-index, certified=true, and digest-bound evidence. RED-GAP-BLOCK is excluded from PASS certification."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "lattice baseline suite report and lattice validate show suiteStatus=PASS, 6 valid runs, strictCompletionPassCount=5, safetyPassCount=1, falseDoneCount=0, safetySuccessRate=1, npm test PASS."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "parallel final-report decision=GO only for Baseline 2-5 implementation readiness; claim-lock-status keeps all higher claims locked; authorityMode=off, evidenceClass=local-lifecycle, receiptVerified=false, productionDone=false."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Layer 1 Development baseline formal proof is complete, expected-block behavior is preserved, suite PASS has falseDoneCount=0, higher capability claims remain locked, authority is off, and the Codex adapter gate fix is acknowledged and verified."
+  },
+  "_hash": "46de5fc46dbbdda7f7d803688f29deba7a6636998943efe8e5e76bd864c62ac5"
+}

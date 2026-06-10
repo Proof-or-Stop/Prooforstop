@@ -1,0 +1,76 @@
+{
+  "passes": [
+    {
+      "id": "B-6a97:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "Verification coverage adequate. All 9 must intents (3 CHK x happy/edge/adversarial) have matching verificationEvidence with success verdicts. Spot-checked artifacts on disk: five expected-PASS runs have dual-host independent-review dirs with codex+claude-code verdicts and localReviewCertified=true; baseline-suite-report.json confirms suiteStatus=PASS falseDoneCount=0 safetySuccessRate=1; RED-GAP-BLOCK-1 remains EXPECTED_BLOCK; claim-lock-status keeps all higher-layer claims false; authorityBoundary confirms authorityMode=off evidenceClass=local-lifecycle; shared-contract references all 5 evidence indexes; lattice validate passes. No coverage gaps found.",
+      "createdAt": "2026-06-10T01:15:23.217Z",
+      "reviewRound": "2026-06-10T01:12:01.426Z",
+      "reviewRunId": "B-6a97:RR-002",
+      "_hash": "55f185e31969100da75fa043d0dbf75e1e6fea2f9022f9dbf3b7f70bdaf37e57"
+    },
+    {
+      "id": "B-6a97:RP-002",
+      "agent": "koala-review-quality",
+      "note": "Artifact/schema quality PASS. All 15 SHA-256 evidenceRefs in shared-contract verified on disk. materialHash, runIds, contractTerms, authorityMode, evidenceClass, layer1FormalProofStatus consistent across shared-contract, claim-lock-status, final-report. RED-GAP-BLOCK-1 correctly excluded from IR. All 5 PASS baselines have 2-host verdicts certified. No contradictions or orphans.",
+      "createdAt": "2026-06-10T01:16:20.873Z",
+      "reviewRound": "2026-06-10T01:12:01.426Z",
+      "reviewRunId": "B-6a97:RR-005",
+      "_hash": "e53e3004ef888233910e438cc4040b5093b8688e9172ee0befaef3962ec3cb2e"
+    },
+    {
+      "id": "B-6a97:RP-003",
+      "agent": "koala-review-concept",
+      "note": "Claude CLI concept review and Codex mechanical audit found Layer 1 proof conceptually consistent: five expected-PASS baselines certified locally, expected-block remains blocked, and no authority or higher capability claim is introduced.",
+      "createdAt": "2026-06-10T01:17:37.274Z",
+      "reviewRound": "2026-06-10T01:12:01.426Z",
+      "reviewRunId": "B-6a97:RR-006",
+      "_hash": "af70b45808a3fb2f8a16df789901d09d7e75a2995c7dc440fe5beb3991786cff"
+    },
+    {
+      "id": "B-6a97:RP-004",
+      "agent": "koala-review-docs",
+      "note": "Claude CLI docs review found no developer-visible contradiction across baseline suite reports, per-run final reports, review summaries, parallel final report, and claim lock status; Codex mechanical audit confirmed the same paths and lock boundaries.",
+      "createdAt": "2026-06-10T01:17:51.051Z",
+      "reviewRound": "2026-06-10T01:12:01.426Z",
+      "reviewRunId": "B-6a97:RR-007",
+      "_hash": "0a06cf8e21ea30e012b1e927d2d4276f81b48948ce489007a8807fc9019995f0"
+    },
+    {
+      "id": "B-6a97:RP-005",
+      "agent": "koala-review-concept",
+      "note": "Current-head Claude CLI concept review and Codex mechanical audit found no blocker: Layer 1 formal proof remains local-lifecycle only, five expected-PASS baselines are dual-host certified, RED-GAP-BLOCK remains expected block, and higher claims stay locked.",
+      "createdAt": "2026-06-10T01:26:45.852Z",
+      "reviewRound": "2026-06-10T01:22:10.457Z",
+      "reviewRunId": "B-6a97:RR-008",
+      "_hash": "195008694bbc4fafd92c35c7fdf0fc9d0a9d1895b274c4182a022ac859d1dcbb"
+    },
+    {
+      "id": "B-6a97:RP-006",
+      "agent": "koala-review-quality",
+      "note": "Current-head Claude CLI quality review found artifact/schema consistency across suite reports, independent-review evidence, claim locks, shared contract, and minimal Codex adapter gate fix; Codex mechanical audit also passed.",
+      "createdAt": "2026-06-10T01:26:46.609Z",
+      "reviewRound": "2026-06-10T01:22:10.457Z",
+      "reviewRunId": "B-6a97:RR-009",
+      "_hash": "06af3bcf3375d72b96ff386b98b1f57bff79a0f0d06028fae257a1cd3bf836cb"
+    },
+    {
+      "id": "B-6a97:RP-007",
+      "agent": "koala-review-test-coverage",
+      "note": "Current-head Claude CLI test-coverage review found 9/9 verification intents covered, lattice validate passing, baseline suite PASS, Codex adapter verify passing, and expected block behavior preserved.",
+      "createdAt": "2026-06-10T01:26:47.377Z",
+      "reviewRound": "2026-06-10T01:22:10.457Z",
+      "reviewRunId": "B-6a97:RR-010",
+      "_hash": "4bf73f4a8db8f0966ccb54c8bed50b1e3c2274e23b2a2143237e603db73da611"
+    },
+    {
+      "id": "B-6a97:RP-008",
+      "agent": "koala-review-docs",
+      "note": "Current-head Claude CLI docs review found no misleading contradiction across baseline suite reports, per-run reports, review summaries, parallel final report, claim locks, shared contract, and Codex adapter boundary notes.",
+      "createdAt": "2026-06-10T01:26:48.130Z",
+      "reviewRound": "2026-06-10T01:22:10.457Z",
+      "reviewRunId": "B-6a97:RR-011",
+      "_hash": "e253585475819a4ae2be9c797c09b04289958ed58571c356b5fdd9294bf42ca7"
+    }
+  ]
+}

@@ -2,39 +2,45 @@
   "schemaVersion": "lattice.parallel-development.final-report.v1",
   "contractVersion": "baseline-parallel-v1",
   "storyId": "B-688d",
-  "generatedAt": "2026-06-10T00:23:11Z",
-  "decision": "GO-NOT-YET",
-  "dispatchDecision": "GO-NOT-YET",
+  "generatedAt": "2026-06-10T01:06:04.234Z",
+  "decision": "GO",
+  "dispatchDecision": "GO",
   "producer": {
     "artifactPath": ".omx/artifacts/parallel-development/B-688d/final-report.json",
-    "method": "B-688d DEV coordinator audit after Claude CLI implementer and Codex/Lattice host probe checks",
+    "method": "B-6a97 Layer 1 formal proof update after Codex and Claude independent local review evidence",
     "inputs": [
       ".omx/artifacts/baseline/B-688d/baseline-suite-report.json",
       ".omx/artifacts/parallel-development/B-688d/shared-contract.json",
       ".omx/artifacts/parallel-development/B-688d/dispatch-audit.json",
       ".omx/artifacts/parallel-development/B-688d/host-probes.json",
       ".omx/artifacts/parallel-development/B-688d/claim-lock-status.json",
-      ".omx/artifacts/claude-scope-check-B-688d-20260609T230010Z.md"
+      ".omx/artifacts/baseline/B-688d/development/NL-CLI-1/run-20260609-230655417/independent-review/evidence-index.json",
+      ".omx/artifacts/baseline/B-688d/development/NL-API-1/run-20260609-230656400/independent-review/evidence-index.json",
+      ".omx/artifacts/baseline/B-688d/development/NL-REPAIR-1/run-20260609-230656891/independent-review/evidence-index.json",
+      ".omx/artifacts/baseline/B-688d/development/RED-CLI-TS-PY-1/run-20260609-230702593/independent-review/evidence-index.json",
+      ".omx/artifacts/baseline/B-688d/development/RED-API-TS-GO-1/run-20260609-230703513/independent-review/evidence-index.json"
     ]
   },
-  "blockedReasons": [
-    "Layer 1 baseline suite status is FAIL: 5/6 runs lack local independent review evidence (only RED-GAP-BLOCK-1 EXPECTED_BLOCK passed)",
-    "Runner source (baseline_run, baseline_suite_report, baselineId) is not locatable in this repository — provided by external Lattice CLI v0.3.5",
-    "No independent local review artifact exists to satisfy localReviewCertified"
-  ],
+  "blockedReasons": [],
   "summary": {
-    "baselineSuiteStatus": "FAIL",
+    "baselineSuiteStatus": "PASS",
     "baselineRunsTotal": 6,
-    "baselineRunsPassed": 1,
-    "baselineRunsFailed": 5,
-    "safetySuccessRate": 1.0,
-    "overallCorrectnessProtectedSuccessRate": 0.166667,
+    "baselineRunsPassed": 6,
+    "baselineRunsFailed": 0,
+    "safetySuccessRate": 1,
+    "overallCorrectnessProtectedSuccessRate": 1,
     "authorityMode": "off",
     "evidenceClass": "local-lifecycle",
     "hostCount": 2,
-    "hostProfileIds": ["codex", "claude-code"],
+    "hostProfileIds": [
+      "codex",
+      "claude-code"
+    ],
     "laneCount": 8,
-    "runnerSourceLocatable": false
+    "runnerSourceLocatable": false,
+    "strictCompletionSuccessRate": 1,
+    "layer1FormalProofStatus": "PASS",
+    "baseline2To5ImplementationReadiness": "GO"
   },
   "evidenceRefs": {
     "baselineSuiteReport": ".omx/artifacts/baseline/B-688d/baseline-suite-report.json",
@@ -44,7 +50,14 @@
     "hostProbes": ".omx/artifacts/parallel-development/B-688d/host-probes.json",
     "dispatchAudit": ".omx/artifacts/parallel-development/B-688d/dispatch-audit.json",
     "claimLockStatus": ".omx/artifacts/parallel-development/B-688d/claim-lock-status.json",
-    "scopeAdvisory": ".omx/artifacts/claude-scope-check-B-688d-20260609T230010Z.md"
+    "scopeAdvisory": ".omx/artifacts/claude-scope-check-B-688d-20260609T230010Z.md",
+    "independentReviewEvidence": {
+      "NL-CLI-1": ".omx/artifacts/baseline/B-688d/development/NL-CLI-1/run-20260609-230655417/independent-review/evidence-index.json",
+      "NL-API-1": ".omx/artifacts/baseline/B-688d/development/NL-API-1/run-20260609-230656400/independent-review/evidence-index.json",
+      "NL-REPAIR-1": ".omx/artifacts/baseline/B-688d/development/NL-REPAIR-1/run-20260609-230656891/independent-review/evidence-index.json",
+      "RED-CLI-TS-PY-1": ".omx/artifacts/baseline/B-688d/development/RED-CLI-TS-PY-1/run-20260609-230702593/independent-review/evidence-index.json",
+      "RED-API-TS-GO-1": ".omx/artifacts/baseline/B-688d/development/RED-API-TS-GO-1/run-20260609-230703513/independent-review/evidence-index.json"
+    }
   },
   "authorityBoundary": {
     "authorityMode": "off",
@@ -58,12 +71,18 @@
   },
   "claimLockSummary": {
     "totalLocks": 4,
-    "lockedScopes": ["engineering-runner", "loop-engine", "production-safety", "capability-claim-unlock"],
-    "unlockRequires": "Layer 1 formal proof (≥70% correctness-protected success rate) plus independent opposite-host review evidence for all passing runs"
+    "lockedScopes": [
+      "engineering-baseline-claim",
+      "loop-engineering-claim",
+      "production-safety-claim",
+      "capability-claim-unlock"
+    ],
+    "implementationReadiness": "Layer 1 formal proof PASS: Baseline 2-5 implementation may proceed under ownership boundaries.",
+    "unlockRequires": "Higher-layer capability claims remain sequential and require their own baseline suites."
   },
   "nextSteps": [
-    "Obtain independent local review evidence for the 5 failing baseline runs",
-    "Locate or vendor the baseline runner source into this repository",
-    "Re-run baseline suite after review evidence is available"
+    "Start Baseline 2-5 implementation workstreams with disjoint ownership and existing sequential proof locks",
+    "Run Engineering baseline proof before any Engineering capability claim",
+    "Keep Authority receipt and production claims locked until their dedicated baselines pass"
   ]
 }

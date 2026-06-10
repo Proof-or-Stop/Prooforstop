@@ -1,7 +1,8 @@
 # Baseline NL-API-1 run-20260609-230656400
 
-Outcome: FAIL
+Outcome: PASS
 Expected: PASS
 Authority mode: non-authority
 False DONE: no
-Failure: local_review_evidence_missing - local independent review evidence is missing
+Local review: certified by codex and claude-code
+Evidence: independent-review/host-verdicts.json

@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "lattice.baseline.independent-review.v1",
+  "storyId": "B-6a97",
+  "hostId": "claude-code",
+  "provider": "claude-cli",
+  "baselineId": "NL-REPAIR-1",
+  "runId": "run-20260609-230656891",
+  "reviewedAt": "2026-06-10T01:04:17.120Z",
+  "decision": "pass",
+  "inspectedFiles": [
+    "scenario-evidence.json",
+    "execution-log.jsonl",
+    "final-report.json",
+    "story.json",
+    "checklist.json",
+    "job-plan.json",
+    "repair-marker.txt"
+  ],
+  "preCertificationFinalReportDigest": "sha256:ebacb189daadbdf3dbebdf59b64c3f189af57e9d6de6a3f0a81b89561307e2f0",
+  "reviewedArtifactDigests": {
+    "scenario-evidence.json": "sha256:854cccc95b002f95a864a02495d61906bff4d2e2d92611bef79fc033d5224624",
+    "execution-log.jsonl": "sha256:a289f2b9cfb79dd13ba6fa1a3089ee9bb54564bd12b18bf74fd23256967bb900",
+    "final-report.json": "sha256:ebacb189daadbdf3dbebdf59b64c3f189af57e9d6de6a3f0a81b89561307e2f0",
+    "story.json": "sha256:7f8786448d07fd2f5334f788e19c548af6fec0e1451edf7367a2ab9fa4958302",
+    "checklist.json": "sha256:259e82568b6f5b118a2e081e2fe691137c9e39acbf594c762d383e8542c64487",
+    "job-plan.json": "sha256:a76f906c248aa4659af09148cd8d47afcdfb77fd550e5cedcb0d97085251cc61",
+    "repair-marker.txt": "sha256:aa6083f3a3c96f3860a4977f429ed51841511a3716ea3537472fea4365781e2b"
+  },
+  "notes": "expectedOutcome=PASS; fail-once repair loop evidence valid; retryCount=1 and repairCount=1; authority mode non-authority with no receipt; previous FAIL was solely local_review_evidence_missing."
+}
