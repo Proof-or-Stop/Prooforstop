@@ -67,7 +67,7 @@ backing store（仅供理解，adapter 禁止直接读）
 Adapter / dashboard / smoke 可以把以下假设当作硬契约：
 
 - **stdout in machine JSON mode is JSON.parse-able as a single document.** 当 caller 传 `--json` 或 `--format=json`，对应命令的 stdout 必须是「**单个 JSON 文档 + 可选末尾换行**」，没有任何 next-step 提示、装饰文本、ANSI 控制字符或第二个 JSON 文档拼接其后。Caller **不需要**做 substring 抽取（`extractFirstJsonObject` / 正则匹配 `\{...\}` 等），直接 `JSON.parse(stdout)` 必须成功。
-- **人类可读引导只走 text mode 或 stderr。** `koala validate` / `lattice validate` 等命令的 `→ 验证全绿`、`→ 下一步…` 等 next-step hint 只在**非 JSON 模式**追加。`stderr` 用于日志 / 进度 / 配置 notice（如 `ℹ Reading legacy koala.config.json …`），不污染 stdout 契约。
+- **人类可读引导只走 text mode 或 stderr。** `lattice validate`（legacy alias: `koala validate`）等命令的 `→ 验证全绿`、`→ 下一步…` 等 next-step hint 只在**非 JSON 模式**追加。`stderr` 用于日志 / 进度 / 配置 notice（如 `ℹ Reading legacy koala.config.json …`），不污染 stdout 契约。
 - **实现选择记录**：契约由 CLI 输出管线（`cli-engine.ts`）的统一 choke point 强制——`wantsMachineJson(args)` 命中即跳过 `decorateResult`，所有注册了 hint 的命令（含 `validate`）自动遵守。后续如新增 `--json` / `--format=json` 命令，命中同 detector 自动获得契约保护，不需要再各自 patch。
 - **回归保护**：`tests/cli-json-stdout-contract-smoke.ts`（`packages/main/src/tasks/cli-json-stdout-contract-smoke.ts`）spawn 真实 CLI 子进程，直接 `JSON.parse(stdout)`——任何把 hint 拼回 JSON 模式的回归都会立即烧红 smoke。Text mode 同时被检查必须保留 `→ 验证全绿`，防止「修复 JSON 模式时把人类提示也一并删掉」。
 

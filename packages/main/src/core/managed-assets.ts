@@ -142,7 +142,7 @@ interface ManagedAssetPathInfo {
 }
 
 const MANIFEST_REL_PATH = '.koala/managed-assets.json';
-const INIT_DOC_SECTION_RE = /<!--\s*koala:start\s*-->[\s\S]*?<!--\s*koala:end\s*-->/;
+const INIT_DOC_SECTION_RE = /<!--\s*(?:koala|lattice):start\s*-->[\s\S]*?<!--\s*(?:koala|lattice):end\s*-->/;
 const KOALA_INTERNAL_SECTION_RE = /<!--\s*koala:internal:start\s*-->[\s\S]*?<!--\s*koala:internal:end\s*-->\n?/g;
 
 function packageRoot(): string {
@@ -524,6 +524,12 @@ function isKoalaSelfRepoBootstrap(actual: string, root: string): boolean {
 }
 
 function isExpandedKoalaAgentsGuide(actual: string): boolean {
+  const currentLattice = actual.includes('# AGENTS.md')
+    && actual.includes('Current lifecycle override')
+    && actual.includes('lattice session_brief')
+    && actual.includes('\u6d41\u7a0b\u4e8b\u5b9e\u53cc\u5c42\u5951\u7ea6')
+    && actual.includes('Story \u9636\u6bb5\u6d41\u8f6c')
+    && actual.includes('Fail-fast policy');
   const english = actual.includes('# AGENTS.md')
     && actual.includes('Current lifecycle override')
     && actual.includes('koala session_brief')
@@ -535,7 +541,7 @@ function isExpandedKoalaAgentsGuide(actual: string): boolean {
     && actual.includes('\u6d41\u7a0b\u4e8b\u5b9e\u53cc\u5c42\u5951\u7ea6')
     && actual.includes('Story \u9636\u6bb5\u6d41\u8f6c')
     && actual.includes('Fail-fast policy');
-  return english || legacyChinese;
+  return currentLattice || english || legacyChinese;
 }
 
 function isExpandedKoalaOverview(actual: string): boolean {
@@ -896,19 +902,19 @@ function evaluateDefinition(root: string, def: ManagedAssetDefinition, manifest:
     const desiredSection = extractKoalaSection(expected ?? '');
     const manifestUnchanged = Boolean(manifestEntry?.contentHash && manifestEntry.contentHash === actualHash);
     if (!hasManagedMarkers(actual)) {
-      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', expectedHash: sha256(desiredSection), actualHash, reason: 'file exists without Koala managed markers', action: 'fix manually: add markers or merge the managed section' };
+      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', expectedHash: sha256(desiredSection), actualHash, reason: 'file exists without Lattice/Koala managed markers', action: 'fix manually: add markers or merge the managed section' };
     }
     const actualSection = actual.match(INIT_DOC_SECTION_RE)?.[0] ?? '';
     if (sha256(actualSection) === sha256(desiredSection)) {
       return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', expectedHash: sha256(desiredSection), actualHash, reason: 'managed section matches template', action: 'none' };
     }
     if (def.okWhen?.(actualSection, root)) {
-      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', expectedHash: sha256(desiredSection), actualHash, reason: 'managed section matches alternate Koala-owned contract', action: 'none' };
+      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', expectedHash: sha256(desiredSection), actualHash, reason: 'managed section matches alternate Lattice/Koala-owned contract', action: 'none' };
     }
     if (!manifestUnchanged && !def.ownedWhen?.(actualSection)) {
       return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'STALE_LOCAL_EDIT', expectedHash: sha256(desiredSection), actualHash, reason: 'managed section differs and is not recognized as the generated init block', action: 'review local doc edits before replacing the section' };
     }
-    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'STALE_SAFE', expectedHash: sha256(desiredSection), actualHash, reason: 'Koala managed section differs from template', action: 'replace managed section only' };
+    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'STALE_SAFE', expectedHash: sha256(desiredSection), actualHash, reason: 'Lattice/Koala managed section differs from template', action: 'replace managed section only' };
   }
 
   if (expected && actual === expected) {

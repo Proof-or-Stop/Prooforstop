@@ -53,13 +53,19 @@ const activeLifecycleDocPaths = [
   'docs/requirements/decisions/story-lifecycle.md',
   'docs/requirements/decisions/testing-infra.md',
 ];
+const validatePrimaryReferenceDocPaths = [
+  'docs/requirements/decisions/dev-memory.md',
+  'docs/requirements/decisions/host-neutral-observability-console.md',
+  'docs/requirements/decisions/truth-source.md',
+];
 const activeLifecycleDocCurrentTerms = [
   'verificationIntent',
   'verificationEvidence',
-  'koala validate',
+  'lattice validate',
   'checklist_update',
 ];
 const legacyCommandDocContextPattern = /\blegacy\b|\bcompat\b|\bmaintenance\b|兼容|维护|旧|迁移|背景|destructive/i;
+const legacyAliasDocContextPattern = /\blegacy\b|\balias\b|\bcompat\b|\bmaintenance\b|兼容|维护|旧|迁移|背景|别名|destructive/i;
 const coverageReviewerLaneName = 'koala-review-test-coverage';
 const coverageReviewerLaneContextPattern = /reviewer|agent|lane|review\s+lane|coverage\s+reviewer|审查员|审查\s*lane|审查\s*通道|覆盖审查/i;
 const coverageReviewerCliCommandPatterns = [
@@ -707,6 +713,16 @@ function scanActiveLifecycleDocText(text, label) {
   }
 
   for (const [index, line] of lines.entries()) {
+    if (/\bkoala\s+validate\b/.test(line)) {
+      const lineNo = index + 1;
+      const context = lines
+        .slice(Math.max(0, index - 2), Math.min(lines.length, index + 3))
+        .join('\n');
+      if (!legacyAliasDocContextPattern.test(context)) {
+        issues.push(`${label}:${lineNo} active lifecycle docs must use lattice validate as current primary; koala validate may appear only as a legacy alias/compat reference`);
+      }
+    }
+
     if (!line.includes(coverageReviewerLaneName)) continue;
 
     const lineNo = index + 1;
@@ -995,6 +1011,18 @@ function assertSyntheticAdversarialChecks() {
   assert(
     scanActiveLifecycleDocText(goodCoverageLaneDoc, 'synthetic-coverage-good-doc').length === 0,
     'synthetic coverage reviewer lane wording should pass',
+  );
+
+  const badKoalaValidatePrimaryDoc = 'TEST 阶段运行 `koala validate`，写 validation evidence。';
+  assert(
+    scanActiveLifecycleDocText(badKoalaValidatePrimaryDoc, 'synthetic-koala-validate-primary-doc').some(issue => issue.includes('lattice validate as current primary')),
+    'synthetic active lifecycle doc that documents koala validate as current primary should fail',
+  );
+
+  const goodKoalaValidateAliasDoc = 'TEST 阶段运行 `lattice validate`（legacy alias: `koala validate`），写 validation evidence。';
+  assert(
+    scanActiveLifecycleDocText(goodKoalaValidateAliasDoc, 'synthetic-koala-validate-alias-doc').length === 0,
+    'synthetic active lifecycle doc may mention koala validate only as a legacy alias',
   );
 }
 
@@ -1851,6 +1879,11 @@ function assertActiveLifecycleDocGuidance() {
         `${relPath}:${index + 1} ${commandName} mention must be labelled legacy/compat/maintenance or be in historical context`,
       );
     }
+  }
+
+  for (const relPath of validatePrimaryReferenceDocPaths) {
+    const text = read(relPath);
+    for (const issue of scanActiveLifecycleDocText(text, relPath)) fail(issue);
   }
 }
 
