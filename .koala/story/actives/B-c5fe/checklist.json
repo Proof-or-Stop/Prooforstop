@@ -10,9 +10,75 @@
         "docs/requirements/decisions/verification-context-pack.md",
         "README.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-10T02:38:49.710Z",
+      "endTime": "2026-06-10T02:39:48.682Z",
+      "userSees": "User opens docs/requirements/decisions/authority-session-receipt-gate-execution.md and sees \"Authority session identity lifecycle + receipt-backed gate consumption\" plus sections for \"Execution streams\", \"Receipt-backed gate predicate\", \"Phased rollout\", and \"Fail-closed validation\".",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/authority-session-receipt-gate-execution.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The execution document defines the end-to-end strong-evidence rollout across Python Authority Server, runner host, Lattice CLI, and cross-repo validation with clear deliverables and prerequisites.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The document distinguishes local Lattice sessions and KOALA_AUTHORITY_SESSION_ID/readiness presence from receipt-backed Authority runner identity; it does not claim sessionConfigured=true is sufficient.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The document rejects overclaim paths: transport accepted, local receipt, fake server, readiness status, or report prose cannot set productionDone/receiptVerified/strongEvidenceConsumed without a verified AuthorityReceipt consumed by gate predicates.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/authority-session-receipt-gate-execution.md",
+          "command": "node -e docs check for required execution streams and rollout sections",
+          "result": "pass",
+          "note": "Post-fix docs check passed 12/12. The document contains the title, Execution streams, Phased rollout, and role/prerequisite tables that define the end-to-end strong-evidence rollout across Python Authority Server, runner host, Lattice CLI, and cross-repo validation.",
+          "headHash": "d7664f34d06950e4cf3048db81d8696ac3cd17e8",
+          "materialHash": "34a5bd830fa6aa1ef422a6922be18a01cd2e48ac96455c413cf1d9af044c618e",
+          "timestamp": "2026-06-10T03:02:24.166Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/authority-session-receipt-gate-execution.md",
+          "command": "node -e docs check for session presence vs binding wording",
+          "result": "pass",
+          "note": "Post-fix docs check passed 12/12. The document states KOALA_AUTHORITY_SESSION_ID is presence detection only and separately requires the session id to be bound into the Authority job/evidence path before it matters to gates.",
+          "headHash": "d7664f34d06950e4cf3048db81d8696ac3cd17e8",
+          "materialHash": "34a5bd830fa6aa1ef422a6922be18a01cd2e48ac96455c413cf1d9af044c618e",
+          "timestamp": "2026-06-10T03:02:24.166Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/authority-session-receipt-gate-execution.md",
+          "command": "node -e docs check for overclaim rejection wording, per-gate consumption events, and enforce approval prerequisite",
+          "result": "pass",
+          "note": "Post-fix docs check passed 12/12. The document rejects transport accepted, fake/local receipts, and prose-only pass claims; strongEvidenceConsumed=true is derived only from verified receipt refs consumed by gate predicates; eligibility is separate from consumptionEvents; Phase 3/4 require explicit enforce-mode product approval.",
+          "headHash": "d7664f34d06950e4cf3048db81d8696ac3cd17e8",
+          "materialHash": "34a5bd830fa6aa1ef422a6922be18a01cd2e48ac96455c413cf1d9af044c618e",
+          "timestamp": "2026-06-10T03:02:24.166Z"
+        }
+      ]
     }
   ]
 }

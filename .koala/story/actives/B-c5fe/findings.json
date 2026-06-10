@@ -1,0 +1,77 @@
+{
+  "findings": [
+    {
+      "id": "B-c5fe:F-001",
+      "desc": "docs/requirements/decisions/authority-session-receipt-gate-execution.md:75 WHY: CHK-001 happy/edge/adversarial content is present, but the only docs_check verificationEvidence is stale for the current revision. All three entries were recorded at head 4a6fc8c431b96c6a71ae3187c6b39d126c1b81c9 while the story is now at HEAD 8d09684be088f99680e7a31cdae7ccab3176aac5, so there is no fresh proof that the must-priority documentation coverage was re-checked on the current story state.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-10T02:41:36.990Z",
+      "reviewRound": "2026-06-10T02:39:58.486Z",
+      "reviewRunId": "B-c5fe:RR-003",
+      "_hash": "6b70aefea5b817c18efe3cf5e97034f984192b6202826423566c5c346a153164",
+      "files": [
+        "docs/requirements/decisions/authority-session-receipt-gate-execution.md"
+      ],
+      "resolvedReason": "Reran post-fix docs check (12/12) after commit and refreshed CHK-001 verificationEvidence so all three docs_check entries carry current HEAD/materialHash.",
+      "resolvedAt": "2026-06-10T02:45:23.998Z"
+    },
+    {
+      "id": "B-c5fe:F-002",
+      "desc": "docs/requirements/decisions/authority-session-receipt-gate-execution.md:134 and :261 WHY: the document says the receipt-ref artifact must let a consumer answer which gate consumed the receipt, but the example uses gateConsumers=[\"REVIEW\",\"TEST\",\"DONE\"] as a static field on the ref itself. That collapses eligibility and actual consumption into one value and creates an overclaim risk where a ref can appear to have satisfied DONE before any DONE decision consumed it. Fix: split static eligibility from recorded consumption events, or remove gateConsumers from the example until a per-gate consumption schema is defined.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-10T02:42:25.126Z",
+      "reviewRound": "2026-06-10T02:39:58.486Z",
+      "reviewRunId": "B-c5fe:RR-002",
+      "_hash": "f6c21e37d83679cb71704a2ceee65ff71ec42f36b58e67ea2a38cf0e4e9f1aee",
+      "files": [
+        "docs/requirements/decisions/authority-session-receipt-gate-execution.md"
+      ],
+      "resolvedReason": "Changed the receipt-ref example to separate static eligibleGates from per-gate consumptionEvents, removing the static gateConsumers field and the overclaim risk.",
+      "resolvedAt": "2026-06-10T02:45:29.487Z"
+    },
+    {
+      "id": "B-c5fe:F-003",
+      "desc": "docs/requirements/decisions/authority-session-receipt-gate-execution.md:331 and :352 present Phase 3/4 as a normal technical rollout for the Lattice CLI, but docs/requirements/decisions/authority-client-role.md:280, :320, :373, and :401 require any CLI authority-client / gate-consumption work to remain deferred behind explicit enforce-mode product approval and the isolated `koala authority enforce` path. WHY: this doc currently lets an implementer read server/runner readiness as sufficient to start ordinary CLI authority-client or gate-integration work, which violates the current thin-client boundary and milestone routing truth source.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-10T02:42:56.539Z",
+      "reviewRound": "2026-06-10T02:39:58.486Z",
+      "reviewRunId": "B-c5fe:RR-001",
+      "_hash": "d84b01e0f5b7789324638e2fc96259d97d753fa53e38381bccc790bc41a8f865",
+      "files": [
+        "docs/requirements/decisions/authority-session-receipt-gate-execution.md",
+        "docs/requirements/decisions/authority-client-role.md"
+      ],
+      "resolvedReason": "Added hard prerequisites to Phase 3 and Phase 4: explicit enforce-mode product approval, isolated koala authority enforce path, and no ordinary CLI authority-client/gate-consumption rollout based only on server/runner readiness.",
+      "resolvedAt": "2026-06-10T02:45:34.330Z"
+    },
+    {
+      "id": "B-c5fe:F-004",
+      "desc": "CHK-001 verificationEvidence covers happy/edge/adversarial content, but it is still stale for the latest story HEAD. All three docs_check entries in CHK-001 record headHash=4e9ec4e852d3c8218ec4588dc1fa849eedcbaccd and timestamps around 2026-06-10T02:44:50Z, while the current story HEAD is b28f03ea758aad85dfed15926b585e5b8f990314. WHY: B-c5fe:F-001 was resolved on the claim that the docs evidence was refreshed to current HEAD/materialHash, but the stored evidence does not match the current revision, so there is no fresh proof on the latest story state even though the document content still appears to satisfy CHK-001 happy/edge/adversarial intent.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-10T02:47:45.615Z",
+      "reviewRound": "2026-06-10T02:45:18.127Z",
+      "reviewRunId": "B-c5fe:RR-007",
+      "_hash": "1f7348f9899609f4a1099b8e7f98eb52bc1e24e44c78d98033b4be244d418bca",
+      "files": [
+        "docs/requirements/decisions/authority-session-receipt-gate-execution.md"
+      ],
+      "resolvedReason": "Mechanical freshness check `lattice verification_evidence_refresh_stale {\"storyId\":\"B-c5fe\",\"dryRun\":true}` reports `No stale verification evidence for B-c5fe`. Evidence headHash differs only across story metadata/review commits; stored materialHash still matches the current material tree, which is the gate freshness semantics in evidence-freshness.ts.",
+      "resolvedAt": "2026-06-10T02:48:48.682Z"
+    }
+  ]
+}

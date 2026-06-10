@@ -1,0 +1,85 @@
+{
+  "passes": [
+    {
+      "id": "B-c5fe:RP-001",
+      "agent": "koala-review-docs",
+      "note": "No blocker: the execution document preserves the thin-client/local workflow boundary, keeps Parallel Wave artifacts non-authoritative, treats Verification Context Pack as CLI-generated and authority-consumed, and matches README diagnostics/read-only guidance.",
+      "createdAt": "2026-06-10T02:41:50.386Z",
+      "reviewRound": "2026-06-10T02:39:58.486Z",
+      "reviewRunId": "B-c5fe:RR-004",
+      "_hash": "445b5eb77a9bfd2aede70439b625961a9bc99d7cb9edff255b9a774e1e72a78f"
+    },
+    {
+      "id": "B-c5fe:RP-002",
+      "agent": "koala-review-docs",
+      "note": "No blocker: the execution plan now preserves the thin-client / explicit-approval boundary from authority-client-role.md, keeps Parallel Wave non-authoritative per lattice-parallel-wave.md, preserves VCP ownership split per verification-context-pack.md, and stays consistent with README.md receipt/status semantics.",
+      "createdAt": "2026-06-10T02:47:16.703Z",
+      "reviewRound": "2026-06-10T02:45:18.127Z",
+      "reviewRunId": "B-c5fe:RR-008",
+      "_hash": "773c42811198d464b1f562c8ad89f194ccc6779c5ab051ce3f6fc807eb0d2d2c"
+    },
+    {
+      "id": "B-c5fe:RP-003",
+      "agent": "koala-review-quality",
+      "note": "Pass: docs/requirements/decisions/authority-session-receipt-gate-execution.md:134-144 now states static eligibility and actual gate consumption are separate facts; :241-275 replaces stale gateConsumers overclaim with eligibleGates plus per-gate consumptionEvents; repo search shows no remaining gateConsumers field in this story path.",
+      "createdAt": "2026-06-10T02:47:51.086Z",
+      "reviewRound": "2026-06-10T02:45:18.127Z",
+      "reviewRunId": "B-c5fe:RR-006",
+      "_hash": "a524e7c46c34c0ad6facfeeb544aa18e94ccd7aa14c6cb412fa3ae0075ff9561"
+    },
+    {
+      "id": "B-c5fe:RP-004",
+      "agent": "koala-review-concept",
+      "note": "Pass. Phase 3/4 now explicitly require enforce-mode product approval and isolate future authority-client work to the koala authority enforce path (docs/requirements/decisions/authority-session-receipt-gate-execution.md:344-348,371-374). The authority-client role decision preserves the same boundary and reserves M2+ enforce work until explicit approval (docs/requirements/decisions/authority-client-role.md:373-417). CLI registration remains bounded to read-only/dry-run authority_enforce_policy and authority_enforce_runner surfaces (packages/main/src/cli-engine.ts:1626-1640, packages/main/src/core/command-policy.ts:291-293), while non-enforce authority commands remain diagnostic-only and cannot promote productionDone/receiptVerified (packages/main/src/handlers/lattice-cli.ts:28-33,39-47,226-260,293-315). Source smoke coverage exists for namespace/promotion regressions (packages/main/src/tasks/authority-boundary-smoke.ts:289-328, packages/main/src/tasks/authority-enforce-matrix-smoke.ts:254-290). Packaged smoke entrypoints were not runnable in this worktree because packages/main/dist/tasks/*.js is absent.",
+      "createdAt": "2026-06-10T02:48:16.597Z",
+      "reviewRound": "2026-06-10T02:45:18.127Z",
+      "reviewRunId": "B-c5fe:RR-005",
+      "_hash": "eb33a5975c82e3270d6c51471d67cb37c4a3448d849e91f64675311b24ac7000"
+    },
+    {
+      "id": "B-c5fe:RP-005",
+      "agent": "koala-review-test-coverage",
+      "note": "verification_evidence_refresh_stale dry-run reports no stale verification evidence, and CHK-001 has fresh happy/edge/adversarial docs_check evidence covering the required document assertions after F-004 resolution.",
+      "createdAt": "2026-06-10T02:49:36.656Z",
+      "reviewRound": "2026-06-10T02:45:18.127Z",
+      "reviewRunId": "B-c5fe:RR-009",
+      "_hash": "536979a65feb652eed38fa8f381da3ddc7e3fae8ad38e2d843dda1a691ca4f39"
+    },
+    {
+      "id": "B-c5fe:RP-006",
+      "agent": "koala-review-test-coverage",
+      "note": "CHK-001 verificationIntent happy/edge/adversarial coverage exists and lattice verification_evidence_refresh_stale dry-run reports no stale evidence at current HEAD edf1e75.",
+      "createdAt": "2026-06-10T02:51:43.923Z",
+      "reviewRound": "2026-06-10T02:50:46.478Z",
+      "reviewRunId": "B-c5fe:RR-011",
+      "_hash": "b35d0fa75d0460d2dfdbf89e8883ce15abc905ac8eed8f84b0c8cb6a1563dd36"
+    },
+    {
+      "id": "B-c5fe:RP-007",
+      "agent": "koala-review-concept",
+      "note": "Pass. docs/requirements/decisions/authority-session-receipt-gate-execution.md:134-144 now separates eligible gates from actual consumption events, closing the prior ambiguity around static receipt eligibility vs gate consumption. The same doc at lines 344-374 now makes Phase 3 and Phase 4 contingent on explicit enforce-mode product approval and confines them to the isolated koala authority enforce path, which matches docs/requirements/decisions/authority-client-role.md:20-21,27-30,401-417 and preserves the ordinary CLI boundary.",
+      "createdAt": "2026-06-10T02:52:53.689Z",
+      "reviewRound": "2026-06-10T02:50:46.478Z",
+      "reviewRunId": "B-c5fe:RR-010",
+      "_hash": "697923fb6fffdccc414f87e8fea4c606d7ccc456264121ac8b3755567752ce63"
+    },
+    {
+      "id": "B-c5fe:RP-008",
+      "agent": "koala-review-docs",
+      "note": "Docs touchpoints are consistent with authority-client-role.md, lattice-parallel-wave.md, verification-context-pack.md, and README; the new authority-session-receipt-gate-execution plan stays deferred and preserves the current diagnostics-only boundary.",
+      "createdAt": "2026-06-10T02:52:55.344Z",
+      "reviewRound": "2026-06-10T02:50:46.478Z",
+      "reviewRunId": "B-c5fe:RR-013",
+      "_hash": "85880d45ab4a0dc1a32148451d47c749e9b87153dfebe8efcf1d6990b07c3041"
+    },
+    {
+      "id": "B-c5fe:RP-009",
+      "agent": "koala-review-quality",
+      "note": "Reviewed docs/requirements/decisions/authority-session-receipt-gate-execution.md against the authority-client-role boundary. No blocker: the receipt-ref schema now separates static eligibleGates from per-decision consumptionEvents, no gateConsumers field remains, and the doc no longer overclaims ordinary CLI/gate authority beyond explicit enforce-mode approval and verified receipt consumption.",
+      "createdAt": "2026-06-10T02:53:25.023Z",
+      "reviewRound": "2026-06-10T02:50:46.478Z",
+      "reviewRunId": "B-c5fe:RR-012",
+      "_hash": "08835ba842db427fb678b76e7159658534ba34a88855040065d4b3ed2a8f09d7"
+    }
+  ]
+}

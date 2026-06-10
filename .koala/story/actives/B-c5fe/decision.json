@@ -1,0 +1,72 @@
+{
+  "principles": [
+    "流程事实必须能被后续 gate 机械验证，不能只靠文案表达。",
+    "session identity 只有绑定到 signed envelope、verified receipt 和 story freshness predicate 后才算强证据链路的一部分。",
+    "普通 CLI/readiness/local receipt/parallel wave 继续保持非权威边界。",
+    "跨仓能力先按职责拆分，再做 live end-to-end validation。"
+  ],
+  "drivers": [
+    "用户需要以后不用人陪着的端到端强证据链路执行方案。",
+    "现有 B-4a53 只证明 blocked/fail-closed，不是完整开发完成。",
+    "Authority Server、runner host、Lattice CLI 和 cross-repo validation 的契约必须先清楚，否则后续实现容易越权或重复。"
+  ],
+  "options": [
+    {
+      "name": "A: 新增独立执行文档",
+      "pros": [
+        "不改动既有权威边界文档的稳定语义。",
+        "便于把未来 work split、acceptance、rollback 和 gate predicate 写成可执行计划。",
+        "适合后续 story 直接引用。"
+      ],
+      "cons": [
+        "需要在相关 truth-source 文档之间保持引用一致。",
+        "如果后续代码实现改变契约，本文档需要同步维护。"
+      ]
+    },
+    {
+      "name": "B: 直接扩写 authority-client-role.md",
+      "pros": [
+        "所有 Authority 边界集中在一个文件。",
+        "减少新增文档入口。"
+      ],
+      "cons": [
+        "会让决策文档混入长篇执行计划，降低冷读清晰度。",
+        "容易把已落地事实和未来执行步骤混在一起。"
+      ]
+    },
+    {
+      "name": "C: 立即实现 CLI session/gate 行为",
+      "pros": [
+        "看起来推进更快。",
+        "能减少短期设计文档工作。"
+      ],
+      "cons": [
+        "Python Authority Server 和 runner host 契约未确认，CLI 侧实现会造成本地假闭环。",
+        "违反本 story 只交付执行文档的边界。"
+      ]
+    }
+  ],
+  "chosen": "A: 新增独立执行文档",
+  "rationale": "选择独立执行文档，因为当前需要先冻结跨仓职责、依赖顺序和强证据 gate predicate，而不是把未来实现混进已有边界文档或在 CLI 侧提前实现不完整闭环。",
+  "preMortem": [
+    {
+      "scenario": "文档把 KOALA_AUTHORITY_SESSION_ID 写成强证据完成条件。",
+      "trigger": "读者看到 sessionConfigured=true 后以为 gate 可以消费。",
+      "consequence": "后续 story 可能只补 env loader 就错误宣称 productionDone。",
+      "mitigation": "在文档开头写明 session ID 是 identity 字段，必须进入 envelope/receipt/gate predicate 才有效。"
+    },
+    {
+      "scenario": "文档把 server、runner、CLI 责任混在一个 story 里。",
+      "trigger": "执行阶段没有分仓拆分表。",
+      "consequence": "Lattice CLI story 可能依赖不存在的 endpoint 或伪造 fake server 成功。",
+      "mitigation": "按 Python Authority Server、Runner host、Lattice CLI、Cross-repo validation 四层列 deliverables 和 hard prerequisites。"
+    },
+    {
+      "scenario": "文档描述 gate 消费但没有机械验收项。",
+      "trigger": "只写 strongEvidenceConsumed=true 的目标文案，没有说明 artifact schema 和 predicate。",
+      "consequence": "后续实现可能用报告文本替代 gate 事实。",
+      "mitigation": "要求 receipt refs 写入 story artifact，并由 REVIEW/TEST/DONE gate 检查签名、subject binding、storyId、HEAD、materialHash 和 independent run binding。"
+    }
+  ],
+  "timestamp": "2026-06-10T02:32:20.433Z"
+}
