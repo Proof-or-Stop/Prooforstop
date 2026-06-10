@@ -42,7 +42,7 @@
       "desc": "Current main is not an ancestor of story/B-51f6, and `git diff main..HEAD` still contains 12 non-story files outside `.koala/story/actives/B-51f6/**`. That violates the requirement that this branch stay isolated to story metadata and any strictly necessary allowlist updates. Merge/rebase current main into the story branch and re-check that only B-51f6 metadata remains in the final diff.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-10T19:59:22.774Z",
@@ -62,7 +62,9 @@
         "packages/main/src/core/process-fact-levels.ts",
         "packages/main/src/handlers/phase-gates.ts",
         "scripts/verify-process-fact-contract.mjs"
-      ]
+      ],
+      "resolvedReason": "Resolved by merging current main into story/B-51f6. Verified git merge-base --is-ancestor main HEAD returns 0 and git diff --name-only main..HEAD contains only .koala/story/actives/B-51f6 metadata paths.",
+      "resolvedAt": "2026-06-10T20:04:24.317Z"
     }
   ]
 }
