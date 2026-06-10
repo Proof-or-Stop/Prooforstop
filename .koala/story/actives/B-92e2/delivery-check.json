@@ -1,0 +1,72 @@
+{
+  "storyId": "B-92e2",
+  "checkedAt": "2026-06-10T02:59:46.010Z",
+  "reviewRound": "2026-06-10T02:49:46.452Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "Lattice-Engineering-baseline.md",
+      "promise": "Engineering suite proof is gated and fail-closed; local diagnostics cannot synthesize PASS or DONE without fresh lower-layer proof.",
+      "status": "verified",
+      "verifiedBy": "doc+diff+cli",
+      "evidence": "Doc entry criteria/common contract + git diff main...HEAD + node packages/main/dist/cli.js baseline_suite_report --layer=engineering --format=json stayed BLOCKED/not_authorized with stale/missing-proof reasons."
+    },
+    {
+      "docPath": "Lattice-Loop-Engineering-baseline.md",
+      "promise": "Loop/UDM capability claims stay evidence-gated; missing or stale evidence must block rather than produce PASS/DONE wording.",
+      "status": "verified",
+      "verifiedBy": "doc+diff+validate",
+      "evidence": "Doc says evidence/gate/no-false-DONE are required; lattice-baseline core rejects stale/missing lower-layer proof and lattice validate reported 18/18 verification intents covered on current worktree."
+    },
+    {
+      "docPath": "Lattice-Production-Safety-baseline.md",
+      "promise": "Production safety requires authority/receipt-style proof and remains fail-closed in local mode with no silent local fallback.",
+      "status": "verified",
+      "verifiedBy": "doc+diff+cli",
+      "evidence": "Doc requires verified receipt and multi-host proof; git diff shows local artifacts hard-code authority fields false and capability_claim_evaluate for production-safety returned authorized=false, receiptVerified=false, productionDone=false."
+    },
+    {
+      "docPath": "Lattice-Capability-Claim-baseline.md",
+      "promise": "Capability claims are gated by lower-layer proof and stronger-than-evidence claims stay blocked.",
+      "status": "verified",
+      "verifiedBy": "doc+diff+smoke",
+      "evidence": "Doc requires sequential lower-layer suite proof; evaluateCapabilityClaim stops on first missing/non-PASS lower layer, and npm --prefix packages/main run test:lattice-baseline-smoke passed cases for stale/local-only/incoherent proof rejection."
+    },
+    {
+      "docPath": "Lattice-Parallel-Development-Capability.md",
+      "promise": "Parallel implementation does not imply parallel proof or claim unlock.",
+      "status": "verified",
+      "verifiedBy": "doc+diff+smoke",
+      "evidence": "Doc says implementation may be parallel but proof stays sequential; smoke task includes a parallel-implementation fixture and passed while capability_claim_evaluate still blocked higher claims without lower-layer proof."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "B-92e2-cli-surface",
+      "transcript": "node packages/main/dist/cli.js help | rg \"baseline_run|baseline_suite|baseline_suite_report|capability_claim_evaluate\" listed all four Baseline 2-5 commands in the local CLI help output."
+    },
+    {
+      "featureId": "B-92e2-baseline-smoke",
+      "transcript": "npm --prefix packages/main run test:lattice-baseline-smoke exited 0 and printed \"✓ lattice baseline smoke passed\" on the current worktree."
+    },
+    {
+      "featureId": "B-92e2-engineering-suite-fail-closed",
+      "transcript": "node packages/main/dist/cli.js baseline_suite_report --layer=engineering --format=json returned suiteStatus=BLOCKED, authorization=not_authorized, outcome=EXPECTED_BLOCK with stale-artifact and missing-lower-layer reasons."
+    },
+    {
+      "featureId": "B-92e2-production-claim-blocked",
+      "transcript": "node packages/main/dist/cli.js capability_claim_evaluate --target=production-safety --format=json returned authorized=false, authorizedClaimLevel=none, receiptVerified=false, productionDone=false."
+    },
+    {
+      "featureId": "B-92e2-repo-validation",
+      "transcript": "npm test passed, and lattice validate --story=B-92e2 passed on the current worktree with verification intent coverage 18/18 covered."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Reviewed git diff main...HEAD, summary, transcript evidence, smoke, npm test, and lattice validate. Delivery promises are met for local CLI runner/suite/claim evaluator, fail-closed proof gates, no local authority overclaim, and smoke coverage for stale/local-only/incoherent proof. No correctness blocker found."
+  },
+  "_hash": "80ef7390ec55aa7a34e671d9d6bb8152c4af7714f620195924b88e79865186da"
+}

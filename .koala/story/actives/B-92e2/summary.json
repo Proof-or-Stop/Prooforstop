@@ -1,0 +1,56 @@
+{
+  "storyId": "B-92e2",
+  "changes": "Implemented Baseline 2-5 local CLI runner, suite report aggregation, and capability claim evaluation with fail-closed proof gates. Added smoke coverage for stale artifacts, local-only proof rejection, suite report coherence, and lower-layer claim authorization.",
+  "usage": "Run node packages/main/dist/cli.js baseline_run --baselineId=ENG-BUGFIX-1 --format=json; run baseline_suite_report --layer=engineering --format=json; run capability_claim_evaluate --target=production-safety --format=json; or run npm --prefix packages/main run test:lattice-baseline-smoke.",
+  "expectedOutcome": "The CLI exposes baseline_run, baseline_suite, baseline_suite_report, and capability_claim_evaluate. Local artifacts can be generated, but stale/local/incoherent proof is blocked and production-safety claims remain unauthorized without real authority evidence.",
+  "actualTranscript": "Real-machine commands showed the four CLI commands in help output. baseline_suite_report --layer=engineering returned suiteStatus=BLOCKED, authorization=not_authorized, outcome=EXPECTED_BLOCK with missing lower-layer proof and stale artifact reasons. capability_claim_evaluate --target=production-safety returned authorized=false, authorizedClaimLevel=none, receiptVerified=false, productionDone=false.",
+  "outcomeDiff": "No user-visible mismatch: actual CLI behavior matches the expected fail-closed local diagnostic capability.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Production-safety and production-grade unattended claims remain intentionally blocked without external Authority receipts, multi-host proof, and soak evidence. Local reports are diagnostic artifacts, not public capability proof.",
+  "pitfalls": "Review found and fixed five correctness blockers: stale coverage overclaim, local stub false PASS, permanently locked lower-layer claims, invalid final-report status acceptance, and incoherent suite proof authorization. Future changes must preserve fail-closed proof gates.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 407773
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 13490
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 517399
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 2514378
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 1091486
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 151833
+    }
+  },
+  "totalDurationMs": 4696388,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-10T02:56:58.855Z",
+  "updatedAt": "2026-06-10T02:56:58.855Z"
+}

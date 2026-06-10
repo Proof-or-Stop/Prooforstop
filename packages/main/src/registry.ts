@@ -71,6 +71,7 @@ import { createLatticeDispatchHandlers } from './handlers/lattice-dispatch.js';
 import { createLatticeAutopilotHandlers } from './handlers/lattice-autopilot.js';
 import { createLatticeEvidenceHandlers } from './handlers/lattice-evidence.js';
 import { createLatticeParallelWaveHandlers } from './handlers/lattice-parallel-wave.js';
+import { createLatticeBaselineHandlers } from './handlers/lattice-baseline.js';
 import { createLatticeCliHandlers } from './handlers/lattice-cli.js';
 import { createRolloutCheckHandlers } from './handlers/rollout-check.js';
 import { createStoryAuthorityResolveHandlers } from './handlers/story-authority-resolve.js';
@@ -234,6 +235,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createLatticeAutopilotHandlers(ctx));
   registry.registerBatch(createLatticeEvidenceHandlers(ctx));
   registry.registerBatch(createLatticeParallelWaveHandlers(ctx));
+  registry.registerBatch(createLatticeBaselineHandlers(ctx));
 
   // prewrite scope enforcement — pre-tool hook guard for write-like operations
   registry.registerBatch(createPrewriteGuardHandlers(ctx));

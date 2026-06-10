@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-92e2:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "Re-reviewed F-001 resolution on head 6d1fcae6. packages/main/src/tasks/lattice-baseline-smoke.ts now exercises stale final-report rejection, stale lower-layer suite proof refusal, invalid final-report status refusal, local stub cannot authorize engineering suite PASS, and fresh authorized lower-layer suite proof authorizing engineering claims. Seed helpers now use production schema ids with underscores (final_report / baseline_suite_report), preventing schema-mismatch false positives. Verified with npm run build, npm --prefix packages/main run test:lattice-baseline-smoke, npm test, and lattice validate --story=B-92e2 (allPass=true; validate fallback consumed fresh verificationEvidence). No high/critical coverage correctness blocker found.",
+      "createdAt": "2026-06-10T02:41:19.200Z",
+      "reviewRound": "2026-06-10T02:38:25.968Z",
+      "reviewRunId": "B-92e2:RR-005",
+      "_hash": "75703ef2a70bd2b015346f3965bbc64bf2e80e226022ea6eed418e391a15aea4"
+    },
+    {
+      "id": "B-92e2:RP-002",
+      "agent": "koala-review-concept",
+      "note": "Concept re-review after F-002 fix: verified original repro now stays BLOCKED/not_authorized with localOnly=true capabilityProof=false even when development suite PASS is pre-seeded; verified parallel high-layer artifact does not unlock proof; verified production-safety/authority fields remain fail-closed and capability_claim_evaluate only authorizes sequential lower-layer claims up to engineering/loop-engineering. Commands: npm --prefix packages/main run test:lattice-baseline-smoke; manual baseline_run/baseline_suite_report/capability_claim_evaluate repros in temp repos.",
+      "createdAt": "2026-06-10T02:44:19.750Z",
+      "reviewRound": "2026-06-10T02:38:25.968Z",
+      "reviewRunId": "B-92e2:RR-004",
+      "_hash": "b9553428f53d7866b0e5a5665f98c82d84114a94d9c74e13c5da8e44e44721c0"
+    },
+    {
+      "id": "B-92e2:RP-003",
+      "agent": "koala-review-test-coverage",
+      "note": "Verified final test-coverage review for B-92e2. packages/main/src/tasks/lattice-baseline-smoke.ts keeps existing schema/local-only/stale regressions (cases 5,7,8,9) and adds incoherent suite proof coverage for F-005 (case 11), while packages/main/src/core/lattice-baseline.ts readSuiteReport blocks PASS suite reports whose outcome/authorization/capabilityProof/localOnly fields are incoherent before capability_claim_evaluate can authorize engineering claims. Fresh evidence: npm run build && npm run test:lattice-baseline-smoke passed in the B-92e2 worktree.",
+      "createdAt": "2026-06-10T02:52:13.064Z",
+      "reviewRound": "2026-06-10T02:49:46.452Z",
+      "reviewRunId": "B-92e2:RR-007",
+      "_hash": "d52b4bc7b4f5519499d3a43774e7ba860f35ac5587c2f4d49df66eea59cb6101"
+    },
+    {
+      "id": "B-92e2:RP-004",
+      "agent": "koala-review-concept",
+      "note": "Concept review pass: local baseline artifacts remain diagnostic-only and reject authority overclaim/stale/mixed-schema inputs; parallel implementation artifacts do not unlock proof; production-safety authority stays fail-closed; claim unlock remains sequential via lower-layer suite proof chain. Verified against packages/main/src/core/lattice-baseline.ts and packages/main/src/tasks/lattice-baseline-smoke.ts with npm --prefix packages/main run build, npm --prefix packages/main run test:lattice-baseline-smoke, and npm --prefix packages/main run test:command-ownership-contract.",
+      "createdAt": "2026-06-10T02:53:17.991Z",
+      "reviewRound": "2026-06-10T02:49:46.452Z",
+      "reviewRunId": "B-92e2:RR-009",
+      "_hash": "851aa990fcac7589644659a4f56ed472cb811f67a894a1eac43e63e6b0c77ef3"
+    },
+    {
+      "id": "B-92e2:RP-005",
+      "agent": "koala-review-quality",
+      "note": "Targeted quality re-review for F-005 and adjacent fail-closed gates. Verified packages/main/src/core/lattice-baseline.ts lower-layer suite coherence gate blocks suiteStatus=PASS + authorization=authorized + capabilityProof=true + localOnly=false when outcome!=PASS (see readSuiteReport around lines 1122-1136). Verified parseFinalReport status gate rejects valid-but-inconsistent final-report status/outcome pairs (around lines 1061-1073) via manual built-CLI repro. Confirmed local stub suite gate and production-safety fail-closed behavior via lattice baseline smoke cases and built smoke run. Commands: node packages/main/dist/tasks/lattice-baseline-smoke.js ; npx tsc -p packages/main/tsconfig.json --noEmit ; manual node repro for baseline_suite_report mismatch gate. No correctness blockers found.",
+      "createdAt": "2026-06-10T02:53:46.487Z",
+      "reviewRound": "2026-06-10T02:49:46.452Z",
+      "reviewRunId": "B-92e2:RR-008",
+      "_hash": "8ca51d7b2cc9446652f49daa24c9c40ad72fffa7fd1a4905aa005192fc855a17"
+    }
+  ]
+}
