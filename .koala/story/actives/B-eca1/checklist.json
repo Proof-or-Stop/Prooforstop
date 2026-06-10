@@ -250,6 +250,69 @@
           }
         ]
       }
+    },
+    {
+      "id": "CHK-006",
+      "title": "Separate Authority receipt status and operator feedback",
+      "context": "Render Authority readiness, latest verified receipt ref, eligibility, and consumed receipt as distinct status facts. This item exists because INIT reviewers flagged that status output should be separate from DONE gate policy wiring.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+        "docs/requirements/decisions/host-overflow.md",
+        "docs/requirements/decisions/project-vision.md"
+      ],
+      "userSees": "lattice status or authority status prints separate lines for authorityReady, receiptVerified, receiptEligible, receiptConsumed, and productionDone without collapsing readiness into completion.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/story-authority-resolve.ts",
+          "packages/main/src/core/observability-snapshot.ts",
+          "packages/main/src/core/lattice-autopilot.ts",
+          "packages/main/src/handlers/lattice-autopilot.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/authority-gate-consumption-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Status output distinguishes configured, verified, eligible, and consumed Authority receipt states.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A verified but unconsumed receipt is shown as verified, not consumed.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Local diagnostic receipts and transport accepted responses keep receiptVerified=false, authorityChanged=false, and productionDone=false.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-10T15:31:36.650Z",
+      "phase": "PLAN",
+      "itemId": "CHK-006",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Split status/operator feedback from CHK-004 per INIT reviewer advisory.",
+      "addedTitle": "Separate Authority receipt status and operator feedback",
+      "addedContext": "Render Authority readiness, latest verified receipt ref, eligibility, and consumed receipt as distinct status facts. This item exists because INIT reviewers flagged that status output should be separate from DONE gate policy wiring."
     }
   ]
 }
