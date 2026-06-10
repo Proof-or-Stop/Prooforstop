@@ -101,7 +101,41 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Terminal output shows development baseline-suite-report.json exists in .lattice/artifacts/baseline/layer2-engineering-unlock/development with suiteStatus=PASS and falseDoneCount=0.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-baseline.ts",
+          "packages/main/src/tasks/lattice-baseline-smoke.ts"
+        ],
+        "create": [
+          ".lattice/artifacts/baseline/layer2-engineering-unlock/development/baseline-suite-report.json",
+          ".lattice/artifacts/baseline/layer2-engineering-unlock/development/baseline-suite-report.md"
+        ],
+        "test": [
+          "packages/main/src/tasks/lattice-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A fresh Development suite report is present under the selected .lattice artifact root and reports PASS.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Development proof is tied to the same artifacts root used by Engineering proof.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Missing or non-PASS Development proof keeps capability_claim_formal_evaluate locked.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
