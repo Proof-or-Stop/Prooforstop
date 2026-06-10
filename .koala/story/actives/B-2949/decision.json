@@ -1,0 +1,71 @@
+{
+  "principles": [
+    "Proof must remain sequential even when implementation can be parallel.",
+    "Layer 2 claims must be limited to tested Engineering project classes.",
+    "Expected blocks are valid only when they are explicitly part of the baseline contract and evidenced.",
+    "Local diagnostics and host transcripts are audit context, not capability proof."
+  ],
+  "drivers": [
+    "The user needs a concrete execution document for formally unlocking Engineering Baseline.",
+    "The document must prevent false capability claims and framework bloat.",
+    "The plan must be usable by future agents without inventing missing gates.",
+    "Risky migration/security baselines need explicit block-or-gated-pass semantics."
+  ],
+  "options": [
+    {
+      "name": "A: Tighten the existing unlock plan",
+      "pros": [
+        "Reuses the existing root document and avoids duplicate sources of truth.",
+        "Keeps the work focused on correctness and execution clarity.",
+        "Can align directly with the B-c886 contract changes already implemented."
+      ],
+      "cons": [
+        "Requires careful editing so the document remains concise and does not become a second full baseline spec."
+      ]
+    },
+    {
+      "name": "B: Create a separate new runbook document",
+      "pros": [
+        "Could separate conceptual baseline spec from execution steps."
+      ],
+      "cons": [
+        "Adds another document to keep synchronized.",
+        "Increases the risk of conflicting claim boundaries and arbitrary structure.",
+        "Does not fix a real correctness issue because an unlock execution plan file already exists."
+      ]
+    },
+    {
+      "name": "C: Expand the Engineering baseline document itself",
+      "pros": [
+        "Would keep all Layer 2 material in one document."
+      ],
+      "cons": [
+        "Would blur baseline definition with formal unlock procedure.",
+        "Could make the baseline spec more cumbersome without improving proof correctness."
+      ]
+    }
+  ],
+  "chosen": "A: Tighten the existing unlock plan",
+  "rationale": "Choose the existing unlock execution plan because the user asked for an execution document based on the Layer 2 unlock statement, and a root execution-plan file already exists. Updating that file avoids duplicate truth sources while allowing us to make the runbook concrete and claim-safe.",
+  "preMortem": [
+    {
+      "scenario": "The document accidentally claims production-grade unattended development from Engineering evidence.",
+      "trigger": "Allowed wording mentions production, unattended operation, or Authority-style completion without lower-layer proof.",
+      "consequence": "Future agents may overclaim Lattice capability and bypass Loop or Production Safety baselines.",
+      "mitigation": "Add explicit non-claims, final decision mapping, and higher-layer locked target checks."
+    },
+    {
+      "scenario": "Risky migration or security baselines are treated as ordinary PASS work.",
+      "trigger": "ENG-DATA-MIGRATION-1 or ENG-AUTH-SECURITY-1 lacks refusal evidence, gate evidence, or expected-block semantics.",
+      "consequence": "A dangerous or impossible task could be reported as DONE without safety proof.",
+      "mitigation": "Require expected-block evidence or digest-backed gated PASS evidence and list missing gates as fail-closed blockers."
+    },
+    {
+      "scenario": "The runbook becomes another broad framework layer instead of an execution document.",
+      "trigger": "The edit introduces new capability names, new layers, or optimization-focused process beyond the requested Layer 2 unlock.",
+      "consequence": "Lattice becomes more complex without a correctness gain.",
+      "mitigation": "Keep the file scoped to Engineering unlock execution, reference existing baseline and parallel development docs, and avoid adding new claims."
+    }
+  ],
+  "timestamp": "2026-06-10T14:19:00.673Z"
+}

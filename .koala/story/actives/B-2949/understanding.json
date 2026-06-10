@@ -1,0 +1,26 @@
+{
+  "task": "Write a formal execution document for unlocking Layer 2 Engineering Baseline.",
+  "outcome": "User sees Lattice-Engineering-Baseline-Unlock-Execution-Plan.md clearly explain: Layer 2 can only be unlocked by fresh ENG suite evidence; the document lists what is allowed to claim, what remains locked, what artifacts every ENG run must produce, and the exact preflight-to-claim runbook for formal unlock.",
+  "facts": [
+    "B-c886 already completed Engineering Baseline contract alignment and merged to local main.",
+    "Layer 1 Development Baseline is treated as the lower-layer prerequisite for Engineering unlock.",
+    "Layer 2 must prove real engineering development through ENG baselines rather than local smoke or implementation readiness.",
+    "Existing docs include Lattice-Engineering-baseline.md and Lattice-Parallel-Development-Capability.md.",
+    "Risk words such as migration, security, and production appear because the document defines gate boundaries; this story does not modify those subsystems."
+  ],
+  "constraints": [
+    "Do not optimize for the sake of optimization.",
+    "Do not optimize arbitrarily.",
+    "Only fix real correctness issues.",
+    "Preserve consistency of logic.",
+    "Do not claim Loop Engineering, Production Safety, or production-grade unattended development from Layer 2 evidence.",
+    "Keep the document executable and restrained rather than introducing a new framework layer."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
+    "Lattice-Engineering-baseline.md",
+    "Lattice-Parallel-Development-Capability.md"
+  ],
+  "timestamp": "2026-06-10T14:18:42.602Z"
+}

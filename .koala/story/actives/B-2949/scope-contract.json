@@ -1,0 +1,29 @@
+{
+  "storyId": "B-2949",
+  "mode": "enforce",
+  "allowedModify": [
+    "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [],
+  "protectedFiles": [
+    "Lattice-Engineering-baseline.md",
+    "Lattice-Loop-Engineering-baseline.md",
+    "Lattice-Production-Safety-baseline.md",
+    "Lattice-Capability-Claim-baseline.md",
+    "Lattice-Parallel-Development-Capability.md",
+    "packages/main/src/core/lattice-baseline.ts",
+    "packages/main/src/tasks/lattice-baseline-smoke.ts"
+  ],
+  "explicitExcludes": [
+    "Implementing ENG baseline runner code",
+    "Changing baseline definitions outside the unlock execution document",
+    "Editing authority receipt requirement docs",
+    "Modifying story lifecycle gates",
+    "Changing tests or fixtures"
+  ],
+  "scopeChangeReason": "Documentation-only story: tighten the existing Layer 2 unlock execution plan without changing runtime behavior or other baseline specs.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-10T14:19:26.575Z",
+  "updatedAt": "2026-06-10T14:19:26.575Z"
+}
