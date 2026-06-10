@@ -97,7 +97,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees \"Authority strong evidence verification: BLOCKED fail-closed\" plus concrete next actions for enabling receipt-backed PASS later.",
+      "files": {
+        "modify": [],
+        "create": [
+          ".omx/artifacts/authority/B-4a53/authority-strong-evidence-report.json",
+          ".omx/artifacts/authority/B-4a53/authority-strong-evidence-report.md",
+          ".koala/story/actives/B-4a53/evidence/transcript-diff.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The final report summarizes readiness, job attempt, receipt verification state, and next actions in one cold-readable artifact.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "B-0a80/B-688d local lifecycle artifacts remain local and are not upgraded to receipt-backed evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Reject any gate or report wording that implies Authority Server strong evidence was consumed when receipt verification did not happen.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
