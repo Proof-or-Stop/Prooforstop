@@ -60,7 +60,20 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees gap_analyze no longer report requiresAuthoritativeWorktree or requiresCleanWorktree, and worktree-policy smoke tests still prove fail-closed enforcement.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/worktree-policy.ts",
+          "packages/main/src/core/planner.ts",
+          "docs/requirements/decisions/lattice-authority-live-integration.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/worktree-policy-smoke.ts",
+          "packages/main/src/tasks/planner-unattended-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-004",
