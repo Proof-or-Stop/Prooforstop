@@ -4,7 +4,7 @@
   "title": "实现 Baseline 2-5 本地 CLI runner、suite 与 claim gate",
   "description": "Layer 1 Development baseline formal proof 已在 B-6a97 PASS。现在需要把 Baseline 2-5 的执行能力开发进当前仓库本地 CLI：Engineering Baseline、Loop Engineering Baseline、Production Safety Baseline 和 Capability Claim Baseline。实现必须支持并行开发准备，但 proof 与 capability claim unlock 必须继续按 Development -> Engineering -> Loop -> Production Safety -> Capability Claim 顺序 fail-closed。",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "keywords": [
     "baseline",
@@ -59,11 +59,20 @@
       "branch": "story/B-92e2",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-10T02:16:02.008Z",
+      "branch": "story/B-92e2",
+      "user": "Harmonygo",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-92e2",
     "branch": "story/B-92e2",
     "createdAt": "2026-06-10T01:45:30.326Z"
-  }
+  },
+  "currentReviewRound": "2026-06-10T02:16:02.008Z"
 }
