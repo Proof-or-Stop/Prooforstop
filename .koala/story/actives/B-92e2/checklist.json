@@ -226,7 +226,42 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "`npm test`, local baseline command smoke tests, and claim-gate tests pass; generated reports show implementation may proceed in parallel while proof unlock remains sequential."
+      "userSees": "`npm test`, local baseline command smoke tests, and claim-gate tests pass; generated reports show implementation may proceed in parallel while proof unlock remains sequential.",
+      "files": {
+        "modify": [
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/lattice-baseline-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/lattice-baseline-smoke.ts",
+          "packages/main/package.json"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "`npm --prefix packages/main run build`, local baseline smoke, and `npm test` pass after implementation.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Higher-layer implementation artifacts can exist in shadow/not_authorized state before lower-layer proof without unlocking claims.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Parallel implementation never implies parallel proof; stale evidence, schema drift, or local authority substitution fails closed in smoke tests.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
