@@ -1,6 +1,7 @@
 import type { HandlerContext } from './context.js';
 import {
   buildBaselineSuiteReport,
+  evaluateFormalLayer2EngineeringClaim,
   evaluateCapabilityClaim,
   renderBaselineRunText,
   renderBaselineSuiteText,
@@ -35,6 +36,16 @@ export function createLatticeBaselineHandlers(ctx: HandlerContext): Record<strin
       baselineId: string;
       runId?: string;
       artifactsRoot?: string;
+      formal?: boolean;
+      suiteRunId?: string;
+      claimTarget?: string;
+      outcome?: 'PASS' | 'FAIL' | 'EXPECTED_BLOCK' | 'ESCALATED';
+      verifiedAt?: string;
+      verificationEvidenceRefs?: string[] | string;
+      reviewEvidenceRefs?: string[] | string;
+      lifecycleGateEvidenceRefs?: string[] | string;
+      gateEvidenceRefs?: string[] | string;
+      receiptRefs?: string[] | string;
     } & FormatArgs) {
       const result = runBaseline({
         root: ctx.root,
@@ -42,6 +53,16 @@ export function createLatticeBaselineHandlers(ctx: HandlerContext): Record<strin
         runId: args.runId,
         artifactsRoot: args.artifactsRoot,
         format: args.format,
+        formal: args.formal,
+        suiteRunId: args.suiteRunId,
+        claimTarget: args.claimTarget,
+        outcome: args.outcome,
+        verifiedAt: args.verifiedAt,
+        verificationEvidenceRefs: args.verificationEvidenceRefs,
+        reviewEvidenceRefs: args.reviewEvidenceRefs,
+        lifecycleGateEvidenceRefs: args.lifecycleGateEvidenceRefs,
+        gateEvidenceRefs: args.gateEvidenceRefs,
+        receiptRefs: args.receiptRefs,
       });
       if (wantsJson(args)) return result;
       return renderBaselineRunText(result);
@@ -73,6 +94,31 @@ export function createLatticeBaselineHandlers(ctx: HandlerContext): Record<strin
         output: args.output,
         outputDir: args.outputDir,
         writeReport: args.writeReport,
+      });
+      if (wantsJson(args)) return result;
+      return renderCapabilityClaimText(result);
+    },
+    capability_claim_formal_evaluate(args: {
+      target?: string;
+      claimId?: string;
+      requestedClaim?: string;
+      runId?: string;
+      artifactsRoot?: string;
+      output?: string;
+      outputDir?: string;
+      writeReport?: boolean;
+    } & FormatArgs) {
+      const result = evaluateFormalLayer2EngineeringClaim({
+        root: ctx.root,
+        target: args.target,
+        claimId: args.claimId,
+        requestedClaim: args.requestedClaim,
+        runId: args.runId,
+        artifactsRoot: args.artifactsRoot,
+        output: args.output,
+        outputDir: args.outputDir,
+        writeReport: args.writeReport,
+        formal: true,
       });
       if (wantsJson(args)) return result;
       return renderCapabilityClaimText(result);
