@@ -1208,24 +1208,35 @@ for (const defect of [
   try {
     writeSuiteReport(root, 'development');
     writeEngineeringProofReports(root);
+    const beforeArtifactCommitHead = currentGitHead(root);
+    const beforeArtifactCommitMaterialHash = materialHash(root);
+    assert.ok(beforeArtifactCommitHead, 'formal Engineering artifact commit smoke should start from a git HEAD');
+
     const suiteResult = runCli(root, ['baseline_suite_report', '--layer=engineering', '--format=json']);
     const suite = requireJsonObject(suiteResult, 'formal engineering suite proof');
     assertSuiteAccepted(suite, 'formal engineering suite proof');
     assert.equal(suite.formalProof, true, 'formal engineering suite proof should be formal');
+    assert.equal(suite.headHash, beforeArtifactCommitHead, 'generated suite report should bind to the pre-artifact-commit HEAD');
+    assert.equal(suite.materialHash, beforeArtifactCommitMaterialHash, 'generated suite report should bind to the current material hash');
+
+    git(root, ['add', '-f', '.lattice/artifacts/baseline']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'persist baseline proof artifacts']);
+    assert.notEqual(currentGitHead(root), beforeArtifactCommitHead, 'committing proof artifacts should move HEAD');
+    assert.equal(materialHash(root), beforeArtifactCommitMaterialHash, 'committing excluded proof artifacts must not change materialHash');
 
     const engineering = requireJsonObject(
       runCli(root, ['capability_claim_formal_evaluate', '--target=engineering', '--format=json']),
-      'formal engineering claim',
+      'formal engineering claim after persisted proof artifact commit',
     );
-    assertAuthorizedTrue(engineering, 'formal engineering claim');
-    assertOutcome(engineering, 'PASS', 'formal engineering claim');
-    assertClaimLevel(engineering, 'engineering', 'formal engineering claim');
-    assertLayer2Claim(engineering, 'UNLOCKED', 'formal engineering claim');
-    assertHigherClaimsLocked(engineering, 'formal engineering claim');
-    assertLocalOnly(engineering, false, 'formal engineering claim');
-    assertNoAuthorityOverclaim(engineering, 'formal engineering claim');
+    assertAuthorizedTrue(engineering, 'formal engineering claim after persisted proof artifact commit');
+    assertOutcome(engineering, 'PASS', 'formal engineering claim after persisted proof artifact commit');
+    assertClaimLevel(engineering, 'engineering', 'formal engineering claim after persisted proof artifact commit');
+    assertLayer2Claim(engineering, 'UNLOCKED', 'formal engineering claim after persisted proof artifact commit');
+    assertHigherClaimsLocked(engineering, 'formal engineering claim after persisted proof artifact commit');
+    assertLocalOnly(engineering, false, 'formal engineering claim after persisted proof artifact commit');
+    assertNoAuthorityOverclaim(engineering, 'formal engineering claim after persisted proof artifact commit');
     for (const key of ['authorityChanged', 'receiptVerified', 'productionDone', 'fullAuthorityDone']) {
-      assertRequiredFalseField(engineering, key, 'formal engineering claim');
+      assertRequiredFalseField(engineering, key, 'formal engineering claim after persisted proof artifact commit');
     }
 
     for (const target of ['loop-engineering', 'production-safety']) {

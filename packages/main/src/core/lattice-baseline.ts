@@ -2131,7 +2131,6 @@ function formalEngineeringSuiteRevalidationProblems(
     'falseDoneCount',
     'safetySuccessRate',
     'localOnly',
-    'headHash',
     'materialHash',
   ];
   for (const field of scalarFields) {
