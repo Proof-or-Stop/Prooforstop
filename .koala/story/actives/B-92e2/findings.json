@@ -44,7 +44,7 @@
       "desc": "packages/main/src/core/lattice-baseline.ts:1335 capability_claim_evaluate never authorizes an evidence-backed lower-layer claim. Even with seeded PASS suite reports for development+engineering, the command still returns authorized=false and authorizedClaimLevel=none while reporting highestEvidenceBackedClaim=engineering, so CHK-005 happy/edge behavior cannot succeed. Fix by deriving authorization/authorizedClaimLevel from the strongest satisfied lower-layer proof instead of hard-coding a permanent block for all targets.",
       "severity": "high",
       "category": "happy",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-10T02:20:54.427Z",
@@ -53,7 +53,9 @@
       "_hash": "3a343c974b5e8984bc195f632da4d6d53dbab2fa9f365bd2eb899eb8e4a392a3",
       "files": [
         "packages/main/src/core/lattice-baseline.ts"
-      ]
+      ],
+      "resolvedReason": "Fixed in 6d1fcae6: capability_claim_evaluate now derives authorized/authorizedClaimLevel from a fresh sequential chain of suiteStatus=PASS, authorization=authorized, localOnly=false, capabilityProof=true lower-layer suite reports; production-safety still remains blocked without external receipt/multi-host/soak authority proof. Verified by fresh engineering claim and stale lower-layer claim smoke scenarios plus lattice validate allPass=true.",
+      "resolvedAt": "2026-06-10T02:38:47.146Z"
     },
     {
       "id": "B-92e2:F-004",
