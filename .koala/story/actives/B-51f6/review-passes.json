@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-10T20:04:12.927Z",
       "reviewRunId": "B-51f6:RR-006",
       "_hash": "0a9a4b4112b162b93eda8ad12b9a341112a25cd4e5a411402b8720aa90f1e81b"
+    },
+    {
+      "id": "B-51f6:RP-004",
+      "agent": "koala-review-quality",
+      "note": "Re-checked prior quality findings against current evidence and live git state. F-001 now has reproducible readiness commands, exact Claude prompts plus anchor payload, and explicit authority-receipt-refs absence evidence in staging-readiness-audit.md/checklist verificationEvidence. F-002 now persists the original eight-file dirty baseline in the audit artifact. F-003 is fixed: git merge-base --is-ancestor main HEAD returns 0 and both main..HEAD and main...HEAD diffs contain only .koala/story/actives/B-51f6 metadata paths. Secret-pattern scan on the story diff found no leaked credentials, and there are no unrelated code-path changes outside B-51f6 metadata.",
+      "createdAt": "2026-06-10T20:08:18.524Z",
+      "reviewRound": "2026-06-10T20:04:12.927Z",
+      "reviewRunId": "B-51f6:RR-008",
+      "_hash": "6c3187f785aac64c54b3b6fc27e9c92efd16e81861fcf7f1f8d1b52f4b9268b8"
     }
   ]
 }
