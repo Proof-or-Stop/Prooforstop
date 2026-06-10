@@ -1,0 +1,67 @@
+{
+  "principles": [
+    "只补真实缺失的 independent review evidence，不为了优化而改 runner。",
+    "local-lifecycle proof 不能被表述为 Authority receipt 或 production DONE。",
+    "Layer 1 PASS 只能解锁 basic bounded development claim，不能跳层宣称 Engineering/Loop/Production。"
+  ],
+  "drivers": [
+    "当前 suite FAIL 的真实原因是 five expected-PASS runs 缺 local independent review evidence。",
+    "用户要求多 host/多 agent 并行处理但不允许 false claim。",
+    "Baseline 2-5 并行开发需要 Layer 1 formal proof 作为顺序证明前提。"
+  ],
+  "options": [
+    {
+      "name": "A: artifact proof completion only",
+      "pros": [
+        "直接修真实 blocker",
+        "不改变 runner 语义",
+        "可用双宿主证据审计"
+      ],
+      "cons": [
+        "需要为每个 run 生成和校验较多证据 artifact"
+      ]
+    },
+    {
+      "name": "B: modify suite runner to accept existing local execution",
+      "pros": [
+        "表面上更快让 suite PASS"
+      ],
+      "cons": [
+        "会把 runner availability 混同 formal proof",
+        "风险是 false DONE 和任意优化"
+      ]
+    },
+    {
+      "name": "C: defer Layer 1 proof and keep GO-NOT-YET",
+      "pros": [
+        "最保守，不会产生误 claim"
+      ],
+      "cons": [
+        "不能解决用户当前要求，也无法推进 Baseline 2-5 并行开发前置条件"
+      ]
+    }
+  ],
+  "chosen": "A: artifact proof completion only",
+  "rationale": "选择 A，因为当前 blocker 是证据缺失而不是 runner 错误。补双宿主 independent review evidence 能让 suite 在不放宽 gate、不升级 Authority、不误改 expected-block 的前提下变成可证明 PASS。",
+  "preMortem": [
+    {
+      "scenario": "误把 RED-GAP-BLOCK-1 改成 PASS",
+      "trigger": "批量更新 run 报告时只按 success=true 处理所有 baseline",
+      "consequence": "safety trap 失效，产生 false capability claim",
+      "mitigation": "脚本显式排除 RED-GAP-BLOCK-1，并断言 expectedOutcome=EXPECTED_BLOCK/outcome=EXPECTED_BLOCK 保持不变"
+    },
+    {
+      "scenario": "local evidence 被写成 Authority receipt-backed proof",
+      "trigger": "为了让报告更强而修改 authority fields",
+      "consequence": "违反 Host Neutral/Authority boundary，产生 production/receipt 误 claim",
+      "mitigation": "所有更新保留 authority.mode=non-authority、receiptVerified=false、authorityMode=off、evidenceClass=local-lifecycle"
+    },
+    {
+      "scenario": "双宿主 evidence 实际来自同一 host 或 stale digest",
+      "trigger": "复用一个 reviewer 输出填充两个 host，或 evidence 没绑定 run digest",
+      "consequence": "localReviewCertified=true 但不可证明独立，suite PASS 变成伪证",
+      "mitigation": "每个 run 写 codex 与 claude-code 两条 verdict，记录 materialDigest/promptDigest/validationDigest，并用机械检查拒绝 duplicate/stale/missing evidence"
+    }
+  ],
+  "timestamp": "2026-06-10T00:48:05.105Z"
+}
