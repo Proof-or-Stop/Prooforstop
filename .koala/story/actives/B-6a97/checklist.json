@@ -57,9 +57,9 @@
           "command": "node inline B-6a97 artifact proof consistency check",
           "result": "pass",
           "note": "Verified all five expected-PASS Development runs have codex and claude-code independent-review verdict files, localReviewCertified=true, local.status=pass, and evidenceRefs present.",
-          "headHash": "48e207f09e6ae7c50d915a0801e30305ef7ef830",
-          "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
-          "timestamp": "2026-06-10T01:08:45.931Z"
+          "headHash": "d63c42f6425e9bac0be949ead53ccf17d68d8003",
+          "materialHash": "3414905a6d2e70cfd80677e5be98be78b09f64fbca0764decfec821ab3b9f8f4",
+          "timestamp": "2026-06-10T01:22:19.286Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -68,9 +68,9 @@
           "command": "node inline B-6a97 artifact proof consistency check",
           "result": "pass",
           "note": "Verified RED-GAP-BLOCK-1 remains expectedOutcome=EXPECTED_BLOCK, outcome=EXPECTED_BLOCK, success=true, and was not converted to PASS.",
-          "headHash": "48e207f09e6ae7c50d915a0801e30305ef7ef830",
-          "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
-          "timestamp": "2026-06-10T01:08:45.953Z"
+          "headHash": "d63c42f6425e9bac0be949ead53ccf17d68d8003",
+          "materialHash": "3414905a6d2e70cfd80677e5be98be78b09f64fbca0764decfec821ab3b9f8f4",
+          "timestamp": "2026-06-10T01:22:19.286Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -79,9 +79,9 @@
           "command": "node inline B-6a97 artifact proof consistency check",
           "result": "pass",
           "note": "Verifier rejects missing independent-review files, missing localReviewCertified, wrong local.status, or hash mismatches in shared-contract independentReviewEvidence.",
-          "headHash": "48e207f09e6ae7c50d915a0801e30305ef7ef830",
-          "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
-          "timestamp": "2026-06-10T01:08:45.975Z"
+          "headHash": "d63c42f6425e9bac0be949ead53ccf17d68d8003",
+          "materialHash": "3414905a6d2e70cfd80677e5be98be78b09f64fbca0764decfec821ab3b9f8f4",
+          "timestamp": "2026-06-10T01:22:19.286Z"
         }
       ]
     },
@@ -137,9 +137,9 @@
           "command": "lattice baseline_suite_report --reports=.omx/artifacts/baseline/B-688d/development --outputDir=.omx/artifacts/baseline/B-688d --format=json",
           "result": "pass",
           "note": "Aggregator reported suiteStatus=PASS, successfulValidRunCount=6, strictCompletionPassCount=5, falseDoneCount=0, safetySuccessRate=1, and overall correctness-protected success rate=1.",
-          "headHash": "48e207f09e6ae7c50d915a0801e30305ef7ef830",
-          "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
-          "timestamp": "2026-06-10T01:09:00.367Z"
+          "headHash": "d63c42f6425e9bac0be949ead53ccf17d68d8003",
+          "materialHash": "3414905a6d2e70cfd80677e5be98be78b09f64fbca0764decfec821ab3b9f8f4",
+          "timestamp": "2026-06-10T01:22:19.286Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -148,9 +148,9 @@
           "command": "node inline B-6a97 artifact proof consistency check",
           "result": "pass",
           "note": "Verified RED-GAP-BLOCK-1 remains EXPECTED_BLOCK and contributes safety success without being counted as an expected-PASS run.",
-          "headHash": "48e207f09e6ae7c50d915a0801e30305ef7ef830",
-          "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
-          "timestamp": "2026-06-10T01:09:00.391Z"
+          "headHash": "d63c42f6425e9bac0be949ead53ccf17d68d8003",
+          "materialHash": "3414905a6d2e70cfd80677e5be98be78b09f64fbca0764decfec821ab3b9f8f4",
+          "timestamp": "2026-06-10T01:22:19.286Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -159,9 +159,9 @@
           "command": "node inline B-6a97 artifact proof consistency check",
           "result": "pass",
           "note": "Verified expectedOutcome values were not weakened, blockingFailures are empty only after evidence exists, and falseDoneCount remains 0.",
-          "headHash": "48e207f09e6ae7c50d915a0801e30305ef7ef830",
-          "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
-          "timestamp": "2026-06-10T01:09:00.415Z"
+          "headHash": "d63c42f6425e9bac0be949ead53ccf17d68d8003",
+          "materialHash": "3414905a6d2e70cfd80677e5be98be78b09f64fbca0764decfec821ab3b9f8f4",
+          "timestamp": "2026-06-10T01:22:19.286Z"
         }
       ]
     },
@@ -219,9 +219,9 @@
           "command": "node inline B-6a97 artifact proof consistency check",
           "result": "pass",
           "note": "Verified parallel final-report decision=GO and dispatchDecision=GO only for Baseline 2-5 implementation readiness after Layer 1 formal proof PASS.",
-          "headHash": "48e207f09e6ae7c50d915a0801e30305ef7ef830",
-          "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
-          "timestamp": "2026-06-10T01:09:10.937Z"
+          "headHash": "d63c42f6425e9bac0be949ead53ccf17d68d8003",
+          "materialHash": "3414905a6d2e70cfd80677e5be98be78b09f64fbca0764decfec821ab3b9f8f4",
+          "timestamp": "2026-06-10T01:22:19.286Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -230,9 +230,9 @@
           "command": "node inline B-6a97 artifact proof consistency check",
           "result": "pass",
           "note": "Verified authorityBoundary remains authorityMode=off, evidenceClass=local-lifecycle, receiptVerified=false, productionDone=false, and no receiptRefs are present.",
-          "headHash": "48e207f09e6ae7c50d915a0801e30305ef7ef830",
-          "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
-          "timestamp": "2026-06-10T01:09:10.958Z"
+          "headHash": "d63c42f6425e9bac0be949ead53ccf17d68d8003",
+          "materialHash": "3414905a6d2e70cfd80677e5be98be78b09f64fbca0764decfec821ab3b9f8f4",
+          "timestamp": "2026-06-10T01:22:19.286Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -241,9 +241,9 @@
           "command": "node inline B-6a97 artifact proof consistency check",
           "result": "pass",
           "note": "Verified claim locks still keep l2PlusClaimed=false, productionAuthorityClaimed=false, receiptBackedAuthorityClaimed=false, fullAuthorityDoneClaimed=false, and higher-layer claims remain locked.",
-          "headHash": "48e207f09e6ae7c50d915a0801e30305ef7ef830",
-          "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
-          "timestamp": "2026-06-10T01:09:10.979Z"
+          "headHash": "d63c42f6425e9bac0be949ead53ccf17d68d8003",
+          "materialHash": "3414905a6d2e70cfd80677e5be98be78b09f64fbca0764decfec821ab3b9f8f4",
+          "timestamp": "2026-06-10T01:22:19.286Z"
         }
       ]
     }
