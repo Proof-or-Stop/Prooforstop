@@ -352,9 +352,9 @@
           "command": "rg -n \"baseline_development_proof_import|baseline_proof_create|Engineering suiteStatus = PASS|Loop claim authorized = false|Production Safety claim authorized = false\" Lattice-Layer2-Proof-Bridge-Execution-Plan.md",
           "result": "pass",
           "note": "Document defines the concrete implementation sequence from Development proof import through Engineering suite PASS while preserving higher-layer claim blocks.",
-          "headHash": "4886b06949117bcb276f8b6b042abe72343dbefe",
+          "headHash": "b40522696e9c9c7698e85d234681fd6841022e7f",
           "materialHash": "3256c0f10c217b50dd979263927022cff06cc953949c1649890d0ac3ad009c91",
-          "timestamp": "2026-06-10T15:59:45.312Z"
+          "timestamp": "2026-06-10T16:00:00.404Z"
         },
         {
           "intentRef": "CHK-007:edge:0",
@@ -362,19 +362,19 @@
           "command": "rg -n \"local-diagnostic|lifecycle-backed|authority-backed|L0/read-only diagnostic|Authority Server receipt\" Lattice-Layer2-Proof-Bridge-Execution-Plan.md",
           "result": "pass",
           "note": "Document distinguishes local diagnostic CLI output, lifecycle-backed proof, and Authority-backed proof.",
-          "headHash": "4886b06949117bcb276f8b6b042abe72343dbefe",
+          "headHash": "b40522696e9c9c7698e85d234681fd6841022e7f",
           "materialHash": "3256c0f10c217b50dd979263927022cff06cc953949c1649890d0ac3ad009c91",
-          "timestamp": "2026-06-10T15:59:45.338Z"
+          "timestamp": "2026-06-10T16:00:00.430Z"
         },
         {
           "intentRef": "CHK-007:adversarial:0",
           "kind": "docs_check",
-          "command": "rg -n \"Do not make `baseline_run` produce `capabilityProof=true`|Do not edit JSON artifacts by hand|No host transcript or local diagnostic report can become proof by relabeling|raw Claude/Codex transcript without manifest|local diagnostic receipt\" Lattice-Layer2-Proof-Bridge-Execution-Plan.md && git diff --check -- Lattice-Layer2-Proof-Bridge-Execution-Plan.md",
+          "command": "rg -n \"Do not make .*baseline_run.*capabilityProof=true|Do not edit JSON artifacts by hand|No host transcript or local diagnostic report can become proof by relabeling|raw Claude/Codex transcript without manifest|local diagnostic receipt\" Lattice-Layer2-Proof-Bridge-Execution-Plan.md && git diff --check -- Lattice-Layer2-Proof-Bridge-Execution-Plan.md",
           "result": "pass",
           "note": "Document explicitly forbids relabeling local diagnostics, host transcripts, or manual JSON edits into formal proof.",
-          "headHash": "4886b06949117bcb276f8b6b042abe72343dbefe",
+          "headHash": "b40522696e9c9c7698e85d234681fd6841022e7f",
           "materialHash": "3256c0f10c217b50dd979263927022cff06cc953949c1649890d0ac3ad009c91",
-          "timestamp": "2026-06-10T15:59:45.363Z"
+          "timestamp": "2026-06-10T16:00:00.456Z"
         }
       ]
     }
