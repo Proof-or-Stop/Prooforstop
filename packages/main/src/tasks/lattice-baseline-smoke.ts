@@ -73,6 +73,10 @@ const PASS_ENGINEERING_BASELINE_IDS = [
   'ENG-LONG-RUN-1',
   'ENG-LOOP-REVIEW-1',
 ] as const;
+const ALL_ENGINEERING_BASELINE_IDS = [
+  ...PASS_ENGINEERING_BASELINE_IDS,
+  ...RISKY_ENGINEERING_BASELINE_IDS,
+] as const;
 const FORMAL_SUITE_RUN_ID = 'layer2-engineering-suite-smoke';
 const FORMAL_CLAIM_TARGET = 'engineering';
 const FORMAL_PROOF_FILES = [
@@ -444,12 +448,12 @@ function finalReportSeed(
     suiteRunId: FORMAL_SUITE_RUN_ID,
     claimTarget: FORMAL_CLAIM_TARGET,
     verifiedAt: new Date().toISOString(),
-    verificationEvidenceRefs: [gateArtifactRef(baselineId, 'verification-evidence.json')],
+    verificationEvidenceRefs: [gateArtifactRef(baselineId, 'verification-evidence.json', root)],
     reviewEvidenceRefs: [
-      `review:claude:${gateArtifactRef(baselineId, 'review-claude.json')}`,
-      `review:codex:${gateArtifactRef(baselineId, 'review-codex.json')}`,
+      `review:claude:${gateArtifactRef(baselineId, 'review-claude.json', root)}`,
+      `review:codex:${gateArtifactRef(baselineId, 'review-codex.json', root)}`,
     ],
-    lifecycleGateEvidenceRefs: [gateArtifactRef(baselineId, 'lifecycle-gate.json')],
+    lifecycleGateEvidenceRefs: [gateArtifactRef(baselineId, 'lifecycle-gate.json', root)],
     receiptRefs: [formalReceiptRef(root, baselineId)],
     blockedReasons: [],
     generatedAt: '2026-06-10T00:00:00.000Z',
@@ -477,25 +481,48 @@ function finalReportSeed(
   };
 }
 
-function gateArtifactContent(baselineId: string, fileName: string): string {
+function reviewArtifactContent(root: string, baselineId: string, host: 'claude' | 'codex'): string {
+  return `${JSON.stringify({
+    baselineId,
+    suiteRunId: FORMAL_SUITE_RUN_ID,
+    claimTarget: FORMAL_CLAIM_TARGET,
+    headHash: currentGitHead(root) ?? 'unavailable',
+    materialHash: materialHash(root),
+    host,
+    source: host,
+    verdict: 'pass',
+    generatedBy: 'lattice-baseline-smoke',
+  }, null, 2)}\n`;
+}
+
+function gateArtifactContent(baselineId: string, fileName: string, root?: string): string {
+  if (fileName === 'review-claude.json') {
+    assert.ok(root, 'review-claude.json content requires root');
+    return reviewArtifactContent(root, baselineId, 'claude');
+  }
+  if (fileName === 'review-codex.json') {
+    assert.ok(root, 'review-codex.json content requires root');
+    return reviewArtifactContent(root, baselineId, 'codex');
+  }
   return `${JSON.stringify({ baselineId, fileName, gate: true, generatedBy: 'lattice-baseline-smoke' }, null, 2)}\n`;
 }
 
-function gateArtifactRef(baselineId: string, fileName: string): string {
-  const digest = createHash('sha256').update(gateArtifactContent(baselineId, fileName)).digest('hex');
+function gateArtifactRef(baselineId: string, fileName: string, root?: string): string {
+  const digest = createHash('sha256').update(gateArtifactContent(baselineId, fileName, root)).digest('hex');
   return `artifact:${fileName}#sha256=${digest}`;
 }
 
-function formalReceiptRef(root: string, baselineId: string): string {
+function formalReceiptRef(root: string, baselineId: string, gateEvidenceRefs: readonly string[] = []): string {
   const evidenceDigest = createHash('sha256')
     .update([
       baselineId,
       FORMAL_SUITE_RUN_ID,
       FORMAL_CLAIM_TARGET,
-      gateArtifactRef(baselineId, 'verification-evidence.json'),
-      gateArtifactRef(baselineId, 'review-claude.json'),
-      gateArtifactRef(baselineId, 'review-codex.json'),
-      gateArtifactRef(baselineId, 'lifecycle-gate.json'),
+      gateArtifactRef(baselineId, 'verification-evidence.json', root),
+      `review:claude:${gateArtifactRef(baselineId, 'review-claude.json', root)}`,
+      `review:codex:${gateArtifactRef(baselineId, 'review-codex.json', root)}`,
+      gateArtifactRef(baselineId, 'lifecycle-gate.json', root),
+      ...gateEvidenceRefs,
     ].join('\n'))
     .digest('hex');
   return [
@@ -537,6 +564,7 @@ function riskyEngineeringPassReport(
 ): JsonObject {
   const runId = `${baselineId.toLowerCase()}-gated-pass`;
   const gateFiles = ['gate-review-approved.json', 'gate-rollback-reviewed.json'];
+  const refs = gateEvidenceRefs ?? [];
   return finalReportSeed(root, 'engineering', baselineId, {
     runId,
     expectedOutcome: 'PASS',
@@ -544,7 +572,7 @@ function riskyEngineeringPassReport(
     outcome: 'PASS',
     status: 'pass',
     gateEvidenceRefs,
-    receiptRefs: [formalReceiptRef(root, baselineId)],
+    receiptRefs: [formalReceiptRef(root, baselineId, refs)],
     blockedReasons: [],
     localOnly: false,
     capabilityProof: true,
@@ -574,7 +602,7 @@ function writeFinalReport(root: string, layer: string, baselineId: string, runId
     if (Array.isArray(files)) {
       for (const file of files) {
         if (typeof file !== 'string' || file === 'final-report.json' || file === 'final-report.md') continue;
-        writeFileSync(join(runDir, file), gateArtifactContent(baselineId, file));
+        writeFileSync(join(runDir, file), gateArtifactContent(baselineId, file, typeof content === 'string' ? undefined : root));
       }
     }
   }
@@ -981,10 +1009,44 @@ for (const defect of [
   },
   {
     label: 'missing-codex-review-ref',
-    mutate(report: JsonObject, _root: string): void {
-      report.reviewEvidenceRefs = [`review:claude:${gateArtifactRef('ENG-BUGFIX-1', 'review-claude.json')}`];
+    mutate(report: JsonObject, root: string): void {
+      report.reviewEvidenceRefs = [`review:claude:${gateArtifactRef('ENG-BUGFIX-1', 'review-claude.json', root)}`];
     },
     pattern: /Codex reviewEvidenceRefs|reviewEvidenceRefs/i,
+  },
+  {
+    label: 'missing-claude-review-ref',
+    mutate(report: JsonObject, root: string): void {
+      report.reviewEvidenceRefs = [`review:codex:${gateArtifactRef('ENG-BUGFIX-1', 'review-codex.json', root)}`];
+    },
+    pattern: /Claude reviewEvidenceRefs|reviewEvidenceRefs/i,
+  },
+  {
+    label: 'wrong-review-host-json',
+    mutate(report: JsonObject, root: string): void {
+      report.reviewEvidenceRefs = [
+        `review:claude:${gateArtifactRef('ENG-BUGFIX-1', 'review-codex.json', root)}`,
+        `review:codex:${gateArtifactRef('ENG-BUGFIX-1', 'review-claude.json', root)}`,
+      ];
+    },
+    pattern: /host|source|reviewEvidenceRefs/i,
+  },
+  {
+    label: 'same-review-artifact-file',
+    mutate(report: JsonObject, root: string): void {
+      report.reviewEvidenceRefs = [
+        `review:claude:${gateArtifactRef('ENG-BUGFIX-1', 'review-claude.json', root)}`,
+        `review:codex:${gateArtifactRef('ENG-BUGFIX-1', 'review-claude.json', root)}`,
+      ];
+    },
+    pattern: /distinct|reused|same|review artifact/i,
+  },
+  {
+    label: 'missing-lifecycle-gate-ref',
+    mutate(report: JsonObject, _root: string): void {
+      delete report.lifecycleGateEvidenceRefs;
+    },
+    pattern: /lifecycleGateEvidenceRefs|lifecycle/i,
   },
   {
     label: 'missing-receipt-suite-binding',
@@ -994,6 +1056,15 @@ for (const defect of [
       ];
     },
     pattern: /suiteRunId|receiptRef/i,
+  },
+  {
+    label: 'missing-receipt-evidence-digest-binding',
+    mutate(report: JsonObject, root: string): void {
+      report.receiptRefs = [
+        `receipt:baselineId=ENG-BUGFIX-1;suiteRunId=${FORMAL_SUITE_RUN_ID};claimTarget=${FORMAL_CLAIM_TARGET};headHash=${currentGitHead(root)!};materialHash=${materialHash(root)}`,
+      ];
+    },
+    pattern: /evidenceDigest|receiptRef/i,
   },
   {
     label: 'stale-verified-at',
@@ -1094,7 +1165,37 @@ for (const defect of [
   }
 }
 
-// 21. Formal Engineering suite proof unlocks only the Layer 2 Engineering claim.
+// 21. A forged Engineering suite summary cannot unlock without final-report proof.
+{
+  const root = initRepo('formal-claim-rejects-forged-suite');
+  try {
+    writeSuiteReport(root, 'development');
+    writeSuiteReport(root, 'engineering', {
+      suiteStatus: 'PASS',
+      authorization: 'authorized',
+      outcome: 'PASS',
+      capabilityProof: true,
+      localOnly: false,
+      formalProof: true,
+      engineeringBaseline: 'PASS',
+      suiteRunId: FORMAL_SUITE_RUN_ID,
+      claimTarget: FORMAL_CLAIM_TARGET,
+      requiredBaselineIds: [...ALL_ENGINEERING_BASELINE_IDS],
+      coveredBaselineIds: [...ALL_ENGINEERING_BASELINE_IDS],
+      missingBaselineIds: [],
+    });
+
+    const result = runCli(root, ['capability_claim_formal_evaluate', '--target=engineering', '--format=json']);
+    const output = requireJsonObject(result, 'formal claim rejects forged suite summary');
+    assertAuthorizedFalse(output, 'formal claim rejects forged suite summary');
+    assertLayer2Claim(output, 'LOCKED', 'formal claim rejects forged suite summary');
+    assertMentions(output, /rebuilt|final-report|missing baseline|accepted final-report/i, 'formal claim should revalidate final-report artifacts');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// 22. Formal Engineering suite proof unlocks only the Layer 2 Engineering claim.
 {
   const root = initRepo('formal-claim-engineering-unlocked');
   try {
@@ -1115,7 +1216,10 @@ for (const defect of [
     assertLayer2Claim(engineering, 'UNLOCKED', 'formal engineering claim');
     assertHigherClaimsLocked(engineering, 'formal engineering claim');
     assertLocalOnly(engineering, false, 'formal engineering claim');
-    assertRequiredFalseField(engineering, 'productionDone', 'formal engineering claim');
+    assertNoAuthorityOverclaim(engineering, 'formal engineering claim');
+    for (const key of ['authorityChanged', 'receiptVerified', 'productionDone', 'fullAuthorityDone']) {
+      assertRequiredFalseField(engineering, key, 'formal engineering claim');
+    }
 
     for (const target of ['loop-engineering', 'production-safety']) {
       const higher = requireJsonObject(
@@ -1132,7 +1236,7 @@ for (const defect of [
   }
 }
 
-// 22. Inconsistent PASS suite proof cannot authorize Engineering claims.
+// 23. Inconsistent PASS suite proof cannot authorize Engineering claims.
 {
   const root = initRepo('claim-engineering-incoherent-suite');
   try {

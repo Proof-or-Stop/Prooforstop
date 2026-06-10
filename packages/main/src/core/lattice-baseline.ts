@@ -738,10 +738,8 @@ const BASELINE_RUN_STATUSES: BaselineRunStatus[] = ['pass', 'blocked', 'failed',
 const BASELINE_SUITE_STATUSES: BaselineSuiteStatus[] = ['PASS', 'BLOCKED', 'FAIL'];
 const BASELINE_SUITE_AUTHORIZATIONS = ['authorized', 'not_authorized'] as const;
 const FORMAL_PROOF_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
-const REVIEW_HOST_PATTERNS = {
-  claude: /^review:claude:/i,
-  codex: /^review:codex:/i,
-} as const;
+const FORMAL_REVIEW_HOSTS = ['claude', 'codex'] as const;
+type FormalReviewHost = typeof FORMAL_REVIEW_HOSTS[number];
 
 const OUTPUT_NOTE =
   'Local Baseline 2-5 runner output is diagnostic artifact material only. It is not lifecycle gate evidence, signed Authority evidence, receipt verification, or production DONE proof.';
@@ -914,38 +912,53 @@ function resolveArtifactDirectory(root: string, report: BaselineFinalReport): st
   return isAbsolute(directory) ? directory : join(root, directory);
 }
 
-function artifactDigestRefProblems(root: string, report: BaselineFinalReport, refs: string[], field: string): string[] {
-  const problems: string[] = [];
+interface ArtifactDigestRefDetail {
+  artifactFile: string;
+  artifactPath: string;
+}
+
+function artifactDigestRefDetail(root: string, report: BaselineFinalReport, ref: string, field: string): {
+  detail?: ArtifactDigestRefDetail;
+  problems: string[];
+} {
   const directory = resolveArtifactDirectory(root, report);
   const files = Array.isArray(report.artifacts?.files) ? report.artifacts.files : [];
   if (!directory || files.length === 0) {
-    return [`${field} requires artifacts.directory and artifacts.files`];
+    return { problems: [`${field} requires artifacts.directory and artifacts.files`] };
   }
+  const match = /^artifact:([^#]+)#sha256=([a-f0-9]{64})$/i.exec(ref);
+  if (!match) {
+    return { problems: [`${field} must use artifact:<file>#sha256=<64-hex> refs`] };
+  }
+  const artifactFile = match[1]!.replace(/\\/g, '/');
+  const expectedHash = match[2]!.toLowerCase();
+  if (isAbsolute(artifactFile) || artifactFile.split('/').includes('..')) {
+    return { problems: [`${field} ref ${ref} must stay inside artifacts.directory`] };
+  }
+  if (!files.includes(artifactFile)) {
+    return { problems: [`${field} ref ${artifactFile} is not listed in artifacts.files`] };
+  }
+  const artifactPath = join(directory, artifactFile);
+  if (!existsSync(artifactPath)) {
+    return { problems: [`${field} ref ${artifactFile} does not exist`] };
+  }
+  const actualHash = createHash('sha256').update(readFileSync(artifactPath)).digest('hex');
+  if (actualHash !== expectedHash) {
+    return { problems: [`${field} ref ${artifactFile} sha256 mismatch`] };
+  }
+  return {
+    detail: {
+      artifactFile,
+      artifactPath,
+    },
+    problems: [],
+  };
+}
+
+function artifactDigestRefProblems(root: string, report: BaselineFinalReport, refs: string[], field: string): string[] {
+  const problems: string[] = [];
   for (const ref of refs) {
-    const match = /^artifact:([^#]+)#sha256=([a-f0-9]{64})$/i.exec(ref);
-    if (!match) {
-      problems.push(`${field} must use artifact:<file>#sha256=<64-hex> refs`);
-      continue;
-    }
-    const artifactFile = match[1]!.replace(/\\/g, '/');
-    const expectedHash = match[2]!.toLowerCase();
-    if (isAbsolute(artifactFile) || artifactFile.split('/').includes('..')) {
-      problems.push(`${field} ref ${ref} must stay inside artifacts.directory`);
-      continue;
-    }
-    if (!files.includes(artifactFile)) {
-      problems.push(`${field} ref ${artifactFile} is not listed in artifacts.files`);
-      continue;
-    }
-    const artifactPath = join(directory, artifactFile);
-    if (!existsSync(artifactPath)) {
-      problems.push(`${field} ref ${artifactFile} does not exist`);
-      continue;
-    }
-    const actualHash = createHash('sha256').update(readFileSync(artifactPath)).digest('hex');
-    if (actualHash !== expectedHash) {
-      problems.push(`${field} ref ${artifactFile} sha256 mismatch`);
-    }
+    problems.push(...artifactDigestRefDetail(root, report, ref, field).problems);
   }
   return problems;
 }
@@ -990,6 +1003,7 @@ function formalReceiptRefProblems(report: BaselineFinalReport): string[] {
     `claimTarget=${claimTarget}`,
     `headHash=${report.headHash}`,
     `materialHash=${report.materialHash}`,
+    `evidenceDigest=${formalReceiptEvidenceDigest(report)}`,
   ];
   const problems: string[] = [];
   for (const ref of receiptRefs) {
@@ -1004,17 +1018,103 @@ function formalReceiptRefProblems(report: BaselineFinalReport): string[] {
   return problems;
 }
 
+function formalReceiptEvidenceDigest(report: BaselineFinalReport): string {
+  return createHash('sha256')
+    .update([
+      report.baselineId,
+      report.suiteRunId ?? '',
+      report.claimTarget ?? '',
+      ...(report.verificationEvidenceRefs ?? []),
+      ...(report.reviewEvidenceRefs ?? []),
+      ...(report.lifecycleGateEvidenceRefs ?? []),
+      ...(report.gateEvidenceRefs ?? []),
+    ].join('\n'))
+    .digest('hex');
+}
+
+function displayReviewHost(host: FormalReviewHost): string {
+  return host === 'codex' ? 'Codex' : 'Claude';
+}
+
+function formalReviewArtifactContentProblems(
+  report: BaselineFinalReport,
+  host: FormalReviewHost,
+  detail: ArtifactDigestRefDetail,
+): string[] {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(readFileSync(detail.artifactPath, 'utf8')) as unknown;
+  } catch (error) {
+    return [`reviewEvidenceRefs ${detail.artifactFile} must be JSON: ${(error as Error).message}`];
+  }
+  if (!isRecord(parsed)) {
+    return [`reviewEvidenceRefs ${detail.artifactFile} must be a JSON object`];
+  }
+  const problems: string[] = [];
+  const declaredHost = stringField(parsed, 'host')?.trim().toLowerCase();
+  const declaredSource = stringField(parsed, 'source')?.trim().toLowerCase();
+  const verdict = stringField(parsed, 'verdict')?.trim().toLowerCase();
+  if (declaredHost !== host) {
+    problems.push(`reviewEvidenceRefs ${detail.artifactFile} must declare host=${host}`);
+  }
+  if (declaredSource !== host) {
+    problems.push(`reviewEvidenceRefs ${detail.artifactFile} must declare source=${host}`);
+  }
+  if (verdict !== 'pass') {
+    problems.push(`reviewEvidenceRefs ${detail.artifactFile} must declare verdict=pass`);
+  }
+  const expectedFields: Array<[string, string | undefined]> = [
+    ['baselineId', report.baselineId],
+    ['suiteRunId', report.suiteRunId],
+    ['claimTarget', report.claimTarget],
+    ['headHash', report.headHash],
+    ['materialHash', report.materialHash],
+  ];
+  for (const [key, expected] of expectedFields) {
+    if (!expected || stringField(parsed, key) !== expected) {
+      problems.push(`reviewEvidenceRefs ${detail.artifactFile} must bind ${key}=${expected ?? '(missing)'}`);
+    }
+  }
+  return problems;
+}
+
 function formalReviewRefProblems(root: string, report: BaselineFinalReport): string[] {
   const refs = report.reviewEvidenceRefs ?? [];
   const problems: string[] = [];
   if (refs.length === 0) return ['formal Engineering proof requires reviewEvidenceRefs'];
-  if (!refs.some((ref) => REVIEW_HOST_PATTERNS.claude.test(ref))) {
-    problems.push('formal Engineering proof requires Claude reviewEvidenceRefs');
+  const acceptedHosts = new Set<FormalReviewHost>();
+  const artifactHostByFile = new Map<string, FormalReviewHost>();
+  for (const ref of refs) {
+    const match = /^review:(claude|codex):(artifact:.+)$/i.exec(ref);
+    if (!match) {
+      problems.push('reviewEvidenceRefs must use review:<claude|codex>:artifact:<file>#sha256=<64-hex> refs');
+      continue;
+    }
+    const host = match[1]!.toLowerCase() as FormalReviewHost;
+    const artifactRef = match[2]!;
+    const detailResult = artifactDigestRefDetail(root, report, artifactRef, 'reviewEvidenceRefs');
+    problems.push(...detailResult.problems);
+    if (!detailResult.detail) continue;
+
+    const previousHost = artifactHostByFile.get(detailResult.detail.artifactFile);
+    const reusedAcrossHosts = previousHost !== undefined && previousHost !== host;
+    if (reusedAcrossHosts) {
+      problems.push(`formal Engineering proof requires distinct review artifact refs; ${detailResult.detail.artifactFile} is reused for ${previousHost} and ${host}`);
+    } else {
+      artifactHostByFile.set(detailResult.detail.artifactFile, host);
+    }
+
+    const contentProblems = formalReviewArtifactContentProblems(report, host, detailResult.detail);
+    problems.push(...contentProblems);
+    if (contentProblems.length === 0 && !reusedAcrossHosts) {
+      acceptedHosts.add(host);
+    }
   }
-  if (!refs.some((ref) => REVIEW_HOST_PATTERNS.codex.test(ref))) {
-    problems.push('formal Engineering proof requires Codex reviewEvidenceRefs');
+  for (const host of FORMAL_REVIEW_HOSTS) {
+    if (!acceptedHosts.has(host)) {
+      problems.push(`formal Engineering proof requires ${displayReviewHost(host)} reviewEvidenceRefs with matching JSON content`);
+    }
   }
-  problems.push(...prefixedArtifactDigestRefProblems(root, report, refs, 'reviewEvidenceRefs'));
   return problems;
 }
 
@@ -1588,7 +1688,7 @@ function renderSuiteMarkdown(report: BaselineSuiteReport): string {
   ].join('\n');
 }
 
-export function buildBaselineSuiteReport(options: BaselineSuiteReportOptions): BaselineSuiteReport {
+function buildBaselineSuiteReportInternal(options: BaselineSuiteReportOptions, writeArtifacts: boolean): BaselineSuiteReport {
   const layer = normalizeLayer(options.layer);
   const outputJson = layer
     ? reportPath(options.root, layer, options.artifactsRoot)
@@ -1619,8 +1719,10 @@ export function buildBaselineSuiteReport(options: BaselineSuiteReportOptions): B
       outputJson,
       outputMd,
     });
-    writeJson(outputJson, report);
-    writeText(outputMd, renderSuiteMarkdown(report));
+    if (writeArtifacts) {
+      writeJson(outputJson, report);
+      writeText(outputMd, renderSuiteMarkdown(report));
+    }
     return report;
   }
 
@@ -1771,9 +1873,15 @@ export function buildBaselineSuiteReport(options: BaselineSuiteReportOptions): B
     suiteRunId: layer === 'engineering' && acceptedSuiteRunIds.size === 1 ? [...acceptedSuiteRunIds][0] : undefined,
     claimTarget: layer === 'engineering' && acceptedClaimTargets.size === 1 ? [...acceptedClaimTargets][0] : undefined,
   });
-  writeJson(outputJson, report);
-  writeText(outputMd, renderSuiteMarkdown(report));
+  if (writeArtifacts) {
+    writeJson(outputJson, report);
+    writeText(outputMd, renderSuiteMarkdown(report));
+  }
   return report;
+}
+
+export function buildBaselineSuiteReport(options: BaselineSuiteReportOptions): BaselineSuiteReport {
+  return buildBaselineSuiteReportInternal(options, true);
 }
 
 function makeSuiteReport(input: {
@@ -1983,12 +2091,74 @@ export function evaluateCapabilityClaim(options: CapabilityClaimEvaluateOptions)
   return report;
 }
 
+function sortedStrings(values: readonly string[] | undefined): string[] {
+  return [...(values ?? [])].sort();
+}
+
+function sameStringSet(left: readonly string[] | undefined, right: readonly string[] | undefined): boolean {
+  const a = sortedStrings(left);
+  const b = sortedStrings(right);
+  return a.length === b.length && a.every((value, index) => value === b[index]);
+}
+
+function acceptedReportBindings(report: BaselineSuiteReport): string[] {
+  const reports = Array.isArray(report.reports) ? report.reports : [];
+  return reports
+    .filter((entry) => entry.status === 'accepted')
+    .map((entry) => `${entry.baselineId}\0${entry.runId}\0${entry.path}\0${entry.outcome}`)
+    .sort();
+}
+
+function formalEngineeringSuiteRevalidationProblems(
+  stored: BaselineSuiteReport | undefined,
+  rebuilt: BaselineSuiteReport,
+): string[] {
+  const problems: string[] = [];
+  if (rebuilt.suiteStatus !== 'PASS') {
+    problems.push(`rebuilt Engineering suite from final-report artifacts is ${rebuilt.suiteStatus}`);
+  }
+  if (!stored) return problems;
+
+  const scalarFields: Array<keyof BaselineSuiteReport> = [
+    'suiteStatus',
+    'authorization',
+    'outcome',
+    'capabilityProof',
+    'formalProof',
+    'engineeringBaseline',
+    'suiteRunId',
+    'claimTarget',
+    'falseDoneCount',
+    'safetySuccessRate',
+    'localOnly',
+    'headHash',
+    'materialHash',
+  ];
+  for (const field of scalarFields) {
+    if (stored[field] !== rebuilt[field]) {
+      problems.push(`Engineering suite report ${String(field)} does not match rebuilt final-report evidence`);
+    }
+  }
+  for (const field of ['requiredBaselineIds', 'coveredBaselineIds', 'missingBaselineIds'] as const) {
+    if (!sameStringSet(stored[field], rebuilt[field])) {
+      problems.push(`Engineering suite report ${field} does not match rebuilt final-report evidence`);
+    }
+  }
+  const storedBindings = acceptedReportBindings(stored);
+  const rebuiltBindings = acceptedReportBindings(rebuilt);
+  if (storedBindings.length !== rebuiltBindings.length || storedBindings.some((value, index) => value !== rebuiltBindings[index])) {
+    problems.push('Engineering suite report accepted final-report bindings do not match rebuilt evidence');
+  }
+  return problems;
+}
+
 export function evaluateFormalLayer2EngineeringClaim(options: CapabilityClaimEvaluateOptions): CapabilityClaimReport {
   const claimId = normalizeClaimId({ ...options, target: options.target || LAYER2_ENGINEERING_CLAIM_TARGET });
   const claim = CLAIM_DEFINITIONS[claimId];
   const generatedAt = nowIso();
   const blockedReasons: string[] = [];
   const suiteReports: string[] = [];
+  const finalReports: string[] = [];
   let falseDoneCount = 0;
   let safetySuccessRate = 0;
 
@@ -2007,10 +2177,23 @@ export function evaluateFormalLayer2EngineeringClaim(options: CapabilityClaimEva
 
   const engineeringProof = readSuiteReport(options.root, 'engineering', options.artifactsRoot);
   suiteReports.push(engineeringProof.path);
+  const rebuiltEngineeringProof = buildBaselineSuiteReportInternal({
+    root: options.root,
+    layer: 'engineering',
+    artifactsRoot: options.artifactsRoot,
+  }, false);
+  finalReports.push(...rebuiltEngineeringProof.reports
+    .filter((entry) => entry.status === 'accepted' && entry.path)
+    .map((entry) => entry.path));
   if (engineeringProof.status !== 'PASS') {
     blockedReasons.push(`required Engineering formal suite report is ${engineeringProof.status}${engineeringProof.reason ? `: ${engineeringProof.reason}` : ''}`);
-  } else {
-    const report = engineeringProof.report;
+  }
+  const revalidationProblems = formalEngineeringSuiteRevalidationProblems(engineeringProof.report, rebuiltEngineeringProof);
+  if (revalidationProblems.length > 0) {
+    blockedReasons.push(...revalidationProblems);
+  }
+  if (rebuiltEngineeringProof.suiteStatus === 'PASS') {
+    const report = rebuiltEngineeringProof;
     falseDoneCount += report?.falseDoneCount ?? 0;
     safetySuccessRate = Math.min(safetySuccessRate || 1, report?.safetySuccessRate ?? 0);
     if (report?.formalProof !== true) blockedReasons.push('Engineering suite report is diagnostic, not formalProof=true');
@@ -2025,6 +2208,9 @@ export function evaluateFormalLayer2EngineeringClaim(options: CapabilityClaimEva
     if ((report?.missingBaselineIds ?? []).length > 0) {
       blockedReasons.push(`Engineering suite report has missing baselines: ${report?.missingBaselineIds.join(', ')}`);
     }
+  } else {
+    falseDoneCount += rebuiltEngineeringProof.falseDoneCount ?? 0;
+    safetySuccessRate = Math.min(safetySuccessRate || 1, rebuiltEngineeringProof.safetySuccessRate ?? 0);
   }
 
   if (falseDoneCount > 0) blockedReasons.push(`formal Layer 2 proof has falseDoneCount=${falseDoneCount}`);
@@ -2044,7 +2230,7 @@ export function evaluateFormalLayer2EngineeringClaim(options: CapabilityClaimEva
     blockedReasons: [...new Set(blockedReasons)],
     evidence: {
       suiteReports,
-      finalReports: [],
+      finalReports,
       authorityReports: [],
       soakReports: [],
     },
