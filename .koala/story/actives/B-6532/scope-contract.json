@@ -76,8 +76,17 @@
       "paths": [
         "packages/main/src/tasks/baseline-suite-report-smoke.ts"
       ]
+    },
+    {
+      "actor": "main-auditor",
+      "reason": "Development baseline PASS proof requires baseline_run CLI to expose and forward existing localReviewEvidenceRefs and local host count arguments instead of dropping them.",
+      "timestamp": "2026-06-10T23:22:35.335Z",
+      "paths": [
+        "packages/main/src/handlers/baseline.ts",
+        "packages/main/src/cli-engine.ts"
+      ]
     }
   ],
   "createdAt": "2026-06-10T22:32:56.682Z",
-  "updatedAt": "2026-06-10T23:19:03.969Z"
+  "updatedAt": "2026-06-10T23:22:35.335Z"
 }
