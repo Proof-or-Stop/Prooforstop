@@ -65,6 +65,23 @@
       ],
       "resolvedReason": "Resolved by merging current main into story/B-51f6. Verified git merge-base --is-ancestor main HEAD returns 0 and git diff --name-only main..HEAD contains only .koala/story/actives/B-51f6 metadata paths.",
       "resolvedAt": "2026-06-10T20:04:24.317Z"
+    },
+    {
+      "id": "B-51f6:F-004",
+      "desc": "Coverage gap in CHK-003 same-anchor evidence: staging-readiness-audit.md records exact commands and Claude prompts, but the persisted anchor payload is incomplete for the claimed same-anchor dual-host review. The audit includes authorityUrl, policy/serverKey fields, digests, and HEAD, but it does not persist materialHash, targetPhase as an explicit anchor field, receipt-ref path/consumed receipt id as explicit unavailable anchors, or the job/run/evidence-digest anchor set required by CHK-003 context. See staging-readiness-audit.md lines 282-292 and 1-30/232-247: the prompt anchor list and audit summary do not serialize the full requested anchor payload, so CHK-003:happy:0 is not fully evidenced.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-10T20:08:01.436Z",
+      "reviewRound": "2026-06-10T20:04:12.927Z",
+      "reviewRunId": "B-51f6:RR-007",
+      "_hash": "9be5190444006eed35d099252ca0d5ab7af52198d2944248ab37fd980853a8b7",
+      "files": [
+        ".koala/story/actives/B-51f6/evidence/staging-readiness-audit.md",
+        ".koala/story/actives/B-51f6/checklist.json"
+      ]
     }
   ]
 }
