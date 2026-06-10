@@ -1,0 +1,113 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Probe staging Authority readiness and structured live-smoke contract",
+      "context": "Fetch /health, /openapi.json, and /v1/authority/policy from https://stagging.hostneutral.net. Treat readiness as PASS only when the server advertises a non-default serverKeyId, non-ephemeral non-productionInert configured key, exposes /v1/receipts/{receipt_id}/proof, has a trusted server public key/digest pin source, and the smoke has customer API key, actor key, runner id, session id, project id, target repo commit, accepted dirty-state policy, and version/commit anchors for Authority Server, Lattice CLI, and Runner. The evidence plan must reserve structured anchors for policy response, server key digest, actor key id, runner/session/job/run ids, signed evidence digest, gate input digest, decision digest, receipt id, receipt-ref path, consumed receipt id, and negative-control output. Otherwise classify the exact blocker before any positive smoke claim.",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-receipt-cross-repo-live-smoke.md",
+        "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
+        "docs/requirements/decisions/lattice-authority-live-integration.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Readiness transcript names authorityUrl, serverKeyId, nonDefaultServerKey=true, productionInert=false, key profile configured, proof endpoint present, trusted key digest/pin source, Authority/CLI/Runner version+commit anchors, and all required live-smoke identity/secret sources without printing secret values.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If staging is reachable but uses default/dev/local-test/ephemeral/productionInert key, lacks proof endpoint, lacks non-default serverKeyId, lacks pin source, lacks required identity/secret sources, or cannot expose version/commit anchors, classify the exact blocker and do not run positive production smoke.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A local-test key, default dev-server-key, transport accepted=true, docs reachability, or unpinned public key alone must not set receiptVerified, strongEvidenceConsumed, productionDone, or production-gate-decision.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-002",
+      "title": "Run TEST gate receipt proof and consumption smoke only after readiness passes",
+      "context": "Target exactly the TEST lifecycle gate for this story. When CHK-001 readiness passes, create or identify a production gate_decision receipt for targetPhase=TEST, fetch its proof bundle, verify signature/inputDigest/decisionDigest/storyId/targetPhase/headHash/materialHash/key digest, write authority-receipt-refs.json only for classification=production-gate-decision, and run Lattice gate validation that names the consumed receipt id. Do not attempt DONE in this story unless a later story explicitly defines DONE-specific receipt semantics.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+        "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+        "docs/requirements/decisions/authority-receipt-cross-repo-live-smoke.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "With production-capable staging readiness, CLI verifies a TEST gate_decision proof, writes a structured receipt ref, and TEST gate output names the consumed receipt id with strongEvidenceConsumed=true.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If readiness fails, positive smoke is skipped with a classified blocker and no receipt ref is written as production-gate-decision.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "DONE gate is not silently accepted by a TEST receipt unless policy explicitly allows it; this story must not broaden target phase during execution.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-003",
+      "title": "Run explicit negative-control matrix and same-anchor dual-host review",
+      "context": "Record formal evidence for either a completed TEST gate smoke or a readiness-blocked smoke. If CHK-001 passes, run fail-closed controls for missing receipt ref, corrupt signature, story mismatch, target phase mismatch, head hash drift, material hash drift, production-inert/local-test key, non-gate receipt, transport accepted=true without verification, and duplicate same-host/session attempts where the policy requires independence. In all cases, capture independent Codex and Claude host judgments over the same authority anchor set: authorityUrl, policy response/digest, serverKeyId/keyDigest, headHash, materialHash, receipt-ref path, consumed receipt id, targetPhase=TEST, job/run/evidence digests, and negative-control outputs. Host verdicts are execution-host local evidence only; they must never substitute for Authority receipt evidence or derive production readiness.",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-receipt-cross-repo-live-smoke.md",
+        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+        "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md",
+        "docs/requirements/decisions/lattice-authority-live-integration.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Formal evidence includes Codex and Claude independent judgments over the same authority anchor set: authorityUrl, policy digest, serverKeyId/keyDigest, headHash, materialHash, receipt-ref path, consumed receipt id, targetPhase=TEST, job/run/evidence digests, and negative-control outputs.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If CHK-001 readiness fails, evidence records the exact blocker class and commands; Codex and Claude both confirm no host verdict, transcript, or local diagnostic can substitute for a missing production gate_decision receipt.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "When a production receipt is available, missing ref, corrupt signature, story mismatch, target phase mismatch, head/material drift, production-inert key, non-gate receipt, transport-only accepted=true, and duplicate same-host/session authority attempts all fail closed.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
+    }
+  ]
+}
