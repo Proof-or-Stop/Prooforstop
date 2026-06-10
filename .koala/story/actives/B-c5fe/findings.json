@@ -15,6 +15,22 @@
       "files": [
         "docs/requirements/decisions/authority-session-receipt-gate-execution.md"
       ]
+    },
+    {
+      "id": "B-c5fe:F-002",
+      "desc": "docs/requirements/decisions/authority-session-receipt-gate-execution.md:134 and :261 WHY: the document says the receipt-ref artifact must let a consumer answer which gate consumed the receipt, but the example uses gateConsumers=[\"REVIEW\",\"TEST\",\"DONE\"] as a static field on the ref itself. That collapses eligibility and actual consumption into one value and creates an overclaim risk where a ref can appear to have satisfied DONE before any DONE decision consumed it. Fix: split static eligibility from recorded consumption events, or remove gateConsumers from the example until a per-gate consumption schema is defined.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-10T02:42:25.126Z",
+      "reviewRound": "2026-06-10T02:39:58.486Z",
+      "reviewRunId": "B-c5fe:RR-002",
+      "_hash": "f6c21e37d83679cb71704a2ceee65ff71ec42f36b58e67ea2a38cf0e4e9f1aee",
+      "files": [
+        "docs/requirements/decisions/authority-session-receipt-gate-execution.md"
+      ]
     }
   ]
 }
