@@ -214,6 +214,29 @@
           "npm --prefix packages/main run test:worktree-policy-smoke",
           "npm --prefix packages/main run test:planner-unattended-smoke"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run gap_analyze before and after the fix set, plus the focused smoke tests and lattice validate -> final authoritative outputs show 0 high and 0 medium gaps and validation passes with evidence bound to this story and HEAD; WHY: proves actual convergence instead of narrative closure.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If a second host review tool such as Claude CLI is unavailable or downgraded on this machine, record that availability result as advisory evidence while keeping the same Lattice command outputs authoritative -> the story still distinguishes host-neutral gate facts from host-specific advisory notes; WHY: preserves host neutrality without hiding environment differences.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Attempt to claim success using only host-specific review transcripts or one machine observation while gap_analyze, validate, or focused test evidence is missing, stale, or contradictory -> verification must reject completion and require current Lattice outputs as the source of truth; WHY: prevents non-authoritative evidence from masking correctness gaps.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
       }
     }
   ]
