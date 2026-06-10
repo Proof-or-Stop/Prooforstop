@@ -1,0 +1,82 @@
+{
+  "principles": [
+    "只补真实 correctness gap：本地 source CLI 缺 baseline 命令，不能依赖全局安装漂移。",
+    "并行实现可以加速，但 proof/claim 解锁必须顺序、机器可检查、fail-closed。",
+    "Production/Authority 相关输出必须保持 thin-client 边界，不制造 receipt 或 productionDone。",
+    "共享 artifact schema 要小而稳定，避免四层各写一套格式。"
+  ],
+  "drivers": [
+    "用户要先并行开发 Baseline 2-5 的实现准备。",
+    "Layer 1 已证明基础 baseline readiness，但高层能力还不能宣称 PASS。",
+    "当前 Lattice CLI 的流程事实需要 command policy 和 process fact registry 配套。",
+    "后续 story 需要能复用这些 runner/report artifacts。"
+  ],
+  "options": [
+    {
+      "name": "A: Thin local baseline runner/report plus fail-closed claim evaluator",
+      "pros": [
+        "直接修复本地 CLI 缺命令的 correctness gap",
+        "实现面小，适合 B-92e2 一次完成并验证",
+        "保留 sequential proof，不把本地 harness 误说成能力已证明",
+        "可为后续真实 ENG/UDM/PROD baseline 执行提供统一 artifact contract"
+      ],
+      "cons": [
+        "不会一次性证明 Engineering/Loop/Production 全部真实 PASS",
+        "部分 high-risk baseline 会先输出 EXPECTED_BLOCK 或 not_authorized"
+      ]
+    },
+    {
+      "name": "B: Full real baseline execution farm with live multi-host authority",
+      "pros": [
+        "目标形态更接近 production-grade unattended development",
+        "可以覆盖真实 host execution、receipt、soak 的端到端路径"
+      ],
+      "cons": [
+        "超出当前 story 和 CLI thin-client authority 边界",
+        "需要外部 Authority/runner infrastructure，容易制造假 PASS",
+        "会违反只修真实 correctness issue 和不要任意优化"
+      ]
+    },
+    {
+      "name": "C: Only document the baseline plan and defer local CLI implementation",
+      "pros": [
+        "风险最低，几乎不碰代码",
+        "不会引入新的 runtime surface"
+      ],
+      "cons": [
+        "不能解决 node bin/lattice.js 本地未知命令问题",
+        "无法支撑用户要求的并行开发准备",
+        "后续仍依赖全局 CLI 漂移"
+      ]
+    }
+  ],
+  "chosen": "A: Thin local baseline runner/report plus fail-closed claim evaluator",
+  "rationale": "选择 A，因为它正好修复本地 CLI 缺 baseline runner/report 的真实问题，同时把高层 claim 锁住，不把实现准备误当能力证明。",
+  "preMortem": [
+    {
+      "scenario": "Capability overclaim",
+      "trigger": "Capability evaluator 只看到 harness 代码存在就输出 production-safety PASS",
+      "consequence": "Lattice falsely claims unattended/production-grade ability without lower-layer proof",
+      "mitigation": "claim evaluator 必须读取 lower-layer suiteStatus/falseDone/authority artifacts，缺任何必要事实都 authorized=false 并列 blocked reasons"
+    },
+    {
+      "scenario": "Authority boundary collapse",
+      "trigger": "Production Safety runner 把本地 JSON、shadow status 或 transport accepted 当成 receiptVerified",
+      "consequence": "普通 CLI thin-client 被误当 Authority client，违反 PD-1/PD-2",
+      "mitigation": "production artifacts 固定 receiptVerified=false/productionDone=false，AUTH-RECEIPT-1 在缺 verified receipt 时 EXPECTED_BLOCK/not_authorized"
+    },
+    {
+      "scenario": "Schema divergence across parallel workstreams",
+      "trigger": "Engineering、Loop、Production、Claim 各自定义 final-report 字段",
+      "consequence": "suite aggregation 和 claim gate 不能可靠消费证据，后续集成混乱",
+      "mitigation": "先实现共享 schema/version/outcome/authority/blockedReasons/materialHash 字段，四层 runner 复用同一 core builder"
+    },
+    {
+      "scenario": "Global/local CLI drift remains hidden",
+      "trigger": "测试只调用已安装的 global lattice，不调用 worktree local bin/dist",
+      "consequence": "源码仍缺命令，用户换环境后 baseline commands 继续未知",
+      "mitigation": "smoke 必须 build packages/main 后调用 node bin/lattice.js 或 packages/main/dist/cli.js 验证命令 schema与输出"
+    }
+  ],
+  "timestamp": "2026-06-10T01:49:53.147Z"
+}

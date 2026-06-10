@@ -1,0 +1,97 @@
+{
+  "findings": [
+    {
+      "id": "B-92e2:F-001",
+      "desc": "packages/main/src/tasks/lattice-baseline-smoke.ts claims stale-artifact coverage but never seeds a stale final-report or stale lower-layer suite report. The only negative suite case at lines 443-469 covers malformed JSON, mixed-schema, and authority-overclaim; the claim cases at lines 471-513 cover missing lower layers and sequential unlock only. CHK-001/002/003/005/006 verificationEvidence says smoke verified stale rejection, but this required fail-closed path is untested and the recorded evidence overstates coverage.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-10T02:18:37.791Z",
+      "reviewRound": "2026-06-10T02:16:02.008Z",
+      "reviewRunId": "B-92e2:RR-002",
+      "_hash": "b09dae0ff7f1477a96f8eeb945c3c6c34a268396aab88281276a9911e9b59339",
+      "files": [
+        "packages/main/src/tasks/lattice-baseline-smoke.ts"
+      ],
+      "resolvedReason": "Fixed in 6d1fcae6: lattice-baseline-smoke now seeds real stale final-report and stale lower-layer suite cases, plus invalid status/local-stub/fresh-authorized lower-layer claim coverage. Verified on current story branch with npm --prefix packages/main run test:lattice-baseline-smoke, npm test, and lattice validate allPass=true.",
+      "resolvedAt": "2026-06-10T02:38:34.656Z"
+    },
+    {
+      "id": "B-92e2:F-002",
+      "desc": "packages/main/src/core/lattice-baseline.ts:1171-1232 and 1277-1279 promote purely local baseline_run stub artifacts into engineering suiteStatus=PASS/authorization=authorized as soon as a development suite file exists. Repro: seed a PASS development baseline-suite-report.json, run baseline_run for each ENG-* id, then run node packages/main/dist/cli.js baseline_suite_report --layer=engineering --format=json; it returns PASS/authorized with no real engineering proof. That violates the documented boundary that Parallel Development is implementation-only and claim/proof unlock stays sequential (Lattice-Parallel-Development-Capability.md:28-31, 82-84), and Engineering suite PASS requires real runs plus maturity/rate checks (Lattice-Engineering-baseline.md:421-469), not local harness presence.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-10T02:19:28.230Z",
+      "reviewRound": "2026-06-10T02:16:02.008Z",
+      "reviewRunId": "B-92e2:RR-001",
+      "_hash": "c6a5e99266c1f8673f5f094e83186b76c0000562b8f8ec7c9a5323359e40e14a",
+      "files": [
+        "packages/main/src/core/lattice-baseline.ts",
+        "Lattice-Engineering-baseline.md",
+        "Lattice-Capability-Claim-baseline.md",
+        "Lattice-Parallel-Development-Capability.md"
+      ],
+      "resolvedReason": "Fixed in 6d1fcae6: baseline_suite_report now requires fresh non-local capabilityProof=true final reports and refuses localOnly/capabilityProof=false baseline_run artifacts, so local implementation diagnostics stay BLOCKED/not_authorized and cannot authorize Engineering suite PASS. Verified by lattice-baseline-smoke local-stub-suite scenario and lattice validate allPass=true.",
+      "resolvedAt": "2026-06-10T02:38:41.004Z"
+    },
+    {
+      "id": "B-92e2:F-003",
+      "desc": "packages/main/src/core/lattice-baseline.ts:1335 capability_claim_evaluate never authorizes an evidence-backed lower-layer claim. Even with seeded PASS suite reports for development+engineering, the command still returns authorized=false and authorizedClaimLevel=none while reporting highestEvidenceBackedClaim=engineering, so CHK-005 happy/edge behavior cannot succeed. Fix by deriving authorization/authorizedClaimLevel from the strongest satisfied lower-layer proof instead of hard-coding a permanent block for all targets.",
+      "severity": "high",
+      "category": "happy",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-10T02:20:54.427Z",
+      "reviewRound": "2026-06-10T02:16:02.008Z",
+      "reviewRunId": "B-92e2:RR-003",
+      "_hash": "3a343c974b5e8984bc195f632da4d6d53dbab2fa9f365bd2eb899eb8e4a392a3",
+      "files": [
+        "packages/main/src/core/lattice-baseline.ts"
+      ],
+      "resolvedReason": "Fixed in 6d1fcae6: capability_claim_evaluate now derives authorized/authorizedClaimLevel from a fresh sequential chain of suiteStatus=PASS, authorization=authorized, localOnly=false, capabilityProof=true lower-layer suite reports; production-safety still remains blocked without external receipt/multi-host/soak authority proof. Verified by fresh engineering claim and stale lower-layer claim smoke scenarios plus lattice validate allPass=true.",
+      "resolvedAt": "2026-06-10T02:38:47.146Z"
+    },
+    {
+      "id": "B-92e2:F-004",
+      "desc": "packages/main/src/core/lattice-baseline.ts:1045 parseFinalReport accepts any non-empty status string, so malformed final-report artifacts are not rejected. I seeded a full engineering layer where ENG-BUGFIX-1 used status=\"totally-wrong\"; baseline_suite_report still returned suiteStatus=PASS and marked that artifact accepted. Fix by validating status against pass|blocked|failed|not_authorized before accepting the report, and refuse malformed status values fail-closed.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-10T02:21:01.086Z",
+      "reviewRound": "2026-06-10T02:16:02.008Z",
+      "reviewRunId": "B-92e2:RR-003",
+      "_hash": "b0accfc15c070c6f7e1aab93647bd9cbfd6d02835f76be09c5854da6787596ec",
+      "files": [
+        "packages/main/src/core/lattice-baseline.ts"
+      ],
+      "resolvedReason": "Fixed in 6d1fcae6: parseFinalReport now validates status against pass|blocked|failed|not_authorized and rejects outcome/status inconsistencies fail-closed. Verified by lattice-baseline-smoke invalid-status scenario and lattice validate allPass=true.",
+      "resolvedAt": "2026-06-10T02:38:52.027Z"
+    },
+    {
+      "id": "B-92e2:F-005",
+      "desc": "packages/main/src/core/lattice-baseline.ts:1074-1112 accepts a lower-layer baseline-suite-report as PASS proof without validating suite outcome coherence. readSuiteReport only checks schema/layer/staleness/suiteStatus=PASS/authorization=authorized/localOnly=false/capabilityProof=true, then evaluateCapabilityClaim at 1411-1442 upgrades highestAuthorizedClaim directly from that result. Repro: seed development baseline-suite-report.json with suiteStatus=PASS, authorization=authorized, capabilityProof=true, localOnly=false, but outcome=EXPECTED_BLOCK; seed a normal engineering suite report; then run `node packages/main/dist/cli.js capability_claim_evaluate --target=engineering --format=json`. Current output is authorized=true, outcome=PASS, authorizedClaimLevel=engineering even though the lower-layer proof artifact is internally contradictory. This is a false-PASS/false-authorization bug. Fix by making readSuiteReport fail closed on malformed or inconsistent suite outcome/state (at minimum reject non-PASS outcome when suiteStatus=PASS/authorization=authorized, and ideally validate the suite enum pair the same way parseFinalReport now validates outcome/status).",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-10T02:42:42.729Z",
+      "reviewRound": "2026-06-10T02:38:25.968Z",
+      "reviewRunId": "B-92e2:RR-006",
+      "_hash": "318047595037cae2df348266b0feed6fa3681be7e7d79df124adb8a619e96bd8",
+      "files": [
+        "packages/main/src/core/lattice-baseline.ts"
+      ],
+      "resolvedReason": "Fixed in 6d08cdca: readSuiteReport now validates suite report enum/coherence and rejects suiteStatus=PASS proofs unless outcome=PASS, authorization=authorized, capabilityProof=true, and localOnly=false. Added lattice-baseline-smoke regression for incoherent development suite outcome=EXPECTED_BLOCK otherwise authorized proof; verified build, lattice-baseline-smoke, command-ownership-contract, npm test, and lattice validate allPass=true.",
+      "resolvedAt": "2026-06-10T02:49:53.918Z"
+    }
+  ]
+}
