@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-10T02:38:25.968Z",
       "reviewRunId": "B-92e2:RR-005",
       "_hash": "75703ef2a70bd2b015346f3965bbc64bf2e80e226022ea6eed418e391a15aea4"
+    },
+    {
+      "id": "B-92e2:RP-002",
+      "agent": "koala-review-concept",
+      "note": "Concept re-review after F-002 fix: verified original repro now stays BLOCKED/not_authorized with localOnly=true capabilityProof=false even when development suite PASS is pre-seeded; verified parallel high-layer artifact does not unlock proof; verified production-safety/authority fields remain fail-closed and capability_claim_evaluate only authorizes sequential lower-layer claims up to engineering/loop-engineering. Commands: npm --prefix packages/main run test:lattice-baseline-smoke; manual baseline_run/baseline_suite_report/capability_claim_evaluate repros in temp repos.",
+      "createdAt": "2026-06-10T02:44:19.750Z",
+      "reviewRound": "2026-06-10T02:38:25.968Z",
+      "reviewRunId": "B-92e2:RR-004",
+      "_hash": "b9553428f53d7866b0e5a5665f98c82d84114a94d9c74e13c5da8e44e44721c0"
     }
   ]
 }
