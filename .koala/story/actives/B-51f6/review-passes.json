@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-10T19:53:37.881Z",
       "reviewRunId": "B-51f6:RR-005",
       "_hash": "f7a704ae722232c20cf9d3e7f334fa2a9874dafef7902ca74220b691eb6eceb8"
+    },
+    {
+      "id": "B-51f6:RP-003",
+      "agent": "koala-review-concept",
+      "note": "Re-verified current staging probes and story evidence. readiness remains BLOCKED because policy still reports dev-server-key/local-test/ephemeral/isDefaultTestKey/productionInert, OpenAPI still lacks /v1/receipts/{receipt_id}/proof with live 404 probe, no authority-receipt-refs.json exists, and the audit transcript explicitly states host verdicts are local evidence only and cannot substitute for a production gate_decision receipt. Scope still stays TEST-only; DONE semantics remain excluded and the story phase is still REVIEW pending remaining reviewer passes.",
+      "createdAt": "2026-06-10T20:08:05.886Z",
+      "reviewRound": "2026-06-10T20:04:12.927Z",
+      "reviewRunId": "B-51f6:RR-006",
+      "_hash": "0a9a4b4112b162b93eda8ad12b9a341112a25cd4e5a411402b8720aa90f1e81b"
     }
   ]
 }
