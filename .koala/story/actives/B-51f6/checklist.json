@@ -214,12 +214,13 @@
           "intentRef": "CHK-003:adversarial:0",
           "kind": "manual_transcript",
           "verdict": "blocked_classified",
-          "command": "npm run test:authority-receipt-proof; npm run test:authority-gate-receipts; npm run test:authority-gate-consumption",
+          "file": ".koala/story/actives/B-51f6/evidence/staging-readiness-audit.md",
+          "command": "npm run build && npm run test:authority-receipt-proof && npm run test:authority-gate-receipts && npm run test:authority-gate-consumption && find . -name authority-receipt-refs.json -print && sed -n '1,260p' .koala/story/actives/B-51f6/evidence/staging-readiness-audit.md",
           "result": "pass",
-          "note": "Receipt-dependent negative controls were not run against staging because no production receipt exists. Local regression smokes for corrupt/mismatched/non-production receipt behavior passed and are recorded only as fail-closed support evidence.",
-          "headHash": "2d251e3f2d0fbf1738d3a673ca9d7a88ec44e3e4",
-          "materialHash": "0c5798fc3a0e0731eac5171a15086c0a967883f96be5f4f768d1aece704e736c",
-          "timestamp": "2026-06-10T19:53:08.873Z"
+          "note": "Local fail-closed smokes passed and exact receipt-ref absence check shows production-receipt-dependent negative controls were not run against staging because no production receipt exists.",
+          "headHash": "ed5377662c92be322cbfe2ea162b11399b0fd7a9",
+          "materialHash": "a9421651d41f770be0e89a2a646d289c132b69bbbd096e536427a8a6ead900a3",
+          "timestamp": "2026-06-10T20:03:42.965Z"
         }
       ]
     }
