@@ -52,9 +52,9 @@
           "command": "node -e docs check for required execution streams and rollout sections",
           "result": "pass",
           "note": "Post-fix docs check passed 12/12. The document contains the title, Execution streams, Phased rollout, and role/prerequisite tables that define the end-to-end strong-evidence rollout across Python Authority Server, runner host, Lattice CLI, and cross-repo validation.",
-          "headHash": "4e9ec4e852d3c8218ec4588dc1fa849eedcbaccd",
-          "materialHash": "52ee4069ca13104fc56d4b1a59279796bceab3857958935fc0760f82f00ee865",
-          "timestamp": "2026-06-10T02:44:50.906Z"
+          "headHash": "d7664f34d06950e4cf3048db81d8696ac3cd17e8",
+          "materialHash": "34a5bd830fa6aa1ef422a6922be18a01cd2e48ac96455c413cf1d9af044c618e",
+          "timestamp": "2026-06-10T03:02:24.166Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -63,9 +63,9 @@
           "command": "node -e docs check for session presence vs binding wording",
           "result": "pass",
           "note": "Post-fix docs check passed 12/12. The document states KOALA_AUTHORITY_SESSION_ID is presence detection only and separately requires the session id to be bound into the Authority job/evidence path before it matters to gates.",
-          "headHash": "4e9ec4e852d3c8218ec4588dc1fa849eedcbaccd",
-          "materialHash": "52ee4069ca13104fc56d4b1a59279796bceab3857958935fc0760f82f00ee865",
-          "timestamp": "2026-06-10T02:44:50.929Z"
+          "headHash": "d7664f34d06950e4cf3048db81d8696ac3cd17e8",
+          "materialHash": "34a5bd830fa6aa1ef422a6922be18a01cd2e48ac96455c413cf1d9af044c618e",
+          "timestamp": "2026-06-10T03:02:24.166Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -74,9 +74,9 @@
           "command": "node -e docs check for overclaim rejection wording, per-gate consumption events, and enforce approval prerequisite",
           "result": "pass",
           "note": "Post-fix docs check passed 12/12. The document rejects transport accepted, fake/local receipts, and prose-only pass claims; strongEvidenceConsumed=true is derived only from verified receipt refs consumed by gate predicates; eligibility is separate from consumptionEvents; Phase 3/4 require explicit enforce-mode product approval.",
-          "headHash": "4e9ec4e852d3c8218ec4588dc1fa849eedcbaccd",
-          "materialHash": "52ee4069ca13104fc56d4b1a59279796bceab3857958935fc0760f82f00ee865",
-          "timestamp": "2026-06-10T02:44:50.951Z"
+          "headHash": "d7664f34d06950e4cf3048db81d8696ac3cd17e8",
+          "materialHash": "34a5bd830fa6aa1ef422a6922be18a01cd2e48ac96455c413cf1d9af044c618e",
+          "timestamp": "2026-06-10T03:02:24.166Z"
         }
       ]
     }
