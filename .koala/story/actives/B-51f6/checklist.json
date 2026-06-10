@@ -203,6 +203,17 @@
           "headHash": "645af7cd0de24bf3de54df825c28443244cd9030",
           "materialHash": "0c5798fc3a0e0731eac5171a15086c0a967883f96be5f4f768d1aece704e736c",
           "timestamp": "2026-06-10T19:53:08.577Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "blocked_classified",
+          "command": "npm run test:authority-receipt-proof; npm run test:authority-gate-receipts; npm run test:authority-gate-consumption",
+          "result": "pass",
+          "note": "Receipt-dependent negative controls were not run against staging because no production receipt exists. Local regression smokes for corrupt/mismatched/non-production receipt behavior passed and are recorded only as fail-closed support evidence.",
+          "headHash": "2d251e3f2d0fbf1738d3a673ca9d7a88ec44e3e4",
+          "materialHash": "0c5798fc3a0e0731eac5171a15086c0a967883f96be5f4f768d1aece704e736c",
+          "timestamp": "2026-06-10T19:53:08.873Z"
         }
       ]
     }
