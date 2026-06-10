@@ -12,12 +12,13 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "User sees authority receipt verification reject unsupported algorithms with an explicit fail-closed reason, while ed25519 receipt tests still pass.",
+      "userSees": "User sees \"unsupported_algorithm\" for non-ed25519 receipt verification and \"authority receipt signature and native bindings verified\" for the valid ed25519 path.",
       "files": {
         "modify": [
           "packages/main/src/core/authority-contracts.ts",
           "packages/main/src/core/authority-client.ts",
-          "packages/main/src/core/lattice-authority-native.ts"
+          "packages/main/src/core/lattice-authority-native.ts",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md"
         ],
         "create": [],
         "test": [
