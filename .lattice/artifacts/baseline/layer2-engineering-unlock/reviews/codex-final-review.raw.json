@@ -1,0 +1,29 @@
+{
+  "host": "codex",
+  "source": "B-6532 worktree at cdef157d4033c140ba9430f2e48a6322399af2a1",
+  "verdict": "pass",
+  "findings": [],
+  "checked": [
+    "Artifacts are under .lattice/artifacts/baseline/layer2-engineering-unlock; no baseline hits found under .omx.",
+    "baseline_suite_report rebuilt Engineering as PASS with all 9 ENG baselines accepted.",
+    "Engineering claim formal evaluation returned PASS/authorized=true.",
+    "Loop and production-safety formal evaluations returned EXPECTED_BLOCK/authorized=false.",
+    "Stored claim report keeps loopEngineeringClaim, productionSafetyClaim, and globalCapabilityClaim LOCKED.",
+    "Authority boundary fields remain false: receiptVerified, productionDone, fullAuthorityDone.",
+    "Fail-closed trap summary covers forged suite summary, missing/wrong/reused host review, missing lifecycle gate ref, missing receipt evidenceDigest, stale materialHash, and local-only diagnostic artifacts."
+  ],
+  "claimBoundary": {
+    "engineering": "UNLOCKED",
+    "loopEngineering": "LOCKED",
+    "productionSafety": "LOCKED",
+    "globalCapability": "LOCKED",
+    "authorityChanged": false,
+    "receiptVerified": false,
+    "productionDone": false,
+    "fullAuthorityDone": false
+  },
+  "notes": [
+    "Global lattice binary was unavailable; used repo-local node packages/main/dist/cli.js.",
+    "Final git status is clean after restoring a generated report rewritten by the suggested report command."
+  ]
+}

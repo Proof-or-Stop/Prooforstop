@@ -1,0 +1,68 @@
+I have all the data needed. Here is the review result:
+
+```json
+{
+  "host": "claude",
+  "source": "lattice-host-reviewer-B-6532",
+  "verdict": "pass",
+  "findings": [],
+  "checked": [
+    {
+      "question": "Artifacts under .lattice/artifacts/baseline/layer2-engineering-unlock, not .omx",
+      "result": "pass",
+      "detail": "All baseline artifacts reside under .lattice/artifacts/baseline/layer2-engineering-unlock/. .omx/ contains only runtime state (hud-state.json, tmux hooks, logs) — no baseline artifacts."
+    },
+    {
+      "question": "Host-neutral non-authority boundaries preserved",
+      "result": "pass",
+      "detail": "All final-reports, suite report, and claim report consistently set authorityChanged:false, receiptVerified:false, productionDone:false, fullAuthorityDone:false, canClaimProductionDone:false, receiptRefs:[]. Suite report notes explicitly state 'Local Baseline 2-5 runner output is diagnostic artifact material only. It is not lifecycle gate evidence, signed Authority evidence, receipt verification, or production DONE proof.' No Authority receipt claims found."
+    },
+    {
+      "question": "Layer 2 Engineering suite covers all 9 ENG baselines with correct PASS/EXPECTED_BLOCK semantics",
+      "result": "pass",
+      "detail": "requiredBaselineIds = coveredBaselineIds = 9 baselines (ENG-MULTI-FILE-1, ENG-EXISTING-REPO-1, ENG-BUGFIX-1, ENG-REGRESSION-1, ENG-DATA-MIGRATION-1, ENG-AUTH-SECURITY-1, ENG-FRONTEND-VISUAL-1, ENG-LONG-RUN-1, ENG-LOOP-REVIEW-1). missingBaselineIds=[]. 7 baselines PASS, 2 baselines (ENG-DATA-MIGRATION-1, ENG-AUTH-SECURITY-1) are EXPECTED_BLOCK with expectedOutcomes including both EXPECTED_BLOCK and PASS — all status=accepted."
+    },
+    {
+      "question": "Claim evaluator unlocks only Engineering, keeps Loop/Production/global locked",
+      "result": "pass",
+      "detail": "claim-report.json: layer2EngineeringClaim='UNLOCKED', loopEngineeringClaim='LOCKED', productionSafetyClaim='LOCKED', globalCapabilityClaim='LOCKED'. Limitations explicitly list layers 3-5 as locked. prohibitedWording blocks production-ready and Authority receipt claims."
+    },
+    {
+      "question": "Fail-closed traps cover all 8 required scenarios",
+      "result": "pass",
+      "detail": "summary.json contains 8 traps: forged-suite-summary, missing-review-host, wrong-host-json, reused-review-artifact, missing-lifecycle-gate-ref, missing-receipt-evidence-digest, stale-material-hash, local-only-diagnostic-artifacts. All backed by lattice-baseline-smoke PASS. All have authorizedTrueAllowed:false and suitePassAllowedWhenForged:false."
+    },
+    {
+      "question": "Per-baseline review artifacts exist with distinct host bindings",
+      "result": "pass",
+      "detail": "Each of 9 ENG baselines has both review-claude.json (host:claude) and review-codex.json (host:codex) with distinct SHA256 digests in reviewEvidenceRefs. Host/source fields match ref prefixes (review:claude:, review:codex:)."
+    },
+    {
+      "question": "Lifecycle gate refs present on all formal reports",
+      "result": "pass",
+      "detail": "All 9 final-reports contain non-empty lifecycleGateEvidenceRefs pointing to lifecycle-gate.json with SHA256 binding. Lifecycle gate files exist with accepted:true."
+    },
+    {
+      "question": "materialHash consistency",
+      "result": "pass",
+      "detail": "Consistent materialHash f7ac7a18... across suite report, all final reports, all review artifacts, lifecycle gates, and fail-closed trap summary."
+    }
+  ],
+  "claimBoundary": {
+    "layer2EngineeringClaim": "UNLOCKED",
+    "loopEngineeringClaim": "LOCKED",
+    "productionSafetyClaim": "LOCKED",
+    "globalCapabilityClaim": "LOCKED",
+    "authorityChanged": false,
+    "receiptVerified": false,
+    "productionDone": false,
+    "fullAuthorityDone": false
+  },
+  "notes": [
+    "Top-level reviews/ contains empty placeholder files (claude-final-review.raw.json, codex-final-review.raw.json at 0 bytes). Per-baseline review artifacts are the binding evidence; top-level raw files appear to be placeholders and are not consumed by the suite evaluator.",
+    ".omx/ contains only runtime state, no baseline artifacts — correct separation.",
+    "Development layer (Layer 1) suite also PASS with all 6 baselines covered, serving as lowerLayerProof.",
+    "EXPECTED_BLOCK baselines (DATA-MIGRATION, AUTH-SECURITY) correctly carry refusalEvidenceRefs and expectedBlockReasons, demonstrating gate discipline rather than false-PASS."
+  ]
+}
+```
