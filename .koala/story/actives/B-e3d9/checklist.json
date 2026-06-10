@@ -48,6 +48,29 @@
         "test": [
           "packages/main/src/tasks/dispatch-run-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run the user-facing command/help/policy surface after the contract change -> gap_analyze and command metadata expose exactly one current dry-run contract and no longer require a stale supportsDryRun field; WHY: proves the truth source was converged rather than papered over.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Exercise a command that supports dry-run and a command that does not -> the reported/help-visible policy must match actual handler behavior for both, without inventing metadata for commands that lack real dry-run semantics; WHY: catches inconsistent logic between docs/policy and runtime.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Attempt to satisfy the gap by adding speculative supportsDryRun-style metadata that is not consumed by the live command-policy/help path -> verification should fail unless the surfaced contract is mechanically tied to current runtime behavior; WHY: blocks arbitrary optimization and metadata-only fixes.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
