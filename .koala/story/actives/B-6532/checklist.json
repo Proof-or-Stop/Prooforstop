@@ -193,7 +193,41 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Terminal output shows Engineering baseline-suite-report.json has engineeringBaseline=PASS, formalProof=true, localOnly=false, coveredBaselineIds length 9, missingBaselineIds empty, and falseDoneCount=0.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-baseline.ts",
+          "packages/main/src/tasks/lattice-baseline-smoke.ts"
+        ],
+        "create": [
+          ".lattice/artifacts/baseline/layer2-engineering-unlock/engineering/baseline-suite-report.json",
+          ".lattice/artifacts/baseline/layer2-engineering-unlock/engineering/baseline-suite-report.md"
+        ],
+        "test": [
+          "packages/main/src/tasks/lattice-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "baseline_suite_report --layer=engineering over the .lattice root returns PASS and covers all 9 ENG baselines.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Expected-block Engineering baselines are counted correctly without being treated as false DONE.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A forged stored suite summary that disagrees with rebuilt final-report evidence is blocked.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-006",
