@@ -211,7 +211,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "A developer can request a capability claim report and see the highest authorized claim level plus explicit blocked reasons for overclaim, non-authority, or stale evidence.",
+      "userSees": "`node bin/lattice.js capability_claim_evaluate --target=production-safety --format=json` prints `\"authorized\":false`, `\"highestAuthorizedClaim\"`, and blocked reasons naming missing lower-layer or authority evidence.",
       "files": {
         "modify": [
           "packages/main/src/core/lattice-baseline.ts",
