@@ -81,9 +81,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/unlock-layer2-ENG-suite.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-10T21:11:03.782Z",
       "userSees": "User sees lower-layer Development proof pinned or ingested in the selected artifacts root, with stale or missing proof reported as blocked.",
       "files": {
         "modify": [
@@ -113,7 +113,39 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke accepts Engineering suite proof only when fresh Development suite proof exists in the selected artifacts root.",
+          "headHash": "709e1ab7f59e54956945c8c9683c4b11a4748746",
+          "materialHash": "d8d294973c48a678542a01d83dc723637bf22cb41a96dc6e6157a6580060a16f",
+          "timestamp": "2026-06-10T21:11:03.807Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke case missing-development-proof keeps Engineering suite BLOCKED when Development proof is absent.",
+          "headHash": "709e1ab7f59e54956945c8c9683c4b11a4748746",
+          "materialHash": "d8d294973c48a678542a01d83dc723637bf22cb41a96dc6e6157a6580060a16f",
+          "timestamp": "2026-06-10T21:11:03.829Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke cases stale-development-proof and stale-lower-suite reject stale or mismatched lower-layer proof.",
+          "headHash": "709e1ab7f59e54956945c8c9683c4b11a4748746",
+          "materialHash": "d8d294973c48a678542a01d83dc723637bf22cb41a96dc6e6157a6580060a16f",
+          "timestamp": "2026-06-10T21:11:03.852Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
