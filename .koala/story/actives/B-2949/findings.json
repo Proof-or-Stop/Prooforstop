@@ -23,7 +23,7 @@
       "desc": "Coverage evidence is not replayable for CHK-001:edge:0 and CHK-002:adversarial:0. checklist_get records docs_check result=pass for `node -e \"check document contains implementation-readiness/local diagnostic/audit-only proof boundaries\"` and for `git diff --check main...HEAD && node -e \"check stale/fake/localOnly/malformed/generic blockedReasons conditions\"`, but replaying the node commands exits 1 with SyntaxError: Unexpected identifier. git diff --check main...HEAD passes and the document has matching content, but these verificationEvidence records claim PASS for commands that cannot execute, so coverage evidence must be replaced with executable rg/node checks or refreshed evidence before REVIEW can pass.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-06-10T14:34:01.308Z",
@@ -32,7 +32,9 @@
       "_hash": "d1f9bc19834b0c65a1961dbdd6ef6135d6053bd8f7d2a6dbcc28dbb2b8685847",
       "files": [
         "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md"
-      ]
+      ],
+      "resolvedReason": "Resolved by commits eea72922 and 1f74a1ff. Replaced the non-executable node -e placeholder evidence commands with replayable rg/git diff checks: CHK-001:edge:0 now uses rg over implementation readiness/local diagnostic/host transcript/formal proof terms; CHK-002:adversarial:0 now uses rg over fail-closed categories plus git diff --check main...HEAD. Stale CHK-003 evidence was refreshed by e8218bb.",
+      "resolvedAt": "2026-06-10T14:39:03.861Z"
     }
   ]
 }
