@@ -292,9 +292,9 @@
         "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
         "Lattice-Parallel-Development-Capability.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-10T12:49:21.111Z",
-      "endTime": null,
+      "endTime": "2026-06-10T12:49:21.966Z",
       "userSees": "The final delivery shows current Claude and Codex host verdicts for the implemented contract, making the remaining claim boundary visible to the user.",
       "verificationIntent": {
         "happy": [
@@ -315,7 +315,45 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "audit_only",
+          "file": ".omx/artifacts/claude-B-c886-engineering-contract-audit.md",
+          "command": "Claude CLI read-only audit of Engineering baseline contract diff",
+          "result": "pass",
+          "note": "Claude CLI final verdict PASS for audit diff 0cc43b3dee01d637c89d15f5570d63289689d17f8be31ef2be96a3d229aa151b. Code is committed as 7efb8fb8ac8deba1c9e558333092d4c5714ad0fa; current materialHash f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e is unchanged by later checklist metadata. Audit-only evidence, not Authority proof.",
+          "headHash": "5d1c043ea9e8adb2b9ef1aef1645c817767012d7",
+          "materialHash": "f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e",
+          "timestamp": "2026-06-10T12:49:22.027Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "audit_only",
+          "file": ".omx/artifacts/codex-B-c886-engineering-contract-audit.md",
+          "command": "Codex CLI read-only audit of Engineering baseline contract diff",
+          "result": "pass",
+          "note": "Codex CLI final verdict PASS for audit diff 0cc43b3dee01d637c89d15f5570d63289689d17f8be31ef2be96a3d229aa151b after prior BLOCKED findings were fixed. Code is committed as 7efb8fb8ac8deba1c9e558333092d4c5714ad0fa; current materialHash f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e is unchanged by later checklist metadata. Audit-only evidence, not Authority proof.",
+          "headHash": "5d1c043ea9e8adb2b9ef1aef1645c817767012d7",
+          "materialHash": "f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e",
+          "timestamp": "2026-06-10T12:49:22.078Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/lattice-baseline-smoke.ts",
+          "command": "npm run build && npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Host verdicts are recorded as audit_only; formal suite authorization still depends on machine evidence and fail-closed baseline reports, not on host self-attestation.",
+          "headHash": "5d1c043ea9e8adb2b9ef1aef1645c817767012d7",
+          "materialHash": "f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e",
+          "timestamp": "2026-06-10T12:49:22.135Z"
+        }
+      ]
     }
   ]
 }
