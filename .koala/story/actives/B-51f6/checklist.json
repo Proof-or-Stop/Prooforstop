@@ -154,9 +154,9 @@
         "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md",
         "docs/requirements/decisions/lattice-authority-live-integration.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-10T19:53:18.310Z",
       "verificationIntent": {
         "happy": [
           {
@@ -233,6 +233,16 @@
       "timestamp": "2026-06-10T19:53:17.882Z",
       "phase": "DEV",
       "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Formal staging smoke evidence recorded; readiness-blocked classification is complete.",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-06-10T19:53:18.310Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
       "action": "update",
       "from": "pending",
       "to": "done",
