@@ -172,7 +172,47 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The smoke task output includes: authority receipt proof smoke passed and authority gate consumption smoke passed, with negative controls listed as blocked.",
+      "files": {
+        "modify": [
+          "packages/main/package.json",
+          "package.json",
+          "scripts/verify-process-fact-contract.mjs",
+          "packages/main/src/core/process-fact-registry.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/authority-gate-consumption-smoke.ts",
+          "packages/main/src/tasks/authority-receipt-proof-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/authority-gate-consumption-smoke.ts",
+          "packages/main/src/tasks/authority-receipt-proof-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "New proof and gate consumption smoke scripts pass after build.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Process fact registry includes authority-receipt-refs.json and any new strongEvidenceConsumed gate fact entries.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Negative controls for corrupt proof, local-test key, and stale receipt are explicitly asserted as blocked.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
