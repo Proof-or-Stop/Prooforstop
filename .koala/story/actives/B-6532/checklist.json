@@ -330,7 +330,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Terminal output shows Claude CLI and Codex CLI final reviews both PASS, with their verdict artifacts referenced as review evidence and with no Authority/Production overclaim.",
+      "files": {
+        "modify": [
+          ".koala/story/actives/B-6532/**"
+        ],
+        "create": [
+          ".lattice/artifacts/baseline/layer2-engineering-unlock/reviews/**"
+        ],
+        "test": [
+          "packages/main/src/tasks/lattice-baseline-smoke.ts",
+          "node packages/main/dist/cli.js validate --story=B-6532"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Claude CLI and Codex CLI final reviewers both report PASS for host-neutral correctness and claim boundaries.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Review artifacts are stored under .lattice and referenced as review evidence only, not Authority receipts.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Any reviewer blocker or overclaim keeps the story out of DONE until fixed or explicitly escalated.",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
