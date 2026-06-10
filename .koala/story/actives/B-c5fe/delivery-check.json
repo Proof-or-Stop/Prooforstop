@@ -1,0 +1,32 @@
+{
+  "storyId": "B-c5fe",
+  "checkedAt": "2026-06-10T03:00:47.065Z",
+  "reviewRound": "2026-06-10T02:50:46.478Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/authority-session-receipt-gate-execution.md",
+      "promise": "Provides a detailed execution document for Authority session identity lifecycle plus receipt-backed gate consumption, and clearly rejects session-id-only or transport-accepted claims as sufficient evidence.",
+      "status": "verified",
+      "verifiedBy": "docs check",
+      "evidence": "Committed doc contains purpose, current boundary, execution streams, contract decisions, lifecycle, receipt-backed gate predicate, phased rollout, fail-closed matrix, and verification checklist; CHK-001 docs checks passed 12/12."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "lattice validate --story=B-c5fe passed with 3/3 verification intents covered and 0 required missing; transcript-diff.md ties the execution doc to the real-machine validation trail."
+    },
+    {
+      "featureId": "validate-transcript",
+      "transcript": ".koala/story/actives/B-c5fe/evidence/transcript-diff.md records real-machine commands npm run build and lattice validate --story=B-c5fe, with actual PASS output and expected-vs-actual diff."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "The execution doc is detailed and the validation transcript is real-machine; this delivery review does not assess the separate story-summary artifact."
+  },
+  "_hash": "b2f40dbddd7b1f474c06ead8d6c1ecb9476eca26842feaa539fc098729a9dc89"
+}
