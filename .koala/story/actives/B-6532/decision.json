@@ -1,0 +1,78 @@
+{
+  "principles": [
+    "Layer 2 proof can unlock only Layer 2 Engineering, never higher layers.",
+    "Formal proof must be rebuilt from final-report artifacts, not trusted from a handwritten suite summary.",
+    "All proof artifacts for this run must live under .lattice, with no new .omx baseline output.",
+    "Host-neutral review evidence must stay separate from Authority receipts."
+  ],
+  "drivers": [
+    "User requested an exact path to unlock Layer 2, not another planning loop.",
+    "Existing evaluator already has strict fail-closed checks; only correctness blockers should change.",
+    "The repo workflow requires story-scoped PLAN/DEV/REVIEW/TEST/DONE evidence."
+  ],
+  "options": [
+    {
+      "name": "A: minimal formal unlock execution under .lattice",
+      "pros": [
+        "Fixes the real artifact-root and formal proof execution blockers",
+        "Keeps Layer 2 claim boundary narrow",
+        "Reuses existing evaluator and tests instead of inventing a new framework"
+      ],
+      "cons": [
+        "Requires careful artifact generation and fail-closed traps",
+        "Does not solve Production Safety or global unattended claims"
+      ]
+    },
+    {
+      "name": "B: broaden into production Authority implementation",
+      "pros": [
+        "Could eventually unlock stronger claims"
+      ],
+      "cons": [
+        "Out of scope for Layer 2",
+        "Would violate non-authority CLI boundary in this story",
+        "Adds complexity before Engineering proof is unlocked"
+      ]
+    },
+    {
+      "name": "C: rely on existing B-ce79 proof bridge without fresh execution",
+      "pros": [
+        "Fastest path"
+      ],
+      "cons": [
+        "Does not produce fresh Layer 2 suite proof",
+        "Risks stale or local-only proof reuse",
+        "Would not satisfy the user request to execute until PASS"
+      ]
+    }
+  ],
+  "chosen": "A: minimal formal unlock execution under .lattice",
+  "rationale": "Choose the minimal formal unlock execution because the real blocker is fresh .lattice proof consumption and claim authorization, not a new Authority or Production layer.",
+  "preMortem": [
+    {
+      "scenario": "Artifacts are accidentally written to .omx",
+      "trigger": "A command uses default artifactsRoot or stale help text",
+      "consequence": "The run violates the user policy and cannot unlock",
+      "mitigation": "Change formal baseline default/root documentation where needed and run explicit no-.omx checks after proof generation"
+    },
+    {
+      "scenario": "A forged or stale suite summary unlocks Layer 2",
+      "trigger": "The evaluator trusts baseline-suite-report.json instead of rebuilding from final-report artifacts",
+      "consequence": "False capability claim",
+      "mitigation": "Keep rebuilt-vs-stored suite comparison and add adversarial traps for forged summary and stale materialHash"
+    },
+    {
+      "scenario": "Host verdicts are mistaken for Authority",
+      "trigger": "Review artifact wording or claim report sets receiptVerified/productionDone/fullAuthorityDone true",
+      "consequence": "Boundary breach and overclaim",
+      "mitigation": "Assert final claim keeps higher layers locked and production/Authority fields false"
+    },
+    {
+      "scenario": "Expected-block security or migration baselines are converted into fake PASS",
+      "trigger": "Pressure to make all nine reports say PASS",
+      "consequence": "False DONE and unsafe capability claim",
+      "mitigation": "Allow only definition-supported outcomes and require gate/refusal evidence for EXPECTED_BLOCK or gated PASS"
+    }
+  ],
+  "timestamp": "2026-06-10T22:30:59.252Z"
+}

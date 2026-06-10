@@ -10,7 +10,43 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Terminal output shows no .omx directory was created for this unlock run and all Layer 2 proof paths are under .lattice/artifacts/baseline/layer2-engineering-unlock.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-baseline.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "docs/requirements/decisions/unlock-layer2-ENG-suite.md"
+        ],
+        "create": [
+          ".lattice/artifacts/baseline/layer2-engineering-unlock/**"
+        ],
+        "test": [
+          "packages/main/src/tasks/lattice-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Running formal baseline commands without a custom root uses .lattice/artifacts/baseline, not .omx/artifacts/baseline.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Explicit artifactsRoot=.lattice/artifacts/baseline/layer2-engineering-unlock remains honored and produces no .omx output.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A scan after the run finds no newly-created .omx baseline artifacts for this story.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
