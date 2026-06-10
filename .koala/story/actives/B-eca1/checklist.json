@@ -457,9 +457,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-10T17:22:31.294Z",
-      "endTime": null,
+      "endTime": "2026-06-10T17:32:57.185Z",
       "verificationEvidence": [
         {
           "intentRef": "CHK-006:adversarial:0",
@@ -582,6 +582,15 @@
       "reason": "Split status/operator feedback from CHK-004 per INIT reviewer advisory.",
       "addedTitle": "Separate Authority receipt status and operator feedback",
       "addedContext": "Render Authority readiness, latest verified receipt ref, eligibility, and consumed receipt as distinct status facts. This item exists because INIT reviewers flagged that status output should be separate from DONE gate policy wiring."
+    },
+    {
+      "timestamp": "2026-06-10T17:32:57.185Z",
+      "phase": "DEV",
+      "itemId": "CHK-006",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Authority status now separates readiness, verified, eligible, consumed, and productionDone facts; smoke and Claude review evidence are recorded at current HEAD."
     }
   ]
 }
