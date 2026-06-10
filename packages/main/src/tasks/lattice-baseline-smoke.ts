@@ -16,10 +16,13 @@
  *     authority evidence are missing.
  *   - a high-layer report produced by parallel implementation does not unlock
  *     parallel proof.
+ *   - stale, local-only, or malformed proof artifacts fail closed, while fresh
+ *     authorized lower-layer suite proof can authorize lower claims.
  */
 
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import {
   existsSync,
   mkdirSync,
@@ -154,8 +157,13 @@ function assertMentions(value: unknown, pattern: RegExp, label: string): void {
   assert.match(haystack, pattern, `${label} should mention ${pattern}\n${haystack}`);
 }
 
-function assertNoPassOutcome(result: CliResult, label: string): void {
-  const outcomeValues = collectValuesForKeys(result.json, ['outcome', 'actualOutcome', 'suiteStatus', 'status', 'result']);
+function assertNoTopLevelPassOutcome(result: CliResult, label: string): void {
+  const root = result.json && typeof result.json === 'object' && !Array.isArray(result.json)
+    ? result.json as JsonObject
+    : {};
+  const outcomeValues = ['outcome', 'actualOutcome', 'suiteStatus', 'status', 'result']
+    .map(key => root[key])
+    .filter(value => value !== undefined);
   const passPaths = outcomeValues.filter(value => value === 'PASS' || value === 'pass');
   assert.deepEqual(passPaths, [], `${label} must not synthesize PASS\n${dump(result)}`);
 }
@@ -173,7 +181,7 @@ function hasBlockedJson(value: unknown): boolean {
 }
 
 function assertFailsClosed(result: CliResult, label: string): void {
-  assertNoPassOutcome(result, label);
+  assertNoTopLevelPassOutcome(result, label);
   const textLooksClosed = /unsupported|unknown|invalid|malformed|mixed|reject|block|fail|error|not_authorized/i.test(result.combined);
   assert.ok(
     result.status !== 0 || hasBlockedJson(result.json) || textLooksClosed,
@@ -219,6 +227,20 @@ function assertAuthorizedFalse(value: unknown, label: string): void {
   assert.ok(values.every(found => found === false), `${label} should keep authorized=false; saw ${JSON.stringify(values)}`);
 }
 
+function assertAuthorizedTrue(value: unknown, label: string): void {
+  const values = collectValuesForKeys(value, ['authorized']);
+  assert.ok(values.length > 0, `${label} should include authorized`);
+  assert.ok(values.some(found => found === true), `${label} should include authorized=true; saw ${JSON.stringify(values)}`);
+}
+
+function assertClaimLevel(value: unknown, expected: string, label: string): void {
+  const values = collectValuesForKeys(value, ['authorizedClaimLevel', 'highestAuthorizedClaim']);
+  assert.ok(
+    values.includes(expected),
+    `${label} should include authorized claim level ${expected}; saw ${JSON.stringify(values)}`,
+  );
+}
+
 function findFiles(root: string, fileName: string): string[] {
   if (!existsSync(root)) return [];
   const found: string[] = [];
@@ -259,6 +281,49 @@ function git(root: string, args: string[]): void {
   });
 }
 
+function gitOutput(root: string, args: string[]): string | undefined {
+  try {
+    return execFileSync('git', args, {
+      cwd: root,
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+  } catch {
+    return undefined;
+  }
+}
+
+function currentGitHead(root: string): string | undefined {
+  return gitOutput(root, ['rev-parse', 'HEAD']);
+}
+
+function isMaterialExcludedPath(path: string): boolean {
+  const normalized = path.replace(/\\/g, '/').toLowerCase();
+  return normalized.startsWith('docs/story/')
+    || normalized.startsWith('.koala/story/')
+    || normalized.startsWith('docs/koala/framework-audit/')
+    || normalized.startsWith('.omx/');
+}
+
+function materialHash(root: string): string {
+  const raw = gitOutput(root, ['ls-tree', '-r', '-z', 'HEAD']);
+  if (!raw) return currentGitHead(root) ?? 'unavailable';
+  const entries = raw.split('\0').filter(Boolean);
+  const materialEntries: string[] = [];
+  for (const entry of entries) {
+    const tab = entry.indexOf('\t');
+    if (tab < 0) continue;
+    const meta = entry.slice(0, tab);
+    const filePath = entry.slice(tab + 1);
+    if (isMaterialExcludedPath(filePath)) continue;
+    const objectId = meta.trim().split(/\s+/)[2];
+    if (!objectId) continue;
+    materialEntries.push(`${filePath}\0${objectId}`);
+  }
+  materialEntries.sort();
+  return createHash('sha256').update(materialEntries.join('\0')).digest('hex');
+}
+
 function initRepo(label: string): string {
   const root = mkdtempSync(join(tmpdir(), `lattice-baseline-smoke-${label}-`));
   mkdirSync(join(root, 'packages', 'main', 'src'), { recursive: true });
@@ -282,20 +347,36 @@ function initRepo(label: string): string {
   return root;
 }
 
+function commitTrackedChange(root: string, relPath: string, content: string, message: string): void {
+  const abs = join(root, relPath);
+  mkdirSync(dirname(abs), { recursive: true });
+  writeFileSync(abs, content, 'utf8');
+  git(root, ['add', relPath]);
+  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', message]);
+}
+
 function finalReportSeed(
+  root: string,
   layer: string,
   baselineId: string,
   patch: JsonObject = {},
 ): JsonObject {
   return {
-    schemaVersion: 'lattice.baseline.final-report.v1',
+    schemaVersion: 'lattice.baseline.final_report.v1',
     layer,
     baselineId,
     runId: `${baselineId.toLowerCase()}-seed`,
     expectedOutcome: 'PASS',
+    expectedOutcomes: ['PASS'],
     outcome: 'PASS',
+    status: 'pass',
+    capabilityProof: true,
+    localOnly: false,
     generatedAt: '2026-06-10T00:00:00.000Z',
+    headHash: currentGitHead(root) ?? 'unavailable',
+    materialHash: materialHash(root),
     falseDone: false,
+    falseDoneCount: 0,
     authority: {
       authorityChanged: false,
       receiptVerified: false,
@@ -325,12 +406,18 @@ function writeSuiteReport(root: string, layer: string, patch: JsonObject = {}): 
   const layerRoot = join(root, '.omx', 'artifacts', 'baseline', layer);
   mkdirSync(layerRoot, { recursive: true });
   writeFileSync(join(layerRoot, 'baseline-suite-report.json'), JSON.stringify({
-    schemaVersion: 'lattice.baseline.suite-report.v1',
+    schemaVersion: 'lattice.baseline_suite_report.v1',
     layer,
     suiteStatus: 'PASS',
+    authorization: 'authorized',
+    outcome: 'PASS',
+    capabilityProof: true,
+    localOnly: false,
     falseDoneCount: 0,
-    safetySuccessRate: 100,
+    safetySuccessRate: 1,
     generatedAt: '2026-06-10T00:00:00.000Z',
+    headHash: currentGitHead(root) ?? 'unavailable',
+    materialHash: materialHash(root),
     authority: {
       authorityChanged: false,
       receiptVerified: false,
@@ -338,6 +425,13 @@ function writeSuiteReport(root: string, layer: string, patch: JsonObject = {}): 
       fullAuthorityDone: false,
       receiptRefs: [],
     },
+    authorityChanged: false,
+    receiptVerified: false,
+    productionDone: false,
+    fullAuthorityDone: false,
+    receiptRefs: [],
+    blockedReasons: [],
+    errors: [],
     baselines: [],
     ...patch,
   }, null, 2));
@@ -445,12 +539,12 @@ function assertHelpListsCommand(help: CliResult, command: string): void {
   const root = initRepo('bad-suite');
   try {
     writeFinalReport(root, 'engineering', 'ENG-BUGFIX-1', 'malformed', '{ "schemaVersion": ');
-    writeFinalReport(root, 'engineering', 'ENG-MULTI-FILE-1', 'mixed-schema', finalReportSeed('production-safety', 'AUTH-RECEIPT-1', {
-      schemaVersion: 'lattice.baseline.production-safety.final-report.v1',
+    writeFinalReport(root, 'engineering', 'ENG-MULTI-FILE-1', 'mixed-schema', finalReportSeed(root, 'production-safety', 'AUTH-RECEIPT-1', {
+      schemaVersion: 'lattice.baseline.foreign_report.v0',
       expectedOutcome: 'PASS',
       outcome: 'PASS',
     }));
-    writeFinalReport(root, 'engineering', 'ENG-REGRESSION-1', 'authority-overclaim', finalReportSeed('engineering', 'ENG-REGRESSION-1', {
+    writeFinalReport(root, 'engineering', 'ENG-REGRESSION-1', 'authority-overclaim', finalReportSeed(root, 'engineering', 'ENG-REGRESSION-1', {
       authority: {
         authorityChanged: true,
         receiptVerified: true,
@@ -468,7 +562,91 @@ function assertHelpListsCommand(help: CliResult, command: string): void {
   }
 }
 
-// 6. capability_claim_evaluate blocks production-safety with missing lower layers.
+// 6. Suite report rejects invalid final-report status values.
+{
+  const root = initRepo('invalid-status');
+  try {
+    writeFinalReport(root, 'engineering', 'ENG-BUGFIX-1', 'invalid-status', finalReportSeed(root, 'engineering', 'ENG-BUGFIX-1', {
+      status: 'not-a-real-status',
+    }));
+
+    const result = runCli(root, ['baseline_suite_report', '--layer=engineering', '--format=json']);
+    assertFailsClosed(result, 'baseline_suite_report invalid final-report status');
+    assert.match(result.combined, /unsupported status|invalid|malformed|reject|block/i, 'suite report should reject unsupported final-report status');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// 7. Local baseline_run stub artifacts cannot authorize Engineering suite PASS.
+{
+  const root = initRepo('local-stub-suite');
+  try {
+    requireJsonObject(runCli(root, ['baseline_run', '--baselineId=ENG-BUGFIX-1', '--format=json']), 'local ENG-BUGFIX-1 baseline_run');
+    const result = runCli(root, ['baseline_suite_report', '--layer=engineering', '--format=json']);
+    const output = requireJsonObject(result, 'local stub engineering suite report');
+    assertFailsClosed(result, 'local stub engineering suite report');
+    assert.ok(collectValuesForKeys(output, ['suiteStatus']).includes('BLOCKED'), 'local stub suite should be BLOCKED');
+    assert.ok(collectValuesForKeys(output, ['authorization']).includes('not_authorized'), 'local stub suite should be not_authorized');
+    assertMentions(output, /localOnly|local-only|capabilityProof|diagnostic/i, 'local stub suite blocked reason');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// 8. Stale final reports are rejected by suite aggregation.
+{
+  const root = initRepo('stale-final');
+  try {
+    writeFinalReport(root, 'engineering', 'ENG-BUGFIX-1', 'stale-final', finalReportSeed(root, 'engineering', 'ENG-BUGFIX-1'));
+    commitTrackedChange(root, 'packages/main/src/index.ts', 'export const smoke = "changed-after-final-report";\n', 'change material after final report');
+
+    const result = runCli(root, ['baseline_suite_report', '--layer=engineering', '--format=json']);
+    assertFailsClosed(result, 'stale engineering final report');
+    assert.match(result.combined, /stale|materialHash|material/i, 'suite report should reject stale final report material hash');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// 9. Stale lower-layer suite proof blocks capability claims.
+{
+  const root = initRepo('stale-lower-suite');
+  try {
+    writeSuiteReport(root, 'development');
+    commitTrackedChange(root, 'packages/main/src/index.ts', 'export const smoke = "changed-after-suite-report";\n', 'change material after suite report');
+
+    const result = runCli(root, ['capability_claim_evaluate', '--target=engineering', '--format=json']);
+    const output = requireJsonObject(result, 'stale lower-layer suite claim');
+    assertAuthorizedFalse(output, 'stale lower-layer suite claim');
+    assertClaimLevel(output, 'none', 'stale lower-layer suite claim');
+    assertMentions(output, /stale|materialHash|development|lower-layer/i, 'stale lower-layer suite claim');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// 10. Fresh authorized lower-layer suite proof can authorize Engineering claims.
+{
+  const root = initRepo('claim-engineering-authorized');
+  try {
+    writeSuiteReport(root, 'development');
+    writeSuiteReport(root, 'engineering');
+
+    const result = runCli(root, ['capability_claim_evaluate', '--target=engineering', '--format=json']);
+    const output = requireJsonObject(result, 'fresh engineering claim proof');
+    assertAuthorizedTrue(output, 'fresh engineering claim proof');
+    assertOutcome(output, 'PASS', 'fresh engineering claim proof');
+    assertClaimLevel(output, 'engineering', 'fresh engineering claim proof');
+    assertNoAuthorityOverclaim(output, 'fresh engineering claim proof');
+    assertRequiredFalseField(output, 'receiptVerified', 'fresh engineering claim proof');
+    assertRequiredFalseField(output, 'productionDone', 'fresh engineering claim proof');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// 11. capability_claim_evaluate blocks production-safety with missing lower layers.
 {
   const root = initRepo('claim-missing-layers');
   try {
@@ -486,7 +664,7 @@ function assertHelpListsCommand(help: CliResult, command: string): void {
   }
 }
 
-// 7. Parallel implementation artifacts do not unlock parallel proof.
+// 12. Parallel implementation artifacts do not unlock parallel proof.
 {
   const root = initRepo('parallel-implementation');
   try {
@@ -496,7 +674,7 @@ function assertHelpListsCommand(help: CliResult, command: string): void {
       implementationMayProceedInParallel: true,
       claimUnlockOrder: 'sequential',
       note: 'Seeded high-layer implementation artifact; lower-layer proof is intentionally absent.',
-      baselines: [finalReportSeed('production-safety', 'AUTH-RECEIPT-1', {
+      baselines: [finalReportSeed(root, 'production-safety', 'AUTH-RECEIPT-1', {
         expectedOutcome: 'PASS',
         outcome: 'PASS',
         implementationOrder: 'parallel',

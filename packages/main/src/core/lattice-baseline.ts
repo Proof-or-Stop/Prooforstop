@@ -33,6 +33,7 @@ export type BaselineLayer =
 export type BaselineOutcome = 'PASS' | 'FAIL' | 'EXPECTED_BLOCK' | 'ESCALATED';
 export type BaselineRunStatus = 'pass' | 'blocked' | 'failed' | 'not_authorized';
 export type BaselineSuiteStatus = 'PASS' | 'BLOCKED' | 'FAIL';
+export type CapabilityClaimLevel = 'none' | Exclude<BaselineLayer, 'capability-claim'>;
 
 export interface BaselineDefinition {
   baselineId: string;
@@ -85,8 +86,8 @@ export interface BaselineFinalReport {
   outcome: BaselineOutcome;
   status: BaselineRunStatus;
   capability: string;
-  capabilityProof: false;
-  localOnly: true;
+  capabilityProof: boolean;
+  localOnly: boolean;
   authorityBoundary: 'local-report-only';
   blockedReasons: string[];
   falseDone: false;
@@ -114,6 +115,7 @@ export interface BaselineSuiteReport {
   suiteStatus: BaselineSuiteStatus;
   authorization: 'authorized' | 'not_authorized';
   outcome: BaselineOutcome;
+  capabilityProof: boolean;
   blockedReasons: string[];
   errors: string[];
   materialHash: string;
@@ -123,7 +125,7 @@ export interface BaselineSuiteReport {
   missingBaselineIds: string[];
   falseDoneCount: number;
   safetySuccessRate: number;
-  localOnly: true;
+  localOnly: boolean;
   authority: typeof BASELINE_AUTHORITY_BOUNDARY;
   authorityChanged: false;
   receiptVerified: false;
@@ -162,10 +164,10 @@ export interface CapabilityClaimReport {
   claimId: string;
   requestedClaim: string;
   target: string;
-  authorized: false;
-  outcome: 'EXPECTED_BLOCK';
-  authorizedClaimLevel: 'none';
-  highestEvidenceBackedClaim: 'none' | 'development' | 'engineering' | 'loop-engineering' | 'production-safety';
+  authorized: boolean;
+  outcome: 'PASS' | 'EXPECTED_BLOCK';
+  authorizedClaimLevel: CapabilityClaimLevel;
+  highestEvidenceBackedClaim: CapabilityClaimLevel;
   dependsOn: BaselineLayer[];
   blockedReasons: string[];
   evidence: {
@@ -179,9 +181,9 @@ export interface CapabilityClaimReport {
     safetySuccessRate: number;
     staleVerdicts: number;
     failingIndependentHosts: number;
-    receiptVerified: false;
-    multiHostVerified: false;
-    soakSatisfied: false;
+    receiptVerified: boolean;
+    multiHostVerified: boolean;
+    soakSatisfied: boolean;
   };
   allowedWording: string[];
   prohibitedWording: string[];
@@ -699,6 +701,8 @@ const PROHIBITED_WORDING = [
   'Parallel implementation proves higher capability layers in parallel.',
 ];
 
+const BASELINE_RUN_STATUSES: BaselineRunStatus[] = ['pass', 'blocked', 'failed', 'not_authorized'];
+
 const OUTPUT_NOTE =
   'Local Baseline 2-5 runner output is diagnostic artifact material only. It is not lifecycle gate evidence, signed Authority evidence, receipt verification, or production DONE proof.';
 
@@ -833,6 +837,12 @@ function lowerLayersFor(layer: BaselineLayer): BaselineLayer[] {
   if (layer === 'loop-engineering') return ['development', 'engineering'];
   if (layer === 'production-safety') return ['development', 'engineering', 'loop-engineering'];
   return ['development', 'engineering', 'loop-engineering', 'production-safety'];
+}
+
+function finalReportStatusMatchesOutcome(outcome: BaselineOutcome, status: BaselineRunStatus): boolean {
+  if (outcome === 'PASS') return status === 'pass';
+  if (outcome === 'FAIL') return status === 'failed';
+  return status === 'blocked' || status === 'not_authorized';
 }
 
 function definitionsForLayer(layer: BaselineLayer): BaselineDefinition[] {
@@ -1052,6 +1062,12 @@ function parseFinalReport(root: string, file: string, expectedLayer: BaselineLay
   if (!['PASS', 'FAIL', 'EXPECTED_BLOCK', 'ESCALATED'].includes(outcome)) {
     return { refused: { path: pathForDisplay(root, file), reason: `malformed final-report: unsupported outcome ${outcome}` } };
   }
+  if (!BASELINE_RUN_STATUSES.includes(status)) {
+    return { refused: { path: pathForDisplay(root, file), reason: `malformed final-report: unsupported status ${status}` } };
+  }
+  if (!finalReportStatusMatchesOutcome(outcome, status)) {
+    return { refused: { path: pathForDisplay(root, file), reason: `malformed final-report: status ${status} is inconsistent with outcome ${outcome}` } };
+  }
   return { report: parsed as unknown as BaselineFinalReport };
 }
 
@@ -1082,6 +1098,16 @@ function readSuiteReport(root: string, layer: BaselineLayer, customRoot?: string
   const suiteStatus = stringField(parsed, 'suiteStatus');
   if (suiteStatus !== 'PASS') {
     return { report: parsed as unknown as BaselineSuiteReport, path: displayPath, status: 'BLOCKED', reason: `suiteStatus=${suiteStatus ?? 'missing'}` };
+  }
+  const authorization = stringField(parsed, 'authorization');
+  if (authorization !== 'authorized') {
+    return { report: parsed as unknown as BaselineSuiteReport, path: displayPath, status: 'BLOCKED', reason: `authorization=${authorization ?? 'missing'}` };
+  }
+  if (boolField(parsed, 'localOnly') !== false) {
+    return { report: parsed as unknown as BaselineSuiteReport, path: displayPath, status: 'BLOCKED', reason: 'local-only suite report is diagnostic-only, not capability proof' };
+  }
+  if (boolField(parsed, 'capabilityProof') !== true) {
+    return { report: parsed as unknown as BaselineSuiteReport, path: displayPath, status: 'BLOCKED', reason: 'capabilityProof=true is required for lower-layer proof' };
   }
   return { report: parsed as unknown as BaselineSuiteReport, path: displayPath, status: 'PASS' };
 }
@@ -1153,6 +1179,9 @@ export function buildBaselineSuiteReport(options: BaselineSuiteReportOptions): B
   const definitions = definitionsForLayer(layer);
   const requiredBaselineIds = definitions.map((definition) => definition.baselineId);
   const byBaseline = new Map<string, BaselineFinalReport[]>();
+  if (definitions.length === 0) {
+    blockedReasons.push(`${layer} has no local baseline definitions; capability proof must come from a fresh authorized suite report`);
+  }
 
   const paths = collectFinalReportPaths(layerDir(options.root, layer, options.artifactsRoot));
   for (const path of paths) {
@@ -1190,17 +1219,34 @@ export function buildBaselineSuiteReport(options: BaselineSuiteReportOptions): B
       missingBaselineIds.push(definition.baselineId);
       continue;
     }
-    const accepted = candidates.filter((report) => definition.expectedOutcomes.includes(report.outcome));
-    const latest = [...candidates].sort((a, b) => a.generatedAt.localeCompare(b.generatedAt)).at(-1)!;
+    const sortedCandidates = [...candidates].sort((a, b) => a.generatedAt.localeCompare(b.generatedAt));
+    const outcomeAccepted = sortedCandidates.filter((report) => definition.expectedOutcomes.includes(report.outcome));
+    const accepted = outcomeAccepted.filter((report) =>
+      definition.expectedOutcomes.includes(report.outcome)
+      && finalReportStatusMatchesOutcome(report.outcome, report.status)
+      && report.localOnly === false
+      && report.capabilityProof === true,
+    );
+    const latest = sortedCandidates.at(-1)!;
+    const selected = accepted.at(-1) ?? latest;
     const reasons: string[] = [];
-    if (accepted.length === 0) {
+    if (outcomeAccepted.length === 0) {
       reasons.push(`outcome ${latest.outcome} does not match expected ${definition.expectedOutcomes.join('|')}`);
+    }
+    if (latest.localOnly !== false) {
+      reasons.push('localOnly=true diagnostic final-report cannot authorize suite proof');
+    }
+    if (latest.capabilityProof !== true) {
+      reasons.push('capabilityProof=true is required for suite proof');
+    }
+    if (!finalReportStatusMatchesOutcome(latest.outcome, latest.status)) {
+      reasons.push(`status ${latest.status} is inconsistent with outcome ${latest.outcome}`);
     }
     reports.push({
       baselineId: definition.baselineId,
-      runId: latest.runId,
-      path: latest.artifacts.directory ? `${latest.artifacts.directory}/final-report.json` : '',
-      outcome: latest.outcome,
+      runId: selected.runId,
+      path: selected.artifacts.directory ? `${selected.artifacts.directory}/final-report.json` : '',
+      outcome: selected.outcome,
       expectedOutcomes: definition.expectedOutcomes,
       status: accepted.length > 0 ? 'accepted' : 'rejected',
       reasons,
@@ -1208,7 +1254,9 @@ export function buildBaselineSuiteReport(options: BaselineSuiteReportOptions): B
     if (latest.falseDoneCount > 0 || latest.falseDone) {
       blockedReasons.push(`${definition.baselineId} reports false DONE`);
     }
-    if (accepted.length === 0) blockedReasons.push(`${definition.baselineId} outcome mismatch`);
+    if (accepted.length === 0) {
+      blockedReasons.push(`${definition.baselineId} lacks fresh non-local capability proof`);
+    }
   }
 
   if (missingBaselineIds.length > 0) {
@@ -1270,13 +1318,15 @@ function makeSuiteReport(input: {
   const coveredBaselineIds = [...new Set(input.reports.filter((report) => report.status === 'accepted').map((report) => report.baselineId))];
   const missingBaselineIds = input.missingBaselineIds ?? input.requiredBaselineIds.filter((id) => !coveredBaselineIds.includes(id));
   const falseDoneCount = input.falseDoneCount ?? 0;
+  const capabilityProof = input.suiteStatus === 'PASS';
   const report: BaselineSuiteReport = {
     schemaVersion: BASELINE_SUITE_REPORT_SCHEMA_VERSION,
     generatedAt: input.generatedAt,
     layer: input.layer,
     suiteStatus: input.suiteStatus,
-    authorization: input.suiteStatus === 'PASS' ? 'authorized' : 'not_authorized',
+    authorization: capabilityProof ? 'authorized' : 'not_authorized',
     outcome: input.suiteStatus === 'PASS' ? 'PASS' : 'EXPECTED_BLOCK',
+    capabilityProof,
     blockedReasons: [...new Set(input.blockedReasons)],
     errors: input.errors,
     materialHash: materialHash(input.root),
@@ -1286,7 +1336,7 @@ function makeSuiteReport(input: {
     missingBaselineIds,
     falseDoneCount,
     safetySuccessRate: falseDoneCount === 0 && input.suiteStatus === 'PASS' ? 1 : 0,
-    localOnly: true,
+    localOnly: !capabilityProof,
     authority: BASELINE_AUTHORITY_BOUNDARY,
     authorityChanged: false,
     receiptVerified: false,
@@ -1332,15 +1382,23 @@ function readHardFactBool(report: BaselineSuiteReport | undefined, key: string):
   return boolField(hardFacts, key) ?? false;
 }
 
+function readHardFactNumber(report: BaselineSuiteReport | undefined, key: string): number {
+  if (!report) return 0;
+  const asRecord = report as unknown as Record<string, unknown>;
+  const direct = numberField(asRecord, key);
+  if (direct !== undefined) return direct;
+  const hardFacts = isRecord(asRecord.hardFacts) ? asRecord.hardFacts : {};
+  return numberField(hardFacts, key) ?? 0;
+}
+
 export function evaluateCapabilityClaim(options: CapabilityClaimEvaluateOptions): CapabilityClaimReport {
   const claimId = normalizeClaimId(options);
   const claim = CLAIM_DEFINITIONS[claimId];
   const generatedAt = nowIso();
-  const blockedReasons: string[] = [
-    'capability_claim_evaluate is a fail-closed local diagnostic report; it does not authorize public capability or production authority claims',
-  ];
+  const blockedReasons: string[] = [];
   const suiteReports: string[] = [];
   let highestEvidenceBackedClaim: CapabilityClaimReport['highestEvidenceBackedClaim'] = 'none';
+  let highestAuthorizedClaim: CapabilityClaimReport['authorizedClaimLevel'] = 'none';
   let falseDoneCount = 0;
   let safetySuccessRate = 0;
   let staleVerdicts = 0;
@@ -1348,6 +1406,7 @@ export function evaluateCapabilityClaim(options: CapabilityClaimEvaluateOptions)
   let receiptVerified = false;
   let multiHostVerified = false;
   let soakSatisfied = false;
+  const provedLayers: BaselineLayer[] = [];
 
   for (const layer of CLAIM_LAYER_ORDER) {
     const proof = readSuiteReport(options.root, layer, options.artifactsRoot);
@@ -1363,33 +1422,44 @@ export function evaluateCapabilityClaim(options: CapabilityClaimEvaluateOptions)
       blockedReasons.push(`${layer} falseDoneCount=${report?.falseDoneCount}`);
       break;
     }
-    highestEvidenceBackedClaim = layer;
+    provedLayers.push(layer);
     if (layer === 'production-safety') {
-      receiptVerified = readHardFactBool(report, 'receiptVerified');
-      multiHostVerified = readHardFactBool(report, 'multiHostVerified');
-      soakSatisfied = readHardFactBool(report, 'soakSatisfied');
-      staleVerdicts = numberField(report as unknown as Record<string, unknown>, 'staleVerdicts') ?? 0;
-      failingIndependentHosts = numberField(report as unknown as Record<string, unknown>, 'failingIndependentHosts') ?? 0;
-      if (!receiptVerified) blockedReasons.push('production-safety claim requires verified Authority receipt');
-      if (!multiHostVerified) blockedReasons.push('production-safety claim requires independent multi-host proof');
-      if (!soakSatisfied) blockedReasons.push('production-safety claim requires soak proof');
+      const reportedReceiptVerified = readHardFactBool(report, 'receiptVerified');
+      const reportedMultiHostVerified = readHardFactBool(report, 'multiHostVerified');
+      const reportedSoakSatisfied = readHardFactBool(report, 'soakSatisfied');
+      staleVerdicts = readHardFactNumber(report, 'staleVerdicts');
+      failingIndependentHosts = readHardFactNumber(report, 'failingIndependentHosts');
+      if (!reportedReceiptVerified) blockedReasons.push('production-safety claim requires verified Authority receipt');
+      if (!reportedMultiHostVerified) blockedReasons.push('production-safety claim requires independent multi-host proof');
+      if (!reportedSoakSatisfied) blockedReasons.push('production-safety claim requires soak proof');
+      if (staleVerdicts > 0) blockedReasons.push(`production-safety claim has staleVerdicts=${staleVerdicts}`);
+      if (failingIndependentHosts > 0) blockedReasons.push(`production-safety claim has failingIndependentHosts=${failingIndependentHosts}`);
+      blockedReasons.push('production-safety claim requires external Authority verification; local suite artifacts cannot authorize production-safety');
+      break;
     }
+    highestEvidenceBackedClaim = layer;
+    highestAuthorizedClaim = layer;
     if (layer === claim.target) break;
   }
 
-  if (claim.dependsOn.some((layer) => !suiteReports.some((path) => path.includes(`/baseline/${layer}/`) || path.includes(`\\baseline\\${layer}\\`)))) {
+  if (claim.dependsOn.some((layer) => !provedLayers.includes(layer))) {
     blockedReasons.push(`requested claim ${claimId} is missing one or more required lower-layer suite reports`);
   }
 
+  const authorized = highestAuthorizedClaim === claim.target;
+  if (!authorized && blockedReasons.length === 0) {
+    blockedReasons.push('requested claim is not backed by a complete fresh authorized lower-layer proof chain');
+  }
+  const allowedWording = authorized ? [...claim.allowedWording] : [];
   const report: CapabilityClaimReport = {
     schemaVersion: CAPABILITY_CLAIM_REPORT_SCHEMA_VERSION,
     generatedAt,
     claimId,
     requestedClaim: options.requestedClaim || claim.requestedClaim,
     target: claim.target,
-    authorized: false,
-    outcome: 'EXPECTED_BLOCK',
-    authorizedClaimLevel: 'none',
+    authorized,
+    outcome: authorized ? 'PASS' : 'EXPECTED_BLOCK',
+    authorizedClaimLevel: highestAuthorizedClaim,
     highestEvidenceBackedClaim,
     dependsOn: claim.dependsOn,
     blockedReasons: [...new Set(blockedReasons)],
@@ -1404,17 +1474,19 @@ export function evaluateCapabilityClaim(options: CapabilityClaimEvaluateOptions)
       safetySuccessRate,
       staleVerdicts,
       failingIndependentHosts,
-      receiptVerified: false,
-      multiHostVerified: false,
-      soakSatisfied: false,
+      receiptVerified,
+      multiHostVerified,
+      soakSatisfied,
     },
-    allowedWording: [],
+    allowedWording,
     prohibitedWording: PROHIBITED_WORDING,
     limitations: [
       'This local evaluator is L0/read-only diagnostic surface.',
       'It reads local suite reports but does not verify server receipts.',
       'It does not submit evidence, execute hosts, or manufacture Authority proof.',
-      ...claim.allowedWording.map((wording) => `Not authorized by this local run: ${wording}`),
+      ...(authorized
+        ? ['Authorization is limited to the requested lower-layer claim and does not imply production safety or public authority.']
+        : claim.allowedWording.map((wording) => `Not authorized by this local run: ${wording}`)),
     ],
     localOnly: true,
     authority: BASELINE_AUTHORITY_BOUNDARY,
