@@ -176,7 +176,7 @@ CLI production verification must reject:
 - ephemeral keys;
 - bundled default test key ids;
 - missing public key;
-- unsupported algorithm;
+- unsupported algorithm declared in `serverKey.algorithm`, even if the raw verification material could otherwise be parsed;
 - receipt `serverKeyId` mismatch;
 - key material that does not match pinned digest or accepted discovery policy.
 

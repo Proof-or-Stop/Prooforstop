@@ -1,4 +1,18 @@
 #!/usr/bin/env node
+/**
+ * @task B-e3d9
+ * @checklist CHK-001
+ * @title Smoke unsupported algorithm rejection in authority receipt verification
+ * @type bugfix
+ * @priority high
+ * @description
+ *   Prove the authority client fails closed when production receipt verification
+ *   material is discovered with an unsupported algorithm. The smoke keeps the
+ *   receipt payload otherwise valid so the rejection is isolated to
+ *   `serverKey.algorithm` rather than any digest-prefix or subject binding path.
+ * @changes
+ *   - [CHK-001] Assert a discovered unsupported algorithm yields `receipt_unverified` and blocks authority DONE.
+ */
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { mkdtempSync, rmSync } from 'node:fs';
@@ -1098,6 +1112,47 @@ function authorityEnv(extra: Record<string, string | undefined> = {}): Record<st
   assert.equal(counts.policy, 1, 'discovery is consulted when no server key is pinned');
   assert.equal(resolution.configured, true, 'a discovered server key resolves the verify config');
   assert.equal(resolution.decision?.status, 'verified');
+}
+
+// --- discovery fallback: unsupported algorithm fails closed on receipt verify -------
+{
+  const approve = dynamicApproveForGateRequest();
+  const policyBody = {
+    contractVersion: 'authority-policy.v1', purpose: 'discovery', requiredAuthorityMode: 'enforce',
+    productionEnforceAuthority: true, requireHandshake: false, commandCatalogDigest: 'ccd', evidenceSchemaDigest: 'esd',
+    supportedAuthorityModes: ['off', 'shadow', 'enforce'], minClientVersions: {}, requiredEvidenceFields: [],
+    evidencePolicy: { preset: 'default' },
+    serverKey: { keyId: 'server-key-1', algorithm: 'rsa', encoding: 'hex', publicKeyHex: approve.serverPublicKeyHex },
+    compatibility: {
+      supportedAuthorityModes: ['off', 'shadow', 'enforce'], requiredAuthorityMode: 'enforce', requireHandshake: false,
+      minClientVersions: {}, commandCatalogDigest: 'ccd', evidenceSchemaDigest: 'esd', productionEnforceAuthority: true,
+      requireActorKeyBinding: false, requireRunnerHeartbeatForL2: false,
+    },
+  };
+  const counts = { events: 0, evidence: 0, evaluate: 0, receipt: 0, policy: 0 };
+  const resolution = await resolveAuthorityGateEvaluator(authorityJobPlan(), {
+    env: authorityEnv({ LATTICE_AUTHORITY_SERVER_KEY_ID: undefined }),
+    fetchImpl: wiringRouterFetch({
+      policy: { status: 200, body: policyBody },
+      evaluate: approve.evaluate,
+      counts,
+    }),
+  });
+  assert.equal(counts.policy, 1, 'discovery still provides the production receipt verification material');
+  assert.equal(resolution.configured, true, 'unsupported algorithm is enforced during receipt verification, not by bypassing the gate flow');
+  assert.equal(resolution.decision?.status, 'receipt_unverified');
+  assert.equal(resolution.decision?.receiptVerified, false);
+  assert.match(resolution.decision?.reason ?? '', /unsupported algorithm/i);
+  const exec = executePlannedSteps({
+    root: '/tmp/x',
+    store: fakeStore(),
+    jobPlan: authorityJobPlan(),
+    now: () => new Date('2026-06-06T00:00:00Z'),
+    authorityGate: resolution.evaluator,
+  });
+  assert.equal(exec.status, 'blocked', 'unsupported algorithm blocks authority DONE fail-closed');
+  assert.equal(exec.stopReason, 'authority_gate_receipt_unverified');
+  assert.equal(exec.authorityDone, false);
 }
 
 // --- DENY: rejected decision -> evaluator present but executor fails closed ---------
