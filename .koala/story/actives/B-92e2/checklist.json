@@ -129,7 +129,41 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "A developer can run Production Safety baseline scenarios and see SAFE/AUTH/PROD reports fail closed when receipts, authority, or soak evidence are missing."
+      "userSees": "A developer can run Production Safety baseline scenarios and see SAFE/AUTH/PROD reports fail closed when receipts, authority, or soak evidence are missing.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-baseline.ts",
+          "packages/main/src/handlers/lattice-baseline.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lattice-baseline-smoke.ts",
+          "packages/main/package.json"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Production Safety runner emits SAFE/AUTH/PROD reports with authority, receipt, soak, and audit sections when scenarios are requested.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Authority mode off/shadow keeps receiptVerified=false, productionDone=false, and fullAuthorityDone=false while still allowing local report generation.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Missing receipt, stale verdict reuse, missing multi-host proof, or silent local fallback blocks and never flips authority fields true.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
