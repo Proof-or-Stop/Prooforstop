@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-10T20:10:08.151Z",
       "reviewRunId": "B-51f6:RR-009",
       "_hash": "79daf231b5152a6bb7c3eb09545f11d97d0c8cad587524eb2c6c1617875cca66"
+    },
+    {
+      "id": "B-51f6:RP-006",
+      "agent": "koala-review-concept",
+      "note": "Staging audit is correctly classified BLOCKED, not production PASS: health is OK but OpenAPI lacks /v1/receipts/{receipt_id}/proof, the proof probe returns 404, policy still uses dev-server-key/local-test/ephemeral/isDefaultTestKey/productionInert with productionEnforceAuthority=false, and local context has no customer API key/actor key/runner/session/project/pin source while authority_status reports receiptVerified=false, productionDone=false, productionAuthorityUsable=false. The story stays TEST-targeted and host verdicts remain auxiliary evidence only; no production gate_decision receipt was claimed or consumed.",
+      "createdAt": "2026-06-10T20:14:10.840Z",
+      "reviewRound": "2026-06-10T20:10:08.151Z",
+      "reviewRunId": "B-51f6:RR-011",
+      "_hash": "29f366e560c62d04c5b259fb894e50dcdb40642809e2a7aa14837b293550d7d2"
     }
   ]
 }
