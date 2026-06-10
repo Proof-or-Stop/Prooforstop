@@ -41,12 +41,13 @@
           "intentRef": "CHK-001:happy:0",
           "kind": "manual_transcript",
           "verdict": "blocked_classified",
-          "command": "curl -fsSL https://stagging.hostneutral.net/health; curl -fsSL https://stagging.hostneutral.net/openapi.json; curl -fsSL https://stagging.hostneutral.net/v1/authority/policy; curl https://stagging.hostneutral.net/v1/receipts/readiness-probe/proof; lattice authority_status --json --authorityMode=enforce --authorityURL=https://stagging.hostneutral.net",
+          "file": ".koala/story/actives/B-51f6/evidence/staging-readiness-audit.md",
+          "command": "curl -fsSL https://stagging.hostneutral.net/health | jq -c . && curl -fsSL https://stagging.hostneutral.net/openapi.json | jq '{apiTitle:.info.title, apiVersion:.info.version, hasReceiptProofEndpoint:(.paths | has(\"/v1/receipts/{receipt_id}/proof\")), hasReceiptFetchEndpoint:(.paths | has(\"/v1/receipts/{receipt_id}\")), hasGateEvaluateEndpoint:(.paths | has(\"/v1/gates/evaluate\"))}' && curl -fsSL https://stagging.hostneutral.net/v1/authority/policy | jq '{productionEnforceAuthority, requiredAuthorityMode, serverKey:{keyId:.serverKey.keyId, profile:.serverKey.profile, ephemeral:.serverKey.ephemeral, isDefaultTestKey:.serverKey.isDefaultTestKey, productionInert:.serverKey.productionInert, algorithm:.serverKey.algorithm}, commandCatalogDigest, evidenceSchemaDigest}' && curl -sS -o /tmp/lattice-proof-probe.json -w 'http_status=%{http_code}\\n' https://stagging.hostneutral.net/v1/receipts/readiness-probe/proof && lattice authority_status --json --authorityMode=enforce --authorityURL=https://stagging.hostneutral.net",
           "result": "pass",
-          "note": "Readiness happy path is blocked: health is ok, but serverKeyId=dev-server-key is default/local-test, ephemeral=true, productionInert=true, proof endpoint is absent/404, productionEnforceAuthority=false, and required secret/identity sources are absent. No secret values were printed.",
-          "headHash": "67633ebb01ef4d419295f3a6f63f7d44f70681be",
-          "materialHash": "0c5798fc3a0e0731eac5171a15086c0a967883f96be5f4f768d1aece704e736c",
-          "timestamp": "2026-06-10T19:53:06.403Z"
+          "note": "Exact readiness transcript is persisted in staging-readiness-audit.md. It shows health ok, hasReceiptProofEndpoint=false, proof probe 404, dev-server-key/local-test/ephemeral/productionInert=true, no required secret/identity sources, and therefore readiness BLOCKED without printing secrets.",
+          "headHash": "1501128e9a37fecf7a1d5870bc08867b613ff30a",
+          "materialHash": "a9421651d41f770be0e89a2a646d289c132b69bbbd096e536427a8a6ead900a3",
+          "timestamp": "2026-06-10T20:03:41.239Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
