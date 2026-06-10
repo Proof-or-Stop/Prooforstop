@@ -452,9 +452,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/unlock-layer2-ENG-suite.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-10T21:11:43.627Z",
       "userSees": "User sees Layer 2 Engineering claim UNLOCKED only from formal suite proof, or NOT_AUTHORIZED when only diagnostic proof exists.",
       "files": {
         "modify": [
@@ -487,7 +487,39 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke capability_claim_formal_evaluate unlocks only Layer 2 Engineering from formal Engineering suite proof and returns layer2EngineeringClaim=UNLOCKED.",
+          "headHash": "76d8b4f924c4af3f79b09519e6cd6ea0cda3c810",
+          "materialHash": "d8d294973c48a678542a01d83dc723637bf22cb41a96dc6e6157a6580060a16f",
+          "timestamp": "2026-06-10T21:11:43.653Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke capability_claim_evaluate remains diagnostic/localOnly=true and formal evaluator rejects diagnostic suite proof as LOCKED.",
+          "headHash": "76d8b4f924c4af3f79b09519e6cd6ea0cda3c810",
+          "materialHash": "d8d294973c48a678542a01d83dc723637bf22cb41a96dc6e6157a6580060a16f",
+          "timestamp": "2026-06-10T21:11:43.675Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke; npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Smoke and process fact contract verify diagnostic claim reports cannot be relabeled as formal authorization; formal claim command is separately classified.",
+          "headHash": "76d8b4f924c4af3f79b09519e6cd6ea0cda3c810",
+          "materialHash": "d8d294973c48a678542a01d83dc723637bf22cb41a96dc6e6157a6580060a16f",
+          "timestamp": "2026-06-10T21:11:43.697Z"
+        }
+      ]
     },
     {
       "id": "CHK-008",
