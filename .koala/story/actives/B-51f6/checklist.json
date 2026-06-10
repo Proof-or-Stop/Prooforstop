@@ -47,6 +47,17 @@
           "headHash": "67633ebb01ef4d419295f3a6f63f7d44f70681be",
           "materialHash": "0c5798fc3a0e0731eac5171a15086c0a967883f96be5f4f768d1aece704e736c",
           "timestamp": "2026-06-10T19:53:06.403Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "blocked_classified",
+          "command": "curl -fsSL https://stagging.hostneutral.net/openapi.json | jq; curl -fsSL https://stagging.hostneutral.net/v1/authority/policy | jq",
+          "result": "pass",
+          "note": "Staging is reachable but classified as invalid production authority/environment-version blocked: local-test production-inert key and missing receipt proof endpoint. Positive production smoke was not run.",
+          "headHash": "e41f21887cfc03b836ad177a08dc95615711f28b",
+          "materialHash": "0c5798fc3a0e0731eac5171a15086c0a967883f96be5f4f768d1aece704e736c",
+          "timestamp": "2026-06-10T19:53:06.722Z"
         }
       ]
     },
