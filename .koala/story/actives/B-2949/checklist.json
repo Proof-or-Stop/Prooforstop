@@ -154,9 +154,9 @@
         "Lattice-Parallel-Development-Capability.md"
       ],
       "userSees": "The document has a numbered runbook from preflight to final claim evaluation, and it says: \"Implementation may proceed in parallel, but Engineering proof and claim unlock remain sequential.\"",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-10T14:31:15.122Z",
       "files": {
         "modify": [
           "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md"
@@ -183,7 +183,39 @@
             "type": "docs"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Step 0: Preflight|Step 1: Verify Layer 1 proof|Step 7: Evaluate Engineering claim|Step 8: Delivery\" Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
+          "result": "pass",
+          "note": "The runbook covers preflight, Layer 1 proof, Engineering claim evaluation, and delivery.",
+          "headHash": "3084e45dad3b8b55401b54d29353649fccb21ff2",
+          "materialHash": "b17428730fad707ea835f2b5b37c1c23c988069f7ec8793d8ead7458c7069872",
+          "timestamp": "2026-06-10T14:31:15.158Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Implementation may run in parallel, but proof remains sequential|shared contract frozen|Parallel execution is allowed only\" Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
+          "result": "pass",
+          "note": "The runbook permits parallel workstreams only after contract freeze and lower-layer proof checks, while keeping proof sequential.",
+          "headHash": "3084e45dad3b8b55401b54d29353649fccb21ff2",
+          "materialHash": "b17428730fad707ea835f2b5b37c1c23c988069f7ec8793d8ead7458c7069872",
+          "timestamp": "2026-06-10T14:31:15.182Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Stop if|Rollback action|AUDIT_ONLY|There is no partial unlock\" Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
+          "result": "pass",
+          "note": "The document defines stop, rollback, blocked, audit-only, and no-partial-unlock outcomes instead of permitting claim escalation.",
+          "headHash": "3084e45dad3b8b55401b54d29353649fccb21ff2",
+          "materialHash": "b17428730fad707ea835f2b5b37c1c23c988069f7ec8793d8ead7458c7069872",
+          "timestamp": "2026-06-10T14:31:15.212Z"
+        }
+      ]
     }
   ]
 }
