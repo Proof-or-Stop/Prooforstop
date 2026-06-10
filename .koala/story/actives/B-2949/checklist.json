@@ -89,10 +89,37 @@
         "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
         "Lattice-Parallel-Development-Capability.md"
       ],
-      "userSees": "The execution document provides a practical sequence for formally unlocking Layer 2 without skipping proof.",
+      "userSees": "The document has a numbered runbook from preflight to final claim evaluation, and it says: \"Implementation may proceed in parallel, but Engineering proof and claim unlock remain sequential.\"",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The edited document gives a concrete preflight-to-claim runbook for formal Layer 2 unlock.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The runbook allows parallel workstreams only after shared contract freeze and lower-layer proof checks.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The runbook defines stop, block, rollback, and audit-only outcomes instead of permitting partial unlock or claim escalation.",
+            "type": "docs"
+          }
+        ]
+      }
     }
   ]
 }
