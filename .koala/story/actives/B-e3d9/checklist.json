@@ -211,7 +211,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/planner-unattended-smoke.ts",
+          "command": "npm --prefix packages/main run test:planner-unattended-smoke",
+          "result": "pass",
+          "note": "planner-unattended smoke asserts authority JobPlans emit requiresAuthoritativeWorktree=true, preserve git-status evidence requirements, and provider planned steps carry requiresCleanWorktree for the passing authoritative worktree path",
+          "headHash": "dcc6466c101ceb0fdedfe548be61f330ec92764f",
+          "materialHash": "785b078c2bffbf11791571c3b82476e0a8dd99062ba77cb5feec0f41ca79462e",
+          "timestamp": "2026-06-10T22:59:37.383Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/worktree-policy-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-policy-smoke",
+          "result": "pass",
+          "note": "worktree-policy smoke distinguishes clean missing-worktree authoritative_worktree_unresolved from configured dirty-worktree dirty_worktree, including policy-level requiresCleanWorktree=true without conflating the two stop reasons",
+          "headHash": "dcc6466c101ceb0fdedfe548be61f330ec92764f",
+          "materialHash": "785b078c2bffbf11791571c3b82476e0a8dd99062ba77cb5feec0f41ca79462e",
+          "timestamp": "2026-06-10T22:59:37.434Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "packages/main/src/core/worktree-policy.ts",
+          "command": "lattice gap_analyze",
+          "result": "pass",
+          "note": "gap_analyze reports 0 high / 0 medium after runtime annotations and smoke assertions, proving requiresAuthoritativeWorktree and requiresCleanWorktree are linked to live enforcement rather than prose-only coverage",
+          "headHash": "dcc6466c101ceb0fdedfe548be61f330ec92764f",
+          "materialHash": "785b078c2bffbf11791571c3b82476e0a8dd99062ba77cb5feec0f41ca79462e",
+          "timestamp": "2026-06-10T22:59:37.480Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
