@@ -57,8 +57,27 @@
         "packages/main/src/core/lattice-baseline.ts",
         "packages/main/src/tasks/lattice-baseline-smoke.ts"
       ]
+    },
+    {
+      "actor": "main-auditor",
+      "reason": "Development baseline runner and suite defaults still wrote/read .omx despite CLI help and Lattice artifact policy requiring .lattice; fix current-root correctness before regenerating Layer 2 proof.",
+      "timestamp": "2026-06-10T23:18:02.808Z",
+      "paths": [
+        "packages/main/src/core/baseline.ts",
+        "packages/main/src/handlers/baseline.ts",
+        "packages/main/src/core/baseline-suite-report.ts",
+        "packages/main/src/tasks/baseline-suite-smoke.ts"
+      ]
+    },
+    {
+      "actor": "main-auditor",
+      "reason": "Baseline suite report smoke fixtures must follow the .lattice default proof root after removing the .omx baseline artifact default.",
+      "timestamp": "2026-06-10T23:19:03.969Z",
+      "paths": [
+        "packages/main/src/tasks/baseline-suite-report-smoke.ts"
+      ]
     }
   ],
   "createdAt": "2026-06-10T22:32:56.682Z",
-  "updatedAt": "2026-06-10T23:04:09.123Z"
+  "updatedAt": "2026-06-10T23:19:03.969Z"
 }
