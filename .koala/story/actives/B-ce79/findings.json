@@ -24,7 +24,7 @@
       "desc": "capability_claim_formal_evaluate trusts existing baseline-suite-report.json top-level formal fields without rebuilding or revalidating underlying Engineering final reports, evidence refs, artifact digests, and receipt bindings. A hand-authored current-hash suite report can unlock Layer 2 without real final-report evidence. Minimal fix: formal evaluator must rebuild or revalidate Engineering suite from actual final-report artifacts before authorizing, with forged-suite regression coverage.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-10T21:20:31.644Z",
@@ -33,7 +33,9 @@
       "_hash": "ecf9a9dc3e31f50d480283cc8491b7793123d8d11d1021ca28f31488ca7768dc",
       "files": [
         "packages/main/src/core/lattice-baseline.ts"
-      ]
+      ],
+      "resolvedReason": "Fixed in c032c70e: capability_claim_formal_evaluate rebuilds the Engineering suite from final-report artifacts and compares stored suite fields/bindings to rebuilt evidence before unlock; forged PASS suite summary without final reports remains LOCKED. Verified by lattice-baseline smoke forged-suite test and two-host REVIEW PASS.",
+      "resolvedAt": "2026-06-10T21:41:10.298Z"
     }
   ]
 }
