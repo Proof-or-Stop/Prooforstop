@@ -1,53 +1,53 @@
 {
   "storyId": "B-0a80",
-  "checkedAt": "2026-06-10T00:38:39.649Z",
+  "checkedAt": "2026-06-10T00:39:24.213Z",
   "reviewRound": "2026-06-10T00:28:46.818Z",
   "agentId": "koala-review-delivery",
   "docsPromises": [
     {
       "docPath": "Lattice-Parallel-Development-Capability.md",
-      "promise": "Artifact provenance generatedAt ordering is internally consistent and references resolvable paths",
-      "verifiedBy": "grep + python timestamp comparison",
-      "evidence": "All 7 parallel-development artifacts have generatedAt=2026-06-10T00:23:11Z > baseline generatedAt=2026-06-09T23:07:12.290Z; grep found zero .worktrees/B-688d references in artifact JSON/MD"
+      "promise": "B-688d parallel-development artifacts reference valid provenance paths and consistent timestamps",
+      "verifiedBy": "grep + SHA256 hash verification",
+      "evidence": "rg .worktrees/B-688d found 0 matches across all B-688d artifacts; generatedAt ordering baseline-suite-report(2026-06-09T23:07:12) <= final-report(2026-06-10T00:23:11) <= shared-contract(2026-06-10T00:23:11) is consistent"
     },
     {
       "docPath": "Lattice-Capability-Claim-baseline.md",
-      "promise": "Baseline failure semantics do not claim terminalCriteriaSatisfied=true while simultaneously failing on terminal criteria",
-      "verifiedBy": "python JSON inspection of baseline-suite-report.json runs",
-      "evidence": "Expected-PASS failed runs no longer contain contradictory terminalCriteriaSatisfied field; blockedReason correctly states missing independent review evidence"
+      "promise": "Failed expected-PASS baseline runs cite missing independent local review evidence, not contradictory terminal criteria failure",
+      "verifiedBy": "JSON field inspection of all 6 run final-reports",
+      "evidence": "All 5 FAIL runs have outcome=FAIL with blockedReason=local independent review evidence is missing; terminalCriteriaSatisfied is absent (not contradictory true); RED-GAP-BLOCK-1 correctly shows EXPECTED_BLOCK; no terminal_criteria_not_met wording found in any artifact"
     },
     {
       "docPath": "docs/requirements/decisions/authority-client-role.md",
-      "promise": "Authority mode remains off, evidence class remains local-lifecycle, no receipt-backed claims introduced",
-      "verifiedBy": "python JSON inspection of shared-contract.json and final-report.json",
-      "evidence": "authorityMode=off, evidenceClass=local-lifecycle, receiptVerified=false, productionDone=false, contractTerms all true (no authority claims), decision=GO-NOT-YET preserved"
+      "promise": "authorityMode=off and evidenceClass=local-lifecycle are preserved after repair",
+      "verifiedBy": "JSON field inspection of final-report.json authorityBoundary",
+      "evidence": "final-report.json: authorityBoundary.authorityMode=off, authorityBoundary.evidenceClass=local-lifecycle, authority.receiptVerified=false, authority.productionDone=false"
     },
     {
       "docPath": "docs/requirements/decisions/lattice-parallel-wave.md",
-      "promise": "Host-neutral dispatch shape unchanged: 2 hosts, 8 lanes",
-      "verifiedBy": "python JSON inspection of final-report.json summary",
-      "evidence": "hostCount=2, hostProfileIds=[codex, claude-code], laneCount=8 — unchanged from pre-fix state"
+      "promise": "Host-neutral dispatch shape (2 hosts, 8 lanes, 4 locks) is unchanged after repair",
+      "verifiedBy": "JSON field inspection of dispatch-audit, host-probes, claim-lock-status, and final-report summary",
+      "evidence": "host-probes: 2 profiles (codex, claude-code); dispatch-audit: 8 lanes; claim-lock-status: 4 locks (engineering-runner, loop-engine, production-safety, capability-claim-unlock); final-report summary: hostCount=2, laneCount=8"
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "npm test → story-lifecycle (5 steps) ✓, gap-convergence (4 steps) ✓, ALL PASS; python3 timestamp comparison: all 7 parallel-dev generatedAt > baseline generatedAt; grep .worktrees/B-688d in .omx/artifacts/{baseline,parallel-development}/B-688d: 0 matches in artifact JSON"
+      "transcript": "Ran SHA256 hash check on all shared-contract evidenceRefs: all 10 referenced artifacts match current file hashes. Ran rg .worktrees/B-688d across both artifact directories: 0 matches. Verified generatedAt ordering: baseline-suite-report(2026-06-09T23:07:12.290Z) <= final-report(2026-06-10T00:23:11Z) <= shared-contract(2026-06-10T00:23:11Z)."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "npm test → ALL PASS; python3 inspection of baseline-suite-report.json runs with expectedOutcome=PASS and actualOutcome=FAIL shows no terminalCriteriaSatisfied contradiction"
+      "transcript": "Inspected all 6 run final-report.json files: 5 FAIL runs have outcome=FAIL + blockedReason=local independent review evidence is missing + terminalCriteriaSatisfied absent (no contradictory true). Grepped for terminal criteria not satisfied and terminal_criteria_not_met across all B-688d artifacts: 0 matches. suiteStatus remains FAIL in baseline-suite-report.json."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "npm test → ALL PASS; python3 inspection of shared-contract.json and final-report.json confirms authorityMode=off, evidenceClass=local-lifecycle, GO-NOT-YET, receiptVerified=false, hostCount=2, laneCount=8, contractTerms all noL2PlusClaims/noProductionAuthorityClaims/noFullAuthorityDoneClaims/noReceiptBackedAuthorityClaims = true"
+      "transcript": "Recomputed SHA256 for all 10 shared-contract evidenceRef paths: all match stored hashes. Verified final-report.json: decision=GO-NOT-YET, authorityMode=off, evidenceClass=local-lifecycle, hostCount=2, hostProfileIds=[codex,claude-code], laneCount=8. Verified claim-lock-status.json: 4 locks. Verified dispatch-audit.json: 8 lanes. Verified host-probes.json: 2 host profiles."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "All three delivery claims verified mechanically: provenance ordering fixed, baseline failure semantics corrected, authority/host-neutral invariants preserved. npm test passes. No correctness issues found."
+    "summary": "All B-688d artifact evidence-chain repairs verified: no deleted worktree paths, consistent timestamps, no terminal-criteria contradictions, SHA256 hashes match, GO-NOT-YET/authorityMode=off/evidenceClass=local-lifecycle/2 hosts/8 lanes/4 locks invariants preserved."
   },
-  "_hash": "64bd30a56bd648ca4ee355c9befd64243ece9d9d7dfaa86cf3eb472fb5515d86"
+  "_hash": "f6f9d19f6240120d3f3d73d6ad4d7c7d651623c03ba1a53760245a7e6ad00853"
 }
