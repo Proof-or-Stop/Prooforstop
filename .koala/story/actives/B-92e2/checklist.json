@@ -115,7 +115,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "A developer can run Loop Engineering baseline scenarios and see loop-policy, gate-results, host-verdicts, and final reports that either PASS or block with a specific reason.",
+      "userSees": "`node bin/lattice.js baseline_run --baselineId=UDM-EVIDENCE-GATE-1 --format=json` prints `\"outcome\":\"EXPECTED_BLOCK\"` with `\"blockedReasons\"` for missing evidence, plus loop policy and gate-result artifact paths.",
       "files": {
         "modify": [
           "packages/main/src/core/lattice-baseline.ts",

@@ -13,7 +13,7 @@
     "本 story 只能实现本地可执行 harness/report/gate，不证明 Engineering、Loop、Production Safety 已 PASS。",
     "Production Safety 和 Capability Claim 必须 fail closed：缺 lower-layer suite、缺 authority receipt、缺 multi-host verdict、缺 soak 或 evidence stale 时不能 PASS。",
     "本地 CLI 输出必须明确 authority.receiptVerified=false、productionDone=false，不能制造 Authority receipt 或 fullAuthorityDone。",
-    "代码改动必须尽量集中在 baseline core/handler/CLI/policy/process fact/smoke，不重构无关 lifecycle。"
+    "代码改动必须尽量集中在 baseline core/handler/CLI/policy/process fact/smoke；baseline documents are relatedDocs for alignment, not expected material edits unless implementation reveals a real correctness drift."
   ],
   "unknowns": [],
   "touchpoints": [
@@ -25,12 +25,7 @@
     "packages/main/src/core/process-fact-levels.ts",
     "packages/main/src/core/process-fact-registry.ts",
     "packages/main/src/tasks/lattice-baseline-smoke.ts",
-    "packages/main/package.json",
-    "Lattice-Engineering-baseline.md",
-    "Lattice-Loop-Engineering-baseline.md",
-    "Lattice-Production-Safety-baseline.md",
-    "Lattice-Capability-Claim-baseline.md",
-    "Lattice-Parallel-Development-Capability.md"
+    "packages/main/package.json"
   ],
-  "timestamp": "2026-06-10T01:49:32.150Z"
+  "timestamp": "2026-06-10T01:51:48.251Z"
 }
