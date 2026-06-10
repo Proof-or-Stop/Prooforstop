@@ -272,7 +272,7 @@ assert.equal(authority.serverReachability, 'not-probed');
 assert.equal(authority.receiptVerified, false);
 assert.equal(authority.productionDone, false);
 assert.equal(authority.canClaimProductionDone, false);
-assert.match(authority.note, /no receipt is verified/i);
+assert.match(authority.note, /no new receipt is verified/i);
 assertNoProductionOverclaim(authority, 'lattice authority status');
 
 const conduit = runJson<any>(['conduit_status', '--format=json']);
