@@ -86,9 +86,9 @@
       "relatedDocs": [
         "Lattice-Capability-Claim-baseline.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-10T00:28:40.449Z",
-      "endTime": "2026-06-10T00:28:26.556Z",
+      "endTime": "2026-06-10T00:28:40.807Z",
       "userSees": "User sees baseline failure reason PASS: failed expected-PASS runs cite missing independent local review evidence, not a contradictory terminal criteria failure.",
       "files": {
         "modify": [
@@ -127,32 +127,35 @@
         {
           "intentRef": "CHK-002:happy:0",
           "kind": "logic_test",
-          "command": "node artifact consistency check for B-688d provenance, failure semantics, evidenceRefs hashes, authority boundary, host/lane/lock shape",
+          "verdict": "success",
+          "command": "node inline B-0a80 artifact consistency check",
           "result": "pass",
-          "note": "Expected-PASS failed runs still have outcome=FAIL and blockedReason=local independent review evidence is missing.",
-          "headHash": "9d0277bacc599dec854744bfddeeba4c889349f4",
+          "note": "All five expected-PASS failing baseline runs still have outcome=FAIL and blockedReason=local independent review evidence is missing.",
+          "headHash": "2d87a6b8c53bafc832efe0427f32f3c2780683c1",
           "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
-          "timestamp": "2026-06-10T00:28:26.581Z"
+          "timestamp": "2026-06-10T00:28:40.831Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
-          "command": "node artifact consistency check for B-688d provenance, failure semantics, evidenceRefs hashes, authority boundary, host/lane/lock shape",
+          "verdict": "success",
+          "command": "rg -n \"baseline terminal criteria were not satisfied|terminal_criteria_not_met\" .omx/artifacts/baseline/B-688d",
           "result": "pass",
-          "note": "Printed exactly: baseline failure semantics check: PASS (terminal criteria contradictions: 0).",
-          "headHash": "9d0277bacc599dec854744bfddeeba4c889349f4",
+          "note": "Search returned no contradictory terminal criteria failure wording after normalization.",
+          "headHash": "2d87a6b8c53bafc832efe0427f32f3c2780683c1",
           "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
-          "timestamp": "2026-06-10T00:28:26.602Z"
+          "timestamp": "2026-06-10T00:28:40.853Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
-          "command": "node artifact consistency check for B-688d provenance, failure semantics, evidenceRefs hashes, authority boundary, host/lane/lock shape",
+          "verdict": "success",
+          "command": "node inline B-0a80 artifact consistency check",
           "result": "pass",
-          "note": "GO-NOT-YET and failed baseline state were preserved; wording now cites missing local independent review evidence instead of terminal criteria.",
-          "headHash": "9d0277bacc599dec854744bfddeeba4c889349f4",
+          "note": "The repair did not convert missing independent review evidence into PASS or hide the block; suiteStatus remains FAIL.",
+          "headHash": "2d87a6b8c53bafc832efe0427f32f3c2780683c1",
           "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
-          "timestamp": "2026-06-10T00:28:26.626Z"
+          "timestamp": "2026-06-10T00:28:40.874Z"
         }
       ]
     },
