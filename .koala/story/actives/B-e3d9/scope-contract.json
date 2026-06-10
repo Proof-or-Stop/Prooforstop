@@ -1,0 +1,54 @@
+{
+  "storyId": "B-e3d9",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/authority-contracts.ts",
+    "packages/main/src/core/authority-client.ts",
+    "packages/main/src/core/lattice-authority-native.ts",
+    "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/command-policy.ts",
+    "docs/requirements/decisions/cc-learnings.md",
+    "packages/main/src/core/worktree-policy.ts",
+    "packages/main/src/core/planner.ts",
+    "docs/requirements/decisions/lattice-authority-live-integration.md",
+    "packages/main/src/handlers/planner.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/authority-client-smoke.ts",
+    "packages/main/src/tasks/dispatch-run-smoke.ts",
+    "packages/main/src/tasks/worktree-policy-smoke.ts",
+    "packages/main/src/tasks/planner-unattended-smoke.ts",
+    "packages/main/src/tasks/gap-analyze.ts",
+    "lattice gap_analyze",
+    "lattice validate --story=B-e3d9",
+    "npm --prefix packages/main run test:authority-client-smoke",
+    "npm --prefix packages/main run test:worktree-policy-smoke",
+    "npm --prefix packages/main run test:planner-unattended-smoke"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "These paths were necessary follow-up correctness fixes discovered during verification: .gitignore allowed story metadata in this worktree, lattice-cli-migration-smoke aligned a stale authority-status wording assertion, and the gap-analyze hygiene files prevent generated dist output from creating false medium gaps after build.",
+      "timestamp": "2026-06-10T23:44:34.923Z",
+      "paths": [
+        ".gitignore",
+        "packages/main/package.json",
+        "packages/main/src/tasks/extract.ts",
+        "packages/main/src/tasks/gap-analyze-input-hygiene-smoke.ts",
+        "packages/main/src/tasks/lattice-cli-migration-smoke.ts"
+      ],
+      "anchors": [
+        "scope_contract_review_gate",
+        "gap_analyze_generated_output_hygiene",
+        "authority_status_smoke_wording"
+      ]
+    }
+  ],
+  "createdAt": "2026-06-10T23:44:00.682Z",
+  "updatedAt": "2026-06-10T23:44:34.923Z"
+}
