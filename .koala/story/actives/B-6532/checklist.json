@@ -398,9 +398,9 @@
         "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
         "docs/requirements/decisions/lattice-unattended-completion-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-10T23:33:48.761Z",
-      "endTime": null,
+      "endTime": "2026-06-10T23:35:13.203Z",
       "userSees": "Terminal output shows formal claim report authorized=true, authorizedClaimLevel=engineering, layer2EngineeringClaim=UNLOCKED, loopEngineeringClaim=LOCKED, productionSafetyClaim=LOCKED, globalCapabilityClaim=LOCKED, receiptVerified=false, productionDone=false, fullAuthorityDone=false.",
       "files": {
         "modify": [
@@ -434,7 +434,39 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js capability_claim_formal_evaluate --target=engineering --artifactsRoot=.lattice/artifacts/baseline/layer2-engineering-unlock --writeReport=true --runId=B-6532-layer2-engineering-claim --outputDir=.lattice/artifacts/baseline/layer2-engineering-unlock/capability-claim/CLAIM-ENGINEERING-DEV/B-6532-layer2-engineering-claim --format=json",
+          "result": "pass",
+          "note": "Formal claim report was written with authorized=true, outcome=PASS, authorizedClaimLevel=engineering, highestEvidenceBackedClaim=engineering, formalProof=true, layer2EngineeringClaim=UNLOCKED.",
+          "headHash": "d429b84231dcef7e8ca2df70d0a9f9850e2b7974",
+          "materialHash": "f7ac7a18d8034bf4e77c88f6b544dccd0e308ca24d7ea791d4c9819900405421",
+          "timestamp": "2026-06-10T23:35:13.258Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js capability_claim_formal_evaluate --target=loop-engineering --artifactsRoot=.lattice/artifacts/baseline/layer2-engineering-unlock --format=json && node packages/main/dist/cli.js capability_claim_formal_evaluate --target=production-safety --artifactsRoot=.lattice/artifacts/baseline/layer2-engineering-unlock --format=json",
+          "result": "pass",
+          "note": "Higher-layer formal targets returned authorized=false and outcome=EXPECTED_BLOCK; Loop, Production Safety, and global claims remain LOCKED.",
+          "headHash": "d429b84231dcef7e8ca2df70d0a9f9850e2b7974",
+          "materialHash": "f7ac7a18d8034bf4e77c88f6b544dccd0e308ca24d7ea791d4c9819900405421",
+          "timestamp": "2026-06-10T23:35:13.308Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js capability_claim_formal_evaluate --target=engineering --artifactsRoot=.lattice/artifacts/baseline/layer2-engineering-unlock --format=json",
+          "result": "pass",
+          "note": "After claim artifact commit, evaluator still derives authorization from fresh Development and Engineering suite reports while receiptVerified=false, productionDone=false, fullAuthorityDone=false, and no Authority receipt is claimed.",
+          "headHash": "d429b84231dcef7e8ca2df70d0a9f9850e2b7974",
+          "materialHash": "f7ac7a18d8034bf4e77c88f6b544dccd0e308ca24d7ea791d4c9819900405421",
+          "timestamp": "2026-06-10T23:35:13.356Z"
+        }
+      ]
     },
     {
       "id": "CHK-007",
