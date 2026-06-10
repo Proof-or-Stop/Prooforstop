@@ -6,8 +6,9 @@
 
 ## Purpose
 
-This document defines how REVIEW, TEST, and DONE gates will consume verified
-Authority receipt refs once the Authority client exists.
+This document defines how REVIEW, TEST, and DONE gates consume verified
+Authority receipt refs. The current local baseline wires TEST/DONE consumption in
+Authority shadow/enforce mode; REVIEW consumption remains policy-dependent.
 
 The core rule is simple: local lifecycle gates may derive
 `strongEvidenceConsumed=true` only from a verified production `gate_decision`
@@ -26,6 +27,10 @@ Gate consumption needs:
 - receipt-ref artifact;
 - process fact registry entry for receipt-backed authority;
 - optional live refetch policy for revocation/supersession.
+
+Policy must state which actor/runner/session bindings are hard requirements.
+Compatibility field names alone are not enough to make actor key binding or
+runner heartbeat checks gate-enforced.
 
 ## Receipt Eligibility Predicate
 
@@ -46,7 +51,9 @@ A receipt ref is eligible only when:
 11. `materialHash` matches current material hash.
 12. `policyMode` and `authorityMode` are acceptable.
 13. `verifiedAt` is present and within allowed freshness policy.
-14. no stale/revoked/superseded marker blocks it.
+14. actor binding and `runnerSessionIds` or equivalent session binding are
+    present when policy marks actor/runner/session checks as hard requirements.
+15. no stale/revoked/superseded marker blocks it.
 
 Eligibility is not consumption. A receipt can be eligible but not yet consumed by
 a particular gate decision.
@@ -61,7 +68,9 @@ A gate consumes a receipt ref only when:
 4. the receipt decision verdict is known to be pass;
 5. required evidence digests and run ids are present;
 6. producer/verifier independence is visible where the policy requires it;
-7. the gate records a consumption event for this decision.
+7. actor binding and runner session binding are visible where the policy
+   requires them;
+8. the gate records a consumption event for this decision.
 
 The derived gate fact should look like:
 

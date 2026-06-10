@@ -1,10 +1,10 @@
 # Authority Receipt Gate End-to-End Plan
 
-> Status: execution plan, not implemented behavior.
+> Status: execution plan with current server and CLI/gate baseline noted.
 > Scope: cross-repo Authority Server + Runner + Lattice CLI + lifecycle gates.
-> Trigger: current local Lattice can show authority readiness, but it cannot yet
-> prove a live Authority job, verified server receipt, or lifecycle gate
-> consumption.
+> Trigger: current local Lattice has receipt verification and gate-consumption
+> primitives, but the complete live Authority job -> receipt -> consumed gate
+> chain still needs production rollout validation.
 
 ## Purpose
 
@@ -53,16 +53,46 @@ Current Orchestrate/Lattice behavior remains conservative:
 - `authority_status`, `conduit_status`, and `conduit_explain` are diagnostics.
 - `LATTICE_AUTHORITY_URL`, actor key config, runner id, and session id config are
   readiness inputs, not authority evidence by themselves.
-- Local lifecycle gates do not consume verified server receipts yet.
+- Local lifecycle gates do not require Authority receipts by default. In
+  Authority shadow/enforce mode, TEST/DONE gate paths can consume verified
+  production `gate_decision` receipt refs.
 - Local receipts, handoff receipts, Parallel Wave refs, fake receipts,
   contract-only receipts, and transport `accepted=true` cannot set
   `receiptVerified=true`, `productionDone=true`, or
   `strongEvidenceConsumed=true`.
 - A session id is an identity binding field, not the strong-evidence chain.
 
-The future implementation must preserve this boundary until a server-signed
-receipt is verified against trusted Authority public key material and consumed by
-a lifecycle gate predicate.
+Every future implementation must preserve this boundary: only a server-signed
+receipt verified against trusted Authority public key material and consumed by a
+lifecycle gate predicate can derive production Authority completion facts.
+
+## Current Server and CLI Baseline
+
+As of the staging/API and Orchestrate source checks on 2026-06-10, the baseline
+is no longer missing the proof route, receipt subject fields, or local
+receipt-ref consumption primitives:
+
+- `GET /v1/receipts/{receipt_id}/proof` exists and returns an
+  `AuthorityReceiptProof` bundle.
+- `AuthorityReceipt` exposes `subjectKind`, `subjectId`, `subjectDigest`, and
+  `authorityActorId`.
+- `GateDecision` exposes `decisionId`, `storyId`, `repo`, `stateVersion`,
+  `evidenceDigests`, `producerRunIds`, `verifierRunIds`, and
+  `runnerSessionIds`.
+- staging advertises `productionEnforceAuthority=true` with a configured,
+  non-ephemeral, non-production-inert server key.
+- Lattice CLI exposes `authority_receipt_verify` / `lattice authority receipt
+  verify`.
+- `AuthorityClient.fetchGateReceiptProof()` fetches a server-relative proof path.
+- `authority-receipt-refs.json` has store APIs and an L4 process fact registry
+  entry.
+- TEST/DONE gate paths can read and consume verified production refs in
+  Authority mode, and receipt consumption is idempotent for the same gate
+  context.
+
+The remaining work is production rollout alignment: exercise the current
+server/CLI/gate baseline against the deployed staging service, wire explicit
+actor/runner/session enforcement policy, and keep negative controls fail-closed.
 
 ## Host-Neutral Invariant
 
@@ -93,7 +123,7 @@ the receipt/gate contracts must not depend on a particular host product.
 This plan does not claim the ordinary CLI is already a production authority
 client. It also does not require one story to implement the whole stack.
 
-Out of scope for a documentation-only story:
+Out of scope for this documentation-only sync:
 
 - implementing Python Authority Server endpoints;
 - implementing runner provider execution;
@@ -103,7 +133,8 @@ Out of scope for a documentation-only story:
 - changing REVIEW, TEST, or DONE gate behavior;
 - treating fake/local/server-ish test objects as production receipts.
 
-Each behavior above needs implementation stories and mechanical evidence.
+Those behaviors require implementation or validation stories with mechanical
+evidence; this sync only corrects stale plan status.
 
 ## Cross-Repo Streams
 
@@ -115,16 +146,18 @@ Each behavior above needs implementation stories and mechanical evidence.
 | Lifecycle gates | Orchestrate / Lattice CLI repo | receipt-ref gate predicate, process fact registry updates, REVIEW/TEST/DONE consumption, stale/revoked/mismatched diagnostics | real receipt verification path and reviewed receipt-ref schema |
 | Cross-repo validation | release/e2e coordination | live server + registered runner + story-scoped job + evidence + gate_decision receipt + consumed receipt ref | real Authority URL, actor key, runner id, session id, server public key, and story-scoped job |
 
-## Contract Decisions Required Before Implementation
+## Contract Decisions and Baseline
 
-Do not start gate implementation until these decisions are explicit.
+Do not expand REVIEW consumption, live enforcement, or production rollout policy
+until these decisions are explicit and reflected in the concrete server/CLI
+contracts.
 
 ### 1. Receipt Subject Model
 
-The server must expose a stable way for clients to answer: "what exactly does
-this receipt prove?"
+The server now exposes first-class receipt subject fields. Clients still need to
+verify the semantics mechanically through the proof bundle and decision payload.
 
-Preferred contract:
+Current contract fields:
 
 - `receipt.kind`
 - `subjectKind`
@@ -140,11 +173,6 @@ For `gate_decision`, `subjectKind` should be `"gate_decision"` and
 `subjectId` should be the server decision id or gate receipt id. The signed
 payload must also bind the evaluated story id, target phase, policy mode,
 authority mode, repo head/material hash, evidence digests, and decision verdict.
-
-If the server keeps the current `inputDigest` / `decisionDigest` shape without
-first-class subject fields, the mapping must be documented in
-[Lattice Authority Receipt Contract](lattice-authority-receipt-contract.md)
-before CLI receipt verification or gate consumption starts.
 
 ### 2. Evidence Receipt vs Gate Decision Receipt
 
