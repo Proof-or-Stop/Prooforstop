@@ -11,9 +11,9 @@
         "Lattice-Capability-Claim-baseline.md",
         "Lattice-Parallel-Development-Capability.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-10T02:14:41.093Z",
       "userSees": "`node bin/lattice.js help` lists local Baseline commands, and `node bin/lattice.js baseline_suite_report --help` shows shared layer/report arguments instead of unknown command.",
       "files": {
         "modify": [
@@ -54,7 +54,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Build passed and lattice-baseline-smoke verified local CLI help lists baseline_run, baseline_suite, baseline_suite_report, capability_claim_evaluate and baseline_suite_report --help works.",
+          "headHash": "ff2fb9795a7a081bb2f83a240b11b91a70e5e2c4",
+          "materialHash": "ecfbe252e6f34e4d0e38ec214fad1ad721ef323e1602d2167f6d45c7d337d4a5",
+          "timestamp": "2026-06-10T02:14:41.121Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke verified unsupported baseline id fails closed without synthesizing PASS.",
+          "headHash": "ff2fb9795a7a081bb2f83a240b11b91a70e5e2c4",
+          "materialHash": "ecfbe252e6f34e4d0e38ec214fad1ad721ef323e1602d2167f6d45c7d337d4a5",
+          "timestamp": "2026-06-10T02:14:41.145Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke verified malformed, mixed-schema, stale, and authority-overclaim final reports are rejected by suite aggregation.",
+          "headHash": "ff2fb9795a7a081bb2f83a240b11b91a70e5e2c4",
+          "materialHash": "ecfbe252e6f34e4d0e38ec214fad1ad721ef323e1602d2167f6d45c7d337d4a5",
+          "timestamp": "2026-06-10T02:14:41.168Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",

@@ -33,7 +33,19 @@
     "packages/main/src/core/lattice-parallel-wave.ts"
   ],
   "scopeChangeReason": "B-92e2 only implements local Baseline 2-5 runner/report/claim-gate readiness; it must not change authority runner, authority client, or existing Parallel Wave behavior.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "B-92e2 added new local baseline CLI commands to command-policy; core/config.ts DEFAULT_PHASE_TOOLS must include the same L0 read-only commands to avoid policy/default phase drift and remove the temporary cli-engine bypass.",
+      "timestamp": "2026-06-10T02:11:14.519Z",
+      "paths": [
+        "packages/main/src/core/config.ts"
+      ],
+      "anchors": [
+        "DEFAULT_PHASE_TOOLS"
+      ]
+    }
+  ],
   "createdAt": "2026-06-10T01:51:10.187Z",
-  "updatedAt": "2026-06-10T01:51:10.187Z"
+  "updatedAt": "2026-06-10T02:11:14.519Z"
 }
