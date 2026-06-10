@@ -68,9 +68,9 @@
           "command": "lattice authority_status --json --authorityMode=enforce --authorityURL=https://stagging.hostneutral.net; npm run test:authority-receipt-proof; npm run test:authority-gate-receipts; npm run test:authority-gate-consumption",
           "result": "pass",
           "note": "authority_status kept receiptVerified=false, productionDone=false, productionAuthorityUsable=false; local receipt/gate regression smokes passed, proving local-test/contract-only/transport-only signals do not become production-gate-decision evidence.",
-          "headHash": "336513b5c090468555a4b3b1603c9dddbe81db50",
-          "materialHash": "0c5798fc3a0e0731eac5171a15086c0a967883f96be5f4f768d1aece704e736c",
-          "timestamp": "2026-06-10T19:53:07.030Z"
+          "headHash": "fd2ae6f9b60323184aa8c203ae9c10172baaf167",
+          "materialHash": "a9421651d41f770be0e89a2a646d289c132b69bbbd096e536427a8a6ead900a3",
+          "timestamp": "2026-06-10T20:04:36.216Z"
         }
       ]
     },
@@ -142,9 +142,9 @@
           "command": "lattice checklist_get --storyId=B-51f6; npm run test:authority-gate-receipts",
           "result": "pass",
           "note": "Story/checklist and local gate receipt regression keep scope fixed to TEST; DONE was not attempted and TEST receipt semantics are not broadened to DONE.",
-          "headHash": "41cb98ebc17c234ec10c89419aad59e2ff3c56e7",
-          "materialHash": "0c5798fc3a0e0731eac5171a15086c0a967883f96be5f4f768d1aece704e736c",
-          "timestamp": "2026-06-10T19:53:07.963Z"
+          "headHash": "fd2ae6f9b60323184aa8c203ae9c10172baaf167",
+          "materialHash": "a9421651d41f770be0e89a2a646d289c132b69bbbd096e536427a8a6ead900a3",
+          "timestamp": "2026-06-10T20:04:36.216Z"
         }
       ]
     },
