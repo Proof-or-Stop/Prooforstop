@@ -5,7 +5,7 @@
       "desc": "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md:186 defines digest-backed evidence refs as string refs using artifact:<file>#sha256=<64-hex>, and line 210 explicitly requires gateEvidenceRefs[] to use that string format. Section 10 then says any *EvidenceRefs entry is malformed if it is missing a digest field and line 806 requires refusalEvidenceRefs to have refusalType, which implies object-form entries. This is an internal contract contradiction for gate/refusal evidence refs and should block quality review until the document consistently specifies either digest-backed string refs or object refs.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-10T14:34:00.593Z",
@@ -14,7 +14,9 @@
       "_hash": "57b4503a5d221da8c6710efa41dc059f9870449ae38a2e0de4e71b7accce2cd0",
       "files": [
         "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md"
-      ]
+      ],
+      "resolvedReason": "Resolved by commit 54a96bbc. Section 10 no longer implies object-form evidence refs: it now says digest-backed evidence refs must use artifact:<file>#sha256=<64-hex>, sha mismatches block, and EXPECTED_BLOCK requires non-empty refusalEvidenceRefs. Verified with rg for object-form remnants: refusalType, missing digest field, { path, digest }, and gateEvidenceRefs[].gateType are absent from the document.",
+      "resolvedAt": "2026-06-10T14:38:56.565Z"
     },
     {
       "id": "B-2949:F-002",
