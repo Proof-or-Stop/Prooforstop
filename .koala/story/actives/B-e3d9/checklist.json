@@ -55,10 +55,10 @@
           "file": "packages/main/src/tasks/authority-client-smoke.ts",
           "command": "npm run test:authority-client",
           "result": "pass",
-          "note": "authority-client smoke keeps the valid ed25519 discovery path verified, preserving the supported production receipt algorithm success case",
-          "headHash": "fa0c6b44c04ef191069ffedd89be41891496b6d9",
+          "note": "authority-client smoke retains the lowercase ed25519 policy-discovery path where receipt verification returns verified, preserving the supported production receipt algorithm success case.",
+          "headHash": "7275d4732e25216d063bdf5b865a0bc75d89c6e0",
           "materialHash": "93f758f0771566ab8125d1eba5c272c5a536f66a95f6c927f342542690dc05b9",
-          "timestamp": "2026-06-10T23:06:45.159Z"
+          "timestamp": "2026-06-10T23:28:53.486Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -66,10 +66,10 @@
           "file": "packages/main/src/tasks/authority-client-smoke.ts",
           "command": "npm run test:authority-client",
           "result": "pass",
-          "note": "authority-client smoke rejects the ED25519 case-variant discovery value as an unsupported algorithm, proving the exact serverKey.algorithm contract fails closed",
-          "headHash": "fa0c6b44c04ef191069ffedd89be41891496b6d9",
+          "note": "The frozen PLAN intent expected ED25519 to fail, but reviewer F-002 corrected the contract: authority-client smoke now drives serverKey.algorithm=ED25519 through policy discovery; native verification trims/lowercases it to ed25519, the gate decision verifies, and the executor reaches authorityDone.",
+          "headHash": "7275d4732e25216d063bdf5b865a0bc75d89c6e0",
           "materialHash": "93f758f0771566ab8125d1eba5c272c5a536f66a95f6c927f342542690dc05b9",
-          "timestamp": "2026-06-10T23:06:45.159Z"
+          "timestamp": "2026-06-10T23:28:53.486Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -77,10 +77,10 @@
           "file": "packages/main/src/tasks/authority-client-smoke.ts",
           "command": "npm run test:authority-client",
           "result": "pass",
-          "note": "authority-client smoke rejects an otherwise valid receipt when discovery declares serverKey.algorithm=rsa, proving unsupported verification material cannot satisfy authority DONE",
-          "headHash": "fa0c6b44c04ef191069ffedd89be41891496b6d9",
+          "note": "authority-client smoke rejects serverKey.algorithm=rsa and blank whitespace algorithms with receipt_unverified unsupported algorithm, and directly asserts the native verifier rejects a non-string algorithm value.",
+          "headHash": "7275d4732e25216d063bdf5b865a0bc75d89c6e0",
           "materialHash": "93f758f0771566ab8125d1eba5c272c5a536f66a95f6c927f342542690dc05b9",
-          "timestamp": "2026-06-10T23:06:45.159Z"
+          "timestamp": "2026-06-10T23:28:53.486Z"
         }
       ]
     },
