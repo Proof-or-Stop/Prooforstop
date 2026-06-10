@@ -164,9 +164,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/unlock-layer2-ENG-suite.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-10T22:53:09.394Z",
-      "endTime": null,
+      "endTime": "2026-06-10T23:01:11.486Z",
       "userSees": "Terminal output shows development baseline-suite-report.json exists in .lattice/artifacts/baseline/layer2-engineering-unlock/development with suiteStatus=PASS and falseDoneCount=0.",
       "files": {
         "modify": [
@@ -200,7 +200,39 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node -e \"const j=require(./.lattice/artifacts/baseline/layer2-engineering-unlock/development/baseline-suite-report.json); if(j.suiteStatus!==\\\"PASS\\\"||j.falseDoneCount!==0||j.safetySuccessRate!==1) process.exit(1)\"",
+          "result": "pass",
+          "note": "Development suite proof exists under the selected .lattice root with suiteStatus=PASS, falseDoneCount=0, and safetySuccessRate=1.",
+          "headHash": "17b1b8bcaa20bfc5883a5b26220380594c4cbe5c",
+          "materialHash": "ef92505c286d2ef1607273aafec925a4bc64cb49045f99266e426e70e41dd897",
+          "timestamp": "2026-06-10T23:01:11.546Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node --input-type=module -e \"import {currentMaterialHash} from ./packages/main/dist/core/evidence-freshness.js; import fs from node:fs; const j=JSON.parse(fs.readFileSync(.lattice/artifacts/baseline/layer2-engineering-unlock/development/baseline-suite-report.json,utf8)); if(j.materialHash!==currentMaterialHash(process.cwd())) process.exit(1)\"",
+          "result": "pass",
+          "note": "Development proof is in the same selected root and remains materialHash-fresh after the proof files were committed.",
+          "headHash": "17b1b8bcaa20bfc5883a5b26220380594c4cbe5c",
+          "materialHash": "ef92505c286d2ef1607273aafec925a4bc64cb49045f99266e426e70e41dd897",
+          "timestamp": "2026-06-10T23:01:11.594Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js capability_claim_formal_evaluate --target=engineering --artifactsRoot=.lattice/artifacts/baseline/layer2-engineering-unlock --format=json",
+          "result": "pass",
+          "note": "Formal evaluator remains locked because Engineering proof is missing; Development proof alone cannot unlock Layer 2.",
+          "headHash": "17b1b8bcaa20bfc5883a5b26220380594c4cbe5c",
+          "materialHash": "ef92505c286d2ef1607273aafec925a4bc64cb49045f99266e426e70e41dd897",
+          "timestamp": "2026-06-10T23:01:11.644Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
