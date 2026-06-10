@@ -70,7 +70,7 @@ PASS；外部项目、旧 wrapper 或非 git 项目会被解释成 WARN/FAIL 加
 |------|----------|----------|------------------------|
 | `off`（默认） | 普通本地 Koala/Lattice story 开发，**免费、纯本地**。 | 完全不发起网络请求；本地 evidence + DONE gate 行为不变。 | 否：`productionDone=false`、`receiptVerified=false`。 |
 | `shadow` | 想观察 Python authority 的响应但保留本地行为。 | 尽力 observational POST；失败仅 stderr warning，不影响本地写入。 | 否：transport `accepted: true` 是 `thin-client-transport-accepted`，不是受签的 receipt。 |
-| `enforce` | 预留给未来 isolated headless runner，**需要** Python authority server + 注册过的 actor key + runner identity。 | 当前只实现到 `authority_enforce_policy` 的只读 policy discovery；envelope 签名、submission、receipt verification 都延后到 M2+。 | 暂时仍是 否：`productionDone` / `receiptVerified` 在没有验签 receipt 之前一直是 `false`。 |
+| `enforce` | isolated headless runner / Authority job path，**需要** Python authority server + customer API key + 注册过的 actor key + runner identity + project id + pinned server key。 | `authority enforce runner --dry-run` 投影 readiness；`--live` 签名原生 envelope、注册/心跳 runner、claim job。Authority job execution consumes typed `plannedSteps[]`, uploads evidence, requests server `gate_decision`, verifies the native receipt, and then completes or releases the lease according to policy. | 只有验签通过的原生 `gate_decision` receipt 可支持 per-run `authorityDone`；`fullAuthorityDone` 还需要最终 multi-host certification。runner 心跳/claim 本身不构成生产 authority。 |
 
 查看本地 CLI 看到的 authority 表面：
 
@@ -91,9 +91,14 @@ lattice conduit explain --json
 
 - `mode` — `off` | `shadow` | `enforce`
 - `localWorkflowUsable: true` — 本地 story workflow 永远不被 authority 阻塞
-- `authorityUrlConfigured` — `KOALA_AUTHORITY_URL` 是否已配置
-- `actorKeyConfigured` — `KOALA_AUTHORITY_ACTOR_KEY` / `_PATH` 是否已配置
-- `runnerConfigured` — `KOALA_AUTHORITY_RUNNER_ID` 是否已配置
+- `authorityUrlConfigured` — `LATTICE_AUTHORITY_URL` / `KOALA_AUTHORITY_URL` 是否已配置
+- `customerApiKeyConfigured` — `LATTICE_AUTHORITY_CUSTOMER_API_KEY` / `_PATH` 是否已配置
+- `customerApiKeySource` — `env` | `path` | `authority_md` | `missing`
+- `customerApiKeyValid` — live probe 前只能是 unknown，不能只因存在就推断有效
+- `actorKeyConfigured` — `LATTICE_AUTHORITY_ACTOR_KEY` / `_PATH` 是否已配置
+- `actorKeyRegistered` — actor public key 是否已在 Authority server 注册
+- `serverPublicKeyPinned` — receipt server public key 是否已固定/验证
+- `runnerConfigured` — `LATTICE_AUTHORITY_RUNNER_ID` 是否已配置
 - `readinessWarnings: string[]` — 只在 shadow/enforce 缺前置时填充
 - `nextActions: string[]` — 对应的 env / 命令建议
 - `productionDone: false`、`receiptVerified: false`、`canClaimProductionDone: false`
@@ -101,8 +106,10 @@ lattice conduit explain --json
 **重要边界**：本地 JSON 或文本输出**不是** authority evidence。只有 Python
 authority 颁发并由 runner / 客户端验签的 `AuthorityReceipt` 才算受签的生产
 authority。即使 `KOALA_AUTHORITY_URL`、`KOALA_AUTHORITY_ACTOR_KEY`、
-`KOALA_AUTHORITY_RUNNER_ID` 都配齐，`productionDone` 仍保持 `false`，直到
-未来的 receipt-backed runner 路径真正验签 receipt 为止。PD-1 / PD-2 的
+`KOALA_AUTHORITY_RUNNER_ID` 都配齐，`productionDone` 仍保持 `false`，直到一份
+签名的原生 Lattice Authority `gate_decision` receipt 被验签为止。完整的
+`fullAuthorityDone` 还需要最终 multi-host certification。
+PD-1 / PD-2 的
 trust boundary 见
 [`requirements/decisions/authority-client-role.md`](requirements/decisions/authority-client-role.md)。
 
@@ -118,15 +125,19 @@ lattice autopilot doctor --json
 lattice autopilot run --mode=local --storyId=B-xxxx --until=TEST --json
 lattice autopilot execute --mode=local --storyId=B-xxxx --until=TEST --maxSteps=20 --json
 lattice autopilot run --mode=authority --storyId=B-xxxx --until=DONE \
-  --receiptFile=receipt.json --authorityPublicKey="$AUTHORITY_PUBLIC_KEY" \
-  --receiptSubjectId="$RECEIPT_SUBJECT_ID" --receiptSubjectKind="$RECEIPT_SUBJECT_KIND" --json
+  --receiptFile=receipt.json --serverPublicKey="$SERVER_PUBLIC_KEY_HEX" \
+  --receiptKind=gate_decision --receiptProjectId="$PROJECT_ID" \
+  --receiptStoryId=B-xxxx --serverKeyId="$SERVER_KEY_ID" \
+  --expectedDecisionDigest="$DECISION_DIGEST" --json
 ```
 
 - `local` is the default and never requires Python authority.
 - `shadow` reports authority readiness warnings without blocking local work.
 - `authority` fail-closes on missing Python authority readiness; `DONE` also
-  requires a signed receipt verified with the supplied public key and explicit
-  receipt subject binding.
+  requires a signed native `gate_decision` receipt, server public key, and
+  explicit project/story/server-key/decision binding before reporting
+  `status: pass`. Legacy `subjectId` / `subjectKind` receipts do not satisfy
+  native authority DONE.
 - `autopilot_run` is dry-run by default. Only `--dryRun=false` records an
   `autopilot_projection` process event, and that projection is not gate
   evidence or production authority.

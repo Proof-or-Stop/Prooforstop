@@ -273,7 +273,7 @@ consume server receipts; missing enforce prerequisites are reported as
 |------|-------------|-------------------|-----------------------|
 | `off` (default) | Normal local Koala/Lattice story development. **Free, local-only.** | Zero network. Local evidence and DONE gate work exactly as without authority. | No — `productionDone=false`, `receiptVerified=false`. |
 | `shadow` | You want to observe Python authority responses while still running locally. | Best-effort observational POST. Failure becomes a single stderr warning; the local evidence write still succeeds. | No — `accepted: true` from the transport is `thin-client-transport-accepted`, not a verified receipt. |
-| `enforce` (future runner path) | Reserved namespace for the isolated headless runner. Requires the Python authority server, a registered actor key, and a runner identity. | Not implemented end-to-end yet: `authority_enforce_policy` is read-only policy discovery; envelope submission, signing, receipt verification are deferred to M2+. | No today — `productionDone` and `receiptVerified` stay `false` until an explicit receipt-backed authority path verifies a signed receipt. |
+| `enforce` | Isolated headless runner / Authority job path. Requires Lattice Authority, customer API key, registered actor key, runner identity, project id, session id, and pinned server key. | `authority enforce runner --dry-run` projects readiness. `--live` signs native envelopes, registers/heartbeats the runner, and claims jobs. Authority job execution consumes typed `plannedSteps[]`, uploads evidence, requests server `gate_decision`, verifies the native receipt, and completes or releases the lease according to policy. | Only a verified native Lattice Authority `gate_decision` receipt can support per-run `authorityDone`; `fullAuthorityDone` also requires final multi-host certification. Runner heartbeat/claim alone is not production authority. |
 
 Inspect what the local CLI thinks the authority surface looks like:
 
@@ -294,9 +294,14 @@ lattice conduit explain --json
 
 - `mode` — `off` | `shadow` | `enforce`
 - `localWorkflowUsable: true` — local Story workflow is never blocked
-- `authorityUrlConfigured` — is `KOALA_AUTHORITY_URL` set?
-- `actorKeyConfigured` — is `KOALA_AUTHORITY_ACTOR_KEY` / `_PATH` set?
-- `runnerConfigured` — is `KOALA_AUTHORITY_RUNNER_ID` set?
+- `authorityUrlConfigured` — is `LATTICE_AUTHORITY_URL` set?
+- `customerApiKeyConfigured` — is `LATTICE_AUTHORITY_CUSTOMER_API_KEY` / `_PATH` set?
+- `customerApiKeySource` — `env` | `path` | `authority_md` | `missing`
+- `customerApiKeyValid` — unknown until a live probe; presence alone is not validity
+- `actorKeyConfigured` — is `LATTICE_AUTHORITY_ACTOR_KEY` / `_PATH` set?
+- `actorKeyRegistered` — is the actor public key registered with Authority?
+- `serverPublicKeyPinned` — is the receipt server public key pinned / verified?
+- `runnerConfigured` — is `LATTICE_AUTHORITY_RUNNER_ID` set?
 - `readinessWarnings: string[]` — actionable, only populated when `shadow` / `enforce` is configured but prerequisites are missing
 - `nextActions: string[]` — suggested env / command fixes
 - `productionDone: false`, `receiptVerified: false`, `canClaimProductionDone: false`
@@ -313,6 +318,145 @@ for the PD-1 / PD-2 trust boundary.
 The Mac App is no longer required for release or provider/config status. It is
 an optional dashboard/archive surface unless a future, explicitly reviewed
 receipt-backed runner path lands.
+
+### Autopilot modes (local / shadow / authority)
+
+`lattice autopilot ...` exposes a bounded unattended-development control plane.
+It is intentionally split into local and authority-backed modes so local
+autopilot remains usable even when the Python authority is absent.
+
+```bash
+lattice autopilot status --json
+lattice autopilot doctor --json
+lattice autopilot run --mode=local --storyId=B-xxxx --until=TEST --json
+lattice autopilot execute --mode=local --storyId=B-xxxx --until=TEST --maxSteps=20 --json
+lattice autopilot run --mode=shadow --storyId=B-xxxx --until=TEST --json
+lattice autopilot run --mode=authority --storyId=B-xxxx --until=DONE \
+  --receiptFile=receipt.json --serverPublicKey="$SERVER_PUBLIC_KEY_HEX" \
+  --receiptKind=gate_decision --receiptProjectId="$PROJECT_ID" \
+  --receiptStoryId=B-xxxx --serverKeyId="$SERVER_KEY_ID" \
+  --expectedDecisionDigest="$DECISION_DIGEST" --json
+```
+
+Mode contract:
+
+- `local` is the default. It plans the ordinary local Lattice workflow
+  (`session_brief`, `aux_doc_list`, story inspection, `validate`, `check`, and
+  optional `codex verify`) and never requires Python authority.
+- `shadow` preserves the local workflow and adds authority readiness warnings.
+  Missing `LATTICE_AUTHORITY_URL` / customer API key / actor key / runner id is advisory.
+- `authority` fail-closes on missing Lattice Authority readiness. When the target
+  is `DONE`, it also requires a signed native `gate_decision` receipt, server
+  public key, and explicit project/story/server-key/decision binding before
+  reporting `status: pass`; `fullAuthorityDone` additionally requires final
+  multi-host certification.
+
+`autopilot_run` is dry-run by default. A default invocation only returns a plan
+and is treated as read-only by the command policy. Passing `--dryRun=false` may
+append a story-scoped `autopilot_projection` process event, but that event is
+not lifecycle gate evidence, does not execute providers, and cannot claim
+`productionDone`.
+
+`autopilot_execute` is the true bounded executor loop. It requires `--storyId`
+for non-dry-run execution, runs only argv-mapped Lattice commands, appends a
+non-authoritative `autopilot_execution` event, and can optionally invoke Claude
+Code CLI repair with `--allowClaudeRepair=true`. The repair hook is disabled by
+default and every repaired step is re-run before the executor continues.
+
+Regression coverage:
+
+```bash
+npm --prefix packages/main run test:autopilot-authority-smoke
+npm --prefix packages/main run test:autopilot-execute-smoke
+```
+
+### Planner (natural language → Story + plan)
+
+`lattice planner ...` is the Lattice-native planner surface. It turns a
+natural-language request into a Lattice Story draft, checklist, verification
+intent, and typed `plannedSteps[]` that the autopilot executor can run. It does
+not hand Story, job, or receipt authority to any external framework.
+
+```bash
+lattice planner draft --request="Add a hello command that prints hi" --json
+lattice planner review --draftFile=draft.json --json
+lattice planner status --runId=<plannerRun> --json
+lattice planner source-manifest --sourceRepo=<path> --json
+lattice planner run --request="<one sentence>" --mode=local --until=DONE --json
+lattice planner run --request="<one sentence>" --mode=authority --until=DONE --json
+```
+
+Boundaries:
+
+- `planner draft`, `planner review`, `planner status`, and
+  `planner source-manifest` are read-only. `planner create-story` /
+  `planner create-job` mutate only through Lattice commands.
+- Interaction mode is `--interactionMode=autonomous|interview|decision-gated`
+  (default `autonomous`); paused runs use `planner answer` /
+  `planner decision submit` / `planner resume`.
+- `planner run` composes draft → review → Story → job-or-local-plan → executor,
+  but DONE still obeys the same gates as autopilot: `local` reaches at most local
+  certified completion, and authority DONE still requires a verified native
+  `gate_decision` receipt. The planner surface is being hardened against its
+  fixtures; treat it as the planning entrypoint, not a guarantee of unattended
+  DONE.
+
+### Multi-host verdicts and run status
+
+Release certification can require independent host verdicts. There are two
+verdict paths, and they are deliberately not interchangeable:
+
+```bash
+# Authority (server-backed) path
+lattice authority verdict submit --jobId=<job> --runId=<run> --verdictFile=<verdict.json> --json
+lattice authority verdict list   --jobId=<job> --json
+lattice authority job status      --jobId=<job> --json
+
+# Local (non-authority) path
+lattice autopilot review submit --storyId=<story> --runId=<run> --verdictFile=<verdict.json> --json
+lattice autopilot review status --storyId=<story> --runId=<run> --json
+
+# Read-only worktree/phase resolution for planned steps
+lattice story resolve --storyId=<story> --json
+```
+
+Boundaries:
+
+- `authority verdict submit` is the Authority path; `autopilot review submit` is
+  the local path. The local path records verifier verdicts in local run state
+  keyed by `storyId` / `runId` and never creates an Authority receipt or sets
+  Authority DONE flags.
+- `authority verdict list`, `authority job status`, and `story resolve` are
+  read-only. `authority job status` summarizes host-verdict status without
+  minting or replacing native receipts; `multiHostVerified` / `fullAuthorityDone`
+  stay `false` until the real Authority criteria are met.
+
+### Source-Aligned Redevelopment Workflow
+
+`planner run --workflow=source-aligned-redevelopment` composes a source-aligned
+redevelopment plan: take an authorized source codebase and reproduce its
+modules, functions, behavior, and fine details in a target project and target
+language, with project-name-based identifier renaming.
+
+```bash
+lattice planner run --workflow=source-aligned-redevelopment \
+  --sourceRepo=<path-or-ref> --targetProject=<path> --targetProjectName=<name> \
+  --sourceLanguage=typescript --targetLanguage=rust \
+  --mode=local --until=DONE --json
+```
+
+Boundaries:
+
+- It is a development workflow, not a new interaction mode; it runs under
+  `autonomous` / `interview` / `decision-gated` and under `local` or `authority`.
+- The source codebase is read-only input; target files are written only through
+  the story worktree and normal lifecycle gates. The workflow is language-pair
+  agnostic (e.g. `typescript -> rust`, `swift -> kotlin`).
+- It preserves license/attribution notices and excludes secrets, `.git`, caches,
+  and build outputs from prompts/output/evidence. It produces evidence-backed
+  alignment, not a promise of perfect semantic identity; unverifiable in-scope
+  details are recorded as explicit gaps. This is a current-pass capability gated
+  on its fixtures, not part of the already-shipped baseline.
 
 ### CHK-002 authority enforce matrix smoke
 

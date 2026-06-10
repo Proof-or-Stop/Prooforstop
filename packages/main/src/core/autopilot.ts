@@ -393,6 +393,7 @@ export function buildAutopilotRun(
   store: StoryStore,
   args: AutopilotArgs = {},
   env: Record<string, string | undefined> = process.env,
+  options: { cwd?: string } = {},
 ): AutopilotRunResult {
   const mode = normalizeMode(args.mode);
   const targetPhase = normalizeUntil(args.until);
@@ -406,7 +407,7 @@ export function buildAutopilotRun(
     authorityMode: mode === 'local' ? 'off' : mode === 'shadow' ? 'shadow' : 'enforce',
     authorityURL: args.authorityURL,
     authorityTimeoutMS: args.authorityTimeoutMS,
-  }, env);
+  }, env, { cwd: options.cwd });
   const runner = mode === 'authority'
     ? buildAuthorityEnforceRunnerPlan({
         once,
@@ -414,7 +415,7 @@ export function buildAutopilotRun(
         authorityMode: 'enforce',
         authorityURL: args.authorityURL,
         authorityTimeoutMS: args.authorityTimeoutMS,
-      }, env)
+      }, env, { cwd: options.cwd })
     : null;
   const receiptRequired = mode === 'authority' && targetPhase === 'DONE';
   const authorityDone = Boolean(
@@ -512,8 +513,9 @@ export function buildAutopilotRun(
 
 export function buildAutopilotStatus(
   env: Record<string, string | undefined> = process.env,
+  options: { cwd?: string } = {},
 ): AutopilotStatusResult {
-  const authority = buildAuthorityStatus({ authorityMode: 'enforce' }, env);
+  const authority = buildAuthorityStatus({ authorityMode: 'enforce' }, env, { cwd: options.cwd });
   return {
     schemaVersion: 'lattice.autopilot_status.v1',
     localAvailable: true,

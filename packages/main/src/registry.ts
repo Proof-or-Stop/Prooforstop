@@ -78,6 +78,12 @@ import { createStoryAuthorityResolveHandlers } from './handlers/story-authority-
 import { createObservabilitySnapshotHandlers } from './handlers/observability-snapshot.js';
 import { createPrewriteGuardHandlers } from './handlers/prewrite-guard.js';
 import { createReleaseHandlers } from './handlers/release.js';
+import { createAutopilotHandlers } from './handlers/autopilot.js';
+import { createPlannerHandlers } from './handlers/planner.js';
+import { createStoryResolveHandlers } from './handlers/story-resolve.js';
+import { createVerdictHandlers } from './handlers/verdict.js';
+import { createBaselineHandlers } from './handlers/baseline.js';
+import { createBaselineSuiteHandlers } from './handlers/baseline-suite.js';
 import { nextStoryId } from './handlers/context.js';
 
 export type HandlerFn = (...args: any[]) => any;
@@ -226,16 +232,26 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
 
   // Lattice productized export and cross-host handoff surfaces.
   registry.registerBatch(createLatticeCliHandlers(ctx));
+  registry.registerBatch(createLatticeAutopilotHandlers(ctx));
+  // Autopilot projection/executor surfaces (autopilot_run/status/execute/doctor).
+  //
+  // createLatticeAutopilotHandlers owns the shipped autopilot policy engine.
+  // createAutopilotHandlers contributes only names that are not already present.
+  registry.registerBatchMissing(createAutopilotHandlers(ctx));
+  registry.registerBatch(createPlannerHandlers(ctx));
+  registry.registerBatch(createStoryResolveHandlers(ctx));
+  registry.registerBatch(createVerdictHandlers(ctx));
+  registry.registerBatch(createBaselineHandlers(ctx));
+  registry.registerBatch(createBaselineSuiteHandlers(ctx));
   registry.registerBatch(createRolloutCheckHandlers(ctx));
   registry.registerBatch(createStoryExportHandlers(ctx));
   registry.registerBatch(createStoryAuthorityResolveHandlers(ctx));
   registry.registerBatch(createObservabilitySnapshotHandlers(ctx));
   registry.registerBatch(createLatticeHandoffHandlers(ctx));
   registry.registerBatch(createLatticeDispatchHandlers(ctx));
-  registry.registerBatch(createLatticeAutopilotHandlers(ctx));
   registry.registerBatch(createLatticeEvidenceHandlers(ctx));
   registry.registerBatch(createLatticeParallelWaveHandlers(ctx));
-  registry.registerBatch(createLatticeBaselineHandlers(ctx));
+  registry.registerBatchMissing(createLatticeBaselineHandlers(ctx));
 
   // prewrite scope enforcement — pre-tool hook guard for write-like operations
   registry.registerBatch(createPrewriteGuardHandlers(ctx));

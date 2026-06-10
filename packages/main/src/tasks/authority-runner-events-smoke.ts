@@ -37,10 +37,15 @@ const baseJob: JobSpec = {
   assert(result.stdout.includes('ok'));
   assert(result.transcriptHash.length === 64);
   assert.deepEqual(result.eventKinds, ['stdout_delta', 'completed']);
-  assert.equal(result.envelope.runId, 'run-1');
-  assert.equal(verifyRunnerEnvelope(result.envelope, keys.publicKey), true);
-  assert.equal(result.envelope.events.at(-1)?.payload?.exitCode, 0);
-  assert.equal(result.envelope.events.at(-1)?.payload?.transcriptHash, result.transcriptHash);
+  assert.equal(result.envelopes.length, 2);
+  for (const envelope of result.envelopes) {
+    assert.equal(verifyRunnerEnvelope(envelope, keys.publicKey), true);
+    assert.equal(envelope.providerEvent.runId, 'run-1');
+    assert.equal((envelope as { runId?: unknown }).runId, undefined, 'Python provider event envelope has no top-level runId');
+  }
+  assert.equal(result.envelope.providerEvent.exitCode, 0);
+  assert.equal(result.envelope.providerEvent.transcriptHash, result.transcriptHash);
+  assert.equal((result.envelope as { events?: unknown }).events, undefined, 'Python provider event envelope has no events[]');
 }
 
 {
@@ -67,7 +72,8 @@ const baseJob: JobSpec = {
   assert(result.stderr.includes('bad'));
   assert.deepEqual(result.eventKinds, ['stderr_delta', 'failed']);
   assert.equal(verifyRunnerEnvelope(result.envelope, keys.publicKey), true);
-  assert.equal(result.envelope.events.at(-1)?.payload?.exitCode, 7);
+  assert.equal(result.envelope.providerEvent.exitCode, 7);
+  assert.equal(result.envelope.providerEvent.type, 'failed');
 }
 
 {

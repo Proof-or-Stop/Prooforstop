@@ -1,7 +1,9 @@
 // Authority runner contracts (B-1123 milestones 1-2).
 //
 // Typed envelope shapes + Zod schemas + sign/verify helpers for the headless
-// authority runner endpoints owned by the Python authority server:
+// authority runner endpoints. Some older runner bootstrap shapes in this file
+// are retained for local compatibility; the release and provider-event contracts
+// below intentionally mirror the current Python Authority body shape.
 //
 //   POST /v1/actors/{actorId}/keys           — actor key registration
 //   POST /v1/runners/register                — runner registration
@@ -54,10 +56,26 @@ export interface RunnerEnvelopeHeader {
   signature?: SignatureBase64;
 }
 
+export interface PythonSignedEnvelopeHeader {
+  actorId: string;
+  role: string;
+  nonce: string;
+  timestamp: string;
+  signature?: string;
+}
+
 const RunnerEnvelopeHeaderSchema = z.object({
   actorId: z.string().min(1),
   nonce: z.string().min(1),
   createdAt: z.string().min(1),
+  signature: z.string().min(1).optional(),
+});
+
+const PythonSignedEnvelopeHeaderSchema = z.object({
+  actorId: z.string().min(1),
+  role: z.string().min(1),
+  nonce: z.string().min(1),
+  timestamp: z.string().min(1),
   signature: z.string().min(1).optional(),
 });
 
@@ -156,8 +174,8 @@ export interface JobSpec {
   jobId: string;
   /** Run id this job belongs to (binds producer/verifier evidence later). */
   runId: string;
-  /** Job kind (e.g. "verify", "produce", "review"). */
-  kind: string;
+  /** Job kind (e.g. "verify", "produce", "review"). Optional for Python JobRecord.spec compatibility. */
+  kind?: string;
   /** Story id the job is scoped to. */
   storyId?: string;
   /** Project id the job is scoped to. */
@@ -184,7 +202,7 @@ export interface JobSpec {
 export const JobSpecSchema = z.object({
   jobId: z.string().min(1),
   runId: z.string().min(1),
-  kind: z.string().min(1),
+  kind: z.string().min(1).optional(),
   storyId: z.string().min(1).optional(),
   projectId: z.string().min(1).optional(),
   producerRunId: z.string().min(1).optional(),
@@ -233,21 +251,27 @@ export const JOB_RELEASE_OUTCOMES: readonly JobReleaseOutcome[] = [
   'abandoned',
 ] as const;
 
-export interface JobRelease extends RunnerEnvelopeHeader {
-  jobId: string;
-  outcome: JobReleaseOutcome;
-  /** Optional reason string for non-completed outcomes. */
+export interface JobReleaseRequest {
+  runnerId: string;
+  sessionId: string;
   reason?: string;
-  /** Optional evidence envelope id produced for this job. */
-  evidenceId?: string;
 }
 
-export const JobReleaseSchema = RunnerEnvelopeHeaderSchema.extend({
-  jobId: z.string().min(1),
-  outcome: z.enum(JOB_RELEASE_OUTCOMES as unknown as [JobReleaseOutcome, ...JobReleaseOutcome[]]),
+export interface JobRelease extends PythonSignedEnvelopeHeader {
+  jobId: string;
+  release: JobReleaseRequest;
+}
+
+export const JobReleaseRequestSchema = z.object({
+  runnerId: z.string().min(1),
+  sessionId: z.string().min(1),
   reason: z.string().min(1).optional(),
-  evidenceId: z.string().min(1).optional(),
-}).passthrough();
+}).strict();
+
+export const JobReleaseSchema = PythonSignedEnvelopeHeaderSchema.extend({
+  jobId: z.string().min(1),
+  release: JobReleaseRequestSchema,
+}).strict();
 
 // ===========================================================================
 // Provider events  — POST /v1/runs/{runId}/provider-events
@@ -256,30 +280,54 @@ export const JobReleaseSchema = RunnerEnvelopeHeaderSchema.extend({
 export interface ProviderEvent {
   /** Stable event id (client chooses; server dedups). */
   eventId: string;
-  /** Event kind (e.g. "start", "tool_use", "output", "finish"). */
-  kind: string;
+  runId: string;
+  provider: string;
+  type: 'stdout_delta' | 'stderr_delta' | 'message' | 'approval_requested' | 'approval_granted' | 'approval_denied' | 'completed' | 'failed' | 'cancelled';
+  jobId?: string;
+  delta?: string;
+  message?: string;
+  approvalId?: string;
+  prompt?: string;
+  commandPreview?: string[];
+  reason?: string;
+  outputText?: string;
+  exitCode?: number;
+  transcriptHash?: string;
+  artifactRefs?: string[];
+  errorCode?: string;
+  metadata?: Record<string, unknown>;
   /** ISO 8601 occurredAt timestamp. */
-  occurredAt: string;
-  /** Free-form payload. */
-  payload?: Record<string, unknown>;
+  occurredAt?: string;
 }
 
 export const ProviderEventSchema = z.object({
   eventId: z.string().min(1),
-  kind: z.string().min(1),
-  occurredAt: z.string().min(1),
-  payload: z.record(z.string(), z.unknown()).optional(),
-}).passthrough();
+  runId: z.string().min(1),
+  provider: z.string().min(1),
+  type: z.enum(['stdout_delta', 'stderr_delta', 'message', 'approval_requested', 'approval_granted', 'approval_denied', 'completed', 'failed', 'cancelled']),
+  jobId: z.string().min(1).optional(),
+  delta: z.string().optional(),
+  message: z.string().optional(),
+  approvalId: z.string().min(1).optional(),
+  prompt: z.string().optional(),
+  commandPreview: z.array(z.string()).optional(),
+  reason: z.string().optional(),
+  outputText: z.string().optional(),
+  exitCode: z.number().int().optional(),
+  transcriptHash: z.string().min(1).optional(),
+  artifactRefs: z.array(z.string()).optional(),
+  errorCode: z.string().min(1).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+  occurredAt: z.string().min(1).optional(),
+}).strict();
 
-export interface ProviderEventsEnvelope extends RunnerEnvelopeHeader {
-  runId: string;
-  events: ProviderEvent[];
+export interface ProviderEventsEnvelope extends PythonSignedEnvelopeHeader {
+  providerEvent: ProviderEvent;
 }
 
-export const ProviderEventsEnvelopeSchema = RunnerEnvelopeHeaderSchema.extend({
-  runId: z.string().min(1),
-  events: z.array(ProviderEventSchema).min(1),
-}).passthrough();
+export const ProviderEventsEnvelopeSchema = PythonSignedEnvelopeHeaderSchema.extend({
+  providerEvent: ProviderEventSchema,
+}).strict();
 
 // ===========================================================================
 // Authority receipt  — signed server response
@@ -334,7 +382,7 @@ export const AuthorityReceiptSchema = z.object({
  * who bypasses the schema (e.g. through internal fn re-use) still cannot
  * produce a signed envelope with an empty actor binding.
  */
-export function signRunnerEnvelope<T extends RunnerEnvelopeHeader>(
+export function signRunnerEnvelope<T extends RunnerEnvelopeHeader | PythonSignedEnvelopeHeader>(
   envelope: T,
   privateKey: PrivateKeyBase64,
 ): { signed: T & { signature: SignatureBase64 }; digest: string } {
@@ -355,7 +403,7 @@ export function signRunnerEnvelope<T extends RunnerEnvelopeHeader>(
  * Returns false (does NOT throw) on any tamper / wrong-key / missing-actor
  * path so the caller can map verification failure to a controlled outcome.
  */
-export function verifyRunnerEnvelope<T extends RunnerEnvelopeHeader>(
+export function verifyRunnerEnvelope<T extends RunnerEnvelopeHeader | PythonSignedEnvelopeHeader>(
   envelope: T,
   publicKey: PublicKeyBase64,
 ): boolean {
@@ -363,7 +411,7 @@ export function verifyRunnerEnvelope<T extends RunnerEnvelopeHeader>(
   // verify regardless of signature presence.
   if (!isNonEmptyString(envelope.actorId)) return false;
   if (!isNonEmptyString(envelope.nonce)) return false;
-  if (!isNonEmptyString(envelope.createdAt)) return false;
+  if (!hasValidEnvelopeTimestamp(envelope)) return false;
   return verifySignedEnvelope(envelope, publicKey);
 }
 
@@ -548,8 +596,18 @@ function isNonEmptyString(value: unknown): value is string {
   return typeof value === 'string' && value.trim().length > 0;
 }
 
-function assertEnvelopeHeader(env: RunnerEnvelopeHeader): void {
+function hasValidEnvelopeTimestamp(env: RunnerEnvelopeHeader | PythonSignedEnvelopeHeader): boolean {
+  if ('timestamp' in env) return isNonEmptyString(env.timestamp);
+  return isNonEmptyString(env.createdAt);
+}
+
+function assertEnvelopeHeader(env: RunnerEnvelopeHeader | PythonSignedEnvelopeHeader): void {
   if (!isNonEmptyString(env.actorId)) throw new Error('runner envelope: actorId is required (non-empty string)');
   if (!isNonEmptyString(env.nonce)) throw new Error('runner envelope: nonce is required (non-empty string)');
+  if ('timestamp' in env) {
+    if (!isNonEmptyString(env.role)) throw new Error('runner envelope: role is required (non-empty string)');
+    if (!isNonEmptyString(env.timestamp)) throw new Error('runner envelope: timestamp is required (non-empty string)');
+    return;
+  }
   if (!isNonEmptyString(env.createdAt)) throw new Error('runner envelope: createdAt is required (non-empty string)');
 }

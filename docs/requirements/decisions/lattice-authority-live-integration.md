@@ -36,9 +36,35 @@ Python package entrypoint may keep legacy names during migration, but all new
 product copy, CLI help, API docs, tests, environment variables, and process facts
 must use Lattice Authority naming.
 
-## Baseline Already Available
+## Customer Server Access Boundary
 
-The current codebase already has important pieces in place:
+Hosted customer usage requires a customer-scoped server API key in addition to
+the existing Ed25519 actor signing model. The customer API key authorizes the
+tenant / workspace / project to use Lattice Authority APIs; the actor private
+key signs the exact runner, job, evidence, verdict, and gate envelopes. These
+two credentials are intentionally separate and must not be collapsed into one
+bearer token.
+
+Production mutating APIs must require both:
+
+- `Authorization: Bearer <LATTICE_AUTHORITY_CUSTOMER_API_KEY>` for
+  customer/project authorization;
+- a signed actor envelope for action integrity, role binding, and nonce replay
+  protection.
+
+The detailed production access model, `authority.md` shape, redaction rules,
+server storage requirements, and test matrix are defined in
+[`lattice-authority-customer-api-key-access.md`](lattice-authority-customer-api-key-access.md).
+That model is part of production Authority readiness: actor registration,
+evidence upload, gate evaluation, and verifier verdict submission must not be
+validated as production-ready unless the correct credential boundary is
+exercised. Actor registration is customer-key and project/role scoped; after
+actor enrollment, production mutating APIs require both customer API key
+authorization and actor signature verification.
+
+## Current Capability Baseline
+
+The current codebase now has the core unattended-development loop in place:
 
 - local autopilot mode works without Python authority;
 - shadow mode can surface authority readiness without blocking local work;
@@ -46,18 +72,476 @@ The current codebase already has important pieces in place:
 - Lattice CLI can discover policy from Lattice Authority;
 - Lattice CLI has a native receipt verifier for Python-shaped
   Lattice Authority receipts;
-- live runner control-plane smoke can register, heartbeat, claim, and release
-  jobs without provider execution;
+- live authority mode can register / heartbeat / claim a real Authority job,
+  execute its typed `plannedSteps[]`, upload evidence, request
+  `gate.evaluate`, verify the returned native `gate_decision` receipt, and
+  complete-or-release the lease without leaving a dangling claim;
+- the planner can turn a natural-language request or request file into a
+  Lattice Story, typed JobPlan, and executable `plannedSteps[]`;
 - local Lattice workflow and global `lattice` entrypoints remain usable.
 
-This baseline is not yet enough for true unattended development to DONE. The
-missing product capability is the executor loop: claim a real authority job,
-execute provider and validation work, submit evidence, request a gate decision,
-verify the receipt, retry on failure, and stop with a signed summary.
+The loop is still deliberately bounded. A bundled local-test Authority key
+(`serverKey.productionInert=true`) proves local integration only and cannot
+satisfy production Authority DONE. Production Authority DONE still requires a
+non-inert Lattice Authority server key, a verified native `gate_decision`
+receipt, and the required multi-host final verification wave.
 
-It is also not yet enough for natural-language-to-DONE unattended development.
-That requires a planner layer that can produce the Lattice Story, verification
-intent, Authority job, and typed `plannedSteps[]` before the executor begins.
+## Implementation Status (2026-06-06)
+
+This section records what is implemented in the Lattice CLI today versus what
+must still not be overclaimed. It is a status ledger, not a relaxation of any
+gate. The current pass implements the planner, bounded executor, live Authority
+job loop, evidence / gate / receipt wiring, repair / retry safety, and
+multi-host certification gates needed for the documented unattended path.
+
+Implemented (current tested surface):
+
+- autopilot modes: `autopilot status|doctor|run|execute`. `run` is dry-run
+  projection by default; `execute --mode=local` is a real bounded executor over
+  argv-mapped Lattice commands; `execute --mode=authority` is fail-closed and
+  acts as a native `gate_decision` receipt verifier, not a receipt minter
+  (`packages/main/src/core/autopilot.ts`, `autopilot-executor.ts`);
+- claimed-job entry point: `autopilot execute --jobFile=<job.json>` loads and
+  validates a claimed Authority job envelope (`parseClaimedAuthorityJob`) and
+  consumes its typed `plannedSteps[]` through the shared bounded executor
+  (`consumeClaimedAuthorityJob`) instead of synthesizing local argv steps. The
+  loader fails closed on an unreadable file, malformed JSON, a bad job envelope,
+  or a `--storyId` / `--mode` mismatch (`stopReason=claimed-job-file-invalid` or
+  `claimed-job-{story,mode}-mismatch`). This is the command-surface seam only:
+  authority DONE stays gated by a verified native `gate_decision` receipt — the
+  `gate.evaluate` step blocks `authority`+`DONE` so a claimed job never
+  self-claims `authorityDone`, and the executor still does not call
+  `POST /v1/gates/evaluate`, drive evidence upload, or mint a receipt
+  (`packages/main/src/core/autopilot-executor.ts`,
+  `packages/main/src/core/authority-runner.ts`);
+- authority client primitives: policy discovery (`authority enforce policy`),
+  Ed25519 native signing, native receipt verifier (`authority receipt verify`),
+  and a runner control plane that can register / heartbeat / claim / release
+  without provider execution (`authority-client.ts`, `authority-signing.ts`,
+  `authority-runner.ts`). The evidence-submit primitive exists and is exercised
+  by smoke tests;
+- `lattice story resolve` read-only worktree/phase resolver
+  (`packages/main/src/handlers/story-resolve.ts`);
+- planner surface: `planner draft|review|create-story|create-job|status|run|
+  source-manifest` plus `--interactionMode` and the
+  `answer` / `decision submit` / `resume` pause path
+  (`packages/main/src/core/planner.ts`, `handlers/planner.ts`);
+- `planner run` no longer stops at the job plan. By default it composes
+  draft -> review -> Story -> job/local plan and then consumes the typed
+  `plannedSteps[]` through a deterministic local/fake executor
+  (`packages/main/src/core/planned-steps-executor.ts`); `--planOnly` (or
+  `--execute=false`) keeps it plan-only. That executor is a deterministic
+  projection, not the live Stage B loop: `provider.fake` steps pass but are
+  marked `productionAuthorityEligible: false`, `provider.codex` /
+  `provider.claude` steps fail closed before any spawn unless explicitly enabled
+  in `providerPolicy.allowedProviders` with a configured credential (`disabled` /
+  `provider_unavailable` / `credential_unavailable` / `noninteractive_auth_unavailable`),
+  `story.advance` returns `blocked` so Lattice lifecycle gates are never
+  bypassed, and for `until=DONE` `multiHostVerified` always stays `false`
+  (host verdicts are owned elsewhere). The authority `gate.evaluate` step is
+  now wired to Lattice Authority: `planner run` calls
+  `resolveAuthorityGateEvaluator` (`authority-client.ts`) BEFORE execution,
+  which — only when `LATTICE_AUTHORITY_MODE` is `enforce`/`shadow`, a server
+  URL is set, and a server verification key is pinned or discovered — appends
+  run + evidence events (`POST /v1/runs/{id}/events`, `POST /v1/evidence/batch`),
+  requests `POST /v1/gates/evaluate`, and verifies the returned native
+  `gate_decision` receipt via the existing client verify path. A verified
+  approve projects per-run `authorityDone:true` / `receiptVerified:true`; every
+  other path (mode off, no URL, no server key, reject/blocked decision, or
+  unverified/tampered receipt) FAILS CLOSED — the executor blocks at the gate
+  with `authority_gate_decision_receipt_required` (or the specific decision
+  reason) and `authorityDone` / `receiptVerified` stay `false`. The CLI never
+  mints a receipt, and local/non-DONE jobs still make zero network calls and
+  record evidence only as a local `planner_execution` process event;
+- verdict surface (M16, multi-host final verification): local
+  `autopilot review submit|status` stay LOCAL-storage backed (verdict JSON under
+  `.koala/`) and never set authority flags. The authority commands
+  `authority verdict submit|list` and `authority job status`
+  (`packages/main/src/core/verdicts.ts`, `handlers/verdict.ts`) are now
+  SERVER-backed when authority config is present — `resolveAuthorityVerdictBacking`
+  (`authority-client.ts`) routes them through `AuthorityClient.submitJobVerdict` /
+  `listJobVerdicts` iff authority mode is `enforce`/`shadow` AND a URL is set,
+  otherwise it falls back to the same local storage (off / no-URL callers make zero
+  network calls, the exact runner-client gate). Mechanical guarantees, pinned by
+  `tasks/multi-host-authority-smoke.ts`: (a) receipt-before-verdict ordering — an
+  authority verdict submission missing the `checkedReceiptId` /
+  `checkedGateInputDigest` it inspected is rejected BEFORE any POST
+  (`checkReceiptBeforeVerdict`), so a verdict can never be recorded ahead of its
+  receipt (§X9 Authority ordering); (b) `authority job status` combines the
+  server-computed reconciliation with a per-run native `gate_decision` receipt
+  verification (`reconcileAuthorityCertification`) — `fullAuthorityDone` requires
+  BOTH a verified per-run receipt (supply `--receiptFile`) AND a satisfied
+  independent-host reconciliation; without the receipt `authorityDone` /
+  `fullAuthorityDone` stay false even on a satisfied wave; (c) multi-host
+  disagreement blocks with `multi_host_disagreement` and a `block` /
+  `repair_then_reverify` nextAction; (d) a repair that mints a fresh receipt makes
+  prior verdicts stale — server-side via `partitionFreshWaveVerdicts` (verdicts
+  that checked a prior receiptId) and locally via `summarizeVerdicts`'
+  `currentAnchor` filter (verdicts whose validation/material anchors changed) — so a
+  fresh review wave is required. This is the final certification COMMAND/API phase,
+  not a new `plannedSteps[]` step type and not an executor that spawns verifier
+  hosts (host invocation stays operator/coordinator-driven, §X9);
+- server-side multi-host verdict client (`POST/GET /v1/jobs/{jobId}/verdicts`):
+  `AuthorityClient.submitJobVerdict` / `listJobVerdicts`
+  (`packages/main/src/core/authority-client.ts`) with typed contracts in
+  `authority-contracts.ts` (`AuthorityVerdictClaim` submission,
+  `AuthorityVerdictReceipt`, `AuthorityVerdictReconciliation`, list/submit results).
+  This is a thin transport primitive only — the same role `submitEvidence` plays for
+  evidence — consumed by the Stage B executor / release-certification phase,
+  NOT a new orchestration loop. Three boundaries are mechanically enforced at the
+  client/contract layer (fake-server smoke in `tasks/authority-client-smoke.ts`):
+  (1) the POST receipt kind is `host_verdict` and a `gate_decision`-kinded receipt
+  from the verdict endpoint fails schema validation (overclaim → client `error`), so a
+  host opinion can never be laundered into a production-DONE receipt; (2) the client
+  surfaces the Authority-computed reconciliation (`independentHostCount` /
+  `satisfied`) and never recomputes independence from self-reported body fields — the
+  submission body carries no client-asserted `hostId`; (3) a satisfied multi-host
+  reconciliation is still NOT authority DONE — the local-review summarizer keeps
+  `authorityDone` / `fullAuthorityDone` / `multiHostVerified` false on a passing wave,
+  and `fullAuthorityDone` continues to require per-run `authorityDone` (a verified
+  native `gate_decision` receipt) PLUS the passing wave;
+- machine-readable JobPlan policy blocks (§B1): every JobPlan — local AND
+  authority — now carries `providerPolicy`, `worktreePolicy`, `retryPolicy`,
+  `stopPolicy`, `lease`, `evidencePolicy`, and `receiptPolicy` alongside the
+  existing `multiHostPolicy`, emitted with conservative fail-closed defaults
+  (`buildJobPlan` / `buildJobPolicyBlocks` in `packages/main/src/core/planner.ts`):
+  fake-only `providerPolicy` with `providerAvailability=fail_closed`, no fallback,
+  and no production-DONE eligibility; `worktreePolicy` with
+  `resolver=lattice.story.resolve`, `preserveUnrelatedDirtyChanges=true`,
+  `requireGitStatusEvidence=true`, story/fixture JSON in `forbiddenPathGlobs`, and
+  `requiresAuthoritativeWorktree` defaulting true only in authority mode; disjoint
+  `retryPolicy` / `stopPolicy` (§B5); a pre-claim `lease` whose claim-time fields
+  are null but whose `renewalThresholdMs < leaseTtlMs`; a redaction- and
+  checklist-coverage-required `evidencePolicy` over the §B4b retention classes; and
+  a `receiptPolicy` requiring a `gate_decision` receipt with the 600000/300000
+  freshness/skew defaults. `assertJobPolicyConsistency` is the JobPlan-level review
+  gate: it throws (so the plan is never treated as planned) on a missing block,
+  mixed retry/stop fields, fallback to a non-allowed provider, dropped dirty-change
+  preservation, renewal at/after lease expiry, non-positive receipt freshness, or
+  an inconsistent multi-host floor. The runtime executor consumes these same
+  blocks fail-closed: provider availability / credential policy gates bounded
+  provider spawns, `worktreePolicy` gates mutating provider cwd + dirty-state
+  safety, `retryPolicy` / `stopPolicy` bound repair attempts, `evidencePolicy`
+  drives upload/redaction/retention decisions, and `receiptPolicy` requires a
+  verified native `gate_decision` receipt before any Authority DONE projection;
+- Source-Aligned Redevelopment as a planner workflow: spec schema, validation,
+  `planner source-manifest` deterministic source digest, and a deterministic
+  plannedSteps-executor evidence projection for the `language.*` / `source.*` /
+  `target.*` operations. The projection resolves adapter availability (block vs
+  `scoped_gap`), emits language-neutral manifest records, derives
+  manifest-backed alignment maps and `gapList[]`, builds the parity-oracle
+  catalog, and records target-runnable parity as `not_run` /
+  `targetParityVerified=false` so it never overclaims target parity. See
+  `C2a-projection` for the exact projection contract. Still planning/projection
+  only: no live adapter, no real target build, no production redevelopment DONE.
+- Stage B job-loop lease/heartbeat semantics (§B1 lease / §B7 loop tail / §B12 /
+  §B17): `core/authority-job-loop.ts` is the deterministic lease state machine
+  over a claimed job lease (`createAuthorityJobLoop`). It parses a
+  claimed lease (`parseClaimedLease`, fail-closed on missing
+  leaseId/runnerId/sessionId/expiry or `renewalThreshold >= ttl`), heartbeats at
+  the §B12 loop phases (`after-claim` / `before-step` / `after-step` /
+  `before-gate` / `before-release` / `before-completion`), promotes a heartbeat
+  to a renewal once the clock crosses `leaseExpiresAt - renewalThresholdMs`
+  (bumping `leaseVersion`), and reports lease health (`safe` / `grace` /
+  `expired`). Completion FAILS CLOSED on an unsafe lease — `grace` and `expired`
+  both refuse to complete (`graceMs` is diagnostic only, never used to claim
+  DONE), and a server stale-version rejection surfaces `stale-lease:version`.
+  Completion also fails closed unless a required gate receipt is verified AND the
+  final policy is satisfied; otherwise the job is released, not completed.
+  Release and complete are idempotent (a retried call never double-fires the
+  transport nor produces a conflicting record). `finalizeAuthorityJob` drives the
+  §B7 tail (heartbeat → complete-or-release, never dangling), and
+  `finalizeConsumedAuthorityJobLease` (`authority-runner.ts`) maps a
+  `consumeClaimedAuthorityJob` disposition onto that lease lifecycle.
+  `core/authority-job-loop-live.ts` wires this safety boundary to the live
+  Authority client path used by `autopilot execute --mode=authority`: register /
+  heartbeat / claim, map the real Python `JobRecord.spec.plannedSteps` and lease
+  fields, resolve the live gate evaluator, consume the job through the shared
+  plannedSteps executor, then complete or release the lease. Covered by
+  `tasks/authority-job-loop-smoke.ts` and `tasks/authority-job-loop-live-smoke.ts`;
+- M15 Natural-Language-To-DONE E2E: `tasks/natural-language-to-done-smoke.ts`
+  drives the whole Stage C→B chain through the REAL planner handler
+  (`createPlannerHandlers` over a real `StoryStore`): a one-sentence request AND
+  an identical `--requestFile` each plan a real Lattice Story, build the typed
+  authority JobPlan, and run `executePlannedSteps` (fake provider → validate →
+  run-events/evidence upload → `gate.evaluate`). The only stubbed surface is the
+  Authority server, through the SAME injectable seam production uses —
+  `resolveAuthorityGateEvaluator`'s `{ env, fetchImpl, now }`, now surfaced on
+  `HandlerContext.authorityGateOptions` and consumed by `planner run`. Production
+  leaves that field unset, so the resolver still reads `process.env` + the real
+  fetch and stays byte-identical / fail-closed; the E2E sets it to a stub that
+  mints a properly Ed25519-signed native `gate_decision` receipt bound to the
+  planner-generated project/story, so the REAL native verifier runs and a verified
+  approve projects per-run `authorityDone:true` / `receiptVerified:true` with
+  `fullAuthorityDone:false` (multi-host owned elsewhere). The seam never relaxes
+  the gate: the same E2E asserts the fail-closed path (no server config → blocked
+  with `authority_gate_decision_receipt_required`, `authorityDone:false`) and the
+  reject path (server answers, no verified receipt → blocked,
+  `authority_gate_decision_rejected`, never laundered into DONE), plus duplicate
+  intake reusing one Story, and a Source-Aligned Redevelopment run that completes
+  its plannedSteps but stays `doneEligible:false` because no target-runnable parity
+  evidence is captured (no overclaim). This proves the loop end to end against a
+  signing-correct stub server through the same resolver/fetch seam production
+  uses. Live Python control-plane evidence is covered separately by
+  `tasks/authority-live-python-smoke.ts` when `LATTICE_AUTHORITY_LIVE_URL` and the
+  pinned server public key are provided; a local-test server
+  (`serverKey.productionInert=true`) proves integration only, not production DONE;
+- M10 / M11 authority completion gate + loop: `core/authority-completion.ts`
+  adds the single FAIL-CLOSED completion decision (`evaluateAuthorityCompletion`)
+  that the executor result alone could not make. Per-run `authorityDone` requires
+  a verified native `gate_decision` receipt (from the executor's gate step) PLUS a
+  completed (validation-passed) run; `fullAuthorityDone` ADDITIONALLY requires the
+  multi-host final verification gate when `multiHostPolicy.requireMultiHost` /
+  `fullAuthorityDoneRequired` demands it (independence count + `satisfied` are read
+  from the Authority/local reconciliation, never recomputed), and the job
+  `completed` flag is the per-mode DONE projection. Every failure path leaves the
+  DONE flags false with an explicit machine-readable blocking reason: reject →
+  `authority_gate_decision_rejected`; tamper / wrong key / wrong story / wrong
+  project / missing decisionDigest / stale / future-dated all collapse to
+  `authority_gate_receipt_unverified`; blocked / unavailable / error / no-config /
+  incomplete-validation / unmet-multi-host each map to their own reason. Receipt
+  refs are recorded for traceability even on a blocked run (`verified:false` unless
+  a verified-approve receipt). `runAuthorityCompletionLoop` is the B7/B16
+  orchestration that composes the existing primitives end to end —
+  `resolveAuthorityGateEvaluator` (append run + evidence events → automatic
+  `POST /v1/gates/evaluate` → verify the native receipt) → `executePlannedSteps`
+  → `evaluateAuthorityCompletion` → the B16 `lattice.authority_job_completion.v1`
+  final output (receipt refs, evidence refs, host verdict refs, DONE flags, stop
+  reason). It adds NO new network path and NO new minting; local / non-authority
+  and authority/non-DONE jobs make zero authority calls and never project an
+  authority DONE flag. `completionToFinalizeInput` bridges the verdict into the
+  separate `authority-job-loop.ts` lease state machine's complete-or-release tail
+  (verdict.completed → `finalPolicySatisfied`), so the lease completes only when the
+  completion gate already allows it. Covered by
+  `tasks/authority-completion-smoke.ts` (pure-decision matrix + end-to-end loop
+  against a signing-correct stub server, including the reject / tamper / stale /
+  future / wrong-story fail-closed paths). The live `autopilot execute
+  --mode=authority` path now threads the resolved gate evaluator and completion
+  verdict through `consumeClaimedAuthorityJob`, so the operator-facing
+  `authorityJobLoop.receiptVerified` trace reads the same final completion verdict
+  as the top-level result;
+- worktree-safety runtime enforcement (§B2 / M7 / M9 / M11):
+  `core/worktree-policy.ts` turns the planner-emitted `worktreePolicy` block into
+  real executor behavior, consumed by `executePlannedSteps`
+  (`core/planned-steps-executor.ts`). Before any MUTATING provider step
+  (`provider.codex` / `provider.claude`; `provider.fake` is fixtures-only and
+  exempt) it resolves the authoritative story cwd via the same
+  `lattice.story.resolve` contract that powers `lattice story resolve`, runs the
+  provider IN that worktree (never the project root), and captures
+  `git status --porcelain` as structured evidence (digest + entries). It fails
+  CLOSED — blocking the step and emitting a printable/uploadable
+  `lattice.worktree_stop_summary.v1` plus a `worktreeStop` process event — on an
+  unresolved authoritative worktree (`authoritative_worktree_unresolved`), missing
+  git status evidence when `requireGitStatusEvidence` is set
+  (`git_status_evidence_unavailable`), a dirty worktree when the step/policy
+  requires a clean one (`dirty_worktree`, preserving unrelated dirty changes rather
+  than discarding them), or a forbidden-path edit — declared up front OR introduced
+  by the provider — to the non-droppable story/fixture JSON globs
+  (`forbidden_path_glob`). Enforcement is gated on the JobPlan actually carrying a
+  `worktreePolicy` block, so local mode and legacy/synthetic plans keep working;
+  the `gitRunner` is injectable for deterministic smokes
+  (`tasks/worktree-policy-smoke.ts`). Still NOT covered here: worktree *repair*
+  (`allowWorktreeRepair`) is never performed, the enforcement only wraps the
+  single-pass `executePlannedSteps` loop (not the outer repair/retry adapter), and
+  it does not commit, merge, or push — lifecycle gates still own those.
+
+Remaining boundaries that must not be overclaimed:
+
+- `provider.codex` and `provider.claude` are REAL bounded executors, not just
+  planned step types. Each runs through a dedicated bounded runner
+  (`providers/codex-cli.ts` `runBoundedCodexProvider`,
+  `providers/claude-cli.ts` `runBoundedClaudeProvider`) that the default
+  `BoundedProviderExecutor` dispatches to: a single argv-mapped, stdin-closed CLI
+  invocation per attempt with explicit cwd, redacted env, hard timeout, and an
+  attempt cap, capturing stdout/stderr/exit/duration as DIGESTS only
+  (+ best-effort model) and retrying only on timeout. `provider.claude` is gated
+  behind explicit `providerPolicy.allowedProviders` enablement and a credential
+  policy: it fails closed BEFORE any spawn on a disabled provider (`disabled`),
+  an unbounded request (`provider_request_invalid`), a missing CLI
+  (`provider_unavailable`), a missing configured credential
+  (`credential_unavailable`, sourced only from
+  `providerPolicy.credentialsEnvAllowlist` / `secretRefs`), and
+  `noninteractive_auth_unavailable` when no allowlisted noninteractive Claude
+  credential is present. Provider evidence records an env redaction summary and
+  never inlines a secret value; provider success is never validation success,
+  prose evidence, or authority DONE. The smokes prove the real spawn seam against
+  controlled temp binaries and fail-closed policy paths; production use still
+  depends on the user's installed, noninteractive Codex/Claude CLI credentials;
+- live `autopilot execute --mode=authority` now drives the Stage B loop:
+  register / heartbeat / claim, map the real Python `JobRecord.spec` shape,
+  execute bounded `plannedSteps[]`, upload durable evidence refs, call
+  `gate.evaluate`, verify the native receipt, evaluate completion, and complete
+  or release the lease. The loop uses bounded timeouts and a one-hour live lease
+  request so ordinary provider steps can finish without a stale 60-second lease.
+  It is not an infinite daemon and does not claim to keep arbitrarily long tasks
+  alive with background heartbeats beyond the configured lease/budget policy;
+- Python Authority terminal semantics are explicit: `POST /v1/jobs/{jobId}/release`
+  releases/requeues a lease and its body has no `outcome`. A completed job is
+  completed by appending a signed `response.completed` run event to
+  `POST /v1/runs/{runId}/events`. If that completion event cannot be appended,
+  the runner releases fail-closed with a bounded reason instead of projecting
+  DONE from a release call;
+- Python Authority gate semantics are explicit: `POST /v1/gates/evaluate`
+  receives a signed `{ decision: ... }` envelope from a gate-capable actor role
+  (`main`, `mac_ui`, or `human`). Runner actors cannot request the gate. The CLI
+  supports separate `LATTICE_AUTHORITY_GATE_ACTOR_*` signing material and fails
+  closed when no gate-capable signing key is configured;
+- `planner run` can produce the Story/job/typed steps and execute the
+  deterministic local/fake path end to end. Production natural-language-to-DONE
+  in authority mode is eligible only when the generated job uses production-
+  eligible providers, live Authority server config is present, the native
+  `gate_decision` receipt verifies, and the required multi-host final
+  certification wave is satisfied;
+- the local live Python smoke proves policy discovery plus runner
+  register/heartbeat/claim/release against a real Lattice Authority server. When
+  the server reports `serverKey.productionInert=true`, that evidence is
+  integration evidence only and must not be treated as production Authority DONE;
+- server-side native `gate_decision` receipt issuance is owned by Lattice
+  Authority. The CLI verifies and consumes those receipts; it never mints one.
+
+M8 per-step evidence streaming (2026-06-06). The §B4 evidence taxonomy now has
+a standalone executor-driven streaming layer in
+`packages/main/src/core/evidence-uploader.ts`, plus a synchronous per-step
+`evidenceRecorder` seam on `executePlannedSteps`
+(`planned-steps-executor.ts`). The layer turns the deterministic executor's
+per-step output into structured, digest-only evidence records — a leading
+`run_record`, one record per step classified by type (`provider_event` /
+`command_event` / `validation_evidence` / `gate_request` / `stop_summary`), and
+a run-level `git_evidence` record built from injected git state. Python event
+endpoints receive one signed event per POST: provider evidence is sent as a
+`providerEvent` envelope to `POST /v1/runs/{runId}/provider-events`, and run
+events are sent as an `event` envelope to `POST /v1/runs/{runId}/events`.
+Internal Lattice evidence taxonomy is preserved locally, but payloads sent to
+Python `/v1/evidence` use Python `EvidenceKind` values such as `docs_check` or
+`logic_test`, never internal-only kinds such as `run_record`. Three boundaries
+are mechanical, pinned by `evidence-upload-loop-smoke`:
+
+- LOCAL mode writes local evidence ONLY — zero network calls (the client is
+  never consulted) and a single digest-only `planner_evidence_local` process
+  event when a store is supplied;
+- AUTHORITY mode FAILS CLOSED on a required-evidence upload failure: the stream
+  stops at the first required record whose transport outcome is not `success`
+  and returns `status:"blocked"` with an EXACT
+  `evidence_upload_failed:<kind>:<stepId>:<transport>` reason (an unconfigured
+  authority client fails closed before any network with
+  `authority_evidence_client_unconfigured`); a non-required failure is recorded
+  (`uploaded:false`) but does not block only when
+  `evidencePolicy.allowContinueWithoutEvidence` is set;
+- the client NEVER mints a receipt here — the layer only POSTs evidence and
+  reads the transport ack kind (`receiptMinted` is a permanent `false`), so it
+  never verifies, derives, or projects DONE.
+
+The live gate path now pre-registers the same durable evidence refs the executor
+emits (`plannerRunId:stepId:kind`) and passes a
+`gateEvidenceRefResolver` into `executePlannedSteps`, so the gate input and
+uploaded execution evidence agree mechanically. `git_evidence` remains bounded:
+it is captured through the executor/worktree policy or injected test seam, and
+the system must not infer unobserved repository changes from prose output.
+
+Minimal-projection gaps surfaced by acceptance smokes (2026-06-06). These are the
+honest boundaries of the current deterministic projection; the
+`planner-unattended-smoke` test pins each one so it cannot be silently overclaimed:
+
+- `no_progress` has two layers now. (1) The single-pass projection inside
+  `executePlannedSteps` still classifies one provider step whose bounded retry
+  budget (`maxAttempts > 1`) is exhausted with every attempt timing out as a
+  blocked `no_progress` stop. (2) The full §B5 outer repair/re-validate loop —
+  the M9 gap — is now implemented as a standalone, dependency-injected engine in
+  `packages/main/src/core/repair-retry-loop.ts` (`runRepairRetryLoop`) with an
+  executor-level provider adapter (`executeProviderBackedRepairRetry` /
+  `resolveRepairRetryPolicy` in `planned-steps-executor.ts`). The engine runs the
+  bounded `validate -> (fail) -> configured repair provider step -> revalidate`
+  loop, retries provider timeouts inside each repair step, and counts
+  cross-iteration no-progress with a material/evidence hash so `maxRepairAttempts`
+  and `maxNoProgressIterations` produce distinct exact blocked stop reasons
+  (`max_repair_attempts_exhausted` / `no_progress` /
+  `repair_provider_unavailable` / `repair_provider_failed` / `repair_not_allowed`).
+  Hard invariants hold in every branch: repair always revalidates and never
+  satisfies validation by itself, and `authorityDone` / `receiptVerified` /
+  `multiHostVerified` stay `false`. `repair-retry-loop-smoke` pins all branches.
+  The engine is now WIRED INTO `executePlannedSteps` itself: a failing
+  `validate.run` step whose JobPlan opts in (`retryPolicy.repairAllowed:true` plus
+  a resolvable provider `repairBinding`) drives the bounded loop inline via
+  `maybeRunValidateRepairLoop` instead of a single-pass stop — every repair
+  attempt + revalidation is recorded (tagged `repairLoopAttempt`), and the run
+  stops `blocked` with the exact loop reason (`no_progress` /
+  `max_repair_attempts_exhausted` / `repair_provider_unavailable` /
+  `repair_provider_failed`). Repair is strictly scoped to `validate.run` failures,
+  so a gate/receipt failure can never be repaired into DONE (it stops/releases per
+  `stopPolicy`). The default planner emits `repairAllowed:false`, so the
+  single-pass projection path (and its provider-step `no_progress` classification)
+  is unchanged. `repair-retry-integration-smoke` pins the wired path end-to-end
+  through `executePlannedSteps`. Remaining bounded-test boundary: the convergence
+  (repair fixes validation) branch cannot be exercised through the deterministic
+  `executePlannedSteps` path because `validate.run` is deterministic over a static
+  `coverageMap` and cannot flip fail→pass without a live validation reading real
+  worktree state changed by a real repair provider; that branch is covered at the
+  engine level by `executeProviderBackedRepairRetry` in `repair-retry-loop-smoke`.
+  Gate/receipt failures remain non-repairable by design and release/block per
+  `stopPolicy`;
+- `--forceNewRun` / `--forceNewRunReason` are wired into a distinct planner
+  idempotency scope (`buildPlannerDraft` in `packages/main/src/core/planner.ts`).
+  The default planner run id stays deterministic from the full natural-language
+  intake digest plus interaction mode, so an identical request without the flag
+  reuses the same run/Story scope (idempotent). When `--forceNewRun` is supplied
+  it fails closed unless `--forceNewRunReason` is a non-empty string, then forks a
+  reason-keyed scope digest that diverges plannerRunId, the Story name (so
+  story_create does not reuse the default Story), and the job plan — while
+  `naturalLanguageDigest` stays request-only. The fork is deterministic per
+  reason (a repeated forced run with the same reason collapses back onto the
+  forked scope), and `forceNewRun` / `forceNewRunReason` / `forceScope` are echoed
+  in the planner draft and job plan JSON and folded into `plannerDigest` /
+  `jobPlanDigest` so the fork is mechanically auditable;
+- budget metering is implemented (X6 + §B5 stopPolicy + §B16 `budgetUsage`).
+  Every JobPlan now carries a `budgetPolicy` block (`buildJobPolicyBlocks` in
+  `packages/main/src/core/planner.ts`) derived from `plannerPolicy`
+  (`maxWallClockMs` / `maxTokenOrCostBudget` / `maxProviderCalls`), and
+  `assertJobPolicyConsistency` rejects a negative / non-finite budget field. The
+  executor wires a single side-effect-free meter
+  (`packages/main/src/core/budget-meter.ts`) that tracks wall-clock,
+  provider-call, and known token/cost usage from planner/provider/executor step
+  events. When any enabled bound is crossed the run stops fail-closed with
+  `status=blocked`, `stopReason=budget_exceeded`, a populated `budgetUsage`
+  snapshot, and a next action — BEFORE the gate step, so authority DONE is
+  unreachable on exhaustion and budget exhaustion never triggers provider
+  fallback, extra review waves, or silent scope reduction. A `0` limit disables
+  that dimension (an unknown token budget stays `0`); CLI overrides may only
+  TIGHTEN a plan budget (`resolveBudgetLimits` reduce-only, §B9). Local and
+  authority fail-closed behavior is pinned by `tasks/budget-meter-smoke.ts`.
+  Remaining boundary: provider-call and wall-clock budgets are enforced for real
+  Codex/Claude spawns, but token/cost details are known only when the provider
+  output exposes parseable usage; otherwise the meter records
+  `tokenOrCostKnown=false` and falls back to provider-call + wall-clock budgets
+  (X6).
+- evidence retention/GC and content redaction now have runtime engines wired into
+  executor upload evidence. Every JobPlan emits
+  `evidencePolicy.redactionRequired` plus a per-kind `retentionClassByKind` map
+  (§B4a / §B4b), and `assertJobPolicyConsistency` rejects an unknown retention
+  class. `core/evidence-redaction.ts` is the runtime content-redaction pass:
+  `redactText` / `redactEvidence` strip private keys, Authorization/Bearer/Basic
+  schemes, session cookies, named secret assignments, and known opaque token
+  shapes from stdout/stderr/prompts/notes before upload while preserving the
+  original artifact digest in a `redactionSummary` (so a verifier can still match
+  the unredacted local artifact, §B4a). `core/evidence-retention.ts` is the
+  runtime retention layer: `evaluateRetention` / `sweepRetention` /
+  `runRetentionSweep` are a deterministic, fail-closed GC that deletes ONLY
+  expired non-receipt-bound artifacts and protects `receipt_bound_artifact`
+  records inside their window, `final_summary` records (kept queryable forever),
+  and `protected` receipt JSON / final host verdict records. The
+  `evidence-retention-gc-smoke` acceptance test drives real redaction AND a real
+  GC deletion sweep (proving receipt-bound / final / protected artifacts survive
+  while expired logs are deleted) — closing the prior "no GC path to drive" gap.
+  `redactedProviderEnv` (planned-steps-executor) remains the env-projection seam.
+  The live upload path redacts before transport and attaches retention metadata to
+  uploaded envelopes (`evidence-live-wiring-smoke`); durable server-side GC
+  scheduling is still owned by Lattice Authority storage operations, while the CLI
+  retention engine proves the local decision logic.
+
+Because of these boundaries, Lattice may claim the tested unattended local mode
+and the tested Authority-backed per-run loop. It must not claim production
+Authority DONE unless a non-inert Lattice Authority server verifies the native
+`gate_decision` receipt and the required independent-host final certification
+passes.
 
 ## Product Goal
 
@@ -161,6 +645,8 @@ LATTICE_AUTHORITY_ACTOR_KEY
 LATTICE_AUTHORITY_ACTOR_KEY_PATH
 LATTICE_AUTHORITY_ACTOR_KEY_ENCODING
 LATTICE_AUTHORITY_ACTOR_KEY_ID
+LATTICE_AUTHORITY_CUSTOMER_API_KEY
+LATTICE_AUTHORITY_CUSTOMER_API_KEY_PATH
 LATTICE_AUTHORITY_KEY_FILE
 LATTICE_AUTHORITY_RUNNER_ID
 LATTICE_AUTHORITY_SESSION_ID
@@ -208,7 +694,7 @@ not accept autopilot mode names such as `local` or `authority`.
 Authority URL and key-file defaults:
 
 ```text
-defaultAuthorityUrl = https://localhost:6789/
+defaultAuthorityUrl = http://localhost:6789/
 defaultAuthorityKeyFile = .lattice/authority.md
 ```
 
@@ -230,15 +716,19 @@ Rules:
 Minimal `.lattice/authority.md` machine-readable block:
 
 ```text
-serverUrl: https://localhost:6789/
+serverUrl: http://localhost:6789/
+projectId: project-live-1
 serverKeyId: local-test-server-key
 serverPublicKeyEncoding: hex | base64
 serverPublicKey: <public-key>
+customerApiKeyPath: <local-customer-api-key-path>
 actorId: local-test-actor
 actorRole: runner
 actorKeyId: local-test-actor-key
 actorKeyEncoding: hex | base64
 actorKeyPath: <local-private-key-path>
+runnerId: local-test-runner
+sessionId: local-test-session
 testKeyProfile: local-test | none
 ```
 
@@ -421,18 +911,28 @@ evidence, pass gates, claim DONE, or mutate local story lifecycle state.
 
 Development mode may allow direct actor public key registration.
 
-Production mode must require:
+Production mode must require a customer-scoped API key and project scope for
+actor enrollment. Servers may additionally require a bootstrap or admin
+registration token, but that token is a registration control only and must not
+replace customer/project authorization.
 
 ```text
+Authorization: Bearer <LATTICE_AUTHORITY_CUSTOMER_API_KEY>
 LATTICE_AUTHORITY_BOOTSTRAP_TOKEN
 ```
 
 Rules:
 
-- the bootstrap token authorizes actor key registration only;
+- the customer API key authorizes the tenant/workspace/project for actor key
+  registration;
+- the bootstrap token, when server policy requires it, authorizes actor key
+  registration only;
 - the token is sent in an HTTP header, not inside signed actor payloads;
 - the token does not sign receipts and does not grant gate approval;
-- missing, wrong, or empty bootstrap token fails in production;
+- missing, wrong, revoked, expired, or wrong-project customer API key fails in
+  production;
+- missing, wrong, or empty bootstrap token fails in production when server policy
+  requires bootstrap enrollment;
 - registered keys must bind actor id, role, key id, runner id, status, and
   optional validity windows.
 
@@ -981,7 +1481,14 @@ LATTICE_AUTHORITY_ACTOR_KEY
 LATTICE_AUTHORITY_ACTOR_KEY_PATH
 LATTICE_AUTHORITY_ACTOR_KEY_ENCODING
 LATTICE_AUTHORITY_ACTOR_KEY_ID
+LATTICE_AUTHORITY_CUSTOMER_API_KEY
+LATTICE_AUTHORITY_CUSTOMER_API_KEY_PATH
 LATTICE_AUTHORITY_KEY_FILE
+LATTICE_AUTHORITY_GATE_ACTOR_ID
+LATTICE_AUTHORITY_GATE_ACTOR_ROLE
+LATTICE_AUTHORITY_GATE_ACTOR_KEY
+LATTICE_AUTHORITY_GATE_ACTOR_KEY_PATH
+LATTICE_AUTHORITY_GATE_ACTOR_KEY_ENCODING
 LATTICE_AUTHORITY_RUNNER_ID
 LATTICE_AUTHORITY_SESSION_ID
 LATTICE_AUTHORITY_PROJECT_ID
@@ -989,6 +1496,10 @@ LATTICE_AUTHORITY_SERVER_PUBLIC_KEY
 LATTICE_AUTHORITY_SERVER_KEY_ID
 LATTICE_AUTHORITY_RECEIPT_MAX_AGE_MS
 LATTICE_AUTHORITY_RECEIPT_CLOCK_SKEW_MS
+LATTICE_AUTHORITY_HEAD_HASH
+LATTICE_AUTHORITY_MATERIAL_HASH
+LATTICE_AUTHORITY_COMMAND_CATALOG_DIGEST
+LATTICE_AUTHORITY_EVIDENCE_SCHEMA_DIGEST
 ```
 
 Authority job payload:
@@ -1946,6 +2457,107 @@ Required source-aligned redevelopment fixtures:
 | `redevelopment-missing-adapter-block` | Prove missing source or target language adapters fail before model work. | `adapter_unavailable` blocked stop, no provider event, no target mutation, and no manifest/evidence fabricated from provider prose. | Blocks cleanly unless explicit `scoped_gap` policy narrows scope and records unsupported surfaces. |
 | `redevelopment-license-and-secret-negative` | Prove source-aligned redevelopment still preserves legal/security boundaries. | License notice refs are preserved or block; secrets, credentials, `.git`, caches, generated outputs, and env files are excluded from prompts, target output, and evidence except redacted digest-only refs allowed by policy. | Blocks on missing required notices or secret leakage. |
 
+#### C2a-projection. Deterministic Projection Evidence Semantics (current pass)
+
+The current pass implements the source-aligned redevelopment evidence model
+through the deterministic plannedSteps executor, not through a live language
+adapter or a real target build. This subsection pins exactly what that
+projection may and may not claim, so projected evidence is never mistaken for
+verified target parity. It is the literal contract the
+`source.*` / `target.*` / `language.*` `lattice.command` operations satisfy.
+
+Adapter availability (`language.resolve_adapters`):
+
+- availability is a mechanical decision keyed by a single canonical language id,
+  resolved against the adapter registry. The deterministic projection ships a
+  fixed known-adapter set as the stand-in registry; a live deployment replaces
+  it with the registry that `languageAdapterPolicy.adapterRegistryRef` resolves.
+  Availability is per-language, never per-`source->target` pair, so the workflow
+  stays pair-agnostic;
+- `requiredAdapters[]` (falling back to `[sourceLanguage, targetLanguage]`) is
+  split into available and unavailable language ids;
+- if any required adapter is unavailable and
+  `adapterUnavailableBehavior=block`, the step stops `blocked` with
+  `adapter_unavailable` before any manifest extraction, provider event, or
+  target mutation;
+- if any required adapter is unavailable and
+  `adapterUnavailableBehavior=scoped_gap`, the step passes but records one
+  `adapter_unavailable_scoped_gap` entry in `gapList[]` per unavailable adapter,
+  narrows the run to the available surfaces, and the run can never be
+  redevelopment-DONE-eligible while those gaps are open. `scoped_gap` is allowed
+  only because the policy explicitly requested it; the unsupported surfaces are
+  always recorded, never silently dropped;
+- provider prose can neither add an adapter to the registry nor change a block
+  into a pass.
+
+Neutral manifest extraction (`source.extract_manifest` /
+`target.extract_manifest`):
+
+- both operations emit `NeutralManifestRecord[]` using the language-neutral
+  field shape (module/symbol/kind/visibility/signatureShape/runtimeBoundary/
+  dependencyRefs/sourceLocation), so the same shape describes any language;
+- source extraction derives module-granularity records from the deterministic
+  source digest (real file paths + content digests) and marks
+  `extractionConfidence=partial`: file/module identity is deterministic, but
+  symbol-level shape is left `null`/unknown because the projection has no live
+  parser. It never fabricates symbol signatures from prose;
+- target extraction reports `extractionConfidence=unknown` with zero records in
+  the projection: the target project is the thing being built, so there is no
+  target manifest to read yet. This is recorded honestly rather than guessed.
+
+Semantic mapping and gap rules (`source.compare_alignment` /
+`source.record_gaps`):
+
+- `moduleAlignmentMap[]` / `functionAlignmentMap[]` entries are derived only
+  from manifest extraction (`derivedFrom=manifest_extraction`), never from
+  provider prose. The entry schema supports `1:1`, `1:N`, `N:1`, and
+  `mapped_to_gap`, and `semanticMappingPolicy.allowedMappingKinds[]` is echoed
+  with the produced evidence;
+- because target manifest extraction is `unknown` in the projection, every
+  source module aligns as `mapped_to_gap` with a rationale and a `gapRef` into
+  an `unverified_alignment` gap. The projection therefore proves provenance and
+  schema, and refuses to assert `1:1` parity it cannot back with a target
+  manifest;
+- `source.record_gaps` aggregates every gap surfaced by earlier steps into a
+  single `gapList[]`. Source-only / untranslatable items are classified at
+  manifest/mapping time and routed straight to `gapList[]`; they never enqueue a
+  repair attempt and never consume `maxGapRepairAttempts` /
+  `maxRepairAttempts` / `maxNoProgressIterations`.
+
+Target-runnable parity (`source.build_parity_oracles` /
+`target.run_parity_oracles`):
+
+- `source.build_parity_oracles` builds the `behaviorParityCheck[]` catalog from
+  `parityOraclePolicy.allowedOracleKinds[]`, each `status=planned`;
+- `target.run_parity_oracles` is the honesty boundary. The deterministic
+  projection runs no target build/test, so it captures no target-runnable
+  evidence: every check is recorded `status=not_run` with
+  `targetRunnableEvidenceCaptured=false`, and each required check is routed to a
+  `target_runnable_parity_missing` gap;
+- when `parityOraclePolicy.requiresTargetRunnableEvidence=true` (the required
+  setting) and no target-runnable evidence is captured,
+  `targetParityVerified=false` and the run is not redevelopment-DONE-eligible.
+  Target parity is never claimed from a projected or prose result.
+
+Executor result fields and DONE boundary:
+
+- a redevelopment plannedSteps execution surfaces a `redevelopment` summary with
+  at least `sourceLanguage`, `targetLanguage`, `sourceManifestDigest`,
+  `targetManifestDigest`, `sourceManifestRecordCount`, `alignmentEntryCount`,
+  `mappedToGapCount`, `adapterUnavailable[]`, `targetRunnableEvidenceCaptured`,
+  `targetParityVerified`, `gapCount`, and `doneEligible`;
+- `doneEligible` requires `targetParityVerified=true` and zero open gaps; the
+  deterministic projection is therefore never redevelopment-DONE-eligible by
+  itself, exactly as `localDone`/`authorityDone`/`receiptVerified` stay false
+  for a projected standard run. Redevelopment DONE still requires real
+  target build/test evidence plus the normal local-review or Authority receipt
+  chain;
+- the projection is forward-compatible: when a live adapter and a real target
+  build supply genuine extraction and target-runnable parity evidence, the same
+  fields carry `extractionConfidence=deterministic`, real `1:1`/`1:N`/`N:1`
+  mappings, `status=passed` checks, and `targetParityVerified=true` without any
+  schema change.
+
 ### C3. Job Planner
 
 Job Planner input:
@@ -2607,6 +3219,20 @@ Rules:
   registered host under the independence rules above;
 - the review prompt profile must include the instruction
   `dont optimize for the sake of optimization`;
+- final DONE certification must run three bounded host-check waves before
+  claiming local certified DONE or full Authority DONE. Each wave must use at
+  least two independent hosts when policy requires multi-host review, should
+  prefer three hosts when available, and must review the same final anchors for
+  that wave;
+- every final host-check prompt in all three waves must include these principles:
+  `don't optimize for the sake of optimization`, `don't optimize arbitrarily`,
+  `only fix real correctness issues`, and `preserve consistency of logic`;
+- a host-check finding may block only when it is tied to a concrete correctness
+  issue in the final anchors, lifecycle gate, receipt/evidence chain, security
+  boundary, or user-requested behavior;
+- if a blocking issue is repaired and the material state changes, the affected
+  anchors become stale and the final three-wave check restarts over the fresh
+  anchors;
 - the multi-host gate runs at final check/release certification time and high
   risk final gates, not before every small planned step.
 
@@ -2965,6 +3591,194 @@ M16 Multi-Host Final Verification
 Stage A remains a prerequisite and may receive compatibility fixes, but the
 definition of success for this pass is Stage B and Stage C working end to end.
 
+### Localhost 6789 Live Verification Plan For M1-M16
+
+This plan creates the hard evidence needed to claim that the sixteen Authority
+milestones were validated against a real local Python Lattice Authority server at
+`http://localhost:6789/`. It is a verification plan, not a second development
+track.
+
+Core rule:
+
+```text
+1. don't optimize for the sake of optimization
+2. don't optimize arbitrarily
+3. only fix real correctness issues
+4. preserve consistency of logic
+```
+
+The live verification must preserve two user-selected operating principles:
+
+1. **Lattice non-authority CLI.** The client is allowed to execute locally under
+   local policy, with no Lattice Authority server contact. This mode may produce
+   local evidence, local validation, and local multi-host review, but it must not
+   claim `authorityDone`, `fullAuthorityDone`, server receipt verification, or
+   Python Authority evidence.
+2. **Lattice CLI + Lattice Authority.** The client is still allowed to execute
+   locally, but final Authority claims require server-verified evidence from the
+   Python Lattice Authority. In this mode the local runner executes provider /
+   validation work, uploads signed evidence to `http://localhost:6789/`, requests
+   or verifies native `gate_decision` receipts, and uses server-backed job /
+   evidence / receipt / multi-host records before claiming Authority DONE.
+
+These principles are not interchangeable. A non-authority pass protects local
+developer ergonomics; an authority pass proves the local execution was backed by
+server authority evidence. The final report must show both results separately.
+
+The verification should use six verification milestones. Six is enough because
+the original sixteen milestones are development outcomes; several can be proven
+by the same live run and the same evidence chain. Splitting the verification into
+six milestones prevents duplicate test work while still preserving a clear
+mapping from every original milestone to live localhost evidence.
+
+Non-goals:
+
+- do not add new product features while collecting live evidence;
+- do not change the Python server API unless the live run exposes a real
+  contract mismatch;
+- do not replace deterministic contract, schema, or stub tests with the live
+  server run. The live server run is additional hard evidence;
+- do not treat `http://127.0.0.1:8765`, a stub server, or direct Pydantic schema
+  validation as the final `http://localhost:6789/` proof.
+
+Localhost live verification prerequisites:
+
+- Python Lattice Authority is started from
+  `/Users/jek/Documents/Work/Koala/cord-team`;
+- the server listens on `http://localhost:6789/`;
+- `/v1/authority/policy` returns a server key whose `publicKeyHex` is pinned in
+  `LATTICE_AUTHORITY_LIVE_PUBLIC_KEY`;
+- runner actor private key, runner id, session id, and project id are configured
+  through environment variables or `.lattice/authority.md`;
+- the live smoke output is not `SKIPPED`;
+- every verification command records command, cwd, env summary with secrets
+  redacted, exit code, output summary, git HEAD, and material hash.
+- non-authority regression evidence proves local mode does not read
+  `.lattice/authority.md`, does not connect to `http://localhost:6789/`, and
+  keeps Authority flags false.
+
+Recommended localhost server setup evidence:
+
+```bash
+cd /Users/jek/Documents/Work/Koala/cord-team
+
+# The default package entrypoint uses port 8765. For the final hard evidence,
+# run the same app explicitly on the Lattice local Authority default.
+uv run uvicorn cord_team.api.app:create_app \
+  --factory \
+  --host 127.0.0.1 \
+  --port 6789 \
+  --ssl-keyfile <local-dev-key.pem> \
+  --ssl-certfile <local-dev-cert.pem>
+
+curl -s http://localhost:6789/health
+curl -s http://localhost:6789/v1/authority/policy
+```
+
+The local certificate may be a development certificate. The Authority server key
+must still be pinned and verified through `LATTICE_AUTHORITY_LIVE_PUBLIC_KEY`.
+If the server cannot run on HTTPS port 6789, record that as a verification
+blocker for M12 instead of downgrading the final evidence to another port.
+
+Required Lattice live environment:
+
+```bash
+export LATTICE_AUTHORITY_LIVE_URL=http://localhost:6789/
+export LATTICE_AUTHORITY_LIVE_PUBLIC_KEY=<policy.serverKey.publicKeyHex>
+export LATTICE_AUTHORITY_CUSTOMER_API_KEY_PATH=<path-to-local-test-customer-api-key>
+# or: export LATTICE_AUTHORITY_CUSTOMER_API_KEY=<local-test-customer-api-key>
+export LATTICE_AUTHORITY_ACTOR_ID=<runner-actor-id>
+export LATTICE_AUTHORITY_ACTOR_ROLE=runner
+export LATTICE_AUTHORITY_ACTOR_KEY=<runner-private-key>
+export LATTICE_AUTHORITY_ACTOR_KEY_ENCODING=hex
+export LATTICE_AUTHORITY_RUNNER_ID=<runner-id>
+export LATTICE_AUTHORITY_SESSION_ID=<runner-session-id>
+export LATTICE_AUTHORITY_PROJECT_ID=<project-id>
+export LATTICE_AUTHORITY_BOOTSTRAP_TOKEN=<local-bootstrap-token-if-required>
+```
+
+For production-like local verification, also pin the server key id and reject any
+default-test or ephemeral server key profile as production DONE evidence.
+
+| Verification milestone | Covers original milestones | Purpose | Required live evidence | Pass condition |
+| --- | --- | --- | --- | --- |
+| V1. Local Authority boot and trust pinning | M1, M3, M12 | Prove the real Python server is reachable on the local Authority default and exposes the expected metadata. | `curl -s http://localhost:6789/health`; `curl -s http://localhost:6789/v1/authority/policy`; captured `serverKey.publicKeyHex`; pinned key comparison; server startup command and env summary. | Server is reachable on `http://localhost:6789/`, policy parses, server key is pinned, and the run is not a stub or alternate-port substitute. |
+| V2. Cross-language signing and control plane | M1-M5 | Prove TypeScript and Python agree on signing, receipts, actor key registration, runner registration, heartbeat, claim, and release. | `npm run build`; `npm --prefix packages/main run test:authority-runner-contracts`; `npm --prefix packages/main run test:authority-runner-client`; `npm --prefix packages/main run test:authority-runner-events`; Python fixture/schema tests; `npm --prefix packages/main run test:authority-live-python` against `http://localhost:6789/`. | Contract tests pass and live smoke outputs `passed: policy + control-plane`, not `SKIPPED`; release uses Python `release{runnerId,sessionId,reason}` and no `outcome`. |
+| V3. Stage B live execution loop | M6-M11 | Prove job schema, planned steps, provider execution, evidence upload, repair/stop policy, gate evaluation, receipt verification, and end-to-end Authority autopilot behavior while preserving local-only execution mode. | `npm --prefix packages/main run test:authority-job-loop`; `npm --prefix packages/main run test:authority-job-loop-live-smoke`; `npm --prefix packages/main run test:evidence-upload-loop-smoke`; `npm --prefix packages/main run test:evidence-live-wiring-smoke`; local/non-authority smoke proving zero server contact; live Authority evidence refs for run events, provider events, evidence upload, gate request, receipt verification, terminal status. | Non-authority execution can run locally with Authority flags false and no server contact; authority execution uploads evidence to the live server, gate receipt verification controls DONE, and failure paths release or block without dangling leases. |
+| V4. Stage C planner to Authority job | M13-M15 | Prove natural-language intake can create a Story draft, checklist, verification intent, Authority job, typed `plannedSteps[]`, and both non-authority and authority execution paths. | `npm --prefix packages/main run test:planner-unattended-smoke`; `npm --prefix packages/main run test:natural-language-to-done-smoke`; local planner run evidence with zero server contact; live job creation or live job-file equivalent bound to the same Story, planner digest, checklist digest, verification intent digest, and policy. | One-sentence and document-style requests produce non-placeholder Story/job plans; unsupported scope blocks; non-authority reports local-only status; authority DONE is claimed only after verified live receipt evidence. |
+| V5. Global Lattice and deployment parity | M12 | Prove the globally installed `lattice` uses the same built code path and respects both non-authority and authority configuration. | Global `lattice check`; global local/non-authority smoke with no server contact; global `lattice authority` status/policy command where available; global `npm --prefix packages/main run test:authority-live-python` or equivalent global wrapper invocation; recorded binary realpath and package version. | Global `lattice` preserves local-only execution when non-authority is selected, and hits `http://localhost:6789/` with pinned-key verification only when authority mode is selected. |
+| V6. Multi-host final certification and evidence closure | M16 plus final claim across M1-M15 | Prove final DONE is not a single-host overclaim. | Three bounded host-check waves before final DONE; each wave has at least two independent host verdicts, normally Codex CLI and Claude CLI, reviewing the same final anchors: commit/head, material hash, live smoke output, receipt refs, job/run ids, and evidence refs. Gemini may be added when available. Every wave prompt includes: `don't optimize for the sake of optimization`, `don't optimize arbitrarily`, `only fix real correctness issues`, and `preserve consistency of logic`. | Independent hosts return PASS in all three waves, or any real correctness BLOCK is repaired and the stale anchors are re-verified through fresh waves. Final claim explicitly states whether it is `localDone`, `authorityDone`, or `fullAuthorityDone`. |
+
+Original milestone to verification milestone mapping:
+
+| Original milestone | Verification milestone |
+| --- | --- |
+| M1 Contract Lock | V1, V2, V6 |
+| M2 Cross-Language Crypto Fixtures | V2 |
+| M3 Authority Metadata And Bootstrap | V1, V2 |
+| M4 Native Receipt Verifier | V2, V3 |
+| M5 Live Runner Control Plane | V2 |
+| M6 Authority Job Schema | V3 |
+| M7 Provider Executor | V3 |
+| M8 Evidence Upload | V3 |
+| M9 Repair And Stop Policy | V3 |
+| M10 Gate Evaluation Loop | V3 |
+| M11 End-To-End Authority Autopilot | V3 |
+| M12 Deployment And Global Verification | V1, V5 |
+| M13 Lattice Story Planner | V4 |
+| M14 Lattice Job Planner | V4 |
+| M15 Natural-Language-To-DONE E2E | V4 |
+| M16 Multi-Host Final Verification | V6 |
+
+Execution order:
+
+1. Run V1 first. If HTTP `localhost:6789` cannot be started or the policy
+   server key cannot be pinned, stop and fix only that correctness blocker.
+2. Run V2 after V1 passes. V2 proves the live control plane and the
+   cross-language body shapes before any higher-level DONE claim.
+3. Run V3 with at least one no-job control-plane path and one claimed-job path.
+   If the live server cannot issue or verify the required gate receipt, stop at
+   blocked M10/M11 instead of claiming Authority DONE.
+4. Run V4 only after V3 proves the executor can consume a live Authority job.
+5. Run V5 to prove the global binary is not stale and does not secretly use a
+   package-local `bin/lattice.js` path.
+6. Run V6 last. If any verifier finds a real blocker, repair the blocker and
+   rerun the affected verification milestone plus V6.
+
+Minimum final evidence bundle:
+
+- command transcript for each V1-V6 command;
+- non-authority CLI transcript proving local execution succeeds without server
+  contact and without Authority DONE flags;
+- Python server startup command, URL, and policy response digest;
+- pinned server public key and key id;
+- customer key id/source status, actor id, runner id, session id, project id,
+  and key source summary with private material redacted;
+- live job id, run id, receipt id, and evidence refs when a job is claimed;
+- explicit proof that `test:authority-live-python` did not skip;
+- global `lattice` binary realpath/version;
+- three bounded host-check wave summaries, with at least two independent host
+  verdict artifacts per wave and the four required review principles recorded
+  in each wave prompt digest;
+- final status object distinguishing `localDone`, `authorityDone`,
+  `fullAuthorityDone`, `receiptVerified`, and `multiHostVerified`.
+
+Fail-closed rules:
+
+- a non-authority pass cannot be promoted to Authority DONE;
+- an authority run without server evidence cannot be reported as
+  `authorityDone`;
+- alternate-port evidence is useful diagnostic evidence but does not satisfy the
+  final localhost 6789 claim;
+- stub evidence proves deterministic behavior but does not satisfy live
+  Authority evidence;
+- schema-only evidence proves body shape but does not satisfy server
+  reachability;
+- if a repair changes code, policy, docs, server config, or material hash, rerun
+  the affected verification milestone and then V6;
+- if a proposed change is only an optimization, style cleanup, or unrelated
+  hardening, defer it to a follow-up Story.
+
 ### Twenty-Five Required Blocks For This Pass
 
 The following twenty-five blocks are mandatory for this implementation pass.
@@ -3086,12 +3900,15 @@ claim full unattended development mode.
     evidence requirement, or safety policy.
 
 20. **Multi-host final verification.**
-    Final certification must include at least two independent host verdicts per
-    required review wave, normally targeting 2-3 hosts and optionally preferring
-    3+ hosts such as Codex, Claude Code, and Gemini for release certification.
-    One host may implement; the others must independently verify the relevant
-    local anchors or Story/job/evidence/receipt artifacts and issue structured
-    pass/fail/blocked verdicts.
+    Final certification must include three bounded host-check waves before final
+    DONE. Each required review wave includes at least two independent host
+    verdicts, normally targeting 2-3 hosts and optionally preferring 3+ hosts
+    such as Codex, Claude Code, and Gemini for release certification. One host
+    may implement; the others must independently verify the relevant local
+    anchors or Story/job/evidence/receipt artifacts and issue structured
+    pass/fail/blocked verdicts. Each wave prompt carries the four principles:
+    `don't optimize for the sake of optimization`, `don't optimize arbitrarily`,
+    `only fix real correctness issues`, and `preserve consistency of logic`.
 
 21. **Question, decision, and resume I/O.**
     `interview` and `decision-gated` modes must be drivable through structured
@@ -3161,7 +3978,7 @@ Lattice CLI deliverables:
   of only projecting readiness.
 - `lattice autopilot execute --mode=authority` reads `LATTICE_AUTHORITY_URL`,
   `LATTICE_AUTHORITY_*` key env vars, or `.lattice/authority.md` according to the
-  configured precedence, defaulting to `https://localhost:6789/` only for local
+  configured precedence, defaulting to `http://localhost:6789/` only for local
   authority development.
 - `lattice autopilot execute --mode=local --until=DONE --requireMultiHost`
   records local evidence and may report `localReviewCertified=true`, but must
@@ -3368,7 +4185,7 @@ This pass is complete only when all of these cases pass:
 | natural-language-to-DONE fake provider | `planner run` reaches authority DONE or blocked through the full chain. |
 | natural-language-to-DONE Codex provider | `planner run` with Codex executes bounded development and verifies receipt. |
 | public docs sync | README, guide, and CLI help describe implemented local/authority behavior truthfully and do not overclaim Authority DONE. |
-| multi-host final verification | at least two independent host verdicts, e.g. Codex and Claude Code with Gemini available as a preferred verifier, verify the same local anchors or final Story/job/evidence/receipt chain. |
+| multi-host final verification | three bounded host-check waves pass before final DONE; each wave has at least two independent host verdicts, e.g. Codex and Claude Code with Gemini available as a preferred verifier, verifying the same local anchors or final Story/job/evidence/receipt chain for that wave. |
 | multi-host target wave | policy can request 2-3 hosts per wave and prefer 3+ release certification, including Gemini when registered and available. |
 | multi-host verdict authenticity | Authority counts independent hosts from authenticated host/session/key binding, not self-reported JSON fields. |
 | multi-host ordering | receipt is issued and verified before host verdicts; `fullAuthorityDone` waits for multi-host pass. |
@@ -3476,7 +4293,7 @@ Wave 5: end-to-end, multi-host verification, and deployment.
 | Case | Expected |
 | --- | --- |
 | local autopilot without Lattice Authority | pass |
-| non-authority no server contact | local/non-authority mode does not read `authority.md`, connect to `https://localhost:6789/`, or call Authority endpoints |
+| non-authority no server contact | local/non-authority mode does not read `authority.md`, connect to `http://localhost:6789/`, or call Authority endpoints |
 | local validation failure | returns local failure, no authority overclaim |
 | local multi-host review | required independent local verdicts set `localReviewCertified=true` |
 | local multi-host overclaim guard | local review keeps `authorityDone=false`, `fullAuthorityDone=false`, and `multiHostVerified=false` |
@@ -3490,12 +4307,15 @@ Wave 5: end-to-end, multi-host verification, and deployment.
 | Case | Expected |
 | --- | --- |
 | missing `LATTICE_AUTHORITY_URL` | fail closed in authority mode |
-| omitted Authority URL in local authority dev | defaults to `https://localhost:6789/` only in authority mode |
+| omitted Authority URL in local authority dev | defaults to `http://localhost:6789/` only in authority mode |
 | production Authority URL omitted | fail closed instead of silently using localhost |
-| authority.md key file | reads server URL, actor id/key id, server key id/public key, and actor key ref from `.lattice/authority.md` |
+| authority.md key file | reads server URL, project id, customer key ref, actor id/key id, server key id/public key, and actor key ref from `.lattice/authority.md` |
 | authority.md precedence | explicit CLI/env settings override `.lattice/authority.md`; missing required values fail closed |
 | default test key in production | default test key is rejected for deployed production Authority DONE |
 | missing actor key | fail closed in authority mode |
+| missing customer API key in production authority mode | fail closed before actor enrollment or mutating Authority calls |
+| wrong / revoked / expired customer API key | fail closed with a customer-key blocker, not an actor-signature blocker |
+| customer key for another project | actor enrollment, evidence upload, gate evaluation, and verdict submission reject the request |
 | missing runner id | fail closed in authority mode |
 | missing project id | fail closed for live runner/jobs |
 | policy server key discovered | pass metadata parse |
@@ -3521,7 +4341,7 @@ Wave 5: end-to-end, multi-host verification, and deployment.
 | Case | Expected |
 | --- | --- |
 | register actor key in development | pass |
-| production registration without bootstrap token | fail |
+| production registration missing required bootstrap token | fail when server policy requires bootstrap enrollment |
 | live runner no job | pass/no-job |
 | live runner claims no-provider job | release immediately |
 | live runner claims executable job | executor starts bounded loop |
@@ -3531,6 +4351,7 @@ Wave 5: end-to-end, multi-host verification, and deployment.
 | job policy schema | `providerPolicy`, `worktreePolicy`, `retryPolicy`, `stopPolicy`, `evidencePolicy`, `receiptPolicy`, `multiHostPolicy`, lease, and planner digests validate |
 | verdict endpoint | verifier verdict submit/list endpoints persist records |
 | verdict authentication | Authority independence count uses authenticated host/session/key binding |
+| evidence/gate/verdict dual credentials | evidence upload, gate evaluation, and verdict submission require both customer API key authorization and a valid actor signature |
 
 ### Executor
 
@@ -3591,7 +4412,7 @@ Wave 5: end-to-end, multi-host verification, and deployment.
 | crash/resume | resumes safely or releases lease and stops non-authority |
 | DONE reconciliation mismatch | missing local DONE or missing receipt prevents authority DONE |
 | audit timeline | final JSON contains request/planner/story/job/step/evidence/receipt/final status timeline |
-| multi-host final verification | Codex and Claude Code, or registered independent hosts with Gemini available as a preferred verifier, verify the same local anchors or Authority final artifacts and pass |
+| multi-host final verification | three bounded host-check waves pass before final DONE; Codex and Claude Code, or registered independent hosts with Gemini available as a preferred verifier, verify the same local anchors or Authority final artifacts in each wave |
 | multi-host target wave | review policy supports 2-3 hosts per wave and preferred 3+ release certification with Gemini as a verifier host when available |
 | multi-host duplicate host rejection | duplicate same-host or same-session verdicts do not satisfy independent-host DONE |
 | multi-host disagreement | failing independent verdict blocks local review certification or full authority DONE, or triggers bounded repair and fresh verdicts |
@@ -3621,7 +4442,7 @@ Wave 5: end-to-end, multi-host verification, and deployment.
 | Bootstrap token becomes too powerful. | It only authorizes actor key registration. |
 | Key discovery is spoofed in production. | HTTPS/tunnel plus key pinning. |
 | Non-authority mode contacts the server. | Local/non-authority mode never reads `authority.md` or calls Authority endpoints. |
-| Default localhost Authority weakens production. | `https://localhost:6789/` is a local authority development default only; production must be explicit and pinned. |
+| Default localhost Authority weakens production. | `http://localhost:6789/` is a local authority development default only; production must be explicit and pinned. |
 | Default test key is used for production DONE. | Default test keys and `local-test` profiles are rejected outside deterministic tests/local development. |
 | `authority.md` leaks private key material. | The file is internal, gitignored when private material is present, excluded from evidence, and overridden by explicit env/CLI config. |
 | Executor loops forever. | Explicit max steps, attempts, wall clock, and no-progress policy. |
@@ -3658,7 +4479,7 @@ This product track is complete only when all of the following are true:
 - local/non-authority mode never connects to Lattice Authority;
 - shadow remains diagnostic/advisory and is not a third user-selected
   unattended development mode;
-- authority mode defaults to `https://localhost:6789/` only for local authority
+- authority mode defaults to `http://localhost:6789/` only for local authority
   development and reads explicit env/CLI config or `.lattice/authority.md`;
 - default test keys and `authority.md` local-test profiles are rejected for
   deployed production Authority DONE;
@@ -3717,12 +4538,16 @@ This product track is complete only when all of the following are true:
 - Lattice verifies the receipt before authority DONE;
 - DONE reconciliation proves local lifecycle, Authority receipt, job completion,
   lease cleanup, and final summary are all aligned;
-- at least two independent host verdicts verify the same final anchors before
-  local review certification or the same Story/job/evidence/receipt chain before
-  full authority DONE is claimed;
 - review policy supports 2-3 hosts per review wave and preferred 3+ release
   certification, including Gemini as a verifier host when registered and
   available;
+- final DONE certification has three bounded host-check waves. Every wave prompt
+  includes `don't optimize for the sake of optimization`,
+  `don't optimize arbitrarily`, `only fix real correctness issues`, and
+  `preserve consistency of logic`; only real correctness blockers can force
+  repair. Each wave has at least two
+  independent host verdicts over the same final local anchors or the same
+  Story/job/evidence/receipt chain;
 - verifier verdict records include review wave id, prompt digest, material
   anchors, issued time, and mode-specific receipt or validation anchors;
 - any repair that changes material state triggers fresh validation, fresh
@@ -3735,7 +4560,8 @@ This product track is complete only when all of the following are true:
   authority DONE;
 - final output distinguishes per-run `authorityDone` from multi-host-certified
   `fullAuthorityDone`, distinguishes local review certification, and reports
-  `multiHostVerified`;
+  `multiHostVerified`, `requiredReviewWaveCount`, `satisfiedReviewWaveCount`,
+  and `reviewWaveRefs`;
 - request/story/job/evidence/gate operations are idempotent or resume-safe;
 - failures stop with a clear blocked summary rather than silent success;
 - final output includes an auditable timeline from request intake to final status;
@@ -3743,7 +4569,11 @@ This product track is complete only when all of the following are true:
   final state without mutating the run;
 - global `lattice` passes the full planner/authority/autopilot regression matrix;
 - deployed or deployment-grade Lattice Authority verification passes with a
-  pinned server key.
+  pinned server key;
+- production Authority verification proves customer API key validation,
+  wrong-project rejection, revoked/expired-key rejection, customer-key-gated
+  actor enrollment, and dual-credential enforcement for evidence upload, gate
+  evaluation, and verifier verdict submission.
 
 Until these criteria pass, the product may claim "Authority control plane
 connected" or "local autopilot available," but it must not claim

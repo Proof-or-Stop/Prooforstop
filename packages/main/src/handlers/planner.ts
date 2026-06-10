@@ -15,6 +15,10 @@ import {
   type PlannerDraftArgs,
   type PlannerRunRecord,
 } from '../core/planner.js';
+import { executePlannedSteps } from '../core/planned-steps-executor.js';
+import { resolveAuthorityGateEvaluator } from '../core/authority-client.js';
+import { evaluateAuthorityCompletion } from '../core/authority-completion.js';
+import { buildGateEvidenceRefResolver } from '../core/evidence-uploader.js';
 import { canonicalDigest } from '../core/authority-signing.js';
 
 type JsonArgs = { json?: boolean; format?: 'text' | 'json' };
@@ -209,7 +213,7 @@ export function createPlannerHandlers(ctx: HandlerContext) {
       return renderLines(`Lattice planner create-story (${result.schemaVersion})`, result);
     },
 
-    planner_create_job(args: { storyId?: string; draftFile?: string; runId?: string; projectId?: string } & JsonArgs) {
+    planner_create_job(args: { storyId?: string; draftFile?: string; runId?: string; projectId?: string; requireMultiHost?: boolean; requiredHostVerdictCount?: number } & JsonArgs) {
       const draft = args.draftFile || args.runId
         ? loadDraft(ctx, args)
         : buildPlannerDraft(ctx.root, { request: `Create job for ${args.storyId}`, mode: 'local' });
@@ -220,7 +224,10 @@ export function createPlannerHandlers(ctx: HandlerContext) {
         const result = { schemaVersion: 'lattice.job_plan.v1' as const, status: 'blocked' as const, storyId, plannerRunId: draft.plannerRunId, issues: review.issues };
         return wantsJson(args) ? result : renderLines('Lattice planner create-job (blocked)', result);
       }
-      const jobPlan = buildJobPlan(draft, storyId, args.projectId);
+      const jobPlan = buildJobPlan(draft, storyId, args.projectId, {
+        requireMultiHost: args.requireMultiHost,
+        requiredHostVerdictCount: args.requiredHostVerdictCount,
+      });
       let record: PlannerRunRecord;
       try {
         record = readPlannerRun(ctx.root, draft.plannerRunId);
@@ -300,11 +307,15 @@ export function createPlannerHandlers(ctx: HandlerContext) {
       return wantsJson(args) ? result : renderLines(`Lattice planner resume (${result.schemaVersion})`, result);
     },
 
-    planner_run(args: PlannerDraftArgs & { projectId?: string; requireMultiHost?: boolean } & JsonArgs = {}) {
+    async planner_run(args: PlannerDraftArgs & { projectId?: string; planOnly?: boolean; execute?: boolean; maxExecuteSteps?: number; requireMultiHost?: boolean; requiredHostVerdictCount?: number } & JsonArgs = {}) {
       const draft = buildPlannerDraft(ctx.root, args);
       const review = reviewPlannerDraft(draft);
       const record = draftRecord(draft);
       record.review = review;
+      // Persist the run record up front so the composed planner_create_story /
+      // planner_create_job calls below can resolve the draft back via { runId }.
+      // Without this, the first one-shot run has no .koala/planner/runs file to read.
+      saveRecord(ctx, record);
       if (review.status !== 'pass') {
         record.finalStatus = 'blocked';
         saveRecord(ctx, record);
@@ -325,10 +336,82 @@ export function createPlannerHandlers(ctx: HandlerContext) {
           ? storyResult
           : renderLines('Lattice planner run (blocked)', { plannerRunId: draft.plannerRunId, status: storyResult.status });
       }
-      const jobPlan = handlers.planner_create_job({ runId: draft.plannerRunId, storyId: storyResult.storyId, projectId: args.projectId, json: true }) as { status?: string };
+      const jobPlan = handlers.planner_create_job({
+        runId: draft.plannerRunId,
+        storyId: storyResult.storyId,
+        projectId: args.projectId,
+        requireMultiHost: args.requireMultiHost,
+        requiredHostVerdictCount: args.requiredHostVerdictCount,
+        json: true,
+      }) as { status?: string };
+      if (jobPlan.status !== 'planned' || args.planOnly === true || args.execute === false) {
+        return wantsJson(args)
+          ? jobPlan
+          : renderLines('Lattice planner run', { plannerRunId: draft.plannerRunId, storyId: storyResult.storyId, status: jobPlan.status ?? 'planned' });
+      }
+      // Resolve the authority gate BEFORE executing. For authority/DONE jobs this
+      // performs the live append-evidence -> evaluate-gate -> verify-receipt loop
+      // and returns a synchronous evaluator; when authority mode/url/server-key are
+      // unconfigured it returns no evaluator and the executor fails closed at the
+      // gate. Local/non-DONE jobs resolve to no evaluator with zero network.
+      const authorityGate = await resolveAuthorityGateEvaluator(
+        jobPlan as ReturnType<typeof buildJobPlan>,
+        { ...(ctx.authorityGateOptions ?? {}), cwd: ctx.authorityGateOptions?.cwd ?? ctx.root },
+      );
+      const execution = executePlannedSteps({
+        root: ctx.root,
+        store: ctx.store,
+        jobPlan: jobPlan as ReturnType<typeof buildJobPlan>,
+        maxSteps: args.maxExecuteSteps,
+        authorityGate: authorityGate.evaluator,
+        ...(authorityGate.evaluator ? { gateEvidenceRefResolver: buildGateEvidenceRefResolver(jobPlan as ReturnType<typeof buildJobPlan>) } : {}),
+      });
+      // The single fail-closed completion gate. authorityDone/fullAuthorityDone are
+      // derived ONLY from the executor's verified native gate_decision receipt plus
+      // (for authority/DONE) the required multi-host reconciliation; planner run
+      // performs no multi-host wave, so fullAuthorityDone stays false until that
+      // reconciliation is supplied. Local mode and authority/non-DONE never project
+      // any authority DONE flag.
+      let finalPhase: string | null = null;
+      try {
+        finalPhase = ctx.store.readStory(storyResult.storyId).phase ?? null;
+      } catch {
+        finalPhase = null;
+      }
+      const completion = evaluateAuthorityCompletion({
+        jobPlan: jobPlan as ReturnType<typeof buildJobPlan>,
+        execution,
+        ...(authorityGate.decision ? { gateDecision: authorityGate.decision } : {}),
+        finalPhase,
+      });
+      let finalRecord: PlannerRunRecord;
+      try {
+        finalRecord = readPlannerRun(ctx.root, draft.plannerRunId);
+      } catch {
+        finalRecord = record;
+      }
+      finalRecord.execution = execution;
+      finalRecord.completion = completion;
+      const plannerRunStatus = completion.completed ? execution.status : 'blocked';
+      finalRecord.finalStatus = completion.completed ? 'executed' : 'blocked';
+      finalRecord.updatedAt = new Date().toISOString();
+      saveRecord(ctx, finalRecord);
+      const result = {
+        schemaVersion: 'lattice.planner_run.v1' as const,
+        status: plannerRunStatus,
+        plannerRunId: draft.plannerRunId,
+        storyId: storyResult.storyId,
+        jobPlan,
+        execution,
+        completion,
+        blockingReasons: completion.blockingReasons,
+        receiptRefs: completion.receiptRefs,
+        hostVerdictRefs: completion.hostVerdictRefs,
+        nextAction: completion.nextAction,
+      };
       return wantsJson(args)
-        ? jobPlan
-        : renderLines('Lattice planner run', { plannerRunId: draft.plannerRunId, storyId: storyResult.storyId, status: jobPlan.status ?? 'planned' });
+        ? result
+        : renderLines('Lattice planner run', { plannerRunId: draft.plannerRunId, storyId: storyResult.storyId, status: plannerRunStatus, stopReason: execution.stopReason, completed: completion.completed, authorityDone: completion.authorityDone, fullAuthorityDone: completion.fullAuthorityDone, nextAction: completion.nextAction });
     },
 
     planner_source_manifest(args: { sourceRepo: string; includedPaths?: string[] | string; excludedPaths?: string[] | string } & JsonArgs) {

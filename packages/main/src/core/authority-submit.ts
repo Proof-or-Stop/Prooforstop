@@ -1,4 +1,9 @@
-import { AuthorityClient, type AuthorityClientOutcome } from './authority-client.js';
+import {
+  AuthorityClient,
+  resolveAuthorityClientAuth,
+  type AuthorityClientAuth,
+  type AuthorityClientOutcome,
+} from './authority-client.js';
 import {
   buildTargetBoundEvidenceEnvelope,
   isAuthorityBatchFullyAccepted,
@@ -193,6 +198,7 @@ function batchRejectionReason(data: AuthorityEvidenceBatchSubmissionResult | und
 export function createAuthoritySubmitter(
   settings: AuthoritySettings,
   client?: AuthorityClient,
+  auth: AuthorityClientAuth = resolveAuthorityClientAuth(),
 ): AuthoritySubmitter {
   const mode = settings.mode;
   // Runtime re-validation (CLAUDE.md Handler coding convention): never trust that the caller
@@ -210,7 +216,7 @@ export function createAuthoritySubmitter(
         ),
       };
     }
-    return { client: new AuthorityClient(settings.baseURL, undefined, settings.timeoutMS) };
+    return { client: new AuthorityClient(settings.baseURL, undefined, settings.timeoutMS, auth) };
   }
 
   function handleMissingURL(err: Error): AuthoritySubmitDecision {
@@ -218,6 +224,14 @@ export function createAuthoritySubmitter(
       return { proceed: true, warning: `[warning] authority POST skipped (shadow): ${err.message}` };
     }
     return { proceed: false, error: err };
+  }
+
+  function handleMissingCustomerKey(): AuthoritySubmitDecision {
+    const message = 'LATTICE_AUTHORITY_CUSTOMER_API_KEY or LATTICE_AUTHORITY_CUSTOMER_API_KEY_PATH is required for mutating Authority calls';
+    if (mode === 'shadow') {
+      return { proceed: true, warning: `[warning] authority POST skipped (shadow): ${message}` };
+    }
+    return { proceed: false, error: new Error(message) };
   }
 
   /**
@@ -244,6 +258,7 @@ export function createAuthoritySubmitter(
   return {
     async submitSingle(material) {
       try {
+        if (!auth.customerApiKey?.trim()) return handleMissingCustomerKey();
         const { client: c, missingURLError } = resolveClient();
         if (!c) return handleMissingURL(missingURLError!);
         const outcome = await c.submitEvidence(buildEnvelope(material));
@@ -254,6 +269,7 @@ export function createAuthoritySubmitter(
     },
     async submitBatch(materials) {
       try {
+        if (!auth.customerApiKey?.trim()) return handleMissingCustomerKey();
         const { client: c, missingURLError } = resolveClient();
         if (!c) return handleMissingURL(missingURLError!);
         const outcome = await c.submitEvidenceBatch(materials.map(buildEnvelope));

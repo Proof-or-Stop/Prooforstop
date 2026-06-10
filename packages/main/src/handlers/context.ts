@@ -27,6 +27,18 @@ export interface HandlerContext {
   authoritySubmitter?: import('../core/authority-submit.js').AuthoritySubmitter;
   /** Test seam for autopilot executor command execution. Production uses the built-in argv runner. */
   autopilotCommandRunner?: import('../core/autopilot-executor.js').AutopilotCommandRunner;
+  /**
+   * Authority gate evaluator resolution options for `planner run --mode=authority
+   * --until=DONE`. Production leaves this unset, so `resolveAuthorityGateEvaluator`
+   * reads `process.env` + the real fetch and stays fail-closed (no server config ->
+   * no evaluator -> the executor blocks with authority_gate_decision_receipt_required).
+   * The M15 Natural-Language-To-DONE E2E injects `{ env, fetchImpl, now }` so the full
+   * NL -> Story -> job -> provider -> validate -> evidence -> gate -> verified-receipt
+   * -> authorityDone loop runs deterministically without a live Authority server.
+   * Injecting it never relaxes the gate: a stub that does not return a verified native
+   * gate_decision receipt still blocks exactly as production does.
+   */
+  authorityGateOptions?: import('../core/authority-client.js').AuthorityGateEvaluatorOptions;
 }
 
 const PHASE_TO_EVENT: Record<string, string> = { ...PHASE_EVENT_BY_TARGET };
