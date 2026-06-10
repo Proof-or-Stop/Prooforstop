@@ -115,7 +115,41 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "A developer can run Loop Engineering baseline scenarios and see loop-policy, gate-results, host-verdicts, and final reports that either PASS or block with a specific reason."
+      "userSees": "A developer can run Loop Engineering baseline scenarios and see loop-policy, gate-results, host-verdicts, and final reports that either PASS or block with a specific reason.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-baseline.ts",
+          "packages/main/src/handlers/lattice-baseline.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lattice-baseline-smoke.ts",
+          "packages/main/package.json"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Running Loop Engineering baselines writes loop-policy, gate-results, host-verdict, and final-report artifacts for UDM scenarios.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Evidence-gate and human-handoff scenarios block or escalate with explicit reasons until fresh evidence or human decision exists.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Open review loop, stale evidence, budget exhaustion, or same-host self-certification cannot reach PASS or DONE wording.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
