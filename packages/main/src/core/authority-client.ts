@@ -13,6 +13,10 @@ import {
   buildAuthorityEvidenceSubmission,
 } from './authority-contracts.js';
 import {
+  AuthorityGateReceiptProofSchema,
+  type AuthorityGateReceiptProof,
+} from './authority-gate-receipt-verifier.js';
+import {
   ActorKeyRegistrationSchema,
   AuthorityReceiptSchema,
   JobClaimSchema,
@@ -311,6 +315,27 @@ export class AuthorityClient {
   }
 
   /**
+   * GET a server-relative Authority gate receipt proof.
+   *
+   * This is intentionally a transport + schema fetch only. The caller must run
+   * verifyAuthorityGateReceiptProof() before treating the body as evidence.
+   */
+  async fetchGateReceiptProof(
+    proofPath: string,
+  ): Promise<AuthorityClientOutcome<AuthorityGateReceiptProof>> {
+    assertServerRelativePath(proofPath, 'proofPath');
+    return this.get<AuthorityGateReceiptProof>(
+      proofPath,
+      AuthorityGateReceiptProofSchema,
+      {
+        policyOverclaimGuard: false,
+        label: 'authority receipt proof response',
+        emptyBodyMessage: 'authority receipt proof response body is empty (malformed proof)',
+      },
+    );
+  }
+
+  /**
    * Generic GET helper — parallel to `post()` but reads no body and sends no
    * request body. Returns the same outcome taxonomy (success / http_error /
    * timeout / connection_refused / error).
@@ -321,7 +346,13 @@ export class AuthorityClient {
   private async get<T>(
     path: string,
     schema?: ZodType<T>,
+    options: {
+      policyOverclaimGuard?: boolean;
+      label?: string;
+      emptyBodyMessage?: string;
+    } = {},
   ): Promise<AuthorityClientOutcome<T>> {
+    const label = options.label ?? 'authority policy response';
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), this.timeoutMS);
     let response: AuthorityFetchResponse;
@@ -358,7 +389,7 @@ export class AuthorityClient {
         kind: 'error',
         ok: false,
         status: response.status,
-        message: 'authority policy response body is empty (malformed policy)',
+        message: options.emptyBodyMessage ?? `${label} body is empty (malformed body)`,
       };
     }
 
@@ -369,15 +400,17 @@ export class AuthorityClient {
       return classifyThrown<T>(error);
     }
 
-    // Overclaim guard (M1): reject if any overclaim key is present at top level.
-    const overclaim = detectPolicyOverclaim(parsed);
-    if (overclaim !== undefined) {
-      return {
-        kind: 'error',
-        ok: false,
-        status: response.status,
-        message: `authority policy response contains overclaim key "${overclaim}": policy discovery cannot include evidence-submission fields (${AUTHORITY_POLICY_OVERCLAIM_KEYS.join(', ')})`,
-      };
+    if (options.policyOverclaimGuard !== false) {
+      // Overclaim guard (M1): reject if any overclaim key is present at top level.
+      const overclaim = detectPolicyOverclaim(parsed);
+      if (overclaim !== undefined) {
+        return {
+          kind: 'error',
+          ok: false,
+          status: response.status,
+          message: `authority policy response contains overclaim key "${overclaim}": policy discovery cannot include evidence-submission fields (${AUTHORITY_POLICY_OVERCLAIM_KEYS.join(', ')})`,
+        };
+      }
     }
 
     if (!schema) {
@@ -390,7 +423,7 @@ export class AuthorityClient {
         kind: 'error',
         ok: false,
         status: response.status,
-        message: `authority policy response failed schema validation (malformed body): ${result.error.message}`,
+        message: `${label} failed schema validation (malformed body): ${result.error.message}`,
         cause: result.error,
       };
     }
@@ -571,6 +604,13 @@ const JobSpecOrNullSchema: ZodType<JobSpec | null> =
 function assertNonEmpty(value: string, label: string): void {
   if (typeof value !== 'string' || value.trim().length === 0) {
     throw new Error(`${label} must be a non-empty string`);
+  }
+}
+
+function assertServerRelativePath(value: string, label: string): void {
+  assertNonEmpty(value, label);
+  if (!value.startsWith('/') || /^https?:\/\//i.test(value)) {
+    throw new Error(`${label} must be a server-relative path starting with /`);
   }
 }
 
