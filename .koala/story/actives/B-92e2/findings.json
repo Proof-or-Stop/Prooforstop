@@ -50,6 +50,22 @@
       "files": [
         "packages/main/src/core/lattice-baseline.ts"
       ]
+    },
+    {
+      "id": "B-92e2:F-004",
+      "desc": "packages/main/src/core/lattice-baseline.ts:1045 parseFinalReport accepts any non-empty status string, so malformed final-report artifacts are not rejected. I seeded a full engineering layer where ENG-BUGFIX-1 used status=\"totally-wrong\"; baseline_suite_report still returned suiteStatus=PASS and marked that artifact accepted. Fix by validating status against pass|blocked|failed|not_authorized before accepting the report, and refuse malformed status values fail-closed.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-10T02:21:01.086Z",
+      "reviewRound": "2026-06-10T02:16:02.008Z",
+      "reviewRunId": "B-92e2:RR-003",
+      "_hash": "b0accfc15c070c6f7e1aab93647bd9cbfd6d02835f76be09c5854da6787596ec",
+      "files": [
+        "packages/main/src/core/lattice-baseline.ts"
+      ]
     }
   ]
 }
