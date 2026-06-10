@@ -60,7 +60,7 @@
       "desc": "CHK-001 verificationEvidence covers happy/edge/adversarial content, but it is still stale for the latest story HEAD. All three docs_check entries in CHK-001 record headHash=4e9ec4e852d3c8218ec4588dc1fa849eedcbaccd and timestamps around 2026-06-10T02:44:50Z, while the current story HEAD is b28f03ea758aad85dfed15926b585e5b8f990314. WHY: B-c5fe:F-001 was resolved on the claim that the docs evidence was refreshed to current HEAD/materialHash, but the stored evidence does not match the current revision, so there is no fresh proof on the latest story state even though the document content still appears to satisfy CHK-001 happy/edge/adversarial intent.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-06-10T02:47:45.615Z",
@@ -69,7 +69,9 @@
       "_hash": "1f7348f9899609f4a1099b8e7f98eb52bc1e24e44c78d98033b4be244d418bca",
       "files": [
         "docs/requirements/decisions/authority-session-receipt-gate-execution.md"
-      ]
+      ],
+      "resolvedReason": "Mechanical freshness check `lattice verification_evidence_refresh_stale {\"storyId\":\"B-c5fe\",\"dryRun\":true}` reports `No stale verification evidence for B-c5fe`. Evidence headHash differs only across story metadata/review commits; stored materialHash still matches the current material tree, which is the gate freshness semantics in evidence-freshness.ts.",
+      "resolvedAt": "2026-06-10T02:48:48.682Z"
     }
   ]
 }
