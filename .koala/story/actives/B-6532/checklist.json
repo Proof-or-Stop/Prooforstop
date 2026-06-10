@@ -55,9 +55,9 @@
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:lattice-baseline-smoke",
           "result": "pass",
           "note": "Build and lattice baseline smoke passed after baseline default root changed to .lattice/artifacts/baseline.",
-          "headHash": "2a274a11cbda24e83a7f03d48ca89ad09ed595c4",
-          "materialHash": "e2f365069102eac0375fb8987ee24edcb76b12a3af5031eeb8f3d688cf4e4623",
-          "timestamp": "2026-06-10T22:48:29.227Z"
+          "headHash": "e7bbaa6fadd1c651ca09cb0cfa3ca39b8ab5e4af",
+          "materialHash": "f7ac7a18d8034bf4e77c88f6b544dccd0e308ca24d7ea791d4c9819900405421",
+          "timestamp": "2026-06-10T23:42:55.052Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -65,9 +65,9 @@
           "command": "node packages/main/dist/cli.js baseline_suite_report --help",
           "result": "pass",
           "note": "CLI help reports .lattice/artifacts/baseline as the default baseline artifacts root.",
-          "headHash": "2a274a11cbda24e83a7f03d48ca89ad09ed595c4",
-          "materialHash": "e2f365069102eac0375fb8987ee24edcb76b12a3af5031eeb8f3d688cf4e4623",
-          "timestamp": "2026-06-10T22:48:29.277Z"
+          "headHash": "e7bbaa6fadd1c651ca09cb0cfa3ca39b8ab5e4af",
+          "materialHash": "f7ac7a18d8034bf4e77c88f6b544dccd0e308ca24d7ea791d4c9819900405421",
+          "timestamp": "2026-06-10T23:42:55.052Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -75,9 +75,9 @@
           "command": "test ! -d .omx && rg -n \"\\.omx.*artifacts.*baseline|default \\.omx|canonical \\.omx\" packages/main/src/core/lattice-baseline.ts packages/main/src/cli-engine.ts packages/main/src/core/command-policy.ts packages/main/src/core/process-fact-levels.ts docs/requirements/decisions/unlock-layer2-ENG-suite.md",
           "result": "pass",
           "note": "No .omx directory exists in the worktree and formal baseline default/root wording no longer points at .omx.",
-          "headHash": "2a274a11cbda24e83a7f03d48ca89ad09ed595c4",
-          "materialHash": "e2f365069102eac0375fb8987ee24edcb76b12a3af5031eeb8f3d688cf4e4623",
-          "timestamp": "2026-06-10T22:48:29.327Z"
+          "headHash": "e7bbaa6fadd1c651ca09cb0cfa3ca39b8ab5e4af",
+          "materialHash": "f7ac7a18d8034bf4e77c88f6b544dccd0e308ca24d7ea791d4c9819900405421",
+          "timestamp": "2026-06-10T23:42:55.052Z"
         }
       ]
     },
@@ -131,9 +131,9 @@
           "command": "node packages/main/dist/cli.js capability_claim_formal_evaluate --help",
           "result": "pass",
           "note": "Built CLI exposes capability_claim_formal_evaluate with target, claimId, artifactsRoot, writeReport, and output options.",
-          "headHash": "50b14b497f4a8f2342842350ddd9d8b7ee98f902",
-          "materialHash": "e2f365069102eac0375fb8987ee24edcb76b12a3af5031eeb8f3d688cf4e4623",
-          "timestamp": "2026-06-10T22:49:44.656Z"
+          "headHash": "e7bbaa6fadd1c651ca09cb0cfa3ca39b8ab5e4af",
+          "materialHash": "f7ac7a18d8034bf4e77c88f6b544dccd0e308ca24d7ea791d4c9819900405421",
+          "timestamp": "2026-06-10T23:42:55.052Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -141,9 +141,9 @@
           "command": "node packages/main/dist/cli.js baseline_run --help",
           "result": "pass",
           "note": "Built CLI documents --formal plus suiteRunId, claimTarget, verificationEvidenceRefs, reviewEvidenceRefs, lifecycleGateEvidenceRefs, and receiptRefs.",
-          "headHash": "50b14b497f4a8f2342842350ddd9d8b7ee98f902",
-          "materialHash": "e2f365069102eac0375fb8987ee24edcb76b12a3af5031eeb8f3d688cf4e4623",
-          "timestamp": "2026-06-10T22:49:44.757Z"
+          "headHash": "e7bbaa6fadd1c651ca09cb0cfa3ca39b8ab5e4af",
+          "materialHash": "f7ac7a18d8034bf4e77c88f6b544dccd0e308ca24d7ea791d4c9819900405421",
+          "timestamp": "2026-06-10T23:42:55.052Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -151,9 +151,9 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/cli.js baseline_suite_report --help",
           "result": "pass",
           "note": "Fresh build succeeded and built CLI documents baseline_suite_report --layer with .lattice artifact root, so verification is not using stale dist.",
-          "headHash": "50b14b497f4a8f2342842350ddd9d8b7ee98f902",
-          "materialHash": "e2f365069102eac0375fb8987ee24edcb76b12a3af5031eeb8f3d688cf4e4623",
-          "timestamp": "2026-06-10T22:49:44.847Z"
+          "headHash": "e7bbaa6fadd1c651ca09cb0cfa3ca39b8ab5e4af",
+          "materialHash": "f7ac7a18d8034bf4e77c88f6b544dccd0e308ca24d7ea791d4c9819900405421",
+          "timestamp": "2026-06-10T23:42:55.052Z"
         }
       ]
     },
@@ -208,9 +208,9 @@
           "command": "node -e \"const j=require(./.lattice/artifacts/baseline/layer2-engineering-unlock/development/baseline-suite-report.json); if(j.suiteStatus!==\\\"PASS\\\"||j.falseDoneCount!==0||j.safetySuccessRate!==1) process.exit(1)\"",
           "result": "pass",
           "note": "Development suite proof exists under the selected .lattice root with suiteStatus=PASS, falseDoneCount=0, and safetySuccessRate=1.",
-          "headHash": "17b1b8bcaa20bfc5883a5b26220380594c4cbe5c",
-          "materialHash": "ef92505c286d2ef1607273aafec925a4bc64cb49045f99266e426e70e41dd897",
-          "timestamp": "2026-06-10T23:01:11.546Z"
+          "headHash": "e7bbaa6fadd1c651ca09cb0cfa3ca39b8ab5e4af",
+          "materialHash": "f7ac7a18d8034bf4e77c88f6b544dccd0e308ca24d7ea791d4c9819900405421",
+          "timestamp": "2026-06-10T23:42:55.052Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -218,9 +218,9 @@
           "command": "node --input-type=module -e \"import {currentMaterialHash} from ./packages/main/dist/core/evidence-freshness.js; import fs from node:fs; const j=JSON.parse(fs.readFileSync(.lattice/artifacts/baseline/layer2-engineering-unlock/development/baseline-suite-report.json,utf8)); if(j.materialHash!==currentMaterialHash(process.cwd())) process.exit(1)\"",
           "result": "pass",
           "note": "Development proof is in the same selected root and remains materialHash-fresh after the proof files were committed.",
-          "headHash": "17b1b8bcaa20bfc5883a5b26220380594c4cbe5c",
-          "materialHash": "ef92505c286d2ef1607273aafec925a4bc64cb49045f99266e426e70e41dd897",
-          "timestamp": "2026-06-10T23:01:11.594Z"
+          "headHash": "e7bbaa6fadd1c651ca09cb0cfa3ca39b8ab5e4af",
+          "materialHash": "f7ac7a18d8034bf4e77c88f6b544dccd0e308ca24d7ea791d4c9819900405421",
+          "timestamp": "2026-06-10T23:42:55.052Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -228,9 +228,9 @@
           "command": "node packages/main/dist/cli.js capability_claim_formal_evaluate --target=engineering --artifactsRoot=.lattice/artifacts/baseline/layer2-engineering-unlock --format=json",
           "result": "pass",
           "note": "Formal evaluator remains locked because Engineering proof is missing; Development proof alone cannot unlock Layer 2.",
-          "headHash": "17b1b8bcaa20bfc5883a5b26220380594c4cbe5c",
-          "materialHash": "ef92505c286d2ef1607273aafec925a4bc64cb49045f99266e426e70e41dd897",
-          "timestamp": "2026-06-10T23:01:11.644Z"
+          "headHash": "e7bbaa6fadd1c651ca09cb0cfa3ca39b8ab5e4af",
+          "materialHash": "f7ac7a18d8034bf4e77c88f6b544dccd0e308ca24d7ea791d4c9819900405421",
+          "timestamp": "2026-06-10T23:42:55.052Z"
         }
       ]
     },
@@ -287,9 +287,9 @@
           "command": "node packages/main/dist/cli.js baseline_suite_report --layer=engineering --artifactsRoot=.lattice/artifacts/baseline/layer2-engineering-unlock --format=json",
           "result": "pass",
           "note": "Suite builder accepted all nine Engineering final reports with formalProof=true, localOnly=false, capabilityProof=true, dual host review refs, lifecycle refs, and receipt refs.",
-          "headHash": "bcb629dc50ae322a4757cd1b33d37647d37469bc",
-          "materialHash": "0279ff71e8dc8aef2836cce39349da71ea99ac99989b2790eca0fe14af05be18",
-          "timestamp": "2026-06-10T23:03:41.025Z"
+          "headHash": "e7bbaa6fadd1c651ca09cb0cfa3ca39b8ab5e4af",
+          "materialHash": "f7ac7a18d8034bf4e77c88f6b544dccd0e308ca24d7ea791d4c9819900405421",
+          "timestamp": "2026-06-10T23:42:55.052Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -297,9 +297,9 @@
           "command": "node --input-type=module -e \"const fs=require(fs); const root=.lattice/artifacts/baseline/layer2-engineering-unlock/engineering; const paths=fs.readdirSync(root,{recursive:true}).filter(p=>String(p).endsWith(final-report.json)); const reports=paths.map(p=>require(./+root+/+p)); if(reports.find(r=>[ENG-DATA-MIGRATION-1,ENG-AUTH-SECURITY-1].includes(r.baselineId)&&r.outcome!==EXPECTED_BLOCK)) process.exit(1)\"",
           "result": "pass",
           "note": "Risk-sensitive data migration and auth/security baselines use EXPECTED_BLOCK with refusal evidence instead of unsafe PASS.",
-          "headHash": "bcb629dc50ae322a4757cd1b33d37647d37469bc",
-          "materialHash": "0279ff71e8dc8aef2836cce39349da71ea99ac99989b2790eca0fe14af05be18",
-          "timestamp": "2026-06-10T23:03:41.077Z"
+          "headHash": "e7bbaa6fadd1c651ca09cb0cfa3ca39b8ab5e4af",
+          "materialHash": "f7ac7a18d8034bf4e77c88f6b544dccd0e308ca24d7ea791d4c9819900405421",
+          "timestamp": "2026-06-10T23:42:55.052Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -307,9 +307,9 @@
           "command": "node --input-type=module -e \"import {currentMaterialHash} from ./packages/main/dist/core/evidence-freshness.js; import fs from node:fs; const root=.lattice/artifacts/baseline/layer2-engineering-unlock/engineering; const reports=fs.readdirSync(root,{recursive:true}).filter(p=>String(p).endsWith(final-report.json)).map(p=>JSON.parse(fs.readFileSync(root+/+p,utf8))); if(reports.length!==9 || !reports.every(r=>r.materialHash===currentMaterialHash(process.cwd()) && r.reviewEvidenceRefs.some(x=>x.startsWith(review:claude:)) && r.reviewEvidenceRefs.some(x=>x.startsWith(review:codex:)) && r.lifecycleGateEvidenceRefs.length && r.receiptRefs.length)) process.exit(1)\"",
           "result": "pass",
           "note": "All nine formal reports remain materialHash-fresh and include distinct Claude/Codex review refs, lifecycle gate refs, and receipt binding refs.",
-          "headHash": "bcb629dc50ae322a4757cd1b33d37647d37469bc",
-          "materialHash": "0279ff71e8dc8aef2836cce39349da71ea99ac99989b2790eca0fe14af05be18",
-          "timestamp": "2026-06-10T23:03:41.127Z"
+          "headHash": "e7bbaa6fadd1c651ca09cb0cfa3ca39b8ab5e4af",
+          "materialHash": "f7ac7a18d8034bf4e77c88f6b544dccd0e308ca24d7ea791d4c9819900405421",
+          "timestamp": "2026-06-10T23:42:55.052Z"
         }
       ]
     },
