@@ -1,0 +1,45 @@
+{
+  "storyId": "B-6532",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/lattice-baseline.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
+    "packages/main/src/handlers/lattice-baseline.ts",
+    "packages/main/dist/**",
+    "packages/main/src/tasks/lattice-baseline-smoke.ts",
+    ".koala/story/actives/B-6532/**"
+  ],
+  "allowedCreate": [
+    ".lattice/artifacts/baseline/layer2-engineering-unlock/**",
+    ".lattice/artifacts/baseline/layer2-engineering-unlock/development/baseline-suite-report.json",
+    ".lattice/artifacts/baseline/layer2-engineering-unlock/development/baseline-suite-report.md",
+    ".lattice/artifacts/baseline/layer2-engineering-unlock/engineering/**/final-report.json",
+    ".lattice/artifacts/baseline/layer2-engineering-unlock/engineering/**/final-report.md",
+    ".lattice/artifacts/baseline/layer2-engineering-unlock/engineering/baseline-suite-report.json",
+    ".lattice/artifacts/baseline/layer2-engineering-unlock/engineering/baseline-suite-report.md",
+    ".lattice/artifacts/baseline/layer2-engineering-unlock/capability-claim/**/claim-report.json",
+    ".lattice/artifacts/baseline/layer2-engineering-unlock/capability-claim/**/claim-report.md",
+    ".lattice/artifacts/baseline/layer2-engineering-unlock/fail-closed-traps/**",
+    ".lattice/artifacts/baseline/layer2-engineering-unlock/reviews/**"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/lattice-baseline-smoke.ts",
+    "node packages/main/dist/cli.js validate --story=B-6532"
+  ],
+  "protectedFiles": [
+    "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+    "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
+    "docs/requirements/decisions/lattice-unattended-completion-plan.md"
+  ],
+  "explicitExcludes": [
+    ".omx/**",
+    "docs/koala/framework-audit/2026-06-10/**"
+  ],
+  "scopeChangeReason": "Layer2 unlock may edit baseline formal proof code/tests/docs and create .lattice proof artifacts only; Authority contract docs and unrelated framework audit output stay protected.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-10T22:32:56.682Z",
+  "updatedAt": "2026-06-10T22:32:56.682Z"
+}
