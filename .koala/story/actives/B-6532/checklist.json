@@ -57,7 +57,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Terminal output from node packages/main/dist/cli.js help shows baseline_run --formal, baseline_suite_report --layer, and capability_claim_formal_evaluate are available.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-baseline.ts",
+          "packages/main/src/handlers/lattice-baseline.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/dist/**"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lattice-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After npm run build, node packages/main/dist/cli.js exposes capability_claim_formal_evaluate help successfully.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "baseline_run --help documents --formal and proof refs after build.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A stale dist build no longer hides the formal Layer2 commands during verification.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
