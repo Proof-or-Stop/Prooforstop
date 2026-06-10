@@ -4,7 +4,7 @@
   "title": "补齐 Layer 1 Development baseline formal proof 独立审查证据",
   "description": "为 B-688d 的五个 expected-PASS Development baseline run 补齐 Codex CLI 与 Claude CLI 两个宿主的本地独立 review evidence，使 localReviewCertified 从 false 变为 true、suite 从 FAIL 变为可证明 PASS；同时保持 RED-GAP-BLOCK-1 为 EXPECTED_BLOCK，保持 authorityMode=off/evidenceClass=local-lifecycle，不宣称 Engineering/Loop/Production 或 Authority DONE。",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "riskSignals": [
     {
@@ -51,6 +51,15 @@
       "branch": "story/B-6a97",
       "user": "Harmonygo",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-10T01:12:01.426Z",
+      "branch": "story/B-6a97",
+      "user": "Harmonygo",
+      "agent": "main"
     }
-  ]
+  ],
+  "currentReviewRound": "2026-06-10T01:12:01.426Z"
 }
