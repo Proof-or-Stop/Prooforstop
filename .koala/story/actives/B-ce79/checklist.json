@@ -51,7 +51,37 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees lower-layer Development proof pinned or ingested in the selected artifacts root, with stale or missing proof reported as blocked.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-baseline.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lattice-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Engineering suite consumes fresh Development lower-layer proof from the selected artifacts root or digest-pinned equivalent.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Missing Development proof keeps Engineering suite BLOCKED.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Stale or mismatched lower-layer proof is refused and cannot unlock Layer 2.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
