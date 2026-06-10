@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-10T02:50:46.478Z",
       "reviewRunId": "B-c5fe:RR-011",
       "_hash": "b35d0fa75d0460d2dfdbf89e8883ce15abc905ac8eed8f84b0c8cb6a1563dd36"
+    },
+    {
+      "id": "B-c5fe:RP-007",
+      "agent": "koala-review-concept",
+      "note": "Pass. docs/requirements/decisions/authority-session-receipt-gate-execution.md:134-144 now separates eligible gates from actual consumption events, closing the prior ambiguity around static receipt eligibility vs gate consumption. The same doc at lines 344-374 now makes Phase 3 and Phase 4 contingent on explicit enforce-mode product approval and confines them to the isolated koala authority enforce path, which matches docs/requirements/decisions/authority-client-role.md:20-21,27-30,401-417 and preserves the ordinary CLI boundary.",
+      "createdAt": "2026-06-10T02:52:53.689Z",
+      "reviewRound": "2026-06-10T02:50:46.478Z",
+      "reviewRunId": "B-c5fe:RR-010",
+      "_hash": "697923fb6fffdccc414f87e8fea4c606d7ccc456264121ac8b3755567752ce63"
     }
   ]
 }
