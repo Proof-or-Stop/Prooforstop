@@ -59,7 +59,7 @@ Koala 给可执行主流程 phase 一个稳定编号，用于 `koala status` 展
 | PLAN | 拆解和验收意图 | cwd 在 worktree；高风险 story 要 understanding + decision/preMortem | understanding、checklist、verificationIntent、decision |
 | DEV | 实现和记录证据 | PLAN/review gate 允许 | 代码、checklist status、verificationEvidence |
 | REVIEW | 独立审查 | DEV checklist 已完成、改动已提交 | reviewer findings、coverage reviewer result / review pass |
-| TEST | 自动验证 | REVIEW blocker 已解决，preflight gate 通过 | `koala validate` evidence、bug/test runs |
+| TEST | 自动验证 | REVIEW blocker 已解决，preflight gate 通过 | `lattice validate` evidence、bug/test runs（legacy alias: `koala validate`） |
 | DONE | 收束 | validate PASS、bug fixed、evidence fresh、summary/delivery gate 通过、branch 包含 main | merge main、清理 worktree、summary |
 | DISCARDED | 已废弃 | `story_discard` | discard event、清理结果 |
 
@@ -80,7 +80,7 @@ canonical 命令模板与设计约束详见 CLAUDE.md「INIT→INIT_CHECK 硬门
 ## 自动回退
 
 - **REVIEW fail**：finding 或 coverage reviewer lane 发现问题时回 DEV。
-- **TEST fail**：`koala validate` 失败后写 bug/evidence，修复路径回 DEV。
+- **TEST fail**：`lattice validate` 失败后写 bug/evidence，修复路径回 DEV。
 - **DONE gate fail**：保留在 TEST，按 DONE checklist 的失败项补 evidence、summary、delivery check、main sync 或 git clean。
 
 回退后主 agent 应先读失败证据，再决定改代码、补 evidence、补文档还是调整 checklist。不要用解释替代修复。
@@ -175,12 +175,12 @@ B-xxxx REVIEW (authority:worktree, mirror:INIT_CHECK)
 - **门禁不可跳过**：REVIEW/TEST/DONE 都必须由确定性 gate 判定。
 - **verificationIntent 前置**：PLAN 记录 happy/edge/adversarial 验收意图。
 - **verificationEvidence 跟随实现**：DEV/REVIEW/TEST 挂真实证据，不再把测试阶段拆成旧 `TEST_CASE` 流程。
-- **Grill 只澄清意图**：`grill_start` / `grill_record` / `grill_close` 写 PLAN 阶段的 `grill.json` planning artifact，`grill_get` 可全阶段读取。Grill clarifies intent; evidence proves behavior. Grill transcript 不能替代 `verificationEvidence`、review pass、delivery check 或 `koala validate` validation evidence。
+- **Grill 只澄清意图**：`grill_start` / `grill_record` / `grill_close` 写 PLAN 阶段的 `grill.json` planning artifact，`grill_get` 可全阶段读取。Grill clarifies intent; evidence proves behavior. Grill transcript 不能替代 `verificationEvidence`、review pass、delivery check 或 `lattice validate` validation evidence。
 - **evidence kind 允许自然 aliases**：持久化 kind 仍是 `logic_test` / `manual_transcript` 等规范值；CLI 接受 `logic`→`logic_test`、`cli`→`manual_transcript`，避免 plan.md 和命令表面口径打架。
-- **DONE evidence 必须新鲜**：`koala validate --story` 写入测试运行时的 git HEAD/material hash。DONE gate 比对当前 story 分支，验证语义相关文件变化会让旧 evidence stale。
-- **stale evidence 不能被“测试通过”覆盖**：`koala validate` 如果发现 verification coverage missing/stale，JSON 必须是 `allPass:false`，提示也必须指向补 evidence，而不是说“验证全绿”。可用 `verification_evidence_refresh_stale --storyId=B-xxx --dryRun` 查看需刷新项；重跑对应验证命令后去掉 dryRun 刷新 metadata。
+- **DONE evidence 必须新鲜**：`lattice validate --story` 写入测试运行时的 git HEAD/material hash。DONE gate 比对当前 story 分支，验证语义相关文件变化会让旧 evidence stale。
+- **stale evidence 不能被“测试通过”覆盖**：`lattice validate` 如果发现 verification coverage missing/stale，JSON 必须是 `allPass:false`，提示也必须指向补 evidence，而不是说“验证全绿”。可用 `verification_evidence_refresh_stale --storyId=B-xxx --dryRun` 查看需刷新项；重跑对应验证命令后去掉 dryRun 刷新 metadata。
 - **Gate oracle 与 renderer 分离**：DONE pre-check 等 gate 输出必须先形成稳定 row contract（`id/status/detail/hint/source/blocking`），`status` / `session_brief` / `next` 只渲染这些 row。展示层不能用 phase 或 label 文案复制一份 gate 规则。
-- **下一步提示必须 phase-aware**：`koala validate` 通过只代表验证命令通过，不代表可以跨过当前 phase。DEV 通过后提示 commit + REVIEW，REVIEW 通过后提示 TEST，TEST 通过后仍要渲染 DONE pre-check 的失败 row 和补救 hint。
+- **下一步提示必须 phase-aware**：`lattice validate` 通过只代表验证命令通过，不代表可以跨过当前 phase。DEV 通过后提示 commit + REVIEW，REVIEW 通过后提示 TEST，TEST 通过后仍要渲染 DONE pre-check 的失败 row 和补救 hint。
 - **流程事实必须双层保护**：prompt 只负责指导 agent 调用正确命令；CLI / handler / gate 必须硬编码兜底，负责 schema、runtime 归一、签名、hash、evidence fresh check 和拒绝策略。该原则只覆盖流程事实：phase / state transition、pass / no-issue confirmation、review run / finding category / role / severity、verification evidence、init / scope / delivery check、REVIEW / TEST / DONE gate artifact。普通解释性 prose 不应被当作流程证据。
 - **流程事实需要 typed registry**：`packages/main/src/core/process-fact-registry.ts` 从 `COMMAND_POLICIES` 与 `PROCESS_FACT_LEVELS` 机械组装 command fact，并显式覆盖 reviewer lane、artifact、required semantic facts（如 validation-status、verification-evidence、review-pass、finding-state）。维护者新增 gate、reviewer lane 或 artifact 时，必须先让 registry 和 contract verifier 同步更新。
 - **生命周期事实需要 typed registry**：`packages/main/src/core/lifecycle-registry.ts` 是 phase/order、legacy alias、transition event、rollback edge、gate/effect/oracle row id 的只读登记表。`phase-flow.ts`、`handlers/context.ts` 和 focused smoke 必须从这张表投影或校验；维护者改 phase/event/command policy 时，测试失败应直接点名 `Lifecycle registry mismatch`，不能让多张表静默漂移。
@@ -228,7 +228,7 @@ B-xxxx REVIEW (authority:worktree, mirror:INIT_CHECK)
 | `checklist_add` | 必要时追加 item，并补 verificationIntent；PLAN 阶段必须提供 replan/scope audit reason |
 | `checklist_update` | 可改 status + verificationIntent + verificationEvidence |
 | `fixture_batch_add` / `fixture_update` | legacy/compat 维护入口，只用于旧 fixture 或迁移；新流程用 `checklist_update` 补 `verificationEvidence` |
-| `koala validate` | 可手动预检，正式 evidence 在 TEST gate 写入 |
+| `lattice validate` | 可手动预检，正式 evidence 在 TEST gate 写入 |
 | `story_advance -> REVIEW` | checklist 完成且改动提交后推进 |
 
 ### REVIEW
@@ -246,7 +246,7 @@ B-xxxx REVIEW (authority:worktree, mirror:INIT_CHECK)
 
 | 工具 | 行为 |
 |---|---|
-| `koala validate` | 标准验证，写 validation evidence |
+| `lattice validate` | 标准验证，写 validation evidence |
 | `verification_evidence_refresh_stale` | 根据 coverage 报告刷新 stale evidence 的 HEAD/material hash |
 | `bug_report` / `bug_update` / `bug_list` | 管理验证失败产生的 bug |
 | `summary_set` | 写 DONE 前用户价值、actual transcript、diff、outcomeKind 和使用说明 |
@@ -255,7 +255,7 @@ B-xxxx REVIEW (authority:worktree, mirror:INIT_CHECK)
 
 ### 关键行为差异
 
-- `koala validate`：TEST gate 消费其结果作为 validation evidence。
+- `lattice validate`：TEST gate 消费其结果作为 validation evidence。
 - `verification_evidence_refresh_stale`：只刷新已经 stale 且原 evidence 仍存在的 intentRef；它不会替你证明测试真的跑过，因此 dry-run 输出里的 command 应先重跑。
 - `fixture_*`：legacy/compat 维护入口；DEV 如需迁移旧 fixture 可用，但新 story 不应把它当作标准验证流。REVIEW/TEST 主要读取 `verificationEvidence`，不应绕过 review 改行为。
 - `checklist_update`：PLAN 补 intent，DEV 补 status/evidence，其余阶段谨慎使用。

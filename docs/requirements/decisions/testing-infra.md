@@ -7,11 +7,11 @@
 1. PLAN 阶段为每个 checklist item 记录 happy/edge/adversarial `verificationIntent`。
 2. DEV 阶段实现代码，并通过 `checklist_update` 记录 `verificationEvidence`（命令、摘要、intentRef、hash 等）。
 3. REVIEW 阶段由 reviewer agent/lane（包含 `koala-review-test-coverage` 覆盖审查 lane）检查实现与 evidence 覆盖。
-4. TEST 阶段运行 `koala validate`，写 validation evidence、bug、stale/missing evidence 结果。
+4. TEST 阶段运行 `lattice validate`，写 validation evidence、bug、stale/missing evidence 结果。
 
 ### 项目原生验证
 
-优先使用项目自己的验证命令（如 `npm test`、`pytest`、`go test`、`cargo test`）产出 evidence。Koala 不要求所有项目都有 TypeScript `validate.ts`，也不要求通过 fixture 才算验证。
+优先使用项目自己的验证命令（如 `npm test`、`pytest`、`go test`、`cargo test`）产出 evidence。Lattice 不要求所有项目都有 TypeScript `validate.ts`，也不要求通过 fixture 才算验证。
 
 ### 浏览器真机测试
 
@@ -29,11 +29,11 @@
 
 ### Legacy fixture 兼容
 
-`test_auto` / `test_story` / `test_fixture` / `fixture_batch_add` / `fixture_update` / `test_add` / `task_coverage` 是旧 fixture/test 家族，保留给旧 story、迁移、诊断和维护。它们不是当前 story 的默认流程；新流程应优先使用 `verificationIntent`、`verificationEvidence` 和 `koala validate`。
+`test_auto` / `test_story` / `test_fixture` / `fixture_batch_add` / `fixture_update` / `test_add` / `task_coverage` 是旧 fixture/test 家族，保留给旧 story、迁移、诊断和维护。它们不是当前 story 的默认流程；新流程应优先使用 `verificationIntent`、`verificationEvidence` 和 `lattice validate`。
 
 ## 测试执行
 
-`koala validate` 是项目级验证入口，不能假设所有项目都有 TypeScript
+`lattice validate` 是项目级验证入口，不能假设所有项目都有 TypeScript
 `validate.ts`。执行优先级：
 
 1. 项目根目录存在 `validate.ts` / `validate.js` / `validate.mts` 时，按原 D/M/F verifier 路径执行。
@@ -42,11 +42,11 @@
    - **Swift / Package.swift 不在自动 fallback 列表**：Mac Native App 已退役，不再作为当前产品入口；如需运行 `swift test` 必须在 `lattice.config.json`（或 legacy `koala.config.json`）显式声明 `validate.commands` 条目。
 4. 仍找不到验证入口时返回 `warn/skip`，不把 Python/Go/C++ 等非 TS 项目误判为失败；需要强门禁的项目必须显式配置验证命令。
 
-`koala validate` 的成功提示必须使用当前 story phase 和 gate oracle，而不是硬编码 DONE：
+`lattice validate` 的成功提示必须使用当前 story phase 和 gate oracle，而不是硬编码 DONE：
 DEV 阶段通过后提示提交并进入 REVIEW；REVIEW 阶段通过后提示进入 TEST；
 TEST 阶段通过后提示查看 DONE pre-check，并按失败 row 的 hint 补 summary、delivery check、dirty tree、missing/stale `verificationEvidence` 等门禁项。
 
-REVIEW→TEST 的验证入口必须 fail-closed。`review-preflight` import/runtime 异常、`koala validate` handler 执行异常或 JSON 解析异常都属于 gate infrastructure failure，必须阻止进入 TEST，并输出 `Cannot enter TEST` 加可复跑命令；不能把这些异常降级成 warning。找不到验证入口但由 validate policy 明确返回的 `warn/skip` 仍按 validate JSON 语义处理，区别于 runner 自身崩溃。
+REVIEW→TEST 的验证入口必须 fail-closed。`review-preflight` import/runtime 异常、`lattice validate` handler 执行异常或 JSON 解析异常都属于 gate infrastructure failure，必须阻止进入 TEST，并输出 `Cannot enter TEST` 加可复跑命令；不能把这些异常降级成 warning。找不到验证入口但由 validate policy 明确返回的 `warn/skip` 仍按 validate JSON 语义处理，区别于 runner 自身崩溃。
 
 验证相关的流程事实必须登记在 `packages/main/src/core/process-fact-registry.ts`：
 `validate` 代表 `validation-status`，`verification_evidence_*` 代表
@@ -69,7 +69,7 @@ Legacy `test_auto` 是兼容 runner，不是统一入口。当前 handler 只负
 5. 采集 V8 profiler trace，检测调用链变化并输出 warnings
 6. 汇总 total / passed / failed / warnings / trace 快照等结果
 
-它不会写 `bug.json`，也不会写 `test-evidence.json` / `verificationEvidence`。bug 管理和 validation evidence 写入属于 `koala validate` / gate 或显式 bug/evidence 命令；真实 legacy 维护运行仍可能执行 workspace-destructive cleanup（`git restore . && git clean -fd`）。
+它不会写 `bug.json`，也不会写 `test-evidence.json` / `verificationEvidence`。bug 管理和 validation evidence 写入属于 `lattice validate` / gate 或显式 bug/evidence 命令；真实 legacy 维护运行仍可能执行 workspace-destructive cleanup（`git restore . && git clean -fd`）。
 
 Outcome semantics 的 focused smoke 覆盖 dashboard/session wording、`summary_set.outcomeKind` schema、verification evidence verdict 渲染，以及 worktree authority wording：
 
@@ -97,16 +97,16 @@ npm --prefix packages/main run test:outcome-semantics-smoke
 `command`、`args`、`code`、`durationMs`、`output`，以及需要 shell 语义时的
 `shell=true`。字符串命令里包含 `cd`/`&&`/管道/重定向等 shell 语义时，Koala 会把它
 作为一个有意的 shell receipt 执行；结构化命令对象默认不走 shell，除非显式写
-`"shell": true`。必需命令失败时 `koala validate` hard fail；`optional:true`
+`"shell": true`。必需命令失败时 `lattice validate` hard fail；`optional:true`
 命令失败时只返回 warn。
 
-`koala doctor` 的 Validation scan 是项目级 advisory，不替代 `koala validate`：
+`lattice doctor` 的 Validation scan 是项目级 advisory，不替代 `lattice validate`：
 它说明 `validate.ts/js/mts` 是否存在、项目配置（`lattice.config.json` 优先，legacy `koala.config.json` 仍可读）是否配置了验证命令、
 自动发现的 fallback 命令标签、是否处于 no-validator warning，以及 shell 风格配置
 是否会留下 `shell=true` receipt。这里不能写项目专属测试数量或 PVSC 之类的假设；
 需要强门禁时应配置显式 validate command。Swift / Package.swift 不属于自动 fallback（Mac Native App 已退役），doctor 输出会显式提示需要显式 `validate.commands` 才会跑 `swift test`。
 
-`koala doctor` 的 `Runtime scan:` 是另一类 advisory / warn 输出：它检查 Koala 运行环境事实，
+`lattice doctor` 的 `Runtime scan:` 是另一类 advisory / warn 输出：它检查 Lattice 运行环境事实，
 不写 validation evidence，也不进入 `process-fact-registry`。runtime facts 由
 `packages/main/src/core/runtime-fact-registry.ts` 声明，并由
 `scripts/verify-runtime-fact-contract.mjs` 验证 registry ID、output key、checker wiring、
@@ -129,7 +129,7 @@ gitignore、materialHash exclusion、volatile dirty-risk 和 tracked repair 语�
 
 - **DEV 阶段**：用项目原生命令验证，并通过 `checklist_update` 写 `verificationEvidence`；legacy `test_auto` 只在维护旧 fixture 时可用，且必须明确提示可能修改实际文件
 - **REVIEW 阶段**：reviewer lane（包含 `koala-review-test-coverage`）先 `review_run_start` 建当前 round 的 signed reviewer run，再消费 `verificationIntent` / `verificationEvidence`；无 blocker 时写 `review_pass_set` + `reviewRunId`
-- **TEST 阶段**：`koala validate` 写 validation evidence；legacy `test_auto` 若被维护场景显式调用，仍会执行 `git restore . && git clean -fd`
+- **TEST 阶段**：`lattice validate` 写 validation evidence；legacy `test_auto` 若被维护场景显式调用，仍会执行 `git restore . && git clean -fd`
 
 ## Flow Fact Policy
 
@@ -148,14 +148,14 @@ gitignore、materialHash exclusion、volatile dirty-risk 和 tracked repair 语�
 - PLAN：用 `verificationIntent` 描述每个 checklist item 的 happy/edge/adversarial 验收。
 - DEV：实现后跑项目原生命令或浏览器流程，并用 `checklist_update` 写入 `verificationEvidence`。
 - REVIEW：reviewer lane `koala-review-test-coverage` 检查 `verificationIntent` 是否都有可追溯 evidence；先 `review_run_start` 拿 `reviewRunId`，无 blocker 时通过 `review_pass_set` + `reviewRunId` 记录 pass。内部 coverage validation 消费 `verificationIntent` / `verificationEvidence`，不是单独的 CLI 命令。
-- TEST：`koala validate` 执行项目级验证，记录 validation evidence；缺失或 stale evidence 时返回 `allPass:false`。
+- TEST：`lattice validate` 执行项目级验证，记录 validation evidence；缺失或 stale evidence 时返回 `allPass:false`。
 - DONE：只接受 PASS、bug fixed、evidence fresh、summary/delivery gate 全部满足的结果。
 
 ## CLI 工具
 
 | 工具 | 用途 |
 |---|---|
-| `koala validate` | 当前标准项目级验证入口，写 validation evidence / bug / stale evidence 结果 |
+| `lattice validate` | 当前标准项目级验证入口，写 validation evidence / bug / stale evidence 结果 |
 | `checklist_update` | DEV 阶段记录 checklist status、`verificationIntent`、`verificationEvidence` |
 | `grill_start` / `grill_record` / `grill_close` / `grill_get` | PLAN planning context；不属于 gateEvidence，不产生 validation evidence |
 | `verification_evidence_refresh_stale` | 在重跑真实验证后刷新 stale evidence 的 HEAD/material hash |
@@ -174,7 +174,7 @@ gitignore、materialHash exclusion、volatile dirty-risk 和 tracked repair 语�
 
 ## 跨语言执行协议
 
-Legacy fixture 是语言无关测试协议，不是 JS 脚本容器。`execute` 只代表 legacy `js.execute` executor；Python、Go、C++、Java、Rust 等项目应优先通过 `command` / 语言 executor / 原生测试命令产生 `verificationEvidence`，再由 `koala validate` 在 TEST 阶段消费。Swift / Objective-C（Mac Native App）已退役，不再作为当前产品默认验证入口，只有显式通过 `validate.commands` 或 legacy `swift.test` / `objc.xcodebuild` executor opt-in 时才会被执行。
+Legacy fixture 是语言无关测试协议，不是 JS 脚本容器。`execute` 只代表 legacy `js.execute` executor；Python、Go、C++、Java、Rust 等项目应优先通过 `command` / 语言 executor / 原生测试命令产生 `verificationEvidence`，再由 `lattice validate` 在 TEST 阶段消费。Swift / Objective-C（Mac Native App）已退役，不再作为当前产品默认验证入口，只有显式通过 `validate.commands` 或 legacy `swift.test` / `objc.xcodebuild` executor opt-in 时才会被执行。
 
 第一批内置 executor：
 
