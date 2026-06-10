@@ -12,7 +12,7 @@
       "userSees": "The document contains the sentence: \"Layer 2 Engineering Baseline is unlocked only by fresh, evidence-backed Engineering suite PASS.\" It also lists forbidden claims for arbitrary projects, Loop Engineering, Production Safety, and production-grade unattended development.",
       "status": "done",
       "startTime": null,
-      "endTime": "2026-06-10T14:30:44.700Z",
+      "endTime": "2026-06-10T14:38:01.829Z",
       "files": {
         "modify": [
           "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md"
@@ -47,19 +47,19 @@
           "command": "rg -n \"Layer 2 is unlocked only|Loop Engineering|Production Safety|Authority receipts\" Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
           "result": "pass",
           "note": "The document states the allowed Engineering unlock claim and lists forbidden higher-layer claims with concrete wording.",
-          "headHash": "16408541d278e10485435c64ca3b42f4b8123c3a",
-          "materialHash": "b17428730fad707ea835f2b5b37c1c23c988069f7ec8793d8ead7458c7069872",
-          "timestamp": "2026-06-10T14:30:44.745Z"
+          "headHash": "54a96bbc8e944af047f618bf8f5d394eb7facae2",
+          "materialHash": "3256c0f10c217b50dd979263927022cff06cc953949c1649890d0ac3ad009c91",
+          "timestamp": "2026-06-10T14:38:01.869Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "docs_check",
-          "command": "node -e \"check document contains implementation-readiness/local diagnostic/audit-only proof boundaries\"",
+          "command": "rg -n \"implementation readiness|local diagnostic|Host transcripts are audit evidence|formal proof\" Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
           "result": "pass",
-          "note": "The document distinguishes implementation readiness, local diagnostic artifacts, shadow outputs, host transcripts, and formal proof in sections 1, 3, and 7.",
-          "headHash": "16408541d278e10485435c64ca3b42f4b8123c3a",
-          "materialHash": "b17428730fad707ea835f2b5b37c1c23c988069f7ec8793d8ead7458c7069872",
-          "timestamp": "2026-06-10T14:30:44.778Z"
+          "note": "The document distinguishes implementation readiness, local diagnostic artifacts, host transcripts, and formal proof in sections 1, 3, and 7.",
+          "headHash": "54a96bbc8e944af047f618bf8f5d394eb7facae2",
+          "materialHash": "3256c0f10c217b50dd979263927022cff06cc953949c1649890d0ac3ad009c91",
+          "timestamp": "2026-06-10T14:38:01.897Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -67,9 +67,9 @@
           "command": "rg -n \"production-grade unattended|Authority receipts|Loop Engineering|Production Safety\" Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
           "result": "pass",
           "note": "The document explicitly prevents Layer 2 evidence from implying arbitrary projects, production safety, Authority receipts, or unattended development.",
-          "headHash": "16408541d278e10485435c64ca3b42f4b8123c3a",
-          "materialHash": "b17428730fad707ea835f2b5b37c1c23c988069f7ec8793d8ead7458c7069872",
-          "timestamp": "2026-06-10T14:30:44.816Z"
+          "headHash": "54a96bbc8e944af047f618bf8f5d394eb7facae2",
+          "materialHash": "3256c0f10c217b50dd979263927022cff06cc953949c1649890d0ac3ad009c91",
+          "timestamp": "2026-06-10T14:38:01.925Z"
         }
       ]
     },
