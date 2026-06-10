@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-10T14:31:30.312Z",
       "reviewRunId": "B-2949:RR-005",
       "_hash": "e25bf615b9444f3a013c97ff52cd7c905409786e05bbe5f31f5b5db216154516"
+    },
+    {
+      "id": "B-2949:RP-002",
+      "agent": "koala-review-docs",
+      "note": "All 9 intent refs (CHK-001/002/003 happy/edge/adversarial) verified. Document is executable as a runbook with concrete actions, stop conditions, and CLI commands. Concise without new theory layers. Consistent with Lattice-Engineering-baseline.md and Lattice-Parallel-Development-Capability.md. Clear about final outcomes and forbidden claims. Advisory: Section 10 line 806 references refusalType on refusalEvidenceRefs entries but this field is never defined in the proof contract (Section 6). Not blocking.",
+      "createdAt": "2026-06-10T14:35:46.919Z",
+      "reviewRound": "2026-06-10T14:31:30.312Z",
+      "reviewRunId": "B-2949:RR-006",
+      "_hash": "f77dd5ec473f09540c704282bfff226f30ba77fec8da4d3ad2abc3af34fe78e9"
     }
   ]
 }
