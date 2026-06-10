@@ -53,6 +53,11 @@ const activeLifecycleDocPaths = [
   'docs/requirements/decisions/story-lifecycle.md',
   'docs/requirements/decisions/testing-infra.md',
 ];
+const validatePrimaryReferenceDocPaths = [
+  'docs/requirements/decisions/dev-memory.md',
+  'docs/requirements/decisions/host-neutral-observability-console.md',
+  'docs/requirements/decisions/truth-source.md',
+];
 const activeLifecycleDocCurrentTerms = [
   'verificationIntent',
   'verificationEvidence',
@@ -1874,6 +1879,11 @@ function assertActiveLifecycleDocGuidance() {
         `${relPath}:${index + 1} ${commandName} mention must be labelled legacy/compat/maintenance or be in historical context`,
       );
     }
+  }
+
+  for (const relPath of validatePrimaryReferenceDocPaths) {
+    const text = read(relPath);
+    for (const issue of scanActiveLifecycleDocText(text, relPath)) fail(issue);
   }
 }
 

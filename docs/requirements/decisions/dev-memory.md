@@ -134,5 +134,5 @@ These fields are a reminder baked into every entry. A consumer that tries to int
 - Dev-memory does NOT replace story-level `verificationEvidence`.
 - Dev-memory does NOT replace `docs/requirements/decisions/` for architectural decisions.
 - Dev-memory does NOT generate signed artifacts of any kind.
-- Dev-memory entries are NOT surfaced in `koala validate` output or gate checks.
+- Dev-memory entries are NOT surfaced in `lattice validate` output or gate checks.
 - Dev-memory is NOT a replacement for proper test coverage or REVIEW reviewer findings.
