@@ -24,7 +24,22 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "TEST preflight verify_codex hard gate required aligning the Codex manifest with the current Lattice template and removing the unsupported uppercase .Codex/hooks runtime asset; no broader adapter refactor is included.",
+      "timestamp": "2026-06-10T01:21:25.977Z",
+      "paths": [
+        ".Codex/lattice.json",
+        ".Codex/hooks/lattice-scope-pretool.cjs"
+      ],
+      "anchors": [
+        "codex_adapter_verification",
+        "review_to_test_preflight",
+        "host_neutral_scope_boundary"
+      ]
+    }
+  ],
   "createdAt": "2026-06-10T01:09:38.816Z",
-  "updatedAt": "2026-06-10T01:09:38.816Z"
+  "updatedAt": "2026-06-10T01:21:25.977Z"
 }
