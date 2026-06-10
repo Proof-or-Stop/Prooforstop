@@ -58,6 +58,17 @@
           "headHash": "e41f21887cfc03b836ad177a08dc95615711f28b",
           "materialHash": "0c5798fc3a0e0731eac5171a15086c0a967883f96be5f4f768d1aece704e736c",
           "timestamp": "2026-06-10T19:53:06.722Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "lattice authority_status --json --authorityMode=enforce --authorityURL=https://stagging.hostneutral.net; npm run test:authority-receipt-proof; npm run test:authority-gate-receipts; npm run test:authority-gate-consumption",
+          "result": "pass",
+          "note": "authority_status kept receiptVerified=false, productionDone=false, productionAuthorityUsable=false; local receipt/gate regression smokes passed, proving local-test/contract-only/transport-only signals do not become production-gate-decision evidence.",
+          "headHash": "336513b5c090468555a4b3b1603c9dddbe81db50",
+          "materialHash": "0c5798fc3a0e0731eac5171a15086c0a967883f96be5f4f768d1aece704e736c",
+          "timestamp": "2026-06-10T19:53:07.030Z"
         }
       ]
     },
