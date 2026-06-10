@@ -88,9 +88,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/unlock-layer2-ENG-suite.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-10T22:49:00.876Z",
-      "endTime": null,
+      "endTime": "2026-06-10T22:49:44.537Z",
       "userSees": "Terminal output from node packages/main/dist/cli.js help shows baseline_run --formal, baseline_suite_report --layer, and capability_claim_formal_evaluate are available.",
       "files": {
         "modify": [
@@ -123,7 +123,39 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js capability_claim_formal_evaluate --help",
+          "result": "pass",
+          "note": "Built CLI exposes capability_claim_formal_evaluate with target, claimId, artifactsRoot, writeReport, and output options.",
+          "headHash": "50b14b497f4a8f2342842350ddd9d8b7ee98f902",
+          "materialHash": "e2f365069102eac0375fb8987ee24edcb76b12a3af5031eeb8f3d688cf4e4623",
+          "timestamp": "2026-06-10T22:49:44.656Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js baseline_run --help",
+          "result": "pass",
+          "note": "Built CLI documents --formal plus suiteRunId, claimTarget, verificationEvidenceRefs, reviewEvidenceRefs, lifecycleGateEvidenceRefs, and receiptRefs.",
+          "headHash": "50b14b497f4a8f2342842350ddd9d8b7ee98f902",
+          "materialHash": "e2f365069102eac0375fb8987ee24edcb76b12a3af5031eeb8f3d688cf4e4623",
+          "timestamp": "2026-06-10T22:49:44.757Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/cli.js baseline_suite_report --help",
+          "result": "pass",
+          "note": "Fresh build succeeded and built CLI documents baseline_suite_report --layer with .lattice artifact root, so verification is not using stale dist.",
+          "headHash": "50b14b497f4a8f2342842350ddd9d8b7ee98f902",
+          "materialHash": "e2f365069102eac0375fb8987ee24edcb76b12a3af5031eeb8f3d688cf4e4623",
+          "timestamp": "2026-06-10T22:49:44.847Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
