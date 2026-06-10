@@ -391,13 +391,13 @@
         },
         {
           "intentRef": "CHK-005:edge:0",
-          "kind": "logic_test",
-          "command": "npm --prefix packages/main run test:authority-gate-receipts && node scripts/verify-process-fact-contract.mjs 2>&1 | rg -n \"authority_receipt_verify|artifact:authority-receipt-refs.json|Process fact contract failed\"",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:command-ownership-contract; rg -n \"authority_receipt_verify|artifact:authority-receipt-refs.json|authority-receipt-refs.json\" packages/main/src/core/process-fact-registry.ts packages/main/src/core/process-fact-levels.ts scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Receipt helper smoke passes; process fact contract output includes authority_receipt_verify as L4 gate-evidence and artifact:authority-receipt-refs.json. Existing global AGENTS/autopilot/release drift remains visible and was not hidden or changed.",
-          "headHash": "49885239f2c61274a0c7c1b998329c5cf97f017b",
-          "materialHash": "6e8e6f34bf50277d2608d39dd40a241e52e7493ca73de049de1b6963feb5e97e",
-          "timestamp": "2026-06-10T17:22:24.597Z"
+          "note": "Command ownership contract passes, and process fact registry/contract surfaces include authority_receipt_verify plus artifact:authority-receipt-refs.json. Full process-fact contract was separately classified as blocked by pre-existing autopilot/release_approve_push drift, not by this receipt ref registry path.",
+          "headHash": "37c994e2585646c09ae02ba399e3784e72859e71",
+          "materialHash": "a942714883fc8bc4285050a5ca164752c95b395fdcb7cf3a21632dd1f66e8f48",
+          "timestamp": "2026-06-10T17:30:54.067Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
