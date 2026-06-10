@@ -83,9 +83,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/authority-client-role.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-10T02:05:33.291Z",
       "userSees": "User sees \"Authority receipt: BLOCKED (no verified AuthorityReceipt; receiptVerified=false; productionDone=false)\".",
       "files": {
         "modify": [],
@@ -117,7 +117,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "lattice authority_enforce_policy --json; node -e artifact invariant check",
+          "result": "pass",
+          "note": "policy discovery failed closed because LATTICE_AUTHORITY_URL is unset; report records authorityJobCreate.status=skipped_missing_url only after readiness proved no Authority URL exists.",
+          "headHash": "939a38e7a00f798f8d3f4f152e47866dd7d1a580",
+          "materialHash": "47f4d636deb2d912fc830607598f6fed94b86beb3f36d1efc1f7ec8e898cd662",
+          "timestamp": "2026-06-10T02:05:33.316Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node -e artifact invariant check",
+          "result": "pass",
+          "note": "mechanical verifier confirmed no jobId, receiptId, or receiptFile keys exist anywhere in the JSON report.",
+          "headHash": "939a38e7a00f798f8d3f4f152e47866dd7d1a580",
+          "materialHash": "47f4d636deb2d912fc830607598f6fed94b86beb3f36d1efc1f7ec8e898cd662",
+          "timestamp": "2026-06-10T02:05:33.338Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node -e artifact invariant check",
+          "result": "pass",
+          "note": "report treats authority_enforce_policy failure and local diagnostics as non-receipt evidence; receiptVerified=false, productionDone=false, strongEvidenceConsumed=false.",
+          "headHash": "939a38e7a00f798f8d3f4f152e47866dd7d1a580",
+          "materialHash": "47f4d636deb2d912fc830607598f6fed94b86beb3f36d1efc1f7ec8e898cd662",
+          "timestamp": "2026-06-10T02:05:33.360Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
