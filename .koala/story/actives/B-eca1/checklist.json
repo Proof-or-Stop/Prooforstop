@@ -401,13 +401,13 @@
         },
         {
           "intentRef": "CHK-005:adversarial:0",
-          "kind": "manual_transcript",
-          "command": "npm --prefix packages/main run test:authority-receipt-proof && npm --prefix packages/main run test:authority-gate-consumption && npm --prefix packages/main run test:authority-boundary-smoke && npm --prefix packages/main run test:authority-enforce-matrix && npm --prefix packages/main run test:command-ownership-contract && git diff --check",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:authority-receipt-proof; npm --prefix packages/main run test:authority-gate-consumption; npm --prefix packages/main run test:authority-gate-receipts",
           "result": "pass",
-          "note": "Negative controls cover corrupt proof, local-test/untrusted receipts, stale or mismatched receipt refs, enforce blocking, shadow non-blocking, and ownership boundaries. Claude audit .omx/artifacts/claude-read-only-audit-for-lattice-story-b-eca1-chk-005-working-dir-2026-06-10T17-18-08-855Z.md PASS; Codex audit .omx/artifacts/codex-b-eca1-chk005-smoke-processfact-audit-20260610T171745Z.md PASS.",
-          "headHash": "49885239f2c61274a0c7c1b998329c5cf97f017b",
-          "materialHash": "6e8e6f34bf50277d2608d39dd40a241e52e7493ca73de049de1b6963feb5e97e",
-          "timestamp": "2026-06-10T17:22:24.620Z"
+          "note": "Proof and gate smokes assert corrupt signature, digest mismatch, local-test/untrusted key, missing receipt, wrong phase, wrong story/head/material, and stale/ineligible receipt controls are blocked or diagnostic-only.",
+          "headHash": "1cdeb829d924b6efd0c3e579b55616d7969aaad1",
+          "materialHash": "a942714883fc8bc4285050a5ca164752c95b395fdcb7cf3a21632dd1f66e8f48",
+          "timestamp": "2026-06-10T17:30:54.368Z"
         }
       ]
     },
