@@ -9,7 +9,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees artifact provenance PASS: generatedAt is after declared inputs and no B-688d artifact points to the deleted .worktrees/B-688d path.",
+      "files": {
+        "modify": [
+          ".omx/artifacts/baseline/B-688d/baseline-suite-report.json",
+          ".omx/artifacts/baseline/B-688d/baseline-suite-report.md",
+          ".omx/artifacts/parallel-development/B-688d/*.json"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Generated timestamps are not earlier than their declared input artifacts.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "All old .worktrees/B-688d absolute paths are replaced with current repo-relative artifact paths.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Reject provenance that claims an artifact consumed an input generated in the future or located only in a deleted worktree.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
