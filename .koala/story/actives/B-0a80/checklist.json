@@ -53,7 +53,41 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees baseline failure reason PASS: failed expected-PASS runs cite missing independent local review evidence, not a contradictory terminal criteria failure.",
+      "files": {
+        "modify": [
+          ".omx/artifacts/baseline/B-688d/baseline-suite-report.json",
+          ".omx/artifacts/baseline/B-688d/baseline-suite-report.md",
+          ".omx/artifacts/baseline/B-688d/development/*/*/final-report.json",
+          ".omx/artifacts/baseline/B-688d/development/*/*/final-report.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Expected-PASS failed runs keep outcome=FAIL and blockedReason=local independent review evidence is missing.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "No report says terminal criteria were not satisfied while terminalCriteriaSatisfied=true and terminalCriteriaFailures is empty.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Reject any wording change that turns missing review evidence into PASS or hides the block.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
