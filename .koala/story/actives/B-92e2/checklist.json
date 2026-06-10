@@ -62,9 +62,9 @@
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:lattice-baseline-smoke",
           "result": "pass",
           "note": "Build passed and lattice-baseline-smoke verified local CLI help lists baseline_run, baseline_suite, baseline_suite_report, capability_claim_evaluate and baseline_suite_report --help works.",
-          "headHash": "6d08cdcaa1888f4f6e746dbfb8a27f40c26374b8",
-          "materialHash": "acd7ab27d1b1f8e751681b0eefa0ae43bbad1c840fa420f719f24ab47c039d71",
-          "timestamp": "2026-06-10T02:49:23.307Z"
+          "headHash": "6df8f98164f0550942f43d08a27bc13f97d9045e",
+          "materialHash": "6143585f3498e55091ec5af9b984343426bccc7cdc4e7f5c4e268ecbb89cd822",
+          "timestamp": "2026-06-10T03:01:01.185Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -72,9 +72,9 @@
           "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
           "result": "pass",
           "note": "Smoke verified unsupported baseline id fails closed without synthesizing PASS.",
-          "headHash": "6d08cdcaa1888f4f6e746dbfb8a27f40c26374b8",
-          "materialHash": "acd7ab27d1b1f8e751681b0eefa0ae43bbad1c840fa420f719f24ab47c039d71",
-          "timestamp": "2026-06-10T02:49:23.307Z"
+          "headHash": "6df8f98164f0550942f43d08a27bc13f97d9045e",
+          "materialHash": "6143585f3498e55091ec5af9b984343426bccc7cdc4e7f5c4e268ecbb89cd822",
+          "timestamp": "2026-06-10T03:01:01.185Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -82,9 +82,9 @@
           "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
           "result": "pass",
           "note": "Smoke verified malformed, mixed-schema, stale, and authority-overclaim final reports are rejected by suite aggregation.",
-          "headHash": "6d08cdcaa1888f4f6e746dbfb8a27f40c26374b8",
-          "materialHash": "acd7ab27d1b1f8e751681b0eefa0ae43bbad1c840fa420f719f24ab47c039d71",
-          "timestamp": "2026-06-10T02:49:23.307Z"
+          "headHash": "6df8f98164f0550942f43d08a27bc13f97d9045e",
+          "materialHash": "6143585f3498e55091ec5af9b984343426bccc7cdc4e7f5c4e268ecbb89cd822",
+          "timestamp": "2026-06-10T03:01:01.185Z"
         }
       ]
     },
@@ -141,9 +141,9 @@
           "command": "node packages/main/dist/cli.js baseline_run --baselineId=ENG-BUGFIX-1 --format=json",
           "result": "pass",
           "note": "Command produced an Engineering final-report for ENG-BUGFIX-1 with outcome PASS, expectedOutcome PASS, required artifacts, and authority fields false.",
-          "headHash": "6d08cdcaa1888f4f6e746dbfb8a27f40c26374b8",
-          "materialHash": "acd7ab27d1b1f8e751681b0eefa0ae43bbad1c840fa420f719f24ab47c039d71",
-          "timestamp": "2026-06-10T02:49:23.307Z"
+          "headHash": "6df8f98164f0550942f43d08a27bc13f97d9045e",
+          "materialHash": "6143585f3498e55091ec5af9b984343426bccc7cdc4e7f5c4e268ecbb89cd822",
+          "timestamp": "2026-06-10T03:01:01.185Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -151,9 +151,9 @@
           "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
           "result": "pass",
           "note": "Smoke covers high-risk/gated baseline behavior through fail-closed expected-block scenarios and verifies no ungated PASS is synthesized.",
-          "headHash": "6d08cdcaa1888f4f6e746dbfb8a27f40c26374b8",
-          "materialHash": "acd7ab27d1b1f8e751681b0eefa0ae43bbad1c840fa420f719f24ab47c039d71",
-          "timestamp": "2026-06-10T02:49:23.307Z"
+          "headHash": "6df8f98164f0550942f43d08a27bc13f97d9045e",
+          "materialHash": "6143585f3498e55091ec5af9b984343426bccc7cdc4e7f5c4e268ecbb89cd822",
+          "timestamp": "2026-06-10T03:01:01.185Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -161,9 +161,9 @@
           "command": "node packages/main/dist/cli.js baseline_suite_report --layer=engineering --format=json && npm --prefix packages/main run test:lattice-baseline-smoke",
           "result": "pass",
           "note": "Suite report stayed BLOCKED/not_authorized when lower-layer Development proof and required ENG reports were missing; smoke rejects stale, malformed, and authority-overclaim reports.",
-          "headHash": "6d08cdcaa1888f4f6e746dbfb8a27f40c26374b8",
-          "materialHash": "acd7ab27d1b1f8e751681b0eefa0ae43bbad1c840fa420f719f24ab47c039d71",
-          "timestamp": "2026-06-10T02:49:23.307Z"
+          "headHash": "6df8f98164f0550942f43d08a27bc13f97d9045e",
+          "materialHash": "6143585f3498e55091ec5af9b984343426bccc7cdc4e7f5c4e268ecbb89cd822",
+          "timestamp": "2026-06-10T03:01:01.185Z"
         }
       ]
     },
@@ -221,9 +221,9 @@
           "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
           "result": "pass",
           "note": "Smoke verifies Loop Engineering command surface and artifact contracts are available through local baseline runner/report behavior.",
-          "headHash": "6d08cdcaa1888f4f6e746dbfb8a27f40c26374b8",
-          "materialHash": "acd7ab27d1b1f8e751681b0eefa0ae43bbad1c840fa420f719f24ab47c039d71",
-          "timestamp": "2026-06-10T02:49:23.307Z"
+          "headHash": "6df8f98164f0550942f43d08a27bc13f97d9045e",
+          "materialHash": "6143585f3498e55091ec5af9b984343426bccc7cdc4e7f5c4e268ecbb89cd822",
+          "timestamp": "2026-06-10T03:01:01.185Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -231,9 +231,9 @@
           "command": "node packages/main/dist/cli.js baseline_run --baselineId=UDM-EVIDENCE-GATE-1 --format=json",
           "result": "pass",
           "note": "UDM-EVIDENCE-GATE-1 returns EXPECTED_BLOCK with blocked reasons under local diagnostic mode until fresh evidence exists.",
-          "headHash": "6d08cdcaa1888f4f6e746dbfb8a27f40c26374b8",
-          "materialHash": "acd7ab27d1b1f8e751681b0eefa0ae43bbad1c840fa420f719f24ab47c039d71",
-          "timestamp": "2026-06-10T02:49:23.307Z"
+          "headHash": "6df8f98164f0550942f43d08a27bc13f97d9045e",
+          "materialHash": "6143585f3498e55091ec5af9b984343426bccc7cdc4e7f5c4e268ecbb89cd822",
+          "timestamp": "2026-06-10T03:01:01.185Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -241,9 +241,9 @@
           "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
           "result": "pass",
           "note": "Smoke verifies stale evidence/schema drift/parallel proof substitution cannot unlock higher claims or PASS wording.",
-          "headHash": "6d08cdcaa1888f4f6e746dbfb8a27f40c26374b8",
-          "materialHash": "acd7ab27d1b1f8e751681b0eefa0ae43bbad1c840fa420f719f24ab47c039d71",
-          "timestamp": "2026-06-10T02:49:23.307Z"
+          "headHash": "6df8f98164f0550942f43d08a27bc13f97d9045e",
+          "materialHash": "6143585f3498e55091ec5af9b984343426bccc7cdc4e7f5c4e268ecbb89cd822",
+          "timestamp": "2026-06-10T03:01:01.185Z"
         }
       ]
     },
@@ -301,9 +301,9 @@
           "command": "node packages/main/dist/cli.js baseline_run --baselineId=AUTH-RECEIPT-1 --format=json",
           "result": "pass",
           "note": "Production Safety runner emits AUTH-RECEIPT-1 report sections and blocked reasons when no verified receipt exists.",
-          "headHash": "6d08cdcaa1888f4f6e746dbfb8a27f40c26374b8",
-          "materialHash": "acd7ab27d1b1f8e751681b0eefa0ae43bbad1c840fa420f719f24ab47c039d71",
-          "timestamp": "2026-06-10T02:49:23.307Z"
+          "headHash": "6df8f98164f0550942f43d08a27bc13f97d9045e",
+          "materialHash": "6143585f3498e55091ec5af9b984343426bccc7cdc4e7f5c4e268ecbb89cd822",
+          "timestamp": "2026-06-10T03:01:01.185Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -311,9 +311,9 @@
           "command": "node packages/main/dist/cli.js baseline_run --baselineId=AUTH-RECEIPT-1 --format=json",
           "result": "pass",
           "note": "AUTH-RECEIPT-1 local/off output and final report keep receiptVerified=false, productionDone=false, fullAuthorityDone=false, and receiptRefs empty.",
-          "headHash": "6d08cdcaa1888f4f6e746dbfb8a27f40c26374b8",
-          "materialHash": "acd7ab27d1b1f8e751681b0eefa0ae43bbad1c840fa420f719f24ab47c039d71",
-          "timestamp": "2026-06-10T02:49:23.307Z"
+          "headHash": "6df8f98164f0550942f43d08a27bc13f97d9045e",
+          "materialHash": "6143585f3498e55091ec5af9b984343426bccc7cdc4e7f5c4e268ecbb89cd822",
+          "timestamp": "2026-06-10T03:01:01.185Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -321,9 +321,9 @@
           "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
           "result": "pass",
           "note": "Smoke verifies missing receipt, stale/forged authority artifacts, and local authority substitution block without flipping authority fields true.",
-          "headHash": "6d08cdcaa1888f4f6e746dbfb8a27f40c26374b8",
-          "materialHash": "acd7ab27d1b1f8e751681b0eefa0ae43bbad1c840fa420f719f24ab47c039d71",
-          "timestamp": "2026-06-10T02:49:23.307Z"
+          "headHash": "6df8f98164f0550942f43d08a27bc13f97d9045e",
+          "materialHash": "6143585f3498e55091ec5af9b984343426bccc7cdc4e7f5c4e268ecbb89cd822",
+          "timestamp": "2026-06-10T03:01:01.185Z"
         }
       ]
     },
@@ -381,9 +381,9 @@
           "command": "node packages/main/dist/cli.js capability_claim_evaluate --target=production-safety --format=json",
           "result": "pass",
           "note": "Claim evaluator produced claim-report JSON shape with highestAuthorizedClaim/evidence boundary and authorized=false under missing lower-layer proof, preserving fail-closed local behavior.",
-          "headHash": "6d08cdcaa1888f4f6e746dbfb8a27f40c26374b8",
-          "materialHash": "acd7ab27d1b1f8e751681b0eefa0ae43bbad1c840fa420f719f24ab47c039d71",
-          "timestamp": "2026-06-10T02:49:23.307Z"
+          "headHash": "6df8f98164f0550942f43d08a27bc13f97d9045e",
+          "materialHash": "6143585f3498e55091ec5af9b984343426bccc7cdc4e7f5c4e268ecbb89cd822",
+          "timestamp": "2026-06-10T03:01:01.185Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -391,9 +391,9 @@
           "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
           "result": "pass",
           "note": "Smoke verifies development-only or high-layer implementation artifacts do not unlock Engineering, Loop, or Production Safety claims.",
-          "headHash": "6d08cdcaa1888f4f6e746dbfb8a27f40c26374b8",
-          "materialHash": "acd7ab27d1b1f8e751681b0eefa0ae43bbad1c840fa420f719f24ab47c039d71",
-          "timestamp": "2026-06-10T02:49:23.307Z"
+          "headHash": "6df8f98164f0550942f43d08a27bc13f97d9045e",
+          "materialHash": "6143585f3498e55091ec5af9b984343426bccc7cdc4e7f5c4e268ecbb89cd822",
+          "timestamp": "2026-06-10T03:01:01.185Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -401,9 +401,9 @@
           "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
           "result": "pass",
           "note": "Smoke verifies stronger-than-evidence, non-authority, stale, and parallel-proof substitution scenarios return authorized=false with blocked reasons.",
-          "headHash": "6d08cdcaa1888f4f6e746dbfb8a27f40c26374b8",
-          "materialHash": "acd7ab27d1b1f8e751681b0eefa0ae43bbad1c840fa420f719f24ab47c039d71",
-          "timestamp": "2026-06-10T02:49:23.307Z"
+          "headHash": "6df8f98164f0550942f43d08a27bc13f97d9045e",
+          "materialHash": "6143585f3498e55091ec5af9b984343426bccc7cdc4e7f5c4e268ecbb89cd822",
+          "timestamp": "2026-06-10T03:01:01.185Z"
         }
       ]
     },
@@ -463,9 +463,9 @@
           "command": "npm --prefix packages/main run build; npm --prefix packages/main run test:lattice-baseline-smoke; npm test",
           "result": "pass",
           "note": "Build, B-92e2 baseline smoke, and root npm test all passed after implementation.",
-          "headHash": "6d08cdcaa1888f4f6e746dbfb8a27f40c26374b8",
-          "materialHash": "acd7ab27d1b1f8e751681b0eefa0ae43bbad1c840fa420f719f24ab47c039d71",
-          "timestamp": "2026-06-10T02:49:23.307Z"
+          "headHash": "6df8f98164f0550942f43d08a27bc13f97d9045e",
+          "materialHash": "6143585f3498e55091ec5af9b984343426bccc7cdc4e7f5c4e268ecbb89cd822",
+          "timestamp": "2026-06-10T03:01:01.185Z"
         },
         {
           "intentRef": "CHK-006:edge:0",
@@ -473,9 +473,9 @@
           "command": "node packages/main/dist/cli.js baseline_suite_report --layer=engineering --format=json",
           "result": "pass",
           "note": "Suite report demonstrates high-layer artifacts can exist while suite remains BLOCKED/not_authorized until lower-layer proof and required baselines exist.",
-          "headHash": "6d08cdcaa1888f4f6e746dbfb8a27f40c26374b8",
-          "materialHash": "acd7ab27d1b1f8e751681b0eefa0ae43bbad1c840fa420f719f24ab47c039d71",
-          "timestamp": "2026-06-10T02:49:23.307Z"
+          "headHash": "6df8f98164f0550942f43d08a27bc13f97d9045e",
+          "materialHash": "6143585f3498e55091ec5af9b984343426bccc7cdc4e7f5c4e268ecbb89cd822",
+          "timestamp": "2026-06-10T03:01:01.185Z"
         },
         {
           "intentRef": "CHK-006:adversarial:0",
@@ -483,9 +483,9 @@
           "command": "npm --prefix packages/main run test:lattice-baseline-smoke; npm --prefix packages/main run test:command-ownership-contract",
           "result": "pass",
           "note": "Smoke and command ownership contract verify parallel implementation does not imply parallel proof, schema/authority drift fails closed, and commands are wired through local CLI/policy/process fact surfaces.",
-          "headHash": "6d08cdcaa1888f4f6e746dbfb8a27f40c26374b8",
-          "materialHash": "acd7ab27d1b1f8e751681b0eefa0ae43bbad1c840fa420f719f24ab47c039d71",
-          "timestamp": "2026-06-10T02:49:23.307Z"
+          "headHash": "6df8f98164f0550942f43d08a27bc13f97d9045e",
+          "materialHash": "6143585f3498e55091ec5af9b984343426bccc7cdc4e7f5c4e268ecbb89cd822",
+          "timestamp": "2026-06-10T03:01:01.185Z"
         }
       ]
     }
