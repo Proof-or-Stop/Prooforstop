@@ -114,6 +114,15 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
     repairableTrackedArtifact: true,
   },
   {
+    id: 'lattice-baseline-artifacts',
+    description: 'Lattice baseline proof artifacts kept outside the material tree.',
+    matchers: [{ kind: 'prefix', value: '.lattice/artifacts/baseline/' }],
+    ignorePatterns: ['.lattice/artifacts/baseline/'],
+    materialHash: 'exclude',
+    volatile: true,
+    repairableTrackedArtifact: true,
+  },
+  {
     id: 'runtime-temp',
     description: 'Temporary runtime scratch files and directories.',
     matchers: [{ kind: 'regexp', value: rx(String.raw`^\.koala-tmp-[^/]+(?:/.*)?$`) }],

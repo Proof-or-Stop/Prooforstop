@@ -37,6 +37,7 @@ import {
 import { tmpdir } from 'node:os';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { isMaterialExcludedRuntimeArtifactPath } from '../core/runtime-artifact-registry.js';
 
 type JsonObject = Record<string, unknown>;
 
@@ -666,6 +667,12 @@ function assertHelpListsCommand(help: CliResult, command: string): void {
 
 // 1. Built local CLI exposes the B-92e2 command surface.
 {
+  assert.equal(
+    isMaterialExcludedRuntimeArtifactPath('.lattice/artifacts/baseline/example/final-report.json'),
+    true,
+    '.lattice baseline proof artifacts must be excluded from material hash',
+  );
+
   const help = runCli(repoRoot, ['help']);
   requireSuccess(help, 'help');
   for (const command of [
