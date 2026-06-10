@@ -1,3 +1,3 @@
-# ENG-EXISTING-REPO-1 input.md
+# ENG-EXISTING-REPO-1
 
-Formal Layer 2 Engineering proof artifact.
+Formal Layer 2 Engineering proof artifact for Existing repo feature.

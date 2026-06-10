@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "lattice.baseline.source-manifest.v1",
+  "baselineId": "RED-CLI-TS-PY-1",
+  "commands": [
+    "source --help",
+    "source run <fixture>"
+  ],
+  "publicApis": [
+    "main"
+  ],
+  "behaviorSurfaces": [
+    "stdout",
+    "stderr",
+    "exitCode",
+    "errorSemantics"
+  ]
+}

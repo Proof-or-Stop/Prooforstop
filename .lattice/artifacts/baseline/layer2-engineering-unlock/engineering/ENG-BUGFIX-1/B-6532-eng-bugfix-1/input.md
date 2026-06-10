@@ -1,3 +1,3 @@
-# ENG-BUGFIX-1 input.md
+# ENG-BUGFIX-1
 
-Formal Layer 2 Engineering proof artifact.
+Formal Layer 2 Engineering proof artifact for Bugfix.

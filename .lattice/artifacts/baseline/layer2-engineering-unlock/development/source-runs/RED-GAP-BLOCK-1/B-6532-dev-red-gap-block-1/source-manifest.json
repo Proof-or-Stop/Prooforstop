@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "lattice.baseline.source-manifest.v1",
+  "baselineId": "RED-GAP-BLOCK-1",
+  "commands": [
+    "source test"
+  ],
+  "publicApis": [
+    "main"
+  ],
+  "behaviorSurfaces": [
+    "stdout",
+    "stderr",
+    "exitCode",
+    "errorSemantics"
+  ]
+}

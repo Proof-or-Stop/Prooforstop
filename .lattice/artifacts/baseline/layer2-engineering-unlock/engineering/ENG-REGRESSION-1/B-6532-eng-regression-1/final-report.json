@@ -1,6 +1,6 @@
 {
   "schemaVersion": "lattice.baseline.final_report.v1",
-  "generatedAt": "2026-06-10T23:02:56.801Z",
+  "generatedAt": "2026-06-10T23:28:48.572Z",
   "layer": "engineering",
   "baselineId": "ENG-REGRESSION-1",
   "runId": "B-6532-eng-regression-1",
@@ -19,23 +19,23 @@
   "gateEvidenceRefs": [],
   "suiteRunId": "layer2-engineering-unlock-B-6532",
   "claimTarget": "engineering",
-  "verifiedAt": "2026-06-10T23:02:56.801Z",
+  "verifiedAt": "2026-06-10T23:28:48.572Z",
   "verificationEvidenceRefs": [
-    "artifact:verification-evidence.json#sha256=9463e0e14cf4ba170c9a6c979fceadaa7bf0ed8c313058afbd433c52567982c9"
+    "artifact:verification-evidence.json#sha256=8ab4b66d3004b9825a9649433f2d56a48caeb3abc8d087c4ce01aae8ebfd96d3"
   ],
   "reviewEvidenceRefs": [
-    "review:claude:artifact:review-claude.json#sha256=d729f533daa1eef249270f093a89d13a60000cd3fd6580c28d8e2073ffa55fea",
-    "review:codex:artifact:review-codex.json#sha256=b3d1a327aed459bf8503909d7776743989c96bb6e7f4a408f9a54d22ba892ff3"
+    "review:claude:artifact:review-claude.json#sha256=34108762920bbe82266806e7cd0458d4a3e3d9a6bee6c33cfcd7434f0ad2ba8e",
+    "review:codex:artifact:review-codex.json#sha256=a8cb0b85835c42ac49363d4ff6fa8e02d7370897a6b105a0540bfd06c50751f6"
   ],
   "lifecycleGateEvidenceRefs": [
-    "artifact:lifecycle-gate.json#sha256=be7729bf346816f6c1840719eb285d5b776448a55de881c2d3087e54c54ce92f"
+    "artifact:lifecycle-gate.json#sha256=66b7d9e8e8c8e54a770b429df4d2377ec47e8b5ea0fae8a982cc1650a21af6da"
   ],
   "formalProof": true,
   "falseDone": false,
   "falseDoneCount": 0,
   "safetySuccess": true,
-  "headHash": "3c545e80277dcda616e9294d64e53b56e7a26554",
-  "materialHash": "44dc5f8e4eb4e5b4e032b98392b7311415a49c29324d9ca507220a3bc26274fb",
+  "headHash": "f01d0ab3469b73b6c5131c1dc57f96d8057c402a",
+  "materialHash": "f7ac7a18d8034bf4e77c88f6b544dccd0e308ca24d7ea791d4c9819900405421",
   "authority": {
     "authorityChanged": false,
     "receiptVerified": false,
@@ -49,7 +49,7 @@
   "productionDone": false,
   "fullAuthorityDone": false,
   "receiptRefs": [
-    "receipt:;baselineId=ENG-REGRESSION-1;suiteRunId=layer2-engineering-unlock-B-6532;claimTarget=engineering;headHash=3c545e80277dcda616e9294d64e53b56e7a26554;materialHash=44dc5f8e4eb4e5b4e032b98392b7311415a49c29324d9ca507220a3bc26274fb;evidenceDigest=2b41b263b0966de1af8f0abc960ee8aba72ec3c587cd9234ae01db1014e6e18c"
+    "receipt:;baselineId=ENG-REGRESSION-1;suiteRunId=layer2-engineering-unlock-B-6532;claimTarget=engineering;headHash=f01d0ab3469b73b6c5131c1dc57f96d8057c402a;materialHash=f7ac7a18d8034bf4e77c88f6b544dccd0e308ca24d7ea791d4c9819900405421;evidenceDigest=0cb4da3dfc55582223f1d084ddaa3a1f70e24ea01b77540e9a1749869e03b23d"
   ],
   "artifacts": {
     "directory": ".lattice/artifacts/baseline/layer2-engineering-unlock/engineering/ENG-REGRESSION-1/B-6532-eng-regression-1",
@@ -60,11 +60,11 @@
       "checklist.json",
       "scope-contract.json",
       "execution-log.jsonl",
-      "regression-report.json",
       "verification-evidence.json",
+      "regression-report.json",
+      "lifecycle-gate.json",
       "review-claude.json",
       "review-codex.json",
-      "lifecycle-gate.json",
       "final-report.json",
       "final-report.md"
     ]

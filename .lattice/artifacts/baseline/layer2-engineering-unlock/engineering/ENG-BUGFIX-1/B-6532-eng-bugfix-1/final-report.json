@@ -1,6 +1,6 @@
 {
   "schemaVersion": "lattice.baseline.final_report.v1",
-  "generatedAt": "2026-06-10T23:02:56.801Z",
+  "generatedAt": "2026-06-10T23:28:48.572Z",
   "layer": "engineering",
   "baselineId": "ENG-BUGFIX-1",
   "runId": "B-6532-eng-bugfix-1",
@@ -19,23 +19,23 @@
   "gateEvidenceRefs": [],
   "suiteRunId": "layer2-engineering-unlock-B-6532",
   "claimTarget": "engineering",
-  "verifiedAt": "2026-06-10T23:02:56.801Z",
+  "verifiedAt": "2026-06-10T23:28:48.572Z",
   "verificationEvidenceRefs": [
-    "artifact:verification-evidence.json#sha256=01970d5d90a23052ae0505e9eedeefbd6ec1397a1e651aa5f1d8458575df0cf3"
+    "artifact:verification-evidence.json#sha256=51bd101a3fc29cbeebad4db31b13e989fa9f61855fc1a69a2825c556a114e87e"
   ],
   "reviewEvidenceRefs": [
-    "review:claude:artifact:review-claude.json#sha256=800007b053bc181b91d9e601157db768a8dacecf23d8afbb548d8ae3a8488ba5",
-    "review:codex:artifact:review-codex.json#sha256=965b9b1963da1a062e275de01ab006e29b1b2bd1f3d9be828bbcf7cf48ca8463"
+    "review:claude:artifact:review-claude.json#sha256=6f9a1f6afd8fd41f6f4d7a70333055473407792a883d5455a0402f8ea169b28f",
+    "review:codex:artifact:review-codex.json#sha256=790428e987fbe570696797115005e1a684897e125e61895772716720d5b439b8"
   ],
   "lifecycleGateEvidenceRefs": [
-    "artifact:lifecycle-gate.json#sha256=45591788238a53b5f2d3be8bb79a04caa6ff3b387890c202834eac43256e897a"
+    "artifact:lifecycle-gate.json#sha256=4642d27d112196834f2c58104b195c3f113617bad16dff31984e60fc2bedc10d"
   ],
   "formalProof": true,
   "falseDone": false,
   "falseDoneCount": 0,
   "safetySuccess": true,
-  "headHash": "3c545e80277dcda616e9294d64e53b56e7a26554",
-  "materialHash": "44dc5f8e4eb4e5b4e032b98392b7311415a49c29324d9ca507220a3bc26274fb",
+  "headHash": "f01d0ab3469b73b6c5131c1dc57f96d8057c402a",
+  "materialHash": "f7ac7a18d8034bf4e77c88f6b544dccd0e308ca24d7ea791d4c9819900405421",
   "authority": {
     "authorityChanged": false,
     "receiptVerified": false,
@@ -49,7 +49,7 @@
   "productionDone": false,
   "fullAuthorityDone": false,
   "receiptRefs": [
-    "receipt:;baselineId=ENG-BUGFIX-1;suiteRunId=layer2-engineering-unlock-B-6532;claimTarget=engineering;headHash=3c545e80277dcda616e9294d64e53b56e7a26554;materialHash=44dc5f8e4eb4e5b4e032b98392b7311415a49c29324d9ca507220a3bc26274fb;evidenceDigest=7c09b6183be599497c5dc5f8e127c98e9c3e3f8326f4e778e40779aa45ee4e59"
+    "receipt:;baselineId=ENG-BUGFIX-1;suiteRunId=layer2-engineering-unlock-B-6532;claimTarget=engineering;headHash=f01d0ab3469b73b6c5131c1dc57f96d8057c402a;materialHash=f7ac7a18d8034bf4e77c88f6b544dccd0e308ca24d7ea791d4c9819900405421;evidenceDigest=894f55ce1f725deba9ea386a7fcbc781432e7e28a8c9068f310ec3b3eb2f97bc"
   ],
   "artifacts": {
     "directory": ".lattice/artifacts/baseline/layer2-engineering-unlock/engineering/ENG-BUGFIX-1/B-6532-eng-bugfix-1",
@@ -60,11 +60,11 @@
       "checklist.json",
       "scope-contract.json",
       "execution-log.jsonl",
-      "regression-report.json",
       "verification-evidence.json",
+      "regression-report.json",
+      "lifecycle-gate.json",
       "review-claude.json",
       "review-codex.json",
-      "lifecycle-gate.json",
       "final-report.json",
       "final-report.md"
     ]

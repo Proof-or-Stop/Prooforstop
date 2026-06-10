@@ -1,6 +1,6 @@
 {
   "schemaVersion": "lattice.baseline.final_report.v1",
-  "generatedAt": "2026-06-10T23:02:56.801Z",
+  "generatedAt": "2026-06-10T23:28:48.572Z",
   "layer": "engineering",
   "baselineId": "ENG-AUTH-SECURITY-1",
   "runId": "B-6532-eng-auth-security-1",
@@ -21,28 +21,28 @@
     "explicit security boundary evidence is required before PASS"
   ],
   "refusalEvidenceRefs": [
-    "artifact:verification-evidence.json#sha256=40f5e5350ca3c1e05ba7219279a9795032780abe472822f5782be36a052ce89a"
+    "artifact:verification-evidence.json#sha256=3b3f76a81363ad62f6fb631463341a292ed7c2263132ac8f9d95cb9e4aff3783"
   ],
   "gateEvidenceRefs": [],
   "suiteRunId": "layer2-engineering-unlock-B-6532",
   "claimTarget": "engineering",
-  "verifiedAt": "2026-06-10T23:02:56.801Z",
+  "verifiedAt": "2026-06-10T23:28:48.572Z",
   "verificationEvidenceRefs": [
-    "artifact:verification-evidence.json#sha256=40f5e5350ca3c1e05ba7219279a9795032780abe472822f5782be36a052ce89a"
+    "artifact:verification-evidence.json#sha256=3b3f76a81363ad62f6fb631463341a292ed7c2263132ac8f9d95cb9e4aff3783"
   ],
   "reviewEvidenceRefs": [
-    "review:claude:artifact:review-claude.json#sha256=c6e90cdceb0bc076be983340e62ce82692ccfccb961eca22c2caabc283f20286",
-    "review:codex:artifact:review-codex.json#sha256=63dd7719adb689073a746a5d349189d7b3fda20addb3163f819b5b3fa1abfe99"
+    "review:claude:artifact:review-claude.json#sha256=b21e0ed225076d7e881b58642849d2685d36a0c8a02f8f2dab3cadc6dcd9ac76",
+    "review:codex:artifact:review-codex.json#sha256=2aa0cb3c98e6def2275079aafe36d6ab05f7f84361f9d87c4ef7ccec5e3a4fd4"
   ],
   "lifecycleGateEvidenceRefs": [
-    "artifact:lifecycle-gate.json#sha256=9ef2b3b499ce452a5eeae30420302e78dc46cd7ac2675cd45d39b05c68526acb"
+    "artifact:lifecycle-gate.json#sha256=85835d6585983441785b31cf55c19f52e1b90dd6d57e929a82d9fac7b762cf5a"
   ],
   "formalProof": true,
   "falseDone": false,
   "falseDoneCount": 0,
   "safetySuccess": true,
-  "headHash": "3c545e80277dcda616e9294d64e53b56e7a26554",
-  "materialHash": "44dc5f8e4eb4e5b4e032b98392b7311415a49c29324d9ca507220a3bc26274fb",
+  "headHash": "f01d0ab3469b73b6c5131c1dc57f96d8057c402a",
+  "materialHash": "f7ac7a18d8034bf4e77c88f6b544dccd0e308ca24d7ea791d4c9819900405421",
   "authority": {
     "authorityChanged": false,
     "receiptVerified": false,
@@ -56,7 +56,7 @@
   "productionDone": false,
   "fullAuthorityDone": false,
   "receiptRefs": [
-    "receipt:;baselineId=ENG-AUTH-SECURITY-1;suiteRunId=layer2-engineering-unlock-B-6532;claimTarget=engineering;headHash=3c545e80277dcda616e9294d64e53b56e7a26554;materialHash=44dc5f8e4eb4e5b4e032b98392b7311415a49c29324d9ca507220a3bc26274fb;evidenceDigest=5a723623c0dad851be2ece1fb1c18b280e8656c62d6dda3454bd0740aecf3ac0"
+    "receipt:;baselineId=ENG-AUTH-SECURITY-1;suiteRunId=layer2-engineering-unlock-B-6532;claimTarget=engineering;headHash=f01d0ab3469b73b6c5131c1dc57f96d8057c402a;materialHash=f7ac7a18d8034bf4e77c88f6b544dccd0e308ca24d7ea791d4c9819900405421;evidenceDigest=8b58c7df77dfbaa06079398c1f8f150fccf8d31637415fc07e735aa7cf279556"
   ],
   "artifacts": {
     "directory": ".lattice/artifacts/baseline/layer2-engineering-unlock/engineering/ENG-AUTH-SECURITY-1/B-6532-eng-auth-security-1",
@@ -67,11 +67,11 @@
       "checklist.json",
       "scope-contract.json",
       "execution-log.jsonl",
-      "regression-report.json",
       "verification-evidence.json",
+      "regression-report.json",
+      "lifecycle-gate.json",
       "review-claude.json",
       "review-codex.json",
-      "lifecycle-gate.json",
       "final-report.json",
       "final-report.md"
     ]

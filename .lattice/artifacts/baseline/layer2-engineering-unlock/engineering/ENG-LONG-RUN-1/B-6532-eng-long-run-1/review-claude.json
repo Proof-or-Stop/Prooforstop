@@ -1,15 +1,17 @@
 {
-  "schemaVersion": "lattice.baseline.review.v1",
-  "generatedAt": "2026-06-10T23:02:56.801Z",
-  "baselineId": "ENG-LONG-RUN-1",
-  "suiteRunId": "layer2-engineering-unlock-B-6532",
-  "claimTarget": "engineering",
-  "headHash": "3c545e80277dcda616e9294d64e53b56e7a26554",
-  "materialHash": "44dc5f8e4eb4e5b4e032b98392b7311415a49c29324d9ca507220a3bc26274fb",
   "host": "claude",
   "source": "claude",
   "verdict": "pass",
-  "notes": [
-    "host-neutral review artifact; not an Authority receipt"
+  "baselineId": "ENG-LONG-RUN-1",
+  "suiteRunId": "layer2-engineering-unlock-B-6532",
+  "claimTarget": "engineering",
+  "headHash": "f01d0ab3469b73b6c5131c1dc57f96d8057c402a",
+  "materialHash": "f7ac7a18d8034bf4e77c88f6b544dccd0e308ca24d7ea791d4c9819900405421",
+  "checkedAt": "2026-06-10T23:28:48.572Z",
+  "principles": [
+    "do not optimize for the sake of optimization",
+    "do not optimize arbitrarily",
+    "only fix real correctness issues",
+    "consistency of logic"
   ]
 }
