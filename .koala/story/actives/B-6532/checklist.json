@@ -239,7 +239,41 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Terminal output shows formal claim report authorized=true, authorizedClaimLevel=engineering, layer2EngineeringClaim=UNLOCKED, loopEngineeringClaim=LOCKED, productionSafetyClaim=LOCKED, globalCapabilityClaim=LOCKED, receiptVerified=false, productionDone=false, fullAuthorityDone=false.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-baseline.ts",
+          "packages/main/src/tasks/lattice-baseline-smoke.ts"
+        ],
+        "create": [
+          ".lattice/artifacts/baseline/layer2-engineering-unlock/capability-claim/**/claim-report.json",
+          ".lattice/artifacts/baseline/layer2-engineering-unlock/capability-claim/**/claim-report.md"
+        ],
+        "test": [
+          "packages/main/src/tasks/lattice-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "capability_claim_formal_evaluate --target=engineering returns authorized=true and layer2EngineeringClaim=UNLOCKED from valid formal proof.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Higher-layer targets such as loop-engineering or production-safety remain NOT_AUTHORIZED/LOCKED.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "If Development or Engineering proof is missing, stale, or mismatched, the formal claim report remains locked.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-007",
