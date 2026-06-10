@@ -4,7 +4,7 @@
 >
 > `INIT -> INIT_CHECK -> PLAN/快速跳过 -> DEV -> REVIEW -> TEST -> DONE`
 >
-> 旧 `TEST_CASE` / `TEST_CASE_REVIEW` / `testIntent` 只作为 legacy 兼容数据保留。当前活跃口径是 checklist item 上的 `verificationIntent`，DEV/REVIEW/TEST 阶段记录的 `verificationEvidence`，REVIEW 阶段的 reviewer agent/lane（包含 `koala-review-test-coverage` 覆盖审查 lane），以及 TEST 阶段的 `koala validate`。
+> 旧 `TEST_CASE` / `TEST_CASE_REVIEW` / `testIntent` 只作为 legacy 兼容数据保留。当前活跃口径是 checklist item 上的 `verificationIntent`，DEV/REVIEW/TEST 阶段记录的 `verificationEvidence`，REVIEW 阶段的 reviewer agent/lane（包含 `koala-review-test-coverage` 覆盖审查 lane），以及 TEST 阶段的 `lattice validate`（legacy alias: `koala validate`）。
 
 ## 阶段流转
 
@@ -29,7 +29,7 @@ Koala 给可执行主流程 phase 一个稳定编号，用于 `koala status` 展
 | 4/8 | PLAN | 理解快照、checklist、verificationIntent、必要 decision |
 | 5/8 | DEV | 实现代码并记录 verificationEvidence |
 | 6/8 | REVIEW | reviewer 审实现，coverage reviewer lane 审 verificationIntent 覆盖 |
-| 7/8 | TEST | `koala validate` 写 validation evidence / bug |
+| 7/8 | TEST | `lattice validate` 写 validation evidence / bug（legacy alias: `koala validate`） |
 | 8/8 | DONE | 完成、合并、清理 worktree |
 
 `DISCARDED` 是终止态，不参与主流程进度百分比。`TEST_CASE` 和 `TEST_CASE_REVIEW` 是 legacy phase，只为旧 story 可读和迁移保留；新的 story 不应主动进入它们。

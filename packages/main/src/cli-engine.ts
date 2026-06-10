@@ -291,6 +291,11 @@ export const MAIN_TOOLS: ToolDef[] = [
     phase: z.enum(['IDEA','INIT','INIT_CHECK','PLAN','DEV','REVIEW','TEST','DONE','DISCARDED']).optional().describe('按阶段过滤（与 active 互斥）'),
     active: z.boolean().optional().describe('仅列出非终态 story（排除 DONE/DISCARDED/IDEA）。B-89c7 CHK-016 新增'),
   }},
+  { name: 'story_resolve', description: 'Resolve a story phase and authoritative cwd for planned steps. Alias: lattice story resolve', schema: {
+    storyId: z.string().describe('Story ID to resolve'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    json: z.boolean().optional().describe('Shortcut for --format=json'),
+  }},
   { name: 'story_reconcile', description: '检测并修复僵尸 story / 终态 worktree residue（默认 dry run）', schema: {
     dryRun: z.boolean().optional().describe('true=只报告；false=执行修复（默认 true）'),
   }},
@@ -3297,10 +3302,10 @@ export async function runCli(opts?: {
     const config = loadConfig(root0);
     if (!isCommandAllowed(cmd, activeStory.phase, config.phaseTools)) {
       const allowed = getAllowedPatterns(activeStory.phase, config.phaseTools);
-      console.error(`❌ 命令 "${cmd}" 在 ${activeStory.phase} 阶段不可用`);
+      console.error(`Command "${cmd}" is not available in ${activeStory.phase} phase`);
       console.error(`   Story: ${activeStory.storyId}  Phase: ${activeStory.phase}`);
       for (const line of formatCommandLifecycleHint(cmd, activeStory.phase, allowed)) console.error(line);
-      console.error(`   当前阶段可用命令: ${allowed.join(', ')}`);
+      console.error(`   Current phase available commands: ${allowed.join(', ')}`);
       process.exit(1);
     }
   }

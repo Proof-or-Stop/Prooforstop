@@ -193,7 +193,7 @@ export async function runReviewToTestPreflightGate(
       const rendered = renderPreflight(preflight);
       const failedGates = preflight.gates.filter(g => !g.ok).map(g => g.name).join(', ');
       throw new Error(
-        `Cannot enter TEST: CLI gate preflight 失败 (${failedGates})\n\n` +
+        `Cannot enter TEST: CLI gate preflight did not pass (${failedGates})\n\n` +
         rendered +
         `\n\n→ 修复上述 gate 后重跑 koala story_advance --phase=TEST\n` +
         `→ 单独复跑: koala validate --channel --story=${storyId} / --concept / --lint；docs-drift 随 preflight 执行；Codex adapter 用 ${codexVerifyCmd}`,
@@ -206,7 +206,7 @@ export async function runReviewToTestPreflightGate(
     const message = e instanceof Error ? e.message : String(e);
     const codexVerifyCmd = resolveLocalCodexVerifyCommand(ctx.root);
     throw new Error(
-      `Cannot enter TEST: CLI gate preflight 执行异常\n` +
+      `Cannot enter TEST: CLI gate preflight execution error\n` +
       `${message}\n\n` +
       `→ 修复 review-preflight gate 后重跑 koala story_advance --phase=TEST\n` +
       `→ 单独复跑: koala validate --channel --story=${storyId} / --concept / --lint；docs-drift 随 preflight 执行；Codex adapter 用 ${codexVerifyCmd}`,
@@ -483,7 +483,7 @@ export async function runValidateGate(
         parsed.summary ? `Summary: ${parsed.summary}` : '',
       ].filter(Boolean);
       throw new Error(
-        `Cannot enter TEST: koala validate 未通过` +
+        `Cannot enter TEST: koala validate did not pass` +
         (failedDetails.length > 0 ? `（${failedDetails.length} 项命令失败）` : '') +
         (missingCoverage > 0 ? `（verification coverage 缺 ${missingCoverage} 项）` : '') +
         '\n' +
@@ -510,7 +510,7 @@ export async function runValidateGate(
       });
     }
     throw new Error(
-      `Cannot enter TEST: koala validate 执行异常\n` +
+      `Cannot enter TEST: koala validate execution error\n` +
       `${message}\n\n` +
       `→ 修复 validate runner 后重跑 koala validate --story=${storyId} --json\n` +
       `→ 然后重跑 koala story_advance --phase=TEST`,

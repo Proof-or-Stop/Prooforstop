@@ -56,7 +56,7 @@ const activeLifecycleDocPaths = [
 const activeLifecycleDocCurrentTerms = [
   'verificationIntent',
   'verificationEvidence',
-  'koala validate',
+  'lattice validate',
   'checklist_update',
 ];
 const legacyCommandDocContextPattern = /\blegacy\b|\bcompat\b|\bmaintenance\b|兼容|维护|旧|迁移|背景|destructive/i;
