@@ -1,0 +1,82 @@
+{
+  "principles": [
+    "Only repair behavior when the code path can actually violate a requirement.",
+    "Use precise code annotations or truth-source narrowing for already implemented requirements.",
+    "Keep host-neutral authority: CLI/test/evidence are authoritative, Codex/Claude host outputs are advisory.",
+    "Avoid broad registry or optimizer-style rewrites outside the six gap set."
+  ],
+  "drivers": [
+    "gap_analyze currently reports six high uncovered_requirement gaps and healthy:false.",
+    "Unsupported receipt algorithm is a production trust-boundary requirement and may need runtime fail-closed behavior.",
+    "Several Authority policy gaps likely reflect missing annotation linkage to existing implementation.",
+    "The user explicitly requires no arbitrary optimization and consistency of logic."
+  ],
+  "options": [
+    {
+      "name": "A: Minimal correctness fixes plus precise coverage linkage",
+      "pros": [
+        "Targets only the six observed high gaps.",
+        "Fixes real fail-closed receipt behavior if missing.",
+        "Preserves existing worktree/planner behavior where already correct.",
+        "Makes gap_analyze convergence evidence meaningful instead of cosmetic."
+      ],
+      "cons": [
+        "Requires careful verification to avoid mistaking annotation coverage for behavior correctness.",
+        "May leave broader gap_analyze heuristic limitations untouched."
+      ]
+    },
+    {
+      "name": "B: Broad gap analyzer and metadata registry redesign",
+      "pros": [
+        "Could reduce future false positives across more requirement patterns.",
+        "Might create a richer command metadata model."
+      ],
+      "cons": [
+        "Optimizes beyond the current correctness issue.",
+        "Higher blast radius across process tooling and lifecycle gates.",
+        "Could obscure the specific production receipt fail-closed risk."
+      ]
+    },
+    {
+      "name": "C: Documentation-only convergence",
+      "pros": [
+        "Smallest code footprint.",
+        "Quickly resolves obsolete requirement wording if every gap is truly superseded."
+      ],
+      "cons": [
+        "Would be unsafe if unsupported receipt algorithm is a real runtime gap.",
+        "Could make convergence look green without improving production trust-boundary behavior.",
+        "Does not satisfy the user request to solve the six high gaps robustly."
+      ]
+    }
+  ],
+  "chosen": "A: Minimal correctness fixes plus precise coverage linkage",
+  "rationale": "Choose the minimal path because the gap set mixes likely linkage gaps with at least one possible production correctness issue. This keeps the story aligned with host-neutral Lattice evidence and avoids arbitrary optimization while still fixing real fail-closed behavior if present.",
+  "preMortem": [
+    {
+      "scenario": "We add keywords or annotations that make gap_analyze pass without proving behavior.",
+      "trigger": "Worktree/planner policy gaps are treated as text matching only.",
+      "consequence": "Project reports 100% convergence while runtime semantics could still drift.",
+      "mitigation": "Pair each linkage change with existing or focused smoke evidence and cite concrete runtime consumers."
+    },
+    {
+      "scenario": "We overbuild ToolDef metadata and create a parallel command policy source of truth.",
+      "trigger": "supportsDryRun is implemented as a new standalone registry not consumed by existing command policy/help paths.",
+      "consequence": "Command semantics split across two inconsistent systems.",
+      "mitigation": "Either integrate narrowly with existing ToolDef/help/schema behavior or update the requirement to reflect COMMAND_POLICIES as the current contract."
+    },
+    {
+      "scenario": "Unsupported algorithm is confused with subjectDigest algorithm prefix.",
+      "trigger": "Receipt tests only cover sha512: subjectDigest mismatch but not serverKey.algorithm or signature algorithm discovery.",
+      "consequence": "A production verification path may accept unsupported advertised key algorithms.",
+      "mitigation": "Add focused tests for non-ed25519 server key/discovery material and reject before verification can promote receipts."
+    },
+    {
+      "scenario": "Host-specific reviewer output is mistaken for authority evidence.",
+      "trigger": "Claude or Codex says the plan is correct but Lattice evidence is missing or stale.",
+      "consequence": "The story overclaims host-neutral completion.",
+      "mitigation": "Record host reviews as advisory only; require lattice gap_analyze, focused tests, and lattice validate as authoritative evidence."
+    }
+  ],
+  "timestamp": "2026-06-10T22:32:29.210Z"
+}
