@@ -180,7 +180,20 @@
           }
         ]
       },
-      "userSees": "User sees \"Dual-host review: PASS sameAnchorSet=true finalClassification=<PASS|BLOCKED>\" and, if readiness is blocked, negative controls are marked not-run because no production receipt exists."
+      "userSees": "User sees \"Dual-host review: PASS sameAnchorSet=true finalClassification=<PASS|BLOCKED>\" and, if readiness is blocked, negative controls are marked not-run because no production receipt exists.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "blocked_classified",
+          "command": "claude -p same-anchor review; claude -p explicit pass-criteria re-evaluation",
+          "result": "pass",
+          "note": "Codex and Claude reviewed the same staging anchors. Claude first used weaker staging-health PASS language, then corrected to BLOCKED under B-51f6 criteria; final same-anchor classification is BLOCKED, not production PASS.",
+          "headHash": "7905553d1990cf3d7d5bb9576c751a55099c42eb",
+          "materialHash": "0c5798fc3a0e0731eac5171a15086c0a967883f96be5f4f768d1aece704e736c",
+          "timestamp": "2026-06-10T19:53:08.273Z"
+        }
+      ]
     }
   ]
 }
