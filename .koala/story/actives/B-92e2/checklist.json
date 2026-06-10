@@ -336,9 +336,9 @@
         "Lattice-Parallel-Development-Capability.md",
         "docs/requirements/decisions/lattice-parallel-wave.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-10T02:15:19.091Z",
       "userSees": "`node bin/lattice.js capability_claim_evaluate --target=production-safety --format=json` prints `\"authorized\":false`, `\"highestAuthorizedClaim\"`, and blocked reasons naming missing lower-layer or authority evidence.",
       "files": {
         "modify": [
@@ -373,7 +373,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js capability_claim_evaluate --target=production-safety --format=json",
+          "result": "pass",
+          "note": "Claim evaluator produced claim-report JSON shape with highestAuthorizedClaim/evidence boundary and authorized=false under missing lower-layer proof, preserving fail-closed local behavior.",
+          "headHash": "9ccbe93d6c5c79ecaae1c9aa53576a63b2e11a1e",
+          "materialHash": "ecfbe252e6f34e4d0e38ec214fad1ad721ef323e1602d2167f6d45c7d337d4a5",
+          "timestamp": "2026-06-10T02:15:19.114Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke verifies development-only or high-layer implementation artifacts do not unlock Engineering, Loop, or Production Safety claims.",
+          "headHash": "9ccbe93d6c5c79ecaae1c9aa53576a63b2e11a1e",
+          "materialHash": "ecfbe252e6f34e4d0e38ec214fad1ad721ef323e1602d2167f6d45c7d337d4a5",
+          "timestamp": "2026-06-10T02:15:19.135Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke verifies stronger-than-evidence, non-authority, stale, and parallel-proof substitution scenarios return authorized=false with blocked reasons.",
+          "headHash": "9ccbe93d6c5c79ecaae1c9aa53576a63b2e11a1e",
+          "materialHash": "ecfbe252e6f34e4d0e38ec214fad1ad721ef323e1602d2167f6d45c7d337d4a5",
+          "timestamp": "2026-06-10T02:15:19.157Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
