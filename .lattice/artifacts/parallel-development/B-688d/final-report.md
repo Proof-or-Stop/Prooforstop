@@ -53,7 +53,7 @@ No authority claims are active. All evidence is scoped to local lifecycle only.
 
 ## Evidence References
 
-- baselineSuiteReport: .omx/artifacts/baseline/B-688d/baseline-suite-report.json
+- baselineSuiteReport: .lattice/artifacts/baseline/B-688d/baseline-suite-report.json
 - independentReviewEvidence: five per-run independent-review/evidence-index.json files
-- finalReport: .omx/artifacts/parallel-development/B-688d/final-report.json
-- claimLockStatus: .omx/artifacts/parallel-development/B-688d/claim-lock-status.json
+- finalReport: .lattice/artifacts/parallel-development/B-688d/final-report.json
+- claimLockStatus: .lattice/artifacts/parallel-development/B-688d/claim-lock-status.json

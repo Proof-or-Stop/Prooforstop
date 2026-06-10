@@ -11,10 +11,10 @@ You are the koala-implementer for Lattice story B-688d, running in the existing 
 Hard constraints:
 - Do not modify source code, docs, or story requirement files.
 - Only create the planned audit artifacts under:
-  - .omx/artifacts/baseline/B-688d/
-  - .omx/artifacts/parallel-development/B-688d/
-  - .omx/artifacts/claude-baseline-audit-B-688d.md
-  - .omx/artifacts/claude-dispatch-review-B-688d.md
+  - .lattice/artifacts/baseline/B-688d/
+  - .lattice/artifacts/parallel-development/B-688d/
+  - .lattice/artifacts/claude-baseline-audit-B-688d.md
+  - .lattice/artifacts/claude-dispatch-review-B-688d.md
 - Do not claim L2-L5 capabilities have passed.
 - Do not claim production authority, receipt-backed authority, or fullAuthorityDone.
 - Apply these principles: do not optimize for optimization; do not optimize arbitrarily; only fix real correctness issues; preserve consistency of logic.
@@ -23,7 +23,7 @@ Required work:
 
 CHK-001 Layer 1 audit:
 1. Verify the available baseline command surface with `lattice baseline_run --help` and `lattice baseline_suite_report --help`.
-2. Run the six Development baseline IDs only in non-authority/local mode under `.omx/artifacts/baseline/B-688d/development/`:
+2. Run the six Development baseline IDs only in non-authority/local mode under `.lattice/artifacts/baseline/B-688d/development/`:
    - NL-CLI-1
    - NL-API-1
    - NL-REPAIR-1
@@ -35,7 +35,7 @@ CHK-001 Layer 1 audit:
 5. Also run `rg -n "baseline_run|baseline_suite_report|baselineId" packages/main/src bin scripts package.json packages/main/package.json` and record whether the runner source is locatable in this repo.
 
 CHK-002 shared contract:
-Create these JSON files under `.omx/artifacts/parallel-development/B-688d/`:
+Create these JSON files under `.lattice/artifacts/parallel-development/B-688d/`:
 - shared-contract.json
 - ownership-map.json
 - merge-queue.json
@@ -51,11 +51,11 @@ Create:
 - host-probes.json with `codex --version` and `claude --version` probe results.
 - dispatch-audit.json with exactly 2 host categories and 8 lanes: four implementer lanes and four opposite-host reviewer lanes.
 - final-report.json and final-report.md with final decision: GO, GO-NOT-YET, or BLOCKED. If Layer 1 formal proof is missing independent review evidence or runner source is not locatable, the decision must not be GO.
-- .omx/artifacts/claude-baseline-audit-B-688d.md summarizing the Layer 1 audit.
-- .omx/artifacts/claude-dispatch-review-B-688d.md summarizing whether the dispatch package is host-neutral and fail-closed.
+- .lattice/artifacts/claude-baseline-audit-B-688d.md summarizing the Layer 1 audit.
+- .lattice/artifacts/claude-dispatch-review-B-688d.md summarizing whether the dispatch package is host-neutral and fail-closed.
 
 Commit:
-- Because `.omx/` is gitignored but this story declares these as planned artifacts, force-add only the B-688d artifact files you created: `git add -f .omx/artifacts/baseline/B-688d .omx/artifacts/parallel-development/B-688d .omx/artifacts/claude-baseline-audit-B-688d.md .omx/artifacts/claude-dispatch-review-B-688d.md`
+- Because `.omx/` is gitignored but this story declares these as planned artifacts, force-add only the B-688d artifact files you created: `git add -f .lattice/artifacts/baseline/B-688d .lattice/artifacts/parallel-development/B-688d .lattice/artifacts/claude-baseline-audit-B-688d.md .lattice/artifacts/claude-dispatch-review-B-688d.md`
 - Commit with message: `koala: add B-688d parallel development audit artifacts`
 
 Return a concise summary with:
@@ -74,10 +74,10 @@ Done. Here's the summary:
 
 **Files created**: 85 files across 4 artifact directories
 
-- `.omx/artifacts/baseline/B-688d/` — 6 baseline run directories + suite report (JSON + MD)
-- `.omx/artifacts/parallel-development/B-688d/` — shared-contract.json, ownership-map.json, merge-queue.json, claim-lock-status.json, host-probes.json, dispatch-audit.json, final-report.json, final-report.md
-- `.omx/artifacts/claude-baseline-audit-B-688d.md`
-- `.omx/artifacts/claude-dispatch-review-B-688d.md`
+- `.lattice/artifacts/baseline/B-688d/` — 6 baseline run directories + suite report (JSON + MD)
+- `.lattice/artifacts/parallel-development/B-688d/` — shared-contract.json, ownership-map.json, merge-queue.json, claim-lock-status.json, host-probes.json, dispatch-audit.json, final-report.json, final-report.md
+- `.lattice/artifacts/claude-baseline-audit-B-688d.md`
+- `.lattice/artifacts/claude-dispatch-review-B-688d.md`
 
 **Final decision**: **GO-NOT-YET**
 

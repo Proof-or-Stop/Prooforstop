@@ -13,12 +13,12 @@ Coordinator audit found one remaining logic consistency issue:
 - But dispatch-audit.json still marks several implementer lanes as `mode: active`, which can mislead operators into starting work.
 
 Fix only this issue:
-1. Edit `.omx/artifacts/parallel-development/B-688d/dispatch-audit.json`.
+1. Edit `.lattice/artifacts/parallel-development/B-688d/dispatch-audit.json`.
 2. For all implementer lanes, change `mode` from `active` or `shadow` to `not_authorized` while final decision is GO-NOT-YET.
 3. Add or adjust each implementer lane stopConditions so the first stop condition clearly says `GO-NOT-YET: Layer 1 formal proof is missing`.
 4. Keep reviewer lanes as `audit_only` or `not_authorized` as appropriate.
 5. Do not change host count, lane count, lane ownership, or unrelated artifacts.
-6. Update `.omx/artifacts/claude-dispatch-review-B-688d.md` with one sentence noting that implementer lanes are not authorized until Layer 1 formal proof exists.
+6. Update `.lattice/artifacts/claude-dispatch-review-B-688d.md` with one sentence noting that implementer lanes are not authorized until Layer 1 formal proof exists.
 7. Force-add only these two files and commit with message: `koala: align B-688d dispatch modes with go-not-yet`
 
 Return commit hash and concise summary.
