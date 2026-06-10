@@ -1,0 +1,49 @@
+{
+  "storyId": "B-ce79",
+  "name": "formal-unlock-layer2-engineering-baseline",
+  "title": "Formal unlock Layer 2 Engineering Baseline",
+  "description": "Execute docs/requirements/decisions/unlock-layer2-ENG-suite.md to formally unlock Layer 2 Engineering Baseline only. The story must preserve host-neutral design, Lattice CLI non-authority boundaries, Authority Server boundaries, fail-closed behavior, and the four principles: do not optimize for optimization, do not optimize arbitrarily, only fix real correctness issues, and preserve consistency of logic.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "AUTH"
+    },
+    {
+      "category": "Data Migration/Destructive",
+      "matched": "MIGRATION"
+    },
+    {
+      "category": "Production/Emergency",
+      "matched": "production"
+    }
+  ],
+  "createdAt": "2026-06-10T20:43:17.337Z",
+  "startedAt": "2026-06-10T20:43:17.337Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-10T20:43:17.337Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-10T20:46:57.192Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-ce79",
+    "branch": "story/B-ce79",
+    "createdAt": "2026-06-10T20:48:28.395Z"
+  }
+}
