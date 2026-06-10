@@ -459,7 +459,19 @@
       },
       "status": "in_progress",
       "startTime": "2026-06-10T17:22:31.294Z",
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:authority-status-smoke; claude -p CHK-006 read-only status review",
+          "result": "pass",
+          "note": "Local-test receipt refs and env-only readiness cannot set receiptVerified, receiptEligible, receiptConsumed, productionDone, or canClaimProductionDone; focused Claude CHK-006 review returned PASS_READY.",
+          "headHash": "cda3e65184e91bbaab6a4a07a9747c7a75bffaab",
+          "materialHash": "a942714883fc8bc4285050a5ca164752c95b395fdcb7cf3a21632dd1f66e8f48",
+          "timestamp": "2026-06-10T17:30:39.622Z"
+        }
+      ]
     },
     {
       "id": "CHK-007",
