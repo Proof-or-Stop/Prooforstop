@@ -1,0 +1,56 @@
+{
+  "storyId": "B-51f6",
+  "changes": "Recorded formal staging Lattice Authority TEST receipt smoke evidence in B-51f6, including readiness probes, proof endpoint check, policy/key anchors, receipt-ref absence, local fail-closed smokes, Codex/Claude same-anchor review, and transcript diff.",
+  "usage": "Review .koala/story/actives/B-51f6/evidence/staging-readiness-audit.md and evidence/transcript-diff.md for the exact staging commands, outputs, and final BLOCKED classification.",
+  "expectedOutcome": "Formal staging smoke should return either PASS with a verified production TEST gate_decision receipt/ref consumed by TEST, or BLOCKED with exact readiness blockers and no fake receipt ref.",
+  "actualTranscript": "Formal staging smoke returned BLOCKED: health was ok, but proof endpoint was absent/404, server key was dev-server-key local-test ephemeral default productionInert, required identity/secret/pin sources were absent, no authority-receipt-refs.json was written, and validate passed with 9/9 coverage.",
+  "outcomeDiff": "No user-value difference: the plan explicitly allowed BLOCKED when readiness failed; actual execution followed that branch and stopped before positive production smoke.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "blocked",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Staging is not production-ready for a positive Authority receipt smoke until it exposes receipt proof bundles, uses a non-default non-ephemeral non-productionInert configured key, and has required customer/actor/runner/session/project/pin sources configured.",
+  "pitfalls": "The first Claude review used a weak health-only PASS meaning; the corrected same-anchor prompt clarified B-51f6 criteria and returned BLOCKED. TEST preflight also required lattice codex verify after rebuilding packages/utils and packages/main.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 583178
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 56133
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 344791
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 566176
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 1075527
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 66761
+    }
+  },
+  "totalDurationMs": 2692573,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-10T20:17:33.763Z",
+  "updatedAt": "2026-06-10T20:17:33.763Z"
+}

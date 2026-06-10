@@ -1,0 +1,203 @@
+{
+  "command": "koala validate --story=B-51f6 --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.5 test\",\"  > npm run test:e2e\",\"  > koala@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-YvAt1H; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-O7WfgA; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 9/9 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via manual_transcript verdict=blocked-classified (.koala/story/actives/B-51f6/evidence/staging-readiness-audit.md) — Readiness transcript names authorityUrl, serverKeyId, nonDefaultServerKey=true, productionInert=false, key profile configured, proof endpoint present, trusted key digest/pin source, Authority/CLI/Runner version+commit anchors, and all required live-smoke identity/secret sources without printing secret values.\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via manual_transcript verdict=blocked-classified (.koala/story/actives/B-51f6/evidence/staging-readiness-audit.md) — If staging is reachable but uses default/dev/local-test/ephemeral/productionInert key, lacks proof endpoint, lacks non-default serverKeyId, lacks pin source, lacks required identity/secret sources, or cannot expose version/commit anchors, classify the exact blocker and do not run positive production smoke.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/logic] covered via logic_test verdict=success — A local-test key, default dev-server-key, transport accepted=true, docs reachability, or unpinned public key alone must not set receiptVerified, strongEvidenceConsumed, productionDone, or production-gate-decision.\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via manual_transcript verdict=blocked-classified (.koala/story/actives/B-51f6/evidence/staging-readiness-audit.md) — With production-capable staging readiness, CLI verifies a TEST gate_decision proof, writes a structured receipt ref, and TEST gate output names the consumed receipt id with strongEvidenceConsumed=true.\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via manual_transcript verdict=success (.koala/story/actives/B-51f6/evidence/staging-readiness-audit.md) — If readiness fails, positive smoke is skipped with a classified blocker and no receipt ref is written as production-gate-decision.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/logic] covered via logic_test verdict=success — DONE gate is not silently accepted by a TEST receipt unless policy explicitly allows it; this story must not broaden target phase during execution.\",\"  ✓ CHK-003:happy:0 [happy/must/manual] covered via manual_transcript verdict=blocked-classified (.koala/story/actives/B-51f6/evidence/staging-readiness-audit.md) — Formal evidence includes Codex and Claude independent judgments over the same authority anchor set: authorityUrl, policy digest, serverKeyId/keyDigest, headHash, materialHash, receipt-ref path, consumed receipt id, targetPhase=TEST, job/run/evidence digests, and negative-control outputs.\",\"  ✓ CHK-003:edge:0 [edge/must/manual] covered via manual_transcript verdict=success (.koala/story/actives/B-51f6/evidence/staging-readiness-audit.md) — If CHK-001 readiness fails, evidence records the exact blocker class and commands; Codex and Claude both confirm no host verdict, transcript, or local diagnostic can substitute for a missing production gate_decision receipt.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/cli] covered via manual_transcript verdict=blocked-classified (.koala/story/actives/B-51f6/evidence/staging-readiness-audit.md) — When a production receipt is available, missing ref, corrupt signature, story mismatch, target phase mismatch, head/material drift, production-inert key, non-gate receipt, transport-only accepted=true, and duplicate same-host/session authority attempts all fail closed.\"],\"warnings\":[],\"timestamp\":\"2026-06-10T20:16:37.947Z\",\"headSha\":\"ca4fbd7aed8d21e8a2a54242ad270781565a2275\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-YvAt1H; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-O7WfgA; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":837}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":9,\"reason\":\"verificationIntent entries present (9)\"},\"verificationCoverage\":{\"total\":9,\"required\":9,\"covered\":9,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Readiness transcript names authorityUrl, serverKeyId, nonDefaultServerKey=true, productionInert=false, key profile configured, proof endpoint present, trusted key digest/pin source, Authority/CLI/Runner version+commit anchors, and all required live-smoke identity/secret sources without printing secret values.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"manual_transcript\",\"verdict\":\"blocked_classified\",\"file\":\".koala/story/actives/B-51f6/evidence/staging-readiness-audit.md\",\"command\":\"curl -fsSL https://stagging.hostneutral.net/health | jq -c . && curl -fsSL https://stagging.hostneutral.net/openapi.json | jq '{apiTitle:.info.title, apiVersion:.info.version, hasReceiptProofEndpoint:(.paths | has(\\\"/v1/receipts/{receipt_id}/proof\\\")), hasReceiptFetchEndpoint:(.paths | has(\\\"/v1/receipts/{receipt_id}\\\")), hasGateEvaluateEndpoint:(.paths | has(\\\"/v1/gates/evaluate\\\"))}' && curl -fsSL https://stagging.hostneutral.net/v1/authority/policy | jq '{productionEnforceAuthority, requiredAuthorityMode, serverKey:{keyId:.serverKey.keyId, profile:.serverKey.profile, ephemeral:.serverKey.ephemeral, isDefaultTestKey:.serverKey.isDefaultTestKey, productionInert:.serverKey.productionInert, algorithm:.serverKey.algorithm}, commandCatalogDigest, evidenceSchemaDigest}' && curl -sS -o /tmp/lattice-proof-probe.json -w 'http_status=%{http_code}\\\\n' https://stagging.hostneutral.net/v1/receipts/readiness-probe/proof && lattice authority_status --json --authorityMode=enforce --authorityURL=https://stagging.hostneutral.net\",\"result\":\"pass\",\"note\":\"Exact readiness transcript is persisted in staging-readiness-audit.md. It shows health ok, hasReceiptProofEndpoint=false, proof probe 404, dev-server-key/local-test/ephemeral/productionInert=true, no required secret/identity sources, and therefore readiness BLOCKED without printing secrets.\",\"headHash\":\"1501128e9a37fecf7a1d5870bc08867b613ff30a\",\"materialHash\":\"a9421651d41f770be0e89a2a646d289c132b69bbbd096e536427a8a6ead900a3\",\"timestamp\":\"2026-06-10T20:03:41.239Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"If staging is reachable but uses default/dev/local-test/ephemeral/productionInert key, lacks proof endpoint, lacks non-default serverKeyId, lacks pin source, lacks required identity/secret sources, or cannot expose version/commit anchors, classify the exact blocker and do not run positive production smoke.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"manual_transcript\",\"verdict\":\"blocked_classified\",\"file\":\".koala/story/actives/B-51f6/evidence/staging-readiness-audit.md\",\"command\":\"curl -fsSL https://stagging.hostneutral.net/health | jq -c . && curl -fsSL https://stagging.hostneutral.net/openapi.json | jq '{apiTitle:.info.title, apiVersion:.info.version, hasReceiptProofEndpoint:(.paths | has(\\\"/v1/receipts/{receipt_id}/proof\\\")), hasReceiptFetchEndpoint:(.paths | has(\\\"/v1/receipts/{receipt_id}\\\")), hasGateEvaluateEndpoint:(.paths | has(\\\"/v1/gates/evaluate\\\"))}' && curl -fsSL https://stagging.hostneutral.net/v1/authority/policy | jq '{productionEnforceAuthority, requiredAuthorityMode, serverKey:{keyId:.serverKey.keyId, profile:.serverKey.profile, ephemeral:.serverKey.ephemeral, isDefaultTestKey:.serverKey.isDefaultTestKey, productionInert:.serverKey.productionInert, algorithm:.serverKey.algorithm}, commandCatalogDigest, evidenceSchemaDigest}' && curl -sS -o /tmp/lattice-proof-probe.json -w 'http_status=%{http_code}\\\\n' https://stagging.hostneutral.net/v1/receipts/readiness-probe/proof && lattice authority_status --json --authorityMode=enforce --authorityURL=https://stagging.hostneutral.net\",\"result\":\"pass\",\"note\":\"Exact commands and outputs classify reachable staging as invalid production authority/environment-version blocked, not smoke pass. See staging-readiness-audit.md for replayable anchors.\",\"headHash\":\"7be08d0ebf3ba73cab40d1bf200ddce011c64da7\",\"materialHash\":\"a9421651d41f770be0e89a2a646d289c132b69bbbd096e536427a8a6ead900a3\",\"timestamp\":\"2026-06-10T20:03:41.532Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"A local-test key, default dev-server-key, transport accepted=true, docs reachability, or unpinned public key alone must not set receiptVerified, strongEvidenceConsumed, productionDone, or production-gate-decision.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"command\":\"lattice authority_status --json --authorityMode=enforce --authorityURL=https://stagging.hostneutral.net; npm run test:authority-receipt-proof; npm run test:authority-gate-receipts; npm run test:authority-gate-consumption\",\"result\":\"pass\",\"note\":\"authority_status kept receiptVerified=false, productionDone=false, productionAuthorityUsable=false; local receipt/gate regression smokes passed, proving local-test/contract-only/transport-only signals do not become production-gate-decision evidence.\",\"headHash\":\"fd2ae6f9b60323184aa8c203ae9c10172baaf167\",\"materialHash\":\"a9421651d41f770be0e89a2a646d289c132b69bbbd096e536427a8a6ead900a3\",\"timestamp\":\"2026-06-10T20:04:36.216Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"With production-capable staging readiness, CLI verifies a TEST gate_decision proof, writes a structured receipt ref, and TEST gate output names the consumed receipt id with strongEvidenceConsumed=true.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"manual_transcript\",\"verdict\":\"blocked_classified\",\"file\":\".koala/story/actives/B-51f6/evidence/staging-readiness-audit.md\",\"command\":\"find . -name authority-receipt-refs.json -print && sed -n '1,260p' .koala/story/actives/B-51f6/evidence/staging-readiness-audit.md\",\"result\":\"pass\",\"note\":\"Exact receipt-ref absence check is persisted: find . -name authority-receipt-refs.json produced no output. Positive TEST receipt smoke was skipped because CHK-001 readiness failed; no fake production-gate-decision ref was written.\",\"headHash\":\"9469c28abad327157700be6cd8f24925725597e2\",\"materialHash\":\"a9421651d41f770be0e89a2a646d289c132b69bbbd096e536427a8a6ead900a3\",\"timestamp\":\"2026-06-10T20:03:41.820Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"If readiness fails, positive smoke is skipped with a classified blocker and no receipt ref is written as production-gate-decision.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"file\":\".koala/story/actives/B-51f6/evidence/staging-readiness-audit.md\",\"command\":\"find . -name authority-receipt-refs.json -print && sed -n '1,260p' .koala/story/actives/B-51f6/evidence/staging-readiness-audit.md\",\"result\":\"pass\",\"note\":\"Readiness failed closed and the exact absence check confirms no authority-receipt-refs.json exists in the story worktree.\",\"headHash\":\"fc1ba3544122d347fb547ef9364eb87ff700757f\",\"materialHash\":\"a9421651d41f770be0e89a2a646d289c132b69bbbd096e536427a8a6ead900a3\",\"timestamp\":\"2026-06-10T20:03:42.114Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"DONE gate is not silently accepted by a TEST receipt unless policy explicitly allows it; this story must not broaden target phase during execution.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"command\":\"lattice checklist_get --storyId=B-51f6; npm run test:authority-gate-receipts\",\"result\":\"pass\",\"note\":\"Story/checklist and local gate receipt regression keep scope fixed to TEST; DONE was not attempted and TEST receipt semantics are not broadened to DONE.\",\"headHash\":\"fd2ae6f9b60323184aa8c203ae9c10172baaf167\",\"materialHash\":\"a9421651d41f770be0e89a2a646d289c132b69bbbd096e536427a8a6ead900a3\",\"timestamp\":\"2026-06-10T20:04:36.216Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Formal evidence includes Codex and Claude independent judgments over the same authority anchor set: authorityUrl, policy digest, serverKeyId/keyDigest, headHash, materialHash, receipt-ref path, consumed receipt id, targetPhase=TEST, job/run/evidence digests, and negative-control outputs.\",\"type\":\"manual\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"manual_transcript\",\"verdict\":\"blocked_classified\",\"file\":\".koala/story/actives/B-51f6/evidence/staging-readiness-audit.md\",\"command\":\"sed -n '/^## Same-Anchor Payload$/,/^### Claude Prompt 1$/p' .koala/story/actives/B-51f6/evidence/staging-readiness-audit.md && claude -p '<prompt 1 in staging-readiness-audit.md>' && claude -p '<prompt 2 in staging-readiness-audit.md>'\",\"result\":\"pass\",\"note\":\"Same-anchor payload is now serialized with targetPhase=TEST, headHash, materialHash, receipt-ref path unavailable status, consumed receipt id unavailable status, and job/run/evidence/gate/decision digest unavailable statuses; Claude/Codex final classification remains BLOCKED.\",\"headHash\":\"4c2ba5c8c51a3f5aee16003efc2608d7297a4f16\",\"materialHash\":\"a9421651d41f770be0e89a2a646d289c132b69bbbd096e536427a8a6ead900a3\",\"timestamp\":\"2026-06-10T20:10:00.443Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"If CHK-001 readiness fails, evidence records the exact blocker class and commands; Codex and Claude both confirm no host verdict, transcript, or local diagnostic can substitute for a missing production gate_decision receipt.\",\"type\":\"manual\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"file\":\".koala/story/actives/B-51f6/evidence/staging-readiness-audit.md\",\"command\":\"sed -n '/^## Same-Anchor Payload$/,/^### Claude Prompt 1$/p' .koala/story/actives/B-51f6/evidence/staging-readiness-audit.md && find . -name authority-receipt-refs.json -print\",\"result\":\"pass\",\"note\":\"Same-anchor payload explicitly records receiptRefStatus and consumedReceiptStatus as unavailable_readiness_blocked, with no authority-receipt-refs.json present.\",\"headHash\":\"2967af1ae4ce82b54ac648570a75e1dd7f11c220\",\"materialHash\":\"a9421651d41f770be0e89a2a646d289c132b69bbbd096e536427a8a6ead900a3\",\"timestamp\":\"2026-06-10T20:10:00.774Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"When a production receipt is available, missing ref, corrupt signature, story mismatch, target phase mismatch, head/material drift, production-inert key, non-gate receipt, transport-only accepted=true, and duplicate same-host/session authority attempts all fail closed.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"manual_transcript\",\"verdict\":\"blocked_classified\",\"file\":\".koala/story/actives/B-51f6/evidence/staging-readiness-audit.md\",\"command\":\"sed -n '/^## Same-Anchor Payload$/,/^### Claude Prompt 1$/p' .koala/story/actives/B-51f6/evidence/staging-readiness-audit.md && npm run test:authority-receipt-proof && npm run test:authority-gate-receipts && npm run test:authority-gate-consumption\",\"result\":\"pass\",\"note\":\"Same-anchor payload explicitly records production receipt-dependent anchors as unavailable_readiness_blocked; local fail-closed smokes still support that no non-production evidence is promoted.\",\"headHash\":\"a62da164d2482e86ef51001ce02b4f8023c5043b\",\"materialHash\":\"a9421651d41f770be0e89a2a646d289c132b69bbbd096e536427a8a6ead900a3\",\"timestamp\":\"2026-06-10T20:10:01.066Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-10T20:16:38.157Z",
+  "headHash": "ca4fbd7aed8d21e8a2a54242ad270781565a2275",
+  "materialHash": "a9421651d41f770be0e89a2a646d289c132b69bbbd096e536427a8a6ead900a3",
+  "verificationCoverage": {
+    "total": 9,
+    "required": 9,
+    "covered": 9,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "Readiness transcript names authorityUrl, serverKeyId, nonDefaultServerKey=true, productionInert=false, key profile configured, proof endpoint present, trusted key digest/pin source, Authority/CLI/Runner version+commit anchors, and all required live-smoke identity/secret sources without printing secret values.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "blocked_classified",
+          "file": ".koala/story/actives/B-51f6/evidence/staging-readiness-audit.md",
+          "command": "curl -fsSL https://stagging.hostneutral.net/health | jq -c . && curl -fsSL https://stagging.hostneutral.net/openapi.json | jq '{apiTitle:.info.title, apiVersion:.info.version, hasReceiptProofEndpoint:(.paths | has(\"/v1/receipts/{receipt_id}/proof\")), hasReceiptFetchEndpoint:(.paths | has(\"/v1/receipts/{receipt_id}\")), hasGateEvaluateEndpoint:(.paths | has(\"/v1/gates/evaluate\"))}' && curl -fsSL https://stagging.hostneutral.net/v1/authority/policy | jq '{productionEnforceAuthority, requiredAuthorityMode, serverKey:{keyId:.serverKey.keyId, profile:.serverKey.profile, ephemeral:.serverKey.ephemeral, isDefaultTestKey:.serverKey.isDefaultTestKey, productionInert:.serverKey.productionInert, algorithm:.serverKey.algorithm}, commandCatalogDigest, evidenceSchemaDigest}' && curl -sS -o /tmp/lattice-proof-probe.json -w 'http_status=%{http_code}\\n' https://stagging.hostneutral.net/v1/receipts/readiness-probe/proof && lattice authority_status --json --authorityMode=enforce --authorityURL=https://stagging.hostneutral.net",
+          "result": "pass",
+          "note": "Exact readiness transcript is persisted in staging-readiness-audit.md. It shows health ok, hasReceiptProofEndpoint=false, proof probe 404, dev-server-key/local-test/ephemeral/productionInert=true, no required secret/identity sources, and therefore readiness BLOCKED without printing secrets.",
+          "headHash": "1501128e9a37fecf7a1d5870bc08867b613ff30a",
+          "materialHash": "a9421651d41f770be0e89a2a646d289c132b69bbbd096e536427a8a6ead900a3",
+          "timestamp": "2026-06-10T20:03:41.239Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "If staging is reachable but uses default/dev/local-test/ephemeral/productionInert key, lacks proof endpoint, lacks non-default serverKeyId, lacks pin source, lacks required identity/secret sources, or cannot expose version/commit anchors, classify the exact blocker and do not run positive production smoke.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "blocked_classified",
+          "file": ".koala/story/actives/B-51f6/evidence/staging-readiness-audit.md",
+          "command": "curl -fsSL https://stagging.hostneutral.net/health | jq -c . && curl -fsSL https://stagging.hostneutral.net/openapi.json | jq '{apiTitle:.info.title, apiVersion:.info.version, hasReceiptProofEndpoint:(.paths | has(\"/v1/receipts/{receipt_id}/proof\")), hasReceiptFetchEndpoint:(.paths | has(\"/v1/receipts/{receipt_id}\")), hasGateEvaluateEndpoint:(.paths | has(\"/v1/gates/evaluate\"))}' && curl -fsSL https://stagging.hostneutral.net/v1/authority/policy | jq '{productionEnforceAuthority, requiredAuthorityMode, serverKey:{keyId:.serverKey.keyId, profile:.serverKey.profile, ephemeral:.serverKey.ephemeral, isDefaultTestKey:.serverKey.isDefaultTestKey, productionInert:.serverKey.productionInert, algorithm:.serverKey.algorithm}, commandCatalogDigest, evidenceSchemaDigest}' && curl -sS -o /tmp/lattice-proof-probe.json -w 'http_status=%{http_code}\\n' https://stagging.hostneutral.net/v1/receipts/readiness-probe/proof && lattice authority_status --json --authorityMode=enforce --authorityURL=https://stagging.hostneutral.net",
+          "result": "pass",
+          "note": "Exact commands and outputs classify reachable staging as invalid production authority/environment-version blocked, not smoke pass. See staging-readiness-audit.md for replayable anchors.",
+          "headHash": "7be08d0ebf3ba73cab40d1bf200ddce011c64da7",
+          "materialHash": "a9421651d41f770be0e89a2a646d289c132b69bbbd096e536427a8a6ead900a3",
+          "timestamp": "2026-06-10T20:03:41.532Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "A local-test key, default dev-server-key, transport accepted=true, docs reachability, or unpinned public key alone must not set receiptVerified, strongEvidenceConsumed, productionDone, or production-gate-decision.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "lattice authority_status --json --authorityMode=enforce --authorityURL=https://stagging.hostneutral.net; npm run test:authority-receipt-proof; npm run test:authority-gate-receipts; npm run test:authority-gate-consumption",
+          "result": "pass",
+          "note": "authority_status kept receiptVerified=false, productionDone=false, productionAuthorityUsable=false; local receipt/gate regression smokes passed, proving local-test/contract-only/transport-only signals do not become production-gate-decision evidence.",
+          "headHash": "fd2ae6f9b60323184aa8c203ae9c10172baaf167",
+          "materialHash": "a9421651d41f770be0e89a2a646d289c132b69bbbd096e536427a8a6ead900a3",
+          "timestamp": "2026-06-10T20:04:36.216Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "With production-capable staging readiness, CLI verifies a TEST gate_decision proof, writes a structured receipt ref, and TEST gate output names the consumed receipt id with strongEvidenceConsumed=true.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "blocked_classified",
+          "file": ".koala/story/actives/B-51f6/evidence/staging-readiness-audit.md",
+          "command": "find . -name authority-receipt-refs.json -print && sed -n '1,260p' .koala/story/actives/B-51f6/evidence/staging-readiness-audit.md",
+          "result": "pass",
+          "note": "Exact receipt-ref absence check is persisted: find . -name authority-receipt-refs.json produced no output. Positive TEST receipt smoke was skipped because CHK-001 readiness failed; no fake production-gate-decision ref was written.",
+          "headHash": "9469c28abad327157700be6cd8f24925725597e2",
+          "materialHash": "a9421651d41f770be0e89a2a646d289c132b69bbbd096e536427a8a6ead900a3",
+          "timestamp": "2026-06-10T20:03:41.820Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "If readiness fails, positive smoke is skipped with a classified blocker and no receipt ref is written as production-gate-decision.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": ".koala/story/actives/B-51f6/evidence/staging-readiness-audit.md",
+          "command": "find . -name authority-receipt-refs.json -print && sed -n '1,260p' .koala/story/actives/B-51f6/evidence/staging-readiness-audit.md",
+          "result": "pass",
+          "note": "Readiness failed closed and the exact absence check confirms no authority-receipt-refs.json exists in the story worktree.",
+          "headHash": "fc1ba3544122d347fb547ef9364eb87ff700757f",
+          "materialHash": "a9421651d41f770be0e89a2a646d289c132b69bbbd096e536427a8a6ead900a3",
+          "timestamp": "2026-06-10T20:03:42.114Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "DONE gate is not silently accepted by a TEST receipt unless policy explicitly allows it; this story must not broaden target phase during execution.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "lattice checklist_get --storyId=B-51f6; npm run test:authority-gate-receipts",
+          "result": "pass",
+          "note": "Story/checklist and local gate receipt regression keep scope fixed to TEST; DONE was not attempted and TEST receipt semantics are not broadened to DONE.",
+          "headHash": "fd2ae6f9b60323184aa8c203ae9c10172baaf167",
+          "materialHash": "a9421651d41f770be0e89a2a646d289c132b69bbbd096e536427a8a6ead900a3",
+          "timestamp": "2026-06-10T20:04:36.216Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Formal evidence includes Codex and Claude independent judgments over the same authority anchor set: authorityUrl, policy digest, serverKeyId/keyDigest, headHash, materialHash, receipt-ref path, consumed receipt id, targetPhase=TEST, job/run/evidence digests, and negative-control outputs.",
+        "type": "manual",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "blocked_classified",
+          "file": ".koala/story/actives/B-51f6/evidence/staging-readiness-audit.md",
+          "command": "sed -n '/^## Same-Anchor Payload$/,/^### Claude Prompt 1$/p' .koala/story/actives/B-51f6/evidence/staging-readiness-audit.md && claude -p '<prompt 1 in staging-readiness-audit.md>' && claude -p '<prompt 2 in staging-readiness-audit.md>'",
+          "result": "pass",
+          "note": "Same-anchor payload is now serialized with targetPhase=TEST, headHash, materialHash, receipt-ref path unavailable status, consumed receipt id unavailable status, and job/run/evidence/gate/decision digest unavailable statuses; Claude/Codex final classification remains BLOCKED.",
+          "headHash": "4c2ba5c8c51a3f5aee16003efc2608d7297a4f16",
+          "materialHash": "a9421651d41f770be0e89a2a646d289c132b69bbbd096e536427a8a6ead900a3",
+          "timestamp": "2026-06-10T20:10:00.443Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "If CHK-001 readiness fails, evidence records the exact blocker class and commands; Codex and Claude both confirm no host verdict, transcript, or local diagnostic can substitute for a missing production gate_decision receipt.",
+        "type": "manual",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": ".koala/story/actives/B-51f6/evidence/staging-readiness-audit.md",
+          "command": "sed -n '/^## Same-Anchor Payload$/,/^### Claude Prompt 1$/p' .koala/story/actives/B-51f6/evidence/staging-readiness-audit.md && find . -name authority-receipt-refs.json -print",
+          "result": "pass",
+          "note": "Same-anchor payload explicitly records receiptRefStatus and consumedReceiptStatus as unavailable_readiness_blocked, with no authority-receipt-refs.json present.",
+          "headHash": "2967af1ae4ce82b54ac648570a75e1dd7f11c220",
+          "materialHash": "a9421651d41f770be0e89a2a646d289c132b69bbbd096e536427a8a6ead900a3",
+          "timestamp": "2026-06-10T20:10:00.774Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "When a production receipt is available, missing ref, corrupt signature, story mismatch, target phase mismatch, head/material drift, production-inert key, non-gate receipt, transport-only accepted=true, and duplicate same-host/session authority attempts all fail closed.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "blocked_classified",
+          "file": ".koala/story/actives/B-51f6/evidence/staging-readiness-audit.md",
+          "command": "sed -n '/^## Same-Anchor Payload$/,/^### Claude Prompt 1$/p' .koala/story/actives/B-51f6/evidence/staging-readiness-audit.md && npm run test:authority-receipt-proof && npm run test:authority-gate-receipts && npm run test:authority-gate-consumption",
+          "result": "pass",
+          "note": "Same-anchor payload explicitly records production receipt-dependent anchors as unavailable_readiness_blocked; local fail-closed smokes still support that no non-production evidence is promoted.",
+          "headHash": "a62da164d2482e86ef51001ce02b4f8023c5043b",
+          "materialHash": "a9421651d41f770be0e89a2a646d289c132b69bbbd096e536427a8a6ead900a3",
+          "timestamp": "2026-06-10T20:10:01.066Z"
+        }
+      }
+    ]
+  }
+}
