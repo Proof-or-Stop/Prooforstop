@@ -743,6 +743,37 @@ export const MAIN_TOOLS: ToolDef[] = [
     host: z.string().describe('Host profile id, for example codex, claude-code, local-runner, browser, server, desktop-app'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
   }},
+  { name: 'baseline_run', description: 'Create a local Baseline 2-5 diagnostic run artifact without authority claims (text/json)', schema: {
+    baselineId: z.string().describe('Baseline id: ENG-*, UDM-*, SAFE/AUTH/PROD-*, or CLAIM-*'),
+    runId: z.string().optional().describe('Optional run id; defaults to a timestamped id'),
+    artifactsRoot: z.string().optional().describe('Optional baseline artifacts root (default .omx/artifacts/baseline)'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    json: z.boolean().optional().describe('Shortcut for --format=json'),
+  }},
+  { name: 'baseline_suite', description: 'Alias for baseline_suite_report; aggregates local baseline final reports fail-closed (text/json)', schema: {
+    layer: z.enum(['development', 'engineering', 'loop-engineering', 'production-safety', 'capability-claim']).describe('Baseline layer to aggregate'),
+    artifactsRoot: z.string().optional().describe('Optional baseline artifacts root (default .omx/artifacts/baseline)'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    json: z.boolean().optional().describe('Shortcut for --format=json'),
+  }},
+  { name: 'baseline_suite_report', description: 'Aggregate local baseline final reports and write a fail-closed suite report (text/json)', schema: {
+    layer: z.enum(['development', 'engineering', 'loop-engineering', 'production-safety', 'capability-claim']).describe('Baseline layer to aggregate'),
+    artifactsRoot: z.string().optional().describe('Optional baseline artifacts root (default .omx/artifacts/baseline)'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    json: z.boolean().optional().describe('Shortcut for --format=json'),
+  }},
+  { name: 'capability_claim_evaluate', description: 'Evaluate a local capability claim fail-closed from lower-layer suite reports (text/json)', schema: {
+    target: z.string().optional().describe('Requested claim target, for example development, engineering, loop-engineering, or production-safety'),
+    claimId: z.string().optional().describe('Claim id, for example CLAIM-PRODUCTION-SAFETY'),
+    requestedClaim: z.string().optional().describe('Human requested claim wording to evaluate'),
+    runId: z.string().optional().describe('Optional report run id when writing a claim report'),
+    artifactsRoot: z.string().optional().describe('Optional baseline artifacts root (default .omx/artifacts/baseline)'),
+    output: z.string().optional().describe('Optional JSON output path; also writes a sibling .md report'),
+    outputDir: z.string().optional().describe('Optional directory for claim-report.json/md'),
+    writeReport: z.boolean().optional().describe('Write the canonical .omx claim-report.json/md'),
+    format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
+    json: z.boolean().optional().describe('Shortcut for --format=json'),
+  }},
   { name: 'memory_benchmark_run', description: 'Run the deterministic virtual lifecycle memory benchmark baseline (text/json)', schema: {
     tier: z.string().optional().describe('Tier alias: T0/T1/T2/T3 or 10k/100k/1m'),
     candidateCount: z.union([z.number(), z.string()]).optional().describe('Candidate count override; must match --tier when both are provided'),
@@ -1933,7 +1964,7 @@ function printHelp(activeStory?: ActiveStory | null) {
   const groups: Record<string, ToolDef[]> = {};
   for (const t of TOOLS) {
     // 有 active story 时只列出当前阶段可用命令
-    if (activeStory && !isCommandAllowed(t.name, activeStory.phase, phaseTools)) continue;
+    if (activeStory && !isCommandAllowed(t.name, activeStory.phase, phaseTools) && !isLocalL0BaselineCommand(t.name)) continue;
     const p = t.name.split('_')[0];
     let g: string;
     if (t.name === 'story_review' || t.name === 'story_review_dismiss') g = 'Review';
@@ -1941,7 +1972,9 @@ function printHelp(activeStory?: ActiveStory | null) {
     else g = p.charAt(0).toUpperCase() + p.slice(1); // 未知前缀：首字母大写
     (groups[g] = groups[g] || []).push(t);
   }
-  const filteredTools = activeStory ? TOOLS.filter(t => isCommandAllowed(t.name, activeStory.phase, phaseTools)) : TOOLS;
+  const filteredTools = activeStory
+    ? TOOLS.filter(t => isCommandAllowed(t.name, activeStory.phase, phaseTools) || isLocalL0BaselineCommand(t.name))
+    : TOOLS;
   const maxN = Math.max(...filteredTools.map(t => t.name.length), 0);
 
   const presentGroups = Object.keys(groups);
@@ -2179,6 +2212,10 @@ const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'aux_doc_list',
   'capability_list',
   'capability_probe',
+  'baseline_run',
+  'baseline_suite',
+  'baseline_suite_report',
+  'capability_claim_evaluate',
   'memory_benchmark_run',
   'memory_benchmark_compare',
   'memory_benchmark_real_data',
@@ -2232,6 +2269,17 @@ const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'autopilot_watch',
   'autopilot_review',
 ]);
+
+const LOCAL_L0_BASELINE_COMMANDS: ReadonlySet<string> = new Set([
+  'baseline_run',
+  'baseline_suite',
+  'baseline_suite_report',
+  'capability_claim_evaluate',
+]);
+
+function isLocalL0BaselineCommand(cmd: string): boolean {
+  return LOCAL_L0_BASELINE_COMMANDS.has(cmd);
+}
 
 function inferCodexEntrypoint(): string {
   if (process.env.KOALA_CODEX_ENTRYPOINT) return process.env.KOALA_CODEX_ENTRYPOINT;
@@ -2941,7 +2989,7 @@ export async function runCli(opts?: {
   // Phase gate: 有 active story 时，拒绝不在白名单中的命令
   if (activeStory) {
     const config = loadConfig(root0);
-    if (!isCommandAllowed(cmd, activeStory.phase, config.phaseTools)) {
+    if (!isCommandAllowed(cmd, activeStory.phase, config.phaseTools) && !isLocalL0BaselineCommand(cmd)) {
       const allowed = getAllowedPatterns(activeStory.phase, config.phaseTools);
       console.error(`❌ 命令 "${cmd}" 在 ${activeStory.phase} 阶段不可用`);
       console.error(`   Story: ${activeStory.storyId}  Phase: ${activeStory.phase}`);
