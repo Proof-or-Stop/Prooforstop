@@ -47,7 +47,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-client-smoke.ts",
+          "command": "npm run test:authority-client",
+          "result": "pass",
+          "note": "authority-client smoke keeps the valid ed25519 discovery path verified, preserving the supported production receipt algorithm success case",
+          "headHash": "5c18156fdf25dd97d0184e0ba06a0da237ba3ac6",
+          "materialHash": "f0cecef3e045a4ada0b87d434abc0d95c6bcb90cc4aca9df24969f3595b5518a",
+          "timestamp": "2026-06-10T22:49:39.175Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-client-smoke.ts",
+          "command": "npm run test:authority-client",
+          "result": "pass",
+          "note": "authority-client smoke rejects the ED25519 case-variant discovery value as an unsupported algorithm, proving the exact serverKey.algorithm contract fails closed",
+          "headHash": "5c18156fdf25dd97d0184e0ba06a0da237ba3ac6",
+          "materialHash": "f0cecef3e045a4ada0b87d434abc0d95c6bcb90cc4aca9df24969f3595b5518a",
+          "timestamp": "2026-06-10T22:49:39.558Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-client-smoke.ts",
+          "command": "npm run test:authority-client",
+          "result": "pass",
+          "note": "authority-client smoke rejects an otherwise valid receipt when discovery declares serverKey.algorithm=rsa, proving unsupported verification material cannot satisfy authority DONE",
+          "headHash": "5c18156fdf25dd97d0184e0ba06a0da237ba3ac6",
+          "materialHash": "f0cecef3e045a4ada0b87d434abc0d95c6bcb90cc4aca9df24969f3595b5518a",
+          "timestamp": "2026-06-10T22:49:39.934Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
