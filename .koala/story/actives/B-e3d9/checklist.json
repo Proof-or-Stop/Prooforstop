@@ -166,6 +166,29 @@
         "test": [
           "packages/main/src/tasks/planner-unattended-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run planner story-creation flow when plannerPolicy requires confirmation and explicit confirmation is present -> story creation proceeds and the policy/result surface shows the confirmation gate was satisfied; WHY: proves the intended unblock path still works.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run the same flow under a policy/profile that does not require confirmation -> story creation behavior matches that policy without inheriting the stricter gate accidentally; WHY: verifies the requirement is policy-driven rather than globally hardcoded.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Attempt planner_create_story without the required confirmation while all other inputs are valid -> it must fail closed before creating the story and must not rely on downstream cleanup to undo partial creation; WHY: proves real blocking behavior instead of post-hoc remediation.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
