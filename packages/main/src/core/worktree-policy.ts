@@ -4,6 +4,22 @@ import { isAbsolute, join } from 'node:path';
 import type { JobPlan, PlannedStep, PlannerStoreLike } from './planner.js';
 
 /**
+ * @task B-e3d9
+ * @checklist CHK-003
+ * @title Link Authority worktree policy requirements to runtime enforcement
+ * @type bugfix
+ * @priority high
+ * @description
+ *   Runtime linkage for requiresAuthoritativeWorktree and requiresCleanWorktree:
+ *   evaluateWorktreePreflight maps unresolved story worktrees to
+ *   authoritative_worktree_unresolved and clean-worktree violations to
+ *   dirty_worktree while preserving unrelated dirty changes.
+ * @changes
+ *   - [CHK-003] Connect requiresAuthoritativeWorktree to authoritative_worktree_unresolved preflight enforcement
+ *   - [CHK-003] Connect requiresCleanWorktree to dirty_worktree preservation enforcement covered by worktree-policy-smoke
+ */
+
+/**
  * Runtime enforcement of a JobPlan `worktreePolicy` (§B2). This is the executor-side
  * gate that turns the planner-emitted, fail-closed worktree policy block into real
  * runtime behavior for M7 (provider executor scoped to the story worktree), M9

@@ -181,6 +181,8 @@ const unresolved = exec({ jobPlan: plan({ steps: [codexStep({ argv: ['exec'] })]
 assert.equal(unresolved.status, 'blocked');
 assert.equal(unresolved.stopReason, 'authoritative_worktree_unresolved');
 assert.equal(unresolved.steps[0].reason, 'authoritative_worktree_unresolved');
+assert.equal(unresolved.steps[0].summary.worktreeConfigured, false, 'authoritative worktree absence is the specific failing condition');
+assert.equal(unresolved.steps[0].summary.requiresCleanWorktree, true, 'the clean-worktree requirement stays visible but does not mask worktree resolution');
 assert.ok(unresolved.worktreeStopSummary, 'a worktree stop summary is surfaced');
 assert.equal(unresolved.worktreeStopSummary.schemaVersion, 'lattice.worktree_stop_summary.v1');
 assert.ok(unresolved.nextActions.some((a: string) => a.includes('story_advance --phase=INIT_CHECK') || a.includes('authoritative')));
@@ -196,6 +198,9 @@ assert.equal(noGit.stopReason, 'git_status_evidence_unavailable');
 const dirty = exec({ jobPlan: plan({ steps: [codexStep({ argv: ['exec'] }, true)] }), store: storeStub(WORKTREE), git: gitStub([' M src/unrelated.ts', '?? notes.txt']).run });
 assert.equal(dirty.status, 'blocked');
 assert.equal(dirty.stopReason, 'dirty_worktree');
+assert.equal(dirty.steps[0].reason, 'dirty_worktree');
+assert.equal(dirty.steps[0].summary.worktreeConfigured, true, 'dirty_worktree is reached only after the authoritative worktree resolves');
+assert.equal(dirty.steps[0].summary.gitStatusCaptured, true, 'dirty_worktree is based on captured git status evidence');
 assert.equal(dirty.steps[0].summary.unrelatedDirtyCount, 2);
 assert.ok(String(dirty.steps[0].summary.note).includes('preserv'), 'dirty-stop note documents preservation, not discard');
 
@@ -284,5 +289,14 @@ const pfOk = evaluateWorktreePreflight({
   step: codexStep({ argv: ['exec'] }, true) as any,
 });
 assert.equal(pfOk.ok, true);
+const pfPolicyClean = evaluateWorktreePreflight({
+  policy: { ...WORKTREE_POLICY, requiresCleanWorktree: true },
+  resolution: resolveAuthoritativeWorktree(storeStub(WORKTREE), 'B-wt', ROOT),
+  gitStatus: { captured: true, clean: false, entries: [{ code: ' M', path: 'src/policy-dirty.ts' }], digest: 'dirty-policy' },
+  step: codexStep({ argv: ['exec'] }, false) as any,
+});
+assert.equal(pfPolicyClean.ok, false, 'policy-level requiresCleanWorktree also blocks dirty worktrees');
+assert.equal(pfPolicyClean.reason, 'dirty_worktree');
+assert.equal(pfPolicyClean.summary.requiresCleanWorktree, true);
 
 console.log('worktree-policy-smoke: OK');

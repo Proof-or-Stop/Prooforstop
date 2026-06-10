@@ -21,6 +21,21 @@ import { evaluateAuthorityCompletion } from '../core/authority-completion.js';
 import { buildGateEvidenceRefResolver } from '../core/evidence-uploader.js';
 import { canonicalDigest } from '../core/authority-signing.js';
 
+/**
+ * @task B-e3d9
+ * @checklist CHK-004
+ * @title Enforce planner confirmation before story creation
+ * @type bugfix
+ * @priority high
+ * @description
+ *   Handler linkage for requiresConfirmationBeforeStoryCreate: planner_create_story
+ *   checks the persisted confirmationDigest and returns "confirmation required
+ *   before Story creation" before invoking story_create when confirmation is
+ *   required by plannerPolicy.
+ * @changes
+ *   - [CHK-004] Connect requiresConfirmationBeforeStoryCreate to fail-closed planner_create_story behavior covered by planner-unattended-smoke
+ */
+
 type JsonArgs = { json?: boolean; format?: 'text' | 'json' };
 
 function wantsJson(args: JsonArgs | undefined): boolean {

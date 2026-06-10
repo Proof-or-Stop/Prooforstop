@@ -50,9 +50,35 @@ try {
   assert.equal(draft.status, 'drafted');
   assert.equal(draft.checklist.length, 2);
   assert.equal(draft.deferredOptimizations.length, 1);
+  assert.equal(draft.plannerPolicy.requiresConfirmationBeforeStoryCreate, false, 'local autonomous planning does not require a confirmation digest before Story creation');
 
   const reviewed = run(['lattice', 'planner', 'review', `--runId=${draft.plannerRunId}`, '--json']);
   assert.equal(reviewed.status, 'pass');
+
+  // requiresConfirmationBeforeStoryCreate linkage: policy false creates without a
+  // confirmation digest; policy true blocks before story_create, then unblocks
+  // only after planner_answer records a confirmationDigest.
+  const noConfirmDraft = run(['lattice', 'planner', 'draft', '--request=Create a local no-confirmation planner smoke Story', '--mode=local', '--json']);
+  assert.equal(noConfirmDraft.plannerPolicy.requiresConfirmationBeforeStoryCreate, false);
+  const noConfirmCreated = run(['lattice', 'planner', 'create-story', `--runId=${noConfirmDraft.plannerRunId}`, '--json']);
+  assert.equal(noConfirmCreated.status, 'created', 'policy=false path creates a Story without confirmation');
+  assert.match(noConfirmCreated.storyId, /^B-[0-9a-f]{4,6}$/i);
+
+  const confirmDraft = run(['lattice', 'planner', 'draft', '--request=Create a confirmation-gated planner smoke Story', '--interactionMode=interview', '--json']);
+  assert.equal(confirmDraft.plannerPolicy.requiresConfirmationBeforeStoryCreate, true);
+  const blockedCreate = run(['lattice', 'planner', 'create-story', `--runId=${confirmDraft.plannerRunId}`, '--json']);
+  assert.equal(blockedCreate.status, 'blocked');
+  assert.equal(blockedCreate.blockedReason, 'confirmation required before Story creation');
+  const blockedStatus = run(['lattice', 'planner', 'status', `--runId=${confirmDraft.plannerRunId}`, '--json']);
+  assert.equal(blockedStatus.storyId, undefined, 'missing confirmation must block before story_create produces a Story');
+  writeFileSync(join(root, 'confirm-answers.json'), JSON.stringify({ 'Q-001': 'Confirmed creation outcome', confirmed: true }));
+  const confirmAnswer = run(['lattice', 'planner', 'answer', `--runId=${confirmDraft.plannerRunId}`, '--answersFile=confirm-answers.json', '--json']);
+  assert(confirmAnswer.confirmationDigest, 'planner_answer records the confirmationDigest used by planner_create_story');
+  const confirmedCreate = run(['lattice', 'planner', 'create-story', `--runId=${confirmDraft.plannerRunId}`, '--json']);
+  assert.equal(confirmedCreate.status, 'created');
+  assert.match(confirmedCreate.storyId, /^B-[0-9a-f]{4,6}$/i);
+  const confirmedStatus = run(['lattice', 'planner', 'status', `--runId=${confirmDraft.plannerRunId}`, '--json']);
+  assert.equal(confirmedStatus.storyId, confirmedCreate.storyId, 'confirmed create-story persists the created Story id');
 
   const job = run(['lattice', 'planner', 'create-job', `--runId=${draft.plannerRunId}`, '--storyId=B-plan', '--json']);
   assert.equal(job.schemaVersion, 'lattice.job_plan.v1');
@@ -118,7 +144,11 @@ try {
     assert.equal(plan.worktreePolicy.preserveUnrelatedDirtyChanges, true, 'unrelated dirty changes must be preserved');
     assert.equal(plan.worktreePolicy.requireGitStatusEvidence, true, 'mutating steps must require git-status evidence');
     assert.equal(plan.worktreePolicy.requiresAuthoritativeWorktree, planMode === 'authority', 'authority mode requires an authoritative worktree; local does not force it');
+    assert.equal(plan.worktreePolicy.requiresCleanWorktree, false, 'JobPlan policy does not globally require clean worktrees unless a step or policy tightens it');
     assert(plan.worktreePolicy.forbiddenPathGlobs.some((g: string) => g.includes('story')), 'story JSON must be a forbidden direct-edit target');
+    const providerStep = plan.plannedSteps.find((step: JsonObject) => String(step.type).startsWith('provider.'));
+    assert(providerStep, `${planMode} plan must include a provider step`);
+    assert.equal(providerStep.requiresCleanWorktree, true, `${planMode} provider step carries the clean-worktree preflight requirement`);
     // retry / stop separation (§B5): the two blocks stay disjoint and finite, never ambiguous.
     assert(plan.retryPolicy.maxAttemptsPerStep >= 1 && plan.retryPolicy.repairAllowed === false, 'retryPolicy carries bounded, conservative retry semantics');
     assert(plan.stopPolicy.maxSteps >= 1 && plan.stopPolicy.maxWallClockMs > 0, 'stopPolicy carries finite step and wall-clock limits');
