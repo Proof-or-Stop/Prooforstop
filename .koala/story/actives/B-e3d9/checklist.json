@@ -55,10 +55,10 @@
           "file": "packages/main/src/tasks/authority-client-smoke.ts",
           "command": "npm run test:authority-client",
           "result": "pass",
-          "note": "authority-client smoke retains the lowercase ed25519 policy-discovery path where receipt verification returns verified, preserving the supported production receipt algorithm success case.",
-          "headHash": "7275d4732e25216d063bdf5b865a0bc75d89c6e0",
-          "materialHash": "93f758f0771566ab8125d1eba5c272c5a536f66a95f6c927f342542690dc05b9",
-          "timestamp": "2026-06-10T23:28:53.486Z"
+          "note": "authority-client smoke retains the canonical ed25519 policy-discovery path where receipt verification returns verified, preserving the supported production receipt algorithm success case.",
+          "headHash": "de8113c7039018b2517bafb50e12d036808a7afd",
+          "materialHash": "99677396461c31d2ed37313c8a2b84364bdd123ba34c0284bb46ec9ee8b1c876",
+          "timestamp": "2026-06-10T23:33:59.090Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -66,10 +66,10 @@
           "file": "packages/main/src/tasks/authority-client-smoke.ts",
           "command": "npm run test:authority-client",
           "result": "pass",
-          "note": "The frozen PLAN intent expected ED25519 to fail, but reviewer F-002 corrected the contract: authority-client smoke now drives serverKey.algorithm=ED25519 through policy discovery; native verification trims/lowercases it to ed25519, the gate decision verifies, and the executor reaches authorityDone.",
-          "headHash": "7275d4732e25216d063bdf5b865a0bc75d89c6e0",
-          "materialHash": "93f758f0771566ab8125d1eba5c272c5a536f66a95f6c927f342542690dc05b9",
-          "timestamp": "2026-06-10T23:28:53.486Z"
+          "note": "The frozen PLAN intent named ED25519 as a fail-closed edge case, but review finding B-e3d9:F-002 corrected that as over-strict. The current smoke proves the consistent edge semantics: serverKey.algorithm=ED25519 is trimmed/lowercased to ed25519 and verifies, while blank/malformed algorithm material fails closed as unsupported.",
+          "headHash": "de8113c7039018b2517bafb50e12d036808a7afd",
+          "materialHash": "99677396461c31d2ed37313c8a2b84364bdd123ba34c0284bb46ec9ee8b1c876",
+          "timestamp": "2026-06-10T23:33:59.140Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -78,9 +78,9 @@
           "command": "npm run test:authority-client",
           "result": "pass",
           "note": "authority-client smoke rejects serverKey.algorithm=rsa and blank whitespace algorithms with receipt_unverified unsupported algorithm, and directly asserts the native verifier rejects a non-string algorithm value.",
-          "headHash": "7275d4732e25216d063bdf5b865a0bc75d89c6e0",
-          "materialHash": "93f758f0771566ab8125d1eba5c272c5a536f66a95f6c927f342542690dc05b9",
-          "timestamp": "2026-06-10T23:28:53.486Z"
+          "headHash": "de8113c7039018b2517bafb50e12d036808a7afd",
+          "materialHash": "99677396461c31d2ed37313c8a2b84364bdd123ba34c0284bb46ec9ee8b1c876",
+          "timestamp": "2026-06-10T23:33:59.189Z"
         }
       ]
     },
