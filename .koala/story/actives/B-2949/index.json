@@ -1,0 +1,55 @@
+{
+  "storyId": "B-2949",
+  "name": "engineering-baseline-unlock-execution-doc",
+  "title": "Write the formal Layer 2 Engineering Baseline unlock execution document",
+  "description": "Create or refine the execution document for formally unlocking Layer 2 Engineering Baseline. The document must explain how Lattice proves real engineering development capability through ENG baselines, multi-host audit discipline, evidence contracts, fail-closed rules, and sequential unlock boundaries. It must not add arbitrary optimization or overclaim production unattended development.",
+  "type": "chore",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "keywords": [
+    "engineering-baseline",
+    "unlock",
+    "execution-plan",
+    "layer-2"
+  ],
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "security"
+    },
+    {
+      "category": "Data Migration/Destructive",
+      "matched": "migration"
+    },
+    {
+      "category": "Production/Emergency",
+      "matched": "production"
+    }
+  ],
+  "createdAt": "2026-06-10T14:15:04.188Z",
+  "startedAt": "2026-06-10T14:15:04.188Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-10T14:15:04.197Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-10T14:17:07.556Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-2949",
+    "branch": "story/B-2949",
+    "createdAt": "2026-06-10T14:18:01.555Z"
+  }
+}
