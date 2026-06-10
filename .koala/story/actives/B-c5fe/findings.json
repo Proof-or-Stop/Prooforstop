@@ -54,6 +54,22 @@
       ],
       "resolvedReason": "Added hard prerequisites to Phase 3 and Phase 4: explicit enforce-mode product approval, isolated koala authority enforce path, and no ordinary CLI authority-client/gate-consumption rollout based only on server/runner readiness.",
       "resolvedAt": "2026-06-10T02:45:34.330Z"
+    },
+    {
+      "id": "B-c5fe:F-004",
+      "desc": "CHK-001 verificationEvidence covers happy/edge/adversarial content, but it is still stale for the latest story HEAD. All three docs_check entries in CHK-001 record headHash=4e9ec4e852d3c8218ec4588dc1fa849eedcbaccd and timestamps around 2026-06-10T02:44:50Z, while the current story HEAD is b28f03ea758aad85dfed15926b585e5b8f990314. WHY: B-c5fe:F-001 was resolved on the claim that the docs evidence was refreshed to current HEAD/materialHash, but the stored evidence does not match the current revision, so there is no fresh proof on the latest story state even though the document content still appears to satisfy CHK-001 happy/edge/adversarial intent.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-10T02:47:45.615Z",
+      "reviewRound": "2026-06-10T02:45:18.127Z",
+      "reviewRunId": "B-c5fe:RR-007",
+      "_hash": "1f7348f9899609f4a1099b8e7f98eb52bc1e24e44c78d98033b4be244d418bca",
+      "files": [
+        "docs/requirements/decisions/authority-session-receipt-gate-execution.md"
+      ]
     }
   ]
 }
