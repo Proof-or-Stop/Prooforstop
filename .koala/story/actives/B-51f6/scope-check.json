@@ -1,0 +1,65 @@
+{
+  "storyId": "B-51f6",
+  "checkedAt": "2026-06-10T19:48:21.453Z",
+  "features": [
+    {
+      "feature": "CHK-001 readiness",
+      "covered_by": "plan.md CHK-001 + checklist CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "Readiness probe and blocker classification only; secrets/identities are presence-checked without provisioning."
+    },
+    {
+      "feature": "CHK-002 TEST gate positive path",
+      "covered_by": "plan.md CHK-002 + checklist CHK-002 + lifecycle-gate-receipt-consumption TEST Gate",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "Positive path is explicitly limited to targetPhase=TEST receipt verification, receipt-ref write, and TEST gate consumption."
+    },
+    {
+      "feature": "CHK-003 negative controls + dual-host review",
+      "covered_by": "plan.md CHK-003 + checklist CHK-003 + authority-receipt-cross-repo-live-smoke Negative Controls",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "Includes fail-closed negative controls and same-anchor Codex/Claude review while preserving Authority evidence primacy."
+    },
+    {
+      "feature": "DONE gate semantics",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "plan objective says this story intentionally does not attempt DONE semantics; checklist CHK-002 narrows targetPhase to TEST",
+      "source": "TEST receipt scope must not broaden into DONE."
+    },
+    {
+      "feature": "Server deployment or staging reconfiguration",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "CHK-001 classifies missing production-capable deployment attributes as blockers; live-smoke doc treats server readiness as prerequisite environment",
+      "source": "Scope is readiness classification and smoke execution, not deployment/reconfiguration."
+    },
+    {
+      "feature": "Credential provisioning",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "CHK-001 checks local secret/identity source presence without printing values",
+      "source": "Missing credentials block readiness; the story does not provision or rotate them."
+    },
+    {
+      "feature": "Unrelated lifecycle refactor",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Objective and CHK-002 constrain work to formal TEST gate smoke/evidence path",
+      "source": "No general lifecycle redesign or cross-phase refactor is in scope."
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "covered": 3,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "90517bc58d4f6b9dcc30157cfba9757005ee134b8a85da157dbf1bee104947e4"
+}

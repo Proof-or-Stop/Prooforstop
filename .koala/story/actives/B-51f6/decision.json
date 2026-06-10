@@ -1,0 +1,76 @@
+{
+  "principles": [
+    "Fail closed: no production-capable key and proof endpoint means no production smoke pass.",
+    "Host-neutral evidence: Claude and Codex can review, but Authority receipts remain the authority source.",
+    "Narrow scope: target TEST gate only and avoid DONE semantics or unrelated refactors.",
+    "Structured anchors over prose: record ids, digests, commits, and classifications.",
+    "Do not optimize arbitrarily; only react to correctness blockers found by the smoke."
+  ],
+  "drivers": [
+    "Staging currently appears reachable but production-inert and missing the proof endpoint.",
+    "The release rule forbids claiming production readiness from local-test or contract-only evidence.",
+    "The worktree must stay isolated from the eight unrelated dirty files on Orchestrate main."
+  ],
+  "options": [
+    {
+      "name": "readiness-first-fail-closed-smoke",
+      "pros": [
+        "Stops before mutating positive flow when staging cannot produce production evidence.",
+        "Produces an honest formal BLOCKED transcript with exact environment/version blockers.",
+        "Matches the documented release rule and host-neutral trust boundary."
+      ],
+      "cons": [
+        "If staging is not deployed/configured correctly, this story ends as blocked/audit evidence rather than a green E2E pass."
+      ]
+    },
+    {
+      "name": "attempt-full-positive-flow-anyway",
+      "pros": [
+        "Could exercise more endpoints if credentials and server behavior happen to allow it."
+      ],
+      "cons": [
+        "Risks treating local-test or transport-only results as authority evidence.",
+        "Would spend effort on mutating calls even after readiness already proves the smoke cannot be production-valid."
+      ]
+    },
+    {
+      "name": "fallback-to-local-stub",
+      "pros": [
+        "Fast and deterministic."
+      ],
+      "cons": [
+        "Does not answer the user request for formal staging verification.",
+        "Would duplicate prior contract/stub coverage and violate the live smoke release rule."
+      ]
+    }
+  ],
+  "chosen": "readiness-first-fail-closed-smoke",
+  "rationale": "Choose readiness-first fail-closed smoke because the user asked for formal staging verification and our docs require production-capable authority before any TEST gate receipt can count. If staging readiness fails, the correct deliverable is a structured BLOCKED classification, not a forced green path.",
+  "preMortem": [
+    {
+      "scenario": "Staging is reachable but still advertises dev-server-key/local-test/productionInert.",
+      "trigger": "GET /v1/authority/policy shows productionInert=true or default/dev key id.",
+      "consequence": "A positive smoke would be invalid and misleading.",
+      "mitigation": "Stop at CHK-001, record invalid production authority blocker, do not write production-gate-decision receipt refs."
+    },
+    {
+      "scenario": "Staging has not deployed the receipt proof endpoint.",
+      "trigger": "OpenAPI lacks /v1/receipts/{receipt_id}/proof or fetch returns 404.",
+      "consequence": "CLI cannot verify inputDigest/decisionDigest proof bundle for gate consumption.",
+      "mitigation": "Classify as environment version blocker and do not claim receipt verification."
+    },
+    {
+      "scenario": "Secrets or identities are missing in the local environment.",
+      "trigger": "API key, actor key, runner id, session id, project id, or trusted pin source is absent.",
+      "consequence": "Mutating live flow cannot safely run or would expose secrets if mishandled.",
+      "mitigation": "Record only presence/absence, never secret values, and stop before positive flow."
+    },
+    {
+      "scenario": "Host evidence is confused with Authority evidence.",
+      "trigger": "Claude/Codex agree on transcript but no verified production receipt exists.",
+      "consequence": "User could believe production readiness was proven when it was not.",
+      "mitigation": "State host verdicts are local evidence only and require production gate_decision receipt for PASS."
+    }
+  ],
+  "timestamp": "2026-06-10T19:44:34.997Z"
+}

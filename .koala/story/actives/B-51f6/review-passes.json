@@ -1,0 +1,67 @@
+{
+  "passes": [
+    {
+      "id": "B-51f6:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "Reviewed all 9 verificationIntent entries. Each has fresh verificationEvidence; blocked_classified is used appropriately for readiness-blocked or no-production-receipt branches, while success is used for fail-closed local checks. authority-receipt-proof, authority-gate-receipts, and authority-gate-consumption smokes cover non-production, mismatch, stale, missing, and phase-gating failures, so they support the fail-closed conclusion. Production negative controls were reasonably not run because no verified production gate_decision receipt/ref exists.",
+      "createdAt": "2026-06-10T19:56:37.596Z",
+      "reviewRound": "2026-06-10T19:53:37.881Z",
+      "reviewRunId": "B-51f6:RR-003",
+      "_hash": "8d0c7e0c8f89dfc0e345107ed7d5123306013f77a18daa0bae7f05eab0c9d45c"
+    },
+    {
+      "id": "B-51f6:RP-002",
+      "agent": "koala-review-concept",
+      "note": "probe alt id format",
+      "createdAt": "2026-06-10T19:57:26.218Z",
+      "reviewRound": "2026-06-10T19:53:37.881Z",
+      "reviewRunId": "B-51f6:RR-005",
+      "_hash": "f7a704ae722232c20cf9d3e7f334fa2a9874dafef7902ca74220b691eb6eceb8"
+    },
+    {
+      "id": "B-51f6:RP-003",
+      "agent": "koala-review-concept",
+      "note": "Re-verified current staging probes and story evidence. readiness remains BLOCKED because policy still reports dev-server-key/local-test/ephemeral/isDefaultTestKey/productionInert, OpenAPI still lacks /v1/receipts/{receipt_id}/proof with live 404 probe, no authority-receipt-refs.json exists, and the audit transcript explicitly states host verdicts are local evidence only and cannot substitute for a production gate_decision receipt. Scope still stays TEST-only; DONE semantics remain excluded and the story phase is still REVIEW pending remaining reviewer passes.",
+      "createdAt": "2026-06-10T20:08:05.886Z",
+      "reviewRound": "2026-06-10T20:04:12.927Z",
+      "reviewRunId": "B-51f6:RR-006",
+      "_hash": "0a9a4b4112b162b93eda8ad12b9a341112a25cd4e5a411402b8720aa90f1e81b"
+    },
+    {
+      "id": "B-51f6:RP-004",
+      "agent": "koala-review-quality",
+      "note": "Re-checked prior quality findings against current evidence and live git state. F-001 now has reproducible readiness commands, exact Claude prompts plus anchor payload, and explicit authority-receipt-refs absence evidence in staging-readiness-audit.md/checklist verificationEvidence. F-002 now persists the original eight-file dirty baseline in the audit artifact. F-003 is fixed: git merge-base --is-ancestor main HEAD returns 0 and both main..HEAD and main...HEAD diffs contain only .koala/story/actives/B-51f6 metadata paths. Secret-pattern scan on the story diff found no leaked credentials, and there are no unrelated code-path changes outside B-51f6 metadata.",
+      "createdAt": "2026-06-10T20:08:18.524Z",
+      "reviewRound": "2026-06-10T20:04:12.927Z",
+      "reviewRunId": "B-51f6:RR-008",
+      "_hash": "6c3187f785aac64c54b3b6fc27e9c92efd16e81861fcf7f1f8d1b52f4b9268b8"
+    },
+    {
+      "id": "B-51f6:RP-005",
+      "agent": "koala-review-test-coverage",
+      "note": "Verified F-004 remediation: staging-readiness-audit.md now persists Same-Anchor Payload JSON with materialHash, targetPhase=TEST, explicit unavailable receipt-ref/consumed-receipt/job-run-signedEvidence-gateInput-decision anchors; CHK-003 verificationEvidence points at this payload; lattice evidence_inspect is fresh; all findings are resolved.",
+      "createdAt": "2026-06-10T20:11:55.821Z",
+      "reviewRound": "2026-06-10T20:10:08.151Z",
+      "reviewRunId": "B-51f6:RR-009",
+      "_hash": "79daf231b5152a6bb7c3eb09545f11d97d0c8cad587524eb2c6c1617875cca66"
+    },
+    {
+      "id": "B-51f6:RP-006",
+      "agent": "koala-review-concept",
+      "note": "Staging audit is correctly classified BLOCKED, not production PASS: health is OK but OpenAPI lacks /v1/receipts/{receipt_id}/proof, the proof probe returns 404, policy still uses dev-server-key/local-test/ephemeral/isDefaultTestKey/productionInert with productionEnforceAuthority=false, and local context has no customer API key/actor key/runner/session/project/pin source while authority_status reports receiptVerified=false, productionDone=false, productionAuthorityUsable=false. The story stays TEST-targeted and host verdicts remain auxiliary evidence only; no production gate_decision receipt was claimed or consumed.",
+      "createdAt": "2026-06-10T20:14:10.840Z",
+      "reviewRound": "2026-06-10T20:10:08.151Z",
+      "reviewRunId": "B-51f6:RR-011",
+      "_hash": "29f366e560c62d04c5b259fb894e50dcdb40642809e2a7aa14837b293550d7d2"
+    },
+    {
+      "id": "B-51f6:RP-007",
+      "agent": "koala-review-quality",
+      "note": "Quality review re-verified current live/state evidence. git diff --name-only main..HEAD and main...HEAD contain only .koala/story/actives/B-51f6 metadata/evidence, merge-base confirms main is ancestor, lattice evidence_inspect is fresh with no staleRefs, F-001..F-004 are resolved, live staging still shows dev-server-key/local-test/ephemeral/isDefaultTestKey/productionInert plus missing /v1/receipts/{receipt_id}/proof with 404 probe, authority_status keeps receiptVerified=false/productionDone=false/productionAuthorityUsable=false and missing env sources without printing values, local build plus authority regression smokes pass, and no secret-pattern leaks appear in the story diff. BLOCKED remains an environment/readiness classification rather than a masked test failure, and no out-of-scope code/config/doc changes are present.",
+      "createdAt": "2026-06-10T20:15:16.544Z",
+      "reviewRound": "2026-06-10T20:10:08.151Z",
+      "reviewRunId": "B-51f6:RR-010",
+      "_hash": "bdc3bbdd9908a76649e7b32e95a41ab6a97508416148c868f18245feac8b86c1"
+    }
+  ]
+}

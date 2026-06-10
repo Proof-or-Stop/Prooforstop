@@ -1,0 +1,50 @@
+{
+  "storyId": "B-51f6",
+  "checkedAt": "2026-06-10T20:20:24.611Z",
+  "reviewRound": "2026-06-10T20:10:08.151Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".koala/story/actives/B-51f6/summary.json",
+      "promise": "summary.json must consistently classify the formal staging Authority receipt smoke as BLOCKED when readiness fails, not production PASS.",
+      "status": "verified",
+      "verifiedBy": "jq/manual review",
+      "evidence": "summary fields match the evidence files: expectedOutcome allows BLOCKED, actualTranscript says BLOCKED, outcomeDiff says the blocked branch was followed, acceptanceVerdict is accepted, outcomeKind is blocked."
+    },
+    {
+      "docPath": ".koala/story/actives/B-51f6/evidence/staging-readiness-audit.md",
+      "promise": "staging-readiness-audit.md must record exact blockers, secret-free readiness state, and host-neutral boundaries instead of claiming a production smoke PASS.",
+      "status": "verified",
+      "verifiedBy": "manual review",
+      "evidence": "audit records health ok, missing proof endpoint, proof probe 404, dev-server-key/local-test/ephemeral/productionInert=true, absent configured customer/actor/runner/session/project/pin sources, and final BLOCKED classification with no secret values printed."
+    },
+    {
+      "docPath": ".koala/story/actives/B-51f6/evidence/transcript-diff.md",
+      "promise": "transcript-diff.md must state the real-machine result is BLOCKED, not production PASS, and preserve the host-neutral rule that Codex/Claude review evidence only.",
+      "status": "verified",
+      "verifiedBy": "manual review",
+      "evidence": "transcript-diff records the exact blocker set, the absence of authority-receipt-refs.json, and the final BLOCKED classification while explicitly stating that host verdicts cannot substitute for a production gate_decision receipt."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Readiness probes passed only at health level; OpenAPI lacks /v1/receipts/{receipt_id}/proof, the proof probe returned 404, and authority_status reported receiptVerified=false, productionDone=false, and productionAuthorityUsable=false, so the correct classification is BLOCKED."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "The story worktree has no authority-receipt-refs.json, so no fake production-gate-decision receipt ref was written and the positive production smoke was correctly skipped."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "lattice validate --story=B-51f6 --json passed with allPass=true and 9/9 coverage, and the evidence set keeps Codex/Claude as review evidence only; neither can replace a production Authority receipt or gate consumption."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "The story is correctly classified BLOCKED for environment-readiness reasons: staging is reachable, but it lacks a proof endpoint, uses a dev/local-test/ephemeral/productionInert key, and omits required identity/pin sources. No fake receipt ref was written, and the 9/9 validate pass does not override the BLOCKED classification."
+  },
+  "_hash": "c6a8ed7cb349b834a599b23e344cc1e47a04ae9c9352360f281ca87ae121661d"
+}
