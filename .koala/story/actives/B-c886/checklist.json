@@ -8,9 +8,9 @@
         "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
         "Lattice-Engineering-baseline.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-10T12:09:35.138Z",
-      "endTime": null,
+      "endTime": "2026-06-10T12:48:00.012Z",
       "userSees": "Engineering suite output can show a valid EXPECTED_BLOCK safety refusal as expected-block evidence instead of reporting it as a suite blocker.",
       "verificationIntent": {
         "happy": [
@@ -31,7 +31,45 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/lattice-baseline-smoke.ts",
+          "command": "npm run build && npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke cases 9 and 10 prove Engineering EXPECTED_BLOCK final reports require expectedBlockReasons/refusalEvidenceRefs, reject generic blockedReasons, and do not create suite-level blockers when valid.",
+          "headHash": "7efb8fb8ac8deba1c9e558333092d4c5714ad0fa",
+          "materialHash": "f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e",
+          "timestamp": "2026-06-10T12:48:00.085Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/core/lattice-baseline.ts",
+          "command": "npm run build && npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "parseFinalReport and expectedBlockEvidenceProblems fail closed when expectedBlockReasons/refusalEvidenceRefs are missing or malformed.",
+          "headHash": "7efb8fb8ac8deba1c9e558333092d4c5714ad0fa",
+          "materialHash": "f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e",
+          "timestamp": "2026-06-10T12:48:00.144Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/lattice-baseline-smoke.ts",
+          "command": "npm run build && npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "PASS-only baselines still reject EXPECTED_BLOCK through definition expectedOutcomes, and expected refusals hidden in generic blockedReasons are rejected.",
+          "headHash": "7efb8fb8ac8deba1c9e558333092d4c5714ad0fa",
+          "materialHash": "f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e",
+          "timestamp": "2026-06-10T12:48:00.199Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
