@@ -480,6 +480,16 @@
           "headHash": "c7f1191c282920cca9635ce96ac9b37d04349831",
           "materialHash": "a942714883fc8bc4285050a5ca164752c95b395fdcb7cf3a21632dd1f66e8f48",
           "timestamp": "2026-06-10T17:30:54.667Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:authority-status-smoke",
+          "result": "pass",
+          "note": "Status smoke covers verified+eligible but unconsumed receipt refs, proving receiptVerified=true does not imply receiptConsumed=true.",
+          "headHash": "432c3486d5a1e9b6aa70a3bd929179b748094fd6",
+          "materialHash": "a942714883fc8bc4285050a5ca164752c95b395fdcb7cf3a21632dd1f66e8f48",
+          "timestamp": "2026-06-10T17:30:54.957Z"
         }
       ]
     },
