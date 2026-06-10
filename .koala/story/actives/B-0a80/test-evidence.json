@@ -1,0 +1,196 @@
+{
+  "command": "koala validate --story=B-0a80 --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"fail\",\"allPass\":false,\"summary\":\"Project validation commands failed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✗ package.json test script: npm test\",\"  > koala@0.3.5 test\",\"  > npm run test:e2e\",\"  > koala@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  node:internal/modules/cjs/loader:1247\",\"    throw err;\",\"    ^\",\"  Error: Cannot find module '/Users/jek/Documents/Work/Orchestrate/.worktrees/B-0a80/packages/main/dist/tasks/cli-e2e.js'\",\"      at Function._resolveFilename (node:internal/modules/cjs/loader:1244:15)\",\"      at Function._load (node:internal/modules/cjs/loader:1070:27)\",\"      at TracingChannel.traceSync (node:diagnostics_channel:322:14)\",\"      at wrapModuleLoad (node:internal/modules/cjs/loader:217:24)\",\"      at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:170:5)\",\"      at node:internal/main/run_main_module:36:49 {\",\"    code: 'MODULE_NOT_FOUND',\",\"    requireStack: []\",\"  }\",\"  Node.js v22.13.0\",\"Verification intent coverage: 9/9 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/logic] covered via logic_test verdict=success — Generated timestamps are not earlier than their declared input artifacts.\",\"  ✓ CHK-001:edge:0 [edge/must/logic] covered via logic_test verdict=success — All old .worktrees/B-688d absolute paths are replaced with current repo-relative artifact paths.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/logic] covered via logic_test verdict=success — Reject provenance that claims an artifact consumed an input generated in the future or located only in a deleted worktree.\",\"  ✓ CHK-002:happy:0 [happy/must/logic] covered via logic_test verdict=success — Expected-PASS failed runs keep outcome=FAIL and blockedReason=local independent review evidence is missing.\",\"  ✓ CHK-002:edge:0 [edge/must/logic] covered via logic_test verdict=success — No report says terminal criteria were not satisfied while terminalCriteriaSatisfied=true and terminalCriteriaFailures is empty.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/logic] covered via logic_test verdict=success — Reject any wording change that turns missing review evidence into PASS or hides the block.\",\"  ✓ CHK-003:happy:0 [happy/must/logic] covered via logic_test verdict=success — Shared-contract evidenceRefs match the current SHA256 of every referenced artifact.\",\"  ✓ CHK-003:edge:0 [edge/must/logic] covered via logic_test verdict=success — The fix does not change host-neutral dispatch shape: canonical codex/claude-code hosts, 8 lanes, 4 locks.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/logic] covered via logic_test verdict=success — Reject any fix that changes GO-NOT-YET into GO or upgrades local-lifecycle evidence to receipt-backed authority.\"],\"warnings\":[],\"timestamp\":\"2026-06-10T00:35:00.634Z\",\"headSha\":\"0e42a32ba3861585dbdc1f11600f8f0ce7e117f7\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":1,\"output\":\"\\n> koala@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\nnode:internal/modules/cjs/loader:1247\\n  throw err;\\n  ^\\n\\nError: Cannot find module '/Users/jek/Documents/Work/Orchestrate/.worktrees/B-0a80/packages/main/dist/tasks/cli-e2e.js'\\n    at Function._resolveFilename (node:internal/modules/cjs/loader:1244:15)\\n    at Function._load (node:internal/modules/cjs/loader:1070:27)\\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\\n    at wrapModuleLoad (node:internal/modules/cjs/loader:217:24)\\n    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:170:5)\\n    at node:internal/main/run_main_module:36:49 {\\n  code: 'MODULE_NOT_FOUND',\\n  requireStack: []\\n}\\n\\nNode.js v22.13.0\\n\",\"durationMs\":228}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":9,\"reason\":\"verificationIntent entries present (9)\"},\"verificationCoverage\":{\"total\":9,\"required\":9,\"covered\":9,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Generated timestamps are not earlier than their declared input artifacts.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"command\":\"node inline B-0a80 artifact consistency check\",\"result\":\"pass\",\"note\":\"Verified final-report generatedAt is not earlier than baseline-suite-report generatedAt and no future-input provenance remains.\",\"headHash\":\"e467087f4f9a5a2184743fc366c28fbc4bcb9cba\",\"materialHash\":\"225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87\",\"timestamp\":\"2026-06-10T00:28:40.045Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"All old .worktrees/B-688d absolute paths are replaced with current repo-relative artifact paths.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"command\":\"rg -n \\\"\\\\.worktrees/B-688d\\\" .omx/artifacts/baseline/B-688d .omx/artifacts/parallel-development/B-688d\",\"result\":\"pass\",\"note\":\"Search returned no deleted .worktrees/B-688d absolute path references; paths are repo-relative.\",\"headHash\":\"e467087f4f9a5a2184743fc366c28fbc4bcb9cba\",\"materialHash\":\"225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87\",\"timestamp\":\"2026-06-10T00:28:40.067Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Reject provenance that claims an artifact consumed an input generated in the future or located only in a deleted worktree.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"command\":\"node inline B-0a80 artifact consistency check\",\"result\":\"pass\",\"note\":\"Consistency check rejects future-input provenance or deleted-worktree-only locations; current artifacts passed.\",\"headHash\":\"e467087f4f9a5a2184743fc366c28fbc4bcb9cba\",\"materialHash\":\"225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87\",\"timestamp\":\"2026-06-10T00:28:40.088Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"Expected-PASS failed runs keep outcome=FAIL and blockedReason=local independent review evidence is missing.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"command\":\"node inline B-0a80 artifact consistency check\",\"result\":\"pass\",\"note\":\"All five expected-PASS failing baseline runs still have outcome=FAIL and blockedReason=local independent review evidence is missing.\",\"headHash\":\"2d87a6b8c53bafc832efe0427f32f3c2780683c1\",\"materialHash\":\"225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87\",\"timestamp\":\"2026-06-10T00:28:40.831Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"No report says terminal criteria were not satisfied while terminalCriteriaSatisfied=true and terminalCriteriaFailures is empty.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"command\":\"rg -n \\\"baseline terminal criteria were not satisfied|terminal_criteria_not_met\\\" .omx/artifacts/baseline/B-688d\",\"result\":\"pass\",\"note\":\"Search returned no contradictory terminal criteria failure wording after normalization.\",\"headHash\":\"2d87a6b8c53bafc832efe0427f32f3c2780683c1\",\"materialHash\":\"225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87\",\"timestamp\":\"2026-06-10T00:28:40.853Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Reject any wording change that turns missing review evidence into PASS or hides the block.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"command\":\"node inline B-0a80 artifact consistency check\",\"result\":\"pass\",\"note\":\"The repair did not convert missing independent review evidence into PASS or hide the block; suiteStatus remains FAIL.\",\"headHash\":\"2d87a6b8c53bafc832efe0427f32f3c2780683c1\",\"materialHash\":\"225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87\",\"timestamp\":\"2026-06-10T00:28:40.874Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Shared-contract evidenceRefs match the current SHA256 of every referenced artifact.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"command\":\"node inline B-0a80 artifact consistency check\",\"result\":\"pass\",\"note\":\"Recomputed every shared-contract evidenceRef SHA256 and verified each matches the current referenced file.\",\"headHash\":\"456f28b6e6f84b358fe673b55ac3b417995a44d8\",\"materialHash\":\"225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87\",\"timestamp\":\"2026-06-10T00:28:41.680Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"The fix does not change host-neutral dispatch shape: canonical codex/claude-code hosts, 8 lanes, 4 locks.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"command\":\"node inline B-0a80 artifact consistency check\",\"result\":\"pass\",\"note\":\"Host-neutral dispatch shape is unchanged: canonical codex/claude-code hosts, 8 lanes, and 4 locks.\",\"headHash\":\"456f28b6e6f84b358fe673b55ac3b417995a44d8\",\"materialHash\":\"225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87\",\"timestamp\":\"2026-06-10T00:28:41.707Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Reject any fix that changes GO-NOT-YET into GO or upgrades local-lifecycle evidence to receipt-backed authority.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"command\":\"node inline B-0a80 artifact consistency check\",\"result\":\"pass\",\"note\":\"GO-NOT-YET, authorityMode=off, evidenceClass=local-lifecycle, receiptVerified=false, and productionDone=false are unchanged.\",\"headHash\":\"456f28b6e6f84b358fe673b55ac3b417995a44d8\",\"materialHash\":\"225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87\",\"timestamp\":\"2026-06-10T00:28:41.732Z\"}}]}}",
+  "result": "FAIL",
+  "timestamp": "2026-06-10T00:35:00.868Z",
+  "headHash": "0e42a32ba3861585dbdc1f11600f8f0ce7e117f7",
+  "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
+  "verificationCoverage": {
+    "total": 9,
+    "required": 9,
+    "covered": 9,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "Generated timestamps are not earlier than their declared input artifacts.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node inline B-0a80 artifact consistency check",
+          "result": "pass",
+          "note": "Verified final-report generatedAt is not earlier than baseline-suite-report generatedAt and no future-input provenance remains.",
+          "headHash": "e467087f4f9a5a2184743fc366c28fbc4bcb9cba",
+          "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
+          "timestamp": "2026-06-10T00:28:40.045Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "All old .worktrees/B-688d absolute paths are replaced with current repo-relative artifact paths.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "rg -n \"\\.worktrees/B-688d\" .omx/artifacts/baseline/B-688d .omx/artifacts/parallel-development/B-688d",
+          "result": "pass",
+          "note": "Search returned no deleted .worktrees/B-688d absolute path references; paths are repo-relative.",
+          "headHash": "e467087f4f9a5a2184743fc366c28fbc4bcb9cba",
+          "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
+          "timestamp": "2026-06-10T00:28:40.067Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Reject provenance that claims an artifact consumed an input generated in the future or located only in a deleted worktree.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node inline B-0a80 artifact consistency check",
+          "result": "pass",
+          "note": "Consistency check rejects future-input provenance or deleted-worktree-only locations; current artifacts passed.",
+          "headHash": "e467087f4f9a5a2184743fc366c28fbc4bcb9cba",
+          "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
+          "timestamp": "2026-06-10T00:28:40.088Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "Expected-PASS failed runs keep outcome=FAIL and blockedReason=local independent review evidence is missing.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node inline B-0a80 artifact consistency check",
+          "result": "pass",
+          "note": "All five expected-PASS failing baseline runs still have outcome=FAIL and blockedReason=local independent review evidence is missing.",
+          "headHash": "2d87a6b8c53bafc832efe0427f32f3c2780683c1",
+          "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
+          "timestamp": "2026-06-10T00:28:40.831Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "No report says terminal criteria were not satisfied while terminalCriteriaSatisfied=true and terminalCriteriaFailures is empty.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "rg -n \"baseline terminal criteria were not satisfied|terminal_criteria_not_met\" .omx/artifacts/baseline/B-688d",
+          "result": "pass",
+          "note": "Search returned no contradictory terminal criteria failure wording after normalization.",
+          "headHash": "2d87a6b8c53bafc832efe0427f32f3c2780683c1",
+          "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
+          "timestamp": "2026-06-10T00:28:40.853Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Reject any wording change that turns missing review evidence into PASS or hides the block.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node inline B-0a80 artifact consistency check",
+          "result": "pass",
+          "note": "The repair did not convert missing independent review evidence into PASS or hide the block; suiteStatus remains FAIL.",
+          "headHash": "2d87a6b8c53bafc832efe0427f32f3c2780683c1",
+          "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
+          "timestamp": "2026-06-10T00:28:40.874Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Shared-contract evidenceRefs match the current SHA256 of every referenced artifact.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node inline B-0a80 artifact consistency check",
+          "result": "pass",
+          "note": "Recomputed every shared-contract evidenceRef SHA256 and verified each matches the current referenced file.",
+          "headHash": "456f28b6e6f84b358fe673b55ac3b417995a44d8",
+          "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
+          "timestamp": "2026-06-10T00:28:41.680Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "The fix does not change host-neutral dispatch shape: canonical codex/claude-code hosts, 8 lanes, 4 locks.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node inline B-0a80 artifact consistency check",
+          "result": "pass",
+          "note": "Host-neutral dispatch shape is unchanged: canonical codex/claude-code hosts, 8 lanes, and 4 locks.",
+          "headHash": "456f28b6e6f84b358fe673b55ac3b417995a44d8",
+          "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
+          "timestamp": "2026-06-10T00:28:41.707Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Reject any fix that changes GO-NOT-YET into GO or upgrades local-lifecycle evidence to receipt-backed authority.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node inline B-0a80 artifact consistency check",
+          "result": "pass",
+          "note": "GO-NOT-YET, authorityMode=off, evidenceClass=local-lifecycle, receiptVerified=false, and productionDone=false are unchanged.",
+          "headHash": "456f28b6e6f84b358fe673b55ac3b417995a44d8",
+          "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
+          "timestamp": "2026-06-10T00:28:41.732Z"
+        }
+      }
+    ]
+  }
+}
