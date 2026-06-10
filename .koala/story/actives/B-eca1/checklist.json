@@ -90,9 +90,9 @@
         "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
         "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-10T16:34:20.597Z",
-      "endTime": null,
+      "endTime": "2026-06-10T16:56:39.551Z",
       "userSees": "After verification, the command prints: Receipt ref: PASS path=.koala/story/actives/<storyId>/authority-receipt-refs.json receiptId=<id> status=active.",
       "files": {
         "modify": [
@@ -129,7 +129,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:authority-receipt-proof && npm --prefix packages/main run test:authority-gate-receipts",
+          "result": "pass",
+          "note": "Valid production gate_decision proof with caller-pinned production authority key digest writes one active authority-receipt-refs.json ref through StoryStore; receipt ref includes targetPhase, decisionVerdict, digest, status, and path.",
+          "headHash": "14a9770a7af91bca0da86c8c47cffdef799a6488",
+          "materialHash": "6e8e6f34bf50277d2608d39dd40a241e52e7493ca73de049de1b6963feb5e97e",
+          "timestamp": "2026-06-10T16:56:39.587Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:authority-receipt-proof && npm --prefix packages/main run test:authority-gate-receipts",
+          "result": "pass",
+          "note": "Proof smoke asserts re-verifying the same receipt id leaves refs.length=1, and gate receipt smoke covers upsert/eligibility behavior without duplicate active refs.",
+          "headHash": "14a9770a7af91bca0da86c8c47cffdef799a6488",
+          "materialHash": "6e8e6f34bf50277d2608d39dd40a241e52e7493ca73de049de1b6963feb5e97e",
+          "timestamp": "2026-06-10T16:56:39.614Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:authority-receipt-proof && npm --prefix packages/main run test:authority-boundary-smoke && npm --prefix packages/main run test:authority-evidence-flow && npm --prefix packages/main run test:authority-enforce-matrix && npm --prefix packages/main run test:command-ownership-contract",
+          "result": "pass",
+          "note": "Local-test/untrusted/invalid proofs remain diagnostic-only and written=false; missing storyId/index is rejected before proof load so no orphan receipt refs are created; Codex and Claude read-only follow-up audits both PASS the owner-lease missing-story fix.",
+          "headHash": "14a9770a7af91bca0da86c8c47cffdef799a6488",
+          "materialHash": "6e8e6f34bf50277d2608d39dd40a241e52e7493ca73de049de1b6963feb5e97e",
+          "timestamp": "2026-06-10T16:56:39.644Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
