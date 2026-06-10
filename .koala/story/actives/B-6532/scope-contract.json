@@ -85,8 +85,27 @@
         "packages/main/src/handlers/baseline.ts",
         "packages/main/src/cli-engine.ts"
       ]
+    },
+    {
+      "actor": "codex-auditor",
+      "reason": "User explicitly required moving prior Lattice assets out of .omx into .lattice; these paths update migrated artifact ownership and stale .omx artifact references without expanding capability claims.",
+      "timestamp": "2026-06-10T23:54:54.618Z",
+      "paths": [
+        ".lattice/artifacts/legacy-omx/",
+        ".lattice/artifacts/parallel-development/B-688d/",
+        ".lattice/artifacts/authority/B-4a53/authority-strong-evidence-report.json",
+        ".lattice/artifacts/claude-implementer-B-688d-20260609T230608Z.md",
+        ".lattice/artifacts/claude-implementer-fix-B-688d-20260609T231018Z.md",
+        ".lattice/artifacts/claude-implementer-fix2-B-688d-20260609T231242Z.md",
+        "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md"
+      ],
+      "anchors": [
+        "lattice_artifact_root_migration",
+        "host_neutral_asset_ownership",
+        "no_omx_baseline_assets"
+      ]
     }
   ],
   "createdAt": "2026-06-10T22:32:56.682Z",
-  "updatedAt": "2026-06-10T23:22:35.335Z"
+  "updatedAt": "2026-06-10T23:54:54.618Z"
 }
