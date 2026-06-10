@@ -144,9 +144,9 @@
         "Lattice-Review-reflection-loop.md",
         "Lattice-Parallel-Development-Capability.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-10T02:15:01.208Z",
       "userSees": "`node bin/lattice.js baseline_run --baselineId=UDM-EVIDENCE-GATE-1 --format=json` prints `\"outcome\":\"EXPECTED_BLOCK\"` with `\"blockedReasons\"` for missing evidence, plus loop policy and gate-result artifact paths.",
       "files": {
         "modify": [
@@ -181,7 +181,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke verifies Loop Engineering command surface and artifact contracts are available through local baseline runner/report behavior.",
+          "headHash": "a469ec729c6f40cb466209b4015e2b4abfd87ef2",
+          "materialHash": "ecfbe252e6f34e4d0e38ec214fad1ad721ef323e1602d2167f6d45c7d337d4a5",
+          "timestamp": "2026-06-10T02:15:01.240Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js baseline_run --baselineId=UDM-EVIDENCE-GATE-1 --format=json",
+          "result": "pass",
+          "note": "UDM-EVIDENCE-GATE-1 returns EXPECTED_BLOCK with blocked reasons under local diagnostic mode until fresh evidence exists.",
+          "headHash": "a469ec729c6f40cb466209b4015e2b4abfd87ef2",
+          "materialHash": "ecfbe252e6f34e4d0e38ec214fad1ad721ef323e1602d2167f6d45c7d337d4a5",
+          "timestamp": "2026-06-10T02:15:01.262Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke verifies stale evidence/schema drift/parallel proof substitution cannot unlock higher claims or PASS wording.",
+          "headHash": "a469ec729c6f40cb466209b4015e2b4abfd87ef2",
+          "materialHash": "ecfbe252e6f34e4d0e38ec214fad1ad721ef323e1602d2167f6d45c7d337d4a5",
+          "timestamp": "2026-06-10T02:15:01.285Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
