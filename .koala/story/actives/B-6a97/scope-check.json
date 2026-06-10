@@ -1,0 +1,59 @@
+{
+  "storyId": "B-6a97",
+  "checkedAt": "2026-06-10T00:52:58.654Z",
+  "features": [
+    {
+      "feature": "CHK-001: dual-host independent review evidence for five expected-PASS runs",
+      "covered_by": "understanding.constraints + decision.chosen=A + plan CHK-001 stop-conditions",
+      "status": "covered",
+      "excluded_by": ""
+    },
+    {
+      "feature": "CHK-002: regenerate baseline suite report as PASS from proof",
+      "covered_by": "plan CHK-002 execution + stop-conditions",
+      "status": "covered",
+      "excluded_by": ""
+    },
+    {
+      "feature": "CHK-003: update parallel final report Layer 1 boundary",
+      "covered_by": "plan CHK-003 execution + stop-conditions",
+      "status": "covered",
+      "excluded_by": ""
+    },
+    {
+      "feature": "RED-GAP-BLOCK-1 must not convert to PASS",
+      "covered_by": "understanding.constraints + decision.preMortem[0] + checklist + plan stop-conditions",
+      "status": "covered",
+      "excluded_by": ""
+    },
+    {
+      "feature": "Authority boundary preserved (local-lifecycle only)",
+      "covered_by": "understanding.constraints + decision.preMortem[1] + plan CHK-003",
+      "status": "covered",
+      "excluded_by": ""
+    },
+    {
+      "feature": "No source/runner/test/fixture changes",
+      "covered_by": "all CHK file targets within .omx/artifacts only",
+      "status": "covered",
+      "excluded_by": ""
+    },
+    {
+      "feature": "No Engineering/Loop/Production unlocks",
+      "covered_by": "decision.principles[2] + plan CHK-003 stop-conditions",
+      "status": "covered",
+      "excluded_by": ""
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "covered": 7,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "b1c4d37d2c21f7a5a5fb8e91a0350a4eabba117f50eec7cd4251af3ff34e34a3",
+  "openQuestions": []
+}
