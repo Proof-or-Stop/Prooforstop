@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-e3d9:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "Pass. lattice validate --story=B-e3d9 reports 15/15 verificationIntent refs covered on HEAD f715ee8, lattice gap_analyze reports 0 high / 0 medium and 100% coverage, and focused smoke commands passed in this review run: npm run test:authority-client, npm run test:lattice-cli-migration-smoke, npm run test:worktree-policy-smoke, npm run test:planner-unattended-smoke. CHK-005 host evidence is explicitly advisory/manual and does not replace Lattice validate or gap_analyze gate facts.",
+      "createdAt": "2026-06-10T23:12:54.725Z",
+      "reviewRound": "2026-06-10T23:09:18.249Z",
+      "reviewRunId": "B-e3d9:RR-001",
+      "_hash": "a95d3b823cce3b565711114277eedf8f0a1d64123566cef6c3f78bee2b5eb006"
+    }
+  ]
+}
