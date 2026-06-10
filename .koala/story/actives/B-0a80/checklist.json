@@ -167,9 +167,9 @@
         "docs/requirements/decisions/authority-client-role.md",
         "docs/requirements/decisions/lattice-parallel-wave.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-10T00:28:41.252Z",
-      "endTime": "2026-06-10T00:28:26.990Z",
+      "endTime": "2026-06-10T00:28:41.651Z",
       "userSees": "User sees authority/host-neutral regression PASS: shared-contract hashes are refreshed and GO-NOT-YET, authorityMode=off, evidenceClass=local-lifecycle, 2 hosts, 8 lanes, and 4 locks are unchanged.",
       "files": {
         "modify": [
@@ -207,32 +207,35 @@
         {
           "intentRef": "CHK-003:happy:0",
           "kind": "logic_test",
-          "command": "node artifact consistency check for B-688d provenance, failure semantics, evidenceRefs hashes, authority boundary, host/lane/lock shape",
+          "verdict": "success",
+          "command": "node inline B-0a80 artifact consistency check",
           "result": "pass",
-          "note": "Every shared-contract evidenceRefs sha256 matched the current referenced artifact content.",
-          "headHash": "5fe70afa4101102b394fd4b02072d171982c11b0",
+          "note": "Recomputed every shared-contract evidenceRef SHA256 and verified each matches the current referenced file.",
+          "headHash": "456f28b6e6f84b358fe673b55ac3b417995a44d8",
           "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
-          "timestamp": "2026-06-10T00:28:27.014Z"
+          "timestamp": "2026-06-10T00:28:41.680Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
           "kind": "logic_test",
-          "command": "node artifact consistency check for B-688d provenance, failure semantics, evidenceRefs hashes, authority boundary, host/lane/lock shape",
+          "verdict": "success",
+          "command": "node inline B-0a80 artifact consistency check",
           "result": "pass",
-          "note": "Printed exactly: authority/host-neutral regression check: PASS (GO-NOT-YET/off/local-lifecycle, hosts=2, lanes=8, locks=4).",
-          "headHash": "5fe70afa4101102b394fd4b02072d171982c11b0",
+          "note": "Host-neutral dispatch shape is unchanged: canonical codex/claude-code hosts, 8 lanes, and 4 locks.",
+          "headHash": "456f28b6e6f84b358fe673b55ac3b417995a44d8",
           "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
-          "timestamp": "2026-06-10T00:28:27.037Z"
+          "timestamp": "2026-06-10T00:28:41.707Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "logic_test",
-          "command": "node artifact consistency check for B-688d provenance, failure semantics, evidenceRefs hashes, authority boundary, host/lane/lock shape",
+          "verdict": "success",
+          "command": "node inline B-0a80 artifact consistency check",
           "result": "pass",
-          "note": "The check would fail on GO-NOT-YET drift, Authority receipt overclaim, host count drift, lane count drift, or lock count drift.",
-          "headHash": "5fe70afa4101102b394fd4b02072d171982c11b0",
+          "note": "GO-NOT-YET, authorityMode=off, evidenceClass=local-lifecycle, receiptVerified=false, and productionDone=false are unchanged.",
+          "headHash": "456f28b6e6f84b358fe673b55ac3b417995a44d8",
           "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
-          "timestamp": "2026-06-10T00:28:27.058Z"
+          "timestamp": "2026-06-10T00:28:41.732Z"
         }
       ]
     }
