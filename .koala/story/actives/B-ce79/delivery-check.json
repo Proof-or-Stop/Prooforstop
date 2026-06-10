@@ -1,0 +1,98 @@
+{
+  "storyId": "B-ce79",
+  "checkedAt": "2026-06-10T21:44:31.133Z",
+  "reviewRound": "2026-06-10T21:37:05.131Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/unlock-layer2-ENG-suite.md#5",
+      "promise": "All 9 ENG baselines execute through formal proof-producing path",
+      "status": "verified",
+      "verifiedBy": "smoke",
+      "evidence": "lattice-baseline-smoke writes all 9 ENG formal reports and asserts coveredBaselineIds length 9 with formalProof true."
+    },
+    {
+      "docPath": "docs/requirements/decisions/unlock-layer2-ENG-suite.md#7",
+      "promise": "Evidence contract enforces baselineId, runId, headHash, materialHash and receipt bindings",
+      "status": "verified",
+      "verifiedBy": "smoke",
+      "evidence": "Smoke covers missing receipt suite binding, missing receipt evidence digest binding, stale verifiedAt and mismatched bindings fail closed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/unlock-layer2-ENG-suite.md#10",
+      "promise": "Stale, missing, forged, local-only or mismatched evidence fails closed",
+      "status": "verified",
+      "verifiedBy": "smoke",
+      "evidence": "Smoke covers missing development proof, stale development proof, stale final report, local stub and forged suite summary as blocked or locked."
+    },
+    {
+      "docPath": "docs/requirements/decisions/unlock-layer2-ENG-suite.md#11",
+      "promise": "Only Layer 2 Engineering unlocks; Loop, Production and global claims remain locked",
+      "status": "verified",
+      "verifiedBy": "smoke",
+      "evidence": "Formal claim smoke asserts layer2EngineeringClaim UNLOCKED for engineering and LOCKED for higher targets."
+    },
+    {
+      "docPath": "docs/requirements/decisions/unlock-layer2-ENG-suite.md#8",
+      "promise": "CLI local evaluation does not claim productionDone or full authority",
+      "status": "verified",
+      "verifiedBy": "smoke",
+      "evidence": "BASELINE_AUTHORITY_BOUNDARY remains false and smoke asserts assertNoAuthorityOverclaim plus authorityChanged, receiptVerified, productionDone and fullAuthorityDone false."
+    },
+    {
+      "docPath": "docs/requirements/decisions/unlock-layer2-ENG-suite.md#6",
+      "promise": "Diagnostic baseline_run remains localOnly true and capabilityProof false",
+      "status": "verified",
+      "verifiedBy": "smoke",
+      "evidence": "CHK-003 edge smoke verifies diagnostic path cannot authorize formal Engineering suite PASS."
+    },
+    {
+      "docPath": "docs/requirements/decisions/unlock-layer2-ENG-suite.md#9",
+      "promise": "Host-neutral review evidence requires Claude and Codex but does not become production Authority",
+      "status": "verified",
+      "verifiedBy": "two-host-review",
+      "evidence": "F-001 fix requires distinct digest-verified Claude/Codex artifacts with matching host/source/verdict JSON and proof bindings; wrong-host and same-file tests pass."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm --prefix packages/main run build and npm --prefix packages/main run test:lattice-baseline-smoke PASS: schema fields, 9 ENG ids and binding fields verified."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "npm --prefix packages/main run test:lattice-baseline-smoke PASS: missing Development proof blocks, stale Development proof rejected."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "npm --prefix packages/main run test:lattice-baseline-smoke PASS: formal path separate from diagnostic and formal-run-missing-inputs rejected."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "npm --prefix packages/main run test:lattice-baseline-smoke PASS: 9 ENG formal reports covered; expected-block and malformed cases handled."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "npm --prefix packages/main run test:lattice-baseline-smoke PASS: receipt bindings validated; wrong baseline, suite and claim rejected."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "npm --prefix packages/main run test:lattice-baseline-smoke PASS: fresh formal reports produce suite PASS; malformed, stale and local-only reports block."
+    },
+    {
+      "featureId": "CHK-007",
+      "transcript": "npm --prefix packages/main run test:lattice-baseline-smoke plus npm run test:process-fact-contract PASS: formal evaluator unlocks only Layer 2 Engineering and diagnostic remains not authorized."
+    },
+    {
+      "featureId": "CHK-008",
+      "transcript": "npm --prefix packages/main run test:lattice-baseline-smoke PASS: higher layers remain locked and Engineering artifacts cannot unlock Loop or Production."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Layer 2 Engineering formal proof path implemented; forged, stale and missing evidence fails closed; higher layers and Authority claims remain locked; F-001 and F-002 resolved."
+  },
+  "_hash": "22fce12f80e587d1ec3f1f7d88d85b7b523ada89056842f2921050546f759cd5"
+}
