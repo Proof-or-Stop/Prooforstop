@@ -53,7 +53,39 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees \"Authority receipt: BLOCKED (no verified AuthorityReceipt; receiptVerified=false; productionDone=false)\".",
+      "files": {
+        "modify": [],
+        "create": [
+          ".omx/artifacts/authority/B-4a53/authority-strong-evidence-report.json",
+          ".omx/artifacts/authority/B-4a53/authority-strong-evidence-report.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A real authority_job_create attempt is made or skipped only after a prerequisite command proves the Authority URL is absent.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "No jobId, receiptId, or receiptFile is invented when Authority Server submission is unavailable.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Reject treating authority_enforce_policy failure, local storage, or handoff receipts as native AuthorityReceipt verification.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
