@@ -1,6 +1,6 @@
 {
   "schemaVersion": "lattice.baseline.final_report.v1",
-  "generatedAt": "2026-06-10T23:28:48.572Z",
+  "generatedAt": "2026-06-10T23:52:44.729Z",
   "layer": "engineering",
   "baselineId": "ENG-BUGFIX-1",
   "runId": "B-6532-eng-bugfix-1",
@@ -19,23 +19,23 @@
   "gateEvidenceRefs": [],
   "suiteRunId": "layer2-engineering-unlock-B-6532",
   "claimTarget": "engineering",
-  "verifiedAt": "2026-06-10T23:28:48.572Z",
+  "verifiedAt": "2026-06-10T23:52:44.729Z",
   "verificationEvidenceRefs": [
-    "artifact:verification-evidence.json#sha256=51bd101a3fc29cbeebad4db31b13e989fa9f61855fc1a69a2825c556a114e87e"
+    "artifact:verification-evidence.json#sha256=de0128fa8134591c5632ae0115226c2206f8d573589882b7fbac8f933017b6ae"
   ],
   "reviewEvidenceRefs": [
-    "review:claude:artifact:review-claude.json#sha256=6f9a1f6afd8fd41f6f4d7a70333055473407792a883d5455a0402f8ea169b28f",
-    "review:codex:artifact:review-codex.json#sha256=790428e987fbe570696797115005e1a684897e125e61895772716720d5b439b8"
+    "review:claude:artifact:review-claude.json#sha256=a61bb62be152ba63ffc3b98f9e3747c568a42a6c7494db507fe1bf74648193c3",
+    "review:codex:artifact:review-codex.json#sha256=e9e1e1d04b15298787eff1182b833536d9e8e5862181e2b65168599415bec9bd"
   ],
   "lifecycleGateEvidenceRefs": [
-    "artifact:lifecycle-gate.json#sha256=4642d27d112196834f2c58104b195c3f113617bad16dff31984e60fc2bedc10d"
+    "artifact:lifecycle-gate.json#sha256=4a0ca5467f84cbe1fea505e2f4e90a95b6aa4b1739ecea6cd51a5a8caf4841d5"
   ],
   "formalProof": true,
   "falseDone": false,
   "falseDoneCount": 0,
   "safetySuccess": true,
-  "headHash": "f01d0ab3469b73b6c5131c1dc57f96d8057c402a",
-  "materialHash": "f7ac7a18d8034bf4e77c88f6b544dccd0e308ca24d7ea791d4c9819900405421",
+  "headHash": "62b9764b20cc6959fa09e94429f6bc646b72b061",
+  "materialHash": "bc57ce794f3d113e661819170d983cd568ef24506fc9d4a9630cf475d4d3f5c0",
   "authority": {
     "authorityChanged": false,
     "receiptVerified": false,
@@ -49,7 +49,7 @@
   "productionDone": false,
   "fullAuthorityDone": false,
   "receiptRefs": [
-    "receipt:;baselineId=ENG-BUGFIX-1;suiteRunId=layer2-engineering-unlock-B-6532;claimTarget=engineering;headHash=f01d0ab3469b73b6c5131c1dc57f96d8057c402a;materialHash=f7ac7a18d8034bf4e77c88f6b544dccd0e308ca24d7ea791d4c9819900405421;evidenceDigest=894f55ce1f725deba9ea386a7fcbc781432e7e28a8c9068f310ec3b3eb2f97bc"
+    "receipt:;baselineId=ENG-BUGFIX-1;suiteRunId=layer2-engineering-unlock-B-6532;claimTarget=engineering;headHash=62b9764b20cc6959fa09e94429f6bc646b72b061;materialHash=bc57ce794f3d113e661819170d983cd568ef24506fc9d4a9630cf475d4d3f5c0;evidenceDigest=b77d2ab871f175b78f9a6ef8166282dc78617e0ca11f5be73d8ec014d1916cdb"
   ],
   "artifacts": {
     "directory": ".lattice/artifacts/baseline/layer2-engineering-unlock/engineering/ENG-BUGFIX-1/B-6532-eng-bugfix-1",
@@ -71,6 +71,7 @@
   },
   "notes": [
     "Formal Layer 2 Engineering proof artifact; still not production DONE proof.",
-    "Authority changed and production DONE remain false."
+    "Authority changed and production DONE remain false.",
+    "Refreshed after Lattice asset root migration from .omx to .lattice."
   ]
 }

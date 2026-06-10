@@ -1,6 +1,6 @@
 {
   "schemaVersion": "lattice.baseline.final_report.v1",
-  "generatedAt": "2026-06-10T23:28:48.572Z",
+  "generatedAt": "2026-06-10T23:52:44.729Z",
   "layer": "engineering",
   "baselineId": "ENG-FRONTEND-VISUAL-1",
   "runId": "B-6532-eng-frontend-visual-1",
@@ -19,23 +19,23 @@
   "gateEvidenceRefs": [],
   "suiteRunId": "layer2-engineering-unlock-B-6532",
   "claimTarget": "engineering",
-  "verifiedAt": "2026-06-10T23:28:48.572Z",
+  "verifiedAt": "2026-06-10T23:52:44.729Z",
   "verificationEvidenceRefs": [
-    "artifact:verification-evidence.json#sha256=9d1a561062fd0d163d2b6b325adf3d65d8424ca7c8627aa23fd98ff81ce7a04f"
+    "artifact:verification-evidence.json#sha256=03a2611f1bfb77c389177c0bac304871e61be95ea792e2df43095292458b2060"
   ],
   "reviewEvidenceRefs": [
-    "review:claude:artifact:review-claude.json#sha256=745990a95d4d354999b7d807bfa8d9527d4b624b7e2568c0fa78194f8f83b11d",
-    "review:codex:artifact:review-codex.json#sha256=7e257d548e3f3330a39e67cbed46e102b6e0d36b1473e8832b049cf8ea24a6d3"
+    "review:claude:artifact:review-claude.json#sha256=0754475b6d7df099a5aa7ad64dc3303b79c6ca775e4c6465b92f3a71162a8079",
+    "review:codex:artifact:review-codex.json#sha256=9b7dbf0a6843e6975fba977ae878b372f69c67284719cd4391edc80fd66e5dc4"
   ],
   "lifecycleGateEvidenceRefs": [
-    "artifact:lifecycle-gate.json#sha256=50cf3032e119f9e0f5b28c77f1cf7a8c6d662ec435e7d1f0d9a2b7ab6109e993"
+    "artifact:lifecycle-gate.json#sha256=a60670606bdfb73adf8671f89684b15e2cd8b0072521e4ee09b288e73d8039bc"
   ],
   "formalProof": true,
   "falseDone": false,
   "falseDoneCount": 0,
   "safetySuccess": true,
-  "headHash": "f01d0ab3469b73b6c5131c1dc57f96d8057c402a",
-  "materialHash": "f7ac7a18d8034bf4e77c88f6b544dccd0e308ca24d7ea791d4c9819900405421",
+  "headHash": "62b9764b20cc6959fa09e94429f6bc646b72b061",
+  "materialHash": "bc57ce794f3d113e661819170d983cd568ef24506fc9d4a9630cf475d4d3f5c0",
   "authority": {
     "authorityChanged": false,
     "receiptVerified": false,
@@ -49,7 +49,7 @@
   "productionDone": false,
   "fullAuthorityDone": false,
   "receiptRefs": [
-    "receipt:;baselineId=ENG-FRONTEND-VISUAL-1;suiteRunId=layer2-engineering-unlock-B-6532;claimTarget=engineering;headHash=f01d0ab3469b73b6c5131c1dc57f96d8057c402a;materialHash=f7ac7a18d8034bf4e77c88f6b544dccd0e308ca24d7ea791d4c9819900405421;evidenceDigest=e8e4d7d4a7aaee82d97559e7a9ab82850fb832daabd738830805c4f97642a9e6"
+    "receipt:;baselineId=ENG-FRONTEND-VISUAL-1;suiteRunId=layer2-engineering-unlock-B-6532;claimTarget=engineering;headHash=62b9764b20cc6959fa09e94429f6bc646b72b061;materialHash=bc57ce794f3d113e661819170d983cd568ef24506fc9d4a9630cf475d4d3f5c0;evidenceDigest=fc31183732a8bd7153ce1a7063a3dc09bb70be341ae820f9e27ee45017e43728"
   ],
   "artifacts": {
     "directory": ".lattice/artifacts/baseline/layer2-engineering-unlock/engineering/ENG-FRONTEND-VISUAL-1/B-6532-eng-frontend-visual-1",
@@ -71,6 +71,7 @@
   },
   "notes": [
     "Formal Layer 2 Engineering proof artifact; still not production DONE proof.",
-    "Authority changed and production DONE remain false."
+    "Authority changed and production DONE remain false.",
+    "Refreshed after Lattice asset root migration from .omx to .lattice."
   ]
 }

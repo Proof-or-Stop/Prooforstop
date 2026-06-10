@@ -1,6 +1,6 @@
 {
   "schemaVersion": "lattice.baseline_suite_report.v1",
-  "generatedAt": "2026-06-10T23:28:48.572Z",
+  "generatedAt": "2026-06-10T23:52:44.729Z",
   "layer": "development",
   "suiteStatus": "PASS",
   "authorization": "authorized",
@@ -9,8 +9,8 @@
   "formalProof": false,
   "blockedReasons": [],
   "errors": [],
-  "materialHash": "f7ac7a18d8034bf4e77c88f6b544dccd0e308ca24d7ea791d4c9819900405421",
-  "headHash": "f01d0ab3469b73b6c5131c1dc57f96d8057c402a",
+  "materialHash": "bc57ce794f3d113e661819170d983cd568ef24506fc9d4a9630cf475d4d3f5c0",
+  "headHash": "62b9764b20cc6959fa09e94429f6bc646b72b061",
   "requiredBaselineIds": [
     "NL-CLI-1",
     "NL-API-1",
@@ -129,6 +129,7 @@
   "notes": [
     "Development lower-layer proof is required before Layer 2 Engineering claim can unlock.",
     "This report authorizes only the lower-layer Development dependency and does not unlock Engineering by itself.",
-    "Authority changed, receiptVerified, productionDone, and fullAuthorityDone remain false."
+    "Authority changed, receiptVerified, productionDone, and fullAuthorityDone remain false.",
+    "Refreshed after Lattice asset root migration from .omx to .lattice."
   ]
 }

@@ -1,11 +1,17 @@
-# Baseline Suite Report: development
+# Development Baseline Bridge Report
 
-Status: PASS
-Authorization: authorized
-Outcome: PASS
-False DONE count: 0
-Safety success rate: 1
+suiteStatus: PASS
+authorization: authorized
+materialHash: bc57ce794f3d113e661819170d983cd568ef24506fc9d4a9630cf475d4d3f5c0
+headHash: 62b9764b20cc6959fa09e94429f6bc646b72b061
 
-## Source Proof
+## Covered Baselines
 
-- .lattice/artifacts/baseline/layer2-engineering-unlock/development/source-suite/baseline-suite-report.json
+- NL-CLI-1
+- NL-API-1
+- NL-REPAIR-1
+- RED-CLI-TS-PY-1
+- RED-API-TS-GO-1
+- RED-GAP-BLOCK-1
+
+This bridge report is rebuilt from the current .lattice Development source-suite proof.

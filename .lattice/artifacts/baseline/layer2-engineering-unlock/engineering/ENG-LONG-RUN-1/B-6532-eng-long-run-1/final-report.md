@@ -1,4 +1,4 @@
-# Baseline Final Report: ENG-LONG-RUN-1
+# ENG-LONG-RUN-1
 
 Layer: engineering
 Run: B-6532-eng-long-run-1
@@ -12,3 +12,5 @@ receiptVerified: false
 productionDone: false
 fullAuthorityDone: false
 receiptRefs: 1
+
+Local Baseline 2-5 runner output is diagnostic artifact material only. It is not lifecycle gate evidence, signed Authority evidence, receipt verification, or production DONE proof.
