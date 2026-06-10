@@ -1,0 +1,56 @@
+{
+  "storyId": "B-2949",
+  "changes": "Created and refined Lattice-Engineering-Baseline-Unlock-Execution-Plan.md as the formal Layer 2 Engineering Baseline unlock execution plan. The document defines Layer 2 scope, lower-layer preconditions, proof contract, host and agent layout, execution runbook, per-baseline requirements, fail-closed rules, pass criteria, stop conditions, milestones, and final unlock decisions.",
+  "usage": "Use Lattice-Engineering-Baseline-Unlock-Execution-Plan.md before formal Layer 2 unlock work. Follow its preflight, execute ENG-* baselines, aggregate suite evidence, then authorize only the Engineering Baseline claim when all gates pass.",
+  "expectedOutcome": "The user should see a concrete executable document for formally unlocking Layer 2 Engineering Baseline without overclaiming unattended development, production safety, or capability claims from Layer 2 proof alone.",
+  "actualTranscript": "Executed npm run build, lattice story_advance to TEST, and lattice validate --story=B-2949. TEST preflight passed channel, concept, lint, and docs-drift gates. lattice validate passed npm test and reported verification intent coverage 9/9 covered with 0 required missing.",
+  "outcomeDiff": "No material difference: the document exists, review issues were fixed, TEST preflight passed, and validate confirmed all checklist verification intents are covered.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Layer 2 is documented as an unlock execution plan only. It does not claim Layer 3 Loop Engineering, Layer 4 Production Safety, or Layer 5 Capability Claim are unlocked.",
+  "pitfalls": "TEST initially failed because packages/main/dist was absent in the fresh worktree, causing packages/utils TypeScript imports from main/dist to fail. Running npm run build generated the required dist output and the lint gate then passed.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 123359
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 62596
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 206725
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 732368
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 602379
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 54584
+    }
+  },
+  "totalDurationMs": 1782020,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-10T14:44:46.208Z",
+  "updatedAt": "2026-06-10T14:44:46.208Z"
+}

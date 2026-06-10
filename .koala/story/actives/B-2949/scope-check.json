@@ -1,0 +1,45 @@
+{
+  "storyId": "B-2949",
+  "checkedAt": "2026-06-10T14:20:00.903Z",
+  "features": [
+    {
+      "feature": "Layer 2 unlock scope and non-claims",
+      "covered_by": "CHK-001; Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "User requested a table-derived execution document for formally unlocking Engineering Baseline."
+    },
+    {
+      "feature": "Executable ENG baseline evidence and gates",
+      "covered_by": "CHK-002; Lattice-Engineering-baseline.md; B-c886 contract alignment",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "Engineering unlock must prove multi-file, existing repo, bugfix, regression, migration/security, UI, long-running, and review-loop baselines."
+    },
+    {
+      "feature": "Operational formal unlock runbook",
+      "covered_by": "CHK-003; Lattice-Parallel-Development-Capability.md",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "Future agents need preflight-to-claim steps and fail-closed stop conditions."
+    },
+    {
+      "feature": "Runtime implementation changes",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Documentation-only scope contract; explicitExcludes: Implementing ENG baseline runner code",
+      "source": "User asked for an execution document, not code development in this story."
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "covered": 3,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "5ae0f59f94f0290662bf41f4bccab7f6fbb58ecdfed944fb03ac25973abb4e41",
+  "openQuestions": []
+}

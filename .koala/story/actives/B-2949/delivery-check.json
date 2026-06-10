@@ -1,0 +1,50 @@
+{
+  "storyId": "B-2949",
+  "checkedAt": "2026-06-10T14:45:03.515Z",
+  "reviewRound": "2026-06-10T14:38:38.574Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
+      "promise": "Defines the formal Layer 2 Engineering Baseline unlock boundary and forbids claiming unattended development, production safety, or capability claims from Layer 2 proof alone.",
+      "status": "verified",
+      "verifiedBy": "rg + review + lattice validate",
+      "evidence": "Document sections 3, 4, 11, and 15 define the allowed Engineering claim, lower-layer preconditions, pass criteria, and final unlock decision mapping. lattice validate --story=B-2949 passed with 9/9 verification intents covered."
+    },
+    {
+      "docPath": "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
+      "promise": "Defines concrete proof artifacts for ENG-* baselines, including final reports, suite reports, artifact hash refs, expected block evidence, and fail-closed rejection cases.",
+      "status": "verified",
+      "verifiedBy": "rg + multi-lane review",
+      "evidence": "Sections 5, 6, 9, and 10 list ENG-* baselines, proof contract fields, artifact:<file>#sha256 refs, risky-baseline gate evidence, expected block evidence, and stale/fake/missing/malformed evidence rejection rules."
+    },
+    {
+      "docPath": "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
+      "promise": "Provides an executable runbook for formal Layer 2 unlock, including host/agent layout, shared contract freeze, sequential proof, review, aggregation, claim evaluation, and delivery summary.",
+      "status": "verified",
+      "verifiedBy": "rg + TEST preflight",
+      "evidence": "Sections 7 and 8 define host and agent layout plus steps 0-8. REVIEW lanes concept, quality, test-coverage, and docs all passed; TEST preflight passed channel, concept, lint, and docs-drift gates."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "lattice validate --story=B-2949 passed. Coverage showed CHK-001 happy, edge, and adversarial verification intents covered, including Layer 2 claim boundaries and forbidden higher-layer claims."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "lattice validate --story=B-2949 passed. Coverage showed CHK-002 happy, edge, and adversarial verification intents covered, including suite evidence, risky baseline gated PASS evidence, and fake or stale proof rejection."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "lattice story_advance to TEST passed CLI preflight after npm run build generated packages/main/dist; lattice validate --story=B-2949 then passed with 9/9 verification intents covered and 0 required missing."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review confirms the document is executable as a Layer 2 unlock plan, the recorded validation transcript covers all checklist intents, and the document does not overclaim Loop Engineering, Production Safety, or Capability Claim unlocks."
+  },
+  "_hash": "676ec7c851208bd4ecb03b693d0f44f26905565ab71208f321dbf8ddf3c28834"
+}

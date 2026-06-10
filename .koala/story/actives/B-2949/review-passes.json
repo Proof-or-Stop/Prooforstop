@@ -1,0 +1,58 @@
+{
+  "passes": [
+    {
+      "id": "B-2949:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Concept review passed. Layer 2 claim boundary, non-claims, sequential proof chain, evidence contract (digest-backed refs + coherence rules), fail-closed rules (6 categories), and no-framework-bloat principle all conceptually sound. Minor non-blocking nit: Section 10 references refusalType field not formally defined in Section 6 schema.",
+      "createdAt": "2026-06-10T14:35:08.199Z",
+      "reviewRound": "2026-06-10T14:31:30.312Z",
+      "reviewRunId": "B-2949:RR-005",
+      "_hash": "e25bf615b9444f3a013c97ff52cd7c905409786e05bbe5f31f5b5db216154516"
+    },
+    {
+      "id": "B-2949:RP-002",
+      "agent": "koala-review-docs",
+      "note": "All 9 intent refs (CHK-001/002/003 happy/edge/adversarial) verified. Document is executable as a runbook with concrete actions, stop conditions, and CLI commands. Concise without new theory layers. Consistent with Lattice-Engineering-baseline.md and Lattice-Parallel-Development-Capability.md. Clear about final outcomes and forbidden claims. Advisory: Section 10 line 806 references refusalType on refusalEvidenceRefs entries but this field is never defined in the proof contract (Section 6). Not blocking.",
+      "createdAt": "2026-06-10T14:35:46.919Z",
+      "reviewRound": "2026-06-10T14:31:30.312Z",
+      "reviewRunId": "B-2949:RR-006",
+      "_hash": "f77dd5ec473f09540c704282bfff226f30ba77fec8da4d3ad2abc3af34fe78e9"
+    },
+    {
+      "id": "B-2949:RP-003",
+      "agent": "koala-review-test-coverage",
+      "note": "Replayed docs_check evidence for CHK-001/002/003 happy/edge/adversarial; commands passed, including CHK-001:edge:0 and CHK-002:adversarial:0.",
+      "createdAt": "2026-06-10T14:40:46.180Z",
+      "reviewRound": "2026-06-10T14:38:38.574Z",
+      "reviewRunId": "B-2949:RR-008",
+      "_hash": "882739437f29d58541d20cae8279150de6ed1c859da55538fafe21d24a4f67ab"
+    },
+    {
+      "id": "B-2949:RP-004",
+      "agent": "koala-review-concept",
+      "note": "Concept review pass (round 2). Claim boundary correctly scoped to tested ENG project classes with three-point forbidden-claim enumeration. Sequential proof chain (Dev→Eng→claim) enforced in Sections 3/4/Step 1. No overclaiming: Step 7 blocks higher targets, Section 15 disclaims higher layers. No framework bloat: diff adds clarifications (digest refs, stop conditions, categorized fail-closed) not new abstractions. Fail-closed rules in Section 10 are concrete, categorized, and self-enforcing (generic blockedReasons are themselves a violation). Previous F-001 object-form contradiction and F-002 non-executable evidence are verified resolved.",
+      "createdAt": "2026-06-10T14:41:06.686Z",
+      "reviewRound": "2026-06-10T14:38:38.574Z",
+      "reviewRunId": "B-2949:RR-007",
+      "_hash": "a6f001ece105c8bca8ec7ea5a25d0390f1bc84a157ad7cd7407c7bbab7cd551d"
+    },
+    {
+      "id": "B-2949:RP-005",
+      "agent": "koala-review-quality",
+      "note": "Quality review pass. Inspected current Lattice-Engineering-Baseline-Unlock-Execution-Plan.md and git diff main...HEAD. Verified B-2949:F-001 is fixed: evidence refs now use artifact:<file>#sha256=<64-hex> string refs, refusalType/missing digest field/{ path, digest }/gateEvidenceRefs[].gateType remnants are absent, and AUDIT_ONLY/finalDecision is separated from BaselineOutcome and suiteStatus mappings. git diff --check main...HEAD passed.",
+      "createdAt": "2026-06-10T14:41:49.535Z",
+      "reviewRound": "2026-06-10T14:38:38.574Z",
+      "reviewRunId": "B-2949:RR-010",
+      "_hash": "35afe851984c2fb64550adfea7a914b105e64755fcbb07bad93ef26ad1b4d3c0"
+    },
+    {
+      "id": "B-2949:RP-006",
+      "agent": "koala-review-docs",
+      "note": "Fresh docs review after F-001/F-002 fixes. Document is an executable runbook with 9 stop-if clauses, consistent final decision mapping (Section 15 table matches Section 10 AUDIT_ONLY mapping), no stale object-ref wording (refusalType/gateType/object-form gone), all evidence refs consistently use artifact:<file>#sha256=<64-hex> string format, no new theory layers, cross-section references accurate.",
+      "createdAt": "2026-06-10T14:42:08.573Z",
+      "reviewRound": "2026-06-10T14:38:38.574Z",
+      "reviewRunId": "B-2949:RR-009",
+      "_hash": "d05dec465a5a9ea7948d61121cc827c6b4503ee8da28ec0997fd774b549b10cc"
+    }
+  ]
+}

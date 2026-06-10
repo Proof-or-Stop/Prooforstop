@@ -9,10 +9,69 @@
         "Lattice-Engineering-baseline.md",
         "Lattice-Parallel-Development-Capability.md"
       ],
-      "userSees": "The execution document explains the Layer 2 unlock boundary and prevents overclaiming.",
-      "status": "pending",
+      "userSees": "The document contains the sentence: \"Layer 2 Engineering Baseline is unlocked only by fresh, evidence-backed Engineering suite PASS.\" It also lists forbidden claims for arbitrary projects, Loop Engineering, Production Safety, and production-grade unattended development.",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-10T14:38:01.829Z",
+      "files": {
+        "modify": [
+          "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The edited document states the allowed Engineering claim and the forbidden higher-layer claims in concrete wording.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The document distinguishes implementation readiness, local smoke output, audit-only host transcripts, and formal capability proof.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The document does not imply arbitrary project development, production safety, Authority receipt proof, or unattended development from Layer 2 evidence.",
+            "type": "docs"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Layer 2 is unlocked only|Loop Engineering|Production Safety|Authority receipts\" Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
+          "result": "pass",
+          "note": "The document states the allowed Engineering unlock claim and lists forbidden higher-layer claims with concrete wording.",
+          "headHash": "54a96bbc8e944af047f618bf8f5d394eb7facae2",
+          "materialHash": "3256c0f10c217b50dd979263927022cff06cc953949c1649890d0ac3ad009c91",
+          "timestamp": "2026-06-10T14:38:01.869Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"implementation readiness|local diagnostic|Host transcripts are audit evidence|formal proof\" Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
+          "result": "pass",
+          "note": "The document distinguishes implementation readiness, local diagnostic artifacts, host transcripts, and formal proof in sections 1, 3, and 7.",
+          "headHash": "54a96bbc8e944af047f618bf8f5d394eb7facae2",
+          "materialHash": "3256c0f10c217b50dd979263927022cff06cc953949c1649890d0ac3ad009c91",
+          "timestamp": "2026-06-10T14:38:01.897Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"production-grade unattended|Authority receipts|Loop Engineering|Production Safety\" Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
+          "result": "pass",
+          "note": "The document explicitly prevents Layer 2 evidence from implying arbitrary projects, production safety, Authority receipts, or unattended development.",
+          "headHash": "54a96bbc8e944af047f618bf8f5d394eb7facae2",
+          "materialHash": "3256c0f10c217b50dd979263927022cff06cc953949c1649890d0ac3ad009c91",
+          "timestamp": "2026-06-10T14:38:01.925Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -22,10 +81,69 @@
         "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
         "Lattice-Engineering-baseline.md"
       ],
-      "userSees": "The execution document gives future agents enough detail to run and audit the ENG baseline suite.",
-      "status": "pending",
+      "userSees": "The document includes a table of ENG-* baselines and states: \"Risky Engineering PASS requires gateEvidenceRefs with digest-checked artifact references; otherwise it must block or remain EXPECTED_BLOCK.\"",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-10T14:38:12.793Z",
+      "files": {
+        "modify": [
+          "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The edited document lists required final-report and suite-report evidence for Engineering baseline proof.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "ENG-DATA-MIGRATION-1 and ENG-AUTH-SECURITY-1 specify both expected-block evidence and gated PASS evidence requirements.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The document blocks fake, stale, local-only, missing-digest, or generic blockedReason evidence from authorizing Engineering unlock.",
+            "type": "docs"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"final report must include|suite report must include|expectedOutcomes|artifact:<file>#sha256\" Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
+          "result": "pass",
+          "note": "The proof contract lists final-report and suite-report fields, including expectedOutcomes and digest-backed artifact refs.",
+          "headHash": "eea72922f354c6b0c15f5642d8c31d624be592ef",
+          "materialHash": "3256c0f10c217b50dd979263927022cff06cc953949c1649890d0ac3ad009c91",
+          "timestamp": "2026-06-10T14:38:12.826Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"ENG-DATA-MIGRATION-1|ENG-AUTH-SECURITY-1|EXPECTED_BLOCK|gateEvidenceRefs\" Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
+          "result": "pass",
+          "note": "Risky migration/security baselines specify expected-block evidence and gated PASS evidence with gateEvidenceRefs.",
+          "headHash": "eea72922f354c6b0c15f5642d8c31d624be592ef",
+          "materialHash": "3256c0f10c217b50dd979263927022cff06cc953949c1649890d0ac3ad009c91",
+          "timestamp": "2026-06-10T14:38:12.853Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Stale proof|Fake or fabricated evidence|Malformed artifacts|generic|localOnly|digest|Host disagreement\" Lattice-Engineering-Baseline-Unlock-Execution-Plan.md && git diff --check main...HEAD",
+          "result": "pass",
+          "note": "Fail-closed rules block stale, fake, localOnly, malformed, missing digest, generic blockedReasons, and host disagreement cases; the committed diff has no whitespace errors.",
+          "headHash": "eea72922f354c6b0c15f5642d8c31d624be592ef",
+          "materialHash": "3256c0f10c217b50dd979263927022cff06cc953949c1649890d0ac3ad009c91",
+          "timestamp": "2026-06-10T14:38:12.881Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -35,10 +153,69 @@
         "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
         "Lattice-Parallel-Development-Capability.md"
       ],
-      "userSees": "The execution document provides a practical sequence for formally unlocking Layer 2 without skipping proof.",
-      "status": "pending",
+      "userSees": "The document has a numbered runbook from preflight to final claim evaluation, and it says: \"Implementation may proceed in parallel, but Engineering proof and claim unlock remain sequential.\"",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-10T14:31:15.122Z",
+      "files": {
+        "modify": [
+          "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The edited document gives a concrete preflight-to-claim runbook for formal Layer 2 unlock.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The runbook allows parallel workstreams only after shared contract freeze and lower-layer proof checks.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The runbook defines stop, block, rollback, and audit-only outcomes instead of permitting partial unlock or claim escalation.",
+            "type": "docs"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Step 0: Preflight|Step 1: Verify Layer 1 proof|Step 7: Evaluate Engineering claim|Step 8: Delivery\" Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
+          "result": "pass",
+          "note": "The runbook covers preflight, Layer 1 proof, Engineering claim evaluation, and delivery.",
+          "headHash": "fdab76313143a88fe4ee33604d3bb0b8f05d88e3",
+          "materialHash": "3256c0f10c217b50dd979263927022cff06cc953949c1649890d0ac3ad009c91",
+          "timestamp": "2026-06-10T14:38:46.483Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Implementation may run in parallel, but proof remains sequential|shared contract frozen|Parallel execution is allowed only\" Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
+          "result": "pass",
+          "note": "The runbook permits parallel workstreams only after contract freeze and lower-layer proof checks, while keeping proof sequential.",
+          "headHash": "fdab76313143a88fe4ee33604d3bb0b8f05d88e3",
+          "materialHash": "3256c0f10c217b50dd979263927022cff06cc953949c1649890d0ac3ad009c91",
+          "timestamp": "2026-06-10T14:38:46.483Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Stop if|Rollback action|AUDIT_ONLY|There is no partial unlock\" Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
+          "result": "pass",
+          "note": "The document defines stop, rollback, blocked, audit-only, and no-partial-unlock outcomes instead of permitting claim escalation.",
+          "headHash": "fdab76313143a88fe4ee33604d3bb0b8f05d88e3",
+          "materialHash": "3256c0f10c217b50dd979263927022cff06cc953949c1649890d0ac3ad009c91",
+          "timestamp": "2026-06-10T14:38:46.483Z"
+        }
+      ]
     }
   ]
 }
