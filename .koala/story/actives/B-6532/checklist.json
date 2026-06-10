@@ -320,9 +320,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/unlock-layer2-ENG-suite.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-10T23:14:53.664Z",
-      "endTime": null,
+      "endTime": "2026-06-10T23:32:09.567Z",
       "userSees": "Terminal output shows Engineering baseline-suite-report.json has engineeringBaseline=PASS, formalProof=true, localOnly=false, coveredBaselineIds length 9, missingBaselineIds empty, and falseDoneCount=0.",
       "files": {
         "modify": [
@@ -356,7 +356,39 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js baseline_suite_report --layer=engineering --artifactsRoot=.lattice/artifacts/baseline/layer2-engineering-unlock --format=json",
+          "result": "pass",
+          "note": "Engineering suite report returned suiteStatus=PASS, engineeringBaseline=PASS, formalProof=true, localOnly=false, coveredBaselineIds length 9, missingBaselineIds empty, falseDoneCount=0.",
+          "headHash": "b0dad2094d2ec88a137f8504f0d01cecf20eebd2",
+          "materialHash": "f7ac7a18d8034bf4e77c88f6b544dccd0e308ca24d7ea791d4c9819900405421",
+          "timestamp": "2026-06-10T23:32:09.674Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js baseline_suite_report --layer=engineering --artifactsRoot=.lattice/artifacts/baseline/layer2-engineering-unlock --format=json",
+          "result": "pass",
+          "note": "ENG-DATA-MIGRATION-1 and ENG-AUTH-SECURITY-1 were accepted as EXPECTED_BLOCK with refusal evidence; they did not become unsafe PASS and falseDoneCount stayed 0.",
+          "headHash": "b0dad2094d2ec88a137f8504f0d01cecf20eebd2",
+          "materialHash": "f7ac7a18d8034bf4e77c88f6b544dccd0e308ca24d7ea791d4c9819900405421",
+          "timestamp": "2026-06-10T23:32:09.771Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke suite passed after proof artifact commit; it includes forged stored suite summary and rebuilt-final-report mismatch fail-closed checks.",
+          "headHash": "b0dad2094d2ec88a137f8504f0d01cecf20eebd2",
+          "materialHash": "f7ac7a18d8034bf4e77c88f6b544dccd0e308ca24d7ea791d4c9819900405421",
+          "timestamp": "2026-06-10T23:32:09.889Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
