@@ -1,0 +1,35 @@
+{
+  "storyId": "B-eca1",
+  "checkedAt": "2026-06-10T15:27:38.739Z",
+  "reviewRound": "",
+  "agentId": "product-reviewer",
+  "issues": [
+    {
+      "severity": "medium",
+      "desc": "All 5 checklist items are missing userSees fields, so completion is less directly user-observable. CHK-002 receipt verify command and CHK-004 status output especially need concrete success/failure output examples during PLAN."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-06-10T15:27:36.095Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "CHK-004 bundles DONE gate policy (Wave 3, phase-gates.ts/workflow-policy.ts) with status/operator output (Wave 4, session.ts/observability-snapshot.ts/lattice-autopilot.ts). These are distinct concerns with different file sets and different execution plan waves. Consider splitting into two items during PLAN for better parallelizability and sharper verification."
+        }
+      ]
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-10T15:27:38.739Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "All 5 checklist items are missing userSees fields, so completion is less directly user-observable. CHK-002 receipt verify command and CHK-004 status output especially need concrete success/failure output examples during PLAN."
+        }
+      ]
+    }
+  ],
+  "_hash": "c04711c95b95691cde4e6092205f06419869b8e1db5f47a2c8c6984a3c68394a"
+}
