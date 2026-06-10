@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-c886:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Reviewed Engineering unlock concept against audited plan: implementation stays Layer 2 only, keeps Loop/Production/Authority locked, separates expected-block refusals from suite blockers, and keeps host verdicts audit-only.",
+      "createdAt": "2026-06-10T12:51:31.976Z",
+      "reviewRound": "2026-06-10T12:50:19.476Z",
+      "reviewRunId": "B-c886:RR-001",
+      "_hash": "e532c79c21232027f43fe3b733b75897b6cec7d93f2aa0032eae843652bb394c"
+    },
+    {
+      "id": "B-c886:RP-002",
+      "agent": "koala-review-quality",
+      "note": "Reviewed code quality and fail-closed behavior: parseFinalReport rejects malformed reports, gated PASS uses artifact sha256 refs, PASS cannot carry blockedReasons, and Claude/Codex final audits both reported PASS.",
+      "createdAt": "2026-06-10T12:51:32.898Z",
+      "reviewRound": "2026-06-10T12:50:19.476Z",
+      "reviewRunId": "B-c886:RR-002",
+      "_hash": "baf66ae07d489077e35eeb7e56c65c4e0218b2ea088d571fcd0bbb4b2fcbee0e"
+    },
+    {
+      "id": "B-c886:RP-003",
+      "agent": "koala-review-test-coverage",
+      "note": "Reviewed coverage: npm run build and npm --prefix packages/main run test:lattice-baseline-smoke passed; smoke cases cover expected-block proof, gated PASS, malformed artifacts, lower-layer proof, and target=engineering claimId.",
+      "createdAt": "2026-06-10T12:51:33.864Z",
+      "reviewRound": "2026-06-10T12:50:19.476Z",
+      "reviewRunId": "B-c886:RR-003",
+      "_hash": "58dd78db6227560cf3483e13c10453a4fa7be45d61fe4eb23f932888afba68c3"
+    },
+    {
+      "id": "B-c886:RP-004",
+      "agent": "koala-review-docs",
+      "note": "Reviewed related docs touchpoints: no product docs needed code edits in this story; existing Engineering baseline docs already state EXPECTED_BLOCK or gated PASS for migration/security, and implementation follows that boundary.",
+      "createdAt": "2026-06-10T12:51:34.774Z",
+      "reviewRound": "2026-06-10T12:50:19.476Z",
+      "reviewRunId": "B-c886:RR-004",
+      "_hash": "f376f953844d1edb961b2be6a4eabcad30f679f9354324f7784b1f6c3ab7fb95"
+    }
+  ]
+}

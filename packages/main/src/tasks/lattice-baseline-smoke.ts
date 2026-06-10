@@ -12,6 +12,8 @@
  *     receiptVerified=false / productionDone=false.
  *   - malformed, mixed-schema, or authority-overclaim final reports are
  *     rejected by suite aggregation.
+ *   - Engineering expected-block and risky-pass suite reports require their
+ *     focused refusal/gate evidence before they can unlock proof.
  *   - production-safety claims stay unauthorized when lower layers or
  *     authority evidence are missing.
  *   - a high-layer report produced by parallel implementation does not unlock
@@ -57,6 +59,19 @@ const AUTHORITY_FALSE_KEYS = [
   'productionDone',
   'fullAuthorityDone',
   'canClaimProductionDone',
+] as const;
+const RISKY_ENGINEERING_BASELINE_IDS = [
+  'ENG-DATA-MIGRATION-1',
+  'ENG-AUTH-SECURITY-1',
+] as const;
+const PASS_ENGINEERING_BASELINE_IDS = [
+  'ENG-MULTI-FILE-1',
+  'ENG-EXISTING-REPO-1',
+  'ENG-BUGFIX-1',
+  'ENG-REGRESSION-1',
+  'ENG-FRONTEND-VISUAL-1',
+  'ENG-LONG-RUN-1',
+  'ENG-LOOP-REVIEW-1',
 ] as const;
 
 const EMPTY_AUTHORITY_ENV: Record<string, string | undefined> = {
@@ -241,6 +256,29 @@ function assertClaimLevel(value: unknown, expected: string, label: string): void
   );
 }
 
+function assertClaimId(value: unknown, expected: string, label: string): void {
+  const values = collectValuesForKeys(value, ['claimId']);
+  assert.ok(
+    values.includes(expected),
+    `${label} should include claimId ${expected}; saw ${JSON.stringify(values)}`,
+  );
+}
+
+function assertSuiteAccepted(value: JsonObject, label: string): void {
+  const suiteStatuses = collectValuesForKeys(value, ['suiteStatus']);
+  assert.ok(!suiteStatuses.includes('BLOCKED'), `${label} should not produce BLOCKED suiteStatus; saw ${JSON.stringify(suiteStatuses)}`);
+  const authorizations = collectValuesForKeys(value, ['authorization']);
+  assert.ok(!authorizations.includes('not_authorized'), `${label} should not be not_authorized; saw ${JSON.stringify(authorizations)}`);
+}
+
+function assertNoSuiteBlockedReasons(value: JsonObject, label: string): void {
+  const blockedReasons = value.blockedReasons;
+  assert.ok(
+    blockedReasons === undefined || (Array.isArray(blockedReasons) && blockedReasons.length === 0),
+    `${label} should not create suite-level blockedReasons; saw ${JSON.stringify(blockedReasons)}`,
+  );
+}
+
 function findFiles(root: string, fileName: string): string[] {
   if (!existsSync(root)) return [];
   const found: string[] = [];
@@ -361,17 +399,19 @@ function finalReportSeed(
   baselineId: string,
   patch: JsonObject = {},
 ): JsonObject {
+  const runId = `${baselineId.toLowerCase()}-seed`;
   return {
     schemaVersion: 'lattice.baseline.final_report.v1',
     layer,
     baselineId,
-    runId: `${baselineId.toLowerCase()}-seed`,
+    runId,
     expectedOutcome: 'PASS',
     expectedOutcomes: ['PASS'],
     outcome: 'PASS',
     status: 'pass',
     capabilityProof: true,
     localOnly: false,
+    blockedReasons: [],
     generatedAt: '2026-06-10T00:00:00.000Z',
     headHash: currentGitHead(root) ?? 'unavailable',
     materialHash: materialHash(root),
@@ -389,13 +429,90 @@ function finalReportSeed(
       regressionEvidencePresent: true,
       verificationEvidenceFresh: true,
     },
+    artifacts: {
+      directory: `.omx/artifacts/baseline/${layer}/${baselineId}/${runId}`,
+      files: ['final-report.json'],
+    },
     ...patch,
   };
+}
+
+function gateArtifactContent(baselineId: string, fileName: string): string {
+  return `${JSON.stringify({ baselineId, fileName, gate: true, generatedBy: 'lattice-baseline-smoke' }, null, 2)}\n`;
+}
+
+function gateArtifactRef(baselineId: string, fileName: string): string {
+  const digest = createHash('sha256').update(gateArtifactContent(baselineId, fileName)).digest('hex');
+  return `artifact:${fileName}#sha256=${digest}`;
+}
+
+function engineeringExpectedBlockReport(root: string, baselineId: string): JsonObject {
+  const runId = `${baselineId.toLowerCase()}-expected-block`;
+  return finalReportSeed(root, 'engineering', baselineId, {
+    runId,
+    expectedOutcome: 'PASS',
+    expectedOutcomes: ['EXPECTED_BLOCK', 'PASS'],
+    outcome: 'EXPECTED_BLOCK',
+    status: 'blocked',
+    blockedReasons: [],
+    expectedBlockReasons: [`${baselineId} is intentionally refused by the smoke authority boundary.`],
+    refusalEvidenceRefs: [`refusal:${baselineId}:authority-boundary`],
+    localOnly: false,
+    capabilityProof: true,
+    artifacts: {
+      directory: `.omx/artifacts/baseline/engineering/${baselineId}/${runId}`,
+      files: ['final-report.json'],
+    },
+  });
+}
+
+function riskyEngineeringPassReport(
+  root: string,
+  baselineId: string,
+  gateEvidenceRefs: readonly string[] | undefined,
+): JsonObject {
+  const runId = `${baselineId.toLowerCase()}-gated-pass`;
+  const gateFiles = ['gate-review-approved.json', 'gate-rollback-reviewed.json'];
+  return finalReportSeed(root, 'engineering', baselineId, {
+    runId,
+    expectedOutcome: 'PASS',
+    expectedOutcomes: ['EXPECTED_BLOCK', 'PASS'],
+    outcome: 'PASS',
+    status: 'pass',
+    gateEvidenceRefs,
+    blockedReasons: [],
+    localOnly: false,
+    capabilityProof: true,
+    artifacts: {
+      directory: `.omx/artifacts/baseline/engineering/${baselineId}/${runId}`,
+      files: ['final-report.json', ...gateFiles],
+    },
+  });
+}
+
+function writeEngineeringProofReports(root: string, overrides: Record<string, JsonObject> = {}): void {
+  for (const baselineId of PASS_ENGINEERING_BASELINE_IDS) {
+    const report = overrides[baselineId] ?? finalReportSeed(root, 'engineering', baselineId);
+    writeFinalReport(root, 'engineering', baselineId, String(report.runId ?? `${baselineId.toLowerCase()}-seed`), report);
+  }
+  for (const baselineId of RISKY_ENGINEERING_BASELINE_IDS) {
+    const report = overrides[baselineId] ?? engineeringExpectedBlockReport(root, baselineId);
+    writeFinalReport(root, 'engineering', baselineId, String(report.runId ?? `${baselineId.toLowerCase()}-expected-block`), report);
+  }
 }
 
 function writeFinalReport(root: string, layer: string, baselineId: string, runId: string, content: string | JsonObject): void {
   const runDir = join(root, '.omx', 'artifacts', 'baseline', layer, baselineId, runId);
   mkdirSync(runDir, { recursive: true });
+  if (typeof content !== 'string' && content.artifacts && typeof content.artifacts === 'object' && !Array.isArray(content.artifacts)) {
+    const files = (content.artifacts as JsonObject).files;
+    if (Array.isArray(files)) {
+      for (const file of files) {
+        if (typeof file !== 'string' || file === 'final-report.json' || file === 'final-report.md') continue;
+        writeFileSync(join(runDir, file), gateArtifactContent(baselineId, file));
+      }
+    }
+  }
   writeFileSync(
     join(runDir, 'final-report.json'),
     typeof content === 'string' ? content : JSON.stringify(content, null, 2),
@@ -609,7 +726,152 @@ function assertHelpListsCommand(help: CliResult, command: string): void {
   }
 }
 
-// 9. Stale lower-layer suite proof blocks capability claims.
+// 9. Engineering EXPECTED_BLOCK reports are accepted only with refusal proof.
+{
+  const root = initRepo('engineering-expected-block');
+  try {
+    writeSuiteReport(root, 'development');
+    writeEngineeringProofReports(root, {
+      'ENG-DATA-MIGRATION-1': engineeringExpectedBlockReport(root, 'ENG-DATA-MIGRATION-1'),
+    });
+
+    const result = runCli(root, ['baseline_suite_report', '--layer=engineering', '--format=json']);
+    const output = requireJsonObject(result, 'engineering expected-block suite report');
+    assertSuiteAccepted(output, 'engineering expected-block suite report');
+    assertNoSuiteBlockedReasons(output, 'engineering expected-block suite report');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// 10. Engineering EXPECTED_BLOCK reports missing refusal proof are blocked.
+for (const defect of [
+  {
+    label: 'missing-expected-block-reasons',
+    mutate(report: JsonObject): void {
+      delete report.expectedBlockReasons;
+    },
+    pattern: /expected[- ]?block|expectedBlockReasons/i,
+  },
+  {
+    label: 'missing-refusal-evidence-refs',
+    mutate(report: JsonObject): void {
+      delete report.refusalEvidenceRefs;
+    },
+    pattern: /refusalEvidenceRefs|refusal evidence/i,
+  },
+]) {
+  const root = initRepo(`engineering-expected-block-${defect.label}`);
+  try {
+    writeSuiteReport(root, 'development');
+    const report = engineeringExpectedBlockReport(root, 'ENG-DATA-MIGRATION-1');
+    defect.mutate(report);
+    writeEngineeringProofReports(root, {
+      'ENG-DATA-MIGRATION-1': report,
+    });
+
+    const result = runCli(root, ['baseline_suite_report', '--layer=engineering', '--format=json']);
+    assertFailsClosed(result, `engineering expected-block ${defect.label}`);
+    assert.match(result.combined, defect.pattern, `expected-block rejection should name ${defect.label}`);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// 11. Risky Engineering PASS reports are accepted only with gate evidence.
+{
+  const root = initRepo('engineering-risky-pass-gated');
+  try {
+    writeSuiteReport(root, 'development');
+    writeEngineeringProofReports(root, Object.fromEntries(
+      RISKY_ENGINEERING_BASELINE_IDS.map((baselineId) => [
+        baselineId,
+        riskyEngineeringPassReport(root, baselineId, [
+          gateArtifactRef(baselineId, 'gate-review-approved.json'),
+          gateArtifactRef(baselineId, 'gate-rollback-reviewed.json'),
+        ]),
+      ]),
+    ));
+
+    const result = runCli(root, ['baseline_suite_report', '--layer=engineering', '--format=json']);
+    const output = requireJsonObject(result, 'risky engineering gated PASS suite report');
+    assertSuiteAccepted(output, 'risky engineering gated PASS suite report');
+    assertNoSuiteBlockedReasons(output, 'risky engineering gated PASS suite report');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// 12. Risky Engineering PASS reports missing real gate evidence are blocked.
+for (const baselineId of RISKY_ENGINEERING_BASELINE_IDS) {
+  for (const defect of [
+    { label: 'missing-gate-evidence', gateEvidenceRefs: undefined },
+    { label: 'empty-gate-evidence', gateEvidenceRefs: [] },
+    { label: 'fake-gate-evidence', gateEvidenceRefs: ['artifact:gate-review-approved.json#sha256=0000000000000000000000000000000000000000000000000000000000000000'] },
+  ] as const) {
+    const root = initRepo(`engineering-risky-pass-${baselineId.toLowerCase()}-${defect.label}`);
+    try {
+      writeSuiteReport(root, 'development');
+      writeEngineeringProofReports(root, {
+        [baselineId]: riskyEngineeringPassReport(root, baselineId, defect.gateEvidenceRefs),
+      });
+
+      const result = runCli(root, ['baseline_suite_report', '--layer=engineering', '--format=json']);
+      assertFailsClosed(result, `risky engineering PASS ${baselineId} ${defect.label}`);
+      assert.match(result.combined, /gateEvidenceRefs|gate evidence|gate/i, 'risky PASS rejection should name gate evidence');
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+}
+
+// 13. Malformed risky Engineering PASS reports stay blocked.
+for (const defect of [
+  {
+    label: 'mismatched-expected-outcomes',
+    mutate(report: JsonObject): void {
+      report.expectedOutcomes = ['PASS'];
+    },
+    pattern: /expectedOutcomes|definition/i,
+  },
+  {
+    label: 'blocked-reasons-on-pass',
+    mutate(report: JsonObject): void {
+      report.blockedReasons = ['unresolved migration blocker'];
+    },
+    pattern: /blockedReasons|generic/i,
+  },
+  {
+    label: 'artifact-directory-mismatch',
+    mutate(report: JsonObject): void {
+      report.artifacts = {
+        directory: '.omx/artifacts/baseline/engineering/ENG-BUGFIX-1/not-this-run',
+        files: ['final-report.json', 'gate-review-approved.json', 'gate-rollback-reviewed.json'],
+      };
+    },
+    pattern: /artifacts\\.directory|final-report directory/i,
+  },
+]) {
+  const root = initRepo(`engineering-risky-pass-malformed-${defect.label}`);
+  try {
+    writeSuiteReport(root, 'development');
+    const baselineId = 'ENG-DATA-MIGRATION-1';
+    const report = riskyEngineeringPassReport(root, baselineId, [
+      gateArtifactRef(baselineId, 'gate-review-approved.json'),
+      gateArtifactRef(baselineId, 'gate-rollback-reviewed.json'),
+    ]);
+    defect.mutate(report);
+    writeEngineeringProofReports(root, { [baselineId]: report });
+
+    const result = runCli(root, ['baseline_suite_report', '--layer=engineering', '--format=json']);
+    assertFailsClosed(result, `risky engineering malformed PASS ${defect.label}`);
+    assert.match(result.combined, defect.pattern, `risky malformed PASS rejection should name ${defect.label}`);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// 14. Stale lower-layer suite proof blocks capability claims.
 {
   const root = initRepo('stale-lower-suite');
   try {
@@ -626,7 +888,7 @@ function assertHelpListsCommand(help: CliResult, command: string): void {
   }
 }
 
-// 10. Fresh authorized lower-layer suite proof can authorize Engineering claims.
+// 15. Fresh authorized lower-layer suite proof can authorize Engineering claims.
 {
   const root = initRepo('claim-engineering-authorized');
   try {
@@ -638,6 +900,7 @@ function assertHelpListsCommand(help: CliResult, command: string): void {
     assertAuthorizedTrue(output, 'fresh engineering claim proof');
     assertOutcome(output, 'PASS', 'fresh engineering claim proof');
     assertClaimLevel(output, 'engineering', 'fresh engineering claim proof');
+    assertClaimId(output, 'CLAIM-ENGINEERING-DEV', 'fresh engineering claim proof');
     assertNoAuthorityOverclaim(output, 'fresh engineering claim proof');
     assertRequiredFalseField(output, 'receiptVerified', 'fresh engineering claim proof');
     assertRequiredFalseField(output, 'productionDone', 'fresh engineering claim proof');
@@ -646,7 +909,7 @@ function assertHelpListsCommand(help: CliResult, command: string): void {
   }
 }
 
-// 11. Inconsistent PASS suite proof cannot authorize Engineering claims.
+// 16. Inconsistent PASS suite proof cannot authorize Engineering claims.
 {
   const root = initRepo('claim-engineering-incoherent-suite');
   try {
@@ -673,7 +936,7 @@ function assertHelpListsCommand(help: CliResult, command: string): void {
   }
 }
 
-// 12. capability_claim_evaluate blocks production-safety with missing lower layers.
+// 17. capability_claim_evaluate blocks production-safety with missing lower layers.
 {
   const root = initRepo('claim-missing-layers');
   try {
@@ -691,7 +954,7 @@ function assertHelpListsCommand(help: CliResult, command: string): void {
   }
 }
 
-// 13. Parallel implementation artifacts do not unlock parallel proof.
+// 18. Parallel implementation artifacts do not unlock parallel proof.
 {
   const root = initRepo('parallel-implementation');
   try {

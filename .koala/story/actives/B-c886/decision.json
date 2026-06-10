@@ -1,0 +1,80 @@
+{
+  "principles": [
+    "Fail closed when proof is missing, stale, local-only, or incoherent.",
+    "Separate expected safety refusal evidence from unexpected suite blockers.",
+    "Do not expand claims beyond the audited Engineering layer.",
+    "Prefer minimal contract changes over a runner rewrite."
+  ],
+  "drivers": [
+    "Audited Layer 2 plan must match machine-readable implementation behavior.",
+    "Risky migration/security baselines need gated PASS semantics without unsafe bypass.",
+    "Existing baseline smoke coverage should prove the corrected behavior."
+  ],
+  "options": [
+    {
+      "name": "A: Minimal contract alignment",
+      "pros": [
+        "Targets only the audited correctness gaps.",
+        "Keeps existing baseline runner and claim evaluator architecture.",
+        "Allows focused smoke tests to prove the contract without broad churn."
+      ],
+      "cons": [
+        "Does not execute the full real-world Engineering suite yet.",
+        "Requires careful wording so local artifacts are not mistaken for Authority proof."
+      ]
+    },
+    {
+      "name": "B: Rewrite baseline runner around formal unlock artifacts",
+      "pros": [
+        "Could make the implementation cleaner in the long term.",
+        "Could unify local diagnostic artifacts and future formal proof artifacts."
+      ],
+      "cons": [
+        "Too broad for the current correctness gap.",
+        "Increases false regression risk in baseline/claim gates.",
+        "Violates the no-arbitrary-optimization constraint."
+      ]
+    },
+    {
+      "name": "C: Documentation-only acceptance",
+      "pros": [
+        "Fastest path and avoids code churn.",
+        "Keeps current behavior untouched."
+      ],
+      "cons": [
+        "Leaves machine contract inconsistent with the audited plan.",
+        "Does not fix gated PASS or expected-block blocker semantics.",
+        "Would invite false confidence during Layer 2 unlock execution."
+      ]
+    }
+  ],
+  "chosen": "A: Minimal contract alignment",
+  "rationale": "Option A fixes the real correctness issues while preserving the existing architecture and claim boundary.",
+  "preMortem": [
+    {
+      "scenario": "Expected safety refusal is still counted as a suite blocker.",
+      "trigger": "EXPECTED_BLOCK final reports continue to put valid refusal reasons only in blockedReasons.",
+      "consequence": "Engineering suite cannot PASS even when a risky baseline did the safe thing.",
+      "mitigation": "Add explicit expected-block evidence fields and smoke coverage proving expected refusal does not block."
+    },
+    {
+      "scenario": "Gated PASS accidentally permits unsafe migration or auth work.",
+      "trigger": "PASS is added to risky baseline expectedOutcomes without validating gate evidence.",
+      "consequence": "The suite could authorize risky work without required proof.",
+      "mitigation": "Require structured gate evidence for PASS and keep EXPECTED_BLOCK as the default when evidence is missing."
+    },
+    {
+      "scenario": "Engineering claim authorizes from weak Development proof.",
+      "trigger": "capability_claim_evaluate only sees authorized=true and misses stale/local-only/false-DONE details.",
+      "consequence": "Layer 2 appears unlocked despite invalid lower-layer proof.",
+      "mitigation": "Assert concrete Development suite hard facts and add stale/incoherent lower-layer smoke tests."
+    },
+    {
+      "scenario": "Two-host review is mistaken for capability proof.",
+      "trigger": "Claude/Codex verdicts are recorded without claim-boundary wording.",
+      "consequence": "Audit evidence could be misread as formal Authority proof.",
+      "mitigation": "Record host verdicts as audit evidence only and keep claim evaluator proof requirements unchanged."
+    }
+  ],
+  "timestamp": "2026-06-10T12:00:33.187Z"
+}
