@@ -276,6 +276,83 @@ production receipt evidence.
 
 ## Exact Claude Prompts And Corrected Output
 
+## Same-Anchor Payload
+
+Codex and Claude judgments are tied to this same anchor payload. Fields that
+would exist only after a production receipt path are explicitly marked
+`unavailable_readiness_blocked`.
+
+```json
+{
+  "storyId": "B-51f6",
+  "targetPhase": "TEST",
+  "authorityUrl": "https://stagging.hostneutral.net",
+  "authorityHealth": {
+    "status": "ok",
+    "service": "lattice-authority"
+  },
+  "authorityApi": {
+    "apiTitle": "Lattice Authority API",
+    "apiVersion": "0.1.0",
+    "hasReceiptFetchEndpoint": true,
+    "hasReceiptProofEndpoint": false,
+    "hasGateEvaluateEndpoint": true,
+    "proofProbePath": "/v1/receipts/readiness-probe/proof",
+    "proofProbeStatus": 404
+  },
+  "authorityPolicy": {
+    "productionEnforceAuthority": false,
+    "requiredAuthorityMode": "enforce",
+    "serverKeyId": "dev-server-key",
+    "serverKeyProfile": "local-test",
+    "serverKeyEphemeral": true,
+    "serverKeyIsDefaultTestKey": true,
+    "serverKeyProductionInert": true,
+    "serverKeyAlgorithm": "ed25519",
+    "serverPublicKeyDigest": "sha256:d07cae2ab856cb6aa173d3fdf23c44600f5e0e789b83853eaa47220ad3493d6b",
+    "commandCatalogDigest": "e3a6f3f3d2c6493d2d6d993b5931b7864f7887d901b58a4e8e82b1ef2f17e258",
+    "evidenceSchemaDigest": "09f4f255c5a7b0a95b423f802068f7d6100f659abf88201fed034432f353593f"
+  },
+  "localContext": {
+    "latticeCliVersion": "0.3.5",
+    "headHash": "4c2ba5c8c51a3f5aee16003efc2608d7297a4f16",
+    "materialHash": "a9421651d41f770be0e89a2a646d289c132b69bbbd096e536427a8a6ead900a3",
+    "customerApiKeyConfigured": false,
+    "actorKeyConfigured": false,
+    "runnerConfigured": false,
+    "sessionConfigured": false,
+    "projectIdConfigured": false,
+    "serverPublicKeyPinned": false
+  },
+  "receiptPath": {
+    "receiptRefPath": "authority-receipt-refs.json",
+    "receiptRefStatus": "unavailable_readiness_blocked",
+    "consumedReceiptId": null,
+    "consumedReceiptStatus": "unavailable_readiness_blocked",
+    "receiptVerified": false,
+    "productionDone": false,
+    "productionAuthorityUsable": false,
+    "strongEvidenceConsumed": false
+  },
+  "jobRunEvidenceAnchors": {
+    "jobId": null,
+    "jobIdStatus": "unavailable_readiness_blocked",
+    "runId": null,
+    "runIdStatus": "unavailable_readiness_blocked",
+    "signedEvidenceDigest": null,
+    "signedEvidenceDigestStatus": "unavailable_readiness_blocked",
+    "gateInputDigest": null,
+    "gateInputDigestStatus": "unavailable_readiness_blocked",
+    "decisionDigest": null,
+    "decisionDigestStatus": "unavailable_readiness_blocked"
+  },
+  "finalClassification": {
+    "classification": "BLOCKED",
+    "reason": "staging readiness does not satisfy production gate_decision receipt proof criteria"
+  }
+}
+```
+
 ### Claude Prompt 1
 
 ```text
