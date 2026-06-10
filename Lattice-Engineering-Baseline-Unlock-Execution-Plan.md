@@ -451,8 +451,9 @@ Parallel execution is allowed only when workstreams have separate worktrees or
 explicit ownership boundaries.
 
 Each baseline run must produce `final-report.json` per Section 6. Every
-`*EvidenceRefs` entry must have a valid `digest`. Risky baselines (Workstream C)
-must include `gateEvidenceRefs` for gated PASS or `refusalEvidenceRefs` for
+file-backed evidence ref should use the digest-backed
+`artifact:<file>#sha256=<64-hex>` form. Risky baselines (Workstream C) must
+include `gateEvidenceRefs` for gated PASS or `refusalEvidenceRefs` for
 EXPECTED_BLOCK.
 
 Stop if: any baseline produces a final report with `localOnly=true`,
@@ -768,7 +769,7 @@ Layer 1 proof stale (materialHash does not match current HEAD or declared pin)
 any final-report has stale materialHash
 any suite report lowerLayerProof.digest does not match Development suite report file
 any reports[].digest does not match the corresponding final-report.json
-any *EvidenceRefs[].digest does not match the referenced artifact file
+any digest-backed evidence ref sha256 does not match the referenced artifact file
 ```
 
 ### Fake or fabricated evidence
@@ -799,11 +800,12 @@ high or critical review finding open
 
 ```text
 any final-report has unsupported schemaVersion
-any *EvidenceRefs entry missing digest field
+any digest-backed evidence ref is not artifact:<file>#sha256=<64-hex>
+any digest-backed evidence ref has a sha256 mismatch
 any blockedReasons entry is generic (< 20 characters or non-specific)
 any expectedBlockReasons entry is generic (< 20 characters or non-specific)
 risky baseline outcome=PASS with empty gateEvidenceRefs
-refusalEvidenceRefs entry without refusalType
+refusalEvidenceRefs is missing or empty for EXPECTED_BLOCK
 ```
 
 ### Host disagreement
