@@ -1,0 +1,98 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Freeze Layer 2 suite schema and proof root",
+      "context": "Confirm the selected artifacts root, baseline artifact schema, required ENG baseline IDs, and proof binding fields before implementation. Related decision doc requires baselineId, suiteRunId, claimTarget, materialHash, and receipt binding to be explicit.",
+      "relatedDocs": [
+        "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
+        "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Pin or ingest Layer 1 Development proof into the selected artifacts root",
+      "context": "Layer 1 being globally complete is not sufficient. The Engineering suite must see fresh Development lower-layer proof in the same selected artifacts root or a digest-pinned equivalent.",
+      "relatedDocs": [
+        "docs/requirements/decisions/unlock-layer2-ENG-suite.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Build the formal proof-producing path for Engineering final reports",
+      "context": "Diagnostic baseline_run output is localOnly=true and capabilityProof=false. Formal ENG final reports may set localOnly=false and capabilityProof=true only after required proof validation, receipt verification, and gate consumption pass.",
+      "relatedDocs": [
+        "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
+        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+        "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Execute all nine Engineering baselines through formal proof production",
+      "context": "Run ENG-MULTI-FILE-1, ENG-EXISTING-REPO-1, ENG-BUGFIX-1, ENG-REGRESSION-1, ENG-DATA-MIGRATION-1, ENG-AUTH-SECURITY-1, ENG-FRONTEND-VISUAL-1, ENG-LONG-RUN-1, and ENG-LOOP-REVIEW-1 with dual-host review evidence and no fake PASS.",
+      "relatedDocs": [
+        "docs/requirements/decisions/unlock-layer2-ENG-suite.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Verify and consume Authority receipt refs with baseline and claim binding",
+      "context": "Authority-backed proof must bind story, phase, baselineId, suiteRunId, claimTarget, headHash, materialHash, evidence digests, and run bindings. Missing or mismatched binding must fail closed.",
+      "relatedDocs": [
+        "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
+        "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Generate Engineering suite report from formal reports",
+      "context": "The suite report must only accept fresh formal reports. It must reject localOnly=true, capabilityProof=false, stale materialHash, missing lower-layer proof, and inconsistent outcomes.",
+      "relatedDocs": [
+        "docs/requirements/decisions/unlock-layer2-ENG-suite.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "Run formal Layer 2 claim evaluation or block if only diagnostic evaluator exists",
+      "context": "Current capability_claim_evaluate is L0/read-only diagnostic. Formal unlock requires a real Layer 2 evaluator or a fail-closed blocked result if no formal evaluator exists.",
+      "relatedDocs": [
+        "docs/requirements/decisions/unlock-layer2-ENG-suite.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-008",
+      "title": "Verify higher layers remain locked",
+      "context": "Layer 2 unlock must not unlock Loop Engineering, Production Safety, or global Capability Claim. Higher-layer claim requests must remain NOT_AUTHORIZED unless separately proven.",
+      "relatedDocs": [
+        "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
+        "docs/requirements/decisions/lattice-unattended-completion-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
