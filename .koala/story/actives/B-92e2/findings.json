@@ -74,6 +74,22 @@
       ],
       "resolvedReason": "Fixed in 6d1fcae6: parseFinalReport now validates status against pass|blocked|failed|not_authorized and rejects outcome/status inconsistencies fail-closed. Verified by lattice-baseline-smoke invalid-status scenario and lattice validate allPass=true.",
       "resolvedAt": "2026-06-10T02:38:52.027Z"
+    },
+    {
+      "id": "B-92e2:F-005",
+      "desc": "packages/main/src/core/lattice-baseline.ts:1074-1112 accepts a lower-layer baseline-suite-report as PASS proof without validating suite outcome coherence. readSuiteReport only checks schema/layer/staleness/suiteStatus=PASS/authorization=authorized/localOnly=false/capabilityProof=true, then evaluateCapabilityClaim at 1411-1442 upgrades highestAuthorizedClaim directly from that result. Repro: seed development baseline-suite-report.json with suiteStatus=PASS, authorization=authorized, capabilityProof=true, localOnly=false, but outcome=EXPECTED_BLOCK; seed a normal engineering suite report; then run `node packages/main/dist/cli.js capability_claim_evaluate --target=engineering --format=json`. Current output is authorized=true, outcome=PASS, authorizedClaimLevel=engineering even though the lower-layer proof artifact is internally contradictory. This is a false-PASS/false-authorization bug. Fix by making readSuiteReport fail closed on malformed or inconsistent suite outcome/state (at minimum reject non-PASS outcome when suiteStatus=PASS/authorization=authorized, and ideally validate the suite enum pair the same way parseFinalReport now validates outcome/status).",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-10T02:42:42.729Z",
+      "reviewRound": "2026-06-10T02:38:25.968Z",
+      "reviewRunId": "B-92e2:RR-006",
+      "_hash": "318047595037cae2df348266b0feed6fa3681be7e7d79df124adb8a619e96bd8",
+      "files": [
+        "packages/main/src/core/lattice-baseline.ts"
+      ]
     }
   ]
 }
