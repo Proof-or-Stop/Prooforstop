@@ -17,6 +17,23 @@
         "packages/main/src/core/store.ts",
         "packages/main/src/core/phase-flow.ts"
       ]
+    },
+    {
+      "id": "B-e3d9:F-002",
+      "desc": "packages/main/src/core/lattice-authority-native.ts:164 WHY: receipt verification now treats any non-lowercase \"ed25519\" value as unsupported, and packages/main/src/tasks/authority-client-smoke.ts:1158 hardens that behavior. This breaks the Ed25519 happy path for casing-only server variants (for example \"ED25519\") instead of only failing closed on truly unsupported algorithms. severity=high. Fix: lowercase-normalize serverKey.algorithm before comparison and keep the smoke focused on genuinely unsupported algorithms like rsa.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-10T23:16:18.500Z",
+      "reviewRound": "2026-06-10T23:09:18.249Z",
+      "reviewRunId": "B-e3d9:RR-002",
+      "_hash": "b17cafdb979e4cbd12261d5e9f00713213d59d6d1c6228e40cc6cef032822dd9",
+      "files": [
+        "packages/main/src/core/lattice-authority-native.ts",
+        "packages/main/src/tasks/authority-client-smoke.ts"
+      ]
     }
   ]
 }
