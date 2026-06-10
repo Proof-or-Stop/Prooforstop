@@ -85,7 +85,7 @@ const SUPPORTED_PRODUCTION_RECEIPT_ALGORITHM = 'ed25519';
 
 function normalizeReceiptAlgorithm(value: string | undefined): string | undefined {
   const trimmed = value?.trim();
-  return trimmed ? trimmed.toLowerCase() : undefined;
+  return trimmed || undefined;
 }
 
 function isHexBytes(value: string, bytes: number): boolean {

@@ -1155,6 +1155,32 @@ function authorityEnv(extra: Record<string, string | undefined> = {}): Record<st
   assert.equal(exec.authorityDone, false);
 }
 
+// --- discovery fallback: algorithm case variant also fails closed -------------------
+{
+  const approve = dynamicApproveForGateRequest();
+  const policyBody = {
+    contractVersion: 'authority-policy.v1', purpose: 'discovery', requiredAuthorityMode: 'enforce',
+    productionEnforceAuthority: true, requireHandshake: false, commandCatalogDigest: 'ccd', evidenceSchemaDigest: 'esd',
+    supportedAuthorityModes: ['off', 'shadow', 'enforce'], minClientVersions: {}, requiredEvidenceFields: [],
+    evidencePolicy: { preset: 'default' },
+    serverKey: { keyId: 'server-key-1', algorithm: 'ED25519', encoding: 'hex', publicKeyHex: approve.serverPublicKeyHex },
+    compatibility: {
+      supportedAuthorityModes: ['off', 'shadow', 'enforce'], requiredAuthorityMode: 'enforce', requireHandshake: false,
+      minClientVersions: {}, commandCatalogDigest: 'ccd', evidenceSchemaDigest: 'esd', productionEnforceAuthority: true,
+      requireActorKeyBinding: false, requireRunnerHeartbeatForL2: false,
+    },
+  };
+  const resolution = await resolveAuthorityGateEvaluator(authorityJobPlan(), {
+    env: authorityEnv({ LATTICE_AUTHORITY_SERVER_KEY_ID: undefined }),
+    fetchImpl: wiringRouterFetch({
+      policy: { status: 200, body: policyBody },
+      evaluate: approve.evaluate,
+    }),
+  });
+  assert.equal(resolution.decision?.status, 'receipt_unverified');
+  assert.match(resolution.decision?.reason ?? '', /unsupported algorithm/i);
+}
+
 // --- DENY: rejected decision -> evaluator present but executor fails closed ---------
 {
   const { serverPublicKeyHex } = signedGateReceipt();
