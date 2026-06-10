@@ -130,6 +130,17 @@
           "headHash": "b5d1682bea9e1c865219a393fe799b558971afdb",
           "materialHash": "0c5798fc3a0e0731eac5171a15086c0a967883f96be5f4f768d1aece704e736c",
           "timestamp": "2026-06-10T19:53:07.641Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "lattice checklist_get --storyId=B-51f6; npm run test:authority-gate-receipts",
+          "result": "pass",
+          "note": "Story/checklist and local gate receipt regression keep scope fixed to TEST; DONE was not attempted and TEST receipt semantics are not broadened to DONE.",
+          "headHash": "41cb98ebc17c234ec10c89419aad59e2ff3c56e7",
+          "materialHash": "0c5798fc3a0e0731eac5171a15086c0a967883f96be5f4f768d1aece704e736c",
+          "timestamp": "2026-06-10T19:53:07.963Z"
         }
       ]
     },
