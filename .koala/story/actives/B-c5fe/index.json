@@ -4,7 +4,7 @@
   "title": "编写 Authority session 与 receipt-backed gate 执行文档",
   "description": "为后续 Authority session identity lifecycle + receipt-backed gate consumption 开发写一份可执行文档，明确 Python Authority Server、Runner host、Lattice CLI、cross-repo validation 的职责、依赖、阶段拆分、gate 机械判定和 fail-closed 验收。本文档只定义执行方案，不实现 actor keys、job claim、provider execution、envelope signing、receipt verification 或 lifecycle gate 变更。",
   "type": "chore",
-  "phase": "REVIEW",
+  "phase": "DEV",
   "priority": "high",
   "keywords": [
     "authority",
@@ -70,6 +70,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-10T02:45:18.127Z",
+      "branch": "story/B-c5fe",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-10T02:50:30.678Z",
       "branch": "story/B-c5fe",
       "user": "Harmonygo",
       "agent": "main"
