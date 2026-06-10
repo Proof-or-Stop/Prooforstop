@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-10T23:44:51.813Z",
       "reviewRunId": "B-e3d9:RR-007",
       "_hash": "714869629caf4828a56ecbb76201fcf2405c5e7381d11df26ae737e58d99b594"
+    },
+    {
+      "id": "B-e3d9:RP-006",
+      "agent": "koala-review-quality",
+      "note": "Reviewed authority receipt algorithm normalization, planner/worktree linkage, gap_analyze hygiene, and dry-run help derivation. Verified F-002 fix accepts ED25519/ED25519 case-variant and rejects rsa/blank/non-string algorithms; F-001 no longer reproduces after build and planner smoke passes. Commands passed: npm --prefix packages/main run build; npm --prefix packages/main run test:authority-client; npm --prefix packages/main run test:planner-unattended-smoke; npm --prefix packages/main run test:worktree-policy-smoke; npm --prefix packages/main run test:lattice-cli-migration-smoke; npm --prefix packages/main run test:gap-analyze-input-hygiene-smoke; node bin/lattice.js gap_analyze. Scope acks for .gitignore, package.json, extract.ts, gap-analyze-input-hygiene-smoke.ts, and lattice-cli-migration-smoke.ts are justified by metadata tracking, smoke registration, shared skip-dir helper extraction, direct hygiene coverage, and help-contract coverage; no arbitrary optimization surfaced in plannedSteps or policy emission.",
+      "createdAt": "2026-06-10T23:51:48.168Z",
+      "reviewRound": "2026-06-10T23:44:51.813Z",
+      "reviewRunId": "B-e3d9:RR-008",
+      "_hash": "e8aed1bad0d57e5e9d477af5bad0e264b50c806204171b82ff1cc45a2ae06497"
     }
   ]
 }
