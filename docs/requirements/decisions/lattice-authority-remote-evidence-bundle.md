@@ -2,7 +2,7 @@
 
 Date: 2026-06-09
 
-Validation target: `https://stagging.hostneutral.net/`
+Validation target: `https://staging.hostneutral.net/`
 
 User-confirmed key/profile status: the staging Authority server key/profile is the
 formal server key/profile for this validation run.
@@ -34,7 +34,7 @@ artifacts.
 
 | Field | Value |
 | --- | --- |
-| Authority URL | `https://stagging.hostneutral.net/` |
+| Authority URL | `https://staging.hostneutral.net/` |
 | Health service | `lattice-authority` |
 | Server key id | `dev-server-key` |
 | Server public key fingerprint / pin | `5784b3e7f2ae3ed6e93760c00c1b1285495834d2f801ae6553490ea73276ae68` |
@@ -44,7 +44,7 @@ artifacts.
 Policy endpoint:
 
 ```text
-GET https://stagging.hostneutral.net/v1/authority/policy
+GET https://staging.hostneutral.net/v1/authority/policy
 ```
 
 Observed strong evidence policy:
@@ -104,7 +104,7 @@ baseline local certification smoke passed: non-authority local review evidence r
 Remote `authorityDone` E2E:
 
 ```bash
-LATTICE_AUTHORITY_LIVE_URL='https://stagging.hostneutral.net/' \
+LATTICE_AUTHORITY_LIVE_URL='https://staging.hostneutral.net/' \
 LATTICE_AUTHORITY_LIVE_PUBLIC_KEY='5784b3e7f2ae3ed6e93760c00c1b1285495834d2f801ae6553490ea73276ae68' \
 LATTICE_AUTHORITY_CUSTOMER_API_KEY='<redacted live bearer key>' \
 LATTICE_AUTHORITY_PROJECT_ID='lattice-remote-evidence-bundle-20260609' \
@@ -120,7 +120,7 @@ PASS authority live Python E2E smoke: queued job created, claimed, evidence uplo
 Remote `fullAuthorityDone` E2E:
 
 ```bash
-LATTICE_AUTHORITY_LIVE_URL='https://stagging.hostneutral.net/' \
+LATTICE_AUTHORITY_LIVE_URL='https://staging.hostneutral.net/' \
 LATTICE_AUTHORITY_LIVE_PUBLIC_KEY='5784b3e7f2ae3ed6e93760c00c1b1285495834d2f801ae6553490ea73276ae68' \
 LATTICE_AUTHORITY_CUSTOMER_API_KEY='<redacted live bearer key>' \
 LATTICE_AUTHORITY_PROJECT_ID='lattice-remote-evidence-bundle-20260609' \
@@ -144,7 +144,7 @@ lattice-remote-evidence-bundle-20260609
 Record query:
 
 ```text
-GET https://stagging.hostneutral.net/v1/projects/lattice-remote-evidence-bundle-20260609/records?limit=200
+GET https://staging.hostneutral.net/v1/projects/lattice-remote-evidence-bundle-20260609/records?limit=200
 ```
 
 Observed record counts:
@@ -205,7 +205,7 @@ Host verdict receipts:
 Every receipt above was fetched from:
 
 ```text
-GET https://stagging.hostneutral.net/v1/receipts/{receiptId}
+GET https://staging.hostneutral.net/v1/receipts/{receiptId}
 ```
 
 Each returned `status=200`, `serverKeyId=dev-server-key`, and
@@ -216,7 +216,7 @@ Each returned `status=200`, `serverKeyId=dev-server-key`, and
 Verdict query:
 
 ```text
-GET https://stagging.hostneutral.net/v1/jobs/job_d2f2bea83f2e460689a9ffbef6902ccd/verdicts
+GET https://staging.hostneutral.net/v1/jobs/job_d2f2bea83f2e460689a9ffbef6902ccd/verdicts
 ```
 
 Server reconciliation:
