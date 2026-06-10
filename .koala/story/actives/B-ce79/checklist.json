@@ -137,7 +137,37 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees all nine ENG baselines represented in formal proof output, with no skipped baseline and no fake PASS.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-baseline.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lattice-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "All nine ENG baselines produce supported formal outcomes.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Expected-block baselines can report EXPECTED_BLOCK only with refusal or gate evidence.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Skipped, failed, or inconsistent baseline output prevents suite PASS.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
