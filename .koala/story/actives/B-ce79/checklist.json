@@ -231,9 +231,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/unlock-layer2-ENG-suite.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-10T21:11:20.299Z",
       "userSees": "User sees all nine ENG baselines represented in formal proof output, with no skipped baseline and no fake PASS.",
       "files": {
         "modify": [
@@ -263,7 +263,39 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke writes all nine ENG formal reports and confirms Engineering suite coveredBaselineIds length is 9 with formalProof=true.",
+          "headHash": "c418f4676ceda100cf758a1058de896dc62409ca",
+          "materialHash": "d8d294973c48a678542a01d83dc723637bf22cb41a96dc6e6157a6580060a16f",
+          "timestamp": "2026-06-10T21:11:20.324Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke accepts EXPECTED_BLOCK Engineering reports only with expectedBlockReasons and refusalEvidenceRefs, and accepts risky PASS only with digest-backed gateEvidenceRefs.",
+          "headHash": "c418f4676ceda100cf758a1058de896dc62409ca",
+          "materialHash": "d8d294973c48a678542a01d83dc723637bf22cb41a96dc6e6157a6580060a16f",
+          "timestamp": "2026-06-10T21:11:20.346Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke rejects skipped, malformed, inconsistent expectedOutcomes, local-only, stale, and false formal proof candidates before suite PASS.",
+          "headHash": "c418f4676ceda100cf758a1058de896dc62409ca",
+          "materialHash": "d8d294973c48a678542a01d83dc723637bf22cb41a96dc6e6157a6580060a16f",
+          "timestamp": "2026-06-10T21:11:20.368Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
