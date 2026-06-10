@@ -377,7 +377,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "command": "lattice gap_analyze; npm --prefix packages/main run build; npm run test:authority-client; npm run test:lattice-cli-migration-smoke; npm run test:worktree-policy-smoke; npm run test:planner-unattended-smoke",
+          "result": "pass",
+          "note": "Current-head convergence suite passed: gap_analyze reports Requirement coverage 100%, Test coverage 100%, Gaps: 0 high / 0 medium; build and all focused smokes for receipt algorithm, dry-run help, worktree policy, and planner confirmation passed. lattice validate is rerun after this evidence so final pass remains Lattice-authoritative, not host narrative.",
+          "headHash": "81dfa6ae15346d542f9ce0153add4fda514ac201",
+          "materialHash": "93f758f0771566ab8125d1eba5c272c5a536f66a95f6c927f342542690dc05b9",
+          "timestamp": "2026-06-10T23:08:29.792Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "command -v claude && claude --version; guarded claude -p advisory review attempt 1; guarded claude -p advisory review attempt 2",
+          "result": "pass",
+          "note": "Codex host coordinated the story and Lattice commands. Claude CLI host was present at /Users/jek/.nvm/versions/node/v22.13.0/bin/claude version 2.1.88; advisory attempt 1 returned a one-sentence confirmation that Lattice gap_analyze/validate are authoritative, while advisory attempt 2 was degraded by the local 15s guard with exit 143/no output. Both are recorded as advisory only; they do not replace Lattice CLI/test evidence.",
+          "headHash": "81dfa6ae15346d542f9ce0153add4fda514ac201",
+          "materialHash": "93f758f0771566ab8125d1eba5c272c5a536f66a95f6c927f342542690dc05b9",
+          "timestamp": "2026-06-10T23:08:29.842Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "lattice validate --story=B-e3d9 before adding CHK-005 evidence",
+          "result": "pass",
+          "note": "The pre-evidence validate run passed npm test but still refused completion with 12/15 covered and CHK-005 missing, proving host transcripts or partial command success cannot satisfy the gate without current Lattice verificationEvidence.",
+          "headHash": "81dfa6ae15346d542f9ce0153add4fda514ac201",
+          "materialHash": "93f758f0771566ab8125d1eba5c272c5a536f66a95f6c927f342542690dc05b9",
+          "timestamp": "2026-06-10T23:08:29.891Z"
+        }
+      ]
     }
   ]
 }
