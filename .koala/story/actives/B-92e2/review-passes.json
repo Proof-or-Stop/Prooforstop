@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-10T02:49:46.452Z",
       "reviewRunId": "B-92e2:RR-007",
       "_hash": "d52b4bc7b4f5519499d3a43774e7ba860f35ac5587c2f4d49df66eea59cb6101"
+    },
+    {
+      "id": "B-92e2:RP-004",
+      "agent": "koala-review-concept",
+      "note": "Concept review pass: local baseline artifacts remain diagnostic-only and reject authority overclaim/stale/mixed-schema inputs; parallel implementation artifacts do not unlock proof; production-safety authority stays fail-closed; claim unlock remains sequential via lower-layer suite proof chain. Verified against packages/main/src/core/lattice-baseline.ts and packages/main/src/tasks/lattice-baseline-smoke.ts with npm --prefix packages/main run build, npm --prefix packages/main run test:lattice-baseline-smoke, and npm --prefix packages/main run test:command-ownership-contract.",
+      "createdAt": "2026-06-10T02:53:17.991Z",
+      "reviewRound": "2026-06-10T02:49:46.452Z",
+      "reviewRunId": "B-92e2:RR-009",
+      "_hash": "851aa990fcac7589644659a4f56ed472cb811f67a894a1eac43e63e6b0c77ef3"
     }
   ]
 }
