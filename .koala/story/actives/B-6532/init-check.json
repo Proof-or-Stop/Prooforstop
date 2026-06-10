@@ -1,0 +1,41 @@
+{
+  "storyId": "B-6532",
+  "checkedAt": "2026-06-10T22:28:07.604Z",
+  "reviewRound": "",
+  "agentId": "koala-review-story-init",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-10T22:28:01.886Z",
+      "issues": [
+        {
+          "id": "CLAUDE-I-1",
+          "severity": "medium",
+          "desc": "Risk signals are text-triggered but still require high-risk PLAN artifacts; do not dismiss unless explicitly justified by story_review_dismiss."
+        },
+        {
+          "id": "CLAUDE-I-2",
+          "severity": "low",
+          "desc": "Path spelling must be normalized to git-tracked .lattice to avoid case-sensitive runner mismatch; CHK-001 currently mentions .Lattice."
+        },
+        {
+          "id": "CLAUDE-I-3",
+          "severity": "low",
+          "desc": "PLAN must add verificationIntent/user-observable acceptance for the nine baseline evidence items before DEV."
+        }
+      ]
+    },
+    {
+      "agentId": "codex-cli-init-reviewer",
+      "checkedAt": "2026-06-10T22:28:01.933Z",
+      "issues": []
+    },
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-06-10T22:28:07.604Z",
+      "issues": []
+    }
+  ],
+  "_hash": "6bdb20296c0c22626ab8995d57a27544eaa4e938e24ee2cb7780f7bef80a5190"
+}

@@ -1,0 +1,44 @@
+{
+  "storyId": "B-6532",
+  "name": "execute-layer2-eng-unlock",
+  "title": "Execute formal Layer 2 Engineering Baseline unlock",
+  "description": "Execute the formal Layer 2 Engineering Baseline unlock end to end. All Lattice baseline assets for this run must be written under .Lattice/artifacts/baseline, not .omx. The final required result is a formal claim report with authorized=true, authorizedClaimLevel=engineering, layer2EngineeringClaim=UNLOCKED, higher-layer claims LOCKED, and production/Authority/full-unattended fields false. Use two-host Claude CLI and Codex CLI multi-agent review. Follow: do not optimize for the sake of optimization; do not optimize arbitrarily; only fix real correctness issues; maintain logical consistency.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "AUTH"
+    },
+    {
+      "category": "Data Migration/Destructive",
+      "matched": "MIGRATION"
+    },
+    {
+      "category": "Production/Emergency",
+      "matched": "production"
+    }
+  ],
+  "createdAt": "2026-06-10T22:19:12.532Z",
+  "startedAt": "2026-06-10T22:19:12.532Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-10T22:19:12.533Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-10T22:28:21.375Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ]
+}

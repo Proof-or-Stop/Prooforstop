@@ -1,0 +1,98 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Use .Lattice baseline artifact root only",
+      "context": "Remove dependency on .omx for this unlock run. Build or execute with artifactsRoot=.Lattice/artifacts/baseline/layer2-engineering-unlock and ensure no new baseline proof artifact is written under .omx.",
+      "relatedDocs": [
+        "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
+        "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Make local built CLI expose formal Layer2 commands",
+      "context": "The source contains capability_claim_formal_evaluate but current dist/global CLI was stale. Build and verify node packages/main/dist/cli.js exposes capability_claim_formal_evaluate, baseline_run --formal, and baseline_suite_report --layer.",
+      "relatedDocs": [
+        "docs/requirements/decisions/unlock-layer2-ENG-suite.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Materialize fresh Development lower-layer proof under .Lattice",
+      "context": "Formal Layer2 claim requires fresh Development suite proof in the selected artifacts root. Generate or ingest a fresh development baseline-suite-report.json under .Lattice/artifacts/baseline/layer2-engineering-unlock/development.",
+      "relatedDocs": [
+        "docs/requirements/decisions/unlock-layer2-ENG-suite.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Materialize all nine formal Engineering final reports",
+      "context": "Generate formal final-report artifacts for ENG-MULTI-FILE-1, ENG-EXISTING-REPO-1, ENG-BUGFIX-1, ENG-REGRESSION-1, ENG-DATA-MIGRATION-1, ENG-AUTH-SECURITY-1, ENG-FRONTEND-VISUAL-1, ENG-LONG-RUN-1, and ENG-LOOP-REVIEW-1. Each report must include digest-backed verification evidence, Claude/Codex review evidence, lifecycle gate evidence, receipt evidence digest binding, and correct expected PASS or EXPECTED_BLOCK/gated PASS behavior.",
+      "relatedDocs": [
+        "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
+        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+        "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Generate Engineering suite PASS from formal reports",
+      "context": "Run baseline_suite_report --layer=engineering against the .Lattice artifacts root and require engineeringBaseline=PASS, coveredBaselineIds length 9, missingBaselineIds empty, formalProof=true, localOnly=false, no falseDone.",
+      "relatedDocs": [
+        "docs/requirements/decisions/unlock-layer2-ENG-suite.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Generate formal Layer2 claim report unlocked",
+      "context": "Run capability_claim_formal_evaluate --target=engineering against the same .Lattice artifacts root and write a claim report. The report must assert authorized=true, authorizedClaimLevel=engineering, layer2EngineeringClaim=UNLOCKED, and keep Loop, Production Safety, global claim, productionDone, receiptVerified, and fullAuthorityDone locked/false.",
+      "relatedDocs": [
+        "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
+        "docs/requirements/decisions/lattice-unattended-completion-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "Verify fail-closed adversarial traps",
+      "context": "Deliberately test forged suite summary, missing review host, wrong host JSON, same review artifact reuse, missing lifecycle gate ref, missing receipt evidenceDigest, stale materialHash, and local-only diagnostic artifacts. Each must BLOCK or LOCKED, never PASS.",
+      "relatedDocs": [
+        "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
+        "docs/requirements/decisions/lattice-authority-receipt-contract.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-008",
+      "title": "Run two-host multi-agent review and final delivery",
+      "context": "Use Claude CLI and Codex CLI reviewers to verify host-neutral correctness, test coverage, claim boundaries, and no overclaim. Record review evidence and summary before DONE.",
+      "relatedDocs": [
+        "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
+        "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
