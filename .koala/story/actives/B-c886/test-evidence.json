@@ -1,0 +1,331 @@
+{
+  "command": "koala validate --story=B-c886 --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.5 test\",\"  > npm run test:e2e\",\"  > koala@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-aSCJOQ; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-WXsLhi; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 15/15 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via manual_transcript verdict=success (packages/main/src/tasks/lattice-baseline-smoke.ts) — Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke; assert an Engineering final-report for ENG-DATA-MIGRATION-1 or ENG-AUTH-SECURITY-1 with outcome EXPECTED_BLOCK and expectedOutcome allowing EXPECTED_BLOCK is accepted, has non-empty expectedBlockReasons and refusalEvidenceRefs, and does not appear as a suite-level blockedReasons blocker.\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via manual_transcript verdict=success (packages/main/src/core/lattice-baseline.ts) — Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke against an EXPECTED_BLOCK Engineering final-report missing expectedBlockReasons or refusalEvidenceRefs; assert it is rejected and the rejection names the missing expected-block or refusal evidence field.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/cli] covered via manual_transcript verdict=success (packages/main/src/tasks/lattice-baseline-smoke.ts) — Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke with an EXPECTED_BLOCK report for PASS-only ENG-BUGFIX-1 and with a refusal hidden only in blockedReasons; assert both are rejected or block the suite instead of being accepted as expected-block evidence.\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via manual_transcript verdict=success (packages/main/src/tasks/lattice-baseline-smoke.ts) — Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke; assert ENG-DATA-MIGRATION-1 and ENG-AUTH-SECURITY-1 can report outcome PASS only when explicit gate evidence is present, the final-reports are accepted, the Engineering suite report reaches suiteStatus PASS, and blockedReasons does not contain missing-gate refusal text.\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via manual_transcript verdict=success (packages/main/src/core/lattice-baseline.ts) — Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke with those risky baselines lacking gate evidence; assert they remain accepted EXPECTED_BLOCK reports with concrete expectedBlockReasons and refusalEvidenceRefs rather than PASS.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via manual_transcript verdict=success (packages/main/src/tasks/lattice-baseline-smoke.ts) — Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke with risky-baseline PASS reports that omit, empty, stale, or fake the required gate evidence refs; assert each report is rejected or the suite is not_authorized with blockedReasons naming explicit gate evidence.\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via manual_transcript verdict=success (packages/main/src/tasks/lattice-baseline-smoke.ts) — Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke; assert capability_claim_evaluate --target=engineering --format=json maps to claimId CLAIM-ENGINEERING-DEV and returns authorized true, outcome PASS, authorizedClaimLevel engineering, highestEvidenceBackedClaim engineering, and no Authority or production overclaim fields set true when fresh coherent Development and Engineering suite reports exist.\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via manual_transcript verdict=success (packages/main/src/tasks/lattice-baseline-smoke.ts) — Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke; assert capability_claim_evaluate --target=engineering returns authorized false and outcome EXPECTED_BLOCK for each lower-layer defect case: missing Development suite report, stale materialHash/headHash, localOnly true or capabilityProof false, schemaVersion mismatch, and falseDoneCount greater than 0. Each blockedReasons entry must name the specific defect.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/cli] covered via manual_transcript verdict=success (packages/main/src/core/lattice-baseline.ts) — Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke with an internally incoherent Development proof such as suiteStatus PASS paired with outcome EXPECTED_BLOCK, authorization not_authorized, or contradictory capabilityProof/localOnly fields; assert authorized remains false, authorizedClaimLevel stays none, and blockedReasons mention coherence or inconsistent lower-layer proof.\",\"  ✓ CHK-004:happy:0 [happy/must/cli] covered via manual_transcript verdict=success (packages/main/src/tasks/lattice-baseline-smoke.ts) — Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke; assert the smoke exits 0 and its assertions cover all four named contract cases: expected-block safety refusals do not become suite blockers, risky Engineering PASS requires gate evidence, stale lower-layer proof blocks Engineering authorization, and --target=engineering resolves to CLAIM-ENGINEERING-DEV.\",\"  ✓ CHK-004:edge:0 [edge/must/cli] covered via manual_transcript verdict=success (packages/main/src/tasks/lattice-baseline-smoke.ts) — Inspect the built smoke task output or assertion labels from npm --prefix packages/main run test:lattice-baseline-smoke; assert each of the four contract cases is named distinctly enough to map to CHK-001, CHK-002, CHK-003, and target=engineering claim mapping evidence without relying on a generic all tests passed line.\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/cli] covered via manual_transcript verdict=success (packages/main/src/tasks/lattice-baseline-smoke.ts) — Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke in a state where any one required contract assertion is removed or not executed; assert the smoke fails or its output cannot satisfy this item because the missing case is observable from the absent label/assertion.\",\"  ✓ CHK-005:happy:0 [happy/must/cli] covered via manual_transcript verdict=audit-only (.omx/artifacts/claude-B-c886-engineering-contract-audit.md) — Run current Claude CLI and Codex CLI audit prompts against the implemented diff after npm run build && npm --prefix packages/main run test:lattice-baseline-smoke; assert both verdict transcripts reference the current git HEAD/materialHash or current git diff, each verdict states pass/no-blocker or lists findings for the Engineering unlock contract, and checklist verificationEvidence records them with verdict audit_only rather than as proof by themselves.\",\"  ✓ CHK-005:edge:0 [edge/must/cli] waived via waiver verdict=waived — Run the same audit capture when one host is unavailable, times out, or exits nonzero; assert the unavailable host is recorded as blocked/unavailable audit evidence, the available host verdict is still freshness-checked, and the story does not treat a single-host result as the required two-host audit.\",\"  ✓ CHK-005:adversarial:0 [adversarial/must/cli] covered via manual_transcript verdict=success (packages/main/src/tasks/lattice-baseline-smoke.ts) — Attempt to record stale Claude/Codex verdict text that references an old materialHash, old HEAD, absent diff, or claims Authority/proof status; assert REVIEW or validation evidence rejects it or records it only as stale audit-only evidence that cannot satisfy the implemented-contract audit requirement.\"],\"warnings\":[],\"timestamp\":\"2026-06-10T12:53:02.498Z\",\"headSha\":\"f0cb54f1c92f98fb3bffd62b40c00ae720d1dd7d\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-aSCJOQ; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-WXsLhi; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1767}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":15,\"reason\":\"verificationIntent entries present (15)\"},\"verificationCoverage\":{\"total\":15,\"required\":15,\"covered\":15,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke; assert an Engineering final-report for ENG-DATA-MIGRATION-1 or ENG-AUTH-SECURITY-1 with outcome EXPECTED_BLOCK and expectedOutcome allowing EXPECTED_BLOCK is accepted, has non-empty expectedBlockReasons and refusalEvidenceRefs, and does not appear as a suite-level blockedReasons blocker.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/lattice-baseline-smoke.ts\",\"command\":\"npm run build && npm --prefix packages/main run test:lattice-baseline-smoke\",\"result\":\"pass\",\"note\":\"Smoke cases 9 and 10 prove Engineering EXPECTED_BLOCK final reports require expectedBlockReasons/refusalEvidenceRefs, reject generic blockedReasons, and do not create suite-level blockers when valid.\",\"headHash\":\"7efb8fb8ac8deba1c9e558333092d4c5714ad0fa\",\"materialHash\":\"f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e\",\"timestamp\":\"2026-06-10T12:48:00.085Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke against an EXPECTED_BLOCK Engineering final-report missing expectedBlockReasons or refusalEvidenceRefs; assert it is rejected and the rejection names the missing expected-block or refusal evidence field.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"file\":\"packages/main/src/core/lattice-baseline.ts\",\"command\":\"npm run build && npm --prefix packages/main run test:lattice-baseline-smoke\",\"result\":\"pass\",\"note\":\"parseFinalReport and expectedBlockEvidenceProblems fail closed when expectedBlockReasons/refusalEvidenceRefs are missing or malformed.\",\"headHash\":\"7efb8fb8ac8deba1c9e558333092d4c5714ad0fa\",\"materialHash\":\"f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e\",\"timestamp\":\"2026-06-10T12:48:00.144Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke with an EXPECTED_BLOCK report for PASS-only ENG-BUGFIX-1 and with a refusal hidden only in blockedReasons; assert both are rejected or block the suite instead of being accepted as expected-block evidence.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/lattice-baseline-smoke.ts\",\"command\":\"npm run build && npm --prefix packages/main run test:lattice-baseline-smoke\",\"result\":\"pass\",\"note\":\"PASS-only baselines still reject EXPECTED_BLOCK through definition expectedOutcomes, and expected refusals hidden in generic blockedReasons are rejected.\",\"headHash\":\"7efb8fb8ac8deba1c9e558333092d4c5714ad0fa\",\"materialHash\":\"f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e\",\"timestamp\":\"2026-06-10T12:48:00.199Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke; assert ENG-DATA-MIGRATION-1 and ENG-AUTH-SECURITY-1 can report outcome PASS only when explicit gate evidence is present, the final-reports are accepted, the Engineering suite report reaches suiteStatus PASS, and blockedReasons does not contain missing-gate refusal text.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/lattice-baseline-smoke.ts\",\"command\":\"npm run build && npm --prefix packages/main run test:lattice-baseline-smoke\",\"result\":\"pass\",\"note\":\"Smoke case 11 proves ENG-DATA-MIGRATION-1 and ENG-AUTH-SECURITY-1 can PASS only with artifact sha256 gateEvidenceRefs and produce an authorized Engineering suite without blockedReasons.\",\"headHash\":\"7efb8fb8ac8deba1c9e558333092d4c5714ad0fa\",\"materialHash\":\"f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e\",\"timestamp\":\"2026-06-10T12:48:16.234Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke with those risky baselines lacking gate evidence; assert they remain accepted EXPECTED_BLOCK reports with concrete expectedBlockReasons and refusalEvidenceRefs rather than PASS.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"file\":\"packages/main/src/core/lattice-baseline.ts\",\"command\":\"npm run build && npm --prefix packages/main run test:lattice-baseline-smoke\",\"result\":\"pass\",\"note\":\"Risky baselines still default to EXPECTED_BLOCK and valid expected-block refusal evidence remains accepted without becoming a suite blocker.\",\"headHash\":\"7efb8fb8ac8deba1c9e558333092d4c5714ad0fa\",\"materialHash\":\"f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e\",\"timestamp\":\"2026-06-10T12:48:16.282Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke with risky-baseline PASS reports that omit, empty, stale, or fake the required gate evidence refs; assert each report is rejected or the suite is not_authorized with blockedReasons naming explicit gate evidence.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/lattice-baseline-smoke.ts\",\"command\":\"npm run build && npm --prefix packages/main run test:lattice-baseline-smoke\",\"result\":\"pass\",\"note\":\"Smoke cases 12 and 13 block missing, empty, fake-hash, mismatched expectedOutcomes, mismatched artifact directory, and PASS-with-blockedReasons reports.\",\"headHash\":\"7efb8fb8ac8deba1c9e558333092d4c5714ad0fa\",\"materialHash\":\"f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e\",\"timestamp\":\"2026-06-10T12:48:16.330Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke; assert capability_claim_evaluate --target=engineering --format=json maps to claimId CLAIM-ENGINEERING-DEV and returns authorized true, outcome PASS, authorizedClaimLevel engineering, highestEvidenceBackedClaim engineering, and no Authority or production overclaim fields set true when fresh coherent Development and Engineering suite reports exist.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/lattice-baseline-smoke.ts\",\"command\":\"npm run build && npm --prefix packages/main run test:lattice-baseline-smoke\",\"result\":\"pass\",\"note\":\"Smoke case 15 verifies capability_claim_evaluate --target=engineering returns claimId CLAIM-ENGINEERING-DEV, authorized=true, outcome PASS, Engineering claim level, and no Authority/production overclaim fields.\",\"headHash\":\"7efb8fb8ac8deba1c9e558333092d4c5714ad0fa\",\"materialHash\":\"f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e\",\"timestamp\":\"2026-06-10T12:48:32.655Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke; assert capability_claim_evaluate --target=engineering returns authorized false and outcome EXPECTED_BLOCK for each lower-layer defect case: missing Development suite report, stale materialHash/headHash, localOnly true or capabilityProof false, schemaVersion mismatch, and falseDoneCount greater than 0. Each blockedReasons entry must name the specific defect.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/lattice-baseline-smoke.ts\",\"command\":\"npm run build && npm --prefix packages/main run test:lattice-baseline-smoke\",\"result\":\"pass\",\"note\":\"Smoke cases 14, 16, 17, and 18 cover stale/missing/incoherent lower-layer proof and higher production-safety requests staying blocked instead of authorizing Engineering or higher claims.\",\"headHash\":\"7efb8fb8ac8deba1c9e558333092d4c5714ad0fa\",\"materialHash\":\"f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e\",\"timestamp\":\"2026-06-10T12:48:32.704Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke with an internally incoherent Development proof such as suiteStatus PASS paired with outcome EXPECTED_BLOCK, authorization not_authorized, or contradictory capabilityProof/localOnly fields; assert authorized remains false, authorizedClaimLevel stays none, and blockedReasons mention coherence or inconsistent lower-layer proof.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"file\":\"packages/main/src/core/lattice-baseline.ts\",\"command\":\"npm run build && npm --prefix packages/main run test:lattice-baseline-smoke\",\"result\":\"pass\",\"note\":\"readSuiteReport still rejects stale, localOnly/capabilityProof incoherence, falseDoneCount, and suiteStatus/outcome/authorization mismatches before Engineering authorization.\",\"headHash\":\"7efb8fb8ac8deba1c9e558333092d4c5714ad0fa\",\"materialHash\":\"f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e\",\"timestamp\":\"2026-06-10T12:48:32.761Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke; assert the smoke exits 0 and its assertions cover all four named contract cases: expected-block safety refusals do not become suite blockers, risky Engineering PASS requires gate evidence, stale lower-layer proof blocks Engineering authorization, and --target=engineering resolves to CLAIM-ENGINEERING-DEV.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/lattice-baseline-smoke.ts\",\"command\":\"npm run build && npm --prefix packages/main run test:lattice-baseline-smoke\",\"result\":\"pass\",\"note\":\"Focused smoke exits 0 and now covers expected-block refusal, risky gated PASS, lower-layer claim authorization/blocking, and target=engineering claimId mapping.\",\"headHash\":\"7efb8fb8ac8deba1c9e558333092d4c5714ad0fa\",\"materialHash\":\"f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e\",\"timestamp\":\"2026-06-10T12:48:49.334Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"Inspect the built smoke task output or assertion labels from npm --prefix packages/main run test:lattice-baseline-smoke; assert each of the four contract cases is named distinctly enough to map to CHK-001, CHK-002, CHK-003, and target=engineering claim mapping evidence without relying on a generic all tests passed line.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/lattice-baseline-smoke.ts\",\"command\":\"npm run build && npm --prefix packages/main run test:lattice-baseline-smoke\",\"result\":\"pass\",\"note\":\"Distinct smoke case labels 9-18 map the proof back to CHK-001 through CHK-004 rather than relying on a generic pass line.\",\"headHash\":\"7efb8fb8ac8deba1c9e558333092d4c5714ad0fa\",\"materialHash\":\"f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e\",\"timestamp\":\"2026-06-10T12:48:49.383Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke in a state where any one required contract assertion is removed or not executed; assert the smoke fails or its output cannot satisfy this item because the missing case is observable from the absent label/assertion.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/lattice-baseline-smoke.ts\",\"command\":\"npm run build && npm --prefix packages/main run test:lattice-baseline-smoke\",\"result\":\"pass\",\"note\":\"Removing any required assertion would fail the single focused smoke command; new assertions explicitly check blockedReasons, evidence refs, artifact hash refs, and claimId.\",\"headHash\":\"7efb8fb8ac8deba1c9e558333092d4c5714ad0fa\",\"materialHash\":\"f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e\",\"timestamp\":\"2026-06-10T12:48:49.436Z\"}},{\"intentRef\":\"CHK-005:happy:0\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"Run current Claude CLI and Codex CLI audit prompts against the implemented diff after npm run build && npm --prefix packages/main run test:lattice-baseline-smoke; assert both verdict transcripts reference the current git HEAD/materialHash or current git diff, each verdict states pass/no-blocker or lists findings for the Engineering unlock contract, and checklist verificationEvidence records them with verdict audit_only rather than as proof by themselves.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:happy:0\",\"kind\":\"manual_transcript\",\"verdict\":\"audit_only\",\"file\":\".omx/artifacts/claude-B-c886-engineering-contract-audit.md\",\"command\":\"Claude CLI read-only audit of Engineering baseline contract diff\",\"result\":\"pass\",\"note\":\"Claude CLI final verdict PASS for audit diff 0cc43b3dee01d637c89d15f5570d63289689d17f8be31ef2be96a3d229aa151b. Code is committed as 7efb8fb8ac8deba1c9e558333092d4c5714ad0fa; current materialHash f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e is unchanged by later checklist metadata. Audit-only evidence, not Authority proof.\",\"headHash\":\"8716f3b2847d625fb0b668025f53fdf455ca50a8\",\"materialHash\":\"f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e\",\"timestamp\":\"2026-06-10T12:50:04.857Z\"}},{\"intentRef\":\"CHK-005:edge:0\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"Run the same audit capture when one host is unavailable, times out, or exits nonzero; assert the unavailable host is recorded as blocked/unavailable audit evidence, the available host verdict is still freshness-checked, and the story does not treat a single-host result as the required two-host audit.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"waived\",\"evidence\":{\"intentRef\":\"CHK-005:edge:0\",\"kind\":\"waiver\",\"verdict\":\"waived\",\"waiverType\":\"permanent\",\"command\":\"command -v claude && command -v codex\",\"result\":\"pass\",\"note\":\"Both required hosts were available in this run, so the unavailable-host branch did not occur. This waiver is limited to the edge simulation; the evidence set still requires two separate host transcripts and does not treat a single-host result as satisfying CHK-005.\",\"headHash\":\"8716f3b2847d625fb0b668025f53fdf455ca50a8\",\"materialHash\":\"f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e\",\"timestamp\":\"2026-06-10T12:50:04.972Z\"}},{\"intentRef\":\"CHK-005:adversarial:0\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"Attempt to record stale Claude/Codex verdict text that references an old materialHash, old HEAD, absent diff, or claims Authority/proof status; assert REVIEW or validation evidence rejects it or records it only as stale audit-only evidence that cannot satisfy the implemented-contract audit requirement.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:0\",\"kind\":\"manual_transcript\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/lattice-baseline-smoke.ts\",\"command\":\"npm run build && npm --prefix packages/main run test:lattice-baseline-smoke\",\"result\":\"pass\",\"note\":\"Host verdicts are recorded as audit_only; formal suite authorization still depends on machine evidence and fail-closed baseline reports, not on host self-attestation.\",\"headHash\":\"8716f3b2847d625fb0b668025f53fdf455ca50a8\",\"materialHash\":\"f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e\",\"timestamp\":\"2026-06-10T12:50:05.034Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-10T12:53:03.150Z",
+  "headHash": "f0cb54f1c92f98fb3bffd62b40c00ae720d1dd7d",
+  "materialHash": "f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e",
+  "verificationCoverage": {
+    "total": 15,
+    "required": 15,
+    "covered": 15,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke; assert an Engineering final-report for ENG-DATA-MIGRATION-1 or ENG-AUTH-SECURITY-1 with outcome EXPECTED_BLOCK and expectedOutcome allowing EXPECTED_BLOCK is accepted, has non-empty expectedBlockReasons and refusalEvidenceRefs, and does not appear as a suite-level blockedReasons blocker.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/lattice-baseline-smoke.ts",
+          "command": "npm run build && npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke cases 9 and 10 prove Engineering EXPECTED_BLOCK final reports require expectedBlockReasons/refusalEvidenceRefs, reject generic blockedReasons, and do not create suite-level blockers when valid.",
+          "headHash": "7efb8fb8ac8deba1c9e558333092d4c5714ad0fa",
+          "materialHash": "f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e",
+          "timestamp": "2026-06-10T12:48:00.085Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke against an EXPECTED_BLOCK Engineering final-report missing expectedBlockReasons or refusalEvidenceRefs; assert it is rejected and the rejection names the missing expected-block or refusal evidence field.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/core/lattice-baseline.ts",
+          "command": "npm run build && npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "parseFinalReport and expectedBlockEvidenceProblems fail closed when expectedBlockReasons/refusalEvidenceRefs are missing or malformed.",
+          "headHash": "7efb8fb8ac8deba1c9e558333092d4c5714ad0fa",
+          "materialHash": "f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e",
+          "timestamp": "2026-06-10T12:48:00.144Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke with an EXPECTED_BLOCK report for PASS-only ENG-BUGFIX-1 and with a refusal hidden only in blockedReasons; assert both are rejected or block the suite instead of being accepted as expected-block evidence.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/lattice-baseline-smoke.ts",
+          "command": "npm run build && npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "PASS-only baselines still reject EXPECTED_BLOCK through definition expectedOutcomes, and expected refusals hidden in generic blockedReasons are rejected.",
+          "headHash": "7efb8fb8ac8deba1c9e558333092d4c5714ad0fa",
+          "materialHash": "f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e",
+          "timestamp": "2026-06-10T12:48:00.199Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke; assert ENG-DATA-MIGRATION-1 and ENG-AUTH-SECURITY-1 can report outcome PASS only when explicit gate evidence is present, the final-reports are accepted, the Engineering suite report reaches suiteStatus PASS, and blockedReasons does not contain missing-gate refusal text.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/lattice-baseline-smoke.ts",
+          "command": "npm run build && npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke case 11 proves ENG-DATA-MIGRATION-1 and ENG-AUTH-SECURITY-1 can PASS only with artifact sha256 gateEvidenceRefs and produce an authorized Engineering suite without blockedReasons.",
+          "headHash": "7efb8fb8ac8deba1c9e558333092d4c5714ad0fa",
+          "materialHash": "f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e",
+          "timestamp": "2026-06-10T12:48:16.234Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke with those risky baselines lacking gate evidence; assert they remain accepted EXPECTED_BLOCK reports with concrete expectedBlockReasons and refusalEvidenceRefs rather than PASS.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/core/lattice-baseline.ts",
+          "command": "npm run build && npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Risky baselines still default to EXPECTED_BLOCK and valid expected-block refusal evidence remains accepted without becoming a suite blocker.",
+          "headHash": "7efb8fb8ac8deba1c9e558333092d4c5714ad0fa",
+          "materialHash": "f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e",
+          "timestamp": "2026-06-10T12:48:16.282Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke with risky-baseline PASS reports that omit, empty, stale, or fake the required gate evidence refs; assert each report is rejected or the suite is not_authorized with blockedReasons naming explicit gate evidence.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/lattice-baseline-smoke.ts",
+          "command": "npm run build && npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke cases 12 and 13 block missing, empty, fake-hash, mismatched expectedOutcomes, mismatched artifact directory, and PASS-with-blockedReasons reports.",
+          "headHash": "7efb8fb8ac8deba1c9e558333092d4c5714ad0fa",
+          "materialHash": "f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e",
+          "timestamp": "2026-06-10T12:48:16.330Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke; assert capability_claim_evaluate --target=engineering --format=json maps to claimId CLAIM-ENGINEERING-DEV and returns authorized true, outcome PASS, authorizedClaimLevel engineering, highestEvidenceBackedClaim engineering, and no Authority or production overclaim fields set true when fresh coherent Development and Engineering suite reports exist.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/lattice-baseline-smoke.ts",
+          "command": "npm run build && npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke case 15 verifies capability_claim_evaluate --target=engineering returns claimId CLAIM-ENGINEERING-DEV, authorized=true, outcome PASS, Engineering claim level, and no Authority/production overclaim fields.",
+          "headHash": "7efb8fb8ac8deba1c9e558333092d4c5714ad0fa",
+          "materialHash": "f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e",
+          "timestamp": "2026-06-10T12:48:32.655Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke; assert capability_claim_evaluate --target=engineering returns authorized false and outcome EXPECTED_BLOCK for each lower-layer defect case: missing Development suite report, stale materialHash/headHash, localOnly true or capabilityProof false, schemaVersion mismatch, and falseDoneCount greater than 0. Each blockedReasons entry must name the specific defect.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/lattice-baseline-smoke.ts",
+          "command": "npm run build && npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke cases 14, 16, 17, and 18 cover stale/missing/incoherent lower-layer proof and higher production-safety requests staying blocked instead of authorizing Engineering or higher claims.",
+          "headHash": "7efb8fb8ac8deba1c9e558333092d4c5714ad0fa",
+          "materialHash": "f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e",
+          "timestamp": "2026-06-10T12:48:32.704Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke with an internally incoherent Development proof such as suiteStatus PASS paired with outcome EXPECTED_BLOCK, authorization not_authorized, or contradictory capabilityProof/localOnly fields; assert authorized remains false, authorizedClaimLevel stays none, and blockedReasons mention coherence or inconsistent lower-layer proof.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/core/lattice-baseline.ts",
+          "command": "npm run build && npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "readSuiteReport still rejects stale, localOnly/capabilityProof incoherence, falseDoneCount, and suiteStatus/outcome/authorization mismatches before Engineering authorization.",
+          "headHash": "7efb8fb8ac8deba1c9e558333092d4c5714ad0fa",
+          "materialHash": "f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e",
+          "timestamp": "2026-06-10T12:48:32.761Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke; assert the smoke exits 0 and its assertions cover all four named contract cases: expected-block safety refusals do not become suite blockers, risky Engineering PASS requires gate evidence, stale lower-layer proof blocks Engineering authorization, and --target=engineering resolves to CLAIM-ENGINEERING-DEV.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/lattice-baseline-smoke.ts",
+          "command": "npm run build && npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Focused smoke exits 0 and now covers expected-block refusal, risky gated PASS, lower-layer claim authorization/blocking, and target=engineering claimId mapping.",
+          "headHash": "7efb8fb8ac8deba1c9e558333092d4c5714ad0fa",
+          "materialHash": "f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e",
+          "timestamp": "2026-06-10T12:48:49.334Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "Inspect the built smoke task output or assertion labels from npm --prefix packages/main run test:lattice-baseline-smoke; assert each of the four contract cases is named distinctly enough to map to CHK-001, CHK-002, CHK-003, and target=engineering claim mapping evidence without relying on a generic all tests passed line.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/lattice-baseline-smoke.ts",
+          "command": "npm run build && npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Distinct smoke case labels 9-18 map the proof back to CHK-001 through CHK-004 rather than relying on a generic pass line.",
+          "headHash": "7efb8fb8ac8deba1c9e558333092d4c5714ad0fa",
+          "materialHash": "f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e",
+          "timestamp": "2026-06-10T12:48:49.383Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "Run npm run build && npm --prefix packages/main run test:lattice-baseline-smoke in a state where any one required contract assertion is removed or not executed; assert the smoke fails or its output cannot satisfy this item because the missing case is observable from the absent label/assertion.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/lattice-baseline-smoke.ts",
+          "command": "npm run build && npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Removing any required assertion would fail the single focused smoke command; new assertions explicitly check blockedReasons, evidence refs, artifact hash refs, and claimId.",
+          "headHash": "7efb8fb8ac8deba1c9e558333092d4c5714ad0fa",
+          "materialHash": "f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e",
+          "timestamp": "2026-06-10T12:48:49.436Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:happy:0",
+        "itemId": "CHK-005",
+        "lane": "happy",
+        "desc": "Run current Claude CLI and Codex CLI audit prompts against the implemented diff after npm run build && npm --prefix packages/main run test:lattice-baseline-smoke; assert both verdict transcripts reference the current git HEAD/materialHash or current git diff, each verdict states pass/no-blocker or lists findings for the Engineering unlock contract, and checklist verificationEvidence records them with verdict audit_only rather than as proof by themselves.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "audit_only",
+          "file": ".omx/artifacts/claude-B-c886-engineering-contract-audit.md",
+          "command": "Claude CLI read-only audit of Engineering baseline contract diff",
+          "result": "pass",
+          "note": "Claude CLI final verdict PASS for audit diff 0cc43b3dee01d637c89d15f5570d63289689d17f8be31ef2be96a3d229aa151b. Code is committed as 7efb8fb8ac8deba1c9e558333092d4c5714ad0fa; current materialHash f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e is unchanged by later checklist metadata. Audit-only evidence, not Authority proof.",
+          "headHash": "8716f3b2847d625fb0b668025f53fdf455ca50a8",
+          "materialHash": "f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e",
+          "timestamp": "2026-06-10T12:50:04.857Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:edge:0",
+        "itemId": "CHK-005",
+        "lane": "edge",
+        "desc": "Run the same audit capture when one host is unavailable, times out, or exits nonzero; assert the unavailable host is recorded as blocked/unavailable audit evidence, the available host verdict is still freshness-checked, and the story does not treat a single-host result as the required two-host audit.",
+        "type": "cli",
+        "priority": "must",
+        "status": "waived",
+        "evidence": {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "waiver",
+          "verdict": "waived",
+          "waiverType": "permanent",
+          "command": "command -v claude && command -v codex",
+          "result": "pass",
+          "note": "Both required hosts were available in this run, so the unavailable-host branch did not occur. This waiver is limited to the edge simulation; the evidence set still requires two separate host transcripts and does not treat a single-host result as satisfying CHK-005.",
+          "headHash": "8716f3b2847d625fb0b668025f53fdf455ca50a8",
+          "materialHash": "f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e",
+          "timestamp": "2026-06-10T12:50:04.972Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:adversarial:0",
+        "itemId": "CHK-005",
+        "lane": "adversarial",
+        "desc": "Attempt to record stale Claude/Codex verdict text that references an old materialHash, old HEAD, absent diff, or claims Authority/proof status; assert REVIEW or validation evidence rejects it or records it only as stale audit-only evidence that cannot satisfy the implemented-contract audit requirement.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/lattice-baseline-smoke.ts",
+          "command": "npm run build && npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Host verdicts are recorded as audit_only; formal suite authorization still depends on machine evidence and fail-closed baseline reports, not on host self-attestation.",
+          "headHash": "8716f3b2847d625fb0b668025f53fdf455ca50a8",
+          "materialHash": "f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e",
+          "timestamp": "2026-06-10T12:50:05.034Z"
+        }
+      }
+    ]
+  }
+}

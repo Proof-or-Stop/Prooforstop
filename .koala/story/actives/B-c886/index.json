@@ -4,7 +4,7 @@
   "title": "Implement Engineering Baseline unlock contract alignment",
   "description": "Align the local baseline runner, suite aggregation, and claim evaluation contracts with the audited Layer 2 Engineering Baseline unlock execution plan. The work is limited to real correctness gaps between the frozen plan and the current implementation; it must not add new framework layers, arbitrary optimization, or production-grade claims.",
   "type": "feature",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "keywords": [
     "engineering-baseline",
@@ -67,6 +67,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-10T12:50:19.476Z",
+      "branch": "story/B-c886",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-10T12:52:53.777Z",
       "branch": "story/B-c886",
       "user": "Harmonygo",
       "agent": "main"
