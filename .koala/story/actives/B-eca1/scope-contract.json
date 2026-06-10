@@ -48,8 +48,18 @@
         "packages/main/src/handlers/authority-enforce.ts",
         "packages/main/src/handlers/transition-orchestrator.ts"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Authority receipt gate work requires status output to separate verified eligible consumed production facts, and gate receipt smoke coverage must assert eligibleGates TEST-to-DONE behavior plus status diagnostics without broad refactors.",
+      "timestamp": "2026-06-10T17:33:47.877Z",
+      "paths": [
+        "packages/main/src/handlers/lattice-cli.ts",
+        "packages/main/src/tasks/authority-gate-receipts-smoke.ts",
+        "packages/main/src/tasks/authority-status-smoke.ts"
+      ]
     }
   ],
   "createdAt": "2026-06-10T16:25:34.871Z",
-  "updatedAt": "2026-06-10T16:59:26.290Z"
+  "updatedAt": "2026-06-10T17:33:47.877Z"
 }
