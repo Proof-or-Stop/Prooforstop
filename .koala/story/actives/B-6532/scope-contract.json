@@ -39,7 +39,17 @@
     "docs/koala/framework-audit/2026-06-10/**"
   ],
   "scopeChangeReason": "Layer2 unlock may edit baseline formal proof code/tests/docs and create .lattice proof artifacts only; Authority contract docs and unrelated framework audit output stay protected.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-auditor",
+      "reason": "Formal proof artifacts moved from .omx to .lattice; the new proof root must be excluded from runtime materialHash so committed proof artifacts do not make their own evidence stale.",
+      "timestamp": "2026-06-10T22:52:44.322Z",
+      "paths": [
+        ".gitignore",
+        "packages/main/src/core/runtime-artifact-registry.ts"
+      ]
+    }
+  ],
   "createdAt": "2026-06-10T22:32:56.682Z",
-  "updatedAt": "2026-06-10T22:32:56.682Z"
+  "updatedAt": "2026-06-10T22:52:44.322Z"
 }
