@@ -1,0 +1,58 @@
+{
+  "storyId": "B-e3d9",
+  "checkedAt": "2026-06-10T22:39:11.821Z",
+  "features": [
+    {
+      "feature": "unsupported algorithm fail-closed",
+      "covered_by": "CHK-001 plus plan.md CHK-001 cover runtime guard, focused smoke coverage, explicit rejection reason, and ed25519-only acceptance",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "gap_analyze: decisions/lattice-authority-receipt-contract.md:179 high uncovered_requirement"
+    },
+    {
+      "feature": "supportsDryRun convergence",
+      "covered_by": "CHK-002 plus plan.md CHK-002 cover either a real consumed metadata surface or truth-source narrowing to the current command-policy contract",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "gap_analyze: decisions/cc-learnings.md:502 high uncovered_requirement"
+    },
+    {
+      "feature": "requiresAuthoritativeWorktree convergence",
+      "covered_by": "CHK-003 plus plan.md CHK-003 cover authoritative worktree enforcement, planner linkage, and focused smoke validation",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "gap_analyze: decisions/lattice-authority-live-integration.md:1124 high uncovered_requirement"
+    },
+    {
+      "feature": "requiresCleanWorktree convergence",
+      "covered_by": "CHK-003 plus plan.md CHK-003 explicitly cover both requiresCleanWorktree requirement lines and preserve fail-closed dirty-worktree evidence semantics",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "gap_analyze: decisions/lattice-authority-live-integration.md:1128 and 2654 high uncovered_requirement"
+    },
+    {
+      "feature": "requiresConfirmationBeforeStoryCreate convergence",
+      "covered_by": "CHK-004 plus plan.md CHK-004 cover planner policy defaults, blocked story creation without confirmation, and focused regression proof",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "gap_analyze: decisions/lattice-authority-live-integration.md:2745 high uncovered_requirement"
+    },
+    {
+      "feature": "host-neutral evidence and gap convergence",
+      "covered_by": "CHK-005 plus plan.md CHK-005 cover before and after gap_analyze, focused tests, validate, and advisory-only Codex and Claude host review evidence",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story outcome, CHK-005, and decision principles require authoritative Lattice evidence with host-neutral advisory reviews"
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "covered": 6,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "bb22d456bfce2b6cdc925a732193e2018fdec4b45e2790bc79c4a0d7ae11e1e3"
+}
