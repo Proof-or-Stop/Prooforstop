@@ -529,9 +529,9 @@
         "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
         "docs/requirements/decisions/lattice-unattended-completion-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-10T21:11:50.892Z",
       "userSees": "User sees Layer 3 Loop Engineering, Layer 4 Production Safety, and Layer 5/global Capability Claim remain LOCKED after Layer 2 unlock.",
       "files": {
         "modify": [
@@ -561,7 +561,39 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-008:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke verifies formal Engineering proof leaves loopEngineeringClaim, productionSafetyClaim, and globalCapabilityClaim LOCKED.",
+          "headHash": "22a830fbaf50ae20d6177e8e8e5e56cda6ae292b",
+          "materialHash": "d8d294973c48a678542a01d83dc723637bf22cb41a96dc6e6157a6580060a16f",
+          "timestamp": "2026-06-10T21:11:50.917Z"
+        },
+        {
+          "intentRef": "CHK-008:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke production-safety requests report missing lower-layer/authority prerequisites instead of PASS.",
+          "headHash": "22a830fbaf50ae20d6177e8e8e5e56cda6ae292b",
+          "materialHash": "d8d294973c48a678542a01d83dc723637bf22cb41a96dc6e6157a6580060a16f",
+          "timestamp": "2026-06-10T21:11:50.938Z"
+        },
+        {
+          "intentRef": "CHK-008:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke rejects reusing Engineering/parallel artifacts for Loop or Production claims and keeps higher targets not authorized.",
+          "headHash": "22a830fbaf50ae20d6177e8e8e5e56cda6ae292b",
+          "materialHash": "d8d294973c48a678542a01d83dc723637bf22cb41a96dc6e6157a6580060a16f",
+          "timestamp": "2026-06-10T21:11:50.960Z"
+        }
+      ]
     }
   ]
 }
