@@ -180,7 +180,37 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees Authority receipt refs verified and bound to baselineId, suiteRunId, claimTarget, headHash, materialHash, and evidence digests.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-baseline.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lattice-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Formal proof accepts receipt refs only when all baseline, suite, claim, head, material, and evidence bindings match.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Missing required receipt binding fields fail closed.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A valid receipt from another baseline, suite run, or claim target is rejected.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-006",
