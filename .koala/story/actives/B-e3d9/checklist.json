@@ -56,9 +56,9 @@
           "command": "npm run test:authority-client",
           "result": "pass",
           "note": "authority-client smoke keeps the valid ed25519 discovery path verified, preserving the supported production receipt algorithm success case",
-          "headHash": "5c18156fdf25dd97d0184e0ba06a0da237ba3ac6",
-          "materialHash": "f0cecef3e045a4ada0b87d434abc0d95c6bcb90cc4aca9df24969f3595b5518a",
-          "timestamp": "2026-06-10T22:49:39.175Z"
+          "headHash": "e8179d4bff23ca50869e5316b358008123fc1c3c",
+          "materialHash": "785b078c2bffbf11791571c3b82476e0a8dd99062ba77cb5feec0f41ca79462e",
+          "timestamp": "2026-06-10T23:01:06.456Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -67,9 +67,9 @@
           "command": "npm run test:authority-client",
           "result": "pass",
           "note": "authority-client smoke rejects the ED25519 case-variant discovery value as an unsupported algorithm, proving the exact serverKey.algorithm contract fails closed",
-          "headHash": "5c18156fdf25dd97d0184e0ba06a0da237ba3ac6",
-          "materialHash": "f0cecef3e045a4ada0b87d434abc0d95c6bcb90cc4aca9df24969f3595b5518a",
-          "timestamp": "2026-06-10T22:49:39.558Z"
+          "headHash": "e8179d4bff23ca50869e5316b358008123fc1c3c",
+          "materialHash": "785b078c2bffbf11791571c3b82476e0a8dd99062ba77cb5feec0f41ca79462e",
+          "timestamp": "2026-06-10T23:01:06.456Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -78,9 +78,9 @@
           "command": "npm run test:authority-client",
           "result": "pass",
           "note": "authority-client smoke rejects an otherwise valid receipt when discovery declares serverKey.algorithm=rsa, proving unsupported verification material cannot satisfy authority DONE",
-          "headHash": "5c18156fdf25dd97d0184e0ba06a0da237ba3ac6",
-          "materialHash": "f0cecef3e045a4ada0b87d434abc0d95c6bcb90cc4aca9df24969f3595b5518a",
-          "timestamp": "2026-06-10T22:49:39.934Z"
+          "headHash": "e8179d4bff23ca50869e5316b358008123fc1c3c",
+          "materialHash": "785b078c2bffbf11791571c3b82476e0a8dd99062ba77cb5feec0f41ca79462e",
+          "timestamp": "2026-06-10T23:01:06.456Z"
         }
       ]
     },
@@ -138,9 +138,9 @@
           "command": "lattice gap_analyze",
           "result": "pass",
           "note": "gap_analyze no longer reports the stale supportsDryRun uncovered_requirement; the remaining high gaps are the separate CHK-003/CHK-004 authority-policy items.",
-          "headHash": "4dce13fb900aa7ce4154a53559a534d905ecb21c",
-          "materialHash": "376431e7a8df31f6d616eb1d0edab37f5e3e1e9fc17844804111fe98211f2a9d",
-          "timestamp": "2026-06-10T22:51:20.605Z"
+          "headHash": "e8179d4bff23ca50869e5316b358008123fc1c3c",
+          "materialHash": "785b078c2bffbf11791571c3b82476e0a8dd99062ba77cb5feec0f41ca79462e",
+          "timestamp": "2026-06-10T23:01:06.456Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -148,9 +148,9 @@
           "command": "node packages/main/dist/cli.js --root . story_reconcile --help; node packages/main/dist/cli.js --root . test_auto --help; node packages/main/dist/cli.js --root . host_install --help",
           "result": "pass",
           "note": "The live help surface now distinguishes default-on dry-run (story_reconcile), optional --dryRun plus --confirm semantics (test_auto), and always-on projection-only behavior (host_install) without inventing metadata for commands that do not expose real dry-run behavior.",
-          "headHash": "4dce13fb900aa7ce4154a53559a534d905ecb21c",
-          "materialHash": "376431e7a8df31f6d616eb1d0edab37f5e3e1e9fc17844804111fe98211f2a9d",
-          "timestamp": "2026-06-10T22:51:20.657Z"
+          "headHash": "e8179d4bff23ca50869e5316b358008123fc1c3c",
+          "materialHash": "785b078c2bffbf11791571c3b82476e0a8dd99062ba77cb5feec0f41ca79462e",
+          "timestamp": "2026-06-10T23:01:06.456Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -159,9 +159,9 @@
           "command": "git show --stat --format=fuller HEAD -- docs/requirements/decisions/cc-learnings.md packages/main/src/cli-engine.ts packages/main/src/core/command-policy.ts",
           "result": "pass",
           "note": "The requirement truth now explicitly rejects a new ToolDef.supportsDryRun field, and the code annotations/help bind dry-run semantics to existing schema plus COMMAND_POLICIES surfaces so a metadata-only fix would contradict the documented contract.",
-          "headHash": "4dce13fb900aa7ce4154a53559a534d905ecb21c",
-          "materialHash": "376431e7a8df31f6d616eb1d0edab37f5e3e1e9fc17844804111fe98211f2a9d",
-          "timestamp": "2026-06-10T22:51:20.713Z"
+          "headHash": "e8179d4bff23ca50869e5316b358008123fc1c3c",
+          "materialHash": "785b078c2bffbf11791571c3b82476e0a8dd99062ba77cb5feec0f41ca79462e",
+          "timestamp": "2026-06-10T23:01:06.456Z"
         }
       ]
     },
