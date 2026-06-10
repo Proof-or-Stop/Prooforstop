@@ -646,7 +646,34 @@ function assertHelpListsCommand(help: CliResult, command: string): void {
   }
 }
 
-// 11. capability_claim_evaluate blocks production-safety with missing lower layers.
+// 11. Inconsistent PASS suite proof cannot authorize Engineering claims.
+{
+  const root = initRepo('claim-engineering-incoherent-suite');
+  try {
+    writeSuiteReport(root, 'development', {
+      suiteStatus: 'PASS',
+      authorization: 'authorized',
+      capabilityProof: true,
+      localOnly: false,
+      outcome: 'EXPECTED_BLOCK',
+    });
+    writeSuiteReport(root, 'engineering');
+
+    const result = runCli(root, ['capability_claim_evaluate', '--target=engineering', '--format=json']);
+    const output = requireJsonObject(result, 'incoherent development suite claim proof');
+    assertAuthorizedFalse(output, 'incoherent development suite claim proof');
+    assertOutcome(output, 'EXPECTED_BLOCK', 'incoherent development suite claim proof');
+    assertClaimLevel(output, 'none', 'incoherent development suite claim proof');
+    assertMentions(output, /blocked|BLOCKED/i, 'incoherent development suite claim proof');
+    assertMentions(output, /outcome/i, 'incoherent development suite claim proof');
+    assertMentions(output, /coherence/i, 'incoherent development suite claim proof');
+    assertMentions(output, /inconsistent/i, 'incoherent development suite claim proof');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// 12. capability_claim_evaluate blocks production-safety with missing lower layers.
 {
   const root = initRepo('claim-missing-layers');
   try {
@@ -664,7 +691,7 @@ function assertHelpListsCommand(help: CliResult, command: string): void {
   }
 }
 
-// 12. Parallel implementation artifacts do not unlock parallel proof.
+// 13. Parallel implementation artifacts do not unlock parallel proof.
 {
   const root = initRepo('parallel-implementation');
   try {

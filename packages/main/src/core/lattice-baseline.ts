@@ -701,7 +701,10 @@ const PROHIBITED_WORDING = [
   'Parallel implementation proves higher capability layers in parallel.',
 ];
 
+const BASELINE_OUTCOMES: BaselineOutcome[] = ['PASS', 'FAIL', 'EXPECTED_BLOCK', 'ESCALATED'];
 const BASELINE_RUN_STATUSES: BaselineRunStatus[] = ['pass', 'blocked', 'failed', 'not_authorized'];
+const BASELINE_SUITE_STATUSES: BaselineSuiteStatus[] = ['PASS', 'BLOCKED', 'FAIL'];
+const BASELINE_SUITE_AUTHORIZATIONS = ['authorized', 'not_authorized'] as const;
 
 const OUTPUT_NOTE =
   'Local Baseline 2-5 runner output is diagnostic artifact material only. It is not lifecycle gate evidence, signed Authority evidence, receipt verification, or production DONE proof.';
@@ -1059,7 +1062,7 @@ function parseFinalReport(root: string, file: string, expectedLayer: BaselineLay
   if (!baselineId || !runId || !outcome || !status) {
     return { refused: { path: pathForDisplay(root, file), reason: 'malformed final-report: missing baselineId/runId/outcome/status' } };
   }
-  if (!['PASS', 'FAIL', 'EXPECTED_BLOCK', 'ESCALATED'].includes(outcome)) {
+  if (!BASELINE_OUTCOMES.includes(outcome)) {
     return { refused: { path: pathForDisplay(root, file), reason: `malformed final-report: unsupported outcome ${outcome}` } };
   }
   if (!BASELINE_RUN_STATUSES.includes(status)) {
@@ -1096,18 +1099,41 @@ function readSuiteReport(root: string, layer: BaselineLayer, customRoot?: string
   const stale = assertFreshMaterial(root, stringField(parsed, 'materialHash'));
   if (stale) return { path: displayPath, status: 'STALE', reason: stale };
   const suiteStatus = stringField(parsed, 'suiteStatus');
-  if (suiteStatus !== 'PASS') {
-    return { report: parsed as unknown as BaselineSuiteReport, path: displayPath, status: 'BLOCKED', reason: `suiteStatus=${suiteStatus ?? 'missing'}` };
+  if (!suiteStatus) {
+    return { report: parsed as unknown as BaselineSuiteReport, path: displayPath, status: 'MALFORMED', reason: 'malformed suite report: missing suiteStatus' };
+  }
+  if (!BASELINE_SUITE_STATUSES.includes(suiteStatus as BaselineSuiteStatus)) {
+    return { report: parsed as unknown as BaselineSuiteReport, path: displayPath, status: 'MALFORMED', reason: `malformed suite report: unsupported suiteStatus ${suiteStatus}` };
   }
   const authorization = stringField(parsed, 'authorization');
-  if (authorization !== 'authorized') {
-    return { report: parsed as unknown as BaselineSuiteReport, path: displayPath, status: 'BLOCKED', reason: `authorization=${authorization ?? 'missing'}` };
+  if (!authorization) {
+    return { report: parsed as unknown as BaselineSuiteReport, path: displayPath, status: 'MALFORMED', reason: 'malformed suite report: missing authorization' };
   }
-  if (boolField(parsed, 'localOnly') !== false) {
-    return { report: parsed as unknown as BaselineSuiteReport, path: displayPath, status: 'BLOCKED', reason: 'local-only suite report is diagnostic-only, not capability proof' };
+  if (!(BASELINE_SUITE_AUTHORIZATIONS as readonly string[]).includes(authorization)) {
+    return { report: parsed as unknown as BaselineSuiteReport, path: displayPath, status: 'MALFORMED', reason: `malformed suite report: unsupported authorization ${authorization}` };
   }
-  if (boolField(parsed, 'capabilityProof') !== true) {
-    return { report: parsed as unknown as BaselineSuiteReport, path: displayPath, status: 'BLOCKED', reason: 'capabilityProof=true is required for lower-layer proof' };
+  const outcome = stringField(parsed, 'outcome');
+  if (!outcome) {
+    return { report: parsed as unknown as BaselineSuiteReport, path: displayPath, status: 'MALFORMED', reason: 'malformed suite report: missing outcome' };
+  }
+  if (!BASELINE_OUTCOMES.includes(outcome as BaselineOutcome)) {
+    return { report: parsed as unknown as BaselineSuiteReport, path: displayPath, status: 'MALFORMED', reason: `malformed suite report: unsupported outcome ${outcome}` };
+  }
+  if (suiteStatus !== 'PASS') {
+    return { report: parsed as unknown as BaselineSuiteReport, path: displayPath, status: 'BLOCKED', reason: `suiteStatus=${suiteStatus}` };
+  }
+  const coherenceProblems: string[] = [];
+  if (outcome !== 'PASS') coherenceProblems.push(`outcome=${outcome}`);
+  if (authorization !== 'authorized') coherenceProblems.push(`authorization=${authorization}`);
+  if (boolField(parsed, 'capabilityProof') !== true) coherenceProblems.push(`capabilityProof=${String(parsed.capabilityProof ?? 'missing')}`);
+  if (boolField(parsed, 'localOnly') !== false) coherenceProblems.push(`localOnly=${String(parsed.localOnly ?? 'missing')}`);
+  if (coherenceProblems.length > 0) {
+    return {
+      report: parsed as unknown as BaselineSuiteReport,
+      path: displayPath,
+      status: 'BLOCKED',
+      reason: `suite report coherence inconsistent: suiteStatus=PASS requires outcome=PASS, authorization=authorized, capabilityProof=true, localOnly=false; got ${coherenceProblems.join(', ')}`,
+    };
   }
   return { report: parsed as unknown as BaselineSuiteReport, path: displayPath, status: 'PASS' };
 }
