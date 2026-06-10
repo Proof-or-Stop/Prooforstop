@@ -119,6 +119,17 @@
           "headHash": "1801f13b52692ff03ce948c9f3935e37fd07ccea",
           "materialHash": "0c5798fc3a0e0731eac5171a15086c0a967883f96be5f4f768d1aece704e736c",
           "timestamp": "2026-06-10T19:53:07.332Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "CHK-001 readiness transcript; git status --short",
+          "result": "pass",
+          "note": "Readiness failed closed and CHK-002 was not run as a fake positive path. Worktree has no production receipt ref artifact.",
+          "headHash": "b5d1682bea9e1c865219a393fe799b558971afdb",
+          "materialHash": "0c5798fc3a0e0731eac5171a15086c0a967883f96be5f4f768d1aece704e736c",
+          "timestamp": "2026-06-10T19:53:07.641Z"
         }
       ]
     },
