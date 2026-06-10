@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-10T02:49:46.452Z",
       "reviewRunId": "B-92e2:RR-009",
       "_hash": "851aa990fcac7589644659a4f56ed472cb811f67a894a1eac43e63e6b0c77ef3"
+    },
+    {
+      "id": "B-92e2:RP-005",
+      "agent": "koala-review-quality",
+      "note": "Targeted quality re-review for F-005 and adjacent fail-closed gates. Verified packages/main/src/core/lattice-baseline.ts lower-layer suite coherence gate blocks suiteStatus=PASS + authorization=authorized + capabilityProof=true + localOnly=false when outcome!=PASS (see readSuiteReport around lines 1122-1136). Verified parseFinalReport status gate rejects valid-but-inconsistent final-report status/outcome pairs (around lines 1061-1073) via manual built-CLI repro. Confirmed local stub suite gate and production-safety fail-closed behavior via lattice baseline smoke cases and built smoke run. Commands: node packages/main/dist/tasks/lattice-baseline-smoke.js ; npx tsc -p packages/main/tsconfig.json --noEmit ; manual node repro for baseline_suite_report mismatch gate. No correctness blockers found.",
+      "createdAt": "2026-06-10T02:53:46.487Z",
+      "reviewRound": "2026-06-10T02:49:46.452Z",
+      "reviewRunId": "B-92e2:RR-008",
+      "_hash": "8ca51d7b2cc9446652f49daa24c9c40ad72fffa7fd1a4905aa005192fc855a17"
     }
   ]
 }
