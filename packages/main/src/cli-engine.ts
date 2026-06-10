@@ -1964,7 +1964,7 @@ function printHelp(activeStory?: ActiveStory | null) {
   const groups: Record<string, ToolDef[]> = {};
   for (const t of TOOLS) {
     // 有 active story 时只列出当前阶段可用命令
-    if (activeStory && !isCommandAllowed(t.name, activeStory.phase, phaseTools) && !isLocalL0BaselineCommand(t.name)) continue;
+    if (activeStory && !isCommandAllowed(t.name, activeStory.phase, phaseTools)) continue;
     const p = t.name.split('_')[0];
     let g: string;
     if (t.name === 'story_review' || t.name === 'story_review_dismiss') g = 'Review';
@@ -1972,9 +1972,7 @@ function printHelp(activeStory?: ActiveStory | null) {
     else g = p.charAt(0).toUpperCase() + p.slice(1); // 未知前缀：首字母大写
     (groups[g] = groups[g] || []).push(t);
   }
-  const filteredTools = activeStory
-    ? TOOLS.filter(t => isCommandAllowed(t.name, activeStory.phase, phaseTools) || isLocalL0BaselineCommand(t.name))
-    : TOOLS;
+  const filteredTools = activeStory ? TOOLS.filter(t => isCommandAllowed(t.name, activeStory.phase, phaseTools)) : TOOLS;
   const maxN = Math.max(...filteredTools.map(t => t.name.length), 0);
 
   const presentGroups = Object.keys(groups);
@@ -2269,17 +2267,6 @@ const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'autopilot_watch',
   'autopilot_review',
 ]);
-
-const LOCAL_L0_BASELINE_COMMANDS: ReadonlySet<string> = new Set([
-  'baseline_run',
-  'baseline_suite',
-  'baseline_suite_report',
-  'capability_claim_evaluate',
-]);
-
-function isLocalL0BaselineCommand(cmd: string): boolean {
-  return LOCAL_L0_BASELINE_COMMANDS.has(cmd);
-}
 
 function inferCodexEntrypoint(): string {
   if (process.env.KOALA_CODEX_ENTRYPOINT) return process.env.KOALA_CODEX_ENTRYPOINT;
@@ -2989,7 +2976,7 @@ export async function runCli(opts?: {
   // Phase gate: 有 active story 时，拒绝不在白名单中的命令
   if (activeStory) {
     const config = loadConfig(root0);
-    if (!isCommandAllowed(cmd, activeStory.phase, config.phaseTools) && !isLocalL0BaselineCommand(cmd)) {
+    if (!isCommandAllowed(cmd, activeStory.phase, config.phaseTools)) {
       const allowed = getAllowedPatterns(activeStory.phase, config.phaseTools);
       console.error(`❌ 命令 "${cmd}" 在 ${activeStory.phase} 阶段不可用`);
       console.error(`   Story: ${activeStory.storyId}  Phase: ${activeStory.phase}`);
