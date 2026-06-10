@@ -553,9 +553,9 @@
         "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
         "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-10T23:37:13.286Z",
-      "endTime": null,
+      "endTime": "2026-06-10T23:42:38.674Z",
       "userSees": "Terminal output shows Claude CLI and Codex CLI final reviews both PASS, with their verdict artifacts referenced as review evidence and with no Authority/Production overclaim.",
       "files": {
         "modify": [
@@ -588,7 +588,39 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-008:happy:0",
+          "kind": "manual_transcript",
+          "command": "claude -p review prompt and codex exec review prompt",
+          "result": "pass",
+          "note": "Claude CLI and Codex CLI final review artifacts both report verdict=pass with zero findings for host-neutral correctness and claim boundaries.",
+          "headHash": "d2660af81a852e7beb1e09b809b991b51c50d2c3",
+          "materialHash": "f7ac7a18d8034bf4e77c88f6b544dccd0e308ca24d7ea791d4c9819900405421",
+          "timestamp": "2026-06-10T23:42:38.720Z"
+        },
+        {
+          "intentRef": "CHK-008:edge:0",
+          "kind": "manual_transcript",
+          "command": "cat .lattice/artifacts/baseline/layer2-engineering-unlock/reviews/claude-final-review.json && cat .lattice/artifacts/baseline/layer2-engineering-unlock/reviews/codex-final-review.json",
+          "result": "pass",
+          "note": "Review artifacts are stored under .lattice and referenced as host review evidence only; they do not claim Authority receipt or production authority.",
+          "headHash": "d2660af81a852e7beb1e09b809b991b51c50d2c3",
+          "materialHash": "f7ac7a18d8034bf4e77c88f6b544dccd0e308ca24d7ea791d4c9819900405421",
+          "timestamp": "2026-06-10T23:42:38.752Z"
+        },
+        {
+          "intentRef": "CHK-008:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git status --short && cat .lattice/artifacts/baseline/layer2-engineering-unlock/reviews/final-review-summary.md",
+          "result": "pass",
+          "note": "Both reviewers found no blockers or overclaim; worktree was clean after Codex restored the generated report it rewrote during read-only verification.",
+          "headHash": "d2660af81a852e7beb1e09b809b991b51c50d2c3",
+          "materialHash": "f7ac7a18d8034bf4e77c88f6b544dccd0e308ca24d7ea791d4c9819900405421",
+          "timestamp": "2026-06-10T23:42:38.780Z"
+        }
+      ]
     }
   ]
 }
