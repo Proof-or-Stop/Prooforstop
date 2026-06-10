@@ -56,9 +56,9 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/authority-receipt-proof-smoke.js",
           "result": "pass",
           "note": "Valid gate_decision proof verifies with hex public key/signature only when caller supplies a pinned production authority key digest; result classifies production-gate-decision and exposes receiptId/inputDigest/decisionDigest.",
-          "headHash": "85df6172f12ed56541cedff61fc2346908aa9930",
-          "materialHash": "a8871bd51ba85119a6273a1b4546756e6d57bb7126e9d5b2e784c9699050f499",
-          "timestamp": "2026-06-10T16:33:40.740Z"
+          "headHash": "331456fb720299d7a5d5e196f435bd563844881c",
+          "materialHash": "5a05669361dca69bf06e808e9850f8bc928333cd250b9ed6754f2ea89f4fbf53",
+          "timestamp": "2026-06-10T17:32:32.229Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -66,9 +66,9 @@
           "command": "node packages/main/dist/tasks/authority-receipt-proof-smoke.js",
           "result": "pass",
           "note": "Cryptographically valid local/default/test receipt remains server-receipt-local-test and productionReady=false.",
-          "headHash": "85df6172f12ed56541cedff61fc2346908aa9930",
-          "materialHash": "a8871bd51ba85119a6273a1b4546756e6d57bb7126e9d5b2e784c9699050f499",
-          "timestamp": "2026-06-10T16:33:40.773Z"
+          "headHash": "331456fb720299d7a5d5e196f435bd563844881c",
+          "materialHash": "5a05669361dca69bf06e808e9850f8bc928333cd250b9ed6754f2ea89f4fbf53",
+          "timestamp": "2026-06-10T17:32:32.229Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -76,9 +76,9 @@
           "command": "node packages/main/dist/tasks/authority-receipt-proof-smoke.js && npm --prefix packages/main run test:authority-receipt-classification && npm --prefix packages/main run test:authority-runner-contracts && npm --prefix packages/main run test:authority-client && git diff --check -- packages/main/src/core/authority-client.ts packages/main/src/core/authority-gate-receipt-verifier.ts packages/main/src/tasks/authority-receipt-proof-smoke.ts",
           "result": "pass",
           "note": "Smoke asserts untrusted production-looking key, corrupt signature, input digest mismatch, decision digest mismatch, story/phase/head/material mismatch, and server-relative proof fetch guard; existing Authority receipt and client contracts still pass.",
-          "headHash": "85df6172f12ed56541cedff61fc2346908aa9930",
-          "materialHash": "a8871bd51ba85119a6273a1b4546756e6d57bb7126e9d5b2e784c9699050f499",
-          "timestamp": "2026-06-10T16:33:40.804Z"
+          "headHash": "331456fb720299d7a5d5e196f435bd563844881c",
+          "materialHash": "5a05669361dca69bf06e808e9850f8bc928333cd250b9ed6754f2ea89f4fbf53",
+          "timestamp": "2026-06-10T17:32:32.229Z"
         }
       ]
     },
@@ -137,9 +137,9 @@
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:authority-receipt-proof && npm --prefix packages/main run test:authority-gate-receipts",
           "result": "pass",
           "note": "Valid production gate_decision proof with caller-pinned production authority key digest writes one active authority-receipt-refs.json ref through StoryStore; receipt ref includes targetPhase, decisionVerdict, digest, status, and path.",
-          "headHash": "14a9770a7af91bca0da86c8c47cffdef799a6488",
-          "materialHash": "6e8e6f34bf50277d2608d39dd40a241e52e7493ca73de049de1b6963feb5e97e",
-          "timestamp": "2026-06-10T16:56:39.587Z"
+          "headHash": "331456fb720299d7a5d5e196f435bd563844881c",
+          "materialHash": "5a05669361dca69bf06e808e9850f8bc928333cd250b9ed6754f2ea89f4fbf53",
+          "timestamp": "2026-06-10T17:32:32.229Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -147,9 +147,9 @@
           "command": "npm --prefix packages/main run test:authority-receipt-proof && npm --prefix packages/main run test:authority-gate-receipts",
           "result": "pass",
           "note": "Proof smoke asserts re-verifying the same receipt id leaves refs.length=1, and gate receipt smoke covers upsert/eligibility behavior without duplicate active refs.",
-          "headHash": "14a9770a7af91bca0da86c8c47cffdef799a6488",
-          "materialHash": "6e8e6f34bf50277d2608d39dd40a241e52e7493ca73de049de1b6963feb5e97e",
-          "timestamp": "2026-06-10T16:56:39.614Z"
+          "headHash": "331456fb720299d7a5d5e196f435bd563844881c",
+          "materialHash": "5a05669361dca69bf06e808e9850f8bc928333cd250b9ed6754f2ea89f4fbf53",
+          "timestamp": "2026-06-10T17:32:32.229Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -157,9 +157,9 @@
           "command": "npm --prefix packages/main run test:authority-receipt-proof && npm --prefix packages/main run test:authority-boundary-smoke && npm --prefix packages/main run test:authority-evidence-flow && npm --prefix packages/main run test:authority-enforce-matrix && npm --prefix packages/main run test:command-ownership-contract",
           "result": "pass",
           "note": "Local-test/untrusted/invalid proofs remain diagnostic-only and written=false; missing storyId/index is rejected before proof load so no orphan receipt refs are created; Codex and Claude read-only follow-up audits both PASS the owner-lease missing-story fix.",
-          "headHash": "14a9770a7af91bca0da86c8c47cffdef799a6488",
-          "materialHash": "6e8e6f34bf50277d2608d39dd40a241e52e7493ca73de049de1b6963feb5e97e",
-          "timestamp": "2026-06-10T16:56:39.644Z"
+          "headHash": "331456fb720299d7a5d5e196f435bd563844881c",
+          "materialHash": "5a05669361dca69bf06e808e9850f8bc928333cd250b9ed6754f2ea89f4fbf53",
+          "timestamp": "2026-06-10T17:32:32.229Z"
         }
       ]
     },
@@ -219,9 +219,9 @@
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:authority-gate-consumption",
           "result": "pass",
           "note": "Matching TEST gate_decision receipt is consumed by validate and transition gate; output includes strongEvidenceConsumed=true with receiptId=AR-TEST; repeated validate and transition consumption leave consumptionEvents.length=1.",
-          "headHash": "b3d1d6e372174e32c8f78f256dc59d7c18133e4f",
-          "materialHash": "6e8e6f34bf50277d2608d39dd40a241e52e7493ca73de049de1b6963feb5e97e",
-          "timestamp": "2026-06-10T17:09:55.974Z"
+          "headHash": "331456fb720299d7a5d5e196f435bd563844881c",
+          "materialHash": "5a05669361dca69bf06e808e9850f8bc928333cd250b9ed6754f2ea89f4fbf53",
+          "timestamp": "2026-06-10T17:32:32.229Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -229,9 +229,9 @@
           "command": "npm --prefix packages/main run test:authority-gate-consumption && npm --prefix packages/main run test:authority-gate-receipts",
           "result": "pass",
           "note": "Shadow mode reports diagnostics without blocking or writing receipt refs; eligibleGates restriction is enforced for same-phase TEST receipts; TEST receipt can cover DONE only when eligibleGates explicitly includes DONE.",
-          "headHash": "b3d1d6e372174e32c8f78f256dc59d7c18133e4f",
-          "materialHash": "6e8e6f34bf50277d2608d39dd40a241e52e7493ca73de049de1b6963feb5e97e",
-          "timestamp": "2026-06-10T17:09:55.996Z"
+          "headHash": "331456fb720299d7a5d5e196f435bd563844881c",
+          "materialHash": "5a05669361dca69bf06e808e9850f8bc928333cd250b9ed6754f2ea89f4fbf53",
+          "timestamp": "2026-06-10T17:32:32.229Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -239,9 +239,9 @@
           "command": "npm --prefix packages/main run test:authority-gate-consumption && npm --prefix packages/main run test:authority-gate-receipts && npm --prefix packages/main run test:authority-receipt-proof && npm --prefix packages/main run test:authority-evidence-flow && git diff --check",
           "result": "pass",
           "note": "Enforce mode blocks missing receipt and phase mismatch; proof and evidence-flow smokes cover stale/mismatched receipt paths. Codex CLI found eligibleGates same-phase blocker, fix applied and verified; Claude and Codex targeted rechecks both PASS.",
-          "headHash": "b3d1d6e372174e32c8f78f256dc59d7c18133e4f",
-          "materialHash": "6e8e6f34bf50277d2608d39dd40a241e52e7493ca73de049de1b6963feb5e97e",
-          "timestamp": "2026-06-10T17:09:56.018Z"
+          "headHash": "331456fb720299d7a5d5e196f435bd563844881c",
+          "materialHash": "5a05669361dca69bf06e808e9850f8bc928333cd250b9ed6754f2ea89f4fbf53",
+          "timestamp": "2026-06-10T17:32:32.229Z"
         }
       ]
     },
@@ -301,9 +301,9 @@
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:authority-gate-consumption",
           "result": "pass",
           "note": "Distinct DONE gate_decision receipt is consumed by the DONE transition gate and output includes Authority DONE gate: PASS strongEvidenceConsumed=true story=B-done gate=DONE receiptId=AR-DONE.",
-          "headHash": "7149252094ae4bfd5fcc7777a88124698b06e22f",
-          "materialHash": "6e8e6f34bf50277d2608d39dd40a241e52e7493ca73de049de1b6963feb5e97e",
-          "timestamp": "2026-06-10T17:15:23.908Z"
+          "headHash": "331456fb720299d7a5d5e196f435bd563844881c",
+          "materialHash": "5a05669361dca69bf06e808e9850f8bc928333cd250b9ed6754f2ea89f4fbf53",
+          "timestamp": "2026-06-10T17:32:32.229Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -311,9 +311,9 @@
           "command": "npm --prefix packages/main run test:authority-gate-consumption && npm --prefix packages/main run test:authority-gate-receipts",
           "result": "pass",
           "note": "TEST receipt is refused for DONE unless eligibleGates explicitly includes DONE; same-phase eligibleGates restriction is preserved; explicit TEST->DONE coverage passes only with eligibleGates=[TEST,DONE].",
-          "headHash": "7149252094ae4bfd5fcc7777a88124698b06e22f",
-          "materialHash": "6e8e6f34bf50277d2608d39dd40a241e52e7493ca73de049de1b6963feb5e97e",
-          "timestamp": "2026-06-10T17:15:23.936Z"
+          "headHash": "331456fb720299d7a5d5e196f435bd563844881c",
+          "materialHash": "5a05669361dca69bf06e808e9850f8bc928333cd250b9ed6754f2ea89f4fbf53",
+          "timestamp": "2026-06-10T17:32:32.229Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -321,9 +321,9 @@
           "command": "npm --prefix packages/main run test:authority-gate-consumption && npm --prefix packages/main run test:authority-gate-receipts && npm --prefix packages/main run test:authority-receipt-proof && npm --prefix packages/main run test:authority-evidence-flow && git diff --check",
           "result": "pass",
           "note": "Enforce mode blocks missing and wrong-phase refs; receipt helper/proof smokes cover stale material/head/story/phase mismatch. DONE gate reads current root head/material before phase mutation, shadow/off do not persist strongEvidenceConsumed, and Claude/Codex CHK-004 read-only audits both PASS.",
-          "headHash": "7149252094ae4bfd5fcc7777a88124698b06e22f",
-          "materialHash": "6e8e6f34bf50277d2608d39dd40a241e52e7493ca73de049de1b6963feb5e97e",
-          "timestamp": "2026-06-10T17:15:23.963Z"
+          "headHash": "331456fb720299d7a5d5e196f435bd563844881c",
+          "materialHash": "5a05669361dca69bf06e808e9850f8bc928333cd250b9ed6754f2ea89f4fbf53",
+          "timestamp": "2026-06-10T17:32:32.230Z"
         }
       ]
     },
@@ -385,9 +385,9 @@
           "command": "npm run build; npm --prefix packages/main run test:authority-receipt-proof; npm --prefix packages/main run test:authority-gate-consumption; npm --prefix packages/main run test:authority-status-smoke",
           "result": "pass",
           "note": "Build plus proof, gate consumption, and status smoke scripts pass at current HEAD; output includes authority receipt proof smoke passed, authority gate consumption smoke passed, and authority status readiness smoke passed.",
-          "headHash": "9581a0f9cabb01310ae1e5a0fb00a609f6f75f98",
-          "materialHash": "a942714883fc8bc4285050a5ca164752c95b395fdcb7cf3a21632dd1f66e8f48",
-          "timestamp": "2026-06-10T17:30:18.232Z"
+          "headHash": "331456fb720299d7a5d5e196f435bd563844881c",
+          "materialHash": "5a05669361dca69bf06e808e9850f8bc928333cd250b9ed6754f2ea89f4fbf53",
+          "timestamp": "2026-06-10T17:32:32.230Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -395,9 +395,9 @@
           "command": "npm --prefix packages/main run test:command-ownership-contract; rg -n \"authority_receipt_verify|artifact:authority-receipt-refs.json|authority-receipt-refs.json\" packages/main/src/core/process-fact-registry.ts packages/main/src/core/process-fact-levels.ts scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Command ownership contract passes, and process fact registry/contract surfaces include authority_receipt_verify plus artifact:authority-receipt-refs.json. Full process-fact contract was separately classified as blocked by pre-existing autopilot/release_approve_push drift, not by this receipt ref registry path.",
-          "headHash": "37c994e2585646c09ae02ba399e3784e72859e71",
-          "materialHash": "a942714883fc8bc4285050a5ca164752c95b395fdcb7cf3a21632dd1f66e8f48",
-          "timestamp": "2026-06-10T17:30:54.067Z"
+          "headHash": "331456fb720299d7a5d5e196f435bd563844881c",
+          "materialHash": "5a05669361dca69bf06e808e9850f8bc928333cd250b9ed6754f2ea89f4fbf53",
+          "timestamp": "2026-06-10T17:32:32.230Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -405,9 +405,9 @@
           "command": "npm --prefix packages/main run test:authority-receipt-proof; npm --prefix packages/main run test:authority-gate-consumption; npm --prefix packages/main run test:authority-gate-receipts",
           "result": "pass",
           "note": "Proof and gate smokes assert corrupt signature, digest mismatch, local-test/untrusted key, missing receipt, wrong phase, wrong story/head/material, and stale/ineligible receipt controls are blocked or diagnostic-only.",
-          "headHash": "1cdeb829d924b6efd0c3e579b55616d7969aaad1",
-          "materialHash": "a942714883fc8bc4285050a5ca164752c95b395fdcb7cf3a21632dd1f66e8f48",
-          "timestamp": "2026-06-10T17:30:54.368Z"
+          "headHash": "331456fb720299d7a5d5e196f435bd563844881c",
+          "materialHash": "5a05669361dca69bf06e808e9850f8bc928333cd250b9ed6754f2ea89f4fbf53",
+          "timestamp": "2026-06-10T17:32:32.230Z"
         }
       ]
     },
@@ -467,9 +467,9 @@
           "command": "npm --prefix packages/main run test:authority-status-smoke; claude -p CHK-006 read-only status review",
           "result": "pass",
           "note": "Local-test receipt refs and env-only readiness cannot set receiptVerified, receiptEligible, receiptConsumed, productionDone, or canClaimProductionDone; focused Claude CHK-006 review returned PASS_READY.",
-          "headHash": "cda3e65184e91bbaab6a4a07a9747c7a75bffaab",
-          "materialHash": "a942714883fc8bc4285050a5ca164752c95b395fdcb7cf3a21632dd1f66e8f48",
-          "timestamp": "2026-06-10T17:30:39.622Z"
+          "headHash": "331456fb720299d7a5d5e196f435bd563844881c",
+          "materialHash": "5a05669361dca69bf06e808e9850f8bc928333cd250b9ed6754f2ea89f4fbf53",
+          "timestamp": "2026-06-10T17:32:32.230Z"
         },
         {
           "intentRef": "CHK-006:happy:0",
@@ -477,9 +477,9 @@
           "command": "npm --prefix packages/main run test:authority-status-smoke",
           "result": "pass",
           "note": "authority_status distinguishes authorityReady, receiptVerified, receiptEligible, receiptConsumed, productionDone, and canClaimProductionDone; productionDone remains false even when a production receipt ref is verified and eligible.",
-          "headHash": "c7f1191c282920cca9635ce96ac9b37d04349831",
-          "materialHash": "a942714883fc8bc4285050a5ca164752c95b395fdcb7cf3a21632dd1f66e8f48",
-          "timestamp": "2026-06-10T17:30:54.667Z"
+          "headHash": "331456fb720299d7a5d5e196f435bd563844881c",
+          "materialHash": "5a05669361dca69bf06e808e9850f8bc928333cd250b9ed6754f2ea89f4fbf53",
+          "timestamp": "2026-06-10T17:32:32.230Z"
         },
         {
           "intentRef": "CHK-006:edge:0",
@@ -487,9 +487,9 @@
           "command": "npm --prefix packages/main run test:authority-status-smoke",
           "result": "pass",
           "note": "Status smoke covers verified+eligible but unconsumed receipt refs, proving receiptVerified=true does not imply receiptConsumed=true.",
-          "headHash": "432c3486d5a1e9b6aa70a3bd929179b748094fd6",
-          "materialHash": "a942714883fc8bc4285050a5ca164752c95b395fdcb7cf3a21632dd1f66e8f48",
-          "timestamp": "2026-06-10T17:30:54.957Z"
+          "headHash": "331456fb720299d7a5d5e196f435bd563844881c",
+          "materialHash": "5a05669361dca69bf06e808e9850f8bc928333cd250b9ed6754f2ea89f4fbf53",
+          "timestamp": "2026-06-10T17:32:32.230Z"
         }
       ]
     },
@@ -544,9 +544,9 @@
           "command": "rg -n \"baseline_development_proof_import|baseline_proof_create|Engineering suiteStatus = PASS|Loop claim authorized = false|Production Safety claim authorized = false\" Lattice-Layer2-Proof-Bridge-Execution-Plan.md",
           "result": "pass",
           "note": "Document defines the concrete implementation sequence from Development proof import through Engineering suite PASS while preserving higher-layer claim blocks.",
-          "headHash": "49d85f5f4bf9d8da91c352a9f2731a79cd2792d3",
-          "materialHash": "a8871bd51ba85119a6273a1b4546756e6d57bb7126e9d5b2e784c9699050f499",
-          "timestamp": "2026-06-10T16:28:56.704Z"
+          "headHash": "331456fb720299d7a5d5e196f435bd563844881c",
+          "materialHash": "5a05669361dca69bf06e808e9850f8bc928333cd250b9ed6754f2ea89f4fbf53",
+          "timestamp": "2026-06-10T17:32:32.230Z"
         },
         {
           "intentRef": "CHK-007:edge:0",
@@ -554,9 +554,9 @@
           "command": "rg -n \"local-diagnostic|lifecycle-backed|authority-backed|L0/read-only diagnostic|Authority Server receipt\" Lattice-Layer2-Proof-Bridge-Execution-Plan.md",
           "result": "pass",
           "note": "Document distinguishes local diagnostic CLI output, lifecycle-backed proof, and Authority-backed proof.",
-          "headHash": "49d85f5f4bf9d8da91c352a9f2731a79cd2792d3",
-          "materialHash": "a8871bd51ba85119a6273a1b4546756e6d57bb7126e9d5b2e784c9699050f499",
-          "timestamp": "2026-06-10T16:28:56.704Z"
+          "headHash": "331456fb720299d7a5d5e196f435bd563844881c",
+          "materialHash": "5a05669361dca69bf06e808e9850f8bc928333cd250b9ed6754f2ea89f4fbf53",
+          "timestamp": "2026-06-10T17:32:32.230Z"
         },
         {
           "intentRef": "CHK-007:adversarial:0",
@@ -564,9 +564,9 @@
           "command": "rg -n \"Do not make .*baseline_run.*capabilityProof=true|Do not edit JSON artifacts by hand|No host transcript or local diagnostic report can become proof by relabeling|raw Claude/Codex transcript without manifest|local diagnostic receipt\" Lattice-Layer2-Proof-Bridge-Execution-Plan.md && git diff --check -- Lattice-Layer2-Proof-Bridge-Execution-Plan.md",
           "result": "pass",
           "note": "Document explicitly forbids relabeling local diagnostics, host transcripts, or manual JSON edits into formal proof.",
-          "headHash": "49d85f5f4bf9d8da91c352a9f2731a79cd2792d3",
-          "materialHash": "a8871bd51ba85119a6273a1b4546756e6d57bb7126e9d5b2e784c9699050f499",
-          "timestamp": "2026-06-10T16:28:56.704Z"
+          "headHash": "331456fb720299d7a5d5e196f435bd563844881c",
+          "materialHash": "5a05669361dca69bf06e808e9850f8bc928333cd250b9ed6754f2ea89f4fbf53",
+          "timestamp": "2026-06-10T17:32:32.230Z"
         }
       ]
     }
