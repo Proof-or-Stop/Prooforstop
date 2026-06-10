@@ -132,13 +132,15 @@ Do not start gate implementation until these contract decisions are explicit.
 4. Gate storage
 
    Story artifacts need a structured receipt-ref file or equivalent structured
-   field. It must not be free prose. The consumer should be able to answer:
+   field. It must not be free prose. Static receipt eligibility and actual gate
+   consumption must be separate facts. The consumer should be able to answer:
 
    - which receipt was verified;
    - which Authority public key verified it;
    - which envelope digest it binds to;
    - which story/head/material hash it covers;
-   - which gate consumed it;
+   - which gates are eligible to consume it;
+   - which gate consumption events actually happened;
    - whether the evidence is still fresh.
 
 ## Authority session identity lifecycle
@@ -258,7 +260,16 @@ projection should be structured like this:
       "authoritySessionId": "asess-...",
       "verifiedAt": "2026-06-10T00:00:00.000Z",
       "verifiedBy": "lattice authority receipt verify",
-      "gateConsumers": ["REVIEW", "TEST", "DONE"]
+      "eligibleGates": ["REVIEW", "TEST", "DONE"],
+      "consumptionEvents": [
+        {
+          "gate": "TEST",
+          "consumedAt": "2026-06-10T00:00:00.000Z",
+          "consumer": "lattice validate",
+          "decisionId": "B-xxxx:validation:...",
+          "result": "pass"
+        }
+      ]
     }
   ]
 }
@@ -330,6 +341,12 @@ Acceptance:
 
 ### Phase 3: Lattice CLI Authority client
 
+Hard prerequisite: this phase must not start as ordinary CLI work. It requires
+explicit enforce-mode product approval and must stay inside the isolated
+`koala authority enforce` path described by the authority-client role decision.
+Server and runner readiness alone are not approval to make the ordinary Lattice
+CLI a production authority client.
+
 Deliverables:
 
 - env/config loader for Authority URL, actor key, runner id, session id, server
@@ -350,6 +367,11 @@ Acceptance:
 - fake server outputs are labeled contract-only and cannot satisfy gates.
 
 ### Phase 4: Lattice lifecycle gate consumption
+
+Hard prerequisite: this phase requires the same explicit enforce-mode product
+approval as Phase 3, plus a reviewed receipt-ref schema and a real receipt
+verification path. It must not be implemented as a normal REVIEW/TEST/DONE
+relaxation or as prose-based promotion of local evidence.
 
 Deliverables:
 
