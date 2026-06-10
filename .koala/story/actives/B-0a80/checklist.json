@@ -86,8 +86,8 @@
       "relatedDocs": [
         "Lattice-Capability-Claim-baseline.md"
       ],
-      "status": "done",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-10T00:28:40.449Z",
       "endTime": "2026-06-10T00:28:26.556Z",
       "userSees": "User sees baseline failure reason PASS: failed expected-PASS runs cite missing independent local review evidence, not a contradictory terminal criteria failure.",
       "files": {
@@ -232,6 +232,17 @@
           "timestamp": "2026-06-10T00:28:27.058Z"
         }
       ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-10T00:28:40.449Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Begin recording committed baseline failure semantic repair evidence."
     }
   ]
 }
