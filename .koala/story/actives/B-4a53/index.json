@@ -4,7 +4,7 @@
   "title": "验证 Lattice Authority Server 强证据流程与证据结果",
   "description": "新开 story/worktree，对前序 B-0a80/B-688d local-lifecycle artifact 修复进行 Authority Server 强证据路径验证：提交 job、获取/验证 receipt、记录 receiptRefs 或 fail-closed readiness 阻断结果。",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "source": "user-request",
   "keywords": [
@@ -56,11 +56,21 @@
       "user": "Harmonygo",
       "sessionId": "sess-64c42260c933ecac",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-10T02:06:02.097Z",
+      "branch": "story/B-4a53",
+      "user": "Harmonygo",
+      "sessionId": "sess-64c42260c933ecac",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-4a53",
     "branch": "story/B-4a53",
     "createdAt": "2026-06-10T01:50:11.042Z"
-  }
+  },
+  "currentReviewRound": "2026-06-10T02:06:02.097Z"
 }
