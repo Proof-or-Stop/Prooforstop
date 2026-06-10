@@ -254,9 +254,9 @@
         "docs/requirements/decisions/host-overflow.md",
         "docs/requirements/decisions/project-vision.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-10T17:10:05.283Z",
-      "endTime": null,
+      "endTime": "2026-06-10T17:15:23.877Z",
       "userSees": "For DONE in enforce mode, story_advance --phase=DONE prints: Authority DONE gate: PASS receiptId=<id> gate=DONE, or blocks with authority_receipt_* reason.",
       "files": {
         "modify": [
@@ -293,7 +293,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:authority-gate-consumption",
+          "result": "pass",
+          "note": "Distinct DONE gate_decision receipt is consumed by the DONE transition gate and output includes Authority DONE gate: PASS strongEvidenceConsumed=true story=B-done gate=DONE receiptId=AR-DONE.",
+          "headHash": "7149252094ae4bfd5fcc7777a88124698b06e22f",
+          "materialHash": "6e8e6f34bf50277d2608d39dd40a241e52e7493ca73de049de1b6963feb5e97e",
+          "timestamp": "2026-06-10T17:15:23.908Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:authority-gate-consumption && npm --prefix packages/main run test:authority-gate-receipts",
+          "result": "pass",
+          "note": "TEST receipt is refused for DONE unless eligibleGates explicitly includes DONE; same-phase eligibleGates restriction is preserved; explicit TEST->DONE coverage passes only with eligibleGates=[TEST,DONE].",
+          "headHash": "7149252094ae4bfd5fcc7777a88124698b06e22f",
+          "materialHash": "6e8e6f34bf50277d2608d39dd40a241e52e7493ca73de049de1b6963feb5e97e",
+          "timestamp": "2026-06-10T17:15:23.936Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:authority-gate-consumption && npm --prefix packages/main run test:authority-gate-receipts && npm --prefix packages/main run test:authority-receipt-proof && npm --prefix packages/main run test:authority-evidence-flow && git diff --check",
+          "result": "pass",
+          "note": "Enforce mode blocks missing and wrong-phase refs; receipt helper/proof smokes cover stale material/head/story/phase mismatch. DONE gate reads current root head/material before phase mutation, shadow/off do not persist strongEvidenceConsumed, and Claude/Codex CHK-004 read-only audits both PASS.",
+          "headHash": "7149252094ae4bfd5fcc7777a88124698b06e22f",
+          "materialHash": "6e8e6f34bf50277d2608d39dd40a241e52e7493ca73de049de1b6963feb5e97e",
+          "timestamp": "2026-06-10T17:15:23.963Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
