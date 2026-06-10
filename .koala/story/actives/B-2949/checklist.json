@@ -84,7 +84,7 @@
       "userSees": "The document includes a table of ENG-* baselines and states: \"Risky Engineering PASS requires gateEvidenceRefs with digest-checked artifact references; otherwise it must block or remain EXPECTED_BLOCK.\"",
       "status": "done",
       "startTime": null,
-      "endTime": "2026-06-10T14:30:55.086Z",
+      "endTime": "2026-06-10T14:38:12.793Z",
       "files": {
         "modify": [
           "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md"
@@ -119,9 +119,9 @@
           "command": "rg -n \"final report must include|suite report must include|expectedOutcomes|artifact:<file>#sha256\" Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
           "result": "pass",
           "note": "The proof contract lists final-report and suite-report fields, including expectedOutcomes and digest-backed artifact refs.",
-          "headHash": "ccd9a931a46dc22efda10d857e15ed44ee512240",
-          "materialHash": "b17428730fad707ea835f2b5b37c1c23c988069f7ec8793d8ead7458c7069872",
-          "timestamp": "2026-06-10T14:30:55.114Z"
+          "headHash": "eea72922f354c6b0c15f5642d8c31d624be592ef",
+          "materialHash": "3256c0f10c217b50dd979263927022cff06cc953949c1649890d0ac3ad009c91",
+          "timestamp": "2026-06-10T14:38:12.826Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -129,19 +129,19 @@
           "command": "rg -n \"ENG-DATA-MIGRATION-1|ENG-AUTH-SECURITY-1|EXPECTED_BLOCK|gateEvidenceRefs\" Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
           "result": "pass",
           "note": "Risky migration/security baselines specify expected-block evidence and gated PASS evidence with gateEvidenceRefs.",
-          "headHash": "ccd9a931a46dc22efda10d857e15ed44ee512240",
-          "materialHash": "b17428730fad707ea835f2b5b37c1c23c988069f7ec8793d8ead7458c7069872",
-          "timestamp": "2026-06-10T14:30:55.138Z"
+          "headHash": "eea72922f354c6b0c15f5642d8c31d624be592ef",
+          "materialHash": "3256c0f10c217b50dd979263927022cff06cc953949c1649890d0ac3ad009c91",
+          "timestamp": "2026-06-10T14:38:12.853Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "docs_check",
-          "command": "git diff --check main...HEAD && node -e \"check stale/fake/localOnly/malformed/generic blockedReasons conditions\"",
+          "command": "rg -n \"Stale proof|Fake or fabricated evidence|Malformed artifacts|generic|localOnly|digest|Host disagreement\" Lattice-Engineering-Baseline-Unlock-Execution-Plan.md && git diff --check main...HEAD",
           "result": "pass",
-          "note": "Fail-closed rules block stale, fake, localOnly, malformed, missing digest, generic blockedReasons, and host disagreement cases.",
-          "headHash": "ccd9a931a46dc22efda10d857e15ed44ee512240",
-          "materialHash": "b17428730fad707ea835f2b5b37c1c23c988069f7ec8793d8ead7458c7069872",
-          "timestamp": "2026-06-10T14:30:55.164Z"
+          "note": "Fail-closed rules block stale, fake, localOnly, malformed, missing digest, generic blockedReasons, and host disagreement cases; the committed diff has no whitespace errors.",
+          "headHash": "eea72922f354c6b0c15f5642d8c31d624be592ef",
+          "materialHash": "3256c0f10c217b50dd979263927022cff06cc953949c1649890d0ac3ad009c91",
+          "timestamp": "2026-06-10T14:38:12.881Z"
         }
       ]
     },
