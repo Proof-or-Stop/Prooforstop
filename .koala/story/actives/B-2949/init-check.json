@@ -1,0 +1,29 @@
+{
+  "storyId": "B-2949",
+  "checkedAt": "2026-06-10T14:16:51.052Z",
+  "reviewRound": "",
+  "agentId": "product-reviewer",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-06-10T14:16:34.770Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "riskSignals (security/migration/production) appear to be mention-vs-modify false positives since this is a documentation chore, not a code change touching those systems. Main agent should consider story_review_dismiss for each if confirmed as false positives, to avoid unnecessary high-risk PLAN overhead."
+        },
+        {
+          "severity": "low",
+          "desc": "userSees fields describe document qualities (explains, gives enough detail, provides practical sequence) rather than specific observable text — acceptable for a documentation chore but worth noting."
+        }
+      ]
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-10T14:16:51.052Z",
+      "issues": []
+    }
+  ],
+  "_hash": "2826592cb8766815374ac03a22561add8ea06c777a98cf32478cf362efa4f532"
+}
