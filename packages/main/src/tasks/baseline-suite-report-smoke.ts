@@ -671,6 +671,25 @@ for (const forbiddenField of ['authorityDone', 'receiptVerified', 'multiHostVeri
 
     const here = dirname(fileURLToPath(import.meta.url));
     const cliPath = join(here, '..', 'cli.js');
+    const baselineRunStdout = execFileSync(process.execPath, [
+      cliPath,
+      '--root',
+      root,
+      'baseline_run',
+      '--baselineId=NL-CLI-1',
+      '--runId=run-cli-local-review',
+      `--outputRoot=${join(root, '.lattice', 'artifacts', 'baseline-cli-arg-smoke')}`,
+      '--localReviewEvidenceRefs=host-verdict:codex-local-review,host-verdict:claude-local-review',
+      '--format=json',
+    ], {
+      cwd: root,
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    const baselineRunParsed = JSON.parse(baselineRunStdout) as { outcome: string; local?: { evidenceRefs?: string[] } };
+    assert.equal(baselineRunParsed.outcome, 'PASS');
+    assert.deepEqual(baselineRunParsed.local?.evidenceRefs, ['host-verdict:codex-local-review', 'host-verdict:claude-local-review']);
+
     const outputDir = join(root, '.lattice', 'artifacts', 'baseline', 'suite-output');
     const stdout = execFileSync(process.execPath, [
       cliPath,
