@@ -1850,7 +1850,7 @@ async function resolveGateVerifyConfig(
   return {
     serverPublicKey,
     serverPublicKeyEncoding: encoding ?? 'auto',
-    ...(serverPublicKeyAlgorithm ? { serverPublicKeyAlgorithm } : {}),
+    ...(serverPublicKeyAlgorithm !== undefined ? { serverPublicKeyAlgorithm } : {}),
     expectedProjectId: authorityProjectId(jobPlan, env, config),
     expectedStoryId: jobPlan.storyId,
     expectedServerKeyId: serverKeyId,
@@ -2347,7 +2347,7 @@ async function resolveServerVerifyMaterial(
     serverPublicKey,
     encoding: encoding ?? 'auto',
     serverKeyId,
-    ...(serverPublicKeyAlgorithm ? { serverPublicKeyAlgorithm } : {}),
+    ...(serverPublicKeyAlgorithm !== undefined ? { serverPublicKeyAlgorithm } : {}),
   };
 }
 

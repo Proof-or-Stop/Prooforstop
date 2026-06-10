@@ -62,6 +62,7 @@ import {
   type EvidenceEnvelopeContract,
 } from '../core/authority-contracts.js';
 import { canonicalDigest, generateEd25519KeyPair, signCanonical, stripSignature } from '../core/authority-signing.js';
+import { verifyLatticeAuthorityReceipt } from '../core/lattice-authority-native.js';
 import { buildGateEvidenceRefResolver } from '../core/evidence-uploader.js';
 import { executePlannedSteps, type AuthorityGateOutcome } from '../core/planned-steps-executor.js';
 import type { JobPlan, PlannedStep, PlannerStoreLike } from '../core/planner.js';
@@ -1155,7 +1156,47 @@ function authorityEnv(extra: Record<string, string | undefined> = {}): Record<st
   assert.equal(exec.authorityDone, false);
 }
 
-// --- discovery fallback: algorithm case variant also fails closed -------------------
+// --- discovery fallback: empty algorithm fails closed on receipt verify ------------
+{
+  const approve = dynamicApproveForGateRequest();
+  const policyBody = {
+    contractVersion: 'authority-policy.v1', purpose: 'discovery', requiredAuthorityMode: 'enforce',
+    productionEnforceAuthority: true, requireHandshake: false, commandCatalogDigest: 'ccd', evidenceSchemaDigest: 'esd',
+    supportedAuthorityModes: ['off', 'shadow', 'enforce'], minClientVersions: {}, requiredEvidenceFields: [],
+    evidencePolicy: { preset: 'default' },
+    serverKey: { keyId: 'server-key-1', algorithm: '   ', encoding: 'hex', publicKeyHex: approve.serverPublicKeyHex },
+    compatibility: {
+      supportedAuthorityModes: ['off', 'shadow', 'enforce'], requiredAuthorityMode: 'enforce', requireHandshake: false,
+      minClientVersions: {}, commandCatalogDigest: 'ccd', evidenceSchemaDigest: 'esd', productionEnforceAuthority: true,
+      requireActorKeyBinding: false, requireRunnerHeartbeatForL2: false,
+    },
+  };
+  const resolution = await resolveAuthorityGateEvaluator(authorityJobPlan(), {
+    env: authorityEnv({ LATTICE_AUTHORITY_SERVER_KEY_ID: undefined }),
+    fetchImpl: wiringRouterFetch({
+      policy: { status: 200, body: policyBody },
+      evaluate: approve.evaluate,
+    }),
+  });
+  assert.equal(resolution.configured, true, 'empty algorithm is enforced during receipt verification, not by bypassing the gate flow');
+  assert.equal(resolution.decision?.status, 'receipt_unverified');
+  assert.equal(resolution.decision?.receiptVerified, false);
+  assert.match(resolution.decision?.reason ?? '', /unsupported algorithm/i);
+}
+
+// --- native verifier: non-string algorithm fails closed ----------------------------
+{
+  const { receipt, serverPublicKeyHex } = signedGateReceipt();
+  const verification = verifyLatticeAuthorityReceipt(receipt, {
+    serverPublicKey: serverPublicKeyHex,
+    serverPublicKeyEncoding: 'hex',
+    serverPublicKeyAlgorithm: 123 as any,
+  });
+  assert.equal(verification.verified, false);
+  assert.match(verification.reason, /unsupported algorithm/i);
+}
+
+// --- discovery fallback: algorithm case variant is normalized to ed25519 -----------
 {
   const approve = dynamicApproveForGateRequest();
   const policyBody = {
@@ -1177,8 +1218,21 @@ function authorityEnv(extra: Record<string, string | undefined> = {}): Record<st
       evaluate: approve.evaluate,
     }),
   });
-  assert.equal(resolution.decision?.status, 'receipt_unverified');
-  assert.match(resolution.decision?.reason ?? '', /unsupported algorithm/i);
+  assert.equal(resolution.configured, true, 'case-variant ed25519 discovery still resolves receipt verification material');
+  assert.equal(resolution.decision?.status, 'verified');
+  assert.equal(resolution.decision?.receiptVerified, true);
+  const jobPlan = authorityJobPlan();
+  const exec = executePlannedSteps({
+    root: '/tmp/x',
+    store: fakeStore(),
+    jobPlan,
+    now: () => new Date('2026-06-06T00:00:00Z'),
+    authorityGate: resolution.evaluator,
+    gateEvidenceRefResolver: buildGateEvidenceRefResolver(jobPlan),
+  });
+  assert.equal(exec.status, 'done', 'case-variant ed25519 allows authority DONE after normalization');
+  assert.equal(exec.receiptVerified, true);
+  assert.equal(exec.authorityDone, true);
 }
 
 // --- DENY: rejected decision -> evaluator present but executor fails closed ---------

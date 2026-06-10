@@ -83,9 +83,16 @@ export const LatticeAuthorityReceiptSchema = z.object({
 
 const SUPPORTED_PRODUCTION_RECEIPT_ALGORITHM = 'ed25519';
 
-function normalizeReceiptAlgorithm(value: string | undefined): string | undefined {
-  const trimmed = value?.trim();
-  return trimmed || undefined;
+function normalizeReceiptAlgorithm(value: unknown): { algorithm?: string; invalidAlgorithm?: string } {
+  if (value === undefined) return {};
+  if (typeof value !== 'string') {
+    return { invalidAlgorithm: value === null ? '<null>' : String(value) };
+  }
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return { invalidAlgorithm: '<empty>' };
+  }
+  return { algorithm: trimmed.toLowerCase() };
 }
 
 function isHexBytes(value: string, bytes: number): boolean {
@@ -161,16 +168,18 @@ export function verifyLatticeAuthorityReceipt(
   options: LatticeAuthorityReceiptVerificationOptions,
 ): LatticeAuthorityReceiptVerification {
   const receipt = parseLatticeAuthorityReceipt(value);
-  const serverPublicKeyAlgorithm = normalizeReceiptAlgorithm(options.serverPublicKeyAlgorithm);
+  const { algorithm: serverPublicKeyAlgorithm, invalidAlgorithm } = normalizeReceiptAlgorithm(options.serverPublicKeyAlgorithm);
   if (
-    serverPublicKeyAlgorithm !== undefined
+    invalidAlgorithm !== undefined
+    || (serverPublicKeyAlgorithm !== undefined
     && serverPublicKeyAlgorithm !== SUPPORTED_PRODUCTION_RECEIPT_ALGORITHM
+    )
   ) {
     return {
       provided: true,
       verified: false,
       receipt,
-      reason: `Lattice Authority receipt verification material uses unsupported algorithm: ${options.serverPublicKeyAlgorithm}`,
+      reason: `Lattice Authority receipt verification material uses unsupported algorithm: ${invalidAlgorithm ?? options.serverPublicKeyAlgorithm}`,
     };
   }
   const signature = receipt.signature;
