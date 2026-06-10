@@ -79,9 +79,9 @@
         "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
         "Lattice-Capability-Claim-baseline.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-10T12:48:15.244Z",
-      "endTime": null,
+      "endTime": "2026-06-10T12:48:16.155Z",
       "userSees": "Risky Engineering baselines visibly PASS only when gate evidence is present; otherwise the report remains EXPECTED_BLOCK with a concrete refusal reason.",
       "verificationIntent": {
         "happy": [
@@ -102,7 +102,45 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/lattice-baseline-smoke.ts",
+          "command": "npm run build && npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke case 11 proves ENG-DATA-MIGRATION-1 and ENG-AUTH-SECURITY-1 can PASS only with artifact sha256 gateEvidenceRefs and produce an authorized Engineering suite without blockedReasons.",
+          "headHash": "7efb8fb8ac8deba1c9e558333092d4c5714ad0fa",
+          "materialHash": "f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e",
+          "timestamp": "2026-06-10T12:48:16.234Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/core/lattice-baseline.ts",
+          "command": "npm run build && npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Risky baselines still default to EXPECTED_BLOCK and valid expected-block refusal evidence remains accepted without becoming a suite blocker.",
+          "headHash": "7efb8fb8ac8deba1c9e558333092d4c5714ad0fa",
+          "materialHash": "f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e",
+          "timestamp": "2026-06-10T12:48:16.282Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/lattice-baseline-smoke.ts",
+          "command": "npm run build && npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke cases 12 and 13 block missing, empty, fake-hash, mismatched expectedOutcomes, mismatched artifact directory, and PASS-with-blockedReasons reports.",
+          "headHash": "7efb8fb8ac8deba1c9e558333092d4c5714ad0fa",
+          "materialHash": "f14ab73c96e7f271672360cbf723f403f4d4fbdf6a3826242b145c30d4a7178e",
+          "timestamp": "2026-06-10T12:48:16.330Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
