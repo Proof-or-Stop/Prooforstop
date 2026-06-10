@@ -48,8 +48,17 @@
         ".gitignore",
         "packages/main/src/core/runtime-artifact-registry.ts"
       ]
+    },
+    {
+      "actor": "main-auditor",
+      "reason": "Persisted .lattice proof artifacts change git HEAD after commit while materialHash remains stable; formal suite revalidation must not reject a valid persisted suite solely due to HEAD drift.",
+      "timestamp": "2026-06-10T23:04:09.123Z",
+      "paths": [
+        "packages/main/src/core/lattice-baseline.ts",
+        "packages/main/src/tasks/lattice-baseline-smoke.ts"
+      ]
     }
   ],
   "createdAt": "2026-06-10T22:32:56.682Z",
-  "updatedAt": "2026-06-10T22:52:44.322Z"
+  "updatedAt": "2026-06-10T23:04:09.123Z"
 }
