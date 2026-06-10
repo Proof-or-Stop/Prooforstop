@@ -34,7 +34,8 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "userSees": "User sees \"Authority readiness: BLOCKED authorityUrl=https://stagging.hostneutral.net blockers=production_inert_key,missing_receipt_proof_endpoint\" or a PASS line only when all production readiness anchors are present."
     },
     {
       "id": "CHK-002",
@@ -70,7 +71,8 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "userSees": "User sees \"TEST gate receipt smoke: SKIPPED readiness_blocked\" when CHK-001 fails, or \"TEST gate receipt smoke: PASS receiptVerified=true strongEvidenceConsumed=true receiptId=<id>\" when production readiness passes."
     },
     {
       "id": "CHK-003",
@@ -107,7 +109,8 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "userSees": "User sees \"Dual-host review: PASS sameAnchorSet=true finalClassification=<PASS|BLOCKED>\" and, if readiness is blocked, negative controls are marked not-run because no production receipt exists."
     }
   ]
 }

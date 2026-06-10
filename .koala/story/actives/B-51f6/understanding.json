@@ -1,0 +1,35 @@
+{
+  "task": "Run a formal cross-repo staging Authority receipt smoke for the TEST gate, or classify the exact readiness blocker without claiming production readiness.",
+  "outcome": "User sees a concise final transcript: \"Formal staging Authority TEST receipt smoke: BLOCKED\" with the exact blockers if staging is local-test/missing proof support, or \"PASS\" only if a verified production gate_decision receipt is consumed by TEST.",
+  "facts": [
+    "User explicitly approved using https://stagging.hostneutral.net/docs for formal testing.",
+    "Current staging /health is reachable and reports service=lattice-authority.",
+    "Current staging policy advertises serverKey.keyId=dev-server-key, profile=local-test, ephemeral=true, productionInert=true.",
+    "Current staging OpenAPI does not expose /v1/receipts/{receipt_id}/proof.",
+    "The story target gate is exactly TEST, not DONE.",
+    "Existing Orchestrate main has 8 unrelated dirty files that are not present in this story worktree."
+  ],
+  "constraints": [
+    "Do not treat local-test, ephemeral, productionInert, transport-only accepted, or contract-only outputs as production-gate-decision evidence.",
+    "Do not print secret values; only record whether customer API key / actor key / runner identity sources exist.",
+    "Do not broaden this story into DONE gate semantics or unrelated lifecycle refactors.",
+    "Host verdicts from Claude/Codex are local execution evidence only and cannot substitute for Authority receipt evidence.",
+    "Only fix real correctness issues discovered by the formal smoke; do not optimize arbitrary code."
+  ],
+  "unknowns": [
+    "Whether staging has since been redeployed with a non-default configured production-capable signing key.",
+    "Whether staging has since been redeployed with the proof bundle endpoint required by B-f053.",
+    "Whether required customer API key, actor key, runner id, session id, project id, and pin source are available in this environment without exposing secret values.",
+    "Whether a production gate_decision receipt can be created and consumed after readiness passes."
+  ],
+  "touchpoints": [
+    "https://stagging.hostneutral.net/health",
+    "https://stagging.hostneutral.net/openapi.json",
+    "https://stagging.hostneutral.net/v1/authority/policy",
+    "packages/main/src/tasks/authority-live-python-e2e-smoke.ts",
+    "packages/main/src/core/authority-gate-receipt-verifier.ts",
+    "lattice authority_status / authority_receipt_fetch / authority_receipt_verify",
+    "Story B-51f6 checklist verificationEvidence"
+  ],
+  "timestamp": "2026-06-10T19:44:12.677Z"
+}
