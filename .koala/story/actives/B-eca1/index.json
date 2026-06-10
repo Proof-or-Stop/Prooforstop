@@ -4,7 +4,7 @@
   "title": "Verify Authority receipt proofs and consume gate_decision refs in lifecycle gates",
   "description": "Implement the Lattice CLI side of Authority receipt integration: fetch proof bundles, verify signed gate_decision receipts, persist production receipt refs, and consume them in lifecycle gates when Authority-backed evidence is required.",
   "type": "feature",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "keywords": [
     "authority",
@@ -68,6 +68,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-10T17:36:22.751Z",
+      "branch": "story/B-eca1",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-10T17:58:03.344Z",
       "branch": "story/B-eca1",
       "user": "Harmonygo",
       "agent": "main"

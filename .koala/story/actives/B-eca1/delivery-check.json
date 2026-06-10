@@ -1,0 +1,28 @@
+{
+  "storyId": "B-eca1",
+  "checkedAt": "2026-06-10T17:59:32.189Z",
+  "reviewRound": "2026-06-10T17:36:22.750Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "Lattice-Layer2-Proof-Bridge-Execution-Plan.md",
+      "promise": "Layer 2 proof bridge must distinguish local diagnostics from lifecycle-backed and Authority-backed proof, keep higher-layer claims blocked, and forbid relabeling host transcripts or local receipts into formal proof.",
+      "status": "verified",
+      "verifiedBy": "rg docs_check plus lattice validate coverage CHK-007",
+      "evidence": "CHK-007 happy/edge/adversarial docs checks passed in lattice validate; grep patterns confirmed proof bridge sequence, proof classifications, and anti-relabeling rules."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "B-eca1",
+      "transcript": "npm --prefix packages/main run build passed; authority gate consumption, gate receipts, status, receipt proof, boundary, and enforce matrix smoke tests passed; lattice validate --story=B-eca1 --json passed with 21/21 verification intents covered."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery reviewer check: implementation, docs promise coverage, stale receipt regression, dual-host review artifacts, and TEST validate evidence are present; no unresolved TODOs found in scope."
+  },
+  "_hash": "2af01dc7b23fb9b90cae117f7859194a1e49760332d5182d67cf3e2dd75f9584"
+}
