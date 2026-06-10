@@ -22,6 +22,24 @@
         }
       ],
       "_hash": "e162c4b4fd9d67f7a6a51e0a696ef5c69d815d1c99b993f7949ad59196f4e909"
+    },
+    {
+      "timestamp": "2026-06-10T01:57:43.308Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when 盘点 Authority Server 强证据就绪状态 + 尝试提交 Authority job 并获取 receipt 证据 are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Security/Credentials. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run koala story_review_dismiss '{\"storyId\":\"B-4a53\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        }
+      ],
+      "_hash": "47ac6d997e139f4a4e9afad2f686295e9773e1e481e763134f32369f4f11e6e4"
     }
   ]
 }

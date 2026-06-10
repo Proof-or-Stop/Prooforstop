@@ -8,9 +8,9 @@
         "docs/requirements/decisions/authority-client-role.md",
         "README.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-10T02:05:25.719Z",
       "userSees": "User sees \"Authority readiness: BLOCKED (authorityUrlConfigured=false, actorKeyConfigured=false, runnerConfigured=false, sessionConfigured=false, serverPublicKeyPinned=false)\".",
       "files": {
         "modify": [],
@@ -42,7 +42,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "lattice authority_status --json && lattice conduit_status --json",
+          "result": "pass",
+          "note": "authority-strong-evidence-report.json captures authority_status and conduit_status outputs without submitting evidence or verifying receipts; receiptVerified=false and productionDone=false.",
+          "headHash": "50c20cba60ad737507223dc47d02b2353d8f5c3f",
+          "materialHash": "47f4d636deb2d912fc830607598f6fed94b86beb3f36d1efc1f7ec8e898cd662",
+          "timestamp": "2026-06-10T02:05:25.746Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node -e artifact invariant check",
+          "result": "pass",
+          "note": "mechanical verifier confirmed authorityUrlConfigured=false, actorKeyConfigured=false, runnerConfigured=false, sessionConfigured=false, serverPublicKeyPinned=false are represented as BLOCKED readiness fields.",
+          "headHash": "50c20cba60ad737507223dc47d02b2353d8f5c3f",
+          "materialHash": "47f4d636deb2d912fc830607598f6fed94b86beb3f36d1efc1f7ec8e898cd662",
+          "timestamp": "2026-06-10T02:05:25.773Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node -e artifact invariant check",
+          "result": "pass",
+          "note": "mechanical verifier rejects receiptVerified=true/productionDone=true; current report keeps both false and no AuthorityReceipt is claimed.",
+          "headHash": "50c20cba60ad737507223dc47d02b2353d8f5c3f",
+          "materialHash": "47f4d636deb2d912fc830607598f6fed94b86beb3f36d1efc1f7ec8e898cd662",
+          "timestamp": "2026-06-10T02:05:25.796Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
