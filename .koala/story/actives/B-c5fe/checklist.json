@@ -12,7 +12,38 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees docs/requirements/decisions/authority-session-receipt-gate-execution.md with a phased execution plan for Authority session identity lifecycle + receipt-backed gate consumption, including server/runner/CLI/cross-repo responsibilities and explicit fail-closed acceptance gates.",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/authority-session-receipt-gate-execution.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The execution document defines the end-to-end strong-evidence rollout across Python Authority Server, runner host, Lattice CLI, and cross-repo validation with clear deliverables and prerequisites.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The document distinguishes local Lattice sessions and KOALA_AUTHORITY_SESSION_ID/readiness presence from receipt-backed Authority runner identity; it does not claim sessionConfigured=true is sufficient.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The document rejects overclaim paths: transport accepted, local receipt, fake server, readiness status, or report prose cannot set productionDone/receiptVerified/strongEvidenceConsumed without a verified AuthorityReceipt consumed by gate predicates.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }

@@ -1,0 +1,25 @@
+{
+  "task": "编写 Authority runner session identity lifecycle 与 receipt-backed gate consumption 的执行文档。",
+  "outcome": "User opens docs/requirements/decisions/authority-session-receipt-gate-execution.md and sees a concrete rollout plan that says: session ID is only an identity field; strong evidence requires signed job/evidence envelopes, verified AuthorityReceipt refs, story/head/materialHash binding, and REVIEW/TEST/DONE gate predicates that mechanically consume those refs.",
+  "facts": [
+    "B-4a53 concluded the current environment has no real Authority URL, actor key, runner id, session id, server public key, job, receipt, or gate consumption.",
+    "authority_status/conduit_status readiness fields are diagnostic presence checks and must keep receiptVerified=false and productionDone=false.",
+    "Existing L2+ boundary requires independent producerRunId/verifierRunId, provider/model/vendor, command/transcript/diff hashes, envelope signature, and verified AuthorityReceipt.",
+    "Verification Context Pack is the verifier reading boundary and must stay digest-bound when used in authority jobs.",
+    "Parallel Wave and local receipts are explicitly non-authoritative and cannot satisfy DONE or production authority."
+  ],
+  "constraints": [
+    "Do not implement server, runner, signing, receipt verification, or lifecycle gate code in this story.",
+    "Do not claim local status output, transport acceptance, local receipt, or readiness env as production authority.",
+    "Keep the document actionable enough to split future server, runner, CLI, and cross-repo validation stories.",
+    "Respect PD-1/PD-2: ordinary Lattice CLI stays thin/local unless a future explicit enforce path satisfies the receipt-backed predicate."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/authority-session-receipt-gate-execution.md",
+    "docs/requirements/decisions/authority-client-role.md",
+    "docs/requirements/decisions/verification-context-pack.md",
+    "README.md"
+  ],
+  "timestamp": "2026-06-10T02:32:00.923Z"
+}
