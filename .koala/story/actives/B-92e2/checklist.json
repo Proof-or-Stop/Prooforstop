@@ -14,7 +14,47 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "`node bin/lattice.js help` lists local Baseline commands, and `node bin/lattice.js baseline_suite_report --help` shows shared layer/report arguments instead of unknown command."
+      "userSees": "`node bin/lattice.js help` lists local Baseline commands, and `node bin/lattice.js baseline_suite_report --help` shows shared layer/report arguments instead of unknown command.",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts"
+        ],
+        "create": [
+          "packages/main/src/core/lattice-baseline.ts",
+          "packages/main/src/handlers/lattice-baseline.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/lattice-baseline-smoke.ts",
+          "packages/main/package.json"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After build, local `node bin/lattice.js help` lists `baseline_run`, `baseline_suite`, `baseline_suite_report`, and `capability_claim_evaluate`; `baseline_suite_report --help` shows local schema arguments instead of unknown command.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Unsupported layer or baseline id returns a structured block/error and never synthesizes PASS.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Malformed, mixed-schema, or stale artifacts are rejected by the suite/claim path instead of being silently aggregated.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
