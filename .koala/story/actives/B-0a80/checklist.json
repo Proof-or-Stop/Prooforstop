@@ -7,9 +7,9 @@
       "relatedDocs": [
         "Lattice-Parallel-Development-Capability.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-10T00:21:37.174Z",
-      "endTime": null,
+      "endTime": "2026-06-10T00:28:26.115Z",
       "userSees": "User sees artifact provenance PASS: generatedAt is after declared inputs and no B-688d artifact points to the deleted .worktrees/B-688d path.",
       "files": {
         "modify": [
@@ -42,7 +42,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node artifact consistency check for B-688d provenance, failure semantics, evidenceRefs hashes, authority boundary, host/lane/lock shape",
+          "result": "pass",
+          "note": "Printed exactly: artifact provenance check: PASS (generatedAt order ok, old worktree paths: 0). Parallel artifacts are not earlier than the baseline suite input.",
+          "headHash": "398437fbe0a009f82379781a29633924bd128993",
+          "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
+          "timestamp": "2026-06-10T00:28:26.149Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node artifact consistency check for B-688d provenance, failure semantics, evidenceRefs hashes, authority boundary, host/lane/lock shape",
+          "result": "pass",
+          "note": "Printed exactly: artifact provenance check: PASS (generatedAt order ok, old worktree paths: 0). No B-688d artifact retains .worktrees/B-688d.",
+          "headHash": "398437fbe0a009f82379781a29633924bd128993",
+          "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
+          "timestamp": "2026-06-10T00:28:26.171Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node artifact consistency check for B-688d provenance, failure semantics, evidenceRefs hashes, authority boundary, host/lane/lock shape",
+          "result": "pass",
+          "note": "The check would fail on future-input generatedAt inversion or deleted-worktree-only provenance paths.",
+          "headHash": "398437fbe0a009f82379781a29633924bd128993",
+          "materialHash": "225666b72fd58739123cf444374ee4f93d06de9f5824e27898cd9c1863c7cb87",
+          "timestamp": "2026-06-10T00:28:26.193Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
