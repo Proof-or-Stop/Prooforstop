@@ -8,6 +8,7 @@ import {
   extractBlocks,
   parseBlock,
   parseFunctionAfterBlock,
+  shouldSkipSourceDir,
 } from './extract.js';
 import { validate, validateFlows, validateTestAnnotations } from './validate.js';
 import type { TaskAnnotation, FlowChain } from './types.js';
@@ -52,15 +53,45 @@ export interface ConvergenceResult {
 const AUDIT_STORY_ID = 'B-META-framework-audit';
 const AUDIT_BLOCKING_SEVERITIES = new Set<Finding['severity']>(['critical', 'high']);
 
+function normalizeSourceFile(sourceFile: string): string {
+  return sourceFile.split(/[\\/]+/).filter(Boolean).join('/');
+}
+
+function isIgnoredSourceFile(sourceFile: string): boolean {
+  return normalizeSourceFile(sourceFile).split('/').some(shouldSkipSourceDir);
+}
+
 function taskKey(task: TaskAnnotation): string {
+  const sourceFile = normalizeSourceFile(task.sourceFile);
   return task.functionName
-    ? `${task.sourceFile}:${task.functionName}`
-    : `${task.sourceFile}:${task.sourceLine}:${task.task}`;
+    ? `${sourceFile}:${task.functionName}`
+    : `${sourceFile}:${task.sourceLine}:${task.task}`;
+}
+
+function taskTestKey(task: TaskAnnotation): string {
+  return `${taskKey(task)}:${task.test ?? ''}`;
+}
+
+function hasMissingFixture(projectRoot: string, fixturesDir: string, task: TaskAnnotation): boolean {
+  return Boolean(task.test)
+    && !existsSync(join(projectRoot, fixturesDir, `${task.test}.json`));
+}
+
+function isStaleMissingTestAnnotation(
+  projectRoot: string,
+  fixturesDir: string,
+  sourceTestKeys: Set<string>,
+  task: TaskAnnotation,
+): boolean {
+  return Boolean(task.test)
+    && hasMissingFixture(projectRoot, fixturesDir, task)
+    && !sourceTestKeys.has(taskTestKey(task));
 }
 
 function taskSourceExists(projectRoot: string, scanRoot: string, rootDir: string | undefined, task: TaskAnnotation): boolean {
   if (!task.sourceFile) return true;
-  const normalized = task.sourceFile.split(/[\\/]+/).filter(Boolean).join('/');
+  const normalized = normalizeSourceFile(task.sourceFile);
+  if (isIgnoredSourceFile(normalized)) return false;
   const candidates = [
     join(scanRoot, normalized),
     join(projectRoot, normalized),
@@ -108,12 +139,16 @@ function scanSourceAnnotations(scanRoot: string): TaskAnnotation[] {
 }
 
 function scanCoverageTasks(scanRoot: string, projectRoot: string, rootDir: string | undefined): TaskAnnotation[] {
+  const config = loadConfig(projectRoot);
+  const sourceTasks = scanSourceAnnotations(scanRoot);
+  const sourceTestKeys = new Set(sourceTasks.filter(task => task.test).map(taskTestKey));
   const merged = new Map<string, TaskAnnotation>();
   for (const task of scan(scanRoot)) {
     if (!taskSourceExists(projectRoot, scanRoot, rootDir, task)) continue;
+    if (isStaleMissingTestAnnotation(projectRoot, config.fixturesDir, sourceTestKeys, task)) continue;
     merged.set(taskKey(task), task);
   }
-  for (const task of scanSourceAnnotations(scanRoot)) {
+  for (const task of sourceTasks) {
     if (!merged.has(taskKey(task))) merged.set(taskKey(task), task);
   }
   return Array.from(merged.values());
