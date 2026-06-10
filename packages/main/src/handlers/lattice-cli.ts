@@ -23,6 +23,7 @@ import {
   type LatticeFormat,
 } from '../core/lattice-hosts.js';
 import {
+  DEFAULT_AUTHORITY_RECEIPT_MAX_VERIFIED_AGE_MS,
   eligibleAuthorityGateReceiptDocument,
   type AuthorityGateDecisionReceiptRef,
   type AuthorityReceiptRefDocument,
@@ -257,6 +258,7 @@ function buildAuthorityReceiptStatus(
       headHash: headHash!,
       materialHash: materialHash!,
       now: args.now ?? new Date().toISOString(),
+      maxVerifiedAgeMs: DEFAULT_AUTHORITY_RECEIPT_MAX_VERIFIED_AGE_MS,
       acceptablePolicyModes: policyMode ? [policyMode] : undefined,
       acceptableAuthorityModes: ['enforce'],
     });

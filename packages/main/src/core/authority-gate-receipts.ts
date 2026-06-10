@@ -27,6 +27,10 @@ export type AuthorityGateReceiptFailReason =
   | 'authority_receipt_run_binding_missing'
   | 'authority_receipt_stale_or_revoked';
 
+// Gate receipts are intentionally short lived: server policy can revoke or
+// supersede a receipt without changing the local head/material hashes.
+export const DEFAULT_AUTHORITY_RECEIPT_MAX_VERIFIED_AGE_MS = 15 * 60 * 1000;
+
 export interface AuthorityGateReceiptConsumptionEvent {
   consumedAt: string;
   targetPhase: string;

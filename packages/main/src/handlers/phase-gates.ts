@@ -35,7 +35,10 @@ import { resolveLocalCodexVerifyCommand } from '../core/codex-adapter-checks.js'
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 import { reportHealthIssue } from '../core/health.js';
 import { loadAuthoritySettings } from '../core/authority-mode.js';
-import { consumeAuthorityGateReceiptDocument } from '../core/authority-gate-receipts.js';
+import {
+  DEFAULT_AUTHORITY_RECEIPT_MAX_VERIFIED_AGE_MS,
+  consumeAuthorityGateReceiptDocument,
+} from '../core/authority-gate-receipts.js';
 import { loadConfig } from '../core/config.js';
 import { resolveWorkflowPolicy } from '../core/workflow-policy.js';
 import { execSync } from 'child_process';
@@ -370,6 +373,7 @@ export function runAuthorityReceiptTransitionGate(
       headHash,
       materialHash,
       now: consumedAt,
+      maxVerifiedAgeMs: DEFAULT_AUTHORITY_RECEIPT_MAX_VERIFIED_AGE_MS,
       acceptablePolicyModes: [policy.profile],
       acceptableAuthorityModes: ['enforce'],
     },

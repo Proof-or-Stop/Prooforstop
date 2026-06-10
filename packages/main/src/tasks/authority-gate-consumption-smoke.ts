@@ -8,12 +8,16 @@ import { join } from 'node:path';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
-import { upsertAuthorityGateReceiptRef, type AuthorityGateDecisionReceiptRef } from '../core/authority-gate-receipts.js';
+import {
+  DEFAULT_AUTHORITY_RECEIPT_MAX_VERIFIED_AGE_MS,
+  upsertAuthorityGateReceiptRef,
+  type AuthorityGateDecisionReceiptRef,
+} from '../core/authority-gate-receipts.js';
 import { createVerifierHandlers } from '../handlers/verifier.js';
 import { runAuthorityReceiptTransitionGate } from '../handlers/phase-gates.js';
 import type { HandlerContext } from '../handlers/context.js';
 
-const NOW = '2026-06-10T00:00:00.000Z';
+const NOW = new Date().toISOString();
 
 function git(root: string, args: string[]): string {
   return execFileSync('git', args, {
@@ -145,6 +149,20 @@ function writeRef(store: StoryStore, storyId: string, ref: AuthorityGateDecision
     const gateReport = runAuthorityReceiptTransitionGate(ctx, 'B-test', 'TEST');
     assert.match(gateReport, /Authority gate consumption: PASS/);
     assert.equal(store.readAuthorityReceiptRefs('B-test')?.refs[0]?.consumptionEvents?.length, 1, 'transition consumption is idempotent after validate');
+
+    const staleVerifiedAt = new Date(Date.now() - (DEFAULT_AUTHORITY_RECEIPT_MAX_VERIFIED_AGE_MS * 2)).toISOString();
+    seedStory(store, 'B-stale-validate');
+    writeRef(store, 'B-stale-validate', validRef(root, 'B-stale-validate', 'TEST', { verifiedAt: staleVerifiedAt }));
+    const staleValidation = JSON.parse(String(await verifier.validate({ story: 'B-stale-validate', json: true, noSync: true })));
+    assert.equal(staleValidation.allPass, false, 'stale receipt blocks authority-backed validate in enforce mode');
+    assert.equal(staleValidation.authorityGateConsumption.reason, 'authority_receipt_freshness_expired');
+
+    seedStory(store, 'B-stale-transition');
+    writeRef(store, 'B-stale-transition', validRef(root, 'B-stale-transition', 'TEST', { verifiedAt: staleVerifiedAt }));
+    assert.throws(
+      () => runAuthorityReceiptTransitionGate(ctx, 'B-stale-transition', 'TEST'),
+      /authority_receipt_freshness_expired/,
+    );
 
     seedStory(store, 'B-test-restricted');
     writeRef(store, 'B-test-restricted', validRef(root, 'B-test-restricted', 'TEST', { eligibleGates: ['DONE'] }));

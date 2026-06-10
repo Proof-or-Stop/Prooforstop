@@ -45,6 +45,7 @@ import { syncClusterResolves } from '../core/cluster-sync.js';
 import { resolveVerificationIntentPolicy, resolveWorkflowPolicy } from '../core/workflow-policy.js';
 import { loadAuthoritySettings } from '../core/authority-mode.js';
 import {
+  DEFAULT_AUTHORITY_RECEIPT_MAX_VERIFIED_AGE_MS,
   consumeAuthorityGateReceiptDocument,
   type AuthorityGateReceiptDocumentConsumption,
 } from '../core/authority-gate-receipts.js';
@@ -425,6 +426,7 @@ function evaluateValidationAuthorityGate(
       headHash,
       materialHash,
       now: consumedAt,
+      maxVerifiedAgeMs: DEFAULT_AUTHORITY_RECEIPT_MAX_VERIFIED_AGE_MS,
       acceptablePolicyModes: [policyMode],
       acceptableAuthorityModes: ['enforce'],
     },
