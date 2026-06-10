@@ -470,6 +470,16 @@
           "headHash": "cda3e65184e91bbaab6a4a07a9747c7a75bffaab",
           "materialHash": "a942714883fc8bc4285050a5ca164752c95b395fdcb7cf3a21632dd1f66e8f48",
           "timestamp": "2026-06-10T17:30:39.622Z"
+        },
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:authority-status-smoke",
+          "result": "pass",
+          "note": "authority_status distinguishes authorityReady, receiptVerified, receiptEligible, receiptConsumed, productionDone, and canClaimProductionDone; productionDone remains false even when a production receipt ref is verified and eligible.",
+          "headHash": "c7f1191c282920cca9635ce96ac9b37d04349831",
+          "materialHash": "a942714883fc8bc4285050a5ca164752c95b395fdcb7cf3a21632dd1f66e8f48",
+          "timestamp": "2026-06-10T17:30:54.667Z"
         }
       ]
     },
