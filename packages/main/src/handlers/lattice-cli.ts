@@ -116,7 +116,9 @@ interface AuthorityReceiptStatus {
   policyMode?: string;
   latestReceiptId?: string;
   latestDecisionDigest?: string;
-  latestReceiptVerified: boolean;
+  statusReceiptId?: string;
+  statusDecisionDigest?: string;
+  receiptVerified: boolean;
   receiptEligible: boolean;
   receiptConsumed: boolean;
   eligibilityReason?: string;
@@ -187,6 +189,24 @@ function latestReceiptRef(document: AuthorityReceiptRefDocument | null | undefin
   })[0];
 }
 
+function isVerifiedProductionGateReceipt(ref: AuthorityGateDecisionReceiptRef | undefined): ref is AuthorityGateDecisionReceiptRef {
+  return ref?.classification === 'production-gate-decision'
+    && ref.receiptKind === 'gate_decision'
+    && ref.status !== 'stale'
+    && ref.status !== 'revoked'
+    && ref.status !== 'superseded';
+}
+
+function latestVerifiedProductionReceiptRef(document: AuthorityReceiptRefDocument | null | undefined): AuthorityGateDecisionReceiptRef | undefined {
+  const refs = document?.refs ?? [];
+  return latestReceiptRef({
+    schemaVersion: 'lattice.authority_receipt_refs.v1',
+    storyId: document?.storyId ?? '',
+    updatedAt: document?.updatedAt ?? '',
+    refs: refs.filter(isVerifiedProductionGateReceipt),
+  });
+}
+
 function matchingConsumption(
   ref: AuthorityGateDecisionReceiptRef | undefined,
   args: { storyId?: string; targetPhase?: AuthorityGatePhase; headHash?: string; materialHash?: string },
@@ -226,12 +246,8 @@ function buildAuthorityReceiptStatus(
   const policyMode = resolveStatusPolicyMode(args, runtime, storyId);
   const document = storyId && runtime?.store ? runtime.store.readAuthorityReceiptRefs(storyId) : undefined;
   const latest = latestReceiptRef(document);
-  const latestReceiptVerified = latest?.classification === 'production-gate-decision'
-    && latest.receiptKind === 'gate_decision'
-    && latest.status !== 'stale'
-    && latest.status !== 'revoked'
-    && latest.status !== 'superseded';
   const contextAvailable = Boolean(storyId && targetPhase && headHash && materialHash);
+  let eligibleRef: AuthorityGateDecisionReceiptRef | undefined;
   let receiptEligible = false;
   let eligibilityReason: string | undefined;
   if (contextAvailable) {
@@ -246,7 +262,12 @@ function buildAuthorityReceiptStatus(
     });
     receiptEligible = eligibility.eligible;
     eligibilityReason = eligibility.reason;
-  } else if (!latestReceiptVerified) {
+    if (eligibility.eligible) eligibleRef = eligibility.ref;
+  }
+  const verifiedRef = eligibleRef ?? latestVerifiedProductionReceiptRef(document);
+  const statusRef = eligibleRef ?? verifiedRef ?? latest;
+  const receiptVerified = Boolean(verifiedRef);
+  if (!contextAvailable && !receiptVerified) {
     eligibilityReason = 'authority_receipt_missing';
   }
   return {
@@ -257,9 +278,11 @@ function buildAuthorityReceiptStatus(
     policyMode,
     latestReceiptId: latest?.receiptId,
     latestDecisionDigest: latest?.decisionDigest,
-    latestReceiptVerified,
+    statusReceiptId: statusRef?.receiptId,
+    statusDecisionDigest: statusRef?.decisionDigest,
+    receiptVerified,
     receiptEligible,
-    receiptConsumed: matchingConsumption(latest, { storyId, targetPhase, headHash, materialHash }),
+    receiptConsumed: matchingConsumption(statusRef, { storyId, targetPhase, headHash, materialHash }),
     eligibilityReason,
     contextAvailable,
   };
@@ -378,7 +401,7 @@ export function buildAuthorityStatus(
     timeoutMS: settings.timeoutMS,
     serverReachability: 'not-probed' as const,
     authorityReady,
-    receiptVerified: receiptStatus.latestReceiptVerified,
+    receiptVerified: receiptStatus.receiptVerified,
     receiptEligible: receiptStatus.receiptEligible,
     receiptConsumed: receiptStatus.receiptConsumed,
     productionDone: false as const,
@@ -387,7 +410,7 @@ export function buildAuthorityStatus(
       ? 'receipt-consumed-no-production-claim' as const
       : receiptStatus.receiptEligible
         ? 'verified-receipt-eligible' as const
-        : receiptStatus.latestReceiptVerified
+        : receiptStatus.receiptVerified
           ? 'verified-receipt-not-eligible' as const
           : baseURLConfigured
             ? 'configured-no-verified-receipt' as const
@@ -435,6 +458,8 @@ function renderAuthorityStatusText(result: ReturnType<typeof buildAuthorityStatu
       `receiptTargetPhase: ${result.receiptStatus.targetPhase ?? '(none)'}`,
       `latestReceiptId: ${result.receiptStatus.latestReceiptId ?? '(none)'}`,
       `latestDecisionDigest: ${result.receiptStatus.latestDecisionDigest ?? '(none)'}`,
+      `statusReceiptId: ${result.receiptStatus.statusReceiptId ?? '(none)'}`,
+      `statusDecisionDigest: ${result.receiptStatus.statusDecisionDigest ?? '(none)'}`,
       `receiptEligibilityReason: ${result.receiptStatus.eligibilityReason ?? '(none)'}`,
     );
   }

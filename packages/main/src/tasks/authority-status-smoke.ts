@@ -25,12 +25,12 @@
  *
  *   Edge / enforce with all env prerequisites set:
  *     - Even when URL, actor key, and runner id are all set, productionDone /
- *       receiptVerified / canClaimProductionDone remain false (no receipt has
- *       actually been verified — env presence alone is not authority).
+ *       receiptVerified / canClaimProductionDone remain false when no stored
+ *       production receipt ref exists — env presence alone is not authority.
  *
  *   Adversarial:
- *     - No combination of env vars / overrides can flip productionDone,
- *       receiptVerified, or canClaimProductionDone to true.
+ *     - No combination of env vars / overrides can flip productionDone or
+ *       canClaimProductionDone to true.
  *     - conduit_status mirrors the same readiness fields and the same negative
  *       authority guarantees.
  *
@@ -384,6 +384,46 @@ function refFor(
     assert.equal(consumed.status, 'receipt-consumed-no-production-claim');
     assertNoProductionOverclaim(consumed, 'buildAuthorityStatus consumed ref');
 
+    const mixedStoryId = 'B-mixed';
+    seedStory(store, mixedStoryId);
+    const mixedEligibleRef: AuthorityGateDecisionReceiptRef = {
+      ...refFor(root, mixedStoryId, { receiptId: 'AR-MIXED-TEST' }),
+      consumptionEvents: [{
+        consumedAt: NOW,
+        targetPhase: 'TEST',
+        storyId: mixedStoryId,
+        headHash: ref.headHash,
+        materialHash: ref.materialHash,
+        decisionDigest: 'sha256:decision',
+      }],
+    };
+    store.writeAuthorityReceiptRefs(mixedStoryId, upsertAuthorityGateReceiptRef(undefined, mixedEligibleRef, NOW));
+    const newerNonmatchingRef = refFor(root, mixedStoryId, {
+      receiptId: 'AR-MIXED-DONE',
+      targetPhase: 'DONE',
+      eligibleGates: ['DONE'],
+      verifiedAt: '2026-06-10T00:01:00.000Z',
+    });
+    store.writeAuthorityReceiptRefs(
+      mixedStoryId,
+      upsertAuthorityGateReceiptRef(store.readAuthorityReceiptRefs(mixedStoryId) ?? undefined, newerNonmatchingRef, newerNonmatchingRef.verifiedAt!),
+    );
+    const mixed = buildAuthorityStatus({
+      storyId: mixedStoryId,
+      targetPhase: 'TEST',
+      headHash: mixedEligibleRef.headHash,
+      materialHash: mixedEligibleRef.materialHash,
+      policyMode: 'balanced',
+      now: NOW,
+    }, env as Record<string, string | undefined>, { root, store });
+    assert.equal(mixed.receiptVerified, true, 'multi-ref document reports verified from the eligible production ref');
+    assert.equal(mixed.receiptEligible, true, 'multi-ref document reports eligibility from the eligible production ref');
+    assert.equal(mixed.receiptConsumed, true, 'multi-ref document reports consumption from the eligible production ref');
+    assert.equal(mixed.receiptStatus.latestReceiptId, 'AR-MIXED-DONE', 'raw latest ref remains visible');
+    assert.equal(mixed.receiptStatus.statusReceiptId, 'AR-MIXED-TEST', 'status facts name the ref that backs current context');
+    assert.equal(mixed.productionDone, false, 'multi-ref receipt status still cannot claim productionDone');
+    assertNoProductionOverclaim(mixed, 'buildAuthorityStatus mixed refs');
+
     const diagnosticStoryId = 'B-local';
     seedStory(store, diagnosticStoryId);
     const localRef = refFor(root, diagnosticStoryId, {
@@ -404,6 +444,35 @@ function refFor(
     assert.equal(diagnostic.receiptConsumed, false, 'local diagnostic receipt is not consumed');
     assert.equal(diagnostic.productionDone, false, 'local diagnostic receipt cannot claim productionDone');
     assertNoProductionOverclaim(diagnostic, 'buildAuthorityStatus local diagnostic ref');
+
+    const localMixedStoryId = 'B-mixed-local';
+    seedStory(store, localMixedStoryId);
+    const productionRef = refFor(root, localMixedStoryId, { receiptId: 'AR-PRODUCTION' });
+    const newerLocalRef = refFor(root, localMixedStoryId, {
+      receiptId: 'AR-LOCAL-LATER',
+      classification: 'server-receipt-local-test',
+      verifiedAt: '2026-06-10T00:01:00.000Z',
+    });
+    const mixedDocument = upsertAuthorityGateReceiptRef(
+      upsertAuthorityGateReceiptRef(undefined, productionRef, NOW),
+      newerLocalRef,
+      '2026-06-10T00:01:00.000Z',
+    );
+    store.writeAuthorityReceiptRefs(localMixedStoryId, mixedDocument);
+    const localMixed = buildAuthorityStatus({
+      storyId: localMixedStoryId,
+      targetPhase: 'TEST',
+      headHash: productionRef.headHash,
+      materialHash: productionRef.materialHash,
+      policyMode: 'balanced',
+      now: NOW,
+    }, env as Record<string, string | undefined>, { root, store });
+    assert.equal(localMixed.receiptVerified, true, 'newer local-test ref does not mask production verification');
+    assert.equal(localMixed.receiptEligible, true, 'eligible production ref is used for gate status');
+    assert.equal(localMixed.receiptConsumed, false, 'mixed verified ref is not consumed without event');
+    assert.equal(localMixed.productionDone, false, 'mixed receipt status still does not claim productionDone');
+    assert.equal(localMixed.receiptStatus.latestReceiptId, 'AR-LOCAL-LATER', 'latest diagnostic ref remains visible');
+    assert.equal(localMixed.receiptStatus.statusReceiptId, 'AR-PRODUCTION', 'status uses verified production ref');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
