@@ -306,9 +306,9 @@
         "docs/requirements/decisions/lattice-authority-receipt-contract.md",
         "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-10T21:11:27.750Z",
       "userSees": "User sees Authority receipt refs verified and bound to baselineId, suiteRunId, claimTarget, headHash, materialHash, and evidence digests.",
       "files": {
         "modify": [
@@ -338,7 +338,39 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke formal reports include receipt refs bound to baselineId, suiteRunId, claimTarget, headHash, materialHash, and evidenceDigest.",
+          "headHash": "4569501c8b34504068f9bf329976b27589faa451",
+          "materialHash": "d8d294973c48a678542a01d83dc723637bf22cb41a96dc6e6157a6580060a16f",
+          "timestamp": "2026-06-10T21:11:27.774Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke missing-receipt-suite-binding rejects receipt refs missing required binding fields.",
+          "headHash": "4569501c8b34504068f9bf329976b27589faa451",
+          "materialHash": "d8d294973c48a678542a01d83dc723637bf22cb41a96dc6e6157a6580060a16f",
+          "timestamp": "2026-06-10T21:11:27.796Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke rejects receipt refs from the wrong baseline/suite/claim binding and keeps authorityChanged/productionDone false.",
+          "headHash": "4569501c8b34504068f9bf329976b27589faa451",
+          "materialHash": "d8d294973c48a678542a01d83dc723637bf22cb41a96dc6e6157a6580060a16f",
+          "timestamp": "2026-06-10T21:11:27.818Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
