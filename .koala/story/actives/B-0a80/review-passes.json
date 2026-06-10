@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-10T00:28:46.818Z",
       "reviewRunId": "B-0a80:RR-008",
       "_hash": "c5b070286fce9066995de6b0903f63456f53f470b84101f6a29747f83b7b08b4"
+    },
+    {
+      "id": "B-0a80:RP-005",
+      "agent": "koala-review-docs",
+      "note": "Docs lane PASS: (1) All absolute .worktrees/B-688d paths replaced with repo-relative paths in data artifacts; residual paths only in historical review-prompt records (expected). (2) Terminal criteria failure wording normalized from generic 'baseline terminal criteria were not satisfied' to precise 'local independent review evidence is missing' consistently across JSON + MD. (3) SHA256 hashes in shared-contract.json mechanically verified against all 7 referenced artifact files — all match. (4) Authority/host-neutral invariants preserved: GO-NOT-YET, authorityMode=off, evidenceClass=local-lifecycle, receiptVerified=false, productionDone=false unchanged. (5) Timestamp ordering valid: baseline-suite-report 23:07:12 < shared-contract/final-report 00:23:11. (6) Related docs (authority-client-role.md, lattice-parallel-wave.md, Lattice-Parallel-Development-Capability.md) do not conflict with repair.",
+      "createdAt": "2026-06-10T00:32:33.936Z",
+      "reviewRound": "2026-06-10T00:28:46.818Z",
+      "reviewRunId": "B-0a80:RR-005",
+      "_hash": "94f6a16009929ebcbe5f20ce45fbaf94fd135b72d6b332b2d5a1cd3050a2d851"
     }
   ]
 }
