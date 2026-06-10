@@ -81,9 +81,9 @@
         "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
         "docs/requirements/decisions/authority-receipt-cross-repo-live-smoke.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-10T19:53:17.882Z",
       "verificationIntent": {
         "happy": [
           {
@@ -223,6 +223,16 @@
       "timestamp": "2026-06-10T19:53:17.523Z",
       "phase": "DEV",
       "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Formal staging smoke evidence recorded; readiness-blocked classification is complete.",
+      "agent": "codex-main"
+    },
+    {
+      "timestamp": "2026-06-10T19:53:17.882Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
       "action": "update",
       "from": "pending",
       "to": "done",
