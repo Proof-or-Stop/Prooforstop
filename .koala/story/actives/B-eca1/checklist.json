@@ -463,13 +463,13 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-006:adversarial:0",
-          "kind": "logic_test",
-          "command": "npm --prefix packages/main run test:authority-status-smoke; claude -p CHK-006 read-only status review",
+          "kind": "manual_transcript",
+          "command": "Claude CLI and Codex CLI targeted CHK-006 mixed-ref re-check",
           "result": "pass",
-          "note": "Local-test receipt refs and env-only readiness cannot set receiptVerified, receiptEligible, receiptConsumed, productionDone, or canClaimProductionDone; focused Claude CHK-006 review returned PASS_READY.",
-          "headHash": "331456fb720299d7a5d5e196f435bd563844881c",
+          "note": "Two-host targeted re-check after Codex found the mixed-ref status inconsistency: Claude artifact .omx/artifacts/claude-targeted-read-only-re-check-for-lattice-story-b-eca1-chk-006-2026-06-10T17-33-10-615Z.md returned PASS; Codex artifact .omx/artifacts/codex-b-eca1-chk006-mixed-ref-recheck-20260610T173151Z.md returned PASS. The fixed status path derives receiptVerified/receiptEligible/receiptConsumed from the eligible production gate_decision ref while productionDone/canClaimProductionDone remain false.",
+          "headHash": "00fcf73ba51a237e8d3390e12574a47034789cab",
           "materialHash": "5a05669361dca69bf06e808e9850f8bc928333cd250b9ed6754f2ea89f4fbf53",
-          "timestamp": "2026-06-10T17:32:32.230Z"
+          "timestamp": "2026-06-10T17:36:09.038Z"
         },
         {
           "intentRef": "CHK-006:happy:0",
