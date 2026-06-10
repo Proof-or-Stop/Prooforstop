@@ -8,9 +8,9 @@
         "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
         "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-10T22:36:51.579Z",
-      "endTime": null,
+      "endTime": "2026-06-10T22:48:29.165Z",
       "userSees": "Terminal output shows no .omx directory was created for this unlock run and all Layer 2 proof paths are under .lattice/artifacts/baseline/layer2-engineering-unlock.",
       "files": {
         "modify": [
@@ -47,7 +47,39 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Build and lattice baseline smoke passed after baseline default root changed to .lattice/artifacts/baseline.",
+          "headHash": "2a274a11cbda24e83a7f03d48ca89ad09ed595c4",
+          "materialHash": "e2f365069102eac0375fb8987ee24edcb76b12a3af5031eeb8f3d688cf4e4623",
+          "timestamp": "2026-06-10T22:48:29.227Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js baseline_suite_report --help",
+          "result": "pass",
+          "note": "CLI help reports .lattice/artifacts/baseline as the default baseline artifacts root.",
+          "headHash": "2a274a11cbda24e83a7f03d48ca89ad09ed595c4",
+          "materialHash": "e2f365069102eac0375fb8987ee24edcb76b12a3af5031eeb8f3d688cf4e4623",
+          "timestamp": "2026-06-10T22:48:29.277Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "test ! -d .omx && rg -n \"\\.omx.*artifacts.*baseline|default \\.omx|canonical \\.omx\" packages/main/src/core/lattice-baseline.ts packages/main/src/cli-engine.ts packages/main/src/core/command-policy.ts packages/main/src/core/process-fact-levels.ts docs/requirements/decisions/unlock-layer2-ENG-suite.md",
+          "result": "pass",
+          "note": "No .omx directory exists in the worktree and formal baseline default/root wording no longer points at .omx.",
+          "headHash": "2a274a11cbda24e83a7f03d48ca89ad09ed595c4",
+          "materialHash": "e2f365069102eac0375fb8987ee24edcb76b12a3af5031eeb8f3d688cf4e4623",
+          "timestamp": "2026-06-10T22:48:29.327Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
