@@ -221,7 +221,37 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees Engineering suite report PASS only from fresh formal reports; otherwise it reports BLOCKED with reasons.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-baseline.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lattice-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Engineering suite report accepts all required fresh formal reports and emits suiteStatus=PASS, authorization=authorized, capabilityProof=true, localOnly=false.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Malformed, stale, mixed-schema, missing lower-layer, or local-only reports keep the suite BLOCKED.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Inconsistent report outcomes cannot be aggregated into a PASS suite.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-007",
