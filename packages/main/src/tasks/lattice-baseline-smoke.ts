@@ -331,7 +331,7 @@ function findFiles(root: string, fileName: string): string[] {
 }
 
 function readFinalReport(root: string, layer: string, baselineId: string): JsonObject {
-  const layerRoot = join(root, '.omx', 'artifacts', 'baseline', layer);
+  const layerRoot = join(root, '.lattice', 'artifacts', 'baseline', layer);
   const candidates = findFiles(layerRoot, 'final-report.json')
     .filter(path => path.split('/').includes(baselineId));
   assert.ok(
@@ -373,7 +373,7 @@ function isMaterialExcludedPath(path: string): boolean {
   return normalized.startsWith('docs/story/')
     || normalized.startsWith('.koala/story/')
     || normalized.startsWith('docs/koala/framework-audit/')
-    || normalized.startsWith('.omx/');
+    || normalized.startsWith('.lattice/artifacts/baseline/');
 }
 
 function materialHash(root: string): string {
@@ -474,7 +474,7 @@ function finalReportSeed(
       verificationEvidenceFresh: true,
     },
     artifacts: {
-      directory: `.omx/artifacts/baseline/${layer}/${baselineId}/${runId}`,
+      directory: `.lattice/artifacts/baseline/${layer}/${baselineId}/${runId}`,
       files: ['final-report.json', ...FORMAL_PROOF_FILES],
     },
     ...patch,
@@ -551,7 +551,7 @@ function engineeringExpectedBlockReport(root: string, baselineId: string): JsonO
     localOnly: false,
     capabilityProof: true,
     artifacts: {
-      directory: `.omx/artifacts/baseline/engineering/${baselineId}/${runId}`,
+      directory: `.lattice/artifacts/baseline/engineering/${baselineId}/${runId}`,
       files: ['final-report.json', ...FORMAL_PROOF_FILES],
     },
   });
@@ -577,7 +577,7 @@ function riskyEngineeringPassReport(
     localOnly: false,
     capabilityProof: true,
     artifacts: {
-      directory: `.omx/artifacts/baseline/engineering/${baselineId}/${runId}`,
+      directory: `.lattice/artifacts/baseline/engineering/${baselineId}/${runId}`,
       files: ['final-report.json', ...FORMAL_PROOF_FILES, ...gateFiles],
     },
   });
@@ -595,7 +595,7 @@ function writeEngineeringProofReports(root: string, overrides: Record<string, Js
 }
 
 function writeFinalReport(root: string, layer: string, baselineId: string, runId: string, content: string | JsonObject): void {
-  const runDir = join(root, '.omx', 'artifacts', 'baseline', layer, baselineId, runId);
+  const runDir = join(root, '.lattice', 'artifacts', 'baseline', layer, baselineId, runId);
   mkdirSync(runDir, { recursive: true });
   if (typeof content !== 'string' && content.artifacts && typeof content.artifacts === 'object' && !Array.isArray(content.artifacts)) {
     const files = (content.artifacts as JsonObject).files;
@@ -613,7 +613,7 @@ function writeFinalReport(root: string, layer: string, baselineId: string, runId
 }
 
 function writeSuiteReport(root: string, layer: string, patch: JsonObject = {}): void {
-  const layerRoot = join(root, '.omx', 'artifacts', 'baseline', layer);
+  const layerRoot = join(root, '.lattice', 'artifacts', 'baseline', layer);
   mkdirSync(layerRoot, { recursive: true });
   writeFileSync(join(layerRoot, 'baseline-suite-report.json'), JSON.stringify({
     schemaVersion: 'lattice.baseline_suite_report.v1',
@@ -972,7 +972,7 @@ for (const defect of [
     label: 'artifact-directory-mismatch',
     mutate(report: JsonObject): void {
       report.artifacts = {
-        directory: '.omx/artifacts/baseline/engineering/ENG-BUGFIX-1/not-this-run',
+        directory: '.lattice/artifacts/baseline/engineering/ENG-BUGFIX-1/not-this-run',
         files: ['final-report.json', 'gate-review-approved.json', 'gate-rollback-reviewed.json'],
       };
     },
