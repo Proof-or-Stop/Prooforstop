@@ -1,0 +1,56 @@
+{
+  "storyId": "B-ce79",
+  "changes": "Implemented formal Layer 2 Engineering unlock path: formal evaluator rebuilds Engineering suite from final-report evidence, validates host-bound Claude/Codex review artifacts, binds receipt evidence digest, rejects forged suite summaries, and keeps Authority/production/full-unattended claims false.",
+  "usage": "Run npm --prefix packages/main run build, npm --prefix packages/main run test:lattice-baseline-smoke, then lattice baseline_suite_report --layer=engineering and lattice capability_claim_formal_evaluate --target=engineering --format=json against formal artifacts.",
+  "expectedOutcome": "Formal Engineering proof unlocks only the Layer 2 Engineering claim when all formal final reports and bindings are valid; forged, stale, local-only, missing or mismatched evidence remains locked or blocked.",
+  "actualTranscript": "build PASS; lattice-baseline-smoke PASS; process-fact-contract PASS; command-ownership-contract PASS; reviewer-readonly-command-policy-smoke PASS; lifecycle-registry-contract PASS; lattice validate --story=B-ce79 --json allPass=true with 24/24 verification intents covered; Claude concept PASS; Codex quality PASS; Claude test-coverage PASS; delivery reviewer PASS.",
+  "outcomeDiff": "No difference observed: actual behavior matches expected Layer 2-only unlock and higher-layer/Authority lock boundaries.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Layer 2 Engineering Baseline claim can be formally unlocked; Loop Engineering, Production Safety, Capability Claim, Authority receipt verification, production DONE and full unattended authority remain intentionally locked until their own baselines pass.",
+  "pitfalls": "Initial implementation trusted suite summaries and prefix-only review refs; REVIEW caught both high issues. Fix was limited to real correctness issues: revalidate from final-report artifacts and require host-bound review JSON plus evidence digest receipts.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 219855
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 127494
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 403789
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 2015130
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 728350
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 192485
+    }
+  },
+  "totalDurationMs": 3687103,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-10T21:44:44.440Z",
+  "updatedAt": "2026-06-10T21:44:44.440Z"
+}

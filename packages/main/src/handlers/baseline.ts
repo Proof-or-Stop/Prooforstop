@@ -44,6 +44,16 @@ export function createBaselineHandlers(ctx: HandlerContext) {
       baselineId: BaselineId | string;
       runId?: string;
       artifactsRoot?: string;
+      formal?: boolean;
+      suiteRunId?: string;
+      claimTarget?: string;
+      outcome?: 'PASS' | 'FAIL' | 'EXPECTED_BLOCK' | 'ESCALATED';
+      verifiedAt?: string;
+      verificationEvidenceRefs?: string[] | string;
+      reviewEvidenceRefs?: string[] | string;
+      lifecycleGateEvidenceRefs?: string[] | string;
+      gateEvidenceRefs?: string[] | string;
+      receiptRefs?: string[] | string;
       authorityMode?: BaselineAuthorityMode;
       expectedOutcome?: BaselineExpectedOutcome;
       outputRoot?: string;
@@ -74,6 +84,16 @@ export function createBaselineHandlers(ctx: HandlerContext) {
           runId: args.runId,
           artifactsRoot: args.artifactsRoot,
           format: args.format,
+          formal: args.formal,
+          suiteRunId: args.suiteRunId,
+          claimTarget: args.claimTarget,
+          outcome: args.outcome,
+          verifiedAt: args.verifiedAt,
+          verificationEvidenceRefs: args.verificationEvidenceRefs,
+          reviewEvidenceRefs: args.reviewEvidenceRefs,
+          lifecycleGateEvidenceRefs: args.lifecycleGateEvidenceRefs,
+          gateEvidenceRefs: args.gateEvidenceRefs,
+          receiptRefs: args.receiptRefs,
         });
         return wantsJson(args) ? legacy : renderLegacyBaselineRunText(legacy);
       }

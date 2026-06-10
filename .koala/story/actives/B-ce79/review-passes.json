@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-ce79:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Claude concept review PASS: formal Layer 2 proof preserves host-neutral design, CLI non-authority boundary, higher layers locked, and logical consistency; no blocking correctness issues.",
+      "createdAt": "2026-06-10T21:40:43.354Z",
+      "reviewRound": "2026-06-10T21:37:05.131Z",
+      "reviewRunId": "B-ce79:RR-003",
+      "_hash": "27cb67022d8e38cf3b82e3cf7d2939a4f0f85f58cead0ae132e1ac321dcb662b"
+    },
+    {
+      "id": "B-ce79:RP-002",
+      "agent": "koala-review-quality",
+      "note": "Codex quality review PASS: F-001 and F-002 are fixed; forged or duplicated host artifacts fail closed and formal evaluator rebuilds Engineering suite from final-report evidence before unlock.",
+      "createdAt": "2026-06-10T21:40:49.553Z",
+      "reviewRound": "2026-06-10T21:37:05.131Z",
+      "reviewRunId": "B-ce79:RR-004",
+      "_hash": "8f2810b00cfa47ebf2823aeab7b2fa9f1aecc1ad1e942f9c3b289ef59de079a0"
+    },
+    {
+      "id": "B-ce79:RP-003",
+      "agent": "koala-review-test-coverage",
+      "note": "Claude test-coverage review PASS: smoke coverage includes forged suite summary, wrong host JSON, same artifact reuse, missing host refs, missing lifecycle ref, missing evidence digest, and authority false assertions.",
+      "createdAt": "2026-06-10T21:40:54.668Z",
+      "reviewRound": "2026-06-10T21:37:05.131Z",
+      "reviewRunId": "B-ce79:RR-002",
+      "_hash": "544a6c479d055e1192746a425fb601d4103e427498a4415890209d2c6e14527a"
+    }
+  ]
+}

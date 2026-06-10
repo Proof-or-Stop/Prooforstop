@@ -1,0 +1,78 @@
+{
+  "principles": [
+    "Only formal, fresh, gate-consumed evidence can unlock Layer 2.",
+    "Diagnostic/local reports must remain non-authoritative.",
+    "Layer 2 evidence must not imply Loop, Production, or global claim unlock.",
+    "Implementation must fit existing baseline and Authority boundaries without a parallel framework."
+  ],
+  "drivers": [
+    "The user wants Layer 2 formally unlocked only after all gate/proof/suite/claim checks pass.",
+    "Existing code already contains baseline definitions and fail-closed suite logic, so the real gap is formal proof production and consumption.",
+    "Authority receipt binding is required to prevent local text or stale artifacts from becoming capability proof.",
+    "Higher-layer claims must remain locked to avoid false capability claims."
+  ],
+  "options": [
+    {
+      "name": "A: Extend existing baseline suite with formal Layer 2 proof consumption",
+      "pros": [
+        "Uses current ENG baseline registry, suite report, and claim evaluator concepts.",
+        "Keeps implementation narrow around real correctness gaps.",
+        "Maintains fail-closed behavior for diagnostic artifacts and higher layers."
+      ],
+      "cons": [
+        "Requires careful tests around receipt binding, lower-layer proof, and stale materialHash.",
+        "May need small command-policy/process-fact updates so formal and diagnostic surfaces are not confused."
+      ]
+    },
+    {
+      "name": "B: Create a separate Layer 2 unlock framework",
+      "pros": [
+        "Could isolate formal unlock behavior from existing diagnostic commands.",
+        "Might be easier to explain as a new command surface."
+      ],
+      "cons": [
+        "Adds parallel schema and gate concepts without proving existing ones insufficient.",
+        "Higher risk of inconsistency with current baseline_suite_report and capability_claim_evaluate behavior."
+      ]
+    },
+    {
+      "name": "C: Treat current diagnostic baseline reports as sufficient",
+      "pros": [
+        "Fastest path with least code."
+      ],
+      "cons": [
+        "Incorrect: current reports are localOnly=true and capabilityProof=false.",
+        "Violates the decision document and creates a false capability claim."
+      ]
+    }
+  ],
+  "chosen": "A: Extend existing baseline suite with formal Layer 2 proof consumption",
+  "rationale": "Option A fixes the actual correctness gap while preserving the existing architecture. It lets diagnostic commands remain diagnostic, requires fresh formal proof before PASS, and keeps higher-layer claims locked. Option B adds avoidable framework surface, and Option C would be a false unlock.",
+  "preMortem": [
+    {
+      "scenario": "Diagnostic artifacts are accidentally accepted as formal Engineering proof.",
+      "trigger": "Suite aggregation checks only outcome=PASS and ignores localOnly/capabilityProof.",
+      "consequence": "Layer 2 appears unlocked without Authority-backed proof.",
+      "mitigation": "Add or preserve tests that reject localOnly=true, capabilityProof=false, and stale materialHash artifacts."
+    },
+    {
+      "scenario": "Authority receipt does not bind the actual baseline or claim target.",
+      "trigger": "Receipt ref is verified generally but baselineId, suiteRunId, claimTarget, or materialHash are not checked.",
+      "consequence": "A valid receipt from another run can unlock the wrong claim.",
+      "mitigation": "Require canonical binding fields in formal reports and fail closed on missing or mismatched binding."
+    },
+    {
+      "scenario": "Layer 2 unlock leaks into Loop Engineering or Production Safety claims.",
+      "trigger": "Claim evaluator maps Engineering PASS to broader authorizedClaimLevel.",
+      "consequence": "The system overclaims unattended or production-grade capability.",
+      "mitigation": "Test higher-layer requests remain not_authorized unless their own lower-layer and safety proofs exist."
+    },
+    {
+      "scenario": "Implementation creates a new unlock path that lifecycle gates do not consume.",
+      "trigger": "Formal reports are written but not read by suite/claim/gate logic.",
+      "consequence": "The story reports success but no actual gate can enforce it.",
+      "mitigation": "Require tests that the formal suite report and claim evaluator consume the produced artifacts and reject malformed/stale variants."
+    }
+  ],
+  "timestamp": "2026-06-10T20:50:24.941Z"
+}

@@ -73,6 +73,18 @@ const PASS_ENGINEERING_BASELINE_IDS = [
   'ENG-LONG-RUN-1',
   'ENG-LOOP-REVIEW-1',
 ] as const;
+const ALL_ENGINEERING_BASELINE_IDS = [
+  ...PASS_ENGINEERING_BASELINE_IDS,
+  ...RISKY_ENGINEERING_BASELINE_IDS,
+] as const;
+const FORMAL_SUITE_RUN_ID = 'layer2-engineering-suite-smoke';
+const FORMAL_CLAIM_TARGET = 'engineering';
+const FORMAL_PROOF_FILES = [
+  'verification-evidence.json',
+  'review-claude.json',
+  'review-codex.json',
+  'lifecycle-gate.json',
+] as const;
 
 const EMPTY_AUTHORITY_ENV: Record<string, string | undefined> = {
   KOALA_AUTHORITY_MODE: 'off',
@@ -264,6 +276,27 @@ function assertClaimId(value: unknown, expected: string, label: string): void {
   );
 }
 
+function assertLocalOnly(value: unknown, expected: boolean, label: string): void {
+  const values = collectValuesForKeys(value, ['localOnly']);
+  assert.ok(values.length > 0, `${label} should include localOnly`);
+  assert.ok(values.every(found => found === expected), `${label} should keep localOnly=${expected}; saw ${JSON.stringify(values)}`);
+}
+
+function assertLayer2Claim(value: unknown, expected: string, label: string): void {
+  const values = collectValuesForKeys(value, ['layer2EngineeringClaim']);
+  assert.ok(
+    values.includes(expected),
+    `${label} should include layer2EngineeringClaim=${expected}; saw ${JSON.stringify(values)}`,
+  );
+}
+
+function assertHigherClaimsLocked(value: unknown, label: string): void {
+  for (const key of ['loopEngineeringClaim', 'productionSafetyClaim', 'globalCapabilityClaim']) {
+    const values = collectValuesForKeys(value, [key]);
+    assert.ok(values.includes('LOCKED'), `${label} should include ${key}=LOCKED; saw ${JSON.stringify(values)}`);
+  }
+}
+
 function assertSuiteAccepted(value: JsonObject, label: string): void {
   const suiteStatuses = collectValuesForKeys(value, ['suiteStatus']);
   assert.ok(!suiteStatuses.includes('BLOCKED'), `${label} should not produce BLOCKED suiteStatus; saw ${JSON.stringify(suiteStatuses)}`);
@@ -411,6 +444,17 @@ function finalReportSeed(
     status: 'pass',
     capabilityProof: true,
     localOnly: false,
+    formalProof: true,
+    suiteRunId: FORMAL_SUITE_RUN_ID,
+    claimTarget: FORMAL_CLAIM_TARGET,
+    verifiedAt: new Date().toISOString(),
+    verificationEvidenceRefs: [gateArtifactRef(baselineId, 'verification-evidence.json', root)],
+    reviewEvidenceRefs: [
+      `review:claude:${gateArtifactRef(baselineId, 'review-claude.json', root)}`,
+      `review:codex:${gateArtifactRef(baselineId, 'review-codex.json', root)}`,
+    ],
+    lifecycleGateEvidenceRefs: [gateArtifactRef(baselineId, 'lifecycle-gate.json', root)],
+    receiptRefs: [formalReceiptRef(root, baselineId)],
     blockedReasons: [],
     generatedAt: '2026-06-10T00:00:00.000Z',
     headHash: currentGitHead(root) ?? 'unavailable',
@@ -431,19 +475,65 @@ function finalReportSeed(
     },
     artifacts: {
       directory: `.omx/artifacts/baseline/${layer}/${baselineId}/${runId}`,
-      files: ['final-report.json'],
+      files: ['final-report.json', ...FORMAL_PROOF_FILES],
     },
     ...patch,
   };
 }
 
-function gateArtifactContent(baselineId: string, fileName: string): string {
+function reviewArtifactContent(root: string, baselineId: string, host: 'claude' | 'codex'): string {
+  return `${JSON.stringify({
+    baselineId,
+    suiteRunId: FORMAL_SUITE_RUN_ID,
+    claimTarget: FORMAL_CLAIM_TARGET,
+    headHash: currentGitHead(root) ?? 'unavailable',
+    materialHash: materialHash(root),
+    host,
+    source: host,
+    verdict: 'pass',
+    generatedBy: 'lattice-baseline-smoke',
+  }, null, 2)}\n`;
+}
+
+function gateArtifactContent(baselineId: string, fileName: string, root?: string): string {
+  if (fileName === 'review-claude.json') {
+    assert.ok(root, 'review-claude.json content requires root');
+    return reviewArtifactContent(root, baselineId, 'claude');
+  }
+  if (fileName === 'review-codex.json') {
+    assert.ok(root, 'review-codex.json content requires root');
+    return reviewArtifactContent(root, baselineId, 'codex');
+  }
   return `${JSON.stringify({ baselineId, fileName, gate: true, generatedBy: 'lattice-baseline-smoke' }, null, 2)}\n`;
 }
 
-function gateArtifactRef(baselineId: string, fileName: string): string {
-  const digest = createHash('sha256').update(gateArtifactContent(baselineId, fileName)).digest('hex');
+function gateArtifactRef(baselineId: string, fileName: string, root?: string): string {
+  const digest = createHash('sha256').update(gateArtifactContent(baselineId, fileName, root)).digest('hex');
   return `artifact:${fileName}#sha256=${digest}`;
+}
+
+function formalReceiptRef(root: string, baselineId: string, gateEvidenceRefs: readonly string[] = []): string {
+  const evidenceDigest = createHash('sha256')
+    .update([
+      baselineId,
+      FORMAL_SUITE_RUN_ID,
+      FORMAL_CLAIM_TARGET,
+      gateArtifactRef(baselineId, 'verification-evidence.json', root),
+      `review:claude:${gateArtifactRef(baselineId, 'review-claude.json', root)}`,
+      `review:codex:${gateArtifactRef(baselineId, 'review-codex.json', root)}`,
+      gateArtifactRef(baselineId, 'lifecycle-gate.json', root),
+      ...gateEvidenceRefs,
+    ].join('\n'))
+    .digest('hex');
+  return [
+    'receipt:',
+    `baselineId=${baselineId}`,
+    `suiteRunId=${FORMAL_SUITE_RUN_ID}`,
+    `claimTarget=${FORMAL_CLAIM_TARGET}`,
+    `headHash=${currentGitHead(root) ?? 'unavailable'}`,
+    `materialHash=${materialHash(root)}`,
+    `evidenceDigest=${evidenceDigest}`,
+  ].join(';');
 }
 
 function engineeringExpectedBlockReport(root: string, baselineId: string): JsonObject {
@@ -457,11 +547,12 @@ function engineeringExpectedBlockReport(root: string, baselineId: string): JsonO
     blockedReasons: [],
     expectedBlockReasons: [`${baselineId} is intentionally refused by the smoke authority boundary.`],
     refusalEvidenceRefs: [`refusal:${baselineId}:authority-boundary`],
+    receiptRefs: [formalReceiptRef(root, baselineId)],
     localOnly: false,
     capabilityProof: true,
     artifacts: {
       directory: `.omx/artifacts/baseline/engineering/${baselineId}/${runId}`,
-      files: ['final-report.json'],
+      files: ['final-report.json', ...FORMAL_PROOF_FILES],
     },
   });
 }
@@ -473,6 +564,7 @@ function riskyEngineeringPassReport(
 ): JsonObject {
   const runId = `${baselineId.toLowerCase()}-gated-pass`;
   const gateFiles = ['gate-review-approved.json', 'gate-rollback-reviewed.json'];
+  const refs = gateEvidenceRefs ?? [];
   return finalReportSeed(root, 'engineering', baselineId, {
     runId,
     expectedOutcome: 'PASS',
@@ -480,12 +572,13 @@ function riskyEngineeringPassReport(
     outcome: 'PASS',
     status: 'pass',
     gateEvidenceRefs,
+    receiptRefs: [formalReceiptRef(root, baselineId, refs)],
     blockedReasons: [],
     localOnly: false,
     capabilityProof: true,
     artifacts: {
       directory: `.omx/artifacts/baseline/engineering/${baselineId}/${runId}`,
-      files: ['final-report.json', ...gateFiles],
+      files: ['final-report.json', ...FORMAL_PROOF_FILES, ...gateFiles],
     },
   });
 }
@@ -509,7 +602,7 @@ function writeFinalReport(root: string, layer: string, baselineId: string, runId
     if (Array.isArray(files)) {
       for (const file of files) {
         if (typeof file !== 'string' || file === 'final-report.json' || file === 'final-report.md') continue;
-        writeFileSync(join(runDir, file), gateArtifactContent(baselineId, file));
+        writeFileSync(join(runDir, file), gateArtifactContent(baselineId, file, typeof content === 'string' ? undefined : root));
       }
     }
   }
@@ -580,6 +673,7 @@ function assertHelpListsCommand(help: CliResult, command: string): void {
     'baseline_suite',
     'baseline_suite_report',
     'capability_claim_evaluate',
+    'capability_claim_formal_evaluate',
   ]) {
     assertHelpListsCommand(help, command);
     assertCommandHelp(command);
@@ -726,7 +820,37 @@ function assertHelpListsCommand(help: CliResult, command: string): void {
   }
 }
 
-// 9. Engineering EXPECTED_BLOCK reports are accepted only with refusal proof.
+// 9. Missing lower-layer Development proof blocks Engineering suite aggregation.
+{
+  const root = initRepo('missing-development-proof');
+  try {
+    writeEngineeringProofReports(root);
+
+    const result = runCli(root, ['baseline_suite_report', '--layer=engineering', '--format=json']);
+    assertFailsClosed(result, 'missing Development lower-layer proof');
+    assert.match(result.combined, /development|lower-layer|missing/i, 'suite report should reject missing Development proof');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// 10. Stale lower-layer Development proof blocks Engineering suite aggregation.
+{
+  const root = initRepo('stale-development-proof');
+  try {
+    writeSuiteReport(root, 'development');
+    commitTrackedChange(root, 'packages/main/src/index.ts', 'export const smoke = "changed-after-development-proof";\n', 'change material after development proof');
+    writeEngineeringProofReports(root);
+
+    const result = runCli(root, ['baseline_suite_report', '--layer=engineering', '--format=json']);
+    assertFailsClosed(result, 'stale Development lower-layer proof');
+    assert.match(result.combined, /development|stale|materialHash/i, 'suite report should reject stale Development proof');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// 11. Engineering EXPECTED_BLOCK reports are accepted only with refusal proof.
 {
   const root = initRepo('engineering-expected-block');
   try {
@@ -739,12 +863,14 @@ function assertHelpListsCommand(help: CliResult, command: string): void {
     const output = requireJsonObject(result, 'engineering expected-block suite report');
     assertSuiteAccepted(output, 'engineering expected-block suite report');
     assertNoSuiteBlockedReasons(output, 'engineering expected-block suite report');
+    assert.equal(output.formalProof, true, 'engineering expected-block suite report should be formal');
+    assert.equal((output.coveredBaselineIds as unknown[]).length, 9, 'engineering expected-block suite report should cover all nine baselines');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
 }
 
-// 10. Engineering EXPECTED_BLOCK reports missing refusal proof are blocked.
+// 12. Engineering EXPECTED_BLOCK reports missing refusal proof are blocked.
 for (const defect of [
   {
     label: 'missing-expected-block-reasons',
@@ -778,7 +904,7 @@ for (const defect of [
   }
 }
 
-// 11. Risky Engineering PASS reports are accepted only with gate evidence.
+// 13. Risky Engineering PASS reports are accepted only with gate evidence.
 {
   const root = initRepo('engineering-risky-pass-gated');
   try {
@@ -797,12 +923,13 @@ for (const defect of [
     const output = requireJsonObject(result, 'risky engineering gated PASS suite report');
     assertSuiteAccepted(output, 'risky engineering gated PASS suite report');
     assertNoSuiteBlockedReasons(output, 'risky engineering gated PASS suite report');
+    assert.equal(output.formalProof, true, 'risky engineering gated PASS suite report should be formal');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
 }
 
-// 12. Risky Engineering PASS reports missing real gate evidence are blocked.
+// 14. Risky Engineering PASS reports missing real gate evidence are blocked.
 for (const baselineId of RISKY_ENGINEERING_BASELINE_IDS) {
   for (const defect of [
     { label: 'missing-gate-evidence', gateEvidenceRefs: undefined },
@@ -825,7 +952,7 @@ for (const baselineId of RISKY_ENGINEERING_BASELINE_IDS) {
   }
 }
 
-// 13. Malformed risky Engineering PASS reports stay blocked.
+// 15. Malformed risky Engineering PASS reports stay blocked.
 for (const defect of [
   {
     label: 'mismatched-expected-outcomes',
@@ -871,7 +998,117 @@ for (const defect of [
   }
 }
 
-// 14. Stale lower-layer suite proof blocks capability claims.
+// 16. Formal Engineering reports lacking required bindings or refs are blocked.
+for (const defect of [
+  {
+    label: 'missing-verification-evidence-refs',
+    mutate(report: JsonObject, _root: string): void {
+      delete report.verificationEvidenceRefs;
+    },
+    pattern: /verificationEvidenceRefs/i,
+  },
+  {
+    label: 'missing-codex-review-ref',
+    mutate(report: JsonObject, root: string): void {
+      report.reviewEvidenceRefs = [`review:claude:${gateArtifactRef('ENG-BUGFIX-1', 'review-claude.json', root)}`];
+    },
+    pattern: /Codex reviewEvidenceRefs|reviewEvidenceRefs/i,
+  },
+  {
+    label: 'missing-claude-review-ref',
+    mutate(report: JsonObject, root: string): void {
+      report.reviewEvidenceRefs = [`review:codex:${gateArtifactRef('ENG-BUGFIX-1', 'review-codex.json', root)}`];
+    },
+    pattern: /Claude reviewEvidenceRefs|reviewEvidenceRefs/i,
+  },
+  {
+    label: 'wrong-review-host-json',
+    mutate(report: JsonObject, root: string): void {
+      report.reviewEvidenceRefs = [
+        `review:claude:${gateArtifactRef('ENG-BUGFIX-1', 'review-codex.json', root)}`,
+        `review:codex:${gateArtifactRef('ENG-BUGFIX-1', 'review-claude.json', root)}`,
+      ];
+    },
+    pattern: /host|source|reviewEvidenceRefs/i,
+  },
+  {
+    label: 'same-review-artifact-file',
+    mutate(report: JsonObject, root: string): void {
+      report.reviewEvidenceRefs = [
+        `review:claude:${gateArtifactRef('ENG-BUGFIX-1', 'review-claude.json', root)}`,
+        `review:codex:${gateArtifactRef('ENG-BUGFIX-1', 'review-claude.json', root)}`,
+      ];
+    },
+    pattern: /distinct|reused|same|review artifact/i,
+  },
+  {
+    label: 'missing-lifecycle-gate-ref',
+    mutate(report: JsonObject, _root: string): void {
+      delete report.lifecycleGateEvidenceRefs;
+    },
+    pattern: /lifecycleGateEvidenceRefs|lifecycle/i,
+  },
+  {
+    label: 'missing-receipt-suite-binding',
+    mutate(report: JsonObject, root: string): void {
+      report.receiptRefs = [
+        `receipt:baselineId=ENG-BUGFIX-1;claimTarget=${FORMAL_CLAIM_TARGET};headHash=${currentGitHead(root)!};materialHash=${materialHash(root)}`,
+      ];
+    },
+    pattern: /suiteRunId|receiptRef/i,
+  },
+  {
+    label: 'missing-receipt-evidence-digest-binding',
+    mutate(report: JsonObject, root: string): void {
+      report.receiptRefs = [
+        `receipt:baselineId=ENG-BUGFIX-1;suiteRunId=${FORMAL_SUITE_RUN_ID};claimTarget=${FORMAL_CLAIM_TARGET};headHash=${currentGitHead(root)!};materialHash=${materialHash(root)}`,
+      ];
+    },
+    pattern: /evidenceDigest|receiptRef/i,
+  },
+  {
+    label: 'stale-verified-at',
+    mutate(report: JsonObject, _root: string): void {
+      report.verifiedAt = '2020-01-01T00:00:00.000Z';
+    },
+    pattern: /verifiedAt|stale/i,
+  },
+] as const) {
+  const rootForDefect = initRepo(`engineering-formal-binding-${defect.label}`);
+  try {
+    writeSuiteReport(rootForDefect, 'development');
+    const report = finalReportSeed(rootForDefect, 'engineering', 'ENG-BUGFIX-1');
+    defect.mutate(report, rootForDefect);
+    writeEngineeringProofReports(rootForDefect, { 'ENG-BUGFIX-1': report });
+
+    const result = runCli(rootForDefect, ['baseline_suite_report', '--layer=engineering', '--format=json']);
+    assertFailsClosed(result, `formal Engineering ${defect.label}`);
+    assert.match(result.combined, defect.pattern, `formal rejection should name ${defect.label}`);
+  } finally {
+    rmSync(rootForDefect, { recursive: true, force: true });
+  }
+}
+
+// 17. Formal baseline_run cannot mint formal proof without required inputs.
+{
+  const root = initRepo('formal-run-missing-inputs');
+  try {
+    const result = runCli(root, [
+      'baseline_run',
+      '--baselineId=ENG-BUGFIX-1',
+      '--formal=true',
+      `--suiteRunId=${FORMAL_SUITE_RUN_ID}`,
+      `--claimTarget=${FORMAL_CLAIM_TARGET}`,
+      '--format=json',
+    ]);
+    assertFailsClosed(result, 'formal baseline_run missing proof refs');
+    assert.match(result.combined, /verificationEvidenceRefs|formal baseline proof requires/i, 'formal baseline_run should require proof refs');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// 18. Stale lower-layer suite proof blocks capability claims.
 {
   const root = initRepo('stale-lower-suite');
   try {
@@ -888,7 +1125,7 @@ for (const defect of [
   }
 }
 
-// 15. Fresh authorized lower-layer suite proof can authorize Engineering claims.
+// 19. Fresh authorized lower-layer suite proof can authorize diagnostic Engineering claims only locally.
 {
   const root = initRepo('claim-engineering-authorized');
   try {
@@ -901,6 +1138,7 @@ for (const defect of [
     assertOutcome(output, 'PASS', 'fresh engineering claim proof');
     assertClaimLevel(output, 'engineering', 'fresh engineering claim proof');
     assertClaimId(output, 'CLAIM-ENGINEERING-DEV', 'fresh engineering claim proof');
+    assertLocalOnly(output, true, 'fresh engineering diagnostic claim proof');
     assertNoAuthorityOverclaim(output, 'fresh engineering claim proof');
     assertRequiredFalseField(output, 'receiptVerified', 'fresh engineering claim proof');
     assertRequiredFalseField(output, 'productionDone', 'fresh engineering claim proof');
@@ -909,7 +1147,96 @@ for (const defect of [
   }
 }
 
-// 16. Inconsistent PASS suite proof cannot authorize Engineering claims.
+// 20. Diagnostic suite proof cannot unlock the formal Layer 2 claim.
+{
+  const root = initRepo('formal-claim-rejects-diagnostic-suite');
+  try {
+    writeSuiteReport(root, 'development');
+    writeSuiteReport(root, 'engineering');
+
+    const result = runCli(root, ['capability_claim_formal_evaluate', '--target=engineering', '--format=json']);
+    const output = requireJsonObject(result, 'formal claim rejects diagnostic suite');
+    assertAuthorizedFalse(output, 'formal claim rejects diagnostic suite');
+    assertLayer2Claim(output, 'LOCKED', 'formal claim rejects diagnostic suite');
+    assertHigherClaimsLocked(output, 'formal claim rejects diagnostic suite');
+    assertMentions(output, /formalProof|diagnostic/i, 'formal claim should reject diagnostic suite proof');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// 21. A forged Engineering suite summary cannot unlock without final-report proof.
+{
+  const root = initRepo('formal-claim-rejects-forged-suite');
+  try {
+    writeSuiteReport(root, 'development');
+    writeSuiteReport(root, 'engineering', {
+      suiteStatus: 'PASS',
+      authorization: 'authorized',
+      outcome: 'PASS',
+      capabilityProof: true,
+      localOnly: false,
+      formalProof: true,
+      engineeringBaseline: 'PASS',
+      suiteRunId: FORMAL_SUITE_RUN_ID,
+      claimTarget: FORMAL_CLAIM_TARGET,
+      requiredBaselineIds: [...ALL_ENGINEERING_BASELINE_IDS],
+      coveredBaselineIds: [...ALL_ENGINEERING_BASELINE_IDS],
+      missingBaselineIds: [],
+    });
+
+    const result = runCli(root, ['capability_claim_formal_evaluate', '--target=engineering', '--format=json']);
+    const output = requireJsonObject(result, 'formal claim rejects forged suite summary');
+    assertAuthorizedFalse(output, 'formal claim rejects forged suite summary');
+    assertLayer2Claim(output, 'LOCKED', 'formal claim rejects forged suite summary');
+    assertMentions(output, /rebuilt|final-report|missing baseline|accepted final-report/i, 'formal claim should revalidate final-report artifacts');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// 22. Formal Engineering suite proof unlocks only the Layer 2 Engineering claim.
+{
+  const root = initRepo('formal-claim-engineering-unlocked');
+  try {
+    writeSuiteReport(root, 'development');
+    writeEngineeringProofReports(root);
+    const suiteResult = runCli(root, ['baseline_suite_report', '--layer=engineering', '--format=json']);
+    const suite = requireJsonObject(suiteResult, 'formal engineering suite proof');
+    assertSuiteAccepted(suite, 'formal engineering suite proof');
+    assert.equal(suite.formalProof, true, 'formal engineering suite proof should be formal');
+
+    const engineering = requireJsonObject(
+      runCli(root, ['capability_claim_formal_evaluate', '--target=engineering', '--format=json']),
+      'formal engineering claim',
+    );
+    assertAuthorizedTrue(engineering, 'formal engineering claim');
+    assertOutcome(engineering, 'PASS', 'formal engineering claim');
+    assertClaimLevel(engineering, 'engineering', 'formal engineering claim');
+    assertLayer2Claim(engineering, 'UNLOCKED', 'formal engineering claim');
+    assertHigherClaimsLocked(engineering, 'formal engineering claim');
+    assertLocalOnly(engineering, false, 'formal engineering claim');
+    assertNoAuthorityOverclaim(engineering, 'formal engineering claim');
+    for (const key of ['authorityChanged', 'receiptVerified', 'productionDone', 'fullAuthorityDone']) {
+      assertRequiredFalseField(engineering, key, 'formal engineering claim');
+    }
+
+    for (const target of ['loop-engineering', 'production-safety']) {
+      const higher = requireJsonObject(
+        runCli(root, ['capability_claim_formal_evaluate', `--target=${target}`, '--format=json']),
+        `formal ${target} claim`,
+      );
+      assertAuthorizedFalse(higher, `formal ${target} claim`);
+      assertLayer2Claim(higher, 'LOCKED', `formal ${target} claim`);
+      assertHigherClaimsLocked(higher, `formal ${target} claim`);
+      assertMentions(higher, /higher layers remain locked|only the Engineering claim/i, `formal ${target} claim`);
+    }
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// 23. Inconsistent PASS suite proof cannot authorize Engineering claims.
 {
   const root = initRepo('claim-engineering-incoherent-suite');
   try {
@@ -936,7 +1263,7 @@ for (const defect of [
   }
 }
 
-// 17. capability_claim_evaluate blocks production-safety with missing lower layers.
+// 23. capability_claim_evaluate blocks production-safety with missing lower layers.
 {
   const root = initRepo('claim-missing-layers');
   try {
@@ -954,7 +1281,7 @@ for (const defect of [
   }
 }
 
-// 18. Parallel implementation artifacts do not unlock parallel proof.
+// 24. Parallel implementation artifacts do not unlock parallel proof.
 {
   const root = initRepo('parallel-implementation');
   try {

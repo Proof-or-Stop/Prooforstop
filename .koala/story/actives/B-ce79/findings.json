@@ -1,0 +1,41 @@
+{
+  "findings": [
+    {
+      "id": "B-ce79:F-001",
+      "desc": "formal review host independence is enforced only by review:claude: and review:codex: string prefixes plus artifact digest existence. This can accept forged or duplicated local artifacts as independent host verdicts. Minimal fix: validate distinct review artifacts whose JSON content declares host/source identity, pass verdict, baselineId, suiteRunId, claimTarget, headHash, and materialHash matching the formal proof; add wrong-host/same-file tests.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-10T21:20:31.644Z",
+      "reviewRound": "2026-06-10T21:13:06.272Z",
+      "reviewRunId": "B-ce79:RR-001",
+      "_hash": "71330191ada24cd1516698d37d050ef79ac4c2a03d15ec36d7d97dd6636d58ad",
+      "files": [
+        "packages/main/src/core/lattice-baseline.ts",
+        "packages/main/src/tasks/lattice-baseline-smoke.ts"
+      ],
+      "resolvedReason": "Fixed in c032c70e: formal review refs now require digest-verified artifact files, distinct Claude/Codex artifacts, JSON host/source/verdict fields, and baselineId/suiteRunId/claimTarget/headHash/materialHash bindings. Verified by npm --prefix packages/main run test:lattice-baseline-smoke and two-host REVIEW PASS.",
+      "resolvedAt": "2026-06-10T21:41:01.460Z"
+    },
+    {
+      "id": "B-ce79:F-002",
+      "desc": "capability_claim_formal_evaluate trusts existing baseline-suite-report.json top-level formal fields without rebuilding or revalidating underlying Engineering final reports, evidence refs, artifact digests, and receipt bindings. A hand-authored current-hash suite report can unlock Layer 2 without real final-report evidence. Minimal fix: formal evaluator must rebuild or revalidate Engineering suite from actual final-report artifacts before authorizing, with forged-suite regression coverage.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-10T21:20:31.644Z",
+      "reviewRound": "2026-06-10T21:13:06.272Z",
+      "reviewRunId": "B-ce79:RR-001",
+      "_hash": "ecf9a9dc3e31f50d480283cc8491b7793123d8d11d1021ca28f31488ca7768dc",
+      "files": [
+        "packages/main/src/core/lattice-baseline.ts"
+      ],
+      "resolvedReason": "Fixed in c032c70e: capability_claim_formal_evaluate rebuilds the Engineering suite from final-report artifacts and compares stored suite fields/bindings to rebuilt evidence before unlock; forged PASS suite summary without final reports remains LOCKED. Verified by lattice-baseline smoke forged-suite test and two-host REVIEW PASS.",
+      "resolvedAt": "2026-06-10T21:41:10.298Z"
+    }
+  ]
+}
