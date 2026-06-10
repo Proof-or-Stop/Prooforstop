@@ -156,9 +156,9 @@
         "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
         "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-10T21:11:11.611Z",
       "userSees": "User sees formal Engineering final reports marked capabilityProof=true and localOnly=false only after proof validation succeeds.",
       "files": {
         "modify": [
@@ -190,7 +190,39 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke verifies baseline_run --formal is a separate proof-producing path and formal reports aggregate only after proof refs validate.",
+          "headHash": "3b48075647ee6d065b44732271b909b19fa0de3a",
+          "materialHash": "d8d294973c48a678542a01d83dc723637bf22cb41a96dc6e6157a6580060a16f",
+          "timestamp": "2026-06-10T21:11:11.634Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke verifies diagnostic baseline_run still emits localOnly=true/capabilityProof=false and cannot authorize Engineering suite PASS.",
+          "headHash": "3b48075647ee6d065b44732271b909b19fa0de3a",
+          "materialHash": "d8d294973c48a678542a01d83dc723637bf22cb41a96dc6e6157a6580060a16f",
+          "timestamp": "2026-06-10T21:11:11.656Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke formal-run-missing-inputs rejects attempts to set formal proof without verification, review, lifecycle gate, and receipt refs.",
+          "headHash": "3b48075647ee6d065b44732271b909b19fa0de3a",
+          "materialHash": "d8d294973c48a678542a01d83dc723637bf22cb41a96dc6e6157a6580060a16f",
+          "timestamp": "2026-06-10T21:11:11.678Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
