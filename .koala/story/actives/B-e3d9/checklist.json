@@ -23,6 +23,29 @@
         "test": [
           "packages/main/src/tasks/authority-client-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Verify a production receipt whose serverKey.algorithm is ed25519 and whose signature/public key are otherwise valid -> verification succeeds exactly as before; WHY: proves the new guard does not regress the supported algorithm path.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Verify a production receipt whose serverKey.algorithm is missing or uses case/format variants such as ED25519 or ed-25519 -> verification fails closed with an explicit unsupported-algorithm reason instead of silently normalizing; WHY: enforces a single consistent algorithm contract.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Verify a production receipt whose signature payload is otherwise valid but serverKey.algorithm is an unsupported value such as rsa or secp256k1 -> verification must reject before any success path and must not accept the receipt due to incidental crypto compatibility; WHY: prevents arbitrary algorithm expansion and proves fail-closed correctness.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
