@@ -1,0 +1,20 @@
+{
+  "findings": [
+    {
+      "id": "B-92e2:F-001",
+      "desc": "packages/main/src/tasks/lattice-baseline-smoke.ts claims stale-artifact coverage but never seeds a stale final-report or stale lower-layer suite report. The only negative suite case at lines 443-469 covers malformed JSON, mixed-schema, and authority-overclaim; the claim cases at lines 471-513 cover missing lower layers and sequential unlock only. CHK-001/002/003/005/006 verificationEvidence says smoke verified stale rejection, but this required fail-closed path is untested and the recorded evidence overstates coverage.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-10T02:18:37.791Z",
+      "reviewRound": "2026-06-10T02:16:02.008Z",
+      "reviewRunId": "B-92e2:RR-002",
+      "_hash": "b09dae0ff7f1477a96f8eeb945c3c6c34a268396aab88281276a9911e9b59339",
+      "files": [
+        "packages/main/src/tasks/lattice-baseline-smoke.ts"
+      ]
+    }
+  ]
+}
