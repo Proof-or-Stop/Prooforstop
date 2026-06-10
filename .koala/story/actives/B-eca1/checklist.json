@@ -9,9 +9,9 @@
         "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
         "docs/requirements/decisions/lattice-authority-receipt-contract.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-10T16:19:31.539Z",
-      "endTime": null,
+      "endTime": "2026-06-10T16:33:40.700Z",
       "userSees": "Running lattice authority receipt verify on a valid proof prints: Receipt verification: PASS receiptVerified=true classification=production-gate-decision receiptId=<id> decisionDigest=<sha256>.",
       "files": {
         "modify": [
@@ -48,7 +48,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/authority-receipt-proof-smoke.js",
+          "result": "pass",
+          "note": "Valid gate_decision proof verifies with hex public key/signature only when caller supplies a pinned production authority key digest; result classifies production-gate-decision and exposes receiptId/inputDigest/decisionDigest.",
+          "headHash": "85df6172f12ed56541cedff61fc2346908aa9930",
+          "materialHash": "a8871bd51ba85119a6273a1b4546756e6d57bb7126e9d5b2e784c9699050f499",
+          "timestamp": "2026-06-10T16:33:40.740Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/authority-receipt-proof-smoke.js",
+          "result": "pass",
+          "note": "Cryptographically valid local/default/test receipt remains server-receipt-local-test and productionReady=false.",
+          "headHash": "85df6172f12ed56541cedff61fc2346908aa9930",
+          "materialHash": "a8871bd51ba85119a6273a1b4546756e6d57bb7126e9d5b2e784c9699050f499",
+          "timestamp": "2026-06-10T16:33:40.773Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/authority-receipt-proof-smoke.js && npm --prefix packages/main run test:authority-receipt-classification && npm --prefix packages/main run test:authority-runner-contracts && npm --prefix packages/main run test:authority-client && git diff --check -- packages/main/src/core/authority-client.ts packages/main/src/core/authority-gate-receipt-verifier.ts packages/main/src/tasks/authority-receipt-proof-smoke.ts",
+          "result": "pass",
+          "note": "Smoke asserts untrusted production-looking key, corrupt signature, input digest mismatch, decision digest mismatch, story/phase/head/material mismatch, and server-relative proof fetch guard; existing Authority receipt and client contracts still pass.",
+          "headHash": "85df6172f12ed56541cedff61fc2346908aa9930",
+          "materialHash": "a8871bd51ba85119a6273a1b4546756e6d57bb7126e9d5b2e784c9699050f499",
+          "timestamp": "2026-06-10T16:33:40.804Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
