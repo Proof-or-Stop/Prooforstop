@@ -417,9 +417,9 @@
         "Lattice-Production-Safety-baseline.md",
         "Lattice-Capability-Claim-baseline.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-10T02:15:19.382Z",
       "userSees": "`npm test`, local baseline command smoke tests, and claim-gate tests pass; generated reports show implementation may proceed in parallel while proof unlock remains sequential.",
       "files": {
         "modify": [
@@ -455,7 +455,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build; npm --prefix packages/main run test:lattice-baseline-smoke; npm test",
+          "result": "pass",
+          "note": "Build, B-92e2 baseline smoke, and root npm test all passed after implementation.",
+          "headHash": "2bf87b9bdb1fb433473f412fa53825542068a461",
+          "materialHash": "ecfbe252e6f34e4d0e38ec214fad1ad721ef323e1602d2167f6d45c7d337d4a5",
+          "timestamp": "2026-06-10T02:15:19.406Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js baseline_suite_report --layer=engineering --format=json",
+          "result": "pass",
+          "note": "Suite report demonstrates high-layer artifacts can exist while suite remains BLOCKED/not_authorized until lower-layer proof and required baselines exist.",
+          "headHash": "2bf87b9bdb1fb433473f412fa53825542068a461",
+          "materialHash": "ecfbe252e6f34e4d0e38ec214fad1ad721ef323e1602d2167f6d45c7d337d4a5",
+          "timestamp": "2026-06-10T02:15:19.428Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke; npm --prefix packages/main run test:command-ownership-contract",
+          "result": "pass",
+          "note": "Smoke and command ownership contract verify parallel implementation does not imply parallel proof, schema/authority drift fails closed, and commands are wired through local CLI/policy/process fact surfaces.",
+          "headHash": "2bf87b9bdb1fb433473f412fa53825542068a461",
+          "materialHash": "ecfbe252e6f34e4d0e38ec214fad1ad721ef323e1602d2167f6d45c7d337d4a5",
+          "timestamp": "2026-06-10T02:15:19.450Z"
+        }
+      ]
     }
   ]
 }
