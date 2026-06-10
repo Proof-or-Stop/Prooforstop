@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-92e2:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "Re-reviewed F-001 resolution on head 6d1fcae6. packages/main/src/tasks/lattice-baseline-smoke.ts now exercises stale final-report rejection, stale lower-layer suite proof refusal, invalid final-report status refusal, local stub cannot authorize engineering suite PASS, and fresh authorized lower-layer suite proof authorizing engineering claims. Seed helpers now use production schema ids with underscores (final_report / baseline_suite_report), preventing schema-mismatch false positives. Verified with npm run build, npm --prefix packages/main run test:lattice-baseline-smoke, npm test, and lattice validate --story=B-92e2 (allPass=true; validate fallback consumed fresh verificationEvidence). No high/critical coverage correctness blocker found.",
+      "createdAt": "2026-06-10T02:41:19.200Z",
+      "reviewRound": "2026-06-10T02:38:25.968Z",
+      "reviewRunId": "B-92e2:RR-005",
+      "_hash": "75703ef2a70bd2b015346f3965bbc64bf2e80e226022ea6eed418e391a15aea4"
+    }
+  ]
+}
