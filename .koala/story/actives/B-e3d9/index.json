@@ -1,0 +1,54 @@
+{
+  "storyId": "B-e3d9",
+  "name": "close-gap-analyze-six-high-20260610",
+  "title": "Close the six high-priority gap_analyze uncovered requirements",
+  "description": "Converge the current lattice gap_analyze output from six high uncovered_requirement gaps to zero high gaps without overstating B-ce79 or Layer 2 unlock semantics. The story must distinguish real correctness gaps from annotation/linkage gaps and preserve host-neutral Lattice evidence semantics.",
+  "type": "bug",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "keywords": [
+    "gap_analyze",
+    "uncovered_requirement",
+    "authority_receipt",
+    "worktreePolicy",
+    "plannerPolicy",
+    "dryRun",
+    "host-neutral"
+  ],
+  "riskSignals": [
+    {
+      "category": "Validation Framework",
+      "matched": "lattice validate"
+    },
+    {
+      "category": "Production/Emergency",
+      "matched": "production"
+    }
+  ],
+  "createdAt": "2026-06-10T22:28:48.264Z",
+  "startedAt": "2026-06-10T22:28:48.264Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-10T22:28:48.298Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-10T22:30:46.757Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-e3d9",
+    "branch": "story/B-e3d9",
+    "createdAt": "2026-06-10T22:31:28.729Z"
+  }
+}
