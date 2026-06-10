@@ -110,7 +110,19 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees lattice gap_analyze report Gaps: 0 high / 0 medium and the story summary explains that host reviews are advisory while Lattice tests/evidence are authoritative.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "lattice gap_analyze",
+          "lattice validate --story=B-e3d9",
+          "npm --prefix packages/main run test:authority-client-smoke",
+          "npm --prefix packages/main run test:worktree-policy-smoke",
+          "npm --prefix packages/main run test:planner-unattended-smoke"
+        ]
+      }
     }
   ]
 }
