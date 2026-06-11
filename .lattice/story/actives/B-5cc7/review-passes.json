@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-5cc7:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS test coverage: verified all 9 verificationIntent refs have concrete evidence. Reran npm --prefix packages/main run build && node packages/main/dist/tasks/dev-memory-legacy-read-smoke.js; smoke covers legacy .koala read fallback for project/global, deterministic .lattice-wins dedupe, .lattice write path only, and non-authoritative gateEvidence=false/authority=non_authoritative. Also verified git status has no .lattice/dev-memory/experience.jsonl restore, stash@{0}=c4dcc3aff95fd999712d7f19dcf856f791cf0d05, stash^3 data file remains inspectable, and final diff excludes data-file/.gitignore/runtime registry/planner/NAV/Layer4 paths.",
+      "createdAt": "2026-06-11T23:07:21.132Z",
+      "reviewRound": "2026-06-11T23:04:58.263Z",
+      "reviewRunId": "B-5cc7:RR-003",
+      "_hash": "128d0c3f68fbeaf021af533afeaad4839d7a3cc2b220f93d50765759f451a3f7"
+    }
+  ]
+}
