@@ -17,7 +17,7 @@ This repository currently has 17 root-level Markdown files.
 | File | Current role | Classification | Target home | Next action |
 |---|---|---|---|---|
 | `AGENTS.md` | Agent-facing root instruction entrypoint | Stay root | Root | Keep as a host-neutral entrypoint for Codex, Claude Code, and human operators. Update in place when project workflow changes. |
-| `CLAUDE.md` | Claude-facing root instruction entrypoint | Stay root | Root | Keep as a host-neutral entrypoint. Update in place when project workflow changes. |
+| `CLAUDE.md` | Claude-facing root instruction entrypoint | Stay root host-specific compatibility asset | Root | Keep as a Claude Code-specific root entrypoint and compatibility asset by filename contract. Update in place when project workflow changes. |
 | `README.md` | Human-facing repository entrypoint | Stay root | Root | Keep as the first landing page for the repo. |
 | `CHANGELOG.md` | Human release history | Stay root compatibility asset | Root | Keep while release history is still consumed from the repository root. |
 | `KOALA.md` | Legacy Koala-named guide / compatibility asset | Stay root compatibility asset | Root until compatibility retirement | Keep only as long as legacy path compatibility is still required. Prefer canonical replacements elsewhere for new content. |
@@ -42,7 +42,7 @@ Only root files that satisfy one of these conditions should remain at the reposi
 2. They are a compatibility asset whose filename is still part of an established contract.
 3. They are a release-history or bootstrap artifact that existing tooling already treats as root-owned.
 
-In practice, that means `AGENTS.md`, `CLAUDE.md`, and `README.md` stay root by default for Codex, Claude Code, and human entry. `CHANGELOG.md` and `KOALA.md` may stay root while compatibility needs remain real. Anything else should be treated as a migration candidate, not a new permanent root doc.
+In practice, that means `AGENTS.md` and `README.md` stay root by default for host-neutral agent and human entry, while `CLAUDE.md` stays root as a Claude Code-specific filename-contract entrypoint and compatibility asset. `CHANGELOG.md` and `KOALA.md` may stay root while compatibility needs remain real. Anything else should be treated as a migration candidate, not a new permanent root doc.
 
 ## Migration Order
 
@@ -57,11 +57,8 @@ Use a staged order so references stay valid throughout the cutover:
 Recommended file order:
 
 1. `koala-project-overview.md`
-2. `jek.md`
-3. The `Lattice-*.md` files, in dependency order from broad policy to narrower execution notes:
+2. The `Lattice-*.md` files with classified target homes, in dependency order from broad policy to narrower execution notes:
    - `Lattice-baseline.md`
-   - `Lattice-Capability-Claim-baseline.md`
-   - `Lattice-Production-Safety-baseline.md`
    - `Lattice-Engineering-baseline.md`
    - `Lattice-Loop-Engineering-baseline.md`
    - `Lattice-Parallel-Development-Capability.md`
@@ -71,6 +68,12 @@ Recommended file order:
    - `Lattice-lifecycle-memory-Evolving.md`
 
 That order keeps the most reusable policy text available while the more specific operational notes are rewritten or archived.
+
+Pending classification, excluded from the executable migration order:
+
+- `jek.md`
+- `Lattice-Capability-Claim-baseline.md`
+- `Lattice-Production-Safety-baseline.md`
 
 ## Compatibility And Redirect Strategy
 
@@ -95,10 +98,10 @@ If the old path is only a filename contract and the canonical doc is already in 
 
 ## NAV Update Requirement
 
-`docs/requirements/NAV.md` should be updated alongside each decision-guide change:
+`docs/requirements/NAV.md` should be kept in sync alongside decision-guide changes:
 
 - update the file count to match the decisions list;
-- add a link to `decisions/root-document-migration-guide.md` under the decisions list for this story.
+- add, move, or remove decision links when decision guides are added, moved, or retired.
 
 ## Scope Boundary Audit
 
