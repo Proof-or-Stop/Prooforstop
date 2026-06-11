@@ -923,7 +923,7 @@ export function buildLocalStore(ctx: LiveContext): { root: string; store: StoryS
     outDir: 'dist',
     testsDir: 'tests',
     fixturesDir: 'tests/fixtures',
-    storyDir: '.koala/story/actives',
+    storyDir: '.lattice/story/actives',
     requirementsDir: 'docs/requirements',
     storyPrefix: 'B',
   }, null, 2) + '\n', 'utf8');

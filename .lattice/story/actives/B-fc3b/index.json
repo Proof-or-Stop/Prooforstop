@@ -1,0 +1,150 @@
+{
+  "storyId": "B-fc3b",
+  "name": "status-phase-ordinal-transition-health",
+  "title": "Koala status 增加 phase 编号与 transition health 检查",
+  "description": "用户建议给 Koala 的每个状态配置稳定编号，并在 status 中展示当前状态序号；如果状态跳转顺序不符合预期，就能及时发现异常。设计上不能只用数字 +1 判断，因为 Koala 支持合法回退；本 story 先实现 phase ordinal 展示和基于合法 transition graph 的 health 检查，不引入 event sequence 持久化。",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "high",
+  "keywords": [
+    "status",
+    "phase-ordinal",
+    "transition-health",
+    "state-machine",
+    "gate"
+  ],
+  "createdAt": "2026-04-19T19:31:28.340Z",
+  "startedAt": "2026-04-19T19:31:28.340Z",
+  "endedAt": "2026-04-19T19:49:32.521Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-04-19T19:31:28.343Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-19T19:31:50.456Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-04-19T19:32:06.639Z",
+      "branch": "story/B-fc3b",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-19T19:34:35.174Z",
+      "branch": "story/B-fc3b",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-19T19:39:19.819Z",
+      "branch": "story/B-fc3b",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-19T19:41:35.347Z",
+      "branch": "story/B-fc3b",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-19T19:42:18.254Z",
+      "branch": "story/B-fc3b",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-19T19:43:05.719Z",
+      "branch": "story/B-fc3b",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-19T19:45:11.806Z",
+      "branch": "story/B-fc3b",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-19T19:45:11.958Z",
+      "branch": "story/B-fc3b",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-19T19:46:31.755Z",
+      "branch": "story/B-fc3b",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-19T19:47:05.598Z",
+      "branch": "story/B-fc3b",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-19T19:47:05.876Z",
+      "branch": "story/B-fc3b",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-19T19:47:06.023Z",
+      "branch": "story/B-fc3b",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-19T19:49:32.521Z",
+      "branch": "story/B-fc3b",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "lane": "mainline",
+  "parallelSafe": "plan_only",
+  "sharedHotspots": [
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/phase-flow.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/handlers/summary.ts",
+    "docs/requirements/decisions/story-lifecycle.md"
+  ]
+}

@@ -11,7 +11,7 @@
  *  3. stale-reclaim — a held lock older than the stale threshold is reclaimed.
  *  4. concurrency mutual exclusion — of two acquirers, exactly one succeeds and
  *     the other is rejected while the first holds the lock.
- *  5. canonical path — the lock resolves to `.koala/locks/main-write.lock/`.
+ *  5. canonical path — the lock resolves to `.lattice/locks/main-write.lock/`.
  *  6. empty mainRepoRoot is rejected (runtime re-validation).
  *
  * Timing is driven via mtime backdating so the test stays fast and
@@ -40,9 +40,9 @@ try {
   {
     const lockPath = mainWriteLockPath(root);
     assert.equal(lockPath, join(root, MAIN_WRITE_LOCK_REL),
-      'mainWriteLockPath resolves to <root>/.koala/locks/main-write.lock');
-    assert.equal(MAIN_WRITE_LOCK_REL, '.koala/locks/main-write.lock',
-      'canonical lock path is .koala/locks/main-write.lock');
+      'mainWriteLockPath resolves to <root>/.lattice/locks/main-write.lock');
+    assert.equal(MAIN_WRITE_LOCK_REL, '.lattice/locks/main-write.lock',
+      'canonical lock path is .lattice/locks/main-write.lock');
   }
 
   // ── 1. acquire / release ─────────────────────────────────────────────────

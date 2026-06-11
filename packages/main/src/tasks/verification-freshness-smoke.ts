@@ -118,7 +118,7 @@ function mkdtempRoot(): string {
 }
 
 const metadataOnly = [
-  '.koala/story/actives/B-smoke/checklist.json',
+  '.lattice/story/actives/B-smoke/checklist.json',
   'docs/story/actives/B-smoke/findings.json',
   'Docs/story/actives/B-smoke/checklist.json',
   'Docs/story/actives/B-smoke/process-events.jsonl',
@@ -127,7 +127,7 @@ const metadataOnly = [
 ];
 
 const runtimeMetadata = [
-  '.koala/activity.jsonl',
+  '.lattice/activity.jsonl',
   'docs/story/activity.jsonl',
 ];
 
@@ -169,7 +169,7 @@ for (const path of material) {
     commit(root, 'base');
     const materialHash = currentMaterialHash(root);
     assert.ok(materialHash, 'material hash should be available in git repo');
-    write(root, '.koala/story/actives/B-smoke/summary.json', '{}\n');
+    write(root, '.lattice/story/actives/B-smoke/summary.json', '{}\n');
     commit(root, 'metadata only');
     assert.equal(
       checkEvidenceFreshnessForGit(root, 'missing-head-for-rebase-like-case', materialHash).fresh,
@@ -350,7 +350,7 @@ function assertChecklistUpdateEvidenceGetsMaterialHash(): void {
     write(root, 'koala.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.koala/story/actives',
+      storyDir: '.lattice/story/actives',
       requirementsDir: 'docs/requirements',
     }, null, 2));
     write(root, 'packages/main/src/base.ts', 'export const base = true;\n');
@@ -422,7 +422,7 @@ function assertStaleEvidenceHintCrossSurface(): void {
     write(root, 'koala.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.koala/story/actives',
+      storyDir: '.lattice/story/actives',
       requirementsDir: 'docs/requirements',
     }, null, 2));
     write(root, 'packages/main/src/base.ts', 'export const base = true;\n');
@@ -622,7 +622,7 @@ async function assertRecoverEvidenceCommand(): Promise<void> {
       write(root, 'koala.config.json', JSON.stringify({
         scanRoot: 'packages/main',
         rootDir: 'src',
-        storyDir: '.koala/story/actives',
+        storyDir: '.lattice/story/actives',
         requirementsDir: 'docs/requirements',
       }, null, 2));
       write(root, 'packages/main/src/base.ts', 'export const base = true;\n');
@@ -813,7 +813,7 @@ async function assertSimulatedMainMergeRegression(): Promise<void> {
       rootDir: 'src',
       testsDir: 'packages/main/tests',
       fixturesDir: 'packages/main/tests/fixtures',
-      storyDir: '.koala/story/actives',
+      storyDir: '.lattice/story/actives',
       requirementsDir: 'docs/requirements',
       workflow: { profile: 'balanced' },
     }, null, 2));
@@ -1092,7 +1092,7 @@ async function assertSimulatedMainMergeRegression(): Promise<void> {
       rootDir: 'src',
       testsDir: 'packages/main/tests',
       fixturesDir: 'packages/main/tests/fixtures',
-      storyDir: '.koala/story/actives',
+      storyDir: '.lattice/story/actives',
       requirementsDir: 'docs/requirements',
       workflow: { profile: 'balanced' },
     }, null, 2));
@@ -1196,9 +1196,9 @@ await assertSimulatedMainMergeRegression();
 
 // ── B-edca: test-evidence.json is metadata-only; custom storyDir exclusion ──
 {
-  // (1) .koala/story/actives/B-smoke/test-evidence.json is metadata-only and
+  // (1) .lattice/story/actives/B-smoke/test-evidence.json is metadata-only and
   //     keeps material-hash evidence fresh.
-  const path1 = '.koala/story/actives/B-smoke/test-evidence.json';
+  const path1 = '.lattice/story/actives/B-smoke/test-evidence.json';
   assert.equal(isMaterialExcludedPath(path1), true, `${path1} should be metadata`);
   assert.equal(materialFreshAfterChanging(path1), true, `${path1} should keep material-hash evidence fresh`);
 

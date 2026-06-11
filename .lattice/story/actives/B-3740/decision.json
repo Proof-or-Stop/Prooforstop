@@ -1,0 +1,70 @@
+{
+  "principles": [
+    "Single source of truth: registry holds the phase/command/artifact facts; command-policy / DEFAULT_PHASE_TOOLS / process-fact lifecycle become consumers or are contract-checked against it",
+    "Additive and non-behavioral: this story adds projections and a contract test only — zero change to runtime behavior or derived values",
+    "Mechanical proof over convention: divergence between the registry and the three existing truth sources must fail a test, not rely on reviewer vigilance"
+  ],
+  "drivers": [
+    "Three independent truth sources (command-policy allowedPhases, DEFAULT_PHASE_TOOLS, process-fact lifecycle) can silently drift from the registry",
+    "Story 2/3/4 (DONE oracle extraction, orchestrator split, TEST semantics) need a trustworthy registry as their foundation",
+    "The B-8db9 combination-bypass class of bug is exactly what an unverified multi-source lifecycle invites"
+  ],
+  "options": [
+    {
+      "name": "A: Add commands+artifacts dimensions to registry as projections + a consistency contract test, keep existing sources as-is",
+      "pros": [
+        "Smallest blast radius — no consumer rewrite, command-policy/DEFAULT_PHASE_TOOLS keep working unchanged",
+        "Contract test catches drift mechanically without forcing a risky migration now",
+        "Foundation ready for Story 2/3/4 to consume",
+        "Zero public behavior change — purely additive"
+      ],
+      "cons": [
+        "command-policy and DEFAULT_PHASE_TOOLS remain physically separate files — registry is authoritative-by-contract not authoritative-by-derivation until a later story"
+      ]
+    },
+    {
+      "name": "B: Make command-policy and DEFAULT_PHASE_TOOLS derive FROM the registry now",
+      "pros": [
+        "True single derivation — no possibility of drift"
+      ],
+      "cons": [
+        "Large rewrite of command-policy.ts (85 entries) and config.ts in one story — high blast radius",
+        "Risk of changing public behavior (command legality) — violates the no-behavior-change constraint",
+        "Couples the foundation story to a risky migration better done incrementally"
+      ]
+    },
+    {
+      "name": "C: Only add a contract test, do not extend the registry",
+      "pros": [
+        "Minimal diff"
+      ],
+      "cons": [
+        "The registry still lacks command/artifact dimensions — the contract test would have nothing canonical to check against",
+        "Story 2/3/4 still have no registry command/artifact facts to consume — foundation incomplete"
+      ]
+    }
+  ],
+  "chosen": "A: Add commands+artifacts dimensions to registry as projections + a consistency contract test, keep existing sources as-is",
+  "rationale": "Choose A because it makes the registry the authoritative source-of-truth via a mechanical contract while keeping blast radius minimal — command-policy.ts and DEFAULT_PHASE_TOOLS keep working byte-identically, and the contract test fails loudly on any drift. Reject B because rewriting 85 command-policy entries plus config.ts to derive from the registry is a high-risk migration that risks changing command legality (public behavior) — that belongs in a later dedicated story, not the foundation step. Reject C because without the registry actually carrying the command/artifact dimensions there is nothing canonical for the contract test to validate against, and Story 2/3/4 would still lack registry facts to consume.",
+  "preMortem": [
+    {
+      "scenario": "The registry command dimension and DEFAULT_PHASE_TOOLS legitimately differ (e.g. the * wildcard bucket) and the contract test produces false-positive failures",
+      "trigger": "The contract test does an exact set-equality check without modeling the wildcard/global-command semantics",
+      "consequence": "Every build fails on a non-bug; maintainers disable or ignore the contract test",
+      "mitigation": "The contract test must model the same resolution semantics DEFAULT_PHASE_TOOLS uses (wildcard * bucket + per-phase additions). Test the resolved effective command set per phase, not the raw literal table. Smoke includes a case proving the * bucket commands are accepted in every phase."
+    },
+    {
+      "scenario": "Extending the registry changes a value derived by phase-flow.ts or context.ts, silently altering public behavior",
+      "trigger": "A new registry field is accidentally consumed by an existing projection helper",
+      "consequence": "phase ordinals or allowed-transition output changes — a no-behavior-change story breaks behavior",
+      "mitigation": "New dimensions are added as separate exported projections (e.g. lifecycleCommandsByPhase) not woven into existing transition objects consumed by phase-flow. Regression test snapshots phase-flow.ts getPhaseInfo / checkPhaseTransition output for all phases before and after, asserting byte-identical."
+    },
+    {
+      "scenario": "The artifacts dimension is modeled too vaguely to be checkable, so it becomes decorative",
+      "trigger": "artifacts is a free-text list with no link to the actual artifact files or the gates that consume them",
+      "consequence": "The artifacts dimension adds noise but no mechanical value; future stories cannot rely on it",
+      "mitigation": "Model artifacts as a typed enum of known artifact files (init-check.json / scope-check.json / delivery-check.json / test-evidence.json / summary.json / declared-artifacts.json / review-passes.json etc.) keyed to the phase/transition that writes them, and have the contract test assert every oracleRows/gate reference that names an artifact resolves to a declared artifact entry."
+    }
+  ],
+  "timestamp": "2026-05-15T22:56:40.312Z"
+}

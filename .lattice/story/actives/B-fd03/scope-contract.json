@@ -1,0 +1,55 @@
+{
+  "storyId": "B-fd03",
+  "mode": "enforce",
+  "allowedModify": [
+    "README.md",
+    "docs/guide.md",
+    "docs/requirements/decisions/project-vision.md",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/cli-prompts.ts",
+    "packages/main/src/core/lattice-brand.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/handlers/doctor.ts",
+    "packages/main/src/handlers/check.ts",
+    "packages/main/src/handlers/story-create.ts",
+    "packages/main/src/handlers/story-dispatch.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/tasks/rollout-check-smoke.ts",
+    "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+    "packages/main/src/tasks/session-brief-prompt-sync-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/rollout-check.ts",
+    "packages/main/src/handlers/rollout-check.ts",
+    ".koala/story/actives/B-fd03/evidence/rollout-transcript.md"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/rollout-check-smoke.ts",
+    "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+    "packages/main/src/tasks/session-brief-prompt-sync-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Implementation also updates session-brief prompt sync smoke because the canonical session brief footer now recommends lattice session_brief while koala remains only a legacy alias.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Review finding F-002 requires Lattice-first user-facing hints and session reminder wording across CLI and Claude adapter surfaces.",
+      "timestamp": "2026-06-02T15:52:09.962Z",
+      "paths": [
+        "packages/main/src/handlers/hints.ts",
+        ".claude/hooks/session-brief-reminder.cjs"
+      ]
+    }
+  ],
+  "createdAt": "2026-06-02T14:42:55.423Z",
+  "updatedAt": "2026-06-02T15:52:09.962Z"
+}

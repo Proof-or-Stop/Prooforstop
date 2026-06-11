@@ -1,0 +1,73 @@
+{
+  "principles": [
+    "修复框架行为，不把绕过步骤转嫁给用户或 AGENTS",
+    "只放宽只读恢复/诊断入口，不扩大 mutation 命令 phase 权限",
+    "REVIEW gate 以实际 opt-in reviewer 为真相源，保留 reviewer 记录和签名校验",
+    "全局 CLI link 修复必须发生在删除 worktree 前或立即可恢复"
+  ],
+  "drivers": [
+    "这些问题会影响后续所有 story，尤其跨语言验证和 medium no_test 修复",
+    "B-ef9c 已真实复现三个问题，有明确回归样本",
+    "现有代码已经部分有 opt-in reviewer helper，可收敛重复逻辑"
+  ],
+  "options": [
+    {
+      "name": "A: 在现有 gate/cleanup 路径修补一致性",
+      "pros": [
+        "改动范围小",
+        "保留现有流程语义",
+        "直接覆盖真实踩坑"
+      ],
+      "cons": [
+        "需要补 smoke 防止再次漂移"
+      ]
+    },
+    {
+      "name": "B: 只更新 AGENTS/文档提示用户手动绕过",
+      "pros": [
+        "代码改动少"
+      ],
+      "cons": [
+        "不能修复 command unavailable、硬编码 reviewer 数、断链这类实际故障"
+      ]
+    },
+    {
+      "name": "C: 重写 review/worktree 子系统",
+      "pros": [
+        "可以系统性整理历史债务"
+      ],
+      "cons": [
+        "改动面过大，不适合当前稳定性 hotfix story"
+      ]
+    }
+  ],
+  "chosen": "A: 在现有 gate/cleanup 路径修补一致性",
+  "rationale": "选择 A，因为三个问题都有清晰触点和可复现验收，局部修复能最快消除后续 story 的流程阻塞，同时不牺牲 reviewer gate 和 worktree 自动管理。",
+  "preMortem": [
+    {
+      "scenario": "session_brief 被全阶段放行时误放了 mutation 命令",
+      "trigger": "把 phase allowlist 整体绕过而非只增加只读命令",
+      "consequence": "PLAN/REVIEW 可能执行不该执行的 mutation 命令",
+      "mitigation": "只把 session_brief/status/doctor 等明确只读恢复命令加入全阶段白名单，并加负例确认 mutation 仍被挡"
+    },
+    {
+      "scenario": "REVIEW gate 改成 opt-in 后 reviewer 没跑也能进 TEST",
+      "trigger": "只检查 finding 数量，不检查 agent 与 opt-in reviewer 匹配及签名",
+      "consequence": "review discipline 变弱，漏掉关键 review",
+      "mitigation": "复用 guard-utils 的 opt-in matching 逻辑，要求每个 opt-in reviewer 都有当前 round 的签名 finding"
+    },
+    {
+      "scenario": "自动 relink 全局 koala 指到错误仓库",
+      "trigger": "无法可靠判断 main repo packages/main，或用户不是 npm link 安装",
+      "consequence": "破坏用户本地全局安装",
+      "mitigation": "仅当 symlink 明确指向即将删除的 worktree packages/main 时才自动 relink 到同一 repo 的 main packages/main；否则只提示"
+    },
+    {
+      "scenario": "smoke 测试依赖用户机器具体 nvm 路径导致 CI 不稳定",
+      "trigger": "测试硬编码 /Users/jek/.nvm 路径",
+      "consequence": "跨机器失败",
+      "mitigation": "测试用临时目录和可注入 env/path 模拟 symlink，不依赖真实全局 npm 目录"
+    }
+  ],
+  "timestamp": "2026-04-27T13:19:17.591Z"
+}

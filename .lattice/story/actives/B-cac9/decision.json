@@ -1,0 +1,71 @@
+{
+  "principles": [
+    "Use KOALA.md as the host-neutral workflow source and keep host files as adapter wrappers.",
+    "Make profile selection and asset emission a typed CLI policy, not scattered conditionals or prompt wording.",
+    "Preserve existing user-owned docs unless Koala markers make the managed section explicit.",
+    "Keep the old all-assets default temporarily for compatibility while making explicit profile use obvious."
+  ],
+  "drivers": [
+    "Avoid Claude/Codex asset drift in external projects.",
+    "Keep Codex adapter verification meaningful without failing profiles that intentionally skip Codex assets.",
+    "Protect current users who rely on default koala init creating both surfaces."
+  ],
+  "options": [
+    {
+      "name": "A: profile matrix with canonical KOALA.md",
+      "pros": [
+        "Hard-codes generation behavior per host.",
+        "Creates one neutral source for workflow facts.",
+        "Can be verified with deterministic contract tests."
+      ],
+      "cons": [
+        "Requires touching init, templates, and existing entrypoint tests together."
+      ]
+    },
+    {
+      "name": "B: prompt/docs-only guidance",
+      "pros": [
+        "Smallest code change.",
+        "No migration complexity."
+      ],
+      "cons": [
+        "Does not prevent wrong assets from being generated.",
+        "Allows AGENTS/CLAUDE/Codex docs to drift again."
+      ]
+    },
+    {
+      "name": "C: change default to auto-detected single host immediately",
+      "pros": [
+        "Cleanest first-run UX for new projects.",
+        "Removes most irrelevant files by default."
+      ],
+      "cons": [
+        "Breaks existing users who expect both adapter surfaces from plain koala init.",
+        "Environment detection is not reliable enough to be the only source of truth."
+      ]
+    }
+  ],
+  "chosen": "A: profile matrix with canonical KOALA.md",
+  "rationale": "Option A is the only path that turns host asset generation into a machine-verifiable contract while preserving current default behavior for existing projects.",
+  "preMortem": [
+    {
+      "scenario": "Default init unexpectedly stops generating one host surface for existing users.",
+      "trigger": "Plain koala init is changed to codex or claude instead of all.",
+      "consequence": "Existing workflows or tests that expect both AGENTS.md and CLAUDE.md lose an adapter.",
+      "mitigation": "Keep no-profile default as all for this story and print a compatibility fallback reason."
+    },
+    {
+      "scenario": "Codex verification fails on claude/core profile.",
+      "trigger": "--verify-codex always calls runCodexAdapterChecks even when .Codex assets are intentionally absent.",
+      "consequence": "A correct Claude-only or core init looks broken.",
+      "mitigation": "Gate Codex verification to codex/all profiles; explicit --verify-codex on claude/core prints a clear skip message."
+    },
+    {
+      "scenario": "User-owned adapter documentation is overwritten.",
+      "trigger": "init writes AGENTS.md, CLAUDE.md, or KOALA.md without checking koala markers.",
+      "consequence": "Project-specific agent instructions are lost or polluted.",
+      "mitigation": "Use managed-section sync only when markers exist; otherwise skip existing docs."
+    }
+  ],
+  "timestamp": "2026-05-13T00:31:23.805Z"
+}

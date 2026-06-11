@@ -1,0 +1,35 @@
+{
+  "storyId": "B-f556",
+  "checkedAt": "2026-06-11T11:28:17.557Z",
+  "reviewRound": "",
+  "agentId": "koala-review-story-init@fallback",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "koala-review-story-init@fallback",
+      "checkedAt": "2026-06-11T11:28:17.557Z",
+      "issues": []
+    },
+    {
+      "agentId": "product-reviewer@fallback",
+      "checkedAt": "2026-06-11T11:28:17.557Z",
+      "issues": []
+    }
+  ],
+  "fallback": {
+    "mode": "fallback",
+    "reason": "Subagents cannot be spawned in this turn because the user requested a documentation write, not multi-agent delegation; I manually verified the story scope is limited to adding unlock-layer4-production-safety-suite.md and registering it in NAV, with no code or capability unlock claim.",
+    "evidenceRefs": [
+      "docs/requirements/decisions/lattice-unattended-completion-plan.md",
+      "docs/requirements/decisions/authority-session-receipt-gate-execution.md",
+      "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+      "docs/requirements/NAV.md"
+    ],
+    "actor": "Harmonygo",
+    "session": "sess-607b0838f5d7881a",
+    "attestedAt": "2026-06-11T11:28:17.557Z",
+    "headHash": "0a8abed47e1da578d124b383f2e9b533c29ae23f",
+    "materialHash": "901da342ed55777e27ef994e86b8f163b814c13ada1727f4bdebb8b835279e72"
+  },
+  "_hash": "4bc0471d73f9d8bf15592eb60f4cb4cc47e2782258963c2683808ba715863b09"
+}

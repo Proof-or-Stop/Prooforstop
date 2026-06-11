@@ -1,0 +1,57 @@
+{
+  "principles": [
+    "先确认 no_test 指向的是当前保留能力，而不是废弃入口",
+    "优先补最小且真实的回归，不恢复旧命令",
+    "让 medium backlog 的减少和现有实现保持一致"
+  ],
+  "drivers": [
+    "减少 no_test backlog",
+    "避免把 cleanup-legacy 的决策推翻",
+    "让 flow 相关验证更可信"
+  ],
+  "options": [
+    {
+      "name": "A: 先定位这两条 @test 注释的真实归属，再补对应 fixture",
+      "pros": [
+        "不会误补到废弃命令上",
+        "fixture 与现有实现一致"
+      ],
+      "cons": [
+        "前期需要多一点阅读定位"
+      ]
+    },
+    {
+      "name": "B: 直接恢复旧 flow_trace/flow_list 命令并给它们补 fixture",
+      "pros": [
+        "表面上最快让 no_test 消失"
+      ],
+      "cons": [
+        "会推翻 cleanup-legacy 的方向",
+        "容易把已废弃接口重新带回来"
+      ]
+    }
+  ],
+  "chosen": "A: 先定位这两条 @test 注释的真实归属，再补对应 fixture",
+  "rationale": "当前已有 cleanup-legacy 明确断言 flow_trace/flow_list 命令应不存在，所以最稳的做法是先确认 no_test 对应的仍存实现，再补真正的回归入口。",
+  "preMortem": [
+    {
+      "scenario": "误把旧命令恢复回来",
+      "trigger": "只盯 gap_analyze 文案，不看 cleanup-legacy 决策",
+      "consequence": "为了补测试债反而引入产品回滚",
+      "mitigation": "先定位 @test 注释来源，确认当前保留能力后再补 fixture"
+    },
+    {
+      "scenario": "补了 fixture 但只是测字符串存在",
+      "trigger": "没有找到真实执行入口就写空壳 case",
+      "consequence": "medium backlog 数字下降但验证无效",
+      "mitigation": "要求 fixture 至少断言 flow 提取/校验的真实结构输出"
+    },
+    {
+      "scenario": "这两条 no_test 实际对应同一能力却拆成两套重复测试",
+      "trigger": "没搞清实现归属",
+      "consequence": "浪费回归成本",
+      "mitigation": "先完成来源定位，再决定是一组 fixture 还是一个脚本覆盖两条注释"
+    }
+  ],
+  "timestamp": "2026-04-15T13:22:31.143Z"
+}

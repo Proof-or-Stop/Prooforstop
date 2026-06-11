@@ -1,0 +1,67 @@
+{
+  "passes": [
+    {
+      "id": "B-e70f:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "Reviewed verificationIntent coverage against fresh evidence. Re-ran lattice smoke, build, lifecycle registry, command ownership, docs rg, scope contract check, and koala validate; all passed. Smoke task directly covers projections, CLI registration, no-overwrite behavior, authority boundaries, and bounded dev-memory refs.",
+      "createdAt": "2026-06-02T12:42:50.294Z",
+      "reviewRound": "2026-06-02T12:40:45.418Z",
+      "reviewRunId": "B-e70f:RR-002",
+      "_hash": "5c38615628399025095ffc478eae9dda329e6a6f588dfce1dc73a0beed09f88d"
+    },
+    {
+      "id": "B-e70f:RP-002",
+      "agent": "koala-review-concept",
+      "note": "Concept review: parallel_dispatch/status/merge_queue/report stay read-only L0 operator projections over existing Parallel Wave facts; authority remains productionDone=false/authorityChanged=false/receiptRefs=[] in docs, policy, process-fact registry, smoke, and live local CLI JSON output. Dev-memory integration reuses existing project/global JSONL via bounded non-authoritative experienceRefs with gateEvidence=false and authority=non_authoritative; no duplicate memory store or gate-evidence path added. Commands inspected: koala review_run_start, koala session_brief, koala aux_doc_list, koala reviewer_list, koala checklist_get, git diff main...HEAD, npm --prefix packages/main run test:lattice-parallel-wave-smoke, node packages/main/dist/cli.js parallel_dispatch/parallel_report/parallel_merge_queue. No blocking concept/product-fit finding.",
+      "createdAt": "2026-06-02T12:44:33.424Z",
+      "reviewRound": "2026-06-02T12:40:45.418Z",
+      "reviewRunId": "B-e70f:RR-004",
+      "_hash": "c6e7ce56099c12c34840dc66b751da3a81f316c43ea3de083bd91ec39b5fa57c"
+    },
+    {
+      "id": "B-e70f:RP-003",
+      "agent": "koala-review-quality",
+      "note": "Reviewed core projections, CLI registrations, smoke/build results, and authority/no-overwrite invariants. No blocking quality issues found on head a656b81; core worktree CLI surfaces and tests behave as expected.",
+      "createdAt": "2026-06-02T12:46:14.740Z",
+      "reviewRound": "2026-06-02T12:40:45.418Z",
+      "reviewRunId": "B-e70f:RR-003",
+      "_hash": "1ecd4f1fb76481b9c15150f921b2a48dd1a473c03a96448092a49b9dd818dcd3"
+    },
+    {
+      "id": "B-e70f:RP-004",
+      "agent": "koala-review-docs",
+      "note": "PASS: docs/requirements/decisions/lattice-parallel-wave.md:65-119 splits the base wave JSON contract from projection-specific contracts and explicitly states which parallel_* outputs omit storyRefs/hostCandidates/top-level evidenceRefs/mergeOrder; docs/requirements/decisions/dev-memory.md:7-17,25-31,50-51,84-109 define project/global dev-memory JSONL as advisory experience storage and keep it out of gate evidence via gateEvidence=false and authority=\"non_authoritative\".",
+      "createdAt": "2026-06-02T13:00:52.897Z",
+      "reviewRound": "2026-06-02T12:55:15.163Z",
+      "reviewRunId": "B-e70f:RR-010",
+      "_hash": "ddd1ed023e4f0465d23239de9c532841b92ab87f0437b5af488654e089a0222d"
+    },
+    {
+      "id": "B-e70f:RP-005",
+      "agent": "koala-review-test-coverage",
+      "note": "Fresh coverage verified: lattice-parallel-wave smoke passes and directly asserts all 5 checklist items, authority stays productionDone=false/authorityChanged=false/receiptRefs=[], dev-memory refs stay gateEvidence=false/non_authoritative, lifecycle and command-ownership contracts pass, docs grep confirms non-authoritative boundaries, and koala validate reports 15/15 required intents covered.",
+      "createdAt": "2026-06-02T13:00:55.162Z",
+      "reviewRound": "2026-06-02T12:55:15.163Z",
+      "reviewRunId": "B-e70f:RR-011",
+      "_hash": "acbb492f1ebd7d9de6ab2e40e0da3a2e9220e7f85b4de7aad1cc204140c6ed53"
+    },
+    {
+      "id": "B-e70f:RP-006",
+      "agent": "koala-review-quality",
+      "note": "Reviewed merge-base diff for core/handler/CLI/docs projection changes plus story metadata. npm --prefix packages/main run build and test:lattice-parallel-wave-smoke both pass, git diff --check is clean, and the new parallel_dispatch/status/merge_queue/report surfaces remain read-only L0 projections with productionDone=false, authorityChanged=false, and receiptRefs=[]; no unrelated source/docs edits found.",
+      "createdAt": "2026-06-02T13:01:52.445Z",
+      "reviewRound": "2026-06-02T12:55:15.163Z",
+      "reviewRunId": "B-e70f:RR-009",
+      "_hash": "42e0bde745a65f7d07e39babf4b3cee03b1c2c3088fbb18d0e2bf3deb5e0e99f"
+    },
+    {
+      "id": "B-e70f:RP-007",
+      "agent": "koala-review-concept",
+      "note": "Checked docs plus packages/main core/handler/CLI/smoke coverage and live branch output via node packages/main/dist/cli.js and node bin/koala.js: parallel_dispatch/status/merge_queue/report are read-only product surfaces, dispatch keeps spawned=false with explicit runner confirmation, report/dev-memory refs stay gateEvidence=false authority=non_authoritative, and every projection preserves productionDone=false authorityChanged=false receiptRefs=[] with no auto-spawn or authority-gate claims.",
+      "createdAt": "2026-06-02T13:02:05.187Z",
+      "reviewRound": "2026-06-02T12:55:15.163Z",
+      "reviewRunId": "B-e70f:RR-008",
+      "_hash": "87fd3c0ebe596fe7fccb8267cab12c3a016481293c81bee118865b5f5995d3ca"
+    }
+  ]
+}

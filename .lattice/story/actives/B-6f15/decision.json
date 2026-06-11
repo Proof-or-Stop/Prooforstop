@@ -1,0 +1,58 @@
+{
+  "principles": [
+    "Prefer metadata-only warning cleanup",
+    "Preserve existing handler behavior",
+    "Validate with the same command that reported the warnings"
+  ],
+  "drivers": [
+    "User explicitly asked to optimize the remaining cli-validate warnings",
+    "The warnings are isolated to two function-level annotations",
+    "Project convergence should remain true"
+  ],
+  "options": [
+    {
+      "name": "Add @test annotations to the two task headers",
+      "pros": [
+        "Directly addresses validator warnings",
+        "Minimal and behavior-preserving",
+        "Easy to verify"
+      ],
+      "cons": [
+        "Depends on choosing stable coverage labels"
+      ]
+    },
+    {
+      "name": "Relax cli-validate warning behavior",
+      "pros": [
+        "Would silence warnings globally"
+      ],
+      "cons": [
+        "Weakens annotation discipline",
+        "Touches validator logic unnecessarily"
+      ]
+    }
+  ],
+  "chosen": "Add @test annotations to the two task headers",
+  "rationale": "The warnings are caused by missing metadata, so adding @test lines is the smallest correct fix.",
+  "preMortem": [
+    {
+      "scenario": "Wrong test label chosen",
+      "trigger": "The @test value points to nonexistent or misleading coverage",
+      "consequence": "Annotation looks clean but future maintainers cannot trace coverage",
+      "mitigation": "Use labels tied to existing story storage and sync-main smoke/contract coverage"
+    },
+    {
+      "scenario": "Runtime code changed accidentally",
+      "trigger": "Patch edits below the header comments",
+      "consequence": "A warning cleanup changes behavior",
+      "mitigation": "Inspect diff and require metadata-only evidence"
+    },
+    {
+      "scenario": "Convergence regresses due active story residue",
+      "trigger": "DONE merge leaves ignored .koala active state behind",
+      "consequence": "convergence_check reports unfinished story",
+      "mitigation": "Run story_reconcile and keep B-6f15 .koala state local after DONE"
+    }
+  ],
+  "timestamp": "2026-06-04T11:25:51.670Z"
+}

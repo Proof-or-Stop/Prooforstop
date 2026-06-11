@@ -2,7 +2,8 @@
  * B-c55d CHK-005: doctor stale story-owner-lease check.
  *
  * `koala doctor` scans every active story's `owner-lease.json`
- * (`.koala/story/actives/<storyId>/owner-lease.json`) and reports whether any
+ * (`.lattice/story/actives/<storyId>/owner-lease.json`, with legacy `.koala`
+ * story directories still scanned when present) and reports whether any
  * of them is STALE — i.e. its `heartbeatAt` has not advanced for at least
  * `STALE_LEASE_THRESHOLD_MS` (30 minutes), the exact same threshold the gate /
  * `--takeover` path uses (`isLeaseStale`).

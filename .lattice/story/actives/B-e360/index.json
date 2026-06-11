@@ -1,0 +1,33 @@
+{
+  "storyId": "B-e360",
+  "name": "fixture-expect-format",
+  "title": "修复 59 个 fixture expect 格式：handler 返回 string 但 expect 是 object",
+  "description": "wrapper 加载成功后，59 个 fixture 测试从 SKIP 变成了真实失败。根因：MCP handler 返回字符串（如 \"Story B-xxx created (PLAN) with 2 checklist items\"），但 fixture 的 expect 字段是对象格式（如 { pattern: \"...\", phase: \"PLAN\" }）。需要逐个 fixture 将 expect 改为匹配 handler 实际返回格式。",
+  "type": "chore",
+  "phase": "DONE",
+  "priority": "medium",
+  "depends": [
+    "B-1c75"
+  ],
+  "createdAt": "2026-04-01T16:55:19.959Z",
+  "startedAt": "2026-04-01T16:55:19.959Z",
+  "endedAt": "2026-04-02T02:06:53.598Z",
+  "events": [
+    {
+      "phase": "PLAN",
+      "action": "create",
+      "timestamp": "2026-04-01T16:55:19.960Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-01T17:43:08.752Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    }
+  ]
+}

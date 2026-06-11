@@ -37,7 +37,7 @@ function makeRoot(): { root: string; store: StoryStore } {
     outDir: 'packages/main/dist',
     testsDir: 'packages/main/tests',
     fixturesDir: 'packages/main/tests/fixtures',
-    storyDir: '.koala/story/actives',
+    storyDir: '.lattice/story/actives',
     requirementsDir: 'docs/requirements',
     storyPrefix: 'B',
     workflow: { profile: 'balanced' },

@@ -1,0 +1,56 @@
+{
+  "storyId": "B-56d3",
+  "changes": "Lifecycle Phase 2 第 1 步：从 story-advance.ts 抽出两个 decoupled 模块。新建 handlers/phase-gates.ts（262 行，gate runner——REVIEW→TEST CLI preflight 编排 / koala validate --json gate / TEST→DONE done-oracle gate adapter / cwd-guard-failure adapter）和 handlers/transition-effects.ts（235 行，非 DONE side effects——process metrics write / onPhaseChange hooks / REVIEW metadata auto-commit / relatedDocs reminder / next-step rendering）。story-advance.ts 从 944 行降到 717 行（-227），改为委托调用两个新模块，DONE merge/cleanup 仍留在 story-advance.ts（Story 3b scope）。flow-stability-smoke.ts 加 assertPhaseGatesAndEffectsExtraction（fail-closed 行为 + effect 快照 byte-identical + 静态 import-check 无循环依赖），validation-protocol-smoke.ts 加 validate-gate fail-closed 回归。",
+  "usage": "框架维护者改 gate 判定逻辑只动 handlers/phase-gates.ts，改 transition side effect 只动 handlers/transition-effects.ts；story-advance.ts 不再内联这两类逻辑。所有 gate 判定结果、fail-closed 语义、错误文案、metrics/hooks/auto-commit/hint 输出与抽取前 byte-identical——这是行为冻结的 extraction，外部 koala CLI 行为不变。done-oracle.ts（Phase 1）+ phase-gates + transition-effects 三个独立模块为 Story 3b（done-effects 抽取）和 3c（orchestrator 收口）铺好地基。",
+  "expectedOutcome": "框架维护者打开 packages/main/src/handlers/phase-gates.ts 看到 gate runner，transition-effects.ts 看到 5 个非 DONE side effect；story-advance.ts 不再含内联 gate/effect body（944→717 行）；npm --prefix packages/main run build 干净无循环依赖；REVIEW→TEST preflight import 失败 / validate throw / validate-FAIL 各自仍 block TEST（fail-closed）；test:flow-stability-smoke 的 assertPhaseGatesAndEffectsExtraction + test:validation-protocol 全绿。",
+  "actualTranscript": "story-advance.ts 944→717 行（diff +52/−279）；handlers/phase-gates.ts 262 行 + handlers/transition-effects.ts 235 行新建；npm --prefix packages/main run build TypeScript 无错无循环依赖；test:flow-stability-smoke PASS 含 assertPhaseGatesAndEffectsExtraction（preflight gate-fail + validate-FAIL 仍 block TEST / effect 快照 metrics-hook-autocommit-hint-nextstep byte-identical / 静态 import-check phase-gates+transition-effects 不 import story-advance.js）；test:validation-protocol PASS 含 validate-gate fail-closed 回归；test:lifecycle-registry-contract（Phase 1 回归）PASS；koala validate --story=B-56d3 --json allPass=true，9/9 covered。3 个 reviewer（concept/quality/test-coverage）R1 全 pass 零 finding。",
+  "outcomeDiff": "实际符合预期。行为冻结 extraction：gate 判定 / fail-closed / 错误文案 / effect 顺序与输出 byte-identical（preMortem #1 fail-closed verbatim + preMortem #3 effect 快照对比）；新模块无循环依赖（preMortem #2 静态 import-check 钉死）。",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "计划 plan.md 原写 phase-gates.ts / transition-effects.ts 放 core/，实施时改放 handlers/——因为它们必须 import handlers/review-preflight.ts / verifier.ts / reviewer-list.ts，放 core/ 会构成 core→handlers 分层违规；放 handlers/ 同时满足无循环依赖 + 无分层违规（已在 decision.json 与 implementer prompt 记录此 deviation）。done-oracle gate 通过返回 rendered checklist 字符串 + story-advance stash 到 globalThis 给后续 DONE merge 块消费，行为等价但 globalThis 传递是临时手段，Story 3c orchestrator 收口时应改成显式返回值传递。story-advance.ts 仍 717 行——DONE merge/cleanup（Story 3b）+ 协调流程（Story 3c）未抽，本 story scope 内。",
+  "pitfalls": "Lifecycle Phase 2 风险递增三步（3a/3b/3c）的第 1 步。最大踩坑是分层：新模块要 import 的 helper（review-preflight / verifier / reviewer-list）都在 handlers/，若按 plan.md 放 core/ 会立刻造 core→handlers 违规——正是 B-37e9 F-001 修过的同型问题。implementer 正确判断改放 handlers/。另一处：done-oracle gate 原本直写 globalThis.__koalaDoneChecklistRendered，抽取后改成 gate 返回 rendered 字符串再由 story-advance stash globalThis，行为等价但仍是 globalThis 耦合，标注为 Story 3c 收口时的清理点。CHK-003 的 JSON-parse-fail 路径无法用真实行为测（verifier 永远返回合法 JSON），用静态断言钉死；preflight 测试要给 fixture 加 riskSignal 强制 normal channel，否则 detectFastChannel 把 ≤5 项无风险 story 路由到 fast channel 跳过全部 gate。",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 162467
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 923
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 207526
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 962069
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 275788
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 265417
+    }
+  },
+  "totalDurationMs": 1874195,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-05-16T02:08:43.877Z",
+  "updatedAt": "2026-05-16T02:08:43.877Z"
+}

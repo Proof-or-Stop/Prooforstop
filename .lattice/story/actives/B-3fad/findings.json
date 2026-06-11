@@ -1,0 +1,49 @@
+{
+  "findings": [
+    {
+      "id": "B-3fad:F-001",
+      "desc": "concept-residual: reviewer-status.ts openBlockers filter (line 121-125) still uses isAdvisoryThisRound without evidenceState dimension; suspected open finding would show verdict=fail in reviewer-status even though machine.ts/guard-utils.ts gate correctly exempts it via isFindingBlocking. New isFindingBlocking concept not propagated to reviewer-status.ts.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-05-17T00:42:32.120Z",
+      "reviewRound": "2026-05-17T00:39:52.477Z",
+      "reviewRunId": "B-3fad:RR-005",
+      "_hash": "d3a6880c273f4531214338412b12da6cca983e045fb41c28e3f7236474f98a7a",
+      "files": [
+        "packages/main/src/core/reviewer-status.ts"
+      ]
+    },
+    {
+      "id": "B-3fad:F-002",
+      "desc": "quality-cleanup: gap-log.ts:163-164 dead code — `const disprovenEvidence: DisprovenEvidence | undefined = undefined` is always undefined, the spread `...(disprovenEvidence ? ...)` at line 174 is always falsy and never executes. The `DisprovenEvidence` type import is only used for this const annotation. All three (import type, const, spread) are no-ops and can be removed.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-17T00:43:31.455Z",
+      "reviewRound": "2026-05-17T00:39:52.477Z",
+      "reviewRunId": "B-3fad:RR-001",
+      "_hash": "c7163cd35e96e6685265b251c2b57564283aa5f95ecafe23dee3343d72e03948",
+      "files": [
+        "packages/main/src/handlers/gap-log.ts"
+      ]
+    },
+    {
+      "id": "B-3fad:F-003",
+      "desc": "quality-cleanup: gap-log.ts:175-176 silent data loss — when both `sourceRefs` and `files` args are provided, line 175 sets `files: ev.sourceRefs`, then line 176 immediately overwrites with `files: args.files`, silently dropping the sourceRefs from the stored finding. Fix: merge arrays: `files: [...ev.sourceRefs, ...(args.files ?? [])]` (deduplicate if needed). Current behavior contradicts the CLI schema description that sourceRefs are \"来源溯源\" pointers intended to be stored.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-17T00:43:36.876Z",
+      "reviewRound": "2026-05-17T00:39:52.477Z",
+      "reviewRunId": "B-3fad:RR-001",
+      "_hash": "8ad1e7b7d905cb9942ad6f69c3a9e135d44a77dfbbae812edcd8ca432ad949bf",
+      "files": [
+        "packages/main/src/handlers/gap-log.ts"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "storyId": "B-3749",
+  "checkedAt": "2026-04-27T12:06:47.728Z",
+  "features": [
+    {
+      "feature": "verification evidence metadata-only commits stay fresh",
+      "covered_by": "CHK-001, CHK-003",
+      "status": "covered",
+      "excluded_by": ""
+    },
+    {
+      "feature": "testintent_handoff command is available in PLAN",
+      "covered_by": "CHK-002, CHK-003",
+      "status": "covered",
+      "excluded_by": ""
+    },
+    {
+      "feature": "material files are not accidentally allowed as metadata",
+      "covered_by": "CHK-001, CHK-003, decision.preMortem[0], understanding.constraints[0]",
+      "status": "covered",
+      "excluded_by": ""
+    },
+    {
+      "feature": "historical high-priority gap_analyze findings",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Not a root cause of B-3749 user feedback; not listed in checklist files or touchpoints; would expand this story beyond the two Koala regressions."
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "covered": 3,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "0dff1874ba2f60cb4dfcb5b39db02f5ba6a403219f65b353d0fd9832cd958bdc",
+  "openQuestions": []
+}

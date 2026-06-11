@@ -1,0 +1,57 @@
+{
+  "principles": [
+    "prompt 文档 profile 与输出样本 profile 分离。",
+    "评分必须解释缺失/命中规则。",
+    "不改变已有 test-intent-quality-v1 语义。"
+  ],
+  "drivers": [
+    "验证生产 test-intent prompt 真实质量。",
+    "避免用错 profile 得出误导结论。",
+    "为后续 prompt 改动提供直接评分。"
+  ],
+  "options": [
+    {
+      "name": "A: 新增 test-intent-prompt-quality-v1",
+      "pros": [
+        "评估对象正确。",
+        "实现小。",
+        "能解释 prompt 规则覆盖。"
+      ],
+      "cons": [
+        "又多一个 profile，需要维护。"
+      ]
+    },
+    {
+      "name": "B: 复用 test-intent-quality-v1 继续评 prompt",
+      "pros": [
+        "不用写新 profile。"
+      ],
+      "cons": [
+        "评估对象错误，会继续给出误导分数。"
+      ]
+    }
+  ],
+  "chosen": "A: 新增 test-intent-prompt-quality-v1",
+  "rationale": "prompt 文档和 testIntent JSON 样本结构不同，必须分开评分，否则分数不可信。",
+  "preMortem": [
+    {
+      "scenario": "prompt profile 只查关键词导致高分但规则不可执行",
+      "trigger": "只检查 input/expect 字符串",
+      "consequence": "prompt 实际指导性不足",
+      "mitigation": "同时检查 fixture-heavy、非全局硬性、desc/type、WHY、adversarial 去重"
+    },
+    {
+      "scenario": "新 profile 破坏旧 profile registry",
+      "trigger": "注册冲突或类型不兼容",
+      "consequence": "已有 lab tests 失败",
+      "mitigation": "跑 lab scoring/test-intent 回归"
+    },
+    {
+      "scenario": "当前 prompt 低分",
+      "trigger": "规则描述不够明确",
+      "consequence": "需要回到 prompt 再修",
+      "mitigation": "本 story 允许根据 profile 结果微调 prompt 文案"
+    }
+  ],
+  "timestamp": "2026-04-19T09:26:06.741Z"
+}

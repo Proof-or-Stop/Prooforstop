@@ -1,0 +1,56 @@
+{
+  "storyId": "B-e70f",
+  "changes": "Added read-only Lattice parallel operator projections in packages/main/src/core/lattice-parallel-wave.ts, handlers in packages/main/src/handlers/lattice-parallel-wave.ts, CLI schemas in packages/main/src/cli-engine.ts, policy/fact/default-phase registrations, focused smoke coverage, and docs clarifying JSON contracts plus dev-memory as the existing project public experience library.",
+  "usage": "Run node bin/koala.js parallel_dispatch --storyIds=\"[\\\"B-e70f\\\"]\" --includeExperience=true --format=json, or parallel_status, parallel_merge_queue, and parallel_report for read-only planning output. These commands are planning surfaces only and do not spawn agents or satisfy authority gates.",
+  "expectedOutcome": "The local CLI exposes parallel_dispatch, parallel_status, parallel_merge_queue, and parallel_report as read-only JSON operator surfaces. Outputs show dispatch guidance, merge guidance, evidence refs, optional non-authoritative dev-memory refs, spawned=false, requiresRunnerConfirmation=true, productionDone=false, authorityChanged=false, and receiptRefs empty.",
+  "actualTranscript": "User acceptance commands ran successfully from the B-e70f worktree: parallel_dispatch returned koala.parallel_dispatch.v1 with B-e70f dispatchable, spawned=false, requiresRunnerConfirmation=true, experienceRefs gateEvidence=false and authority non_authoritative; parallel_status returned B-e70f as ready; parallel_merge_queue returned B-e70f ready with checklist evidence refs; parallel_report returned evidenceSummary and non-authoritative experienceRefs. koala validate passed with 15/15 verification intents covered. The transcript is embedded in this summary and will be repeated in delivery_check_set rather than stored as an out-of-scope evidence file.",
+  "outcomeDiff": "No user-visible gap found. Actual CLI output matched the expected read-only planning behavior and preserved the authority boundary; the only warning is the expected host receipt-verification limitation, which is outside this story scope.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The new commands are local planning projections only. They do not auto-spawn Codex, Claude Code, Gemini, or Mac runners; they do not change Python authority receipt semantics; and dev-memory is bounded context, not gate evidence.",
+  "pitfalls": "A docs reviewer found an overstated JSON contract in lattice-parallel-wave.md, so the story returned to DEV and split base wave JSON from projection-specific JSON. Koala validate updates tracked test-evidence.json, so stale evidence was refreshed before final review. A separate transcript-diff.md file was not kept because scope_contract_check correctly treats it as out of scope; summary and delivery_check_set carry the user acceptance transcript instead.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 114260
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 25348
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 357644
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 1430592
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 1042111
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 271314
+    }
+  },
+  "totalDurationMs": 3241277,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-02T13:04:48.925Z",
+  "updatedAt": "2026-06-02T13:07:28.776Z"
+}

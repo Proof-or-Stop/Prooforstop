@@ -1,0 +1,136 @@
+{
+  "storyId": "B-3740",
+  "checkedAt": "2026-05-15T22:58:56.360Z",
+  "features": [
+    {
+      "feature": "Add commands dimension to lifecycle-registry.ts (phase-to-commands projection via lifecycleCommandsByPhase)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Add artifacts dimension to lifecycle-registry.ts (phase/transition-to-artifacts projection via lifecycleArtifactsByPhase)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Typed enum for artifact files (init-check.json / scope-check.json / delivery-check.json / test-evidence.json / summary.json / declared-artifacts.json / review-passes.json etc.) — not free text",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Read-only projection helpers mirroring lifecycleForwardTransitionsByPhase pattern (no public behavior change)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Consistency contract test cross-checking command-policy allowedPhases vs registry commands dimension",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Consistency contract test cross-checking DEFAULT_PHASE_TOOLS vs registry commands dimension",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Consistency contract test cross-checking process-fact lifecycle vs registry commands dimension",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Contract test models wildcard * bucket semantics of DEFAULT_PHASE_TOOLS (no false positive on * bucket)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Contract test asserts every oracleRows/gate artifact reference resolves to a declared artifact entry",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Verify phase-flow.ts getPhaseInfo / checkPhaseTransition output is byte-identical before and after registry extension",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Verify context.ts still derives from registry with no changed output",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "lifecycle-registry.ts as typed registry for phase/order, legacy alias, transition event, rollback edge, gate/effect/oracle row id (story-lifecycle.md §design decision)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "phase-flow.ts and context.ts must project or validate from lifecycle-registry; test failure must name Lifecycle registry mismatch (story-lifecycle.md §design decision)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "Phase-Aware tool filtering: PLAN/DEV/REVIEW/TEST phase command whitelists as declared in story-lifecycle.md §Phase-Aware 工具过滤",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "process-fact-registry + verify-process-fact-contract: MAIN_TOOLS / DEFAULT_PHASE_TOOLS / reviewer lanes / gate artifacts consistency validation (testing-infra.md)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/testing-infra.md"
+    },
+    {
+      "feature": "No public behavior change, no TEST semantics change, no legacy main-type change, no story_advance restructure (Story 2/3/4 scope)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Consistency test failure must directly name divergent command, not silently let multiple tables drift",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    }
+  ],
+  "summary": {
+    "total": 17,
+    "covered": 17,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "603ff445a41b69dc385358b42493324c9da161485e08a7be20a722d558bbca85",
+  "openQuestions": []
+}

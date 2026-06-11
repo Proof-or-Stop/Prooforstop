@@ -1,0 +1,25 @@
+{
+  "task": "修复 Koala DONE 从 worktree 子目录执行时误把子目录当 worktree 根清理的问题。",
+  "outcome": "用户在类似 SimCell 的项目里从 .worktrees/B-xxx/PVSC 这类子目录执行 koala story_advance --phase=DONE 后，终端看到 ✓ 分支 story/B-xxx 已合并到 main、✓ Worktree <真实 .worktrees/B-xxx> 已清理、✓ 分支 story/B-xxx 已删除；不会再出现 git worktree remove .../B-xxx/PVSC 的 fatal warning，main 里的 story index 是 DONE。",
+  "facts": [
+    "SimCell B-e101 现场显示 main 已有 merge commit，但 story/B-e101 和 .worktrees/B-e101 仍注册存在。",
+    "B-e101 worktree 内 docs/story/actives/B-e101/index.json 是 DONE，但 main 的同文件仍是 TEST，说明 DONE metadata 没被从正确 worktree root 提交进 story 分支。",
+    "story-advance.ts 当前在 DONE merge/cleanup 中用 process.cwd() 作为 wtPathAbs，并从 cwd 执行 git add store.storyDirRel()。",
+    "当 cwd 是 .worktrees/B-e101/PVSC 时，git worktree remove 和 rm -rf target 会变成 PVSC 子目录，而不是 .worktrees/B-e101 根。"
+  ],
+  "constraints": [
+    "不得扩大 DONE 生命周期语义，只修 worktree root 解析和安全 guard。",
+    "任何 rm -rf / git worktree remove 必须只作用于 canonical git top-level worktree root，不能作用于 nested cwd。",
+    "回归测试必须模拟 nested cwd，否则无法覆盖 SimCell 现场。",
+    "SimCell B-e101 现场不直接作为测试 fixture，使用临时 repo 复现。"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/tasks/worktree-authority-smoke.ts",
+    "packages/main/package.json",
+    "package.json",
+    "CLAUDE.md"
+  ],
+  "timestamp": "2026-05-12T17:27:29.135Z"
+}

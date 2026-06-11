@@ -1,0 +1,29 @@
+{
+  "task": "为 Koala 增加多 session 并行执行的调度护栏，让并行能力不再伤到当前用户主任务。",
+  "outcome": "> node bin/koala-codex.js session_brief\n# koala session brief\nPrimary lane: B-6bee\nParallel candidates: B-990d (plan_only)\nConflict warnings: B-d307 shares session.ts with B-6bee\n\n> 操作者看到后\n知道现在该继续主线，还是只允许另一条 story 停在 PLAN，而不会因为盲目并行把用户主任务打断。",
+  "facts": [
+    "Koala 已经支持每个 story 一个独立 worktree，因此基础并行能力存在。",
+    "当前缺少显式的并行调度策略，导致并行是否安全主要靠人脑判断。",
+    "B-6bee 的 session_brief 指挥台已经把 role-aware next step 和主分支恢复建议做起来了。",
+    "并行调度护栏如果做成强 gate 太早，很容易和正常开发节奏冲突，因此第一版更适合 advisory。"
+  ],
+  "constraints": [
+    "第一版先做 advisory，不把并行策略变成硬门禁。",
+    "这条 story 要兼顾 story 元数据、session_brief 和 story_review 三层，而不是只改一处提示。",
+    "不能破坏现有 worktree / depends / active story 展示逻辑。",
+    "并行护栏必须优先保护用户主线任务，而不是单纯追求吞吐。"
+  ],
+  "unknowns": [
+    "第一版是否只靠理解快照/启发式规则就够，还是要立刻把 lane/parallelSafe 写入持久化 story schema。",
+    "mainline/supporting/plan_only 这类字段是先放在 planning 层，还是立即写进 story index。"
+  ],
+  "touchpoints": [
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/handlers/story-review.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/story-query.ts",
+    "docs/requirements/decisions/role-separation.md",
+    "AGENTS.md"
+  ],
+  "timestamp": "2026-04-14T18:06:00.370Z"
+}

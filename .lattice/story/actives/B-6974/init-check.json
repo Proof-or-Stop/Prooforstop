@@ -1,0 +1,25 @@
+{
+  "storyId": "B-6974",
+  "checkedAt": "2026-05-17T12:07:55.312Z",
+  "reviewRound": "",
+  "agentId": "koala-review-story-init",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-05-17T12:07:42.014Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "Checklist items lack explicit userSees fields. For a behavior-preserving refactor this is acceptable since the product value is zero visible change, and CHK-003 regression suite mechanically proves that. Advisory only."
+        }
+      ]
+    },
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-05-17T12:07:55.312Z",
+      "issues": []
+    }
+  ],
+  "_hash": "759ca6a70b4b86669eb89293252bf621cd5b6072fdc6cd1a45fc592b1d56f608"
+}

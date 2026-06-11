@@ -1,0 +1,92 @@
+{
+  "storyId": "B-ae82",
+  "name": "checklist-json-done-log-dirty",
+  "title": "修复 checklist_update 长 testIntent 写坏 JSON 与 DONE activity 自阻塞",
+  "description": "修复两个 Koala 自身问题：checklist_update 写较长 testIntent 时可能导致 checklist.json JSON parse error，需要原子写入并在写前/写后校验；DONE confirm 写 activity log 后又让工作区 dirty，导致 DONE gate 或 auto-merge 自己阻塞自己，需要让 activity log 不参与 DONE 工作区阻塞或延后记录。",
+  "type": "bug",
+  "phase": "DONE",
+  "priority": "high",
+  "lane": "mainline",
+  "parallelSafe": "no",
+  "sharedHotspots": [
+    "packages/main/src/core/store.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/handlers/story-advance.ts"
+  ],
+  "riskSignals": [
+    {
+      "category": "状态机/门禁",
+      "matched": "gate"
+    }
+  ],
+  "createdAt": "2026-04-19T22:59:02.531Z",
+  "startedAt": "2026-04-19T22:59:02.531Z",
+  "endedAt": "2026-04-19T23:08:17.272Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-04-19T22:59:02.531Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-19T22:59:08.112Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-04-19T22:59:14.678Z",
+      "branch": "story/B-ae82",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-19T23:02:56.081Z",
+      "branch": "story/B-ae82",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-19T23:02:56.369Z",
+      "branch": "story/B-ae82",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-19T23:05:46.615Z",
+      "branch": "story/B-ae82",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-19T23:06:16.957Z",
+      "branch": "story/B-ae82",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-19T23:08:17.272Z",
+      "branch": "story/B-ae82",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ]
+}

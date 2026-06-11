@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-2522:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Concept reviewer pass: verified local/off remains free local, shadow is warning-only, enforce missing authority server fails closed for submission/runner path, fake transport accepted is not production authority, only signed verified AuthorityReceipt can classify receipt-backed L2+, and Parallel Wave/report remains planning-only with productionDone=false.",
+      "createdAt": "2026-06-02T22:57:52.916Z",
+      "reviewRound": "2026-06-02T22:39:16.438Z",
+      "reviewRunId": "B-2522:RR-003",
+      "_hash": "d104b6442818fe36e511b663a0ce0887b637be5e76dfe3b3c754ceea56fec4c9"
+    },
+    {
+      "id": "B-2522:RP-002",
+      "agent": "koala-review-quality",
+      "note": "Quality reviewer pass: core receipt classification module is clean and boundary-safe; no blocking maintainability issues. Reviewer noted only low non-blocking cleanup in authority-enforce-matrix-smoke around dead extra test fields/cast and indentation, with no correctness or gate impact.",
+      "createdAt": "2026-06-02T22:57:59.605Z",
+      "reviewRound": "2026-06-02T22:39:16.438Z",
+      "reviewRunId": "B-2522:RR-002",
+      "_hash": "916976181a822c670f289b74ef032306caec5964d47a73d93febe31c7e2e0504"
+    },
+    {
+      "id": "B-2522:RP-003",
+      "agent": "koala-review-test-coverage",
+      "note": "Test coverage reviewer pass: all 6 must-priority verification intents have concrete mechanical coverage, including signed receipt verification, rejection/adversarial cases, transport accepted without receipt, local/off, shadow warning, enforce fail-closed, live Python self-skip, and Parallel Wave non-authority assertions.",
+      "createdAt": "2026-06-02T22:58:07.714Z",
+      "reviewRound": "2026-06-02T22:39:16.438Z",
+      "reviewRunId": "B-2522:RR-001",
+      "_hash": "1dc6f0d957381f56cc145e649f1c3e3baead3df4f7783736a3f80d32cdc887c6"
+    },
+    {
+      "id": "B-2522:RP-004",
+      "agent": "koala-review-docs",
+      "note": "Docs reviewer pass: README, docs/guide, authority-client-role, and lattice-parallel-wave preserve the core boundaries: local/off free local, shadow warning-only, enforce requires Python actor/runner, fake transport is not receipt-backed authority, and Parallel Wave/report cannot satisfy DONE/production authority. Reviewer noted only low non-blocking field-prefix wording inconsistency.",
+      "createdAt": "2026-06-02T22:58:16.173Z",
+      "reviewRound": "2026-06-02T22:39:16.438Z",
+      "reviewRunId": "B-2522:RR-004",
+      "_hash": "1f8dba049c3fa3e1c8a7170ebeb3e68194f4bfdf12a7d6a7e4dfb8afc1bf377a"
+    }
+  ]
+}

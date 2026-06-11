@@ -1,0 +1,150 @@
+{
+  "storyId": "B-cf60",
+  "checkedAt": "2026-05-15T18:03:03.214Z",
+  "features": [
+    {
+      "feature": "Story-level declaration path for generated delivery artifacts (artifact_declare CLI command)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "declared-artifacts.json artifact stored under .koala/story/actives/<storyId>/",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Idempotent re-declaration (same path second call = overwrite, not duplicate)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Path validation / rejection of unsafe paths (*, **, leading slash, .. components)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Distinguish expected product outputs from unexpected dirty files in dirty ownership classifier",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "declared_artifact_changes category visible in koala session_brief and koala validate output",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Undeclared generated files remain blocking (conservative default preserved)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Declared artifacts must be referenced by verificationEvidence or delivery-check to pass DONE gate",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "DONE pre-check [unreferenced_declared_artifact] blocker for declared-but-unreferenced artifacts",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Reference check validates intentRef actually exists in checklist verificationIntent",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Empty declared-artifacts.json does not trigger DONE gate",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Regression coverage using BL21 lacZ viewer output path as concrete example",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "verificationIntent happy/edge/adversarial structure required on checklist items (decisions/story-lifecycle.md)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "DONE gate requires evidence freshness / validation evidence to pass (decisions/story-lifecycle.md)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "verificationEvidence kind options: logic_test, integration_test, browser_test, manual_transcript, docs_check, waiver (decisions/testing-infra.md)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/testing-infra.md"
+    },
+    {
+      "feature": "koala validate test coverage / integration test suite for new artifact feature (decisions/testing-infra.md)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/testing-infra.md"
+    },
+    {
+      "feature": "flow function @flow annotation and end-to-end flow test requirements (decisions/testing-completeness.md)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "These decisions concern @task/@flow/@test annotation conventions for legacy fixture system. B-cf60 uses verificationIntent/verificationEvidence, not @task annotations or fixtures. Annotation completeness for new handlers is not in scope for this story.",
+      "source": "decisions:decisions/testing-completeness.md"
+    },
+    {
+      "feature": "@task annotation required on new code (decisions/annotation-system.md)",
+      "covered_by": null,
+      "status": "orphan-suspect",
+      "excluded_by": null,
+      "source": "decisions:decisions/annotation-system.md"
+    },
+    {
+      "feature": "Material verification / dirty artifact must not be excluded from materialHash freshness checks (decisions/testing-infra.md — runtime-artifact-registry boundary)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/testing-infra.md"
+    }
+  ],
+  "summary": {
+    "total": 19,
+    "covered": 16,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 1,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "9e929eeeaa9de68b1e22f1e7d478544da771930eb6eba1247cc89cca22b7c57a",
+  "openQuestions": []
+}

@@ -1,0 +1,63 @@
+{
+  "storyId": "B-8db9",
+  "checkedAt": "2026-05-15T21:39:08.940Z",
+  "reviewRound": "2026-05-15T21:30:20.446Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": ".koala/story/actives/B-8db9/plan.md#chk-001",
+      "promise": "dirty-worktree.ts classifyParsedRow reordered so declared check runs AFTER fixture and material, preventing a declared path from overriding material_source_changes or fixture_changes",
+      "verifiedBy": "diff inspection",
+      "evidence": "packages/main/src/core/dirty-worktree.ts diff: isDeclaredArtifactPath block moved to after isFixturePath and isMaterialSourcePath blocks, with inline comment B-8db9 CRITICAL hard gate"
+    },
+    {
+      "docPath": ".koala/story/actives/B-8db9/plan.md#chk-002",
+      "promise": "artifact_declare rejects paths classified as material_source_changes/fixture_changes/koala_metadata_changes/runtime_artifact_changes with classification-named error; accepts tests/output/ generated paths",
+      "verifiedBy": "diff inspection",
+      "evidence": "packages/main/src/handlers/artifact-declare.ts: assertDeclarablePath function added at line 101, called at line 174; uses classifyDeclarablePath from dirty-worktree.ts so vocabulary is shared"
+    },
+    {
+      "docPath": ".koala/story/actives/B-8db9/plan.md#chk-003",
+      "promise": "buildDoneChecklist adds declared-artifacts-committed row that blocks DONE when a declared path is dirty/untracked/git-ignored, passes when committed-clean or absent; REVIEW/TEST dirty-gate-policy unchanged",
+      "verifiedBy": "diff inspection",
+      "evidence": "packages/main/src/handlers/story-advance.ts: section 6c added ~75 lines for declared-artifacts-committed row; packages/main/src/core/declared-artifact-commit-check.ts created with evaluateDeclaredArtifactCommitState + gitDeclaredArtifactPathState; packages/main/src/core/process-fact-levels.ts: runtime:declared_artifact_committed_check L4 entry added at line 143"
+    },
+    {
+      "docPath": ".koala/story/actives/B-8db9/plan.md#chk-004",
+      "promise": "flow-stability-smoke and validation-protocol-smoke cover full attack-chain: declare-source-rejected, source-dirty-stays-material, fixture-dirty-stays-fixture, uncommitted-declared-blocks-DONE, committed-declared-passes-DONE, git-ignored-declared-blocks-DONE, declared-output-non-blocking-in-REVIEW/TEST",
+      "verifiedBy": "diff inspection",
+      "evidence": "packages/main/src/tasks/flow-stability-smoke.ts: assertDeclaredArtifactGateHotfix + assertDeclaredArtifactDoneCommittedRow functions added (lines 2415/2591) and called at lines 2695/2696; packages/main/src/tasks/validation-protocol-smoke.ts: attackChainRoot block added covering side-effect-guard context"
+    },
+    {
+      "docPath": ".koala/story/actives/B-8db9/plan.md#chk-003-process-fact-registry",
+      "promise": "plan.md says process-fact-registry.ts should be modified to register new DONE gate row",
+      "verifiedBy": "diff inspection",
+      "evidence": "Implemented via process-fact-levels.ts instead (line 143 new entry). process-fact-registry.ts auto-generates COMMAND_PROCESS_FACTS from PROCESS_FACT_LEVELS at line 449 — the new runtime:declared_artifact_committed_check entry is registered through this auto-generation path. Functionally equivalent to direct registry edit. diff shows process-fact-registry.ts was NOT directly modified."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "assertDeclaredArtifactGateHotfix in flow-stability-smoke.ts: happy path — dirty tests/output/ path declared as artifact still classifies declared_artifact_changes; edge — dirty source file declared stays material_source_changes; edge — dirty fixture file declared stays fixture_changes; adversarial — hand-injected declared-artifacts.json with source path stays material_source_changes. All assertions use concrete file paths (packages/main/src/core/store.ts, tests/output/declared-generated.json) and assert on injected.groups.material_source_changes.length===1"
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "assertDeclaredArtifactGateHotfix in flow-stability-smoke.ts: assert.throws for material source (store.ts), fixture path, config path (CLAUDE.md), koala-metadata path (.koala/story/.../index.json), runtime artifact path (.koala/activity.jsonl, .koala-serve.json); assert happy path (tests/output/ generated path) succeeds and writes declared-artifacts.json"
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "assertDeclaredArtifactDoneCommittedRow in flow-stability-smoke.ts: empty declarations → pass/non-blocking; untracked declared artifact → fail/blocking with commit/cleanup guidance; committed-and-clean → pass 1/1; absent (never-existed.json) → pass/non-blocking; git-ignored declared path → fail/blocking with explicit git-ignored paths must not be declared as deliverable artifacts message"
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "assertDeclaredArtifactGateHotfix covers full attack chain in flow-stability-smoke (CHK-001+CHK-002 combined). Separate validation-protocol-smoke block covers side-effect-guard context: hand-injected declared-artifacts.json with source path → executeValidationPlan asserts status!=pass, allPass===false, details match material_source_changes, do not match declared_artifact_changes=1"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 4 CHK items have concrete integration/logic tests in smoke runners with named assertions. Core security fix (classifier reorder) is a pure statement-reorder verified by injecting a hand-crafted declared-artifacts.json and asserting the classification is NOT downgraded. process-fact-registry promise in plan.md was implemented via process-fact-levels.ts (auto-registered), which is functionally correct but diverges from plan.md wording — noted in docsPromises. No TODO/FIXME in non-test code changes."
+  },
+  "_hash": "7678ab95da08dceba38b0c6f442a7526f0e95aa4f492c41bb1472c33443a53a3"
+}

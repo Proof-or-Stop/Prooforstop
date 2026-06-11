@@ -1,0 +1,87 @@
+{
+  "storyId": "B-d8aa",
+  "name": "convergence-parked-backlog",
+  "title": "Parked backlog should not block convergence",
+  "description": "Clarify convergence_check semantics for parked backlog stories: active worktree stories still block, but parked main-authority INIT backlog without an active worktree should be reported separately as advisory instead of preventing convergence. Do not touch B-6974 or change active worktree story semantics.",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "high",
+  "createdAt": "2026-05-17T12:32:17.680Z",
+  "startedAt": "2026-05-17T12:32:17.680Z",
+  "endedAt": "2026-05-17T13:23:34.203Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-05-17T12:32:17.681Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-05-17T12:53:04.672Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-05-17T12:53:12.929Z",
+      "branch": "story/B-d8aa",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-17T12:58:46.517Z",
+      "branch": "story/B-d8aa",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-17T13:08:08.088Z",
+      "branch": "story/B-d8aa",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-05-17T13:10:40.700Z",
+      "branch": "story/B-d8aa",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-05-17T13:12:31.799Z",
+      "branch": "story/B-d8aa",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-05-17T13:20:37.662Z",
+      "branch": "story/B-d8aa",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-05-17T13:23:34.203Z",
+      "branch": "story/B-d8aa",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-05-17T13:12:31.799Z"
+}

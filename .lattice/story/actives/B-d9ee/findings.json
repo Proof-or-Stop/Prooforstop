@@ -1,0 +1,51 @@
+{
+  "findings": [
+    {
+      "id": "B-d9ee:F-001",
+      "desc": "docs/requirements/decisions/story-lifecycle.md:99 says `grill_get` can be read across all phases, but the phase-aware tool inventory at docs/requirements/decisions/story-lifecycle.md:121 does not list `grill_get` under 全阶段可用. WHY: code exposes `grill_get` globally in packages/main/src/core/config.ts:122, so the doc now contradicts its own tool map and can mislead readers about whether read-only grill access is allowed outside PLAN. Fix: add `grill_get` to the 全阶段可用 table or explicitly split PLAN-only mutating grill commands from globally available read access.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-05-15T11:53:21.627Z",
+      "reviewRound": "2026-05-15T11:50:37.549Z",
+      "reviewRunId": "B-d9ee:RR-002",
+      "_hash": "2afbc74c6e58e351595370d187b49b6566caea6903f2a12a7fce732d293ea012",
+      "files": [
+        "docs/requirements/decisions/story-lifecycle.md"
+      ]
+    },
+    {
+      "id": "B-d9ee:F-002",
+      "desc": "packages/main/src/core/store.ts:262 WHY: readGrill catches every read/parse failure and returns null. packages/main/src/handlers/grill.ts:53,90,132 then treat null as \"no artifact\" and initialize empty grill state, so a malformed grill.json is silently hidden and can be overwritten by the next PLAN mutation. Fix: return null only for file-not-found probe cases; report or rethrow parse/read failures so corruption does not erase planning context.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-15T11:53:55.793Z",
+      "reviewRound": "2026-05-15T11:50:37.549Z",
+      "reviewRunId": "B-d9ee:RR-003",
+      "_hash": "ad94ca205ed44877b5e337c53e114ff94d36ac280a67f6e6804e4c7450ec6ef6",
+      "files": [
+        "packages/main/src/core/store.ts",
+        "packages/main/src/handlers/grill.ts"
+      ]
+    },
+    {
+      "id": "B-d9ee:F-003",
+      "desc": ".koala/story/actives/B-d9ee/checklist.json:67 WHY: every checklist verificationEvidence entry still records headHash 478fe90bbafffe2759e942f3b368da11026b6de9, and .koala/story/actives/B-d9ee/test-evidence.json:6 records the last koala validate PASS against the same old head. Commit ae1ba6a0 was the evidence-refresh commit, so this reviewer lane cannot accept the claim that evidence is fresh after ae1ba6a0 until the referenced test/validate artifacts are rerun or refreshed to that commit (or a newer code-bearing head with matching evidence). Malformed grill artifact regression coverage and artifact/evidence separation are present, but freshness remains stale.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-05-15T12:01:42.475Z",
+      "reviewRound": "2026-05-15T12:00:25.828Z",
+      "reviewRunId": "B-d9ee:RR-010",
+      "_hash": "093d91ed396fffc41ef8a51fdcadcff76d06257dce36765b0eca00e689d77ecc",
+      "files": [
+        ".koala/story/actives/B-d9ee/checklist.json",
+        ".koala/story/actives/B-d9ee/test-evidence.json"
+      ]
+    }
+  ]
+}

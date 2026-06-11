@@ -1,0 +1,26 @@
+{
+  "task": "Run a Koala-managed audit, executed by Claude Code, that verifies Koala CLI post-merge health and maps authority/evidence contract alignment across Koala CLI, Cord Team Python authority, and Koala Mac/Swift without changing production code.",
+  "outcome": "The user sees a B-0f04 audit report with these literal sections: \"Post-merge validation\", \"Cross-end contract matrix\", \"Gaps and follow-up stories\", and \"Codex independent verification\". The report records raw command outputs, confirms repo roles from files, marks each authority/evidence surface aligned/partial/missing/follow-up-needed, and states which high-risk claims Codex re-verified.",
+  "facts": [
+    "B-ca8f merged into main as commit 37df1e7d and final convergence_check was true.",
+    "/Users/jek/Documents/Work/Orchestrate is the Koala CLI repository.",
+    "/Users/jek/Documents/Work/Koala/cord-team contains pyproject.toml and uv.lock and is the Python authority/server repository.",
+    "/Users/jek/Documents/Work/Koala/Koala contains Package.swift and is the Mac/Swift repository.",
+    "INIT reviewers passed with no blocking issues; remaining low advisory says CHK-002 needs per-surface DoneWhen in PLAN."
+  ],
+  "constraints": [
+    "Claude Code performs audit execution; Codex verifies and records PM-level evidence only.",
+    "No production code changes in Orchestrate, cord-team, or Koala/Koala for this story.",
+    "Any follow-up implementation must be recommended as a separate story in the correct repository and Koala flow.",
+    "Report claims must cite files/commands; no assumed sync.",
+    "Codex independent verification must be recorded as manual_transcript evidence before DONE.",
+    "The audit must discover cross-end alignment status rather than assume green.",
+    "The audit must record any build step needed before npm test in a fresh worktree."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    ".koala/story/actives/B-0f04/evidence/cross-end-contract-audit.md",
+    ".koala/story/actives/B-0f04/evidence/codex-verification.md"
+  ],
+  "timestamp": "2026-05-25T12:30:01.216Z"
+}

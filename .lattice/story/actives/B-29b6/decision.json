@@ -1,0 +1,78 @@
+{
+  "principles": [
+    "Parallel Wave is collection-level scheduling and recovery state, not authority evidence.",
+    "Canonical Story remains the per-story truth carrier; wave state references it instead of redefining it.",
+    "Capability and degradation must be explicit before dispatch recommendations are shown.",
+    "Every command added here must be CLI/JSON stable, read-only or no-overwrite, and registered in policy/fact levels.",
+    "Prefer mechanical smoke tests over prose-only acceptance."
+  ],
+  "drivers": [
+    "Need accelerate large development by safely parallelizing related stories/worktrees.",
+    "Need preserve Lattice authority boundary: local DONE and production DONE remain separate.",
+    "Need avoid conflicting with active Lattice v1 productization surfaces already shipping in B-cd31."
+  ],
+  "options": [
+    {
+      "name": "A: Add Lattice Parallel Wave as a collection-level projection",
+      "pros": [
+        "Does not modify Canonical Story v0 schema",
+        "Can reference existing stories, capability probes, evidence, and handoff state",
+        "Keeps wave artifacts non-authoritative"
+      ],
+      "cons": [
+        "Requires one new schema/model and command family",
+        "Still requires operators or future runner to execute the plan"
+      ]
+    },
+    {
+      "name": "B: Add DAG fields directly to Canonical Story v0",
+      "pros": [
+        "All relationship data travels with each story export"
+      ],
+      "cons": [
+        "Conflicts with strict v0 schema shape",
+        "Makes per-story export carry collection-level concerns",
+        "Raises migration risk for existing handoff/evidence smokes"
+      ]
+    },
+    {
+      "name": "C: Only improve existing advisory parallel-policy output",
+      "pros": [
+        "Smallest code change",
+        "Builds on existing session_brief behavior"
+      ],
+      "cons": [
+        "Does not provide wave-level execution document, host capability matching, evidence/merge guidance, or reusable artifact"
+      ]
+    }
+  ],
+  "chosen": "A: Add Lattice Parallel Wave as a collection-level projection",
+  "rationale": "A collection-level wave gives the user real multi-story acceleration while preserving Lattice boundaries and avoiding Canonical Story schema drift.",
+  "preMortem": [
+    {
+      "scenario": "Wave artifact is mistaken for DONE evidence",
+      "trigger": "Command output says ready/done without authority disclaimer",
+      "consequence": "Agent can use scheduling text to overclaim completion",
+      "mitigation": "All outputs include productionDone=false, authorityChanged=false, and command policy/fact level L0 read-only classification."
+    },
+    {
+      "scenario": "Parallel plan recommends unsafe concurrent DEV",
+      "trigger": "Dependencies or sharedHotspots are ignored when explicit parallelSafe=yes is present",
+      "consequence": "Agents collide in the same files or implement downstream before upstream",
+      "mitigation": "Wave analysis treats active dependencies and hotspot overlaps as degradations that override unsafe recommendations."
+    },
+    {
+      "scenario": "Host capability gaps are hidden",
+      "trigger": "Plan assigns browser/evidence/receipt work to a host with conditional or unavailable capability",
+      "consequence": "Verification weakens silently",
+      "mitigation": "Use capability_probe semantics and emit visible degradations plus fallback/recovery guidance."
+    },
+    {
+      "scenario": "New command bypasses Koala process contracts",
+      "trigger": "Handlers are registered but not command-policy/process-fact-levels covered",
+      "consequence": "Owner lease or audit tooling misclassifies new surface",
+      "mitigation": "Update CLI schema, registry, command-policy, process-fact-levels, and smoke assertions together."
+    }
+  ],
+  "timestamp": "2026-06-02T05:04:45.229Z"
+}

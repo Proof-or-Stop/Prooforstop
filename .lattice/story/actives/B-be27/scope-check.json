@@ -1,0 +1,59 @@
+{
+  "storyId": "B-be27",
+  "checkedAt": "2026-05-23T18:40:29.682Z",
+  "features": [
+    {
+      "feature": "ScopeContract data model with mode, path arrays, acknowledgement records, and persistence helpers",
+      "covered_by": "CHK-001: create scope-contract.ts, modify store.ts + types.ts; verificationIntent covers round-trip, defaults, and invalid-mode rejection",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "CHK-001"
+    },
+    {
+      "feature": "CLI commands scope_contract_set/show/check returning structured pass/warn/fail + violations",
+      "covered_by": "CHK-002: create handler scope-contract.ts, modify cli-engine.ts + index.ts; verificationIntent covers clean diff, in-scope pass, protected-path fail",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "CHK-002"
+    },
+    {
+      "feature": "Post-diff scope gate wired into REVIEW/TEST/DONE with local/shadow/enforce modes and backward-compat default",
+      "covered_by": "CHK-003: modify transition-effects.ts, review-preflight.ts, done-effects.ts; backward compat + shadow warn + enforce block all in verificationIntent",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "CHK-003"
+    },
+    {
+      "feature": "Explicit scope-expansion acknowledgement with actor, reason, timestamp, added paths; reviewer-visible in story_review output",
+      "covered_by": "CHK-004: extend scope-contract.ts + scope-contract handler + story-review.ts; adversarial intent covers non-hiding requirement",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "CHK-004"
+    },
+    {
+      "feature": "Regression smoke tests: allowed, blocked, shadow, no-contract compat, and acknowledged-expansion cases",
+      "covered_by": "CHK-005: create scope-contract-smoke.ts, add package.json test script; all four case categories in verificationIntent",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "CHK-005"
+    },
+    {
+      "feature": "Pre-tool blocking via Claude Code UserPromptSubmit/PreToolUse hooks",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "background.md explicitly scopes to scope contract and post-diff gate first; decision.json rejected claude-hook-first option as creating Claude-specific policy before a provider-neutral source of truth. Deferred to a later story.",
+      "source": "background.md + decision.json"
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "covered": 5,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "580cc229869adaefd8175cceaf5c9329810f94e920b86e1c0f0cf9fe758dd85e",
+  "openQuestions": []
+}

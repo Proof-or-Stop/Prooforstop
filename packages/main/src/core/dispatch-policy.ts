@@ -1,5 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { isAbsolute, join, normalize, sep } from 'node:path';
+import { LATTICE_DIR } from './lattice-paths.js';
 
 export type DispatchPolicyStatus = 'authorized' | 'supervised' | 'refused';
 export type DispatchNetworkPolicy = 'none' | 'local' | 'restricted';
@@ -90,7 +91,7 @@ function normalizeStringList(value: string | string[] | undefined): string[] {
 }
 
 function policiesDir(root: string): string {
-  return join(root, '.koala', 'dispatch-policies');
+  return join(root, LATTICE_DIR, 'dispatch-policies');
 }
 
 function policyPath(root: string, policy: string): string {
@@ -300,7 +301,7 @@ export function getDispatchPolicy(root: string, policy: string): DispatchPolicy 
 
   const filePath = policyPath(root, name);
   if (!existsSync(filePath)) {
-    throw new Error(`dispatch policy not found: ${name} (expected at .koala/dispatch-policies/${name}.json)`);
+    throw new Error(`dispatch policy not found: ${name} (expected at .lattice/dispatch-policies/${name}.json)`);
   }
   const raw = JSON.parse(readFileSync(filePath, 'utf8')) as DispatchPolicy;
   return normalizeDispatchPolicyRecord(raw);
@@ -354,7 +355,7 @@ export function checkDispatchPolicy(root: string, policy: string | DispatchPolic
     } else {
       const filePath = policyPath(root, policyName);
       if (!existsSync(filePath)) {
-        return refusedResult(policyName, [`policy not found: ${policyName} (no file at .koala/dispatch-policies/${policyName}.json)`], `Create the policy first with dispatch_policy_create --policy=${policyName}`);
+        return refusedResult(policyName, [`policy not found: ${policyName} (no file at .lattice/dispatch-policies/${policyName}.json)`], `Create the policy first with dispatch_policy_create --policy=${policyName}`);
       }
       policyRecord = normalizeDispatchPolicyRecord(JSON.parse(readFileSync(filePath, 'utf8')) as DispatchPolicy);
     }

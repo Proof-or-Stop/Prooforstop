@@ -1,0 +1,84 @@
+{
+  "storyId": "B-47cd",
+  "checkedAt": "2026-06-04T07:49:01.459Z",
+  "reviewRound": "",
+  "agentId": "koala-review-delivery/Zeno",
+  "docsPromises": [
+    {
+      "docPath": "README.md",
+      "promise": "Conservative mode is the default/manual-merge path.",
+      "status": "verified",
+      "verifiedBy": "koala-review-delivery source/doc inspection",
+      "evidence": "README.md:196; docs/requirements/decisions/host-overflow.md:64; packages/main/src/core/lattice-autopilot.ts:979"
+    },
+    {
+      "docPath": "README.md",
+      "promise": "Authority-Verified mode requires a server authority receipt before stronger integration or main-merge privileges.",
+      "status": "verified",
+      "verifiedBy": "koala-review-delivery source/doc inspection",
+      "evidence": "README.md:199; docs/requirements/decisions/host-overflow.md:69; packages/main/src/core/autopilot-policy.ts:447"
+    },
+    {
+      "docPath": "docs/requirements/decisions/host-overflow.md",
+      "promise": "Full Autopilot is bounded by maxIterations, runtime, budget, scope, and conflict rules.",
+      "status": "verified",
+      "verifiedBy": "koala-review-delivery source/doc inspection",
+      "evidence": "README.md:200; docs/requirements/decisions/host-overflow.md:70; packages/main/src/core/autopilot-policy.ts:453"
+    },
+    {
+      "docPath": "README.md",
+      "promise": "Local diagnostic receipts do not claim receiptVerified=true or productionDone=true.",
+      "status": "verified",
+      "verifiedBy": "koala-review-delivery source/doc inspection plus autopilot smoke",
+      "evidence": "README.md:246; docs/requirements/decisions/host-overflow.md:53; packages/main/src/core/lattice-autopilot.ts:357; packages/main/src/core/lattice-dispatch.ts:2401"
+    },
+    {
+      "docPath": "docs/requirements/decisions/host-overflow.md",
+      "promise": "autopilot_review and merge guidance are manual-only or authority-gated, not automatic main merge.",
+      "status": "verified",
+      "verifiedBy": "koala-review-delivery source/doc inspection",
+      "evidence": "README.md:253; docs/requirements/decisions/host-overflow.md:121; packages/main/src/core/lattice-dispatch.ts:2418; packages/main/src/core/lattice-autopilot.ts:1054"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "build",
+      "transcript": "npm --prefix packages/main run build passed on HEAD 4f9e825."
+    },
+    {
+      "featureId": "CHK-001-CHK-011/autopilot",
+      "transcript": "npm --prefix packages/main run test:autopilot-run-smoke passed: registration, two-policy linkage, policy gates, strict CLI refusal, owner-gated cancel/resume, forged authority refusal, server receipt hardening, bounded retry, conflict/cancel evidence preservation, host-native delegation, resume refusal, and authority boundaries."
+    },
+    {
+      "featureId": "CHK-005/dispatch",
+      "transcript": "npm --prefix packages/main run test:dispatch-run-smoke passed: runtime probes, overflow gating, fake path hardening, real-host scaffolds, receipts, degradation paths, manual merge guidance, authority invariants, dispatch policy contract, scheduler controls, and review/merge gates."
+    },
+    {
+      "featureId": "CHK-005/unattended-dispatch",
+      "transcript": "npm --prefix packages/main run test:unattended-dispatch-smoke passed: policy checks, Claude Code capability probe, fake parallel dispatch, fake Claude success/env/nonzero/timeout coverage, watch/cancel/review/merge-plan behavior, unsafe host refusals, denied env filtering, missing receipt, mixed diagnostics, and overflow migration guidance."
+    },
+    {
+      "featureId": "ownership-flow",
+      "transcript": "npm --prefix packages/main run test:command-ownership-contract and npm --prefix packages/main run test:flow-stability-smoke both passed."
+    },
+    {
+      "featureId": "release-safety",
+      "transcript": "npm --prefix packages/main run test:remote-push-approval-smoke passed; node packages/main/dist/tasks/done-preflight-smoke.js passed."
+    },
+    {
+      "featureId": "validation",
+      "transcript": "node bin/lattice.js validate --story=B-47cd --json passed with allPass=true and 33/33 verification intents covered."
+    },
+    {
+      "featureId": "codex-adapter",
+      "transcript": "node bin/koala-codex.js verify_codex passed 7/8; only advisory was global fallback heartbeat resolving to main instead of current worktree, not used as gate evidence."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "koala-review-delivery verified docs promises and real-machine tests. The delivery artifacts are recorded in main local state; remaining notes are intentional product boundaries or non-blocking advisories."
+  },
+  "_hash": "4fc580b83f16d30c557617e070a988acfbcab8ec424cec87076ac79742744273"
+}

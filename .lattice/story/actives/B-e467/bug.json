@@ -1,0 +1,19 @@
+{
+  "bugs": [
+    {
+      "id": "BUG-1df2416b",
+      "title": "[auto] session-ownership-guard.json:CHK-001 edge: missing current session degrades instead of ownership block — Expected {\"blockedByOwnership\":false,\"failedForChecklist\":true}, got {\"blockedByOwnership\":false,\"fa",
+      "status": "fixed",
+      "foundAt": "2026-04-15T12:53:57.168Z",
+      "fixedAt": "2026-04-15T12:55:33.607Z",
+      "fixtureId": "1df2416b-a3df-44ab-8bf0-e0f324dd0464",
+      "diagnose": {
+        "rootCause": [
+          "Expected {\"blockedByOwnership\":false,\"failedForChecklist\":true}, got {\"blockedByOwnership\":false,\"failedForChecklist\":false}"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "storyId": "B-831c",
+  "name": "annotation-drift-check",
+  "title": "注释漂移检测：git diff vs @task 自动对比，发现代码改了但注释没跟上",
+  "description": "当前 koala 的 task_scan / task_coverage / gap_analyze / test_auto 均不检测 git 变更，无法发现「代码改了但没有/没更新 @task 注释」的情况。新增一个检测步骤：拿 git diff 的改动函数列表与 task_scan 结果对比，输出缺失注释的函数列表。可集成到 test_auto 流程中，作为 TE-DRIFT-* 证据写入。",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "high",
+  "createdAt": "2026-04-01T14:40:34.539Z",
+  "startedAt": "2026-04-01T14:40:34.539Z",
+  "endedAt": "2026-04-01T17:43:00.011Z",
+  "events": [
+    {
+      "phase": "PLAN",
+      "action": "create",
+      "timestamp": "2026-04-01T14:40:34.539Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-01T15:25:34.389Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    }
+  ]
+}

@@ -72,7 +72,7 @@ function createStory(root: string, name: string, title: string): string {
 }
 
 function initCheckPath(root: string, storyId: string): string {
-  return join(root, '.koala/story/actives', storyId, 'init-check.json');
+  return join(root, '.lattice/story/actives', storyId, 'init-check.json');
 }
 
 const root = mkdtempSync(join(tmpdir(), 'koala-init-fallback-'));
@@ -83,7 +83,7 @@ try {
   write(root, 'koala.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.koala/story/actives',
+    storyDir: '.lattice/story/actives',
     requirementsDir: 'docs/requirements',
     storyPrefix: 'B',
   }, null, 2));

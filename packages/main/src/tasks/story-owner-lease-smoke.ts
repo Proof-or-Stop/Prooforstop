@@ -327,7 +327,7 @@ try {
   {
     // The lease path must be classified as a runtime artifact: volatile,
     // material-excluded, and carrying a `**/owner-lease.json` ignore pattern.
-    const sampleLeasePath = '.koala/story/actives/B-c55d/owner-lease.json';
+    const sampleLeasePath = '.lattice/story/actives/B-c55d/owner-lease.json';
     const entry = findRuntimeArtifactEntry(sampleLeasePath);
     assert.notEqual(entry, undefined, 'owner-lease.json is a registered runtime artifact');
     assert.equal(entry!.id, 'runtime-story-owner-lease', 'owner-lease.json matches the owner-lease registry entry');
@@ -1166,7 +1166,7 @@ try {
     assert.notEqual(repoRoot, '', 'the smoke runs inside a git repo (needed for the F-008 check)');
 
     // git check-ignore must report owner-lease.json as ignored at a story path.
-    const sampleLeaseRel = '.koala/story/actives/B-c55d/owner-lease.json';
+    const sampleLeaseRel = '.lattice/story/actives/B-c55d/owner-lease.json';
     let checkIgnoreCode = 1;
     try {
       execFileSync('git', ['check-ignore', '-q', sampleLeaseRel], {
@@ -1181,7 +1181,7 @@ try {
     assert.equal(
       checkIgnoreCode,
       0,
-      'git check-ignore confirms .koala/story/actives/<id>/owner-lease.json is gitignored — it never produces a dirty write before DONE (F-008-class prevention)',
+      'git check-ignore confirms .lattice/story/actives/<id>/owner-lease.json is gitignored — it never produces a dirty write before DONE (F-008-class prevention)',
     );
 
     // The runtime-artifact registry carries the matching glob — the .gitignore
@@ -1194,7 +1194,7 @@ try {
 
     // A real owner-lease.json written into the live tree does NOT appear in
     // `git status --porcelain` (it is ignored, so it is invisible to status).
-    const liveStoryDir = join(repoRoot, '.koala', 'story', 'actives', 'B-c55d');
+    const liveStoryDir = join(repoRoot, '.lattice', 'story', 'actives', 'B-c55d');
     if (existsSync(liveStoryDir)) {
       const leaseFile = join(liveStoryDir, OWNER_LEASE_FILE);
       const preExisted = existsSync(leaseFile);

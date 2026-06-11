@@ -93,7 +93,7 @@ export const CLAUDE_MD_TEMPLATE = `# CLAUDE.md
 
 // --- Global-thin asset templates ---
 // These are used when fresh init defaults to the global-thin asset mode.
-// The .Lattice/ directory holds project context (Lattice.md) and config (lattice.json).
+// The .lattice/ directory holds project context (Lattice.md) and config (lattice.json).
 // Executable Codex adapter behavior lives in the global lattice CLI; no local bin shims are created.
 
 export const LATTICE_DOT_DIR_MD_TEMPLATE = `# Lattice.md
@@ -101,7 +101,7 @@ export const LATTICE_DOT_DIR_MD_TEMPLATE = `# Lattice.md
 <!-- koala:start -->
 ## Lattice
 
-\`.Lattice/Lattice.md\` is the canonical, host-neutral Lattice project guide. This directory holds project-local Lattice context and configuration.
+\`.lattice/Lattice.md\` is the canonical, host-neutral Lattice project guide. This directory holds project-local Lattice context and configuration.
 
 - At the start of a new session, or when resuming interrupted work, run \`lattice session_brief\`.
 - Before acting, run \`lattice aux_doc_list\` to inspect relevant docs.
@@ -119,7 +119,7 @@ export const AGENTS_MD_GLOBAL_THIN_TEMPLATE = `# AGENTS.md
 <!-- koala:start -->
 ## Lattice
 
-- \`.Lattice/Lattice.md\` is the host-neutral Lattice guide; this file keeps only Codex / AGENTS additions.
+- \`.lattice/Lattice.md\` is the host-neutral Lattice guide; this file keeps only Codex / AGENTS additions.
 - At the start of a new session, or when resuming interrupted work, run \`lattice session_brief\`.
 - Before acting, run \`lattice aux_doc_list\` to inspect relevant docs.
 - Use the global \`lattice\` CLI for Story / checklist / fixture / bug operations. Do not edit story/fixture JSON directly; \`koala\` is only a legacy alias.
@@ -650,7 +650,7 @@ function findRepoRoot(start) {
   for (let i = 0; i < 20; i++) {
     if (
       fs.existsSync(path.join(dir, '.koala')) ||
-      fs.existsSync(path.join(dir, '.Lattice')) ||
+      fs.existsSync(path.join(dir, '.lattice')) ||
       fs.existsSync(path.join(dir, '.Codex')) ||
       fs.existsSync(path.join(dir, '.codex')) ||
       fs.existsSync(path.join(dir, 'koala.config.json')) ||

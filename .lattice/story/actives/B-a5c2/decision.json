@@ -1,0 +1,102 @@
+{
+  "principles": [
+    "User opt-in policy is the only authority to start unattended external hosts.",
+    "Automation may launch, watch, cancel, and collect evidence, but review, merge, DONE, and production authority remain gate-controlled.",
+    "Every host action must be bounded by explicit paths, command templates, timeout, environment filtering, and visible nextAction.",
+    "Fake/local coverage must prove scheduler semantics before real host smoke, and real host limitations must degrade visibly.",
+    "dispatch_auto must clarify its relationship to overflow_auto so users have one coherent product path."
+  ],
+  "drivers": [
+    "Reduce repetitive cross-host handoff labor while preserving Lattice story/scope/receipt authority.",
+    "Prevent unattended external CLIs from expanding scope, leaking secrets, running forever, or silently spending budget.",
+    "Support practical parallel development with Claude Code/Gemini/Codex without creating hidden auto-merge or production-DONE behavior."
+  ],
+  "options": [
+    {
+      "name": "manual-only-host-overflow",
+      "pros": [
+        "Safest continuation of B-106b",
+        "No new external process risk"
+      ],
+      "cons": [
+        "Does not reduce handoff labor",
+        "Does not validate user-requested unattended parallel agent workflow"
+      ]
+    },
+    {
+      "name": "default-unattended-auto-runner",
+      "pros": [
+        "Maximum automation",
+        "Simple user story superficially"
+      ],
+      "cons": [
+        "Violates user-owned authority",
+        "Creates high risk of hidden host execution, cost, leaks, and false production claims"
+      ]
+    },
+    {
+      "name": "policy-authorized-unattended-scheduler",
+      "pros": [
+        "User controls whether unattended execution is allowed",
+        "Allows real host launch, watch, cancel, transcript, receipt, and evidence collection inside explicit limits",
+        "Keeps merge/DONE/production authority under existing Lattice gates"
+      ],
+      "cons": [
+        "Requires policy, capability, runner, scheduler, collector, and docs work",
+        "Needs careful smoke coverage for both allow and refusal paths"
+      ]
+    },
+    {
+      "name": "overflow-auto-wrapper-only",
+      "pros": [
+        "Reuses existing B-106b surface",
+        "Smaller implementation"
+      ],
+      "cons": [
+        "Leaves old and new semantics ambiguous",
+        "Does not provide a dedicated policy/check/watch/cancel product path"
+      ]
+    }
+  ],
+  "chosen": "policy-authorized-unattended-scheduler",
+  "rationale": "Choose policy-authorized unattended scheduling because it is the only option that gives the user real parallel host automation while preserving Lattice authority, visible refusal, cancellation, and manual merge/DONE gates.",
+  "preMortem": [
+    {
+      "scenario": "Policy missing or too broad",
+      "trigger": "User runs dispatch_auto without policy or with wildcard paths/unbounded parallelism",
+      "consequence": "External host could start outside intended scope or user cannot tell why it was allowed",
+      "mitigation": "dispatch_policy check is mandatory; missing/unsafe policy returns supervised/manual refusal with exact reasons"
+    },
+    {
+      "scenario": "Secret or unsafe environment leakage",
+      "trigger": "Runner inherits full shell environment or host CLI sees denied variables",
+      "consequence": "Prompt/transcript may expose credentials or unintended local context",
+      "mitigation": "Runner uses environment allow/deny filtering, records sanitized env summary, and tests forbidden env rejection"
+    },
+    {
+      "scenario": "Host CLI hangs or spends too long",
+      "trigger": "Claude/Gemini/Codex process blocks, waits for input, or exceeds timeout",
+      "consequence": "Unattended run consumes time/cost and leaves user without control",
+      "mitigation": "Runner enforces timeout/kill and scheduler exposes dispatch_cancel with stopped/cancelled watch state"
+    },
+    {
+      "scenario": "Mixed worker outcomes hide useful evidence",
+      "trigger": "One parallel worker succeeds while another fails or is cancelled",
+      "consequence": "User loses successful receipt/diff or gets false aggregate success",
+      "mitigation": "Scheduler aggregate remains diagnostic/partial while preserving each worker transcript, receipt, and nextAction"
+    },
+    {
+      "scenario": "Forged host text overclaims authority",
+      "trigger": "External CLI writes transcript claiming tests passed, receipt verified, or productionDone",
+      "consequence": "Lattice could mistakenly treat host prose as authority evidence",
+      "mitigation": "Collector derives changedFiles from git and hard-codes authorityChanged=false, receiptVerified=false, productionDone=false; gates require local validation/review/delivery/server receipt separately"
+    },
+    {
+      "scenario": "Entry point confusion between overflow_auto and dispatch_auto",
+      "trigger": "Users see both commands and cannot tell whether one replaces or wraps the other",
+      "consequence": "Product feels unfinished and users choose unsafe/old path by accident",
+      "mitigation": "Docs and smoke require overflow_auto nextAction/migration guidance to dispatch_auto for policy-authorized unattended mode"
+    }
+  ],
+  "timestamp": "2026-06-03T19:09:16.528Z"
+}

@@ -1,0 +1,66 @@
+{
+  "principles": [
+    "DONE confirm should own safe prerequisite automation",
+    "dry-run must remain read-only",
+    "real source changes must still force retest"
+  ],
+  "drivers": [
+    "BUG-4 persists when users manually merge main",
+    "story_sync_main already encodes the safe metadata --ours policy",
+    "DONE gate has enough context to retry after metadata-only sync"
+  ],
+  "options": [
+    {
+      "name": "A: DONE confirm auto-runs story_sync_main when branch sync is the only failure",
+      "pros": [
+        "removes manual merge step",
+        "reuses tested safe sync logic",
+        "keeps source conflict behavior explicit"
+      ],
+      "cons": [
+        "DONE confirm becomes a slightly larger mutation path"
+      ]
+    },
+    {
+      "name": "B: keep separate story_sync_main only",
+      "pros": [
+        "minimal DONE code change"
+      ],
+      "cons": [
+        "agents still need to remember an extra command and can loop on evidence after manual merge"
+      ]
+    },
+    {
+      "name": "C: always merge main before DONE checklist",
+      "pros": [
+        "simple sequencing"
+      ],
+      "cons": [
+        "can mutate before seeing other gate failures and surprises dry-run expectations"
+      ]
+    }
+  ],
+  "chosen": "A: DONE confirm auto-runs story_sync_main when branch sync is the only failure",
+  "rationale": "选择 A，因为它只在用户已 confirm DONE 且唯一阻塞是 branch sync 时自动执行，最大限度消除手动 merge 风险，同时保留源码冲突和 stale evidence 的硬阻塞。",
+  "preMortem": [
+    {
+      "scenario": "auto-sync hides source changes",
+      "trigger": "sync 后不重新计算 evidence freshness",
+      "consequence": "未测试新 main 代码也 DONE",
+      "mitigation": "sync 后重建 DONE checklist；source changes 仍 stale"
+    },
+    {
+      "scenario": "dry-run modifies repo",
+      "trigger": "为了判断 sync 是否可行直接 merge",
+      "consequence": "预览弄脏 worktree",
+      "mitigation": "dry-run 只调用 story_sync_main dryRun 输出计划"
+    },
+    {
+      "scenario": "other gate failures被跳过",
+      "trigger": "branch sync 与其它失败同时存在仍 auto-sync",
+      "consequence": "用户以为 DONE 可以自动修所有问题",
+      "mitigation": "仅当 branch sync 是唯一 fail 时 auto-sync"
+    }
+  ],
+  "timestamp": "2026-04-20T12:15:37.742Z"
+}

@@ -1,0 +1,195 @@
+{
+  "command": "koala validate --story=B-4a05 --json",
+  "output": "{\"provider\":\"koala-verifier-commands\",\"status\":\"warn\",\"allPass\":true,\"summary\":\"Project validation commands passed\",\"details\":[\"✓ package.json test script: npm test\",\"  > koala@0.3.2 test\",\"  > npm run test:e2e\",\"  > koala@0.3.2 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 9/9 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via integration_test (packages/main/src/tasks/cli-argument-ergonomics-smoke.ts) — 运行 checklist_update 时传 verificationIntent.happy[0].type=integration_test，命令非零失败且 stderr 最后包含字段路径、integration_test 和允许值\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via integration_test (packages/main/src/tasks/cli-argument-ergonomics-smoke.ts) — 同一命令的 stdout 不再输出泛用 session/status footer，避免自动化只读 stdout 时误判下一步\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/cli-argument-ergonomics-smoke.ts) — 合法 verificationIntent 空对象或合法 cli/manual/docs 类型仍按 schema 通过，不因错误输出调整被拒绝\",\"  ✓ CHK-002:happy:0 [happy/must/logic] covered via logic_test (packages/main/src/tasks/review-pass-discard-smoke.ts) — STRAY_FILE_WHITELIST 精确包含 init-self-check.json\",\"  ✓ CHK-002:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/review-pass-discard-smoke.ts) — cleanStrayWorktreeFiles 会删除未追踪的 story init-self-check.json 并报告清理结果\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/review-pass-discard-smoke.ts) — 同一目录下 arbitrary-draft.txt 等非白名单文件仍抛错且不会被删除\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via integration_test (packages/main/src/tasks/review-pass-discard-smoke.ts) — dispatch itemId=CHK-xxx 成功后 process-events 出现 type=dispatch 且包含 itemId/checklistId、agentType、phase、source\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via integration_test (packages/main/src/tasks/review-pass-discard-smoke.ts) — INIT reviewer dispatch 无 item/finding/cluster 时也记录 dispatch 事件，且仍返回 timeout guidance prompt\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/handlers/story-dispatch.ts) — appendProcessEvent 失败时 dispatch 不吞掉健康信号：记录 PERSIST health/log，但仍返回 prompt\"],\"warnings\":[\"validate.ts not found; used language/project validation command discovery\"],\"timestamp\":\"2026-05-04T22:07:09.719Z\",\"headSha\":\"fe2252bffbb709c3a5b3039d3f4dd3c39c90583a\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.2 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.2 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":331}],\"verificationCoverage\":{\"total\":9,\"required\":9,\"covered\":9,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"运行 checklist_update 时传 verificationIntent.happy[0].type=integration_test，命令非零失败且 stderr 最后包含字段路径、integration_test 和允许值\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/cli-argument-ergonomics-smoke.ts\",\"command\":\"node packages/main/dist/tasks/cli-argument-ergonomics-smoke.js\",\"result\":\"pass\",\"note\":\"Updated smoke runs spawned CLI from an isolated temp cwd with KOALA_PROJECT_ROOT removed, so it reaches schema validation even when the parent command is launched inside an active story phase.\",\"headHash\":\"be2c52e094977e7b9c1fd5a86e9de6de6ae8ee36\",\"materialHash\":\"7fd2938b55fffd5e7e3d33c5eadf75b6add2852a156eb7cc72ff3687a081cba9\",\"timestamp\":\"2026-05-04T22:05:27.036Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"同一命令的 stdout 不再输出泛用 session/status footer，避免自动化只读 stdout 时误判下一步\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/cli-argument-ergonomics-smoke.ts\",\"command\":\"node packages/main/dist/tasks/cli-argument-ergonomics-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke asserts invalid validation failure stdout does not contain the generic koala status/session footer.\",\"headHash\":\"be2c52e094977e7b9c1fd5a86e9de6de6ae8ee36\",\"materialHash\":\"7fd2938b55fffd5e7e3d33c5eadf75b6add2852a156eb7cc72ff3687a081cba9\",\"timestamp\":\"2026-05-04T22:05:27.036Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"合法 verificationIntent 空对象或合法 cli/manual/docs 类型仍按 schema 通过，不因错误输出调整被拒绝\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/cli-argument-ergonomics-smoke.ts\",\"command\":\"node packages/main/dist/tasks/cli-argument-ergonomics-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke parses verificationIntent={} successfully and confirms default happy/edge/adversarial arrays remain accepted.\",\"headHash\":\"be2c52e094977e7b9c1fd5a86e9de6de6ae8ee36\",\"materialHash\":\"7fd2938b55fffd5e7e3d33c5eadf75b6add2852a156eb7cc72ff3687a081cba9\",\"timestamp\":\"2026-05-04T22:05:27.036Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"STRAY_FILE_WHITELIST 精确包含 init-self-check.json\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/review-pass-discard-smoke.ts\",\"command\":\"node packages/main/dist/tasks/review-pass-discard-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke asserts STRAY_FILE_WHITELIST includes the exact init-self-check.json basename.\",\"headHash\":\"be2c52e094977e7b9c1fd5a86e9de6de6ae8ee36\",\"materialHash\":\"7fd2938b55fffd5e7e3d33c5eadf75b6add2852a156eb7cc72ff3687a081cba9\",\"timestamp\":\"2026-05-04T22:05:27.036Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"cleanStrayWorktreeFiles 会删除未追踪的 story init-self-check.json 并报告清理结果\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/review-pass-discard-smoke.ts\",\"command\":\"node packages/main/dist/tasks/review-pass-discard-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke writes an untracked story init-self-check.json, cleanStrayWorktreeFiles removes it, and the cleanup report names it.\",\"headHash\":\"be2c52e094977e7b9c1fd5a86e9de6de6ae8ee36\",\"materialHash\":\"7fd2938b55fffd5e7e3d33c5eadf75b6add2852a156eb7cc72ff3687a081cba9\",\"timestamp\":\"2026-05-04T22:05:27.036Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"同一目录下 arbitrary-draft.txt 等非白名单文件仍抛错且不会被删除\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/review-pass-discard-smoke.ts\",\"command\":\"node packages/main/dist/tasks/review-pass-discard-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke writes operator-note.txt in the story metadata dir and confirms cleanup throws while leaving the draft file in place.\",\"headHash\":\"be2c52e094977e7b9c1fd5a86e9de6de6ae8ee36\",\"materialHash\":\"7fd2938b55fffd5e7e3d33c5eadf75b6add2852a156eb7cc72ff3687a081cba9\",\"timestamp\":\"2026-05-04T22:05:27.036Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"dispatch itemId=CHK-xxx 成功后 process-events 出现 type=dispatch 且包含 itemId/checklistId、agentType、phase、source\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/review-pass-discard-smoke.ts\",\"command\":\"node packages/main/dist/tasks/review-pass-discard-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke dispatches itemId=CHK-001 and confirms a process event with type=dispatch, itemId/checklistId, agentType, phase, targetKind, and source.\",\"headHash\":\"be2c52e094977e7b9c1fd5a86e9de6de6ae8ee36\",\"materialHash\":\"7fd2938b55fffd5e7e3d33c5eadf75b6add2852a156eb7cc72ff3687a081cba9\",\"timestamp\":\"2026-05-04T22:05:27.036Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"INIT reviewer dispatch 无 item/finding/cluster 时也记录 dispatch 事件，且仍返回 timeout guidance prompt\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/review-pass-discard-smoke.ts\",\"command\":\"node packages/main/dist/tasks/review-pass-discard-smoke.js\",\"result\":\"pass\",\"note\":\"Smoke dispatches koala-review-story-init without item/finding/cluster and confirms prompt guidance still returns while a targetKind=init-review event is written.\",\"headHash\":\"be2c52e094977e7b9c1fd5a86e9de6de6ae8ee36\",\"materialHash\":\"7fd2938b55fffd5e7e3d33c5eadf75b6add2852a156eb7cc72ff3687a081cba9\",\"timestamp\":\"2026-05-04T22:05:27.036Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"appendProcessEvent 失败时 dispatch 不吞掉健康信号：记录 PERSIST health/log，但仍返回 prompt\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/handlers/story-dispatch.ts\",\"command\":\"npm run build\",\"result\":\"pass\",\"note\":\"Implementation wraps dispatch event append in reportHealthIssue persist handling and ctx.log, so append failures leave health evidence without blocking prompt return.\",\"headHash\":\"be2c52e094977e7b9c1fd5a86e9de6de6ae8ee36\",\"materialHash\":\"7fd2938b55fffd5e7e3d33c5eadf75b6add2852a156eb7cc72ff3687a081cba9\",\"timestamp\":\"2026-05-04T22:05:27.036Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-05-04T22:07:09.907Z",
+  "headHash": "fe2252bffbb709c3a5b3039d3f4dd3c39c90583a",
+  "verificationCoverage": {
+    "total": 9,
+    "required": 9,
+    "covered": 9,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "运行 checklist_update 时传 verificationIntent.happy[0].type=integration_test，命令非零失败且 stderr 最后包含字段路径、integration_test 和允许值",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/cli-argument-ergonomics-smoke.ts",
+          "command": "node packages/main/dist/tasks/cli-argument-ergonomics-smoke.js",
+          "result": "pass",
+          "note": "Updated smoke runs spawned CLI from an isolated temp cwd with KOALA_PROJECT_ROOT removed, so it reaches schema validation even when the parent command is launched inside an active story phase.",
+          "headHash": "be2c52e094977e7b9c1fd5a86e9de6de6ae8ee36",
+          "materialHash": "7fd2938b55fffd5e7e3d33c5eadf75b6add2852a156eb7cc72ff3687a081cba9",
+          "timestamp": "2026-05-04T22:05:27.036Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "同一命令的 stdout 不再输出泛用 session/status footer，避免自动化只读 stdout 时误判下一步",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/cli-argument-ergonomics-smoke.ts",
+          "command": "node packages/main/dist/tasks/cli-argument-ergonomics-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts invalid validation failure stdout does not contain the generic koala status/session footer.",
+          "headHash": "be2c52e094977e7b9c1fd5a86e9de6de6ae8ee36",
+          "materialHash": "7fd2938b55fffd5e7e3d33c5eadf75b6add2852a156eb7cc72ff3687a081cba9",
+          "timestamp": "2026-05-04T22:05:27.036Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "合法 verificationIntent 空对象或合法 cli/manual/docs 类型仍按 schema 通过，不因错误输出调整被拒绝",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/cli-argument-ergonomics-smoke.ts",
+          "command": "node packages/main/dist/tasks/cli-argument-ergonomics-smoke.js",
+          "result": "pass",
+          "note": "Smoke parses verificationIntent={} successfully and confirms default happy/edge/adversarial arrays remain accepted.",
+          "headHash": "be2c52e094977e7b9c1fd5a86e9de6de6ae8ee36",
+          "materialHash": "7fd2938b55fffd5e7e3d33c5eadf75b6add2852a156eb7cc72ff3687a081cba9",
+          "timestamp": "2026-05-04T22:05:27.036Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "STRAY_FILE_WHITELIST 精确包含 init-self-check.json",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-pass-discard-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts STRAY_FILE_WHITELIST includes the exact init-self-check.json basename.",
+          "headHash": "be2c52e094977e7b9c1fd5a86e9de6de6ae8ee36",
+          "materialHash": "7fd2938b55fffd5e7e3d33c5eadf75b6add2852a156eb7cc72ff3687a081cba9",
+          "timestamp": "2026-05-04T22:05:27.036Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "cleanStrayWorktreeFiles 会删除未追踪的 story init-self-check.json 并报告清理结果",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-pass-discard-smoke.js",
+          "result": "pass",
+          "note": "Smoke writes an untracked story init-self-check.json, cleanStrayWorktreeFiles removes it, and the cleanup report names it.",
+          "headHash": "be2c52e094977e7b9c1fd5a86e9de6de6ae8ee36",
+          "materialHash": "7fd2938b55fffd5e7e3d33c5eadf75b6add2852a156eb7cc72ff3687a081cba9",
+          "timestamp": "2026-05-04T22:05:27.036Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "同一目录下 arbitrary-draft.txt 等非白名单文件仍抛错且不会被删除",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-pass-discard-smoke.js",
+          "result": "pass",
+          "note": "Smoke writes operator-note.txt in the story metadata dir and confirms cleanup throws while leaving the draft file in place.",
+          "headHash": "be2c52e094977e7b9c1fd5a86e9de6de6ae8ee36",
+          "materialHash": "7fd2938b55fffd5e7e3d33c5eadf75b6add2852a156eb7cc72ff3687a081cba9",
+          "timestamp": "2026-05-04T22:05:27.036Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "dispatch itemId=CHK-xxx 成功后 process-events 出现 type=dispatch 且包含 itemId/checklistId、agentType、phase、source",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-pass-discard-smoke.js",
+          "result": "pass",
+          "note": "Smoke dispatches itemId=CHK-001 and confirms a process event with type=dispatch, itemId/checklistId, agentType, phase, targetKind, and source.",
+          "headHash": "be2c52e094977e7b9c1fd5a86e9de6de6ae8ee36",
+          "materialHash": "7fd2938b55fffd5e7e3d33c5eadf75b6add2852a156eb7cc72ff3687a081cba9",
+          "timestamp": "2026-05-04T22:05:27.036Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "INIT reviewer dispatch 无 item/finding/cluster 时也记录 dispatch 事件，且仍返回 timeout guidance prompt",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-pass-discard-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-pass-discard-smoke.js",
+          "result": "pass",
+          "note": "Smoke dispatches koala-review-story-init without item/finding/cluster and confirms prompt guidance still returns while a targetKind=init-review event is written.",
+          "headHash": "be2c52e094977e7b9c1fd5a86e9de6de6ae8ee36",
+          "materialHash": "7fd2938b55fffd5e7e3d33c5eadf75b6add2852a156eb7cc72ff3687a081cba9",
+          "timestamp": "2026-05-04T22:05:27.036Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "appendProcessEvent 失败时 dispatch 不吞掉健康信号：记录 PERSIST health/log，但仍返回 prompt",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/handlers/story-dispatch.ts",
+          "command": "npm run build",
+          "result": "pass",
+          "note": "Implementation wraps dispatch event append in reportHealthIssue persist handling and ctx.log, so append failures leave health evidence without blocking prompt return.",
+          "headHash": "be2c52e094977e7b9c1fd5a86e9de6de6ae8ee36",
+          "materialHash": "7fd2938b55fffd5e7e3d33c5eadf75b6add2852a156eb7cc72ff3687a081cba9",
+          "timestamp": "2026-05-04T22:05:27.036Z"
+        }
+      }
+    ]
+  }
+}

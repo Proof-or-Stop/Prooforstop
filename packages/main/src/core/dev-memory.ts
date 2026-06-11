@@ -3,8 +3,8 @@
  *
  * Design constraints (B-ad2c):
  *   - Storage: file-backed JSONL, never SQLite or binary blobs
- *   - Paths: project  → <projectRoot>/.koala/dev-memory/experience.jsonl
- *            global   → ~/.koala/dev-memory/experience.jsonl
+ *   - Paths: project  → <projectRoot>/.lattice/dev-memory/experience.jsonl
+ *            global   → ~/.lattice/dev-memory/experience.jsonl
  *            story    → <storyDir>/<storyId>/dev-memory-candidates.jsonl
  *   - Non-authoritative: entries CANNOT satisfy Koala gate evidence
  *   - No .omx, no structured schema that looks like gate artifacts
@@ -22,6 +22,7 @@ import { join, resolve } from 'path';
 import { homedir } from 'os';
 import { createHash } from 'crypto';
 import { hasProjectConfigFile } from './config.js';
+import { LATTICE_DIR } from './lattice-paths.js';
 
 // ---------------------------------------------------------------------------
 // Schema
@@ -137,23 +138,23 @@ export function validateEntry(raw: unknown): { ok: true; entry: DevMemoryEntry }
 
 /**
  * Resolve the project-scoped experience file path.
- * Uses KOALA_PROJECT_ROOT env or walks upward to find lattice.config.json
+ * Uses LATTICE_PROJECT_ROOT env or walks upward to find lattice.config.json
  * (canonical) / koala.config.json (legacy fallback).
  * Deterministic — no Koala daemon required.
  */
 export function resolveProjectMemoryPath(projectRoot?: string): string {
   const root = projectRoot || resolveProjectRoot();
-  return join(root, '.koala', 'dev-memory', 'experience.jsonl');
+  return join(root, LATTICE_DIR, 'dev-memory', 'experience.jsonl');
 }
 
 /**
  * Resolve the global experience file path.
- * Uses KOALA_GLOBAL_MEMORY_DIR env override (useful in tests).
+ * Uses LATTICE_GLOBAL_MEMORY_DIR env override (useful in tests).
  */
 export function resolveGlobalMemoryPath(): string {
-  const override = process.env.KOALA_GLOBAL_MEMORY_DIR;
+  const override = process.env.LATTICE_GLOBAL_MEMORY_DIR || process.env.KOALA_GLOBAL_MEMORY_DIR;
   if (override) return join(override, 'experience.jsonl');
-  return join(homedir(), '.koala', 'dev-memory', 'experience.jsonl');
+  return join(homedir(), LATTICE_DIR, 'dev-memory', 'experience.jsonl');
 }
 
 /**
@@ -165,6 +166,7 @@ export function resolveStoryCandidatePath(storyDir: string, storyId: string): st
 }
 
 function resolveProjectRoot(): string {
+  if (process.env.LATTICE_PROJECT_ROOT) return process.env.LATTICE_PROJECT_ROOT;
   if (process.env.KOALA_PROJECT_ROOT) return process.env.KOALA_PROJECT_ROOT;
   let dir = process.cwd();
   for (let i = 0; i < 10; i++) {

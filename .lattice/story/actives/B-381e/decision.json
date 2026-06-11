@@ -1,0 +1,80 @@
+{
+  "principles": [
+    "CLI-first：所有可被 dashboard/console 消费的数据必须通过 lattice JSON surface 暴露。",
+    "Host-neutral：resolver/adapter 只解释 authority 与 capability，不把任何 host runtime 状态当交付权威。",
+    "Read-only：M1 surfaces 必须保持 L0，不写 lifecycle/evidence/receipt/authority，也不 spawn runner。",
+    "Machine-readable：禁止 UI/adapter 解析 session_brief/status Markdown。",
+    "Incremental：M1 不开发 UI，只交付 resolver + adapter skeleton + smoke coverage。"
+  ],
+  "drivers": [
+    "当前 status/session_brief 无 JSON contract，M1 必须先补 resolver。",
+    "active story 可处于 authority:worktree 且 main mirror 滞后，adapter 必须先解析 authoritativeCwd。",
+    "后续 M2/M3 需要稳定 JSON schema，否则 dashboard 会把 local-evidence 或 stale phase 渲染错。"
+  ],
+  "options": [
+    {
+      "name": "extend-status-json",
+      "pros": [
+        "复用已有 status/session_brief 入口",
+        "用户心智简单"
+      ],
+      "cons": [
+        "容易把 Markdown 状态命令和机器 resolver 混在一起",
+        "风险是继续兼容旧文本行为时 schema 边界不清"
+      ]
+    },
+    {
+      "name": "resolver-plus-snapshot-command",
+      "pros": [
+        "新增 story_authority_resolve 专注 authority/cwd 解析",
+        "新增 observability_snapshot 让 adapter skeleton 有可手动 demo 的 JSON 输出",
+        "能把 M1 与现有 terminal dashboard.ts 解耦"
+      ],
+      "cons": [
+        "新增两个 CLI surfaces 需要注册 command policy/process fact level",
+        "实现量略大于只扩展 status"
+      ]
+    },
+    {
+      "name": "core-library-only",
+      "pros": [
+        "实现最小，少改 CLI registry",
+        "后续 UI 可以直接 import core helper"
+      ],
+      "cons": [
+        "用户无法手动运行 M1 结果",
+        "不满足 reviewer 对可观察 userSees 的要求",
+        "不利于 Claude Code worker 验收"
+      ]
+    }
+  ],
+  "chosen": "resolver-plus-snapshot-command",
+  "rationale": "选择 resolver-plus-snapshot-command：story_authority_resolve 解决 worktree authority/main mirror 的机器可读发现问题，observability_snapshot 作为 read-only adapter dry-run 输出让 M1 有可观察验收；两者都保持 L0，不触碰现有 terminal dashboard.ts。",
+  "preMortem": [
+    {
+      "scenario": "resolver 继续解析 session_brief Markdown",
+      "trigger": "实现者为了省事复用文本输出",
+      "consequence": "字段不稳定导致 dashboard 在不同语言/格式下误判 authority",
+      "mitigation": "smoke 测试断言 resolver 不调用/不解析 session_brief 文本，且 status/session_brief --format=json 当前缺失被视为已知事实"
+    },
+    {
+      "scenario": "adapter 从 repo root story_export 读取 main mirror",
+      "trigger": "实现者没有先使用 authoritativeCwd",
+      "consequence": "active worktree 的 REVIEW/DEV 被渲染成 INIT_CHECK",
+      "mitigation": "resolver schema 强制返回 authoritativeCwd，adapter smoke 构造 mirror stale 场景并断言 worktree phase 优先"
+    },
+    {
+      "scenario": "observability snapshot 被误认为 authority evidence",
+      "trigger": "输出里带 localDone 或 receipt 字段但没有边界说明",
+      "consequence": "用户误以为 local evidence 等于 production DONE",
+      "mitigation": "所有 output 带 readOnly/authority.productionDone=false/receiptVerified=false/authorityChanged=false，并注册 L0 process fact"
+    },
+    {
+      "scenario": "新增 command policy 漏注册",
+      "trigger": "只实现 handler/CLI，没有更新 command-policy/process-fact-levels",
+      "consequence": "gate/reviewer 无法机械确认新 surface 是 L0 read-only",
+      "mitigation": "CHK-003 与 tests 专门覆盖 command policy、process fact level、schema name"
+    }
+  ],
+  "timestamp": "2026-06-02T23:38:37.037Z"
+}

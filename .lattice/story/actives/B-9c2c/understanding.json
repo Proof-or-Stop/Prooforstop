@@ -1,0 +1,19 @@
+{
+  "task": "修复 story_get detail 中 testIntent fixture 自动映射误配，只绑定真实匹配当前 story/item/lane/index 的 fixture case。",
+  "outcome": "$ koala story_get {\"storyId\":\"B-test\",\"detail\":true}\n...\n\"intentRef\": \"B-test:CHK-001:happy:0\",\n\"fixture\": { \"file\": \"correct.json\", \"name\": \"correct case\" }\n\n不会再把其它 story 或其它 fixture 的 case 显示成当前 testIntent 的 fixture。",
+  "facts": [
+    "story_get 当前会把 B-57e7 的 testIntent 显示成 zombie-linked-worktree 等无关 fixture。",
+    "reviewer note 指向正确 fixture，误配发生在 story_get 的展示增强层。"
+  ],
+  "constraints": [
+    "不能直接手改 story JSON。",
+    "需要兼容 intentRef 带 storyId 前缀和不带 storyId 前缀两种格式。",
+    "不能破坏 fixture_get / test_story 执行。"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/story-query.ts",
+    "packages/main/tests/fixtures/story-get-fixture-mapping.json"
+  ],
+  "timestamp": "2026-04-19T10:18:04.371Z"
+}

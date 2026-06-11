@@ -10,6 +10,7 @@ import {
   KOALA_LEGACY_ALIAS,
   formatLatticeProductLine,
 } from './lattice-brand.js';
+import { LATTICE_DIR, LEGACY_KOALA_DIR } from './lattice-paths.js';
 
 export type RolloutFormat = 'text' | 'json';
 export type RolloutStatus = 'pass' | 'warn' | 'fail' | 'skip';
@@ -227,6 +228,7 @@ function discoverProjects(root: string, maxDepth: number): string[] {
 function looksLikeProject(dir: string): boolean {
   return existsSync(join(dir, 'lattice.config.json')) ||
     existsSync(join(dir, 'koala.config.json')) ||
+    existsSync(join(dir, LATTICE_DIR)) ||
     existsSync(join(dir, '.koala')) ||
     existsSync(join(dir, 'package.json')) ||
     existsSync(join(dir, 'AGENTS.md')) ||
@@ -249,7 +251,10 @@ function buildGitProbe(projectRoot: string): RolloutProjectGit {
 }
 
 function buildStoryProbe(projectRoot: string, branch: string | null): RolloutProjectStoryState {
-  const activeDir = join(projectRoot, '.koala', 'story', 'actives');
+  const activeDir = [
+    join(projectRoot, LATTICE_DIR, 'story', 'actives'),
+    join(projectRoot, LEGACY_KOALA_DIR, 'story', 'actives'),
+  ].find((candidate) => existsSync(candidate)) ?? join(projectRoot, LATTICE_DIR, 'story', 'actives');
   let activeStoryCount = 0;
   try {
     activeStoryCount = readdirSync(activeDir).filter(entry => {
@@ -266,7 +271,7 @@ function buildStoryProbe(projectRoot: string, branch: string | null): RolloutPro
   const currentStoryId = branch?.startsWith('story/') ? branch.slice('story/'.length) : null;
   let currentPhase: string | null = null;
   if (currentStoryId) {
-    const story = readJsonFile(join(projectRoot, '.koala', 'story', 'actives', currentStoryId, 'index.json'));
+    const story = readJsonFile(join(activeDir, currentStoryId, 'index.json'));
     currentPhase = typeof story?.phase === 'string' ? story.phase : null;
   }
   return { activeStoryCount, currentStoryId, currentPhase };
@@ -365,12 +370,13 @@ function buildDoctorProbe(runtime: RuntimeEnvironmentReport, git: RolloutProject
 function buildTranscriptScopeProbe(projectRoot: string, story: RolloutProjectStoryState): RolloutProbe {
   const hasAgentGuide = existsSync(join(projectRoot, 'AGENTS.md'));
   const hasKoalaGuide = existsSync(join(projectRoot, 'LATTICE.md')) || existsSync(join(projectRoot, 'KOALA.md')) || existsSync(join(projectRoot, 'CLAUDE.md'));
-  const hasStoryRoot = existsSync(join(projectRoot, '.koala', 'story'));
+  const hasStoryRoot = existsSync(join(projectRoot, LATTICE_DIR, 'story')) ||
+    existsSync(join(projectRoot, LEGACY_KOALA_DIR, 'story'));
   const status: RolloutStatus = hasAgentGuide && hasKoalaGuide && hasStoryRoot ? 'pass' : 'warn';
   const parts = [
     `AGENTS.md=${hasAgentGuide}`,
     `LATTICE/KOALA/CLAUDE guide=${hasKoalaGuide}`,
-    `.koala/story=${hasStoryRoot}`,
+    `.lattice/story=${hasStoryRoot}`,
     `activeStories=${story.activeStoryCount}`,
   ];
   if (story.currentStoryId) parts.push(`current=${story.currentStoryId}:${story.currentPhase ?? 'unknown'}`);

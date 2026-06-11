@@ -1,0 +1,84 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "StoryPhase 新增 INIT / INIT_CHECK",
+      "context": "types.ts 加两个阶段，story_quick 创建时 phase=INIT",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "story_advance INIT_CHECK 创建 worktree + copy story 文件",
+      "context": "git worktree add 后，把 docs/story/actives/B-xxx/ 整个 copy 到 worktree 对应位置，确保 index.json 和 checklist.json 一定存在，不依赖 HEAD",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "PLAN ~ TEST 阶段 cwd 门禁检查",
+      "context": "process.cwd() 包含 .worktrees/{storyId}，不在则拒绝并提示 EnterWorktree",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "DONE 门禁检查 story 分支已 merge main",
+      "context": "git merge-base --is-ancestor main story/B-xxx，未合并则拒绝并提示先 git merge main",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "story_advance DONE 自动合并 + 清理 worktree",
+      "context": "merge story branch -> main, worktree remove, branch delete",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "CLAUDE.md 更新阶段流转图 + worktree 使用说明",
+      "context": "加 INIT/INIT_CHECK 说明，续接 story 用 EnterWorktree，DONE 前先 merge main",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "更新 koala help 和 CLI 命令文档",
+      "context": "story_quick/story_advance 的 hint 信息更新，反映新阶段和 worktree 流程",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-008",
+      "title": "worktreeDir 统一配置到 koala.config.json + .gitignore",
+      "context": "新增 worktreeDir 字段（默认 .worktrees），替换 worktree.ts 和 cli-test.ts 中硬编码的 .claude/worktrees 路径。.gitignore 加 .worktrees/",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-009",
+      "title": "sub agent 不再使用 isolation: worktree，在主 agent 的 story worktree 里跑",
+      "context": "reviewer/test-intent 等 sub agent 需要读主 agent 写的代码和 fixture，不需要隔离。CLAUDE.md 更新相关说明",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-010",
+      "title": "fixture 文件命名约定：功能名.storyId.json",
+      "context": "如 diagnose.B-2caf.json，跨 story 复用的不加后缀。test_story 按 .B-xxx.json 后缀快速过滤归属。fixture_batch_add 自动校验命名格式",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

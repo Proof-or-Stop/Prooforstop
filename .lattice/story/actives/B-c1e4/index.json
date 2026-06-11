@@ -1,0 +1,46 @@
+{
+  "storyId": "B-c1e4",
+  "name": "batch-task-coverage",
+  "title": "task_coverage 支持批量 storyId 查询",
+  "description": "task_coverage 当前只接受单个 storyId，多 Story 场景需串行调用效率低。改为支持 storyId: string | string[]，一次返回多个覆盖率结果。另外在 skill.md 加入 story-first 提示逻辑：用户提需求时优先引导走 story 流程。",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "medium",
+  "createdAt": "2026-04-01T12:57:59.711Z",
+  "startedAt": "2026-04-01T12:57:59.711Z",
+  "endedAt": "2026-04-01T13:01:55.830Z",
+  "events": [
+    {
+      "phase": "PLAN",
+      "action": "create",
+      "timestamp": "2026-04-01T12:57:59.712Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-01T12:58:14.412Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-01T13:00:33.532Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-01T13:01:55.830Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    }
+  ]
+}

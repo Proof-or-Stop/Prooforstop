@@ -498,7 +498,7 @@ function mergedFor(contract: ScopeContractData, pack: ScopeDiffPack) {
 {
   const contract = makeContract({ mode: 'enforce', allowedModify: ['src/allowed.ts'] });
   const codeHunk = makeHunk('src/allowed.ts', { anchor: 'fn', digest: 'cccc3333cccc3333' });
-  const metaHunkA = makeHunk('.koala/story/actives/B-x/findings.json', { digest: 'eeee5555eeee5555' });
+  const metaHunkA = makeHunk('.lattice/story/actives/B-x/findings.json', { digest: 'eeee5555eeee5555' });
   const metaHunkB = makeHunk('docs/story/actives/B-x/index.json', { digest: 'ffff6666ffff6666' });
 
   const packBefore = makePack([codeHunk, metaHunkA]);
@@ -601,7 +601,7 @@ function writeScopeStory(root: string, opts: { withContract: boolean }): { store
     rootDir: 'src',
     testsDir: 'packages/main/tests',
     fixturesDir: 'packages/main/tests/fixtures',
-    storyDir: '.koala/story/actives',
+    storyDir: '.lattice/story/actives',
     requirementsDir: 'docs/requirements',
     workflow: { profile: 'balanced' },
   }));
@@ -870,7 +870,7 @@ function seedScopePasses(store: StoryStore, storyId: string, reviewRound: string
       rootDir: 'src',
       testsDir: 'packages/main/tests',
       fixturesDir: 'packages/main/tests/fixtures',
-      storyDir: '.koala/story/actives',
+      storyDir: '.lattice/story/actives',
       requirementsDir: 'docs/requirements',
       workflow: { profile: 'balanced' },
     }));

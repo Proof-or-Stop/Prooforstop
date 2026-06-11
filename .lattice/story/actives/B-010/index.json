@@ -1,0 +1,13 @@
+{
+  "storyId": "B-010",
+  "title": "全自动化测试执行器：运行时执行 + fixture 自动生成 + 自扩展",
+  "description": "1) 运行时测试执行器：动态 import 编译后的 JS 模块，调用函数传入 fixture input，对比 expect 或捕获 throws；2) fixture 自动生成：函数有 @test 注释但 fixture 不存在时，分析函数签名自动生成初始 fixture 模板；3) 依赖注入/mock 支持：函数需要 StoryStore 等依赖时自动构造或 mock；4) 异步函数支持：await Promise 结果；5) story_advance 到 DONE 门禁硬约束：test_list 必须有 test_auto 的通过记录；6) 自扩展能力：测试遇到新模式时 Claude 自动补充 test helper 和 fixture，无需用户指导。",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "高",
+  "source": "用户需求",
+  "depends": ["B-008"],
+  "createdAt": "2026-04-01T18:00:00.000Z",
+  "startedAt": "2026-04-01T18:10:00.000Z",
+  "endedAt": "2026-04-01T18:30:00.000Z"
+}

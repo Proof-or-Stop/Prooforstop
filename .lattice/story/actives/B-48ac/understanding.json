@@ -1,0 +1,26 @@
+{
+  "task": "让全局 @koala-agent/core 的 koala 命令支持可选加载 @koala-agent/lab，并把 core/utils/lab 版本调整为 0.2.2。",
+  "outcome": "$ npm --prefix packages/main run build && npm --prefix packages/lab run build\n✓ build complete\n\n$ node packages/main/dist/cli.js lab --help\n  koala lab — 离线优化实验室\n  lab create    创建 koala-lab 实验配置骨架\n  lab run       运行 koala-lab 实验...\n\n$ node packages/main/dist/cli.js session_brief\n# koala session brief\n...\n用户确认全局 core bin 也能看到 lab 命令，且普通 core 命令仍可用。",
+  "facts": [
+    "全局 koala bin 来自 packages/main/dist/cli.js，目前只调用 runCli()，不会加载 utils/lab。",
+    "repo-local bin/koala.js 已经能加载 main+utils+lab，但不能代表全局 core 包。",
+    "packages/lab 当前源码依赖 main/dist 的类型和 zod re-export，发布时需要被 core 可选加载。"
+  ],
+  "constraints": [
+    "版本必须使用合法 npm semver 0.2.2。",
+    "全局 core 缺少 @koala-agent/lab 时普通 koala 命令不能失败。",
+    "lab 作为扩展加载失败时，只有 koala lab 应该给出恢复提示。",
+    "不推 GitHub，只做本地提交验证。"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/cli.ts",
+    "packages/main/package.json",
+    "packages/utils/package.json",
+    "packages/lab/package.json",
+    "packages/lab/src/tool-defs.ts",
+    "scripts/verify-global-lab-entrypoint.mjs",
+    "README.md"
+  ],
+  "timestamp": "2026-04-18T23:52:53.398Z"
+}

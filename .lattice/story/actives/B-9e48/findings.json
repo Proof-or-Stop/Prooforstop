@@ -1,0 +1,92 @@
+{
+  "findings": [
+    {
+      "id": "B-9e48:F-001",
+      "desc": "packages/main/src/handlers/story-advance.ts:944 and packages/main/src/handlers/story-advance.ts:1198 keep DONE cleanup on shell-interpolated git commands. The new pre-merge stray scan builds `git ls-files ... ${JSON.stringify(storyDir)}` instead of the argv-safe execFileSync form already used by cleanStrayWorktreeFiles, and the cleanup runner later interpolates branch/worktree paths into `git ${cmd}` for merge/worktree remove/branch delete. Because story prefixes, branch names, and repo/worktree paths are not mechanically constrained to shell-safe characters, command substitution or quoting characters can be interpreted by the shell in the destructive DONE cleanup path. Replace these calls with execFileSync/spawn argv arrays, and validate the detected branch equals the expected story branch before merge/delete.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-12T17:54:29.403Z",
+      "reviewRound": "2026-05-12T17:48:22.269Z",
+      "_hash": "9d0878b7c9864d2234c8e96203b15b1391b58c759664f3f3fcd2c3c4f30b187b",
+      "files": [
+        "packages/main/src/handlers/story-advance.ts"
+      ]
+    },
+    {
+      "id": "B-9e48:F-002",
+      "desc": "packages/main/src/handlers/story-advance.ts:115 only builds DONE cleanup context for branches starting with story/, so a linked worktree checked out to a non-story branch returns null instead of failing the expected story branch guard. The DONE precheck then skips assertDoneStoryBranchMatches, lines 1015-1022 persist phase DONE in that wrong branch, and lines 1204-1206 skip merge/worktree cleanup entirely. I reproduced this in a temp repo: story_advance DONE from feature/not-story reported DONE, worktreePhase=DONE, mainPhase=TEST, worktreeExists=true. Severity high because the user sees DONE while main never receives the DONE metadata and the worktree/branch are left behind. Fix by detecting any linked worktree context before the story/ prefix filter and rejecting branch !== story/<storyId> before actor.send; add a non-story-branch smoke alongside the existing wrong-story-branch case.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-05-12T18:07:50.757Z",
+      "reviewRound": "2026-05-12T17:59:24.436Z",
+      "_hash": "e6760b0f2a541d5885eb79336fcedb5f0913d1993b4ba6948d5415afee8e7de1",
+      "files": [
+        "packages/main/src/handlers/story-advance.ts",
+        "packages/main/src/tasks/worktree-authority-smoke.ts"
+      ]
+    },
+    {
+      "id": "B-9e48:F-003",
+      "desc": "CLAUDE.md:383 documents that DONE may be invoked from a worktree subdirectory and cleans the git top-level worktree, but the current REVIEW implementation also adds a user-visible fail-closed guard for mismatched/non-story linked worktree branches before mutating DONE state. Without documenting that expected-branch invariant in the Worktree 生命周期/DONE 门禁 text, CLAUDE.md is incomplete for the final behavior: users seeing \"refusing DONE cleanup: detected branch ...\" get no guidance that this is intentional and mutation-safe. Add a concise note that DONE must run from the expected story/<storyId> branch and refuses before merge/delete/state mutation otherwise.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-05-12T18:15:51.144Z",
+      "reviewRound": "2026-05-12T18:11:40.902Z",
+      "_hash": "725f69ccc11daadf5667b88c2930e9ab25098b09a37671db31d3075f9e7c47ff",
+      "files": [
+        "CLAUDE.md"
+      ]
+    },
+    {
+      "id": "B-9e48:F-004",
+      "desc": "koala validate --story=B-9e48 now reports verification coverage 0/6 covered: every required CHK-001 and CHK-002 verificationIntent is stale after the REVIEW-round material changes. Re-run the focused build/smoke on current HEAD and update checklist verificationEvidence for nested cwd, wrong-branch, and non-story smoke coverage before this lane can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-05-12T18:24:05.336Z",
+      "reviewRound": "2026-05-12T18:19:49.915Z",
+      "_hash": "f7abd9c806a8aff726458591795d656dac3a3834127126ca56f0182d6a8e1034",
+      "files": [
+        "packages/main/src/tasks/worktree-authority-smoke.ts",
+        "packages/main/src/handlers/story-advance.ts",
+        "CLAUDE.md"
+      ]
+    },
+    {
+      "id": "B-9e48:F-005",
+      "desc": "packages/main/src/handlers/story-advance.ts:778 runs DONE autoSyncMain(ctx.root) before the new story-branch guard at packages/main/src/handlers/story-advance.ts:944 and packages/main/src/handlers/story-advance.ts:1213. That means a linked worktree on feature/not-story or story/B-other can still be mutated if it is behind main: story_advance DONE first runs git merge main --no-edit on the wrong branch, then later rejects with refusing DONE cleanup. This violates the intended branch guard before mutation invariant for the destructive DONE path. Move detectDoneStoryWorktreeContext plus assertDoneStoryBranchMatches ahead of checkMainDivergence/autoSyncMain, or make auto-sync conditional on a verified story/<storyId> branch, and extend the wrong-branch smoke so the wrong branch is actually behind main before invoking DONE.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-12T18:29:03.400Z",
+      "reviewRound": "2026-05-12T18:25:55.241Z",
+      "_hash": "6ac1a4efac0b691a50237e7b1a04ac769eae8db3292582fb3e209d537a9273d0",
+      "files": [
+        "packages/main/src/handlers/story-advance.ts"
+      ]
+    },
+    {
+      "id": "B-9e48:F-006",
+      "desc": "packages/main/src/handlers/story-advance.ts:778 runs DONE autoSyncMain(ctx.root) before the branch/context guard at packages/main/src/handlers/story-advance.ts:944 and packages/main/src/handlers/story-advance.ts:1213. For a linked worktree checked out to story/B-other or feature/not-story that is behind main, story_advance DONE can still run git merge main --no-edit on the wrong branch before it later fails with refusing DONE cleanup. That violates the intended fail-before-mutation concept for wrong/non-story branches. Move detectDoneStoryWorktreeContext plus assertDoneStoryBranchMatches ahead of checkMainDivergence/autoSyncMain, or make autoSyncMain conditional on a verified story/<storyId> branch; extend the wrong/non-story smoke so the wrong branch is behind main before DONE.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-05-12T18:30:35.412Z",
+      "reviewRound": "2026-05-12T18:25:55.241Z",
+      "_hash": "e9e49610a3e7c3db3eaf8f45e692ebec9de912de7bec85f1062c8a34105932a7",
+      "files": [
+        "packages/main/src/handlers/story-advance.ts",
+        "packages/main/src/tasks/worktree-authority-smoke.ts"
+      ]
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { canonicalDigest } from './authority-signing.js';
+import { LATTICE_DIR } from './lattice-paths.js';
 import {
   FINAL_HOST_REVIEW_PROMPT_PROFILE,
   buildFinalHostReviewPromptDigestInput,
@@ -107,7 +108,7 @@ export interface VerdictSubmitArgs {
 }
 
 function baseDir(root: string, mode: VerdictMode, id: string): string {
-  return join(root, '.koala', mode === 'authority' ? 'authority-verdicts' : 'autopilot-verdicts', id);
+  return join(root, LATTICE_DIR, mode === 'authority' ? 'authority-verdicts' : 'autopilot-verdicts', id);
 }
 
 function readVerdictFile(root: string, file: string): Partial<HostVerdict> {

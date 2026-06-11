@@ -1,0 +1,314 @@
+{
+  "command": "koala validate --story=B-b9d0 --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.3 test\",\"  > npm run test:e2e\",\"  > koala@0.3.3 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 15/15 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/logic] covered via logic_test (scripts/verify-process-fact-contract.mjs) — A Koala command generated lifecycle artifact is classified as Koala-owned metadata with provenance.\",\"  ✓ CHK-001:edge:0 [edge/must/logic] covered via logic_test (scripts/verify-process-fact-contract.mjs) — The allowed lifecycle artifact list is narrow and story-scoped; unrelated files are not classified as lifecycle metadata.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/logic] covered via logic_test (scripts/verify-process-fact-contract.mjs) — A product source file or arbitrary unknown JSON still fails scope when unacknowledged.\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via logic_test (scripts/verify-process-fact-contract.mjs) — A TEST story can generate delivery-check.json and summary.json and then pass DONE without rollback repair.\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via logic_test (scripts/verify-process-fact-contract.mjs) — TEST phase still rejects ordinary scope_contract_acknowledge or unrelated file expansion.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via logic_test (scripts/verify-process-fact-contract.mjs) — Manually adding an unrelated file in TEST still blocks DONE even if delivery and summary are allowed.\",\"  ✓ CHK-003:happy:0 [happy/must/logic] covered via logic_test (scripts/verify-gap-convergence.mjs) — convergence_check skips .build and derived runtime directories during scanning.\",\"  ✓ CHK-003:edge:0 [edge/must/logic] covered via logic_test (scripts/verify-gap-convergence.mjs) — A fixture symlink loop does not crash convergence_check.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/cli] covered via logic_test (scripts/verify-gap-convergence.mjs) — Ignoring derived directories does not hide real docs/story files from convergence checks.\",\"  ✓ CHK-004:happy:0 [happy/must/cli] covered via manual_transcript (scripts/verify-session-brief-command-center.mjs) — When scope gate fails, next-step prioritizes scope repair and does not recommend DONE.\",\"  ✓ CHK-004:edge:0 [edge/must/cli] covered via manual_transcript (scripts/verify-session-brief-command-center.mjs) — When only delivery or summary is missing, session_brief still recommends the correct reviewer or summary command.\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/cli] covered via manual_transcript (scripts/verify-session-brief-command-center.mjs) — When all gates pass, session_brief may recommend DONE only after no blocking scope failure remains.\",\"  ✓ CHK-005:happy:0 [happy/must/cli] covered via integration_test (scripts/verify-process-fact-contract.mjs) — Regression tests cover lifecycle artifact metadata acknowledgement, convergence symlink handling, and session_brief blocking next-step output.\",\"  ✓ CHK-005:edge:0 [edge/must/cli] covered via manual_transcript — koala check and convergence_check pass on the final repository state.\",\"  ✓ CHK-005:adversarial:0 [adversarial/must/docs] covered via docs_check (docs/requirements/decisions/lifecycle-artifact-scope.md) — The final evidence explicitly states this does not weaken product source scope enforcement.\"],\"warnings\":[],\"timestamp\":\"2026-05-28T04:30:31.713Z\",\"headSha\":\"441e8be074d221ec30f788eac7f8de684b16d471\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.3 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.3 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（koala checklist_get / session_brief）后再依赖快照。\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":2690}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":15,\"reason\":\"verificationIntent entries present (15)\"},\"verificationCoverage\":{\"total\":15,\"required\":15,\"covered\":15,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"A Koala command generated lifecycle artifact is classified as Koala-owned metadata with provenance.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"file\":\"scripts/verify-process-fact-contract.mjs\",\"command\":\"node scripts/verify-process-fact-contract.mjs\",\"result\":\"pass\",\"note\":\"Confirms known story-scoped lifecycle artifacts are accepted as Koala-owned metadata.\",\"headHash\":\"06177e9a69a0586ebbe473959233d81705c73cc5\",\"materialHash\":\"4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3\",\"timestamp\":\"2026-05-28T04:18:02.285Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"The allowed lifecycle artifact list is narrow and story-scoped; unrelated files are not classified as lifecycle metadata.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"file\":\"scripts/verify-process-fact-contract.mjs\",\"command\":\"node scripts/verify-process-fact-contract.mjs\",\"result\":\"pass\",\"note\":\"Confirms lifecycle artifact classification is story-scoped and filename-aware.\",\"headHash\":\"06177e9a69a0586ebbe473959233d81705c73cc5\",\"materialHash\":\"4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3\",\"timestamp\":\"2026-05-28T04:18:02.287Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"A product source file or arbitrary unknown JSON still fails scope when unacknowledged.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"scripts/verify-process-fact-contract.mjs\",\"command\":\"node scripts/verify-process-fact-contract.mjs\",\"result\":\"pass\",\"note\":\"Confirms arbitrary .koala files and product source files still fail unacknowledged enforce scope.\",\"headHash\":\"06177e9a69a0586ebbe473959233d81705c73cc5\",\"materialHash\":\"4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3\",\"timestamp\":\"2026-05-28T04:18:02.287Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"A TEST story can generate delivery-check.json and summary.json and then pass DONE without rollback repair.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"file\":\"scripts/verify-process-fact-contract.mjs\",\"command\":\"node scripts/verify-process-fact-contract.mjs\",\"result\":\"pass\",\"note\":\"Confirms delivery-check.json and summary.json are accepted lifecycle artifacts without scope expansion.\",\"headHash\":\"06177e9a69a0586ebbe473959233d81705c73cc5\",\"materialHash\":\"4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3\",\"timestamp\":\"2026-05-28T04:18:02.287Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"TEST phase still rejects ordinary scope_contract_acknowledge or unrelated file expansion.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"file\":\"scripts/verify-process-fact-contract.mjs\",\"command\":\"node scripts/verify-process-fact-contract.mjs\",\"result\":\"pass\",\"note\":\"Confirms TEST-phase lifecycle artifact allowance is narrow and does not rely on ordinary acknowledgement expansion.\",\"headHash\":\"06177e9a69a0586ebbe473959233d81705c73cc5\",\"materialHash\":\"4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3\",\"timestamp\":\"2026-05-28T04:18:02.287Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Manually adding an unrelated file in TEST still blocks DONE even if delivery and summary are allowed.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"scripts/verify-process-fact-contract.mjs\",\"command\":\"node scripts/verify-process-fact-contract.mjs\",\"result\":\"pass\",\"note\":\"Confirms unrelated files still produce OUT_OF_SCOPE instead of being hidden by lifecycle metadata handling.\",\"headHash\":\"06177e9a69a0586ebbe473959233d81705c73cc5\",\"materialHash\":\"4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3\",\"timestamp\":\"2026-05-28T04:18:02.287Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"convergence_check skips .build and derived runtime directories during scanning.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"logic_test\",\"file\":\"scripts/verify-gap-convergence.mjs\",\"command\":\"node scripts/verify-gap-convergence.mjs\",\"result\":\"pass\",\"note\":\"Confirms .build and derived runtime directories are skipped during convergence scanning.\",\"headHash\":\"06177e9a69a0586ebbe473959233d81705c73cc5\",\"materialHash\":\"4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3\",\"timestamp\":\"2026-05-28T04:18:02.287Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"A fixture symlink loop does not crash convergence_check.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"file\":\"scripts/verify-gap-convergence.mjs\",\"command\":\"node scripts/verify-gap-convergence.mjs\",\"result\":\"pass\",\"note\":\"Confirms symlink-loop fixture does not crash walkDir or scanTruth.\",\"headHash\":\"06177e9a69a0586ebbe473959233d81705c73cc5\",\"materialHash\":\"4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3\",\"timestamp\":\"2026-05-28T04:18:02.287Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Ignoring derived directories does not hide real docs/story files from convergence checks.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"scripts/verify-gap-convergence.mjs\",\"command\":\"node scripts/verify-gap-convergence.mjs\",\"result\":\"pass\",\"note\":\"Confirms derived-dir skipping does not hide real docs/requirements truth sources or real source files.\",\"headHash\":\"06177e9a69a0586ebbe473959233d81705c73cc5\",\"materialHash\":\"4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3\",\"timestamp\":\"2026-05-28T04:18:02.288Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"When scope gate fails, next-step prioritizes scope repair and does not recommend DONE.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"manual_transcript\",\"file\":\"scripts/verify-session-brief-command-center.mjs\",\"command\":\"node scripts/verify-session-brief-command-center.mjs\",\"result\":\"pass\",\"note\":\"Confirms session_brief contains scopeBlocking logic and blocks DONE recommendations while scope is blocking.\",\"headHash\":\"06177e9a69a0586ebbe473959233d81705c73cc5\",\"materialHash\":\"4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3\",\"timestamp\":\"2026-05-28T04:18:02.288Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"When only delivery or summary is missing, session_brief still recommends the correct reviewer or summary command.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"manual_transcript\",\"file\":\"scripts/verify-session-brief-command-center.mjs\",\"command\":\"node scripts/verify-session-brief-command-center.mjs\",\"result\":\"pass\",\"note\":\"Confirms existing session_brief command-center hints still render normal next-step guidance when no blocking scope failure is asserted.\",\"headHash\":\"06177e9a69a0586ebbe473959233d81705c73cc5\",\"materialHash\":\"4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3\",\"timestamp\":\"2026-05-28T04:18:02.288Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"When all gates pass, session_brief may recommend DONE only after no blocking scope failure remains.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"manual_transcript\",\"file\":\"scripts/verify-session-brief-command-center.mjs\",\"command\":\"node scripts/verify-session-brief-command-center.mjs\",\"result\":\"pass\",\"note\":\"Confirms TEST branch consumes scopeBlocking before DONE guidance can be emitted.\",\"headHash\":\"06177e9a69a0586ebbe473959233d81705c73cc5\",\"materialHash\":\"4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3\",\"timestamp\":\"2026-05-28T04:18:02.288Z\"}},{\"intentRef\":\"CHK-005:happy:0\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"Regression tests cover lifecycle artifact metadata acknowledgement, convergence symlink handling, and session_brief blocking next-step output.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:happy:0\",\"kind\":\"integration_test\",\"file\":\"scripts/verify-process-fact-contract.mjs\",\"command\":\"npm --prefix packages/main run build && node scripts/verify-process-fact-contract.mjs && node scripts/verify-gap-convergence.mjs && node scripts/verify-session-brief-command-center.mjs\",\"result\":\"pass\",\"note\":\"Combined regression tests cover lifecycle metadata scope, convergence symlink handling, and session_brief blocking behavior.\",\"headHash\":\"06177e9a69a0586ebbe473959233d81705c73cc5\",\"materialHash\":\"4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3\",\"timestamp\":\"2026-05-28T04:18:02.288Z\"}},{\"intentRef\":\"CHK-005:edge:0\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"koala check and convergence_check pass on the final repository state.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"koala check && koala convergence_check\",\"result\":\"pass\",\"note\":\"Koala managed asset check passes and convergence_check returns JSON without ELOOP; converged=false only because B-b9d0 itself is still active.\",\"headHash\":\"06177e9a69a0586ebbe473959233d81705c73cc5\",\"materialHash\":\"4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3\",\"timestamp\":\"2026-05-28T04:18:02.288Z\"}},{\"intentRef\":\"CHK-005:adversarial:0\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"The final evidence explicitly states this does not weaken product source scope enforcement.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/lifecycle-artifact-scope.md\",\"command\":\"node scripts/verify-process-fact-contract.mjs\",\"result\":\"pass\",\"note\":\"Policy doc and process-fact contract explicitly assert this does not weaken product source scope enforcement.\",\"headHash\":\"06177e9a69a0586ebbe473959233d81705c73cc5\",\"materialHash\":\"4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3\",\"timestamp\":\"2026-05-28T04:18:02.288Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-05-28T04:30:32.744Z",
+  "headHash": "441e8be074d221ec30f788eac7f8de684b16d471",
+  "verificationCoverage": {
+    "total": 15,
+    "required": 15,
+    "covered": 15,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "A Koala command generated lifecycle artifact is classified as Koala-owned metadata with provenance.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Confirms known story-scoped lifecycle artifacts are accepted as Koala-owned metadata.",
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.285Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "The allowed lifecycle artifact list is narrow and story-scoped; unrelated files are not classified as lifecycle metadata.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Confirms lifecycle artifact classification is story-scoped and filename-aware.",
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.287Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "A product source file or arbitrary unknown JSON still fails scope when unacknowledged.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Confirms arbitrary .koala files and product source files still fail unacknowledged enforce scope.",
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.287Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "A TEST story can generate delivery-check.json and summary.json and then pass DONE without rollback repair.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Confirms delivery-check.json and summary.json are accepted lifecycle artifacts without scope expansion.",
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.287Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "TEST phase still rejects ordinary scope_contract_acknowledge or unrelated file expansion.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Confirms TEST-phase lifecycle artifact allowance is narrow and does not rely on ordinary acknowledgement expansion.",
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.287Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Manually adding an unrelated file in TEST still blocks DONE even if delivery and summary are allowed.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Confirms unrelated files still produce OUT_OF_SCOPE instead of being hidden by lifecycle metadata handling.",
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.287Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "convergence_check skips .build and derived runtime directories during scanning.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-gap-convergence.mjs",
+          "command": "node scripts/verify-gap-convergence.mjs",
+          "result": "pass",
+          "note": "Confirms .build and derived runtime directories are skipped during convergence scanning.",
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.287Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "A fixture symlink loop does not crash convergence_check.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-gap-convergence.mjs",
+          "command": "node scripts/verify-gap-convergence.mjs",
+          "result": "pass",
+          "note": "Confirms symlink-loop fixture does not crash walkDir or scanTruth.",
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.287Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Ignoring derived directories does not hide real docs/story files from convergence checks.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-gap-convergence.mjs",
+          "command": "node scripts/verify-gap-convergence.mjs",
+          "result": "pass",
+          "note": "Confirms derived-dir skipping does not hide real docs/requirements truth sources or real source files.",
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.288Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "When scope gate fails, next-step prioritizes scope repair and does not recommend DONE.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-session-brief-command-center.mjs",
+          "command": "node scripts/verify-session-brief-command-center.mjs",
+          "result": "pass",
+          "note": "Confirms session_brief contains scopeBlocking logic and blocks DONE recommendations while scope is blocking.",
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.288Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "When only delivery or summary is missing, session_brief still recommends the correct reviewer or summary command.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-session-brief-command-center.mjs",
+          "command": "node scripts/verify-session-brief-command-center.mjs",
+          "result": "pass",
+          "note": "Confirms existing session_brief command-center hints still render normal next-step guidance when no blocking scope failure is asserted.",
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.288Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "When all gates pass, session_brief may recommend DONE only after no blocking scope failure remains.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-session-brief-command-center.mjs",
+          "command": "node scripts/verify-session-brief-command-center.mjs",
+          "result": "pass",
+          "note": "Confirms TEST branch consumes scopeBlocking before DONE guidance can be emitted.",
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.288Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:happy:0",
+        "itemId": "CHK-005",
+        "lane": "happy",
+        "desc": "Regression tests cover lifecycle artifact metadata acknowledgement, convergence symlink handling, and session_brief blocking next-step output.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "npm --prefix packages/main run build && node scripts/verify-process-fact-contract.mjs && node scripts/verify-gap-convergence.mjs && node scripts/verify-session-brief-command-center.mjs",
+          "result": "pass",
+          "note": "Combined regression tests cover lifecycle metadata scope, convergence symlink handling, and session_brief blocking behavior.",
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.288Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:edge:0",
+        "itemId": "CHK-005",
+        "lane": "edge",
+        "desc": "koala check and convergence_check pass on the final repository state.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "koala check && koala convergence_check",
+          "result": "pass",
+          "note": "Koala managed asset check passes and convergence_check returns JSON without ELOOP; converged=false only because B-b9d0 itself is still active.",
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.288Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:adversarial:0",
+        "itemId": "CHK-005",
+        "lane": "adversarial",
+        "desc": "The final evidence explicitly states this does not weaken product source scope enforcement.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Policy doc and process-fact contract explicitly assert this does not weaken product source scope enforcement.",
+          "headHash": "06177e9a69a0586ebbe473959233d81705c73cc5",
+          "materialHash": "4b55b25de18b94b3486dd71ffc0b690e5fb4f2c8b0d221da5611b1848b88a9d3",
+          "timestamp": "2026-05-28T04:18:02.288Z"
+        }
+      }
+    ]
+  }
+}

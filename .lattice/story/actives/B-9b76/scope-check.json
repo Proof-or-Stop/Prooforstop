@@ -1,0 +1,52 @@
+{
+  "storyId": "B-9b76",
+  "checkedAt": "2026-06-02T21:00:48.909Z",
+  "features": [
+    {
+      "feature": "Asset layering docs and no-overwrite migration contract",
+      "covered_by": "CHK-001 via docs/requirements/decisions/lifecycle-artifact-scope.md",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story description and CHK-001"
+    },
+    {
+      "feature": "Package prompt registry and host renderer",
+      "covered_by": "CHK-002 via packages/main/src/core/prompt-registry.ts and prompt-registry-smoke.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "CHK-002"
+    },
+    {
+      "feature": "Registry-aware Codex verification and managed asset checks",
+      "covered_by": "CHK-003 via codex-adapter-checks.ts and managed-assets.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "CHK-003"
+    },
+    {
+      "feature": "Opt-in thin init asset mode while preserving full mode",
+      "covered_by": "CHK-004 via cli-init.ts and thin-init-assets-smoke.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "CHK-004"
+    },
+    {
+      "feature": "Legacy compatibility and thin behavior validation",
+      "covered_by": "CHK-005 via focused smoke tasks, build, managed check, and verify_codex evidence",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "CHK-005"
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "covered": 5,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "ea1106e8f5689a7fb4abb7bf4b6f42d654c699c6184772df912d2cd27604ad11",
+  "openQuestions": []
+}

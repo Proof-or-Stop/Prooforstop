@@ -1,0 +1,28 @@
+{
+  "task": "为 koala-lab 增加统一评分、profile 接口、baseline 比较和稳定性惩罚，让实验结果能生成真实的 score、delta 和 keep/discard 决策。",
+  "outcome": "$ koala lab create --target test-case-reviewer --profile reviewer-quality-v1\nCreated experiment lab-reviewer-reviewer-quality-v1\n\n$ koala lab run --config experiments/configs/lab-reviewer-reviewer-quality-v1.json --confirm\n[lab] sandbox ready at .worktrees/lab-reviewer-reviewer-quality-v1-run-001\n[lab] branch: lab/lab-reviewer-reviewer-quality-v1/run-001\n[lab] score: 0.73 (baseline 0.62, delta +0.11)\n[lab] decision: kept\n✓ Candidate beat baseline and was recorded as the new best run.\n\n$ koala lab compare --config experiments/configs/lab-reviewer-reviewer-quality-v1.json\n{\n  \"baseline\": { \"score\": 0.62 },\n  \"best\": { \"runId\": \"run-001\", \"score\": 0.73, \"delta\": 0.11 },\n  \"decision\": \"kept\"\n}",
+  "facts": [
+    "packages/lab 当前只有 placeholder metrics/result，compare/promote 还不会产生真实分数。",
+    "Story 1 已经提供 experiment config、sandbox、patch whitelist 和 fixture 覆盖，可以直接在其上叠加 scoring core。",
+    "lab foundation fixture 已经有 12 条 CLI case，可复用为 reviewer-quality profile 的基础样本输入。",
+    "koala-lab 目前所有目标都还是 offline 模式，没有真实在线 patch tournament。"
+  ],
+  "constraints": [
+    "评分公式必须统一，不能让不同 profile 各自输出不可比较的分数。",
+    "第一版要优先支持 reviewer-quality-v1，但 profile 接口必须可扩展到 intent/session-brief。",
+    "stability penalty 和 baseline compare 需要在不引入生成式 patch 的前提下可本地验证。",
+    "仍然不能污染 docs/story、tests/fixtures 等正式流程数据。"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/lab/src/types.ts",
+    "packages/lab/src/core/storage.ts",
+    "packages/lab/src/handlers/lab.ts",
+    "packages/lab/src/core/scoring.ts",
+    "packages/lab/src/core/profile.ts",
+    "packages/lab/src/profiles/reviewer-quality-v1.ts",
+    "packages/main/tests/fixtures/lab-scoring-core.json",
+    "scripts/verify-lab-scoring-core.mjs"
+  ],
+  "timestamp": "2026-04-18T00:58:00.805Z"
+}

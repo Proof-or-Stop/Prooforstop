@@ -1,0 +1,45 @@
+{
+  "storyId": "B-0692",
+  "checkedAt": "2026-05-11T14:28:32.170Z",
+  "features": [
+    {
+      "feature": "维护者能看到每个 CLI command 的 L0-L4 等级、owner、category、rationale，并且 MAIN_TOOLS 全命令必须登记",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "understanding.outcome + plan CHK-001 + checklist CHK-001"
+    },
+    {
+      "feature": "process fact contract test 以 registry 为事实源，并继续覆盖 pass-only finding_add、legacy/unknown category、prompt drift、新流程事实命令未登记",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan CHK-002 + verificationIntent CHK-002"
+    },
+    {
+      "feature": "phaseTools 配置异常、test_auto 递归跳过、validate fallback 等边缘执行语义被登记为非 L4 runtime behavior，避免误认为是 gate 级保证",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan CHK-003 + checklist CHK-003"
+    },
+    {
+      "feature": "立即把 lifecycle machine / story_advance / validate 等 runtime 全部改成由 registry 驱动 gate 判定",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "decision option C rejected; background 方案取舍明确先建立 registry 与 contract 消费，不重构 lifecycle 状态机",
+      "source": "decision.rationale + background 方案取舍"
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "covered": 3,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "3d363cffb9b089f7772c5df1134a66613f4ff567bcfd99248d46747f740e33b2",
+  "openQuestions": []
+}

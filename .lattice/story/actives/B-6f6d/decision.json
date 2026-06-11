@@ -1,0 +1,65 @@
+{
+  "principles": [
+    "先把 role 变成稳定可记录、可消费的数据，再升级上层体验。",
+    "兼容历史 activity 记录，避免因为新字段把旧数据统计打坏。",
+    "把 source 和 role 分开：source 解决入口来源，role 解决协作角色。"
+  ],
+  "drivers": [
+    "为 session_brief 指挥台提供底层数据。",
+    "让多角色协作有可观测性。",
+    "避免 activity 统计继续只停留在入口来源层面。"
+  ],
+  "options": [
+    {
+      "name": "A: 只在 wrapper 层补 role，不改消费侧",
+      "pros": [
+        "实现快，写日志成本低。"
+      ],
+      "cons": [
+        "用户看不到实际收益，session_brief 和 tool_status 仍然无法消费 role。"
+      ]
+    },
+    {
+      "name": "B: 同时补写入和核心消费侧（tool_status/session_brief/stale-detector）",
+      "pros": [
+        "role 维度会立刻变成用户可见能力。",
+        "能为 B-6bee 和 B-d307 提前打好底。"
+      ],
+      "cons": [
+        "触点比单纯写日志更多，需要小心兼容旧记录。"
+      ]
+    },
+    {
+      "name": "C: 先做完整的多角色调度系统，再顺手带出 role telemetry",
+      "pros": [
+        "理论上一步到位。"
+      ],
+      "cons": [
+        "范围过大，会把 telemetry story 和并行调度 story 混在一起。"
+      ]
+    }
+  ],
+  "chosen": "B: 同时补写入和核心消费侧（tool_status/session_brief/stale-detector）",
+  "rationale": "如果 role 只写进日志不被消费，这条 story 对用户几乎没有感知价值；把写入和最关键的消费侧一起收口，能让 role-aware telemetry 立刻变成后续 story 可依赖的底座。",
+  "preMortem": [
+    {
+      "scenario": "role 写进新记录了，但旧 activity 统计被打坏",
+      "trigger": "消费侧默认假设 role 一定存在",
+      "consequence": "tool_status 或 session_brief 对旧数据报错或统计失真",
+      "mitigation": "所有消费逻辑都把 role 视为可选字段，并为旧记录提供 unknown/default 路径。"
+    },
+    {
+      "scenario": "role 语义和 source 混在一起",
+      "trigger": "把 codex/claude/cli 既当 source 又当 role 用",
+      "consequence": "后续 main/reviewer/intent 等协作角色无法清晰落地",
+      "mitigation": "明确 source=入口来源，role=协作角色，两者分别建模。"
+    },
+    {
+      "scenario": "过早把等待关系推断塞进 telemetry story",
+      "trigger": "在没有稳定 role 数据前就做复杂 orchestration 推断",
+      "consequence": "story 范围膨胀，session_brief 和并行护栏反而难以拆分",
+      "mitigation": "这条 story 先把 telemetry 和基础消费做好，等待关系留给后续 story。"
+    }
+  ],
+  "timestamp": "2026-04-14T15:42:22.873Z"
+}

@@ -20,7 +20,7 @@
  * Non-default storyDir coverage (decision preMortem "locking the wrong directory creates false safety"):
  *  - Round set A uses the default storyDir.
  *  - Round set B uses a NON-default storyDir (`custom/stories/here`). If the
- *    lock path were hardcoded to docs/story or .koala/story, the lock dir and
+ *    lock path were hardcoded to docs/story or .lattice/story, the lock dir and
  *    the actual write target would diverge and the race would reopen — this
  *    round would then produce duplicates and fail.
  *
@@ -268,7 +268,7 @@ async function runDedupScenario(): Promise<void> {
     writeFile(root, 'koala.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.koala/story/actives',
+      storyDir: '.lattice/story/actives',
       requirementsDir: 'docs/requirements',
       storyPrefix: 'B',
     }, null, 2));
@@ -438,7 +438,7 @@ function backdateStory(storyDirAbs: string, storyId: string, minutesAgo: number)
  */
 async function runStderrChannelScenario(): Promise<void> {
   const root = mkdtempSync(join(tmpdir(), 'koala-story-stderr-'));
-  const storyDir = '.koala/story/actives';
+  const storyDir = '.lattice/story/actives';
   try {
     git(root, ['init', '-b', 'main']);
     git(root, ['config', 'user.email', 'smoke@example.test']);
@@ -602,7 +602,7 @@ async function runStderrChannelScenario(): Promise<void> {
 
 (async () => {
   // Round set A: default storyDir.
-  await runScenario({ label: 'default-dir', storyDir: '.koala/story/actives' });
+  await runScenario({ label: 'default-dir', storyDir: '.lattice/story/actives' });
   // Round set B: NON-default storyDir — proves the lock path is resolved from
   // store.storyDirRel() and not hardcoded.
   await runScenario({ label: 'custom-dir', storyDir: 'custom/stories/here' });

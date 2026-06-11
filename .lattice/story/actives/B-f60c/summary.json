@@ -1,0 +1,51 @@
+{
+  "storyId": "B-f60c",
+  "changes": "实现统一 main write lock：新建 core/main-write-lock.ts（泛化 mkdir-lock primitive），canonical 路径 .koala/locks/main-write.lock/；把 DONE / done_recover / gap_log / audit --framework / story_create / B-META finding 写串行化到这把锁；锁内 idempotency（gap_log 按 fingerprint dedup）；reentrancy registry 防嵌套自死锁；doctor stuck-lock 检查 + lock-contention 错误 UX。修复 B-META-framework-audit:F-008（partial-DONE）：根因是非 fromDraft 的 story_advance INIT_CHECK 把 story metadata 写进 main 工作区却不提交、DONE 的 git merge 撞上未追踪镜像 abort——新增 commitInitCheckMetadataAndMergeMain 从写入侧根治。旧 .koala/runtime/done-main-merge.lock 退役、不留 alias；同步 CLAUDE.md / AGENTS.md / story-lifecycle.md / session-ownership-and-write-leases.md。",
+  "usage": "共享 main 写入口现在自动经统一 main write lock 串行化；并发 story_advance DONE 不再产生 partial-DONE；并发 gap_log 同一框架 gap 只记一条 canonical finding；koala doctor 报告卡死/过期的 main write lock。锁对单 session 透明，无需手动操作。",
+  "expectedOutcome": "共享 main 写入口串行化、F-008 partial-DONE 根因消除；锁对单 session 路径透明、非并发外部 CLI 行为 byte-identical；doctor 能报 stuck 锁且不误报活跃锁。",
+  "actualTranscript": "真机验证（见 .koala/story/actives/B-f60c/evidence/transcript-diff.md）：重建 worktree koala 后真机驱动——story_advance INIT_CHECK（非 fromDraft 路径）后 main 工作区 git status 为空（INIT_CHECK metadata 已 commit，无未提交镜像，F-008 根因消除）；koala doctor 对预植的过期锁报 'STUCK ... older than the 2m stale window'，对活跃锁报 'active operation, not stuck'。koala validate --story=B-f60c 全绿，verification intent coverage 25/25。",
+  "outcomeDiff": "无差异——真机验证的 F-008 修复与 doctor stuck-lock 行为均与 expected 一致；3 轮 REVIEW（concept/quality/test-coverage/behavior/docs）0 blocking finding，F-001/F-002/F-003 全 resolved。",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "本 story 只实现 session-ownership 文档 rollout step 3（main write lock）。story owner lease（step 2）、takeover / forceTakeover、session_brief ownership rendering 未实现——属后续第二个 implementation story。lock-contention 错误消息有意只含锁能机械观测到的 holder 信息（pid/host/命令/heartbeat），不含 sessionId（sessionId 概念属 owner-lease story）。",
+  "pitfalls": "F-008 根因是 story_advance INIT_CHECK 的非 fromDraft 路径——fromDraft 路径本就 commit 元数据、非 fromDraft 路径不 commit，所以只有直接 story_create + story_advance INIT_CHECK 的 story 才复现 partial-DONE。reentrancy registry 是必须的——DONE 持锁临界区内会调 audit（也要 main write lock），无 reentrancy 会自死锁；用进程级 heldLockPaths registry + 同 root pass-through 解决。文档类 finding（F-002/F-003）来自 B-8596 把同一段「多 session 写协调」cross-ref 加进 CLAUDE.md 和 AGENTS.md 两处——改文档实现状态时两处都要同步，改一漏一会被 doc-code-drift reviewer 揪出。",
+  "phaseStats": {
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 40827
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 36282929
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 3113728
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 17082680
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 483050
+    }
+  },
+  "totalDurationMs": 57003215,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-05-18T17:52:25.354Z",
+  "updatedAt": "2026-05-18T17:52:25.354Z"
+}

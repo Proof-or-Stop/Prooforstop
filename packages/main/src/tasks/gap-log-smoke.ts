@@ -45,7 +45,7 @@ function createMainProject(prefix: string): string {
   write(root, 'koala.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.koala/story/actives',
+    storyDir: '.lattice/story/actives',
     requirementsDir: 'docs/requirements',
   }));
   write(root, 'README.md', 'gap-log smoke\n');
@@ -61,7 +61,7 @@ function createMainProject(prefix: string): string {
 function runGapLog(root: string, args: Record<string, unknown>): string {
   return execFileSync(process.execPath, [cliPath, 'gap_log', JSON.stringify(args)], {
     cwd: root,
-    env: { ...process.env, KOALA_PROJECT_ROOT: root },
+    env: { ...process.env, LATTICE_PROJECT_ROOT: root },
     encoding: 'utf-8',
     stdio: ['pipe', 'pipe', 'pipe'],
   });
@@ -115,7 +115,7 @@ function assertMissingRequiredFieldsRejected(): void {
     try {
       const out = runGapLogExpectFail(root, { severity: 'medium', evidence: VALID.evidence, sourceRefs: VALID.sourceRefs });
       assert.match(out, /category/, 'CLI Zod must reject missing category');
-      assert.equal(existsSync(join(root, '.koala/story/actives', META_STORY_ID)), false,
+      assert.equal(existsSync(join(root, '.lattice/story/actives', META_STORY_ID)), false,
         'Zod-rejected gap_log must not even bootstrap the container');
     } finally { rmSync(root, { recursive: true, force: true }); }
   }
@@ -468,7 +468,7 @@ function spawnGapLog(root: string, args: Record<string, unknown>): Promise<{ cod
   return new Promise((resolveP) => {
     const child = spawn(process.execPath, [cliPath, 'gap_log', JSON.stringify(args)], {
       cwd: root,
-      env: { ...process.env, KOALA_PROJECT_ROOT: root },
+      env: { ...process.env, LATTICE_PROJECT_ROOT: root },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
     let out = '';
@@ -540,7 +540,7 @@ function assertCommandDiscoverable(): void {
   const root = createMainProject('koala-gaplog-discover-');
   try {
     const help = execFileSync(process.execPath, [cliPath, 'gap_log', '--help'], {
-      cwd: root, env: { ...process.env, KOALA_PROJECT_ROOT: root }, encoding: 'utf-8',
+      cwd: root, env: { ...process.env, LATTICE_PROJECT_ROOT: root }, encoding: 'utf-8',
     });
     assert.match(help, /gap_log/, 'koala gap_log --help must render the command');
     assert.match(help, /category/, 'help must list the category parameter');

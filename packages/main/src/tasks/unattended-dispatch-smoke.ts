@@ -62,12 +62,12 @@ function writeConfig(root: string): void {
   writeFileSync(join(root, 'koala.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.koala/story/actives',
+    storyDir: '.lattice/story/actives',
   }, null, 2) + '\n');
 }
 
 function writeDispatchPolicy(root: string, policy: DispatchPolicyWithRealHost): void {
-  const dir = join(root, '.koala/dispatch-policies');
+  const dir = join(root, '.lattice/dispatch-policies');
   mkdirSync(dir, { recursive: true });
   writeFileSync(join(dir, `${policy.policy}.json`), JSON.stringify(policy, null, 2) + '\n');
 }
@@ -192,12 +192,12 @@ function assertAuthorityFalse(value: unknown, label = 'result'): void {
 
 function readDispatch(root: string, dispatchId: string): DispatchRecord {
   return JSON.parse(
-    readFileSync(join(root, '.koala/dispatches', dispatchId, 'dispatch.json'), 'utf8'),
+    readFileSync(join(root, '.lattice/dispatches', dispatchId, 'dispatch.json'), 'utf8'),
   ) as DispatchRecord;
 }
 
 function dispatchCount(root: string): number {
-  const dir = join(root, '.koala/dispatches');
+  const dir = join(root, '.lattice/dispatches');
   if (!existsSync(dir)) return 0;
   return readdirSync(dir).filter(entry => existsSync(join(dir, entry, 'dispatch.json'))).length;
 }

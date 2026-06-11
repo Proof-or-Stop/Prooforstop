@@ -1,0 +1,79 @@
+{
+  "findings": [
+    {
+      "id": "B-bffc:F-001",
+      "desc": "CHK-002:edge:0 is marked covered in checklist evidence (.koala/story/actives/B-bffc/checklist.json:131-179), but the referenced smoke test does not assert the claimed visible optional-provider degradations. packages/main/src/tasks/lattice-cli-migration-smoke.ts:101-117 only checks schema/version/macAppRequired and host/prod flags for host_list/host_probe; it never inspects probe.degradations, visible degradation fields, or any non-fatal conditional capability output even though the Codex host profile exposes those degradations in packages/main/src/core/capabilities.ts:207-214. As written, the test can pass even if missing optional providers stop being reported as visible degradations, so this must intent is not actually covered.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-02T12:04:08.621Z",
+      "reviewRound": "2026-06-02T11:42:07.905Z",
+      "reviewRunId": "B-bffc:RR-005",
+      "_hash": "e13ff4218ef6fecb082d91a97d468165885d73562d27f9ee5e5227884bf66623",
+      "files": [
+        "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+        "packages/main/src/core/capabilities.ts",
+        ".koala/story/actives/B-bffc/checklist.json"
+      ]
+    },
+    {
+      "id": "B-bffc:F-002",
+      "desc": "CHK-003:edge:0 and CHK-005:edge:0 are both recorded as covered (.koala/story/actives/B-bffc/checklist.json:221-255 and :387-423; .koala/story/actives/B-bffc/test-evidence.json:3-4), but the smoke file never asserts the missing-authority-URL fallback contract it claims to cover. packages/main/src/tasks/lattice-cli-migration-smoke.ts:135-141 only checks generic receipt/production false flags plus /no receipt is verified/ in note. The actual fallback surface is in packages/main/src/handlers/lattice-cli.ts:119-135: baseURLConfigured=false, baseURL=null, and status=not-configured when no authority URL exists. Because none of those fields are asserted, the test can pass even if missing-authority fallback guidance regresses while validate still reports 15/15 covered.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-02T12:04:17.789Z",
+      "reviewRound": "2026-06-02T11:42:07.905Z",
+      "reviewRunId": "B-bffc:RR-005",
+      "_hash": "b538f2eae7b5f3a1b2d99a175cb4caee0ec69a6dca799b2a4cb8609a50f17772",
+      "files": [
+        "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+        "packages/main/src/handlers/lattice-cli.ts",
+        ".koala/story/actives/B-bffc/checklist.json",
+        ".koala/story/actives/B-bffc/test-evidence.json"
+      ]
+    },
+    {
+      "id": "B-bffc:F-003",
+      "desc": "packages/main/src/core/capabilities.ts:323-345 still models `desktop-app` as an active connected host with conditional file-edit/test-execution/evidence-submit/receipt-verify capabilities, and packages/main/src/core/lattice-hosts.ts:54-70 passes that profile straight through `host_list`. That conflicts with README.md:49-54 and docs/requirements/decisions/project-vision.md:17, which define the Mac App as optional/dashboard/archive only for 0.3.5. As implemented, `lattice host list` / `lattice host probe --host=desktop-app` will still present the Mac App as a potential authority/test surface instead of a demoted archive/dashboard surface.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-02T12:04:26.567Z",
+      "reviewRound": "2026-06-02T11:42:07.905Z",
+      "reviewRunId": "B-bffc:RR-004",
+      "_hash": "0126c71b2067b6954475786f8e0aae58e9cd218789d9d1ac82ef75e3b8594fe3",
+      "files": [
+        "packages/main/src/core/capabilities.ts",
+        "packages/main/src/core/lattice-hosts.ts",
+        "README.md",
+        "docs/requirements/decisions/project-vision.md"
+      ]
+    },
+    {
+      "id": "B-bffc:F-004",
+      "desc": "`packages/main/src/core/lattice-hosts.ts:54-70` exposes `host_list` by forwarding `buildCapabilityList()` directly, and `packages/main/src/core/capabilities.ts:323-345` still describes `desktop-app` as a conditional editing/test/evidence/receipt host. That contradicts the 0.3.5 migration contract in `README.md:49-54` and `docs/requirements/decisions/project-vision.md:17`, which demote the Mac App to optional/archive dashboard only. In practice `lattice host_probe --host=desktop-app --format=json` still advertises the Mac App as a potential authority/test surface, so the new CLI-first migration surfaces are not aligned with the documented product boundary.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-02T12:06:30.059Z",
+      "reviewRound": "2026-06-02T11:42:07.905Z",
+      "reviewRunId": "B-bffc:RR-003",
+      "_hash": "43ea399b7c00217b1320dd210fb8dc5fa084e269e530aff8d5d1c168d277086d",
+      "files": [
+        "packages/main/src/core/lattice-hosts.ts",
+        "packages/main/src/core/capabilities.ts",
+        "README.md",
+        "docs/requirements/decisions/project-vision.md"
+      ]
+    }
+  ]
+}

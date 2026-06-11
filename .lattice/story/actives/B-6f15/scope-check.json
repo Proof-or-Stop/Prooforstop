@@ -1,0 +1,38 @@
+{
+  "storyId": "B-6f15",
+  "checkedAt": "2026-06-04T11:26:26.876Z",
+  "features": [
+    {
+      "feature": "Add @test metadata for story_migrate_storage/story_sync_main",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "user request"
+    },
+    {
+      "feature": "Verify cli-validate warnings are gone",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "user request"
+    },
+    {
+      "feature": "Runtime behavior changes",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "metadata-only scope",
+      "source": "story constraints"
+    }
+  ],
+  "summary": {
+    "total": 3,
+    "covered": 2,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "0c699b03065350e34450824a775b61cd9ef10bb58e3db83031417264814a7da5",
+  "openQuestions": []
+}

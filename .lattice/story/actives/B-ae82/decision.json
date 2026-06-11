@@ -1,0 +1,69 @@
+{
+  "principles": [
+    "持久化写入必须原子且可校验",
+    "dry-run 语义必须只读",
+    "DONE gate 只忽略明确 volatile 的自生成日志",
+    "真实 story/code 改动仍必须阻塞 DONE"
+  ],
+  "drivers": [
+    "防止 checklist.json 半截写入导致后续 JSON parse error",
+    "消除 DONE dry-run/confirm 自写 activity 后反复 dirty 的流程卡点",
+    "保持 audit 与 gate 之间的边界清晰"
+  ],
+  "options": [
+    {
+      "name": "A: Store 原子写 JSON + dryRun 跳过 activity + DONE gate 忽略 activity log",
+      "pros": [
+        "覆盖两个根因",
+        "对所有 story JSON 写入都有保护",
+        "dryRun 不再改变工作区"
+      ],
+      "cons": [
+        "activity log 少记录 dryRun 命令，需要接受只读预览不进入审计"
+      ]
+    },
+    {
+      "name": "B: 只让用户改用文件输入长 testIntent",
+      "pros": [
+        "改动小"
+      ],
+      "cons": [
+        "不能防止中断/并发写半截 JSON",
+        "也不解决 DONE activity 自阻塞"
+      ]
+    },
+    {
+      "name": "C: 把 docs/story/activity.jsonl 全部 gitignore",
+      "pros": [
+        "能减少 dirty"
+      ],
+      "cons": [
+        "已有 tracked/modified 场景仍可能存在",
+        "过宽地改变项目日志策略，不能修复 dryRun 自污染语义"
+      ]
+    }
+  ],
+  "chosen": "A: Store 原子写 JSON + dryRun 跳过 activity + DONE gate 忽略 activity log",
+  "rationale": "选 A，因为它同时修复数据完整性和流程自阻塞，且忽略范围可限定在 dryRun/activity 这类明确 volatile 场景。",
+  "preMortem": [
+    {
+      "scenario": "原子写临时文件残留",
+      "trigger": "rename 前进程被杀或写失败",
+      "consequence": "目录出现 .tmp 文件噪音",
+      "mitigation": "临时文件用隐藏后缀，失败时 best-effort rmSync，原文件保持不变"
+    },
+    {
+      "scenario": "DONE gate 错误忽略真实改动",
+      "trigger": "忽略路径规则写太宽",
+      "consequence": "未提交 story/code 改动被带入 DONE",
+      "mitigation": "只忽略 docs/story/activity.jsonl 精确路径，不忽略 docs/story/actives 或源码"
+    },
+    {
+      "scenario": "dryRun 不写 activity 导致审计缺少预览记录",
+      "trigger": "用户依赖 activity.jsonl 追踪 dry-run 历史",
+      "consequence": "tool_status 少统计 dry-run",
+      "mitigation": "接受 dry-run 是只读预览；真实 confirm/mutating 命令仍写 activity"
+    }
+  ],
+  "timestamp": "2026-04-19T23:00:02.490Z"
+}

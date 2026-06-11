@@ -1,0 +1,243 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Generate a Koala-managed Codex adapter manifest",
+      "context": "Add .Codex/koala.json through koala init with fields that describe adapter ownership, recommended entrypoint, activity source, and excluded Claude runtime assets.",
+      "relatedDocs": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "status": "done",
+      "startTime": "2026-05-04T16:59:27.991Z",
+      "endTime": "2026-05-04T17:04:12.183Z",
+      "userSees": "After koala init, .Codex/koala.json contains \"adapterOwner\":\"koala\", \"activitySource\":\"codex\", and \"excludedRuntimeAssets\":[\".Codex/hooks\",\".Codex/settings.json\"].",
+      "files": {
+        "modify": [
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/cli-init.ts"
+        ],
+        "create": [
+          ".Codex/koala.json"
+        ],
+        "test": [
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-codex-assets.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "koala init writes .Codex/koala.json with adapterOwner=koala and activitySource=codex",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "adapter manifest records recommended entrypoints for both local wrapper and global KOALA_ACTIVITY_SOURCE fallback",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "manifest explicitly excludes .Codex/hooks and .Codex/settings.json instead of generating unsupported runtime files",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-entrypoints.mjs",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "Fresh koala init verification requires .Codex/koala.json and asserts adapterOwner=koala plus activitySource=codex on current HEAD.",
+          "headHash": "277b42a026d09bcfacb3547cad78fdefb961882e",
+          "materialHash": "ca5217fb869cdf5390cdbdc9ae7e229fcc9e6594d98b4a2dfaa1af17347057ff",
+          "timestamp": "2026-05-04T17:25:13.148Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "file": ".Codex/koala.json",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "Generated manifest keeps node bin/koala-codex.js first and includes KOALA_ACTIVITY_SOURCE=codex KOALA_ACTIVITY_RECORD_READONLY=1 koala fallback on current HEAD.",
+          "headHash": "277b42a026d09bcfacb3547cad78fdefb961882e",
+          "materialHash": "ca5217fb869cdf5390cdbdc9ae7e229fcc9e6594d98b4a2dfaa1af17347057ff",
+          "timestamp": "2026-05-04T17:25:13.148Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "file": ".Codex/koala.json",
+          "command": "test ! -e .Codex/hooks && test ! -e .Codex/settings.json",
+          "result": "pass",
+          "note": "Manifest excludes .Codex/hooks and .Codex/settings.json; filesystem check confirms unsupported runtime files are absent on current HEAD.",
+          "headHash": "277b42a026d09bcfacb3547cad78fdefb961882e",
+          "materialHash": "ca5217fb869cdf5390cdbdc9ae7e229fcc9e6594d98b4a2dfaa1af17347057ff",
+          "timestamp": "2026-05-04T17:25:13.148Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Harden the Codex wrapper and entrypoint verification",
+      "context": "bin/koala-codex.js should remain the stable executable entry that tags source=codex/session, and tests should verify both wrapper behavior and the generated adapter manifest.",
+      "relatedDocs": [
+        "README.md"
+      ],
+      "status": "done",
+      "startTime": "2026-05-04T17:04:18.403Z",
+      "endTime": "2026-05-04T17:04:18.547Z",
+      "userSees": "Running node bin/koala-codex.js session_brief still prints # koala session brief and writes activity with source=codex/session tagging behavior covered by verification.",
+      "files": {
+        "modify": [
+          "bin/koala-codex.js",
+          "scripts/verify-entrypoints.mjs"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-entrypoints.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "bin/koala-codex.js remains a working Codex-specific entrypoint for session_brief",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "wrapper derives a stable activity session from Codex/OpenAI/terminal environment variables when available",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "verification fails if wrapper stops tagging activity source as codex",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "bin/koala-codex.js",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "entrypoints verification runs node bin/koala-codex.js session_brief and sees # koala session brief on current HEAD.",
+          "headHash": "277b42a026d09bcfacb3547cad78fdefb961882e",
+          "materialHash": "ca5217fb869cdf5390cdbdc9ae7e229fcc9e6594d98b4a2dfaa1af17347057ff",
+          "timestamp": "2026-05-04T17:25:13.148Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-entrypoints.mjs",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "entrypoints verification checks wrapper session propagation and core/global fallback session_brief heartbeat with KOALA_ACTIVITY_RECORD_READONLY=1 on current HEAD.",
+          "headHash": "277b42a026d09bcfacb3547cad78fdefb961882e",
+          "materialHash": "ca5217fb869cdf5390cdbdc9ae7e229fcc9e6594d98b4a2dfaa1af17347057ff",
+          "timestamp": "2026-05-04T17:25:13.148Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-entrypoints.mjs",
+          "command": "npm run test:entrypoints",
+          "result": "pass",
+          "note": "entrypoints verification overrides wrapper source to not-codex and asserts wrapper still records source=codex on current HEAD.",
+          "headHash": "277b42a026d09bcfacb3547cad78fdefb961882e",
+          "materialHash": "ca5217fb869cdf5390cdbdc9ae7e229fcc9e6594d98b4a2dfaa1af17347057ff",
+          "timestamp": "2026-05-04T17:25:13.148Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Document that Codex gets an adapter, not hooks/settings",
+      "context": "Update .Codex/README template and root docs to explain the adapter manifest and why .Codex/hooks/.Codex/settings.json are intentionally absent.",
+      "relatedDocs": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "status": "done",
+      "startTime": "2026-05-04T17:04:18.694Z",
+      "endTime": "2026-05-04T17:04:18.836Z",
+      "userSees": ".Codex/README.md says Codex uses a Koala-managed adapter manifest and does not support fake .Codex/hooks or .Codex/settings.json runtime hooks.",
+      "files": {
+        "modify": [
+          "packages/main/src/init-assets.ts",
+          "README.md",
+          "AGENTS.md",
+          ".Codex/README.md"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-codex-assets.mjs",
+          "scripts/verify-entrypoints.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": ".Codex/README template documents the adapter manifest and recommended Codex entrypoint",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "root README/AGENTS distinguish Codex adapter from Claude hooks/settings/skills",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "docs do not imply .Codex/hooks or .Codex/settings.json will be executed by Codex",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "packages/main/src/init-assets.ts",
+          "command": "npm run test:codex-assets",
+          "result": "pass",
+          "note": "CODEX_README_TEMPLATE documents node bin/koala-codex.js as preferred and the read-only global fallback as fallback only on current HEAD.",
+          "headHash": "277b42a026d09bcfacb3547cad78fdefb961882e",
+          "materialHash": "ca5217fb869cdf5390cdbdc9ae7e229fcc9e6594d98b4a2dfaa1af17347057ff",
+          "timestamp": "2026-05-04T17:25:13.148Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": "README.md",
+          "command": "npm run test:codex-assets",
+          "result": "pass",
+          "note": "Root README and AGENTS are checked for .Codex/koala.json guidance and Codex adapter boundary on current HEAD.",
+          "headHash": "277b42a026d09bcfacb3547cad78fdefb961882e",
+          "materialHash": "ca5217fb869cdf5390cdbdc9ae7e229fcc9e6594d98b4a2dfaa1af17347057ff",
+          "timestamp": "2026-05-04T17:25:13.148Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": ".Codex/README.md",
+          "command": "npm run test:codex-assets",
+          "result": "pass",
+          "note": "Docs explicitly say .Codex/hooks and .Codex/settings.json are not created/executed by Codex runtime on current HEAD.",
+          "headHash": "277b42a026d09bcfacb3547cad78fdefb961882e",
+          "materialHash": "ca5217fb869cdf5390cdbdc9ae7e229fcc9e6594d98b4a2dfaa1af17347057ff",
+          "timestamp": "2026-05-04T17:25:13.148Z"
+        }
+      ]
+    }
+  ]
+}

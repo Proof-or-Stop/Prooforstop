@@ -41,7 +41,7 @@ function write(root: string, path: string, content: string): void {
 function runKoala(root: string, command: string, args: Record<string, unknown>): string {
   return execFileSync(process.execPath, [cliPath, command, JSON.stringify(args)], {
     cwd: root,
-    env: { ...process.env, KOALA_PROJECT_ROOT: root },
+    env: { ...process.env, LATTICE_PROJECT_ROOT: root },
     encoding: 'utf-8',
     stdio: ['pipe', 'pipe', 'pipe'],
   });
@@ -49,7 +49,7 @@ function runKoala(root: string, command: string, args: Record<string, unknown>):
 
 function runKoalaFromCwd(cwd: string, command: string, args: Record<string, unknown>): string {
   const env = { ...process.env };
-  delete env.KOALA_PROJECT_ROOT;
+  delete env.LATTICE_PROJECT_ROOT;
   return execFileSync(process.execPath, [cliPath, command, JSON.stringify(args)], {
     cwd,
     env,
@@ -94,7 +94,7 @@ function runKoalaFromCwdExpectFail(cwd: string, command: string, args: Record<st
 function spawnStoryAdvance(cwd: string, args: Record<string, unknown>): Promise<{ code: number; output: string }> {
   return new Promise((resolveP) => {
     const env = { ...process.env };
-    delete env.KOALA_PROJECT_ROOT;
+    delete env.LATTICE_PROJECT_ROOT;
     const child = spawn(process.execPath, [cliPath, 'story_advance', JSON.stringify(args)], {
       cwd,
       env,
@@ -161,7 +161,7 @@ function assertRecordedWorktreeRejectsMainCwd(): void {
     write(root, 'koala.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.koala/story/actives',
+      storyDir: '.lattice/story/actives',
       requirementsDir: 'docs/requirements',
     }, null, 2));
     git(root, ['init']);
@@ -202,7 +202,7 @@ function assertInitCheckChecklistMutationRejectsMainCwd(): void {
     write(root, 'koala.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.koala/story/actives',
+      storyDir: '.lattice/story/actives',
       requirementsDir: 'docs/requirements',
     }, null, 2));
     git(root, ['init']);
@@ -244,7 +244,7 @@ function assertTerminalStoriesDoNotRedirect(): void {
     write(root, 'koala.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.koala/story/actives',
+      storyDir: '.lattice/story/actives',
       requirementsDir: 'docs/requirements',
     }, null, 2));
     resetConfigCache();
@@ -268,12 +268,12 @@ function assertFromDraftCreatesWorktreeThroughCli(): void {
     write(root, 'koala.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.koala/story/actives',
+      storyDir: '.lattice/story/actives',
       requirementsDir: 'docs/requirements',
       worktreeDir: '.worktrees',
     }, null, 2));
     write(root, 'README.md', 'from draft smoke\n');
-    write(root, '.gitignore', '.worktrees/\n.koala/activity.jsonl\n');
+    write(root, '.gitignore', '.worktrees/\n.lattice/activity.jsonl\n');
     git(root, ['init']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
@@ -323,12 +323,12 @@ function assertFromDraftCreatesWorktreeWithDirtyMainPreserved(): void {
     write(root, 'koala.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.koala/story/actives',
+      storyDir: '.lattice/story/actives',
       requirementsDir: 'docs/requirements',
       worktreeDir: '.worktrees',
     }, null, 2));
     write(root, 'README.md', 'from draft dirty main smoke\n');
-    write(root, '.gitignore', '.worktrees/\n.koala/activity.jsonl\n');
+    write(root, '.gitignore', '.worktrees/\n.lattice/activity.jsonl\n');
     write(root, 'unrelated-tracked.txt', 'tracked baseline\n');
     git(root, ['init']);
     git(root, ['checkout', '-B', 'main']);
@@ -370,7 +370,7 @@ function assertFromDraftCreatesWorktreeWithDirtyMainPreserved(): void {
     assert.ok(story.worktree?.path, 'fromDraft story should record worktree metadata');
     assert.match(output, /main merged into story\//, 'fromDraft output should confirm main was merged into the story branch');
     assert.equal(
-      git(root, ['status', '--porcelain', '--', `.koala/story/actives/${storyId}`, `docs/story/drafts/${draftName}`]),
+      git(root, ['status', '--porcelain', '--', `.lattice/story/actives/${storyId}`, `docs/story/drafts/${draftName}`]),
       '',
       'fromDraft should leave bounded story/draft metadata clean after committing',
     );
@@ -398,12 +398,12 @@ function assertFromDraftRejectsStagedMainBeforeMutation(): void {
     write(root, 'koala.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.koala/story/actives',
+      storyDir: '.lattice/story/actives',
       requirementsDir: 'docs/requirements',
       worktreeDir: '.worktrees',
     }, null, 2));
     write(root, 'README.md', 'from draft staged main smoke\n');
-    write(root, '.gitignore', '.worktrees/\n.koala/activity.jsonl\n');
+    write(root, '.gitignore', '.worktrees/\n.lattice/activity.jsonl\n');
     write(root, 'unrelated-staged.txt', 'tracked baseline\n');
     git(root, ['init']);
     git(root, ['checkout', '-B', 'main']);
@@ -504,7 +504,7 @@ function assertDoneFromNestedCwdUsesCanonicalWorktreeRoot(): void {
     write(root, 'koala.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.koala/story/actives',
+      storyDir: '.lattice/story/actives',
       requirementsDir: 'docs/requirements',
       worktreeDir: '.worktrees',
       workflow: { profile: 'light' },
@@ -573,7 +573,7 @@ function assertDoneRejectsMismatchedStoryBranchBeforeMutation(): void {
     write(root, 'koala.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.koala/story/actives',
+      storyDir: '.lattice/story/actives',
       requirementsDir: 'docs/requirements',
       worktreeDir: '.worktrees',
       workflow: { profile: 'light' },
@@ -629,7 +629,7 @@ function assertDoneRejectsNonStoryLinkedWorktreeBeforeMutation(): void {
     write(root, 'koala.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.koala/story/actives',
+      storyDir: '.lattice/story/actives',
       requirementsDir: 'docs/requirements',
       worktreeDir: '.worktrees',
       workflow: { profile: 'light' },
@@ -715,7 +715,7 @@ function buildDoneReadyStory(
   write(root, 'koala.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.koala/story/actives',
+    storyDir: '.lattice/story/actives',
     requirementsDir: 'docs/requirements',
     worktreeDir: '.worktrees',
     workflow: { profile: 'light' },
@@ -809,18 +809,18 @@ function assertDoneSuccessPathOutputAndOrdering(): void {
 
     // B-da5b regression — post-DONE activity heartbeat must NOT recreate the
     // removed worktree dir, and the final successful story_advance DONE record
-    // must land in the MAIN repo .koala/activity.jsonl (not a ghost worktree log).
-    // 1) The removed worktree path stays absent — no .koala (re)created under it.
+    // must land in the MAIN repo .lattice/activity.jsonl (not a ghost worktree log).
+    // 1) The removed worktree path stays absent — no .lattice (re)created under it.
     //    The worktree-dir absence itself is already asserted by the Step4 check
     //    above; the dedicated assertPostDoneHeartbeatLandsInMainAfterWorktreeRemoval
     //    test is the discriminating B-da5b regression guard. Here we only add the
     //    finer-grained sub-path checks so a ghost recreation surfaces with B-da5b
     //    diagnostics rather than being masked by the older Step4 message.
-    assert.equal(existsSync(join(worktreePath, '.koala')), false, 'post-DONE activity logging must not recreate a .koala dir inside the removed worktree');
-    assert.equal(existsSync(join(worktreePath, '.koala', 'activity.jsonl')), false, 'post-DONE activity logging must not write activity.jsonl into the removed worktree');
+    assert.equal(existsSync(join(worktreePath, '.lattice')), false, 'post-DONE activity logging must not recreate a .lattice dir inside the removed worktree');
+    assert.equal(existsSync(join(worktreePath, '.lattice', 'activity.jsonl')), false, 'post-DONE activity logging must not write activity.jsonl into the removed worktree');
     // 2) The main repo activity log holds the final successful story_advance DONE.
-    const mainActivityLog = join(root, '.koala', 'activity.jsonl');
-    assert.equal(existsSync(mainActivityLog), true, 'main repo .koala/activity.jsonl must exist after DONE');
+    const mainActivityLog = join(root, '.lattice', 'activity.jsonl');
+    assert.equal(existsSync(mainActivityLog), true, 'main repo .lattice/activity.jsonl must exist after DONE');
     const activityRecords = readFileSync(mainActivityLog, 'utf-8')
       .split('\n')
       .filter((l) => l.trim())
@@ -871,18 +871,18 @@ function assertDoneSuccessPathOutputAndOrdering(): void {
 
 /**
  * B-da5b CHK-001 — post-DONE activity heartbeat must land in the MAIN repo
- * .koala/activity.jsonl and must NOT recreate the removed story worktree dir.
+ * .lattice/activity.jsonl and must NOT recreate the removed story worktree dir.
  *
- * Failure mode this discriminates: when KOALA_PROJECT_ROOT points at the story
+ * Failure mode this discriminates: when LATTICE_PROJECT_ROOT points at the story
  * worktree (the realistic agent setup — they cd into the worktree and the env
  * var pins the root there), story_advance --phase=DONE removes that worktree
  * mid-command. The post-command writeLog then sees root/koala.config.json gone
  * and, in the old code, fell back to resolveRoot() — which returns the now-ghost
- * worktree path again (KOALA_PROJECT_ROOT wins), so the final successful DONE
+ * worktree path again (LATTICE_PROJECT_ROOT wins), so the final successful DONE
  * record was silently dropped (heartbeat lost) instead of landing in main.
  *
  * The fix captures a durable main-root fallback at command start (while
- * root/.git still exists). This test pins KOALA_PROJECT_ROOT to the worktree so
+ * root/.git still exists). This test pins LATTICE_PROJECT_ROOT to the worktree so
  * the old fallback would drop the record; the assertions require the DONE
  * heartbeat to be present in main and the worktree dir to stay absent.
  */
@@ -892,29 +892,29 @@ function assertPostDoneHeartbeatLandsInMainAfterWorktreeRemoval(): void {
     const storyId = 'B-heartbeat';
     const { worktreePath } = buildDoneReadyStory(root, storyId);
 
-    // Run DONE with cwd AND KOALA_PROJECT_ROOT pinned to the worktree — this is
+    // Run DONE with cwd AND LATTICE_PROJECT_ROOT pinned to the worktree — this is
     // the env that made the old resolveRoot() fallback return the ghost path.
     const output = execFileSync(
       process.execPath,
       [cliPath, 'story_advance', JSON.stringify({ storyId, phase: 'DONE' })],
       {
         cwd: worktreePath,
-        env: { ...process.env, KOALA_PROJECT_ROOT: worktreePath },
+        env: { ...process.env, LATTICE_PROJECT_ROOT: worktreePath },
         encoding: 'utf-8',
         stdio: ['pipe', 'pipe', 'pipe'],
       },
     );
-    assert.ok(output.includes(`Story ${storyId} advanced to DONE`), 'DONE must succeed with KOALA_PROJECT_ROOT on the worktree');
+    assert.ok(output.includes(`Story ${storyId} advanced to DONE`), 'DONE must succeed with LATTICE_PROJECT_ROOT on the worktree');
 
     // The removed worktree must stay absent — activity logging must not recreate
-    // it (no resurrected dir / .koala / activity.jsonl under the ghost path).
+    // it (no resurrected dir / .lattice / activity.jsonl under the ghost path).
     assert.equal(existsSync(worktreePath), false, 'post-DONE heartbeat must not recreate the removed worktree directory');
-    assert.equal(existsSync(join(worktreePath, '.koala')), false, 'post-DONE heartbeat must not recreate a .koala dir under the removed worktree');
-    assert.equal(existsSync(join(worktreePath, '.koala', 'activity.jsonl')), false, 'post-DONE heartbeat must not write activity.jsonl into the removed worktree');
+    assert.equal(existsSync(join(worktreePath, '.lattice')), false, 'post-DONE heartbeat must not recreate a .lattice dir under the removed worktree');
+    assert.equal(existsSync(join(worktreePath, '.lattice', 'activity.jsonl')), false, 'post-DONE heartbeat must not write activity.jsonl into the removed worktree');
 
     // The final successful story_advance DONE record must land in main's log.
-    const mainActivityLog = join(root, '.koala', 'activity.jsonl');
-    assert.equal(existsSync(mainActivityLog), true, 'main repo .koala/activity.jsonl must exist after DONE');
+    const mainActivityLog = join(root, '.lattice', 'activity.jsonl');
+    assert.equal(existsSync(mainActivityLog), true, 'main repo .lattice/activity.jsonl must exist after DONE');
     const doneRecord = readFileSync(mainActivityLog, 'utf-8')
       .split('\n')
       .filter((l) => l.trim())
@@ -969,7 +969,7 @@ function assertStrayFileOffenderKeepsStoryTest(): void {
     // F-020 stray-file dry-run in runDonePreMergeGate scans
     // `git ls-files --others -- <storyDir>` from mainRepoRoot, detects an
     // offender and throws while the story is still TEST.
-    const strayPath = join(root, '.koala', 'story', 'actives', storyId, 'stray-offender.txt');
+    const strayPath = join(root, '.lattice', 'story', 'actives', storyId, 'stray-offender.txt');
     mkdirSync(dirname(strayPath), { recursive: true });
     writeFileSync(strayPath, 'non-whitelisted stray file that must block DONE pre-merge\n');
 
@@ -1144,7 +1144,7 @@ function assertDoneMainMergeLiveLockFailsBeforeMutation(): void {
   try {
     const storyId = 'B-lock-live';
     const { worktreePath } = buildDoneReadyStory(root, storyId);
-    const lockDir = join(root, '.koala', 'locks', 'main-write.lock');
+    const lockDir = join(root, '.lattice', 'locks', 'main-write.lock');
     mkdirSync(lockDir, { recursive: true });
 
     const output = runKoalaFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
@@ -1167,7 +1167,7 @@ function assertDoneMainMergeLockBlocksBeforeAutoSyncMain(): void {
     git(root, ['add', 'main-only-after-story-branch.txt']);
     git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Koala Smoke', 'commit', '-m', 'main moves after story branch']);
     const mainHeadAfterBranch = git(root, ['rev-parse', 'main']);
-    const lockDir = join(root, '.koala', 'locks', 'main-write.lock');
+    const lockDir = join(root, '.lattice', 'locks', 'main-write.lock');
     mkdirSync(lockDir, { recursive: true });
 
     const output = runKoalaFromCwdExpectFail(worktreePath, 'story_advance', { storyId, phase: 'DONE' });
@@ -1198,7 +1198,7 @@ function assertDoneMainMergeStaleLockIsReclaimed(): void {
   try {
     const storyId = 'B-lock-stale';
     const { worktreePath } = buildDoneReadyStory(root, storyId);
-    const lockDir = join(root, '.koala', 'locks', 'main-write.lock');
+    const lockDir = join(root, '.lattice', 'locks', 'main-write.lock');
     mkdirSync(lockDir, { recursive: true });
     const old = new Date(Date.now() - 5 * 60 * 1000);
     utimesSync(lockDir, old, old);
@@ -1218,7 +1218,7 @@ function assertDoneMainMergeStaleLockIsReclaimed(): void {
  * self-blocks the DONE `git merge story/<id>` (partial-DONE).
  *
  * F-008 (verified, B-6974 / B-ad12 real-machine repros): `dev_start` writes
- * `story.worktree` into the MAIN repo's `.koala/story/actives/<id>/index.json`
+ * `story.worktree` into the MAIN repo's `.lattice/story/actives/<id>/index.json`
  * but commits the story dir onto the `story/<id>` branch via a temporary git
  * index — the main working tree is left with an UNTRACKED story-metadata
  * mirror (story_create only wrote files, never committed them). At DONE,
@@ -1242,13 +1242,13 @@ function assertInitCheckLeavesNoUncommittedMainMirrorForDone(): void {
     write(root, 'koala.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
-      storyDir: '.koala/story/actives',
+      storyDir: '.lattice/story/actives',
       requirementsDir: 'docs/requirements',
       worktreeDir: '.worktrees',
       storyPrefix: 'B',
     }, null, 2));
     write(root, 'README.md', 'F-008 init-check mirror smoke\n');
-    write(root, '.gitignore', '.worktrees/\n.koala/activity.jsonl\n');
+    write(root, '.gitignore', '.worktrees/\n.lattice/activity.jsonl\n');
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
     resetConfigCache();
@@ -1281,7 +1281,7 @@ function assertInitCheckLeavesNoUncommittedMainMirrorForDone(): void {
     assert.match(advanced, /advanced to INIT_CHECK/, 'INIT_CHECK advance should succeed');
     assert.match(advanced, /INIT_CHECK metadata committed/, 'INIT_CHECK output should report the metadata mirror was committed');
 
-    const storyRel = `.koala/story/actives/${storyId}`;
+    const storyRel = `.lattice/story/actives/${storyId}`;
     // The F-008 stale mirror is gone: the main working tree has no uncommitted
     // (untracked or modified) story metadata.
     assert.equal(
@@ -1398,10 +1398,10 @@ async function assertConcurrentDoneSerializesWithoutPartialDone(): Promise<void>
     // No uncommitted story-metadata mirror was left behind by the racing
     // processes — that uncommitted mirror is the exact F-008 self-block
     // precondition. Scoped to the story dir (not the whole tree) so koala's own
-    // gitignored runtime artifacts — .koala/activity.jsonl, .koala/runtime/ —
+    // gitignored runtime artifacts — .lattice/activity.jsonl, .lattice/runtime/ —
     // do not masquerade as partial-DONE residue.
     assert.equal(
-      git(root, ['status', '--porcelain', '--', `.koala/story/actives/${storyId}`]),
+      git(root, ['status', '--porcelain', '--', `.lattice/story/actives/${storyId}`]),
       '',
       'concurrent DONE must leave no uncommitted story-metadata mirror (the F-008 self-block precondition)',
     );
@@ -1422,7 +1422,7 @@ assertDoneRejectsNonStoryLinkedWorktreeBeforeMutation();
 // B-9027 CHK-002 / CHK-003 regression coverage for the done-effects.ts extraction.
 assertDoneSuccessPathOutputAndOrdering();
 // B-da5b CHK-001 — post-DONE activity heartbeat lands in main, never recreates
-// the removed worktree (KOALA_PROJECT_ROOT-on-worktree discriminating case).
+// the removed worktree (LATTICE_PROJECT_ROOT-on-worktree discriminating case).
 assertPostDoneHeartbeatLandsInMainAfterWorktreeRemoval();
 assertDoneOracleGateFailureKeepsStoryTest();
 assertStrayFileOffenderKeepsStoryTest();

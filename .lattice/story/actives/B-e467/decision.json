@@ -1,0 +1,59 @@
+{
+  "principles": [
+    "先让事件里有真实可用的 session 标识，再做 ownership 判断。",
+    "默认阻止跨 session 静默推进，takeover 必须显式。",
+    "保留系统自动 gate，但它只能在 owner session 上工作，且输出要可见。"
+  ],
+  "drivers": [
+    "用户当前最困惑的是 story 会在没有明确动作的情况下自己跳 phase。",
+    "现有 sessionWarning 逻辑因为 sessionId 永远为空而形同虚设。",
+    "并发 session 是项目的设计目标，不能靠约定避免抢同一条 story。"
+  ],
+  "options": [
+    {
+      "name": "A: 只补提示，不拦截跨 session 推进",
+      "pros": [
+        "改动最小。",
+        "不会影响现有并行流程。"
+      ],
+      "cons": [
+        "无法真正阻止别人把同一 story 推到 DONE。",
+        "用户仍会看到 phase 被别人改掉后再收到事后提示。"
+      ]
+    },
+    {
+      "name": "B: 记录 owner session，并在关键推进点做 hard gate",
+      "pros": [
+        "能直接阻止静默 phase 漂移。",
+        "与多 session 并行设计相容，因为 takeover 变成显式动作。"
+      ],
+      "cons": [
+        "需要定义 owner 的来源和 override 机制。",
+        "如果 session 标识不稳定，会误拦正常流程。"
+      ]
+    }
+  ],
+  "chosen": "B: 记录 owner session，并在关键推进点做 hard gate",
+  "rationale": "真正的问题不是提示不够，而是没有所有权边界。先让 event.sessionId 可用，再在 story_advance/testintent_check 上做显式 ownership gate，才能阻止静默漂移。",
+  "preMortem": [
+    {
+      "scenario": "补了 sessionId 但某些入口没有该环境变量",
+      "trigger": "调用方走裸 koala，而不是 koala-codex 包装入口",
+      "consequence": "ownership gate 时灵时不灵，形成新的困惑",
+      "mitigation": "collectContext 增加 KOALA_ACTIVITY_SESSION 兜底，并在缺 sessionId 时降级为 warning 而不是 hard block。"
+    },
+    {
+      "scenario": "系统自动 gate 被误判成跨 session 抢占",
+      "trigger": "gate-auto 没有继承 owner session 就直接推进 TEST",
+      "consequence": "review 全通过后 phase 不再自动前进，流程卡住",
+      "mitigation": "testintent_check 只在 current session 与 owner 一致时 auto-advance，否则返回明确 hint 要求显式 takeover 或手动推进。"
+    },
+    {
+      "scenario": "hard gate 过宽，连正常协作切换都被拦住",
+      "trigger": "PLAN/DEV/TEST_CASE 等所有推进都无差别阻塞",
+      "consequence": "协作效率下降，用户需要频繁处理 ownership 冲突",
+      "mitigation": "先把 gate 收敛到跨 session 的 TEST / DONE 和 auto-advance 路径，并提供 KOALA_ALLOW_SESSION_TAKEOVER=1 显式接管。"
+    }
+  ],
+  "timestamp": "2026-04-15T12:47:57.824Z"
+}

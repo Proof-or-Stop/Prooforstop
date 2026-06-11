@@ -1,0 +1,39 @@
+{
+  "findings": [
+    {
+      "id": "B-c600:F-001",
+      "desc": "Packaged desktop binary fails a real Koala CLI command: `dist/desktop/koala-macos-arm64 verify_codex` exits 1 because `packages/main/src/core/codex-adapter-checks.ts:235` runs the local Codex heartbeat through `process.execPath`; inside the pkg executable that is the packaged binary, not Node, so it tries to load `bin/koala-codex.js` through the pkg CommonJS loader and throws ERR_REQUIRE_ESM. This means the single-file CLI can pass the narrow help smoke but still ships with broken self-diagnostics/Codex verification behavior. Packaging entrypoint/runtime staging is introduced in `scripts/package-desktop.mjs:60` and needs either a packaged-mode handling path or smoke coverage for this command class before release.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-17T23:25:46.084Z",
+      "reviewRound": "2026-05-17T23:20:58.140Z",
+      "reviewRunId": "B-c600:RR-001",
+      "_hash": "c48ec42e8be54897aa225fec1cd27b8d23ff82ccff2adb158a24af810586f435",
+      "files": [
+        "scripts/package-desktop.mjs",
+        "scripts/verify-desktop-package.mjs",
+        "packages/main/src/core/codex-adapter-checks.ts"
+      ]
+    },
+    {
+      "id": "B-c600:F-002",
+      "desc": "Packaged verify_codex is still not standalone for users without a global koala/Node install. Repro: env -i HOME=/Users/jek TMPDIR=/tmp PATH=/usr/bin:/bin /Users/jek/Documents/Work/Orchestrate/.worktrees/B-c600/dist/desktop/koala-macos-arm64 verify_codex. It fails with Global fallback heartbeat: spawnSync koala ENOENT. Source: packages/main/src/core/codex-adapter-checks.ts:393 runs a hard global fallback heartbeat through command koala after npm lookup fails; scripts/verify-desktop-package.mjs:40 inherits the developer PATH, so the smoke test misses the no-global-koala distribution scenario.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-17T23:38:51.977Z",
+      "reviewRound": "2026-05-17T23:34:36.041Z",
+      "reviewRunId": "B-c600:RR-004",
+      "_hash": "c8a28b8f103f82840eb040a374851b975858140c7b9b8d7d41b15aa730abbaac",
+      "files": [
+        "packages/main/src/core/codex-adapter-checks.ts",
+        "scripts/verify-desktop-package.mjs"
+      ]
+    }
+  ]
+}

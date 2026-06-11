@@ -1,0 +1,26 @@
+{
+  "storyId": "B-8960",
+  "checkedAt": "2026-05-12T23:11:51.919Z",
+  "reviewRound": "",
+  "agentId": "koala-review-story-init",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-05-12T23:10:53.331Z",
+      "issues": [
+        {
+          "id": "P-1",
+          "severity": "medium",
+          "desc": "Background includes non-fully-mechanical guarantees (fresh worker context separation and product/user acceptance boundaries), but the checklist only has the three hardcoded contract fixes. Add or explicitly fold an observable outcome for documenting/enforcing those evidence boundaries so completion does not leave the user asking whether those two legacy concerns were handled."
+        }
+      ]
+    },
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-05-12T23:11:51.919Z",
+      "issues": []
+    }
+  ],
+  "_hash": "dbc3855f4f131a70d708a1b944d253c735b10cac78594b9b5e733fc7209e60ff"
+}

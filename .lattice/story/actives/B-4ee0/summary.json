@@ -1,0 +1,56 @@
+{
+  "storyId": "B-4ee0",
+  "changes": "默认 init 改为 global-thin：fresh project 只写 .Lattice/Lattice.md、.Lattice/lattice.json、AGENTS.md、lattice.config.json 和必要 gitignore；legacy/full/thin 兼容保留；新增 codex_doctor 全局诊断路径并更新 README/decision 文档。",
+  "usage": "新项目直接运行全局 lattice init；之后使用 lattice session_brief、lattice codex verify、lattice codex doctor。需要旧本地 wrapper 时显式传 --asset-mode=full 或 --asset-mode=thin。项目配置使用 lattice.config.json，legacy koala.config.json 仍可读作兜底。",
+  "expectedOutcome": "fresh init 后用户只看到 .Lattice/Lattice.md、.Lattice/lattice.json、AGENTS.md、lattice.config.json、.gitignore，不再默认看到 KOALA.md、LATTICE.md、koala.config.json、.Codex/* 或 bin/lattice*.js/bin/koala*.js；codex doctor 不要求本地 wrapper。",
+  "actualTranscript": "真机临时目录运行 node packages/main/dist/cli.js --root <tmp> init --yes 后，文件树为 .Lattice/Lattice.md、.Lattice/lattice.json、.gitignore、AGENTS.md、lattice.config.json；forbidden local assets 检查无 PRESENT 行（含 koala.config.json、.Codex/*、bin/*、KOALA.md、LATTICE.md）；codex doctor 显示 Codex adapter checks passed (5/6 pass)，Local Codex wrapper: global-thin project: local wrapper not required。",
+  "outcomeDiff": "expected 和 actual 匹配；唯一 warning 是 codex doctor 诊断模式不执行 global fallback heartbeat，属于设计内提示。",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none - fully covered",
+  "pitfalls": "合并 main 后项目配置 canonical 从 koala.config.json 变为 lattice.config.json，已同步 help、smoke、summary 和验收 transcript；验收脚本避免使用 zsh 特殊变量 path。",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 242490
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 39961
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 933644
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 3008186
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 1158239
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 1037890
+    }
+  },
+  "totalDurationMs": 6420431,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-03T20:08:02.085Z",
+  "updatedAt": "2026-06-03T20:21:22.749Z"
+}

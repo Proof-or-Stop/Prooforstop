@@ -34,15 +34,15 @@ function initRepo(prefix: string): string {
   write(root, 'koala.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.koala/story/actives',
+    storyDir: '.lattice/story/actives',
     requirementsDir: 'docs/requirements',
     worktreeDir: '.worktrees',
   }, null, 2));
   write(root, '.gitignore', [
     '.worktrees/',
-    '.koala/*',
-    '!.koala/story/',
-    '!.koala/story/**',
+    '.lattice/*',
+    '!.lattice/story/',
+    '!.lattice/story/**',
     '',
   ].join('\n'));
   write(root, 'README.md', 'worktree repair smoke\n');
@@ -77,7 +77,7 @@ function story(storyId: string, phase: StoryPhase, worktree = false): StoryInfo 
 }
 
 function commitStories(root: string): void {
-  git(root, ['add', '.koala/story/actives']);
+  git(root, ['add', '.lattice/story/actives']);
   git(root, ['commit', '-m', 'add smoke story metadata']);
 }
 
@@ -90,7 +90,7 @@ async function runKoala(root: string, command: string, args: Record<string, unkn
   return new Promise<string>((resolvePromise, reject) => {
     const child = spawn(process.execPath, [cliPath, command, JSON.stringify(args)], {
       cwd: root,
-      env: { ...process.env, KOALA_PROJECT_ROOT: root },
+      env: { ...process.env, LATTICE_PROJECT_ROOT: root },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
     let stdout = '';
@@ -134,7 +134,7 @@ async function assertDoctorRepairCleansAndProtects(): Promise<void> {
     mkdirSync(join(root, '.worktrees', 'B-orphan'), { recursive: true });
     writeFileSync(join(root, '.worktrees', 'B-orphan', 'runtime.log'), 'orphan residue\n');
     mkdirSync(join(root, '.worktrees', 'B-ignored'), { recursive: true });
-    writeFileSync(join(root, '.worktrees', 'B-ignored', '.koala-repair-ignore'), 'already quarantined\n');
+    writeFileSync(join(root, '.worktrees', 'B-ignored', '.lattice-repair-ignore'), 'already quarantined\n');
     writeFileSync(join(outsideUserDir, 'B-orphan'), 'outside worktreeDir must never be touched\n');
     rmSync(join(root, '.worktrees', 'B-prune'), { recursive: true, force: true });
 
@@ -201,7 +201,7 @@ function buildPartialDone(root: string, storyId: string): string {
   const worktreePath = join(root, '.worktrees', storyId);
   const worktreeStore = new StoryStore(worktreePath);
   worktreeStore.writeStory(storyId, story(storyId, 'DONE'));
-  git(worktreePath, ['add', '.koala/story/actives']);
+  git(worktreePath, ['add', '.lattice/story/actives']);
   git(worktreePath, ['commit', '-m', `koala: mark ${storyId} DONE + clear worktree`]);
   return worktreePath;
 }
@@ -262,7 +262,7 @@ async function assertDoneRecoverUsesDoneMainMergeLock(): Promise<void> {
   try {
     const storyId = 'B-partial-lock';
     buildPartialDone(root, storyId);
-    mkdirSync(join(root, '.koala', 'locks', 'main-write.lock'), { recursive: true });
+    mkdirSync(join(root, '.lattice', 'locks', 'main-write.lock'), { recursive: true });
 
     const output = await runKoalaExpectFail(root, 'done_recover', { storyId });
     assert.match(output, /DONE main merge lock is held/, 'done_recover must use the same DONE main merge lock');

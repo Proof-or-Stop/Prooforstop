@@ -1,0 +1,55 @@
+{
+  "storyId": "B-4622",
+  "changes": "Documented the scope evidence phase split and added command ownership regression coverage for scope_check_save and scope_contract_acknowledge.",
+  "usage": "Run npm --prefix packages/main run test:command-ownership-contract to verify the command phase contract; read story-lifecycle.md Scope evidence hygiene for the operator rule.",
+  "expectedOutcome": "Operators see that scope_check_save remains PLAN-only, later DEV/REVIEW scope changes use scope_contract_acknowledge, and tests fail if that split regresses.",
+  "actualTranscript": "rg found the three story-lifecycle promises on lines 99-101; test:command-ownership-contract printed scope_check_save allowedPhases: PLAN and scope_contract_acknowledge allowedPhases: DEV, REVIEW; koala validate reported 6/6 verification intents covered.",
+  "outcomeDiff": "Expected and actual match; no user-visible mismatch found.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — fully covered",
+  "pitfalls": "Initial docs evidence became stale after later code commits, so it was refreshed with verification_evidence_refresh_stale before TEST validation.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 840070718
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 9724
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 521579
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 458172
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 221861
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 196591
+    }
+  },
+  "totalDurationMs": 841478650,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-05-25T15:36:43.976Z",
+  "updatedAt": "2026-05-25T15:36:43.976Z"
+}

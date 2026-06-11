@@ -1,0 +1,98 @@
+{
+  "storyId": "B-9b76",
+  "name": "thin-prompt-registry-assets",
+  "title": "Globalize Lattice agent prompts behind registry-backed thin assets",
+  "description": "Move large Koala/Lattice agent prompt bodies toward package-level registry ownership while preserving all existing legacy full-mode behavior. Add registry rendering, registry-aware Codex verification, thin init/check asset mode, and migration-safe compatibility so existing .Codex/.claude prompt mirrors keep working until projects explicitly opt into thin assets.",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "数据迁移/破坏性",
+      "matched": "migration"
+    }
+  ],
+  "createdAt": "2026-06-02T20:56:24.943Z",
+  "startedAt": "2026-06-02T20:56:24.943Z",
+  "endedAt": "2026-06-02T21:24:18.238Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-02T20:56:24.944Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-02T20:57:18.348Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-02T20:57:30.187Z",
+      "branch": "story/B-9b76",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-02T21:02:01.914Z",
+      "branch": "story/B-9b76",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-02T21:18:00.188Z",
+      "branch": "story/B-9b76",
+      "user": "Harmonygo",
+      "sessionId": "sess-984e0c8ad2c9b71f",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-02T21:19:57.941Z",
+      "branch": "story/B-9b76",
+      "user": "Harmonygo",
+      "sessionId": "sess-984e0c8ad2c9b71f",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-02T21:21:29.978Z",
+      "branch": "story/B-9b76",
+      "user": "Harmonygo",
+      "sessionId": "sess-984e0c8ad2c9b71f",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-02T21:22:39.718Z",
+      "branch": "story/B-9b76",
+      "user": "Harmonygo",
+      "sessionId": "sess-984e0c8ad2c9b71f",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-02T21:24:18.238Z",
+      "branch": "story/B-9b76",
+      "user": "Harmonygo",
+      "sessionId": "sess-984e0c8ad2c9b71f",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-06-02T21:21:29.978Z"
+}

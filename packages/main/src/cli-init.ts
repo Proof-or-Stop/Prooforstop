@@ -38,6 +38,7 @@ import {
   KOALA_RUNTIME_IGNORE_BLOCK_START,
   listRuntimeArtifactIgnorePatterns,
 } from './core/runtime-artifact-registry.js';
+import { LATTICE_STORY_DIR } from './core/lattice-paths.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -246,11 +247,11 @@ lattice init — 初始化 Lattice/Koala 开发框架
 Legacy npm package entrypoint \`npx koala-init\` remains accepted as an alias.
 
 默认初始化（global-thin mode）:
-  .Lattice/Lattice.md           canonical host-neutral Lattice 指南（新目录）
-  .Lattice/lattice.json         项目 Lattice 配置（global-thin）
+  .lattice/Lattice.md           canonical host-neutral Lattice 指南（新目录）
+  .lattice/lattice.json         项目 Lattice 配置（global-thin）
   AGENTS.md                     薄 Codex/AGENTS 指南（引用全局 lattice CLI）
   lattice.config.json           项目配置（canonical; legacy koala.config.json 仍可读为兜底）
-  docs/story/actives/           Story 数据目录
+  .lattice/story/actives/       Story 数据目录
   docs/requirements/            真相源目录
 
 full/thin asset mode（显式 --asset-mode=full 或 --asset-mode=thin）:
@@ -268,7 +269,7 @@ full/thin asset mode（显式 --asset-mode=full 或 --asset-mode=thin）:
   tests/                        测试目录
 
 初始化后（global-thin）:
-  1. 阅读 .Lattice/Lattice.md
+  1. 阅读 .lattice/Lattice.md
   2. 使用全局 lattice CLI：lattice session_brief、lattice codex verify、lattice codex doctor
   3. 可选: 编辑 lattice.config.json 调整 scanRoot 等路径
   4. 可选: lattice validate 跑项目验证
@@ -525,7 +526,7 @@ const dirs = [
   'docs/requirements/decisions',
   'docs/requirements/extracted',
 ];
-if (isGlobalThin) dirs.push('.Lattice');
+if (isGlobalThin) dirs.push('.lattice');
 if (wantsClaude) dirs.push('.claude/skills/koala', '.claude/agents');
 if (wantsCodex && selectedAssetMode === 'full') dirs.push('.Codex/agents');
 for (const d of dirs) {
@@ -785,7 +786,7 @@ console.log('\n[2/6] 生成 lattice.config.json...');
 const latticeConfig: Record<string, unknown> = {
   scanRoot: withStarter || hadSrcBeforeInit ? 'src' : '.',
   testsDir: 'tests',
-  storyDir: 'docs/story/actives',
+  storyDir: LATTICE_STORY_DIR,
   requirementsDir: 'docs/requirements',
   storyPrefix: 'S',
 };
@@ -822,15 +823,15 @@ if (existsSync(join(targetDir, 'lattice.config.json'))) {
 // 3. 文档入口
 console.log('\n[3/6] 配置 Lattice / host 文档...');
 if (isGlobalThin) {
-  writeManagedMarkdown('.Lattice/Lattice.md', LATTICE_DOT_DIR_MD_TEMPLATE, '.Lattice/Lattice.md');
-  const latticeConfigPath = join(targetDir, '.Lattice', 'lattice.json');
+  writeManagedMarkdown('.lattice/Lattice.md', LATTICE_DOT_DIR_MD_TEMPLATE, '.lattice/Lattice.md');
+  const latticeConfigPath = join(targetDir, '.lattice', 'lattice.json');
   if (!existsSync(latticeConfigPath)) {
     writeFileSync(latticeConfigPath, renderLatticeProjectConfig());
-    console.log('  ✓ .Lattice/lattice.json');
+    console.log('  ✓ .lattice/lattice.json');
   } else {
-    console.log('  - .Lattice/lattice.json (exists, skip)');
+    console.log('  - .lattice/lattice.json (exists, skip)');
   }
-  console.log('  - LATTICE.md (global-thin mode; canonical guide is .Lattice/Lattice.md)');
+  console.log('  - LATTICE.md (global-thin mode; canonical guide is .lattice/Lattice.md)');
 } else {
   writeManagedMarkdown('LATTICE.md', LATTICE_MD_TEMPLATE, 'LATTICE.md');
 }
@@ -1027,7 +1028,7 @@ if (wantsClaude) {
   console.log('  - .claude/settings.json (profile skip)');
 }
 
-if (wantsCodex) {
+if (wantsCodex || isGlobalThin) {
   writeExecutable('.codex/hooks/lattice-scope-pretool.cjs', renderCodexPretoolScopeHookScript());
   removeWholeFileIfGenerated('.codex/hooks/scope-pretool.cjs', '.codex/hooks/scope-pretool.cjs', [renderCodexPretoolScopeHookScript()]);
 
@@ -1068,7 +1069,7 @@ console.log(`
 ✓ 初始化完成
 
 Next steps:
-${isGlobalThin ? `  1. Read .Lattice/Lattice.md
+${isGlobalThin ? `  1. Read .lattice/Lattice.md
   2. Use the global lattice CLI: lattice session_brief
   3. For Codex adapter: lattice codex verify / lattice codex doctor
   4. Optional: lattice validate to verify project` : `  1. Read LATTICE.md, then use the entrypoints generated for profile ${selectedProfile}

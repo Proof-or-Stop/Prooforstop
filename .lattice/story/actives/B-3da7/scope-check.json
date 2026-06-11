@@ -1,0 +1,31 @@
+{
+  "storyId": "B-3da7",
+  "checkedAt": "2026-05-27T19:15:45.464Z",
+  "features": [
+    {
+      "feature": "Add @changes required field to @task annotation header in authority-enforce-policy-smoke.ts",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/annotation-system.md"
+    },
+    {
+      "feature": "Runtime authority behavior (L2+ evidence, actor keys, job claim, provider execution, receipt verification, enforce mode) must remain unchanged",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/authority-client-role.md"
+    }
+  ],
+  "summary": {
+    "total": 2,
+    "covered": 2,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "5d69a2370c89703cbfaf64a42ab5fd1dabf95f031e82df88992a35ab85bf644e",
+  "openQuestions": []
+}

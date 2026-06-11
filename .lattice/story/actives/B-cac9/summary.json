@@ -1,0 +1,56 @@
+{
+  "storyId": "B-cac9",
+  "changes": "Added profile-aware koala init: explicit and detected codex, claude, all, and core profiles; canonical KOALA.md; profile-specific adapter asset matrix; managed re-init cleanup; and hard-coded entrypoint contract tests.",
+  "usage": "Run koala init --profile=codex|claude|all|core <target>. Omit --profile for marker detection with compatibility fallback. Verify with npm run test:entrypoints and node bin/koala-codex.js verify_codex for Codex adapter contracts.",
+  "expectedOutcome": "Codex projects get KOALA.md plus AGENTS.md, .Codex assets, and bin/koala-codex.js only; Claude projects get KOALA.md plus CLAUDE.md and .claude assets only; core gets no host adapter; explicit profile always wins over detection.",
+  "actualTranscript": "npm run build passed. npm run test:entrypoints printed ok 1/21 through ok 21/21 and entrypoints verified. node bin/koala-codex.js verify_codex reported Codex adapter checks passed 6/7 with one advisory. koala validate --story=B-cac9 passed with 16/16 verification intent coverage.",
+  "outcomeDiff": "No behavior gap found; only advisory is the known worktree-local global fallback path note from verify_codex.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none - fully covered by profile matrix, re-init cleanup, managed marker, unmarked preservation, build, entrypoint, adapter, and koala validate evidence.",
+  "pitfalls": "The first implementation handled fresh init only; reviewers caught stale opposite-host assets on re-init, so cleanup and transition tests were added before DONE.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 384165
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 5411
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 486406
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 1956729
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 586518
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 112410
+    }
+  },
+  "totalDurationMs": 3531639,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-05-13T01:23:13.779Z",
+  "updatedAt": "2026-05-13T01:23:13.779Z"
+}

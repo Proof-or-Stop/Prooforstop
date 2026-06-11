@@ -1,0 +1,68 @@
+{
+  "principles": [
+    "freshness 只由验证语义变化失效，不由 Koala 流程元数据失效",
+    "命令存在性由 registry、schema、phase allowlist 三层一致保障",
+    "回归测试要覆盖正例和反例，避免过度放行",
+    "保持语言无关和项目无关"
+  ],
+  "drivers": [
+    "用户已在真实 story 中遇到 stale 死循环和未知命令",
+    "不能牺牲代码变化 stale 的安全性",
+    "Koala CLI 核心命令需要全局安装版本可用"
+  ],
+  "options": [
+    {
+      "name": "A: 收窄 metadata allowlist 并正式注册 testintent_handoff",
+      "pros": [
+        "直接修复两个根因",
+        "保留代码/测试/配置变化 stale",
+        "兼容现有 handler 设计"
+      ],
+      "cons": [
+        "需要补齐 CLI schema、registry、phase allowlist 多处 wiring"
+      ]
+    },
+    {
+      "name": "B: 只在 validate 中忽略 stale 或加 waiver 绕过",
+      "pros": [
+        "改动小"
+      ],
+      "cons": [
+        "会掩盖真实代码变化 stale",
+        "无法解决 testintent_handoff 未知命令"
+      ]
+    },
+    {
+      "name": "C: 废弃 testintent_handoff，改提示使用 dispatch",
+      "pros": [
+        "减少命令面"
+      ],
+      "cons": [
+        "破坏已有流程记忆和 phase-protocol 提示，用户已明确遇到缺失问题"
+      ]
+    }
+  ],
+  "chosen": "A: 收窄 metadata allowlist 并正式注册 testintent_handoff",
+  "rationale": "A 同时修复 stale 判定和命令暴露根因，并且不降低代码变更触发 stale 的安全保护。",
+  "preMortem": [
+    {
+      "scenario": "allowlist 过宽导致 requirements 或 fixture 变化不 stale",
+      "trigger": "把所有 docs/ 或 tests/ 当 metadata",
+      "consequence": "旧 evidence 覆盖新需求或新测试语义",
+      "mitigation": "只允许 .koala/story、docs/story、docs/koala/framework-audit 等 Koala workflow metadata，测试覆盖 package/源码变化仍 stale"
+    },
+    {
+      "scenario": "只注册 handler 未加 CLI schema",
+      "trigger": "registry 有命令但 koala help/parse 不识别",
+      "consequence": "用户仍看到未知命令或参数校验失败",
+      "mitigation": "同时更新 MAIN_TOOLS、registry、phaseTools，并加 CLI smoke"
+    },
+    {
+      "scenario": "PLAN 阶段白名单缺失",
+      "trigger": "命令存在但 active story gate 拒绝",
+      "consequence": "test-intent handoff 无法在需要它的 PLAN 阶段运行",
+      "mitigation": "把 testintent_handoff 加入 PLAN 或全阶段允许列表，并用 PLAN story smoke 验证"
+    }
+  ],
+  "timestamp": "2026-04-27T12:04:16.643Z"
+}

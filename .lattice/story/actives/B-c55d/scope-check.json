@@ -1,0 +1,332 @@
+{
+  "storyId": "B-c55d",
+  "checkedAt": "2026-05-18T22:09:29.538Z",
+  "features": [
+    {
+      "feature": "sessionId: stable per-session identity (local process-coordination only)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "owner-lease.json records sessionId/hostname/pid/cwd/command/acquiredAt/heartbeatAt/optional human label",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "First story-scoped mutating command acquires the owner lease",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "Owner commands refresh heartbeatAt",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "Lease released when story reaches DONE/DISCARDED and cleanup succeeds",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "owner-lease.json is process metadata, visible in session_brief but not verification evidence",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "owner-lease.json must not leave uncommitted dirty writes before DONE (F-008 class)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "Non-owner story-scoped mutating commands fail closed with owner guidance",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "Read-only commands (session_brief/story_get/checklist_get/finding_list/...) never require a lease",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "Command classification table: every command classified readOnly/storyScopedMutating/reviewerWrite/mainSharedMutating/dangerousMutating",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "No missing commands in classification, no wrongly-blocked read-only commands",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "Contract test: every registered command has an ownershipClass, absence fails test",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "Reviewer writes (finding_add/review_pass_set) NOT gated by main-agent owner lease (lane-scoped exception)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "Reviewer writes still record actor/session",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "finding_resolve/finding_dismiss owner-gated for normal story; B-META findings go mainSharedMutating (main write lock, not owner lease)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "validate --story=B-xxx owner-gated; diagnostic validate without --story does not require owner lease",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "delivery_check_set as reviewerWrite only when actor/lane=delivery reviewer; otherwise storyScopedMutating or rejected",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "Unclassified commands fail-closed (not default-allow)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "Stale lease detection: heartbeatAt older than 30 minutes without refresh",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "--takeover transfers a STALE lease to current session and records a takeover event",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "Non-stale (active) lease requires explicit --forceTakeover (treated as human-approved)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "Without --takeover/--forceTakeover no lease is transferred; takeover recorded as dangerous-mutating event",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "Error UX: non-owner mutation error states which story is owned, owner sessionId/cwd/last-heartbeat age, whether lease is stale, allowed next action",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "session_brief shows: story owner session, owner cwd, last heartbeat age, stale/active status, whether current session is owner, recommended action (proceed/read-only/takeover available/wait)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "For B-META, session_brief shows shared audit state separately and must not suggest story_advance",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "owner lease does not block reviewer read-only flow (story_get/checklist_get/finding_list/session_brief)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "doctor detects stale story owner leases and reports them",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "Acceptance Criteria 1: two sessions mutating same story — second rejected with owner guidance",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "Acceptance Criteria 2: two sessions working different stories — both proceed",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "Acceptance Criteria 5: stale lease takeover only with explicit takeover and event record",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "Acceptance Criteria 6: active lease takeover rejected unless forceTakeover/human-approved",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "Acceptance Criteria 7: session_brief clearly tells non-owner sessions to wait or stay read-only",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "Acceptance Criteria 8: existing read-only reviewer workflows still work",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "koala validate passes with new story-owner-lease smoke and command-ownership contract tests",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "Out of scope: cryptographic identity / unforgeable agent identity",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly listed in Out of Scope section of session-ownership-and-write-leases.md",
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "Out of scope: cross-clone distributed locking",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly listed in Out of Scope section of session-ownership-and-write-leases.md",
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "Out of scope: reviewer identity attestation",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly listed in Out of Scope section of session-ownership-and-write-leases.md",
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "Out of scope: malicious local users editing JSON by hand",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly listed in Out of Scope section of session-ownership-and-write-leases.md",
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "Main write lock (rollout step 3) — DONE/done_recover/gap_log/audit/story_create/B-META finding writes use .koala/locks/main-write.lock/",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly stated as already implemented in B-f60c (Status section); not in scope for this story",
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "Main Write Lock Rules (serialization, stale-reclaimable, full critical section scope)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "B-f60c already implemented this (Status section says main write lock rollout step 3 is now implemented)",
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "Idempotency requirements inside main write lock (story_create deduplication, gap_log deduplication, finding deduplication, DONE recovery detection)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "These are inside the main write lock scope, already implemented in B-f60c",
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "Main lock contention error UX (different message format from owner lease error)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Main write lock error UX belongs to B-f60c scope already completed; this story implements story owner lease error UX only",
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "Acceptance Criteria 3: two DONE operations serialized by main write lock (no partial-DONE race)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "B-f60c already covers this (main write lock implemented)",
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "Acceptance Criteria 4: concurrent gap_log of same issue produces one canonical finding or duplicate-of link",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "B-f60c already covers this (idempotency inside main write lock)",
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "reviewer writes succeed via lane-scoped exception (smoke verification)",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    }
+  ],
+  "summary": {
+    "total": 45,
+    "covered": 35,
+    "excluded": 10,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "e5503a4f3677544e04621cbefa1bd72864c5a4efc060245055e379856f067dbd",
+  "openQuestions": []
+}

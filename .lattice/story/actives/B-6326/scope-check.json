@@ -1,0 +1,52 @@
+{
+  "storyId": "B-6326",
+  "checkedAt": "2026-05-15T12:11:15.754Z",
+  "features": [
+    {
+      "feature": "Typed dirty ownership classifier for git status paths",
+      "covered_by": "CHK-001, CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "understanding touchpoints plus CHK-001 classifier intent and CHK-003 smoke intent"
+    },
+    {
+      "feature": "Categorized dirty output for TEST/DONE lifecycle gate hints and session pre-checks",
+      "covered_by": "CHK-002, CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "CHK-002 lifecycle gate rendering intent plus CHK-003 user-facing gate hint smoke coverage"
+    },
+    {
+      "feature": "Categorized validation-executor side-effect guard output for koala validate",
+      "covered_by": "CHK-002, CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "CHK-002 explicitly includes koala validate validation-executor side-effect guard output; CHK-003 verifies validation-executor worktree pollution details consume the shared classifier vocabulary"
+    },
+    {
+      "feature": "Smoke coverage for Koala metadata, runtime artifacts, source/config, fixtures, and undeclared product output classification",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "CHK-003 verificationIntent covers category assertions, gate hint text, validation-executor pollution details, and BL21 lacZ output staying unexpected"
+    },
+    {
+      "feature": "Generated product artifact allowlist or declaration mechanism",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Understanding and decision keep this story policy-conservative; BL21 lacZ product output remains unexpected until a later declaration story",
+      "source": "understanding facts and CHK-001/CHK-002/CHK-003 adversarial intents"
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "covered": 4,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "7724709b97300a3d57ccbe8f26c68fc8207e4229b3493a78dec68894d90fe2b5",
+  "openQuestions": []
+}

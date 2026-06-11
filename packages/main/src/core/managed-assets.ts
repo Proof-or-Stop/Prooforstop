@@ -141,7 +141,7 @@ interface ManagedAssetPathInfo {
   actualRelPath?: string;
 }
 
-const MANIFEST_REL_PATH = '.koala/managed-assets.json';
+const MANIFEST_REL_PATH = '.lattice/managed-assets.json';
 const INIT_DOC_SECTION_RE = /<!--\s*(?:koala|lattice):start\s*-->[\s\S]*?<!--\s*(?:koala|lattice):end\s*-->/;
 const KOALA_INTERNAL_SECTION_RE = /<!--\s*koala:internal:start\s*-->[\s\S]*?<!--\s*koala:internal:end\s*-->\n?/g;
 
@@ -467,8 +467,10 @@ export function detectManagedAssetProfile(root: string): InitProfile {
 }
 
 export function detectManagedAssetMode(root: string): InitAssetMode {
-  if (existsSync(join(root, '.Lattice', 'lattice.json'))) {
-    const text = readText(root, '.Lattice/lattice.json');
+  const globalThinConfig = ['.lattice/lattice.json', '.Lattice/lattice.json']
+    .find(relPath => existsSync(join(root, relPath)));
+  if (globalThinConfig) {
+    const text = readText(root, globalThinConfig);
     if (text?.includes('global-thin')) return 'global-thin';
   }
   if (existsSync(join(root, '.Codex', 'lattice.json')) || existsSync(join(root, '.Codex', 'agents'))) {
@@ -589,18 +591,18 @@ export function listManagedAssetDefinitions(
   assetMode: InitAssetMode = 'full',
 ): ManagedAssetDefinition[] {
   const isGlobalThin = assetMode === 'global-thin';
-  // Global-thin: canonical assets live in .Lattice/. No local bin shims.
+  // Global-thin: canonical assets live in .lattice/. No local bin shims.
   if (isGlobalThin) {
     const defs: ManagedAssetDefinition[] = [
       managedDoc(
-        'doc:.Lattice/Lattice.md',
-        '.Lattice/Lattice.md',
+        'doc:.lattice/Lattice.md',
+        '.lattice/Lattice.md',
         LATTICE_DOT_DIR_MD_TEMPLATE,
-        actual => actual.includes('.Lattice/Lattice.md') || actual.includes('lattice codex verify'),
+        actual => actual.includes('.lattice/Lattice.md') || actual.includes('lattice codex verify'),
       ),
       wholeFile(
-        '.Lattice:lattice.json',
-        '.Lattice/lattice.json',
+        '.lattice:lattice.json',
+        '.lattice/lattice.json',
         renderLatticeProjectConfig(),
         actual => actual.includes('"assetMode"') && actual.includes('global-thin'),
         false,
@@ -625,7 +627,7 @@ export function listManagedAssetDefinitions(
           'doc:AGENTS.md',
           'AGENTS.md',
           AGENTS_MD_GLOBAL_THIN_TEMPLATE,
-          actual => actual.includes('.Lattice/Lattice.md') || actual.includes('lattice codex verify'),
+          actual => actual.includes('.lattice/Lattice.md') || actual.includes('lattice codex verify'),
         ),
       );
     }

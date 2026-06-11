@@ -1,0 +1,85 @@
+{
+  "storyId": "B-0fb7",
+  "name": "lab-normalized-score",
+  "title": "为 koala-lab 增加 normalizedScore 展示分",
+  "description": "在不改变现有 score/kept/rejected 决策逻辑的前提下，为 koala-lab 增加更符合人类直觉的 normalizedScore。normalizedScore 用 quality 减 penalty 表示 0-1 的展示分，让 reviewer-quality-v1 的满质量 prompt 能显示 0.8+，同时保留原 score 作为内部加权决策分。",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "high",
+  "lane": "mainline",
+  "parallelSafe": "no",
+  "sharedHotspots": [
+    "packages/lab/src/core/scoring.ts",
+    "packages/lab/src/handlers/lab.ts",
+    "packages/lab/src/types.ts"
+  ],
+  "createdAt": "2026-04-18T23:38:56.523Z",
+  "startedAt": "2026-04-18T23:38:56.523Z",
+  "endedAt": "2026-04-18T23:43:13.840Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-04-18T23:38:56.524Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-18T23:39:02.137Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-04-18T23:39:18.386Z",
+      "branch": "story/B-0fb7",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-18T23:39:55.076Z",
+      "branch": "story/B-0fb7",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-18T23:42:08.630Z",
+      "branch": "story/B-0fb7",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-18T23:42:19.173Z",
+      "branch": "story/B-0fb7",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-18T23:42:35.189Z",
+      "branch": "story/B-0fb7",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-18T23:43:13.840Z",
+      "branch": "story/B-0fb7",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ]
+}

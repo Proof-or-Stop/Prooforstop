@@ -1,0 +1,86 @@
+{
+  "storyId": "B-a5c2",
+  "checkedAt": "2026-06-03T19:35:37.660Z",
+  "features": [
+    {
+      "feature": "User-authorized unattended scheduler remains an opt-in scheduler, not autonomous authority",
+      "covered_by": "CHK-001 + CHK-007 + CHK-008",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "user-approved scope"
+    },
+    {
+      "feature": "Early bounded Claude Code CLI unattended feasibility is verified before broader abstraction",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "user-approved scope"
+    },
+    {
+      "feature": "dispatch_policy exposes explicit authorization/refusal contract with bounded policy inputs",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "user-approved scope"
+    },
+    {
+      "feature": "Real host unattended capability declaration exists for Claude, Gemini, and Codex",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "user-approved scope"
+    },
+    {
+      "feature": "dispatch_status surfaces runner command, cwd, exit/timeout, transcript, and sanitized env details",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "user-approved scope"
+    },
+    {
+      "feature": "dispatch_auto, dispatch_watch, and dispatch_cancel form the unattended control loop",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "user-approved scope"
+    },
+    {
+      "feature": "Unattended outputs stay evidence-only and preserve review, validation, and manual merge gates",
+      "covered_by": "CHK-007",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "user-approved scope"
+    },
+    {
+      "feature": "Docs and smoke validate the user-facing unattended flow, including overflow_auto migration guidance",
+      "covered_by": "CHK-008",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "user-approved scope"
+    },
+    {
+      "feature": "Plan explicitly forbids auto-merge, auto-DONE, and overclaims such as productionDone, receiptVerified, or authorityChanged",
+      "covered_by": "CHK-001 + CHK-007 + CHK-008",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "user-approved scope"
+    },
+    {
+      "feature": "Parallel development plan defines worker lanes and max concurrency for safe execution",
+      "covered_by": "Coordination Model + CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "user-approved scope"
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "covered": 10,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "7cfcef98bec7c4a9b86f4e04a17b51eb661c5c92b4934c11f0bc7ebcd6aec78f"
+}

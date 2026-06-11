@@ -1,0 +1,23 @@
+{
+  "task": "Close the high convergence gap for validation no-entry warn/skip policy.",
+  "outcome": "用户运行 `koala gap_analyze` 后不再看到 `需求未在代码中找到对应实现: 4. 仍找不到验证入口时返回 warn/skip...` 这条 high gap；运行 `npm --prefix packages/main run test:validation-protocol` 时终端输出 `✓ validation protocol smoke passed`，并且 no-entry case 证明 status=warn/allPass=true。",
+  "facts": [
+    "gap_analyze 当前唯一 high gap 来自 docs/requirements/decisions/testing-infra.md:38。",
+    "verifier.ts 已按 validate file -> configured commands -> fallback commands -> no-entry warn 的顺序实现验证入口选择。",
+    "validation-protocol-smoke.ts 已覆盖 configured pass、fallback pass、dirty fallback，但缺少 no-entry warn/skip 和 configured failure hard-fail 两个 focused case。",
+    "代码注释覆盖系统通过 @task 描述把需求真相源与实现建立机械回链。",
+    "docs/requirements/decisions/testing-infra.md 是 truth source/relatedDoc，本 story 不需要修改该文档。"
+  ],
+  "constraints": [
+    "不能直接读写 .koala/story 或 docs/story JSON；story 操作用 koala CLI。",
+    "代码改动只允许 DEV 阶段进行。",
+    "缺验证入口是 policy-defined warn/skip；validate runner/import/runtime 异常仍必须 fail-closed。",
+    "不要处理当前 15 个 medium legacy fixture/test gap，避免扩大 scope。"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/tasks/validation-protocol-smoke.ts"
+  ],
+  "timestamp": "2026-05-15T02:42:21.924Z"
+}

@@ -1,0 +1,169 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "让 core 全局 CLI 可选加载 lab 扩展",
+      "context": "packages/main/dist/cli.js 是全局 koala bin。它需要在全局包安装时尝试 import @koala-agent/lab，在本仓库开发时回退到 packages/lab/dist。",
+      "relatedDocs": [
+        "README.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-18T23:56:43.407Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "node packages/main/dist/cli.js lab --help → 显示 lab create/run/eval/compare/promote 命令",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T23:57:29.014Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/global-lab-entrypoint.json:4 — case runs lab-help and verifies core global bin lists lab create/run/eval/compare/promote | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "@koala-agent/lab 不可解析时运行 session_brief → 普通 core 命令仍成功",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T23:57:29.253Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/global-lab-entrypoint.json:18 — case runs core-without-lab and proves session_brief still works when lab dist is unavailable | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "@koala-agent/lab 不可解析时运行 lab create → 明确提示 lab 未安装或需构建，而不是崩溃堆栈",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T23:57:29.493Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/global-lab-entrypoint.json:33 — case runs core-without-lab and verifies lab subcommand fails with recovery guidance instead of stack trace | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-002",
+      "title": "调整 0.2.2 版本和 lab 包依赖",
+      "context": "用户指定版本 0.2.2。lab 需要能作为独立包被 core 动态加载，尽量减少对 monorepo 相对路径的 runtime 依赖。",
+      "relatedDocs": [
+        "README.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-18T23:56:43.670Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "读取 package.json → core/utils/lab 三个包 version 均为 0.2.2",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T23:57:29.735Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/global-lab-entrypoint.json:48 — case runs versions and checks core/utils/lab package versions are all 0.2.2 | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "lab package 作为独立依赖被 core 可选加载 → lab 包 exports/register 与 main 入口保持可解析",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T23:57:29.978Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/global-lab-entrypoint.json:63 — case runs lab-create and proves lab exports/register path remains resolvable through core CLI | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "版本或依赖仍指向旧 0.2.0/0.2.1.1 → 回归脚本失败并指出不一致包",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T23:57:30.215Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/global-lab-entrypoint.json:78 — case runs versions so stale 0.2.0/0.2.1.1 dependencies would fail explicitly | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-003",
+      "title": "补全局 lab 入口回归验证",
+      "context": "需要证明 node packages/main/dist/cli.js lab --help 能看到 lab 命令，且普通 core 命令不受影响。",
+      "relatedDocs": [
+        "README.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-18T23:56:28.976Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "运行全局 lab 入口回归 → node packages/main/dist/cli.js lab --help 和 lab create 均成功",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T23:57:30.460Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/global-lab-entrypoint.json:93 — case runs lab-create through packages/main/dist/cli.js and validates global lab create writes config | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "运行 core 普通命令回归 → node packages/main/dist/cli.js session_brief 仍成功",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T23:57:30.733Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/global-lab-entrypoint.json:108 — case runs core-without-lab and confirms core session_brief remains available | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "模拟无 lab 扩展环境 → lab 子命令失败但输出恢复提示，普通命令通过",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-18T23:57:31.019Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/global-lab-entrypoint.json:123 — case runs no-lab simulation and confirms lab command failure includes recovery hint | severity:info",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

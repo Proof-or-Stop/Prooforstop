@@ -1,0 +1,58 @@
+{
+  "passes": [
+    {
+      "id": "B-8db9:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: 已检查全部 17 条 verificationIntent 与 verificationEvidence 覆盖关系。CHK-001～CHK-004 均有 happy/edge/adversarial 三栏 must intent，每条 evidence 具体对应 flow-stability-smoke.ts 内的 assertDeclaredArtifactGateHotfix() 及 assertDeclaredArtifactDoneCommittedRow() assertion，result 全 pass，koala validate 报告 17/17 covered 0 missing。无 blocker。",
+      "createdAt": "2026-05-15T21:24:25.850Z",
+      "reviewRound": "2026-05-15T21:22:44.222Z",
+      "reviewRunId": "B-8db9:RR-004",
+      "_hash": "7acc3af39582db5e33e6eb44d77aa57900a0b8e71fe15b1fcc00055a011d84f7"
+    },
+    {
+      "id": "B-8db9:RP-002",
+      "agent": "koala-review-concept",
+      "note": "本次无概念删除/替换。唯一的代码删除是 isDeclaredArtifactPath 判定从 classifyParsedRow 中的旧位置移走（4行），同函数后段重新插回——该函数是 private，未被外部 import。所有新导出符号（classifyDeclarablePath, NonDeclarableCategory, declared-artifact-commit-check.ts 全部导出）仅被本 story 新增文件引用，main 分支无残留引用。已完成全仓 grep，无 blocker。",
+      "createdAt": "2026-05-15T21:25:05.623Z",
+      "reviewRound": "2026-05-15T21:22:44.222Z",
+      "reviewRunId": "B-8db9:RR-001",
+      "_hash": "a351828c3acddfb323df3c36793675631c7be5c58c7a9a34f309a40e94b2e1b9"
+    },
+    {
+      "id": "B-8db9:RP-003",
+      "agent": "koala-review-behavior",
+      "note": "CHK-001 classifier reorder: declared-artifact check now runs AFTER fixture and material — confirmed in dirty-worktree.ts:150-166. Hard gate intact: hand-injected declared-artifacts.json entries for source/fixture paths still classify as material_source_changes/fixture_changes. CHK-002 assertDeclarablePath: uses classifyDeclarablePath which shares exact same isStoryMetadataPath/isFixturePath/isMaterialSourcePath vocabulary — no disagreement possible. CHK-003 DONE gate: blocking=true for uncommitted/untracked/git-ignored statuses; absent treated as non-blocking; dirty-gate-policy.ts unchanged (declared_artifact_changes still blocking:false in REVIEW/TEST). All GitPathState branches verified: ignored checked first, absent covers missing+untracked-index, committed-clean covers tracked+clean, dirty covers tracked+modified, untracked covers exists-not-tracked. CHK-004 smoke coverage verified for all attack-chain assertions. One advisory UX observation (not a gate correctness issue): classifyDeclarablePath does not check runtime_artifact paths — a user can artifact_declare a path like .koala/activity.jsonl without getting a fail-fast error, but the CHK-001 hard gate still blocks it correctly as runtime_artifact_changes when dirty. No gate bypass found. No userSees mismatches found.",
+      "createdAt": "2026-05-15T21:26:40.659Z",
+      "reviewRound": "2026-05-15T21:22:44.222Z",
+      "reviewRunId": "B-8db9:RR-003",
+      "_hash": "1b36973fd04d499cf21a95da89303fe0292bde454f1277efbed29e09509c716b"
+    },
+    {
+      "id": "B-8db9:RP-004",
+      "agent": "koala-review-quality",
+      "note": "R2 quality review — reviewed declared-artifact-commit-check.ts (new), dirty-worktree.ts (F-001 reorder fix + F-002 classifyDeclarablePath), artifact-declare.ts (assertDeclarablePath), story-advance.ts (DONE committed-check row), flow-stability-smoke.ts and validation-protocol-smoke.ts (new tests). No dead imports, no unnecessary as-any, no empty catch blocks, no commented-out code. The catch(e:any) in runGit is legitimate — needed to access e.stdout on execFileSync SpawnError. The exists=tracked||dirty derivation is correct: ignored+present files still classify as git-ignored before the exists check is reached. All new exports are consumed at their call sites. No I/O isolation violations (no shell files changed). No new quality issues found.",
+      "createdAt": "2026-05-15T21:32:37.928Z",
+      "reviewRound": "2026-05-15T21:30:20.446Z",
+      "reviewRunId": "B-8db9:RR-006",
+      "_hash": "7ead9bcf540304eda8ac08635f40da355704bc6b43d90c4677ff5d0c702a8b08"
+    },
+    {
+      "id": "B-8db9:RP-005",
+      "agent": "koala-review-concept",
+      "note": "Round 2 concept review: R1 fixes (F-001 commit-state tracked-before-ignored order / F-002 runtime artifact declare rejection) introduce no concept deletions or replacements with residual references. (1) isDeclaredArtifactPath is reordered within classifyParsedRow — same function, same callers, zero external import impact. (2) NonDeclarableCategory expanded from 3→4 variants by adding runtime_artifact_changes; no stale 3-variant references found. (3) classifyDeclaredArtifactCommitState logic reordered tracked-before-ignored; no docs, comments, or tests still describe the old ignored-first order. (4) findRuntimeArtifactEntry was already imported in dirty-worktree.ts; reuse in classifyDeclarablePath is additive and internally consistent. Full-repo grep on all changed concept symbols (NonDeclarableCategory, classifyDeclarablePath, classifyDeclaredArtifactCommitState, isDeclaredArtifactPath, findRuntimeArtifactEntry) found zero @deprecated-exempt residual references. F-003 (stale verificationEvidence headHash) is already registered as HIGH open by a prior reviewer and is not a concept residue issue. No blocker.",
+      "createdAt": "2026-05-15T21:35:17.479Z",
+      "reviewRound": "2026-05-15T21:30:20.446Z",
+      "reviewRunId": "B-8db9:RR-005",
+      "_hash": "61892f1c9ee3dba81b7eb15c2e721ce80dcd9ae925d34bef84197345b786d0ce"
+    },
+    {
+      "id": "B-8db9:RP-006",
+      "agent": "koala-review-behavior",
+      "note": "Round 2 behavior review: F-001 fix (tracked-before-ignored branch order) verified correct across all 8 {tracked,dirty,ignored,exists} permutations. F-002 fix (runtime artifact rejection at artifact_declare entry) verified correct. CHK-001 classifier reorder hard gate verified: material/fixture classified before declared-artifact check. CHK-002 assertDeclarablePath and classifyDeclarablePath share same vocabulary and correctly reject material/fixture/koala-metadata/runtime paths. CHK-003 DONE committed-check logic correct: committed-clean and absent paths pass, dirty/untracked/git-ignored block with appropriate messages. doneCheckRow blocking default (fail→blocking=true) correct. evaluateDirtyGitStatus at done-gate correctly keeps declared_artifact_changes non-blocking per dirty-gate-policy; committed-check is additive DONE-only gate. CHK-004 regression coverage comprehensive including attack-chain in validation-protocol-smoke. No new blocking findings in R2. Low-severity observation: real-git integration test for tracked+gitignored→committed-clean scenario is absent but pure function correctness is established.",
+      "createdAt": "2026-05-15T21:36:04.160Z",
+      "reviewRound": "2026-05-15T21:30:20.446Z",
+      "reviewRunId": "B-8db9:RR-008",
+      "_hash": "bb130ddac549d88338eb0000eef61c08e849bb68d69f11b5d9cf72f36cd7cc09"
+    }
+  ]
+}

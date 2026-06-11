@@ -1,0 +1,78 @@
+{
+  "storyId": "B-2b38",
+  "name": "story-sync-main",
+  "title": "增加安全同步 main 命令保护 story metadata",
+  "description": "新增 koala story_sync_main：在 story worktree 中安全执行 git merge main。当 .koala/story/actives/<storyId>/ 下的 story metadata 与 main 冲突时自动保留 story 分支版本（--ours），避免 phase/index 被 main 旧值覆盖；真实源码或其它业务文件冲突仍应停止并给出清晰指引。",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "high",
+  "createdAt": "2026-04-20T11:27:36.624Z",
+  "startedAt": "2026-04-20T11:27:36.624Z",
+  "endedAt": "2026-04-20T11:32:44.010Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-04-20T11:27:36.625Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-20T11:27:49.789Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-04-20T11:27:57.373Z",
+      "branch": "story/B-2b38",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-20T11:28:31.426Z",
+      "branch": "story/B-2b38",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-20T11:31:52.618Z",
+      "branch": "story/B-2b38",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-20T11:31:52.885Z",
+      "branch": "story/B-2b38",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-20T11:32:17.217Z",
+      "branch": "story/B-2b38",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-20T11:32:44.010Z",
+      "branch": "story/B-2b38",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ]
+}

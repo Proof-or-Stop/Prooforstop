@@ -1,0 +1,139 @@
+{
+  "bugs": [
+    {
+      "id": "BUG-b05f0f78",
+      "title": "[auto] project-state-runtime-status-next.json:CHK-001 happy: docs state Koala owns project-state runtime, not agent runtime — [sandbox] import(\"node:fs\") 被禁止，文件操作请使用 $handlers，如确需直接访问请在 case 中设置 sandbox: false",
+      "status": "fixed",
+      "foundAt": "2026-04-19T19:13:54.278Z",
+      "fixedAt": "2026-04-19T19:14:27.003Z",
+      "fixtureId": "b05f0f78-df13-45bd-b14a-2cc626881b06",
+      "diagnose": {
+        "rootCause": [
+          "[sandbox] import(\"node:fs\") 被禁止，文件操作请使用 $handlers，如确需直接访问请在 case 中设置 sandbox: false"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    },
+    {
+      "id": "BUG-cf13ad20",
+      "title": "[auto] project-state-runtime-status-next.json:CHK-001 edge: docs limit OMX borrowing to observable recoverable project-state ideas — [sandbox] import(\"node:fs\") 被禁止，文件操作请使用 $handlers，如确需直接访问请在 case 中设置 sandbox: false",
+      "status": "fixed",
+      "foundAt": "2026-04-19T19:13:54.278Z",
+      "fixedAt": "2026-04-19T19:14:27.004Z",
+      "fixtureId": "cf13ad20-abf6-41d2-9db1-9fcb1c673b79",
+      "diagnose": {
+        "rootCause": [
+          "[sandbox] import(\"node:fs\") 被禁止，文件操作请使用 $handlers，如确需直接访问请在 case 中设置 sandbox: false"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    },
+    {
+      "id": "BUG-8258cbb2",
+      "title": "[auto] project-state-runtime-status-next.json:CHK-001 adversarial: docs do not promise Koala agent-runtime responsibilities — [sandbox] import(\"node:fs\") 被禁止，文件操作请使用 $handlers，如确需直接访问请在 case 中设置 sandbox: false",
+      "status": "fixed",
+      "foundAt": "2026-04-19T19:13:54.278Z",
+      "fixedAt": "2026-04-19T19:14:27.004Z",
+      "fixtureId": "8258cbb2-0c3a-4a4f-9e94-a2756221660f",
+      "diagnose": {
+        "rootCause": [
+          "[sandbox] import(\"node:fs\") 被禁止，文件操作请使用 $handlers，如确需直接访问请在 case 中设置 sandbox: false"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    },
+    {
+      "id": "BUG-e2790651",
+      "title": "[auto] project-state-runtime-status-next.json:CHK-002 happy: koala status shows project-state sections — [sandbox] import(\"node:child_process\") 被禁止，如确需直接访问请在 case 中设置 sandbox: false",
+      "status": "fixed",
+      "foundAt": "2026-04-19T19:13:54.278Z",
+      "fixedAt": "2026-04-19T19:14:27.004Z",
+      "fixtureId": "e2790651-b96c-4c11-a73c-2a528d78888d",
+      "diagnose": {
+        "rootCause": [
+          "[sandbox] import(\"node:child_process\") 被禁止，如确需直接访问请在 case 中设置 sandbox: false"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    },
+    {
+      "id": "BUG-57223778",
+      "title": "[auto] project-state-runtime-status-next.json:CHK-002 edge: koala status works without .koala state projection — [sandbox] import(\"node:fs\") 被禁止，文件操作请使用 $handlers，如确需直接访问请在 case 中设置 sandbox: false",
+      "status": "fixed",
+      "foundAt": "2026-04-19T19:13:54.278Z",
+      "fixedAt": "2026-04-19T19:14:27.004Z",
+      "fixtureId": "57223778-9c21-48f8-8269-ec4414dac494",
+      "diagnose": {
+        "rootCause": [
+          "[sandbox] import(\"node:fs\") 被禁止，文件操作请使用 $handlers，如确需直接访问请在 case 中设置 sandbox: false"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    },
+    {
+      "id": "BUG-d756f6b9",
+      "title": "[auto] project-state-runtime-status-next.json:CHK-002 adversarial: koala status is read-only for state files and phase — [sandbox] import(\"node:child_process\") 被禁止，如确需直接访问请在 case 中设置 sandbox: false",
+      "status": "fixed",
+      "foundAt": "2026-04-19T19:13:54.278Z",
+      "fixedAt": "2026-04-19T19:14:27.004Z",
+      "fixtureId": "d756f6b9-14a0-4199-8ff9-84c3fb380ce6",
+      "diagnose": {
+        "rootCause": [
+          "[sandbox] import(\"node:child_process\") 被禁止，如确需直接访问请在 case 中设置 sandbox: false"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    },
+    {
+      "id": "BUG-0cdc14e4",
+      "title": "[auto] project-state-runtime-status-next.json:CHK-003 happy: koala next prints only an executable next-step line — [sandbox] import(\"node:child_process\") 被禁止，如确需直接访问请在 case 中设置 sandbox: false",
+      "status": "fixed",
+      "foundAt": "2026-04-19T19:13:54.279Z",
+      "fixedAt": "2026-04-19T19:14:27.004Z",
+      "fixtureId": "0cdc14e4-2794-4f96-9f39-00a9a5c8c552",
+      "diagnose": {
+        "rootCause": [
+          "[sandbox] import(\"node:child_process\") 被禁止，如确需直接访问请在 case 中设置 sandbox: false"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    },
+    {
+      "id": "BUG-8e109af4",
+      "title": "[auto] project-state-runtime-status-next.json:CHK-003 edge: next keeps PLAN artifact gap priority in computeNextStep — [sandbox] import(\"node:fs\") 被禁止，文件操作请使用 $handlers，如确需直接访问请在 case 中设置 sandbox: false",
+      "status": "fixed",
+      "foundAt": "2026-04-19T19:13:54.279Z",
+      "fixedAt": "2026-04-19T19:14:27.004Z",
+      "fixtureId": "8e109af4-ae76-483f-8ccd-c073e23f52b6",
+      "diagnose": {
+        "rootCause": [
+          "[sandbox] import(\"node:fs\") 被禁止，文件操作请使用 $handlers，如确需直接访问请在 case 中设置 sandbox: false"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    },
+    {
+      "id": "BUG-923df5e7",
+      "title": "[auto] project-state-runtime-status-next.json:CHK-003 adversarial: koala next is read-only and not a full brief — [sandbox] import(\"node:child_process\") 被禁止，如确需直接访问请在 case 中设置 sandbox: false",
+      "status": "fixed",
+      "foundAt": "2026-04-19T19:13:54.279Z",
+      "fixedAt": "2026-04-19T19:14:27.004Z",
+      "fixtureId": "923df5e7-4eab-43b4-b5a7-6db3d9eb9258",
+      "diagnose": {
+        "rootCause": [
+          "[sandbox] import(\"node:child_process\") 被禁止，如确需直接访问请在 case 中设置 sandbox: false"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "intentRef 匹配改为精确到 storyId，避免跨 story 碰撞",
+      "context": "test-auto.ts storyId 过滤逻辑。当前只取 intentRef.split(\":\")[0] 匹配 item ID，需要加 storyId 维度",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

@@ -1,0 +1,215 @@
+{
+  "command": "koala validate --story=B-7f28 --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.2 test\",\"  > npm run test:e2e\",\"  > koala@0.3.2 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 10/10 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via logic_test (packages/main/src/tasks/worktree-authority-smoke.ts) — Create a story from an approved draft in a temporary git repo; the command prints the story id plus worktree bootstrap/cd guidance, records worktree metadata, and leaves the main worktree with an empty git status.\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via logic_test (packages/main/src/cli-engine.ts) — When fromDraft deletes draft metadata and writes active story metadata in the same bootstrap flow, those main-side metadata changes are closed by a generic transaction before the story branch/worktree is created.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/cli] covered via logic_test (packages/main/src/tasks/worktree-authority-smoke.ts) — If fromDraft bootstraps a worktree but leaves any tracked or untracked story/draft metadata residue in main, the verification must fail with a direct clean-main assertion instead of relying on manual cleanup.\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via logic_test (packages/main/src/tasks/worktree-authority-smoke.ts) — The targeted worktree-authority smoke runs the fromDraft path and asserts three concrete outcomes: worktree exists, main git status is empty, and story/B-* contains main via merge-base ancestry.\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via logic_test (packages/main/src/tasks/worktree-authority-smoke.ts) — The smoke covers the field shape where INIT_CHECK/worktree metadata exists but the bootstrap transaction would otherwise leave active story or draft metadata changes behind in the main checkout.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via logic_test (packages/main/src/tasks/worktree-authority-smoke.ts) — If the fromDraft branch is created from a stale base that does not contain current main, or if main has dirty metadata after bootstrap, the smoke must fail before reporting success.\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via logic_test (packages/main/src/tasks/worktree-authority-smoke.ts) — Run the targeted worktree-authority smoke from the story worktree and record passing evidence tied to the fromDraft clean-main and branch-ancestry intents.\",\"  ✓ CHK-003:happy:1 [happy/must/cli] covered via logic_test (packages/main/src/cli-engine.ts) — Run the affected package or Koala validation command set required for a worktree/gate orchestration change and record passing evidence through checklist_update.\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via logic_test (packages/main/src/tasks/worktree-authority-smoke.ts) — Evidence is recorded against the current story HEAD/material hash so koala validate does not accept stale smoke results after implementation or test changes.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/cli] covered via logic_test (packages/main/src/tasks/worktree-authority-smoke.ts) — koala validate must block TEST/DONE if the targeted smoke is missing, failed, or stale, especially for the clean-main and story-branch-contains-main assertions.\"],\"warnings\":[],\"timestamp\":\"2026-05-13T14:59:10.579Z\",\"headSha\":\"e2f7ca82104d614b66cd36a0042a2b3b94e84de7\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.2 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.2 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":1038}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":10,\"reason\":\"verificationIntent entries present (10)\"},\"verificationCoverage\":{\"total\":10,\"required\":10,\"covered\":10,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Create a story from an approved draft in a temporary git repo; the command prints the story id plus worktree bootstrap/cd guidance, records worktree metadata, and leaves the main worktree with an empty git status.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/worktree-authority-smoke.ts\",\"command\":\"npm run test:worktree-authority-smoke\",\"result\":\"pass\",\"note\":\"Fresh smoke on HEAD a3f4493f creates an approved draft, runs story_create --fromDraft, sees worktree output, records story.worktree, and confirms the clean-main path leaves git status empty.\",\"headHash\":\"a3f4493f3a12b932caeb670115a245be3996177e\",\"materialHash\":\"e3ba762e8a4133e20b9717a6290f3f1683075841c9db1fbf8268703b6b4199d7\",\"timestamp\":\"2026-05-13T14:54:23.754Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"When fromDraft deletes draft metadata and writes active story metadata in the same bootstrap flow, those main-side metadata changes are closed by a generic transaction before the story branch/worktree is created.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/cli-engine.ts\",\"command\":\"npm run build && npm run test:worktree-authority-smoke\",\"result\":\"pass\",\"note\":\"fromDraft now preflights a clean git index before any story/draft/worktree mutation, then commits only bounded active-story/source-draft metadata paths, verifies only those paths are clean, and merges current main into the new story branch.\",\"headHash\":\"a3f4493f3a12b932caeb670115a245be3996177e\",\"materialHash\":\"e3ba762e8a4133e20b9717a6290f3f1683075841c9db1fbf8268703b6b4199d7\",\"timestamp\":\"2026-05-13T14:54:23.788Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"If fromDraft bootstraps a worktree but leaves any tracked or untracked story/draft metadata residue in main, the verification must fail with a direct clean-main assertion instead of relying on manual cleanup.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/worktree-authority-smoke.ts\",\"command\":\"npm run test:worktree-authority-smoke\",\"result\":\"pass\",\"note\":\"Regression covers both dirty shapes: unrelated unstaged/untracked user edits remain dirty while bounded metadata closes cleanly, and unrelated staged edits are rejected before active story creation, draft deletion, or worktree registration.\",\"headHash\":\"a3f4493f3a12b932caeb670115a245be3996177e\",\"materialHash\":\"e3ba762e8a4133e20b9717a6290f3f1683075841c9db1fbf8268703b6b4199d7\",\"timestamp\":\"2026-05-13T14:54:23.821Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"The targeted worktree-authority smoke runs the fromDraft path and asserts three concrete outcomes: worktree exists, main git status is empty, and story/B-* contains main via merge-base ancestry.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/worktree-authority-smoke.ts\",\"command\":\"npm run test:worktree-authority-smoke\",\"result\":\"pass\",\"note\":\"Fresh smoke asserts worktree registration, empty main git status in the clean case, and merge-base ancestry from main to story/B-* after story_create --fromDraft.\",\"headHash\":\"a3f4493f3a12b932caeb670115a245be3996177e\",\"materialHash\":\"e3ba762e8a4133e20b9717a6290f3f1683075841c9db1fbf8268703b6b4199d7\",\"timestamp\":\"2026-05-13T14:54:38.787Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"The smoke covers the field shape where INIT_CHECK/worktree metadata exists but the bootstrap transaction would otherwise leave active story or draft metadata changes behind in the main checkout.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/worktree-authority-smoke.ts\",\"command\":\"npm run test:worktree-authority-smoke\",\"result\":\"pass\",\"note\":\"Regression covers committed draft metadata: story_create --fromDraft deletes the draft, writes active story metadata, commits that bounded transaction, and syncs it into the story branch.\",\"headHash\":\"a3f4493f3a12b932caeb670115a245be3996177e\",\"materialHash\":\"e3ba762e8a4133e20b9717a6290f3f1683075841c9db1fbf8268703b6b4199d7\",\"timestamp\":\"2026-05-13T14:54:38.811Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"If the fromDraft branch is created from a stale base that does not contain current main, or if main has dirty metadata after bootstrap, the smoke must fail before reporting success.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/worktree-authority-smoke.ts\",\"command\":\"npm run test:worktree-authority-smoke\",\"result\":\"pass\",\"note\":\"Smoke now fails if bounded metadata remains dirty, story/B-* misses current main, unrelated unstaged/untracked edits are consumed, or unrelated staged edits mutate story/draft/worktree before rejection.\",\"headHash\":\"a3f4493f3a12b932caeb670115a245be3996177e\",\"materialHash\":\"e3ba762e8a4133e20b9717a6290f3f1683075841c9db1fbf8268703b6b4199d7\",\"timestamp\":\"2026-05-13T14:54:38.836Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Run the targeted worktree-authority smoke from the story worktree and record passing evidence tied to the fromDraft clean-main and branch-ancestry intents.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/worktree-authority-smoke.ts\",\"command\":\"npm run test:worktree-authority-smoke\",\"result\":\"pass\",\"note\":\"Targeted smoke passed on HEAD a3f4493f and now covers clean-main, dirty-main preservation, staged-index preflight rejection, bounded metadata cleanliness, and branch ancestry.\",\"headHash\":\"a3f4493f3a12b932caeb670115a245be3996177e\",\"materialHash\":\"e3ba762e8a4133e20b9717a6290f3f1683075841c9db1fbf8268703b6b4199d7\",\"timestamp\":\"2026-05-13T14:54:47.263Z\"}},{\"intentRef\":\"CHK-003:happy:1\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Run the affected package or Koala validation command set required for a worktree/gate orchestration change and record passing evidence through checklist_update.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:1\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/cli-engine.ts\",\"command\":\"npm run build && npm run test:init-check-bootstrap\",\"result\":\"pass\",\"note\":\"TypeScript build passed and INIT_CHECK bootstrap regression still passes, showing ordinary branch isolation remains intact after the fromDraft staged-index and metadata sync fixes.\",\"headHash\":\"a3f4493f3a12b932caeb670115a245be3996177e\",\"materialHash\":\"e3ba762e8a4133e20b9717a6290f3f1683075841c9db1fbf8268703b6b4199d7\",\"timestamp\":\"2026-05-13T14:54:47.288Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Evidence is recorded against the current story HEAD/material hash so koala validate does not accept stale smoke results after implementation or test changes.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/worktree-authority-smoke.ts\",\"command\":\"npm run build && npm run test:worktree-authority-smoke && npm run test:init-check-bootstrap\",\"result\":\"pass\",\"note\":\"Evidence was refreshed after commit a3f4493f, so Koala freshness checks see current code/test material including staged-index preflight coverage.\",\"headHash\":\"a3f4493f3a12b932caeb670115a245be3996177e\",\"materialHash\":\"e3ba762e8a4133e20b9717a6290f3f1683075841c9db1fbf8268703b6b4199d7\",\"timestamp\":\"2026-05-13T14:54:47.311Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"koala validate must block TEST/DONE if the targeted smoke is missing, failed, or stale, especially for the clean-main and story-branch-contains-main assertions.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/worktree-authority-smoke.ts\",\"command\":\"npm run build && npm run test:worktree-authority-smoke && npm run test:init-check-bootstrap\",\"result\":\"pass\",\"note\":\"The command set would fail if targeted smoke were missing, stale, failed, or unable to catch dirty story/draft metadata, stale story branch ancestry, or post-mutation staged-index rejection.\",\"headHash\":\"a3f4493f3a12b932caeb670115a245be3996177e\",\"materialHash\":\"e3ba762e8a4133e20b9717a6290f3f1683075841c9db1fbf8268703b6b4199d7\",\"timestamp\":\"2026-05-13T14:54:47.334Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-05-13T14:59:10.925Z",
+  "headHash": "e2f7ca82104d614b66cd36a0042a2b3b94e84de7",
+  "verificationCoverage": {
+    "total": 10,
+    "required": 10,
+    "covered": 10,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "Create a story from an approved draft in a temporary git repo; the command prints the story id plus worktree bootstrap/cd guidance, records worktree metadata, and leaves the main worktree with an empty git status.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "Fresh smoke on HEAD a3f4493f creates an approved draft, runs story_create --fromDraft, sees worktree output, records story.worktree, and confirms the clean-main path leaves git status empty.",
+          "headHash": "a3f4493f3a12b932caeb670115a245be3996177e",
+          "materialHash": "e3ba762e8a4133e20b9717a6290f3f1683075841c9db1fbf8268703b6b4199d7",
+          "timestamp": "2026-05-13T14:54:23.754Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "When fromDraft deletes draft metadata and writes active story metadata in the same bootstrap flow, those main-side metadata changes are closed by a generic transaction before the story branch/worktree is created.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/cli-engine.ts",
+          "command": "npm run build && npm run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "fromDraft now preflights a clean git index before any story/draft/worktree mutation, then commits only bounded active-story/source-draft metadata paths, verifies only those paths are clean, and merges current main into the new story branch.",
+          "headHash": "a3f4493f3a12b932caeb670115a245be3996177e",
+          "materialHash": "e3ba762e8a4133e20b9717a6290f3f1683075841c9db1fbf8268703b6b4199d7",
+          "timestamp": "2026-05-13T14:54:23.788Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "If fromDraft bootstraps a worktree but leaves any tracked or untracked story/draft metadata residue in main, the verification must fail with a direct clean-main assertion instead of relying on manual cleanup.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "Regression covers both dirty shapes: unrelated unstaged/untracked user edits remain dirty while bounded metadata closes cleanly, and unrelated staged edits are rejected before active story creation, draft deletion, or worktree registration.",
+          "headHash": "a3f4493f3a12b932caeb670115a245be3996177e",
+          "materialHash": "e3ba762e8a4133e20b9717a6290f3f1683075841c9db1fbf8268703b6b4199d7",
+          "timestamp": "2026-05-13T14:54:23.821Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "The targeted worktree-authority smoke runs the fromDraft path and asserts three concrete outcomes: worktree exists, main git status is empty, and story/B-* contains main via merge-base ancestry.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "Fresh smoke asserts worktree registration, empty main git status in the clean case, and merge-base ancestry from main to story/B-* after story_create --fromDraft.",
+          "headHash": "a3f4493f3a12b932caeb670115a245be3996177e",
+          "materialHash": "e3ba762e8a4133e20b9717a6290f3f1683075841c9db1fbf8268703b6b4199d7",
+          "timestamp": "2026-05-13T14:54:38.787Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "The smoke covers the field shape where INIT_CHECK/worktree metadata exists but the bootstrap transaction would otherwise leave active story or draft metadata changes behind in the main checkout.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "Regression covers committed draft metadata: story_create --fromDraft deletes the draft, writes active story metadata, commits that bounded transaction, and syncs it into the story branch.",
+          "headHash": "a3f4493f3a12b932caeb670115a245be3996177e",
+          "materialHash": "e3ba762e8a4133e20b9717a6290f3f1683075841c9db1fbf8268703b6b4199d7",
+          "timestamp": "2026-05-13T14:54:38.811Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "If the fromDraft branch is created from a stale base that does not contain current main, or if main has dirty metadata after bootstrap, the smoke must fail before reporting success.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "Smoke now fails if bounded metadata remains dirty, story/B-* misses current main, unrelated unstaged/untracked edits are consumed, or unrelated staged edits mutate story/draft/worktree before rejection.",
+          "headHash": "a3f4493f3a12b932caeb670115a245be3996177e",
+          "materialHash": "e3ba762e8a4133e20b9717a6290f3f1683075841c9db1fbf8268703b6b4199d7",
+          "timestamp": "2026-05-13T14:54:38.836Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Run the targeted worktree-authority smoke from the story worktree and record passing evidence tied to the fromDraft clean-main and branch-ancestry intents.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "Targeted smoke passed on HEAD a3f4493f and now covers clean-main, dirty-main preservation, staged-index preflight rejection, bounded metadata cleanliness, and branch ancestry.",
+          "headHash": "a3f4493f3a12b932caeb670115a245be3996177e",
+          "materialHash": "e3ba762e8a4133e20b9717a6290f3f1683075841c9db1fbf8268703b6b4199d7",
+          "timestamp": "2026-05-13T14:54:47.263Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:1",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Run the affected package or Koala validation command set required for a worktree/gate orchestration change and record passing evidence through checklist_update.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/cli-engine.ts",
+          "command": "npm run build && npm run test:init-check-bootstrap",
+          "result": "pass",
+          "note": "TypeScript build passed and INIT_CHECK bootstrap regression still passes, showing ordinary branch isolation remains intact after the fromDraft staged-index and metadata sync fixes.",
+          "headHash": "a3f4493f3a12b932caeb670115a245be3996177e",
+          "materialHash": "e3ba762e8a4133e20b9717a6290f3f1683075841c9db1fbf8268703b6b4199d7",
+          "timestamp": "2026-05-13T14:54:47.288Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Evidence is recorded against the current story HEAD/material hash so koala validate does not accept stale smoke results after implementation or test changes.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm run build && npm run test:worktree-authority-smoke && npm run test:init-check-bootstrap",
+          "result": "pass",
+          "note": "Evidence was refreshed after commit a3f4493f, so Koala freshness checks see current code/test material including staged-index preflight coverage.",
+          "headHash": "a3f4493f3a12b932caeb670115a245be3996177e",
+          "materialHash": "e3ba762e8a4133e20b9717a6290f3f1683075841c9db1fbf8268703b6b4199d7",
+          "timestamp": "2026-05-13T14:54:47.311Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "koala validate must block TEST/DONE if the targeted smoke is missing, failed, or stale, especially for the clean-main and story-branch-contains-main assertions.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm run build && npm run test:worktree-authority-smoke && npm run test:init-check-bootstrap",
+          "result": "pass",
+          "note": "The command set would fail if targeted smoke were missing, stale, failed, or unable to catch dirty story/draft metadata, stale story branch ancestry, or post-mutation staged-index rejection.",
+          "headHash": "a3f4493f3a12b932caeb670115a245be3996177e",
+          "materialHash": "e3ba762e8a4133e20b9717a6290f3f1683075841c9db1fbf8268703b6b4199d7",
+          "timestamp": "2026-05-13T14:54:47.334Z"
+        }
+      }
+    ]
+  }
+}

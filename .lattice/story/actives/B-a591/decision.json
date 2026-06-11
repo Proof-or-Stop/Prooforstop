@@ -1,0 +1,60 @@
+{
+  "principles": [
+    "统一评分公式优先于 profile 局部特例。",
+    "先让 compare/promote 说真话，再考虑更复杂的候选生成。",
+    "可验证的离线样本比抽象架构更重要。"
+  ],
+  "drivers": [
+    "让 lab_compare 和 lab_promote 输出真实决策。",
+    "避免把 scoring 逻辑写死在单一 reviewer 目标里。",
+    "用最小改动在 foundation 上迭代出可比较的结果。"
+  ],
+  "options": [
+    {
+      "name": "A: 在 packages/lab 内新增 scoring/profile 核心并让 lab_run 直接产出真实 result",
+      "pros": [
+        "用户入口最直接，compare/promote 很快能消费真实 score。",
+        "能复用 Story 1 的 config/storage/sandbox 结构。",
+        "后续 reviewer MVP 可以直接叠加在同一条 run 链路上。"
+      ],
+      "cons": [
+        "lab_run 会比 foundation 复杂很多，需要处理 baseline、stability、decision。",
+        "如果 profile 设计不好，容易把 reviewer-specific 假设写进核心层。"
+      ]
+    },
+    {
+      "name": "B: 先只做独立评分脚本，再让 CLI 以后接入",
+      "pros": [
+        "实现快，改动面小。",
+        "可以先试公式再决定 CLI 形态。"
+      ],
+      "cons": [
+        "CLI 仍然输出 placeholder，用户看不到真实收益。",
+        "后续还得再做一遍集成，重复劳动高。"
+      ]
+    }
+  ],
+  "chosen": "A: 在 packages/lab 内新增 scoring/profile 核心并让 lab_run 直接产出真实 result",
+  "rationale": "这个 story 的目标就是让 koala-lab 从占位骨架变成真正会比较的系统，因此必须把 scoring 和 compare 直接接进现有 CLI。否则 compare/promote 仍然是空壳，无法支撑下一步 reviewer MVP。",
+  "preMortem": [
+    {
+      "scenario": "不同 profile 的 score 无法比较",
+      "trigger": "quality 子指标没有统一归一化，profile 各自返回不同量纲",
+      "consequence": "best run 和 baseline 结果失真，promote 决策不可信",
+      "mitigation": "把 score 归一化规则和 penalty 统一收敛到 core/scoring.ts，profile 只提供原始 metric 输入"
+    },
+    {
+      "scenario": "stability penalty 把偶发噪声当成真实回归",
+      "trigger": "重复评估次数太少或结果波动阈值设计过严",
+      "consequence": "好候选被错误丢弃，compare 输出不稳定",
+      "mitigation": "第一版固定 repeats=2 并只对显著波动或 crash 加惩罚，保留原始 metrics 供后续调参"
+    },
+    {
+      "scenario": "lab_run 为了算 baseline 修改了项目状态",
+      "trigger": "baseline compare 直接写回同一路径或在当前 worktree 里跑 destructive 命令",
+      "consequence": "实验与主开发环境互相污染，违背 foundation 目标",
+      "mitigation": "baseline 和 candidate 结果都只落 experiments/，运行时继续使用隔离 sandbox 与只读输入样本"
+    }
+  ],
+  "timestamp": "2026-04-18T00:58:00.806Z"
+}

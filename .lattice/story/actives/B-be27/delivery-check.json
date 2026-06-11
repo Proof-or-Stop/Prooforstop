@@ -1,0 +1,58 @@
+{
+  "storyId": "B-be27",
+  "checkedAt": "2026-05-23T19:12:24.098Z",
+  "reviewRound": "2026-05-23T19:09:36.348Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md",
+      "promise": "Lifecycle transitions must be gate-backed before phase mutation for review/test/done boundaries.",
+      "status": "verified",
+      "verifiedBy": "story_advance REVIEW and TEST transcripts plus transition gate tests",
+      "evidence": "REVIEW and TEST story_advance printed Scope gate: pass before transition; lifecycle-registry-contract passed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/truth-source.md",
+      "promise": "Story completion facts must be represented as Koala evidence/process facts rather than natural-language-only claims.",
+      "status": "verified",
+      "verifiedBy": "validate and Koala metadata evidence",
+      "evidence": "validate reports verification coverage 15/15; review passes and test-evidence are recorded in .koala process artifacts."
+    },
+    {
+      "docPath": "docs/requirements/decisions/testing-infra.md",
+      "promise": "Behavioral changes must have targeted regression coverage and validation output.",
+      "status": "verified",
+      "verifiedBy": "npm scripts and validate output",
+      "evidence": "build, scope-contract-smoke, lifecycle-registry-contract, command-ownership-contract, and npm test via validate all passed."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "scope contract persisted and showed configured mode/allowed/protected/excluded fields; partial update preservation was tested."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "scope_contract_set/show/check/acknowledge dispatch through CLI; scope_contract_check returns structured JSON pass/warn/fail data."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "story_advance REVIEW and TEST printed Scope gate: pass with 28 changed files and 0 unacknowledged violations."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "scope_contract_acknowledge records actor, reason, timestamp, and paths; acknowledged out-of-scope changes remain warn/visible."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "scope-contract-smoke passed for allowed, blocked, shadow, acknowledged, no-contract, protected, invalid-mode, unsafe-path, and partial-update cases."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Claude Code delivery review PASS. TEST validate passed with 15/15 coverage, scope gate passed, and transcript-diff shows no remaining user-visible gap."
+  },
+  "_hash": "27eb8e8f08b9f7e035e7c709c72932ff624aefe5b06a1f4fab3ca7a87e452ee6"
+}

@@ -20,6 +20,7 @@ import { resolveAuthorityGateEvaluator } from '../core/authority-client.js';
 import { evaluateAuthorityCompletion } from '../core/authority-completion.js';
 import { buildGateEvidenceRefResolver } from '../core/evidence-uploader.js';
 import { canonicalDigest } from '../core/authority-signing.js';
+import { LATTICE_DIR } from '../core/lattice-paths.js';
 
 /**
  * @task B-e3d9
@@ -329,7 +330,7 @@ export function createPlannerHandlers(ctx: HandlerContext) {
       record.review = review;
       // Persist the run record up front so the composed planner_create_story /
       // planner_create_job calls below can resolve the draft back via { runId }.
-      // Without this, the first one-shot run has no .koala/planner/runs file to read.
+      // Without this, the first one-shot run has no planner run file to read.
       saveRecord(ctx, record);
       if (review.status !== 'pass') {
         record.finalStatus = 'blocked';
@@ -433,7 +434,7 @@ export function createPlannerHandlers(ctx: HandlerContext) {
       const includedPaths = Array.isArray(args.includedPaths) ? args.includedPaths : typeof args.includedPaths === 'string' ? args.includedPaths.split(',').map(s => s.trim()).filter(Boolean) : [];
       const excludedPaths = Array.isArray(args.excludedPaths) ? args.excludedPaths : typeof args.excludedPaths === 'string' ? args.excludedPaths.split(',').map(s => s.trim()).filter(Boolean) : [];
       const result = sourceManifestDigest(ctx.root, args.sourceRepo, includedPaths, excludedPaths);
-      const artifactRef = writePlannerArtifact(ctx.root, `.koala/planner/source-manifests/${result.digest}.json`, result);
+      const artifactRef = writePlannerArtifact(ctx.root, `${LATTICE_DIR}/planner/source-manifests/${result.digest}.json`, result);
       const output = { schemaVersion: 'lattice.planner_source_manifest.v1' as const, ...result, artifactRef };
       return wantsJson(args) ? output : renderLines(`Lattice planner source-manifest (${output.schemaVersion})`, { digest: result.digest, files: result.files.length, blocked: result.blocked, artifactRef });
     },

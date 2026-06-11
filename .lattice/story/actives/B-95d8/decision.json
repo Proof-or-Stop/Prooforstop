@@ -1,0 +1,78 @@
+{
+  "principles": [
+    "fallback 不削弱签名/反自豁免完整性：复用同一 signInitCheck，不另立签名逻辑",
+    "显式可审计优于隐式放行：repair 走显式命令 + 审计事件，绝不静默放行 gate",
+    "软提醒不改写语义：reload 提示纯附加输出，不影响 checklist_update 写结果",
+    "最小侵入：不引入 agentId 校验（EXP-001 已否定），不扩签名域",
+    "流程事实双层契约：改 gate 出口须同步文档 + process-fact-contract"
+  ],
+  "drivers": [
+    "init-check.json 签名域与 INIT_CHECK gate 的完整性必须保持",
+    "无 subagent 环境必须有一条合法且可审计的出口",
+    "长会话状态新鲜度（写后陈旧快照）需要可见提示"
+  ],
+  "options": [
+    {
+      "name": "A-独立显式repair命令+审计",
+      "pros": [
+        "语义清晰，专命令专用途",
+        "可挂显式 opt-in 条件 + 写审计事件，绕过审查留痕",
+        "不污染 init_check_set 既有路径"
+      ],
+      "cons": [
+        "新增命令需注册 registry + 文档 + 测试",
+        "需定义受控触发条件"
+      ]
+    },
+    {
+      "name": "B-init_check_set加--fallback flag",
+      "pros": [
+        "复用既有 handler，改动面小"
+      ],
+      "cons": [
+        "把 fallback 语义混进 reviewer 正常路径，易被误用",
+        "审计区分度低，flag 易被默认带上"
+      ]
+    },
+    {
+      "name": "C-env自动探测无subagent时放行",
+      "pros": [
+        "用户零操作"
+      ],
+      "cons": [
+        "隐式放行直接削弱反自豁免完整性，违背核心原则",
+        "无显式留痕，审查纪律失效",
+        "否决"
+      ]
+    }
+  ],
+  "chosen": "A-独立显式repair命令+审计",
+  "rationale": "A 在保持签名完整性的同时把 fallback 做成显式、可审计、可加受控条件的独立出口，绕过审查会留痕；B 把 fallback 混入 reviewer 正常路径易被默认误用、审计区分度低；C 隐式放行直接违背反自豁免核心原则，否决。具体命令名/受控条件在 DEV 前细化，但通道形态选 A。",
+  "preMortem": [
+    {
+      "scenario": "fallback 命令被当成日常旁路，任意环境随手用以跳过 INIT reviewer",
+      "trigger": "repair 命令无受控条件、任何人任何环境可调",
+      "consequence": "INIT 审查纪律整体失效，反自豁免被架空",
+      "mitigation": "显式 opt-in 触发条件 + 每次写审计事件(actor/mode) + CLAUDE.md/story-lifecycle.md 明确约束适用场景；fallback 仍写真签名不降级校验"
+    },
+    {
+      "scenario": "repair 写出的 init-check.json 被 INIT_CHECK gate 判为 init_check_tampered",
+      "trigger": "repair 自行拼签名，字段顺序/内容与 signInitCheck 不一致",
+      "consequence": "story 卡在 init_check_tampered，fallback 反而制造新死锁",
+      "mitigation": "repair 必须复用同一 signInitCheck 函数而非复制签名逻辑；加单测：repair 产物经 guard 重算 _hash 一致、能通过 canEnterInitCheck"
+    },
+    {
+      "scenario": "checklist_update 的 reload 提示拼进 stdout，被管道消费方误读",
+      "trigger": "软提醒混入 stdout 结论文本",
+      "consequence": "koala checklist_update | tail 等管道解析被污染（重蹈 B-6812 advisory 覆辙）",
+      "mitigation": "reload 提示走 stderr 或与结论明确分隔，遵循 B-6812 advisory-to-stderr 先例；加测试断言 stdout 仅含结论"
+    },
+    {
+      "scenario": "只改 init-check 出口未同步流程文档与契约测试，造成文档↔代码漂移",
+      "trigger": "新增 fallback 出口但 story-lifecycle.md / CLAUDE.md / process-fact-contract 未更新",
+      "consequence": "reviewer 文档与实际 gate 行为漂移，后续 audit 翻车",
+      "mitigation": "DEV 阶段同步 story-lifecycle.md + CLAUDE.md INIT_CHECK 段 + 跑 npm run test:process-fact-contract"
+    }
+  ],
+  "timestamp": "2026-05-21T22:16:28.710Z"
+}

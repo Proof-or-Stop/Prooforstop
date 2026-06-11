@@ -1,0 +1,78 @@
+{
+  "principles": [
+    "复用已验证的 mkdir-lock primitive（core/mkdir-lock.ts），不造新锁机制。",
+    "锁是机制、F-008 修复是目的——光串行化不够，必须从根因消除「INIT_CHECK 留未提交 main-side index.json 镜像」这个 self-block。",
+    "迁移范围窄：只改锁路径 + 串行化覆盖 + F-008 修复 + 锁内 idempotency；不碰 story owner lease。",
+    "行为保持：锁对单 session 路径透明，非并发外部 CLI 行为 byte-identical。",
+    "真相源同步：story-lifecycle.md 与 session-ownership-and-write-leases.md 必须随锁路径迁移保持一致。"
+  ],
+  "drivers": [
+    "F-008 是 verified 的 active bug——已两次真机产生 partial-DONE，需人工 stash+merge 收尾。",
+    "多并发 session 写共享 main 状态（B-META findings / audit / story_create）当前无串行化，可静默互相覆盖。",
+    "session-ownership-and-write-leases.md 已被 B-8596 采纳为真相源，需落地其 rollout step 3（main write lock）。"
+  ],
+  "options": [
+    {
+      "name": "opt-migrate-mkdir-lock",
+      "pros": [
+        "复用 mkdir-lock primitive，成本/风险最小、跨平台已验证。",
+        ".koala/locks/main-write.lock/ 是干净命名空间且文档首选路径。",
+        "F-008 从 INIT_CHECK 写入侧根治，不只在 DONE 侧补救。",
+        "与 session-ownership 文档设计一致，迁移后两份决策文档同步。"
+      ],
+      "cons": [
+        "需全仓 grep 旧 .koala/runtime/done-main-merge.lock 所有引用并迁移。",
+        "F-008 修复要动 INIT_CHECK 写 main-mirror 的路径，需 DEV 坐实确切落点。"
+      ]
+    },
+    {
+      "name": "opt-generalize-in-place",
+      "pros": [
+        "改动最小，保留现有 .koala/runtime/ 路径。"
+      ],
+      "cons": [
+        "文档首选路径 .koala/locks/ 不被采纳——要反过来改 session-ownership 文档迁就实现。",
+        "用户已明确否决：裁定迁移到 .koala/locks/。"
+      ]
+    },
+    {
+      "name": "opt-heavyweight-lock",
+      "pros": [
+        "fcntl file-lock / 锁服务理论上更强的原子性保证。"
+      ],
+      "cons": [
+        "mkdir-lock primitive 已在 DONE 锁与 review-passes 锁验证够用且跨平台。",
+        "引入新锁机制扩大风险面，违反 principle 1（不造新机制）。"
+      ]
+    }
+  ],
+  "chosen": "opt-migrate-mkdir-lock",
+  "rationale": "选 A：mkdir-lock primitive 已在 DONE 锁与 review-passes 锁上验证可用、跨平台，泛化它做统一 main write lock 成本与风险最小；.koala/locks/ 是未占用的干净命名空间且为 session-ownership 文档首选。关键是 F-008——根因是 INIT_CHECK 写未提交的 main-side index.json 镜像，必须在加锁的同时从写入侧根治这个 self-block，否则 partial-DONE 仍会发生。用户已裁定迁移、不留 alias（除非测试证明依赖）、同步两份决策文档、范围窄不扩到 owner lease。B/C 分别被用户否决与违反复用原则。",
+  "preMortem": [
+    {
+      "scenario": "迁移锁路径后，某处未被发现的 runtime cleanup / doctor 代码仍引用旧 .koala/runtime/done-main-merge.lock。",
+      "trigger": "全仓 grep 漏掉一处旧路径引用。",
+      "consequence": "doctor 或 cleanup 对锁状态误判，或旧路径锁残留不被回收。",
+      "mitigation": "CHK-001 全仓 grep 旧路径所有引用并迁移；CHK-004 doctor 指向新路径；仅当测试证明真实兼容依赖时才按用户指示保留 alias。"
+    },
+    {
+      "scenario": "给 story_create / gap_log / audit 加 main 锁后，某条持锁命令内部又调用另一条也要 main 锁的命令，自死锁。",
+      "trigger": "嵌套的 main-write 命令调用链。",
+      "consequence": "命令卡死直到 120s stale-reclaim，用户体验为长时间无响应。",
+      "mitigation": "CHK-001 审计所有 main-write 命令调用图，锁设计为同进程可重入或明确禁止嵌套并在内层走已持锁路径；CHK-005 smoke 覆盖嵌套场景。"
+    },
+    {
+      "scenario": "F-008 只在 DONE 锁内 reconcile 了 main-side index.json，但 INIT_CHECK 仍写未提交镜像。",
+      "trigger": "只修 DONE 侧、没修 INIT_CHECK 写入侧。",
+      "consequence": "两个并发 story 各自 INIT_CHECK 后，DONE 时 stale 镜像冲突，partial-DONE 仍发生。",
+      "mitigation": "CHK-002 从 INIT_CHECK 写入侧根治（不留未提交镜像），不只在 DONE 侧补救；CHK-005 smoke 显式复现 F-008 场景并断言 DONE 不自阻塞。"
+    },
+    {
+      "scenario": "gap_log 加 dedup 后，两个本应分别记录的不同 gap 因 fingerprint 过宽被误并成一条。",
+      "trigger": "dedup fingerprint 定义过宽。",
+      "consequence": "真实框架 gap 丢失、不被记录。",
+      "mitigation": "CHK-003 dedup fingerprint 严格按文档（normalized title + category + source + evidence fingerprint）定义；改 gap-log-smoke.ts 时同时新增「不同 gap 不被误并」断言。"
+    }
+  ],
+  "timestamp": "2026-05-18T11:20:35.120Z"
+}

@@ -1,0 +1,556 @@
+{
+  "command": "koala validate --story=B-9027 --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.3 test\",\"  > npm run test:e2e\",\"  > koala@0.3.3 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 23/32 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via manual_transcript (packages/main/src/handlers/story-advance.ts) — 抽取完成后 story-advance.ts 中 grep \\\"git merge\\\" / \\\"worktree remove\\\" / \\\"branch -d\\\" 返回 0 行匹配（inline DONE merge 代码已清除）→ 确认 DONE merge 实现不再 inline; WHY: 验证搬迁彻底性\",\"  ✓ CHK-001:happy:1 [happy/must/cli] covered via manual_transcript (packages/main/src/handlers/done-effects.ts) — done-effects.ts 存在于 packages/main/src/handlers/ 且 export 至少两个函数（pre-merge gate 函数 + merge-cleanup 函数）→ tsc --noEmit 编译通过; WHY: 验证新文件结构正确且可编译\",\"  ✓ CHK-001:happy:2 [happy/must/cli] covered via integration_test (packages/main/src/tasks/worktree-authority-smoke.ts) — 对一个 DONE gate 全满足的 TEST story 执行 koala story_advance --phase=DONE → 成功输出含 DONE Gate Checklist 段 + 合并/worktree清理/分支删除三行 → story phase=DONE; WHY: 验证抽取后端到端行为不变\",\"  ✗ CHK-001:edge:0 [edge/should/logic] missing — done-effects.ts 中 maybeTriggerAudit 调用包裹在 try/catch 内且位于 merge+cleanup 成功之后（grep 验证调用位置）→ audit 仍是 post-merge non-blocking effect; WHY: 验证 audit effect 搬迁位置正确\",\"  ✓ CHK-001:edge:1 [edge/must/cli] covered via manual_transcript (packages/main/src/handlers/story-advance.ts) — cleanStrayWorktreeFiles 和 STRAY_FILE_WHITELIST 在 story-advance.ts 的 re-export 仍存在（grep 验证 import + re-export）→ 现有 logicTest 不因 import 路径改变而报错; WHY: 保护下游依赖不断裂\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/logic] covered via integration_test (packages/main/src/tasks/worktree-authority-smoke.ts) — 将 done-effects.ts 的 pre-merge gate 函数调用从 actor.send 前移到 actor.send 后（模拟搬迁时序错位）→ 测试必须检测到 pre-merge gate 失败时 story 已落盘 DONE（CHK-002 的 smoke 能捕获此错误）; WHY: 对抗 preMortem #2 跨边界时序错位\",\"  ✗ CHK-001:adversarial:1 [adversarial/should/logic] missing — 抽取后 story-advance.ts 仍 import done-effects 并在精确位置（actor.send 前/后）分别调用两个函数——diff 对比调用点行号与原始块 A/块 B 位置一致; WHY: 防止搬迁时代码重排导致语义漂移\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via integration_test (packages/main/src/tasks/worktree-authority-smoke.ts) — runDoneOracleGate 返回 Cannot enter DONE（如缺 delivery-check）→ story_advance DONE 抛错含 Cannot enter DONE + story_get 显示 phase=TEST（未落盘 DONE）; WHY: 验证 done oracle gate 失败阻止 phase 写入\",\"  ✓ CHK-002:happy:1 [happy/must/cli] covered via integration_test (packages/main/src/tasks/worktree-authority-smoke.ts) — stray-file dry-run 检测到非白名单未追踪文件 → story_advance DONE 抛错含 DONE pre-merge stray + story 仍为 TEST; WHY: 验证 F-020 stray offender 拦截在 phase 落盘前\",\"  ✓ CHK-002:happy:2 [happy/must/cli] covered via integration_test (packages/main/src/tasks/worktree-authority-smoke.ts) — assertDoneMergeCanApplyBeforeStateMutation 检测到 merge-tree 冲突 → story_advance DONE 抛错含 Cannot enter DONE 或 refusing DONE cleanup + story 仍为 TEST; WHY: 验证 merge-tree dry-run gate 阻止 phase 写入\",\"  ✓ CHK-002:happy:3 [happy/must/cli] covered via integration_test (packages/main/src/tasks/worktree-authority-smoke.ts) — pre-merge gate 全过后真实 git merge 失败（如人为制造冲突）→ 抛错含「已标记为 DONE 但自动合并失败」+ 手动 cd/git merge/git worktree remove/git branch -d 四行指引 + story_get 显示 phase=DONE; WHY: 验证 post-merge 失败时 story 已 DONE 且不吞错\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via integration_test (packages/main/src/tasks/worktree-authority-smoke.ts) — worktree cleanup 失败（git worktree remove 和 rm -rf 都失败，如权限问题模拟）→ 抛错含「已合并，但 worktree 清理未完成」+ story 已 DONE + 已成功 merge; WHY: 验证 cleanup 失败时 merge 结果保留、story 不回滚\",\"  ✓ CHK-002:edge:1 [edge/should/logic] covered via integration_test (packages/main/src/tasks/worktree-authority-smoke.ts) — 三道 pre-merge gate 按顺序执行：oracle gate 先于 stray dry-run 先于 merge-tree dry-run（任一失败立即 throw 不继续后续 gate）→ 日志中只出现第一个失败的 gate 消息; WHY: 验证 gate 短路语义\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/logic] covered via integration_test (packages/main/src/tasks/worktree-authority-smoke.ts) — 模拟搬迁 bug：将 pre-merge gate 调用移到 store.writeStory 之后（时序错位）→ oracle gate 失败时 story_get 显示 phase=DONE（不应该）→ 此测试必须 FAIL 以证明正确实现中 gate 在落盘前; WHY: 对抗 preMortem #2 核心风险——gate 调用时机错位导致 phase 落盘不可逆\",\"  ✗ CHK-002:adversarial:1 [adversarial/should/logic] missing — 在 pre-merge gate 全过但 actor.send 前的时间窗口中断进程（kill -9 模拟）→ story metadata 文件中 phase 仍为 TEST（未落盘）; WHY: 对抗原子性：gate pass 到 phase 写入之间无中间态落盘\",\"  ✓ CHK-002:adversarial:2 [adversarial/must/cli] covered via integration_test (packages/main/src/tasks/worktree-authority-smoke.ts) — post-merge 失败的错误消息 byte-identical 对比：新 done-effects.ts 生成的错误字符串与旧 inline 实现的模板完全一致（含 cd 路径、git merge、worktree remove --force、branch -d 四条）; WHY: 验证搬迁未改错误消息文案\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via integration_test (packages/main/src/tasks/worktree-authority-smoke.ts) — 成功 DONE 路径 smoke：对满足全部 gate 的 TEST story 执行 DONE → 输出按顺序包含 Step1 清 worktree 字段 / Step2 metadata commit / Step2.5 stray cleanup / Step3 merge 成功行 / Step4 worktree remove 成功行 / Step5 branch delete 成功行 → 步骤顺序与源码注释 Step1-5 完全一致; WHY: 回归证明执行顺序不变\",\"  ✓ CHK-003:happy:1 [happy/must/cli] covered via integration_test (packages/main/src/tasks/worktree-authority-smoke.ts) — DONE 成功输出 byte-identical：输出含 DONE Gate Checklist 段（每项 [✓] 行）→ 接着「✓ 分支 story/B-xxx 已合并到 main」→「✓ Worktree ... 已清理」→「✓ 分支 story/B-xxx 已删除」→ summary 段; WHY: 验证用户可见文本不变\",\"  ✓ CHK-003:happy:2 [happy/must/cli] covered via integration_test (packages/main/src/tasks/worktree-authority-smoke.ts) — npm --prefix packages/main run test:worktree-authority-smoke 全 pass（含新增的 DONE ordering 断言）; WHY: 机械化回归门槛\",\"  ✗ CHK-003:edge:0 [edge/should/cli] missing — DONE 成功但 branch -d 失败（分支有未合并 commit 模拟）→ 输出含「⚠ 分支 ... 未删除」但不 throw、story 仍 DONE、merge 已完成; WHY: Step5 branch delete 失败是 non-fatal 的行为保持\",\"  ✗ CHK-003:edge:1 [edge/should/cli] missing — worktree remove 需 --force（gitignored 文件残留模拟）→ 输出含「已强制清理」而非「已清理」但不 throw; WHY: 两步 cleanup 的 fallback 行为保持\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/logic] covered via integration_test (packages/main/src/tasks/worktree-authority-smoke.ts) — 在 done-effects.ts 中交换 Step3 merge 和 Step4 worktree remove 的顺序（故意错排）→ smoke 断言失败：worktree remove 在未 merge 时应失败或产生不同输出; WHY: 对抗 preMortem #1 步骤重排\",\"  ✓ CHK-003:adversarial:1 [adversarial/must/logic] covered via integration_test (packages/main/src/tasks/worktree-authority-smoke.ts) — 在 done-effects.ts 中把 Step2 metadata commit 移到 Step3 merge 之后（metadata 未提交就 merge）→ merge 后 main 分支缺少 phase=DONE commit → smoke 检查 git log main 确认 DONE metadata commit 在 merge commit 的 parent 链中; WHY: 对抗 commit 顺序错位导致 merge 后 metadata 丢失\",\"  ✓ CHK-003:adversarial:2 [adversarial/must/cli] covered via integration_test (packages/main/src/tasks/worktree-authority-smoke.ts) — pre-merge gate 失败时输出 byte-identical：模拟 done oracle 失败 → 比较错误消息与基线字符串（含 Cannot enter DONE: 前缀 + 具体 blocker 描述）完全一致; WHY: 验证失败消息搬迁后文案零变化\",\"  ✓ CHK-004:happy:0 [happy/must/cli] covered via manual_transcript (packages/main/src/handlers/done-effects.ts) — grep -r __koalaDoneChecklistRendered 全仓（排除 node_modules/.git）→ 0 行匹配; WHY: 验证 globalThis 技术债彻底清除\",\"  ✓ CHK-004:happy:1 [happy/must/cli] covered via integration_test (packages/main/src/tasks/worktree-authority-smoke.ts) — DONE 成功输出仍含完整 DONE Gate Checklist 段（每个 checklist item 一行 [✓]）→ 显式传参链路未丢失渲染文本; WHY: 验证替代机制（显式返回值/参数）功能等价\",\"  ✓ CHK-004:happy:2 [happy/must/logic] covered via manual_transcript (packages/main/src/handlers/done-effects.ts) — pre-merge gate 函数签名显式 return string（rendered checklist）→ story-advance.ts 接收返回值并传给块 B 的返回段拼接 → tsc 类型检查通过; WHY: 验证数据流链路类型安全\",\"  ✗ CHK-004:edge:0 [edge/should/logic] missing — pre-merge gate 函数在 gate 失败（throw）时不返回 rendered checklist → 调用方不会读到 undefined 并拼接 undefined 字符串到输出; WHY: 验证 throw 路径不产生脏数据\",\"  ✗ CHK-004:edge:1 [edge/should/cli] missing — grep globalThis 全仓（不限 __koalaDoneChecklistRendered）确认 done-effects.ts 和 story-advance.ts 中无任何新增 globalThis 用法; WHY: 防止用另一个 globalThis 替代\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/logic] covered via integration_test (packages/main/src/tasks/worktree-authority-smoke.ts) — 删除 pre-merge gate 函数的 return rendered 行（模拟搬迁时漏接返回值）→ DONE 成功输出缺少 checklist 段 → smoke 断言检测到缺失; WHY: 对抗 preMortem #3 渲染文本丢失\",\"  ✗ CHK-004:adversarial:1 [adversarial/should/logic] missing — 在 story-advance.ts 中接收 pre-merge gate 返回值后用错误变量名传给块 B（如 typo doneChecklistPrfix）→ tsc 编译失败; WHY: 类型系统作为搬迁正确性的静态防线\",\"  ✗ CHK-004:adversarial:2 [adversarial/should/logic] missing — 并发两个 DONE advance（模拟 race）→ 无 globalThis 后两次调用互不干扰（各自拿到独立的 rendered 字符串、不存在竞态覆盖）; WHY: 验证消除 global state 后的并发安全性提升\"],\"warnings\":[],\"timestamp\":\"2026-05-17T03:09:25.121Z\",\"headSha\":\"179f864070b91137a5f993fbfc4139326ab70824\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.3 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.3 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":931}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":32,\"reason\":\"verificationIntent entries present (32)\"},\"verificationCoverage\":{\"total\":32,\"required\":22,\"covered\":23,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"抽取完成后 story-advance.ts 中 grep \\\"git merge\\\" / \\\"worktree remove\\\" / \\\"branch -d\\\" 返回 0 行匹配（inline DONE merge 代码已清除）→ 确认 DONE merge 实现不再 inline; WHY: 验证搬迁彻底性\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/src/handlers/story-advance.ts\",\"command\":\"grep -nE \\\"'merge', branch|['worktree', 'remove']\\\" packages/main/src/handlers/story-advance.ts | wc -l\",\"result\":\"pass\",\"note\":\"story-advance.ts inline DONE merge grep 返回 0 行；assertDoneSuccessPathOutputAndOrdering 另用结构断言确认 story-advance.ts 不含 inline git merge / worktree remove 实现，只 delegate runDonePreMergeGate/applyDoneMergeEffects\",\"headHash\":\"20e3e0ae299f924fad1eaf53905d75757dbc7f11\",\"materialHash\":\"4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891\",\"timestamp\":\"2026-05-17T03:09:23.866Z\"}},{\"intentRef\":\"CHK-001:happy:1\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"done-effects.ts 存在于 packages/main/src/handlers/ 且 export 至少两个函数（pre-merge gate 函数 + merge-cleanup 函数）→ tsc --noEmit 编译通过; WHY: 验证新文件结构正确且可编译\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:1\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/src/handlers/done-effects.ts\",\"command\":\"npm --prefix packages/main run build\",\"result\":\"pass\",\"note\":\"done-effects.ts 位于 packages/main/src/handlers/，export runDonePreMergeGate + applyDoneMergeEffects + autoSyncMain + detectDoneStoryWorktreeContext + assertDoneStoryBranchMatches 共 5 个函数（grep -c ^export = 5）；npm run build (tsc) exit 0\",\"headHash\":\"20e3e0ae299f924fad1eaf53905d75757dbc7f11\",\"materialHash\":\"4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891\",\"timestamp\":\"2026-05-17T03:09:23.866Z\"}},{\"intentRef\":\"CHK-001:happy:2\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"对一个 DONE gate 全满足的 TEST story 执行 koala story_advance --phase=DONE → 成功输出含 DONE Gate Checklist 段 + 合并/worktree清理/分支删除三行 → story phase=DONE; WHY: 验证抽取后端到端行为不变\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:2\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/worktree-authority-smoke.ts\",\"command\":\"npm --prefix packages/main run test:worktree-authority-smoke\",\"result\":\"pass\",\"note\":\"assertDoneSuccessPathOutputAndOrdering: DONE gate 全满足的 TEST story 执行 story_advance DONE，输出含 DONE Gate Checklist 段 + 合并/worktree清理/分支删除三行，story phase=DONE，worktree+branch 已清\",\"headHash\":\"20e3e0ae299f924fad1eaf53905d75757dbc7f11\",\"materialHash\":\"4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891\",\"timestamp\":\"2026-05-17T03:09:23.866Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"done-effects.ts 中 maybeTriggerAudit 调用包裹在 try/catch 内且位于 merge+cleanup 成功之后（grep 验证调用位置）→ audit 仍是 post-merge non-blocking effect; WHY: 验证 audit effect 搬迁位置正确\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"missing\"},{\"intentRef\":\"CHK-001:edge:1\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"cleanStrayWorktreeFiles 和 STRAY_FILE_WHITELIST 在 story-advance.ts 的 re-export 仍存在（grep 验证 import + re-export）→ 现有 logicTest 不因 import 路径改变而报错; WHY: 保护下游依赖不断裂\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:1\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/src/handlers/story-advance.ts\",\"command\":\"grep -n \\\"cleanStrayWorktreeFiles, STRAY_FILE_WHITELIST\\\" packages/main/src/handlers/story-advance.ts\",\"result\":\"pass\",\"note\":\"story-advance.ts:70 仍 export { cleanStrayWorktreeFiles, STRAY_FILE_WHITELIST } from ./stray-file-cleanup.js，下游 logicTest 的 import 路径不断裂；npm run build tsc 全绿确认无 import 报错\",\"headHash\":\"20e3e0ae299f924fad1eaf53905d75757dbc7f11\",\"materialHash\":\"4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891\",\"timestamp\":\"2026-05-17T03:09:23.866Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"将 done-effects.ts 的 pre-merge gate 函数调用从 actor.send 前移到 actor.send 后（模拟搬迁时序错位）→ 测试必须检测到 pre-merge gate 失败时 story 已落盘 DONE（CHK-002 的 smoke 能捕获此错误）; WHY: 对抗 preMortem #2 跨边界时序错位\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/worktree-authority-smoke.ts\",\"command\":\"npm --prefix packages/main run test:worktree-authority-smoke\",\"result\":\"pass\",\"note\":\"CHK-002 三个 pre-merge gate 失败用例（assertDoneOracleGateFailureKeepsStoryTest/assertStrayFileOffenderKeepsStoryTest/assertMergeConflictPreMergeGateKeepsStoryTest）断言 phase=TEST 未落盘——若 gate 调用错位到 actor.send 后，story 会落盘 DONE，断言立即 FAIL，捕获时序错位\",\"headHash\":\"20e3e0ae299f924fad1eaf53905d75757dbc7f11\",\"materialHash\":\"4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891\",\"timestamp\":\"2026-05-17T03:09:23.866Z\"}},{\"intentRef\":\"CHK-001:adversarial:1\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"抽取后 story-advance.ts 仍 import done-effects 并在精确位置（actor.send 前/后）分别调用两个函数——diff 对比调用点行号与原始块 A/块 B 位置一致; WHY: 防止搬迁时代码重排导致语义漂移\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"runDoneOracleGate 返回 Cannot enter DONE（如缺 delivery-check）→ story_advance DONE 抛错含 Cannot enter DONE + story_get 显示 phase=TEST（未落盘 DONE）; WHY: 验证 done oracle gate 失败阻止 phase 写入\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/worktree-authority-smoke.ts\",\"command\":\"npm --prefix packages/main run test:worktree-authority-smoke\",\"result\":\"pass\",\"note\":\"assertDoneOracleGateFailureKeepsStoryTest: 缺 delivery-check evidence 时 runDoneOracleGate 抛 Cannot enter DONE，断言两 store 中 story 仍 TEST、分支/worktree 未动\",\"headHash\":\"20e3e0ae299f924fad1eaf53905d75757dbc7f11\",\"materialHash\":\"4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891\",\"timestamp\":\"2026-05-17T03:09:23.866Z\"}},{\"intentRef\":\"CHK-002:happy:1\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"stray-file dry-run 检测到非白名单未追踪文件 → story_advance DONE 抛错含 DONE pre-merge stray + story 仍为 TEST; WHY: 验证 F-020 stray offender 拦截在 phase 落盘前\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:1\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/worktree-authority-smoke.ts\",\"command\":\"npm --prefix packages/main run test:worktree-authority-smoke\",\"result\":\"pass\",\"note\":\"assertStrayFileOffenderKeepsStoryTest: 主仓 story dir 写非白名单未追踪文件，F-020 dry-run 抛错命名 offender，story 仍 TEST 且 offender 未被删\",\"headHash\":\"20e3e0ae299f924fad1eaf53905d75757dbc7f11\",\"materialHash\":\"4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891\",\"timestamp\":\"2026-05-17T03:09:23.866Z\"}},{\"intentRef\":\"CHK-002:happy:2\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"assertDoneMergeCanApplyBeforeStateMutation 检测到 merge-tree 冲突 → story_advance DONE 抛错含 Cannot enter DONE 或 refusing DONE cleanup + story 仍为 TEST; WHY: 验证 merge-tree dry-run gate 阻止 phase 写入\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:2\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/worktree-authority-smoke.ts\",\"command\":\"npm --prefix packages/main run test:worktree-authority-smoke\",\"result\":\"pass\",\"note\":\"assertMergeConflictPreMergeGateKeepsStoryTest: main/分支冲突使 block A pre-merge gate 抛 Cannot enter DONE（落后 main），story 两 store 仍 TEST，冲突 main commit 未被强行 sync 进分支\",\"headHash\":\"20e3e0ae299f924fad1eaf53905d75757dbc7f11\",\"materialHash\":\"4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891\",\"timestamp\":\"2026-05-17T03:09:23.866Z\"}},{\"intentRef\":\"CHK-002:happy:3\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"pre-merge gate 全过后真实 git merge 失败（如人为制造冲突）→ 抛错含「已标记为 DONE 但自动合并失败」+ 手动 cd/git merge/git worktree remove/git branch -d 四行指引 + story_get 显示 phase=DONE; WHY: 验证 post-merge 失败时 story 已 DONE 且不吞错\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:3\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/worktree-authority-smoke.ts\",\"command\":\"npm --prefix packages/main run test:worktree-authority-smoke\",\"result\":\"pass\",\"note\":\"assertRealMergeFailureMarksDoneAndThrows: pre-merge gate 全过后真实 git merge 因主仓未追踪文件失败，抛错含已标记 DONE+cd/git merge/git worktree remove --force/git branch -d 四行指引，story phase=DONE，无 merge commit\",\"headHash\":\"20e3e0ae299f924fad1eaf53905d75757dbc7f11\",\"materialHash\":\"4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891\",\"timestamp\":\"2026-05-17T03:09:23.866Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"worktree cleanup 失败（git worktree remove 和 rm -rf 都失败，如权限问题模拟）→ 抛错含「已合并，但 worktree 清理未完成」+ story 已 DONE + 已成功 merge; WHY: 验证 cleanup 失败时 merge 结果保留、story 不回滚\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/worktree-authority-smoke.ts\",\"command\":\"npm --prefix packages/main run test:worktree-authority-smoke\",\"result\":\"pass\",\"note\":\"assertWorktreeCleanupFailureMarksDoneMergedAndThrows: chmod .worktrees/ 为只读使 git worktree remove + rm -rf 都无法 rmdir worktree 目录 → applyDoneMergeEffects 在 merge 成功后抛错含 已合并，但 worktree 清理未完成 + koala doctor，story phase=DONE 且 main 已有 merge: commit；root uid 时跳过（权限位被忽略）\",\"headHash\":\"20e3e0ae299f924fad1eaf53905d75757dbc7f11\",\"materialHash\":\"4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891\",\"timestamp\":\"2026-05-17T03:09:23.866Z\"}},{\"intentRef\":\"CHK-002:edge:1\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"三道 pre-merge gate 按顺序执行：oracle gate 先于 stray dry-run 先于 merge-tree dry-run（任一失败立即 throw 不继续后续 gate）→ 日志中只出现第一个失败的 gate 消息; WHY: 验证 gate 短路语义\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:1\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/worktree-authority-smoke.ts\",\"command\":\"npm --prefix packages/main run test:worktree-authority-smoke\",\"result\":\"pass\",\"note\":\"三道 pre-merge gate 短路语义被 oracle/stray/conflict 三个独立用例覆盖；done-oracle gate 失败时输出只含 Cannot enter DONE 而无 stray/merge-tree 后续 gate 消息（assertDoneOracleGateFailureKeepsStoryTest）\",\"headHash\":\"20e3e0ae299f924fad1eaf53905d75757dbc7f11\",\"materialHash\":\"4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891\",\"timestamp\":\"2026-05-17T03:09:23.866Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"模拟搬迁 bug：将 pre-merge gate 调用移到 store.writeStory 之后（时序错位）→ oracle gate 失败时 story_get 显示 phase=DONE（不应该）→ 此测试必须 FAIL 以证明正确实现中 gate 在落盘前; WHY: 对抗 preMortem #2 核心风险——gate 调用时机错位导致 phase 落盘不可逆\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/worktree-authority-smoke.ts\",\"command\":\"npm --prefix packages/main run test:worktree-authority-smoke\",\"result\":\"pass\",\"note\":\"三个 pre-merge gate 失败用例都断言 phase=DONE 未落盘（new StoryStore(...).readStory().phase === TEST），若搬迁把 gate 调用错位到 writeStory 之后这些断言会立即 FAIL —— 即对抗 preMortem #2 的时序错位检测\",\"headHash\":\"20e3e0ae299f924fad1eaf53905d75757dbc7f11\",\"materialHash\":\"4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891\",\"timestamp\":\"2026-05-17T03:09:23.866Z\"}},{\"intentRef\":\"CHK-002:adversarial:1\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"在 pre-merge gate 全过但 actor.send 前的时间窗口中断进程（kill -9 模拟）→ story metadata 文件中 phase 仍为 TEST（未落盘）; WHY: 对抗原子性：gate pass 到 phase 写入之间无中间态落盘\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"missing\"},{\"intentRef\":\"CHK-002:adversarial:2\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"post-merge 失败的错误消息 byte-identical 对比：新 done-effects.ts 生成的错误字符串与旧 inline 实现的模板完全一致（含 cd 路径、git merge、worktree remove --force、branch -d 四条）; WHY: 验证搬迁未改错误消息文案\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:2\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/worktree-authority-smoke.ts\",\"command\":\"npm --prefix packages/main run test:worktree-authority-smoke\",\"result\":\"pass\",\"note\":\"assertRealMergeFailureMarksDoneAndThrows 逐条断言 post-merge 失败消息含 cd \\\"/git merge story//git worktree remove --force/git branch -d story/ 四行手动收尾指引，文案与 done-effects.ts 模板一致\",\"headHash\":\"20e3e0ae299f924fad1eaf53905d75757dbc7f11\",\"materialHash\":\"4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891\",\"timestamp\":\"2026-05-17T03:09:23.866Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"成功 DONE 路径 smoke：对满足全部 gate 的 TEST story 执行 DONE → 输出按顺序包含 Step1 清 worktree 字段 / Step2 metadata commit / Step2.5 stray cleanup / Step3 merge 成功行 / Step4 worktree remove 成功行 / Step5 branch delete 成功行 → 步骤顺序与源码注释 Step1-5 完全一致; WHY: 回归证明执行顺序不变\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/worktree-authority-smoke.ts\",\"command\":\"npm --prefix packages/main run test:worktree-authority-smoke\",\"result\":\"pass\",\"note\":\"assertDoneSuccessPathOutputAndOrdering: 成功 DONE 输出按 merge→worktree remove→branch delete 顺序断言（indexOf 严格递增），git log main 含 koala mark DONE metadata commit 与 merge: commit，证明 Step1-5 顺序不变\",\"headHash\":\"20e3e0ae299f924fad1eaf53905d75757dbc7f11\",\"materialHash\":\"4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891\",\"timestamp\":\"2026-05-17T03:09:23.866Z\"}},{\"intentRef\":\"CHK-003:happy:1\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"DONE 成功输出 byte-identical：输出含 DONE Gate Checklist 段（每项 [✓] 行）→ 接着「✓ 分支 story/B-xxx 已合并到 main」→「✓ Worktree ... 已清理」→「✓ 分支 story/B-xxx 已删除」→ summary 段; WHY: 验证用户可见文本不变\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:1\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/worktree-authority-smoke.ts\",\"command\":\"npm --prefix packages/main run test:worktree-authority-smoke\",\"result\":\"pass\",\"note\":\"assertDoneSuccessPathOutputAndOrdering 断言 byte-identical 文本：DONE Gate Checklist 头+各 [✓] 行、Story B-xxx advanced to DONE、✓ 分支 story/B-xxx 已合并到 main、✓ Worktree <canonical> 已清理、✓ 分支 story/B-xxx 已删除\",\"headHash\":\"20e3e0ae299f924fad1eaf53905d75757dbc7f11\",\"materialHash\":\"4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891\",\"timestamp\":\"2026-05-17T03:09:23.866Z\"}},{\"intentRef\":\"CHK-003:happy:2\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"npm --prefix packages/main run test:worktree-authority-smoke 全 pass（含新增的 DONE ordering 断言）; WHY: 机械化回归门槛\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:2\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/worktree-authority-smoke.ts\",\"command\":\"npm --prefix packages/main run test:worktree-authority-smoke\",\"result\":\"pass\",\"note\":\"npm --prefix packages/main run test:worktree-authority-smoke 全 15 用例 pass（9 原有 + 6 新增 DONE ordering/failure 回归），输出 ✓ worktree authority smoke passed exit 0\",\"headHash\":\"20e3e0ae299f924fad1eaf53905d75757dbc7f11\",\"materialHash\":\"4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891\",\"timestamp\":\"2026-05-17T03:09:23.866Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"DONE 成功但 branch -d 失败（分支有未合并 commit 模拟）→ 输出含「⚠ 分支 ... 未删除」但不 throw、story 仍 DONE、merge 已完成; WHY: Step5 branch delete 失败是 non-fatal 的行为保持\",\"type\":\"cli\",\"priority\":\"should\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:edge:1\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"worktree remove 需 --force（gitignored 文件残留模拟）→ 输出含「已强制清理」而非「已清理」但不 throw; WHY: 两步 cleanup 的 fallback 行为保持\",\"type\":\"cli\",\"priority\":\"should\",\"status\":\"missing\"},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"在 done-effects.ts 中交换 Step3 merge 和 Step4 worktree remove 的顺序（故意错排）→ smoke 断言失败：worktree remove 在未 merge 时应失败或产生不同输出; WHY: 对抗 preMortem #1 步骤重排\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/worktree-authority-smoke.ts\",\"command\":\"npm --prefix packages/main run test:worktree-authority-smoke\",\"result\":\"pass\",\"note\":\"assertDoneSuccessPathOutputAndOrdering 用 indexOf 强制 merge<cleanup<delete 严格顺序——若 done-effects.ts 交换 Step3 merge 与 Step4 worktree remove，顺序断言立即 FAIL；对抗 preMortem #1 步骤重排\",\"headHash\":\"20e3e0ae299f924fad1eaf53905d75757dbc7f11\",\"materialHash\":\"4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891\",\"timestamp\":\"2026-05-17T03:09:23.866Z\"}},{\"intentRef\":\"CHK-003:adversarial:1\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"在 done-effects.ts 中把 Step2 metadata commit 移到 Step3 merge 之后（metadata 未提交就 merge）→ merge 后 main 分支缺少 phase=DONE commit → smoke 检查 git log main 确认 DONE metadata commit 在 merge commit 的 parent 链中; WHY: 对抗 commit 顺序错位导致 merge 后 metadata 丢失\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:1\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/worktree-authority-smoke.ts\",\"command\":\"npm --prefix packages/main run test:worktree-authority-smoke\",\"result\":\"pass\",\"note\":\"assertDoneSuccessPathOutputAndOrdering 断言 git log --oneline main 含 koala: mark B-xxx DONE + clear worktree commit——若 Step2 metadata commit 错位到 Step3 merge 之后，merge 后 main 缺该 commit，断言 FAIL\",\"headHash\":\"20e3e0ae299f924fad1eaf53905d75757dbc7f11\",\"materialHash\":\"4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891\",\"timestamp\":\"2026-05-17T03:09:23.866Z\"}},{\"intentRef\":\"CHK-003:adversarial:2\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"pre-merge gate 失败时输出 byte-identical：模拟 done oracle 失败 → 比较错误消息与基线字符串（含 Cannot enter DONE: 前缀 + 具体 blocker 描述）完全一致; WHY: 验证失败消息搬迁后文案零变化\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:2\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/worktree-authority-smoke.ts\",\"command\":\"npm --prefix packages/main run test:worktree-authority-smoke\",\"result\":\"pass\",\"note\":\"pre-merge gate 失败用例（oracle/stray/conflict）均断言输出含 Cannot enter DONE 前缀及具体 blocker 文案；assertMergeConflictPreMergeGateKeepsStoryTest 断言 落后 main blocker 描述，证明失败消息搬迁后文案不变\",\"headHash\":\"20e3e0ae299f924fad1eaf53905d75757dbc7f11\",\"materialHash\":\"4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891\",\"timestamp\":\"2026-05-17T03:09:23.866Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"grep -r __koalaDoneChecklistRendered 全仓（排除 node_modules/.git）→ 0 行匹配; WHY: 验证 globalThis 技术债彻底清除\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/src/handlers/done-effects.ts\",\"command\":\"grep -rn __koalaDoneChecklistRendered packages/main/src/ | wc -l\",\"result\":\"pass\",\"note\":\"grep -rn __koalaDoneChecklistRendered packages/main/src/ 返回 0 行匹配——globalThis 跨 actor.send stash 已彻底清除，改为 runDonePreMergeGate 显式 return rendered checklist\",\"headHash\":\"20e3e0ae299f924fad1eaf53905d75757dbc7f11\",\"materialHash\":\"4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891\",\"timestamp\":\"2026-05-17T03:09:23.866Z\"}},{\"intentRef\":\"CHK-004:happy:1\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"DONE 成功输出仍含完整 DONE Gate Checklist 段（每个 checklist item 一行 [✓]）→ 显式传参链路未丢失渲染文本; WHY: 验证替代机制（显式返回值/参数）功能等价\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:1\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/worktree-authority-smoke.ts\",\"command\":\"npm --prefix packages/main run test:worktree-authority-smoke\",\"result\":\"pass\",\"note\":\"assertDoneSuccessPathOutputAndOrdering 断言 DONE 成功输出含完整 DONE Gate Checklist 段（DONE Gate Checklist 头 + [✓] Test evidence/git working tree/delivery-check 等行）——证明显式返回值/参数链路未丢失渲染文本\",\"headHash\":\"20e3e0ae299f924fad1eaf53905d75757dbc7f11\",\"materialHash\":\"4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891\",\"timestamp\":\"2026-05-17T03:09:23.866Z\"}},{\"intentRef\":\"CHK-004:happy:2\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"pre-merge gate 函数签名显式 return string（rendered checklist）→ story-advance.ts 接收返回值并传给块 B 的返回段拼接 → tsc 类型检查通过; WHY: 验证数据流链路类型安全\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:2\",\"kind\":\"manual_transcript\",\"file\":\"packages/main/src/handlers/done-effects.ts\",\"command\":\"npm --prefix packages/main run build\",\"result\":\"pass\",\"note\":\"runDonePreMergeGate 签名 Promise<string> 显式 return rendered checklist；story-advance.ts 用局部变量 doneRenderedChecklist 接收并传入 applyDoneMergeEffects；npm run build (tsc --noEmit) exit 0 确认数据流类型安全\",\"headHash\":\"20e3e0ae299f924fad1eaf53905d75757dbc7f11\",\"materialHash\":\"4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891\",\"timestamp\":\"2026-05-17T03:09:23.866Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"pre-merge gate 函数在 gate 失败（throw）时不返回 rendered checklist → 调用方不会读到 undefined 并拼接 undefined 字符串到输出; WHY: 验证 throw 路径不产生脏数据\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"missing\"},{\"intentRef\":\"CHK-004:edge:1\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"grep globalThis 全仓（不限 __koalaDoneChecklistRendered）确认 done-effects.ts 和 story-advance.ts 中无任何新增 globalThis 用法; WHY: 防止用另一个 globalThis 替代\",\"type\":\"cli\",\"priority\":\"should\",\"status\":\"missing\"},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"删除 pre-merge gate 函数的 return rendered 行（模拟搬迁时漏接返回值）→ DONE 成功输出缺少 checklist 段 → smoke 断言检测到缺失; WHY: 对抗 preMortem #3 渲染文本丢失\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/worktree-authority-smoke.ts\",\"command\":\"npm --prefix packages/main run test:worktree-authority-smoke\",\"result\":\"pass\",\"note\":\"assertDoneSuccessPathOutputAndOrdering 断言 output 含 DONE Gate Checklist 头与 [✓] 行——若 runDonePreMergeGate 漏 return rendered（或 story-advance 漏拼 doneChecklistPrefix），checklist 段缺失，断言立即 FAIL，捕获 preMortem #3 渲染文本丢失\",\"headHash\":\"20e3e0ae299f924fad1eaf53905d75757dbc7f11\",\"materialHash\":\"4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891\",\"timestamp\":\"2026-05-17T03:09:23.866Z\"}},{\"intentRef\":\"CHK-004:adversarial:1\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"在 story-advance.ts 中接收 pre-merge gate 返回值后用错误变量名传给块 B（如 typo doneChecklistPrfix）→ tsc 编译失败; WHY: 类型系统作为搬迁正确性的静态防线\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"missing\"},{\"intentRef\":\"CHK-004:adversarial:2\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"并发两个 DONE advance（模拟 race）→ 无 globalThis 后两次调用互不干扰（各自拿到独立的 rendered 字符串、不存在竞态覆盖）; WHY: 验证消除 global state 后的并发安全性提升\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"missing\"}]}}",
+  "result": "PASS",
+  "timestamp": "2026-05-17T03:09:25.585Z",
+  "headHash": "179f864070b91137a5f993fbfc4139326ab70824",
+  "verificationCoverage": {
+    "total": 32,
+    "required": 22,
+    "covered": 23,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "抽取完成后 story-advance.ts 中 grep \"git merge\" / \"worktree remove\" / \"branch -d\" 返回 0 行匹配（inline DONE merge 代码已清除）→ 确认 DONE merge 实现不再 inline; WHY: 验证搬迁彻底性",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/story-advance.ts",
+          "command": "grep -nE \"'merge', branch|['worktree', 'remove']\" packages/main/src/handlers/story-advance.ts | wc -l",
+          "result": "pass",
+          "note": "story-advance.ts inline DONE merge grep 返回 0 行；assertDoneSuccessPathOutputAndOrdering 另用结构断言确认 story-advance.ts 不含 inline git merge / worktree remove 实现，只 delegate runDonePreMergeGate/applyDoneMergeEffects",
+          "headHash": "20e3e0ae299f924fad1eaf53905d75757dbc7f11",
+          "materialHash": "4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891",
+          "timestamp": "2026-05-17T03:09:23.866Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:1",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "done-effects.ts 存在于 packages/main/src/handlers/ 且 export 至少两个函数（pre-merge gate 函数 + merge-cleanup 函数）→ tsc --noEmit 编译通过; WHY: 验证新文件结构正确且可编译",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/done-effects.ts",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "done-effects.ts 位于 packages/main/src/handlers/，export runDonePreMergeGate + applyDoneMergeEffects + autoSyncMain + detectDoneStoryWorktreeContext + assertDoneStoryBranchMatches 共 5 个函数（grep -c ^export = 5）；npm run build (tsc) exit 0",
+          "headHash": "20e3e0ae299f924fad1eaf53905d75757dbc7f11",
+          "materialHash": "4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891",
+          "timestamp": "2026-05-17T03:09:23.866Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:2",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "对一个 DONE gate 全满足的 TEST story 执行 koala story_advance --phase=DONE → 成功输出含 DONE Gate Checklist 段 + 合并/worktree清理/分支删除三行 → story phase=DONE; WHY: 验证抽取后端到端行为不变",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "assertDoneSuccessPathOutputAndOrdering: DONE gate 全满足的 TEST story 执行 story_advance DONE，输出含 DONE Gate Checklist 段 + 合并/worktree清理/分支删除三行，story phase=DONE，worktree+branch 已清",
+          "headHash": "20e3e0ae299f924fad1eaf53905d75757dbc7f11",
+          "materialHash": "4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891",
+          "timestamp": "2026-05-17T03:09:23.866Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "done-effects.ts 中 maybeTriggerAudit 调用包裹在 try/catch 内且位于 merge+cleanup 成功之后（grep 验证调用位置）→ audit 仍是 post-merge non-blocking effect; WHY: 验证 audit effect 搬迁位置正确",
+        "type": "logic",
+        "priority": "should",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-001:edge:1",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "cleanStrayWorktreeFiles 和 STRAY_FILE_WHITELIST 在 story-advance.ts 的 re-export 仍存在（grep 验证 import + re-export）→ 现有 logicTest 不因 import 路径改变而报错; WHY: 保护下游依赖不断裂",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/story-advance.ts",
+          "command": "grep -n \"cleanStrayWorktreeFiles, STRAY_FILE_WHITELIST\" packages/main/src/handlers/story-advance.ts",
+          "result": "pass",
+          "note": "story-advance.ts:70 仍 export { cleanStrayWorktreeFiles, STRAY_FILE_WHITELIST } from ./stray-file-cleanup.js，下游 logicTest 的 import 路径不断裂；npm run build tsc 全绿确认无 import 报错",
+          "headHash": "20e3e0ae299f924fad1eaf53905d75757dbc7f11",
+          "materialHash": "4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891",
+          "timestamp": "2026-05-17T03:09:23.866Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "将 done-effects.ts 的 pre-merge gate 函数调用从 actor.send 前移到 actor.send 后（模拟搬迁时序错位）→ 测试必须检测到 pre-merge gate 失败时 story 已落盘 DONE（CHK-002 的 smoke 能捕获此错误）; WHY: 对抗 preMortem #2 跨边界时序错位",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "CHK-002 三个 pre-merge gate 失败用例（assertDoneOracleGateFailureKeepsStoryTest/assertStrayFileOffenderKeepsStoryTest/assertMergeConflictPreMergeGateKeepsStoryTest）断言 phase=TEST 未落盘——若 gate 调用错位到 actor.send 后，story 会落盘 DONE，断言立即 FAIL，捕获时序错位",
+          "headHash": "20e3e0ae299f924fad1eaf53905d75757dbc7f11",
+          "materialHash": "4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891",
+          "timestamp": "2026-05-17T03:09:23.866Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:1",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "抽取后 story-advance.ts 仍 import done-effects 并在精确位置（actor.send 前/后）分别调用两个函数——diff 对比调用点行号与原始块 A/块 B 位置一致; WHY: 防止搬迁时代码重排导致语义漂移",
+        "type": "logic",
+        "priority": "should",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "runDoneOracleGate 返回 Cannot enter DONE（如缺 delivery-check）→ story_advance DONE 抛错含 Cannot enter DONE + story_get 显示 phase=TEST（未落盘 DONE）; WHY: 验证 done oracle gate 失败阻止 phase 写入",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "assertDoneOracleGateFailureKeepsStoryTest: 缺 delivery-check evidence 时 runDoneOracleGate 抛 Cannot enter DONE，断言两 store 中 story 仍 TEST、分支/worktree 未动",
+          "headHash": "20e3e0ae299f924fad1eaf53905d75757dbc7f11",
+          "materialHash": "4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891",
+          "timestamp": "2026-05-17T03:09:23.866Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:1",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "stray-file dry-run 检测到非白名单未追踪文件 → story_advance DONE 抛错含 DONE pre-merge stray + story 仍为 TEST; WHY: 验证 F-020 stray offender 拦截在 phase 落盘前",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "assertStrayFileOffenderKeepsStoryTest: 主仓 story dir 写非白名单未追踪文件，F-020 dry-run 抛错命名 offender，story 仍 TEST 且 offender 未被删",
+          "headHash": "20e3e0ae299f924fad1eaf53905d75757dbc7f11",
+          "materialHash": "4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891",
+          "timestamp": "2026-05-17T03:09:23.866Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:2",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "assertDoneMergeCanApplyBeforeStateMutation 检测到 merge-tree 冲突 → story_advance DONE 抛错含 Cannot enter DONE 或 refusing DONE cleanup + story 仍为 TEST; WHY: 验证 merge-tree dry-run gate 阻止 phase 写入",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "assertMergeConflictPreMergeGateKeepsStoryTest: main/分支冲突使 block A pre-merge gate 抛 Cannot enter DONE（落后 main），story 两 store 仍 TEST，冲突 main commit 未被强行 sync 进分支",
+          "headHash": "20e3e0ae299f924fad1eaf53905d75757dbc7f11",
+          "materialHash": "4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891",
+          "timestamp": "2026-05-17T03:09:23.866Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:3",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "pre-merge gate 全过后真实 git merge 失败（如人为制造冲突）→ 抛错含「已标记为 DONE 但自动合并失败」+ 手动 cd/git merge/git worktree remove/git branch -d 四行指引 + story_get 显示 phase=DONE; WHY: 验证 post-merge 失败时 story 已 DONE 且不吞错",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:3",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "assertRealMergeFailureMarksDoneAndThrows: pre-merge gate 全过后真实 git merge 因主仓未追踪文件失败，抛错含已标记 DONE+cd/git merge/git worktree remove --force/git branch -d 四行指引，story phase=DONE，无 merge commit",
+          "headHash": "20e3e0ae299f924fad1eaf53905d75757dbc7f11",
+          "materialHash": "4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891",
+          "timestamp": "2026-05-17T03:09:23.866Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "worktree cleanup 失败（git worktree remove 和 rm -rf 都失败，如权限问题模拟）→ 抛错含「已合并，但 worktree 清理未完成」+ story 已 DONE + 已成功 merge; WHY: 验证 cleanup 失败时 merge 结果保留、story 不回滚",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "assertWorktreeCleanupFailureMarksDoneMergedAndThrows: chmod .worktrees/ 为只读使 git worktree remove + rm -rf 都无法 rmdir worktree 目录 → applyDoneMergeEffects 在 merge 成功后抛错含 已合并，但 worktree 清理未完成 + koala doctor，story phase=DONE 且 main 已有 merge: commit；root uid 时跳过（权限位被忽略）",
+          "headHash": "20e3e0ae299f924fad1eaf53905d75757dbc7f11",
+          "materialHash": "4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891",
+          "timestamp": "2026-05-17T03:09:23.866Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:1",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "三道 pre-merge gate 按顺序执行：oracle gate 先于 stray dry-run 先于 merge-tree dry-run（任一失败立即 throw 不继续后续 gate）→ 日志中只出现第一个失败的 gate 消息; WHY: 验证 gate 短路语义",
+        "type": "logic",
+        "priority": "should",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "三道 pre-merge gate 短路语义被 oracle/stray/conflict 三个独立用例覆盖；done-oracle gate 失败时输出只含 Cannot enter DONE 而无 stray/merge-tree 后续 gate 消息（assertDoneOracleGateFailureKeepsStoryTest）",
+          "headHash": "20e3e0ae299f924fad1eaf53905d75757dbc7f11",
+          "materialHash": "4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891",
+          "timestamp": "2026-05-17T03:09:23.866Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "模拟搬迁 bug：将 pre-merge gate 调用移到 store.writeStory 之后（时序错位）→ oracle gate 失败时 story_get 显示 phase=DONE（不应该）→ 此测试必须 FAIL 以证明正确实现中 gate 在落盘前; WHY: 对抗 preMortem #2 核心风险——gate 调用时机错位导致 phase 落盘不可逆",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "三个 pre-merge gate 失败用例都断言 phase=DONE 未落盘（new StoryStore(...).readStory().phase === TEST），若搬迁把 gate 调用错位到 writeStory 之后这些断言会立即 FAIL —— 即对抗 preMortem #2 的时序错位检测",
+          "headHash": "20e3e0ae299f924fad1eaf53905d75757dbc7f11",
+          "materialHash": "4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891",
+          "timestamp": "2026-05-17T03:09:23.866Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:1",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "在 pre-merge gate 全过但 actor.send 前的时间窗口中断进程（kill -9 模拟）→ story metadata 文件中 phase 仍为 TEST（未落盘）; WHY: 对抗原子性：gate pass 到 phase 写入之间无中间态落盘",
+        "type": "logic",
+        "priority": "should",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-002:adversarial:2",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "post-merge 失败的错误消息 byte-identical 对比：新 done-effects.ts 生成的错误字符串与旧 inline 实现的模板完全一致（含 cd 路径、git merge、worktree remove --force、branch -d 四条）; WHY: 验证搬迁未改错误消息文案",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "assertRealMergeFailureMarksDoneAndThrows 逐条断言 post-merge 失败消息含 cd \"/git merge story//git worktree remove --force/git branch -d story/ 四行手动收尾指引，文案与 done-effects.ts 模板一致",
+          "headHash": "20e3e0ae299f924fad1eaf53905d75757dbc7f11",
+          "materialHash": "4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891",
+          "timestamp": "2026-05-17T03:09:23.866Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "成功 DONE 路径 smoke：对满足全部 gate 的 TEST story 执行 DONE → 输出按顺序包含 Step1 清 worktree 字段 / Step2 metadata commit / Step2.5 stray cleanup / Step3 merge 成功行 / Step4 worktree remove 成功行 / Step5 branch delete 成功行 → 步骤顺序与源码注释 Step1-5 完全一致; WHY: 回归证明执行顺序不变",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "assertDoneSuccessPathOutputAndOrdering: 成功 DONE 输出按 merge→worktree remove→branch delete 顺序断言（indexOf 严格递增），git log main 含 koala mark DONE metadata commit 与 merge: commit，证明 Step1-5 顺序不变",
+          "headHash": "20e3e0ae299f924fad1eaf53905d75757dbc7f11",
+          "materialHash": "4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891",
+          "timestamp": "2026-05-17T03:09:23.866Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:1",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "DONE 成功输出 byte-identical：输出含 DONE Gate Checklist 段（每项 [✓] 行）→ 接着「✓ 分支 story/B-xxx 已合并到 main」→「✓ Worktree ... 已清理」→「✓ 分支 story/B-xxx 已删除」→ summary 段; WHY: 验证用户可见文本不变",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "assertDoneSuccessPathOutputAndOrdering 断言 byte-identical 文本：DONE Gate Checklist 头+各 [✓] 行、Story B-xxx advanced to DONE、✓ 分支 story/B-xxx 已合并到 main、✓ Worktree <canonical> 已清理、✓ 分支 story/B-xxx 已删除",
+          "headHash": "20e3e0ae299f924fad1eaf53905d75757dbc7f11",
+          "materialHash": "4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891",
+          "timestamp": "2026-05-17T03:09:23.866Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:2",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "npm --prefix packages/main run test:worktree-authority-smoke 全 pass（含新增的 DONE ordering 断言）; WHY: 机械化回归门槛",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "npm --prefix packages/main run test:worktree-authority-smoke 全 15 用例 pass（9 原有 + 6 新增 DONE ordering/failure 回归），输出 ✓ worktree authority smoke passed exit 0",
+          "headHash": "20e3e0ae299f924fad1eaf53905d75757dbc7f11",
+          "materialHash": "4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891",
+          "timestamp": "2026-05-17T03:09:23.866Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "DONE 成功但 branch -d 失败（分支有未合并 commit 模拟）→ 输出含「⚠ 分支 ... 未删除」但不 throw、story 仍 DONE、merge 已完成; WHY: Step5 branch delete 失败是 non-fatal 的行为保持",
+        "type": "cli",
+        "priority": "should",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:edge:1",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "worktree remove 需 --force（gitignored 文件残留模拟）→ 输出含「已强制清理」而非「已清理」但不 throw; WHY: 两步 cleanup 的 fallback 行为保持",
+        "type": "cli",
+        "priority": "should",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "在 done-effects.ts 中交换 Step3 merge 和 Step4 worktree remove 的顺序（故意错排）→ smoke 断言失败：worktree remove 在未 merge 时应失败或产生不同输出; WHY: 对抗 preMortem #1 步骤重排",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "assertDoneSuccessPathOutputAndOrdering 用 indexOf 强制 merge<cleanup<delete 严格顺序——若 done-effects.ts 交换 Step3 merge 与 Step4 worktree remove，顺序断言立即 FAIL；对抗 preMortem #1 步骤重排",
+          "headHash": "20e3e0ae299f924fad1eaf53905d75757dbc7f11",
+          "materialHash": "4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891",
+          "timestamp": "2026-05-17T03:09:23.866Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:1",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "在 done-effects.ts 中把 Step2 metadata commit 移到 Step3 merge 之后（metadata 未提交就 merge）→ merge 后 main 分支缺少 phase=DONE commit → smoke 检查 git log main 确认 DONE metadata commit 在 merge commit 的 parent 链中; WHY: 对抗 commit 顺序错位导致 merge 后 metadata 丢失",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "assertDoneSuccessPathOutputAndOrdering 断言 git log --oneline main 含 koala: mark B-xxx DONE + clear worktree commit——若 Step2 metadata commit 错位到 Step3 merge 之后，merge 后 main 缺该 commit，断言 FAIL",
+          "headHash": "20e3e0ae299f924fad1eaf53905d75757dbc7f11",
+          "materialHash": "4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891",
+          "timestamp": "2026-05-17T03:09:23.866Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:2",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "pre-merge gate 失败时输出 byte-identical：模拟 done oracle 失败 → 比较错误消息与基线字符串（含 Cannot enter DONE: 前缀 + 具体 blocker 描述）完全一致; WHY: 验证失败消息搬迁后文案零变化",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "pre-merge gate 失败用例（oracle/stray/conflict）均断言输出含 Cannot enter DONE 前缀及具体 blocker 文案；assertMergeConflictPreMergeGateKeepsStoryTest 断言 落后 main blocker 描述，证明失败消息搬迁后文案不变",
+          "headHash": "20e3e0ae299f924fad1eaf53905d75757dbc7f11",
+          "materialHash": "4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891",
+          "timestamp": "2026-05-17T03:09:23.866Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "grep -r __koalaDoneChecklistRendered 全仓（排除 node_modules/.git）→ 0 行匹配; WHY: 验证 globalThis 技术债彻底清除",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/done-effects.ts",
+          "command": "grep -rn __koalaDoneChecklistRendered packages/main/src/ | wc -l",
+          "result": "pass",
+          "note": "grep -rn __koalaDoneChecklistRendered packages/main/src/ 返回 0 行匹配——globalThis 跨 actor.send stash 已彻底清除，改为 runDonePreMergeGate 显式 return rendered checklist",
+          "headHash": "20e3e0ae299f924fad1eaf53905d75757dbc7f11",
+          "materialHash": "4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891",
+          "timestamp": "2026-05-17T03:09:23.866Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:1",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "DONE 成功输出仍含完整 DONE Gate Checklist 段（每个 checklist item 一行 [✓]）→ 显式传参链路未丢失渲染文本; WHY: 验证替代机制（显式返回值/参数）功能等价",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "assertDoneSuccessPathOutputAndOrdering 断言 DONE 成功输出含完整 DONE Gate Checklist 段（DONE Gate Checklist 头 + [✓] Test evidence/git working tree/delivery-check 等行）——证明显式返回值/参数链路未丢失渲染文本",
+          "headHash": "20e3e0ae299f924fad1eaf53905d75757dbc7f11",
+          "materialHash": "4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891",
+          "timestamp": "2026-05-17T03:09:23.866Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:2",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "pre-merge gate 函数签名显式 return string（rendered checklist）→ story-advance.ts 接收返回值并传给块 B 的返回段拼接 → tsc 类型检查通过; WHY: 验证数据流链路类型安全",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/done-effects.ts",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "runDonePreMergeGate 签名 Promise<string> 显式 return rendered checklist；story-advance.ts 用局部变量 doneRenderedChecklist 接收并传入 applyDoneMergeEffects；npm run build (tsc --noEmit) exit 0 确认数据流类型安全",
+          "headHash": "20e3e0ae299f924fad1eaf53905d75757dbc7f11",
+          "materialHash": "4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891",
+          "timestamp": "2026-05-17T03:09:23.866Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "pre-merge gate 函数在 gate 失败（throw）时不返回 rendered checklist → 调用方不会读到 undefined 并拼接 undefined 字符串到输出; WHY: 验证 throw 路径不产生脏数据",
+        "type": "logic",
+        "priority": "should",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-004:edge:1",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "grep globalThis 全仓（不限 __koalaDoneChecklistRendered）确认 done-effects.ts 和 story-advance.ts 中无任何新增 globalThis 用法; WHY: 防止用另一个 globalThis 替代",
+        "type": "cli",
+        "priority": "should",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "删除 pre-merge gate 函数的 return rendered 行（模拟搬迁时漏接返回值）→ DONE 成功输出缺少 checklist 段 → smoke 断言检测到缺失; WHY: 对抗 preMortem #3 渲染文本丢失",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-authority-smoke",
+          "result": "pass",
+          "note": "assertDoneSuccessPathOutputAndOrdering 断言 output 含 DONE Gate Checklist 头与 [✓] 行——若 runDonePreMergeGate 漏 return rendered（或 story-advance 漏拼 doneChecklistPrefix），checklist 段缺失，断言立即 FAIL，捕获 preMortem #3 渲染文本丢失",
+          "headHash": "20e3e0ae299f924fad1eaf53905d75757dbc7f11",
+          "materialHash": "4b76a5523d4f182466d2769f04f881dcf98e73d2e0ddc98a9beb915352e53891",
+          "timestamp": "2026-05-17T03:09:23.866Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:1",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "在 story-advance.ts 中接收 pre-merge gate 返回值后用错误变量名传给块 B（如 typo doneChecklistPrfix）→ tsc 编译失败; WHY: 类型系统作为搬迁正确性的静态防线",
+        "type": "logic",
+        "priority": "should",
+        "status": "missing"
+      },
+      {
+        "intentRef": "CHK-004:adversarial:2",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "并发两个 DONE advance（模拟 race）→ 无 globalThis 后两次调用互不干扰（各自拿到独立的 rendered 字符串、不存在竞态覆盖）; WHY: 验证消除 global state 后的并发安全性提升",
+        "type": "logic",
+        "priority": "should",
+        "status": "missing"
+      }
+    ]
+  }
+}

@@ -1,0 +1,172 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "StoryStore 写 checklist 时使用原子写入并校验 JSON 可读",
+      "context": "writeJson 先 JSON.stringify 到字符串，再写临时文件并 rename；写前/写后对 checklist 数据进行 JSON parse roundtrip，避免长 testIntent 或中断写入留下半截 JSON。",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-intent-review.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-19T23:02:26.828Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "StoryStore.writeChecklist 写入包含长 testIntent 的 checklist 后，目标 checklist.json 仍可 JSON.parse 且内容完整",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:06:00.984Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/checklist-json-done-log-dirty.json:1 WHY long testIntent store write parses and matches original desc; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "写入过程中如果原子 rename 前失败，原 checklist.json 保持原内容可解析",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:06:01.082Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/checklist-json-done-log-dirty.json:1 WHY circular stringify failure preserves original checklist JSON; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "JSON 写入临时文件失败时不会留下破坏目标 checklist.json 的半截内容",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:06:01.182Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/checklist-json-done-log-dirty.json:1 WHY failed write leaves no temp and target remains parseable; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-002",
+      "title": "checklist_update 长 testIntent 支持安全输入与失败不破坏原文件",
+      "context": "覆盖长 desc、多栏 testIntent、引号/换行等内容；如果输入校验失败或写入失败，原 checklist.json 仍可 JSON.parse。",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-intent-review.md",
+        "docs/requirements/decisions/test-fixture-spec.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-19T23:02:26.932Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "checklist_update 通过 CLI 写入长 desc、多栏 testIntent、引号和换行后，checklist_get 仍能读取该 story",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:06:01.283Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/checklist-json-done-log-dirty.json:1 WHY CLI checklist_update accepts long quoted newline testIntent and checklist_get reads it; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "无效 testIntent 输入被拒绝时，原 checklist.json 仍可解析且原 item 未被半写入污染",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:06:01.385Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/checklist-json-done-log-dirty.json:1 WHY invalid empty happy is rejected and item remains without corrupt testIntent; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "很长的 testIntent 文本不会因为 stringify/写入流程导致 checklist.json 截断",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:06:01.485Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/checklist-json-done-log-dirty.json:1 WHY 60000 char testIntent remains untruncated and JSON ends cleanly; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-003",
+      "title": "DONE confirm 不因自己写 activity.jsonl 造成 dirty 阻塞",
+      "context": "DONE gate 和 DONE auto-git preflight 应忽略 docs/story/activity.jsonl 这类 volatile activity log；必要时 DONE 命令本身不写 activity 或在 worktree 移除后安全跳过。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-19T23:02:27.040Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "dryRun 命令不增加 docs/story/activity.jsonl 行数，也不让工作区因预览命令变 dirty",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:06:01.583Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/checklist-json-done-log-dirty.json:1 WHY dryRun command keeps activity line count stable; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "DONE gate 的工作区路径过滤将 docs/story/activity.jsonl 视为 volatile，但不把源码改动视为 volatile",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:06:01.686Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/checklist-json-done-log-dirty.json:1 WHY DONE volatile helper only treats docs/story/activity.jsonl as volatile, not source; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "DONE main merge preflight 的路径过滤只忽略 docs/story/activity.jsonl，不忽略同 story index/checklist overlap",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-19T23:06:01.788Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/checklist-json-done-log-dirty.json:1 WHY DONE volatile helper does not ignore story index/checklist overlap; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

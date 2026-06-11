@@ -1,0 +1,32 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-04-15T12:11:01.892Z",
+      "issueCount": 4,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "parallel_policy_missing_lane",
+          "severity": "advisory",
+          "message": "未声明 lane。当前默认会按 mainline 推断，但建议显式设置 mainline/supporting/exploratory，避免并行调度时主线判断漂移"
+        },
+        {
+          "type": "parallel_policy_missing_safety",
+          "severity": "advisory",
+          "message": "未声明 parallelSafe。当前默认会按 plan_only 推断，建议显式设置 yes/no/plan_only，让 session_brief 能稳定给出并行建议"
+        },
+        {
+          "type": "parallel_policy_missing_hotspots",
+          "severity": "advisory",
+          "message": "sharedHotspots 为空。建议列出会争抢的核心文件或模块，便于 session_brief 提前提示冲突"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding 还有 1 个未消化的 unknowns: 是一条脚本同时断言 4 条 high 消失更稳，还是分成 anti-stall / test-intent 两组更稳。"
+        }
+      ],
+      "_hash": "0b83bdcda163931cb0c34eaa05290742cf8352f106b423fcfb16e61979e63a06"
+    }
+  ]
+}

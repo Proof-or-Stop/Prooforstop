@@ -1,0 +1,20 @@
+{
+  "storyId": "B-8a1b",
+  "checkedAt": "2026-05-20T22:04:44.191Z",
+  "reviewRound": "2026-05-20T22:01:12.079Z",
+  "agentId": "",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm run test:entrypoints → ok 25/25 + entrypoints verified; byte-equality assert at :557 passes; live registry probe confirms 14-item array byte-equal to REQUIRED_RUNTIME_IGNORE_LINES after inserting owner-lease.json and .koala/locks/ at canonical positions; npm test → ALL PASS; koala validate --story=B-8a1b → ALL PASS; Verification policy: express-exempt"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Tiny chore: 2 array entries added to scripts/verify-entrypoints.mjs to sync test seed with runtime-artifact-registry canonical list. All 25/25 entrypoint checks pass including the previously-failing byte-equality assertion at :557. No docs changes, no runtime behavior changes, no TODOs."
+  },
+  "_hash": "e8063a46bc8157d125dfd4cb6aa4c852b2557726b6c84ff7a2ddcd2ecd90529d"
+}

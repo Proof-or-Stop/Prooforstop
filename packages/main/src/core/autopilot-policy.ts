@@ -1,5 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { LATTICE_DIR } from './lattice-paths.js';
 
 export const AUTOPILOT_POLICY_SCHEMA_VERSION = 'lattice.autopilot_policy.v1' as const;
 export const AUTOPILOT_POLICY_CHECK_SCHEMA_VERSION = 'lattice.autopilot_policy_check.v1' as const;
@@ -229,7 +230,7 @@ export function isValidAutopilotPolicyName(name: string): boolean {
 }
 
 function autopilotPoliciesDir(root: string): string {
-  return join(root, '.koala', 'autopilot-policies');
+  return join(root, LATTICE_DIR, 'autopilot-policies');
 }
 
 export function autopilotPolicyPath(root: string, policy: string): string {
@@ -575,7 +576,7 @@ export function getAutopilotPolicy(root: string, policy: string): AutopilotPolic
 
   const filePath = autopilotPolicyPath(root, name);
   if (!existsSync(filePath)) {
-    throw new Error(`autopilot policy not found: ${name} (expected at .koala/autopilot-policies/${name}.json)`);
+    throw new Error(`autopilot policy not found: ${name} (expected at .lattice/autopilot-policies/${name}.json)`);
   }
   return normalizeAutopilotPolicyRecord(JSON.parse(readFileSync(filePath, 'utf8')));
 }
@@ -601,7 +602,7 @@ export function checkAutopilotPolicy(
     if (!existsSync(filePath)) {
       return refusedResult(
         policyName,
-        [`policy not found: ${policyName} (no file at .koala/autopilot-policies/${policyName}.json)`],
+        [`policy not found: ${policyName} (no file at .lattice/autopilot-policies/${policyName}.json)`],
         `Create the policy first with autopilot_policy_create --policy=${policyName}`,
       );
     }

@@ -1,0 +1,47 @@
+{
+  "storyId": "B-6326",
+  "checkedAt": "2026-05-15T12:58:38.596Z",
+  "reviewRound": "2026-05-15T12:22:54.931Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": ".koala/story/actives/B-6326/plan.md",
+      "promise": "CHK-001: dirty-worktree.ts provides classifyGitStatusRows, parseGitPorcelainRow, dirtyWorktreeClassifierOptionsFromConfig, renderDirtyWorktreeGroups, summarizeDirtyWorktreeClassification exports with stable 5-category vocabulary: koala_metadata_changes, runtime_artifact_changes, declared_artifact_changes, material_source_changes, fixture_changes, unexpected_dirty_files",
+      "verifiedBy": "diff/grep",
+      "evidence": "packages/main/src/core/dirty-worktree.ts created at line 1-254; DIRTY_WORKTREE_CATEGORIES constant at line 6-12 lists all 6 categories; all exported functions confirmed in diff"
+    },
+    {
+      "docPath": ".koala/story/actives/B-6326/plan.md",
+      "promise": "CHK-002: DONE gate detail and hint use categorized dirty output from shared classifier; validation-executor worktree pollution details reuse same vocabulary; blocking policy not loosened",
+      "verifiedBy": "diff/grep",
+      "evidence": "story-advance.ts lines 92-100 replace raw summary with classifyGitStatusRows+summarizeDirtyWorktreeClassification and renderDirtyWorktreeGroups; git-working-tree row remains status:fail with blocking:true; validation-executor.ts lines 63-72 replace inline statusPath extraction with parseGitPorcelainRow and adds renderDirtyWorktreeGroups to formatWorktreePollutionDetails; verifier.ts passes projectRoot to formatWorktreePollutionDetails"
+    },
+    {
+      "docPath": ".koala/story/actives/B-6326/plan.md",
+      "promise": "CHK-003: focused smoke coverage for classifier and dirty output surfaces including all 5 categories, BL21 lacZ path as unexpected, DONE gate hint and validate side-effect guard details with category labels, and blocking not relaxed",
+      "verifiedBy": "diff/grep",
+      "evidence": "flow-stability-smoke.ts adds assertDirtyWorktreeClassifierGroupsOwnership() (41 new assertions covering all categories), assertDoneChecklistUsesStableOracleRows() extended with 10 new assertions, assertSessionBriefStatusHintsMatchGates() extended with koala_metadata_changes match; validation-protocol-smoke.ts adds categorizedPollutionRoot block (11 assertions covering all 5 category labels and BL21 lacZ path); all 3 smoke tests pass live"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm --prefix packages/main run test:flow-stability-smoke passes: assertDirtyWorktreeClassifierGroupsOwnership asserts total=7, koala_metadata_changes=1, runtime_artifact_changes=1, declared_artifact_changes=0, material_source_changes=3, fixture_changes=1, unexpected_dirty_files=1 with exact BL21 lacZ path; rename row parsed with correct statusCode/rawPath/path/originalPath"
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "flow-stability-smoke and validation-protocol-smoke pass: assertDoneChecklistUsesStableOracleRows asserts detail matches dirty path(s) by category with koala_metadata_changes= runtime_artifact_changes=1 fixture_changes=1 unexpected_dirty_files=1; hint matches all 5 category labels and BL21 lacZ path; git-working-tree status=fail blocking=true unchanged; categorizedPollutionRoot block asserts status=fail allPass=false with all 5 category labels in side-effect guard output"
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "All 3 smoke tests pass live: flow-stability-smoke outputs tick flow stability smoke passed, validation-protocol outputs tick validation protocol smoke passed, verification-freshness-smoke outputs tick verification freshness smoke passed. 41 new assertions in flow-stability-smoke, 11 new assertions in validation-protocol-smoke. All 5 category labels and BL21 lacZ path asserted across both test files. verification-freshness-smoke passes as non-regression (not modified in this story)."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 3 checklist items verified via passing smoke tests. dirty-worktree.ts implements stable 5-category classifier using shared isStoryMetadataPath and findRuntimeArtifactEntry; DONE gate and validation-executor pollution output updated to use categorized rendering; blocking semantics preserved; declared_artifact_changes intentionally empty as extension point for later story B-cf60. No TODOs or loosened gates found."
+  },
+  "_hash": "f56770071c99518ab0ce2068bfd2e9b8a084025a29e72f0eb0ee4aed3e8e7f39"
+}

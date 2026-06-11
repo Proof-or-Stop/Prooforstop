@@ -1,0 +1,56 @@
+{
+  "storyId": "B-4c38",
+  "changes": "Added a main-level DONE merge lock shared by story_advance DONE and done_recover; added partial-DONE detector, doctor reporting, recovery command, safety checks for clean main/story worktree/merge-tree, process-fact registration, lifecycle docs, and smoke regressions including the F-006 branch-local DONE guard.",
+  "usage": "Use normal story_advance --storyId=<id> --phase=DONE. If a partial-DONE is reported, run koala doctor to inspect it, then koala done_recover --storyId=<id> after main and the story worktree are clean.",
+  "expectedOutcome": "Concurrent DONE operations serialize before main-affecting mutation; live lock contention leaves the story pre-DONE; partial-DONE stories are detected and recoverable without handwritten git commands.",
+  "actualTranscript": "test:worktree-authority-smoke passed; test:worktree-repair-smoke passed; koala validate passed with 17/18 covered and 0 required missing; transcript-diff.md records expected versus actual operator-visible behavior.",
+  "outcomeDiff": "No required gap. Actual behavior matches expected; only a should-level reviewer meta-check remains intentionally uncovered.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Does not solve merge conflicts automatically and does not recover dirty story worktrees; done_recover refuses unsafe states and requires the operator to clean or resolve them first.",
+  "pitfalls": "F-006 showed recovery eligibility must be proven from the story branch metadata, not main metadata. checklist_update can overwrite evidence, so batch evidence was used to avoid losing coverage. koala doctor still shows unrelated health-log and Codex adapter warnings in this worktree.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 95569
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 21063
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 441020
+    },
+    "DEV": {
+      "count": 4,
+      "durationMs": 805824
+    },
+    "REVIEW": {
+      "count": 4,
+      "durationMs": 964579
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 60003
+    }
+  },
+  "totalDurationMs": 2388063,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-05-17T04:07:32.605Z",
+  "updatedAt": "2026-05-17T04:07:32.605Z"
+}

@@ -1,0 +1,60 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-04-15T13:04:49.606Z",
+      "issueCount": 4,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "parallel_policy_missing_lane",
+          "severity": "advisory",
+          "message": "未声明 lane。当前默认会按 mainline 推断，但建议显式设置 mainline/supporting/exploratory，避免并行调度时主线判断漂移"
+        },
+        {
+          "type": "parallel_policy_missing_safety",
+          "severity": "advisory",
+          "message": "未声明 parallelSafe。当前默认会按 plan_only 推断，建议显式设置 yes/no/plan_only，让 session_brief 能稳定给出并行建议"
+        },
+        {
+          "type": "parallel_policy_missing_hotspots",
+          "severity": "advisory",
+          "message": "sharedHotspots 为空。建议列出会争抢的核心文件或模块，便于 session_brief 提前提示冲突"
+        },
+        {
+          "type": "missing_understanding",
+          "severity": "advisory",
+          "message": "未填 understanding snapshot。建议在拆 checklist 前先调用 understanding_set 落 task/outcome/facts/constraints/unknowns/touchpoints 6 个字段，避免理解错误后期修复贵"
+        }
+      ],
+      "_hash": "c1efba07c9c5abe2a9c22786721991e1de6a34696624b401cc4c74f37a2d8028"
+    },
+    {
+      "timestamp": "2026-04-15T13:05:18.960Z",
+      "issueCount": 4,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "parallel_policy_missing_lane",
+          "severity": "advisory",
+          "message": "未声明 lane。当前默认会按 mainline 推断，但建议显式设置 mainline/supporting/exploratory，避免并行调度时主线判断漂移"
+        },
+        {
+          "type": "parallel_policy_missing_safety",
+          "severity": "advisory",
+          "message": "未声明 parallelSafe。当前默认会按 plan_only 推断，建议显式设置 yes/no/plan_only，让 session_brief 能稳定给出并行建议"
+        },
+        {
+          "type": "parallel_policy_missing_hotspots",
+          "severity": "advisory",
+          "message": "sharedHotspots 为空。建议列出会争抢的核心文件或模块，便于 session_brief 提前提示冲突"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding 还有 1 个未消化的 unknowns: 这 5 个 open bug 中哪些是纯历史残留，哪些会在当前 fixture 下真实复现。"
+        }
+      ],
+      "_hash": "cfb761dfd1d4b1335aaa8333179f88a0c2eceae633e1686d6d79cbb136d347ac"
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "storyId": "B-ea92",
+  "checkedAt": "2026-05-27T19:09:09.584Z",
+  "reviewRound": "2026-05-27T19:00:54.260Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/authority-client-role.md#M1-Policy-Discovery-Detail",
+      "promise": "M1 adds authority_enforce_policy (underscore form) and koala authority enforce policy (space alias) command; reads contractVersion, requiredAuthorityMode, commandCatalogDigest, evidenceSchemaDigest, evidencePolicy.preset, supportedAuthorityModes, compatibility from GET /v1/authority/policy; Python server owns endpoint; TS CLI read-only consumer; discovery-only disclaimer on every output; no receipt/gate/evidence submission in M1.",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff adds M1 Policy Discovery Detail section to authority-client-role.md with field table and ownership boundary. cli-engine.ts registers authority_enforce_policy + multi-word alias normalization. authority-enforce.ts handler exports AUTHORITY_ENFORCE_POLICY_DISCLAIMER printed on every response path. authority-client.ts discoverPolicy() calls GET /v1/authority/policy read-only only."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "authority-enforce-policy-smoke.ts covers: valid authority-policy.v1 response parses with requiredAuthorityMode=enforce; empty 2xx body ok:false; HTTP 4xx/5xx ok:false; connection-refused ok:false; malformed/non-JSON ok:false; overclaim keys (receipt/receiptId/gatePassed/accepted) ok:false; missing URL ok:false with KOALA_AUTHORITY_URL in message and zero network calls; GET /v1/authority/policy path asserted; no POST to /v1/evidence or /v1/evidence/batch asserted."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "In-process smoke covers missing-URL exit and HTTP failure. CLI flat/nested alias deferred in-process (section 11 notes spawnSync event-loop conflict). Manual transcript-diff.md records: flat-status=0 nested-status=0 missing-url-status=nonzero, calls=GET /v1/authority/policy twice. cli-engine.ts alias normalization confirmed in diff."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "authority-evidence-flow-smoke and authority-boundary-smoke passing per transcript-diff.md. Thin-client authority behavior preserved with no regression."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "authority-client-role.md updated with M1 command syntax, Python field table, ownership boundary. Diff confirms command names, field list, Python-owns/TS-consumes split, and no-receipt disclaimer."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "transcript-diff.md records build pass, policy discovery smoke pass, authority-boundary smoke pass, authority-client smoke pass, authority-evidence-flow smoke pass. Next-milestone boundary named: actor identity and signed handshake. No production authority, L2+ evidence, or receipt verification claimed."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 1 docsPromise verified in code diff. Core behaviors (valid parse, HTTP errors, overclaim guard, missing URL, no-evidence-POST) covered by in-process smoke tests. CLI flat/nested alias verified via manual transcript. No TODO/FIXME in new source files."
+  },
+  "_hash": "c5b66dafd6a8de5fcf97d1fb8ae61d2129c8c77177e341725c4b336f7959893e"
+}

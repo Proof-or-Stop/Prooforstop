@@ -1,0 +1,42 @@
+{
+  "storyId": "B-8596",
+  "checkedAt": "2026-05-17T23:09:08.659Z",
+  "reviewRound": "",
+  "agentId": "koala-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "low",
+      "desc": "background.md \"对话纹理\" 段出现 F-007、F-008、Story 4 等标识符，全文无展开说明，新读者无法得知这些条目代表什么；属于可读性 advisory，不影响本 story 核心范围理解"
+    },
+    {
+      "id": "INIT-002",
+      "severity": "low",
+      "desc": "background.md \"触发事件\" 段使用 \"partial-DONE\" 术语，全文无定义；虽然上下文（多 agent 并行写 metadata 互踩）能推断其语义，仍属于行话首用未展开的 advisory 项"
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-05-17T23:04:32.719Z",
+      "issues": []
+    },
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-05-17T23:09:08.659Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "low",
+          "desc": "background.md \"对话纹理\" 段出现 F-007、F-008、Story 4 等标识符，全文无展开说明，新读者无法得知这些条目代表什么；属于可读性 advisory，不影响本 story 核心范围理解"
+        },
+        {
+          "id": "INIT-002",
+          "severity": "low",
+          "desc": "background.md \"触发事件\" 段使用 \"partial-DONE\" 术语，全文无定义；虽然上下文（多 agent 并行写 metadata 互踩）能推断其语义，仍属于行话首用未展开的 advisory 项"
+        }
+      ]
+    }
+  ],
+  "_hash": "7cb634e88fc5b9e0ba065f21466ac6fd11d031c68f388d9d153ec0e28a230c49"
+}

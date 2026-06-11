@@ -1,0 +1,18 @@
+{
+  "tests": [
+    {
+      "id": "TE-001",
+      "scenario": "skill.md 收尾流程包含自动闭环检查",
+      "command": "Read skill.md 收尾 section",
+      "output": "收尾流程包含 convergence_check + gap_analyze + story_create 自动闭环",
+      "expected": "收尾流程包含自动闭环逻辑",
+      "result": "PASS",
+      "timestamp": "2026-04-01T04:28:03.041Z"
+    }
+  ],
+  "environment": {
+    "node": "v22.13.0",
+    "os": "win32 x64",
+    "timestamp": "2026-04-01T04:28:03.041Z"
+  }
+}

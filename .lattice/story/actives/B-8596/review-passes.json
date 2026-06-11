@@ -1,0 +1,67 @@
+{
+  "passes": [
+    {
+      "id": "B-8596:RP-001",
+      "agent": "koala-review-quality",
+      "note": "Docs-only story. No source code changes. All 3 changed content files are .md documents. Reference paths in CLAUDE.md and AGENTS.md correctly point to docs/requirements/decisions/session-ownership-and-write-leases.md which is created by this diff. Section placement is logical in both files (under Worktree Lifecycle / DONE 门禁). Decision document content is internally consistent and correctly marked as implementation-pending. No dead code, type safety, or I/O isolation issues applicable.",
+      "createdAt": "2026-05-17T23:14:35.294Z",
+      "reviewRound": "2026-05-17T23:13:28.165Z",
+      "reviewRunId": "B-8596:RR-002",
+      "_hash": "511b37fa1b4f4540125849925b226781c10984a510c48fad209cab514a70ab17"
+    },
+    {
+      "id": "B-8596:RP-002",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: express-exempt channel (2 items, no riskSignals). verificationIntent intentionally skipped per flow-policy:express-verification-policy / express-exempt. verificationCoverage: total=0, required=0, missingRequired=0. docs-only story — CHK-001 (doc committed with correct Status update) and CHK-002 (cross-references added to CLAUDE.md and AGENTS.md) are both done and deliverables confirmed via git diff. No blocker found.",
+      "createdAt": "2026-05-17T23:15:06.666Z",
+      "reviewRound": "2026-05-17T23:13:28.165Z",
+      "reviewRunId": "B-8596:RR-003",
+      "_hash": "453000cef9caf0a05008a57c00e5a750552cb83dd8e0d6a14419010f5ba5a809"
+    },
+    {
+      "id": "B-8596:RP-003",
+      "agent": "koala-review-docs",
+      "note": "Step 1 抽出 0 exported symbols (docs-only diff). Step 2: grep命中 CLAUDE.md:393 和 AGENTS.md:126 共2处。Step 3比对结论：(1) Status 段措辞准确——明确写 adopted design / implementation pending，未夸大为已实现；(2) 文档其余全部内容（Problem/Goals/Terms/Command Classes/Rules/Storage/Error UX/session_brief/Idempotency/Out of Scope/Acceptance Criteria/Rollout Plan）全量新增、未被修改；(3) 两处交叉引用路径均正确指向 docs/requirements/decisions/session-ownership-and-write-leases.md，措辞明确说明运行时尚未实现；(4) CLAUDE.md 段落置于 Worktree 生命周期节末尾（与 Sub agent 工作目录约定紧邻），AGENTS.md 段落置于 Worktree 节 DONE 门禁之后，两处位置均合理；(5) 代码搜索确认 owner-lease.json/main-write.lock/takeover/forceTakeover 的运行时实现均不存在，transition-orchestrator 仅有 advisory sessionWarning，与文档 pending 状态一致。无 blocker。",
+      "createdAt": "2026-05-17T23:15:25.069Z",
+      "reviewRound": "2026-05-17T23:13:28.165Z",
+      "reviewRunId": "B-8596:RR-004",
+      "_hash": "bfc48a5580f817e6883b0d3f8bd1fd1bdfeb2675c3d19d2f8f21e8cd13d82d1a"
+    },
+    {
+      "id": "B-8596:RP-004",
+      "agent": "koala-review-quality",
+      "note": "Round 2 quality review: single change is commit a1e83609 adding 6-line Storage runtime note to session-ownership-and-write-leases.md. Note is accurate, non-contradictory, clearly scoped as advisory cross-reference, and correctly defers lock reconciliation to the implementation story. No dead code, no type safety issues, no I/O shell isolation concerns. Docs-only story — no source files changed. No findings.",
+      "createdAt": "2026-05-17T23:26:52.542Z",
+      "reviewRound": "2026-05-17T23:25:45.324Z",
+      "reviewRunId": "B-8596:RR-007",
+      "_hash": "2a1f3eaef93d1399d47500026829f63ae4ff7213ef7ffc3b689d7d54878e0309"
+    },
+    {
+      "id": "B-8596:RP-005",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed (Round 2): express-exempt policy confirmed. Channel=express, 2 items, no riskSignals. verificationIntent intentionally skipped per hardcoded express-channel flow fact policy. Round 2 delta (commit a1e83609) is pure documentation — 7-line Storage note clarifying lock path reconciliation, no runtime behavior, no testable behavior change. verificationCoverage: total=0, required=0, covered=0, missingRequired=0. No blocker.",
+      "createdAt": "2026-05-17T23:26:59.066Z",
+      "reviewRound": "2026-05-17T23:25:45.324Z",
+      "reviewRunId": "B-8596:RR-006",
+      "_hash": "cb3d9cd07c23513919ece0e54d6f7a9c8dadb14982f9d64ce36222ab8b85a671"
+    },
+    {
+      "id": "B-8596:RP-006",
+      "agent": "koala-review-concept",
+      "note": "Round 2 re-review of commit a1e83609 (F-001 fix). The Storage runtime note cleanly resolves the lock-path inconsistency: correctly identifies .koala/runtime/done-main-merge.lock as the current implementation (matching story-lifecycle.md:120 and done-effects.ts:122), designates .koala/locks/main-write.lock/ as the preferred future path, and defers reconciliation to the implementation story. No rule changed, no new concept inconsistencies introduced. No residual findings from the fix.",
+      "createdAt": "2026-05-17T23:27:12.480Z",
+      "reviewRound": "2026-05-17T23:25:45.324Z",
+      "reviewRunId": "B-8596:RR-005",
+      "_hash": "5c5d3aef9fecf6cc3b56d67b52f7aa5be62b4f23f0e3ba152708233adb53d6c0"
+    },
+    {
+      "id": "B-8596:RP-007",
+      "agent": "koala-review-docs",
+      "note": "Round 2 docs review: Step 1 extracted 0 new exported symbols (docs-only diff). Focused on commit a1e83609 runtime note in Storage section. (1) Factual accuracy confirmed: .koala/runtime/done-main-merge.lock verified as current runtime path in done-effects.ts:122 and story-lifecycle.md:120. (2) Contradiction eliminated: note explicitly cross-references story-lifecycle.md, explains .koala/locks/main-write.lock/ is preferred storage for future generalized lock, delegates reconciliation to implementation story — reader can now distinguish current vs future paths without confusion. (3) Scope contained: commit diff shows only 7-line blockquote inserted in Storage section between bullet list and lease-file sentence; no rules, other sections, or wording changed. No blockers found.",
+      "createdAt": "2026-05-17T23:27:26.708Z",
+      "reviewRound": "2026-05-17T23:25:45.324Z",
+      "reviewRunId": "B-8596:RR-008",
+      "_hash": "163c42781f41efbc0f8da6b431f043c1e20768ed3abc0c7823fbe25a5b7c5765"
+    }
+  ]
+}

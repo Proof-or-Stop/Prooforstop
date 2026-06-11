@@ -1,0 +1,30 @@
+{
+  "storyId": "B-9b8f",
+  "checkedAt": "2026-05-12T21:06:33.259Z",
+  "reviewRound": "",
+  "agentId": "product-reviewer",
+  "issues": [
+    {
+      "severity": "medium",
+      "desc": "Product observability is not explicit for CHK-001 and CHK-004: the registry and regression-test items describe engineering artifacts, but do not state what Koala users will observe in CLI/review/validate behavior when the story is done. This creates a risk that implementation can be marked complete while the user still has to ask how the original drift/warning/finding problem is visibly fixed."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-05-12T21:06:23.072Z",
+      "issues": []
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-05-12T21:06:33.259Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "Product observability is not explicit for CHK-001 and CHK-004: the registry and regression-test items describe engineering artifacts, but do not state what Koala users will observe in CLI/review/validate behavior when the story is done. This creates a risk that implementation can be marked complete while the user still has to ask how the original drift/warning/finding problem is visibly fixed."
+        }
+      ]
+    }
+  ],
+  "_hash": "a167385391977469729a59a5ad280185b6486de57553ee0e3b8210e3f54bcb38"
+}

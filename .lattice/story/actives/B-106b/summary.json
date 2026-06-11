@@ -1,0 +1,56 @@
+{
+  "storyId": "B-106b",
+  "changes": "Implemented host-neutral dispatch_run/overflow_auto surfaces: runtime probe/list, dispatch plan/prepare/run/collect/status/list/resume/cancel/review/receipt/merge_plan, fake runner, real-host scaffold, path containment, host identity receipts, docs and smoke coverage.",
+  "usage": "Use lattice host_runtime_list/probe, dispatch_plan, dispatch_prepare, dispatch_run, overflow_auto, dispatch_collect, dispatch_review, dispatch_receipt_create, and dispatch_merge_plan with --format=json for supervised host overflow.",
+  "expectedOutcome": "User can run dispatch_run or overflow_auto from Lattice CLI and see supervised cross-host overflow with visible degradation, accepted_local fake receipts, manual review/merge guidance, and productionDone=false.",
+  "actualTranscript": "Local validation passed: dispatch-run, host-overflow, lattice-handoff, command ownership, process fact, evidence freshness dry-run, delivery check, and koala validate all passed with 45/45 verification intents covered.",
+  "outcomeDiff": "No user-visible gap for the scoped story; real host execution remains scaffolded/manual-first by design and cannot claim DONE.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Real Codex/Claude/Gemini hosts are scaffolded and supervised; this story intentionally does not implement server receipt verification, automatic merge, or productionDone authority.",
+  "pitfalls": "Main pitfalls fixed during review were overflow_auto approval semantics, symlink/path escape containment, output path escape, mixed parallel outcome aggregation, stale verification evidence, and Gemini/Codex receipt host identity.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 378549
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 15158
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 263223
+    },
+    "DEV": {
+      "count": 10,
+      "durationMs": 10267232
+    },
+    "REVIEW": {
+      "count": 10,
+      "durationMs": 50042267
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 459202
+    }
+  },
+  "totalDurationMs": 61425708,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 1,
+    "fixed": 1,
+    "open": 0
+  },
+  "createdAt": "2026-06-03T16:36:46.120Z",
+  "updatedAt": "2026-06-03T16:36:46.120Z"
+}

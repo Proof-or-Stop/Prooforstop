@@ -1,0 +1,43 @@
+{
+  "storyId": "B-a370",
+  "checkedAt": "2026-05-16T22:47:32.098Z",
+  "reviewRound": "2026-05-16T22:41:50.038Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": ".koala/story/actives/B-a370/understanding.json#outcome",
+      "promise": "koala next / session_brief でMETAコンテナに対してaudit/finding flow専用建議を出し、story_advance / INIT_CHECK / worktreeヒントを出さない。session_briefのlifecycle/worktree建議ソートからMETAコンテナを除外する",
+      "verifiedBy": "diff/code inspection",
+      "evidence": "session.ts diff: isMetaContainer() helper (phase===META || storyId.startsWith(B-META-)), computeNextStep early-returns metaContainerNextStep(), session_brief activeStories excludes isMetaContainer with !isMetaContainer(id,s.phase) guard, metaContainerIds collected separately and rendered as ## META containers section, Next step else-chain adds META branch"
+    },
+    {
+      "docPath": ".koala/story/actives/B-a370/summary.json#changes",
+      "promise": "新增 meta-story-next-hint-smoke.ts smoke 脚本（4場景真子進程）+ test:meta-story-next-hint-smoke 脚本在 package.json × 2",
+      "verifiedBy": "diff",
+      "evidence": "packages/main/src/tasks/meta-story-next-hint-smoke.ts created (236 lines, 4 scenario functions: assertMetaContainerAloneGetsAuditHint / assertMetaCoexistsWithNormalStories / assertBothMetaCriteriaDetectedIndependently / assertComputeNextStepHandlesMetaOnBranch); package.json and packages/main/package.json both add test:meta-story-next-hint-smoke script pointing to dist/tasks/meta-story-next-hint-smoke.js"
+    },
+    {
+      "docPath": ".koala/story/actives/B-a370/understanding.json#constraints",
+      "promise": "改動のスコープは session.ts hint レンダリング層のみ。core/machine.ts, story-advance.ts, command-policy.ts, lifecycle-registry.ts, audit-meta-store.ts等のphase transition/gate ファイルは変更しない",
+      "verifiedBy": "diff/file list",
+      "evidence": "git diff main...HEAD --name-only shows only: .koala/story/actives/B-a370/* (story artifacts), package.json, packages/main/package.json, packages/main/src/handlers/session.ts, packages/main/src/tasks/meta-story-next-hint-smoke.ts — none of the constrained files appear"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "4-scenario smoke (meta-story-next-hint-smoke.ts) run via subprocess spawning the compiled CLI: S1=META-alone gives audit hint, no story_advance/INIT_CHECK, ## META containers section rendered; S2=META coexists with 2 normal INIT stories, normal stories in Active stories(2), META excluded from lifecycle ordering, normal story lifecycle hint not regressed; S3=both detection criteria independently verified (B-META- prefix alone, phase=META alone); S4=computeNextStep branch verified via real git checkout on story/B-META-framework-audit branch and forged phase=META non-prefix story. Additionally transcript-diff.md documents manual verification: session_brief with META-only repo shows ## META containers section and META-specific next step, no story_advance --storyId=B-META-framework-audit --phase=INIT_CHECK. Smoke exit 0 confirmed by npm run test:meta-story-next-hint-smoke."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Same 4-scenario smoke covers all CHK-002 verificationIntent: CHK-002:happy:0/1/2 (smoke exit 0, audit/finding keyword present, normal story INIT_CHECK hint not regressed in S2); CHK-002:edge:0/1 (S3a B-META- prefix with phase=INIT, S3b phase=META with non-prefix id); CHK-002:edge:2 (S1 no Active stories section at all, S2 count=2 only normal stories); CHK-002:adversarial:0 (S1 META-alone session_brief gives audit guidance not story_advance). CHK-002:adversarial:1 (META with worktree) is a should-priority item noted as untested in summary.limitations but not required. Smoke passes: ✓ meta-story next-hint smoke passed"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 3 docsPromises verified in code/diff. Smoke test covers 4 scenarios (happy path, coexistence, both detection criteria independently, computeNextStep branch with git checkout) and passes. 3 should-priority intents left uncovered (CHK-001:edge:3, CHK-001:adversarial:0, CHK-002:adversarial:1) are noted in summary.limitations and accepted by test-coverage reviewer as advisory. No TODOs in changed files. Scope constraint honored — only session.ts and new smoke file changed."
+  },
+  "_hash": "92dab33fa49cd477b2cb605b8faf09f41fa3ced1586d6746297ce769d0a63e40"
+}

@@ -1,0 +1,31 @@
+{
+  "storyId": "B-2157",
+  "checkedAt": "2026-05-20T22:03:58.374Z",
+  "reviewRound": "",
+  "agentId": "koala-review-story-init",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-05-20T22:01:03.268Z",
+      "issues": [
+        {
+          "id": "P-1",
+          "severity": "medium",
+          "desc": "Checklist 仍有若干项以内部实现或测试名词表达，尤其 CHK-001/CHK-004，没有直接写出用户可观察结果。建议补清楚 operator/reviewer 能看到什么：CLI 可生成/扩展 context pack、evidence envelope 绑定 digest/required refs、smoke/ownership 输出能证明 verifier 不再自由读仓库或依赖自然语言结论。"
+        },
+        {
+          "id": "P-2",
+          "severity": "low",
+          "desc": "四个 checklist item 都引用 docs/requirements/decisions/verification-context-pack.md，但该真相源文件当前不存在；若它是 CHK-003 的产出，建议在相关项上下文中说明先建立协议真相源，再让核心实现、命令入口和 smoke 对齐，避免 reviewer 早期缺少产品验收基准。"
+        }
+      ]
+    },
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-05-20T22:03:58.374Z",
+      "issues": []
+    }
+  ],
+  "_hash": "894b214c325140027c4a74d0120fe33e11b03b85f2125c0ccf52d21022f13a17"
+}

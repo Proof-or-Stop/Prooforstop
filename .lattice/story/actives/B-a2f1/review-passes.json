@@ -1,0 +1,58 @@
+{
+  "passes": [
+    {
+      "id": "B-a2f1:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: 已检查全部 21 条 verificationIntent 与 verificationEvidence 覆盖关系。4 个 checklist item（CHK-001/002/003/004）均为正常通道，三栏（happy/edge/adversarial）全部填写。所有 must intent 均有对应 integration_test 或 logic_test evidence，result=pass，指向同一具体 smoke 文件 packages/main/src/tasks/verification-freshness-smoke.ts。smoke 文件经代码审查确认：断言具体（assert.ok(output.includes(EVIDENCE_STALE_MARKER)) 等），非宽泛描述；CHK-001/002 跨三面（session_brief/story_advance/validate）字节一致性、CHK-003 allowlist 不变量+拒绝路径+storyId 守卫、CHK-004 端到端 main-merge 回归均有专项测试块。koala validate 输出确认 21/21 covered，0 required missing，全绿。无 blocker。",
+      "createdAt": "2026-05-15T16:52:21.532Z",
+      "reviewRound": "2026-05-15T16:51:22.286Z",
+      "reviewRunId": "B-a2f1:RR-003",
+      "_hash": "3d55b84dd784c9c2facda1dfafd81938c367fdfd6589500aaf9ecf016ddaa583"
+    },
+    {
+      "id": "B-a2f1:RP-002",
+      "agent": "koala-review-quality",
+      "note": "Reviewed 5 changed source files (evidence-stale-hint.ts, recover-evidence.ts, hints.ts, session.ts, story-advance.ts) + cli-engine.ts/registry.ts/command-policy.ts/config.ts/smoke-test. No dead imports. No empty catch blocks that swallow real errors (all are probe-style with documented intent). No I/O shell isolation violations. Type safety is generally good; one medium finding filed for the validateOk=true default when validateOutput is not a string. The shared EVIDENCE_STALE_MARKER constant and renderEvidenceStaleHint renderer design is clean. The allowlist pattern in RECOVER_EVIDENCE_ALLOWED_CATEGORIES is correctly implemented.",
+      "createdAt": "2026-05-15T16:53:31.071Z",
+      "reviewRound": "2026-05-15T16:51:22.286Z",
+      "reviewRunId": "B-a2f1:RR-002",
+      "_hash": "9ac39c3549d3edcbce7523dd7e97847de18810117fba3b2aa33037ddc19ff501"
+    },
+    {
+      "id": "B-a2f1:RP-003",
+      "agent": "koala-review-concept",
+      "note": "本次改动将旧 hints.ts 内联 stale 提示逻辑替换为共享模块 evidence-stale-hint.ts（EVIDENCE_STALE_MARKER 常量 + renderEvidenceStaleHint + findStaleEvidence）。三个 surface（session.ts / story-advance.ts / hints.ts）均通过 import 调用共享函数，无独立重写 marker 字符串。recover_evidence 新命令在 registry.ts / cli-engine.ts / command-policy.ts / config.ts 均已注册，RECOVER_EVIDENCE_ALLOWED_CATEGORIES 单一定义于 recover-evidence.ts 并由 smoke test import 校验。全仓 grep 确认：无旧内联 stale hint 文本残留，无独立重建 EVIDENCE_STALE_MARKER 字符串，无孤儿引用。无 blocker。",
+      "createdAt": "2026-05-15T16:53:51.398Z",
+      "reviewRound": "2026-05-15T16:51:22.286Z",
+      "reviewRunId": "B-a2f1:RR-001",
+      "_hash": "4209b5c61b547bfd59535387ff3d812b04efcd1475deeaa0e4e348e610201217"
+    },
+    {
+      "id": "B-a2f1:RP-004",
+      "agent": "koala-review-test-coverage",
+      "note": "test coverage review passed: 已检查全部 21 条 verificationIntent 与 verificationEvidence 覆盖关系，无 blocker。所有 21 条 must intent 均有对应 evidence（result=pass），种类和描述均具体对应意图。validate 报告的 stale 状态源于 F-001 修复（packages/main/src/handlers/recover-evidence.ts）在证据记录后更改了 materialHash；smoke test 在修复后仍通过（npm --prefix packages/main run test:verification-freshness-smoke 输出 verification freshness smoke passed）。这是 materialHash 漂移场景，不是 test coverage 缺口；应通过 verification_evidence_refresh_stale 刷新，而非补充证据。",
+      "createdAt": "2026-05-15T16:57:38.882Z",
+      "reviewRound": "2026-05-15T16:56:00.526Z",
+      "reviewRunId": "B-a2f1:RR-006",
+      "_hash": "3db88caec3828cb93498ba54c74663a0bdfa2197a69d3922a81dbea887a41075"
+    },
+    {
+      "id": "B-a2f1:RP-005",
+      "agent": "koala-review-concept",
+      "note": "Round 2 concept review of F-001 fix (recover-evidence.ts:185-189 else branch). F-001 adds 3 lines only — no concepts deleted or replaced. Verified: verification_evidence_refresh_stale still live in checklist.ts:579 and referenced across 30+ files; checkEvidenceFreshnessForGit still exported from evidence-freshness.ts and imported in 8 files; isMaterialExcludedPath still exported and used. Deleted import lines in hints.ts and story-advance.ts are import reorganizations, not concept removals — both functions remain alive in evidence-freshness.ts. No residual stale references found. Zero concept blockers.",
+      "createdAt": "2026-05-15T16:57:45.177Z",
+      "reviewRound": "2026-05-15T16:56:00.526Z",
+      "reviewRunId": "B-a2f1:RR-004",
+      "_hash": "62bdabbdc4537d67ff93296e77ec7c4b63e07949d4e0cf078b3a73ca37d428db"
+    },
+    {
+      "id": "B-a2f1:RP-006",
+      "agent": "koala-review-quality",
+      "note": "Round 2 quality review — no new findings. Round 1 F-001 fix confirmed correct: recover-evidence.ts:186-188 else branch sets validateOk=false and overwrites validateTranscript when validate returns non-string, preventing false pass. All changed files clean: no unused imports, no unsafe any in production code, no shell importing fn.ts, all empty catches are probe-style with comments.",
+      "createdAt": "2026-05-15T16:57:47.166Z",
+      "reviewRound": "2026-05-15T16:56:00.526Z",
+      "reviewRunId": "B-a2f1:RR-005",
+      "_hash": "6ef1dbb991ab187a8338174a136007fac2f1f4b17263ae2a11507f59c2f99f95"
+    }
+  ]
+}

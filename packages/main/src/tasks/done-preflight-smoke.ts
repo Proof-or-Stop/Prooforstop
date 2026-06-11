@@ -49,7 +49,7 @@ function write(root: string, path: string, content: string): void {
 
 function runKoalaFromCwd(cwd: string, command: string, args: Record<string, unknown>): string {
   const env = { ...process.env };
-  delete env.KOALA_PROJECT_ROOT;
+  delete env.LATTICE_PROJECT_ROOT;
   return execFileSync(process.execPath, [cliPath, command, JSON.stringify(args)], {
     cwd,
     env,
@@ -124,13 +124,13 @@ function buildDoneReadyStoryWithLinkedWorktree(
   write(root, 'koala.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.koala/story/actives',
+    storyDir: '.lattice/story/actives',
     requirementsDir: 'docs/requirements',
     worktreeDir: '.worktrees',
     workflow: { profile: 'light' },
   }, null, 2));
   write(root, 'README.md', `done-preflight-smoke ${storyId}\n`);
-  write(root, '.gitignore', '.worktrees/\n.linked-worktrees/\n.koala/activity.jsonl\n');
+  write(root, '.gitignore', '.worktrees/\n.linked-worktrees/\n.lattice/activity.jsonl\n');
 
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);
@@ -338,7 +338,7 @@ function assertDoneRejectsWhenMainIsDirty(): void {
     // Dirty the main checkout with a staged tracked modification AFTER worktree
     // creation. Must be a tracked-file change (not untracked) — untracked files
     // in the main repo are skipped by the preflight (runtime artifacts like
-    // .koala/locks/ would otherwise trigger a false positive).
+    // .lattice/locks/ would otherwise trigger a false positive).
     writeFileSync(join(root, 'README.md'), 'dirty main content that must block DONE\n');
     git(root, ['add', 'README.md']);
     // Verify main is actually dirty (tracked changes).

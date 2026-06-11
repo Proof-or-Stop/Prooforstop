@@ -1,0 +1,78 @@
+{
+  "principles": [
+    "Prefer append-only/auditable projections over competing truth sources.",
+    "Fail closed only where the story explicitly opted into scope protection; keep legacy stories compatible.",
+    "Bind reviewer conclusions to mechanical hashes, not natural-language claims.",
+    "Expose user-visible pass/warn/fail status at lifecycle boundaries."
+  ],
+  "drivers": [
+    "Must reduce same-file semantic scope drift that B-be27 path gate cannot detect.",
+    "Must not break existing active stories or old v1 scope contracts.",
+    "Must be testable by CLI/logic smoke tests without external services."
+  ],
+  "options": [
+    {
+      "name": "semantic-gate-with-diff-pack",
+      "pros": [
+        "Builds directly on B-be27 scope contract and lifecycle gate.",
+        "Allows v1 backward compatibility and v2 opt-in enforcement.",
+        "Gives reviewers a small mechanical context pack instead of full-repo browsing."
+      ],
+      "cons": [
+        "TS/JS anchor extraction is heuristic at first.",
+        "Requires several command/policy/session surfaces to stay in sync."
+      ]
+    },
+    {
+      "name": "pre-tool-only-blocking",
+      "pros": [
+        "Could stop some writes before they happen for supported providers.",
+        "Simple user story when provider hooks exist."
+      ],
+      "cons": [
+        "Does not cover providers without hooks or manual edits.",
+        "Still does not prove reviewers checked the right hunks."
+      ]
+    },
+    {
+      "name": "reviewer-policy-only",
+      "pros": [
+        "Smallest implementation footprint.",
+        "No new diff parsing."
+      ],
+      "cons": [
+        "Still relies on natural-language review quality.",
+        "Does not mechanically detect semantic drift inside allowed files."
+      ]
+    }
+  ],
+  "chosen": "semantic-gate-with-diff-pack",
+  "rationale": "This option directly closes the path-gate gap while preserving backward compatibility and giving review/test gates mechanical evidence to verify.",
+  "preMortem": [
+    {
+      "scenario": "False positives block legitimate allowed-file changes.",
+      "trigger": "Anchor extraction cannot recognize a changed hunk or maps it to the wrong symbol.",
+      "consequence": "Stories get stuck in REVIEW/TEST despite valid changes.",
+      "mitigation": "Use local/shadow/enforce semantics, parseFallback output, explicit hunk acknowledgements, and v1 compatibility."
+    },
+    {
+      "scenario": "Guard session duplicates owner lease truth.",
+      "trigger": "guard_session_start writes independent ownership state instead of a projection.",
+      "consequence": "session_brief gives conflicting instructions about who may write.",
+      "mitigation": "Store guard status separately as scope protection projection and keep owner lease as write authority."
+    },
+    {
+      "scenario": "Reviewer hash binding breaks old stories.",
+      "trigger": "REVIEW→TEST requires diffPackHash for stories with no scope contract.",
+      "consequence": "Existing work cannot progress.",
+      "mitigation": "Require hash binding only when scope protection exists or story opts into v2 enforcement."
+    },
+    {
+      "scenario": "Natural-language pass still bypasses semantic violations.",
+      "trigger": "review_pass_set does not carry or validate diff pack/scope hash metadata.",
+      "consequence": "Reviewer can claim pass without checking the actual hunks.",
+      "mitigation": "Extend review evidence schema and preflight to require current scopeContractHash/diffPackHash/hunk digests for scope-protected stories."
+    }
+  ],
+  "timestamp": "2026-05-23T21:17:23.728Z"
+}

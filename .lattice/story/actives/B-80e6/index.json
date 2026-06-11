@@ -1,0 +1,150 @@
+{
+  "storyId": "B-80e6",
+  "name": "auto-diagnose",
+  "title": "V8 profiler trace + 自动故障诊断",
+  "description": "## 背景\n黑盒测试 fail 时，需要人工排查代码找原因。通过 V8 profiler 采集运行时调用链 + git diff 对比，可以自动定位故障根因。\n\n## 核心机制\n\n### 1. trace 采集\ntest_auto 执行每条 case 时，用 V8 inspector Profiler API 采集完整调用树。\n- CLI 端：node:inspector Session\n- Browser 端：CDP Profiler.start/stop\n- 每个 profiler node 包含：functionName, scriptId(文件路径), lineNumber, hitCount, children\n\n### 2. trace 快照存储\n每条 case 最后一次 pass 时，保存 trace 快照 + git commit id：\n```json\n{\"case\":\"发消息到bot\",\"lastPass\":{\"commit\":\"a38fdef\",\"timestamp\":\"...\",\"trace\":[{\"fn\":\"sendMessage\",\"file\":\"client.ts\",\"line\":234,\"children\":[...]}]}}\n```\n存在 fixture 同级目录，如 fixtures/cli-test.trace.json\n\n### 3. diagnose 命令\n`koala diagnose {\"case\":\"case名\"}` 自动排查：\n1. 找到该 case 的 lastPass trace + commit\n2. 跑当前代码，采集新 trace\n3. git diff lastPass.commit..HEAD 拿代码变更\n4. trace diff 找调用链分叉点\n5. 交叉定位：代码变更 ∩ trace 分叉 = 根因\n6. 输出：断点位置、代码变更、根因分析、修复建议\n\n### 4. trace diff 算法\n两棵调用树逐层对比：\n- 节点匹配：fn+file 相同\n- 新增节点：旧 trace 没有、新 trace 有\n- 消失节点：旧 trace 有、新 trace 没有\n- 分叉点：同一父节点下 children 不同\n\n### 5. 架构提取（附加能力）\n基于 trace 数据，可以生成：\n- 业务逻辑线：从入口函数到末端的完整调用链\n- 函数影响图：改了某函数会影响哪些业务链\n- 覆盖盲区：从没被任何 case trace 到的函数\n- 实现细节提取：trace 节点关联到源码，自动识别用了什么算法/库\n\n### 6. 持续监控\n每次 test_auto 跑完：\n- pass 的 case：更新 trace 快照\n- fail 的 case：自动跑 diagnose，输出根因分析\n- trace 变化的 case（pass 但调用链变了）：输出 warning，可能是行为变更\n\n## 范围\n- V8 profiler 集成到 test_auto（CLI 端）\n- CDP profiler 集成到 browser_test（浏览器端）\n- trace 快照存储格式和存储位置\n- diagnose CLI 命令\n- trace diff 算法\n- arch_trace CLI 命令（架构提取）\n- test_auto 持续监控（pass 更新快照、fail 自动诊断）",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "high",
+  "createdAt": "2026-04-04T16:48:07.691Z",
+  "startedAt": "2026-04-04T16:48:07.691Z",
+  "endedAt": "2026-04-05T02:22:58.520Z",
+  "events": [
+    {
+      "phase": "PLAN",
+      "action": "create",
+      "timestamp": "2026-04-04T16:48:07.691Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-04T17:16:10.412Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-04T23:36:23.325Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-04T23:40:43.103Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-05T00:03:37.965Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-05T00:05:12.707Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-05T00:10:59.816Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-05T01:08:27.011Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-05T01:14:23.830Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-05T01:16:17.598Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-05T01:25:24.376Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-05T01:26:21.594Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-05T02:00:10.739Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-05T02:13:41.387Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-05T02:13:49.712Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-05T02:20:35.080Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "gate-auto"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-05T02:22:58.521Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    }
+  ]
+}

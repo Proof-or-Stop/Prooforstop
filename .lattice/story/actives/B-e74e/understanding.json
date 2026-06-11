@@ -1,0 +1,31 @@
+{
+  "task": "Prevent story_advance DONE from writing terminal DONE metadata before the main merge target is known to be safe and usable.",
+  "outcome": "User transcript after the fix: running lattice story_advance --storyId=B-xxxx --phase=DONE from a story worktree either succeeds with the normal DONE checklist plus merge/cleanup lines, or fails before the phase changes with text like Cannot enter DONE: main worktree is unavailable or not on main; phase remains TEST; cd \"<actual-main-worktree>\" and retry/recover. The user can immediately see which checkout owns main and no longer has to repair a partial-DONE story created by the command itself.",
+  "facts": [
+    "transition-orchestrator currently runs runDonePreMergeGate before actor.send/writeStory, but applyDoneMergeEffects still performs the real merge after phase=DONE is persisted.",
+    "applyDoneMergeEffects resolves mainRepoRoot from the story worktree and then runs git merge on that checkout; if that checkout is not available or not a usable main checkout, the story can already be terminal.",
+    "done_recover currently resolves mainRepoRoot but its refusal/hint text does not reliably point to the actual registered main worktree path in multi-worktree situations.",
+    "INIT reviewers flagged the need to separate production behavior (preflight fail-before-write) from regression proof and to cover the normal no-extra-hint path."
+  ],
+  "constraints": [
+    "Do not remove existing normal DONE auto-merge behavior when main is available and clean.",
+    "Any preflight failure must happen before actor.send and before store.writeStory persists phase=DONE.",
+    "Do not tell users to merge into a checkout whose current branch is not main.",
+    "Keep the change local to DONE merge/recovery surfaces and focused regression coverage.",
+    "Use Lattice CLI commands for story/checklist/evidence metadata; do not edit story JSON directly."
+  ],
+  "unknowns": [
+    "Whether existing helper coverage can simulate a main checkout held/unavailable without destructive merges into the developer main.",
+    "Whether the final code needs a new shared main-worktree resolver in partial-done-recovery or can reuse existing listRegisteredWorktrees plus resolveMainRepoRoot.",
+    "Whether process-fact registry needs a new entry or existing story_advance L4 preflight coverage is sufficient; verify with process contract."
+  ],
+  "touchpoints": [
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/handlers/done-effects.ts",
+    "packages/main/src/core/partial-done-recovery.ts",
+    "packages/main/src/handlers/done-recover.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts or a focused DONE/recovery smoke task",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "timestamp": "2026-06-04T02:31:38.894Z"
+}

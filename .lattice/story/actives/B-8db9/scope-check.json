@@ -1,0 +1,143 @@
+{
+  "storyId": "B-8db9",
+  "checkedAt": "2026-05-15T21:07:48.301Z",
+  "features": [
+    {
+      "feature": "Classifier reorder: declared artifact check runs AFTER material/fixture so declared paths only rescue unexpected_dirty_files",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Dirty source file declared as artifact still classifies as material_source_changes (blocking)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Dirty fixture file declared as artifact still classifies as fixture_changes (blocking)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Hand-injected declared-artifacts.json with a source path does not bypass the material_source_changes classification",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "artifact_declare entry rejects material_source / fixture / config / koala-metadata paths with classification-named error",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "artifact_declare entry rejection uses same classifier vocabulary as dirty-worktree.ts (two layers agree)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "artifact_declare with a generated output path (e.g. tests/output/) succeeds",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "DONE gate committed-check row blocks when a declared artifact path is dirty or untracked",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "DONE gate committed-check row passes when declared artifact paths are committed-and-clean",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Absent declared artifact path is not blocking at DONE gate",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Git-ignored declared artifact path blocks DONE with explicit message",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "REVIEW/TEST keep declared_artifact_changes as non-blocking (dirty-gate-policy table NOT changed)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Regression smoke coverage for the full declared-artifact gate-bypass attack chain",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "MEDIUM evidence-sufficiency gap (declared-artifact-gate.ts reference semantics) is out of scope",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly stated out of scope in description: The MEDIUM evidence-sufficiency gap is intentionally out of scope",
+      "source": "description"
+    },
+    {
+      "feature": "DONE gate must have gate oracle / row contract separate from renderer (story-lifecycle.md design decision)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-lifecycle.md"
+    },
+    {
+      "feature": "Handler runtime check at entry for any Zod constraint (story-lifecycle.md Handler 编码约定)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-lifecycle.md"
+    },
+    {
+      "feature": "Smoke tests covering DONE gate outcome semantics and wording (testing-infra.md: outcome-semantics-smoke)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:testing-infra.md"
+    },
+    {
+      "feature": "process-fact-registry: new gate row or artifact must be registered (story-lifecycle.md typed registry requirement)",
+      "covered_by": null,
+      "status": "orphan-suspect",
+      "excluded_by": null,
+      "source": "decisions:story-lifecycle.md"
+    }
+  ],
+  "summary": {
+    "total": 18,
+    "covered": 16,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 1,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "c5f5e8bccf30c8dcb01a1af6e094bf0bb2d4d714c9cda911689b624cd1271fe4",
+  "openQuestions": []
+}

@@ -1,0 +1,67 @@
+{
+  "passes": [
+    {
+      "id": "B-d8aa:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Concept PASS: parked INIT without recorded or linked worktree is advisory via Parked backlog; active linked worktree and non-INIT nonterminal stories remain hard blockers in 所有 Story 完成. Verified convergence_check currently blocks only B-6974 and B-d8aa while B-4622/B-d7af/B-da5b are advisory. Diff check found no B-6974 changes.",
+      "createdAt": "2026-05-17T13:09:24.567Z",
+      "reviewRound": "2026-05-17T13:08:08.088Z",
+      "reviewRunId": "B-d8aa:RR-001",
+      "_hash": "e777a6775ec048179f832007f86418a5fe243f87b20684b702e94b54aad35fdd"
+    },
+    {
+      "id": "B-d8aa:RP-002",
+      "agent": "koala-review-quality",
+      "note": "Quality review pass: gap-analyze cleanly separates parked INIT/no-worktree backlog from active non-terminal stories, keeps META/DONE/DISCARDED out of hard completion, preserves active worktree blocking via recorded worktree metadata and git worktree branch detection, and adds Parked backlog as an always-passing advisory. Smoke covers parked-only convergence, active PLAN/INIT worktree blockers, runtime linked worktree detection, META/terminal exclusions, and audit backlog severity/evidenceState blocking. Verified with build, convergence smoke, convergence_check, and git diff --check.",
+      "createdAt": "2026-05-17T13:09:45.897Z",
+      "reviewRound": "2026-05-17T13:08:08.088Z",
+      "reviewRunId": "B-d8aa:RR-002",
+      "_hash": "620ad376f4afceaa55436df14447eca05c26d097b1de6f19ef97d210e2d435e3"
+    },
+    {
+      "id": "B-d8aa:RP-003",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS: all 9 verificationIntent entries have concrete verificationEvidence and verification_evidence_refresh_stale reports no stale evidence. Smoke coverage in packages/main/src/tasks/convergence-discarded-smoke.ts covers parked INIT advisory behavior, active story.worktree metadata, active git worktree detection via git worktree list, DONE/DISCARDED/META exclusion, Parked backlog advisory, and Audit backlog blocking/advisory behavior. Re-ran npm --prefix packages/main run test:convergence-false-blockers and node packages/main/dist/cli.js convergence_check successfully.",
+      "createdAt": "2026-05-17T13:09:53.308Z",
+      "reviewRound": "2026-05-17T13:08:08.088Z",
+      "reviewRunId": "B-d8aa:RR-004",
+      "_hash": "14ffc22664c1de4753158e3c71dafc4392e5edaf12a129f32262a31bbbef94a4"
+    },
+    {
+      "id": "B-d8aa:RP-004",
+      "agent": "koala-review-concept",
+      "note": "PASS after docs fix. Concept semantics are aligned: parked backlog requires phase=INIT, no recorded worktree.path, and no linked git worktree branch; active worktree stories such as B-6974 remain hard blockers; B-4622/B-d7af/B-da5b appear only in Parked backlog advisory. Verified with smoke and convergence_check output.",
+      "createdAt": "2026-05-17T13:15:51.887Z",
+      "reviewRound": "2026-05-17T13:12:31.799Z",
+      "reviewRunId": "B-d8aa:RR-006",
+      "_hash": "f955b5279a3753b6de96024a62761e50c400b1d8212b26bbf55a3c58a7ebbecb"
+    },
+    {
+      "id": "B-d8aa:RP-005",
+      "agent": "koala-review-quality",
+      "note": "PASS: implementation quality holds after docs fix. Reviewed gap-analyze parked backlog classifier, git worktree list fallback for metadata-missing linked worktrees, advisory Parked backlog output, Audit backlog interaction, and convergence-discarded smoke. Build, smoke, convergence_check, stale evidence dry-run, diff check, and B-6974 untouched check all passed; no blocking findings.",
+      "createdAt": "2026-05-17T13:17:08.158Z",
+      "reviewRound": "2026-05-17T13:12:31.799Z",
+      "reviewRunId": "B-d8aa:RR-005",
+      "_hash": "d6e152210d29e4412dea3dd5d7287809f468ce586b2af4bd20b5607c47a5c668"
+    },
+    {
+      "id": "B-d8aa:RP-006",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS: all 9 verificationIntent entries have fresh verificationEvidence after the docs fix; smoke covers parked INIT advisory behavior, recorded active worktree blocking, linked git worktree blocking, DONE/DISCARDED terminal exclusion, META audit container exclusion, Parked backlog advisory, and Audit backlog blocking/advisory severity/evidenceState behavior. Verified with koala verification_evidence_refresh_stale dryRun, npm --prefix packages/main run test:convergence-false-blockers, node packages/main/dist/cli.js convergence_check, and git diff --check.",
+      "createdAt": "2026-05-17T13:19:44.847Z",
+      "reviewRound": "2026-05-17T13:12:31.799Z",
+      "reviewRunId": "B-d8aa:RR-007",
+      "_hash": "9750e2238e093c8836f48000f9825d0280da231827e7deaed5beac10f71dc511"
+    },
+    {
+      "id": "B-d8aa:RP-007",
+      "agent": "koala-review-docs",
+      "note": "PASS: B-d8aa:F-001 is fixed. docs/requirements/decisions/story-lifecycle.md now defines parked backlog as phase=INIT plus no recorded worktree.path plus no linked git worktree branch, matching gap-analyze.ts active blocker logic and convergence-discarded-smoke.ts coverage for recorded worktree, linked git worktree, parked INIT, META, DONE/DISCARDED, and audit backlog behavior. Targeted smoke passed and convergence_check shows B-4622/B-d7af/B-da5b only under Parked backlog advisory while B-6974 remains a hard active blocker.",
+      "createdAt": "2026-05-17T13:19:48.389Z",
+      "reviewRound": "2026-05-17T13:12:31.799Z",
+      "reviewRunId": "B-d8aa:RR-008",
+      "_hash": "ad8ac3f49ec32a7b86b93e41ab9755fa7c09e46ae3e6fa756b877ad33c27710f"
+    }
+  ]
+}

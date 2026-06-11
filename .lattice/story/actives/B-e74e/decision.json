@@ -1,0 +1,78 @@
+{
+  "principles": [
+    "Fail before terminal metadata is persisted whenever DONE side effects cannot be safely attempted.",
+    "Error and recovery hints must name the actual registered main worktree path and branch state.",
+    "Normal DONE success output and cleanup semantics should remain stable for clean main checkouts.",
+    "Regression coverage must prove phase remains TEST on preflight failure and must avoid destructive real main merges."
+  ],
+  "drivers": [
+    "DONE is a lifecycle terminal write plus git side-effect, so order-of-operations is user-visible and high risk.",
+    "Multi-worktree git can have main checked out somewhere other than the invoking story worktree/root guess.",
+    "Existing partial-DONE recovery should remain a maintenance escape hatch, but the primary command should not create new partial-DONE states for foreseeable preflight failures."
+  ],
+  "options": [
+    {
+      "name": "preflight-then-write",
+      "pros": [
+        "Keeps failures before phase=DONE and preserves story branch/worktree for retry.",
+        "Matches existing runDonePreMergeGate timing and extends the current architecture instead of adding rollback.",
+        "Makes CLI transcript clear: user sees exact main worktree path before terminal state changes."
+      ],
+      "cons": [
+        "Requires careful main worktree resolution and tests for multi-worktree git behavior.",
+        "Cannot prevent failures that happen after preflight due to true TOCTOU, so recovery remains needed."
+      ]
+    },
+    {
+      "name": "write-then-rollback",
+      "pros": [
+        "Could keep the real merge code mostly where it is.",
+        "Might repair some existing post-write failures automatically."
+      ],
+      "cons": [
+        "Rollback of terminal metadata and commits is complex and risks losing signed evidence or creating worse recovery states.",
+        "Users would still briefly observe DONE before the side effect succeeds, which is the core bug."
+      ]
+    },
+    {
+      "name": "recover-only",
+      "pros": [
+        "Smallest implementation surface.",
+        "Improves guidance for existing partial-DONE stories."
+      ],
+      "cons": [
+        "Does not prevent story_advance DONE from creating new partial-DONE states.",
+        "Leaves the user-facing command behavior unreliable under the known multi-worktree failure mode."
+      ]
+    }
+  ],
+  "chosen": "preflight-then-write",
+  "rationale": "Choose preflight-then-write because the bug is an ordering problem: the command must prove the actual main merge target is usable before it sends the DONE transition and persists terminal metadata. Recovery hints still improve, but recovery is not the primary safety mechanism.",
+  "preMortem": [
+    {
+      "scenario": "Preflight resolves the wrong checkout as main",
+      "trigger": "resolveMainRepoRoot returns the common-dir parent but main is actually registered in another worktree or the path is on a story branch",
+      "consequence": "The CLI tells the user to merge in the wrong place or still writes DONE before a failing merge",
+      "mitigation": "Add a shared resolver that inspects git worktree list --porcelain for branch main and verifies branch=main, path exists, and status is clean before write."
+    },
+    {
+      "scenario": "Regression test creates destructive main changes",
+      "trigger": "Smoke test performs a real merge into the developer main checkout instead of an isolated temp repository",
+      "consequence": "Developer workspace becomes dirty or story branches are deleted unexpectedly",
+      "mitigation": "Run the regression in a synthetic temp git repo and assert only temp paths are mutated."
+    },
+    {
+      "scenario": "Preflight becomes too strict and breaks normal DONE",
+      "trigger": "The new check requires a registered main worktree shape that normal single-worktree repositories do not expose",
+      "consequence": "Clean single-worktree DONE stories fail despite being safe",
+      "mitigation": "Cover both normal main-current and story-worktree invocation paths, and accept the current repo root when it is on main and clean."
+    },
+    {
+      "scenario": "Post-preflight TOCTOU still causes a merge failure",
+      "trigger": "Another process mutates main after preflight but before real merge",
+      "consequence": "A partial-DONE state remains possible in a narrow race",
+      "mitigation": "Keep the DONE main write lock spanning preflight through merge and keep done_recover guidance precise for true post-write failures."
+    }
+  ],
+  "timestamp": "2026-06-04T02:32:05.188Z"
+}

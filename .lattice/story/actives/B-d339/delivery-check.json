@@ -1,0 +1,61 @@
+{
+  "storyId": "B-d339",
+  "checkedAt": "2026-05-15T02:22:25.891Z",
+  "reviewRound": "2026-05-15T02:08:34.847Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "README.md",
+      "promise": "Lifecycle facts are registry-backed and flow-stability-smoke catches inconsistent phase/event/policy edits.",
+      "status": "verified",
+      "verifiedBy": "grep + npm --prefix packages/main run test:flow-stability-smoke",
+      "evidence": "README documents lifecycle-registry.ts and smoke passed with assertLifecycleRegistryConsistency."
+    },
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md",
+      "promise": "lifecycle-registry.ts records phase/order, legacy alias, transition event, rollback edge, gate/effect/oracle row ids.",
+      "status": "verified",
+      "verifiedBy": "source inspection + build",
+      "evidence": "packages/main/src/core/lifecycle-registry.ts compiles and exposes those typed registry fields."
+    },
+    {
+      "docPath": "docs/requirements/decisions/testing-infra.md",
+      "promise": "REVIEW->TEST preflight/runtime and validate execution failures are fail-closed Cannot enter TEST errors.",
+      "status": "verified",
+      "verifiedBy": "flow stability smoke + source inspection",
+      "evidence": "assertStoryAdvanceTestGateFailClosedContracts verifies the fail-closed messages and absence of old non-blocking strings."
+    },
+    {
+      "docPath": "KOALA.md",
+      "promise": "The repository Koala overview remains a managed asset with exact KOALA.md casing.",
+      "status": "verified",
+      "verifiedBy": "node packages/main/dist/cli.js check",
+      "evidence": "Managed asset check reports OK with zero CASE_MISMATCH, STALE_LOCAL_EDIT, or INCOMPATIBLE items."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node packages/main/dist/cli.js check -> Koala managed asset check: OK (profile=all), Summary OK=45 MISSING=0 CASE_MISMATCH=0 STALE_SAFE=0 STALE_LOCAL_EDIT=0 INCOMPATIBLE=0."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "koala story_advance --phase=TEST -> REVIEW preflight all pass, validate PASS, story advanced to TEST; source contract test confirms infrastructure exceptions now throw Cannot enter TEST."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "npm --prefix packages/main run build -> tsc passed with lifecycle-registry.ts imported by phase-flow and handlers/context."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "npm --prefix packages/main run test:flow-stability-smoke -> flow stability smoke passed; node scripts/verify-process-fact-contract.mjs -> Process fact contract verified."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "CLI transcripts cover managed asset health, TEST gate behavior, lifecycle registry build, smoke contract drift checks, and process fact contract verification. No unresolved TODO remains in the implemented scope."
+  },
+  "_hash": "e7d887af158324b34e0b55628a7c2753dce95cecea3e503cc4c350d8fe02a816"
+}

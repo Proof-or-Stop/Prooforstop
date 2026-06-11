@@ -1,0 +1,47 @@
+{
+  "storyId": "B-4622",
+  "checkedAt": "2026-05-25T15:12:19.120Z",
+  "reviewRound": "",
+  "agentId": "koala-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "low",
+      "desc": "checklist.json CHK-001 context cites command-policy.ts:111 for scope_check_save entry, but actual line is ~199 (verified via grep). Stale line reference — substantive claim (PLAN-only constraint) is correct, but pointer will mislead implementers."
+    },
+    {
+      "id": "INIT-002",
+      "severity": "low",
+      "desc": "background.md 触发事件 first introduces B-c9f5 dirty-gate 系列 story without a one-sentence explanation of what dirty-gate means to a fresh reader. Cross-story reference missing context per CLAUDE.md Dimension 2 rule. Content is still understandable; purely contextual gap."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-05-25T15:11:28.869Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "CHK-001 asks to Analyze and Decide but specifies no userSees or concrete deliverable artifact. Without a defined output (e.g., ADR update, decision doc section, or follow-up story ID), done-ness is unverifiable and closure could be arbitrary. Recommend adding userSees that names the specific document or section that will capture the decision."
+        }
+      ]
+    },
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-05-25T15:12:19.120Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "low",
+          "desc": "checklist.json CHK-001 context cites command-policy.ts:111 for scope_check_save entry, but actual line is ~199 (verified via grep). Stale line reference — substantive claim (PLAN-only constraint) is correct, but pointer will mislead implementers."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "low",
+          "desc": "background.md 触发事件 first introduces B-c9f5 dirty-gate 系列 story without a one-sentence explanation of what dirty-gate means to a fresh reader. Cross-story reference missing context per CLAUDE.md Dimension 2 rule. Content is still understandable; purely contextual gap."
+        }
+      ]
+    }
+  ],
+  "_hash": "9e8a7cb8a15ca437f0802dd59467cc80883ec37032810eaae35b235354b8acd5"
+}

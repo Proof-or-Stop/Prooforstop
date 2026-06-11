@@ -1,0 +1,77 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-05-12T22:14:01.104Z",
+      "issueCount": 5,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 缺少 userSees（用户完成此 item 后在终端/UI 看到的具体文本）。写法示例：'用户看到 \"✓ 文件已创建: hello.txt\" 然后返回提示符'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 缺少 userSees（用户完成此 item 后在终端/UI 看到的具体文本）。写法示例：'用户看到 \"✓ 文件已创建: hello.txt\" 然后返回提示符'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 个 checklist item，请检查是否有组合场景遗漏（如：Make story_review numeric round field explicit + Add regression coverage for reviewRound schema distinction 同时操作会怎样？）"
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "checklist 所有 item 均未填写 files 字段（旧 story 兼容模式），无法对 understanding.touchpoints 做覆盖校验。请为至少一个 item 的 files.modify/create/test 列出改动文件，以启用 touchpoint→files 强校验"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "未跑 scope check。请先启动 koala-review-scope-plan agent，agent 会自动调 scope_check_save 写入结果"
+        }
+      ],
+      "_hash": "91385cd09275588f3338fb816ecae8db78087e37d539e4a2aa4c4fb5964e5e36"
+    },
+    {
+      "timestamp": "2026-05-12T22:16:52.423Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees 可能太抽象（未包含引号括起来的具体输出文本）。应该写用户看到的精确文字，不是\"功能正常工作\"这类描述"
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 userSees 可能太抽象（未包含引号括起来的具体输出文本）。应该写用户看到的精确文字，不是\"功能正常工作\"这类描述"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 个 checklist item，请检查是否有组合场景遗漏（如：Make story_review numeric round field explicit + Add regression coverage for reviewRound schema distinction 同时操作会怎样？）"
+        }
+      ],
+      "_hash": "6c9ae8d22b4b596eb70d383a9d6737a0b77b426fb77976dd061015db8132b496"
+    },
+    {
+      "timestamp": "2026-05-12T22:17:04.937Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 个 checklist item，请检查是否有组合场景遗漏（如：Make story_review numeric round field explicit + Add regression coverage for reviewRound schema distinction 同时操作会怎样？）"
+        }
+      ],
+      "_hash": "5e6f8f01204bce5712742a5e763db2d333ccd7ed7c453f378f57ad10acbdd828"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "task": "把 test_auto 这条 destructive 执行路径纳入统一 dangerous command guardrails。",
+  "outcome": "$ koala test_auto\n错误: test_auto 是危险命令，默认不会直接执行。\n→ 先用 --dry-run 预览会发生什么，或加 --confirm 明确执行\n\n$ koala test_auto --dry-run\n{\n  \"dryRun\": true,\n  \"command\": \"test_auto\",\n  \"plan\": [\n    \"[DRY-RUN] test_auto would:\",\n    \"- scan fixtures under ...\",\n    \"- cleanup fixture workspace via git restore + git clean ...\",\n    \"- skip profiler/trace snapshots\",\n    \"→ 加 --confirm 真实执行\"\n  ]\n}",
+  "facts": [
+    "test_auto 是公开 CLI 命令，且执行时会 git restore/git clean fixture 目录。",
+    "B-9a99 已经把 story_discard 与 fixture_batch_add 纳入第一版 guardrails。",
+    "当前代码改动已在 B-e1c0 分支上，核心是给 test_auto 补 guardrails.requiresConfirm 和 dry-run 计划输出。"
+  ],
+  "constraints": [
+    "dry-run 不能真实执行 fixtures、browser case 或 cleanup。",
+    "confirm 缺失时必须通过统一 CLI guardrail 拦截。",
+    "正式回归需要覆盖默认拒绝、dry-run 不落盘、confirm 后才执行。"
+  ],
+  "unknowns": [
+    "test_auto dry-run 是否还需要输出更细粒度的 fixture 数量统计。"
+  ],
+  "touchpoints": [
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/handlers/test-auto.ts",
+    "docs/requirements/decisions/cc-learnings.md"
+  ],
+  "timestamp": "2026-04-15T23:32:21.079Z"
+}

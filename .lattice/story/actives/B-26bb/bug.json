@@ -1,0 +1,124 @@
+{
+  "bugs": [
+    {
+      "id": "BUG-38631f09",
+      "title": "[auto] fixture-preview-runner-parity.json:dryRun validateExecute reports sandbox fs error — missing ) after argument list",
+      "status": "fixed",
+      "foundAt": "2026-04-19T23:49:14.023Z",
+      "fixedAt": "2026-04-19T23:49:47.141Z",
+      "fixtureId": "38631f09-96ee-43ef-9f33-f5ae0121b1c2",
+      "diagnose": {
+        "rootCause": [
+          "missing ) after argument list"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    },
+    {
+      "id": "BUG-76c1dcaa",
+      "title": "[auto] fixture-preview-runner-parity.json:preview blocks recursive test_story call like real runner — Unexpected identifier 'B'",
+      "status": "fixed",
+      "foundAt": "2026-04-19T23:49:14.024Z",
+      "fixedAt": "2026-04-19T23:49:47.141Z",
+      "fixtureId": "76c1dcaa-689c-46ef-9b78-1a590ff24413",
+      "diagnose": {
+        "rootCause": [
+          "Unexpected identifier 'B'"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    },
+    {
+      "id": "BUG-24a489bd",
+      "title": "[auto] fixture-preview-runner-parity.json:dryRun validateExecute reports expect mismatch — Command failed: /Users/jek/.nvm/versions/node/v22.13.0/bin/node packages/main/dist/cli.js fixture_ba",
+      "status": "fixed",
+      "foundAt": "2026-04-19T23:51:05.150Z",
+      "fixedAt": "2026-04-19T23:52:07.078Z",
+      "fixtureId": "24a489bd-73fd-44c0-a526-c13e5164f7da",
+      "diagnose": {
+        "rootCause": [
+          "Command failed: /Users/jek/.nvm/versions/node/v22.13.0/bin/node packages/main/dist/cli.js fixture_batch_add {\"fixturePath\":\"tmp-preview-mismatch\",\"dryRun\":true,\"validateExecute\":true,\"storyId\":\"B-26bb\",\"cases\":[{\"name\":\"bad expect\",\"run_type\":\"cli\",\"file\":\"handlers/fixture\",\"execute\":\"return { value: 1 };\",\"expect\":{\"value\":2},\"intentRef\":\"CHK-001:happy:0\"}]}\n❌ 命令 \"fixture_batch_add\" 在 TEST 阶段不可用\n   Story: B-26bb  Phase: TEST\n   当前阶段可用命令: story_get, story_list, story_discard, story_reconcile, lab_*, aux_*, checklist_get, testintent_check, testintent_handoff, truth_*, gap_*, convergence_check, story_advance, session_brief, status, next, doctor, summary_get, summary_set, implementation_review_result_get, implementation_review_result_set, test_auto, test_story, test_fixture, bug_report, bug_update, bug_list, bug_analyze, fixture_get, story_advance\n"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    },
+    {
+      "id": "BUG-fd628d74",
+      "title": "[auto] fixture-preview-runner-parity.json:dryRun validateExecute reports missing handler — Command failed: /Users/jek/.nvm/versions/node/v22.13.0/bin/node packages/main/dist/cli.js fixture_ba",
+      "status": "fixed",
+      "foundAt": "2026-04-19T23:51:05.150Z",
+      "fixedAt": "2026-04-19T23:52:07.078Z",
+      "fixtureId": "fd628d74-8f7b-452f-85b0-17eb95fbb42b",
+      "diagnose": {
+        "rootCause": [
+          "Command failed: /Users/jek/.nvm/versions/node/v22.13.0/bin/node packages/main/dist/cli.js fixture_batch_add {\"fixturePath\":\"tmp-preview-handler\",\"dryRun\":true,\"validateExecute\":true,\"storyId\":\"B-26bb\",\"cases\":[{\"name\":\"missing handler\",\"run_type\":\"cli\",\"file\":\"handlers/fixture\",\"execute\":\"return await $handlers.no_such_handler({});\",\"expect\":true,\"intentRef\":\"CHK-001:adversarial:0\"}]}\n❌ 命令 \"fixture_batch_add\" 在 TEST 阶段不可用\n   Story: B-26bb  Phase: TEST\n   当前阶段可用命令: story_get, story_list, story_discard, story_reconcile, lab_*, aux_*, checklist_get, testintent_check, testintent_handoff, truth_*, gap_*, convergence_check, story_advance, session_brief, status, next, doctor, summary_get, summary_set, implementation_review_result_get, implementation_review_result_set, test_auto, test_story, test_fixture, bug_report, bug_update, bug_list, bug_analyze, fixture_get, story_advance\n"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    },
+    {
+      "id": "BUG-41cdf2d4",
+      "title": "[auto] fixture-preview-runner-parity.json:preview and test_story agree on passing cli case — Command failed: /Users/jek/.nvm/versions/node/v22.13.0/bin/node packages/main/dist/cli.js fixture_ba",
+      "status": "fixed",
+      "foundAt": "2026-04-19T23:51:05.150Z",
+      "fixedAt": "2026-04-19T23:52:07.078Z",
+      "fixtureId": "41cdf2d4-30fe-4476-b78e-4de17cf1374b",
+      "diagnose": {
+        "rootCause": [
+          "Command failed: /Users/jek/.nvm/versions/node/v22.13.0/bin/node packages/main/dist/cli.js fixture_batch_add {\"fixturePath\":\"tmp-preview-pass\",\"dryRun\":true,\"validateExecute\":true,\"storyId\":\"B-26bb\",\"cases\":[{\"name\":\"passing cli preview\",\"run_type\":\"cli\",\"file\":\"handlers/fixture\",\"execute\":\"return { ok: true };\",\"expect\":{\"ok\":true},\"intentRef\":\"B-26bb:CHK-002:happy:0\",\"storyId\":\"B-26bb\"}]}\n❌ 命令 \"fixture_batch_add\" 在 TEST 阶段不可用\n   Story: B-26bb  Phase: TEST\n   当前阶段可用命令: story_get, story_list, story_discard, story_reconcile, lab_*, aux_*, checklist_get, testintent_check, testintent_handoff, truth_*, gap_*, convergence_check, story_advance, session_brief, status, next, doctor, summary_get, summary_set, implementation_review_result_get, implementation_review_result_set, test_auto, test_story, test_fixture, bug_report, bug_update, bug_list, bug_analyze, fixture_get, story_advance\n"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    },
+    {
+      "id": "BUG-be88b7f4",
+      "title": "[auto] fixture-preview-runner-parity.json:browser preview explicitly skips execution — Command failed: /Users/jek/.nvm/versions/node/v22.13.0/bin/node packages/main/dist/cli.js fixture_ba",
+      "status": "fixed",
+      "foundAt": "2026-04-19T23:51:05.150Z",
+      "fixedAt": "2026-04-19T23:52:07.078Z",
+      "fixtureId": "be88b7f4-e18c-4b15-8ed8-56176b728d23",
+      "diagnose": {
+        "rootCause": [
+          "Command failed: /Users/jek/.nvm/versions/node/v22.13.0/bin/node packages/main/dist/cli.js fixture_batch_add {\"fixturePath\":\"tmp-preview-browser\",\"dryRun\":true,\"validateExecute\":true,\"storyId\":\"B-26bb\",\"cases\":[{\"name\":\"browser case\",\"run_type\":\"browser\",\"file\":\"ui/app\",\"execute\":\"return true;\",\"expect\":true,\"intentRef\":\"CHK-002:edge:0\"}]}\n❌ 命令 \"fixture_batch_add\" 在 TEST 阶段不可用\n   Story: B-26bb  Phase: TEST\n   当前阶段可用命令: story_get, story_list, story_discard, story_reconcile, lab_*, aux_*, checklist_get, testintent_check, testintent_handoff, truth_*, gap_*, convergence_check, story_advance, session_brief, status, next, doctor, summary_get, summary_set, implementation_review_result_get, implementation_review_result_set, test_auto, test_story, test_fixture, bug_report, bug_update, bug_list, bug_analyze, fixture_get, story_advance\n"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    },
+    {
+      "id": "BUG-fa69a9a7",
+      "title": "[auto] fixture-preview-runner-parity.json:dryRun validateExecute does not write fixture file — Command failed: /Users/jek/.nvm/versions/node/v22.13.0/bin/node packages/main/dist/cli.js fixture_ba",
+      "status": "fixed",
+      "foundAt": "2026-04-19T23:51:05.150Z",
+      "fixedAt": "2026-04-19T23:52:07.078Z",
+      "fixtureId": "fa69a9a7-5788-41ec-b0c8-2585d064e397",
+      "diagnose": {
+        "rootCause": [
+          "Command failed: /Users/jek/.nvm/versions/node/v22.13.0/bin/node packages/main/dist/cli.js fixture_batch_add {\"fixturePath\":\"tmp-no-write-1776642664985\",\"dryRun\":true,\"validateExecute\":true,\"storyId\":\"B-26bb\",\"cases\":[{\"name\":\"no write\",\"run_type\":\"cli\",\"file\":\"handlers/fixture\",\"execute\":\"return true;\",\"expect\":true,\"intentRef\":\"CHK-004:edge:0\"}]}\n❌ 命令 \"fixture_batch_add\" 在 TEST 阶段不可用\n   Story: B-26bb  Phase: TEST\n   当前阶段可用命令: story_get, story_list, story_discard, story_reconcile, lab_*, aux_*, checklist_get, testintent_check, testintent_handoff, truth_*, gap_*, convergence_check, story_advance, session_brief, status, next, doctor, summary_get, summary_set, implementation_review_result_get, implementation_review_result_set, test_auto, test_story, test_fixture, bug_report, bug_update, bug_list, bug_analyze, fixture_get, story_advance\n"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    },
+    {
+      "id": "BUG-bb407db0",
+      "title": "[auto] fixture-preview-runner-parity.json:browser preview does not claim real browser execution — Command failed: /Users/jek/.nvm/versions/node/v22.13.0/bin/node packages/main/dist/cli.js fixture_ba",
+      "status": "fixed",
+      "foundAt": "2026-04-19T23:51:05.150Z",
+      "fixedAt": "2026-04-19T23:52:07.078Z",
+      "fixtureId": "bb407db0-7748-455d-80e5-319af26a71b2",
+      "diagnose": {
+        "rootCause": [
+          "Command failed: /Users/jek/.nvm/versions/node/v22.13.0/bin/node packages/main/dist/cli.js fixture_batch_add {\"fixturePath\":\"tmp-browser-claim\",\"dryRun\":true,\"validateExecute\":true,\"storyId\":\"B-26bb\",\"cases\":[{\"name\":\"browser\",\"run_type\":\"browser\",\"file\":\"x\",\"execute\":\"return true;\",\"expect\":true,\"intentRef\":\"CHK-004:adversarial:0\"}]}\n❌ 命令 \"fixture_batch_add\" 在 TEST 阶段不可用\n   Story: B-26bb  Phase: TEST\n   当前阶段可用命令: story_get, story_list, story_discard, story_reconcile, lab_*, aux_*, checklist_get, testintent_check, testintent_handoff, truth_*, gap_*, convergence_check, story_advance, session_brief, status, next, doctor, summary_get, summary_set, implementation_review_result_get, implementation_review_result_set, test_auto, test_story, test_fixture, bug_report, bug_update, bug_list, bug_analyze, fixture_get, story_advance\n"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    }
+  ]
+}

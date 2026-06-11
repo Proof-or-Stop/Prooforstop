@@ -1,0 +1,25 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "正则改为 /\\.(js|tsx?)$/ 兼容 .js 源文件",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-01T16:57:38.829Z"
+    },
+    {
+      "id": "CHK-002",
+      "title": "添加 basename fallback：先查嵌套路径，再查 wrappersDir/basename.js",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-01T16:57:40.996Z"
+    },
+    {
+      "id": "CHK-003",
+      "title": "编译验证 + 手动测试确认两种路径都能加载",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-01T16:57:43.523Z"
+    }
+  ]
+}

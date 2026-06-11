@@ -1,0 +1,13 @@
+{
+  "storyId": "B-004",
+  "title": "Story 工作流引擎：Skills + Feature 注册表",
+  "description": "将 Story 开发全流程做成 Claude Code Skills，AI 开发代码时也通过 Skill 驱动，Skill 内部调用 koala-main MCP 工具。包括：1) /story Skill — 推进 Story 状态、查看当前进度、初始化新 Story；2) /dev Skill — 开发模式：自动读 checklist 找下一个待开发项、标记 in_progress、开发完标 done、强制添加 @task 注释、运行注释校验；3) /test Skill — 测试模式：自动编译、运行真机测试、记录测试证据、发现 bug 自动记录；4) /done Skill — 收尾：检查门禁（checklist 全 done + 测试证据 + bug 全 fixed）、提交代码、更新 backlog；5) Feature 注册表 MCP 工具：feature_register / feature_get / feature_list / feature_map。CLAUDE.md 中的流程规则最终由 Skills + MCP 代码实现，不再依赖文档约束。",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "高",
+  "source": "用户需求",
+  "depends": ["B-001", "B-002", "B-003"],
+  "createdAt": "2026-03-31T16:43:33.645Z",
+  "startedAt": "2026-04-01T12:00:00.000Z",
+  "endedAt": "2026-04-01T12:55:00.000Z"
+}

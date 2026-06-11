@@ -1,0 +1,22 @@
+{
+  "task": "为 StoryStore 的 story/bug/test-evidence 读写入口补 @test 覆盖并锁住 no_test backlog。",
+  "outcome": "$ node packages/main/dist/cli.js gap_analyze\n...\n不再出现：\n- 函数 readStory 缺少 @test 注释\n- 函数 writeStory 缺少 @test 注释\n- 函数 readBugs 缺少 @test 注释\n- 函数 writeBugs 缺少 @test 注释\n- 函数 readTestEvidence 缺少 @test 注释\n- 函数 writeTestEvidence 缺少 @test 注释",
+  "facts": [
+    "StoryStore 的 6 个入口已经承接 stack-layering 的长期 state 持有语义，但当前没有 @test 注释。",
+    "gap_analyze 当前把这 6 个函数全部报成 medium no_test。",
+    "这些入口都在 core/store.ts，适合共享同一个 fixture 文件。"
+  ],
+  "constraints": [
+    "优先最小改动：给现有注释块补 @test，而不是再拆新的功能。",
+    "fixture 需要覆盖读写成功路径和默认值/文件缺失回退路径。",
+    "至少补一条回归证明这 6 条 no_test 从 backlog 消失。"
+  ],
+  "unknowns": [
+    "同一个 fixture 文件是否足够表达 6 个入口的读写与默认值路径。"
+  ],
+  "touchpoints": [
+    "packages/main/src/core/store.ts",
+    "packages/main/tests/fixtures"
+  ],
+  "timestamp": "2026-04-16T21:10:52.839Z"
+}

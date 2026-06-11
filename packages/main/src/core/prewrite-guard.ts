@@ -15,6 +15,7 @@
 
 import { resolve, relative, isAbsolute } from 'node:path';
 import type { ScopeContractData } from './types.js';
+import { containsLegacyKoalaDir } from './lattice-paths.js';
 
 // ── Verdict ──
 
@@ -22,7 +23,7 @@ export type PrewriteVerdict = 'allow' | 'deny' | 'ask' | 'shadow';
 
 export interface PrewriteViolation {
   path: string;
-  rule: 'out_of_scope' | 'protected' | 'excluded';
+  rule: 'out_of_scope' | 'protected' | 'excluded' | 'legacy_koala_write';
 }
 
 export interface PrewriteGuardResult {
@@ -161,6 +162,10 @@ function isAcknowledged(filePath: string, contract: ScopeContractData): boolean 
   );
 }
 
+export function isLegacyKoalaWritePath(normalizedPath: string): boolean {
+  return containsLegacyKoalaDir(normalizedPath);
+}
+
 /**
  * Evaluate a single normalized path against a scope contract. Returns a
  * violation descriptor when the path is forbidden, null when allowed.
@@ -238,6 +243,22 @@ export interface PrewriteGuardInput {
  */
 export function runPrewriteGuardCheck(input: PrewriteGuardInput): PrewriteGuardResult {
   const { normalizedPaths, contract, storyId, contractError, resolutionError, noDecisionReason } = input;
+  const legacyKoalaViolations = normalizedPaths
+    .filter(isLegacyKoalaWritePath)
+    .map((path): PrewriteViolation => ({ path, rule: 'legacy_koala_write' }));
+
+  if (legacyKoalaViolations.length > 0) {
+    return {
+      verdict: 'deny',
+      targetPaths: normalizedPaths,
+      storyId,
+      reasons: [
+        'Legacy .koala writes are forbidden after migration; use .lattice as the only Lattice asset directory.',
+        ...legacyKoalaViolations.map(v => `  ${v.rule.toUpperCase()}: ${v.path}`),
+      ],
+      violations: legacyKoalaViolations,
+    };
+  }
 
   // Fail-closed: corrupt contract
   if (contractError) {

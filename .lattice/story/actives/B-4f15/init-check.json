@@ -1,0 +1,75 @@
+{
+  "storyId": "B-4f15",
+  "checkedAt": "2026-06-01T15:49:57.639Z",
+  "reviewRound": "",
+  "agentId": "koala-review-story-init",
+  "issues": [
+    {
+      "severity": "medium",
+      "desc": "CHK-002 在 INIT 阶段预先把激活机制固定为环境变量 KOALA_REVIEWER_READONLY=1，但 CHK-001 的本意是 PLAN 阶段才决定 contract（CLI flag / env var / config / command-policy 扩展）。建议把 CHK-002 的 userSees / context 中具体的 env var 名字弱化为待 PLAN 决策的 readonly 激活信号，避免把设计取舍提前到 INIT。"
+    },
+    {
+      "severity": "medium",
+      "desc": "CHK-002 列出 review_pass_set/finding_add/story_advance and other mutating commands——and other mutating commands 把封禁集合留给后期手工拍脑袋。建议 PLAN 阶段产出基于已存在的 CommandPolicy.ownershipClass 的全量枚举（init_check_set / delivery_check_set / scope_check_set / verification_evidence_add / checklist_update / bug_update / story_advance / story_review / review_pass_set / finding_add / dispatch 等），写进 decision 文档，避免反自豁免设计被漏一个 mutating 命令破口。"
+    },
+    {
+      "severity": "medium",
+      "desc": "CHK-001 的 userSees User sees a documented contract 没指明落到哪个文件。建议明确写进 docs/requirements/decisions/role-separation.md 或新增 readonly-reviewer-mode.md 真相源，避免 contract 散落在 prompt / CLAUDE.md / decision 三处导致后续漂移。"
+    },
+    {
+      "severity": "medium",
+      "desc": "Background 与 checklist 未提及与已存在 enforceStoryOwnerLeaseGate（cli-engine.ts 单一 choke-point）和 command-policy.ts 的整合关系。建议 PLAN 的 decision 明确：readonly 模式作为 enforceStoryOwnerLeaseGate 的额外维度，还是新增独立 gate；这是高风险架构决策，必须落在 decision 里而不是 implementer 自由发挥。"
+    },
+    {
+      "severity": "medium",
+      "desc": "该 story 触及 guard / gate / command-policy / role-separation 多重高风险关键词，story_create 大概率已 auto-elevate priority 到 high，PLAN 阶段需要 decision + 至少 3 条 preMortem。建议 preMortem 至少覆盖：(a) readonly 激活信号被 subagent 意外继承或泄漏导致正常 reviewer 也被封；(b) 漏封某个 mutating 命令导致绕过；(c) readonly mode 与 owner takeover / forceTakeover 的交互。CHK-003 的回归测试应至少覆盖这三类 preMortem。"
+    },
+    {
+      "severity": "low",
+      "desc": "CHK-004 docs/prompts or adapter guidance 文本上左右摇摆。PLAN 应明确目标位置（reviewer prompt 模板 vs adapter 文档 vs 两处都改）。"
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-01T15:49:48.431Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "User-value depends on owner agents remembering to set KOALA_REVIEWER_READONLY=1 when delegating an advisory/external reviewer. CHK-004 covers guidance-doc update but the mode is purely opt-in env var — if owner forgets, the B-edca-style stale-evidence incident recurs silently and the user will rightly ask why the fix did not catch it. PLAN should explicitly answer: (1) where the flag surfaces at spawn time (Agent subagent_type prompt template / bin/koala-codex.js path / etc.), (2) whether any spawn pattern can default the flag for clearly-advisory reviewers, (3) how an owner notices post-hoc if a delegated reviewer ran without the flag. This is advisory, not blocking — the opt-in design itself is a defensible tradeoff to preserve normal reviewer write mode."
+        }
+      ]
+    },
+    {
+      "agentId": "koala-review-story-init",
+      "checkedAt": "2026-06-01T15:49:57.639Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "CHK-002 在 INIT 阶段预先把激活机制固定为环境变量 KOALA_REVIEWER_READONLY=1，但 CHK-001 的本意是 PLAN 阶段才决定 contract（CLI flag / env var / config / command-policy 扩展）。建议把 CHK-002 的 userSees / context 中具体的 env var 名字弱化为待 PLAN 决策的 readonly 激活信号，避免把设计取舍提前到 INIT。"
+        },
+        {
+          "severity": "medium",
+          "desc": "CHK-002 列出 review_pass_set/finding_add/story_advance and other mutating commands——and other mutating commands 把封禁集合留给后期手工拍脑袋。建议 PLAN 阶段产出基于已存在的 CommandPolicy.ownershipClass 的全量枚举（init_check_set / delivery_check_set / scope_check_set / verification_evidence_add / checklist_update / bug_update / story_advance / story_review / review_pass_set / finding_add / dispatch 等），写进 decision 文档，避免反自豁免设计被漏一个 mutating 命令破口。"
+        },
+        {
+          "severity": "medium",
+          "desc": "CHK-001 的 userSees User sees a documented contract 没指明落到哪个文件。建议明确写进 docs/requirements/decisions/role-separation.md 或新增 readonly-reviewer-mode.md 真相源，避免 contract 散落在 prompt / CLAUDE.md / decision 三处导致后续漂移。"
+        },
+        {
+          "severity": "medium",
+          "desc": "Background 与 checklist 未提及与已存在 enforceStoryOwnerLeaseGate（cli-engine.ts 单一 choke-point）和 command-policy.ts 的整合关系。建议 PLAN 的 decision 明确：readonly 模式作为 enforceStoryOwnerLeaseGate 的额外维度，还是新增独立 gate；这是高风险架构决策，必须落在 decision 里而不是 implementer 自由发挥。"
+        },
+        {
+          "severity": "medium",
+          "desc": "该 story 触及 guard / gate / command-policy / role-separation 多重高风险关键词，story_create 大概率已 auto-elevate priority 到 high，PLAN 阶段需要 decision + 至少 3 条 preMortem。建议 preMortem 至少覆盖：(a) readonly 激活信号被 subagent 意外继承或泄漏导致正常 reviewer 也被封；(b) 漏封某个 mutating 命令导致绕过；(c) readonly mode 与 owner takeover / forceTakeover 的交互。CHK-003 的回归测试应至少覆盖这三类 preMortem。"
+        },
+        {
+          "severity": "low",
+          "desc": "CHK-004 docs/prompts or adapter guidance 文本上左右摇摆。PLAN 应明确目标位置（reviewer prompt 模板 vs adapter 文档 vs 两处都改）。"
+        }
+      ]
+    }
+  ],
+  "_hash": "8a37db49fbdeb1e1f620812fda8266031ce324f97e5997bb8689810c83b26d97"
+}

@@ -1,0 +1,73 @@
+{
+  "storyId": "B-95d8",
+  "checkedAt": "2026-05-21T23:22:35.961Z",
+  "reviewRound": "2026-05-21T22:49:24.107Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "CLAUDE.md#无-subagent-环境的受控-fallbackb-95d8-chk-001",
+      "promise": "默认禁用：缺 acknowledge:true 或 fallbackReason < 30 字符 → 拒绝、不产出文件、不改 phase",
+      "verifiedBy": "diff",
+      "evidence": "init-check.ts:223-235: if (args.acknowledge !== true) throw; if (reason.length < INIT_CHECK_FALLBACK_REASON_MIN) throw; both checks precede any read/write, so refusal = zero file write. Smoke test (test 1) asserts no init-check.json exists after both refusal paths."
+    },
+    {
+      "docPath": "CLAUDE.md#无-subagent-环境的受控-fallbackb-95d8-chk-001",
+      "promise": "不绕过签名：复用同一 signInitCheck，签名域不变（background/title/description/checklist）",
+      "verifiedBy": "diff",
+      "evidence": "init-check.ts:275 and init-check-gate.ts:133-144: init_check_repair calls the same signInitCheck() with the same domain (storyId, backgroundHash, title, description, checklistHash, reviewRound). No separate signing code."
+    },
+    {
+      "docPath": "CLAUDE.md#无-subagent-环境的受控-fallbackb-95d8-chk-001",
+      "promise": "不放宽 gate：必需 reviewer 覆盖靠把 agentResults 记成 <required>@fallback（initCheckAgentMatches 认 <required>@ 前缀）；人工 attest 的 high/critical issue 仍走 blockingInitCheckIssues 自我阻塞",
+      "verifiedBy": "diff",
+      "evidence": "init-check.ts:281-285: agentResults built from REQUIRED_INIT_CHECK_AGENTS.map(r => `${r}@fallback`). init-check-gate.ts:66-68: initCheckAgentMatches accepts `<required>@` prefix. init-check.ts:339: blockingInitCheckIssues runs on fallback data. Smoke test extra case asserts gate still blocks when high issue attested."
+    },
+    {
+      "docPath": "CLAUDE.md#无-subagent-环境的受控-fallbackb-95d8-chk-001",
+      "promise": "可审计：写 init-check.json.fallback 块（mode/reason/evidenceRefs/actor/session/attestedAt/headHash/materialHash）+ init_check_fallback process event",
+      "verifiedBy": "diff",
+      "evidence": "init-check.ts:304-322: fallback block written with all fields. init-check.ts:328-336: appendProcessEvent(init_check_fallback). types.ts:923-940: fallback field defined in InitCheckData. types.ts:778: init_check_fallback in process event union type."
+    },
+    {
+      "docPath": "CLAUDE.md#无-subagent-环境的受控-fallbackb-95d8-chk-001",
+      "promise": "koala story_get 返回 initCheckAttestation: fallback|independent 与 initCheckFallback 块，dashboard/report 据此把人工 fallback 与独立 reviewer 区分开",
+      "verifiedBy": "grep",
+      "evidence": "story-query.ts:356-357: result.initCheckAttestation = initCheckAttestationMode(initCheck); if (initCheck.fallback) result.initCheckFallback = initCheck.fallback; init-check-gate.ts:53-59: initCheckAttestationMode returns fallback|independent. Smoke test 4 asserts story_get returns attestation=fallback + fallback block for repair path, independent + no fallback block for normal path."
+    },
+    {
+      "docPath": "CLAUDE.md#无-subagent-环境的受控-fallbackb-95d8-chk-001",
+      "promise": "[missing_init_check] / [missing_init_check_agent] 诊断信息会同时列出缺失的必需 reviewer、fallback 是否可用、以及 init_check_repair 的精确命令形态",
+      "verifiedBy": "diff",
+      "evidence": "machine.ts:318-324: missing_init_check diagnostic includes required agents and init_check_repair command shape with acknowledge+fallbackReason. machine.ts:332-335: missing_init_check_agent same. Smoke test 5 asserts all four items: missing_init_check, koala-review-story-init, product-reviewer, init_check_repair, acknowledge, fallbackReason."
+    },
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md#INIT_CHECK-进入门禁",
+      "promise": "Phase table: INIT_CHECK entry condition updated to include init_check_repair fallback",
+      "verifiedBy": "diff",
+      "evidence": "story-lifecycle.md diff line: | INIT_CHECK | worktree bootstrap | init reviewers / draft gate 通过（或受控 `init_check_repair` fallback），git 可用 | .worktrees/B-xxx、story/B-xxx |"
+    },
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md#INIT_CHECK-无-subagent-受控-fallbackb-95d8",
+      "promise": "New section accurately describes fallback: default-disabled, same signInitCheck, not-weakened gate, audit block, and command policy",
+      "verifiedBy": "diff",
+      "evidence": "story-lifecycle.md diff adds section under INIT_CHECK with all five constraint bullets and reference to canonical template in CLAUDE.md."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm --prefix packages/main run test:init-check-fallback-smoke → ✓ init check fallback/repair smoke passed. Covers: (1) refuse without acknowledge (asserts refused+no file written), (2) refuse with short fallbackReason (asserts refused+no file written), (3) story stays blocked after refusals, (4) successful repair writes signed init-check.json and story_advance accepts it, (5) story_get returns initCheckAttestation=fallback + fallback block with mode/reason/attestedAt, (6) independent reviewer path returns attestation=independent with no fallback block, (7) tamper after repair triggers init_check_tampered, (8) extra: attested high issue blocks the gate."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "npm --prefix packages/main run test:checklist-reload-hint-smoke → ✓ checklist reload hint smoke passed. Covers: (1) stderr carries ↻ reload reminder naming final persisted status after write, (2) stdout carries only the conclusion and does NOT contain ↻ or 重新加载, (3) write semantics unchanged — only intended field changed on disk (deepEqual on stripped volatile fields), (4) pipeline test: bash -c piping stdout through tail yields conclusion without reminder."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 8 documentation promises verified in code via diff/grep with specific file:line references. Both smoke tests pass and cover the happy path, edge cases (refusal without acknowledge, short reason, pipeline safety), and adversarial cases (tamper detection, self-blocking high issue). No unresolved TODOs found in the diff."
+  },
+  "_hash": "85000f3e624a6904a0f4c0099edd1d5c637320a391c70c54f805d0b174699bf7"
+}

@@ -1,0 +1,74 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "types.ts 新增 ReviewData 类型",
+      "context": "ReviewEntry 含 timestamp/issueCount/issues 数组，ReviewIssue 含 type/itemId/message",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-03T16:01:29.879Z"
+    },
+    {
+      "id": "CHK-002",
+      "title": "store.ts 新增 readReview/writeReview",
+      "context": "读写 review.json，不存在时返回空 reviews 数组，和 readBugs 模式一致",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-03T16:01:30.499Z"
+    },
+    {
+      "id": "CHK-003",
+      "title": "story_review handler 执行后自动追加记录到 review.json",
+      "context": "issues 由脚本检测产生，直接写入，不让 agent 填写",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-03T16:01:31.123Z"
+    },
+    {
+      "id": "CHK-004",
+      "title": "story_review 返回结果包含本次 reviewId 和历史审查次数",
+      "context": "方便追溯审了几轮、每轮发现什么",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-03T16:01:31.738Z"
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-04-03T16:01:29.879Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "ReviewIssue/ReviewEntry/ReviewData 类型已添加"
+    },
+    {
+      "timestamp": "2026-04-03T16:01:30.499Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "readReview/writeReview 已添加，不存在时返回空数组"
+    },
+    {
+      "timestamp": "2026-04-03T16:01:31.123Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "story_review 执行后自动追加 reviewEntry 到 review.json"
+    },
+    {
+      "timestamp": "2026-04-03T16:01:31.738Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "返回 reviewRound 字段，hint 包含轮次和问题数"
+    }
+  ]
+}

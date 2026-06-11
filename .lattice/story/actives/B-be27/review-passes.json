@@ -1,0 +1,58 @@
+{
+  "passes": [
+    {
+      "id": "B-be27:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Implementation matches story goal precisely. Core model (ScopeContractData), CLI (scope_contract_set/show/check/acknowledge), lifecycle gate (runScopeTransitionGate wired in transition-orchestrator for REVIEW/TEST/DONE), acknowledgement with reason enforcement, and smoke tests all delivered. No broadening into Claude hook/pre-tool blocking (correctly deferred per plan). Minor plan-vs-actual deviation: CHK-003 listed review-preflight.ts and done-effects.ts but integration was done via phase-gates.ts + transition-orchestrator.ts instead — functionally equivalent and appropriate. Story's own enforce-mode scope contract passes with 0 violations.",
+      "createdAt": "2026-05-23T18:58:26.685Z",
+      "reviewRound": "2026-05-23T18:56:20.654Z",
+      "reviewRunId": "B-be27:RR-001",
+      "_hash": "c3027f955113d07fba2c36ff152d9333ad2e8635b7fe0831d846d2e84aad7766"
+    },
+    {
+      "id": "B-be27:RP-002",
+      "agent": "koala-review-test-coverage",
+      "note": "All 5 checklist items have must-priority verificationEvidence backed by passing smoke test (scope-contract-smoke.ts). Smoke test directly exercises: (1) no-contract backward compat, (2) invalid mode/unsafe-path rejection, (3) enforce fail for protected/out-of-scope files, (4) shadow warn, (5) acknowledgement warn+visible, (6) clean worktree pass. CHK-003 gate integration confirmed: runScopeTransitionGate called for REVIEW/TEST/DONE in transition-orchestrator.ts:265-268, throws on fail before actor.send. Evidence kinds are accurate (logic_test=core fn calls through CLI, manual_transcript=real B-be27 scope_contract_check run). No coverage gaps found.",
+      "createdAt": "2026-05-23T18:58:59.283Z",
+      "reviewRound": "2026-05-23T18:56:20.654Z",
+      "reviewRunId": "B-be27:RR-002",
+      "_hash": "84d8a9a43aa18e2cb7d567b2cd012dceca815b0c2f8cf3d04898af066acc24bf"
+    },
+    {
+      "id": "B-be27:RP-003",
+      "agent": "koala-review-quality",
+      "note": "PASS. Quality review by Claude Code CLI using tools-disabled evidence after two tool-mode stalls. A real partial-update bug was found during supervision (scope_contract_set cleared omitted optional arrays), fixed by preserving undefined fields and rendering saved contract, with smoke regression added. Verified build, scope smoke, lifecycle-registry contract, command-ownership contract, and live scope_contract_check pass with 28 files / 0 violations. No .omx writes; registry/policy/config entries consistent.",
+      "createdAt": "2026-05-23T19:08:34.597Z",
+      "reviewRound": "2026-05-23T18:56:20.654Z",
+      "reviewRunId": "B-be27:RR-005",
+      "_hash": "e774e7ded460b0c71315fe11e3da4bdb235d46488ad1c65e8b91331c4917379d"
+    },
+    {
+      "id": "B-be27:RP-004",
+      "agent": "koala-review-concept",
+      "note": "PASS. Claude Code CLI concept review: contract-first scope definition, REVIEW/TEST/DONE gate placement, visible acknowledgement-as-evidence, and protected/excluded non-bypassable behavior match the story goal of preventing silent out-of-scope modification. Partial update fix preserves contract integrity.",
+      "createdAt": "2026-05-23T19:10:26.638Z",
+      "reviewRound": "2026-05-23T19:09:36.348Z",
+      "reviewRunId": "B-be27:RR-007",
+      "_hash": "aff06f40e82fec0f45f1df690b21aa84a47d44c0b34ca688bc32cf085e5b7c4f"
+    },
+    {
+      "id": "B-be27:RP-005",
+      "agent": "koala-review-quality",
+      "note": "PASS. Claude Code CLI quality review: partial update preservation is correct; path validation rejects absolute/null/unsafe ../; lifecycle gate blocks before phase send; command-policy/config/process-fact entries are present; build, scope smoke, lifecycle registry, command ownership, validate 15/15, and scope gate all pass. No .omx writes.",
+      "createdAt": "2026-05-23T19:10:32.905Z",
+      "reviewRound": "2026-05-23T19:09:36.348Z",
+      "reviewRunId": "B-be27:RR-008",
+      "_hash": "d29353ff27c52ff3871912aa90c18158798bf97faaf5c88c458d9a836c21f46d"
+    },
+    {
+      "id": "B-be27:RP-006",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS. Claude Code CLI test-coverage review: smoke covers no-contract skip, show without contract, invalid mode, unsafe path, set/show/check, partial update preserve/replace, allowed pass, out-of-scope enforce fail, acknowledgement warn with actor/reason/timestamp/paths, protected fail, shadow warn, local pass. Build/registry/ownership/validate 15/15 are green.",
+      "createdAt": "2026-05-23T19:10:37.580Z",
+      "reviewRound": "2026-05-23T19:09:36.348Z",
+      "reviewRunId": "B-be27:RR-006",
+      "_hash": "8cbfedfb6101d742ab67b4fedabb7bd8e57683badf0cc7f61588e9b94e9cbb71"
+    }
+  ]
+}

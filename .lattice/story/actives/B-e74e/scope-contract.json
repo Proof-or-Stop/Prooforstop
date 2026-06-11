@@ -1,0 +1,57 @@
+{
+  "storyId": "B-e74e",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/handlers/done-effects.ts",
+    "packages/main/src/core/partial-done-recovery.ts",
+    "packages/main/src/handlers/done-recover.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/tasks/*done*.ts",
+    "packages/main/src/tasks/*worktree*.ts",
+    "package.json",
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/*done*.ts",
+    "packages/main/src/tasks/*worktree*.ts",
+    "packages/main/tests/**/*done*",
+    "packages/main/tests/**/*worktree*"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/tasks/*done*.ts",
+    "packages/main/src/tasks/*worktree*.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "protectedFiles": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "README.md",
+    ".Lattice/**",
+    ".Codex/**",
+    ".claude/**"
+  ],
+  "explicitExcludes": [
+    "docs/story/**",
+    "tests/fixtures/**",
+    "packages/main/dist/**",
+    "node_modules/**"
+  ],
+  "scopeChangeReason": "B-e74e only changes DONE merge preflight/recovery behavior and focused regression coverage.",
+  "acknowledgements": [
+    {
+      "actor": "codex-supervisor",
+      "reason": "Focused DONE preflight regression smoke is required for B-e74e and matches the intended task smoke coverage scope.",
+      "timestamp": "2026-06-04T02:59:57.478Z",
+      "paths": [
+        "packages/main/src/tasks/done-preflight-smoke.ts"
+      ]
+    }
+  ],
+  "createdAt": "2026-06-04T02:32:44.389Z",
+  "updatedAt": "2026-06-04T02:59:57.478Z"
+}

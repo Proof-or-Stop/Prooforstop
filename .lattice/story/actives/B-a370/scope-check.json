@@ -1,0 +1,80 @@
+{
+  "storyId": "B-a370",
+  "checkedAt": "2026-05-16T21:17:15.024Z",
+  "features": [
+    {
+      "feature": "session_brief / koala next 对 phase=META 的 meta-story 容器输出 audit/finding flow 专用建议（不含 story_advance / INIT_CHECK / worktree 提示）",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "session_brief 的 lifecycle/worktree 建议排序（无 worktree 检测等）中排除 META 容器",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "META 识别同时使用 phase===META 和 storyId.startsWith(B-META-) 两种判据",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "仅改 packages/main/src/handlers/session.ts，不动 core/machine.ts / story-advance.ts / lifecycle-registry.ts / audit-meta-store.ts",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "为 META hint 修复新增 smoke 断言，覆盖 phase/前缀两种判据与普通 story 共存场景",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "smoke 验证 META 容器不出现在 session_brief Active stories 列表排序",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "session_brief 在有 linked worktree 时以 worktree phase 为执行权威，展示 authority/mirror 等信息",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "understanding.constraints 明确只改 META hint 渲染层，不碰排序/生命周期算法本身；此行为为既有正确行为，不在修复范围",
+      "source": "decisions:decisions/story-lifecycle.md"
+    },
+    {
+      "feature": "computeNextStep / session_brief 的 phase-aware next-step 推理对非 META story 的正确性（回归）",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/cc-learnings.md"
+    },
+    {
+      "feature": "story_review 不碰 / story-lifecycle 状态机迁移 / PLAN_REVIEW 新 phase 等大改",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "decision 选择 Option A（只改 hint 渲染层），明确 excluded Option B/C；understanding.constraints 明确不碰状态机和 gate 文件",
+      "source": "decisions:decisions/role-separation.md"
+    }
+  ],
+  "summary": {
+    "total": 9,
+    "covered": 7,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "d1b88086c15e8221d1b5dd5782d0ff65503ad86e35ee94b5c5eb721a7e5a76fb",
+  "openQuestions": []
+}

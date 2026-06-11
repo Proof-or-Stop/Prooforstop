@@ -1,0 +1,69 @@
+{
+  "principles": [
+    "accepted local paths 必须由项目配置声明",
+    "baseline risk 默认保持保守",
+    "过滤逻辑集中在 collectBaselineRisk 入口",
+    "用户本地运行态和真实 baseline 风险要分开呈现"
+  ],
+  "drivers": [
+    "减少 session_brief 对用户确认路径的噪音",
+    "保持 worktree baseline 风险提醒仍可信",
+    "让不同项目能声明自己的本地接受路径"
+  ],
+  "options": [
+    {
+      "name": "A: KoalaConfig 增加 baselineRiskAcceptedLocalPaths 并由 baseline-risk 统一过滤",
+      "pros": [
+        "配置化且简单",
+        "session_brief 和 INIT_CHECK 可复用同一逻辑",
+        "fixture 容易覆盖"
+      ],
+      "cons": [
+        "需要修改项目 koala.config.json 才会对当前仓库生效"
+      ]
+    },
+    {
+      "name": "B: 在 session_brief 中硬编码 AGENTS/CLAUDE/.claude",
+      "pros": [
+        "当前仓库改动最少"
+      ],
+      "cons": [
+        "不可配置，别的项目无法复用",
+        "INIT_CHECK bootstrap baseline risk 仍会提示这些路径"
+      ]
+    },
+    {
+      "name": "C: 把 accepted paths 归为 volatile path",
+      "pros": [
+        "输出改动小，能借用 volatile summary"
+      ],
+      "cons": [
+        "语义不准确，accepted local 与生成式 volatile 不是一类",
+        "用户无法区分隐藏原因"
+      ]
+    }
+  ],
+  "chosen": "A: KoalaConfig 增加 baselineRiskAcceptedLocalPaths 并由 baseline-risk 统一过滤",
+  "rationale": "选 A，因为它同时满足配置化、统一入口和保守默认；当前项目只需在 koala.config.json 明确声明 accepted local paths。",
+  "preMortem": [
+    {
+      "scenario": "真实风险被错误隐藏",
+      "trigger": "accepted path 配置过宽，比如写成 docs/ 或 packages/",
+      "consequence": "session_brief 不再提示关键改动未进入 worktree baseline",
+      "mitigation": "配置只加入用户明确确认的窄路径，并用 fixture 覆盖未接受路径仍保留"
+    },
+    {
+      "scenario": "目录前缀匹配不稳定",
+      "trigger": "路径含 Windows 反斜杠或尾部斜杠差异",
+      "consequence": "accepted 目录仍出现在 baseline risk",
+      "mitigation": "复用 normalizePath/isUnder 逻辑，统一 slash 和尾斜杠"
+    },
+    {
+      "scenario": "INIT_CHECK 与 session_brief 行为不一致",
+      "trigger": "只在 session handler 读取配置，worktree bootstrap 仍用旧 collectBaselineRisk",
+      "consequence": "创建 worktree 时继续提示已接受路径",
+      "mitigation": "collectStoryBaselineRisk 同样传入 config acceptedLocalPaths"
+    }
+  ],
+  "timestamp": "2026-04-19T22:23:22.006Z"
+}

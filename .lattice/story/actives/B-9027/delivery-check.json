@@ -1,0 +1,69 @@
+{
+  "storyId": "B-9027",
+  "checkedAt": "2026-05-17T03:08:31.475Z",
+  "reviewRound": "2026-05-17T02:59:46.197Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": ".koala/story/actives/B-9027/understanding.json#task",
+      "promise": "DONE merge/worktree cleanup pipeline extracted from story-advance.ts into handlers/done-effects.ts (behavior-preserving, Option A), no semantic change",
+      "verifiedBy": "diff/grep",
+      "evidence": "done-effects.ts created (500 lines), exports runDonePreMergeGate + applyDoneMergeEffects + autoSyncMain + detectDoneStoryWorktreeContext + assertDoneStoryBranchMatches. story-advance.ts imports from done-effects.js. grep confirms no inline git merge/worktree remove/branch -d in story-advance.ts."
+    },
+    {
+      "docPath": ".koala/story/actives/B-9027/understanding.json#constraints[6]",
+      "promise": "globalThis.__koalaDoneChecklistRendered eliminated; replaced by explicit return value from runDonePreMergeGate passed to applyDoneMergeEffects",
+      "verifiedBy": "grep",
+      "evidence": "grep -rn __koalaDoneChecklistRendered packages/main/src/ returns 0 matches. story-advance.ts holds returned checklist string in local variable doneRenderedChecklist and passes to applyDoneMergeEffects."
+    },
+    {
+      "docPath": ".koala/story/actives/B-9027/understanding.json#constraints[3]",
+      "promise": "cleanStrayWorktreeFiles and STRAY_FILE_WHITELIST re-export preserved in story-advance.ts for logicTest compatibility",
+      "verifiedBy": "grep",
+      "evidence": "story-advance.ts line 70: export { cleanStrayWorktreeFiles, STRAY_FILE_WHITELIST } from ./stray-file-cleanup.js present in diff."
+    },
+    {
+      "docPath": ".koala/story/actives/B-9027/plan.md#CHK-001",
+      "promise": "story-advance.ts no longer contains inline DONE merge implementation; delegates to runDonePreMergeGate (before actor.send) and applyDoneMergeEffects (after writeStory phase=DONE)",
+      "verifiedBy": "diff/grep",
+      "evidence": "story-advance.ts diff removes all inline DONE helpers (isRegisteredWorktree, pruneWorktreeRegistry, detectDoneStoryWorktreeContext, autoSyncMain, etc.). Imports from done-effects.js at lines 47-49. Call sites confirmed at lines 215 and 300."
+    },
+    {
+      "docPath": ".koala/story/actives/B-9027/understanding.json#outcome",
+      "promise": "maybeTriggerAudit moved into done-effects.ts and remains non-blocking (try/catch wrapper)",
+      "verifiedBy": "grep",
+      "evidence": "done-effects.ts lines 488-494 show maybeTriggerAudit wrapped in try/catch. Comment at line 485 confirms non-blocking design. maybeTriggerAudit import at top of done-effects.ts; removed from story-advance.ts imports."
+    },
+    {
+      "docPath": ".koala/story/actives/B-9027/plan.md#CHK-004",
+      "promise": "phase-gates.ts comment updated to reflect that runDonePreMergeGate in done-effects.ts wraps runDoneOracleGate and returns rendered checklist as explicit value (no globalThis stash)",
+      "verifiedBy": "diff",
+      "evidence": "phase-gates.ts diff shows comment on runDoneOracleGate updated: removed reference to __koalaDoneChecklistRendered globalThis, now says B-9027 done-effects.ts wraps and returns explicit value."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "worktree-authority-smoke.ts 15/15 cases pass (true subprocess spawn of dist/cli.js). assertDoneSuccessPathOutputAndOrdering verifies DONE output byte-identical and Step1-5 ordering. assertDoneSuccessPathOutputAndOrdering also asserts story-advance.ts has no inline merge structure (structural assertion). Integration test evidence at evidence/transcript-diff.md."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Three pre-merge gate failure cases each verify phase remains TEST: assertDoneOracleGateFailureKeepsStoryTest (done oracle), assertStrayFileOffenderKeepsStoryTest (stray file offender), assertMergeConflictPreMergeGateKeepsStoryTest (merge-tree dry-run). assertRealMergeFailureMarksDoneAndThrows verifies story=DONE + error contains cd/git merge/worktree remove --force/branch -d four-line manual guide. assertWorktreeCleanupFailureMarksDoneMergedAndThrows verifies story=DONE+merged + koala doctor hint."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "assertDoneSuccessPathOutputAndOrdering verifies Step1-5 ordering (metadata commit -> merge -> worktree remove -> branch delete) and DONE success output byte-identical (DONE Gate Checklist [check] rows + merge/cleanup/branch-delete lines + summary). koala validate --story=B-9027: ALL PASS, 23/32 covered, 0 required missing."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "grep -rn __koalaDoneChecklistRendered packages/main/src/ returns 0 matches (CHK-004:happy:0 manual_transcript). DONE success output still contains full DONE Gate Checklist block (CHK-004:happy:1 integration_test). tsc type-checks pass (CHK-004:happy:2). assertDoneSuccessPathOutputAndOrdering smoke case confirms checklist text present in DONE output via explicit return value chain."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 6 docsPromises verified in code by diff/grep. 15/15 smoke cases pass with true subprocess spawns covering: DONE success path byte-identical, Step1-5 ordering, three pre-merge gate failure paths (story stays TEST), real merge failure (story=DONE+throws+manual guide), worktree cleanup failure (story=DONE+merged+throws). globalThis stash eliminated confirmed by grep. 9 should-level intents uncovered (kill-9 atomicity, branch-d non-fatal fallback, concurrency) are advisory per test-coverage reviewer round 1. No unresolved TODOs in diff."
+  },
+  "_hash": "0c49f53d8c475c2e0f8c1206be57ea3e94f3cb9baa02aadfd6fab24bda026bf8"
+}

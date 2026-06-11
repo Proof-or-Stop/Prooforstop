@@ -1,0 +1,59 @@
+{
+  "principles": [
+    "destructive 命令默认不直接执行。",
+    "CLI guardrails 统一拦截，handler 只负责 dry-run 计划。",
+    "优先覆盖 requirement 已明确点名的 destructive 路径。"
+  ],
+  "drivers": [
+    "test_auto 的 restore/clean 误触成本高。",
+    "B-9a99 的第一版护栏仍没覆盖这条 destructive 路径。",
+    "需要一条可以被 fixture 验证的明确预览输出。"
+  ],
+  "options": [
+    {
+      "name": "A: 只在 test_auto handler 内做 confirm/dry-run",
+      "pros": [
+        "改动最小。",
+        "容易快速交付。"
+      ],
+      "cons": [
+        "继续绕开统一 guardrails。",
+        "后续命令会再出现分叉。"
+      ]
+    },
+    {
+      "name": "B: 复用 CLI guardrails，再让 test_auto 提供 dry-run 计划",
+      "pros": [
+        "与 story_discard 行为一致。",
+        "后续扩 destructive 命令更便宜。"
+      ],
+      "cons": [
+        "要同时改 cli-engine 与 handler。",
+        "还需要正式回归把行为锁住。"
+      ]
+    }
+  ],
+  "chosen": "B: 复用 CLI guardrails，再让 test_auto 提供 dry-run 计划",
+  "rationale": "这条需求是第一版护栏的补完，不是新的孤立特例。继续沿用统一 guardrails，才能真正把 destructive 路径收口。",
+  "preMortem": [
+    {
+      "scenario": "dry-run 仍触发 cleanup 或 fixture 扫描副作用",
+      "trigger": "test_auto 在返回计划前先初始化真实执行上下文",
+      "consequence": "用户以为只是预览，fixtures 现场却已被改动",
+      "mitigation": "dry-run 在 handler 最前面短路，只读配置和目录。"
+    },
+    {
+      "scenario": "confirm 提示和 story_discard 再次分叉",
+      "trigger": "test_auto 走自己的一套报错文案",
+      "consequence": "危险命令体验不一致，用户不知道统一规则",
+      "mitigation": "继续使用 cli-engine 里的 requiresConfirm 通用拦截文案。"
+    },
+    {
+      "scenario": "回归只证明有文案，不证明不落盘",
+      "trigger": "fixture 只断言错误提示而不检查文件状态",
+      "consequence": "真实误操作风险仍然存在",
+      "mitigation": "正式 fixture 必须断言 dry-run 前后 fixture 状态不变。"
+    }
+  ],
+  "timestamp": "2026-04-15T23:32:21.079Z"
+}

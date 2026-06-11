@@ -113,8 +113,8 @@ function tmpRoot(prefix: string): string {
 {
   const root = tmpRoot('koala-session-brief-stale-');
   try {
-    mkdirSync(join(root, '.koala'), { recursive: true });
-    writeFileSync(join(root, '.koala', 'activity.jsonl'), JSON.stringify({
+    mkdirSync(join(root, '.lattice'), { recursive: true });
+    writeFileSync(join(root, '.lattice', 'activity.jsonl'), JSON.stringify({
       tool: 'session_brief',
       endTime: new Date(Date.now() - 61 * 60 * 1000).toISOString(),
     }) + '\n');
@@ -129,8 +129,8 @@ function tmpRoot(prefix: string): string {
 {
   const root = tmpRoot('koala-session-brief-fresh-');
   try {
-    mkdirSync(join(root, '.koala'), { recursive: true });
-    writeFileSync(join(root, '.koala', 'activity.jsonl'), JSON.stringify({
+    mkdirSync(join(root, '.lattice'), { recursive: true });
+    writeFileSync(join(root, '.lattice', 'activity.jsonl'), JSON.stringify({
       tool: 'session_brief',
       endTime: new Date().toISOString(),
     }) + '\n');

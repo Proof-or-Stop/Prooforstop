@@ -4,6 +4,7 @@ import { dirname, join, resolve } from 'node:path';
 import { z } from 'zod';
 import { canonicalDigest } from './authority-signing.js';
 import type { StoryInfo, StoryType, VerificationIntent } from './types.js';
+import { LATTICE_DIR, LEGACY_KOALA_DIR } from './lattice-paths.js';
 
 /**
  * @task B-e3d9
@@ -538,11 +539,20 @@ export interface PlannerStoreLike {
 }
 
 export function plannerStateDir(root: string): string {
-  return join(root, '.koala', 'planner', 'runs');
+  return join(root, LATTICE_DIR, 'planner', 'runs');
+}
+
+function legacyPlannerStateDir(root: string): string {
+  return join(root, LEGACY_KOALA_DIR, 'planner', 'runs');
 }
 
 export function readPlannerRun(root: string, plannerRunId: string): PlannerRunRecord {
-  return JSON.parse(readFileSync(join(plannerStateDir(root), `${plannerRunId}.json`), 'utf8')) as PlannerRunRecord;
+  const filename = `${plannerRunId}.json`;
+  const currentPath = join(plannerStateDir(root), filename);
+  if (existsSync(currentPath)) {
+    return JSON.parse(readFileSync(currentPath, 'utf8')) as PlannerRunRecord;
+  }
+  return JSON.parse(readFileSync(join(legacyPlannerStateDir(root), filename), 'utf8')) as PlannerRunRecord;
 }
 
 export function writePlannerRun(root: string, record: PlannerRunRecord): void {
@@ -552,11 +562,15 @@ export function writePlannerRun(root: string, record: PlannerRunRecord): void {
 }
 
 export function listPlannerRuns(root: string): PlannerRunRecord[] {
-  const dir = plannerStateDir(root);
-  if (!existsSync(dir)) return [];
-  return readdirSync(dir)
-    .filter(name => name.endsWith('.json'))
-    .map(name => JSON.parse(readFileSync(join(dir, name), 'utf8')) as PlannerRunRecord)
+  const records = new Map<string, PlannerRunRecord>();
+  for (const dir of [legacyPlannerStateDir(root), plannerStateDir(root)]) {
+    if (!existsSync(dir)) continue;
+    for (const name of readdirSync(dir).filter(entry => entry.endsWith('.json'))) {
+      const record = JSON.parse(readFileSync(join(dir, name), 'utf8')) as PlannerRunRecord;
+      records.set(record.plannerRunId, record);
+    }
+  }
+  return [...records.values()]
     .sort((a, b) => a.updatedAt.localeCompare(b.updatedAt));
 }
 
@@ -807,7 +821,7 @@ export function buildPlannerDraft(root: string, args: PlannerDraftArgs = {}, now
   // The forced scope digest mixes the reason in, forking plannerRunId / Story /
   // job plan WITHOUT changing the intake identity.
   const forceScopeToken = forceNewRun ? textDigest(`force:${forceNewRunReason}`).slice(0, 8) : undefined;
-  const scopeDigest = forceNewRun ? textDigest(`${digest} force:${forceNewRunReason}`) : digest;
+  const scopeDigest = forceNewRun ? textDigest(`${digest}force:${forceNewRunReason}`) : digest;
   const plannerRunId = forceNewRun
     ? `prun-${scopeDigest.slice(0, 12)}-${interactionMode}-force-${forceScopeToken}`
     : `prun-${digest.slice(0, 12)}-${interactionMode}`;

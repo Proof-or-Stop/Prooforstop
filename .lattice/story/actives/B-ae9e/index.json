@@ -1,0 +1,134 @@
+{
+  "storyId": "B-ae9e",
+  "name": "entrypoint-hardening",
+  "title": "稳态化 Koala 入口、构建与初始化链路",
+  "description": "修复并加固 main/utils/bootstrap/wrapper/init 相关链路，确保完整 CLI 在本地和新项目初始化后都能稳定运行，并补充针对入口层的回归验证。",
+  "type": "refactor",
+  "phase": "DONE",
+  "priority": "high",
+  "createdAt": "2026-04-14T12:40:30.940Z",
+  "startedAt": "2026-04-14T12:40:30.940Z",
+  "endedAt": "2026-04-14T13:48:28.759Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-04-14T12:40:30.940Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-04-14T12:51:01.763Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-04-14T12:51:09.537Z",
+      "branch": "story/B-ae9e",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-14T13:06:08.598Z",
+      "branch": "story/B-ae9e",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-14T13:36:08.489Z",
+      "branch": "story/B-ae9e",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-14T13:39:23.890Z",
+      "branch": "story/B-ae9e",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-14T13:43:53.351Z",
+      "branch": "story/B-ae9e",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-14T13:44:37.316Z",
+      "branch": "story/B-ae9e",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-14T13:46:00.363Z",
+      "branch": "story/B-ae9e",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-14T13:46:18.121Z",
+      "branch": "story/B-ae9e",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-14T13:47:13.615Z",
+      "branch": "story/B-ae9e",
+      "user": "Harmonygo",
+      "agent": "gate-auto"
+    },
+    {
+      "phase": "TEST_CASE",
+      "action": "advance",
+      "timestamp": "2026-04-14T13:47:40.319Z",
+      "branch": "story/B-ae9e",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST_CASE_REVIEW",
+      "action": "advance",
+      "timestamp": "2026-04-14T13:47:59.963Z",
+      "branch": "story/B-ae9e",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-14T13:48:00.253Z",
+      "branch": "story/B-ae9e",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-14T13:48:28.759Z",
+      "branch": "story/B-ae9e",
+      "user": "Harmonygo",
+      "agent": "main"
+    }
+  ]
+}

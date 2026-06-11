@@ -1,0 +1,36 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-04-14T16:14:13.355Z",
+      "issueCount": 2,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "missing_intent",
+          "severity": "blocker",
+          "itemId": "CHK-003",
+          "message": "CHK-003「补主分支视角下的多 story 控制台信息」缺少 testIntent"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding 还有 2 个未消化的 unknowns: 等待关系推断第一版是否只覆盖 reviewer/intent/main 这几类，还是要提前为 implementer 留口。; 主分支的 next step 是否需要明确 lane/priority 字段，还是先根据当前 story phase 和依赖做启发式排序。"
+        }
+      ],
+      "_hash": "747199910742c204fc2f2335de99f17ca6f3218fb5e2687ebba8da19aee5db13"
+    },
+    {
+      "timestamp": "2026-04-14T16:14:22.777Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding 还有 2 个未消化的 unknowns: 等待关系推断第一版是否只覆盖 reviewer/intent/main 这几类，还是要提前为 implementer 留口。; 主分支的 next step 是否需要明确 lane/priority 字段，还是先根据当前 story phase 和依赖做启发式排序。"
+        }
+      ],
+      "_hash": "6d735266544894c3b74f47b6bf0f3a69c0d7082abd10e1ef08bd4e1024211223"
+    }
+  ]
+}

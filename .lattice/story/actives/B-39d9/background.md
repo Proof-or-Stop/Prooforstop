@@ -1,0 +1,14 @@
+## 触发事件
+2026-06-01 Koala Mac story B-3e9a 明确需要 shared core CLI 改动：当前 Koala Mac 仓库只有薄 wrapper，`koala check --json` 没有 `runtimeMode`，`koala doctor` 的 runtime 信息也埋在较后段，无法直接回答用户是否每个项目都需要 JS runtime。
+
+## 关键洞察
+真正的行为源头在 Orchestrate `packages/main` 的 core CLI，而不是 Koala Mac wrapper。本 story 需要让 `check` 和 `doctor` 共用一个 runtimeMode contract，并把 managed asset 安全边界与 runtime footprint guidance 同时给机器和人看清楚。
+
+## 方案取舍
+优先在 core CLI 增加共享 runtimeMode 诊断和首屏文本摘要；Koala Mac 侧只负责通过 `node bin/koala.js` wrapper 证明消费到新 runtime。不要把 wrapper、doctor、本地 JSON 描述成生产 authority 或 gate 事实，safe sync mutation 仍只允许 MISSING 和 STALE_SAFE。
+\nContract schema decision: add one shared core helper that produces top-level `runtimeMode` for both `check --json` and `doctor --format=json`. Required fields are `mode`, `source`, `requiresProjectJavaScriptRuntime`, `authority`, and `message`. `mode` enum is exactly `global-cli | project-local-package | packaged-runtime | compatibility-launcher | diagnostic-only`; `source` enum is exactly `repo-local-dist | project-node-modules | packaged-runtime | external-development-engine | global-cli | unknown`. Conflicting or ambiguous signals must degrade to `mode=diagnostic-only` with manual-review guidance. The field is a local runtime diagnostic, not process gate or production authority evidence.
+\nOwnership boundary: B-39d9 owns the core CLI implementation and tests inside this Orchestrate repository. External Koala Mac story B-3e9a owns final consumer-wrapper proof. This story may include a concrete handoff command list for B-3e9a (`node bin/koala.js check --json`, `node bin/koala.js doctor --format=json`, plain `check`, plain `doctor`), but the external wrapper transcript itself is not required for B-39d9 DONE.
+\nRuntimeMode classification table: `project-local-package` when the active CLI realpath resolves through the project root `node_modules/.bin/koala` or project-local package path; `packaged-runtime` when an explicit packaged runtime source/env is detected; `global-cli` when active CLI is a global koala and no wrapper/dev engine is in play; `compatibility-launcher` when a thin launcher resolves repo-local dist, project node_modules fallback, external development engine, packaged runtime fallback, or global fallback for this command; `diagnostic-only` when signals conflict or the source cannot be determined safely. `requiresProjectJavaScriptRuntime=true` only for `project-local-package`; all other modes are false unless a future packaged rule explicitly says otherwise. `authority` is the stable string `local-runtime-diagnostic-only` for every runtimeMode in this story; it means the field explains local execution and never proves process gate or production authority facts.
+
+## 对话纹理
+用户最关心的是项目负担和团队心智：看到 Koala wrapper 时会担心每个项目都要变成 JavaScript 项目。交付要让 plain `check` / `doctor` 第一屏就给出安心答案，而不是要求用户读源码或理解 bootstrap fallback 链。

@@ -1,0 +1,64 @@
+{
+  "storyId": "B-29b6",
+  "checkedAt": "2026-06-02T05:55:40.255Z",
+  "reviewRound": "2026-06-02T05:48:34.206Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/lattice-parallel-wave.md#projection-only",
+      "promise": "Parallel Wave is a collection-level scheduling/recovery projection, not authority evidence, and it preserves Canonical Story as the story-level source projection.",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "lines 3-17"
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-parallel-wave.md#commands",
+      "promise": "parallel_wave_create, parallel_wave_inspect, and parallel_plan are read-only workflow commands with optional no-overwrite output and no authority mutation.",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "lines 30-44"
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-parallel-wave.md#wave-json-contract",
+      "promise": "Wave JSON exposes visible degradations, evidence refs, merge order, and top-level authority fields with productionDone=false, authorityChanged=false, and receiptRefs=[].",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "lines 48-63"
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-parallel-wave.md#authority-boundary",
+      "promise": "Wave artifacts, handoff packs, local JSON files, missing receipts, and unverified receipt refs cannot satisfy DONE or production authority.",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "lines 75-81"
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-parallel-wave.md#lattice-mapping",
+      "promise": "Capability gaps remain visible degradations and active dependencies/shared hotspots fail closed even when parallelSafe=yes is declared.",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "lines 20-24 and 61-63"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "transcript-diff",
+      "transcript": ".koala/story/actives/B-29b6/evidence/transcript-diff.md records the built-local CLI acceptance run: parallel_wave_create, parallel_wave_inspect, and parallel_plan produced koala.parallel_wave.v1 / koala.parallel_wave_inspect.v1 / koala.parallel_plan.v1 with productionDone=false, authorityChanged=false, receiptRefs=[], and a visible conditional receipt-verify degradation."
+    },
+    {
+      "featureId": "focused-smoke",
+      "transcript": "npm --prefix packages/main run build && npm --prefix packages/main run test:lattice-parallel-wave-smoke PASS; the smoke covers readOnly/L0 registration, default phase tools, no-overwrite output, dependency blocking, hotspot degradation, and authority boundary."
+    },
+    {
+      "featureId": "scope-validate",
+      "transcript": "KOALA_SESSION_ID=codex-main-B-29b6 koala scope_contract_check --storyId=B-29b6 passed, and KOALA_SESSION_ID=codex-main-B-29b6 koala validate --story=B-29b6 --json passed with 18/18 verification intents covered."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Docs promises verified against lattice-parallel-wave.md lines 3-81; transcript-diff acceptance matched actual CLI schemas and authority boundary; focused smoke/build/scope/validate passed; no unresolved TODOs remain."
+  },
+  "_hash": "74e4095a8d01f150b04627b19d7e78fe2e4f8e7be8128dc02ec2054af9c92b7f"
+}

@@ -1,0 +1,57 @@
+{
+  "storyId": "B-5705",
+  "checkedAt": "2026-05-08T23:44:36.706Z",
+  "reviewRound": "2026-05-08T23:39:41.506Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "CLAUDE.md#行为准则 / Claude Prompt Hook",
+      "promise": "New or resumed sessions use koala session_brief as the first recovery entry, and the Claude UserPromptSubmit hook reads .koala/activity.jsonl, docs/story/activity.jsonl, and docs/story/actives/*/activity.jsonl before deciding whether to show the reminder.",
+      "status": "verified",
+      "verifiedBy": "diff/grep + smoke",
+      "evidence": "CLAUDE.md lines 6-8 and 68-74 state session_brief first-entry and all three activity sources; .claude/hooks/session-brief-reminder.cjs lines 78-91 reads the same three source classes; session-brief-prompt-sync-smoke passed."
+    },
+    {
+      "docPath": "docs/guide-hooks.md#Claude Code Prompt 提醒",
+      "promise": "Hook guide documents UserPromptSubmit installation, all activity log sources, 60-minute freshness behavior, reminder text, zero-exit failure handling, and no Codex hook/settings runtime assets.",
+      "status": "verified",
+      "verifiedBy": "diff/grep + smoke",
+      "evidence": "docs/guide-hooks.md lines 7-33 match .claude/settings.json lines 3-13, cli-init.ts lines 601-619, and session-brief-reminder.cjs lines 21-27 and 78-119; test:codex-assets passed with no .Codex/hooks or .Codex/settings.json."
+    },
+    {
+      "docPath": "CLAUDE.md#INIT→INIT_CHECK 硬门槛 and prompt templates",
+      "promise": "INIT_CHECK documentation and generated reviewer prompts describe missing required reviewer plus critical/high issues as blockers, while medium/low remain advisory.",
+      "status": "verified",
+      "verifiedBy": "diff/grep + smoke",
+      "evidence": "CLAUDE.md lines 506-513 and mirrored template/prompt sections contain missing_init_check_agent, init_check_blocking_issues, and critical/high blocker wording; init-check-required-agents-smoke passed; session-brief-prompt-sync-smoke rejects old issues advisory/gate ignores severity wording."
+    },
+    {
+      "docPath": "packages/main/templates/agents + .claude/agents + .Codex/agents + packages/main/src/cli-prompts.ts",
+      "promise": "Prompt/template mirrors and CLI prompt/footer no longer present koala status as first-session/lost-next-step recovery; status remains only as an in-work quick status command.",
+      "status": "verified",
+      "verifiedBy": "grep + mirror checks + smoke",
+      "evidence": "cli-prompts.ts lines 58, 109, and 296 use koala session_brief; stale status phrases were absent in rg scans; diff -rq packages/main/templates/agents .claude/agents produced no differences; npm run test:codex-assets passed and reported 16 Codex prompts mirrored."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "session-brief-prompt-sync-smoke passed: scans CLAUDE.md, cli-prompts footer, package templates, .claude prompts, and .Codex prompts for stale first-session koala status wording, requires SESSION_BRIEF_FOOTER to contain koala session_brief, and test:codex-assets passed for prompt mirror consistency."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "init-check-required-agents-smoke passed and session-brief-prompt-sync-smoke passed: high issue and missing required reviewer block INIT_CHECK, medium issue can advance, and docs/prompts reject old issues advisory or gate-ignores-severity wording."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "transcript-diff shows fresh docs/story/actives/B-demo/activity.jsonl Bash koala session_brief produced status 0 and empty output, while missing activity produced status 0 and 建议先运行 koala session_brief 恢复现场; session-brief-prompt-sync-smoke also covers stale .koala reminder, fresh .koala silence, root docs/story silence, story-scoped silence, malformed stdin zero-exit, missing activity zero-exit, and UserPromptSubmit installation."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery promises are verified against docs, hook code, prompt mirrors, smoke tasks, transcript-diff, and validate output. CHK-001/002/003 have real command or transcript coverage including story-scoped activity silence and missing-activity reminder behavior; no unresolved TODO/FIXME/HACK/XXX entries were found in the diff."
+  },
+  "_hash": "cb1febca4f440960a3d97f163927e179080cb2bacf941696772d09749c9461d4"
+}

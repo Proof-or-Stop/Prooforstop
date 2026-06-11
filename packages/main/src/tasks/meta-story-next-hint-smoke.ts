@@ -48,7 +48,7 @@ function write(root: string, path: string, content: string): void {
 function runKoala(root: string, command: string): string {
   return execFileSync(process.execPath, [cliPath, command, '{}'], {
     cwd: root,
-    env: { ...process.env, KOALA_PROJECT_ROOT: root },
+    env: { ...process.env, LATTICE_PROJECT_ROOT: root },
     encoding: 'utf-8',
     stdio: ['pipe', 'pipe', 'pipe'],
   });
@@ -61,7 +61,7 @@ function setupProject(prefix: string): string {
   write(root, 'koala.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.koala/story/actives',
+    storyDir: '.lattice/story/actives',
     requirementsDir: 'docs/requirements',
   }, null, 2));
   write(root, 'README.md', 'meta-story next-hint smoke\n');

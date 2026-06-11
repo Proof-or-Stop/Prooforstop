@@ -1,0 +1,43 @@
+{
+  "storyId": "B-0692",
+  "checkedAt": "2026-05-11T14:55:00.601Z",
+  "reviewRound": "2026-05-11T14:47:13.053Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "AGENTS.md",
+      "promise": "流程事实双层契约要求 prompt 只负责指路，CLI handler gate 负责硬编码判定；本 story 的 registry 与 contract test 把流程事实等级、owner、gateConsumer 和 prompt drift 检查落到代码入口。",
+      "status": "verified",
+      "verifiedBy": "koala aux_doc_list; git diff --stat main...HEAD -- AGENTS.md docs/requirements/decisions/story-lifecycle.md; npm run test:process-fact-contract",
+      "evidence": "relatedDocs 在本 story diff 中未改动；AGENTS.md 的双层契约与实现一致。contract output 显示 entries: 87 (84 CLI, 3 runtime)、L4 entries include gateConsumer，并最终 Process fact contract verified。"
+    },
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md",
+      "promise": "Story lifecycle gate 仍由 machine/story-advance 硬编码执行；B-0692 只新增流程事实硬度 registry 和 contract 防漂移，不把生命周期运行时重构为 registry 驱动。",
+      "status": "verified",
+      "verifiedBy": "git diff --name-only main...HEAD; git diff main...HEAD; koala checklist_get; npm run test:process-fact-contract",
+      "evidence": "story diff 没有修改 story-lifecycle.md；代码 diff 集中在 process-fact-levels registry、contract verifier、reviewer dispatch 和 smoke test。contract 仍检查 machine.ts/story-advance.ts/review-preflight.ts 的 REVIEW/TEST/DONE gate patterns。"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm run test:process-fact-contract passed on current worktree. Output includes Process Fact Level Registry, entries: 87 (84 CLI, 3 runtime), levels L0=31 L1=14 L2=19 L3=2 L4=21, story_advance [L4] with gateConsumer, and status/session_brief [L0]."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "npm run test:process-fact-contract passed. Verifier reads packages/main/src/core/process-fact-levels.ts, rejects missing/duplicate registry commands, rejects L0 process-fact candidates, requires L4 gateConsumer, scans 27 reviewer prompts, and ends with Process fact contract verified."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "npm run test:process-fact-contract passed with runtime soft-point rows for phase_tools_malformed_allow_all [L1], test_auto_recursive_skip [L2], and validate_fallback_discovery [L1]. npm --prefix packages/main run test:review-pass-discard-smoke passed, npm run build passed, and koala validate --json passed via fallback npm test."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review inspected session state, dispatch/help context, checklist verification evidence, summary transcript diff, git diff, relatedDocs status, current validation output, process fact contract output, reviewer dispatch smoke, and build. No delivery blocker found; only remaining operational DONE pre-check item is committing current metadata changes including this delivery-check artifact."
+  },
+  "_hash": "720494339218850cb42daef78beed3b596154b60547b4304c24c7253302dc2c3"
+}

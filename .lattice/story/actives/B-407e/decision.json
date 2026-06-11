@@ -1,0 +1,69 @@
+{
+  "principles": [
+    "Fix annotation compliance without changing executable behavior.",
+    "Prefer preserving useful developer context over deleting comments wholesale.",
+    "Make convergence_check and lint:tasks agree on a clean annotation state."
+  ],
+  "drivers": [
+    "64 validator errors currently block project convergence.",
+    "The affected comments are localized to 11 locations.",
+    "The compliance risk signal is a process false positive, so the implementation must stay low-risk and mechanical."
+  ],
+  "options": [
+    {
+      "name": "A: Normalize malformed comments at the affected locations",
+      "pros": [
+        "Small diff",
+        "No validator behavior change",
+        "Directly fixes current convergence blocker"
+      ],
+      "cons": [
+        "Requires choosing per location whether to keep structured annotation or convert to prose"
+      ]
+    },
+    {
+      "name": "B: Relax the annotation validator to ignore inline explanatory @task text",
+      "pros": [
+        "Could reduce future false positives",
+        "May require fewer comment edits"
+      ],
+      "cons": [
+        "Changes checker semantics and may hide real malformed annotations",
+        "Higher risk because convergence relies on this validator"
+      ]
+    },
+    {
+      "name": "C: Remove all affected comments",
+      "pros": [
+        "Fastest way to silence parser errors"
+      ],
+      "cons": [
+        "Loses useful context and preMortem anchors",
+        "Could make future reviewers miss why gate behavior exists"
+      ]
+    }
+  ],
+  "chosen": "A: Normalize malformed comments at the affected locations",
+  "rationale": "Choose the smallest behavior-preserving cleanup: repair only the comments that lint:tasks reports, preserving intent while keeping validator semantics strict.",
+  "preMortem": [
+    {
+      "scenario": "A comment edit accidentally changes executable code nearby.",
+      "trigger": "Patch includes non-comment lines or formatting tools rewrite code blocks.",
+      "consequence": "Runtime behavior changes under a cleanup story.",
+      "mitigation": "Diff review must confirm only comment/annotation text changed, then run build."
+    },
+    {
+      "scenario": "Validator passes but convergence_check still fails.",
+      "trigger": "lint:tasks is fixed but convergence_check has another annotation path or stale build output.",
+      "consequence": "User still sees converged=false after cleanup.",
+      "mitigation": "Run npm run lint:tasks and koala convergence_check after build; inspect remaining failed row if any."
+    },
+    {
+      "scenario": "Converting @task tags to prose removes metadata needed by task_coverage.",
+      "trigger": "A genuinely structured file-level annotation is converted instead of completed.",
+      "consequence": "Annotation coverage loses a useful trace link.",
+      "mitigation": "For file-level story annotations, prefer completing required fields; convert only inline explanatory comments that are not intended as metadata."
+    }
+  ],
+  "timestamp": "2026-05-15T20:19:26.588Z"
+}

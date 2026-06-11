@@ -1,0 +1,55 @@
+{
+  "storyId": "B-3a3b",
+  "changes": "Koala init now generates .Codex/agents from the full .claude/agents prompt set. It removed the four-file Codex whitelist, added full drift verification, added entrypoint checks for representative mirrored prompts, removed stale Codex-only prompts, and clarified docs that hooks/settings/skills remain Claude-only.",
+  "usage": "Run koala init in a project. Users should inspect .Codex/agents for mirrored prompt files and read .Codex/README.md for Codex-specific activity guidance. Continue using KOALA_ACTIVITY_SOURCE=codex koala session_brief or bin/koala-codex.js where available.",
+  "expectedOutcome": "After koala init, the project tree shows .Codex/agents with the same Koala prompt names as .claude/agents, including koala-implementer and koala-review-quality. It does not show .Codex/hooks or .Codex/settings.json.",
+  "actualTranscript": "Fresh init transcript showed Codex agents count: 16; representative prompts included .Codex/agents/koala-implementer.md, .Codex/agents/koala-review-quality.md, .Codex/agents/koala-review-test-coverage.md, and .Codex/agents/test-intent.md. Codex hooks present: no. Codex settings present: no. Stale prompts present: no. .Codex/README.md says .Codex/agents is generated from the full .claude/agents prompt set and Claude hooks/settings/skills remain under .claude.",
+  "outcomeDiff": "No mismatch found. Actual transcript matches the expected user-visible tree and documentation boundary.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Codex hooks/settings/skills are intentionally not generated because Codex does not consume Claude Code runtime hooks/settings/skills. This is a documented boundary, not missing support.",
+  "pitfalls": "Koala evidence became stale after a later docs typo fix because HEAD changed; the fix was to rerun/refresh verification evidence before advancing TEST. Also .Codex/README.md had an old lowercase .codex/agents path that docs review caught and we fixed.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 7424082
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 43583
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 179165
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 366357
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 180329
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 268187
+    }
+  },
+  "totalDurationMs": 8461703,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-05-03T20:31:08.912Z",
+  "updatedAt": "2026-05-03T20:31:08.912Z"
+}

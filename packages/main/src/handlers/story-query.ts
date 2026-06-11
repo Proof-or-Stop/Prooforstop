@@ -17,6 +17,7 @@ import {
   resolveWorktreePath,
 } from '../core/worktree-runtime.js';
 import { getLegacyActivityLogPath, getRuntimeActivityLogPath } from '../core/activity-log.js';
+import { LATTICE_DIR, LATTICE_ACTIVITY_LOG, LATTICE_REPAIR_IGNORE, LEGACY_KOALA_REPAIR_IGNORE } from '../core/lattice-paths.js';
 import { initCheckAttestationMode } from '../core/init-check-gate.js';
 import { withMainWriteLock } from '../core/main-write-lock.js';
 import {
@@ -266,7 +267,10 @@ export function detectStoryResidue(
       // worktree dirs are named B-xxxx
       const dirName = entry.name;
       if (!dirName.startsWith('B-')) continue;
-      if (existsSync(join(worktreesDir, dirName, '.koala-repair-ignore'))) continue;
+      if (
+        existsSync(join(worktreesDir, dirName, LATTICE_REPAIR_IGNORE))
+        || existsSync(join(worktreesDir, dirName, LEGACY_KOALA_REPAIR_IGNORE))
+      ) continue;
 
       let story;
       try { story = store.readStory(dirName); } catch { continue; }
@@ -675,12 +679,12 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
      *   Story artifacts and activity logs are Koala machine state, not human
      *   documentation. This command migrates legacy docs/story/actives data
      *   into the configured storyDir and legacy docs/story/activity.jsonl into
-     *   .koala/activity.jsonl, backing up removed legacy files under .koala.
+     *   .lattice/activity.jsonl, backing up removed legacy files under .lattice.
      * @changes
      *   - [CHK-002] Preview legacy-to-runtime story storage migration
      *   - [CHK-002] Copy legacy story directories to config.storyDir
-     *   - [CHK-002] Move legacy docs/story/actives to .koala/legacy-backup on confirm
-     *   - [B-281f/CHK-001] Merge legacy docs/story/activity.jsonl into .koala/activity.jsonl
+     *   - [CHK-002] Move legacy docs/story/actives to .lattice/legacy-backup on confirm
+     *   - [B-281f/CHK-001] Merge legacy docs/story/activity.jsonl into .lattice/activity.jsonl
      *   - [B-281f/CHK-002] Remove docs/story only when it becomes empty after migration
      * @test story-storage-migration
      */
@@ -691,7 +695,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
       const legacyRoot = join(ctx.root, legacyRel);
       const targetRoot = join(ctx.root, targetRel);
       const legacyActivityRel = 'docs/story/activity.jsonl';
-      const targetActivityRel = '.koala/activity.jsonl';
+      const targetActivityRel = LATTICE_ACTIVITY_LOG;
       const legacyActivityPath = getLegacyActivityLogPath(ctx.root);
       const targetActivityPath = getRuntimeActivityLogPath(ctx.root);
       const docsStoryRoot = join(ctx.root, 'docs', 'story');
@@ -724,17 +728,17 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
 
       if (args?.dryRun !== false || !args?.confirm) {
         if (storyDirMigrationEnabled && toCopy.length > 0) lines.push(`  will copy: ${toCopy.slice(0, 12).join(', ')}${toCopy.length > 12 ? ` (+${toCopy.length - 12} more)` : ''}`);
-        if (storyDirMigrationEnabled && hasLegacyActives) lines.push('  will backup legacy dir to .koala/legacy-backup/docs-story-actives-<timestamp>');
+        if (storyDirMigrationEnabled && hasLegacyActives) lines.push('  will backup legacy dir to .lattice/legacy-backup/docs-story-actives-<timestamp>');
         if (hasLegacyActivity) {
           lines.push(`  will migrate activity: ${legacyActivityRel} -> ${targetActivityRel}${hasTargetActivity ? ' (append)' : ''}`);
-          lines.push('  will backup legacy activity to .koala/legacy-backup/docs-story-activity-<timestamp>.jsonl');
+          lines.push('  will backup legacy activity to .lattice/legacy-backup/docs-story-activity-<timestamp>.jsonl');
         }
         lines.push('  will remove docs/story only if it is empty after migration');
-        lines.push('→ Confirm migration: koala story_migrate_storage \'{"dryRun":false,"confirm":true}\'');
+        lines.push('→ Confirm migration: lattice story_migrate_storage \'{"dryRun":false,"confirm":true}\'');
         return lines.join('\n');
       }
 
-      const backupRoot = join(ctx.root, '.koala', 'legacy-backup');
+      const backupRoot = join(ctx.root, LATTICE_DIR, 'legacy-backup');
       mkdirSync(backupRoot, { recursive: true });
       let copied = 0;
       let activesBackup: string | null = null;
@@ -754,7 +758,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
       if (hasLegacyActivity) {
         const legacyActivity = readFileSync(legacyActivityPath, 'utf-8');
         const targetActivity = hasTargetActivity ? readFileSync(targetActivityPath, 'utf-8') : '';
-        mkdirSync(join(ctx.root, '.koala'), { recursive: true });
+        mkdirSync(join(ctx.root, LATTICE_DIR), { recursive: true });
         writeFileSync(targetActivityPath, appendJsonlContent(targetActivity, legacyActivity));
         activityBackup = join(backupRoot, `docs-story-activity-${Date.now()}.jsonl`);
         renameSync(legacyActivityPath, activityBackup);

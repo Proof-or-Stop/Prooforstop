@@ -14,6 +14,7 @@ import type { AuthorityReceiptRefDocument } from './authority-gate-receipts.js';
 import type { ClusterData } from './cluster-types.js';
 import { appendProcessEvent as appendProcessEventFn, readProcessEvents as readProcessEventsFn } from './process-events.js';
 import { loadConfig } from './config.js';
+import { LEGACY_DOCS_STORY_DIR, LEGACY_KOALA_STORY_DIR, uniqueRelPaths } from './lattice-paths.js';
 import { normalizeLegacyPhase, phaseRank } from './phase-flow.js';
 
 type JsonCandidate<T> = {
@@ -30,14 +31,19 @@ class StoryArtifactMissingError extends Error {
 
 export class StoryStore {
   private baseDir: string;
-  private legacyBaseDir: string;
+  private legacyBaseDirs: string[];
   private storyDirRelValue: string;
 
   constructor(projectRoot: string) {
     const config = loadConfig(projectRoot);
     this.storyDirRelValue = config.storyDir.replace(/\\/g, '/');
     this.baseDir = join(projectRoot, config.storyDir);
-    this.legacyBaseDir = join(projectRoot, 'docs', 'story', 'actives');
+    this.legacyBaseDirs = uniqueRelPaths([
+      LEGACY_KOALA_STORY_DIR,
+      LEGACY_DOCS_STORY_DIR,
+    ])
+      .filter((rel) => rel !== this.storyDirRelValue)
+      .map((rel) => join(projectRoot, rel));
   }
 
   storyDirRel(): string {
@@ -58,8 +64,7 @@ export class StoryStore {
 
   private candidateStoryDirs(storyId: string): string[] {
     const configured = this.storyDir(storyId);
-    const legacy = join(this.legacyBaseDir, storyId);
-    return configured === legacy ? [configured] : [configured, legacy];
+    return [configured, ...this.legacyBaseDirs.map((base) => join(base, storyId))];
   }
 
   private ensureDir(storyId: string): void {
@@ -166,7 +171,7 @@ export class StoryStore {
 
   listStoryIds(): string[] {
     const ids = new Set<string>();
-    for (const base of [this.baseDir, this.legacyBaseDir]) {
+    for (const base of [this.baseDir, ...this.legacyBaseDirs]) {
       if (!existsSync(base)) continue;
       for (const d of readdirSync(base, { withFileTypes: true })) {
         if (d.isDirectory() && existsSync(join(base, d.name, 'index.json'))) ids.add(d.name);

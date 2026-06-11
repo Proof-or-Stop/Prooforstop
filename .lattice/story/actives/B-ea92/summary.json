@@ -1,0 +1,56 @@
+{
+  "storyId": "B-ea92",
+  "changes": "Added read-only authority policy discovery in the TS CLI: typed authority-policy.v1 parsing, AuthorityClient.discoverPolicy, authority_enforce_policy / authority enforce policy command routing, overclaim rejection, smoke tests, docs, validation handoff, and post-review cleanup.",
+  "usage": "Run koala authority_enforce_policy --authorityURL=<server> or koala authority enforce policy --authorityURL=<server> to inspect the Python authority /v1/authority/policy contract. This command only discovers policy and does not submit evidence.",
+  "expectedOutcome": "The command prints the discovery-only disclaimer plus contractVersion authority-policy.v1, requiredAuthorityMode, command/evidence digests, supported modes, and evidencePolicy.preset. Missing authority URL fails non-zero.",
+  "actualTranscript": "manual TEST validation passed; calls=GET /v1/authority/policy,GET /v1/authority/policy; flat-status=0 nested-status=0 missing-url-status=nonzero. koala validate passed with 15/15 verification intents covered.",
+  "outcomeDiff": "No product mismatch. Output uses aligned field formatting, which still contains the expected field/value pairs.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "M1 intentionally does not implement actor keys, runner behavior, job claim, EvidenceEnvelope submission, server receipts, receipt verification, L2+ gate promotion, or production authority enforcement.",
+  "pitfalls": "The first manual verifier script used spawnSync while hosting the fake server in the same Node event loop, causing a self-inflicted timeout; rerunning with async child processes produced the correct pass transcript. Quality review also caught two smoke cleanup issues, both fixed by Claude and re-reviewed.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 212109
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 18774
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 313710
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 2173492
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 374965
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 393110
+    }
+  },
+  "totalDurationMs": 3486165,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-05-27T19:10:03.444Z",
+  "updatedAt": "2026-05-27T19:10:03.444Z"
+}

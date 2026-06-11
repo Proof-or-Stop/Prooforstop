@@ -1,0 +1,41 @@
+{
+  "storyId": "B-011",
+  "title": "收尾自动闭环：DONE 后自动收敛检查 + 差距转 Story",
+  "description": "Story 推进到 DONE 后，/project 收尾流程自动执行收敛检查，未收敛时展示差距并建议下一步 Story，用户确认后自动创建。实现 truth → story → code → extract → gap → converge → (未收敛) → 新 story 的完整闭环。",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "高",
+  "source": "用户需求",
+  "depends": [
+    "B-009"
+  ],
+  "createdAt": "2026-04-01T03:00:32.330Z",
+  "startedAt": "2026-04-01T03:00:32.330Z",
+  "endedAt": "2026-04-01T04:28:12.108Z",
+  "events": [
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-04-01T03:35:45.370Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-04-01T03:39:20.374Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-04-01T04:28:12.108Z",
+      "branch": "main",
+      "user": "jay2079037995",
+      "agent": "main"
+    }
+  ]
+}

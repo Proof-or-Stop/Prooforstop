@@ -1,0 +1,57 @@
+{
+  "principles": [
+    "baseline 固定，候选之间才可比较。",
+    "报告必须解释分数对应的内容变化。",
+    "实验不直接修改生产 story_review。"
+  ],
+  "drivers": [
+    "量化 PLAN gate 输出格式。",
+    "找出是否有更清晰的 blocker/advisory 组织方式。",
+    "为后续 story_review 代码改造提供数据依据。"
+  ],
+  "options": [
+    {
+      "name": "A: 用样本候选做离线 story_review 结构化实验",
+      "pros": [
+        "不改生产代码。",
+        "能快速比较多种输出结构。",
+        "可以直接提交实验报告。"
+      ],
+      "cons": [
+        "样本分数需要后续真实 dogfood 校准。"
+      ]
+    },
+    {
+      "name": "B: 直接改 story_review 生产输出",
+      "pros": [
+        "立即影响真实流程。"
+      ],
+      "cons": [
+        "缺少候选对比，容易引入噪音或丢失关键信息。"
+      ]
+    }
+  ],
+  "chosen": "A: 用样本候选做离线 story_review 结构化实验",
+  "rationale": "先跑样本候选能验证 story-review-quality-v1 是否有区分度，并避免 premature production change。",
+  "preMortem": [
+    {
+      "scenario": "候选机器分高但人工读起来不清楚",
+      "trigger": "profile 只看关键词，不看信息层次",
+      "consequence": "推荐错误格式",
+      "mitigation": "报告加入人工推荐与不推荐说明，不只看分数"
+    },
+    {
+      "scenario": "baseline 样本不是当前真实输出",
+      "trigger": "手写 baseline",
+      "consequence": "对比失真",
+      "mitigation": "脚本直接运行 story_review 生成 baseline"
+    },
+    {
+      "scenario": "候选丢失 risk 或 fix 命令但仍高分",
+      "trigger": "submetrics 覆盖不足",
+      "consequence": "生产实现丢关键信号",
+      "mitigation": "报告列 must-keep signals 和 contentSummary 缺失项"
+    }
+  ],
+  "timestamp": "2026-04-19T00:51:29.699Z"
+}

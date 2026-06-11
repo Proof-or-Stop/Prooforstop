@@ -48,8 +48,19 @@ function assertPathExists(root, relPath, label = relPath) {
   assert(existsSync(join(root, relPath)), `${label} should exist`);
 }
 
+function pathExistsWithExactCase(root, relPath) {
+  let current = root;
+  for (const part of relPath.split('/').filter(Boolean)) {
+    if (!existsSync(current)) return false;
+    const entries = readdirSync(current);
+    if (!entries.includes(part)) return false;
+    current = join(current, part);
+  }
+  return true;
+}
+
 function assertPathMissing(root, relPath, label = relPath) {
-  assert(!existsSync(join(root, relPath)), `${label} should not exist`);
+  assert(!pathExistsWithExactCase(root, relPath), `${label} should not exist`);
 }
 
 function sectionBetween(text, startNeedle, endNeedle, label) {
@@ -64,7 +75,7 @@ function sectionBetween(text, startNeedle, endNeedle, label) {
 function assertInitHelpDocumentsStarterAsOptional(help, label) {
   assertIncludes(help, '--profile <profile>', label);
   assertIncludes(help, 'codex | claude | all | core', label);
-  assertIncludes(help, '.Lattice/Lattice.md', label);
+  assertIncludes(help, '.lattice/Lattice.md', label);
   assertIncludes(help, 'global-thin', label);
   assertIncludes(help, '--starter', label);
   assertIncludes(help, '--with-template', label);
@@ -142,7 +153,7 @@ function assertProfileAssets(tempDir, profile, opts = {}) {
 }
 
 function assertGlobalThinAssets(tempDir, profile, opts = {}) {
-  const present = ['.Lattice/Lattice.md', '.Lattice/lattice.json', 'lattice.config.json'];
+  const present = ['.lattice/Lattice.md', '.lattice/lattice.json', 'lattice.config.json'];
   const absent = ['LATTICE.md', 'bin/lattice.js', 'bin/lattice-codex.js', '.Codex'];
 
   if (profile === 'codex' || profile === 'all' || profile === 'core') {
@@ -173,7 +184,11 @@ function assertGlobalThinAssets(tempDir, profile, opts = {}) {
 }
 
 function readActivityRecord(session, tool) {
-  const activityPath = join(repoRoot, '.koala', 'activity.jsonl');
+  const activityPath = [
+    join(repoRoot, '.lattice', 'activity.jsonl'),
+    join(repoRoot, '.koala', 'activity.jsonl'),
+  ].find(existsSync);
+  if (!activityPath) return null;
   const text = readFileSync(activityPath, 'utf8').trim();
   if (!text) return null;
   const entries = text
@@ -194,7 +209,11 @@ function currentStoryId() {
 function readProcessEvent(session, command) {
   const storyId = currentStoryId();
   if (!storyId) return null;
-  const storyDir = join(repoRoot, '.koala', 'story', 'actives', storyId);
+  const storyDir = [
+    join(repoRoot, '.lattice', 'story', 'actives', storyId),
+    join(repoRoot, '.koala', 'story', 'actives', storyId),
+  ].find(existsSync);
+  if (!storyDir) return null;
   const eventPath = join(storyDir, 'process-events.jsonl');
   if (!existsSync(eventPath)) return null;
   const entries = readFileSync(eventPath, 'utf8')
@@ -447,7 +466,7 @@ checks.push(() => {
     assert(checkApply.ok === true, 'koala check --apply should repair safe managed drift');
     assert(checkApply.applied.includes('.Codex/lattice.json'), 'koala check --apply should report applied managed manifest');
     assert(readJson(tempDir, '.Codex/lattice.json').adapterOwner === 'lattice', 'koala check --apply should restore Codex manifest');
-    assertPathExists(tempDir, '.koala/managed-assets.json', 'koala check --apply manifest');
+    assertPathExists(tempDir, '.lattice/managed-assets.json', 'koala check --apply manifest');
 
     run('git', ['init'], { cwd: tempDir });
     writeFileSync(join(tempDir, 'koala-user-note.txt'), 'uncommitted local work\n');
@@ -525,14 +544,14 @@ checks.push(() => {
 checks.push(() => {
   const tracked = new Set(run('git', ['ls-files']).trim().split(/\r?\n/).filter(Boolean));
   const required = [
-    '.Lattice/Lattice.md',
-    '.Lattice/lattice.json',
+    '.lattice/Lattice.md',
+    '.lattice/lattice.json',
     '.codex/hooks.json',
     '.codex/hooks/lattice-scope-pretool.cjs',
   ];
   const forbidden = [
-    '.lattice/Lattice.md',
-    '.lattice/lattice.json',
+    '.Lattice/Lattice.md',
+    '.Lattice/lattice.json',
     '.Codex/hooks.json',
     '.Codex/hooks/lattice-scope-pretool.cjs',
   ];
@@ -546,7 +565,7 @@ checks.push(() => {
 });
 
 checks.push(() => {
-  const result = runManagedAssetCheck(repoRoot, { profile: 'all' });
+  const result = runManagedAssetCheck(repoRoot, { profile: 'all', assetMode: 'full' });
   const item = result.items.find(asset => asset.relPath === 'bin/lattice.js');
   assert(item?.status === 'OK', 'self-repo local wrapper should be accepted as Koala-owned compatibility asset');
   assert(item.reason.includes('alternate Koala-owned contract'), 'self-repo local wrapper should explain alternate contract');

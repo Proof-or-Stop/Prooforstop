@@ -750,7 +750,7 @@ Claude Code 侧仍然使用 `.claude/` 下的 hooks、settings 和 skill。Codex
 
 - [AGENTS.md](/Users/jek/Documents/Work/Orchestrate/AGENTS.md:1)
 - [.Codex/README.md](/Users/jek/Documents/Work/Orchestrate/.Codex/README.md:1)
-- `.Lattice/lattice.json`（global-thin default init primary；full/thin mode projects may use `.Codex/lattice.json` instead; legacy [.Codex/koala.json](/Users/jek/Documents/Work/Orchestrate/.Codex/koala.json:1) is still recognized as a compatibility input）
+- `.lattice/lattice.json`（global-thin default init primary；full/thin mode projects may use `.Codex/lattice.json` instead; legacy [.Codex/koala.json](/Users/jek/Documents/Work/Orchestrate/.Codex/koala.json:1) is still recognized as a compatibility input）
 - [.Codex/agents/](/Users/jek/Documents/Work/Orchestrate/.Codex/agents:1)（full mode materialization；thin mode 可省略）
 
 full mode 仓库里的 `.Codex/agents` 由 `.claude/agents` 经过受控 transform 全量生成，并通过 `npm run test:codex-assets` 防止后续漂移；thin mode 仓库由 `node bin/lattice-codex.js verify_codex` 校验 registry manifest/hash/renderability。

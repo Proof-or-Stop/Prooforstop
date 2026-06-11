@@ -1,15 +1,15 @@
 /**
- * Task B-3506: Shared auto-commit helper for Koala metadata writes
+ * Task B-3506: Shared auto-commit helper for Lattice metadata writes
  *
  * Extracted from packages/main/src/handlers/story-advance.ts:autoCommitStoryMetadata
- * (B-6326 lifecycle). All koala CLI handlers that mutate files under
- * `.koala/story/actives/<storyId>/` should call this AFTER a successful write so
- * the worktree-dirty gate stops blocking on Koala's own bookkeeping.
+ * (B-6326 lifecycle). All lattice CLI handlers that mutate files under the
+ * configured story directory should call this AFTER a successful write so the
+ * worktree-dirty gate stops blocking on Lattice's own bookkeeping.
  *
  * Safety contract (preMortem #1 anchor):
- *   - Path scope is hardcoded: the helper computes `.koala/story/actives/<storyId>/`
- *     from `storyId` itself (literal prefix). The caller cannot broaden the scope
- *     by passing a different path argument — there is no such argument.
+ *   - Path scope is derived from the configured storyDir plus `storyId` itself.
+ *     The caller cannot broaden the scope by passing a different path argument
+ *     — there is no such argument.
  *   - storyId must match /^B-[A-Za-z0-9][A-Za-z0-9-]*$/. Anything else throws
  *     synchronously before any git invocation.
  *   - The classifier (B-6326 classifyDirtyWorktree) is consulted ONLY for the
@@ -22,7 +22,7 @@
  *     an empty staged set and returns ''.
  *
  * Vocabulary (preMortem #3 anchor):
- *   - User-visible prefix is the literal `\n✓ koala metadata auto-committed:`,
+ *   - User-visible prefix is the literal `\n✓ lattice metadata auto-committed:`,
  *     re-exported as AUTO_COMMIT_METADATA_PREFIX so callers and tests can pin it.
  *   - Coexisting non-metadata dirt is announced with the anchor word
  *     `untouched` — never `handled` / `committed` / `all clean`.
@@ -38,15 +38,16 @@ import {
   type DirtyWorktreeClassification,
 } from './dirty-worktree.js';
 import { loadConfig } from './config.js';
+import { LATTICE_STORY_DIR, normalizeRelPath } from './lattice-paths.js';
 
 /**
  * Literal byte-equal user-visible prefix. Pinned for vocabulary consistency
  * across handlers + smoke (preMortem #3 anchor — CHK-003 / CHK-004).
  */
-export const AUTO_COMMIT_METADATA_PREFIX = '\n✓ koala metadata auto-committed:';
+export const AUTO_COMMIT_METADATA_PREFIX = '\n✓ lattice metadata auto-committed:';
 
 /** Canonical literal path prefix the helper is allowed to stage. */
-export const AUTO_COMMIT_STORY_DIR_PREFIX = '.koala/story/actives/';
+export const AUTO_COMMIT_STORY_DIR_PREFIX = `${LATTICE_STORY_DIR}/`;
 
 /**
  * storyId form gate — anti-broadening defense (preMortem #1).
@@ -67,6 +68,17 @@ function assertStoryIdShape(storyId: string): void {
       `Refusing to git-add — broadening the path scope is a preMortem #1 anchor violation.`,
     );
   }
+}
+
+function storyDirPrefixFromConfig(projectRoot: string): string {
+  const configured = normalizeRelPath(loadConfig(projectRoot).storyDir || LATTICE_STORY_DIR);
+  if (!configured || configured === '.' || configured.includes('..')) {
+    throw new Error(
+      `autoCommitStoryMetadata: invalid configured storyDir ${JSON.stringify(configured)}. ` +
+      `Refusing to git-add — broadening the path scope is a preMortem #1 anchor violation.`,
+    );
+  }
+  return configured.endsWith('/') ? configured : `${configured}/`;
 }
 
 /**
@@ -115,7 +127,7 @@ function isNonGitRepositoryError(error: unknown): boolean {
 }
 
 /**
- * Auto-commit metadata under `.koala/story/actives/<storyId>/`.
+ * Auto-commit metadata under the configured story directory.
  *
  * @param projectRoot — repo root (must contain `.git`)
  * @param storyId    — `B-xxxx` form (runtime-validated)
@@ -150,8 +162,8 @@ export function autoCommitStoryMetadata(
     }
     if (!branch.startsWith('story/')) return '';
 
-    // 3. canonical path computation (scope hardcoded by storyId — see preMortem #1)
-    const storyRel = `${AUTO_COMMIT_STORY_DIR_PREFIX}${storyId}`;
+    // 3. canonical path computation (scope = configured storyDir + storyId)
+    const storyRel = `${storyDirPrefixFromConfig(projectRoot)}${storyId}`;
 
     // 4. snapshot the FULL dirty classification BEFORE committing (so the
     //    tail-note describes coexisting non-metadata dirt as it stood at decision
@@ -182,7 +194,7 @@ export function autoCommitStoryMetadata(
     if (!staged) return '';
 
     // 8. commit
-    const subject = `koala: record ${storyId} ${reason} metadata`;
+    const subject = `lattice: record ${storyId} ${reason} metadata`;
     execFileSync('git', ['-c', 'commit.gpgsign=false', 'commit', '-m', subject], {
       cwd: projectRoot,
       encoding: 'utf-8',
@@ -213,6 +225,6 @@ export function autoCommitStoryMetadata(
       reason,
       projectRoot,
     });
-    return `\n⚠ koala metadata auto-commit failed: ${e?.message || e}`;
+    return `\n⚠ lattice metadata auto-commit failed: ${e?.message || e}`;
   }
 }

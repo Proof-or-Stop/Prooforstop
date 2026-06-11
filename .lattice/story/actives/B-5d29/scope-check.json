@@ -1,0 +1,52 @@
+{
+  "storyId": "B-5d29",
+  "checkedAt": "2026-05-11T13:17:39.844Z",
+  "features": [
+    {
+      "feature": "流程事实双层契约原则写入权威文档与 reviewer 通用 prompt",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "CHK-001 defines Process Fact Contract across CLAUDE.md, AGENTS.md, story-lifecycle.md, and reviewer prompts."
+    },
+    {
+      "feature": "reviewer prompt 与 CLI schema 漂移审计",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "CHK-002 adds test:process-fact-contract to scan reviewer prompts for illegal categories, pass-only finding_add, and plain passed evidence."
+    },
+    {
+      "feature": "finding_add / review_pass_set 等 reviewer 事实入口的兼容、归一与拒绝策略",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "CHK-003 covers pass-only finding_add conversion, legacy category normalization, and ambiguous pass text staying as findings."
+    },
+    {
+      "feature": "流程事实与普通说明性文案边界",
+      "covered_by": "CHK-001, CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "CHK-001 limits the principle to process facts; CHK-002 prevents plain prompt text becoming evidence."
+    },
+    {
+      "feature": "非 finding 流程执行/确认入口 inventory：phase advance、review_pass_set、verification_evidence_add、delivery_check_set、scope_check_save、init_check_set 等",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "CHK-004 inventories phase/review/finding/evidence/init/scope/delivery entries and classifies each as hard guard, normalization, signature, rejection, or explicit defer."
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "covered": 5,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "7c7b7f59fa135d2a42d27dcf43316fe69836f80ceb217de2f85953203642a616",
+  "openQuestions": []
+}

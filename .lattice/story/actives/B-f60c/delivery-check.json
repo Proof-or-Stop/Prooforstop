@@ -1,0 +1,85 @@
+{
+  "storyId": "B-f60c",
+  "checkedAt": "2026-05-18T17:50:57.175Z",
+  "reviewRound": "2026-05-18T17:34:56.935Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "CLAUDE.md#多-session-写协调（设计真相源）",
+      "promise": "main write lock (rollout step 3) 已实现 (B-f60c): core/main-write-lock.ts 统一锁，canonical 路径 .koala/locks/main-write.lock/",
+      "verifiedBy": "diff/grep",
+      "evidence": "packages/main/src/core/main-write-lock.ts 文件在 diff 中新建，MAIN_WRITE_LOCK_REL = .koala/locks/main-write.lock，acquireMainWriteLock/withReentrantMainWriteLock 导出"
+    },
+    {
+      "docPath": "CLAUDE.md#多-session-写协调（设计真相源）",
+      "promise": "DONE / done_recover / gap_log / audit / story_create / B-META finding 写均持锁",
+      "verifiedBy": "diff/grep",
+      "evidence": "done-effects.ts:acquireDoneMainMergeLock → acquireMainWriteLockRegistered; transition-orchestrator.ts:222 acquireDoneMainMergeLock; done-recover.ts:40 acquireDoneMainMergeLock; gap_log.ts:189 withReentrantMainWriteLock; audit.ts:130 withReentrantMainWriteLock; story-create.ts:186 withReentrantMainWriteLock; finding.ts:75 withReentrantMainWriteLock (B-META only)"
+    },
+    {
+      "docPath": "CLAUDE.md#多-session-写协调（设计真相源）",
+      "promise": "锁内强制 idempotency",
+      "verifiedBy": "diff/grep",
+      "evidence": "gap_log.ts:207 idempotency dedup inside withReentrantMainWriteLock; story-create.ts:181 idempotency scan runs inside the lock"
+    },
+    {
+      "docPath": "CLAUDE.md#多-session-写协调（设计真相源）",
+      "promise": "doctor 有 stuck-lock 检查",
+      "verifiedBy": "diff/grep",
+      "evidence": "core/main-write-lock-doctor.ts 新建，scanMainWriteLock + renderMainWriteLockScan；doctor.ts:25 import + :55/:256 使用"
+    },
+    {
+      "docPath": "AGENTS.md#多-session-写协调（设计真相源）",
+      "promise": "同 CLAUDE.md，main write lock 已实现，其余步骤 (story owner lease / takeover / session_brief) 仍 pending",
+      "verifiedBy": "diff/grep",
+      "evidence": "AGENTS.md diff 与 CLAUDE.md diff 完全对称，均更新「多 session 写协调」段为相同文本"
+    },
+    {
+      "docPath": "docs/requirements/decisions/session-ownership-and-write-leases.md#status",
+      "promise": "Status 更新为 rollout in progress；main write lock (B-f60c) 已实现于 .koala/locks/main-write.lock/",
+      "verifiedBy": "diff/grep",
+      "evidence": "diff 将 Status 段由 implementation pending 改为 rollout in progress，并描述 B-f60c 的具体实现内容"
+    },
+    {
+      "docPath": "docs/requirements/decisions/session-ownership-and-write-leases.md#storage",
+      "promise": ".koala/locks/main-write.lock/ 是唯一 canonical 锁路径，旧 .koala/runtime/done-main-merge.lock 已退役无 alias，story-lifecycle.md 已同步",
+      "verifiedBy": "diff/grep",
+      "evidence": "diff 将 runtime note 由 future preferred storage 改为 B-f60c 已落地；main-write-lock.ts:19 注释确认 done-main-merge.lock 已退役；仅在注释中出现旧路径，无 production 代码引用"
+    },
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md#DONE",
+      "promise": "story_advance DONE 持统一 main write lock .koala/locks/main-write.lock/（旧 .koala/runtime/done-main-merge.lock 退役无 alias）",
+      "verifiedBy": "diff/grep",
+      "evidence": "story-lifecycle.md diff 更新 DONE 行，done_recover 行同步为 .koala/locks/main-write.lock/；done-effects.ts:acquireDoneMainMergeLock 现在调用 acquireMainWriteLockRegistered，返回 mainWriteLockPath"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "main-write-lock-smoke.ts: acquire/release (lock dir 存在/消失)；blocking-on-held (fail-fast, no optimistic proceed)；stale-reclaim (mtime backdating)；concurrency mutual exclusion；canonical path .koala/locks/main-write.lock/；empty mainRepoRoot rejected；withMainWriteLock cleanup on throw；reentrancy pass-through"
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "worktree-authority-smoke.ts assertInitCheckLeavesNoUncommittedMainMirrorForDone: F-008 确切复现场景 — INIT_CHECK 后 git status .koala/story/actives/<id> 输出为空，replay DONE merge step 无 partial-DONE；transcript-diff.md 真机验证 F-008 CHECK 通过"
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "gap-log-smoke.ts concurrent dedup (spawn 两个真并发 gap_log 同 gap，只产生 1 条 finding)；finding.ts B-META 持锁路径由 withReentrantMainWriteLock 覆盖；audit.ts 持锁由 withReentrantMainWriteLock 覆盖；story-create.ts idempotency 在锁内执行"
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "main-write-lock-doctor-smoke.ts: holder.json 写入 acquire / readMkdirLockHolder 读回；contention 消息含 holder command/pid/hostname/heartbeat/retry，无 sessionId；doctor stuck (mtime backdated > staleMs) 报 ⚠ STUCK；doctor active (fresh lock) 报 ✓ active 不误报；doctor absent 报 ✓ not held；transcript-diff.md 真机验证 doctor stuck/active 分类"
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "worktree-authority-smoke.ts assertConcurrentDoneSerializesWithoutPartialDone: spawn 两个真实并发 story_advance DONE OS 子进程，恰好 1 胜 1 负，胜者合并 story branch，败者返回 benign lock-held 消息，无 partial-DONE，main 工作区无未提交 story-metadata 镜像"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "8 docs promises 全部 verified：4 个文件改动均与代码一致。5 个 checklist items 均有 smoke 测试覆盖 happy/edge/adversarial path。真机 transcript 补充验证 F-008 fix 和 doctor stuck-lock 分类。diff 中无未解决 TODO/FIXME，旧 done-main-merge.lock 路径仅存在于 production code 注释中，无残留 runtime 引用。"
+  },
+  "_hash": "5753ae6396244d014f06ac333f21ba2761bb8cef966634395b6794a5d45fd0ce"
+}

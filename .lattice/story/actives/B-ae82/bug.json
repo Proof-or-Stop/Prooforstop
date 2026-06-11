@@ -1,0 +1,19 @@
+{
+  "bugs": [
+    {
+      "id": "BUG-e624e208",
+      "title": "[auto] checklist-json-done-log-dirty.json:store writes long testIntent as parseable checklist json — Expected {\"parseable\":true,\"descLength\":20027}, got {\"parseable\":true,\"descLength\":20024}",
+      "status": "fixed",
+      "foundAt": "2026-04-19T23:04:45.998Z",
+      "fixedAt": "2026-04-19T23:05:07.835Z",
+      "fixtureId": "e624e208-9618-4e5c-a9ee-4124e4289d4e",
+      "diagnose": {
+        "rootCause": [
+          "Expected {\"parseable\":true,\"descLength\":20027}, got {\"parseable\":true,\"descLength\":20024}"
+        ],
+        "traceDiff": null,
+        "suggestedFix": "检查 case 报错信息定位根因"
+      }
+    }
+  ]
+}

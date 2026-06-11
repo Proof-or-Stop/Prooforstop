@@ -1,0 +1,26 @@
+{
+  "task": "统一 story artifact 协议，让 session_brief、story_review、DONE gate 按同一套 phase-aware 物证判断状态。",
+  "outcome": "> node packages/main/dist/cli.js session_brief\nStory: B-8162\nArtifacts:\n- understanding: present\n- decision: present\n- review: missing\n- summary: optional in PLAN\nNext step:\n- fill review artifact before entering DEV\n\n> 新 session 接手时\n不用再翻多个 JSON 猜状态，直接从 artifact 缺口继续推进。",
+  "facts": [
+    "Koala 已经分别持有 understanding、decision、review、summary、test-evidence 等 artifact。",
+    "B-119e 已经把 phase invariant / reason code 结构化，可以作为 artifact contract 的消费基础。",
+    "当前 session_brief 仍主要按 phase+隐式存在性推断，artifact 缺口没有统一协议。"
+  ],
+  "constraints": [
+    "第一版必须兼容现有 artifact 文件，不做破坏性迁移。",
+    "phase-aware contract 要区分必需 artifact 和 advisory artifact，不能一刀切。",
+    "实现应优先复用已有 invariant/reason 结构，而不是再造第三套状态语义。"
+  ],
+  "unknowns": [
+    "contract 是做成统一 manifest 还是仅做派生读取层更稳。",
+    "哪些 artifact 应该在 PLAN/DEV/TEST/DONE 强制出现，哪些只做 advisory。"
+  ],
+  "touchpoints": [
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/handlers/story-review.ts",
+    "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/core/types.ts"
+  ],
+  "timestamp": "2026-04-15T11:32:30.227Z"
+}

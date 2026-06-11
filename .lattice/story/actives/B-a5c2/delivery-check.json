@@ -1,0 +1,61 @@
+{
+  "storyId": "B-a5c2",
+  "checkedAt": "2026-06-03T22:04:44.918Z",
+  "reviewRound": "2026-06-03T21:42:02.868Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "README.md",
+      "promise": "README documents the opt-in unattended flow, dispatch_auto versus overflow_auto, and manual dispatch_merge_plan with manualOnly=true and authority flags fixed false.",
+      "status": "verified",
+      "verifiedBy": "line inspection",
+      "evidence": "README.md lines 108-171 describe the policy-authorized command sequence, the dispatch_auto versus overflow_auto distinction, and immutable authority fields."
+    },
+    {
+      "docPath": "docs/guide.md",
+      "promise": "docs/guide.md documents dispatch_auto as policy-authorized, explains the dispatch_auto versus overflow_auto distinction, and lists refusal conditions before the run starts.",
+      "status": "verified",
+      "verifiedBy": "line inspection",
+      "evidence": "docs/guide.md lines 159-218 cover the opt-in sequence, refusal cases, manual merge guidance, and fixed false authority fields."
+    },
+    {
+      "docPath": "docs/requirements/decisions/host-overflow.md",
+      "promise": "host-overflow preserves policy scope and command or env or runtime enforcement, keeps fake as deterministic local coverage, and says real hosts stay supervised or refused when unsafe or unavailable.",
+      "status": "verified",
+      "verifiedBy": "line inspection",
+      "evidence": "host-overflow.md lines 21-46, 95-154 cover allowed hosts, allowed and denied paths, runtime limits, env filtering, fake deterministic coverage, and visible refusals."
+    },
+    {
+      "docPath": "docs/requirements/decisions/authority-client-role.md",
+      "promise": "authority-client-role keeps dispatch_auto out of the authority-client lane and states that host transcripts or local receipts do not become production authority.",
+      "status": "verified",
+      "verifiedBy": "line inspection",
+      "evidence": "authority-client-role.md lines 103-117 say dispatch_auto is not a new authority client and that authorityChanged, receiptVerified, and productionDone stay false."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-003",
+      "transcript": "Temporary-project CLI run under /tmp/lattice-user-flow-* created Story B-4625, wrote bounded policy demo-safe, dispatch_policy_create/check returned authorized:true with authority flags false, and dispatch_auto refused README.md as outside policy allowedPaths."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "dispatch_auto on the fake host returned accepted_local, dispatch_watch reported the accepted_local fake runner, and dispatch_cancel preserved evidence and nextAction while authority flags stayed false."
+    },
+    {
+      "featureId": "CHK-007",
+      "transcript": "dispatch_review surfaced transcriptExists:true, localReceiptStatus: accepted-local, changedFiles, and fake runner metadata, while dispatch_merge_plan returned manualOnly:true with no auto-merge or auto-DONE authority."
+    },
+    {
+      "featureId": "CHK-008",
+      "transcript": "The B-a5c2 unattended-dispatch-smoke and the temporary-project transcript-diff.md cover story_create, dispatch_policy_create/check, dispatch_auto accepted_local, dispatch_watch/review/merge_plan, manualOnly true, authority flags false, and the out-of-policy README.md refusal."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Verified docs promises against README, guide, host overflow, and authority boundary docs; real machine transcript evidence exists for the unattended dispatch flow and edge/refusal cases."
+  },
+  "_hash": "2a9f6f83cb29e700ecbf325141dc5f6f9d25d7744f0e0f466bf0fed78e2b8150"
+}

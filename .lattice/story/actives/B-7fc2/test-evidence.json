@@ -1,0 +1,256 @@
+{
+  "command": "koala validate --story=B-7fc2 --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.5 test\",\"  > npm run test:e2e\",\"  > koala@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ℹ Reading legacy koala.config.json at /Users/jek/Documents/Work/Orchestrate/.worktrees/B-7fc2; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ℹ Reading legacy koala.config.json at .; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-j4DYmX; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-0oGxUm; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 12/12 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via manual_transcript (.koala/story/actives/B-7fc2/evidence/agent-delivery-review.md) — validate --json 当前失败被真实 CLI 子进程复现，错误定位到 hint decoration\",\"  ✓ CHK-001:edge:0 [edge/must/logic] covered via logic_test (.koala/story/actives/B-7fc2/evidence/agent-delivery-review.md) — 已有正常 --format=json 命令仍被纳入矩阵，避免误判全 CLI 都坏\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/docs] covered via docs_check (.koala/story/actives/B-7fc2/evidence/agent-delivery-review.md) — 禁止把修复方案定为 dashboard 侧抽取 JSON substring\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via manual_transcript (.koala/story/actives/B-7fc2/evidence/agent-delivery-review.md) — validate --json stdout 可直接 JSON.parse 且没有 “→ 验证全绿”\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via manual_transcript (.koala/story/actives/B-7fc2/evidence/agent-delivery-review.md) — text mode validate 仍保留 “→ 验证全绿” next-step hint\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via manual_transcript (.koala/story/actives/B-7fc2/evidence/agent-delivery-review.md) — 失败/coverage missing 的 JSON mode 也不能把修复建议拼进 stdout\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via integration_test (packages/main/src/tasks/cli-json-stdout-contract-smoke.ts) — 新 smoke 直接 JSON.parse execFileSync stdout\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via integration_test (packages/main/src/tasks/cli-json-stdout-contract-smoke.ts) — 一个已经正常的 --format=json 命令继续 parseable，防止输出管线回归\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/cli-json-stdout-contract-smoke.ts) — 测试断言 stdout 不含 next-step hint，避免未来误把 hint 加回 JSON mode\",\"  ✓ CHK-004:happy:0 [happy/must/manual] covered via manual_transcript (.koala/story/actives/B-7fc2/evidence/agent-delivery-review.md) — Claude Code 三个 agent 均产出可追踪结论，Lattice delivery-check 接收\",\"  ✓ CHK-004:edge:0 [edge/must/manual] covered via manual_transcript (.koala/story/actives/B-7fc2/evidence/agent-delivery-review.md) — 如果某 agent 发现 blocking issue，story 留在 DEV/REVIEW 修复而不是硬 DONE\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/docs] covered via docs_check (.koala/story/actives/B-7fc2/evidence/agent-delivery-review.md) — DONE summary 必须明确 no limitations 或列出未覆盖 JSON 命令，不允许抽象说全绿\"],\"warnings\":[],\"timestamp\":\"2026-06-03T22:39:50.709Z\",\"headSha\":\"ac95f6c9bc715e87835c7f8361a3942a9e23bc4a\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\nℹ Reading legacy koala.config.json at /Users/jek/Documents/Work/Orchestrate/.worktrees/B-7fc2; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\nℹ Reading legacy koala.config.json at .; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-j4DYmX; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n↻ 已写入并确认持久化：CHK-001 当前 status=done。长会话请重新加载（lattice checklist_get / session_brief）后再依赖快照。\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-0oGxUm; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":2634}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":12,\"reason\":\"verificationIntent entries present (12)\"},\"verificationCoverage\":{\"total\":12,\"required\":12,\"covered\":12,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"validate --json 当前失败被真实 CLI 子进程复现，错误定位到 hint decoration\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"manual_transcript\",\"file\":\".koala/story/actives/B-7fc2/evidence/agent-delivery-review.md\",\"command\":\"Agent 1 read-only reproduction: validate --json stdout followed by direct JSON.parse before fix\",\"result\":\"pass\",\"note\":\"Agent 1 reproduced the original pre-fix failure: validate --json returned JSON plus a human success hint, so direct JSON.parse(stdout) failed; the root cause was hint decoration after the validate handler returned JSON text.\",\"headHash\":\"af4b8cfa373471b4b9ddc4646fdeda2b82bc21b4\",\"materialHash\":\"43330fb8c4a8f195a60e8db4802ecd24fad09b6fadba2ff1bbd29e369ef4b1c6\",\"timestamp\":\"2026-06-03T22:39:30.610Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"已有正常 --format=json 命令仍被纳入矩阵，避免误判全 CLI 都坏\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"file\":\".koala/story/actives/B-7fc2/evidence/agent-delivery-review.md\",\"command\":\"Agent 1 JSON command matrix for validate, authority_status, host_runtime_probe, and parallel_status\",\"result\":\"pass\",\"note\":\"Agent 1 documented the affected/unaffected matrix: validate --json was broken because validate is hint-decorated, while representative existing JSON commands remained parseable because they were not in the hint registry.\",\"headHash\":\"af4b8cfa373471b4b9ddc4646fdeda2b82bc21b4\",\"materialHash\":\"43330fb8c4a8f195a60e8db4802ecd24fad09b6fadba2ff1bbd29e369ef4b1c6\",\"timestamp\":\"2026-06-03T22:39:30.610Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"禁止把修复方案定为 dashboard 侧抽取 JSON substring\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"docs_check\",\"file\":\".koala/story/actives/B-7fc2/evidence/agent-delivery-review.md\",\"command\":\"Review Agent 1 recommendation plus commit 8a0c0705 implementation approach\",\"result\":\"pass\",\"note\":\"The selected fix explicitly rejects dashboard-side substring extraction and places the guard in the shared CLI output pipeline; Agent 3 confirmed no extractFirstJsonObject/regex JSON substring parser was introduced.\",\"headHash\":\"af4b8cfa373471b4b9ddc4646fdeda2b82bc21b4\",\"materialHash\":\"43330fb8c4a8f195a60e8db4802ecd24fad09b6fadba2ff1bbd29e369ef4b1c6\",\"timestamp\":\"2026-06-03T22:39:30.610Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"validate --json stdout 可直接 JSON.parse 且没有 “→ 验证全绿”\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"manual_transcript\",\"file\":\".koala/story/actives/B-7fc2/evidence/agent-delivery-review.md\",\"command\":\"KOALA_SESSION_ID=codex-b7fc2 node packages/main/dist/cli.js validate --story=B-7fc2 --json --forceTakeover | node -e JSON.parse(stdin)\",\"result\":\"pass\",\"note\":\"Worktree dist validate --json stdout parsed directly as a single JSON document; no human success hint was appended to stdout in machine JSON mode.\",\"headHash\":\"af4b8cfa373471b4b9ddc4646fdeda2b82bc21b4\",\"materialHash\":\"43330fb8c4a8f195a60e8db4802ecd24fad09b6fadba2ff1bbd29e369ef4b1c6\",\"timestamp\":\"2026-06-03T22:39:30.610Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"text mode validate 仍保留 “→ 验证全绿” next-step hint\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"manual_transcript\",\"file\":\".koala/story/actives/B-7fc2/evidence/agent-delivery-review.md\",\"command\":\"node packages/main/dist/cli.js validate | tail -n 8\",\"result\":\"pass\",\"note\":\"Text-mode validate still emitted the human success next-step hint containing 验证全绿; the text-mode UX was preserved while JSON mode was cleaned.\",\"headHash\":\"af4b8cfa373471b4b9ddc4646fdeda2b82bc21b4\",\"materialHash\":\"43330fb8c4a8f195a60e8db4802ecd24fad09b6fadba2ff1bbd29e369ef4b1c6\",\"timestamp\":\"2026-06-03T22:39:30.610Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"失败/coverage missing 的 JSON mode 也不能把修复建议拼进 stdout\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"manual_transcript\",\"file\":\".koala/story/actives/B-7fc2/evidence/agent-delivery-review.md\",\"command\":\"KOALA_SESSION_ID=codex-b7fc2 node packages/main/dist/cli.js validate --story=B-7fc2 --json --forceTakeover | node -e JSON.parse(stdin)\",\"result\":\"pass\",\"note\":\"Even when validate returned allPass=false because verification evidence was missing, worktree JSON mode stdout remained direct-parseable; the failure guidance was not appended to stdout.\",\"headHash\":\"af4b8cfa373471b4b9ddc4646fdeda2b82bc21b4\",\"materialHash\":\"43330fb8c4a8f195a60e8db4802ecd24fad09b6fadba2ff1bbd29e369ef4b1c6\",\"timestamp\":\"2026-06-03T22:39:30.610Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"新 smoke 直接 JSON.parse execFileSync stdout\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/cli-json-stdout-contract-smoke.ts\",\"command\":\"npm --prefix packages/main run test:cli-json-stdout-contract-smoke\",\"result\":\"pass\",\"note\":\"The new smoke spawns real CLI child processes and feeds captured stdout directly into JSON.parse, covering validate --json without substring extraction.\",\"headHash\":\"af4b8cfa373471b4b9ddc4646fdeda2b82bc21b4\",\"materialHash\":\"43330fb8c4a8f195a60e8db4802ecd24fad09b6fadba2ff1bbd29e369ef4b1c6\",\"timestamp\":\"2026-06-03T22:39:30.610Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"一个已经正常的 --format=json 命令继续 parseable，防止输出管线回归\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/cli-json-stdout-contract-smoke.ts\",\"command\":\"npm --prefix packages/main run test:cli-json-stdout-contract-smoke\",\"result\":\"pass\",\"note\":\"The smoke also covers existing --format=json surfaces such as authority_status and host_list, proving known-good JSON commands remain direct-parseable through the shared output pipeline.\",\"headHash\":\"af4b8cfa373471b4b9ddc4646fdeda2b82bc21b4\",\"materialHash\":\"43330fb8c4a8f195a60e8db4802ecd24fad09b6fadba2ff1bbd29e369ef4b1c6\",\"timestamp\":\"2026-06-03T22:39:30.610Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"测试断言 stdout 不含 next-step hint，避免未来误把 hint 加回 JSON mode\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/cli-json-stdout-contract-smoke.ts\",\"command\":\"npm --prefix packages/main run test:cli-json-stdout-contract-smoke\",\"result\":\"pass\",\"note\":\"The smoke asserts JSON stdout contains no human hint markers and that trimmed validate --json output ends at the single JSON document boundary, preventing future trailing decoration regressions.\",\"headHash\":\"af4b8cfa373471b4b9ddc4646fdeda2b82bc21b4\",\"materialHash\":\"43330fb8c4a8f195a60e8db4802ecd24fad09b6fadba2ff1bbd29e369ef4b1c6\",\"timestamp\":\"2026-06-03T22:39:30.610Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"Claude Code 三个 agent 均产出可追踪结论，Lattice delivery-check 接收\",\"type\":\"manual\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"manual_transcript\",\"file\":\".koala/story/actives/B-7fc2/evidence/agent-delivery-review.md\",\"command\":\"Claude Code Agent 1 audit + Agent 2 implementation + Agent 3 independent review; Codex reran focused validation\",\"result\":\"pass\",\"note\":\"All three Claude Code roles produced traceable conclusions: Agent 1 audit, Agent 2 implementation commit 8a0c0705, and Agent 3 pass review; Codex reran build, focused smoke, migration smoke, direct JSON.parse, and text hint checks.\",\"headHash\":\"af4b8cfa373471b4b9ddc4646fdeda2b82bc21b4\",\"materialHash\":\"43330fb8c4a8f195a60e8db4802ecd24fad09b6fadba2ff1bbd29e369ef4b1c6\",\"timestamp\":\"2026-06-03T22:39:30.610Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"如果某 agent 发现 blocking issue，story 留在 DEV/REVIEW 修复而不是硬 DONE\",\"type\":\"manual\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"manual_transcript\",\"file\":\".koala/story/actives/B-7fc2/evidence/agent-delivery-review.md\",\"command\":\"Agent 3 independent review and lattice finding_list --storyId=B-7fc2\",\"result\":\"pass\",\"note\":\"Agent 3 found no blockers or advisory regressions, and finding_list returned no findings; if blockers had been found, the story would have remained in DEV rather than being advanced.\",\"headHash\":\"af4b8cfa373471b4b9ddc4646fdeda2b82bc21b4\",\"materialHash\":\"43330fb8c4a8f195a60e8db4802ecd24fad09b6fadba2ff1bbd29e369ef4b1c6\",\"timestamp\":\"2026-06-03T22:39:30.610Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"DONE summary 必须明确 no limitations 或列出未覆盖 JSON 命令，不允许抽象说全绿\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"docs_check\",\"file\":\".koala/story/actives/B-7fc2/evidence/agent-delivery-review.md\",\"command\":\"Review docs/requirements/decisions/host-neutral-observability-console.md and .koala/story/actives/B-7fc2/evidence/agent-delivery-review.md\",\"result\":\"pass\",\"note\":\"Delivery evidence states the scoped limitation explicitly: no known limitations for the JSON stdout contract, while resolver/dashboard schema completion remains outside B-7fc2 and belongs to the host-neutral observability milestones.\",\"headHash\":\"af4b8cfa373471b4b9ddc4646fdeda2b82bc21b4\",\"materialHash\":\"43330fb8c4a8f195a60e8db4802ecd24fad09b6fadba2ff1bbd29e369ef4b1c6\",\"timestamp\":\"2026-06-03T22:39:30.610Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-03T22:39:51.593Z",
+  "headHash": "ac95f6c9bc715e87835c7f8361a3942a9e23bc4a",
+  "materialHash": "43330fb8c4a8f195a60e8db4802ecd24fad09b6fadba2ff1bbd29e369ef4b1c6",
+  "verificationCoverage": {
+    "total": 12,
+    "required": 12,
+    "covered": 12,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "validate --json 当前失败被真实 CLI 子进程复现，错误定位到 hint decoration",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": ".koala/story/actives/B-7fc2/evidence/agent-delivery-review.md",
+          "command": "Agent 1 read-only reproduction: validate --json stdout followed by direct JSON.parse before fix",
+          "result": "pass",
+          "note": "Agent 1 reproduced the original pre-fix failure: validate --json returned JSON plus a human success hint, so direct JSON.parse(stdout) failed; the root cause was hint decoration after the validate handler returned JSON text.",
+          "headHash": "af4b8cfa373471b4b9ddc4646fdeda2b82bc21b4",
+          "materialHash": "43330fb8c4a8f195a60e8db4802ecd24fad09b6fadba2ff1bbd29e369ef4b1c6",
+          "timestamp": "2026-06-03T22:39:30.610Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "已有正常 --format=json 命令仍被纳入矩阵，避免误判全 CLI 都坏",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": ".koala/story/actives/B-7fc2/evidence/agent-delivery-review.md",
+          "command": "Agent 1 JSON command matrix for validate, authority_status, host_runtime_probe, and parallel_status",
+          "result": "pass",
+          "note": "Agent 1 documented the affected/unaffected matrix: validate --json was broken because validate is hint-decorated, while representative existing JSON commands remained parseable because they were not in the hint registry.",
+          "headHash": "af4b8cfa373471b4b9ddc4646fdeda2b82bc21b4",
+          "materialHash": "43330fb8c4a8f195a60e8db4802ecd24fad09b6fadba2ff1bbd29e369ef4b1c6",
+          "timestamp": "2026-06-03T22:39:30.610Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "禁止把修复方案定为 dashboard 侧抽取 JSON substring",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": ".koala/story/actives/B-7fc2/evidence/agent-delivery-review.md",
+          "command": "Review Agent 1 recommendation plus commit 8a0c0705 implementation approach",
+          "result": "pass",
+          "note": "The selected fix explicitly rejects dashboard-side substring extraction and places the guard in the shared CLI output pipeline; Agent 3 confirmed no extractFirstJsonObject/regex JSON substring parser was introduced.",
+          "headHash": "af4b8cfa373471b4b9ddc4646fdeda2b82bc21b4",
+          "materialHash": "43330fb8c4a8f195a60e8db4802ecd24fad09b6fadba2ff1bbd29e369ef4b1c6",
+          "timestamp": "2026-06-03T22:39:30.610Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "validate --json stdout 可直接 JSON.parse 且没有 “→ 验证全绿”",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": ".koala/story/actives/B-7fc2/evidence/agent-delivery-review.md",
+          "command": "KOALA_SESSION_ID=codex-b7fc2 node packages/main/dist/cli.js validate --story=B-7fc2 --json --forceTakeover | node -e JSON.parse(stdin)",
+          "result": "pass",
+          "note": "Worktree dist validate --json stdout parsed directly as a single JSON document; no human success hint was appended to stdout in machine JSON mode.",
+          "headHash": "af4b8cfa373471b4b9ddc4646fdeda2b82bc21b4",
+          "materialHash": "43330fb8c4a8f195a60e8db4802ecd24fad09b6fadba2ff1bbd29e369ef4b1c6",
+          "timestamp": "2026-06-03T22:39:30.610Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "text mode validate 仍保留 “→ 验证全绿” next-step hint",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "file": ".koala/story/actives/B-7fc2/evidence/agent-delivery-review.md",
+          "command": "node packages/main/dist/cli.js validate | tail -n 8",
+          "result": "pass",
+          "note": "Text-mode validate still emitted the human success next-step hint containing 验证全绿; the text-mode UX was preserved while JSON mode was cleaned.",
+          "headHash": "af4b8cfa373471b4b9ddc4646fdeda2b82bc21b4",
+          "materialHash": "43330fb8c4a8f195a60e8db4802ecd24fad09b6fadba2ff1bbd29e369ef4b1c6",
+          "timestamp": "2026-06-03T22:39:30.610Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "失败/coverage missing 的 JSON mode 也不能把修复建议拼进 stdout",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "file": ".koala/story/actives/B-7fc2/evidence/agent-delivery-review.md",
+          "command": "KOALA_SESSION_ID=codex-b7fc2 node packages/main/dist/cli.js validate --story=B-7fc2 --json --forceTakeover | node -e JSON.parse(stdin)",
+          "result": "pass",
+          "note": "Even when validate returned allPass=false because verification evidence was missing, worktree JSON mode stdout remained direct-parseable; the failure guidance was not appended to stdout.",
+          "headHash": "af4b8cfa373471b4b9ddc4646fdeda2b82bc21b4",
+          "materialHash": "43330fb8c4a8f195a60e8db4802ecd24fad09b6fadba2ff1bbd29e369ef4b1c6",
+          "timestamp": "2026-06-03T22:39:30.610Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "新 smoke 直接 JSON.parse execFileSync stdout",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/cli-json-stdout-contract-smoke.ts",
+          "command": "npm --prefix packages/main run test:cli-json-stdout-contract-smoke",
+          "result": "pass",
+          "note": "The new smoke spawns real CLI child processes and feeds captured stdout directly into JSON.parse, covering validate --json without substring extraction.",
+          "headHash": "af4b8cfa373471b4b9ddc4646fdeda2b82bc21b4",
+          "materialHash": "43330fb8c4a8f195a60e8db4802ecd24fad09b6fadba2ff1bbd29e369ef4b1c6",
+          "timestamp": "2026-06-03T22:39:30.610Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "一个已经正常的 --format=json 命令继续 parseable，防止输出管线回归",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/cli-json-stdout-contract-smoke.ts",
+          "command": "npm --prefix packages/main run test:cli-json-stdout-contract-smoke",
+          "result": "pass",
+          "note": "The smoke also covers existing --format=json surfaces such as authority_status and host_list, proving known-good JSON commands remain direct-parseable through the shared output pipeline.",
+          "headHash": "af4b8cfa373471b4b9ddc4646fdeda2b82bc21b4",
+          "materialHash": "43330fb8c4a8f195a60e8db4802ecd24fad09b6fadba2ff1bbd29e369ef4b1c6",
+          "timestamp": "2026-06-03T22:39:30.610Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "测试断言 stdout 不含 next-step hint，避免未来误把 hint 加回 JSON mode",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/cli-json-stdout-contract-smoke.ts",
+          "command": "npm --prefix packages/main run test:cli-json-stdout-contract-smoke",
+          "result": "pass",
+          "note": "The smoke asserts JSON stdout contains no human hint markers and that trimmed validate --json output ends at the single JSON document boundary, preventing future trailing decoration regressions.",
+          "headHash": "af4b8cfa373471b4b9ddc4646fdeda2b82bc21b4",
+          "materialHash": "43330fb8c4a8f195a60e8db4802ecd24fad09b6fadba2ff1bbd29e369ef4b1c6",
+          "timestamp": "2026-06-03T22:39:30.610Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "Claude Code 三个 agent 均产出可追踪结论，Lattice delivery-check 接收",
+        "type": "manual",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "file": ".koala/story/actives/B-7fc2/evidence/agent-delivery-review.md",
+          "command": "Claude Code Agent 1 audit + Agent 2 implementation + Agent 3 independent review; Codex reran focused validation",
+          "result": "pass",
+          "note": "All three Claude Code roles produced traceable conclusions: Agent 1 audit, Agent 2 implementation commit 8a0c0705, and Agent 3 pass review; Codex reran build, focused smoke, migration smoke, direct JSON.parse, and text hint checks.",
+          "headHash": "af4b8cfa373471b4b9ddc4646fdeda2b82bc21b4",
+          "materialHash": "43330fb8c4a8f195a60e8db4802ecd24fad09b6fadba2ff1bbd29e369ef4b1c6",
+          "timestamp": "2026-06-03T22:39:30.610Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "如果某 agent 发现 blocking issue，story 留在 DEV/REVIEW 修复而不是硬 DONE",
+        "type": "manual",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "file": ".koala/story/actives/B-7fc2/evidence/agent-delivery-review.md",
+          "command": "Agent 3 independent review and lattice finding_list --storyId=B-7fc2",
+          "result": "pass",
+          "note": "Agent 3 found no blockers or advisory regressions, and finding_list returned no findings; if blockers had been found, the story would have remained in DEV rather than being advanced.",
+          "headHash": "af4b8cfa373471b4b9ddc4646fdeda2b82bc21b4",
+          "materialHash": "43330fb8c4a8f195a60e8db4802ecd24fad09b6fadba2ff1bbd29e369ef4b1c6",
+          "timestamp": "2026-06-03T22:39:30.610Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "DONE summary 必须明确 no limitations 或列出未覆盖 JSON 命令，不允许抽象说全绿",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "file": ".koala/story/actives/B-7fc2/evidence/agent-delivery-review.md",
+          "command": "Review docs/requirements/decisions/host-neutral-observability-console.md and .koala/story/actives/B-7fc2/evidence/agent-delivery-review.md",
+          "result": "pass",
+          "note": "Delivery evidence states the scoped limitation explicitly: no known limitations for the JSON stdout contract, while resolver/dashboard schema completion remains outside B-7fc2 and belongs to the host-neutral observability milestones.",
+          "headHash": "af4b8cfa373471b4b9ddc4646fdeda2b82bc21b4",
+          "materialHash": "43330fb8c4a8f195a60e8db4802ecd24fad09b6fadba2ff1bbd29e369ef4b1c6",
+          "timestamp": "2026-06-03T22:39:30.610Z"
+        }
+      }
+    ]
+  }
+}

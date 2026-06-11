@@ -71,7 +71,7 @@ try {
   write(root, 'koala.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.koala/story/actives',
+    storyDir: '.lattice/story/actives',
     requirementsDir: 'docs/requirements',
     storyPrefix: 'B',
   }, null, 2));
@@ -91,7 +91,7 @@ try {
   const storyId = created.match(/B-[a-f0-9]+/)?.[0];
   assert.ok(storyId, 'story_create should return story id');
 
-  const checklistPath = join(root, '.koala/story/actives', storyId!, 'checklist.json');
+  const checklistPath = join(root, '.lattice/story/actives', storyId!, 'checklist.json');
   const before = JSON.parse(readFileSync(checklistPath, 'utf8'));
   const itemBefore = before.items.find((i: any) => i.id === 'CHK-001');
   assert.ok(itemBefore, 'CHK-001 must exist after story_create');

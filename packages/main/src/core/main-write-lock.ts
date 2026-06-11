@@ -5,7 +5,7 @@
  * single global mkdir-style lock that serializes every shared write to main /
  * B-META metadata. This module is the canonical primitive for that lock:
  *
- *   - canonical lock path: `.koala/locks/main-write.lock/` (resolved against the
+ *   - canonical lock path: `.lattice/locks/main-write.lock/` (resolved against the
  *     main repo root, so a story worktree and the main checkout contend on the
  *     SAME directory).
  *   - atomic acquire via `core/mkdir-lock.ts` (`mkdirSync` of a non-existent
@@ -29,13 +29,14 @@ import {
   type AcquiredMkdirLock,
   type MkdirLockHolderInfo,
 } from './mkdir-lock.js';
+import { LATTICE_MAIN_WRITE_LOCK } from './lattice-paths.js';
 
 /**
  * Canonical main write lock directory, relative to the main repo root.
  * Registered in `core/runtime-artifact-registry.ts` under `runtime-locks` so
  * doctor / stray-file scans treat it as managed volatile runtime state.
  */
-export const MAIN_WRITE_LOCK_REL = '.koala/locks/main-write.lock';
+export const MAIN_WRITE_LOCK_REL = LATTICE_MAIN_WRITE_LOCK;
 
 /**
  * Age (ms) past which a held main write lock is treated as stale and reclaimed.
@@ -173,7 +174,7 @@ export interface MainWriteLockOptions {
 /**
  * Acquire the unified main write lock.
  *
- * Atomic mkdir acquire at `.koala/locks/main-write.lock/`. A stale lock (mtime
+ * Atomic mkdir acquire at `.lattice/locks/main-write.lock/`. A stale lock (mtime
  * older than `staleMs`) is force-reclaimed first. A live (non-stale) lock is
  * handled per `options.onContention`: `'fail-fast'` (default) throws
  * immediately; `'wait'` polls until the lock frees or `waitDeadlineMs` elapses.

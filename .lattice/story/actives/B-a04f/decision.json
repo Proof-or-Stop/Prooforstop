@@ -1,0 +1,66 @@
+{
+  "principles": [
+    "重复 metadata 记录不能通过覆盖丢失信息",
+    "优先修 merge 逻辑而不是手工清洗所有历史数据",
+    "注释错误修复要直接消掉 validate 报警而不引入新的字段缺失"
+  ],
+  "drivers": [
+    "让 story-lifecycle flow 恢复连续",
+    "让代码注释合规恢复",
+    "避免未来 metadata 再因重复 key 丢字段"
+  ],
+  "options": [
+    {
+      "name": "A: 手工改 docs/metadata/task.json 把 step 2 补回来",
+      "pros": [
+        "见效最快"
+      ],
+      "cons": [
+        "无法防止下次 extract/merge 再次覆盖掉 step 2",
+        "不能修复根因"
+      ]
+    },
+    {
+      "name": "B: 修 scan 合并策略，重复 key 时保留字段更完整的记录，同时补齐 summary.ts 注释",
+      "pros": [
+        "能直接修掉 flow gap 根因",
+        "还能顺手消掉 4 个注释错误"
+      ],
+      "cons": [
+        "需要小心定义什么叫‘更完整’，避免误合并"
+      ]
+    },
+    {
+      "name": "C: 完全忽略 metadata，只强制所有分析都走 live source annotations",
+      "pros": [
+        "可以规避旧 metadata 污染"
+      ],
+      "cons": [
+        "会破坏当前依赖 metadata 的兼容路径，改动面过大"
+      ]
+    }
+  ],
+  "chosen": "B: 修 scan 合并策略，重复 key 时保留字段更完整的记录，同时补齐 summary.ts 注释",
+  "rationale": "当前 broken_flow 明显是重复 key 的 metadata 记录被低信息版本覆盖，修 merge 逻辑能从根上避免 step 2 丢失；与此同时 summary.ts 注释错误是独立但很小的合规缺口，放在同一条 story 里最划算。",
+  "preMortem": [
+    {
+      "scenario": "merge 规则过于简单，错误保留了旧垃圾字段",
+      "trigger": "只按“最后写入”或“字段数量”粗暴选择记录",
+      "consequence": "flow 问题换个文件继续出现",
+      "mitigation": "对重复 key 做字段级合并：优先保留非空 flow/test/signature 等高信息字段"
+    },
+    {
+      "scenario": "只修 summary.ts 注释，flow gap 仍旧存在",
+      "trigger": "把 story 当成纯注释修复看待",
+      "consequence": "convergence_check 依旧卡在高优先级 broken_flow",
+      "mitigation": "先写回归锁定 step 2 丢失这个具体回归，再动 merge 逻辑"
+    },
+    {
+      "scenario": "修了 merge 逻辑但没重新验证 convergence",
+      "trigger": "只看局部脚本输出，不跑全局检查",
+      "consequence": "以为问题解决，实际根仓库 still red",
+      "mitigation": "把 convergence_check 和 flow/annotation 定向验证都纳入 fixture/脚本"
+    }
+  ],
+  "timestamp": "2026-04-15T01:38:57.661Z"
+}

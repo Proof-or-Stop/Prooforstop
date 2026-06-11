@@ -1,0 +1,37 @@
+{
+  "findings": [
+    {
+      "id": "B-77e4:F-001",
+      "desc": "packages/main/src/dashboard.ts:85 and packages/main/src/handlers/session.ts:485 index doneOutcomes with summary.outcomeKind from unchecked JSON. A parseable but invalid value (reproduced with outcomeKind=\"typo\") creates a hidden bucket and renders \"Lifecycle DONE: 1/1\" with DONE-success/default=0 DONE-blocked=0 DONE-audit-only=0, so legacy/corrupt summaries silently undercount outcomes. Fix by adding a runtime normalizer/enum guard before indexing or rendering, and default unknown values to the compatibility bucket (or an explicit unknown bucket) instead of trusting the stored string.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-06T14:36:48.978Z",
+      "reviewRound": "2026-05-06T14:32:25.140Z",
+      "_hash": "3bb96c01884e171110feddb1498923c3fbdfe63af08a6798a428c1e50942fc23"
+    },
+    {
+      "id": "B-77e4:F-002",
+      "desc": "Process receipt gap after F-001: git log shows follow-up fix commit bb06cd3 touching packages/main/src/core/types.ts and packages/main/src/tasks/outcome-semantics-smoke.ts, but koala story_get only exposes the earlier DEV checklist auditLog entries from koala-implementer and no Koala-side receipt attributing the post-finding implementation step to koala-implementer. Add/refresh Koala metadata that ties the F-001 code fix to koala-implementer before channel pass.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "agent": "koala-review-channel",
+      "createdAt": "2026-05-06T14:56:57.624Z",
+      "reviewRound": "2026-05-06T14:41:38.297Z",
+      "_hash": "d3a65e6a75ea1623e666f7a5eb3977a9959e2cf4936c9c6c5aa6a1b3b692770b"
+    },
+    {
+      "id": "B-77e4:F-003",
+      "desc": "Freshness gate still fails after the F-001 fix. node packages/main/dist/cli.js validate --story=B-77e4 --json at HEAD a394399 reports allPass=false and 13 required verification intents stale; the snapshot in koala test_list shows evidence headHash values such as f3b2ff8 and b3b2ab0, so the current HEAD has no fresh verification receipt. Re-run the linked smoke/logic commands and koala verification_evidence_refresh_stale --storyId=B-77e4 until validate is green, then rerun channel review.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "agent": "koala-review-channel",
+      "createdAt": "2026-05-06T14:57:12.771Z",
+      "reviewRound": "2026-05-06T14:41:38.297Z",
+      "_hash": "10ef4cacb9b313588236f38bfbcc8eaa1bd91de4d2b3cfdc66b4663d31544854"
+    }
+  ]
+}

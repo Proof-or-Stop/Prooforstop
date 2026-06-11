@@ -1,0 +1,90 @@
+{
+  "storyId": "B-ad2c",
+  "checkedAt": "2026-05-29T14:39:37.351Z",
+  "reviewRound": "2026-05-29T14:27:59.858Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/dev-memory.md#status-accepted",
+      "promise": "Dev-memory is non-authoritative context, not Koala gate evidence; no dev-memory entry, candidate file, or preflight pack can satisfy delivery_check_set docsPromises, verification_evidence_add gate receipts, review_pass_set review artifacts, or any other signed gate artifact.",
+      "status": "verified",
+      "verifiedBy": "grep+schema+test",
+      "evidence": "Schema enforces gateEvidence: false + authority: 'non_authoritative' as required fields (packages/main/src/core/dev-memory.ts:67-77,117-118). validateEntry() rejects any entry with gateEvidence != false or authority != 'non_authoritative'. scripts/verify-dev-memory.mjs Section 1 and Section 7 (8 checks total) confirm schema enforcement and docs disclaimer; Section 8 confirms story candidates remain non-authoritative."
+    },
+    {
+      "docPath": "docs/requirements/decisions/dev-memory.md#commands",
+      "promise": "All six dev-memory commands exist: dev_memory_capture / dev_memory_search / dev_memory_list / dev_memory_preflight / dev_memory_finish / dev_memory_start.",
+      "status": "verified",
+      "verifiedBy": "cli-help",
+      "evidence": "node packages/main/dist/cli.js dev_memory_<name> --help returns valid usage for all six commands. Registered in packages/main/src/registry.ts and packages/main/src/handlers/dev-memory.ts:313-319."
+    },
+    {
+      "docPath": "docs/requirements/decisions/dev-memory.md#dev_memory_start-prompt-only-memory-wrapper-not-lifecycle-worktree-initialization",
+      "promise": "dev_memory_start is a prompt-only memory wrapper, intentionally separate from Koala's story lifecycle and worktree initialization. It does not launch any binary, does not start or advance any story phase, and is always safe to run.",
+      "status": "verified",
+      "verifiedBy": "test+grep",
+      "evidence": "Handler in packages/main/src/handlers/dev-memory.ts:286-311 only returns preflight text plus a reminder string; no spawn, no phase mutation. CLI --help description explicitly states '不启动外部 agent 二进制；不是生命周期 dev_start，不创建 worktree 或推进 phase'. There is no koala dev_start command (CLI suggests dev_memory_* alternatives). scripts/verify-dev-memory.mjs Section 6 and Section 8 (5 checks) verify dry-run default, no binary launch, no lifecycle bypass."
+    },
+    {
+      "docPath": "docs/requirements/decisions/dev-memory.md#dev_memory_finish---storyid-is-optional",
+      "promise": "dev_memory_finish outside Koala (no active story, no --scope=global) does NOT require or create .koala/story/actives, reads recent project dev-memory entries, and returns a summary or clear empty-state message without touching story directories.",
+      "status": "verified",
+      "verifiedBy": "test+transcript",
+      "evidence": "Handler packages/main/src/handlers/dev-memory.ts:200-239 branches on missing storyId to skip story directories. scripts/verify-dev-memory.mjs Section 9 (6 checks) confirms: exit 0, no .koala/story/actives created, empty state safe, --scope=global writes global without story dirs, dedup works, docs don't imply --storyId mandatory. User transcript at .koala/story/actives/B-ad2c/evidence/transcript-diff.md runs the full happy path in a fresh tmp dir."
+    },
+    {
+      "docPath": "docs/requirements/decisions/dev-memory.md#dev_memory_finish---storyid-is-optional",
+      "promise": "Story-candidate mode (active story branch, no --scope=global) writes candidates to <root>/.koala/story/actives/<storyId>/dev-memory-candidates.jsonl with scope: story-candidate, sourceStoryId, gateEvidence: false, authority: non_authoritative, deduped by id.",
+      "status": "verified",
+      "verifiedBy": "test",
+      "evidence": "Handler packages/main/src/handlers/dev-memory.ts:241-278 writes story-candidate file with the documented field set. scripts/verify-dev-memory.mjs Section 10 confirms active-story default targets story-candidate file. Section 8 confirms scope=story-candidate and sourceStoryId are persisted."
+    },
+    {
+      "docPath": "docs/requirements/decisions/dev-memory.md#dev_memory_finish---storyid-is-optional",
+      "promise": "Global promotion (--scope=global) copies relevant project entries into global dev-memory, de-duped by id, as scope: global, non-authoritative; does not create or append story candidates even when run from an active story branch.",
+      "status": "verified",
+      "verifiedBy": "test",
+      "evidence": "Handler packages/main/src/handlers/dev-memory.ts:208-231 promotes to global path with scope=global, gateEvidence=false, authority=non_authoritative, dedup by id. scripts/verify-dev-memory.mjs Section 9 and 10 confirm: --scope=global writes global memory and does NOT write story candidates even when active story branch exists."
+    },
+    {
+      "docPath": "docs/requirements/decisions/dev-memory.md#why-are-story-candidates-separate-from-project-memory",
+      "promise": "Story candidates are NOT automatically promoted to project/global memory — this is a deliberate review step.",
+      "status": "verified",
+      "verifiedBy": "test+grep",
+      "evidence": "No automatic promotion path exists in the handlers; story candidates are written via dev_memory_finish --storyId and stay in the story-candidate file unless a separate dev_memory_finish --scope=global is explicitly invoked against project entries. scripts/verify-dev-memory.mjs Section 7/8 confirms docs state and machine behavior."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "scripts/verify-dev-memory.mjs Section 1 (schema validation) and Section 2 (deterministic path resolution) and Section 7 (docs non-authoritative disclaimer): all PASS. Confirms experience entries require gateEvidence=false / authority='non_authoritative' / category / scope / summary / trigger / lesson / reusePrompt and reject anything else. Latest verify-dev-memory.mjs run: 51/51 checks PASS (this review, 2026-05-29)."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "scripts/verify-dev-memory.mjs Section 4 (search by query/category/agent), Section 6 (real CLI runs capture+list+search), Section 8 (duplicate-like capture warns): all PASS. User transcript .koala/story/actives/B-ad2c/evidence/transcript-diff.md exercises the real binary in a fresh /tmp dir: dev_memory_capture writes bf1e7cc, dev_memory_list shows it newest-first, dev_memory_search --query=reviewer returns it."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "scripts/verify-dev-memory.mjs Section 5 (preflight returns relevant entries, degrades to empty-state, stays under 60-line budget) and Section 6 (real CLI dev_memory_preflight): all PASS. Transcript-diff dev_memory_preflight --query=reviewer --maxEntries=2 --maxLines=20 returns the captured lesson with ~7-line output, well under budget."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "scripts/verify-dev-memory.mjs Section 9 (6 checks: dev_memory_finish without --storyId exits 0, does NOT create .koala/story/actives, empty state safe, --scope=global writes global memory, dedup works, docs don't imply storyId mandatory) and Section 10 (4 checks: ownership classification differs by scope, active story default writes story-candidate, --scope=global suppresses story candidates): all PASS. Transcript-diff dev_memory_finish (no flags) in /tmp dir prints 'Project dev-memory: 1 relevant entry retained ... No story directory required' and does not touch story dirs."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "scripts/verify-dev-memory.mjs Section 6 (dev_memory_start emits preflight + finish reminder, defaults to dry-run, does not launch agent binary) and Section 7 (docs distinguish dev_memory_start from lifecycle dev_start) and Section 8 (CLI engine description distinguishes from lifecycle): all PASS. Transcript-diff dev_memory_start --agent=codex --query=reviewer --maxEntries=1 --dryRun emits preflight pack and finish reminder text only, with no binary launch."
+    },
+    {
+      "featureId": "user-acceptance-transcript",
+      "transcript": "User-value acceptance transcript at .koala/story/actives/B-ad2c/evidence/transcript-diff.md runs the full outside-Koala flow in a fresh /tmp/koala-dev-memory-user-9pgutn directory: list (empty), capture (saves bf1e7cc), list (shows it), search (finds it by query=reviewer), preflight (returns 7-line pack), finish (retains in project memory, no story dir required), start --dryRun (emits preflight + finish reminder). Actual output matches expected user outcome end-to-end; summary.json acceptanceVerdict='accepted' with outcomeKind='success'."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "B-ad2c delivers lightweight dev-memory experience capture outside Koala stories: 6 commands registered (capture/list/search/preflight/finish/start), schema enforces gateEvidence=false + authority='non_authoritative' at write and read time, dev_memory_start is a documented prompt-only memory wrapper distinct from lifecycle dev_start, dev_memory_finish works outside Koala without creating story directories, and both story-candidate and --scope=global modes are documented in docs/requirements/decisions/dev-memory.md and machine-verified by scripts/verify-dev-memory.mjs (51/51 PASS). User-value acceptance transcript at .koala/story/actives/B-ad2c/evidence/transcript-diff.md exercises the full happy path outside Koala. Latest koala validate --story=B-ad2c PASS at 2026-05-29T14:33:38.025Z, headSha 4ca0bc3c, verification coverage 15/15 (0 missing). All 5 findings resolved, 0 open. Limitation: the global koala binary still points at main until merge, so in-flight verification must use node packages/main/dist/cli.js — recorded in summary.json and transcript-diff.md as a self-hosting caveat that resolves post-merge."
+  },
+  "_hash": "6ffc9c17f1d2c473e71f586a00a881906007c6300aeac6adad46cf917a181f51"
+}

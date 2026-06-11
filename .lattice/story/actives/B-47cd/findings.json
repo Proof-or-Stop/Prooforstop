@@ -1,0 +1,426 @@
+{
+  "findings": [
+    {
+      "id": "B-47cd:F-001",
+      "desc": "CHK-002 adversarial evidence is not credible at packages/main/src/core/autopilot-policy.ts:408-422. Those lines reject unbounded full-autopilot policies, but packages/main/src/tasks/autopilot-run-smoke.ts:347-365 only asserts successful creation of a bounded policy and never exercises the refusal cases. The checklist evidence note pointing to build/smoke therefore overclaims coverage for missing maxIterations/maxRuntimeMinutes/maxBudgetUSD/stop flags.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-04T03:42:19.185Z",
+      "reviewRound": "2026-06-04T03:37:35.517Z",
+      "reviewRunId": "B-47cd:RR-003",
+      "_hash": "32cd2be9c5c0a95a7147353a67df0cb3af4db746d9a291cc97aab73d074aa258",
+      "files": [
+        "packages/main/src/core/autopilot-policy.ts",
+        "packages/main/src/tasks/autopilot-run-smoke.ts"
+      ],
+      "resolvedReason": "Resolved by extending autopilot-run smoke with adversarial full-autopilot policy refusal assertions for missing required bounds and stop flags. Evidence: npm --prefix packages/main run test:autopilot-run-smoke.",
+      "resolvedAt": "2026-06-04T04:09:33.161Z"
+    },
+    {
+      "id": "B-47cd:F-002",
+      "desc": "CHK-007 edge intent is unmet at packages/main/src/core/lattice-autopilot.ts:625-748. The implementation has no bounded retry path tied to allowAutoFix after validation failure, and packages/main/src/tasks/autopilot-run-smoke.ts:493-519 only covers a successful full-autopilot run plus a maxIterations stop. The recorded evidence maps this must-have retry intent to max_iterations, which is a different behavior.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-04T03:42:30.414Z",
+      "reviewRound": "2026-06-04T03:37:35.517Z",
+      "reviewRunId": "B-47cd:RR-003",
+      "_hash": "d3e43f9e41ae75fc23f63fece0732a3b6949e52a1b765f923fc53f94e7b8aa53",
+      "files": [
+        "packages/main/src/core/lattice-autopilot.ts",
+        "packages/main/src/tasks/autopilot-run-smoke.ts"
+      ],
+      "resolvedReason": "Resolved by implementing bounded full-autopilot retry only for allowAutoFix=true validation failures within saved policy maxIterations/runtime/budget bounds, and adding smoke coverage that records exactly two validation_failed iterations. Evidence: npm --prefix packages/main run test:autopilot-run-smoke.",
+      "resolvedAt": "2026-06-04T04:09:52.921Z"
+    },
+    {
+      "id": "B-47cd:F-003",
+      "desc": "CHK-008 edge evidence relies on docs instead of an executable conflict-path check. packages/main/src/core/lattice-autopilot.ts:522-527 and 728-738 classify conflict/validation stop behavior, but packages/main/src/tasks/autopilot-run-smoke.ts:412-597 never drives a conflict case or verifies that evidence is preserved with a repair nextAction. README.md:240-245 is a boundary statement, not credible test coverage for this logic intent.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-04T03:42:43.423Z",
+      "reviewRound": "2026-06-04T03:37:35.517Z",
+      "reviewRunId": "B-47cd:RR-003",
+      "_hash": "ae15c6f8de6d26f7d75826cdeac61ad7c06e2d392c221fee137e5846ad1d95b1",
+      "files": [
+        "packages/main/src/core/lattice-autopilot.ts",
+        "packages/main/src/tasks/autopilot-run-smoke.ts",
+        "README.md"
+      ],
+      "resolvedReason": "Resolved by adding an executable conflict stop smoke: a prepared active dispatch hits dispatch policy maxParallel, autopilot_run classifies conflict, preserves one failed iteration/error evidence, and returns manual repair nextAction. Evidence: npm --prefix packages/main run test:autopilot-run-smoke.",
+      "resolvedAt": "2026-06-04T04:10:15.862Z"
+    },
+    {
+      "id": "B-47cd:F-004",
+      "desc": "autopilot_run does not enforce the advertised two-policy autopilot contract. Docs and CLI say autopilot uses a dispatch policy plus an autopilot policy (README.md:200-225, host-overflow.md:72-94, cli-engine.ts:944-1009), but the persisted AutopilotPolicy shape has no dispatch/host/path/command fields (autopilot-policy.ts:116-162) and autopilotRun never loads or checks an autopilot policy before execution; it just forwards args.policy directly to dispatchAuto (lattice-autopilot.ts:538-555, 558-651). Runtime repro: in a temp repo, dispatch_policy_create followed by autopilot_run --policy=dispatch-only reached story lookup failure instead of rejecting missing autopilot policy. This collapses the dispatch/autopilot distinction and means Conservative / Authority-Verified / Full Autopilot semantics are not actually policy-authorized by the saved autopilot policy.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-04T03:42:52.420Z",
+      "reviewRound": "2026-06-04T03:37:35.517Z",
+      "reviewRunId": "B-47cd:RR-005",
+      "_hash": "4872e9a20b1ada84e38402213a5456520fef6f243fd49c1b14d42aed923002d8",
+      "files": [
+        "README.md",
+        "docs/requirements/decisions/host-overflow.md",
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/core/autopilot-policy.ts",
+        "packages/main/src/core/lattice-autopilot.ts"
+      ],
+      "resolvedReason": "Resolved by adding dispatchPolicy to persisted autopilot policies and making autopilot_run check the saved autopilot policy before dispatch. dispatchAuto now receives normalizedPolicy.dispatchPolicy, and dispatch-only policies fail before worker startup. Evidence: npm --prefix packages/main run test:autopilot-run-smoke and build.",
+      "resolvedAt": "2026-06-04T04:10:38.023Z"
+    },
+    {
+      "id": "B-47cd:F-005",
+      "desc": "Authority-Verified and Full Autopilot do not require an actually verified server authority receipt. classifyAuthorityReceiptCandidate marks the gate verified for any local object with authority-like shape or even just server-ish markers such as source=\"server\" / authorityReceipt=true (lattice-autopilot.ts:426-457), so a caller can satisfy authorityReceiptGate.verified without any real authority round-trip or receipt verification. Runtime repro: autopilot_run --mode=authority-verified --serverAuthorityReceipt={\"source\":\"server\"} returned authorityReceiptGate.verified=true in a temp repo. That conflicts with the product intent in README.md:196-238 and host-overflow.md:68-108 that only a verified server authority receipt should satisfy the gate and that local diagnostic data must not become server authority.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-04T03:43:05.288Z",
+      "reviewRound": "2026-06-04T03:37:35.517Z",
+      "reviewRunId": "B-47cd:RR-005",
+      "_hash": "ccb86447fcab0f5d186f6e530ebddd14647e6df57ad2fd7a7d6ca0618d2c0248",
+      "files": [
+        "README.md",
+        "docs/requirements/decisions/host-overflow.md",
+        "packages/main/src/core/lattice-autopilot.ts",
+        "packages/main/src/tasks/autopilot-run-smoke.ts"
+      ],
+      "resolvedReason": "Resolved by narrowing authority receipt classification: {source:'server'} and local diagnostics no longer verify; only explicit verified fake-test-server or authority-server style receipts with ref/digest/signature pass the gate. Smoke asserts forged server object stops before dispatch. Evidence: npm --prefix packages/main run test:autopilot-run-smoke.",
+      "resolvedAt": "2026-06-04T04:11:03.916Z"
+    },
+    {
+      "id": "B-47cd:F-006",
+      "desc": "packages/main/src/core/lattice-autopilot.ts:558-568 and 651-652 never load or check the persisted autopilot policy that cli-engine.ts:985-1006 advertises as the authorization source. The run mode, receipt requirement, and bounds come from CLI args instead of .koala/autopilot-policies/<name>.json, so a conservative policy can be executed as full-autopilot or authority-verified just by changing --mode. Fix by loading checkAutopilotPolicy() before dispatch, refusing supervised/refused policies, and deriving mode/maxIterations/runtime/budget/receipt requirements from the normalized autopilot policy rather than raw CLI overrides.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-04T03:43:24.258Z",
+      "reviewRound": "2026-06-04T03:37:35.517Z",
+      "reviewRunId": "B-47cd:RR-002",
+      "_hash": "059481e2d103e4a5b1b998aaf16da71d235a760ae6c7c9259a74dcae9d89b1d3",
+      "files": [
+        "packages/main/src/core/lattice-autopilot.ts",
+        "packages/main/src/cli-engine.ts"
+      ],
+      "resolvedReason": "Resolved by deriving mode, receipt requirement, maxIterations, runtime, budget, allowAutoFix, and dispatchPolicy from checkAutopilotPolicy(). CLI --mode is now only an assertion and a conservative policy cannot be widened to full-autopilot. Evidence: npm --prefix packages/main run test:autopilot-run-smoke.",
+      "resolvedAt": "2026-06-04T04:11:12.118Z"
+    },
+    {
+      "id": "B-47cd:F-007",
+      "desc": "cli-engine.ts:1036-1046 documents autopilot_resume as resuming a run under policy and safety checks with optional policy/runtime/budget/server-receipt inputs, but handlers/lattice-autopilot.ts:250-252 forwards those args into core/lattice-autopilot.ts:862-887 where every call is unconditionally persisted as status=refused and all of the advertised resume/policy inputs are ignored. Fix by narrowing the public schema to the current refusal-only behavior or implementing an actual safe resume path that validates the stored run against the supplied policy/receipt/bounds.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-04T03:43:24.259Z",
+      "reviewRound": "2026-06-04T03:37:35.517Z",
+      "reviewRunId": "B-47cd:RR-002",
+      "_hash": "4c8cb9cc6bf0558ec7b3d45a53b5589249f138c12e1e9903c82b777258d5b78e",
+      "files": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/handlers/lattice-autopilot.ts",
+        "packages/main/src/core/lattice-autopilot.ts"
+      ],
+      "resolvedReason": "Resolved by narrowing autopilot_resume public CLI/help and command/process-fact rationale to current refusal-only v1 behavior; policy/runtime/budget/server-receipt resume inputs are no longer advertised. Evidence: npm --prefix packages/main run build and node bin/lattice.js autopilot_resume --help.",
+      "resolvedAt": "2026-06-04T04:11:40.928Z"
+    },
+    {
+      "id": "B-47cd:F-008",
+      "desc": "cli-engine.ts:944-967 accepts dispatchPolicy/allowedHosts/allowedPaths/deniedPaths/commandAllowlist/requiredCommands/requireReview/stopOnValidationFailure on autopilot_policy_create, but core/autopilot-policy.ts:147-162 and 483-516 have no fields for them and silently drop the input. This breaks the published JSON/CLI contract and can mislead operators into thinking scope or command restrictions were persisted when they were discarded. Fix by either removing unsupported schema fields from the CLI surface or extending the AutopilotPolicy model/checker to persist and enforce them.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-04T03:43:24.306Z",
+      "reviewRound": "2026-06-04T03:37:35.517Z",
+      "reviewRunId": "B-47cd:RR-002",
+      "_hash": "663febafe8f780972636d35c52734c22f25e1b69955065a2b73e228fddc3730d",
+      "files": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/core/autopilot-policy.ts"
+      ],
+      "resolvedReason": "Resolved by removing unsupported host/path/command/review/validation fields from autopilot_policy_create CLI schema, adding persisted dispatchPolicy, and making core reject unsupported create fields instead of silently dropping them. Evidence: autopilot_run smoke unsupported-field assertion and autopilot_policy_create --help.",
+      "resolvedAt": "2026-06-04T04:12:07.798Z"
+    },
+    {
+      "id": "B-47cd:F-009",
+      "desc": "README.md:200-218 and docs/requirements/decisions/host-overflow.md:72-89 say autopilot uses two policies, but the examples never show how the autopilot policy is linked to the dispatch policy. Current CLI help exposes optional --dispatchPolicy on autopilot_policy_create (packages/main/src/cli-engine.ts:944-948), while autopilot_run only accepts a single --policy and persists/uses that one name (packages/main/src/core/lattice-autopilot.ts:558-582). Fix: either document the same-name coupling explicitly, or include the dispatch-policy linkage in the autopilot policy example/prose so the two-policy model is unambiguous.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-04T03:43:32.643Z",
+      "reviewRound": "2026-06-04T03:37:35.517Z",
+      "reviewRunId": "B-47cd:RR-006",
+      "_hash": "9b448d3f976d32f8986062d9222d5d84a71b673bedf7529eb58f77110131e672",
+      "files": [
+        "README.md",
+        "docs/requirements/decisions/host-overflow.md"
+      ],
+      "resolvedReason": "Resolved by documenting explicit dispatchPolicy linkage in README and docs/requirements/decisions/host-overflow.md, including dispatch_policy_create --policy=fake-dispatch then autopilot policy create --policy=fake --dispatchPolicy=fake-dispatch examples and same-name fallback note. Evidence: docs diff plus autopilot-run smoke two-policy linkage assertions.",
+      "resolvedAt": "2026-06-04T04:12:15.242Z"
+    },
+    {
+      "id": "B-47cd:F-010",
+      "desc": "CLI parser strips unknown autopilot flags before core validation, so removed autopilot_policy_create/autopilot_resume flags such as --allowedHosts or --policy can still be accepted and ignored instead of rejected. Fix by making these command schemas strict or adding explicit unknown-flag rejection before safeParse.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-04T04:32:44.034Z",
+      "reviewRound": "2026-06-04T04:09:09.144Z",
+      "reviewRunId": "B-47cd:RR-007",
+      "_hash": "facc52d8c4a278a9735c8456aeffd3d066f94a5bec0abd8a92f2d084f9eb7605",
+      "files": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/handlers/lattice-autopilot.ts",
+        "packages/main/src/core/autopilot-policy.ts"
+      ],
+      "resolvedReason": "Resolved by strict CLI parsing for autopilot_policy_create/autopilot_run/autopilot_resume while preserving Lattice owner-lease meta flags. Smoke asserts deprecated flags are rejected and --forceTakeover remains accepted without entering policy output. Evidence: npm --prefix packages/main run build; npm --prefix packages/main run test:autopilot-run-smoke.",
+      "resolvedAt": "2026-06-04T04:58:24.449Z"
+    },
+    {
+      "id": "B-47cd:F-011",
+      "desc": "Full-autopilot maxBudgetUSD is advertised as a retry bound, but budgetSpentUSD is initialized once and never updated after dispatch attempts, so retries can continue regardless of actual spend. Fix by either measuring/persisting per-iteration spend before retry or refusing budget-bound retries when spend cannot be measured.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-04T04:32:54.747Z",
+      "reviewRound": "2026-06-04T04:09:09.144Z",
+      "reviewRunId": "B-47cd:RR-007",
+      "_hash": "1f2a0e9bda5a33ea5473317a790de4a501f3b757bc2a426e629a5aa442e89c57",
+      "files": [
+        "packages/main/src/core/lattice-autopilot.ts",
+        "packages/main/src/tasks/autopilot-run-smoke.ts"
+      ],
+      "resolvedReason": "Resolved by requiring measurable spend before budget-capped full-autopilot retries: fake-host retries count as measured 0 spend, and non-measurable provider retries fail closed with stopReason=budget_exhausted before another iteration. Evidence: npm --prefix packages/main run build; npm --prefix packages/main run test:autopilot-run-smoke; docs/requirements/decisions/host-overflow.md documents the fail-closed budget rule.",
+      "resolvedAt": "2026-06-04T04:58:45.617Z"
+    },
+    {
+      "id": "B-47cd:F-012",
+      "desc": "autopilot_review is advertised and classified as read-only, but autopilotReview() persists refreshed run state/events and can rewrite status/nextAction on inspection. Make it compute review data in memory without mutating run.json, or reclassify/update contracts if mutation is intended.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-04T05:15:19.502Z",
+      "reviewRound": "2026-06-04T04:57:58.179Z",
+      "reviewRunId": "B-47cd:RR-008",
+      "_hash": "054f63999edfbe4551aff8671fcc4f2f8de1285e3b478b63f981e4af6ec60c6f",
+      "files": [
+        "packages/main/src/core/lattice-autopilot.ts,packages/main/src/cli-engine.ts,packages/main/src/core/command-policy.ts"
+      ],
+      "resolvedReason": "Resolved by making autopilotReview read persisted run state, compute dispatch_review/merge_plan in memory, and return a review projection without persist(), event append, or run.json mutation. Smoke captures run.json before/after autopilot_review and asserts byte-identical content. Evidence: npm --prefix packages/main run build; npm --prefix packages/main run test:autopilot-run-smoke.",
+      "resolvedAt": "2026-06-04T05:37:42.062Z"
+    },
+    {
+      "id": "B-47cd:F-013",
+      "desc": "Unknown/deprecated autopilot flags are still accepted on non-strict autopilot commands such as autopilot_policy_check, because only three commands use strict schemas and runCli dispatches the original parsed object instead of validated data. Apply fail-closed unknown-key validation across autopilot command surfaces and dispatch validated args.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-04T05:15:33.846Z",
+      "reviewRound": "2026-06-04T04:57:58.179Z",
+      "reviewRunId": "B-47cd:RR-008",
+      "_hash": "8f6b3414139aa75c13a8f3c11011a02c872f986ea327a25d5f5ad9f4a46b226a",
+      "files": [
+        "packages/main/src/cli-engine.ts,packages/main/src/handlers/lattice-autopilot.ts,packages/main/src/tasks/autopilot-run-smoke.ts"
+      ],
+      "resolvedReason": "Resolved by applying strict Zod object validation to every autopilot_* command, preserving takeover/forceTakeover only for owner-gated autopilot commands, and replacing parsed args with validated v.data before gates/hooks/handlers. Smoke asserts autopilot_policy_check/autopilot_status/autopilot_review reject stray --policy/--allowedHosts flags. Evidence: npm --prefix packages/main run build; npm --prefix packages/main run test:autopilot-run-smoke; npm --prefix packages/main run test:command-ownership-contract.",
+      "resolvedAt": "2026-06-04T05:38:09.001Z"
+    },
+    {
+      "id": "B-47cd:F-014",
+      "desc": "Authority-verified and full-autopilot modes accepted fully-shaped but caller-supplied self-asserted server authority receipts (for example source=python-authority-server with verified=true/signature fields) without independent verification. Fail closed for non-test server-looking receipts until real receipt verification exists, and add adversarial smoke coverage.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-04T05:37:11.652Z",
+      "reviewRound": "2026-06-04T05:36:09.666Z",
+      "reviewRunId": "B-47cd:RR-009",
+      "_hash": "09e8f637e989eee08091fbeb5209c6a1c53ff44f601e9447a170bf1c0a80d989",
+      "files": [
+        "packages/main/src/core/lattice-autopilot.ts,packages/main/src/tasks/autopilot-run-smoke.ts,docs/requirements/decisions/host-overflow.md,docs/requirements/decisions/authority-client-role.md"
+      ],
+      "resolvedReason": "Resolved by removing shape/string heuristic acceptance for real server-looking receipts in classifyAuthorityReceiptCandidate. Until real verification exists, only deterministic fake-test-server receipts can satisfy the smoke gate; fully-shaped caller-supplied python-authority-server receipts fail closed as invalid/missing_authority_receipt in both authority-verified and full-autopilot modes. Evidence: npm --prefix packages/main run build; npm --prefix packages/main run test:autopilot-run-smoke.",
+      "resolvedAt": "2026-06-04T05:38:41.062Z"
+    },
+    {
+      "id": "B-47cd:F-015",
+      "desc": "Owner-meta preservation is not covered for owner-gated autopilot_run, autopilot_cancel, and autopilot_resume after strict CLI hardening. Add CLI smoke cases with --takeover/--forceTakeover and assert meta keys do not leak into JSON outputs.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-04T05:51:53.510Z",
+      "reviewRound": "2026-06-04T05:36:09.666Z",
+      "reviewRunId": "B-47cd:RR-010",
+      "_hash": "9f804c5ba464704102139b9f10c72b312732b5e052f0310962f3b7c7fdeb8481",
+      "files": [
+        "packages/main/src/cli-engine.ts,packages/main/src/tasks/autopilot-run-smoke.ts"
+      ],
+      "resolvedReason": "Resolved by adding CLI smoke coverage for owner-gated autopilot_run, autopilot_cancel, and autopilot_resume with --takeover/--forceTakeover accepted under strict validation and asserted not to leak into JSON output. Evidence: npm --prefix packages/main run build; npm --prefix packages/main run test:autopilot-run-smoke.",
+      "resolvedAt": "2026-06-04T05:59:26.902Z"
+    },
+    {
+      "id": "B-47cd:F-016",
+      "desc": "Strict unknown/deprecated flag rejection is not explicitly covered for the full autopilot command set: autopilot_watch and autopilot_cancel lack stray-flag refusal smoke cases. Add assertCliRejectsUnknownFlag coverage for both.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-04T05:52:10.047Z",
+      "reviewRound": "2026-06-04T05:36:09.666Z",
+      "reviewRunId": "B-47cd:RR-010",
+      "_hash": "fb83e44f8ed1bac66dc09270ab5894325aa05eecf046ebc8bccca1c819ff2b23",
+      "files": [
+        "packages/main/src/cli-engine.ts,packages/main/src/tasks/autopilot-run-smoke.ts"
+      ],
+      "resolvedReason": "Resolved by adding assertCliRejectsUnknownFlag coverage for autopilot_watch and autopilot_cancel stray --policy flags, completing explicit unknown/deprecated flag refusal coverage across the autopilot command surface. Evidence: npm --prefix packages/main run build; npm --prefix packages/main run test:autopilot-run-smoke.",
+      "resolvedAt": "2026-06-04T05:59:41.900Z"
+    },
+    {
+      "id": "B-47cd:F-017",
+      "desc": "README.md and authority-client-role.md implied conduit_status includes canClaimProductionDone=false, but actual conduit status JSON does not expose that authority_status-specific field. Narrow docs so canClaimProductionDone=false belongs to authority_status only; conduit_status keeps productionDone=false, receiptVerified=false, and authorityChanged=false.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-04T06:00:13.274Z",
+      "reviewRound": "2026-06-04T05:59:09.542Z",
+      "reviewRunId": "B-47cd:RR-011",
+      "_hash": "f3d03510ef065a54ef19c74a39ca38a9c057e6a03c21c435bb50a94b566a76fd",
+      "files": [
+        "README.md,docs/requirements/decisions/authority-client-role.md"
+      ],
+      "resolvedReason": "Resolved by narrowing README.md and authority-client-role.md wording: authority_status reports canClaimProductionDone=false, while conduit_status is described only with actual conservative fields productionDone=false, receiptVerified=false, and authorityChanged=false. Evidence: rg -n 'canClaimProductionDone|conduit_status|conduit status' README.md docs/requirements/decisions/authority-client-role.md.",
+      "resolvedAt": "2026-06-04T06:00:28.161Z"
+    },
+    {
+      "id": "B-47cd:F-018",
+      "desc": "README.md and authority-client-role.md must not imply conduit_status includes canClaimProductionDone=false; canClaimProductionDone=false belongs to authority_status only, while conduit_status keeps productionDone=false, receiptVerified=false, and authorityChanged=false.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-04T06:06:50.255Z",
+      "reviewRound": "2026-06-04T05:59:09.542Z",
+      "reviewRunId": "B-47cd:RR-015",
+      "_hash": "1693340331aac86310e891a3ad033c6512bc0660c7b31c4bdad8e8b6ac01f3b9",
+      "files": [
+        "README.md,docs/requirements/decisions/authority-client-role.md"
+      ],
+      "resolvedReason": "Resolved in latest docs run by narrowing README.md and authority-client-role.md wording: canClaimProductionDone=false is authority_status-only, while conduit_status is documented with actual conservative fields productionDone=false, receiptVerified=false, and authorityChanged=false. Evidence: docs final reviewer PASS and rg canClaimProductionDone/conduit_status wording check.",
+      "resolvedAt": "2026-06-04T06:07:05.603Z"
+    },
+    {
+      "id": "B-47cd:F-019",
+      "desc": "authority-verified/full-autopilot currently accepts a caller-supplied fake-test-server receipt shape as authorityReceiptGate.verified=true, so the server-authority gate is bypassable by forged local JSON instead of an independently verified server receipt.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-04T06:24:39.162Z",
+      "reviewRound": "2026-06-04T06:15:05.733Z",
+      "reviewRunId": "B-47cd:RR-016",
+      "_hash": "fb125c2cf06325ad33327fdfdc7ad0122d86d3c3d98210b74dc7034c719d7761",
+      "files": [
+        "packages/main/src/core/lattice-autopilot.ts",
+        "packages/main/src/tasks/autopilot-run-smoke.ts",
+        "README.md",
+        "docs/requirements/decisions/host-overflow.md"
+      ],
+      "resolvedReason": "Resolved by making fake-test-server acceptance internal-test-only via trustedTestAuthorityReceipt, keeping public serverAuthorityReceipt fake-test-server JSON invalid, and adding smoke coverage for caller-supplied fake-test-server refusal plus CLI rejection of trustedTestAuthorityReceipt. Evidence: npm --prefix packages/main run build; npm --prefix packages/main run test:autopilot-run-smoke; npm --prefix packages/main run test:dispatch-run-smoke; npm --prefix packages/main run test:unattended-dispatch-smoke; npm --prefix packages/main run test:command-ownership-contract; npm --prefix packages/main run test:flow-stability-smoke; node bin/lattice.js validate --story=B-47cd --json (33/33 PASS).",
+      "resolvedAt": "2026-06-04T06:37:00.816Z"
+    },
+    {
+      "id": "B-47cd:F-020",
+      "desc": "test-evidence.json overstates executable coverage for required intents: CHK-002:adversarial:0 is recorded as covered by npm build instead of the smoke refusal assertions; CHK-008:edge:0 is recorded as docs-only for a runtime conflict/evidence-preservation claim; CHK-009:edge:0 claims autopilot cancel evidence preservation while the autopilot smoke only checks cancelled/refused and explicit preservation assertions exist only at dispatch level.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-04T06:48:09.841Z",
+      "reviewRound": "2026-06-04T06:36:38.276Z",
+      "reviewRunId": "B-47cd:RR-020",
+      "_hash": "ba71e8436ec84c72053034b0cba8c1bcac4e7dee817a8183211b1403d90cacac",
+      "files": [
+        ".koala/story/actives/B-47cd/test-evidence.json",
+        "packages/main/src/tasks/autopilot-run-smoke.ts",
+        "packages/main/src/tasks/unattended-dispatch-smoke.ts"
+      ],
+      "resolvedReason": "Resolved by adding stronger executable verification evidence for CHK-002:adversarial:0, CHK-008:edge:0, and CHK-009:edge:0, all bound to npm --prefix packages/main run test:autopilot-run-smoke. The smoke now asserts full-autopilot policy refusal behavior, conflict stop evidence preservation, cancel evidence preservation, and cancelled review immutability. Evidence: npm --prefix packages/main run build; npm --prefix packages/main run test:autopilot-run-smoke; node bin/lattice.js validate --story=B-47cd --json shows 33/33 covered with these intents no longer build/docs-only.",
+      "resolvedAt": "2026-06-04T07:03:34.054Z"
+    },
+    {
+      "id": "B-47cd:F-021",
+      "desc": "autopilot_cancel/autopilot_resume only require runId to mutate run metadata, but the CLI owner gate derives target ownership only from storyId/story/activeStory and allows storyId missing, so cross-story ownership can be bypassed. autopilot_policy_create is also classified as storyScopedMutating and accepts owner meta despite having no stable story target.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-04T06:48:19.912Z",
+      "reviewRound": "2026-06-04T06:36:38.276Z",
+      "reviewRunId": "B-47cd:RR-021",
+      "_hash": "513c33c1819f0f75633fc7415c179c4b4c18d4efb3ce5c7977cdaf7968c8c571",
+      "files": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/handlers/lattice-autopilot.ts"
+      ],
+      "resolvedReason": "Resolved by deriving the owner-gated storyId for autopilot_cancel and autopilot_resume from .koala/autopilot-runs/<runId>/run.json before owner lease enforcement. autopilot_policy_create is now mainSharedMutating and strict CLI parsing rejects takeover/forceTakeover owner meta. Evidence: npm --prefix packages/main run build; npm --prefix packages/main run test:autopilot-run-smoke covers runId owner-gate refusal/takeover and owner meta non-leakage; npm --prefix packages/main run test:command-ownership-contract covers autopilot_policy_create ownership classification/help boundary.",
+      "resolvedAt": "2026-06-04T07:03:45.613Z"
+    },
+    {
+      "id": "B-47cd:F-022",
+      "desc": "autopilot_review derives a new review status from dispatch receipt/transcript and can project an already cancelled or failed run as manual_review_ready or needs_receipt, making cancel/status/watch/review disagree for the same terminal run. It should preserve terminal persisted status and only add review/merge evidence.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-04T06:48:27.878Z",
+      "reviewRound": "2026-06-04T06:36:38.276Z",
+      "reviewRunId": "B-47cd:RR-021",
+      "_hash": "b546803025f0056067a2624a48260b7079e5f1a00e727f775774073b6e3f8f92",
+      "files": [
+        "packages/main/src/core/lattice-autopilot.ts"
+      ],
+      "resolvedReason": "Resolved by making autopilot_review preserve persisted terminal statuses instead of projecting cancelled/failed runs into manual_review_ready or needs_receipt. Review still returns dispatch review/merge evidence but keeps the cancelled nextAction and leaves run.json byte-identical. Evidence: npm --prefix packages/main run build; npm --prefix packages/main run test:autopilot-run-smoke cancelled review immutability assertions.",
+      "resolvedAt": "2026-06-04T07:03:58.487Z"
+    }
+  ]
+}

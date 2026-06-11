@@ -1,0 +1,23 @@
+{
+  "task": "给 @flow 的每一步补说明字段，并把缺说明纳入 flow 校验。",
+  "outcome": "当开发者写下一个 @flow 链时，每一步不仅有 step/input/output/next，还必须带一段说明。例如：\n@flow board-update\n@step 1\n@desc 读取当前棋盘状态并计算下一步可见输出\n...\n\n如果有人少写了 step 说明，再跑校验时会直接看到类似：\nFlow 校验错误: Step 1 of board-update missing desc annotation\n并且这条 flow 不会再被当作“结构完整”。",
+  "facts": [
+    "当前 @flow 结构只有 flow/step/input/output/next，没有 step 级说明字段。",
+    "annotation-system 和 framework 都把『每一步都应该有说明』列为明确需求。",
+    "现有 validateFlows 已经会校验断链、重复 step、最后一步 next 等结构错误。"
+  ],
+  "constraints": [
+    "优先在现有 @flow 解析/类型/validateFlows 上增量扩展，不重做整套 flow 模型。",
+    "新字段要兼容旧注释块的解析，不让扫描直接崩掉。",
+    "回归至少覆盖：缺说明、说明存在且链路有效、最后一步误填 next 仍继续被抓。"
+  ],
+  "unknowns": [
+    "step 说明字段最终命名为 @desc 还是复用 @description 的局部语义更合适。"
+  ],
+  "touchpoints": [
+    "packages/main/src/tasks/extract.ts",
+    "packages/main/src/tasks/types.ts",
+    "packages/main/src/tasks/validate.ts"
+  ],
+  "timestamp": "2026-04-16T20:10:08.101Z"
+}

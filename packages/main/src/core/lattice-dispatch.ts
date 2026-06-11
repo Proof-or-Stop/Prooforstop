@@ -17,6 +17,7 @@ import {
   type DispatchPolicy,
   type DispatchPolicyCheckResult,
 } from './dispatch-policy.js';
+import { LATTICE_DIR } from './lattice-paths.js';
 import {
   buildHandoffWorktreeProjection,
   createHandoffPack,
@@ -833,7 +834,7 @@ function sanitizeSegment(value: string): string {
 }
 
 function dispatchStorageRoot(root: string): string {
-  return join(root, '.koala', 'dispatches');
+  return join(root, LATTICE_DIR, 'dispatches');
 }
 
 function projectedDispatchWorktreePath(storyId: string, packId: string): string {
@@ -1084,7 +1085,7 @@ function resolveEffectiveStatus(record: DispatchRecord): DispatchLifecycleStatus
 
 function ensurePreparedPackForFake(root: string, dispatchId: string, pack: HandoffPack): HandoffPack {
   if (pack.allowedPaths.length > 0) return pack;
-  const safePath = `.koala/dispatches/${dispatchId}/worker/fake-result.txt`;
+  const safePath = `.lattice/dispatches/${dispatchId}/worker/fake-result.txt`;
   const patched: HandoffPack = {
     ...pack,
     allowedPaths: [safePath],
@@ -1746,7 +1747,7 @@ function runFakeLeafDispatch(
   const baseRef = pack.baseSha ?? 'HEAD';
   const worktreeAbs = ensureWorktree(root, record.worktree.worktreePath, record.worktree.branch, baseRef);
   pack = normalizePackPaths(root, record.dispatchId, worktreeAbs, pack, 'canonical');
-  const markerPath = pack.allowedPaths[0] ?? `.koala/dispatches/${record.dispatchId}/worker/fake-result.txt`;
+  const markerPath = pack.allowedPaths[0] ?? `.lattice/dispatches/${record.dispatchId}/worker/fake-result.txt`;
   const safeMarkerPath = assertCanonicalWorktreePath(worktreeAbs, markerPath, 'fake dispatch marker');
   const markerAbs = resolve(worktreeAbs, safeMarkerPath);
   mkdirSync(dirname(markerAbs), { recursive: true });
@@ -2007,7 +2008,7 @@ function childDispatchArgs(parentPack: HandoffPack, parent: DispatchRecord, work
     objective: parentPack.objective ? `${parentPack.objective} (worker ${workerIndex + 1})` : `Worker ${workerIndex + 1}`,
     allowedPaths: parentPack.allowedPaths.length > workerIndex
       ? [parentPack.allowedPaths[workerIndex]]
-      : [`.koala/dispatches/${childId}/worker/fake-result.txt`],
+      : [`.lattice/dispatches/${childId}/worker/fake-result.txt`],
     deniedPaths: [...parentPack.deniedPaths],
     requiredCommands: [...parentPack.requiredCommands],
     successCriteria: [...parentPack.successCriteria],

@@ -53,7 +53,7 @@ function writeConfig(root: string): void {
   writeFileSync(join(root, 'koala.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.koala/story/actives',
+    storyDir: '.lattice/story/actives',
   }, null, 2) + '\n');
 }
 
@@ -122,8 +122,8 @@ function assertSourceBoundaries(): void {
   const combinedCore = `${resolverSource}\n${snapshotSource}`;
   assert.doesNotMatch(combinedCore, /\bsession_brief\s*\(/, 'resolver/snapshot core must not call session_brief');
   assert.doesNotMatch(combinedCore, /\bstatus\s*\(/, 'resolver/snapshot core must not call status');
-  assert.doesNotMatch(snapshotSource, /readFileSync|\.koala\/story|docs\/story/, 'snapshot adapter must not directly read backing story JSON');
-  assert.doesNotMatch(snapshotHandlerSource, /\.koala\/story|docs\/story/, 'snapshot handler must not directly read backing story JSON');
+  assert.doesNotMatch(snapshotSource, /readFileSync|\.lattice\/story|docs\/story/, 'snapshot adapter must not directly read backing story JSON');
+  assert.doesNotMatch(snapshotHandlerSource, /\.lattice\/story|docs\/story/, 'snapshot handler must not directly read backing story JSON');
   assert.doesNotMatch(dashboardSource, /story_authority_resolve|observability_snapshot/, 'M1 must not wire the terminal dashboard UI');
 }
 

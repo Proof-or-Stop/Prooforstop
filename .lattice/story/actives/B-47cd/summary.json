@@ -1,0 +1,44 @@
+{
+  "storyId": "B-47cd",
+  "changes": "Implemented Lattice unattended host-to-host autopilot execution modes: conservative manual-merge automation, authority-verified server-receipt-gated integration, bounded full-autopilot policy, host-native delegation contracts, dispatch/autopilot two-policy linkage, strict CLI ownership gates, authority receipt hardening, cancel/resume/status/review evidence preservation, and updated docs/tests.",
+  "usage": "Use lattice dispatch_policy_create to define allowed host/scope/launcher policy, lattice autopilot_policy_create to bind an autopilot mode to that dispatch policy, then run lattice autopilot_run, autopilot_status, autopilot_watch, autopilot_review, autopilot_cancel, or autopilot_resume with the returned runId. Conservative mode gives a manual merge plan; authority-verified and full-autopilot remain gated by server receipt and bounded policy.",
+  "expectedOutcome": "A user can ask Lattice to coordinate unattended host-to-host development while preserving proof boundaries: no fake production authority, no unchecked main merge, clear runId status/review/cancel/resume behavior, and verifiable CLI transcripts.",
+  "actualTranscript": "On HEAD 4f9e825, build passed; autopilot-run-smoke, dispatch-run-smoke, unattended-dispatch-smoke, command-ownership-contract, flow-stability-smoke, remote-push-approval-smoke, done-preflight-smoke all passed; lattice validate returned allPass=true with 33/33 verification intents covered; koala-codex verify passed 7/8 with only the expected global fallback heartbeat advisory.",
+  "outcomeDiff": "No acceptance gap remains. The actual behavior matches the expected unattended development model while intentionally keeping conservative merge manual and production authority server-receipt-gated.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Full production autopilot remains intentionally bounded and authority-gated. Conservative mode never auto-merges. Local diagnostic receipts cannot prove productionDone or receiptVerified. Global Codex fallback heartbeat is advisory when it resolves to main rather than the story worktree.",
+  "pitfalls": "Main introduced a cleanup commit that stops tracking most .koala local state, so the merge conflict had to be resolved by accepting the cleanup while preserving B-47cd local story state for gate commands. One npm script name for done-preflight was absent, so the equivalent dist task was run directly and passed.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 812395
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 17682730
+    },
+    "DONE": {
+      "count": 1,
+      "durationMs": 0
+    }
+  },
+  "totalDurationMs": 18495182,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-04T07:48:35.836Z",
+  "updatedAt": "2026-06-04T07:48:35.836Z"
+}

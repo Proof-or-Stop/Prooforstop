@@ -52,7 +52,7 @@ function writeConfig(root: string): void {
   writeFileSync(join(root, 'koala.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.koala/story/actives',
+    storyDir: '.lattice/story/actives',
   }, null, 2));
 }
 
@@ -421,9 +421,9 @@ function assertCommandRegistration(registry: ReturnType<typeof createMainRegistr
 }
 
 const root = mkdtempSync(join(tmpdir(), 'koala-lattice-parallel-wave-'));
-const originalGlobalMemoryDir = process.env.KOALA_GLOBAL_MEMORY_DIR;
+const originalGlobalMemoryDir = process.env.LATTICE_GLOBAL_MEMORY_DIR;
 try {
-  process.env.KOALA_GLOBAL_MEMORY_DIR = join(root, 'global-memory');
+  process.env.LATTICE_GLOBAL_MEMORY_DIR = join(root, 'global-memory');
   writeConfig(root);
   resetConfigCache();
   const store = new StoryStore(root);
@@ -695,9 +695,9 @@ try {
   assertReport(JSON.parse(cliReportStdout) as LatticeParallelReport, root, 2);
 } finally {
   if (originalGlobalMemoryDir === undefined) {
-    delete process.env.KOALA_GLOBAL_MEMORY_DIR;
+    delete process.env.LATTICE_GLOBAL_MEMORY_DIR;
   } else {
-    process.env.KOALA_GLOBAL_MEMORY_DIR = originalGlobalMemoryDir;
+    process.env.LATTICE_GLOBAL_MEMORY_DIR = originalGlobalMemoryDir;
   }
   rmSync(root, { recursive: true, force: true });
   resetConfigCache();

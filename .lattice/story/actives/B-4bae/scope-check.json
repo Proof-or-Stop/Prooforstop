@@ -1,0 +1,73 @@
+{
+  "storyId": "B-4bae",
+  "checkedAt": "2026-05-17T11:52:35.433Z",
+  "features": [
+    {
+      "feature": "convergence_check keeps META audit containers out of the unfinished active-story completion check",
+      "covered_by": "B-4bae CHK-001; checklist userSees says unfinished list excludes B-META-framework-audit; story-lifecycle docs separate DONE lifecycle/recovery facts from audit backlog handling",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "koala checklist_get {storyId:B-4bae}; rg story-lifecycle META/DONE references"
+    },
+    {
+      "feature": "convergence_check reports audit backlog separately and only verified high/critical B-META findings block convergence",
+      "covered_by": "B-4bae CHK-001 happy/edge/adversarial verificationIntent; finding_list shows mixed suspected/verified and low/medium examples to preserve advisory-vs-blocking behavior",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "koala checklist_get {storyId:B-4bae}; koala finding_list {storyId:B-META-framework-audit}"
+    },
+    {
+      "feature": "Resolve only B-META-framework-audit:F-004 using B-4c38 commit 7350e9df evidence",
+      "covered_by": "B-4bae CHK-002; finding_list shows F-004 open verified before this story; git show confirms 7350e9df is B-4c38 DONE merge serialization and partial-DONE recovery",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "koala finding_list {storyId:B-META-framework-audit}; git show --stat --oneline 7350e9df"
+    },
+    {
+      "feature": "B-4622 INIT backlog semantics",
+      "covered_by": "not covered by B-4bae",
+      "status": "excluded",
+      "excluded_by": "User-stated out of scope. B-4bae may keep B-4622 visible as an unfinished real INIT story, but does not resolve or reinterpret its INIT backlog semantics.",
+      "source": "user scope instruction; B-4bae CHK-001 userSees"
+    },
+    {
+      "feature": "B-6974 INIT backlog semantics",
+      "covered_by": "not covered by B-4bae",
+      "status": "excluded",
+      "excluded_by": "User-stated out of scope. B-4bae may keep B-6974 visible as an unfinished real INIT story, but does not resolve or reinterpret its INIT backlog semantics.",
+      "source": "user scope instruction; B-4bae CHK-001 userSees"
+    },
+    {
+      "feature": "B-d7af INIT backlog semantics",
+      "covered_by": "not covered by B-4bae",
+      "status": "excluded",
+      "excluded_by": "User-stated out of scope. B-4bae may keep B-d7af visible as an unfinished real INIT story, but does not resolve or reinterpret its INIT backlog semantics.",
+      "source": "user scope instruction; B-4bae CHK-001 userSees"
+    },
+    {
+      "feature": "B-da5b INIT backlog semantics",
+      "covered_by": "not covered by B-4bae",
+      "status": "excluded",
+      "excluded_by": "User-stated out of scope. B-4bae may keep B-da5b visible as an unfinished real INIT story, but does not resolve or reinterpret its INIT backlog semantics.",
+      "source": "user scope instruction; B-4bae CHK-001 userSees"
+    },
+    {
+      "feature": "Other B-META-framework-audit findings besides F-004",
+      "covered_by": "not covered by B-4bae except preservation checks",
+      "status": "excluded",
+      "excluded_by": "B-4bae scope resolves F-004 only. F-001/F-002/F-003/F-006 remain untouched open findings and F-005 remains dismissed duplicate per CHK-002 edge intent.",
+      "source": "B-4bae CHK-002 context and edge verificationIntent; koala finding_list {storyId:B-META-framework-audit}"
+    }
+  ],
+  "summary": {
+    "total": 8,
+    "covered": 3,
+    "excluded": 5,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "f8bd95ec2baa6f1ff6c9e0878d9d76d4a74e3165ae27ca13eb382127cd6df808",
+  "openQuestions": []
+}

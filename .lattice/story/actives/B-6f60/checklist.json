@@ -1,0 +1,225 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "DONE confirm 失败时保持 story phase 可重试",
+      "context": "DONE auto-git merge 失败时不要让 story 永久停在 DONE；要么先 merge 后标 DONE，要么失败后自动恢复原 phase/metadata。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-20T01:58:11.936Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "DONE auto-git merge 失败后，story index.json phase 恢复为失败前 phase，可再次 story_advance DONE 重试",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T02:01:05.639Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/done-transaction-reconcile-hardening.json:1 WHY source check verifies rollback commit path and store.writeStory rollback hook; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "rollback 只恢复 index.json story 状态，不删除 summary/test evidence/reviewer artifact",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T02:01:05.741Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/done-transaction-reconcile-hardening.json:1 WHY rollback target is index metadata only; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "如果 rollback commit 自身失败，错误提示仍明确 story 分支可能需要人工恢复",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T02:01:05.842Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/done-transaction-reconcile-hardening.json:1 WHY rollback failure message asks manual story branch inspection; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-002",
+      "title": "DONE merge 失败提示包含当前 story metadata 冲突解决指引",
+      "context": "错误提示明确当前 story metadata 应使用 story 分支/ours 版本，给出 .koala/story/actives/<id>/ 路径下的 checkout 命令，避免用户用 theirs 覆盖 phase。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-20T01:58:12.053Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "DONE merge 失败错误提示包含 git checkout <story-branch> -- .koala/story/actives/<storyId>/ 这类无歧义命令",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T02:01:05.942Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/done-transaction-reconcile-hardening.json:1 WHY conflict hint uses git checkout <story-branch> -- storyDir/storyId; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "提示同时说明在 main merge 中 story 分支版本才是 canonical metadata",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T02:01:06.063Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/done-transaction-reconcile-hardening.json:1 WHY message states story branch metadata is canonical; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "提示不使用容易混淆的单独 --ours/--theirs 作为唯一指令",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T02:01:06.163Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/done-transaction-reconcile-hardening.json:1 WHY hint does not rely on ambiguous --theirs; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-003",
+      "title": "story_reconcile 识别 INIT_CHECK 分支/worktree 缺失的僵尸 story",
+      "context": "phase=INIT_CHECK 但 branch 不存在、worktree 不存在、且 story 有工作历史/非 INIT 证据时，应报告为 zombie；纯 INIT 未启动 story 不误判。",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-20T01:58:12.156Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "story_reconcile 能检测 phase=INIT_CHECK 且 branch/worktree 都缺失但有 worktree 历史的 zombie story",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T02:01:06.271Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/done-transaction-reconcile-hardening.json:1 WHY INIT_CHECK missing branch/worktree with runtime history is zombie; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "phase=INIT 且 branch/worktree 都缺失的未启动 story 不被 zombie 检测误报",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T02:01:06.377Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/done-transaction-reconcile-hardening.json:1 WHY INIT without branch/worktree is not zombie; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "phase=INIT_CHECK 且 branch 仍存在或 linked worktree 仍存在时不被误判 zombie",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T02:01:06.480Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/done-transaction-reconcile-hardening.json:1 WHY INIT_CHECK with linked worktree remains non-zombie; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-004",
+      "title": "增加 DONE transaction 与 zombie reconcile fixture 覆盖",
+      "context": "覆盖 merge 失败 phase rollback、重试可行、conflict hint、INIT_CHECK zombie 检测、INIT 未启动不误判。",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-fixture-spec.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-04-20T01:58:12.258Z",
+      "testIntent": {
+        "happy": [
+          {
+            "desc": "fixture 覆盖 DONE merge 失败 rollback、重试可行、conflict hint、INIT_CHECK zombie 检测",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T02:01:06.580Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/done-transaction-reconcile-hardening.json:1 WHY fixture covers DONE rollback and reconcile hardening paths; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "desc": "fixture 使用临时 git repo 与临时 StoryStore，不污染真实 .koala/story/actives",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T02:01:06.684Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/done-transaction-reconcile-hardening.json:1 WHY tests use temp stores/repos and do not touch real story state; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "fixture 覆盖 INIT 未启动 story 不误判与 branch/worktree 存在不误判",
+            "type": "cli_blackbox",
+            "results": [
+              {
+                "time": "2026-04-20T02:01:06.783Z",
+                "pass": true,
+                "note": "packages/main/tests/fixtures/done-transaction-reconcile-hardening.json:1 WHY INIT safe and INIT_CHECK zombie branches are both covered; severity=pass",
+                "role": "reviewer"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

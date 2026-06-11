@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "为 browser screenshot 路径补最小黑盒 smoke",
+      "context": "代码里仍有 /screenshot bridge、browser-client handleScreenshot 和 browser-executor 的 screenshot step，但当前 fixture 没直接覆盖它。需要补一条尽量小、尽量稳定的 browser case，验证 screenshot step 返回成功并落出 png 路径。",
+      "relatedDocs": [
+        "AGENTS.md#架构原则",
+        "AGENTS.md#用户价值验收（优先于技术链路验证）"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "补回归入口并验证浏览器链路当前仍可跑通",
+      "context": "除了 case 本身，还要有一个可重复运行的验证入口，证明不是只在代码层存在 screenshot switch，而是真机浏览器链路在当前仓库和默认工具流里仍能执行。",
+      "relatedDocs": [
+        "AGENTS.md#Story-阶段流转",
+        "AGENTS.md#规则"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

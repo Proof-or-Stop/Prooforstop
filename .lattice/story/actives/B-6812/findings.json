@@ -1,0 +1,65 @@
+{
+  "findings": [
+    {
+      "id": "B-6812:F-001",
+      "desc": "CHK-003:edge:4 verificationEvidence 未注册：riskHint 走 stderr 的行为已在 story-create-concurrency-smoke.ts L491-500 以断言覆盖（`risky.stderr` 匹配 /检测到高风险信号/，`risky.stdout` 不含该串），但对应 intentRef 没有调用 verification_evidence_add 记录，validate --story 报 status=missing。实现与测试均正确，需补注册。",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-05-16T13:51:08.847Z",
+      "reviewRound": "2026-05-16T13:49:25.681Z",
+      "reviewRunId": "B-6812:RR-003",
+      "_hash": "7eeabe1f922f3ac30c60471797b3bf959950dd9ed199a95e79bb0d0da9da1477",
+      "files": [
+        "packages/main/src/tasks/story-create-concurrency-smoke.ts"
+      ]
+    },
+    {
+      "id": "B-6812:F-002",
+      "desc": "quality-cleanup: mkdir-lock.ts DEFAULT_DEADLINE_MS=5000 < DEFAULT_STALE_MS=10000 — 默认参数下 stale 回收路径 unreachable。锁必须持有 10s 才会被视为 stale，但调用方在 5s 时即超时抛错，stale reclaim 代码（第65行 rmSync）在实际使用中永远不会执行。story-create.ts 和 checklist.ts 都没有覆盖这两个选项，意味着 withMkdirLock 的 stale 回收功能对所有现有调用方均无效。应将 DEFAULT_STALE_MS 设为小于 DEFAULT_DEADLINE_MS 的值（如 2000ms），或在文档中明确说明调用方需自行传 staleMs < deadlineMs 才能启用 stale 回收。",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-16T13:52:01.887Z",
+      "reviewRound": "2026-05-16T13:49:25.681Z",
+      "reviewRunId": "B-6812:RR-002",
+      "_hash": "ec597f9c801d1d0e168ff8b987cf4143add0b0e200313a7922d75215c4c3eb47",
+      "files": [
+        "packages/main/src/core/mkdir-lock.ts"
+      ]
+    },
+    {
+      "id": "B-6812:F-003",
+      "desc": "quality-cleanup: story-create.ts:275-283 catch 块用 string-prefix 匹配（e.message.startsWith(\"❌ 疑似重复 story\")）来区分「keyword-overlap block」和「read error」。这依赖消息文本稳定——message 文本一旦改动就会静默改变行为，且任何非读取错误（如 OOM、fs 权限异常）也会被 swallow。更健壮的方式是定义一个 DuplicateStoryError 类（extends Error）或在 throw 前设置 marker 属性，用 instanceof 或 marker 区分，而非字符串前缀匹配。",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-05-16T13:52:08.757Z",
+      "reviewRound": "2026-05-16T13:49:25.681Z",
+      "reviewRunId": "B-6812:RR-002",
+      "_hash": "b0335198fb89b9426c1ea4efb7f285e2debf5a1d028961657cf74a9b6016ed5d",
+      "files": [
+        "packages/main/src/handlers/story-create.ts"
+      ]
+    },
+    {
+      "id": "B-6812:F-004",
+      "desc": "doc-code-drift: AGENTS.md 「重复 story 检测（dedup）」节声明 \"DONE/DISCARDED story 的 keyword 完全重叠仅 warn（关键词查重段），不 block\"，但代码 story-create.ts 第 396 行的 dupWarning 扫描对 DONE/DISCARDED story 执行 continue（跳过），不产生任何 warn 输出。实际行为是静默跳过，而非如文档所述的 advisory warn。",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-05-16T13:52:19.701Z",
+      "reviewRound": "2026-05-16T13:49:25.681Z",
+      "reviewRunId": "B-6812:RR-001",
+      "_hash": "104943892919103744bfdcee66e75ba5d47fac6da43a8587607685096e93efd3",
+      "files": [
+        "AGENTS.md",
+        "packages/main/src/handlers/story-create.ts"
+      ]
+    }
+  ]
+}

@@ -95,7 +95,7 @@ function writeConfig(root: string): void {
   writeFileSync(join(root, 'koala.config.json'), JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
-    storyDir: '.koala/story/actives',
+    storyDir: '.lattice/story/actives',
   }, null, 2) + '\n');
 }
 
@@ -159,21 +159,21 @@ function assertAuthorityFalse(value: unknown, label = 'result'): void {
 }
 
 function dispatchCount(root: string): number {
-  const dir = join(root, '.koala/dispatches');
+  const dir = join(root, '.lattice/dispatches');
   if (!existsSync(dir)) return 0;
   return readdirSync(dir).filter(entry => existsSync(join(dir, entry, 'dispatch.json'))).length;
 }
 
 function readDispatch(root: string, dispatchId: string): DispatchRecord {
-  return JSON.parse(readFileSync(join(root, '.koala/dispatches', dispatchId, 'dispatch.json'), 'utf8')) as DispatchRecord;
+  return JSON.parse(readFileSync(join(root, '.lattice/dispatches', dispatchId, 'dispatch.json'), 'utf8')) as DispatchRecord;
 }
 
 function writeDispatch(root: string, dispatchId: string, record: DispatchRecord): void {
-  writeFileSync(join(root, '.koala/dispatches', dispatchId, 'dispatch.json'), JSON.stringify(record, null, 2) + '\n');
+  writeFileSync(join(root, '.lattice/dispatches', dispatchId, 'dispatch.json'), JSON.stringify(record, null, 2) + '\n');
 }
 
 function readPack(root: string, dispatchId: string): { toHost: string; executionInstructions: string[] } {
-  return JSON.parse(readFileSync(join(root, '.koala/dispatches', dispatchId, 'pack.json'), 'utf8')) as {
+  return JSON.parse(readFileSync(join(root, '.lattice/dispatches', dispatchId, 'pack.json'), 'utf8')) as {
     toHost: string;
     executionInstructions: string[];
   };
@@ -412,7 +412,7 @@ try {
   assert.equal(plan.selectedHost, 'fake');
   assert.equal(plan.parallel, 2);
   assert.equal(dispatchCount(root), beforePlanCount, 'dispatch_plan must not create dispatch records');
-  assert.equal(existsSync(join(root, '.koala/dispatches')), false, 'dispatch_plan must not create .koala/dispatches');
+  assert.equal(existsSync(join(root, '.lattice/dispatches')), false, 'dispatch_plan must not create .lattice/dispatches');
   assertAuthorityFalse(plan, 'plan');
 
   const prepared = run<DispatchRecord>('dispatch_prepare', {
@@ -516,7 +516,7 @@ try {
   assert.equal(parentCollect.status, 'accepted_local');
   assert.equal(parentCollect.workers.length, 2);
   assert.equal(parentCollect.changedFiles.length, 2);
-  assert.equal(existsSync(join(root, '.koala/dispatches/D-parallel/collect.json')), true);
+  assert.equal(existsSync(join(root, '.lattice/dispatches/D-parallel/collect.json')), true);
   assert.throws(() => run<DispatchReceiptDraft>('dispatch_receipt_create', { dispatchId: 'D-parallel' }), /only supports leaf dispatches/);
 
   const leafReceipt = run<DispatchReceiptDraft>('dispatch_receipt_create', { dispatchId: 'D-parallel-w1' });
@@ -751,7 +751,7 @@ try {
     deniedPaths: ['README.md'],
   }), /allowedPaths\[0\].*escapes the isolated worktree/i);
   assert.equal(existsSync(resolve(root, '../D-path-traversal-escaped.txt')), false, 'escaped file must never be written');
-  assert.equal(existsSync(join(root, '.koala/dispatches/D-path-traversal')), false, 'invalid traversal must not persist dispatch metadata');
+  assert.equal(existsSync(join(root, '.lattice/dispatches/D-path-traversal')), false, 'invalid traversal must not persist dispatch metadata');
 
   run<DispatchRecord>('dispatch_prepare', {
     storyId: 'B-dispatch',
@@ -812,7 +812,7 @@ try {
     allowedPaths: ['packages/main/src/generated/malicious-overflow-suggest.txt'],
   });
   assert.equal(maliciousOverflowSuggest.schemaVersion, 'lattice.dispatch_plan.v1');
-  assert.equal(existsSync(escapedDispatchMetadataDir), false, 'overflow_auto suggest-only malicious dispatchId must not write outside .koala/dispatches');
+  assert.equal(existsSync(escapedDispatchMetadataDir), false, 'overflow_auto suggest-only malicious dispatchId must not write outside .lattice/dispatches');
   for (const [command, args] of [
     ['dispatch_prepare', {
       storyId: 'B-dispatch',
@@ -848,7 +848,7 @@ try {
       `${command} must reject malicious dispatchId`,
     );
   }
-  assert.equal(existsSync(escapedDispatchMetadataDir), false, 'malicious dispatchId must not write metadata outside .koala/dispatches');
+  assert.equal(existsSync(escapedDispatchMetadataDir), false, 'malicious dispatchId must not write metadata outside .lattice/dispatches');
 
   const unknownValidDispatchId = 'D-valid-but-missing';
   for (const [command, args] of [
@@ -885,7 +885,7 @@ try {
       allowedPaths: ['packages/main/src/generated/real-host-traversal.txt'],
       deniedPaths: ['../outside.txt'],
     }), /deniedPaths\[0\].*escapes the isolated worktree/i);
-    assert.equal(existsSync(join(root, '.koala/dispatches/D-real-host-traversal')), false, 'invalid real-host traversal must not persist dispatch metadata');
+    assert.equal(existsSync(join(root, '.lattice/dispatches/D-real-host-traversal')), false, 'invalid real-host traversal must not persist dispatch metadata');
 
     const realHostReady = run<DispatchRecord>('dispatch_prepare', {
       storyId: 'B-dispatch',

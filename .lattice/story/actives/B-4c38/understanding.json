@@ -1,0 +1,36 @@
+{
+  "task": "修复 Koala DONE 收尾的并发安全缺口：给 main merge/cleanup 临界区加全局锁，并提供 partial-DONE 的机械检测与恢复入口。",
+  "outcome": "用户在两个 story 同时尝试 DONE 时，其中一个会看到明确提示：另一个 DONE merge 正在进行，本次未写入 phase=DONE，请稍后重试；如果已经存在 B-9027 这类 partial-DONE，用户运行 koala doctor 会看到 storyId、branch、worktree、main merge 状态和建议的 done_recover 命令；执行 koala done_recover --storyId=B-xxxx 后输出 merge completed、worktree removed、branch deleted，不再需要手写 git merge / git worktree remove / git branch -d。",
+  "facts": [
+    "B-9027 在 2026-05-17 暴露 partial-DONE：metadata 已 DONE，但 story branch/worktree 清理需要人工收尾",
+    "当前 DONE 入口在 story-advance.ts 先执行 checkMainDivergence/autoSyncMain，再创建 actor，再 runDonePreMergeGate，再写 phase，再 applyDoneMergeEffects",
+    "已有 withMkdirLock 位于 packages/main/src/core/mkdir-lock.ts，可复用 mkdir 原子锁和 stale reclaim 语义",
+    "doctor 已有 worktree orphan/terminal scan 与 --repair 机制，但不识别 branch 未 merge 的 partial-DONE",
+    "B-META-framework-audit:F-004 已记录 DONE merge serialization gap，evidenceState=verified",
+    "Decision 选择 A：.koala/runtime/done-main-merge.lock + doctor detection + explicit done_recover command"
+  ],
+  "constraints": [
+    "锁必须在所有 DONE main-affecting preflight 之前获取，包括 checkMainDivergence/autoSyncMain；拿不到锁时 story 必须保持 TEST/原 phase",
+    "锁范围必须覆盖 DONE preflight 到 main merge/worktree remove/branch delete 的 main 写入临界区",
+    "不能改 B-9027 选择的 DONE 时序模型；本 story 只加 serialization 与 recovery",
+    "done_recover 必须 fail-closed：main 不安全、merge-tree 不干净、branch/worktree 缺失异常时拒绝自动修",
+    "不能触碰并发 B-eab3 story metadata/worktree",
+    "doctor/recovery 输出必须是 operator-visible，不只是测试内部断言",
+    "新增 done_recover 与 partial-DONE doctor 行为必须更新 story-lifecycle truth doc"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/handlers/done-effects.ts",
+    "packages/main/src/core/mkdir-lock.ts",
+    "packages/main/src/handlers/doctor.ts",
+    "packages/main/src/handlers/done-recover.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/tasks/worktree-authority-smoke.ts",
+    "packages/main/src/tasks/worktree-repair-smoke.ts",
+    "docs/requirements/decisions/story-lifecycle.md"
+  ],
+  "timestamp": "2026-05-17T03:34:09.491Z"
+}

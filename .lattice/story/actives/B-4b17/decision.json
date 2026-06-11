@@ -1,0 +1,59 @@
+{
+  "principles": [
+    "先补元数据回链，再判断功能是否真的未实现。",
+    "注释应贴近具体实现入口，避免只在文件头写泛泛描述。",
+    "用回归锁住 gap_analyze 不再把已落地能力完全算成未覆盖。"
+  ],
+  "drivers": [
+    "当前高优先级差距里有一部分明显是 coverage 识别缺口。",
+    "dangerous command guardrails 与 flow step desc 都已经有代码和 fixture。",
+    "最小回填能最快把误报从 backlog 里剔除。"
+  ],
+  "options": [
+    {
+      "name": "A: 只补文档或需求文案，绕开 gap",
+      "pros": [
+        "改动最小。",
+        "不碰源码注释。"
+      ],
+      "cons": [
+        "掩盖真实覆盖缺口，不解决代码追溯问题。",
+        "以后 gap_analyze 仍会继续误报类似场景。"
+      ]
+    },
+    {
+      "name": "B: 回填实现文件的 @task/@changes，并补回归",
+      "pros": [
+        "让需求、代码、测试重新串起来。",
+        "以后同类已实现能力更容易被 coverage 正确识别。"
+      ],
+      "cons": [
+        "需要给多个文件补注释，工作量稍大。",
+        "关键词匹配如果不准，可能还要二次调优注释文案。"
+      ]
+    }
+  ],
+  "chosen": "B: 回填实现文件的 @task/@changes，并补回归",
+  "rationale": "当前问题不是功能没做，而是回链断了。补实现文件注释和回归，比改文档或继续堆功能更能直接降低误报。",
+  "preMortem": [
+    {
+      "scenario": "只补了注释但关键词还是匹配不到需求摘要",
+      "trigger": "@title/@description 写得太抽象，没有覆盖 gap_analyze 实际使用的关键词",
+      "consequence": "功能已经回链，但 high gap 依旧不降",
+      "mitigation": "注释文案尽量贴近需求原文里的关键短语，如 dry-run、confirm、每一步都应该有说明。"
+    },
+    {
+      "scenario": "回填注释破坏现有 validate 规则",
+      "trigger": "新增 @task 块缺少必填字段或写成文件级并误带 @test",
+      "consequence": "高 gap 没降，反而新增注释错误",
+      "mitigation": "严格遵守 annotation-system 必填字段，并优先贴在具体函数级入口。"
+    },
+    {
+      "scenario": "只补其中一类能力的注释，另一类仍被误报",
+      "trigger": "先改 dangerous command，不同步 flow step description",
+      "consequence": "gap 看起来只降一半，用户误以为实现还没完成",
+      "mitigation": "本 story 同时覆盖 dangerous command guardrails 与 flow step desc 两组文件，并加总回归。"
+    }
+  ],
+  "timestamp": "2026-04-16T20:35:26.276Z"
+}

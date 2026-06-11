@@ -1,0 +1,73 @@
+{
+  "storyId": "B-b95c",
+  "checkedAt": "2026-06-02T21:41:52.446Z",
+  "features": [
+    {
+      "feature": "New-project primary guide file is LATTICE.md, with KOALA.md retained only as legacy compatibility input",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description + relatedDocs:docs/requirements/decisions/lifecycle-artifact-scope.md"
+    },
+    {
+      "feature": "New-project local bootstrap/wrapper paths are bin/lattice.js and bin/lattice-codex.js",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description + checklist:CHK-002"
+    },
+    {
+      "feature": "New-project Codex adapter manifest path is .Codex/lattice.json, with .Codex/koala.json accepted for legacy projects",
+      "covered_by": "CHK-002, CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description + checklist:CHK-003"
+    },
+    {
+      "feature": "Fresh thin/full init must not generate Koala-named local wrappers/manifests by default",
+      "covered_by": "CHK-002, CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist:CHK-002 + checklist:CHK-004"
+    },
+    {
+      "feature": "Existing Koala-named project assets must remain recognized and must not be silently deleted without managed ownership proof",
+      "covered_by": "CHK-001, CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist:CHK-001 + checklist:CHK-003"
+    },
+    {
+      "feature": "When Lattice and Koala manifests coexist, verification prefers the Lattice primary manifest and reports drift clearly",
+      "covered_by": "CHK-003, CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist:CHK-003"
+    },
+    {
+      "feature": "Runtime authority stays unchanged; this story only renames managed init assets and local entrypoints",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist:CHK-001 adversarial intent"
+    },
+    {
+      "feature": "Build, smoke tests, managed asset check, and Codex adapter verification are required before DONE",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist:CHK-004"
+    }
+  ],
+  "summary": {
+    "total": 8,
+    "covered": 8,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "46ca285e6830666ebfcf6974fd1e6fa707dffe5d178751e05948ecaedb625f8b",
+  "openQuestions": []
+}
