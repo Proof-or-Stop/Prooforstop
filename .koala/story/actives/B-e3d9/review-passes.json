@@ -1,0 +1,229 @@
+{
+  "passes": [
+    {
+      "id": "B-e3d9:RP-001",
+      "agent": "koala-review-test-coverage",
+      "note": "Pass. lattice validate --story=B-e3d9 reports 15/15 verificationIntent refs covered on HEAD f715ee8, lattice gap_analyze reports 0 high / 0 medium and 100% coverage, and focused smoke commands passed in this review run: npm run test:authority-client, npm run test:lattice-cli-migration-smoke, npm run test:worktree-policy-smoke, npm run test:planner-unattended-smoke. CHK-005 host evidence is explicitly advisory/manual and does not replace Lattice validate or gap_analyze gate facts.",
+      "createdAt": "2026-06-10T23:12:54.725Z",
+      "reviewRound": "2026-06-10T23:09:18.249Z",
+      "reviewRunId": "B-e3d9:RR-001",
+      "_hash": "a95d3b823cce3b565711114277eedf8f0a1d64123566cef6c3f78bee2b5eb006"
+    },
+    {
+      "id": "B-e3d9:RP-002",
+      "agent": "koala-review-concept",
+      "note": "Reviewed concept scope: closes six high uncovered requirements via one real receipt-algorithm fail-closed fix plus verified runtime linkage/tests for existing planner/worktree contracts; host reviews remain advisory and B-ce79 is not reintroduced as a blocker.",
+      "createdAt": "2026-06-10T23:14:35.387Z",
+      "reviewRound": "2026-06-10T23:09:18.249Z",
+      "reviewRunId": "B-e3d9:RR-003",
+      "_hash": "96b61301f0aa5fe4bfdbb718e819ad6a664123d3ff24af3097f068fb052d497e"
+    },
+    {
+      "id": "B-e3d9:RP-003",
+      "agent": "koala-review-docs",
+      "note": "Reviewed cc-learnings, lattice-authority-live-integration, and lattice-authority-receipt-contract against current help/runtime enforcement and focused smokes; docs stay bounded to existing fail-closed behavior and do not introduce a new production-grade or unattended-ready overclaim.",
+      "createdAt": "2026-06-10T23:15:03.445Z",
+      "reviewRound": "2026-06-10T23:09:18.249Z",
+      "reviewRunId": "B-e3d9:RR-004",
+      "_hash": "a27a96e4e0fa30a6701182a81c26a363fc9aa3c8d3f7ba1142e20c8ef4b4cf76"
+    },
+    {
+      "id": "B-e3d9:RP-004",
+      "agent": "koala-review-test-coverage",
+      "note": "Validated current HEAD 3157ad8d: node bin/lattice.js validate --story=B-e3d9 passed with verification coverage 15/15, npm run build succeeded, node packages/main/dist/cli.js gap_analyze reported 0 high / 0 medium, and focused smoke coverage passed for authority-client, lattice-cli-migration, worktree-policy, planner-unattended, and gap-analyze-input-hygiene. session_brief now reports review hash freshness fresh and latest test run PASS, so no test-coverage blocker remains.",
+      "createdAt": "2026-06-10T23:48:14.602Z",
+      "reviewRound": "2026-06-10T23:44:51.813Z",
+      "reviewRunId": "B-e3d9:RR-005",
+      "_hash": "c053c324d3ec4af9aac68ae2f3f89ac3e6d183a41b3cd0c2cabf6ee4b214759a"
+    },
+    {
+      "id": "B-e3d9:RP-005",
+      "agent": "koala-review-docs",
+      "note": "Reviewed requirement docs against runtime/help/smoke behavior after fixes. Receipt docs match normalized Ed25519 and unsupported-algorithm fail-closed behavior; cc-learnings dry-run text matches schema plus COMMAND_POLICIES help derivation; authority live integration worktree/planner links match current enforcement and smoke coverage; docs still avoid claiming full production or unattended readiness.",
+      "createdAt": "2026-06-10T23:50:05.521Z",
+      "reviewRound": "2026-06-10T23:44:51.813Z",
+      "reviewRunId": "B-e3d9:RR-007",
+      "_hash": "714869629caf4828a56ecbb76201fcf2405c5e7381d11df26ae737e58d99b594"
+    },
+    {
+      "id": "B-e3d9:RP-006",
+      "agent": "koala-review-quality",
+      "note": "Reviewed authority receipt algorithm normalization, planner/worktree linkage, gap_analyze hygiene, and dry-run help derivation. Verified F-002 fix accepts ED25519/ED25519 case-variant and rejects rsa/blank/non-string algorithms; F-001 no longer reproduces after build and planner smoke passes. Commands passed: npm --prefix packages/main run build; npm --prefix packages/main run test:authority-client; npm --prefix packages/main run test:planner-unattended-smoke; npm --prefix packages/main run test:worktree-policy-smoke; npm --prefix packages/main run test:lattice-cli-migration-smoke; npm --prefix packages/main run test:gap-analyze-input-hygiene-smoke; node bin/lattice.js gap_analyze. Scope acks for .gitignore, package.json, extract.ts, gap-analyze-input-hygiene-smoke.ts, and lattice-cli-migration-smoke.ts are justified by metadata tracking, smoke registration, shared skip-dir helper extraction, direct hygiene coverage, and help-contract coverage; no arbitrary optimization surfaced in plannedSteps or policy emission.",
+      "createdAt": "2026-06-10T23:51:48.168Z",
+      "reviewRound": "2026-06-10T23:44:51.813Z",
+      "reviewRunId": "B-e3d9:RR-008",
+      "_hash": "e8aed1bad0d57e5e9d477af5bad0e264b50c806204171b82ff1cc45a2ae06497"
+    },
+    {
+      "id": "B-e3d9:RP-007",
+      "agent": "koala-review-quality",
+      "note": "Reviewed quality scope on HEAD 90ab0bb. Rebuilt with npm --prefix packages/main run build, then reran npm --prefix packages/main run test:authority-client, test:planner-unattended-smoke, test:worktree-policy-smoke, test:lattice-cli-migration-smoke, test:gap-analyze-input-hygiene-smoke, and node bin/lattice.js gap_analyze; all passed. F-001 no longer reproduces, F-002 now lowercases case-variant ED25519 while still fail-closing blank/non-string/rsa algorithms, and F-003 now consults policy metadata for pinned-key receipt verification without letting policy publicKeyHex override the pin. gap_analyze hygiene correctly ignores stale dist/source metadata while still surfacing live missing-fixture gaps. No blocker found.",
+      "createdAt": "2026-06-11T00:22:31.380Z",
+      "reviewRound": "2026-06-11T00:18:31.198Z",
+      "reviewRunId": "B-e3d9:RR-010",
+      "_hash": "c8151767e95a72e1c239298b0d73a8d696b003e9c9a8611e40866c6a13735fbc"
+    },
+    {
+      "id": "B-e3d9:RP-008",
+      "agent": "koala-review-docs",
+      "note": "F-004 is resolved; current review metadata shows no open docs blockers, and the remaining story findings are resolved with no suspected or disproven attention items.",
+      "createdAt": "2026-06-11T00:30:19.794Z",
+      "reviewRound": "2026-06-11T00:27:20.004Z",
+      "reviewRunId": "B-e3d9:RR-014",
+      "_hash": "15b6a1034327dbd917aed631c6c86a79b9ed7a3c7ab75e6787a5322dba05e22a"
+    },
+    {
+      "id": "B-e3d9:RP-009",
+      "agent": "koala-review-test-coverage",
+      "note": "Coverage review passed after F-004 resolution: evidence_inspect reports all 15 verificationIntent refs fresh against current materialHash, current gap_analyze reports 0 high / 0 medium, fresh focused smokes passed for unsupported algorithm rejection, supportsDryRun live policy/help surface, authoritative/clean worktree enforcement, planner confirmation, and generated-output hygiene, and story test-evidence remains fresh for validate.",
+      "createdAt": "2026-06-11T00:31:24.251Z",
+      "reviewRound": "2026-06-11T00:27:20.004Z",
+      "reviewRunId": "B-e3d9:RR-013",
+      "_hash": "f9fcefcc0a0f4cc2323169fb7b48e89f0e1c69edd944a5a017194f7cae281874"
+    },
+    {
+      "id": "B-e3d9:RP-010",
+      "agent": "koala-review-concept",
+      "note": "Concept lane reviewed the live runtime seams and focused coverage. Verified fail-closed unsupported-algorithm rejection including pinned-key policy metadata, Ed25519 casing normalization, dry-run help derivation from live schema/policy surfaces, planner/worktree runtime linkage, and gap_analyze hygiene. Commands run: npm --prefix packages/main run build; npm --prefix packages/main run test:authority-client; npm --prefix packages/main run test:lattice-cli-migration-smoke; npm --prefix packages/main run test:worktree-policy-smoke; npm --prefix packages/main run test:planner-unattended-smoke; npm --prefix packages/main run test:gap-analyze-input-hygiene-smoke; node packages/main/dist/cli.js gap_analyze.",
+      "createdAt": "2026-06-11T00:32:17.168Z",
+      "reviewRound": "2026-06-11T00:27:20.004Z",
+      "reviewRunId": "B-e3d9:RR-012",
+      "_hash": "193df686b08839b938ee58ad22632d6c6a468c0cfaea939677c4edf1bb2e2cf2"
+    },
+    {
+      "id": "B-e3d9:RP-011",
+      "agent": "koala-review-quality",
+      "note": "Quality review covered authority receipt algorithm gating, CLI dry-run help derivation, planner/worktree policy linkage, and gap_analyze hygiene. Verified with packages/main build, focused smokes, targeted help checks, and gap_analyze; no verified blocker found.",
+      "createdAt": "2026-06-11T00:32:58.339Z",
+      "reviewRound": "2026-06-11T00:27:20.004Z",
+      "reviewRunId": "B-e3d9:RR-016",
+      "_hash": "b127f194e0296bde5fe0b451f87af6957d5178f010124f0f04b0e0c7af8ae84d"
+    },
+    {
+      "id": "B-e3d9:RP-012",
+      "agent": "koala-review-docs",
+      "note": "Docs align with shipped behavior: dry-run/help derives from live schema+COMMAND_POLICIES, worktree/planner policy is enforced in runtime handlers, receipt verification fails closed on unsupported serverKey.algorithm, and the .lattice thin guide/manifest stay host-neutral and consistent with the global CLI surface.",
+      "createdAt": "2026-06-11T00:39:53.233Z",
+      "reviewRound": "2026-06-11T00:37:11.229Z",
+      "reviewRunId": "B-e3d9:RR-017",
+      "_hash": "49839e0e2a571a990d8b0f7965aa392d82b01d3971bded1914550fbdc5b567be"
+    },
+    {
+      "id": "B-e3d9:RP-013",
+      "agent": "koala-review-quality",
+      "note": "Quality review pass. main...HEAD is minimal on the adapter side: only .Codex/hooks/lattice-scope-pretool.cjs plus .lattice/* were added; no CLAUDE.md or .claude churn appears in the diff. scope_contract_check is warn-only with 8 acknowledged out-of-scope paths matching the extra adapter/help/smoke files, and no broader spill. Verified smokes/build on touched surfaces pass: npm run build, test:authority-client, test:planner-unattended-smoke, test:worktree-policy-smoke, test:gap-analyze-input-hygiene-smoke, test:lattice-cli-migration-smoke, test:pretool-scope-hook-smoke, and node bin/lattice.js verify_codex. Residual risk only: test:thin-init-assets-smoke still fails in unchanged global-thin init/verify files (cli-init/codex-adapter-checks/thin-init-assets-smoke), so I am not attributing that pre-existing gap to this story.",
+      "createdAt": "2026-06-11T00:42:10.396Z",
+      "reviewRound": "2026-06-11T00:37:11.229Z",
+      "reviewRunId": "B-e3d9:RR-018",
+      "_hash": "fc54a2d04f01475698808a40bc8aa04fe3d285ed12efc6c225b74b8210a052f3"
+    },
+    {
+      "id": "B-e3d9:RP-014",
+      "agent": "koala-review-docs",
+      "note": "Static doc review found no verified contradictions: .Lattice/Lattice.md matches the shipped global-thin init/codex alias behavior; cc-learnings and lattice-authority-* docs match current planner/worktree/authority code paths and existing smoke coverage; no canonical path-casing or host-specific evidence overclaim was found.",
+      "createdAt": "2026-06-11T00:58:22.181Z",
+      "reviewRound": "2026-06-11T00:54:01.041Z",
+      "reviewRunId": "B-e3d9:RR-022",
+      "_hash": "3c41c0c00a0245dc5e4ed7e7b3b8dda8bc0b4a683af71ceee9c4ec895a1c4266"
+    },
+    {
+      "id": "B-e3d9:RP-015",
+      "agent": "koala-review-concept",
+      "note": "No concept blocker. F-006 is resolved host-neutrally: git tracks canonical .Lattice/Lattice.md, .Lattice/lattice.json, .codex/hooks.json, and .codex/hooks/lattice-scope-pretool.cjs, while the old .lattice/* and .Codex/hooks* paths are untracked. Runtime consumers align with that contract: verify_codex resolves global-thin via .Lattice/lattice.json and validates lowercase .codex native hook assets (packages/main/src/core/codex-adapter-checks.ts), and guard_session enforces the same lowercase .codex hook wiring (packages/main/src/handlers/guard-session.ts). Mechanical coverage passed after build: scripts/verify-entrypoints.mjs, test:pretool-scope-hook-smoke, test:authority-client, test:worktree-policy-smoke, and test:planner-unattended-smoke. Spot-check of the original resolved fix set remains conceptually sound: algorithm normalization and pinned-key policy enforcement fail closed without regressing Ed25519, planner confirmation/worktree linkage still block for the intended reasons, and the entrypoint casing contract is now explicit and mechanically guarded.",
+      "createdAt": "2026-06-11T00:59:41.265Z",
+      "reviewRound": "2026-06-11T00:54:01.041Z",
+      "reviewRunId": "B-e3d9:RR-023",
+      "_hash": "e9c201501a99c2c92d438cb7805932c539bb340e840e42e793857f66280a3701"
+    },
+    {
+      "id": "B-e3d9:RP-016",
+      "agent": "koala-review-quality",
+      "note": "Stage 1 spec check passed against CHK-001..CHK-005 checklist plus updated requirement docs. Stage 2 quality/build check passed: npm --prefix packages/main run build; npm run test:entrypoints; npm --prefix packages/main run test:pretool-scope-hook-smoke; node bin/lattice.js verify_codex; node packages/main/dist/cli.js gap_analyze; npm run test:authority-client; npm run test:worktree-policy-smoke; npm run test:planner-unattended-smoke; npm run test:lattice-cli-migration-smoke; npm --prefix packages/main run test:gap-analyze-input-hygiene-smoke. No verified correctness or minimality blocker found in the F-006 Codex adapter casing follow-up or the F-005 evidence-refresh-related code/doc deltas.",
+      "createdAt": "2026-06-11T00:59:55.377Z",
+      "reviewRound": "2026-06-11T00:54:01.041Z",
+      "reviewRunId": "B-e3d9:RR-025",
+      "_hash": "f7dde7693d812d93859799936526c200dde82c9513d47593859afbea207504ad"
+    },
+    {
+      "id": "B-e3d9:RP-017",
+      "agent": "koala-review-test-coverage",
+      "note": "Coverage evidence is adequate under the worktree-local entrypoint: evidence_inspect reports no stale refs; both gap_analyze entrypoints report 100% requirement/test coverage with 0 high / 0 medium gaps; verify_codex passes with only the documented global fallback heartbeat advisory.",
+      "createdAt": "2026-06-11T01:08:17.335Z",
+      "reviewRound": "2026-06-11T01:06:29.023Z",
+      "reviewRunId": "B-e3d9:RR-029",
+      "_hash": "fe1771431f8a0afd2a3bb01251ecb399028657ca9457d42dd4d13b05ace3499e"
+    },
+    {
+      "id": "B-e3d9:RP-018",
+      "agent": "koala-review-docs",
+      "note": "No verified docs issue: .Lattice/Lattice.md codex wording resolves through the supported alias path, and the touched requirement docs match the shipped planner/worktree/receipt behavior without host-specific overclaim.",
+      "createdAt": "2026-06-11T01:09:53.397Z",
+      "reviewRound": "2026-06-11T01:06:29.023Z",
+      "reviewRunId": "B-e3d9:RR-030",
+      "_hash": "b8b3164cf642564dd138c3dbc7c2ce078d3838a9381060b67757c112048956d2"
+    },
+    {
+      "id": "B-e3d9:RP-019",
+      "agent": "koala-review-concept",
+      "note": "Concept review pass: F-006 path-casing stays host-neutral with canonical tracked paths limited to .Lattice/* and .codex/hooks*, forbidden non-canonical .lattice thin files and .Codex/hooks untracked, verified by git ls-files + scripts/verify-entrypoints.mjs. Original gap closures remain logically sound at HEAD: authority-client, lattice-cli-migration-smoke, worktree-policy-smoke, planner-unattended-smoke, and gap-analyze-input-hygiene-smoke all pass after rebuild. Non-blocking note: scripts/verify-codex-assets.mjs still fails on AGENTS.md wrapper wording on both this branch and main, so it is pre-existing and outside B-e3d9 scope.",
+      "createdAt": "2026-06-11T01:10:45.731Z",
+      "reviewRound": "2026-06-11T01:06:29.023Z",
+      "reviewRunId": "B-e3d9:RR-027",
+      "_hash": "00e1e0d947aa064cfff9622836e370487cb948dcd1eb9e56590a67ff6e9c1b1a"
+    },
+    {
+      "id": "B-e3d9:RP-020",
+      "agent": "koala-review-quality",
+      "note": "Reviewed changed non-story files for B-e3d9 with focus on original six-gap closures and Codex adapter path casing. Verified main...HEAD implementation surfaces in authority receipt verification, planner/worktree policy linkage, planner confirmation gating, gap-analysis source filtering, and canonical .Lattice/.codex adapter paths. Checks run: npm --prefix packages/main run build; npm --prefix packages/main run test:authority-client; npm --prefix packages/main run test:lattice-cli-migration-smoke; npm --prefix packages/main run test:planner-unattended-smoke; npm --prefix packages/main run test:worktree-policy-smoke; npm --prefix packages/main run test:gap-analyze-input-hygiene-smoke; node bin/lattice-codex.js verify_codex; node scripts/verify-entrypoints.mjs. No verified correctness or minimality blocker found in story-introduced code. Note: node scripts/verify-codex-assets.mjs still fails on pre-existing AGENTS.md legacy-wrapper expectation, but AGENTS.md is unchanged by this story and that drift was excluded from this lane per scope.",
+      "createdAt": "2026-06-11T01:12:06.015Z",
+      "reviewRound": "2026-06-11T01:06:29.023Z",
+      "reviewRunId": "B-e3d9:RR-028",
+      "_hash": "8f6b5885d2fdb75de08d4804fc4d381e740389111bd66cd8731285da6717a570"
+    },
+    {
+      "id": "B-e3d9:RP-021",
+      "agent": "koala-review-concept",
+      "note": "Concept review passed. Unsupported serverKey.algorithm now fails closed based on policy-declared verification material without letting pinned keys get overridden, case-variant ed25519 remains accepted, planner/worktree linkage remains mechanically enforced by runtime plus smoke coverage, and the canonical adapter path fix relies on repository-tracked local asset paths rather than host-specific observations.",
+      "createdAt": "2026-06-11T01:30:19.614Z",
+      "reviewRound": "2026-06-11T01:24:42.437Z",
+      "reviewRunId": "B-e3d9:RR-031",
+      "_hash": "d0ac466886b573decd4939fe8c6ca7f16e7223d01943b281b68ab5acf2e7f10b"
+    },
+    {
+      "id": "B-e3d9:RP-022",
+      "agent": "koala-review-concept",
+      "note": "Concept review passed: unsupported receipt algorithms now fail closed from production verification material without widening trust anchors; pinned-key flows still consult policy algorithm metadata when available; dry-run/help, planner confirmation/worktree policy linkage, gap convergence hygiene, and canonical adapter path/runtime-ignore checks remain host-neutral and backed by local Lattice/build/smoke evidence rather than host-specific transcripts.",
+      "createdAt": "2026-06-11T01:51:15.843Z",
+      "reviewRound": "2026-06-11T01:43:43.461Z",
+      "reviewRunId": "B-e3d9:RR-034",
+      "_hash": "cc851b09a48452e3fec0f44b1d5ee29792126bc31a44afecb57a4ce83084df82"
+    },
+    {
+      "id": "B-e3d9:RP-023",
+      "agent": "koala-review-test-coverage",
+      "note": "Coverage/evidence review passed on local node bin/lattice.js outputs: checklist has 15/15 verificationIntent refs covered, evidence_inspect reports freshness.status=fresh with no staleRefs at HEAD 7fc808a/materialHash f313c9c3975f077d1729edc8c0a29a5b03617c670c661d2287c368790d861e5d, gap_analyze reports 0 high / 0 medium gaps, validate --story=B-e3d9 --json passed, and verify_codex passed with only advisory global-fallback heartbeat guidance.",
+      "createdAt": "2026-06-11T01:57:16.532Z",
+      "reviewRound": "2026-06-11T01:53:36.174Z",
+      "reviewRunId": "B-e3d9:RR-036",
+      "_hash": "c352e0e09f9046d69c21765c8d00b522a5e567ad2c2b7a7ac15ff7cd6e5bd6f0"
+    },
+    {
+      "id": "B-e3d9:RP-024",
+      "agent": "koala-review-quality",
+      "note": "Stage 1 spec check passed for CHK-001..CHK-005 with focus on F-009/F-010 evidence-command reproducibility. Verified no root-level verificationEvidence command uses npm run test:authority-client; CHK-001 keeps npm --prefix packages/main run build; npm --prefix packages/main run test:authority-client; node packages/main/dist/cli.js gap_analyze, and CHK-002 edge now uses node bin/lattice.js story_reconcile --help; node bin/lattice.js test_auto --help; node bin/lattice.js host_install --help. Commands run from this worktree: node bin/lattice.js review_run_start --help; node scripts/verify-entrypoints.mjs; node bin/lattice-codex.js verify_codex; node bin/lattice.js gap_analyze; node bin/lattice.js validate --story=B-e3d9; npm --prefix packages/main run build; npm --prefix packages/main run test:authority-client; node packages/main/dist/cli.js gap_analyze. All passed; gap_analyze reports 0 high / 0 medium and validate reports 15/15 verification intents covered.",
+      "createdAt": "2026-06-11T01:58:18.035Z",
+      "reviewRound": "2026-06-11T01:53:36.174Z",
+      "reviewRunId": "B-e3d9:RR-035",
+      "_hash": "a780251e2f89cefc41d40d9b70c43480c8239d85a192da288807e950e26b1878"
+    },
+    {
+      "id": "B-e3d9:RP-025",
+      "agent": "koala-review-docs",
+      "note": "Docs remain consistent with the implemented dry-run, worktree, confirmation, and unsupported-algorithm behavior. Verified against the touched requirement docs and the corresponding smoke tests.",
+      "createdAt": "2026-06-11T02:03:03.636Z",
+      "reviewRound": "2026-06-11T01:53:36.174Z",
+      "reviewRunId": "B-e3d9:RR-037",
+      "_hash": "0f008abd043e52b497249ce86c56e554b42f97864b2d1700481e66e4db530894"
+    }
+  ]
+}

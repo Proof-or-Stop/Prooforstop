@@ -1,4 +1,18 @@
 #!/usr/bin/env node
+/**
+ * @task B-e3d9
+ * @checklist CHK-001
+ * @title Smoke unsupported algorithm rejection in authority receipt verification
+ * @type bugfix
+ * @priority high
+ * @description
+ *   Prove the authority client fails closed when production receipt verification
+ *   material is discovered with an unsupported algorithm. The smoke keeps the
+ *   receipt payload otherwise valid so the rejection is isolated to
+ *   `serverKey.algorithm` rather than any digest-prefix or subject binding path.
+ * @changes
+ *   - [CHK-001] Assert a discovered unsupported algorithm yields `receipt_unverified` and blocks authority DONE.
+ */
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { mkdtempSync, rmSync } from 'node:fs';
@@ -14,6 +28,7 @@ import {
   resolveAuthorityGateEvaluator,
   resolveAuthorityVerdictBacking,
   runAuthorityGateWiring,
+  authorityJobVerdictStatus,
   buildAuthorityJobCreateEnvelopeFromPlan,
   submitAuthorityJobFromPlan,
   listAuthorityHostVerdicts,
@@ -48,6 +63,7 @@ import {
   type EvidenceEnvelopeContract,
 } from '../core/authority-contracts.js';
 import { canonicalDigest, generateEd25519KeyPair, signCanonical, stripSignature } from '../core/authority-signing.js';
+import { verifyLatticeAuthorityReceipt } from '../core/lattice-authority-native.js';
 import { buildGateEvidenceRefResolver } from '../core/evidence-uploader.js';
 import { executePlannedSteps, type AuthorityGateOutcome } from '../core/planned-steps-executor.js';
 import type { JobPlan, PlannedStep, PlannerStoreLike } from '../core/planner.js';
@@ -1098,6 +1114,268 @@ function authorityEnv(extra: Record<string, string | undefined> = {}): Record<st
   assert.equal(counts.policy, 1, 'discovery is consulted when no server key is pinned');
   assert.equal(resolution.configured, true, 'a discovered server key resolves the verify config');
   assert.equal(resolution.decision?.status, 'verified');
+}
+
+// --- discovery fallback: unsupported algorithm fails closed on receipt verify -------
+{
+  const approve = dynamicApproveForGateRequest();
+  const policyBody = {
+    contractVersion: 'authority-policy.v1', purpose: 'discovery', requiredAuthorityMode: 'enforce',
+    productionEnforceAuthority: true, requireHandshake: false, commandCatalogDigest: 'ccd', evidenceSchemaDigest: 'esd',
+    supportedAuthorityModes: ['off', 'shadow', 'enforce'], minClientVersions: {}, requiredEvidenceFields: [],
+    evidencePolicy: { preset: 'default' },
+    serverKey: { keyId: 'server-key-1', algorithm: 'rsa', encoding: 'hex', publicKeyHex: approve.serverPublicKeyHex },
+    compatibility: {
+      supportedAuthorityModes: ['off', 'shadow', 'enforce'], requiredAuthorityMode: 'enforce', requireHandshake: false,
+      minClientVersions: {}, commandCatalogDigest: 'ccd', evidenceSchemaDigest: 'esd', productionEnforceAuthority: true,
+      requireActorKeyBinding: false, requireRunnerHeartbeatForL2: false,
+    },
+  };
+  const counts = { events: 0, evidence: 0, evaluate: 0, receipt: 0, policy: 0 };
+  const resolution = await resolveAuthorityGateEvaluator(authorityJobPlan(), {
+    env: authorityEnv({ LATTICE_AUTHORITY_SERVER_KEY_ID: undefined }),
+    fetchImpl: wiringRouterFetch({
+      policy: { status: 200, body: policyBody },
+      evaluate: approve.evaluate,
+      counts,
+    }),
+  });
+  assert.equal(counts.policy, 1, 'discovery still provides the production receipt verification material');
+  assert.equal(resolution.configured, true, 'unsupported algorithm is enforced during receipt verification, not by bypassing the gate flow');
+  assert.equal(resolution.decision?.status, 'receipt_unverified');
+  assert.equal(resolution.decision?.receiptVerified, false);
+  assert.match(resolution.decision?.reason ?? '', /unsupported algorithm/i);
+  const exec = executePlannedSteps({
+    root: '/tmp/x',
+    store: fakeStore(),
+    jobPlan: authorityJobPlan(),
+    now: () => new Date('2026-06-06T00:00:00Z'),
+    authorityGate: resolution.evaluator,
+  });
+  assert.equal(exec.status, 'blocked', 'unsupported algorithm blocks authority DONE fail-closed');
+  assert.equal(exec.stopReason, 'authority_gate_receipt_unverified');
+  assert.equal(exec.authorityDone, false);
+}
+
+// --- pinned server key: policy algorithm metadata still fails closed --------------
+{
+  const keypair = generateEd25519KeyPair();
+  const approve = dynamicApproveForGateRequest(keypair);
+  const policyBody = {
+    contractVersion: 'authority-policy.v1', purpose: 'discovery', requiredAuthorityMode: 'enforce',
+    productionEnforceAuthority: true, requireHandshake: false, commandCatalogDigest: 'ccd', evidenceSchemaDigest: 'esd',
+    supportedAuthorityModes: ['off', 'shadow', 'enforce'], minClientVersions: {}, requiredEvidenceFields: [],
+    evidencePolicy: { preset: 'default' },
+    serverKey: { keyId: 'server-key-1', algorithm: 'rsa', encoding: 'hex', publicKeyHex: approve.serverPublicKeyHex },
+    compatibility: {
+      supportedAuthorityModes: ['off', 'shadow', 'enforce'], requiredAuthorityMode: 'enforce', requireHandshake: false,
+      minClientVersions: {}, commandCatalogDigest: 'ccd', evidenceSchemaDigest: 'esd', productionEnforceAuthority: true,
+      requireActorKeyBinding: false, requireRunnerHeartbeatForL2: false,
+    },
+  };
+  const counts = { events: 0, evidence: 0, evaluate: 0, receipt: 0, policy: 0 };
+  const pinnedEnv = authorityEnv({
+    LATTICE_AUTHORITY_SERVER_PUBLIC_KEY: approve.serverPublicKeyHex,
+    LATTICE_AUTHORITY_SERVER_PUBLIC_KEY_ENCODING: 'hex',
+  });
+  const resolution = await resolveAuthorityGateEvaluator(authorityJobPlan(), {
+    env: pinnedEnv,
+    fetchImpl: wiringRouterFetch({
+      policy: { status: 200, body: policyBody },
+      evaluate: approve.evaluate,
+      counts,
+    }),
+  });
+  assert.equal(counts.policy, 1, 'policy metadata is consulted even when the server public key is pinned');
+  assert.equal(resolution.configured, true, 'pinned key remains the receipt verification trust anchor');
+  assert.equal(resolution.decision?.status, 'receipt_unverified');
+  assert.equal(resolution.decision?.receiptVerified, false);
+  assert.match(resolution.decision?.reason ?? '', /unsupported algorithm/i);
+  const exec = executePlannedSteps({
+    root: '/tmp/x',
+    store: fakeStore(),
+    jobPlan: authorityJobPlan(),
+    now: () => new Date('2026-06-06T00:00:00Z'),
+    authorityGate: resolution.evaluator,
+  });
+  assert.equal(exec.status, 'blocked', 'pinned key plus unsupported policy algorithm blocks authority DONE');
+  assert.equal(exec.stopReason, 'authority_gate_receipt_unverified');
+  assert.equal(exec.authorityDone, false);
+
+  const statusInputDigest = 'status-input-digest-1';
+  const { receipt } = signedGateReceipt({ inputDigest: statusInputDigest }, keypair);
+  const statusCounts = { verdicts: 0, policy: 0 };
+  const statusClient = testAuthorityClient('https://authority.test', async (input, init) => {
+    const url = String(input);
+    if (url.includes('/v1/jobs/job-9/verdicts') && init.method === 'GET') {
+      statusCounts.verdicts += 1;
+      return {
+        ok: true,
+        status: 200,
+        text: async () => JSON.stringify({
+          jobId: 'job-9',
+          runId: 'run-7',
+          verdicts: [],
+          reconciliation: {
+            independentHostCount: 2,
+            requiredHostCount: 2,
+            passingIndependentHostCount: 2,
+            failingIndependentHostCount: 0,
+            duplicateVerdictCount: 0,
+            satisfied: true,
+            requiredReviewWaveCount: 3,
+            satisfiedReviewWaveCount: 3,
+            reviewWaveRefs: ['wave-1', 'wave-2', 'wave-3'],
+          },
+        }),
+      };
+    }
+    if (url.includes('/v1/authority/policy') && init.method === 'GET') {
+      statusCounts.policy += 1;
+      return { ok: true, status: 200, text: async () => JSON.stringify(policyBody) };
+    }
+    throw Object.assign(new Error(`unexpected fetch ${init.method} ${url}`), { code: 'EUNEXPECTED' });
+  });
+  const status = await authorityJobVerdictStatus(statusClient, {
+    jobId: 'job-9',
+    runId: 'run-7',
+    receipt,
+    expectedProjectId: receipt.projectId,
+    expectedStoryId: receipt.storyId,
+    expectedServerKeyId: receipt.serverKeyId,
+    expectedDecisionDigest: receipt.decisionDigest,
+    expectedReceiptInputDigest: statusInputDigest,
+    expectedGateInputDigest: statusInputDigest,
+  }, pinnedEnv);
+  assert.equal(statusCounts.policy, 1, 'job status receipt verification also consults policy metadata for pinned keys');
+  assert.equal(status.ok, true);
+  assert.equal(status.certification?.receiptVerified, false);
+  assert.equal(status.certification?.authorityDone, false);
+  assert.equal(status.certification?.fullAuthorityDone, false);
+  assert.match(status.certification?.blockedReason ?? '', /authority_receipt_unverified/);
+}
+
+// --- discovery fallback: empty algorithm fails closed on receipt verify ------------
+{
+  const approve = dynamicApproveForGateRequest();
+  const policyBody = {
+    contractVersion: 'authority-policy.v1', purpose: 'discovery', requiredAuthorityMode: 'enforce',
+    productionEnforceAuthority: true, requireHandshake: false, commandCatalogDigest: 'ccd', evidenceSchemaDigest: 'esd',
+    supportedAuthorityModes: ['off', 'shadow', 'enforce'], minClientVersions: {}, requiredEvidenceFields: [],
+    evidencePolicy: { preset: 'default' },
+    serverKey: { keyId: 'server-key-1', algorithm: '   ', encoding: 'hex', publicKeyHex: approve.serverPublicKeyHex },
+    compatibility: {
+      supportedAuthorityModes: ['off', 'shadow', 'enforce'], requiredAuthorityMode: 'enforce', requireHandshake: false,
+      minClientVersions: {}, commandCatalogDigest: 'ccd', evidenceSchemaDigest: 'esd', productionEnforceAuthority: true,
+      requireActorKeyBinding: false, requireRunnerHeartbeatForL2: false,
+    },
+  };
+  const resolution = await resolveAuthorityGateEvaluator(authorityJobPlan(), {
+    env: authorityEnv({ LATTICE_AUTHORITY_SERVER_KEY_ID: undefined }),
+    fetchImpl: wiringRouterFetch({
+      policy: { status: 200, body: policyBody },
+      evaluate: approve.evaluate,
+    }),
+  });
+  assert.equal(resolution.configured, true, 'empty algorithm is enforced during receipt verification, not by bypassing the gate flow');
+  assert.equal(resolution.decision?.status, 'receipt_unverified');
+  assert.equal(resolution.decision?.receiptVerified, false);
+  assert.match(resolution.decision?.reason ?? '', /unsupported algorithm/i);
+}
+
+// --- native verifier: non-string algorithm fails closed ----------------------------
+{
+  const { receipt, serverPublicKeyHex } = signedGateReceipt();
+  const verification = verifyLatticeAuthorityReceipt(receipt, {
+    serverPublicKey: serverPublicKeyHex,
+    serverPublicKeyEncoding: 'hex',
+    serverPublicKeyAlgorithm: 123 as any,
+  });
+  assert.equal(verification.verified, false);
+  assert.match(verification.reason, /unsupported algorithm/i);
+}
+
+// --- discovery fallback: algorithm case variant is normalized to ed25519 -----------
+{
+  const approve = dynamicApproveForGateRequest();
+  const policyBody = {
+    contractVersion: 'authority-policy.v1', purpose: 'discovery', requiredAuthorityMode: 'enforce',
+    productionEnforceAuthority: true, requireHandshake: false, commandCatalogDigest: 'ccd', evidenceSchemaDigest: 'esd',
+    supportedAuthorityModes: ['off', 'shadow', 'enforce'], minClientVersions: {}, requiredEvidenceFields: [],
+    evidencePolicy: { preset: 'default' },
+    serverKey: { keyId: 'server-key-1', algorithm: 'ED25519', encoding: 'hex', publicKeyHex: approve.serverPublicKeyHex },
+    compatibility: {
+      supportedAuthorityModes: ['off', 'shadow', 'enforce'], requiredAuthorityMode: 'enforce', requireHandshake: false,
+      minClientVersions: {}, commandCatalogDigest: 'ccd', evidenceSchemaDigest: 'esd', productionEnforceAuthority: true,
+      requireActorKeyBinding: false, requireRunnerHeartbeatForL2: false,
+    },
+  };
+  const resolution = await resolveAuthorityGateEvaluator(authorityJobPlan(), {
+    env: authorityEnv({ LATTICE_AUTHORITY_SERVER_KEY_ID: undefined }),
+    fetchImpl: wiringRouterFetch({
+      policy: { status: 200, body: policyBody },
+      evaluate: approve.evaluate,
+    }),
+  });
+  assert.equal(resolution.configured, true, 'case-variant ed25519 discovery still resolves receipt verification material');
+  assert.equal(resolution.decision?.status, 'verified');
+  assert.equal(resolution.decision?.receiptVerified, true);
+  const jobPlan = authorityJobPlan();
+  const exec = executePlannedSteps({
+    root: '/tmp/x',
+    store: fakeStore(),
+    jobPlan,
+    now: () => new Date('2026-06-06T00:00:00Z'),
+    authorityGate: resolution.evaluator,
+    gateEvidenceRefResolver: buildGateEvidenceRefResolver(jobPlan),
+  });
+  assert.equal(exec.status, 'done', 'case-variant ed25519 allows authority DONE after normalization');
+  assert.equal(exec.receiptVerified, true);
+  assert.equal(exec.authorityDone, true);
+}
+
+// --- pinned server key: case-variant ed25519 policy metadata remains accepted ------
+{
+  const approve = dynamicApproveForGateRequest();
+  const policyBody = {
+    contractVersion: 'authority-policy.v1', purpose: 'discovery', requiredAuthorityMode: 'enforce',
+    productionEnforceAuthority: true, requireHandshake: false, commandCatalogDigest: 'ccd', evidenceSchemaDigest: 'esd',
+    supportedAuthorityModes: ['off', 'shadow', 'enforce'], minClientVersions: {}, requiredEvidenceFields: [],
+    evidencePolicy: { preset: 'default' },
+    serverKey: { keyId: 'server-key-1', algorithm: 'ED25519', encoding: 'hex', publicKeyHex: approve.serverPublicKeyHex },
+    compatibility: {
+      supportedAuthorityModes: ['off', 'shadow', 'enforce'], requiredAuthorityMode: 'enforce', requireHandshake: false,
+      minClientVersions: {}, commandCatalogDigest: 'ccd', evidenceSchemaDigest: 'esd', productionEnforceAuthority: true,
+      requireActorKeyBinding: false, requireRunnerHeartbeatForL2: false,
+    },
+  };
+  const counts = { events: 0, evidence: 0, evaluate: 0, receipt: 0, policy: 0 };
+  const resolution = await resolveAuthorityGateEvaluator(authorityJobPlan(), {
+    env: authorityEnv({
+      LATTICE_AUTHORITY_SERVER_PUBLIC_KEY: approve.serverPublicKeyHex,
+      LATTICE_AUTHORITY_SERVER_PUBLIC_KEY_ENCODING: 'hex',
+    }),
+    fetchImpl: wiringRouterFetch({
+      policy: { status: 200, body: policyBody },
+      evaluate: approve.evaluate,
+      counts,
+    }),
+  });
+  assert.equal(counts.policy, 1, 'case-variant ed25519 metadata is consulted for pinned keys');
+  assert.equal(resolution.configured, true, 'pinned key plus ED25519 policy metadata still resolves receipt verification material');
+  assert.equal(resolution.decision?.status, 'verified');
+  assert.equal(resolution.decision?.receiptVerified, true);
+  const exec = executePlannedSteps({
+    root: '/tmp/x',
+    store: fakeStore(),
+    jobPlan: authorityJobPlan(),
+    now: () => new Date('2026-06-06T00:00:00Z'),
+    authorityGate: resolution.evaluator,
+    gateEvidenceRefResolver: buildGateEvidenceRefResolver(authorityJobPlan()),
+  });
+  assert.equal(exec.status, 'done', 'pinned key plus ED25519 policy metadata allows authority DONE');
+  assert.equal(exec.receiptVerified, true);
+  assert.equal(exec.authorityDone, true);
 }
 
 // --- DENY: rejected decision -> evaluator present but executor fails closed ---------

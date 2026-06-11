@@ -1,0 +1,205 @@
+{
+  "findings": [
+    {
+      "id": "B-e3d9:F-001",
+      "desc": "packages/main/src/tasks/planner-unattended-smoke.ts:402 WHY: the smoke that is cited as coverage for planner/worktree linkage does not currently run to completion on this branch. Repro: npm --prefix packages/main run test:planner-unattended-smoke exits 1 with a runtime import failure between packages/main/src/core/store.ts:14 and packages/main/src/core/phase-flow.ts, so CHK-003/004 do not have a passing regression proof right now. severity=medium. Fix: repair the runtime export/import mismatch (or replace this smoke evidence with a passing targeted test) before relying on planner-unattended-smoke as verification evidence.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-10T23:15:53.261Z",
+      "reviewRound": "2026-06-10T23:09:18.249Z",
+      "reviewRunId": "B-e3d9:RR-002",
+      "_hash": "17e2f6064a2b5f0dc866e10133abf57a4d4c202a4473c72f558366aed3aa739d",
+      "files": [
+        "packages/main/src/tasks/planner-unattended-smoke.ts",
+        "packages/main/src/core/store.ts",
+        "packages/main/src/core/phase-flow.ts"
+      ],
+      "resolvedReason": "Resolved after reproducing the failure mode and rerunning serially after build. The import/export is present in source and dist after npm --prefix packages/main run build; npm --prefix packages/main run test:planner-unattended-smoke passed when not raced against dist rebuild. Current validation also passes 15/15 coverage.",
+      "resolvedAt": "2026-06-10T23:45:34.012Z"
+    },
+    {
+      "id": "B-e3d9:F-002",
+      "desc": "packages/main/src/core/lattice-authority-native.ts:164 WHY: receipt verification now treats any non-lowercase \"ed25519\" value as unsupported, and packages/main/src/tasks/authority-client-smoke.ts:1158 hardens that behavior. This breaks the Ed25519 happy path for casing-only server variants (for example \"ED25519\") instead of only failing closed on truly unsupported algorithms. severity=high. Fix: lowercase-normalize serverKey.algorithm before comparison and keep the smoke focused on genuinely unsupported algorithms like rsa.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-10T23:16:18.500Z",
+      "reviewRound": "2026-06-10T23:09:18.249Z",
+      "reviewRunId": "B-e3d9:RR-002",
+      "_hash": "b17cafdb979e4cbd12261d5e9f00713213d59d6d1c6228e40cc6cef032822dd9",
+      "files": [
+        "packages/main/src/core/lattice-authority-native.ts",
+        "packages/main/src/tasks/authority-client-smoke.ts"
+      ],
+      "resolvedReason": "Fixed in commit de8113c7 and verified after commit ac102936. serverKey.algorithm is now trim/lowercase-normalized before comparing to ed25519; canonical ed25519 and ED25519 casing variant verify, while blank, rsa, and non-string algorithm material fail closed as unsupported. Commands passed: npm --prefix packages/main run build; npm run test:authority-client; node bin/lattice.js validate --story=B-e3d9.",
+      "resolvedAt": "2026-06-10T23:45:27.517Z"
+    },
+    {
+      "id": "B-e3d9:F-003",
+      "desc": "packages/main/src/core/authority-client.ts:1833 WHY: CHK-001 is only fail-closed on the policy-discovery fallback path. When a production deployment pins LATTICE_AUTHORITY_SERVER_PUBLIC_KEY / authority.md key material, resolveGateVerifyConfig skips discoverPolicy entirely, so serverKey.algorithm is never loaded into AuthorityGateVerifyConfig and verifyLatticeAuthorityReceipt never sees the unsupported-algorithm guard required by docs/requirements/decisions/lattice-authority-receipt-contract.md:174-181. I reproduced this on the current HEAD with a fake authority server that would publish serverKey.algorithm=\"rsa\" while the local env pins the same Ed25519 public key: resolveAuthorityGateEvaluator returned counts.policy=0 plus decisionStatus=verified / receiptVerified=true, so the gate accepted a receipt even though the declared algorithm was unsupported. packages/main/src/tasks/authority-client-smoke.ts:1118-1235 only covers the discovery path (explicitly unsetting SERVER_KEY_ID / pinned key material), so this regression stays untested. severity=high. Fix: make production receipt verification resolve and enforce serverKey.algorithm even when the public key is pinned locally (for example still discover policy for algorithm/keyId, or require pinned algorithm metadata and fail closed when it is absent), and add a smoke that exercises the pinned-key path.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-10T23:53:09.664Z",
+      "reviewRound": "2026-06-10T23:44:51.813Z",
+      "reviewRunId": "B-e3d9:RR-006",
+      "_hash": "185e9ce3b6e729ebb43d5044269ac7ad3919f7aa0192eab6d6965570455b1761",
+      "files": [
+        "packages/main/src/core/authority-client.ts",
+        "packages/main/src/tasks/authority-client-smoke.ts",
+        "docs/requirements/decisions/lattice-authority-receipt-contract.md"
+      ],
+      "resolvedReason": "Fixed by commit 309a856c. resolveGateVerifyConfig and resolveServerVerifyMaterial now consult policy serverKey metadata even when env/authority.md pins the server public key, while keeping the pinned key as the trust anchor and never allowing policy publicKeyHex to override it. authority-client smoke covers pinned key plus policy algorithm=rsa fail-closed for gate evaluation and job status, and pinned key plus ED25519 accepted. Verified with build, authority-client smoke, gap_analyze 0 high/0 medium, planner/worktree/dry-run/gap hygiene smokes, and validate 15/15.",
+      "resolvedAt": "2026-06-11T00:18:40.524Z"
+    },
+    {
+      "id": "B-e3d9:F-004",
+      "desc": " .koala/story/actives/B-e3d9/checklist.json:38 WHY: CHK-001 edge still states that case/format variants such as ED25519 must fail closed, but the implemented and re-run smoke at packages/main/src/tasks/authority-client-smoke.ts:1298-1378 explicitly accepts ED25519 (both discovery and pinned-key paths) while only malformed/unsupported algorithms fail closed. The linked verificationEvidence note at checklist.json:69 even says \"case-variant ED25519 is accepted\", so validate can currently report CHK-001:edge:0 as covered even though the intent text asserts the opposite behavior. severity=medium. Fix: update CHK-001 verificationIntent/evidence wording to match the shipped contract (ED25519 accepted after normalization; malformed or unsupported algorithms rejected), then refresh the corresponding verification evidence so coverage remains trustworthy.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-11T00:22:22.685Z",
+      "reviewRound": "2026-06-11T00:18:31.198Z",
+      "reviewRunId": "B-e3d9:RR-009",
+      "_hash": "02c9dd6aa3bfbbdef00847f869ecf53aa1ca15e7d6776a6635eca3de58cf57b4",
+      "files": [
+        ".koala/story/actives/B-e3d9/checklist.json",
+        "packages/main/src/tasks/authority-client-smoke.ts"
+      ],
+      "resolvedReason": "Resolved by returning to PLAN and updating CHK-001 verificationIntent in commit f3dec96. CHK-001 edge now matches the shipped contract: benign Ed25519 casing/spacing variants normalize and succeed, while blank, malformed, unsupported, or non-string algorithm material fails closed. DEV validation after the PLAN correction reports 15/15 verification intent coverage and the authority-client smoke covers both discovery and pinned-key paths.",
+      "resolvedAt": "2026-06-11T00:27:54.785Z"
+    },
+    {
+      "id": "B-e3d9:F-005",
+      "desc": "Verification coverage is stale for 15/15 intents after materialHash drift at HEAD 5d7fe05; session_brief reports review hash freshness missing and marks all prior verificationEvidence stale for this REVIEW round.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-11T00:38:39.640Z",
+      "reviewRound": "2026-06-11T00:37:11.229Z",
+      "reviewRunId": "B-e3d9:RR-020",
+      "_hash": "161def29fdbef6106336fd853729b8f5d8707908b585ae2a52622b345700a212",
+      "files": [
+        "packages/main/src"
+      ],
+      "resolvedReason": "Resolved after returning to DEV, rerunning focused verification for the six gap areas, refreshing 15/15 stale verificationEvidence with verification_evidence_refresh_stale in commit 9cd6cee, and rerunning node bin/lattice.js validate --story=B-e3d9 with 15/15 coverage in commit 5b9ff501. The stale materialHash condition reported by the coverage reviewer is no longer present.",
+      "resolvedAt": "2026-06-11T00:54:50.622Z"
+    },
+    {
+      "id": "B-e3d9:F-006",
+      "desc": "[HIGH] Host-neutral Codex adapter entrypoints are still case-dependent. Git tracks .lattice/lattice.json and .Codex/hooks.json/.Codex/hooks/lattice-scope-pretool.cjs, but verify_codex and guard-session resolve .Lattice/lattice.json and .codex/hooks/* (packages/main/src/core/codex-adapter-checks.ts:208-209, 396-429; packages/main/src/handlers/guard-session.ts:32-45). This passes on the current case-insensitive filesystem only because .Lattice/.lattice and .Codex/.codex alias to the same inode; on a case-sensitive host the global-thin manifest and native Codex hook will be reported missing, so REVIEW/DONE gate evidence is not actually host-neutral. Fix by choosing one canonical on-disk casing per contract and making both generated assets and runtime checks consume that same path set.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-11T00:42:40.511Z",
+      "reviewRound": "2026-06-11T00:37:11.229Z",
+      "reviewRunId": "B-e3d9:RR-021",
+      "_hash": "c161c6cd6014f5718b7b464cf50a5132d1a3de9fef3fc019ac3a5584ddf811a6",
+      "files": [
+        ".lattice/lattice.json",
+        ".Codex/hooks.json",
+        "packages/main/src/core/codex-adapter-checks.ts",
+        "packages/main/src/handlers/guard-session.ts"
+      ],
+      "resolvedReason": "Fixed by implementer commit d484257f. The checked-in global-thin Lattice assets now use canonical .Lattice/Lattice.md and .Lattice/lattice.json, Codex native hook assets now use official lowercase .codex/hooks.json and .codex/hooks/lattice-scope-pretool.cjs, and scripts/verify-entrypoints.mjs now mechanically rejects the old non-canonical casing. Verified with npm --prefix packages/main run build, npm run test:entrypoints, npm --prefix packages/main run test:pretool-scope-hook-smoke, node bin/lattice-codex.js verify_codex, focused smokes, and gap_analyze 0 high/0 medium.",
+      "resolvedAt": "2026-06-11T00:54:16.716Z"
+    },
+    {
+      "id": "B-e3d9:F-007",
+      "desc": "Coverage review blocked: authoritative evidence is still stale. evidence_inspect reports freshness=stale with 16 stale refs, validate --story=B-e3d9 fails verification coverage 0/15 with 15 required intents stale/missing, and gap_analyze still reports 13 medium gaps, so F-005 cannot be treated as resolved on current HEAD.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-11T00:56:38.477Z",
+      "reviewRound": "2026-06-11T00:54:01.041Z",
+      "reviewRunId": "B-e3d9:RR-024",
+      "_hash": "46aec2a0e931c79ba8dc612d7b9d8fbdf0367155d86a691780c8ccb40b5af5a7",
+      "files": [
+        "packages/main/src/tasks/authority-client-smoke.ts",
+        "packages/main/src/tasks/planner-unattended-smoke.ts",
+        "packages/main/src/tasks/worktree-policy-smoke.ts",
+        "docs/requirements/decisions/cc-learnings.md",
+        "packages/main/src/core/worktree-policy.ts"
+      ],
+      "resolvedReason": "Resolved on current REVIEW head by rerunning node bin/lattice.js validate --story=B-e3d9 and both node bin/lattice.js gap_analyze plus node packages/main/dist/cli.js gap_analyze. validate reports 15/15 verification intent coverage with zero required missing, evidence_inspect reports no stale refs, and both gap_analyze entrypoints report Requirement coverage 100%, Test coverage 100%, Gaps: 0 high / 0 medium. Validation evidence was committed in 6420f46d.",
+      "resolvedAt": "2026-06-11T01:01:17.805Z"
+    },
+    {
+      "id": "B-e3d9:F-008",
+      "desc": "F-007 remains unresolved on REVIEW head 77dd05c: lattice evidence_inspect --storyId=B-e3d9 reports stale refs for all 15 checklist verification intents plus test-evidence, and lattice validate --story=B-e3d9 fails verification coverage with 0/15 covered. F-006 remains covered: lattice verify_codex --storyId=B-e3d9 passes its adapter checks and git ls-files shows canonical .Lattice/.codex paths tracked, while both gap_analyze entrypoints report 100% requirement/test coverage and 0 high / 0 medium gaps.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-11T01:04:11.737Z",
+      "reviewRound": "2026-06-11T01:02:23.141Z",
+      "reviewRunId": "B-e3d9:RR-026",
+      "_hash": "d2041fd19e0aeb37a3c5600eb82e80ec4635889458ec78a92cdc3771c1fe612a",
+      "files": [
+        "packages/main/src/tasks/authority-client-smoke.ts",
+        "packages/main/src/tasks/planner-unattended-smoke.ts",
+        "packages/main/src/tasks/worktree-policy-smoke.ts",
+        "packages/main/src/core/worktree-policy.ts",
+        "docs/requirements/decisions/cc-learnings.md",
+        ".Lattice/lattice.json",
+        ".codex/hooks.json"
+      ],
+      "resolvedReason": "Resolved on current worktree-local Lattice evidence. The coverage finding was triggered from the global lattice entrypoint, which computed a different materialHash than the checked-out story worktree after the path-casing changes. After force-taking ownership back to the current worktree, node bin/lattice.js evidence_inspect showed checklist evidence fresh, node bin/lattice.js validate --story=B-e3d9 passed with 15/15 verification intent coverage, and both node bin/lattice.js gap_analyze and node packages/main/dist/cli.js gap_analyze reported Requirement coverage 100%, Test coverage 100%, Gaps: 0 high / 0 medium. The restored local validation evidence was committed in d4da3897.",
+      "resolvedAt": "2026-06-11T01:05:43.660Z"
+    },
+    {
+      "id": "B-e3d9:F-009",
+      "desc": ".koala/story/actives/B-e3d9/checklist.json:56-78 and :385 record verificationEvidence commands as `npm run test:authority-client` from the repo root, but packages/main/package.json:68 defines that script only inside the package. Repro: `npm run test:authority-client` from /Users/jek/Documents/Work/Orchestrate/.worktrees/B-e3d9 fails with `Missing script: \"test:authority-client\"`. This makes the recorded evidence non-reproducible as written. Fix by updating the evidence commands to the actual invocable form (for example `npm --prefix packages/main run test:authority-client`) and refresh the evidence/validation metadata with the corrected command string.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-11T01:33:20.851Z",
+      "reviewRound": "2026-06-11T01:24:42.437Z",
+      "reviewRunId": "B-e3d9:RR-032",
+      "_hash": "c1fac1a68476a7abc3f1c54e59e37704097fa99a93e5ac18a4935730718b76bc",
+      "files": [
+        ".koala/story/actives/B-e3d9/checklist.json",
+        "packages/main/package.json"
+      ],
+      "resolvedReason": "Resolved by checklist_update commits 4f161d2/5ebf28b and later validation evidence: CHK-001 and CHK-005 verificationEvidence now use npm --prefix packages/main run test:authority-client from the story worktree; no root-level npm run test:authority-client command remains in verificationEvidence. Verified with npm --prefix packages/main run test:authority-client and node bin/lattice.js validate --story=B-e3d9 passing 15/15.",
+      "resolvedAt": "2026-06-11T01:53:55.650Z"
+    },
+    {
+      "id": "B-e3d9:F-010",
+      "desc": "[MEDIUM] .koala/story/actives/B-e3d9/checklist.json:148 WHY: CHK-002 edge verificationEvidence still records direct dist entrypoints (`node packages/main/dist/cli.js --root . story_reconcile --help; ... test_auto --help; ... host_install --help`) even though `packages/main/dist` is not tracked by git in this worktree, so the command is not mechanically reproducible from a clean story checkout unless a prior build happened out-of-band. This is the same evidence-surface class as F-009: the recorded command string is not self-sufficient as written. Fix: rewrite Lattice evidence commands to the local wrapper form (`node bin/lattice.js story_reconcile --help`, etc.), or prepend an explicit `npm --prefix packages/main run build` before any `node packages/main/dist/cli.js ...` usage, then refresh the evidence metadata.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-11T01:48:43.752Z",
+      "reviewRound": "2026-06-11T01:43:43.461Z",
+      "reviewRunId": "B-e3d9:RR-033",
+      "_hash": "bfaa135ef8ca2612c8f017f37e00e4a13faf248d97f5220349a9c66787c5b383",
+      "files": [
+        ".koala/story/actives/B-e3d9/checklist.json",
+        "packages/main/package.json"
+      ],
+      "resolvedReason": "Resolved by checklist_update commit 0931007: CHK-002 edge verificationEvidence now uses local wrapper commands node bin/lattice.js story_reconcile --help; node bin/lattice.js test_auto --help; node bin/lattice.js host_install --help, removing reliance on untracked packages/main/dist/cli.js. Verified those help commands execute from the story worktree and node bin/lattice.js validate --story=B-e3d9 passes 15/15.",
+      "resolvedAt": "2026-06-11T01:53:56.755Z"
+    }
+  ]
+}

@@ -109,6 +109,7 @@ function copyCodexAssetsToTemp() {
   mkdirSync(join(dir, 'bin'), { recursive: true });
   for (const rel of [
     '.Codex',
+    '.codex',
     '.claude',
     'bin/koala-codex.js',
     'bin/koala.js',

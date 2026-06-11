@@ -1,0 +1,37 @@
+{
+  "task": "Close the current six high-priority lattice gap_analyze uncovered_requirement gaps without broad speculative optimization.",
+  "outcome": "After the work, the user runs lattice gap_analyze and sees Gaps: 0 high / 0 medium, then sees focused receipt/worktree/planner/dryRun tests and lattice validate pass for B-e3d9, with notes explaining that B-ce79 remains done and full project convergence is now restored for these six requirements.",
+  "facts": [
+    "lattice gap_analyze currently reports six high uncovered_requirement gaps and healthy:false.",
+    "The gaps are supportsDryRun metadata, requiresAuthoritativeWorktree, requiresCleanWorktree at two requirement lines, requiresConfirmationBeforeStoryCreate, and unsupported algorithm.",
+    "Worktree policy fields and planner confirmation behavior already exist in code, so several gaps are likely coverage-linkage gaps rather than behavior gaps.",
+    "Receipt algorithm handling may be a real fail-closed correctness issue because discovery schema accepts algorithm:string and verification material currently reads publicKeyHex/encoding/keyId without clearly rejecting non-ed25519 algorithms.",
+    "Host-neutral execution means Codex and Claude are advisory/execution hosts; Lattice CLI, tests, and structured evidence remain authoritative."
+  ],
+  "constraints": [
+    "Do not optimize for the sake of optimization.",
+    "Do not optimize arbitrarily or expand registries beyond the six gaps.",
+    "Only fix real correctness issues; use precise annotations or truth-source narrowing for existing behavior.",
+    "Preserve consistency between requirements, runtime code, smoke tests, and gap_analyze coverage.",
+    "Do not directly edit docs/story or tests/fixtures; use Lattice CLI for story artifacts."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/lattice-authority-native.ts",
+    "packages/main/src/core/authority-client.ts",
+    "packages/main/src/core/authority-contracts.ts",
+    "packages/main/src/core/worktree-policy.ts",
+    "packages/main/src/core/planner.ts",
+    "packages/main/src/handlers/planner.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/tasks/authority-client-smoke.ts",
+    "packages/main/src/tasks/planner-unattended-smoke.ts",
+    "packages/main/src/tasks/worktree-policy-smoke.ts",
+    "packages/main/src/tasks/gap-analyze.ts",
+    "docs/requirements/decisions/cc-learnings.md",
+    "docs/requirements/decisions/lattice-authority-live-integration.md",
+    "docs/requirements/decisions/lattice-authority-receipt-contract.md"
+  ],
+  "timestamp": "2026-06-10T22:32:09.782Z"
+}

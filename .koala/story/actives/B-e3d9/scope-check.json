@@ -1,0 +1,80 @@
+{
+  "storyId": "B-e3d9",
+  "checkedAt": "2026-06-11T00:24:51.653Z",
+  "features": [
+    {
+      "feature": "unsupported production receipt algorithms fail closed, including discovery and pinned-key verification paths",
+      "covered_by": "CHK-001; authority-client.ts; lattice-authority-native.ts; authority-client-smoke.ts; findings F-002/F-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/lattice-authority-receipt-contract.md:179"
+    },
+    {
+      "feature": "supported Ed25519 casing variants normalize while malformed or unsupported algorithms fail closed",
+      "covered_by": "CHK-001; authority-client-smoke.ts; finding F-004 correction",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "review correction after B-e3d9:F-002/F-004"
+    },
+    {
+      "feature": "supportsDryRun requirement converges to live schema plus command policy help surface without speculative ToolDef metadata",
+      "covered_by": "CHK-002; cli-engine.ts; command-policy.ts; lattice-cli-migration-smoke.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/cc-learnings.md:492"
+    },
+    {
+      "feature": "requiresAuthoritativeWorktree policy is linked to runtime preflight enforcement",
+      "covered_by": "CHK-003; worktree-policy.ts; planner.ts; planner-unattended-smoke.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/lattice-authority-live-integration.md:1124"
+    },
+    {
+      "feature": "requiresCleanWorktree policy is linked to runtime dirty-worktree blocking",
+      "covered_by": "CHK-003; worktree-policy.ts; worktree-policy-smoke.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/lattice-authority-live-integration.md:1128"
+    },
+    {
+      "feature": "requiresCleanWorktree schema/plan surface is covered consistently with runtime policy",
+      "covered_by": "CHK-003; planner.ts; planner-unattended-smoke.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/lattice-authority-live-integration.md:2654"
+    },
+    {
+      "feature": "requiresConfirmationBeforeStoryCreate blocks planner story creation until confirmation is present",
+      "covered_by": "CHK-004; handlers/planner.ts; planner-unattended-smoke.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/lattice-authority-live-integration.md:2745"
+    },
+    {
+      "feature": "gap_analyze ignores generated build outputs so build artifacts do not create false medium no_test gaps",
+      "covered_by": "CHK-005; gap-analyze.ts; extract.ts; gap-analyze-input-hygiene-smoke.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "verification-discovered scanner hygiene issue after build"
+    },
+    {
+      "feature": "host-neutral completion evidence keeps Claude/Codex advisory and Lattice CLI/test evidence authoritative",
+      "covered_by": "CHK-005; validate evidence; gap_analyze evidence",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/host-neutral-observability-console.md"
+    }
+  ],
+  "summary": {
+    "total": 9,
+    "covered": 9,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "2026-06-11T00:18:31.198Z",
+  "_hash": "5e2abb48c2a1fe6b4bafcc7e59bbff0f68a5efd035beac552dd7fb71b6a58a3c",
+  "openQuestions": []
+}

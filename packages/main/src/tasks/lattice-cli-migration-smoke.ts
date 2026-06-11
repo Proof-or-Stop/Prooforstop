@@ -127,6 +127,18 @@ assert.match(storyAdvanceHelp, /lattice story_advance '\{"storyId":"B-a3f7","pha
 assert.match(storyAdvanceHelp, /Try lattice story_advance/);
 assert.doesNotMatch(storyAdvanceHelp, /(?:^|\n)\s+\d+\.\s+(?:story_review|story_advance|understanding_set|decision_set)\b/, 'story_advance help step list uses lattice-prefixed commands');
 
+const storyReconcileHelp = runCli(['story_reconcile', '--help']);
+assert.match(storyReconcileHelp, /Dry-run: default-on via --dryRun=true\./);
+assert.match(storyReconcileHelp, /true=只报告；false=执行修复（默认 true）/);
+
+const testAutoHelp = runCli(['test_auto', '--help']);
+assert.match(testAutoHelp, /Dry-run: optional via --dryRun\./);
+assert.match(testAutoHelp, /Real execution may also require --confirm\./);
+
+const hostInstallHelp = runCli(['host_install', '--help']);
+assert.match(hostInstallHelp, /Dry-run: always-on\./);
+assert.match(hostInstallHelp, /does not execute the side-effect path|no third-party installs are executed/i);
+
 // Registry exposes handlers in-process.
 {
   const store = new StoryStore(repoRoot);
@@ -260,7 +272,7 @@ assert.equal(authority.serverReachability, 'not-probed');
 assert.equal(authority.receiptVerified, false);
 assert.equal(authority.productionDone, false);
 assert.equal(authority.canClaimProductionDone, false);
-assert.match(authority.note, /no receipt is verified/i);
+assert.match(authority.note, /no new receipt is verified/i);
 assertNoProductionOverclaim(authority, 'lattice authority status');
 
 const conduit = runJson<any>(['conduit_status', '--format=json']);

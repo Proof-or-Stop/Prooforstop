@@ -714,6 +714,7 @@ export interface AuthorityGateVerifyConfig {
   /** Server public key used to verify the native receipt signature. */
   serverPublicKey: string;
   serverPublicKeyEncoding?: LatticeAuthorityKeyEncoding;
+  serverPublicKeyAlgorithm?: string;
   expectedProjectId?: string;
   expectedStoryId?: string;
   expectedServerKeyId?: string;
@@ -806,6 +807,21 @@ function requestReceiptInputDigest(request: GateEvaluateRequestContract | Record
 }
 
 /**
+ * @task B-e3d9
+ * @checklist CHK-001
+ * @title Fail closed on unsupported algorithm in production receipt verification material
+ * @type bugfix
+ * @priority high
+ * @description
+ *   Thread the discovered Authority `serverKey.algorithm` through the receipt
+ *   verification config so production receipt checks reject unsupported algorithm
+ *   values based on verification material, instead of silently treating every
+ *   discovered key as Ed25519-compatible.
+ * @changes
+ *   - [CHK-001] Carry policy-discovered `serverKey.algorithm` into receipt verification material.
+ *   - [CHK-001] Reject unsupported algorithm values fail-closed during production receipt verification.
+ */
+/**
  * Run the gate evaluation + native receipt verification loop. Pure orchestration
  * over the typed client methods + the native verifier — no client-side minting.
  */
@@ -861,6 +877,7 @@ export async function evaluateAuthorityGate(
   const verification = verifyLatticeAuthorityReceipt(receiptBody, {
     serverPublicKey: verify.serverPublicKey,
     serverPublicKeyEncoding: verify.serverPublicKeyEncoding,
+    serverPublicKeyAlgorithm: verify.serverPublicKeyAlgorithm,
     expectedKind: 'gate_decision',
     expectedProjectId: verify.expectedProjectId,
     expectedStoryId: verify.expectedStoryId,
@@ -1813,24 +1830,29 @@ async function resolveGateVerifyConfig(
   config: AuthorityConfig,
   now?: () => Date,
 ): Promise<AuthorityGateVerifyConfig | undefined> {
-  // Server key precedence: env > authority.md (both already folded into config's
-  // keyMaterial) > policy discovery.
+  // Server key material precedence: env > authority.md (both already folded into
+  // config's keyMaterial) > policy discovery. Policy metadata remains relevant even
+  // when the public key is pinned: `serverKey.algorithm` is part of the production
+  // receipt verification contract, but the policy public key must not override a pin.
   let serverPublicKey = config.keyMaterial.serverPublicKey;
   let encoding = config.keyMaterial.serverPublicKeyEncoding as LatticeAuthorityKeyEncoding | undefined;
   let serverKeyId = config.keyMaterial.serverKeyId;
-  if (!serverPublicKey) {
-    const policy = await client.discoverPolicy();
-    const key = policy.ok ? policy.data?.serverKey : undefined;
-    if (key?.publicKeyHex) {
+  let serverPublicKeyAlgorithm: string | undefined;
+  const policy = await client.discoverPolicy();
+  const key = policy.ok ? policy.data?.serverKey : undefined;
+  if (key) {
+    if (!serverPublicKey && key.publicKeyHex) {
       serverPublicKey = key.publicKeyHex;
       encoding = (key.encoding as LatticeAuthorityKeyEncoding | undefined) ?? 'hex';
-      serverKeyId = serverKeyId ?? key.keyId;
     }
+    serverKeyId = serverKeyId ?? key.keyId;
+    serverPublicKeyAlgorithm = key.algorithm;
   }
   if (!serverPublicKey) return undefined;
   return {
     serverPublicKey,
     serverPublicKeyEncoding: encoding ?? 'auto',
+    ...(serverPublicKeyAlgorithm !== undefined ? { serverPublicKeyAlgorithm } : {}),
     expectedProjectId: authorityProjectId(jobPlan, env, config),
     expectedStoryId: jobPlan.storyId,
     expectedServerKeyId: serverKeyId,
@@ -2297,26 +2319,40 @@ export interface AuthorityJobVerdictStatus {
 
 /**
  * Resolve the server verification material (pinned env key first, else policy
- * discovery). Returns undefined when neither is available so the caller fails closed.
+ * discovery). Policy metadata is still consulted for pinned keys so unsupported
+ * declared algorithms fail closed without letting policy replace the trust anchor.
+ * Returns undefined when neither key source is available so the caller fails closed.
  */
 async function resolveServerVerifyMaterial(
   client: AuthorityClient,
   env: Record<string, string | undefined>,
-): Promise<{ serverPublicKey: string; encoding: LatticeAuthorityKeyEncoding; serverKeyId?: string } | undefined> {
+): Promise<{
+  serverPublicKey: string;
+  encoding: LatticeAuthorityKeyEncoding;
+  serverKeyId?: string;
+  serverPublicKeyAlgorithm?: string;
+} | undefined> {
   let serverPublicKey = authorityEnvValue(env, 'SERVER_PUBLIC_KEY');
   let encoding = authorityEnvValue(env, 'SERVER_PUBLIC_KEY_ENCODING') as LatticeAuthorityKeyEncoding | undefined;
   let serverKeyId = authorityEnvValue(env, 'SERVER_KEY_ID');
-  if (!serverPublicKey) {
-    const policy = await client.discoverPolicy();
-    const key = policy.ok ? policy.data?.serverKey : undefined;
-    if (key?.publicKeyHex) {
+  let serverPublicKeyAlgorithm: string | undefined;
+  const policy = await client.discoverPolicy();
+  const key = policy.ok ? policy.data?.serverKey : undefined;
+  if (key) {
+    if (!serverPublicKey && key.publicKeyHex) {
       serverPublicKey = key.publicKeyHex;
       encoding = (key.encoding as LatticeAuthorityKeyEncoding | undefined) ?? 'hex';
-      serverKeyId = serverKeyId ?? key.keyId;
     }
+    serverKeyId = serverKeyId ?? key.keyId;
+    serverPublicKeyAlgorithm = key.algorithm;
   }
   if (!serverPublicKey) return undefined;
-  return { serverPublicKey, encoding: encoding ?? 'auto', serverKeyId };
+  return {
+    serverPublicKey,
+    encoding: encoding ?? 'auto',
+    serverKeyId,
+    ...(serverPublicKeyAlgorithm !== undefined ? { serverPublicKeyAlgorithm } : {}),
+  };
 }
 
 function missingReceiptBindings(input: AuthorityJobVerdictStatusInput): string[] {
@@ -2368,6 +2404,7 @@ export async function authorityJobVerdictStatus(
       const verification = verifyLatticeAuthorityReceipt(input.receipt, {
         serverPublicKey: material.serverPublicKey,
         serverPublicKeyEncoding: material.encoding,
+        serverPublicKeyAlgorithm: material.serverPublicKeyAlgorithm,
         expectedKind: 'gate_decision',
         expectedProjectId: input.expectedProjectId,
         expectedStoryId: input.expectedStoryId,

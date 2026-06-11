@@ -27,6 +27,10 @@ const SKIP_DIRS = new Set([
   '.worktrees',
 ]);
 
+export function shouldSkipSourceDir(entry: string): boolean {
+  return SKIP_DIRS.has(entry);
+}
+
 const SINGLE_FIELDS = new Set([
   'task', 'checklist', 'title', 'type', 'priority', 'version',
   'scope', 'depends', 'author', 'date',
@@ -46,7 +50,7 @@ export function walkDir(dir: string): string[] {
     return results;
   }
   for (const entry of entries) {
-    if (SKIP_DIRS.has(entry)) continue;
+    if (shouldSkipSourceDir(entry)) continue;
     const full = join(dir, entry);
     // B-b9d0 CHK-003: use lstatSync so we see the symlink itself rather than
     // its (potentially looping) target. SwiftPM .build/checkouts ships with

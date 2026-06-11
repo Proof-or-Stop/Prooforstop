@@ -224,6 +224,12 @@ Implemented (current tested surface):
   safety, `retryPolicy` / `stopPolicy` bound repair attempts, `evidencePolicy`
   drives upload/redaction/retention decisions, and `receiptPolicy` requires a
   verified native `gate_decision` receipt before any Authority DONE projection;
+  runtime linkage (B-e3d9): `requiresAuthoritativeWorktree` is emitted by
+  `buildJobPolicyBlocks`, checked by `assertJobPolicyConsistency`, and enforced
+  by `evaluateWorktreePreflight` as `authoritative_worktree_unresolved`;
+  `requiresCleanWorktree` is carried by mutating provider steps and by the
+  policy-level override path, both covered by `worktree-policy-smoke` as
+  `dirty_worktree` with unrelated dirty changes preserved;
 - Source-Aligned Redevelopment as a planner workflow: spec schema, validation,
   `planner source-manifest` deterministic source digest, and a deterministic
   plannedSteps-executor evidence projection for the `language.*` / `source.*` /
@@ -2753,6 +2759,12 @@ Defaults:
   explicitly sets it to `true`;
 - `requiresConfirmationBeforeStoryCreate` defaults to `true` when
   `allowUnattendedPlanning` is false;
+- runtime linkage (B-e3d9): `defaultPlannerPolicy` sets
+  `requiresConfirmationBeforeStoryCreate`, and `planner_create_story` checks the
+  persisted `confirmationDigest` before calling `story_create`; missing
+  confirmation returns `confirmation required before Story creation`, while
+  `planner_answer` confirmation and local autonomous policy are both covered by
+  `planner-unattended-smoke`;
 - remote push, destructive git, production migration, and external deployment
   default to disallowed;
 - `maxStoriesPerRequest` defaults to `1`.

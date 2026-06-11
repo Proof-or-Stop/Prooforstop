@@ -108,6 +108,22 @@ export const COMMAND_POLICY_SOURCE = 'packages/main/src/core/command-policy.ts';
 
 const ALL_PHASES = ['INIT', 'INIT_CHECK', 'PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE'] as const;
 
+/**
+ * @task B-e3d9
+ * @checklist CHK-002
+ * @title supportsDryRun stays derived from schemas plus command policy prose
+ * @type refactor
+ * @priority high
+ * @description
+ *   The stale cc-learnings ToolDef.supportsDryRun field never became the main
+ *   CLI contract. In main, dry-run truth is already carried by command schemas
+ *   (`dryRun` / `confirm`) plus COMMAND_POLICIES reason/replacement prose that
+ *   explains the operator-safety boundary. Keep help derivation tied to these
+ *   live surfaces instead of adding a parallel supportsDryRun registry here.
+ * @changes
+ *   - [CHK-002] Preserve COMMAND_POLICIES as the operator-intent prose surface for dry-run commands
+ *   - [CHK-002] Avoid a separate supportsDryRun metadata table in command policy
+ */
 export const COMMAND_POLICIES = {
   story_create: { status: 'rootOnly', rootOnly: true, ownershipClass: 'mainSharedMutating', destructiveRisk: 'metadata-write', reason: 'Creates a new story envelope; run from the project root before entering a story worktree. Serialized by the B-f60c main write lock, not the per-story owner lease.' },
   story_advance: { status: 'gateEvidence', gateEvidence: true, ownershipClass: 'storyScopedMutating', allowedPhases: 'all', destructiveRisk: 'metadata-write', reason: 'Lifecycle transition command guarded by story phase preflight checks.' },

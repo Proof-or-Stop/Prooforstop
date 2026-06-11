@@ -41,6 +41,7 @@ export interface LatticeAuthorityReceipt {
 export interface LatticeAuthorityReceiptVerificationOptions {
   serverPublicKey: string;
   serverPublicKeyEncoding?: LatticeAuthorityKeyEncoding;
+  serverPublicKeyAlgorithm?: string;
   expectedKind?: string;
   expectedProjectId?: string;
   expectedStoryId?: string;
@@ -79,6 +80,20 @@ export const LatticeAuthorityReceiptSchema = z.object({
   serverKeyId: z.string().min(1),
   signature: OptionalStringFromAuthoritySchema,
 }).passthrough();
+
+const SUPPORTED_PRODUCTION_RECEIPT_ALGORITHM = 'ed25519';
+
+function normalizeReceiptAlgorithm(value: unknown): { algorithm?: string; invalidAlgorithm?: string } {
+  if (value === undefined) return {};
+  if (typeof value !== 'string') {
+    return { invalidAlgorithm: value === null ? '<null>' : String(value) };
+  }
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return { invalidAlgorithm: '<empty>' };
+  }
+  return { algorithm: trimmed.toLowerCase() };
+}
 
 function isHexBytes(value: string, bytes: number): boolean {
   return new RegExp(`^[0-9a-fA-F]{${bytes * 2}}$`).test(value);
@@ -153,6 +168,20 @@ export function verifyLatticeAuthorityReceipt(
   options: LatticeAuthorityReceiptVerificationOptions,
 ): LatticeAuthorityReceiptVerification {
   const receipt = parseLatticeAuthorityReceipt(value);
+  const { algorithm: serverPublicKeyAlgorithm, invalidAlgorithm } = normalizeReceiptAlgorithm(options.serverPublicKeyAlgorithm);
+  if (
+    invalidAlgorithm !== undefined
+    || (serverPublicKeyAlgorithm !== undefined
+    && serverPublicKeyAlgorithm !== SUPPORTED_PRODUCTION_RECEIPT_ALGORITHM
+    )
+  ) {
+    return {
+      provided: true,
+      verified: false,
+      receipt,
+      reason: `Lattice Authority receipt verification material uses unsupported algorithm: ${invalidAlgorithm ?? options.serverPublicKeyAlgorithm}`,
+    };
+  }
   const signature = receipt.signature;
   if (!signature || !isHexBytes(signature, 64)) {
     return { provided: true, verified: false, receipt, reason: 'Lattice Authority receipt signature is missing or not 64-byte hex' };

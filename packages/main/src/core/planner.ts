@@ -5,6 +5,35 @@ import { z } from 'zod';
 import { canonicalDigest } from './authority-signing.js';
 import type { StoryInfo, StoryType, VerificationIntent } from './types.js';
 
+/**
+ * @task B-e3d9
+ * @checklist CHK-003
+ * @title Link planner worktree policy emission to executor enforcement
+ * @type bugfix
+ * @priority high
+ * @description
+ *   Planner linkage for requiresAuthoritativeWorktree and requiresCleanWorktree:
+ *   buildJobPolicyBlocks emits the authoritative-worktree policy for authority
+ *   plans, assertJobPolicyConsistency rejects weakened authority policy, and
+ *   provider planned steps carry requiresCleanWorktree for executor preflight.
+ * @changes
+ *   - [CHK-003] Connect planner worktreePolicy emission to planner-unattended-smoke and worktree-policy-smoke coverage
+ */
+
+/**
+ * @task B-e3d9
+ * @checklist CHK-004
+ * @title Link planner confirmation policy to story creation blocking
+ * @type bugfix
+ * @priority high
+ * @description
+ *   Planner policy linkage for requiresConfirmationBeforeStoryCreate:
+ *   defaultPlannerPolicy controls whether a confirmationDigest is required
+ *   before planner_create_story may call story_create.
+ * @changes
+ *   - [CHK-004] Connect requiresConfirmationBeforeStoryCreate defaults to planner_create_story blocking behavior covered by planner-unattended-smoke
+ */
+
 export const PLANNER_INTERACTION_MODES = ['autonomous', 'interview', 'decision-gated'] as const;
 export type PlannerInteractionMode = typeof PLANNER_INTERACTION_MODES[number];
 
@@ -1067,9 +1096,11 @@ function assertDoneClaimNotOverclaimed(plan: JobPlan): JobPlan {
   return plan;
 }
 
-// Build the conservative, fail-closed JobPlan policy blocks. The planner never
-// enables real providers, production-DONE eligibility, or worktree repair on its
-// own; those require an explicit Authority job that the executor validates.
+/**
+ * Build the conservative, fail-closed JobPlan policy blocks. The planner never
+ * enables real providers, production-DONE eligibility, or worktree repair on its
+ * own; those require an explicit Authority job that the executor validates.
+ */
 function buildJobPolicyBlocks(draft: PlannerDraft, plannedSteps: PlannedStep[]): {
   providerPolicy: JobProviderPolicy;
   worktreePolicy: JobWorktreePolicy;

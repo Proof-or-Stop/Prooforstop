@@ -9,9 +9,80 @@
         "docs/requirements/decisions/authority-session-receipt-gate-execution.md",
         "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-10T22:42:32.898Z",
+      "endTime": "2026-06-11T00:16:16.214Z",
+      "userSees": "User sees \"unsupported_algorithm\" for non-ed25519 receipt verification and \"authority receipt signature and native bindings verified\" for the valid ed25519 path.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/authority-contracts.ts",
+          "packages/main/src/core/authority-client.ts",
+          "packages/main/src/core/lattice-authority-native.ts",
+          "docs/requirements/decisions/lattice-authority-receipt-contract.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/authority-client-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Verify a production receipt whose serverKey.algorithm is canonical ed25519 and whose signature/public key are otherwise valid -> verification succeeds exactly as before; WHY: proves the guard does not regress the supported algorithm path.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Verify production receipt verification material whose supported Ed25519 algorithm uses benign casing/spacing variants such as ED25519 -> verification normalizes the value and still succeeds, while blank or malformed algorithm material fails closed with an unsupported-algorithm reason; WHY: preserves formatting tolerance without expanding the supported algorithm set.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Verify a production receipt whose signature payload is otherwise valid but serverKey.algorithm is an unsupported value such as rsa or a non-string value -> verification must reject before any success path and must not accept the receipt due to incidental crypto compatibility; WHY: prevents arbitrary algorithm expansion and proves fail-closed correctness.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-client-smoke.ts",
+          "command": "npm --prefix packages/main run build; npm --prefix packages/main run test:authority-client; node packages/main/dist/cli.js gap_analyze",
+          "result": "pass",
+          "note": "Current-head smoke keeps supported ed25519 receipt verification passing, including the pinned env LATTICE_AUTHORITY_SERVER_PUBLIC_KEY path with policy serverKey.algorithm=ED25519; counts.policy=1 proves policy metadata was consulted while the pinned key remained the trust anchor.",
+          "headHash": "4fdc49f569b6a137a0542635cadd2f7350db9d51",
+          "materialHash": "84df76b650b8a1dbef28609dda2f30f66273b8aed46e2a641ce1fb9e14449d81",
+          "timestamp": "2026-06-11T02:08:37.304Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-client-smoke.ts",
+          "command": "npm --prefix packages/main run build; npm --prefix packages/main run test:authority-client; node packages/main/dist/cli.js gap_analyze",
+          "result": "pass",
+          "note": "Current-head smoke preserves algorithm normalization/fail-closed edges: case-variant ED25519 is accepted, blank/malformed algorithm material is rejected as unsupported, and pinned deployments with unavailable policy still have no new required algorithm metadata path.",
+          "headHash": "4fdc49f569b6a137a0542635cadd2f7350db9d51",
+          "materialHash": "84df76b650b8a1dbef28609dda2f30f66273b8aed46e2a641ce1fb9e14449d81",
+          "timestamp": "2026-06-11T02:08:37.304Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-client-smoke.ts",
+          "command": "npm --prefix packages/main run build; npm --prefix packages/main run test:authority-client; node packages/main/dist/cli.js gap_analyze",
+          "result": "pass",
+          "note": "Current-head smoke covers B-e3d9:F-003: env-pinned serverPublicKey plus fake policy serverKey.algorithm=rsa returns receipt_unverified, blocks executePlannedSteps authority DONE, and authorityJobVerdictStatus keeps receiptVerified/authorityDone/fullAuthorityDone false; counts.policy=1 proves policy metadata was consulted for both gate and job-status receipt verification.",
+          "headHash": "4fdc49f569b6a137a0542635cadd2f7350db9d51",
+          "materialHash": "84df76b650b8a1dbef28609dda2f30f66273b8aed46e2a641ce1fb9e14449d81",
+          "timestamp": "2026-06-11T02:08:37.304Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -22,9 +93,77 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "AGENTS.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-10T22:42:39.564Z",
+      "endTime": "2026-06-10T22:51:20.522Z",
+      "userSees": "User sees \"Gaps: 0 high / 0 medium\" and no \"supportsDryRun?: boolean\" entry in lattice gap_analyze output.",
+      "files": {
+        "modify": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "docs/requirements/decisions/cc-learnings.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/dispatch-run-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run the user-facing command/help/policy surface after the contract change -> gap_analyze and command metadata expose exactly one current dry-run contract and no longer require a stale supportsDryRun field; WHY: proves the truth source was converged rather than papered over.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Exercise a command that supports dry-run and a command that does not -> the reported/help-visible policy must match actual handler behavior for both, without inventing metadata for commands that lack real dry-run semantics; WHY: catches inconsistent logic between docs/policy and runtime.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Attempt to satisfy the gap by adding speculative supportsDryRun-style metadata that is not consumed by the live command-policy/help path -> verification should fail unless the surfaced contract is mechanically tied to current runtime behavior; WHY: blocks arbitrary optimization and metadata-only fixes.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js gap_analyze",
+          "result": "pass",
+          "note": "gap_analyze no longer reports the stale supportsDryRun uncovered_requirement; the remaining high gaps are the separate CHK-003/CHK-004 authority-policy items.",
+          "headHash": "4fdc49f569b6a137a0542635cadd2f7350db9d51",
+          "materialHash": "84df76b650b8a1dbef28609dda2f30f66273b8aed46e2a641ce1fb9e14449d81",
+          "timestamp": "2026-06-11T02:08:37.304Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js story_reconcile --help; node bin/lattice.js test_auto --help; node bin/lattice.js host_install --help",
+          "result": "pass",
+          "note": "Root-invocable local wrapper help confirms dry-run surfacing is tied to live command policy/schema for commands that support dry-run and for commands that do not, without relying on untracked dist output.",
+          "headHash": "4fdc49f569b6a137a0542635cadd2f7350db9d51",
+          "materialHash": "84df76b650b8a1dbef28609dda2f30f66273b8aed46e2a641ce1fb9e14449d81",
+          "timestamp": "2026-06-11T02:08:37.304Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/cc-learnings.md",
+          "command": "git show --stat --format=fuller HEAD -- docs/requirements/decisions/cc-learnings.md packages/main/src/cli-engine.ts packages/main/src/core/command-policy.ts",
+          "result": "pass",
+          "note": "The requirement truth now explicitly rejects a new ToolDef.supportsDryRun field, and the code annotations/help bind dry-run semantics to existing schema plus COMMAND_POLICIES surfaces so a metadata-only fix would contradict the documented contract.",
+          "headHash": "4fdc49f569b6a137a0542635cadd2f7350db9d51",
+          "materialHash": "84df76b650b8a1dbef28609dda2f30f66273b8aed46e2a641ce1fb9e14449d81",
+          "timestamp": "2026-06-11T02:08:37.304Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -34,9 +173,80 @@
         "docs/requirements/decisions/lattice-authority-live-integration.md",
         "docs/requirements/decisions/lattice-authority-m1-m16-generated-proof-and-live-e2e.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-10T22:49:53.218Z",
+      "endTime": "2026-06-10T22:59:56.382Z",
+      "userSees": "User sees \"authoritative_worktree_unresolved\" and \"dirty_worktree\" covered by smoke tests, and gap_analyze has no worktree policy high gaps.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/worktree-policy.ts",
+          "packages/main/src/core/planner.ts",
+          "docs/requirements/decisions/lattice-authority-live-integration.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/worktree-policy-smoke.ts",
+          "packages/main/src/tasks/planner-unattended-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run the existing authoritative-worktree/clean-worktree smoke path in the expected authoritative worktree state -> planner emission, executor preflight, and smoke evidence all agree that the command proceeds when policy requirements are satisfied; WHY: proves the documented requirement is already enforced by runtime logic.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run the same flow in a clean but non-authoritative worktree, and separately in an authoritative but dirty worktree -> each requirement fails for its own specific reason without conflating the two policies; WHY: proves consistency of the two gates and their diagnostics.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Try to clear the gap only by adding requirement prose or planner annotations while leaving any enforcement path unproven by smoke coverage -> verification should fail unless runtime evidence still demonstrates fail-closed blocking for both requiresAuthoritativeWorktree and requiresCleanWorktree; WHY: disallows coverage-link claims that are host- or reviewer-opinion-only.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/planner-unattended-smoke.ts",
+          "command": "npm --prefix packages/main run test:planner-unattended-smoke",
+          "result": "pass",
+          "note": "planner-unattended smoke asserts authority JobPlans emit requiresAuthoritativeWorktree=true, preserve git-status evidence requirements, and provider planned steps carry requiresCleanWorktree for the passing authoritative worktree path",
+          "headHash": "4fdc49f569b6a137a0542635cadd2f7350db9d51",
+          "materialHash": "84df76b650b8a1dbef28609dda2f30f66273b8aed46e2a641ce1fb9e14449d81",
+          "timestamp": "2026-06-11T02:08:37.304Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/worktree-policy-smoke.ts",
+          "command": "npm --prefix packages/main run test:worktree-policy-smoke",
+          "result": "pass",
+          "note": "worktree-policy smoke distinguishes clean missing-worktree authoritative_worktree_unresolved from configured dirty-worktree dirty_worktree, including policy-level requiresCleanWorktree=true without conflating the two stop reasons",
+          "headHash": "4fdc49f569b6a137a0542635cadd2f7350db9d51",
+          "materialHash": "84df76b650b8a1dbef28609dda2f30f66273b8aed46e2a641ce1fb9e14449d81",
+          "timestamp": "2026-06-11T02:08:37.304Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "packages/main/src/core/worktree-policy.ts",
+          "command": "node bin/lattice.js gap_analyze",
+          "result": "pass",
+          "note": "gap_analyze reports 0 high / 0 medium after runtime annotations and smoke assertions, proving requiresAuthoritativeWorktree and requiresCleanWorktree are linked to live enforcement rather than prose-only coverage",
+          "headHash": "4fdc49f569b6a137a0542635cadd2f7350db9d51",
+          "materialHash": "84df76b650b8a1dbef28609dda2f30f66273b8aed46e2a641ce1fb9e14449d81",
+          "timestamp": "2026-06-11T02:08:37.304Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -46,9 +256,79 @@
         "docs/requirements/decisions/lattice-authority-live-integration.md",
         "docs/requirements/decisions/lattice-unattended-completion-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-10T22:49:53.700Z",
+      "endTime": "2026-06-10T22:59:56.779Z",
+      "userSees": "User sees \"confirmation required before Story creation\" when confirmation is missing, and no requiresConfirmationBeforeStoryCreate high gap remains.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/planner.ts",
+          "packages/main/src/handlers/planner.ts",
+          "docs/requirements/decisions/lattice-authority-live-integration.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/planner-unattended-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run planner story-creation flow when plannerPolicy requires confirmation and explicit confirmation is present -> story creation proceeds and the policy/result surface shows the confirmation gate was satisfied; WHY: proves the intended unblock path still works.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run the same flow under a policy/profile that does not require confirmation -> story creation behavior matches that policy without inheriting the stricter gate accidentally; WHY: verifies the requirement is policy-driven rather than globally hardcoded.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Attempt planner_create_story without the required confirmation while all other inputs are valid -> it must fail closed before creating the story and must not rely on downstream cleanup to undo partial creation; WHY: proves real blocking behavior instead of post-hoc remediation.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/planner-unattended-smoke.ts",
+          "command": "npm --prefix packages/main run test:planner-unattended-smoke",
+          "result": "pass",
+          "note": "planner-unattended smoke records planner_answer confirmationDigest and then planner_create_story succeeds with a persisted Story id when requiresConfirmationBeforeStoryCreate is satisfied",
+          "headHash": "4fdc49f569b6a137a0542635cadd2f7350db9d51",
+          "materialHash": "84df76b650b8a1dbef28609dda2f30f66273b8aed46e2a641ce1fb9e14449d81",
+          "timestamp": "2026-06-11T02:08:37.304Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/planner-unattended-smoke.ts",
+          "command": "npm --prefix packages/main run test:planner-unattended-smoke",
+          "result": "pass",
+          "note": "planner-unattended smoke asserts local autonomous plannerPolicy has requiresConfirmationBeforeStoryCreate=false and create-story proceeds without inheriting the stricter confirmation gate",
+          "headHash": "4fdc49f569b6a137a0542635cadd2f7350db9d51",
+          "materialHash": "84df76b650b8a1dbef28609dda2f30f66273b8aed46e2a641ce1fb9e14449d81",
+          "timestamp": "2026-06-11T02:08:37.304Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/planner-unattended-smoke.ts",
+          "command": "npm --prefix packages/main run test:planner-unattended-smoke",
+          "result": "pass",
+          "note": "planner-unattended smoke attempts planner_create_story with a confirmation-required draft and no confirmationDigest; it returns blocked with confirmation required before Story creation and status shows no storyId was created",
+          "headHash": "4fdc49f569b6a137a0542635cadd2f7350db9d51",
+          "materialHash": "84df76b650b8a1dbef28609dda2f30f66273b8aed46e2a641ce1fb9e14449d81",
+          "timestamp": "2026-06-11T02:08:37.304Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -59,9 +339,77 @@
         "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md",
         "docs/requirements/decisions/truth-source.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-10T23:02:40.522Z",
+      "endTime": "2026-06-10T23:08:38.069Z",
+      "userSees": "User sees \"Gaps: 0 high / 0 medium\" from lattice gap_analyze and \"validation PASS\" for B-e3d9, with host reviews labeled advisory.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/gap-analyze.ts",
+          "lattice gap_analyze",
+          "lattice validate --story=B-e3d9",
+          "npm --prefix packages/main run test:authority-client-smoke",
+          "npm --prefix packages/main run test:worktree-policy-smoke",
+          "npm --prefix packages/main run test:planner-unattended-smoke"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run gap_analyze before and after the fix set, plus the focused smoke tests and lattice validate -> final authoritative outputs show 0 high and 0 medium gaps and validation passes with evidence bound to this story and HEAD; WHY: proves actual convergence instead of narrative closure.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If a second host review tool such as Claude CLI is unavailable or downgraded on this machine, record that availability result as advisory evidence while keeping the same Lattice command outputs authoritative -> the story still distinguishes host-neutral gate facts from host-specific advisory notes; WHY: preserves host neutrality without hiding environment differences.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Attempt to claim success using only host-specific review transcripts or one machine observation while gap_analyze, validate, or focused test evidence is missing, stale, or contradictory -> verification must reject completion and require current Lattice outputs as the source of truth; WHY: prevents non-authoritative evidence from masking correctness gaps.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "command": "node bin/lattice.js gap_analyze; npm --prefix packages/main run build; npm --prefix packages/main run test:authority-client; npm --prefix packages/main run test:lattice-cli-migration-smoke; npm --prefix packages/main run test:worktree-policy-smoke; npm --prefix packages/main run test:planner-unattended-smoke",
+          "result": "pass",
+          "note": "Current-head convergence suite passed: gap_analyze reports Requirement coverage 100%, Test coverage 100%, Gaps: 0 high / 0 medium; build and all focused smokes for receipt algorithm, dry-run help, worktree policy, and planner confirmation passed. lattice validate is rerun after this evidence so final pass remains Lattice-authoritative, not host narrative.",
+          "headHash": "4fdc49f569b6a137a0542635cadd2f7350db9d51",
+          "materialHash": "84df76b650b8a1dbef28609dda2f30f66273b8aed46e2a641ce1fb9e14449d81",
+          "timestamp": "2026-06-11T02:08:37.304Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "command -v claude && claude --version; guarded claude -p advisory review attempt 1; guarded claude -p advisory review attempt 2",
+          "result": "pass",
+          "note": "Codex host coordinated the story and Lattice commands. Claude CLI host was present at /Users/jek/.nvm/versions/node/v22.13.0/bin/claude version 2.1.88; advisory attempt 1 returned a one-sentence confirmation that Lattice gap_analyze/validate are authoritative, while advisory attempt 2 was degraded by the local 15s guard with exit 143/no output. Both are recorded as advisory only; they do not replace Lattice CLI/test evidence.",
+          "headHash": "4fdc49f569b6a137a0542635cadd2f7350db9d51",
+          "materialHash": "84df76b650b8a1dbef28609dda2f30f66273b8aed46e2a641ce1fb9e14449d81",
+          "timestamp": "2026-06-11T02:08:37.304Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js validate --story=B-e3d9 before adding CHK-005 evidence",
+          "result": "pass",
+          "note": "The pre-evidence validate run passed npm test but still refused completion with 12/15 covered and CHK-005 missing, proving host transcripts or partial command success cannot satisfy the gate without current Lattice verificationEvidence.",
+          "headHash": "4fdc49f569b6a137a0542635cadd2f7350db9d51",
+          "materialHash": "84df76b650b8a1dbef28609dda2f30f66273b8aed46e2a641ce1fb9e14449d81",
+          "timestamp": "2026-06-11T02:08:37.304Z"
+        }
+      ]
     }
   ]
 }
