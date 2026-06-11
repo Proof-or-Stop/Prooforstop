@@ -1,0 +1,56 @@
+{
+  "storyId": "B-428c",
+  "changes": "Implemented Layer 3 Loop Engineering formal proof path: added Loop Engineering claim target, UDM final-report contract checks, formal evaluator routing, higher-target fail-closed reports, global capability claim identity, .Lattice artifact materialHash handling, baseline smoke coverage, fresh proof artifacts, and two-host Claude/Codex review evidence.",
+  "usage": "Run node packages/main/dist/cli.js capability_claim_formal_evaluate --target=loop-engineering --artifactsRoot=.lattice/artifacts/baseline/layer3-loop-engineering-unlock --format=json to verify the Layer 3 claim. Run the same command with --target=production-safety or --target=capability-claim to verify higher claims remain EXPECTED_BLOCK.",
+  "expectedOutcome": "Layer 3 Loop Engineering claim is UNLOCKED only when Development, Engineering, and all 10 UDM baselines are fresh PASS/EXPECTED_BLOCK as designed; Production Safety and global Capability Claim remain LOCKED.",
+  "actualTranscript": "loop-engineering formal evaluator returned authorized=true, outcome=PASS, layer2EngineeringClaim=UNLOCKED, loopEngineeringClaim=UNLOCKED, productionSafetyClaim=LOCKED, globalCapabilityClaim=LOCKED; production-safety and capability-claim targets returned authorized=false and EXPECTED_BLOCK; validate --story=B-428c --json passed with 15/15 verification coverage.",
+  "outcomeDiff": "No mismatch: actual transcript matches expected Layer 3 unlock and higher-layer lock boundary.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Production Safety and global Capability Claim are intentionally not unlocked; there is no Authority production receipt, no productionDone, and no fullAuthorityDone claim.",
+  "pitfalls": "Codex CLI read-only audit initially stalled, so the failed attempt was terminated and rerun with a narrower machine-facts prompt. Proof artifacts must live under .Lattice, and ignored .omx runtime files were not used as Lattice assets.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 257842
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 247413
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 325311
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 5202109
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 631668
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 80577
+    }
+  },
+  "totalDurationMs": 6744922,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-11T04:52:33.090Z",
+  "updatedAt": "2026-06-11T04:52:33.090Z"
+}

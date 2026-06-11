@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "lattice.baseline.final_report.v1",
+  "generatedAt": "2026-06-11T04:34:59.912Z",
+  "layer": "engineering",
+  "baselineId": "ENG-LOOP-REVIEW-1",
+  "runId": "layer3-eng-loop-review-1",
+  "name": "Review reflection loop usage",
+  "expectedOutcome": "PASS",
+  "expectedOutcomes": [
+    "PASS"
+  ],
+  "outcome": "PASS",
+  "status": "pass",
+  "capability": "REVIEW findings can trigger bounded loop repair and closure.",
+  "capabilityProof": true,
+  "localOnly": false,
+  "authorityBoundary": "local-report-only",
+  "blockedReasons": [],
+  "gateEvidenceRefs": [],
+  "suiteRunId": "layer2-engineering-for-layer3-unlock",
+  "claimTarget": "engineering",
+  "verifiedAt": "2026-06-11T04:34:59.912Z",
+  "verificationEvidenceRefs": [
+    "artifact:verification-evidence.json#sha256=54f43315d8a34ab25dddb1bbdc065736f881955141935e0761752b7f5f970160"
+  ],
+  "reviewEvidenceRefs": [
+    "review:claude:artifact:review-claude.json#sha256=2c3f1997f644a7e0a69c83f07b4bb2eedc5a09c487cbb6502a99efd30e80689f",
+    "review:codex:artifact:review-codex.json#sha256=04fdef4e459ed30f2cc0e743194cf0ead4bdd9179a6d8b3c766e00ce863809cb"
+  ],
+  "lifecycleGateEvidenceRefs": [
+    "artifact:lifecycle-gate.json#sha256=ca100f6c1bb2528af915f46c5aed90e3e01197876f6854a667ae958104b287e8"
+  ],
+  "formalProof": true,
+  "falseDone": false,
+  "falseDoneCount": 0,
+  "safetySuccess": true,
+  "headHash": "440f4b718431c6fcea28569a3bd1f6de06e1c5cf",
+  "materialHash": "ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22",
+  "authority": {
+    "authorityChanged": false,
+    "receiptVerified": false,
+    "productionDone": false,
+    "fullAuthorityDone": false,
+    "canClaimProductionDone": false,
+    "receiptRefs": []
+  },
+  "authorityChanged": false,
+  "receiptVerified": false,
+  "productionDone": false,
+  "fullAuthorityDone": false,
+  "receiptRefs": [
+    "receipt:;baselineId=ENG-LOOP-REVIEW-1;suiteRunId=layer2-engineering-for-layer3-unlock;claimTarget=engineering;headHash=440f4b718431c6fcea28569a3bd1f6de06e1c5cf;materialHash=ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22;evidenceDigest=e5733957e83236eea627a217c5503e5af3d51e241f6177b4fbd58924c25b51d2"
+  ],
+  "artifacts": {
+    "directory": ".lattice/artifacts/baseline/layer3-loop-engineering-unlock/engineering/ENG-LOOP-REVIEW-1/layer3-eng-loop-review-1",
+    "files": [
+      "input.md",
+      "repo-manifest.json",
+      "story.json",
+      "checklist.json",
+      "scope-contract.json",
+      "execution-log.jsonl",
+      "verification-evidence.json",
+      "regression-report.json",
+      "lifecycle-gate.json",
+      "review-claude.json",
+      "review-codex.json",
+      "final-report.json",
+      "final-report.md"
+    ]
+  },
+  "notes": [
+    "Formal Engineering proof artifact; still not production DONE proof.",
+    "Authority changed and production DONE remain false."
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "task": "Implement the formal Layer 3 Loop Engineering proof path and execute the documented UDM unlock without expanding production or global claims.",
+  "outcome": "After running capability_claim_formal_evaluate for target loop-engineering on .lattice/artifacts/baseline/layer3-loop-engineering-unlock, the terminal shows loopEngineeringClaim=UNLOCKED while layer2EngineeringClaim remains UNLOCKED and productionSafetyClaim/globalCapabilityClaim remain LOCKED; the delivery report states only the allowed Layer 3 claim and lists the forbidden production/global claims.",
+  "facts": [
+    "Layer 1 and Layer 2 formal proof were fresh before this story, but must be refreshed or re-pinned after this story changes evaluator/proof code.",
+    "UDM baseline definitions already exist in the baseline registry, but current formal claim evaluation is Layer-2-only.",
+    "Layer 3 artifacts must live under .lattice/artifacts/baseline/layer3-loop-engineering-unlock and .omx must not be used.",
+    "Claude CLI and Codex CLI host review artifacts are independent review evidence, not Authority receipts."
+  ],
+  "constraints": [
+    "Do not optimize for the sake of optimization.",
+    "Do not optimize arbitrarily.",
+    "Only fix real correctness issues.",
+    "Preserve consistency of logic.",
+    "Layer 3 may unlock only loop-engineering; Production Safety and global Capability Claim must remain LOCKED.",
+    "Missing/stale/mismatched lower-layer proof must fail closed."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/lattice-baseline.ts",
+    "packages/main/src/handlers/lattice-baseline.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/tasks/lattice-baseline-smoke.ts"
+  ],
+  "timestamp": "2026-06-11T03:13:30.636Z"
+}

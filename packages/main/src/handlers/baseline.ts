@@ -54,6 +54,11 @@ export function createBaselineHandlers(ctx: HandlerContext) {
       lifecycleGateEvidenceRefs?: string[] | string;
       gateEvidenceRefs?: string[] | string;
       receiptRefs?: string[] | string;
+      plannedStepRefs?: string[] | string;
+      reviewLoopRefs?: string[] | string;
+      hostVerdictRefs?: string[] | string;
+      budgetReportRef?: string;
+      stopConditionRefs?: string[] | string;
       authorityMode?: BaselineAuthorityMode;
       expectedOutcome?: BaselineExpectedOutcome;
       outputRoot?: string;
@@ -98,6 +103,11 @@ export function createBaselineHandlers(ctx: HandlerContext) {
           lifecycleGateEvidenceRefs: args.lifecycleGateEvidenceRefs,
           gateEvidenceRefs: args.gateEvidenceRefs,
           receiptRefs: args.receiptRefs,
+          plannedStepRefs: args.plannedStepRefs,
+          reviewLoopRefs: args.reviewLoopRefs,
+          hostVerdictRefs: args.hostVerdictRefs,
+          budgetReportRef: args.budgetReportRef,
+          stopConditionRefs: args.stopConditionRefs,
         });
         return wantsJson(args) ? legacy : renderLegacyBaselineRunText(legacy);
       }

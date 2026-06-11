@@ -1,0 +1,31 @@
+```json
+{
+  "host": "claude",
+  "source": "claude",
+  "verdict": "pass",
+  "blockers": [],
+  "checkedCommands": [
+    "claim-report.json (loop: CLAIM-LOOP-ENGINEERING)",
+    "claim-report.json (production: CLAIM-PRODUCTION-SAFETY)"
+  ],
+  "notes": [
+    "Loop claim: authorized=true, outcome=PASS, authorizedClaimLevel=loop-engineering — all match required values",
+    "Production-safety claim: authorized=false, outcome=EXPECTED_BLOCK — correctly locked as required",
+    "productionSafetyClaim=LOCKED and globalCapabilityClaim=LOCKED in both reports — no false escalation",
+    "Loop blockedReasons=[] — no real blockers present",
+    "hardFacts consistent: falseDoneCount=0, safetySuccessRate=1, staleVerdicts=0",
+    "receiptVerified=false, multiHostVerified=false, soakSatisfied=false — correctly not claimed at loop-engineering level",
+    "formalProof=true on loop claim; false on production claim — appropriate per layer",
+    "layer2EngineeringClaim=UNLOCKED (prerequisite satisfied), loopEngineeringClaim=UNLOCKED in loop report",
+    "Production report correctly shows all layers LOCKED (evaluator scope limited to eng/loop-eng)",
+    "19 final reports backing loop claim across development/engineering/loop-engineering suites",
+    "materialHash: f4b1a541dfc416def220962b5d94193e4a7f788cfc2d40c883925b6695e8b9ca — recorded, not independently re-derived"
+  ],
+  "principlesApplied": [
+    "Evidence-backed scope: loop-engineering claim backed by 19 final reports across 3 suite tiers; no claim exceeds evidence",
+    "No false escalation: production-safety and global-capability remain LOCKED in both reports; prohibited wording explicitly bars production-ready claims",
+    "Honest blocking: production-safety returns EXPECTED_BLOCK with clear reason; not masked or suppressed",
+    "Limitation transparency: both reports declare explicit limitations including locked higher layers, no productionDone, no fullAuthorityDone, no public production authority"
+  ]
+}
+```

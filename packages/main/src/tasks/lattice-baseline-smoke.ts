@@ -86,6 +86,26 @@ const FORMAL_PROOF_FILES = [
   'review-codex.json',
   'lifecycle-gate.json',
 ] as const;
+const LOOP_FORMAL_SUITE_RUN_ID = 'layer3-loop-engineering-suite-smoke';
+const LOOP_FORMAL_CLAIM_TARGET = 'loop-engineering';
+const PASS_LOOP_ENGINEERING_BASELINE_IDS = [
+  'UDM-INTAKE-PLAN-1',
+  'UDM-EXECUTOR-1',
+  'UDM-REPAIR-LOOP-1',
+  'UDM-REVIEW-LOOP-1',
+  'UDM-MULTI-HOST-REVIEW-1',
+] as const;
+const EXPECTED_BLOCK_LOOP_ENGINEERING_BASELINE_IDS = [
+  'UDM-EVIDENCE-GATE-1',
+  'UDM-BLOCK-ESCALATE-1',
+  'UDM-BUDGET-STOP-1',
+  'UDM-HUMAN-HANDOFF-1',
+  'UDM-NO-FALSE-DONE-1',
+] as const;
+const ALL_LOOP_ENGINEERING_BASELINE_IDS = [
+  ...PASS_LOOP_ENGINEERING_BASELINE_IDS,
+  ...EXPECTED_BLOCK_LOOP_ENGINEERING_BASELINE_IDS,
+] as const;
 
 const EMPTY_AUTHORITY_ENV: Record<string, string | undefined> = {
   KOALA_AUTHORITY_MODE: 'off',
@@ -289,6 +309,21 @@ function assertLayer2Claim(value: unknown, expected: string, label: string): voi
     values.includes(expected),
     `${label} should include layer2EngineeringClaim=${expected}; saw ${JSON.stringify(values)}`,
   );
+}
+
+function assertLoopClaim(value: unknown, expected: string, label: string): void {
+  const values = collectValuesForKeys(value, ['loopEngineeringClaim']);
+  assert.ok(
+    values.includes(expected),
+    `${label} should include loopEngineeringClaim=${expected}; saw ${JSON.stringify(values)}`,
+  );
+}
+
+function assertProductionAndGlobalClaimsLocked(value: unknown, label: string): void {
+  for (const key of ['productionSafetyClaim', 'globalCapabilityClaim']) {
+    const values = collectValuesForKeys(value, [key]);
+    assert.ok(values.includes('LOCKED'), `${label} should include ${key}=LOCKED; saw ${JSON.stringify(values)}`);
+  }
 }
 
 function assertHigherClaimsLocked(value: unknown, label: string): void {
@@ -595,6 +630,239 @@ function writeEngineeringProofReports(root: string, overrides: Record<string, Js
   }
 }
 
+function loopExpectedOutcomes(baselineId: string): string[] {
+  if (baselineId === 'UDM-HUMAN-HANDOFF-1') return ['EXPECTED_BLOCK', 'ESCALATED'];
+  if ((EXPECTED_BLOCK_LOOP_ENGINEERING_BASELINE_IDS as readonly string[]).includes(baselineId)) return ['EXPECTED_BLOCK'];
+  return ['PASS'];
+}
+
+function loopOutcomeFor(baselineId: string): 'PASS' | 'EXPECTED_BLOCK' {
+  return (EXPECTED_BLOCK_LOOP_ENGINEERING_BASELINE_IDS as readonly string[]).includes(baselineId)
+    ? 'EXPECTED_BLOCK'
+    : 'PASS';
+}
+
+function loopArtifactContent(root: string, baselineId: string, fileName: string): string {
+  const base = {
+    schemaVersion: 'lattice.loop_engineering_smoke_artifact.v1',
+    baselineId,
+    suiteRunId: LOOP_FORMAL_SUITE_RUN_ID,
+    claimTarget: LOOP_FORMAL_CLAIM_TARGET,
+    headHash: currentGitHead(root) ?? 'unavailable',
+    materialHash: materialHash(root),
+    fileName,
+    generatedBy: 'lattice-baseline-smoke',
+  };
+  if (fileName === 'host-verdict-claude.json' || fileName === 'host-verdict-codex.json') {
+    const host = fileName === 'host-verdict-claude.json' ? 'claude' : 'codex';
+    return `${JSON.stringify({
+      ...base,
+      schemaVersion: 'lattice.host_verdict.v1',
+      host,
+      source: host,
+      verdict: 'pass',
+    }, null, 2)}\n`;
+  }
+  if (fileName.endsWith('.jsonl')) {
+    return `${JSON.stringify({ ...base, event: 'loop-evidence' })}\n`;
+  }
+  return `${JSON.stringify({ ...base, evidence: true }, null, 2)}\n`;
+}
+
+function loopArtifactRef(root: string, baselineId: string, fileName: string): string {
+  const digest = createHash('sha256').update(loopArtifactContent(root, baselineId, fileName)).digest('hex');
+  return `artifact:${fileName}#sha256=${digest}`;
+}
+
+const BASELINE_RUNNER_OUTPUT_NOTE =
+  'Local Baseline 2-5 runner output is diagnostic artifact material only. It is not lifecycle gate evidence, signed Authority evidence, receipt verification, or production DONE proof.';
+
+function baselineRunnerStubContent(
+  root: string,
+  baselineId: string,
+  runId: string,
+  fileName: string,
+  generatedAt: string,
+  suiteRunId: string,
+  claimTarget: string,
+): string {
+  const common = {
+    schemaVersion: 'lattice.baseline.stub.v1',
+    generatedAt,
+    layer: 'loop-engineering',
+    baselineId,
+    runId,
+    localOnly: true,
+    authority: {
+      authorityChanged: false,
+      receiptVerified: false,
+      productionDone: false,
+      fullAuthorityDone: false,
+      canClaimProductionDone: false,
+      receiptRefs: [],
+    },
+    headHash: currentGitHead(root) ?? 'unavailable',
+    materialHash: materialHash(root),
+    note: BASELINE_RUNNER_OUTPUT_NOTE,
+  };
+  if (fileName === 'verification-evidence.json') {
+    return `${JSON.stringify({
+      ...common,
+      file: fileName,
+      outcome: 'PASS',
+      evidence: 'verification evidence present',
+    }, null, 2)}\n`;
+  }
+  if (fileName.endsWith('.jsonl')) return `${JSON.stringify({ ...common, event: 'stub-created' })}\n`;
+  if (fileName === 'host-verdict-claude.json' || fileName === 'host-verdict-codex.json') {
+    const host = fileName === 'host-verdict-claude.json' ? 'claude' : 'codex';
+    return `${JSON.stringify({
+      schemaVersion: 'lattice.host_verdict.v1',
+      host,
+      source: host,
+      verdict: 'pass',
+      baselineId,
+      suiteRunId,
+      claimTarget,
+      headHash: currentGitHead(root) ?? 'unavailable',
+      materialHash: materialHash(root),
+      checkedAt: generatedAt,
+      principles: [
+        'do not optimize for the sake of optimization',
+        'do not optimize arbitrarily',
+        'only fix real correctness issues',
+        'consistency of logic',
+      ],
+    }, null, 2)}\n`;
+  }
+  return `${JSON.stringify(common, null, 2)}\n`;
+}
+
+function baselineRunnerArtifactRef(
+  root: string,
+  baselineId: string,
+  runId: string,
+  fileName: string,
+  generatedAt: string,
+  suiteRunId = LOOP_FORMAL_SUITE_RUN_ID,
+  claimTarget = LOOP_FORMAL_CLAIM_TARGET,
+): string {
+  const digest = createHash('sha256')
+    .update(baselineRunnerStubContent(root, baselineId, runId, fileName, generatedAt, suiteRunId, claimTarget))
+    .digest('hex');
+  return `artifact:${fileName}#sha256=${digest}`;
+}
+
+function loopFinalReport(root: string, baselineId: string, patch: JsonObject = {}): JsonObject {
+  const runId = `${baselineId.toLowerCase()}-loop-proof`;
+  const outcome = loopOutcomeFor(baselineId);
+  const expectedOutcomes = loopExpectedOutcomes(baselineId);
+  const files = new Set<string>([
+    'final-report.json',
+    'final-report.md',
+    'verification-evidence.json',
+  ]);
+  const report: JsonObject = {
+    schemaVersion: 'lattice.baseline.final_report.v1',
+    generatedAt: new Date().toISOString(),
+    layer: 'loop-engineering',
+    baselineId,
+    runId,
+    expectedOutcome: expectedOutcomes[0],
+    expectedOutcomes,
+    outcome,
+    status: outcome === 'PASS' ? 'pass' : 'blocked',
+    capabilityProof: true,
+    localOnly: false,
+    formalProof: true,
+    suiteRunId: LOOP_FORMAL_SUITE_RUN_ID,
+    claimTarget: LOOP_FORMAL_CLAIM_TARGET,
+    verifiedAt: new Date().toISOString(),
+    verificationEvidenceRefs: [loopArtifactRef(root, baselineId, 'verification-evidence.json')],
+    blockedReasons: [],
+    expectedBlockReasons: outcome === 'EXPECTED_BLOCK'
+      ? [`${baselineId} intentionally blocks in the Loop Engineering smoke.`]
+      : undefined,
+    refusalEvidenceRefs: outcome === 'EXPECTED_BLOCK'
+      ? [loopArtifactRef(root, baselineId, 'verification-evidence.json')]
+      : undefined,
+    generatedBy: 'lattice-baseline-smoke',
+    headHash: currentGitHead(root) ?? 'unavailable',
+    materialHash: materialHash(root),
+    falseDone: false,
+    falseDoneCount: 0,
+    authority: {
+      authorityChanged: false,
+      receiptVerified: false,
+      productionDone: false,
+      fullAuthorityDone: false,
+      receiptRefs: [],
+    },
+    authorityChanged: false,
+    receiptVerified: false,
+    productionDone: false,
+    fullAuthorityDone: false,
+    receiptRefs: [],
+    artifacts: {
+      directory: `.lattice/artifacts/baseline/loop-engineering/${baselineId}/${runId}`,
+      files: [],
+    },
+    ...patch,
+  };
+
+  if (['UDM-EXECUTOR-1', 'UDM-REPAIR-LOOP-1', 'UDM-REVIEW-LOOP-1'].includes(baselineId)) {
+    files.add('planned-steps.json');
+    report.plannedStepRefs = [loopArtifactRef(root, baselineId, 'planned-steps.json')];
+  }
+  if (baselineId === 'UDM-REVIEW-LOOP-1') {
+    files.add('review-loop.jsonl');
+    report.reviewLoopRefs = [loopArtifactRef(root, baselineId, 'review-loop.jsonl')];
+  }
+  if (baselineId === 'UDM-EVIDENCE-GATE-1' || baselineId === 'UDM-NO-FALSE-DONE-1') {
+    files.add('gate-results.json');
+    report.gateEvidenceRefs = [loopArtifactRef(root, baselineId, 'gate-results.json')];
+  }
+  if (baselineId === 'UDM-REPAIR-LOOP-1' || baselineId === 'UDM-BUDGET-STOP-1') {
+    files.add('repair-log.jsonl');
+    report.budgetReportRef = loopArtifactRef(root, baselineId, 'repair-log.jsonl');
+  }
+  if (['UDM-BLOCK-ESCALATE-1', 'UDM-BUDGET-STOP-1', 'UDM-HUMAN-HANDOFF-1'].includes(baselineId)) {
+    files.add('stop-condition.json');
+    report.stopConditionRefs = [loopArtifactRef(root, baselineId, 'stop-condition.json')];
+  }
+  if (baselineId === 'UDM-MULTI-HOST-REVIEW-1') {
+    files.add('host-verdict-claude.json');
+    files.add('host-verdict-codex.json');
+    report.hostVerdictRefs = [
+      `hostVerdict:claude:${loopArtifactRef(root, baselineId, 'host-verdict-claude.json')}`,
+      `hostVerdict:codex:${loopArtifactRef(root, baselineId, 'host-verdict-codex.json')}`,
+    ];
+  }
+
+  const artifacts = report.artifacts as JsonObject;
+  artifacts.files = [...files];
+  return report;
+}
+
+function writeLoopProofReports(root: string, overrides: Record<string, JsonObject> = {}): void {
+  for (const baselineId of ALL_LOOP_ENGINEERING_BASELINE_IDS) {
+    const report = overrides[baselineId] ?? loopFinalReport(root, baselineId);
+    const runId = String(report.runId ?? `${baselineId.toLowerCase()}-loop-proof`);
+    const runDir = join(root, '.lattice', 'artifacts', 'baseline', 'loop-engineering', baselineId, runId);
+    mkdirSync(runDir, { recursive: true });
+    const files = ((report.artifacts as JsonObject).files ?? []) as unknown[];
+    for (const file of files) {
+      if (typeof file !== 'string' || file === 'final-report.json') continue;
+      if (file === 'final-report.md') {
+        writeFileSync(join(runDir, file), `# ${baselineId}\n\nLoop Engineering smoke proof.\n`);
+      } else {
+        writeFileSync(join(runDir, file), loopArtifactContent(root, baselineId, file));
+      }
+    }
+    writeFileSync(join(runDir, 'final-report.json'), JSON.stringify(report, null, 2));
+  }
+}
+
 function writeFinalReport(root: string, layer: string, baselineId: string, runId: string, content: string | JsonObject): void {
   const runDir = join(root, '.lattice', 'artifacts', 'baseline', layer, baselineId, runId);
   mkdirSync(runDir, { recursive: true });
@@ -671,6 +939,11 @@ function assertHelpListsCommand(help: CliResult, command: string): void {
     isMaterialExcludedRuntimeArtifactPath('.lattice/artifacts/baseline/example/final-report.json'),
     true,
     '.lattice baseline proof artifacts must be excluded from material hash',
+  );
+  assert.equal(
+    isMaterialExcludedRuntimeArtifactPath('.Lattice/artifacts/baseline/example/final-report.json'),
+    true,
+    '.Lattice baseline proof artifacts must be excluded from material hash',
   );
 
   const help = runCli(repoRoot, ['help']);
@@ -1245,16 +1518,180 @@ for (const defect of [
         `formal ${target} claim`,
       );
       assertAuthorizedFalse(higher, `formal ${target} claim`);
-      assertLayer2Claim(higher, 'LOCKED', `formal ${target} claim`);
+      assertLayer2Claim(higher, 'UNLOCKED', `formal ${target} claim`);
       assertHigherClaimsLocked(higher, `formal ${target} claim`);
-      assertMentions(higher, /higher layers remain locked|only the Engineering claim/i, `formal ${target} claim`);
+      assertMentions(higher, /Loop Engineering|higher layers remain locked|Engineering or Loop Engineering|missing baseline/i, `formal ${target} claim`);
     }
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
 }
 
-// 23. Inconsistent PASS suite proof cannot authorize Engineering claims.
+// 23. Formal Loop Engineering suite proof unlocks only the Layer 3 claim.
+{
+  const root = initRepo('formal-claim-loop-engineering-unlocked');
+  try {
+    writeSuiteReport(root, 'development');
+    writeEngineeringProofReports(root);
+    const engineeringSuite = requireJsonObject(
+      runCli(root, ['baseline_suite_report', '--layer=engineering', '--format=json']),
+      'formal engineering prerequisite for loop claim',
+    );
+    assertSuiteAccepted(engineeringSuite, 'formal engineering prerequisite for loop claim');
+
+    writeLoopProofReports(root);
+    const loopSuite = requireJsonObject(
+      runCli(root, ['baseline_suite_report', '--layer=loop-engineering', '--format=json']),
+      'formal loop-engineering suite proof',
+    );
+    assertSuiteAccepted(loopSuite, 'formal loop-engineering suite proof');
+    assert.equal(loopSuite.formalProof, true, 'formal loop-engineering suite proof should be formal');
+    assert.equal((loopSuite.coveredBaselineIds as unknown[]).length, 10, 'formal loop suite should cover all ten UDM baselines');
+
+    git(root, ['add', '-f', '.lattice/artifacts/baseline']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'persist loop proof artifacts']);
+
+    const loop = requireJsonObject(
+      runCli(root, ['capability_claim_formal_evaluate', '--target=loop-engineering', '--format=json']),
+      'formal loop-engineering claim after persisted proof artifact commit',
+    );
+    assertAuthorizedTrue(loop, 'formal loop-engineering claim after persisted proof artifact commit');
+    assertOutcome(loop, 'PASS', 'formal loop-engineering claim after persisted proof artifact commit');
+    assertClaimLevel(loop, 'loop-engineering', 'formal loop-engineering claim after persisted proof artifact commit');
+    assertLayer2Claim(loop, 'UNLOCKED', 'formal loop-engineering claim after persisted proof artifact commit');
+    assertLoopClaim(loop, 'UNLOCKED', 'formal loop-engineering claim after persisted proof artifact commit');
+    assertProductionAndGlobalClaimsLocked(loop, 'formal loop-engineering claim after persisted proof artifact commit');
+    assertLocalOnly(loop, false, 'formal loop-engineering claim after persisted proof artifact commit');
+    assertNoAuthorityOverclaim(loop, 'formal loop-engineering claim after persisted proof artifact commit');
+
+    const production = requireJsonObject(
+      runCli(root, ['capability_claim_formal_evaluate', '--target=production-safety', '--format=json']),
+      'formal production-safety claim after persisted loop proof artifact commit',
+    );
+    assertAuthorizedFalse(production, 'formal production-safety claim after persisted loop proof artifact commit');
+    assertClaimId(production, 'CLAIM-PRODUCTION-SAFETY', 'formal production-safety claim after persisted loop proof artifact commit');
+    assertClaimLevel(production, 'loop-engineering', 'formal production-safety claim after persisted loop proof artifact commit');
+    assertLayer2Claim(production, 'UNLOCKED', 'formal production-safety claim after persisted loop proof artifact commit');
+    assertLoopClaim(production, 'UNLOCKED', 'formal production-safety claim after persisted loop proof artifact commit');
+    assertProductionAndGlobalClaimsLocked(production, 'formal production-safety claim after persisted loop proof artifact commit');
+    assertNoAuthorityOverclaim(production, 'formal production-safety claim after persisted loop proof artifact commit');
+    assert.ok(
+      Array.isArray(production.dependsOn) && production.dependsOn.includes('production-safety'),
+      'formal production-safety claim should still declare production-safety as a required dependency',
+    );
+
+    const global = requireJsonObject(
+      runCli(root, ['capability_claim_formal_evaluate', '--target=capability-claim', '--format=json']),
+      'formal global capability claim after persisted loop proof artifact commit',
+    );
+    assertAuthorizedFalse(global, 'formal global capability claim after persisted loop proof artifact commit');
+    assertClaimId(global, 'CLAIM-GLOBAL-CAPABILITY', 'formal global capability claim after persisted loop proof artifact commit');
+    assertClaimLevel(global, 'loop-engineering', 'formal global capability claim after persisted loop proof artifact commit');
+    assertLayer2Claim(global, 'UNLOCKED', 'formal global capability claim after persisted loop proof artifact commit');
+    assertLoopClaim(global, 'UNLOCKED', 'formal global capability claim after persisted loop proof artifact commit');
+    assertProductionAndGlobalClaimsLocked(global, 'formal global capability claim after persisted loop proof artifact commit');
+    assertNoAuthorityOverclaim(global, 'formal global capability claim after persisted loop proof artifact commit');
+    assert.ok(
+      Array.isArray(global.dependsOn) && global.dependsOn.includes('production-safety'),
+      'formal global capability claim should still declare production-safety as a required dependency',
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// 24. A forged Loop Engineering suite summary cannot unlock without UDM final-report proof.
+{
+  const root = initRepo('formal-claim-rejects-forged-loop-suite');
+  try {
+    writeSuiteReport(root, 'development');
+    writeEngineeringProofReports(root);
+    requireJsonObject(runCli(root, ['baseline_suite_report', '--layer=engineering', '--format=json']), 'engineering prerequisite for forged loop suite');
+    writeSuiteReport(root, 'loop-engineering', {
+      suiteStatus: 'PASS',
+      authorization: 'authorized',
+      outcome: 'PASS',
+      capabilityProof: true,
+      localOnly: false,
+      formalProof: true,
+      suiteRunId: LOOP_FORMAL_SUITE_RUN_ID,
+      claimTarget: LOOP_FORMAL_CLAIM_TARGET,
+      requiredBaselineIds: [...ALL_LOOP_ENGINEERING_BASELINE_IDS],
+      coveredBaselineIds: [...ALL_LOOP_ENGINEERING_BASELINE_IDS],
+      missingBaselineIds: [],
+    });
+
+    const result = runCli(root, ['capability_claim_formal_evaluate', '--target=loop-engineering', '--format=json']);
+    const output = requireJsonObject(result, 'formal claim rejects forged loop suite summary');
+    assertAuthorizedFalse(output, 'formal claim rejects forged loop suite summary');
+    assertLayer2Claim(output, 'UNLOCKED', 'formal claim rejects forged loop suite summary');
+    assertLoopClaim(output, 'LOCKED', 'formal claim rejects forged loop suite summary');
+    assertProductionAndGlobalClaimsLocked(output, 'formal claim rejects forged loop suite summary');
+    assertMentions(output, /rebuilt|final-report|missing baseline|accepted final-report/i, 'formal loop claim should revalidate UDM final-report artifacts');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// 25. UDM final reports missing required Loop Engineering refs are blocked.
+{
+  const root = initRepo('formal-loop-missing-udm-refs');
+  try {
+    writeSuiteReport(root, 'development');
+    writeEngineeringProofReports(root);
+    requireJsonObject(runCli(root, ['baseline_suite_report', '--layer=engineering', '--format=json']), 'engineering prerequisite for malformed loop report');
+    const malformed = loopFinalReport(root, 'UDM-REVIEW-LOOP-1');
+    delete malformed.reviewLoopRefs;
+    writeLoopProofReports(root, { 'UDM-REVIEW-LOOP-1': malformed });
+
+    const result = runCli(root, ['baseline_suite_report', '--layer=loop-engineering', '--format=json']);
+    assertFailsClosed(result, 'loop suite missing reviewLoopRefs');
+    assert.match(result.combined, /reviewLoopRefs|UDM-REVIEW-LOOP-1/i, 'loop suite rejection should name missing reviewLoopRefs');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// 26. CLI baseline_run forwards Loop Engineering formal proof refs to the registered handler.
+{
+  const root = initRepo('formal-loop-cli-parameter-forwarding');
+  try {
+    const baselineId = 'UDM-REVIEW-LOOP-1';
+    const runId = 'udm-review-loop-cli-formal';
+    const verifiedAt = new Date().toISOString();
+    const verificationEvidenceRef = baselineRunnerArtifactRef(root, baselineId, runId, 'verification-evidence.json', verifiedAt);
+    const plannedStepRef = baselineRunnerArtifactRef(root, baselineId, runId, 'planned-steps.json', verifiedAt);
+    const reviewLoopRef = baselineRunnerArtifactRef(root, baselineId, runId, 'review-loop.jsonl', verifiedAt);
+
+    const result = runCli(root, [
+      'baseline_run',
+      `--baselineId=${baselineId}`,
+      `--runId=${runId}`,
+      '--formal',
+      `--suiteRunId=${LOOP_FORMAL_SUITE_RUN_ID}`,
+      `--claimTarget=${LOOP_FORMAL_CLAIM_TARGET}`,
+      '--outcome=PASS',
+      `--verifiedAt=${verifiedAt}`,
+      `--verificationEvidenceRefs=${verificationEvidenceRef}`,
+      `--plannedStepRefs=${plannedStepRef}`,
+      `--reviewLoopRefs=${reviewLoopRef}`,
+      '--format=json',
+    ]);
+    const report = requireJsonObject(result, 'formal loop baseline_run CLI forwarding');
+    assert.equal(report.baselineId, baselineId, 'formal loop baseline_run should write the requested baseline id');
+    assert.equal(report.claimTarget, LOOP_FORMAL_CLAIM_TARGET, 'formal loop baseline_run should bind loop-engineering claim target');
+    assert.equal(report.formalProof, true, 'formal loop baseline_run should emit formal proof');
+    assert.equal(report.localOnly, false, 'formal loop baseline_run proof should be eligible for formal suite evaluation');
+    assert.deepEqual(report.verificationEvidenceRefs, [verificationEvidenceRef], 'formal loop baseline_run should preserve verification evidence refs');
+    assert.deepEqual(report.plannedStepRefs, [plannedStepRef], 'formal loop baseline_run should preserve planned step refs');
+    assert.deepEqual(report.reviewLoopRefs, [reviewLoopRef], 'formal loop baseline_run should preserve review loop refs');
+    assertNoAuthorityOverclaim(report, 'formal loop baseline_run CLI forwarding');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// 27. Inconsistent PASS suite proof cannot authorize Engineering claims.
 {
   const root = initRepo('claim-engineering-incoherent-suite');
   try {

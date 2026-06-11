@@ -1,0 +1,134 @@
+{
+  "schemaVersion": "lattice.baseline_suite_report.v1",
+  "generatedAt": "2026-06-11T04:35:08.771Z",
+  "layer": "development",
+  "suiteStatus": "PASS",
+  "authorization": "authorized",
+  "outcome": "PASS",
+  "capabilityProof": true,
+  "formalProof": false,
+  "blockedReasons": [],
+  "errors": [],
+  "materialHash": "ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22",
+  "headHash": "440f4b718431c6fcea28569a3bd1f6de06e1c5cf",
+  "requiredBaselineIds": [
+    "NL-CLI-1",
+    "NL-API-1",
+    "NL-REPAIR-1",
+    "RED-CLI-TS-PY-1",
+    "RED-API-TS-GO-1",
+    "RED-GAP-BLOCK-1"
+  ],
+  "coveredBaselineIds": [
+    "NL-CLI-1",
+    "NL-API-1",
+    "NL-REPAIR-1",
+    "RED-CLI-TS-PY-1",
+    "RED-API-TS-GO-1",
+    "RED-GAP-BLOCK-1"
+  ],
+  "missingBaselineIds": [],
+  "falseDoneCount": 0,
+  "safetySuccessRate": 1,
+  "localOnly": false,
+  "authority": {
+    "authorityChanged": false,
+    "receiptVerified": false,
+    "productionDone": false,
+    "fullAuthorityDone": false,
+    "canClaimProductionDone": false,
+    "receiptRefs": []
+  },
+  "authorityChanged": false,
+  "receiptVerified": false,
+  "productionDone": false,
+  "fullAuthorityDone": false,
+  "receiptRefs": [],
+  "lowerLayerProof": [],
+  "reports": [
+    {
+      "baselineId": "NL-CLI-1",
+      "runId": "layer3-dev-nl-cli-1",
+      "path": ".lattice/artifacts/baseline/layer3-loop-engineering-unlock/development/source-runs/NL-CLI-1/layer3-dev-nl-cli-1/final-report.json",
+      "outcome": "PASS",
+      "expectedOutcomes": [
+        "PASS"
+      ],
+      "status": "accepted",
+      "reasons": []
+    },
+    {
+      "baselineId": "NL-API-1",
+      "runId": "layer3-dev-nl-api-1",
+      "path": ".lattice/artifacts/baseline/layer3-loop-engineering-unlock/development/source-runs/NL-API-1/layer3-dev-nl-api-1/final-report.json",
+      "outcome": "PASS",
+      "expectedOutcomes": [
+        "PASS"
+      ],
+      "status": "accepted",
+      "reasons": []
+    },
+    {
+      "baselineId": "NL-REPAIR-1",
+      "runId": "layer3-dev-nl-repair-1",
+      "path": ".lattice/artifacts/baseline/layer3-loop-engineering-unlock/development/source-runs/NL-REPAIR-1/layer3-dev-nl-repair-1/final-report.json",
+      "outcome": "PASS",
+      "expectedOutcomes": [
+        "PASS"
+      ],
+      "status": "accepted",
+      "reasons": []
+    },
+    {
+      "baselineId": "RED-CLI-TS-PY-1",
+      "runId": "layer3-dev-red-cli-ts-py-1",
+      "path": ".lattice/artifacts/baseline/layer3-loop-engineering-unlock/development/source-runs/RED-CLI-TS-PY-1/layer3-dev-red-cli-ts-py-1/final-report.json",
+      "outcome": "PASS",
+      "expectedOutcomes": [
+        "PASS"
+      ],
+      "status": "accepted",
+      "reasons": []
+    },
+    {
+      "baselineId": "RED-API-TS-GO-1",
+      "runId": "layer3-dev-red-api-ts-go-1",
+      "path": ".lattice/artifacts/baseline/layer3-loop-engineering-unlock/development/source-runs/RED-API-TS-GO-1/layer3-dev-red-api-ts-go-1/final-report.json",
+      "outcome": "PASS",
+      "expectedOutcomes": [
+        "PASS"
+      ],
+      "status": "accepted",
+      "reasons": []
+    },
+    {
+      "baselineId": "RED-GAP-BLOCK-1",
+      "runId": "layer3-dev-red-gap-block-1",
+      "path": ".lattice/artifacts/baseline/layer3-loop-engineering-unlock/development/source-runs/RED-GAP-BLOCK-1/layer3-dev-red-gap-block-1/final-report.json",
+      "outcome": "EXPECTED_BLOCK",
+      "expectedOutcomes": [
+        "EXPECTED_BLOCK"
+      ],
+      "status": "accepted",
+      "reasons": []
+    }
+  ],
+  "refusedArtifacts": [],
+  "outputFiles": {
+    "json": ".lattice/artifacts/baseline/layer3-loop-engineering-unlock/development/baseline-suite-report.json",
+    "markdown": ".lattice/artifacts/baseline/layer3-loop-engineering-unlock/development/baseline-suite-report.md"
+  },
+  "notes": [
+    "Development lower-layer proof is required before Layer 2 Engineering claim can unlock.",
+    "This report authorizes only the lower-layer Development dependency and does not unlock Engineering by itself.",
+    "Authority changed, receiptVerified, productionDone, and fullAuthorityDone remain false."
+  ],
+  "sourceProof": {
+    "suiteId": "minimum-baseline-suite",
+    "path": ".lattice/artifacts/baseline/layer3-loop-engineering-unlock/development/source-suite/baseline-suite-report.json",
+    "schemaVersion": "lattice.baseline.suite-report.v1",
+    "suiteStatus": "PASS",
+    "generatedAt": "2026-06-11T04:13:44.705Z",
+    "note": "Generated from current .lattice Development baseline_run artifacts and rebound as lower-layer proof for formal Layer 2 Engineering evaluation."
+  }
+}

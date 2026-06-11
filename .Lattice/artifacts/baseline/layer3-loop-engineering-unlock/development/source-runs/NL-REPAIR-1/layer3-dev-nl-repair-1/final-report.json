@@ -1,0 +1,57 @@
+{
+  "schemaVersion": "lattice.baseline.final-report.v1",
+  "baselineId": "NL-REPAIR-1",
+  "runId": "layer3-dev-nl-repair-1",
+  "track": "natural-language",
+  "expectedOutcome": "PASS",
+  "outcome": "PASS",
+  "invalidReason": null,
+  "blockedReason": null,
+  "weight": 3,
+  "authority": {
+    "mode": "non-authority",
+    "authorityDone": false,
+    "receiptVerified": false,
+    "multiHostVerified": false,
+    "fullAuthorityDone": false,
+    "status": "not-applicable"
+  },
+  "local": {
+    "localReviewCertified": true,
+    "authorityServerContact": false,
+    "status": "pass",
+    "evidenceRefs": [
+      "host-verdict:codex-local-review",
+      "host-verdict:claude-local-review"
+    ],
+    "requiredIndependentHosts": 2,
+    "independentHosts": 2,
+    "passingIndependentHosts": 2,
+    "failingIndependentHosts": 0,
+    "staleVerdicts": 0
+  },
+  "metrics": {
+    "durationSeconds": 0,
+    "retryCount": 1,
+    "repairCount": 1,
+    "evidenceCount": 0,
+    "hostVerdictCount": 2,
+    "reviewWaveCount": 1
+  },
+  "failure": null,
+  "artifacts": {
+    "story": "story.json",
+    "checklist": "checklist.json",
+    "jobPlan": "job-plan.json",
+    "executionLog": "execution-log.jsonl",
+    "evidenceIndex": null,
+    "gateReceipt": null,
+    "hostVerdicts": null,
+    "authorityStatus": null,
+    "localReviewStatus": "local-review-status.json",
+    "scenarioEvidence": "scenario-evidence.json"
+  },
+  "generatedAt": "2026-06-11T04:34:59.912Z",
+  "headHash": "440f4b718431c6fcea28569a3bd1f6de06e1c5cf",
+  "materialHash": "ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22"
+}

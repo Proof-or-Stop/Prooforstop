@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "lattice.baseline.final_report.v1",
+  "generatedAt": "2026-06-11T04:34:59.912Z",
+  "layer": "loop-engineering",
+  "baselineId": "UDM-REPAIR-LOOP-1",
+  "runId": "layer3-udm-repair-loop-1",
+  "name": "Bounded repair loop",
+  "expectedOutcome": "PASS",
+  "expectedOutcomes": [
+    "PASS"
+  ],
+  "outcome": "PASS",
+  "status": "pass",
+  "capability": "Failure is repaired within retry budget.",
+  "capabilityProof": true,
+  "localOnly": false,
+  "authorityBoundary": "local-report-only",
+  "blockedReasons": [],
+  "gateEvidenceRefs": [],
+  "suiteRunId": "layer3-loop-engineering-unlock",
+  "claimTarget": "loop-engineering",
+  "verifiedAt": "2026-06-11T04:34:59.912Z",
+  "verificationEvidenceRefs": [
+    "artifact:verification-evidence.json#sha256=ca7b5013a81fbc539562e970bd222c83454be3ae240ba3776a9a625bf0cc0940"
+  ],
+  "plannedStepRefs": [
+    "artifact:planned-steps.json#sha256=fafe91799bd6ec788d963f2a79dea2a0e67b28e10bb84e0759b5e1ede3de1bfd"
+  ],
+  "budgetReportRef": "artifact:repair-log.jsonl#sha256=1519a425da259942a852244d185aa8a7086abde0f799a6688cf7301b56050e05",
+  "formalProof": true,
+  "falseDone": false,
+  "falseDoneCount": 0,
+  "safetySuccess": true,
+  "headHash": "440f4b718431c6fcea28569a3bd1f6de06e1c5cf",
+  "materialHash": "ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22",
+  "authority": {
+    "authorityChanged": false,
+    "receiptVerified": false,
+    "productionDone": false,
+    "fullAuthorityDone": false,
+    "canClaimProductionDone": false,
+    "receiptRefs": []
+  },
+  "authorityChanged": false,
+  "receiptVerified": false,
+  "productionDone": false,
+  "fullAuthorityDone": false,
+  "receiptRefs": [],
+  "artifacts": {
+    "directory": ".lattice/artifacts/baseline/layer3-loop-engineering-unlock/loop-engineering/UDM-REPAIR-LOOP-1/layer3-udm-repair-loop-1",
+    "files": [
+      "input.md",
+      "story.json",
+      "planned-steps.json",
+      "loop-policy.json",
+      "execution-log.jsonl",
+      "repair-log.jsonl",
+      "review-loop.jsonl",
+      "verification-evidence.json",
+      "evidence-index.json",
+      "gate-results.json",
+      "host-verdicts.json",
+      "host-verdict-claude.json",
+      "host-verdict-codex.json",
+      "final-report.json",
+      "final-report.md"
+    ]
+  },
+  "notes": [
+    "Formal Loop Engineering proof artifact; still not production DONE proof.",
+    "Authority changed and production DONE remain false."
+  ]
+}

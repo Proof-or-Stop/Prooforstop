@@ -1,0 +1,54 @@
+{
+  "storyId": "B-428c",
+  "checkedAt": "2026-06-11T04:52:18.307Z",
+  "reviewRound": "2026-06-11T04:49:26.535Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md",
+      "promise": "Layer 3 can unlock only Loop Engineering after fresh Development and Engineering proof, while Production Safety and global Capability Claim stay locked.",
+      "status": "verified",
+      "verifiedBy": "formal evaluator",
+      "evidence": "loop-engineering target PASS; production-safety and capability-claim targets EXPECTED_BLOCK with higher claims locked"
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md",
+      "promise": "Use two host review evidence without treating local host review as Authority production receipt.",
+      "status": "verified",
+      "verifiedBy": "Claude CLI + Codex CLI review artifacts",
+      "evidence": ".Lattice/artifacts/baseline/layer3-loop-engineering-unlock/reviews/two-host-layer3-final-review-summary.json verdict=pass blockers=[]; authority flags remain false"
+    },
+    {
+      "docPath": "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
+      "promise": "Layer 2 Engineering remains a required lower-layer prerequisite and stays unlocked when Layer 3 proof is valid.",
+      "status": "verified",
+      "verifiedBy": "formal evaluator",
+      "evidence": "Layer3 report shows layer2EngineeringClaim=UNLOCKED and authorizedClaimLevel=loop-engineering"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "capability_claim_formal_evaluate --target=loop-engineering returned authorized=true, outcome=PASS, layer2EngineeringClaim=UNLOCKED, loopEngineeringClaim=UNLOCKED, productionSafetyClaim=LOCKED, globalCapabilityClaim=LOCKED"
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "baseline_suite_report --layer=loop-engineering returned suiteStatus=PASS, coveredBaselineIds=10, missingBaselineIds=0, falseDoneCount=0, localOnly=false"
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Claude CLI and Codex CLI final host review artifacts were captured under .Lattice and normalized to two-host-layer3-final-review-summary.json with verdict=pass and blockers=[]"
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "validate --story=B-428c --json returned allPass=true, npm test passed, and verification intent coverage was 15/15"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Layer 3 Loop Engineering formal proof path is complete for tested task classes; Production Safety and global Capability Claim remain explicitly locked and no Authority production claim is made."
+  },
+  "_hash": "5b9fa66dba87071107269189e07485f0bfa3d4e46a976dbaf501e7f2a2b82d67"
+}

@@ -15,6 +15,7 @@ export const BASELINE_FINAL_REPORT_SCHEMA_VERSION = 'lattice.baseline.final_repo
 export const BASELINE_SUITE_REPORT_SCHEMA_VERSION = 'lattice.baseline_suite_report.v1' as const;
 export const CAPABILITY_CLAIM_REPORT_SCHEMA_VERSION = 'lattice.capability_claim_report.v1' as const;
 export const LAYER2_ENGINEERING_CLAIM_TARGET = 'engineering' as const;
+export const LAYER3_LOOP_ENGINEERING_CLAIM_TARGET = 'loop-engineering' as const;
 
 export const BASELINE_AUTHORITY_BOUNDARY = {
   authorityChanged: false,
@@ -36,7 +37,7 @@ export type BaselineOutcome = 'PASS' | 'FAIL' | 'EXPECTED_BLOCK' | 'ESCALATED';
 export type BaselineRunStatus = 'pass' | 'blocked' | 'failed' | 'not_authorized';
 export type BaselineSuiteStatus = 'PASS' | 'BLOCKED' | 'FAIL';
 export type CapabilityClaimLevel = 'none' | Exclude<BaselineLayer, 'capability-claim'>;
-export type Layer2ClaimStatus = 'UNLOCKED' | 'LOCKED';
+export type FormalClaimStatus = 'UNLOCKED' | 'LOCKED';
 
 export interface BaselineDefinition {
   baselineId: string;
@@ -66,6 +67,11 @@ export interface BaselineRunOptions {
   lifecycleGateEvidenceRefs?: string[] | string;
   gateEvidenceRefs?: string[] | string;
   receiptRefs?: string[] | string;
+  plannedStepRefs?: string[] | string;
+  reviewLoopRefs?: string[] | string;
+  hostVerdictRefs?: string[] | string;
+  budgetReportRef?: string;
+  stopConditionRefs?: string[] | string;
 }
 
 export interface BaselineSuiteReportOptions {
@@ -113,6 +119,11 @@ export interface BaselineFinalReport {
   verificationEvidenceRefs?: string[];
   reviewEvidenceRefs?: string[];
   lifecycleGateEvidenceRefs?: string[];
+  plannedStepRefs?: string[];
+  reviewLoopRefs?: string[];
+  hostVerdictRefs?: string[];
+  budgetReportRef?: string;
+  stopConditionRefs?: string[];
   formalProof?: boolean;
   falseDone: false;
   falseDoneCount: 0;
@@ -226,8 +237,8 @@ export interface CapabilityClaimReport {
   limitations: string[];
   localOnly: boolean;
   formalProof?: boolean;
-  layer2EngineeringClaim?: Layer2ClaimStatus;
-  loopEngineeringClaim?: 'LOCKED';
+  layer2EngineeringClaim?: FormalClaimStatus;
+  loopEngineeringClaim?: FormalClaimStatus;
   productionSafetyClaim?: 'LOCKED';
   globalCapabilityClaim?: 'LOCKED';
   authority: typeof BASELINE_AUTHORITY_BOUNDARY;
@@ -275,6 +286,7 @@ const LOOP_ENGINEERING_REQUIRED_ARTIFACTS = [
   'execution-log.jsonl',
   'repair-log.jsonl',
   'review-loop.jsonl',
+  'verification-evidence.json',
   'evidence-index.json',
   'gate-results.json',
   'host-verdicts.json',
@@ -499,7 +511,7 @@ const BASELINE_DEFINITIONS: BaselineDefinition[] = [
     layer: 'loop-engineering',
     name: 'Multi-host review',
     expectedOutcomes: ['PASS'],
-    defaultOutcome: 'EXPECTED_BLOCK',
+    defaultOutcome: 'PASS',
     weight: 5,
     capability: 'Independent host verdicts are required.',
     blockedReasons: ['independent multi-host verdicts are missing'],
@@ -744,6 +756,14 @@ const CLAIM_DEFINITIONS = {
       'Lattice is approaching production-grade unattended development safety for the tested project classes and stated maturity target.',
     ],
   },
+  'CLAIM-GLOBAL-CAPABILITY': {
+    target: 'capability-claim',
+    requestedClaim: 'global production capability claim',
+    dependsOn: ['development', 'engineering', 'loop-engineering', 'production-safety'] as BaselineLayer[],
+    allowedWording: [
+      'Lattice has a production-grade unattended development capability claim backed by all required baseline layers.',
+    ],
+  },
 } as const;
 
 const PROHIBITED_WORDING = [
@@ -761,12 +781,48 @@ const BASELINE_SUITE_AUTHORIZATIONS = ['authorized', 'not_authorized'] as const;
 const FORMAL_PROOF_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 const FORMAL_REVIEW_HOSTS = ['claude', 'codex'] as const;
 type FormalReviewHost = typeof FORMAL_REVIEW_HOSTS[number];
+const LOOP_ENGINEERING_PLANNED_STEP_BASELINE_IDS = new Set<string>([
+  'UDM-EXECUTOR-1',
+  'UDM-REPAIR-LOOP-1',
+  'UDM-REVIEW-LOOP-1',
+] as const);
+const LOOP_ENGINEERING_REVIEW_LOOP_BASELINE_IDS = new Set<string>(['UDM-REVIEW-LOOP-1']);
+const LOOP_ENGINEERING_GATE_EVIDENCE_BASELINE_IDS = new Set<string>([
+  'UDM-EVIDENCE-GATE-1',
+  'UDM-NO-FALSE-DONE-1',
+] as const);
+const LOOP_ENGINEERING_BUDGET_REPORT_BASELINE_IDS = new Set<string>([
+  'UDM-REPAIR-LOOP-1',
+  'UDM-BUDGET-STOP-1',
+] as const);
+const LOOP_ENGINEERING_STOP_CONDITION_BASELINE_IDS = new Set<string>([
+  'UDM-BLOCK-ESCALATE-1',
+  'UDM-BUDGET-STOP-1',
+  'UDM-HUMAN-HANDOFF-1',
+] as const);
+const LOOP_ENGINEERING_HOST_VERDICT_BASELINE_IDS = new Set<string>(['UDM-MULTI-HOST-REVIEW-1']);
 
 const OUTPUT_NOTE =
   'Local Baseline 2-5 runner output is diagnostic artifact material only. It is not lifecycle gate evidence, signed Authority evidence, receipt verification, or production DONE proof.';
 
 function nowIso(): string {
   return new Date().toISOString();
+}
+
+function isFormalProofLayer(layer: BaselineLayer): boolean {
+  return layer === 'engineering' || layer === 'loop-engineering';
+}
+
+function formalClaimTargetForLayer(layer: BaselineLayer): string | null {
+  if (layer === 'engineering') return LAYER2_ENGINEERING_CLAIM_TARGET;
+  if (layer === 'loop-engineering') return LAYER3_LOOP_ENGINEERING_CLAIM_TARGET;
+  return null;
+}
+
+function formalLayerLabel(layer: BaselineLayer): string {
+  if (layer === 'engineering') return 'Engineering';
+  if (layer === 'loop-engineering') return 'Loop Engineering';
+  return layer;
 }
 
 function safeId(value: string, label: string): string {
@@ -1002,28 +1058,32 @@ function prefixedArtifactDigestRefProblems(root: string, report: BaselineFinalRe
   return artifactDigestRefProblems(root, report, artifactRefs, field);
 }
 
-function verifiedAtProblems(report: BaselineFinalReport): string[] {
-  if (!report.verifiedAt) return ['formal Engineering proof requires verifiedAt'];
+function verifiedAtProblems(report: BaselineFinalReport, label: string): string[] {
+  if (!report.verifiedAt) return [`${label} requires verifiedAt`];
   const verifiedAtMs = Date.parse(report.verifiedAt);
-  if (!Number.isFinite(verifiedAtMs)) return ['formal Engineering proof requires valid ISO verifiedAt'];
+  if (!Number.isFinite(verifiedAtMs)) return [`${label} requires valid ISO verifiedAt`];
   const nowMs = Date.now();
   if (verifiedAtMs - nowMs > 5 * 60 * 1000) {
-    return ['formal Engineering proof verifiedAt cannot be in the future'];
+    return [`${label} verifiedAt cannot be in the future`];
   }
   if (nowMs - verifiedAtMs > FORMAL_PROOF_MAX_AGE_MS) {
-    return ['formal Engineering proof verifiedAt is stale'];
+    return [`${label} verifiedAt is stale`];
   }
   return [];
 }
 
-function formalReceiptRefProblems(report: BaselineFinalReport): string[] {
+function formalReceiptRefProblems(
+  report: BaselineFinalReport,
+  expectedClaimTarget: string,
+  label: string,
+): string[] {
   const receiptRefs = report.receiptRefs ?? [];
-  if (receiptRefs.length === 0) return ['formal Engineering proof requires receiptRefs'];
+  if (receiptRefs.length === 0) return [`${label} requires receiptRefs`];
   const suiteRunId = report.suiteRunId;
   const claimTarget = report.claimTarget;
-  if (!suiteRunId) return ['formal Engineering proof requires suiteRunId'];
-  if (claimTarget !== LAYER2_ENGINEERING_CLAIM_TARGET) {
-    return [`formal Engineering proof requires claimTarget=${LAYER2_ENGINEERING_CLAIM_TARGET}`];
+  if (!suiteRunId) return [`${label} requires suiteRunId`];
+  if (claimTarget !== expectedClaimTarget) {
+    return [`${label} requires claimTarget=${expectedClaimTarget}`];
   }
   const requiredBindings = [
     `baselineId=${report.baselineId}`,
@@ -1064,7 +1124,8 @@ function displayReviewHost(host: FormalReviewHost): string {
   return host === 'codex' ? 'Codex' : 'Claude';
 }
 
-function formalReviewArtifactContentProblems(
+function dualHostArtifactContentProblems(
+  field: string,
   report: BaselineFinalReport,
   host: FormalReviewHost,
   detail: ArtifactDigestRefDetail,
@@ -1073,23 +1134,23 @@ function formalReviewArtifactContentProblems(
   try {
     parsed = JSON.parse(readFileSync(detail.artifactPath, 'utf8')) as unknown;
   } catch (error) {
-    return [`reviewEvidenceRefs ${detail.artifactFile} must be JSON: ${(error as Error).message}`];
+    return [`${field} ${detail.artifactFile} must be JSON: ${(error as Error).message}`];
   }
   if (!isRecord(parsed)) {
-    return [`reviewEvidenceRefs ${detail.artifactFile} must be a JSON object`];
+    return [`${field} ${detail.artifactFile} must be a JSON object`];
   }
   const problems: string[] = [];
   const declaredHost = stringField(parsed, 'host')?.trim().toLowerCase();
   const declaredSource = stringField(parsed, 'source')?.trim().toLowerCase();
   const verdict = stringField(parsed, 'verdict')?.trim().toLowerCase();
   if (declaredHost !== host) {
-    problems.push(`reviewEvidenceRefs ${detail.artifactFile} must declare host=${host}`);
+    problems.push(`${field} ${detail.artifactFile} must declare host=${host}`);
   }
   if (declaredSource !== host) {
-    problems.push(`reviewEvidenceRefs ${detail.artifactFile} must declare source=${host}`);
+    problems.push(`${field} ${detail.artifactFile} must declare source=${host}`);
   }
   if (verdict !== 'pass') {
-    problems.push(`reviewEvidenceRefs ${detail.artifactFile} must declare verdict=pass`);
+    problems.push(`${field} ${detail.artifactFile} must declare verdict=pass`);
   }
   const expectedFields: Array<[string, string | undefined]> = [
     ['baselineId', report.baselineId],
@@ -1100,22 +1161,28 @@ function formalReviewArtifactContentProblems(
   ];
   for (const [key, expected] of expectedFields) {
     if (!expected || stringField(parsed, key) !== expected) {
-      problems.push(`reviewEvidenceRefs ${detail.artifactFile} must bind ${key}=${expected ?? '(missing)'}`);
+      problems.push(`${field} ${detail.artifactFile} must bind ${key}=${expected ?? '(missing)'}`);
     }
   }
   return problems;
 }
 
-function formalReviewRefProblems(root: string, report: BaselineFinalReport): string[] {
-  const refs = report.reviewEvidenceRefs ?? [];
+function dualHostArtifactRefProblems(
+  root: string,
+  report: BaselineFinalReport,
+  refs: string[],
+  field: string,
+  prefix: string,
+  label: string,
+): string[] {
   const problems: string[] = [];
-  if (refs.length === 0) return ['formal Engineering proof requires reviewEvidenceRefs'];
+  if (refs.length === 0) return [`${label} requires ${field}`];
   const acceptedHosts = new Set<FormalReviewHost>();
   const artifactHostByFile = new Map<string, FormalReviewHost>();
   for (const ref of refs) {
-    const match = /^review:(claude|codex):(artifact:.+)$/i.exec(ref);
+    const match = new RegExp(`^${prefix}:(claude|codex):(artifact:.+)$`, 'i').exec(ref);
     if (!match) {
-      problems.push('reviewEvidenceRefs must use review:<claude|codex>:artifact:<file>#sha256=<64-hex> refs');
+      problems.push(`${field} must use ${prefix}:<claude|codex>:artifact:<file>#sha256=<64-hex> refs`);
       continue;
     }
     const host = match[1]!.toLowerCase() as FormalReviewHost;
@@ -1127,12 +1194,12 @@ function formalReviewRefProblems(root: string, report: BaselineFinalReport): str
     const previousHost = artifactHostByFile.get(detailResult.detail.artifactFile);
     const reusedAcrossHosts = previousHost !== undefined && previousHost !== host;
     if (reusedAcrossHosts) {
-      problems.push(`formal Engineering proof requires distinct review artifact refs; ${detailResult.detail.artifactFile} is reused for ${previousHost} and ${host}`);
+      problems.push(`${label} requires distinct ${field}; ${detailResult.detail.artifactFile} is reused for ${previousHost} and ${host}`);
     } else {
       artifactHostByFile.set(detailResult.detail.artifactFile, host);
     }
 
-    const contentProblems = formalReviewArtifactContentProblems(report, host, detailResult.detail);
+    const contentProblems = dualHostArtifactContentProblems(field, report, host, detailResult.detail);
     problems.push(...contentProblems);
     if (contentProblems.length === 0 && !reusedAcrossHosts) {
       acceptedHosts.add(host);
@@ -1140,13 +1207,24 @@ function formalReviewRefProblems(root: string, report: BaselineFinalReport): str
   }
   for (const host of FORMAL_REVIEW_HOSTS) {
     if (!acceptedHosts.has(host)) {
-      problems.push(`formal Engineering proof requires ${displayReviewHost(host)} reviewEvidenceRefs with matching JSON content`);
+      problems.push(`${label} requires ${displayReviewHost(host)} ${field} with matching JSON content`);
     }
   }
   return problems;
 }
 
-function formalProofEvidenceProblems(root: string, report: BaselineFinalReport, definition: BaselineDefinition): string[] {
+function formalEngineeringReviewRefProblems(root: string, report: BaselineFinalReport): string[] {
+  return dualHostArtifactRefProblems(
+    root,
+    report,
+    report.reviewEvidenceRefs ?? [],
+    'reviewEvidenceRefs',
+    'review',
+    'formal Engineering proof',
+  );
+}
+
+function formalEngineeringProofEvidenceProblems(root: string, report: BaselineFinalReport, definition: BaselineDefinition): string[] {
   if (report.localOnly !== false || report.capabilityProof !== true) return [];
   const problems: string[] = [];
   if (definition.layer !== 'engineering') {
@@ -1172,13 +1250,98 @@ function formalProofEvidenceProblems(root: string, report: BaselineFinalReport, 
   } else {
     problems.push(...prefixedArtifactDigestRefProblems(root, report, report.lifecycleGateEvidenceRefs, 'lifecycleGateEvidenceRefs'));
   }
-  problems.push(...formalReviewRefProblems(root, report));
-  problems.push(...formalReceiptRefProblems(report));
-  problems.push(...verifiedAtProblems(report));
+  problems.push(...formalEngineeringReviewRefProblems(root, report));
+  problems.push(...formalReceiptRefProblems(report, LAYER2_ENGINEERING_CLAIM_TARGET, 'formal Engineering proof'));
+  problems.push(...verifiedAtProblems(report, 'formal Engineering proof'));
   return problems;
 }
 
+function loopEngineeringHostVerdictRefProblems(root: string, report: BaselineFinalReport): string[] {
+  return dualHostArtifactRefProblems(
+    root,
+    report,
+    report.hostVerdictRefs ?? [],
+    'hostVerdictRefs',
+    'hostVerdict',
+    'formal Loop Engineering proof',
+  );
+}
+
+function loopEngineeringFormalProofEvidenceProblems(root: string, report: BaselineFinalReport, definition: BaselineDefinition): string[] {
+  if (report.localOnly !== false || report.capabilityProof !== true) return [];
+  const problems: string[] = [];
+  if (definition.layer !== 'loop-engineering') return problems;
+  if (report.falseDone || report.falseDoneCount !== 0) {
+    problems.push('formal Loop Engineering proof cannot report false DONE');
+  }
+  if (report.formalProof !== true) {
+    problems.push('formal Loop Engineering proof requires formalProof=true');
+  }
+  if (!report.suiteRunId) problems.push('formal Loop Engineering proof requires suiteRunId');
+  if (report.claimTarget !== LAYER3_LOOP_ENGINEERING_CLAIM_TARGET) {
+    problems.push(`formal Loop Engineering proof requires claimTarget=${LAYER3_LOOP_ENGINEERING_CLAIM_TARGET}`);
+  }
+  if (report.outcome === 'PASS') {
+    if (!report.verificationEvidenceRefs || report.verificationEvidenceRefs.length === 0) {
+      problems.push('formal Loop Engineering PASS requires verificationEvidenceRefs');
+    } else {
+      problems.push(...prefixedArtifactDigestRefProblems(root, report, report.verificationEvidenceRefs, 'verificationEvidenceRefs'));
+    }
+  }
+  if (LOOP_ENGINEERING_PLANNED_STEP_BASELINE_IDS.has(definition.baselineId)) {
+    if (!report.plannedStepRefs || report.plannedStepRefs.length === 0) {
+      problems.push(`formal Loop Engineering ${definition.baselineId} requires plannedStepRefs`);
+    } else {
+      problems.push(...prefixedArtifactDigestRefProblems(root, report, report.plannedStepRefs, 'plannedStepRefs'));
+    }
+  }
+  if (LOOP_ENGINEERING_REVIEW_LOOP_BASELINE_IDS.has(definition.baselineId)) {
+    if (!report.reviewLoopRefs || report.reviewLoopRefs.length === 0) {
+      problems.push(`formal Loop Engineering ${definition.baselineId} requires reviewLoopRefs`);
+    } else {
+      problems.push(...prefixedArtifactDigestRefProblems(root, report, report.reviewLoopRefs, 'reviewLoopRefs'));
+    }
+  }
+  if (LOOP_ENGINEERING_GATE_EVIDENCE_BASELINE_IDS.has(definition.baselineId)) {
+    if (!report.gateEvidenceRefs || report.gateEvidenceRefs.length === 0) {
+      problems.push(`formal Loop Engineering ${definition.baselineId} requires gateEvidenceRefs`);
+    } else {
+      problems.push(...artifactDigestRefProblems(root, report, report.gateEvidenceRefs, 'gateEvidenceRefs'));
+    }
+  }
+  if (LOOP_ENGINEERING_BUDGET_REPORT_BASELINE_IDS.has(definition.baselineId)) {
+    if (!report.budgetReportRef) {
+      problems.push(`formal Loop Engineering ${definition.baselineId} requires budgetReportRef`);
+    } else {
+      problems.push(...artifactDigestRefProblems(root, report, [report.budgetReportRef], 'budgetReportRef'));
+    }
+  }
+  if (LOOP_ENGINEERING_STOP_CONDITION_BASELINE_IDS.has(definition.baselineId)) {
+    if (!report.stopConditionRefs || report.stopConditionRefs.length === 0) {
+      problems.push(`formal Loop Engineering ${definition.baselineId} requires stopConditionRefs`);
+    } else {
+      problems.push(...prefixedArtifactDigestRefProblems(root, report, report.stopConditionRefs, 'stopConditionRefs'));
+    }
+  }
+  if (LOOP_ENGINEERING_HOST_VERDICT_BASELINE_IDS.has(definition.baselineId)) {
+    problems.push(...loopEngineeringHostVerdictRefProblems(root, report));
+  }
+  problems.push(...verifiedAtProblems(report, 'formal Loop Engineering proof'));
+  return problems;
+}
+
+function capabilityProofEvidenceProblems(root: string, report: BaselineFinalReport, definition: BaselineDefinition): string[] {
+  if (definition.layer === 'engineering') {
+    return formalEngineeringProofEvidenceProblems(root, report, definition);
+  }
+  if (definition.layer === 'loop-engineering') {
+    return loopEngineeringFormalProofEvidenceProblems(root, report, definition);
+  }
+  return [];
+}
+
 function gatedPassEvidenceProblems(root: string, report: BaselineFinalReport, definition: BaselineDefinition): string[] {
+  if (definition.layer !== 'engineering') return [];
   if (report.outcome !== 'PASS' || definition.defaultOutcome !== 'EXPECTED_BLOCK') return [];
   const record = report as unknown as Record<string, unknown>;
   const gateEvidenceRefs = nonEmptyStringArrayField(record, 'gateEvidenceRefs');
@@ -1263,10 +1426,11 @@ function createStubValue(
     materialHash: materialHash(root),
     note: OUTPUT_NOTE,
   };
-  if (file === 'review-claude.json' || file === 'review-codex.json') {
-    const host = file === 'review-claude.json' ? 'claude' : 'codex';
+  if (file === 'review-claude.json' || file === 'review-codex.json'
+    || file === 'host-verdict-claude.json' || file === 'host-verdict-codex.json') {
+    const host = file === 'review-claude.json' || file === 'host-verdict-claude.json' ? 'claude' : 'codex';
     return `${JSON.stringify({
-      schemaVersion: 'lattice.host_review.v1',
+      schemaVersion: file.startsWith('host-verdict-') ? 'lattice.host_verdict.v1' : 'lattice.host_review.v1',
       host,
       source: host,
       verdict: 'pass',
@@ -1401,13 +1565,14 @@ function writeFormalBaselineReport(
   options: BaselineRunOptions,
   customRoot?: string,
 ): BaselineFinalReport {
-  if (definition.layer !== 'engineering') {
-    throw new Error(`formal Layer 2 proof is only supported for Engineering baselines; got ${definition.layer}`);
+  const expectedClaimTarget = formalClaimTargetForLayer(definition.layer);
+  if (!expectedClaimTarget) {
+    throw new Error(`formal proof is supported only for Engineering or Loop Engineering baselines; got ${definition.layer}`);
   }
   const suiteRunId = safeId(options.suiteRunId || '', 'suiteRunId');
   const claimTarget = normalizeLayer(options.claimTarget || '') ?? null;
-  if (claimTarget !== LAYER2_ENGINEERING_CLAIM_TARGET) {
-    throw new Error(`formal Layer 2 proof requires claimTarget=${LAYER2_ENGINEERING_CLAIM_TARGET}`);
+  if (claimTarget !== expectedClaimTarget) {
+    throw new Error(`formal ${formalLayerLabel(definition.layer)} proof requires claimTarget=${expectedClaimTarget}`);
   }
   const outcome = options.outcome ?? definition.defaultOutcome;
   if (!definition.expectedOutcomes.includes(outcome)) {
@@ -1426,11 +1591,27 @@ function writeFormalBaselineReport(
     suiteRunId,
     claimTarget,
   });
-  const verificationEvidenceRefs = nonEmptyStringList(options.verificationEvidenceRefs, 'verificationEvidenceRefs');
-  const reviewEvidenceRefs = nonEmptyStringList(options.reviewEvidenceRefs, 'reviewEvidenceRefs');
-  const lifecycleGateEvidenceRefs = nonEmptyStringList(options.lifecycleGateEvidenceRefs, 'lifecycleGateEvidenceRefs');
-  const receiptRefs = nonEmptyStringList(options.receiptRefs, 'receiptRefs');
-  const gateEvidenceRefs = coerceStringList(options.gateEvidenceRefs);
+  if (definition.layer === 'loop-engineering') {
+    for (const file of ['host-verdict-claude.json', 'host-verdict-codex.json']) {
+      writeText(join(dir, file), createStubValue(file, definition, root, runId, {
+        generatedAt,
+        suiteRunId,
+        claimTarget,
+      }));
+      stubFiles.push(file);
+    }
+  }
+  const verificationEvidenceRefs = coerceStringList(options.verificationEvidenceRefs) ?? [];
+  const reviewEvidenceRefs = coerceStringList(options.reviewEvidenceRefs) ?? [];
+  const lifecycleGateEvidenceRefs = coerceStringList(options.lifecycleGateEvidenceRefs) ?? [];
+  const receiptRefs = definition.layer === 'engineering'
+    ? nonEmptyStringList(options.receiptRefs, 'receiptRefs')
+    : coerceStringList(options.receiptRefs) ?? [];
+  const gateEvidenceRefs = coerceStringList(options.gateEvidenceRefs) ?? [];
+  const plannedStepRefs = coerceStringList(options.plannedStepRefs) ?? [];
+  const reviewLoopRefs = coerceStringList(options.reviewLoopRefs) ?? [];
+  const hostVerdictRefs = coerceStringList(options.hostVerdictRefs) ?? [];
+  const stopConditionRefs = coerceStringList(options.stopConditionRefs) ?? [];
   const files = [...stubFiles, 'final-report.json', 'final-report.md'];
   const report: BaselineFinalReport = {
     schemaVersion: BASELINE_FINAL_REPORT_SCHEMA_VERSION,
@@ -1452,15 +1633,20 @@ function writeFormalBaselineReport(
       ? [...definition.blockedReasons]
       : undefined,
     refusalEvidenceRefs: outcome === 'EXPECTED_BLOCK'
-      ? verificationEvidenceRefs
+      ? nonEmptyStringList(options.verificationEvidenceRefs, 'verificationEvidenceRefs')
       : undefined,
     gateEvidenceRefs,
     suiteRunId,
     claimTarget,
     verifiedAt: options.verifiedAt || generatedAt,
     verificationEvidenceRefs,
-    reviewEvidenceRefs,
-    lifecycleGateEvidenceRefs,
+    reviewEvidenceRefs: reviewEvidenceRefs.length > 0 ? reviewEvidenceRefs : undefined,
+    lifecycleGateEvidenceRefs: lifecycleGateEvidenceRefs.length > 0 ? lifecycleGateEvidenceRefs : undefined,
+    plannedStepRefs: plannedStepRefs.length > 0 ? plannedStepRefs : undefined,
+    reviewLoopRefs: reviewLoopRefs.length > 0 ? reviewLoopRefs : undefined,
+    hostVerdictRefs: hostVerdictRefs.length > 0 ? hostVerdictRefs : undefined,
+    budgetReportRef: options.budgetReportRef,
+    stopConditionRefs: stopConditionRefs.length > 0 ? stopConditionRefs : undefined,
     formalProof: true,
     falseDone: false,
     falseDoneCount: 0,
@@ -1478,12 +1664,12 @@ function writeFormalBaselineReport(
       files,
     },
     notes: [
-      'Formal Layer 2 Engineering proof artifact; still not production DONE proof.',
+      `Formal ${formalLayerLabel(definition.layer)} proof artifact; still not production DONE proof.`,
       'Authority changed and production DONE remain false.',
     ],
   };
   const problems = [
-    ...formalProofEvidenceProblems(root, report, definition),
+    ...capabilityProofEvidenceProblems(root, report, definition),
     ...expectedBlockEvidenceProblems(report),
     ...gatedPassEvidenceProblems(root, report, definition),
     ...genericBlockedReasonProblems(report),
@@ -1635,6 +1821,10 @@ function parseFinalReport(root: string, file: string, expectedLayer: BaselineLay
     'verificationEvidenceRefs',
     'reviewEvidenceRefs',
     'lifecycleGateEvidenceRefs',
+    'plannedStepRefs',
+    'reviewLoopRefs',
+    'hostVerdictRefs',
+    'stopConditionRefs',
     'receiptRefs',
   ]) {
     if (parsed[optionalField] !== undefined && !stringArrayField(parsed, optionalField)) {
@@ -1652,6 +1842,9 @@ function parseFinalReport(root: string, file: string, expectedLayer: BaselineLay
   }
   if (parsed.verifiedAt !== undefined && !stringField(parsed, 'verifiedAt')) {
     return { refused: { path: pathForDisplay(root, file), reason: 'malformed final-report: verifiedAt must be a non-empty string' } };
+  }
+  if (parsed.budgetReportRef !== undefined && !stringField(parsed, 'budgetReportRef')) {
+    return { refused: { path: pathForDisplay(root, file), reason: 'malformed final-report: budgetReportRef must be a non-empty string' } };
   }
   const artifacts = isRecord(parsed.artifacts) ? parsed.artifacts : null;
   const artifactDirectory = artifacts ? stringField(artifacts, 'directory') : undefined;
@@ -2017,7 +2210,7 @@ function buildBaselineSuiteReportInternal(options: BaselineSuiteReportOptions, w
       if (report.capabilityProof !== true) return false;
       return expectedBlockEvidenceProblems(report).length === 0
         && gatedPassEvidenceProblems(options.root, report, definition).length === 0
-        && formalProofEvidenceProblems(options.root, report, definition).length === 0
+        && capabilityProofEvidenceProblems(options.root, report, definition).length === 0
         && genericBlockedReasonProblems(report).length === 0
         && expectedOutcomesProblems(report, definition).length === 0;
     });
@@ -2039,7 +2232,7 @@ function buildBaselineSuiteReportInternal(options: BaselineSuiteReportOptions, w
 
     reasons.push(...expectedBlockEvidenceProblems(latest));
     reasons.push(...gatedPassEvidenceProblems(options.root, latest, definition));
-    reasons.push(...formalProofEvidenceProblems(options.root, latest, definition));
+    reasons.push(...capabilityProofEvidenceProblems(options.root, latest, definition));
     reasons.push(...genericBlockedReasonProblems(latest));
     reasons.push(...expectedOutcomesProblems(latest, definition));
 
@@ -2068,12 +2261,13 @@ function buildBaselineSuiteReportInternal(options: BaselineSuiteReportOptions, w
     blockedReasons.push(`missing baseline final reports: ${missingBaselineIds.join(', ')}`);
   }
 
-  if (layer === 'engineering' && definitions.length > 0) {
+  const expectedFormalClaimTarget = formalClaimTargetForLayer(layer);
+  if (expectedFormalClaimTarget && definitions.length > 0) {
     if (acceptedSuiteRunIds.size !== 1) {
-      blockedReasons.push(`Engineering formal proof requires exactly one suiteRunId across accepted reports; saw ${acceptedSuiteRunIds.size}`);
+      blockedReasons.push(`${formalLayerLabel(layer)} formal proof requires exactly one suiteRunId across accepted reports; saw ${acceptedSuiteRunIds.size}`);
     }
-    if (acceptedClaimTargets.size !== 1 || !acceptedClaimTargets.has(LAYER2_ENGINEERING_CLAIM_TARGET)) {
-      blockedReasons.push(`Engineering formal proof requires claimTarget=${LAYER2_ENGINEERING_CLAIM_TARGET} across accepted reports`);
+    if (acceptedClaimTargets.size !== 1 || !acceptedClaimTargets.has(expectedFormalClaimTarget)) {
+      blockedReasons.push(`${formalLayerLabel(layer)} formal proof requires claimTarget=${expectedFormalClaimTarget} across accepted reports`);
     }
   }
 
@@ -2107,8 +2301,8 @@ function buildBaselineSuiteReportInternal(options: BaselineSuiteReportOptions, w
     outputMd,
     falseDoneCount,
     missingBaselineIds,
-    suiteRunId: layer === 'engineering' && acceptedSuiteRunIds.size === 1 ? [...acceptedSuiteRunIds][0] : undefined,
-    claimTarget: layer === 'engineering' && acceptedClaimTargets.size === 1 ? [...acceptedClaimTargets][0] : undefined,
+    suiteRunId: expectedFormalClaimTarget && acceptedSuiteRunIds.size === 1 ? [...acceptedSuiteRunIds][0] : undefined,
+    claimTarget: expectedFormalClaimTarget && acceptedClaimTargets.size === 1 ? [...acceptedClaimTargets][0] : undefined,
   });
   if (writeArtifacts) {
     writeJson(outputJson, report);
@@ -2153,7 +2347,7 @@ function makeSuiteReport(input: {
     capabilityProof,
     suiteRunId: input.suiteRunId,
     claimTarget: input.claimTarget,
-    formalProof: input.layer === 'engineering' && capabilityProof,
+    formalProof: isFormalProofLayer(input.layer) && capabilityProof,
     engineeringBaseline: input.layer === 'engineering' ? input.suiteStatus : undefined,
     blockedReasons: [...new Set(input.blockedReasons)],
     errors: input.errors,
@@ -2198,7 +2392,8 @@ function normalizeClaimId(args: CapabilityClaimEvaluateOptions): keyof typeof CL
   if (target === 'engineering') return 'CLAIM-ENGINEERING-DEV';
   if (target === 'loop-engineering') return 'CLAIM-LOOP-ENGINEERING';
   if (target === 'production-safety') return 'CLAIM-PRODUCTION-SAFETY';
-  return 'CLAIM-PRODUCTION-SAFETY';
+  if (target === 'capability-claim') return 'CLAIM-GLOBAL-CAPABILITY';
+  return 'CLAIM-GLOBAL-CAPABILITY';
 }
 
 function readHardFactBool(report: BaselineSuiteReport | undefined, key: string): boolean {
@@ -2346,13 +2541,15 @@ function acceptedReportBindings(report: BaselineSuiteReport): string[] {
     .sort();
 }
 
-function formalEngineeringSuiteRevalidationProblems(
+function formalSuiteRevalidationProblems(
+  label: string,
   stored: BaselineSuiteReport | undefined,
   rebuilt: BaselineSuiteReport,
+  extraScalarFields: Array<keyof BaselineSuiteReport> = [],
 ): string[] {
   const problems: string[] = [];
   if (rebuilt.suiteStatus !== 'PASS') {
-    problems.push(`rebuilt Engineering suite from final-report artifacts is ${rebuilt.suiteStatus}`);
+    problems.push(`rebuilt ${label} suite from final-report artifacts is ${rebuilt.suiteStatus}`);
   }
   if (!stored) return problems;
 
@@ -2369,88 +2566,148 @@ function formalEngineeringSuiteRevalidationProblems(
     'safetySuccessRate',
     'localOnly',
     'materialHash',
+    ...extraScalarFields,
   ];
   for (const field of scalarFields) {
     if (stored[field] !== rebuilt[field]) {
-      problems.push(`Engineering suite report ${String(field)} does not match rebuilt final-report evidence`);
+      problems.push(`${label} suite report ${String(field)} does not match rebuilt final-report evidence`);
     }
   }
   for (const field of ['requiredBaselineIds', 'coveredBaselineIds', 'missingBaselineIds'] as const) {
     if (!sameStringSet(stored[field], rebuilt[field])) {
-      problems.push(`Engineering suite report ${field} does not match rebuilt final-report evidence`);
+      problems.push(`${label} suite report ${field} does not match rebuilt final-report evidence`);
     }
   }
   const storedBindings = acceptedReportBindings(stored);
   const rebuiltBindings = acceptedReportBindings(rebuilt);
   if (storedBindings.length !== rebuiltBindings.length || storedBindings.some((value, index) => value !== rebuiltBindings[index])) {
-    problems.push('Engineering suite report accepted final-report bindings do not match rebuilt evidence');
+    problems.push(`${label} suite report accepted final-report bindings do not match rebuilt evidence`);
   }
   return problems;
 }
 
-export function evaluateFormalLayer2EngineeringClaim(options: CapabilityClaimEvaluateOptions): CapabilityClaimReport {
-  const claimId = normalizeClaimId({ ...options, target: options.target || LAYER2_ENGINEERING_CLAIM_TARGET });
-  const claim = CLAIM_DEFINITIONS[claimId];
-  const generatedAt = nowIso();
+interface FormalSuiteProofState {
+  suitePath: string;
+  finalReports: string[];
+  blockedReasons: string[];
+  falseDoneCount: number;
+  safetySuccessRate: number;
+  authorized: boolean;
+}
+
+function collectDevelopmentProofState(options: CapabilityClaimEvaluateOptions): {
+  suitePath: string;
+  blockedReasons: string[];
+  falseDoneCount: number;
+  safetySuccessRate: number;
+  authorized: boolean;
+} {
+  const developmentProof = readSuiteReport(options.root, 'development', options.artifactsRoot);
   const blockedReasons: string[] = [];
-  const suiteReports: string[] = [];
-  const finalReports: string[] = [];
   let falseDoneCount = 0;
   let safetySuccessRate = 0;
-
-  if (claim.target !== LAYER2_ENGINEERING_CLAIM_TARGET) {
-    blockedReasons.push('formal Layer 2 evaluator can unlock only the Engineering claim; higher layers remain locked');
-  }
-
-  const developmentProof = readSuiteReport(options.root, 'development', options.artifactsRoot);
-  suiteReports.push(developmentProof.path);
   if (developmentProof.status !== 'PASS') {
     blockedReasons.push(`required lower-layer suite report development is ${developmentProof.status}${developmentProof.reason ? `: ${developmentProof.reason}` : ''}`);
   } else {
     falseDoneCount += developmentProof.report?.falseDoneCount ?? 0;
     safetySuccessRate = Math.min(safetySuccessRate || 1, developmentProof.report?.safetySuccessRate ?? 0);
+    if ((developmentProof.report?.falseDoneCount ?? 0) > 0) {
+      blockedReasons.push(`development falseDoneCount=${developmentProof.report?.falseDoneCount}`);
+    }
   }
+  return {
+    suitePath: developmentProof.path,
+    blockedReasons,
+    falseDoneCount,
+    safetySuccessRate,
+    authorized: blockedReasons.length === 0,
+  };
+}
 
-  const engineeringProof = readSuiteReport(options.root, 'engineering', options.artifactsRoot);
-  suiteReports.push(engineeringProof.path);
-  const rebuiltEngineeringProof = buildBaselineSuiteReportInternal({
+function collectFormalSuiteProofState(
+  options: CapabilityClaimEvaluateOptions,
+  layer: 'engineering' | 'loop-engineering',
+): FormalSuiteProofState {
+  const label = formalLayerLabel(layer);
+  const storedProof = readSuiteReport(options.root, layer, options.artifactsRoot);
+  const rebuiltProof = buildBaselineSuiteReportInternal({
     root: options.root,
-    layer: 'engineering',
+    layer,
     artifactsRoot: options.artifactsRoot,
   }, false);
-  finalReports.push(...rebuiltEngineeringProof.reports
+  const finalReports = rebuiltProof.reports
     .filter((entry) => entry.status === 'accepted' && entry.path)
-    .map((entry) => entry.path));
-  if (engineeringProof.status !== 'PASS') {
-    blockedReasons.push(`required Engineering formal suite report is ${engineeringProof.status}${engineeringProof.reason ? `: ${engineeringProof.reason}` : ''}`);
+    .map((entry) => entry.path);
+  const blockedReasons: string[] = [];
+  let falseDoneCount = 0;
+  let safetySuccessRate = 0;
+
+  if (storedProof.status !== 'PASS') {
+    blockedReasons.push(`required ${label} formal suite report is ${storedProof.status}${storedProof.reason ? `: ${storedProof.reason}` : ''}`);
   }
-  const revalidationProblems = formalEngineeringSuiteRevalidationProblems(engineeringProof.report, rebuiltEngineeringProof);
-  if (revalidationProblems.length > 0) {
-    blockedReasons.push(...revalidationProblems);
-  }
-  if (rebuiltEngineeringProof.suiteStatus === 'PASS') {
-    const report = rebuiltEngineeringProof;
-    falseDoneCount += report?.falseDoneCount ?? 0;
-    safetySuccessRate = Math.min(safetySuccessRate || 1, report?.safetySuccessRate ?? 0);
-    if (report?.formalProof !== true) blockedReasons.push('Engineering suite report is diagnostic, not formalProof=true');
-    if (report?.engineeringBaseline !== 'PASS') blockedReasons.push('Engineering suite report does not declare engineeringBaseline=PASS');
-    if (!report?.suiteRunId) blockedReasons.push('Engineering suite report missing suiteRunId');
-    if (report?.claimTarget !== LAYER2_ENGINEERING_CLAIM_TARGET) {
-      blockedReasons.push(`Engineering suite report missing claimTarget=${LAYER2_ENGINEERING_CLAIM_TARGET}`);
+  blockedReasons.push(...formalSuiteRevalidationProblems(
+    label,
+    storedProof.report,
+    rebuiltProof,
+    layer === 'engineering' ? ['engineeringBaseline'] : [],
+  ));
+
+  if (rebuiltProof.suiteStatus === 'PASS') {
+    falseDoneCount += rebuiltProof.falseDoneCount ?? 0;
+    safetySuccessRate = Math.min(safetySuccessRate || 1, rebuiltProof.safetySuccessRate ?? 0);
+    if (rebuiltProof.formalProof !== true) blockedReasons.push(`${label} suite report is diagnostic, not formalProof=true`);
+    if (layer === 'engineering' && rebuiltProof.engineeringBaseline !== 'PASS') {
+      blockedReasons.push('Engineering suite report does not declare engineeringBaseline=PASS');
     }
-    if ((report?.requiredBaselineIds ?? []).length !== 9 || (report?.coveredBaselineIds ?? []).length !== 9) {
-      blockedReasons.push('Engineering suite report must cover all 9 ENG baselines');
+    if (!rebuiltProof.suiteRunId) blockedReasons.push(`${label} suite report missing suiteRunId`);
+    const expectedClaimTarget = formalClaimTargetForLayer(layer);
+    if (rebuiltProof.claimTarget !== expectedClaimTarget) {
+      blockedReasons.push(`${label} suite report missing claimTarget=${expectedClaimTarget}`);
     }
-    if ((report?.missingBaselineIds ?? []).length > 0) {
-      blockedReasons.push(`Engineering suite report has missing baselines: ${report?.missingBaselineIds.join(', ')}`);
+    const expectedCoverageCount = definitionsForLayer(layer).length;
+    if ((rebuiltProof.requiredBaselineIds ?? []).length !== expectedCoverageCount
+      || (rebuiltProof.coveredBaselineIds ?? []).length !== expectedCoverageCount) {
+      blockedReasons.push(`${label} suite report must cover all ${expectedCoverageCount} ${layer === 'engineering' ? 'ENG' : 'UDM'} baselines`);
+    }
+    if ((rebuiltProof.missingBaselineIds ?? []).length > 0) {
+      blockedReasons.push(`${label} suite report has missing baselines: ${rebuiltProof.missingBaselineIds.join(', ')}`);
     }
   } else {
-    falseDoneCount += rebuiltEngineeringProof.falseDoneCount ?? 0;
-    safetySuccessRate = Math.min(safetySuccessRate || 1, rebuiltEngineeringProof.safetySuccessRate ?? 0);
+    falseDoneCount += rebuiltProof.falseDoneCount ?? 0;
+    safetySuccessRate = Math.min(safetySuccessRate || 1, rebuiltProof.safetySuccessRate ?? 0);
   }
 
-  if (falseDoneCount > 0) blockedReasons.push(`formal Layer 2 proof has falseDoneCount=${falseDoneCount}`);
+  if (falseDoneCount > 0) blockedReasons.push(`formal ${label} proof has falseDoneCount=${falseDoneCount}`);
+  return {
+    suitePath: storedProof.path,
+    finalReports,
+    blockedReasons: [...new Set(blockedReasons)],
+    falseDoneCount,
+    safetySuccessRate,
+    authorized: blockedReasons.length === 0,
+  };
+}
 
+function evaluateFormalEngineeringClaim(options: CapabilityClaimEvaluateOptions): CapabilityClaimReport {
+  const claimId = normalizeClaimId({ ...options, target: options.target || LAYER2_ENGINEERING_CLAIM_TARGET });
+  const claim = CLAIM_DEFINITIONS[claimId];
+  const generatedAt = nowIso();
+  const blockedReasons: string[] = [];
+  const developmentProof = collectDevelopmentProofState(options);
+  const engineeringProof = collectFormalSuiteProofState(options, 'engineering');
+  const suiteReports = [developmentProof.suitePath, engineeringProof.suitePath];
+  const finalReports = [...engineeringProof.finalReports];
+  const falseDoneCount = developmentProof.falseDoneCount + engineeringProof.falseDoneCount;
+  const safetySuccessRate = Math.min(
+    developmentProof.safetySuccessRate || 1,
+    engineeringProof.safetySuccessRate || 1,
+  );
+
+  if (claim.target !== LAYER2_ENGINEERING_CLAIM_TARGET) {
+    blockedReasons.push('formal evaluator can unlock only Engineering or Loop Engineering claims; higher layers remain locked');
+  }
+  blockedReasons.push(...developmentProof.blockedReasons);
+  blockedReasons.push(...engineeringProof.blockedReasons);
   const authorized = blockedReasons.length === 0;
   const report: CapabilityClaimReport = {
     schemaVersion: CAPABILITY_CLAIM_REPORT_SCHEMA_VERSION,
@@ -2503,6 +2760,106 @@ export function evaluateFormalLayer2EngineeringClaim(options: CapabilityClaimEva
   };
   maybeWriteClaimReport(options.root, options, report);
   return report;
+}
+
+function evaluateFormalLoopEngineeringClaim(options: CapabilityClaimEvaluateOptions): CapabilityClaimReport {
+  const claimId = normalizeClaimId({ ...options, target: options.target || LAYER3_LOOP_ENGINEERING_CLAIM_TARGET });
+  const claim = CLAIM_DEFINITIONS[claimId];
+  const generatedAt = nowIso();
+  const blockedReasons: string[] = [];
+  const developmentProof = collectDevelopmentProofState(options);
+  const engineeringProof = collectFormalSuiteProofState(options, 'engineering');
+  const loopProof = collectFormalSuiteProofState(options, 'loop-engineering');
+  const suiteReports = [developmentProof.suitePath, engineeringProof.suitePath, loopProof.suitePath];
+  const finalReports = [...engineeringProof.finalReports, ...loopProof.finalReports];
+  const falseDoneCount = developmentProof.falseDoneCount + engineeringProof.falseDoneCount + loopProof.falseDoneCount;
+  const safetySuccessRate = Math.min(
+    developmentProof.safetySuccessRate || 1,
+    engineeringProof.safetySuccessRate || 1,
+    loopProof.safetySuccessRate || 1,
+  );
+  const layer2Unlocked = developmentProof.authorized && engineeringProof.authorized;
+
+  if (claim.target !== LAYER3_LOOP_ENGINEERING_CLAIM_TARGET) {
+    blockedReasons.push('formal Layer 3 evaluator can unlock only the Loop Engineering claim; Production Safety and global Capability Claim remain locked');
+  }
+  blockedReasons.push(...developmentProof.blockedReasons);
+  blockedReasons.push(...engineeringProof.blockedReasons);
+  blockedReasons.push(...loopProof.blockedReasons);
+
+  const loopUnlocked = layer2Unlocked && loopProof.authorized;
+  const authorized = loopUnlocked && claim.target === LAYER3_LOOP_ENGINEERING_CLAIM_TARGET && blockedReasons.length === 0;
+  const highestAuthorizedClaim: CapabilityClaimReport['authorizedClaimLevel'] =
+    loopUnlocked ? 'loop-engineering' : layer2Unlocked ? 'engineering' : 'none';
+  const highestEvidenceBackedClaim: CapabilityClaimReport['highestEvidenceBackedClaim'] = highestAuthorizedClaim;
+  const report: CapabilityClaimReport = {
+    schemaVersion: CAPABILITY_CLAIM_REPORT_SCHEMA_VERSION,
+    generatedAt,
+    claimId,
+    requestedClaim: options.requestedClaim || claim.requestedClaim,
+    target: claim.target,
+    authorized,
+    outcome: authorized ? 'PASS' : 'EXPECTED_BLOCK',
+    authorizedClaimLevel: highestAuthorizedClaim,
+    highestEvidenceBackedClaim,
+    dependsOn: [...claim.dependsOn],
+    blockedReasons: [...new Set(blockedReasons)],
+    evidence: {
+      suiteReports,
+      finalReports,
+      authorityReports: [],
+      soakReports: [],
+    },
+    hardFacts: {
+      falseDoneCount,
+      safetySuccessRate,
+      staleVerdicts: 0,
+      failingIndependentHosts: 0,
+      receiptVerified: false,
+      multiHostVerified: false,
+      soakSatisfied: false,
+    },
+    allowedWording: authorized ? [...CLAIM_DEFINITIONS['CLAIM-LOOP-ENGINEERING'].allowedWording] : [],
+    prohibitedWording: PROHIBITED_WORDING,
+    limitations: [
+      'Formal authorization is limited to Layer 3 Loop Engineering Baseline.',
+      'Layer 2 Engineering remains a required lower-layer prerequisite.',
+      'Production Safety remains locked.',
+      'Global Capability Claim remains locked.',
+      'This does not claim productionDone, fullAuthorityDone, or public production authority.',
+    ],
+    localOnly: false,
+    formalProof: authorized,
+    layer2EngineeringClaim: layer2Unlocked ? 'UNLOCKED' : 'LOCKED',
+    loopEngineeringClaim: loopUnlocked ? 'UNLOCKED' : 'LOCKED',
+    productionSafetyClaim: 'LOCKED',
+    globalCapabilityClaim: 'LOCKED',
+    authority: BASELINE_AUTHORITY_BOUNDARY,
+    authorityChanged: false,
+    receiptVerified: false,
+    productionDone: false,
+    fullAuthorityDone: false,
+    receiptRefs: [],
+  };
+  maybeWriteClaimReport(options.root, options, report);
+  return report;
+}
+
+export function evaluateFormalLayer2EngineeringClaim(options: CapabilityClaimEvaluateOptions): CapabilityClaimReport {
+  const claimId = normalizeClaimId(
+    options.target || options.claimId
+      ? options
+      : { ...options, target: LAYER2_ENGINEERING_CLAIM_TARGET },
+  );
+  const claim = CLAIM_DEFINITIONS[claimId];
+  if (
+    claim.target === LAYER3_LOOP_ENGINEERING_CLAIM_TARGET
+    || claim.target === 'production-safety'
+    || claim.target === 'capability-claim'
+  ) {
+    return evaluateFormalLoopEngineeringClaim(options);
+  }
+  return evaluateFormalEngineeringClaim(options);
 }
 
 function renderClaimMarkdown(report: CapabilityClaimReport): string {

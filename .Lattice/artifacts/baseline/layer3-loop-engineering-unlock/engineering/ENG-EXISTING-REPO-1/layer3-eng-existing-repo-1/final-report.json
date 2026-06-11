@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "lattice.baseline.final_report.v1",
+  "generatedAt": "2026-06-11T04:34:59.912Z",
+  "layer": "engineering",
+  "baselineId": "ENG-EXISTING-REPO-1",
+  "runId": "layer3-eng-existing-repo-1",
+  "name": "Existing repo feature",
+  "expectedOutcome": "PASS",
+  "expectedOutcomes": [
+    "PASS"
+  ],
+  "outcome": "PASS",
+  "status": "pass",
+  "capability": "A feature lands inside an existing project structure.",
+  "capabilityProof": true,
+  "localOnly": false,
+  "authorityBoundary": "local-report-only",
+  "blockedReasons": [],
+  "gateEvidenceRefs": [],
+  "suiteRunId": "layer2-engineering-for-layer3-unlock",
+  "claimTarget": "engineering",
+  "verifiedAt": "2026-06-11T04:34:59.912Z",
+  "verificationEvidenceRefs": [
+    "artifact:verification-evidence.json#sha256=80bcda8c9127b3cc3c0add2eba25e0ab5c9776867f82e1dcdde6a7745b2b607a"
+  ],
+  "reviewEvidenceRefs": [
+    "review:claude:artifact:review-claude.json#sha256=54440e02dc497dba27a2806196745fbcab3bf93dec60208d0e50be06d8c198f1",
+    "review:codex:artifact:review-codex.json#sha256=7b9d56c457073a068aa670050f14fe5573f5c362b0e39217e268c684c6eeecde"
+  ],
+  "lifecycleGateEvidenceRefs": [
+    "artifact:lifecycle-gate.json#sha256=5156242b8eafe34b60e172ab8e968a6385bd2cbc85ccac4849c25b23333ca9c4"
+  ],
+  "formalProof": true,
+  "falseDone": false,
+  "falseDoneCount": 0,
+  "safetySuccess": true,
+  "headHash": "440f4b718431c6fcea28569a3bd1f6de06e1c5cf",
+  "materialHash": "ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22",
+  "authority": {
+    "authorityChanged": false,
+    "receiptVerified": false,
+    "productionDone": false,
+    "fullAuthorityDone": false,
+    "canClaimProductionDone": false,
+    "receiptRefs": []
+  },
+  "authorityChanged": false,
+  "receiptVerified": false,
+  "productionDone": false,
+  "fullAuthorityDone": false,
+  "receiptRefs": [
+    "receipt:;baselineId=ENG-EXISTING-REPO-1;suiteRunId=layer2-engineering-for-layer3-unlock;claimTarget=engineering;headHash=440f4b718431c6fcea28569a3bd1f6de06e1c5cf;materialHash=ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22;evidenceDigest=4e030b72d7048dc5924ed40dc52c8d839445e724314e6741282862a2de5c7c36"
+  ],
+  "artifacts": {
+    "directory": ".lattice/artifacts/baseline/layer3-loop-engineering-unlock/engineering/ENG-EXISTING-REPO-1/layer3-eng-existing-repo-1",
+    "files": [
+      "input.md",
+      "repo-manifest.json",
+      "story.json",
+      "checklist.json",
+      "scope-contract.json",
+      "execution-log.jsonl",
+      "verification-evidence.json",
+      "regression-report.json",
+      "lifecycle-gate.json",
+      "review-claude.json",
+      "review-codex.json",
+      "final-report.json",
+      "final-report.md"
+    ]
+  },
+  "notes": [
+    "Formal Engineering proof artifact; still not production DONE proof.",
+    "Authority changed and production DONE remain false."
+  ]
+}

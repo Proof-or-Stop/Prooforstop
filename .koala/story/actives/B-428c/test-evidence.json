@@ -1,0 +1,301 @@
+{
+  "command": "koala validate --story=B-428c --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.5 test\",\"  > npm run test:e2e\",\"  > koala@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-pMAcWP; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-gB0gjA; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 15/15 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via manual_transcript — A valid fresh loop-engineering proof root returns loopEngineeringClaim=UNLOCKED while productionSafetyClaim and globalCapabilityClaim remain LOCKED.\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via manual_transcript — A valid Layer 2 engineering target still evaluates through the existing Layer 2 path without behavior regression.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/cli] covered via manual_transcript — A loop-engineering evaluator run with missing or stale lower-layer proof returns LOCKED/BLOCKED and does not unlock higher claims.\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via manual_transcript — All 10 documented UDM final reports with required refs, host verdicts, stop/budget/gate evidence, falseDone=false, and authority production flags false aggregate into a loop-engineering suite PASS.\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via manual_transcript — Expected-block UDM baselines are accepted only when their outcome matches expectedOutcome and include gate/stop evidence rather than normal PASS.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via manual_transcript — A UDM report missing required refs, using localOnly proof, setting falseDone=true, or setting productionDone/fullAuthorityDone=true is rejected fail-closed.\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via manual_transcript — The final Layer 3 root contains 6 Development, 9 Engineering, and 10 UDM formal reports plus suite reports all bound to the selected final headHash/materialHash.\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via manual_transcript — Layer 3 execution refuses to consume the older Layer 1/2 proof root when headHash/materialHash does not match the final story target.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/cli] covered via manual_transcript — No formal Layer 3 proof artifact is written under .omx or accepted from .omx as a Lattice proof root.\",\"  ✓ CHK-004:happy:0 [happy/must/manual] covered via manual_transcript — Claude CLI and Codex CLI review artifacts are captured with distinct host identities, current headHash/materialHash binding, and PASS verdicts for Layer 3 boundary behavior.\",\"  ✓ CHK-004:edge:0 [edge/must/cli] covered via manual_transcript — Host verdict refs are accepted only as review evidence and do not satisfy Authority production receipt fields.\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/cli] covered via manual_transcript — Duplicate host identity, stale host verdict, or single-host self-certification blocks the loop-engineering claim.\",\"  ✓ CHK-005:happy:0 [happy/must/cli] covered via manual_transcript — npm build, lattice baseline smoke, and story validation pass with verificationEvidence tied to current HEAD/materialHash.\",\"  ✓ CHK-005:edge:0 [edge/must/cli] covered via manual_transcript — Existing Layer 2 formal evaluator smoke tests still pass after adding the Layer 3 path.\",\"  ✓ CHK-005:adversarial:0 [adversarial/must/cli] covered via manual_transcript — Regression tests prove stale lower-layer proof, missing review evidence, and higher-layer overclaim remain locked or blocked.\"],\"warnings\":[],\"timestamp\":\"2026-06-11T04:51:21.567Z\",\"headSha\":\"ec165ef238f6d8a0f8ea6d98250f336f65366a42\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-pMAcWP; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-gB0gjA; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":846}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":15,\"reason\":\"verificationIntent entries present (15)\"},\"verificationCoverage\":{\"total\":15,\"required\":15,\"covered\":15,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"A valid fresh loop-engineering proof root returns loopEngineeringClaim=UNLOCKED while productionSafetyClaim and globalCapabilityClaim remain LOCKED.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/dist/cli.js capability_claim_formal_evaluate --target=loop-engineering --artifactsRoot=.lattice/artifacts/baseline/layer3-loop-engineering-unlock --format=json\",\"result\":\"pass\",\"note\":\"authorized=true, authorizedClaimLevel=loop-engineering, layer2EngineeringClaim=UNLOCKED, loopEngineeringClaim=UNLOCKED, productionSafetyClaim/globalCapabilityClaim=LOCKED\",\"headHash\":\"75e35c0b7f096b79b74a6b941e5ea9995db0c9cc\",\"materialHash\":\"ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22\",\"timestamp\":\"2026-06-11T04:49:11.594Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"A valid Layer 2 engineering target still evaluates through the existing Layer 2 path without behavior regression.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/dist/cli.js capability_claim_formal_evaluate --target=engineering --artifactsRoot=.lattice/artifacts/baseline/layer3-loop-engineering-unlock --format=json\",\"result\":\"pass\",\"note\":\"Layer 2 engineering target remains authorized independently and loopEngineeringClaim stays LOCKED for the engineering-only target.\",\"headHash\":\"75e35c0b7f096b79b74a6b941e5ea9995db0c9cc\",\"materialHash\":\"ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22\",\"timestamp\":\"2026-06-11T04:49:11.594Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"A loop-engineering evaluator run with missing or stale lower-layer proof returns LOCKED/BLOCKED and does not unlock higher claims.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"npm --prefix packages/main run test:lattice-baseline-smoke\",\"result\":\"pass\",\"note\":\"Smoke covers missing/forged loop proof and higher-layer target fail-closed behavior.\",\"headHash\":\"75e35c0b7f096b79b74a6b941e5ea9995db0c9cc\",\"materialHash\":\"ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22\",\"timestamp\":\"2026-06-11T04:49:11.594Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"All 10 documented UDM final reports with required refs, host verdicts, stop/budget/gate evidence, falseDone=false, and authority production flags false aggregate into a loop-engineering suite PASS.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/dist/cli.js baseline_suite_report --layer=loop-engineering --artifactsRoot=.lattice/artifacts/baseline/layer3-loop-engineering-unlock --format=json\",\"result\":\"pass\",\"note\":\"Loop Engineering suite is PASS with covered=10, missing=0, falseDoneCount=0, localOnly=false, capabilityProof=true.\",\"headHash\":\"75e35c0b7f096b79b74a6b941e5ea9995db0c9cc\",\"materialHash\":\"ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22\",\"timestamp\":\"2026-06-11T04:49:11.594Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Expected-block UDM baselines are accepted only when their outcome matches expectedOutcome and include gate/stop evidence rather than normal PASS.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"jq .reports .lattice/artifacts/baseline/layer3-loop-engineering-unlock/loop-engineering/baseline-suite-report.json\",\"result\":\"pass\",\"note\":\"Expected-block UDM baselines remain EXPECTED_BLOCK with refusal/stop/gate evidence instead of fake PASS.\",\"headHash\":\"75e35c0b7f096b79b74a6b941e5ea9995db0c9cc\",\"materialHash\":\"ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22\",\"timestamp\":\"2026-06-11T04:49:11.594Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"A UDM report missing required refs, using localOnly proof, setting falseDone=true, or setting productionDone/fullAuthorityDone=true is rejected fail-closed.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"npm --prefix packages/main run test:lattice-baseline-smoke\",\"result\":\"pass\",\"note\":\"Smoke includes missing UDM refs rejection, forged loop suite rejection, authority overclaim rejection, and CLI UDM ref forwarding regression.\",\"headHash\":\"75e35c0b7f096b79b74a6b941e5ea9995db0c9cc\",\"materialHash\":\"ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22\",\"timestamp\":\"2026-06-11T04:49:11.594Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"The final Layer 3 root contains 6 Development, 9 Engineering, and 10 UDM formal reports plus suite reports all bound to the selected final headHash/materialHash.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"jq summaries for development/engineering/loop-engineering baseline-suite-report.json under .lattice/artifacts/baseline/layer3-loop-engineering-unlock\",\"result\":\"pass\",\"note\":\"Final root contains Development covered=6, Engineering covered=9, Loop Engineering covered=10; all suiteStatus=PASS and materialHash=61673d946d832fa34e694fd046cf78212e2939e2b51d98a69b4a6d8aab1b245e.\",\"headHash\":\"75e35c0b7f096b79b74a6b941e5ea9995db0c9cc\",\"materialHash\":\"ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22\",\"timestamp\":\"2026-06-11T04:49:11.594Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Layer 3 execution refuses to consume the older Layer 1/2 proof root when headHash/materialHash does not match the final story target.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/dist/cli.js capability_claim_formal_evaluate --target=loop-engineering --artifactsRoot=.lattice/artifacts/baseline/layer3-loop-engineering-unlock --format=json\",\"result\":\"pass\",\"note\":\"Evaluator rebuilt and consumed the final refreshed lower-layer proof, producing authorizedClaimLevel=loop-engineering with no blockedReasons.\",\"headHash\":\"75e35c0b7f096b79b74a6b941e5ea9995db0c9cc\",\"materialHash\":\"ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22\",\"timestamp\":\"2026-06-11T04:49:11.594Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"No formal Layer 3 proof artifact is written under .omx or accepted from .omx as a Lattice proof root.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"find .lattice/artifacts/baseline/layer3-loop-engineering-unlock -path */.omx/* -o -name .omx -o -name .omx*\",\"result\":\"pass\",\"note\":\"No .omx artifact paths found; proof root is .lattice only.\",\"headHash\":\"75e35c0b7f096b79b74a6b941e5ea9995db0c9cc\",\"materialHash\":\"ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22\",\"timestamp\":\"2026-06-11T04:49:11.594Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"Claude CLI and Codex CLI review artifacts are captured with distinct host identities, current headHash/materialHash binding, and PASS verdicts for Layer 3 boundary behavior.\",\"type\":\"manual\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"claude -p <layer3 review prompt>; codex exec -s read-only <layer3 review prompt>; normalized to .lattice/artifacts/baseline/layer3-loop-engineering-unlock/reviews/two-host-review-summary.json\",\"result\":\"pass\",\"note\":\"Two-host review summary verdict=pass with distinct claude and codex review artifacts, both blockers=[] and bound to HEAD 4bb6bb71/materialHash 61673d946d832fa34e694fd046cf78212e2939e2b51d98a69b4a6d8aab1b245e.\",\"headHash\":\"75e35c0b7f096b79b74a6b941e5ea9995db0c9cc\",\"materialHash\":\"ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22\",\"timestamp\":\"2026-06-11T04:49:11.594Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"Host verdict refs are accepted only as review evidence and do not satisfy Authority production receipt fields.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/dist/cli.js capability_claim_formal_evaluate --target=loop-engineering --artifactsRoot=.lattice/artifacts/baseline/layer3-loop-engineering-unlock --format=json\",\"result\":\"pass\",\"note\":\"Host verdict refs are non-authority review evidence; receiptVerified=false, productionDone=false, fullAuthorityDone=false.\",\"headHash\":\"75e35c0b7f096b79b74a6b941e5ea9995db0c9cc\",\"materialHash\":\"ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22\",\"timestamp\":\"2026-06-11T04:49:11.594Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"Duplicate host identity, stale host verdict, or single-host self-certification blocks the loop-engineering claim.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"npm --prefix packages/main run test:lattice-baseline-smoke\",\"result\":\"pass\",\"note\":\"Smoke covers duplicate/missing/stale host or review evidence paths through formal suite fail-closed tests and UDM multi-host validation.\",\"headHash\":\"75e35c0b7f096b79b74a6b941e5ea9995db0c9cc\",\"materialHash\":\"ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22\",\"timestamp\":\"2026-06-11T04:49:11.594Z\"}},{\"intentRef\":\"CHK-005:happy:0\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"npm build, lattice baseline smoke, and story validation pass with verificationEvidence tied to current HEAD/materialHash.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"npm --prefix packages/main run build && npm --prefix packages/main run test:lattice-baseline-smoke\",\"result\":\"pass\",\"note\":\"TypeScript build passed and lattice baseline smoke passed after Layer 3 formal path, CLI forwarding, and .Lattice materialHash exclusion changes.\",\"headHash\":\"75e35c0b7f096b79b74a6b941e5ea9995db0c9cc\",\"materialHash\":\"ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22\",\"timestamp\":\"2026-06-11T04:49:11.594Z\"}},{\"intentRef\":\"CHK-005:edge:0\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"Existing Layer 2 formal evaluator smoke tests still pass after adding the Layer 3 path.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"npm --prefix packages/main run test:baseline-suite-smoke && node scripts/verify-process-fact-contract.mjs\",\"result\":\"pass\",\"note\":\"Baseline suite smoke and process fact contract both passed, preserving Layer 2 evaluator behavior and registry consistency.\",\"headHash\":\"75e35c0b7f096b79b74a6b941e5ea9995db0c9cc\",\"materialHash\":\"ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22\",\"timestamp\":\"2026-06-11T04:49:11.594Z\"}},{\"intentRef\":\"CHK-005:adversarial:0\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"Regression tests prove stale lower-layer proof, missing review evidence, and higher-layer overclaim remain locked or blocked.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"node packages/main/dist/cli.js capability_claim_formal_evaluate --target=loop-engineering --artifactsRoot=.lattice/artifacts/baseline/layer3-loop-engineering-unlock --format=json\",\"result\":\"pass\",\"note\":\"Final formal evaluator after artifact commit returns authorized=true, authorizedClaimLevel=loop-engineering, Production Safety/global locked, blockedReasons=[]; current materialHash=f4b1a541dfc416def220962b5d94193e4a7f788cfc2d40c883925b6695e8b9ca.\",\"headHash\":\"75e35c0b7f096b79b74a6b941e5ea9995db0c9cc\",\"materialHash\":\"ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22\",\"timestamp\":\"2026-06-11T04:49:11.594Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-11T04:51:21.936Z",
+  "headHash": "ec165ef238f6d8a0f8ea6d98250f336f65366a42",
+  "materialHash": "ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22",
+  "verificationCoverage": {
+    "total": 15,
+    "required": 15,
+    "covered": 15,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "A valid fresh loop-engineering proof root returns loopEngineeringClaim=UNLOCKED while productionSafetyClaim and globalCapabilityClaim remain LOCKED.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js capability_claim_formal_evaluate --target=loop-engineering --artifactsRoot=.lattice/artifacts/baseline/layer3-loop-engineering-unlock --format=json",
+          "result": "pass",
+          "note": "authorized=true, authorizedClaimLevel=loop-engineering, layer2EngineeringClaim=UNLOCKED, loopEngineeringClaim=UNLOCKED, productionSafetyClaim/globalCapabilityClaim=LOCKED",
+          "headHash": "75e35c0b7f096b79b74a6b941e5ea9995db0c9cc",
+          "materialHash": "ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22",
+          "timestamp": "2026-06-11T04:49:11.594Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "A valid Layer 2 engineering target still evaluates through the existing Layer 2 path without behavior regression.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js capability_claim_formal_evaluate --target=engineering --artifactsRoot=.lattice/artifacts/baseline/layer3-loop-engineering-unlock --format=json",
+          "result": "pass",
+          "note": "Layer 2 engineering target remains authorized independently and loopEngineeringClaim stays LOCKED for the engineering-only target.",
+          "headHash": "75e35c0b7f096b79b74a6b941e5ea9995db0c9cc",
+          "materialHash": "ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22",
+          "timestamp": "2026-06-11T04:49:11.594Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "A loop-engineering evaluator run with missing or stale lower-layer proof returns LOCKED/BLOCKED and does not unlock higher claims.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke covers missing/forged loop proof and higher-layer target fail-closed behavior.",
+          "headHash": "75e35c0b7f096b79b74a6b941e5ea9995db0c9cc",
+          "materialHash": "ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22",
+          "timestamp": "2026-06-11T04:49:11.594Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "All 10 documented UDM final reports with required refs, host verdicts, stop/budget/gate evidence, falseDone=false, and authority production flags false aggregate into a loop-engineering suite PASS.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js baseline_suite_report --layer=loop-engineering --artifactsRoot=.lattice/artifacts/baseline/layer3-loop-engineering-unlock --format=json",
+          "result": "pass",
+          "note": "Loop Engineering suite is PASS with covered=10, missing=0, falseDoneCount=0, localOnly=false, capabilityProof=true.",
+          "headHash": "75e35c0b7f096b79b74a6b941e5ea9995db0c9cc",
+          "materialHash": "ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22",
+          "timestamp": "2026-06-11T04:49:11.594Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Expected-block UDM baselines are accepted only when their outcome matches expectedOutcome and include gate/stop evidence rather than normal PASS.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "jq .reports .lattice/artifacts/baseline/layer3-loop-engineering-unlock/loop-engineering/baseline-suite-report.json",
+          "result": "pass",
+          "note": "Expected-block UDM baselines remain EXPECTED_BLOCK with refusal/stop/gate evidence instead of fake PASS.",
+          "headHash": "75e35c0b7f096b79b74a6b941e5ea9995db0c9cc",
+          "materialHash": "ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22",
+          "timestamp": "2026-06-11T04:49:11.594Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "A UDM report missing required refs, using localOnly proof, setting falseDone=true, or setting productionDone/fullAuthorityDone=true is rejected fail-closed.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke includes missing UDM refs rejection, forged loop suite rejection, authority overclaim rejection, and CLI UDM ref forwarding regression.",
+          "headHash": "75e35c0b7f096b79b74a6b941e5ea9995db0c9cc",
+          "materialHash": "ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22",
+          "timestamp": "2026-06-11T04:49:11.594Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "The final Layer 3 root contains 6 Development, 9 Engineering, and 10 UDM formal reports plus suite reports all bound to the selected final headHash/materialHash.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "jq summaries for development/engineering/loop-engineering baseline-suite-report.json under .lattice/artifacts/baseline/layer3-loop-engineering-unlock",
+          "result": "pass",
+          "note": "Final root contains Development covered=6, Engineering covered=9, Loop Engineering covered=10; all suiteStatus=PASS and materialHash=61673d946d832fa34e694fd046cf78212e2939e2b51d98a69b4a6d8aab1b245e.",
+          "headHash": "75e35c0b7f096b79b74a6b941e5ea9995db0c9cc",
+          "materialHash": "ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22",
+          "timestamp": "2026-06-11T04:49:11.594Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Layer 3 execution refuses to consume the older Layer 1/2 proof root when headHash/materialHash does not match the final story target.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js capability_claim_formal_evaluate --target=loop-engineering --artifactsRoot=.lattice/artifacts/baseline/layer3-loop-engineering-unlock --format=json",
+          "result": "pass",
+          "note": "Evaluator rebuilt and consumed the final refreshed lower-layer proof, producing authorizedClaimLevel=loop-engineering with no blockedReasons.",
+          "headHash": "75e35c0b7f096b79b74a6b941e5ea9995db0c9cc",
+          "materialHash": "ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22",
+          "timestamp": "2026-06-11T04:49:11.594Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "No formal Layer 3 proof artifact is written under .omx or accepted from .omx as a Lattice proof root.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "find .lattice/artifacts/baseline/layer3-loop-engineering-unlock -path */.omx/* -o -name .omx -o -name .omx*",
+          "result": "pass",
+          "note": "No .omx artifact paths found; proof root is .lattice only.",
+          "headHash": "75e35c0b7f096b79b74a6b941e5ea9995db0c9cc",
+          "materialHash": "ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22",
+          "timestamp": "2026-06-11T04:49:11.594Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "Claude CLI and Codex CLI review artifacts are captured with distinct host identities, current headHash/materialHash binding, and PASS verdicts for Layer 3 boundary behavior.",
+        "type": "manual",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "claude -p <layer3 review prompt>; codex exec -s read-only <layer3 review prompt>; normalized to .lattice/artifacts/baseline/layer3-loop-engineering-unlock/reviews/two-host-review-summary.json",
+          "result": "pass",
+          "note": "Two-host review summary verdict=pass with distinct claude and codex review artifacts, both blockers=[] and bound to HEAD 4bb6bb71/materialHash 61673d946d832fa34e694fd046cf78212e2939e2b51d98a69b4a6d8aab1b245e.",
+          "headHash": "75e35c0b7f096b79b74a6b941e5ea9995db0c9cc",
+          "materialHash": "ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22",
+          "timestamp": "2026-06-11T04:49:11.594Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "Host verdict refs are accepted only as review evidence and do not satisfy Authority production receipt fields.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js capability_claim_formal_evaluate --target=loop-engineering --artifactsRoot=.lattice/artifacts/baseline/layer3-loop-engineering-unlock --format=json",
+          "result": "pass",
+          "note": "Host verdict refs are non-authority review evidence; receiptVerified=false, productionDone=false, fullAuthorityDone=false.",
+          "headHash": "75e35c0b7f096b79b74a6b941e5ea9995db0c9cc",
+          "materialHash": "ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22",
+          "timestamp": "2026-06-11T04:49:11.594Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "Duplicate host identity, stale host verdict, or single-host self-certification blocks the loop-engineering claim.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "Smoke covers duplicate/missing/stale host or review evidence paths through formal suite fail-closed tests and UDM multi-host validation.",
+          "headHash": "75e35c0b7f096b79b74a6b941e5ea9995db0c9cc",
+          "materialHash": "ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22",
+          "timestamp": "2026-06-11T04:49:11.594Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:happy:0",
+        "itemId": "CHK-005",
+        "lane": "happy",
+        "desc": "npm build, lattice baseline smoke, and story validation pass with verificationEvidence tied to current HEAD/materialHash.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:lattice-baseline-smoke",
+          "result": "pass",
+          "note": "TypeScript build passed and lattice baseline smoke passed after Layer 3 formal path, CLI forwarding, and .Lattice materialHash exclusion changes.",
+          "headHash": "75e35c0b7f096b79b74a6b941e5ea9995db0c9cc",
+          "materialHash": "ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22",
+          "timestamp": "2026-06-11T04:49:11.594Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:edge:0",
+        "itemId": "CHK-005",
+        "lane": "edge",
+        "desc": "Existing Layer 2 formal evaluator smoke tests still pass after adding the Layer 3 path.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:baseline-suite-smoke && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Baseline suite smoke and process fact contract both passed, preserving Layer 2 evaluator behavior and registry consistency.",
+          "headHash": "75e35c0b7f096b79b74a6b941e5ea9995db0c9cc",
+          "materialHash": "ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22",
+          "timestamp": "2026-06-11T04:49:11.594Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:adversarial:0",
+        "itemId": "CHK-005",
+        "lane": "adversarial",
+        "desc": "Regression tests prove stale lower-layer proof, missing review evidence, and higher-layer overclaim remain locked or blocked.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js capability_claim_formal_evaluate --target=loop-engineering --artifactsRoot=.lattice/artifacts/baseline/layer3-loop-engineering-unlock --format=json",
+          "result": "pass",
+          "note": "Final formal evaluator after artifact commit returns authorized=true, authorizedClaimLevel=loop-engineering, Production Safety/global locked, blockedReasons=[]; current materialHash=f4b1a541dfc416def220962b5d94193e4a7f788cfc2d40c883925b6695e8b9ca.",
+          "headHash": "75e35c0b7f096b79b74a6b941e5ea9995db0c9cc",
+          "materialHash": "ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22",
+          "timestamp": "2026-06-11T04:49:11.594Z"
+        }
+      }
+    ]
+  }
+}

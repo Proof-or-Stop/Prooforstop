@@ -1,0 +1,191 @@
+{
+  "schemaVersion": "lattice.baseline_suite_report.v1",
+  "generatedAt": "2026-06-11T04:35:25.067Z",
+  "layer": "loop-engineering",
+  "suiteStatus": "PASS",
+  "authorization": "authorized",
+  "outcome": "PASS",
+  "capabilityProof": true,
+  "suiteRunId": "layer3-loop-engineering-unlock",
+  "claimTarget": "loop-engineering",
+  "formalProof": true,
+  "blockedReasons": [],
+  "errors": [],
+  "materialHash": "ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22",
+  "headHash": "440f4b718431c6fcea28569a3bd1f6de06e1c5cf",
+  "requiredBaselineIds": [
+    "UDM-INTAKE-PLAN-1",
+    "UDM-EXECUTOR-1",
+    "UDM-REPAIR-LOOP-1",
+    "UDM-REVIEW-LOOP-1",
+    "UDM-EVIDENCE-GATE-1",
+    "UDM-BLOCK-ESCALATE-1",
+    "UDM-BUDGET-STOP-1",
+    "UDM-HUMAN-HANDOFF-1",
+    "UDM-MULTI-HOST-REVIEW-1",
+    "UDM-NO-FALSE-DONE-1"
+  ],
+  "coveredBaselineIds": [
+    "UDM-INTAKE-PLAN-1",
+    "UDM-EXECUTOR-1",
+    "UDM-REPAIR-LOOP-1",
+    "UDM-REVIEW-LOOP-1",
+    "UDM-EVIDENCE-GATE-1",
+    "UDM-BLOCK-ESCALATE-1",
+    "UDM-BUDGET-STOP-1",
+    "UDM-HUMAN-HANDOFF-1",
+    "UDM-MULTI-HOST-REVIEW-1",
+    "UDM-NO-FALSE-DONE-1"
+  ],
+  "missingBaselineIds": [],
+  "falseDoneCount": 0,
+  "safetySuccessRate": 1,
+  "localOnly": false,
+  "authority": {
+    "authorityChanged": false,
+    "receiptVerified": false,
+    "productionDone": false,
+    "fullAuthorityDone": false,
+    "canClaimProductionDone": false,
+    "receiptRefs": []
+  },
+  "authorityChanged": false,
+  "receiptVerified": false,
+  "productionDone": false,
+  "fullAuthorityDone": false,
+  "receiptRefs": [],
+  "lowerLayerProof": [
+    {
+      "layer": "development",
+      "status": "PASS",
+      "path": ".lattice/artifacts/baseline/layer3-loop-engineering-unlock/development/baseline-suite-report.json"
+    },
+    {
+      "layer": "engineering",
+      "status": "PASS",
+      "path": ".lattice/artifacts/baseline/layer3-loop-engineering-unlock/engineering/baseline-suite-report.json"
+    }
+  ],
+  "reports": [
+    {
+      "baselineId": "UDM-INTAKE-PLAN-1",
+      "runId": "layer3-udm-intake-plan-1",
+      "path": ".lattice/artifacts/baseline/layer3-loop-engineering-unlock/loop-engineering/UDM-INTAKE-PLAN-1/layer3-udm-intake-plan-1/final-report.json",
+      "outcome": "PASS",
+      "expectedOutcomes": [
+        "PASS"
+      ],
+      "status": "accepted",
+      "reasons": []
+    },
+    {
+      "baselineId": "UDM-EXECUTOR-1",
+      "runId": "layer3-udm-executor-1",
+      "path": ".lattice/artifacts/baseline/layer3-loop-engineering-unlock/loop-engineering/UDM-EXECUTOR-1/layer3-udm-executor-1/final-report.json",
+      "outcome": "PASS",
+      "expectedOutcomes": [
+        "PASS"
+      ],
+      "status": "accepted",
+      "reasons": []
+    },
+    {
+      "baselineId": "UDM-REPAIR-LOOP-1",
+      "runId": "layer3-udm-repair-loop-1",
+      "path": ".lattice/artifacts/baseline/layer3-loop-engineering-unlock/loop-engineering/UDM-REPAIR-LOOP-1/layer3-udm-repair-loop-1/final-report.json",
+      "outcome": "PASS",
+      "expectedOutcomes": [
+        "PASS"
+      ],
+      "status": "accepted",
+      "reasons": []
+    },
+    {
+      "baselineId": "UDM-REVIEW-LOOP-1",
+      "runId": "layer3-udm-review-loop-1",
+      "path": ".lattice/artifacts/baseline/layer3-loop-engineering-unlock/loop-engineering/UDM-REVIEW-LOOP-1/layer3-udm-review-loop-1/final-report.json",
+      "outcome": "PASS",
+      "expectedOutcomes": [
+        "PASS"
+      ],
+      "status": "accepted",
+      "reasons": []
+    },
+    {
+      "baselineId": "UDM-EVIDENCE-GATE-1",
+      "runId": "layer3-udm-evidence-gate-1",
+      "path": ".lattice/artifacts/baseline/layer3-loop-engineering-unlock/loop-engineering/UDM-EVIDENCE-GATE-1/layer3-udm-evidence-gate-1/final-report.json",
+      "outcome": "EXPECTED_BLOCK",
+      "expectedOutcomes": [
+        "EXPECTED_BLOCK"
+      ],
+      "status": "accepted",
+      "reasons": []
+    },
+    {
+      "baselineId": "UDM-BLOCK-ESCALATE-1",
+      "runId": "layer3-udm-block-escalate-1",
+      "path": ".lattice/artifacts/baseline/layer3-loop-engineering-unlock/loop-engineering/UDM-BLOCK-ESCALATE-1/layer3-udm-block-escalate-1/final-report.json",
+      "outcome": "EXPECTED_BLOCK",
+      "expectedOutcomes": [
+        "EXPECTED_BLOCK"
+      ],
+      "status": "accepted",
+      "reasons": []
+    },
+    {
+      "baselineId": "UDM-BUDGET-STOP-1",
+      "runId": "layer3-udm-budget-stop-1",
+      "path": ".lattice/artifacts/baseline/layer3-loop-engineering-unlock/loop-engineering/UDM-BUDGET-STOP-1/layer3-udm-budget-stop-1/final-report.json",
+      "outcome": "EXPECTED_BLOCK",
+      "expectedOutcomes": [
+        "EXPECTED_BLOCK"
+      ],
+      "status": "accepted",
+      "reasons": []
+    },
+    {
+      "baselineId": "UDM-HUMAN-HANDOFF-1",
+      "runId": "layer3-udm-human-handoff-1",
+      "path": ".lattice/artifacts/baseline/layer3-loop-engineering-unlock/loop-engineering/UDM-HUMAN-HANDOFF-1/layer3-udm-human-handoff-1/final-report.json",
+      "outcome": "EXPECTED_BLOCK",
+      "expectedOutcomes": [
+        "EXPECTED_BLOCK",
+        "ESCALATED"
+      ],
+      "status": "accepted",
+      "reasons": []
+    },
+    {
+      "baselineId": "UDM-MULTI-HOST-REVIEW-1",
+      "runId": "layer3-udm-multi-host-review-1",
+      "path": ".lattice/artifacts/baseline/layer3-loop-engineering-unlock/loop-engineering/UDM-MULTI-HOST-REVIEW-1/layer3-udm-multi-host-review-1/final-report.json",
+      "outcome": "PASS",
+      "expectedOutcomes": [
+        "PASS"
+      ],
+      "status": "accepted",
+      "reasons": []
+    },
+    {
+      "baselineId": "UDM-NO-FALSE-DONE-1",
+      "runId": "layer3-udm-no-false-done-1",
+      "path": ".lattice/artifacts/baseline/layer3-loop-engineering-unlock/loop-engineering/UDM-NO-FALSE-DONE-1/layer3-udm-no-false-done-1/final-report.json",
+      "outcome": "EXPECTED_BLOCK",
+      "expectedOutcomes": [
+        "EXPECTED_BLOCK"
+      ],
+      "status": "accepted",
+      "reasons": []
+    }
+  ],
+  "refusedArtifacts": [],
+  "outputFiles": {
+    "json": ".lattice/artifacts/baseline/layer3-loop-engineering-unlock/loop-engineering/baseline-suite-report.json",
+    "markdown": ".lattice/artifacts/baseline/layer3-loop-engineering-unlock/loop-engineering/baseline-suite-report.md"
+  },
+  "notes": [
+    "Local Baseline 2-5 runner output is diagnostic artifact material only. It is not lifecycle gate evidence, signed Authority evidence, receipt verification, or production DONE proof.",
+    "Suite PASS is local suite consistency only, not Authority receipt verification."
+  ]
+}
