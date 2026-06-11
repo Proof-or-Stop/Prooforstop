@@ -1,0 +1,35 @@
+{
+  "storyId": "B-70f5",
+  "checkedAt": "2026-06-11T22:40:38.895Z",
+  "features": [
+    {
+      "feature": "CHK-001: Correct NAV decision-document count from 37 to 38",
+      "covered_by": "checklist CHK-001 scopes fix to count line in NAV.md; filesystem confirms 38 decision .md files",
+      "status": "covered",
+      "excluded_by": ""
+    },
+    {
+      "feature": "CHK-002: Align lifecycle-memory migration target with split destination",
+      "covered_by": "checklist CHK-002 scopes fix to migration-guide row; execution-solution.md documents the split to dev-memory.md + lifecycle-artifact-scope.md",
+      "status": "covered",
+      "excluded_by": ""
+    },
+    {
+      "feature": "Actual root Markdown file moving or deleting (e.g. KOALA.md cleanup)",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Constraint: do not move or delete root Markdown files in this story; background says minimal documentation correctness fix only"
+    }
+  ],
+  "summary": {
+    "total": 3,
+    "covered": 2,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "7668ec96541999a18503c3e25a7f806b60115dd3e5fcd2c9702f1a77989d1555",
+  "openQuestions": []
+}
