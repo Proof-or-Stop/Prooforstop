@@ -130,9 +130,9 @@
       "relatedDocs": [
         "docs/requirements/NAV.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-11T21:40:13.001Z",
       "userSees": "User sees validation evidence showing the document matches current stash@{0}, avoids stash execution, and keeps NAV mechanically consistent.",
       "files": {
         "modify": [],
@@ -161,7 +161,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/stash-split-execution-plan.md",
+          "command": "git stash show --include-untracked --name-status stash@{0} + node inline checker",
+          "result": "pass",
+          "note": "Document mentions all 12 current stash path groups and current stash@{0} is still present.",
+          "headHash": "1cca2a97c86da2c90575f45812cd19fa6770b803",
+          "materialHash": "b88ca3f4d426a05f1acddb66a95350aa0e80a515be661bd7298f31d1044816a5",
+          "timestamp": "2026-06-11T21:40:13.046Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/stash-split-execution-plan.md",
+          "command": "node inline NAV + stash split plan checker",
+          "result": "pass",
+          "note": "Document says Bucket D must use the then-current catalog plus one, with 38 immediately after this story lands, rather than stale 37 for future Layer4.",
+          "headHash": "1cca2a97c86da2c90575f45812cd19fa6770b803",
+          "materialHash": "b88ca3f4d426a05f1acddb66a95350aa0e80a515be661bd7298f31d1044816a5",
+          "timestamp": "2026-06-11T21:40:13.080Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/stash-split-execution-plan.md",
+          "command": "rg git stash pop + node inline checker",
+          "result": "pass",
+          "note": "Document forbids git stash pop and whole-stash apply, and this story did not execute or merge stash content.",
+          "headHash": "1cca2a97c86da2c90575f45812cd19fa6770b803",
+          "materialHash": "b88ca3f4d426a05f1acddb66a95350aa0e80a515be661bd7298f31d1044816a5",
+          "timestamp": "2026-06-11T21:40:13.113Z"
+        }
+      ]
     }
   ]
 }
