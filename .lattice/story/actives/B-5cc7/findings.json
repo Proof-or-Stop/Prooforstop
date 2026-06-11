@@ -64,7 +64,7 @@
       "desc": "docs/requirements/decisions/dev-memory.md documents the dev-memory user-facing commands as lattice dev_memory_* (lines 75-96), matching the F-001/F-002 review expectation. The implementation mostly registers dev_memory_* under the lattice CLI, but dev_memory_start still emits legacy koala dev_memory_finish reminders in packages/main/src/handlers/dev-memory.ts:310-313. That leaves the decision doc and implementation guidance inconsistent on the required command prefix.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-docs",
       "createdAt": "2026-06-11T23:33:13.894Z",
@@ -75,7 +75,9 @@
         "docs/requirements/decisions/dev-memory.md",
         "packages/main/src/handlers/dev-memory.ts",
         "packages/main/src/cli-engine.ts"
-      ]
+      ],
+      "resolvedReason": "Resolved by commit bf001e43: dev_memory_start user-facing reminders now use lattice dev_memory_finish, lattice dev_memory_finish --scope=global, and lattice dev_memory_finish --storyId=<id>, matching docs/requirements/decisions/dev-memory.md. Focused smoke asserts lattice reminder is present and koala dev_memory_finish is absent.",
+      "resolvedAt": "2026-06-11T23:43:16.267Z"
     },
     {
       "id": "B-5cc7:F-005",
