@@ -1,6 +1,6 @@
 # 真相源导航
 
-> 36 个文件
+> 37 个文件
 
 ## decisions
 
@@ -32,6 +32,7 @@
 - [koala 多角色分离改造方案](decisions/role-separation.md)
 - [Session Ownership and Write Leases](decisions/session-ownership-and-write-leases.md)
 - [Claude Code / Codex × Superpowers × Koala 分层说明（草稿）](decisions/stack-layering.md)
+- [Stash Split Execution Plan](decisions/stash-split-execution-plan.md)
 - [Story 生命周期](decisions/story-lifecycle.md)
 - [Root Document Migration Guide](decisions/root-document-migration-guide.md)
 - [@test 注释与 Fixture 规范](decisions/test-fixture-spec.md)

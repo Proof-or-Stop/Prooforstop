@@ -1,0 +1,68 @@
+{
+  "principles": [
+    "Do not optimize for the sake of optimization.",
+    "Do not optimize arbitrarily.",
+    "Only real correctness issues justify later code changes.",
+    "Preserve logic consistency between stash groups, docs, tests, and Lattice asset roots."
+  ],
+  "drivers": [
+    "Avoid whole-stash pop and mixed commits.",
+    "Make untracked stash restore mechanics explicit.",
+    "Keep planner hash change deferred unless proven.",
+    "Keep dev-memory runtime data out of commits by default."
+  ],
+  "options": [
+    {
+      "name": "A: Write a formal split execution decision now",
+      "pros": [
+        "Makes the next implementation stories mechanically safer.",
+        "Captures Claude/Codex REQUEST CHANGES while fresh.",
+        "Does not mutate stash or code."
+      ],
+      "cons": [
+        "Adds one small docs story before implementation continues."
+      ]
+    },
+    {
+      "name": "B: Directly restore and implement stash content",
+      "pros": [
+        "Faster immediate progress."
+      ],
+      "cons": [
+        "High risk of mixing unrelated scopes, stale NAV patch, planner hash churn, and runtime data into one commit."
+      ]
+    },
+    {
+      "name": "C: Leave stash undocumented until later",
+      "pros": [
+        "No immediate documentation work."
+      ],
+      "cons": [
+        "Context will decay and future agents may pop or commit the stash incorrectly."
+      ]
+    }
+  ],
+  "chosen": "A: Write a formal split execution decision now",
+  "rationale": "Choose A because the current need is execution discipline, not code mutation. A creates a concrete, auditable path for later stories while preserving the four principles and avoiding arbitrary cleanup.",
+  "preMortem": [
+    {
+      "scenario": "A future agent runs git stash pop and mixes all stash content into one story.",
+      "trigger": "The plan lacks explicit restore mechanics and stop conditions.",
+      "consequence": "Runtime cleanup, Layer4 docs, planner hash behavior, and local data land together without valid evidence.",
+      "mitigation": "Document bucket-specific restore commands and explicitly forbid whole-stash pop."
+    },
+    {
+      "scenario": "NAV is updated using stale stash content.",
+      "trigger": "The agent applies the stashed NAV patch after main already added new decision entries.",
+      "consequence": "NAV count and decision links become inconsistent.",
+      "mitigation": "Document that NAV must be reconciled against current main and mechanically counted."
+    },
+    {
+      "scenario": "Planner hash change is submitted as harmless formatting.",
+      "trigger": "The one-line hunk is kept inside a broader cleanup story.",
+      "consequence": "Forced planner run IDs change without proof or compatibility reasoning.",
+      "mitigation": "Document planner hash as deferred unless a failing repro and focused test prove correctness need."
+    }
+  ],
+  "timestamp": "2026-06-11T21:32:10.532Z"
+}

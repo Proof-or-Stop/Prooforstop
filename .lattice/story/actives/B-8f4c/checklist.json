@@ -11,9 +11,75 @@
         "docs/requirements/decisions/dev-memory.md",
         "docs/requirements/decisions/lattice-parallel-wave.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-11T21:40:12.630Z",
+      "userSees": "User sees docs/requirements/decisions/stash-split-execution-plan.md with bucketed stash handling, restore mechanics, stop conditions, tests, and non-goals.",
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/stash-split-execution-plan.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Document defines executable buckets for stash@{0}: runtime path cleanup, smoke expectation repairs, Layer4 doc, planner hash deferral, and dev-memory data exclusion.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Document explicitly handles untracked stash restore mechanics, including Layer4 doc from stash untracked parent and no default restore for .lattice/dev-memory/experience.jsonl.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Document forbids whole stash pop, mixed commits, arbitrary planner hash churn, and committing local dev-memory data without explicit versioning decision.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/stash-split-execution-plan.md",
+          "command": "node inline Bucket A / NAV restore correctness checker",
+          "result": "pass",
+          "note": "Document defines executable buckets for dev-memory data handling, runtime artifact cleanup, smoke repairs, Layer4 doc handling, and planner hash deferral.",
+          "headHash": "3ec5c7902b98e1e255a09930b27f3a898cae6d8d",
+          "materialHash": "8b00cd531924b0c5137360c94a274a4d9ffa62b5b5864e44bb28c2b5bbb41712",
+          "timestamp": "2026-06-11T22:00:11.521Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/stash-split-execution-plan.md",
+          "command": "node inline Bucket A / NAV restore correctness checker",
+          "result": "pass",
+          "note": "Bucket A no longer scopes .gitignore or requires git check-ignore; dev-memory data is excluded by not restoring, staging, or committing it.",
+          "headHash": "3ec5c7902b98e1e255a09930b27f3a898cae6d8d",
+          "materialHash": "8b00cd531924b0c5137360c94a274a4d9ffa62b5b5864e44bb28c2b5bbb41712",
+          "timestamp": "2026-06-11T22:00:11.521Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/stash-split-execution-plan.md",
+          "command": "git diff --check HEAD~1..HEAD",
+          "result": "pass",
+          "note": "Focused doc patch has no whitespace errors and only corrects the two reviewer-verified execution-plan issues.",
+          "headHash": "3ec5c7902b98e1e255a09930b27f3a898cae6d8d",
+          "materialHash": "8b00cd531924b0c5137360c94a274a4d9ffa62b5b5864e44bb28c2b5bbb41712",
+          "timestamp": "2026-06-11T22:00:11.521Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -22,9 +88,75 @@
       "relatedDocs": [
         "docs/requirements/NAV.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-11T21:40:13.350Z",
+      "userSees": "User sees docs/requirements/NAV.md count and decision links updated to include the new stash split execution plan decision.",
+      "files": {
+        "modify": [
+          "docs/requirements/NAV.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "NAV count matches the number of Markdown files under docs/requirements/decisions after adding stash-split-execution-plan.md.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "NAV update preserves existing Layer 2, Layer 3, and Root Document Migration Guide entries while adding only the new stash split decision.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "NAV must not apply the stale stash Layer4 patch or claim Layer4 document has been added by this story.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/NAV.md",
+          "command": "node inline NAV current-catalog checker",
+          "result": "pass",
+          "note": "Current NAV has 37 decision links for 37 decision files and includes Stash Split Execution Plan.",
+          "headHash": "3ec5c7902b98e1e255a09930b27f3a898cae6d8d",
+          "materialHash": "8b00cd531924b0c5137360c94a274a4d9ffa62b5b5864e44bb28c2b5bbb41712",
+          "timestamp": "2026-06-11T22:00:11.521Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/NAV.md",
+          "command": "node inline NAV current-catalog checker",
+          "result": "pass",
+          "note": "Current NAV preserves Layer2, Layer3, Root Document Migration Guide, and Stash Split Execution Plan entries.",
+          "headHash": "3ec5c7902b98e1e255a09930b27f3a898cae6d8d",
+          "materialHash": "8b00cd531924b0c5137360c94a274a4d9ffa62b5b5864e44bb28c2b5bbb41712",
+          "timestamp": "2026-06-11T22:00:11.521Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/stash-split-execution-plan.md",
+          "command": "node inline stale NAV restore guard checker",
+          "result": "pass",
+          "note": "Plan forbids restoring docs/requirements/NAV.md from stash@{0}; future Layer4 work must hand-merge the NAV link and count from current state.",
+          "headHash": "3ec5c7902b98e1e255a09930b27f3a898cae6d8d",
+          "materialHash": "8b00cd531924b0c5137360c94a274a4d9ffa62b5b5864e44bb28c2b5bbb41712",
+          "timestamp": "2026-06-11T22:00:11.521Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -33,9 +165,73 @@
       "relatedDocs": [
         "docs/requirements/NAV.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-11T21:40:13.001Z",
+      "userSees": "User sees validation evidence showing the document matches current stash@{0}, avoids stash execution, and keeps NAV mechanically consistent.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Mechanical check confirms document mentions every current stash@{0} path group and the current stash still exists.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Mechanical check confirms the document says NAV must be reconciled against current main and count 37 for this story, rather than reusing stale stash NAV text.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Mechanical check confirms the document does not say to run git stash pop and does not claim the stash content was executed or merged.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/stash-split-execution-plan.md",
+          "command": "git stash show --name-only --include-untracked stash@{0} + node inline checker",
+          "result": "pass",
+          "note": "Current stash@{0} still exists with the same 12 paths; plan still inventories each path group and restores untracked Layer4 doc only from stash@{0}^3.",
+          "headHash": "3ec5c7902b98e1e255a09930b27f3a898cae6d8d",
+          "materialHash": "8b00cd531924b0c5137360c94a274a4d9ffa62b5b5864e44bb28c2b5bbb41712",
+          "timestamp": "2026-06-11T22:00:11.521Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/stash-split-execution-plan.md",
+          "command": "STASH_OBJECT=$(git rev-parse stash@{0}); git stash show --name-status --include-untracked \"$STASH_OBJECT\"; node inline stable-stash-ref checker",
+          "result": "pass",
+          "note": "Plan now binds stash@{0} to expected object c4dcc3aff95fd999712d7f19dcf856f791cf0d05 and uses STASH_OBJECT / STASH_OBJECT^3 for executable diff, restore, show, and inventory commands.",
+          "headHash": "0a9056a3f341327036a73bf65619441a8148a095",
+          "materialHash": "8b00cd531924b0c5137360c94a274a4d9ffa62b5b5864e44bb28c2b5bbb41712",
+          "timestamp": "2026-06-11T21:59:44.868Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/stash-split-execution-plan.md",
+          "command": "node inline fenced bash checker for positional stash refs + git diff --check HEAD~1..HEAD",
+          "result": "pass",
+          "note": "Executable command blocks no longer use positional stash@{0} for git diff, restore, show, stash show, or ls-tree after identity capture; whitespace check passes.",
+          "headHash": "eef4cef22a0bd83e34d425e5a8ca42042f563ab3",
+          "materialHash": "8b00cd531924b0c5137360c94a274a4d9ffa62b5b5864e44bb28c2b5bbb41712",
+          "timestamp": "2026-06-11T21:59:50.616Z"
+        }
+      ]
     }
   ]
 }

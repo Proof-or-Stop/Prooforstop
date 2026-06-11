@@ -1,0 +1,196 @@
+{
+  "command": "koala validate --story=B-8f4c --json",
+  "output": "{\"provider\":\"koala-verifier-fallback-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed; validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"details\":[\"validate.ts/js/mts not found and no configured validate.command(s); used advisory fallback command discovery\",\"✓ package.json test script: npm test\",\"  > koala@0.3.5 test\",\"  > npm run test:e2e\",\"  > koala@0.3.5 test:e2e\",\"  > node packages/main/dist/tasks/cli-e2e.js\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-zbH0bB; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\",\"  ✓ story-lifecycle (5 steps)\",\"    ✓ story_create (step 1)\",\"    ✓ story_advance (step 2)\",\"    ✓ checklist_update (step 3)\",\"    ✓ task_coverage (step 4)\",\"    ✓ test_auto (step 5)\",\"  ℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-RdYVs3; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\",\"  ✓ gap-convergence (4 steps)\",\"    ✓ truth_scan (step 1)\",\"    ✓ truth_analyze (step 2)\",\"    ✓ gap_analyze (step 3)\",\"    ✓ convergence_check (step 4)\",\"  ✓ ALL PASS\",\"Verification intent coverage: 9/9 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/docs] covered via docs_check (docs/requirements/decisions/stash-split-execution-plan.md) — Document defines executable buckets for stash@{0}: runtime path cleanup, smoke expectation repairs, Layer4 doc, planner hash deferral, and dev-memory data exclusion.\",\"  ✓ CHK-001:edge:0 [edge/must/docs] covered via docs_check (docs/requirements/decisions/stash-split-execution-plan.md) — Document explicitly handles untracked stash restore mechanics, including Layer4 doc from stash untracked parent and no default restore for .lattice/dev-memory/experience.jsonl.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/docs] covered via docs_check (docs/requirements/decisions/stash-split-execution-plan.md) — Document forbids whole stash pop, mixed commits, arbitrary planner hash churn, and committing local dev-memory data without explicit versioning decision.\",\"  ✓ CHK-002:happy:0 [happy/must/docs] covered via docs_check (docs/requirements/NAV.md) — NAV count matches the number of Markdown files under docs/requirements/decisions after adding stash-split-execution-plan.md.\",\"  ✓ CHK-002:edge:0 [edge/must/docs] covered via docs_check (docs/requirements/NAV.md) — NAV update preserves existing Layer 2, Layer 3, and Root Document Migration Guide entries while adding only the new stash split decision.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/docs] covered via docs_check (docs/requirements/decisions/stash-split-execution-plan.md) — NAV must not apply the stale stash Layer4 patch or claim Layer4 document has been added by this story.\",\"  ✓ CHK-003:happy:0 [happy/must/docs] covered via docs_check (docs/requirements/decisions/stash-split-execution-plan.md) — Mechanical check confirms document mentions every current stash@{0} path group and the current stash still exists.\",\"  ✓ CHK-003:edge:0 [edge/must/docs] covered via docs_check (docs/requirements/decisions/stash-split-execution-plan.md) — Mechanical check confirms the document says NAV must be reconciled against current main and count 37 for this story, rather than reusing stale stash NAV text.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/docs] covered via docs_check (docs/requirements/decisions/stash-split-execution-plan.md) — Mechanical check confirms the document does not say to run git stash pop and does not claim the stash content was executed or merged.\"],\"warnings\":[],\"timestamp\":\"2026-06-11T22:07:32.924Z\",\"headSha\":\"8142321739e78e79fb9bac5ef1571ca458b5b817\",\"commands\":[{\"label\":\"package.json test script\",\"command\":\"npm\",\"args\":[\"test\"],\"code\":0,\"output\":\"\\n> koala@0.3.5 test\\n> npm run test:e2e\\n\\n\\n> koala@0.3.5 test:e2e\\n> node packages/main/dist/tasks/cli-e2e.js\\n\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-zbH0bB; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n↻ Written and persistence confirmed: CHK-001 current status=done. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\\n\\n✓ story-lifecycle (5 steps)\\n  ✓ story_create (step 1)\\n  ✓ story_advance (step 2)\\n  ✓ checklist_update (step 3)\\n  ✓ task_coverage (step 4)\\n  ✓ test_auto (step 5)\\nℹ Reading legacy koala.config.json at /var/folders/0_/9hnh7r5n3fv273t0l684bq_80000gn/T/koala-e2e-RdYVs3; rename to lattice.config.json to silence this notice (canonical Lattice CLI config).\\n\\n✓ gap-convergence (4 steps)\\n  ✓ truth_scan (step 1)\\n  ✓ truth_analyze (step 2)\\n  ✓ gap_analyze (step 3)\\n  ✓ convergence_check (step 4)\\n\\n✓ ALL PASS\\n\",\"durationMs\":948}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":9,\"reason\":\"verificationIntent entries present (9)\"},\"verificationCoverage\":{\"total\":9,\"required\":9,\"covered\":9,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Document defines executable buckets for stash@{0}: runtime path cleanup, smoke expectation repairs, Layer4 doc, planner hash deferral, and dev-memory data exclusion.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/stash-split-execution-plan.md\",\"command\":\"node inline Bucket A / NAV restore correctness checker\",\"result\":\"pass\",\"note\":\"Document defines executable buckets for dev-memory data handling, runtime artifact cleanup, smoke repairs, Layer4 doc handling, and planner hash deferral.\",\"headHash\":\"3ec5c7902b98e1e255a09930b27f3a898cae6d8d\",\"materialHash\":\"8b00cd531924b0c5137360c94a274a4d9ffa62b5b5864e44bb28c2b5bbb41712\",\"timestamp\":\"2026-06-11T22:00:11.521Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Document explicitly handles untracked stash restore mechanics, including Layer4 doc from stash untracked parent and no default restore for .lattice/dev-memory/experience.jsonl.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/stash-split-execution-plan.md\",\"command\":\"node inline Bucket A / NAV restore correctness checker\",\"result\":\"pass\",\"note\":\"Bucket A no longer scopes .gitignore or requires git check-ignore; dev-memory data is excluded by not restoring, staging, or committing it.\",\"headHash\":\"3ec5c7902b98e1e255a09930b27f3a898cae6d8d\",\"materialHash\":\"8b00cd531924b0c5137360c94a274a4d9ffa62b5b5864e44bb28c2b5bbb41712\",\"timestamp\":\"2026-06-11T22:00:11.521Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Document forbids whole stash pop, mixed commits, arbitrary planner hash churn, and committing local dev-memory data without explicit versioning decision.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/stash-split-execution-plan.md\",\"command\":\"git diff --check HEAD~1..HEAD\",\"result\":\"pass\",\"note\":\"Focused doc patch has no whitespace errors and only corrects the two reviewer-verified execution-plan issues.\",\"headHash\":\"3ec5c7902b98e1e255a09930b27f3a898cae6d8d\",\"materialHash\":\"8b00cd531924b0c5137360c94a274a4d9ffa62b5b5864e44bb28c2b5bbb41712\",\"timestamp\":\"2026-06-11T22:00:11.521Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"NAV count matches the number of Markdown files under docs/requirements/decisions after adding stash-split-execution-plan.md.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/NAV.md\",\"command\":\"node inline NAV current-catalog checker\",\"result\":\"pass\",\"note\":\"Current NAV has 37 decision links for 37 decision files and includes Stash Split Execution Plan.\",\"headHash\":\"3ec5c7902b98e1e255a09930b27f3a898cae6d8d\",\"materialHash\":\"8b00cd531924b0c5137360c94a274a4d9ffa62b5b5864e44bb28c2b5bbb41712\",\"timestamp\":\"2026-06-11T22:00:11.521Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"NAV update preserves existing Layer 2, Layer 3, and Root Document Migration Guide entries while adding only the new stash split decision.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/NAV.md\",\"command\":\"node inline NAV current-catalog checker\",\"result\":\"pass\",\"note\":\"Current NAV preserves Layer2, Layer3, Root Document Migration Guide, and Stash Split Execution Plan entries.\",\"headHash\":\"3ec5c7902b98e1e255a09930b27f3a898cae6d8d\",\"materialHash\":\"8b00cd531924b0c5137360c94a274a4d9ffa62b5b5864e44bb28c2b5bbb41712\",\"timestamp\":\"2026-06-11T22:00:11.521Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"NAV must not apply the stale stash Layer4 patch or claim Layer4 document has been added by this story.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/stash-split-execution-plan.md\",\"command\":\"node inline stale NAV restore guard checker\",\"result\":\"pass\",\"note\":\"Plan forbids restoring docs/requirements/NAV.md from stash@{0}; future Layer4 work must hand-merge the NAV link and count from current state.\",\"headHash\":\"3ec5c7902b98e1e255a09930b27f3a898cae6d8d\",\"materialHash\":\"8b00cd531924b0c5137360c94a274a4d9ffa62b5b5864e44bb28c2b5bbb41712\",\"timestamp\":\"2026-06-11T22:00:11.521Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Mechanical check confirms document mentions every current stash@{0} path group and the current stash still exists.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/stash-split-execution-plan.md\",\"command\":\"git stash show --name-only --include-untracked stash@{0} + node inline checker\",\"result\":\"pass\",\"note\":\"Current stash@{0} still exists with the same 12 paths; plan still inventories each path group and restores untracked Layer4 doc only from stash@{0}^3.\",\"headHash\":\"3ec5c7902b98e1e255a09930b27f3a898cae6d8d\",\"materialHash\":\"8b00cd531924b0c5137360c94a274a4d9ffa62b5b5864e44bb28c2b5bbb41712\",\"timestamp\":\"2026-06-11T22:00:11.521Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Mechanical check confirms the document says NAV must be reconciled against current main and count 37 for this story, rather than reusing stale stash NAV text.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/stash-split-execution-plan.md\",\"command\":\"STASH_OBJECT=$(git rev-parse stash@{0}); git stash show --name-status --include-untracked \\\"$STASH_OBJECT\\\"; node inline stable-stash-ref checker\",\"result\":\"pass\",\"note\":\"Plan now binds stash@{0} to expected object c4dcc3aff95fd999712d7f19dcf856f791cf0d05 and uses STASH_OBJECT / STASH_OBJECT^3 for executable diff, restore, show, and inventory commands.\",\"headHash\":\"0a9056a3f341327036a73bf65619441a8148a095\",\"materialHash\":\"8b00cd531924b0c5137360c94a274a4d9ffa62b5b5864e44bb28c2b5bbb41712\",\"timestamp\":\"2026-06-11T21:59:44.868Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Mechanical check confirms the document does not say to run git stash pop and does not claim the stash content was executed or merged.\",\"type\":\"docs\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"docs_check\",\"file\":\"docs/requirements/decisions/stash-split-execution-plan.md\",\"command\":\"node inline fenced bash checker for positional stash refs + git diff --check HEAD~1..HEAD\",\"result\":\"pass\",\"note\":\"Executable command blocks no longer use positional stash@{0} for git diff, restore, show, stash show, or ls-tree after identity capture; whitespace check passes.\",\"headHash\":\"eef4cef22a0bd83e34d425e5a8ca42042f563ab3\",\"materialHash\":\"8b00cd531924b0c5137360c94a274a4d9ffa62b5b5864e44bb28c2b5bbb41712\",\"timestamp\":\"2026-06-11T21:59:50.616Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-11T22:07:33.225Z",
+  "headHash": "8142321739e78e79fb9bac5ef1571ca458b5b817",
+  "materialHash": "8b00cd531924b0c5137360c94a274a4d9ffa62b5b5864e44bb28c2b5bbb41712",
+  "verificationCoverage": {
+    "total": 9,
+    "required": 9,
+    "covered": 9,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "Document defines executable buckets for stash@{0}: runtime path cleanup, smoke expectation repairs, Layer4 doc, planner hash deferral, and dev-memory data exclusion.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/stash-split-execution-plan.md",
+          "command": "node inline Bucket A / NAV restore correctness checker",
+          "result": "pass",
+          "note": "Document defines executable buckets for dev-memory data handling, runtime artifact cleanup, smoke repairs, Layer4 doc handling, and planner hash deferral.",
+          "headHash": "3ec5c7902b98e1e255a09930b27f3a898cae6d8d",
+          "materialHash": "8b00cd531924b0c5137360c94a274a4d9ffa62b5b5864e44bb28c2b5bbb41712",
+          "timestamp": "2026-06-11T22:00:11.521Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Document explicitly handles untracked stash restore mechanics, including Layer4 doc from stash untracked parent and no default restore for .lattice/dev-memory/experience.jsonl.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/stash-split-execution-plan.md",
+          "command": "node inline Bucket A / NAV restore correctness checker",
+          "result": "pass",
+          "note": "Bucket A no longer scopes .gitignore or requires git check-ignore; dev-memory data is excluded by not restoring, staging, or committing it.",
+          "headHash": "3ec5c7902b98e1e255a09930b27f3a898cae6d8d",
+          "materialHash": "8b00cd531924b0c5137360c94a274a4d9ffa62b5b5864e44bb28c2b5bbb41712",
+          "timestamp": "2026-06-11T22:00:11.521Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Document forbids whole stash pop, mixed commits, arbitrary planner hash churn, and committing local dev-memory data without explicit versioning decision.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/stash-split-execution-plan.md",
+          "command": "git diff --check HEAD~1..HEAD",
+          "result": "pass",
+          "note": "Focused doc patch has no whitespace errors and only corrects the two reviewer-verified execution-plan issues.",
+          "headHash": "3ec5c7902b98e1e255a09930b27f3a898cae6d8d",
+          "materialHash": "8b00cd531924b0c5137360c94a274a4d9ffa62b5b5864e44bb28c2b5bbb41712",
+          "timestamp": "2026-06-11T22:00:11.521Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "NAV count matches the number of Markdown files under docs/requirements/decisions after adding stash-split-execution-plan.md.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/NAV.md",
+          "command": "node inline NAV current-catalog checker",
+          "result": "pass",
+          "note": "Current NAV has 37 decision links for 37 decision files and includes Stash Split Execution Plan.",
+          "headHash": "3ec5c7902b98e1e255a09930b27f3a898cae6d8d",
+          "materialHash": "8b00cd531924b0c5137360c94a274a4d9ffa62b5b5864e44bb28c2b5bbb41712",
+          "timestamp": "2026-06-11T22:00:11.521Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "NAV update preserves existing Layer 2, Layer 3, and Root Document Migration Guide entries while adding only the new stash split decision.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/NAV.md",
+          "command": "node inline NAV current-catalog checker",
+          "result": "pass",
+          "note": "Current NAV preserves Layer2, Layer3, Root Document Migration Guide, and Stash Split Execution Plan entries.",
+          "headHash": "3ec5c7902b98e1e255a09930b27f3a898cae6d8d",
+          "materialHash": "8b00cd531924b0c5137360c94a274a4d9ffa62b5b5864e44bb28c2b5bbb41712",
+          "timestamp": "2026-06-11T22:00:11.521Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "NAV must not apply the stale stash Layer4 patch or claim Layer4 document has been added by this story.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/stash-split-execution-plan.md",
+          "command": "node inline stale NAV restore guard checker",
+          "result": "pass",
+          "note": "Plan forbids restoring docs/requirements/NAV.md from stash@{0}; future Layer4 work must hand-merge the NAV link and count from current state.",
+          "headHash": "3ec5c7902b98e1e255a09930b27f3a898cae6d8d",
+          "materialHash": "8b00cd531924b0c5137360c94a274a4d9ffa62b5b5864e44bb28c2b5bbb41712",
+          "timestamp": "2026-06-11T22:00:11.521Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Mechanical check confirms document mentions every current stash@{0} path group and the current stash still exists.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/stash-split-execution-plan.md",
+          "command": "git stash show --name-only --include-untracked stash@{0} + node inline checker",
+          "result": "pass",
+          "note": "Current stash@{0} still exists with the same 12 paths; plan still inventories each path group and restores untracked Layer4 doc only from stash@{0}^3.",
+          "headHash": "3ec5c7902b98e1e255a09930b27f3a898cae6d8d",
+          "materialHash": "8b00cd531924b0c5137360c94a274a4d9ffa62b5b5864e44bb28c2b5bbb41712",
+          "timestamp": "2026-06-11T22:00:11.521Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Mechanical check confirms the document says NAV must be reconciled against current main and count 37 for this story, rather than reusing stale stash NAV text.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/stash-split-execution-plan.md",
+          "command": "STASH_OBJECT=$(git rev-parse stash@{0}); git stash show --name-status --include-untracked \"$STASH_OBJECT\"; node inline stable-stash-ref checker",
+          "result": "pass",
+          "note": "Plan now binds stash@{0} to expected object c4dcc3aff95fd999712d7f19dcf856f791cf0d05 and uses STASH_OBJECT / STASH_OBJECT^3 for executable diff, restore, show, and inventory commands.",
+          "headHash": "0a9056a3f341327036a73bf65619441a8148a095",
+          "materialHash": "8b00cd531924b0c5137360c94a274a4d9ffa62b5b5864e44bb28c2b5bbb41712",
+          "timestamp": "2026-06-11T21:59:44.868Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Mechanical check confirms the document does not say to run git stash pop and does not claim the stash content was executed or merged.",
+        "type": "docs",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/stash-split-execution-plan.md",
+          "command": "node inline fenced bash checker for positional stash refs + git diff --check HEAD~1..HEAD",
+          "result": "pass",
+          "note": "Executable command blocks no longer use positional stash@{0} for git diff, restore, show, stash show, or ls-tree after identity capture; whitespace check passes.",
+          "headHash": "eef4cef22a0bd83e34d425e5a8ca42042f563ab3",
+          "materialHash": "8b00cd531924b0c5137360c94a274a4d9ffa62b5b5864e44bb28c2b5bbb41712",
+          "timestamp": "2026-06-11T21:59:50.616Z"
+        }
+      }
+    ]
+  }
+}

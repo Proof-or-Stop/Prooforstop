@@ -1,0 +1,64 @@
+{
+  "storyId": "B-8f4c",
+  "checkedAt": "2026-06-11T22:10:57.287Z",
+  "reviewRound": "2026-06-11T21:59:57.876Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/stash-split-execution-plan.md",
+      "promise": "Formal executable plan exists for safely splitting stash@{0} without whole-stash pop/apply/restore.",
+      "status": "verified",
+      "verifiedBy": "nl -ba plus git diff main...HEAD",
+      "evidence": "Document added under docs/requirements/decisions; purpose and non-negotiable no whole-stash rules plus bucket split, path-limited recovery, and final retirement are present."
+    },
+    {
+      "docPath": "docs/requirements/decisions/stash-split-execution-plan.md#dev-memory-data-handling",
+      "promise": "Plan protects dev-memory data from being falsely treated as normal source or .gitignore evidence.",
+      "status": "verified",
+      "verifiedBy": "document scan plus git diff --name-status main...HEAD plus git status --porcelain",
+      "evidence": "Plan says not to restore, stage, or commit .lattice/dev-memory/experience.jsonl; branch diff contains no .lattice/dev-memory path and worktree status is clean."
+    },
+    {
+      "docPath": "docs/requirements/decisions/stash-split-execution-plan.md#layer-4-documentation",
+      "promise": "Plan prevents stale NAV restoration and requires hand-merging NAV from the current catalog.",
+      "status": "verified",
+      "verifiedBy": "document scan plus NAV count/link check",
+      "evidence": "Plan forbids restoring docs/requirements/NAV.md from the stash and requires current-state reconciliation; NAV currently has 37 links for 37 decision markdown files."
+    },
+    {
+      "docPath": "docs/requirements/decisions/stash-split-execution-plan.md#current-stash-inventory",
+      "promise": "Executable stash commands bind to stable stash object identity before restore, diff, show, or inventory actions.",
+      "status": "verified",
+      "verifiedBy": "git rev-parse/log/stash show/ls-tree",
+      "evidence": "Plan captures EXPECTED_STASH_OBJECT=c4dcc3aff95fd999712d7f19dcf856f791cf0d05, tests the resolved object, and uses STASH_OBJECT/STASH_OBJECT^3 for executable commands; live command output matched the hash, subject, 12 paths, and third-parent untracked list."
+    },
+    {
+      "docPath": "docs/requirements/NAV.md",
+      "promise": "NAV is updated for the new decision and remains catalog-consistent.",
+      "status": "verified",
+      "verifiedBy": "decision file count plus NAV link count",
+      "evidence": "NAV says 37 files, links Stash Split Execution Plan, and mechanical counts show 37 decision markdown files and 37 NAV decision links."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Read docs/requirements/decisions/stash-split-execution-plan.md and reviewed git diff main...HEAD. Verified the document contains purpose, non-negotiable no whole-stash rules, bucket split, path-limited recovery, and final stash retirement sections."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Counted docs/requirements/decisions markdown files and NAV decision links; both are 37, including Stash Split Execution Plan."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Resolved stash@{0} to c4dcc3aff95fd999712d7f19dcf856f791cf0d05; git log subject matched the documented stash; git stash show --name-status --include-untracked returned the documented 12 paths; git ls-tree STASH_OBJECT^3 returned only .lattice/dev-memory/experience.jsonl and docs/requirements/decisions/unlock-layer4-production-safety-suite.md. lattice validate --story=B-8f4c --json returned PASS with 9/9 coverage."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery promises are verified: the execution document, NAV update, dev-memory guard, stale NAV guard, and stable stash identity guard are all supported by diff and live command evidence."
+  },
+  "_hash": "fa55459ce9ccf429fc036bcd9df4f78d69344ad873fd005a4f543bdbe24b4513"
+}

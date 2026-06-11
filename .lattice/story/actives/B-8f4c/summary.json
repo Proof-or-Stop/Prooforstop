@@ -1,0 +1,56 @@
+{
+  "storyId": "B-8f4c",
+  "changes": "Added docs/requirements/decisions/stash-split-execution-plan.md and updated docs/requirements/NAV.md. The plan splits stash@{0} into concrete future buckets, forbids whole-stash apply/pop/restore, protects dev-memory data, forbids stale NAV restore, and pins the stash object before executable commands.",
+  "usage": "Use docs/requirements/decisions/stash-split-execution-plan.md as the execution guide before processing the parked stash. Start one future story per bucket, capture STASH_OBJECT, restore only approved paths, and run the bucket-specific checks before commit.",
+  "expectedOutcome": "User can open the decision document and see a safe, executable plan for processing stash@{0}, with NAV updated and no stash content applied by this story.",
+  "actualTranscript": "lattice validate --story=B-8f4c --json returned status pass, allPass true, npm test pass, cli-e2e ALL PASS, and verification intent coverage 9/9. Delivery reviewer verified five document promises and three real-machine tests.",
+  "outcomeDiff": "Expected and actual match. The story delivered the execution document and NAV entry only; stash bucket execution remains intentionally deferred to future stories.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "This story does not process or drop the stash. It only documents the safe split plan; each bucket still needs its own future story, implementation, tests, and review.",
+  "pitfalls": "Worktree validation initially failed because node_modules and packages/main/dist were missing in the worktree; symlinked ignored node_modules and ran npm run build to create ignored dist before rerunning validate. Reviewer also caught that positional stash@{0} refs could drift, so the plan now pins STASH_OBJECT.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 70646
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 14853
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 220682
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 901903
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 1030744
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 222914
+    }
+  },
+  "totalDurationMs": 2461744,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-11T22:11:07.109Z",
+  "updatedAt": "2026-06-11T22:11:07.109Z"
+}
