@@ -940,6 +940,11 @@ function assertHelpListsCommand(help: CliResult, command: string): void {
     true,
     '.lattice baseline proof artifacts must be excluded from material hash',
   );
+  assert.equal(
+    isMaterialExcludedRuntimeArtifactPath('.Lattice/artifacts/baseline/example/final-report.json'),
+    true,
+    '.Lattice baseline proof artifacts must be excluded from material hash',
+  );
 
   const help = runCli(repoRoot, ['help']);
   requireSuccess(help, 'help');

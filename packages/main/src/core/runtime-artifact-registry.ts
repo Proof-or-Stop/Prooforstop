@@ -115,8 +115,11 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
   {
     id: 'lattice-authority-key-file',
     description: 'Internal Lattice Authority key-management file; may contain local private key material.',
-    matchers: [{ kind: 'exact', value: '.lattice/authority.md' }],
-    ignorePatterns: ['.lattice/authority.md'],
+    matchers: [
+      { kind: 'exact', value: '.lattice/authority.md' },
+      { kind: 'exact', value: '.Lattice/authority.md' },
+    ],
+    ignorePatterns: ['.lattice/authority.md', '.Lattice/authority.md'],
     materialHash: 'exclude',
     volatile: true,
     repairableTrackedArtifact: true,
@@ -124,8 +127,11 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
   {
     id: 'lattice-baseline-artifacts',
     description: 'Lattice baseline proof artifacts kept outside the material tree.',
-    matchers: [{ kind: 'prefix', value: '.lattice/artifacts/baseline/' }],
-    ignorePatterns: ['.lattice/artifacts/baseline/'],
+    matchers: [
+      { kind: 'prefix', value: '.lattice/artifacts/baseline/' },
+      { kind: 'prefix', value: '.Lattice/artifacts/baseline/' },
+    ],
+    ignorePatterns: ['.lattice/artifacts/baseline/', '.Lattice/artifacts/baseline/'],
     materialHash: 'exclude',
     volatile: true,
     repairableTrackedArtifact: true,
