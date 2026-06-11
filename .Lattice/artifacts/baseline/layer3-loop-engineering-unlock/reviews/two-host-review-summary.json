@@ -1,8 +1,8 @@
 {
   "schemaVersion": "lattice.layer3.two_host_review.v1",
-  "generatedAt": "2026-06-11T04:06:46.685Z",
-  "headHash": "4bb6bb71e8196f49e6e53834ae66610ae622592b",
-  "materialHash": "61673d946d832fa34e694fd046cf78212e2939e2b51d98a69b4a6d8aab1b245e",
+  "generatedAt": "2026-06-11T04:21:39.582Z",
+  "headHash": "80b5492e513f790d5b8abd19a9cce3b897ae00c1",
+  "materialHash": "f4b1a541dfc416def220962b5d94193e4a7f788cfc2d40c883925b6695e8b9ca",
   "artifactsRoot": ".lattice/artifacts/baseline/layer3-loop-engineering-unlock",
   "requiredHosts": [
     "claude",
@@ -16,53 +16,95 @@
       "verdict": "pass",
       "blockers": [],
       "checkedCommands": [
-        "capability_claim_formal_evaluate --target=loop-engineering",
-        "capability_claim_formal_evaluate --target=production-safety",
-        "baseline_run --formal --plannedStepRefs/reviewLoopRefs/hostVerdictRefs/budgetReportRef/stopConditionRefs",
-        "baseline_suite_report --layer=loop-engineering",
-        "baseline_suite_report --layer=engineering"
+        "claim-report.json (loop: CLAIM-LOOP-ENGINEERING)",
+        "claim-report.json (production: CLAIM-PRODUCTION-SAFETY)"
       ],
       "notes": [
-        "evaluateFormalLoopEngineeringClaim requires all three lower-layer proofs (development + engineering + loop-engineering) to be valid before unlocking; verified at lattice-baseline.ts:2756-2783",
-        "productionSafetyClaim and globalCapabilityClaim are hardcoded LOCKED in both formal evaluators (lines 2742-2744, 2825-2826)",
-        "All five UDM fields (plannedStepRefs, reviewLoopRefs, hostVerdictRefs, budgetReportRef, stopConditionRefs) are forwarded through handler (baseline.ts:106-110) and persisted in final report (lattice-baseline.ts:1637-1641)",
-        "loopEngineeringFormalProofEvidenceProblems validates per-baseline UDM field requirements with baseline ID sets (lines 1262-1323)",
-        "All artifacts use .lattice/ path; only .omx reference is a refuse-to-use guard (line 844)",
-        "Expected-block baselines (UDM-EVIDENCE-GATE-1, UDM-BLOCK-ESCALATE-1, UDM-BUDGET-STOP-1, UDM-HUMAN-HANDOFF-1, UDM-NO-FALSE-DONE-1) verified as outcome=EXPECTED_BLOCK with refusalEvidenceRefs in persisted artifacts",
-        "Smoke tests 23-26 cover: full unlock path, forged suite rejection, missing UDM refs rejection, and CLI parameter forwarding",
-        "collectFormalSuiteProofState rebuilds suite from final-reports independently (line 2624), preventing forged summary-only attacks"
+        "Loop claim: authorized=true, outcome=PASS, authorizedClaimLevel=loop-engineering — all match required values",
+        "Production-safety claim: authorized=false, outcome=EXPECTED_BLOCK — correctly locked as required",
+        "productionSafetyClaim=LOCKED and globalCapabilityClaim=LOCKED in both reports — no false escalation",
+        "Loop blockedReasons=[] — no real blockers present",
+        "hardFacts consistent: falseDoneCount=0, safetySuccessRate=1, staleVerdicts=0",
+        "receiptVerified=false, multiHostVerified=false, soakSatisfied=false — correctly not claimed at loop-engineering level",
+        "formalProof=true on loop claim; false on production claim — appropriate per layer",
+        "layer2EngineeringClaim=UNLOCKED (prerequisite satisfied), loopEngineeringClaim=UNLOCKED in loop report",
+        "Production report correctly shows all layers LOCKED (evaluator scope limited to eng/loop-eng)",
+        "19 final reports backing loop claim across development/engineering/loop-engineering suites",
+        "materialHash: f4b1a541dfc416def220962b5d94193e4a7f788cfc2d40c883925b6695e8b9ca — recorded, not independently re-derived"
       ],
       "principlesApplied": [
-        "Do not optimize for the sake of optimization — no suggestions for code changes that are not correctness issues",
-        "Do not optimize arbitrarily — audit limited to stated focus checks",
-        "Only identify real correctness issues — no blockers found after verifying all paths",
-        "Follow consistency of logic — verified claim escalation chain is consistent across evaluators, handlers, smoke tests, and persisted artifacts"
+        "Evidence-backed scope: loop-engineering claim backed by 19 final reports across 3 suite tiers; no claim exceeds evidence",
+        "No false escalation: production-safety and global-capability remain LOCKED in both reports; prohibited wording explicitly bars production-ready claims",
+        "Honest blocking: production-safety returns EXPECTED_BLOCK with clear reason; not masked or suppressed",
+        "Limitation transparency: both reports declare explicit limitations including locked higher layers, no productionDone, no fullAuthorityDone, no public production authority"
       ],
       "rawFile": "claude-layer3-review.raw.json",
-      "rawSha256": "a53d19dc2fcf9bcf34ad0d0ec368859467db8f7989cedb6ff06dce2d43e93048"
+      "rawSha256": "bb596a45b5d116805c410ce78118e572f884bc7bf06380226e9becac145359f5"
     },
     "codex": {
-      "host": "codex",
-      "source": "codex",
+      "host": "JekdeMacBook-Pro.local",
+      "source": "codex-read-only-audit",
       "verdict": "pass",
       "blockers": [],
       "checkedCommands": [
-        "lattice session_brief",
-        "node packages/main/dist/cli.js capability_claim_formal_evaluate --target=loop-engineering --artifactsRoot=.lattice/artifacts/baseline/layer3-loop-engineering-unlock --format=json",
-        "node packages/main/dist/cli.js capability_claim_formal_evaluate --target=production-safety --artifactsRoot=.lattice/artifacts/baseline/layer3-loop-engineering-unlock --format=json",
-        "find .lattice/artifacts/baseline/layer3-loop-engineering-unlock -name '.omx' -o -name '.omx*' -o -path '*/.omx/*'"
+        {
+          "command": "lattice session_brief",
+          "result": "pass",
+          "notes": "Read-only context check completed; story is B-428c in DEV. Reported stale story evidence and active owner lease, but those are not correctness blockers for this proof audit."
+        },
+        {
+          "command": "lattice aux_doc_list",
+          "result": "pass",
+          "notes": "Project docs listed for context; no blocker found."
+        },
+        {
+          "command": "node packages/main/dist/cli.js capability_claim_formal_evaluate --target=loop-engineering --artifactsRoot=.lattice/artifacts/baseline/layer3-loop-engineering-unlock --format=json",
+          "result": "pass",
+          "notes": "Returned outcome PASS, authorized true, authorizedClaimLevel loop-engineering, highestEvidenceBackedClaim loop-engineering, loopEngineeringClaim UNLOCKED, productionSafetyClaim LOCKED, globalCapabilityClaim LOCKED."
+        },
+        {
+          "command": "node packages/main/dist/cli.js capability_claim_formal_evaluate --target=production-safety --artifactsRoot=.lattice/artifacts/baseline/layer3-loop-engineering-unlock --format=json",
+          "result": "pass",
+          "notes": "Returned outcome EXPECTED_BLOCK, authorized false, productionSafetyClaim LOCKED, with blocked reason that formal evaluator can unlock only Engineering or Loop Engineering claims."
+        },
+        {
+          "command": "find .lattice/artifacts/baseline/layer3-loop-engineering-unlock -path '*/.omx*' -print",
+          "result": "pass",
+          "notes": "No output; no .omx path found under proof root."
+        },
+        {
+          "command": "rg -n 'currentMaterialHash|materialHash' .lattice/artifacts/baseline/layer3-loop-engineering-unlock packages/main/src packages/main/dist scripts lattice.config.json package.json",
+          "result": "pass",
+          "notes": "Proof artifacts consistently report materialHash f4b1a541dfc416def220962b5d94193e4a7f788cfc2d40c883925b6695e8b9ca."
+        },
+        {
+          "command": "node --input-type=module -e \"import { currentMaterialHash } from './packages/main/dist/core/evidence-freshness.js'; console.log(currentMaterialHash(process.cwd()) ?? '');\"",
+          "result": "pass",
+          "notes": "currentMaterialHash is f4b1a541dfc416def220962b5d94193e4a7f788cfc2d40c883925b6695e8b9ca, matching proof materialHash."
+        },
+        {
+          "command": "hostname",
+          "result": "pass",
+          "notes": "Host identified as JekdeMacBook-Pro.local."
+        }
       ],
       "notes": [
-        "loop-engineering authorized=true outcome=PASS formalProof=true layer2EngineeringClaim=UNLOCKED loopEngineeringClaim=UNLOCKED productionSafetyClaim=LOCKED globalCapabilityClaim=LOCKED",
-        "production-safety authorized=false outcome=EXPECTED_BLOCK productionSafetyClaim=LOCKED globalCapabilityClaim=LOCKED",
-        "no .omx assets found under artifacts root"
+        "Loop-engineering is unlocked by the formal evaluator from the requested proof root.",
+        "Production-safety remains locked from the same proof root, as required.",
+        "currentMaterialHash matches proof materialHash: f4b1a541dfc416def220962b5d94193e4a7f788cfc2d40c883925b6695e8b9ca.",
+        "No .omx artifact exists under the proof root.",
+        "No real correctness blocker found. Non-proof operational warnings observed: koala health write EPERM, active owner lease, and stale story lifecycle evidence from session_brief."
       ],
       "principlesApplied": [
-        "read-only audit",
-        "only real correctness blockers reported"
+        "read-only audit only",
+        "used Lattice session_brief first per AGENTS.md",
+        "verified machine-readable CLI outputs rather than prose claims",
+        "treated only proof-correctness failures as blockers",
+        "did not read or write docs/story or tests/fixtures directly",
+        "did not touch .omx"
       ],
       "rawFile": "codex-layer3-review.raw.json",
-      "rawSha256": "4f30cf1f3756e3bc595ff3f98dd1e1d7d1368f46af4aeb352633022aae79d1d2"
+      "rawSha256": "f61270a229fb25825869a4ba6e170a54c95c4066f7f55de4e0a3c5ee381ffc7e"
     }
   },
   "principles": [
