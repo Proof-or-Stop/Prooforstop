@@ -1,0 +1,35 @@
+{
+  "storyId": "B-0b9b",
+  "checkedAt": "2026-06-11T22:11:02.612Z",
+  "reviewRound": "",
+  "agentId": "koala-review-story-init@fallback",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "koala-review-story-init@fallback",
+      "checkedAt": "2026-06-11T22:11:02.612Z",
+      "issues": []
+    },
+    {
+      "agentId": "product-reviewer@fallback",
+      "checkedAt": "2026-06-11T22:11:02.612Z",
+      "issues": []
+    }
+  ],
+  "fallback": {
+    "mode": "fallback",
+    "reason": "Current tool policy only permits spawning subagents when the user explicitly asks for delegation in this turn. I manually checked that B-0b9b is a documentation-only execution-plan story, has two scoped checklist items, references the existing root-document migration guide and NAV, and has no direct code/runtime change in INIT.",
+    "evidenceRefs": [
+      "docs/requirements/decisions/root-document-migration-guide.md",
+      "docs/requirements/NAV.md",
+      "session_brief active story check",
+      "root Markdown inventory"
+    ],
+    "actor": "codex",
+    "session": "sess-10f3a74e4fffbc2e",
+    "attestedAt": "2026-06-11T22:11:02.612Z",
+    "headHash": "a2118d25e57d7adc9caca07bb46e36a9f247699d",
+    "materialHash": "72a43ca7d60f170376685493f3f3ae2c030f19eb22186fb5ab05680f67a98178"
+  },
+  "_hash": "094d450597d907c3616b1c05b4a82a9f3f488eba4ce2db832719a8ba523c5ad5"
+}
