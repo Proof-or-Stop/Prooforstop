@@ -46,6 +46,11 @@ export function createLatticeBaselineHandlers(ctx: HandlerContext): Record<strin
       lifecycleGateEvidenceRefs?: string[] | string;
       gateEvidenceRefs?: string[] | string;
       receiptRefs?: string[] | string;
+      plannedStepRefs?: string[] | string;
+      reviewLoopRefs?: string[] | string;
+      hostVerdictRefs?: string[] | string;
+      budgetReportRef?: string;
+      stopConditionRefs?: string[] | string;
     } & FormatArgs) {
       const result = runBaseline({
         root: ctx.root,
@@ -63,6 +68,11 @@ export function createLatticeBaselineHandlers(ctx: HandlerContext): Record<strin
         lifecycleGateEvidenceRefs: args.lifecycleGateEvidenceRefs,
         gateEvidenceRefs: args.gateEvidenceRefs,
         receiptRefs: args.receiptRefs,
+        plannedStepRefs: args.plannedStepRefs,
+        reviewLoopRefs: args.reviewLoopRefs,
+        hostVerdictRefs: args.hostVerdictRefs,
+        budgetReportRef: args.budgetReportRef,
+        stopConditionRefs: args.stopConditionRefs,
       });
       if (wantsJson(args)) return result;
       return renderBaselineRunText(result);
