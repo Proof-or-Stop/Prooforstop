@@ -1,0 +1,77 @@
+{
+  "storyId": "B-e3d9",
+  "checkedAt": "2026-06-11T02:13:18.424Z",
+  "reviewRound": "2026-06-11T01:53:36.174Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/cc-learnings.md",
+      "promise": "Dry-run contract derives from schema plus COMMAND_POLICIES; no speculative ToolDef.supportsDryRun field required.",
+      "status": "verified",
+      "verifiedBy": "doc diff + validate/gap_analyze",
+      "evidence": "cc-learnings.md:492-503; validate reported 15/15 coverage and gap_analyze reported 100%/100% with 0 high/0 medium."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-authority-live-integration.md",
+      "promise": "Authority live integration and worktree policy claims are backed by runtime enforcement and smoke evidence.",
+      "status": "verified",
+      "verifiedBy": "doc diff + smokes",
+      "evidence": "lattice-authority-live-integration.md:227-232 and 2762-2767; test:worktree-policy-smoke and test:planner-unattended-smoke passed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+      "promise": "Unsupported serverKey.algorithm is rejected fail-closed in production receipt verification.",
+      "status": "verified",
+      "verifiedBy": "doc diff + authority-client smoke",
+      "evidence": "lattice-authority-receipt-contract.md:183-190; test:authority-client passed and verifyLatticeAuthorityReceipt rejects unsupported, blank, and non-string algorithms."
+    },
+    {
+      "docPath": "docs/requirements/decisions/host-neutral-observability-console.md",
+      "promise": "Host-neutral evidence claims stay backed by local Lattice outputs, while Claude and Codex host observations remain advisory only.",
+      "status": "met",
+      "verifiedBy": "local Lattice outputs + advisory host notes",
+      "evidence": "node bin/lattice.js gap_analyze reported 100%/100% and 0 high/0 medium; node bin/lattice.js validate --story=B-e3d9 passed with 15/15 coverage; node bin/lattice-codex.js verify_codex passed with one advisory global fallback heartbeat note."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm --prefix packages/main run test:authority-client -> pass; unsupported production receipt algorithms are rejected fail-closed, while canonical ed25519 and ED25519 normalization still pass."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "npm --prefix packages/main run test:lattice-cli-migration-smoke -> pass; dry-run/help behavior stays aligned to live command policy and schema, without a speculative supportsDryRun metadata field."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "npm --prefix packages/main run test:worktree-policy-smoke -> pass; authoritative_worktree_unresolved and dirty_worktree are distinct, and unrelated dirty changes are preserved. npm --prefix packages/main run test:planner-unattended-smoke -> pass for the authoritative worktree path."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "npm --prefix packages/main run test:planner-unattended-smoke -> pass; missing confirmation blocks story creation with confirmation required before Story creation, and planner_answer confirmationDigest unblocks create-story."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "node bin/lattice.js gap_analyze -> 100% coverage and 0 high/0 medium gaps; node bin/lattice.js validate --story=B-e3d9 -> PASS with 15/15 coverage; node bin/lattice-codex.js verify_codex -> pass with only an advisory global fallback heartbeat note."
+    },
+    {
+      "featureId": "GAP-FINAL",
+      "transcript": "node bin/lattice.js gap_analyze -> Requirement coverage 100%, Test coverage 100%, Gaps: 0 high / 0 medium."
+    },
+    {
+      "featureId": "VALIDATE-FINAL",
+      "transcript": "node bin/lattice.js validate --story=B-e3d9 -> validation PASS; 15/15 verification intent coverage; advisory fallback npm test passed."
+    },
+    {
+      "featureId": "CODEX-FINAL",
+      "transcript": "node bin/lattice-codex.js verify_codex -> Codex adapter checks passed (6/7 pass); global fallback heartbeat is advisory only."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Local Lattice validation, gap analysis, and Codex adapter verification all passed, focused smokes covered the dry-run/help, receipt algorithm, worktree policy, and planner confirmation edge cases, and no unresolved delivery TODOs remain."
+  },
+  "_hash": "721816929781da8ec7acaf22f7088af7c3fbcc3f4ba4bcaf9643b29b861b7e1d"
+}
