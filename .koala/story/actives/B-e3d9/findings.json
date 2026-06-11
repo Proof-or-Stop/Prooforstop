@@ -44,7 +44,7 @@
       "desc": "packages/main/src/core/authority-client.ts:1833 WHY: CHK-001 is only fail-closed on the policy-discovery fallback path. When a production deployment pins LATTICE_AUTHORITY_SERVER_PUBLIC_KEY / authority.md key material, resolveGateVerifyConfig skips discoverPolicy entirely, so serverKey.algorithm is never loaded into AuthorityGateVerifyConfig and verifyLatticeAuthorityReceipt never sees the unsupported-algorithm guard required by docs/requirements/decisions/lattice-authority-receipt-contract.md:174-181. I reproduced this on the current HEAD with a fake authority server that would publish serverKey.algorithm=\"rsa\" while the local env pins the same Ed25519 public key: resolveAuthorityGateEvaluator returned counts.policy=0 plus decisionStatus=verified / receiptVerified=true, so the gate accepted a receipt even though the declared algorithm was unsupported. packages/main/src/tasks/authority-client-smoke.ts:1118-1235 only covers the discovery path (explicitly unsetting SERVER_KEY_ID / pinned key material), so this regression stays untested. severity=high. Fix: make production receipt verification resolve and enforce serverKey.algorithm even when the public key is pinned locally (for example still discover policy for algorithm/keyId, or require pinned algorithm metadata and fail closed when it is absent), and add a smoke that exercises the pinned-key path.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-concept",
       "createdAt": "2026-06-10T23:53:09.664Z",
@@ -55,7 +55,9 @@
         "packages/main/src/core/authority-client.ts",
         "packages/main/src/tasks/authority-client-smoke.ts",
         "docs/requirements/decisions/lattice-authority-receipt-contract.md"
-      ]
+      ],
+      "resolvedReason": "Fixed by commit 309a856c. resolveGateVerifyConfig and resolveServerVerifyMaterial now consult policy serverKey metadata even when env/authority.md pins the server public key, while keeping the pinned key as the trust anchor and never allowing policy publicKeyHex to override it. authority-client smoke covers pinned key plus policy algorithm=rsa fail-closed for gate evaluation and job status, and pinned key plus ED25519 accepted. Verified with build, authority-client smoke, gap_analyze 0 high/0 medium, planner/worktree/dry-run/gap hygiene smokes, and validate 15/15.",
+      "resolvedAt": "2026-06-11T00:18:40.524Z"
     }
   ]
 }
