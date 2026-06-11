@@ -4,7 +4,7 @@
   "title": "Execute stash bucket A dev-memory legacy read fallback",
   "description": "Process only Bucket A from the approved stash split plan. Restore and verify the dev-memory code hunk that lets Lattice read current .lattice dev-memory plus read-only legacy .koala dev-memory fallback while continuing to write only .lattice data and keeping dev-memory non-authoritative. Do not restore, stage, or commit .lattice/dev-memory/experience.jsonl from the stash.",
   "type": "feature",
-  "phase": "PLAN",
+  "phase": "DEV",
   "priority": "high",
   "createdAt": "2026-06-11T22:54:11.177Z",
   "startedAt": "2026-06-11T22:54:11.177Z",
@@ -32,6 +32,15 @@
       "timestamp": "2026-06-11T22:55:52.843Z",
       "branch": "story/B-5cc7",
       "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-11T22:58:51.737Z",
+      "branch": "story/B-5cc7",
+      "user": "Harmonygo",
+      "sessionId": "sess-c91ef614bc20db4e",
       "agent": "main"
     }
   ],
