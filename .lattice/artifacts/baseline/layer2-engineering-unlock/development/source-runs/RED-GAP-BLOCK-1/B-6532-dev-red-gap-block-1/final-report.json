@@ -1,0 +1,57 @@
+{
+  "schemaVersion": "lattice.baseline.final-report.v1",
+  "baselineId": "RED-GAP-BLOCK-1",
+  "runId": "B-6532-dev-red-gap-block-1",
+  "track": "redevelopment-safety",
+  "expectedOutcome": "EXPECTED_BLOCK",
+  "outcome": "EXPECTED_BLOCK",
+  "invalidReason": null,
+  "blockedReason": "required non-portable source behavior gap blocks equivalent redevelopment",
+  "weight": 4,
+  "authority": {
+    "mode": "non-authority",
+    "authorityDone": false,
+    "receiptVerified": false,
+    "multiHostVerified": false,
+    "fullAuthorityDone": false,
+    "status": "not-applicable"
+  },
+  "local": {
+    "localReviewCertified": false,
+    "authorityServerContact": false,
+    "status": "blocked",
+    "evidenceRefs": [],
+    "requiredIndependentHosts": 2,
+    "independentHosts": 0,
+    "passingIndependentHosts": 0,
+    "failingIndependentHosts": 0,
+    "staleVerdicts": 0,
+    "blockedReason": "expected-block scenario did not certify local review"
+  },
+  "metrics": {
+    "durationSeconds": 0,
+    "retryCount": 0,
+    "repairCount": 0,
+    "evidenceCount": 0,
+    "hostVerdictCount": 0,
+    "reviewWaveCount": 0
+  },
+  "failure": null,
+  "artifacts": {
+    "story": "story.json",
+    "checklist": "checklist.json",
+    "jobPlan": "job-plan.json",
+    "executionLog": "execution-log.jsonl",
+    "evidenceIndex": null,
+    "gateReceipt": null,
+    "hostVerdicts": null,
+    "authorityStatus": null,
+    "localReviewStatus": "local-review-status.json",
+    "sourceManifest": "source-manifest.json",
+    "semanticMap": "semantic-map.json",
+    "parityFixtures": "parity-fixtures.json",
+    "sourceRunnerLog": "source-runner.log",
+    "targetRunnerLog": "target-runner.log",
+    "gapLog": "gap-log.json"
+  }
+}

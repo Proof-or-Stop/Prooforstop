@@ -1,0 +1,35 @@
+{
+  "storyId": "B-6532",
+  "checkedAt": "2026-06-11T00:25:37.667Z",
+  "reviewRound": "2026-06-11T00:23:52.021Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
+      "promise": "Layer 2 Engineering Baseline claim unlock requires formal Development proof, nine Engineering baselines, fail-closed traps, dual-host review evidence, and higher-layer claims remaining locked.",
+      "status": "verified",
+      "verifiedBy": "baseline_suite_report + capability_claim_formal_evaluate + validate --story",
+      "evidence": "Engineering suite PASS; capability_claim_formal_evaluate target=engineering authorized true; Loop/Production/global claims remain LOCKED."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md",
+      "promise": "Lattice-owned baseline and review assets must live under .lattice rather than .omx artifact roots.",
+      "status": "verified",
+      "verifiedBy": "git diff + path scan + migrated artifact references",
+      "evidence": "Prior .omx/artifacts content migrated under .lattice/artifacts/legacy-omx; non-legacy references use .lattice/artifacts."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "B-6532",
+      "transcript": "REVIEW->TEST preflight passed channel/concept/lint/docs-drift/codex-adapter gates; TEST validate ran npm test on this machine and returned allPass=true with 24/24 verification intents covered."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Layer 2 Engineering claim is formally unlockable from fresh .lattice proof artifacts; higher layers remain locked and no false DONE or .omx artifact ownership claim is introduced."
+  },
+  "_hash": "b7c6347b2267325d0375cf65bc6c8b7d4b5a1b8d6585dea3cc553f754da8b995"
+}

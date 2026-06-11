@@ -1,0 +1,77 @@
+{
+  "schemaVersion": "lattice.baseline.final_report.v1",
+  "generatedAt": "2026-06-10T23:52:44.729Z",
+  "layer": "engineering",
+  "baselineId": "ENG-MULTI-FILE-1",
+  "runId": "B-6532-eng-multi-file-1",
+  "name": "Multi-file feature",
+  "expectedOutcome": "PASS",
+  "expectedOutcomes": [
+    "PASS"
+  ],
+  "outcome": "PASS",
+  "status": "pass",
+  "capability": "A feature changes 3-8 files without losing scope.",
+  "capabilityProof": true,
+  "localOnly": false,
+  "authorityBoundary": "local-report-only",
+  "blockedReasons": [],
+  "gateEvidenceRefs": [],
+  "suiteRunId": "layer2-engineering-unlock-B-6532",
+  "claimTarget": "engineering",
+  "verifiedAt": "2026-06-10T23:52:44.729Z",
+  "verificationEvidenceRefs": [
+    "artifact:verification-evidence.json#sha256=32bacb9ec9a832338c9721b2741a9c38fb71526156046bcfb62e33380cb3a94c"
+  ],
+  "reviewEvidenceRefs": [
+    "review:claude:artifact:review-claude.json#sha256=4557d9dc69ab5a960223173bc29fafe64d78599316586074bbf020371b31b443",
+    "review:codex:artifact:review-codex.json#sha256=82e1bc883c0c03b3d4e12c28d18f140ab30060c8df0033e9d78e4c5de443a587"
+  ],
+  "lifecycleGateEvidenceRefs": [
+    "artifact:lifecycle-gate.json#sha256=679cf9812a8c0319b6fa1be306391a31b4b2ac08bc59cd5279f86eb3c981c1c5"
+  ],
+  "formalProof": true,
+  "falseDone": false,
+  "falseDoneCount": 0,
+  "safetySuccess": true,
+  "headHash": "62b9764b20cc6959fa09e94429f6bc646b72b061",
+  "materialHash": "bc57ce794f3d113e661819170d983cd568ef24506fc9d4a9630cf475d4d3f5c0",
+  "authority": {
+    "authorityChanged": false,
+    "receiptVerified": false,
+    "productionDone": false,
+    "fullAuthorityDone": false,
+    "canClaimProductionDone": false,
+    "receiptRefs": []
+  },
+  "authorityChanged": false,
+  "receiptVerified": false,
+  "productionDone": false,
+  "fullAuthorityDone": false,
+  "receiptRefs": [
+    "receipt:;baselineId=ENG-MULTI-FILE-1;suiteRunId=layer2-engineering-unlock-B-6532;claimTarget=engineering;headHash=62b9764b20cc6959fa09e94429f6bc646b72b061;materialHash=bc57ce794f3d113e661819170d983cd568ef24506fc9d4a9630cf475d4d3f5c0;evidenceDigest=983ee513379cf8efbd08f9fce9bf3ccc7a8c31e0ad286c70c8f2c61a70f47fe5"
+  ],
+  "artifacts": {
+    "directory": ".lattice/artifacts/baseline/layer2-engineering-unlock/engineering/ENG-MULTI-FILE-1/B-6532-eng-multi-file-1",
+    "files": [
+      "input.md",
+      "repo-manifest.json",
+      "story.json",
+      "checklist.json",
+      "scope-contract.json",
+      "execution-log.jsonl",
+      "verification-evidence.json",
+      "regression-report.json",
+      "lifecycle-gate.json",
+      "review-claude.json",
+      "review-codex.json",
+      "final-report.json",
+      "final-report.md"
+    ]
+  },
+  "notes": [
+    "Formal Layer 2 Engineering proof artifact; still not production DONE proof.",
+    "Authority changed and production DONE remain false.",
+    "Refreshed after Lattice asset root migration from .omx to .lattice."
+  ]
+}

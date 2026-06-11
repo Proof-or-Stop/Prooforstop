@@ -7,7 +7,7 @@
 ## Purpose
 
 This document defines the final live proof that the Authority receipt chain works
-across the real Server, Runner, and Lattice CLI.
+across the deployed staging Authority Server, Runner, and Lattice CLI.
 
 The smoke is valid only when it uses a real Authority Server, a registered
 runner, real signed envelopes, a verified `gate_decision` receipt, and a local
@@ -15,7 +15,7 @@ gate that consumes the receipt ref.
 
 ## Required Environment
 
-- deployed or locally running production-capable Lattice Authority Server;
+- deployed staging production-capable Lattice Authority Server;
 - non-ephemeral server private key;
 - non-default server key id;
 - trusted server public key or pinned digest;
@@ -27,12 +27,13 @@ gate that consumes the receipt ref.
 - Lattice CLI build containing receipt verification and gate consumption.
 
 Fake server fixtures and local contract servers can run earlier contract tests,
-but this live smoke must label them invalid for production authority.
+but this live smoke must label them invalid for production authority. A local
+server is not an acceptable substitute for the final deployed staging smoke.
 
 ## Smoke Flow
 
 ```text
-1. Start Authority Server
+1. Use deployed staging Authority Server
 2. Discover policy and server public key
 3. Register or verify actor key
 4. Register runner heartbeat with session id

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "lattice.baseline.parity-fixtures.v1",
+  "baselineId": "RED-API-TS-GO-1",
+  "cases": [
+    {
+      "id": "happy-1",
+      "input": [
+        "--help"
+      ],
+      "expectedStdout": "usage",
+      "expectedExitCode": 0
+    }
+  ]
+}

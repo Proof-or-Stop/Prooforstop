@@ -1,6 +1,6 @@
 # Authority Receipt Gate Integration Execution Plan
 
-> Status: execution plan for the next implementation slice.
+> Status: execution plan for the remaining validation and rollout slice.
 > Parent: [Authority Receipt Gate End-to-End Plan](authority-session-receipt-gate-execution.md).
 > Related:
 > [Lattice Authority Receipt Contract](lattice-authority-receipt-contract.md),
@@ -18,8 +18,9 @@ The first slice established the primitives:
 - Lattice CLI has a pure receipt-ref eligibility and consumption predicate.
 - `authority-receipt-refs.json` is registered as an L4 process fact artifact.
 
-This plan defines the next slice: wire real receipt verification, receipt-ref
-writing, and lifecycle gate consumption without changing local workflow
+This plan now tracks the remaining slice: prove the deployed staging path and
+rollout policy around the existing receipt verification, receipt-ref writing,
+and lifecycle gate consumption baseline without changing local workflow
 semantics for stories that do not require Authority-backed evidence.
 
 ## Principles
@@ -53,26 +54,47 @@ material hash, state version, evidence digests, and run bindings.
 Local stories without that requirement must continue to work under existing
 local gates.
 
-## Current Correctness Gaps
+## Current Baseline and Correctness Gaps
 
-1. The Server can return `GET /v1/receipts/{receiptId}`, but that response
-   contains only the receipt envelope. The CLI cannot recompute `inputDigest` or
-   `decisionDigest` without the associated input/decision payloads.
-2. The CLI has no HTTP receipt-proof fetch/verify command.
-3. The CLI has no writer that persists verified `gate_decision` facts into the
-   story artifact `authority-receipt-refs.json`.
-4. REVIEW/TEST/DONE gates do not read or consume that artifact.
-5. Receipt consumption is not yet idempotent. Retrying a gate must not append
-   duplicate consumption events or double-derive `strongEvidenceConsumed`.
-6. Freshness needs clock-skew-aware policy before it becomes a hard gate.
-7. Key trust needs a minimum key-set model so production classification does not
-   depend on a single hardcoded current key.
+Server proof bundle support is current baseline, not remaining work:
+`GET /v1/receipts/{receipt_id}/proof` returns `AuthorityReceiptProof` with the
+receipt, `inputPayload`, `decisionPayload`, `decisionDigestPayload`, and server
+key metadata needed by a remote verifier.
+
+Lattice CLI and local gate primitives are also current baseline:
+
+- `authority_receipt_verify` / `lattice authority receipt verify` verifies proof
+  bundles and writes production `gate_decision` refs only after production
+  classification.
+- `AuthorityClient.fetchGateReceiptProof()` fetches server-relative proof paths.
+- `authority-receipt-refs.json` has store APIs and an L4 process fact registry
+  entry.
+- TEST/DONE validation and transition gates can read and consume verified refs
+  in Authority shadow/enforce mode.
+- Receipt consumption is idempotent for the same story, phase, head hash,
+  material hash, and decision digest.
+
+The remaining gaps are:
+
+1. Cross-repo live smoke must prove the current Server + CLI + gate baseline
+   against the deployed staging service with positive and negative controls.
+2. Actor key binding, runner heartbeat, and runner/session enforcement need an
+   explicit rollout policy before unattended strong evidence treats them as hard
+   requirements. Current staging enforces production Authority/key posture, but
+   does not advertise those actor/runner lifecycle checks as active top-level
+   enforcement flags.
+3. Key trust and rotation policy need operator-facing configuration guidance so
+   production classification does not depend on an implicit local default.
+4. Freshness policy needs rollout guidance for clock skew and offline
+   revocation/supersession checks before it becomes a production hard gate.
 
 ## Execution Waves
 
 ### Wave 1: Server Receipt Proof Bundle
 
 Owner: Lattice Authority Server.
+
+Status: baseline complete on staging as of 2026-06-10.
 
 Goal: make a receipt independently verifiable by a remote client.
 
@@ -85,11 +107,11 @@ Files likely involved:
 - `src/lattice_authority/repositories/sqlalchemy.py`
 - `tests/test_api.py`
 
-Implement:
+Implemented baseline:
 
-1. Add a response schema such as `AuthorityReceiptProof`.
-2. Add `GET /v1/receipts/{receiptId}/proof`.
-3. For a `gate_decision` receipt, return:
+1. `AuthorityReceiptProof` exists in OpenAPI.
+2. `GET /v1/receipts/{receipt_id}/proof` exists.
+3. For a `gate_decision` receipt, the proof bundle returns:
    - `receipt`;
    - associated `recordId`;
    - `inputPayload`;
@@ -99,10 +121,11 @@ Implement:
    - `requestedByActorId`;
    - server key metadata needed for classification, including `serverKeyId`,
      public key material, and production-inert/local-test flag.
-4. Reject missing receipts with `receipt_not_found`.
-5. Reject proof lookup for records that cannot be bound back to the receipt with
+4. Missing receipts reject with `receipt_not_found`.
+5. Proof lookup for records that cannot be bound back to the receipt should
+   continue to reject with
    a precise server error such as `receipt_proof_payload_missing`.
-6. Do not issue a new receipt from this endpoint. It is read-only.
+6. The endpoint is read-only and must not issue a new receipt.
 
 Acceptance tests:
 
@@ -112,11 +135,14 @@ Acceptance tests:
 - Missing receipt returns 404.
 - A non-gate receipt can either return proof marked non-gate or reject as not
   gate-consumable, but it must not masquerade as `gate_decision`.
-- Existing `GET /v1/receipts/{receiptId}` remains backward-compatible.
+- Existing `GET /v1/receipts/{receipt_id}` remains backward-compatible.
 
 ### Wave 2: CLI Receipt Verification and Writer
 
 Owner: Lattice CLI.
+
+Status: local baseline implemented; needs staging/live proof verification and
+rollout hardening.
 
 Goal: fetch Server proof, verify it, classify it, and write a structured
 receipt-ref artifact.
@@ -133,14 +159,15 @@ Files likely involved:
 - `packages/main/src/core/command-policy.ts`
 - `packages/main/src/core/process-fact-registry.ts`
 - `packages/main/src/core/process-fact-levels.ts`
-- new task smoke under `packages/main/src/tasks/`
+- task smoke under `packages/main/src/tasks/`
 
-Implement:
+Implemented baseline:
 
-1. Add a Zod schema for the server proof bundle.
-2. Add `AuthorityClient.getReceiptProof(receiptId)`.
-3. Add a pure verifier module, for example
-   `core/authority-gate-receipt-verifier.ts`, that:
+1. Zod schemas for the server proof bundle exist in
+   `core/authority-gate-receipt-verifier.ts`.
+2. `AuthorityClient.fetchGateReceiptProof(proofPath)` fetches server-relative
+   proof bundles.
+3. The pure verifier module verifies and classifies proof bundles:
    - verifies receipt signature over the canonical unsigned receipt payload;
    - recomputes `inputDigest` from `inputPayload`;
    - recomputes `decisionDigest` from `decisionDigestPayload`;
@@ -151,16 +178,15 @@ Implement:
    - supports trusted key ids/digests from a key set, not only a single key;
    - applies `maxVerifiedAgeMs` plus `allowedClockSkewMs`;
    - returns machine-readable fail reasons.
-4. Add a command such as `authority_receipt_verify`, exposed as:
+4. `authority_receipt_verify` is exposed as:
    `lattice authority receipt verify`.
 5. The command writes `authority-receipt-refs.json` only when classification is
    `production-gate-decision`.
-6. Add store methods for this artifact instead of direct ad hoc story JSON
+6. Store methods exist for this artifact instead of direct ad hoc story JSON
    writes:
    - `readAuthorityReceiptRefs(storyId)`;
    - `writeAuthorityReceiptRefs(storyId, document)`.
-7. Preserve old refs; mark stale/superseded refs instead of silently deleting
-   where audit history matters.
+7. Existing refs are preserved through structured upsert behavior.
 8. Keep diagnostics for invalid/local-test/contract-only receipts, but do not
    let them become gate-consumable refs.
 
@@ -182,6 +208,9 @@ Acceptance tests:
 
 Owner: Lattice CLI lifecycle gates.
 
+Status: local TEST/DONE baseline implemented; REVIEW policy and production
+rollout need explicit decision before hard enforcement.
+
 Goal: make receipt consumption a real gate input without duplicate events.
 
 Files likely involved:
@@ -196,31 +225,47 @@ Files likely involved:
 - `packages/main/src/core/process-fact-registry.ts`
 - `scripts/verify-process-fact-contract.mjs`
 
-Implement:
+Implemented baseline:
 
-1. Extend `AuthorityGateReceiptConsumptionEvent` with a stable
-   `consumerDecisionId`.
-2. Make consumption idempotent:
+1. Consumption is idempotent:
    - if the same receipt already has a matching consumption event, return the
      existing event and fact;
    - do not append duplicates on retry or crash recovery.
-3. Add explicit Authority gate policy configuration, defaulting to local/shadow
-   behavior:
+   - current baseline deduplicates by story id, target phase, head hash,
+     material hash, and decision digest rather than a separate
+     `consumerDecisionId`.
+2. Authority gate policy configuration defaults to local/off behavior and
+   supports shadow/enforce behavior:
+   - no config means existing local gates remain authoritative locally;
+   - `mode=shadow` reports eligible/missing receipts but does not block;
+   - `mode=enforce` blocks TEST/DONE when the required receipt is absent or
+     invalid.
+3. Gate adapters:
+   - build current gate context from story id, target phase, current head hash,
+     material hash, policy profile, and Authority mode;
+   - read `authority-receipt-refs.json`;
+   - call `eligibleAuthorityGateReceiptDocument`;
+   - call idempotent consumption;
+   - persist the updated artifact only after a successful consume;
+   - return precise fail reasons for gate output.
+
+Remaining rollout work:
+
+1. Decide whether REVIEW must consume a separate Authority review gate receipt
+   or remain optional unless project policy requires it.
+2. Document and configure explicit project/story Authority gate policy:
    - no config means existing local gates remain authoritative locally;
    - `mode=shadow` reports eligible/missing receipts but does not block;
    - `mode=enforce` blocks REVIEW/TEST/DONE when the required receipt is absent
      or invalid.
-4. Add a gate adapter that:
-   - builds current gate context from story id, target phase, current head hash,
-     material hash, server state version if known, and policy;
-   - reads `authority-receipt-refs.json`;
-   - calls `eligibleAuthorityGateReceiptDocument`;
-   - calls idempotent consumption;
-   - persists the updated artifact only after a successful consume;
-   - returns precise fail reasons for gate output.
-5. Wire TEST first through `lattice validate --story=<storyId>` and
-   REVIEW/TEST transition preflight where applicable.
-6. Wire DONE after TEST is proven:
+3. Bind current server `stateVersion` and revocation/supersession checks when
+   live policy requires them.
+4. Decide whether production rollout needs an explicit stable
+   `consumerDecisionId` field, or whether the current composite-key
+   consumption identity remains the canonical contract.
+5. Keep TEST/DONE positive and negative controls current for
+   `lattice validate` and transition preflight.
+6. For production DONE rollout:
    - re-check head/material immediately before DONE;
    - prefer a distinct DONE receipt unless policy explicitly allows a TEST
      receipt to cover DONE.
@@ -253,7 +298,7 @@ Files likely involved:
 - `packages/main/src/core/lattice-autopilot.ts`
 - `packages/main/src/handlers/lattice-autopilot.ts`
 
-Implement:
+Required behavior:
 
 1. Status output must separately show:
    - Authority URL configured;
@@ -281,13 +326,19 @@ Acceptance tests:
 
 Owner: release / integration.
 
-Goal: prove the chain works across real Server, Runner, and CLI.
+Goal: prove the chain works across the deployed Authority Server, Runner, and
+CLI.
 
 Use [Authority Receipt Cross-Repo Live Smoke](authority-receipt-cross-repo-live-smoke.md).
+This production-capable smoke must target the deployed staging Authority URL. A
+locally started server can still be useful for contract regression, but it is not
+the authority target for this smoke and must stay labeled non-production or
+contract-only.
 
 Minimum command sequence:
 
-1. Start Lattice Authority Server with a configured non-default key.
+1. Use the deployed staging Lattice Authority Server with a configured
+   non-default key.
 2. Discover policy and server key.
 3. Register actor key and runner heartbeat.
 4. Create or claim a story-scoped job.
@@ -316,16 +367,16 @@ Pass criteria:
 
 These tracks can run in parallel:
 
-- Host A: Server proof bundle and server tests.
-- Host B: CLI verifier and writer against fixtures that mimic the planned proof
-  bundle.
+- Host A: Server proof bundle regression checks, key policy checks, and deployed
+  staging policy checks.
+- Host B: CLI verifier/writer and gate consumption regression checks against
+  real proof bundles or fixtures that match the implemented proof bundle.
 - Main/Codex coordinator: keep docs, schemas, and process fact registry aligned.
 
-These tracks must not run before their dependencies:
+These tracks must respect these dependencies:
 
-- Real gate consumption must wait for the writer and idempotent consumption
-  primitive.
-- Cross-repo live smoke must wait for Server proof endpoint plus CLI verifier.
+- Cross-repo live smoke must wait for the deployed Server proof endpoint plus
+  CLI verifier.
 - DONE enforcement must wait for TEST enforcement to pass positive and negative
   controls.
 
@@ -333,7 +384,7 @@ Recommended two-host split:
 
 | Track | Host | Scope | Must prove before handoff |
 | --- | --- | --- | --- |
-| Server proof bundle | Claude CLI or Codex host A | Server route/schema/repository/tests | proof recomputes receipt digests |
+| Server proof baseline | Claude CLI or Codex host A | Server route/schema/repository/tests plus staging policy | proof recomputes receipt digests and uses production-capable key metadata |
 | CLI verifier/writer | Codex host B | client/schema/verifier/store/command/tests | valid proof writes production ref; invalid proof does not |
 | Gate integration | Main Codex after A+B | phase gates, validate, config, process facts | enforce blocks invalid/missing; shadow preserves local |
 | Live smoke | Main plus optional reviewer | real cross-repo run | positive and negative controls pass |
@@ -374,27 +425,27 @@ Cross-repo:
 npm run test:authority-cross-repo-live-smoke
 ```
 
-The live smoke should be added only after the real Server and CLI paths exist.
+The live smoke should run against the deployed Server and current CLI paths.
 
 ## Stop Conditions
 
 Stop and re-plan if any of these happen:
 
-- The Server cannot return enough payload material to recompute both receipt
-  digests.
-- CLI verification requires trusting local cache instead of server proof plus
+- The Server proof endpoint regresses and no longer returns enough payload
+  material to recompute both receipt digests.
+- CLI verification regresses to trusting local cache instead of server proof plus
   pinned key material.
-- Gate integration would make existing local-only stories fail by default.
+- Gate integration makes existing local-only stories fail by default.
 - A host transcript, dispatch receipt, or transport `accepted=true` path starts
   setting `receiptVerified=true`, `strongEvidenceConsumed=true`, or
   `productionDone=true`.
-- Consumption cannot be made idempotent.
+- Consumption idempotency regresses.
 
 ## Definition of Done
 
 This slice is done when:
 
-1. Server proof endpoint exists and is tested.
+1. Deployed Server proof endpoint remains available and tested.
 2. CLI verifies proof and writes a production receipt ref only for valid
    production `gate_decision` receipts.
 3. TEST gate can consume the ref in enforce mode and block invalid/missing refs.

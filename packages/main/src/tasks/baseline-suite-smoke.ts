@@ -55,7 +55,7 @@ const hostVerdictsJson = JSON.stringify({
 });
 
 try {
-  const outputRoot = join(root, '.omx', 'artifacts', 'baseline');
+  const outputRoot = join(root, '.lattice', 'artifacts', 'baseline');
   const reports = [
     runBaseline(root, { baselineId: 'NL-CLI-1', runId: 'run-nl-cli', authorityMode: 'non-authority', outputRoot, localReviewEvidenceRefs }),
     runBaseline(root, { baselineId: 'NL-API-1', runId: 'run-nl-api', authorityMode: 'non-authority', outputRoot, localReviewEvidenceRefs }),

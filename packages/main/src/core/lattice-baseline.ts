@@ -764,7 +764,7 @@ function generatedRunId(prefix: string): string {
 
 function artifactsRoot(root: string, customRoot?: string): string {
   if (!customRoot || customRoot.trim().length === 0) {
-    return join(root, '.omx', 'artifacts', 'baseline');
+    return join(root, '.lattice', 'artifacts', 'baseline');
   }
   return isAbsolute(customRoot) ? customRoot : resolve(root, customRoot);
 }
@@ -2131,7 +2131,6 @@ function formalEngineeringSuiteRevalidationProblems(
     'falseDoneCount',
     'safetySuccessRate',
     'localOnly',
-    'headHash',
     'materialHash',
   ];
   for (const field of scalarFields) {

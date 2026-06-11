@@ -6,14 +6,15 @@
 
 ## Purpose
 
-This document defines the server-side contract needed before Lattice CLI can
-verify server receipts and lifecycle gates can consume them.
+This document defines the server-side contract Lattice CLI uses to verify server
+receipts and that lifecycle gates need before they can consume them.
 
 The server work is contract alignment, not a rewrite. The Python Authority
 Server already owns core primitives: policy discovery, actor key registration,
 runner registry, jobs, evidence records, server key discovery, and
-`gate_decision` receipts. The missing work is making the receipt/session/gate
-binding explicit enough for another process to verify mechanically.
+`gate_decision` receipts. The receipt proof route and receipt subject fields are
+now current baseline; the remaining work is freezing the runner/session/gate
+policy semantics tightly enough for another process to verify mechanically.
 
 ## Current Capability Baseline
 
@@ -23,15 +24,16 @@ binding explicit enough for another process to verify mechanically.
 | Actor/key registry | Done | Server validates signed actor envelopes and key bindings. |
 | Runner registry + heartbeat | Done/Partial | Runner identity and `sessionId` exist; contract must freeze how this becomes Authority runner session identity. |
 | Job submit/claim/fetch/release | Done/Partial | Server owns job and lease state; final receipt chain must bind job/run/session. |
-| Evidence envelope receive/validate | Done/Partial | Server validates evidence records, run bindings, adequacy, and policy. Receipt subject mapping must be explicit. |
+| Evidence envelope receive/validate | Done/Partial | Server validates evidence records, run bindings, adequacy, and policy. Receipt subject mapping is explicit on receipts; evidence-to-decision binding still needs CLI/gate verification. |
 | Server public key discovery | Done/Partial | `serverKey` is published; CLI pinning and production trust rules must be stable. |
 | `gate_decision` receipt | Done/Partial | Server signs gate decisions; receipt payload must expose enough binding metadata for remote verification. |
-| Receipt subject fields | Missing/Decision needed | Either add `subjectKind/subjectId/subjectDigest`, or document exact mapping through existing fields. |
-| Receipt ref schema | Missing | Belongs to CLI/gate, but server fields must support it. |
+| Receipt subject fields | Done | `AuthorityReceipt` exposes `subjectKind`, `subjectId`, `subjectDigest`, and `authorityActorId`. |
+| Receipt proof bundle | Done | `GET /v1/receipts/{receipt_id}/proof` returns `AuthorityReceiptProof` with input and decision digest material. |
+| Receipt ref schema | CLI/gate-owned baseline | `authority-receipt-refs.json` belongs to CLI/gate; server fields must continue to support it. |
 
-## Required Contract Decision: Receipt Subject
+## Current Contract Decision: Receipt Subject
 
-The server must expose a stable subject model. Preferred shape:
+The server exposes a stable subject model. Current shape:
 
 ```json
 {
@@ -52,20 +54,20 @@ The server must expose a stable subject model. Preferred shape:
 }
 ```
 
-If the server keeps the current compact shape, the official mapping must be:
+The official mapping for CLI verification is:
 
 | Meaning | Current field / mapping |
 | --- | --- |
 | receipt id | `receiptId` |
 | receipt kind | `kind` |
-| subject kind | `kind`; for gate consumption it must equal `gate_decision` |
-| subject id | gate decision id stored in the signed decision payload or associated record |
-| subject digest | `decisionDigest` |
+| subject kind | `subjectKind`; for gate consumption it must equal `gate_decision` |
+| subject id | `subjectId`, matching the gate decision id stored in the signed decision payload or associated record |
+| subject digest | `subjectDigest`, expected to bind the gate decision digest |
 | input binding | `inputDigest` |
 | server key | `serverKeyId` + discovered server public key |
 | signature payload | canonical JSON of receipt without `signature` |
 
-The mapping must be documented in server OpenAPI/docs and covered by tests.
+The mapping must stay documented in server OpenAPI/docs and covered by tests.
 
 ## Gate Decision Receipt Requirements
 
@@ -83,8 +85,14 @@ trusting prose:
 - decision repo head/material hash matches local gate context;
 - policy mode and authority mode are visible;
 - consumed evidence digests are visible;
+- authority actor id or equivalent actor-binding evidence is visible where
+  policy requires actor binding;
 - producer/verifier run ids used by the decision are visible where policy
-  requires L2+ independence.
+  requires L2+ independence;
+- runner session ids or equivalent runner session binding are visible where
+  policy requires runner/session enforcement;
+- policy discovery explicitly advertises when actor binding, runner heartbeat,
+  or session lifecycle checks are hard requirements.
 
 Recommended server-side gate decision payload:
 
@@ -93,6 +101,7 @@ Recommended server-side gate decision payload:
   "decisionId": "GD-...",
   "projectId": "project-1",
   "storyId": "B-xxxx",
+  "authorityActorId": "actor-...",
   "targetPhase": "TEST",
   "verdict": "pass",
   "policyMode": "balanced",

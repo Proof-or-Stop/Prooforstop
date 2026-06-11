@@ -36,6 +36,7 @@
     "test:review-loop-smoke": "node dist/tasks/review-loop-smoke.js",
     "test:review-pass-discard-smoke": "node dist/tasks/review-pass-discard-smoke.js",
     "test:worktree-repair-smoke": "node dist/tasks/worktree-repair-smoke.js",
+    "test:auxiliary-worktree-cleanup-smoke": "node dist/tasks/auxiliary-worktree-cleanup-smoke.js",
     "test:worktree-node-modules-smoke": "node dist/tasks/worktree-node-modules-smoke.js",
     "test:worktree-authority-smoke": "node dist/tasks/worktree-authority-smoke.js",
     "test:validation-protocol": "node dist/tasks/validation-protocol-smoke.js",
@@ -141,10 +142,13 @@
   },
   "dependencies": {
     "@koala-agent/lab": "0.3.1",
-    "xstate": "^5.30.0"
+    "ws": "^8.20.0",
+    "xstate": "^5.30.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
+    "@types/ws": "^8.18.1",
     "typescript": "^5.7.0"
   }
 }

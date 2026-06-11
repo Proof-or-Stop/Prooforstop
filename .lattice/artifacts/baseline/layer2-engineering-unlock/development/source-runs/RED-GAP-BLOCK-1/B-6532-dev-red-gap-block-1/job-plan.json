@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "lattice.baseline.job-plan.v1",
+  "baselineId": "RED-GAP-BLOCK-1",
+  "mode": "non-authority",
+  "plannedSteps": [
+    {
+      "stepId": "S-001",
+      "operation": "source.discover"
+    },
+    {
+      "stepId": "S-002",
+      "operation": "source.build_manifest"
+    },
+    {
+      "stepId": "S-003",
+      "operation": "semantic.map"
+    },
+    {
+      "stepId": "S-004",
+      "operation": "parity.run_source"
+    },
+    {
+      "stepId": "S-005",
+      "operation": "parity.run_target"
+    },
+    {
+      "stepId": "S-006",
+      "operation": "gap.evaluate"
+    },
+    {
+      "stepId": "S-007",
+      "operation": "baseline.report"
+    }
+  ]
+}

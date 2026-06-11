@@ -25,6 +25,12 @@ import { detectPartialDoneStories, renderPartialDoneSummary } from '../core/part
 import { renderMainWriteLockScan, scanMainWriteLock } from '../core/main-write-lock-doctor.js';
 import { renderStoryOwnerLeaseScan, scanStoryOwnerLeases } from '../core/story-owner-lease-doctor.js';
 import { renderGuardSessionDoctorSection, scanGuardSessions } from '../core/guard-session-doctor.js';
+import {
+  renderAuxiliaryClassification,
+  repairAuxiliaryWorktreeResidues,
+  scanAuxiliaryWorktreeResidues,
+  type AuxiliaryCleanupResult,
+} from '../core/auxiliary-worktree-cleanup.js';
 
 export function createDoctorHandlers(ctx: HandlerContext) {
   const { root, store } = ctx;
@@ -50,6 +56,9 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       // runtime files kept file handles open during `git worktree remove`,
       // so git deregistered the worktree but left the dir behind.
       let orphanScan = scanOrphanWorktrees(root, store);
+      let auxiliaryWorktrees = scanAuxiliaryWorktreeResidues(root, store);
+      const auxiliaryRepaired: AuxiliaryCleanupResult[] = [];
+      const auxiliaryRepairFailed: Array<{ path: string; error: string }> = [];
       const partialDone = detectPartialDoneStories(root, store);
       // B-f60c CHK-004: scan the unified main write lock for a stuck/stale
       // leftover (a crashed holder's lock). An active in-flight lock (within
@@ -93,6 +102,14 @@ export function createDoctorHandlers(ctx: HandlerContext) {
         orphanScan = scanOrphanWorktrees(root, store);
         cleanupTargets = collectWorktreeCleanupTargets(orphanScan);
       }
+      if (args?.repair && auxiliaryWorktrees.some((candidate) => candidate.state === 'safe-cleanup')) {
+        try {
+          auxiliaryRepaired.push(...repairAuxiliaryWorktreeResidues(root, store));
+          auxiliaryWorktrees = scanAuxiliaryWorktreeResidues(root, store);
+        } catch (e: any) {
+          auxiliaryRepairFailed.push({ path: '<auxiliary-worktree-cleanup>', error: e?.message || String(e) });
+        }
+      }
       if (args?.repair && trackedRuntimeArtifacts.some((artifact) => artifact.repairable)) {
         for (const artifact of trackedRuntimeArtifacts) {
           if (!artifact.repairable) continue;
@@ -124,6 +141,14 @@ export function createDoctorHandlers(ctx: HandlerContext) {
             repaired,
             repairFailed,
             repairRequested: !!args?.repair,
+            auxiliary: {
+              all: auxiliaryWorktrees,
+              safe: auxiliaryWorktrees.filter((candidate) => candidate.state === 'safe-cleanup'),
+              unsafe: auxiliaryWorktrees.filter((candidate) => candidate.state !== 'safe-cleanup'),
+              needsRepair: auxiliaryWorktrees.some((candidate) => candidate.state === 'safe-cleanup'),
+              repaired: auxiliaryRepaired,
+              repairFailed: auxiliaryRepairFailed,
+            },
           },
           partialDone: {
             stories: partialDone,
@@ -177,9 +202,9 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       lines.push(`  shown : ${summary.recent.length} (${summary.recentWindow === '24h' ? 'last 24h' : 'most recent'})`);
       lines.push('');
 
-      if (summary.total === 0 && cleanupTargets.length === 0 && trackedRuntimeArtifacts.length === 0 && partialDone.length === 0) {
+      if (summary.total === 0 && cleanupTargets.length === 0 && auxiliaryWorktrees.length === 0 && trackedRuntimeArtifacts.length === 0 && partialDone.length === 0) {
         lines.push('✓ No health issues recorded. Lattice is healthy.');
-      } else if (summary.total === 0 && cleanupTargets.length > 0) {
+      } else if (summary.total === 0 && (cleanupTargets.length > 0 || auxiliaryWorktrees.length > 0)) {
         lines.push('⚠ No health issues recorded, but worktree cleanup issues were found.');
       } else if (summary.total === 0 && partialDone.length > 0) {
         lines.push('⚠ No health issues recorded, but partial-DONE recovery issues were found.');
@@ -241,6 +266,7 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       lines.push(`  terminal registered: ${orphanScan.terminalRegistered.length}`);
       lines.push(`  orphan dirs        : ${orphanScan.orphans.length}`);
       lines.push(`  terminal dirs      : ${orphanScan.terminalDirs.length}`);
+      lines.push(`  auxiliary residues : ${auxiliaryWorktrees.length}`);
       if (cleanupTargets.length === 0) {
         lines.push('  ✓ No orphan or terminal worktree cleanup issues.');
       } else {
@@ -269,6 +295,24 @@ export function createDoctorHandlers(ctx: HandlerContext) {
           lines.push(`→ orphan dirs = directory still exists under .worktrees/ but git worktree list no longer recognizes it.`);
           lines.push(`→ terminal dirs = worktree directory of DONE/DISCARDED story still exists.`);
           lines.push(`→ Rerun: lattice doctor --repair to clean up these leftovers.`);
+        }
+      }
+      if (auxiliaryWorktrees.length > 0) {
+        lines.push('');
+        lines.push('  Auxiliary story worktrees:');
+        for (const candidate of auxiliaryWorktrees) {
+          lines.push(`  - ${renderAuxiliaryClassification(root, candidate)}`);
+        }
+        if (args?.repair) {
+          for (const result of auxiliaryRepaired) {
+            const label = renderAuxiliaryClassification(root, result.before);
+            lines.push(`  ${result.cleaned ? '✓' : '⚠'} ${label}`);
+            for (const action of result.actions) lines.push(`    ${action}`);
+          }
+          for (const failed of auxiliaryRepairFailed) lines.push(`  ✗ ${failed.path}: ${failed.error}`);
+        } else {
+          lines.push('  → safe-cleanup entries can be removed with: lattice doctor --repair');
+          lines.push('  → dirty-worktree / missing-from-main / unknown entries require manual review.');
         }
       }
 

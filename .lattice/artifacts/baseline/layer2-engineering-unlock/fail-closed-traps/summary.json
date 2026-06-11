@@ -1,0 +1,100 @@
+{
+  "schemaVersion": "lattice.fail_closed_trap_summary.v1",
+  "generatedAt": "2026-06-10T23:35:53.054Z",
+  "storyId": "B-6532",
+  "artifactsRoot": ".lattice/artifacts/baseline/layer2-engineering-unlock",
+  "headHash": "d5adaa30ca018a847ef437541a19a1b3066f492d",
+  "materialHash": "f7ac7a18d8034bf4e77c88f6b544dccd0e308ca24d7ea791d4c9819900405421",
+  "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
+  "commandResult": "pass",
+  "principles": [
+    "do not optimize for the sake of optimization",
+    "do not optimize arbitrarily",
+    "only fix real correctness issues",
+    "consistency of logic"
+  ],
+  "traps": [
+    {
+      "id": "forged-suite-summary",
+      "level": "claim-level",
+      "description": "Forged stored Engineering suite summary must be rebuilt from final-report artifacts and rejected when it disagrees.",
+      "expectedNonPassResult": "LOCKED/BLOCKED",
+      "observed": "covered by lattice-baseline-smoke PASS",
+      "authorizedTrueAllowed": false,
+      "suitePassAllowedWhenForged": false
+    },
+    {
+      "id": "missing-review-host",
+      "level": "suite-level",
+      "description": "Formal Engineering report without both Claude and Codex review refs must be rejected.",
+      "expectedNonPassResult": "BLOCKED",
+      "observed": "covered by lattice-baseline-smoke PASS",
+      "authorizedTrueAllowed": false,
+      "suitePassAllowedWhenForged": false
+    },
+    {
+      "id": "wrong-host-json",
+      "level": "suite-level",
+      "description": "Review ref JSON whose host/source binding does not match the ref prefix must be rejected.",
+      "expectedNonPassResult": "BLOCKED",
+      "observed": "covered by lattice-baseline-smoke PASS",
+      "authorizedTrueAllowed": false,
+      "suitePassAllowedWhenForged": false
+    },
+    {
+      "id": "reused-review-artifact",
+      "level": "suite-level",
+      "description": "The same review artifact cannot satisfy both Claude and Codex host requirements.",
+      "expectedNonPassResult": "BLOCKED",
+      "observed": "covered by lattice-baseline-smoke PASS",
+      "authorizedTrueAllowed": false,
+      "suitePassAllowedWhenForged": false
+    },
+    {
+      "id": "missing-lifecycle-gate-ref",
+      "level": "suite-level",
+      "description": "Formal Engineering proof without lifecycleGateEvidenceRefs must be rejected.",
+      "expectedNonPassResult": "BLOCKED",
+      "observed": "covered by lattice-baseline-smoke PASS",
+      "authorizedTrueAllowed": false,
+      "suitePassAllowedWhenForged": false
+    },
+    {
+      "id": "missing-receipt-evidence-digest",
+      "level": "suite-level",
+      "description": "Receipt refs missing the computed evidenceDigest binding must be rejected.",
+      "expectedNonPassResult": "BLOCKED",
+      "observed": "covered by lattice-baseline-smoke PASS",
+      "authorizedTrueAllowed": false,
+      "suitePassAllowedWhenForged": false
+    },
+    {
+      "id": "stale-material-hash",
+      "level": "suite-and-claim-level",
+      "description": "Stale materialHash in suite/final-report proof must be rejected instead of unlocking a claim.",
+      "expectedNonPassResult": "STALE/BLOCKED",
+      "observed": "covered by lattice-baseline-smoke PASS",
+      "authorizedTrueAllowed": false,
+      "suitePassAllowedWhenForged": false
+    },
+    {
+      "id": "local-only-diagnostic-artifacts",
+      "level": "suite-and-claim-level",
+      "description": "localOnly=true diagnostic final reports cannot authorize Engineering suite proof or formal claim unlock.",
+      "expectedNonPassResult": "LOCKED/BLOCKED",
+      "observed": "covered by lattice-baseline-smoke PASS",
+      "authorizedTrueAllowed": false,
+      "suitePassAllowedWhenForged": false
+    }
+  ],
+  "authorityBoundary": {
+    "authorityChanged": false,
+    "receiptVerified": false,
+    "productionDone": false,
+    "fullAuthorityDone": false
+  },
+  "notes": [
+    "This artifact records fail-closed verification evidence; it is not an Authority receipt.",
+    "The command above passed after Layer 2 proof artifacts were committed."
+  ]
+}

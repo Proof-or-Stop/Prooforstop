@@ -1,0 +1,126 @@
+{
+  "storyId": "B-6532",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/lattice-baseline.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
+    "packages/main/src/handlers/lattice-baseline.ts",
+    "packages/main/dist/**",
+    "packages/main/src/tasks/lattice-baseline-smoke.ts",
+    ".koala/story/actives/B-6532/**"
+  ],
+  "allowedCreate": [
+    ".lattice/artifacts/baseline/layer2-engineering-unlock/**",
+    ".lattice/artifacts/baseline/layer2-engineering-unlock/development/baseline-suite-report.json",
+    ".lattice/artifacts/baseline/layer2-engineering-unlock/development/baseline-suite-report.md",
+    ".lattice/artifacts/baseline/layer2-engineering-unlock/engineering/**/final-report.json",
+    ".lattice/artifacts/baseline/layer2-engineering-unlock/engineering/**/final-report.md",
+    ".lattice/artifacts/baseline/layer2-engineering-unlock/engineering/baseline-suite-report.json",
+    ".lattice/artifacts/baseline/layer2-engineering-unlock/engineering/baseline-suite-report.md",
+    ".lattice/artifacts/baseline/layer2-engineering-unlock/capability-claim/**/claim-report.json",
+    ".lattice/artifacts/baseline/layer2-engineering-unlock/capability-claim/**/claim-report.md",
+    ".lattice/artifacts/baseline/layer2-engineering-unlock/fail-closed-traps/**",
+    ".lattice/artifacts/baseline/layer2-engineering-unlock/reviews/**"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/lattice-baseline-smoke.ts",
+    "node packages/main/dist/cli.js validate --story=B-6532"
+  ],
+  "protectedFiles": [
+    "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+    "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
+    "docs/requirements/decisions/lattice-unattended-completion-plan.md"
+  ],
+  "explicitExcludes": [
+    ".omx/**",
+    "docs/koala/framework-audit/2026-06-10/**"
+  ],
+  "scopeChangeReason": "Layer2 unlock may edit baseline formal proof code/tests/docs and create .lattice proof artifacts only; Authority contract docs and unrelated framework audit output stay protected.",
+  "acknowledgements": [
+    {
+      "actor": "main-auditor",
+      "reason": "Formal proof artifacts moved from .omx to .lattice; the new proof root must be excluded from runtime materialHash so committed proof artifacts do not make their own evidence stale.",
+      "timestamp": "2026-06-10T22:52:44.322Z",
+      "paths": [
+        ".gitignore",
+        "packages/main/src/core/runtime-artifact-registry.ts"
+      ]
+    },
+    {
+      "actor": "main-auditor",
+      "reason": "Persisted .lattice proof artifacts change git HEAD after commit while materialHash remains stable; formal suite revalidation must not reject a valid persisted suite solely due to HEAD drift.",
+      "timestamp": "2026-06-10T23:04:09.123Z",
+      "paths": [
+        "packages/main/src/core/lattice-baseline.ts",
+        "packages/main/src/tasks/lattice-baseline-smoke.ts"
+      ]
+    },
+    {
+      "actor": "main-auditor",
+      "reason": "Development baseline runner and suite defaults still wrote/read .omx despite CLI help and Lattice artifact policy requiring .lattice; fix current-root correctness before regenerating Layer 2 proof.",
+      "timestamp": "2026-06-10T23:18:02.808Z",
+      "paths": [
+        "packages/main/src/core/baseline.ts",
+        "packages/main/src/handlers/baseline.ts",
+        "packages/main/src/core/baseline-suite-report.ts",
+        "packages/main/src/tasks/baseline-suite-smoke.ts"
+      ]
+    },
+    {
+      "actor": "main-auditor",
+      "reason": "Baseline suite report smoke fixtures must follow the .lattice default proof root after removing the .omx baseline artifact default.",
+      "timestamp": "2026-06-10T23:19:03.969Z",
+      "paths": [
+        "packages/main/src/tasks/baseline-suite-report-smoke.ts"
+      ]
+    },
+    {
+      "actor": "main-auditor",
+      "reason": "Development baseline PASS proof requires baseline_run CLI to expose and forward existing localReviewEvidenceRefs and local host count arguments instead of dropping them.",
+      "timestamp": "2026-06-10T23:22:35.335Z",
+      "paths": [
+        "packages/main/src/handlers/baseline.ts",
+        "packages/main/src/cli-engine.ts"
+      ]
+    },
+    {
+      "actor": "codex-auditor",
+      "reason": "User explicitly required moving prior Lattice assets out of .omx into .lattice; these paths update migrated artifact ownership and stale .omx artifact references without expanding capability claims.",
+      "timestamp": "2026-06-10T23:54:54.618Z",
+      "paths": [
+        ".lattice/artifacts/legacy-omx/",
+        ".lattice/artifacts/parallel-development/B-688d/",
+        ".lattice/artifacts/authority/B-4a53/authority-strong-evidence-report.json",
+        ".lattice/artifacts/claude-implementer-B-688d-20260609T230608Z.md",
+        ".lattice/artifacts/claude-implementer-fix-B-688d-20260609T231018Z.md",
+        ".lattice/artifacts/claude-implementer-fix2-B-688d-20260609T231242Z.md",
+        "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md"
+      ],
+      "anchors": [
+        "lattice_artifact_root_migration",
+        "host_neutral_asset_ownership",
+        "no_omx_baseline_assets"
+      ]
+    },
+    {
+      "actor": "codex-auditor",
+      "reason": "Codex adapter REVIEW gate required native PreToolUse hook plus global-thin Lattice manifest/guide so verify_codex can produce machine-consumable host-neutral adapter evidence. This does not unlock higher-layer capability claims.",
+      "timestamp": "2026-06-11T00:23:45.614Z",
+      "paths": [
+        ".Codex/hooks/lattice-scope-pretool.cjs",
+        ".lattice/Lattice.md",
+        ".lattice/lattice.json"
+      ],
+      "anchors": [
+        "codex_adapter_verification",
+        "host_neutral_global_thin",
+        "no_higher_layer_claim_unlock"
+      ]
+    }
+  ],
+  "createdAt": "2026-06-10T22:32:56.682Z",
+  "updatedAt": "2026-06-11T00:23:45.614Z"
+}

@@ -1,0 +1,32 @@
+{
+  "task": "Formally unlock the Layer 2 Engineering Baseline claim by generating fresh formal proof artifacts under .lattice and proving the claim evaluator consumes them fail-closed.",
+  "outcome": "The user sees a final terminal summary that says Layer 2 Engineering Baseline claim is UNLOCKED, authorizedClaimLevel=engineering, .omx absent for this run, and Loop/Production/global claims remain LOCKED/false.",
+  "facts": [
+    "B-ce79 added the formal Layer 2 evaluator and strict Engineering final-report revalidation path.",
+    "The selected asset root for this run must be .lattice/artifacts/baseline/layer2-engineering-unlock, not .omx.",
+    "Claude and Codex host verdicts are review evidence only; they are not Authority receipts.",
+    "Formal Engineering proof requires nine ENG baseline reports, digest-backed verification refs, Claude/Codex review refs, lifecycle gate refs, receiptRefs with evidenceDigest binding, fresh materialHash, and no false DONE.",
+    "The claim evaluator may unlock only Layer 2 Engineering and must keep Loop Engineering, Production Safety, global Capability Claim, productionDone, receiptVerified, and fullAuthorityDone locked or false."
+  ],
+  "constraints": [
+    "Do not optimize for the sake of optimization.",
+    "Do not optimize arbitrarily.",
+    "Only fix real correctness issues.",
+    "Preserve consistency of logic.",
+    "Do not convert local diagnostic output or host transcripts into production Authority.",
+    "Do not write new baseline proof artifacts under .omx.",
+    "High-risk PLAN artifacts are required because the story mentions AUTH, MIGRATION, and production boundaries."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/lattice-baseline.ts",
+    "packages/main/src/handlers/lattice-baseline.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/tasks/lattice-baseline-smoke.ts",
+    "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
+    ".lattice/artifacts/baseline/layer2-engineering-unlock"
+  ],
+  "timestamp": "2026-06-10T22:30:42.029Z"
+}

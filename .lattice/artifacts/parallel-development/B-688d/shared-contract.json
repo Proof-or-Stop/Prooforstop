@@ -4,23 +4,23 @@
   "storyId": "B-688d",
   "generatedAt": "2026-06-10T01:06:04.234Z",
   "producer": {
-    "artifactPath": ".omx/artifacts/parallel-development/B-688d/shared-contract.json",
+    "artifactPath": ".lattice/artifacts/parallel-development/B-688d/shared-contract.json",
     "method": "B-688d DEV audit contract freeze",
     "inputs": [
-      ".omx/artifacts/baseline/B-688d/baseline-suite-report.json",
-      ".omx/artifacts/parallel-development/B-688d/final-report.json",
-      ".omx/artifacts/parallel-development/B-688d/dispatch-audit.json",
-      ".omx/artifacts/parallel-development/B-688d/host-probes.json",
-      ".omx/artifacts/parallel-development/B-688d/claim-lock-status.json",
-      ".omx/artifacts/parallel-development/B-688d/ownership-map.json",
-      ".omx/artifacts/parallel-development/B-688d/merge-queue.json",
-      ".omx/artifacts/claude-scope-check-B-688d-20260609T230010Z.md"
+      ".lattice/artifacts/baseline/B-688d/baseline-suite-report.json",
+      ".lattice/artifacts/parallel-development/B-688d/final-report.json",
+      ".lattice/artifacts/parallel-development/B-688d/dispatch-audit.json",
+      ".lattice/artifacts/parallel-development/B-688d/host-probes.json",
+      ".lattice/artifacts/parallel-development/B-688d/claim-lock-status.json",
+      ".lattice/artifacts/parallel-development/B-688d/ownership-map.json",
+      ".lattice/artifacts/parallel-development/B-688d/merge-queue.json",
+      ".lattice/artifacts/claude-scope-check-B-688d-20260609T230010Z.md"
     ]
   },
   "material": {
     "headHash": "7c1b412a665e5be5fbcacddaee847d3b501f4a7f",
     "materialHash": "sha256:acd756188f5a3a336e34f454bc021871cc95fad852dcc9dc3a4323912b58c9b3",
-    "materialHashSource": ".omx/artifacts/baseline/B-688d/baseline-suite-report.json",
+    "materialHashSource": ".lattice/artifacts/baseline/B-688d/baseline-suite-report.json",
     "runIds": [
       "run-20260609-230655417",
       "run-20260609-230656400",
@@ -32,64 +32,64 @@
   },
   "evidenceRefs": {
     "baselineSuiteReport": {
-      "path": ".omx/artifacts/baseline/B-688d/baseline-suite-report.json",
+      "path": ".lattice/artifacts/baseline/B-688d/baseline-suite-report.json",
       "sha256": "acd756188f5a3a336e34f454bc021871cc95fad852dcc9dc3a4323912b58c9b3"
     },
     "finalReport": {
-      "path": ".omx/artifacts/parallel-development/B-688d/final-report.json",
+      "path": ".lattice/artifacts/parallel-development/B-688d/final-report.json",
       "sha256": "88f2764ca3b9ac95c9030d9dfe010e31f630bf823ecacea6928d5772282696c1"
     },
     "baselineClaimReport": {
-      "path": ".omx/artifacts/claude-baseline-audit-B-688d.md",
+      "path": ".lattice/artifacts/claude-baseline-audit-B-688d.md",
       "sha256": "9dfebe0e8eee43b2ee74e111c07919f0e60792798f59d1be371ea88520c3037d"
     },
     "dispatchClaimReport": {
-      "path": ".omx/artifacts/claude-dispatch-review-B-688d.md",
+      "path": ".lattice/artifacts/claude-dispatch-review-B-688d.md",
       "sha256": "abd5fbe8db03a8612b7ee330cad97dab48e82796b36aa4418818432823342e1a"
     },
     "hostProbes": {
-      "path": ".omx/artifacts/parallel-development/B-688d/host-probes.json",
+      "path": ".lattice/artifacts/parallel-development/B-688d/host-probes.json",
       "sha256": "42dc53292009cf69bbc13fd1121d7e9421bb7c52c6414a1a8a8c23328623f9c3"
     },
     "dispatchAudit": {
-      "path": ".omx/artifacts/parallel-development/B-688d/dispatch-audit.json",
+      "path": ".lattice/artifacts/parallel-development/B-688d/dispatch-audit.json",
       "sha256": "9edba3fc56eb8f6c482c70ca162abaaff97b64ce85e4af4bc46ae928f6382a27"
     },
     "claimLockStatus": {
-      "path": ".omx/artifacts/parallel-development/B-688d/claim-lock-status.json",
+      "path": ".lattice/artifacts/parallel-development/B-688d/claim-lock-status.json",
       "sha256": "f1f385a29b2c357b9a04817219bba6d44954c9d7fe2634a598e24fc9162579ea"
     },
     "ownershipMap": {
-      "path": ".omx/artifacts/parallel-development/B-688d/ownership-map.json",
+      "path": ".lattice/artifacts/parallel-development/B-688d/ownership-map.json",
       "sha256": "3c3e78803d34fa8db8a924fc9444c8858de09bf069ee6758a9c2559894f77188"
     },
     "mergeQueue": {
-      "path": ".omx/artifacts/parallel-development/B-688d/merge-queue.json",
+      "path": ".lattice/artifacts/parallel-development/B-688d/merge-queue.json",
       "sha256": "3999f73eca11318b8a02692226130497f96a1746a9707a40c7a4f020a44ec2bd"
     },
     "scopeAdvisory": {
-      "path": ".omx/artifacts/claude-scope-check-B-688d-20260609T230010Z.md",
+      "path": ".lattice/artifacts/claude-scope-check-B-688d-20260609T230010Z.md",
       "sha256": "1189a5ceeb3e9c78de665be87af5aa2a20e179d375d2cf85b9adaec33824cb45"
     },
     "independentReviewEvidence": {
       "NL-CLI-1": {
-        "path": ".omx/artifacts/baseline/B-688d/development/NL-CLI-1/run-20260609-230655417/independent-review/evidence-index.json",
+        "path": ".lattice/artifacts/baseline/B-688d/development/NL-CLI-1/run-20260609-230655417/independent-review/evidence-index.json",
         "sha256": "e6571df3dd28660e94d466b67232c377ea37e4c6a3cb4dc5d483a4b282f546ad"
       },
       "NL-API-1": {
-        "path": ".omx/artifacts/baseline/B-688d/development/NL-API-1/run-20260609-230656400/independent-review/evidence-index.json",
+        "path": ".lattice/artifacts/baseline/B-688d/development/NL-API-1/run-20260609-230656400/independent-review/evidence-index.json",
         "sha256": "0951daf7c7deac0bb55755e872a84189f754ce43a6156284f075172a4ed35b1d"
       },
       "NL-REPAIR-1": {
-        "path": ".omx/artifacts/baseline/B-688d/development/NL-REPAIR-1/run-20260609-230656891/independent-review/evidence-index.json",
+        "path": ".lattice/artifacts/baseline/B-688d/development/NL-REPAIR-1/run-20260609-230656891/independent-review/evidence-index.json",
         "sha256": "9a5d23f2dea1c263df3bb904666c92c8cefd8489cad3f5d48a0cf98c45427694"
       },
       "RED-CLI-TS-PY-1": {
-        "path": ".omx/artifacts/baseline/B-688d/development/RED-CLI-TS-PY-1/run-20260609-230702593/independent-review/evidence-index.json",
+        "path": ".lattice/artifacts/baseline/B-688d/development/RED-CLI-TS-PY-1/run-20260609-230702593/independent-review/evidence-index.json",
         "sha256": "c944cfa9f7210581a7c79a9bd44ed5fe1930ab5163cf2be92b1e41405cabf37f"
       },
       "RED-API-TS-GO-1": {
-        "path": ".omx/artifacts/baseline/B-688d/development/RED-API-TS-GO-1/run-20260609-230703513/independent-review/evidence-index.json",
+        "path": ".lattice/artifacts/baseline/B-688d/development/RED-API-TS-GO-1/run-20260609-230703513/independent-review/evidence-index.json",
         "sha256": "6d4a4c210011268ac71d5c0cb08786dbedd66fbc9b3673f70d3a07abd8186d4b"
       }
     }

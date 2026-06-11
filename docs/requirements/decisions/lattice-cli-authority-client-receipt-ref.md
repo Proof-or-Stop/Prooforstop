@@ -6,19 +6,21 @@
 
 ## Purpose
 
-This document defines the Lattice CLI work needed to verify Authority receipts
-and persist structured receipt refs that lifecycle gates can consume.
+This document defines the Lattice CLI contract for verifying Authority receipts
+and persisting structured receipt refs that lifecycle gates can consume.
 
-This is the largest missing piece in the end-to-end chain. The CLI currently has
-diagnostic/readiness surfaces, but it does not yet verify production receipts or
-write gate-consumable receipt refs.
+The local CLI baseline includes proof verification and receipt-ref writing. The
+remaining work is production rollout alignment: live staging verification,
+operator key/policy configuration, and explicit actor/runner/session enforcement
+where required.
 
 ## Boundary
 
 Ordinary Lattice workflow remains local unless the explicit Authority enforce
 path is approved and configured.
 
-These surfaces are diagnostic only until receipt verification lands:
+These surfaces remain diagnostic unless `authority_receipt_verify` verifies a
+production `gate_decision` proof and a lifecycle gate consumes the resulting ref:
 
 - `authority_status`;
 - `conduit_status`;
@@ -75,8 +77,7 @@ Rules:
 
 ## Receipt Fetch and Verification
 
-The CLI needs a primitive that can verify a server receipt without trusting the
-local cache.
+The CLI primitive verifies a server receipt without trusting the local cache.
 
 Input:
 
@@ -90,13 +91,14 @@ Input:
 
 Verification steps:
 
-1. Fetch receipt and associated input/decision payloads.
+1. Fetch the server proof bundle with
+   `GET /v1/receipts/{receipt_id}/proof`.
 2. Parse receipt under the expected schema.
 3. Resolve server public key by pinned material or trusted discovery.
 4. Reject production-inert keys.
 5. Verify receipt signature over canonical unsigned payload.
-6. Recompute `inputDigest`.
-7. Recompute `decisionDigest`.
+6. Recompute `inputDigest` from `inputPayload`.
+7. Recompute `decisionDigest` from `decisionDigestPayload`.
 8. Confirm receipt kind/subject is `gate_decision` for lifecycle gate use.
 9. Confirm verdict is `pass`.
 10. Confirm `stateVersion` is present; if the current server state version is
@@ -105,9 +107,24 @@ Verification steps:
     context.
 12. Confirm consumed evidence digests and run ids satisfy policy fields exposed
     by the server decision.
-13. Return a structured verification result.
+13. When policy requires actor/runner/session enforcement, confirm
+    `authorityActorId`, producer/verifier run bindings, and `runnerSessionIds`
+    or equivalent runner session binding satisfy the advertised policy.
+14. Return a structured verification result.
 
 The primitive must return machine-readable fail reasons, not just prose.
+
+## Policy Rollout Boundary
+
+Current staging enforces production Authority/key posture, but actor key binding
+and runner heartbeat/session lifecycle checks must be treated as rollout policy
+until the server policy actively advertises and enforces them for the target
+Authority mode. The CLI must not infer hard enforcement from compatibility field
+names alone.
+
+When unattended strong evidence requires those bindings, the receipt verifier and
+gate consumer must require explicit policy evidence for actor binding,
+producer/verifier run bindings, and runner session heartbeat state.
 
 ## Classification
 
