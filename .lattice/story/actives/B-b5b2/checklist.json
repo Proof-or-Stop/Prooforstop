@@ -170,7 +170,7 @@
       ],
       "status": "done",
       "startTime": null,
-      "endTime": "2026-06-11T17:04:26.357Z",
+      "endTime": "2026-06-11T17:18:02.500Z",
       "userSees": "The migration guide includes a visible audit note listing known root docs, stay-root files, no bulk move, and no Production Safety or global capability unlock claim.",
       "files": {
         "modify": [
@@ -206,37 +206,24 @@
       },
       "verificationEvidence": [
         {
-          "intentRef": "CHK-003:happy:0",
+          "intentRef": "CHK-003:docs:scope-boundary-audit",
           "kind": "docs_check",
-          "file": "docs/requirements/decisions/root-document-migration-guide.md",
-          "command": "rg 'Scope Boundary Audit|No bulk move|No root Markdown file' docs/requirements/decisions/root-document-migration-guide.md",
+          "command": "rg -n \"Scope Boundary Audit|No bulk move happened|does not unlock Production Safety|does not claim any new global capability\" docs/requirements/decisions/root-document-migration-guide.md",
           "result": "pass",
-          "note": "Scope Boundary Audit section is present and states no bulk move, no root Markdown rename/move/delete, and documentation-only behavior.",
-          "headHash": "252c37a87b79a23a58da5f562743967175905104",
-          "materialHash": "17b60c002d78f42e203a8ca9a4a0f18b45050a6ae5364b4e9c42450e7c498661",
-          "timestamp": "2026-06-11T17:04:26.441Z"
+          "note": "The guide includes an explicit scope-boundary audit and no capability unlock claim.",
+          "headHash": "8e63932d63e10e4d25f9d4f65eb04111cccbc738",
+          "materialHash": "3c952a07a9d2b436e4076aed1492f913ef26e2b4d361dd11485d36284b8df9eb",
+          "timestamp": "2026-06-11T17:18:02.579Z"
         },
         {
-          "intentRef": "CHK-003:edge:0",
-          "kind": "docs_check",
-          "file": "docs/requirements/decisions/root-document-migration-guide.md",
-          "command": "claude final host-neutral audit B",
+          "intentRef": "CHK-003:logic:diff-check",
+          "kind": "logic_test",
+          "command": "git diff --check",
           "result": "pass",
-          "note": "Claude final host-neutral audit PASS: audit distinguishes root entrypoints, compatibility assets, and requirements truth-source destinations for Codex CLI, Claude Code, and humans.",
-          "headHash": "252c37a87b79a23a58da5f562743967175905104",
-          "materialHash": "17b60c002d78f42e203a8ca9a4a0f18b45050a6ae5364b4e9c42450e7c498661",
-          "timestamp": "2026-06-11T17:04:26.498Z"
-        },
-        {
-          "intentRef": "CHK-003:adversarial:0",
-          "kind": "docs_check",
-          "file": "docs/requirements/decisions/root-document-migration-guide.md",
-          "command": "claude final scope audit A + codex exec read-only final audit",
-          "result": "pass",
-          "note": "Final Claude and Codex audits PASS: Scope Boundary Audit explicitly says the guide does not unlock Production Safety, authority/unattended readiness, or any new global capability.",
-          "headHash": "252c37a87b79a23a58da5f562743967175905104",
-          "materialHash": "17b60c002d78f42e203a8ca9a4a0f18b45050a6ae5364b4e9c42450e7c498661",
-          "timestamp": "2026-06-11T17:04:26.557Z"
+          "note": "Markdown patch has no whitespace errors.",
+          "headHash": "8e63932d63e10e4d25f9d4f65eb04111cccbc738",
+          "materialHash": "3c952a07a9d2b436e4076aed1492f913ef26e2b4d361dd11485d36284b8df9eb",
+          "timestamp": "2026-06-11T17:18:02.639Z"
         }
       ]
     }
