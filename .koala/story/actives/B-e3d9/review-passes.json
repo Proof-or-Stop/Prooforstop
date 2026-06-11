@@ -170,6 +170,15 @@
       "reviewRound": "2026-06-11T01:06:29.023Z",
       "reviewRunId": "B-e3d9:RR-027",
       "_hash": "00e1e0d947aa064cfff9622836e370487cb948dcd1eb9e56590a67ff6e9c1b1a"
+    },
+    {
+      "id": "B-e3d9:RP-020",
+      "agent": "koala-review-quality",
+      "note": "Reviewed changed non-story files for B-e3d9 with focus on original six-gap closures and Codex adapter path casing. Verified main...HEAD implementation surfaces in authority receipt verification, planner/worktree policy linkage, planner confirmation gating, gap-analysis source filtering, and canonical .Lattice/.codex adapter paths. Checks run: npm --prefix packages/main run build; npm --prefix packages/main run test:authority-client; npm --prefix packages/main run test:lattice-cli-migration-smoke; npm --prefix packages/main run test:planner-unattended-smoke; npm --prefix packages/main run test:worktree-policy-smoke; npm --prefix packages/main run test:gap-analyze-input-hygiene-smoke; node bin/lattice-codex.js verify_codex; node scripts/verify-entrypoints.mjs. No verified correctness or minimality blocker found in story-introduced code. Note: node scripts/verify-codex-assets.mjs still fails on pre-existing AGENTS.md legacy-wrapper expectation, but AGENTS.md is unchanged by this story and that drift was excluded from this lane per scope.",
+      "createdAt": "2026-06-11T01:12:06.015Z",
+      "reviewRound": "2026-06-11T01:06:29.023Z",
+      "reviewRunId": "B-e3d9:RR-028",
+      "_hash": "8f6b5885d2fdb75de08d4804fc4d381e740389111bd66cd8731285da6717a570"
     }
   ]
 }
