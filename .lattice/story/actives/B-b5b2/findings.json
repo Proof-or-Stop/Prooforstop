@@ -35,6 +35,22 @@
       ],
       "resolvedReason": "Resolved by running fresh root/NAV/target checks, diff check, and scope_contract_check after the F-001 material fix, then running verification_evidence_refresh_stale at REVIEW head 53730af. Lattice refreshed all 9 stale verificationEvidence entries and auto-committed metadata in 320fd90; subsequent metadata-only commits do not change the verified docs material state.",
       "resolvedAt": "2026-06-11T17:22:45.436Z"
+    },
+    {
+      "id": "B-b5b2:F-003",
+      "desc": "Two Target home entries point at non-existent future decision files as if they were canonical destinations: lattice-capability-claim-boundary.md and unlock-layer4-production-safety-suite.md. The guide should mark those rows as explicit TBD / do not migrate yet until reviewed decisions exist.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-11T17:27:54.126Z",
+      "reviewRound": "2026-06-11T17:21:41.091Z",
+      "reviewRunId": "B-b5b2:RR-005",
+      "_hash": "ab53182046d1e8bd263b4e7d83696cd6e08019ba5fa8486252e21e652f675ac4",
+      "files": [
+        "docs/requirements/decisions/root-document-migration-guide.md"
+      ]
     }
   ]
 }
