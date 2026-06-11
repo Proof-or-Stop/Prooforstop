@@ -1,0 +1,20 @@
+{
+  "findings": [
+    {
+      "id": "B-b5b2:F-001",
+      "desc": "Several Target home entries are still unresolved or multi-choice instead of a single canonical destination or explicit do-not-migrate/TBD state. Examples include future private note/archive area, project-vision.md or docs/guide.md, dedicated decision alternatives, and future reviewed Production Safety decision. This leaves future migrations without precise target homes and undercuts the guide purpose.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-11T17:11:22.612Z",
+      "reviewRound": "2026-06-11T17:04:42.824Z",
+      "reviewRunId": "B-b5b2:RR-003",
+      "_hash": "ff20dd91729a4abb9b1831baef8802e795eb42f308fe88fe1fdacffe8ebc921f",
+      "files": [
+        "docs/requirements/decisions/root-document-migration-guide.md"
+      ]
+    }
+  ]
+}
