@@ -4,7 +4,7 @@
   "title": "Document stash split execution plan",
   "description": "Write a formal requirements decision document for safely processing stash@{0} after the B-b5b2 merge. The plan must incorporate the Claude/Codex audit findings: untracked restore handling, NAV 37 reconciliation, runtime cleanup split, smoke expectation repairs, planner hash deferral, and dev-memory data exclusion. It must not restore, pop, commit, or apply stash content.",
   "type": "chore",
-  "phase": "REVIEW",
+  "phase": "DEV",
   "priority": "medium",
   "createdAt": "2026-06-11T21:30:05.365Z",
   "startedAt": "2026-06-11T21:30:05.365Z",
@@ -62,6 +62,14 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-11T21:49:48.273Z",
+      "branch": "story/B-8f4c",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-11T21:55:48.251Z",
       "branch": "story/B-8f4c",
       "user": "Harmonygo",
       "agent": "main"

@@ -213,12 +213,12 @@
           "intentRef": "CHK-003:edge:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/stash-split-execution-plan.md",
-          "command": "Claude-host read-only audit + node inline NAV checker",
+          "command": "STASH_OBJECT=$(git rev-parse stash@{0}); git stash show --name-status --include-untracked \"$STASH_OBJECT\"; node inline stable-stash-ref checker",
           "result": "pass",
-          "note": "Independent read-only audit confirmed stashed NAV is stale and current plan requires hand-merge from current NAV rather than path restore.",
-          "headHash": "55240c93857ee590413739339d50de4874671b03",
-          "materialHash": "87ad31cf58410009cbc8c31525562933e768289a23eec8817aa0483d7da71d31",
-          "timestamp": "2026-06-11T21:49:07.795Z"
+          "note": "Plan now binds stash@{0} to expected object c4dcc3aff95fd999712d7f19dcf856f791cf0d05 and uses STASH_OBJECT / STASH_OBJECT^3 for executable diff, restore, show, and inventory commands.",
+          "headHash": "0a9056a3f341327036a73bf65619441a8148a095",
+          "materialHash": "8b00cd531924b0c5137360c94a274a4d9ffa62b5b5864e44bb28c2b5bbb41712",
+          "timestamp": "2026-06-11T21:59:44.868Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
