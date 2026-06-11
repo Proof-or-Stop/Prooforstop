@@ -53,9 +53,9 @@
           "command": "node inline Bucket A / NAV restore correctness checker",
           "result": "pass",
           "note": "Document defines executable buckets for dev-memory data handling, runtime artifact cleanup, smoke repairs, Layer4 doc handling, and planner hash deferral.",
-          "headHash": "ba45ed69fcabc07e46590aeaf08e8630f6d9dd31",
-          "materialHash": "87ad31cf58410009cbc8c31525562933e768289a23eec8817aa0483d7da71d31",
-          "timestamp": "2026-06-11T21:49:37.549Z"
+          "headHash": "3ec5c7902b98e1e255a09930b27f3a898cae6d8d",
+          "materialHash": "8b00cd531924b0c5137360c94a274a4d9ffa62b5b5864e44bb28c2b5bbb41712",
+          "timestamp": "2026-06-11T22:00:11.521Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -64,9 +64,9 @@
           "command": "node inline Bucket A / NAV restore correctness checker",
           "result": "pass",
           "note": "Bucket A no longer scopes .gitignore or requires git check-ignore; dev-memory data is excluded by not restoring, staging, or committing it.",
-          "headHash": "ba45ed69fcabc07e46590aeaf08e8630f6d9dd31",
-          "materialHash": "87ad31cf58410009cbc8c31525562933e768289a23eec8817aa0483d7da71d31",
-          "timestamp": "2026-06-11T21:49:37.584Z"
+          "headHash": "3ec5c7902b98e1e255a09930b27f3a898cae6d8d",
+          "materialHash": "8b00cd531924b0c5137360c94a274a4d9ffa62b5b5864e44bb28c2b5bbb41712",
+          "timestamp": "2026-06-11T22:00:11.521Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -75,9 +75,9 @@
           "command": "git diff --check HEAD~1..HEAD",
           "result": "pass",
           "note": "Focused doc patch has no whitespace errors and only corrects the two reviewer-verified execution-plan issues.",
-          "headHash": "ba45ed69fcabc07e46590aeaf08e8630f6d9dd31",
-          "materialHash": "87ad31cf58410009cbc8c31525562933e768289a23eec8817aa0483d7da71d31",
-          "timestamp": "2026-06-11T21:49:37.618Z"
+          "headHash": "3ec5c7902b98e1e255a09930b27f3a898cae6d8d",
+          "materialHash": "8b00cd531924b0c5137360c94a274a4d9ffa62b5b5864e44bb28c2b5bbb41712",
+          "timestamp": "2026-06-11T22:00:11.521Z"
         }
       ]
     },
@@ -130,9 +130,9 @@
           "command": "node inline NAV current-catalog checker",
           "result": "pass",
           "note": "Current NAV has 37 decision links for 37 decision files and includes Stash Split Execution Plan.",
-          "headHash": "1b5d13ccda7c43b1e3d1b4c249542fdb41dc73e5",
-          "materialHash": "87ad31cf58410009cbc8c31525562933e768289a23eec8817aa0483d7da71d31",
-          "timestamp": "2026-06-11T21:49:43.997Z"
+          "headHash": "3ec5c7902b98e1e255a09930b27f3a898cae6d8d",
+          "materialHash": "8b00cd531924b0c5137360c94a274a4d9ffa62b5b5864e44bb28c2b5bbb41712",
+          "timestamp": "2026-06-11T22:00:11.521Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -141,9 +141,9 @@
           "command": "node inline NAV current-catalog checker",
           "result": "pass",
           "note": "Current NAV preserves Layer2, Layer3, Root Document Migration Guide, and Stash Split Execution Plan entries.",
-          "headHash": "1b5d13ccda7c43b1e3d1b4c249542fdb41dc73e5",
-          "materialHash": "87ad31cf58410009cbc8c31525562933e768289a23eec8817aa0483d7da71d31",
-          "timestamp": "2026-06-11T21:49:44.029Z"
+          "headHash": "3ec5c7902b98e1e255a09930b27f3a898cae6d8d",
+          "materialHash": "8b00cd531924b0c5137360c94a274a4d9ffa62b5b5864e44bb28c2b5bbb41712",
+          "timestamp": "2026-06-11T22:00:11.521Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -152,9 +152,9 @@
           "command": "node inline stale NAV restore guard checker",
           "result": "pass",
           "note": "Plan forbids restoring docs/requirements/NAV.md from stash@{0}; future Layer4 work must hand-merge the NAV link and count from current state.",
-          "headHash": "1b5d13ccda7c43b1e3d1b4c249542fdb41dc73e5",
-          "materialHash": "87ad31cf58410009cbc8c31525562933e768289a23eec8817aa0483d7da71d31",
-          "timestamp": "2026-06-11T21:49:44.061Z"
+          "headHash": "3ec5c7902b98e1e255a09930b27f3a898cae6d8d",
+          "materialHash": "8b00cd531924b0c5137360c94a274a4d9ffa62b5b5864e44bb28c2b5bbb41712",
+          "timestamp": "2026-06-11T22:00:11.521Z"
         }
       ]
     },
@@ -205,9 +205,9 @@
           "command": "git stash show --name-only --include-untracked stash@{0} + node inline checker",
           "result": "pass",
           "note": "Current stash@{0} still exists with the same 12 paths; plan still inventories each path group and restores untracked Layer4 doc only from stash@{0}^3.",
-          "headHash": "55240c93857ee590413739339d50de4874671b03",
-          "materialHash": "87ad31cf58410009cbc8c31525562933e768289a23eec8817aa0483d7da71d31",
-          "timestamp": "2026-06-11T21:49:07.763Z"
+          "headHash": "3ec5c7902b98e1e255a09930b27f3a898cae6d8d",
+          "materialHash": "8b00cd531924b0c5137360c94a274a4d9ffa62b5b5864e44bb28c2b5bbb41712",
+          "timestamp": "2026-06-11T22:00:11.521Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
