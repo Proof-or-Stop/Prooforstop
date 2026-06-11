@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
+import { isForbiddenOmxPath } from './runtime-artifact-registry.js';
 
 export const BASELINE_IDS = [
   'NL-CLI-1',
@@ -136,6 +137,12 @@ export interface BaselineRunArgs {
   retryCount?: number;
   repairCount?: number;
   blockedReason?: string;
+}
+
+function assertNoOmxPath(path: string, label: string): void {
+  if (isForbiddenOmxPath(path)) {
+    throw new Error(`${label} refuses to use disabled .omx path: ${path}`);
+  }
 }
 
 export interface BaselineSuiteReport {
@@ -675,6 +682,7 @@ export function runBaseline(root: string, args: BaselineRunArgs): BaselineFinalR
   const mode = args.authorityMode ?? 'non-authority';
   const runId = args.runId ?? nowRunId();
   const outputRoot = args.outputRoot ?? join(root, '.lattice', 'artifacts', 'baseline');
+  assertNoOmxPath(outputRoot, 'baseline_run outputRoot');
   const runDir = join(outputRoot, scenario.baselineId, runId);
   ensureDir(runDir);
 

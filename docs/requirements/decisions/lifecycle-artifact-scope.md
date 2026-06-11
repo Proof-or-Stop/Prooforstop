@@ -43,7 +43,7 @@ order:
    – returns true for paths registered in the runtime-artifact registry:
      `.koala/activity.jsonl`, `.koala/runtime/...`, `.koala/traces/...`,
      `.koala/locks/...`, `owner-lease.json`, `docs/story/activity.jsonl`,
-     `.koala-tmp-*`, `koala-debug.log`, `browser-test.log`, `.omx/...`, etc.
+     `.koala-tmp-*`, `koala-debug.log`, `browser-test.log`, etc. `.omx/...` is disabled locally and must not be registered as a Lattice runtime artifact path.
    – Used by scope to skip volatile runtime telemetry that Koala writes as a
      side-effect of read/write commands. **This is NOT a blanket `.koala/`
      pass.** An arbitrary file like `.koala/foo.json` does not match any

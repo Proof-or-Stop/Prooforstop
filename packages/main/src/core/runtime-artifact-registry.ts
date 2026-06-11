@@ -20,6 +20,14 @@ function rx(value: string): RegExp {
   return new RegExp(value);
 }
 
+export function isForbiddenOmxPath(path: string): boolean {
+  const normalized = normalizeRuntimeArtifactPath(path);
+  return normalized === '.omx' ||
+    normalized.startsWith('.omx/') ||
+    normalized.includes('/.omx/') ||
+    normalized.endsWith('/.omx');
+}
+
 export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
   {
     id: 'koala-runtime-root-ignore',
@@ -145,15 +153,6 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
     description: 'Browser verification log emitted in the repo root.',
     matchers: [{ kind: 'exact', value: 'browser-test.log' }],
     ignorePatterns: ['browser-test.log'],
-    materialHash: 'exclude',
-    volatile: true,
-    repairableTrackedArtifact: true,
-  },
-  {
-    id: 'omx-runtime',
-    description: 'OMX runtime workspace state kept outside the material tree.',
-    matchers: [{ kind: 'prefix', value: '.omx/' }],
-    ignorePatterns: ['.omx/'],
     materialHash: 'exclude',
     volatile: true,
     repairableTrackedArtifact: true,

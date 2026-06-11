@@ -9,6 +9,7 @@ import {
 } from 'node:fs';
 import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { currentGitHead, currentMaterialHash } from './evidence-freshness.js';
+import { isForbiddenOmxPath } from './runtime-artifact-registry.js';
 
 export const BASELINE_FINAL_REPORT_SCHEMA_VERSION = 'lattice.baseline.final_report.v1' as const;
 export const BASELINE_SUITE_REPORT_SCHEMA_VERSION = 'lattice.baseline_suite_report.v1' as const;
@@ -763,10 +764,17 @@ function generatedRunId(prefix: string): string {
 }
 
 function artifactsRoot(root: string, customRoot?: string): string {
-  if (!customRoot || customRoot.trim().length === 0) {
-    return join(root, '.lattice', 'artifacts', 'baseline');
+  const resolved = !customRoot || customRoot.trim().length === 0
+    ? join(root, '.lattice', 'artifacts', 'baseline')
+    : isAbsolute(customRoot) ? customRoot : resolve(root, customRoot);
+  assertNoOmxPath(root, resolved, 'baseline artifactsRoot');
+  return resolved;
+}
+
+function assertNoOmxPath(root: string, path: string, label: string): void {
+  if (isForbiddenOmxPath(path)) {
+    throw new Error(`${label} refuses to use disabled .omx path: ${pathForDisplay(root, path)}`);
   }
-  return isAbsolute(customRoot) ? customRoot : resolve(root, customRoot);
 }
 
 function reportPath(root: string, layer: BaselineLayer, customRoot?: string): string {
@@ -2311,6 +2319,8 @@ function maybeWriteClaimReport(
     jsonPath = join(dir, 'claim-report.json');
     mdPath = join(dir, 'claim-report.md');
   }
+  assertNoOmxPath(root, jsonPath, 'capability claim output');
+  assertNoOmxPath(root, mdPath, 'capability claim output');
   const outputFiles = {
     json: pathForDisplay(root, jsonPath),
     markdown: pathForDisplay(root, mdPath),

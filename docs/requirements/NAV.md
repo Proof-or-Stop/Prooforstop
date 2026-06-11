@@ -1,6 +1,6 @@
 # 真相源导航
 
-> 33 个文件
+> 34 个文件
 
 ## decisions
 
@@ -22,6 +22,7 @@
 - [Lattice Authority Unattended Development Requirements](decisions/lattice-authority-live-integration.md)
 - [Lattice Unattended Completion Plan](decisions/lattice-unattended-completion-plan.md)
 - [Lattice Parallel Wave](decisions/lattice-parallel-wave.md)
+- [Unlock Layer 3 Loop Engineering Baseline Suite](decisions/unlock-layer3-loop-engineering-suite.md)
 - [Lifecycle Artifact Scope Policy](decisions/lifecycle-artifact-scope.md)
 - [Lifecycle Gate Receipt Consumption](decisions/lifecycle-gate-receipt-consumption.md)
 - [Lattice Authority Receipt Contract](decisions/lattice-authority-receipt-contract.md)

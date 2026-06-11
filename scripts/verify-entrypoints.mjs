@@ -579,7 +579,6 @@ checks.push(() => {
       'node_modules/',
       'custom-cache/',
       '**/activity.jsonl',
-      '.omx/',
       '',
     ];
     writeFileSync(join(tempDir, '.gitignore'), existingGitignoreLines.join('\n'));
