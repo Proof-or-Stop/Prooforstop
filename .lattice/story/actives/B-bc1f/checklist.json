@@ -40,9 +40,9 @@
           "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
           "result": "pass",
           "note": "Field regression smoke creates a direct --phase=REVIEW story, asserts ISO currentReviewRound, and confirms review_run_start returns a Review run started message.",
-          "headHash": "c53033f650bdec81f2b7295aeef3ca2225245c63",
-          "materialHash": "5a1d15656b5621658dafdb8323c7b195bebf32c505a98fe6e663004fed6584a1",
-          "timestamp": "2026-06-11T23:37:45.477Z"
+          "headHash": "a4111a9de4d1afb96b9cc5c4307971fa839ec119",
+          "materialHash": "45e0095246279bfaa6b296bf89d0a84464da81b5ab23af129e9845ea1ca21bdb",
+          "timestamp": "2026-06-11T23:57:24.043Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -51,9 +51,9 @@
           "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
           "result": "pass",
           "note": "The same smoke starts review_loop_start on the direct REVIEW story using the initialized currentReviewRound, proving review loop startup no longer fails on missing metadata.",
-          "headHash": "c53033f650bdec81f2b7295aeef3ca2225245c63",
-          "materialHash": "5a1d15656b5621658dafdb8323c7b195bebf32c505a98fe6e663004fed6584a1",
-          "timestamp": "2026-06-11T23:37:45.477Z"
+          "headHash": "a4111a9de4d1afb96b9cc5c4307971fa839ec119",
+          "materialHash": "45e0095246279bfaa6b296bf89d0a84464da81b5ab23af129e9845ea1ca21bdb",
+          "timestamp": "2026-06-11T23:57:24.043Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -62,9 +62,9 @@
           "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
           "result": "pass",
           "note": "The smoke keeps a manually corrupt REVIEW story without currentReviewRound and asserts review_run_start still fails closed with the clearer marked REVIEW but missing currentReviewRound guidance.",
-          "headHash": "c53033f650bdec81f2b7295aeef3ca2225245c63",
-          "materialHash": "5a1d15656b5621658dafdb8323c7b195bebf32c505a98fe6e663004fed6584a1",
-          "timestamp": "2026-06-11T23:37:45.477Z"
+          "headHash": "a4111a9de4d1afb96b9cc5c4307971fa839ec119",
+          "materialHash": "45e0095246279bfaa6b296bf89d0a84464da81b5ab23af129e9845ea1ca21bdb",
+          "timestamp": "2026-06-11T23:57:24.043Z"
         },
         {
           "intentRef": "CHK-001:process-contract",
