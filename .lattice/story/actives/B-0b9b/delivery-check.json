@@ -1,0 +1,53 @@
+{
+  "storyId": "B-0b9b",
+  "checkedAt": "2026-06-11T22:25:13.397Z",
+  "reviewRound": "2026-06-11T22:23:22.843Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/root-markdown-migration-execution-solution.md",
+      "promise": "Define the final allowed root Markdown set as README.md, AGENTS.md, CLAUDE.md, CHANGELOG.md, and user-owned jek.md.",
+      "status": "verified",
+      "verifiedBy": "node inline root migration solution consistency check",
+      "evidence": "allowedRoot=true; finalAllowed=true; no extra retained root policy in execution solution"
+    },
+    {
+      "docPath": "docs/requirements/decisions/root-markdown-migration-execution-solution.md",
+      "promise": "Treat the legacy Koala root guide as a retirement target and not as an allowed retained root file.",
+      "status": "verified",
+      "verifiedBy": "node inline consistency check and grep",
+      "evidence": "koalaRetirement=true; forbidden retained-root wording absent after cleanup"
+    },
+    {
+      "docPath": "docs/requirements/decisions/root-document-migration-guide.md",
+      "promise": "Align the prior root migration guide with the no-retained-root policy while preserving jek.md as user-owned root content.",
+      "status": "verified",
+      "verifiedBy": "node inline consistency check",
+      "evidence": "guideAllowsJek=true; guideForbiddenRetain=false"
+    },
+    {
+      "docPath": "docs/requirements/NAV.md",
+      "promise": "Add the new execution solution decision doc and keep NAV file count synchronized.",
+      "status": "verified",
+      "verifiedBy": "node NAV consistency check",
+      "evidence": "decisionFiles=37, navLinks=37, navCount=37, missingNav=[], staleNav=[]"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "validate --json PASS: npm test passed and CHK-001 happy/edge/adversarial docs_check intents are covered by the execution solution document."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "validate --json PASS: CHK-002 happy/edge/adversarial docs_check intents are covered by the aligned root-document-migration-guide.md."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery check passed: the execution solution exists, NAV is complete, jek.md is protected as user-owned, the legacy Koala root guide is retirement-only, and validation passed with 6/6 coverage."
+  },
+  "_hash": "945f348e7330a2d3308aab49fe6c3453b0df7b7a359876ca9bb7d3a82e5eef39"
+}
