@@ -44,21 +44,6 @@ Only root files that satisfy one of these conditions should remain at the reposi
 
 In practice, that means `AGENTS.md`, `CLAUDE.md`, and `README.md` stay root by default for Codex, Claude Code, and human entry. `CHANGELOG.md` and `KOALA.md` may stay root while compatibility needs remain real. Anything else should be treated as a migration candidate, not a new permanent root doc.
 
-## Non-Markdown Root File Audit
-
-The root should also avoid one-off helper scripts, crash dumps, and local runtime state. These are not decision records and should not remain beside the main entrypoints.
-
-| File or directory | Current role | Target home | Next action |
-|---|---|---|---|
-| `.gitignore` | Repository-level git behavior | Root | Keep. This is a repository control file. |
-| `lattice.config.json` | Project-level Lattice config | Root | Keep. This is the canonical project config. |
-| `package.json` / `package-lock.json` | Node package metadata | Root | Keep. This is normal for the workspace package manager. |
-| `claude-session.mjs` | Local Claude CLI helper wrapper | `scripts/dev/claude-session.mjs` if still used; otherwise archive/remove after checking `packages/main/src/providers/claude-cli.ts` covers the use case | Do not leave as a permanent root helper. Migrate only in a dedicated script-cleanup story because references still exist in metadata. |
-| `du.exe.stackdump` | Local crash dump | Delete from tracked source; optional local-only retention under `.lattice/artifacts/legacy-crash/` | Treat as accidental source pollution, not a Lattice asset. |
-| `.DS_Store` | macOS Finder metadata | Nowhere | Delete locally when found; `.gitignore` already excludes it. |
-| `.omx/` | Legacy/plugin runtime state | Nowhere for active Lattice assets; historical migrated material belongs under `.lattice/artifacts/legacy-omx/` | Delete local runtime residue. Do not write new Lattice assets here. |
-| `.lattice/dev-memory/experience.jsonl` | Lattice dev-memory advisory state | `.lattice/dev-memory/` | Keep under `.lattice`; this is not root pollution and is non-authoritative. |
-
 ## Migration Order
 
 Use a staged order so references stay valid throughout the cutover:
