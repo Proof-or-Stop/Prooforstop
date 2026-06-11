@@ -10,9 +10,9 @@ Root Markdown should not become a catch-all. New durable docs, especially agent-
 - `docs/guide.md` or a nearby `docs/guide-*.md` file for operational how-to material.
 - `docs/koala/` or a dedicated archive area for historical reports and legacy material that is no longer the active source of truth.
 
-## Current Root Markdown Inventory
+## Root Markdown Cleanup Inventory
 
-This repository currently has 17 root-level Markdown files.
+Before story B-7f61 executed the cleanup, this repository had 17 root-level Markdown files. After B-7f61, the repository root has 5 Markdown files: `README.md`, `AGENTS.md`, `CLAUDE.md`, `CHANGELOG.md`, and `jek.md`. The table below is retained as cleanup lineage for the files that were kept, migrated, or archived.
 
 | File | Current role | Classification | Target home | Next action |
 |---|---|---|---|---|
