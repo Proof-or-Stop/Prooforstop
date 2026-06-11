@@ -58,7 +58,38 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees docs/requirements/decisions/root-document-migration-guide.md aligned with the no-KOALA retained-root policy and no longer presenting the legacy Koala root guide as a permitted stay-root compatibility asset.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/root-document-migration-guide.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Existing migration guide names jek.md as user-owned and allowed to remain root while generated Lattice docs are migration candidates.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing migration guide preserves README.md, AGENTS.md, CLAUDE.md, and CHANGELOG.md as allowed root files but does not retain the legacy Koala root guide.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Existing migration guide does not contain language that the legacy Koala root guide may stay root or remain a compatibility asset after cleanup.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
