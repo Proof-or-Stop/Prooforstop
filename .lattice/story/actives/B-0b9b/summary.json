@@ -1,0 +1,56 @@
+{
+  "storyId": "B-0b9b",
+  "changes": "Added docs/requirements/decisions/root-markdown-migration-execution-solution.md with allowed root set, migration batches, canonical destinations, stub/delete rules, reference checks, validation gates, and no-overclaim boundary. Updated root-document-migration-guide.md so jek.md stays user-owned at root and the legacy Koala root guide is a retirement target. Updated NAV to include the new decision doc and count 37 decision files.",
+  "usage": "Use docs/requirements/decisions/root-markdown-migration-execution-solution.md before opening implementation stories that move or delete agent-generated root Markdown files. Use the validation gates in that document as the checklist for future cleanup batches.",
+  "expectedOutcome": "User sees a new execution-plan decision doc and the existing root migration guide no longer treats the legacy Koala root guide as an allowed retained root file.",
+  "actualTranscript": "validate --story=B-0b9b --json returned status=pass and allPass=true. npm test passed and verification coverage is 6/6 covered for CHK-001 and CHK-002.",
+  "outcomeDiff": "No difference: the durable execution document exists, NAV is updated, and the prior guide now treats KOALA.md as retirement target while preserving jek.md at root.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "This story writes the execution solution only. It intentionally does not move, delete, or rewrite root Markdown files; future implementation stories must perform the actual cleanup.",
+  "pitfalls": "The first validation failed because the fresh worktree lacked package dist output; installing root dependencies, symlinking packages/main node_modules from the main local workspace, and running packages/main build produced the required dist task. A review check also caught ambiguous retained-root wording, which was removed before final validation.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 28472
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 15982
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 119880
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 527013
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 132238
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 30051
+    }
+  },
+  "totalDurationMs": 853636,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-11T22:24:51.776Z",
+  "updatedAt": "2026-06-11T22:24:51.776Z"
+}
