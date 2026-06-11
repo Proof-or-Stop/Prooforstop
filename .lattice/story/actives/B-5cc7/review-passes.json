@@ -89,6 +89,15 @@
       "reviewRound": "2026-06-11T23:42:11.666Z",
       "reviewRunId": "B-5cc7:RR-019",
       "_hash": "3bac03f0d44666a72899704635da056525d3690bb6a8dd0d22d734a5a9642c96"
+    },
+    {
+      "id": "B-5cc7:RP-011",
+      "agent": "koala-review-docs",
+      "note": "Docs lane pass: docs/requirements/decisions/dev-memory.md and the worktree implementation agree that public dev-memory commands use lattice dev_memory_*, canonical writes target .lattice, legacy .koala paths are read-only fallback inputs, dev_memory_start emits lattice dev_memory_finish reminders, and entries/parallel refs remain non-authoritative gateEvidence=false authority=non_authoritative. Checked source and local dist; node packages/main/dist/tasks/dev-memory-legacy-read-smoke.js passed; node packages/main/dist/cli.js dev_memory_start emitted lattice dev_memory_finish. Observed globally installed lattice still emits stale koala dev_memory_finish from the parent/global install, not this worktree implementation.",
+      "createdAt": "2026-06-11T23:48:26.278Z",
+      "reviewRound": "2026-06-11T23:42:11.666Z",
+      "reviewRunId": "B-5cc7:RR-022",
+      "_hash": "8f00b46654eef030094a7a70882dcc789f37b1f890004d754583097ab8b16912"
     }
   ]
 }
