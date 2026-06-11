@@ -8,9 +8,9 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "README.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-11T23:37:54.630Z",
       "verificationIntent": {
         "happy": [
           {
@@ -88,6 +88,17 @@
           "timestamp": "2026-06-11T23:37:45.477Z"
         }
       ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-11T23:37:54.630Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implemented direct REVIEW currentReviewRound initialization, clearer legacy missing-round errors, lifecycle doc note, and passing field regression/build/process contract evidence."
     }
   ]
 }
