@@ -222,7 +222,7 @@
           "note": "planner-unattended smoke asserts authority JobPlans emit requiresAuthoritativeWorktree=true, preserve git-status evidence requirements, and provider planned steps carry requiresCleanWorktree for the passing authoritative worktree path",
           "headHash": "77d38e83701a5dd520e166755bcf43939cc58bd4",
           "materialHash": "282490c6136e91ae7df993a697d2f608716e64ec2c7d46b797c0cf237f631dae",
-          "timestamp": "2026-06-11T01:24:16.057Z"
+          "timestamp": "2026-06-11T01:36:52.000Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -233,18 +233,18 @@
           "note": "worktree-policy smoke distinguishes clean missing-worktree authoritative_worktree_unresolved from configured dirty-worktree dirty_worktree, including policy-level requiresCleanWorktree=true without conflating the two stop reasons",
           "headHash": "77d38e83701a5dd520e166755bcf43939cc58bd4",
           "materialHash": "282490c6136e91ae7df993a697d2f608716e64ec2c7d46b797c0cf237f631dae",
-          "timestamp": "2026-06-11T01:24:16.057Z"
+          "timestamp": "2026-06-11T01:36:52.059Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "docs_check",
           "file": "packages/main/src/core/worktree-policy.ts",
-          "command": "lattice gap_analyze",
+          "command": "node bin/lattice.js gap_analyze",
           "result": "pass",
           "note": "gap_analyze reports 0 high / 0 medium after runtime annotations and smoke assertions, proving requiresAuthoritativeWorktree and requiresCleanWorktree are linked to live enforcement rather than prose-only coverage",
           "headHash": "77d38e83701a5dd520e166755bcf43939cc58bd4",
           "materialHash": "282490c6136e91ae7df993a697d2f608716e64ec2c7d46b797c0cf237f631dae",
-          "timestamp": "2026-06-11T01:24:16.057Z"
+          "timestamp": "2026-06-11T01:36:52.113Z"
         }
       ]
     },
