@@ -4,7 +4,7 @@
   "title": "Unlock Layer 3 Loop Engineering formal proof path",
   "description": "Implement and execute the Layer 3 Loop Engineering formal evaluator/proof path from docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md. Follow the ordered sequence: use current fresh Layer 1/2 proof, develop Layer 3 formal evaluator/proof path, execute 10 UDM baselines, unlock only loopEngineeringClaim, and verify Production Safety/global claims remain locked. Use Codex and Claude CLI as independent host review evidence; do not optimize arbitrarily and only fix real correctness issues.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "riskSignals": [
     {
@@ -29,6 +29,14 @@
       "action": "advance",
       "timestamp": "2026-06-11T03:04:26.012Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-11T03:08:33.425Z",
+      "branch": "story/B-428c",
       "user": "Harmonygo",
       "agent": "main"
     }

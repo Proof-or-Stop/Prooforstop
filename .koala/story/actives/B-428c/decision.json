@@ -1,0 +1,68 @@
+{
+  "principles": [
+    "Layer 3 proof must be sequentially gated by fresh Layer 1 and Layer 2 proof.",
+    "Loop Engineering may authorize only the loop-engineering claim boundary.",
+    "Host verdicts are review evidence, not Authority or production proof.",
+    "Every unlock must fail closed on stale, missing, mismatched, or local-only evidence."
+  ],
+  "drivers": [
+    "The Layer 3 document requires a formal evaluator/proof path before running UDM baselines.",
+    "The user wants all work completed, but only real correctness issues fixed.",
+    "Existing Layer 2 formal proof code should be reused where logically equivalent to avoid arbitrary new framework surface."
+  ],
+  "options": [
+    {
+      "name": "A: Extend the existing formal baseline evaluator with a bounded loop-engineering branch",
+      "pros": [
+        "Keeps one command surface for formal capability evaluation.",
+        "Reuses existing suite rebuild and fail-closed patterns.",
+        "Minimizes behavioral expansion to the documented Layer 3 boundary."
+      ],
+      "cons": [
+        "Requires careful target dispatch so Layer 2 behavior does not regress.",
+        "Requires explicit tests to prove Production/global remain locked."
+      ]
+    },
+    {
+      "name": "B: Add a separate Layer 3-only command",
+      "pros": [
+        "Keeps Layer 3 implementation isolated.",
+        "Reduces chance of accidentally changing Layer 2 evaluator behavior."
+      ],
+      "cons": [
+        "Adds a new CLI surface when the current command already represents formal claim evaluation.",
+        "Creates duplicated suite/report validation logic.",
+        "Raises risk that different claim evaluators drift over time."
+      ]
+    }
+  ],
+  "chosen": "A: Extend the existing formal baseline evaluator with a bounded loop-engineering branch",
+  "rationale": "Choose the existing formal evaluator command because the user is asking to unlock a new layer of the same capability claim system, not create a new product surface. The implementation should add only the missing loop-engineering proof path and keep higher-layer claims locked.",
+  "preMortem": [
+    {
+      "scenario": "Layer 3 unlock accidentally authorizes Production Safety or global Capability Claim.",
+      "trigger": "Evaluator treats loop-engineering suite PASS as full capability proof.",
+      "consequence": "False production-grade claim.",
+      "mitigation": "Add explicit claim-boundary tests requiring productionSafetyClaim and globalCapabilityClaim to remain LOCKED."
+    },
+    {
+      "scenario": "Layer 3 consumes stale Layer 1 or Layer 2 proof after code changes.",
+      "trigger": "Proof root from an older HEAD/materialHash is reused.",
+      "consequence": "loopEngineeringClaim unlocks against the wrong target.",
+      "mitigation": "Require lower-layer suite reports to bind the same headHash/materialHash and fail closed on mismatch."
+    },
+    {
+      "scenario": "UDM expected-block baselines are converted into PASS to make the suite green.",
+      "trigger": "Suite aggregator counts every successful gate block as normal PASS.",
+      "consequence": "No-false-DONE and block/escalate guarantees become meaningless.",
+      "mitigation": "Validate outcome against baseline expectedOutcome and require refusal/gate/stop evidence for EXPECTED_BLOCK."
+    },
+    {
+      "scenario": "Claude/Codex host artifacts are mistaken for Authority receipts.",
+      "trigger": "Review evidence names look authoritative in final reports.",
+      "consequence": "Production authority boundary is blurred.",
+      "mitigation": "Keep host verdict refs separate from receipt refs and assert authority.productionDone/fullAuthorityDone remain false."
+    }
+  ],
+  "timestamp": "2026-06-11T03:09:23.862Z"
+}

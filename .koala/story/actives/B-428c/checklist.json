@@ -10,7 +10,39 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees capability_claim_formal_evaluate --target loop-engineering produce a formal report surface with loopEngineeringClaim gated separately from Production Safety/global claims.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-baseline.ts",
+          "packages/main/src/handlers/lattice-baseline.ts",
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lattice-baseline-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A valid fresh loop-engineering proof root returns loopEngineeringClaim=UNLOCKED while productionSafetyClaim and globalCapabilityClaim remain LOCKED.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A valid Layer 2 engineering target still evaluates through the existing Layer 2 path without behavior regression.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A loop-engineering evaluator run with missing or stale lower-layer proof returns LOCKED/BLOCKED and does not unlock higher claims.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
