@@ -674,6 +674,85 @@ function loopArtifactRef(root: string, baselineId: string, fileName: string): st
   return `artifact:${fileName}#sha256=${digest}`;
 }
 
+const BASELINE_RUNNER_OUTPUT_NOTE =
+  'Local Baseline 2-5 runner output is diagnostic artifact material only. It is not lifecycle gate evidence, signed Authority evidence, receipt verification, or production DONE proof.';
+
+function baselineRunnerStubContent(
+  root: string,
+  baselineId: string,
+  runId: string,
+  fileName: string,
+  generatedAt: string,
+  suiteRunId: string,
+  claimTarget: string,
+): string {
+  const common = {
+    schemaVersion: 'lattice.baseline.stub.v1',
+    generatedAt,
+    layer: 'loop-engineering',
+    baselineId,
+    runId,
+    localOnly: true,
+    authority: {
+      authorityChanged: false,
+      receiptVerified: false,
+      productionDone: false,
+      fullAuthorityDone: false,
+      canClaimProductionDone: false,
+      receiptRefs: [],
+    },
+    headHash: currentGitHead(root) ?? 'unavailable',
+    materialHash: materialHash(root),
+    note: BASELINE_RUNNER_OUTPUT_NOTE,
+  };
+  if (fileName === 'verification-evidence.json') {
+    return `${JSON.stringify({
+      ...common,
+      file: fileName,
+      outcome: 'PASS',
+      evidence: 'verification evidence present',
+    }, null, 2)}\n`;
+  }
+  if (fileName.endsWith('.jsonl')) return `${JSON.stringify({ ...common, event: 'stub-created' })}\n`;
+  if (fileName === 'host-verdict-claude.json' || fileName === 'host-verdict-codex.json') {
+    const host = fileName === 'host-verdict-claude.json' ? 'claude' : 'codex';
+    return `${JSON.stringify({
+      schemaVersion: 'lattice.host_verdict.v1',
+      host,
+      source: host,
+      verdict: 'pass',
+      baselineId,
+      suiteRunId,
+      claimTarget,
+      headHash: currentGitHead(root) ?? 'unavailable',
+      materialHash: materialHash(root),
+      checkedAt: generatedAt,
+      principles: [
+        'do not optimize for the sake of optimization',
+        'do not optimize arbitrarily',
+        'only fix real correctness issues',
+        'consistency of logic',
+      ],
+    }, null, 2)}\n`;
+  }
+  return `${JSON.stringify(common, null, 2)}\n`;
+}
+
+function baselineRunnerArtifactRef(
+  root: string,
+  baselineId: string,
+  runId: string,
+  fileName: string,
+  generatedAt: string,
+  suiteRunId = LOOP_FORMAL_SUITE_RUN_ID,
+  claimTarget = LOOP_FORMAL_CLAIM_TARGET,
+): string {
+  const digest = createHash('sha256')
+    .update(baselineRunnerStubContent(root, baselineId, runId, fileName, generatedAt, suiteRunId, claimTarget))
+    .digest('hex');
+  return `artifact:${fileName}#sha256=${digest}`;
+}
+
 function loopFinalReport(root: string, baselineId: string, patch: JsonObject = {}): JsonObject {
   const runId = `${baselineId.toLowerCase()}-loop-proof`;
   const outcome = loopOutcomeFor(baselineId);
@@ -1536,7 +1615,46 @@ for (const defect of [
   }
 }
 
-// 26. Inconsistent PASS suite proof cannot authorize Engineering claims.
+// 26. CLI baseline_run forwards Loop Engineering formal proof refs to the registered handler.
+{
+  const root = initRepo('formal-loop-cli-parameter-forwarding');
+  try {
+    const baselineId = 'UDM-REVIEW-LOOP-1';
+    const runId = 'udm-review-loop-cli-formal';
+    const verifiedAt = new Date().toISOString();
+    const verificationEvidenceRef = baselineRunnerArtifactRef(root, baselineId, runId, 'verification-evidence.json', verifiedAt);
+    const plannedStepRef = baselineRunnerArtifactRef(root, baselineId, runId, 'planned-steps.json', verifiedAt);
+    const reviewLoopRef = baselineRunnerArtifactRef(root, baselineId, runId, 'review-loop.jsonl', verifiedAt);
+
+    const result = runCli(root, [
+      'baseline_run',
+      `--baselineId=${baselineId}`,
+      `--runId=${runId}`,
+      '--formal',
+      `--suiteRunId=${LOOP_FORMAL_SUITE_RUN_ID}`,
+      `--claimTarget=${LOOP_FORMAL_CLAIM_TARGET}`,
+      '--outcome=PASS',
+      `--verifiedAt=${verifiedAt}`,
+      `--verificationEvidenceRefs=${verificationEvidenceRef}`,
+      `--plannedStepRefs=${plannedStepRef}`,
+      `--reviewLoopRefs=${reviewLoopRef}`,
+      '--format=json',
+    ]);
+    const report = requireJsonObject(result, 'formal loop baseline_run CLI forwarding');
+    assert.equal(report.baselineId, baselineId, 'formal loop baseline_run should write the requested baseline id');
+    assert.equal(report.claimTarget, LOOP_FORMAL_CLAIM_TARGET, 'formal loop baseline_run should bind loop-engineering claim target');
+    assert.equal(report.formalProof, true, 'formal loop baseline_run should emit formal proof');
+    assert.equal(report.localOnly, false, 'formal loop baseline_run proof should be eligible for formal suite evaluation');
+    assert.deepEqual(report.verificationEvidenceRefs, [verificationEvidenceRef], 'formal loop baseline_run should preserve verification evidence refs');
+    assert.deepEqual(report.plannedStepRefs, [plannedStepRef], 'formal loop baseline_run should preserve planned step refs');
+    assert.deepEqual(report.reviewLoopRefs, [reviewLoopRef], 'formal loop baseline_run should preserve review loop refs');
+    assertNoAuthorityOverclaim(report, 'formal loop baseline_run CLI forwarding');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// 27. Inconsistent PASS suite proof cannot authorize Engineering claims.
 {
   const root = initRepo('claim-engineering-incoherent-suite');
   try {
