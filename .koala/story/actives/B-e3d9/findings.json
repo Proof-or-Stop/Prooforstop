@@ -58,6 +58,23 @@
       ],
       "resolvedReason": "Fixed by commit 309a856c. resolveGateVerifyConfig and resolveServerVerifyMaterial now consult policy serverKey metadata even when env/authority.md pins the server public key, while keeping the pinned key as the trust anchor and never allowing policy publicKeyHex to override it. authority-client smoke covers pinned key plus policy algorithm=rsa fail-closed for gate evaluation and job status, and pinned key plus ED25519 accepted. Verified with build, authority-client smoke, gap_analyze 0 high/0 medium, planner/worktree/dry-run/gap hygiene smokes, and validate 15/15.",
       "resolvedAt": "2026-06-11T00:18:40.524Z"
+    },
+    {
+      "id": "B-e3d9:F-004",
+      "desc": " .koala/story/actives/B-e3d9/checklist.json:38 WHY: CHK-001 edge still states that case/format variants such as ED25519 must fail closed, but the implemented and re-run smoke at packages/main/src/tasks/authority-client-smoke.ts:1298-1378 explicitly accepts ED25519 (both discovery and pinned-key paths) while only malformed/unsupported algorithms fail closed. The linked verificationEvidence note at checklist.json:69 even says \"case-variant ED25519 is accepted\", so validate can currently report CHK-001:edge:0 as covered even though the intent text asserts the opposite behavior. severity=medium. Fix: update CHK-001 verificationIntent/evidence wording to match the shipped contract (ED25519 accepted after normalization; malformed or unsupported algorithms rejected), then refresh the corresponding verification evidence so coverage remains trustworthy.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-11T00:22:22.685Z",
+      "reviewRound": "2026-06-11T00:18:31.198Z",
+      "reviewRunId": "B-e3d9:RR-009",
+      "_hash": "02c9dd6aa3bfbbdef00847f869ecf53aa1ca15e7d6776a6635eca3de58cf57b4",
+      "files": [
+        ".koala/story/actives/B-e3d9/checklist.json",
+        "packages/main/src/tasks/authority-client-smoke.ts"
+      ]
     }
   ]
 }
