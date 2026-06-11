@@ -1,0 +1,27 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Correct requirements NAV decision-document count",
+      "context": "Codex CLI and Claude CLI audits found docs/requirements/NAV.md declares 37 files while decisions currently has 38 markdown files and 38 NAV decision links. Fix the count only.",
+      "relatedDocs": [
+        "docs/requirements/NAV.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Align lifecycle-memory migration target with split destination guidance",
+      "context": "Claude host-neutral audit found root-document-migration-guide.md lists only dev-memory.md for Lattice-lifecycle-memory-Evolving.md, while the execution solution says the content belongs across dev-memory.md and lifecycle-artifact-scope.md. Align the table target without changing broader policy.",
+      "relatedDocs": [
+        "docs/requirements/decisions/root-document-migration-guide.md",
+        "docs/requirements/decisions/root-markdown-migration-execution-solution.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
