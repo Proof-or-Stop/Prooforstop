@@ -50,9 +50,9 @@
           "command": "node packages/main/dist/cli.js capability_claim_formal_evaluate --target=loop-engineering --artifactsRoot=.lattice/artifacts/baseline/layer3-loop-engineering-unlock --format=json",
           "result": "pass",
           "note": "authorized=true, authorizedClaimLevel=loop-engineering, layer2EngineeringClaim=UNLOCKED, loopEngineeringClaim=UNLOCKED, productionSafetyClaim/globalCapabilityClaim=LOCKED",
-          "headHash": "e8d413e1fa5450b5663d739c0abe02978ed0f3ae",
-          "materialHash": "f4b1a541dfc416def220962b5d94193e4a7f788cfc2d40c883925b6695e8b9ca",
-          "timestamp": "2026-06-11T04:24:05.274Z"
+          "headHash": "75e35c0b7f096b79b74a6b941e5ea9995db0c9cc",
+          "materialHash": "ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22",
+          "timestamp": "2026-06-11T04:49:11.594Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -60,9 +60,9 @@
           "command": "node packages/main/dist/cli.js capability_claim_formal_evaluate --target=engineering --artifactsRoot=.lattice/artifacts/baseline/layer3-loop-engineering-unlock --format=json",
           "result": "pass",
           "note": "Layer 2 engineering target remains authorized independently and loopEngineeringClaim stays LOCKED for the engineering-only target.",
-          "headHash": "e8d413e1fa5450b5663d739c0abe02978ed0f3ae",
-          "materialHash": "f4b1a541dfc416def220962b5d94193e4a7f788cfc2d40c883925b6695e8b9ca",
-          "timestamp": "2026-06-11T04:24:05.274Z"
+          "headHash": "75e35c0b7f096b79b74a6b941e5ea9995db0c9cc",
+          "materialHash": "ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22",
+          "timestamp": "2026-06-11T04:49:11.594Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -70,9 +70,9 @@
           "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
           "result": "pass",
           "note": "Smoke covers missing/forged loop proof and higher-layer target fail-closed behavior.",
-          "headHash": "e8d413e1fa5450b5663d739c0abe02978ed0f3ae",
-          "materialHash": "f4b1a541dfc416def220962b5d94193e4a7f788cfc2d40c883925b6695e8b9ca",
-          "timestamp": "2026-06-11T04:24:05.274Z"
+          "headHash": "75e35c0b7f096b79b74a6b941e5ea9995db0c9cc",
+          "materialHash": "ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22",
+          "timestamp": "2026-06-11T04:49:11.594Z"
         }
       ]
     },
@@ -124,9 +124,9 @@
           "command": "node packages/main/dist/cli.js baseline_suite_report --layer=loop-engineering --artifactsRoot=.lattice/artifacts/baseline/layer3-loop-engineering-unlock --format=json",
           "result": "pass",
           "note": "Loop Engineering suite is PASS with covered=10, missing=0, falseDoneCount=0, localOnly=false, capabilityProof=true.",
-          "headHash": "e8d413e1fa5450b5663d739c0abe02978ed0f3ae",
-          "materialHash": "f4b1a541dfc416def220962b5d94193e4a7f788cfc2d40c883925b6695e8b9ca",
-          "timestamp": "2026-06-11T04:24:05.274Z"
+          "headHash": "75e35c0b7f096b79b74a6b941e5ea9995db0c9cc",
+          "materialHash": "ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22",
+          "timestamp": "2026-06-11T04:49:11.594Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -134,9 +134,9 @@
           "command": "jq .reports .lattice/artifacts/baseline/layer3-loop-engineering-unlock/loop-engineering/baseline-suite-report.json",
           "result": "pass",
           "note": "Expected-block UDM baselines remain EXPECTED_BLOCK with refusal/stop/gate evidence instead of fake PASS.",
-          "headHash": "e8d413e1fa5450b5663d739c0abe02978ed0f3ae",
-          "materialHash": "f4b1a541dfc416def220962b5d94193e4a7f788cfc2d40c883925b6695e8b9ca",
-          "timestamp": "2026-06-11T04:24:05.274Z"
+          "headHash": "75e35c0b7f096b79b74a6b941e5ea9995db0c9cc",
+          "materialHash": "ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22",
+          "timestamp": "2026-06-11T04:49:11.594Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -144,9 +144,9 @@
           "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
           "result": "pass",
           "note": "Smoke includes missing UDM refs rejection, forged loop suite rejection, authority overclaim rejection, and CLI UDM ref forwarding regression.",
-          "headHash": "e8d413e1fa5450b5663d739c0abe02978ed0f3ae",
-          "materialHash": "f4b1a541dfc416def220962b5d94193e4a7f788cfc2d40c883925b6695e8b9ca",
-          "timestamp": "2026-06-11T04:24:05.274Z"
+          "headHash": "75e35c0b7f096b79b74a6b941e5ea9995db0c9cc",
+          "materialHash": "ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22",
+          "timestamp": "2026-06-11T04:49:11.594Z"
         }
       ]
     },
@@ -198,9 +198,9 @@
           "command": "jq summaries for development/engineering/loop-engineering baseline-suite-report.json under .lattice/artifacts/baseline/layer3-loop-engineering-unlock",
           "result": "pass",
           "note": "Final root contains Development covered=6, Engineering covered=9, Loop Engineering covered=10; all suiteStatus=PASS and materialHash=61673d946d832fa34e694fd046cf78212e2939e2b51d98a69b4a6d8aab1b245e.",
-          "headHash": "e8d413e1fa5450b5663d739c0abe02978ed0f3ae",
-          "materialHash": "f4b1a541dfc416def220962b5d94193e4a7f788cfc2d40c883925b6695e8b9ca",
-          "timestamp": "2026-06-11T04:24:05.274Z"
+          "headHash": "75e35c0b7f096b79b74a6b941e5ea9995db0c9cc",
+          "materialHash": "ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22",
+          "timestamp": "2026-06-11T04:49:11.594Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -208,9 +208,9 @@
           "command": "node packages/main/dist/cli.js capability_claim_formal_evaluate --target=loop-engineering --artifactsRoot=.lattice/artifacts/baseline/layer3-loop-engineering-unlock --format=json",
           "result": "pass",
           "note": "Evaluator rebuilt and consumed the final refreshed lower-layer proof, producing authorizedClaimLevel=loop-engineering with no blockedReasons.",
-          "headHash": "e8d413e1fa5450b5663d739c0abe02978ed0f3ae",
-          "materialHash": "f4b1a541dfc416def220962b5d94193e4a7f788cfc2d40c883925b6695e8b9ca",
-          "timestamp": "2026-06-11T04:24:05.274Z"
+          "headHash": "75e35c0b7f096b79b74a6b941e5ea9995db0c9cc",
+          "materialHash": "ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22",
+          "timestamp": "2026-06-11T04:49:11.594Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -218,9 +218,9 @@
           "command": "find .lattice/artifacts/baseline/layer3-loop-engineering-unlock -path */.omx/* -o -name .omx -o -name .omx*",
           "result": "pass",
           "note": "No .omx artifact paths found; proof root is .lattice only.",
-          "headHash": "e8d413e1fa5450b5663d739c0abe02978ed0f3ae",
-          "materialHash": "f4b1a541dfc416def220962b5d94193e4a7f788cfc2d40c883925b6695e8b9ca",
-          "timestamp": "2026-06-11T04:24:05.274Z"
+          "headHash": "75e35c0b7f096b79b74a6b941e5ea9995db0c9cc",
+          "materialHash": "ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22",
+          "timestamp": "2026-06-11T04:49:11.594Z"
         }
       ]
     },
@@ -271,9 +271,9 @@
           "command": "claude -p <layer3 review prompt>; codex exec -s read-only <layer3 review prompt>; normalized to .lattice/artifacts/baseline/layer3-loop-engineering-unlock/reviews/two-host-review-summary.json",
           "result": "pass",
           "note": "Two-host review summary verdict=pass with distinct claude and codex review artifacts, both blockers=[] and bound to HEAD 4bb6bb71/materialHash 61673d946d832fa34e694fd046cf78212e2939e2b51d98a69b4a6d8aab1b245e.",
-          "headHash": "e8d413e1fa5450b5663d739c0abe02978ed0f3ae",
-          "materialHash": "f4b1a541dfc416def220962b5d94193e4a7f788cfc2d40c883925b6695e8b9ca",
-          "timestamp": "2026-06-11T04:24:05.274Z"
+          "headHash": "75e35c0b7f096b79b74a6b941e5ea9995db0c9cc",
+          "materialHash": "ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22",
+          "timestamp": "2026-06-11T04:49:11.594Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -281,9 +281,9 @@
           "command": "node packages/main/dist/cli.js capability_claim_formal_evaluate --target=loop-engineering --artifactsRoot=.lattice/artifacts/baseline/layer3-loop-engineering-unlock --format=json",
           "result": "pass",
           "note": "Host verdict refs are non-authority review evidence; receiptVerified=false, productionDone=false, fullAuthorityDone=false.",
-          "headHash": "e8d413e1fa5450b5663d739c0abe02978ed0f3ae",
-          "materialHash": "f4b1a541dfc416def220962b5d94193e4a7f788cfc2d40c883925b6695e8b9ca",
-          "timestamp": "2026-06-11T04:24:05.274Z"
+          "headHash": "75e35c0b7f096b79b74a6b941e5ea9995db0c9cc",
+          "materialHash": "ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22",
+          "timestamp": "2026-06-11T04:49:11.594Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -291,9 +291,9 @@
           "command": "npm --prefix packages/main run test:lattice-baseline-smoke",
           "result": "pass",
           "note": "Smoke covers duplicate/missing/stale host or review evidence paths through formal suite fail-closed tests and UDM multi-host validation.",
-          "headHash": "e8d413e1fa5450b5663d739c0abe02978ed0f3ae",
-          "materialHash": "f4b1a541dfc416def220962b5d94193e4a7f788cfc2d40c883925b6695e8b9ca",
-          "timestamp": "2026-06-11T04:24:05.274Z"
+          "headHash": "75e35c0b7f096b79b74a6b941e5ea9995db0c9cc",
+          "materialHash": "ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22",
+          "timestamp": "2026-06-11T04:49:11.594Z"
         }
       ]
     },
@@ -345,9 +345,9 @@
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:lattice-baseline-smoke",
           "result": "pass",
           "note": "TypeScript build passed and lattice baseline smoke passed after Layer 3 formal path, CLI forwarding, and .Lattice materialHash exclusion changes.",
-          "headHash": "36da765217fb479c5885207a6f5aeb3c64c01aad",
-          "materialHash": "f4b1a541dfc416def220962b5d94193e4a7f788cfc2d40c883925b6695e8b9ca",
-          "timestamp": "2026-06-11T04:22:13.167Z"
+          "headHash": "75e35c0b7f096b79b74a6b941e5ea9995db0c9cc",
+          "materialHash": "ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22",
+          "timestamp": "2026-06-11T04:49:11.594Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -355,9 +355,9 @@
           "command": "npm --prefix packages/main run test:baseline-suite-smoke && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Baseline suite smoke and process fact contract both passed, preserving Layer 2 evaluator behavior and registry consistency.",
-          "headHash": "36da765217fb479c5885207a6f5aeb3c64c01aad",
-          "materialHash": "f4b1a541dfc416def220962b5d94193e4a7f788cfc2d40c883925b6695e8b9ca",
-          "timestamp": "2026-06-11T04:22:13.191Z"
+          "headHash": "75e35c0b7f096b79b74a6b941e5ea9995db0c9cc",
+          "materialHash": "ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22",
+          "timestamp": "2026-06-11T04:49:11.594Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -365,9 +365,9 @@
           "command": "node packages/main/dist/cli.js capability_claim_formal_evaluate --target=loop-engineering --artifactsRoot=.lattice/artifacts/baseline/layer3-loop-engineering-unlock --format=json",
           "result": "pass",
           "note": "Final formal evaluator after artifact commit returns authorized=true, authorizedClaimLevel=loop-engineering, Production Safety/global locked, blockedReasons=[]; current materialHash=f4b1a541dfc416def220962b5d94193e4a7f788cfc2d40c883925b6695e8b9ca.",
-          "headHash": "36da765217fb479c5885207a6f5aeb3c64c01aad",
-          "materialHash": "f4b1a541dfc416def220962b5d94193e4a7f788cfc2d40c883925b6695e8b9ca",
-          "timestamp": "2026-06-11T04:22:13.214Z"
+          "headHash": "75e35c0b7f096b79b74a6b941e5ea9995db0c9cc",
+          "materialHash": "ffa1f46c47e7fd51233fab7f5767f3c50dea68416f7985982223318855131b22",
+          "timestamp": "2026-06-11T04:49:11.594Z"
         }
       ]
     }
