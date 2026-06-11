@@ -59,7 +59,7 @@
       "desc": "Reference-Update Rules currently require updating any code or prompt text that names the file directly. That expands this Markdown migration guide beyond docs/navigation scope; limit this rule to Markdown documentation and docs navigation references, with non-doc cleanup left for separate stories.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-docs",
       "createdAt": "2026-06-11T17:28:28.382Z",
@@ -68,7 +68,9 @@
       "_hash": "ab72087ace927c6e48564ad4471c37b0315c707f7cf50b158ea2b99ef048238a",
       "files": [
         "docs/requirements/decisions/root-document-migration-guide.md"
-      ]
+      ],
+      "resolvedReason": "Resolved by commit 4657381a. Reference-Update Rule #2 is now limited to Markdown documentation references in the same migration set: root docs, NAV, and related guides. It no longer directs code or prompt-text cleanup in this docs-only story. Fresh guard grep for code/prompt wording returned no matches, strict checker passed, and evidence was refreshed by 2f70fe0.",
+      "resolvedAt": "2026-06-11T17:32:44.480Z"
     }
   ]
 }
