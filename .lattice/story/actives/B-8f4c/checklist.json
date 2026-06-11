@@ -11,9 +11,9 @@
         "docs/requirements/decisions/dev-memory.md",
         "docs/requirements/decisions/lattice-parallel-wave.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-11T21:40:12.630Z",
       "userSees": "User sees docs/requirements/decisions/stash-split-execution-plan.md with bucketed stash handling, restore mechanics, stop conditions, tests, and non-goals.",
       "files": {
         "modify": [],
@@ -44,7 +44,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/stash-split-execution-plan.md",
+          "command": "node inline NAV + stash split plan checker",
+          "result": "pass",
+          "note": "Document defines buckets for runtime path cleanup, smoke expectation repairs, Layer4 doc, planner hash deferral, and dev-memory exclusion.",
+          "headHash": "612e982b5094ff3bb2585857f2b3f4357ca8cbc0",
+          "materialHash": "b88ca3f4d426a05f1acddb66a95350aa0e80a515be661bd7298f31d1044816a5",
+          "timestamp": "2026-06-11T21:40:12.683Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/stash-split-execution-plan.md",
+          "command": "node inline NAV + stash split plan checker",
+          "result": "pass",
+          "note": "Document explicitly requires --include-untracked or stash@{0}^3 for untracked restore and excludes .lattice/dev-memory/experience.jsonl by default.",
+          "headHash": "612e982b5094ff3bb2585857f2b3f4357ca8cbc0",
+          "materialHash": "b88ca3f4d426a05f1acddb66a95350aa0e80a515be661bd7298f31d1044816a5",
+          "timestamp": "2026-06-11T21:40:12.717Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/stash-split-execution-plan.md",
+          "command": "rg non-negotiable rules + mechanical checker",
+          "result": "pass",
+          "note": "Document forbids git stash pop, whole-stash apply, mixed commits, planner hash churn without repro, and dev-memory data commit without explicit decision.",
+          "headHash": "612e982b5094ff3bb2585857f2b3f4357ca8cbc0",
+          "materialHash": "b88ca3f4d426a05f1acddb66a95350aa0e80a515be661bd7298f31d1044816a5",
+          "timestamp": "2026-06-11T21:40:12.751Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
