@@ -11,7 +11,7 @@
       ],
       "status": "done",
       "startTime": "2026-06-10T22:42:32.898Z",
-      "endTime": "2026-06-10T22:49:51.549Z",
+      "endTime": "2026-06-11T00:16:16.214Z",
       "userSees": "User sees \"unsupported_algorithm\" for non-ed25519 receipt verification and \"authority receipt signature and native bindings verified\" for the valid ed25519 path.",
       "files": {
         "modify": [
@@ -53,34 +53,34 @@
           "intentRef": "CHK-001:happy:0",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/authority-client-smoke.ts",
-          "command": "npm run test:authority-client",
+          "command": "npm --prefix packages/main run build; npm run test:authority-client; node packages/main/dist/cli.js gap_analyze",
           "result": "pass",
-          "note": "authority-client smoke retains the canonical ed25519 policy-discovery path where receipt verification returns verified, preserving the supported production receipt algorithm success case.",
-          "headHash": "ac1029362e1f5adef6d79cca48bbde5c42355fbc",
+          "note": "Current-head smoke keeps supported ed25519 receipt verification passing, including the pinned env LATTICE_AUTHORITY_SERVER_PUBLIC_KEY path with policy serverKey.algorithm=ED25519; counts.policy=1 proves policy metadata was consulted while the pinned key remained the trust anchor.",
+          "headHash": "8b271dff96d0a6a01b2f80f30f9bec69e3bb2ca6",
           "materialHash": "121656017549a484a40f88b320e51879a55d5de987545bf738c751bf2fb95e62",
-          "timestamp": "2026-06-10T23:43:31.617Z"
+          "timestamp": "2026-06-11T00:16:16.269Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/authority-client-smoke.ts",
-          "command": "npm run test:authority-client",
+          "command": "npm --prefix packages/main run build; npm run test:authority-client; node packages/main/dist/cli.js gap_analyze",
           "result": "pass",
-          "note": "The frozen PLAN intent named ED25519 as a fail-closed edge case, but review finding B-e3d9:F-002 corrected that as over-strict. The current smoke proves the consistent edge semantics: serverKey.algorithm=ED25519 is trimmed/lowercased to ed25519 and verifies, while blank/malformed algorithm material fails closed as unsupported.",
-          "headHash": "ac1029362e1f5adef6d79cca48bbde5c42355fbc",
+          "note": "Current-head smoke preserves algorithm normalization/fail-closed edges: case-variant ED25519 is accepted, blank/malformed algorithm material is rejected as unsupported, and pinned deployments with unavailable policy still have no new required algorithm metadata path.",
+          "headHash": "8b271dff96d0a6a01b2f80f30f9bec69e3bb2ca6",
           "materialHash": "121656017549a484a40f88b320e51879a55d5de987545bf738c751bf2fb95e62",
-          "timestamp": "2026-06-10T23:43:31.617Z"
+          "timestamp": "2026-06-11T00:16:16.313Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/authority-client-smoke.ts",
-          "command": "npm run test:authority-client",
+          "command": "npm --prefix packages/main run build; npm run test:authority-client; node packages/main/dist/cli.js gap_analyze",
           "result": "pass",
-          "note": "authority-client smoke rejects serverKey.algorithm=rsa and blank whitespace algorithms with receipt_unverified unsupported algorithm, and directly asserts the native verifier rejects a non-string algorithm value.",
-          "headHash": "ac1029362e1f5adef6d79cca48bbde5c42355fbc",
+          "note": "Current-head smoke covers B-e3d9:F-003: env-pinned serverPublicKey plus fake policy serverKey.algorithm=rsa returns receipt_unverified, blocks executePlannedSteps authority DONE, and authorityJobVerdictStatus keeps receiptVerified/authorityDone/fullAuthorityDone false; counts.policy=1 proves policy metadata was consulted for both gate and job-status receipt verification.",
+          "headHash": "8b271dff96d0a6a01b2f80f30f9bec69e3bb2ca6",
           "materialHash": "121656017549a484a40f88b320e51879a55d5de987545bf738c751bf2fb95e62",
-          "timestamp": "2026-06-10T23:43:31.617Z"
+          "timestamp": "2026-06-11T00:16:16.354Z"
         }
       ]
     },
