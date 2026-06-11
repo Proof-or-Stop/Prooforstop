@@ -308,9 +308,9 @@ export function createDevMemoryHandlers(ctx: HandlerContext) {
       `Dev session starting (agent: ${agentName})`,
       ``,
       `When the session ends, run one of:`,
-      `  koala dev_memory_finish                    # report project entries (no story required)`,
-      `  koala dev_memory_finish --scope=global     # promote to global dev-memory`,
-      `  koala dev_memory_finish --storyId=<id>     # write story-scoped candidates`,
+      `  lattice dev_memory_finish                    # report project entries (no story required)`,
+      `  lattice dev_memory_finish --scope=global     # promote to global dev-memory`,
+      `  lattice dev_memory_finish --storyId=<id>     # write story-scoped candidates`,
       ``,
       `Project entries are retained automatically. --storyId is optional.`,
     ].join('\n');

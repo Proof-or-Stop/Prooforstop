@@ -14,6 +14,12 @@ import {
   resolveProjectMemoryPath,
   type DevMemoryEntry,
 } from '../core/dev-memory.js';
+import {
+  buildParallelDispatch,
+  buildParallelReport,
+  PARALLEL_WAVE_SCHEMA_VERSION,
+  type LatticeParallelWave,
+} from '../core/lattice-parallel-wave.js';
 import { createDevMemoryHandlers } from '../handlers/dev-memory.js';
 import type { HandlerContext } from '../handlers/context.js';
 
@@ -45,6 +51,56 @@ function assertNonAuthoritative(entries: DevMemoryEntry[], label: string): void 
     assert.equal(entry.gateEvidence, false, `${label} ${entry.id} must not be gate evidence`);
     assert.equal(entry.authority, 'non_authoritative', `${label} ${entry.id} must remain non-authoritative`);
   }
+}
+
+function legacySmokeWave(): LatticeParallelWave {
+  return {
+    schemaVersion: PARALLEL_WAVE_SCHEMA_VERSION,
+    waveId: 'dev-memory-legacy-read-smoke-wave',
+    generatedAt: '2026-06-11T22:00:00.000Z',
+    storyRefs: [{
+      storyId: 'B-smoke',
+      title: 'dev-memory legacy read smoke',
+      phase: 'DEV',
+      lane: 'supporting',
+      safety: 'yes',
+      recommendation: 'parallel_dev',
+      parallelDevRecommended: true,
+      recommendedHostIds: [],
+      dependencies: {
+        declared: [],
+        active: [],
+        satisfied: [],
+        missing: [],
+        inWave: [],
+        blockingForActive: [],
+      },
+      hotspots: [],
+      sharedHotspots: [],
+      degradations: [],
+      evidenceRefs: [],
+      canonicalStoryRef: {
+        schemaVersion: 'canonical-story-v0',
+        storyId: 'B-smoke',
+      },
+      recoveryRefs: [],
+    }],
+    hostCandidates: [],
+    evidenceRefs: [],
+    mergeOrder: [{
+      storyId: 'B-smoke',
+      after: [],
+      safety: 'yes',
+      recommendation: 'parallel_dev',
+      blockers: [],
+    }],
+    authority: {
+      productionDone: false,
+      authorityChanged: false,
+      receiptRefs: [],
+      notes: [],
+    },
+  };
 }
 
 const originalHome = process.env.HOME;
@@ -126,16 +182,65 @@ try {
     join(legacyOverrideDir, 'experience.jsonl'),
     'KOALA_GLOBAL_MEMORY_DIR should remain available as the legacy global read fallback',
   );
+  const globalLegacyOverride = makeEntry('global-legacy-override', 'global legacy koala override memory entry', 'global');
+  writeEntry(legacyGlobalPathWithLegacyOverride, globalLegacyOverride);
   assert.deepEqual(
     resolveGlobalMemoryReadPaths(),
     [writableGlobalPathWithLegacyOverride, legacyGlobalPathWithLegacyOverride],
     'global read paths should keep current writable path first, then legacy KOALA fallback',
+  );
+  const wave = legacySmokeWave();
+  const dispatch = buildParallelDispatch(wave, {
+    projectRoot,
+    includeExperience: true,
+    experienceQuery: 'koala',
+    maxExperienceRefs: 10,
+  });
+  const dispatchExperienceIds = dispatch.dispatchEntries.flatMap(entry => entry.experienceRefs.map(ref => ref.id));
+  assert.ok(
+    dispatchExperienceIds.includes('project-legacy'),
+    'parallel dispatch experienceRefs should include legacy project .koala memory through includeExperience',
+  );
+  assert.ok(
+    dispatchExperienceIds.includes('global-legacy-override'),
+    'parallel dispatch experienceRefs should include KOALA_GLOBAL_MEMORY_DIR legacy global fallback',
+  );
+  assert.equal(
+    dispatchExperienceIds.includes('global-legacy'),
+    false,
+    'KOALA_GLOBAL_MEMORY_DIR should mask the default legacy global .koala path in parallel dispatch experienceRefs',
+  );
+  const report = buildParallelReport(wave, {
+    projectRoot,
+    includeExperience: true,
+    experienceQuery: 'koala',
+    maxExperienceRefs: 10,
+  });
+  const reportExperienceIds = report.experienceRefs.map(ref => ref.id);
+  assert.ok(
+    reportExperienceIds.includes('project-legacy'),
+    'parallel report experienceRefs should include legacy project .koala memory through includeExperience',
+  );
+  assert.ok(
+    reportExperienceIds.includes('global-legacy-override'),
+    'parallel report experienceRefs should include KOALA_GLOBAL_MEMORY_DIR legacy global fallback',
   );
   delete process.env.KOALA_GLOBAL_MEMORY_DIR;
 
   const captureRoot = join(root, 'capture-project');
   mkdirSync(captureRoot, { recursive: true });
   const handlers = createDevMemoryHandlers({ root: captureRoot } as HandlerContext);
+  const startOutput = handlers.dev_memory_start({ agent: 'dev-memory-legacy-read-smoke' });
+  assert.match(
+    startOutput,
+    /lattice dev_memory_finish/,
+    'dev_memory_start should remind users to finish with lattice dev_memory_finish',
+  );
+  assert.doesNotMatch(
+    startOutput,
+    /koala dev_memory_finish/,
+    'dev_memory_start should not suggest the legacy koala dev_memory_finish command',
+  );
   const captureOutput = handlers.dev_memory_capture({
     category: 'workflow',
     scope: 'project',

@@ -2,9 +2,8 @@ import { readFileSync } from 'node:fs';
 import { buildCapabilityProbe, type CapabilityStatus } from './capabilities.js';
 import { buildCanonicalStory, type CanonicalStory } from './canonical-story.js';
 import {
-  readEntries,
-  resolveGlobalMemoryPath,
-  resolveProjectMemoryPath,
+  readGlobalMemoryEntries,
+  readProjectMemoryEntries,
   searchEntries,
   type DevMemoryEntry,
 } from './dev-memory.js';
@@ -318,8 +317,8 @@ function experienceRefs(options: ParallelWaveProjectionOptions = {}): ParallelWa
   const seen = new Set<string>();
   const entries: DevMemoryEntry[] = [];
   for (const entry of [
-    ...readEntries(resolveProjectMemoryPath(options.projectRoot)),
-    ...readEntries(resolveGlobalMemoryPath()),
+    ...readProjectMemoryEntries(options.projectRoot),
+    ...readGlobalMemoryEntries(),
   ]) {
     if (seen.has(entry.id)) continue;
     seen.add(entry.id);
