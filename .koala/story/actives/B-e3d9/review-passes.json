@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-10T23:44:51.813Z",
       "reviewRunId": "B-e3d9:RR-008",
       "_hash": "e8aed1bad0d57e5e9d477af5bad0e264b50c806204171b82ff1cc45a2ae06497"
+    },
+    {
+      "id": "B-e3d9:RP-007",
+      "agent": "koala-review-quality",
+      "note": "Reviewed quality scope on HEAD 90ab0bb. Rebuilt with npm --prefix packages/main run build, then reran npm --prefix packages/main run test:authority-client, test:planner-unattended-smoke, test:worktree-policy-smoke, test:lattice-cli-migration-smoke, test:gap-analyze-input-hygiene-smoke, and node bin/lattice.js gap_analyze; all passed. F-001 no longer reproduces, F-002 now lowercases case-variant ED25519 while still fail-closing blank/non-string/rsa algorithms, and F-003 now consults policy metadata for pinned-key receipt verification without letting policy publicKeyHex override the pin. gap_analyze hygiene correctly ignores stale dist/source metadata while still surfacing live missing-fixture gaps. No blocker found.",
+      "createdAt": "2026-06-11T00:22:31.380Z",
+      "reviewRound": "2026-06-11T00:18:31.198Z",
+      "reviewRunId": "B-e3d9:RR-010",
+      "_hash": "c8151767e95a72e1c239298b0d73a8d696b003e9c9a8611e40866c6a13735fbc"
     }
   ]
 }
