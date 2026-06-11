@@ -213,6 +213,114 @@ function seedStory(store: StoryStore, storyId: string): void {
 }
 
 {
+  const base = buildProof().inputPayload;
+  const { proof, inputPayload, keypair } = buildProof({
+    useHexWire: true,
+    inputPayload: {
+      ...base,
+      repo: {
+        ...base.repo,
+        baseHash: null,
+        treeHash: null,
+        diffHash: null,
+        manifestHash: null,
+      },
+    },
+  });
+  const result = verifyAuthorityGateReceiptProof(proof, {
+    expected: {
+      storyId: inputPayload.storyId,
+      phase: 'TEST',
+      headHash: inputPayload.repo.headHash,
+      materialHash: inputPayload.repo.materialHash,
+      stateVersion: 7,
+    },
+    trust: {
+      productionAuthorityKeyDigests: [publicKeyDigest(keypair.publicKey)],
+    },
+  });
+  assert.equal(result.ok, true, 'proof verifier must preserve null passthrough fields in Python gate input digest');
+  assert.equal(result.receiptVerified, true);
+  assert.equal(result.productionReady, true);
+}
+
+{
+  const base = buildProof().inputPayload;
+  const explicitNull = buildProof({
+    useHexWire: true,
+    inputPayload: {
+      ...base,
+      repo: {
+        ...base.repo,
+        baseHash: null,
+        treeHash: null,
+        diffHash: null,
+        manifestHash: null,
+      },
+    },
+  });
+  const proof = {
+    ...explicitNull.proof,
+    inputPayload: {
+      ...explicitNull.inputPayload,
+      repo: {
+        headHash: explicitNull.inputPayload.repo.headHash,
+        materialHash: explicitNull.inputPayload.repo.materialHash,
+        dirty: false,
+      },
+    },
+  };
+  const result = verifyAuthorityGateReceiptProof(proof, {
+    expected: {
+      storyId: proof.inputPayload.storyId,
+      phase: 'TEST',
+      headHash: proof.inputPayload.repo.headHash,
+      materialHash: proof.inputPayload.repo.materialHash,
+      stateVersion: 7,
+    },
+    trust: {
+      productionAuthorityKeyDigests: [publicKeyDigest(explicitNull.keypair.publicKey)],
+    },
+  });
+  assert.equal(result.ok, true, 'proof verifier must normalize missing optional repo hashes to Python null digest shape');
+  assert.equal(result.receiptVerified, true);
+  assert.equal(result.productionReady, true);
+}
+
+{
+  const base = buildProof().inputPayload;
+  const { proof, inputPayload, keypair } = buildProof({
+    useHexWire: true,
+    inputPayload: {
+      ...base,
+      repo: {
+        ...base.repo,
+        baseHash: null,
+        treeHash: null,
+        diffHash: null,
+        manifestHash: null,
+        branchName: 'receipt-ref-smoke',
+      },
+    },
+  });
+  const result = verifyAuthorityGateReceiptProof(proof, {
+    expected: {
+      storyId: inputPayload.storyId,
+      phase: 'TEST',
+      headHash: inputPayload.repo.headHash,
+      materialHash: inputPayload.repo.materialHash,
+      stateVersion: 7,
+    },
+    trust: {
+      productionAuthorityKeyDigests: [publicKeyDigest(keypair.publicKey)],
+    },
+  });
+  assert.equal(result.ok, true, 'proof verifier must keep passthrough repo fields in the signed digest');
+  assert.equal(result.receiptVerified, true);
+  assert.equal(result.productionReady, true);
+}
+
+{
   const { proof, inputPayload, keypair } = buildProof({
     serverKeyProfile: 'local-test',
     serverKeyProductionInert: true,
