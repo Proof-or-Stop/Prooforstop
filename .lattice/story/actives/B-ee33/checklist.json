@@ -1,0 +1,27 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Remove direct commit path from stash split plan",
+      "context": "The document currently says each bucket may become a future story or commit, but later requires one future story per bucket. Fix only this logical inconsistency so the execution path remains Lattice story-gated and host-neutral.",
+      "relatedDocs": [
+        "docs/requirements/decisions/stash-split-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Verify stash split plan remains executable and NAV stays unchanged",
+      "context": "Run mechanical checks for stable STASH_OBJECT, no whole-stash restore, NAV 37/37 consistency, and absence of the direct commit bypass wording.",
+      "relatedDocs": [
+        "docs/requirements/decisions/stash-split-execution-plan.md",
+        "docs/requirements/NAV.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
