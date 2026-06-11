@@ -69,6 +69,17 @@
           "headHash": "ead26b7ea82f06e414336679f636291f692c573c",
           "materialHash": "0005cd92d47e3fa480f463375059fe4454da27a58ac8bc915fdc499406111140",
           "timestamp": "2026-06-11T22:18:41.336Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/root-markdown-migration-execution-solution.md",
+          "command": "node inline root migration solution consistency check",
+          "result": "pass",
+          "note": "The execution solution explicitly says KOALA.md is not part of the final allowed root set and is a retirement target, not a retained compatibility asset.",
+          "headHash": "ee7a8ad60b6d9ea00721076cda6a9613c8f135e6",
+          "materialHash": "0005cd92d47e3fa480f463375059fe4454da27a58ac8bc915fdc499406111140",
+          "timestamp": "2026-06-11T22:18:47.731Z"
         }
       ]
     },
