@@ -224,12 +224,12 @@
           "intentRef": "CHK-003:adversarial:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/stash-split-execution-plan.md",
-          "command": "node inline forbidden-claim checker",
+          "command": "node inline fenced bash checker for positional stash refs + git diff --check HEAD~1..HEAD",
           "result": "pass",
-          "note": "Plan forbids stash pop, whole-stash apply, whole-tree restore, dev-memory data commit, and stale NAV path restore.",
-          "headHash": "55240c93857ee590413739339d50de4874671b03",
-          "materialHash": "87ad31cf58410009cbc8c31525562933e768289a23eec8817aa0483d7da71d31",
-          "timestamp": "2026-06-11T21:49:07.827Z"
+          "note": "Executable command blocks no longer use positional stash@{0} for git diff, restore, show, stash show, or ls-tree after identity capture; whitespace check passes.",
+          "headHash": "eef4cef22a0bd83e34d425e5a8ca42042f563ab3",
+          "materialHash": "8b00cd531924b0c5137360c94a274a4d9ffa62b5b5864e44bb28c2b5bbb41712",
+          "timestamp": "2026-06-11T21:59:50.616Z"
         }
       ]
     }
