@@ -117,7 +117,41 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees internal documentation no longer pointing readers at removed root legacy Markdown paths; active references point to canonical docs or historical archive paths.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/root-document-migration-guide.md",
+          "docs/requirements/decisions/root-markdown-migration-execution-solution.md",
+          "docs/requirements/decisions/lattice-authority-remote-evidence-bundle.md",
+          "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Reader-facing references to removed root docs are updated to canonical decision docs or archive paths.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Code and tests may still mention KOALA.md only as legacy compatibility asset behavior, not as a required root document.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Reference updates do not add new Production Safety, authority, capability, or unattended-readiness claims.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
