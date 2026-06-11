@@ -1,6 +1,6 @@
 # 真相源导航
 
-> 34 个文件
+> 36 个文件
 
 ## decisions
 
@@ -22,6 +22,7 @@
 - [Lattice Authority Unattended Development Requirements](decisions/lattice-authority-live-integration.md)
 - [Lattice Unattended Completion Plan](decisions/lattice-unattended-completion-plan.md)
 - [Lattice Parallel Wave](decisions/lattice-parallel-wave.md)
+- [Unlock Layer 2 Engineering Baseline Suite](decisions/unlock-layer2-ENG-suite.md)
 - [Unlock Layer 3 Loop Engineering Baseline Suite](decisions/unlock-layer3-loop-engineering-suite.md)
 - [Lifecycle Artifact Scope Policy](decisions/lifecycle-artifact-scope.md)
 - [Lifecycle Gate Receipt Consumption](decisions/lifecycle-gate-receipt-consumption.md)
@@ -32,6 +33,7 @@
 - [Session Ownership and Write Leases](decisions/session-ownership-and-write-leases.md)
 - [Claude Code / Codex × Superpowers × Koala 分层说明（草稿）](decisions/stack-layering.md)
 - [Story 生命周期](decisions/story-lifecycle.md)
+- [Root Document Migration Guide](decisions/root-document-migration-guide.md)
 - [@test 注释与 Fixture 规范](decisions/test-fixture-spec.md)
 - [testIntent 对抗审查体系](decisions/test-intent-review.md)
 - [测试完整性决策](decisions/testing-completeness.md)
