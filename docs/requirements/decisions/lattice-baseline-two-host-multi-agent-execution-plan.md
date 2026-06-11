@@ -193,7 +193,7 @@ baseline authority runs.
 Required environment:
 
 ```bash
-LATTICE_AUTHORITY_LIVE_URL='https://stagging.hostneutral.net/'
+LATTICE_AUTHORITY_LIVE_URL='https://staging.hostneutral.net/'
 LATTICE_AUTHORITY_LIVE_PUBLIC_KEY='<formal staging server public key pin>'
 LATTICE_AUTHORITY_CUSTOMER_API_KEY='<redacted live bearer key>'
 ```
