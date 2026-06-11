@@ -140,17 +140,17 @@
           "note": "gap_analyze no longer reports the stale supportsDryRun uncovered_requirement; the remaining high gaps are the separate CHK-003/CHK-004 authority-policy items.",
           "headHash": "425dc5b7cbef07a3b9e1ce419a1015c8a06339ee",
           "materialHash": "f313c9c3975f077d1729edc8c0a29a5b03617c670c661d2287c368790d861e5d",
-          "timestamp": "2026-06-11T01:43:15.374Z"
+          "timestamp": "2026-06-11T01:52:19.235Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "manual_transcript",
-          "command": "node packages/main/dist/cli.js --root . story_reconcile --help; node packages/main/dist/cli.js --root . test_auto --help; node packages/main/dist/cli.js --root . host_install --help",
+          "command": "node bin/lattice.js story_reconcile --help; node bin/lattice.js test_auto --help; node bin/lattice.js host_install --help",
           "result": "pass",
-          "note": "The live help surface now distinguishes default-on dry-run (story_reconcile), optional --dryRun plus --confirm semantics (test_auto), and always-on projection-only behavior (host_install) without inventing metadata for commands that do not expose real dry-run behavior.",
+          "note": "Root-invocable local wrapper help confirms dry-run surfacing is tied to live command policy/schema for commands that support dry-run and for commands that do not, without relying on untracked dist output.",
           "headHash": "425dc5b7cbef07a3b9e1ce419a1015c8a06339ee",
           "materialHash": "f313c9c3975f077d1729edc8c0a29a5b03617c670c661d2287c368790d861e5d",
-          "timestamp": "2026-06-11T01:43:15.374Z"
+          "timestamp": "2026-06-11T01:52:19.347Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -161,7 +161,7 @@
           "note": "The requirement truth now explicitly rejects a new ToolDef.supportsDryRun field, and the code annotations/help bind dry-run semantics to existing schema plus COMMAND_POLICIES surfaces so a metadata-only fix would contradict the documented contract.",
           "headHash": "425dc5b7cbef07a3b9e1ce419a1015c8a06339ee",
           "materialHash": "f313c9c3975f077d1729edc8c0a29a5b03617c670c661d2287c368790d861e5d",
-          "timestamp": "2026-06-11T01:43:15.374Z"
+          "timestamp": "2026-06-11T01:52:19.449Z"
         }
       ]
     },
