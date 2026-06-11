@@ -28,4 +28,5 @@
   - Pinned-key receipt verification now still enforces `serverKey.algorithm`.
   - CHK-001 verification intent wording now matches Ed25519 normalization behavior.
   - Codex adapter entrypoints now use canonical case-stable paths for case-sensitive hosts.
+  - Verification evidence commands are now mechanically reproducible from the story worktree: package scripts use `npm --prefix packages/main`, local Lattice evidence uses `node bin/lattice.js`, and direct `dist` invocations include a preceding build in the same command string.
 - Remaining scope warnings are acknowledged adapter/help/smoke support paths, not unreviewed feature expansion.
