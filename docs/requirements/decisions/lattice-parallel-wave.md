@@ -151,14 +151,18 @@ or block parallel DEV recommendations even when a story declares
 
 Parallel dispatch and report projections may include dev-memory refs only when
 `includeExperience=true`. The implementation reads project memory from
-`<projectRoot>/.koala/dev-memory/experience.jsonl` and global memory from
-`~/.koala/dev-memory/experience.jsonl`, tolerates missing files as an empty
-list, de-duplicates by id, searches through the existing dev-memory search
-routine, and caps output by `maxExperienceRefs`.
+`<projectRoot>/.lattice/dev-memory/experience.jsonl` as the canonical project
+store, with `<projectRoot>/.koala/dev-memory/experience.jsonl` as a read-only
+legacy fallback. Global reads use current `~/.lattice/dev-memory/experience.jsonl`
+plus the legacy global fallback when appropriate: `~/.koala/dev-memory/experience.jsonl`
+by default, or `KOALA_GLOBAL_MEMORY_DIR` when that legacy fallback override is
+set. Missing files are tolerated as an empty list. Results are de-duplicated by
+id, searched through the existing dev-memory search routine, and capped by
+`maxExperienceRefs`.
 
 Each emitted memory ref is deliberately small: `id`, `category`, `summary`,
-`source`, `scope`, `gateEvidence=false`, and
-`authority="non_authoritative"`. These refs are operator context only. They are
+`source`, `scope`, `gateEvidence:false`, and
+`authority:"non_authoritative"`. These refs are operator context only. They are
 not evidence refs, cannot satisfy gates, and do not change the authority
 boundary.
 
