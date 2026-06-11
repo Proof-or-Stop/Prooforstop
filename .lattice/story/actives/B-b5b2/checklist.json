@@ -54,9 +54,9 @@
           "command": "node inline root inventory + NAV + target strict checker",
           "result": "pass",
           "note": "Fresh strict checker at current material HEAD passed: rootDocCount=17, inventoryRows=17, missingRoot=[], extraRoot=[]; guide inventory covers every root Markdown file.",
-          "headHash": "e7f2a1213c2744a16ee635e3f0439ccb13435ffe",
-          "materialHash": "ce7dc9737009d7cc96ba82474b6d64897b50681a530199fcc0c69a3f9b82652e",
-          "timestamp": "2026-06-11T17:19:40.136Z"
+          "headHash": "53730af2fe26e0e7369a4117be0381d294087ee5",
+          "materialHash": "3c952a07a9d2b436e4076aed1492f913ef26e2b4d361dd11485d36284b8df9eb",
+          "timestamp": "2026-06-11T17:22:17.985Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -65,9 +65,9 @@
           "command": "node inline root inventory + target strict checker",
           "result": "pass",
           "note": "Fresh strict checker plus reviewer feedback confirms README.md, AGENTS.md, CLAUDE.md stay root; CHANGELOG.md and KOALA.md remain root compatibility assets.",
-          "headHash": "e7f2a1213c2744a16ee635e3f0439ccb13435ffe",
-          "materialHash": "ce7dc9737009d7cc96ba82474b6d64897b50681a530199fcc0c69a3f9b82652e",
-          "timestamp": "2026-06-11T17:19:40.136Z"
+          "headHash": "53730af2fe26e0e7369a4117be0381d294087ee5",
+          "materialHash": "3c952a07a9d2b436e4076aed1492f913ef26e2b4d361dd11485d36284b8df9eb",
+          "timestamp": "2026-06-11T17:22:17.985Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -76,9 +76,9 @@
           "command": "rg Scope Boundary Audit + final Claude/Codex audits",
           "result": "pass",
           "note": "Scope Boundary Audit remains explicit: no bulk move, no root file move/delete, no Production Safety/runtime/global capability claim. Final Claude/Codex read-only audits passed.",
-          "headHash": "e7f2a1213c2744a16ee635e3f0439ccb13435ffe",
-          "materialHash": "ce7dc9737009d7cc96ba82474b6d64897b50681a530199fcc0c69a3f9b82652e",
-          "timestamp": "2026-06-11T17:19:40.136Z"
+          "headHash": "53730af2fe26e0e7369a4117be0381d294087ee5",
+          "materialHash": "3c952a07a9d2b436e4076aed1492f913ef26e2b4d361dd11485d36284b8df9eb",
+          "timestamp": "2026-06-11T17:22:17.985Z"
         }
       ]
     },
@@ -133,9 +133,9 @@
           "command": "node inline root inventory + NAV + target strict checker",
           "result": "pass",
           "note": "Fresh strict checker passed with multiChoiceCount=0 and invalidFutureCount=0; guide provides concrete target-home mapping or explicit TBD/do-not-migrate state plus migration/reference sections.",
-          "headHash": "e7f2a1213c2744a16ee635e3f0439ccb13435ffe",
-          "materialHash": "ce7dc9737009d7cc96ba82474b6d64897b50681a530199fcc0c69a3f9b82652e",
-          "timestamp": "2026-06-11T17:19:40.136Z"
+          "headHash": "53730af2fe26e0e7369a4117be0381d294087ee5",
+          "materialHash": "3c952a07a9d2b436e4076aed1492f913ef26e2b4d361dd11485d36284b8df9eb",
+          "timestamp": "2026-06-11T17:22:17.985Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -144,9 +144,9 @@
           "command": "node inline decisions/NAV consistency check",
           "result": "pass",
           "note": "Fresh NAV check passed: decisionFiles=36, navLinks=36, navCount=36, missingNav=[], staleNav=[]; root-document guide and existing Layer 2 decision are discoverable.",
-          "headHash": "e7f2a1213c2744a16ee635e3f0439ccb13435ffe",
-          "materialHash": "ce7dc9737009d7cc96ba82474b6d64897b50681a530199fcc0c69a3f9b82652e",
-          "timestamp": "2026-06-11T17:19:40.136Z"
+          "headHash": "53730af2fe26e0e7369a4117be0381d294087ee5",
+          "materialHash": "3c952a07a9d2b436e4076aed1492f913ef26e2b4d361dd11485d36284b8df9eb",
+          "timestamp": "2026-06-11T17:22:17.985Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -155,9 +155,9 @@
           "command": "git diff --check HEAD~1..HEAD + final Claude/Codex audits",
           "result": "pass",
           "note": "Fresh diff check passed; guide says future moves require dedicated stories and does not claim migration complete, production-grade status, or authority readiness.",
-          "headHash": "e7f2a1213c2744a16ee635e3f0439ccb13435ffe",
-          "materialHash": "ce7dc9737009d7cc96ba82474b6d64897b50681a530199fcc0c69a3f9b82652e",
-          "timestamp": "2026-06-11T17:19:40.136Z"
+          "headHash": "53730af2fe26e0e7369a4117be0381d294087ee5",
+          "materialHash": "3c952a07a9d2b436e4076aed1492f913ef26e2b4d361dd11485d36284b8df9eb",
+          "timestamp": "2026-06-11T17:22:17.985Z"
         }
       ]
     },
@@ -212,9 +212,9 @@
           "command": "rg 'Scope Boundary Audit|No bulk move|No root Markdown file' docs/requirements/decisions/root-document-migration-guide.md",
           "result": "pass",
           "note": "Scope Boundary Audit remains visible and states no bulk move, no root Markdown rename/move/delete, and documentation-only behavior.",
-          "headHash": "e7f2a1213c2744a16ee635e3f0439ccb13435ffe",
-          "materialHash": "ce7dc9737009d7cc96ba82474b6d64897b50681a530199fcc0c69a3f9b82652e",
-          "timestamp": "2026-06-11T17:19:40.136Z"
+          "headHash": "53730af2fe26e0e7369a4117be0381d294087ee5",
+          "materialHash": "3c952a07a9d2b436e4076aed1492f913ef26e2b4d361dd11485d36284b8df9eb",
+          "timestamp": "2026-06-11T17:22:17.985Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -223,9 +223,9 @@
           "command": "claude final host-neutral audit B + node strict checker",
           "result": "pass",
           "note": "Host-neutral audit PASS and strict checker PASS: entrypoints, compatibility assets, existing decisions, and future-only targets are distinguished without mixing truth-source layers.",
-          "headHash": "e7f2a1213c2744a16ee635e3f0439ccb13435ffe",
-          "materialHash": "ce7dc9737009d7cc96ba82474b6d64897b50681a530199fcc0c69a3f9b82652e",
-          "timestamp": "2026-06-11T17:19:40.136Z"
+          "headHash": "53730af2fe26e0e7369a4117be0381d294087ee5",
+          "materialHash": "3c952a07a9d2b436e4076aed1492f913ef26e2b4d361dd11485d36284b8df9eb",
+          "timestamp": "2026-06-11T17:22:17.985Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -234,9 +234,9 @@
           "command": "rg 'does not unlock Production Safety|does not assert unattended readiness|does not claim any new global capability' docs/requirements/decisions/root-document-migration-guide.md",
           "result": "pass",
           "note": "Scope Boundary Audit explicitly denies Production Safety unlock, authority/unattended readiness, and global capability claims; future Layer4 row is marked Future-only and no-unlock.",
-          "headHash": "e7f2a1213c2744a16ee635e3f0439ccb13435ffe",
-          "materialHash": "ce7dc9737009d7cc96ba82474b6d64897b50681a530199fcc0c69a3f9b82652e",
-          "timestamp": "2026-06-11T17:19:40.136Z"
+          "headHash": "53730af2fe26e0e7369a4117be0381d294087ee5",
+          "materialHash": "3c952a07a9d2b436e4076aed1492f913ef26e2b4d361dd11485d36284b8df9eb",
+          "timestamp": "2026-06-11T17:22:17.985Z"
         }
       ]
     }
