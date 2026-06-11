@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-7f61:RP-001",
+      "agent": "koala-review-concept",
+      "note": "PASS: Root inventory exactly 5 approved files. 12 legacy files archived via pure rename. Doc updates path-only, no new claims.",
+      "createdAt": "2026-06-11T23:20:38.093Z",
+      "reviewRound": "2026-06-11T23:17:38.217Z",
+      "reviewRunId": "B-7f61:RR-004",
+      "_hash": "cf42dbe1eb0e4fc478a8dab2b1224c6669fac463a8cfd29b945f4c62bfa12192"
+    },
+    {
+      "id": "B-7f61:RP-002",
+      "agent": "koala-review-docs",
+      "note": "Root inventory matches approved 5 files; 12 candidates archived correctly; refs updated; no overclaims.",
+      "createdAt": "2026-06-11T23:20:40.272Z",
+      "reviewRound": "2026-06-11T23:17:38.217Z",
+      "reviewRunId": "B-7f61:RR-006",
+      "_hash": "49021f43014625c979ed1097eed54fd63a8d54996efc3a21dc7ef6a98c9014e3"
+    },
+    {
+      "id": "B-7f61:RP-003",
+      "agent": "koala-review-test-coverage",
+      "note": "Reviewed 12/12 verificationIntent coverage against verificationEvidence, stored validate PASS, root inventory/archive count, reference/no-overclaim scans, and blocked_classified convergence note; no blocking coverage gap.",
+      "createdAt": "2026-06-11T23:23:13.775Z",
+      "reviewRound": "2026-06-11T23:17:38.217Z",
+      "reviewRunId": "B-7f61:RR-007",
+      "_hash": "ae1a4843f6343cab939b631fbcb048bacddb8d1bb165b4a5237acad78d2e6cf6"
+    },
+    {
+      "id": "B-7f61:RP-004",
+      "agent": "koala-review-quality",
+      "note": "Quality review passed for B-7f61: R100 archive moves preserve content, final root Markdown inventory is the approved five-file set, scope_contract_check passes with zero violations, git diff --check passes, reference scan leaves only archive/history or legacy-compatibility mentions, and git status was clean before reviewer metadata writes.",
+      "createdAt": "2026-06-11T23:23:28.981Z",
+      "reviewRound": "2026-06-11T23:17:38.217Z",
+      "reviewRunId": "B-7f61:RR-009",
+      "_hash": "ae1098d7724d9be8716b41c84fee5069b08ab758716b36aad8a7856637873c9a"
+    }
+  ]
+}

@@ -8,9 +8,70 @@
         "docs/requirements/decisions/root-markdown-migration-execution-solution.md",
         "docs/requirements/decisions/root-document-migration-guide.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-11T23:15:51.177Z",
+      "endTime": "2026-06-11T23:15:56.805Z",
+      "userSees": "User sees: allowed=[AGENTS.md, CHANGELOG.md, CLAUDE.md, README.md, jek.md]; cleanupCandidates=12 legacy files.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The root Markdown inventory is explicitly classified into allowed files and cleanup candidates before DEV changes begin.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "jek.md and the four standard root entrypoints are excluded from archive/delete operations.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The cleanup candidate list is explicit rather than a broad wildcard that could catch user-owned or entrypoint files.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/root-markdown-migration-execution-solution.md",
+          "result": "pass",
+          "note": "The execution solution records the approved root set and the 12 cleanup candidates before the DEV cleanup was performed.",
+          "headHash": "ab1713d4a1f3702873b47a8e28b325643f84f48e",
+          "materialHash": "15b628ca5fe687475375eca33b9a8382fb4c53dd5ea44cb2784dc99c856a5096",
+          "timestamp": "2026-06-11T23:15:39.421Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/root-markdown-migration-execution-solution.md",
+          "result": "pass",
+          "note": "The scope explicitly keeps README.md, AGENTS.md, CLAUDE.md, CHANGELOG.md, and user-owned jek.md at root.",
+          "headHash": "ab1713d4a1f3702873b47a8e28b325643f84f48e",
+          "materialHash": "15b628ca5fe687475375eca33b9a8382fb4c53dd5ea44cb2784dc99c856a5096",
+          "timestamp": "2026-06-11T23:15:39.421Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "docs/requirements/decisions/root-markdown-migration-execution-solution.md",
+          "result": "pass",
+          "note": "The cleanup candidate list names each legacy root Markdown file and does not use a broad wildcard that could catch allowed entrypoints or jek.md.",
+          "headHash": "ab1713d4a1f3702873b47a8e28b325643f84f48e",
+          "materialHash": "15b628ca5fe687475375eca33b9a8382fb4c53dd5ea44cb2784dc99c856a5096",
+          "timestamp": "2026-06-11T23:15:39.421Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -19,9 +80,97 @@
       "relatedDocs": [
         "docs/requirements/decisions/root-markdown-migration-execution-solution.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-11T23:16:03.203Z",
+      "endTime": "2026-06-11T23:16:11.721Z",
+      "userSees": "User sees: rootLegacy=0 and archiveLegacy=12 under docs/koala/legacy/root-markdown/.",
+      "files": {
+        "modify": [
+          "KOALA.md",
+          "koala-project-overview.md",
+          "Lattice-baseline.md",
+          "Lattice-Capability-Claim-baseline.md",
+          "Lattice-Engineering-baseline.md",
+          "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
+          "Lattice-Layer2-Proof-Bridge-Execution-Plan.md",
+          "Lattice-Loop-Engineering-baseline.md",
+          "Lattice-Parallel-Development-Capability.md",
+          "Lattice-Production-Safety-baseline.md",
+          "Lattice-Review-reflection-loop.md",
+          "Lattice-lifecycle-memory-Evolving.md"
+        ],
+        "create": [
+          "docs/koala/legacy/root-markdown/",
+          "docs/koala/legacy/root-markdown/KOALA.md",
+          "docs/koala/legacy/root-markdown/koala-project-overview.md",
+          "docs/koala/legacy/root-markdown/Lattice-baseline.md",
+          "docs/koala/legacy/root-markdown/Lattice-Capability-Claim-baseline.md",
+          "docs/koala/legacy/root-markdown/Lattice-Engineering-baseline.md",
+          "docs/koala/legacy/root-markdown/Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
+          "docs/koala/legacy/root-markdown/Lattice-Layer2-Proof-Bridge-Execution-Plan.md",
+          "docs/koala/legacy/root-markdown/Lattice-Loop-Engineering-baseline.md",
+          "docs/koala/legacy/root-markdown/Lattice-Parallel-Development-Capability.md",
+          "docs/koala/legacy/root-markdown/Lattice-Production-Safety-baseline.md",
+          "docs/koala/legacy/root-markdown/Lattice-Review-reflection-loop.md",
+          "docs/koala/legacy/root-markdown/Lattice-lifecycle-memory-Evolving.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "All non-allowed root Markdown cleanup candidates are removed from repository root and preserved in docs/koala/legacy/root-markdown/.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "No permanent root compatibility stub remains for KOALA.md, koala-project-overview.md, or root Lattice*.md files.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The allowed root Markdown files README.md, AGENTS.md, CLAUDE.md, CHANGELOG.md, and jek.md remain at root.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node inventory/archive check script from DEV verification",
+          "result": "pass",
+          "note": "Inventory check returned root=[AGENTS.md,CHANGELOG.md,CLAUDE.md,README.md,jek.md], archiveCount=12, missingArchive=[], extraRoot=[].",
+          "headHash": "ab1713d4a1f3702873b47a8e28b325643f84f48e",
+          "materialHash": "15b628ca5fe687475375eca33b9a8382fb4c53dd5ea44cb2784dc99c856a5096",
+          "timestamp": "2026-06-11T23:15:39.421Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "git status and root inventory checks after moving legacy files",
+          "result": "pass",
+          "note": "No KOALA.md, koala-project-overview.md, or root Lattice*.md compatibility stub remains in repository root after commit 375935e8.",
+          "headHash": "ab1713d4a1f3702873b47a8e28b325643f84f48e",
+          "materialHash": "15b628ca5fe687475375eca33b9a8382fb4c53dd5ea44cb2784dc99c856a5096",
+          "timestamp": "2026-06-11T23:15:39.421Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node inventory/archive check script from DEV verification",
+          "result": "pass",
+          "note": "Allowed root Markdown files remain present exactly as AGENTS.md, CHANGELOG.md, CLAUDE.md, README.md, and jek.md.",
+          "headHash": "ab1713d4a1f3702873b47a8e28b325643f84f48e",
+          "materialHash": "15b628ca5fe687475375eca33b9a8382fb4c53dd5ea44cb2784dc99c856a5096",
+          "timestamp": "2026-06-11T23:15:39.421Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -31,9 +180,75 @@
         "docs/requirements/decisions/root-markdown-migration-execution-solution.md",
         "docs/requirements/decisions/root-document-migration-guide.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-11T23:16:34.921Z",
+      "endTime": "2026-06-11T23:16:46.522Z",
+      "userSees": "User sees: reader-facing references to removed root docs now point to active decision docs or docs/koala/legacy/root-markdown/ archive paths.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/root-document-migration-guide.md",
+          "docs/requirements/decisions/root-markdown-migration-execution-solution.md",
+          "docs/requirements/decisions/lattice-authority-remote-evidence-bundle.md",
+          "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Reader-facing references to removed root docs are updated to canonical decision docs or archive paths.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Code and tests may still mention KOALA.md only as legacy compatibility asset behavior, not as a required root document.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Reference updates do not add new Production Safety, authority, capability, or unattended-readiness claims.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/root-document-migration-guide.md",
+          "result": "pass",
+          "note": "Reader-facing cleanup guide now states B-7f61 executed cleanup and points historical material at docs/koala/legacy/root-markdown/ archive paths.",
+          "headHash": "ab1713d4a1f3702873b47a8e28b325643f84f48e",
+          "materialHash": "15b628ca5fe687475375eca33b9a8382fb4c53dd5ea44cb2784dc99c856a5096",
+          "timestamp": "2026-06-11T23:15:39.421Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "rg -n --glob !docs/story/** --glob !**/tests/fixtures/** KOALA.md|koala-project-overview.md|Lattice-*.md docs README.md AGENTS.md CLAUDE.md CHANGELOG.md packages",
+          "result": "pass",
+          "note": "Remaining KOALA.md mentions outside migration/archive docs are code and test compatibility references, not required root document links.",
+          "headHash": "ab1713d4a1f3702873b47a8e28b325643f84f48e",
+          "materialHash": "15b628ca5fe687475375eca33b9a8382fb4c53dd5ea44cb2784dc99c856a5096",
+          "timestamp": "2026-06-11T23:15:39.421Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git diff --unified=0 main...HEAD -- docs/requirements/decisions/root-document-migration-guide.md docs/requirements/decisions/root-markdown-migration-execution-solution.md docs/requirements/decisions/lattice-authority-remote-evidence-bundle.md docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md | rg added-line overclaim terms",
+          "result": "pass",
+          "note": "No added lines introduce Production Safety, full authority, unattended readiness, production-grade, or new capability-readiness claims.",
+          "headHash": "ab1713d4a1f3702873b47a8e28b325643f84f48e",
+          "materialHash": "15b628ca5fe687475375eca33b9a8382fb4c53dd5ea44cb2784dc99c856a5096",
+          "timestamp": "2026-06-11T23:15:39.421Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -42,9 +257,71 @@
       "relatedDocs": [
         "docs/requirements/decisions/root-markdown-migration-execution-solution.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-11T23:16:52.307Z",
+      "endTime": "2026-06-11T23:16:59.008Z",
+      "userSees": "User sees: rootMarkdown=[AGENTS.md, CHANGELOG.md, CLAUDE.md, README.md, jek.md] and validate=PASS.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Final root Markdown inventory exactly matches the approved five-file root set.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Reference and no-overclaim scans are reviewed after cleanup and any remaining legacy mentions are intentional archive or compatibility references.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Lattice validate and convergence checks pass after moving/deleting the root legacy docs.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node inventory/archive check script from DEV verification",
+          "result": "pass",
+          "note": "Final root Markdown inventory exactly matches AGENTS.md, CHANGELOG.md, CLAUDE.md, README.md, and jek.md.",
+          "headHash": "ab1713d4a1f3702873b47a8e28b325643f84f48e",
+          "materialHash": "15b628ca5fe687475375eca33b9a8382fb4c53dd5ea44cb2784dc99c856a5096",
+          "timestamp": "2026-06-11T23:15:39.421Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "reference scan plus no-overclaim scan after cleanup",
+          "result": "pass",
+          "note": "Remaining legacy mentions are migration history, archive self-references, code compatibility references, or archive path references; no added overclaim lines were found.",
+          "headHash": "ab1713d4a1f3702873b47a8e28b325643f84f48e",
+          "materialHash": "15b628ca5fe687475375eca33b9a8382fb4c53dd5ea44cb2784dc99c856a5096",
+          "timestamp": "2026-06-11T23:15:39.421Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "blocked_classified",
+          "command": "node bin/lattice.js validate --story=B-7f61 --json; node bin/lattice.js convergence_check",
+          "result": "pass",
+          "note": "Project tests passed under validate preflight; convergence_check cleanup-relevant checks passed, with global convergence blocked only by unfinished story B-5cc7 and current B-7f61 lifecycle state.",
+          "headHash": "ab1713d4a1f3702873b47a8e28b325643f84f48e",
+          "materialHash": "15b628ca5fe687475375eca33b9a8382fb4c53dd5ea44cb2784dc99c856a5096",
+          "timestamp": "2026-06-11T23:15:39.421Z"
+        }
+      ]
     }
   ]
 }
