@@ -80,6 +80,15 @@
       "reviewRound": "2026-06-11T00:27:20.004Z",
       "reviewRunId": "B-e3d9:RR-013",
       "_hash": "f9fcefcc0a0f4cc2323169fb7b48e89f0e1c69edd944a5a017194f7cae281874"
+    },
+    {
+      "id": "B-e3d9:RP-010",
+      "agent": "koala-review-concept",
+      "note": "Concept lane reviewed the live runtime seams and focused coverage. Verified fail-closed unsupported-algorithm rejection including pinned-key policy metadata, Ed25519 casing normalization, dry-run help derivation from live schema/policy surfaces, planner/worktree runtime linkage, and gap_analyze hygiene. Commands run: npm --prefix packages/main run build; npm --prefix packages/main run test:authority-client; npm --prefix packages/main run test:lattice-cli-migration-smoke; npm --prefix packages/main run test:worktree-policy-smoke; npm --prefix packages/main run test:planner-unattended-smoke; npm --prefix packages/main run test:gap-analyze-input-hygiene-smoke; node packages/main/dist/cli.js gap_analyze.",
+      "createdAt": "2026-06-11T00:32:17.168Z",
+      "reviewRound": "2026-06-11T00:27:20.004Z",
+      "reviewRunId": "B-e3d9:RR-012",
+      "_hash": "193df686b08839b938ee58ad22632d6c6a468c0cfaea939677c4edf1bb2e2cf2"
     }
   ]
 }
