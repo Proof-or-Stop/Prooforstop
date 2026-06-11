@@ -49,7 +49,35 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees the lifecycle-memory migration row point to both dev-memory.md and lifecycle-artifact-scope.md, matching the execution solution split.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/root-document-migration-guide.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The Lattice-lifecycle-memory-Evolving.md row names both target homes from the execution solution.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The migration guide and execution solution agree on the split destination for lifecycle-memory content.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The edit does not add host-specific migration claims or expand the root cleanup policy.",
+            "type": "manual"
+          }
+        ]
+      }
     }
   ]
 }
