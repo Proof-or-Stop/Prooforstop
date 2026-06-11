@@ -1,0 +1,20 @@
+{
+  "storyId": "B-428c",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/lattice-baseline.ts",
+    "packages/main/src/handlers/lattice-baseline.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/tasks/lattice-baseline-smoke.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/lattice-baseline-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-11T03:14:10.415Z",
+  "updatedAt": "2026-06-11T03:14:10.415Z"
+}

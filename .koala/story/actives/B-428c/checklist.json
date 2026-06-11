@@ -8,8 +8,8 @@
         "docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md",
         "docs/requirements/decisions/unlock-layer2-ENG-suite.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-11T03:14:43.305Z",
       "endTime": null,
       "userSees": "User sees capability_claim_formal_evaluate --target loop-engineering produce a formal report surface with loopEngineeringClaim gated separately from Production Safety/global claims.",
       "files": {
@@ -210,6 +210,17 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-11T03:14:43.305Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Begin bounded Layer 3 formal evaluator implementation."
     }
   ]
 }
