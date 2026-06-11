@@ -31,7 +31,63 @@
           }
         ]
       },
-      "userSees": "review_run_start shows Review run B-xxxx:RR-001 started immediately after story_create --phase=REVIEW, and review_loop_start no longer reports missing currentReviewRound for the new story."
+      "userSees": "review_run_start shows Review run B-xxxx:RR-001 started immediately after story_create --phase=REVIEW, and review_loop_start no longer reports missing currentReviewRound for the new story.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "Field regression smoke creates a direct --phase=REVIEW story, asserts ISO currentReviewRound, and confirms review_run_start returns a Review run started message.",
+          "headHash": "c53033f650bdec81f2b7295aeef3ca2225245c63",
+          "materialHash": "5a1d15656b5621658dafdb8323c7b195bebf32c505a98fe6e663004fed6584a1",
+          "timestamp": "2026-06-11T23:37:45.477Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "The same smoke starts review_loop_start on the direct REVIEW story using the initialized currentReviewRound, proving review loop startup no longer fails on missing metadata.",
+          "headHash": "c53033f650bdec81f2b7295aeef3ca2225245c63",
+          "materialHash": "5a1d15656b5621658dafdb8323c7b195bebf32c505a98fe6e663004fed6584a1",
+          "timestamp": "2026-06-11T23:37:45.477Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "command": "npm --prefix packages/main run test:field-regression-cli-smoke",
+          "result": "pass",
+          "note": "The smoke keeps a manually corrupt REVIEW story without currentReviewRound and asserts review_run_start still fails closed with the clearer marked REVIEW but missing currentReviewRound guidance.",
+          "headHash": "c53033f650bdec81f2b7295aeef3ca2225245c63",
+          "materialHash": "5a1d15656b5621658dafdb8323c7b195bebf32c505a98fe6e663004fed6584a1",
+          "timestamp": "2026-06-11T23:37:45.477Z"
+        },
+        {
+          "intentRef": "CHK-001:process-contract",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process fact registry and prompt/handler contract still verify after documenting direct REVIEW currentReviewRound behavior.",
+          "headHash": "c53033f650bdec81f2b7295aeef3ca2225245c63",
+          "materialHash": "5a1d15656b5621658dafdb8323c7b195bebf32c505a98fe6e663004fed6584a1",
+          "timestamp": "2026-06-11T23:37:45.477Z"
+        },
+        {
+          "intentRef": "CHK-001:build",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passes at the implementation HEAD.",
+          "headHash": "c53033f650bdec81f2b7295aeef3ca2225245c63",
+          "materialHash": "5a1d15656b5621658dafdb8323c7b195bebf32c505a98fe6e663004fed6584a1",
+          "timestamp": "2026-06-11T23:37:45.477Z"
+        }
+      ]
     }
   ]
 }
