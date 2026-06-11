@@ -183,6 +183,14 @@ export interface BaselineSuiteReport {
     json: string;
     markdown: string;
   };
+  sourceProof?: {
+    suiteId?: string;
+    path: string;
+    schemaVersion?: string;
+    suiteStatus?: string;
+    generatedAt?: string;
+    note: string;
+  };
   notes: string[];
 }
 
@@ -248,6 +256,15 @@ const ENGINEERING_REQUIRED_ARTIFACTS = [
   'review-codex.json',
   'final-report.json',
   'final-report.md',
+] as const;
+
+const DEVELOPMENT_REQUIRED_BASELINE_IDS = [
+  'NL-CLI-1',
+  'NL-API-1',
+  'NL-REPAIR-1',
+  'RED-CLI-TS-PY-1',
+  'RED-API-TS-GO-1',
+  'RED-GAP-BLOCK-1',
 ] as const;
 
 const LOOP_ENGINEERING_REQUIRED_ARTIFACTS = [
@@ -1753,6 +1770,129 @@ function renderSuiteMarkdown(report: BaselineSuiteReport): string {
   ].join('\n');
 }
 
+function buildDevelopmentLowerLayerReport(input: {
+  root: string;
+  generatedAt: string;
+  outputJson: string;
+  outputMd: string;
+  writeArtifacts: boolean;
+  customRoot?: string;
+}): BaselineSuiteReport {
+  const sourcePath = join(layerDir(input.root, 'development', input.customRoot), 'source-suite', 'baseline-suite-report.json');
+  const sourceDisplayPath = pathForDisplay(input.root, sourcePath);
+  const blockedReasons: string[] = [];
+  const errors: string[] = [];
+  const reports: BaselineSuiteReport['reports'] = [];
+  let source: Record<string, unknown> | null = null;
+
+  if (!existsSync(sourcePath)) {
+    blockedReasons.push(`development source suite missing: ${sourceDisplayPath}`);
+  } else {
+    try {
+      const parsed = readJson(sourcePath) as unknown;
+      if (!isRecord(parsed)) {
+        blockedReasons.push(`development source suite malformed: ${sourceDisplayPath} is not an object`);
+      } else {
+        source = parsed;
+      }
+    } catch (error) {
+      blockedReasons.push(`development source suite malformed: ${(error as Error).message}`);
+    }
+  }
+
+  const requiredBaselineIds = [...DEVELOPMENT_REQUIRED_BASELINE_IDS];
+  if (source) {
+    if (source.schemaVersion !== 'lattice.baseline.suite-report.v1') {
+      blockedReasons.push(`development source suite schema mismatch: ${String(source.schemaVersion ?? 'missing')}`);
+    }
+    if (source.suiteStatus !== 'PASS') {
+      blockedReasons.push(`development source suite is not PASS: ${String(source.suiteStatus ?? 'missing')}`);
+    }
+    const counts = isRecord(source.counts) ? source.counts : {};
+    if ((counts.falseDoneCount ?? 0) !== 0) {
+      blockedReasons.push(`development source suite has falseDoneCount=${String(counts.falseDoneCount)}`);
+    }
+    const minimumSuite = isRecord(source.minimumSuite) ? source.minimumSuite : {};
+    const missing = Array.isArray(minimumSuite.missingBaselineIds)
+      ? minimumSuite.missingBaselineIds.filter((item): item is string => typeof item === 'string')
+      : [];
+    if (minimumSuite.satisfied !== true) {
+      blockedReasons.push('development source suite minimumSuite is not satisfied');
+    }
+    if (missing.length > 0) {
+      blockedReasons.push(`development source suite missing baselines: ${missing.join(', ')}`);
+    }
+    const runs = Array.isArray(source.runs) ? source.runs.filter(isRecord) : [];
+    for (const baselineId of requiredBaselineIds) {
+      const candidates = runs.filter((run) => stringField(run, 'baselineId') === baselineId);
+      const accepted = candidates.find((run) => run.valid === true && run.success === true && run.falseDone !== true);
+      if (!accepted) {
+        reports.push({
+          baselineId,
+          runId: '',
+          path: '',
+          outcome: 'FAIL',
+          expectedOutcomes: baselineId === 'RED-GAP-BLOCK-1' ? ['EXPECTED_BLOCK'] : ['PASS'],
+          status: 'rejected',
+          reasons: ['development source run missing valid successful non-false-DONE evidence'],
+        });
+        continue;
+      }
+      const expectedOutcome = stringField(accepted, 'expectedOutcome') as BaselineOutcome | undefined;
+      const outcome = stringField(accepted, 'outcome') as BaselineOutcome | undefined;
+      reports.push({
+        baselineId,
+        runId: stringField(accepted, 'runId') ?? '',
+        path: stringField(accepted, 'path') ?? '',
+        outcome: outcome ?? 'PASS',
+        expectedOutcomes: expectedOutcome ? [expectedOutcome] : (baselineId === 'RED-GAP-BLOCK-1' ? ['EXPECTED_BLOCK'] : ['PASS']),
+        status: 'accepted',
+        reasons: [],
+      });
+    }
+  }
+
+  const rejected = reports.filter((report) => report.status !== 'accepted');
+  for (const report of rejected) {
+    blockedReasons.push(`${report.baselineId}: ${report.reasons.join('; ')}`);
+  }
+  const report = makeSuiteReport({
+    root: input.root,
+    layer: 'development',
+    generatedAt: input.generatedAt,
+    suiteStatus: blockedReasons.length === 0 ? 'PASS' : 'BLOCKED',
+    blockedReasons,
+    errors,
+    lowerLayerProof: [],
+    reports,
+    refusedArtifacts: [],
+    requiredBaselineIds,
+    outputJson: input.outputJson,
+    outputMd: input.outputMd,
+    falseDoneCount: Number(isRecord(source?.counts) ? source?.counts.falseDoneCount ?? 0 : 0),
+    missingBaselineIds: requiredBaselineIds.filter((id) => !reports.some((report) => report.baselineId === id && report.status === 'accepted')),
+  });
+  report.formalProof = false;
+  report.sourceProof = {
+    suiteId: stringField(source ?? {}, 'suiteId'),
+    path: sourceDisplayPath,
+    schemaVersion: stringField(source ?? {}, 'schemaVersion'),
+    suiteStatus: stringField(source ?? {}, 'suiteStatus'),
+    generatedAt: stringField(source ?? {}, 'generatedAt'),
+    note: 'Generated from current .lattice Development baseline_run artifacts and rebound as lower-layer proof for formal Layer 2 Engineering evaluation.',
+  };
+  report.notes = [
+    'Development lower-layer proof is required before Layer 2 Engineering claim can unlock.',
+    'This report authorizes only the lower-layer Development dependency and does not unlock Engineering by itself.',
+    'Authority changed, receiptVerified, productionDone, and fullAuthorityDone remain false.',
+  ];
+  if (input.writeArtifacts) {
+    writeJson(input.outputJson, report);
+    writeText(input.outputMd, renderSuiteMarkdown(report));
+  }
+  return report;
+}
+
 function buildBaselineSuiteReportInternal(options: BaselineSuiteReportOptions, writeArtifacts: boolean): BaselineSuiteReport {
   const layer = normalizeLayer(options.layer);
   const outputJson = layer
@@ -1789,6 +1929,16 @@ function buildBaselineSuiteReportInternal(options: BaselineSuiteReportOptions, w
       writeText(outputMd, renderSuiteMarkdown(report));
     }
     return report;
+  }
+  if (layer === 'development') {
+    return buildDevelopmentLowerLayerReport({
+      root: options.root,
+      generatedAt,
+      outputJson,
+      outputMd,
+      writeArtifacts,
+      customRoot: options.artifactsRoot,
+    });
   }
 
   const definitions = definitionsForLayer(layer);
