@@ -136,6 +136,17 @@
           "headHash": "b392f7c6eeb9576c71763736cd0c2792f73b871b",
           "materialHash": "0005cd92d47e3fa480f463375059fe4454da27a58ac8bc915fdc499406111140",
           "timestamp": "2026-06-11T22:18:53.183Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/root-document-migration-guide.md",
+          "command": "node inline root migration solution consistency check",
+          "result": "pass",
+          "note": "The existing guide final allowed root Markdown set is README.md, AGENTS.md, CLAUDE.md, CHANGELOG.md, and jek.md; it preserves true entrypoints while excluding the legacy Koala root guide from retained-root compatibility.",
+          "headHash": "abe9be7057d406d810f9918453e4d19a46920f75",
+          "materialHash": "0005cd92d47e3fa480f463375059fe4454da27a58ac8bc915fdc499406111140",
+          "timestamp": "2026-06-11T22:18:59.869Z"
         }
       ]
     }
