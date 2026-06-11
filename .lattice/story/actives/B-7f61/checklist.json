@@ -162,7 +162,36 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees validation PASS and root Markdown inventory exactly AGENTS.md, CHANGELOG.md, CLAUDE.md, README.md, and jek.md.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Final root Markdown inventory exactly matches the approved five-file root set.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Reference and no-overclaim scans are reviewed after cleanup and any remaining legacy mentions are intentional archive or compatibility references.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Lattice validate and convergence checks pass after moving/deleting the root legacy docs.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
