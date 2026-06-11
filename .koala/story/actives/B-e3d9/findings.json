@@ -187,7 +187,7 @@
       "desc": "[MEDIUM] .koala/story/actives/B-e3d9/checklist.json:148 WHY: CHK-002 edge verificationEvidence still records direct dist entrypoints (`node packages/main/dist/cli.js --root . story_reconcile --help; ... test_auto --help; ... host_install --help`) even though `packages/main/dist` is not tracked by git in this worktree, so the command is not mechanically reproducible from a clean story checkout unless a prior build happened out-of-band. This is the same evidence-surface class as F-009: the recorded command string is not self-sufficient as written. Fix: rewrite Lattice evidence commands to the local wrapper form (`node bin/lattice.js story_reconcile --help`, etc.), or prepend an explicit `npm --prefix packages/main run build` before any `node packages/main/dist/cli.js ...` usage, then refresh the evidence metadata.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-11T01:48:43.752Z",
@@ -197,7 +197,9 @@
       "files": [
         ".koala/story/actives/B-e3d9/checklist.json",
         "packages/main/package.json"
-      ]
+      ],
+      "resolvedReason": "Resolved by checklist_update commit 0931007: CHK-002 edge verificationEvidence now uses local wrapper commands node bin/lattice.js story_reconcile --help; node bin/lattice.js test_auto --help; node bin/lattice.js host_install --help, removing reliance on untracked packages/main/dist/cli.js. Verified those help commands execute from the story worktree and node bin/lattice.js validate --story=B-e3d9 passes 15/15.",
+      "resolvedAt": "2026-06-11T01:53:56.755Z"
     }
   ]
 }
