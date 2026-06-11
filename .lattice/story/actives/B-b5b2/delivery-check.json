@@ -1,0 +1,50 @@
+{
+  "storyId": "B-b5b2",
+  "checkedAt": "2026-06-11T17:36:40.207Z",
+  "reviewRound": "2026-06-11T17:32:13.198Z",
+  "agentId": "koala-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/root-document-migration-guide.md",
+      "promise": "Guide inventories current root Markdown files and assigns each a stay-root, canonical target-home, or explicit TBD/do-not-migrate classification.",
+      "status": "verified",
+      "verifiedBy": "node strict root inventory and target checker",
+      "evidence": "rootDocCount=17, inventoryRows=17, missingRoot=[], extraRoot=[], missingTargets=[], multiChoiceCount=0, invalidFutureCount=0"
+    },
+    {
+      "docPath": "docs/requirements/NAV.md",
+      "promise": "Requirements decision navigation includes the new root document migration guide and remains complete for all decision docs.",
+      "status": "verified",
+      "verifiedBy": "node NAV consistency checker",
+      "evidence": "decisionFiles=36, navLinks=36, navCount=36, missingNav=[], staleNav=[]"
+    },
+    {
+      "docPath": "docs/requirements/decisions/root-document-migration-guide.md",
+      "promise": "This story is docs-only and does not move root Markdown files or claim Production Safety, unattended readiness, authority readiness, or global capability unlock.",
+      "status": "verified",
+      "verifiedBy": "scope_contract_check, git diff, and guard grep",
+      "evidence": "scope gate pass; git diff shows docs guide, NAV, and story metadata only; bad-word/scope-leak grep returned no matches"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "validate --json PASS: verification coverage reports CHK-001 happy, edge, and adversarial docs intents covered by root inventory and host-entrypoint stay-root evidence."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "validate --json PASS: verification coverage reports CHK-002 happy, edge, and adversarial docs intents covered by migration mapping, NAV consistency, and no production-grade overclaim evidence."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "validate --json PASS: verification coverage reports CHK-003 happy, edge, and adversarial docs intents covered by Scope Boundary Audit and no Production Safety/unattended/global-capability claim evidence."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery check passed: docs promises are verified by strict inventory/NAV/target checks, validate passed with 9/9 verification coverage, and the story remains within the docs-only migration-guide boundary."
+  },
+  "_hash": "38ea0616b0307e52091beebd45de81a86a2abff175cde2d2837fab1085cfc5e1"
+}
