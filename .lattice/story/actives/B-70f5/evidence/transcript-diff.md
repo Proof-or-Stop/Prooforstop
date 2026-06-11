@@ -32,6 +32,17 @@ docs/requirements/NAV.md
 docs/requirements/decisions/root-document-migration-guide.md
 ```
 
+```text
+$ lattice authority_status --json
+status: configured-no-verified-receipt
+authorityMode: off
+baseURLConfigured: true
+receiptVerified: false
+productionDone: false
+canClaimProductionDone: false
+eligibilityReason: authority_receipt_missing
+```
+
 ## Diff Notes
 
 The actual output matches the expected user-visible result.
@@ -40,3 +51,6 @@ The actual output matches the expected user-visible result.
 - The lifecycle-memory row contains both target homes.
 - The executable solution document was used as the comparison source but was not changed.
 - The story did not move, delete, or create root Markdown files.
+- Lattice Authority Server configuration was visible, but there was no verified
+  receipt. This story therefore remains local Lattice CLI lifecycle evidence
+  only and does not claim `productionDone`.
