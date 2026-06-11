@@ -97,6 +97,25 @@
       ],
       "resolvedReason": "Resolved with the same concrete fix as B-5cc7:F-004 in commit bf001e43: dev_memory_start no longer emits koala dev_memory_finish guidance and the smoke test verifies the lattice command prefix.",
       "resolvedAt": "2026-06-11T23:42:26.611Z"
+    },
+    {
+      "id": "B-5cc7:F-006",
+      "desc": "B-5cc7:F-003 runtime path is fixed, but the parallel-wave truth-source doc still describes the old .koala-only dev-memory boundary. packages/main/src/core/lattice-parallel-wave.ts:313-330 now builds experienceRefs from readProjectMemoryEntries/readGlobalMemoryEntries, and docs/requirements/decisions/dev-memory.md:25-31 says .lattice is canonical read/write with .koala read-only legacy fallback. However docs/requirements/decisions/lattice-parallel-wave.md:152-157 still says parallel dispatch/report reads project memory from <projectRoot>/.koala/dev-memory/experience.jsonl and global memory from ~/.koala/dev-memory/experience.jsonl. That contradicts the implemented contract and the canonical dev-memory decision, so future consumers of the parallel-wave requirement would reimplement F-003 incorrectly.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-concept",
+      "createdAt": "2026-06-11T23:46:53.790Z",
+      "reviewRound": "2026-06-11T23:42:11.666Z",
+      "reviewRunId": "B-5cc7:RR-020",
+      "_hash": "fdb7c65358d03553d237a1c3556e97d91768c227a34042d0a6daf60fa62126bb",
+      "files": [
+        "docs/requirements/decisions/lattice-parallel-wave.md",
+        "docs/requirements/decisions/dev-memory.md",
+        "packages/main/src/core/lattice-parallel-wave.ts",
+        "packages/main/src/core/dev-memory.ts"
+      ]
     }
   ]
 }
