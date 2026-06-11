@@ -5,7 +5,7 @@
       "desc": "Several Target home entries are still unresolved or multi-choice instead of a single canonical destination or explicit do-not-migrate/TBD state. Examples include future private note/archive area, project-vision.md or docs/guide.md, dedicated decision alternatives, and future reviewed Production Safety decision. This leaves future migrations without precise target homes and undercuts the guide purpose.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-11T17:11:22.612Z",
@@ -14,7 +14,9 @@
       "_hash": "ff20dd91729a4abb9b1831baef8802e795eb42f308fe88fe1fdacffe8ebc921f",
       "files": [
         "docs/requirements/decisions/root-document-migration-guide.md"
-      ]
+      ],
+      "resolvedReason": "Resolved by commits 1cca5a78, 8e63932d, and 1cf7ae35. The guide now assigns one exact destination path or explicit TBD/do-not-migrate state per root Markdown row; future capability and Production Safety targets are marked future-only with no-claim/no-unlock wording; non-Markdown scope content was removed. Fresh strict checker passed at REVIEW head: root inventory 17/17, NAV 36/36, multiChoiceCount=0, invalidFutureCount=0.",
+      "resolvedAt": "2026-06-11T17:22:32.301Z"
     },
     {
       "id": "B-b5b2:F-002",
