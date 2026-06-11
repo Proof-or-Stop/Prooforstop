@@ -1,35 +1,38 @@
 {
   "storyId": "B-70f5",
-  "checkedAt": "2026-06-11T22:40:38.895Z",
+  "checkedAt": "2026-06-11T22:40:40.264Z",
   "features": [
     {
-      "feature": "CHK-001: Correct NAV decision-document count from 37 to 38",
-      "covered_by": "checklist CHK-001 scopes fix to count line in NAV.md; filesystem confirms 38 decision .md files",
+      "feature": "NAV decision-document count matches current decisions catalog",
+      "covered_by": "CHK-001",
       "status": "covered",
-      "excluded_by": ""
+      "excluded_by": "",
+      "source": "docs/requirements/NAV.md"
     },
     {
-      "feature": "CHK-002: Align lifecycle-memory migration target with split destination",
-      "covered_by": "checklist CHK-002 scopes fix to migration-guide row; execution-solution.md documents the split to dev-memory.md + lifecycle-artifact-scope.md",
+      "feature": "Lifecycle-memory migration guide target matches split destination guidance",
+      "covered_by": "CHK-002",
       "status": "covered",
-      "excluded_by": ""
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/root-document-migration-guide.md"
     },
     {
-      "feature": "Actual root Markdown file moving or deleting (e.g. KOALA.md cleanup)",
-      "covered_by": "",
-      "status": "excluded",
-      "excluded_by": "Constraint: do not move or delete root Markdown files in this story; background says minimal documentation correctness fix only"
+      "feature": "Root markdown execution solution is used only as consistency oracle, not edited for new policy",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/root-markdown-migration-execution-solution.md"
     }
   ],
   "summary": {
     "total": 3,
-    "covered": 2,
-    "excluded": 1,
+    "covered": 3,
+    "excluded": 0,
     "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "7668ec96541999a18503c3e25a7f806b60115dd3e5fcd2c9702f1a77989d1555",
+  "_hash": "1d370b96aa131a1bbfb2f9fcabae72070b3e28c24b8a77687c1f28ad6a2147a3",
   "openQuestions": []
 }
