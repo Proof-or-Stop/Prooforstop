@@ -25,7 +25,7 @@
       "desc": "Global dev-memory writes can still target the legacy KOALA_GLOBAL_MEMORY_DIR path, violating the story contract that .lattice is canonical writable storage and .koala is read-only fallback. docs/requirements/decisions/dev-memory.md:30-31 says legacy .koala files are read-only fallback and writes must not append to .koala. But packages/main/src/core/dev-memory.ts:178-181 resolves the writable global path from LATTICE_GLOBAL_MEMORY_DIR || KOALA_GLOBAL_MEMORY_DIR, and packages/main/src/handlers/dev-memory.ts:79-87 plus 214-226 append global capture/promotion through resolveGlobalMemoryPath. In a migrated shell with only KOALA_GLOBAL_MEMORY_DIR set, dev_memory_capture --scope=global or dev_memory_finish --scope=global appends to the legacy location instead of canonical ~/.lattice storage.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-concept",
       "createdAt": "2026-06-11T23:25:08.200Z",
@@ -36,7 +36,9 @@
         "packages/main/src/core/dev-memory.ts",
         "packages/main/src/handlers/dev-memory.ts",
         "docs/requirements/decisions/dev-memory.md"
-      ]
+      ],
+      "resolvedReason": "Resolved by commit 8f59161: resolveGlobalMemoryPath now only honors LATTICE_GLOBAL_MEMORY_DIR for writable global storage and otherwise uses canonical ~/.lattice/dev-memory/experience.jsonl. KOALA_GLOBAL_MEMORY_DIR remains available only through resolveLegacyGlobalMemoryPath / resolveGlobalMemoryReadPaths as read fallback. Focused smoke now asserts KOALA_GLOBAL_MEMORY_DIR alone cannot redirect the writable global path and that read paths remain current-first plus legacy fallback. Verified with npm --prefix packages/main run build && node packages/main/dist/tasks/dev-memory-legacy-read-smoke.js.",
+      "resolvedAt": "2026-06-11T23:30:33.940Z"
     }
   ]
 }
