@@ -80,6 +80,15 @@
       "reviewRound": "2026-06-11T23:42:11.666Z",
       "reviewRunId": "B-5cc7:RR-018",
       "_hash": "a383799cd36921c254bbab57ea7c1419acc52fc16c34361199b0c1865b1e8dd1"
+    },
+    {
+      "id": "B-5cc7:RP-010",
+      "agent": "koala-review-quality",
+      "note": "final-final quality pass: F-004/F-005 command-prefix consistency is resolved; docs and dev_memory_start now use lattice dev_memory_finish while production files have no koala dev_memory_finish guidance. F-003 scope acknowledgement is justified because the only acknowledged Bucket B path, packages/main/src/core/lattice-parallel-wave.ts, changes only experienceRefs from direct resolve/readEntries calls to readProjectMemoryEntries/readGlobalMemoryEntries so the F-003 legacy-read fallback applies to that consumer. Checked .lattice/dev-memory/experience.jsonl is absent/untracked and not in the diff; no Bucket C/D/E paths and no unrelated Bucket B paths are in the material diff; no production .koala write path was found, with legacy .koala paths limited to read fallback helpers.",
+      "createdAt": "2026-06-11T23:47:47.357Z",
+      "reviewRound": "2026-06-11T23:42:11.666Z",
+      "reviewRunId": "B-5cc7:RR-019",
+      "_hash": "3bac03f0d44666a72899704635da056525d3690bb6a8dd0d22d734a5a9642c96"
     }
   ]
 }
