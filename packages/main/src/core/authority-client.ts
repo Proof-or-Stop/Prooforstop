@@ -1830,21 +1830,23 @@ async function resolveGateVerifyConfig(
   config: AuthorityConfig,
   now?: () => Date,
 ): Promise<AuthorityGateVerifyConfig | undefined> {
-  // Server key precedence: env > authority.md (both already folded into config's
-  // keyMaterial) > policy discovery.
+  // Server key material precedence: env > authority.md (both already folded into
+  // config's keyMaterial) > policy discovery. Policy metadata remains relevant even
+  // when the public key is pinned: `serverKey.algorithm` is part of the production
+  // receipt verification contract, but the policy public key must not override a pin.
   let serverPublicKey = config.keyMaterial.serverPublicKey;
   let encoding = config.keyMaterial.serverPublicKeyEncoding as LatticeAuthorityKeyEncoding | undefined;
   let serverKeyId = config.keyMaterial.serverKeyId;
   let serverPublicKeyAlgorithm: string | undefined;
-  if (!serverPublicKey) {
-    const policy = await client.discoverPolicy();
-    const key = policy.ok ? policy.data?.serverKey : undefined;
-    if (key?.publicKeyHex) {
+  const policy = await client.discoverPolicy();
+  const key = policy.ok ? policy.data?.serverKey : undefined;
+  if (key) {
+    if (!serverPublicKey && key.publicKeyHex) {
       serverPublicKey = key.publicKeyHex;
       encoding = (key.encoding as LatticeAuthorityKeyEncoding | undefined) ?? 'hex';
-      serverKeyId = serverKeyId ?? key.keyId;
-      serverPublicKeyAlgorithm = key.algorithm;
     }
+    serverKeyId = serverKeyId ?? key.keyId;
+    serverPublicKeyAlgorithm = key.algorithm;
   }
   if (!serverPublicKey) return undefined;
   return {
@@ -2317,7 +2319,9 @@ export interface AuthorityJobVerdictStatus {
 
 /**
  * Resolve the server verification material (pinned env key first, else policy
- * discovery). Returns undefined when neither is available so the caller fails closed.
+ * discovery). Policy metadata is still consulted for pinned keys so unsupported
+ * declared algorithms fail closed without letting policy replace the trust anchor.
+ * Returns undefined when neither key source is available so the caller fails closed.
  */
 async function resolveServerVerifyMaterial(
   client: AuthorityClient,
@@ -2332,15 +2336,15 @@ async function resolveServerVerifyMaterial(
   let encoding = authorityEnvValue(env, 'SERVER_PUBLIC_KEY_ENCODING') as LatticeAuthorityKeyEncoding | undefined;
   let serverKeyId = authorityEnvValue(env, 'SERVER_KEY_ID');
   let serverPublicKeyAlgorithm: string | undefined;
-  if (!serverPublicKey) {
-    const policy = await client.discoverPolicy();
-    const key = policy.ok ? policy.data?.serverKey : undefined;
-    if (key?.publicKeyHex) {
+  const policy = await client.discoverPolicy();
+  const key = policy.ok ? policy.data?.serverKey : undefined;
+  if (key) {
+    if (!serverPublicKey && key.publicKeyHex) {
       serverPublicKey = key.publicKeyHex;
       encoding = (key.encoding as LatticeAuthorityKeyEncoding | undefined) ?? 'hex';
-      serverKeyId = serverKeyId ?? key.keyId;
-      serverPublicKeyAlgorithm = key.algorithm;
     }
+    serverKeyId = serverKeyId ?? key.keyId;
+    serverPublicKeyAlgorithm = key.algorithm;
   }
   if (!serverPublicKey) return undefined;
   return {
