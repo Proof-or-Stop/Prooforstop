@@ -71,6 +71,15 @@
       "reviewRound": "2026-06-11T23:30:23.834Z",
       "reviewRunId": "B-5cc7:RR-015",
       "_hash": "28381e9296397131d47f30962f751a926fdcaee4f41b822d8a05ad8ba3d76e6c"
+    },
+    {
+      "id": "B-5cc7:RP-009",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS test-coverage final-final: reran npm --prefix packages/main run build (pass) and node packages/main/dist/tasks/dev-memory-legacy-read-smoke.js (pass). Verified smoke assertions cover parallel dispatch/report experienceRefs legacy fallback, KOALA_GLOBAL_MEMORY_DIR as read fallback not writable path, lattice dev_memory_start command prefix, .lattice-only capture, non-authoritative gateEvidence=false entries, and current-first dedupe. git status/diff show no .lattice/dev-memory/experience.jsonl restored; stash@{0}=c4dcc3aff95fd999712d7f19dcf856f791cf0d05 remains inspectable.",
+      "createdAt": "2026-06-11T23:47:14.904Z",
+      "reviewRound": "2026-06-11T23:42:11.666Z",
+      "reviewRunId": "B-5cc7:RR-018",
+      "_hash": "a383799cd36921c254bbab57ea7c1419acc52fc16c34361199b0c1865b1e8dd1"
     }
   ]
 }
