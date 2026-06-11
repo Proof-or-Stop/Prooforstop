@@ -47,8 +47,22 @@
         "gap_analyze_generated_output_hygiene",
         "authority_status_smoke_wording"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Required to satisfy REVIEW to TEST codex-adapter gate after verify_codex reported missing native hook and manifest drift; these assets are host-neutral adapter entrypoints and do not change product logic.",
+      "timestamp": "2026-06-11T00:36:43.910Z",
+      "paths": [
+        ".Codex/hooks/lattice-scope-pretool.cjs",
+        ".lattice/Lattice.md",
+        ".lattice/lattice.json"
+      ],
+      "anchors": [
+        "codex_adapter_verification",
+        "host_neutral_entrypoints"
+      ]
     }
   ],
   "createdAt": "2026-06-10T23:44:00.682Z",
-  "updatedAt": "2026-06-10T23:44:34.923Z"
+  "updatedAt": "2026-06-11T00:36:43.910Z"
 }
