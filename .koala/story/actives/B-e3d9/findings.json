@@ -64,7 +64,7 @@
       "desc": " .koala/story/actives/B-e3d9/checklist.json:38 WHY: CHK-001 edge still states that case/format variants such as ED25519 must fail closed, but the implemented and re-run smoke at packages/main/src/tasks/authority-client-smoke.ts:1298-1378 explicitly accepts ED25519 (both discovery and pinned-key paths) while only malformed/unsupported algorithms fail closed. The linked verificationEvidence note at checklist.json:69 even says \"case-variant ED25519 is accepted\", so validate can currently report CHK-001:edge:0 as covered even though the intent text asserts the opposite behavior. severity=medium. Fix: update CHK-001 verificationIntent/evidence wording to match the shipped contract (ED25519 accepted after normalization; malformed or unsupported algorithms rejected), then refresh the corresponding verification evidence so coverage remains trustworthy.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-concept",
       "createdAt": "2026-06-11T00:22:22.685Z",
@@ -74,7 +74,9 @@
       "files": [
         ".koala/story/actives/B-e3d9/checklist.json",
         "packages/main/src/tasks/authority-client-smoke.ts"
-      ]
+      ],
+      "resolvedReason": "Resolved by returning to PLAN and updating CHK-001 verificationIntent in commit f3dec96. CHK-001 edge now matches the shipped contract: benign Ed25519 casing/spacing variants normalize and succeed, while blank, malformed, unsupported, or non-string algorithm material fails closed. DEV validation after the PLAN correction reports 15/15 verification intent coverage and the authority-client smoke covers both discovery and pinned-key paths.",
+      "resolvedAt": "2026-06-11T00:27:54.785Z"
     }
   ]
 }
