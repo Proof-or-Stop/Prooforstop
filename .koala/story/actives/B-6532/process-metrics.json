@@ -1,6 +1,6 @@
 {
   "storyId": "B-6532",
-  "generatedAt": "2026-06-10T22:35:21.890Z",
+  "generatedAt": "2026-06-11T00:23:10.127Z",
   "sourceSnapshot": {
     "hasUnderstanding": true,
     "hasDecision": true,
@@ -232,8 +232,7 @@
           "confidence": "medium",
           "sources": [
             "process-events.jsonl"
-          ],
-          "note": "no dispatch events"
+          ]
         }
       }
     },
@@ -283,8 +282,7 @@
           "confidence": "medium",
           "sources": [
             "process-events.jsonl"
-          ],
-          "note": "no dispatch events"
+          ]
         },
         "blockedReturnCount": {
           "value": 0,
@@ -346,13 +344,12 @@
           "note": "no test runs"
         },
         "reviewAfterEachBatch": {
-          "value": "n/a",
-          "unit": "text",
+          "value": false,
+          "unit": "bool",
           "confidence": "medium",
           "sources": [
             "process-events.jsonl"
-          ],
-          "note": "no dispatch events"
+          ]
         }
       }
     }
