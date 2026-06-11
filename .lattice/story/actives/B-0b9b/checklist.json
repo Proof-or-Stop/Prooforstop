@@ -46,7 +46,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/root-markdown-migration-execution-solution.md",
+          "command": "node inline root migration solution consistency check",
+          "result": "pass",
+          "note": "The execution solution has title Root Markdown Migration Execution Solution and Final Allowed Root Markdown Set listing only README.md, AGENTS.md, CLAUDE.md, CHANGELOG.md, and user-owned jek.md.",
+          "headHash": "9946c3c9562f813d466881630186a441e09183a3",
+          "materialHash": "0005cd92d47e3fa480f463375059fe4454da27a58ac8bc915fdc499406111140",
+          "timestamp": "2026-06-11T22:18:35.751Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
