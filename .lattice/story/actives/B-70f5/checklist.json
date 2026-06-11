@@ -85,9 +85,9 @@
         "docs/requirements/decisions/root-document-migration-guide.md",
         "docs/requirements/decisions/root-markdown-migration-execution-solution.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-11T22:41:53.139Z",
-      "endTime": null,
+      "endTime": "2026-06-11T22:43:29.800Z",
       "userSees": "User sees the lifecycle-memory migration row point to both dev-memory.md and lifecycle-artifact-scope.md, matching the execution solution split.",
       "files": {
         "modify": [
@@ -119,7 +119,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/root-document-migration-guide.md",
+          "command": "rg -n \"Lattice-lifecycle-memory-Evolving\\.md|dev-memory\\.md|lifecycle-artifact-scope\\.md\" docs/requirements/decisions/root-document-migration-guide.md docs/requirements/decisions/root-markdown-migration-execution-solution.md",
+          "result": "pass",
+          "note": "The migration guide row now names both dev-memory.md and lifecycle-artifact-scope.md, matching the execution solution.",
+          "headHash": "63f2c45f01dea7d0dae7cf7f6c31fd186723dcd3",
+          "materialHash": "a01459a950d7a1b8ac04fa1ff74e48b1ae34ddddb154ca95468da22ec9d8b10a",
+          "timestamp": "2026-06-11T22:43:29.898Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/root-document-migration-guide.md",
+          "command": "rg -n \"Split durable memory policy from runtime artifact scope before moving\" docs/requirements/decisions/root-document-migration-guide.md",
+          "result": "pass",
+          "note": "The existing split rationale remains unchanged; only the target destination cell was aligned.",
+          "headHash": "63f2c45f01dea7d0dae7cf7f6c31fd186723dcd3",
+          "materialHash": "a01459a950d7a1b8ac04fa1ff74e48b1ae34ddddb154ca95468da22ec9d8b10a",
+          "timestamp": "2026-06-11T22:43:29.967Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/root-markdown-migration-execution-solution.md",
+          "command": "git diff HEAD^ HEAD -- docs/requirements/decisions/root-markdown-migration-execution-solution.md && git show --stat --oneline HEAD",
+          "result": "pass",
+          "note": "The execution solution was not modified; commit a37bd192 is limited to NAV.md and root-document-migration-guide.md.",
+          "headHash": "63f2c45f01dea7d0dae7cf7f6c31fd186723dcd3",
+          "materialHash": "a01459a950d7a1b8ac04fa1ff74e48b1ae34ddddb154ca95468da22ec9d8b10a",
+          "timestamp": "2026-06-11T22:43:30.035Z"
+        }
+      ]
     }
   ]
 }
