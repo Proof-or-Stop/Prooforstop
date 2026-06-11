@@ -1,0 +1,41 @@
+{
+  "storyId": "B-0b9b",
+  "mode": "enforce",
+  "allowedModify": [
+    "docs/requirements/NAV.md",
+    "docs/requirements/decisions/root-document-migration-guide.md"
+  ],
+  "allowedCreate": [
+    "docs/requirements/decisions/root-markdown-migration-execution-solution.md"
+  ],
+  "allowedTest": [],
+  "protectedFiles": [
+    "README.md",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "CHANGELOG.md",
+    "jek.md",
+    "KOALA.md",
+    "koala-project-overview.md",
+    "Lattice-baseline.md",
+    "Lattice-Engineering-baseline.md",
+    "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
+    "Lattice-Layer2-Proof-Bridge-Execution-Plan.md",
+    "Lattice-Loop-Engineering-baseline.md",
+    "Lattice-Review-reflection-loop.md",
+    "Lattice-Parallel-Development-Capability.md",
+    "Lattice-lifecycle-memory-Evolving.md",
+    "Lattice-Capability-Claim-baseline.md",
+    "Lattice-Production-Safety-baseline.md"
+  ],
+  "explicitExcludes": [
+    "packages/main/**",
+    "tests/**",
+    "docs/story/**",
+    "tests/fixtures/**"
+  ],
+  "scopeChangeReason": "B-0b9b writes an execution solution only; actual root Markdown moves/deletes are intentionally protected for a future migration implementation story.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-11T22:12:54.135Z",
+  "updatedAt": "2026-06-11T22:12:54.135Z"
+}
