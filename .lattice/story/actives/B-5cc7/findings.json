@@ -5,7 +5,7 @@
       "desc": "docs/requirements/decisions/dev-memory.md still presents .koala/dev-memory and .koala/story paths as the storage contract, but B-5cc7 implementation now makes .lattice/dev-memory the canonical read/write path and adds .koala only as a read-only legacy fallback. The docs oracle therefore no longer describes the implemented path semantics; update the decision doc to state .lattice canonical storage plus .koala legacy read fallback, or adjust implementation to match the documented .koala contract.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-docs",
       "createdAt": "2026-06-11T23:08:45.663Z",
@@ -16,7 +16,9 @@
         "docs/requirements/decisions/dev-memory.md",
         "packages/main/src/core/dev-memory.ts",
         "packages/main/src/handlers/dev-memory.ts"
-      ]
+      ],
+      "resolvedReason": "Resolved by commit a24a78aa updating docs/requirements/decisions/dev-memory.md to make .lattice the canonical dev-memory/story-candidate storage, restrict .koala to read-only legacy fallback, rename commands to lattice dev_memory_*, and retain non-authoritative gateEvidence:false / authority:non_authoritative semantics. Verified with rg checks for stale Koala/.koala command/path claims and git diff --check.",
+      "resolvedAt": "2026-06-11T23:21:11.284Z"
     }
   ]
 }
