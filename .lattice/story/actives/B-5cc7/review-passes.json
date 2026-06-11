@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-11T23:20:58.733Z",
       "reviewRunId": "B-5cc7:RR-011",
       "_hash": "ead8d9a1dc2458d369cc0452333b0c17d6686aa96d6258dec706992aa9d33a9b"
+    },
+    {
+      "id": "B-5cc7:RP-006",
+      "agent": "koala-review-test-coverage",
+      "note": "Test-coverage pass for B-5cc7. Verified all verificationIntent lanes with fresh reruns: npm --prefix packages/main run build && node packages/main/dist/tasks/dev-memory-legacy-read-smoke.js passed; git diff --name-status main...HEAD is limited to story metadata, docs/requirements/decisions/dev-memory.md, packages/main/src/core/dev-memory.ts, packages/main/src/handlers/dev-memory.ts, and packages/main/src/tasks/dev-memory-legacy-read-smoke.ts; .lattice/dev-memory/experience.jsonl is absent from worktree, status, diff, and HEAD; stash@{0} remains c4dcc3aff95fd999712d7f19dcf856f791cf0d05 and stash@{0}^3 still contains .lattice/dev-memory/experience.jsonl with 23 lines / 13983 bytes. Smoke covers .lattice plus legacy .koala reads, deterministic dedupe, LATTICE_GLOBAL_MEMORY_DIR masking, canonical .lattice write-only behavior, and non-authoritative gateEvidence=false/authority=non_authoritative entries. No blocker.",
+      "createdAt": "2026-06-11T23:26:21.991Z",
+      "reviewRound": "2026-06-11T23:20:58.733Z",
+      "reviewRunId": "B-5cc7:RR-013",
+      "_hash": "a3c97d15e7b38a02d9f1e37108563d314e0c1e3ac44a98c056ba786908de2004"
     }
   ]
 }
