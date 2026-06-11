@@ -23,7 +23,7 @@
       "desc": "verificationEvidence for CHK-001..003 was stamped against DEV commit 252c37a, while REVIEW metadata advanced HEAD to a9b5f3b and later reviewer metadata commits. The docs satisfy the intents, but test-coverage reviewer requested fresh current-HEAD/material evidence before PASS.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-test-coverage",
       "createdAt": "2026-06-11T17:11:45.179Z",
@@ -32,7 +32,9 @@
       "_hash": "f856e9bea2a4d84f4f0d43d5f1578bfc3a9ff784f89a306abade63fa8002226a",
       "files": [
         ".lattice/story/actives/B-b5b2/checklist.json"
-      ]
+      ],
+      "resolvedReason": "Resolved by running fresh root/NAV/target checks, diff check, and scope_contract_check after the F-001 material fix, then running verification_evidence_refresh_stale at REVIEW head 53730af. Lattice refreshed all 9 stale verificationEvidence entries and auto-committed metadata in 320fd90; subsequent metadata-only commits do not change the verified docs material state.",
+      "resolvedAt": "2026-06-11T17:22:45.436Z"
     }
   ]
 }
