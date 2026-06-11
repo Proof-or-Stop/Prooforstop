@@ -80,7 +80,7 @@
       "desc": "Quality consistency confirmation of existing F-004: docs/requirements/decisions/dev-memory.md documents the user-facing dev-memory commands as lattice dev_memory_* after the .lattice canonical path update, but packages/main/src/handlers/dev-memory.ts:310-313 still tells users to run koala dev_memory_finish. That leaves the changed handler guidance inconsistent with the canonical Lattice command prefix and the F-001/F-002 resolution docs.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-quality",
       "createdAt": "2026-06-11T23:35:52.958Z",
@@ -90,7 +90,9 @@
       "files": [
         "packages/main/src/handlers/dev-memory.ts",
         "docs/requirements/decisions/dev-memory.md"
-      ]
+      ],
+      "resolvedReason": "Resolved with the same concrete fix as B-5cc7:F-004 in commit bf001e43: dev_memory_start no longer emits koala dev_memory_finish guidance and the smoke test verifies the lattice command prefix.",
+      "resolvedAt": "2026-06-11T23:42:26.611Z"
     }
   ]
 }
