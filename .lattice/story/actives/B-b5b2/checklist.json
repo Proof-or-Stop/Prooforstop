@@ -51,34 +51,34 @@
           "intentRef": "CHK-001:happy:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/root-document-migration-guide.md",
-          "command": "node inline root/NAV consistency check",
+          "command": "node inline root inventory + NAV + target strict checker",
           "result": "pass",
-          "note": "Inline Node check passed with rootDocCount=17 and missingRoot=[]; guide inventory lists every current root Markdown file and classifies target homes.",
-          "headHash": "252c37a87b79a23a58da5f562743967175905104",
-          "materialHash": "17b60c002d78f42e203a8ca9a4a0f18b45050a6ae5364b4e9c42450e7c498661",
-          "timestamp": "2026-06-11T17:03:57.096Z"
+          "note": "Fresh strict checker at current material HEAD passed: rootDocCount=17, inventoryRows=17, missingRoot=[], extraRoot=[]; guide inventory covers every root Markdown file.",
+          "headHash": "64c18846891f3ced4873ddd4104df32af96ecf62",
+          "materialHash": "3c952a07a9d2b436e4076aed1492f913ef26e2b4d361dd11485d36284b8df9eb",
+          "timestamp": "2026-06-11T17:18:45.546Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/root-document-migration-guide.md",
-          "command": "claude final host-neutral audit B",
+          "command": "node inline root inventory + target strict checker",
           "result": "pass",
-          "note": "Claude final host-neutral audit PASS: AGENTS.md, CLAUDE.md, README.md stay root; CHANGELOG.md and KOALA.md remain compatibility assets; Codex/Claude/human entry remains discoverable.",
-          "headHash": "252c37a87b79a23a58da5f562743967175905104",
-          "materialHash": "17b60c002d78f42e203a8ca9a4a0f18b45050a6ae5364b4e9c42450e7c498661",
-          "timestamp": "2026-06-11T17:03:57.153Z"
+          "note": "Fresh strict checker plus reviewer feedback confirms README.md, AGENTS.md, CLAUDE.md stay root; CHANGELOG.md and KOALA.md remain root compatibility assets.",
+          "headHash": "64c18846891f3ced4873ddd4104df32af96ecf62",
+          "materialHash": "3c952a07a9d2b436e4076aed1492f913ef26e2b4d361dd11485d36284b8df9eb",
+          "timestamp": "2026-06-11T17:18:45.629Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "docs_check",
           "file": "docs/requirements/decisions/root-document-migration-guide.md",
-          "command": "claude final scope audit A + codex exec read-only final audit",
+          "command": "rg Scope Boundary Audit + final Claude/Codex audits",
           "result": "pass",
-          "note": "Both Claude scope audit and Codex CLI final audit PASS: guide is documentation-only, no root files moved, and no Production Safety/runtime/global capability claim is introduced.",
-          "headHash": "252c37a87b79a23a58da5f562743967175905104",
-          "materialHash": "17b60c002d78f42e203a8ca9a4a0f18b45050a6ae5364b4e9c42450e7c498661",
-          "timestamp": "2026-06-11T17:03:57.208Z"
+          "note": "Scope Boundary Audit remains explicit: no bulk move, no root file move/delete, no Production Safety/runtime/global capability claim. Final Claude/Codex read-only audits passed.",
+          "headHash": "64c18846891f3ced4873ddd4104df32af96ecf62",
+          "materialHash": "3c952a07a9d2b436e4076aed1492f913ef26e2b4d361dd11485d36284b8df9eb",
+          "timestamp": "2026-06-11T17:18:45.705Z"
         }
       ]
     },
