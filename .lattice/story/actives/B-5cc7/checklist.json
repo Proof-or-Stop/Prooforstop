@@ -86,9 +86,9 @@
         "docs/requirements/decisions/dev-memory.md",
         "docs/requirements/decisions/stash-split-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-11T23:04:13.352Z",
-      "endTime": null,
+      "endTime": "2026-06-11T23:04:14.813Z",
       "userSees": "User sees the focused dev-memory legacy-read smoke pass, proving read fallback, dedupe, .lattice writes, and non-authoritative entries.",
       "files": {
         "modify": [],
@@ -122,7 +122,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dev-memory-legacy-read-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/dev-memory-legacy-read-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke passed and covers reading both current .lattice and legacy .koala project/global dev-memory entries.",
+          "headHash": "80168e2c7f8dca1242c85a5a80d825d20a23c5a2",
+          "materialHash": "c02372ef4a4505ed010a6de0e2fcaf5a67f224a3c4d94cac245991fe7b9527ef",
+          "timestamp": "2026-06-11T23:04:14.924Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dev-memory-legacy-read-smoke.ts",
+          "command": "node packages/main/dist/tasks/dev-memory-legacy-read-smoke.js",
+          "result": "pass",
+          "note": "The smoke asserts duplicate ids across .lattice and .koala are deduped with the current .lattice entry winning.",
+          "headHash": "80168e2c7f8dca1242c85a5a80d825d20a23c5a2",
+          "materialHash": "c02372ef4a4505ed010a6de0e2fcaf5a67f224a3c4d94cac245991fe7b9527ef",
+          "timestamp": "2026-06-11T23:04:15.013Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/dev-memory-legacy-read-smoke.ts",
+          "command": "node packages/main/dist/tasks/dev-memory-legacy-read-smoke.js",
+          "result": "pass",
+          "note": "The smoke asserts capture writes .lattice/dev-memory/experience.jsonl, does not write .koala/dev-memory/experience.jsonl, and all entries remain gateEvidence=false and authority=non_authoritative.",
+          "headHash": "80168e2c7f8dca1242c85a5a80d825d20a23c5a2",
+          "materialHash": "c02372ef4a4505ed010a6de0e2fcaf5a67f224a3c4d94cac245991fe7b9527ef",
+          "timestamp": "2026-06-11T23:04:15.148Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
