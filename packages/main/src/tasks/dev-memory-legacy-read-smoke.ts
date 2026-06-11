@@ -8,6 +8,7 @@ import {
   readGlobalMemoryEntries,
   readProjectMemoryEntries,
   resolveGlobalMemoryPath,
+  resolveGlobalMemoryReadPaths,
   resolveLegacyGlobalMemoryPath,
   resolveLegacyProjectMemoryPath,
   resolveProjectMemoryPath,
@@ -110,6 +111,27 @@ try {
     'LATTICE_GLOBAL_MEMORY_DIR override should mask legacy global .koala fallback',
   );
   delete process.env.LATTICE_GLOBAL_MEMORY_DIR;
+
+  const legacyOverrideDir = join(root, 'koala-global-override');
+  process.env.KOALA_GLOBAL_MEMORY_DIR = legacyOverrideDir;
+  const writableGlobalPathWithLegacyOverride = resolveGlobalMemoryPath();
+  const legacyGlobalPathWithLegacyOverride = resolveLegacyGlobalMemoryPath();
+  assert.equal(
+    writableGlobalPathWithLegacyOverride,
+    join(fakeHome, '.lattice', 'dev-memory', 'experience.jsonl'),
+    'KOALA_GLOBAL_MEMORY_DIR alone must not redirect writable global memory path',
+  );
+  assert.equal(
+    legacyGlobalPathWithLegacyOverride,
+    join(legacyOverrideDir, 'experience.jsonl'),
+    'KOALA_GLOBAL_MEMORY_DIR should remain available as the legacy global read fallback',
+  );
+  assert.deepEqual(
+    resolveGlobalMemoryReadPaths(),
+    [writableGlobalPathWithLegacyOverride, legacyGlobalPathWithLegacyOverride],
+    'global read paths should keep current writable path first, then legacy KOALA fallback',
+  );
+  delete process.env.KOALA_GLOBAL_MEMORY_DIR;
 
   const captureRoot = join(root, 'capture-project');
   mkdirSync(captureRoot, { recursive: true });

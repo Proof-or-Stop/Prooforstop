@@ -176,7 +176,7 @@ export function resolveProjectMemoryReadPaths(projectRoot?: string): string[] {
  * Uses LATTICE_GLOBAL_MEMORY_DIR env override (useful in tests).
  */
 export function resolveGlobalMemoryPath(): string {
-  const override = process.env.LATTICE_GLOBAL_MEMORY_DIR || process.env.KOALA_GLOBAL_MEMORY_DIR;
+  const override = process.env.LATTICE_GLOBAL_MEMORY_DIR;
   if (override) return join(override, 'experience.jsonl');
   return join(homedir(), LATTICE_DIR, 'dev-memory', 'experience.jsonl');
 }
