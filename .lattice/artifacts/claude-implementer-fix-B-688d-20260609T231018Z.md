@@ -11,11 +11,11 @@ You are continuing as koala-implementer for story B-688d in the existing worktre
 The coordinator audit found real correctness issues in the generated artifacts. Fix only these issues; do not optimize or expand scope.
 
 Files to edit only:
-- .omx/artifacts/parallel-development/B-688d/dispatch-audit.json
-- .omx/artifacts/parallel-development/B-688d/claim-lock-status.json
-- .omx/artifacts/parallel-development/B-688d/final-report.json
-- .omx/artifacts/parallel-development/B-688d/final-report.md
-- .omx/artifacts/claude-dispatch-review-B-688d.md
+- .lattice/artifacts/parallel-development/B-688d/dispatch-audit.json
+- .lattice/artifacts/parallel-development/B-688d/claim-lock-status.json
+- .lattice/artifacts/parallel-development/B-688d/final-report.json
+- .lattice/artifacts/parallel-development/B-688d/final-report.md
+- .lattice/artifacts/claude-dispatch-review-B-688d.md
 
 Required fixes:
 1. dispatch-audit.json:

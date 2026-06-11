@@ -1,0 +1,135 @@
+{
+  "schemaVersion": "lattice.baseline_suite_report.v1",
+  "generatedAt": "2026-06-10T23:52:44.729Z",
+  "layer": "development",
+  "suiteStatus": "PASS",
+  "authorization": "authorized",
+  "outcome": "PASS",
+  "capabilityProof": true,
+  "formalProof": false,
+  "blockedReasons": [],
+  "errors": [],
+  "materialHash": "bc57ce794f3d113e661819170d983cd568ef24506fc9d4a9630cf475d4d3f5c0",
+  "headHash": "62b9764b20cc6959fa09e94429f6bc646b72b061",
+  "requiredBaselineIds": [
+    "NL-CLI-1",
+    "NL-API-1",
+    "NL-REPAIR-1",
+    "RED-CLI-TS-PY-1",
+    "RED-API-TS-GO-1",
+    "RED-GAP-BLOCK-1"
+  ],
+  "coveredBaselineIds": [
+    "NL-CLI-1",
+    "NL-API-1",
+    "NL-REPAIR-1",
+    "RED-CLI-TS-PY-1",
+    "RED-API-TS-GO-1",
+    "RED-GAP-BLOCK-1"
+  ],
+  "missingBaselineIds": [],
+  "falseDoneCount": 0,
+  "safetySuccessRate": 1,
+  "localOnly": false,
+  "authority": {
+    "authorityChanged": false,
+    "receiptVerified": false,
+    "productionDone": false,
+    "fullAuthorityDone": false,
+    "canClaimProductionDone": false,
+    "receiptRefs": []
+  },
+  "authorityChanged": false,
+  "receiptVerified": false,
+  "productionDone": false,
+  "fullAuthorityDone": false,
+  "receiptRefs": [],
+  "lowerLayerProof": [],
+  "reports": [
+    {
+      "baselineId": "NL-API-1",
+      "runId": "B-6532-dev-nl-api-1",
+      "path": ".lattice/artifacts/baseline/layer2-engineering-unlock/development/source-runs/NL-API-1/B-6532-dev-nl-api-1/final-report.json",
+      "outcome": "PASS",
+      "expectedOutcomes": [
+        "PASS"
+      ],
+      "status": "accepted",
+      "reasons": []
+    },
+    {
+      "baselineId": "NL-CLI-1",
+      "runId": "B-6532-dev-nl-cli-1",
+      "path": ".lattice/artifacts/baseline/layer2-engineering-unlock/development/source-runs/NL-CLI-1/B-6532-dev-nl-cli-1/final-report.json",
+      "outcome": "PASS",
+      "expectedOutcomes": [
+        "PASS"
+      ],
+      "status": "accepted",
+      "reasons": []
+    },
+    {
+      "baselineId": "NL-REPAIR-1",
+      "runId": "B-6532-dev-nl-repair-1",
+      "path": ".lattice/artifacts/baseline/layer2-engineering-unlock/development/source-runs/NL-REPAIR-1/B-6532-dev-nl-repair-1/final-report.json",
+      "outcome": "PASS",
+      "expectedOutcomes": [
+        "PASS"
+      ],
+      "status": "accepted",
+      "reasons": []
+    },
+    {
+      "baselineId": "RED-API-TS-GO-1",
+      "runId": "B-6532-dev-red-api-ts-go-1",
+      "path": ".lattice/artifacts/baseline/layer2-engineering-unlock/development/source-runs/RED-API-TS-GO-1/B-6532-dev-red-api-ts-go-1/final-report.json",
+      "outcome": "PASS",
+      "expectedOutcomes": [
+        "PASS"
+      ],
+      "status": "accepted",
+      "reasons": []
+    },
+    {
+      "baselineId": "RED-CLI-TS-PY-1",
+      "runId": "B-6532-dev-red-cli-ts-py-1",
+      "path": ".lattice/artifacts/baseline/layer2-engineering-unlock/development/source-runs/RED-CLI-TS-PY-1/B-6532-dev-red-cli-ts-py-1/final-report.json",
+      "outcome": "PASS",
+      "expectedOutcomes": [
+        "PASS"
+      ],
+      "status": "accepted",
+      "reasons": []
+    },
+    {
+      "baselineId": "RED-GAP-BLOCK-1",
+      "runId": "B-6532-dev-red-gap-block-1",
+      "path": ".lattice/artifacts/baseline/layer2-engineering-unlock/development/source-runs/RED-GAP-BLOCK-1/B-6532-dev-red-gap-block-1/final-report.json",
+      "outcome": "EXPECTED_BLOCK",
+      "expectedOutcomes": [
+        "EXPECTED_BLOCK"
+      ],
+      "status": "accepted",
+      "reasons": []
+    }
+  ],
+  "refusedArtifacts": [],
+  "outputFiles": {
+    "json": ".lattice/artifacts/baseline/layer2-engineering-unlock/development/baseline-suite-report.json",
+    "markdown": ".lattice/artifacts/baseline/layer2-engineering-unlock/development/baseline-suite-report.md"
+  },
+  "sourceProof": {
+    "suiteId": "minimum-baseline-suite",
+    "path": ".lattice/artifacts/baseline/layer2-engineering-unlock/development/source-suite/baseline-suite-report.json",
+    "schemaVersion": "lattice.baseline.suite-report.v1",
+    "suiteStatus": "PASS",
+    "generatedAt": "2026-06-10T23:27:30.921Z",
+    "note": "Generated from current .lattice Development baseline_run artifacts and rebound as lower-layer proof for formal Layer 2 Engineering evaluation."
+  },
+  "notes": [
+    "Development lower-layer proof is required before Layer 2 Engineering claim can unlock.",
+    "This report authorizes only the lower-layer Development dependency and does not unlock Engineering by itself.",
+    "Authority changed, receiptVerified, productionDone, and fullAuthorityDone remain false.",
+    "Refreshed after Lattice asset root migration from .omx to .lattice."
+  ]
+}

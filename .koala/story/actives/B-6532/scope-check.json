@@ -1,0 +1,73 @@
+{
+  "storyId": "B-6532",
+  "checkedAt": "2026-06-10T22:33:27.597Z",
+  "features": [
+    {
+      "feature": "CHK-001 .lattice artifact root only",
+      "covered_by": "packages/main/src/core/lattice-baseline.ts; packages/main/src/cli-engine.ts; docs/requirements/decisions/unlock-layer2-ENG-suite.md",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "B-6532 checklist"
+    },
+    {
+      "feature": "CHK-002 built CLI exposes formal Layer2 commands",
+      "covered_by": "packages/main/src/handlers/lattice-baseline.ts; packages/main/src/cli-engine.ts; packages/main/dist/**",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "B-6532 checklist"
+    },
+    {
+      "feature": "CHK-003 fresh Development lower-layer proof",
+      "covered_by": ".lattice/artifacts/baseline/layer2-engineering-unlock/development/baseline-suite-report.json",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "B-6532 checklist"
+    },
+    {
+      "feature": "CHK-004 nine formal Engineering final reports",
+      "covered_by": ".lattice/artifacts/baseline/layer2-engineering-unlock/engineering/**/final-report.json; packages/main/src/core/lattice-baseline.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "B-6532 checklist"
+    },
+    {
+      "feature": "CHK-005 Engineering suite PASS from formal reports",
+      "covered_by": ".lattice/artifacts/baseline/layer2-engineering-unlock/engineering/baseline-suite-report.json; packages/main/src/core/lattice-baseline.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "B-6532 checklist"
+    },
+    {
+      "feature": "CHK-006 formal Layer2 claim unlocked with higher layers locked",
+      "covered_by": ".lattice/artifacts/baseline/layer2-engineering-unlock/capability-claim/**/claim-report.json; packages/main/src/core/lattice-baseline.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "B-6532 checklist"
+    },
+    {
+      "feature": "CHK-007 fail-closed adversarial traps",
+      "covered_by": "packages/main/src/tasks/lattice-baseline-smoke.ts; .lattice/artifacts/baseline/layer2-engineering-unlock/fail-closed-traps/**",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "B-6532 checklist"
+    },
+    {
+      "feature": "CHK-008 two-host multi-agent review",
+      "covered_by": ".lattice/artifacts/baseline/layer2-engineering-unlock/reviews/**; .koala/story/actives/B-6532/**",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "B-6532 checklist"
+    }
+  ],
+  "summary": {
+    "total": 8,
+    "covered": 8,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "530fc7164bd87c5ee53d772799d8d26e9914df5e74e38f036072400c4a7e8d2f",
+  "openQuestions": []
+}

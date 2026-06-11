@@ -111,6 +111,16 @@ Layer 2 Engineering Baseline is formally unlocked.
 
 The formal Layer 2 unlock requires the complete Engineering baseline suite.
 
+For this unlock run, the selected proof artifact root is:
+
+```text
+.lattice/artifacts/baseline/layer2-engineering-unlock
+```
+
+The unlock proof pack must use that selected root. `.omx` is not part of this
+proof pack and must not be used as the formal artifact root for Layer 2
+Engineering unlock evidence.
+
 | Baseline ID | Name | What it verifies | PASS means |
 |---|---|---|---|
 | `ENG-MULTI-FILE-1` | Multi-file feature baseline | One feature requires changes across 3-8 files. | Lattice can handle cross-module feature development. |

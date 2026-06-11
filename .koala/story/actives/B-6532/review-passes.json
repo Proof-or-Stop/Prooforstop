@@ -1,0 +1,76 @@
+{
+  "passes": [
+    {
+      "id": "B-6532:RP-001",
+      "agent": "koala-review-concept",
+      "note": "PASS: concept matches story scope. Engineering claim unlocks only Layer 2; Loop/Production/global remain locked; .omx artifact ownership was migrated to .lattice without Authority or production overclaim.",
+      "createdAt": "2026-06-11T00:15:05.138Z",
+      "reviewRound": "2026-06-10T23:55:07.245Z",
+      "reviewRunId": "B-6532:RR-002",
+      "_hash": "38361d6ec5bb6bdafad05ccf368231a07b7b164de0f10bfd6f5ec59ebd87abb8"
+    },
+    {
+      "id": "B-6532:RP-002",
+      "agent": "koala-review-quality",
+      "note": "PASS: quality review found no blocker. Formal suite rebuild accepts all 9 ENG reports, materialHash is fresh, receiptVerified/productionDone/fullAuthorityDone remain false, and no .omx baseline root remains outside legacy archive.",
+      "createdAt": "2026-06-11T00:15:05.829Z",
+      "reviewRound": "2026-06-10T23:55:07.245Z",
+      "reviewRunId": "B-6532:RR-003",
+      "_hash": "16b08185cee64decb319def1ecdaf87925299182d077b27fa1f7634cd3587f6a"
+    },
+    {
+      "id": "B-6532:RP-003",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS: coverage review found no blocker. 24/24 verification intents are covered by validation evidence; baseline smoke covers forged suite, stale hash, missing lifecycle, missing receipt digest, and local-only traps.",
+      "createdAt": "2026-06-11T00:15:06.406Z",
+      "reviewRound": "2026-06-10T23:55:07.245Z",
+      "reviewRunId": "B-6532:RR-001",
+      "_hash": "16b5530b55c8a8ba97b89369df28052a0fb4b1b90dfa63f0649c64101e8ad515"
+    },
+    {
+      "id": "B-6532:RP-004",
+      "agent": "koala-review-docs",
+      "note": "PASS: docs review found no blocker. Decision document paths now use .lattice artifact roots, legacy .omx artifacts are archived under .lattice/artifacts/legacy-omx, and claim wording remains bounded.",
+      "createdAt": "2026-06-11T00:15:06.987Z",
+      "reviewRound": "2026-06-10T23:55:07.245Z",
+      "reviewRunId": "B-6532:RR-004",
+      "_hash": "2b98085da6521cc7c5cb965acd13137ef3ba4b1e3b0ebfacb0084fb822aab5b8"
+    },
+    {
+      "id": "B-6532:RP-005",
+      "agent": "koala-review-concept",
+      "note": "PASS: Layer 2 unlock remains scoped to Engineering Baseline claim only; Loop/Production/global claims stay locked, and .omx assets were migrated into .lattice without changing claim semantics.",
+      "createdAt": "2026-06-11T00:24:25.612Z",
+      "reviewRound": "2026-06-11T00:23:52.021Z",
+      "reviewRunId": "B-6532:RR-005",
+      "_hash": "8aec0bcd60af08beecf5c04039178a1c5cb154f7db94ed99a398c1105d81a1fd"
+    },
+    {
+      "id": "B-6532:RP-006",
+      "agent": "koala-review-quality",
+      "note": "PASS: Changes are limited to formal proof artifacts, adapter evidence, and scope acknowledgements; no arbitrary optimization or unrelated refactor observed.",
+      "createdAt": "2026-06-11T00:24:26.080Z",
+      "reviewRound": "2026-06-11T00:23:52.021Z",
+      "reviewRunId": "B-6532:RR-006",
+      "_hash": "90765f45d4d4366c4cc25b28c5a4b7e3564ddc9976de4e2b86a2e946f6969c18"
+    },
+    {
+      "id": "B-6532:RP-007",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS: validate --story=B-6532 --json passed with allPass=true and 24/24 verification intents covered after refreshing stale evidence.",
+      "createdAt": "2026-06-11T00:24:26.531Z",
+      "reviewRound": "2026-06-11T00:23:52.021Z",
+      "reviewRunId": "B-6532:RR-007",
+      "_hash": "f85746e4c54428af61783851aa6cfe47fba748ce36eca7f024fba39e850249b7"
+    },
+    {
+      "id": "B-6532:RP-008",
+      "agent": "koala-review-docs",
+      "note": "PASS: Decision docs and artifact roots consistently reference .lattice ownership; .omx artifacts are retained only under legacy-omx migration history.",
+      "createdAt": "2026-06-11T00:24:26.973Z",
+      "reviewRound": "2026-06-11T00:23:52.021Z",
+      "reviewRunId": "B-6532:RR-008",
+      "_hash": "a1d5e487d81e41698b9525f9773011556dcce52fcb819daa1b5a65e8950fb9f8"
+    }
+  ]
+}

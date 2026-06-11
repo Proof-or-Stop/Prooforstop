@@ -134,7 +134,7 @@ Purpose: prepare a reviewable commit in the worktree without merging to main.
 Required output:
 
 ```text
-.omx/artifacts/baseline-execution/<run-id>/commit-scope.md
+.lattice/artifacts/baseline-execution/<run-id>/commit-scope.md
 ```
 
 The commit scope must include:
@@ -245,7 +245,7 @@ Baseline scenarios from `Lattice-baseline.md`:
 Required artifacts per scenario:
 
 ```text
-.omx/artifacts/baseline/<baseline-id>/<run-id>/
+.lattice/artifacts/baseline/<baseline-id>/<run-id>/
   input.md
   story.json
   checklist.json
@@ -314,8 +314,8 @@ Purpose: calculate measured success rates from actual runs.
 Required output:
 
 ```text
-.omx/artifacts/baseline/baseline-suite-report.json
-.omx/artifacts/baseline/baseline-suite-report.md
+.lattice/artifacts/baseline/baseline-suite-report.json
+.lattice/artifacts/baseline/baseline-suite-report.md
 ```
 
 Required calculations:
@@ -410,9 +410,9 @@ any file included in the M7 material hash.
 Required outputs:
 
 ```text
-.omx/artifacts/baseline-execution/<run-id>/final-handoff.md
-.omx/artifacts/baseline-execution/<run-id>/host-verdict-summary.md
-.omx/artifacts/baseline-execution/<run-id>/command-index.md
+.lattice/artifacts/baseline-execution/<run-id>/final-handoff.md
+.lattice/artifacts/baseline-execution/<run-id>/host-verdict-summary.md
+.lattice/artifacts/baseline-execution/<run-id>/command-index.md
 ```
 
 Pass criteria:

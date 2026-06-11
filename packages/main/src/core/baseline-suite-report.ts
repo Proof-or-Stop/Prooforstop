@@ -168,7 +168,7 @@ export interface BaselineSuiteReport {
 }
 
 const DEFAULT_SUITE_ID = 'minimum-baseline-suite';
-const DEFAULT_REPORT_ROOT = join('.omx', 'artifacts', 'baseline');
+const DEFAULT_REPORT_ROOT = join('.lattice', 'artifacts', 'baseline');
 const REQUIRED_MINIMUM_BASELINE_IDS = [
   'NL-CLI-1',
   'NL-API-1',

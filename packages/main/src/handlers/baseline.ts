@@ -72,6 +72,10 @@ export function createBaselineHandlers(ctx: HandlerContext) {
       failingIndependentHosts?: number;
       serverBackedVerdictsAccepted?: boolean;
       localReviewCertified?: boolean;
+      localReviewEvidenceRefs?: string[] | string;
+      requiredIndependentHosts?: number;
+      independentHosts?: number;
+      passingIndependentHosts?: number;
       authorityServerContact?: boolean;
       retryCount?: number;
       repairCount?: number;
@@ -97,7 +101,11 @@ export function createBaselineHandlers(ctx: HandlerContext) {
         });
         return wantsJson(args) ? legacy : renderLegacyBaselineRunText(legacy);
       }
-      const result = runScenarioBaseline(ctx.root, { ...args, baselineId: args.baselineId as BaselineId });
+      const result = runScenarioBaseline(ctx.root, {
+        ...args,
+        baselineId: args.baselineId as BaselineId,
+        localReviewEvidenceRefs: splitFiles(args.localReviewEvidenceRefs),
+      });
       return wantsJson(args)
         ? result
         : render(`Lattice baseline run (${result.schemaVersion})`, {
@@ -130,7 +138,7 @@ export function createBaselineHandlers(ctx: HandlerContext) {
       const reportFiles = splitFiles(args.reportFiles);
       const root = args.reportsRoot
         ? (args.reportsRoot.startsWith('/') ? args.reportsRoot : join(ctx.root, args.reportsRoot))
-        : join(ctx.root, '.omx', 'artifacts', 'baseline');
+        : join(ctx.root, '.lattice', 'artifacts', 'baseline');
       const files = reportFiles.length > 0
         ? reportFiles.map(file => file.startsWith('/') ? file : join(ctx.root, file))
         : collectBaselineReports(root);

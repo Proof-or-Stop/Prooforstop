@@ -1,0 +1,84 @@
+{
+  "schemaVersion": "lattice.capability_claim_report.v1",
+  "generatedAt": "2026-06-10T23:53:12.356Z",
+  "claimId": "CLAIM-ENGINEERING-DEV",
+  "requestedClaim": "real engineering development in tested project classes",
+  "target": "engineering",
+  "authorized": true,
+  "outcome": "PASS",
+  "authorizedClaimLevel": "engineering",
+  "highestEvidenceBackedClaim": "engineering",
+  "dependsOn": [
+    "development",
+    "engineering"
+  ],
+  "blockedReasons": [],
+  "evidence": {
+    "suiteReports": [
+      ".lattice/artifacts/baseline/layer2-engineering-unlock/development/baseline-suite-report.json",
+      ".lattice/artifacts/baseline/layer2-engineering-unlock/engineering/baseline-suite-report.json"
+    ],
+    "finalReports": [
+      ".lattice/artifacts/baseline/layer2-engineering-unlock/engineering/ENG-MULTI-FILE-1/B-6532-eng-multi-file-1/final-report.json",
+      ".lattice/artifacts/baseline/layer2-engineering-unlock/engineering/ENG-EXISTING-REPO-1/B-6532-eng-existing-repo-1/final-report.json",
+      ".lattice/artifacts/baseline/layer2-engineering-unlock/engineering/ENG-BUGFIX-1/B-6532-eng-bugfix-1/final-report.json",
+      ".lattice/artifacts/baseline/layer2-engineering-unlock/engineering/ENG-REGRESSION-1/B-6532-eng-regression-1/final-report.json",
+      ".lattice/artifacts/baseline/layer2-engineering-unlock/engineering/ENG-DATA-MIGRATION-1/B-6532-eng-data-migration-1/final-report.json",
+      ".lattice/artifacts/baseline/layer2-engineering-unlock/engineering/ENG-AUTH-SECURITY-1/B-6532-eng-auth-security-1/final-report.json",
+      ".lattice/artifacts/baseline/layer2-engineering-unlock/engineering/ENG-FRONTEND-VISUAL-1/B-6532-eng-frontend-visual-1/final-report.json",
+      ".lattice/artifacts/baseline/layer2-engineering-unlock/engineering/ENG-LONG-RUN-1/B-6532-eng-long-run-1/final-report.json",
+      ".lattice/artifacts/baseline/layer2-engineering-unlock/engineering/ENG-LOOP-REVIEW-1/B-6532-eng-loop-review-1/final-report.json"
+    ],
+    "authorityReports": [],
+    "soakReports": []
+  },
+  "hardFacts": {
+    "falseDoneCount": 0,
+    "safetySuccessRate": 1,
+    "staleVerdicts": 0,
+    "failingIndependentHosts": 0,
+    "receiptVerified": false,
+    "multiHostVerified": false,
+    "soakSatisfied": false
+  },
+  "allowedWording": [
+    "Lattice has validated real engineering development for the tested project classes."
+  ],
+  "prohibitedWording": [
+    "Lattice is production-ready for all unattended development.",
+    "Lattice can claim production DONE without Authority receipt verification.",
+    "Lattice can skip multi-host review.",
+    "Lattice can replace Authority receipts with local files.",
+    "Parallel implementation proves higher capability layers in parallel."
+  ],
+  "limitations": [
+    "Formal authorization is limited to Layer 2 Engineering Baseline.",
+    "Layer 3 Loop Engineering remains locked.",
+    "Layer 4 Production Safety remains locked.",
+    "Layer 5/global Capability Claim remains locked.",
+    "This does not claim productionDone, fullAuthorityDone, or public production authority."
+  ],
+  "localOnly": false,
+  "formalProof": true,
+  "layer2EngineeringClaim": "UNLOCKED",
+  "loopEngineeringClaim": "LOCKED",
+  "productionSafetyClaim": "LOCKED",
+  "globalCapabilityClaim": "LOCKED",
+  "authority": {
+    "authorityChanged": false,
+    "receiptVerified": false,
+    "productionDone": false,
+    "fullAuthorityDone": false,
+    "canClaimProductionDone": false,
+    "receiptRefs": []
+  },
+  "authorityChanged": false,
+  "receiptVerified": false,
+  "productionDone": false,
+  "fullAuthorityDone": false,
+  "receiptRefs": [],
+  "outputFiles": {
+    "json": ".lattice/artifacts/baseline/layer2-engineering-unlock/capability-claim/CLAIM-ENGINEERING-DEV/B-6532-layer2-engineering-claim/claim-report.json",
+    "markdown": ".lattice/artifacts/baseline/layer2-engineering-unlock/capability-claim/CLAIM-ENGINEERING-DEV/B-6532-layer2-engineering-claim/claim-report.md"
+  }
+}
