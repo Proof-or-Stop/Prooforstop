@@ -4,7 +4,7 @@
   "title": "Write root Markdown migration execution solution",
   "description": "Create a concrete execution solution for moving agent-generated root Markdown documents to their canonical docs locations. The solution must preserve human and host entrypoints, keep user-owned jek.md at root, and explicitly retire the legacy KOALA root guide instead of treating it as a retained root compatibility asset.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "riskSignals": [
     {
@@ -29,6 +29,14 @@
       "action": "advance",
       "timestamp": "2026-06-11T22:11:06.612Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-11T22:11:22.594Z",
+      "branch": "story/B-0b9b",
       "user": "Harmonygo",
       "agent": "main"
     }

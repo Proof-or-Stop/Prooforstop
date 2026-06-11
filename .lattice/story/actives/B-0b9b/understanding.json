@@ -1,0 +1,23 @@
+{
+  "task": "Write a concrete execution solution for cleaning agent-generated root Markdown documents and retiring the legacy Koala root guide.",
+  "outcome": "User sees a new execution-plan decision doc and the existing root migration guide no longer treats the legacy Koala root guide as an allowed retained root file.",
+  "facts": [
+    "B-b5b2 already added docs/requirements/decisions/root-document-migration-guide.md as an inventory and migration guide.",
+    "The user clarified that jek.md is user-owned and may remain at repository root.",
+    "Agent-generated root Markdown files should move into canonical docs locations or be retired.",
+    "README.md, AGENTS.md, CLAUDE.md, and CHANGELOG.md are root entrypoints or standard repository files and should remain root."
+  ],
+  "constraints": [
+    "Do not move or delete root files in this story; write the execution solution only.",
+    "Do not claim Production Safety, capability-claim, authority, or unattended readiness as complete.",
+    "Do not treat the legacy Koala root guide as a retained root compatibility asset.",
+    "Exact removal timing for legacy root docs belongs to a future migration implementation story and must be gated by reference scans."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/root-markdown-migration-execution-solution.md",
+    "docs/requirements/decisions/root-document-migration-guide.md",
+    "docs/requirements/NAV.md"
+  ],
+  "timestamp": "2026-06-11T22:11:40.040Z"
+}

@@ -13,7 +13,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees docs/requirements/decisions/root-markdown-migration-execution-solution.md with allowed root files, migration batches, canonical targets, retirement rules, and validation gates.",
+      "files": {
+        "modify": [
+          "docs/requirements/NAV.md"
+        ],
+        "create": [
+          "docs/requirements/decisions/root-markdown-migration-execution-solution.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Execution solution defines the final allowed root Markdown set as README.md, AGENTS.md, CLAUDE.md, CHANGELOG.md, and user-owned jek.md only.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Execution solution separates low-risk migration batch from high-risk capability and Production Safety boundary/history handling without claiming unlocks.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Execution solution treats the legacy Koala root guide as a retirement target, not as an allowed root compatibility asset.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

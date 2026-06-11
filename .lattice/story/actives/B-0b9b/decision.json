@@ -1,0 +1,70 @@
+{
+  "principles": [
+    "Root stays reserved for stable entrypoints, user-owned notes, and standard repository files.",
+    "Agent-generated durable documentation belongs under canonical docs truth-source locations.",
+    "Documentation cleanup must not fabricate capability, Production Safety, authority, or unattended-readiness claims."
+  ],
+  "drivers": [
+    "The user explicitly wants root clutter removed and jek.md preserved as user-owned.",
+    "The previous guide still allowed the legacy Koala root guide to remain, which conflicts with the clarified policy.",
+    "Root document moves need a precise plan before implementation to avoid broken links and truth-source drift."
+  ],
+  "options": [
+    {
+      "name": "A: Write execution solution and align existing guide now",
+      "pros": [
+        "Creates a concrete implementation path without risking immediate broken links.",
+        "Corrects the old guide so the legacy Koala root guide is no longer retained.",
+        "Keeps this story scoped to docs and lets migration happen in a later implementation story."
+      ],
+      "cons": [
+        "Does not remove the root files yet.",
+        "Requires a follow-up execution story to perform moves/deletes."
+      ]
+    },
+    {
+      "name": "B: Move/delete root docs immediately in this story",
+      "pros": [
+        "Produces visible root cleanup immediately."
+      ],
+      "cons": [
+        "Higher risk of broken references.",
+        "Could mix planning, content merge, compatibility stubs, and deletion into one high-risk change.",
+        "Could accidentally imply Production Safety or capability state changes."
+      ]
+    },
+    {
+      "name": "C: Only answer in chat, no repository doc",
+      "pros": [
+        "Fastest response."
+      ],
+      "cons": [
+        "No durable project truth source for future agents.",
+        "The existing guide would still say the legacy Koala root guide may remain."
+      ]
+    }
+  ],
+  "chosen": "A: Write execution solution and align existing guide now",
+  "rationale": "Choose A because the user asked for an execution document and a solution, while the repository needs a durable plan before risky root-file moves. This also fixes the existing guide policy conflict without pretending that the cleanup has already been executed.",
+  "preMortem": [
+    {
+      "scenario": "The solution still leaves the legacy Koala root guide as an allowed root file.",
+      "trigger": "The new doc copies the prior compatibility language instead of applying the clarified user policy.",
+      "consequence": "Future agents preserve root clutter and the user sees no practical path to cleanup.",
+      "mitigation": "State that the legacy Koala root guide is a retirement target and should not remain as an allowed root file after migration."
+    },
+    {
+      "scenario": "The execution plan overclaims migration completion.",
+      "trigger": "The doc says root files are moved or cleaned before any actual move/delete story runs.",
+      "consequence": "Repository state and documentation diverge, causing false DONE-like confidence.",
+      "mitigation": "Use future-tense execution gates and explicitly say this story writes the solution only."
+    },
+    {
+      "scenario": "High-risk capability or Production Safety files are merged into existing unlock docs without review.",
+      "trigger": "The plan treats all Lattice root docs as simple low-risk moves.",
+      "consequence": "The docs imply capability or Production Safety readiness that has not been reviewed or validated.",
+      "mitigation": "Route high-risk files to boundary/history handling with no-unlock/no-claim language and a separate implementation review."
+    }
+  ],
+  "timestamp": "2026-06-11T22:11:52.880Z"
+}
