@@ -56,7 +56,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The migration guide explains destination mapping, migration order, compatibility redirect strategy, and reference update checks for future root-doc moves.",
+      "files": {
+        "modify": [
+          "docs/requirements/NAV.md"
+        ],
+        "create": [
+          "docs/requirements/decisions/root-document-migration-guide.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Guide provides destination mapping plus stepwise migration and upgrade instructions for root documents that should leave root.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing target docs or overlapping decisions must be merged or cross-linked before a move, avoiding duplicate truth sources.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Guide explicitly forbids claiming a migration is complete or production-grade unless files were actually moved and references validated.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
