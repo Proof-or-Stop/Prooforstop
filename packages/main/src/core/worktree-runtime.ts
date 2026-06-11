@@ -5,6 +5,7 @@ import type { StoryStore } from './store.js';
 
 export interface GitWorktreeEntry {
   path: string;
+  head: string | null;
   branch: string | null;
   branchRef: string | null;
 }
@@ -102,12 +103,22 @@ export function listGitWorktrees(root: string): GitWorktreeEntry[] {
       if (current) entries.push(current);
       current = {
         path: canonicalPath(line.slice('worktree '.length).trim()),
+        head: null,
         branch: null,
         branchRef: null,
       };
       continue;
     }
     if (!current) continue;
+    if (line.startsWith('HEAD ')) {
+      current.head = line.slice('HEAD '.length).trim();
+      continue;
+    }
+    if (line.startsWith('detached')) {
+      current.branch = null;
+      current.branchRef = null;
+      continue;
+    }
     if (line.startsWith('branch ')) {
       current.branchRef = line.slice('branch '.length).trim();
       current.branch = current.branchRef.replace(/^refs\/heads\//, '');

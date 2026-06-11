@@ -18,6 +18,12 @@ import {
 } from '../core/worktree-runtime.js';
 import { getLegacyActivityLogPath, getRuntimeActivityLogPath } from '../core/activity-log.js';
 import { initCheckAttestationMode } from '../core/init-check-gate.js';
+import { withMainWriteLock } from '../core/main-write-lock.js';
+import {
+  cleanupAuxiliaryWorktreeResidues,
+  renderAuxiliaryClassification,
+  scanAuxiliaryWorktreeResidues,
+} from '../core/auxiliary-worktree-cleanup.js';
 
 /** B-45ed CHK-008: Returns true if the story's background.md file exists. */
 function hasBackground(store: StoryStore, storyId: string): boolean {
@@ -532,99 +538,131 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
      */
     story_reconcile(args?: { dryRun?: boolean }): string {
       const dryRun = args?.dryRun !== false; // Default to dry run
-      const zombies = detectZombieStories(store, ctx.root);
-      const residues = scanTerminalStoryResidues(store, ctx.root);
 
-      if (zombies.length === 0 && residues.length === 0) {
-        return 'story_reconcile: No zombie stories detected, branch state is normal for all non-terminal stories.';
-      }
+      const render = (repair: boolean): string => {
+        const repoRoot = getRepoRoot(ctx.root);
+        const zombies = detectZombieStories(store, ctx.root);
+        const residues = scanTerminalStoryResidues(store, ctx.root);
+        const auxiliary = scanAuxiliaryWorktreeResidues(ctx.root, store);
 
-      const lines: string[] = [];
-      lines.push(`Detected ${zombies.length} zombie stories (branch merged/deleted but phase non-terminal), ${residues.length} terminal story residues:`);
-      lines.push('');
-
-      for (const z of zombies) {
-        const reason = z.branchMerged
-          ? `Branch ${z.branch} has been merged into main`
-          : `Branch ${z.branch} no longer exists`;
-        lines.push(`  ${z.storyId}  phase=${z.phase}  ${reason}`);
-
-        if (z.worktreeForeignPath && z.worktreePath) {
-          lines.push(`    worktree: ${z.worktreePath} (foreign stale path)`);
-        } else if (z.worktreeExists) {
-          lines.push(`    worktree: ${z.worktreePath} (still exists)`);
-        } else if (z.worktreePath) {
-          lines.push(`    worktree: ${z.worktreePath} (no longer exists)`);
+        if (zombies.length === 0 && residues.length === 0 && auxiliary.length === 0) {
+          return 'story_reconcile: No zombie stories or auxiliary worktree residues detected, branch state is normal for all non-terminal stories.';
         }
 
-        if (!dryRun) {
-          const story = store.readStory(z.storyId);
-          const actions: string[] = [];
+        const lines: string[] = [];
+        lines.push(`Detected ${zombies.length} zombie stories (branch merged/deleted but phase non-terminal), ${residues.length} terminal story residues, ${auxiliary.length} auxiliary story worktree residues:`);
+        lines.push('');
 
-          // Clean up worktree directory
-          if (z.worktreeExists && z.worktreePath) {
-            try {
-              execSync(`git worktree remove --force "${z.worktreePath}"`, {
-                cwd: ctx.root, stdio: 'pipe',
-              });
-              actions.push('worktree removed');
-            } catch {
-              // When worktree remove fails, try deleting the directory directly
+        for (const z of zombies) {
+          const reason = z.branchMerged
+            ? `Branch ${z.branch} has been merged into main`
+            : `Branch ${z.branch} no longer exists`;
+          lines.push(`  ${z.storyId}  phase=${z.phase}  ${reason}`);
+
+          if (z.worktreeForeignPath && z.worktreePath) {
+            lines.push(`    worktree: ${z.worktreePath} (foreign stale path)`);
+          } else if (z.worktreeExists) {
+            lines.push(`    worktree: ${z.worktreePath} (still exists)`);
+          } else if (z.worktreePath) {
+            lines.push(`    worktree: ${z.worktreePath} (no longer exists)`);
+          }
+
+          if (repair) {
+            const story = store.readStory(z.storyId);
+            const actions: string[] = [];
+
+            // Clean up worktree directory
+            if (z.worktreeExists && z.worktreePath) {
               try {
-                rmSync(z.worktreePath, { recursive: true, force: true });
-                actions.push('worktree directory force-deleted');
-              } catch { actions.push('worktree cleanup failed'); }
+                execFileSync('git', ['worktree', 'remove', '--force', z.worktreePath], {
+                  cwd: repoRoot,
+                  encoding: 'utf-8',
+                  stdio: ['pipe', 'pipe', 'pipe'],
+                });
+                actions.push('worktree removed');
+              } catch {
+                // When worktree remove fails, try deleting the directory directly
+                try {
+                  rmSync(z.worktreePath, { recursive: true, force: true });
+                  actions.push('worktree directory force-deleted');
+                } catch { actions.push('worktree cleanup failed'); }
+              }
+            }
+
+            // Delete the merged branch
+            if (z.branchExists) {
+              try {
+                execFileSync('git', ['branch', '-d', z.branch], {
+                  cwd: repoRoot,
+                  encoding: 'utf-8',
+                  stdio: ['pipe', 'pipe', 'pipe'],
+                });
+                actions.push(`Branch ${z.branch} deleted`);
+              } catch {
+                actions.push(`Branch ${z.branch} deletion failed (may have unmerged commits)`);
+              }
+            }
+
+            // Update story status to DONE
+            story.phase = 'DONE' as StoryPhase;
+            story.endedAt = new Date().toISOString();
+            story.worktree = undefined;
+            if (!story.events) story.events = [];
+            const event = collectContext('DONE' as StoryPhase, 'advance');
+            (event as any).reconciled = true;
+            (event as any).reason = `story_reconcile: ${z.branchMerged ? 'branch merged into main' : 'branch deleted'}`;
+            story.events.push(event);
+            store.writeStory(z.storyId, story);
+            actions.push('phase → DONE');
+
+            lines.push(`    → Fixed: ${actions.join(', ')}`);
+          }
+        }
+
+        if (residues.length > 0) {
+          lines.push('');
+          lines.push('Terminal-state story residue:');
+          for (const residue of residues) {
+            lines.push(`  ${residue.storyId} phase=${residue.phase} ${residue.safe ? 'safe-untracked' : 'unsafe-tracked/staged'} — ${residue.path}`);
+            if (residue.status) {
+              for (const line of residue.status.split('\n').slice(0, 4)) lines.push(`    ${line}`);
+            }
+            if (repair && residue.safe) {
+              rmSync(residue.path, { recursive: true, force: true });
+              lines.push('    → Residue directory cleaned up');
             }
           }
+        }
 
-          // Delete the merged branch
-          if (z.branchExists) {
-            try {
-              execSync(`git branch -d "${z.branch}"`, { cwd: ctx.root, stdio: 'pipe' });
-              actions.push(`Branch ${z.branch} deleted`);
-            } catch {
-              actions.push(`Branch ${z.branch} deletion failed (may have unmerged commits)`);
+        if (auxiliary.length > 0) {
+          lines.push('');
+          lines.push('Auxiliary story worktree residues:');
+          for (const classification of auxiliary) {
+            lines.push(`  ${renderAuxiliaryClassification(ctx.root, classification)}`);
+          }
+          if (repair) {
+            lines.push('');
+            lines.push('Auxiliary cleanup:');
+            const results = cleanupAuxiliaryWorktreeResidues(ctx.root, store);
+            for (const result of results) {
+              const label = renderAuxiliaryClassification(ctx.root, result.before);
+              lines.push(`  ${result.cleaned ? '✓ Cleaned' : '⚠ Skipped'} ${label}`);
+              for (const action of result.actions) lines.push(`    ${action}`);
             }
           }
-
-          // Update story status to DONE
-          story.phase = 'DONE' as StoryPhase;
-          story.endedAt = new Date().toISOString();
-          story.worktree = undefined;
-          if (!story.events) story.events = [];
-          const event = collectContext('DONE' as StoryPhase, 'advance');
-          (event as any).reconciled = true;
-          (event as any).reason = `story_reconcile: ${z.branchMerged ? 'branch merged into main' : 'branch deleted'}`;
-          story.events.push(event);
-          store.writeStory(z.storyId, story);
-          actions.push('phase → DONE');
-
-          lines.push(`    → Fixed: ${actions.join(', ')}`);
         }
-      }
 
-      if (residues.length > 0) {
-        lines.push('');
-        lines.push('Terminal-state story residue:');
-        for (const residue of residues) {
-          lines.push(`  ${residue.storyId} phase=${residue.phase} ${residue.safe ? 'safe-untracked' : 'unsafe-tracked/staged'} — ${residue.path}`);
-          if (residue.status) {
-            for (const line of residue.status.split('\n').slice(0, 4)) lines.push(`    ${line}`);
-          }
-          if (!dryRun && residue.safe) {
-            rmSync(residue.path, { recursive: true, force: true });
-            lines.push('    → Residue directory cleaned up');
-          }
+        if (!repair) {
+          lines.push('');
+          lines.push('Above is dry run result, no modifications made.');
+          lines.push('Apply fixes: lattice story_reconcile \'{"dryRun":false}\'');
         }
-      }
 
-      if (dryRun) {
-        lines.push('');
-        lines.push('Above is dry run result, no modifications made.');
-        lines.push('Apply fixes: koala story_reconcile \'{"dryRun":false}\'');
-      }
+        return lines.join('\n');
+      };
 
-      return lines.join('\n');
+      if (dryRun) return render(false);
+      return withMainWriteLock(getRepoRoot(ctx.root), () => render(true), { label: 'story_reconcile repair' });
     },
 
     /**
