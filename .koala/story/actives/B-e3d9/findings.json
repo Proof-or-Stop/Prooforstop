@@ -162,6 +162,23 @@
       ],
       "resolvedReason": "Resolved on current worktree-local Lattice evidence. The coverage finding was triggered from the global lattice entrypoint, which computed a different materialHash than the checked-out story worktree after the path-casing changes. After force-taking ownership back to the current worktree, node bin/lattice.js evidence_inspect showed checklist evidence fresh, node bin/lattice.js validate --story=B-e3d9 passed with 15/15 verification intent coverage, and both node bin/lattice.js gap_analyze and node packages/main/dist/cli.js gap_analyze reported Requirement coverage 100%, Test coverage 100%, Gaps: 0 high / 0 medium. The restored local validation evidence was committed in d4da3897.",
       "resolvedAt": "2026-06-11T01:05:43.660Z"
+    },
+    {
+      "id": "B-e3d9:F-009",
+      "desc": ".koala/story/actives/B-e3d9/checklist.json:56-78 and :385 record verificationEvidence commands as `npm run test:authority-client` from the repo root, but packages/main/package.json:68 defines that script only inside the package. Repro: `npm run test:authority-client` from /Users/jek/Documents/Work/Orchestrate/.worktrees/B-e3d9 fails with `Missing script: \"test:authority-client\"`. This makes the recorded evidence non-reproducible as written. Fix by updating the evidence commands to the actual invocable form (for example `npm --prefix packages/main run test:authority-client`) and refresh the evidence/validation metadata with the corrected command string.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-11T01:33:20.851Z",
+      "reviewRound": "2026-06-11T01:24:42.437Z",
+      "reviewRunId": "B-e3d9:RR-032",
+      "_hash": "c1fac1a68476a7abc3f1c54e59e37704097fa99a93e5ac18a4935730718b76bc",
+      "files": [
+        ".koala/story/actives/B-e3d9/checklist.json",
+        "packages/main/package.json"
+      ]
     }
   ]
 }
