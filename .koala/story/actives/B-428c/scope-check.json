@@ -1,0 +1,52 @@
+{
+  "storyId": "B-428c",
+  "checkedAt": "2026-06-11T03:13:09.332Z",
+  "features": [
+    {
+      "feature": "Layer 3 formal claim evaluator authorizes only loop-engineering from fresh lower-layer and UDM suite proof",
+      "covered_by": "CHK-001, CHK-003, CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md#13-formal-unlock-steps"
+    },
+    {
+      "feature": "UDM final reports require planned steps, review loop, gate, host verdict, budget, stop condition, freshness, falseDone, and authority boundary evidence",
+      "covered_by": "CHK-002, CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md#8-evidence-contract"
+    },
+    {
+      "feature": "Production Safety and global Capability Claim remain locked after Layer 3",
+      "covered_by": "CHK-001, CHK-004, CHK-005",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md#4-unlock-boundary"
+    },
+    {
+      "feature": "Two-host Claude/Codex review artifacts are independent review evidence but not Authority receipts",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md#11-multi-host--multi-agent-review"
+    },
+    {
+      "feature": "Long-term production safety and arbitrary unattended development are outside this story",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Layer 3 non-goal; belongs to Layer 4 Production Safety and Layer 5 Capability Claim",
+      "source": "docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md#1-purpose"
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "covered": 4,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "88ae1e4d6b91d997e48df364a893a546131700faac86af0c9291984f88f581b5",
+  "openQuestions": []
+}
