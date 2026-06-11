@@ -56,6 +56,24 @@
         "packages/main/src/core/lattice-parallel-wave.ts",
         "docs/requirements/decisions/dev-memory.md"
       ]
+    },
+    {
+      "id": "B-5cc7:F-004",
+      "desc": "docs/requirements/decisions/dev-memory.md documents the dev-memory user-facing commands as lattice dev_memory_* (lines 75-96), matching the F-001/F-002 review expectation. The implementation mostly registers dev_memory_* under the lattice CLI, but dev_memory_start still emits legacy koala dev_memory_finish reminders in packages/main/src/handlers/dev-memory.ts:310-313. That leaves the decision doc and implementation guidance inconsistent on the required command prefix.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-11T23:33:13.894Z",
+      "reviewRound": "2026-06-11T23:30:23.834Z",
+      "reviewRunId": "B-5cc7:RR-014",
+      "_hash": "cbe1e24dade0eefcec4eed69c4b69bde90f86722fa298e9205825b49bc9fd804",
+      "files": [
+        "docs/requirements/decisions/dev-memory.md",
+        "packages/main/src/handlers/dev-memory.ts",
+        "packages/main/src/cli-engine.ts"
+      ]
     }
   ]
 }
