@@ -16,7 +16,21 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-auditor",
+      "reason": "Required by verified finding B-5cc7:F-003: lattice-parallel-wave is a dev-memory projection consumer for parallel dispatch/report experienceRefs, so it must use the same read-only legacy fallback helpers as the rest of Bucket A instead of bypassing them.",
+      "timestamp": "2026-06-11T23:41:48.550Z",
+      "paths": [
+        "packages/main/src/core/lattice-parallel-wave.ts"
+      ],
+      "anchors": [
+        "finding.B_5cc7_F_003",
+        "dev_memory_legacy_read_fallback",
+        "parallel_experience_refs"
+      ]
+    }
+  ],
   "createdAt": "2026-06-11T23:04:42.042Z",
-  "updatedAt": "2026-06-11T23:04:42.042Z"
+  "updatedAt": "2026-06-11T23:41:48.550Z"
 }
