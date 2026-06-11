@@ -1,0 +1,31 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Write concrete root Markdown migration execution solution",
+      "context": "Create a decision doc that turns the prior classification guide into an execution plan: allowed root files, batch order, canonical destinations, stub/delete rules, reference-update checks, and validation gates. KOALA.md must be treated as a retirement target, not as a permanent root file.",
+      "relatedDocs": [
+        "docs/requirements/decisions/root-document-migration-guide.md",
+        "docs/requirements/NAV.md",
+        "README.md",
+        "AGENTS.md",
+        "CLAUDE.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Align existing root migration guide with no-KOALA root policy",
+      "context": "Update the existing guide so its allowed-root policy no longer says KOALA.md may stay root. The guide should preserve README.md, AGENTS.md, CLAUDE.md, CHANGELOG.md, and user-owned jek.md as allowed root files, while classifying agent-generated root docs for migration or retirement.",
+      "relatedDocs": [
+        "docs/requirements/decisions/root-document-migration-guide.md",
+        "docs/requirements/NAV.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
