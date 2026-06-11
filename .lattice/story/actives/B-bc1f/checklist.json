@@ -1,0 +1,16 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Ensure direct REVIEW story creation cannot leave review metadata missing",
+      "context": "Reproduce from external project: story_create --phase=REVIEW succeeds, then review_run_start fails because currentReviewRound is absent. Either initialize the same review-round fields as story_advance into REVIEW or block direct REVIEW creation with a precise validation error; prefer the smallest behavior-compatible fix.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "README.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
