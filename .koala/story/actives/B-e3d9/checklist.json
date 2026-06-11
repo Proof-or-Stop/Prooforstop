@@ -135,12 +135,12 @@
         {
           "intentRef": "CHK-002:happy:0",
           "kind": "manual_transcript",
-          "command": "lattice gap_analyze",
+          "command": "node bin/lattice.js gap_analyze",
           "result": "pass",
           "note": "gap_analyze no longer reports the stale supportsDryRun uncovered_requirement; the remaining high gaps are the separate CHK-003/CHK-004 authority-policy items.",
           "headHash": "77d38e83701a5dd520e166755bcf43939cc58bd4",
           "materialHash": "282490c6136e91ae7df993a697d2f608716e64ec2c7d46b797c0cf237f631dae",
-          "timestamp": "2026-06-11T01:24:16.057Z"
+          "timestamp": "2026-06-11T01:36:50.697Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -150,7 +150,7 @@
           "note": "The live help surface now distinguishes default-on dry-run (story_reconcile), optional --dryRun plus --confirm semantics (test_auto), and always-on projection-only behavior (host_install) without inventing metadata for commands that do not expose real dry-run behavior.",
           "headHash": "77d38e83701a5dd520e166755bcf43939cc58bd4",
           "materialHash": "282490c6136e91ae7df993a697d2f608716e64ec2c7d46b797c0cf237f631dae",
-          "timestamp": "2026-06-11T01:24:16.057Z"
+          "timestamp": "2026-06-11T01:36:50.763Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -161,7 +161,7 @@
           "note": "The requirement truth now explicitly rejects a new ToolDef.supportsDryRun field, and the code annotations/help bind dry-run semantics to existing schema plus COMMAND_POLICIES surfaces so a metadata-only fix would contradict the documented contract.",
           "headHash": "77d38e83701a5dd520e166755bcf43939cc58bd4",
           "materialHash": "282490c6136e91ae7df993a697d2f608716e64ec2c7d46b797c0cf237f631dae",
-          "timestamp": "2026-06-11T01:24:16.057Z"
+          "timestamp": "2026-06-11T01:36:50.824Z"
         }
       ]
     },
