@@ -98,6 +98,15 @@
       "reviewRound": "2026-06-11T23:42:11.666Z",
       "reviewRunId": "B-5cc7:RR-022",
       "_hash": "8f00b46654eef030094a7a70882dcc789f37b1f890004d754583097ab8b16912"
+    },
+    {
+      "id": "B-5cc7:RP-012",
+      "agent": "koala-review-docs",
+      "note": "Docs final REVIEW after F-006 passed. Reviewed docs/requirements/decisions/dev-memory.md and docs/requirements/decisions/lattice-parallel-wave.md against packages/main/src/core/dev-memory.ts, packages/main/src/core/lattice-parallel-wave.ts, packages/main/src/handlers/dev-memory.ts, and packages/main/src/tasks/dev-memory-legacy-read-smoke.ts. dev-memory.md documents canonical .lattice project/global/story-candidate storage, .koala read-only legacy fallback, lattice dev_memory_* commands, and non-authoritative gateEvidence:false / authority:non_authoritative semantics. lattice-parallel-wave.md now matches implementation: includeExperience reads .lattice first, .koala only as legacy fallback including KOALA_GLOBAL_MEMORY_DIR fallback, dedupes by id, caps refs, and emits non-authoritative experienceRefs. Read-only sweeps found no stale koala dev_memory_finish in docs/requirements and no .koala-only storage contract in touched truth sources; remaining .koala mentions are explicitly fallback/read-only. No blocking docs finding.",
+      "createdAt": "2026-06-11T23:54:58.198Z",
+      "reviewRound": "2026-06-11T23:51:32.816Z",
+      "reviewRunId": "B-5cc7:RR-023",
+      "_hash": "5a5d26213a6885e0ad54c985e4382d246d1322db6abb152f7a825d98787037e6"
     }
   ]
 }
