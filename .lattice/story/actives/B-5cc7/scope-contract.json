@@ -1,0 +1,22 @@
+{
+  "storyId": "B-5cc7",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/dev-memory.ts",
+    "packages/main/src/handlers/dev-memory.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/dev-memory-legacy-read-smoke.ts"
+  ],
+  "allowedTest": [
+    "docs/requirements/decisions/stash-split-execution-plan.md",
+    "packages/main/src/tasks/dev-memory-legacy-read-smoke.ts",
+    "docs/requirements/decisions/dev-memory.md"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-11T23:04:42.042Z",
+  "updatedAt": "2026-06-11T23:04:42.042Z"
+}
