@@ -99,7 +99,7 @@
       "desc": "[HIGH] Host-neutral Codex adapter entrypoints are still case-dependent. Git tracks .lattice/lattice.json and .Codex/hooks.json/.Codex/hooks/lattice-scope-pretool.cjs, but verify_codex and guard-session resolve .Lattice/lattice.json and .codex/hooks/* (packages/main/src/core/codex-adapter-checks.ts:208-209, 396-429; packages/main/src/handlers/guard-session.ts:32-45). This passes on the current case-insensitive filesystem only because .Lattice/.lattice and .Codex/.codex alias to the same inode; on a case-sensitive host the global-thin manifest and native Codex hook will be reported missing, so REVIEW/DONE gate evidence is not actually host-neutral. Fix by choosing one canonical on-disk casing per contract and making both generated assets and runtime checks consume that same path set.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "koala-review-concept",
       "createdAt": "2026-06-11T00:42:40.511Z",
@@ -111,7 +111,9 @@
         ".Codex/hooks.json",
         "packages/main/src/core/codex-adapter-checks.ts",
         "packages/main/src/handlers/guard-session.ts"
-      ]
+      ],
+      "resolvedReason": "Fixed by implementer commit d484257f. The checked-in global-thin Lattice assets now use canonical .Lattice/Lattice.md and .Lattice/lattice.json, Codex native hook assets now use official lowercase .codex/hooks.json and .codex/hooks/lattice-scope-pretool.cjs, and scripts/verify-entrypoints.mjs now mechanically rejects the old non-canonical casing. Verified with npm --prefix packages/main run build, npm run test:entrypoints, npm --prefix packages/main run test:pretool-scope-hook-smoke, node bin/lattice-codex.js verify_codex, focused smokes, and gap_analyze 0 high/0 medium.",
+      "resolvedAt": "2026-06-11T00:54:16.716Z"
     }
   ]
 }
