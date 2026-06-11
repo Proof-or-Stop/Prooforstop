@@ -150,8 +150,8 @@ git restore --source 'stash@{0}^3' -- docs/requirements/decisions/unlock-layer4-
 - Preserve existing `Unlock Layer 2 Engineering Baseline Suite`,
   `Unlock Layer 3 Loop Engineering Baseline Suite`, and
   `Root Document Migration Guide` NAV entries.
-- After adding the Layer 4 document, NAV should count 37 requirement files in
-  the current catalog shape.
+- After adding the Layer 4 document, NAV should count the then-current catalog
+  plus one requirement file (38 immediately after this story lands).
 
 Acceptance:
 
