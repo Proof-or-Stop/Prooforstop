@@ -107,6 +107,15 @@
       "reviewRound": "2026-06-11T23:51:32.816Z",
       "reviewRunId": "B-5cc7:RR-023",
       "_hash": "5a5d26213a6885e0ad54c985e4382d246d1322db6abb152f7a825d98787037e6"
+    },
+    {
+      "id": "B-5cc7:RP-013",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS: reran npm --prefix packages/main run build and node packages/main/dist/tasks/dev-memory-legacy-read-smoke.js; both passed. evidence_inspect reports all checklist evidence fresh against current materialHash 4bc0aa7829bca0b862d37bae220ab9e0a5a37236747955be31d1c41900c3c2bf after stale evidence refresh. Stash object remains c4dcc3aff95fd999712d7f19dcf856f791cf0d05; .lattice/dev-memory/experience.jsonl is absent from status, main...HEAD diff, and tracked files while stash@{0}^3 still contains 23 lines. Smoke coverage includes F-002 KOALA_GLOBAL_MEMORY_DIR not redirecting writable global path while remaining legacy read fallback, F-003/F-006 parallel dispatch/report reading legacy project and KOALA_GLOBAL_MEMORY_DIR experienceRefs through current read APIs, and F-004 lattice dev_memory_finish guidance with no koala dev_memory_finish reminder. No test-coverage blocker.",
+      "createdAt": "2026-06-11T23:55:07.003Z",
+      "reviewRound": "2026-06-11T23:51:32.816Z",
+      "reviewRunId": "B-5cc7:RR-025",
+      "_hash": "8665d441eed82be3d984b9b40c6eede9646dd8dba5f31c76dd2d0f0785249af1"
     }
   ]
 }
