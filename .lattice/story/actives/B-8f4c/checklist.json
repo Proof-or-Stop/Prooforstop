@@ -97,7 +97,36 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees validation evidence showing the document matches current stash@{0}, avoids stash execution, and keeps NAV mechanically consistent.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Mechanical check confirms document mentions every current stash@{0} path group and the current stash still exists.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Mechanical check confirms the document says NAV must be reconciled against current main and count 37 for this story, rather than reusing stale stash NAV text.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Mechanical check confirms the document does not say to run git stash pop and does not claim the stash content was executed or merged.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
