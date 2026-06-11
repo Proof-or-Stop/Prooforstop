@@ -166,9 +166,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/stash-split-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-11T23:04:26.743Z",
-      "endTime": null,
+      "endTime": "2026-06-11T23:04:29.411Z",
       "userSees": "User sees git status confirm .lattice/dev-memory/experience.jsonl was not restored, staged, or committed from the stash.",
       "files": {
         "modify": [],
@@ -199,7 +199,39 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "git status --short --untracked-files=all | rg .lattice/dev-memory/experience.jsonl || true",
+          "result": "pass",
+          "note": "git status showed no .lattice/dev-memory/experience.jsonl restored, staged, or tracked after Bucket A work.",
+          "headHash": "7018a62974ca36dfb2e279366121750aaef7fbe1",
+          "materialHash": "c02372ef4a4505ed010a6de0e2fcaf5a67f224a3c4d94cac245991fe7b9527ef",
+          "timestamp": "2026-06-11T23:04:29.588Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "git show stash@{0}^3:.lattice/dev-memory/experience.jsonl | wc -l",
+          "result": "pass",
+          "note": "The stashed data file remains inspectable from the third stash parent and contains 23 lines, while it is absent from the worktree status.",
+          "headHash": "7018a62974ca36dfb2e279366121750aaef7fbe1",
+          "materialHash": "c02372ef4a4505ed010a6de0e2fcaf5a67f224a3c4d94cac245991fe7b9527ef",
+          "timestamp": "2026-06-11T23:04:29.853Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git diff --name-status main...HEAD | rg .lattice/dev-memory/experience.jsonl || true",
+          "result": "pass",
+          "note": "The final diff contains approved code, focused smoke test, and story metadata only; .lattice/dev-memory/experience.jsonl is not in the material diff.",
+          "headHash": "7018a62974ca36dfb2e279366121750aaef7fbe1",
+          "materialHash": "c02372ef4a4505ed010a6de0e2fcaf5a67f224a3c4d94cac245991fe7b9527ef",
+          "timestamp": "2026-06-11T23:04:30.101Z"
+        }
+      ]
     }
   ]
 }
