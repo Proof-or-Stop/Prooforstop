@@ -17,8 +17,9 @@ separate future story or commit with its own tests and evidence.
 5. Inspect untracked files with `--include-untracked` or the third stash parent.
    A normal stash diff omits them.
 6. Restore untracked files only from `stash@{0}^3` and only by explicit path.
-7. Keep `.lattice/dev-memory/experience.jsonl` excluded by default. It is local
-   runtime data, not a normal source artifact.
+7. Keep `.lattice/dev-memory/experience.jsonl` excluded by default by not
+   restoring, staging, or committing it. It is local runtime data, not a normal
+   source artifact.
 8. Defer the `packages/main/src/core/planner.ts` hash hunk unless a failing
    repro or focused test proves that planner hash behavior is currently wrong.
 
@@ -57,20 +58,23 @@ docs/requirements/decisions/unlock-layer4-production-safety-suite.md
 
 ## Bucket Split
 
-### Bucket A: Dev Memory Default Exclusion
+### Bucket A: Dev Memory Data Handling
 
 Scope:
 
 ```text
-.gitignore
 packages/main/src/core/dev-memory.ts
 packages/main/src/handlers/dev-memory.ts
 ```
 
 Handling:
 
-- Keep `.lattice/dev-memory/experience.jsonl` ignored by default.
-- Do not commit `.lattice/dev-memory/experience.jsonl`.
+- Treat `.lattice/dev-memory/experience.jsonl` as inspection-only local runtime
+  data for this bucket.
+- Do not restore, stage, or commit `.lattice/dev-memory/experience.jsonl`.
+- Do not treat the stashed `.gitignore` hunk as the mechanism for dev-memory
+  exclusion. If a future story changes ignore policy, it must do so explicitly
+  with its own acceptance evidence.
 - If a future story needs to inspect the data file, use:
 
 ```bash
@@ -79,16 +83,16 @@ git show 'stash@{0}^3:.lattice/dev-memory/experience.jsonl'
 
 Acceptance:
 
-- `git check-ignore .lattice/dev-memory/experience.jsonl` reports it ignored.
 - Focused dev-memory tests pass.
 - `git status --porcelain` does not show `.lattice/dev-memory/experience.jsonl`
-  as staged or tracked.
+  as restored, staged, or tracked.
 
 ### Bucket B: Runtime Artifact Cleanup
 
 Scope:
 
 ```text
+.gitignore
 docs/requirements/decisions/lifecycle-artifact-scope.md
 packages/main/src/core/lattice-parallel-wave.ts
 packages/main/src/core/runtime-artifact-registry.ts
@@ -101,6 +105,8 @@ Handling:
 - Keep material hash, baseline risk, repair, and gitignore semantics aligned
   with the registry instead of hard-coding paths in separate call sites.
 - Do not add `.omx/` or OMX-derived paths as runtime artifacts.
+- Do not use the `.gitignore` hunk to claim dev-memory data is ignored; that is
+  outside this bucket unless a future story explicitly changes ignore policy.
 
 Acceptance:
 
@@ -146,10 +152,13 @@ Handling:
 git restore --source 'stash@{0}^3' -- docs/requirements/decisions/unlock-layer4-production-safety-suite.md
 ```
 
-- Restore or hand-merge the `docs/requirements/NAV.md` hunk for this bucket only.
+- Do not restore `docs/requirements/NAV.md` from `stash@{0}`. The stashed NAV
+  hunk is stale relative to the current catalog.
+- Hand-merge only the Layer 4 NAV link and count update from the current NAV
+  state.
 - Preserve existing `Unlock Layer 2 Engineering Baseline Suite`,
   `Unlock Layer 3 Loop Engineering Baseline Suite`, and
-  `Root Document Migration Guide` NAV entries.
+  `Root Document Migration Guide`, and `Stash Split Execution Plan` NAV entries.
 - After adding the Layer 4 document, NAV should count the then-current catalog
   plus one requirement file (38 immediately after this story lands).
 
@@ -204,6 +213,9 @@ git diff 'stash@{0}^1' 'stash@{0}' -- <tracked-paths>
 ```bash
 git restore --source 'stash@{0}' -- <tracked-paths>
 ```
+
+   Exclude stale index/catalog files such as `docs/requirements/NAV.md` from
+   generic tracked-path restore. Reconcile those by hand from the current file.
 
 5. Restore only approved untracked paths from the third stash parent:
 
