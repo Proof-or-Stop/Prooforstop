@@ -10,9 +10,77 @@
         "KOALA.md",
         "docs/requirements/NAV.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-11T17:03:57.008Z",
+      "userSees": "The migration guide contains a table listing all root Markdown files and classifies each as stay-root, move-to-decision, move-to-guide, note/archive, or future compatibility work.",
+      "files": {
+        "modify": [
+          "docs/requirements/NAV.md"
+        ],
+        "create": [
+          "docs/requirements/decisions/root-document-migration-guide.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Guide lists every current root Markdown file found by root-level Markdown inventory and assigns a target-home classification.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Host entrypoint files including README.md, AGENTS.md, CLAUDE.md, and KOALA.md are not prescribed for blind relocation and remain discoverable from root until a separate compatibility story changes them.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Guide does not import unrelated Layer4 or Production Safety runtime claims and does not treat untracked or dirty docs as completed migrations.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/root-document-migration-guide.md",
+          "command": "node inline root inventory + NAV + target strict checker",
+          "result": "pass",
+          "note": "Fresh strict checker at current material HEAD passed: rootDocCount=17, inventoryRows=17, missingRoot=[], extraRoot=[]; guide inventory covers every root Markdown file.",
+          "headHash": "bc045c65d09a6324ca456f80e0961f77eca84a45",
+          "materialHash": "72a43ca7d60f170376685493f3f3ae2c030f19eb22186fb5ab05680f67a98178",
+          "timestamp": "2026-06-11T17:47:43.371Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/root-document-migration-guide.md",
+          "command": "node inline root inventory + target strict checker",
+          "result": "pass",
+          "note": "Fresh strict checker plus reviewer feedback confirms README.md, AGENTS.md, CLAUDE.md stay root; CHANGELOG.md and KOALA.md remain root compatibility assets.",
+          "headHash": "bc045c65d09a6324ca456f80e0961f77eca84a45",
+          "materialHash": "72a43ca7d60f170376685493f3f3ae2c030f19eb22186fb5ab05680f67a98178",
+          "timestamp": "2026-06-11T17:47:43.371Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/root-document-migration-guide.md",
+          "command": "rg Scope Boundary Audit + final Claude/Codex audits",
+          "result": "pass",
+          "note": "Scope Boundary Audit remains explicit: no bulk move, no root file move/delete, no Production Safety/runtime/global capability claim. Final Claude/Codex read-only audits passed.",
+          "headHash": "bc045c65d09a6324ca456f80e0961f77eca84a45",
+          "materialHash": "72a43ca7d60f170376685493f3f3ae2c030f19eb22186fb5ab05680f67a98178",
+          "timestamp": "2026-06-11T17:47:43.371Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -21,9 +89,77 @@
       "relatedDocs": [
         "docs/requirements/NAV.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-11T17:04:11.836Z",
+      "userSees": "The migration guide explains destination mapping, migration order, compatibility redirect strategy, and reference update checks for future root-doc moves.",
+      "files": {
+        "modify": [
+          "docs/requirements/NAV.md"
+        ],
+        "create": [
+          "docs/requirements/decisions/root-document-migration-guide.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Guide provides destination mapping plus stepwise migration and upgrade instructions for root documents that should leave root.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing target docs or overlapping decisions must be merged or cross-linked before a move, avoiding duplicate truth sources.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Guide explicitly forbids claiming a migration is complete or production-grade unless files were actually moved and references validated.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/root-document-migration-guide.md",
+          "command": "node inline root inventory + NAV + target strict checker",
+          "result": "pass",
+          "note": "Fresh strict checker passed with multiChoiceCount=0 and invalidFutureCount=0; guide provides concrete target-home mapping or explicit TBD/do-not-migrate state plus migration/reference sections.",
+          "headHash": "bc045c65d09a6324ca456f80e0961f77eca84a45",
+          "materialHash": "72a43ca7d60f170376685493f3f3ae2c030f19eb22186fb5ab05680f67a98178",
+          "timestamp": "2026-06-11T17:47:43.371Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/NAV.md",
+          "command": "node inline decisions/NAV consistency check",
+          "result": "pass",
+          "note": "Fresh NAV check passed: decisionFiles=36, navLinks=36, navCount=36, missingNav=[], staleNav=[]; root-document guide and existing Layer 2 decision are discoverable.",
+          "headHash": "bc045c65d09a6324ca456f80e0961f77eca84a45",
+          "materialHash": "72a43ca7d60f170376685493f3f3ae2c030f19eb22186fb5ab05680f67a98178",
+          "timestamp": "2026-06-11T17:47:43.371Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/root-document-migration-guide.md",
+          "command": "git diff --check HEAD~1..HEAD + final Claude/Codex audits",
+          "result": "pass",
+          "note": "Fresh diff check passed; guide says future moves require dedicated stories and does not claim migration complete, production-grade status, or authority readiness.",
+          "headHash": "bc045c65d09a6324ca456f80e0961f77eca84a45",
+          "materialHash": "72a43ca7d60f170376685493f3f3ae2c030f19eb22186fb5ab05680f67a98178",
+          "timestamp": "2026-06-11T17:47:43.371Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -32,9 +168,77 @@
       "relatedDocs": [
         "docs/requirements/NAV.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-11T17:18:02.500Z",
+      "userSees": "The migration guide includes a visible audit note listing known root docs, stay-root files, no bulk move, and no Production Safety or global capability unlock claim.",
+      "files": {
+        "modify": [
+          "docs/requirements/NAV.md"
+        ],
+        "create": [
+          "docs/requirements/decisions/root-document-migration-guide.md"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Audit note names the known root docs, names stay-root files, and states this story only adds the guide and NAV entry.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Audit note distinguishes host-neutral entrypoints from requirements truth-source docs so Claude, Codex, and human host access remains consistent.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Audit note explicitly says the guide does not unlock Production Safety, authority or unattended readiness, or global capability claims.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/root-document-migration-guide.md",
+          "command": "rg 'Scope Boundary Audit|No bulk move|No root Markdown file' docs/requirements/decisions/root-document-migration-guide.md",
+          "result": "pass",
+          "note": "Scope Boundary Audit remains visible and states no bulk move, no root Markdown rename/move/delete, and documentation-only behavior.",
+          "headHash": "bc045c65d09a6324ca456f80e0961f77eca84a45",
+          "materialHash": "72a43ca7d60f170376685493f3f3ae2c030f19eb22186fb5ab05680f67a98178",
+          "timestamp": "2026-06-11T17:47:43.371Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/root-document-migration-guide.md",
+          "command": "claude final host-neutral audit B + node strict checker",
+          "result": "pass",
+          "note": "Host-neutral audit PASS and strict checker PASS: entrypoints, compatibility assets, existing decisions, and future-only targets are distinguished without mixing truth-source layers.",
+          "headHash": "bc045c65d09a6324ca456f80e0961f77eca84a45",
+          "materialHash": "72a43ca7d60f170376685493f3f3ae2c030f19eb22186fb5ab05680f67a98178",
+          "timestamp": "2026-06-11T17:47:43.371Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/root-document-migration-guide.md",
+          "command": "rg 'does not unlock Production Safety|does not assert unattended readiness|does not claim any new global capability' docs/requirements/decisions/root-document-migration-guide.md",
+          "result": "pass",
+          "note": "Scope Boundary Audit explicitly denies Production Safety unlock, authority/unattended readiness, and global capability claims; future Layer4 row is marked Future-only and no-unlock.",
+          "headHash": "bc045c65d09a6324ca456f80e0961f77eca84a45",
+          "materialHash": "72a43ca7d60f170376685493f3f3ae2c030f19eb22186fb5ab05680f67a98178",
+          "timestamp": "2026-06-11T17:47:43.371Z"
+        }
+      ]
     }
   ]
 }

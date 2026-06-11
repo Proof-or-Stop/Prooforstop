@@ -1,0 +1,39 @@
+{
+  "storyId": "B-b5b2",
+  "mode": "enforce",
+  "allowedModify": [
+    "docs/requirements/NAV.md"
+  ],
+  "allowedCreate": [
+    "docs/requirements/decisions/root-document-migration-guide.md"
+  ],
+  "allowedTest": [],
+  "protectedFiles": [
+    "AGENTS.md",
+    "CHANGELOG.md",
+    "CLAUDE.md",
+    "KOALA.md",
+    "Lattice-Capability-Claim-baseline.md",
+    "Lattice-Engineering-Baseline-Unlock-Execution-Plan.md",
+    "Lattice-Engineering-baseline.md",
+    "Lattice-Layer2-Proof-Bridge-Execution-Plan.md",
+    "Lattice-Loop-Engineering-baseline.md",
+    "Lattice-Parallel-Development-Capability.md",
+    "Lattice-Production-Safety-baseline.md",
+    "Lattice-Review-reflection-loop.md",
+    "Lattice-baseline.md",
+    "Lattice-lifecycle-memory-Evolving.md",
+    "README.md",
+    "jek.md",
+    "koala-project-overview.md"
+  ],
+  "explicitExcludes": [
+    ".omx/**",
+    ".lattice/dev-memory/**",
+    "docs/requirements/decisions/unlock-layer4-production-safety-suite.md"
+  ],
+  "scopeChangeReason": "B-b5b2 only creates a root document migration guide and NAV entry; existing root Markdown files remain untouched in this story.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-11T16:48:57.068Z",
+  "updatedAt": "2026-06-11T16:48:57.068Z"
+}

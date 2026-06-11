@@ -1,0 +1,94 @@
+{
+  "passes": [
+    {
+      "id": "B-b5b2:RP-001",
+      "agent": "koala-review-concept",
+      "note": "Concept reviewer PASS: guide-only scope is explicit; host-neutral root entrypoints stay root; no Production Safety, authority/unattended readiness, or global capability overclaim; root-doc migration purpose is consistent.",
+      "createdAt": "2026-06-11T17:10:43.547Z",
+      "reviewRound": "2026-06-11T17:04:42.824Z",
+      "reviewRunId": "B-b5b2:RR-001",
+      "_hash": "42e518440f2100f779abb95617755668407cdbd219dd703809dad0a3d8f1342f"
+    },
+    {
+      "id": "B-b5b2:RP-002",
+      "agent": "koala-review-docs",
+      "note": "Docs reviewer PASS: root inventory matches actual 17 root Markdown files, NAV has 36 decision links and count, guide includes target-home mapping, reference-update rules, and visible no-bulk-move scope audit.",
+      "createdAt": "2026-06-11T17:11:01.587Z",
+      "reviewRound": "2026-06-11T17:04:42.824Z",
+      "reviewRunId": "B-b5b2:RR-002",
+      "_hash": "1696f2edaa7279dabc5358f119d232340e113f2bd9e66805aec0c92b16b159b6"
+    },
+    {
+      "id": "B-b5b2:RP-003",
+      "agent": "koala-review-concept",
+      "note": "PASS: The guide remains host-neutral and docs-only. It preserves tool entrypoint docs at root, assigns Lattice material docs to requirements homes or explicit TBD states, and includes the required CHK-003 Scope Boundary Audit to prevent overclaiming Production Safety, unattended readiness, or global capability unlock. No conceptual blocker remains.",
+      "createdAt": "2026-06-11T17:33:52.326Z",
+      "reviewRound": "2026-06-11T17:32:13.198Z",
+      "reviewRunId": "B-b5b2:RR-007",
+      "_hash": "09a6dc505ed3cf1c65eaeef17dc1df470126d3aed9a21fdfa3e34f58af5e17cf"
+    },
+    {
+      "id": "B-b5b2:RP-004",
+      "agent": "koala-review-quality",
+      "note": "PASS: Quality review finds no remaining blocking issue. The strict checker reports rootDocCount=17, inventoryRows=17, NAV 36/36, missingTargets=[], multiChoiceCount=0, invalidFutureCount=0. Future capability/Production Safety rows are explicit TBD/do-not-migrate with no-claim/no-unlock wording, so F-003 is resolved.",
+      "createdAt": "2026-06-11T17:34:02.262Z",
+      "reviewRound": "2026-06-11T17:32:13.198Z",
+      "reviewRunId": "B-b5b2:RR-008",
+      "_hash": "4533be7c61a688a6015a281d9ce2f80967b5b73b3dd4143b0668b3994e2194e1"
+    },
+    {
+      "id": "B-b5b2:RP-005",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS: Verification coverage is complete for CHK-001/002/003 happy, edge, and adversarial intents. Fresh checks include strict root inventory/NAV/target checker, bad-word grep for removed scope leaks, git diff --check, scope_contract_check, and verification_evidence_refresh_stale refreshed all 9 stale entries after the final material docs commit.",
+      "createdAt": "2026-06-11T17:34:11.565Z",
+      "reviewRound": "2026-06-11T17:32:13.198Z",
+      "reviewRunId": "B-b5b2:RR-009",
+      "_hash": "5263b95f02e3ff0575fad3570927fa0651fc1802d44b56852da35718ed31c257"
+    },
+    {
+      "id": "B-b5b2:RP-006",
+      "agent": "koala-review-docs",
+      "note": "PASS: Docs review finds the NAV and guide coherent. NAV lists all 36 decision docs and includes root-document-migration-guide.md. The migration guide is Markdown-only, keeps root entrypoint docs in place, narrows reference updates to docs/navigation references, and leaves code/prompt cleanup outside this story, so F-004 is resolved.",
+      "createdAt": "2026-06-11T17:34:20.909Z",
+      "reviewRound": "2026-06-11T17:32:13.198Z",
+      "reviewRunId": "B-b5b2:RR-010",
+      "_hash": "474e3c2857053ad4c1e0024d66eb7aef6b22fdd2f0d76d95411dedd82966d428"
+    },
+    {
+      "id": "B-b5b2:RP-007",
+      "agent": "koala-review-concept",
+      "note": "PASS: Claude CLI plus Codex reviewer/verifier and strict inventory checks confirm the guide has executable migration order, correct host-neutral versus Claude-specific boundary, and no capability overclaim.",
+      "createdAt": "2026-06-11T17:51:25.328Z",
+      "reviewRound": "2026-06-11T17:47:22.756Z",
+      "reviewRunId": "B-b5b2:RR-011",
+      "_hash": "485a3c558fe5a4419cb8ee7147388ea2cc5cbf42e634a3169a4f7048930c6cce"
+    },
+    {
+      "id": "B-b5b2:RP-008",
+      "agent": "koala-review-quality",
+      "note": "PASS: Post-fix Codex code-reviewer reported no correctness issues; executable order excludes TBD files, CLAUDE.md is host-specific compatibility, NAV rule is general, and scope boundary is documentation-only.",
+      "createdAt": "2026-06-11T17:51:42.868Z",
+      "reviewRound": "2026-06-11T17:47:22.756Z",
+      "reviewRunId": "B-b5b2:RR-012",
+      "_hash": "a552031e87183d137eb35bc131d8833340d5aacf63cc1648a878b1cd0acca09a"
+    },
+    {
+      "id": "B-b5b2:RP-009",
+      "agent": "koala-review-test-coverage",
+      "note": "PASS: Strict Node checker passed with rootMarkdownCount=17, inventoryRows=17, missing/stale NAV empty, missingTargets empty, pendingInExecutableOrder empty, claudeHostNeutral false, and noCapabilityOverclaim true.",
+      "createdAt": "2026-06-11T17:51:58.821Z",
+      "reviewRound": "2026-06-11T17:47:22.756Z",
+      "reviewRunId": "B-b5b2:RR-013",
+      "_hash": "2ed1cf93605c87fa8360d6fec2b074bcf79d78478614981cb5dcae3f8da18ded"
+    },
+    {
+      "id": "B-b5b2:RP-010",
+      "agent": "koala-review-docs",
+      "note": "PASS: Claude CLI and two Codex agents agree the guide is executable and host-neutral-consistent after the fix; NAV count/link are current and the document keeps scope to Markdown docs migration only.",
+      "createdAt": "2026-06-11T17:52:12.506Z",
+      "reviewRound": "2026-06-11T17:47:22.756Z",
+      "reviewRunId": "B-b5b2:RR-014",
+      "_hash": "7b0bd851f846eee431c23d2af02f4f42e222f2273e4c53aba8588b899c71e019"
+    }
+  ]
+}

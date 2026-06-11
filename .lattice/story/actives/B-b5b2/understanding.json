@@ -1,0 +1,24 @@
+{
+  "task": "Create a scope-bound root documentation migration guide for Lattice root Markdown files.",
+  "outcome": "When the user opens docs/requirements/decisions/root-document-migration-guide.md they see the root Markdown inventory, which files stay at root, where each non-root document should move, the safe migration order, and a clear note that this guide does not move files or unlock Production Safety.",
+  "facts": [
+    "Root Markdown inventory contains AGENTS.md, CHANGELOG.md, CLAUDE.md, KOALA.md, README.md, jek.md, koala-project-overview.md, and ten Lattice baseline/proof/planning Markdown files.",
+    "docs/requirements/decisions/*.md is the project truth-source location for human decisions and requirements.",
+    "docs/guide.md is the general documentation navigation page, while docs/requirements/NAV.md indexes requirements decisions.",
+    "B-b5b2 is a documentation migration guide story, not an implementation story for Layer4/Production Safety or global capability claims.",
+    "Lowercase .lattice has been made the canonical runtime/story path before continuing this story so the story worktree can run normally."
+  ],
+  "constraints": [
+    "Do not optimize for optimization; only fix the real root-document placement correctness issue.",
+    "Do not bulk-move root files in this story; write an auditable migration guide first.",
+    "Keep host-neutral entrypoints discoverable for Codex CLI, Claude Code, and humans.",
+    "Do not claim Production Safety, unattended readiness, or global capability unlock from this documentation guide.",
+    "Do not touch unrelated Layer4 runtime changes or local dev-memory logs."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/root-document-migration-guide.md",
+    "docs/requirements/NAV.md"
+  ],
+  "timestamp": "2026-06-11T16:41:30.707Z"
+}

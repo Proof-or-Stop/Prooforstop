@@ -1,0 +1,76 @@
+{
+  "findings": [
+    {
+      "id": "B-b5b2:F-001",
+      "desc": "Several Target home entries are still unresolved or multi-choice instead of a single canonical destination or explicit do-not-migrate/TBD state. Examples include future private note/archive area, project-vision.md or docs/guide.md, dedicated decision alternatives, and future reviewed Production Safety decision. This leaves future migrations without precise target homes and undercuts the guide purpose.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-11T17:11:22.612Z",
+      "reviewRound": "2026-06-11T17:04:42.824Z",
+      "reviewRunId": "B-b5b2:RR-003",
+      "_hash": "ff20dd91729a4abb9b1831baef8802e795eb42f308fe88fe1fdacffe8ebc921f",
+      "files": [
+        "docs/requirements/decisions/root-document-migration-guide.md"
+      ],
+      "resolvedReason": "Resolved by commits 1cca5a78, 8e63932d, and 1cf7ae35. The guide now assigns one exact destination path or explicit TBD/do-not-migrate state per root Markdown row; future capability and Production Safety targets are marked future-only with no-claim/no-unlock wording; non-Markdown scope content was removed. Fresh strict checker passed at REVIEW head: root inventory 17/17, NAV 36/36, multiChoiceCount=0, invalidFutureCount=0.",
+      "resolvedAt": "2026-06-11T17:22:32.301Z"
+    },
+    {
+      "id": "B-b5b2:F-002",
+      "desc": "verificationEvidence for CHK-001..003 was stamped against DEV commit 252c37a, while REVIEW metadata advanced HEAD to a9b5f3b and later reviewer metadata commits. The docs satisfy the intents, but test-coverage reviewer requested fresh current-HEAD/material evidence before PASS.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-test-coverage",
+      "createdAt": "2026-06-11T17:11:45.179Z",
+      "reviewRound": "2026-06-11T17:04:42.824Z",
+      "reviewRunId": "B-b5b2:RR-004",
+      "_hash": "f856e9bea2a4d84f4f0d43d5f1578bfc3a9ff784f89a306abade63fa8002226a",
+      "files": [
+        ".lattice/story/actives/B-b5b2/checklist.json"
+      ],
+      "resolvedReason": "Resolved by running fresh root/NAV/target checks, diff check, and scope_contract_check after the F-001 material fix, then running verification_evidence_refresh_stale at REVIEW head 53730af. Lattice refreshed all 9 stale verificationEvidence entries and auto-committed metadata in 320fd90; subsequent metadata-only commits do not change the verified docs material state.",
+      "resolvedAt": "2026-06-11T17:22:45.436Z"
+    },
+    {
+      "id": "B-b5b2:F-003",
+      "desc": "Two Target home entries point at non-existent future decision files as if they were canonical destinations: lattice-capability-claim-boundary.md and unlock-layer4-production-safety-suite.md. The guide should mark those rows as explicit TBD / do not migrate yet until reviewed decisions exist.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-quality",
+      "createdAt": "2026-06-11T17:27:54.126Z",
+      "reviewRound": "2026-06-11T17:21:41.091Z",
+      "reviewRunId": "B-b5b2:RR-005",
+      "_hash": "ab53182046d1e8bd263b4e7d83696cd6e08019ba5fa8486252e21e652f675ac4",
+      "files": [
+        "docs/requirements/decisions/root-document-migration-guide.md"
+      ],
+      "resolvedReason": "Resolved by commit 4657381a. The Capability-Claim and Production-Safety root-doc rows now use explicit `TBD / do not migrate yet`, with future-only no-claim/no-unlock next actions instead of pointing at non-existent decision files. Fresh strict checker at HEAD 4657381 showed missingTargets=[] and invalidFutureCount=0; evidence was refreshed to current material hash by 2f70fe0.",
+      "resolvedAt": "2026-06-11T17:32:35.925Z"
+    },
+    {
+      "id": "B-b5b2:F-004",
+      "desc": "Reference-Update Rules currently require updating any code or prompt text that names the file directly. That expands this Markdown migration guide beyond docs/navigation scope; limit this rule to Markdown documentation and docs navigation references, with non-doc cleanup left for separate stories.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "koala-review-docs",
+      "createdAt": "2026-06-11T17:28:28.382Z",
+      "reviewRound": "2026-06-11T17:21:41.091Z",
+      "reviewRunId": "B-b5b2:RR-006",
+      "_hash": "ab72087ace927c6e48564ad4471c37b0315c707f7cf50b158ea2b99ef048238a",
+      "files": [
+        "docs/requirements/decisions/root-document-migration-guide.md"
+      ],
+      "resolvedReason": "Resolved by commit 4657381a. Reference-Update Rule #2 is now limited to Markdown documentation references in the same migration set: root docs, NAV, and related guides. It no longer directs code or prompt-text cleanup in this docs-only story. Fresh guard grep for code/prompt wording returned no matches, strict checker passed, and evidence was refreshed by 2f70fe0.",
+      "resolvedAt": "2026-06-11T17:32:44.480Z"
+    }
+  ]
+}
